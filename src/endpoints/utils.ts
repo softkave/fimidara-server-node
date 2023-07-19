@@ -2,7 +2,7 @@ import {Express, Request, Response} from 'express';
 import {compact, defaultTo, isString} from 'lodash';
 import {Agent, PublicAgent, PublicResource, PublicWorkspaceResource} from '../definitions/system';
 import {Workspace} from '../definitions/workspace';
-import OperationError from '../utils/OperationError';
+import OperationError, {FimidaraExternalError} from '../utils/OperationError';
 import {appAssert} from '../utils/assertion';
 import {getTimestamp} from '../utils/dateFns';
 import {ServerError} from '../utils/errors';
@@ -30,11 +30,12 @@ import {
   DeleteResourceCascadeFnsMap,
   Endpoint,
   ExportedHttpEndpointWithMddocDefinition,
+  ExportedHttpEndpoint_Cleanup,
+  ExportedHttpEndpoint_GetDataFromReqFn,
+  ExportedHttpEndpoint_HandleResponse,
   PaginationQuery,
 } from './types';
 import {PermissionDeniedError} from './users/errors';
-
-type FimidaraExternalError = Pick<OperationError, 'name' | 'message' | 'action' | 'field'>;
 
 export function extractExternalEndpointError(errorItem: OperationError): FimidaraExternalError {
   return {
@@ -65,36 +66,48 @@ export function getPublicErrors(inputError: any) {
   return preppedErrors;
 }
 
+export function prepareResponseError(error: unknown) {
+  serverLogger.error(error);
+  let statusCode = endpointConstants.httpStatusCode.serverError;
+  const errors = Array.isArray(error) ? error : [error];
+  const preppedErrors = getPublicErrors(errors);
+
+  if (errors.length > 0 && errors[0].statusCode) {
+    statusCode = errors[0].statusCode;
+  }
+
+  return {statusCode, preppedErrors};
+}
+
 export const wrapEndpointREST = <
   Context extends BaseContextType,
   EndpointType extends Endpoint<Context>
 >(
   endpoint: EndpointType,
   context: Context,
-  handleResponse?: (res: Response, result: Awaited<ReturnType<EndpointType>>) => void,
-  getData?: (req: Request) => Parameters<EndpointType>[1]['data']
+  handleResponse?: ExportedHttpEndpoint_HandleResponse,
+  getData?: ExportedHttpEndpoint_GetDataFromReqFn,
+  cleanup?: ExportedHttpEndpoint_Cleanup
 ): ((req: Request, res: Response) => any) => {
   return async (req: Request, res: Response) => {
     try {
-      const data = getData ? getData(req) : req.body;
+      const data = await (getData ? getData(req) : req.body);
       const instData = RequestData.fromExpressRequest(req as unknown as IServerRequest, data);
       const result = await endpoint(context, instData);
+
       if (handleResponse) {
-        handleResponse(res, result);
+        await handleResponse(res, result);
       } else {
         res.status(endpointConstants.httpStatusCode.ok).json(result ?? {});
       }
     } catch (error) {
-      serverLogger.error(error);
-      let statusCode = endpointConstants.httpStatusCode.serverError;
-      const errors = Array.isArray(error) ? error : [error];
-      const preppedErrors = getPublicErrors(errors);
+      const {statusCode, preppedErrors} = prepareResponseError(error);
       const result = {errors: preppedErrors};
-      if (errors.length > 0 && errors[0].statusCode) {
-        statusCode = errors[0].statusCode;
-      }
-
       res.status(statusCode).json(result);
+    } finally {
+      if (cleanup) {
+        (cleanup(req, res) ?? Promise.resolve()).catch(serverLogger.error.bind(serverLogger));
+      }
     }
   };
 };
@@ -255,7 +268,13 @@ export function registerExpressRouteFromEndpoint(
     expressPath,
     ...compact([
       endpoint.expressRouteMiddleware,
-      wrapEndpointREST(endpoint.fn, ctx, endpoint.handleResponse, endpoint.getDataFromReq),
+      wrapEndpointREST(
+        endpoint.fn,
+        ctx,
+        endpoint.handleResponse,
+        endpoint.getDataFromReq,
+        endpoint.cleanup
+      ),
     ])
   );
 }

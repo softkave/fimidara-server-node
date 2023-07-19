@@ -39,6 +39,8 @@ export default class OperationError extends Error {
   }
 }
 
+export type FimidaraExternalError = Pick<OperationError, 'name' | 'message' | 'action' | 'field'>;
+
 export function getErrorMessageFromParams(
   props?: OperationErrorParameters | string,
   defaultMessage = ''

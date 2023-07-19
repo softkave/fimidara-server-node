@@ -151,6 +151,15 @@ export async function getFileWithMatcher(
   matcher: FileMatcher,
   opts?: SemanticDataAccessProviderRunOptions
 ): Promise<{file?: File | null; workspace?: Workspace}> {
+  // if (
+  //   matcher.filepath &&
+  //   !matcher.fileId &&
+  //   tryGetResourceTypeFromId(matcher.filepath) === AppResourceType.File
+  // ) {
+  //   matcher.fileId = matcher.filepath;
+  //   matcher.filepath = undefined;
+  // }
+
   if (matcher.fileId) {
     return await getFileWithId(context, matcher.fileId, opts);
   } else if (matcher.filepath) {

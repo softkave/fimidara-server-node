@@ -37,6 +37,7 @@
   - [ ] get path, get presigned path
 - [ ] Limit workspaces created by a user to 3 with a way to request for more
 - [ ] Cron job to auto dump and archive db data
+- [ ] Build a way to strict typecheck endpoint data and http headers, body, path, query, using typescript typedefs.
 - [ ] Use standard JWT secret for production
 - [ ] Introduce permisssions to allow fetching of file binary but not json
 - [ ] Move db to another thread

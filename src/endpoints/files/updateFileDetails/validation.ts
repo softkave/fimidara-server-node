@@ -10,7 +10,6 @@ export const updateFileDetailsJoiSchema = Joi.object<UpdateFileDetailsEndpointPa
       .keys({
         description: validationSchemas.description.allow(null),
         mimetype: fileValidationSchemas.mimetype.allow(null),
-        publicAccessAction: fileValidationSchemas.publicAccessAction.allow(null),
       })
       .required(),
   })

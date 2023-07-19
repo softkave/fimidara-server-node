@@ -29,11 +29,10 @@ export class S3FilePersistenceProviderContext implements FilePersistenceProvider
       Bucket: params.bucket,
       Key: params.key,
       Body: params.body,
-      ContentType: params.contentType,
-      ContentEncoding: params.contentEncoding,
       ContentLength: params.contentLength,
+      // ContentType: params.contentType,
+      // ContentEncoding: params.contentEncoding,
     });
-
     await this.s3.send(command);
   };
 
@@ -45,6 +44,7 @@ export class S3FilePersistenceProviderContext implements FilePersistenceProvider
 
   deleteFiles = async (params: FilePersistenceDeleteFilesParams) => {
     if (params.keys.length === 0) {
+      // Short-circuit, no files to delete
       return;
     }
 
@@ -56,14 +56,13 @@ export class S3FilePersistenceProviderContext implements FilePersistenceProvider
   };
 
   ensureBucketReady = async (name: string, region: string) => {
-    const command = new HeadBucketCommand({
-      Bucket: name,
-    });
-
+    const command = new HeadBucketCommand({Bucket: name});
     const response = await this.s3.send(command);
     const exists = endpointConstants.httpStatusCode.ok;
     const notFound = endpointConstants.httpStatusCode.notFound;
+
     if (response.$metadata.httpStatusCode === exists) {
+      // Bucket exists, nothing left to do
       return;
     } else if (response.$metadata.httpStatusCode === notFound) {
       const command = new CreateBucketCommand({
@@ -87,13 +86,4 @@ export async function ensureAppBucketsReady(
   return Promise.all([
     fileProvider.ensureBucketReady(appVariables.S3Bucket, appVariables.awsRegion),
   ]);
-}
-
-export function getBufferFromStream(body: NodeJS.ReadableStream): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = [];
-    body.once('error', err => reject(err));
-    body.on('data', chunk => chunks.push(chunk));
-    body.once('end', () => resolve(Buffer.concat(chunks)));
-  });
 }

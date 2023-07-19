@@ -3,10 +3,10 @@ import {Readable} from 'stream';
 export interface FilePersistenceUploadFileParams {
   bucket: string;
   key: string;
-  body: Buffer;
-  contentType?: string;
-  contentEncoding?: string;
-  contentLength?: number;
+  body: Buffer | Readable;
+  contentLength: number;
+  // contentType?: string;
+  // contentEncoding?: string;
 }
 
 export interface FilePersistenceGetFileParams {

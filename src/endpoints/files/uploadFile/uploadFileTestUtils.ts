@@ -3,8 +3,8 @@ import {AgentToken} from '../../../definitions/agentToken';
 import {File} from '../../../definitions/file';
 import {PublicWorkspace, Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
+import {streamToBuffer} from '../../../utils/fns';
 import RequestData from '../../RequestData';
-import {getBufferFromStream} from '../../contexts/file/S3FilePersistenceProviderContext';
 import {BaseContextType} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
 import EndpointReusableQueries from '../../queries';
@@ -26,7 +26,6 @@ import updateFileDetails from '../updateFileDetails/handler';
 import {UpdateFileDetailsEndpointParams, UpdateFileDetailsInput} from '../updateFileDetails/types';
 import {fileExtractor} from '../utils';
 import {UploadFileEndpointParams} from './types';
-import assert = require('assert');
 
 export const uploadFileBaseTest = async (
   ctx: BaseContextType,
@@ -38,7 +37,7 @@ export const uploadFileBaseTest = async (
   insertUserResult = insertUserResult ?? (await insertUserForTest(ctx));
   insertWorkspaceResult =
     insertWorkspaceResult ?? (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
-  const {file, buffer} = await insertFileForTest(
+  const {file, stream} = await insertFileForTest(
     ctx,
     insertUserResult.userToken,
     insertWorkspaceResult.workspace,
@@ -49,9 +48,10 @@ export const uploadFileBaseTest = async (
     bucket: ctx.appVariables.S3Bucket,
     key: file.resourceId,
   });
-  const savedBuffer = persistedFile.body && (await getBufferFromStream(persistedFile.body));
+  const savedBuffer = persistedFile.body && (await streamToBuffer(persistedFile.body));
+  const inputBuffer = await streamToBuffer(stream);
   appAssert(savedBuffer);
-  expect(buffer.equals(savedBuffer)).toBe(true);
+  expect(inputBuffer.equals(savedBuffer)).toBe(true);
 
   const savedFile = await ctx.semantic.file.assertGetOneByQuery(
     EndpointReusableQueries.getByResourceId(file.resourceId)

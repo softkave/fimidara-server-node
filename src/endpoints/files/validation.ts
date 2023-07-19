@@ -1,15 +1,11 @@
 import * as Joi from 'joi';
+import {Readable} from 'stream';
 import {validationSchemas} from '../../utils/validationUtils';
 import {fileConstants} from '../files/constants';
 import {folderConstants} from '../folders/constants';
 import folderValidationSchemas from '../folders/validation';
-import {UploadFilePublicAccessActions} from './uploadFile/types';
 
-const fileSizeInBytes = Joi.number()
-  .integer()
-  .max(fileConstants.maxFileSizeInBytes)
-  .default(fileConstants.maxFileSizeInBytes);
-
+const fileSizeInBytes = Joi.number().min(0).max(fileConstants.maxFileSizeInBytes);
 const mimetype = Joi.string().max(fileConstants.maxMimeTypeCharLength);
 const encoding = Joi.string().max(fileConstants.maxEncodingCharLength);
 const extension = Joi.string().max(fileConstants.maxExtensionCharLength);
@@ -21,10 +17,12 @@ const filepath = Joi.string()
     folderConstants.maxFolderNameLength * (folderConstants.maxFolderDepth + 1) +
       fileConstants.maxExtensionCharLength
   );
-
-const publicAccessAction = Joi.string().valid(
-  ...Object.values(UploadFilePublicAccessActions)
-);
+const readable = Joi.any().custom((value, helpers) => {
+  if (value instanceof Readable) {
+    return value;
+  }
+  throw new Error('Invalid data provided.');
+});
 
 const fileMatcherParts = {
   filepath,
@@ -37,8 +35,8 @@ const fileValidationSchemas = {
   encoding,
   buffer,
   extension,
+  readable,
   fileMatcherParts,
-  publicAccessAction,
 };
 
 export default fileValidationSchemas;

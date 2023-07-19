@@ -1,3 +1,4 @@
+import {Readable} from 'stream';
 import {OptionalKeysOf} from 'type-fest';
 import {
   BaseEndpointResult,
@@ -125,6 +126,8 @@ export type ConvertToMddocType<T> = T extends string
   : T extends Array<infer InferedType>
   ? MddocTypeFieldArray<InferedType>
   : T extends Buffer
+  ? MddocTypeFieldBinary
+  : T extends Readable
   ? MddocTypeFieldBinary
   : T extends AnyObject
   ? MddocTypeFieldObject<T>

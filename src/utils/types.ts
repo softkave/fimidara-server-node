@@ -130,3 +130,4 @@ export type ToPrimitiveJsType<T> = T extends string
 
 export type StringKeysOnly<TData> = keyof TData extends string ? keyof TData : '';
 export type OrArray<TData> = TData | Array<TData>;
+export type OrPromise<TData> = TData | Promise<TData>;

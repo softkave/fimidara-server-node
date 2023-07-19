@@ -1,8 +1,8 @@
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
 import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
+import {streamToBuffer} from '../../../utils/fns';
 import RequestData from '../../RequestData';
-import {getBufferFromStream} from '../../contexts/file/S3FilePersistenceProviderContext';
 import {BaseContextType} from '../../contexts/types';
 import {folderConstants} from '../../folders/constants';
 import {addRootnameToPath} from '../../folders/utils';
@@ -81,7 +81,7 @@ describe('readFile', () => {
     );
     const result = await readFile(context, instData);
     assertEndpointResultOk(result);
-    const resultBuffer = await getBufferFromStream(result.stream);
+    const resultBuffer = await streamToBuffer(result.stream);
     assert(resultBuffer);
     const fileMetadata = await sharp(resultBuffer).metadata();
     expect(fileMetadata.width).toEqual(expectedWidth);

@@ -1,4 +1,5 @@
 import {compact, flatten} from 'lodash';
+import {Readable} from 'stream';
 import {Resource} from '../definitions/system';
 import {AnyFn, AnyObject} from './types';
 
@@ -212,4 +213,13 @@ export function isStringEqual(
   } else {
     return str00 === str01;
   }
+}
+
+export function streamToBuffer(stream: Readable): Promise<Buffer> {
+  const chunks: Buffer[] = [];
+  return new Promise((resolve, reject) => {
+    stream.on('data', chunk => chunks.push(Buffer.from(chunk)));
+    stream.on('error', err => reject(err));
+    stream.on('end', () => resolve(Buffer.concat(chunks)));
+  });
 }

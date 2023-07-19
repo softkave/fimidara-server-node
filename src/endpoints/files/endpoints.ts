@@ -1,7 +1,12 @@
 import {Request, Response} from 'express';
-import {last, merge} from 'lodash';
-import {getFileExtenstion} from '../../utils/fns';
+import {first, last} from 'lodash';
+import {AppResourceType} from '../../definitions/system';
+import {appAssert} from '../../utils/assertion';
+import {toArray} from '../../utils/fns';
+import {tryGetResourceTypeFromId} from '../../utils/resource';
 import {endpointConstants} from '../constants';
+import {InvalidRequestError} from '../errors';
+import {folderConstants} from '../folders/constants';
 import {endpointDecodeURIComponent} from '../utils';
 import {fileConstants} from './constants';
 import deleteFile from './deleteFile/handler';
@@ -30,8 +35,7 @@ import updateFileDetails from './updateFileDetails/handler';
 import uploadFile from './uploadFile/handler';
 import {UploadFileEndpointParams} from './uploadFile/types';
 
-const uploadFilePath = fileConstants.routes.uploadFile;
-const readFilePath = fileConstants.routes.readFile;
+const kFileStreamWaitTimeoutMS = 5000; // 5 seconds
 
 function handleReadFileResponse(res: Response, result: Awaited<ReturnType<ReadFileEndpoint>>) {
   res
@@ -40,49 +44,92 @@ function handleReadFileResponse(res: Response, result: Awaited<ReturnType<ReadFi
       'Content-Type': result.mimetype,
     })
     .status(endpointConstants.httpStatusCode.ok);
+
+  // TODO: set timeout for stream after which, we destroy it, to avoid leaving
+  // a stream on indefinitely or waiting resources (memory)
   result.stream.pipe(res);
 }
 
+/**
+ * Tries to extract filepath from request path and checks if it's possibly a
+ * file ID. Supports formats `/workspace-rootname/file000-remaining-file-id` and
+ * `/workspace-rootname/folder/filename`
+ */
+function extractFilepathOrIdFromReqPath(req: Request, endpointPath: string) {
+  const reqPath = req.path;
+  let filepath = endpointDecodeURIComponent(last(reqPath.split(endpointPath)));
+  let fileId: string | undefined = undefined;
+  const maybeFileId = filepath?.replace(folderConstants.nameSeparator, '');
+
+  if (
+    maybeFileId &&
+    tryGetResourceTypeFromId(maybeFileId) === AppResourceType.File &&
+    maybeFileId.includes(folderConstants.nameSeparator) === false
+  ) {
+    fileId = maybeFileId;
+    filepath = undefined;
+  }
+
+  return {fileId, filepath};
+}
+
 function extractReadFileParamsFromReq(req: Request): ReadFileEndpointParams {
-  const p = req.path;
-  const filepath = endpointDecodeURIComponent(last(p.split(readFilePath)));
   const query = req.query as Partial<ReadFileEndpointHttpQuery>;
   return {
-    filepath,
+    ...extractFilepathOrIdFromReqPath(req, fileConstants.routes.readFile),
     imageResize: {
       width: endpointDecodeURIComponent(query.w),
       height: endpointDecodeURIComponent(query.h),
       background: endpointDecodeURIComponent(query.bg),
       fit: endpointDecodeURIComponent(query.fit),
       position: endpointDecodeURIComponent(query.pos),
-      withoutEnlargement: endpointDecodeURIComponent(query.wEnlargement),
+      withoutEnlargement: endpointDecodeURIComponent(query.withoutEnlargement),
     },
     imageFormat: endpointDecodeURIComponent(query.format),
     ...req.body,
   };
 }
 
-function extractUploadFilesParamsFromPath(req: Request): Partial<UploadFileEndpointParams> {
-  const p = req.path;
-  const filepath = endpointDecodeURIComponent(last(p.split(uploadFilePath)));
-  return {filepath};
+async function extractUploadFileParamsFromReq(req: Request): Promise<UploadFileEndpointParams> {
+  let waitTimeoutHandle: NodeJS.Timeout | undefined = undefined;
+  const contentLength = req.headers['content-length'];
+  const contentEncoding = req.headers['content-encoding'];
+  const contentType = req.headers[fileConstants.headers['x-fimidara-file-mimetype']];
+  const description = req.headers[fileConstants.headers['x-fimidara-file-description']];
+
+  appAssert(req.busboy, new InvalidRequestError('Invalid multipart/formdata request.'));
+  appAssert(contentLength, new InvalidRequestError('The Content-Length HTTP header is required.'));
+
+  return new Promise((resolve, reject) => {
+    // Wait for data stream or end if timeout exceeded, so as not to wait
+    // forever, for whatever reason if stream event is not fired.
+    waitTimeoutHandle = setTimeout(() => {
+      reject(new Error(`Upload file wait timeout ${kFileStreamWaitTimeoutMS} exceeded`));
+    }, kFileStreamWaitTimeoutMS);
+
+    req.busboy.on('file', (filename, stream, info) => {
+      // Clear wait timeout, we have file stream, otherwise the request will
+      // fail
+      clearTimeout(waitTimeoutHandle);
+      resolve({
+        ...extractFilepathOrIdFromReqPath(req, fileConstants.routes.readFile),
+        data: stream,
+        size: Number(contentLength),
+        encoding: info.encoding ?? contentEncoding,
+        mimetype: info.mimeType ?? contentType,
+        description: description ? first(toArray(description)) : undefined,
+      });
+    });
+  });
 }
 
-function extractUploadFilesParamsFromFormData(req: Request): UploadFileEndpointParams {
-  const file = req.file;
-  return {
-    ...req.body,
-
-    // strings passed through formdata are not encoded as files, and multer
-    // treats them as part of data, so we extract them from req body
-    data: file?.buffer ?? req.body?.data,
-    mimetype: req.body.mimetype || file?.mimetype,
-    extension: req.body.extension || getFileExtenstion(file?.originalname),
-  };
-}
-
-function extractUploadFilesParamsFromReq(req: Request): UploadFileEndpointParams {
-  return merge(extractUploadFilesParamsFromPath(req), extractUploadFilesParamsFromFormData(req));
+function cleanupUploadFileReq(req: Request) {
+  if (req.busboy) {
+    // We are done processing request, either because of an error, file stream
+    // wait timeout exceeded, or file has been persisted. Either way, swiftly
+    // and immediately destroy the stream to avoid memory leakage.
+    req.busboy.destroy();
+  }
 }
 
 export function getFilesPublicHttpEndpoints() {
@@ -124,10 +171,11 @@ export function getFilesPublicHttpEndpoints() {
     uploadFile: {
       fn: uploadFile,
       mddocHttpDefinition: uploadFileEndpointDefinition,
-      getDataFromReq: extractUploadFilesParamsFromReq,
       expressRouteMiddleware: multerUploadFileExpressMiddleware.single(
         fileConstants.uploadedFileFieldName
       ),
+      getDataFromReq: extractUploadFileParamsFromReq,
+      cleanup: cleanupUploadFileReq,
     },
   };
   return filesExportedEndpoints;

@@ -46,7 +46,7 @@ import {
   ReadFileEndpointHttpQuery,
   ReadFileEndpointParams,
 } from './readFile/types';
-import {FileMatcherPathParameters} from './types';
+import {FileMatcherPathParameters, UploadFileEndpointHTTPHeaders} from './types';
 import {
   UpdateFileDetailsEndpointParams,
   UpdateFileDetailsEndpointResult,
@@ -56,7 +56,9 @@ import {UploadFileEndpointParams, UploadFileEndpointResult} from './uploadFile/t
 
 const mimetype = FieldString.construct().setDescription('File MIME type');
 const encoding = FieldString.construct().setDescription('File encoding');
-const size = FieldNumber.construct().setDescription('File size in bytes');
+const size = FieldNumber.construct()
+  .setDescription('File size in bytes')
+  .setMax(fileConstants.maxFileSizeInBytes);
 const extension = FieldString.construct().setDescription('File extension');
 const height = FieldString.construct().setDescription('Resize to height if file is an image.');
 const width = FieldString.construct().setDescription('Resize to width if file is an image.');
@@ -237,7 +239,7 @@ const readFileQuery = FieldObject.construct<ReadFileEndpointHttpQuery>().setFiel
   pos: FieldObject.optionalField(position),
   fit: FieldObject.optionalField(fit),
   bg: FieldObject.optionalField(background),
-  wEnlargement: FieldObject.optionalField(withoutEnlargement),
+  withoutEnlargement: FieldObject.optionalField(withoutEnlargement),
   format: FieldObject.optionalField(format),
 });
 const readFileResponseHeaders =
@@ -258,25 +260,31 @@ const readFileResponseHeaders =
   });
 const readFileResponseBody = FieldBinary.construct();
 
-const updloadFileParams =
-  HttpEndpointMultipartFormdata.construct<UploadFileEndpointParams>().setItems(
-    FieldObject.construct<UploadFileEndpointParams>()
-      .setFields({
-        ...fileMatcherParts,
-        data: FieldObject.requiredField(
-          FieldBinary.construct()
-            .setRequired(true)
-            .setDescription('File binary.')
-            .setMax(fileConstants.maxFileSizeInBytes)
-        ),
-        description: FieldObject.optionalField(fReusables.description),
-        mimetype: FieldObject.optionalField(mimetype),
-        encoding: FieldObject.optionalField(encoding),
-        extension: FieldObject.optionalField(extension),
-      })
-      .setDescription('Upload file endpoint params.')
-      .setName('UploadFileEndpointParams')
-  );
+const updloadFileParams = HttpEndpointMultipartFormdata.construct<
+  Pick<UploadFileEndpointParams, 'data'>
+>().setItems(
+  FieldObject.construct<Pick<UploadFileEndpointParams, 'data'>>()
+    .setFields({
+      data: FieldObject.requiredField(
+        FieldBinary.construct()
+          .setRequired(true)
+          .setDescription('File binary.')
+          .setMax(fileConstants.maxFileSizeInBytes)
+      ),
+    })
+    .setDescription('Upload file endpoint params.')
+    .setName('UploadFileEndpointParams')
+);
+const uploadFileEndpointHTTPHeaders = FieldObject.construct<UploadFileEndpointHTTPHeaders>()
+  .setFields({
+    ...mddocEndpointHttpHeaderItems.requestHeaders_AuthOptional_MultipartContentTypeParts,
+    'content-length': FieldObject.requiredField(size),
+    'x-fimidara-file-description': FieldObject.optionalField(fReusables.description),
+    'x-fimidara-file-mimetype': FieldObject.optionalField(mimetype),
+    'content-encoding': FieldObject.optionalField(encoding),
+  })
+  .setDescription('Upload file endpoint HTTP headers.')
+  .setName('UploadFileEndpointHTTPHeaders');
 const uploadFileResponseBody = FieldObject.construct<UploadFileEndpointResult>()
   .setName('UploadFileEndpointResult')
   .setFields({file: FieldObject.requiredField(file)})
@@ -321,8 +329,8 @@ export const readFileGETEndpointDefinition = HttpEndpointDefinition.construct<{
 
 export const uploadFileEndpointDefinition = HttpEndpointDefinition.construct<{
   pathParameters: FileMatcherPathParameters;
-  requestBody: UploadFileEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthOptional_ContentType;
+  requestBody: Pick<UploadFileEndpointParams, 'data'>;
+  requestHeaders: UploadFileEndpointHTTPHeaders;
   responseBody: UploadFileEndpointResult;
   responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
 }>()
@@ -330,7 +338,7 @@ export const uploadFileEndpointDefinition = HttpEndpointDefinition.construct<{
   .setPathParamaters(fileMatcherPathParameters)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(updloadFileParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthOptional_MultipartContentType)
+  .setRequestHeaders(uploadFileEndpointHTTPHeaders)
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(uploadFileResponseBody)
   .setName('UploadFileEndpoint')

@@ -29,7 +29,7 @@ import {
   getWorkspaceFromFileOrFilepath,
 } from '../utils';
 import {UploadFileEndpoint, UploadFileEndpointParams} from './types';
-import {checkUploadFileAuth, createFileParentFolders} from './utils';
+import {checkUploadFileAuth, ensureFileParentFolders} from './utils';
 import {uploadFileJoiSchema} from './validation';
 
 const uploadFile: UploadFileEndpoint = async (context, instData) => {
@@ -42,16 +42,10 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
 
     if (!file) {
       appAssert(data.filepath, new ValidationError('File path not provided.'));
-      const pathWithDetails = getFilepathInfo(data.filepath);
-      const parentFolder = await createFileParentFolders(
-        context,
-        agent,
-        workspace,
-        pathWithDetails,
-        opts
-      );
+      const pathinfo = getFilepathInfo(data.filepath);
+      const parentFolder = await ensureFileParentFolders(context, agent, workspace, pathinfo, opts);
       await checkUploadFileAuth(context, agent, workspace, /** file */ null, parentFolder);
-      file = getNewFile(agent, workspace, pathWithDetails, data, parentFolder);
+      file = generateNewFile(agent, workspace, pathinfo, data, parentFolder);
     } else {
       await checkUploadFileAuth(
         context,
@@ -79,22 +73,18 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     );
 
     if (isNewFile) {
-      file = await INTERNAL_createFile(context, file, opts);
+      file = await insertNewFile(context, file, opts);
     } else {
-      file = await INTERNAL_updateFile(context, agent, file, data, opts);
+      file = await updateExistingFile(context, agent, file, data, opts);
     }
 
     assertFile(file);
-    await Promise.all([
-      context.fileBackend.uploadFile({
-        bucket: context.appVariables.S3Bucket,
-        key: file.resourceId,
-        body: data.data,
-        contentType: data.mimetype,
-        contentEncoding: data.encoding,
-        contentLength: data.data.byteLength,
-      }),
-    ]);
+    await context.fileBackend.uploadFile({
+      bucket: context.appVariables.S3Bucket,
+      key: file.resourceId,
+      body: data.data,
+      contentLength: data.size,
+    });
 
     return file;
   });
@@ -103,55 +93,48 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
   return {file: fileExtractor(file)};
 };
 
-async function INTERNAL_updateFile(
+async function updateExistingFile(
   context: BaseContextType,
   agent: SessionAgent,
   existingFile: File,
   data: UploadFileEndpointParams,
   opts: SemanticDataAccessProviderMutationRunOptions
 ) {
-  const file = await context.semantic.file.getAndUpdateOneById(
+  return await context.semantic.file.getAndUpdateOneById(
     existingFile.resourceId,
     {
       ...data,
-      extension: data.extension ?? existingFile.extension,
-      size: data.data.length,
+      size: data.size,
       lastUpdatedBy: getActionAgentFromSessionAgent(agent),
       lastUpdatedAt: getTimestamp(),
     },
     opts
   );
-
-  return file;
 }
 
-function getNewFile(
+function generateNewFile(
   agent: SessionAgent,
   workspace: Workspace,
-  pathWithDetails: FilepathInfo,
+  details: FilepathInfo,
   data: UploadFileEndpointParams,
   parentFolder: Folder | null
 ) {
   const fileId = getNewIdForResource(AppResourceType.File);
-  const file = newWorkspaceResource<File>(agent, AppResourceType.File, workspace.resourceId, {
+  return newWorkspaceResource<File>(agent, AppResourceType.File, workspace.resourceId, {
     workspaceId: workspace.resourceId,
     resourceId: fileId,
-    extension: data.extension ?? pathWithDetails.extension,
-    name: pathWithDetails.nameWithoutExtension,
+    extension: details.extension,
+    name: details.nameWithoutExtension,
     idPath: parentFolder ? parentFolder.idPath.concat(fileId) : [fileId],
     namePath: parentFolder
-      ? parentFolder.namePath.concat(pathWithDetails.nameWithoutExtension)
-      : [pathWithDetails.nameWithoutExtension],
+      ? parentFolder.namePath.concat(details.nameWithoutExtension)
+      : [details.nameWithoutExtension],
     parentId: parentFolder?.resourceId ?? null,
-    mimetype: data.mimetype,
-    size: data.data.length,
-    description: data.description,
-    encoding: data.encoding,
+    size: data.size,
   });
-  return file;
 }
 
-async function INTERNAL_createFile(
+async function insertNewFile(
   context: BaseContextType,
   file: File,
   opts: SemanticDataAccessProviderMutationRunOptions

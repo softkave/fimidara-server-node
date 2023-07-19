@@ -18,4 +18,8 @@ export const fileConstants = {
     issueFilePresignedPath: `${endpointConstants.apiv1}/files/issueFilePresignedPath`,
     getPresignedPathsForFiles: `${endpointConstants.apiv1}/files/getPresignedPathsForFiles`,
   },
+  headers: {
+    'x-fimidara-file-description': 'x-fimidara-file-description',
+    'x-fimidara-file-mimetype': 'x-fimidara-file-mimetype',
+  } as const,
 };

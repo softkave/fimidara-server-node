@@ -2,7 +2,7 @@ import {Request, RequestHandler, Response} from 'express';
 import {AppResourceType} from '../definitions/system';
 import {MddocTypeHttpEndpoint} from '../mddoc/mddoc';
 import OperationError from '../utils/OperationError';
-import {AnyFn, AnyObject} from '../utils/types';
+import {AnyFn, AnyObject, OrPromise} from '../utils/types';
 import RequestData from './RequestData';
 import {DataProviderQueryListParams} from './contexts/data/types';
 import {SemanticDataAccessProviderMutationRunOptions} from './contexts/semantic/types';
@@ -103,6 +103,8 @@ export type HttpEndpointStructure = {
   responseBody?: any;
 };
 
+// TODO: more strict type checking that ensures all params are accounted for by
+// a combination of http headers, path, query, and body type defs
 export type HttpEndpoint<
   TEndpoint extends Endpoint,
   TRequestBody = InferEndpointParams<TEndpoint>,
@@ -121,6 +123,9 @@ export type HttpEndpoint<
   endpoint: TEndpoint;
 };
 
+export type ExportedHttpEndpoint_GetDataFromReqFn = (req: Request) => OrPromise<any>;
+export type ExportedHttpEndpoint_HandleResponse = (res: Response, data: any) => OrPromise<void>;
+export type ExportedHttpEndpoint_Cleanup = (req: Request, res: Response) => OrPromise<void>;
 export type ExportedHttpEndpointWithMddocDefinition<THttpEndpoint extends HttpEndpoint<any, any>> =
   {
     fn: THttpEndpoint['endpoint'];
@@ -132,7 +137,11 @@ export type ExportedHttpEndpointWithMddocDefinition<THttpEndpoint extends HttpEn
       responseHeaders: THttpEndpoint['responseHeaders'];
       responseBody: THttpEndpoint['responseBody'];
     }>;
-    getDataFromReq?: (req: Request) => InferEndpointParams<THttpEndpoint['endpoint']>;
-    handleResponse?: (res: Response, data: InferEndpointResult<THttpEndpoint['endpoint']>) => void;
+    getDataFromReq?: (req: Request) => OrPromise<InferEndpointParams<THttpEndpoint['endpoint']>>;
+    handleResponse?: (
+      res: Response,
+      data: InferEndpointResult<THttpEndpoint['endpoint']>
+    ) => OrPromise<void>;
+    cleanup?: (req: Request, res: Response) => OrPromise<void>;
     expressRouteMiddleware?: RequestHandler;
   };

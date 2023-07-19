@@ -1,20 +1,16 @@
+import {Readable} from 'stream';
 import {FileMatcher, PublicFile} from '../../../definitions/file';
 import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
-export enum UploadFilePublicAccessActions {
-  None = 'none',
-  Read = 'read',
-  ReadAndUpdate = 'read-update',
-  ReadUpdateAndDelete = 'read-update-delete',
-}
-
 export interface UploadFileEndpointParams extends FileMatcher {
+  data: Readable;
+
+  // TODO: can we validate that size matches stream length
+  size: number;
   description?: string;
   encoding?: string;
-  extension?: string;
   mimetype?: string; // TODO: define mimetypes
-  data: Buffer;
 }
 
 export interface UploadFileEndpointResult {

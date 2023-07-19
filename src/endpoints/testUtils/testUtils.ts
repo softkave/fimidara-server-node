@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
 import {merge} from 'lodash';
+import {Readable} from 'stream';
 import {getMongoConnection} from '../../db/connection';
 import {AgentToken} from '../../definitions/agentToken';
 import {BaseTokenData, CURRENT_TOKEN_VERSION} from '../../definitions/system';
@@ -31,7 +32,6 @@ import {
 } from '../contexts/utils';
 import uploadFile from '../files/uploadFile/handler';
 import {UploadFileEndpointParams} from '../files/uploadFile/types';
-import {getFilepathInfo} from '../files/utils';
 import addFolder from '../folders/addFolder/handler';
 import {AddFolderEndpointParams, NewFolderInput} from '../folders/addFolder/types';
 import {folderConstants} from '../folders/constants';
@@ -335,7 +335,7 @@ export interface IGenerateImageProps {
 }
 
 export async function generateTestImage(props: IGenerateImageProps = {width: 300, height: 200}) {
-  return await sharp({
+  const imgBuffer = await sharp({
     create: {
       width: props.width,
       height: props.height,
@@ -345,11 +345,15 @@ export async function generateTestImage(props: IGenerateImageProps = {width: 300
   })
     .png()
     .toBuffer();
+  const imgStream = sharp(imgBuffer).png();
+  return {imgBuffer, imgStream};
 }
 
 export function generateTestTextFile() {
   const text = faker.lorem.paragraphs(10);
-  return Buffer.from(text, 'utf-8');
+  const textBuffer = Buffer.from(text);
+  const textStream = Readable.from([textBuffer]);
+  return {textBuffer, textStream};
 }
 
 export async function insertFileForTest(
@@ -360,36 +364,34 @@ export async function insertFileForTest(
   type: 'png' | 'txt' = 'png',
   imageProps?: IGenerateImageProps
 ) {
+  const testBuffer = Buffer.from('Hello world!');
+  const testStream = Readable.from([testBuffer]);
   const input: UploadFileEndpointParams = {
     filepath: addRootnameToPath(
       [generateTestFileName()].join(folderConstants.nameSeparator),
       workspace.rootname
     ),
     description: faker.lorem.paragraph(),
-    data: Buffer.from('Hello world!'),
+    data: testStream,
     mimetype: 'application/octet-stream',
+    size: testBuffer.byteLength,
   };
 
   assert(input.filepath);
+
   if (!fileInput.data) {
     if (type === 'png') {
-      input.data = await generateTestImage(imageProps);
+      const {imgBuffer, imgStream} = await generateTestImage(imageProps);
+      input.data = imgStream;
+      input.size = imgBuffer.byteLength;
       input.mimetype = 'image/png';
-
-      // If there's an input filepath, adding extension would make the file
-      // unmatchable because the caller won't have the extension
-      if (!fileInput.filepath) input.extension = 'png';
     } else {
-      input.data = generateTestTextFile();
+      const {textBuffer, textStream} = generateTestTextFile();
+      input.data = textStream;
+      input.size = textBuffer.byteLength;
       input.mimetype = 'text/plain';
       input.encoding = 'utf-8';
-      if (!fileInput.filepath) input.extension = 'txt';
     }
-  }
-
-  const filepathInfo = getFilepathInfo(input.filepath);
-  if (!filepathInfo.extension) {
-    input.filepath = input.filepath + '.' + input.extension;
   }
 
   merge(input, fileInput);
@@ -399,5 +401,5 @@ export async function insertFileForTest(
   );
   const result = await uploadFile(context, instData);
   assertEndpointResultOk(result);
-  return {...result, buffer: input.data, reqData: instData};
+  return {...result, stream: input.data, reqData: instData};
 }

@@ -40,6 +40,13 @@ import {
   UploadFileEndpointResult,
 } from './uploadFile/types';
 
+export type UploadFileEndpointHTTPHeaders = HttpEndpointRequestHeaders_AuthOptional_ContentType & {
+  'content-encoding'?: string;
+  'x-fimidara-file-description'?: string;
+  'x-fimidara-file-mimetype'?: string;
+  'content-length': number;
+};
+
 export type ReadFilePOSTHttpEndpoint = HttpEndpoint<
   ReadFileEndpoint,
   ReadFileEndpointParams,
@@ -81,9 +88,9 @@ export type UpdateFileDetailsHttpEndpoint = HttpEndpoint<
 >;
 export type UploadFileHttpEndpoint = HttpEndpoint<
   UploadFileEndpoint,
-  UploadFileEndpointParams,
+  Pick<UploadFileEndpointParams, 'data'>,
   UploadFileEndpointResult,
-  HttpEndpointRequestHeaders_AuthOptional_ContentType,
+  UploadFileEndpointHTTPHeaders,
   HttpEndpointResponseHeaders_ContentType_ContentLength,
   FileMatcherPathParameters
 >;

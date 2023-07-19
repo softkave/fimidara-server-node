@@ -49,7 +49,7 @@ export async function checkUploadFileAuth(
   });
 }
 
-export async function createFileParentFolders(
+export async function ensureFileParentFolders(
   context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
@@ -62,6 +62,7 @@ export async function createFileParentFolders(
       agent,
       workspace,
       {folderpath: addRootnameToPath(pathWithDetails.parentPath, workspace.rootname)},
+
       /** Skip auth check. Since what we really care about is file creation, and
        * a separate permission check is done for that. All of it is also done
        * with transaction so should upload file permission check fail, it'll get
@@ -69,6 +70,7 @@ export async function createFileParentFolders(
        * folders that do not exist yet, which would otherwise fail seeing an
        * anonymous user most likely won't have permission to create folders. */
       true,
+
       /** Throw on folder exists */ false,
       opts
     );

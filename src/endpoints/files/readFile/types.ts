@@ -1,3 +1,4 @@
+import {Readable} from 'stream';
 import {FileMatcher} from '../../../definitions/file';
 import {ObjectValues} from '../../../utils/types';
 import {BaseContextType} from '../../contexts/types';
@@ -77,7 +78,7 @@ export type ReadFileEndpointParams = {
 } & FileMatcher;
 
 export interface ReadFileEndpointResult {
-  stream: NodeJS.ReadableStream;
+  stream: Readable;
   mimetype?: string;
   contentLength?: number;
 }
@@ -94,6 +95,6 @@ export type ReadFileEndpointHttpQuery = {
   fit?: keyof ImageResizeFitEnum;
   pos?: number | ImageResizePositionEnum;
   bg?: string;
-  wEnlargement?: boolean;
+  withoutEnlargement?: boolean;
   format?: ImageFormatEnum;
 };

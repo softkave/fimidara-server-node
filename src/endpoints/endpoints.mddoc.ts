@@ -91,12 +91,13 @@ const requestHeaders_AuthRequired_MultipartContentType =
       'Content-Type': FieldObject.requiredField(requestHeaderItem_MultipartFormdataContentType),
     })
     .setName('HttpEndpointRequestHeaders_AuthRequired_MultipartContentType');
+const requestHeaders_AuthOptional_MultipartContentTypeParts = {
+  Authorization: FieldObject.optionalField(requestHeaderItem_Authorization),
+  'Content-Type': FieldObject.requiredField(requestHeaderItem_MultipartFormdataContentType),
+} as const;
 const requestHeaders_AuthOptional_MultipartContentType =
   FieldObject.construct<HttpEndpointRequestHeaders_AuthOptional_ContentType>()
-    .setFields({
-      Authorization: FieldObject.optionalField(requestHeaderItem_Authorization),
-      'Content-Type': FieldObject.requiredField(requestHeaderItem_MultipartFormdataContentType),
-    })
+    .setFields(requestHeaders_AuthOptional_MultipartContentTypeParts)
     .setName('HttpEndpointRequestHeaders_AuthOptional_MultipartContentType');
 const requestHeaders_MultipartContentType =
   FieldObject.construct<HttpEndpointRequestHeaders_ContentType>()
@@ -133,6 +134,7 @@ export const mddocEndpointHttpHeaderItems = {
   requestHeaders_JsonContentType,
   requestHeaders_AuthOptional,
   requestHeaders_MultipartContentType,
+  requestHeaders_AuthOptional_MultipartContentTypeParts,
   requestHeaders_AuthOptional_MultipartContentType,
   requestHeaders_AuthRequired_MultipartContentType,
   requestHeaders_AuthOptional_JsonContentType,
