@@ -1,5 +1,5 @@
 import {Readable} from 'stream';
-import {noopAsync} from '../../../utils/fns';
+import {noopAsync, streamToBuffer} from '../../../utils/fns';
 import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceGetFileParams,
@@ -11,20 +11,22 @@ import {
 export default class MemoryFilePersistenceProviderContext
   implements FilePersistenceProviderContext
 {
-  files: Record<string, FilePersistenceUploadFileParams> = {};
+  files: Record<string, Omit<FilePersistenceUploadFileParams, 'body'> & {body: Buffer}> = {};
 
   uploadFile = async (params: FilePersistenceUploadFileParams) => {
-    this.files[params.bucket + '-' + params.key] = params;
+    this.files[params.bucket + '-' + params.key] = {
+      key: params.key,
+      bucket: params.bucket,
+      contentLength: params.contentLength,
+      body: await streamToBuffer(params.body),
+    };
   };
 
   getFile = async (params: FilePersistenceGetFileParams): Promise<IPersistedFile> => {
     const file = this.files[params.bucket + '-' + params.key];
 
     if (file) {
-      const readable = new Readable();
-      readable.push(file.body);
-      readable.push(null);
-      return {body: readable, contentLength: file.contentLength};
+      return {body: Readable.from(file.body), contentLength: file.contentLength};
     }
 
     return {body: undefined};

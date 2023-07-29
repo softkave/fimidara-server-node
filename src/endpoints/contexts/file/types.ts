@@ -3,7 +3,7 @@ import {Readable} from 'stream';
 export interface FilePersistenceUploadFileParams {
   bucket: string;
   key: string;
-  body: Buffer | Readable;
+  body: Readable;
   contentLength: number;
   // contentType?: string;
   // contentEncoding?: string;

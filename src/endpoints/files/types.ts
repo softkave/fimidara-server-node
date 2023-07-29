@@ -123,5 +123,5 @@ export type FilesExportedEndpoints = {
 };
 
 export type FileMatcherPathParameters = {
-  filepath?: string;
+  filepathOrId?: string;
 };

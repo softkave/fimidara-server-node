@@ -256,6 +256,9 @@ const folderpathList = FieldArray.construct<string>().setType(folderpath);
 const filepath = FieldString.construct()
   .setDescription('File path with workspace rootname.')
   .setExample('/workspace-rootname/my-outer-folder/my-image-file.png');
+const filepathOrId = FieldString.construct()
+  .setDescription('File path with workspace rootname or file ID.')
+  .setExample('/workspace-rootname/folder/file.extension or file000-remaining-file-id');
 const filepathList = FieldArray.construct<string>().setType(filepath);
 const folderNamePath = FieldArray.construct<string>()
   .setType(foldername)
@@ -335,6 +338,7 @@ export const fReusables = {
   folderpath,
   filepath,
   fileId,
+  filepathOrId,
   action,
   actionList,
   resourceType,

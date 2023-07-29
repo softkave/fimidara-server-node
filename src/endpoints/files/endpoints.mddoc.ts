@@ -119,14 +119,12 @@ const fileMatcherParts: FieldObjectFields<FileMatcher> = {
 };
 
 const fileMatcherPathParameters = FieldObject.construct<FileMatcherPathParameters>().setFields({
-  filepath: FieldObject.optionalField(fReusables.filepath),
+  filepathOrId: FieldObject.optionalField(fReusables.filepathOrId),
 });
 
 const fileMatcher = FieldObject.construct<FileMatcher>()
   .setName('FileMatcher')
-  .setFields({
-    ...fileMatcherParts,
-  });
+  .setFields({...fileMatcherParts});
 
 const filePresignedPath = FieldString.construct().setDescription(
   'String path that only works with readFile endpoint. Can be used in place of filepath.'

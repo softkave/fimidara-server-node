@@ -17,10 +17,13 @@ export default class LocalFsFilePersistenceProviderContext
 
   uploadFile = async (params: FilePersistenceUploadFileParams) => {
     const filepath = `${this.fileDir}/${params.key}`;
-
-    // TODO: possibly not perfomant. Look into possible alternatives before use
-    // in production.
-    await fse.outputFile(filepath, params.body);
+    await fse.ensureFile(filepath);
+    return new Promise<void>((resolve, reject) => {
+      const writeStream = fse.createWriteStream(filepath, {autoClose: true, emitClose: true});
+      writeStream.on('close', resolve);
+      writeStream.on('error', reject);
+      params.body.pipe(writeStream);
+    });
   };
 
   getFile = async (params: FilePersistenceGetFileParams): Promise<IPersistedFile> => {
@@ -31,7 +34,7 @@ export default class LocalFsFilePersistenceProviderContext
       return {body: undefined};
     }
 
-    const stream = fse.createReadStream(filepath);
+    const stream = fse.createReadStream(filepath, {autoClose: true});
     return {body: stream, contentLength: stat.size};
   };
 
