@@ -378,6 +378,7 @@ export async function insertFileForTest(
   };
 
   assert(input.filepath);
+  let dataBuffer: Buffer | undefined = undefined;
 
   if (!fileInput.data) {
     if (type === 'png') {
@@ -385,12 +386,14 @@ export async function insertFileForTest(
       input.data = imgStream;
       input.size = imgBuffer.byteLength;
       input.mimetype = 'image/png';
+      dataBuffer = imgBuffer;
     } else {
       const {textBuffer, textStream} = generateTestTextFile();
       input.data = textStream;
       input.size = textBuffer.byteLength;
       input.mimetype = 'text/plain';
       input.encoding = 'utf-8';
+      dataBuffer = textBuffer;
     }
   }
 
@@ -401,5 +404,5 @@ export async function insertFileForTest(
   );
   const result = await uploadFile(context, instData);
   assertEndpointResultOk(result);
-  return {...result, stream: input.data, reqData: instData};
+  return {...result, dataBuffer, reqData: instData};
 }

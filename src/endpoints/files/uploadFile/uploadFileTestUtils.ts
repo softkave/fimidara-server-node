@@ -37,7 +37,7 @@ export const uploadFileBaseTest = async (
   insertUserResult = insertUserResult ?? (await insertUserForTest(ctx));
   insertWorkspaceResult =
     insertWorkspaceResult ?? (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
-  const {file, stream} = await insertFileForTest(
+  const {file, dataBuffer} = await insertFileForTest(
     ctx,
     insertUserResult.userToken,
     insertWorkspaceResult.workspace,
@@ -49,9 +49,8 @@ export const uploadFileBaseTest = async (
     key: file.resourceId,
   });
   const savedBuffer = persistedFile.body && (await streamToBuffer(persistedFile.body));
-  const inputBuffer = await streamToBuffer(stream);
-  appAssert(savedBuffer);
-  expect(inputBuffer.equals(savedBuffer)).toBe(true);
+  appAssert(savedBuffer && dataBuffer);
+  expect(dataBuffer.equals(savedBuffer)).toBe(true);
 
   const savedFile = await ctx.semantic.file.assertGetOneByQuery(
     EndpointReusableQueries.getByResourceId(file.resourceId)

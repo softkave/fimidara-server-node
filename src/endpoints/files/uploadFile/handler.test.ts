@@ -32,7 +32,7 @@ afterAll(async () => {
 });
 
 describe('uploadFile', () => {
-  test.only('file uploaded', async () => {
+  test('file uploaded', async () => {
     assertContext(context);
     await uploadFileBaseTest(context);
   });

@@ -17,7 +17,7 @@ describe('file', () => {
     await test_uploadFile_string();
   });
 
-  test.only('upload file with node readable not from file', async () => {
+  test('upload file with node readable not from file', async () => {
     await test_uploadFile_nodeReadableNotFromFile();
   });
 
