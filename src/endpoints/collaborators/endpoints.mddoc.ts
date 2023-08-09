@@ -1,10 +1,5 @@
 import {PublicCollaborator} from '../../definitions/user';
-import {
-  FieldArray,
-  FieldObject,
-  HttpEndpointDefinition,
-  HttpEndpointMethod,
-} from '../../mddoc/mddoc';
+import {HttpEndpointMethod} from '../../mddoc/mddoc';
 import {
   fReusables,
   mddocEndpointHttpHeaderItems,
@@ -32,88 +27,100 @@ import {
 } from './getWorkspaceCollaborators/types';
 import {RemoveCollaboratorEndpointParams} from './removeCollaborator/types';
 
-const collaborator = FieldObject.construct<PublicCollaborator>()
+const collaborator = mddocConstruct
+  .constructFieldObject<PublicCollaborator>()
   .setName('Collaborator')
   .setFields({
-    resourceId: FieldObject.requiredField(fReusables.id),
-    firstName: FieldObject.requiredField(fReusables.firstName),
-    lastName: FieldObject.requiredField(fReusables.lastName),
-    email: FieldObject.requiredField(fReusables.emailAddress),
-    workspaceId: FieldObject.requiredField(fReusables.workspaceId),
-    joinedAt: FieldObject.requiredField(fReusables.date),
-    createdAt: FieldObject.requiredField(fReusables.date.clone().setDescription('Always 0.')),
-    lastUpdatedAt: FieldObject.requiredField(fReusables.date.clone().setDescription('Always 0.')),
+    resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
+    firstName: mddocConstruct.constructFieldObjectField(true, fReusables.firstName),
+    lastName: mddocConstruct.constructFieldObjectField(true, fReusables.lastName),
+    email: mddocConstruct.constructFieldObjectField(true, fReusables.emailAddress),
+    workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),
+    joinedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+    createdAt: mddocConstruct.constructFieldObjectField(
+      true,
+      fReusables.date.clone().setDescription('Always 0.')
+    ),
+    lastUpdatedAt: mddocConstruct.constructFieldObjectField(
+      true,
+      fReusables.date.clone().setDescription('Always 0.')
+    ),
   });
 
-const getWorkspaceCollaboratorsParams =
-  FieldObject.construct<GetWorkspaceCollaboratorsEndpointParams>()
-    .setName('GetWorkspaceCollaboratorsEndpointParams')
-    .setFields({
-      workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
-      page: FieldObject.optionalField(fReusables.page),
-      pageSize: FieldObject.optionalField(fReusables.pageSize),
-    })
-    .setRequired(true)
-    .setDescription('Get workspace collaborators endpoint params.');
-const getWorkspaceCollaboratorsResponseBody =
-  FieldObject.construct<GetWorkspaceCollaboratorsEndpointResult>()
-    .setName('GetWorkspaceCollaboratorsEndpointResult')
-    .setFields({
-      collaborators: FieldObject.requiredField(
-        FieldArray.construct<PublicCollaborator>().setType(collaborator)
-      ),
-      page: FieldObject.requiredField(fReusables.page),
-    })
-    .setRequired(true)
-    .setDescription('Get workspace collaborators endpoint success result.');
+const getWorkspaceCollaboratorsParams = mddocConstruct
+  .constructFieldObject<GetWorkspaceCollaboratorsEndpointParams>()
+  .setName('GetWorkspaceCollaboratorsEndpointParams')
+  .setFields({
+    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
+    page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
+    pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
+  })
+  .setRequired(true)
+  .setDescription('Get workspace collaborators endpoint params.');
+const getWorkspaceCollaboratorsResponseBody = mddocConstruct
+  .constructFieldObject<GetWorkspaceCollaboratorsEndpointResult>()
+  .setName('GetWorkspaceCollaboratorsEndpointResult')
+  .setFields({
+    collaborators: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldArray<PublicCollaborator>().setType(collaborator)
+    ),
+    page: mddocConstruct.constructFieldObjectField(true, fReusables.page),
+  })
+  .setRequired(true)
+  .setDescription('Get workspace collaborators endpoint success result.');
 
-const getCollaboratorsWithoutPermissionParams =
-  FieldObject.construct<GetCollaboratorsWithoutPermissionEndpointParams>()
-    .setName('GetCollaboratorsWithoutPermissionEndpointParams')
-    .setFields({
-      workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
-    })
-    .setRequired(true)
-    .setDescription('Get workspace collaborators without permissions endpoint params.');
-const getCollaboratorsWithoutPermissionResponseBody =
-  FieldObject.construct<GetCollaboratorsWithoutPermissionEndpointResult>()
-    .setName('GetCollaboratorsWithoutPermissionEndpointResult')
-    .setFields({
-      collaboratorIds: FieldObject.requiredField(
-        FieldArray.construct<string>().setType(fReusables.id)
-      ),
-    })
-    .setRequired(true)
-    .setDescription('Get workspace collaborators without permissions endpoint success result.');
+const getCollaboratorsWithoutPermissionParams = mddocConstruct
+  .constructFieldObject<GetCollaboratorsWithoutPermissionEndpointParams>()
+  .setName('GetCollaboratorsWithoutPermissionEndpointParams')
+  .setFields({
+    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
+  })
+  .setRequired(true)
+  .setDescription('Get workspace collaborators without permissions endpoint params.');
+const getCollaboratorsWithoutPermissionResponseBody = mddocConstruct
+  .constructFieldObject<GetCollaboratorsWithoutPermissionEndpointResult>()
+  .setName('GetCollaboratorsWithoutPermissionEndpointResult')
+  .setFields({
+    collaboratorIds: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldArray<string>().setType(fReusables.id)
+    ),
+  })
+  .setRequired(true)
+  .setDescription('Get workspace collaborators without permissions endpoint success result.');
 
-const countWorkspaceCollaboratorsParams =
-  FieldObject.construct<CountWorkspaceCollaboratorsEndpointParams>()
-    .setName('CountWorkspaceCollaboratorsEndpointParams')
-    .setFields({
-      workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
-    })
-    .setRequired(true)
-    .setDescription('Count workspace collaborators endpoint params.');
+const countWorkspaceCollaboratorsParams = mddocConstruct
+  .constructFieldObject<CountWorkspaceCollaboratorsEndpointParams>()
+  .setName('CountWorkspaceCollaboratorsEndpointParams')
+  .setFields({
+    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
+  })
+  .setRequired(true)
+  .setDescription('Count workspace collaborators endpoint params.');
 
-const getCollaboratorParams = FieldObject.construct<GetCollaboratorEndpointParams>()
+const getCollaboratorParams = mddocConstruct
+  .constructFieldObject<GetCollaboratorEndpointParams>()
   .setName('GetCollaboratorEndpointParams')
   .setFields({
-    workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
-    collaboratorId: FieldObject.requiredField(fReusables.id),
+    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
+    collaboratorId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
   })
   .setRequired(true)
   .setDescription('Get collaborator endpoint params.');
-const getCollaboratorResponseBody = FieldObject.construct<GetCollaboratorEndpointResult>()
+const getCollaboratorResponseBody = mddocConstruct
+  .constructFieldObject<GetCollaboratorEndpointResult>()
   .setName('GetCollaboratorEndpointResult')
-  .setFields({collaborator: FieldObject.requiredField(collaborator)})
+  .setFields({collaborator: mddocConstruct.constructFieldObjectField(true, collaborator)})
   .setRequired(true)
   .setDescription('Get collaborator endpoint success result.');
 
-const removeCollaboratorParams = FieldObject.construct<RemoveCollaboratorEndpointParams>()
+const removeCollaboratorParams = mddocConstruct
+  .constructFieldObject<RemoveCollaboratorEndpointParams>()
   .setName('RevokeCollaboratorEndpointParams')
   .setFields({
-    workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
-    collaboratorId: FieldObject.requiredField(fReusables.id),
+    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
+    collaboratorId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
   })
   .setRequired(true)
   .setDescription('Remove collaborator endpoint params.');

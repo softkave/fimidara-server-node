@@ -175,8 +175,8 @@ export function withAssignedAgentList<T extends AnyObject>(
   }));
 }
 
-export function endpointDecodeURIComponent(d?: any) {
-  return d && isString(d) ? decodeURIComponent(d) : undefined;
+export function endpointDecodeURIComponent(component?: any) {
+  return component && isString(component) ? decodeURIComponent(component) : undefined;
 }
 
 export function getEndpointPageFromInput(p: PaginationQuery, defaultPage = 0): number {

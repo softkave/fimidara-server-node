@@ -1,22 +1,9 @@
 import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
 import {AppActionType, AppResourceType} from '../../definitions/system';
-import {LongRunningJobResult} from '../jobs/types';
-import {
-  ExportedHttpEndpointWithMddocDefinition,
-  HttpEndpoint,
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
-  HttpEndpointResponseHeaders_ContentType_ContentLength,
-} from '../types';
-import {AddPermissionItemsEndpoint, AddPermissionItemsEndpointParams} from './addItems/types';
-import {
-  DeletePermissionItemsEndpoint,
-  DeletePermissionItemsEndpointParams,
-} from './deleteItems/types';
-import {
-  ResolveEntityPermissionsEndpoint,
-  ResolveEntityPermissionsEndpointParams,
-  ResolveEntityPermissionsEndpointResult,
-} from './resolveEntityPermissions/types';
+import {ExportedHttpEndpointWithMddocDefinition} from '../types';
+import {AddPermissionItemsEndpoint} from './addItems/types';
+import {DeletePermissionItemsEndpoint} from './deleteItems/types';
+import {ResolveEntityPermissionsEndpoint} from './resolveEntityPermissions/types';
 
 export interface PermissionItemInputTarget {
   targetId?: string | string[];
@@ -39,31 +26,15 @@ export interface PermissionItemInput {
   entity?: PermissionItemInputEntity;
 }
 
-export type AddPermissionItemsHttpEndpoint = HttpEndpoint<
-  AddPermissionItemsEndpoint,
-  AddPermissionItemsEndpointParams,
-  {},
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
-  {}
->;
-export type DeletePermissionItemsHttpEndpoint = HttpEndpoint<
-  DeletePermissionItemsEndpoint,
-  DeletePermissionItemsEndpointParams,
-  LongRunningJobResult,
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
-  HttpEndpointResponseHeaders_ContentType_ContentLength
->;
-
-export type ResolveEntityPermissionsHttpEndpoint = HttpEndpoint<
-  ResolveEntityPermissionsEndpoint,
-  ResolveEntityPermissionsEndpointParams,
-  ResolveEntityPermissionsEndpointResult,
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
-  HttpEndpointResponseHeaders_ContentType_ContentLength
->;
+export type AddPermissionItemsHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<AddPermissionItemsEndpoint>;
+export type DeletePermissionItemsHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<DeletePermissionItemsEndpoint>;
+export type ResolveEntityPermissionsHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<ResolveEntityPermissionsEndpoint>;
 
 export type PermissionItemsExportedEndpoints = {
-  addItems: ExportedHttpEndpointWithMddocDefinition<AddPermissionItemsHttpEndpoint>;
-  deleteItems: ExportedHttpEndpointWithMddocDefinition<DeletePermissionItemsHttpEndpoint>;
-  resolveEntityPermissions: ExportedHttpEndpointWithMddocDefinition<ResolveEntityPermissionsHttpEndpoint>;
+  addItems: AddPermissionItemsHttpEndpoint;
+  deleteItems: DeletePermissionItemsHttpEndpoint;
+  resolveEntityPermissions: ResolveEntityPermissionsHttpEndpoint;
 };

@@ -24,7 +24,6 @@ export function getFirstArg<T extends any[]>(...args: T): T[0] {
   return args[0];
 }
 
-/* eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars */
 export async function noopAsync(...args: any) {}
 
 export function applyMixins(derivedConstructors: any, baseConstructors: any[]) {
@@ -77,7 +76,11 @@ export function objectHasData(data: AnyObject) {
 }
 
 export function waitTimeout(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise<void>(resolve => setTimeout(resolve, ms));
+}
+
+export function makeWaitTimeoutFn<TFn extends AnyFn>(timeoutMs: number) {
+  return () => waitTimeout(timeoutMs);
 }
 
 export function reverseMap<K extends string, V extends string>(m: Record<K, V>): Record<V, K> {

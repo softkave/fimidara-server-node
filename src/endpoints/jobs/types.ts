@@ -1,27 +1,13 @@
-import {
-  ExportedHttpEndpointWithMddocDefinition,
-  HttpEndpoint,
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
-  HttpEndpointResponseHeaders_ContentType_ContentLength,
-} from '../types';
-import {
-  GetJobStatusEndpoint,
-  GetJobStatusEndpointParams,
-  GetJobStatusEndpointResult,
-} from './getJobStatus/types';
+import {ExportedHttpEndpointWithMddocDefinition} from '../types';
+import {GetJobStatusEndpoint} from './getJobStatus/types';
 
 export interface LongRunningJobResult {
   jobId: string;
 }
 
-export type GetJobStatusHttpEndpoint = HttpEndpoint<
-  GetJobStatusEndpoint,
-  GetJobStatusEndpointParams,
-  GetJobStatusEndpointResult,
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
-  HttpEndpointResponseHeaders_ContentType_ContentLength
->;
+export type GetJobStatusHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<GetJobStatusEndpoint>;
 
 export type JobsExportedEndpoints = {
-  getJobStatus: ExportedHttpEndpointWithMddocDefinition<GetJobStatusHttpEndpoint>;
+  getJobStatus: GetJobStatusHttpEndpoint;
 };

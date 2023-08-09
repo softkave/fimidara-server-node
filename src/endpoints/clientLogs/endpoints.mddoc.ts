@@ -1,36 +1,60 @@
 import {
-  FieldArray,
-  FieldObject,
-  FieldString,
-  HttpEndpointDefinition,
+  FieldBinaryType,
   HttpEndpointMethod,
+  InferFieldObjectOrMultipartType,
+  InferFieldObjectType,
+  mddocConstruct,
 } from '../../mddoc/mddoc';
 import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc';
-import {HttpEndpointRequestHeaders_AuthRequired_ContentType} from '../types';
 import clientLogsConstants from './constants';
 import {ClientLog, IngestLogsEndpointParams} from './ingestLogs/types';
+import {IngestLogsHttpEndpoint} from './types';
 
-const clientLogInput = FieldObject.construct<ClientLog>()
+const clientLogInput = mddocConstruct
+  .constructFieldObject<ClientLog>()
   .setName('ClientLogInput')
   .setFields({
-    timestamp: FieldObject.requiredField(fReusables.date),
-    level: FieldObject.requiredField(FieldString.construct().setDescription('Log level.')),
-    message: FieldObject.requiredField(FieldString.construct().setDescription('Log message.')),
-    service: FieldObject.requiredField(FieldString.construct().setDescription('Fimidara service.')),
-    stack: FieldObject.optionalField(FieldString.construct().setDescription('Error log stack.')),
+    timestamp: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+    level: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldString().setDescription('Log level.')
+    ),
+    message: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldString().setDescription('Log message.')
+    ),
+    service: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldString().setDescription('Fimidara service.')
+    ),
+    stack: mddocConstruct.constructFieldObjectField(
+      false,
+      mddocConstruct.constructFieldString().setDescription('Error log stack.')
+    ),
   });
 
-const ingestLogsParams = FieldObject.construct<IngestLogsEndpointParams>()
+const ingestLogsParams = mddocConstruct
+  .constructFieldObject<IngestLogsEndpointParams>()
   .setName('IngestLogsEndpointParams')
   .setFields({
-    logs: FieldObject.requiredField(FieldArray.construct<ClientLog>().setType(clientLogInput)),
-  })
-  .setRequired(true);
+    logs: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldArray<ClientLog>().setType(clientLogInput)
+    ),
+  });
 
-export const ingestLogsEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: IngestLogsEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-}>()
+export const ingestLogsEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<IngestLogsHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
+    InferFieldObjectType<IngestLogsHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<IngestLogsHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<IngestLogsHttpEndpoint['mddocHttpDefinition']['requestBody']>,
+    InferFieldObjectType<IngestLogsHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectType<
+      IngestLogsHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(clientLogsConstants.routes.ingestLogs)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(ingestLogsParams)

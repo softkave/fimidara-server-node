@@ -1,13 +1,11 @@
 import {PublicPermissionItem} from '../../definitions/permissionItem';
 import {AppResourceType, getWorkspaceResourceTypeList} from '../../definitions/system';
 import {
-  FieldArray,
-  FieldBoolean,
-  FieldObject,
-  FieldOrCombination,
-  FieldString,
-  HttpEndpointDefinition,
+  FieldBinaryType,
   HttpEndpointMethod,
+  InferFieldObjectOrMultipartType,
+  InferFieldObjectType,
+  mddocConstruct,
 } from '../../mddoc/mddoc';
 import {multilineTextToParagraph} from '../../utils/fns';
 import {
@@ -15,11 +13,6 @@ import {
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
-import {LongRunningJobResult} from '../jobs/types';
-import {
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
-  HttpEndpointResponseHeaders_ContentType_ContentLength,
-} from '../types';
 import {AddPermissionItemsEndpointParams} from './addItems/types';
 import {permissionItemConstants} from './constants';
 import {
@@ -44,10 +37,17 @@ import {
   ResolvedEntityPermissionItem,
   ResolvedEntityPermissionItemTarget,
 } from './resolveEntityPermissions/types';
-import {PermissionItemInput, PermissionItemInputEntity, PermissionItemInputTarget} from './types';
+import {
+  AddPermissionItemsHttpEndpoint,
+  DeletePermissionItemsHttpEndpoint,
+  PermissionItemInput,
+  PermissionItemInputEntity,
+  PermissionItemInputTarget,
+  ResolveEntityPermissionsHttpEndpoint,
+} from './types';
 
 const targetId = fReusables.id.clone().setDescription('Resource ID permission is effected on.');
-const targetIdList = FieldArray.construct<string>().setType(targetId);
+const targetIdList = mddocConstruct.constructFieldArray<string>().setType(targetId);
 const targetType = fReusables.resourceType
   .clone()
   .setDescription(
@@ -59,7 +59,7 @@ const targetType = fReusables.resourceType
   )
   .setValid(getWorkspaceResourceTypeList())
   .setEnumName('WorkspaceAppResourceType');
-const targetTypeList = FieldArray.construct<string>().setType(targetType);
+const targetTypeList = mddocConstruct.constructFieldArray<string>().setType(targetType);
 const entityId = fReusables.id
   .clone()
   .setDescription(
@@ -67,21 +67,24 @@ const entityId = fReusables.id
       'A permission entity is a resource granted or deny access. ' +
       'This can be a user, a permission group, or an agent token.'
   );
-const entityIdList = FieldArray.construct<string>()
+const entityIdList = mddocConstruct
+  .constructFieldArray<string>()
   .setType(entityId)
   .setDescription(
     'Permission entity resource ID list. ' +
       'A permission entity is a resource granted or deny access. ' +
       'This can be a user, a permission group, or an agent token.'
   );
-const entityIdOrList = FieldOrCombination.construct()
-  .setTypes([entityId, FieldArray.construct<string>().setType(entityId)])
+const entityIdOrList = mddocConstruct
+  .constructFieldOrCombination()
+  .setTypes([entityId, mddocConstruct.constructFieldArray<string>().setType(entityId)])
   .setDescription(
     'Permission entity resource ID list. ' +
       'A permission entity is a resource granted or deny access. ' +
       'This can be a user, a permission group, or an agent token.'
   );
-const entityType = FieldString.construct()
+const entityType = mddocConstruct
+  .constructFieldString()
   .setDescription(
     'Permission entity resource type. ' +
       'A permission entity is the resource granted access. ' +
@@ -89,91 +92,114 @@ const entityType = FieldString.construct()
   )
   .setValid([AppResourceType.User, AppResourceType.PermissionGroup, AppResourceType.AgentToken])
   .setEnumName('EntityAppResourceType');
-const grantAccess = FieldBoolean.construct().setDescription(
-  'Whether access is granted or not. ' + 'Access is granted if true, denied if false.'
-);
-const grantAccessList = FieldArray.construct<boolean>().setType(grantAccess);
-const entity = FieldObject.construct<PermissionItemInputEntity>()
+const grantAccess = mddocConstruct
+  .constructFieldBoolean()
+  .setDescription(
+    'Whether access is granted or not. ' + 'Access is granted if true, denied if false.'
+  );
+const grantAccessList = mddocConstruct.constructFieldArray<boolean>().setType(grantAccess);
+const entity = mddocConstruct
+  .constructFieldObject<PermissionItemInputEntity>()
   .setName('PermissionItemInputEntity')
   .setFields({
-    entityId: FieldObject.requiredField(entityIdList),
+    entityId: mddocConstruct.constructFieldObjectField(true, entityIdList),
   });
 
 // TODO: add or array to target, container, and entity, and confirm mddoc md
 // renderer renders it well.
-const target = FieldObject.construct<PermissionItemInputTarget>()
+const target = mddocConstruct
+  .constructFieldObject<PermissionItemInputTarget>()
   .setName('PermissionItemInputTarget')
   .setFields({
-    targetType: FieldObject.optionalField(targetTypeList),
-    targetId: FieldObject.optionalField(targetIdList),
-    filepath: FieldObject.optionalField(fReusables.filepathList),
-    folderpath: FieldObject.optionalField(fReusables.folderpathList),
-    workspaceRootname: FieldObject.optionalField(fReusables.workspaceRootname),
+    targetType: mddocConstruct.constructFieldObjectField(false, targetTypeList),
+    targetId: mddocConstruct.constructFieldObjectField(false, targetIdList),
+    filepath: mddocConstruct.constructFieldObjectField(false, fReusables.filepathList),
+    folderpath: mddocConstruct.constructFieldObjectField(false, fReusables.folderpathList),
+    workspaceRootname: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceRootname
+    ),
   });
-const targetList = FieldArray.construct<PermissionItemInputTarget>().setType(target);
+const targetList = mddocConstruct.constructFieldArray<PermissionItemInputTarget>().setType(target);
 
-const resolvePermissionsTarget = FieldObject.construct<ResolveEntityPermissionItemInputTarget>()
+const resolvePermissionsTarget = mddocConstruct
+  .constructFieldObject<ResolveEntityPermissionItemInputTarget>()
   .setName('ResolveEntityPermissionItemInputTarget')
   .setFields({
-    targetType: FieldObject.optionalField(targetTypeList),
-    targetId: FieldObject.optionalField(targetIdList),
-    filepath: FieldObject.optionalField(fReusables.filepathList),
-    folderpath: FieldObject.optionalField(fReusables.folderpathList),
-    workspaceRootname: FieldObject.optionalField(fReusables.workspaceRootname),
+    targetType: mddocConstruct.constructFieldObjectField(false, targetTypeList),
+    targetId: mddocConstruct.constructFieldObjectField(false, targetIdList),
+    filepath: mddocConstruct.constructFieldObjectField(false, fReusables.filepathList),
+    folderpath: mddocConstruct.constructFieldObjectField(false, fReusables.folderpathList),
+    workspaceRootname: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceRootname
+    ),
   });
-const resolvePermissionsTargetList =
-  FieldArray.construct<ResolveEntityPermissionItemInputTarget>().setType(resolvePermissionsTarget);
+const resolvePermissionsTargetList = mddocConstruct
+  .constructFieldArray<ResolveEntityPermissionItemInputTarget>()
+  .setType(resolvePermissionsTarget);
 
-const deletePermissionItemTarget = FieldObject.construct<DeletePermissionItemInputTarget>()
+const deletePermissionItemTarget = mddocConstruct
+  .constructFieldObject<DeletePermissionItemInputTarget>()
   .setName('DeleteDeletePermissionItemInputTarget')
   .setFields({
-    targetType: FieldObject.optionalField(targetTypeList),
-    targetId: FieldObject.optionalField(targetIdList),
-    filepath: FieldObject.optionalField(fReusables.filepathList),
-    folderpath: FieldObject.optionalField(fReusables.folderpathList),
-    workspaceRootname: FieldObject.optionalField(fReusables.workspaceRootname),
+    targetType: mddocConstruct.constructFieldObjectField(false, targetTypeList),
+    targetId: mddocConstruct.constructFieldObjectField(false, targetIdList),
+    filepath: mddocConstruct.constructFieldObjectField(false, fReusables.filepathList),
+    folderpath: mddocConstruct.constructFieldObjectField(false, fReusables.folderpathList),
+    workspaceRootname: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceRootname
+    ),
   });
-const deletePermissionItemTargetList =
-  FieldArray.construct<DeletePermissionItemInputTarget>().setType(deletePermissionItemTarget);
+const deletePermissionItemTargetList = mddocConstruct
+  .constructFieldArray<DeletePermissionItemInputTarget>()
+  .setType(deletePermissionItemTarget);
 
-const deletePermissionItemInput = FieldObject.construct<DeletePermissionItemInput>()
+const deletePermissionItemInput = mddocConstruct
+  .constructFieldObject<DeletePermissionItemInput>()
   .setName('DeletePermissionItemInput')
   .setFields({
-    target: FieldObject.requiredField(deletePermissionItemTargetList),
-    action: FieldObject.optionalField(fReusables.actionList),
-    grantAccess: FieldObject.optionalField(grantAccessList),
-    entity: FieldObject.optionalField(entity),
-    appliesTo: FieldObject.optionalField(fReusables.appliesToList),
+    target: mddocConstruct.constructFieldObjectField(true, deletePermissionItemTargetList),
+    action: mddocConstruct.constructFieldObjectField(false, fReusables.actionList),
+    grantAccess: mddocConstruct.constructFieldObjectField(false, grantAccessList),
+    entity: mddocConstruct.constructFieldObjectField(false, entity),
+    appliesTo: mddocConstruct.constructFieldObjectField(false, fReusables.appliesToList),
   });
 
-const deletePermissionItemInputList = FieldArray.construct()
+const deletePermissionItemInputList = mddocConstruct
+  .constructFieldArray()
   .setType(deletePermissionItemInput)
   .setMax(permissionItemConstants.maxPermissionItemsPerRequest);
 
-const newPermissionItemInput = FieldObject.construct<PermissionItemInput>()
+const newPermissionItemInput = mddocConstruct
+  .constructFieldObject<PermissionItemInput>()
   .setName('PermissionItemInput')
   .setFields({
-    target: FieldObject.requiredField(targetList),
-    grantAccess: FieldObject.requiredField(grantAccess),
-    entity: FieldObject.optionalField(entity),
-    action: FieldObject.requiredField(fReusables.actionList),
-    appliesTo: FieldObject.optionalField(fReusables.appliesToList),
+    target: mddocConstruct.constructFieldObjectField(true, targetList),
+    grantAccess: mddocConstruct.constructFieldObjectField(true, grantAccess),
+    entity: mddocConstruct.constructFieldObjectField(false, entity),
+    action: mddocConstruct.constructFieldObjectField(true, fReusables.actionList),
+    appliesTo: mddocConstruct.constructFieldObjectField(false, fReusables.appliesToList),
   });
 
-const resolvePermissionsItemInput = FieldObject.construct<ResolveEntityPermissionItemInput>()
+const resolvePermissionsItemInput = mddocConstruct
+  .constructFieldObject<ResolveEntityPermissionItemInput>()
   .setName('ResolveEntityPermissionItemInput')
   .setFields({
-    target: FieldObject.requiredField(resolvePermissionsTargetList),
-    entity: FieldObject.optionalField(entity),
-    action: FieldObject.requiredField(fReusables.actionList),
-    containerAppliesTo: FieldObject.optionalField(
+    target: mddocConstruct.constructFieldObjectField(true, resolvePermissionsTargetList),
+    entity: mddocConstruct.constructFieldObjectField(false, entity),
+    action: mddocConstruct.constructFieldObjectField(true, fReusables.actionList),
+    containerAppliesTo: mddocConstruct.constructFieldObjectField(
+      false,
       fReusables.appliesToList
         .clone()
         .setDescription(
           'Applicable for folders only, for finer control over the appliesTo criteria used to query permission items from parent folders.'
         )
     ),
-    targetAppliesTo: FieldObject.optionalField(
+    targetAppliesTo: mddocConstruct.constructFieldObjectField(
+      false,
       fReusables.appliesToList
         .clone()
         .setDescription(
@@ -182,26 +208,35 @@ const resolvePermissionsItemInput = FieldObject.construct<ResolveEntityPermissio
     ),
   });
 
-const resolvedPermissionTarget = FieldObject.construct<ResolvedEntityPermissionItemTarget>()
+const resolvedPermissionTarget = mddocConstruct
+  .constructFieldObject<ResolvedEntityPermissionItemTarget>()
   .setName('ResolvedEntityPermissionItemTarget')
   .setFields({
-    targetType: FieldObject.optionalField(targetType),
-    targetId: FieldObject.optionalField(targetId),
-    filepath: FieldObject.optionalField(fReusables.filepath),
-    folderpath: FieldObject.optionalField(fReusables.folderpath),
-    workspaceRootname: FieldObject.optionalField(fReusables.workspaceRootname),
+    targetType: mddocConstruct.constructFieldObjectField(false, targetType),
+    targetId: mddocConstruct.constructFieldObjectField(false, targetId),
+    filepath: mddocConstruct.constructFieldObjectField(false, fReusables.filepath),
+    folderpath: mddocConstruct.constructFieldObjectField(false, fReusables.folderpath),
+    workspaceRootname: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceRootname
+    ),
   });
 
-const resolvedPermissionItem = FieldObject.construct<ResolvedEntityPermissionItem>()
+const resolvedPermissionItem = mddocConstruct
+  .constructFieldObject<ResolvedEntityPermissionItem>()
   .setName('ResolvedEntityPermissionItem')
   .setFields({
-    target: FieldObject.requiredField(resolvedPermissionTarget),
-    entityId: FieldObject.requiredField(entityId),
-    action: FieldObject.requiredField(fReusables.action),
-    hasAccess: FieldObject.requiredField(FieldBoolean.construct()),
-    targetAppliesTo: FieldObject.optionalField(fReusables.appliesToList),
-    containerAppliesTo: FieldObject.optionalField(fReusables.appliesToList),
-    accessEntityId: FieldObject.optionalField(
+    target: mddocConstruct.constructFieldObjectField(true, resolvedPermissionTarget),
+    entityId: mddocConstruct.constructFieldObjectField(true, entityId),
+    action: mddocConstruct.constructFieldObjectField(true, fReusables.action),
+    hasAccess: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldBoolean()
+    ),
+    targetAppliesTo: mddocConstruct.constructFieldObjectField(false, fReusables.appliesToList),
+    containerAppliesTo: mddocConstruct.constructFieldObjectField(false, fReusables.appliesToList),
+    accessEntityId: mddocConstruct.constructFieldObjectField(
+      false,
       entityId.clone().setDescription(
         multilineTextToParagraph(`
         ID of the permission entity that directly owns/is assigned the permission item producing this result.
@@ -211,7 +246,7 @@ const resolvedPermissionItem = FieldObject.construct<ResolvedEntityPermissionIte
       `)
       )
     ),
-    // accessTargetId: FieldObject.optionalField(
+    // accessTargetId: mddocConstruct.constructFieldObjectField(false,
     //   targetId.clone().setDescription(
     //     multilineTextToParagraph(`
     //     ID of the permission target that directly owns/is assigned the permission item producing this result.
@@ -221,7 +256,7 @@ const resolvedPermissionItem = FieldObject.construct<ResolvedEntityPermissionIte
     //   `)
     //   )
     // ),
-    // accessTargetType: FieldObject.optionalField(
+    // accessTargetType: mddocConstruct.constructFieldObjectField(false,
     //   targetType.clone().setDescription(
     //     multilineTextToParagraph(`
     //     Resource type specified in the permission item producing this result.
@@ -232,23 +267,28 @@ const resolvedPermissionItem = FieldObject.construct<ResolvedEntityPermissionIte
     // ),
   });
 
-const newPermissionItemInputList = FieldArray.construct<PermissionItemInput>()
+const newPermissionItemInputList = mddocConstruct
+  .constructFieldArray<PermissionItemInput>()
   .setType(newPermissionItemInput)
   .setMax(permissionItemConstants.maxPermissionItemsPerRequest);
 
-const resolvePermissionsItemInputList = FieldArray.construct<ResolveEntityPermissionItemInput>()
+const resolvePermissionsItemInputList = mddocConstruct
+  .constructFieldArray<ResolveEntityPermissionItemInput>()
   .setType(resolvePermissionsItemInput)
   .setMax(permissionItemConstants.maxPermissionItemsPerRequest);
 
-const resolvedPermissionItemList =
-  FieldArray.construct<ResolvedEntityPermissionItem>().setType(resolvedPermissionItem);
+const resolvedPermissionItemList = mddocConstruct
+  .constructFieldArray<ResolvedEntityPermissionItem>()
+  .setType(resolvedPermissionItem);
 
-const permissionItem = FieldObject.construct<PublicPermissionItem>()
+const permissionItem = mddocConstruct
+  .constructFieldObject<PublicPermissionItem>()
   .setName('PermissionItem')
   .setFields({
-    entityId: FieldObject.requiredField(entityId),
-    entityType: FieldObject.requiredField(entityType),
-    targetParentId: FieldObject.requiredField(
+    entityId: mddocConstruct.constructFieldObjectField(true, entityId),
+    entityType: mddocConstruct.constructFieldObjectField(true, entityType),
+    targetParentId: mddocConstruct.constructFieldObjectField(
+      true,
       targetId.clone().setDescription(
         multilineTextToParagraph(
           `ID of the closest parent of target. For files and folders, 
@@ -257,7 +297,8 @@ const permissionItem = FieldObject.construct<PublicPermissionItem>()
         )
       )
     ),
-    targetParentType: FieldObject.requiredField(
+    targetParentType: mddocConstruct.constructFieldObjectField(
+      true,
       targetType.clone().setDescription(
         multilineTextToParagraph(
           `Resource type of the closest parent of target. For files and folders, 
@@ -266,126 +307,142 @@ const permissionItem = FieldObject.construct<PublicPermissionItem>()
         )
       )
     ),
-    targetId: FieldObject.requiredField(targetId),
-    targetType: FieldObject.requiredField(targetType),
-    resourceId: FieldObject.requiredField(FieldString.construct()),
-    createdBy: FieldObject.requiredField(fReusables.agent),
-    createdAt: FieldObject.requiredField(fReusables.date),
-    workspaceId: FieldObject.requiredField(fReusables.workspaceId),
-    action: FieldObject.requiredField(fReusables.action),
-    grantAccess: FieldObject.requiredField(FieldBoolean.construct()),
-    lastUpdatedAt: FieldObject.requiredField(fReusables.date),
-    lastUpdatedBy: FieldObject.requiredField(fReusables.agent),
-    providedResourceId: FieldObject.optionalField(fReusables.providedResourceId),
-    appliesTo: FieldObject.requiredField(fReusables.appliesTo),
+    targetId: mddocConstruct.constructFieldObjectField(true, targetId),
+    targetType: mddocConstruct.constructFieldObjectField(true, targetType),
+    resourceId: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldString()
+    ),
+    createdBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
+    createdAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+    workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),
+    action: mddocConstruct.constructFieldObjectField(true, fReusables.action),
+    grantAccess: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldBoolean()
+    ),
+    lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+    lastUpdatedBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
+    providedResourceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.providedResourceId
+    ),
+    appliesTo: mddocConstruct.constructFieldObjectField(true, fReusables.appliesTo),
   });
 
-const addPermissionItemsParams = FieldObject.construct<AddPermissionItemsEndpointParams>()
+const addPermissionItemsParams = mddocConstruct
+  .constructFieldObject<AddPermissionItemsEndpointParams>()
   .setName('AddPermissionItemsEndpointParams')
   .setFields({
-    entity: FieldObject.optionalField(entity),
-    workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
-    items: FieldObject.requiredField(newPermissionItemInputList),
+    entity: mddocConstruct.constructFieldObjectField(false, entity),
+    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
+    items: mddocConstruct.constructFieldObjectField(true, newPermissionItemInputList),
   })
-  .setRequired(true)
   .setDescription('Add permission items endpoint params.');
 
-const getResourcePermissionItemsParams =
-  FieldObject.construct<GetResourcePermissionItemsEndpointParams>()
-    .setName('GetResourcePermissionItemsEndpointParams')
-    .setFields({
-      target: FieldObject.requiredField(target),
-      workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
-    })
-    .setRequired(true)
-    .setDescription(
-      'Get resource permission items endpoint params. ' +
-        'Returns all the permission items granting access to a resource or resource type.'
-    );
-const getResourcePermissionItemsResponseBody =
-  FieldObject.construct<GetResourcePermissionItemsEndpointResult>()
-    .setName('GetResourcePermissionItemsEndpointResult')
-    .setFields({
-      items: FieldObject.requiredField(
-        FieldArray.construct<PublicPermissionItem>().setType(permissionItem)
-      ),
-    })
-    .setRequired(true)
-    .setDescription(
-      'Get resource permission items endpoint result. ' +
-        'Returns all the permission items granting access to a resource or resource type.'
-    );
-
-const resolveEntityPermissionsParams =
-  FieldObject.construct<ResolveEntityPermissionsEndpointParams>()
-    .setName('ResolveEntityPermissionsEndpointParams')
-    .setFields({
-      entity: FieldObject.optionalField(entity),
-      workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
-      items: FieldObject.requiredField(resolvePermissionsItemInputList),
-    })
-    .setRequired(true)
-    .setDescription('Resolve entity permissions endpoint params.');
-const resolveEntityPermissionsResponseBody =
-  FieldObject.construct<ResolveEntityPermissionsEndpointResult>()
-    .setName('ResolveEntityPermissionsEndpointResult')
-    .setFields({
-      items: FieldObject.requiredField(resolvedPermissionItemList),
-    })
-    .setRequired(true)
-    .setDescription('Resolve entity permissions endpoint result.');
-
-const getEntityPermissionItemsParams =
-  FieldObject.construct<GetEntityPermissionItemsEndpointParams>()
-    .setName('getEntityPermissionItemsEndpointParams')
-    .setFields({
-      entityId: FieldObject.requiredField(entityId),
-      workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
-      page: FieldObject.optionalField(fReusables.page),
-      pageSize: FieldObject.optionalField(fReusables.pageSize),
-    })
-    .setRequired(true)
-    .setDescription('Get entity permission items endpoint params.');
-const getEntityPermissionItemsResponseBody =
-  FieldObject.construct<GetEntityPermissionItemsEndpointResult>()
-    .setName('getEntityPermissionItemsEndpointResult')
-    .setFields({
-      items: FieldObject.requiredField(
-        FieldArray.construct<PublicPermissionItem>().setType(permissionItem)
-      ),
-      page: FieldObject.requiredField(fReusables.page),
-    })
-    .setRequired(true)
-    .setDescription('Get permission items endpoint success result.');
-
-const deletePermissionItemsByIdParams =
-  FieldObject.construct<DeletePermissionItemsByIdEndpointParams>()
-    .setName('DeletePermissionItemsByIdEndpointParams')
-    .setFields({
-      workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
-      itemIds: FieldObject.requiredField(
-        FieldArray.construct<string>()
-          .setType(fReusables.permissionItemId)
-          .setMax(permissionItemConstants.maxPermissionItemsPerRequest)
-      ),
-    })
-    .setRequired(true)
-    .setDescription('Delete permission items endpoint params.');
-
-const deletePermissionItemsParams = FieldObject.construct<DeletePermissionItemsEndpointParams>()
-  .setName('DeletePermissionItemsEndpointParams')
+const getResourcePermissionItemsParams = mddocConstruct
+  .constructFieldObject<GetResourcePermissionItemsEndpointParams>()
+  .setName('GetResourcePermissionItemsEndpointParams')
   .setFields({
-    workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
-    items: FieldObject.optionalField(deletePermissionItemInputList),
-    entity: FieldObject.optionalField(entity),
+    target: mddocConstruct.constructFieldObjectField(true, target),
+    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
   })
-  .setRequired(true)
+  .setDescription(
+    'Get resource permission items endpoint params. ' +
+      'Returns all the permission items granting access to a resource or resource type.'
+  );
+const getResourcePermissionItemsResponseBody = mddocConstruct
+  .constructFieldObject<GetResourcePermissionItemsEndpointResult>()
+  .setName('GetResourcePermissionItemsEndpointResult')
+  .setFields({
+    items: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldArray<PublicPermissionItem>().setType(permissionItem)
+    ),
+  })
+  .setDescription(
+    'Get resource permission items endpoint result. ' +
+      'Returns all the permission items granting access to a resource or resource type.'
+  );
+
+const resolveEntityPermissionsParams = mddocConstruct
+  .constructFieldObject<ResolveEntityPermissionsEndpointParams>()
+  .setName('ResolveEntityPermissionsEndpointParams')
+  .setFields({
+    entity: mddocConstruct.constructFieldObjectField(false, entity),
+    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
+    items: mddocConstruct.constructFieldObjectField(true, resolvePermissionsItemInputList),
+  })
+  .setDescription('Resolve entity permissions endpoint params.');
+const resolveEntityPermissionsResponseBody = mddocConstruct
+  .constructFieldObject<ResolveEntityPermissionsEndpointResult>()
+  .setName('ResolveEntityPermissionsEndpointResult')
+  .setFields({
+    items: mddocConstruct.constructFieldObjectField(true, resolvedPermissionItemList),
+  })
+  .setDescription('Resolve entity permissions endpoint result.');
+
+const getEntityPermissionItemsParams = mddocConstruct
+  .constructFieldObject<GetEntityPermissionItemsEndpointParams>()
+  .setName('getEntityPermissionItemsEndpointParams')
+  .setFields({
+    entityId: mddocConstruct.constructFieldObjectField(true, entityId),
+    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
+    page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
+    pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
+  })
+  .setDescription('Get entity permission items endpoint params.');
+const getEntityPermissionItemsResponseBody = mddocConstruct
+  .constructFieldObject<GetEntityPermissionItemsEndpointResult>()
+  .setName('getEntityPermissionItemsEndpointResult')
+  .setFields({
+    items: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldArray<PublicPermissionItem>().setType(permissionItem)
+    ),
+    page: mddocConstruct.constructFieldObjectField(true, fReusables.page),
+  })
+  .setDescription('Get permission items endpoint success result.');
+
+const deletePermissionItemsByIdParams = mddocConstruct
+  .constructFieldObject<DeletePermissionItemsByIdEndpointParams>()
+  .setName('DeletePermissionItemsByIdEndpointParams')
+  .setFields({
+    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
+    itemIds: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct
+        .constructFieldArray<string>()
+        .setType(fReusables.permissionItemId)
+        .setMax(permissionItemConstants.maxPermissionItemsPerRequest)
+    ),
+  })
   .setDescription('Delete permission items endpoint params.');
 
-export const addPermissionItemsEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: AddPermissionItemsEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-}>()
+const deletePermissionItemsParams = mddocConstruct
+  .constructFieldObject<DeletePermissionItemsEndpointParams>()
+  .setName('DeletePermissionItemsEndpointParams')
+  .setFields({
+    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
+    items: mddocConstruct.constructFieldObjectField(false, deletePermissionItemInputList),
+    entity: mddocConstruct.constructFieldObjectField(false, entity),
+  })
+  .setDescription('Delete permission items endpoint params.');
+
+export const addPermissionItemsEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<AddPermissionItemsHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
+    InferFieldObjectType<AddPermissionItemsHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<AddPermissionItemsHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<
+      AddPermissionItemsHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<AddPermissionItemsHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectType<
+      AddPermissionItemsHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(permissionItemConstants.routes.addItems)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(addPermissionItemsParams)
@@ -393,42 +450,26 @@ export const addPermissionItemsEndpointDefinition = HttpEndpointDefinition.const
   .setName('AddPermissionItemsEndpoint')
   .setDescription('Add permission items endpoint.');
 
-export const getEntityPermissionItemsEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: GetEntityPermissionItemsEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: GetEntityPermissionItemsEndpointResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
-  .setBasePathname(permissionItemConstants.routes.getEntityPermissionItems)
-  .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(getEntityPermissionItemsParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
-  .setResponseBody(getEntityPermissionItemsResponseBody)
-  .setName('GetEntityPermissionItemsEndpoint')
-  .setDescription('Get entity permission items endpoint.');
-
-export const deletePermissionItemsByIdEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: DeletePermissionItemsByIdEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: LongRunningJobResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
-  .setBasePathname(permissionItemConstants.routes.deleteItemsById)
-  .setMethod(HttpEndpointMethod.Delete)
-  .setRequestBody(deletePermissionItemsByIdParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
-  .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
-  .setName('DeletePermissionItemsEndpoint')
-  .setDescription('Delete permission items endpoint.');
-
-export const deletePermissionItemsEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: DeletePermissionItemsEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: LongRunningJobResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const deletePermissionItemsEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      DeletePermissionItemsHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      DeletePermissionItemsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<DeletePermissionItemsHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<
+      DeletePermissionItemsHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      DeletePermissionItemsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      DeletePermissionItemsHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(permissionItemConstants.routes.deleteItems)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(deletePermissionItemsParams)
@@ -438,27 +479,26 @@ export const deletePermissionItemsEndpointDefinition = HttpEndpointDefinition.co
   .setName('DeletePermissionItemsEndpoint')
   .setDescription('Delete permission items endpoint.');
 
-export const getResourcePermissionItemsEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: GetResourcePermissionItemsEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: GetResourcePermissionItemsEndpointResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
-  .setBasePathname(permissionItemConstants.routes.getResourcePermissionItems)
-  .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(getResourcePermissionItemsParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
-  .setResponseBody(getResourcePermissionItemsResponseBody)
-  .setName('GetResourcePermissionItemsEndpoint')
-  .setDescription('Get resource permission items endpoint.');
-
-export const resolveEntityPermissionsEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: ResolveEntityPermissionsEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: ResolveEntityPermissionsEndpointResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const resolveEntityPermissionsEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      ResolveEntityPermissionsHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      ResolveEntityPermissionsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<ResolveEntityPermissionsHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<
+      ResolveEntityPermissionsHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      ResolveEntityPermissionsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      ResolveEntityPermissionsHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(permissionItemConstants.routes.resolveEntityPermissions)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(resolveEntityPermissionsParams)

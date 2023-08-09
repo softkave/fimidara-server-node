@@ -1,21 +1,16 @@
 import {PublicUsageRecord, UsageRecordCategory} from '../../definitions/usageRecord';
 import {
-  FieldArray,
-  FieldNumber,
-  FieldObject,
-  HttpEndpointDefinition,
+  FieldBinaryType,
   HttpEndpointMethod,
+  InferFieldObjectOrMultipartType,
+  InferFieldObjectType,
+  mddocConstruct,
 } from '../../mddoc/mddoc';
 import {
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
-import {
-  CountItemsEndpointResult,
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
-  HttpEndpointResponseHeaders_ContentType_ContentLength,
-} from '../types';
 import {usageRecordConstants} from './constants';
 import {CountWorkspaceSummedUsageEndpointParams} from './countWorkspaceSummedUsage/types';
 import {GetUsageCostsEndpointResult} from './getUsageCosts/types';
@@ -24,96 +19,124 @@ import {
   GetWorkspaceSummedUsageEndpointResult,
   WorkspaceSummedUsageQuery,
 } from './getWorkspaceSummedUsage/types';
+import {
+  CountWorkspaceSummedUsageHttpEndpoint,
+  GetUsageCostsHttpEndpoint,
+  GetWorkspaceSummedUsageHttpEndpoint,
+} from './types';
 
-const cost = FieldNumber.construct().setDescription('Usage cost in USD.');
-const month = FieldNumber.construct().setDescription(
-  'Usage recording month from 0-11, January-Decemeber.'
-);
-const year = FieldNumber.construct().setDescription('Usage recording year.');
-const usage = FieldNumber.construct().setDescription(
-  `Usage amount. Bytes for ${UsageRecordCategory.Storage}, ${UsageRecordCategory.BandwidthIn}, and ${UsageRecordCategory.BandwidthOut}. Always 0 for ${UsageRecordCategory.Total}, use \`usageCost\` instead.`
-);
-const usageCosts = FieldObject.construct<GetUsageCostsEndpointResult['costs']>()
+const cost = mddocConstruct.constructFieldNumber().setDescription('Usage cost in USD.');
+const month = mddocConstruct
+  .constructFieldNumber()
+  .setDescription('Usage recording month from 0-11, January-Decemeber.');
+const year = mddocConstruct.constructFieldNumber().setDescription('Usage recording year.');
+const usage = mddocConstruct
+  .constructFieldNumber()
+  .setDescription(
+    `Usage amount. Bytes for ${UsageRecordCategory.Storage}, ${UsageRecordCategory.BandwidthIn}, and ${UsageRecordCategory.BandwidthOut}. Always 0 for ${UsageRecordCategory.Total}, use \`usageCost\` instead.`
+  );
+const usageCosts = mddocConstruct
+  .constructFieldObject<GetUsageCostsEndpointResult['costs']>()
   .setName('UsageCosts')
   .setFields({
-    [UsageRecordCategory.Storage]: FieldObject.requiredField(cost),
-    [UsageRecordCategory.BandwidthIn]: FieldObject.requiredField(cost),
-    [UsageRecordCategory.BandwidthOut]: FieldObject.requiredField(cost),
-    [UsageRecordCategory.Total]: FieldObject.requiredField(cost),
+    [UsageRecordCategory.Storage]: mddocConstruct.constructFieldObjectField(true, cost),
+    [UsageRecordCategory.BandwidthIn]: mddocConstruct.constructFieldObjectField(true, cost),
+    [UsageRecordCategory.BandwidthOut]: mddocConstruct.constructFieldObjectField(true, cost),
+    [UsageRecordCategory.Total]: mddocConstruct.constructFieldObjectField(true, cost),
   });
 
-const summedUsageQuery = FieldObject.construct<WorkspaceSummedUsageQuery>()
+const summedUsageQuery = mddocConstruct
+  .constructFieldObject<WorkspaceSummedUsageQuery>()
   .setName('SummedUsageQuery')
   .setFields({
-    category: FieldObject.optionalField(FieldArray.construct().setType(fReusables.usageCategory)),
-    fromDate: FieldObject.optionalField(fReusables.date),
-    toDate: FieldObject.optionalField(fReusables.date),
-    fulfillmentStatus: FieldObject.optionalField(
-      FieldArray.construct().setType(fReusables.usageFulfillmentStatus)
+    category: mddocConstruct.constructFieldObjectField(
+      false,
+      mddocConstruct.constructFieldArray().setType(fReusables.usageCategory)
+    ),
+    fromDate: mddocConstruct.constructFieldObjectField(false, fReusables.date),
+    toDate: mddocConstruct.constructFieldObjectField(false, fReusables.date),
+    fulfillmentStatus: mddocConstruct.constructFieldObjectField(
+      false,
+      mddocConstruct.constructFieldArray().setType(fReusables.usageFulfillmentStatus)
     ),
   });
 
-const usageRecord = FieldObject.construct<PublicUsageRecord>()
+const usageRecord = mddocConstruct
+  .constructFieldObject<PublicUsageRecord>()
   .setName('UsageRecord')
   .setFields({
-    resourceId: FieldObject.requiredField(fReusables.id),
-    createdBy: FieldObject.requiredField(fReusables.agent),
-    createdAt: FieldObject.requiredField(fReusables.date),
-    category: FieldObject.requiredField(fReusables.usageCategory),
-    usage: FieldObject.requiredField(usage),
-    usageCost: FieldObject.requiredField(cost),
-    fulfillmentStatus: FieldObject.requiredField(fReusables.usageFulfillmentStatus),
-    month: FieldObject.requiredField(month),
-    year: FieldObject.requiredField(year),
-    providedResourceId: FieldObject.optionalField(fReusables.providedResourceId),
-    lastUpdatedBy: FieldObject.requiredField(fReusables.agent),
-    lastUpdatedAt: FieldObject.requiredField(fReusables.date),
-    workspaceId: FieldObject.requiredField(fReusables.workspaceId),
+    resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
+    createdBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
+    createdAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+    category: mddocConstruct.constructFieldObjectField(true, fReusables.usageCategory),
+    usage: mddocConstruct.constructFieldObjectField(true, usage),
+    usageCost: mddocConstruct.constructFieldObjectField(true, cost),
+    fulfillmentStatus: mddocConstruct.constructFieldObjectField(
+      true,
+      fReusables.usageFulfillmentStatus
+    ),
+    month: mddocConstruct.constructFieldObjectField(true, month),
+    year: mddocConstruct.constructFieldObjectField(true, year),
+    providedResourceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.providedResourceId
+    ),
+    lastUpdatedBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
+    lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+    workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),
   });
 
-const getWorkspaceSummedUsageParams = FieldObject.construct<GetWorkspaceSummedUsageEndpointParams>()
+const getWorkspaceSummedUsageParams = mddocConstruct
+  .constructFieldObject<GetWorkspaceSummedUsageEndpointParams>()
   .setName('GetWorkspaceSummedUsageEndpointParams')
   .setFields({
-    workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
-    page: FieldObject.optionalField(fReusables.page),
-    pageSize: FieldObject.optionalField(fReusables.pageSize),
-    query: FieldObject.optionalField(summedUsageQuery),
+    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
+    page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
+    pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
+    query: mddocConstruct.constructFieldObjectField(false, summedUsageQuery),
   })
-  .setRequired(true)
   .setDescription('Get workspace summed usage records endpoint params.');
-const getWorkspaceSummedUsageResponseBody =
-  FieldObject.construct<GetWorkspaceSummedUsageEndpointResult>()
-    .setName('GetWorkspaceSummedUsageEndpointResult')
-    .setFields({
-      records: FieldObject.requiredField(
-        FieldArray.construct<PublicUsageRecord>().setType(usageRecord)
-      ),
-      page: FieldObject.requiredField(fReusables.page),
-    })
-    .setRequired(true)
-    .setDescription('Get workspace summed usage records endpoint success result.');
+const getWorkspaceSummedUsageResponseBody = mddocConstruct
+  .constructFieldObject<GetWorkspaceSummedUsageEndpointResult>()
+  .setName('GetWorkspaceSummedUsageEndpointResult')
+  .setFields({
+    records: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldArray<PublicUsageRecord>().setType(usageRecord)
+    ),
+    page: mddocConstruct.constructFieldObjectField(true, fReusables.page),
+  })
+  .setDescription('Get workspace summed usage records endpoint success result.');
 
-const countWorkspaceSummedUsageParams =
-  FieldObject.construct<CountWorkspaceSummedUsageEndpointParams>()
-    .setName('CountWorkspaceSummedUsageEndpointParams')
-    .setFields({
-      workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
-      query: FieldObject.optionalField(summedUsageQuery),
-    })
-    .setRequired(true)
-    .setDescription('Count workspace summed usage records endpoint params.');
+const countWorkspaceSummedUsageParams = mddocConstruct
+  .constructFieldObject<CountWorkspaceSummedUsageEndpointParams>()
+  .setName('CountWorkspaceSummedUsageEndpointParams')
+  .setFields({
+    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
+    query: mddocConstruct.constructFieldObjectField(false, summedUsageQuery),
+  })
+  .setDescription('Count workspace summed usage records endpoint params.');
 
-const getUsageCostsResponseBody = FieldObject.construct<GetUsageCostsEndpointResult>()
+const getUsageCostsResponseBody = mddocConstruct
+  .constructFieldObject<GetUsageCostsEndpointResult>()
   .setName('GetUsageCostsEndpointResult')
-  .setFields({costs: FieldObject.requiredField(usageCosts)})
-  .setRequired(true)
+  .setFields({costs: mddocConstruct.constructFieldObjectField(true, usageCosts)})
   .setDescription('Get usage costs endpoint success result.');
 
-export const getUsageCostsEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: GetUsageCostsEndpointResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const getUsageCostsEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<GetUsageCostsHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
+    InferFieldObjectType<GetUsageCostsHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<GetUsageCostsHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<
+      GetUsageCostsHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<GetUsageCostsHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectType<
+      GetUsageCostsHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(usageRecordConstants.routes.getUsageCosts)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
@@ -122,12 +145,26 @@ export const getUsageCostsEndpointDefinition = HttpEndpointDefinition.construct<
   .setName('GetUsageCostsEndpoint')
   .setDescription('Get usage costs endpoint.');
 
-export const getWorkspaceSummedUsageEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: GetWorkspaceSummedUsageEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: GetWorkspaceSummedUsageEndpointResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const getWorkspaceSummedUsageEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      GetWorkspaceSummedUsageHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      GetWorkspaceSummedUsageHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<GetWorkspaceSummedUsageHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<
+      GetWorkspaceSummedUsageHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      GetWorkspaceSummedUsageHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      GetWorkspaceSummedUsageHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(usageRecordConstants.routes.getWorkspaceSummedUsage)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getWorkspaceSummedUsageParams)
@@ -137,12 +174,26 @@ export const getWorkspaceSummedUsageEndpointDefinition = HttpEndpointDefinition.
   .setName('GetWorkspaceSummedUsageEndpoint')
   .setDescription('Get workspace summed usage records endpoint.');
 
-export const countWorkspaceSummedUsageEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: CountWorkspaceSummedUsageEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: CountItemsEndpointResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const countWorkspaceSummedUsageEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      CountWorkspaceSummedUsageHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      CountWorkspaceSummedUsageHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<CountWorkspaceSummedUsageHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<
+      CountWorkspaceSummedUsageHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      CountWorkspaceSummedUsageHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      CountWorkspaceSummedUsageHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(usageRecordConstants.routes.countWorkspaceSummedUsage)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(countWorkspaceSummedUsageParams)

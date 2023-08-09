@@ -1,196 +1,744 @@
+import {merge} from 'lodash';
 import {Readable} from 'stream';
 import {OptionalKeysOf} from 'type-fest';
 import {
   BaseEndpointResult,
   HttpEndpointResponseHeaders_ContentType_ContentLength,
-  HttpEndpointStructure,
 } from '../endpoints/types';
-import {AccessorConstruct, ClassFieldsWithAccessorsMixin} from '../utils/classAccessors';
-import {AnyObject} from '../utils/types';
+import {
+  makeAssertGetAccessor,
+  makeClone,
+  makeGetAccessor,
+  makeSetAccessor,
+} from '../utils/classAccessors';
+import {AnyFn, AnyObject} from '../utils/types';
 
-export class FieldBase {
-  static construct() {
-    return AccessorConstruct.wrap(new FieldBase());
-  }
-
-  __id = FieldBase.name;
-  constructor(public required?: boolean, public description?: string) {}
+export interface FieldBaseType {
+  __id: string;
+  description?: string;
+  setDescription: (v: string) => FieldBaseType;
+  getDescription: () => string | undefined;
+  assertGetDescription: () => string;
+  clone: () => FieldBaseType;
 }
-
-export class FieldString extends FieldBase {
-  static construct() {
-    return AccessorConstruct.wrap(new FieldString());
-  }
-
-  __id = FieldString.name;
-  constructor(
-    required?: boolean,
-    description?: string,
-    public example?: string,
-    public valid?: string[],
-    public min?: number,
-    public max?: number,
-    public enumName?: string
-  ) {
-    super(required, description);
-  }
+export interface FieldStringType {
+  __id: string;
+  example?: string;
+  valid?: string[];
+  min?: number;
+  max?: number;
+  enumName?: string;
+  description?: string;
+  setDescription: (v: string) => FieldStringType;
+  getDescription: () => string | undefined;
+  assertGetDescription: () => string;
+  setExample: (v: string) => FieldStringType;
+  getExample: () => string | undefined;
+  assertGetExample: () => string;
+  setValid: (v: string[]) => FieldStringType;
+  getValid: () => string[] | undefined;
+  assertGetValid: () => string[];
+  setMin: (v: number) => FieldStringType;
+  getMin: () => number | undefined;
+  assertGetMin: () => number;
+  setMax: (v: number) => FieldStringType;
+  getMax: () => number | undefined;
+  assertGetMax: () => number;
+  setEnumName: (v: string) => FieldStringType;
+  getEnumName: () => string | undefined;
+  assertGetEnumName: () => string;
+  clone: () => FieldStringType;
 }
-export class FieldNumber extends FieldBase {
-  static construct() {
-    return AccessorConstruct.wrap(new FieldNumber());
-  }
-
-  __id = FieldNumber.name;
-  constructor(
-    required?: boolean,
-    description?: string,
-    public example?: number,
-    public integer?: boolean,
-    public min?: number,
-    public max?: number
-  ) {
-    super(required, description);
-  }
+export interface FieldNumberType {
+  __id: string;
+  example?: number;
+  integer?: boolean;
+  min?: number;
+  max?: number;
+  description?: string;
+  setDescription: (v: string) => FieldNumberType;
+  getDescription: () => string | undefined;
+  assertGetDescription: () => string;
+  setExample: (v: number) => FieldNumberType;
+  getExample: () => number | undefined;
+  assertGetExample: () => number;
+  setInteger: (v: boolean) => FieldNumberType;
+  getInteger: () => boolean | undefined;
+  assertGetInteger: () => boolean;
+  setMin: (v: number) => FieldNumberType;
+  getMin: () => number | undefined;
+  assertGetMin: () => number;
+  setMax: (v: number) => FieldNumberType;
+  getMax: () => number | undefined;
+  assertGetMax: () => number;
+  clone: () => FieldNumberType;
 }
-
-export class FieldBoolean extends FieldBase {
-  static construct() {
-    return AccessorConstruct.wrap(new FieldBoolean());
-  }
-
-  __id = FieldBoolean.name;
-  constructor(required?: boolean, description?: string, public example?: boolean) {
-    super(required, description);
-  }
+export interface FieldBooleanType {
+  __id: string;
+  example?: boolean;
+  description?: string;
+  setDescription: (v: string) => FieldBooleanType;
+  getDescription: () => string | undefined;
+  assertGetDescription: () => string;
+  setExample: (v: boolean) => FieldBooleanType;
+  getExample: () => boolean | undefined;
+  assertGetExample: () => boolean;
+  clone: () => FieldBooleanType;
 }
-
-export class FieldNull extends FieldBase {
-  static construct() {
-    return AccessorConstruct.wrap(new FieldNull());
-  }
-
-  __id = FieldNull.name;
+export interface FieldNullType {
+  __id: string;
+  description?: string;
+  setDescription: (v: string) => FieldNullType;
+  getDescription: () => string | undefined;
+  assertGetDescription: () => string;
+  clone: () => FieldNullType;
 }
-
-export class FieldUndefined extends FieldBase {
-  static construct() {
-    return AccessorConstruct.wrap(new FieldUndefined());
-  }
-
-  __id = FieldUndefined.name;
+export interface FieldUndefinedType {
+  __id: string;
+  description?: string;
+  setDescription: (v: string) => FieldUndefinedType;
+  getDescription: () => string | undefined;
+  assertGetDescription: () => string;
+  clone: () => FieldUndefinedType;
 }
-
-export class FieldDate extends FieldBase {
-  static construct() {
-    return AccessorConstruct.wrap(new FieldDate());
-  }
-
-  __id = FieldDate.name;
-  constructor(required?: boolean, description?: string, public example?: string) {
-    super(required, description);
-  }
+export interface FieldDateType {
+  __id: string;
+  example?: string;
+  description?: string;
+  setDescription: (v: string) => FieldDateType;
+  getDescription: () => string | undefined;
+  assertGetDescription: () => string;
+  setExample: (v: string) => FieldDateType;
+  getExample: () => string | undefined;
+  assertGetExample: () => string;
+  clone: () => FieldDateType;
 }
-
-export class FieldArray<T> extends FieldBase {
-  static construct<T>() {
-    return AccessorConstruct.wrap(new FieldArray<T>());
-  }
-
-  __id = FieldArray.name;
-  constructor(
-    required?: boolean,
-    description?: string,
-    public type?: ConvertToMddocType<T>,
-    public min?: number,
-    public max?: number
-  ) {
-    super(required, description);
-  }
+export interface FieldArrayType<T> {
+  __id: string;
+  type?: ConvertToMddocType<T>;
+  min?: number;
+  max?: number;
+  description?: string;
+  setDescription: (v: string) => FieldArrayType<T>;
+  getDescription: () => string | undefined;
+  assertGetDescription: () => string;
+  setType: (v: ConvertToMddocType<T>) => FieldArrayType<T>;
+  getType: () => ConvertToMddocType<T> | undefined;
+  assertGetType: () => ConvertToMddocType<T>;
+  setMin: (v: number) => FieldArrayType<T>;
+  getMin: () => number | undefined;
+  assertGetMin: () => number;
+  setMax: (v: number) => FieldArrayType<T>;
+  getMax: () => number | undefined;
+  assertGetMax: () => number;
+  clone: () => FieldArrayType<T>;
 }
-
-export class FieldObjectFieldRequired<T> {
-  required = true;
-  constructor(public data: T) {}
+export interface FieldObjectFieldType<T, TRequired extends boolean = any> {
+  __id: string;
+  required: TRequired;
+  data: ConvertToMddocType<T>;
+  description?: string;
+  setDescription: (v: string) => FieldObjectFieldType<T, TRequired>;
+  getDescription: () => string | undefined;
+  assertGetDescription: () => string;
+  setRequired: (v: TRequired) => FieldObjectFieldType<T, TRequired>;
+  getRequired: () => TRequired | undefined;
+  assertGetRequired: () => TRequired;
+  setData: (v: ConvertToMddocType<T>) => FieldObjectFieldType<T, TRequired>;
+  getData: () => ConvertToMddocType<T> | undefined;
+  assertGetData: () => ConvertToMddocType<T>;
+  clone: () => FieldObjectFieldType<T, TRequired>;
 }
-export class FieldObjectFieldOptional<T> {
-  optional = true;
-  constructor(public data: T) {}
-}
-
-export type ConvertToMddocType<T> = T extends string
-  ? MddocTypeFieldString
-  : T extends number
-  ? MddocTypeFieldNumber
-  : T extends boolean
-  ? MddocTypeFieldBoolean
-  : T extends Array<infer InferedType>
-  ? MddocTypeFieldArray<InferedType>
-  : T extends Buffer
-  ? MddocTypeFieldBinary
-  : T extends Readable
-  ? MddocTypeFieldBinary
-  : T extends AnyObject
-  ? MddocTypeFieldObject<T>
-  : MddocTypeFieldBase;
-
-export type FieldObjectFields<T extends object> = Required<{
+export type ConvertToMddocType<T = any> = NonNullable<T> extends string
+  ? FieldStringType
+  : NonNullable<T> extends number
+  ? FieldNumberType
+  : NonNullable<T> extends boolean
+  ? FieldBooleanType
+  : NonNullable<T> extends Array<infer InferedType>
+  ? FieldArrayType<InferedType>
+  : NonNullable<T> extends Buffer
+  ? FieldBinaryType
+  : NonNullable<T> extends Readable
+  ? FieldBinaryType
+  : NonNullable<T> extends AnyObject
+  ? FieldObjectType<NonNullable<T>>
+  : FieldBaseType;
+export type FieldObjectFieldsMap<T extends object> = Required<{
   [K in keyof T]: K extends OptionalKeysOf<T>
-    ? FieldObjectFieldOptional<ConvertToMddocType<T[K]>>
-    : FieldObjectFieldRequired<ConvertToMddocType<T[K]>>;
+    ? FieldObjectFieldType<T[K], false>
+    : FieldObjectFieldType<T[K], true>;
 }>;
+export interface FieldObjectType<T extends object> {
+  __id: string;
+  name?: string;
+  fields?: FieldObjectFieldsMap<T>;
+  description?: string;
+  setDescription: (v: string) => FieldObjectType<T>;
+  getDescription: () => string | undefined;
+  assertGetDescription: () => string;
+  setName: (v: string) => FieldObjectType<T>;
+  getName: () => string | undefined;
+  assertGetName: () => string;
+  setFields: (v: FieldObjectFieldsMap<T>) => FieldObjectType<T>;
+  getFields: () => FieldObjectFieldsMap<T> | undefined;
+  assertGetFields: () => FieldObjectFieldsMap<T>;
+  clone: () => FieldObjectType<T>;
+}
+export interface FieldOrCombinationType {
+  __id: string;
+  types?: Array<FieldBaseType>;
+  description?: string;
+  setDescription: (v: string) => FieldOrCombinationType;
+  getDescription: () => string | undefined;
+  assertGetDescription: () => string;
+  setTypes: (v: Array<FieldBaseType>) => FieldOrCombinationType;
+  getTypes: () => Array<FieldBaseType> | undefined;
+  assertGetTypes: () => Array<FieldBaseType>;
+  clone: () => FieldOrCombinationType;
+}
+export interface FieldBinaryType {
+  __id: string;
+  min?: number;
+  max?: number;
+  description?: string;
+  setDescription: (v: string) => FieldBinaryType;
+  getDescription: () => string | undefined;
+  assertGetDescription: () => string;
+  setMin: (v: number) => FieldBinaryType;
+  getMin: () => number | undefined;
+  assertGetMin: () => number;
+  setMax: (v: number) => FieldBinaryType;
+  getMax: () => number | undefined;
+  assertGetMax: () => number;
+  clone: () => FieldBinaryType;
+}
+export type MappingFn<TSdkParams, TRequestHeaders, TPathParameters, TQuery, TRequestBody> = AnyFn<
+  [keyof TSdkParams],
+  Array<
+    | ['header', keyof TRequestHeaders]
+    | ['path', keyof TPathParameters]
+    | ['query', keyof TQuery]
+    | ['body', keyof TRequestBody]
+  >
+>;
+export interface SdkParamsBodyType<
+  T extends object = any,
+  TRequestHeaders extends object = any,
+  TPathParameters extends object = any,
+  TQuery extends object = any,
+  TRequestBody extends object = any
+> {
+  __id: string;
+  def?: FieldObjectType<T>;
+  mappings: MappingFn<T, TRequestHeaders, TPathParameters, TQuery, TRequestBody>;
+  setDef: (
+    v: FieldObjectType<T>
+  ) => SdkParamsBodyType<T, TRequestHeaders, TPathParameters, TQuery, TRequestBody>;
+  getDef: () => FieldObjectType<T> | undefined;
+  assertGetDef: () => FieldObjectType<T>;
+  clone: () => SdkParamsBodyType<T, TRequestHeaders, TPathParameters, TQuery, TRequestBody>;
+}
+export interface HttpEndpointMultipartFormdataType<T extends object> {
+  __id: string;
+  items?: FieldObjectType<T>;
+  description?: string;
+  setDescription: (v: string) => HttpEndpointMultipartFormdataType<T>;
+  getDescription: () => string | undefined;
+  assertGetDescription: () => string;
+  setItems: (v: FieldObjectType<T>) => HttpEndpointMultipartFormdataType<T>;
+  getItems: () => FieldObjectType<T> | undefined;
+  assertGetItems: () => FieldObjectType<T>;
+  clone: () => HttpEndpointMultipartFormdataType<T>;
+}
+export interface HttpEndpointDefinitionType<
+  TRequestHeaders extends AnyObject = AnyObject,
+  TPathParameters extends AnyObject = AnyObject,
+  TQuery extends AnyObject = AnyObject,
+  TRequestBody extends AnyObject = AnyObject,
+  TResponseHeaders extends AnyObject = AnyObject,
+  TResponseBody extends AnyObject = AnyObject,
+  TSdkParams extends AnyObject = TRequestBody
+> {
+  __id: string;
+  basePathname?: string;
+  method?: HttpEndpointMethod;
+  pathParamaters?: FieldObjectType<TPathParameters>;
+  query?: FieldObjectType<TQuery>;
+  requestHeaders?: FieldObjectType<TRequestHeaders>;
+  requestBody?: FieldObjectType<TRequestBody> | HttpEndpointMultipartFormdataType<TRequestBody>;
+  responseHeaders?: FieldObjectType<TResponseHeaders>;
+  responseBody?: TResponseBody extends FieldBinaryType
+    ? FieldBinaryType
+    : FieldObjectType<TResponseBody>;
+  sdkParamsBody?: SdkParamsBodyType<
+    TSdkParams,
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody
+  >;
+  name?: string;
+  description?: string;
 
-// API type changes in line with definitions
-export class FieldObject<T extends object = any> extends FieldBase {
-  static construct<TConstructFields extends object = any>(): ClassFieldsWithAccessorsMixin<
-    FieldObject<TConstructFields>
-  > {
-    return AccessorConstruct.wrap(new FieldObject()) as ClassFieldsWithAccessorsMixin<
-      FieldObject<TConstructFields>
-    >;
-  }
-
-  static optionalField<T1 extends MddocTypeFieldBase>(data: T1) {
-    data = (data.getRequired() ? data.clone().setRequired(false) : data) as T1;
-    return new FieldObjectFieldOptional<T1>(data);
-  }
-
-  static requiredField<T1 extends MddocTypeFieldBase>(data: T1) {
-    data = (data.getRequired() === false ? data.clone().setRequired(true) : data) as T1;
-    return new FieldObjectFieldRequired<T1>(data);
-  }
-
-  __id = FieldObject.name;
-
-  constructor(
-    required?: boolean,
-    description?: string,
-    public name?: string | undefined,
-    public fields?: FieldObjectFields<T>
-  ) {
-    super(required, description);
-  }
+  // No need to manually set these fields, they are automatically added when
+  // generating api and sdk since our error response header and body is the
+  // same for all endpoints
+  errorResponseHeaders?: FieldObjectType<HttpEndpointResponseHeaders_ContentType_ContentLength>;
+  errorResponseBody?: FieldObjectType<BaseEndpointResult>;
+  setBasePathname: (
+    v: string
+  ) => HttpEndpointDefinitionType<
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody,
+    TResponseHeaders,
+    TResponseBody,
+    TSdkParams
+  >;
+  getBasePathname: () => string | undefined;
+  assertGetBasePathname: () => string;
+  setMethod: (
+    v: HttpEndpointMethod
+  ) => HttpEndpointDefinitionType<
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody,
+    TResponseHeaders,
+    TResponseBody,
+    TSdkParams
+  >;
+  getMethod: () => HttpEndpointMethod | undefined;
+  assertGetMethod: () => HttpEndpointMethod;
+  setPathParamaters: (
+    v: FieldObjectType<TPathParameters>
+  ) => HttpEndpointDefinitionType<
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody,
+    TResponseHeaders,
+    TResponseBody,
+    TSdkParams
+  >;
+  getPathParamaters: () => FieldObjectType<TPathParameters> | undefined;
+  assertGetPathParamaters: () => FieldObjectType<TPathParameters>;
+  setQuery: (
+    v: FieldObjectType<TQuery>
+  ) => HttpEndpointDefinitionType<
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody,
+    TResponseHeaders,
+    TResponseBody,
+    TSdkParams
+  >;
+  getQuery: () => FieldObjectType<TQuery> | undefined;
+  assertGetQuery: () => FieldObjectType<TQuery>;
+  setRequestHeaders: (
+    v: FieldObjectType<TRequestHeaders>
+  ) => HttpEndpointDefinitionType<
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody,
+    TResponseHeaders,
+    TResponseBody,
+    TSdkParams
+  >;
+  getRequestHeaders: () => FieldObjectType<TRequestHeaders> | undefined;
+  assertGetRequestHeaders: () => FieldObjectType<TRequestHeaders>;
+  setRequestBody: (
+    v: FieldObjectType<TRequestBody> | HttpEndpointMultipartFormdataType<TRequestBody>
+  ) => HttpEndpointDefinitionType<
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody,
+    TResponseHeaders,
+    TResponseBody,
+    TSdkParams
+  >;
+  getRequestBody: () =>
+    | FieldObjectType<TRequestBody>
+    | HttpEndpointMultipartFormdataType<TRequestBody>
+    | undefined;
+  assertGetRequestBody: () =>
+    | FieldObjectType<TRequestBody>
+    | HttpEndpointMultipartFormdataType<TRequestBody>;
+  setResponseHeaders: (
+    v: FieldObjectType<TResponseHeaders>
+  ) => HttpEndpointDefinitionType<
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody,
+    TResponseHeaders,
+    TResponseBody,
+    TSdkParams
+  >;
+  getResponseHeaders: () => FieldObjectType<TResponseHeaders> | undefined;
+  assertGetResponseHeaders: () => FieldObjectType<TResponseHeaders>;
+  setResponseBody: (
+    v: TResponseBody extends FieldBinaryType ? FieldBinaryType : FieldObjectType<TResponseBody>
+  ) => HttpEndpointDefinitionType<
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody,
+    TResponseHeaders,
+    TResponseBody,
+    TSdkParams
+  >;
+  getResponseBody: () =>
+    | (TResponseBody extends FieldBinaryType ? FieldBinaryType : FieldObjectType<TResponseBody>)
+    | undefined;
+  assertGetResponseBody: () => TResponseBody extends FieldBinaryType
+    ? FieldBinaryType
+    : FieldObjectType<TResponseBody>;
+  setSdkParamsBody: (
+    v: SdkParamsBodyType<TSdkParams, TRequestHeaders, TPathParameters, TQuery, TRequestBody>
+  ) => HttpEndpointDefinitionType<
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody,
+    TResponseHeaders,
+    TResponseBody,
+    TSdkParams
+  >;
+  getSdkParamsBody: () =>
+    | SdkParamsBodyType<TSdkParams, TRequestHeaders, TPathParameters, TQuery, TRequestBody>
+    | undefined;
+  assertGetSdkParamsBody: () => SdkParamsBodyType<
+    TSdkParams,
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody
+  >;
+  setName: (
+    v: string
+  ) => HttpEndpointDefinitionType<
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody,
+    TResponseHeaders,
+    TResponseBody,
+    TSdkParams
+  >;
+  getName: () => string | undefined;
+  assertGetName: () => string;
+  setDescription: (
+    v: string
+  ) => HttpEndpointDefinitionType<
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody,
+    TResponseHeaders,
+    TResponseBody,
+    TSdkParams
+  >;
+  getDescription: () => string | undefined;
+  assertGetDescription: () => string;
+  setErrorResponseHeaders: (
+    v: FieldObjectType<HttpEndpointResponseHeaders_ContentType_ContentLength>
+  ) => HttpEndpointDefinitionType<
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody,
+    TResponseHeaders,
+    TResponseBody,
+    TSdkParams
+  >;
+  getErrorResponseHeaders: () =>
+    | FieldObjectType<HttpEndpointResponseHeaders_ContentType_ContentLength>
+    | undefined;
+  assertGetErrorResponseHeaders: () => FieldObjectType<HttpEndpointResponseHeaders_ContentType_ContentLength>;
+  setErrorResponseBody: (
+    v: FieldObjectType<BaseEndpointResult>
+  ) => HttpEndpointDefinitionType<
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody,
+    TResponseHeaders,
+    TResponseBody,
+    TSdkParams
+  >;
+  getErrorResponseBody: () => FieldObjectType<BaseEndpointResult> | undefined;
+  assertGetErrorResponseBody: () => FieldObjectType<BaseEndpointResult>;
+  clone: () => HttpEndpointDefinitionType<
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody,
+    TResponseHeaders,
+    TResponseBody,
+    TSdkParams
+  >;
 }
 
-export class FieldOrCombination extends FieldBase {
-  static construct() {
-    return AccessorConstruct.wrap(new FieldOrCombination());
-  }
+export type InferFieldObjectType<T, TDefault = never> = T extends FieldObjectType<infer TObjectType>
+  ? TObjectType
+  : TDefault;
+export type InferFieldObjectOrMultipartType<T> = T extends FieldObjectType<infer TObjectType>
+  ? TObjectType
+  : T extends HttpEndpointMultipartFormdataType<infer TMultipartObjectType>
+  ? TMultipartObjectType
+  : never;
+export type InferSdkParamsType<T> = T extends SdkParamsBodyType<infer TObjectType>
+  ? TObjectType
+  : never;
 
-  __id = FieldOrCombination.name;
-  constructor(required?: boolean, description?: string, public types?: Array<MddocTypeFieldBase>) {
-    super(required, description);
-  }
+function constructFieldBase() {
+  // @ts-ignore
+  const ff0: FieldBaseType = {};
+  const ff = {
+    __id: 'FieldBase',
+    setDescription: makeSetAccessor(ff0, 'description'),
+    getDescription: makeGetAccessor(ff0, 'description'),
+    assertGetDescription: makeAssertGetAccessor(ff0, 'description'),
+    clone: makeClone(ff0),
+  };
+  return merge(ff0, ff);
 }
 
-export class FieldBinary extends FieldBase {
-  static construct() {
-    return AccessorConstruct.wrap(new FieldBinary());
-  }
+function constructFieldString() {
+  // @ts-ignore
+  const ff0: FieldStringType = {};
+  const ff: FieldStringType = {
+    __id: 'FieldString',
+    setDescription: makeSetAccessor(ff0, 'description'),
+    getDescription: makeGetAccessor(ff0, 'description'),
+    assertGetDescription: makeAssertGetAccessor(ff0, 'description'),
+    setExample: makeSetAccessor(ff0, 'example'),
+    getExample: makeGetAccessor(ff0, 'example'),
+    assertGetExample: makeAssertGetAccessor(ff0, 'example'),
+    setValid: makeSetAccessor(ff0, 'valid'),
+    getValid: makeGetAccessor(ff0, 'valid'),
+    assertGetValid: makeAssertGetAccessor(ff0, 'valid'),
+    setMin: makeSetAccessor(ff0, 'min'),
+    getMin: makeGetAccessor(ff0, 'min'),
+    assertGetMin: makeAssertGetAccessor(ff0, 'min'),
+    setMax: makeSetAccessor(ff0, 'max'),
+    getMax: makeGetAccessor(ff0, 'max'),
+    assertGetMax: makeAssertGetAccessor(ff0, 'max'),
+    setEnumName: makeSetAccessor(ff0, 'enumName'),
+    getEnumName: makeGetAccessor(ff0, 'enumName'),
+    assertGetEnumName: makeAssertGetAccessor(ff0, 'enumName'),
+    clone: makeClone(ff0),
+  };
+  return merge(ff0, ff);
+}
 
-  __id = FieldBinary.name;
-  constructor(required?: boolean, description?: string, public min?: number, public max?: number) {
-    super(required, description);
-  }
+function constructFieldNumber() {
+  // @ts-ignore
+  const ff0: FieldNumberType = {};
+  const ff: FieldNumberType = {
+    __id: 'FieldNumber',
+    setDescription: makeSetAccessor(ff0, 'description'),
+    getDescription: makeGetAccessor(ff0, 'description'),
+    assertGetDescription: makeAssertGetAccessor(ff0, 'description'),
+    setMin: makeSetAccessor(ff0, 'min'),
+    getMin: makeGetAccessor(ff0, 'min'),
+    assertGetMin: makeAssertGetAccessor(ff0, 'min'),
+    setMax: makeSetAccessor(ff0, 'max'),
+    getMax: makeGetAccessor(ff0, 'max'),
+    assertGetMax: makeAssertGetAccessor(ff0, 'max'),
+    setInteger: makeSetAccessor(ff0, 'integer'),
+    getInteger: makeGetAccessor(ff0, 'integer'),
+    assertGetInteger: makeAssertGetAccessor(ff0, 'integer'),
+    setExample: makeSetAccessor(ff0, 'example'),
+    getExample: makeGetAccessor(ff0, 'example'),
+    assertGetExample: makeAssertGetAccessor(ff0, 'example'),
+    clone: makeClone(ff0),
+  };
+  return merge(ff0, ff);
+}
+
+function constructFieldBoolean() {
+  // @ts-ignore
+  const ff0: FieldBooleanType = {};
+  const ff: FieldBooleanType = {
+    __id: 'FieldBoolean',
+    setDescription: makeSetAccessor(ff0, 'description'),
+    getDescription: makeGetAccessor(ff0, 'description'),
+    assertGetDescription: makeAssertGetAccessor(ff0, 'description'),
+    setExample: makeSetAccessor(ff0, 'example'),
+    getExample: makeGetAccessor(ff0, 'example'),
+    assertGetExample: makeAssertGetAccessor(ff0, 'example'),
+    clone: makeClone(ff0),
+  };
+  return merge(ff0, ff);
+}
+
+function constructFieldNull() {
+  // @ts-ignore
+  const ff0: FieldNullType = {};
+  const ff: FieldNullType = {
+    __id: 'FieldNull',
+    setDescription: makeSetAccessor(ff0, 'description'),
+    getDescription: makeGetAccessor(ff0, 'description'),
+    assertGetDescription: makeAssertGetAccessor(ff0, 'description'),
+    clone: makeClone(ff0),
+  };
+  return merge(ff0, ff);
+}
+
+function constructFieldUndefined() {
+  // @ts-ignore
+  const ff0: FieldUndefinedType = {};
+  const ff: FieldUndefinedType = {
+    __id: 'FieldUndefined',
+    setDescription: makeSetAccessor(ff0, 'description'),
+    getDescription: makeGetAccessor(ff0, 'description'),
+    assertGetDescription: makeAssertGetAccessor(ff0, 'description'),
+    clone: makeClone(ff0),
+  };
+  return merge(ff0, ff);
+}
+
+function constructFieldDate() {
+  // @ts-ignore
+  const ff0: FieldDateType = {};
+  const ff: FieldDateType = {
+    __id: 'FieldDate',
+    setDescription: makeSetAccessor(ff0, 'description'),
+    getDescription: makeGetAccessor(ff0, 'description'),
+    assertGetDescription: makeAssertGetAccessor(ff0, 'description'),
+    setExample: makeSetAccessor(ff0, 'example'),
+    getExample: makeGetAccessor(ff0, 'example'),
+    assertGetExample: makeAssertGetAccessor(ff0, 'example'),
+    clone: makeClone(ff0),
+  };
+  return merge(ff0, ff);
+}
+
+function constructFieldArray<T>() {
+  // @ts-ignore
+  const ff0: FieldArrayType<T> = {};
+  const ff: FieldArrayType<T> = {
+    __id: 'FieldArray',
+    setDescription: makeSetAccessor(ff0, 'description'),
+    getDescription: makeGetAccessor(ff0, 'description'),
+    assertGetDescription: makeAssertGetAccessor(ff0, 'description'),
+    setType: makeSetAccessor(ff0, 'type'),
+    getType: makeGetAccessor(ff0, 'type'),
+    assertGetType: makeAssertGetAccessor(ff0, 'type'),
+    setMin: makeSetAccessor(ff0, 'min'),
+    getMin: makeGetAccessor(ff0, 'min'),
+    assertGetMin: makeAssertGetAccessor(ff0, 'min'),
+    setMax: makeSetAccessor(ff0, 'max'),
+    getMax: makeGetAccessor(ff0, 'max'),
+    assertGetMax: makeAssertGetAccessor(ff0, 'max'),
+    clone: makeClone(ff0),
+  };
+  return merge(ff0, ff);
+}
+
+function constructFieldObjectField<T, TRequired extends boolean = false>(
+  required: TRequired,
+  data: ConvertToMddocType<T>
+) {
+  // @ts-ignore
+  const ff0: FieldObjectFieldType<T, TRequired> = {};
+  const ff: FieldObjectFieldType<T, TRequired> = {
+    data,
+    __id: 'FieldObjectField',
+    required,
+    setDescription: makeSetAccessor(ff0, 'description'),
+    getDescription: makeGetAccessor(ff0, 'description'),
+    assertGetDescription: makeAssertGetAccessor(ff0, 'description'),
+    setRequired: makeSetAccessor(ff0, 'required'),
+    getRequired: makeGetAccessor(ff0, 'required'),
+    assertGetRequired: makeAssertGetAccessor(ff0, 'required'),
+    setData: makeSetAccessor(ff0, 'data'),
+    getData: makeGetAccessor(ff0, 'data'),
+    assertGetData: makeAssertGetAccessor(ff0, 'data'),
+    clone: makeClone(ff0),
+  };
+  return merge(ff0, ff);
+}
+
+function constructFieldObject<T extends object>() {
+  // @ts-ignore
+  const ff0: FieldObjectType<T> = {};
+  const ff: FieldObjectType<T> = {
+    __id: 'FieldObject',
+    setDescription: makeSetAccessor(ff0, 'description'),
+    getDescription: makeGetAccessor(ff0, 'description'),
+    assertGetDescription: makeAssertGetAccessor(ff0, 'description'),
+    setName: makeSetAccessor(ff0, 'name'),
+    getName: makeGetAccessor(ff0, 'name'),
+    assertGetName: makeAssertGetAccessor(ff0, 'name'),
+    setFields: makeSetAccessor(ff0, 'fields'),
+    getFields: makeGetAccessor(ff0, 'fields'),
+    assertGetFields: makeAssertGetAccessor(ff0, 'fields'),
+    clone: makeClone(ff0),
+  };
+  return merge(ff0, ff);
+}
+
+function constructSdkParamsBody<
+  T extends object = any,
+  TRequestHeaders extends object = any,
+  TPathParameters extends object = any,
+  TQuery extends object = any,
+  TRequestBody extends object = any
+>(mappings: MappingFn<T, TRequestHeaders, TPathParameters, TQuery, TRequestBody>) {
+  // @ts-ignore
+  const ff0: SdkParamsBodyType<T, TRequestHeaders, TPathParameters, TQuery, TRequestBody> = {};
+  const ff: SdkParamsBodyType<T, TRequestHeaders, TPathParameters, TQuery, TRequestBody> = {
+    mappings,
+    __id: 'SdkParamsBody',
+    setDef: makeSetAccessor(ff0, 'def'),
+    getDef: makeGetAccessor(ff0, 'def'),
+    assertGetDef: makeAssertGetAccessor(ff0, 'def'),
+    clone: makeClone(ff0),
+  };
+  return merge(ff0, ff);
+}
+
+function constructFieldOrCombination() {
+  // @ts-ignore
+  const ff0: FieldOrCombinationType = {};
+  const ff: FieldOrCombinationType = {
+    __id: 'FieldOrCombination',
+    setDescription: makeSetAccessor(ff0, 'description'),
+    getDescription: makeGetAccessor(ff0, 'description'),
+    assertGetDescription: makeAssertGetAccessor(ff0, 'description'),
+    setTypes: makeSetAccessor(ff0, 'types'),
+    getTypes: makeGetAccessor(ff0, 'types'),
+    assertGetTypes: makeAssertGetAccessor(ff0, 'types'),
+    clone: makeClone(ff0),
+  };
+  return merge(ff0, ff);
+}
+
+function constructFieldBinary() {
+  // @ts-ignore
+  const ff0: FieldBinaryType = {};
+  const ff: FieldBinaryType = {
+    __id: 'FieldBinary',
+    setDescription: makeSetAccessor(ff0, 'description'),
+    getDescription: makeGetAccessor(ff0, 'description'),
+    assertGetDescription: makeAssertGetAccessor(ff0, 'description'),
+    setMin: makeSetAccessor(ff0, 'min'),
+    getMin: makeGetAccessor(ff0, 'min'),
+    assertGetMin: makeAssertGetAccessor(ff0, 'min'),
+    setMax: makeSetAccessor(ff0, 'max'),
+    getMax: makeGetAccessor(ff0, 'max'),
+    assertGetMax: makeAssertGetAccessor(ff0, 'max'),
+    clone: makeClone(ff0),
+  };
+  return merge(ff0, ff);
 }
 
 export enum HttpEndpointMethod {
@@ -199,122 +747,172 @@ export enum HttpEndpointMethod {
   Delete = 'delete',
 }
 
-export class HttpEndpointMultipartFormdata<T extends object> {
-  static construct<Body extends object = AnyObject>() {
-    return AccessorConstruct.wrap(new HttpEndpointMultipartFormdata<Body>());
-  }
-
-  __id = HttpEndpointMultipartFormdata.name;
-  constructor(public items?: MddocTypeFieldObject<T>) {}
+function constructHttpEndpointMultipartFormdata<T extends object>() {
+  // @ts-ignore
+  const ff0: HttpEndpointMultipartFormdataType<T> = {};
+  const ff: HttpEndpointMultipartFormdataType<T> = {
+    __id: 'HttpEndpointMultipartFormdata',
+    setDescription: makeSetAccessor(ff0, 'description'),
+    getDescription: makeGetAccessor(ff0, 'description'),
+    assertGetDescription: makeAssertGetAccessor(ff0, 'description'),
+    setItems: makeSetAccessor(ff0, 'items'),
+    getItems: makeGetAccessor(ff0, 'items'),
+    assertGetItems: makeAssertGetAccessor(ff0, 'items'),
+    clone: makeClone(ff0),
+  };
+  return merge(ff0, ff);
 }
 
-export type InferHttpEndpointTTypes<T extends HttpEndpointDefinition<any>> =
-  T extends HttpEndpointDefinition<infer TTypes> ? TTypes : never;
-
-export class HttpEndpointDefinition<TStructure extends HttpEndpointStructure> {
-  static construct<TTypes extends HttpEndpointStructure>() {
-    return AccessorConstruct.wrap(new HttpEndpointDefinition<TTypes>());
-  }
-
-  __id = HttpEndpointDefinition.name;
-  constructor(
-    public basePathname?: string,
-    public method?: HttpEndpointMethod,
-    public pathParamaters?: MddocTypeFieldObject<TStructure['pathParameters']>,
-    public query?: MddocTypeFieldObject<TStructure['query']>,
-    public requestBody?:
-      | MddocTypeFieldObject<TStructure['requestBody']>
-      | MddocTypeHttpEndpointMultipartFormdata<TStructure['requestBody']>,
-    public requestHeaders?: MddocTypeFieldObject<TStructure['requestHeaders']>,
-    public responseHeaders?: MddocTypeFieldObject<TStructure['responseHeaders']>,
-    public responseBody?: TStructure['responseBody'] extends FieldBinary
-      ? MddocTypeFieldBinary
-      : MddocTypeFieldObject<TStructure['responseBody']>,
-    public name?: string,
-    public description?: string,
-
-    // no need to manually set these fields
-    public errorResponseHeaders?: MddocTypeFieldObject<HttpEndpointResponseHeaders_ContentType_ContentLength>,
-    public errorResponseBody?: MddocTypeFieldObject<BaseEndpointResult>
-  ) {}
+function constructHttpEndpointDefinition<
+  TRequestHeaders extends AnyObject = AnyObject,
+  TPathParameters extends AnyObject = AnyObject,
+  TQuery extends AnyObject = AnyObject,
+  TRequestBody extends AnyObject = AnyObject,
+  TResponseHeaders extends AnyObject = AnyObject,
+  TResponseBody extends AnyObject = AnyObject,
+  TSdkParams extends AnyObject = TRequestBody
+>() {
+  // @ts-ignore
+  const ff0: HttpEndpointDefinitionType<
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody,
+    TResponseHeaders,
+    TResponseBody,
+    TSdkParams
+  > = {};
+  const ff: HttpEndpointDefinitionType<
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody,
+    TResponseHeaders,
+    TResponseBody,
+    TSdkParams
+  > = {
+    __id: 'HttpEndpointDefinition',
+    setBasePathname: makeSetAccessor(ff0, 'basePathname'),
+    getBasePathname: makeGetAccessor(ff0, 'basePathname'),
+    assertGetBasePathname: makeAssertGetAccessor(ff0, 'basePathname'),
+    setMethod: makeSetAccessor(ff0, 'method'),
+    getMethod: makeGetAccessor(ff0, 'method'),
+    assertGetMethod: makeAssertGetAccessor(ff0, 'method'),
+    setPathParamaters: makeSetAccessor(ff0, 'pathParamaters'),
+    getPathParamaters: makeGetAccessor(ff0, 'pathParamaters'),
+    assertGetPathParamaters: makeAssertGetAccessor(ff0, 'pathParamaters'),
+    setQuery: makeSetAccessor(ff0, 'query'),
+    getQuery: makeGetAccessor(ff0, 'query'),
+    assertGetQuery: makeAssertGetAccessor(ff0, 'query'),
+    setRequestHeaders: makeSetAccessor(ff0, 'requestHeaders'),
+    getRequestHeaders: makeGetAccessor(ff0, 'requestHeaders'),
+    assertGetRequestHeaders: makeAssertGetAccessor(ff0, 'requestHeaders'),
+    setRequestBody: makeSetAccessor(ff0, 'requestBody'),
+    getRequestBody: makeGetAccessor(ff0, 'requestBody'),
+    assertGetRequestBody: makeAssertGetAccessor(ff0, 'requestBody'),
+    setResponseHeaders: makeSetAccessor(ff0, 'responseHeaders'),
+    getResponseHeaders: makeGetAccessor(ff0, 'responseHeaders'),
+    assertGetResponseHeaders: makeAssertGetAccessor(ff0, 'responseHeaders'),
+    setResponseBody: makeSetAccessor(ff0, 'responseBody'),
+    getResponseBody: makeGetAccessor(ff0, 'responseBody'),
+    assertGetResponseBody: makeAssertGetAccessor(ff0, 'responseBody'),
+    setSdkParamsBody: makeSetAccessor(ff0, 'sdkParamsBody'),
+    getSdkParamsBody: makeGetAccessor(ff0, 'sdkParamsBody'),
+    assertGetSdkParamsBody: makeAssertGetAccessor(ff0, 'sdkParamsBody'),
+    setName: makeSetAccessor(ff0, 'name'),
+    getName: makeGetAccessor(ff0, 'name'),
+    assertGetName: makeAssertGetAccessor(ff0, 'name'),
+    setDescription: makeSetAccessor(ff0, 'description'),
+    getDescription: makeGetAccessor(ff0, 'description'),
+    assertGetDescription: makeAssertGetAccessor(ff0, 'description'),
+    setErrorResponseHeaders: makeSetAccessor(ff0, 'errorResponseHeaders'),
+    getErrorResponseHeaders: makeGetAccessor(ff0, 'errorResponseHeaders'),
+    assertGetErrorResponseHeaders: makeAssertGetAccessor(ff0, 'errorResponseHeaders'),
+    setErrorResponseBody: makeSetAccessor(ff0, 'errorResponseBody'),
+    getErrorResponseBody: makeGetAccessor(ff0, 'errorResponseBody'),
+    assertGetErrorResponseBody: makeAssertGetAccessor(ff0, 'errorResponseBody'),
+    clone: makeClone(ff0),
+  };
+  return merge(ff0, ff);
 }
 
-export type MddocTypeFieldBase = ClassFieldsWithAccessorsMixin<FieldBase>;
-export type MddocTypeFieldString = ClassFieldsWithAccessorsMixin<FieldString>;
-export type MddocTypeFieldNumber = ClassFieldsWithAccessorsMixin<FieldNumber>;
-export type MddocTypeFieldBoolean = ClassFieldsWithAccessorsMixin<FieldBoolean>;
-export type MddocTypeFieldNull = ClassFieldsWithAccessorsMixin<FieldNull>;
-export type MddocTypeFieldUndefined = ClassFieldsWithAccessorsMixin<FieldUndefined>;
-export type MddocTypeFieldDate = ClassFieldsWithAccessorsMixin<FieldDate>;
-export type MddocTypeFieldArray<T> = ClassFieldsWithAccessorsMixin<FieldArray<T>>;
-export type MddocTypeFieldObject<TObject extends object = any> = ClassFieldsWithAccessorsMixin<
-  FieldObject<TObject>
->;
-export type MddocTypeFieldOrCombination = ClassFieldsWithAccessorsMixin<FieldOrCombination>;
-export type MddocTypeFieldBinary = ClassFieldsWithAccessorsMixin<FieldBinary>;
-export type MddocTypeHttpEndpoint<TTypes extends HttpEndpointStructure> =
-  ClassFieldsWithAccessorsMixin<HttpEndpointDefinition<TTypes>>;
-export type MddocTypeHttpEndpointMultipartFormdata<T extends object> =
-  ClassFieldsWithAccessorsMixin<HttpEndpointMultipartFormdata<T>>;
+export const mddocConstruct = {
+  constructFieldArray,
+  constructFieldBase,
+  constructFieldBinary,
+  constructFieldBoolean,
+  constructFieldDate,
+  constructFieldNull,
+  constructFieldNumber,
+  constructFieldObject,
+  constructFieldObjectField,
+  constructFieldOrCombination,
+  constructFieldString,
+  constructFieldUndefined,
+  constructHttpEndpointDefinition,
+  constructHttpEndpointMultipartFormdata,
+  constructSdkParamsBody,
+};
 
-export function objectHasRequiredFields(item: MddocTypeFieldObject) {
+export function objectHasRequiredFields(item: FieldObjectType<any>) {
   return item.getFields()
-    ? Object.values(item.assertGetFields()).findIndex(next => !next.optional) !== -1
+    ? Object.values(item.assertGetFields()).findIndex(next => next.required) !== -1
     : false;
 }
 
-export function isMddocFieldBase(data: any): data is MddocTypeFieldBase {
-  return data && (data as FieldBase).__id === 'FieldBase';
+export function isMddocFieldBase(data: any): data is FieldBaseType {
+  return data && (data as FieldBaseType).__id === 'FieldBase';
 }
 
-export function isMddocFieldString(data: any): data is MddocTypeFieldString {
-  return data && (data as FieldString).__id === 'FieldString';
+export function isMddocFieldString(data: any): data is FieldStringType {
+  return data && (data as FieldStringType).__id === 'FieldString';
 }
 
-export function isMddocFieldNumber(data: any): data is MddocTypeFieldNumber {
-  return data && (data as FieldNumber).__id === 'FieldNumber';
+export function isMddocFieldNumber(data: any): data is FieldNumberType {
+  return data && (data as FieldNumberType).__id === 'FieldNumber';
 }
 
-export function isMddocFieldBoolean(data: any): data is MddocTypeFieldBoolean {
-  return data && (data as FieldBoolean).__id === 'FieldBoolean';
+export function isMddocFieldBoolean(data: any): data is FieldBooleanType {
+  return data && (data as FieldBooleanType).__id === 'FieldBoolean';
 }
 
-export function isMddocFieldNull(data: any): data is MddocTypeFieldNull {
-  return data && (data as FieldNull).__id === 'FieldNull';
+export function isMddocFieldNull(data: any): data is FieldNullType {
+  return data && (data as FieldNullType).__id === 'FieldNull';
 }
 
-export function isMddocFieldUndefined(data: any): data is MddocTypeFieldUndefined {
-  return data && (data as FieldUndefined).__id === 'FieldUndefined';
+export function isMddocFieldUndefined(data: any): data is FieldUndefinedType {
+  return data && (data as FieldUndefinedType).__id === 'FieldUndefined';
 }
 
-export function isMddocFieldDate(data: any): data is MddocTypeFieldDate {
-  return data && (data as FieldDate).__id === 'FieldDate';
+export function isMddocFieldDate(data: any): data is FieldDateType {
+  return data && (data as FieldDateType).__id === 'FieldDate';
 }
 
-export function isMddocFieldArray(data: any): data is MddocTypeFieldArray<any> {
-  return data && (data as FieldArray<any>).__id === 'FieldArray';
+export function isMddocFieldArray(data: any): data is FieldArrayType<any> {
+  return data && (data as FieldArrayType<any>).__id === 'FieldArray';
 }
 
-export function isMddocFieldObject(data: any): data is MddocTypeFieldObject {
-  return data && (data as FieldObject).__id === 'FieldObject';
+export function isMddocFieldObject(data: any): data is FieldObjectType<any> {
+  return data && (data as FieldObjectType<any>).__id === 'FieldObject';
 }
 
-export function isMddocFieldOrCombination(data: any): data is MddocTypeFieldOrCombination {
-  return data && (data as FieldOrCombination).__id === 'FieldOrCombination';
+export function isMddocFieldOrCombination(data: any): data is FieldOrCombinationType {
+  return data && (data as FieldOrCombinationType).__id === 'FieldOrCombination';
 }
 
-export function isMddocFieldBinary(data: any): data is MddocTypeFieldBinary {
-  return data && (data as FieldBinary).__id === 'FieldBinary';
+export function isMddocFieldBinary(data: any): data is FieldBinaryType {
+  return data && (data as FieldBinaryType).__id === 'FieldBinary';
 }
 
 export function isMddocMultipartFormdata(
   data: any
-): data is MddocTypeHttpEndpointMultipartFormdata<any> {
+): data is HttpEndpointMultipartFormdataType<any> {
   return (
-    data && (data as HttpEndpointMultipartFormdata<any>).__id === 'HttpEndpointMultipartFormdata'
+    data &&
+    (data as HttpEndpointMultipartFormdataType<any>).__id === 'HttpEndpointMultipartFormdata'
   );
 }
 
-export function isMddocEndpoint(data: any): data is MddocTypeHttpEndpoint<any> {
-  return data && (data as HttpEndpointDefinition<any>).__id === 'HttpEndpointDefinition';
+export function isMddocEndpoint(data: any): data is HttpEndpointDefinitionType<any> {
+  return data && (data as HttpEndpointDefinitionType<any>).__id === 'HttpEndpointDefinition';
 }

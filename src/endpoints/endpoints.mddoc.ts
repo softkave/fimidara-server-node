@@ -8,16 +8,7 @@ import {
   VALID_AGENT_TYPES,
 } from '../definitions/system';
 import {UsageRecordCategory, UsageRecordFulfillmentStatus} from '../definitions/usageRecord';
-import {
-  FieldArray,
-  FieldBoolean,
-  FieldDate,
-  FieldNull,
-  FieldNumber,
-  FieldObject,
-  FieldOrCombination,
-  FieldString,
-} from '../mddoc/mddoc';
+import {mddocConstruct} from '../mddoc/mddoc';
 import {EndpointExportedError} from '../utils/OperationError';
 import {multilineTextToParagraph} from '../utils/fns';
 import {ID_SEPARATOR, RESOURCE_TYPE_SHORT_NAMES} from '../utils/resource';
@@ -42,86 +33,114 @@ export const mddocEndpointStatusCodes = {
   error: '4XX or 5XX',
 } as const;
 
-const requestHeaderItem_JsonContentType = FieldString.construct()
+const requestHeaderItem_JsonContentType = mddocConstruct
+  .constructFieldString()
   .setDescription('HTTP JSON request content type.')
-  .setExample('application/json')
-  .setValid(['application/json']);
-const requestHeaderItem_MultipartFormdataContentType = FieldString.construct()
+  .setExample('application/json');
+const requestHeaderItem_MultipartFormdataContentType = mddocConstruct
+  .constructFieldString()
   .setDescription('HTTP multipart form-data request content type.')
   .setExample('multipart/form-data')
   .setValid(['multipart/form-data']);
-const responseHeaderItem_JsonContentType = FieldString.construct()
+const responseHeaderItem_JsonContentType = mddocConstruct
+  .constructFieldString()
   .setDescription('HTTP JSON response content type.')
-  .setExample(undefined)
-  .setValid(['application/json']);
-const responseHeaderItem_ContentLength = FieldString.construct().setDescription(
-  'HTTP response content length in bytes.'
-);
-const requestHeaderItem_Authorization = FieldString.construct()
+  .setExample('application/json');
+const responseHeaderItem_ContentLength = mddocConstruct
+  .constructFieldString()
+  .setDescription('HTTP response content length in bytes.');
+const requestHeaderItem_Authorization = mddocConstruct
+  .constructFieldString()
   .setDescription('Access token.')
   .setExample('Bearer <token>');
-const requestHeaderItem_ContentType = FieldString.construct()
+const requestHeaderItem_ContentType = mddocConstruct
+  .constructFieldString()
   .setDescription('HTTP request content type.')
   .setExample('application/json or multipart/form-data');
 
-const requestHeaders_AuthRequired_JsonContentType =
-  FieldObject.construct<HttpEndpointRequestHeaders_AuthRequired_ContentType>()
-    .setFields({
-      Authorization: FieldObject.requiredField(requestHeaderItem_Authorization),
-      'Content-Type': FieldObject.requiredField(requestHeaderItem_JsonContentType),
-    })
-    .setName('HttpEndpointRequestHeaders_AuthRequired_JsonContentType');
-const requestHeaders_AuthOptional_JsonContentType =
-  FieldObject.construct<HttpEndpointRequestHeaders_AuthOptional_ContentType>()
-    .setFields({
-      Authorization: FieldObject.optionalField(requestHeaderItem_Authorization),
-      'Content-Type': FieldObject.requiredField(requestHeaderItem_JsonContentType),
-    })
-    .setName('HttpEndpointRequestHeaders_AuthOptional_JsonContentType');
-const requestHeaders_JsonContentType =
-  FieldObject.construct<HttpEndpointRequestHeaders_ContentType>()
-    .setFields({
-      'Content-Type': FieldObject.requiredField(requestHeaderItem_JsonContentType),
-    })
-    .setName('HttpEndpointRequestHeaders_JsonContentType');
-const requestHeaders_AuthRequired_MultipartContentType =
-  FieldObject.construct<HttpEndpointRequestHeaders_AuthRequired_ContentType>()
-    .setFields({
-      Authorization: FieldObject.requiredField(requestHeaderItem_Authorization),
-      'Content-Type': FieldObject.requiredField(requestHeaderItem_MultipartFormdataContentType),
-    })
-    .setName('HttpEndpointRequestHeaders_AuthRequired_MultipartContentType');
-const requestHeaders_AuthOptional_MultipartContentTypeParts = {
-  Authorization: FieldObject.optionalField(requestHeaderItem_Authorization),
-  'Content-Type': FieldObject.requiredField(requestHeaderItem_MultipartFormdataContentType),
-} as const;
-const requestHeaders_AuthOptional_MultipartContentType =
-  FieldObject.construct<HttpEndpointRequestHeaders_AuthOptional_ContentType>()
-    .setFields(requestHeaders_AuthOptional_MultipartContentTypeParts)
-    .setName('HttpEndpointRequestHeaders_AuthOptional_MultipartContentType');
-const requestHeaders_MultipartContentType =
-  FieldObject.construct<HttpEndpointRequestHeaders_ContentType>()
-    .setFields({
-      'Content-Type': FieldObject.requiredField(requestHeaderItem_MultipartFormdataContentType),
-    })
-    .setName('HttpEndpointRequestHeaders_MultipartContentType');
-const requestHeaders_AuthRequired = FieldObject.construct<HttpEndpointRequestHeaders_AuthRequired>()
+const requestHeaders_AuthRequired_JsonContentType = mddocConstruct
+  .constructFieldObject<HttpEndpointRequestHeaders_AuthRequired_ContentType>()
   .setFields({
-    Authorization: FieldObject.requiredField(requestHeaderItem_Authorization),
+    Authorization: mddocConstruct.constructFieldObjectField(true, requestHeaderItem_Authorization),
+    'Content-Type': mddocConstruct.constructFieldObjectField(
+      true,
+      requestHeaderItem_JsonContentType
+    ),
+  })
+  .setName('HttpEndpointRequestHeaders_AuthRequired_JsonContentType');
+const requestHeaders_AuthOptional_JsonContentType = mddocConstruct
+  .constructFieldObject<HttpEndpointRequestHeaders_AuthOptional_ContentType>()
+  .setFields({
+    Authorization: mddocConstruct.constructFieldObjectField(false, requestHeaderItem_Authorization),
+    'Content-Type': mddocConstruct.constructFieldObjectField(
+      true,
+      requestHeaderItem_JsonContentType
+    ),
+  })
+  .setName('HttpEndpointRequestHeaders_AuthOptional_JsonContentType');
+const requestHeaders_JsonContentType = mddocConstruct
+  .constructFieldObject<HttpEndpointRequestHeaders_ContentType>()
+  .setFields({
+    'Content-Type': mddocConstruct.constructFieldObjectField(
+      true,
+      requestHeaderItem_JsonContentType
+    ),
+  })
+  .setName('HttpEndpointRequestHeaders_JsonContentType');
+const requestHeaders_AuthRequired_MultipartContentType = mddocConstruct
+  .constructFieldObject<HttpEndpointRequestHeaders_AuthRequired_ContentType>()
+  .setFields({
+    Authorization: mddocConstruct.constructFieldObjectField(true, requestHeaderItem_Authorization),
+    'Content-Type': mddocConstruct.constructFieldObjectField(
+      true,
+      requestHeaderItem_MultipartFormdataContentType
+    ),
+  })
+  .setName('HttpEndpointRequestHeaders_AuthRequired_MultipartContentType');
+const requestHeaders_AuthOptional_MultipartContentType = mddocConstruct
+  .constructFieldObject<HttpEndpointRequestHeaders_AuthOptional_ContentType>()
+  .setFields({
+    Authorization: mddocConstruct.constructFieldObjectField(false, requestHeaderItem_Authorization),
+    'Content-Type': mddocConstruct.constructFieldObjectField(
+      true,
+      requestHeaderItem_MultipartFormdataContentType
+    ),
+  })
+  .setName('HttpEndpointRequestHeaders_AuthOptional_MultipartContentType');
+const requestHeaders_MultipartContentType = mddocConstruct
+  .constructFieldObject<HttpEndpointRequestHeaders_ContentType>()
+  .setFields({
+    'Content-Type': mddocConstruct.constructFieldObjectField(
+      true,
+      requestHeaderItem_MultipartFormdataContentType
+    ),
+  })
+  .setName('HttpEndpointRequestHeaders_MultipartContentType');
+const requestHeaders_AuthRequired = mddocConstruct
+  .constructFieldObject<HttpEndpointRequestHeaders_AuthRequired>()
+  .setFields({
+    Authorization: mddocConstruct.constructFieldObjectField(true, requestHeaderItem_Authorization),
   })
   .setName('HttpEndpointRequestHeaders_AuthRequired');
-const requestHeaders_AuthOptional = FieldObject.construct<HttpEndpointRequestHeaders_AuthOptional>()
+const requestHeaders_AuthOptional = mddocConstruct
+  .constructFieldObject<HttpEndpointRequestHeaders_AuthOptional>()
   .setFields({
-    Authorization: FieldObject.optionalField(requestHeaderItem_Authorization),
+    Authorization: mddocConstruct.constructFieldObjectField(false, requestHeaderItem_Authorization),
   })
   .setName('HttpEndpointRequestHeaders_AuthOptional');
-const responseHeaders_JsonContentType =
-  FieldObject.construct<HttpEndpointResponseHeaders_ContentType_ContentLength>()
-    .setFields({
-      'Content-Type': FieldObject.requiredField(responseHeaderItem_JsonContentType),
-      'Content-Length': FieldObject.requiredField(responseHeaderItem_ContentLength),
-    })
-    .setName('HttpEndpointResponseHeaders_ContentType_ContentLength');
+const responseHeaders_JsonContentType = mddocConstruct
+  .constructFieldObject<HttpEndpointResponseHeaders_ContentType_ContentLength>()
+  .setFields({
+    'Content-Type': mddocConstruct.constructFieldObjectField(
+      true,
+      responseHeaderItem_JsonContentType
+    ),
+    'Content-Length': mddocConstruct.constructFieldObjectField(
+      true,
+      responseHeaderItem_ContentLength
+    ),
+  })
+  .setName('HttpEndpointResponseHeaders_ContentType_ContentLength');
 
 export const mddocEndpointHttpHeaderItems = {
   requestHeaderItem_Authorization,
@@ -134,7 +153,6 @@ export const mddocEndpointHttpHeaderItems = {
   requestHeaders_JsonContentType,
   requestHeaders_AuthOptional,
   requestHeaders_MultipartContentType,
-  requestHeaders_AuthOptional_MultipartContentTypeParts,
   requestHeaders_AuthOptional_MultipartContentType,
   requestHeaders_AuthRequired_MultipartContentType,
   requestHeaders_AuthOptional_JsonContentType,
@@ -142,35 +160,45 @@ export const mddocEndpointHttpHeaderItems = {
   responseHeaders_JsonContentType,
 };
 
-const agent = FieldObject.construct<PublicAgent>()
+const agent = mddocConstruct
+  .constructFieldObject<PublicAgent>()
   .setName('Agent')
   .setFields({
-    agentId: FieldObject.requiredField(
-      FieldString.construct().setDescription(
-        'Agent ID. Possible agents are users and agent tokens.'
-      )
+    agentId: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct
+        .constructFieldString()
+        .setDescription('Agent ID. Possible agents are users and agent tokens.')
     ),
-    agentType: FieldObject.requiredField(
-      FieldString.construct()
+    agentType: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct
+        .constructFieldString()
         .setDescription('Agent type.')
         .setExample(AppResourceType.AgentToken)
         .setValid(VALID_AGENT_TYPES)
         .setEnumName('AgentType')
     ),
   });
-const date = FieldNumber.construct().setDescription('UTC timestamp in milliseconds.');
-const id = FieldString.construct()
+const date = mddocConstruct.constructFieldNumber().setDescription('UTC timestamp in milliseconds.');
+const id = mddocConstruct
+  .constructFieldString()
   .setDescription('Resource ID.')
   .setExample(
     `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.Workspace]}${ID_SEPARATOR}${customAlphabet('0')()}`
   );
-const idList = FieldArray.construct<string>().setType(id).setDescription('List of resource IDs.');
-const jobId = FieldString.construct()
+const idList = mddocConstruct
+  .constructFieldArray<string>()
+  .setType(id)
+  .setDescription('List of resource IDs.');
+const jobId = mddocConstruct
+  .constructFieldString()
   .setDescription('Long running job ID.')
   .setExample(
     `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.Job]}${ID_SEPARATOR}${customAlphabet('0')()}`
   );
-const workspaceId = FieldString.construct()
+const workspaceId = mddocConstruct
+  .constructFieldString()
   .setDescription(
     'Workspace ID. When not provided, will default to using workspace ID from agent token.'
   )
@@ -183,98 +211,132 @@ const workspaceIdInput = workspaceId
     'Workspace ID. When not provided, will default to using workspace ID from agent token.'
   );
 
-const folderId = FieldString.construct()
+const folderId = mddocConstruct
+  .constructFieldString()
   .setDescription('Folder ID.')
   .setExample(
     `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.Folder]}${ID_SEPARATOR}${customAlphabet('0')()}`
   );
-const folderIdOrNull = FieldOrCombination.construct().setTypes([folderId, FieldNull.construct()]);
-const fileId = FieldString.construct()
+const folderIdOrNull = mddocConstruct
+  .constructFieldOrCombination()
+  .setTypes([folderId, mddocConstruct.constructFieldNull()]);
+const fileId = mddocConstruct
+  .constructFieldString()
   .setDescription('File ID.')
   .setExample(
     `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.File]}${ID_SEPARATOR}${customAlphabet('0')()}`
   );
-const permissionGroupId = FieldString.construct()
+const permissionGroupId = mddocConstruct
+  .constructFieldString()
   .setDescription('Permission group ID.')
   .setExample(
     `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.PermissionGroup]}${ID_SEPARATOR}${customAlphabet(
       '0'
     )()}`
   );
-const permissionItemId = FieldString.construct()
+const permissionItemId = mddocConstruct
+  .constructFieldString()
   .setDescription('Permission item ID.')
   .setExample(
     `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.PermissionItem]}${ID_SEPARATOR}${customAlphabet(
       '0'
     )()}`
   );
-const idPath = FieldArray.construct<string>()
+const idPath = mddocConstruct
+  .constructFieldArray<string>()
   .setType(folderId)
   .setDescription('List of parent folder IDs.');
-const name = FieldString.construct().setDescription('Name');
-const description = FieldString.construct().setDescription('Description');
-const expires = FieldDate.construct().setDescription('Expiration date.');
-const duration = FieldNumber.construct().setDescription(
-  'Time duration in milliseconds, for example, 1000 for 1 second.'
-);
-const tokenString = FieldString.construct().setDescription('JWT token string.');
-const assignPermissionGroup = FieldObject.construct<AssignPermissionGroupInput>()
+const name = mddocConstruct.constructFieldString().setDescription('Name');
+const description = mddocConstruct.constructFieldString().setDescription('Description');
+const expires = mddocConstruct.constructFieldNumber().setDescription('Expiration date.');
+const duration = mddocConstruct
+  .constructFieldNumber()
+  .setDescription('Time duration in milliseconds, for example, 1000 for 1 second.');
+const tokenString = mddocConstruct.constructFieldString().setDescription('JWT token string.');
+const assignPermissionGroup = mddocConstruct
+  .constructFieldObject<AssignPermissionGroupInput>()
   .setName('AssignPermissionGroupInput')
   .setFields({
-    permissionGroupId: FieldObject.requiredField(id),
+    permissionGroupId: mddocConstruct.constructFieldObjectField(true, id),
   });
-const assignPermissionGroupList = FieldArray.construct()
+const assignPermissionGroupList = mddocConstruct
+  .constructFieldArray<AssignPermissionGroupInput>()
   .setType(assignPermissionGroup)
   .setMax(permissionGroupConstants.maxAssignedPermissionGroups);
-const effectOnReferenced = FieldBoolean.construct().setDescription(
-  'Whether to perform action on the token used to authorize the API call ' +
-    'when performing actions on tokens and a token ID or provided resource ID is not provided.'
-);
-const providedResourceId = FieldString.construct()
+const effectOnReferenced = mddocConstruct
+  .constructFieldBoolean()
+  .setDescription(
+    'Whether to perform action on the token used to authorize the API call ' +
+      'when performing actions on tokens and a token ID or provided resource ID is not provided.'
+  );
+const providedResourceId = mddocConstruct
+  .constructFieldString()
   .setDescription('Resource ID provided by you.')
   .setMax(endpointConstants.providedResourceIdMaxLength);
-const workspaceName = FieldString.construct()
+const workspaceName = mddocConstruct
+  .constructFieldString()
   .setDescription('Workspace name.')
   .setExample('fimidara');
 
 // TODO: set allowed characters for rootname and file and folder name
-const workspaceRootname = FieldString.construct()
+const workspaceRootname = mddocConstruct
+  .constructFieldString()
   .setDescription('Workspace root name, must be a URL compatible name.')
   .setExample('fimidara-rootname');
-const firstName = FieldString.construct().setDescription('First name.').setExample('Jesus');
-const lastName = FieldString.construct().setDescription('Last name.').setExample('Christ');
-const password = FieldString.construct().setDescription('Password.');
-const emailAddress = FieldString.construct()
+const firstName = mddocConstruct
+  .constructFieldString()
+  .setDescription('First name.')
+  .setExample('Jesus');
+const lastName = mddocConstruct
+  .constructFieldString()
+  .setDescription('Last name.')
+  .setExample('Christ');
+const password = mddocConstruct.constructFieldString().setDescription('Password.');
+const emailAddress = mddocConstruct
+  .constructFieldString()
   .setDescription('Email address.')
   .setExample('my-email-address@email-domain.com');
-const foldername = FieldString.construct().setDescription('Folder name.').setExample('my-folder');
-const filename = FieldString.construct().setDescription('File name.').setExample('my-file');
-const folderpath = FieldString.construct()
+const foldername = mddocConstruct
+  .constructFieldString()
+  .setDescription('Folder name.')
+  .setExample('my-folder');
+const filename = mddocConstruct
+  .constructFieldString()
+  .setDescription('File name.')
+  .setExample('my-file');
+const folderpath = mddocConstruct
+  .constructFieldString()
   .setDescription('Folder path with workspace rootname.')
   .setExample('/workspace-rootname/my-outer-folder/my-inner-folder');
-const folderpathList = FieldArray.construct<string>().setType(folderpath);
-const filepath = FieldString.construct()
+const folderpathList = mddocConstruct.constructFieldArray<string>().setType(folderpath);
+const filepath = mddocConstruct
+  .constructFieldString()
   .setDescription('File path with workspace rootname.')
   .setExample('/workspace-rootname/my-outer-folder/my-image-file.png');
-const filepathOrId = FieldString.construct()
+const filepathOrId = mddocConstruct
+  .constructFieldString()
   .setDescription('File path with workspace rootname or file ID.')
   .setExample('/workspace-rootname/folder/file.extension or file000-remaining-file-id');
-const filepathList = FieldArray.construct<string>().setType(filepath);
-const folderNamePath = FieldArray.construct<string>()
+const filepathList = mddocConstruct.constructFieldArray<string>().setType(filepath);
+const folderNamePath = mddocConstruct
+  .constructFieldArray<string>()
   .setType(foldername)
   .setDescription('List of parent folder names.');
-const action = FieldString.construct()
+const action = mddocConstruct
+  .constructFieldString()
   .setDescription('Action')
   .setExample(AppActionType.Create)
   .setValid(Object.values(AppActionType))
   .setEnumName('AppActionType');
-const actionList = FieldArray.construct<string>().setType(action);
-const resourceType = FieldString.construct()
+const actionList = mddocConstruct.constructFieldArray<string>().setType(action);
+const resourceType = mddocConstruct
+  .constructFieldString()
   .setDescription('Resource type.')
   .setExample(AppResourceType.File)
   .setValid(Object.values(AppResourceType))
   .setEnumName('AppResourceType');
-const appliesTo = FieldString.construct()
+const appliesTo = mddocConstruct
+  .constructFieldString()
   .setDescription(
     multilineTextToParagraph(
       `Whether this permission applies to only to the target, or 
@@ -285,26 +347,31 @@ const appliesTo = FieldString.construct()
   .setExample(PermissionItemAppliesTo.SelfAndChildrenOfType)
   .setValid(Object.values(PermissionItemAppliesTo))
   .setEnumName('PermissionItemAppliesTo');
-const appliesToList = FieldArray.construct<string>()
+const appliesToList = mddocConstruct
+  .constructFieldArray<string>()
   .setType(appliesTo)
   .setMax(Object.values(PermissionItemAppliesTo).length);
-const usageCategory = FieldString.construct()
+const usageCategory = mddocConstruct
+  .constructFieldString()
   .setDescription('Usage record category.')
   .setExample(UsageRecordCategory.Storage)
   .setValid(Object.values(UsageRecordCategory))
   .setEnumName('UsageRecordCategory');
-const usageFulfillmentStatus = FieldString.construct()
+const usageFulfillmentStatus = mddocConstruct
+  .constructFieldString()
   .setDescription('Usage record fulfillment status.')
   .setExample(UsageRecordFulfillmentStatus.Fulfilled)
   .setValid(Object.values(UsageRecordFulfillmentStatus))
   .setEnumName('UsageRecordFulfillmentStatus');
-const page = FieldNumber.construct()
+const page = mddocConstruct
+  .constructFieldNumber()
   .setDescription(
     'Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ...'
   )
   .setExample(0)
   .setMin(endpointConstants.minPage);
-const pageSize = FieldNumber.construct()
+const pageSize = mddocConstruct
+  .constructFieldNumber()
   .setDescription('Paginated list page size.')
   .setExample(10)
   .setMin(endpointConstants.minPageSize)
@@ -358,59 +425,77 @@ export const fReusables = {
   appliesToList,
 };
 
-const errorObject = FieldObject.construct<EndpointExportedError>()
+const errorObject = mddocConstruct
+  .constructFieldObject<EndpointExportedError>()
   .setName('OperationError')
   .setFields({
-    name: FieldObject.requiredField(
-      FieldString.construct().setDescription('Error name.').setExample('ValidationError')
+    name: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct
+        .constructFieldString()
+        .setDescription('Error name.')
+        .setExample('ValidationError')
     ),
-    message: FieldObject.requiredField(
-      FieldString.construct()
+    message: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct
+        .constructFieldString()
         .setDescription('Error message.')
         .setExample('Workspace name is invalid.')
     ),
-    action: FieldObject.optionalField(
-      FieldString.construct()
+    action: mddocConstruct.constructFieldObjectField(
+      false,
+      mddocConstruct
+        .constructFieldString()
         .setDescription('Recommended action.')
         .setValid(Object.values(ServerRecommendedActions))
     ),
-    field: FieldObject.optionalField(
-      FieldString.construct()
+    field: mddocConstruct.constructFieldObjectField(
+      false,
+      mddocConstruct
+        .constructFieldString()
         .setExample('workspace.innerField.secondInnerField')
         .setDescription('Invalid field failing validation when error is ValidationError.')
     ),
   });
 
-const errorResponseBody = FieldObject.construct<BaseEndpointResult>()
+const errorResponseBody = mddocConstruct
+  .constructFieldObject<BaseEndpointResult>()
   .setName('EndpointErrorResult')
   .setFields({
-    errors: FieldObject.optionalField(
-      FieldArray.construct().setType(errorObject).setDescription('Endpoint call response errors.')
+    errors: mddocConstruct.constructFieldObjectField(
+      false,
+      mddocConstruct
+        .constructFieldArray<EndpointExportedError>()
+        .setType(errorObject)
+        .setDescription('Endpoint call response errors.')
     ),
   })
-  .setRequired(true)
   .setDescription('Endpoint error result.');
 
-const emptySuccessResponseBody = FieldObject.construct<AnyObject>()
+const emptySuccessResponseBody = mddocConstruct
+  .constructFieldObject<AnyObject>()
   .setName('EmptyEndpointResult')
   .setFields({})
-  .setRequired(true)
   .setDescription('Empty endpoint success result.');
 
-const longRunningJobResponseBody = FieldObject.construct<LongRunningJobResult>()
+const longRunningJobResponseBody = mddocConstruct
+  .constructFieldObject<LongRunningJobResult>()
   .setName('LongRunningJobResult')
   .setFields({
-    jobId: FieldObject.requiredField(jobId),
+    jobId: mddocConstruct.constructFieldObjectField(true, jobId),
   })
-  .setRequired(true)
   .setDescription('Long running job endpoint success result.');
 
-const countResponseBody = FieldObject.construct<CountItemsEndpointResult>()
+const countResponseBody = mddocConstruct
+  .constructFieldObject<CountItemsEndpointResult>()
   .setName('CountItemsResult')
   .setFields({
-    count: FieldObject.requiredField(FieldNumber.construct().setDescription('Resource count.')),
+    count: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldNumber().setDescription('Resource count.')
+    ),
   })
-  .setRequired(true)
   .setDescription('Count endpoint success result.');
 
 export const mddocEndpointHttpResponseItems = {

@@ -64,6 +64,7 @@ export type Paths<T, D extends number = 10> = [D] extends [never]
   : '';
 
 export type AnyObject = {[k: string | number | symbol]: any};
+export type EmptyObject = {};
 export type ClassConstructor = new (...args: any) => any;
 export type AbstractClassConstructor = abstract new (...args: any) => any;
 export type ObjectValues<T> = T[keyof T];

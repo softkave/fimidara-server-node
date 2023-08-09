@@ -1,79 +1,95 @@
 import {Resource, ResourceWrapper} from '../../definitions/system';
 import {
-  FieldArray,
-  FieldObject,
-  HttpEndpointDefinition,
+  FieldBinaryType,
   HttpEndpointMethod,
+  InferFieldObjectOrMultipartType,
+  InferFieldObjectType,
+  mddocConstruct,
 } from '../../mddoc/mddoc';
 import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc';
-import {
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
-  HttpEndpointResponseHeaders_ContentType_ContentLength,
-} from '../types';
 import resourcesConstants from './constants';
 import {GetResourcesEndpointParams, GetResourcesEndpointResult} from './getResources/types';
-import {FetchResourceItem} from './types';
+import {FetchResourceItem, GetResourcesHttpEndpoint} from './types';
 
-const fetchResourceItemInput = FieldObject.construct<FetchResourceItem>()
+const fetchResourceItemInput = mddocConstruct
+  .constructFieldObject<FetchResourceItem>()
   .setName('FetchResourceItem')
   .setFields({
-    resourceId: FieldObject.optionalField(fReusables.id),
-    filepath: FieldObject.optionalField(fReusables.filepath),
-    folderpath: FieldObject.optionalField(fReusables.folderpath),
-    workspaceRootname: FieldObject.optionalField(fReusables.workspaceRootname),
-  });
-
-const resource = FieldObject.construct<FetchResourceItem>()
-  .setName('FetchResourceItem')
-  .setFields({
-    resourceId: FieldObject.optionalField(fReusables.id),
-    filepath: FieldObject.optionalField(fReusables.filepath),
-    folderpath: FieldObject.optionalField(fReusables.folderpath),
-    workspaceRootname: FieldObject.optionalField(fReusables.workspaceRootname),
-  });
-
-const getResourcesParams = FieldObject.construct<GetResourcesEndpointParams>()
-  .setName('ResourceWrapper')
-  .setFields({
-    workspaceId: FieldObject.optionalField(fReusables.workspaceIdInput),
-    resources: FieldObject.requiredField(
-      FieldArray.construct<FetchResourceItem>().setType(fetchResourceItemInput)
+    resourceId: mddocConstruct.constructFieldObjectField(false, fReusables.id),
+    filepath: mddocConstruct.constructFieldObjectField(false, fReusables.filepath),
+    folderpath: mddocConstruct.constructFieldObjectField(false, fReusables.folderpath),
+    workspaceRootname: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceRootname
     ),
   });
 
-const resourceWrapper = FieldObject.construct<ResourceWrapper>()
+const resource = mddocConstruct
+  .constructFieldObject<FetchResourceItem>()
+  .setName('FetchResourceItem')
+  .setFields({
+    resourceId: mddocConstruct.constructFieldObjectField(false, fReusables.id),
+    filepath: mddocConstruct.constructFieldObjectField(false, fReusables.filepath),
+    folderpath: mddocConstruct.constructFieldObjectField(false, fReusables.folderpath),
+    workspaceRootname: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceRootname
+    ),
+  });
+
+const getResourcesParams = mddocConstruct
+  .constructFieldObject<GetResourcesEndpointParams>()
   .setName('ResourceWrapper')
   .setFields({
-    resourceId: FieldObject.requiredField(fReusables.id),
-    resourceType: FieldObject.requiredField(fReusables.resourceType),
-    resource: FieldObject.requiredField(
-      FieldObject.construct<Resource>()
+    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
+    resources: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldArray<FetchResourceItem>().setType(fetchResourceItemInput)
+    ),
+  });
+
+const resourceWrapper = mddocConstruct
+  .constructFieldObject<ResourceWrapper>()
+  .setName('ResourceWrapper')
+  .setFields({
+    resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
+    resourceType: mddocConstruct.constructFieldObjectField(true, fReusables.resourceType),
+    resource: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct
+        .constructFieldObject<Resource>()
         .setDescription('Resource shape depends on resource type.')
         .setFields({
-          resourceId: FieldObject.requiredField(fReusables.id),
-          createdAt: FieldObject.requiredField(fReusables.date),
-          lastUpdatedAt: FieldObject.requiredField(fReusables.date),
+          resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
+          createdAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+          lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
         })
     ),
-  })
-  .setRequired(true);
+  });
 
-const getResourcesResponseBody = FieldObject.construct<GetResourcesEndpointResult>()
+const getResourcesResponseBody = mddocConstruct
+  .constructFieldObject<GetResourcesEndpointResult>()
   .setName('GetResourcesEndpointResult')
   .setFields({
-    resources: FieldObject.requiredField(
-      FieldArray.construct<ResourceWrapper>().setType(resourceWrapper)
+    resources: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldArray<ResourceWrapper>().setType(resourceWrapper)
     ),
   })
-  .setRequired(true)
   .setDescription('Get resources endpoint success result.');
 
-export const getResourcesEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: GetResourcesEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: GetResourcesEndpointResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const getResourcesEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<GetResourcesHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
+    InferFieldObjectType<GetResourcesHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<GetResourcesHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<GetResourcesHttpEndpoint['mddocHttpDefinition']['requestBody']>,
+    InferFieldObjectType<GetResourcesHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectType<
+      GetResourcesHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(resourcesConstants.routes.getResources)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getResourcesParams)

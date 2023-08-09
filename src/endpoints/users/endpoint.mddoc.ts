@@ -1,147 +1,168 @@
 import {PublicUser, UserWorkspace} from '../../definitions/user';
 import {
-  FieldArray,
-  FieldBoolean,
-  FieldObject,
-  HttpEndpointDefinition,
+  FieldBinaryType,
   HttpEndpointMethod,
+  InferFieldObjectOrMultipartType,
+  InferFieldObjectType,
+  mddocConstruct,
 } from '../../mddoc/mddoc';
 import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc';
-import {
-  HttpEndpointRequestHeaders_AuthRequired,
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
-  HttpEndpointRequestHeaders_ContentType,
-  HttpEndpointResponseHeaders_ContentType_ContentLength,
-} from '../types';
 import {ChangePasswordWithCurrentPasswordEndpointParams} from './changePasswordWithCurrentPassword/types';
 import {ChangePasswordWithTokenEndpointParams} from './changePasswordWithToken/types';
 import {userConstants} from './constants';
 import {ForgotPasswordEndpointParams} from './forgotPassword/types';
 import {LoginEndpointParams, LoginResult} from './login/types';
 import {SignupEndpointParams} from './signup/types';
+import {
+  ChangePasswordWithCurrentPasswordHttpEndpoint,
+  ChangePasswordWithTokenHttpEndpoint,
+  ConfirmEmailAddressHttpEndpoint,
+  ForgotPasswordHttpEndpoint,
+  GetUserDataHttpEndpoint,
+  LoginHttpEndpoint,
+  SendEmailVerificationCodeHttpEndpoint,
+  SignupHttpEndpoint,
+  UpdateUserHttpEndpoint,
+  UserExistsHttpEndpoint,
+} from './types';
 import {UpdateUserEndpointParams, UpdateUserEndpointResult} from './updateUser/types';
 import {UserExistsEndpointParams, UserExistsEndpointResult} from './userExists/types';
 
 const currentPassword = fReusables.password.clone().setDescription('Current password.');
 const newPassword = fReusables.password.clone().setDescription('New password.');
 
-const userWorkspace = FieldObject.construct<UserWorkspace>()
+const userWorkspace = mddocConstruct
+  .constructFieldObject<UserWorkspace>()
   .setName('UserWorkspace')
   .setFields({
-    joinedAt: FieldObject.requiredField(fReusables.date),
-    workspaceId: FieldObject.requiredField(fReusables.workspaceId),
+    joinedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+    workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),
   });
 
-const user = FieldObject.construct<PublicUser>()
+const user = mddocConstruct
+  .constructFieldObject<PublicUser>()
   .setName('User')
   .setFields({
-    resourceId: FieldObject.requiredField(fReusables.id),
-    createdAt: FieldObject.requiredField(fReusables.date),
-    lastUpdatedAt: FieldObject.requiredField(fReusables.date),
-    firstName: FieldObject.requiredField(fReusables.firstName),
-    lastName: FieldObject.requiredField(fReusables.lastName),
-    email: FieldObject.requiredField(fReusables.emailAddress),
-    passwordLastChangedAt: FieldObject.requiredField(fReusables.date),
-    requiresPasswordChange: FieldObject.optionalField(FieldBoolean.construct()),
-    isEmailVerified: FieldObject.requiredField(FieldBoolean.construct()),
-    emailVerifiedAt: FieldObject.optionalField(fReusables.date),
-    emailVerificationEmailSentAt: FieldObject.optionalField(fReusables.date),
-    workspaces: FieldObject.requiredField(
-      FieldArray.construct<UserWorkspace>().setType(userWorkspace)
+    resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
+    createdAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+    lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+    firstName: mddocConstruct.constructFieldObjectField(true, fReusables.firstName),
+    lastName: mddocConstruct.constructFieldObjectField(true, fReusables.lastName),
+    email: mddocConstruct.constructFieldObjectField(true, fReusables.emailAddress),
+    passwordLastChangedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+    requiresPasswordChange: mddocConstruct.constructFieldObjectField(
+      false,
+      mddocConstruct.constructFieldBoolean()
     ),
-    isOnWaitlist: FieldObject.requiredField(FieldBoolean.construct()),
+    isEmailVerified: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldBoolean()
+    ),
+    emailVerifiedAt: mddocConstruct.constructFieldObjectField(false, fReusables.date),
+    emailVerificationEmailSentAt: mddocConstruct.constructFieldObjectField(false, fReusables.date),
+    workspaces: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldArray<UserWorkspace>().setType(userWorkspace)
+    ),
+    isOnWaitlist: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldBoolean()
+    ),
   });
 
-const loginResponseBody = FieldObject.construct<LoginResult>()
+const loginResponseBody = mddocConstruct
+  .constructFieldObject<LoginResult>()
   .setName('LoginResult')
   .setFields({
-    user: FieldObject.requiredField(user),
-    token: FieldObject.requiredField(fReusables.tokenString),
-    clientAssignedToken: FieldObject.requiredField(fReusables.tokenString),
+    user: mddocConstruct.constructFieldObjectField(true, user),
+    token: mddocConstruct.constructFieldObjectField(true, fReusables.tokenString),
+    clientAssignedToken: mddocConstruct.constructFieldObjectField(true, fReusables.tokenString),
   })
-  .setRequired(true)
   .setDescription('User login result.');
 
-const signupParams = FieldObject.construct<SignupEndpointParams>()
+const signupParams = mddocConstruct
+  .constructFieldObject<SignupEndpointParams>()
   .setName('SignupEndpointParams')
   .setFields({
-    firstName: FieldObject.requiredField(fReusables.firstName),
-    lastName: FieldObject.requiredField(fReusables.lastName),
-    email: FieldObject.requiredField(fReusables.emailAddress),
-    password: FieldObject.requiredField(fReusables.password),
+    firstName: mddocConstruct.constructFieldObjectField(true, fReusables.firstName),
+    lastName: mddocConstruct.constructFieldObjectField(true, fReusables.lastName),
+    email: mddocConstruct.constructFieldObjectField(true, fReusables.emailAddress),
+    password: mddocConstruct.constructFieldObjectField(true, fReusables.password),
   })
-  .setRequired(true)
   .setDescription('Signup user endpoint params.');
 
-const loginParams = FieldObject.construct<LoginEndpointParams>()
+const loginParams = mddocConstruct
+  .constructFieldObject<LoginEndpointParams>()
   .setName('LoginParams')
   .setFields({
-    email: FieldObject.requiredField(fReusables.emailAddress),
-    password: FieldObject.requiredField(currentPassword),
+    email: mddocConstruct.constructFieldObjectField(true, fReusables.emailAddress),
+    password: mddocConstruct.constructFieldObjectField(true, currentPassword),
   })
-  .setRequired(true)
   .setDescription('Login endpoint params.');
 
-const forgotPasswordParams = FieldObject.construct<ForgotPasswordEndpointParams>()
+const forgotPasswordParams = mddocConstruct
+  .constructFieldObject<ForgotPasswordEndpointParams>()
   .setName('ForgotPasswordEndpointParams')
   .setFields({
-    email: FieldObject.requiredField(fReusables.emailAddress),
+    email: mddocConstruct.constructFieldObjectField(true, fReusables.emailAddress),
   })
-  .setRequired(true)
   .setDescription('Forgot password endpoint params.');
 
-const changePasswordWithCurrentPasswordParams =
-  FieldObject.construct<ChangePasswordWithCurrentPasswordEndpointParams>()
-    .setName('ChangePasswordWithCurrentPasswordEndpointParams')
-    .setFields({
-      currentPassword: FieldObject.requiredField(currentPassword),
-      password: FieldObject.requiredField(newPassword),
-    })
-    .setRequired(true)
-    .setDescription('Change password with current password endpoint params.');
+const changePasswordWithCurrentPasswordParams = mddocConstruct
+  .constructFieldObject<ChangePasswordWithCurrentPasswordEndpointParams>()
+  .setName('ChangePasswordWithCurrentPasswordEndpointParams')
+  .setFields({
+    currentPassword: mddocConstruct.constructFieldObjectField(true, currentPassword),
+    password: mddocConstruct.constructFieldObjectField(true, newPassword),
+  })
+  .setDescription('Change password with current password endpoint params.');
 
-const changePasswordWithTokenParams = FieldObject.construct<ChangePasswordWithTokenEndpointParams>()
+const changePasswordWithTokenParams = mddocConstruct
+  .constructFieldObject<ChangePasswordWithTokenEndpointParams>()
   .setName('ChangePasswordWithTokenEndpointParams')
-  .setFields({password: FieldObject.requiredField(newPassword)})
-  .setRequired(true)
+  .setFields({password: mddocConstruct.constructFieldObjectField(true, newPassword)})
   .setDescription('Change password with token endpoint params.');
 
-const updateUserParams = FieldObject.construct<UpdateUserEndpointParams>()
+const updateUserParams = mddocConstruct
+  .constructFieldObject<UpdateUserEndpointParams>()
   .setName('UpdateUserEndpointParams')
   .setFields({
-    firstName: FieldObject.optionalField(fReusables.firstName),
-    lastName: FieldObject.optionalField(fReusables.lastName),
-    email: FieldObject.optionalField(fReusables.emailAddress),
+    firstName: mddocConstruct.constructFieldObjectField(false, fReusables.firstName),
+    lastName: mddocConstruct.constructFieldObjectField(false, fReusables.lastName),
+    email: mddocConstruct.constructFieldObjectField(false, fReusables.emailAddress),
   })
-  .setRequired(true)
   .setDescription('Update user endpoint params.');
-const updateUserResponseBody = FieldObject.construct<UpdateUserEndpointResult>()
+const updateUserResponseBody = mddocConstruct
+  .constructFieldObject<UpdateUserEndpointResult>()
   .setName('UpdateUserEndpointResult')
   .setFields({
-    user: FieldObject.requiredField(user),
+    user: mddocConstruct.constructFieldObjectField(true, user),
   })
-  .setRequired(true)
   .setDescription('Update user result.');
 
-const userExistsParams = FieldObject.construct<UserExistsEndpointParams>()
+const userExistsParams = mddocConstruct
+  .constructFieldObject<UserExistsEndpointParams>()
   .setName('UserExistsEndpointParams')
   .setFields({
-    email: FieldObject.requiredField(fReusables.emailAddress),
+    email: mddocConstruct.constructFieldObjectField(true, fReusables.emailAddress),
   })
-  .setRequired(true)
   .setDescription('User exists endpoint params.');
-const userExistsHttpResponseBody = FieldObject.construct<UserExistsEndpointResult>()
+const userExistsHttpResponseBody = mddocConstruct
+  .constructFieldObject<UserExistsEndpointResult>()
   .setFields({
-    exists: FieldObject.requiredField(FieldBoolean.construct()),
+    exists: mddocConstruct.constructFieldObjectField(true, mddocConstruct.constructFieldBoolean()),
   })
   .setName('UserExistsEndpointResult');
 
-export const signupEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: SignupEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_ContentType;
-  responseBody: LoginResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const signupEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<SignupHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
+    InferFieldObjectType<SignupHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<SignupHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<SignupHttpEndpoint['mddocHttpDefinition']['requestBody']>,
+    InferFieldObjectType<SignupHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectType<SignupHttpEndpoint['mddocHttpDefinition']['responseBody'], FieldBinaryType>
+  >()
   .setBasePathname(userConstants.routes.signup)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(signupParams)
@@ -151,12 +172,15 @@ export const signupEndpointDefinition = HttpEndpointDefinition.construct<{
   .setName('SignupEndpoint')
   .setDescription('Signup user endpoint.');
 
-export const loginEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: LoginEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_ContentType;
-  responseBody: LoginResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const loginEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<LoginHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
+    InferFieldObjectType<LoginHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<LoginHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<LoginHttpEndpoint['mddocHttpDefinition']['requestBody']>,
+    InferFieldObjectType<LoginHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectType<LoginHttpEndpoint['mddocHttpDefinition']['responseBody'], FieldBinaryType>
+  >()
   .setBasePathname(userConstants.routes.login)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(loginParams)
@@ -166,10 +190,20 @@ export const loginEndpointDefinition = HttpEndpointDefinition.construct<{
   .setName('LoginEndpoint')
   .setDescription('Login endpoint.');
 
-export const forgotPasswordEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: ForgotPasswordEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_ContentType;
-}>()
+export const forgotPasswordEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<ForgotPasswordHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
+    InferFieldObjectType<ForgotPasswordHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<ForgotPasswordHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<
+      ForgotPasswordHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<ForgotPasswordHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectType<
+      ForgotPasswordHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(userConstants.routes.forgotPassword)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(forgotPasswordParams)
@@ -179,12 +213,26 @@ export const forgotPasswordEndpointDefinition = HttpEndpointDefinition.construct
 
 // TODO: mddoc doesn't enforce required types, we may have to switch to just
 // types and objects
-export const changePasswordWithTokenEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: ChangePasswordWithTokenEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: LoginResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const changePasswordWithTokenEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      ChangePasswordWithTokenHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      ChangePasswordWithTokenHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<ChangePasswordWithTokenHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<
+      ChangePasswordWithTokenHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      ChangePasswordWithTokenHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      ChangePasswordWithTokenHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(userConstants.routes.changePasswordWithToken)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
@@ -194,27 +242,51 @@ export const changePasswordWithTokenEndpointDefinition = HttpEndpointDefinition.
   .setName('ChangePasswordWithTokenEndpoint')
   .setDescription('Change password with token endpoint. Uses the `Authorization` header.');
 
-export const changePasswordWithCurrentPasswordEndpointDefinition =
-  HttpEndpointDefinition.construct<{
-    requestBody: ChangePasswordWithCurrentPasswordEndpointParams;
-    requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-    responseBody: LoginResult;
-    responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-  }>()
-    .setBasePathname(userConstants.routes.changePasswordWithCurrentPassword)
-    .setMethod(HttpEndpointMethod.Post)
-    .setRequestBody(changePasswordWithCurrentPasswordParams)
-    .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
-    .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
-    .setResponseBody(loginResponseBody)
-    .setName('ChangePasswordWithCurrentPasswordEndpoint')
-    .setDescription('Change password with current password endpoint.');
+export const changePasswordWithCurrentPasswordEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      ChangePasswordWithCurrentPasswordHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      ChangePasswordWithCurrentPasswordHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<
+      ChangePasswordWithCurrentPasswordHttpEndpoint['mddocHttpDefinition']['query']
+    >,
+    InferFieldObjectOrMultipartType<
+      ChangePasswordWithCurrentPasswordHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      ChangePasswordWithCurrentPasswordHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      ChangePasswordWithCurrentPasswordHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
+  .setBasePathname(userConstants.routes.changePasswordWithCurrentPassword)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(changePasswordWithCurrentPasswordParams)
+  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(loginResponseBody)
+  .setName('ChangePasswordWithCurrentPasswordEndpoint')
+  .setDescription('Change password with current password endpoint.');
 
-export const confirmEmailAddressEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: LoginResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const confirmEmailAddressEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<ConfirmEmailAddressHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
+    InferFieldObjectType<ConfirmEmailAddressHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<ConfirmEmailAddressHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<
+      ConfirmEmailAddressHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<ConfirmEmailAddressHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectType<
+      ConfirmEmailAddressHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(userConstants.routes.confirmEmailAddress)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
@@ -225,11 +297,18 @@ export const confirmEmailAddressEndpointDefinition = HttpEndpointDefinition.cons
     'Confirm email address endpoint. Uses the `Authorization` header, and expects a token issued from `forgotPassword`.'
   );
 
-export const getUserDataEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: LoginResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const getUserDataEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<GetUserDataHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
+    InferFieldObjectType<GetUserDataHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<GetUserDataHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<GetUserDataHttpEndpoint['mddocHttpDefinition']['requestBody']>,
+    InferFieldObjectType<GetUserDataHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectType<
+      GetUserDataHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(userConstants.routes.getUserData)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
@@ -238,9 +317,26 @@ export const getUserDataEndpointDefinition = HttpEndpointDefinition.construct<{
   .setName('ConfirmEmailAddressEndpoint')
   .setDescription('Confirm email address endpoint. Uses the `Authorization` header.');
 
-export const sendEmailVerificationCodeEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired;
-}>()
+export const sendEmailVerificationCodeEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      SendEmailVerificationCodeHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      SendEmailVerificationCodeHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<SendEmailVerificationCodeHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<
+      SendEmailVerificationCodeHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      SendEmailVerificationCodeHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      SendEmailVerificationCodeHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(userConstants.routes.sendEmailVerificationCode)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired)
@@ -249,12 +345,18 @@ export const sendEmailVerificationCodeEndpointDefinition = HttpEndpointDefinitio
     'Send email verification code endpoint. Uses the `Authorization` header, and sends a verification token to the email address of the user referenced in the token.'
   );
 
-export const updateUserEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: UpdateUserEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: UpdateUserEndpointResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const updateUserEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<UpdateUserHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
+    InferFieldObjectType<UpdateUserHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<UpdateUserHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<UpdateUserHttpEndpoint['mddocHttpDefinition']['requestBody']>,
+    InferFieldObjectType<UpdateUserHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectType<
+      UpdateUserHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(userConstants.routes.updateUser)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(updateUserParams)
@@ -264,12 +366,18 @@ export const updateUserEndpointDefinition = HttpEndpointDefinition.construct<{
   .setName('UpdateUserEndpoint')
   .setDescription('Update user endpoint.');
 
-export const userExistsEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: UserExistsEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_ContentType;
-  responseBody: UserExistsEndpointResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const userExistsEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<UserExistsHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
+    InferFieldObjectType<UserExistsHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<UserExistsHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<UserExistsHttpEndpoint['mddocHttpDefinition']['requestBody']>,
+    InferFieldObjectType<UserExistsHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectType<
+      UserExistsHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(userConstants.routes.userExists)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(userExistsParams)

@@ -1,39 +1,21 @@
 import {FieldBinary} from '../../mddoc/mddoc';
-import {LongRunningJobResult} from '../jobs/types';
+import {EmptyObject} from '../../utils/types';
 import {
   ExportedHttpEndpointWithMddocDefinition,
-  HttpEndpoint,
   HttpEndpointRequestHeaders_AuthOptional,
   HttpEndpointRequestHeaders_AuthOptional_ContentType,
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
   HttpEndpointResponseHeaders_ContentType_ContentLength,
 } from '../types';
-import {DeleteFileEndpoint, DeleteFileEndpointParams} from './deleteFile/types';
-import {
-  GetFileDetailsEndpoint,
-  GetFileDetailsEndpointParams,
-  GetFileDetailsEndpointResult,
-} from './getFileDetails/types';
-import {
-  GetPresignedPathsForFilesEndpoint,
-  GetPresignedPathsForFilesEndpointParams,
-  GetPresignedPathsForFilesEndpointResult,
-} from './getPresignedPathsForFiles/types';
-import {
-  IssueFilePresignedPathEndpoint,
-  IssueFilePresignedPathEndpointParams,
-  IssueFilePresignedPathEndpointResult,
-} from './issueFilePresignedPath/types';
+import {DeleteFileEndpoint} from './deleteFile/types';
+import {GetFileDetailsEndpoint} from './getFileDetails/types';
+import {GetPresignedPathsForFilesEndpoint} from './getPresignedPathsForFiles/types';
+import {IssueFilePresignedPathEndpoint} from './issueFilePresignedPath/types';
 import {
   ReadFileEndpoint,
   ReadFileEndpointHttpQuery,
   ReadFileEndpointParams,
 } from './readFile/types';
-import {
-  UpdateFileDetailsEndpoint,
-  UpdateFileDetailsEndpointParams,
-  UpdateFileDetailsEndpointResult,
-} from './updateFileDetails/types';
+import {UpdateFileDetailsEndpoint} from './updateFileDetails/types';
 import {
   UploadFileEndpoint,
   UploadFileEndpointParams,
@@ -47,79 +29,55 @@ export type UploadFileEndpointHTTPHeaders = HttpEndpointRequestHeaders_AuthOptio
   'content-length': number;
 };
 
-export type ReadFilePOSTHttpEndpoint = HttpEndpoint<
-  ReadFileEndpoint,
-  ReadFileEndpointParams,
-  FieldBinary,
-  HttpEndpointRequestHeaders_AuthOptional_ContentType,
-  HttpEndpointResponseHeaders_ContentType_ContentLength,
-  FileMatcherPathParameters,
-  ReadFileEndpointHttpQuery
+export type ReadFilePOSTHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<
+  /** TEndpoint */ ReadFileEndpoint,
+  /** TRequestHeaders */ HttpEndpointRequestHeaders_AuthOptional_ContentType,
+  /** TPathParameters */ FileMatcherPathParameters,
+  /** TQuery */ ReadFileEndpointHttpQuery,
+  /** TRequestBody */ ReadFileEndpointParams,
+  /** TResponseHeaders */ HttpEndpointResponseHeaders_ContentType_ContentLength,
+  /** TResponseBody */ FieldBinary,
+  /** TSdkparams */ ReadFileEndpointParams
 >;
-export type ReadFileGETHttpEndpoint = HttpEndpoint<
-  ReadFileEndpoint,
-  undefined,
-  FieldBinary,
-  HttpEndpointRequestHeaders_AuthOptional,
-  HttpEndpointResponseHeaders_ContentType_ContentLength,
-  FileMatcherPathParameters,
-  ReadFileEndpointHttpQuery
+export type ReadFileGETHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<
+  /** TEndpoint */ ReadFileEndpoint,
+  /** TRequestHeaders */ HttpEndpointRequestHeaders_AuthOptional,
+  /** TPathParameters */ FileMatcherPathParameters,
+  /** TQuery */ ReadFileEndpointHttpQuery,
+  /** TRequestBody */ undefined,
+  /** TResponseHeaders */ HttpEndpointResponseHeaders_ContentType_ContentLength,
+  /** TResponseBody */ FieldBinary,
+  /** TSdkparams */ ReadFileEndpointParams
 >;
-export type DeleteFileHttpEndpoint = HttpEndpoint<
-  DeleteFileEndpoint,
-  DeleteFileEndpointParams,
-  LongRunningJobResult,
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
-  HttpEndpointResponseHeaders_ContentType_ContentLength
+export type DeleteFileHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<DeleteFileEndpoint>;
+export type GetFileDetailsHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<GetFileDetailsEndpoint>;
+export type UpdateFileDetailsHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<UpdateFileDetailsEndpoint>;
+export type UploadFileEndpointSdkParams = UploadFileEndpointParams;
+export type UploadFileHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<
+  /** TEndpoint */ UploadFileEndpoint,
+  /** TRequestHeaders */ UploadFileEndpointHTTPHeaders,
+  /** TPathParameters */ FileMatcherPathParameters,
+  /** TQuery */ EmptyObject,
+  /** TRequestBody */ Pick<UploadFileEndpointParams, 'data'>,
+  /** TResponseHeaders */ HttpEndpointResponseHeaders_ContentType_ContentLength,
+  /** TResponseBody */ UploadFileEndpointResult,
+  /** TSdkparams */ UploadFileEndpointSdkParams
 >;
-export type GetFileDetailsHttpEndpoint = HttpEndpoint<
-  GetFileDetailsEndpoint,
-  GetFileDetailsEndpointParams,
-  GetFileDetailsEndpointResult,
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
-  HttpEndpointResponseHeaders_ContentType_ContentLength
->;
-export type UpdateFileDetailsHttpEndpoint = HttpEndpoint<
-  UpdateFileDetailsEndpoint,
-  UpdateFileDetailsEndpointParams,
-  UpdateFileDetailsEndpointResult,
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
-  HttpEndpointResponseHeaders_ContentType_ContentLength
->;
-export type UploadFileHttpEndpoint = HttpEndpoint<
-  UploadFileEndpoint,
-  Pick<UploadFileEndpointParams, 'data'>,
-  UploadFileEndpointResult,
-  UploadFileEndpointHTTPHeaders,
-  HttpEndpointResponseHeaders_ContentType_ContentLength,
-  FileMatcherPathParameters
->;
-export type IssueFilePresignedPathHttpEndpoint = HttpEndpoint<
-  IssueFilePresignedPathEndpoint,
-  IssueFilePresignedPathEndpointParams,
-  IssueFilePresignedPathEndpointResult,
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
-  HttpEndpointResponseHeaders_ContentType_ContentLength
->;
-export type GetPresignedPathsForFilesHttpEndpoint = HttpEndpoint<
-  GetPresignedPathsForFilesEndpoint,
-  GetPresignedPathsForFilesEndpointParams,
-  GetPresignedPathsForFilesEndpointResult,
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
-  HttpEndpointResponseHeaders_ContentType_ContentLength
->;
+export type IssueFilePresignedPathHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<IssueFilePresignedPathEndpoint>;
+export type GetPresignedPathsForFilesHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<GetPresignedPathsForFilesEndpoint>;
 
 export type FilesExportedEndpoints = {
-  readFile: [
-    ExportedHttpEndpointWithMddocDefinition<ReadFilePOSTHttpEndpoint>,
-    ExportedHttpEndpointWithMddocDefinition<ReadFileGETHttpEndpoint>
-  ];
-  deleteFile: ExportedHttpEndpointWithMddocDefinition<DeleteFileHttpEndpoint>;
-  getFileDetails: ExportedHttpEndpointWithMddocDefinition<GetFileDetailsHttpEndpoint>;
-  updateFileDetails: ExportedHttpEndpointWithMddocDefinition<UpdateFileDetailsHttpEndpoint>;
-  issueFilePresignedPath: ExportedHttpEndpointWithMddocDefinition<IssueFilePresignedPathHttpEndpoint>;
-  getPresignedPathsForFiles: ExportedHttpEndpointWithMddocDefinition<GetPresignedPathsForFilesHttpEndpoint>;
-  uploadFile: ExportedHttpEndpointWithMddocDefinition<UploadFileHttpEndpoint>;
+  readFile: [ReadFilePOSTHttpEndpoint, ReadFileGETHttpEndpoint];
+  deleteFile: DeleteFileHttpEndpoint;
+  getFileDetails: GetFileDetailsHttpEndpoint;
+  updateFileDetails: UpdateFileDetailsHttpEndpoint;
+  issueFilePresignedPath: IssueFilePresignedPathHttpEndpoint;
+  getPresignedPathsForFiles: GetPresignedPathsForFilesHttpEndpoint;
+  uploadFile: UploadFileHttpEndpoint;
 };
 
 export type FileMatcherPathParameters = {

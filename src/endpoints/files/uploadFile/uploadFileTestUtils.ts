@@ -1,10 +1,13 @@
 import {faker} from '@faker-js/faker';
+import {last} from 'lodash';
 import {AgentToken} from '../../../definitions/agentToken';
 import {File} from '../../../definitions/file';
 import {PublicWorkspace, Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
-import {streamToBuffer} from '../../../utils/fns';
+import {makeWaitTimeoutFn, streamToBuffer, waitTimeout} from '../../../utils/fns';
+import {AnyFn, PartialRecord} from '../../../utils/types';
 import RequestData from '../../RequestData';
+import {FilePersistenceProviderContext} from '../../contexts/file/types';
 import {BaseContextType} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
 import EndpointReusableQueries from '../../queries';
@@ -49,7 +52,8 @@ export const uploadFileBaseTest = async (
     key: file.resourceId,
   });
   const savedBuffer = persistedFile.body && (await streamToBuffer(persistedFile.body));
-  appAssert(savedBuffer && dataBuffer);
+  appAssert(savedBuffer);
+  appAssert(dataBuffer);
   expect(dataBuffer.equals(savedBuffer)).toBe(true);
 
   const savedFile = await ctx.semantic.file.assertGetOneByQuery(
@@ -149,4 +153,88 @@ export async function assertCanDeletePublicFile(
 
   const result = await deleteFile(ctx, instData);
   assertEndpointResultOk(result);
+}
+
+export type TimedNoopFilePersistenceProviderContext_Invocations = Array<{
+  fnName: string;
+  args: unknown;
+  startMs: number;
+  endMs: number;
+}>;
+export type TimedNoopFilePersistenceProviderContext_TimeoutMap = PartialRecord<
+  keyof FilePersistenceProviderContext,
+  number
+>;
+
+export class TimedNoopFilePersistenceProviderContext implements FilePersistenceProviderContext {
+  static kDefaultTimeout = 200; // milliseconds
+  static mockFn = <TFn extends AnyFn>(
+    fn: TFn,
+    invocations: TimedNoopFilePersistenceProviderContext_Invocations,
+    fnName: keyof FilePersistenceProviderContext
+  ) => {
+    return async (...args: Parameters<TFn>): Promise<Awaited<ReturnType<TFn>>> => {
+      const startMs = Date.now();
+      const result = await fn(...args);
+      const endMs = Date.now();
+      invocations.push({args, startMs, endMs, fnName});
+      return result;
+    };
+  };
+
+  private invocations: TimedNoopFilePersistenceProviderContext_Invocations = [];
+
+  constructor(private timeoutMap: TimedNoopFilePersistenceProviderContext_TimeoutMap = {}) {}
+
+  uploadFile = TimedNoopFilePersistenceProviderContext.mockFn(
+    makeWaitTimeoutFn(
+      this.timeoutMap['uploadFile'] ?? TimedNoopFilePersistenceProviderContext.kDefaultTimeout
+    ),
+    this.invocations,
+    'uploadFile'
+  );
+
+  getFile = TimedNoopFilePersistenceProviderContext.mockFn(
+    async () => {
+      await waitTimeout(
+        this.timeoutMap['getFile'] ?? TimedNoopFilePersistenceProviderContext.kDefaultTimeout
+      );
+      return Promise.resolve({});
+    },
+    this.invocations,
+    'getFile'
+  );
+
+  deleteFiles = TimedNoopFilePersistenceProviderContext.mockFn(
+    makeWaitTimeoutFn(
+      this.timeoutMap['deleteFiles'] ?? TimedNoopFilePersistenceProviderContext.kDefaultTimeout
+    ),
+    this.invocations,
+    'deleteFiles'
+  );
+
+  ensureBucketReady = TimedNoopFilePersistenceProviderContext.mockFn(
+    makeWaitTimeoutFn(
+      this.timeoutMap['ensureBucketReady'] ??
+        TimedNoopFilePersistenceProviderContext.kDefaultTimeout
+    ),
+    this.invocations,
+    'ensureBucketReady'
+  );
+
+  close = TimedNoopFilePersistenceProviderContext.mockFn(
+    makeWaitTimeoutFn(
+      this.timeoutMap['close'] ?? TimedNoopFilePersistenceProviderContext.kDefaultTimeout
+    ),
+    this.invocations,
+    'close'
+  );
+
+  getInvocations(fnName: keyof FilePersistenceProviderContext) {
+    return this.invocations.filter(next => next.fnName === fnName);
+  }
+
+  getLastInvocationForFn(fnName: keyof FilePersistenceProviderContext) {
+    return last(this.invocations.filter(next => next.fnName === fnName));
+  }
 }

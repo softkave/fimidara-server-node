@@ -1,3 +1,4 @@
+import assert from 'assert';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {BaseContextType} from '../../contexts/types';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
@@ -13,7 +14,11 @@ import {
 import {UsageLimitExceededError} from '../../usageRecords/errors';
 import {stringifyFileNamePath} from '../utils';
 import {UploadFileEndpointParams} from './types';
-import {assertFileUpdated, uploadFileBaseTest} from './uploadFileTestUtils';
+import {
+  TimedNoopFilePersistenceProviderContext,
+  assertFileUpdated,
+  uploadFileBaseTest,
+} from './uploadFileTestUtils';
 
 /**
  * TODO:
@@ -93,4 +98,33 @@ describe('uploadFile', () => {
       await insertFileForTest(context, userToken, workspace);
     }, [UsageLimitExceededError.name]);
   });
+
+  test('files not processed synchronously because of txn', async () => {
+    const count = 5;
+    const invocations = (
+      await Promise.all(new Array(count).fill(0).map(() => invokeUploadFileAndReturnInvocation()))
+    )
+      .map((invocation, index) => ({...invocation, index}))
+      .sort((i0, i1) => i0.endMs - i1.startMs)
+      .map(invocation => {
+        return invocation.index;
+      });
+    const inOrder = new Array(count).fill(0).map((v, index) => index);
+    expect(invocations).not.toEqual(inOrder);
+  });
 });
+
+async function invokeUploadFileAndReturnInvocation() {
+  const context: BaseContextType = await initTestBaseContext();
+  const fileBackend = new TimedNoopFilePersistenceProviderContext();
+  context.fileBackend = fileBackend;
+
+  const insertUserResult = await insertUserForTest(context);
+  const insertWorkspaceResult = await insertWorkspaceForTest(context, insertUserResult.userToken);
+  await insertFileForTest(context, insertUserResult.userToken, insertWorkspaceResult.workspace);
+
+  const uploadFileInvocation = fileBackend.getLastInvocationForFn('uploadFile');
+  assert(uploadFileInvocation);
+  await context.dispose();
+  return uploadFileInvocation;
+}

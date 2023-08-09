@@ -1,10 +1,10 @@
 import {validate} from '../../../utils/validate';
 import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils';
 import {getWorkspaceTagsQuery} from '../getWorkspaceTags/utils';
-import {GetWorkspaceTagEndpoint} from './types';
+import {CountWorkspaceTagsEndpoint} from './types';
 import {countWorkspaceTagJoiSchema} from './validation';
 
-const countWorkspaceTags: GetWorkspaceTagEndpoint = async (context, instData) => {
+const countWorkspaceTags: CountWorkspaceTagsEndpoint = async (context, instData) => {
   const data = validate(instData.data, countWorkspaceTagJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const workspace = await checkWorkspaceExistsWithAgent(context, agent, data.workspaceId);

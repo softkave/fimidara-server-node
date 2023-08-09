@@ -1,44 +1,49 @@
 import {JobStatus} from '../../definitions/job';
 import {
-  FieldObject,
-  FieldString,
-  HttpEndpointDefinition,
+  FieldBinaryType,
   HttpEndpointMethod,
+  InferFieldObjectOrMultipartType,
+  InferFieldObjectType,
+  mddocConstruct,
 } from '../../mddoc/mddoc';
 import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc';
-import {
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
-  HttpEndpointResponseHeaders_ContentType_ContentLength,
-} from '../types';
 import {jobConstants} from './constants';
 import {GetJobStatusEndpointParams, GetJobStatusEndpointResult} from './getJobStatus/types';
+import {GetJobStatusHttpEndpoint} from './types';
 
-const jobStatus = FieldString.construct()
+const jobStatus = mddocConstruct
+  .constructFieldString()
   .setDescription('Job status.')
   .setValid(Object.values(JobStatus))
   .setEnumName('JobStatus');
 
-const getJobStatusParams = FieldObject.construct<GetJobStatusEndpointParams>()
+const getJobStatusParams = mddocConstruct
+  .constructFieldObject<GetJobStatusEndpointParams>()
   .setName('GetJobStatusEndpointParams')
   .setFields({
-    jobId: FieldObject.requiredField(fReusables.jobId),
-  })
-  .setRequired(true);
+    jobId: mddocConstruct.constructFieldObjectField(true, fReusables.jobId),
+  });
 
-const getJobStatusResponseBody = FieldObject.construct<GetJobStatusEndpointResult>()
+const getJobStatusResponseBody = mddocConstruct
+  .constructFieldObject<GetJobStatusEndpointResult>()
   .setName('GetJobStatusEndpointResult')
   .setFields({
-    status: FieldObject.requiredField(jobStatus),
+    status: mddocConstruct.constructFieldObjectField(true, jobStatus),
   })
-  .setRequired(true)
   .setDescription('Get job status endpoint success result.');
 
-export const getJobStatusEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: GetJobStatusEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: GetJobStatusEndpointResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const getJobStatusEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<GetJobStatusHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
+    InferFieldObjectType<GetJobStatusHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<GetJobStatusHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<GetJobStatusHttpEndpoint['mddocHttpDefinition']['requestBody']>,
+    InferFieldObjectType<GetJobStatusHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectType<
+      GetJobStatusHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(jobConstants.routes.getJobStatus)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getJobStatusParams)

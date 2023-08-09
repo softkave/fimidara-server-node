@@ -1,7 +1,15 @@
+import {ConnectBusboyOptions} from 'connect-busboy';
 import {endpointConstants} from '../constants';
 
+const maxFileSizeInBytes = 1024 * 1024 ** 2; // 2Gb
+const multipartLimits: ConnectBusboyOptions['limits'] = {
+  fields: 10,
+  fileSize: maxFileSizeInBytes,
+  files: 1,
+};
 export const fileConstants = {
-  maxFileSizeInBytes: 200 * 1024 ** 2, // 200Mb
+  maxFileSizeInBytes,
+  multipartLimits,
   nameExtensionSeparator: '.',
   maxMimeTypeCharLength: 100,
   maxEncodingCharLength: 100,

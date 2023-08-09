@@ -3,9 +3,7 @@ import {FilePersistenceProviderContext} from '../../contexts/file/types';
 
 export default class NoopFilePersistenceProviderContext implements FilePersistenceProviderContext {
   uploadFile = noopAsync;
-  getFile = async () => {
-    return {};
-  };
+  getFile = async () => ({});
   deleteFiles = noopAsync;
   ensureBucketReady = noopAsync;
   close = noopAsync;

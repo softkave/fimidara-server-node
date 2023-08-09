@@ -1,6 +1,5 @@
 import {Response} from 'express';
 import {JsonWebTokenError, NotBeforeError, TokenExpiredError} from 'jsonwebtoken';
-import * as multer from 'multer';
 import {endpointConstants} from '../endpoints/constants';
 import {CredentialsExpiredError, InvalidCredentialsError} from '../endpoints/users/errors';
 import {getPublicErrors} from '../endpoints/utils';
@@ -56,10 +55,6 @@ function handleErrors(...args: any[]) {
   if (JWTError) {
     res.status(endpointConstants.httpStatusCode.unauthorized).json({
       errors: getPublicErrors([JWTError]),
-    });
-  } else if (err instanceof multer.MulterError) {
-    res.status(endpointConstants.httpStatusCode.serverError).json({
-      errors: getPublicErrors([new Error('Error handling file upload')]),
     });
   } else {
     res.status(endpointConstants.httpStatusCode.serverError).json({

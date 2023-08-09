@@ -1,7 +1,7 @@
 import {Request, RequestHandler, Response} from 'express';
 import {AppResourceType} from '../definitions/system';
-import {MddocTypeHttpEndpoint} from '../mddoc/mddoc';
-import OperationError from '../utils/OperationError';
+import {HttpEndpointDefinitionType} from '../mddoc/mddoc';
+import {EndpointExportedError} from '../utils/OperationError';
 import {AnyFn, AnyObject, OrPromise} from '../utils/types';
 import RequestData from './RequestData';
 import {DataProviderQueryListParams} from './contexts/data/types';
@@ -9,7 +9,7 @@ import {SemanticDataAccessProviderMutationRunOptions} from './contexts/semantic/
 import {BaseContextType} from './contexts/types';
 
 export interface BaseEndpointResult {
-  errors?: OperationError[];
+  errors?: EndpointExportedError[];
 }
 
 export type Endpoint<
@@ -94,54 +94,45 @@ export type HttpEndpointResponseHeaders_ContentType_ContentLength = {
   'Content-Length': string;
 };
 
-export type HttpEndpointStructure = {
-  pathParameters?: any;
-  requestHeaders?: any;
-  query?: any;
-  requestBody?: any;
-  responseHeaders?: any;
-  responseBody?: any;
-};
-
-// TODO: more strict type checking that ensures all params are accounted for by
-// a combination of http headers, path, query, and body type defs
-export type HttpEndpoint<
-  TEndpoint extends Endpoint,
-  TRequestBody = InferEndpointParams<TEndpoint>,
-  TResponseBody = InferEndpointResult<TEndpoint>,
-  TRequestHeaders = AnyObject,
-  TResponseHeaders = AnyObject,
-  TPathParameters = AnyObject,
-  TQuery = AnyObject
-> = {
-  pathParameters: TPathParameters;
-  requestHeaders: TRequestHeaders;
-  query: TQuery;
-  requestBody: TRequestBody;
-  responseHeaders: TResponseHeaders;
-  responseBody: TResponseBody;
-  endpoint: TEndpoint;
-};
-
 export type ExportedHttpEndpoint_GetDataFromReqFn = (req: Request) => OrPromise<any>;
 export type ExportedHttpEndpoint_HandleResponse = (res: Response, data: any) => OrPromise<void>;
 export type ExportedHttpEndpoint_Cleanup = (req: Request, res: Response) => OrPromise<void>;
-export type ExportedHttpEndpointWithMddocDefinition<THttpEndpoint extends HttpEndpoint<any, any>> =
-  {
-    fn: THttpEndpoint['endpoint'];
-    mddocHttpDefinition: MddocTypeHttpEndpoint<{
-      pathParameters: THttpEndpoint['pathParameters'];
-      query: THttpEndpoint['query'];
-      requestHeaders: THttpEndpoint['requestHeaders'];
-      requestBody: THttpEndpoint['requestBody'];
-      responseHeaders: THttpEndpoint['responseHeaders'];
-      responseBody: THttpEndpoint['responseBody'];
-    }>;
-    getDataFromReq?: (req: Request) => OrPromise<InferEndpointParams<THttpEndpoint['endpoint']>>;
-    handleResponse?: (
-      res: Response,
-      data: InferEndpointResult<THttpEndpoint['endpoint']>
-    ) => OrPromise<void>;
-    cleanup?: (req: Request, res: Response) => OrPromise<void>;
-    expressRouteMiddleware?: RequestHandler;
-  };
+export type ExportedHttpEndpointWithMddocDefinition<
+  TEndpoint extends Endpoint = Endpoint,
+  TRequestHeaders extends AnyObject = HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  TPathParameters extends AnyObject = AnyObject,
+  TQuery extends AnyObject = AnyObject,
+  TRequestBody extends AnyObject = InferEndpointParams<TEndpoint>,
+  TResponseHeaders extends AnyObject = HttpEndpointResponseHeaders_ContentType_ContentLength,
+  TResponseBody extends AnyObject = InferEndpointResult<TEndpoint>,
+  TSdkParams extends AnyObject = TRequestBody
+> = {
+  fn: TEndpoint;
+  mddocHttpDefinition: HttpEndpointDefinitionType<
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody,
+    TResponseHeaders,
+    TResponseBody,
+    TSdkParams
+  >;
+  getDataFromReq?: (req: Request) => OrPromise<InferEndpointParams<TEndpoint>>;
+  handleResponse?: (res: Response, data: InferEndpointResult<TEndpoint>) => OrPromise<void>;
+  cleanup?: (req: Request, res: Response) => OrPromise<void>;
+  expressRouteMiddleware?: RequestHandler;
+};
+
+export type InferMddocHttpEndpointFromMddocEndpointDefinition<T> =
+  T extends ExportedHttpEndpointWithMddocDefinition<
+    any,
+    infer T0,
+    infer T1,
+    infer T2,
+    infer T3,
+    infer T4,
+    infer T5,
+    infer T6
+  >
+    ? HttpEndpointDefinitionType<T0, T1, T2, T3, T4, T5, T6>
+    : never;

@@ -8,7 +8,6 @@ import {
 } from '../endpoints/endpoints';
 import {isObjectEmpty} from '../utils/fns';
 import {
-  FieldObject,
   MddocTypeFieldArray,
   MddocTypeFieldBinary,
   MddocTypeFieldBoolean,
@@ -305,10 +304,20 @@ function getTypesFromEndpoint(endpoint: MddocTypeHttpEndpoint<any>) {
 
   if (successResponseBodyObject) {
     if (objectHasRequiredFields(successResponseBodyObject))
-      successObjectFields.body = FieldObject.requiredField(successResponseBodyObject);
-    else successObjectFields.body = FieldObject.optionalField(successResponseBodyObject);
+      successObjectFields.body = mddocConstruct.constructFieldObjectField(
+        true,
+        successResponseBodyObject
+      );
+    else
+      successObjectFields.body = mddocConstruct.constructFieldObjectField(
+        false,
+        successResponseBodyObject
+      );
   } else if (isMddocFieldBinary(successResponseBodyRaw)) {
-    successObjectFields.body = FieldObject.requiredField(successResponseBodyRaw);
+    successObjectFields.body = mddocConstruct.constructFieldObjectField(
+      true,
+      successResponseBodyRaw
+    );
   }
 
   return {
@@ -498,7 +507,7 @@ function uniqEnpoints(endpoints: Array<MddocTypeHttpEndpoint<any>>) {
   });
 }
 
-async function jsSdkCodeGen(endpoints: AppExportedHttpEndpoints, filenamePrefix: string) {
+async function jsSdkCodeGen(endpoints: AppExportedHttpEndpoints, filenamePrefix = '') {
   const endpointsDir = './sdk/js-sdk/src';
   const typesFilename = `${filenamePrefix}Types`;
   const typesFilepath = path.normalize(endpointsDir + '/' + typesFilename + '.ts');

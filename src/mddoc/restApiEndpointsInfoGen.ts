@@ -7,20 +7,31 @@ import {
   mddocEndpointHttpResponseItems,
 } from '../endpoints/endpoints.mddoc';
 import {accessorFieldsToObject} from '../utils/classAccessors';
-import {MddocTypeHttpEndpoint} from './mddoc';
+import {MddocTypeHttpEndpoint, SdkParamsBody} from './mddoc';
 
 function generateEndpointInfoFromEndpoints() {
   const infoMap = new Map<MddocTypeHttpEndpoint<any>, string>();
   const fimidaraPublicHttpEndpoints = getFimidaraPublicHttpEndpoints();
 
-  forEach(fimidaraPublicHttpEndpoints, e1 => {
+  forEach(fimidaraPublicHttpEndpoints, endpoint => {
     const info = accessorFieldsToObject(
-      e1.mddocHttpDefinition
+      endpoint.mddocHttpDefinition
         .setErrorResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
         .setErrorResponseBody(mddocEndpointHttpResponseItems.errorResponseBody),
-      []
+      /** skip fields prefix */ [],
+      (rawInstance, extractedInstance) =>
+        rawInstance instanceof SdkParamsBody
+          ? {
+              mappings: rawInstance.mappings
+                ? Object.keys(extractedInstance).map(rawInstance.mappings)
+                : [],
+            }
+          : {}
     );
-    infoMap.set(e1.mddocHttpDefinition, JSON.stringify(info, undefined, 4));
+    infoMap.set(
+      endpoint.mddocHttpDefinition,
+      JSON.stringify(info, /** replacer */ undefined, /** spaces */ 4)
+    );
   });
 
   return infoMap;

@@ -2,13 +2,12 @@ import {PublicFile} from '../../definitions/file';
 import {FolderMatcher, PublicFolder} from '../../definitions/folder';
 import {AppResourceType} from '../../definitions/system';
 import {
-  FieldArray,
-  FieldNumber,
-  FieldObject,
-  FieldObjectFields,
-  FieldString,
-  HttpEndpointDefinition,
+  FieldBinaryType,
+  FieldObjectFieldsMap,
   HttpEndpointMethod,
+  InferFieldObjectOrMultipartType,
+  InferFieldObjectType,
+  mddocConstruct,
 } from '../../mddoc/mddoc';
 import {
   fReusables,
@@ -16,11 +15,6 @@ import {
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
 import {fileEndpointsParts} from '../files/endpoints.mddoc';
-import {LongRunningJobResult} from '../jobs/types';
-import {
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
-  HttpEndpointResponseHeaders_ContentType_ContentLength,
-} from '../types';
 import {AddFolderEndpointParams, AddFolderEndpointResult, NewFolderInput} from './addFolder/types';
 import {folderConstants} from './constants';
 import {
@@ -34,145 +28,182 @@ import {
   ListFolderContentEndpointResult,
 } from './listFolderContent/types';
 import {
+  AddFolderHttpEndpoint,
+  CountFolderContentHttpEndpoint,
+  DeleteFolderHttpEndpoint,
+  GetFolderHttpEndpoint,
+  ListFolderContentHttpEndpoint,
+  UpdateFolderHttpEndpoint,
+} from './types';
+import {
   UpdateFolderEndpointParams,
   UpdateFolderEndpointResult,
   UpdateFolderInput,
 } from './updateFolder/types';
 
-const newFolderInput = FieldObject.construct<NewFolderInput>()
+const newFolderInput = mddocConstruct
+  .constructFieldObject<NewFolderInput>()
   .setName('NewFolderInput')
   .setFields({
-    description: FieldObject.optionalField(fReusables.description),
-    folderpath: FieldObject.requiredField(fReusables.folderpath),
+    description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
+    folderpath: mddocConstruct.constructFieldObjectField(true, fReusables.folderpath),
   });
 
-const updateFolderInput = FieldObject.construct<UpdateFolderInput>()
+const updateFolderInput = mddocConstruct
+  .constructFieldObject<UpdateFolderInput>()
   .setName('UpdateFolderInput')
   .setFields({
-    description: FieldObject.optionalField(fReusables.description),
+    description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
   });
 
-const folder = FieldObject.construct<PublicFolder>()
+const folder = mddocConstruct
+  .constructFieldObject<PublicFolder>()
   .setName('Folder')
   .setFields({
-    resourceId: FieldObject.requiredField(FieldString.construct()),
-    createdBy: FieldObject.requiredField(fReusables.agent),
-    createdAt: FieldObject.requiredField(fReusables.date),
-    lastUpdatedBy: FieldObject.requiredField(fReusables.agent),
-    lastUpdatedAt: FieldObject.requiredField(fReusables.date),
-    name: FieldObject.requiredField(fReusables.name),
-    description: FieldObject.optionalField(fReusables.description),
-    workspaceId: FieldObject.requiredField(fReusables.workspaceId),
-    idPath: FieldObject.requiredField(fReusables.idPath),
-    namePath: FieldObject.requiredField(fReusables.folderNamePath),
-    parentId: FieldObject.requiredField(fReusables.folderIdOrNull),
-    providedResourceId: FieldObject.optionalField(fReusables.providedResourceId),
+    resourceId: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldString()
+    ),
+    createdBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
+    createdAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+    lastUpdatedBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
+    lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+    name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
+    description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
+    workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),
+    idPath: mddocConstruct.constructFieldObjectField(true, fReusables.idPath),
+    namePath: mddocConstruct.constructFieldObjectField(true, fReusables.folderNamePath),
+    parentId: mddocConstruct.constructFieldObjectField(true, fReusables.folderIdOrNull),
+    providedResourceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.providedResourceId
+    ),
   });
 
-const folderMatcherParts: FieldObjectFields<FolderMatcher> = {
-  folderpath: FieldObject.optionalField(fReusables.folderpath),
-  folderId: FieldObject.optionalField(fReusables.folderId),
+const folderMatcherParts: FieldObjectFieldsMap<FolderMatcher> = {
+  folderpath: mddocConstruct.constructFieldObjectField(false, fReusables.folderpath),
+  folderId: mddocConstruct.constructFieldObjectField(false, fReusables.folderId),
 };
 
-const addFolderParams = FieldObject.construct<AddFolderEndpointParams>()
+const addFolderParams = mddocConstruct
+  .constructFieldObject<AddFolderEndpointParams>()
   .setName('AddFolderEndpointParams')
   .setFields({
-    folder: FieldObject.requiredField(newFolderInput),
+    folder: mddocConstruct.constructFieldObjectField(true, newFolderInput),
   })
-  .setRequired(true)
   .setDescription('Add folder endpoint params.');
-const addFolderResponseBody = FieldObject.construct<AddFolderEndpointResult>()
+const addFolderResponseBody = mddocConstruct
+  .constructFieldObject<AddFolderEndpointResult>()
   .setName('AddFolderEndpointResult')
-  .setFields({folder: FieldObject.requiredField(folder)})
-  .setRequired(true)
+  .setFields({folder: mddocConstruct.constructFieldObjectField(true, folder)})
   .setDescription('Add folder endpoint success result.');
 
-const listFolderContentParams = FieldObject.construct<ListFolderContentEndpointParams>()
+const listFolderContentParams = mddocConstruct
+  .constructFieldObject<ListFolderContentEndpointParams>()
   .setName('ListFolderContentEndpointParams')
   .setFields({
     ...folderMatcherParts,
-    contentType: FieldObject.optionalField(
-      FieldString.construct()
+    contentType: mddocConstruct.constructFieldObjectField(
+      false,
+      mddocConstruct
+        .constructFieldString()
         .setDescription('Fetch children files or folders. To fetch both, pass nothing.')
         .setExample(AppResourceType.File)
         .setValid([AppResourceType.File, AppResourceType.Folder])
     ),
-    page: FieldObject.optionalField(fReusables.page),
-    pageSize: FieldObject.optionalField(fReusables.pageSize),
+    page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
+    pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
   })
-  .setRequired(true)
   .setDescription('List folder content endpoint params.');
-const listFolderContentResponseBody = FieldObject.construct<ListFolderContentEndpointResult>()
+const listFolderContentResponseBody = mddocConstruct
+  .constructFieldObject<ListFolderContentEndpointResult>()
   .setName('ListFolderContentEndpointResult')
   .setFields({
-    folders: FieldObject.requiredField(FieldArray.construct<PublicFolder>().setType(folder)),
-    files: FieldObject.requiredField(
-      FieldArray.construct<PublicFile>().setType(fileEndpointsParts.file)
+    folders: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldArray<PublicFolder>().setType(folder)
     ),
-    page: FieldObject.requiredField(fReusables.page),
+    files: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldArray<PublicFile>().setType(fileEndpointsParts.file)
+    ),
+    page: mddocConstruct.constructFieldObjectField(true, fReusables.page),
   })
-  .setRequired(true)
   .setDescription('List folder content endpoint success result.');
 
-const countFolderContentParams = FieldObject.construct<CountFolderContentEndpointParams>()
+const countFolderContentParams = mddocConstruct
+  .constructFieldObject<CountFolderContentEndpointParams>()
   .setName('CountFolderContentEndpointParams')
   .setFields({
     ...folderMatcherParts,
-    contentType: FieldObject.optionalField(
-      FieldString.construct()
+    contentType: mddocConstruct.constructFieldObjectField(
+      false,
+      mddocConstruct
+        .constructFieldString()
         .setDescription('Count children files or folders. To count both, pass nothing.')
         .setExample(AppResourceType.File)
         .setValid([AppResourceType.File, AppResourceType.Folder])
     ),
   })
-  .setRequired(true)
   .setDescription('List folder content endpoint params.');
-const countFolderContentResponseBody = FieldObject.construct<CountFolderContentEndpointResult>()
+const countFolderContentResponseBody = mddocConstruct
+  .constructFieldObject<CountFolderContentEndpointResult>()
   .setName('CountFolderContentEndpointResult')
   .setFields({
-    foldersCount: FieldObject.requiredField(FieldNumber.construct()),
-    filesCount: FieldObject.requiredField(FieldNumber.construct()),
+    foldersCount: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldNumber()
+    ),
+    filesCount: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldNumber()
+    ),
   })
-  .setRequired(true)
   .setDescription('Count folder content endpoint success result.');
 
-const updateFolderParams = FieldObject.construct<UpdateFolderEndpointParams>()
+const updateFolderParams = mddocConstruct
+  .constructFieldObject<UpdateFolderEndpointParams>()
   .setName('UpdateFolderEndpointParams')
   .setFields({
     ...folderMatcherParts,
-    folder: FieldObject.requiredField(updateFolderInput),
+    folder: mddocConstruct.constructFieldObjectField(true, updateFolderInput),
   })
-  .setRequired(true)
   .setDescription('Update folder endpoint params.');
-const updateFolderResponseBody = FieldObject.construct<UpdateFolderEndpointResult>()
+const updateFolderResponseBody = mddocConstruct
+  .constructFieldObject<UpdateFolderEndpointResult>()
   .setName('UpdateFolderEndpointResult')
-  .setFields({folder: FieldObject.requiredField(folder)})
-  .setRequired(true)
+  .setFields({folder: mddocConstruct.constructFieldObjectField(true, folder)})
   .setDescription('Update folder endpoint success result.');
 
-const getFolderParams = FieldObject.construct<GetFolderEndpointParams>()
+const getFolderParams = mddocConstruct
+  .constructFieldObject<GetFolderEndpointParams>()
   .setName('GetFolderEndpointParams')
   .setFields(folderMatcherParts)
-  .setRequired(true)
   .setDescription('Get folder endpoint params.');
-const getFolderResponseBody = FieldObject.construct<GetFolderEndpointResult>()
+const getFolderResponseBody = mddocConstruct
+  .constructFieldObject<GetFolderEndpointResult>()
   .setName('GetFolderEndpointResult')
-  .setFields({folder: FieldObject.requiredField(folder)})
-  .setRequired(true)
+  .setFields({folder: mddocConstruct.constructFieldObjectField(true, folder)})
   .setDescription('Get folder endpoint success result.');
 
-const deleteFolderParams = FieldObject.construct<DeleteFolderEndpointParams>()
+const deleteFolderParams = mddocConstruct
+  .constructFieldObject<DeleteFolderEndpointParams>()
   .setName('DeleteFolderEndpointParams')
   .setFields(folderMatcherParts)
-  .setRequired(true)
   .setDescription('Delete folder endpoint params.');
 
-export const addFolderEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: AddFolderEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: AddFolderEndpointResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const addFolderEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<AddFolderHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
+    InferFieldObjectType<AddFolderHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<AddFolderHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<AddFolderHttpEndpoint['mddocHttpDefinition']['requestBody']>,
+    InferFieldObjectType<AddFolderHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectType<
+      AddFolderHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(folderConstants.routes.addFolder)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(addFolderParams)
@@ -182,12 +213,18 @@ export const addFolderEndpointDefinition = HttpEndpointDefinition.construct<{
   .setName('AddFolderEndpoint')
   .setDescription('Add folder endpoint.');
 
-export const getFolderEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: GetFolderEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: GetFolderEndpointResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const getFolderEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<GetFolderHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
+    InferFieldObjectType<GetFolderHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<GetFolderHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<GetFolderHttpEndpoint['mddocHttpDefinition']['requestBody']>,
+    InferFieldObjectType<GetFolderHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectType<
+      GetFolderHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(folderConstants.routes.getFolder)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getFolderParams)
@@ -197,12 +234,18 @@ export const getFolderEndpointDefinition = HttpEndpointDefinition.construct<{
   .setName('GetFolderEndpoint')
   .setDescription('Get folder endpoint.');
 
-export const updateFolderEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: UpdateFolderEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: UpdateFolderEndpointResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const updateFolderEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<UpdateFolderHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
+    InferFieldObjectType<UpdateFolderHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<UpdateFolderHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<UpdateFolderHttpEndpoint['mddocHttpDefinition']['requestBody']>,
+    InferFieldObjectType<UpdateFolderHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectType<
+      UpdateFolderHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(folderConstants.routes.updateFolder)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(updateFolderParams)
@@ -212,12 +255,18 @@ export const updateFolderEndpointDefinition = HttpEndpointDefinition.construct<{
   .setName('UpdateFolderEndpoint')
   .setDescription('Update folder endpoint.');
 
-export const deleteFolderEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: DeleteFolderEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: LongRunningJobResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const deleteFolderEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<DeleteFolderHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
+    InferFieldObjectType<DeleteFolderHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<DeleteFolderHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<DeleteFolderHttpEndpoint['mddocHttpDefinition']['requestBody']>,
+    InferFieldObjectType<DeleteFolderHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectType<
+      DeleteFolderHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(folderConstants.routes.deleteFolder)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(deleteFolderParams)
@@ -227,12 +276,20 @@ export const deleteFolderEndpointDefinition = HttpEndpointDefinition.construct<{
   .setName('DeleteFolderEndpoint')
   .setDescription('Delete folder endpoint.');
 
-export const listFolderContentEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: ListFolderContentEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: ListFolderContentEndpointResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const listFolderContentEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<ListFolderContentHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
+    InferFieldObjectType<ListFolderContentHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<ListFolderContentHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<
+      ListFolderContentHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<ListFolderContentHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectType<
+      ListFolderContentHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(folderConstants.routes.listFolderContent)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(listFolderContentParams)
@@ -242,12 +299,20 @@ export const listFolderContentEndpointDefinition = HttpEndpointDefinition.constr
   .setName('ListFolderContentEndpoint')
   .setDescription('List folder content endpoint.');
 
-export const countFolderContentEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: CountFolderContentEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: CountFolderContentEndpointResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const countFolderContentEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<CountFolderContentHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
+    InferFieldObjectType<CountFolderContentHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<CountFolderContentHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<
+      CountFolderContentHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<CountFolderContentHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectType<
+      CountFolderContentHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(folderConstants.routes.countFolderContent)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(countFolderContentParams)

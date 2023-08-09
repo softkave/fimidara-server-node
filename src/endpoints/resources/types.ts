@@ -1,14 +1,5 @@
-import {
-  ExportedHttpEndpointWithMddocDefinition,
-  HttpEndpoint,
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
-  HttpEndpointResponseHeaders_ContentType_ContentLength,
-} from '../types';
-import {
-  GetResourcesEndpoint,
-  GetResourcesEndpointParams,
-  GetResourcesEndpointResult,
-} from './getResources/types';
+import {ExportedHttpEndpointWithMddocDefinition} from '../types';
+import {GetResourcesEndpoint} from './getResources/types';
 
 export interface FetchResourceItem {
   resourceId?: string | string[];
@@ -17,14 +8,9 @@ export interface FetchResourceItem {
   workspaceRootname?: string;
 }
 
-export type GetResourcesHttpEndpoint = HttpEndpoint<
-  GetResourcesEndpoint,
-  GetResourcesEndpointParams,
-  GetResourcesEndpointResult,
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
-  HttpEndpointResponseHeaders_ContentType_ContentLength
->;
+export type GetResourcesHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<GetResourcesEndpoint>;
 
 export type ResourcesExportedEndpoints = {
-  getResources: ExportedHttpEndpointWithMddocDefinition<GetResourcesHttpEndpoint>;
+  getResources: GetResourcesHttpEndpoint;
 };

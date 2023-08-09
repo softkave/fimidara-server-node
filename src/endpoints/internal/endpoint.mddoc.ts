@@ -1,16 +1,13 @@
 import {PublicUser} from '../../definitions/user';
 import {PublicWorkspace} from '../../definitions/workspace';
 import {
-  FieldArray,
-  FieldObject,
-  HttpEndpointDefinition,
+  FieldBinaryType,
   HttpEndpointMethod,
+  InferFieldObjectOrMultipartType,
+  InferFieldObjectType,
+  mddocConstruct,
 } from '../../mddoc/mddoc';
 import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc';
-import {
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
-  HttpEndpointResponseHeaders_ContentType_ContentLength,
-} from '../types';
 import {userEndpointsMddocParts} from '../users/endpoint.mddoc';
 import {workspaceEndpointsMddocParts} from '../workspaces/endpoints.mddoc';
 import {internalConstants} from './constants';
@@ -20,67 +17,89 @@ import {
   GetWaitlistedUsersEndpointResult,
 } from './getWaitlistedUsers/types';
 import {GetWorkspacesEndpointParams, GetWorkspacesEndpointResult} from './getWorkspaces/types';
+import {
+  GetUsersHttpEndpoint,
+  GetWaitlistedUsersHttpEndpoint,
+  GetWorkspacesHttpEndpoint,
+  UpgradeWaitlistedUsersHttpEndpoint,
+} from './types';
 import {UpgradeWaitlistedUsersEndpointParams} from './upgradeWaitlistedUsers/types';
 
-const getWaitlistedUsersParams = FieldObject.construct<GetWaitlistedUsersEndpointParams>()
+const getWaitlistedUsersParams = mddocConstruct
+  .constructFieldObject<GetWaitlistedUsersEndpointParams>()
   .setName('GetWaitlistedUsersEndpointParams')
   .setFields({})
-  .setRequired(true)
   .setDescription('Retrieve waitlisted users endpoint params.');
-const getWaitlistedUsersResponseBody = FieldObject.construct<GetWaitlistedUsersEndpointResult>()
+const getWaitlistedUsersResponseBody = mddocConstruct
+  .constructFieldObject<GetWaitlistedUsersEndpointResult>()
   .setName('GetWaitlistedUsersEndpointResult')
   .setFields({
-    users: FieldObject.requiredField(
-      FieldArray.construct<PublicUser>().setType(userEndpointsMddocParts.user)
+    users: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldArray<PublicUser>().setType(userEndpointsMddocParts.user)
     ),
   })
-  .setRequired(true)
   .setDescription('Retrieve waitlisted users result.');
 
-const getUsersParams = FieldObject.construct<GetUsersEndpointParams>()
+const getUsersParams = mddocConstruct
+  .constructFieldObject<GetUsersEndpointParams>()
   .setName('GetUsersEndpointParams')
   .setFields({})
-  .setRequired(true)
   .setDescription('Retrieve users endpoint params.');
-const getUsersResponseBody = FieldObject.construct<GetUsersEndpointResult>()
+const getUsersResponseBody = mddocConstruct
+  .constructFieldObject<GetUsersEndpointResult>()
   .setName('GetUsersEndpointResult')
   .setFields({
-    users: FieldObject.requiredField(
-      FieldArray.construct<PublicUser>().setType(userEndpointsMddocParts.user)
+    users: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldArray<PublicUser>().setType(userEndpointsMddocParts.user)
     ),
   })
-  .setRequired(true)
   .setDescription('Retrieve users result.');
 
-const getWorkspacesParams = FieldObject.construct<GetWorkspacesEndpointParams>()
+const getWorkspacesParams = mddocConstruct
+  .constructFieldObject<GetWorkspacesEndpointParams>()
   .setName('GetWorkspacesEndpointParams')
   .setFields({})
-  .setRequired(true)
   .setDescription('Retrieve workspaces endpoint params.');
-const getWorkspacesResponseBody = FieldObject.construct<GetWorkspacesEndpointResult>()
+const getWorkspacesResponseBody = mddocConstruct
+  .constructFieldObject<GetWorkspacesEndpointResult>()
   .setName('GetWorkspacesEndpointResult')
   .setFields({
-    workspaceList: FieldObject.requiredField(
-      FieldArray.construct<PublicWorkspace>().setType(workspaceEndpointsMddocParts.workspace)
+    workspaceList: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct
+        .constructFieldArray<PublicWorkspace>()
+        .setType(workspaceEndpointsMddocParts.workspace)
     ),
   })
-  .setRequired(true)
   .setDescription('Retrieve workspaces result.');
 
-const upgradeWaitlistedUsersParams = FieldObject.construct<UpgradeWaitlistedUsersEndpointParams>()
+const upgradeWaitlistedUsersParams = mddocConstruct
+  .constructFieldObject<UpgradeWaitlistedUsersEndpointParams>()
   .setName('UpgradeWaitlistedUsersEndpointParams')
   .setFields({
-    userIds: FieldObject.requiredField(FieldArray.construct<string>().setType(fReusables.id)),
+    userIds: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct.constructFieldArray<string>().setType(fReusables.id)
+    ),
   })
-  .setRequired(true)
   .setDescription('Upgrade waitlisted users endpoint params.');
 
-export const getWaitlistedUsersEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: GetWaitlistedUsersEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: GetWaitlistedUsersEndpointResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const getWaitlistedUsersEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<GetWaitlistedUsersHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
+    InferFieldObjectType<GetWaitlistedUsersHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<GetWaitlistedUsersHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<
+      GetWaitlistedUsersHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<GetWaitlistedUsersHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectType<
+      GetWaitlistedUsersHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(internalConstants.routes.getWaitlistedUsers)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getWaitlistedUsersParams)
@@ -90,11 +109,26 @@ export const getWaitlistedUsersEndpointDefinition = HttpEndpointDefinition.const
   .setName('GetWaitlistedUsersEndpoint')
   .setDescription('Get waitlisted users endpoint.');
 
-export const upgradeWaitlistedUsersEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: UpgradeWaitlistedUsersEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const upgradeWaitlistedUsersEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      UpgradeWaitlistedUsersHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      UpgradeWaitlistedUsersHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<UpgradeWaitlistedUsersHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<
+      UpgradeWaitlistedUsersHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      UpgradeWaitlistedUsersHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      UpgradeWaitlistedUsersHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(internalConstants.routes.upgradeWaitlistedUsers)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(upgradeWaitlistedUsersParams)
@@ -103,12 +137,18 @@ export const upgradeWaitlistedUsersEndpointDefinition = HttpEndpointDefinition.c
   .setName('UpgradeWaitlistedUsersEndpoint')
   .setDescription('Upgrade waitlisted users endpoint.');
 
-export const getUsersEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: GetUsersEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: GetUsersEndpointResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const getUsersEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<GetUsersHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
+    InferFieldObjectType<GetUsersHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<GetUsersHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<GetUsersHttpEndpoint['mddocHttpDefinition']['requestBody']>,
+    InferFieldObjectType<GetUsersHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectType<
+      GetUsersHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(internalConstants.routes.getUsers)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getUsersParams)
@@ -118,12 +158,20 @@ export const getUsersEndpointDefinition = HttpEndpointDefinition.construct<{
   .setName('GetUsersEndpoint')
   .setDescription('Get users endpoint.');
 
-export const getWorkspacesEndpointDefinition = HttpEndpointDefinition.construct<{
-  requestBody: GetWorkspacesEndpointParams;
-  requestHeaders: HttpEndpointRequestHeaders_AuthRequired_ContentType;
-  responseBody: GetWorkspacesEndpointResult;
-  responseHeaders: HttpEndpointResponseHeaders_ContentType_ContentLength;
-}>()
+export const getWorkspacesEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<GetWorkspacesHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
+    InferFieldObjectType<GetWorkspacesHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<GetWorkspacesHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<
+      GetWorkspacesHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<GetWorkspacesHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectType<
+      GetWorkspacesHttpEndpoint['mddocHttpDefinition']['responseBody'],
+      FieldBinaryType
+    >
+  >()
   .setBasePathname(internalConstants.routes.getWorkspaces)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getWorkspacesParams)

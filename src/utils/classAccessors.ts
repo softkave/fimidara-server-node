@@ -1,56 +1,7 @@
 import assert = require('assert');
-import {isFunction, isObject} from 'lodash';
-import {capitalizeFirstLetter, cast} from './fns';
-import {AnyFn, AnyObject, ClassConstructor} from './types';
-
-type IsAccessorFnKey<F> = F extends `set${infer Unused}`
-  ? true
-  : F extends `get${infer Unused}`
-  ? true
-  : F extends `assertGet${infer Unused}`
-  ? true
-  : F extends 'clone'
-  ? true
-  : false;
-
-type OmitAccessPrefix = '__';
-type HasOmitAccessorPrefix<F> = F extends `${OmitAccessPrefix}${infer Unused}` ? true : false;
-
-export type ClassFieldsWithAccessorFields<TClass> =
-  | {
-      [Key in keyof TClass]: Key extends string
-        ? TClass[Key] extends AnyFn
-          ? Key
-          : IsAccessorFnKey<Key> extends true
-          ? Key
-          : HasOmitAccessorPrefix<Key> extends true
-          ? Key
-          : `set${Capitalize<Key>}` | `get${Capitalize<Key>}` | `assertGet${Capitalize<Key>}` | Key
-        : Key;
-    }[keyof TClass]
-  | 'clone';
-
-export type ClassFieldsWithAccessorsMixin<TClass> = {
-  [Key in ClassFieldsWithAccessorFields<TClass>]: Key extends `set${infer OriginalField}`
-    ? Uncapitalize<OriginalField> extends keyof TClass
-      ? /** @ts-ignore */
-        // TODO: find a fix for indexing with Uncapitalize<F> without using ts-ignore
-        (value: TClass[Uncapitalize<OriginalField>]) => ClassFieldsWithAccessorsMixin<TClass>
-      : never
-    : Key extends `get${infer OriginalField}`
-    ? Uncapitalize<OriginalField> extends keyof TClass
-      ? () => TClass[Uncapitalize<OriginalField>]
-      : never
-    : Key extends `assertGet${infer OriginalField}`
-    ? Uncapitalize<OriginalField> extends keyof TClass
-      ? () => NonNullable<TClass[Uncapitalize<OriginalField>]>
-      : never
-    : Key extends 'clone'
-    ? () => ClassFieldsWithAccessorsMixin<TClass>
-    : Key extends keyof TClass
-    ? TClass[Key]
-    : never;
-};
+import {isFunction, isObject, merge} from 'lodash';
+import {capitalizeFirstLetter} from './fns';
+import {AnyFn, AnyObject} from './types';
 
 export function makeGetAccessor<T, K extends keyof T>(obj: T, k: K) {
   return () => {
@@ -60,28 +11,22 @@ export function makeGetAccessor<T, K extends keyof T>(obj: T, k: K) {
 
 export function makeAssertGetAccessor<T, K extends keyof T>(obj: T, k: K) {
   return () => {
-    assert(obj[k], `${k.toString()} is not present`);
+    assert(obj[k], `${k.toString()} is not present.`);
     return obj[k] as NonNullable<T[K]>;
   };
 }
 
-export function makeSetAccessor<T, K extends keyof T>(obj: T, k: K) {
+export function makeSetAccessor<T, K extends keyof T = keyof T>(obj: T, k: K) {
   return (v: T[K]) => {
     obj[k] = v;
     return obj;
   };
 }
 
-/**
- * Expects that contrcutor params are not required.
- */
-export function makeClone<T extends ClassConstructor>(
-  cloneFrom: InstanceType<T>,
-  addAccessors = true
-) {
+export function makeClone<T extends object>(cloneFrom: T, addAccessors = true) {
   return () => {
-    assert(cloneFrom.constructor);
-    const clone: InstanceType<T> = new cloneFrom.constructor();
+    const clone: AnyObject = {};
+
     for (const key in cloneFrom) {
       if (isFunction(cloneFrom[key])) continue;
       clone[key] = cloneFrom[key];
@@ -91,15 +36,15 @@ export function makeClone<T extends ClassConstructor>(
       addClassAccessors(clone);
     }
 
-    return clone;
+    return clone as T;
   };
 }
 
-export const CLASS_ACCESSORS_DEFAULT_SKIP_FIELDS_WITH_PREFIX = ['__'];
+export const kClassAccessorsDefaultSkipFieldsWithPrefix = ['__'];
 
 export function getClassAccessorFields(
   instance: AnyObject,
-  skipFieldsWithPrefix = CLASS_ACCESSORS_DEFAULT_SKIP_FIELDS_WITH_PREFIX
+  skipFieldsWithPrefix = kClassAccessorsDefaultSkipFieldsWithPrefix
 ) {
   const accessorFields: string[] = [];
   for (const key in instance) {
@@ -117,7 +62,7 @@ export function getClassAccessorFields(
 
 export function addClassAccessors(
   instance: AnyObject,
-  skipFieldsWithPrefix = CLASS_ACCESSORS_DEFAULT_SKIP_FIELDS_WITH_PREFIX
+  skipFieldsWithPrefix = kClassAccessorsDefaultSkipFieldsWithPrefix
 ) {
   const accessorFields = getClassAccessorFields(instance, skipFieldsWithPrefix);
   accessorFields.forEach(key => {
@@ -132,55 +77,39 @@ export function addClassAccessors(
   });
 
   const cloneName = 'clone';
-  instance[cloneName] = makeClone(instance);
+  instance[cloneName] = makeClone(instance, true);
 }
 
+/**
+ * `augmenter` is passed along with `skipFieldsWithPrefix` to all recursive
+ * calls, meaning fields nested deep within with prefixes found in
+ * `skipFieldsWithPrefix` will be omitted, and `augementer` will be called for
+ * each one of them. So you should have a way of filtering or determining if you
+ * want to augement an instance or not.
+ */
 export function accessorFieldsToObject(
   instance: any,
-  skipFieldsWithPrefix = CLASS_ACCESSORS_DEFAULT_SKIP_FIELDS_WITH_PREFIX
+  skipFieldsWithPrefix = kClassAccessorsDefaultSkipFieldsWithPrefix,
+
+  /**
+   * `Param 0` is raw instance,
+   * `Param 1` is extracted instance,
+   * `Result` is object to merge with extracted instance.
+   */
+  augmenter: AnyFn<[AnyObject, AnyObject], AnyObject> = () => ({})
 ) {
   if (!isObject(instance)) return instance;
 
   const json: AnyObject = {};
   const accessorFields = getClassAccessorFields(instance, skipFieldsWithPrefix);
   accessorFields.forEach(key => {
-    json[key] = accessorFieldsToObject((instance as AnyObject)[key], skipFieldsWithPrefix);
+    json[key] = accessorFieldsToObject(
+      (instance as AnyObject)[key],
+      skipFieldsWithPrefix,
+      augmenter
+    );
   });
+  const augment = augmenter(instance, json);
 
-  return json;
-}
-
-// TODO: look into using applyMixins function in './fns.ts' file
-export function withClassAccessors<TClass extends ClassConstructor>(classType: TClass) {
-  return cast<
-    new (...args: ConstructorParameters<TClass>) => ClassFieldsWithAccessorsMixin<
-      InstanceType<TClass>
-    >
-  >(
-    class extends classType {
-      constructor(...props: any[]) {
-        super(...props);
-        addClassAccessors(this);
-      }
-    }
-  );
-}
-
-export abstract class AccessorConstruct {
-  static construct<TClass extends ClassConstructor>(
-    ClassType: TClass
-  ): ClassFieldsWithAccessorsMixin<TClass> {
-    const instance = new ClassType();
-    addClassAccessors(instance);
-    return instance as unknown as ClassFieldsWithAccessorsMixin<TClass>;
-  }
-
-  static makeConstruct<TClass extends ClassConstructor>(ClassType: TClass) {
-    return () => AccessorConstruct.construct(ClassType);
-  }
-
-  static wrap<T>(instance: T) {
-    addClassAccessors(instance as any);
-    return instance as unknown as ClassFieldsWithAccessorsMixin<T>;
-  }
+  return merge(json, augment);
 }

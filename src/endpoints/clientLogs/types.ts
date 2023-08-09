@@ -1,18 +1,8 @@
-import {
-  ExportedHttpEndpointWithMddocDefinition,
-  HttpEndpoint,
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
-} from '../types';
-import {IngestLogsEndpoint, IngestLogsEndpointParams} from './ingestLogs/types';
+import {ExportedHttpEndpointWithMddocDefinition} from '../types';
+import {IngestLogsEndpoint} from './ingestLogs/types';
 
-export type IngestLogsHttpEndpoint = HttpEndpoint<
-  IngestLogsEndpoint,
-  IngestLogsEndpointParams,
-  {},
-  HttpEndpointRequestHeaders_AuthRequired_ContentType,
-  {}
->;
+export type IngestLogsHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<IngestLogsEndpoint>;
 
 export type ClientLogsExportedPrivateEndpoints = {
-  ingestLogs: ExportedHttpEndpointWithMddocDefinition<IngestLogsHttpEndpoint>;
+  ingestLogs: IngestLogsHttpEndpoint;
 };

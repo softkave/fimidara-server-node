@@ -4,7 +4,7 @@ import {GetWorkspaceTagsEndpointParamsBase} from '../getWorkspaceTags/types';
 
 export type CountWorkspaceTagsEndpointParams = GetWorkspaceTagsEndpointParamsBase;
 
-export type GetWorkspaceTagEndpoint = Endpoint<
+export type CountWorkspaceTagsEndpoint = Endpoint<
   BaseContextType,
   CountWorkspaceTagsEndpointParams,
   CountItemsEndpointResult

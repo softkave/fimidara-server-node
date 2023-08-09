@@ -1,3 +1,4 @@
+import busboy from 'connect-busboy';
 import {Request, Response} from 'express';
 import {first, last} from 'lodash';
 import {AppResourceType} from '../../definitions/system';
@@ -23,7 +24,6 @@ import {
 import getFileDetails from './getFileDetails/handler';
 import getPresignedPathsForFiles from './getPresignedPathsForFiles/handler';
 import issueFilePresignedPath from './issueFilePresignedPath/handler';
-import {multerUploadFileExpressMiddleware} from './multer';
 import readFile from './readFile/handler';
 import {
   ReadFileEndpoint,
@@ -35,7 +35,7 @@ import updateFileDetails from './updateFileDetails/handler';
 import uploadFile from './uploadFile/handler';
 import {UploadFileEndpointParams} from './uploadFile/types';
 
-const kFileStreamWaitTimeoutMS = 5000; // 5 seconds
+const kFileStreamWaitTimeoutMS = 10000; // 10 seconds
 
 function handleReadFileResponse(res: Response, result: Awaited<ReturnType<ReadFileEndpoint>>) {
   res
@@ -101,18 +101,19 @@ async function extractUploadFileParamsFromReq(req: Request): Promise<UploadFileE
   appAssert(contentLength, new InvalidRequestError('The Content-Length HTTP header is required.'));
 
   return new Promise((resolve, reject) => {
-    // Wait for data stream or end if timeout exceeded, so as not to wait
-    // forever, for whatever reason if stream event is not fired.
+    // Wait for data stream or end if timeout exceeded. This is to prevent
+    // waiting forever, for whatever reason if stream event is not fired.
     waitTimeoutHandle = setTimeout(() => {
-      reject(new Error(`Upload file wait timeout ${kFileStreamWaitTimeoutMS} exceeded`));
+      reject(new Error(`Upload file wait timeout ${kFileStreamWaitTimeoutMS} exceeded.`));
     }, kFileStreamWaitTimeoutMS);
 
     req.busboy.on('file', (filename, stream, info) => {
       // Clear wait timeout, we have file stream, otherwise the request will
       // fail
       clearTimeout(waitTimeoutHandle);
+      const matcher = extractFilepathOrIdFromReqPath(req, fileConstants.routes.uploadFile);
       resolve({
-        ...extractFilepathOrIdFromReqPath(req, fileConstants.routes.readFile),
+        ...matcher,
         data: stream,
         size: Number(contentLength),
         encoding: info.encoding ?? contentEncoding,
@@ -120,6 +121,7 @@ async function extractUploadFileParamsFromReq(req: Request): Promise<UploadFileE
         description: description ? first(toArray(description)) : undefined,
       });
     });
+    req.pipe(req.busboy);
   });
 }
 
@@ -131,6 +133,8 @@ function cleanupUploadFileReq(req: Request) {
     req.busboy.destroy();
   }
 }
+
+const bbb = deleteFileEndpointDefinition.getSdkParamsBody();
 
 export function getFilesPublicHttpEndpoints() {
   const filesExportedEndpoints: FilesExportedEndpoints = {
@@ -171,9 +175,9 @@ export function getFilesPublicHttpEndpoints() {
     uploadFile: {
       fn: uploadFile,
       mddocHttpDefinition: uploadFileEndpointDefinition,
-      expressRouteMiddleware: multerUploadFileExpressMiddleware.single(
-        fileConstants.uploadedFileFieldName
-      ),
+      expressRouteMiddleware: busboy({
+        limits: fileConstants.multipartLimits,
+      }),
       getDataFromReq: extractUploadFileParamsFromReq,
       cleanup: cleanupUploadFileReq,
     },

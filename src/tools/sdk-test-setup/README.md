@@ -5,6 +5,7 @@ Sets up what's needed to run the SDK tests. For now, they are:
 - A workspace
 - Agent token
 - Ensure the token has the right permissions for the test
+- Also writes the data to the JS SDK `.env.test` file
 
 ## Commands
 
