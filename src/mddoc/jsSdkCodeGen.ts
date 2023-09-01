@@ -7,18 +7,19 @@ import {
   getFimidaraPublicHttpEndpoints,
 } from '../endpoints/endpoints';
 import {isObjectEmpty} from '../utils/fns';
+import {AnyObject} from '../utils/types';
 import {
-  MddocTypeFieldArray,
-  MddocTypeFieldBinary,
-  MddocTypeFieldBoolean,
-  MddocTypeFieldDate,
-  MddocTypeFieldNull,
-  MddocTypeFieldNumber,
-  MddocTypeFieldObject,
-  MddocTypeFieldOrCombination,
-  MddocTypeFieldString,
-  MddocTypeFieldUndefined,
-  MddocTypeHttpEndpoint,
+  FieldArrayType,
+  FieldBinaryType,
+  FieldBooleanType,
+  FieldDateType,
+  FieldNullType,
+  FieldNumberType,
+  FieldObjectType,
+  FieldOrCombinationType,
+  FieldStringType,
+  FieldUndefinedType,
+  HttpEndpointDefinitionType,
   isMddocFieldArray,
   isMddocFieldBinary,
   isMddocFieldBoolean,
@@ -30,6 +31,7 @@ import {
   isMddocFieldString,
   isMddocFieldUndefined,
   isMddocMultipartFormdata,
+  mddocConstruct,
   objectHasRequiredFields,
 } from './mddoc';
 import path = require('path');
@@ -149,7 +151,7 @@ class Doc {
   }
 }
 
-function getEnumType(doc: Doc, item: MddocTypeFieldString) {
+function getEnumType(doc: Doc, item: FieldStringType) {
   const name = item.getEnumName();
   if (name && doc.generatedTypeCache.has(name)) {
     return name;
@@ -168,36 +170,36 @@ function getEnumType(doc: Doc, item: MddocTypeFieldString) {
 
   return text;
 }
-function getStringType(doc: Doc, item: MddocTypeFieldString) {
+function getStringType(doc: Doc, item: FieldStringType) {
   return item.getValid()?.length ? getEnumType(doc, item) : 'string';
 }
-function getNumberType(item: MddocTypeFieldNumber) {
+function getNumberType(item: FieldNumberType) {
   return 'number';
 }
-function getBooleanType(item: MddocTypeFieldBoolean) {
+function getBooleanType(item: FieldBooleanType) {
   return 'boolean';
 }
-function getNullType(item: MddocTypeFieldNull) {
+function getNullType(item: FieldNullType) {
   return 'null';
 }
-function getUndefinedType(item: MddocTypeFieldUndefined) {
+function getUndefinedType(item: FieldUndefinedType) {
   return 'undefined';
 }
-function getDateType(item: MddocTypeFieldDate) {
+function getDateType(item: FieldDateType) {
   return 'number';
 }
-function getArrayType(doc: Doc, item: MddocTypeFieldArray<any>) {
+function getArrayType(doc: Doc, item: FieldArrayType<any>) {
   const ofType = item.assertGetType();
   const typeString = getType(doc, ofType, /** asFetchResponseIfFieldBinary */ false);
   return `Array<${typeString}>`;
 }
-function getOrCombinationType(doc: Doc, item: MddocTypeFieldOrCombination) {
+function getOrCombinationType(doc: Doc, item: FieldOrCombinationType) {
   return item
     .assertGetTypes()
     .map(next => getType(doc, next, /** asFetchResponseIfFieldBinary */ false))
     .join(' | ');
 }
-function getBinaryType(doc: Doc, item: MddocTypeFieldBinary, asFetchResponse: boolean) {
+function getBinaryType(doc: Doc, item: FieldBinaryType, asFetchResponse: boolean) {
   if (asFetchResponse) {
     doc.appendTypeImport(['Readable'], 'stream');
     return 'Blob | Readable';
@@ -239,7 +241,7 @@ function shouldEncloseObjectKeyInQuotes(key: string) {
 
 function generateObjectDefinition(
   doc: Doc,
-  item: MddocTypeFieldObject,
+  item: FieldObjectType<any> | FieldObjectType<AnyObject>,
   asFetchResponse: boolean,
   name?: string,
   extraFields: string[] = []
@@ -254,17 +256,17 @@ function generateObjectDefinition(
   for (let key in fields) {
     const value = fields[key];
     const entryType = getType(doc, value.data, asFetchResponse);
-    const separator = value.optional ? '?:' : ':';
+    const separator = value.required ? ':' : '?:';
     key = shouldEncloseObjectKeyInQuotes(key) ? `"${key}"` : key;
     const entry = `${key}${separator} ${entryType};`;
     entries.push(entry);
 
     const valueData = value.data;
     if (isMddocFieldObject(valueData)) generateObjectDefinition(doc, valueData, asFetchResponse);
-    else if (isMddocFieldArray(valueData) && valueData.assertGetType() instanceof FieldObject)
+    else if (isMddocFieldArray(valueData) && isMddocFieldObject(valueData.assertGetType()))
       generateObjectDefinition(
         doc,
-        valueData.assertGetType() as MddocTypeFieldObject,
+        valueData.assertGetType() as FieldObjectType<any>,
         asFetchResponse
       );
   }
@@ -276,13 +278,13 @@ function generateObjectDefinition(
   return name;
 }
 
-function getTypesFromEndpoint(endpoint: MddocTypeHttpEndpoint<any>) {
+function getTypesFromEndpoint(endpoint: HttpEndpointDefinitionType) {
   // Request body
-  const requestBodyRaw = endpoint.getRequestBody();
-  const requestBodyObject = isMddocFieldObject(requestBodyRaw)
-    ? requestBodyRaw
-    : isMddocMultipartFormdata(requestBodyRaw)
-    ? requestBodyRaw.assertGetItems()
+  const sdkRequestBodyRaw = endpoint.getSdkParamsBody() ?? endpoint.getRequestBody();
+  const sdkRequestObject = isMddocFieldObject(sdkRequestBodyRaw)
+    ? sdkRequestBodyRaw
+    : isMddocMultipartFormdata(sdkRequestBodyRaw)
+    ? sdkRequestBodyRaw.assertGetItems()
     : undefined;
 
   // Success response body
@@ -300,7 +302,7 @@ function getTypesFromEndpoint(endpoint: MddocTypeHttpEndpoint<any>) {
 
   const successObjectFields: SdkEndpointResponseType = {};
   const requestBodyObjectHasRequiredFields =
-    requestBodyObject && objectHasRequiredFields(requestBodyObject);
+    sdkRequestObject && objectHasRequiredFields(sdkRequestObject);
 
   if (successResponseBodyObject) {
     if (objectHasRequiredFields(successResponseBodyObject))
@@ -321,8 +323,8 @@ function getTypesFromEndpoint(endpoint: MddocTypeHttpEndpoint<any>) {
   }
 
   return {
-    requestBodyRaw,
-    requestBodyObject,
+    sdkRequestBodyRaw,
+    sdkRequestObject,
     successResponseBodyRaw,
     successResponseBodyObject,
     successResponseHeadersObject,
@@ -330,8 +332,9 @@ function getTypesFromEndpoint(endpoint: MddocTypeHttpEndpoint<any>) {
   };
 }
 
-function generateTypesFromEndpoint(doc: Doc, endpoint: MddocTypeHttpEndpoint<any>) {
-  const {requestBodyObject, successResponseBodyObject} = getTypesFromEndpoint(endpoint);
+function generateTypesFromEndpoint(doc: Doc, endpoint: HttpEndpointDefinitionType) {
+  const {sdkRequestObject: requestBodyObject, successResponseBodyObject} =
+    getTypesFromEndpoint(endpoint);
 
   // Request body
   if (requestBodyObject) generateObjectDefinition(doc, requestBodyObject, false);
@@ -342,7 +345,7 @@ function generateTypesFromEndpoint(doc: Doc, endpoint: MddocTypeHttpEndpoint<any
   }
 }
 
-function documentTypesFromEndpoint(doc: Doc, endpoint: MddocTypeHttpEndpoint<any>) {
+function documentTypesFromEndpoint(doc: Doc, endpoint: HttpEndpointDefinitionType) {
   generateTypesFromEndpoint(doc, endpoint);
 }
 
@@ -351,25 +354,25 @@ function generateEndpointCode(
   types: ReturnType<typeof getTypesFromEndpoint>,
   className: string,
   fnName: string,
-  endpoint: MddocTypeHttpEndpoint<any>
+  endpoint: HttpEndpointDefinitionType
 ) {
   const {
-    requestBodyObject,
+    sdkRequestObject,
     successResponseBodyRaw,
     successResponseBodyObject,
-    requestBodyRaw,
+    sdkRequestBodyRaw: requestBodyRaw,
     requestBodyObjectHasRequiredFields,
   } = types;
 
   doc.appendImportFromGenTypes(
-    compact([requestBodyObject?.assertGetName(), successResponseBodyObject?.assertGetName()])
+    compact([sdkRequestObject?.assertGetName(), successResponseBodyObject?.assertGetName()])
   );
 
   let endpointParamsText = '';
   let resultTypeName = 'undefined';
   const isBinaryRequest = isMddocMultipartFormdata(requestBodyRaw);
   const isBinaryResponse = isMddocFieldBinary(successResponseBodyRaw);
-  const requestBodyObjectName = requestBodyObject?.assertGetName();
+  const requestBodyObjectName = sdkRequestObject?.assertGetName();
 
   if (successResponseBodyObject) {
     doc.appendImportFromGenTypes([successResponseBodyObject.assertGetName()]);
@@ -378,7 +381,7 @@ function generateEndpointCode(
     resultTypeName = getBinaryType(doc, successResponseBodyRaw, true);
   }
 
-  if (requestBodyObject) {
+  if (sdkRequestObject) {
     if (isBinaryResponse) {
       if (requestBodyObjectHasRequiredFields)
         endpointParamsText = `props: FimidaraEndpointWithBinaryResponseParamsRequired<${requestBodyObjectName}>`;
@@ -397,7 +400,7 @@ function generateEndpointCode(
 
   if (isBinaryResponse) bodyText.push('responseType: props.responseType,');
   if (isBinaryRequest) bodyText.push('formdata: props.body,');
-  else if (requestBodyObject) bodyText.push('data: props?.body,');
+  else if (sdkRequestObject) bodyText.push('data: props?.body,');
 
   const text = `${fnName} = async (${endpointParamsText}): Promise<FimidaraEndpointResult<${resultTypeName}>> => {
     return this.execute${isBinaryResponse ? 'Raw' : 'Json'}({
@@ -411,12 +414,12 @@ function generateEndpointCode(
   doc.appendToClass(text, className, 'FimidaraEndpointsBase');
 }
 
-function generateEveryEndpointCode(doc: Doc, endpoints: Array<MddocTypeHttpEndpoint<any>>) {
+function generateEveryEndpointCode(doc: Doc, endpoints: Array<HttpEndpointDefinitionType>) {
   const leafEndpointsMap: Record<
     string,
     Record<
       string,
-      {endpoint: MddocTypeHttpEndpoint<any>; types: ReturnType<typeof getTypesFromEndpoint>}
+      {endpoint: HttpEndpointDefinitionType; types: ReturnType<typeof getTypesFromEndpoint>}
     >
   > = {};
   const branchMap: Record<
@@ -480,7 +483,7 @@ function generateEveryEndpointCode(doc: Doc, endpoints: Array<MddocTypeHttpEndpo
   }
 }
 
-function uniqEnpoints(endpoints: Array<MddocTypeHttpEndpoint<any>>) {
+function uniqEnpoints(endpoints: Array<HttpEndpointDefinitionType>) {
   const endpointNameMap: Record<string, string> = {};
 
   endpoints.forEach(e1 => {
@@ -516,11 +519,17 @@ async function jsSdkCodeGen(endpoints: AppExportedHttpEndpoints, filenamePrefix 
   const codesDoc = new Doc('./' + typesFilename);
 
   forEach(endpoints, e1 => {
-    if (e1) documentTypesFromEndpoint(typesDoc, e1.mddocHttpDefinition);
+    if (e1)
+      documentTypesFromEndpoint(
+        typesDoc,
+        e1.mddocHttpDefinition as unknown as HttpEndpointDefinitionType
+      );
   });
 
   const httpEndpoints = endpoints.map(e1 => e1.mddocHttpDefinition);
-  const uniqHttpEndpoints = uniqEnpoints(httpEndpoints);
+  const uniqHttpEndpoints = uniqEnpoints(
+    httpEndpoints as unknown as Array<HttpEndpointDefinitionType>
+  );
   generateEveryEndpointCode(codesDoc, uniqHttpEndpoints);
 
   fse.ensureFileSync(typesFilepath);

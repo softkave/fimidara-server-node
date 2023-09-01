@@ -6,6 +6,7 @@ import {
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
+  InferSdkParamsType,
   mddocConstruct,
 } from '../../mddoc/mddoc';
 import {multilineTextToParagraph} from '../../utils/fns';
@@ -65,10 +66,10 @@ const size = mddocConstruct
   .setMax(fileConstants.maxFileSizeInBytes);
 const extension = mddocConstruct.constructFieldString().setDescription('File extension');
 const height = mddocConstruct
-  .constructFieldString()
+  .constructFieldNumber()
   .setDescription('Resize to height if file is an image.');
 const width = mddocConstruct
-  .constructFieldString()
+  .constructFieldNumber()
   .setDescription('Resize to width if file is an image.');
 const fit = mddocConstruct
   .constructFieldString()
@@ -435,7 +436,8 @@ export const uploadFileEndpointDefinition = mddocConstruct
     InferFieldObjectType<
       UploadFileHttpEndpoint['mddocHttpDefinition']['responseBody'],
       FieldBinaryType
-    >
+    >,
+    InferSdkParamsType<UploadFileHttpEndpoint['mddocHttpDefinition']['sdkParamsBody']>
   >()
   .setBasePathname(fileConstants.routes.uploadFile)
   .setPathParamaters(fileMatcherPathParameters)

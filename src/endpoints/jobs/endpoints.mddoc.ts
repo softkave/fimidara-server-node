@@ -1,6 +1,5 @@
 import {JobStatus} from '../../definitions/job';
 import {
-  FieldBinaryType,
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
@@ -39,10 +38,7 @@ export const getJobStatusEndpointDefinition = mddocConstruct
     InferFieldObjectType<GetJobStatusHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<GetJobStatusHttpEndpoint['mddocHttpDefinition']['requestBody']>,
     InferFieldObjectType<GetJobStatusHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      GetJobStatusHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<GetJobStatusHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(jobConstants.routes.getJobStatus)
   .setMethod(HttpEndpointMethod.Post)

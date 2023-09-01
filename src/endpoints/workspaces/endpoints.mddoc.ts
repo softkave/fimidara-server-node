@@ -6,7 +6,6 @@ import {
   WorkspaceBillStatus,
 } from '../../definitions/workspace';
 import {
-  FieldBinaryType,
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
@@ -239,10 +238,7 @@ export const addWorkspaceEndpointDefinition = mddocConstruct
     InferFieldObjectType<AddWorkspaceHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<AddWorkspaceHttpEndpoint['mddocHttpDefinition']['requestBody']>,
     InferFieldObjectType<AddWorkspaceHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      AddWorkspaceHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<AddWorkspaceHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(workspaceConstants.routes.addWorkspace)
   .setMethod(HttpEndpointMethod.Post)
@@ -260,10 +256,7 @@ export const getWorkspaceEndpointDefinition = mddocConstruct
     InferFieldObjectType<GetWorkspaceHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<GetWorkspaceHttpEndpoint['mddocHttpDefinition']['requestBody']>,
     InferFieldObjectType<GetWorkspaceHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      GetWorkspaceHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<GetWorkspaceHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(workspaceConstants.routes.getWorkspace)
   .setMethod(HttpEndpointMethod.Post)
@@ -283,10 +276,7 @@ export const getUserWorkspacesEndpointDefinition = mddocConstruct
       GetUserWorkspacesHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<GetUserWorkspacesHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      GetUserWorkspacesHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<GetUserWorkspacesHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(workspaceConstants.routes.getUserWorkspaces)
   .setMethod(HttpEndpointMethod.Post)
@@ -306,10 +296,7 @@ export const updateWorkspaceEndpointDefinition = mddocConstruct
       UpdateWorkspaceHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<UpdateWorkspaceHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      UpdateWorkspaceHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<UpdateWorkspaceHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(workspaceConstants.routes.updateWorkspace)
   .setMethod(HttpEndpointMethod.Post)
@@ -329,10 +316,7 @@ export const deleteWorkspaceEndpointDefinition = mddocConstruct
       DeleteWorkspaceHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<DeleteWorkspaceHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      DeleteWorkspaceHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<DeleteWorkspaceHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(workspaceConstants.routes.deleteWorkspace)
   .setMethod(HttpEndpointMethod.Delete)
@@ -352,10 +336,7 @@ export const countUserWorkspacesEndpointDefinition = mddocConstruct
       CountUserWorkspacesHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<CountUserWorkspacesHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      CountUserWorkspacesHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<CountUserWorkspacesHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(workspaceConstants.routes.countUserWorkspaces)
   .setMethod(HttpEndpointMethod.Post)

@@ -5,7 +5,6 @@ import {
   PublicPermissionGroup,
 } from '../../definitions/permissionGroups';
 import {
-  FieldBinaryType,
   FieldObjectFieldsMap,
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
@@ -280,10 +279,7 @@ export const addPermissionGroupEndpointDefinition = mddocConstruct
       AddPermissionGroupHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<AddPermissionGroupHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      AddPermissionGroupHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<AddPermissionGroupHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(permissionGroupConstants.routes.addPermissionGroup)
   .setMethod(HttpEndpointMethod.Post)
@@ -303,10 +299,7 @@ export const getPermissionGroupEndpointDefinition = mddocConstruct
       GetPermissionGroupHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<GetPermissionGroupHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      GetPermissionGroupHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<GetPermissionGroupHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(permissionGroupConstants.routes.getPermissionGroup)
   .setMethod(HttpEndpointMethod.Post)
@@ -332,10 +325,7 @@ export const updatePermissionGroupEndpointDefinition = mddocConstruct
     InferFieldObjectType<
       UpdatePermissionGroupHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
-    InferFieldObjectType<
-      UpdatePermissionGroupHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<UpdatePermissionGroupHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(permissionGroupConstants.routes.updatePermissionGroup)
   .setMethod(HttpEndpointMethod.Post)
@@ -361,10 +351,7 @@ export const deletePermissionGroupEndpointDefinition = mddocConstruct
     InferFieldObjectType<
       DeletePermissionGroupHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
-    InferFieldObjectType<
-      DeletePermissionGroupHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<DeletePermissionGroupHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(permissionGroupConstants.routes.deletePermissionGroup)
   .setMethod(HttpEndpointMethod.Delete)
@@ -391,8 +378,7 @@ export const getWorkspacePermissionGroupsEndpointDefinition = mddocConstruct
       GetWorkspacePermissionGroupsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      GetWorkspacePermissionGroupsHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      GetWorkspacePermissionGroupsHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(permissionGroupConstants.routes.getWorkspacePermissionGroups)
@@ -422,8 +408,7 @@ export const countWorkspacePermissionGroupsEndpointDefinition = mddocConstruct
       CountWorkspacePermissionGroupsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      CountWorkspacePermissionGroupsHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      CountWorkspacePermissionGroupsHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(permissionGroupConstants.routes.countWorkspacePermissionGroups)
@@ -450,10 +435,7 @@ export const assignPermissionGroupsEndpointDefinition = mddocConstruct
     InferFieldObjectType<
       AssignPermissionGroupsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
-    InferFieldObjectType<
-      AssignPermissionGroupsHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<AssignPermissionGroupsHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(permissionGroupConstants.routes.assignPermissionGroups)
   .setMethod(HttpEndpointMethod.Post)
@@ -478,8 +460,7 @@ export const unassignPermissionGroupsEndpointDefinition = mddocConstruct
       UnassignPermissionGroupsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      UnassignPermissionGroupsHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      UnassignPermissionGroupsHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(permissionGroupConstants.routes.unassignPermissionGroups)
@@ -507,8 +488,7 @@ export const getEntityAssignedPermissionGroupsEndpointDefinition = mddocConstruc
       GetEntityAssignedPermissionGroupsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      GetEntityAssignedPermissionGroupsHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      GetEntityAssignedPermissionGroupsHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(permissionGroupConstants.routes.getEntityAssignedPermissionGroups)

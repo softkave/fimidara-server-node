@@ -27,7 +27,7 @@ import {getPermissionItemsPublicHttpEndpoints} from './permissionItems/endpoints
 import {PermissionItemsExportedEndpoints} from './permissionItems/types';
 import {getResourcesPublicHttpEndpoints} from './resources/endpoints';
 import {ResourcesExportedEndpoints} from './resources/types';
-import {ExportedHttpEndpointWithMddocDefinition, HttpEndpoint} from './types';
+import {ExportedHttpEndpointWithMddocDefinition} from './types';
 import {getUsageRecordsPublicHttpEndpoints} from './usageRecords/endpoints';
 import {UsageRecordsExportedEndpoints} from './usageRecords/types';
 import {getUsersPrivateHttpEndpoints, getUsersPublicHttpEndpoints} from './users/endpoints';
@@ -91,9 +91,7 @@ function getFimidaraRawPrivateHttpEndpoints() {
   return endpoints;
 }
 
-function isExportedHttpEndpoint<T extends HttpEndpoint<any> = any>(
-  item: any
-): item is ExportedHttpEndpointWithMddocDefinition<T> {
+function isExportedHttpEndpoint(item: any): item is ExportedHttpEndpointWithMddocDefinition {
   return (
     item &&
     (item as ExportedHttpEndpointWithMddocDefinition<any>).fn &&

@@ -1,7 +1,6 @@
 import {PublicPermissionItem} from '../../definitions/permissionItem';
 import {AppResourceType, getWorkspaceResourceTypeList} from '../../definitions/system';
 import {
-  FieldBinaryType,
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
@@ -168,7 +167,7 @@ const deletePermissionItemInput = mddocConstruct
   });
 
 const deletePermissionItemInputList = mddocConstruct
-  .constructFieldArray()
+  .constructFieldArray<DeletePermissionItemInput>()
   .setType(deletePermissionItemInput)
   .setMax(permissionItemConstants.maxPermissionItemsPerRequest);
 
@@ -438,10 +437,7 @@ export const addPermissionItemsEndpointDefinition = mddocConstruct
       AddPermissionItemsHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<AddPermissionItemsHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      AddPermissionItemsHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<AddPermissionItemsHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(permissionItemConstants.routes.addItems)
   .setMethod(HttpEndpointMethod.Post)
@@ -465,10 +461,7 @@ export const deletePermissionItemsEndpointDefinition = mddocConstruct
     InferFieldObjectType<
       DeletePermissionItemsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
-    InferFieldObjectType<
-      DeletePermissionItemsHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<DeletePermissionItemsHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(permissionItemConstants.routes.deleteItems)
   .setMethod(HttpEndpointMethod.Delete)
@@ -495,8 +488,7 @@ export const resolveEntityPermissionsEndpointDefinition = mddocConstruct
       ResolveEntityPermissionsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      ResolveEntityPermissionsHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      ResolveEntityPermissionsHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(permissionItemConstants.routes.resolveEntityPermissions)

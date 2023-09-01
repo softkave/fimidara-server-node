@@ -1,7 +1,6 @@
 import {PublicUser} from '../../definitions/user';
 import {PublicWorkspace} from '../../definitions/workspace';
 import {
-  FieldBinaryType,
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
@@ -95,10 +94,7 @@ export const getWaitlistedUsersEndpointDefinition = mddocConstruct
       GetWaitlistedUsersHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<GetWaitlistedUsersHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      GetWaitlistedUsersHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<GetWaitlistedUsersHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(internalConstants.routes.getWaitlistedUsers)
   .setMethod(HttpEndpointMethod.Post)
@@ -124,10 +120,7 @@ export const upgradeWaitlistedUsersEndpointDefinition = mddocConstruct
     InferFieldObjectType<
       UpgradeWaitlistedUsersHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
-    InferFieldObjectType<
-      UpgradeWaitlistedUsersHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<UpgradeWaitlistedUsersHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(internalConstants.routes.upgradeWaitlistedUsers)
   .setMethod(HttpEndpointMethod.Post)
@@ -144,10 +137,7 @@ export const getUsersEndpointDefinition = mddocConstruct
     InferFieldObjectType<GetUsersHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<GetUsersHttpEndpoint['mddocHttpDefinition']['requestBody']>,
     InferFieldObjectType<GetUsersHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      GetUsersHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<GetUsersHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(internalConstants.routes.getUsers)
   .setMethod(HttpEndpointMethod.Post)
@@ -167,10 +157,7 @@ export const getWorkspacesEndpointDefinition = mddocConstruct
       GetWorkspacesHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<GetWorkspacesHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      GetWorkspacesHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<GetWorkspacesHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(internalConstants.routes.getWorkspaces)
   .setMethod(HttpEndpointMethod.Post)

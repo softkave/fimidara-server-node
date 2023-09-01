@@ -1,6 +1,5 @@
 import {PublicTag} from '../../definitions/tag';
 import {
-  FieldBinaryType,
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
@@ -149,7 +148,7 @@ export const addTagEndpointDefinition = mddocConstruct
     InferFieldObjectType<AddTagHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<AddTagHttpEndpoint['mddocHttpDefinition']['requestBody']>,
     InferFieldObjectType<AddTagHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<AddTagHttpEndpoint['mddocHttpDefinition']['responseBody'], FieldBinaryType>
+    InferFieldObjectType<AddTagHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(tagConstants.routes.addTag)
   .setMethod(HttpEndpointMethod.Post)
@@ -167,7 +166,7 @@ export const getTagEndpointDefinition = mddocConstruct
     InferFieldObjectType<GetTagHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<GetTagHttpEndpoint['mddocHttpDefinition']['requestBody']>,
     InferFieldObjectType<GetTagHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<GetTagHttpEndpoint['mddocHttpDefinition']['responseBody'], FieldBinaryType>
+    InferFieldObjectType<GetTagHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(tagConstants.routes.getTag)
   .setMethod(HttpEndpointMethod.Post)
@@ -185,10 +184,7 @@ export const updateTagEndpointDefinition = mddocConstruct
     InferFieldObjectType<UpdateTagHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<UpdateTagHttpEndpoint['mddocHttpDefinition']['requestBody']>,
     InferFieldObjectType<UpdateTagHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      UpdateTagHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<UpdateTagHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(tagConstants.routes.updateTag)
   .setMethod(HttpEndpointMethod.Post)
@@ -206,10 +202,7 @@ export const deleteTagEndpointDefinition = mddocConstruct
     InferFieldObjectType<DeleteTagHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<DeleteTagHttpEndpoint['mddocHttpDefinition']['requestBody']>,
     InferFieldObjectType<DeleteTagHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      DeleteTagHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<DeleteTagHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(tagConstants.routes.deleteTag)
   .setMethod(HttpEndpointMethod.Delete)
@@ -229,10 +222,7 @@ export const getWorkspaceTagsEndpointDefinition = mddocConstruct
       GetWorkspaceTagsHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<GetWorkspaceTagsHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      GetWorkspaceTagsHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<GetWorkspaceTagsHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(tagConstants.routes.getWorkspaceTags)
   .setMethod(HttpEndpointMethod.Post)
@@ -252,10 +242,7 @@ export const countWorkspaceTagsEndpointDefinition = mddocConstruct
       CountWorkspaceTagsHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<CountWorkspaceTagsHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      CountWorkspaceTagsHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<CountWorkspaceTagsHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(tagConstants.routes.countWorkspaceTags)
   .setMethod(HttpEndpointMethod.Post)

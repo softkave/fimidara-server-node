@@ -193,6 +193,11 @@ export async function invokeEndpoint(props: IInvokeEndpointParams) {
 }
 
 export class FimidaraEndpointsBase extends FimidaraJsConfig {
+  protected mapping?: Map<
+    string,
+    ['header' | 'path' | 'query' | 'body', string]
+  >;
+
   protected getAuthToken(params?: {authToken?: string}) {
     return params?.authToken || this.config.authToken;
   }
@@ -223,6 +228,11 @@ export class FimidaraEndpointsBase extends FimidaraJsConfig {
     p02?: Pick<FimidaraEndpointParamsOptional<any>, 'authToken' | 'serverURL'>
   ) {
     return await this.executeRaw({...p01, responseType: 'json'}, p02);
+  }
+
+  protected mapToHeaders(p01: IInvokeEndpointParams) {
+    if (!this.mapping || !p01.data) return {};
+    return Object.keys(p01.data).reduce((headers, key) => {}, {});
   }
 }
 

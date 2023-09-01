@@ -1,6 +1,5 @@
 import {Resource, ResourceWrapper} from '../../definitions/system';
 import {
-  FieldBinaryType,
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
@@ -85,10 +84,7 @@ export const getResourcesEndpointDefinition = mddocConstruct
     InferFieldObjectType<GetResourcesHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<GetResourcesHttpEndpoint['mddocHttpDefinition']['requestBody']>,
     InferFieldObjectType<GetResourcesHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      GetResourcesHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<GetResourcesHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(resourcesConstants.routes.getResources)
   .setMethod(HttpEndpointMethod.Post)

@@ -149,6 +149,16 @@ export interface FieldObjectFieldType<T, TRequired extends boolean = any> {
   assertGetData: () => ConvertToMddocType<T>;
   clone: () => FieldObjectFieldType<T, TRequired>;
 }
+export type IsNonNullableType<T = any> = T extends
+  | string
+  | number
+  | boolean
+  | Array<any>
+  | Buffer
+  | Readable
+  | AnyObject
+  ? true
+  : false;
 export type ConvertToMddocType<T = any> = NonNullable<T> extends string
   ? FieldStringType
   : NonNullable<T> extends number
@@ -197,6 +207,39 @@ export interface FieldOrCombinationType {
   assertGetTypes: () => Array<FieldBaseType>;
   clone: () => FieldOrCombinationType;
 }
+export interface FieldOrCombinationType02<T01, T02> {
+  __id: string;
+  types?: [ConvertToMddocType<T01>, ConvertToMddocType<T02>];
+  description?: string;
+  setDescription: (v: string) => FieldOrCombinationType02<T01, T02>;
+  getDescription: () => string | undefined;
+  assertGetDescription: () => string;
+  setTypes: (
+    type01: ConvertToMddocType<T01>,
+    type02: ConvertToMddocType<T02>
+  ) => FieldOrCombinationType02<T01, T02>;
+  getTypes: () => [ConvertToMddocType<T01>, ConvertToMddocType<T02>] | undefined;
+  assertGetTypes: () => [ConvertToMddocType<T01>, ConvertToMddocType<T02>];
+  clone: () => FieldOrCombinationType02<T01, T02>;
+}
+export interface FieldOrCombinationType03<T01, T02, T03> {
+  __id: string;
+  types?: [ConvertToMddocType<T01>, ConvertToMddocType<T02>, ConvertToMddocType<T03>];
+  description?: string;
+  setDescription: (v: string) => FieldOrCombinationType03<T01, T02, T03>;
+  getDescription: () => string | undefined;
+  assertGetDescription: () => string;
+  setTypes: (
+    type01: ConvertToMddocType<T01>,
+    type02: ConvertToMddocType<T02>,
+    type03: ConvertToMddocType<T03>
+  ) => FieldOrCombinationType02<T01, T02>;
+  getTypes: () => [ConvertToMddocType<T01>, ConvertToMddocType<T02>, ConvertToMddocType<T03>];
+  assertGetTypes: () => Array<
+    [ConvertToMddocType<T01>, ConvertToMddocType<T02>, ConvertToMddocType<T03>]
+  >;
+  clone: () => FieldOrCombinationType03<T01, T02, T03>;
+}
 export interface FieldBinaryType {
   __id: string;
   min?: number;
@@ -214,6 +257,21 @@ export interface FieldBinaryType {
   clone: () => FieldBinaryType;
 }
 export type MappingFn<TSdkParams, TRequestHeaders, TPathParameters, TQuery, TRequestBody> = AnyFn<
+  [keyof TSdkParams],
+  Array<
+    | ['header', keyof TRequestHeaders]
+    | ['path', keyof TPathParameters]
+    | ['query', keyof TQuery]
+    | ['body', keyof TRequestBody]
+  >
+>;
+export type SdkParamsToRequestArtifactsMapping<
+  TSdkParams,
+  TRequestHeaders,
+  TPathParameters,
+  TQuery,
+  TRequestBody
+> = AnyFn<
   [keyof TSdkParams],
   Array<
     | ['header', keyof TRequestHeaders]
@@ -722,6 +780,26 @@ function constructFieldOrCombination() {
   return merge(ff0, ff);
 }
 
+function constructFieldOrCombination02<T01, T02>() {
+  // @ts-ignore
+  const ff0: FieldOrCombinationType02<T01, T02> = {};
+  const ff: FieldOrCombinationType02<T01, T02> = {
+    __id: 'FieldOrCombination',
+    setDescription: makeSetAccessor(ff0, 'description'),
+    getDescription: makeGetAccessor(ff0, 'description'),
+    assertGetDescription: makeAssertGetAccessor(ff0, 'description'),
+    setTypes(type01, type02) {
+      let types = this.types;
+      if (!types) types = this.types = [type01, type02];
+      return this;
+    },
+    getTypes: makeGetAccessor(ff0, 'types'),
+    assertGetTypes: makeAssertGetAccessor(ff0, 'types'),
+    clone: makeClone(ff0),
+  };
+  return merge(ff0, ff);
+}
+
 function constructFieldBinary() {
   // @ts-ignore
   const ff0: FieldBinaryType = {};
@@ -852,9 +930,10 @@ export const mddocConstruct = {
   constructHttpEndpointDefinition,
   constructHttpEndpointMultipartFormdata,
   constructSdkParamsBody,
+  constructFieldOrCombination02,
 };
 
-export function objectHasRequiredFields(item: FieldObjectType<any>) {
+export function objectHasRequiredFields(item: FieldObjectType<any> | FieldObjectType<AnyObject>) {
   return item.getFields()
     ? Object.values(item.assertGetFields()).findIndex(next => next.required) !== -1
     : false;

@@ -1,5 +1,4 @@
 import {
-  FieldBinaryType,
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
@@ -50,10 +49,7 @@ export const ingestLogsEndpointDefinition = mddocConstruct
     InferFieldObjectType<IngestLogsHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<IngestLogsHttpEndpoint['mddocHttpDefinition']['requestBody']>,
     InferFieldObjectType<IngestLogsHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      IngestLogsHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<IngestLogsHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(clientLogsConstants.routes.ingestLogs)
   .setMethod(HttpEndpointMethod.Post)

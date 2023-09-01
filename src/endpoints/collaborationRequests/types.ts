@@ -9,11 +9,7 @@ import {GetWorkspaceCollaborationRequestsEndpoint} from './getWorkspaceRequests/
 import {RespondToCollaborationRequestEndpoint} from './respondToRequest/types';
 import {RevokeCollaborationRequestEndpoint} from './revokeRequest/types';
 import {SendCollaborationRequestEndpoint} from './sendRequest/types';
-import {
-  UpdateCollaborationRequestEndpoint,
-  UpdateCollaborationRequestEndpointParams,
-  UpdateCollaborationRequestEndpointResult,
-} from './updateRequest/types';
+import {UpdateCollaborationRequestEndpoint} from './updateRequest/types';
 
 export type SendCollaborationRequestHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<SendCollaborationRequestEndpoint>;
@@ -31,11 +27,8 @@ export type RespondToCollaborationRequestHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<RespondToCollaborationRequestEndpoint>;
 export type RevokeCollaborationRequestHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<RevokeCollaborationRequestEndpoint>;
-export type UpdateCollaborationRequestHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<
-  UpdateCollaborationRequestEndpoint,
-  UpdateCollaborationRequestEndpointParams,
-  UpdateCollaborationRequestEndpointResult
->;
+export type UpdateCollaborationRequestHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<UpdateCollaborationRequestEndpoint>;
 export type GetUserCollaborationRequestHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<GetUserCollaborationRequestEndpoint>;
 export type GetWorkspaceCollaborationRequestHttpEndpoint =

@@ -1,6 +1,5 @@
 import {PublicUser, UserWorkspace} from '../../definitions/user';
 import {
-  FieldBinaryType,
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
@@ -161,7 +160,7 @@ export const signupEndpointDefinition = mddocConstruct
     InferFieldObjectType<SignupHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<SignupHttpEndpoint['mddocHttpDefinition']['requestBody']>,
     InferFieldObjectType<SignupHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<SignupHttpEndpoint['mddocHttpDefinition']['responseBody'], FieldBinaryType>
+    InferFieldObjectType<SignupHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(userConstants.routes.signup)
   .setMethod(HttpEndpointMethod.Post)
@@ -179,7 +178,7 @@ export const loginEndpointDefinition = mddocConstruct
     InferFieldObjectType<LoginHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<LoginHttpEndpoint['mddocHttpDefinition']['requestBody']>,
     InferFieldObjectType<LoginHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<LoginHttpEndpoint['mddocHttpDefinition']['responseBody'], FieldBinaryType>
+    InferFieldObjectType<LoginHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(userConstants.routes.login)
   .setMethod(HttpEndpointMethod.Post)
@@ -199,10 +198,7 @@ export const forgotPasswordEndpointDefinition = mddocConstruct
       ForgotPasswordHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<ForgotPasswordHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      ForgotPasswordHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<ForgotPasswordHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(userConstants.routes.forgotPassword)
   .setMethod(HttpEndpointMethod.Post)
@@ -228,10 +224,7 @@ export const changePasswordWithTokenEndpointDefinition = mddocConstruct
     InferFieldObjectType<
       ChangePasswordWithTokenHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
-    InferFieldObjectType<
-      ChangePasswordWithTokenHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<ChangePasswordWithTokenHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(userConstants.routes.changePasswordWithToken)
   .setMethod(HttpEndpointMethod.Post)
@@ -260,8 +253,7 @@ export const changePasswordWithCurrentPasswordEndpointDefinition = mddocConstruc
       ChangePasswordWithCurrentPasswordHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      ChangePasswordWithCurrentPasswordHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      ChangePasswordWithCurrentPasswordHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(userConstants.routes.changePasswordWithCurrentPassword)
@@ -282,10 +274,7 @@ export const confirmEmailAddressEndpointDefinition = mddocConstruct
       ConfirmEmailAddressHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<ConfirmEmailAddressHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      ConfirmEmailAddressHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<ConfirmEmailAddressHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(userConstants.routes.confirmEmailAddress)
   .setMethod(HttpEndpointMethod.Post)
@@ -304,10 +293,7 @@ export const getUserDataEndpointDefinition = mddocConstruct
     InferFieldObjectType<GetUserDataHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<GetUserDataHttpEndpoint['mddocHttpDefinition']['requestBody']>,
     InferFieldObjectType<GetUserDataHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      GetUserDataHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<GetUserDataHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(userConstants.routes.getUserData)
   .setMethod(HttpEndpointMethod.Post)
@@ -333,8 +319,7 @@ export const sendEmailVerificationCodeEndpointDefinition = mddocConstruct
       SendEmailVerificationCodeHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      SendEmailVerificationCodeHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      SendEmailVerificationCodeHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(userConstants.routes.sendEmailVerificationCode)
@@ -352,10 +337,7 @@ export const updateUserEndpointDefinition = mddocConstruct
     InferFieldObjectType<UpdateUserHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<UpdateUserHttpEndpoint['mddocHttpDefinition']['requestBody']>,
     InferFieldObjectType<UpdateUserHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      UpdateUserHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<UpdateUserHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(userConstants.routes.updateUser)
   .setMethod(HttpEndpointMethod.Post)
@@ -373,10 +355,7 @@ export const userExistsEndpointDefinition = mddocConstruct
     InferFieldObjectType<UserExistsHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<UserExistsHttpEndpoint['mddocHttpDefinition']['requestBody']>,
     InferFieldObjectType<UserExistsHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      UserExistsHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<UserExistsHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(userConstants.routes.userExists)
   .setMethod(HttpEndpointMethod.Post)

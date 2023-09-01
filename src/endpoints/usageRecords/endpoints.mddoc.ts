@@ -1,6 +1,5 @@
 import {PublicUsageRecord, UsageRecordCategory} from '../../definitions/usageRecord';
 import {
-  FieldBinaryType,
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
@@ -132,10 +131,7 @@ export const getUsageCostsEndpointDefinition = mddocConstruct
       GetUsageCostsHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<GetUsageCostsHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      GetUsageCostsHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<GetUsageCostsHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(usageRecordConstants.routes.getUsageCosts)
   .setMethod(HttpEndpointMethod.Post)
@@ -160,10 +156,7 @@ export const getWorkspaceSummedUsageEndpointDefinition = mddocConstruct
     InferFieldObjectType<
       GetWorkspaceSummedUsageHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
-    InferFieldObjectType<
-      GetWorkspaceSummedUsageHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<GetWorkspaceSummedUsageHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(usageRecordConstants.routes.getWorkspaceSummedUsage)
   .setMethod(HttpEndpointMethod.Post)
@@ -190,8 +183,7 @@ export const countWorkspaceSummedUsageEndpointDefinition = mddocConstruct
       CountWorkspaceSummedUsageHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      CountWorkspaceSummedUsageHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      CountWorkspaceSummedUsageHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(usageRecordConstants.routes.countWorkspaceSummedUsage)

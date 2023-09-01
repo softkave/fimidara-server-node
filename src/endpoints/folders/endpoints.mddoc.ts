@@ -2,7 +2,6 @@ import {PublicFile} from '../../definitions/file';
 import {FolderMatcher, PublicFolder} from '../../definitions/folder';
 import {AppResourceType} from '../../definitions/system';
 import {
-  FieldBinaryType,
   FieldObjectFieldsMap,
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
@@ -199,10 +198,7 @@ export const addFolderEndpointDefinition = mddocConstruct
     InferFieldObjectType<AddFolderHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<AddFolderHttpEndpoint['mddocHttpDefinition']['requestBody']>,
     InferFieldObjectType<AddFolderHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      AddFolderHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<AddFolderHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(folderConstants.routes.addFolder)
   .setMethod(HttpEndpointMethod.Post)
@@ -220,10 +216,7 @@ export const getFolderEndpointDefinition = mddocConstruct
     InferFieldObjectType<GetFolderHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<GetFolderHttpEndpoint['mddocHttpDefinition']['requestBody']>,
     InferFieldObjectType<GetFolderHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      GetFolderHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<GetFolderHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(folderConstants.routes.getFolder)
   .setMethod(HttpEndpointMethod.Post)
@@ -241,10 +234,7 @@ export const updateFolderEndpointDefinition = mddocConstruct
     InferFieldObjectType<UpdateFolderHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<UpdateFolderHttpEndpoint['mddocHttpDefinition']['requestBody']>,
     InferFieldObjectType<UpdateFolderHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      UpdateFolderHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<UpdateFolderHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(folderConstants.routes.updateFolder)
   .setMethod(HttpEndpointMethod.Post)
@@ -262,10 +252,7 @@ export const deleteFolderEndpointDefinition = mddocConstruct
     InferFieldObjectType<DeleteFolderHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<DeleteFolderHttpEndpoint['mddocHttpDefinition']['requestBody']>,
     InferFieldObjectType<DeleteFolderHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      DeleteFolderHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<DeleteFolderHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(folderConstants.routes.deleteFolder)
   .setMethod(HttpEndpointMethod.Delete)
@@ -285,10 +272,7 @@ export const listFolderContentEndpointDefinition = mddocConstruct
       ListFolderContentHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<ListFolderContentHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      ListFolderContentHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<ListFolderContentHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(folderConstants.routes.listFolderContent)
   .setMethod(HttpEndpointMethod.Post)
@@ -308,10 +292,7 @@ export const countFolderContentEndpointDefinition = mddocConstruct
       CountFolderContentHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<CountFolderContentHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      CountFolderContentHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<CountFolderContentHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(folderConstants.routes.countFolderContent)
   .setMethod(HttpEndpointMethod.Post)

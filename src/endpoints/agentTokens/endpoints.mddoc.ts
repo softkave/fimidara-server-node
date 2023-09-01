@@ -1,6 +1,5 @@
 import {PublicAgentToken} from '../../definitions/agentToken';
 import {
-  FieldBinaryType,
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
@@ -172,10 +171,7 @@ export const addAgentTokenEndpointDefinition = mddocConstruct
       AddAgentTokenHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<AddAgentTokenHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      AddAgentTokenHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<AddAgentTokenHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(agentTokenConstants.routes.addToken)
   .setMethod(HttpEndpointMethod.Post)
@@ -195,10 +191,7 @@ export const getAgentTokenEndpointDefinition = mddocConstruct
       GetAgentTokenHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<GetAgentTokenHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      GetAgentTokenHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<GetAgentTokenHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(agentTokenConstants.routes.getToken)
   .setMethod(HttpEndpointMethod.Post)
@@ -218,10 +211,7 @@ export const updateAgentTokenEndpointDefinition = mddocConstruct
       UpdateAgentTokenHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<UpdateAgentTokenHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      UpdateAgentTokenHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<UpdateAgentTokenHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(agentTokenConstants.routes.updateToken)
   .setMethod(HttpEndpointMethod.Post)
@@ -241,10 +231,7 @@ export const deleteAgentTokenEndpointDefinition = mddocConstruct
       DeleteAgentTokenHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<DeleteAgentTokenHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      DeleteAgentTokenHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<DeleteAgentTokenHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(agentTokenConstants.routes.deleteToken)
   .setMethod(HttpEndpointMethod.Delete)
@@ -270,10 +257,7 @@ export const getWorkspaceAgentTokensEndpointDefinition = mddocConstruct
     InferFieldObjectType<
       GetWorkspaceAgentTokensHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
-    InferFieldObjectType<
-      GetWorkspaceAgentTokensHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+    InferFieldObjectType<GetWorkspaceAgentTokensHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(agentTokenConstants.routes.getWorkspaceTokens)
   .setMethod(HttpEndpointMethod.Post)
@@ -300,8 +284,7 @@ export const countWorkspaceAgentTokensEndpointDefinition = mddocConstruct
       CountWorkspaceAgentTokensHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      CountWorkspaceAgentTokensHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      CountWorkspaceAgentTokensHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(agentTokenConstants.routes.countWorkspaceTokens)

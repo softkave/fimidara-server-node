@@ -1,7 +1,9 @@
 import addTag from './addTag/handler';
+import countWorkspaceTags from './countWorkspaceTags/handler';
 import deleteTag from './deleteTag/handler';
 import {
   addTagEndpointDefinition,
+  countWorkspaceTagsEndpointDefinition,
   deleteTagEndpointDefinition,
   getTagEndpointDefinition,
   getWorkspaceTagsEndpointDefinition,
@@ -29,6 +31,10 @@ export function getTagsPublicHttpEndpoints() {
     getWorkspaceTags: {
       fn: getWorkspaceTags,
       mddocHttpDefinition: getWorkspaceTagsEndpointDefinition,
+    },
+    countWorkspaceTags: {
+      fn: countWorkspaceTags,
+      mddocHttpDefinition: countWorkspaceTagsEndpointDefinition,
     },
     updateTag: {
       fn: updateTag,

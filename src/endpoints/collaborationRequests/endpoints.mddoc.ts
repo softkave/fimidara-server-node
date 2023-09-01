@@ -4,7 +4,6 @@ import {
   PublicCollaborationRequestForWorkspace,
 } from '../../definitions/collaborationRequest';
 import {
-  FieldBinaryType,
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
@@ -302,8 +301,7 @@ export const sendCollaborationRequestEndpointDefinition = mddocConstruct
       SendCollaborationRequestHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      SendCollaborationRequestHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      SendCollaborationRequestHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(collabRequestConstants.routes.sendRequest)
@@ -331,8 +329,7 @@ export const getUserCollaborationRequestEndpointDefinition = mddocConstruct
       GetUserCollaborationRequestHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      GetUserCollaborationRequestHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      GetUserCollaborationRequestHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(collabRequestConstants.routes.getUserRequest)
@@ -362,8 +359,7 @@ export const getWorkspaceCollaborationRequestEndpointDefinition = mddocConstruct
       GetWorkspaceCollaborationRequestHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      GetWorkspaceCollaborationRequestHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      GetWorkspaceCollaborationRequestHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(collabRequestConstants.routes.getWorkspaceRequest)
@@ -391,8 +387,7 @@ export const updateCollaborationRequestEndpointDefinition = mddocConstruct
       UpdateCollaborationRequestHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      UpdateCollaborationRequestHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      UpdateCollaborationRequestHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(collabRequestConstants.routes.updateRequest)
@@ -420,8 +415,7 @@ export const respondToCollaborationRequestEndpointDefinition = mddocConstruct
       RespondToCollaborationRequestHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      RespondToCollaborationRequestHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      RespondToCollaborationRequestHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(collabRequestConstants.routes.respondToRequest)
@@ -449,8 +443,7 @@ export const revokeCollaborationRequestEndpointDefinition = mddocConstruct
       RevokeCollaborationRequestHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      RevokeCollaborationRequestHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      RevokeCollaborationRequestHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(collabRequestConstants.routes.revokeRequest)
@@ -478,8 +471,7 @@ export const deleteCollaborationRequestEndpointDefinition = mddocConstruct
       DeleteCollaborationRequestHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      DeleteCollaborationRequestHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      DeleteCollaborationRequestHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(collabRequestConstants.routes.deleteRequest)
@@ -509,8 +501,7 @@ export const getWorkspaceCollaborationRequestsEndpointDefinition = mddocConstruc
       GetWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      GetWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      GetWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(collabRequestConstants.routes.getWorkspaceRequests)
@@ -538,8 +529,7 @@ export const getUserCollaborationRequestsEndpointDefinition = mddocConstruct
       GetUserCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      GetUserCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      GetUserCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(collabRequestConstants.routes.getUserRequests)
@@ -569,8 +559,7 @@ export const countUserCollaborationRequestsEndpointDefinition = mddocConstruct
       CountUserCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      CountUserCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      CountUserCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(collabRequestConstants.routes.countUserRequests)
@@ -599,8 +588,7 @@ export const countWorkspaceCollaborationRequestsEndpointDefinition = mddocConstr
       CountWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      CountWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      CountWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(collabRequestConstants.routes.countWorkspaceRequests)

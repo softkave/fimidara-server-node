@@ -1,4 +1,4 @@
-import {FieldBinary} from '../../mddoc/mddoc';
+import {FieldBinaryType} from '../../mddoc/mddoc';
 import {EmptyObject} from '../../utils/types';
 import {
   ExportedHttpEndpointWithMddocDefinition,
@@ -36,7 +36,7 @@ export type ReadFilePOSTHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<
   /** TQuery */ ReadFileEndpointHttpQuery,
   /** TRequestBody */ ReadFileEndpointParams,
   /** TResponseHeaders */ HttpEndpointResponseHeaders_ContentType_ContentLength,
-  /** TResponseBody */ FieldBinary,
+  /** TResponseBody */ FieldBinaryType,
   /** TSdkparams */ ReadFileEndpointParams
 >;
 export type ReadFileGETHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<
@@ -44,9 +44,9 @@ export type ReadFileGETHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<
   /** TRequestHeaders */ HttpEndpointRequestHeaders_AuthOptional,
   /** TPathParameters */ FileMatcherPathParameters,
   /** TQuery */ ReadFileEndpointHttpQuery,
-  /** TRequestBody */ undefined,
+  /** TRequestBody */ {},
   /** TResponseHeaders */ HttpEndpointResponseHeaders_ContentType_ContentLength,
-  /** TResponseBody */ FieldBinary,
+  /** TResponseBody */ FieldBinaryType,
   /** TSdkparams */ ReadFileEndpointParams
 >;
 export type DeleteFileHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<DeleteFileEndpoint>;
