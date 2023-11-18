@@ -1,6 +1,6 @@
 import {format} from 'util';
+import {PermissionAction} from '../../definitions/permissionItem';
 import {
-  AppActionType,
   AppResourceType,
   PERMISSION_CONTAINER_TYPES,
   PERMISSION_ENTITY_TYPES,
@@ -22,7 +22,7 @@ export async function checkPermissionEntitiesExist(
   agent: SessionAgent,
   workspaceId: string,
   entities: Array<string>,
-  action: AppActionType
+  action: PermissionAction
 ) {
   if (entities.length === 0) {
     return;
@@ -56,7 +56,7 @@ export async function checkPermissionContainersExist(
   agent: SessionAgent,
   workspaceId: string,
   items: Array<string>,
-  action: AppActionType
+  action: PermissionAction
 ) {
   items.forEach(id => {
     const containerType = getResourceTypeFromId(id);
@@ -83,14 +83,16 @@ export async function checkPermissionContainersExist(
   return {resources};
 }
 
-const targetTypes = getWorkspaceResourceTypeList().filter(type => type !== AppResourceType.All);
+const targetTypes = getWorkspaceResourceTypeList().filter(
+  type => type !== AppResourceType.All
+);
 
 export async function checkPermissionTargetsExist(
   context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
   items: Array<string>,
-  action: AppActionType,
+  action: PermissionAction,
   containerId?: string
 ) {
   /**

@@ -122,14 +122,14 @@ const updateTagResponseBody = mddocConstruct
 
 const getTagParams = mddocConstruct
   .constructFieldObject<GetTagEndpointParams>()
-  .setName('UpdateTagEndpointParams')
+  .setName('GetTagEndpointParams')
   .setFields({
     tagId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
   })
   .setDescription('Get tag endpoint params.');
 const getTagResponseBody = mddocConstruct
   .constructFieldObject<GetTagEndpointResult>()
-  .setName('UpdateTagEndpointResult')
+  .setName('GetTagEndpointResult')
   .setFields({tag: mddocConstruct.constructFieldObjectField(true, tag)})
   .setDescription('Get tag endpoint success result.');
 

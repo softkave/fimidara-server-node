@@ -1,11 +1,12 @@
 import {compact, defaultTo, first, isArray, last} from 'lodash';
 import {posix} from 'path';
 import {Folder, FolderMatcher, PublicFolder} from '../../definitions/folder';
-import {AppActionType, SessionAgent} from '../../definitions/system';
+import {PermissionAction} from '../../definitions/permissionItem';
+import {SessionAgent} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {
-  checkAuthorization,
+  checkAuthorizationWithAgent,
   getFilePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
 import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
@@ -42,7 +43,9 @@ export function splitFolderpath(path: string | string[]) {
   const nameList = compact(posix.normalize(path).split(folderConstants.nameSeparator));
 
   if (nameList.length > folderConstants.maxFolderDepth) {
-    throw new Error(`Path depth exceeds max path depth of ${folderConstants.maxFolderDepth}.`);
+    throw new Error(
+      `Path depth exceeds max path depth of ${folderConstants.maxFolderDepth}.`
+    );
   }
 
   return nameList;
@@ -108,7 +111,7 @@ export async function checkFolderAuthorization(
   context: BaseContextType,
   agent: SessionAgent,
   folder: Folder,
-  action: AppActionType,
+  action: PermissionAction,
   workspace?: Workspace,
   UNSAFE_skipAuthCheck = false,
   opts?: SemanticDataAccessProviderRunOptions
@@ -122,15 +125,16 @@ export async function checkFolderAuthorization(
     // the calling agent doesn't need permission to read the folder, just it's
     // content.
     // TODO: Let me (@abayomi) know if there's an issue with this.
-    await checkAuthorization({
+    await checkAuthorizationWithAgent({
       context,
       agent,
-      action,
       workspace,
       opts,
       workspaceId: workspace.resourceId,
-      containerId: getFilePermissionContainers(workspace.resourceId, folder, false),
-      targets: {targetId: folder.resourceId},
+      target: {
+        action,
+        targetId: getFilePermissionContainers(workspace.resourceId, folder, true),
+      },
     });
   }
 
@@ -141,13 +145,20 @@ export async function checkFolderAuthorization02(
   context: BaseContextType,
   agent: SessionAgent,
   matcher: FolderMatcher,
-  action: AppActionType,
+  action: PermissionAction,
   workspace?: Workspace,
   opts?: SemanticDataAccessProviderRunOptions,
   UNSAFE_skipAuthCheck = false
 ) {
   const folder = await assertGetFolderWithMatcher(context, matcher, opts);
-  return checkFolderAuthorization(context, agent, folder, action, workspace, UNSAFE_skipAuthCheck);
+  return checkFolderAuthorization(
+    context,
+    agent,
+    folder,
+    action,
+    workspace,
+    UNSAFE_skipAuthCheck
+  );
 }
 
 export function getFolderName(folder: Folder) {
@@ -162,7 +173,9 @@ export function assertWorkspaceRootname(
   }
 }
 
-export function assertFileOrFolderName(fileOrFolderName?: string | null): asserts fileOrFolderName {
+export function assertFileOrFolderName(
+  fileOrFolderName?: string | null
+): asserts fileOrFolderName {
   if (!fileOrFolderName) {
     throw new InvalidRequestError('File or folder name not provided');
   }
@@ -172,7 +185,9 @@ export function addRootnameToPath<T extends string | string[] = string | string[
   path: T,
   workspaceRootname: string | string[]
 ): T {
-  const rootname = isArray(workspaceRootname) ? last(workspaceRootname) : workspaceRootname;
+  const rootname = isArray(workspaceRootname)
+    ? last(workspaceRootname)
+    : workspaceRootname;
   if (isArray(path)) {
     return <T>[rootname, ...path];
   }

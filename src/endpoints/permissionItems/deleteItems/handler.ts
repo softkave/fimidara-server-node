@@ -1,27 +1,28 @@
-import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {DeletePermissionItemsEndpoint} from './types';
 import {INTERNAL_deletePermissionItems} from './utils';
 import {deletePermissionItemsJoiSchema} from './validation';
 
-const deletePermissionItems: DeletePermissionItemsEndpoint = async (context, instData) => {
+const deletePermissionItems: DeletePermissionItemsEndpoint = async (
+  context,
+  instData
+) => {
   const data = validate(instData.data, deletePermissionItemsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
-  await checkAuthorization({
+  await checkAuthorizationWithAgent({
     context,
     agent,
     workspaceId,
     workspace,
-    action: AppActionType.Delete,
-    targets: {targetType: AppResourceType.PermissionItem},
+    target: {targetId: workspaceId, action: 'updatePermission'},
   });
   const job = await INTERNAL_deletePermissionItems(context, agent, workspace, data);
-  return {jobId: job.resourceId};
+  return {jobId: job?.resourceId};
 };
 
 export default deletePermissionItems;

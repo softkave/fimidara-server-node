@@ -1,7 +1,6 @@
 import {File} from '../../../definitions/file';
 import {Folder} from '../../../definitions/folder';
 import {
-  AppActionType,
   AppResourceType,
   PERMISSION_AGENT_TYPES,
   SessionAgent,
@@ -43,8 +42,20 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     if (!file) {
       appAssert(data.filepath, new ValidationError('File path not provided.'));
       const pathinfo = getFilepathInfo(data.filepath);
-      const parentFolder = await ensureFileParentFolders(context, agent, workspace, pathinfo, opts);
-      await checkUploadFileAuth(context, agent, workspace, /** file */ null, parentFolder);
+      const parentFolder = await ensureFileParentFolders(
+        context,
+        agent,
+        workspace,
+        pathinfo,
+        opts
+      );
+      await checkUploadFileAuth(
+        context,
+        agent,
+        workspace,
+        /** file */ null,
+        parentFolder
+      );
       file = generateNewFile(agent, workspace, pathinfo, data, parentFolder);
     } else {
       await checkUploadFileAuth(
@@ -60,7 +71,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
       context,
       instData,
       file,
-      isNewFile ? AppActionType.Create : AppActionType.Update,
+      isNewFile ? 'addFile' : 'updateFile',
       isNewFile ? undefined : {oldFileSize: file.size},
       opts
     );
@@ -68,7 +79,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
       context,
       instData,
       file,
-      isNewFile ? AppActionType.Create : AppActionType.Update,
+      isNewFile ? 'addFile' : 'updateFile',
       opts
     );
 

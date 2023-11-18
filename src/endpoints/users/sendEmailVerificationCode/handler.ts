@@ -10,7 +10,10 @@ import sendConfirmEmailAddressEmail from './sendConfirmEmailAddressEmail';
 import {SendEmailVerificationCodeEndpoint} from './types';
 import {withConfirmEmailAddressToken} from './withConfirmEmailAddressToken';
 
-const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (context, instData) => {
+const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (
+  context,
+  instData
+) => {
   const user = await context.session.getUser(context, instData);
   await INTERNAL_sendEmailVerificationCode(context, user);
 };
@@ -35,6 +38,7 @@ export async function INTERNAL_sendEmailVerificationCode(
           userConstants.verificationCodeRateLimitInMins
         );
         const shouldLimitRate = isBefore(new Date(), nextDate);
+
         if (shouldLimitRate) {
           throw new RateLimitError(
             `We sent an email verification email to ${user.email} on ${formatDate(

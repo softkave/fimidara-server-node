@@ -4,7 +4,10 @@ import {getWorkspaceSummedUsageQuery} from '../getWorkspaceSummedUsage/utils';
 import {CountWorkspaceSummedUsageEndpoint} from './types';
 import {countWorkspaceSummedUsageJoiSchema} from './validation';
 
-const countWorkspaceSummedUsage: CountWorkspaceSummedUsageEndpoint = async (context, instData) => {
+const countWorkspaceSummedUsage: CountWorkspaceSummedUsageEndpoint = async (
+  context,
+  instData
+) => {
   const data = validate(instData.data, countWorkspaceSummedUsageJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);

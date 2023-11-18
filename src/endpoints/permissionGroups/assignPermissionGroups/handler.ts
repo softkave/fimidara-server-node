@@ -19,7 +19,7 @@ const assignPermissionGroups: AssignPermissionGroupsEndpoint = async (context, i
     workspace,
     workspaceId: workspace.resourceId,
     action: AppActionType.GrantPermission,
-    targets: {targetType: AppResourceType.PermissionGroup},
+    target: {targetType: AppResourceType.PermissionGroup},
   });
   const entityIdList = toNonNullableArray(data.entityId);
   await Promise.all([

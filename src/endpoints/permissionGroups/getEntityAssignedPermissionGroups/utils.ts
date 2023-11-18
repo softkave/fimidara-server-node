@@ -1,6 +1,6 @@
-import {AppActionType, SessionAgent} from '../../../definitions/system';
+import {SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
-import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {SemanticDataAccessProviderRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
 
@@ -14,14 +14,13 @@ export async function checkReadEntityAssignedPermissionGroups(
   if (isFetchingOwnPermissionGroups(agent, entityId)) {
     return true;
   } else {
-    await checkAuthorization({
+    await checkAuthorizationWithAgent({
       context,
       agent,
       workspace,
       opts,
       workspaceId: workspace.resourceId,
-      action: AppActionType.Read,
-      targets: {targetId: entityId},
+      target: {targetId: entityId, action: 'updatePermission'},
     });
     return true;
   }

@@ -11,12 +11,18 @@ const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (context, instDat
     AppResourceType.User,
     TokenAccessScope.ConfirmEmailAddress
   );
-  const user = await INTERNAL_confirmEmailAddress(context, agent.agentId, agent.user ?? null);
-  const [userToken, clientAssignedToken] = await context.semantic.utils.withTxn(context, opts =>
-    Promise.all([
-      getUserToken(context, agent.agentId, opts),
-      getUserClientAssignedToken(context, agent.agentId, opts),
-    ])
+  const user = await INTERNAL_confirmEmailAddress(
+    context,
+    agent.agentId,
+    agent.user ?? null
+  );
+  const [userToken, clientAssignedToken] = await context.semantic.utils.withTxn(
+    context,
+    opts =>
+      Promise.all([
+        getUserToken(context, agent.agentId, opts),
+        getUserClientAssignedToken(context, agent.agentId, opts),
+      ])
   );
   const userWithWorkspaces = await populateUserWorkspaces(context, user);
   return toLoginResult(context, userWithWorkspaces, userToken, clientAssignedToken);

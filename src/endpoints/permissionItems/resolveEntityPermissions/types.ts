@@ -1,35 +1,23 @@
-import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {AppActionType, AppResourceType} from '../../../definitions/system';
+import {PermissionAction} from '../../../definitions/permissionItem';
 import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
-import {PermissionItemInputEntity, PermissionItemInputTarget} from '../types';
+import {PermissionItemInputTarget} from '../types';
 
-export enum ResolveEntityPermissionItemAppliesToResolutionMethod {
-  Together = 'together',
-  Individually = 'individually',
-  TotalMixAndMatch = 'totalMixAndMatch',
-  ContainerToTargetMixAndMatch = 'containerToTargetMixAndMatch',
-  TargetToContainerMixAndMatch = 'targetToContainerMixAndMatch',
-}
-
-export interface ResolveEntityPermissionItemInputTarget extends PermissionItemInputTarget {}
+export type ResolveEntityPermissionItemInputTarget = Pick<
+  PermissionItemInputTarget,
+  'filepath' | 'folderpath' | 'targetId' | 'workspaceRootname'
+>;
 
 export interface ResolveEntityPermissionItemInput {
-  target: ResolveEntityPermissionItemInputTarget | ResolveEntityPermissionItemInputTarget[];
-  action: AppActionType | AppActionType[];
-  entity?: PermissionItemInputEntity;
-  containerAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
-  targetAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
-
-  // TODO: expressive mix-matching
-  // includeEmptyContainerAppliesTo?: boolean;
-  // includeEmptyTargetAppliesTo?: boolean;
-  // appliesToResolutionMethod?: ResolveEntityPermissionItemAppliesToResolutionMethod;
+  target:
+    | ResolveEntityPermissionItemInputTarget
+    | ResolveEntityPermissionItemInputTarget[];
+  action: PermissionAction | PermissionAction[];
+  entityId: string | string[];
 }
 
 export interface ResolvedEntityPermissionItemTarget {
   targetId?: string;
-  targetType?: AppResourceType;
   filepath?: string;
   folderpath?: string;
   workspaceRootname?: string;
@@ -37,18 +25,15 @@ export interface ResolvedEntityPermissionItemTarget {
 
 export interface ResolvedEntityPermissionItem {
   target: ResolvedEntityPermissionItemTarget;
-  action: AppActionType;
+  action: PermissionAction;
   entityId: string;
   hasAccess: boolean;
-  containerAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
-  targetAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
-  accessEntityId?: string;
-  // accessTargetId?: string;
-  // accessTargetType?: AppResourceType;
+  permittingEntityId?: string;
+  permittingTargetId?: string;
 }
 
-export interface ResolveEntityPermissionsEndpointParams extends EndpointOptionalWorkspaceIDParam {
-  entity?: PermissionItemInputEntity;
+export interface ResolveEntityPermissionsEndpointParams
+  extends EndpointOptionalWorkspaceIDParam {
   items: ResolveEntityPermissionItemInput[];
 }
 

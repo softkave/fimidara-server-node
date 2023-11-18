@@ -43,6 +43,7 @@ async function createTestEmailVerificationToken(userId: string) {
 
 function assertLinkWithToken(link: string, token?: string | null, prevLink?: string) {
   const url = new URL(link);
+
   if (token) {
     expect(url.searchParams.get(userConstants.confirmEmailTokenQueryParam)).toBe(token);
   } else {
@@ -80,7 +81,11 @@ describe('withConfirmEmailAddress', () => {
       {resourceId: userId, isEmailVerified: false} as User,
       prevLink
     );
-    const encodedToken = context.session.encodeToken(context, token.resourceId, token.expires);
+    const encodedToken = context.session.encodeToken(
+      context,
+      token.resourceId,
+      token.expires
+    );
     assertLinkWithToken(link, encodedToken, prevLink);
   });
 
@@ -88,7 +93,11 @@ describe('withConfirmEmailAddress', () => {
     assertContext(context);
     const userId = getNewIdForResource(AppResourceType.User);
     const token = await createTestEmailVerificationToken(userId);
-    const encodedToken = context.session.encodeToken(context, token.resourceId, token.expires);
+    const encodedToken = context.session.encodeToken(
+      context,
+      token.resourceId,
+      token.expires
+    );
     const prevLink = `http://localhost/?token=prevToken&${userConstants.confirmEmailTokenQueryParam}=${encodedToken}`;
     const link = await withConfirmEmailAddressToken(
       context,

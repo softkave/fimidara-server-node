@@ -52,7 +52,7 @@ describe('getResources', () => {
       getWorkspaceActionList().map(action =>
         generateAndInsertPermissionItemListForTest(context!, 1, {
           action: action as AppActionType,
-          grantAccess: faker.datatype.boolean(),
+          access: faker.datatype.boolean(),
           targetId: workspace.resourceId,
           targetType: AppResourceType.Workspace,
           appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
@@ -73,7 +73,10 @@ describe('getResources', () => {
     addToExpectedResourcesById(workspace);
     addToExpectedResourcesById(permissionGroup);
     addToExpectedResourcesById(
-      collaboratorExtractor(await populateUserWorkspaces(context, rawUser), workspace.resourceId)
+      collaboratorExtractor(
+        await populateUserWorkspaces(context, rawUser),
+        workspace.resourceId
+      )
     );
     items.forEach(item => addToExpectedResourcesById(item));
 

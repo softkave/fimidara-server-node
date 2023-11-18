@@ -14,7 +14,10 @@ import {getPresignedPathsForFilesJoiSchema} from './validation';
 
 // TODO: filter out expired or spent presigned paths and delete them
 
-const getPresignedPathsForFiles: GetPresignedPathsForFilesEndpoint = async (context, instData) => {
+const getPresignedPathsForFiles: GetPresignedPathsForFilesEndpoint = async (
+  context,
+  instData
+) => {
   const data = validate(instData.data, getPresignedPathsForFilesJoiSchema);
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
   let presignedPaths: Array<FilePresignedPath | null> = [];
@@ -64,10 +67,13 @@ const getPresignedPathsForFiles: GetPresignedPathsForFilesEndpoint = async (cont
   });
 
   // Transform presigned paths map to items.
-  const paths: GetPresignedPathsForFilesItem[] = map(activePathsMap, (filepath, pathId) => ({
-    filepath,
-    path: pathId,
-  }));
+  const paths: GetPresignedPathsForFilesItem[] = map(
+    activePathsMap,
+    (filepath, pathId) => ({
+      filepath,
+      path: pathId,
+    })
+  );
   return {paths};
 };
 
@@ -186,7 +192,10 @@ function filterOutPaths(presignedPaths: Array<FilePresignedPath | null>) {
   presignedPaths.forEach(p => {
     if (!p) return;
 
-    if ((p.usageCount && p.usageCount <= p.spentUsageCount) || (p.expiresAt && p.expiresAt < now)) {
+    if (
+      (p.usageCount && p.usageCount <= p.spentUsageCount) ||
+      (p.expiresAt && p.expiresAt < now)
+    ) {
       expiredOrSpentPaths.push(p);
     } else {
       activePaths.push(p);

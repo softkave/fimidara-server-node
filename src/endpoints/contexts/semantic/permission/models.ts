@@ -1,13 +1,12 @@
-import {last} from 'lodash';
 import {
   AssignedPermissionGroupMeta,
   PermissionEntityInheritanceMap,
   PermissionGroup,
 } from '../../../../definitions/permissionGroups';
-import {PermissionItem, PermissionItemAppliesTo} from '../../../../definitions/permissionItem';
-import {AppActionType, AppResourceType, Resource} from '../../../../definitions/system';
+import {PermissionAction, PermissionItem} from '../../../../definitions/permissionItem';
+import {AppResourceType, Resource} from '../../../../definitions/system';
 import {appAssert} from '../../../../utils/assertion';
-import {toArray, toNonNullableArray} from '../../../../utils/fns';
+import {toNonNullableArray} from '../../../../utils/fns';
 import {indexArray} from '../../../../utils/indexArray';
 import {getResourceTypeFromId} from '../../../../utils/resource';
 import {reuseableErrors} from '../../../../utils/reusableErrors';
@@ -21,18 +20,9 @@ import {
   SemanticDataAccessPermissionProviderType_GetPermissionItemsProps,
 } from './types';
 
-const containerSpecificAppliesToList: PermissionItemAppliesTo[] = [
-  PermissionItemAppliesTo.SelfAndChildrenOfType,
-  PermissionItemAppliesTo.ChildrenOfType,
-];
-const targetSpecificAppliesToList: PermissionItemAppliesTo[] = [
-  PermissionItemAppliesTo.Self,
-  PermissionItemAppliesTo.SelfAndChildrenOfType,
-];
-const containerSpecificAppliesToMap = indexArray(containerSpecificAppliesToList);
-const targetSpecificAppliesToMap = indexArray(targetSpecificAppliesToList);
-
-export class DataSemanticDataAccessPermission implements SemanticDataAccessPermissionProviderType {
+export class DataSemanticDataAccessPermission
+  implements SemanticDataAccessPermissionProviderType
+{
   async getEntityInheritanceMap(
     props: {
       context: BaseContextType;
@@ -54,7 +44,10 @@ export class DataSemanticDataAccessPermission implements SemanticDataAccessPermi
 
       for (let depth = 0; nextIdList.length && depth < maxDepth; depth++) {
         const assignedItems = await context.semantic.assignedItem.getManyByQuery(
-          {assigneeId: {$in: nextIdList}, assignedItemType: AppResourceType.PermissionGroup},
+          {
+            assigneeId: {$in: nextIdList},
+            assignedItemType: AppResourceType.PermissionGroup,
+          },
           options
         );
         const nextIdMap: Record<string, string> = {};
@@ -104,26 +97,20 @@ export class DataSemanticDataAccessPermission implements SemanticDataAccessPermi
     props: SemanticDataAccessPermissionProviderType_GetPermissionItemsProps,
     options?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<PermissionItem[]> {
-    const {containeritemsquery, targetitemsquery} = this.getPermissionItemsQuery(props);
+    const {targetItemsQuery} = this.getPermissionItemsQuery(props);
+    const items = await props.context.semantic.permissionItem.getManyByQuery(
+      targetItemsQuery,
+      options
+    );
 
-    // TODO: use $or query when implemented
-    const [itemsFromContainer, itemsFromTarget] = await Promise.all([
-      containeritemsquery
-        ? props.context.semantic.permissionItem.getManyByQuery(containeritemsquery, options)
-        : ([] as PermissionItem[]),
-      targetitemsquery
-        ? props.context.semantic.permissionItem.getManyByQuery(targetitemsquery, options)
-        : ([] as PermissionItem[]),
-    ]);
-
-    if (props.sortByContainer && props.containerId) {
-      this.sortByContainer(props.containerId, itemsFromContainer, props.sortByDate);
+    if (props.sortByTarget && props.targetId) {
+      this.sortByTarget(props.targetId, items, props.sortByDate);
     }
+
     if (props.sortByDate) {
-      this.sortByDate(itemsFromTarget);
+      this.sortByDate(items);
     }
 
-    const items = itemsFromTarget.concat(itemsFromContainer);
     return items;
   }
 
@@ -131,19 +118,11 @@ export class DataSemanticDataAccessPermission implements SemanticDataAccessPermi
     props: SemanticDataAccessPermissionProviderType_CountPermissionItemsProps,
     options?: SemanticDataAccessProviderRunOptions | undefined
   ): Promise<number> {
-    const {containeritemsquery, targetitemsquery} = this.getPermissionItemsQuery(props);
-
-    // TODO: use $or query when implemented
-    const [count01, count02] = await Promise.all([
-      containeritemsquery
-        ? props.context.semantic.permissionItem.countByQuery(containeritemsquery, options)
-        : 0,
-      targetitemsquery
-        ? props.context.semantic.permissionItem.countByQuery(targetitemsquery, options)
-        : 0,
-    ]);
-
-    return count01 + count02;
+    const {targetItemsQuery} = this.getPermissionItemsQuery(props);
+    return await props.context.semantic.permissionItem.countByQuery(
+      targetItemsQuery,
+      options
+    );
   }
 
   async getEntity(
@@ -170,20 +149,21 @@ export class DataSemanticDataAccessPermission implements SemanticDataAccessPermi
     });
   }
 
-  sortByContainer(
-    containerId: string | string[],
+  sortByTarget(
+    targetId: string | string[],
     items: PermissionItem[],
     sortByDate?: boolean
   ): PermissionItem[] {
-    const containerIdMap = indexArray(toNonNullableArray(containerId), {
+    const targetIdMap = indexArray(toNonNullableArray(targetId), {
       reducer: (item, arr, i) => i,
     });
+
     return items.sort((item01, item02) => {
       if (item01.targetId !== item01.targetId) {
-        if (containerIdMap) {
+        if (targetIdMap) {
           return (
-            (containerIdMap[item01.targetId] ?? Number.MAX_SAFE_INTEGER) -
-            (containerIdMap[item02.targetId] ?? Number.MAX_SAFE_INTEGER)
+            (targetIdMap[item01.targetId] ?? Number.MAX_SAFE_INTEGER) -
+            (targetIdMap[item02.targetId] ?? Number.MAX_SAFE_INTEGER)
           );
         }
       } else if (sortByDate) {
@@ -197,71 +177,42 @@ export class DataSemanticDataAccessPermission implements SemanticDataAccessPermi
 
   protected getPermissionItemsQuery(props: {
     entityId?: string | string[];
-    action?: AppActionType | AppActionType[];
+    action?: PermissionAction | PermissionAction[];
     targetId?: string | string[];
     targetType?: AppResourceType | AppResourceType[];
-    containerId?: string | string[];
-    containerAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
-    targetAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
+    targetParentId?: string;
   }) {
-    let containeritemsquery: DataQuery<PermissionItem> | undefined = undefined;
-    let targetitemsquery: DataQuery<PermissionItem> | undefined = undefined;
-
-    if (props.containerId) {
-      containeritemsquery = {
-        appliesTo: {$in: this.getContainerAppliesTo(props.containerAppliesTo) as any},
-        ...getInAndNinQuery<PermissionItem>('targetId', props.containerId),
-        ...getInAndNinQuery<PermissionItem>('entityId', props.entityId),
-        ...getInAndNinQuery<PermissionItem>('action', props.action),
-        ...getInAndNinQuery<PermissionItem>('targetType', props.targetType),
-      };
-    }
+    let targetItemsQuery: DataQuery<PermissionItem> | undefined = undefined;
 
     if (props.targetId) {
-      targetitemsquery = {
-        appliesTo: {$in: this.getTargetAppliesTo(props.targetAppliesTo) as any},
+      targetItemsQuery = {
         ...getInAndNinQuery<PermissionItem>('targetId', props.targetId),
         ...getInAndNinQuery<PermissionItem>('entityId', props.entityId),
         ...getInAndNinQuery<PermissionItem>('action', props.action),
-        ...getInAndNinQuery<PermissionItem>('targetType', props.targetType),
       };
-    } else if (props.containerId && props.targetType) {
-      const targetParentId = props.containerId ? last(toArray(props.containerId)) : undefined;
-      targetitemsquery = {
-        targetParentId,
-        appliesTo: {$in: this.getTargetAppliesTo(props.targetAppliesTo) as any},
+    } else if (props.targetType) {
+      targetItemsQuery = {
+        targetParentId: props.targetParentId,
+        ...getInAndNinQuery<PermissionItem>('targetType', props.targetType),
         ...getInAndNinQuery<PermissionItem>('entityId', props.entityId),
         ...getInAndNinQuery<PermissionItem>('action', props.action),
-        ...getInAndNinQuery<PermissionItem>('targetType', props.targetType),
       };
     }
 
     // For when we want to fetch an entity's permissions regardless of container
     // or target
-    if (!containeritemsquery && !targetitemsquery && props.entityId) {
-      containeritemsquery = {
+    if (!targetItemsQuery && props.entityId) {
+      targetItemsQuery = {
+        targetParentId: props.targetParentId,
         ...getInAndNinQuery<PermissionItem>('entityId', props.entityId),
         ...getInAndNinQuery<PermissionItem>('action', props.action),
-        ...getInAndNinQuery<PermissionItem>('targetType', props.targetType),
       };
     }
 
-    return {containeritemsquery, targetitemsquery};
-  }
-
-  protected getContainerAppliesTo(appliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[]) {
-    if (appliesTo) {
-      return toArray(appliesTo).filter(next => containerSpecificAppliesToMap[next]);
-    } else {
-      return containerSpecificAppliesToList;
+    if (!targetItemsQuery) {
+      throw new Error('Provide targetId, or targetType, or entityId');
     }
-  }
 
-  protected getTargetAppliesTo(appliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[]) {
-    if (appliesTo) {
-      return toArray(appliesTo).filter(next => targetSpecificAppliesToMap[next]);
-    } else {
-      return targetSpecificAppliesToList;
-    }
+    return {targetItemsQuery};
   }
 }

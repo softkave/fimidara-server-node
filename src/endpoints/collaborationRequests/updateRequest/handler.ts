@@ -1,4 +1,3 @@
-import {AppActionType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
@@ -23,20 +22,21 @@ const updateCollaborationRequest: UpdateCollaborationRequestEndpoint = async (
       context,
       agent,
       data.requestId,
-      AppActionType.Update,
+      'updateCollaborationRequest',
       opts
     );
 
-    const updatedRequest = await context.semantic.collaborationRequest.getAndUpdateOneById(
-      data.requestId,
-      {
-        message: data.request.message ?? request.message,
-        expiresAt: data.request.expires,
-        lastUpdatedAt: getTimestamp(),
-        lastUpdatedBy: getActionAgentFromSessionAgent(agent),
-      },
-      opts
-    );
+    const updatedRequest =
+      await context.semantic.collaborationRequest.getAndUpdateOneById(
+        data.requestId,
+        {
+          message: data.request.message ?? request.message,
+          expiresAt: data.request.expires,
+          lastUpdatedAt: getTimestamp(),
+          lastUpdatedBy: getActionAgentFromSessionAgent(agent),
+        },
+        opts
+      );
 
     assertCollaborationRequest(updatedRequest);
     return {workspace, request: updatedRequest};

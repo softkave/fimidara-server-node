@@ -1,5 +1,5 @@
 import {endOfMonth, startOfMonth} from 'date-fns';
-import {AppActionType, SessionAgent} from '../../../definitions/system';
+import {SessionAgent} from '../../../definitions/system';
 import {
   UsageRecord,
   UsageRecordFulfillmentStatus,
@@ -19,7 +19,7 @@ export async function getWorkspaceSummedUsageQuery(
   data: GetWorkspaceSummedUsageEndpointParams
 ) {
   // TODO: should we include permissions check for usage records?
-  await checkWorkspaceAuthorization02(context, agent, AppActionType.Read, workspaceId);
+  await checkWorkspaceAuthorization02(context, agent, 'readUsageRecord', workspaceId);
 
   const query: LiteralDataQuery<UsageRecord> = {
     workspaceId: {$eq: workspaceId},
@@ -28,7 +28,9 @@ export async function getWorkspaceSummedUsageQuery(
 
   if (data.query?.fromDate || data.query?.toDate) {
     query.createdAt = {
-      $gte: data.query?.fromDate ? getTimestamp(startOfMonth(data.query.fromDate)) : undefined,
+      $gte: data.query?.fromDate
+        ? getTimestamp(startOfMonth(data.query.fromDate))
+        : undefined,
       $lte: data.query?.toDate ? getTimestamp(endOfMonth(data.query.toDate)) : undefined,
     };
   }
@@ -46,7 +48,10 @@ export async function getWorkspaceSummedUsageQuery(
     };
   } else {
     query.fulfillmentStatus = {
-      $in: [UsageRecordFulfillmentStatus.Fulfilled, UsageRecordFulfillmentStatus.Dropped] as any[],
+      $in: [
+        UsageRecordFulfillmentStatus.Fulfilled,
+        UsageRecordFulfillmentStatus.Dropped,
+      ] as any[],
     };
   }
 

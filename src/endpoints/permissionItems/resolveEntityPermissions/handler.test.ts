@@ -4,7 +4,10 @@ import {makeKey} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import RequestData from '../../RequestData';
 import {BaseContextType} from '../../contexts/types';
-import {assignPgListToIdList, toAssignedPgListInput} from '../../permissionGroups/testUtils';
+import {
+  assignPgListToIdList,
+  toAssignedPgListInput,
+} from '../../permissionGroups/testUtils';
 import {generateAndInsertTestFiles} from '../../testUtils/generateData/file';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -61,7 +64,7 @@ describe('resolveEntityPermissions', () => {
       action: AppActionType.Read,
       target: {targetId: workspace.resourceId, targetType: AppResourceType.File},
       appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
-      grantAccess: true,
+      access: true,
       entity: {entityId: pg01.resourceId},
     };
 
@@ -70,7 +73,7 @@ describe('resolveEntityPermissions', () => {
       action: AppActionType.Read,
       target: {targetId: file01.resourceId},
       appliesTo: PermissionItemAppliesTo.Self,
-      grantAccess: true,
+      access: true,
       entity: {entityId: pg02.resourceId},
     };
 
@@ -79,7 +82,7 @@ describe('resolveEntityPermissions', () => {
       action: AppActionType.Read,
       target: {targetId: workspace.resourceId, targetType: AppResourceType.File},
       appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
-      grantAccess: false,
+      access: false,
       entity: {entityId: pg03.resourceId},
     };
     await insertPermissionItemsForTest(context, userToken, workspace.resourceId, [
@@ -99,32 +102,33 @@ describe('resolveEntityPermissions', () => {
     );
 
     // Test
-    const reqData = RequestData.fromExpressRequest<ResolveEntityPermissionsEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {
-        workspaceId: workspace.resourceId,
-        items: [
-          {
-            action: AppActionType.Read,
-            target: {targetId: workspace.resourceId, targetType: AppResourceType.File},
-            entity: {
-              entityId: [
-                pg01.resourceId,
-                pg02.resourceId,
-                pg03.resourceId,
-                pg04.resourceId,
-                pg05.resourceId,
-              ],
+    const reqData =
+      RequestData.fromExpressRequest<ResolveEntityPermissionsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          workspaceId: workspace.resourceId,
+          items: [
+            {
+              action: AppActionType.Read,
+              target: {targetId: workspace.resourceId, targetType: AppResourceType.File},
+              entityId: {
+                entityId: [
+                  pg01.resourceId,
+                  pg02.resourceId,
+                  pg03.resourceId,
+                  pg04.resourceId,
+                  pg05.resourceId,
+                ],
+              },
             },
-          },
-          {
-            action: AppActionType.Read,
-            target: {targetId: file01.resourceId},
-            entity: {entityId: [pg02.resourceId, pg04.resourceId]},
-          },
-        ],
-      }
-    );
+            {
+              action: AppActionType.Read,
+              target: {targetId: file01.resourceId},
+              entityId: {entityId: [pg02.resourceId, pg04.resourceId]},
+            },
+          ],
+        }
+      );
     const result = await resolveEntityPermissions(context, reqData);
     assertEndpointResultOk(result);
 
@@ -188,20 +192,21 @@ describe('resolveEntityPermissions', () => {
       workspaceId: workspace.resourceId,
     });
 
-    const reqData = RequestData.fromExpressRequest<ResolveEntityPermissionsEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {
-        workspaceId: workspace.resourceId,
-        entity: {entityId: [adminPg.resourceId]},
-        items: [
-          {
-            action: AppActionType.Read,
-            target: {targetId: folder.resourceId, targetType: AppResourceType.Folder},
-            containerAppliesTo: [PermissionItemAppliesTo.SelfAndChildrenOfType],
-          },
-        ],
-      }
-    );
+    const reqData =
+      RequestData.fromExpressRequest<ResolveEntityPermissionsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          workspaceId: workspace.resourceId,
+          entity: {entityId: [adminPg.resourceId]},
+          items: [
+            {
+              action: AppActionType.Read,
+              target: {targetId: folder.resourceId, targetType: AppResourceType.Folder},
+              containerAppliesTo: [PermissionItemAppliesTo.SelfAndChildrenOfType],
+            },
+          ],
+        }
+      );
     const result = await resolveEntityPermissions(context, reqData);
     assertEndpointResultOk(result);
 

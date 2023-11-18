@@ -1,4 +1,3 @@
-import {AppActionType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {
   checkCollaborationRequestAuthorization02,
@@ -17,9 +16,8 @@ const getWorkspaceCollaborationRequest: GetWorkspaceCollaborationRequestEndpoint
     context,
     agent,
     data.requestId,
-    AppActionType.Read
+    'readAgentToken'
   );
-  // const populatedRequest = await populateRequestAssignedPermissionGroups(context, request);
   return {request: collaborationRequestForWorkspaceExtractor(request)};
 };
 

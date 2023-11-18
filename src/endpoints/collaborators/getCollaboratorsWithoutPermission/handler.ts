@@ -11,22 +11,24 @@ import {getWorkspaceCollaboratorsQuery} from '../getWorkspaceCollaborators/utils
 import {GetCollaboratorsWithoutPermissionEndpoint} from './types';
 import {getCollaboratorsWithoutPermissionJoiSchema} from './validation';
 
-const getCollaboratorsWithoutPermission: GetCollaboratorsWithoutPermissionEndpoint = async (
-  context,
-  instData
-) => {
-  const data = validate(instData.data, getCollaboratorsWithoutPermissionJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
-  const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
-  const workspace = await checkWorkspaceExists(context, workspaceId);
-  const assignedItemsQuery = await getWorkspaceCollaboratorsQuery(context, agent, workspace);
-  const collaboratorIdList = await getPagedCollaboratorsWithoutPermission(
-    context,
-    assignedItemsQuery
-  );
+const getCollaboratorsWithoutPermission: GetCollaboratorsWithoutPermissionEndpoint =
+  async (context, instData) => {
+    const data = validate(instData.data, getCollaboratorsWithoutPermissionJoiSchema);
+    const agent = await context.session.getAgent(context, instData);
+    const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
+    const workspace = await checkWorkspaceExists(context, workspaceId);
+    const assignedItemsQuery = await getWorkspaceCollaboratorsQuery(
+      context,
+      agent,
+      workspace
+    );
+    const collaboratorIdList = await getPagedCollaboratorsWithoutPermission(
+      context,
+      assignedItemsQuery
+    );
 
-  return {collaboratorIds: collaboratorIdList};
-};
+    return {collaboratorIds: collaboratorIdList};
+  };
 
 export default getCollaboratorsWithoutPermission;
 
@@ -43,14 +45,17 @@ export async function getPagedCollaboratorsWithoutPermission(
   if (assignedItems_collaborators.length === 0) return [];
 
   // Check that collaborators do not have permission groups assigned
-  let collaboratorIdList = assignedItems_collaborators.map(nextItem => nextItem.assigneeId);
-  const assignedItems_permissionGroups = await context.semantic.assignedItem.getManyByQuery(
-    {
-      assigneeId: {$in: collaboratorIdList},
-      assignedItemType: AppResourceType.PermissionGroup,
-    },
-    page
+  let collaboratorIdList = assignedItems_collaborators.map(
+    nextItem => nextItem.assigneeId
   );
+  const assignedItems_permissionGroups =
+    await context.semantic.assignedItem.getManyByQuery(
+      {
+        assigneeId: {$in: collaboratorIdList},
+        assignedItemType: AppResourceType.PermissionGroup,
+      },
+      page
+    );
   const assignedItems_permissionGroupsMap = indexArray(assignedItems_permissionGroups, {
     path: 'assigneeId',
   });

@@ -6,7 +6,10 @@ import {extractResourceIdList, getResourceId} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import RequestData from '../../RequestData';
 import {BaseContextType} from '../../contexts/types';
-import {assignPgListToIdList, toAssignedPgListInput} from '../../permissionGroups/testUtils';
+import {
+  assignPgListToIdList,
+  toAssignedPgListInput,
+} from '../../permissionGroups/testUtils';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generateData/collaborator';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
 import {expectContainsNoneInForAnyType} from '../../testUtils/helpers/assertion';
@@ -50,9 +53,13 @@ describe('getCollaboratorsWithoutPermission', () => {
     const seedUserWithoutPermissions = seedUsers.slice(6);
 
     // assign permissionn group to a subset of users
-    const permissionGroups = await generateAndInsertPermissionGroupListForTest(context, 1, {
-      workspaceId: workspace.resourceId,
-    });
+    const permissionGroups = await generateAndInsertPermissionGroupListForTest(
+      context,
+      1,
+      {
+        workspaceId: workspace.resourceId,
+      }
+    );
     const sessionAgent = makeUserSessionAgent(rawUser, userToken);
     await assignPgListToIdList(
       context,
@@ -66,16 +73,17 @@ describe('getCollaboratorsWithoutPermission', () => {
     await insertPermissionItemsForTest(context, userToken, workspace.resourceId, {
       entity: {entityId: extractResourceIdList(seedUserWithPermissionItems)},
       target: {targetType: AppResourceType.File, targetId: workspace.resourceId},
-      grantAccess: true,
+      access: true,
       action: AppActionType.Read,
       appliesTo: PermissionItemAppliesTo.ChildrenOfType,
     });
 
     // test
-    let instData = RequestData.fromExpressRequest<GetCollaboratorsWithoutPermissionEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {workspaceId: workspace.resourceId}
-    );
+    let instData =
+      RequestData.fromExpressRequest<GetCollaboratorsWithoutPermissionEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {workspaceId: workspace.resourceId}
+      );
     let result = await getCollaboratorsWithoutPermission(context, instData);
     assertEndpointResultOk(result);
     expect(result.collaboratorIds).toHaveLength(seedUserWithoutPermissions.length);
@@ -103,5 +111,10 @@ async function assertCollaboratorsDoNotHavePermissions(
   expect(count).toBe(0);
 
   if (notContainedInList)
-    expectContainsNoneInForAnyType(notContainedInList, collaboratorIdList, getResourceId, identity);
+    expectContainsNoneInForAnyType(
+      notContainedInList,
+      collaboratorIdList,
+      getResourceId,
+      identity
+    );
 }

@@ -1,12 +1,12 @@
 import {first, isUndefined} from 'lodash';
 import {Folder, FolderMatcher} from '../../../definitions/folder';
-import {AppActionType, AppResourceType, SessionAgent} from '../../../definitions/system';
+import {AppResourceType, SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {
   getResourcePermissionContainers,
-  summarizeAgentPermissionItems,
+  resolveTargetChildrenAccessCheckWithAgent,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {BaseContextType} from '../../contexts/types';
 import {PermissionDeniedError} from '../../users/errors';
@@ -20,34 +20,36 @@ export async function listFolderContentQuery(
   contentType: AppResourceType.File | AppResourceType.Folder,
   parentFolder?: Folder | null
 ) {
-  const permissionsSummaryReport = await summarizeAgentPermissionItems({
+  const report = await resolveTargetChildrenAccessCheckWithAgent({
     context,
     agent,
     workspace,
     workspaceId: workspace.resourceId,
-    action: AppActionType.Read,
-    targets: {targetType: contentType, targetId: parentFolder?.resourceId},
-    containerId: getResourcePermissionContainers(workspace.resourceId, parentFolder, false),
+    target: {
+      action: contentType === AppResourceType.File ? 'readFile' : 'readFolder',
+      targetId: getResourcePermissionContainers(workspace.resourceId, parentFolder, true),
+    },
   });
 
   const parentId = parentFolder?.resourceId ?? null;
-  if (permissionsSummaryReport.hasFullOrLimitedAccess) {
+
+  if (report.access === 'full') {
     return {
       parentId,
       workspaceId: workspace.resourceId,
-      excludeResourceIdList: permissionsSummaryReport.deniedResourceIdList,
+      excludeResourceIdList: report.partialDenyIds?.length
+        ? report.partialDenyIds
+        : undefined,
     };
-  } else if (permissionsSummaryReport.allowedResourceIdList) {
+  } else if (report.access === 'partial') {
     return {
       parentId,
       workspaceId: workspace.resourceId,
-      resourceIdList: permissionsSummaryReport.allowedResourceIdList,
+      resourceIdList: report.partialAllowIds,
     };
-  } else if (permissionsSummaryReport.noAccess) {
-    throw new PermissionDeniedError();
   }
 
-  appAssert(false, new ServerError(), 'Control flow should not get here.');
+  throw new PermissionDeniedError({item: report.item});
 }
 
 export async function getWorkspaceAndParentFolder(
@@ -77,7 +79,7 @@ export async function getWorkspaceAndParentFolder(
       context,
       agent,
       matcher,
-      AppActionType.Read,
+      'readFolder',
       workspace ?? undefined,
       /** db run options */ undefined,
       UNSAFE_skipAuthCheck

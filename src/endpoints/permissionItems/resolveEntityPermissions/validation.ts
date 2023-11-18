@@ -18,7 +18,7 @@ const target = Joi.object<ResolveEntityPermissionItemInputTarget>().keys({
   workspaceRootname: workspaceValidationSchemas.rootname,
 });
 const itemInput = Joi.object<ResolveEntityPermissionItemInput>().keys({
-  entity: permissionItemValidationSchemas.entity,
+  entityId: permissionItemValidationSchemas.entity,
   target: Joi.alternatives()
     .try(target, Joi.array().items(target).max(endpointConstants.inputListMax))
     .required(),

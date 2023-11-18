@@ -22,6 +22,7 @@ export async function withConfirmEmailAddressToken(
     context,
     async opts => {
       const url = new URL(link);
+
       if (
         !url.searchParams.has(userConstants.confirmEmailTokenQueryParam) &&
         !user.isEmailVerified
@@ -45,7 +46,11 @@ export async function withConfirmEmailAddressToken(
           await context.semantic.agentToken.insertItem(token, opts);
         }
 
-        const encodedToken = context.session.encodeToken(context, token.resourceId, token.expires);
+        const encodedToken = context.session.encodeToken(
+          context,
+          token.resourceId,
+          token.expires
+        );
         url.searchParams.set(userConstants.confirmEmailTokenQueryParam, encodedToken);
         link = url.toString();
       }

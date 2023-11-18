@@ -1,6 +1,6 @@
 import sharp = require('sharp');
 import stream = require('stream');
-import {AppActionType, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
+import {PERMISSION_AGENT_TYPES} from '../../../definitions/system';
 import {isObjectFieldsEmpty} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {NotFoundError} from '../../errors';
@@ -19,7 +19,7 @@ const readFile: ReadFileEndpoint = async (context, instData) => {
     context,
     agent,
     data,
-    AppActionType.Read,
+    'readFile',
     /** support presigned path */ true,
     /** increment presigned path usage count */ true
   );
@@ -28,7 +28,7 @@ const readFile: ReadFileEndpoint = async (context, instData) => {
     // TODO: bandwidth out should only fulfill after the request is complete, OR
     // move bandwidth in and out check to proxy layer before calling request so
     // it can track all requests
-    insertBandwidthOutUsageRecordInput(context, instData, file, AppActionType.Read, opts)
+    insertBandwidthOutUsageRecordInput(context, instData, file, 'readFile', opts)
   );
   const persistedFile = await context.fileBackend.getFile({
     bucket: context.appVariables.S3Bucket,

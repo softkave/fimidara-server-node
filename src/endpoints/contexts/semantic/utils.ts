@@ -57,11 +57,9 @@ export function getInAndNinQuery<
   TKey extends StringKeysOnly<TData> = StringKeysOnly<TData>
 >(
   prefix: TKey,
-
   /** `null` or `undefined` will not go into query. To explicitly handle them,
    * pass `[null]` or `[undefined]` */
   inList: OrArray<TData[TKey]> | undefined,
-
   /** `null` or `undefined` will not go into query. To explicitly handle them,
    * pass `[null]` or `[undefined]` */
   ninList?: OrArray<TData[TKey]> | undefined

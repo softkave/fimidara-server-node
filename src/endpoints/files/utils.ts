@@ -1,9 +1,10 @@
 import {File, FileMatcher, FilePresignedPath, PublicFile} from '../../definitions/file';
-import {AppActionType, SessionAgent} from '../../definitions/system';
+import {PermissionAction} from '../../definitions/permissionItem';
+import {SessionAgent} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {
-  checkAuthorization,
+  checkAuthorizationWithAgent,
   getFilePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
 import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
@@ -40,19 +41,20 @@ export async function checkFileAuthorization(
   context: BaseContextType,
   agent: SessionAgent,
   file: File,
-  action: AppActionType,
+  action: PermissionAction,
   opts?: SemanticDataAccessProviderRunOptions
 ) {
   const workspace = await checkWorkspaceExists(context, file.workspaceId, opts);
-  await checkAuthorization({
+  await checkAuthorizationWithAgent({
     context,
     agent,
-    action,
     workspace,
     opts,
     workspaceId: workspace.resourceId,
-    containerId: getFilePermissionContainers(workspace.resourceId, file, false),
-    targets: {targetId: file.resourceId},
+    target: {
+      action,
+      targetId: getFilePermissionContainers(workspace.resourceId, file, true),
+    },
   });
 
   return {agent, file, workspace};
@@ -62,7 +64,7 @@ export async function checkFileAuthorization02(
   context: BaseContextType,
   agent: SessionAgent,
   matcher: FileMatcher,
-  action: AppActionType,
+  action: PermissionAction,
   opts?: SemanticDataAccessProviderRunOptions
 ) {
   const file = await assertGetFileWithMatcher(context, matcher, opts);
@@ -74,7 +76,7 @@ export async function checkFileAuthorization03(
   context: BaseContextType,
   agent: SessionAgent,
   matcher: FileMatcher,
-  action: AppActionType,
+  action: PermissionAction,
   supportPresignedPath = false,
   incrementPresignedPathUsageCount = false,
   opts?: SemanticDataAccessProviderRunOptions
@@ -83,7 +85,7 @@ export async function checkFileAuthorization03(
     const presignedPathResult = await getFileByPresignedPath(
       context,
       matcher.filepath,
-      AppActionType.Read,
+      'readFile',
       incrementPresignedPathUsageCount,
       opts
     );
@@ -110,7 +112,9 @@ export function getFilenameInfo(providedName: string): FilenameInfo {
   const [nameWithoutExtension, ...extensionList] = providedName.split(
     fileConstants.nameExtensionSeparator
   );
-  let extension: string | undefined = extensionList.join(fileConstants.nameExtensionSeparator);
+  let extension: string | undefined = extensionList.join(
+    fileConstants.nameExtensionSeparator
+  );
 
   // Handle file names without extension, seeing arr.join() would always produce
   // a string
@@ -133,7 +137,8 @@ export function getFilepathInfo(path: string | string[]): FilepathInfo {
   const folderpathInfo = getFolderpathInfo(path);
   const filenameInfo = getFilenameInfo(folderpathInfo.name);
   const pathWithoutExtension = [...folderpathInfo.itemSplitPath];
-  pathWithoutExtension[pathWithoutExtension.length - 1] = filenameInfo.nameWithoutExtension;
+  pathWithoutExtension[pathWithoutExtension.length - 1] =
+    filenameInfo.nameWithoutExtension;
   return {
     ...folderpathInfo,
     ...filenameInfo,
@@ -149,7 +154,10 @@ export function throwFilePresignedPathNotFound() {
   throw new NotFoundError('File presigned path not found.');
 }
 
-export async function getWorkspaceFromFilepath(context: BaseContextType, filepath: string) {
+export async function getWorkspaceFromFilepath(
+  context: BaseContextType,
+  filepath: string
+) {
   const pathWithDetails = getFilepathInfo(filepath);
   const workspace = await context.semantic.workspace.getByRootname(
     pathWithDetails.workspaceRootname
@@ -172,7 +180,9 @@ export async function getWorkspaceFromFileOrFilepath(
   return workspace;
 }
 
-export function assertFile(file: File | FilePresignedPath | null | undefined): asserts file {
+export function assertFile(
+  file: File | FilePresignedPath | null | undefined
+): asserts file {
   if (!file) throwFileNotFound();
 }
 

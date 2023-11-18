@@ -1,9 +1,9 @@
 import * as Joi from 'joi';
 import {Readable} from 'stream';
 import {validationSchemas} from '../../utils/validationUtils';
-import {fileConstants} from '../files/constants';
 import {folderConstants} from '../folders/constants';
 import folderValidationSchemas from '../folders/validation';
+import {fileConstants} from './constants';
 
 const fileSizeInBytes = Joi.number().min(0).max(fileConstants.maxFileSizeInBytes);
 const mimetype = Joi.string().max(fileConstants.maxMimeTypeCharLength);

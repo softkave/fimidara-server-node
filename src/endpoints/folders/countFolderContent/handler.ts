@@ -1,9 +1,16 @@
 import {Folder} from '../../../definitions/folder';
-import {AppResourceType, PERMISSION_AGENT_TYPES, SessionAgent} from '../../../definitions/system';
+import {
+  AppResourceType,
+  PERMISSION_AGENT_TYPES,
+  SessionAgent,
+} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {validate} from '../../../utils/validate';
 import {BaseContextType} from '../../contexts/types';
-import {getWorkspaceAndParentFolder, listFolderContentQuery} from '../listFolderContent/utils';
+import {
+  getWorkspaceAndParentFolder,
+  listFolderContentQuery,
+} from '../listFolderContent/utils';
 import {CountFolderContentEndpoint} from './types';
 import {countFolderContentJoiSchema} from './validation';
 

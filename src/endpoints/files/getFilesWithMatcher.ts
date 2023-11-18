@@ -1,9 +1,13 @@
 import {File, FileMatcher, FilePresignedPath} from '../../definitions/file';
-import {AppActionType, AppResourceType} from '../../definitions/system';
+import {PermissionAction} from '../../definitions/permissionItem';
+import {AppResourceType} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {tryGetResourceTypeFromId} from '../../utils/resource';
-import {makeUserSessionAgent, makeWorkspaceAgentTokenAgent} from '../../utils/sessionUtils';
+import {
+  makeUserSessionAgent,
+  makeWorkspaceAgentTokenAgent,
+} from '../../utils/sessionUtils';
 import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {folderConstants} from '../folders/constants';
@@ -19,16 +23,20 @@ export async function checkAndIncrementFilePresignedPathUsageCount(
   return await context.semantic.utils.withTxn(
     context,
     async opts => {
-      if (presignedPath.usageCount && presignedPath.usageCount <= presignedPath.spentUsageCount) {
+      if (
+        presignedPath.usageCount &&
+        presignedPath.usageCount <= presignedPath.spentUsageCount
+      ) {
         // TODO: should we use a different error type?
         throw new PermissionDeniedError();
       }
 
-      const updatedPresignedPath = await context.semantic.filePresignedPath.getAndUpdateOneById(
-        presignedPath.resourceId,
-        {spentUsageCount: presignedPath.spentUsageCount + 1},
-        opts
-      );
+      const updatedPresignedPath =
+        await context.semantic.filePresignedPath.getAndUpdateOneById(
+          presignedPath.resourceId,
+          {spentUsageCount: presignedPath.spentUsageCount + 1},
+          opts
+        );
       assertFile(updatedPresignedPath);
       return updatedPresignedPath;
     },
@@ -37,7 +45,9 @@ export async function checkAndIncrementFilePresignedPathUsageCount(
 }
 
 export function extractFilePresignedPathIdFromFilepath(filepath: string) {
-  return filepath.startsWith(folderConstants.nameSeparator) ? filepath.slice(1) : filepath;
+  return filepath.startsWith(folderConstants.nameSeparator)
+    ? filepath.slice(1)
+    : filepath;
 }
 
 export function isFilePresignedPath(filepath: string) {
@@ -49,7 +59,7 @@ export function isFilePresignedPath(filepath: string) {
 export async function getFileByPresignedPath(
   context: BaseContextType,
   filepath: string,
-  action: AppActionType,
+  action: PermissionAction,
   incrementUsageCount = false,
   opts?: SemanticDataAccessProviderRunOptions
 ) {

@@ -1,6 +1,11 @@
 import {Express, Request, Response} from 'express';
 import {compact, defaultTo, isString} from 'lodash';
-import {Agent, PublicAgent, PublicResource, PublicWorkspaceResource} from '../definitions/system';
+import {
+  Agent,
+  PublicAgent,
+  PublicResource,
+  PublicWorkspaceResource,
+} from '../definitions/system';
 import {Workspace} from '../definitions/workspace';
 import OperationError, {FimidaraExternalError} from '../utils/OperationError';
 import {appAssert} from '../utils/assertion';
@@ -19,7 +24,10 @@ import {reuseableErrors} from '../utils/reusableErrors';
 import {AnyFn, AnyObject} from '../utils/types';
 import RequestData from './RequestData';
 import {endpointConstants} from './constants';
-import {summarizeAgentPermissionItems} from './contexts/authorizationChecks/checkAuthorizaton';
+import {
+  ResolvedTargetChildrenAccessCheck,
+  summarizeAgentPermissionItems,
+} from './contexts/authorizationChecks/checkAuthorizaton';
 import {getPage} from './contexts/data/utils';
 import {SemanticDataAccessProviderMutationRunOptions} from './contexts/semantic/types';
 import {BaseContextType, IServerRequest} from './contexts/types';
@@ -37,7 +45,9 @@ import {
 } from './types';
 import {PermissionDeniedError} from './users/errors';
 
-export function extractExternalEndpointError(errorItem: OperationError): FimidaraExternalError {
+export function extractExternalEndpointError(
+  errorItem: OperationError
+): FimidaraExternalError {
   return {
     name: errorItem.name,
     message: errorItem.message,
@@ -55,7 +65,8 @@ export function getPublicErrors(inputError: any) {
   const preppedErrors: FimidaraExternalError[] = [];
   errors.forEach(
     errorItem =>
-      errorItem?.isPublicError && preppedErrors.push(extractExternalEndpointError(errorItem))
+      errorItem?.isPublicError &&
+      preppedErrors.push(extractExternalEndpointError(errorItem))
   );
 
   if (preppedErrors.length === 0) {
@@ -92,7 +103,10 @@ export const wrapEndpointREST = <
   return async (req: Request, res: Response) => {
     try {
       const data = await (getData ? getData(req) : req.body);
-      const instData = RequestData.fromExpressRequest(req as unknown as IServerRequest, data);
+      const instData = RequestData.fromExpressRequest(
+        req as unknown as IServerRequest,
+        data
+      );
       const result = await endpoint(context, instData);
 
       if (handleResponse) {
@@ -106,7 +120,9 @@ export const wrapEndpointREST = <
       res.status(statusCode).json(result);
     } finally {
       if (cleanup) {
-        (cleanup(req, res) ?? Promise.resolve()).catch(serverLogger.error.bind(serverLogger));
+        (cleanup(req, res) ?? Promise.resolve()).catch(
+          serverLogger.error.bind(serverLogger)
+        );
       }
     }
   };
@@ -148,7 +164,10 @@ type AssignedAgent = {
   assignedAt: number;
 };
 
-export function withAssignedAgent<T extends AnyObject>(agent: Agent, item: T): T & AssignedAgent {
+export function withAssignedAgent<T extends AnyObject>(
+  agent: Agent,
+  item: T
+): T & AssignedAgent {
   return {
     ...item,
     assignedAt: getTimestamp(),
@@ -206,27 +225,23 @@ export function getWorkspaceResourceListQuery(
 
 export function getWorkspaceResourceListQuery00(
   workspace: Workspace,
-  permissionsSummaryReport: Awaited<ReturnType<typeof summarizeAgentPermissionItems>>
+  report: ResolvedTargetChildrenAccessCheck
 ) {
-  if (permissionsSummaryReport.hasFullOrLimitedAccess) {
+  if (report.access === 'full') {
     return {
       workspaceId: workspace.resourceId,
-      excludeResourceIdList: permissionsSummaryReport.deniedResourceIdList?.length
-        ? permissionsSummaryReport.deniedResourceIdList
+      excludeResourceIdList: report.partialDenyIds?.length
+        ? report.partialDenyIds
         : undefined,
     };
-  } else if (permissionsSummaryReport.allowedResourceIdList) {
+  } else if (report.access === 'partial') {
     return {
       workspaceId: workspace.resourceId,
-      resourceIdList: permissionsSummaryReport.allowedResourceIdList.length
-        ? permissionsSummaryReport.allowedResourceIdList
-        : undefined,
+      resourceIdList: report.partialAllowIds,
     };
-  } else if (permissionsSummaryReport.noAccess) {
-    throw new PermissionDeniedError();
   }
 
-  appAssert(false, new ServerError(), 'Control flow should not get here.');
+  throw new PermissionDeniedError({item: report.item});
 }
 
 export function applyDefaultEndpointPaginationOptions(data: PaginationQuery) {
@@ -254,7 +269,10 @@ export async function executeCascadeDelete<Args>(
 }
 
 export function assertUpdateNotEmpty(update: AnyObject) {
-  appAssert(!isObjectEmpty(update), new InvalidRequestError('Update data provided is empty.'));
+  appAssert(
+    !isObjectEmpty(update),
+    new InvalidRequestError('Update data provided is empty.')
+  );
 }
 
 export function registerExpressRouteFromEndpoint(

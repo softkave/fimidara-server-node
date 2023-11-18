@@ -1,6 +1,8 @@
 import {validate} from '../../../utils/validate';
-import {populateResourceListWithAssignedTags} from '../../assignedItems/getAssignedItems';
-import {applyDefaultEndpointPaginationOptions, getEndpointPageFromInput} from '../../utils';
+import {
+  applyDefaultEndpointPaginationOptions,
+  getEndpointPageFromInput,
+} from '../../utils';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {permissionGroupListExtractor} from '../utils';
 import {GetWorkspacePermissionGroupsEndpoint} from './types';
@@ -16,8 +18,10 @@ const getWorkspacePermissionGroups: GetWorkspacePermissionGroupsEndpoint = async
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
   const q = await getWorkspacePermissionGroupsQuery(context, agent, workspace);
   applyDefaultEndpointPaginationOptions(data);
-  let items = await context.semantic.permissionGroup.getManyByWorkspaceAndIdList(q, data);
-  items = await populateResourceListWithAssignedTags(context, workspace.resourceId, items);
+  const items = await context.semantic.permissionGroup.getManyByWorkspaceAndIdList(
+    q,
+    data
+  );
   return {
     page: getEndpointPageFromInput(data),
     permissionGroups: permissionGroupListExtractor(items),

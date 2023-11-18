@@ -1,9 +1,9 @@
 import {File} from '../../../definitions/file';
 import {Folder} from '../../../definitions/folder';
-import {AppActionType, AppResourceType, SessionAgent} from '../../../definitions/system';
+import {SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {
-  checkAuthorization,
+  checkAuthorizationWithAgent,
   getFilePermissionContainers,
   getWorkspacePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
@@ -30,22 +30,22 @@ export async function checkUploadFileAuth(
   // giving them the permission to update will allow them to update someone
   // else's file (or image) too. We need fine-grained permissions like only
   // allow an operation if the user/token created the file or owns the file.
-  await checkAuthorization({
+  await checkAuthorizationWithAgent({
     context,
     agent,
     workspace,
     opts,
     workspaceId: workspace.resourceId,
-    targets: [{targetType: AppResourceType.File, targetId: file?.resourceId}],
-    containerId: file
-      ? getFilePermissionContainers(workspace.resourceId, file, false)
-      : closestExistingFolder
-      ? getFilePermissionContainers(workspace.resourceId, closestExistingFolder, true)
-      : getWorkspacePermissionContainers(workspace.resourceId),
-
-    // TODO: should it be create and or update, rather than just create, in case
-    // of existing files
-    action: AppActionType.Create,
+    target: {
+      targetId: file
+        ? getFilePermissionContainers(workspace.resourceId, file, true)
+        : closestExistingFolder
+        ? getFilePermissionContainers(workspace.resourceId, closestExistingFolder, true)
+        : getWorkspacePermissionContainers(workspace.resourceId),
+      // TODO: should it be create and or update, rather than just create, in case
+      // of existing files
+      action: 'addFile',
+    },
   });
 }
 

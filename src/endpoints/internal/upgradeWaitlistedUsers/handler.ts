@@ -12,7 +12,10 @@ import {assertUserIsPartOfRootWorkspace} from '../utils';
 import {UpgradeWaitlistedUsersEndpoint} from './types';
 import {upgradeWaitlistedUsersJoiSchema} from './validation';
 
-const upgradeWaitlistedUsers: UpgradeWaitlistedUsersEndpoint = async (context, reqData) => {
+const upgradeWaitlistedUsers: UpgradeWaitlistedUsersEndpoint = async (
+  context,
+  reqData
+) => {
   const data = validate(reqData.data, upgradeWaitlistedUsersJoiSchema);
   const agent = await context.session.getAgent(context, reqData, [AppResourceType.User]);
   await assertUserIsPartOfRootWorkspace(context, agent);

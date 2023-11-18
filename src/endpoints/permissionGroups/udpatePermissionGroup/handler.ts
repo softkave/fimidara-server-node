@@ -1,6 +1,5 @@
 import {omit} from 'lodash';
 import {PermissionGroup} from '../../../definitions/permissionGroups';
-import {AppActionType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
@@ -14,7 +13,10 @@ import {
 import {UpdatePermissionGroupEndpoint} from './types';
 import {updatePermissionGroupJoiSchema} from './validation';
 
-const updatePermissionGroup: UpdatePermissionGroupEndpoint = async (context, instData) => {
+const updatePermissionGroup: UpdatePermissionGroupEndpoint = async (
+  context,
+  instData
+) => {
   const data = validate(instData.data, updatePermissionGroupJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   let permissionGroup = await context.semantic.utils.withTxn(context, async opts => {
@@ -22,7 +24,7 @@ const updatePermissionGroup: UpdatePermissionGroupEndpoint = async (context, ins
       context,
       agent,
       data,
-      AppActionType.Update,
+      'updatePermission',
       opts
     );
     const update: Partial<PermissionGroup> = {
@@ -32,14 +34,20 @@ const updatePermissionGroup: UpdatePermissionGroupEndpoint = async (context, ins
     };
 
     if (update.name && update.name !== permissionGroup.name) {
-      await checkPermissionGroupNameExists(context, workspace.resourceId, update.name, opts);
+      await checkPermissionGroupNameExists(
+        context,
+        workspace.resourceId,
+        update.name,
+        opts
+      );
     }
 
-    const updatedPermissionGroup = await context.semantic.permissionGroup.getAndUpdateOneById(
-      permissionGroup.resourceId,
-      update,
-      opts
-    );
+    const updatedPermissionGroup =
+      await context.semantic.permissionGroup.getAndUpdateOneById(
+        permissionGroup.resourceId,
+        update,
+        opts
+      );
     assertPermissionGroup(updatedPermissionGroup);
     return updatedPermissionGroup;
   });

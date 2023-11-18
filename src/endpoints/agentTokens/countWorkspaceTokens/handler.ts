@@ -4,7 +4,10 @@ import {getWorkspaceAgentTokensQuery} from '../getWorkspaceTokens/utils';
 import {CountWorkspaceAgentTokensEndpoint} from './types';
 import {countWorkspaceAgentTokenJoiSchema} from './validation';
 
-const countWorkspaceAgentTokens: CountWorkspaceAgentTokensEndpoint = async (context, instData) => {
+const countWorkspaceAgentTokens: CountWorkspaceAgentTokensEndpoint = async (
+  context,
+  instData
+) => {
   const data = validate(instData.data, countWorkspaceAgentTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);

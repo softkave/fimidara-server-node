@@ -1,3 +1,5 @@
+import {isObject} from 'lodash';
+import {PermissionItem} from '../../definitions/permissionItem';
 import {appMessages} from '../../utils/messages';
 import OperationError, {
   getErrorMessageFromParams,
@@ -44,12 +46,19 @@ export class InvalidEmailOrPasswordError extends OperationError {
   }
 }
 
+export interface PermissionDeniedErrorParams extends OperationErrorParameters {
+  item?: PermissionItem;
+}
+
 export class PermissionDeniedError extends OperationError {
   name = 'PermissionDeniedError';
   statusCode = endpointConstants.httpStatusCode.forbidden;
-  constructor(props?: OperationErrorParameters | string) {
+  item?: PermissionItem;
+
+  constructor(props?: PermissionDeniedErrorParams | string) {
     super(props);
     this.message = getErrorMessageFromParams(props, 'Permission denied.');
+    if (isObject(props)) this.item = props.item;
   }
 }
 
@@ -80,7 +89,10 @@ export class IncorrectPasswordError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.unauthorized;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'The password you entered is incorrect.');
+    this.message = getErrorMessageFromParams(
+      props,
+      'The password you entered is incorrect.'
+    );
   }
 }
 

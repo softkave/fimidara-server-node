@@ -1,11 +1,6 @@
 import {identity} from 'lodash';
 import {AgentToken} from '../../../../definitions/agentToken';
-import {PermissionItemAppliesTo} from '../../../../definitions/permissionItem';
-import {
-  AppActionType,
-  AppResourceType,
-  getWorkspaceActionList,
-} from '../../../../definitions/system';
+import {AppResourceType} from '../../../../definitions/system';
 import {Workspace} from '../../../../definitions/workspace';
 import {SYSTEM_SESSION_AGENT} from '../../../../utils/agent';
 import {appAssert} from '../../../../utils/assertion';
@@ -15,7 +10,10 @@ import {
   addAssignedPermissionGroupList,
   assignWorkspaceToUser,
 } from '../../../assignedItems/addAssignedItems';
-import {assignPgListToIdList, toAssignedPgListInput} from '../../../permissionGroups/testUtils';
+import {
+  assignPgListToIdList,
+  toAssignedPgListInput,
+} from '../../../permissionGroups/testUtils';
 import addPermissionItems from '../../../permissionItems/addItems/handler';
 import {AddPermissionItemsEndpointParams} from '../../../permissionItems/addItems/types';
 import {PermissionItemInput} from '../../../permissionItems/types';
@@ -41,7 +39,6 @@ import {
   checkAuthorization,
   getFilePermissionContainers,
   getWorkspacePermissionContainers,
-  summarizeAgentPermissionItems,
 } from '../checkAuthorizaton';
 
 let context: BaseContextType | null = null;
@@ -63,7 +60,7 @@ async function grantEveryPermission(
   const items = getWorkspaceActionList().map(
     (action): PermissionItemInput => ({
       action: action as AppActionType,
-      grantAccess: true,
+      access: true,
       target: {targetType: AppResourceType.All, targetId: workspace.resourceId},
       entity: {entityId: recipientUserId},
       appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
@@ -89,7 +86,7 @@ describe('checkAuthorization', () => {
     await checkAuthorization({
       context,
       agent,
-      targets: {targetId: file.resourceId},
+      target: {targetId: file.resourceId},
       action: AppActionType.Read,
       workspaceId: rawWorkspace.resourceId,
       workspace: rawWorkspace,
@@ -115,7 +112,7 @@ describe('checkAuthorization', () => {
         workspace,
         workspaceId: workspace.resourceId,
         agent: agent02,
-        targets: {targetId: file.resourceId},
+        target: {targetId: file.resourceId},
         action: AppActionType.Read,
         containerId: getFilePermissionContainers(workspace.resourceId, file, false),
       });
@@ -153,7 +150,7 @@ describe('checkAuthorization', () => {
       workspace,
       workspaceId: workspace.resourceId,
       agent: agent02,
-      targets: {targetId: file.resourceId},
+      target: {targetId: file.resourceId},
       containerId: getFilePermissionContainers(workspace.resourceId, file, false),
       action: AppActionType.Read,
     });
@@ -192,7 +189,7 @@ describe('checkAuthorization', () => {
         workspace,
         workspaceId: workspace.resourceId,
         agent: agent02,
-        targets: {targetId: file.resourceId},
+        target: {targetId: file.resourceId},
         action: AppActionType.Update,
         containerId: getFilePermissionContainers(workspace.resourceId, file, false),
       });
@@ -241,7 +238,7 @@ describe('checkAuthorization', () => {
         entityId: token01.resourceId,
         targetId: outerFolder01.resourceId,
         action: AppActionType.Read,
-        grantAccess: true,
+        access: true,
         appliesTo: PermissionItemAppliesTo.Self,
         targetParentId: workspace.resourceId,
         targetParentType: AppResourceType.Workspace,
@@ -251,7 +248,7 @@ describe('checkAuthorization', () => {
         entityId: token01.resourceId,
         targetId: outerFolder02.resourceId,
         action: AppActionType.Read,
-        grantAccess: true,
+        access: true,
         appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
         targetParentId: workspace.resourceId,
         targetParentType: AppResourceType.Workspace,
@@ -261,7 +258,7 @@ describe('checkAuthorization', () => {
         entityId: token01.resourceId,
         targetId: outerFolder03.resourceId,
         action: AppActionType.Read,
-        grantAccess: true,
+        access: true,
         appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
         targetParentId: workspace.resourceId,
         targetParentType: AppResourceType.Workspace,
@@ -271,7 +268,7 @@ describe('checkAuthorization', () => {
         entityId: token01.resourceId,
         targetId: outerFolder04.resourceId,
         action: AppActionType.Read,
-        grantAccess: true,
+        access: true,
         appliesTo: PermissionItemAppliesTo.ChildrenOfType,
         targetParentId: workspace.resourceId,
         targetParentType: AppResourceType.Workspace,
@@ -286,12 +283,16 @@ describe('checkAuthorization', () => {
         workspace,
         workspaceId: workspace.resourceId,
         agent: tAgent,
-        targets: {
+        target: {
           targetId: outerFolder01.resourceId,
           targetAppliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
         },
         action: AppActionType.Read,
-        containerId: getFilePermissionContainers(workspace.resourceId, outerFolder01, false),
+        containerId: getFilePermissionContainers(
+          workspace.resourceId,
+          outerFolder01,
+          false
+        ),
       });
     }, [PermissionDeniedError.name]);
     await expectErrorThrown(async () => {
@@ -301,12 +302,16 @@ describe('checkAuthorization', () => {
         workspace,
         workspaceId: workspace.resourceId,
         agent: tAgent,
-        targets: {
+        target: {
           targetId: outerFolder02.resourceId,
           targetAppliesTo: PermissionItemAppliesTo.Self,
         },
         action: AppActionType.Read,
-        containerId: getFilePermissionContainers(workspace.resourceId, outerFolder02, false),
+        containerId: getFilePermissionContainers(
+          workspace.resourceId,
+          outerFolder02,
+          false
+        ),
       });
     }, [PermissionDeniedError.name]);
     await expectErrorThrown(async () => {
@@ -316,12 +321,16 @@ describe('checkAuthorization', () => {
         workspace,
         workspaceId: workspace.resourceId,
         agent: tAgent,
-        targets: {
+        target: {
           targetId: innerFolder01.resourceId,
           containerAppliesTo: PermissionItemAppliesTo.ChildrenOfType,
         },
         action: AppActionType.Read,
-        containerId: getFilePermissionContainers(workspace.resourceId, innerFolder01, false),
+        containerId: getFilePermissionContainers(
+          workspace.resourceId,
+          innerFolder01,
+          false
+        ),
       });
     }, [PermissionDeniedError.name]);
     await expectErrorThrown(async () => {
@@ -331,12 +340,16 @@ describe('checkAuthorization', () => {
         workspace,
         workspaceId: workspace.resourceId,
         agent: tAgent,
-        targets: {
+        target: {
           targetId: innerFolder02.resourceId,
           containerAppliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
         },
         action: AppActionType.Read,
-        containerId: getFilePermissionContainers(workspace.resourceId, innerFolder02, false),
+        containerId: getFilePermissionContainers(
+          workspace.resourceId,
+          innerFolder02,
+          false
+        ),
       });
     }, [PermissionDeniedError.name]);
   });
@@ -355,7 +368,7 @@ describe('checkAuthorization', () => {
     const pg02Items: PermissionItemInput[] = [
       {
         action: AppActionType.All,
-        grantAccess: true,
+        access: true,
         target: {
           targetType: AppResourceType.Workspace,
           targetId: PermissionItemAppliesTo.SelfAndChildrenOfType,
@@ -366,7 +379,7 @@ describe('checkAuthorization', () => {
     const pg03Items: PermissionItemInput[] = [
       {
         action: AppActionType.Read,
-        grantAccess: false,
+        access: false,
         target: {targetId: workspace.resourceId},
         appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
       },
@@ -395,16 +408,20 @@ describe('checkAuthorization', () => {
         )
       ),
     ]);
-    const {hasFullOrLimitedAccess, allowedResourceIdList, deniedResourceIdList, noAccess} =
-      await summarizeAgentPermissionItems({
-        context,
-        workspace,
-        workspaceId: workspace.resourceId,
-        agent: clientTokenAgent,
-        targets: {targetId: workspace.resourceId},
-        action: AppActionType.Read,
-        containerId: getWorkspacePermissionContainers(workspace.resourceId),
-      });
+    const {
+      hasFullOrLimitedAccess,
+      allowedResourceIdList,
+      deniedResourceIdList,
+      noAccess,
+    } = await summarizeAgentPermissionItems({
+      context,
+      workspace,
+      workspaceId: workspace.resourceId,
+      agent: clientTokenAgent,
+      target: {targetId: workspace.resourceId},
+      action: AppActionType.Read,
+      containerId: getWorkspacePermissionContainers(workspace.resourceId),
+    });
     expect(hasFullOrLimitedAccess).toBeTruthy();
     expect(noAccess).toBeFalsy();
     expect(allowedResourceIdList).toHaveLength(0);
@@ -419,7 +436,7 @@ describe('checkAuthorization', () => {
     const pg02Items: PermissionItemInput[] = [
       {
         action: AppActionType.Read,
-        grantAccess: true,
+        access: true,
         target: {targetType: AppResourceType.All, targetId: workspace.resourceId},
         appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
       },
@@ -427,7 +444,7 @@ describe('checkAuthorization', () => {
     const pg03Items: PermissionItemInput[] = [
       {
         action: AppActionType.Read,
-        grantAccess: false,
+        access: false,
         target: {targetId: workspace.resourceId},
         appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
       },
@@ -456,16 +473,20 @@ describe('checkAuthorization', () => {
       )
     );
 
-    const {hasFullOrLimitedAccess, allowedResourceIdList, deniedResourceIdList, noAccess} =
-      await summarizeAgentPermissionItems({
-        context,
-        workspace,
-        workspaceId: workspace.resourceId,
-        agent: clientTokenAgent,
-        targets: {targetId: workspace.resourceId},
-        action: AppActionType.Read,
-        containerId: getWorkspacePermissionContainers(workspace.resourceId),
-      });
+    const {
+      hasFullOrLimitedAccess,
+      allowedResourceIdList,
+      deniedResourceIdList,
+      noAccess,
+    } = await summarizeAgentPermissionItems({
+      context,
+      workspace,
+      workspaceId: workspace.resourceId,
+      agent: clientTokenAgent,
+      target: {targetId: workspace.resourceId},
+      action: AppActionType.Read,
+      containerId: getWorkspacePermissionContainers(workspace.resourceId),
+    });
     expect(hasFullOrLimitedAccess).toBeTruthy();
     expect(noAccess).toBeFalsy();
     expect(allowedResourceIdList).toBeFalsy();
@@ -480,7 +501,7 @@ describe('checkAuthorization', () => {
     const pg02Items: PermissionItemInput[] = [
       {
         action: AppActionType.Read,
-        grantAccess: true,
+        access: true,
         target: {targetId: workspace.resourceId},
         appliesTo: PermissionItemAppliesTo.Self,
       },
@@ -488,7 +509,7 @@ describe('checkAuthorization', () => {
     const pg03Items: PermissionItemInput[] = [
       {
         action: AppActionType.Read,
-        grantAccess: false,
+        access: false,
         target: {targetType: AppResourceType.Workspace, targetId: workspace.resourceId},
         appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
       },
@@ -517,16 +538,20 @@ describe('checkAuthorization', () => {
       )
     );
 
-    const {hasFullOrLimitedAccess, allowedResourceIdList, deniedResourceIdList, noAccess} =
-      await summarizeAgentPermissionItems({
-        context,
-        workspace,
-        workspaceId: workspace.resourceId,
-        agent: clientTokenAgent,
-        targets: {targetId: workspace.resourceId},
-        action: AppActionType.Read,
-        containerId: getWorkspacePermissionContainers(workspace.resourceId),
-      });
+    const {
+      hasFullOrLimitedAccess,
+      allowedResourceIdList,
+      deniedResourceIdList,
+      noAccess,
+    } = await summarizeAgentPermissionItems({
+      context,
+      workspace,
+      workspaceId: workspace.resourceId,
+      agent: clientTokenAgent,
+      target: {targetId: workspace.resourceId},
+      action: AppActionType.Read,
+      containerId: getWorkspacePermissionContainers(workspace.resourceId),
+    });
     expect(hasFullOrLimitedAccess).toBeFalsy();
     expect(noAccess).toBeFalsy();
     expectContainsExactly(allowedResourceIdList ?? [], [workspace.resourceId], identity);
@@ -541,7 +566,7 @@ describe('checkAuthorization', () => {
     const pg02Items: PermissionItemInput[] = [
       {
         action: AppActionType.Read,
-        grantAccess: false,
+        access: false,
         target: {targetId: workspace.resourceId},
         appliesTo: PermissionItemAppliesTo.Self,
       },
@@ -549,7 +574,7 @@ describe('checkAuthorization', () => {
     const pg03Items: PermissionItemInput[] = [
       {
         action: AppActionType.Read,
-        grantAccess: true,
+        access: true,
         target: {targetType: AppResourceType.Workspace, targetId: workspace.resourceId},
         appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
       },
@@ -578,16 +603,20 @@ describe('checkAuthorization', () => {
       )
     );
 
-    const {hasFullOrLimitedAccess, allowedResourceIdList, deniedResourceIdList, noAccess} =
-      await summarizeAgentPermissionItems({
-        context,
-        workspace,
-        workspaceId: workspace.resourceId,
-        agent: clientTokenAgent,
-        targets: {targetId: workspace.resourceId},
-        action: AppActionType.Read,
-        containerId: getWorkspacePermissionContainers(workspace.resourceId),
-      });
+    const {
+      hasFullOrLimitedAccess,
+      allowedResourceIdList,
+      deniedResourceIdList,
+      noAccess,
+    } = await summarizeAgentPermissionItems({
+      context,
+      workspace,
+      workspaceId: workspace.resourceId,
+      agent: clientTokenAgent,
+      target: {targetId: workspace.resourceId},
+      action: AppActionType.Read,
+      containerId: getWorkspacePermissionContainers(workspace.resourceId),
+    });
     expect(hasFullOrLimitedAccess).toBeTruthy();
     expect(noAccess).toBeFalsy();
     expect(allowedResourceIdList).toBeFalsy();
@@ -601,7 +630,7 @@ describe('checkAuthorization', () => {
     const pg02Items: PermissionItemInput[] = [
       {
         action: AppActionType.Read,
-        grantAccess: false,
+        access: false,
         target: {targetType: AppResourceType.Workspace, targetId: workspace.resourceId},
         appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
       },
@@ -609,7 +638,7 @@ describe('checkAuthorization', () => {
     const pg03Items: PermissionItemInput[] = [
       {
         action: AppActionType.Read,
-        grantAccess: true,
+        access: true,
         target: {targetType: AppResourceType.Workspace, targetId: workspace.resourceId},
         appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
       },
@@ -638,16 +667,20 @@ describe('checkAuthorization', () => {
         )
       ),
     ]);
-    const {hasFullOrLimitedAccess, allowedResourceIdList, deniedResourceIdList, noAccess} =
-      await summarizeAgentPermissionItems({
-        context,
-        workspace,
-        workspaceId: workspace.resourceId,
-        agent: clientTokenAgent,
-        targets: {targetId: workspace.resourceId},
-        action: AppActionType.Read,
-        containerId: getWorkspacePermissionContainers(workspace.resourceId),
-      });
+    const {
+      hasFullOrLimitedAccess,
+      allowedResourceIdList,
+      deniedResourceIdList,
+      noAccess,
+    } = await summarizeAgentPermissionItems({
+      context,
+      workspace,
+      workspaceId: workspace.resourceId,
+      agent: clientTokenAgent,
+      target: {targetId: workspace.resourceId},
+      action: AppActionType.Read,
+      containerId: getWorkspacePermissionContainers(workspace.resourceId),
+    });
     expect(hasFullOrLimitedAccess).toBeFalsy();
     expect(noAccess).toBeTruthy();
     expect(allowedResourceIdList).toBeFalsy();

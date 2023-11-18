@@ -5,19 +5,23 @@ import {IncorrectPasswordError} from '../errors';
 import {ChangePasswordWithCurrentPasswordEndpoint} from './types';
 import {changePasswordWithPasswordJoiSchema} from './validation';
 
-const changePasswordWithCurrentPassword: ChangePasswordWithCurrentPasswordEndpoint = async (
-  context,
-  instData
-) => {
-  const data = validate(instData.data, changePasswordWithPasswordJoiSchema);
-  const user = await context.session.getUser(context, instData);
-  const passwordMatch = await argon2.verify(user.hash, data.currentPassword);
-  if (!passwordMatch) {
-    throw new IncorrectPasswordError();
-  }
+const changePasswordWithCurrentPassword: ChangePasswordWithCurrentPasswordEndpoint =
+  async (context, instData) => {
+    const data = validate(instData.data, changePasswordWithPasswordJoiSchema);
+    const user = await context.session.getUser(context, instData);
+    const passwordMatch = await argon2.verify(user.hash, data.currentPassword);
 
-  const result = await INTERNAL_changePassword(context, instData, user.resourceId, data);
-  return result;
-};
+    if (!passwordMatch) {
+      throw new IncorrectPasswordError();
+    }
+
+    const result = await INTERNAL_changePassword(
+      context,
+      instData,
+      user.resourceId,
+      data
+    );
+    return result;
+  };
 
 export default changePasswordWithCurrentPassword;

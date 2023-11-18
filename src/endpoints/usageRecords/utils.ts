@@ -1,5 +1,6 @@
 import {File} from '../../definitions/file';
-import {AppActionType, AppResourceType, PERMISSION_AGENT_TYPES} from '../../definitions/system';
+import {PermissionAction} from '../../definitions/permissionItem';
+import {AppResourceType, PERMISSION_AGENT_TYPES} from '../../definitions/system';
 import {
   BandwidthUsageRecordArtifact,
   FileUsageRecordArtifact,
@@ -45,7 +46,7 @@ export async function insertStorageUsageRecordInput(
   ctx: BaseContextType,
   reqData: RequestData,
   file: File,
-  action: AppActionType = AppActionType.Create,
+  action: PermissionAction,
   artifactMetaInput: Partial<FileUsageRecordArtifact> = {},
   opts: SemanticDataAccessProviderMutationRunOptions,
   nothrow = false
@@ -78,7 +79,7 @@ export async function insertBandwidthInUsageRecordInput(
   ctx: BaseContextType,
   reqData: RequestData,
   file: File,
-  action: AppActionType = AppActionType.Create,
+  action: PermissionAction,
   opts: SemanticDataAccessProviderMutationRunOptions,
   nothrow = false
 ) {
@@ -109,7 +110,7 @@ export async function insertBandwidthOutUsageRecordInput(
   ctx: BaseContextType,
   reqData: RequestData,
   file: File,
-  action: AppActionType = AppActionType.Read,
+  action: PermissionAction,
   opts: SemanticDataAccessProviderMutationRunOptions,
   nothrow = false
 ) {

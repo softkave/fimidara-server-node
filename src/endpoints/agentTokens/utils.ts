@@ -1,10 +1,11 @@
 import {AgentToken, PublicAgentToken} from '../../definitions/agentToken';
-import {AppActionType, SessionAgent} from '../../definitions/system';
+import {PermissionAction} from '../../definitions/permissionItem';
+import {SessionAgent} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {cast} from '../../utils/fns';
 import {reuseableErrors} from '../../utils/reusableErrors';
-import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
@@ -26,17 +27,16 @@ export async function checkAgentTokenAuthorization(
   context: BaseContextType,
   agent: SessionAgent,
   token: AgentToken,
-  action: AppActionType,
+  action: PermissionAction,
   opts?: SemanticDataAccessProviderRunOptions
 ) {
   appAssert(token.workspaceId);
-  await checkAuthorization({
+  await checkAuthorizationWithAgent({
     context,
     agent,
-    action,
     opts,
     workspaceId: token.workspaceId,
-    targets: {targetId: token.resourceId},
+    target: {action, targetId: token.resourceId},
   });
   return {token};
 }
@@ -47,7 +47,7 @@ export async function checkAgentTokenAuthorization02(
   workspaceId: string | undefined,
   tokenId: string | undefined | null,
   providedResourceId: string | undefined | null,
-  action: AppActionType
+  action: PermissionAction
 ) {
   let token: AgentToken | null = null;
 
@@ -55,7 +55,10 @@ export async function checkAgentTokenAuthorization02(
     token = await context.semantic.agentToken.getOneById(tokenId);
   } else if (providedResourceId) {
     appAssert(workspaceId, new InvalidRequestError('Workspace ID not provided.'));
-    token = await context.semantic.agentToken.getByProvidedId(workspaceId, providedResourceId);
+    token = await context.semantic.agentToken.getByProvidedId(
+      workspaceId,
+      providedResourceId
+    );
   }
 
   assertAgentToken(token);
@@ -67,7 +70,12 @@ export function throwAgentTokenNotFound() {
 }
 
 export function getPublicAgentToken(context: BaseContextType, token: AgentToken) {
-  const tokenStr = context.session.encodeToken(context, token.resourceId, null, token.createdAt);
+  const tokenStr = context.session.encodeToken(
+    context,
+    token.resourceId,
+    null,
+    token.createdAt
+  );
   cast<PublicAgentToken>(token).tokenStr = tokenStr;
   return agentTokenExtractor(token);
 }

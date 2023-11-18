@@ -1,4 +1,3 @@
-import {AppActionType} from '../../../definitions/system';
 import {Tag} from '../../../definitions/tag';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
@@ -11,11 +10,11 @@ import {updateTagJoiSchema} from './validation';
 const updateTag: UpdateTagEndpoint = async (context, instData) => {
   const data = validate(instData.data, updateTagJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  let {workspace, tag} = await checkTagAuthorization02(
+  const {workspace, tag: tag_} = await checkTagAuthorization02(
     context,
     agent,
     data.tagId,
-    AppActionType.Update
+    'updateTag'
   );
   const tagUpdate: Partial<Tag> = {
     ...data.tag,
@@ -23,10 +22,15 @@ const updateTag: UpdateTagEndpoint = async (context, instData) => {
     lastUpdatedBy: getActionAgentFromSessionAgent(agent),
   };
 
+  let tag = tag_;
   tag = await context.semantic.utils.withTxn(context, async opts => {
     if (tagUpdate.name && tagUpdate.name !== tag.name)
       await checkTagNameExists(context, workspace.resourceId, tagUpdate.name, opts);
-    const updatedTag = await context.semantic.tag.getAndUpdateOneById(data.tagId, tagUpdate, opts);
+    const updatedTag = await context.semantic.tag.getAndUpdateOneById(
+      data.tagId,
+      tagUpdate,
+      opts
+    );
     assertTag(updatedTag);
     return updatedTag;
   });

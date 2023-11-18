@@ -397,18 +397,34 @@ function generateEndpointCode(
   }
 
   const bodyText: string[] = [];
+  let mapping = '';
+  const sdkBody = endpoint.getSdkParamsBody();
 
   if (isBinaryResponse) bodyText.push('responseType: props.responseType,');
   if (isBinaryRequest) bodyText.push('formdata: props.body,');
-  else if (sdkRequestObject) bodyText.push('data: props?.body,');
+  else if (sdkRequestObject) {
+    bodyText.push('data: props?.body,');
+    if (sdkBody) {
+      forEach(sdkRequestObject.fields ?? {}, (value, key) => {
+        const mapTo = sdkBody.mappings(key);
+        if (mapTo) {
+          const entry = `${key}: [${mapTo[0]}, ${String(mapTo[1])}],`;
+          mapping += entry;
+        }
+      });
+
+      if (mapping.length) mapping = `{${mapping}}`;
+    }
+  }
 
   const text = `${fnName} = async (${endpointParamsText}): Promise<FimidaraEndpointResult<${resultTypeName}>> => {
+    ${mapping.length ? `const mapping = ${mapping}` : ''}
     return this.execute${isBinaryResponse ? 'Raw' : 'Json'}({
       ...props,
       ${bodyText.join('')}
       path: "${endpoint.assertGetBasePathname()}",
       method: "${endpoint.assertGetMethod().toUpperCase()}",
-    }, props);
+    }, props, ${mapping.length ? 'mapping' : ''});
   }`;
 
   doc.appendToClass(text, className, 'FimidaraEndpointsBase');

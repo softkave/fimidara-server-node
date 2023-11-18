@@ -6,7 +6,8 @@ import {
 } from '../../../emailTemplates/confirmEmailAddress';
 import {BaseContextType} from '../../contexts/types';
 
-export interface SendConfirmEmailAddressEmailParams extends ConfirmEmailAddressEmailProps {
+export interface SendConfirmEmailAddressEmailParams
+  extends ConfirmEmailAddressEmailProps {
   emailAddress: string;
 }
 

@@ -1,6 +1,10 @@
 import {faker} from '@faker-js/faker';
 import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {AppActionType, AppResourceType, getWorkspaceActionList} from '../../../definitions/system';
+import {
+  AppActionType,
+  AppResourceType,
+  getWorkspaceActionList,
+} from '../../../definitions/system';
 import RequestData from '../../RequestData';
 import {BaseContextType} from '../../contexts/types';
 import {
@@ -54,22 +58,20 @@ describe('addItems', () => {
     const grantAccess = faker.datatype.boolean();
     const completeWorkspaceActions = getWorkspaceActionList();
     const subsetWorkspaceActions = faker.helpers.arrayElements(completeWorkspaceActions);
-    const completeWorkspaceActionsInputItems: PermissionItemInput[] = completeWorkspaceActions.map(
-      action => ({
+    const completeWorkspaceActionsInputItems: PermissionItemInput[] =
+      completeWorkspaceActions.map(action => ({
         grantAccess,
         action: action as AppActionType,
         target: {targetId: workspace.resourceId},
         appliesTo: PermissionItemAppliesTo.Self,
-      })
-    );
-    const subsetWorkspaceActionsInputItems: PermissionItemInput[] = subsetWorkspaceActions.map(
-      action => ({
+      }));
+    const subsetWorkspaceActionsInputItems: PermissionItemInput[] =
+      subsetWorkspaceActions.map(action => ({
         grantAccess,
         action: action as AppActionType,
         target: {targetId: workspace.resourceId},
         appliesTo: PermissionItemAppliesTo.Self,
-      })
-    );
+      }));
 
     const reqData = RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
@@ -123,7 +125,7 @@ describe('addItems', () => {
       {
         items: [
           {
-            grantAccess: true,
+            access: true,
             action: AppActionType.Read,
             target: {targetType: AppResourceType.File},
             appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,

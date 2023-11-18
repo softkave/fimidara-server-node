@@ -85,6 +85,7 @@ export interface IInvokeEndpointParams {
   formdata?: any;
   path: string;
   headers?: EndpointHeaders;
+  query?: AnyObject;
   method: Method;
   responseType: 'blob' | 'json' | 'stream';
   onUploadProgress?: (progressEvent: AxiosProgressEvent) => void;
@@ -101,6 +102,7 @@ export async function invokeEndpoint(props: IInvokeEndpointParams) {
     formdata,
     serverURL,
     responseType,
+    query,
     onDownloadProgress,
     onUploadProgress,
   } = props;
@@ -134,6 +136,7 @@ export async function invokeEndpoint(props: IInvokeEndpointParams) {
       responseType,
       onUploadProgress,
       onDownloadProgress,
+      params: query,
       url: endpointURL,
       headers: incomingHeaders,
       data: contentBody,
@@ -192,12 +195,13 @@ export async function invokeEndpoint(props: IInvokeEndpointParams) {
   }
 }
 
-export class FimidaraEndpointsBase extends FimidaraJsConfig {
-  protected mapping?: Map<
-    string,
-    ['header' | 'path' | 'query' | 'body', string]
-  >;
+export type AnyObject = {[k: string | number | symbol]: any};
+export type Mapping = Record<
+  string,
+  ['header' | 'path' | 'query' | 'body', string]
+>;
 
+export class FimidaraEndpointsBase extends FimidaraJsConfig {
   protected getAuthToken(params?: {authToken?: string}) {
     return params?.authToken || this.config.authToken;
   }
@@ -208,12 +212,50 @@ export class FimidaraEndpointsBase extends FimidaraJsConfig {
 
   protected async executeRaw(
     p01: IInvokeEndpointParams,
-    p02?: Pick<FimidaraEndpointParamsOptional<any>, 'authToken' | 'serverURL'>
+    p02?: Pick<FimidaraEndpointParamsOptional<any>, 'authToken' | 'serverURL'>,
+    mapping?: Mapping
   ): Promise<FimidaraEndpointResult<any>> {
+    const headers: AnyObject = {};
+    const query: AnyObject = {};
+    const data = p01.data;
+    let endpointPath = p01.path;
+
+    if (mapping && data) {
+      Object.keys(data).forEach(key => {
+        const value = data[key];
+        const [mapTo, field] = mapping![key] ?? [];
+        if (!mapTo || !field) return;
+        switch (mapTo) {
+          case 'header':
+            headers[field] = value;
+            delete data[key];
+            break;
+          case 'query':
+            query[field] = value;
+            delete data[key];
+            break;
+          case 'path':
+            endpointPath = endpointPath.replace(
+              `:${field}`,
+              encodeURIComponent(value)
+            );
+            delete data[key];
+            break;
+          case 'body':
+          default: // do nothing
+        }
+      });
+    }
+
     const response = await invokeEndpoint({
+      data,
+      query,
+      headers,
       serverURL: this.getServerURL(p02),
       token: this.getAuthToken(p02),
-      ...p01,
+      path: endpointPath,
+      method: p01.method,
+      responseType: p01.responseType,
     });
     return {
       status: response.status,
@@ -225,14 +267,10 @@ export class FimidaraEndpointsBase extends FimidaraJsConfig {
 
   protected async executeJson(
     p01: Pick<IInvokeEndpointParams, 'data' | 'formdata' | 'path' | 'method'>,
-    p02?: Pick<FimidaraEndpointParamsOptional<any>, 'authToken' | 'serverURL'>
+    p02?: Pick<FimidaraEndpointParamsOptional<any>, 'authToken' | 'serverURL'>,
+    mapping?: Mapping
   ) {
-    return await this.executeRaw({...p01, responseType: 'json'}, p02);
-  }
-
-  protected mapToHeaders(p01: IInvokeEndpointParams) {
-    if (!this.mapping || !p01.data) return {};
-    return Object.keys(p01.data).reduce((headers, key) => {}, {});
+    return await this.executeRaw({...p01, responseType: 'json'}, p02, mapping);
   }
 }
 

@@ -26,7 +26,11 @@ export async function INTERNAL_changePassword(
       assertUser(updatedUser);
 
       // Delete existing user tokens cause they're no longer valid
-      await context.semantic.agentToken.deleteAgentTokens(updatedUser.resourceId, undefined, opts);
+      await context.semantic.agentToken.deleteAgentTokens(
+        updatedUser.resourceId,
+        undefined,
+        opts
+      );
       return updatedUser;
     },
     opts
@@ -36,11 +40,13 @@ export async function INTERNAL_changePassword(
   delete reqData.agent?.agentToken;
   delete reqData.incomingTokenData;
   const completeUserData = await populateUserWorkspaces(context, updatedUser);
-  const [userToken, clientAssignedToken] = await context.semantic.utils.withTxn(context, opts =>
-    Promise.all([
-      getUserToken(context, userId, opts),
-      getUserClientAssignedToken(context, userId, opts),
-    ])
+  const [userToken, clientAssignedToken] = await context.semantic.utils.withTxn(
+    context,
+    opts =>
+      Promise.all([
+        getUserToken(context, userId, opts),
+        getUserClientAssignedToken(context, userId, opts),
+      ])
   );
   return toLoginResult(context, completeUserData, userToken, clientAssignedToken);
 }

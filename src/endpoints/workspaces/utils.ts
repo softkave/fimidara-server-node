@@ -1,4 +1,5 @@
-import {AppActionType, SessionAgent} from '../../definitions/system';
+import {PermissionAction} from '../../definitions/permissionItem';
+import {SessionAgent} from '../../definitions/system';
 import {UsageRecordCategory} from '../../definitions/usageRecord';
 import {
   PublicUsageThreshold,
@@ -13,8 +14,11 @@ import {
   makeExtractIfPresent,
   makeListExtract,
 } from '../../utils/extract';
-import {getWorkspaceIdFromSessionAgent, getWorkspaceIdNoThrow} from '../../utils/sessionUtils';
-import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {
+  getWorkspaceIdFromSessionAgent,
+  getWorkspaceIdNoThrow,
+} from '../../utils/sessionUtils';
+import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
@@ -34,7 +38,9 @@ const usageThresholdLockItemPublicFields = getFields<PublicUsageThresholdLock>({
   category: true,
   locked: true,
 });
-const usageThresholdItemIfExistExtractor = makeExtractIfPresent(usageThresholdItemPublicFields);
+const usageThresholdItemIfExistExtractor = makeExtractIfPresent(
+  usageThresholdItemPublicFields
+);
 const usageThresholdLockItemIfExistExtractor = makeExtractIfPresent(
   usageThresholdLockItemPublicFields
 );
@@ -44,12 +50,14 @@ const usageThresholdsPublicFields = getFields<PublicWorkspace['usageThresholds']
   [UsageRecordCategory.BandwidthIn]: usageThresholdItemIfExistExtractor,
   [UsageRecordCategory.BandwidthOut]: usageThresholdItemIfExistExtractor,
 });
-const usageThresholdLocksPublicFields = getFields<PublicWorkspace['usageThresholdLocks']>({
-  [UsageRecordCategory.Total]: usageThresholdLockItemIfExistExtractor,
-  [UsageRecordCategory.Storage]: usageThresholdLockItemIfExistExtractor,
-  [UsageRecordCategory.BandwidthIn]: usageThresholdLockItemIfExistExtractor,
-  [UsageRecordCategory.BandwidthOut]: usageThresholdLockItemIfExistExtractor,
-});
+const usageThresholdLocksPublicFields = getFields<PublicWorkspace['usageThresholdLocks']>(
+  {
+    [UsageRecordCategory.Total]: usageThresholdLockItemIfExistExtractor,
+    [UsageRecordCategory.Storage]: usageThresholdLockItemIfExistExtractor,
+    [UsageRecordCategory.BandwidthIn]: usageThresholdLockItemIfExistExtractor,
+    [UsageRecordCategory.BandwidthOut]: usageThresholdLockItemIfExistExtractor,
+  }
+);
 const usageThresholdExistExtractor = makeExtract(usageThresholdsPublicFields);
 const usageThresholdLockExistExtractor = makeExtract(usageThresholdLocksPublicFields);
 const workspacePublicFields: ExtractFieldsFrom<PublicWorkspace> = {
@@ -71,7 +79,9 @@ export function throwWorkspaceNotFound() {
   throw new NotFoundError('Workspace not found.');
 }
 
-export function assertWorkspace(workspace: Workspace | null | undefined): asserts workspace {
+export function assertWorkspace(
+  workspace: Workspace | null | undefined
+): asserts workspace {
   if (!workspace) {
     throwWorkspaceNotFound();
   }
@@ -102,17 +112,16 @@ export async function checkWorkspaceAuthorization(
   context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
-  action: AppActionType,
+  action: PermissionAction,
   opts?: SemanticDataAccessProviderRunOptions
 ) {
-  await checkAuthorization({
+  await checkAuthorizationWithAgent({
     context,
     agent,
-    action,
     workspace,
     opts,
     workspaceId: workspace.resourceId,
-    targets: {targetId: workspace.resourceId},
+    target: {action, targetId: workspace.resourceId},
   });
   return {agent, workspace};
 }
@@ -120,7 +129,7 @@ export async function checkWorkspaceAuthorization(
 export async function checkWorkspaceAuthorization02(
   context: BaseContextType,
   agent: SessionAgent,
-  action: AppActionType,
+  action: PermissionAction,
   id?: string
 ) {
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, id);

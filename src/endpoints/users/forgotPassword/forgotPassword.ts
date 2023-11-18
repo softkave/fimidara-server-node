@@ -49,7 +49,10 @@ export function getForgotPasswordExpiration() {
   });
 }
 
-export function getForgotPasswordLinkFromToken(context: BaseContextType, forgotToken: AgentToken) {
+export function getForgotPasswordLinkFromToken(
+  context: BaseContextType,
+  forgotToken: AgentToken
+) {
   const encodedToken = context.session.encodeToken(
     context,
     forgotToken.resourceId,

@@ -1,11 +1,12 @@
-import {AppActionType, AppResourceType, SessionAgent} from '../../../definitions/system';
+import {SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
-import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {SemanticDataAccessProviderRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
+import {checkPermissionEntitiesExist} from '../checkPermissionArtifacts';
 import {GetEntityPermissionItemsEndpointParams} from './types';
 
-export async function getEntityPermissionItemsQuery(
+export async function doAccessCheckForGetEntityPermissionItems(
   context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
@@ -13,14 +14,22 @@ export async function getEntityPermissionItemsQuery(
   opts?: SemanticDataAccessProviderRunOptions
 ) {
   if (agent.agentId !== data.entityId) {
-    await checkAuthorization({
-      context,
-      agent,
-      workspace,
-      opts,
-      workspaceId: workspace.resourceId,
-      action: AppActionType.Read,
-      targets: {targetType: AppResourceType.PermissionItem},
-    });
+    await Promise.all([
+      checkPermissionEntitiesExist(
+        context,
+        agent,
+        workspace.resourceId,
+        [data.entityId],
+        'updatePermission'
+      ),
+      checkAuthorizationWithAgent({
+        context,
+        agent,
+        workspace,
+        opts,
+        workspaceId: workspace.resourceId,
+        target: {targetId: workspace.resourceId, action: 'updatePermission'},
+      }),
+    ]);
   }
 }

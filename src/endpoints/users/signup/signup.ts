@@ -11,11 +11,13 @@ const signup: SignupEndpoint = async (context, instData) => {
   const user = await context.semantic.utils.withTxn(context, opts =>
     INTERNAL_signupUser(context, data, {}, opts)
   );
-  const [userToken, clientAssignedToken] = await context.semantic.utils.withTxn(context, opts =>
-    Promise.all([
-      getUserToken(context, user.resourceId, opts),
-      getUserClientAssignedToken(context, user.resourceId, opts),
-    ])
+  const [userToken, clientAssignedToken] = await context.semantic.utils.withTxn(
+    context,
+    opts =>
+      Promise.all([
+        getUserToken(context, user.resourceId, opts),
+        getUserClientAssignedToken(context, user.resourceId, opts),
+      ])
   );
   instData.agent = makeUserSessionAgent(user, userToken);
   await INTERNAL_sendEmailVerificationCode(context, user);

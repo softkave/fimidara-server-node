@@ -4,29 +4,31 @@ import {
   PublicCollaborationRequestForWorkspace,
 } from '../../definitions/collaborationRequest';
 import {AssignedPermissionGroupMeta} from '../../definitions/permissionGroups';
-import {AppActionType, SessionAgent} from '../../definitions/system';
+import {PermissionAction} from '../../definitions/permissionItem';
+import {SessionAgent} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {reuseableErrors} from '../../utils/reusableErrors';
-import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 
-const userCollaborationRequestForUserFields = getFields<PublicCollaborationRequestForUser>({
-  resourceId: true,
-  recipientEmail: true,
-  message: true,
-  createdAt: true,
-  expiresAt: true,
-  workspaceName: true,
-  lastUpdatedAt: true,
-  readAt: true,
-  status: true,
-  statusDate: true,
-});
+const userCollaborationRequestForUserFields =
+  getFields<PublicCollaborationRequestForUser>({
+    resourceId: true,
+    recipientEmail: true,
+    message: true,
+    createdAt: true,
+    expiresAt: true,
+    workspaceName: true,
+    lastUpdatedAt: true,
+    readAt: true,
+    status: true,
+    statusDate: true,
+  });
 
 const userCollaborationRequestForWorkspaceFields =
   getFields<PublicCollaborationRequestForWorkspace>({
@@ -47,18 +49,17 @@ export async function checkCollaborationRequestAuthorization(
   context: BaseContextType,
   agent: SessionAgent,
   request: CollaborationRequest,
-  action: AppActionType,
+  action: PermissionAction,
   opts?: SemanticDataAccessProviderRunOptions
 ) {
   const workspace = await checkWorkspaceExists(context, request.workspaceId);
-  await checkAuthorization({
+  await checkAuthorizationWithAgent({
     context,
     agent,
-    action,
     opts,
     workspaceId: workspace.resourceId,
     workspace: workspace,
-    targets: {targetId: request.resourceId},
+    target: {action, targetId: request.resourceId},
   });
   return {agent, request, workspace};
 }
@@ -67,7 +68,7 @@ export async function checkCollaborationRequestAuthorization02(
   context: BaseContextType,
   agent: SessionAgent,
   requestId: string,
-  action: AppActionType,
+  action: PermissionAction,
   opts?: SemanticDataAccessProviderRunOptions
 ) {
   const request = await context.semantic.collaborationRequest.getOneById(requestId, opts);
@@ -120,6 +121,8 @@ export async function populateRequestListPermissionGroups(
   );
 }
 
-export function assertCollaborationRequest(request?: CollaborationRequest | null): asserts request {
+export function assertCollaborationRequest(
+  request?: CollaborationRequest | null
+): asserts request {
   appAssert(request, reuseableErrors.collaborationRequest.notFound());
 }

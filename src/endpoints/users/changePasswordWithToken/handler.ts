@@ -8,7 +8,10 @@ import {ChangePasswordWithTokenEndpoint} from './types';
 import {INTERNAL_changePassword} from './utils';
 import {changePasswordWithTokenJoiSchema} from './validation';
 
-const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async (context, reqData) => {
+const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async (
+  context,
+  reqData
+) => {
   const data = validate(reqData.data, changePasswordWithTokenJoiSchema);
   const agent = await context.session.getAgent(
     context,

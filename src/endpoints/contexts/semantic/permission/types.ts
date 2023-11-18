@@ -2,37 +2,31 @@ import {
   PermissionEntityInheritanceMap,
   PermissionGroup,
 } from '../../../../definitions/permissionGroups';
-import {PermissionItem, PermissionItemAppliesTo} from '../../../../definitions/permissionItem';
-import {AppActionType, AppResourceType, Resource} from '../../../../definitions/system';
+import {PermissionAction, PermissionItem} from '../../../../definitions/permissionItem';
+import {AppResourceType, Resource} from '../../../../definitions/system';
 import {BaseContextType} from '../../types';
 import {SemanticDataAccessProviderRunOptions} from '../types';
 
 export type SemanticDataAccessPermissionProviderType_GetPermissionItemsProps = {
   context: BaseContextType;
   entityId?: string | string[];
-  action?: AppActionType | AppActionType[];
+  action?: PermissionAction | PermissionAction[];
+  targetParentId?: string;
   targetId?: string | string[];
   targetType?: AppResourceType | AppResourceType[];
-  containerAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
-  targetAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
-  containerId?: string | string[];
-
   /** Sort the permission items by last updated date. */
   sortByDate?: boolean;
-
-  /** Sort the permission items by container, i.e following the order of
-   * containers passed. */
-  sortByContainer?: boolean;
+  /** Sort the permission items by target, i.e following the order of
+   * targets passed. */
+  sortByTarget?: boolean;
 };
+
 export type SemanticDataAccessPermissionProviderType_CountPermissionItemsProps = {
   context: BaseContextType;
   entityId?: string | string[];
-  action?: AppActionType | AppActionType[];
+  action?: PermissionAction | PermissionAction[];
   targetId?: string | string[];
   targetType?: AppResourceType | AppResourceType[];
-  containerAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
-  targetAppliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
-  containerId?: string | string[];
 };
 
 export interface SemanticDataAccessPermissionProviderType {
@@ -68,8 +62,8 @@ export interface SemanticDataAccessPermissionProviderType {
     options?: SemanticDataAccessProviderRunOptions
   ): Promise<number>;
   sortByDate(items: PermissionItem[]): PermissionItem[];
-  sortByContainer(
-    containerId: string | string[],
+  sortByTarget(
+    targetId: string | string[],
     items: PermissionItem[],
     sortByDate?: boolean
   ): PermissionItem[];

@@ -1,12 +1,12 @@
 import {File, FilePresignedPath} from '../../../definitions/file';
-import {AppActionType, AppResourceType, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
+import {AppResourceType, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {newWorkspaceResource} from '../../../utils/resource';
 import {reuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
 import {
-  checkAuthorization,
+  checkAuthorizationWithAgent,
   getResourcePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {InvalidRequestError} from '../../errors';
@@ -17,7 +17,10 @@ import {checkFileAuthorization, getFilepathInfo} from '../utils';
 import {IssueFilePresignedPathEndpoint} from './types';
 import {issueFilePresignedPathJoiSchema} from './validation';
 
-const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async (context, instData) => {
+const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async (
+  context,
+  instData
+) => {
   const data = validate(instData.data, issueFilePresignedPathJoiSchema);
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
 
@@ -47,7 +50,7 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async (context, i
     // Happy path. If there's a file, get the name path and extension
     fileNamePath = file.namePath;
     fileExtension = file.extension;
-    await checkFileAuthorization(context, agent, file, AppActionType.Read);
+    await checkFileAuthorization(context, agent, file, 'readFile');
   } else {
     // File doesn't exist but we're generating presigned path for the filepath.
     // Presigned paths for non-existing files will work just like filepaths for
@@ -61,7 +64,9 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async (context, i
     fileExtension = filepathInfo.extension;
 
     if (!workspace) {
-      workspace = await context.semantic.workspace.getByRootname(filepathInfo.workspaceRootname);
+      workspace = await context.semantic.workspace.getByRootname(
+        filepathInfo.workspaceRootname
+      );
     }
 
     assertWorkspace(workspace);
@@ -72,18 +77,19 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async (context, i
       workspace.resourceId,
       filepathInfo.splitParentPath
     );
-    await checkAuthorization({
+    await checkAuthorizationWithAgent({
       context,
       agent,
       workspace,
       workspaceId: workspace.resourceId,
-      targets: [{targetType: AppResourceType.File}],
-      containerId: getResourcePermissionContainers(
-        workspace.resourceId,
-        closestFolder,
-        /** include resource ID */ true
-      ),
-      action: AppActionType.Read,
+      target: {
+        targetId: getResourcePermissionContainers(
+          workspace.resourceId,
+          closestFolder,
+          /** include resource ID */ true
+        ),
+        action: 'readFile',
+      },
     });
   }
 
@@ -102,7 +108,7 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async (context, i
       expiresAt,
       fileNamePath,
       fileExtension,
-      action: [AppActionType.Read],
+      action: ['readFile'],
       agentTokenId: agent.agentTokenId,
       usageCount: data.usageCount,
       spentUsageCount: 0,

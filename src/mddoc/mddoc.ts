@@ -1,5 +1,6 @@
 import {merge} from 'lodash';
 import {Readable} from 'stream';
+// eslint-disable-next-line node/no-unpublished-import
 import {OptionalKeysOf} from 'type-fest';
 import {
   BaseEndpointResult,
@@ -258,12 +259,11 @@ export interface FieldBinaryType {
 }
 export type MappingFn<TSdkParams, TRequestHeaders, TPathParameters, TQuery, TRequestBody> = AnyFn<
   [keyof TSdkParams],
-  Array<
-    | ['header', keyof TRequestHeaders]
-    | ['path', keyof TPathParameters]
-    | ['query', keyof TQuery]
-    | ['body', keyof TRequestBody]
-  >
+  | ['header', keyof TRequestHeaders]
+  | ['path', keyof TPathParameters]
+  | ['query', keyof TQuery]
+  | ['body', keyof TRequestBody]
+  | undefined
 >;
 export type SdkParamsToRequestArtifactsMapping<
   TSdkParams,
@@ -556,6 +556,7 @@ export type InferSdkParamsType<T> = T extends SdkParamsBodyType<infer TObjectTyp
   : never;
 
 function constructFieldBase() {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const ff0: FieldBaseType = {};
   const ff = {
@@ -569,6 +570,7 @@ function constructFieldBase() {
 }
 
 function constructFieldString() {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const ff0: FieldStringType = {};
   const ff: FieldStringType = {
@@ -597,6 +599,7 @@ function constructFieldString() {
 }
 
 function constructFieldNumber() {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const ff0: FieldNumberType = {};
   const ff: FieldNumberType = {
@@ -622,6 +625,7 @@ function constructFieldNumber() {
 }
 
 function constructFieldBoolean() {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const ff0: FieldBooleanType = {};
   const ff: FieldBooleanType = {
@@ -638,6 +642,7 @@ function constructFieldBoolean() {
 }
 
 function constructFieldNull() {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const ff0: FieldNullType = {};
   const ff: FieldNullType = {
@@ -651,6 +656,7 @@ function constructFieldNull() {
 }
 
 function constructFieldUndefined() {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const ff0: FieldUndefinedType = {};
   const ff: FieldUndefinedType = {
@@ -664,6 +670,7 @@ function constructFieldUndefined() {
 }
 
 function constructFieldDate() {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const ff0: FieldDateType = {};
   const ff: FieldDateType = {
@@ -680,6 +687,7 @@ function constructFieldDate() {
 }
 
 function constructFieldArray<T>() {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const ff0: FieldArrayType<T> = {};
   const ff: FieldArrayType<T> = {
@@ -705,6 +713,7 @@ function constructFieldObjectField<T, TRequired extends boolean = false>(
   required: TRequired,
   data: ConvertToMddocType<T>
 ) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const ff0: FieldObjectFieldType<T, TRequired> = {};
   const ff: FieldObjectFieldType<T, TRequired> = {
@@ -726,6 +735,7 @@ function constructFieldObjectField<T, TRequired extends boolean = false>(
 }
 
 function constructFieldObject<T extends object>() {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const ff0: FieldObjectType<T> = {};
   const ff: FieldObjectType<T> = {
@@ -751,6 +761,7 @@ function constructSdkParamsBody<
   TQuery extends object = any,
   TRequestBody extends object = any
 >(mappings: MappingFn<T, TRequestHeaders, TPathParameters, TQuery, TRequestBody>) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const ff0: SdkParamsBodyType<T, TRequestHeaders, TPathParameters, TQuery, TRequestBody> = {};
   const ff: SdkParamsBodyType<T, TRequestHeaders, TPathParameters, TQuery, TRequestBody> = {
@@ -765,6 +776,7 @@ function constructSdkParamsBody<
 }
 
 function constructFieldOrCombination() {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const ff0: FieldOrCombinationType = {};
   const ff: FieldOrCombinationType = {
@@ -781,6 +793,7 @@ function constructFieldOrCombination() {
 }
 
 function constructFieldOrCombination02<T01, T02>() {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const ff0: FieldOrCombinationType02<T01, T02> = {};
   const ff: FieldOrCombinationType02<T01, T02> = {
@@ -801,6 +814,7 @@ function constructFieldOrCombination02<T01, T02>() {
 }
 
 function constructFieldBinary() {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const ff0: FieldBinaryType = {};
   const ff: FieldBinaryType = {
@@ -826,6 +840,7 @@ export enum HttpEndpointMethod {
 }
 
 function constructHttpEndpointMultipartFormdata<T extends object>() {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const ff0: HttpEndpointMultipartFormdataType<T> = {};
   const ff: HttpEndpointMultipartFormdataType<T> = {
@@ -850,6 +865,7 @@ function constructHttpEndpointDefinition<
   TResponseBody extends AnyObject = AnyObject,
   TSdkParams extends AnyObject = TRequestBody
 >() {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const ff0: HttpEndpointDefinitionType<
     TRequestHeaders,

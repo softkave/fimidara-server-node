@@ -1,6 +1,7 @@
 ## Now
 
 - [ ] Move logs to it's own service
+- [ ] Write to local fs primarily
 - [ ] Log and process endpoint calls
 - [ ] JS SDK auto determine readFile TS result type from responseType param
 - [ ] Script to export runtome logs to you and process them

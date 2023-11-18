@@ -1,13 +1,8 @@
 import {last, merge} from 'lodash';
 import {Folder} from '../../definitions/folder';
 import {PermissionGroup} from '../../definitions/permissionGroups';
-import {PermissionItem, PermissionItemAppliesTo} from '../../definitions/permissionItem';
-import {
-  AppActionType,
-  AppResourceType,
-  AppRuntimeState,
-  SessionAgent,
-} from '../../definitions/system';
+import {PermissionItem} from '../../definitions/permissionItem';
+import {AppResourceType, AppRuntimeState, SessionAgent} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {FimidaraRuntimeConfig} from '../../resources/types';
 import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
@@ -35,7 +30,11 @@ import {INTERNAL_signupUser} from '../users/signup/utils';
 import INTERNAL_createWorkspace from '../workspaces/addWorkspace/internalCreateWorkspace';
 import {assertWorkspace} from '../workspaces/utils';
 
-export const APP_RUNTIME_STATE_DOC_ID = getNewIdForResource(AppResourceType.System, ID_SIZE, true);
+export const APP_RUNTIME_STATE_DOC_ID = getNewIdForResource(
+  AppResourceType.System,
+  ID_SIZE,
+  true
+);
 const imagesPath = '/files/images';
 const appSetupVars = {
   workspaceName: 'Fimidara',
@@ -70,11 +69,15 @@ async function setupDefaultUser(
   context: BaseContextType,
   opts: SemanticDataAccessProviderMutationRunOptions
 ) {
-  let user = await context.semantic.user.getByEmail(context.appVariables.rootUserEmail, opts);
+  let user = await context.semantic.user.getByEmail(
+    context.appVariables.rootUserEmail,
+    opts
+  );
 
   if (!user) {
     const isDevEnv =
-      context.appVariables.nodeEnv === 'development' || context.appVariables.nodeEnv === 'test';
+      context.appVariables.nodeEnv === 'development' ||
+      context.appVariables.nodeEnv === 'test';
     user = await INTERNAL_signupUser(
       context,
       {
@@ -111,7 +114,12 @@ async function setupFolders(
     context,
     SYSTEM_SESSION_AGENT,
     workspace,
-    {folderpath: addRootnameToPath(appSetupVars.workspaceImagesfolderpath, workspace.rootname)},
+    {
+      folderpath: addRootnameToPath(
+        appSetupVars.workspaceImagesfolderpath,
+        workspace.rootname
+      ),
+    },
     /** skip auth check */ true,
     /** throw on folder exists */ false,
     opts
@@ -120,7 +128,12 @@ async function setupFolders(
     context,
     SYSTEM_SESSION_AGENT,
     workspace,
-    {folderpath: addRootnameToPath(appSetupVars.userImagesfolderpath, workspace.rootname)},
+    {
+      folderpath: addRootnameToPath(
+        appSetupVars.userImagesfolderpath,
+        workspace.rootname
+      ),
+    },
     /** skip auth check */ true,
     /** throw on folder exists */ false,
     opts
@@ -143,31 +156,32 @@ async function setupImageUploadPermissionGroup(
     workspaceId,
     {name, description}
   );
-  const permissionItems: PermissionItem[] = [AppActionType.Create, AppActionType.Read].map(
-    action => {
-      const containerIds = folder.idPath.slice(0, -1);
-      const targetParentId = containerIds.length ? last(containerIds) : workspaceId;
-      appAssert(targetParentId);
-      const targetParentType = getResourceTypeFromId(targetParentId);
-      const item: PermissionItem = newWorkspaceResource<PermissionItem>(
-        SYSTEM_SESSION_AGENT,
-        AppResourceType.PermissionItem,
-        workspaceId,
-        {
-          action,
-          targetParentId,
-          targetParentType,
-          entityId: imageUploadPermissionGroup.resourceId,
-          entityType: AppResourceType.PermissionGroup,
-          targetId: folder.resourceId,
-          targetType: AppResourceType.File,
-          grantAccess: true,
-          appliesTo: PermissionItemAppliesTo.ChildrenOfType,
-        }
-      );
-      return item;
-    }
-  );
+  const permissionItems: PermissionItem[] = [
+    AppActionType.Create,
+    AppActionType.Read,
+  ].map(action => {
+    const containerIds = folder.idPath.slice(0, -1);
+    const targetParentId = containerIds.length ? last(containerIds) : workspaceId;
+    appAssert(targetParentId);
+    const targetParentType = getResourceTypeFromId(targetParentId);
+    const item: PermissionItem = newWorkspaceResource<PermissionItem>(
+      SYSTEM_SESSION_AGENT,
+      AppResourceType.PermissionItem,
+      workspaceId,
+      {
+        action,
+        targetParentId,
+        targetParentType,
+        entityId: imageUploadPermissionGroup.resourceId,
+        entityType: AppResourceType.PermissionGroup,
+        targetId: folder.resourceId,
+        targetType: AppResourceType.File,
+        access: true,
+        appliesTo: PermissionItemAppliesTo.ChildrenOfType,
+      }
+    );
+    return item;
+  });
 
   await Promise.all([
     await context.semantic.permissionGroup.insertItem(imageUploadPermissionGroup, opts),
@@ -201,7 +215,8 @@ async function getRootWorkspace(
     appWorkspaceId: appRuntimeState.appWorkspaceId,
     appWorkspacesImageUploadPermissionGroupId:
       appRuntimeState.appWorkspacesImageUploadPermissionGroupId,
-    appUsersImageUploadPermissionGroupId: appRuntimeState.appUsersImageUploadPermissionGroupId,
+    appUsersImageUploadPermissionGroupId:
+      appRuntimeState.appUsersImageUploadPermissionGroupId,
   };
   merge(context.appVariables, appRuntimeVars);
   const workspace = await context.semantic.workspace.getOneById(
@@ -260,7 +275,8 @@ async function setupAppArtifacts(
     | 'appWorkspacesImageUploadPermissionGroupId'
   > = {
     appWorkspaceId: workspace.resourceId,
-    appWorkspacesImageUploadPermissionGroupId: appWorkspacesImageUploadPermissionGroup.resourceId,
+    appWorkspacesImageUploadPermissionGroupId:
+      appWorkspacesImageUploadPermissionGroup.resourceId,
     appUsersImageUploadPermissionGroupId: appUsersImageUploadPermissionGroup.resourceId,
   };
   await context.data.appRuntimeState.insertItem(

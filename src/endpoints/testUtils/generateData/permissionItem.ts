@@ -1,5 +1,8 @@
 import {faker} from '@faker-js/faker';
-import {PermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
+import {
+  PermissionItem,
+  PermissionItemAppliesTo,
+} from '../../../definitions/permissionItem';
 import {Agent, AppResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource, getResourceTypeFromId} from '../../../utils/resource';
@@ -25,18 +28,23 @@ export function generatePermissionItemForTest(seed: Partial<PermissionItem> = {}
     targetParentType: AppResourceType.Workspace,
     resourceId: getNewIdForResource(AppResourceType.PermissionItem),
     entityId: createdBy.agentId,
-    entityType: seed.entityId ? getResourceTypeFromId(seed.entityId) : AppResourceType.User,
+    entityType: seed.entityId
+      ? getResourceTypeFromId(seed.entityId)
+      : AppResourceType.User,
     targetId: getNewIdForResource(itemType),
     targetType: seed.targetId ? getResourceTypeFromId(seed.targetId) : itemType,
     action: randomAction(),
-    grantAccess: faker.datatype.boolean(),
+    access: faker.datatype.boolean(),
     appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
     ...seed,
   };
   return item;
 }
 
-export function generatePermissionItemListForTest(count = 20, seed: Partial<PermissionItem> = {}) {
+export function generatePermissionItemListForTest(
+  count = 20,
+  seed: Partial<PermissionItem> = {}
+) {
   const items: PermissionItem[] = [];
   for (let i = 0; i < count; i++) {
     items.push(generatePermissionItemForTest(seed));

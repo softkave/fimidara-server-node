@@ -1,9 +1,10 @@
-import {AppActionType, SessionAgent} from '../../definitions/system';
+import {PermissionAction} from '../../definitions/permissionItem';
+import {SessionAgent} from '../../definitions/system';
 import {PublicAssignedTag, PublicTag, Tag} from '../../definitions/tag';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {reuseableErrors} from '../../utils/reusableErrors';
-import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {agentExtractor, workspaceResourceFields} from '../utils';
@@ -31,18 +32,17 @@ export async function checkTagAuthorization(
   context: BaseContextType,
   agent: SessionAgent,
   tag: Tag,
-  action: AppActionType,
+  action: PermissionAction,
   opts?: SemanticDataAccessProviderRunOptions
 ) {
   const workspace = await checkWorkspaceExists(context, tag.workspaceId);
-  await checkAuthorization({
+  await checkAuthorizationWithAgent({
     context,
     agent,
-    action,
     workspace,
     opts,
     workspaceId: workspace.resourceId,
-    targets: {targetId: tag.resourceId},
+    target: {action, targetId: tag.resourceId},
   });
   return {agent, tag, workspace};
 }
@@ -51,7 +51,7 @@ export async function checkTagAuthorization02(
   context: BaseContextType,
   agent: SessionAgent,
   id: string,
-  action: AppActionType
+  action: PermissionAction
 ) {
   const tag = await context.semantic.tag.getOneById(id);
   assertTag(tag);

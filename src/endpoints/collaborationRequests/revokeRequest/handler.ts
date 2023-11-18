@@ -2,7 +2,6 @@ import {
   CollaborationRequest,
   CollaborationRequestStatusType,
 } from '../../../definitions/collaborationRequest';
-import {AppActionType} from '../../../definitions/system';
 import {
   collaborationRequestRevokedEmailHTML,
   collaborationRequestRevokedEmailText,
@@ -27,29 +26,33 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (
 ) => {
   const data = validate(instData.data, revokeCollaborationRequestJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const {request, workspace} = await context.semantic.utils.withTxn(context, async opts => {
-    const {request, workspace} = await checkCollaborationRequestAuthorization02(
-      context,
-      agent,
-      data.requestId,
-      AppActionType.Update,
-      opts
-    );
+  const {request, workspace} = await context.semantic.utils.withTxn(
+    context,
+    async opts => {
+      const {request, workspace} = await checkCollaborationRequestAuthorization02(
+        context,
+        agent,
+        data.requestId,
+        'revokeCollaborationRequest',
+        opts
+      );
 
-    const isRevoked = request.status === CollaborationRequestStatusType.Revoked;
-    appAssert(
-      isRevoked === false,
-      new InvalidRequestError('Collaboration request already revoked.')
-    );
-    const updatedRequest = await context.semantic.collaborationRequest.getAndUpdateOneById(
-      data.requestId,
-      {statusDate: getTimestamp(), status: CollaborationRequestStatusType.Revoked},
-      opts
-    );
+      const isRevoked = request.status === CollaborationRequestStatusType.Revoked;
+      appAssert(
+        isRevoked === false,
+        new InvalidRequestError('Collaboration request already revoked.')
+      );
+      const updatedRequest =
+        await context.semantic.collaborationRequest.getAndUpdateOneById(
+          data.requestId,
+          {statusDate: getTimestamp(), status: CollaborationRequestStatusType.Revoked},
+          opts
+        );
 
-    assertCollaborationRequest(updatedRequest);
-    return {workspace, request: updatedRequest};
-  });
+      assertCollaborationRequest(updatedRequest);
+      return {workspace, request: updatedRequest};
+    }
+  );
 
   // TODO: fire and forget
   await sendRevokeCollaborationRequestEmail(context, request, workspace.name);

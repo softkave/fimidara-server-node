@@ -40,7 +40,7 @@ test('permission items deleted', async () => {
   await insertPermissionItemsForTest(context, userToken, workspace.resourceId, {
     entity: {entityId: permissionGroup.resourceId},
     target: {targetType: AppResourceType.File, targetId: workspace.resourceId},
-    grantAccess: true,
+    access: true,
     action: AppActionType.Read,
     appliesTo: PermissionItemAppliesTo.ChildrenOfType,
   });

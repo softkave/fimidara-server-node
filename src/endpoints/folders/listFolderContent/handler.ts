@@ -1,12 +1,19 @@
 import {Folder} from '../../../definitions/folder';
-import {AppResourceType, PERMISSION_AGENT_TYPES, SessionAgent} from '../../../definitions/system';
+import {
+  AppResourceType,
+  PERMISSION_AGENT_TYPES,
+  SessionAgent,
+} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {validate} from '../../../utils/validate';
 import {populateResourceListWithAssignedTags} from '../../assignedItems/getAssignedItems';
 import {BaseContextType} from '../../contexts/types';
 import {fileListExtractor} from '../../files/utils';
 import {PaginationQuery} from '../../types';
-import {applyDefaultEndpointPaginationOptions, getEndpointPageFromInput} from '../../utils';
+import {
+  applyDefaultEndpointPaginationOptions,
+  getEndpointPageFromInput,
+} from '../../utils';
 import {folderListExtractor} from '../utils';
 import {ListFolderContentEndpoint} from './types';
 import {getWorkspaceAndParentFolder, listFolderContentQuery} from './utils';
@@ -64,7 +71,10 @@ async function fetchFolders(
     AppResourceType.Folder,
     parentFolder
   );
-  return await context.semantic.folder.getManyByWorkspaceParentAndIdList(query, pagination);
+  return await context.semantic.folder.getManyByWorkspaceParentAndIdList(
+    query,
+    pagination
+  );
 }
 
 async function fetchFiles(

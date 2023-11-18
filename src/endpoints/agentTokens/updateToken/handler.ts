@@ -1,14 +1,20 @@
 import {omit} from 'lodash';
 import {AgentToken} from '../../../definitions/agentToken';
-import {AppActionType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
-import {getActionAgentFromSessionAgent, tryGetAgentTokenId} from '../../../utils/sessionUtils';
+import {
+  getActionAgentFromSessionAgent,
+  tryGetAgentTokenId,
+} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {tryGetWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists';
-import {assertAgentToken, checkAgentTokenAuthorization02, getPublicAgentToken} from '../utils';
+import {
+  assertAgentToken,
+  checkAgentTokenAuthorization02,
+  getPublicAgentToken,
+} from '../utils';
 import {UpdateAgentTokenEndpoint} from './types';
 import {updateAgentTokenJoiSchema} from './validation';
 
@@ -17,13 +23,13 @@ const updateAgentToken: UpdateAgentTokenEndpoint = async (context, instData) => 
   const agent = await context.session.getAgent(context, instData);
   const {workspace} = await tryGetWorkspaceFromEndpointInput(context, agent, data);
   const tokenId = tryGetAgentTokenId(agent, data.tokenId, data.onReferenced);
-  let {token} = await checkAgentTokenAuthorization02(
+  const {token} = await checkAgentTokenAuthorization02(
     context,
     agent,
     workspace?.resourceId,
     tokenId,
     data.providedResourceId,
-    AppActionType.Update
+    'updateAgentToken'
   );
 
   const updatedToken = await context.semantic.utils.withTxn(context, async opts => {
@@ -52,7 +58,11 @@ const updateAgentToken: UpdateAgentTokenEndpoint = async (context, instData) => 
   });
 
   appAssert(updatedToken.workspaceId);
-  const agentToken = await populateAssignedTags(context, updatedToken.workspaceId, updatedToken);
+  const agentToken = await populateAssignedTags(
+    context,
+    updatedToken.workspaceId,
+    updatedToken
+  );
   return {token: getPublicAgentToken(context, agentToken)};
 };
 

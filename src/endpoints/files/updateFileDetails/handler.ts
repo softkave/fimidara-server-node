@@ -1,5 +1,5 @@
 import {omit} from 'lodash';
-import {AppActionType, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
+import {PERMISSION_AGENT_TYPES} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {objectHasData} from '../../../utils/fns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
@@ -19,7 +19,7 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (context, instData) =
   const data = validate(instData.data, updateFileDetailsJoiSchema);
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
   let file = await context.semantic.utils.withTxn(context, async opts => {
-    let {file} = await checkFileAuthorization02(context, agent, data, AppActionType.Update, opts);
+    let {file} = await checkFileAuthorization02(context, agent, data, 'updateFile', opts);
 
     if (objectHasData(omit(data.file, 'tags'))) {
       const updatedFile = await context.semantic.file.getAndUpdateOneById(

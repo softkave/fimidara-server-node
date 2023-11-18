@@ -98,7 +98,7 @@ describe('readFile', () => {
     await insertPermissionItemsForTest(context, userToken, workspace.resourceId, {
       target: {targetId: folder.resourceId, targetType: AppResourceType.File},
       action: AppActionType.Read,
-      grantAccess: true,
+      access: true,
       appliesTo: PermissionItemAppliesTo.ChildrenOfType,
       entity: {entityId: workspace.publicPermissionGroupId},
     });
@@ -126,7 +126,7 @@ describe('readFile', () => {
     await insertPermissionItemsForTest(context, userToken, workspace.resourceId, {
       target: {targetId: file.resourceId},
       action: AppActionType.Read,
-      grantAccess: true,
+      access: true,
       appliesTo: PermissionItemAppliesTo.Self,
       entity: {entityId: workspace.publicPermissionGroupId},
     });

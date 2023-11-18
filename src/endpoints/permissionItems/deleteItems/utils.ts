@@ -1,12 +1,17 @@
 import {flatten, forEach} from 'lodash';
+import {Promise} from 'mongoose';
 import {File} from '../../../definitions/file';
 import {PermissionItem} from '../../../definitions/permissionItem';
-import {AppResourceType, ResourceWrapper, SessionAgent} from '../../../definitions/system';
+import {
+  AppResourceType,
+  ResourceWrapper,
+  SessionAgent,
+} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
-import {extractResourceIdList, isObjectEmpty, toNonNullableArray} from '../../../utils/fns';
+import {extractResourceIdList, isObjectEmpty, toArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {GetTypeFromTypeOrArray} from '../../../utils/types';
-import {DataQuery, LiteralDataQuery} from '../../contexts/data/types';
+import {DataQuery} from '../../contexts/data/types';
 import {getInAndNinQuery} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {folderConstants} from '../../folders/constants';
@@ -25,7 +30,7 @@ export const INTERNAL_deletePermissionItems = async (
 
   // Extract out targets
   data.items?.forEach(item => {
-    if (item.target) inputTargets = inputTargets.concat(toNonNullableArray(item.target));
+    if (item.target) inputTargets = inputTargets.concat(toArray(item.target));
   });
 
   // Fetch targets
@@ -52,25 +57,27 @@ export const INTERNAL_deletePermissionItems = async (
     resourceType: AppResourceType.Workspace,
   };
 
-  const getTargets = (target: GetTypeFromTypeOrArray<DeletePermissionItemInput['target']>) => {
-    let targets: Record<string, ResourceWrapper> = {};
+  const getTargets = (
+    target: GetTypeFromTypeOrArray<DeletePermissionItemInput['target']>
+  ) => {
+    const targets: Record<string, ResourceWrapper> = {};
 
     // TODO: should we throw error when some targets are not found?
     if (target.targetId) {
-      toNonNullableArray(target.targetId).forEach(targetId => {
+      toArray(target.targetId).forEach(targetId => {
         if (targetsMapById[targetId]) targets[targetId] = targetsMapById[targetId];
       });
     }
 
     if (target.folderpath) {
-      toNonNullableArray(target.folderpath).forEach(folderpath => {
+      toArray(target.folderpath).forEach(folderpath => {
         const folder = targetsMapByNamepath[folderpath];
         if (folder) targets[folder.resourceId] = folder;
       });
     }
 
     if (target.filepath) {
-      toNonNullableArray(target.filepath).forEach(filepath => {
+      toArray(target.filepath).forEach(filepath => {
         const file = targetsMapByNamepath[filepath];
         if (file) targets[file.resourceId] = file;
       });
@@ -83,90 +90,45 @@ export const INTERNAL_deletePermissionItems = async (
     return targets;
   };
 
-  // Maps entity IDs to targets (target ID and target type), and targets to the
-  // input permission items to be deleted. We use this to build queries of
-  // permission items to be deleted. When target ID is present in the item, we
-  // delete permission items with the combination of target ID and or target
-  // type, and when only target type is present, we delete permission items with
-  // that target type irrespective of the target ID.
-  const entityIdMap: Record<
-    /** entity ID */ string,
-    {
-      targetsMap: Record<
-        /** target ID */ string,
-        {
-          resource: ResourceWrapper;
-          item: DeletePermissionItemInput;
-          targetType: AppResourceType | AppResourceType[];
-        }
-      >;
-      targetTypesMap: Record</** target type */ string, {item: DeletePermissionItemInput}>;
-    }
-  > = {};
+  const resolvedInputsMap: {
+    targetsMap: Record<
+      /** target ID */ string,
+      {resource: ResourceWrapper; item: DeletePermissionItemInput}
+    >;
+    targetTypesMap: Record</** target type */ string, {item: DeletePermissionItemInput}>;
+  } = {targetsMap: {}, targetTypesMap: {}};
 
   const insertIntoContainerTargetsMap = (
-    entity: string | string[],
     resource: ResourceWrapper,
     targetType: AppResourceType | AppResourceType[] | undefined,
     item: DeletePermissionItemInput
   ) => {
-    toNonNullableArray(entity).forEach(entityId => {
-      let outerMap = entityIdMap[entityId];
-
-      if (!outerMap) {
-        entityIdMap[entityId] = outerMap = {
-          targetsMap: {},
-          targetTypesMap: {},
-        };
-      }
-
-      outerMap.targetsMap[resource.resourceId] = {
-        resource,
-        item,
-        targetType: targetType ?? [resource.resourceType],
-      };
-    });
+    resolvedInputsMap.targetsMap[resource.resourceId] = {
+      resource,
+      item,
+    };
   };
 
   const insertIntoContainerTargetTypesMap = (
-    entity: string | string[],
     targetType: string,
     item: DeletePermissionItemInput
   ) => {
-    toNonNullableArray(entity).forEach(entityId => {
-      let outerMap = entityIdMap[entityId];
-      if (!outerMap)
-        entityIdMap[entityId] = outerMap = {
-          targetsMap: {},
-          targetTypesMap: {},
-        };
-      outerMap.targetTypesMap[targetType] = {item};
-    });
+    resolvedInputsMap.targetTypesMap[targetType] = {item};
   };
 
   if (data.items) {
     data.items.forEach(item => {
-      // Default to global entity if not present in item
-      if (!item.entity) item.entity = data.entity;
-
-      const targets = toNonNullableArray(item.target ?? []);
-      toNonNullableArray(targets).forEach(target => {
+      const targets = toArray(item.target ?? []);
+      targets.forEach(target => {
         const itemTargetsMap = getTargets(target);
 
         if (!isObjectEmpty(itemTargetsMap)) {
           forEach(itemTargetsMap, targetResource => {
-            if (item.entity)
-              insertIntoContainerTargetsMap(
-                item.entity.entityId,
-                targetResource,
-                target.targetType,
-                item
-              );
+            insertIntoContainerTargetsMap(targetResource, target.targetType, item);
           });
         } else if (target.targetType) {
-          toNonNullableArray(target.targetType).forEach(targetType => {
-            if (item.entity)
-              insertIntoContainerTargetTypesMap(item.entity.entityId, targetType, item);
+          toArray(target.targetType).forEach(targetType => {
+            insertIntoContainerTargetTypesMap(targetType, item);
           });
         }
       });
@@ -175,43 +137,31 @@ export const INTERNAL_deletePermissionItems = async (
 
   const queries: DataQuery<PermissionItem>[] = [];
 
-  forEach(entityIdMap, (outerMap, entityId) => {
-    const targets = Object.values(outerMap.targetsMap);
-    targets.forEach(targetEntry => {
-      const query: DataQuery<PermissionItem> = {
-        entityId,
-        targetId: targetEntry.resource.resourceId,
-        ...getInAndNinQuery<PermissionItem>('appliesTo', targetEntry.item.appliesTo),
-        ...getInAndNinQuery<PermissionItem>('grantAccess', targetEntry.item.grantAccess),
-        ...getInAndNinQuery<PermissionItem>('action', targetEntry.item.action),
-        ...getInAndNinQuery<PermissionItem>('targetType', targetEntry.targetType),
-      };
-      queries.push(query);
-    });
+  forEach(resolvedInputsMap.targetsMap, targetEntry => {
+    const query: DataQuery<PermissionItem> = {
+      targetId: targetEntry.resource.resourceId,
+      ...getInAndNinQuery<PermissionItem>('access', targetEntry.item.access),
+      ...getInAndNinQuery<PermissionItem>('action', targetEntry.item.action),
+      ...getInAndNinQuery<PermissionItem>('entityId', targetEntry.item.entityId),
+    };
+    queries.push(query);
+  });
 
-    forEach(outerMap.targetTypesMap, ({item}, targetType) => {
-      const query: DataQuery<PermissionItem> = {
-        entityId,
-        targetType: targetType as AppResourceType,
-        ...getInAndNinQuery<PermissionItem>('appliesTo', item.appliesTo),
-        ...getInAndNinQuery<PermissionItem>('grantAccess', item.grantAccess),
-        ...getInAndNinQuery<PermissionItem>('action', item.action),
-      };
-      queries.push(query);
-    });
+  forEach(resolvedInputsMap.targetTypesMap, ({item}, targetType) => {
+    const query: DataQuery<PermissionItem> = {
+      targetType: targetType as AppResourceType,
+      ...getInAndNinQuery<PermissionItem>('access', item.access),
+      ...getInAndNinQuery<PermissionItem>('action', item.action),
+      ...getInAndNinQuery<PermissionItem>('entityId', item.entityId),
+    };
+    queries.push(query);
   });
 
   if (!queries.length) {
-    if (data.entity) {
-      const entityId = toNonNullableArray(data.entity.entityId);
-
-      if (entityId.length) {
-        const query: LiteralDataQuery<PermissionItem> = {entityId: {$in: entityId}};
-        queries.push(query);
-      }
-    }
+    return;
   }
 
+  // TODO: deleting one after the other may not be the best way to go here
   const result = await Promise.all(
     queries.map(query => context.semantic.permissionItem.getManyByQuery(query))
   );

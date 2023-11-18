@@ -1,7 +1,6 @@
-import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {AddPermissionItemsEndpoint} from './types';
 import {INTERNAL_addPermissionItems} from './utils';
@@ -12,13 +11,12 @@ const addPermissionItems: AddPermissionItemsEndpoint = async (context, instData)
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = await getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(context, workspaceId);
-  await checkAuthorization({
+  await checkAuthorizationWithAgent({
     context,
     agent,
     workspace,
     workspaceId: workspace.resourceId,
-    action: AppActionType.Create,
-    targets: {targetType: AppResourceType.PermissionItem},
+    target: {targetId: workspace.resourceId, action: 'updatePermission'},
   });
   await context.semantic.utils.withTxn(
     context,

@@ -1,4 +1,3 @@
-import {AppActionType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {tryGetAgentTokenId} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
@@ -19,7 +18,7 @@ const getAgentToken: GetAgentTokenEndpoint = async (context, instData) => {
     workspace?.resourceId,
     tokenId,
     data.providedResourceId,
-    AppActionType.Read
+    'readAgentToken'
   );
   appAssert(token.workspaceId);
   token = await populateAssignedTags(context, token.workspaceId, token);

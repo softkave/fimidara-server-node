@@ -1,4 +1,4 @@
-import {AppActionType, AppResourceType} from '../../../definitions/system';
+import {AppResourceType} from '../../../definitions/system';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {enqueueDeleteResourceJob} from '../../jobs/runner';
@@ -15,7 +15,7 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async (context, instData)
     agent,
     workspaceId,
     data.collaboratorId,
-    AppActionType.Delete
+    'removeCollaborator'
   );
   const job = await enqueueDeleteResourceJob(context, {
     type: AppResourceType.User,

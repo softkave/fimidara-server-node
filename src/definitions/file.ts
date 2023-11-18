@@ -1,4 +1,5 @@
-import {AppActionType, ConvertAgentToPublicAgent, WorkspaceResource} from './system';
+import {PermissionAction} from './permissionItem';
+import {ConvertAgentToPublicAgent, WorkspaceResource} from './system';
 
 export interface File extends WorkspaceResource {
   parentId: string | null;
@@ -28,7 +29,7 @@ export interface FilePresignedPath extends WorkspaceResource {
   usageCount?: number;
   spentUsageCount: number;
   expiresAt?: number;
-  action: AppActionType[];
+  action: PermissionAction[];
 
   // TODO: should we add description?
   // description?: string

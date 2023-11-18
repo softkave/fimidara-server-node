@@ -34,7 +34,7 @@ export async function expectEntityHavePermissionsTargetingId(
     toArray(entityId).forEach(nextEntityId => {
       toArray(action).forEach(nextAction => {
         const key = makeKey([nextEntityId, nextAction, nextTargetId]);
-        expect(map[key].grantAccess).toBe(access);
+        expect(map[key].access).toBe(access);
       });
     });
   });

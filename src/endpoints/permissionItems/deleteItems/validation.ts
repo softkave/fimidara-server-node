@@ -19,23 +19,24 @@ const target = Joi.object<DeletePermissionItemInputTarget>().keys({
 });
 
 const itemInput = Joi.object<DeletePermissionItemInput>().keys({
-  entity: permissionItemValidationSchemas.entity,
+  entityId: permissionItemValidationSchemas.entity,
   target: Joi.alternatives().try(
     target,
     Joi.array().items(target).max(endpointConstants.inputListMax)
   ),
   action: validationSchemas.crudActionOrList,
-  grantAccess: Joi.alternatives().try(Joi.boolean(), Joi.array().items(Joi.boolean()).max(2)),
+  access: Joi.alternatives().try(Joi.boolean(), Joi.array().items(Joi.boolean()).max(2)),
   appliesTo: permissionItemValidationSchemas.appliesToOrList,
 });
 
-export const deletePermissionItemsJoiSchema = Joi.object<DeletePermissionItemsEndpointParams>()
-  .keys({
-    workspaceId: validationSchemas.resourceId,
-    entity: permissionItemValidationSchemas.entity,
-    items: Joi.array()
-      .items(itemInput)
-      .max(permissionItemConstants.maxPermissionItemsPerRequest)
-      .required(),
-  })
-  .required();
+export const deletePermissionItemsJoiSchema =
+  Joi.object<DeletePermissionItemsEndpointParams>()
+    .keys({
+      workspaceId: validationSchemas.resourceId,
+      entity: permissionItemValidationSchemas.entity,
+      items: Joi.array()
+        .items(itemInput)
+        .max(permissionItemConstants.maxPermissionItemsPerRequest)
+        .required(),
+    })
+    .required();

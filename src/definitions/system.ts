@@ -23,7 +23,6 @@ export interface BaseTokenData<Sub extends TokenSubjectDefault = TokenSubjectDef
 
 export interface Agent {
   agentId: string;
-
   /**
    * One of user token, program token, client token, system or public.
    */
@@ -79,7 +78,10 @@ export const PERMISSION_ENTITY_TYPES = [
   AppResourceType.PermissionGroup,
 ];
 
-export const PERMISSION_CONTAINER_TYPES = [AppResourceType.Workspace, AppResourceType.Folder];
+export const PERMISSION_CONTAINER_TYPES = [
+  AppResourceType.Workspace,
+  AppResourceType.Folder,
+];
 
 export function getWorkspaceResourceTypeList() {
   return [
@@ -98,39 +100,6 @@ export function getWorkspaceResourceTypeList() {
 }
 
 export const VALID_AGENT_TYPES = [AppResourceType.User, AppResourceType.AgentToken];
-
-export enum AppActionType {
-  All = '*',
-  Create = 'create',
-  Read = 'read',
-  Update = 'update',
-  Delete = 'delete',
-
-  /** For assigning permission groups. */
-  GrantPermission = 'grantPermission',
-}
-
-export function getWorkspaceActionList() {
-  return [
-    AppActionType.All,
-    AppActionType.Create,
-    AppActionType.Read,
-    AppActionType.Update,
-    AppActionType.Delete,
-    AppActionType.GrantPermission,
-  ];
-}
-
-export function getNonWorkspaceActionList() {
-  return [
-    AppActionType.All,
-    AppActionType.Create,
-    AppActionType.Read,
-    AppActionType.Update,
-    AppActionType.Delete,
-  ];
-}
-
 export const APP_RESOURCE_TYPE_LIST = Object.values(AppResourceType);
 
 export interface AppRuntimeState extends Resource {

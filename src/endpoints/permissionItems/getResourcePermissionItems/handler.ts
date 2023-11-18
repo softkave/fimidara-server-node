@@ -26,7 +26,7 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
     workspace,
     workspaceId: workspace.resourceId,
     action: AppActionType.Read,
-    targets: {targetType: AppResourceType.PermissionItem},
+    target: {targetType: AppResourceType.PermissionItem},
   });
 
   const targets = await getPermissionItemTargets(context, agent, workspace, data.target);

@@ -38,22 +38,28 @@ describe.skip('getEntityPermissionitems', () => {
       userToken,
       workspace.resourceId
     );
-    const {items} = await insertPermissionItemsForTest(context, userToken, workspace.resourceId, [
-      {
-        entity: {entityId: permissionGroup.resourceId},
-        target: {targetType: AppResourceType.File, targetId: workspace.resourceId},
-        grantAccess: true,
-        action: AppActionType.Read,
-        appliesTo: PermissionItemAppliesTo.ChildrenOfType,
-      },
-    ]);
-    const instData = RequestData.fromExpressRequest<GetEntityPermissionItemsEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {
-        workspaceId: workspace.resourceId,
-        entityId: permissionGroup.resourceId,
-      }
+    const {items} = await insertPermissionItemsForTest(
+      context,
+      userToken,
+      workspace.resourceId,
+      [
+        {
+          entity: {entityId: permissionGroup.resourceId},
+          target: {targetType: AppResourceType.File, targetId: workspace.resourceId},
+          access: true,
+          action: AppActionType.Read,
+          appliesTo: PermissionItemAppliesTo.ChildrenOfType,
+        },
+      ]
     );
+    const instData =
+      RequestData.fromExpressRequest<GetEntityPermissionItemsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          workspaceId: workspace.resourceId,
+          entityId: permissionGroup.resourceId,
+        }
+      );
     const result = await getEntityPermissionItems(context, instData);
     assertEndpointResultOk(result);
     expect(result.items).toEqual(items);

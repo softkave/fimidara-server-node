@@ -1,6 +1,6 @@
 import {omit} from 'lodash';
 import {Folder} from '../../../definitions/folder';
-import {AppActionType, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
+import {PERMISSION_AGENT_TYPES} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
@@ -17,7 +17,7 @@ const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
       context,
       agent,
       data,
-      AppActionType.Update,
+      'updateFolder',
       /** workspace */ undefined,
       opts
     );

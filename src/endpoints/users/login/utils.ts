@@ -37,7 +37,11 @@ export async function getUserClientAssignedToken(
   userId: string,
   opts: SemanticDataAccessProviderMutationRunOptions
 ) {
-  appAssert(context.appVariables.appWorkspaceId, new ServerError(), 'App workspace ID not set.');
+  appAssert(
+    context.appVariables.appWorkspaceId,
+    new ServerError(),
+    'App workspace ID not set.'
+  );
   appAssert(
     context.appVariables.appWorkspacesImageUploadPermissionGroupId,
     new ServerError(),
@@ -73,7 +77,10 @@ export async function getUserClientAssignedToken(
         SYSTEM_SESSION_AGENT,
         context.appVariables.appWorkspaceId,
         [
-          {permissionGroupId: context.appVariables.appWorkspacesImageUploadPermissionGroupId},
+          {
+            permissionGroupId:
+              context.appVariables.appWorkspacesImageUploadPermissionGroupId,
+          },
           {permissionGroupId: context.appVariables.appUsersImageUploadPermissionGroupId},
         ],
         token.resourceId,

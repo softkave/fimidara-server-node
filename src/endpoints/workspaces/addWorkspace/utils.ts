@@ -1,5 +1,8 @@
 import {PermissionGroup} from '../../../definitions/permissionGroups';
-import {PermissionItem, PermissionItemAppliesTo} from '../../../definitions/permissionItem';
+import {
+  PermissionItem,
+  PermissionItemAppliesTo,
+} from '../../../definitions/permissionItem';
 import {
   Agent,
   AppActionType,
@@ -32,7 +35,7 @@ function generateAdminPermissions(
         targetParentType: AppResourceType.Workspace,
         targetId: workspace.resourceId,
         targetType: AppResourceType.All,
-        grantAccess: true,
+        access: true,
         appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
       }
     );
@@ -67,7 +70,7 @@ function generateCollaboratorPermissions(
           targetType: targetType,
           entityId: permissiongroup.resourceId,
           entityType: AppResourceType.PermissionGroup,
-          grantAccess: true,
+          access: true,
         }
       );
       return item;
@@ -81,7 +84,10 @@ function generateCollaboratorPermissions(
     PermissionItemAppliesTo.Self
   );
 
-  const readResourceTypes: AppResourceType[] = [AppResourceType.AgentToken, AppResourceType.User];
+  const readResourceTypes: AppResourceType[] = [
+    AppResourceType.AgentToken,
+    AppResourceType.User,
+  ];
   const createReadUpdateResourceTypes: AppResourceType[] = [
     AppResourceType.File,
     AppResourceType.Folder,
@@ -112,7 +118,10 @@ function generateCollaboratorPermissions(
   return permissionItems;
 }
 
-export function generateDefaultWorkspacePermissionGroups(agent: Agent, workspace: Workspace) {
+export function generateDefaultWorkspacePermissionGroups(
+  agent: Agent,
+  workspace: Workspace
+) {
   const createdAt = getTimestamp();
   const adminPermissionGroup: PermissionGroup = {
     createdAt,
@@ -122,7 +131,8 @@ export function generateDefaultWorkspacePermissionGroups(agent: Agent, workspace
     workspaceId: workspace.resourceId,
     createdBy: agent,
     name: DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
-    description: 'Auto-generated permission group with access to every resource in this workspace.',
+    description:
+      'Auto-generated permission group with access to every resource in this workspace.',
   };
   const publicPermissionGroup: PermissionGroup = {
     createdAt,
@@ -147,7 +157,11 @@ export function generateDefaultWorkspacePermissionGroups(agent: Agent, workspace
     description:
       'Auto-generated permission group for collaborators. Open permission group to see permissions.',
   };
-  const permissionItems = generateAdminPermissions(agent, workspace, adminPermissionGroup).concat(
+  const permissionItems = generateAdminPermissions(
+    agent,
+    workspace,
+    adminPermissionGroup
+  ).concat(
     generateCollaboratorPermissions(agent, workspace, collaboratorPermissionGroup)
   );
   return {

@@ -7,7 +7,11 @@ import fileValidationSchemas from '../files/validation';
 import folderValidationSchemas from '../folders/validation';
 import workspaceValidationSchemas from '../workspaces/validation';
 import {permissionItemConstants} from './constants';
-import {PermissionItemInput, PermissionItemInputEntity, PermissionItemInputTarget} from './types';
+import {
+  PermissionItemInput,
+  PermissionItemInputEntity,
+  PermissionItemInputTarget,
+} from './types';
 
 const targetId = validationSchemas.resourceId;
 const targetType = Joi.string().valid(...getWorkspaceResourceTypeList());
@@ -34,7 +38,9 @@ const targetParts = {
   ),
   folderpath: Joi.alternatives().try(
     folderValidationSchemas.folderpath,
-    Joi.array().items(folderValidationSchemas.folderpath).max(endpointConstants.inputListMax)
+    Joi.array()
+      .items(folderValidationSchemas.folderpath)
+      .max(endpointConstants.inputListMax)
   ),
   filepath: Joi.alternatives().try(
     fileValidationSchemas.fileMatcherParts.filepath,
@@ -68,7 +74,7 @@ const itemInput = Joi.object<PermissionItemInput>().keys({
   entity,
   target: targetOrList.required(),
   action: validationSchemas.crudActionOrList.required(),
-  grantAccess: Joi.boolean().required(),
+  access: Joi.boolean().required(),
   appliesTo: appliesToOrList,
 });
 const itemInputList = Joi.array()

@@ -1,22 +1,19 @@
-import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {AppActionType} from '../../../definitions/system';
+import {PermissionAction} from '../../../definitions/permissionItem';
 import {BaseContextType} from '../../contexts/types';
 import {LongRunningJobResult} from '../../jobs/types';
 import {Endpoint} from '../../types';
-import {PermissionItemInputEntity, PermissionItemInputTarget} from '../types';
+import {PermissionItemInputTarget} from '../types';
 
 export type DeletePermissionItemInputTarget = Partial<PermissionItemInputTarget>;
 export type DeletePermissionItemInput = {
   target: DeletePermissionItemInputTarget | DeletePermissionItemInputTarget[];
-  action?: AppActionType | AppActionType[];
-  grantAccess?: boolean | boolean[];
-  appliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
-  entity?: PermissionItemInputEntity;
+  action?: PermissionAction | PermissionAction[];
+  access?: boolean | boolean[];
+  entityId?: string | string[];
 };
 
 export interface DeletePermissionItemsEndpointParams {
   workspaceId?: string;
-  entity?: PermissionItemInputEntity;
   items?: DeletePermissionItemInput[];
 }
 

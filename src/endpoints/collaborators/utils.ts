@@ -1,7 +1,8 @@
-import {AppActionType, SessionAgent} from '../../definitions/system';
+import {PermissionAction} from '../../definitions/permissionItem';
+import {SessionAgent} from '../../definitions/system';
 import {PublicCollaborator, UserWithWorkspace} from '../../definitions/user';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
-import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
@@ -28,7 +29,10 @@ export const collaboratorExtractor = (item: UserWithWorkspace, workspaceId: stri
   return collaborator;
 };
 
-export const collaboratorListExtractor = (items: UserWithWorkspace[], workspaceId: string) => {
+export const collaboratorListExtractor = (
+  items: UserWithWorkspace[],
+  workspaceId: string
+) => {
   return items.map(item => collaboratorExtractor(item, workspaceId));
 };
 
@@ -37,7 +41,7 @@ export async function checkCollaboratorAuthorization(
   agent: SessionAgent,
   workspaceId: string,
   collaborator: UserWithWorkspace,
-  action: AppActionType,
+  action: PermissionAction,
   opts?: SemanticDataAccessProviderRunOptions
 ) {
   const userWorkspace = getCollaboratorWorkspace(collaborator, workspaceId);
@@ -46,14 +50,13 @@ export async function checkCollaboratorAuthorization(
   }
 
   const workspace = await checkWorkspaceExists(context, workspaceId);
-  await checkAuthorization({
+  await checkAuthorizationWithAgent({
     context,
     agent,
-    action,
     opts,
     workspaceId: workspace.resourceId,
     workspace: workspace,
-    targets: {targetId: collaborator.resourceId},
+    target: {action, targetId: collaborator.resourceId},
   });
   return {agent, collaborator, workspace};
 }
@@ -63,12 +66,18 @@ export async function checkCollaboratorAuthorization02(
   agent: SessionAgent,
   workspaceId: string,
   collaboratorId: string,
-  action: AppActionType
+  action: PermissionAction
 ) {
   const user = await context.semantic.user.getOneById(collaboratorId);
   assertUser(user);
   const collaborator = await populateUserWorkspaces(context, user);
-  return checkCollaboratorAuthorization(context, agent, workspaceId, collaborator, action);
+  return checkCollaboratorAuthorization(
+    context,
+    agent,
+    workspaceId,
+    collaborator,
+    action
+  );
 }
 
 export function throwCollaboratorNotFound() {

@@ -1,7 +1,6 @@
 import {last} from 'lodash';
 import {Folder} from '../../../definitions/folder';
 import {
-  AppActionType,
   AppResourceType,
   PERMISSION_AGENT_TYPES,
   SessionAgent,
@@ -13,7 +12,7 @@ import {getNewIdForResource, newWorkspaceResource} from '../../../utils/resource
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {
-  checkAuthorization,
+  checkAuthorizationWithAgent,
   getFilePermissionContainers,
   getWorkspacePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
@@ -46,10 +45,16 @@ export async function createFolderListWithTransaction(
         namePath: {$all: nextNamePath, $size: nextNamePath.length},
       })
     );
-  const existingFolders = await context.semantic.folder.getManyByQueryList(folderQueries, opts);
+  const existingFolders = await context.semantic.folder.getManyByQueryList(
+    folderQueries,
+    opts
+  );
   existingFolders.sort((f1, f2) => f1.namePath.length - f2.namePath.length);
 
-  if (existingFolders.length >= pathWithDetails.itemSplitPath.length && throwOnFolderExists) {
+  if (
+    existingFolders.length >= pathWithDetails.itemSplitPath.length &&
+    throwOnFolderExists
+  ) {
     throw new FolderExistsError();
   }
 
@@ -91,17 +96,18 @@ export async function createFolderListWithTransaction(
 
     // It's okay to check permission after, cause if it fails, it fails the
     // transaction, which reverts the changes.
-    await checkAuthorization({
+    await checkAuthorizationWithAgent({
       context,
       agent,
       workspace,
       opts,
       workspaceId: workspace.resourceId,
-      containerId: cExistingFolder
-        ? getFilePermissionContainers(workspace.resourceId, cExistingFolder, true)
-        : getWorkspacePermissionContainers(workspace.resourceId),
-      targets: {targetType: AppResourceType.Folder},
-      action: AppActionType.Create,
+      target: {
+        action: 'addFolder',
+        targetId: cExistingFolder
+          ? getFilePermissionContainers(workspace.resourceId, cExistingFolder, true)
+          : getWorkspacePermissionContainers(workspace.resourceId),
+      },
     });
   }
 

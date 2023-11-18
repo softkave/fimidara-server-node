@@ -6,13 +6,11 @@ const permissionItemSchema = ensureMongoTypeFields<PermissionItem>({
   ...workspaceResourceSchema,
   entityId: {type: String, index: true},
   entityType: {type: String, index: true},
-  targetParentId: {type: String, index: true},
-  targetParentType: {type: String, index: true},
   targetId: {type: String, index: true},
+  targetParentId: {type: String, index: true},
   targetType: {type: String, index: true},
-  grantAccess: {type: Boolean, index: true},
+  access: {type: Boolean, index: true},
   action: {type: String, index: true},
-  appliesTo: {type: String, index: true},
 });
 
 export type PermissionItemDocument = Document<PermissionItem>;

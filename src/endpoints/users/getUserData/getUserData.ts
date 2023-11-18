@@ -6,11 +6,13 @@ import {GetUserDataEndpoint} from './types';
 
 const getUserData: GetUserDataEndpoint = async (context, instData) => {
   const agent = await context.session.getAgent(context, instData, AppResourceType.User);
-  const [userToken, clientAssignedToken] = await context.semantic.utils.withTxn(context, opts =>
-    Promise.all([
-      getUserToken(context, agent.agentId, opts),
-      getUserClientAssignedToken(context, agent.agentId, opts),
-    ])
+  const [userToken, clientAssignedToken] = await context.semantic.utils.withTxn(
+    context,
+    opts =>
+      Promise.all([
+        getUserToken(context, agent.agentId, opts),
+        getUserClientAssignedToken(context, agent.agentId, opts),
+      ])
   );
   const user = agent.user;
   assertUser(user);

@@ -1,5 +1,5 @@
-import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
-import {AppActionType, AppResourceType} from '../../definitions/system';
+import {PermissionAction} from '../../definitions/permissionItem';
+import {AppResourceType} from '../../definitions/system';
 import {ExportedHttpEndpointWithMddocDefinition} from '../types';
 import {AddPermissionItemsEndpoint} from './addItems/types';
 import {DeletePermissionItemsEndpoint} from './deleteItems/types';
@@ -13,17 +13,11 @@ export interface PermissionItemInputTarget {
   workspaceRootname?: string;
 }
 
-export interface PermissionItemInputEntity {
-  /** Must be user, permission group, or agent token IDs. */
-  entityId: string | string[];
-}
-
 export interface PermissionItemInput {
   target: PermissionItemInputTarget | PermissionItemInputTarget[];
-  action: AppActionType | AppActionType[];
-  grantAccess: boolean;
-  appliesTo?: PermissionItemAppliesTo | PermissionItemAppliesTo[];
-  entity?: PermissionItemInputEntity;
+  action: PermissionAction | PermissionAction[];
+  access: boolean;
+  entityId: string | string[];
 }
 
 export type AddPermissionItemsHttpEndpoint =

@@ -1,24 +1,25 @@
 import {AssignedItem} from '../../../definitions/assignedItem';
-import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {toArray} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
-import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {LiteralDataQuery} from '../../contexts/data/types';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {UnassignPermissionGroupsEndpoint} from './types';
 import {unassignPermissionGroupsJoiSchema} from './validation';
 
-const unassignPermissionGroups: UnassignPermissionGroupsEndpoint = async (context, instData) => {
+const unassignPermissionGroups: UnassignPermissionGroupsEndpoint = async (
+  context,
+  instData
+) => {
   const data = validate(instData.data, unassignPermissionGroupsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
-  await checkAuthorization({
+  await checkAuthorizationWithAgent({
     context,
     agent,
     workspace,
     workspaceId: workspace.resourceId,
-    action: AppActionType.GrantPermission,
-    targets: {targetType: AppResourceType.PermissionGroup},
+    target: {targetId: workspace.resourceId, action: 'updatePermission'},
   });
 
   const queries: LiteralDataQuery<AssignedItem>[] = [];
@@ -30,7 +31,9 @@ const unassignPermissionGroups: UnassignPermissionGroupsEndpoint = async (contex
 
   await context.semantic.utils.withTxn(context, async opts => {
     // TODO: use $or query when we implement $or
-    await Promise.all(queries.map(q => context.semantic.assignedItem.deleteManyByQuery(q, opts)));
+    await Promise.all(
+      queries.map(q => context.semantic.assignedItem.deleteManyByQuery(q, opts))
+    );
   });
 };
 

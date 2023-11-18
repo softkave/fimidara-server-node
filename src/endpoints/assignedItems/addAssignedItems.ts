@@ -139,7 +139,7 @@ export async function addAssignedPermissionGroupList(
       opts,
       workspaceId: workspaceId,
       action: AppActionType.GrantPermission,
-      targets: {targetType: AppResourceType.PermissionGroup},
+      target: {targetType: AppResourceType.PermissionGroup},
     });
   }
 

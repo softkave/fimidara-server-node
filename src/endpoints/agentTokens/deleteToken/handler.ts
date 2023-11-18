@@ -1,4 +1,4 @@
-import {AppActionType, AppResourceType} from '../../../definitions/system';
+import {AppResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {tryGetAgentTokenId} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
@@ -19,7 +19,7 @@ const deleteAgentToken: DeleteAgentTokenEndpoint = async (context, instData) => 
     workspace?.resourceId,
     tokenId,
     data.providedResourceId,
-    AppActionType.Delete
+    'deleteAgentToken'
   );
   appAssert(token.workspaceId);
   const job = await enqueueDeleteResourceJob(context, {

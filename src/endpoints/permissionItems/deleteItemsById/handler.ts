@@ -17,7 +17,7 @@ const deletePermissionItemsById: DeletePermissionItemsByIdEndpoint = async (cont
     workspace,
     workspaceId: workspace.resourceId,
     action: AppActionType.Delete,
-    targets: {targetType: AppResourceType.PermissionItem},
+    target: {targetType: AppResourceType.PermissionItem},
   });
   await context.semantic.utils.withTxn(context, opts =>
     context.semantic.permissionItem.deleteManyByIdList(data.itemIds, opts)

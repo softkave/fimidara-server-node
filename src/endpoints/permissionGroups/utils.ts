@@ -6,7 +6,8 @@ import {
   PublicAssignedPermissionGroupMeta,
   PublicPermissionGroup,
 } from '../../definitions/permissionGroups';
-import {Agent, AppActionType, SessionAgent} from '../../definitions/system';
+import {PermissionAction} from '../../definitions/permissionItem';
+import {Agent, SessionAgent} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
@@ -14,7 +15,7 @@ import {getResourceId} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
 import {reuseableErrors} from '../../utils/reusableErrors';
 import {assertGetWorkspaceIdFromAgent} from '../../utils/sessionUtils';
-import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {
   SemanticDataAccessProviderMutationRunOptions,
   SemanticDataAccessProviderRunOptions,
@@ -32,7 +33,9 @@ const assignedPermissionGroupsFields = getFields<PublicAssignedPermissionGroupMe
   assigneeEntityId: true,
 });
 
-export const assignedPermissionGroupsExtractor = makeExtract(assignedPermissionGroupsFields);
+export const assignedPermissionGroupsExtractor = makeExtract(
+  assignedPermissionGroupsFields
+);
 export const assignedPermissionGroupsListExtractor = makeListExtract(
   assignedPermissionGroupsFields
 );
@@ -41,7 +44,6 @@ const permissionGroupFields = getFields<PublicPermissionGroup>({
   ...workspaceResourceFields,
   name: true,
   description: true,
-  // tags: assignedTagListExtractor,
 });
 
 export const permissionGroupExtractor = makeExtract(permissionGroupFields);
@@ -51,18 +53,17 @@ export async function checkPermissionGroupAuthorization(
   context: BaseContextType,
   agent: SessionAgent,
   permissionGroup: PermissionGroup,
-  action: AppActionType,
+  action: PermissionAction,
   opts?: SemanticDataAccessProviderRunOptions
 ) {
   const workspace = await checkWorkspaceExists(context, permissionGroup.workspaceId);
-  await checkAuthorization({
+  await checkAuthorizationWithAgent({
     context,
     agent,
-    action,
     workspace,
     opts,
     workspaceId: workspace.resourceId,
-    targets: {targetId: permissionGroup.resourceId},
+    target: {action, targetId: permissionGroup.resourceId},
   });
   return {agent, permissionGroup, workspace};
 }
@@ -71,7 +72,7 @@ export async function checkPermissionGroupAuthorization02(
   context: BaseContextType,
   agent: SessionAgent,
   id: string,
-  action: AppActionType
+  action: PermissionAction
 ) {
   const permissionGroup = await context.semantic.permissionGroup.getOneById(id);
   assertPermissionGroup(permissionGroup);
@@ -82,10 +83,11 @@ export async function checkPermissionGroupAuthorization03(
   context: BaseContextType,
   agent: SessionAgent,
   input: PermissionGroupMatcher,
-  action: AppActionType,
+  action: PermissionAction,
   opts?: SemanticDataAccessProviderRunOptions
 ) {
   let permissionGroup: PermissionGroup | null = null;
+
   if (!input.permissionGroupId && !input.name) {
     throw new InvalidRequestError('PermissionGroup ID or name not set');
   }
@@ -117,14 +119,17 @@ export async function checkPermissionGroupsExist(
   const idList = permissionGroupInputs.map(item => item.permissionGroupId);
 
   // TODO: use exists with $or or implement bulk ops
-  const permissionGroups = await context.semantic.permissionGroup.getManyByWorkspaceAndIdList(
-    {workspaceId, resourceIdList: idList},
-    opts
-  );
+  const permissionGroups =
+    await context.semantic.permissionGroup.getManyByWorkspaceAndIdList(
+      {workspaceId, resourceIdList: idList},
+      opts
+    );
 
   if (idList.length !== permissionGroups.length) {
     const map = indexArray(permissionGroups, {indexer: getResourceId});
-    idList.forEach(id => appAssert(map[id], reuseableErrors.permissionGroup.notFound(id)));
+    idList.forEach(id =>
+      appAssert(map[id], reuseableErrors.permissionGroup.notFound(id))
+    );
   }
 }
 

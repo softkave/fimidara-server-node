@@ -2,7 +2,7 @@ import {AppActionType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {checkPermissionEntitiesExist} from '../checkPermissionArtifacts';
-import {getEntityPermissionItemsQuery} from '../getEntityPermissionItems/utils';
+import {doAccessCheckForGetEntityPermissionItems} from '../getEntityPermissionItems/utils';
 import {CountEntityPermissionItemsEndpoint} from './types';
 import {countEntityPermissionItemsJoiSchema} from './validation';
 
@@ -20,7 +20,7 @@ const countEntityPermissionItems: CountEntityPermissionItemsEndpoint = async (
     [data.entityId],
     AppActionType.Read
   );
-  await getEntityPermissionItemsQuery(context, agent, workspace, data);
+  await doAccessCheckForGetEntityPermissionItems(context, agent, workspace, data);
   const count = await context.semantic.permissionItem.countByQuery({
     entityId: data.entityId,
   });

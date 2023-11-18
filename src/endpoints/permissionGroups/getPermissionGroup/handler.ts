@@ -1,4 +1,3 @@
-import {AppActionType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {checkPermissionGroupAuthorization03, permissionGroupExtractor} from '../utils';
@@ -12,7 +11,7 @@ const getPermissionGroup: GetPermissionGroupEndpoint = async (context, instData)
     context,
     agent,
     data,
-    AppActionType.Read
+    'readPermission'
   );
 
   permissionGroup = await populateAssignedTags(
