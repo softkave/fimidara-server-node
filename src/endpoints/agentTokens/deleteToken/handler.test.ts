@@ -42,8 +42,11 @@ test('Agent token deleted', async () => {
 
   const result = await deleteAgentToken(context, instData);
   assertEndpointResultOk(result);
-  await executeJob(context, result.jobId);
-  await waitForJob(context, result.jobId);
+
+  if (result.jobId) {
+    await executeJob(context, result.jobId);
+    await waitForJob(context, result.jobId);
+  }
 
   const deletedTokenExists = await context.semantic.agentToken.existsByQuery(
     EndpointReusableQueries.getByResourceId(token.resourceId)

@@ -4,7 +4,6 @@ import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../db/connection';
 import {getUsageRecordModel} from '../../db/usageRecord';
 import {File} from '../../definitions/file';
-import {AppActionType} from '../../definitions/system';
 import {
   FileUsageRecordArtifact,
   UsageRecordCategory,
@@ -24,7 +23,10 @@ import {
 } from '../../endpoints/contexts/utils';
 import EndpointReusableQueries from '../../endpoints/queries';
 import NoopEmailProviderContext from '../../endpoints/testUtils/context/NoopEmailProviderContext';
-import {generateTestFile, generateTestFiles} from '../../endpoints/testUtils/generateData/file';
+import {
+  generateTestFile,
+  generateTestFiles,
+} from '../../endpoints/testUtils/generateData/file';
 import {
   generateTestUsageThresholdInputMap,
   generateTestWorkspace,
@@ -48,11 +50,18 @@ import {fimidaraConfig} from '../../resources/vars';
 import {PUBLIC_SESSION_AGENT} from '../../utils/agent';
 import {cast} from '../../utils/fns';
 import {FimidaraPipelineNames, pipelineRunInfoFactory} from '../utils';
-import {aggregateRecords, getRecordingMonth, getRecordingYear} from './aggregateUsageRecords';
+import {
+  aggregateRecords,
+  getRecordingMonth,
+  getRecordingYear,
+} from './aggregateUsageRecords';
 
 const contexts: BaseContextType[] = [];
 const connections: Connection[] = [];
-const reqData = RequestData.fromExpressRequest(mockExpressRequestForPublicAgent(), undefined);
+const reqData = RequestData.fromExpressRequest(
+  mockExpressRequestForPublicAgent(),
+  undefined
+);
 const runInfo = pipelineRunInfoFactory({
   job: FimidaraPipelineNames.AggregateUsageRecordsJob,
 });
@@ -94,7 +103,9 @@ async function insertUsageRecordsForFiles(
   workspace: Workspace,
   category: Extract<
     UsageRecordCategory,
-    UsageRecordCategory.Storage | UsageRecordCategory.BandwidthIn | UsageRecordCategory.BandwidthOut
+    | UsageRecordCategory.Storage
+    | UsageRecordCategory.BandwidthIn
+    | UsageRecordCategory.BandwidthOut
   >,
   limit: number,
   exceedLimit = false,
@@ -107,7 +118,10 @@ async function insertUsageRecordsForFiles(
 
   limit = Math.floor(limit);
   let count = 0;
-  const files = generateTestFiles(10, {workspaceId: workspace.resourceId, parentId: null});
+  const files = generateTestFiles(10, {
+    workspaceId: workspace.resourceId,
+    parentId: null,
+  });
   const promises = [];
   let usage = random(1, limit - 1, true);
   let totalUsage = usage;
@@ -121,7 +135,7 @@ async function insertUsageRecordsForFiles(
           context,
           reqData,
           f,
-          AppActionType.Create,
+          'addFile',
           /** artifactMetaInput */ {},
           opts,
           nothrow
@@ -131,7 +145,7 @@ async function insertUsageRecordsForFiles(
           context,
           reqData,
           f,
-          AppActionType.Create,
+          'addFile',
           opts,
           nothrow
         );
@@ -140,7 +154,7 @@ async function insertUsageRecordsForFiles(
           context,
           reqData,
           f,
-          AppActionType.Create,
+          'addFile',
           opts,
           nothrow
         );
@@ -231,7 +245,11 @@ async function checkLocks(
   }
 }
 
-async function checkFailedRecordExistsForFile(connection: Connection, w1: Workspace, f1: File) {
+async function checkFailedRecordExistsForFile(
+  connection: Connection,
+  w1: Workspace,
+  f1: File
+) {
   const model = getUsageRecordModel(connection);
   const failedRecord = await model
     .findOne({
@@ -245,7 +263,9 @@ async function checkFailedRecordExistsForFile(connection: Connection, w1: Worksp
     .exec();
 
   expect(failedRecord).toBeDefined();
-  const a = cast<FileUsageRecordArtifact | undefined>(first(failedRecord?.artifacts)?.artifact);
+  const a = cast<FileUsageRecordArtifact | undefined>(
+    first(failedRecord?.artifacts)?.artifact
+  );
   expect(a).toBeDefined();
   expect(a?.fileId).toBe(f1.resourceId);
   expect(a?.requestId).toBe(reqData.requestId);
@@ -260,7 +280,7 @@ async function assertRecordInsertionFails(
   await expect(async () => {
     assertContext(context);
     await context.semantic.utils.withTxn(context, opts =>
-      insertStorageUsageRecordInput(context, reqData, f1, AppActionType.Create, {}, opts)
+      insertStorageUsageRecordInput(context, reqData, f1, 'addFile', {}, opts)
     );
   }).rejects.toThrow(UsageLimitExceededError);
 
@@ -448,7 +468,12 @@ describe('usage-records-pipeline', () => {
 
     // Setup
     const exceedBy = 100;
-    await insertUsageRecordsForFiles(context, workspace, UsageRecordCategory.Storage, exceedBy);
+    await insertUsageRecordsForFiles(
+      context,
+      workspace,
+      UsageRecordCategory.Storage,
+      exceedBy
+    );
 
     // Run
     await aggregateRecords(connection, runInfo);

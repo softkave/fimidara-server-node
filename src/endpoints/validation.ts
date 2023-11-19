@@ -37,7 +37,8 @@ const numberLiteralOpsSchema = (schema: Joi.Schema) =>
   Joi.object(numberLiteralOps(schema)).unknown(false);
 const fullLiteralOpsSchema = (schema: Joi.Schema) =>
   Joi.object(fullLiteralOps(schema)).unknown(false);
-const objectOpsSchema = (schema: Joi.Schema) => Joi.object(objectOps(schema)).unknown(false);
+const objectOpsSchema = (schema: Joi.Schema) =>
+  Joi.object(objectOps(schema)).unknown(false);
 
 const arrayOps = (schema: Joi.Schema) => ({
   $size: Joi.number().integer(),
@@ -50,7 +51,8 @@ const arrayOps = (schema: Joi.Schema) => ({
       : comparisonOpsSchema(schema),
 });
 
-const arrayOpsSchema = (schema: Joi.Schema) => Joi.object(arrayOps(schema)).unknown(false);
+const arrayOpsSchema = (schema: Joi.Schema) =>
+  Joi.object(arrayOps(schema)).unknown(false);
 const op = (schema: Joi.Schema) =>
   Joi.alternatives().try(
     schema,

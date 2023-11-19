@@ -1,5 +1,6 @@
 import {uniqBy} from 'lodash';
-import {AppActionType, AppResourceType, SessionAgent} from '../../definitions/system';
+import {PermissionAction} from '../../definitions/permissionItem';
+import {AppResourceType, SessionAgent} from '../../definitions/system';
 import {AssignedTagInput} from '../../definitions/tag';
 import {Workspace} from '../../definitions/workspace';
 import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
@@ -12,7 +13,7 @@ export default async function checkTagsExist(
   agent: SessionAgent,
   workspace: Workspace,
   items: Array<AssignedTagInput>,
-  action: AppActionType,
+  action: PermissionAction,
   opts?: SemanticDataAccessProviderRunOptions
 ) {
   const resources = await INTERNAL_getResources({

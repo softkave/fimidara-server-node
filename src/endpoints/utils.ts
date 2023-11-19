@@ -24,15 +24,11 @@ import {reuseableErrors} from '../utils/reusableErrors';
 import {AnyFn, AnyObject} from '../utils/types';
 import RequestData from './RequestData';
 import {endpointConstants} from './constants';
-import {
-  ResolvedTargetChildrenAccessCheck,
-  summarizeAgentPermissionItems,
-} from './contexts/authorizationChecks/checkAuthorizaton';
+import {ResolvedTargetChildrenAccessCheck} from './contexts/authorizationChecks/checkAuthorizaton';
 import {getPage} from './contexts/data/utils';
 import {SemanticDataAccessProviderMutationRunOptions} from './contexts/semantic/types';
 import {BaseContextType, IServerRequest} from './contexts/types';
 import {InvalidRequestError, NotFoundError} from './errors';
-import EndpointReusableQueries from './queries';
 import {
   DeleteResourceCascadeFnHelperFns,
   DeleteResourceCascadeFnsMap,
@@ -200,27 +196,6 @@ export function endpointDecodeURIComponent(component?: any) {
 
 export function getEndpointPageFromInput(p: PaginationQuery, defaultPage = 0): number {
   return defaultTo(getPage(p.page), defaultPage);
-}
-
-export function getWorkspaceResourceListQuery(
-  workspace: Workspace,
-  permissionsSummaryReport: Awaited<ReturnType<typeof summarizeAgentPermissionItems>>
-) {
-  if (permissionsSummaryReport.hasFullOrLimitedAccess) {
-    return EndpointReusableQueries.getByWorkspaceIdAndExcludeResourceIdList(
-      workspace.resourceId,
-      permissionsSummaryReport.deniedResourceIdList
-    );
-  } else if (permissionsSummaryReport.allowedResourceIdList) {
-    return EndpointReusableQueries.getByWorkspaceIdAndResourceIdList(
-      workspace.resourceId,
-      permissionsSummaryReport.allowedResourceIdList
-    );
-  } else if (permissionsSummaryReport.noAccess) {
-    throw new PermissionDeniedError();
-  }
-
-  appAssert(false, new ServerError(), 'Control flow should not get here.');
 }
 
 export function getWorkspaceResourceListQuery00(

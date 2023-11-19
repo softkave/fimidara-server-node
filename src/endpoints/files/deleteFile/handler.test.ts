@@ -45,8 +45,12 @@ test('file deleted', async () => {
     }
   );
   const result = await deleteFile(context, instData);
-  await executeJob(context, result.jobId);
-  await waitForJob(context, result.jobId);
+
+  if (result.jobId) {
+    await executeJob(context, result.jobId);
+    await waitForJob(context, result.jobId);
+  }
+
   assertEndpointResultOk(result);
   await assertFileDeleted(context, file.resourceId);
 });

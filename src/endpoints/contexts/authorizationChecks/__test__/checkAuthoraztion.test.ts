@@ -1,45 +1,37 @@
-import {identity} from 'lodash';
-import {AgentToken} from '../../../../definitions/agentToken';
-import {AppResourceType} from '../../../../definitions/system';
-import {Workspace} from '../../../../definitions/workspace';
+import assert from 'assert';
+import {PermissionAction, PermissionItem} from '../../../../definitions/permissionItem';
 import {SYSTEM_SESSION_AGENT} from '../../../../utils/agent';
-import {appAssert} from '../../../../utils/assertion';
-import {makeWorkspaceAgentTokenAgent} from '../../../../utils/sessionUtils';
+import {toArray} from '../../../../utils/fns';
 import RequestData from '../../../RequestData';
-import {
-  addAssignedPermissionGroupList,
-  assignWorkspaceToUser,
-} from '../../../assignedItems/addAssignedItems';
-import {
-  assignPgListToIdList,
-  toAssignedPgListInput,
-} from '../../../permissionGroups/testUtils';
-import addPermissionItems from '../../../permissionItems/addItems/handler';
-import {AddPermissionItemsEndpointParams} from '../../../permissionItems/addItems/types';
-import {PermissionItemInput} from '../../../permissionItems/types';
-import {generateAndInsertAgentTokenListForTest} from '../../../testUtils/generateData/agentToken';
+import {assignWorkspaceToUser} from '../../../assignedItems/addAssignedItems';
+import {generateAndInsertTestFiles} from '../../../testUtils/generateData/file';
 import {generateAndInsertTestFolders} from '../../../testUtils/generateData/folder';
-import {generateAndInsertPermissionItemListForTest} from '../../../testUtils/generateData/permissionItem';
-import {expectContainsExactly} from '../../../testUtils/helpers/assertion';
+import {
+  generateAndInsertAssignedItemListForTest,
+  generateAndInsertPermissionGroupListForTest,
+} from '../../../testUtils/generateData/permissionGroup';
+import {generatePermissionItemForTest} from '../../../testUtils/generateData/permissionItem';
 import {expectErrorThrown} from '../../../testUtils/helpers/error';
 import {completeTest} from '../../../testUtils/helpers/test';
 import {
   assertContext,
   initTestBaseContext,
-  insertAgentTokenForTest,
-  insertFileForTest,
-  insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../../testUtils/testUtils';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../../users/errors';
+import {SignupEndpointParams} from '../../../users/signup/types';
 import {BaseContextType} from '../../types';
 import {
-  checkAuthorization,
+  checkAuthorizationWithAgent,
   getFilePermissionContainers,
-  getWorkspacePermissionContainers,
+  resolveTargetChildrenAccessCheckWithAgent,
 } from '../checkAuthorizaton';
+
+/**
+ * - returns correct access permission
+ */
 
 let context: BaseContextType | null = null;
 
@@ -51,690 +43,868 @@ afterAll(async () => {
   await completeTest({context});
 });
 
-async function grantEveryPermission(
-  workspace: Workspace,
-  grantedBy: AgentToken,
-  recipientUserId: string
-) {
-  assertContext(context);
-  const items = getWorkspaceActionList().map(
-    (action): PermissionItemInput => ({
-      action: action as AppActionType,
-      access: true,
-      target: {targetType: AppResourceType.All, targetId: workspace.resourceId},
-      entity: {entityId: recipientUserId},
-      appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
-    })
-  );
-  const instData = RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-    mockExpressRequestWithAgentToken(grantedBy),
-    {items, workspaceId: workspace.resourceId}
-  );
-  await addPermissionItems(context, instData);
-}
-
 describe('checkAuthorization', () => {
-  test('auth is granted when agent has permission', async () => {
+  test('check auth with target + entity, access & no access', async () => {
     assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {rawWorkspace} = await insertWorkspaceForTest(context, userToken);
-    const {file} = await insertFileForTest(context, userToken, rawWorkspace);
-    const agent = await context.session.getAgent(
+    const {rawWorkspace} = await generateUserAndWorkspace();
+    const {user: user02, sessionAgent: user02SessionAgent} =
+      await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
+    const [file01, file02, file03] = await generateAndInsertTestFiles(context, 3, {
+      workspaceId: rawWorkspace.resourceId,
+      parentId: null,
+    });
+    await Promise.all([
+      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
+        targetId: file01.resourceId,
+      }),
+      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
+        targetId: file03.resourceId,
+        access: false,
+      }),
+    ]);
+
+    await checkAuthorizationWithAgent({
       context,
-      RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken))
-    );
-    await checkAuthorization({
-      context,
-      agent,
-      target: {targetId: file.resourceId},
-      action: AppActionType.Read,
+      agent: user02SessionAgent,
+      target: {
+        action: 'readFile',
+        targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
+      },
       workspaceId: rawWorkspace.resourceId,
       workspace: rawWorkspace,
-      containerId: getFilePermissionContainers(rawWorkspace.resourceId, file, false),
     });
-  });
-
-  test('auth fails when agent does not have permission', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {userToken: userToken02} = await insertUserForTest(context);
-    const {rawWorkspace: workspace} = await insertWorkspaceForTest(context, userToken);
-    const {file} = await insertFileForTest(context, userToken, workspace);
-    const agent02 = await context.session.getAgent(
-      context,
-      RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken02))
-    );
-
     await expectErrorThrown(async () => {
       assertContext(context);
-      await checkAuthorization({
+      await checkAuthorizationWithAgent({
         context,
-        workspace,
-        workspaceId: workspace.resourceId,
-        agent: agent02,
-        target: {targetId: file.resourceId},
-        action: AppActionType.Read,
-        containerId: getFilePermissionContainers(workspace.resourceId, file, false),
+        agent: user02SessionAgent,
+        target: {
+          action: 'readFile',
+          targetId: getFilePermissionContainers(rawWorkspace.resourceId, file02, true),
+        },
+        workspaceId: rawWorkspace.resourceId,
+        workspace: rawWorkspace,
+      });
+    }, [PermissionDeniedError.name]);
+    await expectErrorThrown(async () => {
+      assertContext(context);
+      await checkAuthorizationWithAgent({
+        context,
+        agent: user02SessionAgent,
+        target: {
+          action: 'readFile',
+          targetId: getFilePermissionContainers(rawWorkspace.resourceId, file03, true),
+        },
+        workspaceId: rawWorkspace.resourceId,
+        workspace: rawWorkspace,
       });
     }, [PermissionDeniedError.name]);
   });
 
-  test('auth passes if action is read and user is not email verified', async () => {
+  test('check auth with target + inherited entity, access & no access', async () => {
     assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {userToken: userToken02, user: user02} = await insertUserForTest(
-      context,
-      /** userInput */ {},
-      /** skipAutoVerifyEmail */ true
-    );
+    const {rawWorkspace} = await generateUserAndWorkspace();
+    const {user: user02, sessionAgent: user02SessionAgent} =
+      await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
+    const [[file01, file02, file03, file04], [pg01, pg02]] = await Promise.all([
+      generateAndInsertTestFiles(context, 3, {
+        workspaceId: rawWorkspace.resourceId,
+        parentId: null,
+      }),
+      generateAndInsertPermissionGroupListForTest(context, 2, {
+        workspaceId: rawWorkspace.resourceId,
+      }),
+    ]);
 
-    const {rawWorkspace: workspace} = await insertWorkspaceForTest(context, userToken);
-    await context.semantic.utils.withTxn(context, opts =>
-      assignWorkspaceToUser(
-        context!,
-        SYSTEM_SESSION_AGENT,
-        workspace.resourceId,
-        user02.resourceId,
-        opts
-      )
-    );
-    const {file} = await insertFileForTest(context, userToken, workspace);
-    const agent02 = await context.session.getAgent(
+    await Promise.all([
+      // Add readFile access to file01 for pg01
+      addPermissions(rawWorkspace.resourceId, pg01.resourceId, 'readFile', {
+        targetId: file01.resourceId,
+      }),
+      // Add readFile access to file02 for pg02
+      addPermissions(rawWorkspace.resourceId, pg02.resourceId, 'readFile', {
+        targetId: file02.resourceId,
+      }),
+      // Add deny readFile access to file04 for pg01
+      addPermissions(rawWorkspace.resourceId, pg02.resourceId, 'readFile', {
+        targetId: file02.resourceId,
+        access: false,
+      }),
+      // Assign pg02 to pg01
+      generateAndInsertAssignedItemListForTest(context, {
+        workspaceId: rawWorkspace.resourceId,
+        assignedItemId: pg02.resourceId,
+        assigneeId: pg01.resourceId,
+      }),
+      // Assign pg01 to user02
+      generateAndInsertAssignedItemListForTest(context, {
+        workspaceId: rawWorkspace.resourceId,
+        assignedItemId: pg01.resourceId,
+        assigneeId: user02.resourceId,
+      }),
+    ]);
+
+    await checkAuthorizationWithAgent({
       context,
-      RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken02))
-    );
-    appAssert(userToken02.separateEntityId);
-    await grantEveryPermission(workspace, userToken, userToken02.separateEntityId);
-    await checkAuthorization({
-      context,
-      workspace,
-      workspaceId: workspace.resourceId,
-      agent: agent02,
-      target: {targetId: file.resourceId},
-      containerId: getFilePermissionContainers(workspace.resourceId, file, false),
-      action: AppActionType.Read,
+      agent: user02SessionAgent,
+      target: {
+        targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
+        action: 'readFile',
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
     });
-  });
-
-  test('auth fails if action is not read and user is not email verified', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {userToken: userToken02, user: user02} = await insertUserForTest(
+    await checkAuthorizationWithAgent({
       context,
-      /** userInput */ {},
-      /** skipAutoVerifyEmail */ true
-    );
-    const {rawWorkspace: workspace} = await insertWorkspaceForTest(context, userToken);
-    await context.semantic.utils.withTxn(context, opts =>
-      assignWorkspaceToUser(
-        context!,
-        SYSTEM_SESSION_AGENT,
-        workspace.resourceId,
-        user02.resourceId,
-        opts
-      )
-    );
-    const {file} = await insertFileForTest(context, userToken, workspace);
-    appAssert(userToken02.separateEntityId);
-    await grantEveryPermission(workspace, userToken, userToken02.separateEntityId);
-    const agent02 = await context.session.getAgent(
-      context,
-      RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken02))
-    );
+      agent: user02SessionAgent,
+      target: {
+        targetId: getFilePermissionContainers(rawWorkspace.resourceId, file02, true),
+        action: 'readFile',
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
+    });
 
     await expectErrorThrown(async () => {
       assertContext(context);
-      await checkAuthorization({
+      await checkAuthorizationWithAgent({
         context,
-        workspace,
-        workspaceId: workspace.resourceId,
-        agent: agent02,
-        target: {targetId: file.resourceId},
-        action: AppActionType.Update,
-        containerId: getFilePermissionContainers(workspace.resourceId, file, false),
+        agent: user02SessionAgent,
+        target: {
+          targetId: getFilePermissionContainers(rawWorkspace.resourceId, file03, true),
+          action: 'readFile',
+        },
+        workspaceId: rawWorkspace.resourceId,
+        workspace: rawWorkspace,
+      });
+    }, [PermissionDeniedError.name]);
+    await expectErrorThrown(async () => {
+      assertContext(context);
+      await checkAuthorizationWithAgent({
+        context,
+        agent: user02SessionAgent,
+        target: {
+          targetId: getFilePermissionContainers(rawWorkspace.resourceId, file04, true),
+          action: 'readFile',
+        },
+        workspaceId: rawWorkspace.resourceId,
+        workspace: rawWorkspace,
+      });
+    }, [PermissionDeniedError.name]);
+  });
+
+  test('check auth with parent + entity, access & no access', async () => {
+    assertContext(context);
+    const {rawWorkspace} = await generateUserAndWorkspace();
+    const {user: user02, sessionAgent: user02SessionAgent} =
+      await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
+    const [folder01, folder02, folder03] = await generateAndInsertTestFolders(
+      context,
+      3,
+      {workspaceId: rawWorkspace.resourceId, parentId: null}
+    );
+    const [[file01], [file02], [file03]] = await Promise.all([
+      generateAndInsertTestFiles(context, 1, {
+        workspaceId: rawWorkspace.resourceId,
+        parentId: folder01.resourceId,
+      }),
+      generateAndInsertTestFiles(context, 1, {
+        workspaceId: rawWorkspace.resourceId,
+        parentId: folder02.resourceId,
+      }),
+      generateAndInsertTestFiles(context, 1, {
+        workspaceId: rawWorkspace.resourceId,
+        parentId: folder03.resourceId,
+      }),
+    ]);
+    await Promise.all([
+      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
+        targetId: folder01.resourceId,
+      }),
+      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
+        targetId: folder03.resourceId,
+        access: false,
+      }),
+    ]);
+
+    await checkAuthorizationWithAgent({
+      context,
+      agent: user02SessionAgent,
+      target: {
+        action: 'readFile',
+        targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
+    });
+    await expectErrorThrown(async () => {
+      assertContext(context);
+      await checkAuthorizationWithAgent({
+        context,
+        agent: user02SessionAgent,
+        target: {
+          action: 'readFile',
+          targetId: getFilePermissionContainers(rawWorkspace.resourceId, file02, true),
+        },
+        workspaceId: rawWorkspace.resourceId,
+        workspace: rawWorkspace,
+      });
+    }, [PermissionDeniedError.name]);
+    await expectErrorThrown(async () => {
+      assertContext(context);
+      await checkAuthorizationWithAgent({
+        context,
+        agent: user02SessionAgent,
+        target: {
+          action: 'readFile',
+          targetId: getFilePermissionContainers(rawWorkspace.resourceId, file03, true),
+        },
+        workspaceId: rawWorkspace.resourceId,
+        workspace: rawWorkspace,
+      });
+    }, [PermissionDeniedError.name]);
+  });
+
+  test('check auth with parent + inherited entity, access & no access', async () => {
+    assertContext(context);
+    const {rawWorkspace} = await generateUserAndWorkspace();
+    const {user: user02, sessionAgent: user02SessionAgent} =
+      await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
+    const [[folder01, folder02, folder03, folder04], [pg01, pg02]] = await Promise.all([
+      generateAndInsertTestFolders(context, 3, {
+        workspaceId: rawWorkspace.resourceId,
+        parentId: null,
+      }),
+      generateAndInsertPermissionGroupListForTest(context, 2, {
+        workspaceId: rawWorkspace.resourceId,
+      }),
+    ]);
+    const [[file01], [file02], [file03], [file04]] = await Promise.all([
+      generateAndInsertTestFiles(context, 1, {
+        workspaceId: rawWorkspace.resourceId,
+        parentId: folder01.resourceId,
+      }),
+      generateAndInsertTestFiles(context, 1, {
+        workspaceId: rawWorkspace.resourceId,
+        parentId: folder02.resourceId,
+      }),
+      generateAndInsertTestFiles(context, 1, {
+        workspaceId: rawWorkspace.resourceId,
+        parentId: folder03.resourceId,
+      }),
+      generateAndInsertTestFiles(context, 1, {
+        workspaceId: rawWorkspace.resourceId,
+        parentId: folder04.resourceId,
+      }),
+    ]);
+    await Promise.all([
+      // Add readFile access to folder01 for pg01
+      addPermissions(rawWorkspace.resourceId, pg01.resourceId, 'readFile', {
+        targetId: folder01.resourceId,
+      }),
+      // Add readFile access to folder02 for pg02
+      addPermissions(rawWorkspace.resourceId, pg02.resourceId, 'readFile', {
+        targetId: folder02.resourceId,
+      }),
+      // Add deny readFile access to folder04 for pg02
+      addPermissions(rawWorkspace.resourceId, pg02.resourceId, 'readFile', {
+        targetId: folder04.resourceId,
+        access: false,
+      }),
+      // Assign pg02 to pg01
+      generateAndInsertAssignedItemListForTest(context, {
+        workspaceId: rawWorkspace.resourceId,
+        assignedItemId: pg02.resourceId,
+        assigneeId: pg01.resourceId,
+      }),
+      // Assign pg01 to user02
+      generateAndInsertAssignedItemListForTest(context, {
+        workspaceId: rawWorkspace.resourceId,
+        assignedItemId: pg01.resourceId,
+        assigneeId: user02.resourceId,
+      }),
+    ]);
+
+    await checkAuthorizationWithAgent({
+      context,
+      agent: user02SessionAgent,
+      target: {
+        action: 'readFile',
+        targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
+    });
+    await checkAuthorizationWithAgent({
+      context,
+      agent: user02SessionAgent,
+      target: {
+        action: 'readFile',
+        targetId: getFilePermissionContainers(rawWorkspace.resourceId, file02, true),
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
+    });
+
+    await expectErrorThrown(async () => {
+      assertContext(context);
+      await checkAuthorizationWithAgent({
+        context,
+        agent: user02SessionAgent,
+        target: {
+          action: 'readFile',
+          targetId: getFilePermissionContainers(rawWorkspace.resourceId, file03, true),
+        },
+        workspaceId: rawWorkspace.resourceId,
+        workspace: rawWorkspace,
+      });
+    }, [PermissionDeniedError.name]);
+    await expectErrorThrown(async () => {
+      assertContext(context);
+      await checkAuthorizationWithAgent({
+        context,
+        agent: user02SessionAgent,
+        target: {
+          action: 'readFile',
+          targetId: getFilePermissionContainers(rawWorkspace.resourceId, file04, true),
+        },
+        workspaceId: rawWorkspace.resourceId,
+        workspace: rawWorkspace,
+      });
+    }, [PermissionDeniedError.name]);
+  });
+
+  test('no throw', async () => {
+    assertContext(context);
+    const {rawWorkspace} = await generateUserAndWorkspace();
+    const {user: user02, sessionAgent: user02SessionAgent} =
+      await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
+    const [file01, file02] = await generateAndInsertTestFiles(context, 2, {
+      workspaceId: rawWorkspace.resourceId,
+      parentId: null,
+    });
+    await Promise.all([
+      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
+        targetId: file01.resourceId,
+      }),
+      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
+        targetId: file02.resourceId,
+        access: false,
+      }),
+    ]);
+
+    const check01 = await checkAuthorizationWithAgent({
+      context,
+      agent: user02SessionAgent,
+      target: {
+        action: 'readFile',
+        targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
+      nothrow: true,
+    });
+    const check02 = await checkAuthorizationWithAgent({
+      context,
+      agent: user02SessionAgent,
+      target: {
+        action: 'readFile',
+        targetId: getFilePermissionContainers(rawWorkspace.resourceId, file02, true),
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
+      nothrow: true,
+    });
+
+    expect(check01.hasAccess).toBeFalsy();
+    expect(check01.item).toBeFalsy();
+    expect(check02.hasAccess).toBeFalsy();
+    expect(check02.item).toBeTruthy();
+  });
+
+  test('wildcard', async () => {
+    assertContext(context);
+    const {rawWorkspace} = await generateUserAndWorkspace();
+    const {user: user02, sessionAgent: user02SessionAgent} =
+      await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
+    const [file01, file03] = await generateAndInsertTestFiles(context, 2, {
+      workspaceId: rawWorkspace.resourceId,
+      parentId: null,
+    });
+    await Promise.all([
+      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'wildcard', {
+        targetId: file01.resourceId,
+      }),
+      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'wildcard', {
+        targetId: file03.resourceId,
+        access: false,
+      }),
+    ]);
+
+    await checkAuthorizationWithAgent({
+      context,
+      agent: user02SessionAgent,
+      target: {
+        action: 'readFile',
+        targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
+    });
+    await expectErrorThrown(async () => {
+      assertContext(context);
+      await checkAuthorizationWithAgent({
+        context,
+        agent: user02SessionAgent,
+        target: {
+          action: 'readFile',
+          targetId: getFilePermissionContainers(rawWorkspace.resourceId, file03, true),
+        },
+        workspaceId: rawWorkspace.resourceId,
+        workspace: rawWorkspace,
+      });
+    }, [PermissionDeniedError.name]);
+  });
+
+  test('entity > inherited entity weight', async () => {
+    assertContext(context);
+    const {rawWorkspace} = await generateUserAndWorkspace();
+    const {user: user02, sessionAgent: user02SessionAgent} =
+      await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
+    const [[file01], [pg01]] = await Promise.all([
+      generateAndInsertTestFiles(context, 1, {
+        workspaceId: rawWorkspace.resourceId,
+        parentId: null,
+      }),
+      generateAndInsertPermissionGroupListForTest(context, 1, {
+        workspaceId: rawWorkspace.resourceId,
+      }),
+    ]);
+
+    await Promise.all([
+      // Add readFile access to file01 for user02
+      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
+        targetId: file01.resourceId,
+      }),
+      // Add deny readFile access to file01 for pg01
+      addPermissions(rawWorkspace.resourceId, pg01.resourceId, 'readFile', {
+        targetId: file01.resourceId,
+        access: false,
+      }),
+      // Assign pg01 to user02
+      generateAndInsertAssignedItemListForTest(context, {
+        workspaceId: rawWorkspace.resourceId,
+        assignedItemId: pg01.resourceId,
+        assigneeId: user02.resourceId,
+      }),
+    ]);
+
+    await checkAuthorizationWithAgent({
+      context,
+      agent: user02SessionAgent,
+      target: {
+        targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
+        action: 'readFile',
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
+    });
+  });
+
+  test('target > parent weight', async () => {
+    assertContext(context);
+    const {rawWorkspace} = await generateUserAndWorkspace();
+    const {user: user02, sessionAgent: user02SessionAgent} =
+      await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
+    const [folder01] = await generateAndInsertTestFolders(context, 1, {
+      workspaceId: rawWorkspace.resourceId,
+      parentId: null,
+    });
+    const [[file01]] = await Promise.all([
+      generateAndInsertTestFiles(context, 1, {
+        workspaceId: rawWorkspace.resourceId,
+        parentId: folder01.resourceId,
+      }),
+    ]);
+    await Promise.all([
+      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
+        targetId: file01.resourceId,
+      }),
+      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
+        targetId: folder01.resourceId,
+        access: false,
+      }),
+    ]);
+
+    await checkAuthorizationWithAgent({
+      context,
+      agent: user02SessionAgent,
+      target: {
+        action: 'readFile',
+        targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
+    });
+  });
+
+  test('date weight', async () => {
+    assertContext(context);
+    const {rawWorkspace} = await generateUserAndWorkspace();
+    const {user: user02, sessionAgent: user02SessionAgent} =
+      await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
+    const [file01] = await generateAndInsertTestFiles(context, 1, {
+      workspaceId: rawWorkspace.resourceId,
+      parentId: null,
+    });
+    // Assign deny permission to file
+    await addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
+      targetId: file01.resourceId,
+      access: false,
+    });
+    // Assign allow permission which should override deny permission
+    await addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
+      targetId: file01.resourceId,
+    });
+
+    await checkAuthorizationWithAgent({
+      context,
+      agent: user02SessionAgent,
+      target: {
+        action: 'readFile',
+        targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
+    });
+  });
+
+  test('agent not verified', async () => {
+    assertContext(context);
+    const {rawWorkspace} = await generateUserAndWorkspace();
+    const {user: user02, sessionAgent: user02SessionAgent} =
+      await generateUserAndAddToWorkspace(rawWorkspace.resourceId, {}, true);
+    const [file01] = await generateAndInsertTestFiles(context, 1, {
+      workspaceId: rawWorkspace.resourceId,
+      parentId: null,
+    });
+    await Promise.all([
+      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
+        targetId: file01.resourceId,
+      }),
+    ]);
+
+    await expectErrorThrown(async () => {
+      assertContext(context);
+      await checkAuthorizationWithAgent({
+        context,
+        agent: user02SessionAgent,
+        target: {
+          action: 'readFile',
+          targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
+        },
+        workspaceId: rawWorkspace.resourceId,
+        workspace: rawWorkspace,
       });
     }, [EmailAddressNotVerifiedError.name]);
   });
 
-  test('auth with appliesTo', async () => {
+  test('resolve target children full access', async () => {
     assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {rawWorkspace: workspace} = await insertWorkspaceForTest(context, userToken);
-    const tokenList = await generateAndInsertAgentTokenListForTest(context, 1, {
-      workspaceId: workspace.resourceId,
-    });
-    const [token01] = tokenList;
-
-    const outerFolders = await generateAndInsertTestFolders(context, 4, {
-      workspaceId: workspace.resourceId,
+    const {rawWorkspace} = await generateUserAndWorkspace();
+    const {user: user02, sessionAgent: user02SessionAgent} =
+      await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
+    const [folder01] = await generateAndInsertTestFolders(context, 1, {
+      workspaceId: rawWorkspace.resourceId,
       parentId: null,
     });
-    const [outerFolder01, outerFolder02, outerFolder03, outerFolder04] = outerFolders;
-    const [[innerFolder01], [innerFolder02]] = await Promise.all([
-      generateAndInsertTestFolders(context, 1, {
-        workspaceId: workspace.resourceId,
-        parentId: outerFolder03.resourceId,
-      }),
-      generateAndInsertTestFolders(context, 1, {
-        workspaceId: workspace.resourceId,
-        parentId: outerFolder04.resourceId,
-      }),
-    ]);
-
     await Promise.all([
-      addPermissionItems(
-        context,
-        RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
-          workspaceId: workspace.resourceId,
-          entity: {entityId: token01.resourceId},
-          items: [],
-        })
-      ),
+      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
+        targetId: folder01.resourceId,
+      }),
     ]);
 
+    const resolveResult = await resolveTargetChildrenAccessCheckWithAgent({
+      context,
+      agent: user02SessionAgent,
+      target: {
+        action: 'readFile',
+        targetId: getFilePermissionContainers(rawWorkspace.resourceId, folder01, true),
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
+    });
+
+    assert(resolveResult.access === 'full');
+    expect(resolveResult.item).toBeTruthy();
+    expect(resolveResult.partialDenyIds.length).toBe(0);
+    expect(resolveResult.partialDenyItems.length).toBe(0);
+  });
+
+  test('resolve target children no access', async () => {
+    assertContext(context);
+    const {rawWorkspace} = await generateUserAndWorkspace();
+    const {user: user02, sessionAgent: user02SessionAgent} =
+      await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
+    const [folder01, folder02] = await generateAndInsertTestFolders(context, 1, {
+      workspaceId: rawWorkspace.resourceId,
+      parentId: null,
+    });
     await Promise.all([
-      generateAndInsertPermissionItemListForTest(context, 1, {
-        workspaceId: workspace.resourceId,
-        entityId: token01.resourceId,
-        targetId: outerFolder01.resourceId,
-        action: AppActionType.Read,
-        access: true,
-        appliesTo: PermissionItemAppliesTo.Self,
-        targetParentId: workspace.resourceId,
-        targetParentType: AppResourceType.Workspace,
-      }),
-      generateAndInsertPermissionItemListForTest(context, 1, {
-        workspaceId: workspace.resourceId,
-        entityId: token01.resourceId,
-        targetId: outerFolder02.resourceId,
-        action: AppActionType.Read,
-        access: true,
-        appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
-        targetParentId: workspace.resourceId,
-        targetParentType: AppResourceType.Workspace,
-      }),
-      generateAndInsertPermissionItemListForTest(context, 1, {
-        workspaceId: workspace.resourceId,
-        entityId: token01.resourceId,
-        targetId: outerFolder03.resourceId,
-        action: AppActionType.Read,
-        access: true,
-        appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
-        targetParentId: workspace.resourceId,
-        targetParentType: AppResourceType.Workspace,
-      }),
-      generateAndInsertPermissionItemListForTest(context, 1, {
-        workspaceId: workspace.resourceId,
-        entityId: token01.resourceId,
-        targetId: outerFolder04.resourceId,
-        action: AppActionType.Read,
-        access: true,
-        appliesTo: PermissionItemAppliesTo.ChildrenOfType,
-        targetParentId: workspace.resourceId,
-        targetParentType: AppResourceType.Workspace,
+      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
+        targetId: folder01.resourceId,
+        access: false,
       }),
     ]);
 
-    const tAgent = makeWorkspaceAgentTokenAgent(token01);
-    await expectErrorThrown(async () => {
-      assertContext(context);
-      await checkAuthorization({
-        context,
-        workspace,
-        workspaceId: workspace.resourceId,
-        agent: tAgent,
-        target: {
-          targetId: outerFolder01.resourceId,
-          targetAppliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
-        },
-        action: AppActionType.Read,
-        containerId: getFilePermissionContainers(
-          workspace.resourceId,
-          outerFolder01,
-          false
-        ),
-      });
-    }, [PermissionDeniedError.name]);
-    await expectErrorThrown(async () => {
-      assertContext(context);
-      await checkAuthorization({
-        context,
-        workspace,
-        workspaceId: workspace.resourceId,
-        agent: tAgent,
-        target: {
-          targetId: outerFolder02.resourceId,
-          targetAppliesTo: PermissionItemAppliesTo.Self,
-        },
-        action: AppActionType.Read,
-        containerId: getFilePermissionContainers(
-          workspace.resourceId,
-          outerFolder02,
-          false
-        ),
-      });
-    }, [PermissionDeniedError.name]);
-    await expectErrorThrown(async () => {
-      assertContext(context);
-      await checkAuthorization({
-        context,
-        workspace,
-        workspaceId: workspace.resourceId,
-        agent: tAgent,
-        target: {
-          targetId: innerFolder01.resourceId,
-          containerAppliesTo: PermissionItemAppliesTo.ChildrenOfType,
-        },
-        action: AppActionType.Read,
-        containerId: getFilePermissionContainers(
-          workspace.resourceId,
-          innerFolder01,
-          false
-        ),
-      });
-    }, [PermissionDeniedError.name]);
-    await expectErrorThrown(async () => {
-      assertContext(context);
-      await checkAuthorization({
-        context,
-        workspace,
-        workspaceId: workspace.resourceId,
-        agent: tAgent,
-        target: {
-          targetId: innerFolder02.resourceId,
-          containerAppliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
-        },
-        action: AppActionType.Read,
-        containerId: getFilePermissionContainers(
-          workspace.resourceId,
-          innerFolder02,
-          false
-        ),
-      });
-    }, [PermissionDeniedError.name]);
+    const resolveResult01 = await resolveTargetChildrenAccessCheckWithAgent({
+      context,
+      agent: user02SessionAgent,
+      target: {
+        action: 'readFile',
+        targetId: getFilePermissionContainers(rawWorkspace.resourceId, folder01, true),
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
+    });
+    const resolveResult02 = await resolveTargetChildrenAccessCheckWithAgent({
+      context,
+      agent: user02SessionAgent,
+      target: {
+        action: 'readFile',
+        targetId: getFilePermissionContainers(rawWorkspace.resourceId, folder02, true),
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
+    });
+
+    assert(resolveResult01.access === 'deny');
+    expect(resolveResult01.item).toBeTruthy();
+
+    assert(resolveResult02.access === 'partial');
+    expect(resolveResult02.item).toBeFalsy();
+    expect(resolveResult02.partialAllowIds.length).toBe(0);
+    expect(resolveResult02.partialAllowItems.length).toBe(0);
   });
 
-  // TODO
-  test.skip('auth passes if access permission outweighs deny permission', async () => {});
-
-  // TODO
-  test.skip('auth fails if deny permission outweighs access permission', async () => {});
-
-  // TODO: why skip? Also check for skip in other tests.
-  test.skip('summarizeAgentPermissionItems with wildcard action', async () => {
+  test('resolve target children partial access', async () => {
     assertContext(context);
-    const {userToken, workspace, pg02, pg03, clientTokenAgent} =
-      await setupForSummarizeAgentPermissionItemsTest();
-    const pg02Items: PermissionItemInput[] = [
-      {
-        action: AppActionType.All,
-        access: true,
-        target: {
-          targetType: AppResourceType.Workspace,
-          targetId: PermissionItemAppliesTo.SelfAndChildrenOfType,
-        },
-        appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
-      },
-    ];
-    const pg03Items: PermissionItemInput[] = [
-      {
-        action: AppActionType.Read,
-        access: false,
-        target: {targetId: workspace.resourceId},
-        appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
-      },
-    ];
+    const {rawWorkspace} = await generateUserAndWorkspace();
+    const {user: user02, sessionAgent: user02SessionAgent} =
+      await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
+    const [folder01] = await generateAndInsertTestFolders(context, 1, {
+      workspaceId: rawWorkspace.resourceId,
+      parentId: null,
+    });
+    const [[file01, file02]] = await Promise.all([
+      generateAndInsertTestFiles(context, 2, {
+        workspaceId: rawWorkspace.resourceId,
+        parentId: folder01.resourceId,
+      }),
+    ]);
     await Promise.all([
-      addPermissionItems(
-        context,
-        RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-          mockExpressRequestWithAgentToken(userToken),
-          {
-            items: pg02Items.concat(pg03Items),
-            workspaceId: workspace.resourceId,
-            entity: {entityId: pg02.resourceId},
-          }
-        )
-      ),
-      addPermissionItems(
-        context,
-        RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-          mockExpressRequestWithAgentToken(userToken),
-          {
-            items: pg02Items.concat(pg03Items),
-            workspaceId: workspace.resourceId,
-            entity: {entityId: pg03.resourceId},
-          }
-        )
-      ),
+      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
+        targetId: file01.resourceId,
+      }),
+      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
+        targetId: file02.resourceId,
+        access: false,
+      }),
     ]);
-    const {
-      hasFullOrLimitedAccess,
-      allowedResourceIdList,
-      deniedResourceIdList,
-      noAccess,
-    } = await summarizeAgentPermissionItems({
+
+    const resolveResult = await resolveTargetChildrenAccessCheckWithAgent({
       context,
-      workspace,
-      workspaceId: workspace.resourceId,
-      agent: clientTokenAgent,
-      target: {targetId: workspace.resourceId},
-      action: AppActionType.Read,
-      containerId: getWorkspacePermissionContainers(workspace.resourceId),
+      agent: user02SessionAgent,
+      target: {
+        action: 'readFile',
+        targetId: getFilePermissionContainers(rawWorkspace.resourceId, folder01, true),
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
     });
-    expect(hasFullOrLimitedAccess).toBeTruthy();
-    expect(noAccess).toBeFalsy();
-    expect(allowedResourceIdList).toHaveLength(0);
-    expect(deniedResourceIdList).toHaveLength(0);
+
+    assert(resolveResult.access === 'partial');
+    expect(resolveResult.item).toBeFalsy();
+    expect(resolveResult.partialAllowIds?.length).toBe(1);
+    expect(resolveResult.partialAllowItems?.length).toBe(1);
+    expect(resolveResult.partialAllowIds).toContain(file02.resourceId);
   });
 
-  test('summarizeAgentPermissionItems with wildcard resource type overrides others', async () => {
+  test('resolve target children partial access with parent deny and some children access', async () => {
     assertContext(context);
-    const {userToken, workspace, pg02, pg03, clientTokenAgent} =
-      await setupForSummarizeAgentPermissionItemsTest();
-
-    const pg02Items: PermissionItemInput[] = [
-      {
-        action: AppActionType.Read,
-        access: true,
-        target: {targetType: AppResourceType.All, targetId: workspace.resourceId},
-        appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
-      },
-    ];
-    const pg03Items: PermissionItemInput[] = [
-      {
-        action: AppActionType.Read,
-        access: false,
-        target: {targetId: workspace.resourceId},
-        appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
-      },
-    ];
-
-    await addPermissionItems(
-      context,
-      RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-        mockExpressRequestWithAgentToken(userToken),
-        {
-          items: pg03Items,
-          workspaceId: workspace.resourceId,
-          entity: {entityId: pg03.resourceId},
-        }
-      )
-    );
-    await addPermissionItems(
-      context,
-      RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-        mockExpressRequestWithAgentToken(userToken),
-        {
-          items: pg02Items,
-          workspaceId: workspace.resourceId,
-          entity: {entityId: pg02.resourceId},
-        }
-      )
-    );
-
-    const {
-      hasFullOrLimitedAccess,
-      allowedResourceIdList,
-      deniedResourceIdList,
-      noAccess,
-    } = await summarizeAgentPermissionItems({
-      context,
-      workspace,
-      workspaceId: workspace.resourceId,
-      agent: clientTokenAgent,
-      target: {targetId: workspace.resourceId},
-      action: AppActionType.Read,
-      containerId: getWorkspacePermissionContainers(workspace.resourceId),
+    const {rawWorkspace} = await generateUserAndWorkspace();
+    const {user: user02, sessionAgent: user02SessionAgent} =
+      await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
+    const [folder01] = await generateAndInsertTestFolders(context, 1, {
+      workspaceId: rawWorkspace.resourceId,
+      parentId: null,
     });
-    expect(hasFullOrLimitedAccess).toBeTruthy();
-    expect(noAccess).toBeFalsy();
-    expect(allowedResourceIdList).toBeFalsy();
-    expect(deniedResourceIdList).toBeFalsy();
-  });
-
-  test('summarizeAgentPermissionItems with target ID', async () => {
-    assertContext(context);
-    const {userToken, workspace, pg02, pg03, clientTokenAgent} =
-      await setupForSummarizeAgentPermissionItemsTest();
-
-    const pg02Items: PermissionItemInput[] = [
-      {
-        action: AppActionType.Read,
-        access: true,
-        target: {targetId: workspace.resourceId},
-        appliesTo: PermissionItemAppliesTo.Self,
-      },
-    ];
-    const pg03Items: PermissionItemInput[] = [
-      {
-        action: AppActionType.Read,
-        access: false,
-        target: {targetType: AppResourceType.Workspace, targetId: workspace.resourceId},
-        appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
-      },
-    ];
-
-    await addPermissionItems(
-      context,
-      RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-        mockExpressRequestWithAgentToken(userToken),
-        {
-          items: pg03Items,
-          workspaceId: workspace.resourceId,
-          entity: {entityId: pg03.resourceId},
-        }
-      )
-    );
-    await addPermissionItems(
-      context,
-      RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-        mockExpressRequestWithAgentToken(userToken),
-        {
-          items: pg02Items,
-          workspaceId: workspace.resourceId,
-          entity: {entityId: pg02.resourceId},
-        }
-      )
-    );
-
-    const {
-      hasFullOrLimitedAccess,
-      allowedResourceIdList,
-      deniedResourceIdList,
-      noAccess,
-    } = await summarizeAgentPermissionItems({
-      context,
-      workspace,
-      workspaceId: workspace.resourceId,
-      agent: clientTokenAgent,
-      target: {targetId: workspace.resourceId},
-      action: AppActionType.Read,
-      containerId: getWorkspacePermissionContainers(workspace.resourceId),
-    });
-    expect(hasFullOrLimitedAccess).toBeFalsy();
-    expect(noAccess).toBeFalsy();
-    expectContainsExactly(allowedResourceIdList ?? [], [workspace.resourceId], identity);
-    expect(deniedResourceIdList).toBeFalsy();
-  });
-
-  test('summarizeAgentPermissionItems with target ID denied access', async () => {
-    assertContext(context);
-    const {userToken, workspace, pg02, pg03, clientTokenAgent} =
-      await setupForSummarizeAgentPermissionItemsTest();
-
-    const pg02Items: PermissionItemInput[] = [
-      {
-        action: AppActionType.Read,
-        access: false,
-        target: {targetId: workspace.resourceId},
-        appliesTo: PermissionItemAppliesTo.Self,
-      },
-    ];
-    const pg03Items: PermissionItemInput[] = [
-      {
-        action: AppActionType.Read,
-        access: true,
-        target: {targetType: AppResourceType.Workspace, targetId: workspace.resourceId},
-        appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
-      },
-    ];
-
-    await addPermissionItems(
-      context,
-      RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-        mockExpressRequestWithAgentToken(userToken),
-        {
-          items: pg03Items,
-          workspaceId: workspace.resourceId,
-          entity: {entityId: pg03.resourceId},
-        }
-      )
-    );
-    await addPermissionItems(
-      context,
-      RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-        mockExpressRequestWithAgentToken(userToken),
-        {
-          items: pg02Items,
-          workspaceId: workspace.resourceId,
-          entity: {entityId: pg02.resourceId},
-        }
-      )
-    );
-
-    const {
-      hasFullOrLimitedAccess,
-      allowedResourceIdList,
-      deniedResourceIdList,
-      noAccess,
-    } = await summarizeAgentPermissionItems({
-      context,
-      workspace,
-      workspaceId: workspace.resourceId,
-      agent: clientTokenAgent,
-      target: {targetId: workspace.resourceId},
-      action: AppActionType.Read,
-      containerId: getWorkspacePermissionContainers(workspace.resourceId),
-    });
-    expect(hasFullOrLimitedAccess).toBeTruthy();
-    expect(noAccess).toBeFalsy();
-    expect(allowedResourceIdList).toBeFalsy();
-    expectContainsExactly(deniedResourceIdList ?? [], [workspace.resourceId], identity);
-  });
-
-  test('summarizeAgentPermissionItems denied access', async () => {
-    assertContext(context);
-    const {userToken, workspace, pg02, pg03, clientTokenAgent} =
-      await setupForSummarizeAgentPermissionItemsTest();
-    const pg02Items: PermissionItemInput[] = [
-      {
-        action: AppActionType.Read,
-        access: false,
-        target: {targetType: AppResourceType.Workspace, targetId: workspace.resourceId},
-        appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
-      },
-    ];
-    const pg03Items: PermissionItemInput[] = [
-      {
-        action: AppActionType.Read,
-        access: true,
-        target: {targetType: AppResourceType.Workspace, targetId: workspace.resourceId},
-        appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
-      },
-    ];
+    const [[file01]] = await Promise.all([
+      generateAndInsertTestFiles(context, 2, {
+        workspaceId: rawWorkspace.resourceId,
+        parentId: folder01.resourceId,
+      }),
+    ]);
     await Promise.all([
-      addPermissionItems(
-        context,
-        RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-          mockExpressRequestWithAgentToken(userToken),
-          {
-            items: pg02Items.concat(pg03Items),
-            workspaceId: workspace.resourceId,
-            entity: {entityId: pg02.resourceId},
-          }
-        )
-      ),
-      addPermissionItems(
-        context,
-        RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-          mockExpressRequestWithAgentToken(userToken),
-          {
-            items: pg02Items.concat(pg03Items),
-            workspaceId: workspace.resourceId,
-            entity: {entityId: pg03.resourceId},
-          }
-        )
-      ),
+      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
+        targetId: file01.resourceId,
+      }),
+      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
+        targetId: folder01.resourceId,
+        access: false,
+      }),
     ]);
-    const {
-      hasFullOrLimitedAccess,
-      allowedResourceIdList,
-      deniedResourceIdList,
-      noAccess,
-    } = await summarizeAgentPermissionItems({
+
+    const resolveResult = await resolveTargetChildrenAccessCheckWithAgent({
       context,
-      workspace,
-      workspaceId: workspace.resourceId,
-      agent: clientTokenAgent,
-      target: {targetId: workspace.resourceId},
-      action: AppActionType.Read,
-      containerId: getWorkspacePermissionContainers(workspace.resourceId),
+      agent: user02SessionAgent,
+      target: {
+        action: 'readFile',
+        targetId: getFilePermissionContainers(rawWorkspace.resourceId, folder01, true),
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
     });
-    expect(hasFullOrLimitedAccess).toBeFalsy();
-    expect(noAccess).toBeTruthy();
-    expect(allowedResourceIdList).toBeFalsy();
-    expect(deniedResourceIdList).toBeFalsy();
+
+    assert(resolveResult.access === 'partial');
+    expect(resolveResult.item).toBeFalsy();
+    expect(resolveResult.partialAllowIds?.length).toBe(1);
+    expect(resolveResult.partialAllowItems?.length).toBe(1);
+    expect(resolveResult.partialAllowIds).toContain(file01.resourceId);
+  });
+
+  test('resolve target children partial access with parent allow and some children deny', async () => {
+    assertContext(context);
+    const {rawWorkspace} = await generateUserAndWorkspace();
+    const {user: user02, sessionAgent: user02SessionAgent} =
+      await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
+    const [folder01] = await generateAndInsertTestFolders(context, 1, {
+      workspaceId: rawWorkspace.resourceId,
+      parentId: null,
+    });
+    const [[file01]] = await Promise.all([
+      generateAndInsertTestFiles(context, 2, {
+        workspaceId: rawWorkspace.resourceId,
+        parentId: folder01.resourceId,
+      }),
+    ]);
+    await Promise.all([
+      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
+        targetId: file01.resourceId,
+        access: false,
+      }),
+      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
+        targetId: folder01.resourceId,
+      }),
+    ]);
+
+    const resolveResult = await resolveTargetChildrenAccessCheckWithAgent({
+      context,
+      agent: user02SessionAgent,
+      target: {
+        action: 'readFile',
+        targetId: getFilePermissionContainers(rawWorkspace.resourceId, folder01, true),
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
+    });
+
+    assert(resolveResult.access === 'full');
+    expect(resolveResult.item).toBeFalsy();
+    expect(resolveResult.partialDenyIds?.length).toBe(1);
+    expect(resolveResult.partialDenyItems?.length).toBe(1);
+    expect(resolveResult.partialDenyIds).toContain(file01.resourceId);
+  });
+
+  test('returns correct access permission', async () => {
+    assertContext(context);
+    const {rawWorkspace} = await generateUserAndWorkspace();
+    const {user: user02, sessionAgent: user02SessionAgent} =
+      await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
+    const [file01] = await generateAndInsertTestFiles(context, 1, {
+      workspaceId: rawWorkspace.resourceId,
+      parentId: null,
+    });
+    const [pItem01] = await addPermissions(
+      rawWorkspace.resourceId,
+      user02.resourceId,
+      'readFile',
+      {targetId: file01.resourceId}
+    );
+
+    const checkResult = await checkAuthorizationWithAgent({
+      context,
+      agent: user02SessionAgent,
+      target: {
+        action: 'readFile',
+        targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
+    });
+
+    expect(checkResult.hasAccess).toBeTruthy();
+    expect(checkResult.item?.resourceId).toBe(pItem01.resourceId);
   });
 });
 
-async function setupForSummarizeAgentPermissionItemsTest() {
+async function addPermissions(
+  workspaceId: string,
+  recipientUserId: string,
+  permissions: PermissionAction | PermissionAction[],
+  other?: Partial<PermissionItem>
+) {
   assertContext(context);
-  const {userToken} = await insertUserForTest(context);
-  const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const [
-    {permissionGroup: pg01},
-    {permissionGroup: pg02},
-    {permissionGroup: pg03},
-    {token},
-    userAgent,
-  ] = await Promise.all([
-    insertPermissionGroupForTest(context, userToken, workspace.resourceId),
-    insertPermissionGroupForTest(context, userToken, workspace.resourceId),
-    insertPermissionGroupForTest(context, userToken, workspace.resourceId),
-    insertAgentTokenForTest(context, userToken, workspace.resourceId),
-    context.session.getAgent(
-      context,
-      RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken))
-    ),
-  ]);
-  const [clientTokenAgent] = await Promise.all([
-    context.session.getAgent(
-      context,
-      RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(token))
-    ),
-    context.semantic.utils.withTxn(context, opts =>
-      addAssignedPermissionGroupList(
-        context!,
-        userAgent,
-        workspace.resourceId,
-        [{permissionGroupId: pg01.resourceId}],
-        token.resourceId,
-        /** deleteExisting */ false,
-        /** skip permission groups check */ false,
-        /** skip auth check */ false,
-        opts
-      )
-    ),
-  ]);
-  await Promise.all([
-    assignPgListToIdList(
-      context,
-      clientTokenAgent,
-      workspace.resourceId,
-      [pg01.resourceId],
-      toAssignedPgListInput([pg02, pg03])
-    ),
-  ]);
-  return {userToken, workspace, pg02, pg03, userAgent, clientTokenAgent};
+  const items = toArray(permissions).map(action =>
+    generatePermissionItemForTest({
+      action,
+      access: true,
+      targetId: workspaceId,
+      entityId: recipientUserId,
+      ...other,
+    })
+  );
+  await context.semantic.utils.withTxn(context, opts =>
+    context!.data.permissionItem.insertList(items, opts)
+  );
+  return items;
+}
+
+async function generateUserAndWorkspace(
+  userInput: Partial<SignupEndpointParams> = {},
+  skipAutoVerifyEmail = false
+) {
+  assertContext(context);
+  const usersResult = await insertUserForTest(context, userInput, skipAutoVerifyEmail);
+  const {userToken} = usersResult;
+  const workspaceResult = await insertWorkspaceForTest(context, userToken);
+  const sessionAgent = await context.session.getAgent(
+    context,
+    RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken))
+  );
+  return {...usersResult, ...workspaceResult, sessionAgent};
+}
+
+async function generateUserAndAddToWorkspace(
+  workspaceId: string,
+  userInput: Partial<SignupEndpointParams> = {},
+  skipAutoVerifyEmail = false
+) {
+  assertContext(context);
+  const usersResult = await insertUserForTest(context, userInput, skipAutoVerifyEmail);
+  const {user, userToken} = usersResult;
+  await context.semantic.utils.withTxn(context, opts =>
+    assignWorkspaceToUser(
+      context!,
+      SYSTEM_SESSION_AGENT,
+      workspaceId,
+      user.resourceId,
+      opts
+    )
+  );
+  const sessionAgent = await context.session.getAgent(
+    context,
+    RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken))
+  );
+  return {...usersResult, sessionAgent};
 }

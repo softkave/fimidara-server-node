@@ -47,8 +47,11 @@ describe('removeCollaborator', () => {
 
     const result = await removeCollaborator(context, instData);
     assertEndpointResultOk(result);
-    await executeJob(context, result.jobId);
-    await waitForJob(context, result.jobId);
+
+    if (result.jobId) {
+      await executeJob(context, result.jobId);
+      await waitForJob(context, result.jobId);
+    }
 
     const assignedItems = await getResourceAssignedItems(
       context,

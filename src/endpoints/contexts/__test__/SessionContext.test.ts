@@ -32,7 +32,9 @@ describe('SessionContext', () => {
     });
     await expectErrorThrown(async () => {
       assert(context);
-      const reqData = new RequestData({agent: makeUserSessionAgent(user, userAgentToken)});
+      const reqData = new RequestData({
+        agent: makeUserSessionAgent(user, userAgentToken),
+      });
       await context.session.getAgent(
         context,
         reqData,
@@ -55,7 +57,9 @@ describe('SessionContext', () => {
     });
     await expectErrorThrown(async () => {
       assert(context);
-      const reqData = new RequestData({agent: makeUserSessionAgent(user, userAgentToken)});
+      const reqData = new RequestData({
+        agent: makeUserSessionAgent(user, userAgentToken),
+      });
       await context.session.getAgent(
         context,
         reqData,

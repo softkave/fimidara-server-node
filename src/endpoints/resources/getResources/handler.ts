@@ -1,4 +1,4 @@
-import {AppActionType, AppResourceType} from '../../../definitions/system';
+import {AppResourceType} from '../../../definitions/system';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {checkWorkspaceExists} from '../../workspaces/utils';

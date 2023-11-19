@@ -1,7 +1,8 @@
+import assert from 'assert';
+import RequestData from '../../RequestData';
 import {BaseContextType} from '../../contexts/types';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
-import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -39,6 +40,7 @@ test('workspace deleted', async () => {
     })
   );
   assertEndpointResultOk(result);
+  assert(result.jobId);
   await executeJob(context, result.jobId);
   await waitForJob(context, result.jobId);
   const savedWorkspace = await context.semantic.workspace.getOneByQuery(

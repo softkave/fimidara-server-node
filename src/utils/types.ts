@@ -20,7 +20,11 @@ export type ConvertTypeOneToTypeTwo<T extends object, One, Two> = {
     : T[Key];
 };
 
-export type ConvertDatesToStrings<T extends object> = ConvertTypeOneToTypeTwo<T, Date, string>;
+export type ConvertDatesToStrings<T extends object> = ConvertTypeOneToTypeTwo<
+  T,
+  Date,
+  string
+>;
 export type AnyFn<Args extends any[] = any[], Result = any> = (...args: Args) => Result;
 
 type Join<K, P> = K extends string | number
@@ -59,7 +63,9 @@ export type Paths<T, D extends number = 10> = [D] extends [never]
   ? never
   : T extends object
   ? {
-      [K in keyof T]-?: K extends string | number ? `${K}` | Join<K, Paths<T[K], Prev[D]>> : never;
+      [K in keyof T]-?: K extends string | number
+        ? `${K}` | Join<K, Paths<T[K], Prev[D]>>
+        : never;
     }[keyof T]
   : '';
 
@@ -70,7 +76,9 @@ export type AbstractClassConstructor = abstract new (...args: any) => any;
 export type ObjectValues<T> = T[keyof T];
 
 // from express.js type definitions
-type RemoveTail<S extends string, Tail extends string> = S extends `${infer P}${Tail}` ? P : S;
+type RemoveTail<S extends string, Tail extends string> = S extends `${infer P}${Tail}`
+  ? P
+  : S;
 type GetRouteParameter<S extends string> = RemoveTail<
   RemoveTail<RemoveTail<S, `/${string}`>, `-${string}`>,
   `.${string}`
@@ -98,7 +106,9 @@ export type RouteParameters<Route extends string> = string extends Route
       : GetRouteParameter<Rest> extends `${infer ParamName}?`
       ? {[P in ParamName]?: string}
       : {[P in GetRouteParameter<Rest>]: string}) &
-      (Rest extends `${GetRouteParameter<Rest>}${infer Next}` ? RouteParameters<Next> : unknown)
+      (Rest extends `${GetRouteParameter<Rest>}${infer Next}`
+        ? RouteParameters<Next>
+        : unknown)
   : {};
 
 export type JoiSchemaParts<T> = Required<SchemaMap<T>>;
@@ -132,3 +142,4 @@ export type ToPrimitiveJsType<T> = T extends string
 export type StringKeysOnly<TData> = keyof TData extends string ? keyof TData : '';
 export type OrArray<TData> = TData | Array<TData>;
 export type OrPromise<TData> = TData | Promise<TData>;
+export type Omit1<T, K extends keyof T> = Omit<T, K>;

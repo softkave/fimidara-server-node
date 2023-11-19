@@ -158,33 +158,20 @@ export const INTERNAL_addPermissionItems = async (
       toNonNullableArray(item.action).forEach(action => {
         toNonNullableArray(item.target).forEach(nextTarget => {
           let nextTargetsMap = getTargets(nextTarget);
-          const targetTypes = toNonNullableArray(nextTarget.targetType ?? []);
 
           // Default to workspace if there's no target resource
-          if (isObjectEmpty(nextTargetsMap) && targetTypes.length) {
+          if (isObjectEmpty(nextTargetsMap)) {
             nextTargetsMap = {[workspace.resourceId]: workspaceWrapper};
           }
 
           forEach(nextTargetsMap, nextTargetFromMap => {
-            if (targetTypes.length) {
-              toNonNullableArray(targetTypes).forEach(nextTargetType => {
-                processedItems.push({
-                  entity,
-                  action,
-                  target: nextTargetFromMap,
-                  access: item.access,
-                  targetType: nextTargetType,
-                });
-              });
-            } else {
-              processedItems.push({
-                entity,
-                action,
-                target: nextTargetFromMap,
-                access: item.access,
-                targetType: getResourceTypeFromId(nextTargetFromMap.resourceId),
-              });
-            }
+            processedItems.push({
+              entity,
+              action,
+              target: nextTargetFromMap,
+              access: item.access,
+              targetType: getResourceTypeFromId(nextTargetFromMap.resourceId),
+            });
           });
         });
       });

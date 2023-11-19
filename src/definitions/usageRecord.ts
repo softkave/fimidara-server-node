@@ -1,5 +1,5 @@
+import {PermissionAction} from './permissionItem';
 import {
-  AppActionType,
   AppResourceType,
   ConvertAgentToPublicAgent,
   PublicWorkspaceResource,
@@ -23,7 +23,7 @@ export enum UsageRecordArtifactType {
 export interface UsageRecordArtifact {
   type: UsageRecordArtifactType;
   resourceType?: AppResourceType;
-  action?: AppActionType;
+  action?: PermissionAction;
   artifact: FileUsageRecordArtifact | BandwidthUsageRecordArtifact;
 }
 
@@ -71,7 +71,10 @@ export interface UsageRecord extends WorkspaceResource {
 
 export type PublicUsageRecord = PublicWorkspaceResource &
   ConvertAgentToPublicAgent<
-    Pick<UsageRecord, 'category' | 'usage' | 'usageCost' | 'fulfillmentStatus' | 'month' | 'year'>
+    Pick<
+      UsageRecord,
+      'category' | 'usage' | 'usageCost' | 'fulfillmentStatus' | 'month' | 'year'
+    >
   >;
 
 export interface FileUsageRecordArtifact {

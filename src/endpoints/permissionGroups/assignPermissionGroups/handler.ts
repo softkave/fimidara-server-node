@@ -1,25 +1,26 @@
-import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {toNonNullableArray} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
-import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {checkPermissionEntitiesExist} from '../../permissionItems/checkPermissionArtifacts';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {checkPermissionGroupsExist} from '../utils';
 import {AssignPermissionGroupsEndpoint} from './types';
 import {assignPermissionGroupsJoiSchema} from './validation';
 
-const assignPermissionGroups: AssignPermissionGroupsEndpoint = async (context, instData) => {
+const assignPermissionGroups: AssignPermissionGroupsEndpoint = async (
+  context,
+  instData
+) => {
   const data = validate(instData.data, assignPermissionGroupsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
-  await checkAuthorization({
+  await checkAuthorizationWithAgent({
     context,
     agent,
     workspace,
     workspaceId: workspace.resourceId,
-    action: AppActionType.GrantPermission,
-    target: {targetType: AppResourceType.PermissionGroup},
+    target: {targetId: workspace.resourceId, action: 'updatePermission'},
   });
   const entityIdList = toNonNullableArray(data.entityId);
   await Promise.all([
@@ -28,9 +29,13 @@ const assignPermissionGroups: AssignPermissionGroupsEndpoint = async (context, i
       agent,
       workspace.resourceId,
       entityIdList,
-      AppActionType.Read
+      'updatePermission'
     ),
-    await checkPermissionGroupsExist(context, workspace.resourceId, data.permissionGroups),
+    await checkPermissionGroupsExist(
+      context,
+      workspace.resourceId,
+      data.permissionGroups
+    ),
   ]);
 
   await context.semantic.utils.withTxn(context, async opts => {

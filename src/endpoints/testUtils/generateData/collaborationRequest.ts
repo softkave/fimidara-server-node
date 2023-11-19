@@ -13,7 +13,9 @@ import {
   generateTestList,
 } from './utils';
 
-export function generateCollaborationRequestForTest(seed: Partial<CollaborationRequest> = {}) {
+export function generateCollaborationRequestForTest(
+  seed: Partial<CollaborationRequest> = {}
+) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
     agentId: getNewIdForResource(AppResourceType.User),

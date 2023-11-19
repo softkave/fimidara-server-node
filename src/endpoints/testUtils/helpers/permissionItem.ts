@@ -1,5 +1,5 @@
-import {PermissionItem} from '../../../definitions/permissionItem';
-import {AppActionType, AppResourceType} from '../../../definitions/system';
+import {PermissionAction, PermissionItem} from '../../../definitions/permissionItem';
+import {AppResourceType} from '../../../definitions/system';
 import {makeKey, toArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {getInAndNinQuery} from '../../contexts/semantic/utils';
@@ -8,7 +8,7 @@ import {BaseContextType} from '../../contexts/types';
 export async function expectEntityHavePermissionsTargetingId(
   context: BaseContextType,
   entityId: string | string[],
-  action: AppActionType | AppActionType[],
+  action: PermissionAction | PermissionAction[],
   targetId: string | string[],
   access: boolean
 ) {
@@ -43,7 +43,7 @@ export async function expectEntityHavePermissionsTargetingId(
 export async function expectEntityHasPermissionsTargetingType(
   context: BaseContextType,
   entityId: string | string[],
-  action: AppActionType | AppActionType[],
+  action: PermissionAction | PermissionAction[],
   targetId: string,
   targetType: AppResourceType | AppResourceType[],
   result: boolean

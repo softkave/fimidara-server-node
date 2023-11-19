@@ -81,8 +81,11 @@ test('folder deleted', async () => {
 
   const result = await deleteFolder(context, instData);
   assertEndpointResultOk(result);
-  await executeJob(context, result.jobId);
-  await waitForJob(context, result.jobId);
+
+  if (result.jobId) {
+    await executeJob(context, result.jobId);
+    await waitForJob(context, result.jobId);
+  }
 
   await assertFolderDeleted(context, folder01.resourceId);
   await assertFolderDeleted(context, folder02.resourceId);

@@ -11,11 +11,10 @@ function getByWorkspaceIdAndExcludeResourceIdList(
   workspaceId: string,
   idList: string[] | undefined
 ) {
-  const f = new DataProviderFilterBuilder<{workspaceId: string; resourceId: string}>().addItem(
-    'workspaceId',
-    workspaceId,
-    DataProviderFilterValueOperator.Equal
-  );
+  const f = new DataProviderFilterBuilder<{
+    workspaceId: string;
+    resourceId: string;
+  }>().addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal);
   if (idList?.length) {
     f.addItem('resourceId', idList, DataProviderFilterValueOperator.NotIn);
   }
@@ -71,5 +70,6 @@ export default abstract class EndpointReusableQueries {
   static getByResourceIdList = getByResourceIdList;
   static getByProvidedId = getByProvidedId;
   static getByWorkspaceIdAndResourceIdList = getByWorkspaceIdAndResourceIdList;
-  static getByWorkspaceIdAndExcludeResourceIdList = getByWorkspaceIdAndExcludeResourceIdList;
+  static getByWorkspaceIdAndExcludeResourceIdList =
+    getByWorkspaceIdAndExcludeResourceIdList;
 }

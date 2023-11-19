@@ -1,7 +1,6 @@
-import {AppActionType, AppResourceType} from '../../../definitions/system';
-import {extractResourceIdList, toNonNullableArray} from '../../../utils/fns';
+import {extractResourceIdList} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
-import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {PermissionItemUtils, getPermissionItemTargets} from '../utils';
 import {GetResourcePermissionItemsEndpoint} from './types';
@@ -20,24 +19,19 @@ const getResourcePermissionItems: GetResourcePermissionItemsEndpoint = async (
   const data = validate(instData.data, getResourcePermissionItemsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
-  await checkAuthorization({
+  await checkAuthorizationWithAgent({
     context,
     agent,
     workspace,
     workspaceId: workspace.resourceId,
-    action: AppActionType.Read,
-    target: {targetType: AppResourceType.PermissionItem},
+    target: {action: 'updatePermission', targetId: workspace.resourceId},
   });
 
   const targets = await getPermissionItemTargets(context, agent, workspace, data.target);
   const targetIdList = targets.length ? extractResourceIdList(targets) : undefined;
-  const targetTypes = data.target.targetType
-    ? toNonNullableArray(data.target.targetType)
-    : undefined;
   const permissionItems = await context.semantic.permissions.getPermissionItems({
     context,
     targetId: targetIdList,
-    targetType: targetTypes,
   });
   return {
     items: PermissionItemUtils.extractPublicPermissionItemList(permissionItems),

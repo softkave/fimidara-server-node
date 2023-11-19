@@ -1,4 +1,4 @@
-import {AppActionType, AppResourceType} from '../../../definitions/system';
+import {AppResourceType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {enqueueDeleteResourceJob} from '../../jobs/runner';
 import {checkWorkspaceAuthorization02} from '../utils';
@@ -11,7 +11,7 @@ const deleteWorkspace: DeleteWorkspaceEndpoint = async (context, instData) => {
   const {workspace} = await checkWorkspaceAuthorization02(
     context,
     agent,
-    AppActionType.Delete,
+    'deleteWorkspace',
     data.workspaceId
   );
   const job = await enqueueDeleteResourceJob(context, {

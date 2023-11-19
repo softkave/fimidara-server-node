@@ -37,7 +37,10 @@ import {UploadFileEndpointParams} from './uploadFile/types';
 
 const kFileStreamWaitTimeoutMS = 10000; // 10 seconds
 
-function handleReadFileResponse(res: Response, result: Awaited<ReturnType<ReadFileEndpoint>>) {
+function handleReadFileResponse(
+  res: Response,
+  result: Awaited<ReturnType<ReadFileEndpoint>>
+) {
   res
     .set({
       'Content-Length': result.contentLength,
@@ -90,7 +93,9 @@ function extractReadFileParamsFromReq(req: Request): ReadFileEndpointParams {
   };
 }
 
-async function extractUploadFileParamsFromReq(req: Request): Promise<UploadFileEndpointParams> {
+async function extractUploadFileParamsFromReq(
+  req: Request
+): Promise<UploadFileEndpointParams> {
   let waitTimeoutHandle: NodeJS.Timeout | undefined = undefined;
   const contentLength = req.headers['content-length'];
   const contentEncoding = req.headers['content-encoding'];
@@ -98,7 +103,10 @@ async function extractUploadFileParamsFromReq(req: Request): Promise<UploadFileE
   const description = req.headers[fileConstants.headers['x-fimidara-file-description']];
 
   appAssert(req.busboy, new InvalidRequestError('Invalid multipart/formdata request.'));
-  appAssert(contentLength, new InvalidRequestError('The Content-Length HTTP header is required.'));
+  appAssert(
+    contentLength,
+    new InvalidRequestError('The Content-Length HTTP header is required.')
+  );
 
   return new Promise((resolve, reject) => {
     // Wait for data stream or end if timeout exceeded. This is to prevent
@@ -111,7 +119,10 @@ async function extractUploadFileParamsFromReq(req: Request): Promise<UploadFileE
       // Clear wait timeout, we have file stream, otherwise the request will
       // fail
       clearTimeout(waitTimeoutHandle);
-      const matcher = extractFilepathOrIdFromReqPath(req, fileConstants.routes.uploadFile);
+      const matcher = extractFilepathOrIdFromReqPath(
+        req,
+        fileConstants.routes.uploadFile
+      );
       resolve({
         ...matcher,
         data: stream,
@@ -133,8 +144,6 @@ function cleanupUploadFileReq(req: Request) {
     req.busboy.destroy();
   }
 }
-
-const bbb = deleteFileEndpointDefinition.getSdkParamsBody();
 
 export function getFilesPublicHttpEndpoints() {
   const filesExportedEndpoints: FilesExportedEndpoints = {

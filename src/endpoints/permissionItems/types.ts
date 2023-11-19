@@ -1,5 +1,4 @@
 import {PermissionAction} from '../../definitions/permissionItem';
-import {AppResourceType} from '../../definitions/system';
 import {ExportedHttpEndpointWithMddocDefinition} from '../types';
 import {AddPermissionItemsEndpoint} from './addItems/types';
 import {DeletePermissionItemsEndpoint} from './deleteItems/types';
@@ -7,7 +6,6 @@ import {ResolveEntityPermissionsEndpoint} from './resolveEntityPermissions/types
 
 export interface PermissionItemInputTarget {
   targetId?: string | string[];
-  targetType?: AppResourceType | AppResourceType[];
   filepath?: string | string[];
   folderpath?: string | string[];
   workspaceRootname?: string;

@@ -1,6 +1,9 @@
-import {AssignPermissionGroupInput, PermissionGroup} from '../../definitions/permissionGroups';
-import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
-import {AppActionType, SessionAgent} from '../../definitions/system';
+import {
+  AssignPermissionGroupInput,
+  PermissionGroup,
+} from '../../definitions/permissionGroups';
+import {PermissionAction} from '../../definitions/permissionItem';
+import {SessionAgent} from '../../definitions/system';
 import {makeKey} from '../../utils/fns';
 import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
 import {BaseContextType, IServerRequest} from '../contexts/types';
@@ -11,7 +14,9 @@ export function includesPermissionGroupById(pgList: PermissionGroup[], id: strin
   return !!pgList.find(pg => pg.resourceId === id);
 }
 
-export function makeKeyFromAssignedPermissionGroupMetaOrInput(item: {permissionGroupId: string}) {
+export function makeKeyFromAssignedPermissionGroupMetaOrInput(item: {
+  permissionGroupId: string;
+}) {
   return makeKey([item.permissionGroupId]);
 }
 
@@ -45,25 +50,20 @@ export async function assignPgListToIdList(
   );
 }
 
-export async function grantReadPermission(
+export async function grantPermission(
   context: BaseContextType,
   req: IServerRequest,
   workspaceId: string,
   agentId: string,
-  targetIdList: string[]
+  targetIdList: string[],
+  action: PermissionAction
 ) {
   await addPermissionItems(
     context,
     RequestData.fromExpressRequest(req, {
       workspaceId,
-      entity: {entityId: agentId},
       items: [
-        {
-          target: {targetId: targetIdList},
-          action: AppActionType.Read,
-          grantAccess: true,
-          appliesTo: PermissionItemAppliesTo.Self,
-        },
+        {action, target: {targetId: targetIdList}, access: true, entityId: agentId},
       ],
     })
   );

@@ -1,7 +1,8 @@
+import assert from 'assert';
 import {JobStatus} from '../../../definitions/job';
+import RequestData from '../../RequestData';
 import {BaseContextType} from '../../contexts/types';
 import deletePermissionGroup from '../../permissionGroups/deletePermissionGroup/handler';
-import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -41,6 +42,8 @@ test('getOpStatus', async () => {
       workspaceId: workspace.resourceId,
     })
   );
+
+  assert(jobId);
   await executeJob(context, jobId);
   await waitForJob(context, jobId);
 

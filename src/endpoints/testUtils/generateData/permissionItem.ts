@@ -1,8 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {
-  PermissionItem,
-  PermissionItemAppliesTo,
-} from '../../../definitions/permissionItem';
+import {PermissionItem} from '../../../definitions/permissionItem';
 import {Agent, AppResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource, getResourceTypeFromId} from '../../../utils/resource';
@@ -25,7 +22,6 @@ export function generatePermissionItemForTest(seed: Partial<PermissionItem> = {}
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
     targetParentId: workspaceId,
-    targetParentType: AppResourceType.Workspace,
     resourceId: getNewIdForResource(AppResourceType.PermissionItem),
     entityId: createdBy.agentId,
     entityType: seed.entityId
@@ -35,7 +31,6 @@ export function generatePermissionItemForTest(seed: Partial<PermissionItem> = {}
     targetType: seed.targetId ? getResourceTypeFromId(seed.targetId) : itemType,
     action: randomAction(),
     access: faker.datatype.boolean(),
-    appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
     ...seed,
   };
   return item;

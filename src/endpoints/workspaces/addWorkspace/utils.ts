@@ -1,14 +1,10 @@
 import {PermissionGroup} from '../../../definitions/permissionGroups';
 import {
+  PermissionAction,
   PermissionItem,
-  PermissionItemAppliesTo,
+  kPermissionsMap,
 } from '../../../definitions/permissionItem';
-import {
-  Agent,
-  AppActionType,
-  AppResourceType,
-  getWorkspaceActionList,
-} from '../../../definitions/system';
+import {Agent, AppResourceType} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource, newWorkspaceResource} from '../../../utils/resource';
@@ -22,7 +18,7 @@ function generateAdminPermissions(
   workspace: Workspace,
   adminPermissionGroup: PermissionGroup
 ) {
-  const permissionItems: PermissionItem[] = getWorkspaceActionList().map(action => {
+  const permissionItems: PermissionItem[] = Object.values(kPermissionsMap).map(action => {
     const item: PermissionItem = newWorkspaceResource(
       agent,
       AppResourceType.PermissionItem,
@@ -32,11 +28,9 @@ function generateAdminPermissions(
         entityId: adminPermissionGroup.resourceId,
         entityType: AppResourceType.PermissionGroup,
         targetParentId: workspace.resourceId,
-        targetParentType: AppResourceType.Workspace,
         targetId: workspace.resourceId,
         targetType: AppResourceType.All,
         access: true,
-        appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
       }
     );
     return item;
@@ -51,10 +45,9 @@ function generateCollaboratorPermissions(
   permissiongroup: PermissionGroup
 ) {
   function makePermission(
-    actions: AppActionType[],
+    actions: PermissionAction[],
     targetType: AppResourceType,
-    targetId: string,
-    appliesTo: PermissionItemAppliesTo
+    targetId: string
   ) {
     return actions.map(action => {
       const item: PermissionItem = newWorkspaceResource(
@@ -64,9 +57,7 @@ function generateCollaboratorPermissions(
         {
           action,
           targetId,
-          appliesTo,
           targetParentId: workspace.resourceId,
-          targetParentType: AppResourceType.Workspace,
           targetType: targetType,
           entityId: permissiongroup.resourceId,
           entityType: AppResourceType.PermissionGroup,
@@ -78,10 +69,9 @@ function generateCollaboratorPermissions(
   }
 
   let permissionItems: PermissionItem[] = makePermission(
-    [AppActionType.Read],
+    ['readWorkspace'],
     AppResourceType.Workspace,
-    workspace.resourceId,
-    PermissionItemAppliesTo.Self
+    workspace.resourceId
   );
 
   const readResourceTypes: AppResourceType[] = [
@@ -96,12 +86,7 @@ function generateCollaboratorPermissions(
 
   readResourceTypes.forEach(type => {
     permissionItems = permissionItems.concat(
-      makePermission(
-        [AppActionType.Read],
-        type,
-        workspace.resourceId,
-        PermissionItemAppliesTo.ChildrenOfType
-      )
+      makePermission([AppActionType.Read], type, workspace.resourceId)
     );
   });
   createReadUpdateResourceTypes.forEach(type => {
@@ -109,8 +94,7 @@ function generateCollaboratorPermissions(
       makePermission(
         [AppActionType.Create, AppActionType.Update, AppActionType.Read],
         type,
-        workspace.resourceId,
-        PermissionItemAppliesTo.ChildrenOfType
+        workspace.resourceId
       )
     );
   });

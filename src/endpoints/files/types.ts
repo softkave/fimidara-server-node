@@ -22,12 +22,13 @@ import {
   UploadFileEndpointResult,
 } from './uploadFile/types';
 
-export type UploadFileEndpointHTTPHeaders = HttpEndpointRequestHeaders_AuthOptional_ContentType & {
-  'content-encoding'?: string;
-  'x-fimidara-file-description'?: string;
-  'x-fimidara-file-mimetype'?: string;
-  'content-length': number;
-};
+export type UploadFileEndpointHTTPHeaders =
+  HttpEndpointRequestHeaders_AuthOptional_ContentType & {
+    'content-encoding'?: string;
+    'x-fimidara-file-description'?: string;
+    'x-fimidara-file-mimetype'?: string;
+    'content-length': number;
+  };
 
 export type ReadFilePOSTHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<
   /** TEndpoint */ ReadFileEndpoint,
@@ -49,7 +50,8 @@ export type ReadFileGETHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<
   /** TResponseBody */ FieldBinaryType,
   /** TSdkparams */ ReadFileEndpointParams
 >;
-export type DeleteFileHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<DeleteFileEndpoint>;
+export type DeleteFileHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<DeleteFileEndpoint>;
 export type GetFileDetailsHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<GetFileDetailsEndpoint>;
 export type UpdateFileDetailsHttpEndpoint =

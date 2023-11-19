@@ -171,13 +171,11 @@ async function setupImageUploadPermissionGroup(
       {
         action,
         targetParentId,
-        targetParentType,
         entityId: imageUploadPermissionGroup.resourceId,
         entityType: AppResourceType.PermissionGroup,
         targetId: folder.resourceId,
         targetType: AppResourceType.File,
         access: true,
-        appliesTo: PermissionItemAppliesTo.ChildrenOfType,
       }
     );
     return item;

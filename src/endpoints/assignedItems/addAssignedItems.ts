@@ -1,7 +1,7 @@
 import {isArray} from 'lodash';
 import {AssignedItem} from '../../definitions/assignedItem';
 import {AssignPermissionGroupInput} from '../../definitions/permissionGroups';
-import {Agent, AppActionType, AppResourceType} from '../../definitions/system';
+import {Agent, AppResourceType} from '../../definitions/system';
 import {AssignedTagInput} from '../../definitions/tag';
 import {Workspace} from '../../definitions/workspace';
 import {makeKey} from '../../utils/fns';
@@ -11,7 +11,7 @@ import {
   getResourceTypeFromId,
   newWorkspaceResource,
 } from '../../utils/resource';
-import {checkAuthorization} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {
   SemanticDataAccessProviderMutationRunOptions,
   SemanticDataAccessProviderRunOptions,
@@ -42,12 +42,13 @@ async function filterExistingItems<T extends AssignedItem>(
     assigneeIdList.push(item.assigneeId);
     assignedItemIdList.push(item.assignedItemId);
   });
-  const existingItems = await context.semantic.assignedItem.getByWorkspaceAssignedAndAssigneeIds(
-    workspaceId,
-    assignedItemIdList,
-    assigneeIdList,
-    opts
-  );
+  const existingItems =
+    await context.semantic.assignedItem.getByWorkspaceAssignedAndAssigneeIds(
+      workspaceId,
+      assignedItemIdList,
+      assigneeIdList,
+      opts
+    );
   const indexer = (item: Pick<AssignedItem, 'assignedItemId' | 'assigneeId'>) =>
     makeKey([item.assignedItemId, item.assigneeId]);
   const existingItemsMap = indexArray(existingItems, {indexer});
@@ -133,13 +134,12 @@ export async function addAssignedPermissionGroupList(
   }
 
   if (!skipAuthCheck) {
-    await checkAuthorization({
+    await checkAuthorizationWithAgent({
       context,
       agent,
       opts,
       workspaceId: workspaceId,
-      action: AppActionType.GrantPermission,
-      target: {targetType: AppResourceType.PermissionGroup},
+      target: {targetId: workspaceId, action: 'updatePermission'},
     });
   }
 
@@ -150,14 +150,19 @@ export async function addAssignedPermissionGroupList(
     for (const id of idList) {
       const item = withAssignedAgent(
         agent,
-        newWorkspaceResource<AssignedItem>(agent, AppResourceType.AssignedItem, workspaceId, {
-          meta: {},
-          assigneeId: id,
-          assigneeType: getResourceTypeFromId(id),
-          resourceId: getNewIdForResource(AppResourceType.AssignedItem),
-          assignedItemId: input.permissionGroupId,
-          assignedItemType: AppResourceType.PermissionGroup,
-        })
+        newWorkspaceResource<AssignedItem>(
+          agent,
+          AppResourceType.AssignedItem,
+          workspaceId,
+          {
+            meta: {},
+            assigneeId: id,
+            assigneeType: getResourceTypeFromId(id),
+            resourceId: getNewIdForResource(AppResourceType.AssignedItem),
+            assignedItemId: input.permissionGroupId,
+            assignedItemType: AppResourceType.PermissionGroup,
+          }
+        )
       );
       items.push(item);
     }
@@ -169,7 +174,14 @@ export async function addAssignedPermissionGroupList(
     return item01.meta.order !== (item02 as AssignedItem).meta.order;
   };
 
-  return await addAssignedItems(context, workspaceId, items, deleteExisting, comparatorFn, opts);
+  return await addAssignedItems(
+    context,
+    workspaceId,
+    items,
+    deleteExisting,
+    comparatorFn,
+    opts
+  );
 }
 
 export async function addAssignedTagList(
@@ -212,8 +224,15 @@ export async function addAssignedTagList(
     );
   });
   await Promise.all([
-    checkTagsExist(context, agent, workspace, tags, AppActionType.Read),
-    addAssignedItems(context, workspace.resourceId, items, deleteExisting, undefined, opts),
+    checkTagsExist(context, agent, workspace, tags, 'readTag'),
+    addAssignedItems(
+      context,
+      workspace.resourceId,
+      items,
+      deleteExisting,
+      undefined,
+      opts
+    ),
   ]);
 
   return items;

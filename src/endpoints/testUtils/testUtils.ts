@@ -14,7 +14,10 @@ import {getTimestamp} from '../../utils/dateFns';
 import {toNonNullableArray} from '../../utils/fns';
 import RequestData from '../RequestData';
 import addAgentTokenEndpoint from '../agentTokens/addToken/handler';
-import {AddAgentTokenEndpointParams, NewAgentTokenInput} from '../agentTokens/addToken/types';
+import {
+  AddAgentTokenEndpointParams,
+  NewAgentTokenInput,
+} from '../agentTokens/addToken/types';
 import {assertAgentToken} from '../agentTokens/utils';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import sendRequest from '../collaborationRequests/sendRequest/handler';
@@ -154,22 +157,30 @@ export interface IInsertUserForTestResult {
 export async function insertUserForTest(
   context: BaseContextType,
   userInput: Partial<SignupEndpointParams> = {},
-  skipAutoVerifyEmail = false // Tests that mutate data will fail otherwise
+  /** Tests that mutate data will fail otherwise */
+  skipAutoVerifyEmail = false
 ): Promise<IInsertUserForTestResult> {
-  const instData = RequestData.fromExpressRequest<SignupEndpointParams>(mockExpressRequest(), {
-    firstName: faker.name.firstName(),
-    lastName: faker.name.lastName(),
-    email: faker.internet.email(),
-    password: faker.internet.password(),
-    ...userInput,
-  });
+  const instData = RequestData.fromExpressRequest<SignupEndpointParams>(
+    mockExpressRequest(),
+    {
+      firstName: faker.name.firstName(),
+      lastName: faker.name.lastName(),
+      email: faker.internet.email(),
+      password: faker.internet.password(),
+      ...userInput,
+    }
+  );
 
   const result = await signup(context, instData);
   assertEndpointResultOk(result);
   let rawUser: UserWithWorkspace;
 
   if (!skipAutoVerifyEmail) {
-    const user = await INTERNAL_confirmEmailAddress(context, result.user.resourceId, null);
+    const user = await INTERNAL_confirmEmailAddress(
+      context,
+      result.user.resourceId,
+      null
+    );
     rawUser = await populateUserWorkspaces(context, user);
   } else {
     const user = await context.semantic.user.getOneById(result.user.resourceId);
@@ -213,7 +224,9 @@ export async function insertWorkspaceForTest(
 
   const result = await addWorkspace(context, instData);
   assertEndpointResultOk(result);
-  const rawWorkspace = await context.semantic.workspace.getOneById(result.workspace.resourceId);
+  const rawWorkspace = await context.semantic.workspace.getOneById(
+    result.workspace.resourceId
+  );
   assert(rawWorkspace);
   return {rawWorkspace, workspace: result.workspace};
 }
@@ -311,11 +324,15 @@ export async function insertFolderForTest(
   folderInput: Partial<NewFolderInput> = {}
 ) {
   const instData = RequestData.fromExpressRequest<AddFolderEndpointParams>(
-    userToken ? mockExpressRequestWithAgentToken(userToken) : mockExpressRequestForPublicAgent(),
+    userToken
+      ? mockExpressRequestWithAgentToken(userToken)
+      : mockExpressRequestForPublicAgent(),
     {
       folder: {
         folderpath: addRootnameToPath(
-          [generateTestFolderName({includeStraySlashes: true})].join(folderConstants.nameSeparator),
+          [generateTestFolderName({includeStraySlashes: true})].join(
+            folderConstants.nameSeparator
+          ),
           workspace.rootname
         ),
         description: faker.lorem.paragraph(),
@@ -334,7 +351,9 @@ export interface IGenerateImageProps {
   height: number;
 }
 
-export async function generateTestImage(props: IGenerateImageProps = {width: 300, height: 200}) {
+export async function generateTestImage(
+  props: IGenerateImageProps = {width: 300, height: 200}
+) {
   const imgBuffer = await sharp({
     create: {
       width: props.width,
@@ -399,7 +418,9 @@ export async function insertFileForTest(
 
   merge(input, fileInput);
   const instData = RequestData.fromExpressRequest<UploadFileEndpointParams>(
-    userToken ? mockExpressRequestWithAgentToken(userToken) : mockExpressRequestForPublicAgent(),
+    userToken
+      ? mockExpressRequestWithAgentToken(userToken)
+      : mockExpressRequestForPublicAgent(),
     input
   );
   const result = await uploadFile(context, instData);

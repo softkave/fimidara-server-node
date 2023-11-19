@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
-import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {AppActionType, AppResourceType, getWorkspaceActionList} from '../../../definitions/system';
+import {kPermissionsMap} from '../../../definitions/permissionItem';
+import {AppResourceType} from '../../../definitions/system';
 import {getResourceId} from '../../../utils/fns';
 import RequestData from '../../RequestData';
 import {BaseContextType} from '../../contexts/types';
@@ -41,26 +41,25 @@ describe.skip('getResourcePermissionItems', () => {
       insertPermissionGroupForTest(context, userToken, workspace.resourceId),
       insertPermissionGroupForTest(context, userToken, workspace.resourceId),
     ]);
-    const inputItems: PermissionItemInput[] = getWorkspaceActionList().map(action => ({
-      action: action as AppActionType,
-      grantAccess: faker.datatype.boolean(),
-      target: {targetId: pg02.resourceId},
-      appliesTo: PermissionItemAppliesTo.Self,
-    }));
+    const inputItems = Object.values(kPermissionsMap).map(
+      (action): PermissionItemInput => ({
+        action,
+        access: faker.datatype.boolean(),
+        target: {targetId: pg02.resourceId},
+        entityId: pg01.resourceId,
+      })
+    );
     const addPermissionItemsReqData =
       RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
-        {
-          items: inputItems,
-          workspaceId: workspace.resourceId,
-          entity: {entityId: pg01.resourceId},
-        }
+        {items: inputItems, workspaceId: workspace.resourceId}
       );
     const {items} = await addPermissionItems(context, addPermissionItemsReqData);
-    const instData = RequestData.fromExpressRequest<GetResourcePermissionItemsEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {workspaceId: workspace.resourceId, target: {targetId: pg02.resourceId}}
-    );
+    const instData =
+      RequestData.fromExpressRequest<GetResourcePermissionItemsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {workspaceId: workspace.resourceId, target: {targetId: pg02.resourceId}}
+      );
     const result = await getResourcePermissionItems(context, instData);
     assertEndpointResultOk(result);
     expectContainsExactly(items, result.items, getResourceId);
@@ -76,13 +75,11 @@ describe.skip('getResourcePermissionItems', () => {
       targetId: workspace.resourceId,
     });
 
-    const instData = RequestData.fromExpressRequest<GetResourcePermissionItemsEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {
-        workspaceId: workspace.resourceId,
-        target: {targetType: AppResourceType.Workspace, targetId: workspace.resourceId},
-      }
-    );
+    const instData =
+      RequestData.fromExpressRequest<GetResourcePermissionItemsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {workspaceId: workspace.resourceId, target: {targetId: workspace.resourceId}}
+      );
     const result = await getResourcePermissionItems(context, instData);
     assertEndpointResultOk(result);
   });

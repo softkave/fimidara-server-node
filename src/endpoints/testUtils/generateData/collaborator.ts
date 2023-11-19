@@ -12,7 +12,9 @@ export async function generateAndInsertCollaboratorListForTest(
   const users = await generateAndInsertUserListForTest(ctx, count);
   await ctx.semantic.utils.withTxn(ctx, opts =>
     Promise.all(
-      users.map(user => assignWorkspaceToUser(ctx, agent, workspaceId, user.resourceId, opts))
+      users.map(user =>
+        assignWorkspaceToUser(ctx, agent, workspaceId, user.resourceId, opts)
+      )
     )
   );
   return users;

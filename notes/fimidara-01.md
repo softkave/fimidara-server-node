@@ -23,3 +23,4 @@
 
 - Permissions
 - Storage backends
+- Default permission group for collaborators

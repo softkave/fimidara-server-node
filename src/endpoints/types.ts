@@ -16,7 +16,10 @@ export type Endpoint<
   TContext extends BaseContextType = BaseContextType,
   TParams = any,
   TResult = any
-> = (context: TContext, instData: RequestData<TParams>) => Promise<TResult & BaseEndpointResult>;
+> = (
+  context: TContext,
+  instData: RequestData<TParams>
+) => Promise<TResult & BaseEndpointResult>;
 
 export type InferEndpointResult<TEndpoint> = TEndpoint extends Endpoint<
   any,
@@ -62,7 +65,10 @@ export type PaginatedEndpointCountParams<T extends PaginationQuery> = Omit<
   keyof PaginationQuery
 >;
 
-export type DeleteResourceCascadeFnDefaultArgs = {workspaceId: string; resourceId: string};
+export type DeleteResourceCascadeFnDefaultArgs = {
+  workspaceId: string;
+  resourceId: string;
+};
 export type DeleteResourceCascadeFnHelperFns = {
   withTxn(fn: AnyFn<[SemanticDataAccessProviderMutationRunOptions]>): Promise<void>;
 };
@@ -72,10 +78,8 @@ export type DeleteResourceCascadeFn<Args = DeleteResourceCascadeFnDefaultArgs> =
   helpers: DeleteResourceCascadeFnHelperFns
 ) => Promise<void>;
 
-export type DeleteResourceCascadeFnsMap<Args = DeleteResourceCascadeFnDefaultArgs> = Record<
-  AppResourceType,
-  DeleteResourceCascadeFn<Args>
->;
+export type DeleteResourceCascadeFnsMap<Args = DeleteResourceCascadeFnDefaultArgs> =
+  Record<AppResourceType, DeleteResourceCascadeFn<Args>>;
 
 export type HttpEndpointRequestHeaders_AuthOptional = {
   Authorization?: string;
@@ -95,8 +99,14 @@ export type HttpEndpointResponseHeaders_ContentType_ContentLength = {
 };
 
 export type ExportedHttpEndpoint_GetDataFromReqFn = (req: Request) => OrPromise<any>;
-export type ExportedHttpEndpoint_HandleResponse = (res: Response, data: any) => OrPromise<void>;
-export type ExportedHttpEndpoint_Cleanup = (req: Request, res: Response) => OrPromise<void>;
+export type ExportedHttpEndpoint_HandleResponse = (
+  res: Response,
+  data: any
+) => OrPromise<void>;
+export type ExportedHttpEndpoint_Cleanup = (
+  req: Request,
+  res: Response
+) => OrPromise<void>;
 export type ExportedHttpEndpointWithMddocDefinition<
   TEndpoint extends Endpoint = Endpoint,
   TRequestHeaders extends AnyObject = HttpEndpointRequestHeaders_AuthRequired_ContentType,
@@ -118,7 +128,10 @@ export type ExportedHttpEndpointWithMddocDefinition<
     TSdkParams
   >;
   getDataFromReq?: (req: Request) => OrPromise<InferEndpointParams<TEndpoint>>;
-  handleResponse?: (res: Response, data: InferEndpointResult<TEndpoint>) => OrPromise<void>;
+  handleResponse?: (
+    res: Response,
+    data: InferEndpointResult<TEndpoint>
+  ) => OrPromise<void>;
   cleanup?: (req: Request, res: Response) => OrPromise<void>;
   expressRouteMiddleware?: RequestHandler;
 };

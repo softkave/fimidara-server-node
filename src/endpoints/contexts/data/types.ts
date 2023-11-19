@@ -31,7 +31,10 @@ export interface DataProviderQueryListParams<T> extends DataProviderOpParams<T> 
   sort?: DataQuerySort<T>;
 }
 
-export type DataProviderQueryParams<T> = Pick<DataProviderQueryListParams<T>, 'projection' | 'txn'>;
+export type DataProviderQueryParams<T> = Pick<
+  DataProviderQueryListParams<T>,
+  'projection' | 'txn'
+>;
 
 export const INCLUDE_IN_PROJECTION = 1 as const;
 export const EXCLUDE_IN_PROJECTION = 0 as const;
@@ -78,7 +81,9 @@ export interface IRecordFieldQueryOps<T extends AnyObject> {
 }
 
 // TODO: support $objMatch in elemMatch
-type ElemMatchQueryOp<T> = T extends AnyObject ? LiteralDataQuery<T> : LiteralFieldQueryOps<T>;
+type ElemMatchQueryOp<T> = T extends AnyObject
+  ? LiteralDataQuery<T>
+  : LiteralFieldQueryOps<T>;
 
 export interface ArrayFieldQueryOps<T> {
   $size?: number;
@@ -129,7 +134,10 @@ export type BulkOpItem<T> =
   | {type: BulkOpType.DeleteMany; query: DataQuery<T>};
 
 // TODO: infer resulting type from projection, otherwise default to full object
-export interface BaseDataProvider<TData, TQuery extends DataQuery<TData> = DataQuery<TData>> {
+export interface BaseDataProvider<
+  TData,
+  TQuery extends DataQuery<TData> = DataQuery<TData>
+> {
   insertItem: (item: TData, otherProps?: DataProviderOpParams<TData>) => Promise<TData>;
   insertList: (items: TData[], otherProps?: DataProviderOpParams<TData>) => Promise<void>;
   existsByQuery: <ExtendedQueryType extends TQuery = TQuery>(
@@ -161,7 +169,10 @@ export interface BaseDataProvider<TData, TQuery extends DataQuery<TData> = DataQ
     query: ExtendedQueryType,
     otherProps?: DataProviderOpParams<TData>
   ) => Promise<number>;
-  countByQueryList: (query: TQuery[], otherProps?: DataProviderOpParams<TData>) => Promise<number>;
+  countByQueryList: (
+    query: TQuery[],
+    otherProps?: DataProviderOpParams<TData>
+  ) => Promise<number>;
   updateManyByQuery: (
     query: TQuery,
     data: Partial<TData>,
@@ -194,7 +205,10 @@ export interface BaseDataProvider<TData, TQuery extends DataQuery<TData> = DataQ
     query: ExtendedQueryType,
     otherProps?: DataProviderOpParams<TData>
   ) => Promise<void>;
-  bulkWrite(ops: Array<BulkOpItem<TData>>, otherProps?: DataProviderOpParams<TData>): Promise<void>;
+  bulkWrite(
+    ops: Array<BulkOpItem<TData>>,
+    otherProps?: DataProviderOpParams<TData>
+  ): Promise<void>;
 }
 
 export interface DataProviderUtils {
@@ -209,7 +223,9 @@ export interface DataProviderUtils {
 
 export type AgentTokenQuery = DataQuery<AgentToken>;
 export type AppRuntimeStateQuery = DataQuery<AppRuntimeState>;
-export type AssignedItemQuery<T extends AnyObject = AnyObject> = DataQuery<AssignedItem<T>>;
+export type AssignedItemQuery<T extends AnyObject = AnyObject> = DataQuery<
+  AssignedItem<T>
+>;
 export type CollaborationRequestQuery = DataQuery<CollaborationRequest>;
 export type FileQuery = DataQuery<File>;
 export type FilePresignedPathQuery = DataQuery<FilePresignedPath>;
@@ -226,7 +242,10 @@ export type AppRuntimeStateDataProvider = BaseDataProvider<
   AppRuntimeState,
   DataQuery<AppRuntimeState>
 >;
-export type AssignedItemDataProvider = BaseDataProvider<AssignedItem, DataQuery<AssignedItem>>;
+export type AssignedItemDataProvider = BaseDataProvider<
+  AssignedItem,
+  DataQuery<AssignedItem>
+>;
 export type CollaborationRequestDataProvider = BaseDataProvider<
   CollaborationRequest,
   DataQuery<CollaborationRequest>
@@ -246,7 +265,10 @@ export type PermissionItemDataProvider = BaseDataProvider<
   DataQuery<PermissionItem>
 >;
 export type TagDataProvider = BaseDataProvider<Tag, DataQuery<Tag>>;
-export type UsageRecordDataProvider = BaseDataProvider<UsageRecord, DataQuery<UsageRecord>>;
+export type UsageRecordDataProvider = BaseDataProvider<
+  UsageRecord,
+  DataQuery<UsageRecord>
+>;
 export type UserDataProvider = BaseDataProvider<User, DataQuery<User>>;
 export type WorkspaceDataProvider = BaseDataProvider<Workspace, DataQuery<Workspace>>;
 export type ResourceDataProvider = BaseDataProvider<ResourceWrapper, DataQuery<Resource>>;

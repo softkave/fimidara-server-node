@@ -1,8 +1,8 @@
-import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {AppActionType, AppResourceType} from '../../../definitions/system';
+import assert from 'assert';
+import {AppResourceType} from '../../../definitions/system';
+import RequestData from '../../RequestData';
 import {BaseContextType} from '../../contexts/types';
 import {executeJob, waitForJob} from '../../jobs/runner';
-import RequestData from '../../RequestData';
 import {expectEntityHasPermissionsTargetingType} from '../../testUtils/helpers/permissionItem';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -38,28 +38,27 @@ test('permission items deleted', async () => {
     workspace.resourceId
   );
   await insertPermissionItemsForTest(context, userToken, workspace.resourceId, {
-    entity: {entityId: permissionGroup.resourceId},
-    target: {targetType: AppResourceType.File, targetId: workspace.resourceId},
+    entityId: permissionGroup.resourceId,
+    target: {targetId: workspace.resourceId},
     access: true,
-    action: AppActionType.Read,
-    appliesTo: PermissionItemAppliesTo.ChildrenOfType,
+    action: 'readFile',
   });
   const instData = RequestData.fromExpressRequest<DeletePermissionItemsEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
       workspaceId: workspace.resourceId,
-      entity: {entityId: permissionGroup.resourceId},
-      items: [{target: {targetType: AppResourceType.File}}],
+      items: [{action: 'readFile', target: {targetId: workspace.resourceId}}],
     }
   );
   const result = await deletePermissionItems(context, instData);
   assertEndpointResultOk(result);
+  assert(result.jobId);
   await executeJob(context, result.jobId);
   await waitForJob(context, result.jobId);
   await expectEntityHasPermissionsTargetingType(
     context,
     permissionGroup.resourceId,
-    AppActionType.Read,
+    'readFile',
     workspace.resourceId,
     AppResourceType.File,
     /** expected result */ false

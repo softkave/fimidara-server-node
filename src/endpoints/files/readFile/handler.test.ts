@@ -1,5 +1,3 @@
-import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {streamToBuffer} from '../../../utils/fns';
 import RequestData from '../../RequestData';
@@ -96,11 +94,10 @@ describe('readFile', () => {
     // Make public folder
     const {folder} = await insertFolderForTest(context, userToken, workspace);
     await insertPermissionItemsForTest(context, userToken, workspace.resourceId, {
-      target: {targetId: folder.resourceId, targetType: AppResourceType.File},
-      action: AppActionType.Read,
+      target: {targetId: folder.resourceId},
+      action: 'readFile',
       access: true,
-      appliesTo: PermissionItemAppliesTo.ChildrenOfType,
-      entity: {entityId: workspace.publicPermissionGroupId},
+      entityId: workspace.publicPermissionGroupId,
     });
     const {file} = await insertFileForTest(context, userToken, workspace, {
       filepath: addRootnameToPath(
@@ -125,10 +122,9 @@ describe('readFile', () => {
     const {file} = await insertFileForTest(context, userToken, workspace);
     await insertPermissionItemsForTest(context, userToken, workspace.resourceId, {
       target: {targetId: file.resourceId},
-      action: AppActionType.Read,
+      action: 'readFile',
       access: true,
-      appliesTo: PermissionItemAppliesTo.Self,
-      entity: {entityId: workspace.publicPermissionGroupId},
+      entityId: workspace.publicPermissionGroupId,
     });
     const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestForPublicAgent(),

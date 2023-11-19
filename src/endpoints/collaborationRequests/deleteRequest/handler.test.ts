@@ -30,15 +30,20 @@ test('collaboration request deleted', async () => {
   const {userToken} = await insertUserForTest(context);
   const {workspace} = await insertWorkspaceForTest(context, userToken);
   const {request} = await insertRequestForTest(context, userToken, workspace.resourceId);
-  const instData = RequestData.fromExpressRequest<DeleteCollaborationRequestEndpointParams>(
-    mockExpressRequestWithAgentToken(userToken),
-    {requestId: request.resourceId}
-  );
+  const instData =
+    RequestData.fromExpressRequest<DeleteCollaborationRequestEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {requestId: request.resourceId}
+    );
 
   const result = await deleteCollaborationRequest(context, instData);
   assertEndpointResultOk(result);
-  await executeJob(context, result.jobId);
-  await waitForJob(context, result.jobId);
+
+  if (result.jobId) {
+    await executeJob(context, result.jobId);
+    await waitForJob(context, result.jobId);
+  }
+
   const deletedRequestExists = await context.semantic.collaborationRequest.existsByQuery(
     EndpointReusableQueries.getByResourceId(request.resourceId)
   );

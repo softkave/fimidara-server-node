@@ -1,5 +1,4 @@
-import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {AppActionType, AppResourceType} from '../../../definitions/system';
+import {AppResourceType} from '../../../definitions/system';
 import {calculatePageSize} from '../../../utils/fns';
 import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
@@ -44,11 +43,10 @@ describe.skip('getEntityPermissionitems', () => {
       workspace.resourceId,
       [
         {
-          entity: {entityId: permissionGroup.resourceId},
-          target: {targetType: AppResourceType.File, targetId: workspace.resourceId},
+          entityId: permissionGroup.resourceId,
+          target: {targetId: workspace.resourceId},
           access: true,
-          action: AppActionType.Read,
-          appliesTo: PermissionItemAppliesTo.ChildrenOfType,
+          action: 'readFile',
         },
       ]
     );

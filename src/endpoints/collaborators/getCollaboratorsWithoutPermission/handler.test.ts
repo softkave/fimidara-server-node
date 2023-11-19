@@ -1,6 +1,5 @@
 import {identity} from 'lodash';
-import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {AppActionType, AppResourceType, Resource} from '../../../definitions/system';
+import {AppResourceType, Resource} from '../../../definitions/system';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {extractResourceIdList, getResourceId} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
@@ -71,20 +70,19 @@ describe('getCollaboratorsWithoutPermission', () => {
 
     // add permission items to a subset of users
     await insertPermissionItemsForTest(context, userToken, workspace.resourceId, {
-      entity: {entityId: extractResourceIdList(seedUserWithPermissionItems)},
-      target: {targetType: AppResourceType.File, targetId: workspace.resourceId},
+      entityId: extractResourceIdList(seedUserWithPermissionItems),
+      target: {targetId: workspace.resourceId},
       access: true,
-      action: AppActionType.Read,
-      appliesTo: PermissionItemAppliesTo.ChildrenOfType,
+      action: 'readFile',
     });
 
     // test
-    let instData =
+    const instData =
       RequestData.fromExpressRequest<GetCollaboratorsWithoutPermissionEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId}
       );
-    let result = await getCollaboratorsWithoutPermission(context, instData);
+    const result = await getCollaboratorsWithoutPermission(context, instData);
     assertEndpointResultOk(result);
     expect(result.collaboratorIds).toHaveLength(seedUserWithoutPermissions.length);
     await assertCollaboratorsDoNotHavePermissions(

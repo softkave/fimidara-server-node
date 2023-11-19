@@ -1,5 +1,3 @@
-import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {AppActionType, AppResourceType} from '../../../definitions/system';
 import {makeKey} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import RequestData from '../../RequestData';
@@ -61,29 +59,26 @@ describe('resolveEntityPermissions', () => {
 
     // Allows access to all files
     const pItem01: PermissionItemInput = {
-      action: AppActionType.Read,
-      target: {targetId: workspace.resourceId, targetType: AppResourceType.File},
-      appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
+      action: 'readFile',
+      target: {targetId: workspace.resourceId},
       access: true,
-      entity: {entityId: pg01.resourceId},
+      entityId: pg01.resourceId,
     };
 
     // Allows access to a single file
     const pItem02: PermissionItemInput = {
-      action: AppActionType.Read,
+      action: 'readFile',
       target: {targetId: file01.resourceId},
-      appliesTo: PermissionItemAppliesTo.Self,
       access: true,
-      entity: {entityId: pg02.resourceId},
+      entityId: pg02.resourceId,
     };
 
     // Denies access to all files
     const pItem03: PermissionItemInput = {
-      action: AppActionType.Read,
-      target: {targetId: workspace.resourceId, targetType: AppResourceType.File},
-      appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
+      action: 'readFile',
+      target: {targetId: workspace.resourceId},
       access: false,
-      entity: {entityId: pg03.resourceId},
+      entityId: pg03.resourceId,
     };
     await insertPermissionItemsForTest(context, userToken, workspace.resourceId, [
       pItem01,
@@ -109,22 +104,20 @@ describe('resolveEntityPermissions', () => {
           workspaceId: workspace.resourceId,
           items: [
             {
-              action: AppActionType.Read,
-              target: {targetId: workspace.resourceId, targetType: AppResourceType.File},
-              entityId: {
-                entityId: [
-                  pg01.resourceId,
-                  pg02.resourceId,
-                  pg03.resourceId,
-                  pg04.resourceId,
-                  pg05.resourceId,
-                ],
-              },
+              action: 'readFile',
+              target: {targetId: workspace.resourceId},
+              entityId: [
+                pg01.resourceId,
+                pg02.resourceId,
+                pg03.resourceId,
+                pg04.resourceId,
+                pg05.resourceId,
+              ],
             },
             {
-              action: AppActionType.Read,
+              action: 'readFile',
               target: {targetId: file01.resourceId},
-              entityId: {entityId: [pg02.resourceId, pg04.resourceId]},
+              entityId: [pg02.resourceId, pg04.resourceId],
             },
           ],
         }
@@ -135,43 +128,43 @@ describe('resolveEntityPermissions', () => {
     const expected = [
       indexResolvedPermissions({
         entityId: pg01.resourceId,
-        action: AppActionType.Read,
+        action: 'readFile',
         hasAccess: true,
-        target: {targetId: workspace.resourceId, targetType: AppResourceType.File},
+        target: {targetId: workspace.resourceId},
       }),
       indexResolvedPermissions({
         entityId: pg02.resourceId,
-        action: AppActionType.Read,
+        action: 'readFile',
         hasAccess: true,
         target: {targetId: file01.resourceId},
       }),
       indexResolvedPermissions({
         entityId: pg03.resourceId,
-        action: AppActionType.Read,
+        action: 'readFile',
         hasAccess: false,
-        target: {targetId: workspace.resourceId, targetType: AppResourceType.File},
+        target: {targetId: workspace.resourceId},
       }),
       indexResolvedPermissions({
         entityId: pg02.resourceId,
-        action: AppActionType.Read,
+        action: 'readFile',
         hasAccess: false,
-        target: {targetId: workspace.resourceId, targetType: AppResourceType.File},
+        target: {targetId: workspace.resourceId},
       }),
       indexResolvedPermissions({
         entityId: pg04.resourceId,
-        action: AppActionType.Read,
+        action: 'readFile',
         hasAccess: true,
-        target: {targetId: workspace.resourceId, targetType: AppResourceType.File},
+        target: {targetId: workspace.resourceId},
       }),
       indexResolvedPermissions({
         entityId: pg05.resourceId,
-        action: AppActionType.Read,
+        action: 'readFile',
         hasAccess: false,
-        target: {targetId: workspace.resourceId, targetType: AppResourceType.File},
+        target: {targetId: workspace.resourceId},
       }),
       indexResolvedPermissions({
         entityId: pg04.resourceId,
-        action: AppActionType.Read,
+        action: 'readFile',
         hasAccess: true,
         target: {targetId: file01.resourceId},
       }),
@@ -197,12 +190,11 @@ describe('resolveEntityPermissions', () => {
         mockExpressRequestWithAgentToken(userToken),
         {
           workspaceId: workspace.resourceId,
-          entity: {entityId: [adminPg.resourceId]},
           items: [
             {
-              action: AppActionType.Read,
-              target: {targetId: folder.resourceId, targetType: AppResourceType.Folder},
-              containerAppliesTo: [PermissionItemAppliesTo.SelfAndChildrenOfType],
+              action: 'readFolder',
+              target: {targetId: folder.resourceId},
+              entityId: [adminPg.resourceId],
             },
           ],
         }
@@ -213,9 +205,9 @@ describe('resolveEntityPermissions', () => {
     const expected = [
       indexResolvedPermissions({
         entityId: adminPg.resourceId,
-        action: AppActionType.Read,
+        action: 'readFolder',
         hasAccess: true,
-        target: {targetId: folder.resourceId, targetType: AppResourceType.Folder},
+        target: {targetId: folder.resourceId},
       }),
     ];
     const resolved = result.items.map(indexResolvedPermissions);
@@ -235,5 +227,5 @@ function indexResolvedPermissions(item: ResolvedEntityPermissionItem) {
 function indexResolvedPermissionItemTarget(item: ResolvedEntityPermissionItemTarget) {
   const targetIdentifier =
     item.filepath || item.folderpath || item.targetId || item.workspaceRootname;
-  return makeKey([targetIdentifier, item.targetType]);
+  return targetIdentifier;
 }

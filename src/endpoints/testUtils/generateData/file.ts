@@ -49,7 +49,11 @@ export function generateTestFile(
     createdBy: SYSTEM_SESSION_AGENT,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
-    idPath: extra.idPath ? extra.idPath.concat(id) : extra.parentId ? [extra.parentId, id] : [id],
+    idPath: extra.idPath
+      ? extra.idPath.concat(id)
+      : extra.parentId
+      ? [extra.parentId, id]
+      : [id],
     namePath: extra.namePath
       ? extra.namePath.concat(nameinfo.nameWithoutExtension)
       : [nameinfo.nameWithoutExtension],
@@ -80,6 +84,8 @@ export async function generateAndInsertTestFiles(
   extra: Partial<File> & {parentId: string | null} = {parentId: null}
 ) {
   const items = generateTestFiles(count, extra);
-  await ctx.semantic.utils.withTxn(ctx, async opts => ctx.semantic.file.insertItem(items, opts));
+  await ctx.semantic.utils.withTxn(ctx, async opts =>
+    ctx.semantic.file.insertItem(items, opts)
+  );
   return items;
 }

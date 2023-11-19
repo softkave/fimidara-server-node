@@ -100,20 +100,12 @@ export const INTERNAL_deletePermissionItems = async (
 
   const insertIntoContainerTargetsMap = (
     resource: ResourceWrapper,
-    targetType: AppResourceType | AppResourceType[] | undefined,
     item: DeletePermissionItemInput
   ) => {
     resolvedInputsMap.targetsMap[resource.resourceId] = {
       resource,
       item,
     };
-  };
-
-  const insertIntoContainerTargetTypesMap = (
-    targetType: string,
-    item: DeletePermissionItemInput
-  ) => {
-    resolvedInputsMap.targetTypesMap[targetType] = {item};
   };
 
   if (data.items) {
@@ -124,11 +116,7 @@ export const INTERNAL_deletePermissionItems = async (
 
         if (!isObjectEmpty(itemTargetsMap)) {
           forEach(itemTargetsMap, targetResource => {
-            insertIntoContainerTargetsMap(targetResource, target.targetType, item);
-          });
-        } else if (target.targetType) {
-          toArray(target.targetType).forEach(targetType => {
-            insertIntoContainerTargetTypesMap(targetType, item);
+            insertIntoContainerTargetsMap(targetResource, item);
           });
         }
       });

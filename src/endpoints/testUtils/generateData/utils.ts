@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {merge} from 'lodash';
-import {AppActionType, AppResourceType} from '../../../definitions/system';
+import {kPermissionsMap} from '../../../definitions/permissionItem';
+import {AppResourceType} from '../../../definitions/system';
 
 export type GeneratePartialTestDataFn<T> = (
   index: number,
@@ -8,7 +9,9 @@ export type GeneratePartialTestDataFn<T> = (
   cache: Record<string, any>
 ) => Partial<T>;
 
-export const defaultGeneratePartialTestDataFn: GeneratePartialTestDataFn<any> = () => ({});
+export const defaultGeneratePartialTestDataFn: GeneratePartialTestDataFn<
+  any
+> = () => ({});
 
 export function generateTestList<T, C extends Record<string, any> = Record<string, any>>(
   generareFullDataFn: (index: number, cache: Record<string, any>) => T,
@@ -25,10 +28,12 @@ export function generateTestList<T, C extends Record<string, any> = Record<strin
   return data;
 }
 
-export function randomResourceType(types: AppResourceType[] = Object.values(AppResourceType)) {
+export function randomResourceType(
+  types: AppResourceType[] = Object.values(AppResourceType)
+) {
   return faker.helpers.arrayElement(types);
 }
 
-export function randomAction(actions = Object.values(AppActionType)) {
+export function randomAction(actions = Object.values(kPermissionsMap)) {
   return faker.helpers.arrayElement(actions);
 }

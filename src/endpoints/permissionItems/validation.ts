@@ -1,5 +1,4 @@
 import Joi = require('joi');
-import {PermissionItemAppliesTo} from '../../definitions/permissionItem';
 import {getWorkspaceResourceTypeList} from '../../definitions/system';
 import {validationSchemas} from '../../utils/validationUtils';
 import {endpointConstants} from '../constants';
@@ -7,24 +6,11 @@ import fileValidationSchemas from '../files/validation';
 import folderValidationSchemas from '../folders/validation';
 import workspaceValidationSchemas from '../workspaces/validation';
 import {permissionItemConstants} from './constants';
-import {
-  PermissionItemInput,
-  PermissionItemInputEntity,
-  PermissionItemInputTarget,
-} from './types';
+import {PermissionItemInput, PermissionItemInputTarget} from './types';
 
 const targetId = validationSchemas.resourceId;
 const targetType = Joi.string().valid(...getWorkspaceResourceTypeList());
 const entityId = validationSchemas.resourceId;
-const appliesTo = Joi.string().valid(
-  PermissionItemAppliesTo.Self,
-  PermissionItemAppliesTo.SelfAndChildrenOfType,
-  PermissionItemAppliesTo.ChildrenOfType
-);
-const appliesToList = Joi.array()
-  .items(appliesTo)
-  .max(Object.values(PermissionItemAppliesTo).length);
-const appliesToOrList = Joi.alternatives().try(appliesTo, appliesToList);
 
 // TODO: review max items
 const targetParts = {
@@ -52,7 +38,6 @@ const targetParts = {
 };
 const target = Joi.object<PermissionItemInputTarget>().keys({
   targetId: targetParts.targetId,
-  targetType: targetParts.targetType,
   folderpath: targetParts.folderpath,
   filepath: targetParts.filepath,
   workspaceRootname: workspaceValidationSchemas.rootname,
@@ -67,15 +52,11 @@ const entityParts = {
     Joi.array().items(entityId).max(endpointConstants.inputListMax)
   ),
 };
-const entity = Joi.object<PermissionItemInputEntity>().keys({
-  entityId: entityParts.entityId,
-});
 const itemInput = Joi.object<PermissionItemInput>().keys({
-  entity,
   target: targetOrList.required(),
   action: validationSchemas.crudActionOrList.required(),
   access: Joi.boolean().required(),
-  appliesTo: appliesToOrList,
+  entityId: entityParts.entityId,
 });
 const itemInputList = Joi.array()
   .items(itemInput)
@@ -93,8 +74,6 @@ const publicAccessOpList = Joi.array()
   .max(permissionItemConstants.maxPermissionItemsPerRequest);
 
 const permissionItemValidationSchemas = {
-  appliesTo,
-  entity,
   target,
   itemIds,
   itemInput,
@@ -103,8 +82,6 @@ const permissionItemValidationSchemas = {
   publicAccessOpList,
   targetParts,
   entityParts,
-  appliesToList,
-  appliesToOrList,
 };
 
 export default permissionItemValidationSchemas;

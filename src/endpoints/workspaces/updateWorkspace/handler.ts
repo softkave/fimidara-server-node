@@ -1,10 +1,13 @@
-import {AppActionType} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {checkWorkspaceNameExists} from '../checkWorkspaceExists';
-import {assertWorkspace, checkWorkspaceAuthorization02, workspaceExtractor} from '../utils';
+import {
+  assertWorkspace,
+  checkWorkspaceAuthorization02,
+  workspaceExtractor,
+} from '../utils';
 import {UpdateWorkspaceEndpoint} from './types';
 import {updateWorkspaceJoiSchema} from './validation';
 
@@ -14,7 +17,7 @@ const updateWorkspace: UpdateWorkspaceEndpoint = async (context, instData) => {
   let {workspace} = await checkWorkspaceAuthorization02(
     context,
     agent,
-    AppActionType.Update,
+    'updateWorkspace',
     data.workspaceId
   );
 

@@ -1,9 +1,7 @@
 import {AssignedItem} from '../../../definitions/assignedItem';
-import {AppActionType, AppResourceType, SessionAgent} from '../../../definitions/system';
+import {AppResourceType, SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
-import {appAssert} from '../../../utils/assertion';
-import {ServerError} from '../../../utils/errors';
-import {summarizeAgentPermissionItems} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {resolveTargetChildrenAccessCheckWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {DataQuery} from '../../contexts/data/types';
 import {getInAndNinQuery} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
@@ -14,16 +12,15 @@ export async function getWorkspaceCollaboratorsQuery(
   agent: SessionAgent,
   workspace: Workspace
 ): Promise<DataQuery<AssignedItem>> {
-  const permissionsSummaryReport = await summarizeAgentPermissionItems({
+  const permissionsSummaryReport = await resolveTargetChildrenAccessCheckWithAgent({
     context,
     agent,
     workspaceId: workspace.resourceId,
     workspace: workspace,
-    target: {targetType: AppResourceType.User},
-    action: AppActionType.Read,
+    target: {targetId: workspace.resourceId, action: 'readCollaborator'},
   });
 
-  if (permissionsSummaryReport.hasFullOrLimitedAccess) {
+  if (permissionsSummaryReport.access === 'full') {
     return {
       workspaceId: workspace.resourceId,
       assignedItemType: AppResourceType.Workspace,
@@ -31,21 +28,19 @@ export async function getWorkspaceCollaboratorsQuery(
       ...getInAndNinQuery<AssignedItem>(
         'assigneeId',
         /** inList */ undefined,
-        permissionsSummaryReport.deniedResourceIdList
+        permissionsSummaryReport.partialDenyIds
       ),
     };
-  } else if (permissionsSummaryReport.allowedResourceIdList) {
+  } else if (permissionsSummaryReport.access === 'partial') {
     return {
       workspaceId: workspace.resourceId,
-      assigneeId: permissionsSummaryReport.allowedResourceIdList && {
-        $in: permissionsSummaryReport.allowedResourceIdList,
+      assigneeId: permissionsSummaryReport.partialAllowIds && {
+        $in: permissionsSummaryReport.partialAllowIds,
       },
       assignedItemType: AppResourceType.Workspace,
       assigneeType: AppResourceType.User,
     };
-  } else if (permissionsSummaryReport.noAccess) {
-    throw new PermissionDeniedError();
   }
 
-  appAssert(false, new ServerError(), 'Control flow should not get here.');
+  throw new PermissionDeniedError();
 }

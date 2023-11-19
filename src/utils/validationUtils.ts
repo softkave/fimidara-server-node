@@ -1,8 +1,6 @@
 import * as Joi from 'joi';
-import {
-  getWorkspaceActionList,
-  APP_RESOURCE_TYPE_LIST as systemAppResourceTypesList,
-} from '../definitions/system';
+import {kPermissionsMap} from '../definitions/permissionItem';
+import {APP_RESOURCE_TYPE_LIST as systemAppResourceTypesList} from '../definitions/system';
 import {endpointConstants} from '../endpoints/constants';
 
 const password = /[A-Za-z0-9!()?_`~#$^&*+=]/;
@@ -32,7 +30,10 @@ const alphanum = Joi.string().regex(str);
 const URL = Joi.string().uri().trim().max(validationConstants.maxImageURLLength);
 const positiveNum = Joi.number().integer().positive();
 const name = Joi.string().trim().max(endpointConstants.maxNameLength);
-const description = Joi.string().allow(null, '').max(endpointConstants.maxDescriptionLength).trim();
+const description = Joi.string()
+  .allow(null, '')
+  .max(endpointConstants.maxDescriptionLength)
+  .trim();
 const zipcode = Joi.string().regex(regExPatterns.zipcode);
 const phone = Joi.string().regex(regExPatterns.phone);
 const time = Joi.date().timestamp().cast('number');
@@ -49,9 +50,13 @@ const resourceIdOrResourceIdList = Joi.alternatives().try(resourceId, resourceId
 const fromNowMs = Joi.number().integer().min(0);
 const fromNowSecs = Joi.number().integer().min(0);
 const resourceType = Joi.string().valid(...systemAppResourceTypesList);
-const crudAction = Joi.string().valid(...getWorkspaceActionList());
-const crudActionList = Joi.array().items(crudAction).max(getWorkspaceActionList().length);
-const providedResourceId = Joi.string().max(endpointConstants.providedResourceIdMaxLength);
+const crudAction = Joi.string().valid(...Object.keys(kPermissionsMap));
+const crudActionList = Joi.array()
+  .items(crudAction)
+  .max(Object.keys(kPermissionsMap).length);
+const providedResourceId = Joi.string().max(
+  endpointConstants.providedResourceIdMaxLength
+);
 const crudActionOrList = Joi.alternatives().try(crudAction, crudActionList);
 
 export const validationSchemas = {

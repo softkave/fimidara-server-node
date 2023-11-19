@@ -1,16 +1,11 @@
 import {faker} from '@faker-js/faker';
 import {flatten} from 'lodash';
-import {PermissionItemAppliesTo} from '../../../definitions/permissionItem';
-import {
-  AppActionType,
-  AppResourceType,
-  getWorkspaceActionList,
-  Resource,
-} from '../../../definitions/system';
+import {kPermissionsMap} from '../../../definitions/permissionItem';
+import {AppResourceType, Resource} from '../../../definitions/system';
+import RequestData from '../../RequestData';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {collaboratorExtractor} from '../../collaborators/utils';
 import {BaseContextType} from '../../contexts/types';
-import RequestData from '../../RequestData';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -49,13 +44,12 @@ describe('getResources', () => {
       workspace.resourceId
     );
     const itemsList = await Promise.all(
-      getWorkspaceActionList().map(action =>
+      Object.values(kPermissionsMap).map(action =>
         generateAndInsertPermissionItemListForTest(context!, 1, {
-          action: action as AppActionType,
+          action: action,
           access: faker.datatype.boolean(),
           targetId: workspace.resourceId,
           targetType: AppResourceType.Workspace,
-          appliesTo: PermissionItemAppliesTo.SelfAndChildrenOfType,
           workspaceId: workspace.resourceId,
           entityId: permissionGroup.resourceId,
         })

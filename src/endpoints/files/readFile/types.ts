@@ -69,7 +69,7 @@ export const ImageFormatEnumMap = {
   raw: 'raw',
 
   // TODO: support gif
-};
+} as const;
 export type ImageFormatEnum = ObjectValues<typeof ImageFormatEnumMap>;
 
 export type ReadFileEndpointParams = {

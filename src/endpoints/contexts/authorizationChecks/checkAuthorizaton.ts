@@ -13,6 +13,7 @@ import {ServerError} from '../../../utils/errors';
 import {defaultArrayTo, toArray, toCompactArray} from '../../../utils/fns';
 import {getResourceTypeFromId} from '../../../utils/resource';
 import {reuseableErrors} from '../../../utils/reusableErrors';
+import {Omit1} from '../../../utils/types';
 import {checkResourcesBelongsToWorkspace} from '../../resources/containerCheckFns';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../users/errors';
 import {SemanticDataAccessProviderRunOptions} from '../semantic/types';
@@ -66,8 +67,8 @@ export type ResolvedTargetChildrenAccessCheck =
   | {
       access: 'full';
       item: PermissionItem;
-      partialDenyItems?: PermissionItem[];
-      partialDenyIds?: string[];
+      partialDenyItems: PermissionItem[];
+      partialDenyIds: string[];
     }
   | {
       access: 'deny';
@@ -75,10 +76,9 @@ export type ResolvedTargetChildrenAccessCheck =
     }
   | {
       access: 'partial';
+      item?: PermissionItem;
       partialAllowItems: PermissionItem[];
       partialAllowIds: string[];
-      partialDenyItems: PermissionItem[];
-      partialDenyIds: string[];
     };
 
 class ResolvedPermissionsAccessChecker implements ResolvedPermissionsAccessCheckerType {
@@ -227,19 +227,9 @@ export function sortOutPermissionItems(
   return {items, itemsMap: map};
 }
 
-export async function resolveTargetChildrenAccessCheck(
-  params: CheckAuthorizationParams
-): Promise<ResolvedTargetChildrenAccessCheck> {
-  const parentCheck = await checkAuthorization({...params, nothrow: true});
-  let report: ResolvedTargetChildrenAccessCheck | undefined = undefined;
-
-  if (parentCheck.hasAccess) {
-    report = {access: 'full', item: parentCheck.item};
-  } else if (parentCheck.item) {
-    report = {access: 'deny', item: parentCheck.item};
-    return report;
-  }
-
+async function resolveTargetChildrenPartialAccessCheck(
+  params: Omit1<CheckAuthorizationParams, 'nothrow'>
+) {
   const {context, workspaceId, target} = params;
   const action = [target.action].concat(kPermissionsMap.wildcard),
     targetParentId = defaultTo(first(toCompactArray(target.targetId)), workspaceId);
@@ -273,21 +263,36 @@ export async function resolveTargetChildrenAccessCheck(
     }
   });
 
-  if (report?.access === 'full') {
-    return {
-      ...report,
-      partialDenyIds,
-      partialDenyItems,
-    };
-  }
-
   return {
     partialAllowIds,
     partialAllowItems,
     partialDenyIds,
     partialDenyItems,
-    access: 'partial',
   };
+}
+
+export async function resolveTargetChildrenAccessCheck(
+  params: Omit1<CheckAuthorizationParams, 'nothrow'>
+): Promise<ResolvedTargetChildrenAccessCheck> {
+  const [
+    parentCheck,
+    {partialAllowIds, partialAllowItems, partialDenyIds, partialDenyItems},
+  ] = await Promise.all([
+    checkAuthorization({...params, nothrow: true}),
+    resolveTargetChildrenPartialAccessCheck(params),
+  ]);
+
+  if (parentCheck.hasAccess) {
+    return {partialDenyIds, partialDenyItems, access: 'full', item: parentCheck.item};
+  } else if (!parentCheck.hasAccess && parentCheck.item && partialAllowIds.length === 0) {
+    return {access: 'deny', item: parentCheck.item};
+  } else {
+    return {
+      partialAllowIds,
+      partialAllowItems,
+      access: 'partial',
+    };
+  }
 }
 
 export function getWorkspacePermissionContainers(workspaceId: string): string[] {
@@ -353,7 +358,7 @@ export async function checkAuthorizationWithAgent(
 }
 
 export async function resolveTargetChildrenAccessCheckWithAgent(
-  params: Omit<CheckAuthorizationParams, 'target'> & {
+  params: Omit1<CheckAuthorizationParams, 'target' | 'nothrow'> & {
     agent: SessionAgent;
     target: Omit<CheckAuthorizationParams['target'], 'entityId'> & {entityId?: string};
   }

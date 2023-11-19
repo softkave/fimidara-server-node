@@ -20,14 +20,16 @@ export function generateTestFolderName(
 ) {
   const wordCount = getRandomIntInclusive(3, 10);
   const seed = getRandomIntInclusive(1, 2);
-  const separator = faker.helpers.arrayElement(separatorChars ?? kTestFolderNameSeparatorChars);
+  const separator = faker.helpers.arrayElement(
+    separatorChars ?? kTestFolderNameSeparatorChars
+  );
   const name = faker.lorem
     .words(wordCount)
     .split(' ')
     .map(word =>
       /** introduce a little randomness in the name, mixing uppercase and
        * lowercase characters to test that names are matched case-insensitively.
-       * */
+       */
       seed === 1 ? word : word.toUpperCase()
     )
     .join(separator);
@@ -89,6 +91,8 @@ export async function generateAndInsertTestFolders(
   other: Parameters<typeof generateTestFolder>[1] = {}
 ) {
   const items = generateTestFolders(count, extra, other);
-  await ctx.semantic.utils.withTxn(ctx, async opts => ctx.semantic.folder.insertItem(items, opts));
+  await ctx.semantic.utils.withTxn(ctx, async opts =>
+    ctx.semantic.folder.insertItem(items, opts)
+  );
   return items;
 }

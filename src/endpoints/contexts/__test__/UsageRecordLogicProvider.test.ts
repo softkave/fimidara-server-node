@@ -121,7 +121,9 @@ describe('UsageRecordLogicProvider', () => {
 
   test('record dropped cause total threshold is exceeded', async () => {
     const {context} = assertDeps();
-    const workspace = generateWorkspaceWithCategoryUsageExceeded([UsageRecordCategory.Total]);
+    const workspace = generateWorkspaceWithCategoryUsageExceeded([
+      UsageRecordCategory.Total,
+    ]);
     await context.semantic.utils.withTxn(context, opts =>
       context!.semantic.workspace.insertItem(workspace, opts)
     );
@@ -144,7 +146,9 @@ describe('UsageRecordLogicProvider', () => {
 
   test('record dropped cause category threshold is exceeded', async () => {
     const {context} = assertDeps();
-    const workspace = generateWorkspaceWithCategoryUsageExceeded([UsageRecordCategory.Storage]);
+    const workspace = generateWorkspaceWithCategoryUsageExceeded([
+      UsageRecordCategory.Storage,
+    ]);
     await context.semantic.utils.withTxn(context, opts =>
       context!.semantic.workspace.insertItem(workspace, opts)
     );

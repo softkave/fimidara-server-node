@@ -1,9 +1,12 @@
-import {AppActionType, AppResourceType} from '../../../definitions/system';
+import {AppResourceType} from '../../../definitions/system';
 import {calculatePageSize, getResourceId} from '../../../utils/fns';
 import {BaseContextType} from '../../contexts/types';
 import addPermissionItems from '../../permissionItems/addItems/handler';
 import RequestData from '../../RequestData';
-import {generateAndInsertTestFiles, generateTestFileName} from '../../testUtils/generateData/file';
+import {
+  generateAndInsertTestFiles,
+  generateTestFileName,
+} from '../../testUtils/generateData/file';
 import {
   generateAndInsertTestFolders,
   generateTestFolderName,
@@ -127,24 +130,26 @@ describe('listFolderContent', () => {
       ),
     });
 
-    const fetchFilesReqData = RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {
-        folderpath: addRootnameToPath(folder01.name, workspace.rootname),
-        contentType: AppResourceType.File,
-      }
-    );
+    const fetchFilesReqData =
+      RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          folderpath: addRootnameToPath(folder01.name, workspace.rootname),
+          contentType: AppResourceType.File,
+        }
+      );
     const fetchFilesResult = await listFolderContent(context, fetchFilesReqData);
     assertEndpointResultOk(fetchFilesResult);
     expect(fetchFilesResult.files).toContainEqual(file);
 
-    const fetchFoldersReqData = RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {
-        folderpath: addRootnameToPath(folder01.name, workspace.rootname),
-        contentType: AppResourceType.Folder,
-      }
-    );
+    const fetchFoldersReqData =
+      RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          folderpath: addRootnameToPath(folder01.name, workspace.rootname),
+          contentType: AppResourceType.Folder,
+        }
+      );
     const fetchFoldersResult = await listFolderContent(context, fetchFoldersReqData);
     assertEndpointResultOk(fetchFoldersResult);
     expect(fetchFoldersResult.folders).toContainEqual(folder02);
@@ -168,14 +173,20 @@ describe('listFolderContent', () => {
         workspaceId: workspace.resourceId,
         parentId: null,
       }),
-      generateAndInsertTestFiles(context, 10, {workspaceId: workspace.resourceId, parentId: null}),
+      generateAndInsertTestFiles(context, 10, {
+        workspaceId: workspace.resourceId,
+        parentId: null,
+      }),
     ]);
     const [foldersPage02, filesPage02] = await Promise.all([
       generateAndInsertTestFolders(context, 5, {
         workspaceId: workspace.resourceId,
         parentId: null,
       }),
-      generateAndInsertTestFiles(context, 5, {workspaceId: workspace.resourceId, parentId: null}),
+      generateAndInsertTestFiles(context, 5, {
+        workspaceId: workspace.resourceId,
+        parentId: null,
+      }),
     ]);
     const [foldersCount, filesCount] = await Promise.all([
       context.semantic.folder.countByQuery({
@@ -199,7 +210,9 @@ describe('listFolderContent', () => {
     const result01 = await listFolderContent(context, instData);
     assertEndpointResultOk(result01);
     expect(result01.page).toBe(page);
-    expect(result01.folders).toHaveLength(calculatePageSize(foldersCount, pageSize, page));
+    expect(result01.folders).toHaveLength(
+      calculatePageSize(foldersCount, pageSize, page)
+    );
     expect(result01.files).toHaveLength(calculatePageSize(filesCount, pageSize, page));
     // const resultFolders01Ids = extractResourceIdList(result01.folders);
     // const resultFiles01Ids = extractResourceIdList(result01.files);
@@ -214,7 +227,9 @@ describe('listFolderContent', () => {
     const result02 = await listFolderContent(context, instData);
     assertEndpointResultOk(result02);
     expect(result02.page).toBe(page);
-    expect(result02.folders).toHaveLength(calculatePageSize(foldersCount, pageSize, page));
+    expect(result02.folders).toHaveLength(
+      calculatePageSize(foldersCount, pageSize, page)
+    );
     expect(result02.files).toHaveLength(calculatePageSize(filesCount, pageSize, page));
     // const resultFolders02Ids = extractResourceIdList(result01.folders);
     // const resultFiles02Ids = extractResourceIdList(result01.files);
@@ -247,17 +262,18 @@ describe('listFolderContent', () => {
       context,
       RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
         workspaceId: workspace.resourceId,
-        entity: {entityId: [agToken.resourceId]},
         items: [
           {
             target: {targetId: folder02.resourceId},
-            action: AppActionType.Read,
-            grantAccess: true,
+            action: 'readFolder',
+            access: true,
+            entityId: [agToken.resourceId],
           },
           {
             target: {targetId: file01.resourceId},
-            action: AppActionType.Read,
-            grantAccess: true,
+            action: 'readFile',
+            access: true,
+            entityId: [agToken.resourceId],
           },
         ],
       })

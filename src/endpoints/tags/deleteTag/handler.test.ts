@@ -1,7 +1,8 @@
+import assert from 'assert';
+import RequestData from '../../RequestData';
 import {BaseContextType} from '../../contexts/types';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
-import RequestData from '../../RequestData';
 import {insertTagForTest} from '../../testUtils/helpers/tag';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -38,6 +39,7 @@ describe('deleteTag', () => {
     );
     const result = await deleteTag(context, instData);
     assertEndpointResultOk(result);
+    assert(result.jobId);
     await executeJob(context, result.jobId);
     await waitForJob(context, result.jobId);
 

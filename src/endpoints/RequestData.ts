@@ -70,7 +70,9 @@ export default class RequestData<T = any> {
 
   getIp() {
     if (this.req)
-      return Array.isArray(this.req.ips) && this.req.ips.length > 0 ? this.req.ips : [this.req.ip];
+      return Array.isArray(this.req.ips) && this.req.ips.length > 0
+        ? this.req.ips
+        : [this.req.ip];
     return [];
   }
 

@@ -1,4 +1,3 @@
-import {AppActionType, AppResourceType} from '../../definitions/system';
 import {ExportedHttpEndpointWithMddocDefinition} from '../types';
 import {AddFolderEndpoint} from './addFolder/types';
 import {CountFolderContentEndpoint} from './countFolderContent/types';
@@ -7,16 +6,12 @@ import {GetFolderEndpoint} from './getFolder/types';
 import {ListFolderContentEndpoint} from './listFolderContent/types';
 import {UpdateFolderEndpoint} from './updateFolder/types';
 
-export interface FolderPublicAccessOpInput {
-  action: AppActionType;
-  resourceType: AppResourceType;
-  appliesToFolder?: boolean;
-}
-
-export type AddFolderHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<AddFolderEndpoint>;
+export type AddFolderHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<AddFolderEndpoint>;
 export type DeleteFolderHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<DeleteFolderEndpoint>;
-export type GetFolderHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<GetFolderEndpoint>;
+export type GetFolderHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<GetFolderEndpoint>;
 export type ListFolderContentHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<ListFolderContentEndpoint>;
 export type CountFolderContentHttpEndpoint =
