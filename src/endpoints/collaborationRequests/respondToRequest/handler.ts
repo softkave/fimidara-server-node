@@ -1,4 +1,4 @@
-import {AppResourceType} from '../../../definitions/system';
+import {AppResourceTypeMap} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {collaborationRequestForUserExtractor} from '../utils';
 import {RespondToCollaborationRequestEndpoint} from './types';
@@ -13,7 +13,11 @@ const respondToCollaborationRequest: RespondToCollaborationRequestEndpoint = asy
   instData
 ) => {
   const data = validate(instData.data, respondToCollaborationRequestJoiSchema);
-  const agent = await context.session.getAgent(context, instData, AppResourceType.User);
+  const agent = await context.session.getAgent(
+    context,
+    instData,
+    AppResourceTypeMap.User
+  );
   const request = await context.semantic.utils.withTxn(context, async opts => {
     return await INTERNAL_RespondToCollaborationRequest(context, agent, data, opts);
   });

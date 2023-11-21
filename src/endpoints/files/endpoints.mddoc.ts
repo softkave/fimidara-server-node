@@ -20,7 +20,10 @@ import {
 import {HttpEndpointResponseHeaders_ContentType_ContentLength} from '../types';
 import {fileConstants} from './constants';
 import {DeleteFileEndpointParams} from './deleteFile/types';
-import {GetFileDetailsEndpointParams, GetFileDetailsEndpointResult} from './getFileDetails/types';
+import {
+  GetFileDetailsEndpointParams,
+  GetFileDetailsEndpointResult,
+} from './getFileDetails/types';
 import {
   GetPresignedPathsForFilesEndpointParams,
   GetPresignedPathsForFilesEndpointResult,
@@ -34,6 +37,7 @@ import {
   ImageFormatEnumMap,
   ImageResizeFitEnumMap,
   ImageResizeParams,
+  ImageResizePositionEnum,
   ImageResizePositionEnumMap,
   ReadFileEndpointHttpQuery,
   ReadFileEndpointParams,
@@ -84,7 +88,9 @@ const positionEnum = mddocConstruct
 const positionNum = mddocConstruct
   .constructFieldNumber()
   .setDescription('Position to use when fit is cover or contain.');
-const position = mddocConstruct.constructFieldOrCombination().setTypes([positionEnum, positionNum]);
+const position = mddocConstruct
+  .constructFieldOrCombination<number | ImageResizePositionEnum>()
+  .setTypes([positionEnum, positionNum]);
 const background = mddocConstruct
   .constructFieldString()
   .setDescription('Hex background color to use when fit is contain.')
@@ -121,7 +127,7 @@ const file = mddocConstruct
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
     providedResourceId: mddocConstruct.constructFieldObjectField(
       false,
-      fReusables.providedResourceId
+      fReusables.providedResourceIdOrNull
     ),
   });
 
@@ -141,7 +147,10 @@ const fileMatcherParts: FieldObjectFieldsMap<FileMatcher> = {
 const fileMatcherPathParameters = mddocConstruct
   .constructFieldObject<FileMatcherPathParameters>()
   .setFields({
-    filepathOrId: mddocConstruct.constructFieldObjectField(false, fReusables.filepathOrId),
+    filepathOrId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.filepathOrId
+    ),
   });
 
 const fileMatcher = mddocConstruct
@@ -257,22 +266,30 @@ const readFileParams = mddocConstruct
           fit: mddocConstruct.constructFieldObjectField(false, fit),
           position: mddocConstruct.constructFieldObjectField(false, position),
           background: mddocConstruct.constructFieldObjectField(false, background),
-          withoutEnlargement: mddocConstruct.constructFieldObjectField(false, withoutEnlargement),
+          withoutEnlargement: mddocConstruct.constructFieldObjectField(
+            false,
+            withoutEnlargement
+          ),
         })
         .setName('ImageResizeParams')
     ),
     imageFormat: mddocConstruct.constructFieldObjectField(false, format),
   })
   .setDescription('Get file endpoint params.');
-const readFileQuery = mddocConstruct.constructFieldObject<ReadFileEndpointHttpQuery>().setFields({
-  w: mddocConstruct.constructFieldObjectField(false, width),
-  h: mddocConstruct.constructFieldObjectField(false, height),
-  pos: mddocConstruct.constructFieldObjectField(false, position),
-  fit: mddocConstruct.constructFieldObjectField(false, fit),
-  bg: mddocConstruct.constructFieldObjectField(false, background),
-  withoutEnlargement: mddocConstruct.constructFieldObjectField(false, withoutEnlargement),
-  format: mddocConstruct.constructFieldObjectField(false, format),
-});
+const readFileQuery = mddocConstruct
+  .constructFieldObject<ReadFileEndpointHttpQuery>()
+  .setFields({
+    w: mddocConstruct.constructFieldObjectField(false, width),
+    h: mddocConstruct.constructFieldObjectField(false, height),
+    pos: mddocConstruct.constructFieldObjectField(false, position),
+    fit: mddocConstruct.constructFieldObjectField(false, fit),
+    bg: mddocConstruct.constructFieldObjectField(false, background),
+    withoutEnlargement: mddocConstruct.constructFieldObjectField(
+      false,
+      withoutEnlargement
+    ),
+    format: mddocConstruct.constructFieldObjectField(false, format),
+  });
 const readFileResponseHeaders = mddocConstruct
   .constructFieldObject<HttpEndpointResponseHeaders_ContentType_ContentLength>()
   .setFields({
@@ -341,17 +358,17 @@ const updloadFileSdkParams = mddocConstruct
   >(key => {
     switch (key) {
       case 'data':
-        return [['body', 'data']];
+        return ['body', 'data'];
       case 'description':
-        return [['header', 'x-fimidara-file-description']];
+        return ['header', 'x-fimidara-file-description'];
       case 'encoding':
-        return [['header', 'content-encoding']];
+        return ['header', 'content-encoding'];
       case 'mimetype':
-        return [['header', 'x-fimidara-file-mimetype']];
+        return ['header', 'x-fimidara-file-mimetype'];
       case 'size':
-        return [['header', 'content-length']];
+        return ['header', 'content-length'];
       case 'filepath':
-        return [['path', 'filepathOrId']];
+        return ['path', 'filepathOrId'];
       default:
         throw new Error(`unknown key ${key}`);
     }
@@ -383,11 +400,19 @@ const uploadFileResponseBody = mddocConstruct
 
 export const readFilePOSTEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
-    InferFieldObjectType<ReadFilePOSTHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
-    InferFieldObjectType<ReadFilePOSTHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<
+      ReadFilePOSTHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      ReadFilePOSTHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
     InferFieldObjectType<ReadFilePOSTHttpEndpoint['mddocHttpDefinition']['query']>,
-    InferFieldObjectOrMultipartType<ReadFilePOSTHttpEndpoint['mddocHttpDefinition']['requestBody']>,
-    InferFieldObjectType<ReadFilePOSTHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectOrMultipartType<
+      ReadFilePOSTHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      ReadFilePOSTHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
     InferFieldObjectType<
       ReadFilePOSTHttpEndpoint['mddocHttpDefinition']['responseBody'],
       FieldBinaryType
@@ -397,7 +422,9 @@ export const readFilePOSTEndpointDefinition = mddocConstruct
   .setPathParamaters(fileMatcherPathParameters)
   .setMethod(HttpEndpointMethod.Post)
   .setQuery(readFileQuery)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthOptional_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthOptional_JsonContentType
+  )
   .setRequestBody(readFileParams)
   .setResponseHeaders(readFileResponseHeaders)
   .setResponseBody(readFileResponseBody)
@@ -406,11 +433,19 @@ export const readFilePOSTEndpointDefinition = mddocConstruct
 
 export const readFileGETEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
-    InferFieldObjectType<ReadFileGETHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
-    InferFieldObjectType<ReadFileGETHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<
+      ReadFileGETHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      ReadFileGETHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
     InferFieldObjectType<ReadFileGETHttpEndpoint['mddocHttpDefinition']['query']>,
-    InferFieldObjectOrMultipartType<ReadFileGETHttpEndpoint['mddocHttpDefinition']['requestBody']>,
-    InferFieldObjectType<ReadFileGETHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectOrMultipartType<
+      ReadFileGETHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      ReadFileGETHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
     InferFieldObjectType<
       ReadFileGETHttpEndpoint['mddocHttpDefinition']['responseBody'],
       FieldBinaryType
@@ -431,12 +466,13 @@ export const uploadFileEndpointDefinition = mddocConstruct
     InferFieldObjectType<UploadFileHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
     InferFieldObjectType<UploadFileHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
     InferFieldObjectType<UploadFileHttpEndpoint['mddocHttpDefinition']['query']>,
-    InferFieldObjectOrMultipartType<UploadFileHttpEndpoint['mddocHttpDefinition']['requestBody']>,
-    InferFieldObjectType<UploadFileHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<
-      UploadFileHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+    InferFieldObjectOrMultipartType<
+      UploadFileHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
+    InferFieldObjectType<
+      UploadFileHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<UploadFileHttpEndpoint['mddocHttpDefinition']['responseBody']>,
     InferSdkParamsType<UploadFileHttpEndpoint['mddocHttpDefinition']['sdkParamsBody']>
   >()
   .setBasePathname(fileConstants.routes.uploadFile)
@@ -452,22 +488,29 @@ export const uploadFileEndpointDefinition = mddocConstruct
 
 export const getFileDetailsEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
-    InferFieldObjectType<GetFileDetailsHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
-    InferFieldObjectType<GetFileDetailsHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<
+      GetFileDetailsHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      GetFileDetailsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
     InferFieldObjectType<GetFileDetailsHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<
       GetFileDetailsHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
-    InferFieldObjectType<GetFileDetailsHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
     InferFieldObjectType<
-      GetFileDetailsHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      GetFileDetailsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      GetFileDetailsHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(fileConstants.routes.getFileDetails)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getFileDetailsParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getFileDetailsResponseBody)
   .setName('GetFileDetailsEndpoint')
@@ -475,22 +518,29 @@ export const getFileDetailsEndpointDefinition = mddocConstruct
 
 export const updateFileDetailsEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
-    InferFieldObjectType<UpdateFileDetailsHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
-    InferFieldObjectType<UpdateFileDetailsHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<
+      UpdateFileDetailsHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      UpdateFileDetailsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
     InferFieldObjectType<UpdateFileDetailsHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<
       UpdateFileDetailsHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
-    InferFieldObjectType<UpdateFileDetailsHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
     InferFieldObjectType<
-      UpdateFileDetailsHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      UpdateFileDetailsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      UpdateFileDetailsHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(fileConstants.routes.updateFileDetails)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(updateFileDetailsParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(updateFileDetailsResponseBody)
   .setName('UpdateFileDetailsEndpoint')
@@ -501,17 +551,20 @@ export const deleteFileEndpointDefinition = mddocConstruct
     InferFieldObjectType<DeleteFileHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
     InferFieldObjectType<DeleteFileHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
     InferFieldObjectType<DeleteFileHttpEndpoint['mddocHttpDefinition']['query']>,
-    InferFieldObjectOrMultipartType<DeleteFileHttpEndpoint['mddocHttpDefinition']['requestBody']>,
-    InferFieldObjectType<DeleteFileHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectOrMultipartType<
+      DeleteFileHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
     InferFieldObjectType<
-      DeleteFileHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
-    >
+      DeleteFileHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<DeleteFileHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(fileConstants.routes.deleteFile)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(deleteFileParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
   .setName('DeleteFileEndpoint')
@@ -525,7 +578,9 @@ export const issueFilePresignedPathEndpointDefinition = mddocConstruct
     InferFieldObjectType<
       IssueFilePresignedPathHttpEndpoint['mddocHttpDefinition']['pathParamaters']
     >,
-    InferFieldObjectType<IssueFilePresignedPathHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectType<
+      IssueFilePresignedPathHttpEndpoint['mddocHttpDefinition']['query']
+    >,
     InferFieldObjectOrMultipartType<
       IssueFilePresignedPathHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
@@ -533,14 +588,15 @@ export const issueFilePresignedPathEndpointDefinition = mddocConstruct
       IssueFilePresignedPathHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      IssueFilePresignedPathHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      IssueFilePresignedPathHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(fileConstants.routes.issueFilePresignedPath)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(issueFilePresignedPathParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(issueFilePresignedPathResponseBody)
   .setName('IssueFilePresignedPathEndpoint')
@@ -559,7 +615,9 @@ export const getPresignedPathsForFilesEndpointDefinition = mddocConstruct
     InferFieldObjectType<
       GetPresignedPathsForFilesHttpEndpoint['mddocHttpDefinition']['pathParamaters']
     >,
-    InferFieldObjectType<GetPresignedPathsForFilesHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectType<
+      GetPresignedPathsForFilesHttpEndpoint['mddocHttpDefinition']['query']
+    >,
     InferFieldObjectOrMultipartType<
       GetPresignedPathsForFilesHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
@@ -567,14 +625,15 @@ export const getPresignedPathsForFilesEndpointDefinition = mddocConstruct
       GetPresignedPathsForFilesHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      GetPresignedPathsForFilesHttpEndpoint['mddocHttpDefinition']['responseBody'],
-      FieldBinaryType
+      GetPresignedPathsForFilesHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
   .setBasePathname(fileConstants.routes.getPresignedPathsForFiles)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getPresignedPathsForFilesParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getPresignedPathsForFilesResponseBody)
   .setName('GetPresignedPathsForFilesEndpoint')

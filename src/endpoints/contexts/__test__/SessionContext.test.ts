@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {AppResourceType, TokenAccessScope} from '../../../definitions/system';
+import {AppResourceTypeMap, TokenAccessScopeMap} from '../../../definitions/system';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import RequestData from '../../RequestData';
 import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generateData/agentToken';
@@ -25,10 +25,10 @@ describe('SessionContext', () => {
     assert(context);
     const [user] = await generateAndInsertUserListForTest(context, 1);
     const [userAgentToken] = await generateAndInsertAgentTokenListForTest(context, 1, {
-      scope: [TokenAccessScope.ChangePassword],
+      scope: [TokenAccessScopeMap.ChangePassword],
       workspaceId: null,
       separateEntityId: user.resourceId,
-      agentType: AppResourceType.User,
+      agentType: AppResourceTypeMap.User,
     });
     await expectErrorThrown(async () => {
       assert(context);
@@ -38,8 +38,8 @@ describe('SessionContext', () => {
       await context.session.getAgent(
         context,
         reqData,
-        [AppResourceType.User],
-        [TokenAccessScope.Login]
+        [AppResourceTypeMap.User],
+        [TokenAccessScopeMap.Login]
       );
     }, [PermissionDeniedError.name]);
   });
@@ -50,10 +50,10 @@ describe('SessionContext', () => {
       requiresPasswordChange: true,
     }));
     const [userAgentToken] = await generateAndInsertAgentTokenListForTest(context, 1, {
-      scope: [TokenAccessScope.Login],
+      scope: [TokenAccessScopeMap.Login],
       workspaceId: null,
       separateEntityId: user.resourceId,
-      agentType: AppResourceType.User,
+      agentType: AppResourceTypeMap.User,
     });
     await expectErrorThrown(async () => {
       assert(context);
@@ -63,8 +63,8 @@ describe('SessionContext', () => {
       await context.session.getAgent(
         context,
         reqData,
-        [AppResourceType.User],
-        [TokenAccessScope.Login]
+        [AppResourceTypeMap.User],
+        [TokenAccessScopeMap.Login]
       );
     }, [ChangePasswordError.name]);
   });

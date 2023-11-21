@@ -1,16 +1,15 @@
 import {customAlphabet} from 'nanoid';
 import {AssignPermissionGroupInput} from '../definitions/permissionGroups';
-import {PermissionItemAppliesTo} from '../definitions/permissionItem';
+import {PermissionAction, kPermissionsMap} from '../definitions/permissionItem';
+import {AppResourceTypeMap, PublicAgent, VALID_AGENT_TYPES} from '../definitions/system';
 import {
-  AppActionType,
-  AppResourceType,
-  PublicAgent,
-  VALID_AGENT_TYPES,
-} from '../definitions/system';
-import {UsageRecordCategory, UsageRecordFulfillmentStatus} from '../definitions/usageRecord';
+  UsageRecordCategory,
+  UsageRecordCategoryMap,
+  UsageRecordFulfillmentStatus,
+  UsageRecordFulfillmentStatusMap,
+} from '../definitions/usageRecord';
 import {mddocConstruct} from '../mddoc/mddoc';
 import {EndpointExportedError} from '../utils/OperationError';
-import {multilineTextToParagraph} from '../utils/fns';
 import {ID_SEPARATOR, RESOURCE_TYPE_SHORT_NAMES} from '../utils/resource';
 import {AnyObject} from '../utils/types';
 import {endpointConstants} from './constants';
@@ -25,7 +24,7 @@ import {
   HttpEndpointRequestHeaders_AuthRequired_ContentType,
   HttpEndpointRequestHeaders_ContentType,
   HttpEndpointResponseHeaders_ContentType_ContentLength,
-  ServerRecommendedActions,
+  ServerRecommendedActionsMap,
 } from './types';
 
 export const mddocEndpointStatusCodes = {
@@ -61,7 +60,10 @@ const requestHeaderItem_ContentType = mddocConstruct
 const requestHeaders_AuthRequired_JsonContentType = mddocConstruct
   .constructFieldObject<HttpEndpointRequestHeaders_AuthRequired_ContentType>()
   .setFields({
-    Authorization: mddocConstruct.constructFieldObjectField(true, requestHeaderItem_Authorization),
+    Authorization: mddocConstruct.constructFieldObjectField(
+      true,
+      requestHeaderItem_Authorization
+    ),
     'Content-Type': mddocConstruct.constructFieldObjectField(
       true,
       requestHeaderItem_JsonContentType
@@ -71,7 +73,10 @@ const requestHeaders_AuthRequired_JsonContentType = mddocConstruct
 const requestHeaders_AuthOptional_JsonContentType = mddocConstruct
   .constructFieldObject<HttpEndpointRequestHeaders_AuthOptional_ContentType>()
   .setFields({
-    Authorization: mddocConstruct.constructFieldObjectField(false, requestHeaderItem_Authorization),
+    Authorization: mddocConstruct.constructFieldObjectField(
+      false,
+      requestHeaderItem_Authorization
+    ),
     'Content-Type': mddocConstruct.constructFieldObjectField(
       true,
       requestHeaderItem_JsonContentType
@@ -90,7 +95,10 @@ const requestHeaders_JsonContentType = mddocConstruct
 const requestHeaders_AuthRequired_MultipartContentType = mddocConstruct
   .constructFieldObject<HttpEndpointRequestHeaders_AuthRequired_ContentType>()
   .setFields({
-    Authorization: mddocConstruct.constructFieldObjectField(true, requestHeaderItem_Authorization),
+    Authorization: mddocConstruct.constructFieldObjectField(
+      true,
+      requestHeaderItem_Authorization
+    ),
     'Content-Type': mddocConstruct.constructFieldObjectField(
       true,
       requestHeaderItem_MultipartFormdataContentType
@@ -100,7 +108,10 @@ const requestHeaders_AuthRequired_MultipartContentType = mddocConstruct
 const requestHeaders_AuthOptional_MultipartContentType = mddocConstruct
   .constructFieldObject<HttpEndpointRequestHeaders_AuthOptional_ContentType>()
   .setFields({
-    Authorization: mddocConstruct.constructFieldObjectField(false, requestHeaderItem_Authorization),
+    Authorization: mddocConstruct.constructFieldObjectField(
+      false,
+      requestHeaderItem_Authorization
+    ),
     'Content-Type': mddocConstruct.constructFieldObjectField(
       true,
       requestHeaderItem_MultipartFormdataContentType
@@ -119,13 +130,19 @@ const requestHeaders_MultipartContentType = mddocConstruct
 const requestHeaders_AuthRequired = mddocConstruct
   .constructFieldObject<HttpEndpointRequestHeaders_AuthRequired>()
   .setFields({
-    Authorization: mddocConstruct.constructFieldObjectField(true, requestHeaderItem_Authorization),
+    Authorization: mddocConstruct.constructFieldObjectField(
+      true,
+      requestHeaderItem_Authorization
+    ),
   })
   .setName('HttpEndpointRequestHeaders_AuthRequired');
 const requestHeaders_AuthOptional = mddocConstruct
   .constructFieldObject<HttpEndpointRequestHeaders_AuthOptional>()
   .setFields({
-    Authorization: mddocConstruct.constructFieldObjectField(false, requestHeaderItem_Authorization),
+    Authorization: mddocConstruct.constructFieldObjectField(
+      false,
+      requestHeaderItem_Authorization
+    ),
   })
   .setName('HttpEndpointRequestHeaders_AuthOptional');
 const responseHeaders_JsonContentType = mddocConstruct
@@ -160,6 +177,7 @@ export const mddocEndpointHttpHeaderItems = {
   responseHeaders_JsonContentType,
 };
 
+const nullValue = mddocConstruct.constructFieldNull();
 const agent = mddocConstruct
   .constructFieldObject<PublicAgent>()
   .setName('Agent')
@@ -175,27 +193,39 @@ const agent = mddocConstruct
       mddocConstruct
         .constructFieldString()
         .setDescription('Agent type.')
-        .setExample(AppResourceType.AgentToken)
+        .setExample(AppResourceTypeMap.AgentToken)
         .setValid(VALID_AGENT_TYPES)
         .setEnumName('AgentType')
     ),
   });
-const date = mddocConstruct.constructFieldNumber().setDescription('UTC timestamp in milliseconds.');
+const date = mddocConstruct
+  .constructFieldNumber()
+  .setDescription('UTC timestamp in milliseconds.');
+const dateOrNull = mddocConstruct
+  .constructFieldOrCombination<number | null>()
+  .setTypes([date, nullValue]);
 const id = mddocConstruct
   .constructFieldString()
   .setDescription('Resource ID.')
   .setExample(
-    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.Workspace]}${ID_SEPARATOR}${customAlphabet('0')()}`
+    `${
+      RESOURCE_TYPE_SHORT_NAMES[AppResourceTypeMap.Workspace]
+    }${ID_SEPARATOR}${customAlphabet('0')()}`
   );
 const idList = mddocConstruct
   .constructFieldArray<string>()
   .setType(id)
   .setDescription('List of resource IDs.');
+const idOrList = mddocConstruct
+  .constructFieldOrCombination<string | string[]>()
+  .setTypes([id, idList]);
 const jobId = mddocConstruct
   .constructFieldString()
   .setDescription('Long running job ID.')
   .setExample(
-    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.Job]}${ID_SEPARATOR}${customAlphabet('0')()}`
+    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceTypeMap.Job]}${ID_SEPARATOR}${customAlphabet(
+      '0'
+    )()}`
   );
 const workspaceId = mddocConstruct
   .constructFieldString()
@@ -203,7 +233,9 @@ const workspaceId = mddocConstruct
     'Workspace ID. When not provided, will default to using workspace ID from agent token.'
   )
   .setExample(
-    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.Workspace]}${ID_SEPARATOR}${customAlphabet('0')()}`
+    `${
+      RESOURCE_TYPE_SHORT_NAMES[AppResourceTypeMap.Workspace]
+    }${ID_SEPARATOR}${customAlphabet('0')()}`
   );
 const workspaceIdInput = workspaceId
   .clone()
@@ -215,32 +247,36 @@ const folderId = mddocConstruct
   .constructFieldString()
   .setDescription('Folder ID.')
   .setExample(
-    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.Folder]}${ID_SEPARATOR}${customAlphabet('0')()}`
+    `${
+      RESOURCE_TYPE_SHORT_NAMES[AppResourceTypeMap.Folder]
+    }${ID_SEPARATOR}${customAlphabet('0')()}`
   );
 const folderIdOrNull = mddocConstruct
-  .constructFieldOrCombination()
+  .constructFieldOrCombination<string | null>()
   .setTypes([folderId, mddocConstruct.constructFieldNull()]);
 const fileId = mddocConstruct
   .constructFieldString()
   .setDescription('File ID.')
   .setExample(
-    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.File]}${ID_SEPARATOR}${customAlphabet('0')()}`
+    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceTypeMap.File]}${ID_SEPARATOR}${customAlphabet(
+      '0'
+    )()}`
   );
 const permissionGroupId = mddocConstruct
   .constructFieldString()
   .setDescription('Permission group ID.')
   .setExample(
-    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.PermissionGroup]}${ID_SEPARATOR}${customAlphabet(
-      '0'
-    )()}`
+    `${
+      RESOURCE_TYPE_SHORT_NAMES[AppResourceTypeMap.PermissionGroup]
+    }${ID_SEPARATOR}${customAlphabet('0')()}`
   );
 const permissionItemId = mddocConstruct
   .constructFieldString()
   .setDescription('Permission item ID.')
   .setExample(
-    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceType.PermissionItem]}${ID_SEPARATOR}${customAlphabet(
-      '0'
-    )()}`
+    `${
+      RESOURCE_TYPE_SHORT_NAMES[AppResourceTypeMap.PermissionItem]
+    }${ID_SEPARATOR}${customAlphabet('0')()}`
   );
 const idPath = mddocConstruct
   .constructFieldArray<string>()
@@ -252,7 +288,9 @@ const expires = mddocConstruct.constructFieldNumber().setDescription('Expiration
 const duration = mddocConstruct
   .constructFieldNumber()
   .setDescription('Time duration in milliseconds, for example, 1000 for 1 second.');
-const tokenString = mddocConstruct.constructFieldString().setDescription('JWT token string.');
+const tokenString = mddocConstruct
+  .constructFieldString()
+  .setDescription('JWT token string.');
 const assignPermissionGroup = mddocConstruct
   .constructFieldObject<AssignPermissionGroupInput>()
   .setName('AssignPermissionGroupInput')
@@ -273,6 +311,9 @@ const providedResourceId = mddocConstruct
   .constructFieldString()
   .setDescription('Resource ID provided by you.')
   .setMax(endpointConstants.providedResourceIdMaxLength);
+const providedResourceIdOrNull = mddocConstruct
+  .constructFieldOrCombination<string | null>()
+  .setTypes([providedResourceId, nullValue]);
 const workspaceName = mddocConstruct
   .constructFieldString()
   .setDescription('Workspace name.')
@@ -309,6 +350,9 @@ const folderpath = mddocConstruct
   .setDescription('Folder path with workspace rootname.')
   .setExample('/workspace-rootname/my-outer-folder/my-inner-folder');
 const folderpathList = mddocConstruct.constructFieldArray<string>().setType(folderpath);
+const folderpathOrList = mddocConstruct
+  .constructFieldOrCombination<string | string[]>()
+  .setTypes([folderpath, folderpathList]);
 const filepath = mddocConstruct
   .constructFieldString()
   .setDescription('File path with workspace rootname.')
@@ -318,6 +362,9 @@ const filepathOrId = mddocConstruct
   .setDescription('File path with workspace rootname or file ID.')
   .setExample('/workspace-rootname/folder/file.extension or file000-remaining-file-id');
 const filepathList = mddocConstruct.constructFieldArray<string>().setType(filepath);
+const filepathOrList = mddocConstruct
+  .constructFieldOrCombination<string | string[]>()
+  .setTypes([filepath, filepathList]);
 const folderNamePath = mddocConstruct
   .constructFieldArray<string>()
   .setType(foldername)
@@ -325,44 +372,45 @@ const folderNamePath = mddocConstruct
 const action = mddocConstruct
   .constructFieldString()
   .setDescription('Action')
-  .setExample(AppActionType.Create)
-  .setValid(Object.values(AppActionType))
+  .setExample(kPermissionsMap.addFile)
+  .setValid(Object.values(kPermissionsMap))
   .setEnumName('AppActionType');
-const actionList = mddocConstruct.constructFieldArray<string>().setType(action);
+const actionList = mddocConstruct.constructFieldArray<PermissionAction>().setType(action);
+const actionOrList = mddocConstruct
+  .constructFieldOrCombination<PermissionAction | PermissionAction[]>()
+  .setTypes([action, actionList]);
 const resourceType = mddocConstruct
   .constructFieldString()
   .setDescription('Resource type.')
-  .setExample(AppResourceType.File)
-  .setValid(Object.values(AppResourceType))
+  .setExample(AppResourceTypeMap.File)
+  .setValid(Object.values(AppResourceTypeMap))
   .setEnumName('AppResourceType');
-const appliesTo = mddocConstruct
-  .constructFieldString()
-  .setDescription(
-    multilineTextToParagraph(
-      `Whether this permission applies to only to the target, or 
-      the target and children of same type, or only children of the target 
-      type declared in permission item.`
-    )
-  )
-  .setExample(PermissionItemAppliesTo.SelfAndChildrenOfType)
-  .setValid(Object.values(PermissionItemAppliesTo))
-  .setEnumName('PermissionItemAppliesTo');
-const appliesToList = mddocConstruct
-  .constructFieldArray<string>()
-  .setType(appliesTo)
-  .setMax(Object.values(PermissionItemAppliesTo).length);
 const usageCategory = mddocConstruct
   .constructFieldString()
   .setDescription('Usage record category.')
-  .setExample(UsageRecordCategory.Storage)
-  .setValid(Object.values(UsageRecordCategory))
+  .setExample(UsageRecordCategoryMap.Storage)
+  .setValid(Object.values(UsageRecordCategoryMap))
   .setEnumName('UsageRecordCategory');
+const usageCategoryList = mddocConstruct
+  .constructFieldArray<UsageRecordCategory>()
+  .setType(usageCategory);
+const usageCategoryOrList = mddocConstruct
+  .constructFieldOrCombination<UsageRecordCategory | UsageRecordCategory[]>()
+  .setTypes([usageCategory, usageCategoryList]);
 const usageFulfillmentStatus = mddocConstruct
   .constructFieldString()
   .setDescription('Usage record fulfillment status.')
-  .setExample(UsageRecordFulfillmentStatus.Fulfilled)
-  .setValid(Object.values(UsageRecordFulfillmentStatus))
+  .setExample(UsageRecordFulfillmentStatusMap.Fulfilled)
+  .setValid(Object.values(UsageRecordFulfillmentStatusMap))
   .setEnumName('UsageRecordFulfillmentStatus');
+const usageFulfillmentStatusList = mddocConstruct
+  .constructFieldArray<UsageRecordFulfillmentStatus>()
+  .setType(usageFulfillmentStatus);
+const usageFulfillmentStatusOrList = mddocConstruct
+  .constructFieldOrCombination<
+    UsageRecordFulfillmentStatus | UsageRecordFulfillmentStatus[]
+  >()
+  .setTypes([usageFulfillmentStatus, usageFulfillmentStatusList]);
 const page = mddocConstruct
   .constructFieldNumber()
   .setDescription(
@@ -393,6 +441,7 @@ export const fReusables = {
   effectOnReferenced,
   providedResourceId,
   workspaceName,
+  idOrList,
   workspaceRootname,
   firstName,
   lastName,
@@ -411,7 +460,6 @@ export const fReusables = {
   resourceType,
   permissionGroupId,
   permissionItemId,
-  appliesTo,
   page,
   pageSize,
   workspaceIdInput,
@@ -422,7 +470,15 @@ export const fReusables = {
   folderIdOrNull,
   filepathList,
   folderpathList,
-  appliesToList,
+  usageCategoryList,
+  providedResourceIdOrNull,
+  filepathOrList,
+  folderpathOrList,
+  actionOrList,
+  usageCategoryOrList,
+  usageFulfillmentStatusList,
+  usageFulfillmentStatusOrList,
+  dateOrNull,
 };
 
 const errorObject = mddocConstruct
@@ -448,7 +504,7 @@ const errorObject = mddocConstruct
       mddocConstruct
         .constructFieldString()
         .setDescription('Recommended action.')
-        .setValid(Object.values(ServerRecommendedActions))
+        .setValid(Object.values(ServerRecommendedActionsMap))
     ),
     field: mddocConstruct.constructFieldObjectField(
       false,
@@ -483,7 +539,7 @@ const longRunningJobResponseBody = mddocConstruct
   .constructFieldObject<LongRunningJobResult>()
   .setName('LongRunningJobResult')
   .setFields({
-    jobId: mddocConstruct.constructFieldObjectField(true, jobId),
+    jobId: mddocConstruct.constructFieldObjectField(false, jobId),
   })
   .setDescription('Long running job endpoint success result.');
 

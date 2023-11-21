@@ -1,7 +1,7 @@
 import {last} from 'lodash';
 import {Folder} from '../../../definitions/folder';
 import {
-  AppResourceType,
+  AppResourceTypeMap,
   PERMISSION_AGENT_TYPES,
   SessionAgent,
 } from '../../../definitions/system';
@@ -71,10 +71,10 @@ export async function createFolderListWithTransaction(
     // The main folder we want to create
     const isMainFolder = i === pathWithDetails.itemSplitPath.length - 1;
     const name = pathWithDetails.itemSplitPath[i];
-    const folderId = getNewIdForResource(AppResourceType.Folder);
+    const folderId = getNewIdForResource(AppResourceTypeMap.Folder);
     const folder: Folder = newWorkspaceResource(
       agent,
-      AppResourceType.Folder,
+      AppResourceTypeMap.Folder,
       workspace.resourceId,
       {
         name,

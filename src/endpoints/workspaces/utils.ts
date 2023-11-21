@@ -1,6 +1,6 @@
 import {PermissionAction} from '../../definitions/permissionItem';
 import {SessionAgent} from '../../definitions/system';
-import {UsageRecordCategory} from '../../definitions/usageRecord';
+import {UsageRecordCategoryMap} from '../../definitions/usageRecord';
 import {
   PublicUsageThreshold,
   PublicUsageThresholdLock,
@@ -45,17 +45,17 @@ const usageThresholdLockItemIfExistExtractor = makeExtractIfPresent(
   usageThresholdLockItemPublicFields
 );
 const usageThresholdsPublicFields = getFields<PublicWorkspace['usageThresholds']>({
-  [UsageRecordCategory.Total]: usageThresholdItemIfExistExtractor,
-  [UsageRecordCategory.Storage]: usageThresholdItemIfExistExtractor,
-  [UsageRecordCategory.BandwidthIn]: usageThresholdItemIfExistExtractor,
-  [UsageRecordCategory.BandwidthOut]: usageThresholdItemIfExistExtractor,
+  [UsageRecordCategoryMap.Total]: usageThresholdItemIfExistExtractor,
+  [UsageRecordCategoryMap.Storage]: usageThresholdItemIfExistExtractor,
+  [UsageRecordCategoryMap.BandwidthIn]: usageThresholdItemIfExistExtractor,
+  [UsageRecordCategoryMap.BandwidthOut]: usageThresholdItemIfExistExtractor,
 });
 const usageThresholdLocksPublicFields = getFields<PublicWorkspace['usageThresholdLocks']>(
   {
-    [UsageRecordCategory.Total]: usageThresholdLockItemIfExistExtractor,
-    [UsageRecordCategory.Storage]: usageThresholdLockItemIfExistExtractor,
-    [UsageRecordCategory.BandwidthIn]: usageThresholdLockItemIfExistExtractor,
-    [UsageRecordCategory.BandwidthOut]: usageThresholdLockItemIfExistExtractor,
+    [UsageRecordCategoryMap.Total]: usageThresholdLockItemIfExistExtractor,
+    [UsageRecordCategoryMap.Storage]: usageThresholdLockItemIfExistExtractor,
+    [UsageRecordCategoryMap.BandwidthIn]: usageThresholdLockItemIfExistExtractor,
+    [UsageRecordCategoryMap.BandwidthOut]: usageThresholdLockItemIfExistExtractor,
   }
 );
 const usageThresholdExistExtractor = makeExtract(usageThresholdsPublicFields);

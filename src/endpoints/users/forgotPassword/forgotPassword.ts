@@ -3,9 +3,9 @@ import {add} from 'date-fns';
 import {stringify} from 'querystring';
 import {AgentToken} from '../../../definitions/agentToken';
 import {
-  AppResourceType,
+  AppResourceTypeMap,
   CURRENT_TOKEN_VERSION,
-  TokenAccessScope,
+  TokenAccessScopeMap,
 } from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
@@ -70,13 +70,13 @@ export async function getForgotPasswordToken(
   opts?: SemanticDataAccessProviderMutationRunOptions
 ) {
   const expiration = getForgotPasswordExpiration();
-  const forgotToken = newResource<AgentToken>(AppResourceType.AgentToken, {
-    scope: [TokenAccessScope.ChangePassword],
+  const forgotToken = newResource<AgentToken>(AppResourceTypeMap.AgentToken, {
+    scope: [TokenAccessScopeMap.ChangePassword],
     version: CURRENT_TOKEN_VERSION,
     expires: expiration.valueOf(),
     separateEntityId: user.resourceId,
     workspaceId: null,
-    agentType: AppResourceType.User,
+    agentType: AppResourceTypeMap.User,
     createdBy: SYSTEM_SESSION_AGENT,
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
   });

@@ -1,5 +1,8 @@
 import * as Joi from 'joi';
-import {UsageRecordCategory, UsageRecordFulfillmentStatus} from '../../../definitions/usageRecord';
+import {
+  UsageRecordCategoryMap,
+  UsageRecordFulfillmentStatusMap,
+} from '../../../definitions/usageRecord';
 import {JoiSchemaParts} from '../../../utils/types';
 import {validationSchemas} from '../../../utils/validationUtils';
 import {endpointValidationSchemas} from '../../validation';
@@ -9,15 +12,19 @@ import {
   WorkspaceSummedUsageQuery,
 } from './types';
 
-const category = Joi.string().valid(...Object.values(UsageRecordCategory));
-const fulfillmentStatus = Joi.string().valid(...Object.values(UsageRecordFulfillmentStatus));
+const category = Joi.string().valid(...Object.values(UsageRecordCategoryMap));
+const fulfillmentStatus = Joi.string().valid(
+  ...Object.values(UsageRecordFulfillmentStatusMap)
+);
 const categoryOrArray = Joi.alternatives().try(
   category,
-  Joi.array().items(category).max(Object.values(UsageRecordCategory).length)
+  Joi.array().items(category).max(Object.values(UsageRecordCategoryMap).length)
 );
 const fulfillmentStateOrArray = Joi.alternatives().try(
   fulfillmentStatus,
-  Joi.array().items(fulfillmentStatus).max(Object.values(UsageRecordFulfillmentStatus).length)
+  Joi.array()
+    .items(fulfillmentStatus)
+    .max(Object.values(UsageRecordFulfillmentStatusMap).length)
 );
 
 const queryJoiSchema = Joi.object<WorkspaceSummedUsageQuery>({
@@ -30,9 +37,10 @@ const queryJoiSchema = Joi.object<WorkspaceSummedUsageQuery>({
 export const getWorkspaceSummedUsageBaseJoiSchemaParts: JoiSchemaParts<GetWorkspaceSummedUsageEndpointParamsBase> =
   {...endpointValidationSchemas.optionalWorkspaceIdParts, query: queryJoiSchema};
 
-export const getWorkspaceSummedUsageJoiSchema = Joi.object<GetWorkspaceSummedUsageEndpointParams>()
-  .keys({
-    ...getWorkspaceSummedUsageBaseJoiSchemaParts,
-    ...endpointValidationSchemas.paginationParts,
-  })
-  .required();
+export const getWorkspaceSummedUsageJoiSchema =
+  Joi.object<GetWorkspaceSummedUsageEndpointParams>()
+    .keys({
+      ...getWorkspaceSummedUsageBaseJoiSchemaParts,
+      ...endpointValidationSchemas.paginationParts,
+    })
+    .required();

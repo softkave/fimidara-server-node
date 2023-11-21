@@ -6,7 +6,7 @@ import OperationError, {
   OperationErrorParameters,
 } from '../../utils/OperationError';
 import {endpointConstants} from '../constants';
-import {ServerRecommendedActions} from '../types';
+import {ServerRecommendedActionsMap} from '../types';
 
 export class EmailAddressNotAvailableError extends OperationError {
   name = 'EmailAddressNotAvailableError';
@@ -19,7 +19,7 @@ export class EmailAddressNotAvailableError extends OperationError {
 
 export class InvalidCredentialsError extends OperationError {
   name = 'InvalidCredentialsError';
-  action = ServerRecommendedActions.LoginAgain;
+  action = ServerRecommendedActionsMap.LoginAgain;
   statusCode = endpointConstants.httpStatusCode.unauthorized;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
@@ -29,7 +29,7 @@ export class InvalidCredentialsError extends OperationError {
 
 export class CredentialsExpiredError extends OperationError {
   name = 'CredentialsExpiredError';
-  action = ServerRecommendedActions.LoginAgain;
+  action = ServerRecommendedActionsMap.LoginAgain;
   statusCode = endpointConstants.httpStatusCode.unauthorized;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
@@ -99,7 +99,7 @@ export class IncorrectPasswordError extends OperationError {
 export class ChangePasswordError extends OperationError {
   name = 'ChangePasswordError';
   statusCode = endpointConstants.httpStatusCode.unauthorized;
-  action = ServerRecommendedActions.RequestChangePassword;
+  action = ServerRecommendedActionsMap.RequestChangePassword;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
     this.message = getErrorMessageFromParams(props, appMessages.user.changePassword());

@@ -1,3 +1,4 @@
+import {ObjectValues} from '../utils/types';
 import {Agent, ConvertAgentToPublicAgent, WorkspaceResource} from './system';
 import {UsageRecordCategory} from './usageRecord';
 
@@ -15,11 +16,13 @@ export interface UsageThresholdLock {
   locked: boolean;
 }
 
-export enum WorkspaceBillStatus {
-  Ok = 'ok',
-  GracePeriod = 'gracePeriod',
-  BillOverdue = 'billOverdue',
-}
+export const WorkspaceBillStatusMap = {
+  Ok: 'ok',
+  GracePeriod: 'gracePeriod',
+  BillOverdue: 'billOverdue',
+} as const;
+
+export type WorkspaceBillStatus = ObjectValues<typeof WorkspaceBillStatusMap>;
 
 export interface Workspace extends WorkspaceResource {
   /**

@@ -4,7 +4,7 @@ import {
   PermissionItem,
   kPermissionsMap,
 } from '../../../definitions/permissionItem';
-import {Agent, AppResourceType} from '../../../definitions/system';
+import {Agent, AppResourceType, AppResourceTypeMap} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource, newWorkspaceResource} from '../../../utils/resource';
@@ -21,15 +21,15 @@ function generateAdminPermissions(
   const permissionItems: PermissionItem[] = Object.values(kPermissionsMap).map(action => {
     const item: PermissionItem = newWorkspaceResource(
       agent,
-      AppResourceType.PermissionItem,
+      AppResourceTypeMap.PermissionItem,
       workspace.resourceId,
       {
         action,
         entityId: adminPermissionGroup.resourceId,
-        entityType: AppResourceType.PermissionGroup,
+        entityType: AppResourceTypeMap.PermissionGroup,
         targetParentId: workspace.resourceId,
         targetId: workspace.resourceId,
-        targetType: AppResourceType.All,
+        targetType: AppResourceTypeMap.All,
         access: true,
       }
     );
@@ -52,7 +52,7 @@ function generateCollaboratorPermissions(
     return actions.map(action => {
       const item: PermissionItem = newWorkspaceResource(
         agent,
-        AppResourceType.PermissionItem,
+        AppResourceTypeMap.PermissionItem,
         workspace.resourceId,
         {
           action,
@@ -60,7 +60,7 @@ function generateCollaboratorPermissions(
           targetParentId: workspace.resourceId,
           targetType: targetType,
           entityId: permissiongroup.resourceId,
-          entityType: AppResourceType.PermissionGroup,
+          entityType: AppResourceTypeMap.PermissionGroup,
           access: true,
         }
       );
@@ -68,36 +68,27 @@ function generateCollaboratorPermissions(
     });
   }
 
-  let permissionItems: PermissionItem[] = makePermission(
-    ['readWorkspace'],
-    AppResourceType.Workspace,
+  const actions: PermissionAction[] = [
+    kPermissionsMap.updateWorkspace,
+    kPermissionsMap.readWorkspace,
+    kPermissionsMap.addFolder,
+    kPermissionsMap.readFolder,
+    kPermissionsMap.updateFolder,
+    kPermissionsMap.transferFolder,
+    kPermissionsMap.addFile,
+    kPermissionsMap.readFile,
+    kPermissionsMap.updateFile,
+    kPermissionsMap.transferFile,
+    kPermissionsMap.addAgentToken,
+    kPermissionsMap.readAgentToken,
+    kPermissionsMap.updateAgentToken,
+  ];
+
+  const permissionItems: PermissionItem[] = makePermission(
+    actions,
+    AppResourceTypeMap.Workspace,
     workspace.resourceId
   );
-
-  const readResourceTypes: AppResourceType[] = [
-    AppResourceType.AgentToken,
-    AppResourceType.User,
-  ];
-  const createReadUpdateResourceTypes: AppResourceType[] = [
-    AppResourceType.File,
-    AppResourceType.Folder,
-    AppResourceType.Tag,
-  ];
-
-  readResourceTypes.forEach(type => {
-    permissionItems = permissionItems.concat(
-      makePermission([AppActionType.Read], type, workspace.resourceId)
-    );
-  });
-  createReadUpdateResourceTypes.forEach(type => {
-    permissionItems = permissionItems.concat(
-      makePermission(
-        [AppActionType.Create, AppActionType.Update, AppActionType.Read],
-        type,
-        workspace.resourceId
-      )
-    );
-  });
 
   return permissionItems;
 }
@@ -111,7 +102,7 @@ export function generateDefaultWorkspacePermissionGroups(
     createdAt,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: agent,
-    resourceId: getNewIdForResource(AppResourceType.PermissionGroup),
+    resourceId: getNewIdForResource(AppResourceTypeMap.PermissionGroup),
     workspaceId: workspace.resourceId,
     createdBy: agent,
     name: DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
@@ -122,7 +113,7 @@ export function generateDefaultWorkspacePermissionGroups(
     createdAt,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: agent,
-    resourceId: getNewIdForResource(AppResourceType.PermissionGroup),
+    resourceId: getNewIdForResource(AppResourceTypeMap.PermissionGroup),
     workspaceId: workspace.resourceId,
     createdBy: agent,
     name: DEFAULT_PUBLIC_PERMISSION_GROUP_NAME,
@@ -134,7 +125,7 @@ export function generateDefaultWorkspacePermissionGroups(
     createdAt,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: agent,
-    resourceId: getNewIdForResource(AppResourceType.PermissionGroup),
+    resourceId: getNewIdForResource(AppResourceTypeMap.PermissionGroup),
     workspaceId: workspace.resourceId,
     createdBy: agent,
     name: DEFAULT_COLLABORATOR_PERMISSION_GROUP_NAME,

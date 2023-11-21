@@ -1,4 +1,5 @@
 import {SchemaMap} from 'joi';
+import {IsNever, UnionToIntersection} from 'type-fest';
 
 /* eslint-disable @typescript-eslint/ban-types */
 export interface UpdateItemById<T> {
@@ -143,3 +144,39 @@ export type StringKeysOnly<TData> = keyof TData extends string ? keyof TData : '
 export type OrArray<TData> = TData | Array<TData>;
 export type OrPromise<TData> = TData | Promise<TData>;
 export type Omit1<T, K extends keyof T> = Omit<T, K>;
+export type IsUnion<T> = UnionToIntersection<T> extends never
+  ? true
+  : IsNever<Exclude<keyof UnionToIntersection<T>, keyof T>> extends true
+  ? false
+  : true;
+
+/**
+ *  type IsUnion<T, U extends T = T> =
+      T extends unknown ? [U] extends [T] ? false : true : false;
+ */
+
+type LastOf<T> = UnionToIntersection<
+  T extends any ? () => T : never
+> extends () => infer R
+  ? R
+  : never;
+
+type Push<T extends any[], V> = [...T, V];
+export type UnionToTuple<
+  T,
+  TLast = LastOf<T>,
+  TNever = [T] extends [never] ? true : false
+> = true extends TNever ? [] : Push<UnionToTuple<Exclude<T, TLast>>, TLast>;
+
+type TTL<T> = T extends string ? 'string' : T extends null ? 'null' : 'never';
+
+type T1 = UnionToTuple<TTL<string | null>>;
+
+export type IsStringEnum<T> = IsNever<
+  IsUnion<T> & (T | string extends string ? true : false)
+> extends true
+  ? false
+  : true;
+
+export type Not<T extends boolean> = T extends true ? false : true;
+export type IsBoolean<T> = T extends boolean ? true : false;

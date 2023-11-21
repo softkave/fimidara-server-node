@@ -1,5 +1,5 @@
 import {AgentToken} from '../definitions/agentToken';
-import {Agent, AppResourceType, SessionAgent} from '../definitions/system';
+import {Agent, AppResourceTypeMap, SessionAgent} from '../definitions/system';
 import {User} from '../definitions/user';
 import {InvalidRequestError} from '../endpoints/errors';
 import {appAssert} from './assertion';
@@ -9,7 +9,7 @@ export function makeWorkspaceAgentTokenAgent(agentToken: AgentToken): SessionAge
   return {
     agentToken,
     agentId: agentToken.resourceId,
-    agentType: AppResourceType.AgentToken,
+    agentType: AppResourceTypeMap.AgentToken,
     agentTokenId: agentToken.resourceId,
   };
 }
@@ -20,7 +20,7 @@ export function makeUserSessionAgent(user: User, agentToken: AgentToken): Sessio
     agentToken,
     user,
     agentId: user.resourceId,
-    agentType: AppResourceType.User,
+    agentType: AppResourceTypeMap.User,
     agentTokenId: agentToken.resourceId,
   };
 }
@@ -34,7 +34,10 @@ export function getWorkspaceIdNoThrow(agent: SessionAgent, providedWorkspaceId?:
   return workspaceId;
 }
 
-export function getWorkspaceIdFromSessionAgent(agent: SessionAgent, providedWorkspaceId?: string) {
+export function getWorkspaceIdFromSessionAgent(
+  agent: SessionAgent,
+  providedWorkspaceId?: string
+) {
   const workspaceId = getWorkspaceIdNoThrow(agent, providedWorkspaceId);
   if (!workspaceId) {
     throw new InvalidRequestError('Workspace ID not provided.');
@@ -74,12 +77,13 @@ export function getActionAgentFromSessionAgent(sessionAgent: SessionAgent): Agen
 }
 
 export function isSessionAgent(agent: any): agent is SessionAgent {
-  if (!(agent as SessionAgent).agentId || !(agent as SessionAgent).agentType) return false;
+  if (!(agent as SessionAgent).agentId || !(agent as SessionAgent).agentType)
+    return false;
   if (
     (agent as SessionAgent).agentToken ||
     (agent as SessionAgent).user ||
-    (agent as SessionAgent).agentType === AppResourceType.System ||
-    (agent as SessionAgent).agentType === AppResourceType.Public
+    (agent as SessionAgent).agentType === AppResourceTypeMap.System ||
+    (agent as SessionAgent).agentType === AppResourceTypeMap.Public
   )
     return true;
 

@@ -8,7 +8,7 @@ export type DeletePermissionItemInputTarget = Partial<PermissionItemInputTarget>
 export type DeletePermissionItemInput = {
   target: DeletePermissionItemInputTarget | DeletePermissionItemInputTarget[];
   action?: PermissionAction | PermissionAction[];
-  access?: boolean | boolean[];
+  access?: boolean;
   entityId?: string | string[];
 };
 

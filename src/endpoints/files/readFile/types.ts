@@ -10,7 +10,7 @@ export const ImageResizeFitEnumMap = {
   fill: 'fill',
   inside: 'inside',
   outside: 'outside',
-};
+} as const;
 export const ImageResizePositionEnumMap = {
   top: 'top',
   rightTop: 'right top',
@@ -36,7 +36,7 @@ export const ImageResizePositionEnumMap = {
   /** focus on the region with the highest luminance frequency, colour
    * saturation and presence of skin tones. */
   attention: 'attention',
-};
+} as const;
 export type ImageResizeFitEnum = ObjectValues<typeof ImageResizeFitEnumMap>;
 export type ImageResizePositionEnum = ObjectValues<typeof ImageResizePositionEnumMap>;
 
@@ -46,7 +46,7 @@ export type ImageResizeParams = {
 
   /** How the image should be resized to fit both provided dimensions.
    * (optional, default 'cover') */
-  fit?: keyof ImageResizeFitEnum;
+  fit?: ImageResizeFitEnum;
 
   /** Position, gravity or strategy to use when fit is cover or contain.
    * (optional, default 'centre') */
@@ -92,7 +92,7 @@ export type ReadFileEndpoint = Endpoint<
 export type ReadFileEndpointHttpQuery = {
   w?: number;
   h?: number;
-  fit?: keyof ImageResizeFitEnum;
+  fit?: ImageResizeFitEnum;
   pos?: number | ImageResizePositionEnum;
   bg?: string;
   withoutEnlargement?: boolean;

@@ -1,3 +1,4 @@
+import {ObjectValues} from '../utils/types';
 import {PermissionAction} from './permissionItem';
 import {
   AppResourceType,
@@ -6,19 +7,23 @@ import {
   WorkspaceResource,
 } from './system';
 
-export enum UsageRecordCategory {
-  Total = 'total',
-  Storage = 'storage',
-  BandwidthIn = 'bin',
-  BandwidthOut = 'bout',
-  // Request = 'request',
-  // DatabaseObject = 'dbObject',
-}
+export const UsageRecordCategoryMap = {
+  Total: 'total',
+  Storage: 'storage',
+  BandwidthIn: 'bin',
+  BandwidthOut: 'bout',
+  // Request : 'request',
+  // DatabaseObject : 'dbObject',
+} as const;
 
-export enum UsageRecordArtifactType {
-  File = 'file',
-  // DatabaseObject = 'dbObject',
-}
+export type UsageRecordCategory = ObjectValues<typeof UsageRecordCategoryMap>;
+
+export const UsageRecordArtifactTypeMap = {
+  File: 'file',
+  // DatabaseObject : 'dbObject',
+} as const;
+
+export type UsageRecordArtifactType = ObjectValues<typeof UsageRecordArtifactTypeMap>;
 
 export interface UsageRecordArtifact {
   type: UsageRecordArtifactType;
@@ -27,25 +32,33 @@ export interface UsageRecordArtifact {
   artifact: FileUsageRecordArtifact | BandwidthUsageRecordArtifact;
 }
 
-export enum UsageRecordFulfillmentStatus {
+export const UsageRecordFulfillmentStatusMap = {
   // Default status
-  Undecided = 'undecided',
+  Undecided: 'undecided',
   // usage record has been fulfilled
-  Fulfilled = 'fulfilled',
+  Fulfilled: 'fulfilled',
   // usage record has not been fulfilled
-  Dropped = 'dropped',
-}
+  Dropped: 'dropped',
+} as const;
 
-export enum UsageRecordDropReason {
-  UsageExceeded = 'usage-exceeded',
-  ExceedsRemainingUsage = 'exceeds-remaining-usage',
-  BillOverdue = 'bill-overdue',
-}
+export type UsageRecordFulfillmentStatus = ObjectValues<
+  typeof UsageRecordFulfillmentStatusMap
+>;
 
-export enum UsageSummationType {
-  One = 1,
-  Two = 2,
-}
+export const UsageRecordDropReasonMap = {
+  UsageExceeded: 'usage-exceeded',
+  ExceedsRemainingUsage: 'exceeds-remaining-usage',
+  BillOverdue: 'bill-overdue',
+} as const;
+
+export type UsageRecordDropReason = ObjectValues<typeof UsageRecordDropReasonMap>;
+
+export const UsageSummationTypeMap = {
+  One: 'one',
+  Two: 'two',
+} as const;
+
+export type UsageSummationType = ObjectValues<typeof UsageSummationTypeMap>;
 
 export interface UsageRecord extends WorkspaceResource {
   category: UsageRecordCategory;

@@ -1,6 +1,5 @@
 import {faker} from '@faker-js/faker';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {AppResourceType} from '../../../definitions/system';
 import {getResourceId} from '../../../utils/fns';
 import RequestData from '../../RequestData';
 import {BaseContextType} from '../../contexts/types';
@@ -21,6 +20,7 @@ import {AddPermissionItemsEndpointParams} from '../addItems/types';
 import {PermissionItemInput} from '../types';
 import {default as getResourcePermissionItems} from './handler';
 import {GetResourcePermissionItemsEndpointParams} from './types';
+import {AppResourceTypeMap} from '../../../definitions/system';
 
 let context: BaseContextType | null = null;
 
@@ -71,7 +71,7 @@ describe.skip('getResourcePermissionItems', () => {
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     await generateAndInsertPermissionItemListForTest(context, 15, {
       workspaceId: workspace.resourceId,
-      targetType: AppResourceType.Workspace,
+      targetType: AppResourceTypeMap.Workspace,
       targetId: workspace.resourceId,
     });
 

@@ -1,4 +1,4 @@
-import {AppResourceType} from '../../../definitions/system';
+import {AppResourceTypeMap} from '../../../definitions/system';
 import {
   UpgradedFromWaitlistEmailProps,
   upgradedFromWaitlistEmailHTML,
@@ -17,7 +17,9 @@ const upgradeWaitlistedUsers: UpgradeWaitlistedUsersEndpoint = async (
   reqData
 ) => {
   const data = validate(reqData.data, upgradeWaitlistedUsersJoiSchema);
-  const agent = await context.session.getAgent(context, reqData, [AppResourceType.User]);
+  const agent = await context.session.getAgent(context, reqData, [
+    AppResourceTypeMap.User,
+  ]);
   await assertUserIsPartOfRootWorkspace(context, agent);
   const users = await context.semantic.utils.withTxn(context, opts => {
     return context.semantic.user.getAndUpdateManyByQuery(

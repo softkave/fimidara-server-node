@@ -1,9 +1,9 @@
 import {faker} from '@faker-js/faker';
 import {
   CollaborationRequest,
-  CollaborationRequestStatusType,
+  CollaborationRequestStatusTypeMap,
 } from '../../../definitions/collaborationRequest';
-import {Agent, AppResourceType} from '../../../definitions/system';
+import {Agent, AppResourceTypeMap} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {BaseContextType} from '../../contexts/types';
@@ -18,21 +18,21 @@ export function generateCollaborationRequestForTest(
 ) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
-    agentId: getNewIdForResource(AppResourceType.User),
-    agentType: AppResourceType.User,
-    agentTokenId: getNewIdForResource(AppResourceType.AgentToken),
+    agentId: getNewIdForResource(AppResourceTypeMap.User),
+    agentType: AppResourceTypeMap.User,
+    agentTokenId: getNewIdForResource(AppResourceTypeMap.AgentToken),
   };
   const item: CollaborationRequest = {
     createdAt,
     createdBy,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
-    resourceId: getNewIdForResource(AppResourceType.CollaborationRequest),
+    resourceId: getNewIdForResource(AppResourceTypeMap.CollaborationRequest),
     workspaceName: faker.company.name(),
-    workspaceId: getNewIdForResource(AppResourceType.Workspace),
+    workspaceId: getNewIdForResource(AppResourceTypeMap.Workspace),
     recipientEmail: faker.internet.email(),
     message: '',
-    status: CollaborationRequestStatusType.Pending,
+    status: CollaborationRequestStatusTypeMap.Pending,
     statusDate: getTimestamp(),
     ...seed,
   };

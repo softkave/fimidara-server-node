@@ -1,4 +1,4 @@
-import {AppResourceType, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
+import {AppResourceTypeMap, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {enqueueDeleteResourceJob} from '../../jobs/runner';
 import {checkFolderAuthorization02} from '../utils';
@@ -10,7 +10,7 @@ const deleteFolder: DeleteFolderEndpoint = async (context, instData) => {
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
   const {folder} = await checkFolderAuthorization02(context, agent, data, 'deleteFolder');
   const job = await enqueueDeleteResourceJob(context, {
-    type: AppResourceType.Folder,
+    type: AppResourceTypeMap.Folder,
     args: {workspaceId: folder.workspaceId, resourceId: folder.resourceId},
   });
   return {jobId: job.resourceId};

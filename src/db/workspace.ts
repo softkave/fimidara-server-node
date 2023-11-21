@@ -1,5 +1,5 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {UsageRecordCategory} from '../definitions/usageRecord';
+import {UsageRecordCategory, UsageRecordCategoryMap} from '../definitions/usageRecord';
 import {UsageThreshold, UsageThresholdLock, Workspace} from '../definitions/workspace';
 import {getTimestamp} from '../utils/dateFns';
 import {agentSchema, ensureMongoTypeFields, workspaceResourceSchema} from './utils';
@@ -11,13 +11,15 @@ const usageThresholdSchema = ensureMongoTypeFields<UsageThreshold>({
   budget: {type: Number},
 });
 
-const usageThresholdMapSchema = ensureMongoTypeFields<Record<UsageRecordCategory, UsageThreshold>>({
-  [UsageRecordCategory.Storage]: {type: usageThresholdSchema},
-  // [UsageRecordCategory.Request]: {type: usageThresholdSchema},
-  // [UsageRecordCategory.DatabaseObject]: {type: usageThresholdSchema},
-  [UsageRecordCategory.BandwidthIn]: {type: usageThresholdSchema},
-  [UsageRecordCategory.BandwidthOut]: {type: usageThresholdSchema},
-  [UsageRecordCategory.Total]: {type: usageThresholdSchema},
+const usageThresholdMapSchema = ensureMongoTypeFields<
+  Record<UsageRecordCategory, UsageThreshold>
+>({
+  [UsageRecordCategoryMap.Storage]: {type: usageThresholdSchema},
+  // [UsageRecordCategoryMap.Request]: {type: usageThresholdSchema},
+  // [UsageRecordCategoryMap.DatabaseObject]: {type: usageThresholdSchema},
+  [UsageRecordCategoryMap.BandwidthIn]: {type: usageThresholdSchema},
+  [UsageRecordCategoryMap.BandwidthOut]: {type: usageThresholdSchema},
+  [UsageRecordCategoryMap.Total]: {type: usageThresholdSchema},
 });
 
 const usageThresholdLockSchema = ensureMongoTypeFields<UsageThresholdLock>({
@@ -30,12 +32,12 @@ const usageThresholdLockSchema = ensureMongoTypeFields<UsageThresholdLock>({
 const usageThresholdLockMapSchema = ensureMongoTypeFields<
   Record<UsageRecordCategory, UsageThreshold>
 >({
-  [UsageRecordCategory.Storage]: {type: usageThresholdLockSchema},
-  // [UsageRecordCategory.Request]: {type: usageThresholdLockSchema},
-  // [UsageRecordCategory.DatabaseObject]: {type: usageThresholdLockSchema},
-  [UsageRecordCategory.BandwidthIn]: {type: usageThresholdLockSchema},
-  [UsageRecordCategory.BandwidthOut]: {type: usageThresholdLockSchema},
-  [UsageRecordCategory.Total]: {type: usageThresholdLockSchema},
+  [UsageRecordCategoryMap.Storage]: {type: usageThresholdLockSchema},
+  // [UsageRecordCategoryMap.Request]: {type: usageThresholdLockSchema},
+  // [UsageRecordCategoryMap.DatabaseObject]: {type: usageThresholdLockSchema},
+  [UsageRecordCategoryMap.BandwidthIn]: {type: usageThresholdLockSchema},
+  [UsageRecordCategoryMap.BandwidthOut]: {type: usageThresholdLockSchema},
+  [UsageRecordCategoryMap.Total]: {type: usageThresholdLockSchema},
 });
 
 const workspaceSchema = ensureMongoTypeFields<Workspace>({

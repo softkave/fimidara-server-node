@@ -1,4 +1,4 @@
-import {AppResourceType, TokenAccessScope} from '../../../definitions/system';
+import {AppResourceTypeMap, TokenAccessScopeMap} from '../../../definitions/system';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils';
 import INTERNAL_confirmEmailAddress from './internalConfirmEmailAddress';
@@ -8,8 +8,8 @@ const confirmEmailAddress: ConfirmEmailAddressEndpoint = async (context, instDat
   const agent = await context.session.getAgent(
     context,
     instData,
-    AppResourceType.User,
-    TokenAccessScope.ConfirmEmailAddress
+    AppResourceTypeMap.User,
+    TokenAccessScopeMap.ConfirmEmailAddress
   );
   const user = await INTERNAL_confirmEmailAddress(
     context,

@@ -1,6 +1,7 @@
 import {PermissionItem, PublicPermissionItem} from '../../definitions/permissionItem';
 import {
   AppResourceType,
+  AppResourceTypeMap,
   SessionAgent,
   getWorkspaceResourceTypeList,
 } from '../../definitions/system';
@@ -23,7 +24,6 @@ const permissionItemFields = getFields<PublicPermissionItem>({
   ...workspaceResourceFields,
   entityId: true,
   entityType: true,
-  targetParentId: true,
   targetId: true,
   targetType: true,
   action: true,
@@ -69,18 +69,20 @@ export async function getPermissionItemEntities(
     context,
     agent,
     allowedTypes: [
-      AppResourceType.User,
-      AppResourceType.PermissionGroup,
-      AppResourceType.AgentToken,
+      AppResourceTypeMap.User,
+      AppResourceTypeMap.PermissionGroup,
+      AppResourceTypeMap.AgentToken,
     ],
     workspaceId,
-    inputResources: toArray(entityIds).map(entityId => ({resourceId: entityId})),
+    inputResources: toArray(entityIds).map(entityId => ({
+      resourceId: entityId,
+      action: 'updatePermission',
+    })),
     checkAuth: true,
     checkBelongsToWorkspace: true,
-    action: 'updatePermission',
   });
   resources = await resourceListWithAssignedItems(context, workspaceId, resources, [
-    AppResourceType.User,
+    AppResourceTypeMap.User,
   ]);
   checkResourcesBelongsToWorkspace(workspaceId, resources);
   return resources;
@@ -103,10 +105,10 @@ export async function getPermissionItemTargets(
         filepath: nextTarget.filepath,
         folderpath: nextTarget.folderpath,
         workspaceRootname: nextTarget.workspaceRootname,
+        action: 'updatePermission',
       };
     }),
     checkAuth: true,
     checkBelongsToWorkspace: true,
-    action: 'updatePermission',
   });
 }

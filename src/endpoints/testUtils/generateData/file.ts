@@ -1,6 +1,5 @@
 import {faker} from '@faker-js/faker';
 import {File} from '../../../definitions/file';
-import {AppResourceType} from '../../../definitions/system';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive} from '../../../utils/fns';
@@ -8,6 +7,7 @@ import {getNewIdForResource} from '../../../utils/resource';
 import {BaseContextType} from '../../contexts/types';
 import {getFilenameInfo} from '../../files/utils';
 import {generateTestFolderName} from './folder';
+import {AppResourceTypeMap} from '../../../definitions/system';
 
 function addExtenstion(name: string, ext: string) {
   return name + '.' + ext;
@@ -37,7 +37,7 @@ export function generateTestFileName(
 export function generateTestFile(
   extra: Partial<File> & {parentId: string | null} = {parentId: null}
 ) {
-  const id = getNewIdForResource(AppResourceType.File);
+  const id = getNewIdForResource(AppResourceTypeMap.File);
   const name = generateTestFileName();
   const nameinfo = getFilenameInfo(name);
   const createdAt = getTimestamp();
@@ -59,7 +59,7 @@ export function generateTestFile(
       : [nameinfo.nameWithoutExtension],
     resourceId: id,
     size: faker.datatype.number({min: 1}),
-    workspaceId: getNewIdForResource(AppResourceType.Workspace),
+    workspaceId: getNewIdForResource(AppResourceTypeMap.Workspace),
     extension: nameinfo.extension,
     ...extra,
   };

@@ -1,5 +1,5 @@
 import {PermissionItem} from '../../definitions/permissionItem';
-import {AppResourceType} from '../../definitions/system';
+import {AppResourceType, AppResourceTypeMap} from '../../definitions/system';
 import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider';
 import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder';
 
@@ -25,7 +25,7 @@ function getByResource(
   if (includeWildcardTargetType) {
     filter.addItem(
       'targetType',
-      [resourceType, AppResourceType.All],
+      [resourceType, AppResourceTypeMap.All],
       DataProviderFilterValueOperator.In
     );
   } else {
@@ -36,7 +36,9 @@ function getByResource(
 }
 
 function getByPermissionEntity(entityId: string) {
-  return newFilter().addItem('entityId', entityId, DataProviderFilterValueOperator.Equal).build();
+  return newFilter()
+    .addItem('entityId', entityId, DataProviderFilterValueOperator.Equal)
+    .build();
 }
 
 export default abstract class PermissionItemQueries {

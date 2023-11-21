@@ -1,6 +1,6 @@
 import {uniqBy} from 'lodash';
 import {PermissionAction} from '../../definitions/permissionItem';
-import {AppResourceType, SessionAgent} from '../../definitions/system';
+import {AppResourceTypeMap, SessionAgent} from '../../definitions/system';
 import {AssignedTagInput} from '../../definitions/tag';
 import {Workspace} from '../../definitions/workspace';
 import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
@@ -19,12 +19,12 @@ export default async function checkTagsExist(
   const resources = await INTERNAL_getResources({
     context,
     agent,
-    action,
-    allowedTypes: [AppResourceType.Tag],
+    allowedTypes: [AppResourceTypeMap.Tag],
     workspaceId: workspace.resourceId,
     inputResources: uniqBy(items, 'tagId').map(({tagId}) => ({
+      action,
       resourceId: tagId,
-      resourceType: AppResourceType.Tag,
+      resourceType: AppResourceTypeMap.Tag,
     })),
     checkAuth: true,
     dataFetchRunOptions: opts,

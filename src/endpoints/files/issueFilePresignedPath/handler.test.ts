@@ -1,5 +1,4 @@
 import {faker} from '@faker-js/faker';
-import {AppResourceType} from '../../../definitions/system';
 import {waitTimeout} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import RequestData from '../../RequestData';
@@ -28,6 +27,7 @@ import {ReadFileEndpointParams} from '../readFile/types';
 import {stringifyFileNamePath} from '../utils';
 import issueFilePresignedPath from './handler';
 import {IssueFilePresignedPathEndpointParams} from './types';
+import {AppResourceTypeMap} from '../../../definitions/system';
 
 let context: BaseContextType | null = null;
 
@@ -147,18 +147,23 @@ describe('issueFilePresignedPath', () => {
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     const {file} = await insertFileForTest(context, userToken, workspace);
-    const {token} = await insertAgentTokenForTest(context, userToken, workspace.resourceId);
+    const {token} = await insertAgentTokenForTest(
+      context,
+      userToken,
+      workspace.resourceId
+    );
 
     await expectErrorThrown(async () => {
       assertContext(context);
       const usageCount = 2;
-      const instData = RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
-        mockExpressRequestWithAgentToken(token),
-        {
-          usageCount,
-          filepath: stringifyFileNamePath(file, workspace.rootname),
-        }
-      );
+      const instData =
+        RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
+          mockExpressRequestWithAgentToken(token),
+          {
+            usageCount,
+            filepath: stringifyFileNamePath(file, workspace.rootname),
+          }
+        );
       await issueFilePresignedPath(context, instData);
     }, [PermissionDeniedError.name]);
   });
@@ -168,7 +173,11 @@ describe('issueFilePresignedPath', () => {
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     const {folder} = await insertFolderForTest(context, userToken, workspace);
-    const {token} = await insertAgentTokenForTest(context, userToken, workspace.resourceId);
+    const {token} = await insertAgentTokenForTest(
+      context,
+      userToken,
+      workspace.resourceId
+    );
 
     const filepath = addRootnameToPath(
       folder.namePath.join('/') + `/${faker.lorem.word()}`,
@@ -177,10 +186,11 @@ describe('issueFilePresignedPath', () => {
 
     await expectErrorThrown(async () => {
       assertContext(context);
-      const instData = RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
-        mockExpressRequestWithAgentToken(token),
-        {filepath}
-      );
+      const instData =
+        RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
+          mockExpressRequestWithAgentToken(token),
+          {filepath}
+        );
       await issueFilePresignedPath(context, instData);
     }, [PermissionDeniedError.name]);
   });
@@ -216,10 +226,11 @@ describe('issueFilePresignedPath', () => {
 
     await expectErrorThrown(async () => {
       assertContext(context);
-      const instData = RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
-        mockExpressRequestWithAgentToken(userToken),
-        {fileId: getNewIdForResource(AppResourceType.File)}
-      );
+      const instData =
+        RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
+          mockExpressRequestWithAgentToken(userToken),
+          {fileId: getNewIdForResource(AppResourceTypeMap.File)}
+        );
       await issueFilePresignedPath(context, instData);
     }, [NotFoundError.name]);
   });

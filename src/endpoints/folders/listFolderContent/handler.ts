@@ -1,6 +1,6 @@
 import {Folder} from '../../../definitions/folder';
 import {
-  AppResourceType,
+  AppResourceTypeMap,
   PERMISSION_AGENT_TYPES,
   SessionAgent,
 } from '../../../definitions/system';
@@ -35,12 +35,15 @@ const listFolderContent: ListFolderContentEndpoint = async (context, instData) =
     /** skip auth check */ true
   );
   applyDefaultEndpointPaginationOptions(data);
-  const contentType = data.contentType ?? [AppResourceType.File, AppResourceType.Folder];
+  const contentType = data.contentType ?? [
+    AppResourceTypeMap.File,
+    AppResourceTypeMap.Folder,
+  ];
   let [fetchedFolders, fetchedFiles] = await Promise.all([
-    contentType.includes(AppResourceType.Folder)
+    contentType.includes(AppResourceTypeMap.Folder)
       ? fetchFolders(context, agent, workspace, parentFolder, data)
       : [],
-    contentType.includes(AppResourceType.File)
+    contentType.includes(AppResourceTypeMap.File)
       ? fetchFiles(context, agent, workspace, parentFolder, data)
       : [],
   ]);
@@ -68,7 +71,7 @@ async function fetchFolders(
     context,
     agent,
     workspace,
-    AppResourceType.Folder,
+    AppResourceTypeMap.Folder,
     parentFolder
   );
   return await context.semantic.folder.getManyByWorkspaceParentAndIdList(
@@ -88,7 +91,7 @@ async function fetchFiles(
     context,
     agent,
     workspace,
-    AppResourceType.File,
+    AppResourceTypeMap.File,
     parentFolder
   );
   return await context.semantic.file.getManyByWorkspaceParentAndIdList(query, pagination);

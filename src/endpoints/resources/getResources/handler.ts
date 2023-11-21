@@ -1,4 +1,4 @@
-import {AppResourceType} from '../../../definitions/system';
+import {AppResourceTypeMap} from '../../../definitions/system';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {checkWorkspaceExists} from '../../workspaces/utils';
@@ -8,16 +8,16 @@ import {GetResourcesEndpoint} from './types';
 import {getResourcesJoiSchema} from './validation';
 
 const kAllowedTypes = [
-  AppResourceType.Workspace,
-  AppResourceType.CollaborationRequest,
-  AppResourceType.AgentToken,
-  AppResourceType.PermissionGroup,
-  AppResourceType.PermissionItem,
-  AppResourceType.Folder,
-  AppResourceType.File,
-  AppResourceType.User,
-  AppResourceType.Tag,
-  AppResourceType.UsageRecord,
+  AppResourceTypeMap.Workspace,
+  AppResourceTypeMap.CollaborationRequest,
+  AppResourceTypeMap.AgentToken,
+  AppResourceTypeMap.PermissionGroup,
+  AppResourceTypeMap.PermissionItem,
+  AppResourceTypeMap.Folder,
+  AppResourceTypeMap.File,
+  AppResourceTypeMap.User,
+  AppResourceTypeMap.Tag,
+  AppResourceTypeMap.UsageRecord,
 ];
 
 const getResources: GetResourcesEndpoint = async (context, instData) => {
@@ -32,7 +32,6 @@ const getResources: GetResourcesEndpoint = async (context, instData) => {
     workspaceId: workspace.resourceId,
     inputResources: data.resources,
     checkAuth: true,
-    action: AppActionType.Read,
     nothrowOnCheckError: true,
     fillAssignedItems: true,
     checkBelongsToWorkspace: !!data.workspaceId,

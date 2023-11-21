@@ -1,14 +1,17 @@
 import {defaultTo} from 'lodash';
-import {Agent, AppResourceType} from '../../../definitions/system';
+import {Agent, AppResourceTypeMap} from '../../../definitions/system';
 import {
   UsageRecord,
   UsageRecordArtifact,
   UsageRecordCategory,
+  UsageRecordCategoryMap,
   UsageRecordDropReason,
+  UsageRecordDropReasonMap,
   UsageRecordFulfillmentStatus,
-  UsageSummationType,
+  UsageRecordFulfillmentStatusMap,
+  UsageSummationTypeMap,
 } from '../../../definitions/usageRecord';
-import {Workspace, WorkspaceBillStatus} from '../../../definitions/workspace';
+import {Workspace, WorkspaceBillStatusMap} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {getNewIdForResource, newWorkspaceResource} from '../../../utils/resource';
 import {getCostForUsage} from '../../usageRecords/constants';
@@ -35,13 +38,25 @@ export class UsageRecordLogicProvider {
     const record = this.makeLevel01Record(agent, input);
     const workspace = await ctx.semantic.workspace.getOneById(record.workspaceId, opts);
     assertWorkspace(workspace);
-    const billOverdue = await this.checkWorkspaceBillStatus(ctx, agent, workspace, record, opts);
+    const billOverdue = await this.checkWorkspaceBillStatus(
+      ctx,
+      agent,
+      workspace,
+      record,
+      opts
+    );
 
     if (billOverdue) {
       return false;
     }
 
-    const usageExceeded = await this.checkWorkspaceUsageLocks(ctx, agent, workspace, record, opts);
+    const usageExceeded = await this.checkWorkspaceUsageLocks(
+      ctx,
+      agent,
+      workspace,
+      record,
+      opts
+    );
 
     if (usageExceeded) {
       return false;
@@ -65,14 +80,15 @@ export class UsageRecordLogicProvider {
   private makeLevel01Record = (agent: Agent, input: UsageRecordInput) => {
     const record: UsageRecord = newWorkspaceResource(
       agent,
-      AppResourceType.UsageRecord,
+      AppResourceTypeMap.UsageRecord,
       input.workspaceId,
       {
         ...getRecordingPeriod(),
         ...input,
-        resourceId: input.resourceId ?? getNewIdForResource(AppResourceType.UsageRecord),
-        summationType: UsageSummationType.One,
-        fulfillmentStatus: UsageRecordFulfillmentStatus.Undecided,
+        resourceId:
+          input.resourceId ?? getNewIdForResource(AppResourceTypeMap.UsageRecord),
+        summationType: UsageSummationTypeMap.One,
+        fulfillmentStatus: UsageRecordFulfillmentStatusMap.Undecided,
         artifacts: defaultTo(input.artifacts, []),
         usageCost: getCostForUsage(input.category, input.usage),
       }
@@ -84,18 +100,19 @@ export class UsageRecordLogicProvider {
   private makeLevel02Record = (
     agent: Agent,
     record: UsageRecord,
-    seed: Partial<UsageRecord> & Pick<UsageRecord, 'fulfillmentStatus' | 'usage' | 'usageCost'>
+    seed: Partial<UsageRecord> &
+      Pick<UsageRecord, 'fulfillmentStatus' | 'usage' | 'usageCost'>
   ) => {
     return newWorkspaceResource<UsageRecord>(
       agent,
-      AppResourceType.UsageRecord,
+      AppResourceTypeMap.UsageRecord,
       record.workspaceId,
       {
         category: record.category,
         month: record.month,
         year: record.year,
         artifacts: [],
-        summationType: UsageSummationType.Two,
+        summationType: UsageSummationTypeMap.Two,
         ...seed,
       }
     );
@@ -114,7 +131,7 @@ export class UsageRecordLogicProvider {
         category,
         month: record.month,
         year: record.year,
-        summationType: UsageSummationType.Two,
+        summationType: UsageSummationTypeMap.Two,
         fulfillmentStatus: status,
         workspaceId: record.workspaceId,
       },
@@ -142,12 +159,12 @@ export class UsageRecordLogicProvider {
     record: UsageRecord,
     opts: SemanticDataAccessProviderMutationRunOptions
   ) => {
-    if (workspace.billStatus === WorkspaceBillStatus.BillOverdue) {
+    if (workspace.billStatus === WorkspaceBillStatusMap.BillOverdue) {
       await this.dropRecord(
         context,
         agent,
         record,
-        UsageRecordDropReason.BillOverdue,
+        UsageRecordDropReasonMap.BillOverdue,
         undefined,
         opts
       );
@@ -165,12 +182,15 @@ export class UsageRecordLogicProvider {
   ) => {
     const usageLocks = workspace.usageThresholdLocks ?? {};
 
-    if (usageLocks[UsageRecordCategory.Total] && usageLocks[UsageRecordCategory.Total]?.locked) {
+    if (
+      usageLocks[UsageRecordCategoryMap.Total] &&
+      usageLocks[UsageRecordCategoryMap.Total]?.locked
+    ) {
       await this.dropRecord(
         context,
         agent,
         record,
-        UsageRecordDropReason.UsageExceeded,
+        UsageRecordDropReasonMap.UsageExceeded,
         undefined,
         opts
       );
@@ -182,7 +202,7 @@ export class UsageRecordLogicProvider {
         context,
         agent,
         record,
-        UsageRecordDropReason.UsageExceeded,
+        UsageRecordDropReasonMap.UsageExceeded,
         undefined,
         opts
       );
@@ -199,21 +219,21 @@ export class UsageRecordLogicProvider {
     record: UsageRecord,
     opts: SemanticDataAccessProviderMutationRunOptions
   ) => {
-    let [usageFulfilledL2, usageTotalFulfilled, usageDroppedL2] = await Promise.all([
+    const [usageFulfilledL2, usageTotalFulfilled, usageDroppedL2] = await Promise.all([
       this.getUsagel2(
         context,
         agent,
         record,
         record.category,
-        UsageRecordFulfillmentStatus.Fulfilled,
+        UsageRecordFulfillmentStatusMap.Fulfilled,
         opts
       ),
       this.getUsagel2(
         context,
         agent,
         record,
-        UsageRecordCategory.Total,
-        UsageRecordFulfillmentStatus.Fulfilled,
+        UsageRecordCategoryMap.Total,
+        UsageRecordFulfillmentStatusMap.Fulfilled,
         opts
       ),
       this.getUsagel2(
@@ -221,41 +241,55 @@ export class UsageRecordLogicProvider {
         agent,
         record,
         record.category,
-        UsageRecordFulfillmentStatus.Dropped,
+        UsageRecordFulfillmentStatusMap.Dropped,
         opts
       ),
     ]);
 
-    const totalMonthUsageThreshold = workspace.usageThresholds[UsageRecordCategory.Total];
+    const totalMonthUsageThreshold =
+      workspace.usageThresholds[UsageRecordCategoryMap.Total];
     const categoryMonthUsageThreshold = workspace.usageThresholds[record.category];
     const projectedUsage = usageFulfilledL2.usage + record.usage;
     const projectedUsageCost = getCostForUsage(record.category, projectedUsage);
 
-    if (totalMonthUsageThreshold && totalMonthUsageThreshold.budget < projectedUsageCost) {
+    if (
+      totalMonthUsageThreshold &&
+      totalMonthUsageThreshold.budget < projectedUsageCost
+    ) {
       await this.dropRecord(
         context,
         agent,
         record,
-        UsageRecordDropReason.ExceedsRemainingUsage,
+        UsageRecordDropReasonMap.ExceedsRemainingUsage,
         usageDroppedL2,
         opts
       );
       return true;
     }
 
-    if (categoryMonthUsageThreshold && categoryMonthUsageThreshold.budget < projectedUsageCost) {
+    if (
+      categoryMonthUsageThreshold &&
+      categoryMonthUsageThreshold.budget < projectedUsageCost
+    ) {
       await this.dropRecord(
         context,
         agent,
         record,
-        UsageRecordDropReason.ExceedsRemainingUsage,
+        UsageRecordDropReasonMap.ExceedsRemainingUsage,
         usageDroppedL2,
         opts
       );
       return true;
     }
 
-    await this.fulfillRecord(context, agent, record, usageFulfilledL2, usageTotalFulfilled, opts);
+    await this.fulfillRecord(
+      context,
+      agent,
+      record,
+      usageFulfilledL2,
+      usageTotalFulfilled,
+      opts
+    );
     return false;
   };
 
@@ -274,7 +308,7 @@ export class UsageRecordLogicProvider {
           agent,
           record,
           record.category,
-          UsageRecordFulfillmentStatus.Fulfilled,
+          UsageRecordFulfillmentStatusMap.Fulfilled,
           opts
         ),
       usageTotalFulfilled ??
@@ -282,13 +316,13 @@ export class UsageRecordLogicProvider {
           context,
           agent,
           record,
-          UsageRecordCategory.Total,
-          UsageRecordFulfillmentStatus.Fulfilled,
+          UsageRecordCategoryMap.Total,
+          UsageRecordFulfillmentStatusMap.Fulfilled,
           opts
         ),
     ]);
 
-    record.fulfillmentStatus = UsageRecordFulfillmentStatus.Fulfilled;
+    record.fulfillmentStatus = UsageRecordFulfillmentStatusMap.Fulfilled;
     await Promise.all([
       context.semantic.usageRecord.insertItem(record, opts),
       context.semantic.usageRecord.updateOneById(
@@ -321,12 +355,12 @@ export class UsageRecordLogicProvider {
         agent,
         record,
         record.category,
-        UsageRecordFulfillmentStatus.Dropped,
+        UsageRecordFulfillmentStatusMap.Dropped,
         opts
       );
     }
 
-    record.fulfillmentStatus = UsageRecordFulfillmentStatus.Dropped;
+    record.fulfillmentStatus = UsageRecordFulfillmentStatusMap.Dropped;
     record.dropReason = dropReason;
     await Promise.all([
       context.semantic.usageRecord.insertItem(record, opts),

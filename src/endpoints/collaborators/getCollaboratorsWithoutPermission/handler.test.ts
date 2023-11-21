@@ -1,5 +1,5 @@
 import {identity} from 'lodash';
-import {AppResourceType, Resource} from '../../../definitions/system';
+import {AppResourceTypeMap, Resource} from '../../../definitions/system';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {extractResourceIdList, getResourceId} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
@@ -100,7 +100,7 @@ async function assertCollaboratorsDoNotHavePermissions(
 ) {
   let count = await context.semantic.assignedItem.countByQuery({
     assigneeId: {$in: collaboratorIdList},
-    assignedItemType: AppResourceType.PermissionGroup,
+    assignedItemType: AppResourceTypeMap.PermissionGroup,
   });
   expect(count).toBe(0);
   count = await context.semantic.permissionItem.countByQuery({

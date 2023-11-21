@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {AssignedItem} from '../../../definitions/assignedItem';
 import {PermissionGroup} from '../../../definitions/permissionGroups';
-import {Agent, AppResourceType} from '../../../definitions/system';
+import {Agent, AppResourceTypeMap} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource, getResourceTypeFromId} from '../../../utils/resource';
 import {BaseContextType} from '../../contexts/types';
@@ -9,17 +9,17 @@ import {BaseContextType} from '../../contexts/types';
 export function generatePermissionGroupForTest(seed: Partial<PermissionGroup> = {}) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
-    agentId: getNewIdForResource(AppResourceType.User),
-    agentType: AppResourceType.User,
-    agentTokenId: getNewIdForResource(AppResourceType.AgentToken),
+    agentId: getNewIdForResource(AppResourceTypeMap.User),
+    agentType: AppResourceTypeMap.User,
+    agentTokenId: getNewIdForResource(AppResourceTypeMap.AgentToken),
   };
   const token: PermissionGroup = {
     createdAt,
     createdBy,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
-    resourceId: getNewIdForResource(AppResourceType.PermissionGroup),
-    workspaceId: getNewIdForResource(AppResourceType.Workspace),
+    resourceId: getNewIdForResource(AppResourceTypeMap.PermissionGroup),
+    workspaceId: getNewIdForResource(AppResourceTypeMap.Workspace),
     name: faker.company.name(),
     description: faker.lorem.sentence(),
     ...seed,
@@ -55,25 +55,25 @@ export async function generateAndInsertPermissionGroupListForTest(
 export function generateAssignedItemForTest(seed: Partial<AssignedItem> = {}) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
-    agentId: getNewIdForResource(AppResourceType.User),
-    agentType: AppResourceType.User,
-    agentTokenId: getNewIdForResource(AppResourceType.AgentToken),
+    agentId: getNewIdForResource(AppResourceTypeMap.User),
+    agentType: AppResourceTypeMap.User,
+    agentTokenId: getNewIdForResource(AppResourceTypeMap.AgentToken),
   };
   const item: AssignedItem = {
     createdAt,
     createdBy,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
-    resourceId: getNewIdForResource(AppResourceType.AssignedItem),
-    workspaceId: getNewIdForResource(AppResourceType.Workspace),
-    assignedItemId: getNewIdForResource(AppResourceType.PermissionGroup),
+    resourceId: getNewIdForResource(AppResourceTypeMap.AssignedItem),
+    workspaceId: getNewIdForResource(AppResourceTypeMap.Workspace),
+    assignedItemId: getNewIdForResource(AppResourceTypeMap.PermissionGroup),
     assignedItemType: seed.assignedItemId
       ? getResourceTypeFromId(seed.assignedItemId)
-      : AppResourceType.PermissionGroup,
-    assigneeId: getNewIdForResource(AppResourceType.PermissionGroup),
+      : AppResourceTypeMap.PermissionGroup,
+    assigneeId: getNewIdForResource(AppResourceTypeMap.PermissionGroup),
     assigneeType: seed.assigneeId
       ? getResourceTypeFromId(seed.assigneeId)
-      : AppResourceType.PermissionGroup,
+      : AppResourceTypeMap.PermissionGroup,
     meta: {},
     ...seed,
   };

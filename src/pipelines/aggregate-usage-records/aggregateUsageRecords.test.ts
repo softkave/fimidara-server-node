@@ -7,9 +7,11 @@ import {File} from '../../definitions/file';
 import {
   FileUsageRecordArtifact,
   UsageRecordCategory,
-  UsageRecordDropReason,
+  UsageRecordCategoryMap,
+  UsageRecordDropReasonMap,
   UsageRecordFulfillmentStatus,
-  UsageSummationType,
+  UsageRecordFulfillmentStatusMap,
+  UsageSummationTypeMap,
 } from '../../definitions/usageRecord';
 import {Workspace} from '../../definitions/workspace';
 import RequestData from '../../endpoints/RequestData';
@@ -103,9 +105,9 @@ async function insertUsageRecordsForFiles(
   workspace: Workspace,
   category: Extract<
     UsageRecordCategory,
-    | UsageRecordCategory.Storage
-    | UsageRecordCategory.BandwidthIn
-    | UsageRecordCategory.BandwidthOut
+    | typeof UsageRecordCategoryMap.Storage
+    | typeof UsageRecordCategoryMap.BandwidthIn
+    | typeof UsageRecordCategoryMap.BandwidthOut
   >,
   limit: number,
   exceedLimit = false,
@@ -130,7 +132,7 @@ async function insertUsageRecordsForFiles(
     const f = files[random(0, files.length - 1)];
     f.size = usage;
     const insertPromise = context.semantic.utils.withTxn(context, async opts => {
-      if (category === UsageRecordCategory.Storage) {
+      if (category === UsageRecordCategoryMap.Storage) {
         return insertStorageUsageRecordInput(
           context,
           reqData,
@@ -140,7 +142,7 @@ async function insertUsageRecordsForFiles(
           opts,
           nothrow
         );
-      } else if (category === UsageRecordCategory.BandwidthIn) {
+      } else if (category === UsageRecordCategoryMap.BandwidthIn) {
         return insertBandwidthInUsageRecordInput(
           context,
           reqData,
@@ -149,7 +151,7 @@ async function insertUsageRecordsForFiles(
           opts,
           nothrow
         );
-      } else if (category === UsageRecordCategory.BandwidthOut) {
+      } else if (category === UsageRecordCategoryMap.BandwidthOut) {
         return insertBandwidthOutUsageRecordInput(
           context,
           reqData,
@@ -197,12 +199,12 @@ async function setupForFile(
   await context.semantic.utils.withTxn(context, opts =>
     context.semantic.workspace.insertItem(workspace, opts)
   );
-  const ut = workspace.usageThresholds[UsageRecordCategory.Storage];
+  const ut = workspace.usageThresholds[UsageRecordCategoryMap.Storage];
   assert(ut);
   const {totalUsage, count} = await insertUsageRecordsForFiles(
     context,
     workspace,
-    UsageRecordCategory.Storage,
+    UsageRecordCategoryMap.Storage,
     getUsageForCost(ut.category, ut.budget),
     exceedLimit,
     nothrow,
@@ -225,7 +227,7 @@ async function checkLocks(
   expectedState = true
 ) {
   if (!categories) {
-    categories = Object.values(UsageRecordCategory).reduce((acc, key) => {
+    categories = Object.values(UsageRecordCategoryMap).reduce((acc, key) => {
       acc[key] = expectedState;
       return acc;
     }, {} as Record<UsageRecordCategory, boolean>);
@@ -254,10 +256,10 @@ async function checkFailedRecordExistsForFile(
   const failedRecord = await model
     .findOne({
       workspaceId: w1.resourceId,
-      category: UsageRecordCategory.Storage,
-      fulfillmentStatus: UsageRecordFulfillmentStatus.Dropped,
-      summationType: UsageSummationType.One,
-      dropReason: UsageRecordDropReason.UsageExceeded,
+      category: UsageRecordCategoryMap.Storage,
+      fulfillmentStatus: UsageRecordFulfillmentStatusMap.Dropped,
+      summationType: UsageSummationTypeMap.One,
+      dropReason: UsageRecordDropReasonMap.UsageExceeded,
     })
     .lean()
     .exec();
@@ -306,7 +308,7 @@ async function assertRecordLevel2Exists(
       year,
       fulfillmentStatus,
       workspaceId: w.resourceId,
-      summationType: UsageSummationType.Two,
+      summationType: UsageSummationTypeMap.Two,
     })
     .lean()
     .exec();
@@ -336,17 +338,17 @@ describe('usage-records-pipeline', () => {
     await assertRecordLevel2Exists(
       connection,
       w1,
-      UsageRecordCategory.Storage,
-      getCostForUsage(UsageRecordCategory.Storage, totalUsage1),
-      UsageRecordFulfillmentStatus.Fulfilled
+      UsageRecordCategoryMap.Storage,
+      getCostForUsage(UsageRecordCategoryMap.Storage, totalUsage1),
+      UsageRecordFulfillmentStatusMap.Fulfilled
     );
 
     await assertRecordLevel2Exists(
       connection,
       w2,
-      UsageRecordCategory.Storage,
-      getCostForUsage(UsageRecordCategory.Storage, totalUsage2),
-      UsageRecordFulfillmentStatus.Fulfilled
+      UsageRecordCategoryMap.Storage,
+      getCostForUsage(UsageRecordCategoryMap.Storage, totalUsage2),
+      UsageRecordFulfillmentStatusMap.Fulfilled
     );
   });
 
@@ -367,24 +369,24 @@ describe('usage-records-pipeline', () => {
     assertContext(context);
     await checkLocks(context, w2.resourceId, null, false);
     await checkLocks(context, w1.resourceId, {
-      [UsageRecordCategory.Storage]: true,
+      [UsageRecordCategoryMap.Storage]: true,
     });
 
     await assertRecordInsertionFails(context, connection, w1);
     await assertRecordLevel2Exists(
       connection,
       w1,
-      UsageRecordCategory.Storage,
-      getCostForUsage(UsageRecordCategory.Storage, totalUsage1),
-      UsageRecordFulfillmentStatus.Fulfilled
+      UsageRecordCategoryMap.Storage,
+      getCostForUsage(UsageRecordCategoryMap.Storage, totalUsage1),
+      UsageRecordFulfillmentStatusMap.Fulfilled
     );
 
     await assertRecordLevel2Exists(
       connection,
       w2,
-      UsageRecordCategory.Storage,
-      getCostForUsage(UsageRecordCategory.Storage, totalUsage2),
-      UsageRecordFulfillmentStatus.Fulfilled
+      UsageRecordCategoryMap.Storage,
+      getCostForUsage(UsageRecordCategoryMap.Storage, totalUsage2),
+      UsageRecordFulfillmentStatusMap.Fulfilled
     );
   });
 
@@ -393,22 +395,22 @@ describe('usage-records-pipeline', () => {
     const {context, connection} = await getContextAndConnection();
     const workspace = generateTestWorkspace();
     workspace.usageThresholds = transformUsageThresholInput(PUBLIC_SESSION_AGENT, {
-      [UsageRecordCategory.Total]: {
+      [UsageRecordCategoryMap.Total]: {
         budget: 1000,
-        category: UsageRecordCategory.Total,
+        category: UsageRecordCategoryMap.Total,
       },
     });
 
     await context.semantic.utils.withTxn(context, opts =>
       context.semantic.workspace.insertItem(workspace, opts)
     );
-    const ut = workspace.usageThresholds[UsageRecordCategory.Total];
+    const ut = workspace.usageThresholds[UsageRecordCategoryMap.Total];
     assert(ut);
-    const {totalUsage, count} = await insertUsageRecordsForFiles(
+    const {totalUsage} = await insertUsageRecordsForFiles(
       context,
       workspace,
-      UsageRecordCategory.Storage,
-      getUsageForCost(UsageRecordCategory.Storage, ut.budget),
+      UsageRecordCategoryMap.Storage,
+      getUsageForCost(UsageRecordCategoryMap.Storage, ut.budget),
       /** exceedLimit */ true
     );
 
@@ -419,15 +421,15 @@ describe('usage-records-pipeline', () => {
     // Assert
     assertContext(context);
     await checkLocks(context, workspace.resourceId, {
-      [UsageRecordCategory.Total]: true,
+      [UsageRecordCategoryMap.Total]: true,
     });
 
     await assertRecordLevel2Exists(
       connection,
       workspace,
-      UsageRecordCategory.Total,
-      getCostForUsage(UsageRecordCategory.Storage, totalUsage),
-      UsageRecordFulfillmentStatus.Fulfilled
+      UsageRecordCategoryMap.Total,
+      getCostForUsage(UsageRecordCategoryMap.Storage, totalUsage),
+      UsageRecordFulfillmentStatusMap.Fulfilled
     );
 
     await assertRecordInsertionFails(context, connection, workspace);
@@ -438,22 +440,22 @@ describe('usage-records-pipeline', () => {
     const {context, connection} = await getContextAndConnection();
     const workspace = generateTestWorkspace();
     workspace.usageThresholds = transformUsageThresholInput(PUBLIC_SESSION_AGENT, {
-      [UsageRecordCategory.Total]: {
+      [UsageRecordCategoryMap.Total]: {
         budget: 1000,
-        category: UsageRecordCategory.Total,
+        category: UsageRecordCategoryMap.Total,
       },
     });
 
     await context.semantic.utils.withTxn(context, opts =>
       context.semantic.workspace.insertItem(workspace, opts)
     );
-    const ut = workspace.usageThresholds[UsageRecordCategory.Total];
+    const ut = workspace.usageThresholds[UsageRecordCategoryMap.Total];
     assert(ut);
     await insertUsageRecordsForFiles(
       context,
       workspace,
-      UsageRecordCategory.Storage,
-      getUsageForCost(UsageRecordCategory.Storage, ut.budget),
+      UsageRecordCategoryMap.Storage,
+      getUsageForCost(UsageRecordCategoryMap.Storage, ut.budget),
       /** exceedLimit */ true
     );
 
@@ -463,7 +465,7 @@ describe('usage-records-pipeline', () => {
 
     // Assert
     await checkLocks(context, workspace.resourceId, {
-      [UsageRecordCategory.Total]: true,
+      [UsageRecordCategoryMap.Total]: true,
     });
 
     // Setup
@@ -471,7 +473,7 @@ describe('usage-records-pipeline', () => {
     await insertUsageRecordsForFiles(
       context,
       workspace,
-      UsageRecordCategory.Storage,
+      UsageRecordCategoryMap.Storage,
       exceedBy
     );
 
@@ -483,9 +485,9 @@ describe('usage-records-pipeline', () => {
     await assertRecordLevel2Exists(
       connection,
       workspace,
-      UsageRecordCategory.Storage,
-      getCostForUsage(UsageRecordCategory.Storage, exceedBy),
-      UsageRecordFulfillmentStatus.Dropped
+      UsageRecordCategoryMap.Storage,
+      getCostForUsage(UsageRecordCategoryMap.Storage, exceedBy),
+      UsageRecordFulfillmentStatusMap.Dropped
     );
   });
 });

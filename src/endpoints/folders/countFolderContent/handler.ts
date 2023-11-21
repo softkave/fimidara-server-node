@@ -1,6 +1,6 @@
 import {Folder} from '../../../definitions/folder';
 import {
-  AppResourceType,
+  AppResourceTypeMap,
   PERMISSION_AGENT_TYPES,
   SessionAgent,
 } from '../../../definitions/system';
@@ -29,12 +29,15 @@ const countFolderContent: CountFolderContentEndpoint = async (context, instData)
     // TODO: Let me (@abayomi) know if there's an issue with this.
     /** skip auth check */ true
   );
-  const contentType = data.contentType ?? [AppResourceType.File, AppResourceType.Folder];
+  const contentType = data.contentType ?? [
+    AppResourceTypeMap.File,
+    AppResourceTypeMap.Folder,
+  ];
   const [foldersCount, filesCount] = await Promise.all([
-    contentType.includes(AppResourceType.Folder)
+    contentType.includes(AppResourceTypeMap.Folder)
       ? countFolders(context, agent, workspace, parentFolder)
       : 0,
-    contentType.includes(AppResourceType.File)
+    contentType.includes(AppResourceTypeMap.File)
       ? countFiles(context, agent, workspace, parentFolder)
       : 0,
   ]);
@@ -51,7 +54,7 @@ async function countFolders(
     context,
     agent,
     workspace,
-    AppResourceType.Folder,
+    AppResourceTypeMap.Folder,
     parentFolder
   );
   return await context.semantic.folder.countManyParentByIdList(q);
@@ -67,7 +70,7 @@ async function countFiles(
     context,
     agent,
     workspace,
-    AppResourceType.File,
+    AppResourceTypeMap.File,
     parentFolder
   );
   return await context.semantic.file.countManyParentByIdList(q);

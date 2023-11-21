@@ -1,4 +1,4 @@
-import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
+import {CollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
 import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
@@ -37,16 +37,19 @@ test('collaboration request revoked', async () => {
     workspace.resourceId,
     {recipientEmail: user02.email}
   );
-  const instData = RequestData.fromExpressRequest<RevokeCollaborationRequestEndpointParams>(
-    mockExpressRequestWithAgentToken(userToken),
-    {requestId: request01.resourceId}
-  );
+  const instData =
+    RequestData.fromExpressRequest<RevokeCollaborationRequestEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {requestId: request01.resourceId}
+    );
   const result = await revokeCollaborationRequest(context, instData);
   assertEndpointResultOk(result);
   const updatedRequest = await context.semantic.collaborationRequest.assertGetOneByQuery(
     EndpointReusableQueries.getByResourceId(request01.resourceId)
   );
   expect(result.request.resourceId).toEqual(request01.resourceId);
-  expect(result.request).toMatchObject(collaborationRequestForUserExtractor(updatedRequest));
-  expect(updatedRequest.status).toBe(CollaborationRequestStatusType.Revoked);
+  expect(result.request).toMatchObject(
+    collaborationRequestForUserExtractor(updatedRequest)
+  );
+  expect(updatedRequest.status).toBe(CollaborationRequestStatusTypeMap.Revoked);
 });

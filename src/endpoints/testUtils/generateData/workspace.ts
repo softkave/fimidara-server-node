@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
-import {Agent, AppResourceType} from '../../../definitions/system';
-import {UsageRecordCategory} from '../../../definitions/usageRecord';
-import {Workspace, WorkspaceBillStatus} from '../../../definitions/workspace';
+import {Agent, AppResourceTypeMap} from '../../../definitions/system';
+import {UsageRecordCategoryMap} from '../../../definitions/usageRecord';
+import {Workspace, WorkspaceBillStatusMap} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {BaseContextType} from '../../contexts/types';
@@ -14,29 +14,29 @@ export function generateTestUsageThresholdInputMap(
   threshold = usageRecordConstants.defaultTotalThresholdInUSD
 ): Required<NewWorkspaceInput>['usageThresholds'] {
   return {
-    [UsageRecordCategory.Storage]: {
-      category: UsageRecordCategory.Storage,
+    [UsageRecordCategoryMap.Storage]: {
+      category: UsageRecordCategoryMap.Storage,
       budget: threshold,
     },
-    // [UsageRecordCategory.Request]: {
-    //   category: UsageRecordCategory.Request,
+    // [UsageRecordCategoryMap.Request]: {
+    //   category: UsageRecordCategoryMap.Request,
     //   budget: threshold,
     // },
-    [UsageRecordCategory.BandwidthIn]: {
-      category: UsageRecordCategory.BandwidthIn,
+    [UsageRecordCategoryMap.BandwidthIn]: {
+      category: UsageRecordCategoryMap.BandwidthIn,
       budget: threshold,
     },
-    [UsageRecordCategory.BandwidthOut]: {
-      category: UsageRecordCategory.BandwidthOut,
+    [UsageRecordCategoryMap.BandwidthOut]: {
+      category: UsageRecordCategoryMap.BandwidthOut,
       budget: threshold,
     },
-    // [UsageRecordCategory.DatabaseObject]: {
-    //   category: UsageRecordCategory.DatabaseObject,
+    // [UsageRecordCategoryMap.DatabaseObject]: {
+    //   category: UsageRecordCategoryMap.DatabaseObject,
     //   budget: threshold,
     // },
-    [UsageRecordCategory.Total]: {
-      category: UsageRecordCategory.Total,
-      budget: threshold * Object.keys(UsageRecordCategory).length,
+    [UsageRecordCategoryMap.Total]: {
+      category: UsageRecordCategoryMap.Total,
+      budget: threshold * Object.keys(UsageRecordCategoryMap).length,
     },
   };
 }
@@ -44,12 +44,12 @@ export function generateTestUsageThresholdInputMap(
 export function generateTestWorkspace(seed: Partial<Workspace> = {}) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
-    agentId: getNewIdForResource(AppResourceType.User),
-    agentType: AppResourceType.User,
-    agentTokenId: getNewIdForResource(AppResourceType.AgentToken),
+    agentId: getNewIdForResource(AppResourceTypeMap.User),
+    agentType: AppResourceTypeMap.User,
+    agentTokenId: getNewIdForResource(AppResourceTypeMap.AgentToken),
   };
   const name = faker.company.name();
-  const resourceId = getNewIdForResource(AppResourceType.Workspace);
+  const resourceId = getNewIdForResource(AppResourceTypeMap.Workspace);
   const workspace: Workspace = {
     createdAt,
     createdBy,
@@ -60,11 +60,14 @@ export function generateTestWorkspace(seed: Partial<Workspace> = {}) {
     workspaceId: resourceId,
     rootname: makeRootnameFromName(name),
     description: faker.lorem.sentence(),
-    billStatus: WorkspaceBillStatus.Ok,
+    billStatus: WorkspaceBillStatusMap.Ok,
     billStatusAssignedAt: createdAt,
-    usageThresholds: transformUsageThresholInput(createdBy, generateTestUsageThresholdInputMap()),
+    usageThresholds: transformUsageThresholInput(
+      createdBy,
+      generateTestUsageThresholdInputMap()
+    ),
     usageThresholdLocks: {},
-    publicPermissionGroupId: getNewIdForResource(AppResourceType.PermissionGroup),
+    publicPermissionGroupId: getNewIdForResource(AppResourceTypeMap.PermissionGroup),
     ...seed,
   };
   return workspace;

@@ -1,4 +1,4 @@
-import {TokenAccessScope} from '../../../definitions/system';
+import {TokenAccessScopeMap} from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
@@ -25,7 +25,7 @@ export default async function INTERNAL_confirmEmailAddress(
         ),
         context.semantic.agentToken.deleteAgentTokens(
           userId,
-          TokenAccessScope.ConfirmEmailAddress,
+          TokenAccessScopeMap.ConfirmEmailAddress,
           opts
         ),
       ]);

@@ -1,9 +1,9 @@
 import {URL} from 'url';
 import {AgentToken} from '../../../definitions/agentToken';
 import {
-  AppResourceType,
+  AppResourceTypeMap,
   CURRENT_TOKEN_VERSION,
-  TokenAccessScope,
+  TokenAccessScopeMap,
 } from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
@@ -29,17 +29,17 @@ export async function withConfirmEmailAddressToken(
       ) {
         let token = await context.semantic.agentToken.getOneAgentToken(
           user.resourceId,
-          TokenAccessScope.ConfirmEmailAddress,
+          TokenAccessScopeMap.ConfirmEmailAddress,
           opts
         );
 
         if (!token) {
-          token = newResource<AgentToken>(AppResourceType.AgentToken, {
-            scope: [TokenAccessScope.ConfirmEmailAddress],
+          token = newResource<AgentToken>(AppResourceTypeMap.AgentToken, {
+            scope: [TokenAccessScopeMap.ConfirmEmailAddress],
             version: CURRENT_TOKEN_VERSION,
             separateEntityId: user.resourceId,
             workspaceId: null,
-            agentType: AppResourceType.User,
+            agentType: AppResourceTypeMap.User,
             createdBy: SYSTEM_SESSION_AGENT,
             lastUpdatedBy: SYSTEM_SESSION_AGENT,
           });

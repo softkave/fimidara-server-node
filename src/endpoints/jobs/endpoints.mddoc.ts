@@ -1,4 +1,4 @@
-import {JobStatus} from '../../definitions/job';
+import {JobStatusMap} from '../../definitions/job';
 import {
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
@@ -7,13 +7,16 @@ import {
 } from '../../mddoc/mddoc';
 import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc';
 import {jobConstants} from './constants';
-import {GetJobStatusEndpointParams, GetJobStatusEndpointResult} from './getJobStatus/types';
+import {
+  GetJobStatusEndpointParams,
+  GetJobStatusEndpointResult,
+} from './getJobStatus/types';
 import {GetJobStatusHttpEndpoint} from './types';
 
 const jobStatus = mddocConstruct
   .constructFieldString()
   .setDescription('Job status.')
-  .setValid(Object.values(JobStatus))
+  .setValid(Object.values(JobStatusMap))
   .setEnumName('JobStatus');
 
 const getJobStatusParams = mddocConstruct
@@ -33,17 +36,27 @@ const getJobStatusResponseBody = mddocConstruct
 
 export const getJobStatusEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
-    InferFieldObjectType<GetJobStatusHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
-    InferFieldObjectType<GetJobStatusHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<
+      GetJobStatusHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      GetJobStatusHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
     InferFieldObjectType<GetJobStatusHttpEndpoint['mddocHttpDefinition']['query']>,
-    InferFieldObjectOrMultipartType<GetJobStatusHttpEndpoint['mddocHttpDefinition']['requestBody']>,
-    InferFieldObjectType<GetJobStatusHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectOrMultipartType<
+      GetJobStatusHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      GetJobStatusHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
     InferFieldObjectType<GetJobStatusHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(jobConstants.routes.getJobStatus)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getJobStatusParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getJobStatusResponseBody)
   .setName('GetJobStatusEndpoint');

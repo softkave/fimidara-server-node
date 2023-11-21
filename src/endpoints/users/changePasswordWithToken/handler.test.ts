@@ -1,9 +1,9 @@
 import {add} from 'date-fns';
 import {AgentToken} from '../../../definitions/agentToken';
 import {
-  AppResourceType,
+  AppResourceTypeMap,
   CURRENT_TOKEN_VERSION,
-  TokenAccessScope,
+  TokenAccessScopeMap,
 } from '../../../definitions/system';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
@@ -49,8 +49,8 @@ async function changePasswordWithTokenTest() {
   const oldPassword = 'abd784_!';
   const {user} = await insertUserForTest(context, {password: oldPassword});
   const newPassword = 'abd784_!new';
-  const token = newResource<AgentToken>(AppResourceType.AgentToken, {
-    scope: [TokenAccessScope.ChangePassword],
+  const token = newResource<AgentToken>(AppResourceTypeMap.AgentToken, {
+    scope: [TokenAccessScopeMap.ChangePassword],
     version: CURRENT_TOKEN_VERSION,
     expires: getTimestamp(
       add(new Date(), {
@@ -58,7 +58,7 @@ async function changePasswordWithTokenTest() {
       })
     ),
     separateEntityId: user.resourceId,
-    agentType: AppResourceType.User,
+    agentType: AppResourceTypeMap.User,
     workspaceId: null,
     createdBy: SYSTEM_SESSION_AGENT,
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
@@ -78,10 +78,13 @@ async function changePasswordWithTokenTest() {
     EndpointReusableQueries.getByResourceId(result.user.resourceId)
   );
   expect(result.user).toMatchObject(userExtractor(updatedUser));
-  const loginReqData = RequestData.fromExpressRequest<LoginEndpointParams>(mockExpressRequest(), {
-    password: newPassword,
-    email: user.email,
-  });
+  const loginReqData = RequestData.fromExpressRequest<LoginEndpointParams>(
+    mockExpressRequest(),
+    {
+      password: newPassword,
+      email: user.email,
+    }
+  );
   const loginResult = await login(context, loginReqData);
   assertEndpointResultOk(loginResult);
   expect(loginResult.user).toMatchObject(userExtractor(updatedUser));

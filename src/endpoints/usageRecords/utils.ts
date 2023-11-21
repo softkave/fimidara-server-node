@@ -1,13 +1,14 @@
 import {File} from '../../definitions/file';
 import {PermissionAction} from '../../definitions/permissionItem';
-import {AppResourceType, PERMISSION_AGENT_TYPES} from '../../definitions/system';
+import {AppResourceTypeMap, PERMISSION_AGENT_TYPES} from '../../definitions/system';
 import {
   BandwidthUsageRecordArtifact,
   FileUsageRecordArtifact,
   PublicUsageRecord,
   UsageRecord,
-  UsageRecordArtifactType,
+  UsageRecordArtifactTypeMap,
   UsageRecordCategory,
+  UsageRecordCategoryMap,
 } from '../../definitions/usageRecord';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
@@ -60,14 +61,14 @@ export async function insertStorageUsageRecordInput(
 
   const input: UsageRecordInput = {
     workspaceId: file.workspaceId,
-    category: UsageRecordCategory.Storage,
+    category: UsageRecordCategoryMap.Storage,
     usage: file.size,
     artifacts: [
       {
         action,
         artifact: artifactMeta,
-        type: UsageRecordArtifactType.File,
-        resourceType: AppResourceType.File,
+        type: UsageRecordArtifactTypeMap.File,
+        resourceType: AppResourceTypeMap.File,
       },
     ],
   };
@@ -91,14 +92,14 @@ export async function insertBandwidthInUsageRecordInput(
 
   const input: UsageRecordInput = {
     workspaceId: file.workspaceId,
-    category: UsageRecordCategory.BandwidthIn,
+    category: UsageRecordCategoryMap.BandwidthIn,
     usage: file.size,
     artifacts: [
       {
         action,
         artifact: artifactMeta,
-        type: UsageRecordArtifactType.File,
-        resourceType: AppResourceType.File,
+        type: UsageRecordArtifactTypeMap.File,
+        resourceType: AppResourceTypeMap.File,
       },
     ],
   };
@@ -122,14 +123,14 @@ export async function insertBandwidthOutUsageRecordInput(
 
   const input: UsageRecordInput = {
     workspaceId: file.workspaceId,
-    category: UsageRecordCategory.BandwidthOut,
+    category: UsageRecordCategoryMap.BandwidthOut,
     usage: file.size,
     artifacts: [
       {
         action,
         artifact: artifactMeta,
-        type: UsageRecordArtifactType.File,
-        resourceType: AppResourceType.File,
+        type: UsageRecordArtifactTypeMap.File,
+        resourceType: AppResourceTypeMap.File,
       },
     ],
   };
@@ -153,14 +154,14 @@ export async function insertBandwidthOutUsageRecordInput(
 
 //   const input: UsageRecordInput = {
 //     workspaceId,
-//     category: UsageRecordCategory.DatabaseObject,
+//     category: UsageRecordCategoryMap.DatabaseObject,
 //     usage: 1,
 //     artifacts: [
 //       {
 //         action,
 //         resourceType,
 //         artifact: artifactMeta,
-//         type: UsageRecordArtifactType.DatabaseObject,
+//         type: UsageRecordArtifactTypeMap.DatabaseObject,
 //       },
 //     ],
 //   };
@@ -182,7 +183,7 @@ export function getUsageThreshold(w: Workspace, category: UsageRecordCategory) {
 
 export function workspaceHasUsageThresholds(w: Workspace) {
   const thresholds = w.usageThresholds ?? {};
-  return Object.values(UsageRecordCategory).some(k => {
+  return Object.values(UsageRecordCategoryMap).some(k => {
     const usage = thresholds[k];
     return usage && usage.budget > 0;
   });
@@ -190,7 +191,7 @@ export function workspaceHasUsageThresholds(w: Workspace) {
 
 export function sumWorkspaceThresholds(w: Workspace, exclude?: UsageRecordCategory[]) {
   const threshold = w.usageThresholds ?? {};
-  return Object.values(UsageRecordCategory).reduce((acc, k) => {
+  return Object.values(UsageRecordCategoryMap).reduce((acc, k) => {
     if (exclude && exclude.includes(k)) {
       return acc;
     }

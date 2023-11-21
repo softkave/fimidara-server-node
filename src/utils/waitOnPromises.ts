@@ -1,44 +1,56 @@
-import {Dictionary, map} from 'lodash';
+import {Dictionary, isArray} from 'lodash';
 import {serverLogger} from './logger/loggerUtils';
 
-export interface IPromiseWithId<T = any> {
+export interface PromiseWithId<T = any> {
   promise: Promise<T>;
   id: string | number;
 }
 
-export type ISettledPromise<Value = any, Reason = any> =
+export type SettledPromise<Value = any, Reason = any> =
   | {resolved: true; value: Value}
   | {resolved: false; reason?: Reason};
 
-export type ISettledPromiseWithId<Value = any, Reason = any> = ISettledPromise<Value, Reason> & {
+export type SettledPromiseWithId<Value = any, Reason = any> = SettledPromise<
+  Value,
+  Reason
+> & {
   id: string | number;
 };
 
-function wrapPromiseWithId<T = any>(p: IPromiseWithId<T>) {
-  return new Promise<ISettledPromiseWithId<T>>(resolve => {
+export type InferPromiseWithIdData<T extends PromiseWithId> = T extends PromiseWithId<
+  infer TData01
+>
+  ? TData01
+  : unknown;
+
+export type GetSettledPromise<
+  T extends PromiseWithId,
+  TData = InferPromiseWithIdData<T>
+> = SettledPromiseWithId<TData> & Pick<T, Exclude<keyof T, keyof SettledPromiseWithId>>;
+
+function wrapPromiseWithId<T extends PromiseWithId>(p: T) {
+  return new Promise<GetSettledPromise<T>>(resolve => {
     p.promise
-      .then(result =>
-        resolve({
-          ...p,
-          resolved: true,
-          value: result,
-        })
-      )
+      .then(result => resolve({...p, resolved: true, value: result}))
       .catch(error => resolve({...p, resolved: false, reason: error}));
   });
 }
 
-export const waitOnPromisesWithId = <T>(
-  promises: IPromiseWithId<T>[] | Dictionary<IPromiseWithId<T>>
-): Promise<ISettledPromiseWithId<T, any>[]> => {
-  const mappedPromises = map(promises, wrapPromiseWithId) as unknown as Promise<
-    ISettledPromiseWithId<T, any>
-  >[];
-  return Promise.all(mappedPromises);
+export const waitOnPromisesWithId = async <T extends PromiseWithId>(
+  promises: T[] | Dictionary<T>
+) => {
+  const mappedPromises: Array<Promise<GetSettledPromise<T>>> = [];
+  const entries = isArray(promises) ? promises.entries() : Object.entries(promises);
+
+  for (const [, promise] of entries) {
+    mappedPromises.push(wrapPromiseWithId(promise));
+  }
+
+  return await Promise.all(mappedPromises);
 };
 
 function wrapPromise<T = any>(p: Promise<T>) {
-  return new Promise<ISettledPromise<T>>(resolve => {
+  return new Promise<SettledPromise<T>>(resolve => {
     p.then(result =>
       resolve({
         resolved: true,
@@ -56,7 +68,7 @@ function wrapPromise<T = any>(p: Promise<T>) {
 export const waitOnPromises = <ProvidedPromise extends Promise<any>[]>(
   promises: ProvidedPromise
 ): Promise<
-  ISettledPromise<
+  SettledPromise<
     Parameters<NonNullable<Parameters<ProvidedPromise[number]['then']>[0]>>[0],
     Parameters<NonNullable<Parameters<ProvidedPromise[number]['catch']>[0]>>[0]
   >[]

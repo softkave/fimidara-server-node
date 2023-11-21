@@ -1,5 +1,5 @@
 import {File, FilePresignedPath} from '../../../definitions/file';
-import {AppResourceType, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
+import {AppResourceTypeMap, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {newWorkspaceResource} from '../../../utils/resource';
@@ -102,7 +102,7 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async (
 
   const resource = newWorkspaceResource<FilePresignedPath>(
     agent,
-    AppResourceType.FilePresignedPath,
+    AppResourceTypeMap.FilePresignedPath,
     workspace.resourceId,
     {
       expiresAt,

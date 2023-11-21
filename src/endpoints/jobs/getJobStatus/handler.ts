@@ -1,4 +1,4 @@
-import {AppResourceType, ResourceWrapper} from '../../../definitions/system';
+import {AppResourceTypeMap, ResourceWrapper} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
@@ -19,7 +19,7 @@ const getJobStatus: GetJobStatusEndpoint = async (context, instData) => {
   const resource: ResourceWrapper = {
     resourceId: agent.agentId,
     resource: (agent.user || agent.agentToken)!,
-    resourceType: agent.user ? AppResourceType.User : AppResourceType.AgentToken,
+    resourceType: agent.user ? AppResourceTypeMap.User : AppResourceTypeMap.AgentToken,
   };
   checkResourcesBelongsToWorkspace(
     job.workspaceId,

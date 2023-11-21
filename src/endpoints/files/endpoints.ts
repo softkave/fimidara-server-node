@@ -1,7 +1,7 @@
 import busboy from 'connect-busboy';
 import {Request, Response} from 'express';
 import {first, last} from 'lodash';
-import {AppResourceType} from '../../definitions/system';
+import {AppResourceTypeMap} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {toArray} from '../../utils/fns';
 import {tryGetResourceTypeFromId} from '../../utils/resource';
@@ -66,7 +66,7 @@ function extractFilepathOrIdFromReqPath(req: Request, endpointPath: string) {
 
   if (
     maybeFileId &&
-    tryGetResourceTypeFromId(maybeFileId) === AppResourceType.File &&
+    tryGetResourceTypeFromId(maybeFileId) === AppResourceTypeMap.File &&
     maybeFileId.includes(folderConstants.nameSeparator) === false
   ) {
     fileId = maybeFileId;
@@ -164,6 +164,12 @@ export function getFilesPublicHttpEndpoints() {
       },
       {
         fn: readFile,
+        // TODO: special case, sdkparams is inferred from endpoint, so it's
+        // expecting a request body, but it's a GET request, and there shouldn't
+        // be one. Fix will take more time to fix, compared to ts-ignore, so,
+        // TODO
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         mddocHttpDefinition: readFileGETEndpointDefinition,
         handleResponse: handleReadFileResponse,
         getDataFromReq: extractReadFileParamsFromReq,

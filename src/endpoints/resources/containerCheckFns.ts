@@ -1,71 +1,98 @@
 import {format} from 'util';
 import {File} from '../../definitions/file';
 import {Folder} from '../../definitions/folder';
-import {AppResourceType, ResourceWrapper, WorkspaceResource} from '../../definitions/system';
+import {
+  AppResourceTypeMap,
+  ResourceWrapper,
+  WorkspaceResource,
+} from '../../definitions/system';
 import {UserWithWorkspace} from '../../definitions/user';
 import {appAssert} from '../../utils/assertion';
 import {ServerError} from '../../utils/errors';
 import {getCollaboratorWorkspace} from '../collaborators/utils';
 import {NotFoundError} from '../errors';
 
-export function isResourcePartOfWorkspace(workspaceId: string, resource: ResourceWrapper) {
+export function isResourcePartOfWorkspace(
+  workspaceId: string,
+  resource: ResourceWrapper
+) {
   switch (resource.resourceType) {
-    case AppResourceType.Workspace:
+    case AppResourceTypeMap.Workspace:
       return resource.resourceId === workspaceId;
-    case AppResourceType.CollaborationRequest:
-    case AppResourceType.AgentToken:
-    case AppResourceType.PermissionGroup:
-    case AppResourceType.PermissionItem:
-    case AppResourceType.Folder:
-    case AppResourceType.File:
+    case AppResourceTypeMap.CollaborationRequest:
+    case AppResourceTypeMap.AgentToken:
+    case AppResourceTypeMap.PermissionGroup:
+    case AppResourceTypeMap.PermissionItem:
+    case AppResourceTypeMap.Folder:
+    case AppResourceTypeMap.File:
       return (resource.resource as WorkspaceResource).workspaceId === workspaceId;
-    case AppResourceType.User:
+    case AppResourceTypeMap.User: {
       const user = resource.resource as UserWithWorkspace;
       appAssert(user.workspaces, new ServerError(), 'User workspaces not filled in.');
-      return !!getCollaboratorWorkspace(resource.resource as UserWithWorkspace, workspaceId);
+      return !!getCollaboratorWorkspace(
+        resource.resource as UserWithWorkspace,
+        workspaceId
+      );
+    }
     default:
       return false;
   }
 }
 
-export function isResourcePartOfContainer(containerId: string, resource: ResourceWrapper) {
+export function isResourcePartOfContainer(
+  containerId: string,
+  resource: ResourceWrapper
+) {
   switch (resource.resourceType) {
-    case AppResourceType.Workspace:
+    case AppResourceTypeMap.Workspace:
       return resource.resourceId === containerId;
-    case AppResourceType.CollaborationRequest:
-    case AppResourceType.AgentToken:
-    case AppResourceType.PermissionGroup:
-    case AppResourceType.PermissionItem:
+    case AppResourceTypeMap.CollaborationRequest:
+    case AppResourceTypeMap.AgentToken:
+    case AppResourceTypeMap.PermissionGroup:
+    case AppResourceTypeMap.PermissionItem:
       return (resource.resource as WorkspaceResource).workspaceId === containerId;
-    case AppResourceType.Folder:
+    case AppResourceTypeMap.Folder:
       return (
         (resource.resource as WorkspaceResource).workspaceId === containerId ||
         (resource.resource as WorkspaceResource).resourceId === containerId ||
         (resource.resource as unknown as Folder).idPath.includes(containerId)
       );
-    case AppResourceType.File:
+    case AppResourceTypeMap.File:
       return (
         (resource.resource as WorkspaceResource).workspaceId === containerId ||
         (resource.resource as unknown as File).idPath.includes(containerId)
       );
-    case AppResourceType.User:
+    case AppResourceTypeMap.User: {
       const user = resource.resource as UserWithWorkspace;
       appAssert(user.workspaces, new ServerError(), 'User workspaces not filled in.');
-      return !!getCollaboratorWorkspace(resource.resource as UserWithWorkspace, containerId);
+      return !!getCollaboratorWorkspace(
+        resource.resource as UserWithWorkspace,
+        containerId
+      );
+    }
     default:
       return false;
   }
 }
 
-export function getResourcesNotPartOfWorkspace(workspaceId: string, resources: ResourceWrapper[]) {
+export function getResourcesNotPartOfWorkspace(
+  workspaceId: string,
+  resources: ResourceWrapper[]
+) {
   return resources.filter(item => !isResourcePartOfWorkspace(workspaceId, item));
 }
 
-export function getResourcesPartOfWorkspace(workspaceId: string, resources: ResourceWrapper[]) {
+export function getResourcesPartOfWorkspace(
+  workspaceId: string,
+  resources: ResourceWrapper[]
+) {
   return resources.filter(item => isResourcePartOfWorkspace(workspaceId, item));
 }
 
-export function hasResourcesNotPartOfWorkspace(workspaceId: string, resources: ResourceWrapper[]) {
+export function hasResourcesNotPartOfWorkspace(
+  workspaceId: string,
+  resources: ResourceWrapper[]
+) {
   return getResourcesNotPartOfWorkspace(workspaceId, resources).length > 0;
 }
 
@@ -88,7 +115,10 @@ export function checkResourcesBelongsToWorkspace(
   }
 }
 
-export function getResourcesNotPartOfContainer(containerId: string, resources: ResourceWrapper[]) {
+export function getResourcesNotPartOfContainer(
+  containerId: string,
+  resources: ResourceWrapper[]
+) {
   return resources.filter(item => !isResourcePartOfContainer(containerId, item));
 }
 

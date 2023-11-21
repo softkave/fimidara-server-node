@@ -1,8 +1,8 @@
 import {AgentToken} from '../../../definitions/agentToken';
 import {
-  AppResourceType,
+  AppResourceTypeMap,
   CURRENT_TOKEN_VERSION,
-  TokenAccessScope,
+  TokenAccessScopeMap,
 } from '../../../definitions/system';
 import {UserWithWorkspace} from '../../../definitions/user';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
@@ -60,12 +60,12 @@ export async function getUserClientAssignedToken(
   );
 
   if (!token) {
-    token = newResource<AgentToken>(AppResourceType.AgentToken, {
+    token = newResource<AgentToken>(AppResourceTypeMap.AgentToken, {
       providedResourceId: userId,
       workspaceId: context.appVariables.appWorkspaceId,
       version: CURRENT_TOKEN_VERSION,
       separateEntityId: null,
-      agentType: AppResourceType.AgentToken,
+      agentType: AppResourceTypeMap.AgentToken,
       createdBy: SYSTEM_SESSION_AGENT,
       lastUpdatedBy: SYSTEM_SESSION_AGENT,
     });
@@ -102,17 +102,17 @@ export async function getUserToken(
 ) {
   let userToken = await context.semantic.agentToken.getOneAgentToken(
     userId,
-    TokenAccessScope.Login,
+    TokenAccessScopeMap.Login,
     opts
   );
 
   if (!userToken) {
-    userToken = newResource<AgentToken>(AppResourceType.AgentToken, {
-      scope: [TokenAccessScope.Login],
+    userToken = newResource<AgentToken>(AppResourceTypeMap.AgentToken, {
+      scope: [TokenAccessScopeMap.Login],
       version: CURRENT_TOKEN_VERSION,
       separateEntityId: userId,
       workspaceId: null,
-      agentType: AppResourceType.User,
+      agentType: AppResourceTypeMap.User,
       createdBy: SYSTEM_SESSION_AGENT,
       lastUpdatedBy: SYSTEM_SESSION_AGENT,
     });

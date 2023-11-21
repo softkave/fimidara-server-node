@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {UsageRecordCategory} from '../../../definitions/usageRecord';
+import {UsageRecordCategoryMap} from '../../../definitions/usageRecord';
 import {BaseContextType} from '../../contexts/types';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTest} from '../../testUtils/helpers/test';
@@ -50,7 +50,10 @@ describe('uploadFile', () => {
       /** type */ 'png'
     );
     const update: Partial<UploadFileEndpointParams> = {
-      filepath: stringifyFileNamePath(savedFile, insertWorkspaceResult.workspace.rootname),
+      filepath: stringifyFileNamePath(
+        savedFile,
+        insertWorkspaceResult.workspace.rootname
+      ),
     };
     const {savedFile: updatedFile} = await uploadFileBaseTest(
       context,
@@ -64,9 +67,14 @@ describe('uploadFile', () => {
 
   test('file not duplicated', async () => {
     assertContext(context);
-    const {savedFile, insertUserResult, insertWorkspaceResult} = await uploadFileBaseTest(context);
+    const {savedFile, insertUserResult, insertWorkspaceResult} = await uploadFileBaseTest(
+      context
+    );
     const update: Partial<UploadFileEndpointParams> = {
-      filepath: stringifyFileNamePath(savedFile, insertWorkspaceResult.workspace.rootname),
+      filepath: stringifyFileNamePath(
+        savedFile,
+        insertWorkspaceResult.workspace.rootname
+      ),
     };
     await uploadFileBaseTest(
       context,
@@ -91,7 +99,7 @@ describe('uploadFile', () => {
 
     // Update usage locks
     await updateTestWorkspaceUsageLocks(context, workspace.resourceId, [
-      UsageRecordCategory.Storage,
+      UsageRecordCategoryMap.Storage,
     ]);
     await expectErrorThrown(async () => {
       assertContext(context);
@@ -102,7 +110,9 @@ describe('uploadFile', () => {
   test('files not processed synchronously because of txn', async () => {
     const count = 5;
     const invocations = (
-      await Promise.all(new Array(count).fill(0).map(() => invokeUploadFileAndReturnInvocation()))
+      await Promise.all(
+        new Array(count).fill(0).map(() => invokeUploadFileAndReturnInvocation())
+      )
     )
       .map((invocation, index) => ({...invocation, index}))
       .sort((i0, i1) => i0.endMs - i1.startMs)
@@ -120,8 +130,15 @@ async function invokeUploadFileAndReturnInvocation() {
   context.fileBackend = fileBackend;
 
   const insertUserResult = await insertUserForTest(context);
-  const insertWorkspaceResult = await insertWorkspaceForTest(context, insertUserResult.userToken);
-  await insertFileForTest(context, insertUserResult.userToken, insertWorkspaceResult.workspace);
+  const insertWorkspaceResult = await insertWorkspaceForTest(
+    context,
+    insertUserResult.userToken
+  );
+  await insertFileForTest(
+    context,
+    insertUserResult.userToken,
+    insertWorkspaceResult.workspace
+  );
 
   const uploadFileInvocation = fileBackend.getLastInvocationForFn('uploadFile');
   assert(uploadFileInvocation);

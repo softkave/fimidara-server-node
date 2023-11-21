@@ -1,4 +1,4 @@
-import {AppResourceType} from '../../../definitions/system';
+import {AppResourceTypeMap} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {InvalidRequestError} from '../../errors';
 import {enqueueDeleteResourceJob} from '../../jobs/runner';
@@ -26,7 +26,7 @@ const deletePermissionGroup: DeletePermissionGroupEndpoint = async (
   }
 
   const job = await enqueueDeleteResourceJob(context, {
-    type: AppResourceType.PermissionGroup,
+    type: AppResourceTypeMap.PermissionGroup,
     args: {
       workspaceId: workspace.resourceId,
       resourceId: permissionGroup.resourceId,

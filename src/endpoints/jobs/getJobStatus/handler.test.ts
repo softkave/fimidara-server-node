@@ -1,5 +1,4 @@
 import assert from 'assert';
-import {JobStatus} from '../../../definitions/job';
 import RequestData from '../../RequestData';
 import {BaseContextType} from '../../contexts/types';
 import deletePermissionGroup from '../../permissionGroups/deletePermissionGroup/handler';
@@ -15,6 +14,7 @@ import {
 } from '../../testUtils/testUtils';
 import {executeJob, waitForJob} from '../runner';
 import getJobStatus from './handler';
+import {JobStatusMap} from '../../../definitions/job';
 
 let context: BaseContextType | null = null;
 
@@ -54,5 +54,5 @@ test('getOpStatus', async () => {
     })
   );
   assertEndpointResultOk(result);
-  expect(result.status).toBe(JobStatus.Completed);
+  expect(result.status).toBe(JobStatusMap.Completed);
 });

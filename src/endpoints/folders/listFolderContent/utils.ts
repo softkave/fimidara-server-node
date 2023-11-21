@@ -1,6 +1,6 @@
 import {first, isUndefined} from 'lodash';
 import {Folder, FolderMatcher} from '../../../definitions/folder';
-import {AppResourceType, SessionAgent} from '../../../definitions/system';
+import {AppResourceTypeMap, SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
@@ -17,7 +17,7 @@ export async function listFolderContentQuery(
   context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
-  contentType: AppResourceType.File | AppResourceType.Folder,
+  contentType: typeof AppResourceTypeMap.File | typeof AppResourceTypeMap.Folder,
   parentFolder?: Folder | null
 ) {
   const report = await resolveTargetChildrenAccessCheckWithAgent({
@@ -26,7 +26,7 @@ export async function listFolderContentQuery(
     workspace,
     workspaceId: workspace.resourceId,
     target: {
-      action: contentType === AppResourceType.File ? 'readFile' : 'readFolder',
+      action: contentType === AppResourceTypeMap.File ? 'readFile' : 'readFolder',
       targetId: getResourcePermissionContainers(workspace.resourceId, parentFolder, true),
     },
   });

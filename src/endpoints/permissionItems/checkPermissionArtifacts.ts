@@ -1,7 +1,7 @@
 import {format} from 'util';
 import {PermissionAction} from '../../definitions/permissionItem';
 import {
-  AppResourceType,
+  AppResourceTypeMap,
   PERMISSION_CONTAINER_TYPES,
   PERMISSION_ENTITY_TYPES,
   SessionAgent,
@@ -41,11 +41,8 @@ export async function checkPermissionEntitiesExist(
     context,
     agent,
     workspaceId,
-    action,
     allowedTypes: PERMISSION_ENTITY_TYPES,
-    inputResources: entities.map(id => ({
-      resourceId: id,
-    })),
+    inputResources: entities.map(id => ({action, resourceId: id})),
     checkAuth: true,
     checkBelongsToWorkspace: true,
   });
@@ -71,11 +68,10 @@ export async function checkPermissionContainersExist(
     context,
     agent,
     workspaceId,
-    action,
     allowedTypes: PERMISSION_CONTAINER_TYPES,
     inputResources: items.map(id => {
       const containerType = getResourceTypeFromId(id);
-      return {resourceId: id, resourceType: containerType};
+      return {action, resourceId: id, resourceType: containerType};
     }),
     checkAuth: true,
   });
@@ -84,7 +80,7 @@ export async function checkPermissionContainersExist(
 }
 
 const targetTypes = getWorkspaceResourceTypeList().filter(
-  type => type !== AppResourceType.All
+  type => type !== AppResourceTypeMap.All
 );
 
 export async function checkPermissionTargetsExist(
@@ -109,13 +105,12 @@ export async function checkPermissionTargetsExist(
     context,
     agent,
     workspaceId,
-    action,
     allowedTypes: targetTypes,
-    inputResources: items.map(id => ({resourceId: id})),
+    inputResources: items.map(id => ({action, resourceId: id})),
     checkAuth: true,
   });
   resources = await resourceListWithAssignedItems(context, workspaceId, resources, [
-    AppResourceType.User,
+    AppResourceTypeMap.User,
   ]);
 
   checkResourcesBelongsToWorkspace(workspaceId, resources);

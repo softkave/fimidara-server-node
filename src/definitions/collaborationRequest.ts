@@ -1,15 +1,20 @@
+import {ObjectValues} from '../utils/types';
 import {ConvertAgentToPublicAgent, PublicResource, WorkspaceResource} from './system';
 
-export enum CollaborationRequestStatusType {
-  Accepted = 'accepted',
-  Declined = 'declined',
-  Revoked = 'revoked',
-  Pending = 'pending',
-}
+export const CollaborationRequestStatusTypeMap = {
+  Accepted: 'accepted',
+  Declined: 'declined',
+  Revoked: 'revoked',
+  Pending: 'pending',
+} as const;
+
+export type CollaborationRequestStatusType = ObjectValues<
+  typeof CollaborationRequestStatusTypeMap
+>;
 
 export type CollaborationRequestResponse =
-  | CollaborationRequestStatusType.Accepted
-  | CollaborationRequestStatusType.Declined;
+  | typeof CollaborationRequestStatusTypeMap.Accepted
+  | typeof CollaborationRequestStatusTypeMap.Declined;
 
 export interface CollaborationRequest extends WorkspaceResource {
   recipientEmail: string;

@@ -1,8 +1,8 @@
 import * as assert from 'assert';
 import * as inquirer from 'inquirer';
 import {getMongoConnection} from '../../db/connection';
-import {CollaborationRequestStatusType} from '../../definitions/collaborationRequest';
-import {TokenAccessScope} from '../../definitions/system';
+import {CollaborationRequestStatusTypeMap} from '../../definitions/collaborationRequest';
+import {TokenAccessScopeMap} from '../../definitions/system';
 import {UserWithWorkspace} from '../../definitions/user';
 import {Workspace} from '../../definitions/workspace';
 import RequestData from '../../endpoints/RequestData';
@@ -194,7 +194,10 @@ async function getUser(
   return user;
 }
 
-export async function setupDevUser(context: BaseContextType, appOptions: ISetupDevUserOptions) {
+export async function setupDevUser(
+  context: BaseContextType,
+  appOptions: ISetupDevUserOptions
+) {
   const consoleLogger = serverLogger;
   const workspace = await setupApp(context);
   const user = await getUser(context, appOptions);
@@ -239,14 +242,17 @@ export async function setupDevUser(context: BaseContextType, appOptions: ISetupD
         opts
       );
     } else {
-      const request = await context.semantic.collaborationRequest.getOneByEmail(user.email, opts);
+      const request = await context.semantic.collaborationRequest.getOneByEmail(
+        user.email,
+        opts
+      );
 
       if (request) {
         consoleLogger.info('Existing collaboration request found');
         consoleLogger.info(`Accepting request ${request.resourceId}`);
         const agentToken = await context.semantic.agentToken.getOneAgentToken(
           user.resourceId,
-          TokenAccessScope.Login,
+          TokenAccessScopeMap.Login,
           opts
         );
         assertAgentToken(agentToken);
@@ -256,7 +262,7 @@ export async function setupDevUser(context: BaseContextType, appOptions: ISetupD
           agent,
           {
             requestId: request.resourceId,
-            response: CollaborationRequestStatusType.Accepted,
+            response: CollaborationRequestStatusTypeMap.Accepted,
           },
           opts
         );
@@ -280,7 +286,9 @@ export async function setupDevUser(context: BaseContextType, appOptions: ISetupD
       );
     }
 
-    consoleLogger.info(`User ${user.email} is now an admin of workspace ${workspace.name}`);
+    consoleLogger.info(
+      `User ${user.email} is now an admin of workspace ${workspace.name}`
+    );
   });
 
   if (!user.isEmailVerified) {

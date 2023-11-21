@@ -2,13 +2,12 @@ import {faker} from '@faker-js/faker';
 import {merge} from 'lodash';
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../../db/connection';
-import {AppResourceType} from '../../../definitions/system';
+import {AppResourceTypeMap} from '../../../definitions/system';
 import {
-  UsageRecordCategory,
-  UsageRecordFulfillmentStatus,
-  UsageSummationType,
+  UsageRecordCategoryMap,
+  UsageRecordFulfillmentStatusMap,
+  UsageSummationTypeMap,
 } from '../../../definitions/usageRecord';
-import {WorkspaceBillStatus} from '../../../definitions/workspace';
 import {fimidaraConfig} from '../../../resources/vars';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {cast} from '../../../utils/fns';
@@ -28,6 +27,7 @@ import {
   getMongoModels,
 } from '../utils';
 import assert = require('assert');
+import {WorkspaceBillStatusMap} from '../../../definitions/workspace';
 
 let connection: Connection | null = null;
 let context: BaseContextType | null = null;
@@ -78,11 +78,11 @@ describe('UsageRecordLogicProvider', () => {
     await context.semantic.utils.withTxn(context, opts =>
       context!.semantic.workspace.insertItem(workspace, opts)
     );
-    const recordId = getNewIdForResource(AppResourceType.UsageRecord);
+    const recordId = getNewIdForResource(AppResourceTypeMap.UsageRecord);
     const input: UsageRecordInput = {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
-      category: UsageRecordCategory.Storage,
+      category: UsageRecordCategoryMap.Storage,
       usage: faker.datatype.number(),
     };
     const status = await context.semantic.utils.withTxn(context, opts =>
@@ -90,23 +90,23 @@ describe('UsageRecordLogicProvider', () => {
     );
     expect(status).toBe(true);
     const {record} = await getSumRecords(context, recordId);
-    expect(record.summationType).toBe(UsageSummationType.One);
-    expect(record.fulfillmentStatus).toBe(UsageRecordFulfillmentStatus.Fulfilled);
+    expect(record.summationType).toBe(UsageSummationTypeMap.One);
+    expect(record.fulfillmentStatus).toBe(UsageRecordFulfillmentStatusMap.Fulfilled);
     expect(record).toMatchObject(input);
   });
 
   test('record dropped cause bill is overdue', async () => {
     const {context} = assertDeps();
     const workspace = generateTestWorkspace();
-    workspace.billStatus = WorkspaceBillStatus.BillOverdue;
+    workspace.billStatus = WorkspaceBillStatusMap.BillOverdue;
     await context.semantic.utils.withTxn(context, opts =>
       context!.semantic.workspace.insertItem(workspace, opts)
     );
-    const recordId = getNewIdForResource(AppResourceType.UsageRecord);
+    const recordId = getNewIdForResource(AppResourceTypeMap.UsageRecord);
     const input: UsageRecordInput = {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
-      category: UsageRecordCategory.Storage,
+      category: UsageRecordCategoryMap.Storage,
       usage: faker.datatype.number(),
     };
     const status = await context.semantic.utils.withTxn(context, opts =>
@@ -114,24 +114,24 @@ describe('UsageRecordLogicProvider', () => {
     );
     expect(status).toBe(false);
     const {record} = await getSumRecords(context, recordId);
-    expect(record.summationType).toBe(UsageSummationType.One);
-    expect(record.fulfillmentStatus).toBe(UsageRecordFulfillmentStatus.Dropped);
+    expect(record.summationType).toBe(UsageSummationTypeMap.One);
+    expect(record.fulfillmentStatus).toBe(UsageRecordFulfillmentStatusMap.Dropped);
     expect(record).toMatchObject(input);
   });
 
   test('record dropped cause total threshold is exceeded', async () => {
     const {context} = assertDeps();
     const workspace = generateWorkspaceWithCategoryUsageExceeded([
-      UsageRecordCategory.Total,
+      UsageRecordCategoryMap.Total,
     ]);
     await context.semantic.utils.withTxn(context, opts =>
       context!.semantic.workspace.insertItem(workspace, opts)
     );
-    const recordId = getNewIdForResource(AppResourceType.UsageRecord);
+    const recordId = getNewIdForResource(AppResourceTypeMap.UsageRecord);
     const input: UsageRecordInput = {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
-      category: UsageRecordCategory.Storage,
+      category: UsageRecordCategoryMap.Storage,
       usage: faker.datatype.number(),
     };
     const status = await context.semantic.utils.withTxn(context, opts =>
@@ -139,24 +139,24 @@ describe('UsageRecordLogicProvider', () => {
     );
     expect(status).toBe(false);
     const {record} = await getSumRecords(context, recordId);
-    expect(record.summationType).toBe(UsageSummationType.One);
-    expect(record.fulfillmentStatus).toBe(UsageRecordFulfillmentStatus.Dropped);
+    expect(record.summationType).toBe(UsageSummationTypeMap.One);
+    expect(record.fulfillmentStatus).toBe(UsageRecordFulfillmentStatusMap.Dropped);
     expect(record).toMatchObject(input);
   });
 
   test('record dropped cause category threshold is exceeded', async () => {
     const {context} = assertDeps();
     const workspace = generateWorkspaceWithCategoryUsageExceeded([
-      UsageRecordCategory.Storage,
+      UsageRecordCategoryMap.Storage,
     ]);
     await context.semantic.utils.withTxn(context, opts =>
       context!.semantic.workspace.insertItem(workspace, opts)
     );
-    const recordId = getNewIdForResource(AppResourceType.UsageRecord);
+    const recordId = getNewIdForResource(AppResourceTypeMap.UsageRecord);
     const input: UsageRecordInput = {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
-      category: UsageRecordCategory.Storage,
+      category: UsageRecordCategoryMap.Storage,
       usage: faker.datatype.number(),
     };
     const status = await context.semantic.utils.withTxn(context, opts =>
@@ -164,8 +164,8 @@ describe('UsageRecordLogicProvider', () => {
     );
     expect(status).toBe(false);
     const {record} = await getSumRecords(context, recordId);
-    expect(record.summationType).toBe(UsageSummationType.One);
-    expect(record.fulfillmentStatus).toBe(UsageRecordFulfillmentStatus.Dropped);
+    expect(record.summationType).toBe(UsageSummationTypeMap.One);
+    expect(record.fulfillmentStatus).toBe(UsageRecordFulfillmentStatusMap.Dropped);
     expect(record).toMatchObject(input);
   });
 });

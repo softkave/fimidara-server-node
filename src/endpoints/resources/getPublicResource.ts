@@ -1,5 +1,10 @@
 import {identity} from 'lodash';
-import {AppResourceType, Resource, ResourceWrapper} from '../../definitions/system';
+import {
+  AppResourceType,
+  AppResourceTypeMap,
+  Resource,
+  ResourceWrapper,
+} from '../../definitions/system';
 import {ServerError} from '../../utils/errors';
 import {AnyFn} from '../../utils/types';
 import {agentTokenExtractor} from '../agentTokens/utils';
@@ -13,24 +18,27 @@ import {tagExtractor} from '../tags/utils';
 import {usageRecordExtractor} from '../usageRecords/utils';
 import {workspaceExtractor} from '../workspaces/utils';
 
-const kResourceTypeToExtractorMap: Record<AppResourceType, AnyFn<[any, string], Resource>> = {
-  [AppResourceType.All]: identity,
-  [AppResourceType.System]: identity,
-  [AppResourceType.Public]: identity,
-  [AppResourceType.EndpointRequest]: identity,
-  [AppResourceType.AssignedItem]: identity,
-  [AppResourceType.Job]: identity,
-  [AppResourceType.FilePresignedPath]: identity,
-  [AppResourceType.Workspace]: workspaceExtractor,
-  [AppResourceType.CollaborationRequest]: collaborationRequestForWorkspaceExtractor,
-  [AppResourceType.AgentToken]: agentTokenExtractor,
-  [AppResourceType.PermissionGroup]: permissionGroupExtractor,
-  [AppResourceType.PermissionItem]: permissionItemExtractor,
-  [AppResourceType.Folder]: folderExtractor,
-  [AppResourceType.File]: fileExtractor,
-  [AppResourceType.User]: collaboratorExtractor,
-  [AppResourceType.Tag]: tagExtractor,
-  [AppResourceType.UsageRecord]: usageRecordExtractor,
+const kResourceTypeToExtractorMap: Record<
+  AppResourceType,
+  AnyFn<[any, string], Resource>
+> = {
+  [AppResourceTypeMap.All]: identity,
+  [AppResourceTypeMap.System]: identity,
+  [AppResourceTypeMap.Public]: identity,
+  [AppResourceTypeMap.EndpointRequest]: identity,
+  [AppResourceTypeMap.AssignedItem]: identity,
+  [AppResourceTypeMap.Job]: identity,
+  [AppResourceTypeMap.FilePresignedPath]: identity,
+  [AppResourceTypeMap.Workspace]: workspaceExtractor,
+  [AppResourceTypeMap.CollaborationRequest]: collaborationRequestForWorkspaceExtractor,
+  [AppResourceTypeMap.AgentToken]: agentTokenExtractor,
+  [AppResourceTypeMap.PermissionGroup]: permissionGroupExtractor,
+  [AppResourceTypeMap.PermissionItem]: permissionItemExtractor,
+  [AppResourceTypeMap.Folder]: folderExtractor,
+  [AppResourceTypeMap.File]: fileExtractor,
+  [AppResourceTypeMap.User]: collaboratorExtractor,
+  [AppResourceTypeMap.Tag]: tagExtractor,
+  [AppResourceTypeMap.UsageRecord]: usageRecordExtractor,
 };
 
 export function getPublicResource(resource: ResourceWrapper, workspaceId: string) {

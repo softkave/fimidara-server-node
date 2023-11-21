@@ -1,4 +1,4 @@
-import {AppResourceType} from '../../../definitions/system';
+import {AppResourceTypeMap} from '../../../definitions/system';
 import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
@@ -32,16 +32,17 @@ describe.skip('countEntityPermissionItems', () => {
     await generateAndInsertPermissionItemListForTest(context, 15, {
       workspaceId: workspace.resourceId,
       entityId: user.resourceId,
-      entityType: AppResourceType.User,
+      entityType: AppResourceTypeMap.User,
     });
     const count = await context.semantic.permissionItem.countByQuery({
       workspaceId: workspace.resourceId,
       entityId: user.resourceId,
     });
-    const instData = RequestData.fromExpressRequest<CountEntityPermissionItemsEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {workspaceId: workspace.resourceId, entityId: user.resourceId}
-    );
+    const instData =
+      RequestData.fromExpressRequest<CountEntityPermissionItemsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {workspaceId: workspace.resourceId, entityId: user.resourceId}
+      );
     const result = await countEntityPermissionItems(context, instData);
     assertEndpointResultOk(result);
     expect(result.count).toBe(count);

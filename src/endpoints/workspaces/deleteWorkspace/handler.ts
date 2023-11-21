@@ -1,4 +1,4 @@
-import {AppResourceType} from '../../../definitions/system';
+import {AppResourceTypeMap} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {enqueueDeleteResourceJob} from '../../jobs/runner';
 import {checkWorkspaceAuthorization02} from '../utils';
@@ -7,7 +7,11 @@ import {deleteWorkspaceJoiSchema} from './validation';
 
 const deleteWorkspace: DeleteWorkspaceEndpoint = async (context, instData) => {
   const data = validate(instData.data, deleteWorkspaceJoiSchema);
-  const agent = await context.session.getAgent(context, instData, AppResourceType.User);
+  const agent = await context.session.getAgent(
+    context,
+    instData,
+    AppResourceTypeMap.User
+  );
   const {workspace} = await checkWorkspaceAuthorization02(
     context,
     agent,
@@ -15,7 +19,7 @@ const deleteWorkspace: DeleteWorkspaceEndpoint = async (context, instData) => {
     data.workspaceId
   );
   const job = await enqueueDeleteResourceJob(context, {
-    type: AppResourceType.Workspace,
+    type: AppResourceTypeMap.Workspace,
     args: {
       workspaceId: workspace.resourceId,
       resourceId: workspace.resourceId,

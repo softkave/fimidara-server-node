@@ -78,7 +78,7 @@ const permissionGroup = mddocConstruct
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
     providedResourceId: mddocConstruct.constructFieldObjectField(
       false,
-      fReusables.providedResourceId
+      fReusables.providedResourceIdOrNull
     ),
   });
 
@@ -86,7 +86,10 @@ const assignedPermissionGroupMeta = mddocConstruct
   .constructFieldObject<PublicAssignedPermissionGroupMeta>()
   .setName('PublicAssignedPermissionGroupMeta')
   .setFields({
-    permissionGroupId: mddocConstruct.constructFieldObjectField(true, fReusables.permissionGroupId),
+    permissionGroupId: mddocConstruct.constructFieldObjectField(
+      true,
+      fReusables.permissionGroupId
+    ),
     assignedBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
     assignedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
     assigneeEntityId: mddocConstruct.constructFieldObjectField(
@@ -122,21 +125,32 @@ const addPermissionGroupParams = mddocConstruct
   .constructFieldObject<AddPermissionGroupEndpointParams>()
   .setName('AddPermissionGroupEndpointParams')
   .setFields({
-    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
-    permissionGroup: mddocConstruct.constructFieldObjectField(true, newPermissionGroupInput),
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceIdInput
+    ),
+    permissionGroup: mddocConstruct.constructFieldObjectField(
+      true,
+      newPermissionGroupInput
+    ),
   })
   .setDescription('Add permission group endpoint params.');
 const addPermissionGroupResponseBody = mddocConstruct
   .constructFieldObject<AddPermissionGroupEndpointResult>()
   .setName('AddPermissionGroupEndpointResult')
-  .setFields({permissionGroup: mddocConstruct.constructFieldObjectField(true, permissionGroup)})
+  .setFields({
+    permissionGroup: mddocConstruct.constructFieldObjectField(true, permissionGroup),
+  })
   .setDescription('Add permission group endpoint success result.');
 
 const getWorkspacePermissionGroupsParams = mddocConstruct
   .constructFieldObject<GetWorkspacePermissionGroupsEndpointParams>()
   .setName('GetWorkspacePermissionGroupsEndpointParams')
   .setFields({
-    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceIdInput
+    ),
     page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
     pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
   })
@@ -157,8 +171,14 @@ const getEntityAssignedPermissionGroupsParams = mddocConstruct
   .constructFieldObject<GetEntityAssignedPermissionGroupsEndpointParams>()
   .setName('GetEntityAssignedPermissionGroupsParams')
   .setFields({
-    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
-    entityId: mddocConstruct.constructFieldObjectField(true, permissionItemMddocParts.entityId),
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceIdInput
+    ),
+    entityId: mddocConstruct.constructFieldObjectField(
+      true,
+      permissionItemMddocParts.entityId
+    ),
     includeInheritedPermissionGroups: mddocConstruct.constructFieldObjectField(
       false,
       mddocConstruct
@@ -190,7 +210,10 @@ const countWorkspacePermissionGroupsParams = mddocConstruct
   .constructFieldObject<CountWorkspacePermissionGroupsEndpointParams>()
   .setName('CountWorkspacePermissionGroupsEndpointParams')
   .setFields({
-    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceIdInput
+    ),
   })
   .setDescription('Count workspace permission groups endpoint params.');
 
@@ -205,7 +228,10 @@ const updatePermissionGroupParams = mddocConstruct
         .constructFieldObject<UpdatePermissionGroupInput>()
         .setFields({
           name: mddocConstruct.constructFieldObjectField(false, fReusables.name),
-          description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
+          description: mddocConstruct.constructFieldObjectField(
+            false,
+            fReusables.description
+          ),
         })
         .setName('UpdatePermissionGroupInput')
     ),
@@ -214,15 +240,23 @@ const updatePermissionGroupParams = mddocConstruct
 const updatePermissionGroupResponseBody = mddocConstruct
   .constructFieldObject<UpdatePermissionGroupEndpointResult>()
   .setName('UpdatePermissionGroupEndpointResult')
-  .setFields({permissionGroup: mddocConstruct.constructFieldObjectField(true, permissionGroup)})
+  .setFields({
+    permissionGroup: mddocConstruct.constructFieldObjectField(true, permissionGroup),
+  })
   .setDescription('Update permission group endpoint success result.');
 
 const assignPermissionGroupsParams = mddocConstruct
   .constructFieldObject<AssignPermissionGroupsEndpointParams>()
   .setName('AssignPermissionGroupsEndpointParams')
   .setFields({
-    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
-    entityId: mddocConstruct.constructFieldObjectField(true, permissionItemMddocParts.entityIdList),
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceIdInput
+    ),
+    entityId: mddocConstruct.constructFieldObjectField(
+      true,
+      permissionItemMddocParts.entityIdOrList
+    ),
     permissionGroups: mddocConstruct.constructFieldObjectField(
       true,
       mddocConstruct.constructFieldArray<AssignPermissionGroupInput>().setType(
@@ -244,11 +278,22 @@ const unassignPermissionGroupsParams = mddocConstruct
   .constructFieldObject<UnassignPermissionGroupsEndpointParams>()
   .setName('UnassignPermissionGroupsEndpointParams')
   .setFields({
-    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
-    entityId: mddocConstruct.constructFieldObjectField(true, permissionItemMddocParts.entityIdList),
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceIdInput
+    ),
+    entityId: mddocConstruct.constructFieldObjectField(
+      true,
+      permissionItemMddocParts.entityIdOrList
+    ),
     permissionGroups: mddocConstruct.constructFieldObjectField(
       true,
-      fReusables.idList.clone().setDescription('List of permission group IDs.')
+      mddocConstruct
+        .constructFieldOrCombination<string | string[]>()
+        .setTypes([
+          fReusables.id.clone().setDescription('Permission group ID'),
+          fReusables.idList.clone().setDescription('List of permission group IDs.'),
+        ])
     ),
   })
   .setDescription('Unassign permission groups endpoint params.');
@@ -261,7 +306,9 @@ const getPermissionGroupParams = mddocConstruct
 const getPermissionGroupResponseBody = mddocConstruct
   .constructFieldObject<GetPermissionGroupEndpointResult>()
   .setName('GetPermissionGroupEndpointResult')
-  .setFields({permissionGroup: mddocConstruct.constructFieldObjectField(true, permissionGroup)})
+  .setFields({
+    permissionGroup: mddocConstruct.constructFieldObjectField(true, permissionGroup),
+  })
   .setDescription('Get permission group endpoint success result.');
 
 const deletePermissionGroupParams = mddocConstruct
@@ -272,19 +319,29 @@ const deletePermissionGroupParams = mddocConstruct
 
 export const addPermissionGroupEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
-    InferFieldObjectType<AddPermissionGroupHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
-    InferFieldObjectType<AddPermissionGroupHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<
+      AddPermissionGroupHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      AddPermissionGroupHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
     InferFieldObjectType<AddPermissionGroupHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<
       AddPermissionGroupHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
-    InferFieldObjectType<AddPermissionGroupHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<AddPermissionGroupHttpEndpoint['mddocHttpDefinition']['responseBody']>
+    InferFieldObjectType<
+      AddPermissionGroupHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      AddPermissionGroupHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
   >()
   .setBasePathname(permissionGroupConstants.routes.addPermissionGroup)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(addPermissionGroupParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(addPermissionGroupResponseBody)
   .setName('AddPermissionGroupEndpoint')
@@ -292,19 +349,29 @@ export const addPermissionGroupEndpointDefinition = mddocConstruct
 
 export const getPermissionGroupEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
-    InferFieldObjectType<GetPermissionGroupHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
-    InferFieldObjectType<GetPermissionGroupHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<
+      GetPermissionGroupHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      GetPermissionGroupHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
     InferFieldObjectType<GetPermissionGroupHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<
       GetPermissionGroupHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
-    InferFieldObjectType<GetPermissionGroupHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<GetPermissionGroupHttpEndpoint['mddocHttpDefinition']['responseBody']>
+    InferFieldObjectType<
+      GetPermissionGroupHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      GetPermissionGroupHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
   >()
   .setBasePathname(permissionGroupConstants.routes.getPermissionGroup)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getPermissionGroupParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getPermissionGroupResponseBody)
   .setName('GetPermissionGroupEndpoint')
@@ -318,19 +385,25 @@ export const updatePermissionGroupEndpointDefinition = mddocConstruct
     InferFieldObjectType<
       UpdatePermissionGroupHttpEndpoint['mddocHttpDefinition']['pathParamaters']
     >,
-    InferFieldObjectType<UpdatePermissionGroupHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectType<
+      UpdatePermissionGroupHttpEndpoint['mddocHttpDefinition']['query']
+    >,
     InferFieldObjectOrMultipartType<
       UpdatePermissionGroupHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<
       UpdatePermissionGroupHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
-    InferFieldObjectType<UpdatePermissionGroupHttpEndpoint['mddocHttpDefinition']['responseBody']>
+    InferFieldObjectType<
+      UpdatePermissionGroupHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
   >()
   .setBasePathname(permissionGroupConstants.routes.updatePermissionGroup)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(updatePermissionGroupParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(updatePermissionGroupResponseBody)
   .setName('UpdatePermissionGroupEndpoint')
@@ -344,19 +417,25 @@ export const deletePermissionGroupEndpointDefinition = mddocConstruct
     InferFieldObjectType<
       DeletePermissionGroupHttpEndpoint['mddocHttpDefinition']['pathParamaters']
     >,
-    InferFieldObjectType<DeletePermissionGroupHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectType<
+      DeletePermissionGroupHttpEndpoint['mddocHttpDefinition']['query']
+    >,
     InferFieldObjectOrMultipartType<
       DeletePermissionGroupHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<
       DeletePermissionGroupHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
-    InferFieldObjectType<DeletePermissionGroupHttpEndpoint['mddocHttpDefinition']['responseBody']>
+    InferFieldObjectType<
+      DeletePermissionGroupHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
   >()
   .setBasePathname(permissionGroupConstants.routes.deletePermissionGroup)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(deletePermissionGroupParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
   .setName('DeletePermissionGroupEndpoint')
@@ -370,7 +449,9 @@ export const getWorkspacePermissionGroupsEndpointDefinition = mddocConstruct
     InferFieldObjectType<
       GetWorkspacePermissionGroupsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
     >,
-    InferFieldObjectType<GetWorkspacePermissionGroupsHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectType<
+      GetWorkspacePermissionGroupsHttpEndpoint['mddocHttpDefinition']['query']
+    >,
     InferFieldObjectOrMultipartType<
       GetWorkspacePermissionGroupsHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
@@ -384,7 +465,9 @@ export const getWorkspacePermissionGroupsEndpointDefinition = mddocConstruct
   .setBasePathname(permissionGroupConstants.routes.getWorkspacePermissionGroups)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getWorkspacePermissionGroupsParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getWorkspacePermissionGroupsResponseBody)
   .setName('GetWorkspacePermissionGroupsEndpoint')
@@ -414,7 +497,9 @@ export const countWorkspacePermissionGroupsEndpointDefinition = mddocConstruct
   .setBasePathname(permissionGroupConstants.routes.countWorkspacePermissionGroups)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(countWorkspacePermissionGroupsParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
   .setName('CountWorkspacePermissionGroupsEndpoint')
@@ -428,19 +513,25 @@ export const assignPermissionGroupsEndpointDefinition = mddocConstruct
     InferFieldObjectType<
       AssignPermissionGroupsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
     >,
-    InferFieldObjectType<AssignPermissionGroupsHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectType<
+      AssignPermissionGroupsHttpEndpoint['mddocHttpDefinition']['query']
+    >,
     InferFieldObjectOrMultipartType<
       AssignPermissionGroupsHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<
       AssignPermissionGroupsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
-    InferFieldObjectType<AssignPermissionGroupsHttpEndpoint['mddocHttpDefinition']['responseBody']>
+    InferFieldObjectType<
+      AssignPermissionGroupsHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
   >()
   .setBasePathname(permissionGroupConstants.routes.assignPermissionGroups)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(assignPermissionGroupsParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setName('AssignPermissionGroupsEndpoint')
   .setDescription('Assign permission groups endpoint.');
 
@@ -452,7 +543,9 @@ export const unassignPermissionGroupsEndpointDefinition = mddocConstruct
     InferFieldObjectType<
       UnassignPermissionGroupsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
     >,
-    InferFieldObjectType<UnassignPermissionGroupsHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectType<
+      UnassignPermissionGroupsHttpEndpoint['mddocHttpDefinition']['query']
+    >,
     InferFieldObjectOrMultipartType<
       UnassignPermissionGroupsHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
@@ -466,7 +559,9 @@ export const unassignPermissionGroupsEndpointDefinition = mddocConstruct
   .setBasePathname(permissionGroupConstants.routes.unassignPermissionGroups)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(unassignPermissionGroupsParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setName('UnassignPermissionGroupsEndpoint')
   .setDescription('Unassigns permission groups.');
 
@@ -494,7 +589,9 @@ export const getEntityAssignedPermissionGroupsEndpointDefinition = mddocConstruc
   .setBasePathname(permissionGroupConstants.routes.getEntityAssignedPermissionGroups)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getEntityAssignedPermissionGroupsParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getEntityAssignedPermissionGroupsResponseBody)
   .setName('GetEntityAssignedPermissionGroupsEndpoint')

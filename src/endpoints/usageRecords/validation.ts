@@ -1,9 +1,16 @@
 import Joi = require('joi');
-import {UsageRecordCategory, UsageRecordFulfillmentStatus} from '../../definitions/usageRecord';
+import {
+  UsageRecordCategoryMap,
+  UsageRecordFulfillmentStatusMap,
+} from '../../definitions/usageRecord';
 
-const category = Joi.string().valid(...Object.values(UsageRecordCategory));
-const fulfillmentStatus = Joi.string().valid(...Object.values(UsageRecordFulfillmentStatus));
-const categoryList = Joi.array().items(category).max(Object.values(UsageRecordCategory).length);
+const category = Joi.string().valid(...Object.values(UsageRecordCategoryMap));
+const fulfillmentStatus = Joi.string().valid(
+  ...Object.values(UsageRecordFulfillmentStatusMap)
+);
+const categoryList = Joi.array()
+  .items(category)
+  .max(Object.values(UsageRecordCategoryMap).length);
 
 const usageRecordValidationSchemas = {
   category,

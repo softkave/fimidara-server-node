@@ -1,6 +1,6 @@
 import {File, FileMatcher, FilePresignedPath} from '../../definitions/file';
 import {PermissionAction} from '../../definitions/permissionItem';
-import {AppResourceType} from '../../definitions/system';
+import {AppResourceTypeMap} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {tryGetResourceTypeFromId} from '../../utils/resource';
@@ -53,7 +53,7 @@ export function extractFilePresignedPathIdFromFilepath(filepath: string) {
 export function isFilePresignedPath(filepath: string) {
   const resourceId = extractFilePresignedPathIdFromFilepath(filepath);
   const type = tryGetResourceTypeFromId(resourceId);
-  return type === AppResourceType.FilePresignedPath;
+  return type === AppResourceTypeMap.FilePresignedPath;
 }
 
 export async function getFileByPresignedPath(
@@ -164,7 +164,7 @@ export async function getFileWithMatcher(
   // if (
   //   matcher.filepath &&
   //   !matcher.fileId &&
-  //   tryGetResourceTypeFromId(matcher.filepath) === AppResourceType.File
+  //   tryGetResourceTypeFromId(matcher.filepath) === AppResourceTypeMap.File
   // ) {
   //   matcher.fileId = matcher.filepath;
   //   matcher.filepath = undefined;

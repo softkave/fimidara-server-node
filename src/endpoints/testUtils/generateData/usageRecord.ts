@@ -1,10 +1,11 @@
 import {defaultTo, random} from 'lodash';
-import {AppResourceType} from '../../../definitions/system';
+import {AppResourceTypeMap} from '../../../definitions/system';
 import {
   UsageRecord,
   UsageRecordCategory,
-  UsageRecordFulfillmentStatus,
-  UsageSummationType,
+  UsageRecordCategoryMap,
+  UsageRecordFulfillmentStatusMap,
+  UsageSummationTypeMap,
 } from '../../../definitions/usageRecord';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
@@ -12,7 +13,9 @@ import {getNewIdForResource} from '../../../utils/resource';
 import {BaseContextType} from '../../contexts/types';
 import {generateTestWorkspace} from './workspace';
 
-export function generateWorkspaceWithCategoryUsageExceeded(categories: UsageRecordCategory[]) {
+export function generateWorkspaceWithCategoryUsageExceeded(
+  categories: UsageRecordCategory[]
+) {
   const workspace = generateTestWorkspace();
   const usageLocks = defaultTo(workspace.usageThresholdLocks, {});
   categories.forEach(category => {
@@ -27,17 +30,17 @@ export function generateWorkspaceWithCategoryUsageExceeded(categories: UsageReco
 }
 
 function randomCategory() {
-  const categories = Object.values(UsageRecordCategory);
+  const categories = Object.values(UsageRecordCategoryMap);
   return categories[random(0, categories.length - 1)];
 }
 
 function randomSummationType() {
   const r = random(0, 1);
-  return r === 0 ? UsageSummationType.One : UsageSummationType.Two;
+  return r === 0 ? UsageSummationTypeMap.One : UsageSummationTypeMap.Two;
 }
 
 function randomFulfillmentStatus() {
-  const items = Object.values(UsageRecordFulfillmentStatus);
+  const items = Object.values(UsageRecordFulfillmentStatusMap);
   return items[random(0, items.length - 1)];
 }
 
@@ -45,10 +48,10 @@ export function generateUsageRecordList(count = 10, extra: Partial<UsageRecord> 
   const records: UsageRecord[] = [];
   for (let i = 0; i < count; i++) {
     records.push({
-      workspaceId: getNewIdForResource(AppResourceType.Workspace),
+      workspaceId: getNewIdForResource(AppResourceTypeMap.Workspace),
       month: random(0, 11),
       year: random(1, 10_000),
-      resourceId: getNewIdForResource(AppResourceType.UsageRecord),
+      resourceId: getNewIdForResource(AppResourceTypeMap.UsageRecord),
       createdAt: getTimestamp(),
       createdBy: SYSTEM_SESSION_AGENT,
       lastUpdatedAt: getTimestamp(),

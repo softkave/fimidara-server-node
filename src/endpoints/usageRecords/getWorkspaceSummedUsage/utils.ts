@@ -2,8 +2,8 @@ import {endOfMonth, startOfMonth} from 'date-fns';
 import {SessionAgent} from '../../../definitions/system';
 import {
   UsageRecord,
-  UsageRecordFulfillmentStatus,
-  UsageSummationType,
+  UsageRecordFulfillmentStatusMap,
+  UsageSummationTypeMap,
 } from '../../../definitions/usageRecord';
 import {getTimestamp} from '../../../utils/dateFns';
 import {toArray} from '../../../utils/fns';
@@ -23,7 +23,7 @@ export async function getWorkspaceSummedUsageQuery(
 
   const query: LiteralDataQuery<UsageRecord> = {
     workspaceId: {$eq: workspaceId},
-    summationType: {$eq: UsageSummationType.Two},
+    summationType: {$eq: UsageSummationTypeMap.Two},
   };
 
   if (data.query?.fromDate || data.query?.toDate) {
@@ -49,8 +49,8 @@ export async function getWorkspaceSummedUsageQuery(
   } else {
     query.fulfillmentStatus = {
       $in: [
-        UsageRecordFulfillmentStatus.Fulfilled,
-        UsageRecordFulfillmentStatus.Dropped,
+        UsageRecordFulfillmentStatusMap.Fulfilled,
+        UsageRecordFulfillmentStatusMap.Dropped,
       ] as any[],
     };
   }

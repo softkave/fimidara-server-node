@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {flatten} from 'lodash';
-import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {AppResourceType, Resource} from '../../../definitions/system';
+import {PermissionAction, kPermissionsMap} from '../../../definitions/permissionItem';
+import {AppResourceTypeMap, Resource} from '../../../definitions/system';
 import RequestData from '../../RequestData';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {collaboratorExtractor} from '../../collaborators/utils';
@@ -49,7 +49,7 @@ describe('getResources', () => {
           action: action,
           access: faker.datatype.boolean(),
           targetId: workspace.resourceId,
-          targetType: AppResourceType.Workspace,
+          targetType: AppResourceTypeMap.Workspace,
           workspaceId: workspace.resourceId,
           entityId: permissionGroup.resourceId,
         })
@@ -59,20 +59,24 @@ describe('getResources', () => {
     const resourcesInput: FetchResourceItem[] = [];
     const resourcesMap: Record<string, any> = {};
 
-    const addToExpectedResourcesById = (item: Pick<Resource, 'resourceId'>) => {
-      resourcesInput.push({resourceId: item.resourceId});
+    const addToExpectedResourcesById = (
+      item: Pick<Resource, 'resourceId'>,
+      action: PermissionAction
+    ) => {
+      resourcesInput.push({action, resourceId: item.resourceId});
       resourcesMap[item.resourceId] = item;
     };
 
-    addToExpectedResourcesById(workspace);
-    addToExpectedResourcesById(permissionGroup);
+    addToExpectedResourcesById(workspace, 'readWorkspace');
+    addToExpectedResourcesById(permissionGroup, 'updatePermission');
     addToExpectedResourcesById(
       collaboratorExtractor(
         await populateUserWorkspaces(context, rawUser),
         workspace.resourceId
-      )
+      ),
+      'readCollaborator'
     );
-    items.forEach(item => addToExpectedResourcesById(item));
+    items.forEach(item => addToExpectedResourcesById(item, 'updatePermission'));
 
     const instData = RequestData.fromExpressRequest<GetResourcesEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),

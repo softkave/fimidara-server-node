@@ -14,7 +14,7 @@ import {getTagModel} from '../db/tag';
 import {getUsageRecordModel} from '../db/usageRecord';
 import {getUserModel} from '../db/user';
 import {getWorkspaceModel} from '../db/workspace';
-import {AppResourceType, Resource} from '../definitions/system';
+import {AppResourceType, AppResourceTypeMap, Resource} from '../definitions/system';
 import {noopAsync} from '../utils/fns';
 import {AnyFn} from '../utils/types';
 
@@ -23,60 +23,63 @@ async function cleanModel(model: Model<any>) {
   return model;
 }
 
-const typeToInsertFnMap: Record<AppResourceType, AnyFn<[Connection, Resource[]], Promise<void>>> = {
-  [AppResourceType.All]: noopAsync,
-  [AppResourceType.System]: noopAsync,
-  [AppResourceType.Public]: noopAsync,
-  [AppResourceType.EndpointRequest]: noopAsync,
-  [AppResourceType.Workspace]: async (connection, resources) => {
+const typeToInsertFnMap: Record<
+  AppResourceType,
+  AnyFn<[Connection, Resource[]], Promise<void>>
+> = {
+  [AppResourceTypeMap.All]: noopAsync,
+  [AppResourceTypeMap.System]: noopAsync,
+  [AppResourceTypeMap.Public]: noopAsync,
+  [AppResourceTypeMap.EndpointRequest]: noopAsync,
+  [AppResourceTypeMap.Workspace]: async (connection, resources) => {
     const model = await cleanModel(getWorkspaceModel(connection));
     await model.insertMany(resources);
   },
-  [AppResourceType.CollaborationRequest]: async (connection, resources) => {
+  [AppResourceTypeMap.CollaborationRequest]: async (connection, resources) => {
     const model = await cleanModel(getCollaborationRequestModel(connection));
     await model.insertMany(resources);
   },
-  [AppResourceType.AgentToken]: async (connection, resources) => {
+  [AppResourceTypeMap.AgentToken]: async (connection, resources) => {
     const model = await cleanModel(getAgentTokenModel(connection));
     await model.insertMany(resources);
   },
-  [AppResourceType.PermissionGroup]: async (connection, resources) => {
+  [AppResourceTypeMap.PermissionGroup]: async (connection, resources) => {
     const model = await cleanModel(getPermissionGroupModel(connection));
     await model.insertMany(resources);
   },
-  [AppResourceType.PermissionItem]: async (connection, resources) => {
+  [AppResourceTypeMap.PermissionItem]: async (connection, resources) => {
     const model = await cleanModel(getPermissionItemModel(connection));
     await model.insertMany(resources);
   },
-  [AppResourceType.Folder]: async (connection, resources) => {
+  [AppResourceTypeMap.Folder]: async (connection, resources) => {
     const model = await cleanModel(getFolderDatabaseModel(connection));
     await model.insertMany(resources);
   },
-  [AppResourceType.File]: async (connection, resources) => {
+  [AppResourceTypeMap.File]: async (connection, resources) => {
     const model = await cleanModel(getFileModel(connection));
     await model.insertMany(resources);
   },
-  [AppResourceType.User]: async (connection, resources) => {
+  [AppResourceTypeMap.User]: async (connection, resources) => {
     const model = await cleanModel(getUserModel(connection));
     await model.insertMany(resources);
   },
-  [AppResourceType.Tag]: async (connection, resources) => {
+  [AppResourceTypeMap.Tag]: async (connection, resources) => {
     const model = await cleanModel(getTagModel(connection));
     await model.insertMany(resources);
   },
-  [AppResourceType.UsageRecord]: async (connection, resources) => {
+  [AppResourceTypeMap.UsageRecord]: async (connection, resources) => {
     const model = await cleanModel(getUsageRecordModel(connection));
     await model.insertMany(resources);
   },
-  [AppResourceType.AssignedItem]: async (connection, resources) => {
+  [AppResourceTypeMap.AssignedItem]: async (connection, resources) => {
     const model = await cleanModel(getAssignedItemModel(connection));
     await model.insertMany(resources);
   },
-  [AppResourceType.Job]: async (connection, resources) => {
+  [AppResourceTypeMap.Job]: async (connection, resources) => {
     const model = await cleanModel(getJobModel(connection));
     await model.insertMany(resources);
   },
-  [AppResourceType.FilePresignedPath]: async (connection, resources) => {
+  [AppResourceTypeMap.FilePresignedPath]: async (connection, resources) => {
     const model = await cleanModel(getFilePresignedPathMongoModel(connection));
     await model.insertMany(resources);
   },
@@ -84,7 +87,7 @@ const typeToInsertFnMap: Record<AppResourceType, AnyFn<[Connection, Resource[]],
 
 async function transferData(connection: Connection) {
   const wrappedResources = await Promise.all(
-    Object.values(AppResourceType).map(resourceType =>
+    Object.values(AppResourceTypeMap).map(resourceType =>
       getResourceModel(connection).find({resourceType}).lean().exec()
     )
   );

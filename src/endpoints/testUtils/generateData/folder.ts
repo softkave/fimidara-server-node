@@ -1,11 +1,11 @@
 import {faker} from '@faker-js/faker';
 import {Folder} from '../../../definitions/folder';
-import {AppResourceType} from '../../../definitions/system';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {BaseContextType} from '../../contexts/types';
+import {AppResourceTypeMap} from '../../../definitions/system';
 
 export const kTestFolderNameSeparatorChars = ['-', '_', ' ', '.'];
 
@@ -47,7 +47,7 @@ export function generateTestFolder(
   extra: Partial<Folder> & {parentId: string | null} = {parentId: null},
   other: {parentNamePath?: string[]; parentIdPath?: string[]} = {}
 ) {
-  const id = getNewIdForResource(AppResourceType.Folder);
+  const id = getNewIdForResource(AppResourceTypeMap.Folder);
   const name = generateTestFolderName();
   const namePath = other.parentNamePath ? other.parentNamePath.concat(name) : [name];
   const idPath = other.parentIdPath
@@ -66,7 +66,7 @@ export function generateTestFolder(
     lastUpdatedAt: createdAt,
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
     resourceId: id,
-    workspaceId: getNewIdForResource(AppResourceType.Workspace),
+    workspaceId: getNewIdForResource(AppResourceTypeMap.Workspace),
     ...extra,
   };
   return folder;

@@ -1,8 +1,8 @@
 import {
   CollaborationRequest,
-  CollaborationRequestStatusType,
+  CollaborationRequestStatusTypeMap,
 } from '../../../definitions/collaborationRequest';
-import {AppResourceType} from '../../../definitions/system';
+import {AppResourceTypeMap} from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {
   CollaborationRequestEmailProps,
@@ -65,7 +65,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (
         );
       }
 
-      if (existingRequest?.status === CollaborationRequestStatusType.Pending) {
+      if (existingRequest?.status === CollaborationRequestStatusTypeMap.Pending) {
         throw new ResourceExistsError(
           `An existing collaboration request to this user was sent on ${formatDate(
             existingRequest?.createdAt
@@ -75,14 +75,14 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async (
 
       const request: CollaborationRequest = newWorkspaceResource(
         agent,
-        AppResourceType.CollaborationRequest,
+        AppResourceTypeMap.CollaborationRequest,
         workspace.resourceId,
         {
           message: data.request.message,
           workspaceName: workspace.name,
           recipientEmail: data.request.recipientEmail,
           expiresAt: data.request.expires,
-          status: CollaborationRequestStatusType.Pending,
+          status: CollaborationRequestStatusTypeMap.Pending,
           statusDate: getTimestamp(),
         }
       );

@@ -1,5 +1,7 @@
-import assert = require('assert');
-import {UsageRecordFulfillmentStatus, UsageSummationType} from '../../../definitions/usageRecord';
+import {
+  UsageRecordFulfillmentStatusMap,
+  UsageSummationTypeMap,
+} from '../../../definitions/usageRecord';
 import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertUsageRecordList} from '../../testUtils/generateData/usageRecord';
@@ -32,21 +34,22 @@ describe('countWorkspaceSummedUsage', () => {
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     await generateAndInsertUsageRecordList(context, 15, {
       workspaceId: workspace.resourceId,
-      summationType: UsageSummationType.Two,
-      fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
+      summationType: UsageSummationTypeMap.Two,
+      fulfillmentStatus: UsageRecordFulfillmentStatusMap.Fulfilled,
     });
     const count = await context.semantic.usageRecord.countByQuery({
       workspaceId: workspace.resourceId,
-      summationType: UsageSummationType.Two,
-      fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
+      summationType: UsageSummationTypeMap.Two,
+      fulfillmentStatus: UsageRecordFulfillmentStatusMap.Fulfilled,
     });
-    const instData = RequestData.fromExpressRequest<CountWorkspaceSummedUsageEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {
-        workspaceId: workspace.resourceId,
-        query: {fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled},
-      }
-    );
+    const instData =
+      RequestData.fromExpressRequest<CountWorkspaceSummedUsageEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          workspaceId: workspace.resourceId,
+          query: {fulfillmentStatus: UsageRecordFulfillmentStatusMap.Fulfilled},
+        }
+      );
     const result = await countWorkspaceSummedUsage(context, instData);
     assertEndpointResultOk(result);
     expect(result.count).toBe(count);

@@ -1,37 +1,51 @@
-import {AppResourceType, ResourceWrapper} from '../../definitions/system';
+import {
+  AppResourceType,
+  AppResourceTypeMap,
+  ResourceWrapper,
+} from '../../definitions/system';
 import {User} from '../../definitions/user';
 import {indexArray} from '../../utils/indexArray';
-import {populateAssignedTags, populateUserWorkspaces} from '../assignedItems/getAssignedItems';
+import {
+  populateAssignedTags,
+  populateUserWorkspaces,
+} from '../assignedItems/getAssignedItems';
 import {BaseContextType} from '../contexts/types';
 
-export async function resourceWithAssignedItems(
+export async function resourceWithAssignedItems<T extends ResourceWrapper>(
   context: BaseContextType,
   workspaceId: string,
-  resource: ResourceWrapper
+  resource: T
 ) {
   switch (resource.resourceType) {
-    case AppResourceType.AgentToken:
-    case AppResourceType.Folder:
-    case AppResourceType.File:
-    case AppResourceType.PermissionGroup:
-      resource.resource = await populateAssignedTags(context, workspaceId, resource.resource);
+    case AppResourceTypeMap.AgentToken:
+    case AppResourceTypeMap.Folder:
+    case AppResourceTypeMap.File:
+    case AppResourceTypeMap.PermissionGroup:
+      resource.resource = await populateAssignedTags(
+        context,
+        workspaceId,
+        resource.resource
+      );
       return resource;
-    case AppResourceType.User:
-      resource.resource = await populateUserWorkspaces(context, resource.resource as User);
+    case AppResourceTypeMap.User:
+      resource.resource = await populateUserWorkspaces(
+        context,
+        resource.resource as User
+      );
       return resource;
-    case AppResourceType.Workspace:
-    case AppResourceType.CollaborationRequest:
-    case AppResourceType.PermissionItem:
+    case AppResourceTypeMap.Workspace:
+    case AppResourceTypeMap.CollaborationRequest:
+    case AppResourceTypeMap.PermissionItem:
     default:
       return resource;
   }
 }
 
-export async function resourceListWithAssignedItems(
+export async function resourceListWithAssignedItems<T extends ResourceWrapper>(
   context: BaseContextType,
   workspaceId: string,
-  resourceList: ResourceWrapper[],
-  forTypes: AppResourceType[] = Object.values(AppResourceType)
+  resourceList: T[],
+  forTypes: AppResourceType[] = Object.values(AppResourceTypeMap)
 ) {
   const forTypesMap = indexArray(forTypes);
 
@@ -39,7 +53,9 @@ export async function resourceListWithAssignedItems(
   // instead of individually?
   return Promise.all(
     resourceList.map(item =>
-      forTypesMap[item.resourceType] ? resourceWithAssignedItems(context, workspaceId, item) : item
+      forTypesMap[item.resourceType]
+        ? resourceWithAssignedItems(context, workspaceId, item)
+        : item
     )
   );
 }

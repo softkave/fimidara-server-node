@@ -1,7 +1,9 @@
-import {compact, map, mapKeys} from 'lodash';
+import assert from 'assert';
+import {compact, get, map, mapKeys} from 'lodash';
 import {PermissionAction} from '../../definitions/permissionItem';
 import {
   AppResourceType,
+  AppResourceTypeMap,
   Resource,
   ResourceWrapper,
   SessionAgent,
@@ -12,7 +14,7 @@ import {isObjectEmpty, toArray} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
 import {getResourceTypeFromId} from '../../utils/resource';
 import {PartialRecord} from '../../utils/types';
-import {IPromiseWithId, waitOnPromisesWithId} from '../../utils/waitOnPromises';
+import {PromiseWithId, waitOnPromisesWithId} from '../../utils/waitOnPromises';
 import {
   checkAuthorizationWithAgent,
   getResourcePermissionContainers,
@@ -24,32 +26,29 @@ import {checkResourcesBelongsToWorkspace} from './containerCheckFns';
 import {resourceListWithAssignedItems} from './resourceWithAssignedItems';
 import {FetchResourceItem} from './types';
 
-export type FetchResourceItemWithAction = FetchResourceItem & {
-  action?: PermissionAction;
-};
-
-interface IExtendedPromiseWithId<T> extends IPromiseWithId<T> {
+interface ExtendedPromiseWithId<T> extends PromiseWithId<T> {
   resourceType: AppResourceType;
 }
 
 type InputsWithIdGroupedByType = PartialRecord<
   AppResourceType,
-  Record</** resource ID */ string, PermissionAction | undefined>
+  Record</** resource ID */ string, PermissionAction>
 >;
 
-type FilePathsMap = PartialRecord<
-  /** filepath or folderpath */ string,
-  PermissionAction | undefined
->;
+type FilePathsMap = PartialRecord</** filepath or folderpath */ string, PermissionAction>;
+
+interface WorkspaceRootnameWithAction {
+  workspaceRootname: string;
+  action: PermissionAction;
+}
 
 export interface GetResourcesOptions {
   context: BaseContextType;
-  inputResources: Array<FetchResourceItemWithAction>;
+  inputResources: Array<FetchResourceItem>;
   allowedTypes: AppResourceType[];
   checkAuth?: boolean;
   agent: SessionAgent;
   workspaceId: string;
-  action: PermissionAction;
   nothrowOnCheckError?: boolean;
   dataFetchRunOptions?: SemanticDataAccessProviderRunOptions;
 
@@ -61,6 +60,8 @@ export interface GetResourcesOptions {
   checkBelongsToWorkspace?: boolean;
 }
 
+type GetResourcesResourceWrapper = ResourceWrapper & {action: PermissionAction};
+
 export async function INTERNAL_getResources(options: GetResourcesOptions) {
   const {
     context,
@@ -68,7 +69,6 @@ export async function INTERNAL_getResources(options: GetResourcesOptions) {
     agent,
     workspaceId,
     nothrowOnCheckError,
-    action,
     allowedTypes,
     dataFetchRunOptions,
     fillAssignedItems,
@@ -85,11 +85,9 @@ export async function INTERNAL_getResources(options: GetResourcesOptions) {
     fetchWorkspace(context, workspaceRootname),
   ]);
 
-  const [, files, folders, workspaceResource] = fetchResults;
-  let [resources] = fetchResults;
+  const [resourcesById, files, folders, workspaceResource] = fetchResults;
   let assignedItemsFilled = false;
-
-  resources = resources.concat(files, folders, workspaceResource);
+  let resources = resourcesById.concat(files, folders, workspaceResource);
 
   if (fillAssignedItems) {
     resources = await resourceListWithAssignedItems(context, workspaceId, resources);
@@ -99,7 +97,7 @@ export async function INTERNAL_getResources(options: GetResourcesOptions) {
   if (checkBelongsToWorkspace) {
     if (!assignedItemsFilled) {
       resources = await resourceListWithAssignedItems(context, workspaceId, resources, [
-        AppResourceType.User,
+        AppResourceTypeMap.User,
       ]);
       assignedItemsFilled = true;
     }
@@ -108,11 +106,9 @@ export async function INTERNAL_getResources(options: GetResourcesOptions) {
   }
 
   if (checkAuth) {
-    appAssert(action);
-
     if (!assignedItemsFilled) {
       resources = await resourceListWithAssignedItems(context, workspaceId, resources, [
-        AppResourceType.User,
+        AppResourceTypeMap.User,
       ]);
       assignedItemsFilled = true;
     }
@@ -122,7 +118,6 @@ export async function INTERNAL_getResources(options: GetResourcesOptions) {
       agent,
       workspaceId,
       resources,
-      action,
       nothrowOnCheckError
     );
   }
@@ -131,14 +126,14 @@ export async function INTERNAL_getResources(options: GetResourcesOptions) {
 }
 
 function groupItemsToFetch(
-  inputResources: Array<FetchResourceItemWithAction>,
+  inputResources: Array<FetchResourceItem>,
   allowedTypes: AppResourceType[]
 ) {
   const inputsWithIdByType: InputsWithIdGroupedByType = {};
   const filepathsMap: FilePathsMap = {};
   const folderpathsMap: FilePathsMap = {};
   const allowedTypesMap = indexArray(allowedTypes);
-  let workspaceRootname: string | undefined = undefined;
+  let workspaceRootname: WorkspaceRootnameWithAction | undefined = undefined;
 
   inputResources.forEach(item => {
     if (item.resourceId) {
@@ -146,7 +141,7 @@ function groupItemsToFetch(
       idList.forEach(resourceId => {
         const type = getResourceTypeFromId(resourceId);
 
-        if (allowedTypesMap[AppResourceType.All] || allowedTypesMap[type]) {
+        if (allowedTypesMap[AppResourceTypeMap.All] || allowedTypesMap[type]) {
           let inputByIdMap = inputsWithIdByType[type];
           if (!inputByIdMap) inputsWithIdByType[type] = inputByIdMap = {};
 
@@ -162,7 +157,10 @@ function groupItemsToFetch(
         folderpathsMap[folderpath] = item.action;
       });
     } else if (item.workspaceRootname) {
-      workspaceRootname = item.workspaceRootname;
+      workspaceRootname = {
+        workspaceRootname: item.workspaceRootname,
+        action: item.action,
+      };
     }
   });
 
@@ -182,21 +180,21 @@ async function fetchResourcesById(
 ) {
   if (isObjectEmpty(idsGroupedByType)) return [];
 
-  const promises: Array<IExtendedPromiseWithId<Resource[]>> = [];
+  const promises: Array<ExtendedPromiseWithId<Resource[]>> = [];
   mapKeys(idsGroupedByType, (typeMap, type) => {
     appAssert(typeMap);
     switch (type) {
-      case AppResourceType.Workspace: {
+      case AppResourceTypeMap.Workspace: {
         promises.push({
-          id: AppResourceType.Workspace,
+          id: AppResourceTypeMap.Workspace,
           promise: context.semantic.workspace.getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
         break;
       }
-      case AppResourceType.CollaborationRequest: {
+      case AppResourceTypeMap.CollaborationRequest: {
         promises.push({
-          id: AppResourceType.CollaborationRequest,
+          id: AppResourceTypeMap.CollaborationRequest,
           promise: context.semantic.collaborationRequest.getManyByIdList(
             Object.keys(typeMap),
             opts
@@ -205,9 +203,9 @@ async function fetchResourcesById(
         });
         break;
       }
-      case AppResourceType.AgentToken: {
+      case AppResourceTypeMap.AgentToken: {
         promises.push({
-          id: AppResourceType.AgentToken,
+          id: AppResourceTypeMap.AgentToken,
           promise: context.semantic.agentToken.getManyByIdList(
             Object.keys(typeMap),
             opts
@@ -216,9 +214,9 @@ async function fetchResourcesById(
         });
         break;
       }
-      case AppResourceType.PermissionGroup: {
+      case AppResourceTypeMap.PermissionGroup: {
         promises.push({
-          id: AppResourceType.PermissionGroup,
+          id: AppResourceTypeMap.PermissionGroup,
           promise: context.semantic.permissionGroup.getManyByIdList(
             Object.keys(typeMap),
             opts
@@ -227,9 +225,9 @@ async function fetchResourcesById(
         });
         break;
       }
-      case AppResourceType.PermissionItem: {
+      case AppResourceTypeMap.PermissionItem: {
         promises.push({
-          id: AppResourceType.PermissionItem,
+          id: AppResourceTypeMap.PermissionItem,
           promise: context.semantic.permissionItem.getManyByIdList(
             Object.keys(typeMap),
             opts
@@ -238,25 +236,25 @@ async function fetchResourcesById(
         });
         break;
       }
-      case AppResourceType.Folder: {
+      case AppResourceTypeMap.Folder: {
         promises.push({
-          id: AppResourceType.Folder,
+          id: AppResourceTypeMap.Folder,
           promise: context.semantic.folder.getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
         break;
       }
-      case AppResourceType.File: {
+      case AppResourceTypeMap.File: {
         promises.push({
-          id: AppResourceType.File,
+          id: AppResourceTypeMap.File,
           promise: context.semantic.file.getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
         break;
       }
-      case AppResourceType.User: {
+      case AppResourceTypeMap.User: {
         promises.push({
-          id: AppResourceType.User,
+          id: AppResourceTypeMap.User,
           promise: context.semantic.user.getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
@@ -267,16 +265,18 @@ async function fetchResourcesById(
     }
   });
 
-  const resources: Array<ResourceWrapper> = [];
+  const resources: Array<GetResourcesResourceWrapper> = [];
   const settledPromises = await waitOnPromisesWithId(promises);
 
   settledPromises.forEach(item => {
     if (item.resolved) {
       item.value?.forEach(resource => {
+        const action = get(idsGroupedByType, [item.resourceType, resource.resourceId]);
         resources.push({
+          action,
           resource,
           resourceId: resource.resourceId,
-          resourceType: getResourceTypeFromId(resource.resourceId),
+          resourceType: item.resourceType,
         });
       });
     } else {
@@ -304,13 +304,16 @@ const fetchFiles = async (
     )
   );
 
-  return compact(result).map(
-    (item): ResourceWrapper => ({
+  return compact(result).map((item): GetResourcesResourceWrapper => {
+    const action = filepathsMap[item.resourceId];
+    assert(action);
+    return {
+      action,
       resourceId: item.resourceId,
-      resourceType: AppResourceType.File,
+      resourceType: AppResourceTypeMap.File,
       resource: item,
-    })
-  );
+    };
+  });
 };
 
 const fetchFolders = async (
@@ -330,25 +333,34 @@ const fetchFolders = async (
     )
   );
 
-  return compact(result).map(
-    (item): ResourceWrapper => ({
+  return compact(result).map((item): GetResourcesResourceWrapper => {
+    const action = folderpathsMap[item.resourceId];
+    assert(action);
+    return {
+      action,
       resourceId: item.resourceId,
-      resourceType: AppResourceType.Folder,
+      resourceType: AppResourceTypeMap.Folder,
       resource: item,
-    })
-  );
+    };
+  });
 };
 
-const fetchWorkspace = async (context: BaseContextType, workspaceRootname?: string) => {
+const fetchWorkspace = async (
+  context: BaseContextType,
+  workspaceRootname?: WorkspaceRootnameWithAction
+) => {
   if (!workspaceRootname) return [];
 
-  const result = await context.semantic.workspace.getByRootname(workspaceRootname);
-  const resources: ResourceWrapper[] = result
+  const result = await context.semantic.workspace.getByRootname(
+    workspaceRootname.workspaceRootname
+  );
+  const resources: GetResourcesResourceWrapper[] = result
     ? [
         {
           resourceId: result.resourceId,
-          resourceType: AppResourceType.Workspace,
+          resourceType: AppResourceTypeMap.Workspace,
           resource: result,
+          action: workspaceRootname.action,
         },
       ]
     : [];
@@ -359,8 +371,7 @@ async function authCheckResources(
   context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
-  resources: Array<ResourceWrapper>,
-  action: PermissionAction,
+  resources: Array<GetResourcesResourceWrapper>,
   nothrowOnCheckError?: boolean
 ) {
   const results = await Promise.all(
@@ -371,7 +382,7 @@ async function authCheckResources(
         workspaceId,
         nothrow: nothrowOnCheckError,
         target: {
-          action,
+          action: resource.action,
           targetId: getResourcePermissionContainers(workspaceId, resource.resource, true),
         },
       })

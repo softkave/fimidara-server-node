@@ -1,4 +1,4 @@
-import {AppResourceType} from '../../../definitions/system';
+import {AppResourceTypeMap} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {enqueueDeleteResourceJob} from '../../jobs/runner';
 import {checkCollaborationRequestAuthorization02} from '../utils';
@@ -18,7 +18,7 @@ const deleteCollaborationRequest: DeleteCollaborationRequestEndpoint = async (
     'deleteAgentToken'
   );
   const job = await enqueueDeleteResourceJob(context, {
-    type: AppResourceType.CollaborationRequest,
+    type: AppResourceTypeMap.CollaborationRequest,
     args: {workspaceId: request.workspaceId, resourceId: request.resourceId},
   });
   return {jobId: job.resourceId};

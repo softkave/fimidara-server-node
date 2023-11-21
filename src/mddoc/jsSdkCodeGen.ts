@@ -44,7 +44,10 @@ class Doc {
   protected typesText = '';
   protected docImports: Record<string, {importing: string[]; from: string}> = {};
   protected docTypeImports: Record<string, {importing: string[]; from: string}> = {};
-  protected classes: Record<string, {entries: string[]; name: string; extendsName?: string}> = {};
+  protected classes: Record<
+    string,
+    {entries: string[]; name: string; extendsName?: string}
+  > = {};
 
   generatedTypeCache: Map<string, boolean> = new Map();
 
@@ -262,8 +265,12 @@ function generateObjectDefinition(
     entries.push(entry);
 
     const valueData = value.data;
-    if (isMddocFieldObject(valueData)) generateObjectDefinition(doc, valueData, asFetchResponse);
-    else if (isMddocFieldArray(valueData) && isMddocFieldObject(valueData.assertGetType()))
+    if (isMddocFieldObject(valueData))
+      generateObjectDefinition(doc, valueData, asFetchResponse);
+    else if (
+      isMddocFieldArray(valueData) &&
+      isMddocFieldObject(valueData.assertGetType())
+    )
       generateObjectDefinition(
         doc,
         valueData.assertGetType() as FieldObjectType<any>,
@@ -365,7 +372,10 @@ function generateEndpointCode(
   } = types;
 
   doc.appendImportFromGenTypes(
-    compact([sdkRequestObject?.assertGetName(), successResponseBodyObject?.assertGetName()])
+    compact([
+      sdkRequestObject?.assertGetName(),
+      successResponseBodyObject?.assertGetName(),
+    ])
   );
 
   let endpointParamsText = '';
@@ -390,7 +400,8 @@ function generateEndpointCode(
     } else {
       if (requestBodyObjectHasRequiredFields)
         endpointParamsText = `props: FimidaraEndpointParamsRequired<${requestBodyObjectName}>`;
-      else endpointParamsText = `props?: FimidaraEndpointParamsOptional<${requestBodyObjectName}>`;
+      else
+        endpointParamsText = `props?: FimidaraEndpointParamsOptional<${requestBodyObjectName}>`;
     }
   } else {
     endpointParamsText = 'props?: FimidaraEndpointParamsOptional<undefined>';
@@ -430,12 +441,18 @@ function generateEndpointCode(
   doc.appendToClass(text, className, 'FimidaraEndpointsBase');
 }
 
-function generateEveryEndpointCode(doc: Doc, endpoints: Array<HttpEndpointDefinitionType>) {
+function generateEveryEndpointCode(
+  doc: Doc,
+  endpoints: Array<HttpEndpointDefinitionType>
+) {
   const leafEndpointsMap: Record<
     string,
     Record<
       string,
-      {endpoint: HttpEndpointDefinitionType; types: ReturnType<typeof getTypesFromEndpoint>}
+      {
+        endpoint: HttpEndpointDefinitionType;
+        types: ReturnType<typeof getTypesFromEndpoint>;
+      }
     >
   > = {};
   const branchMap: Record<

@@ -4,12 +4,13 @@ import {defaultTo} from 'lodash';
 import {Connection} from 'mongoose';
 import {getUsageRecordModel} from '../../db/usageRecord';
 import {getWorkspaceModel} from '../../db/workspace';
-import {AppResourceType} from '../../definitions/system';
+import {AppResourceTypeMap} from '../../definitions/system';
 import {
   UsageRecord,
-  UsageRecordCategory,
+  UsageRecordCategoryMap,
   UsageRecordFulfillmentStatus,
-  UsageSummationType,
+  UsageRecordFulfillmentStatusMap,
+  UsageSummationTypeMap,
 } from '../../definitions/usageRecord';
 import {UsageThresholdLock, Workspace} from '../../definitions/workspace';
 import {usageRecordConstants} from '../../endpoints/usageRecords/constants';
@@ -98,7 +99,7 @@ async function sumUsageRecordsLevel1(connection: Connection, recordLevel2: Usage
         category: recordLevel2.category,
         createdAt: {$gt: fromDate, $lt: endDate},
         fulfillmentStatus: recordLevel2.fulfillmentStatus,
-        summationType: UsageSummationType.One,
+        summationType: UsageSummationTypeMap.One,
       })
       .sort({createdAt: 1})
       .limit(500)
@@ -139,12 +140,12 @@ async function getUsageRecordsLevel2(
       month,
       year,
       fulfillmentStatus,
-      summationType: UsageSummationType.Two,
+      summationType: UsageSummationTypeMap.Two,
     })
     .lean()
     .exec();
 
-  Object.values(UsageRecordCategory).map(k => {
+  Object.values(UsageRecordCategoryMap).map(k => {
     const record = records.find(r => r.category === k);
     if (!record) {
       records.push({
@@ -152,13 +153,13 @@ async function getUsageRecordsLevel2(
         month,
         year,
         fulfillmentStatus,
-        resourceId: getNewIdForResource(AppResourceType.UsageRecord),
+        resourceId: getNewIdForResource(AppResourceTypeMap.UsageRecord),
         createdAt: getTimestamp(),
         createdBy: SYSTEM_SESSION_AGENT,
         lastUpdatedAt: getTimestamp(),
         lastUpdatedBy: SYSTEM_SESSION_AGENT,
         category: k,
-        summationType: UsageSummationType.Two,
+        summationType: UsageSummationTypeMap.Two,
         usage: 0,
         usageCost: 0,
         artifacts: [],
@@ -199,11 +200,11 @@ async function aggregateRecordsLevel2(
     workspaceId,
     fulfillmentStatus
   );
-  const totalRecord = records.find(r => r.category === UsageRecordCategory.Total);
+  const totalRecord = records.find(r => r.category === UsageRecordCategoryMap.Total);
   assert(totalRecord, 'Total usage record not found.');
   totalRecord.usageCost = 0;
   records.forEach(cur => {
-    if (cur.category !== UsageRecordCategory.Total) {
+    if (cur.category !== UsageRecordCategoryMap.Total) {
       // only keep track of the usage cost for the total record cause each
       // category has its own usage unit, like bytes for storage and count for db
       // objects
@@ -234,7 +235,7 @@ async function aggregateRecordsInWorkspaceAndLockIfUsageExceeded(
   const records = await aggregateRecordsLevel2(
     connection,
     workspace.resourceId,
-    UsageRecordFulfillmentStatus.Fulfilled
+    UsageRecordFulfillmentStatusMap.Fulfilled
   );
 
   const thresholds = workspace.usageThresholds ?? {};
@@ -255,14 +256,19 @@ async function aggregateRecordsInWorkspaceAndLockIfUsageExceeded(
   });
 
   const model = makeWorkspaceModel(connection);
-  await model.updateOne({resourceId: workspace.resourceId}, {usageThresholdLocks: locks}).exec();
+  await model
+    .updateOne({resourceId: workspace.resourceId}, {usageThresholdLocks: locks})
+    .exec();
 }
 
-async function aggregateDroppedRecordsInWorkspace(connection: Connection, workspace: Workspace) {
+async function aggregateDroppedRecordsInWorkspace(
+  connection: Connection,
+  workspace: Workspace
+) {
   await aggregateRecordsLevel2(
     connection,
     workspace.resourceId,
-    UsageRecordFulfillmentStatus.Dropped
+    UsageRecordFulfillmentStatusMap.Dropped
   );
 }
 
@@ -286,8 +292,13 @@ async function tryAggregateRecordsInWorkspace(
   }
 }
 
-export async function aggregateRecords(connection: Connection, runInfo: IFimidaraPipelineRunInfo) {
+export async function aggregateRecords(
+  connection: Connection,
+  runInfo: IFimidaraPipelineRunInfo
+) {
   const workspaces = await getWorkspaces(connection);
-  const promises = workspaces.map(w => tryAggregateRecordsInWorkspace(connection, w, runInfo));
+  const promises = workspaces.map(w =>
+    tryAggregateRecordsInWorkspace(connection, w, runInfo)
+  );
   await Promise.all(promises);
 }

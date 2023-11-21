@@ -2,7 +2,7 @@ import {Connection, Model, Schema, SchemaTypes} from 'mongoose';
 import {
   UsageRecord,
   UsageRecordArtifact,
-  UsageRecordFulfillmentStatus,
+  UsageRecordFulfillmentStatusMap,
 } from '../definitions/usageRecord';
 import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
@@ -18,10 +18,10 @@ const usageRecordSchema = ensureMongoTypeFields<UsageRecord>({
   category: {type: String, index: true},
   usage: {type: Number},
   artifacts: {type: [artifactSchema], default: []},
-  summationType: {type: Number, index: true},
+  summationType: {type: String, index: true},
   fulfillmentStatus: {
     type: String,
-    default: UsageRecordFulfillmentStatus.Undecided,
+    default: UsageRecordFulfillmentStatusMap.Undecided,
     index: true,
   },
   dropMessage: {type: String},

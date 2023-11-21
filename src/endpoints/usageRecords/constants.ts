@@ -1,5 +1,5 @@
 import {Agent} from '../../definitions/system';
-import {UsageRecordCategory} from '../../definitions/usageRecord';
+import {UsageRecordCategory, UsageRecordCategoryMap} from '../../definitions/usageRecord';
 import {Workspace} from '../../definitions/workspace';
 import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {getTimestamp} from '../../utils/dateFns';
@@ -28,22 +28,25 @@ export const usageRecordConstants = {
 
 // price is in USD per gb
 export const usageCostsPerGb: Record<UsageRecordCategory, number> = {
-  [UsageRecordCategory.Storage]: 0.046,
-  [UsageRecordCategory.BandwidthIn]: 0.18,
-  [UsageRecordCategory.BandwidthOut]: 0.27,
-  // [UsageRecordCategory.Request]: 0.053,
-  // [UsageRecordCategory.DatabaseObject]: 0.0005,
-  [UsageRecordCategory.Total]: 0,
+  [UsageRecordCategoryMap.Storage]: 0.046,
+  [UsageRecordCategoryMap.BandwidthIn]: 0.18,
+  [UsageRecordCategoryMap.BandwidthOut]: 0.27,
+  // [UsageRecordCategoryMap.Request]: 0.053,
+  // [UsageRecordCategoryMap.DatabaseObject]: 0.0005,
+  [UsageRecordCategoryMap.Total]: 0,
 };
 
 const bytesInGb = 1024 * 1024 * 1024;
 
 // price is in USD per byte
 export const usageCosts: Record<UsageRecordCategory, number> = {
-  [UsageRecordCategory.Storage]: usageCostsPerGb[UsageRecordCategory.Storage] / bytesInGb,
-  [UsageRecordCategory.BandwidthIn]: usageCostsPerGb[UsageRecordCategory.BandwidthIn] / bytesInGb,
-  [UsageRecordCategory.BandwidthOut]: usageCostsPerGb[UsageRecordCategory.BandwidthOut] / bytesInGb,
-  [UsageRecordCategory.Total]: 0,
+  [UsageRecordCategoryMap.Storage]:
+    usageCostsPerGb[UsageRecordCategoryMap.Storage] / bytesInGb,
+  [UsageRecordCategoryMap.BandwidthIn]:
+    usageCostsPerGb[UsageRecordCategoryMap.BandwidthIn] / bytesInGb,
+  [UsageRecordCategoryMap.BandwidthOut]:
+    usageCostsPerGb[UsageRecordCategoryMap.BandwidthOut] / bytesInGb,
+  [UsageRecordCategoryMap.Total]: 0,
 };
 
 export const getCostForUsage = (catgory: UsageRecordCategory, usage: number) => {
@@ -58,8 +61,8 @@ export function getUsageForCost(category: UsageRecordCategory, cost: number) {
 
 export function getDefaultThresholds(agent: Agent = SYSTEM_SESSION_AGENT) {
   const defaultUsageThresholds: Workspace['usageThresholds'] = {
-    [UsageRecordCategory.Total]: {
-      category: UsageRecordCategory.Storage,
+    [UsageRecordCategoryMap.Total]: {
+      category: UsageRecordCategoryMap.Storage,
       budget: usageRecordConstants.defaultTotalThresholdInUSD,
       lastUpdatedBy: agent,
       lastUpdatedAt: getTimestamp(),

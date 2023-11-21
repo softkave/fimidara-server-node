@@ -1,11 +1,14 @@
 import {defaultTo} from 'lodash';
 import {AssignedItem, ResourceWithTags} from '../../definitions/assignedItem';
-import {AppResourceType, Resource} from '../../definitions/system';
+import {AppResourceType, AppResourceTypeMap, Resource} from '../../definitions/system';
 import {User, UserWorkspace} from '../../definitions/user';
 import {cast} from '../../utils/fns';
 import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
-import {assignedItemsToAssignedTagList, assignedItemsToAssignedWorkspaceList} from './utils';
+import {
+  assignedItemsToAssignedTagList,
+  assignedItemsToAssignedWorkspaceList,
+} from './utils';
 
 /**
  * @param context
@@ -70,14 +73,14 @@ export async function getResourceAssignedItemsSortedByType(
 
 export async function populateAssignedItems<
   T extends Resource,
-  AT extends Array<AppResourceType.Tag>
+  AT extends Array<typeof AppResourceTypeMap.Tag>
 >(
   context: BaseContextType,
   workspaceId: string,
   resource: T,
-  assignedItemTypes: AT = [AppResourceType.Tag] as any
+  assignedItemTypes: AT = [AppResourceTypeMap.Tag] as any
 ): Promise<
-  typeof assignedItemTypes extends Array<AppResourceType.Tag>
+  typeof assignedItemTypes extends Array<typeof AppResourceTypeMap.Tag>
     ? ResourceWithTags<T>
     : ResourceWithTags<T>
 > {
@@ -93,7 +96,7 @@ export async function populateAssignedItems<
   // prefill expected fields with empty arrays
   assignedItemTypes?.forEach(type => {
     switch (type) {
-      case AppResourceType.Tag:
+      case AppResourceTypeMap.Tag:
         cast<ResourceWithTags<T>>(updatedResource).tags = [];
         break;
     }
@@ -101,7 +104,7 @@ export async function populateAssignedItems<
 
   for (const type in sortedItems) {
     switch (type) {
-      case AppResourceType.Tag:
+      case AppResourceTypeMap.Tag:
         cast<ResourceWithTags<T>>(updatedResource).tags = assignedItemsToAssignedTagList(
           sortedItems[type]
         );
@@ -126,12 +129,12 @@ export async function populateAssignedTags<
     context,
     workspaceId,
     resource.resourceId,
-    [AppResourceType.Tag]
+    [AppResourceTypeMap.Tag]
   );
   const updatedResource = cast<NonNullable<Final>>(resource);
-  const tagsLabel = labels[AppResourceType.Tag] ?? 'tags';
+  const tagsLabel = labels[AppResourceTypeMap.Tag] ?? 'tags';
   (updatedResource as any)[tagsLabel] = assignedItemsToAssignedTagList(
-    sortedItems[AppResourceType.Tag]
+    sortedItems[AppResourceTypeMap.Tag]
   );
   return updatedResource;
 }
@@ -146,7 +149,9 @@ export async function populateResourceListWithAssignedTags<
   labels: Partial<Record<AppResourceType, keyof Omit<R, keyof T>>> = {}
 ) {
   return await Promise.all(
-    resources.map(resource => populateAssignedTags<T, R>(context, workspaceId, resource, labels))
+    resources.map(resource =>
+      populateAssignedTags<T, R>(context, workspaceId, resource, labels)
+    )
   );
 }
 
@@ -166,7 +171,7 @@ export async function getUserWorkspaces(
 
   for (const type in sortedItems) {
     switch (type) {
-      case AppResourceType.Workspace:
+      case AppResourceTypeMap.Workspace:
         assignedWorkspaceItems = sortedItems[type];
         break;
     }
@@ -183,7 +188,11 @@ export async function populateUserWorkspaces<T extends User>(
   const updatedResource: T & {workspaces: UserWorkspace[]} = resource as T & {
     workspaces: UserWorkspace[];
   };
-  updatedResource.workspaces = await getUserWorkspaces(context, resource.resourceId, opts);
+  updatedResource.workspaces = await getUserWorkspaces(
+    context,
+    resource.resourceId,
+    opts
+  );
   return updatedResource;
 }
 
@@ -191,5 +200,7 @@ export async function populateUserListWithWorkspaces<T extends User>(
   context: BaseContextType,
   resources: T[]
 ) {
-  return await Promise.all(resources.map(resource => populateUserWorkspaces(context, resource)));
+  return await Promise.all(
+    resources.map(resource => populateUserWorkspaces(context, resource))
+  );
 }

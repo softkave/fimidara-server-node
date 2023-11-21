@@ -1,9 +1,9 @@
 import {
   CollaborationRequest,
   CollaborationRequestResponse,
-  CollaborationRequestStatusType,
+  CollaborationRequestStatusTypeMap,
 } from '../../../definitions/collaborationRequest';
-import {AppResourceType, SessionAgent} from '../../../definitions/system';
+import {AppResourceTypeMap, SessionAgent} from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {
   CollaborationRequestResponseEmailProps,
@@ -54,7 +54,10 @@ export const INTERNAL_RespondToCollaborationRequest = async (
   data: RespondToCollaborationRequestEndpointParams,
   opts: SemanticDataAccessProviderMutationRunOptions
 ) => {
-  let request = await context.semantic.collaborationRequest.getOneById(data.requestId, opts);
+  const request = await context.semantic.collaborationRequest.getOneById(
+    data.requestId,
+    opts
+  );
   assertCollaborationRequest(request);
   const user = agent.user;
   assertUser(user);
@@ -63,8 +66,9 @@ export const INTERNAL_RespondToCollaborationRequest = async (
     new PermissionDeniedError('User is not the collaboration request recipient.')
   );
 
-  const isExpired = request.expiresAt && new Date(request.expiresAt).valueOf() < Date.now();
-  const isAccepted = data.response === CollaborationRequestStatusType.Accepted;
+  const isExpired =
+    request.expiresAt && new Date(request.expiresAt).valueOf() < Date.now();
+  const isAccepted = data.response === CollaborationRequestStatusTypeMap.Accepted;
 
   if (isExpired) {
     throw new ServerStateConflictError(
@@ -79,7 +83,13 @@ export const INTERNAL_RespondToCollaborationRequest = async (
       opts
     ),
     isAccepted &&
-      assignWorkspaceToUser(context, request.createdBy, request.workspaceId, user.resourceId, opts),
+      assignWorkspaceToUser(
+        context,
+        request.createdBy,
+        request.workspaceId,
+        user.resourceId,
+        opts
+      ),
   ]);
 
   assertCollaborationRequest(updatedRequest);
@@ -94,11 +104,11 @@ export async function notifyUserOnCollaborationRequestResponse(
   const workspace = await context.semantic.workspace.getOneById(request.workspaceId);
   assertWorkspace(workspace);
   const notifyUser =
-    request.createdBy.agentType === AppResourceType.User ||
-    workspace.createdBy.agentType === AppResourceType.User
+    request.createdBy.agentType === AppResourceTypeMap.User ||
+    workspace.createdBy.agentType === AppResourceTypeMap.User
       ? // TODO: check if agent is a user or associated type before fetching
         await context.semantic.user.getOneById(
-          request.createdBy.agentType === AppResourceType.User
+          request.createdBy.agentType === AppResourceTypeMap.User
             ? request.createdBy.agentId
             : workspace.createdBy.agentId
         )

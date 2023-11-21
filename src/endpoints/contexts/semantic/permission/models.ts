@@ -4,7 +4,11 @@ import {
   PermissionGroup,
 } from '../../../../definitions/permissionGroups';
 import {PermissionAction, PermissionItem} from '../../../../definitions/permissionItem';
-import {AppResourceType, Resource} from '../../../../definitions/system';
+import {
+  AppResourceType,
+  AppResourceTypeMap,
+  Resource,
+} from '../../../../definitions/system';
 import {appAssert} from '../../../../utils/assertion';
 import {toNonNullableArray} from '../../../../utils/fns';
 import {indexArray} from '../../../../utils/indexArray';
@@ -46,7 +50,7 @@ export class DataSemanticDataAccessPermission
         const assignedItems = await context.semantic.assignedItem.getManyByQuery(
           {
             assigneeId: {$in: nextIdList},
-            assignedItemType: AppResourceType.PermissionGroup,
+            assignedItemType: AppResourceTypeMap.PermissionGroup,
           },
           options
         );
@@ -134,11 +138,11 @@ export class DataSemanticDataAccessPermission
   ): Promise<Resource | null> {
     const type = getResourceTypeFromId(props.entityId);
     const query: LiteralDataQuery<Resource> = {resourceId: props.entityId};
-    if (type === AppResourceType.User)
+    if (type === AppResourceTypeMap.User)
       return await props.context.semantic.user.getOneByQuery(query, opts);
-    if (type === AppResourceType.AgentToken)
+    if (type === AppResourceTypeMap.AgentToken)
       return await props.context.semantic.agentToken.getOneByQuery(query, opts);
-    if (type === AppResourceType.PermissionGroup)
+    if (type === AppResourceTypeMap.PermissionGroup)
       return await props.context.semantic.permissionGroup.getOneByQuery(query, opts);
     return null;
   }

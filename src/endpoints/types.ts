@@ -2,7 +2,7 @@ import {Request, RequestHandler, Response} from 'express';
 import {AppResourceType} from '../definitions/system';
 import {HttpEndpointDefinitionType} from '../mddoc/mddoc';
 import {EndpointExportedError} from '../utils/OperationError';
-import {AnyFn, AnyObject, OrPromise} from '../utils/types';
+import {AnyFn, AnyObject, ObjectValues, OrPromise} from '../utils/types';
 import RequestData from './RequestData';
 import {DataProviderQueryListParams} from './contexts/data/types';
 import {SemanticDataAccessProviderMutationRunOptions} from './contexts/semantic/types';
@@ -37,11 +37,13 @@ export type InferEndpointParams<TEndpoint> = TEndpoint extends Endpoint<
   ? InferedParams
   : AnyObject;
 
-export enum ServerRecommendedActions {
-  LoginAgain = 'loginAgain',
-  Logout = 'logout',
-  RequestChangePassword = 'requestChangePassword',
-}
+export const ServerRecommendedActionsMap = {
+  LoginAgain: 'loginAgain',
+  Logout: 'logout',
+  RequestChangePassword: 'requestChangePassword',
+} as const;
+
+export type ServerRecommendedActions = ObjectValues<typeof ServerRecommendedActionsMap>;
 
 export interface PaginatedResult {
   page: number;

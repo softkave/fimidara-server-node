@@ -2,19 +2,22 @@ import {RemoveCollaboratorCascadeFnsArgs} from '../endpoints/collaborators/remov
 import {DeleteFileCascadeDeleteFnsArgs} from '../endpoints/files/deleteFile/types';
 import {DeletePermissionItemsCascadeFnsArgs} from '../endpoints/permissionItems/deleteItems/types';
 import {DeleteResourceCascadeFnDefaultArgs} from '../endpoints/types';
-import {AnyObject} from '../utils/types';
-import {AppResourceType, Resource} from './system';
+import {AnyObject, ObjectValues} from '../utils/types';
+import {AppResourceTypeMap, Resource} from './system';
 
-export enum JobType {
-  DeleteResource = 'deleteResource',
-}
+export const JobTypeMap = {
+  DeleteResource: 'deleteResource',
+} as const;
 
-export enum JobStatus {
-  Pending = 'pending',
-  InProgress = 'inProgress',
-  Completed = 'completed',
-  Failed = 'failed',
-}
+export const JobStatusMap = {
+  Pending: 'pending',
+  InProgress: 'inProgress',
+  Completed: 'completed',
+  Failed: 'failed',
+} as const;
+
+export type JobType = ObjectValues<typeof JobTypeMap>;
+export type JobStatus = ObjectValues<typeof JobStatusMap>;
 
 export interface Job extends Resource {
   type: JobType;
@@ -32,29 +35,29 @@ export interface Job extends Resource {
 export type DeleteResourceJobParams =
   | {
       type:
-        | AppResourceType.Workspace
-        | AppResourceType.AgentToken
-        | AppResourceType.Folder
-        | AppResourceType.Tag
-        | AppResourceType.PermissionGroup
-        | AppResourceType.CollaborationRequest;
+        | typeof AppResourceTypeMap.Workspace
+        | typeof AppResourceTypeMap.AgentToken
+        | typeof AppResourceTypeMap.Folder
+        | typeof AppResourceTypeMap.Tag
+        | typeof AppResourceTypeMap.PermissionGroup
+        | typeof AppResourceTypeMap.CollaborationRequest;
       args: DeleteResourceCascadeFnDefaultArgs;
     }
   | {
-      type: AppResourceType.User;
+      type: typeof AppResourceTypeMap.User;
       args: RemoveCollaboratorCascadeFnsArgs;
       isRemoveCollaborator: true;
     }
   | {
-      type: AppResourceType.File;
+      type: typeof AppResourceTypeMap.File;
       args: DeleteFileCascadeDeleteFnsArgs;
     }
   | {
-      type: AppResourceType.PermissionItem;
+      type: typeof AppResourceTypeMap.PermissionItem;
       args: DeletePermissionItemsCascadeFnsArgs;
     }
   | {
-      type: AppResourceType.Workspace;
+      type: typeof AppResourceTypeMap.Workspace;
       args: DeletePermissionItemsCascadeFnsArgs;
     };
 

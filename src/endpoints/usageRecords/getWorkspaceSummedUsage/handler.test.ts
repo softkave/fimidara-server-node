@@ -3,8 +3,10 @@ import {add, endOfMonth, startOfMonth, sub} from 'date-fns';
 import {
   UsageRecord,
   UsageRecordCategory,
+  UsageRecordCategoryMap,
   UsageRecordFulfillmentStatus,
-  UsageSummationType,
+  UsageRecordFulfillmentStatusMap,
+  UsageSummationTypeMap,
 } from '../../../definitions/usageRecord';
 import {getTimestamp} from '../../../utils/dateFns';
 import {calculatePageSize} from '../../../utils/fns';
@@ -51,7 +53,10 @@ function expectToOnlyHaveFulfillmentStatus(
   });
 }
 
-function expectToBeFromDate(records01: Pick<UsageRecord, 'createdAt'>[], fromDate: number) {
+function expectToBeFromDate(
+  records01: Pick<UsageRecord, 'createdAt'>[],
+  fromDate: number
+) {
   const date = getTimestamp(startOfMonth(fromDate));
   records01.forEach(record => {
     expect(record.createdAt).toBeGreaterThanOrEqual(date);
@@ -72,16 +77,17 @@ describe('getWorkspaceSummedUsage', () => {
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     const records = await generateAndInsertUsageRecordList(context, 10, {
-      summationType: UsageSummationType.Two,
-      fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
+      summationType: UsageSummationTypeMap.Two,
+      fulfillmentStatus: UsageRecordFulfillmentStatusMap.Fulfilled,
       workspaceId: workspace.resourceId,
     });
 
     // run
-    const instData = RequestData.fromExpressRequest<GetWorkspaceSummedUsageEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {workspaceId: workspace.resourceId}
-    );
+    const instData =
+      RequestData.fromExpressRequest<GetWorkspaceSummedUsageEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {workspaceId: workspace.resourceId}
+      );
     const result = await getWorkspaceSummedUsage(context, instData);
 
     // verify
@@ -101,8 +107,8 @@ describe('getWorkspaceSummedUsage', () => {
     const toMonth = toDate.getMonth();
     const fromYear = fromDate.getFullYear();
     const toYear = toDate.getFullYear();
-    const records01Category = UsageRecordCategory.Storage;
-    const records02FulfillmentStatus = UsageRecordFulfillmentStatus.Dropped;
+    const records01Category = UsageRecordCategoryMap.Storage;
+    const records02FulfillmentStatus = UsageRecordFulfillmentStatusMap.Dropped;
     const count = 10;
 
     await Promise.all([
@@ -183,13 +189,13 @@ describe('getWorkspaceSummedUsage', () => {
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     await generateAndInsertUsageRecordList(context, 15, {
       workspaceId: workspace.resourceId,
-      summationType: UsageSummationType.Two,
-      fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
+      summationType: UsageSummationTypeMap.Two,
+      fulfillmentStatus: UsageRecordFulfillmentStatusMap.Fulfilled,
     });
     const count = await context.semantic.usageRecord.countByQuery({
       workspaceId: workspace.resourceId,
-      summationType: UsageSummationType.Two,
-      fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled,
+      summationType: UsageSummationTypeMap.Two,
+      fulfillmentStatus: UsageRecordFulfillmentStatusMap.Fulfilled,
     });
     const pageSize = 10;
     let page = 0;
@@ -199,7 +205,7 @@ describe('getWorkspaceSummedUsage', () => {
         page,
         pageSize,
         workspaceId: workspace.resourceId,
-        query: {fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled},
+        query: {fulfillmentStatus: UsageRecordFulfillmentStatusMap.Fulfilled},
       }
     );
     let result = await getWorkspaceSummedUsage(context, instData);
@@ -214,7 +220,7 @@ describe('getWorkspaceSummedUsage', () => {
         page,
         pageSize,
         workspaceId: workspace.resourceId,
-        query: {fulfillmentStatus: UsageRecordFulfillmentStatus.Fulfilled},
+        query: {fulfillmentStatus: UsageRecordFulfillmentStatusMap.Fulfilled},
       }
     );
     result = await getWorkspaceSummedUsage(context, instData);

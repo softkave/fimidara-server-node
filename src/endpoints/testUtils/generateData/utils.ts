@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {merge} from 'lodash';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {AppResourceType} from '../../../definitions/system';
+import {AppResourceType, AppResourceTypeMap} from '../../../definitions/system';
 
 export type GeneratePartialTestDataFn<T> = (
   index: number,
@@ -29,7 +29,7 @@ export function generateTestList<T, C extends Record<string, any> = Record<strin
 }
 
 export function randomResourceType(
-  types: AppResourceType[] = Object.values(AppResourceType)
+  types: AppResourceType[] = Object.values(AppResourceTypeMap)
 ) {
   return faker.helpers.arrayElement(types);
 }

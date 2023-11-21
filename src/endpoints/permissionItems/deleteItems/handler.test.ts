@@ -1,5 +1,4 @@
 import assert from 'assert';
-import {AppResourceType} from '../../../definitions/system';
 import RequestData from '../../RequestData';
 import {BaseContextType} from '../../contexts/types';
 import {executeJob, waitForJob} from '../../jobs/runner';
@@ -17,6 +16,7 @@ import {
 } from '../../testUtils/testUtils';
 import deletePermissionItems from './handler';
 import {DeletePermissionItemsEndpointParams} from './types';
+import {AppResourceTypeMap} from '../../../definitions/system';
 
 let context: BaseContextType | null = null;
 
@@ -60,7 +60,7 @@ test('permission items deleted', async () => {
     permissionGroup.resourceId,
     'readFile',
     workspace.resourceId,
-    AppResourceType.File,
+    AppResourceTypeMap.File,
     /** expected result */ false
   );
 });

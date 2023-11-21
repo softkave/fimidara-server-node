@@ -1,4 +1,3 @@
-import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {streamToBuffer} from '../../../utils/fns';
 import RequestData from '../../RequestData';
 import {BaseContextType} from '../../contexts/types';
@@ -28,6 +27,7 @@ import readFile from './handler';
 import {ReadFileEndpointParams} from './types';
 import sharp = require('sharp');
 import assert = require('assert');
+import {UsageRecordCategoryMap} from '../../../definitions/usageRecord';
 
 let context: BaseContextType | null = null;
 
@@ -159,7 +159,7 @@ describe('readFile', () => {
 
     // Update usage locks
     await updateTestWorkspaceUsageLocks(context, workspace.resourceId, [
-      UsageRecordCategory.BandwidthOut,
+      UsageRecordCategoryMap.BandwidthOut,
     ]);
     const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),

@@ -4,6 +4,7 @@ import {File} from '../../../definitions/file';
 import {PermissionItem} from '../../../definitions/permissionItem';
 import {
   AppResourceType,
+  AppResourceTypeMap,
   ResourceWrapper,
   SessionAgent,
 } from '../../../definitions/system';
@@ -40,7 +41,7 @@ export const INTERNAL_deletePermissionItems = async (
 
   // For indexing files and folders by name path
   const indexByNamePath = (item: ResourceWrapper) => {
-    if (item.resourceType === AppResourceType.File || AppResourceType.Folder)
+    if (item.resourceType === AppResourceTypeMap.File || AppResourceTypeMap.Folder)
       return (item.resource as unknown as Pick<File, 'namePath'>).namePath.join(
         folderConstants.nameSeparator
       );
@@ -54,7 +55,7 @@ export const INTERNAL_deletePermissionItems = async (
   const workspaceWrapper: ResourceWrapper = {
     resource: workspace,
     resourceId: workspace.resourceId,
-    resourceType: AppResourceType.Workspace,
+    resourceType: AppResourceTypeMap.Workspace,
   };
 
   const getTargets = (
@@ -150,13 +151,13 @@ export const INTERNAL_deletePermissionItems = async (
   }
 
   // TODO: deleting one after the other may not be the best way to go here
-  const result = await Promise.all(
+  const result: PermissionItem[] = await Promise.all(
     queries.map(query => context.semantic.permissionItem.getManyByQuery(query))
   );
   const permissionItems = flatten(result);
   const permissionItemsIdList = extractResourceIdList(permissionItems);
   const job = await enqueueDeleteResourceJob(context, {
-    type: AppResourceType.PermissionItem,
+    type: AppResourceTypeMap.PermissionItem,
     args: {permissionItemsIdList, workspaceId: workspace.resourceId},
   });
   return job;

@@ -1,4 +1,4 @@
-import {ObjectValues} from '../utils/types';
+import {ObjectValues, Omit1} from '../utils/types';
 import {AppResourceType, ConvertAgentToPublicAgent, WorkspaceResource} from './system';
 
 export const kPermissionsMap = {
@@ -61,4 +61,6 @@ export interface PermissionItem extends WorkspaceResource {
   action: PermissionAction;
 }
 
-export type PublicPermissionItem = ConvertAgentToPublicAgent<PermissionItem>;
+export type PublicPermissionItem = ConvertAgentToPublicAgent<
+  Omit1<PermissionItem, 'targetParentId'>
+>;

@@ -1,4 +1,4 @@
-import {AppResourceType, TokenAccessScope} from '../../../definitions/system';
+import {AppResourceTypeMap, TokenAccessScopeMap} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import INTERNAL_confirmEmailAddress from '../confirmEmailAddress/internalConfirmEmailAddress';
@@ -16,8 +16,8 @@ const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async (
   const agent = await context.session.getAgent(
     context,
     reqData,
-    [AppResourceType.User],
-    [TokenAccessScope.ChangePassword]
+    [AppResourceTypeMap.User],
+    [TokenAccessScopeMap.ChangePassword]
   );
 
   if (!agent.agentToken?.expires) throw new InvalidCredentialsError();

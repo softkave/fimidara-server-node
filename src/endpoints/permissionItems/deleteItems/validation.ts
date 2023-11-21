@@ -24,7 +24,7 @@ const itemInput = Joi.object<DeletePermissionItemInput>().keys({
     Joi.array().items(target).max(endpointConstants.inputListMax)
   ),
   action: validationSchemas.crudActionOrList,
-  access: Joi.alternatives().try(Joi.boolean(), Joi.array().items(Joi.boolean()).max(2)),
+  access: Joi.boolean(),
 });
 
 export const deletePermissionItemsJoiSchema =

@@ -1,6 +1,10 @@
 import {defaultTo, omit} from 'lodash';
 import {AgentToken} from '../../../definitions/agentToken';
-import {Agent, AppResourceType, CURRENT_TOKEN_VERSION} from '../../../definitions/system';
+import {
+  Agent,
+  AppResourceTypeMap,
+  CURRENT_TOKEN_VERSION,
+} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {newWorkspaceResource} from '../../../utils/resource';
 import {reuseableErrors} from '../../../utils/reusableErrors';
@@ -32,18 +36,19 @@ export const INTERNAL_createAgentToken = async (
 
   token = newWorkspaceResource<AgentToken>(
     agent,
-    AppResourceType.AgentToken,
+    AppResourceTypeMap.AgentToken,
     workspace.resourceId,
     {
       ...omit(data, 'tags'),
       providedResourceId: defaultTo(data.providedResourceId, null),
       version: CURRENT_TOKEN_VERSION,
       separateEntityId: null,
-      agentType: AppResourceType.AgentToken,
+      agentType: AppResourceTypeMap.AgentToken,
     }
   );
   await Promise.all([
-    data.name && checkAgentTokenNameExists(context, workspace.resourceId, data.name, opts),
+    data.name &&
+      checkAgentTokenNameExists(context, workspace.resourceId, data.name, opts),
   ]);
   await context.semantic.agentToken.insertItem(token, opts);
   return token;

@@ -1,9 +1,9 @@
 import {faker} from '@faker-js/faker';
 import * as fs from 'fs';
 import * as fse from 'fs-extra';
-import {CollaborationRequestStatusType} from '../../definitions/collaborationRequest';
-import {AppResourceType} from '../../definitions/system';
-import {UsageRecordCategory} from '../../definitions/usageRecord';
+import {CollaborationRequestStatusTypeMap} from '../../definitions/collaborationRequest';
+import {AppResourceTypeMap} from '../../definitions/system';
+import {UsageRecordCategoryMap} from '../../definitions/usageRecord';
 import {
   CollaborationRequestEmailProps,
   collaborationRequestEmailHTML,
@@ -119,7 +119,7 @@ export function renderCollaborationRequestResponseMedia() {
     signupLink: 'https://fimidara.com/accounts/signup',
     loginLink: 'https://fimidara.com/accounts/login',
     recipientEmail: faker.internet.email(),
-    response: CollaborationRequestStatusType.Accepted,
+    response: CollaborationRequestStatusTypeMap.Accepted,
     firstName: 'Abayomi',
   };
 
@@ -137,12 +137,12 @@ export function renderUsageExceededMedia() {
     firstName: 'Abayomi',
     threshold: {
       budget: 100,
-      category: UsageRecordCategory.Storage,
+      category: UsageRecordCategoryMap.Storage,
       lastUpdatedAt: getTimestamp(),
       lastUpdatedBy: {
         agentId: '',
         agentTokenId: '',
-        agentType: AppResourceType.User,
+        agentType: AppResourceTypeMap.User,
       },
     },
   };

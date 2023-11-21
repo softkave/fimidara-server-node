@@ -3,6 +3,7 @@ import {nanoid} from 'nanoid';
 import {
   Agent,
   AppResourceType,
+  AppResourceTypeMap,
   Resource,
   SessionAgent,
   WorkspaceResource,
@@ -31,28 +32,28 @@ function padShortName(shortName: string) {
 }
 
 export const RESOURCE_TYPE_SHORT_NAMES: Record<AppResourceType, string> = {
-  [AppResourceType.All]: padShortName('*'),
-  [AppResourceType.System]: padShortName('system'),
-  [AppResourceType.Public]: padShortName('public'),
-  [AppResourceType.Workspace]: padShortName('wrkspce'),
-  [AppResourceType.CollaborationRequest]: padShortName('corqst'),
-  [AppResourceType.AgentToken]: padShortName('agtoken'),
-  [AppResourceType.PermissionGroup]: padShortName('pmgroup'),
-  [AppResourceType.PermissionItem]: padShortName('prmitem'),
-  [AppResourceType.Folder]: padShortName('folder'),
-  [AppResourceType.File]: padShortName('file'),
-  [AppResourceType.User]: padShortName('user'),
-  [AppResourceType.Tag]: padShortName('tag'),
-  [AppResourceType.AssignedItem]: padShortName('asgitem'),
-  [AppResourceType.UsageRecord]: padShortName('urecord'),
-  [AppResourceType.EndpointRequest]: padShortName('endrqst'),
-  [AppResourceType.Job]: padShortName('job'),
-  [AppResourceType.FilePresignedPath]: padShortName('filepsp'),
+  [AppResourceTypeMap.All]: padShortName('*'),
+  [AppResourceTypeMap.System]: padShortName('system'),
+  [AppResourceTypeMap.Public]: padShortName('public'),
+  [AppResourceTypeMap.Workspace]: padShortName('wrkspce'),
+  [AppResourceTypeMap.CollaborationRequest]: padShortName('corqst'),
+  [AppResourceTypeMap.AgentToken]: padShortName('agtoken'),
+  [AppResourceTypeMap.PermissionGroup]: padShortName('pmgroup'),
+  [AppResourceTypeMap.PermissionItem]: padShortName('prmitem'),
+  [AppResourceTypeMap.Folder]: padShortName('folder'),
+  [AppResourceTypeMap.File]: padShortName('file'),
+  [AppResourceTypeMap.User]: padShortName('user'),
+  [AppResourceTypeMap.Tag]: padShortName('tag'),
+  [AppResourceTypeMap.AssignedItem]: padShortName('asgitem'),
+  [AppResourceTypeMap.UsageRecord]: padShortName('urecord'),
+  [AppResourceTypeMap.EndpointRequest]: padShortName('endrqst'),
+  [AppResourceTypeMap.Job]: padShortName('job'),
+  [AppResourceTypeMap.FilePresignedPath]: padShortName('filepsp'),
 };
 
-export const SHORT_NAME_TO_RESOURCE_TYPE = invert(RESOURCE_TYPE_SHORT_NAMES) as InvertRecord<
-  typeof RESOURCE_TYPE_SHORT_NAMES
->;
+export const SHORT_NAME_TO_RESOURCE_TYPE = invert(
+  RESOURCE_TYPE_SHORT_NAMES
+) as InvertRecord<typeof RESOURCE_TYPE_SHORT_NAMES>;
 
 export class InvalidResourceIdError extends OperationError {
   name = 'InvalidResourceIdError';
@@ -83,7 +84,8 @@ export const ID_0 = ''.padEnd(ID_SIZE, RESOURCE_TYPE_SHORT_NAME_PADDING);
 export function getNewIdForResource(
   resourceType: AppResourceType,
   size = ID_SIZE,
-  id0 = resourceType === AppResourceType.System || resourceType === AppResourceType.Public
+  id0 = resourceType === AppResourceTypeMap.System ||
+    resourceType === AppResourceTypeMap.Public
 ) {
   let id = ID_0;
   if (!id0) {

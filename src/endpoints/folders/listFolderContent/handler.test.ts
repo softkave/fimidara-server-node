@@ -1,4 +1,4 @@
-import {AppResourceType} from '../../../definitions/system';
+import {AppResourceTypeMap} from '../../../definitions/system';
 import {calculatePageSize, getResourceId} from '../../../utils/fns';
 import {BaseContextType} from '../../contexts/types';
 import addPermissionItems from '../../permissionItems/addItems/handler';
@@ -135,7 +135,7 @@ describe('listFolderContent', () => {
         mockExpressRequestWithAgentToken(userToken),
         {
           folderpath: addRootnameToPath(folder01.name, workspace.rootname),
-          contentType: AppResourceType.File,
+          contentType: AppResourceTypeMap.File,
         }
       );
     const fetchFilesResult = await listFolderContent(context, fetchFilesReqData);
@@ -147,7 +147,7 @@ describe('listFolderContent', () => {
         mockExpressRequestWithAgentToken(userToken),
         {
           folderpath: addRootnameToPath(folder01.name, workspace.rootname),
-          contentType: AppResourceType.Folder,
+          contentType: AppResourceTypeMap.Folder,
         }
       );
     const fetchFoldersResult = await listFolderContent(context, fetchFoldersReqData);

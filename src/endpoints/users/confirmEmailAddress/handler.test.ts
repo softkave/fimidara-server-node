@@ -1,9 +1,9 @@
 import {faker} from '@faker-js/faker';
 import {AgentToken} from '../../../definitions/agentToken';
 import {
-  AppResourceType,
+  AppResourceTypeMap,
   CURRENT_TOKEN_VERSION,
-  TokenAccessScope,
+  TokenAccessScopeMap,
 } from '../../../definitions/system';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {newResource} from '../../../utils/resource';
@@ -36,12 +36,12 @@ test('email address is confirmed', async () => {
   const {user, userTokenStr} = await insertUserForTest(context, {
     password,
   });
-  const token = newResource<AgentToken>(AppResourceType.All, {
+  const token = newResource<AgentToken>(AppResourceTypeMap.All, {
     separateEntityId: user.resourceId,
-    scope: [TokenAccessScope.ConfirmEmailAddress],
+    scope: [TokenAccessScopeMap.ConfirmEmailAddress],
     version: CURRENT_TOKEN_VERSION,
     workspaceId: null,
-    agentType: AppResourceType.User,
+    agentType: AppResourceTypeMap.User,
     createdBy: SYSTEM_SESSION_AGENT,
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
   });

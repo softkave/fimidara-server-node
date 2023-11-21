@@ -1,6 +1,6 @@
 import {
   CollaborationRequest,
-  CollaborationRequestStatusType,
+  CollaborationRequestStatusTypeMap,
 } from '../../../definitions/collaborationRequest';
 import {
   collaborationRequestRevokedEmailHTML,
@@ -37,7 +37,7 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (
         opts
       );
 
-      const isRevoked = request.status === CollaborationRequestStatusType.Revoked;
+      const isRevoked = request.status === CollaborationRequestStatusTypeMap.Revoked;
       appAssert(
         isRevoked === false,
         new InvalidRequestError('Collaboration request already revoked.')
@@ -45,7 +45,7 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (
       const updatedRequest =
         await context.semantic.collaborationRequest.getAndUpdateOneById(
           data.requestId,
-          {statusDate: getTimestamp(), status: CollaborationRequestStatusType.Revoked},
+          {statusDate: getTimestamp(), status: CollaborationRequestStatusTypeMap.Revoked},
           opts
         );
 

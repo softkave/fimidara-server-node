@@ -1,4 +1,4 @@
-import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
+import {CollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
 import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
@@ -43,10 +43,14 @@ test('collaboration request declined', async () => {
     {recipientEmail: user02.email}
   );
 
-  const instData = RequestData.fromExpressRequest<RespondToCollaborationRequestEndpointParams>(
-    mockExpressRequestWithAgentToken(user02Token),
-    {requestId: request01.resourceId, response: CollaborationRequestStatusType.Accepted}
-  );
+  const instData =
+    RequestData.fromExpressRequest<RespondToCollaborationRequestEndpointParams>(
+      mockExpressRequestWithAgentToken(user02Token),
+      {
+        requestId: request01.resourceId,
+        response: CollaborationRequestStatusTypeMap.Accepted,
+      }
+    );
   const result = await respondToCollaborationRequest(context, instData);
   assertEndpointResultOk(result);
   const updatedRequest = await context.semantic.collaborationRequest.assertGetOneByQuery(
@@ -54,6 +58,8 @@ test('collaboration request declined', async () => {
   );
 
   expect(result.request.resourceId).toEqual(request01.resourceId);
-  expect(result.request).toMatchObject(collaborationRequestForUserExtractor(updatedRequest));
-  expect(updatedRequest.status).toBe(CollaborationRequestStatusType.Accepted);
+  expect(result.request).toMatchObject(
+    collaborationRequestForUserExtractor(updatedRequest)
+  );
+  expect(updatedRequest.status).toBe(CollaborationRequestStatusTypeMap.Accepted);
 });

@@ -1,5 +1,5 @@
 import {AssignedItem} from '../../../definitions/assignedItem';
-import {AppResourceType, SessionAgent} from '../../../definitions/system';
+import {AppResourceTypeMap, SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {resolveTargetChildrenAccessCheckWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {DataQuery} from '../../contexts/data/types';
@@ -23,8 +23,8 @@ export async function getWorkspaceCollaboratorsQuery(
   if (permissionsSummaryReport.access === 'full') {
     return {
       workspaceId: workspace.resourceId,
-      assignedItemType: AppResourceType.Workspace,
-      assigneeType: AppResourceType.User,
+      assignedItemType: AppResourceTypeMap.Workspace,
+      assigneeType: AppResourceTypeMap.User,
       ...getInAndNinQuery<AssignedItem>(
         'assigneeId',
         /** inList */ undefined,
@@ -37,8 +37,8 @@ export async function getWorkspaceCollaboratorsQuery(
       assigneeId: permissionsSummaryReport.partialAllowIds && {
         $in: permissionsSummaryReport.partialAllowIds,
       },
-      assignedItemType: AppResourceType.Workspace,
-      assigneeType: AppResourceType.User,
+      assignedItemType: AppResourceTypeMap.Workspace,
+      assigneeType: AppResourceTypeMap.User,
     };
   }
 

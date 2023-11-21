@@ -1,6 +1,9 @@
 import {isArray, isUndefined} from 'lodash';
-import {AssignedItem, AssignedItemMainFieldsMatcher} from '../../definitions/assignedItem';
-import {AppResourceType} from '../../definitions/system';
+import {
+  AssignedItem,
+  AssignedItemMainFieldsMatcher,
+} from '../../definitions/assignedItem';
+import {AppResourceType, AppResourceTypeMap} from '../../definitions/system';
 import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider';
 import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder';
 
@@ -22,11 +25,23 @@ function getWorkspaceCollaborators(
 ) {
   const filter = newFilter()
     .addItem('assignedItemId', workspaceId, DataProviderFilterValueOperator.Equal)
-    .addItem('assignedItemType', AppResourceType.Workspace, DataProviderFilterValueOperator.Equal)
+    .addItem(
+      'assignedItemType',
+      AppResourceTypeMap.Workspace,
+      DataProviderFilterValueOperator.Equal
+    )
     .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
-    .addItem('assigneeType', AppResourceType.User, DataProviderFilterValueOperator.Equal);
+    .addItem(
+      'assigneeType',
+      AppResourceTypeMap.User,
+      DataProviderFilterValueOperator.Equal
+    );
   if (includedassigneeIdList?.length) {
-    filter.addItem('assigneeId', includedassigneeIdList, DataProviderFilterValueOperator.In);
+    filter.addItem(
+      'assigneeId',
+      includedassigneeIdList,
+      DataProviderFilterValueOperator.In
+    );
   }
   if (excludedAssgignedToItemIdList?.length) {
     filter.addItem(
@@ -55,7 +70,11 @@ function getByAssignedToResource(
   }
 
   if (assignedItemTypeList) {
-    filter.addItem('assignedItemType', assignedItemTypeList, DataProviderFilterValueOperator.In);
+    filter.addItem(
+      'assignedItemType',
+      assignedItemTypeList,
+      DataProviderFilterValueOperator.In
+    );
   }
   if (!isUndefined(workspaceId)) {
     filter.addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal);
@@ -66,7 +85,11 @@ function getByAssignedToResource(
 
 function getByMainFields(matcher: AssignedItemMainFieldsMatcher) {
   const filter = newFilter()
-    .addItem('assignedItemId', matcher.assignedItemId, DataProviderFilterValueOperator.Equal)
+    .addItem(
+      'assignedItemId',
+      matcher.assignedItemId,
+      DataProviderFilterValueOperator.Equal
+    )
     .addItem('assigneeId', matcher.assigneeId, DataProviderFilterValueOperator.Equal)
     .addItem('workspaceId', matcher.workspaceId, DataProviderFilterValueOperator.Equal);
   return filter.build();

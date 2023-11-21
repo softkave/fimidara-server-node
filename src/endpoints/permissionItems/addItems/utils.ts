@@ -7,6 +7,7 @@ import {
 } from '../../../definitions/permissionItem';
 import {
   AppResourceType,
+  AppResourceTypeMap,
   ResourceWrapper,
   SessionAgent,
 } from '../../../definitions/system';
@@ -74,8 +75,8 @@ export const INTERNAL_addPermissionItems = async (
 
   const indexByNamePath = (item: ResourceWrapper) => {
     if (
-      item.resourceType === AppResourceType.File ||
-      item.resourceType === AppResourceType.Folder
+      item.resourceType === AppResourceTypeMap.File ||
+      item.resourceType === AppResourceTypeMap.Folder
     ) {
       return (item.resource as unknown as Pick<File, 'namePath'>).namePath.join(
         folderConstants.nameSeparator
@@ -91,7 +92,7 @@ export const INTERNAL_addPermissionItems = async (
   const workspaceWrapper: ResourceWrapper = {
     resource: workspace,
     resourceId: workspace.resourceId,
-    resourceType: AppResourceType.Workspace,
+    resourceType: AppResourceTypeMap.Workspace,
   };
 
   const getEntities = (inputEntity: string | string[]) => {
@@ -183,8 +184,8 @@ export const INTERNAL_addPermissionItems = async (
     let targetParentId: string;
 
     if (
-      item.target.resourceType === AppResourceType.File ||
-      item.target.resourceType === AppResourceType.Folder
+      item.target.resourceType === AppResourceTypeMap.File ||
+      item.target.resourceType === AppResourceTypeMap.Folder
     ) {
       const containerIds = getResourcePermissionContainers(
         workspace.resourceId,
@@ -200,7 +201,7 @@ export const INTERNAL_addPermissionItems = async (
 
     return newWorkspaceResource(
       agent,
-      AppResourceType.PermissionItem,
+      AppResourceTypeMap.PermissionItem,
       workspace.resourceId,
       {
         targetType,

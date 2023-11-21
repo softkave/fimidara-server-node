@@ -1,6 +1,5 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
-import {CollaborationRequestStatusType} from '../../../definitions/collaborationRequest';
 import {getTimestamp} from '../../../utils/dateFns';
 import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
@@ -13,6 +12,7 @@ import {
   insertWorkspaceForTest,
 } from '../../testUtils/testUtils';
 import {CollaborationRequestInput} from './types';
+import {CollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
 
 let context: BaseContextType | null = null;
 
@@ -46,6 +46,6 @@ describe('sendCollaborationRequest', () => {
       EndpointReusableQueries.getByResourceId(request01.resourceId)
     );
     expect(savedRequest).toMatchObject(request01);
-    expect(savedRequest.status).toBe(CollaborationRequestStatusType.Pending);
+    expect(savedRequest.status).toBe(CollaborationRequestStatusTypeMap.Pending);
   });
 });

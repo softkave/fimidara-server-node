@@ -1,20 +1,24 @@
 import {faker} from '@faker-js/faker';
 import {AgentToken} from '../../../definitions/agentToken';
-import {Agent, AppResourceType, CURRENT_TOKEN_VERSION} from '../../../definitions/system';
+import {
+  Agent,
+  AppResourceTypeMap,
+  CURRENT_TOKEN_VERSION,
+} from '../../../definitions/system';
 import {getNewIdForResource, newResource} from '../../../utils/resource';
 import {BaseContextType} from '../../contexts/types';
 
 export function generateAgentTokenForTest(
   seed: Partial<AgentToken> & {workspaceId: string | null} = {workspaceId: null}
 ) {
-  const agentType = AppResourceType.AgentToken;
+  const agentType = AppResourceTypeMap.AgentToken;
   const agentTokenId = getNewIdForResource(agentType);
   const createdBy: Agent = {
     agentType,
     agentTokenId,
     agentId: agentTokenId,
   };
-  const token = newResource<AgentToken>(AppResourceType.AgentToken, {
+  const token = newResource<AgentToken>(AppResourceTypeMap.AgentToken, {
     createdBy,
     agentType,
     lastUpdatedBy: createdBy,

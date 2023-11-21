@@ -1,4 +1,4 @@
-import {UsageRecordCategory} from '../definitions/usageRecord';
+import {UsageRecordCategoryMap} from '../definitions/usageRecord';
 import {UsageThreshold} from '../definitions/workspace';
 import {multilineTextToParagraph} from '../utils/fns';
 import {
@@ -57,19 +57,22 @@ ${getLoginSectionText(props)}
   return txt;
 }
 
-export function getUsageExceededEmailMessage(workspaceName: string, threshold: UsageThreshold) {
+export function getUsageExceededEmailMessage(
+  workspaceName: string,
+  threshold: UsageThreshold
+) {
   let message = '';
   switch (threshold.category) {
-    case UsageRecordCategory.Storage:
+    case UsageRecordCategoryMap.Storage:
       message = `You have reached your storage usage threshold for workspace ${workspaceName}.`;
       break;
-    case UsageRecordCategory.BandwidthIn:
+    case UsageRecordCategoryMap.BandwidthIn:
       message = `You have reached your incoming bandwidth usage threshold for workspace ${workspaceName}.`;
       break;
-    case UsageRecordCategory.BandwidthOut:
+    case UsageRecordCategoryMap.BandwidthOut:
       message = `You have reached your outgoing bandwidth usage threshold for workspace ${workspaceName}.`;
       break;
-    // case UsageRecordCategory.Request:
+    // case UsageRecordCategoryMap.Request:
     //   message = `You have reached your API requests usage threshold for workspace ${workspaceName}.`;
     //   break;
     default:
@@ -77,22 +80,25 @@ export function getUsageExceededEmailMessage(workspaceName: string, threshold: U
   }
 
   return multilineTextToParagraph(
-    `${message} Limit was \$${threshold.budget}. 
+    `${message} Limit was $${threshold.budget}. 
     Further requests of this type will not be served. 
     Please login to your workspace to increase your usage thresholds.`
   );
 }
 
-export function getUsageExceededEmailTitle(workspaceName: string, threshold: UsageThreshold) {
+export function getUsageExceededEmailTitle(
+  workspaceName: string,
+  threshold: UsageThreshold
+) {
   let message = '';
   switch (threshold.category) {
-    case UsageRecordCategory.Storage:
+    case UsageRecordCategoryMap.Storage:
       message = `Storage usage exceeded for workspace ${workspaceName}.`;
       break;
-    case UsageRecordCategory.BandwidthIn:
+    case UsageRecordCategoryMap.BandwidthIn:
       message = `Incoming bandwidth usage exceeded for workspace ${workspaceName}.`;
       break;
-    case UsageRecordCategory.BandwidthOut:
+    case UsageRecordCategoryMap.BandwidthOut:
       message = `Outgoing bandwidth usage exceeded for workspace ${workspaceName}.`;
       break;
     default:

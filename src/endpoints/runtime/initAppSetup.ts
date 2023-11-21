@@ -1,19 +1,18 @@
 import {last, merge} from 'lodash';
 import {Folder} from '../../definitions/folder';
 import {PermissionGroup} from '../../definitions/permissionGroups';
-import {PermissionItem} from '../../definitions/permissionItem';
-import {AppResourceType, AppRuntimeState, SessionAgent} from '../../definitions/system';
+import {PermissionAction, PermissionItem} from '../../definitions/permissionItem';
+import {
+  AppResourceTypeMap,
+  AppRuntimeState,
+  SessionAgent,
+} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {FimidaraRuntimeConfig} from '../../resources/types';
 import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
-import {
-  ID_SIZE,
-  getNewIdForResource,
-  getResourceTypeFromId,
-  newWorkspaceResource,
-} from '../../utils/resource';
+import {ID_SIZE, getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
 import {makeUserSessionAgent} from '../../utils/sessionUtils';
 import {
   SemanticDataAccessProviderMutationRunOptions,
@@ -31,7 +30,7 @@ import INTERNAL_createWorkspace from '../workspaces/addWorkspace/internalCreateW
 import {assertWorkspace} from '../workspaces/utils';
 
 export const APP_RUNTIME_STATE_DOC_ID = getNewIdForResource(
-  AppResourceType.System,
+  AppResourceTypeMap.System,
   ID_SIZE,
   true
 );
@@ -152,29 +151,26 @@ async function setupImageUploadPermissionGroup(
 ) {
   const imageUploadPermissionGroup = newWorkspaceResource<PermissionGroup>(
     SYSTEM_SESSION_AGENT,
-    AppResourceType.PermissionGroup,
+    AppResourceTypeMap.PermissionGroup,
     workspaceId,
     {name, description}
   );
-  const permissionItems: PermissionItem[] = [
-    AppActionType.Create,
-    AppActionType.Read,
-  ].map(action => {
+  const actions: PermissionAction[] = ['addFile', 'readFile'];
+  const permissionItems: PermissionItem[] = actions.map(action => {
     const containerIds = folder.idPath.slice(0, -1);
     const targetParentId = containerIds.length ? last(containerIds) : workspaceId;
     appAssert(targetParentId);
-    const targetParentType = getResourceTypeFromId(targetParentId);
     const item: PermissionItem = newWorkspaceResource<PermissionItem>(
       SYSTEM_SESSION_AGENT,
-      AppResourceType.PermissionItem,
+      AppResourceTypeMap.PermissionItem,
       workspaceId,
       {
         action,
         targetParentId,
         entityId: imageUploadPermissionGroup.resourceId,
-        entityType: AppResourceType.PermissionGroup,
+        entityType: AppResourceTypeMap.PermissionGroup,
         targetId: folder.resourceId,
-        targetType: AppResourceType.File,
+        targetType: AppResourceTypeMap.File,
         access: true,
       }
     );

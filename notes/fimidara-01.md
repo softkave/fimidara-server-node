@@ -24,3 +24,5 @@
 - Permissions
 - Storage backends
 - Default permission group for collaborators
+- Surface type description in or and and combinations
+- Use and define sdk params

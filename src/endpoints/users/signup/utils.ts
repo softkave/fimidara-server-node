@@ -1,5 +1,5 @@
 import * as argon2 from 'argon2';
-import {AppResourceType} from '../../../definitions/system';
+import {AppResourceTypeMap} from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource, newResource} from '../../../utils/resource';
@@ -19,9 +19,9 @@ export const INTERNAL_signupUser = async (
 
   const hash = await argon2.hash(data.password);
   const now = getTimestamp();
-  const user: User = newResource(AppResourceType.User, {
+  const user: User = newResource(AppResourceTypeMap.User, {
     hash,
-    resourceId: getNewIdForResource(AppResourceType.User),
+    resourceId: getNewIdForResource(AppResourceTypeMap.User),
     email: data.email,
     firstName: data.firstName,
     lastName: data.lastName,

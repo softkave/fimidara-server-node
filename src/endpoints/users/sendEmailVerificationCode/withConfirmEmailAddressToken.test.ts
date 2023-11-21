@@ -1,9 +1,9 @@
 import {URL} from 'url';
 import {AgentToken} from '../../../definitions/agentToken';
 import {
-  AppResourceType,
+  AppResourceTypeMap,
   CURRENT_TOKEN_VERSION,
-  TokenAccessScope,
+  TokenAccessScopeMap,
 } from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
@@ -26,11 +26,11 @@ afterAll(async () => {
 
 async function createTestEmailVerificationToken(userId: string) {
   assertContext(context);
-  const token = newResource<AgentToken>(AppResourceType.AgentToken, {
+  const token = newResource<AgentToken>(AppResourceTypeMap.AgentToken, {
     separateEntityId: userId,
-    scope: [TokenAccessScope.ConfirmEmailAddress],
+    scope: [TokenAccessScopeMap.ConfirmEmailAddress],
     version: CURRENT_TOKEN_VERSION,
-    agentType: AppResourceType.User,
+    agentType: AppResourceTypeMap.User,
     workspaceId: null,
     createdBy: SYSTEM_SESSION_AGENT,
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
@@ -63,7 +63,7 @@ describe('withConfirmEmailAddress', () => {
     const link = await withConfirmEmailAddressToken(
       context,
       {
-        resourceId: getNewIdForResource(AppResourceType.User),
+        resourceId: getNewIdForResource(AppResourceTypeMap.User),
         isEmailVerified: false,
       } as User,
       prevLink
@@ -73,7 +73,7 @@ describe('withConfirmEmailAddress', () => {
 
   test('email verification token reused', async () => {
     assertContext(context);
-    const userId = getNewIdForResource(AppResourceType.User);
+    const userId = getNewIdForResource(AppResourceTypeMap.User);
     const token = await createTestEmailVerificationToken(userId);
     const prevLink = 'http://localhost/?token=prevToken';
     const link = await withConfirmEmailAddressToken(
@@ -91,7 +91,7 @@ describe('withConfirmEmailAddress', () => {
 
   test('email verification token not added if already exist', async () => {
     assertContext(context);
-    const userId = getNewIdForResource(AppResourceType.User);
+    const userId = getNewIdForResource(AppResourceTypeMap.User);
     const token = await createTestEmailVerificationToken(userId);
     const encodedToken = context.session.encodeToken(
       context,
@@ -102,7 +102,7 @@ describe('withConfirmEmailAddress', () => {
     const link = await withConfirmEmailAddressToken(
       context,
       {
-        resourceId: getNewIdForResource(AppResourceType.User),
+        resourceId: getNewIdForResource(AppResourceTypeMap.User),
         isEmailVerified: false,
       } as User,
       prevLink
@@ -117,7 +117,7 @@ describe('withConfirmEmailAddress', () => {
     const link = await withConfirmEmailAddressToken(
       context,
       {
-        resourceId: getNewIdForResource(AppResourceType.User),
+        resourceId: getNewIdForResource(AppResourceTypeMap.User),
         isEmailVerified: true,
       } as User,
       prevLink

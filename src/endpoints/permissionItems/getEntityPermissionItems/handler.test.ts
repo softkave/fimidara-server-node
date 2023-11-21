@@ -1,4 +1,4 @@
-import {AppResourceType} from '../../../definitions/system';
+import {AppResourceTypeMap} from '../../../definitions/system';
 import {calculatePageSize} from '../../../utils/fns';
 import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
@@ -70,7 +70,7 @@ describe.skip('getEntityPermissionitems', () => {
     await generateAndInsertPermissionItemListForTest(context, 15, {
       workspaceId: workspace.resourceId,
       entityId: user.resourceId,
-      entityType: AppResourceType.User,
+      entityType: AppResourceTypeMap.User,
       targetId: workspace.resourceId,
     });
     const count = await context.semantic.permissionItem.countByQuery({

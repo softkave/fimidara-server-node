@@ -1,4 +1,4 @@
-import {AppResourceType} from '../../../definitions/system';
+import {AppResourceTypeMap} from '../../../definitions/system';
 import {
   upgradedFromWaitlistEmailHTML,
   UpgradedFromWaitlistEmailProps,
@@ -41,7 +41,9 @@ describe('upgradeWaitlistedUsers', () => {
     assertContext(context);
     const {userToken, user} = await insertUserForTest(context);
     const [waitlistedUsers] = await Promise.all([
-      generateAndInsertUserListForTest(context, /** count */ 2, () => ({isOnWaitlist: true})),
+      generateAndInsertUserListForTest(context, /** count */ 2, () => ({
+        isOnWaitlist: true,
+      })),
       context.semantic.utils.withTxn(context, opts => {
         assertContext(context);
         return assignWorkspaceToUser(
@@ -102,7 +104,7 @@ describe('upgradeWaitlistedUsers', () => {
         context,
         RequestData.fromExpressRequest<UpgradeWaitlistedUsersEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
-          {userIds: [getNewIdForResource(AppResourceType.User)]}
+          {userIds: [getNewIdForResource(AppResourceTypeMap.User)]}
         )
       );
     }, [PermissionDeniedError.name]);

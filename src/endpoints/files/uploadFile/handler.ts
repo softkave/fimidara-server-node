@@ -1,7 +1,7 @@
 import {File} from '../../../definitions/file';
 import {Folder} from '../../../definitions/folder';
 import {
-  AppResourceType,
+  AppResourceTypeMap,
   PERMISSION_AGENT_TYPES,
   SessionAgent,
 } from '../../../definitions/system';
@@ -130,19 +130,24 @@ function generateNewFile(
   data: UploadFileEndpointParams,
   parentFolder: Folder | null
 ) {
-  const fileId = getNewIdForResource(AppResourceType.File);
-  return newWorkspaceResource<File>(agent, AppResourceType.File, workspace.resourceId, {
-    workspaceId: workspace.resourceId,
-    resourceId: fileId,
-    extension: details.extension,
-    name: details.nameWithoutExtension,
-    idPath: parentFolder ? parentFolder.idPath.concat(fileId) : [fileId],
-    namePath: parentFolder
-      ? parentFolder.namePath.concat(details.nameWithoutExtension)
-      : [details.nameWithoutExtension],
-    parentId: parentFolder?.resourceId ?? null,
-    size: data.size,
-  });
+  const fileId = getNewIdForResource(AppResourceTypeMap.File);
+  return newWorkspaceResource<File>(
+    agent,
+    AppResourceTypeMap.File,
+    workspace.resourceId,
+    {
+      workspaceId: workspace.resourceId,
+      resourceId: fileId,
+      extension: details.extension,
+      name: details.nameWithoutExtension,
+      idPath: parentFolder ? parentFolder.idPath.concat(fileId) : [fileId],
+      namePath: parentFolder
+        ? parentFolder.namePath.concat(details.nameWithoutExtension)
+        : [details.nameWithoutExtension],
+      parentId: parentFolder?.resourceId ?? null,
+      size: data.size,
+    }
+  );
 }
 
 async function insertNewFile(

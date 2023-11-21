@@ -1,7 +1,7 @@
 import assert = require('assert');
-import {Agent, AppResourceType} from '../../../definitions/system';
+import {Agent, AppResourceTypeMap} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
-import {Workspace, WorkspaceBillStatus} from '../../../definitions/workspace';
+import {Workspace, WorkspaceBillStatusMap} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {cast} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
@@ -13,7 +13,10 @@ import {
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
 import {getDefaultThresholds} from '../../usageRecords/constants';
-import {checkWorkspaceNameExists, checkWorkspaceRootnameExists} from '../checkWorkspaceExists';
+import {
+  checkWorkspaceNameExists,
+  checkWorkspaceRootnameExists,
+} from '../checkWorkspaceExists';
 import {NewWorkspaceInput} from './types';
 import {generateDefaultWorkspacePermissionGroups} from './utils';
 
@@ -50,7 +53,7 @@ const INTERNAL_createWorkspace = async (
   // TODO: replace with user defined usage thresholds when we implement billing
   const usageThresholds = getDefaultThresholds();
   const createdAt = getTimestamp();
-  const id = getNewIdForResource(AppResourceType.Workspace);
+  const id = getNewIdForResource(AppResourceTypeMap.Workspace);
   const workspace: Workspace | null = {
     createdAt,
     usageThresholds,
@@ -62,7 +65,7 @@ const INTERNAL_createWorkspace = async (
     resourceId: id,
     workspaceId: id,
     description: data.description,
-    billStatus: WorkspaceBillStatus.Ok,
+    billStatus: WorkspaceBillStatusMap.Ok,
     billStatusAssignedAt: createdAt,
     usageThresholdLocks: {},
     publicPermissionGroupId: '', // placeholder

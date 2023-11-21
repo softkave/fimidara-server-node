@@ -1,5 +1,5 @@
 import {AssignedItem} from '../../../definitions/assignedItem';
-import {AppResourceType} from '../../../definitions/system';
+import {AppResourceTypeMap} from '../../../definitions/system';
 import {indexArray} from '../../../utils/indexArray';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
@@ -52,7 +52,7 @@ export async function getPagedCollaboratorsWithoutPermission(
     await context.semantic.assignedItem.getManyByQuery(
       {
         assigneeId: {$in: collaboratorIdList},
-        assignedItemType: AppResourceType.PermissionGroup,
+        assignedItemType: AppResourceTypeMap.PermissionGroup,
       },
       page
     );

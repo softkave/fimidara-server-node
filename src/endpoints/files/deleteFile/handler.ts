@@ -1,4 +1,4 @@
-import {AppResourceType, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
+import {AppResourceTypeMap, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {enqueueDeleteResourceJob} from '../../jobs/runner';
 import {checkFileAuthorization02} from '../utils';
@@ -10,7 +10,7 @@ const deleteFile: DeleteFileEndpoint = async (context, instData) => {
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
   const {file} = await checkFileAuthorization02(context, agent, data, 'deleteFile');
   const job = await enqueueDeleteResourceJob(context, {
-    type: AppResourceType.File,
+    type: AppResourceTypeMap.File,
     args: {
       workspaceId: file.workspaceId,
       fileIdList: [file.resourceId],

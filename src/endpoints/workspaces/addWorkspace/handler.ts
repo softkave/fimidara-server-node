@@ -1,4 +1,4 @@
-import {AppResourceType} from '../../../definitions/system';
+import {AppResourceTypeMap} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
 import {EmailAddressNotVerifiedError} from '../../users/errors';
@@ -9,7 +9,11 @@ import {addWorkspaceJoiSchema} from './validation';
 
 const addWorkspace: AddWorkspaceEndpoint = async (context, instData) => {
   const data = validate(instData.data, addWorkspaceJoiSchema);
-  const agent = await context.session.getAgent(context, instData, AppResourceType.User);
+  const agent = await context.session.getAgent(
+    context,
+    instData,
+    AppResourceTypeMap.User
+  );
   appAssert(agent.user);
 
   // TODO: find other routes that do not use checkAuthorization and devise a way
@@ -19,7 +23,13 @@ const addWorkspace: AddWorkspaceEndpoint = async (context, instData) => {
 
   const {workspace} = await context.semantic.utils.withTxn(context, async opts => {
     appAssert(agent.user);
-    return await INTERNAL_createWorkspace(context, data, agent, agent.user.resourceId, opts);
+    return await INTERNAL_createWorkspace(
+      context,
+      data,
+      agent,
+      agent.user.resourceId,
+      opts
+    );
   });
   return {workspace: workspaceExtractor(workspace)};
 };

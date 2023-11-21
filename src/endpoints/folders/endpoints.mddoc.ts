@@ -1,6 +1,6 @@
 import {PublicFile} from '../../definitions/file';
 import {FolderMatcher, PublicFolder} from '../../definitions/folder';
-import {AppResourceType} from '../../definitions/system';
+import {AppResourceTypeMap} from '../../definitions/system';
 import {
   FieldObjectFieldsMap,
   HttpEndpointMethod,
@@ -14,7 +14,11 @@ import {
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
 import {fileEndpointsParts} from '../files/endpoints.mddoc';
-import {AddFolderEndpointParams, AddFolderEndpointResult, NewFolderInput} from './addFolder/types';
+import {
+  AddFolderEndpointParams,
+  AddFolderEndpointResult,
+  NewFolderInput,
+} from './addFolder/types';
 import {folderConstants} from './constants';
 import {
   CountFolderContentEndpointParams,
@@ -75,7 +79,7 @@ const folder = mddocConstruct
     parentId: mddocConstruct.constructFieldObjectField(true, fReusables.folderIdOrNull),
     providedResourceId: mddocConstruct.constructFieldObjectField(
       false,
-      fReusables.providedResourceId
+      fReusables.providedResourceIdOrNull
     ),
   });
 
@@ -107,8 +111,8 @@ const listFolderContentParams = mddocConstruct
       mddocConstruct
         .constructFieldString()
         .setDescription('Fetch children files or folders. To fetch both, pass nothing.')
-        .setExample(AppResourceType.File)
-        .setValid([AppResourceType.File, AppResourceType.Folder])
+        .setExample(AppResourceTypeMap.File)
+        .setValid([AppResourceTypeMap.File, AppResourceTypeMap.Folder])
     ),
     page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
     pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
@@ -140,8 +144,8 @@ const countFolderContentParams = mddocConstruct
       mddocConstruct
         .constructFieldString()
         .setDescription('Count children files or folders. To count both, pass nothing.')
-        .setExample(AppResourceType.File)
-        .setValid([AppResourceType.File, AppResourceType.Folder])
+        .setExample(AppResourceTypeMap.File)
+        .setValid([AppResourceTypeMap.File, AppResourceTypeMap.Folder])
     ),
   })
   .setDescription('List folder content endpoint params.');
@@ -196,14 +200,18 @@ export const addFolderEndpointDefinition = mddocConstruct
     InferFieldObjectType<AddFolderHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
     InferFieldObjectType<AddFolderHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
     InferFieldObjectType<AddFolderHttpEndpoint['mddocHttpDefinition']['query']>,
-    InferFieldObjectOrMultipartType<AddFolderHttpEndpoint['mddocHttpDefinition']['requestBody']>,
+    InferFieldObjectOrMultipartType<
+      AddFolderHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
     InferFieldObjectType<AddFolderHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
     InferFieldObjectType<AddFolderHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(folderConstants.routes.addFolder)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(addFolderParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(addFolderResponseBody)
   .setName('AddFolderEndpoint')
@@ -214,14 +222,18 @@ export const getFolderEndpointDefinition = mddocConstruct
     InferFieldObjectType<GetFolderHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
     InferFieldObjectType<GetFolderHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
     InferFieldObjectType<GetFolderHttpEndpoint['mddocHttpDefinition']['query']>,
-    InferFieldObjectOrMultipartType<GetFolderHttpEndpoint['mddocHttpDefinition']['requestBody']>,
+    InferFieldObjectOrMultipartType<
+      GetFolderHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
     InferFieldObjectType<GetFolderHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
     InferFieldObjectType<GetFolderHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(folderConstants.routes.getFolder)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getFolderParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getFolderResponseBody)
   .setName('GetFolderEndpoint')
@@ -229,17 +241,27 @@ export const getFolderEndpointDefinition = mddocConstruct
 
 export const updateFolderEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
-    InferFieldObjectType<UpdateFolderHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
-    InferFieldObjectType<UpdateFolderHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<
+      UpdateFolderHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      UpdateFolderHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
     InferFieldObjectType<UpdateFolderHttpEndpoint['mddocHttpDefinition']['query']>,
-    InferFieldObjectOrMultipartType<UpdateFolderHttpEndpoint['mddocHttpDefinition']['requestBody']>,
-    InferFieldObjectType<UpdateFolderHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectOrMultipartType<
+      UpdateFolderHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      UpdateFolderHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
     InferFieldObjectType<UpdateFolderHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(folderConstants.routes.updateFolder)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(updateFolderParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(updateFolderResponseBody)
   .setName('UpdateFolderEndpoint')
@@ -247,17 +269,27 @@ export const updateFolderEndpointDefinition = mddocConstruct
 
 export const deleteFolderEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
-    InferFieldObjectType<DeleteFolderHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
-    InferFieldObjectType<DeleteFolderHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<
+      DeleteFolderHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      DeleteFolderHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
     InferFieldObjectType<DeleteFolderHttpEndpoint['mddocHttpDefinition']['query']>,
-    InferFieldObjectOrMultipartType<DeleteFolderHttpEndpoint['mddocHttpDefinition']['requestBody']>,
-    InferFieldObjectType<DeleteFolderHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectOrMultipartType<
+      DeleteFolderHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      DeleteFolderHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
     InferFieldObjectType<DeleteFolderHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(folderConstants.routes.deleteFolder)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(deleteFolderParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
   .setName('DeleteFolderEndpoint')
@@ -265,19 +297,29 @@ export const deleteFolderEndpointDefinition = mddocConstruct
 
 export const listFolderContentEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
-    InferFieldObjectType<ListFolderContentHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
-    InferFieldObjectType<ListFolderContentHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<
+      ListFolderContentHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      ListFolderContentHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
     InferFieldObjectType<ListFolderContentHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<
       ListFolderContentHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
-    InferFieldObjectType<ListFolderContentHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<ListFolderContentHttpEndpoint['mddocHttpDefinition']['responseBody']>
+    InferFieldObjectType<
+      ListFolderContentHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      ListFolderContentHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
   >()
   .setBasePathname(folderConstants.routes.listFolderContent)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(listFolderContentParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(listFolderContentResponseBody)
   .setName('ListFolderContentEndpoint')
@@ -285,19 +327,29 @@ export const listFolderContentEndpointDefinition = mddocConstruct
 
 export const countFolderContentEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
-    InferFieldObjectType<CountFolderContentHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
-    InferFieldObjectType<CountFolderContentHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<
+      CountFolderContentHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      CountFolderContentHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
     InferFieldObjectType<CountFolderContentHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<
       CountFolderContentHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
-    InferFieldObjectType<CountFolderContentHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<CountFolderContentHttpEndpoint['mddocHttpDefinition']['responseBody']>
+    InferFieldObjectType<
+      CountFolderContentHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      CountFolderContentHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
   >()
   .setBasePathname(folderConstants.routes.countFolderContent)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(countFolderContentParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(countFolderContentResponseBody)
   .setName('CountFolderContentEndpoint')

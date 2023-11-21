@@ -1,4 +1,4 @@
-import {TokenAccessScope} from '../../../definitions/system';
+import {TokenAccessScopeMap} from '../../../definitions/system';
 import {forgotPasswordEmailTitle} from '../../../emailTemplates/forgotPassword';
 import RequestData from '../../RequestData';
 import {ITestBaseContext} from '../../testUtils/context/types';
@@ -42,7 +42,7 @@ test('forgot password with email sent', async () => {
   const forgotPasswordToken = await context.semantic.agentToken.assertGetOneByQuery(
     UserTokenQueries.getByUserIdAndTokenAccessScope(
       user.resourceId,
-      TokenAccessScope.ChangePassword
+      TokenAccessScopeMap.ChangePassword
     )
   );
 

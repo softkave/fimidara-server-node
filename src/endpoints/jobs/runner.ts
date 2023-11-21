@@ -2,10 +2,10 @@ import {
   DeleteResourceJobParams,
   Job,
   JOB_RUNNER_V1,
-  JobStatus,
-  JobType,
+  JobStatusMap,
+  JobTypeMap,
 } from '../../definitions/job';
-import {AppResourceType} from '../../definitions/system';
+import {AppResourceType, AppResourceTypeMap} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {serverLogger} from '../../utils/logger/loggerUtils';
@@ -59,7 +59,7 @@ export async function startJobRunner(context: BaseContextType) {
 
 async function getNextUnfinishedJob(context: BaseContextType) {
   return await context.data.job.getOneByQuery({
-    status: JobStatus.InProgress,
+    status: JobStatusMap.InProgress,
 
     // Avoid fetching in-progress jobs belonging to the current instance,
     // seeing those jobs are already currently being run
@@ -71,7 +71,7 @@ async function getNextUnfinishedJob(context: BaseContextType) {
 
 async function getNextPendingJob(context: BaseContextType) {
   return await context.data.job.getOneByQuery({
-    status: JobStatus.Pending,
+    status: JobStatusMap.Pending,
     statusDate: {$gte: lastTimestamp},
     resourceId: {$nin: pendingJobsIdList},
   });
@@ -79,41 +79,45 @@ async function getNextPendingJob(context: BaseContextType) {
 
 async function jobRunner(context: BaseContextType, job: Job) {
   try {
-    if (job.type === JobType.DeleteResource) await executeDeleteResourceJob(context, job);
+    if (job.type === JobTypeMap.DeleteResource)
+      await executeDeleteResourceJob(context, job);
     await context.data.job.updateOneByQuery(
       {resourceId: job.resourceId},
-      {status: JobStatus.Completed}
+      {status: JobStatusMap.Completed}
     );
   } catch (error: unknown) {
     // TODO: different parts of the app should have their own tagged loggers
     serverLogger.error(error);
     await context.data.job.updateOneByQuery(
       {resourceId: job.resourceId},
-      {status: JobStatus.Failed, errorTimestamp: getTimestamp()}
+      {status: JobStatusMap.Failed, errorTimestamp: getTimestamp()}
     );
   }
 }
 
-const kCascadeDeleteDefs: Record<AppResourceType, DeleteResourceCascadeFnsMap<any> | undefined> = {
-  [AppResourceType.All]: undefined,
-  [AppResourceType.System]: undefined,
-  [AppResourceType.Public]: undefined,
-  [AppResourceType.UsageRecord]: undefined,
-  [AppResourceType.EndpointRequest]: undefined,
-  [AppResourceType.AssignedItem]: undefined,
-  [AppResourceType.Job]: undefined,
-  [AppResourceType.FilePresignedPath]: undefined,
+const kCascadeDeleteDefs: Record<
+  AppResourceType,
+  DeleteResourceCascadeFnsMap<any> | undefined
+> = {
+  [AppResourceTypeMap.All]: undefined,
+  [AppResourceTypeMap.System]: undefined,
+  [AppResourceTypeMap.Public]: undefined,
+  [AppResourceTypeMap.UsageRecord]: undefined,
+  [AppResourceTypeMap.EndpointRequest]: undefined,
+  [AppResourceTypeMap.AssignedItem]: undefined,
+  [AppResourceTypeMap.Job]: undefined,
+  [AppResourceTypeMap.FilePresignedPath]: undefined,
 
   // TODO: will need update when we implement deleting users
-  [AppResourceType.User]: REMOVE_COLLABORATOR_CASCADE_FNS,
-  [AppResourceType.CollaborationRequest]: DELETE_COLLABORATION_REQUEST_CASCADE_FNS,
-  [AppResourceType.Workspace]: DELETE_WORKSPACE_CASCADE_FNS,
-  [AppResourceType.AgentToken]: DELETE_AGENT_TOKEN_CASCADE_FNS,
-  [AppResourceType.Folder]: DELETE_FOLDER_CASCADE_FNS,
-  [AppResourceType.File]: DELETE_FILE_CASCADE_FNS,
-  [AppResourceType.Tag]: DELETE_TAG_CASCADE_FNS,
-  [AppResourceType.PermissionGroup]: DELETE_PERMISSION_GROUP_CASCADE_FNS,
-  [AppResourceType.PermissionItem]: DELETE_PERMISSION_ITEMS_CASCADE_FNS,
+  [AppResourceTypeMap.User]: REMOVE_COLLABORATOR_CASCADE_FNS,
+  [AppResourceTypeMap.CollaborationRequest]: DELETE_COLLABORATION_REQUEST_CASCADE_FNS,
+  [AppResourceTypeMap.Workspace]: DELETE_WORKSPACE_CASCADE_FNS,
+  [AppResourceTypeMap.AgentToken]: DELETE_AGENT_TOKEN_CASCADE_FNS,
+  [AppResourceTypeMap.Folder]: DELETE_FOLDER_CASCADE_FNS,
+  [AppResourceTypeMap.File]: DELETE_FILE_CASCADE_FNS,
+  [AppResourceTypeMap.Tag]: DELETE_TAG_CASCADE_FNS,
+  [AppResourceTypeMap.PermissionGroup]: DELETE_PERMISSION_GROUP_CASCADE_FNS,
+  [AppResourceTypeMap.PermissionItem]: DELETE_PERMISSION_ITEMS_CASCADE_FNS,
 };
 
 async function executeDeleteResourceJob(context: BaseContextType, job: Job) {
@@ -126,12 +130,12 @@ export async function enqueueDeleteResourceJob(
   context: BaseContextType,
   params: DeleteResourceJobParams
 ) {
-  const job: Job = newResource(AppResourceType.Job, {
+  const job: Job = newResource(AppResourceTypeMap.Job, {
     params,
     serverInstanceId: context.appVariables.serverInstanceId,
-    status: JobStatus.Pending,
+    status: JobStatusMap.Pending,
     statusDate: getTimestamp(),
-    type: JobType.DeleteResource,
+    type: JobTypeMap.DeleteResource,
     version: JOB_RUNNER_V1,
     workspaceId: params.args.workspaceId,
   });
@@ -151,7 +155,7 @@ export async function waitForServerInstanceJobs(
     const getPendingJobs = async () => {
       const jobs = await context.data.job.getManyByQuery({
         serverInstanceId,
-        status: {$in: [JobStatus.Pending, JobStatus.InProgress] as any[]},
+        status: {$in: [JobStatusMap.Pending, JobStatusMap.InProgress] as any[]},
       });
 
       if (!jobs.length) resolve();
@@ -169,7 +173,7 @@ export async function executeServerInstanceJobs(
   const getPendingJobs = async () => {
     return await context.data.job.getManyByQuery({
       serverInstanceId,
-      status: JobStatus.Pending,
+      status: JobStatusMap.Pending,
     });
   };
 
@@ -183,7 +187,7 @@ export async function executeServerInstanceJobs(
 export async function executeJob(context: BaseContextType, jobId: string) {
   const job = await context.data.job.getOneByQuery({
     resourceId: jobId,
-    status: JobStatus.Pending,
+    status: JobStatusMap.Pending,
   });
 
   if (job) await jobRunner(context, job);
@@ -194,7 +198,7 @@ export async function waitForJob(context: BaseContextType, jobId: string) {
     const getPendingJob = async () => {
       const job = await context.data.job.getOneByQuery({
         resourceId: jobId,
-        status: {$in: [JobStatus.Pending, JobStatus.InProgress] as any[]},
+        status: {$in: [JobStatusMap.Pending, JobStatusMap.InProgress] as any[]},
       });
 
       if (!job) resolve();

@@ -3,10 +3,12 @@ import {first} from 'lodash';
 import {AgentToken} from '../../definitions/agentToken';
 import {
   AppResourceType,
+  AppResourceTypeMap,
   BaseTokenData,
   CURRENT_TOKEN_VERSION,
   SessionAgent,
   TokenAccessScope,
+  TokenAccessScopeMap,
   TokenSubjectDefault,
 } from '../../definitions/system';
 import {User} from '../../definitions/user';
@@ -17,7 +19,10 @@ import {ServerError} from '../../utils/errors';
 import {cast, toArray} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
 import {reuseableErrors} from '../../utils/reusableErrors';
-import {makeUserSessionAgent, makeWorkspaceAgentTokenAgent} from '../../utils/sessionUtils';
+import {
+  makeUserSessionAgent,
+  makeWorkspaceAgentTokenAgent,
+} from '../../utils/sessionUtils';
 import RequestData from '../RequestData';
 import {
   CredentialsExpiredError,
@@ -38,7 +43,10 @@ export interface SessionContextType {
     data: RequestData,
     tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
   ) => Promise<User>;
-  decodeToken: (ctx: BaseContextType, token: string) => BaseTokenData<TokenSubjectDefault>;
+  decodeToken: (
+    ctx: BaseContextType,
+    token: string
+  ) => BaseTokenData<TokenSubjectDefault>;
   tokenContainsScope: (
     tokenData: AgentToken,
     expectedTokenScopes: TokenAccessScope | TokenAccessScope[]
@@ -56,20 +64,22 @@ export default class SessionContext implements SessionContextType {
     ctx: BaseContextType,
     data: RequestData,
     permittedAgentTypes: AppResourceType | AppResourceType[] = [
-      AppResourceType.User,
-      AppResourceType.AgentToken,
+      AppResourceTypeMap.User,
+      AppResourceTypeMap.AgentToken,
     ],
-    tokenAccessScope: TokenAccessScope | TokenAccessScope[] = TokenAccessScope.Login
+    tokenAccessScope: TokenAccessScope | TokenAccessScope[] = TokenAccessScopeMap.Login
   ) => {
     const incomingTokenData = data.incomingTokenData;
     let agent: SessionAgent | null | undefined = data.agent;
 
     if (!agent) {
       if (incomingTokenData) {
-        const agentToken = await ctx.semantic.agentToken.getOneById(incomingTokenData.sub.id);
+        const agentToken = await ctx.semantic.agentToken.getOneById(
+          incomingTokenData.sub.id
+        );
         appAssert(agentToken, new InvalidCredentialsError());
 
-        if (agentToken.agentType === AppResourceType.User) {
+        if (agentToken.agentType === AppResourceTypeMap.User) {
           appAssert(agentToken.separateEntityId);
           const user = await ctx.semantic.user.getOneById(agentToken.separateEntityId);
           appAssert(user, reuseableErrors.user.notFound());
@@ -94,7 +104,12 @@ export default class SessionContext implements SessionContextType {
     data: RequestData,
     tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
   ) => {
-    const agent = await ctx.session.getAgent(ctx, data, [AppResourceType.User], tokenAccessScope);
+    const agent = await ctx.session.getAgent(
+      ctx,
+      data,
+      [AppResourceTypeMap.User],
+      tokenAccessScope
+    );
     appAssert(agent.user, new ServerError());
     return agent.user;
   };
@@ -118,8 +133,12 @@ export default class SessionContext implements SessionContextType {
     expectedTokenScopes: TokenAccessScope | TokenAccessScope[]
   ) => {
     const tokenScopes = tokenData.scope ?? [];
-    const expectedTokenScopesMap = indexArray(toArray(expectedTokenScopes), {reducer: () => true});
-    const hasTokenAccessScope = !!tokenScopes.find(nextScope => expectedTokenScopesMap[nextScope]);
+    const expectedTokenScopesMap = indexArray(toArray(expectedTokenScopes), {
+      reducer: () => true,
+    });
+    const hasTokenAccessScope = !!tokenScopes.find(
+      nextScope => expectedTokenScopesMap[nextScope]
+    );
     return hasTokenAccessScope;
   };
 
@@ -145,7 +164,9 @@ export default class SessionContext implements SessionContextType {
     permittedAgentTypes?: AppResourceType | AppResourceType[]
   ) {
     if (permittedAgentTypes?.length) {
-      const permittedAgent = toArray(permittedAgentTypes).find(type => type === agent.agentType);
+      const permittedAgent = toArray(permittedAgentTypes).find(
+        type => type === agent.agentType
+      );
 
       if (!permittedAgent) throw new PermissionDeniedError();
     }
@@ -156,7 +177,11 @@ export default class SessionContext implements SessionContextType {
     agent: SessionAgent,
     tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
   ) {
-    if (tokenAccessScope && agent.agentType === AppResourceType.User && agent.agentToken) {
+    if (
+      tokenAccessScope &&
+      agent.agentType === AppResourceTypeMap.User &&
+      agent.agentToken
+    ) {
       if (!ctx.session.tokenContainsScope(agent.agentToken, tokenAccessScope))
         throw new PermissionDeniedError();
     }
@@ -166,16 +191,16 @@ export default class SessionContext implements SessionContextType {
     agent: SessionAgent,
     tokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) {
-    if (agent.agentType === AppResourceType.User) {
+    if (agent.agentType === AppResourceTypeMap.User) {
       appAssert(agent.user);
       if (agent.user.requiresPasswordChange) {
         const scopeList = toArray(tokenAccessScope);
         const agentToken = agent.agentToken;
         if (
           !agentToken ||
-          !this.tokenContainsScope(agentToken, TokenAccessScope.ChangePassword) ||
+          !this.tokenContainsScope(agentToken, TokenAccessScopeMap.ChangePassword) ||
           // Action must be strictly change password
-          first(scopeList) !== TokenAccessScope.ChangePassword ||
+          first(scopeList) !== TokenAccessScopeMap.ChangePassword ||
           scopeList.length > 1
         )
           throw reuseableErrors.user.changePassword();
