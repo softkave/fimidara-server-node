@@ -38,8 +38,8 @@ describe('updateUser', () => {
     assertContext(context);
     const {userToken} = await insertUserForTest(context);
     const updateInput = {
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
       email: faker.internet.email(),
     };
     const instData = RequestData.fromExpressRequest<UpdateUserEndpointParams>(
@@ -52,7 +52,9 @@ describe('updateUser', () => {
 
     const savedUser = await populateUserWorkspaces(
       context,
-      await context.semantic.user.assertGetOneByQuery(UserQueries.getById(result.user.resourceId))
+      await context.semantic.user.assertGetOneByQuery(
+        UserQueries.getById(result.user.resourceId)
+      )
     );
     expect(userExtractor(savedUser)).toMatchObject(result.user);
     expect(savedUser).toMatchObject(updateInput);

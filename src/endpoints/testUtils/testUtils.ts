@@ -163,8 +163,8 @@ export async function insertUserForTest(
   const instData = RequestData.fromExpressRequest<SignupEndpointParams>(
     mockExpressRequest(),
     {
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
       email: faker.internet.email(),
       password: faker.internet.password(),
       ...userInput,

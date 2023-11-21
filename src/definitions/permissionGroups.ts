@@ -20,7 +20,10 @@ export type PermissionEntityInheritanceMapItem = {
   resolvedOrder?: number;
 };
 
-export type PermissionEntityInheritanceMap = Record<string, PermissionEntityInheritanceMapItem>;
+export type PermissionEntityInheritanceMap = Record<
+  string,
+  PermissionEntityInheritanceMapItem
+>;
 
 export interface PermissionGroupMatcher {
   permissionGroupId?: string;

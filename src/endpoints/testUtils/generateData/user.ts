@@ -1,4 +1,5 @@
 import {faker} from '@faker-js/faker';
+import {AppResourceTypeMap} from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
@@ -8,7 +9,6 @@ import {
   GeneratePartialTestDataFn,
   generateTestList,
 } from './utils';
-import {AppResourceTypeMap} from '../../../definitions/system';
 
 export function generateUserForTest(seed: Partial<User> = {}) {
   const createdAt = getTimestamp();
@@ -16,8 +16,8 @@ export function generateUserForTest(seed: Partial<User> = {}) {
     resourceId: getNewIdForResource(AppResourceTypeMap.User),
     createdAt,
     lastUpdatedAt: createdAt,
-    firstName: faker.name.firstName(),
-    lastName: faker.name.lastName(),
+    firstName: faker.person.firstName(),
+    lastName: faker.person.lastName(),
     email: faker.internet.email(),
     hash: '',
     passwordLastChangedAt: getTimestamp(),

@@ -29,10 +29,6 @@ import {
   resolveTargetChildrenAccessCheckWithAgent,
 } from '../checkAuthorizaton';
 
-/**
- * - returns correct access permission
- */
-
 let context: BaseContextType | null = null;
 
 beforeAll(async () => {
@@ -646,7 +642,7 @@ describe('checkAuthorization', () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
-    const [folder01, folder02] = await generateAndInsertTestFolders(context, 1, {
+    const [folder01, folder02] = await generateAndInsertTestFolders(context, 2, {
       workspaceId: rawWorkspace.resourceId,
       parentId: null,
     });
@@ -766,6 +762,7 @@ describe('checkAuthorization', () => {
       workspace: rawWorkspace,
     });
 
+    expect(resolveResult.access).toBe('partial');
     assert(resolveResult.access === 'partial');
     expect(resolveResult.item).toBeFalsy();
     expect(resolveResult.partialAllowIds?.length).toBe(1);
@@ -810,7 +807,7 @@ describe('checkAuthorization', () => {
     });
 
     assert(resolveResult.access === 'full');
-    expect(resolveResult.item).toBeFalsy();
+    expect(resolveResult.item).toBeTruthy();
     expect(resolveResult.partialDenyIds?.length).toBe(1);
     expect(resolveResult.partialDenyItems?.length).toBe(1);
     expect(resolveResult.partialDenyIds).toContain(file01.resourceId);

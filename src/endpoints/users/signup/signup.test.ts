@@ -3,7 +3,11 @@ import {BaseContextType} from '../../contexts/types';
 import {generateAndInsertUserListForTest} from '../../testUtils/generateData/user';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTest} from '../../testUtils/helpers/test';
-import {assertContext, initTestBaseContext, insertUserForTest} from '../../testUtils/testUtils';
+import {
+  assertContext,
+  initTestBaseContext,
+  insertUserForTest,
+} from '../../testUtils/testUtils';
 import UserQueries from '../UserQueries';
 import {EmailAddressNotAvailableError} from '../errors';
 
@@ -26,8 +30,8 @@ describe('signup', () => {
   test('user signup successful with token creation', async () => {
     assertContext(context);
     const userInput = {
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
       email: faker.internet.email(),
       password: faker.internet.password(),
     };
@@ -44,8 +48,8 @@ describe('signup', () => {
   test('new signups are waitlisted', async () => {
     assertContext(context);
     const userInput = {
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
       email: faker.internet.email(),
       password: faker.internet.password(),
     };
@@ -68,8 +72,8 @@ describe('signup', () => {
     await generateAndInsertUserListForTest(context, /** count */ 1, () => ({email}));
     const userInput = {
       email,
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
       password: faker.internet.password(),
     };
 

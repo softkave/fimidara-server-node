@@ -19,8 +19,8 @@ const appOptions: ISetupDevUserOptions = {
   getUserEmail: () => Promise.resolve({email: faker.internet.email()}),
   getUserInfo: () =>
     Promise.resolve({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
       password: faker.internet.password(),
     }),
   getUserPassword: () =>
@@ -46,7 +46,9 @@ describe('dev user setup', () => {
       ...appOptions,
       getUserEmail: () => Promise.resolve({email: userEmail.email}),
     });
-    const user = await context.semantic.user.assertGetOneByQuery({email: userEmail.email});
+    const user = await context.semantic.user.assertGetOneByQuery({
+      email: userEmail.email,
+    });
     expect(user.requiresPasswordChange).toBeFalsy();
   });
 });

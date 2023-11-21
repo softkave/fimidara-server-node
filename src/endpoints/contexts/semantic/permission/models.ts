@@ -10,7 +10,7 @@ import {
   Resource,
 } from '../../../../definitions/system';
 import {appAssert} from '../../../../utils/assertion';
-import {toNonNullableArray} from '../../../../utils/fns';
+import {toArray} from '../../../../utils/fns';
 import {indexArray} from '../../../../utils/indexArray';
 import {getResourceTypeFromId} from '../../../../utils/resource';
 import {reuseableErrors} from '../../../../utils/reusableErrors';
@@ -42,7 +42,7 @@ export class DataSemanticDataAccessPermission
 
       let nextIdList = [props.entityId];
       const map: PermissionEntityInheritanceMap = {
-        [props.entityId]: {id: props.entityId, items: []},
+        [props.entityId]: {id: props.entityId, items: [], resolvedOrder: 0},
       };
       const maxDepth = props.fetchDeep ? 20 : 1;
 
@@ -57,7 +57,11 @@ export class DataSemanticDataAccessPermission
         const nextIdMap: Record<string, string> = {};
         assignedItems.forEach(item => {
           nextIdMap[item.assignedItemId] = item.assignedItemId;
-          map[item.assignedItemId] = {id: item.assignedItemId, items: []};
+          map[item.assignedItemId] = {
+            id: item.assignedItemId,
+            items: [],
+            resolvedOrder: depth + 1,
+          };
           const entry = map[item.assigneeId];
 
           if (entry) {
@@ -70,6 +74,7 @@ export class DataSemanticDataAccessPermission
             entry.items.push(meta);
           }
         });
+
         nextIdList = Object.values(nextIdMap);
       }
 
@@ -158,24 +163,22 @@ export class DataSemanticDataAccessPermission
     items: PermissionItem[],
     sortByDate?: boolean
   ): PermissionItem[] {
-    const targetIdMap = indexArray(toNonNullableArray(targetId), {
+    const targetIdMap = indexArray(toArray(targetId), {
       reducer: (item, arr, i) => i,
     });
 
     return items.sort((item01, item02) => {
-      if (item01.targetId !== item01.targetId) {
-        if (targetIdMap) {
-          return (
-            (targetIdMap[item01.targetId] ?? Number.MAX_SAFE_INTEGER) -
-            (targetIdMap[item02.targetId] ?? Number.MAX_SAFE_INTEGER)
-          );
-        }
+      if (item01.targetId !== item02.targetId) {
+        return (
+          (targetIdMap[item01.targetId] ?? Number.MAX_SAFE_INTEGER) -
+          (targetIdMap[item02.targetId] ?? Number.MAX_SAFE_INTEGER)
+        );
       } else if (sortByDate) {
         return item01.lastUpdatedAt - item02.lastUpdatedAt;
       }
 
       // Maintain current order.
-      return -1;
+      return 0;
     });
   }
 

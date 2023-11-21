@@ -1,7 +1,9 @@
 import {faker} from '@faker-js/faker';
 import {merge} from 'lodash';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {AppResourceType, AppResourceTypeMap} from '../../../definitions/system';
+import {Agent, AppResourceType, AppResourceTypeMap} from '../../../definitions/system';
+import {getNewIdForResource} from '../../../utils/resource';
+import {seed} from 'faker';
 
 export type GeneratePartialTestDataFn<T> = (
   index: number,
@@ -36,4 +38,15 @@ export function randomResourceType(
 
 export function randomAction(actions = Object.values(kPermissionsMap)) {
   return faker.helpers.arrayElement(actions);
+}
+
+export function generateAgent(seed: Partial<Agent> = {}): Agent {
+  const agentType = AppResourceTypeMap.AgentToken;
+  const agentTokenId = getNewIdForResource(agentType);
+  return {
+    agentType,
+    agentTokenId,
+    agentId: agentTokenId,
+    ...seed,
+  };
 }

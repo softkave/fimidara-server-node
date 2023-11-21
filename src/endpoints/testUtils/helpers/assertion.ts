@@ -63,7 +63,12 @@ export function expectContainsExactlyForAnyType<T2, T1>(
   expectedIndexer: (item: T2) => string
 ) {
   expect(received.length).toEqual(expected.length);
-  expectContainsEveryItemInForAnyType(received, expected, receivedIndexer, expectedIndexer);
+  expectContainsEveryItemInForAnyType(
+    received,
+    expected,
+    receivedIndexer,
+    expectedIndexer
+  );
 }
 
 /**
