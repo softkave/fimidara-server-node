@@ -5,7 +5,7 @@ import {indexArray} from '../../../utils/indexArray';
 import {getInAndNinQuery} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 
-export async function expectEntityHavePermissionsTargetingId(
+export async function expectEntityHasPermissionsTargetingId(
   context: BaseContextType,
   entityId: string | string[],
   action: PermissionAction | PermissionAction[],

@@ -33,3 +33,5 @@
 - Keep record of all permissions used to allow or deny access
 - Implement soft-delete through out the app
 - Implement streaming + fan out, use case, like listeners, live video, etc
+- Separate process file resizing
+- File and folder exists + transfer

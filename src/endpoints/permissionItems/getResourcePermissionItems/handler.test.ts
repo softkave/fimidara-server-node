@@ -1,10 +1,9 @@
 import {faker} from '@faker-js/faker';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {getResourceId} from '../../../utils/fns';
+import {AppResourceTypeMap} from '../../../definitions/system';
 import RequestData from '../../RequestData';
 import {BaseContextType} from '../../contexts/types';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
-import {expectContainsExactly} from '../../testUtils/helpers/assertion';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertContext,
@@ -20,7 +19,6 @@ import {AddPermissionItemsEndpointParams} from '../addItems/types';
 import {PermissionItemInput} from '../types';
 import {default as getResourcePermissionItems} from './handler';
 import {GetResourcePermissionItemsEndpointParams} from './types';
-import {AppResourceTypeMap} from '../../../definitions/system';
 
 let context: BaseContextType | null = null;
 
@@ -54,7 +52,8 @@ describe.skip('getResourcePermissionItems', () => {
         mockExpressRequestWithAgentToken(userToken),
         {items: inputItems, workspaceId: workspace.resourceId}
       );
-    const {items} = await addPermissionItems(context, addPermissionItemsReqData);
+    await addPermissionItems(context, addPermissionItemsReqData);
+
     const instData =
       RequestData.fromExpressRequest<GetResourcePermissionItemsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
@@ -62,7 +61,8 @@ describe.skip('getResourcePermissionItems', () => {
       );
     const result = await getResourcePermissionItems(context, instData);
     assertEndpointResultOk(result);
-    expectContainsExactly(items, result.items, getResourceId);
+
+    throw new Error('Check that permissions belong to target');
   });
 
   test('pagination', async () => {

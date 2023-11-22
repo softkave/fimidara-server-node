@@ -4,7 +4,10 @@ import http = require('http');
 import {expressjwt} from 'express-jwt';
 import {getMongoConnection} from './db/connection';
 import {endpointConstants} from './endpoints/constants';
-import BaseContext, {getEmailProvider, getFileProvider} from './endpoints/contexts/BaseContext';
+import BaseContext, {
+  getEmailProvider,
+  getFileProvider,
+} from './endpoints/contexts/BaseContext';
 import {BaseContextType} from './endpoints/contexts/types';
 import {
   getLogicProviders,

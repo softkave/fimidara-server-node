@@ -17,11 +17,13 @@ export async function insertTagForTest(
   tagInput: Partial<NewTagInput> = {}
 ) {
   const instData = RequestData.fromExpressRequest<AddTagEndpointParams>(
-    userToken ? mockExpressRequestWithAgentToken(userToken) : mockExpressRequestForPublicAgent(),
+    userToken
+      ? mockExpressRequestWithAgentToken(userToken)
+      : mockExpressRequestForPublicAgent(),
     {
       workspaceId,
       tag: {
-        name: faker.random.words(),
+        name: faker.lorem.words(),
         description: faker.lorem.paragraph(),
         ...tagInput,
       },

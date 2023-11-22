@@ -37,19 +37,15 @@ describe.skip('getEntityPermissionitems', () => {
       userToken,
       workspace.resourceId
     );
-    const {items} = await insertPermissionItemsForTest(
-      context,
-      userToken,
-      workspace.resourceId,
-      [
-        {
-          entityId: permissionGroup.resourceId,
-          target: {targetId: workspace.resourceId},
-          access: true,
-          action: 'readFile',
-        },
-      ]
-    );
+    await insertPermissionItemsForTest(context, userToken, workspace.resourceId, [
+      {
+        entityId: permissionGroup.resourceId,
+        target: {targetId: workspace.resourceId},
+        access: true,
+        action: 'readFile',
+      },
+    ]);
+
     const instData =
       RequestData.fromExpressRequest<GetEntityPermissionItemsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
@@ -60,7 +56,8 @@ describe.skip('getEntityPermissionitems', () => {
       );
     const result = await getEntityPermissionItems(context, instData);
     assertEndpointResultOk(result);
-    expect(result.items).toEqual(items);
+
+    throw new Error('Check that permissions belong to entity');
   });
 
   test('pagination', async () => {

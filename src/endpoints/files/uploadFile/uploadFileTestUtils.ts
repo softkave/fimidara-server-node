@@ -26,7 +26,10 @@ import {DeleteFileEndpointParams} from '../deleteFile/types';
 import getFile from '../readFile/handler';
 import {ReadFileEndpointParams} from '../readFile/types';
 import updateFileDetails from '../updateFileDetails/handler';
-import {UpdateFileDetailsEndpointParams, UpdateFileDetailsInput} from '../updateFileDetails/types';
+import {
+  UpdateFileDetailsEndpointParams,
+  UpdateFileDetailsInput,
+} from '../updateFileDetails/types';
 import {fileExtractor} from '../utils';
 import {UploadFileEndpointParams} from './types';
 
@@ -39,7 +42,8 @@ export const uploadFileBaseTest = async (
 ) => {
   insertUserResult = insertUserResult ?? (await insertUserForTest(ctx));
   insertWorkspaceResult =
-    insertWorkspaceResult ?? (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
+    insertWorkspaceResult ??
+    (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
   const {file, dataBuffer} = await insertFileForTest(
     ctx,
     insertUserResult.userToken,
@@ -161,12 +165,15 @@ export type TimedNoopFilePersistenceProviderContext_Invocations = Array<{
   startMs: number;
   endMs: number;
 }>;
+
 export type TimedNoopFilePersistenceProviderContext_TimeoutMap = PartialRecord<
   keyof FilePersistenceProviderContext,
   number
 >;
 
-export class TimedNoopFilePersistenceProviderContext implements FilePersistenceProviderContext {
+export class TimedNoopFilePersistenceProviderContext
+  implements FilePersistenceProviderContext
+{
   static kDefaultTimeout = 200; // milliseconds
   static mockFn = <TFn extends AnyFn>(
     fn: TFn,
@@ -184,11 +191,14 @@ export class TimedNoopFilePersistenceProviderContext implements FilePersistenceP
 
   private invocations: TimedNoopFilePersistenceProviderContext_Invocations = [];
 
-  constructor(private timeoutMap: TimedNoopFilePersistenceProviderContext_TimeoutMap = {}) {}
+  constructor(
+    private timeoutMap: TimedNoopFilePersistenceProviderContext_TimeoutMap = {}
+  ) {}
 
   uploadFile = TimedNoopFilePersistenceProviderContext.mockFn(
     makeWaitTimeoutFn(
-      this.timeoutMap['uploadFile'] ?? TimedNoopFilePersistenceProviderContext.kDefaultTimeout
+      this.timeoutMap['uploadFile'] ??
+        TimedNoopFilePersistenceProviderContext.kDefaultTimeout
     ),
     this.invocations,
     'uploadFile'
@@ -197,7 +207,8 @@ export class TimedNoopFilePersistenceProviderContext implements FilePersistenceP
   getFile = TimedNoopFilePersistenceProviderContext.mockFn(
     async () => {
       await waitTimeout(
-        this.timeoutMap['getFile'] ?? TimedNoopFilePersistenceProviderContext.kDefaultTimeout
+        this.timeoutMap['getFile'] ??
+          TimedNoopFilePersistenceProviderContext.kDefaultTimeout
       );
       return Promise.resolve({});
     },
@@ -207,7 +218,8 @@ export class TimedNoopFilePersistenceProviderContext implements FilePersistenceP
 
   deleteFiles = TimedNoopFilePersistenceProviderContext.mockFn(
     makeWaitTimeoutFn(
-      this.timeoutMap['deleteFiles'] ?? TimedNoopFilePersistenceProviderContext.kDefaultTimeout
+      this.timeoutMap['deleteFiles'] ??
+        TimedNoopFilePersistenceProviderContext.kDefaultTimeout
     ),
     this.invocations,
     'deleteFiles'

@@ -10,7 +10,7 @@ import {UserWithWorkspace} from '../../../definitions/user';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
-import {defaultArrayTo, toArray, toCompactArray} from '../../../utils/fns';
+import {toArray, toCompactArray, toUniqArray} from '../../../utils/fns';
 import {getResourceTypeFromId} from '../../../utils/resource';
 import {reuseableErrors} from '../../../utils/reusableErrors';
 import {Omit1} from '../../../utils/types';
@@ -187,7 +187,7 @@ export async function fetchAgentPermissionItems(
 ) {
   const {context, workspaceId, target} = params;
   const action = [target.action].concat(kPermissionsMap.wildcard),
-    targetId = defaultArrayTo(toCompactArray(target.targetId), workspaceId);
+    targetId = toUniqArray(target.targetId, workspaceId);
   const {entityIdList} = await resolveEntityData(params);
 
   return await context.semantic.permissions.getPermissionItems(

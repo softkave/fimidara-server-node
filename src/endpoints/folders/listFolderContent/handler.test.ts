@@ -284,6 +284,7 @@ describe('listFolderContent', () => {
       {folderpath: stringifyFolderNamePath(folder01, workspace.rootname)}
     );
     const result01 = await listFolderContent(context, instData);
+
     assertEndpointResultOk(result01);
     expectContainsExactly(result01.folders, [folder02], getResourceId);
     expectContainsExactly(result01.files, [file01], getResourceId);

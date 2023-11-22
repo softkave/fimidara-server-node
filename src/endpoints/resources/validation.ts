@@ -6,10 +6,11 @@ import resourcesConstants from './constants';
 import {FetchResourceItem} from './types';
 
 const fetchResourceItem = Joi.object<FetchResourceItem>().keys({
-  resourceId: validationSchemas.resourceId.required(),
+  resourceId: validationSchemas.resourceId,
   folderpath: permissionItemValidationSchemas.targetParts.folderpath,
   filepath: permissionItemValidationSchemas.targetParts.filepath,
   workspaceRootname: workspaceValidationSchemas.rootname,
+  action: validationSchemas.crudAction.required(),
 });
 
 const fetchResourceItemList = Joi.array()

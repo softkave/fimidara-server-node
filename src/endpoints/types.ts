@@ -15,18 +15,22 @@ export interface BaseEndpointResult {
 export type Endpoint<
   TContext extends BaseContextType = BaseContextType,
   TParams = any,
-  TResult = any
+  TResult = void
 > = (
   context: TContext,
   instData: RequestData<TParams>
-) => Promise<TResult & BaseEndpointResult>;
+) => Promise<
+  TResult extends void ? void | BaseEndpointResult : TResult & BaseEndpointResult
+>;
 
 export type InferEndpointResult<TEndpoint> = TEndpoint extends Endpoint<
   any,
   any,
   infer InferedResult
 >
-  ? InferedResult
+  ? InferedResult extends AnyObject
+    ? InferedResult
+    : any
   : any;
 
 export type InferEndpointParams<TEndpoint> = TEndpoint extends Endpoint<

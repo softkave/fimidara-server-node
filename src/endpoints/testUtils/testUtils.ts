@@ -11,7 +11,7 @@ import {FileBackendType, FimidaraConfig} from '../../resources/types';
 import {fimidaraConfig} from '../../resources/vars';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
-import {toNonNullableArray} from '../../utils/fns';
+import {toArray} from '../../utils/fns';
 import RequestData from '../RequestData';
 import addAgentTokenEndpoint from '../agentTokens/addToken/handler';
 import {
@@ -112,10 +112,12 @@ export function assertContext(ctx: any): asserts ctx is BaseContextType {
   assert(ctx, 'Context is not yet initialized.');
 }
 
-export function assertEndpointResultOk(result: BaseEndpointResult) {
+export function assertEndpointResultOk(result?: BaseEndpointResult | void) {
   if (result?.errors?.length) {
     throw result.errors;
   }
+
+  return true;
 }
 
 export function mockExpressRequest(token?: BaseTokenData) {
@@ -262,7 +264,7 @@ export async function insertPermissionItemsForTest(
 ) {
   const instData = RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
-    {workspaceId, items: toNonNullableArray(input)}
+    {workspaceId, items: toArray(input)}
   );
   const result = await addPermissionItems(context, instData);
   assertEndpointResultOk(result);

@@ -7,6 +7,7 @@ export interface FetchResourceItem {
   filepath?: string | string[];
   folderpath?: string | string[];
   workspaceRootname?: string;
+  // TODO: make action optional and default read action for resource
   action: PermissionAction;
 }
 

@@ -1,4 +1,4 @@
-import {compact, flatten} from 'lodash';
+import {compact, flatten, uniq} from 'lodash';
 import {Readable} from 'stream';
 import {Resource} from '../definitions/system';
 import {AnyFn, AnyObject} from './types';
@@ -161,6 +161,7 @@ export function toArray<T>(...args: Array<T | T[]>) {
   return flatten(arrays);
 }
 
+/** @deprecated cast instead */
 export function toNonNullableArray<T>(...args: Array<NonNullable<T | T[]>>) {
   return toArray(...args);
 }
@@ -172,6 +173,11 @@ export function toNonNullableArray<T>(...args: Array<NonNullable<T | T[]>>) {
 export function toCompactArray<T>(...args: Array<T | T[]>) {
   const array = toArray(...args);
   return compact(array as Array<NonNullable<T> | undefined>);
+}
+
+export function toUniqArray<T>(...args: Array<T | T[]>) {
+  const array = toArray(...args);
+  return uniq(array);
 }
 
 export function defaultArrayTo<T>(array: T[], data: NonNullable<T | T[]>) {

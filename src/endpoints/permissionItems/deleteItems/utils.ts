@@ -41,7 +41,10 @@ export const INTERNAL_deletePermissionItems = async (
 
   // For indexing files and folders by name path
   const indexByNamePath = (item: ResourceWrapper) => {
-    if (item.resourceType === AppResourceTypeMap.File || AppResourceTypeMap.Folder)
+    if (
+      item.resourceType === AppResourceTypeMap.File ||
+      item.resourceType === AppResourceTypeMap.Folder
+    )
       return (item.resource as unknown as Pick<File, 'namePath'>).namePath.join(
         folderConstants.nameSeparator
       );

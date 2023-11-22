@@ -1,4 +1,4 @@
-import {forEach, get, has, last, set} from 'lodash';
+import {forEach, get, has, set} from 'lodash';
 import {File} from '../../../definitions/file';
 import {
   PermissionAction,
@@ -21,7 +21,6 @@ import {
 } from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {getResourceTypeFromId, newWorkspaceResource} from '../../../utils/resource';
-import {getResourcePermissionContainers} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
 import {InvalidRequestError} from '../../errors';
@@ -187,12 +186,8 @@ export const INTERNAL_addPermissionItems = async (
       item.target.resourceType === AppResourceTypeMap.File ||
       item.target.resourceType === AppResourceTypeMap.Folder
     ) {
-      const containerIds = getResourcePermissionContainers(
-        workspace.resourceId,
-        item.target.resource,
-        true
-      );
-      const containerId = last(containerIds);
+      const idPath = (item.target.resource as unknown as Pick<File, 'idPath'>).idPath;
+      const containerId = idPath[idPath.length - 2] ?? workspace.resourceId;
       appAssert(containerId);
       targetParentId = containerId;
     } else {
@@ -227,6 +222,7 @@ export const INTERNAL_addPermissionItems = async (
   const map: {} = {};
   existingPermissionItems.forEach(item => {
     const key = [item.entityId, item.targetId, item.action, String(item.access)];
+
     if (!has(map, key)) {
       set(map, key, item);
     }
@@ -242,7 +238,13 @@ export const INTERNAL_addPermissionItems = async (
     ];
     const existingItem = get(map, key);
     const wildcardItem = get(map, wildcardKey);
-    return !existingItem && !wildcardItem;
+    const isNew = !existingItem && !wildcardItem;
+
+    if (isNew) {
+      set(map, key, item);
+    }
+
+    return isNew;
   });
 
   await context.semantic.permissionItem.insertItem(newPermissions, opts);
