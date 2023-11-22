@@ -23,7 +23,7 @@ export async function getWorkspaceSummedUsageQuery(
 
   const query: LiteralDataQuery<UsageRecord> = {
     workspaceId: {$eq: workspaceId},
-    summationType: {$eq: UsageSummationTypeMap.Two},
+    summationType: {$eq: UsageSummationTypeMap.Month},
   };
 
   if (data.query?.fromDate || data.query?.toDate) {

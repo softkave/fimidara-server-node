@@ -77,7 +77,7 @@ describe('getWorkspaceSummedUsage', () => {
     const {userToken} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     const records = await generateAndInsertUsageRecordList(context, 10, {
-      summationType: UsageSummationTypeMap.Two,
+      summationType: UsageSummationTypeMap.Month,
       fulfillmentStatus: UsageRecordFulfillmentStatusMap.Fulfilled,
       workspaceId: workspace.resourceId,
     });
@@ -189,12 +189,12 @@ describe('getWorkspaceSummedUsage', () => {
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     await generateAndInsertUsageRecordList(context, 15, {
       workspaceId: workspace.resourceId,
-      summationType: UsageSummationTypeMap.Two,
+      summationType: UsageSummationTypeMap.Month,
       fulfillmentStatus: UsageRecordFulfillmentStatusMap.Fulfilled,
     });
     const count = await context.semantic.usageRecord.countByQuery({
       workspaceId: workspace.resourceId,
-      summationType: UsageSummationTypeMap.Two,
+      summationType: UsageSummationTypeMap.Month,
       fulfillmentStatus: UsageRecordFulfillmentStatusMap.Fulfilled,
     });
     const pageSize = 10;

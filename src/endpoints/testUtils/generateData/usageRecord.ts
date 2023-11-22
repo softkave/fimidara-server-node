@@ -36,7 +36,7 @@ function randomCategory() {
 
 function randomSummationType() {
   const r = random(0, 1);
-  return r === 0 ? UsageSummationTypeMap.One : UsageSummationTypeMap.Two;
+  return r === 0 ? UsageSummationTypeMap.Instance : UsageSummationTypeMap.Month;
 }
 
 function randomFulfillmentStatus() {

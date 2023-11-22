@@ -99,7 +99,7 @@ async function sumUsageRecordsLevel1(connection: Connection, recordLevel2: Usage
         category: recordLevel2.category,
         createdAt: {$gt: fromDate, $lt: endDate},
         fulfillmentStatus: recordLevel2.fulfillmentStatus,
-        summationType: UsageSummationTypeMap.One,
+        summationType: UsageSummationTypeMap.Instance,
       })
       .sort({createdAt: 1})
       .limit(500)
@@ -140,7 +140,7 @@ async function getUsageRecordsLevel2(
       month,
       year,
       fulfillmentStatus,
-      summationType: UsageSummationTypeMap.Two,
+      summationType: UsageSummationTypeMap.Month,
     })
     .lean()
     .exec();
@@ -159,7 +159,7 @@ async function getUsageRecordsLevel2(
         lastUpdatedAt: getTimestamp(),
         lastUpdatedBy: SYSTEM_SESSION_AGENT,
         category: k,
-        summationType: UsageSummationTypeMap.Two,
+        summationType: UsageSummationTypeMap.Month,
         usage: 0,
         usageCost: 0,
         artifacts: [],

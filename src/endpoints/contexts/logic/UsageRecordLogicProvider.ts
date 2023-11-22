@@ -28,13 +28,23 @@ export interface UsageRecordInput {
   artifacts?: UsageRecordArtifact[];
 }
 
+export type UsageRecordInsertStatus =
+  | {
+      permitted: true;
+      reason: null;
+    }
+  | {
+      permitted: false;
+      reason: UsageRecordDropReason;
+    };
+
 export class UsageRecordLogicProvider {
   insert = async (
     ctx: BaseContextType,
     agent: Agent,
     input: UsageRecordInput,
     opts: SemanticDataAccessProviderMutationRunOptions
-  ) => {
+  ): Promise<UsageRecordInsertStatus> => {
     const record = this.makeLevel01Record(agent, input);
     const workspace = await ctx.semantic.workspace.getOneById(record.workspaceId, opts);
     assertWorkspace(workspace);
@@ -47,7 +57,7 @@ export class UsageRecordLogicProvider {
     );
 
     if (billOverdue) {
-      return false;
+      return {permitted: false, reason: UsageRecordDropReasonMap.BillOverdue};
     }
 
     const usageExceeded = await this.checkWorkspaceUsageLocks(
@@ -59,7 +69,7 @@ export class UsageRecordLogicProvider {
     );
 
     if (usageExceeded) {
-      return false;
+      return {permitted: false, reason: UsageRecordDropReasonMap.UsageExceeded};
     }
 
     const exceedsRemainingUsage = await this.checkExceedsRemainingUsage(
@@ -71,10 +81,10 @@ export class UsageRecordLogicProvider {
     );
 
     if (exceedsRemainingUsage) {
-      return false;
+      return {permitted: false, reason: UsageRecordDropReasonMap.ExceedsRemainingUsage};
     }
 
-    return true;
+    return {permitted: true, reason: null};
   };
 
   private makeLevel01Record = (agent: Agent, input: UsageRecordInput) => {
@@ -87,7 +97,7 @@ export class UsageRecordLogicProvider {
         ...input,
         resourceId:
           input.resourceId ?? getNewIdForResource(AppResourceTypeMap.UsageRecord),
-        summationType: UsageSummationTypeMap.One,
+        summationType: UsageSummationTypeMap.Instance,
         fulfillmentStatus: UsageRecordFulfillmentStatusMap.Undecided,
         artifacts: defaultTo(input.artifacts, []),
         usageCost: getCostForUsage(input.category, input.usage),
@@ -112,7 +122,7 @@ export class UsageRecordLogicProvider {
         month: record.month,
         year: record.year,
         artifacts: [],
-        summationType: UsageSummationTypeMap.Two,
+        summationType: UsageSummationTypeMap.Month,
         ...seed,
       }
     );
@@ -131,7 +141,7 @@ export class UsageRecordLogicProvider {
         category,
         month: record.month,
         year: record.year,
-        summationType: UsageSummationTypeMap.Two,
+        summationType: UsageSummationTypeMap.Month,
         fulfillmentStatus: status,
         workspaceId: record.workspaceId,
       },

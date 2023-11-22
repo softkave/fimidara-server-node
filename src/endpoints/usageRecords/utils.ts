@@ -35,12 +35,13 @@ async function insertRecord(
   const agent = getActionAgentFromSessionAgent(
     await ctx.session.getAgent(ctx, reqData, PERMISSION_AGENT_TYPES)
   );
-  const allowed = await ctx.logic.usageRecord.insert(ctx, agent, input, opts);
-  if (!allowed && !nothrow) {
+  const {permitted} = await ctx.logic.usageRecord.insert(ctx, agent, input, opts);
+
+  if (!permitted && !nothrow) {
     throw new UsageLimitExceededError();
   }
 
-  return allowed;
+  return permitted;
 }
 
 export async function insertStorageUsageRecordInput(

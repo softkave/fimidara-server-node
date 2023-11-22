@@ -23,6 +23,12 @@ export const WorkspaceBillStatusMap = {
 } as const;
 
 export type WorkspaceBillStatus = ObjectValues<typeof WorkspaceBillStatusMap>;
+export type UsageThresholdsByCategory = Partial<
+  Record<UsageRecordCategory, UsageThreshold>
+>;
+export type UsageThresholdLocksByCategory = Partial<
+  Record<UsageRecordCategory, UsageThresholdLock>
+>;
 
 export interface Workspace extends WorkspaceResource {
   /**
@@ -38,8 +44,8 @@ export interface Workspace extends WorkspaceResource {
   publicPermissionGroupId: string;
   billStatusAssignedAt: number;
   billStatus: WorkspaceBillStatus;
-  usageThresholds: Partial<Record<UsageRecordCategory, UsageThreshold>>;
-  usageThresholdLocks: Partial<Record<UsageRecordCategory, UsageThresholdLock>>;
+  usageThresholds: UsageThresholdsByCategory;
+  usageThresholdLocks: UsageThresholdLocksByCategory;
 }
 
 export type PublicWorkspace = ConvertAgentToPublicAgent<Workspace>;

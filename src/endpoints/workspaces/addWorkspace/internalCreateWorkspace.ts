@@ -1,7 +1,11 @@
 import assert = require('assert');
 import {Agent, AppResourceTypeMap} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
-import {Workspace, WorkspaceBillStatusMap} from '../../../definitions/workspace';
+import {
+  UsageThresholdsByCategory,
+  Workspace,
+  WorkspaceBillStatusMap,
+} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {cast} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
@@ -24,7 +28,7 @@ export function transformUsageThresholInput(
   agent: Agent,
   input: Required<NewWorkspaceInput>['usageThresholds']
 ) {
-  const usageThresholds: Workspace['usageThresholds'] = {};
+  const usageThresholds: UsageThresholdsByCategory = {};
   cast<UsageRecordCategory[]>(Object.keys(input)).forEach(category => {
     const usageThreshold = input[category];
     assert(usageThreshold);
@@ -34,6 +38,7 @@ export function transformUsageThresholInput(
       lastUpdatedAt: getTimestamp(),
     };
   });
+
   return usageThresholds;
 }
 

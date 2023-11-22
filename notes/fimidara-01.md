@@ -26,3 +26,10 @@
 - Default permission group for collaborators
 - Surface type description in or and and combinations
 - Use and define sdk params
+- Concurrent file writes, and atomics
+- Store by how much usage is exceeded so that customers can plan accordingly
+- Allow customers specify throttling and rate-limiting
+- Keed record of all access and errors, and why, including check auth failures
+- Keep record of all permissions used to allow or deny access
+- Implement soft-delete through out the app
+- Implement streaming + fan out, use case, like listeners, live video, etc

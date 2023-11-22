@@ -1,8 +1,18 @@
 import {faker} from '@faker-js/faker';
+import {PartialDeep} from 'type-fest';
 import {Agent, AppResourceTypeMap} from '../../../definitions/system';
-import {UsageRecordCategoryMap} from '../../../definitions/usageRecord';
-import {Workspace, WorkspaceBillStatusMap} from '../../../definitions/workspace';
+import {
+  UsageRecordCategory,
+  UsageRecordCategoryMap,
+} from '../../../definitions/usageRecord';
+import {
+  UsageThresholdLocksByCategory,
+  UsageThresholdsByCategory,
+  Workspace,
+  WorkspaceBillStatusMap,
+} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
+import {cast, isObjectEmpty} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {BaseContextType} from '../../contexts/types';
 import {usageRecordConstants} from '../../usageRecords/constants';
@@ -10,13 +20,33 @@ import {transformUsageThresholInput} from '../../workspaces/addWorkspace/interna
 import {NewWorkspaceInput} from '../../workspaces/addWorkspace/types';
 import {makeRootnameFromName} from '../../workspaces/utils';
 
+function transformUsageThresholLocks(
+  agent: Agent,
+  input: PartialDeep<UsageThresholdLocksByCategory>
+) {
+  const locks: UsageThresholdLocksByCategory = {};
+  cast<UsageRecordCategory[]>(Object.keys(input)).forEach(category => {
+    const lock = input[category];
+    locks[category] = {
+      category,
+      lastUpdatedAt: getTimestamp(),
+      ...lock,
+      locked: lock?.locked ?? false,
+      lastUpdatedBy: {...agent, ...lock?.lastUpdatedBy},
+    };
+  });
+
+  return locks;
+}
+
 export function generateTestUsageThresholdInputMap(
-  threshold = usageRecordConstants.defaultTotalThresholdInUSD
+  threshold = usageRecordConstants.defaultTotalThresholdInUSD,
+  seed: PartialDeep<UsageThresholdsByCategory> = {}
 ): Required<NewWorkspaceInput>['usageThresholds'] {
   return {
     [UsageRecordCategoryMap.Storage]: {
       category: UsageRecordCategoryMap.Storage,
-      budget: threshold,
+      budget: seed.storage?.budget ?? threshold,
     },
     // [UsageRecordCategoryMap.Request]: {
     //   category: UsageRecordCategoryMap.Request,
@@ -24,51 +54,67 @@ export function generateTestUsageThresholdInputMap(
     // },
     [UsageRecordCategoryMap.BandwidthIn]: {
       category: UsageRecordCategoryMap.BandwidthIn,
-      budget: threshold,
+      budget: seed.bin?.budget ?? threshold,
     },
     [UsageRecordCategoryMap.BandwidthOut]: {
       category: UsageRecordCategoryMap.BandwidthOut,
-      budget: threshold,
+      budget: seed.bout?.budget ?? threshold,
     },
     // [UsageRecordCategoryMap.DatabaseObject]: {
     //   category: UsageRecordCategoryMap.DatabaseObject,
     //   budget: threshold,
     // },
-    [UsageRecordCategoryMap.Total]: {
-      category: UsageRecordCategoryMap.Total,
-      budget: threshold * Object.keys(UsageRecordCategoryMap).length,
-    },
+    [UsageRecordCategoryMap.Total]: isObjectEmpty(seed)
+      ? {
+          category: UsageRecordCategoryMap.Total,
+          budget: threshold * Object.keys(UsageRecordCategoryMap).length,
+        }
+      : {
+          category: UsageRecordCategoryMap.Total,
+          budget:
+            seed.total?.budget ??
+            Object.values(seed).reduce((sum, next) => sum + (next?.budget ?? 0), 0),
+        },
   };
 }
 
-export function generateTestWorkspace(seed: Partial<Workspace> = {}) {
+export function generateTestWorkspace(seed: PartialDeep<Workspace> = {}) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
     agentId: getNewIdForResource(AppResourceTypeMap.User),
     agentType: AppResourceTypeMap.User,
     agentTokenId: getNewIdForResource(AppResourceTypeMap.AgentToken),
+    ...seed.createdBy,
   };
+  const lastUpdatedBy: Agent = {...createdBy, ...seed.lastUpdatedBy};
   const name = faker.company.name();
   const resourceId = getNewIdForResource(AppResourceTypeMap.Workspace);
+
   const workspace: Workspace = {
     createdAt,
-    createdBy,
     name,
     resourceId,
     lastUpdatedAt: createdAt,
-    lastUpdatedBy: createdBy,
     workspaceId: resourceId,
     rootname: makeRootnameFromName(name),
     description: faker.lorem.sentence(),
     billStatus: WorkspaceBillStatusMap.Ok,
     billStatusAssignedAt: createdAt,
-    usageThresholds: transformUsageThresholInput(
-      createdBy,
-      generateTestUsageThresholdInputMap()
-    ),
-    usageThresholdLocks: {},
     publicPermissionGroupId: getNewIdForResource(AppResourceTypeMap.PermissionGroup),
     ...seed,
+    createdBy,
+    lastUpdatedBy,
+    usageThresholdLocks: transformUsageThresholLocks(
+      createdBy,
+      seed.usageThresholdLocks || {}
+    ),
+    usageThresholds: transformUsageThresholInput(
+      createdBy,
+      generateTestUsageThresholdInputMap(
+        usageRecordConstants.defaultTotalThresholdInUSD,
+        seed.usageThresholds
+      )
+    ),
   };
   return workspace;
 }

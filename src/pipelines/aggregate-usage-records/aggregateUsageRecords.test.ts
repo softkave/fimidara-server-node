@@ -258,7 +258,7 @@ async function checkFailedRecordExistsForFile(
       workspaceId: w1.resourceId,
       category: UsageRecordCategoryMap.Storage,
       fulfillmentStatus: UsageRecordFulfillmentStatusMap.Dropped,
-      summationType: UsageSummationTypeMap.One,
+      summationType: UsageSummationTypeMap.Instance,
       dropReason: UsageRecordDropReasonMap.UsageExceeded,
     })
     .lean()
@@ -308,7 +308,7 @@ async function assertRecordLevel2Exists(
       year,
       fulfillmentStatus,
       workspaceId: w.resourceId,
-      summationType: UsageSummationTypeMap.Two,
+      summationType: UsageSummationTypeMap.Month,
     })
     .lean()
     .exec();

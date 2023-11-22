@@ -5,9 +5,11 @@ import {getMongoConnection} from '../../../db/connection';
 import {AppResourceTypeMap} from '../../../definitions/system';
 import {
   UsageRecordCategoryMap,
+  UsageRecordDropReasonMap,
   UsageRecordFulfillmentStatusMap,
   UsageSummationTypeMap,
 } from '../../../definitions/usageRecord';
+import {WorkspaceBillStatusMap} from '../../../definitions/workspace';
 import {fimidaraConfig} from '../../../resources/vars';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {cast} from '../../../utils/fns';
@@ -27,7 +29,11 @@ import {
   getMongoModels,
 } from '../utils';
 import assert = require('assert');
-import {WorkspaceBillStatusMap} from '../../../definitions/workspace';
+
+/**
+ * TODO:
+ * - Test usage dropped because it exceeds remaining usage
+ */
 
 let connection: Connection | null = null;
 let context: BaseContextType | null = null;
@@ -74,7 +80,10 @@ async function getSumRecords(ctx: BaseContextType, recordId: string) {
 describe('UsageRecordLogicProvider', () => {
   test('record is fulfilled', async () => {
     const {context} = assertDeps();
-    const workspace = generateTestWorkspace();
+    const threshold = faker.number.int({min: 10});
+    const workspace = generateTestWorkspace({
+      usageThresholds: {storage: {budget: threshold}},
+    });
     await context.semantic.utils.withTxn(context, opts =>
       context!.semantic.workspace.insertItem(workspace, opts)
     );
@@ -83,14 +92,16 @@ describe('UsageRecordLogicProvider', () => {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
       category: UsageRecordCategoryMap.Storage,
-      usage: faker.datatype.number(),
+      usage: threshold - 1,
     };
+
     const status = await context.semantic.utils.withTxn(context, opts =>
       context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input, opts)
     );
-    expect(status).toBe(true);
+
+    expect(status).toMatchObject({permitted: true, reason: null});
     const {record} = await getSumRecords(context, recordId);
-    expect(record.summationType).toBe(UsageSummationTypeMap.One);
+    expect(record.summationType).toBe(UsageSummationTypeMap.Instance);
     expect(record.fulfillmentStatus).toBe(UsageRecordFulfillmentStatusMap.Fulfilled);
     expect(record).toMatchObject(input);
   });
@@ -107,14 +118,17 @@ describe('UsageRecordLogicProvider', () => {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
       category: UsageRecordCategoryMap.Storage,
-      usage: faker.datatype.number(),
+      usage: faker.number.int(),
     };
     const status = await context.semantic.utils.withTxn(context, opts =>
       context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input, opts)
     );
-    expect(status).toBe(false);
+    expect(status).toMatchObject({
+      permitted: false,
+      reason: UsageRecordDropReasonMap.BillOverdue,
+    });
     const {record} = await getSumRecords(context, recordId);
-    expect(record.summationType).toBe(UsageSummationTypeMap.One);
+    expect(record.summationType).toBe(UsageSummationTypeMap.Instance);
     expect(record.fulfillmentStatus).toBe(UsageRecordFulfillmentStatusMap.Dropped);
     expect(record).toMatchObject(input);
   });
@@ -132,14 +146,17 @@ describe('UsageRecordLogicProvider', () => {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
       category: UsageRecordCategoryMap.Storage,
-      usage: faker.datatype.number(),
+      usage: faker.number.int(),
     };
     const status = await context.semantic.utils.withTxn(context, opts =>
       context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input, opts)
     );
-    expect(status).toBe(false);
+    expect(status).toMatchObject({
+      permitted: false,
+      reason: UsageRecordDropReasonMap.UsageExceeded,
+    });
     const {record} = await getSumRecords(context, recordId);
-    expect(record.summationType).toBe(UsageSummationTypeMap.One);
+    expect(record.summationType).toBe(UsageSummationTypeMap.Instance);
     expect(record.fulfillmentStatus).toBe(UsageRecordFulfillmentStatusMap.Dropped);
     expect(record).toMatchObject(input);
   });
@@ -157,14 +174,17 @@ describe('UsageRecordLogicProvider', () => {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
       category: UsageRecordCategoryMap.Storage,
-      usage: faker.datatype.number(),
+      usage: faker.number.int(),
     };
     const status = await context.semantic.utils.withTxn(context, opts =>
       context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input, opts)
     );
-    expect(status).toBe(false);
+    expect(status).toMatchObject({
+      permitted: false,
+      reason: UsageRecordDropReasonMap.UsageExceeded,
+    });
     const {record} = await getSumRecords(context, recordId);
-    expect(record.summationType).toBe(UsageSummationTypeMap.One);
+    expect(record.summationType).toBe(UsageSummationTypeMap.Instance);
     expect(record.fulfillmentStatus).toBe(UsageRecordFulfillmentStatusMap.Dropped);
     expect(record).toMatchObject(input);
   });

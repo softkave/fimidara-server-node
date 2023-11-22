@@ -34,12 +34,12 @@ describe('countWorkspaceSummedUsage', () => {
     const {workspace} = await insertWorkspaceForTest(context, userToken);
     await generateAndInsertUsageRecordList(context, 15, {
       workspaceId: workspace.resourceId,
-      summationType: UsageSummationTypeMap.Two,
+      summationType: UsageSummationTypeMap.Month,
       fulfillmentStatus: UsageRecordFulfillmentStatusMap.Fulfilled,
     });
     const count = await context.semantic.usageRecord.countByQuery({
       workspaceId: workspace.resourceId,
-      summationType: UsageSummationTypeMap.Two,
+      summationType: UsageSummationTypeMap.Month,
       fulfillmentStatus: UsageRecordFulfillmentStatusMap.Fulfilled,
     });
     const instData =

@@ -46,16 +46,18 @@ export type UsageRecordFulfillmentStatus = ObjectValues<
 >;
 
 export const UsageRecordDropReasonMap = {
-  UsageExceeded: 'usage-exceeded',
-  ExceedsRemainingUsage: 'exceeds-remaining-usage',
-  BillOverdue: 'bill-overdue',
+  UsageExceeded: 'usageExceeded',
+  ExceedsRemainingUsage: 'exceedsRemainingUsage',
+  BillOverdue: 'billOverdue',
 } as const;
 
 export type UsageRecordDropReason = ObjectValues<typeof UsageRecordDropReasonMap>;
 
 export const UsageSummationTypeMap = {
-  One: 'one',
-  Two: 'two',
+  /** Individual record */
+  Instance: 'instance',
+  /** Usage record summed up in a month */
+  Month: 'month',
 } as const;
 
 export type UsageSummationType = ObjectValues<typeof UsageSummationTypeMap>;
