@@ -35,77 +35,181 @@ afterAll(async () => {
 });
 
 describe('DataSemanticDataAccessPermission', () => {
-  test('sortByDate', () => {
+  test('sortItems, with entity, no target or date', () => {
     const now = getTimestamp();
-    const [p01, p02] = generatePermissionItemListForTest(2, {lastUpdatedAt: now});
-    const [p03, p04] = generatePermissionItemListForTest(2, {lastUpdatedAt: now + 1});
-
-    const sortedPList = model.sortByDate([p01, p02, p03, p04]);
-
-    expect(sortedPList[0].resourceId).toBe(p03.resourceId);
-    expect(sortedPList[1].resourceId).toBe(p04.resourceId);
-    expect(sortedPList[2].resourceId).toBe(p01.resourceId);
-    expect(sortedPList[3].resourceId).toBe(p02.resourceId);
-  });
-
-  test('sortByTarget without sortByDate', () => {
-    const now = getTimestamp();
+    const entityId01 = getNewIdForResource(AppResourceTypeMap.User);
+    const entityId02 = getNewIdForResource(AppResourceTypeMap.User);
     const targetId01 = getNewIdForResource(AppResourceTypeMap.Folder);
     const targetId02 = getNewIdForResource(AppResourceTypeMap.Folder);
     const [p01] = generatePermissionItemListForTest(1, {
       lastUpdatedAt: now + 5,
       targetId: targetId01,
+      entityId: entityId01,
     });
     const [p02] = generatePermissionItemListForTest(1, {
       lastUpdatedAt: now,
       targetId: targetId01,
+      entityId: entityId01,
     });
     const [p03, p04] = generatePermissionItemListForTest(2, {
       lastUpdatedAt: now + 1,
       targetId: targetId02,
+      entityId: entityId02,
     });
 
-    const sortedPList = model.sortByTarget(
-      [targetId02, targetId01],
+    const sortedPList = model.sortItems(
       [p01, p02, p03, p04],
-      false
-    );
-
-    expect(sortedPList[0].resourceId).toBe(p03.resourceId);
-    expect(sortedPList[1].resourceId).toBe(p04.resourceId);
-    expect(sortedPList[2].resourceId).toBe(p01.resourceId);
-    expect(sortedPList[3].resourceId).toBe(p02.resourceId);
-  });
-
-  test('sortByTarget with sortByDate', () => {
-    const now = getTimestamp();
-    const targetId01 = getNewIdForResource(AppResourceTypeMap.Folder);
-    const targetId02 = getNewIdForResource(AppResourceTypeMap.Folder);
-    const [p01] = generatePermissionItemListForTest(1, {
-      lastUpdatedAt: now + 5,
-      targetId: targetId01,
-    });
-    const [p02] = generatePermissionItemListForTest(1, {
-      lastUpdatedAt: now,
-      targetId: targetId01,
-    });
-    const [p03, p04] = generatePermissionItemListForTest(2, {
-      lastUpdatedAt: now + 1,
-      targetId: targetId02,
-    });
-
-    const sortedPList = model.sortByTarget(
-      [targetId02, targetId01],
-      [p01, p02, p03, p04],
-      true
+      [entityId02, entityId01],
+      [targetId01, targetId02],
+      /** sortByEntity */ true,
+      /** sortByTarget */ false,
+      /** sortByDate */ false
     );
 
     expect(sortedPList.slice(0, 2).map(item => item.resourceId)).toEqual([
       p03.resourceId,
       p04.resourceId,
     ]);
-    expect(sortedPList[2].resourceId).toBe(p02.resourceId);
-    expect(sortedPList[3].resourceId).toBe(p01.resourceId);
+    expect(sortedPList.slice(2).map(item => item.resourceId)).toEqual([
+      p01.resourceId,
+      p02.resourceId,
+    ]);
+  });
+
+  test('sortItems, with target, no entity or date', () => {
+    const now = getTimestamp();
+    const entityId01 = getNewIdForResource(AppResourceTypeMap.User);
+    const entityId02 = getNewIdForResource(AppResourceTypeMap.User);
+    const targetId01 = getNewIdForResource(AppResourceTypeMap.Folder);
+    const targetId02 = getNewIdForResource(AppResourceTypeMap.Folder);
+    const [p01] = generatePermissionItemListForTest(1, {
+      lastUpdatedAt: now + 5,
+      targetId: targetId01,
+      entityId: entityId01,
+    });
+    const [p02] = generatePermissionItemListForTest(1, {
+      lastUpdatedAt: now,
+      targetId: targetId01,
+      entityId: entityId01,
+    });
+    const [p03, p04] = generatePermissionItemListForTest(2, {
+      lastUpdatedAt: now + 1,
+      targetId: targetId02,
+      entityId: entityId02,
+    });
+
+    const sortedPList = model.sortItems(
+      [p01, p02, p03, p04],
+      [entityId01, entityId02],
+      [targetId02, targetId01],
+      /** sortByEntity */ false,
+      /** sortByTarget */ true,
+      /** sortByDate */ false
+    );
+
+    expect(sortedPList.slice(0, 2).map(item => item.resourceId)).toEqual([
+      p03.resourceId,
+      p04.resourceId,
+    ]);
+    expect(sortedPList.slice(2).map(item => item.resourceId)).toEqual([
+      p01.resourceId,
+      p02.resourceId,
+    ]);
+  });
+
+  test('sortItems, with date, no entity or target', () => {
+    const now = getTimestamp();
+    const entityId01 = getNewIdForResource(AppResourceTypeMap.User);
+    const entityId02 = getNewIdForResource(AppResourceTypeMap.User);
+    const targetId01 = getNewIdForResource(AppResourceTypeMap.Folder);
+    const targetId02 = getNewIdForResource(AppResourceTypeMap.Folder);
+    const [p01] = generatePermissionItemListForTest(1, {
+      lastUpdatedAt: now + 5,
+      targetId: targetId01,
+      entityId: entityId01,
+    });
+    const [p02] = generatePermissionItemListForTest(1, {
+      lastUpdatedAt: now,
+      targetId: targetId01,
+      entityId: entityId01,
+    });
+    const [p03, p04] = generatePermissionItemListForTest(2, {
+      lastUpdatedAt: now + 1,
+      targetId: targetId02,
+      entityId: entityId02,
+    });
+
+    const sortedPList = model.sortItems(
+      [p01, p02, p03, p04],
+      [entityId01, entityId02],
+      [targetId02, targetId01],
+      /** sortByEntity */ false,
+      /** sortByTarget */ false,
+      /** sortByDate */ true
+    );
+
+    expect(sortedPList.slice(0, 1).map(item => item.resourceId)).toEqual([
+      p01.resourceId,
+    ]);
+    expect(sortedPList.slice(1, 3).map(item => item.resourceId)).toEqual([
+      p03.resourceId,
+      p04.resourceId,
+    ]);
+    expect(sortedPList.slice(3).map(item => item.resourceId)).toEqual([p02.resourceId]);
+  });
+
+  test('sortItems, all options', () => {
+    const now = getTimestamp();
+    const entityId01 = getNewIdForResource(AppResourceTypeMap.User);
+    const entityId02 = getNewIdForResource(AppResourceTypeMap.User);
+    const targetId01 = getNewIdForResource(AppResourceTypeMap.Folder);
+    const targetId02 = getNewIdForResource(AppResourceTypeMap.Folder);
+    const [p01] = generatePermissionItemListForTest(1, {
+      lastUpdatedAt: now - 5,
+      targetId: targetId01,
+      entityId: entityId01,
+    });
+    const [p02] = generatePermissionItemListForTest(1, {
+      lastUpdatedAt: now,
+      targetId: targetId02,
+      entityId: entityId01,
+    });
+    const [p03] = generatePermissionItemListForTest(1, {
+      lastUpdatedAt: now + 5,
+      targetId: targetId02,
+      entityId: entityId01,
+    });
+    const [p04] = generatePermissionItemListForTest(1, {
+      lastUpdatedAt: now - 5,
+      targetId: targetId01,
+      entityId: entityId02,
+    });
+    const [p05] = generatePermissionItemListForTest(1, {
+      lastUpdatedAt: now,
+      targetId: targetId02,
+      entityId: entityId02,
+    });
+    const [p06] = generatePermissionItemListForTest(1, {
+      lastUpdatedAt: now + 5,
+      targetId: targetId02,
+      entityId: entityId02,
+    });
+
+    const sortedPList = model.sortItems(
+      faker.helpers.shuffle([p01, p02, p03, p04, p05, p06]),
+      [entityId01, entityId02],
+      [targetId02, targetId01],
+      /** sortByEntity */ true,
+      /** sortByTarget */ true,
+      /** sortByDate */ true
+    );
+
+    expect(sortedPList[0].resourceId).toBe(p03.resourceId);
+    expect(sortedPList[1].resourceId).toBe(p02.resourceId);
+    expect(sortedPList[2].resourceId).toBe(p01.resourceId);
+    expect(sortedPList[3].resourceId).toBe(p06.resourceId);
+    expect(sortedPList[4].resourceId).toBe(p05.resourceId);
+    expect(sortedPList[5].resourceId).toBe(p04.resourceId);
   });
 
   test('getEntity, user', async () => {

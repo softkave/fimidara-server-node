@@ -1,4 +1,4 @@
-import {defaultTo, first, get, merge} from 'lodash';
+import {defaultTo, first, get, set} from 'lodash';
 import {File} from '../../../definitions/file';
 import {
   PermissionAction,
@@ -176,8 +176,8 @@ export async function resolveEntityData(
       entityId: workspace.publicPermissionGroupId,
     });
 
-  const sortedItemsList = entitySortedItemList.concat(publicSortedItemList),
-    entityIdList = sortedItemsList.map(item => item.id);
+  const sortedItemsList = entitySortedItemList.concat(publicSortedItemList);
+  const entityIdList = sortedItemsList.map(item => item.id);
 
   return {entityIdList};
 }
@@ -198,6 +198,7 @@ export async function fetchAgentPermissionItems(
       entityId: entityIdList,
       sortByTarget: true,
       sortByDate: true,
+      sortByEntity: true,
     },
     params.opts
   );
@@ -209,19 +210,25 @@ export async function fetchAndSortAgentPermissionItems(params: CheckAuthorizatio
     fetchEntitiesDeep: true,
   });
   const targetId = first(toArray(params.target.targetId));
-  return sortOutPermissionItems(items, targetId);
+  return sortOutPermissionItems(items, params.target.entityId, targetId);
 }
 
-export function sortOutPermissionItems(
+function sortOutPermissionItems(
   items: PermissionItem[],
+  replaceEntityId?: string,
   replaceTargetId?: string
 ) {
   const map: AccessCheckGroupedPermissions = {};
 
   items.forEach(item => {
-    merge(map, {
-      [item.entityId]: {[replaceTargetId ?? item.targetId]: {[item.action]: [item]}},
-    });
+    const key = [
+      replaceEntityId ?? item.entityId,
+      replaceTargetId ?? item.targetId,
+      item.action,
+    ];
+    const entries = get(map, key) ?? [];
+    entries.push(item);
+    set(map, key, entries);
   });
 
   return {items, itemsMap: map};
@@ -244,6 +251,7 @@ async function resolveTargetChildrenPartialAccessCheck(
       targetParentId,
       entityId: entityIdList,
       sortByDate: true,
+      sortByEntity: true,
     },
     params.opts
   );
@@ -338,6 +346,16 @@ export function getResourcePermissionContainers(
   return getWorkspacePermissionContainers(workspaceId);
 }
 
+function checkActionRequiresUserVerification(
+  agent: SessionAgent,
+  action: PermissionAction
+) {
+  if (agent && agent.user && !agent.user.isEmailVerified && !action.startsWith('read')) {
+    // Only read actions are permitted for user's who aren't email verified.
+    throw new EmailAddressNotVerifiedError();
+  }
+}
+
 export async function checkAuthorizationWithAgent(
   params: Omit<CheckAuthorizationParams, 'target'> & {
     agent: SessionAgent;
@@ -345,16 +363,7 @@ export async function checkAuthorizationWithAgent(
   }
 ) {
   const {agent, target} = params;
-
-  if (
-    agent &&
-    agent.user &&
-    !agent.user.isEmailVerified &&
-    !target.action.startsWith('read')
-  ) {
-    // Only read actions are permitted for user's who aren't email verified.
-    throw new EmailAddressNotVerifiedError();
-  }
+  checkActionRequiresUserVerification(agent, target.action);
 
   const agentId = agent?.agentId;
   appAssert(agentId);
@@ -368,16 +377,7 @@ export async function resolveTargetChildrenAccessCheckWithAgent(
   }
 ) {
   const {agent, target} = params;
-
-  if (
-    agent &&
-    agent.user &&
-    !agent.user.isEmailVerified &&
-    !target.action.startsWith('read')
-  ) {
-    // Only read actions are permitted for user's who aren't email verified.
-    throw new EmailAddressNotVerifiedError();
-  }
+  checkActionRequiresUserVerification(agent, target.action);
 
   const agentId = agent?.agentId;
   appAssert(agentId);

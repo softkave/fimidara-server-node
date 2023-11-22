@@ -103,7 +103,7 @@ describe('checkAuthorization', () => {
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
     const [[file01, file02, file03, file04], [pg01, pg02]] = await Promise.all([
-      generateAndInsertTestFiles(context, 3, {
+      generateAndInsertTestFiles(context, 4, {
         workspaceId: rawWorkspace.resourceId,
         parentId: null,
       }),
@@ -123,7 +123,7 @@ describe('checkAuthorization', () => {
       }),
       // Add deny readFile access to file04 for pg01
       addPermissions(rawWorkspace.resourceId, pg02.resourceId, 'readFile', {
-        targetId: file02.resourceId,
+        targetId: file04.resourceId,
         access: false,
       }),
       // Assign pg02 to pg01
@@ -267,7 +267,7 @@ describe('checkAuthorization', () => {
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
     const [[folder01, folder02, folder03, folder04], [pg01, pg02]] = await Promise.all([
-      generateAndInsertTestFolders(context, 3, {
+      generateAndInsertTestFolders(context, 4, {
         workspaceId: rawWorkspace.resourceId,
         parentId: null,
       }),
@@ -412,8 +412,8 @@ describe('checkAuthorization', () => {
       nothrow: true,
     });
 
-    expect(check01.hasAccess).toBeFalsy();
-    expect(check01.item).toBeFalsy();
+    expect(check01.hasAccess).toBeTruthy();
+    expect(check01.item).toBeTruthy();
     expect(check02.hasAccess).toBeFalsy();
     expect(check02.item).toBeTruthy();
   });
@@ -585,18 +585,19 @@ describe('checkAuthorization', () => {
       parentId: null,
     });
     await Promise.all([
-      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
+      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'updateFile', {
         targetId: file01.resourceId,
       }),
     ]);
 
+    assert(user02.isEmailVerified === false);
     await expectErrorThrown(async () => {
       assertContext(context);
       await checkAuthorizationWithAgent({
         context,
         agent: user02SessionAgent,
         target: {
-          action: 'readFile',
+          action: 'updateFile',
           targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
         },
         workspaceId: rawWorkspace.resourceId,
@@ -701,10 +702,12 @@ describe('checkAuthorization', () => {
     await Promise.all([
       addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
         targetId: file01.resourceId,
+        targetParentId: folder01.resourceId,
       }),
       addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
         targetId: file02.resourceId,
         access: false,
+        targetParentId: folder01.resourceId,
       }),
     ]);
 
@@ -723,7 +726,7 @@ describe('checkAuthorization', () => {
     expect(resolveResult.item).toBeFalsy();
     expect(resolveResult.partialAllowIds?.length).toBe(1);
     expect(resolveResult.partialAllowItems?.length).toBe(1);
-    expect(resolveResult.partialAllowIds).toContain(file02.resourceId);
+    expect(resolveResult.partialAllowIds).toContain(file01.resourceId);
   });
 
   test('resolve target children partial access with parent deny and some children access', async () => {
@@ -744,6 +747,7 @@ describe('checkAuthorization', () => {
     await Promise.all([
       addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
         targetId: file01.resourceId,
+        targetParentId: folder01.resourceId,
       }),
       addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
         targetId: folder01.resourceId,
@@ -789,6 +793,7 @@ describe('checkAuthorization', () => {
       addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
         targetId: file01.resourceId,
         access: false,
+        targetParentId: folder01.resourceId,
       }),
       addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
         targetId: folder01.resourceId,

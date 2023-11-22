@@ -10,7 +10,7 @@ import {
   Resource,
 } from '../../../../definitions/system';
 import {appAssert} from '../../../../utils/assertion';
-import {toArray} from '../../../../utils/fns';
+import {toCompactArray} from '../../../../utils/fns';
 import {indexArray} from '../../../../utils/indexArray';
 import {getResourceTypeFromId} from '../../../../utils/resource';
 import {reuseableErrors} from '../../../../utils/reusableErrors';
@@ -112,12 +112,15 @@ export class DataSemanticDataAccessPermission
       options
     );
 
-    if (props.sortByTarget && props.targetId) {
-      this.sortByTarget(props.targetId, items, props.sortByDate);
-    }
-
-    if (props.sortByDate) {
-      this.sortByDate(items);
+    if (props.sortByTarget || props.sortByDate || props.sortByEntity) {
+      this.sortItems(
+        items,
+        props.entityId,
+        props.targetId,
+        props.sortByEntity,
+        props.sortByTarget,
+        props.sortByDate
+      );
     }
 
     return items;
@@ -152,29 +155,38 @@ export class DataSemanticDataAccessPermission
     return null;
   }
 
-  sortByDate(items: PermissionItem[]): PermissionItem[] {
-    return items.sort((item01, item02) => {
-      return item02.lastUpdatedAt - item01.lastUpdatedAt;
-    });
-  }
-
-  sortByTarget(
-    targetId: string | string[],
+  sortItems(
     items: PermissionItem[],
+    entityId: string | string[] | undefined,
+    targetId: string | string[] | undefined,
+    sortByEntity?: boolean,
+    sortByTarget?: boolean,
     sortByDate?: boolean
   ): PermissionItem[] {
-    const targetIdMap = indexArray(toArray(targetId), {
-      reducer: (item, arr, i) => i,
-    });
+    const targetIdMap = sortByTarget
+      ? indexArray(toCompactArray(targetId), {
+          reducer: (item, arr, i) => i,
+        })
+      : {};
+    const entityIdMap = sortByEntity
+      ? indexArray(toCompactArray(entityId), {
+          reducer: (item, arr, i) => i,
+        })
+      : {};
 
     return items.sort((item01, item02) => {
-      if (item01.targetId !== item02.targetId) {
+      if (sortByEntity && item01.entityId !== item02.entityId) {
+        return (
+          (entityIdMap[item01.entityId] ?? Number.MAX_SAFE_INTEGER) -
+          (entityIdMap[item02.entityId] ?? Number.MAX_SAFE_INTEGER)
+        );
+      } else if (sortByTarget && item01.targetId !== item02.targetId) {
         return (
           (targetIdMap[item01.targetId] ?? Number.MAX_SAFE_INTEGER) -
           (targetIdMap[item02.targetId] ?? Number.MAX_SAFE_INTEGER)
         );
       } else if (sortByDate) {
-        return item01.lastUpdatedAt - item02.lastUpdatedAt;
+        return (item01.lastUpdatedAt - item02.lastUpdatedAt) * -1;
       }
 
       // Maintain current order.

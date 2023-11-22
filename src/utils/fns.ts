@@ -36,7 +36,10 @@ export function applyMixins(derivedConstructors: any, baseConstructors: any[]) {
   });
 }
 
-export function applyMixins02<C1, C2>(derivedConstructors: C1, baseConstructors: [C2]): C1 & C2 {
+export function applyMixins02<C1, C2>(
+  derivedConstructors: C1,
+  baseConstructors: [C2]
+): C1 & C2 {
   return cast(applyMixins(derivedConstructors, baseConstructors));
 }
 
@@ -54,7 +57,11 @@ export function applyMixins04<C1, C2, C3, C4>(
   return cast(applyMixins(derivedConstructors, baseConstructors));
 }
 
-export function findItemWithField<T>(items: T[], val: any, field: keyof T): T | undefined {
+export function findItemWithField<T>(
+  items: T[],
+  val: any,
+  field: keyof T
+): T | undefined {
   return items.find(item => {
     return item[field] === val;
   });
@@ -83,7 +90,9 @@ export function makeWaitTimeoutFn<TFn extends AnyFn>(timeoutMs: number) {
   return () => waitTimeout(timeoutMs);
 }
 
-export function reverseMap<K extends string, V extends string>(m: Record<K, V>): Record<V, K> {
+export function reverseMap<K extends string, V extends string>(
+  m: Record<K, V>
+): Record<V, K> {
   const r: Record<V, K> = cast<Record<V, K>>({});
   for (const k in m) {
     r[m[k]] = k;
@@ -156,6 +165,10 @@ export function toNonNullableArray<T>(...args: Array<NonNullable<T | T[]>>) {
   return toArray(...args);
 }
 
+/**
+ * Returns an array without falsy values like `false`, `null`, `0`, `""`,
+ * `undefined`, and `NaN`
+ */
 export function toCompactArray<T>(...args: Array<T | T[]>) {
   const array = toArray(...args);
   return compact(array as Array<NonNullable<T> | undefined>);
@@ -172,7 +185,10 @@ export function loop(count = 1, fn: AnyFn) {
   }
 }
 
-export function loopAndCollate<Fn extends AnyFn>(count = 1, fn: Fn): Array<ReturnType<Fn>> {
+export function loopAndCollate<Fn extends AnyFn>(
+  count = 1,
+  fn: Fn
+): Array<ReturnType<Fn>> {
   const result: Array<ReturnType<Fn>> = [];
   while (count > 0) {
     result.push(fn());

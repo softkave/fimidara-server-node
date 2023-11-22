@@ -17,8 +17,11 @@ export type SemanticDataAccessPermissionProviderType_GetPermissionItemsProps = {
   /** Sort the permission items by last updated date. */
   sortByDate?: boolean;
   /** Sort the permission items by target, i.e following the order of
-   * targets passed. */
+   * `targetId` passed. */
   sortByTarget?: boolean;
+  /** Sort the permission items by entity, i.e following the order of
+   * `entityId` passed. */
+  sortByEntity?: boolean;
 };
 
 export type SemanticDataAccessPermissionProviderType_CountPermissionItemsProps = {
@@ -61,10 +64,12 @@ export interface SemanticDataAccessPermissionProviderType {
     props: SemanticDataAccessPermissionProviderType_CountPermissionItemsProps,
     options?: SemanticDataAccessProviderRunOptions
   ): Promise<number>;
-  sortByDate(items: PermissionItem[]): PermissionItem[];
-  sortByTarget(
-    targetId: string | string[],
+  sortItems(
     items: PermissionItem[],
+    entityId: string | string[] | undefined,
+    targetId: string | string[] | undefined,
+    sortByEntity?: boolean,
+    sortByTarget?: boolean,
     sortByDate?: boolean
   ): PermissionItem[];
 }
