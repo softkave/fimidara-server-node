@@ -29,7 +29,7 @@ export type AgentToken = {
   workspaceId: string;
   tokenStr: string;
   expires?: number;
-  providedResourceId?: string;
+  providedResourceId?: string | null;
 };
 export type AddAgentTokenEndpointResult = {
   token: AgentToken;
@@ -41,7 +41,7 @@ export type DeleteAgentTokenEndpointParams = {
   workspaceId?: string;
 };
 export type LongRunningJobResult = {
-  jobId: string;
+  jobId?: string;
 };
 export type GetAgentTokenEndpointParams = {
   workspaceId?: string;
@@ -129,7 +129,7 @@ export type CollaborationRequestForWorkspace = {
   readAt?: number;
   status: CollaborationRequestStatusType;
   statusDate: number;
-  providedResourceId?: string;
+  providedResourceId?: string | null;
 };
 export type GetWorkspaceCollaborationRequestEndpointResult = {
   request: CollaborationRequestForWorkspace;
@@ -240,7 +240,7 @@ export type File = {
   lastUpdatedAt: number;
   name: string;
   description?: string;
-  providedResourceId?: string;
+  providedResourceId?: string | null;
 };
 export type GetFileDetailsEndpointResult = {
   file: File;
@@ -272,8 +272,8 @@ export type ImageResizePositionEnum =
   | 'entropy'
   | 'attention';
 export type ImageResizeParams = {
-  width?: string;
-  height?: string;
+  width?: number;
+  height?: number;
   fit?: ImageResizeFitEnum;
   position?: ImageResizePositionEnum | number;
   background?: string;
@@ -328,9 +328,9 @@ export type UploadFileEndpointParams = {
   fileId?: string;
   data: string | Readable | Blob;
   description?: string;
-  mimetype?: string;
   encoding?: string;
-  extension?: string;
+  mimetype?: string;
+  size: number;
 };
 export type UploadFileEndpointResult = {
   file: File;
@@ -354,7 +354,7 @@ export type Folder = {
   idPath: Array<string>;
   namePath: Array<string>;
   parentId: string | null;
-  providedResourceId?: string;
+  providedResourceId?: string | null;
 };
 export type AddFolderEndpointResult = {
   folder: Folder;
@@ -426,7 +426,7 @@ export type PermissionGroup = {
   workspaceId: string;
   name: string;
   description?: string;
-  providedResourceId?: string;
+  providedResourceId?: string | null;
 };
 export type AddPermissionGroupEndpointResult = {
   permissionGroup: PermissionGroup;
@@ -436,13 +436,13 @@ export type AssignPermissionGroupInput = {
 };
 export type AssignPermissionGroupsEndpointParams = {
   workspaceId?: string;
-  entityId: Array<string>;
+  entityId: string | Array<string>;
   permissionGroups: Array<AssignPermissionGroupInput>;
 };
 export type UnassignPermissionGroupsEndpointParams = {
   workspaceId?: string;
-  entityId: Array<string>;
-  permissionGroups: Array<string>;
+  entityId: string | Array<string>;
+  permissionGroups: string | Array<string>;
 };
 export type DeletePermissionGroupEndpointParams = {
   permissionGroupId?: string;
@@ -497,88 +497,91 @@ export type UpdatePermissionGroupEndpointParams = {
 export type UpdatePermissionGroupEndpointResult = {
   permissionGroup: PermissionGroup;
 };
-export type PermissionItemInputEntity = {
-  entityId: Array<string>;
-};
-export type WorkspaceAppResourceType =
-  | '*'
-  | 'workspace'
-  | 'collaborationRequest'
-  | 'agentToken'
-  | 'permissionGroup'
-  | 'permissionItem'
-  | 'folder'
-  | 'file'
-  | 'user'
-  | 'tag'
-  | 'usageRecord';
 export type PermissionItemInputTarget = {
-  targetType?: Array<WorkspaceAppResourceType>;
-  targetId?: Array<string>;
-  filepath?: Array<string>;
-  folderpath?: Array<string>;
+  targetId?: string | Array<string>;
+  filepath?: string | Array<string>;
+  folderpath?: string | Array<string>;
   workspaceRootname?: string;
 };
 export type AppActionType =
-  | '*'
-  | 'create'
-  | 'read'
-  | 'update'
-  | 'delete'
-  | 'grantPermission';
-export type PermissionItemAppliesTo = 'self' | 'selfAndChildren' | 'children';
+  | 'wildcard'
+  | 'updateWorkspace'
+  | 'deleteWorkspace'
+  | 'readWorkspace'
+  | 'addFolder'
+  | 'readFolder'
+  | 'updateFolder'
+  | 'transferFolder'
+  | 'deleteFolder'
+  | 'addFile'
+  | 'readFile'
+  | 'updateFile'
+  | 'transferFile'
+  | 'deleteFile'
+  | 'addCollaborator'
+  | 'readCollaborator'
+  | 'removeCollaborator'
+  | 'readCollaborationRequest'
+  | 'revokeCollaborationRequest'
+  | 'updateCollaborationRequest'
+  | 'updatePermission'
+  | 'readPermission'
+  | 'addAgentToken'
+  | 'readAgentToken'
+  | 'updateAgentToken'
+  | 'deleteAgentToken'
+  | 'addTag'
+  | 'readTag'
+  | 'updateTag'
+  | 'deleteTag'
+  | 'assignTag'
+  | 'readUsageRecord';
 export type PermissionItemInput = {
-  target: Array<PermissionItemInputTarget>;
-  grantAccess: boolean;
-  entity?: PermissionItemInputEntity;
-  action: Array<AppActionType>;
-  appliesTo?: Array<PermissionItemAppliesTo>;
+  target: Array<PermissionItemInputTarget> | PermissionItemInputTarget;
+  access: boolean;
+  entityId: string | Array<string>;
+  action: AppActionType | Array<AppActionType>;
 };
 export type AddPermissionItemsEndpointParams = {
-  entity?: PermissionItemInputEntity;
   workspaceId?: string;
   items: Array<PermissionItemInput>;
 };
 export type DeleteDeletePermissionItemInputTarget = {
-  targetType?: Array<WorkspaceAppResourceType>;
-  targetId?: Array<string>;
-  filepath?: Array<string>;
-  folderpath?: Array<string>;
+  targetId?: string | Array<string>;
+  filepath?: string | Array<string>;
+  folderpath?: string | Array<string>;
   workspaceRootname?: string;
 };
 export type DeletePermissionItemInput = {
-  target: Array<DeleteDeletePermissionItemInputTarget>;
-  action?: Array<AppActionType>;
-  grantAccess?: Array<boolean>;
-  entity?: PermissionItemInputEntity;
-  appliesTo?: Array<PermissionItemAppliesTo>;
+  target:
+    | Array<DeleteDeletePermissionItemInputTarget>
+    | DeleteDeletePermissionItemInputTarget;
+  action?: AppActionType | Array<AppActionType>;
+  access?: boolean;
+  entityId?: string | Array<string>;
 };
 export type DeletePermissionItemsEndpointParams = {
   workspaceId?: string;
   items?: Array<DeletePermissionItemInput>;
-  entity?: PermissionItemInputEntity;
 };
 export type ResolveEntityPermissionItemInputTarget = {
-  targetType?: Array<WorkspaceAppResourceType>;
-  targetId?: Array<string>;
-  filepath?: Array<string>;
-  folderpath?: Array<string>;
+  targetId?: string | Array<string>;
+  filepath?: string | Array<string>;
+  folderpath?: string | Array<string>;
   workspaceRootname?: string;
 };
 export type ResolveEntityPermissionItemInput = {
-  target: Array<ResolveEntityPermissionItemInputTarget>;
-  entity?: PermissionItemInputEntity;
-  action: Array<AppActionType>;
-  containerAppliesTo?: Array<PermissionItemAppliesTo>;
-  targetAppliesTo?: Array<PermissionItemAppliesTo>;
+  target:
+    | Array<ResolveEntityPermissionItemInputTarget>
+    | ResolveEntityPermissionItemInputTarget;
+  entityId: string | Array<string>;
+  action: AppActionType | Array<AppActionType>;
 };
 export type ResolveEntityPermissionsEndpointParams = {
-  entity?: PermissionItemInputEntity;
   workspaceId?: string;
   items: Array<ResolveEntityPermissionItemInput>;
 };
 export type ResolvedEntityPermissionItemTarget = {
-  targetType?: WorkspaceAppResourceType;
   targetId?: string;
   filepath?: string;
   folderpath?: string;
@@ -589,17 +592,17 @@ export type ResolvedEntityPermissionItem = {
   entityId: string;
   action: AppActionType;
   hasAccess: boolean;
-  targetAppliesTo?: Array<PermissionItemAppliesTo>;
-  containerAppliesTo?: Array<PermissionItemAppliesTo>;
-  accessEntityId?: string;
+  permittingEntityId?: string;
+  permittingTargetId?: string;
 };
 export type ResolveEntityPermissionsEndpointResult = {
   items: Array<ResolvedEntityPermissionItem>;
 };
 export type FetchResourceItem = {
-  resourceId?: string;
-  filepath?: string;
-  folderpath?: string;
+  resourceId?: string | Array<string>;
+  action: AppActionType;
+  filepath?: string | Array<string>;
+  folderpath?: string | Array<string>;
   workspaceRootname?: string;
 };
 export type ResourceWrapper = {
@@ -624,10 +627,12 @@ export type UsageRecordFulfillmentStatus =
   | 'fulfilled'
   | 'dropped';
 export type SummedUsageQuery = {
-  category?: Array<UsageRecordCategory>;
+  category?: UsageRecordCategory | Array<UsageRecordCategory>;
   fromDate?: number;
   toDate?: number;
-  fulfillmentStatus?: Array<UsageRecordFulfillmentStatus>;
+  fulfillmentStatus?:
+    | UsageRecordFulfillmentStatus
+    | Array<UsageRecordFulfillmentStatus>;
 };
 export type GetWorkspaceSummedUsageEndpointParams = {
   workspaceId?: string;
@@ -645,7 +650,7 @@ export type UsageRecord = {
   fulfillmentStatus: UsageRecordFulfillmentStatus;
   month: number;
   year: number;
-  providedResourceId?: string;
+  providedResourceId?: string | null;
   lastUpdatedBy: Agent;
   lastUpdatedAt: number;
   workspaceId: string;
@@ -672,8 +677,8 @@ export type User = {
   passwordLastChangedAt: number;
   requiresPasswordChange?: boolean;
   isEmailVerified: boolean;
-  emailVerifiedAt?: number;
-  emailVerificationEmailSentAt?: number;
+  emailVerifiedAt?: number | null;
+  emailVerificationEmailSentAt?: number | null;
   workspaces: Array<UserWorkspace>;
   isOnWaitlist: boolean;
 };
@@ -723,7 +728,7 @@ export type WorkspaceUsageThresholdLocks = {
 export type Workspace = {
   resourceId: string;
   workspaceId: string;
-  providedResourceId?: string;
+  providedResourceId?: string | null;
   createdBy: Agent;
   createdAt: number;
   lastUpdatedBy: Agent;

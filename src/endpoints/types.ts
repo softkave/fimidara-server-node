@@ -61,6 +61,10 @@ export interface EndpointOptionalWorkspaceIDParam {
   workspaceId?: string;
 }
 
+export interface EndpointRequiredWorkspaceIDParam {
+  workspaceId: string;
+}
+
 export interface EndpointWorkspaceResourceParam extends EndpointOptionalWorkspaceIDParam {
   providedResourceId?: string;
 }

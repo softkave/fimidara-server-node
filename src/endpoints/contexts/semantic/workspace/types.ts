@@ -10,7 +10,10 @@ export interface SemanticDataAccessWorkspaceProviderType
     name: string,
     opts?: SemanticDataAccessProviderRunOptions
   ): Promise<Workspace | null>;
-  existsByRootname(name: string, opts?: SemanticDataAccessProviderRunOptions): Promise<boolean>;
+  existsByRootname(
+    name: string,
+    opts?: SemanticDataAccessProviderRunOptions
+  ): Promise<boolean>;
   workspaceExistsByName(
     name: string,
     opts?: SemanticDataAccessProviderRunOptions

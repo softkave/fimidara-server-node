@@ -343,7 +343,7 @@ const uploadFileSdkParamsDef = mddocConstruct
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
     encoding: mddocConstruct.constructFieldObjectField(false, encoding),
     mimetype: mddocConstruct.constructFieldObjectField(false, mimetype),
-    size: mddocConstruct.constructFieldObjectField(true, size),
+    size: mddocConstruct.constructFieldObjectField(false, size),
   })
   .setDescription('Upload file endpoint params.')
   .setName('UploadFileEndpointParams');
@@ -363,11 +363,13 @@ const updloadFileSdkParams = mddocConstruct
         return ['header', 'x-fimidara-file-description'];
       case 'encoding':
         return ['header', 'content-encoding'];
-      case 'mimetype':
-        return ['header', 'x-fimidara-file-mimetype'];
+      // case 'mimetype':
+      //   return ['header', 'x-fimidara-file-mimetype'];
       case 'size':
         return ['header', 'content-length'];
       case 'filepath':
+        return ['path', 'filepathOrId'];
+      case 'fileId':
         return ['path', 'filepathOrId'];
       default:
         throw new Error(`unknown key ${key}`);

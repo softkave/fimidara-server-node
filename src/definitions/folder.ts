@@ -1,4 +1,9 @@
-import { ConvertAgentToPublicAgent, WorkspaceResource } from './system';
+import {ConvertAgentToPublicAgent, WorkspaceResource} from './system';
+
+export interface FolderMountEntry {
+  mountId: string;
+  key: string;
+}
 
 export interface Folder extends WorkspaceResource {
   idPath: string[];
@@ -7,6 +12,7 @@ export interface Folder extends WorkspaceResource {
   // maxFileSizeInBytes: number;
   name: string;
   description?: string;
+  mountEntries: FolderMountEntry[];
 }
 
 export type PublicFolder = ConvertAgentToPublicAgent<Folder>;

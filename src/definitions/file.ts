@@ -1,5 +1,15 @@
+import {ObjectValues} from '../utils/types';
 import {PermissionAction} from './permissionItem';
-import {ConvertAgentToPublicAgent, WorkspaceResource} from './system';
+import {
+  ConvertAgentToPublicAgent,
+  PublicWorkspaceResource,
+  WorkspaceResource,
+} from './system';
+
+export interface FileMountEntry {
+  mountId: string;
+  key: string;
+}
 
 export interface File extends WorkspaceResource {
   parentId: string | null;
@@ -11,11 +21,32 @@ export interface File extends WorkspaceResource {
   name: string;
   extension?: string;
   description?: string;
+  isWriteAvailable?: boolean;
+  isReadAvailable?: boolean;
+  head?: string;
+  version: number;
+  mountEntries: FileMountEntry[];
 }
 
-export type PublicFile = ConvertAgentToPublicAgent<File>;
+export type PublicFile = PublicWorkspaceResource &
+  ConvertAgentToPublicAgent<
+    Pick<
+      File,
+      | 'parentId'
+      | 'idPath'
+      | 'namePath'
+      | 'mimetype'
+      | 'encoding'
+      | 'size'
+      | 'name'
+      | 'extension'
+      | 'description'
+      | 'version'
+    >
+  >;
+
 export type FileMatcher = {
-  // file path with workspace root name
+  /** file path with workspace root name */
   filepath?: string;
   fileId?: string;
 };
@@ -34,3 +65,11 @@ export interface FilePresignedPath extends WorkspaceResource {
   // TODO: should we add description?
   // description?: string
 }
+
+export const FilePersistenceProviderTypeMap = {
+  Fs: 'fs',
+} as const;
+
+export type FilePersistenceProviderType = ObjectValues<
+  typeof FilePersistenceProviderTypeMap
+>;

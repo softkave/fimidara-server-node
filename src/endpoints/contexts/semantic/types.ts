@@ -1,7 +1,8 @@
+import {FileBackendMount} from '../../../definitions/fileBackend';
+import {Job} from '../../../definitions/job';
 import {Resource} from '../../../definitions/system';
 import {AnyFn} from '../../../utils/types';
 import {DataProviderQueryListParams, DataQuery} from '../data/types';
-import {BaseContextType} from '../types';
 
 export interface SemanticDataAccessProviderRunOptions {
   txn?: unknown;
@@ -11,16 +12,20 @@ export interface SemanticDataAccessProviderMutationRunOptions {
   txn: unknown;
 }
 
-export interface SemanticDataAccessBaseProviderType<T extends Resource> {
+export interface SemanticDataAccessBaseProviderType<TResource extends Resource> {
   insertItem(
-    item: T | T[],
+    item: TResource | TResource[],
     opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void>;
-  getOneById(id: string, opts?: SemanticDataAccessProviderRunOptions): Promise<T | null>;
+  getOneById(
+    id: string,
+    opts?: SemanticDataAccessProviderRunOptions
+  ): Promise<TResource | null>;
   getManyByIdList(
     idList: string[],
-    options?: DataProviderQueryListParams<T> & SemanticDataAccessProviderRunOptions
-  ): Promise<T[]>;
+    options?: DataProviderQueryListParams<TResource> &
+      SemanticDataAccessProviderRunOptions
+  ): Promise<TResource[]>;
   countManyByIdList(
     idList: string[],
     opts?: SemanticDataAccessProviderRunOptions
@@ -28,24 +33,24 @@ export interface SemanticDataAccessBaseProviderType<T extends Resource> {
   existsById(id: string, opts?: SemanticDataAccessProviderRunOptions): Promise<boolean>;
   updateOneById(
     id: string,
-    update: Partial<T>,
+    update: Partial<TResource>,
     opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void>;
   updateManyByQuery(
-    query: DataQuery<T>,
-    update: Partial<T>,
+    query: DataQuery<TResource>,
+    update: Partial<TResource>,
     opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void>;
   getAndUpdateOneById(
     id: string,
-    update: Partial<T>,
+    update: Partial<TResource>,
     opts: SemanticDataAccessProviderMutationRunOptions
-  ): Promise<T | null>;
+  ): Promise<TResource | null>;
   getAndUpdateManyByQuery(
-    query: DataQuery<T>,
-    update: Partial<T>,
+    query: DataQuery<TResource>,
+    update: Partial<TResource>,
     opts: SemanticDataAccessProviderMutationRunOptions
-  ): Promise<T[]>;
+  ): Promise<TResource[]>;
   deleteOneById(
     id: string,
     opts: SemanticDataAccessProviderMutationRunOptions
@@ -54,32 +59,34 @@ export interface SemanticDataAccessBaseProviderType<T extends Resource> {
     idList: string[],
     opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void>;
-  getOneByQuery(
-    query: DataQuery<T>,
+  getOneByQuery<TResource02 extends TResource = TResource>(
+    query: DataQuery<TResource02>,
     opts?: SemanticDataAccessProviderRunOptions
-  ): Promise<T | null>;
+  ): Promise<TResource02 | null>;
   getManyByQuery(
-    query: DataQuery<T>,
-    options?: DataProviderQueryListParams<T> & SemanticDataAccessProviderRunOptions
-  ): Promise<T[]>;
+    query: DataQuery<TResource>,
+    options?: DataProviderQueryListParams<TResource> &
+      SemanticDataAccessProviderRunOptions
+  ): Promise<TResource[]>;
   getManyByQueryList(
-    query: DataQuery<T>[],
-    options?: DataProviderQueryListParams<T> & SemanticDataAccessProviderRunOptions
-  ): Promise<T[]>;
+    query: DataQuery<TResource>[],
+    options?: DataProviderQueryListParams<TResource> &
+      SemanticDataAccessProviderRunOptions
+  ): Promise<TResource[]>;
   countByQuery(
-    query: DataQuery<T>,
+    query: DataQuery<TResource>,
     opts?: SemanticDataAccessProviderRunOptions
   ): Promise<number>;
   assertGetOneByQuery(
-    query: DataQuery<T>,
+    query: DataQuery<TResource>,
     opts?: SemanticDataAccessProviderRunOptions
-  ): Promise<T>;
+  ): Promise<TResource>;
   existsByQuery(
-    query: DataQuery<T>,
+    query: DataQuery<TResource>,
     opts?: SemanticDataAccessProviderRunOptions
   ): Promise<boolean>;
   deleteManyByQuery(
-    query: DataQuery<T>,
+    query: DataQuery<TResource>,
     opts: SemanticDataAccessProviderMutationRunOptions
   ): Promise<void>;
 }
@@ -137,10 +144,12 @@ export interface SemanticDataAccessWorkspaceResourceProviderType<
 
 export interface SemanticDataAccessProviderUtils<> {
   withTxn<TResult>(
-    ctx: BaseContextType,
     fn: AnyFn<[SemanticDataAccessProviderMutationRunOptions], Promise<TResult>>,
-
     /** Reuse existing txn options when present */
     opts?: SemanticDataAccessProviderRunOptions
   ): Promise<TResult>;
 }
+
+export type SemanticDataAccessFileBackendMountProvider =
+  SemanticDataAccessWorkspaceResourceProviderType<FileBackendMount>;
+export type SemanticDataAccessJobProvider = SemanticDataAccessBaseProviderType<Job>;

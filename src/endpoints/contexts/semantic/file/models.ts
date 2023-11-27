@@ -4,7 +4,10 @@ import {DataProviderQueryListParams} from '../../data/types';
 import {DataSemanticDataAccessWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {SemanticDataAccessProviderRunOptions} from '../types';
 import {getInAndNinQuery} from '../utils';
-import {SemanticDataAccessFilePresignedPathProvider, SemanticDataAccessFileProvider} from './types';
+import {
+  SemanticDataAccessFilePresignedPathProvider,
+  SemanticDataAccessFileProvider,
+} from './types';
 
 export class DataSemanticDataAccessFile
   extends DataSemanticDataAccessWorkspaceResourceProvider<File>
@@ -29,7 +32,9 @@ export class DataSemanticDataAccessFile
       resourceIdList?: string[] | undefined;
       excludeResourceIdList?: string[] | undefined;
     },
-    options?: (DataProviderQueryListParams<File> & SemanticDataAccessProviderRunOptions) | undefined
+    options?:
+      | (DataProviderQueryListParams<File> & SemanticDataAccessProviderRunOptions)
+      | undefined
   ): Promise<File[]> {
     return await this.data.getManyByQuery(
       {

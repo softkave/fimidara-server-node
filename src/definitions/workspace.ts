@@ -31,14 +31,9 @@ export type UsageThresholdLocksByCategory = Partial<
 >;
 
 export interface Workspace extends WorkspaceResource {
-  /**
-   * Human readable name of the workspace.
-   */
+  /** Human readable name of the workspace */
   name: string;
-
-  /**
-   * URL compatible name of the workspace.
-   */
+  /** URL compatible name of the workspace */
   rootname: string;
   description?: string;
   publicPermissionGroupId: string;
@@ -46,6 +41,11 @@ export interface Workspace extends WorkspaceResource {
   billStatus: WorkspaceBillStatus;
   usageThresholds: UsageThresholdsByCategory;
   usageThresholdLocks: UsageThresholdLocksByCategory;
+
+  /** configs */
+  enableFileVersioning?: boolean;
+  deleteInExternalBackend?: boolean;
+  renameInExternalBackend?: boolean;
 }
 
 export type PublicWorkspace = ConvertAgentToPublicAgent<Workspace>;

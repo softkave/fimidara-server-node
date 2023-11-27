@@ -1,93 +1,93 @@
 {
+    "__id": "HttpEndpointDefinition",
     "basePathname": "/v1/folders/countFolderContent",
     "method": "post",
     "requestBody": {
-        "required": true,
-        "description": "List folder content endpoint params.",
         "__id": "FieldObject",
         "name": "CountFolderContentEndpointParams",
         "fields": {
             "folderpath": {
                 "data": {
-                    "description": "Folder path with workspace rootname.",
                     "__id": "FieldString",
+                    "description": "Folder path with workspace rootname.",
                     "example": "/workspace-rootname/my-outer-folder/my-inner-folder"
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             },
             "folderId": {
                 "data": {
-                    "description": "Folder ID.",
                     "__id": "FieldString",
+                    "description": "Folder ID.",
                     "example": "folder0_000000000000000000000"
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             },
             "contentType": {
                 "data": {
-                    "description": "Count children files or folders. To count both, pass nothing.",
                     "__id": "FieldString",
+                    "description": "Count children files or folders. To count both, pass nothing.",
                     "example": "file",
                     "valid": {
                         "0": "file",
                         "1": "folder"
                     }
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             }
-        }
+        },
+        "description": "List folder content endpoint params."
     },
     "requestHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType",
         "fields": {
             "Authorization": {
                 "data": {
-                    "description": "Access token.",
                     "__id": "FieldString",
+                    "description": "Access token.",
                     "example": "Bearer <token>"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON request content type.",
                     "__id": "FieldString",
-                    "example": "application/json",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON request content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType"
     },
     "responseHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
         "fields": {
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON response content type.",
                     "__id": "FieldString",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON response content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Length": {
                 "data": {
-                    "description": "HTTP response content length in bytes.",
-                    "__id": "FieldString"
+                    "__id": "FieldString",
+                    "description": "HTTP response content length in bytes."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength"
     },
     "responseBody": {
-        "required": true,
-        "description": "Count folder content endpoint success result.",
         "__id": "FieldObject",
         "name": "CountFolderContentEndpointResult",
         "fields": {
@@ -95,50 +95,50 @@
                 "data": {
                     "__id": "FieldNumber"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "filesCount": {
                 "data": {
                     "__id": "FieldNumber"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "description": "Count folder content endpoint success result."
     },
     "name": "CountFolderContentEndpoint",
     "description": "Count folder content endpoint.",
     "errorResponseHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
         "fields": {
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON response content type.",
                     "__id": "FieldString",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON response content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Length": {
                 "data": {
-                    "description": "HTTP response content length in bytes.",
-                    "__id": "FieldString"
+                    "__id": "FieldString",
+                    "description": "HTTP response content length in bytes."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength"
     },
     "errorResponseBody": {
-        "required": true,
-        "description": "Endpoint error result.",
         "__id": "FieldObject",
         "name": "EndpointErrorResult",
         "fields": {
             "errors": {
                 "data": {
-                    "description": "Endpoint call response errors.",
                     "__id": "FieldArray",
                     "type": {
                         "__id": "FieldObject",
@@ -146,46 +146,52 @@
                         "fields": {
                             "name": {
                                 "data": {
-                                    "description": "Error name.",
                                     "__id": "FieldString",
+                                    "description": "Error name.",
                                     "example": "ValidationError"
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "message": {
                                 "data": {
-                                    "description": "Error message.",
                                     "__id": "FieldString",
+                                    "description": "Error message.",
                                     "example": "Workspace name is invalid."
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "action": {
                                 "data": {
-                                    "description": "Recommended action.",
                                     "__id": "FieldString",
+                                    "description": "Recommended action.",
                                     "valid": {
                                         "0": "loginAgain",
                                         "1": "logout",
                                         "2": "requestChangePassword"
                                     }
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             },
                             "field": {
                                 "data": {
-                                    "description": "Invalid field failing validation when error is ValidationError.",
                                     "__id": "FieldString",
-                                    "example": "workspace.innerField.secondInnerField"
+                                    "example": "workspace.innerField.secondInnerField",
+                                    "description": "Invalid field failing validation when error is ValidationError."
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             }
                         }
-                    }
+                    },
+                    "description": "Endpoint call response errors."
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             }
-        }
-    },
-    "__id": "HttpEndpointDefinition"
+        },
+        "description": "Endpoint error result."
+    }
 }

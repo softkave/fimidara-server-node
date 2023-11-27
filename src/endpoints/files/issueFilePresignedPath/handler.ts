@@ -60,7 +60,7 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async (
     // path.
     appAssert(data.filepath, reuseableErrors.file.notFound(data.fileId));
     const filepathInfo = getFilepathInfo(data.filepath);
-    fileNamePath = filepathInfo.splitPathWithoutExtension;
+    fileNamePath = filepathInfo.filepathExcludingExt;
     fileExtension = filepathInfo.extension;
 
     if (!workspace) {

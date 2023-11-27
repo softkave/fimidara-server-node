@@ -7,7 +7,7 @@ import {
   mddocEndpointHttpResponseItems,
 } from '../endpoints/endpoints.mddoc';
 import {accessorFieldsToObject} from '../utils/classAccessors';
-import {HttpEndpointDefinitionType, isMddocSdkParamsBody} from './mddoc';
+import {HttpEndpointDefinitionType} from './mddoc';
 
 function generateEndpointInfoFromEndpoints() {
   const infoMap = new Map<HttpEndpointDefinitionType<any>, string>();
@@ -20,15 +20,7 @@ function generateEndpointInfoFromEndpoints() {
           mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
         )
         .setErrorResponseBody(mddocEndpointHttpResponseItems.errorResponseBody),
-      /** skip fields prefix */ [],
-      (rawInstance, extractedInstance) =>
-        isMddocSdkParamsBody(rawInstance)
-          ? {
-              mappings: rawInstance.mappings
-                ? Object.keys(extractedInstance).map(rawInstance.mappings)
-                : [],
-            }
-          : {}
+      /** skip fields prefix */ []
     );
     infoMap.set(
       endpoint.mddocHttpDefinition as any,

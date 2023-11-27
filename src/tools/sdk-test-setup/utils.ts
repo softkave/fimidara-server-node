@@ -84,33 +84,38 @@ async function createAgentToken(
 
 export async function setupSDKTestReq() {
   const context = await setupContext();
-  const {workspace, token, tokenStr} = await context.semantic.utils.withTxn(context, async opts => {
-    const {workspace, adminPermissionGroup} = await insertWorkspace(context, opts);
-    const {token, tokenStr} = await createAgentToken(context, workspace, opts);
-    await addAssignedPermissionGroupList(
-      context,
-      SYSTEM_SESSION_AGENT,
-      workspace.resourceId,
-      [{permissionGroupId: adminPermissionGroup.resourceId}],
-      token.resourceId,
-      false, // don't delete existing assigned permission groups
-      true, // skip permission groups check
-      /** skip auth check */ true,
-      opts
-    );
-    return {workspace, token, tokenStr};
-  });
+  const {workspace, token, tokenStr} = await context.semantic.utils.withTxn(
+    context,
+    async opts => {
+      const {workspace, adminPermissionGroup} = await insertWorkspace(context, opts);
+      const {token, tokenStr} = await createAgentToken(context, workspace, opts);
+      await addAssignedPermissionGroupList(
+        context,
+        SYSTEM_SESSION_AGENT,
+        workspace.resourceId,
+        [{permissionGroupId: adminPermissionGroup.resourceId}],
+        token.resourceId,
+        false, // don't delete existing assigned permission groups
+        true, // skip permission groups check
+        /** skip auth check */ true,
+        opts
+      );
+      return {workspace, token, tokenStr};
+    }
+  );
 
   try {
     const jsSdkTestEnvFilepath = './sdk/js-sdk/.env.test';
     await fspromises.access(jsSdkTestEnvFilepath);
+
+    // TODO: pick server URL port from env file
     const envText = `FIMIDARA_TEST_WORKSPACE_ID="${workspace.resourceId}"
 FIMIDARA_TEST_WORKSPACE_ROOTNAME="${workspace.rootname}"
 FIMIDARA_TEST_AUTH_TOKEN="${tokenStr}"
 FIMIDARA_TEST_FILEPATH="/src/testutils/testdata/testfile.txt"
-FIMIDARA_SERVER_URL="http://localhost:5000"`;
+FIMIDARA_SERVER_URL="http://localhost:5005"`;
     await fspromises.writeFile(jsSdkTestEnvFilepath, envText, 'utf-8');
-    console.log(`Wrote to js sdk .env.test file`);
+    console.log('Wrote to js sdk .env.test file');
   } catch (error: unknown) {
     console.log('Error writing .env.test file');
     console.error(error);

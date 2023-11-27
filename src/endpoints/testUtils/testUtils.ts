@@ -7,7 +7,7 @@ import {AgentToken} from '../../definitions/agentToken';
 import {BaseTokenData, CURRENT_TOKEN_VERSION} from '../../definitions/system';
 import {PublicUser, UserWithWorkspace} from '../../definitions/user';
 import {PublicWorkspace, Workspace} from '../../definitions/workspace';
-import {FileBackendType, FimidaraConfig} from '../../resources/types';
+import {FilePersistenceType, FimidaraConfig} from '../../resources/types';
 import {fimidaraConfig} from '../../resources/vars';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
@@ -71,11 +71,11 @@ export function getTestEmailProvider(appVariables: FimidaraConfig) {
 }
 
 export function getTestFileProvider(appVariables: FimidaraConfig) {
-  if (appVariables.fileBackend === FileBackendType.S3) {
+  if (appVariables.fileBackend === FilePersistenceType.S3) {
     return new TestS3FilePersistenceProviderContext(appVariables.awsRegion);
-  } else if (appVariables.fileBackend === FileBackendType.Memory) {
+  } else if (appVariables.fileBackend === FilePersistenceType.Memory) {
     return new TestMemoryFilePersistenceProviderContext();
-  } else if (appVariables.fileBackend === FileBackendType.LocalFs) {
+  } else if (appVariables.fileBackend === FilePersistenceType.LocalFs) {
     appAssert(appVariables.localFsDir);
     return new TestLocalFsFilePersistenceProviderContext(appVariables.localFsDir);
   }

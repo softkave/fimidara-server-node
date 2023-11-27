@@ -20,7 +20,6 @@ export const kPermissionsMap = {
 
   addFile: 'addFile',
   readFile: 'readFile',
-  updateFile: 'updateFile',
   transferFile: 'transferFile',
   deleteFile: 'deleteFile',
 
@@ -47,6 +46,14 @@ export const kPermissionsMap = {
   assignTag: 'assignTag',
 
   readUsageRecord: 'readUsageRecord',
+
+  configFileBackend: 'configFileBackend',
+  deleteFileBackendConfig: 'deleteFileBackendConfig',
+  readFileBackendConfig: 'readFileBackendConfig',
+  addFileBackendMount: 'addFileBackendMount',
+  deleteFileBackendMount: 'deleteFileBackendMount',
+  ingestFileBackendMount: 'ingestFileBackendMount',
+  readFileBackendMount: 'readFileBackendMount',
 } as const;
 
 export type PermissionAction = ObjectValues<typeof kPermissionsMap>;

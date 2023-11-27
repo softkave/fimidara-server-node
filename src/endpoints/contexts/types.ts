@@ -22,7 +22,7 @@ import {
   WorkspaceDataProvider,
 } from './data/types';
 import {IEmailProviderContext} from './email/types';
-import {FilePersistenceProviderContext} from './file/types';
+import {FilePersistenceProvider} from './file/types';
 import {PermissionsLogicProvider} from './logic/PermissionsLogicProvider';
 import {UsageRecordLogicProvider} from './logic/UsageRecordLogicProvider';
 import {SemanticDataAccessAgentTokenProvider} from './semantic/agentToken/types';
@@ -95,7 +95,7 @@ export interface BaseContextType<
   Data extends BaseContextDataProviders = BaseContextDataProviders,
   SemanticData extends BaseContextSemanticDataProviders = BaseContextSemanticDataProviders,
   Email extends IEmailProviderContext = IEmailProviderContext,
-  FileBackend extends FilePersistenceProviderContext = FilePersistenceProviderContext,
+  FileBackend extends FilePersistenceProvider = FilePersistenceProvider,
   AppVars extends FimidaraConfig = FimidaraConfig,
   Logic extends BaseContextLogicProviders = BaseContextLogicProviders
 > {

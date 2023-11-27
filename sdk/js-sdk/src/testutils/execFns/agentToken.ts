@@ -13,7 +13,7 @@ import {ITestVars, loopAndCollate} from '../utils';
 import assert = require('assert');
 
 function getTokenExpiryDate(
-  days: number = faker.datatype.number({min: 1, max: 10})
+  days: number = faker.number.int({min: 1, max: 10})
 ) {
   return new Date(Date.now() + days * 24 * 60 * 60 * 1000).valueOf();
 }
@@ -26,7 +26,7 @@ export async function addAgentTokenTestExecFn(
   const genInput: AddAgentTokenEndpointParams = {
     token: {
       expires: getTokenExpiryDate(),
-      providedResourceId: faker.datatype.uuid(),
+      providedResourceId: faker.string.uuid(),
     },
   };
   const inputs = merge(genInput, props);
@@ -107,7 +107,7 @@ export async function updateTokenTestExecFn(
     tokenId,
     token: {
       expires: getTokenExpiryDate(),
-      providedResourceId: faker.datatype.uuid(),
+      providedResourceId: faker.string.uuid(),
     },
   };
   const result = await endpoint.agentTokens.updateToken({body: input});

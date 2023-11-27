@@ -35,3 +35,30 @@
 - Implement streaming + fan out, use case, like listeners, live video, etc
 - Separate process file resizing
 - File and folder exists + transfer
+- Write tests for the new incoming upload file streaming
+- Disable usage records for now because we don't have stream content length, and bring it back
+- Test that upload file begins processing immediately rather than after all the stream is loaded in memory
+- Seek, chunk, move files, and right permission names, should we use file names from multi-part, or allow overwriting
+- is-file-owner permission
+- Help migrate files from one cloud provider to another
+- Soft delete and recreate if resource is created again, particularly for files, and folders
+- Encrypt backend provided credentials
+- Add how to retrieve backend credentials for each backend
+- Test credentials have permission for each provided credential
+- Index fields for db schemas
+- Flatter endpoint inputs, like add resource endpoints
+- Confirm config has access
+- Delete config and delete mount
+- File alias
+- Encryption at rest
+- Store folderId in mount instead of folderpath
+- Alert customers if a mount mountedFrom is not found
+- Validate file persistence config/credentials before using
+- 2 servers, and 2 job runners
+
+- Limits of http, and maybe increase upload limit
+- Read up on HTTP streaming
+- File status, read available, write available
+- Chunk uploading, with js sdk
+- Save size after, disable sum usage records for now, and bring back later
+- Introductory file locking, should we allow reading when writing, and vice-versa

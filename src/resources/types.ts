@@ -1,14 +1,9 @@
 import {RequiredKeysOf} from 'type-fest';
+import {FileBackendProductType} from '../definitions/fileBackend';
 import {AnyFn, AnyObject} from '../utils/types';
 
 export enum AppEnvVariables {
   CONFIG_FILE_PATH = 'CONFIG_FILE_PATH',
-}
-
-export enum FileBackendType {
-  S3 = 's3',
-  Memory = 'memory',
-  LocalFs = 'fs',
 }
 
 // Added after the app initialization phase.
@@ -33,7 +28,8 @@ export interface FimidaraSuppliedConfig {
   rootUserEmail: string;
   rootUserFirstName: string;
   rootUserLastName: string;
-  fileBackend: FileBackendType;
+  fileBackend: FileBackendProductType;
+  awsConfig: {};
 
   // Primarily used by job runner to find unfinished jobs from previous
   // instances of the server. Since we currently only run one instance, the
@@ -49,7 +45,7 @@ export interface FimidaraSuppliedConfig {
   FLAG_waitlistNewSignups: boolean;
 
   /** Where to persist files when `fileBackend` is
-   * {@link FileBackendType.LocalFs} */
+   * {@link FilePersistenceType.LocalFs} */
   localFsDir?: string;
   appName: string;
   appDefaultEmailAddressFrom: string;

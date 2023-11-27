@@ -12,3 +12,16 @@ export class FileExistsError extends OperationError {
     this.message = getErrorMessageFromParams(props, 'File exists.');
   }
 }
+
+export class FileNotWritableError extends OperationError {
+  name = 'FileNotWritableError';
+  statusCode = endpointConstants.httpStatusCode.conflict;
+  constructor(props?: OperationErrorParameters | string) {
+    super(props);
+    this.message = getErrorMessageFromParams(
+      props,
+      'File not in a writable state. ' +
+        'This is most likely because the file is currently being written to.'
+    );
+  }
+}

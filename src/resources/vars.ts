@@ -6,7 +6,7 @@ import {getNewId} from '../utils/resource';
 import {AnyFn, AnyObject} from '../utils/types';
 import {
   AppEnvVariables,
-  FileBackendType,
+  FilePersistenceType,
   FimidaraConfig,
   FimidaraConfigSchema,
   FimidaraRuntimeConfig,
@@ -66,7 +66,7 @@ export const configSchema: FimidaraConfigSchema = {
   rootUserEmail: {required: true},
   rootUserFirstName: {required: true},
   rootUserLastName: {required: true},
-  fileBackend: {required: true, defaultValue: FileBackendType.S3},
+  fileBackend: {required: true, defaultValue: FilePersistenceType.S3},
   FLAG_waitlistNewSignups: {
     required: false,
     defaultValue: false,
@@ -120,11 +120,13 @@ function checkRequiredSuppliedConfig(base: FimidaraConfig) {
 
     if (!meta) throw new Error(`Unknown env var key ${key}`);
     if (meta.required && !value) missingVariables.push(key);
-    if (value && meta.transform) value = (base as any)[key] = meta.transform(value as string);
+    if (value && meta.transform)
+      value = (base as any)[key] = meta.transform(value as string);
     if (meta.validator) {
       const validationResult = meta.validator(value);
       if (isString(validationResult)) validationErrors.push([key, validationResult]);
-      else if (validationResult === false) validationErrors.push([key, `'${value}' is invalid.`]);
+      else if (validationResult === false)
+        validationErrors.push([key, `'${value}' is invalid.`]);
     }
   });
 
@@ -137,7 +139,11 @@ function checkRequiredSuppliedConfig(base: FimidaraConfig) {
   }
   if (validationErrors.length) {
     errorMessage += ['Invalid variables:']
-      .concat(validationErrors.map(([name, message]) => `Env name: ${name}, Message: ${message}`))
+      .concat(
+        validationErrors.map(
+          ([name, message]) => `Env name: ${name}, Message: ${message}`
+        )
+      )
       .join('\n');
   }
 

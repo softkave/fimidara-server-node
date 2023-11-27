@@ -19,8 +19,8 @@ export type User = {
   passwordLastChangedAt: number;
   requiresPasswordChange?: boolean;
   isEmailVerified: boolean;
-  emailVerifiedAt?: number;
-  emailVerificationEmailSentAt?: number;
+  emailVerifiedAt?: number | null;
+  emailVerificationEmailSentAt?: number | null;
   workspaces: Array<UserWorkspace>;
   isOnWaitlist: boolean;
 };
@@ -103,7 +103,7 @@ export type WorkspaceUsageThresholdLocks = {
 export type Workspace = {
   resourceId: string;
   workspaceId: string;
-  providedResourceId?: string;
+  providedResourceId?: string | null;
   createdBy: Agent;
   createdAt: number;
   lastUpdatedBy: Agent;

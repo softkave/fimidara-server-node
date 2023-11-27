@@ -1,92 +1,100 @@
 {
+    "__id": "HttpEndpointDefinition",
     "basePathname": "/v1/workspaces/countUserWorkspaces",
     "method": "post",
     "requestHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointRequestHeaders_AuthRequired",
         "fields": {
             "Authorization": {
                 "data": {
-                    "description": "Access token.",
                     "__id": "FieldString",
+                    "description": "Access token.",
                     "example": "Bearer <token>"
                 },
+                "__id": "FieldObjectField",
+                "required": true
+            },
+            "Content-Type": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "HTTP JSON request content type.",
+                    "example": "application/json"
+                },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType"
     },
     "responseHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
         "fields": {
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON response content type.",
                     "__id": "FieldString",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON response content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Length": {
                 "data": {
-                    "description": "HTTP response content length in bytes.",
-                    "__id": "FieldString"
+                    "__id": "FieldString",
+                    "description": "HTTP response content length in bytes."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength"
     },
     "responseBody": {
-        "required": true,
-        "description": "Count endpoint success result.",
         "__id": "FieldObject",
         "name": "CountItemsResult",
         "fields": {
             "count": {
                 "data": {
-                    "description": "Resource count.",
-                    "__id": "FieldNumber"
+                    "__id": "FieldNumber",
+                    "description": "Resource count."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "description": "Count endpoint success result."
     },
     "name": "CountUserWorkspacesEndpoint",
     "description": "Count workspace user workspaces endpoint.",
     "errorResponseHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
         "fields": {
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON response content type.",
                     "__id": "FieldString",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON response content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Length": {
                 "data": {
-                    "description": "HTTP response content length in bytes.",
-                    "__id": "FieldString"
+                    "__id": "FieldString",
+                    "description": "HTTP response content length in bytes."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength"
     },
     "errorResponseBody": {
-        "required": true,
-        "description": "Endpoint error result.",
         "__id": "FieldObject",
         "name": "EndpointErrorResult",
         "fields": {
             "errors": {
                 "data": {
-                    "description": "Endpoint call response errors.",
                     "__id": "FieldArray",
                     "type": {
                         "__id": "FieldObject",
@@ -94,46 +102,52 @@
                         "fields": {
                             "name": {
                                 "data": {
-                                    "description": "Error name.",
                                     "__id": "FieldString",
+                                    "description": "Error name.",
                                     "example": "ValidationError"
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "message": {
                                 "data": {
-                                    "description": "Error message.",
                                     "__id": "FieldString",
+                                    "description": "Error message.",
                                     "example": "Workspace name is invalid."
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "action": {
                                 "data": {
-                                    "description": "Recommended action.",
                                     "__id": "FieldString",
+                                    "description": "Recommended action.",
                                     "valid": {
                                         "0": "loginAgain",
                                         "1": "logout",
                                         "2": "requestChangePassword"
                                     }
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             },
                             "field": {
                                 "data": {
-                                    "description": "Invalid field failing validation when error is ValidationError.",
                                     "__id": "FieldString",
-                                    "example": "workspace.innerField.secondInnerField"
+                                    "example": "workspace.innerField.secondInnerField",
+                                    "description": "Invalid field failing validation when error is ValidationError."
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             }
                         }
-                    }
+                    },
+                    "description": "Endpoint call response errors."
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             }
-        }
-    },
-    "__id": "HttpEndpointDefinition"
+        },
+        "description": "Endpoint error result."
+    }
 }

@@ -1,112 +1,114 @@
 {
+    "__id": "HttpEndpointDefinition",
     "basePathname": "/v1/folders/listFolderContent",
     "method": "post",
     "requestBody": {
-        "required": true,
-        "description": "List folder content endpoint params.",
         "__id": "FieldObject",
         "name": "ListFolderContentEndpointParams",
         "fields": {
             "folderpath": {
                 "data": {
-                    "description": "Folder path with workspace rootname.",
                     "__id": "FieldString",
+                    "description": "Folder path with workspace rootname.",
                     "example": "/workspace-rootname/my-outer-folder/my-inner-folder"
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             },
             "folderId": {
                 "data": {
-                    "description": "Folder ID.",
                     "__id": "FieldString",
+                    "description": "Folder ID.",
                     "example": "folder0_000000000000000000000"
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             },
             "contentType": {
                 "data": {
-                    "description": "Fetch children files or folders. To fetch both, pass nothing.",
                     "__id": "FieldString",
+                    "description": "Fetch children files or folders. To fetch both, pass nothing.",
                     "example": "file",
                     "valid": {
                         "0": "file",
                         "1": "folder"
                     }
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             },
             "page": {
                 "data": {
-                    "description": "Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ...",
                     "__id": "FieldNumber",
+                    "description": "Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ...",
                     "example": 0,
                     "min": 0
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             },
             "pageSize": {
                 "data": {
-                    "description": "Paginated list page size.",
                     "__id": "FieldNumber",
+                    "description": "Paginated list page size.",
                     "example": 10,
                     "min": 1,
                     "max": 1000
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             }
-        }
+        },
+        "description": "List folder content endpoint params."
     },
     "requestHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType",
         "fields": {
             "Authorization": {
                 "data": {
-                    "description": "Access token.",
                     "__id": "FieldString",
+                    "description": "Access token.",
                     "example": "Bearer <token>"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON request content type.",
                     "__id": "FieldString",
-                    "example": "application/json",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON request content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType"
     },
     "responseHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
         "fields": {
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON response content type.",
                     "__id": "FieldString",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON response content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Length": {
                 "data": {
-                    "description": "HTTP response content length in bytes.",
-                    "__id": "FieldString"
+                    "__id": "FieldString",
+                    "description": "HTTP response content length in bytes."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength"
     },
     "responseBody": {
-        "required": true,
-        "description": "List folder content endpoint success result.",
         "__id": "FieldObject",
         "name": "ListFolderContentEndpointResult",
         "fields": {
@@ -121,6 +123,7 @@
                                 "data": {
                                     "__id": "FieldString"
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "createdBy": {
@@ -130,15 +133,16 @@
                                     "fields": {
                                         "agentId": {
                                             "data": {
-                                                "description": "Agent ID. Possible agents are users and agent tokens.",
-                                                "__id": "FieldString"
+                                                "__id": "FieldString",
+                                                "description": "Agent ID. Possible agents are users and agent tokens."
                                             },
+                                            "__id": "FieldObjectField",
                                             "required": true
                                         },
                                         "agentType": {
                                             "data": {
-                                                "description": "Agent type.",
                                                 "__id": "FieldString",
+                                                "description": "Agent type.",
                                                 "example": "agentToken",
                                                 "valid": {
                                                     "0": "user",
@@ -146,17 +150,20 @@
                                                 },
                                                 "enumName": "AgentType"
                                             },
+                                            "__id": "FieldObjectField",
                                             "required": true
                                         }
                                     }
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "createdAt": {
                                 "data": {
-                                    "description": "UTC timestamp in milliseconds.",
-                                    "__id": "FieldNumber"
+                                    "__id": "FieldNumber",
+                                    "description": "UTC timestamp in milliseconds."
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "lastUpdatedBy": {
@@ -166,15 +173,16 @@
                                     "fields": {
                                         "agentId": {
                                             "data": {
-                                                "description": "Agent ID. Possible agents are users and agent tokens.",
-                                                "__id": "FieldString"
+                                                "__id": "FieldString",
+                                                "description": "Agent ID. Possible agents are users and agent tokens."
                                             },
+                                            "__id": "FieldObjectField",
                                             "required": true
                                         },
                                         "agentType": {
                                             "data": {
-                                                "description": "Agent type.",
                                                 "__id": "FieldString",
+                                                "description": "Agent type.",
                                                 "example": "agentToken",
                                                 "valid": {
                                                     "0": "user",
@@ -182,63 +190,71 @@
                                                 },
                                                 "enumName": "AgentType"
                                             },
+                                            "__id": "FieldObjectField",
                                             "required": true
                                         }
                                     }
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "lastUpdatedAt": {
                                 "data": {
-                                    "description": "UTC timestamp in milliseconds.",
-                                    "__id": "FieldNumber"
+                                    "__id": "FieldNumber",
+                                    "description": "UTC timestamp in milliseconds."
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "name": {
                                 "data": {
-                                    "description": "Name",
-                                    "__id": "FieldString"
+                                    "__id": "FieldString",
+                                    "description": "Name"
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "description": {
                                 "data": {
-                                    "description": "Description",
-                                    "__id": "FieldString"
+                                    "__id": "FieldString",
+                                    "description": "Description"
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             },
                             "workspaceId": {
                                 "data": {
-                                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
                                     "__id": "FieldString",
+                                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
                                     "example": "wrkspce_000000000000000000000"
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "idPath": {
                                 "data": {
-                                    "description": "List of parent folder IDs.",
                                     "__id": "FieldArray",
                                     "type": {
-                                        "description": "Folder ID.",
                                         "__id": "FieldString",
+                                        "description": "Folder ID.",
                                         "example": "folder0_000000000000000000000"
-                                    }
+                                    },
+                                    "description": "List of parent folder IDs."
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "namePath": {
                                 "data": {
-                                    "description": "List of parent folder names.",
                                     "__id": "FieldArray",
                                     "type": {
-                                        "description": "Folder name.",
                                         "__id": "FieldString",
+                                        "description": "Folder name.",
                                         "example": "my-folder"
-                                    }
+                                    },
+                                    "description": "List of parent folder names."
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "parentId": {
@@ -246,8 +262,8 @@
                                     "__id": "FieldOrCombination",
                                     "types": {
                                         "0": {
-                                            "description": "Folder ID.",
                                             "__id": "FieldString",
+                                            "description": "Folder ID.",
                                             "example": "folder0_000000000000000000000"
                                         },
                                         "1": {
@@ -255,19 +271,30 @@
                                         }
                                     }
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "providedResourceId": {
                                 "data": {
-                                    "description": "Resource ID provided by you.",
-                                    "__id": "FieldString",
-                                    "max": 50
+                                    "__id": "FieldOrCombination",
+                                    "types": {
+                                        "0": {
+                                            "__id": "FieldString",
+                                            "description": "Resource ID provided by you.",
+                                            "max": 50
+                                        },
+                                        "1": {
+                                            "__id": "FieldNull"
+                                        }
+                                    }
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             }
                         }
                     }
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "files": {
@@ -279,32 +306,37 @@
                         "fields": {
                             "size": {
                                 "data": {
+                                    "__id": "FieldNumber",
                                     "description": "File size in bytes",
-                                    "__id": "FieldNumber"
+                                    "max": 1073741824
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "extension": {
                                 "data": {
-                                    "description": "File extension",
-                                    "__id": "FieldString"
+                                    "__id": "FieldString",
+                                    "description": "File extension"
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             },
                             "resourceId": {
                                 "data": {
-                                    "description": "Resource ID.",
                                     "__id": "FieldString",
+                                    "description": "Resource ID.",
                                     "example": "wrkspce_000000000000000000000"
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "workspaceId": {
                                 "data": {
-                                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
                                     "__id": "FieldString",
+                                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
                                     "example": "wrkspce_000000000000000000000"
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "parentId": {
@@ -312,8 +344,8 @@
                                     "__id": "FieldOrCombination",
                                     "types": {
                                         "0": {
-                                            "description": "Folder ID.",
                                             "__id": "FieldString",
+                                            "description": "Folder ID.",
                                             "example": "folder0_000000000000000000000"
                                         },
                                         "1": {
@@ -321,45 +353,50 @@
                                         }
                                     }
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "idPath": {
                                 "data": {
-                                    "description": "List of parent folder IDs.",
                                     "__id": "FieldArray",
                                     "type": {
-                                        "description": "Folder ID.",
                                         "__id": "FieldString",
+                                        "description": "Folder ID.",
                                         "example": "folder0_000000000000000000000"
-                                    }
+                                    },
+                                    "description": "List of parent folder IDs."
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "namePath": {
                                 "data": {
-                                    "description": "List of parent folder names.",
                                     "__id": "FieldArray",
                                     "type": {
-                                        "description": "Folder name.",
                                         "__id": "FieldString",
+                                        "description": "Folder name.",
                                         "example": "my-folder"
-                                    }
+                                    },
+                                    "description": "List of parent folder names."
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "mimetype": {
                                 "data": {
-                                    "description": "File MIME type",
-                                    "__id": "FieldString"
+                                    "__id": "FieldString",
+                                    "description": "File MIME type"
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             },
                             "encoding": {
                                 "data": {
-                                    "description": "File encoding",
-                                    "__id": "FieldString"
+                                    "__id": "FieldString",
+                                    "description": "File encoding"
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             },
                             "createdBy": {
                                 "data": {
@@ -368,15 +405,16 @@
                                     "fields": {
                                         "agentId": {
                                             "data": {
-                                                "description": "Agent ID. Possible agents are users and agent tokens.",
-                                                "__id": "FieldString"
+                                                "__id": "FieldString",
+                                                "description": "Agent ID. Possible agents are users and agent tokens."
                                             },
+                                            "__id": "FieldObjectField",
                                             "required": true
                                         },
                                         "agentType": {
                                             "data": {
-                                                "description": "Agent type.",
                                                 "__id": "FieldString",
+                                                "description": "Agent type.",
                                                 "example": "agentToken",
                                                 "valid": {
                                                     "0": "user",
@@ -384,17 +422,20 @@
                                                 },
                                                 "enumName": "AgentType"
                                             },
+                                            "__id": "FieldObjectField",
                                             "required": true
                                         }
                                     }
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "createdAt": {
                                 "data": {
-                                    "description": "UTC timestamp in milliseconds.",
-                                    "__id": "FieldNumber"
+                                    "__id": "FieldNumber",
+                                    "description": "UTC timestamp in milliseconds."
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "lastUpdatedBy": {
@@ -404,15 +445,16 @@
                                     "fields": {
                                         "agentId": {
                                             "data": {
-                                                "description": "Agent ID. Possible agents are users and agent tokens.",
-                                                "__id": "FieldString"
+                                                "__id": "FieldString",
+                                                "description": "Agent ID. Possible agents are users and agent tokens."
                                             },
+                                            "__id": "FieldObjectField",
                                             "required": true
                                         },
                                         "agentType": {
                                             "data": {
-                                                "description": "Agent type.",
                                                 "__id": "FieldString",
+                                                "description": "Agent type.",
                                                 "example": "agentToken",
                                                 "valid": {
                                                     "0": "user",
@@ -420,92 +462,106 @@
                                                 },
                                                 "enumName": "AgentType"
                                             },
+                                            "__id": "FieldObjectField",
                                             "required": true
                                         }
                                     }
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "lastUpdatedAt": {
                                 "data": {
-                                    "description": "UTC timestamp in milliseconds.",
-                                    "__id": "FieldNumber"
+                                    "__id": "FieldNumber",
+                                    "description": "UTC timestamp in milliseconds."
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "name": {
                                 "data": {
-                                    "description": "File name.",
                                     "__id": "FieldString",
+                                    "description": "File name.",
                                     "example": "my-file"
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "description": {
                                 "data": {
-                                    "description": "Description",
-                                    "__id": "FieldString"
+                                    "__id": "FieldString",
+                                    "description": "Description"
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             },
                             "providedResourceId": {
                                 "data": {
-                                    "description": "Resource ID provided by you.",
-                                    "__id": "FieldString",
-                                    "max": 50
+                                    "__id": "FieldOrCombination",
+                                    "types": {
+                                        "0": {
+                                            "__id": "FieldString",
+                                            "description": "Resource ID provided by you.",
+                                            "max": 50
+                                        },
+                                        "1": {
+                                            "__id": "FieldNull"
+                                        }
+                                    }
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             }
                         }
                     }
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "page": {
                 "data": {
-                    "description": "Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ...",
                     "__id": "FieldNumber",
+                    "description": "Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ...",
                     "example": 0,
                     "min": 0
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "description": "List folder content endpoint success result."
     },
     "name": "ListFolderContentEndpoint",
     "description": "List folder content endpoint.",
     "errorResponseHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
         "fields": {
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON response content type.",
                     "__id": "FieldString",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON response content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Length": {
                 "data": {
-                    "description": "HTTP response content length in bytes.",
-                    "__id": "FieldString"
+                    "__id": "FieldString",
+                    "description": "HTTP response content length in bytes."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength"
     },
     "errorResponseBody": {
-        "required": true,
-        "description": "Endpoint error result.",
         "__id": "FieldObject",
         "name": "EndpointErrorResult",
         "fields": {
             "errors": {
                 "data": {
-                    "description": "Endpoint call response errors.",
                     "__id": "FieldArray",
                     "type": {
                         "__id": "FieldObject",
@@ -513,46 +569,52 @@
                         "fields": {
                             "name": {
                                 "data": {
-                                    "description": "Error name.",
                                     "__id": "FieldString",
+                                    "description": "Error name.",
                                     "example": "ValidationError"
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "message": {
                                 "data": {
-                                    "description": "Error message.",
                                     "__id": "FieldString",
+                                    "description": "Error message.",
                                     "example": "Workspace name is invalid."
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "action": {
                                 "data": {
-                                    "description": "Recommended action.",
                                     "__id": "FieldString",
+                                    "description": "Recommended action.",
                                     "valid": {
                                         "0": "loginAgain",
                                         "1": "logout",
                                         "2": "requestChangePassword"
                                     }
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             },
                             "field": {
                                 "data": {
-                                    "description": "Invalid field failing validation when error is ValidationError.",
                                     "__id": "FieldString",
-                                    "example": "workspace.innerField.secondInnerField"
+                                    "example": "workspace.innerField.secondInnerField",
+                                    "description": "Invalid field failing validation when error is ValidationError."
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             }
                         }
-                    }
+                    },
+                    "description": "Endpoint call response errors."
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             }
-        }
-    },
-    "__id": "HttpEndpointDefinition"
+        },
+        "description": "Endpoint error result."
+    }
 }

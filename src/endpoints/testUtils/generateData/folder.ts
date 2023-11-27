@@ -1,11 +1,14 @@
 import {faker} from '@faker-js/faker';
+import {container} from 'tsyringe';
 import {Folder} from '../../../definitions/folder';
+import {AppResourceTypeMap} from '../../../definitions/system';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
-import {BaseContextType} from '../../contexts/types';
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kInjectionKeys} from '../../contexts/injectionKeys';
+import {SemanticDataAccessFolderProvider} from '../../contexts/semantic/folder/types';
+import {SemanticDataAccessProviderUtils} from '../../contexts/semantic/types';
 
 export const kTestFolderNameSeparatorChars = ['-', '_', ' ', '.'];
 
@@ -85,14 +88,18 @@ export function generateTestFolders(
 }
 
 export async function generateAndInsertTestFolders(
-  ctx: BaseContextType,
   count = 20,
   extra: Partial<Folder> & {parentId: string | null} = {parentId: null},
   other: Parameters<typeof generateTestFolder>[1] = {}
 ) {
-  const items = generateTestFolders(count, extra, other);
-  await ctx.semantic.utils.withTxn(ctx, async opts =>
-    ctx.semantic.folder.insertItem(items, opts)
+  const folderModel = container.resolve<SemanticDataAccessFolderProvider>(
+    kInjectionKeys.semantic.folder
   );
+  const semanticUtils = container.resolve<SemanticDataAccessProviderUtils>(
+    kInjectionKeys.semantic.utils
+  );
+
+  const items = generateTestFolders(count, extra, other);
+  await semanticUtils.withTxn(async opts => folderModel.insertItem(items, opts));
   return items;
 }

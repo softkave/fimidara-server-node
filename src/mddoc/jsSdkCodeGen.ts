@@ -31,6 +31,7 @@ import {
   isMddocFieldString,
   isMddocFieldUndefined,
   isMddocMultipartFormdata,
+  isMddocSdkParamsBody,
   mddocConstruct,
   objectHasRequiredFields,
 } from './mddoc';
@@ -292,6 +293,8 @@ function getTypesFromEndpoint(endpoint: HttpEndpointDefinitionType) {
     ? sdkRequestBodyRaw
     : isMddocMultipartFormdata(sdkRequestBodyRaw)
     ? sdkRequestBodyRaw.assertGetItems()
+    : isMddocSdkParamsBody(sdkRequestBodyRaw)
+    ? sdkRequestBodyRaw.assertGetDef()
     : undefined;
 
   // Success response body
@@ -344,7 +347,9 @@ function generateTypesFromEndpoint(doc: Doc, endpoint: HttpEndpointDefinitionTyp
     getTypesFromEndpoint(endpoint);
 
   // Request body
-  if (requestBodyObject) generateObjectDefinition(doc, requestBodyObject, false);
+  if (requestBodyObject) {
+    generateObjectDefinition(doc, requestBodyObject, false);
+  }
 
   // Success response body
   if (successResponseBodyObject) {
@@ -393,15 +398,17 @@ function generateEndpointCode(
 
   if (sdkRequestObject) {
     if (isBinaryResponse) {
-      if (requestBodyObjectHasRequiredFields)
+      if (requestBodyObjectHasRequiredFields) {
         endpointParamsText = `props: FimidaraEndpointWithBinaryResponseParamsRequired<${requestBodyObjectName}>`;
-      else
+      } else {
         endpointParamsText = `props: FimidaraEndpointWithBinaryResponseParamsOptional<${requestBodyObjectName}>`;
+      }
     } else {
-      if (requestBodyObjectHasRequiredFields)
+      if (requestBodyObjectHasRequiredFields) {
         endpointParamsText = `props: FimidaraEndpointParamsRequired<${requestBodyObjectName}>`;
-      else
+      } else {
         endpointParamsText = `props?: FimidaraEndpointParamsOptional<${requestBodyObjectName}>`;
+      }
     }
   } else {
     endpointParamsText = 'props?: FimidaraEndpointParamsOptional<undefined>';
@@ -411,25 +418,32 @@ function generateEndpointCode(
   let mapping = '';
   const sdkBody = endpoint.getSdkParamsBody();
 
-  if (isBinaryResponse) bodyText.push('responseType: props.responseType,');
-  if (isBinaryRequest) bodyText.push('formdata: props.body,');
-  else if (sdkRequestObject) {
+  if (isBinaryResponse) {
+    bodyText.push('responseType: props.responseType,');
+  }
+
+  if (isBinaryRequest) {
+    bodyText.push('formdata: props.body,');
+  } else if (sdkRequestObject) {
     bodyText.push('data: props?.body,');
     if (sdkBody) {
       forEach(sdkRequestObject.fields ?? {}, (value, key) => {
         const mapTo = sdkBody.mappings(key);
+
         if (mapTo) {
-          const entry = `${key}: [${mapTo[0]}, ${String(mapTo[1])}],`;
+          const entry = `"${key}": ["${mapTo[0]}", "${String(mapTo[1])}"],`;
           mapping += entry;
         }
       });
 
-      if (mapping.length) mapping = `{${mapping}}`;
+      if (mapping.length) {
+        mapping = `{${mapping}}`;
+      }
     }
   }
 
   const text = `${fnName} = async (${endpointParamsText}): Promise<FimidaraEndpointResult<${resultTypeName}>> => {
-    ${mapping.length ? `const mapping = ${mapping}` : ''}
+    ${mapping.length ? `const mapping = ${mapping} as const` : ''}
     return this.execute${isBinaryResponse ? 'Raw' : 'Json'}({
       ...props,
       ${bodyText.join('')}

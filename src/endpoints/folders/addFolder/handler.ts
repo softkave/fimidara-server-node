@@ -1,4 +1,5 @@
 import {last} from 'lodash';
+import {container} from 'tsyringe';
 import {Folder} from '../../../definitions/folder';
 import {
   AppResourceTypeMap,
@@ -17,6 +18,8 @@ import {
   getWorkspacePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {FolderQuery} from '../../contexts/data/types';
+import {kInjectionKeys} from '../../contexts/injectionKeys';
+import {SemanticDataAccessFolderProvider} from '../../contexts/semantic/folder/types';
 import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
 import {assertWorkspace} from '../../workspaces/utils';
@@ -26,7 +29,6 @@ import {AddFolderEndpoint, NewFolderInput} from './types';
 import {addFolderJoiSchema} from './validation';
 
 export async function createFolderListWithTransaction(
-  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   input: NewFolderInput,
@@ -34,27 +36,25 @@ export async function createFolderListWithTransaction(
   throwOnFolderExists = true,
   opts: SemanticDataAccessProviderMutationRunOptions
 ) {
-  const pathWithDetails = getFolderpathInfo(input.folderpath);
+  const folderModel = container.resolve<SemanticDataAccessFolderProvider>(
+    kInjectionKeys.semantic.folder
+  );
+
+  const pathinfo = getFolderpathInfo(input.folderpath);
   let closestExistingFolder: Folder | null = null;
   let previousFolder: Folder | null = null;
-  const folderQueries = pathWithDetails.itemSplitPath
-    .map((p, i) => pathWithDetails.itemSplitPath.slice(0, i + 1))
+  const folderQueries = pathinfo.itemSplitPath
+    .map((p, i) => pathinfo.itemSplitPath.slice(0, i + 1))
     .map(
       (nextNamePath): FolderQuery => ({
         workspaceId: workspace.resourceId,
         namePath: {$all: nextNamePath, $size: nextNamePath.length},
       })
     );
-  const existingFolders = await context.semantic.folder.getManyByQueryList(
-    folderQueries,
-    opts
-  );
+  const existingFolders = await folderModel.getManyByQueryList(folderQueries, opts);
   existingFolders.sort((f1, f2) => f1.namePath.length - f2.namePath.length);
 
-  if (
-    existingFolders.length >= pathWithDetails.itemSplitPath.length &&
-    throwOnFolderExists
-  ) {
+  if (existingFolders.length >= pathinfo.itemSplitPath.length && throwOnFolderExists) {
     throw new FolderExistsError();
   }
 
@@ -62,15 +62,15 @@ export async function createFolderListWithTransaction(
   previousFolder = closestExistingFolder ?? null;
   const newFolders: Folder[] = [];
 
-  for (let i = existingFolders.length; i < pathWithDetails.itemSplitPath.length; i++) {
+  for (let i = existingFolders.length; i < pathinfo.itemSplitPath.length; i++) {
     if (existingFolders[i]) {
       previousFolder = existingFolders[i];
       continue;
     }
 
     // The main folder we want to create
-    const isMainFolder = i === pathWithDetails.itemSplitPath.length - 1;
-    const name = pathWithDetails.itemSplitPath[i];
+    const isMainFolder = i === pathinfo.itemSplitPath.length - 1;
+    const name = pathinfo.itemSplitPath[i];
     const folderId = getNewIdForResource(AppResourceTypeMap.Folder);
     const folder: Folder = newWorkspaceResource(
       agent,

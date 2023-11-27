@@ -1,6 +1,7 @@
 import {AgentTokenModel} from './agentToken';
 import {AppRuntimeStateModel} from './appRuntimeState';
 import {AssignedItemModel} from './assignedItem';
+import {FileBackendConfigModel} from './backend';
 import {CollaborationRequestModel} from './collaborationRequest';
 import {FileModel} from './file';
 import {FilePresignedPathMongoModel} from './filePresignedPath';
@@ -30,4 +31,5 @@ export interface AppMongoModels {
   usageRecord: UsageRecordModel;
   user: UserModel;
   filePresignedPath: FilePresignedPathMongoModel;
+  fileBackendConfig: FileBackendConfigModel;
 }

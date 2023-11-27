@@ -31,7 +31,7 @@ const fileFields = getFields<PublicFile>({
   extension: true,
   idPath: true,
   namePath: true,
-  // tags: assignedTagListExtractor,
+  version: true,
 });
 
 export const fileExtractor = makeExtract(fileFields);
@@ -102,7 +102,7 @@ export async function checkFileAuthorization03(
 }
 
 export interface FilenameInfo {
-  nameWithoutExtension: string;
+  filenameExcludingExt: string;
   extension?: string;
   providedName: string;
 }
@@ -125,12 +125,12 @@ export function getFilenameInfo(providedName: string): FilenameInfo {
   return {
     providedName,
     extension,
-    nameWithoutExtension,
+    filenameExcludingExt: nameWithoutExtension,
   };
 }
 
 export interface FilepathInfo extends FilenameInfo, FolderpathInfo {
-  splitPathWithoutExtension: string[];
+  filepathExcludingExt: string[];
 }
 
 export function getFilepathInfo(path: string | string[]): FilepathInfo {
@@ -138,11 +138,11 @@ export function getFilepathInfo(path: string | string[]): FilepathInfo {
   const filenameInfo = getFilenameInfo(folderpathInfo.name);
   const pathWithoutExtension = [...folderpathInfo.itemSplitPath];
   pathWithoutExtension[pathWithoutExtension.length - 1] =
-    filenameInfo.nameWithoutExtension;
+    filenameInfo.filenameExcludingExt;
   return {
     ...folderpathInfo,
     ...filenameInfo,
-    splitPathWithoutExtension: pathWithoutExtension,
+    filepathExcludingExt: pathWithoutExtension,
   };
 }
 
@@ -168,13 +168,16 @@ export async function getWorkspaceFromFilepath(
 
 export async function getWorkspaceFromFileOrFilepath(
   context: BaseContextType,
-  file?: File | null,
+  file?: Pick<File, 'workspaceId'> | null,
   filepath?: string
 ) {
   let workspace: Workspace | null = null;
 
-  if (file) workspace = await context.semantic.workspace.getOneById(file.workspaceId);
-  else if (filepath) workspace = await getWorkspaceFromFilepath(context, filepath);
+  if (file) {
+    workspace = await context.semantic.workspace.getOneById(file.workspaceId);
+  } else if (filepath) {
+    workspace = await getWorkspaceFromFilepath(context, filepath);
+  }
 
   assertWorkspace(workspace);
   return workspace;
@@ -190,8 +193,8 @@ export function stringifyFileNamePath(
   file: Pick<File, 'namePath' | 'extension'>,
   rootname?: string
 ) {
-  const nm =
+  const name =
     file.namePath.join(folderConstants.nameSeparator) +
     (file.extension ? `.${file.extension}` : '');
-  return rootname ? addRootnameToPath(nm, rootname) : nm;
+  return rootname ? addRootnameToPath(name, rootname) : name;
 }

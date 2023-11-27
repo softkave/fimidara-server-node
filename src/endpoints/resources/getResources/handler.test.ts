@@ -1,11 +1,16 @@
 import {faker} from '@faker-js/faker';
 import {flatten} from 'lodash';
+import {File} from '../../../definitions/file';
 import {PermissionAction, kPermissionsMap} from '../../../definitions/permissionItem';
 import {AppResourceTypeMap, Resource} from '../../../definitions/system';
 import RequestData from '../../RequestData';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {collaboratorExtractor} from '../../collaborators/utils';
 import {BaseContextType} from '../../contexts/types';
+import {stringifyFileNamePath} from '../../files/utils';
+import {stringifyFolderNamePath} from '../../folders/utils';
+import {generateAndInsertTestFiles} from '../../testUtils/generateData/file';
+import {generateAndInsertTestFolders} from '../../testUtils/generateData/folder';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
@@ -21,7 +26,10 @@ import {FetchResourceItem} from '../types';
 import getResources from './handler';
 import {GetResourcesEndpointParams} from './types';
 
-// TODO: Test resources that the agent doesn't have read permission to
+/**
+ * TODO:
+ * - test resources that the agent doesn't have read permission to
+ */
 
 let context: BaseContextType | null = null;
 
@@ -38,11 +46,17 @@ describe('getResources', () => {
     assertContext(context);
     const {userToken, rawUser} = await insertUserForTest(context);
     const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {permissionGroup: permissionGroup} = await insertPermissionGroupForTest(
-      context,
-      userToken,
-      workspace.resourceId
-    );
+    const [{permissionGroup}, folders, files] = await Promise.all([
+      insertPermissionGroupForTest(context, userToken, workspace.resourceId),
+      generateAndInsertTestFolders(context, 2, {
+        workspaceId: workspace.resourceId,
+        parentId: null,
+      }),
+      generateAndInsertTestFiles(context, 2, {
+        workspaceId: workspace.resourceId,
+        parentId: null,
+      }),
+    ]);
     const itemsList = await Promise.all(
       Object.values(kPermissionsMap).map(action =>
         generateAndInsertPermissionItemListForTest(context!, 1, {
@@ -58,6 +72,7 @@ describe('getResources', () => {
     const items = flatten(itemsList);
     const resourcesInput: FetchResourceItem[] = [];
     const resourcesMap: Record<string, any> = {};
+    const filepathsMap: Record<string, string> = {};
 
     const addToExpectedResourcesById = (
       item: Pick<Resource, 'resourceId'>,
@@ -77,16 +92,39 @@ describe('getResources', () => {
       'readCollaborator'
     );
     items.forEach(item => addToExpectedResourcesById(item, 'updatePermission'));
+    folders.forEach(folder => {
+      const folderpath = stringifyFolderNamePath(folder);
+      filepathsMap[folderpath] = folder.resourceId;
+      resourcesInput.push({folderpath, action: 'readFolder'});
+      resourcesMap[folder.resourceId] = folder;
+    });
+    files.forEach(file => {
+      const filepath = stringifyFileNamePath(file);
+      filepathsMap[filepath] = file.resourceId;
+      resourcesInput.push({filepath, action: 'readFolder'});
+      resourcesMap[file.resourceId] = file;
+    });
 
     const instData = RequestData.fromExpressRequest<GetResourcesEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId, resources: resourcesInput}
     );
     const result = await getResources(context, instData);
+
     assertEndpointResultOk(result);
     expect(result.resources).toHaveLength(resourcesInput.length);
     result.resources.forEach(resource => {
       expect(resourcesMap[resource.resourceId]).toMatchObject(resource.resource);
+
+      if (resource.resourceType === 'file') {
+        const fileId =
+          filepathsMap[stringifyFileNamePath(resource.resource as unknown as File)];
+        expect(resourcesMap[fileId]).toMatchObject(resource.resource);
+      } else if (resource.resourceType === 'folder') {
+        const folderId =
+          filepathsMap[stringifyFolderNamePath(resource.resource as unknown as File)];
+        expect(resourcesMap[folderId]).toMatchObject(resource.resource);
+      }
     });
   });
 });

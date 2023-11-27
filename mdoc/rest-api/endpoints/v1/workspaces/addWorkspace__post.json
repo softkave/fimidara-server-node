@@ -1,89 +1,89 @@
 {
+    "__id": "HttpEndpointDefinition",
     "basePathname": "/v1/workspaces/addWorkspace",
     "method": "post",
     "requestBody": {
-        "required": true,
-        "description": "Add workspace endpoint params.",
         "__id": "FieldObject",
         "name": "AddWorkspaceEndpointParams",
         "fields": {
             "name": {
                 "data": {
-                    "description": "Workspace name.",
                     "__id": "FieldString",
+                    "description": "Workspace name.",
                     "example": "fimidara"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "rootname": {
                 "data": {
-                    "description": "Workspace root name, must be a URL compatible name.",
                     "__id": "FieldString",
+                    "description": "Workspace root name, must be a URL compatible name.",
                     "example": "fimidara-rootname"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "description": {
                 "data": {
-                    "description": "Workspace description.",
                     "__id": "FieldString",
+                    "description": "Workspace description.",
                     "example": "fimidara, a super awesome company that offers file management with access control for devs."
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             }
-        }
+        },
+        "description": "Add workspace endpoint params."
     },
     "requestHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType",
         "fields": {
             "Authorization": {
                 "data": {
-                    "description": "Access token.",
                     "__id": "FieldString",
+                    "description": "Access token.",
                     "example": "Bearer <token>"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON request content type.",
                     "__id": "FieldString",
-                    "example": "application/json",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON request content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType"
     },
     "responseHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
         "fields": {
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON response content type.",
                     "__id": "FieldString",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON response content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Length": {
                 "data": {
-                    "description": "HTTP response content length in bytes.",
-                    "__id": "FieldString"
+                    "__id": "FieldString",
+                    "description": "HTTP response content length in bytes."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength"
     },
     "responseBody": {
-        "required": true,
-        "description": "Add workspace endpoint success result.",
         "__id": "FieldObject",
         "name": "AddWorkspaceEndpointResult",
         "fields": {
@@ -94,27 +94,38 @@
                     "fields": {
                         "resourceId": {
                             "data": {
-                                "description": "Resource ID.",
                                 "__id": "FieldString",
+                                "description": "Resource ID.",
                                 "example": "wrkspce_000000000000000000000"
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         },
                         "workspaceId": {
                             "data": {
-                                "description": "Resource ID.",
                                 "__id": "FieldString",
+                                "description": "Resource ID.",
                                 "example": "wrkspce_000000000000000000000"
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         },
                         "providedResourceId": {
                             "data": {
-                                "description": "Resource ID provided by you.",
-                                "__id": "FieldString",
-                                "max": 50
+                                "__id": "FieldOrCombination",
+                                "types": {
+                                    "0": {
+                                        "__id": "FieldString",
+                                        "description": "Resource ID provided by you.",
+                                        "max": 50
+                                    },
+                                    "1": {
+                                        "__id": "FieldNull"
+                                    }
+                                }
                             },
-                            "optional": true
+                            "__id": "FieldObjectField",
+                            "required": false
                         },
                         "createdBy": {
                             "data": {
@@ -123,15 +134,16 @@
                                 "fields": {
                                     "agentId": {
                                         "data": {
-                                            "description": "Agent ID. Possible agents are users and agent tokens.",
-                                            "__id": "FieldString"
+                                            "__id": "FieldString",
+                                            "description": "Agent ID. Possible agents are users and agent tokens."
                                         },
+                                        "__id": "FieldObjectField",
                                         "required": true
                                     },
                                     "agentType": {
                                         "data": {
-                                            "description": "Agent type.",
                                             "__id": "FieldString",
+                                            "description": "Agent type.",
                                             "example": "agentToken",
                                             "valid": {
                                                 "0": "user",
@@ -139,17 +151,20 @@
                                             },
                                             "enumName": "AgentType"
                                         },
+                                        "__id": "FieldObjectField",
                                         "required": true
                                     }
                                 }
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         },
                         "createdAt": {
                             "data": {
-                                "description": "UTC timestamp in milliseconds.",
-                                "__id": "FieldNumber"
+                                "__id": "FieldNumber",
+                                "description": "UTC timestamp in milliseconds."
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         },
                         "lastUpdatedBy": {
@@ -159,15 +174,16 @@
                                 "fields": {
                                     "agentId": {
                                         "data": {
-                                            "description": "Agent ID. Possible agents are users and agent tokens.",
-                                            "__id": "FieldString"
+                                            "__id": "FieldString",
+                                            "description": "Agent ID. Possible agents are users and agent tokens."
                                         },
+                                        "__id": "FieldObjectField",
                                         "required": true
                                     },
                                     "agentType": {
                                         "data": {
-                                            "description": "Agent type.",
                                             "__id": "FieldString",
+                                            "description": "Agent type.",
                                             "example": "agentToken",
                                             "valid": {
                                                 "0": "user",
@@ -175,62 +191,70 @@
                                             },
                                             "enumName": "AgentType"
                                         },
+                                        "__id": "FieldObjectField",
                                         "required": true
                                     }
                                 }
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         },
                         "lastUpdatedAt": {
                             "data": {
-                                "description": "UTC timestamp in milliseconds.",
-                                "__id": "FieldNumber"
+                                "__id": "FieldNumber",
+                                "description": "UTC timestamp in milliseconds."
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         },
                         "name": {
                             "data": {
-                                "description": "Workspace name.",
                                 "__id": "FieldString",
+                                "description": "Workspace name.",
                                 "example": "fimidara"
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         },
                         "rootname": {
                             "data": {
-                                "description": "Workspace root name, must be a URL compatible name.",
                                 "__id": "FieldString",
+                                "description": "Workspace root name, must be a URL compatible name.",
                                 "example": "fimidara-rootname"
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         },
                         "description": {
                             "data": {
-                                "description": "Workspace description.",
                                 "__id": "FieldString",
+                                "description": "Workspace description.",
                                 "example": "fimidara, a super awesome company that offers file management with access control for devs."
                             },
-                            "optional": true
+                            "__id": "FieldObjectField",
+                            "required": false
                         },
                         "publicPermissionGroupId": {
                             "data": {
-                                "description": "Resource ID.",
                                 "__id": "FieldString",
+                                "description": "Resource ID.",
                                 "example": "wrkspce_000000000000000000000"
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         },
                         "billStatusAssignedAt": {
                             "data": {
-                                "description": "UTC timestamp in milliseconds.",
-                                "__id": "FieldNumber"
+                                "__id": "FieldNumber",
+                                "description": "UTC timestamp in milliseconds."
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         },
                         "billStatus": {
                             "data": {
-                                "description": "Workspace bill status",
                                 "__id": "FieldString",
+                                "description": "Workspace bill status",
                                 "example": "ok",
                                 "valid": {
                                     "0": "ok",
@@ -239,6 +263,7 @@
                                 },
                                 "enumName": "WorkspaceBillStatus"
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         },
                         "usageThresholds": {
@@ -258,15 +283,16 @@
                                                         "fields": {
                                                             "agentId": {
                                                                 "data": {
-                                                                    "description": "Agent ID. Possible agents are users and agent tokens.",
-                                                                    "__id": "FieldString"
+                                                                    "__id": "FieldString",
+                                                                    "description": "Agent ID. Possible agents are users and agent tokens."
                                                                 },
+                                                                "__id": "FieldObjectField",
                                                                 "required": true
                                                             },
                                                             "agentType": {
                                                                 "data": {
-                                                                    "description": "Agent type.",
                                                                     "__id": "FieldString",
+                                                                    "description": "Agent type.",
                                                                     "example": "agentToken",
                                                                     "valid": {
                                                                         "0": "user",
@@ -274,23 +300,26 @@
                                                                     },
                                                                     "enumName": "AgentType"
                                                                 },
+                                                                "__id": "FieldObjectField",
                                                                 "required": true
                                                             }
                                                         }
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "lastUpdatedAt": {
                                                     "data": {
-                                                        "description": "UTC timestamp in milliseconds.",
-                                                        "__id": "FieldNumber"
+                                                        "__id": "FieldNumber",
+                                                        "description": "UTC timestamp in milliseconds."
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "category": {
                                                     "data": {
-                                                        "description": "Usage record category.",
                                                         "__id": "FieldString",
+                                                        "description": "Usage record category.",
                                                         "example": "storage",
                                                         "valid": {
                                                             "0": "total",
@@ -300,19 +329,22 @@
                                                         },
                                                         "enumName": "UsageRecordCategory"
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "budget": {
                                                     "data": {
-                                                        "description": "Price in USD.",
                                                         "__id": "FieldNumber",
+                                                        "description": "Price in USD.",
                                                         "example": 5
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 }
                                             }
                                         },
-                                        "optional": true
+                                        "__id": "FieldObjectField",
+                                        "required": false
                                     },
                                     "bin": {
                                         "data": {
@@ -326,15 +358,16 @@
                                                         "fields": {
                                                             "agentId": {
                                                                 "data": {
-                                                                    "description": "Agent ID. Possible agents are users and agent tokens.",
-                                                                    "__id": "FieldString"
+                                                                    "__id": "FieldString",
+                                                                    "description": "Agent ID. Possible agents are users and agent tokens."
                                                                 },
+                                                                "__id": "FieldObjectField",
                                                                 "required": true
                                                             },
                                                             "agentType": {
                                                                 "data": {
-                                                                    "description": "Agent type.",
                                                                     "__id": "FieldString",
+                                                                    "description": "Agent type.",
                                                                     "example": "agentToken",
                                                                     "valid": {
                                                                         "0": "user",
@@ -342,23 +375,26 @@
                                                                     },
                                                                     "enumName": "AgentType"
                                                                 },
+                                                                "__id": "FieldObjectField",
                                                                 "required": true
                                                             }
                                                         }
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "lastUpdatedAt": {
                                                     "data": {
-                                                        "description": "UTC timestamp in milliseconds.",
-                                                        "__id": "FieldNumber"
+                                                        "__id": "FieldNumber",
+                                                        "description": "UTC timestamp in milliseconds."
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "category": {
                                                     "data": {
-                                                        "description": "Usage record category.",
                                                         "__id": "FieldString",
+                                                        "description": "Usage record category.",
                                                         "example": "storage",
                                                         "valid": {
                                                             "0": "total",
@@ -368,19 +404,22 @@
                                                         },
                                                         "enumName": "UsageRecordCategory"
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "budget": {
                                                     "data": {
-                                                        "description": "Price in USD.",
                                                         "__id": "FieldNumber",
+                                                        "description": "Price in USD.",
                                                         "example": 5
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 }
                                             }
                                         },
-                                        "optional": true
+                                        "__id": "FieldObjectField",
+                                        "required": false
                                     },
                                     "bout": {
                                         "data": {
@@ -394,15 +433,16 @@
                                                         "fields": {
                                                             "agentId": {
                                                                 "data": {
-                                                                    "description": "Agent ID. Possible agents are users and agent tokens.",
-                                                                    "__id": "FieldString"
+                                                                    "__id": "FieldString",
+                                                                    "description": "Agent ID. Possible agents are users and agent tokens."
                                                                 },
+                                                                "__id": "FieldObjectField",
                                                                 "required": true
                                                             },
                                                             "agentType": {
                                                                 "data": {
-                                                                    "description": "Agent type.",
                                                                     "__id": "FieldString",
+                                                                    "description": "Agent type.",
                                                                     "example": "agentToken",
                                                                     "valid": {
                                                                         "0": "user",
@@ -410,23 +450,26 @@
                                                                     },
                                                                     "enumName": "AgentType"
                                                                 },
+                                                                "__id": "FieldObjectField",
                                                                 "required": true
                                                             }
                                                         }
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "lastUpdatedAt": {
                                                     "data": {
-                                                        "description": "UTC timestamp in milliseconds.",
-                                                        "__id": "FieldNumber"
+                                                        "__id": "FieldNumber",
+                                                        "description": "UTC timestamp in milliseconds."
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "category": {
                                                     "data": {
-                                                        "description": "Usage record category.",
                                                         "__id": "FieldString",
+                                                        "description": "Usage record category.",
                                                         "example": "storage",
                                                         "valid": {
                                                             "0": "total",
@@ -436,19 +479,22 @@
                                                         },
                                                         "enumName": "UsageRecordCategory"
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "budget": {
                                                     "data": {
-                                                        "description": "Price in USD.",
                                                         "__id": "FieldNumber",
+                                                        "description": "Price in USD.",
                                                         "example": 5
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 }
                                             }
                                         },
-                                        "optional": true
+                                        "__id": "FieldObjectField",
+                                        "required": false
                                     },
                                     "total": {
                                         "data": {
@@ -462,15 +508,16 @@
                                                         "fields": {
                                                             "agentId": {
                                                                 "data": {
-                                                                    "description": "Agent ID. Possible agents are users and agent tokens.",
-                                                                    "__id": "FieldString"
+                                                                    "__id": "FieldString",
+                                                                    "description": "Agent ID. Possible agents are users and agent tokens."
                                                                 },
+                                                                "__id": "FieldObjectField",
                                                                 "required": true
                                                             },
                                                             "agentType": {
                                                                 "data": {
-                                                                    "description": "Agent type.",
                                                                     "__id": "FieldString",
+                                                                    "description": "Agent type.",
                                                                     "example": "agentToken",
                                                                     "valid": {
                                                                         "0": "user",
@@ -478,23 +525,26 @@
                                                                     },
                                                                     "enumName": "AgentType"
                                                                 },
+                                                                "__id": "FieldObjectField",
                                                                 "required": true
                                                             }
                                                         }
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "lastUpdatedAt": {
                                                     "data": {
-                                                        "description": "UTC timestamp in milliseconds.",
-                                                        "__id": "FieldNumber"
+                                                        "__id": "FieldNumber",
+                                                        "description": "UTC timestamp in milliseconds."
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "category": {
                                                     "data": {
-                                                        "description": "Usage record category.",
                                                         "__id": "FieldString",
+                                                        "description": "Usage record category.",
                                                         "example": "storage",
                                                         "valid": {
                                                             "0": "total",
@@ -504,22 +554,26 @@
                                                         },
                                                         "enumName": "UsageRecordCategory"
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "budget": {
                                                     "data": {
-                                                        "description": "Price in USD.",
                                                         "__id": "FieldNumber",
+                                                        "description": "Price in USD.",
                                                         "example": 5
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 }
                                             }
                                         },
-                                        "optional": true
+                                        "__id": "FieldObjectField",
+                                        "required": false
                                     }
                                 }
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         },
                         "usageThresholdLocks": {
@@ -539,15 +593,16 @@
                                                         "fields": {
                                                             "agentId": {
                                                                 "data": {
-                                                                    "description": "Agent ID. Possible agents are users and agent tokens.",
-                                                                    "__id": "FieldString"
+                                                                    "__id": "FieldString",
+                                                                    "description": "Agent ID. Possible agents are users and agent tokens."
                                                                 },
+                                                                "__id": "FieldObjectField",
                                                                 "required": true
                                                             },
                                                             "agentType": {
                                                                 "data": {
-                                                                    "description": "Agent type.",
                                                                     "__id": "FieldString",
+                                                                    "description": "Agent type.",
                                                                     "example": "agentToken",
                                                                     "valid": {
                                                                         "0": "user",
@@ -555,23 +610,26 @@
                                                                     },
                                                                     "enumName": "AgentType"
                                                                 },
+                                                                "__id": "FieldObjectField",
                                                                 "required": true
                                                             }
                                                         }
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "lastUpdatedAt": {
                                                     "data": {
-                                                        "description": "UTC timestamp in milliseconds.",
-                                                        "__id": "FieldNumber"
+                                                        "__id": "FieldNumber",
+                                                        "description": "UTC timestamp in milliseconds."
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "category": {
                                                     "data": {
-                                                        "description": "Usage record category.",
                                                         "__id": "FieldString",
+                                                        "description": "Usage record category.",
                                                         "example": "storage",
                                                         "valid": {
                                                             "0": "total",
@@ -581,18 +639,21 @@
                                                         },
                                                         "enumName": "UsageRecordCategory"
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "locked": {
                                                     "data": {
-                                                        "description": "Flag for whether a certain usage category is locked or not.",
-                                                        "__id": "FieldBoolean"
+                                                        "__id": "FieldBoolean",
+                                                        "description": "Flag for whether a certain usage category is locked or not."
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 }
                                             }
                                         },
-                                        "optional": true
+                                        "__id": "FieldObjectField",
+                                        "required": false
                                     },
                                     "bin": {
                                         "data": {
@@ -606,15 +667,16 @@
                                                         "fields": {
                                                             "agentId": {
                                                                 "data": {
-                                                                    "description": "Agent ID. Possible agents are users and agent tokens.",
-                                                                    "__id": "FieldString"
+                                                                    "__id": "FieldString",
+                                                                    "description": "Agent ID. Possible agents are users and agent tokens."
                                                                 },
+                                                                "__id": "FieldObjectField",
                                                                 "required": true
                                                             },
                                                             "agentType": {
                                                                 "data": {
-                                                                    "description": "Agent type.",
                                                                     "__id": "FieldString",
+                                                                    "description": "Agent type.",
                                                                     "example": "agentToken",
                                                                     "valid": {
                                                                         "0": "user",
@@ -622,23 +684,26 @@
                                                                     },
                                                                     "enumName": "AgentType"
                                                                 },
+                                                                "__id": "FieldObjectField",
                                                                 "required": true
                                                             }
                                                         }
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "lastUpdatedAt": {
                                                     "data": {
-                                                        "description": "UTC timestamp in milliseconds.",
-                                                        "__id": "FieldNumber"
+                                                        "__id": "FieldNumber",
+                                                        "description": "UTC timestamp in milliseconds."
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "category": {
                                                     "data": {
-                                                        "description": "Usage record category.",
                                                         "__id": "FieldString",
+                                                        "description": "Usage record category.",
                                                         "example": "storage",
                                                         "valid": {
                                                             "0": "total",
@@ -648,18 +713,21 @@
                                                         },
                                                         "enumName": "UsageRecordCategory"
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "locked": {
                                                     "data": {
-                                                        "description": "Flag for whether a certain usage category is locked or not.",
-                                                        "__id": "FieldBoolean"
+                                                        "__id": "FieldBoolean",
+                                                        "description": "Flag for whether a certain usage category is locked or not."
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 }
                                             }
                                         },
-                                        "optional": true
+                                        "__id": "FieldObjectField",
+                                        "required": false
                                     },
                                     "bout": {
                                         "data": {
@@ -673,15 +741,16 @@
                                                         "fields": {
                                                             "agentId": {
                                                                 "data": {
-                                                                    "description": "Agent ID. Possible agents are users and agent tokens.",
-                                                                    "__id": "FieldString"
+                                                                    "__id": "FieldString",
+                                                                    "description": "Agent ID. Possible agents are users and agent tokens."
                                                                 },
+                                                                "__id": "FieldObjectField",
                                                                 "required": true
                                                             },
                                                             "agentType": {
                                                                 "data": {
-                                                                    "description": "Agent type.",
                                                                     "__id": "FieldString",
+                                                                    "description": "Agent type.",
                                                                     "example": "agentToken",
                                                                     "valid": {
                                                                         "0": "user",
@@ -689,23 +758,26 @@
                                                                     },
                                                                     "enumName": "AgentType"
                                                                 },
+                                                                "__id": "FieldObjectField",
                                                                 "required": true
                                                             }
                                                         }
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "lastUpdatedAt": {
                                                     "data": {
-                                                        "description": "UTC timestamp in milliseconds.",
-                                                        "__id": "FieldNumber"
+                                                        "__id": "FieldNumber",
+                                                        "description": "UTC timestamp in milliseconds."
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "category": {
                                                     "data": {
-                                                        "description": "Usage record category.",
                                                         "__id": "FieldString",
+                                                        "description": "Usage record category.",
                                                         "example": "storage",
                                                         "valid": {
                                                             "0": "total",
@@ -715,18 +787,21 @@
                                                         },
                                                         "enumName": "UsageRecordCategory"
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "locked": {
                                                     "data": {
-                                                        "description": "Flag for whether a certain usage category is locked or not.",
-                                                        "__id": "FieldBoolean"
+                                                        "__id": "FieldBoolean",
+                                                        "description": "Flag for whether a certain usage category is locked or not."
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 }
                                             }
                                         },
-                                        "optional": true
+                                        "__id": "FieldObjectField",
+                                        "required": false
                                     },
                                     "total": {
                                         "data": {
@@ -740,15 +815,16 @@
                                                         "fields": {
                                                             "agentId": {
                                                                 "data": {
-                                                                    "description": "Agent ID. Possible agents are users and agent tokens.",
-                                                                    "__id": "FieldString"
+                                                                    "__id": "FieldString",
+                                                                    "description": "Agent ID. Possible agents are users and agent tokens."
                                                                 },
+                                                                "__id": "FieldObjectField",
                                                                 "required": true
                                                             },
                                                             "agentType": {
                                                                 "data": {
-                                                                    "description": "Agent type.",
                                                                     "__id": "FieldString",
+                                                                    "description": "Agent type.",
                                                                     "example": "agentToken",
                                                                     "valid": {
                                                                         "0": "user",
@@ -756,23 +832,26 @@
                                                                     },
                                                                     "enumName": "AgentType"
                                                                 },
+                                                                "__id": "FieldObjectField",
                                                                 "required": true
                                                             }
                                                         }
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "lastUpdatedAt": {
                                                     "data": {
-                                                        "description": "UTC timestamp in milliseconds.",
-                                                        "__id": "FieldNumber"
+                                                        "__id": "FieldNumber",
+                                                        "description": "UTC timestamp in milliseconds."
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "category": {
                                                     "data": {
-                                                        "description": "Usage record category.",
                                                         "__id": "FieldString",
+                                                        "description": "Usage record category.",
                                                         "example": "storage",
                                                         "valid": {
                                                             "0": "total",
@@ -782,63 +861,66 @@
                                                         },
                                                         "enumName": "UsageRecordCategory"
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 },
                                                 "locked": {
                                                     "data": {
-                                                        "description": "Flag for whether a certain usage category is locked or not.",
-                                                        "__id": "FieldBoolean"
+                                                        "__id": "FieldBoolean",
+                                                        "description": "Flag for whether a certain usage category is locked or not."
                                                     },
+                                                    "__id": "FieldObjectField",
                                                     "required": true
                                                 }
                                             }
                                         },
-                                        "optional": true
+                                        "__id": "FieldObjectField",
+                                        "required": false
                                     }
                                 }
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         }
                     }
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "description": "Add workspace endpoint success result."
     },
     "name": "AddWorkspaceEndpoint",
     "description": "Add workspace endpoint.",
     "errorResponseHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
         "fields": {
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON response content type.",
                     "__id": "FieldString",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON response content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Length": {
                 "data": {
-                    "description": "HTTP response content length in bytes.",
-                    "__id": "FieldString"
+                    "__id": "FieldString",
+                    "description": "HTTP response content length in bytes."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength"
     },
     "errorResponseBody": {
-        "required": true,
-        "description": "Endpoint error result.",
         "__id": "FieldObject",
         "name": "EndpointErrorResult",
         "fields": {
             "errors": {
                 "data": {
-                    "description": "Endpoint call response errors.",
                     "__id": "FieldArray",
                     "type": {
                         "__id": "FieldObject",
@@ -846,46 +928,52 @@
                         "fields": {
                             "name": {
                                 "data": {
-                                    "description": "Error name.",
                                     "__id": "FieldString",
+                                    "description": "Error name.",
                                     "example": "ValidationError"
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "message": {
                                 "data": {
-                                    "description": "Error message.",
                                     "__id": "FieldString",
+                                    "description": "Error message.",
                                     "example": "Workspace name is invalid."
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "action": {
                                 "data": {
-                                    "description": "Recommended action.",
                                     "__id": "FieldString",
+                                    "description": "Recommended action.",
                                     "valid": {
                                         "0": "loginAgain",
                                         "1": "logout",
                                         "2": "requestChangePassword"
                                     }
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             },
                             "field": {
                                 "data": {
-                                    "description": "Invalid field failing validation when error is ValidationError.",
                                     "__id": "FieldString",
-                                    "example": "workspace.innerField.secondInnerField"
+                                    "example": "workspace.innerField.secondInnerField",
+                                    "description": "Invalid field failing validation when error is ValidationError."
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             }
                         }
-                    }
+                    },
+                    "description": "Endpoint call response errors."
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             }
-        }
-    },
-    "__id": "HttpEndpointDefinition"
+        },
+        "description": "Endpoint error result."
+    }
 }

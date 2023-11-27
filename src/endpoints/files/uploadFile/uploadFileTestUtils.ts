@@ -1,13 +1,8 @@
 import {faker} from '@faker-js/faker';
-import {last} from 'lodash';
-import {AgentToken} from '../../../definitions/agentToken';
-import {File} from '../../../definitions/file';
 import {PublicWorkspace, Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
-import {makeWaitTimeoutFn, streamToBuffer, waitTimeout} from '../../../utils/fns';
-import {AnyFn, PartialRecord} from '../../../utils/types';
+import {streamToBuffer} from '../../../utils/fns';
 import RequestData from '../../RequestData';
-import {FilePersistenceProviderContext} from '../../contexts/file/types';
 import {BaseContextType} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
 import EndpointReusableQueries from '../../queries';
@@ -19,7 +14,6 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestForPublicAgent,
-  mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import deleteFile from '../deleteFile/handler';
 import {DeleteFileEndpointParams} from '../deleteFile/types';
@@ -69,35 +63,9 @@ export const uploadFileBaseTest = async (
     savedFile,
     insertUserResult,
     insertWorkspaceResult,
+    savedBuffer,
   };
 };
-
-export async function assertFileUpdated(
-  ctx: BaseContextType,
-  userToken: AgentToken,
-  savedFile: File,
-  updatedFile: File
-) {
-  const agent = await ctx.session.getAgent(
-    ctx,
-    RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken))
-  );
-
-  expect(savedFile.resourceId).toBe(updatedFile.resourceId);
-  expect(savedFile.name).toBe(updatedFile.name);
-  expect(savedFile.extension).toBe(updatedFile.extension);
-  expect(savedFile.idPath).toEqual(expect.arrayContaining(updatedFile.idPath));
-  expect(savedFile.namePath).toEqual(expect.arrayContaining(updatedFile.namePath));
-  expect(savedFile.description).not.toBe(updatedFile.description);
-  expect(savedFile.mimetype).not.toBe(updatedFile.mimetype);
-  expect(savedFile.size).not.toBe(updatedFile.size);
-  expect(savedFile.encoding).not.toBe(updatedFile.encoding);
-  expect(updatedFile.lastUpdatedAt).toBeTruthy();
-  expect(updatedFile.lastUpdatedBy).toMatchObject({
-    agentId: agent.agentId,
-    agentType: agent.agentType,
-  });
-}
 
 export async function assertCanReadPublicFile(
   ctx: BaseContextType,
@@ -157,96 +125,4 @@ export async function assertCanDeletePublicFile(
 
   const result = await deleteFile(ctx, instData);
   assertEndpointResultOk(result);
-}
-
-export type TimedNoopFilePersistenceProviderContext_Invocations = Array<{
-  fnName: string;
-  args: unknown;
-  startMs: number;
-  endMs: number;
-}>;
-
-export type TimedNoopFilePersistenceProviderContext_TimeoutMap = PartialRecord<
-  keyof FilePersistenceProviderContext,
-  number
->;
-
-export class TimedNoopFilePersistenceProviderContext
-  implements FilePersistenceProviderContext
-{
-  static kDefaultTimeout = 200; // milliseconds
-  static mockFn = <TFn extends AnyFn>(
-    fn: TFn,
-    invocations: TimedNoopFilePersistenceProviderContext_Invocations,
-    fnName: keyof FilePersistenceProviderContext
-  ) => {
-    return async (...args: Parameters<TFn>): Promise<Awaited<ReturnType<TFn>>> => {
-      const startMs = Date.now();
-      const result = await fn(...args);
-      const endMs = Date.now();
-      invocations.push({args, startMs, endMs, fnName});
-      return result;
-    };
-  };
-
-  private invocations: TimedNoopFilePersistenceProviderContext_Invocations = [];
-
-  constructor(
-    private timeoutMap: TimedNoopFilePersistenceProviderContext_TimeoutMap = {}
-  ) {}
-
-  uploadFile = TimedNoopFilePersistenceProviderContext.mockFn(
-    makeWaitTimeoutFn(
-      this.timeoutMap['uploadFile'] ??
-        TimedNoopFilePersistenceProviderContext.kDefaultTimeout
-    ),
-    this.invocations,
-    'uploadFile'
-  );
-
-  getFile = TimedNoopFilePersistenceProviderContext.mockFn(
-    async () => {
-      await waitTimeout(
-        this.timeoutMap['getFile'] ??
-          TimedNoopFilePersistenceProviderContext.kDefaultTimeout
-      );
-      return Promise.resolve({});
-    },
-    this.invocations,
-    'getFile'
-  );
-
-  deleteFiles = TimedNoopFilePersistenceProviderContext.mockFn(
-    makeWaitTimeoutFn(
-      this.timeoutMap['deleteFiles'] ??
-        TimedNoopFilePersistenceProviderContext.kDefaultTimeout
-    ),
-    this.invocations,
-    'deleteFiles'
-  );
-
-  ensureBucketReady = TimedNoopFilePersistenceProviderContext.mockFn(
-    makeWaitTimeoutFn(
-      this.timeoutMap['ensureBucketReady'] ??
-        TimedNoopFilePersistenceProviderContext.kDefaultTimeout
-    ),
-    this.invocations,
-    'ensureBucketReady'
-  );
-
-  close = TimedNoopFilePersistenceProviderContext.mockFn(
-    makeWaitTimeoutFn(
-      this.timeoutMap['close'] ?? TimedNoopFilePersistenceProviderContext.kDefaultTimeout
-    ),
-    this.invocations,
-    'close'
-  );
-
-  getInvocations(fnName: keyof FilePersistenceProviderContext) {
-    return this.invocations.filter(next => next.fnName === fnName);
-  }
-
-  getLastInvocationForFn(fnName: keyof FilePersistenceProviderContext) {
-    return last(this.invocations.filter(next => next.fnName === fnName));
-  }
 }

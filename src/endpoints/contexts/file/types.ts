@@ -1,33 +1,66 @@
 import {Readable} from 'stream';
+import {File} from '../../../definitions/file';
+import {Folder} from '../../../definitions/folder';
+import {AppResourceTypeMap} from '../../../definitions/system';
 
 export interface FilePersistenceUploadFileParams {
-  bucket: string;
   key: string;
   body: Readable;
-  contentLength: number;
+  // contentLength?: number;
   // contentType?: string;
   // contentEncoding?: string;
 }
 
 export interface FilePersistenceGetFileParams {
-  bucket: string;
   key: string;
 }
 
 export interface FilePersistenceDeleteFilesParams {
-  bucket: string;
   keys: string[];
 }
 
-export interface IPersistedFile {
+export interface PersistedFile {
   body?: Readable;
   contentLength?: number;
 }
 
-export interface FilePersistenceProviderContext {
+export type PersistedFileDescription =
+  | {
+      type: typeof AppResourceTypeMap.Folder;
+      name: string;
+    }
+  | {
+      type: typeof AppResourceTypeMap.File;
+      name: string;
+      size?: number;
+      lastUpdatedAt?: number;
+    };
+
+export interface FilePersistenceProviderListFolderChildrenParams {
+  key: string;
+  max?: number;
+  /** page or continuation token is different depending on provider, so pass
+   * what's returned in previous listFolderChildren calls */
+  page?: unknown;
+}
+
+export interface FilePersistenceProviderListFolderChildrenResult {
+  children: PersistedFileDescription[];
+  /** page or continuation token is different depending on provider, so pass
+   * what's returned in previous listFolderChildren calls */
+  page?: unknown | null;
+}
+
+export interface FilePersistenceProvider {
   uploadFile: (params: FilePersistenceUploadFileParams) => Promise<void>;
-  getFile: (params: FilePersistenceGetFileParams) => Promise<IPersistedFile>;
+  getFile: (params: FilePersistenceGetFileParams) => Promise<PersistedFile>;
   deleteFiles: (params: FilePersistenceDeleteFilesParams) => Promise<void>;
-  ensureBucketReady: (name: string, region: string) => Promise<void>;
+  listFolderChildren: (
+    params: FilePersistenceProviderListFolderChildrenParams
+  ) => Promise<FilePersistenceProviderListFolderChildrenResult>;
+  /** Throws error if `file.type !== "file"` */
+  normalizeFile: (file: PersistedFileDescription) => File;
+  /** Throws error if `folder.type !== "folder"` */
+  normalizeFolder: (folder: PersistedFileDescription) => Folder;
   close: () => Promise<void>;
 }

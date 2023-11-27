@@ -1,0 +1,30 @@
+import {validate} from '../../../utils/validate';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
+import {fileBackendMountExtractor} from '../utils';
+import {AddFileBackendMountEndpoint} from './types';
+import {INTERNAL_addFileBackendMount} from './utils';
+import {addFileBackendMountJoiSchema} from './validation';
+
+const addFileBackendMountEndpoint: AddFileBackendMountEndpoint = async (
+  context,
+  instData
+) => {
+  const data = validate(instData.data, addFileBackendMountJoiSchema);
+  const agent = await context.session.getAgent(context, instData);
+  const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
+  await checkAuthorizationWithAgent({
+    agent,
+    workspace,
+    workspaceId: workspace.resourceId,
+    target: {action: 'addFileBackendMount', targetId: workspace.resourceId},
+  });
+
+  const mount = await context.semantic.utils.withTxn(context, async opts => {
+    return await INTERNAL_addFileBackendMount(agent, workspace, data, opts);
+  });
+
+  return {mount: fileBackendMountExtractor(mount)};
+};
+
+export default addFileBackendMountEndpoint;

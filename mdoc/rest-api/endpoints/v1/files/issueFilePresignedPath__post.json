@@ -1,148 +1,149 @@
 {
+    "__id": "HttpEndpointDefinition",
     "basePathname": "/v1/files/issueFilePresignedPath",
     "method": "post",
     "requestBody": {
-        "required": true,
-        "description": "Issue file presigned path endpoint params.",
         "__id": "FieldObject",
         "name": "IssueFilePresignedPathEndpointParams",
         "fields": {
             "filepath": {
                 "data": {
-                    "description": "File path with workspace rootname.",
                     "__id": "FieldString",
+                    "description": "File path with workspace rootname.",
                     "example": "/workspace-rootname/my-outer-folder/my-image-file.png"
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             },
             "fileId": {
                 "data": {
-                    "description": "File ID.",
                     "__id": "FieldString",
+                    "description": "File ID.",
                     "example": "file000_000000000000000000000"
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             },
             "duration": {
                 "data": {
-                    "description": "Time duration in milliseconds, for example, 1000 for 1 second.",
-                    "__id": "FieldNumber"
+                    "__id": "FieldNumber",
+                    "description": "Time duration in milliseconds, for example, 1000 for 1 second."
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             },
             "expires": {
                 "data": {
-                    "description": "Expiration date.",
-                    "__id": "FieldDate"
+                    "__id": "FieldNumber",
+                    "description": "Expiration date."
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             },
             "usageCount": {
                 "data": {
-                    "description": "How many uses the generated path is valid for.",
-                    "__id": "FieldNumber"
+                    "__id": "FieldNumber",
+                    "description": "How many uses the generated path is valid for."
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             }
-        }
+        },
+        "description": "Issue file presigned path endpoint params."
     },
     "requestHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType",
         "fields": {
             "Authorization": {
                 "data": {
-                    "description": "Access token.",
                     "__id": "FieldString",
+                    "description": "Access token.",
                     "example": "Bearer <token>"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON request content type.",
                     "__id": "FieldString",
-                    "example": "application/json",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON request content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType"
     },
     "responseHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
         "fields": {
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON response content type.",
                     "__id": "FieldString",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON response content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Length": {
                 "data": {
-                    "description": "HTTP response content length in bytes.",
-                    "__id": "FieldString"
+                    "__id": "FieldString",
+                    "description": "HTTP response content length in bytes."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength"
     },
     "responseBody": {
-        "required": true,
-        "description": "Issue file presigned path endpoint success result.",
         "__id": "FieldObject",
         "name": "IssueFilePresignedPathEndpointResult",
         "fields": {
             "path": {
                 "data": {
-                    "description": "String path that only works with readFile endpoint. Can be used in place of filepath.",
-                    "__id": "FieldString"
+                    "__id": "FieldString",
+                    "description": "String path that only works with readFile endpoint. Can be used in place of filepath."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "description": "Issue file presigned path endpoint success result."
     },
     "name": "IssueFilePresignedPathEndpoint",
     "description": "Issues file presigned paths for reading private files without passing Authorization header, like in <img /> html tags. It's only supports reading files at the moment. Eventually, we'll support uploading files.",
     "errorResponseHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
         "fields": {
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON response content type.",
                     "__id": "FieldString",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON response content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Length": {
                 "data": {
-                    "description": "HTTP response content length in bytes.",
-                    "__id": "FieldString"
+                    "__id": "FieldString",
+                    "description": "HTTP response content length in bytes."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength"
     },
     "errorResponseBody": {
-        "required": true,
-        "description": "Endpoint error result.",
         "__id": "FieldObject",
         "name": "EndpointErrorResult",
         "fields": {
             "errors": {
                 "data": {
-                    "description": "Endpoint call response errors.",
                     "__id": "FieldArray",
                     "type": {
                         "__id": "FieldObject",
@@ -150,46 +151,52 @@
                         "fields": {
                             "name": {
                                 "data": {
-                                    "description": "Error name.",
                                     "__id": "FieldString",
+                                    "description": "Error name.",
                                     "example": "ValidationError"
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "message": {
                                 "data": {
-                                    "description": "Error message.",
                                     "__id": "FieldString",
+                                    "description": "Error message.",
                                     "example": "Workspace name is invalid."
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "action": {
                                 "data": {
-                                    "description": "Recommended action.",
                                     "__id": "FieldString",
+                                    "description": "Recommended action.",
                                     "valid": {
                                         "0": "loginAgain",
                                         "1": "logout",
                                         "2": "requestChangePassword"
                                     }
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             },
                             "field": {
                                 "data": {
-                                    "description": "Invalid field failing validation when error is ValidationError.",
                                     "__id": "FieldString",
-                                    "example": "workspace.innerField.secondInnerField"
+                                    "example": "workspace.innerField.secondInnerField",
+                                    "description": "Invalid field failing validation when error is ValidationError."
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             }
                         }
-                    }
+                    },
+                    "description": "Endpoint call response errors."
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             }
-        }
-    },
-    "__id": "HttpEndpointDefinition"
+        },
+        "description": "Endpoint error result."
+    }
 }

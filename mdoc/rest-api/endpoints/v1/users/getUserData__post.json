@@ -1,57 +1,55 @@
 {
+    "__id": "HttpEndpointDefinition",
     "basePathname": "/v1/users/getUserData",
     "method": "post",
     "requestHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType",
         "fields": {
             "Authorization": {
                 "data": {
-                    "description": "Access token.",
                     "__id": "FieldString",
+                    "description": "Access token.",
                     "example": "Bearer <token>"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON request content type.",
                     "__id": "FieldString",
-                    "example": "application/json",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON request content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType"
     },
     "responseHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
         "fields": {
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON response content type.",
                     "__id": "FieldString",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON response content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Length": {
                 "data": {
-                    "description": "HTTP response content length in bytes.",
-                    "__id": "FieldString"
+                    "__id": "FieldString",
+                    "description": "HTTP response content length in bytes."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength"
     },
     "responseBody": {
-        "required": true,
-        "description": "User login result.",
         "__id": "FieldObject",
         "name": "LoginResult",
         "fields": {
@@ -62,82 +60,109 @@
                     "fields": {
                         "resourceId": {
                             "data": {
-                                "description": "Resource ID.",
                                 "__id": "FieldString",
+                                "description": "Resource ID.",
                                 "example": "wrkspce_000000000000000000000"
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         },
                         "createdAt": {
                             "data": {
-                                "description": "UTC timestamp in milliseconds.",
-                                "__id": "FieldNumber"
+                                "__id": "FieldNumber",
+                                "description": "UTC timestamp in milliseconds."
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         },
                         "lastUpdatedAt": {
                             "data": {
-                                "description": "UTC timestamp in milliseconds.",
-                                "__id": "FieldNumber"
+                                "__id": "FieldNumber",
+                                "description": "UTC timestamp in milliseconds."
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         },
                         "firstName": {
                             "data": {
-                                "description": "First name.",
                                 "__id": "FieldString",
+                                "description": "First name.",
                                 "example": "Jesus"
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         },
                         "lastName": {
                             "data": {
-                                "description": "Last name.",
                                 "__id": "FieldString",
+                                "description": "Last name.",
                                 "example": "Christ"
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         },
                         "email": {
                             "data": {
-                                "description": "Email address.",
                                 "__id": "FieldString",
+                                "description": "Email address.",
                                 "example": "my-email-address@email-domain.com"
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         },
                         "passwordLastChangedAt": {
                             "data": {
-                                "description": "UTC timestamp in milliseconds.",
-                                "__id": "FieldNumber"
+                                "__id": "FieldNumber",
+                                "description": "UTC timestamp in milliseconds."
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         },
                         "requiresPasswordChange": {
                             "data": {
                                 "__id": "FieldBoolean"
                             },
-                            "optional": true
+                            "__id": "FieldObjectField",
+                            "required": false
                         },
                         "isEmailVerified": {
                             "data": {
                                 "__id": "FieldBoolean"
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         },
                         "emailVerifiedAt": {
                             "data": {
-                                "description": "UTC timestamp in milliseconds.",
-                                "__id": "FieldNumber"
+                                "__id": "FieldOrCombination",
+                                "types": {
+                                    "0": {
+                                        "__id": "FieldNumber",
+                                        "description": "UTC timestamp in milliseconds."
+                                    },
+                                    "1": {
+                                        "__id": "FieldNull"
+                                    }
+                                }
                             },
-                            "optional": true
+                            "__id": "FieldObjectField",
+                            "required": false
                         },
                         "emailVerificationEmailSentAt": {
                             "data": {
-                                "description": "UTC timestamp in milliseconds.",
-                                "__id": "FieldNumber"
+                                "__id": "FieldOrCombination",
+                                "types": {
+                                    "0": {
+                                        "__id": "FieldNumber",
+                                        "description": "UTC timestamp in milliseconds."
+                                    },
+                                    "1": {
+                                        "__id": "FieldNull"
+                                    }
+                                }
                             },
-                            "optional": true
+                            "__id": "FieldObjectField",
+                            "required": false
                         },
                         "workspaces": {
                             "data": {
@@ -148,84 +173,89 @@
                                     "fields": {
                                         "joinedAt": {
                                             "data": {
-                                                "description": "UTC timestamp in milliseconds.",
-                                                "__id": "FieldNumber"
+                                                "__id": "FieldNumber",
+                                                "description": "UTC timestamp in milliseconds."
                                             },
+                                            "__id": "FieldObjectField",
                                             "required": true
                                         },
                                         "workspaceId": {
                                             "data": {
-                                                "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
                                                 "__id": "FieldString",
+                                                "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
                                                 "example": "wrkspce_000000000000000000000"
                                             },
+                                            "__id": "FieldObjectField",
                                             "required": true
                                         }
                                     }
                                 }
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         },
                         "isOnWaitlist": {
                             "data": {
                                 "__id": "FieldBoolean"
                             },
+                            "__id": "FieldObjectField",
                             "required": true
                         }
                     }
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "token": {
                 "data": {
-                    "description": "JWT token string.",
-                    "__id": "FieldString"
+                    "__id": "FieldString",
+                    "description": "JWT token string."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "clientAssignedToken": {
                 "data": {
-                    "description": "JWT token string.",
-                    "__id": "FieldString"
+                    "__id": "FieldString",
+                    "description": "JWT token string."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "description": "User login result."
     },
     "name": "ConfirmEmailAddressEndpoint",
     "description": "Confirm email address endpoint. Uses the `Authorization` header.",
     "errorResponseHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
         "fields": {
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON response content type.",
                     "__id": "FieldString",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON response content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Length": {
                 "data": {
-                    "description": "HTTP response content length in bytes.",
-                    "__id": "FieldString"
+                    "__id": "FieldString",
+                    "description": "HTTP response content length in bytes."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength"
     },
     "errorResponseBody": {
-        "required": true,
-        "description": "Endpoint error result.",
         "__id": "FieldObject",
         "name": "EndpointErrorResult",
         "fields": {
             "errors": {
                 "data": {
-                    "description": "Endpoint call response errors.",
                     "__id": "FieldArray",
                     "type": {
                         "__id": "FieldObject",
@@ -233,46 +263,52 @@
                         "fields": {
                             "name": {
                                 "data": {
-                                    "description": "Error name.",
                                     "__id": "FieldString",
+                                    "description": "Error name.",
                                     "example": "ValidationError"
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "message": {
                                 "data": {
-                                    "description": "Error message.",
                                     "__id": "FieldString",
+                                    "description": "Error message.",
                                     "example": "Workspace name is invalid."
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "action": {
                                 "data": {
-                                    "description": "Recommended action.",
                                     "__id": "FieldString",
+                                    "description": "Recommended action.",
                                     "valid": {
                                         "0": "loginAgain",
                                         "1": "logout",
                                         "2": "requestChangePassword"
                                     }
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             },
                             "field": {
                                 "data": {
-                                    "description": "Invalid field failing validation when error is ValidationError.",
                                     "__id": "FieldString",
-                                    "example": "workspace.innerField.secondInnerField"
+                                    "example": "workspace.innerField.secondInnerField",
+                                    "description": "Invalid field failing validation when error is ValidationError."
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             }
                         }
-                    }
+                    },
+                    "description": "Endpoint call response errors."
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             }
-        }
-    },
-    "__id": "HttpEndpointDefinition"
+        },
+        "description": "Endpoint error result."
+    }
 }

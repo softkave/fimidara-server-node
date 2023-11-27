@@ -1,4 +1,5 @@
 import {defaultTo, first, get, set} from 'lodash';
+import {container} from 'tsyringe';
 import {File} from '../../../definitions/file';
 import {
   PermissionAction,
@@ -16,8 +17,11 @@ import {reuseableErrors} from '../../../utils/reusableErrors';
 import {Omit1} from '../../../utils/types';
 import {checkResourcesBelongsToWorkspace} from '../../resources/containerCheckFns';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../users/errors';
+import {kInjectionKeys} from '../injectionKeys';
+import {PermissionsLogicProvider} from '../logic/PermissionsLogicProvider';
+import {SemanticDataAccessPermissionProviderType} from '../semantic/permission/types';
 import {SemanticDataAccessProviderRunOptions} from '../semantic/types';
-import {BaseContextType} from '../types';
+import {SemanticDataAccessWorkspaceProviderType} from '../semantic/workspace/types';
 
 export interface AccessCheckTarget {
   entityId: string;
@@ -27,7 +31,6 @@ export interface AccessCheckTarget {
 }
 
 export interface CheckAuthorizationParams {
-  context: BaseContextType;
   workspaceId: string;
   workspace?: Pick<Workspace, 'publicPermissionGroupId'>;
   target: AccessCheckTarget;
@@ -143,35 +146,41 @@ export async function checkAuthorization(params: CheckAuthorizationParams) {
 export async function resolveEntityData(
   params: CheckAuthorizationParams & {fetchEntitiesDeep: boolean}
 ) {
-  const {context, target} = params;
+  const {target} = params;
+
+  const workspaceModel = container.resolve<SemanticDataAccessWorkspaceProviderType>(
+    kInjectionKeys.semantic.workspace
+  );
+  const permissionsModel = container.resolve<SemanticDataAccessPermissionProviderType>(
+    kInjectionKeys.semantic.permissions
+  );
+  const permissionsLogicProvider = container.resolve<PermissionsLogicProvider>(
+    kInjectionKeys.logic.permissions
+  );
 
   const workspace =
     params.workspace ??
-    (await context.semantic.workspace.getOneById(params.workspaceId, params.opts));
+    (await workspaceModel.getOneById(params.workspaceId, params.opts));
   appAssert(workspace, reuseableErrors.workspace.notFound());
 
   const [entityInheritanceMap, publicInheritanceMap] = await Promise.all([
-    context.semantic.permissions.getEntityInheritanceMap(
-      {context, entityId: target.entityId, fetchDeep: params.fetchEntitiesDeep},
+    permissionsModel.getEntityInheritanceMap(
+      {entityId: target.entityId, fetchDeep: params.fetchEntitiesDeep},
       params.opts
     ),
-    context.semantic.permissions.getEntityInheritanceMap(
-      {
-        context,
-        entityId: workspace.publicPermissionGroupId,
-        fetchDeep: params.fetchEntitiesDeep,
-      },
+    permissionsModel.getEntityInheritanceMap(
+      {entityId: workspace.publicPermissionGroupId, fetchDeep: params.fetchEntitiesDeep},
       params.opts
     ),
   ]);
 
   const {sortedItemsList: entitySortedItemList} =
-    context.logic.permissions.sortInheritanceMap({
+    permissionsLogicProvider.sortInheritanceMap({
       map: entityInheritanceMap,
       entityId: target.entityId,
     });
   const {sortedItemsList: publicSortedItemList} =
-    context.logic.permissions.sortInheritanceMap({
+    permissionsLogicProvider.sortInheritanceMap({
       map: publicInheritanceMap,
       entityId: workspace.publicPermissionGroupId,
     });

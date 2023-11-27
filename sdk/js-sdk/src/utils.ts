@@ -33,7 +33,9 @@ export class FimidaraEndpointError extends Error {
     public statusText?: string,
     public headers?: EndpointHeaders
   ) {
-    super('Fimidara endpoint error.');
+    super(
+      errors.map(item => item.message).join('\n') || 'Fimidara endpoint error.'
+    );
   }
 }
 
@@ -198,7 +200,7 @@ export async function invokeEndpoint(props: IInvokeEndpointParams) {
 export type AnyObject = {[k: string | number | symbol]: any};
 export type Mapping = Record<
   string,
-  ['header' | 'path' | 'query' | 'body', string]
+  readonly ['header' | 'path' | 'query' | 'body', string]
 >;
 
 export class FimidaraEndpointsBase extends FimidaraJsConfig {

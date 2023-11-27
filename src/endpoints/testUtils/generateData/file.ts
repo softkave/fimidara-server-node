@@ -7,6 +7,7 @@ import {getRandomIntInclusive} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {BaseContextType} from '../../contexts/types';
 import {getFilenameInfo} from '../../files/utils';
+import {addRootnameToPath} from '../../folders/utils';
 import {generateTestFolderName} from './folder';
 
 function addExtenstion(name: string, ext: string) {
@@ -16,22 +17,34 @@ function addExtenstion(name: string, ext: string) {
 export const kTestFileNameSeparatorChars = ['-', '_', ' '];
 
 export function generateTestFileName(
-  props: {separatorChars?: string[]; includeStraySlashes?: boolean} = {
+  props: {
+    separatorChars?: string[];
+    includeStraySlashes?: boolean;
+    extension?: string;
+    rootname?: string;
+  } = {
     separatorChars: kTestFileNameSeparatorChars,
     includeStraySlashes: false,
   }
 ) {
   const seed = getRandomIntInclusive(1, 3);
+  let filename = '';
 
   if (seed === 1) {
     const extCount = getRandomIntInclusive(1, 5);
-    return faker.system.fileName({extensionCount: extCount});
+    filename = faker.system.fileName({extensionCount: extCount});
   } else if (seed === 2) {
     const name = generateTestFolderName(props);
-    return addExtenstion(name, faker.system.fileExt());
+    filename = addExtenstion(name, props.extension ?? faker.system.fileExt());
   } else {
-    return generateTestFolderName(props);
+    filename = generateTestFolderName(props);
   }
+
+  if (props.rootname) {
+    filename = addRootnameToPath(filename, props.rootname);
+  }
+
+  return filename;
 }
 
 export function generateTestFile(
@@ -55,12 +68,16 @@ export function generateTestFile(
       ? [extra.parentId, id]
       : [id],
     namePath: extra.namePath
-      ? extra.namePath.concat(nameinfo.nameWithoutExtension)
-      : [nameinfo.nameWithoutExtension],
+      ? extra.namePath.concat(nameinfo.filenameExcludingExt)
+      : [nameinfo.filenameExcludingExt],
     resourceId: id,
     size: faker.number.int({min: 1}),
     workspaceId: getNewIdForResource(AppResourceTypeMap.Workspace),
     extension: nameinfo.extension,
+    version: 1,
+    isReadAvailable: true,
+    isWriteAvailable: true,
+    head: id,
     ...extra,
   };
 

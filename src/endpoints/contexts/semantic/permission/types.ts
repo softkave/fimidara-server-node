@@ -8,7 +8,6 @@ import {BaseContextType} from '../../types';
 import {SemanticDataAccessProviderRunOptions} from '../types';
 
 export type SemanticDataAccessPermissionProviderType_GetPermissionItemsProps = {
-  context: BaseContextType;
   entityId?: string | string[];
   action?: PermissionAction | PermissionAction[];
   targetParentId?: string;
@@ -25,7 +24,6 @@ export type SemanticDataAccessPermissionProviderType_GetPermissionItemsProps = {
 };
 
 export type SemanticDataAccessPermissionProviderType_CountPermissionItemsProps = {
-  context: BaseContextType;
   entityId?: string | string[];
   action?: PermissionAction | PermissionAction[];
   targetId?: string | string[];
@@ -35,7 +33,6 @@ export type SemanticDataAccessPermissionProviderType_CountPermissionItemsProps =
 export interface SemanticDataAccessPermissionProviderType {
   getEntityAssignedPermissionGroups(
     props: {
-      context: BaseContextType;
       entityId: string;
       fetchDeep?: boolean;
     },
@@ -46,7 +43,6 @@ export interface SemanticDataAccessPermissionProviderType {
   }>;
   getEntityInheritanceMap(
     props: {
-      context: BaseContextType;
       entityId: string;
       fetchDeep?: boolean;
     },

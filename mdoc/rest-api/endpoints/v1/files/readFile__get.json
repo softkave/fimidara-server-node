@@ -1,43 +1,48 @@
 {
+    "__id": "HttpEndpointDefinition",
     "basePathname": "/v1/files/readFile",
-    "method": "get",
     "pathParamaters": {
         "__id": "FieldObject",
         "fields": {
-            "filepath": {
+            "filepathOrId": {
                 "data": {
-                    "description": "File path with workspace rootname.",
                     "__id": "FieldString",
-                    "example": "/workspace-rootname/my-outer-folder/my-image-file.png"
+                    "description": "File path with workspace rootname or file ID.",
+                    "example": "/workspace-rootname/folder/file.extension or file000-remaining-file-id"
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             }
         }
     },
+    "method": "get",
     "query": {
         "__id": "FieldObject",
         "fields": {
             "w": {
                 "data": {
-                    "description": "Resize to width if file is an image.",
-                    "__id": "FieldString"
+                    "__id": "FieldNumber",
+                    "description": "Resize to width if file is an image."
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             },
             "h": {
                 "data": {
-                    "description": "Resize to height if file is an image.",
-                    "__id": "FieldString"
+                    "__id": "FieldNumber",
+                    "description": "Resize to height if file is an image."
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             },
             "pos": {
                 "data": {
                     "__id": "FieldOrCombination",
                     "types": {
                         "0": {
-                            "description": "Gravity or strategy to use when fit is cover or contain.",
                             "__id": "FieldString",
+                            "description": "Gravity or strategy to use when fit is cover or contain.",
+                            "enumName": "ImageResizePositionEnum",
                             "valid": {
                                 "0": "top",
                                 "1": "right top",
@@ -58,94 +63,100 @@
                                 "16": "centre",
                                 "17": "entropy",
                                 "18": "attention"
-                            },
-                            "enumName": "ImageResizePositionEnum"
+                            }
                         },
                         "1": {
-                            "description": "Position to use when fit is cover or contain.",
-                            "__id": "FieldNumber"
+                            "__id": "FieldNumber",
+                            "description": "Position to use when fit is cover or contain."
                         }
                     }
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             },
             "fit": {
                 "data": {
-                    "description": "How the image should be resized to fit provided dimensions.",
                     "__id": "FieldString",
+                    "description": "How the image should be resized to fit provided dimensions.",
+                    "enumName": "ImageResizeFitEnum",
                     "valid": {
                         "0": "contain",
                         "1": "cover",
                         "2": "fill",
                         "3": "inside",
                         "4": "outside"
-                    },
-                    "enumName": "ImageResizeFitEnum"
+                    }
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             },
             "bg": {
                 "data": {
-                    "description": "Hex background color to use when fit is contain.",
                     "__id": "FieldString",
+                    "description": "Hex background color to use when fit is contain.",
                     "example": "#FFFFFF"
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             },
-            "wEnlargement": {
+            "withoutEnlargement": {
                 "data": {
-                    "description": "Do not enlarge if the width or height are already less than provided dimensions.",
-                    "__id": "FieldBoolean"
+                    "__id": "FieldBoolean",
+                    "description": "Do not enlarge if the width or height are already less than provided dimensions."
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             },
             "format": {
                 "data": {
-                    "description": "Format to transform image to if file is an image.",
                     "__id": "FieldString",
+                    "description": "Format to transform image to if file is an image.",
+                    "enumName": "ImageFormatEnum",
                     "valid": {
                         "0": "jpeg",
                         "1": "png",
                         "2": "webp",
                         "3": "tiff",
                         "4": "raw"
-                    },
-                    "enumName": "ImageFormatEnum"
+                    }
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             }
         }
     },
     "requestHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointRequestHeaders_AuthOptional",
         "fields": {
             "Authorization": {
                 "data": {
-                    "description": "Access token.",
                     "__id": "FieldString",
+                    "description": "Access token.",
                     "example": "Bearer <token>"
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             }
-        }
+        },
+        "name": "HttpEndpointRequestHeaders_AuthOptional"
     },
     "responseHeaders": {
         "__id": "FieldObject",
         "fields": {
             "Content-Type": {
                 "data": {
-                    "required": true,
-                    "description": "Get file endpoint result content type. If request is successful, it will be the file's content type if it is known or application/octet-stream otherwise, and application/json containing errors if request fails.",
-                    "__id": "FieldString"
+                    "__id": "FieldString",
+                    "description": "Get file endpoint result content type. If request is successful, it will be the file's content type if it is known or application/octet-stream otherwise, and application/json containing errors if request fails."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Length": {
                 "data": {
-                    "description": "HTTP response content length in bytes.",
-                    "__id": "FieldString"
+                    "__id": "FieldString",
+                    "description": "HTTP response content length in bytes."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
         }
@@ -157,36 +168,33 @@
     "description": "Read file endpoint.",
     "errorResponseHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
         "fields": {
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON response content type.",
                     "__id": "FieldString",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON response content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Length": {
                 "data": {
-                    "description": "HTTP response content length in bytes.",
-                    "__id": "FieldString"
+                    "__id": "FieldString",
+                    "description": "HTTP response content length in bytes."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength"
     },
     "errorResponseBody": {
-        "required": true,
-        "description": "Endpoint error result.",
         "__id": "FieldObject",
         "name": "EndpointErrorResult",
         "fields": {
             "errors": {
                 "data": {
-                    "description": "Endpoint call response errors.",
                     "__id": "FieldArray",
                     "type": {
                         "__id": "FieldObject",
@@ -194,46 +202,52 @@
                         "fields": {
                             "name": {
                                 "data": {
-                                    "description": "Error name.",
                                     "__id": "FieldString",
+                                    "description": "Error name.",
                                     "example": "ValidationError"
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "message": {
                                 "data": {
-                                    "description": "Error message.",
                                     "__id": "FieldString",
+                                    "description": "Error message.",
                                     "example": "Workspace name is invalid."
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "action": {
                                 "data": {
-                                    "description": "Recommended action.",
                                     "__id": "FieldString",
+                                    "description": "Recommended action.",
                                     "valid": {
                                         "0": "loginAgain",
                                         "1": "logout",
                                         "2": "requestChangePassword"
                                     }
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             },
                             "field": {
                                 "data": {
-                                    "description": "Invalid field failing validation when error is ValidationError.",
                                     "__id": "FieldString",
-                                    "example": "workspace.innerField.secondInnerField"
+                                    "example": "workspace.innerField.secondInnerField",
+                                    "description": "Invalid field failing validation when error is ValidationError."
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             }
                         }
-                    }
+                    },
+                    "description": "Endpoint call response errors."
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             }
-        }
-    },
-    "__id": "HttpEndpointDefinition"
+        },
+        "description": "Endpoint error result."
+    }
 }

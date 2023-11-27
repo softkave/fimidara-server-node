@@ -2,6 +2,7 @@ import {AgentToken} from '../../../definitions/agentToken';
 import {AssignedItem} from '../../../definitions/assignedItem';
 import {CollaborationRequest} from '../../../definitions/collaborationRequest';
 import {File, FilePresignedPath} from '../../../definitions/file';
+import {FileBackendConfig} from '../../../definitions/fileBackend';
 import {Folder} from '../../../definitions/folder';
 import {Job} from '../../../definitions/job';
 import {PermissionGroup} from '../../../definitions/permissionGroups';
@@ -28,6 +29,7 @@ import {
   AppRuntimeStateDataProvider,
   AssignedItemDataProvider,
   CollaborationRequestDataProvider,
+  FileBackendConfigDataProvider,
   FileDataProvider,
   FilePresignedPathDataProvider,
   FolderDataProvider,
@@ -49,7 +51,10 @@ export class WorkspaceMongoDataProvider
   throwNotFound = throwWorkspaceNotFound;
 }
 
-export class UserMongoDataProvider extends BaseMongoDataProvider<User> implements UserDataProvider {
+export class UserMongoDataProvider
+  extends BaseMongoDataProvider<User>
+  implements UserDataProvider
+{
   throwNotFound = throwUserNotFound;
 }
 
@@ -60,7 +65,10 @@ export class UsageRecordMongoDataProvider
   throwNotFound = throwUsageRecordNotFound;
 }
 
-export class TagMongoDataProvider extends BaseMongoDataProvider<Tag> implements TagDataProvider {
+export class TagMongoDataProvider
+  extends BaseMongoDataProvider<Tag>
+  implements TagDataProvider
+{
   throwNotFound = throwTagNotFound;
 }
 
@@ -85,7 +93,10 @@ export class FolderMongoDataProvider
   throwNotFound = throwFolderNotFound;
 }
 
-export class FileMongoDataProvider extends BaseMongoDataProvider<File> implements FileDataProvider {
+export class FileMongoDataProvider
+  extends BaseMongoDataProvider<File>
+  implements FileDataProvider
+{
   throwNotFound = throwFileNotFound;
 }
 
@@ -131,6 +142,16 @@ export class ResourceMongoDataProvider
   throwNotFound = throwNotFound;
 }
 
-export class JobMongoDataProvider extends BaseMongoDataProvider<Job> implements JobDataProvider {
+export class JobMongoDataProvider
+  extends BaseMongoDataProvider<Job>
+  implements JobDataProvider
+{
+  throwNotFound = throwNotFound;
+}
+
+export class FileBackendConfigMongoDataProvider
+  extends BaseMongoDataProvider<FileBackendConfig>
+  implements FileBackendConfigDataProvider
+{
   throwNotFound = throwNotFound;
 }

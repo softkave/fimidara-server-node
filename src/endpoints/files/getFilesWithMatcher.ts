@@ -140,16 +140,16 @@ export async function getFileWithFilepath(
   filepath: string,
   opts?: SemanticDataAccessProviderRunOptions
 ) {
-  const pathWithDetails = getFilepathInfo(filepath);
+  const pathinfo = getFilepathInfo(filepath);
   const workspace = await context.semantic.workspace.getByRootname(
-    pathWithDetails.workspaceRootname,
+    pathinfo.workspaceRootname,
     opts
   );
   assertWorkspace(workspace);
   const file = await context.semantic.file.getOneByNamePath(
     workspace.resourceId,
-    pathWithDetails.splitPathWithoutExtension,
-    pathWithDetails.extension,
+    pathinfo.filepathExcludingExt,
+    pathinfo.extension,
     opts
   );
 
@@ -161,15 +161,6 @@ export async function getFileWithMatcher(
   matcher: FileMatcher,
   opts?: SemanticDataAccessProviderRunOptions
 ): Promise<{file?: File | null; workspace?: Workspace}> {
-  // if (
-  //   matcher.filepath &&
-  //   !matcher.fileId &&
-  //   tryGetResourceTypeFromId(matcher.filepath) === AppResourceTypeMap.File
-  // ) {
-  //   matcher.fileId = matcher.filepath;
-  //   matcher.filepath = undefined;
-  // }
-
   if (matcher.fileId) {
     return await getFileWithId(context, matcher.fileId, opts);
   } else if (matcher.filepath) {

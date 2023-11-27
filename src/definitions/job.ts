@@ -7,6 +7,7 @@ import {AppResourceTypeMap, Resource} from './system';
 
 export const JobTypeMap = {
   DeleteResource: 'deleteResource',
+  IngestFolderpath: 'ingestFolderpath',
 } as const;
 
 export const JobStatusMap = {
@@ -19,17 +20,24 @@ export const JobStatusMap = {
 export type JobType = ObjectValues<typeof JobTypeMap>;
 export type JobStatus = ObjectValues<typeof JobStatusMap>;
 
-export interface Job extends Resource {
-  type: JobType;
-  params: AnyObject;
+export interface Job<TParams extends AnyObject = AnyObject> extends Resource {
+  type: JobType | (string & {});
+  params: TParams;
+  workspaceId?: string;
   status: JobStatus;
   statusDate: number;
   version: number;
   serverInstanceId: string;
-  workspaceId?: string;
+  steps: string[];
 
   /** For checking the logs for the error that occurred during the job run. */
   errorTimestamp?: number;
+}
+
+export interface JobInput<TParams extends AnyObject = AnyObject> {
+  type: JobType | (string & {});
+  params: TParams;
+  workspaceId?: string;
 }
 
 export type DeleteResourceJobParams =
@@ -40,7 +48,9 @@ export type DeleteResourceJobParams =
         | typeof AppResourceTypeMap.Folder
         | typeof AppResourceTypeMap.Tag
         | typeof AppResourceTypeMap.PermissionGroup
-        | typeof AppResourceTypeMap.CollaborationRequest;
+        | typeof AppResourceTypeMap.CollaborationRequest
+        | typeof AppResourceTypeMap.FileBackendMount
+        | typeof AppResourceTypeMap.FileBackendConfig;
       args: DeleteResourceCascadeFnDefaultArgs;
     }
   | {
@@ -60,5 +70,9 @@ export type DeleteResourceJobParams =
       type: typeof AppResourceTypeMap.Workspace;
       args: DeletePermissionItemsCascadeFnsArgs;
     };
+
+export interface IngestMountJobParams {
+  mountId: string;
+}
 
 export const JOB_RUNNER_V1 = 1;

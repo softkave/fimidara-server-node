@@ -99,14 +99,14 @@ async function extractUploadFileParamsFromReq(
   let waitTimeoutHandle: NodeJS.Timeout | undefined = undefined;
   const contentLength = req.headers['content-length'];
   const contentEncoding = req.headers['content-encoding'];
-  const contentType = req.headers[fileConstants.headers['x-fimidara-file-mimetype']];
+  // const contentType = req.headers[fileConstants.headers['x-fimidara-file-mimetype']];
   const description = req.headers[fileConstants.headers['x-fimidara-file-description']];
 
   appAssert(req.busboy, new InvalidRequestError('Invalid multipart/formdata request.'));
-  appAssert(
-    contentLength,
-    new InvalidRequestError('The Content-Length HTTP header is required.')
-  );
+  // appAssert(
+  //   contentLength,
+  //   new InvalidRequestError('The Content-Length HTTP header is required.')
+  // );
 
   return new Promise((resolve, reject) => {
     // Wait for data stream or end if timeout exceeded. This is to prevent
@@ -128,7 +128,8 @@ async function extractUploadFileParamsFromReq(
         data: stream,
         size: Number(contentLength),
         encoding: info.encoding ?? contentEncoding,
-        mimetype: info.mimeType ?? contentType,
+        // mimetype: info.mimeType ?? contentType,
+        mimetype: info.mimeType,
         description: description ? first(toArray(description)) : undefined,
       });
     });
@@ -139,8 +140,8 @@ async function extractUploadFileParamsFromReq(
 function cleanupUploadFileReq(req: Request) {
   if (req.busboy) {
     // We are done processing request, either because of an error, file stream
-    // wait timeout exceeded, or file has been persisted. Either way, swiftly
-    // and immediately destroy the stream to avoid memory leakage.
+    // wait timeout exceeded, or file has been persisted. Either way,
+    // immediately destroy the stream to avoid memory leakage.
     req.busboy.destroy();
   }
 }

@@ -7,7 +7,7 @@ import {
 import mongoose from 'mongoose';
 import {globalDispose} from '../endpoints/globalUtils';
 import {dropMongoConnection} from '../endpoints/testUtils/helpers/mongo';
-import {FileBackendType, FimidaraConfig} from '../resources/types';
+import {FilePersistenceType, FimidaraConfig} from '../resources/types';
 import {fimidaraConfig} from '../resources/vars';
 import {testLogger} from '../utils/logger/loggerUtils';
 import _ = require('lodash');
@@ -31,7 +31,9 @@ async function dropMongoCollections(globals: FimidaraConfig) {
     }
 
     testLogger.info(`Dropping db - ${name}`);
-    const connection = await mongoose.createConnection(mongoURI, {dbName: name}).asPromise();
+    const connection = await mongoose
+      .createConnection(mongoURI, {dbName: name})
+      .asPromise();
     await dropMongoConnection(connection);
   }
 
@@ -43,7 +45,7 @@ async function deleteAWSBucketObjects(globals: FimidaraConfig) {
   const secretAccessKey = globals.awsSecretAccessKey;
   const region = globals.awsRegion;
   const bucketName = globals.S3Bucket;
-  const useS3FileProvider = globals.fileBackend === FileBackendType.S3;
+  const useS3FileProvider = globals.fileBackend === FilePersistenceType.S3;
   if (!accessKeyId ?? !secretAccessKey ?? !region ?? !bucketName ?? !useS3FileProvider) {
     return;
   }

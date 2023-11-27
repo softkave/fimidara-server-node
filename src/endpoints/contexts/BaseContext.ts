@@ -1,16 +1,16 @@
 import {map} from 'lodash';
 import {Connection as MongoConnection} from 'mongoose';
 import {AppMongoModels} from '../../db/types';
-import {FileBackendType, FimidaraConfig} from '../../resources/types';
+import {FilePersistenceType, FimidaraConfig} from '../../resources/types';
 import {appAssert} from '../../utils/assertion';
 import {logRejectedPromisesAndThrow} from '../../utils/waitOnPromises';
 import SessionContext, {SessionContextType} from './SessionContext';
 import {SESEmailProviderContext} from './email/SESEmailProviderContext';
 import {IEmailProviderContext} from './email/types';
-import LocalFsFilePersistenceProviderContext from './file/LocalFsFilePersistenceProviderContext';
-import MemoryFilePersistenceProviderContext from './file/MemoryFilePersistenceProviderContext';
-import {S3FilePersistenceProviderContext} from './file/S3FilePersistenceProviderContext';
-import {FilePersistenceProviderContext} from './file/types';
+import LocalFsFilePersistenceProvider from './file/LocalFsFilePersistenceProvider';
+import MemoryFilePersistenceProvider from './file/MemoryFilePersistenceProvider';
+import {S3FilePersistenceProvider} from './file/S3FilePersistenceProvider';
+import {FilePersistenceProvider} from './file/types';
 import {
   BaseContextDataProviders,
   BaseContextLogicProviders,
@@ -22,7 +22,7 @@ export default class BaseContext<
   Data extends BaseContextDataProviders = BaseContextDataProviders,
   SemanticData extends BaseContextSemanticDataProviders = BaseContextSemanticDataProviders,
   Email extends IEmailProviderContext = IEmailProviderContext,
-  FileBackend extends FilePersistenceProviderContext = FilePersistenceProviderContext,
+  FileBackend extends FilePersistenceProvider = FilePersistenceProvider,
   AppVars extends FimidaraConfig = FimidaraConfig,
   Logic extends BaseContextLogicProviders = BaseContextLogicProviders
 > implements BaseContextType<Data, SemanticData, Email, FileBackend, AppVars, Logic>
@@ -92,13 +92,13 @@ export default class BaseContext<
 }
 
 export function getFileProvider(appVariables: FimidaraConfig) {
-  if (appVariables.fileBackend === FileBackendType.S3) {
-    return new S3FilePersistenceProviderContext(appVariables.awsRegion);
-  } else if (appVariables.fileBackend === FileBackendType.Memory) {
-    return new MemoryFilePersistenceProviderContext();
-  } else if (appVariables.fileBackend === FileBackendType.LocalFs) {
+  if (appVariables.fileBackend === FilePersistenceType.S3) {
+    return new S3FilePersistenceProvider(appVariables.awsRegion);
+  } else if (appVariables.fileBackend === FilePersistenceType.Memory) {
+    return new MemoryFilePersistenceProvider();
+  } else if (appVariables.fileBackend === FilePersistenceType.LocalFs) {
     appAssert(appVariables.localFsDir);
-    return new LocalFsFilePersistenceProviderContext(appVariables.localFsDir);
+    return new LocalFsFilePersistenceProvider(appVariables.localFsDir);
   }
 
   throw new Error(`Invalid file backend type ${appVariables.fileBackend}.`);

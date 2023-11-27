@@ -1,6 +1,5 @@
 import assert = require('assert');
-import {isFunction, isObject, merge} from 'lodash';
-import {capitalizeFirstLetter} from './fns';
+import {cloneDeep, isFunction, isObject, merge} from 'lodash';
 import {AnyFn, AnyObject} from './types';
 
 export function makeGetAccessor<T, K extends keyof T>(obj: T, k: K) {
@@ -23,20 +22,9 @@ export function makeSetAccessor<T, K extends keyof T = keyof T>(obj: T, k: K) {
   };
 }
 
-export function makeClone<T extends object>(cloneFrom: T, addAccessors = true) {
+export function makeClone<T extends object>(cloneFrom: T) {
   return () => {
-    const clone: AnyObject = {};
-
-    for (const key in cloneFrom) {
-      if (isFunction(cloneFrom[key])) continue;
-      clone[key] = cloneFrom[key];
-    }
-
-    if (addAccessors) {
-      addClassAccessors(clone);
-    }
-
-    return clone as T;
+    return cloneDeep(cloneFrom);
   };
 }
 
@@ -58,26 +46,6 @@ export function getClassAccessorFields(
   }
 
   return accessorFields;
-}
-
-export function addClassAccessors(
-  instance: AnyObject,
-  skipFieldsWithPrefix = kClassAccessorsDefaultSkipFieldsWithPrefix
-) {
-  const accessorFields = getClassAccessorFields(instance, skipFieldsWithPrefix);
-  accessorFields.forEach(key => {
-    const setAccessorName = `set${capitalizeFirstLetter(key)}`;
-    const getAccessorName = `get${capitalizeFirstLetter(key)}`;
-    const assertGetAccessorName = `assertGet${capitalizeFirstLetter(key)}`;
-
-    if (!instance[setAccessorName]) instance[setAccessorName] = makeSetAccessor(instance, key);
-    if (!instance[getAccessorName]) instance[getAccessorName] = makeGetAccessor(instance, key);
-    if (!instance[assertGetAccessorName])
-      instance[assertGetAccessorName] = makeAssertGetAccessor(instance, key);
-  });
-
-  const cloneName = 'clone';
-  instance[cloneName] = makeClone(instance, true);
 }
 
 /**

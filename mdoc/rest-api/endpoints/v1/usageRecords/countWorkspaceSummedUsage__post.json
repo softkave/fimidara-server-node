@@ -1,19 +1,19 @@
 {
+    "__id": "HttpEndpointDefinition",
     "basePathname": "/v1/usageRecords/countWorkspaceSummedUsage",
     "method": "post",
     "requestBody": {
-        "required": true,
-        "description": "Count workspace summed usage records endpoint params.",
         "__id": "FieldObject",
         "name": "CountWorkspaceSummedUsageEndpointParams",
         "fields": {
             "workspaceId": {
                 "data": {
-                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
                     "__id": "FieldString",
+                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
                     "example": "wrkspce_000000000000000000000"
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             },
             "query": {
                 "data": {
@@ -22,156 +22,191 @@
                     "fields": {
                         "category": {
                             "data": {
-                                "__id": "FieldArray",
-                                "type": {
-                                    "description": "Usage record category.",
-                                    "__id": "FieldString",
-                                    "example": "storage",
-                                    "valid": {
-                                        "0": "total",
-                                        "1": "storage",
-                                        "2": "bin",
-                                        "3": "bout"
+                                "__id": "FieldOrCombination",
+                                "types": {
+                                    "0": {
+                                        "__id": "FieldString",
+                                        "description": "Usage record category.",
+                                        "example": "storage",
+                                        "valid": {
+                                            "0": "total",
+                                            "1": "storage",
+                                            "2": "bin",
+                                            "3": "bout"
+                                        },
+                                        "enumName": "UsageRecordCategory"
                                     },
-                                    "enumName": "UsageRecordCategory"
+                                    "1": {
+                                        "__id": "FieldArray",
+                                        "type": {
+                                            "__id": "FieldString",
+                                            "description": "Usage record category.",
+                                            "example": "storage",
+                                            "valid": {
+                                                "0": "total",
+                                                "1": "storage",
+                                                "2": "bin",
+                                                "3": "bout"
+                                            },
+                                            "enumName": "UsageRecordCategory"
+                                        }
+                                    }
                                 }
                             },
-                            "optional": true
+                            "__id": "FieldObjectField",
+                            "required": false
                         },
                         "fromDate": {
                             "data": {
-                                "description": "UTC timestamp in milliseconds.",
-                                "__id": "FieldNumber"
+                                "__id": "FieldNumber",
+                                "description": "UTC timestamp in milliseconds."
                             },
-                            "optional": true
+                            "__id": "FieldObjectField",
+                            "required": false
                         },
                         "toDate": {
                             "data": {
-                                "description": "UTC timestamp in milliseconds.",
-                                "__id": "FieldNumber"
+                                "__id": "FieldNumber",
+                                "description": "UTC timestamp in milliseconds."
                             },
-                            "optional": true
+                            "__id": "FieldObjectField",
+                            "required": false
                         },
                         "fulfillmentStatus": {
                             "data": {
-                                "__id": "FieldArray",
-                                "type": {
-                                    "description": "Usage record fulfillment status.",
-                                    "__id": "FieldString",
-                                    "example": "fulfilled",
-                                    "valid": {
-                                        "0": "undecided",
-                                        "1": "fulfilled",
-                                        "2": "dropped"
+                                "__id": "FieldOrCombination",
+                                "types": {
+                                    "0": {
+                                        "__id": "FieldString",
+                                        "description": "Usage record fulfillment status.",
+                                        "example": "fulfilled",
+                                        "valid": {
+                                            "0": "undecided",
+                                            "1": "fulfilled",
+                                            "2": "dropped"
+                                        },
+                                        "enumName": "UsageRecordFulfillmentStatus"
                                     },
-                                    "enumName": "UsageRecordFulfillmentStatus"
+                                    "1": {
+                                        "__id": "FieldArray",
+                                        "type": {
+                                            "__id": "FieldString",
+                                            "description": "Usage record fulfillment status.",
+                                            "example": "fulfilled",
+                                            "valid": {
+                                                "0": "undecided",
+                                                "1": "fulfilled",
+                                                "2": "dropped"
+                                            },
+                                            "enumName": "UsageRecordFulfillmentStatus"
+                                        }
+                                    }
                                 }
                             },
-                            "optional": true
+                            "__id": "FieldObjectField",
+                            "required": false
                         }
                     }
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             }
-        }
+        },
+        "description": "Count workspace summed usage records endpoint params."
     },
     "requestHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType",
         "fields": {
             "Authorization": {
                 "data": {
-                    "description": "Access token.",
                     "__id": "FieldString",
+                    "description": "Access token.",
                     "example": "Bearer <token>"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON request content type.",
                     "__id": "FieldString",
-                    "example": "application/json",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON request content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType"
     },
     "responseHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
         "fields": {
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON response content type.",
                     "__id": "FieldString",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON response content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Length": {
                 "data": {
-                    "description": "HTTP response content length in bytes.",
-                    "__id": "FieldString"
+                    "__id": "FieldString",
+                    "description": "HTTP response content length in bytes."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength"
     },
     "responseBody": {
-        "required": true,
-        "description": "Count endpoint success result.",
         "__id": "FieldObject",
         "name": "CountItemsResult",
         "fields": {
             "count": {
                 "data": {
-                    "description": "Resource count.",
-                    "__id": "FieldNumber"
+                    "__id": "FieldNumber",
+                    "description": "Resource count."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "description": "Count endpoint success result."
     },
     "name": "CountWorkspaceSummedUsageEndpoint",
     "description": "Count workspace summed usage records endpoint.",
     "errorResponseHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
         "fields": {
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON response content type.",
                     "__id": "FieldString",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON response content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Length": {
                 "data": {
-                    "description": "HTTP response content length in bytes.",
-                    "__id": "FieldString"
+                    "__id": "FieldString",
+                    "description": "HTTP response content length in bytes."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength"
     },
     "errorResponseBody": {
-        "required": true,
-        "description": "Endpoint error result.",
         "__id": "FieldObject",
         "name": "EndpointErrorResult",
         "fields": {
             "errors": {
                 "data": {
-                    "description": "Endpoint call response errors.",
                     "__id": "FieldArray",
                     "type": {
                         "__id": "FieldObject",
@@ -179,46 +214,52 @@
                         "fields": {
                             "name": {
                                 "data": {
-                                    "description": "Error name.",
                                     "__id": "FieldString",
+                                    "description": "Error name.",
                                     "example": "ValidationError"
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "message": {
                                 "data": {
-                                    "description": "Error message.",
                                     "__id": "FieldString",
+                                    "description": "Error message.",
                                     "example": "Workspace name is invalid."
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "action": {
                                 "data": {
-                                    "description": "Recommended action.",
                                     "__id": "FieldString",
+                                    "description": "Recommended action.",
                                     "valid": {
                                         "0": "loginAgain",
                                         "1": "logout",
                                         "2": "requestChangePassword"
                                     }
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             },
                             "field": {
                                 "data": {
-                                    "description": "Invalid field failing validation when error is ValidationError.",
                                     "__id": "FieldString",
-                                    "example": "workspace.innerField.secondInnerField"
+                                    "example": "workspace.innerField.secondInnerField",
+                                    "description": "Invalid field failing validation when error is ValidationError."
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             }
                         }
-                    }
+                    },
+                    "description": "Endpoint call response errors."
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             }
-        }
-    },
-    "__id": "HttpEndpointDefinition"
+        },
+        "description": "Endpoint error result."
+    }
 }

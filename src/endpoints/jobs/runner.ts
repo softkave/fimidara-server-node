@@ -1,5 +1,6 @@
 import {
   DeleteResourceJobParams,
+  IngestMountJobParams,
   Job,
   JOB_RUNNER_V1,
   JobStatusMap,
@@ -129,6 +130,23 @@ async function executeDeleteResourceJob(context: BaseContextType, job: Job) {
 export async function enqueueDeleteResourceJob(
   context: BaseContextType,
   params: DeleteResourceJobParams
+) {
+  const job: Job = newResource(AppResourceTypeMap.Job, {
+    params,
+    serverInstanceId: context.appVariables.serverInstanceId,
+    status: JobStatusMap.Pending,
+    statusDate: getTimestamp(),
+    type: JobTypeMap.DeleteResource,
+    version: JOB_RUNNER_V1,
+    workspaceId: params.args.workspaceId,
+  });
+  await context.data.job.insertItem(job);
+  return job;
+}
+
+export async function enqueueIngestMountJob(
+  context: BaseContextType,
+  params: IngestMountJobParams
 ) {
   const job: Job = newResource(AppResourceTypeMap.Job, {
     params,

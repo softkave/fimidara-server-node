@@ -9,11 +9,15 @@ import {
   checkAuthorizationWithAgent,
   getFilePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
-import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {
+  SemanticDataAccessProviderMutationRunOptions,
+  SemanticDataAccessProviderRunOptions,
+} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
+import {createFolderListWithTransaction} from './addFolder/handler';
 import {folderConstants} from './constants';
 import {FolderNotFoundError} from './errors';
 import {assertGetFolderWithMatcher} from './getFolderWithMatcher';
@@ -126,7 +130,6 @@ export async function checkFolderAuthorization(
     // content.
     // TODO: Let me (@abayomi) know if there's an issue with this.
     await checkAuthorizationWithAgent({
-      context,
       agent,
       workspace,
       opts,
@@ -201,7 +204,33 @@ export function assertFolder(folder: Folder | null | undefined): asserts folder 
   }
 }
 
-export function stringifyFolderNamePath(file: Folder, rootname?: string) {
-  const nm = file.namePath.join(folderConstants.nameSeparator);
-  return rootname ? addRootnameToPath(nm, rootname) : nm;
+export function stringifyFolderNamePath(
+  folder: Pick<Folder, 'namePath'>,
+  rootname?: string
+) {
+  const name = folder.namePath.join(folderConstants.nameSeparator);
+  return rootname ? addRootnameToPath(name, rootname) : name;
+}
+
+export async function ensureFolders(
+  agent: SessionAgent,
+  workspace: Workspace,
+  /** folder path with workspace rootname */
+  folderpath: string,
+  opts: SemanticDataAccessProviderMutationRunOptions
+) {
+  return await createFolderListWithTransaction(
+    agent,
+    workspace,
+    {folderpath: addRootnameToPath(folderpath, workspace.rootname)},
+    /** Skip auth check. Since what we really care about is file creation, and
+     * a separate permission check is done for that. All of it is also done
+     * with transaction so should upload file permission check fail, it'll get
+     * rolled back. Also, this allows for creating presigned paths to files in
+     * folders that do not exist yet, which would otherwise fail seeing an
+     * anonymous user most likely won't have permission to create folders. */
+    true,
+    /** Throw on folder exists */ false,
+    opts
+  );
 }

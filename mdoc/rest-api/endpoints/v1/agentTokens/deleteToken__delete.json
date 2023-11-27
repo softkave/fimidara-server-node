@@ -1,143 +1,143 @@
 {
+    "__id": "HttpEndpointDefinition",
     "basePathname": "/v1/agentTokens/deleteToken",
     "method": "delete",
     "requestBody": {
-        "required": true,
-        "description": "Delete agent token endpoint params.",
         "__id": "FieldObject",
         "name": "DeleteAgentTokenEndpointParams",
         "fields": {
             "tokenId": {
                 "data": {
-                    "description": "Resource ID.",
                     "__id": "FieldString",
+                    "description": "Resource ID.",
                     "example": "wrkspce_000000000000000000000"
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             },
             "onReferenced": {
                 "data": {
-                    "description": "Whether to perform action on the token used to authorize the API call when performing actions on tokens and a token ID or provided resource ID is not provided.",
-                    "__id": "FieldBoolean"
+                    "__id": "FieldBoolean",
+                    "description": "Whether to perform action on the token used to authorize the API call when performing actions on tokens and a token ID or provided resource ID is not provided."
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             },
             "providedResourceId": {
                 "data": {
-                    "description": "Resource ID provided by you.",
                     "__id": "FieldString",
+                    "description": "Resource ID provided by you.",
                     "max": 50
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             },
             "workspaceId": {
                 "data": {
-                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
                     "__id": "FieldString",
+                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token.",
                     "example": "wrkspce_000000000000000000000"
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             }
-        }
+        },
+        "description": "Delete agent token endpoint params."
     },
     "requestHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType",
         "fields": {
             "Authorization": {
                 "data": {
-                    "description": "Access token.",
                     "__id": "FieldString",
+                    "description": "Access token.",
                     "example": "Bearer <token>"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON request content type.",
                     "__id": "FieldString",
-                    "example": "application/json",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON request content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType"
     },
     "responseHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
         "fields": {
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON response content type.",
                     "__id": "FieldString",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON response content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Length": {
                 "data": {
-                    "description": "HTTP response content length in bytes.",
-                    "__id": "FieldString"
+                    "__id": "FieldString",
+                    "description": "HTTP response content length in bytes."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength"
     },
     "responseBody": {
-        "required": true,
-        "description": "Long running job endpoint success result.",
         "__id": "FieldObject",
         "name": "LongRunningJobResult",
         "fields": {
             "jobId": {
                 "data": {
-                    "description": "Long running job ID.",
                     "__id": "FieldString",
+                    "description": "Long running job ID.",
                     "example": "job0000_000000000000000000000"
                 },
-                "required": true
+                "__id": "FieldObjectField",
+                "required": false
             }
-        }
+        },
+        "description": "Long running job endpoint success result."
     },
     "name": "DeleteAgentTokenEndpoint",
     "description": "Delete agent token endpoint.",
     "errorResponseHeaders": {
         "__id": "FieldObject",
-        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength",
         "fields": {
             "Content-Type": {
                 "data": {
-                    "description": "HTTP JSON response content type.",
                     "__id": "FieldString",
-                    "valid": {
-                        "0": "application/json"
-                    }
+                    "description": "HTTP JSON response content type.",
+                    "example": "application/json"
                 },
+                "__id": "FieldObjectField",
                 "required": true
             },
             "Content-Length": {
                 "data": {
-                    "description": "HTTP response content length in bytes.",
-                    "__id": "FieldString"
+                    "__id": "FieldString",
+                    "description": "HTTP response content length in bytes."
                 },
+                "__id": "FieldObjectField",
                 "required": true
             }
-        }
+        },
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength"
     },
     "errorResponseBody": {
-        "required": true,
-        "description": "Endpoint error result.",
         "__id": "FieldObject",
         "name": "EndpointErrorResult",
         "fields": {
             "errors": {
                 "data": {
-                    "description": "Endpoint call response errors.",
                     "__id": "FieldArray",
                     "type": {
                         "__id": "FieldObject",
@@ -145,46 +145,52 @@
                         "fields": {
                             "name": {
                                 "data": {
-                                    "description": "Error name.",
                                     "__id": "FieldString",
+                                    "description": "Error name.",
                                     "example": "ValidationError"
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "message": {
                                 "data": {
-                                    "description": "Error message.",
                                     "__id": "FieldString",
+                                    "description": "Error message.",
                                     "example": "Workspace name is invalid."
                                 },
+                                "__id": "FieldObjectField",
                                 "required": true
                             },
                             "action": {
                                 "data": {
-                                    "description": "Recommended action.",
                                     "__id": "FieldString",
+                                    "description": "Recommended action.",
                                     "valid": {
                                         "0": "loginAgain",
                                         "1": "logout",
                                         "2": "requestChangePassword"
                                     }
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             },
                             "field": {
                                 "data": {
-                                    "description": "Invalid field failing validation when error is ValidationError.",
                                     "__id": "FieldString",
-                                    "example": "workspace.innerField.secondInnerField"
+                                    "example": "workspace.innerField.secondInnerField",
+                                    "description": "Invalid field failing validation when error is ValidationError."
                                 },
-                                "optional": true
+                                "__id": "FieldObjectField",
+                                "required": false
                             }
                         }
-                    }
+                    },
+                    "description": "Endpoint call response errors."
                 },
-                "optional": true
+                "__id": "FieldObjectField",
+                "required": false
             }
-        }
-    },
-    "__id": "HttpEndpointDefinition"
+        },
+        "description": "Endpoint error result."
+    }
 }

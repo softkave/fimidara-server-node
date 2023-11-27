@@ -7,14 +7,8 @@ import {
   getFilePermissionContainers,
   getWorkspacePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {
-  SemanticDataAccessProviderMutationRunOptions,
-  SemanticDataAccessProviderRunOptions,
-} from '../../contexts/semantic/types';
+import {SemanticDataAccessProviderRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
-import {createFolderListWithTransaction} from '../../folders/addFolder/handler';
-import {addRootnameToPath} from '../../folders/utils';
-import {FilepathInfo} from '../utils';
 
 export async function checkUploadFileAuth(
   context: BaseContextType,
@@ -42,39 +36,7 @@ export async function checkUploadFileAuth(
         : closestExistingFolder
         ? getFilePermissionContainers(workspace.resourceId, closestExistingFolder, true)
         : getWorkspacePermissionContainers(workspace.resourceId),
-      // TODO: should it be create and or update, rather than just create, in case
-      // of existing files
       action: 'addFile',
     },
   });
-}
-
-export async function ensureFileParentFolders(
-  context: BaseContextType,
-  agent: SessionAgent,
-  workspace: Workspace,
-  pathWithDetails: FilepathInfo,
-  opts: SemanticDataAccessProviderMutationRunOptions
-) {
-  if (pathWithDetails.hasParent) {
-    return await createFolderListWithTransaction(
-      context,
-      agent,
-      workspace,
-      {folderpath: addRootnameToPath(pathWithDetails.parentPath, workspace.rootname)},
-
-      /** Skip auth check. Since what we really care about is file creation, and
-       * a separate permission check is done for that. All of it is also done
-       * with transaction so should upload file permission check fail, it'll get
-       * rolled back. Also, this allows for creating presigned paths to files in
-       * folders that do not exist yet, which would otherwise fail seeing an
-       * anonymous user most likely won't have permission to create folders. */
-      true,
-
-      /** Throw on folder exists */ false,
-      opts
-    );
-  }
-
-  return null;
 }

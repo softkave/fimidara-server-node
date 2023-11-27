@@ -101,7 +101,7 @@ async function getPresignedPathsByFileMatchers(
       const filepathInfo = getFilepathInfo(matcher.filepath);
       filepathList.push({
         workspaceId,
-        namepath: filepathInfo.splitPathWithoutExtension,
+        namepath: filepathInfo.filepathExcludingExt,
         extension: filepathInfo.extension,
         workspaceRootname: filepathInfo.workspaceRootname,
       });

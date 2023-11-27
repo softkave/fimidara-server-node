@@ -3,6 +3,7 @@ import {AgentToken} from '../../../definitions/agentToken';
 import {AssignedItem} from '../../../definitions/assignedItem';
 import {CollaborationRequest} from '../../../definitions/collaborationRequest';
 import {File, FilePresignedPath} from '../../../definitions/file';
+import {FileBackendConfig} from '../../../definitions/fileBackend';
 import {Folder} from '../../../definitions/folder';
 import {Job} from '../../../definitions/job';
 import {PermissionGroup} from '../../../definitions/permissionGroups';
@@ -236,6 +237,7 @@ export type TagQuery = DataQuery<Tag>;
 export type UsageRecordQuery = DataQuery<UsageRecord>;
 export type UserQuery = DataQuery<User>;
 export type WorkspaceQuery = DataQuery<Workspace>;
+export type FileBackendConfigQuery = DataQuery<FileBackendConfig>;
 
 export type AgentTokenDataProvider = BaseDataProvider<AgentToken, DataQuery<AgentToken>>;
 export type AppRuntimeStateDataProvider = BaseDataProvider<
@@ -273,3 +275,7 @@ export type UserDataProvider = BaseDataProvider<User, DataQuery<User>>;
 export type WorkspaceDataProvider = BaseDataProvider<Workspace, DataQuery<Workspace>>;
 export type ResourceDataProvider = BaseDataProvider<ResourceWrapper, DataQuery<Resource>>;
 export type JobDataProvider = BaseDataProvider<Job, DataQuery<Job>>;
+export type FileBackendConfigDataProvider = BaseDataProvider<
+  FileBackendConfig,
+  DataQuery<FileBackendConfig>
+>;
