@@ -1,12 +1,21 @@
+import {first} from 'lodash';
 import {container} from 'tsyringe';
+import {File} from '../../definitions/file';
 import {FileBackendMount} from '../../definitions/fileBackend';
 import {Folder} from '../../definitions/folder';
+import {appAssert} from '../../utils/assertion';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {kInjectionKeys} from '../contexts/injection';
 import {
   SemanticFileBackendMountProvider,
+  SemanticProviderMutationRunOptions,
+  SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
+import {
+  initBackendProvidersFromConfigs,
+  resolveBackendConfigsFromMounts,
+} from './configUtils';
 
 export type FileBackendMountWeights = Record<string, number>;
 
@@ -64,5 +73,29 @@ export function isPrimaryMountFimidara(mounts: FileBackendMount[]): boolean {
 }
 
 export function isOnlyMountFimidara(mounts: FileBackendMount[]): boolean {
+  throw kReuseableErrors.common.notImplemented();
+}
+
+export async function getFileBackendForFile(file: File) {
+  const preferredMountEntry = first(file.mountEntries);
+  appAssert(preferredMountEntry);
+
+  const configs = await resolveBackendConfigsFromMounts([
+    {resourceId: preferredMountEntry.mountId},
+  ]);
+  const config = first(configs);
+  appAssert(config);
+
+  const providersMap = await initBackendProvidersFromConfigs(configs);
+  const provider = providersMap[config.resourceId];
+  appAssert(provider);
+
+  return {provider, preferredMountEntry, config};
+}
+
+export async function defaultMount(
+  workspaceId: string,
+  opts: SemanticProviderMutationRunOptions
+): Promise<FileBackendMount> {
   throw kReuseableErrors.common.notImplemented();
 }

@@ -11,7 +11,7 @@ import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
 
 export async function resolveBackendConfigsFromMounts(
-  mounts: FileBackendMount[],
+  mounts: Array<Pick<FileBackendMount, 'resourceId'>>,
   throwErrorIfConfigNotFound = true,
   opts?: SemanticProviderRunOptions
 ) {

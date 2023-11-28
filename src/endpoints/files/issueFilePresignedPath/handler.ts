@@ -23,7 +23,7 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async (
   const data = validate(instData.data, issueFilePresignedPathJoiSchema);
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
 
-  await context.semantic.utils.withTxn(context, async opts => {
+  const resource = await await context.semantic.utils.withTxn(async opts => {
     let file: File | null = null;
     let workspace: Workspace | undefined | null = undefined;
 
@@ -86,7 +86,7 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async (
       expiresAt = Date.now() + data.duration;
     }
 
-    const resource = newWorkspaceResource<FilePresignedPath>(
+    const presignedPath = newWorkspaceResource<FilePresignedPath>(
       agent,
       AppResourceTypeMap.FilePresignedPath,
       workspace.resourceId,
@@ -101,7 +101,9 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async (
         spentUsageCount: 0,
       }
     );
-    await context.semantic.filePresignedPath.insertItem(resource, opts);
+    await context.semantic.filePresignedPath.insertItem(presignedPath, opts);
+
+    return presignedPath;
   });
 
   return {path: resource.resourceId};

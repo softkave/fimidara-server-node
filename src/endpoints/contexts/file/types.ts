@@ -56,7 +56,7 @@ export interface FilePersistenceProviderDescribeFolderChildrenResult {
 }
 
 export interface FilePersistenceProvider {
-  uploadFile: (params: FilePersistenceUploadFileParams) => Promise<void>;
+  uploadFile: (params: FilePersistenceUploadFileParams) => Promise<Partial<File>>;
   getFile: (params: FilePersistenceGetFileParams) => Promise<PersistedFile>;
   describeFile: (
     params: FilePersistenceGetFileParams

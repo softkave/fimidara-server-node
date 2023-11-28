@@ -76,18 +76,7 @@
 
 ## Iteration TODOs
 
-- deleteMount
-  - what happens if mountedFrom changes
-  - what happens if folderpath changes
-  - what happens if mount index changes
-  - delete mount entries
-- readFile or folder
-  - read from mounts
-  - save to DB
-  - check auth
-  - perform action
-- read files or folders
-  - read folder + auth
-  - read children from mount
-  - save to db
-  - perform actions
+- fan to one mount / fan to many mounts
+- backend fimidara & aws s3
+- folder
+- backends like s3 won't return folder, just files on describe
