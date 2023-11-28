@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../utils/validationUtils';
-import {folderConstants} from './constants';
+import {kFolderConstants} from './constants';
 
 /**
 A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
@@ -15,8 +15,8 @@ const pathRegex = new RegExp(`[${chars}]+`);
 const notNameRegex = new RegExp(`[^${chars}]`);
 const folderpath = Joi.string()
   .regex(pathRegex)
-  .min(folderConstants.minFolderNameLength)
-  .max(folderConstants.maxFolderNameLength * folderConstants.maxFolderDepth);
+  .min(kFolderConstants.minFolderNameLength)
+  .max(kFolderConstants.maxFolderNameLength * kFolderConstants.maxFolderDepth);
 
 const folderMatcherParts = {
   folderpath,

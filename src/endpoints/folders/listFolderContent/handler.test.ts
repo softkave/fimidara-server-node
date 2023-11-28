@@ -24,8 +24,8 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
-import {folderConstants} from '../constants';
-import {addRootnameToPath, stringifyFolderNamePath} from '../utils';
+import {kFolderConstants} from '../constants';
+import {addRootnameToPath, stringifyFoldernamepath} from '../utils';
 import listFolderContent from './handler';
 import {ListFolderContentEndpointParams} from './types';
 
@@ -53,17 +53,17 @@ describe('listFolderContent', () => {
     const [{folder: folder02}, {file}] = await Promise.all([
       insertFolderForTest(context, userToken, workspace, {
         folderpath: addRootnameToPath(
-          folder01.namePath
+          folder01.namepath
             .concat(generateTestFolderName({includeStraySlashes: true}))
-            .join(folderConstants.nameSeparator),
+            .join(kFolderConstants.separator),
           workspace.rootname
         ),
       }),
       insertFileForTest(context, userToken, workspace, {
         filepath: addRootnameToPath(
-          folder01.namePath
+          folder01.namepath
             .concat(generateTestFileName({includeStraySlashes: true}))
-            .join(folderConstants.nameSeparator),
+            .join(kFolderConstants.separator),
           workspace.rootname
         ),
       }),
@@ -115,17 +115,17 @@ describe('listFolderContent', () => {
     const {folder: folder01} = await insertFolderForTest(context, userToken, workspace);
     const {folder: folder02} = await insertFolderForTest(context, userToken, workspace, {
       folderpath: addRootnameToPath(
-        folder01.namePath
+        folder01.namepath
           .concat(generateTestFolderName({includeStraySlashes: true}))
-          .join(folderConstants.nameSeparator),
+          .join(kFolderConstants.separator),
         workspace.rootname
       ),
     });
     const {file} = await insertFileForTest(context, userToken, workspace, {
       filepath: addRootnameToPath(
-        folder01.namePath
+        folder01.namepath
           .concat(generateTestFileName({includeStraySlashes: true}))
-          .join(folderConstants.nameSeparator),
+          .join(kFolderConstants.separator),
         workspace.rootname
       ),
     });
@@ -281,7 +281,7 @@ describe('listFolderContent', () => {
 
     const instData = RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
       mockExpressRequestWithAgentToken(agToken),
-      {folderpath: stringifyFolderNamePath(folder01, workspace.rootname)}
+      {folderpath: stringifyFoldernamepath(folder01, workspace.rootname)}
     );
     const result01 = await listFolderContent(context, instData);
 

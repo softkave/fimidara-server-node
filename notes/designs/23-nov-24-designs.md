@@ -73,3 +73,21 @@
 - We need to write endpoints for ingestion, and store ingestion progress
 - We need to write code to ingest on interaction
 - We need new permission for who can mount and unmount backends, also who can change backend credentials
+
+## Iteration TODOs
+
+- deleteMount
+  - what happens if mountedFrom changes
+  - what happens if folderpath changes
+  - what happens if mount index changes
+  - delete mount entries
+- readFile or folder
+  - read from mounts
+  - save to DB
+  - check auth
+  - perform action
+- read files or folders
+  - read folder + auth
+  - read children from mount
+  - save to db
+  - perform actions

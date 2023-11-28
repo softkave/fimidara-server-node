@@ -16,10 +16,10 @@ import {
   getAuthorizationAccessChecker,
   getResourcePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {SemanticDataAccessProviderRunOptions} from '../../contexts/semantic/types';
+import {SemanticProviderRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
 import {InvalidRequestError} from '../../errors';
-import {folderConstants} from '../../folders/constants';
+import {kFolderConstants} from '../../folders/constants';
 import {PermissionItemInputTarget} from '../types';
 import {getPermissionItemEntities, getPermissionItemTargets} from '../utils';
 import {
@@ -74,13 +74,13 @@ function indexArtifacts(
   entities: ResourceWrapper<Resource>[],
   targets: ResourceWrapper<Resource>[]
 ) {
-  const indexByNamePath = (item: ResourceWrapper) => {
+  const indexBynamepath = (item: ResourceWrapper) => {
     if (
       item.resourceType === AppResourceTypeMap.File ||
       item.resourceType === AppResourceTypeMap.Folder
     )
-      return (item.resource as unknown as Pick<File, 'namePath'>).namePath.join(
-        folderConstants.nameSeparator
+      return (item.resource as unknown as Pick<File, 'namepath'>).namepath.join(
+        kFolderConstants.separator
       );
     else return '';
   };
@@ -90,7 +90,7 @@ function indexArtifacts(
   // TODO: merge into one loop or update indexArray to produce more than one
   // index
   const targetsMapById = indexArray(targets, {path: 'resourceId'});
-  const targetsMapByNamepath = indexArray(targets, {indexer: indexByNamePath});
+  const targetsMapBynamepath = indexArray(targets, {indexer: indexBynamepath});
   const workspaceWrapper: ResourceWrapper = {
     resource: workspace,
     resourceId: workspace.resourceId,
@@ -125,7 +125,7 @@ function indexArtifacts(
 
     if (inputTarget.folderpath) {
       toArray(inputTarget.folderpath).forEach(folderpath => {
-        const folder = targetsMapByNamepath[folderpath];
+        const folder = targetsMapBynamepath[folderpath];
         if (folder)
           tMap[folder.resourceId] = {resource: folder, resolvedTarget: {folderpath}};
       });
@@ -133,7 +133,7 @@ function indexArtifacts(
 
     if (inputTarget.filepath) {
       toArray(inputTarget.filepath).forEach(filepath => {
-        const file = targetsMapByNamepath[filepath];
+        const file = targetsMapBynamepath[filepath];
         if (file) tMap[file.resourceId] = {resource: file, resolvedTarget: {filepath}};
       });
     }
@@ -258,7 +258,7 @@ export async function checkResolveEntityPermissionsAuth(
   agent: SessionAgent,
   workspace: Workspace,
   data: ResolveEntityPermissionsEndpointParams,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
   // Check is agent is resolving own permissions. If so, we don'target need to do
   // auth check.

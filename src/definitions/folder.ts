@@ -7,7 +7,7 @@ export interface FolderMountEntry {
 
 export interface Folder extends WorkspaceResource {
   idPath: string[];
-  namePath: string[];
+  namepath: string[];
   parentId: string | null;
   // maxFileSizeInBytes: number;
   name: string;

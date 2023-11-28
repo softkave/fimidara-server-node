@@ -3,7 +3,7 @@ import {Agent, AppResourceTypeMap, SessionAgent} from '../definitions/system';
 import {User} from '../definitions/user';
 import {InvalidRequestError} from '../endpoints/errors';
 import {appAssert} from './assertion';
-import {reuseableErrors} from './reusableErrors';
+import {kReuseableErrors} from './reusableErrors';
 
 export function makeWorkspaceAgentTokenAgent(agentToken: AgentToken): SessionAgent {
   return {
@@ -92,6 +92,6 @@ export function isSessionAgent(agent: any): agent is SessionAgent {
 
 export function assertIsNotOnWaitlist(agent: SessionAgent) {
   if (agent.user && agent.user.isOnWaitlist) {
-    throw reuseableErrors.user.userOnWaitlist();
+    throw kReuseableErrors.user.userOnWaitlist();
   }
 }

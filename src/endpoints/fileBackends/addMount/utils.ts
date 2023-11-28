@@ -3,30 +3,28 @@ import {FileBackendMount} from '../../../definitions/fileBackend';
 import {Agent, AppResourceTypeMap} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {newWorkspaceResource} from '../../../utils/resource';
-import {kInjectionKeys} from '../../contexts/injectionKeys';
-import {SemanticDataAccessFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
+import {kInjectionKeys} from '../../contexts/injection';
+import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
 import {
-  SemanticDataAccessFileBackendMountProvider,
-  SemanticDataAccessProviderMutationRunOptions,
+  SemanticFileBackendMountProvider,
+  SemanticProviderMutationRunOptions,
 } from '../../contexts/semantic/types';
 import {NotFoundError, ResourceExistsError} from '../../errors';
-import {ensureFolders, stringifyFolderNamePath} from '../../folders/utils';
+import {ensureFolders, stringifyFoldernamepath} from '../../folders/utils';
 import {AddFileBackendMountEndpointParams} from './types';
 
 export const INTERNAL_addFileBackendMount = async (
   agent: Agent,
   workspace: Workspace,
   data: AddFileBackendMountEndpointParams,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) => {
-  const fileBackendMountModel =
-    container.resolve<SemanticDataAccessFileBackendMountProvider>(
-      kInjectionKeys.semantic.fileBackendMount
-    );
-  const fileBackendConfigModel =
-    container.resolve<SemanticDataAccessFileBackendConfigProvider>(
-      kInjectionKeys.semantic.fileBackendConfig
-    );
+  const fileBackendMountModel = container.resolve<SemanticFileBackendMountProvider>(
+    kInjectionKeys.semantic.fileBackendMount
+  );
+  const fileBackendConfigModel = container.resolve<SemanticFileBackendConfigProvider>(
+    kInjectionKeys.semantic.fileBackendConfig
+  );
 
   const mountExists = await fileBackendMountModel.existsByQuery(
     {
@@ -75,7 +73,7 @@ export const INTERNAL_addFileBackendMount = async (
     ensureFolders(
       agent,
       workspace,
-      stringifyFolderNamePath({namePath: data.folderpath}, workspace.rootname),
+      stringifyFoldernamepath({namepath: data.folderpath}, workspace.rootname),
       opts
     ),
     fileBackendMountModel.insertItem(mount, opts),

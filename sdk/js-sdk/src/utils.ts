@@ -501,19 +501,19 @@ export function getFimidaraUploadFileURL(props: {
   );
 }
 
-export function stringifyFimidaraFileNamePath(
-  file: {namePath: string[]; extension?: string},
+export function stringifyFimidaraFilenamepath(
+  file: {namepath: string[]; extension?: string},
   rootname?: string
 ) {
   const name =
-    file.namePath.join('/') + (file.extension ? `.${file.extension}` : '');
+    file.namepath.join('/') + (file.extension ? `.${file.extension}` : '');
   return rootname ? fimidaraAddRootnameToPath(name, rootname) : name;
 }
 
-export function stringifyFimidaraFolderNamePath(
-  file: {namePath: string[]; extension?: string},
+export function stringifyFimidaraFoldernamepath(
+  file: {namepath: string[]; extension?: string},
   rootname?: string
 ) {
-  const name = file.namePath.join('/');
+  const name = file.namepath.join('/');
   return rootname ? fimidaraAddRootnameToPath(name, rootname) : name;
 }

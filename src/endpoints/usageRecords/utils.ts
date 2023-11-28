@@ -13,14 +13,14 @@ import {
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {appMessages} from '../../utils/messages';
-import {reuseableErrors} from '../../utils/reusableErrors';
+import {kAppMessages} from '../../utils/messages';
+import {kReuseableErrors} from '../../utils/reusableErrors';
 import {getActionAgentFromSessionAgent} from '../../utils/sessionUtils';
 import {UsageRecordInput} from '../contexts/logic/UsageRecordLogicProvider';
-import {SemanticDataAccessProviderMutationRunOptions} from '../contexts/semantic/types';
+import {SemanticProviderMutationRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
-import {stringifyFileNamePath} from '../files/utils';
+import {stringifyFilenamepath} from '../files/utils';
 import RequestData from '../RequestData';
 import {workspaceResourceFields} from '../utils';
 import {UsageLimitExceededError} from './errors';
@@ -29,7 +29,7 @@ async function insertRecord(
   ctx: BaseContextType,
   reqData: RequestData,
   input: UsageRecordInput,
-  opts: SemanticDataAccessProviderMutationRunOptions,
+  opts: SemanticProviderMutationRunOptions,
   nothrow = false
 ) {
   const agent = getActionAgentFromSessionAgent(
@@ -50,12 +50,12 @@ export async function insertStorageUsageRecordInput(
   file: File,
   action: PermissionAction,
   artifactMetaInput: Partial<FileUsageRecordArtifact> = {},
-  opts: SemanticDataAccessProviderMutationRunOptions,
+  opts: SemanticProviderMutationRunOptions,
   nothrow = false
 ) {
   const artifactMeta: FileUsageRecordArtifact = {
     fileId: file.resourceId,
-    filepath: stringifyFileNamePath(file),
+    filepath: stringifyFilenamepath(file),
     requestId: reqData.requestId,
     ...artifactMetaInput,
   };
@@ -82,12 +82,12 @@ export async function insertBandwidthInUsageRecordInput(
   reqData: RequestData,
   file: File,
   action: PermissionAction,
-  opts: SemanticDataAccessProviderMutationRunOptions,
+  opts: SemanticProviderMutationRunOptions,
   nothrow = false
 ) {
   const artifactMeta: BandwidthUsageRecordArtifact = {
     fileId: file.resourceId,
-    filepath: stringifyFileNamePath(file),
+    filepath: stringifyFilenamepath(file),
     requestId: reqData.requestId,
   };
 
@@ -113,12 +113,12 @@ export async function insertBandwidthOutUsageRecordInput(
   reqData: RequestData,
   file: File,
   action: PermissionAction,
-  opts: SemanticDataAccessProviderMutationRunOptions,
+  opts: SemanticProviderMutationRunOptions,
   nothrow = false
 ) {
   const artifactMeta: BandwidthUsageRecordArtifact = {
     fileId: file.resourceId,
-    filepath: stringifyFileNamePath(file),
+    filepath: stringifyFilenamepath(file),
     requestId: reqData.requestId,
   };
 
@@ -203,11 +203,11 @@ export function sumWorkspaceThresholds(w: Workspace, exclude?: UsageRecordCatego
 }
 
 export function throwUsageRecordNotFound() {
-  throw new NotFoundError(appMessages.usageRecord.notFound());
+  throw new NotFoundError(kAppMessages.usageRecord.notFound());
 }
 
 export function assertUsageRecord(item?: UsageRecord | null): asserts item {
-  appAssert(item, reuseableErrors.usageRecord.notFound());
+  appAssert(item, kReuseableErrors.usageRecord.notFound());
 }
 
 const usageRecordFields = getFields<PublicUsageRecord>({

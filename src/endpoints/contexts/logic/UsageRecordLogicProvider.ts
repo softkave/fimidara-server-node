@@ -17,7 +17,7 @@ import {getNewIdForResource, newWorkspaceResource} from '../../../utils/resource
 import {getCostForUsage} from '../../usageRecords/constants';
 import {getRecordingPeriod} from '../../usageRecords/utils';
 import {assertWorkspace} from '../../workspaces/utils';
-import {SemanticDataAccessProviderMutationRunOptions} from '../semantic/types';
+import {SemanticProviderMutationRunOptions} from '../semantic/types';
 import {BaseContextType} from '../types';
 
 export interface UsageRecordInput {
@@ -43,7 +43,7 @@ export class UsageRecordLogicProvider {
     ctx: BaseContextType,
     agent: Agent,
     input: UsageRecordInput,
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticProviderMutationRunOptions
   ): Promise<UsageRecordInsertStatus> => {
     const record = this.makeLevel01Record(agent, input);
     const workspace = await ctx.semantic.workspace.getOneById(record.workspaceId, opts);
@@ -134,7 +134,7 @@ export class UsageRecordLogicProvider {
     record: UsageRecord,
     category: UsageRecordCategory,
     status: UsageRecordFulfillmentStatus,
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticProviderMutationRunOptions
   ) {
     let usageL2 = await context.semantic.usageRecord.getOneByQuery(
       {
@@ -167,7 +167,7 @@ export class UsageRecordLogicProvider {
     agent: Agent,
     workspace: Workspace,
     record: UsageRecord,
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticProviderMutationRunOptions
   ) => {
     if (workspace.billStatus === WorkspaceBillStatusMap.BillOverdue) {
       await this.dropRecord(
@@ -188,7 +188,7 @@ export class UsageRecordLogicProvider {
     agent: Agent,
     workspace: Workspace,
     record: UsageRecord,
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticProviderMutationRunOptions
   ) => {
     const usageLocks = workspace.usageThresholdLocks ?? {};
 
@@ -227,7 +227,7 @@ export class UsageRecordLogicProvider {
     agent: Agent,
     workspace: Workspace,
     record: UsageRecord,
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticProviderMutationRunOptions
   ) => {
     const [usageFulfilledL2, usageTotalFulfilled, usageDroppedL2] = await Promise.all([
       this.getUsagel2(
@@ -309,7 +309,7 @@ export class UsageRecordLogicProvider {
     record: UsageRecord,
     usageFulfilledL2: UsageRecord | undefined,
     usageTotalFulfilled: UsageRecord | undefined,
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticProviderMutationRunOptions
   ) => {
     [usageFulfilledL2, usageTotalFulfilled] = await Promise.all([
       usageFulfilledL2 ??
@@ -357,7 +357,7 @@ export class UsageRecordLogicProvider {
     record: UsageRecord,
     dropReason: UsageRecordDropReason,
     usageDroppedL2: UsageRecord | undefined,
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticProviderMutationRunOptions
   ) => {
     if (!usageDroppedL2) {
       usageDroppedL2 = await this.getUsagel2(

@@ -11,6 +11,7 @@ import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {serverLogger} from '../../utils/logger/loggerUtils';
 import {newResource} from '../../utils/resource';
+import {SemanticProviderMutationRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {
   DELETE_AGENT_TOKEN_CASCADE_FNS,
@@ -78,7 +79,7 @@ async function getNextPendingJob(context: BaseContextType) {
   });
 }
 
-async function jobRunner(context: BaseContextType, job: Job) {
+async function jobRunner(job: Job) {
   try {
     if (job.type === JobTypeMap.DeleteResource)
       await executeDeleteResourceJob(context, job);
@@ -121,15 +122,15 @@ const kCascadeDeleteDefs: Record<
   [AppResourceTypeMap.PermissionItem]: DELETE_PERMISSION_ITEMS_CASCADE_FNS,
 };
 
-async function executeDeleteResourceJob(context: BaseContextType, job: Job) {
+async function executeDeleteResourceJob(job: Job) {
   const params = job.params as DeleteResourceJobParams;
   const cascadeDef = kCascadeDeleteDefs[params.type];
   if (cascadeDef) await executeCascadeDelete(context, cascadeDef, params.args);
 }
 
 export async function enqueueDeleteResourceJob(
-  context: BaseContextType,
-  params: DeleteResourceJobParams
+  params: DeleteResourceJobParams,
+  opts: SemanticProviderMutationRunOptions
 ) {
   const job: Job = newResource(AppResourceTypeMap.Job, {
     params,
@@ -145,8 +146,8 @@ export async function enqueueDeleteResourceJob(
 }
 
 export async function enqueueIngestMountJob(
-  context: BaseContextType,
-  params: IngestMountJobParams
+  params: IngestMountJobParams,
+  opts: SemanticProviderMutationRunOptions
 ) {
   const job: Job = newResource(AppResourceTypeMap.Job, {
     params,
@@ -161,14 +162,28 @@ export async function enqueueIngestMountJob(
   return job;
 }
 
-export async function getJob(context: BaseContextType, jobId: string) {
+export async function enqueuePurgeMountFromFolderJob(
+  params: {},
+  opts: SemanticProviderMutationRunOptions
+) {
+  const job: Job = newResource(AppResourceTypeMap.Job, {
+    params,
+    serverInstanceId: context.appVariables.serverInstanceId,
+    status: JobStatusMap.Pending,
+    statusDate: getTimestamp(),
+    type: JobTypeMap.DeleteResource,
+    version: JOB_RUNNER_V1,
+    workspaceId: params.args.workspaceId,
+  });
+  await context.data.job.insertItem(job);
+  return job;
+}
+
+export async function getJob(jobId: string) {
   return await context.data.job.assertGetOneByQuery({resourceId: jobId});
 }
 
-export async function waitForServerInstanceJobs(
-  context: BaseContextType,
-  serverInstanceId: string
-) {
+export async function waitForServerInstanceJobs(serverInstanceId: string) {
   return new Promise<void>(resolve => {
     const getPendingJobs = async () => {
       const jobs = await context.data.job.getManyByQuery({
@@ -184,10 +199,7 @@ export async function waitForServerInstanceJobs(
   });
 }
 
-export async function executeServerInstanceJobs(
-  context: BaseContextType,
-  serverInstanceId: string
-) {
+export async function executeServerInstanceJobs(serverInstanceId: string) {
   const getPendingJobs = async () => {
     return await context.data.job.getManyByQuery({
       serverInstanceId,
@@ -202,7 +214,7 @@ export async function executeServerInstanceJobs(
   }
 }
 
-export async function executeJob(context: BaseContextType, jobId: string) {
+export async function executeJob(jobId: string) {
   const job = await context.data.job.getOneByQuery({
     resourceId: jobId,
     status: JobStatusMap.Pending,
@@ -211,7 +223,7 @@ export async function executeJob(context: BaseContextType, jobId: string) {
   if (job) await jobRunner(context, job);
 }
 
-export async function waitForJob(context: BaseContextType, jobId: string) {
+export async function waitForJob(jobId: string) {
   return new Promise<void>(resolve => {
     const getPendingJob = async () => {
       const job = await context.data.job.getOneByQuery({

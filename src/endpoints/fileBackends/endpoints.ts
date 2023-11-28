@@ -12,7 +12,7 @@ import {
 import getAgentToken from './getConfig/handler';
 import getWorkspaceAgentTokens from './getConfigs/handler';
 import {AgentTokensExportedEndpoints} from './types';
-import updateAgentToken from './updateToken/handler';
+import updateAgentToken from './updateConfig/handler';
 
 export function getAgentTokenPublicHttpEndpoints() {
   const agentTokensExportedEndpoints: AgentTokensExportedEndpoints = {

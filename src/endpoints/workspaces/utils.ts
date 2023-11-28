@@ -19,8 +19,8 @@ import {
   getWorkspaceIdNoThrow,
 } from '../../utils/sessionUtils';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
-import {BaseContextType} from '../contexts/types';
+import {kSemanticModels} from '../contexts/injectables';
+import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
 import folderValidationSchemas from '../folders/validation';
 import {EndpointOptionalWorkspaceIDParam} from '../types';
@@ -88,35 +88,32 @@ export function assertWorkspace(
 }
 
 export async function checkWorkspaceExists(
-  ctx: BaseContextType,
   workspaceId: string,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
-  const w = await ctx.semantic.workspace.getOneById(workspaceId, opts);
+  const w = await kSemanticModels.workspace().getOneById(workspaceId, opts);
   assertWorkspace(w);
   return w;
 }
 
 export async function checkWorkspaceExistsWithAgent(
-  ctx: BaseContextType,
   agent: SessionAgent,
   workspaceId?: string
 ) {
   if (!workspaceId) {
     workspaceId = getWorkspaceIdFromSessionAgent(agent, workspaceId);
   }
-  return checkWorkspaceExists(ctx, workspaceId);
+
+  return checkWorkspaceExists(workspaceId);
 }
 
 export async function checkWorkspaceAuthorization(
-  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   action: PermissionAction,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
   await checkAuthorizationWithAgent({
-    context,
     agent,
     workspace,
     opts,
@@ -127,14 +124,13 @@ export async function checkWorkspaceAuthorization(
 }
 
 export async function checkWorkspaceAuthorization02(
-  context: BaseContextType,
   agent: SessionAgent,
   action: PermissionAction,
   id?: string
 ) {
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, id);
-  const workspace = await checkWorkspaceExists(context, workspaceId);
-  return checkWorkspaceAuthorization(context, agent, workspace, action);
+  const workspace = await checkWorkspaceExists(workspaceId);
+  return checkWorkspaceAuthorization(agent, workspace, action);
 }
 
 export abstract class WorkspaceUtils {
@@ -151,22 +147,20 @@ export function makeRootnameFromName(name: string): string {
 }
 
 export async function getWorkspaceFromEndpointInput(
-  context: BaseContextType,
   agent: SessionAgent,
   data: EndpointOptionalWorkspaceIDParam
 ) {
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
-  const workspace = await checkWorkspaceExists(context, workspaceId);
+  const workspace = await checkWorkspaceExists(workspaceId);
   return {workspace};
 }
 
 export async function tryGetWorkspaceFromEndpointInput(
-  context: BaseContextType,
   agent: SessionAgent,
   data: EndpointOptionalWorkspaceIDParam
 ) {
   let workspace: Workspace | undefined = undefined;
   const workspaceId = getWorkspaceIdNoThrow(agent, data.workspaceId);
-  if (workspaceId) workspace = await checkWorkspaceExists(context, workspaceId);
+  if (workspaceId) workspace = await checkWorkspaceExists(workspaceId);
   return {workspace};
 }

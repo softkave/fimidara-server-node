@@ -10,15 +10,15 @@ import {
   getFilePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
 import {
-  SemanticDataAccessProviderMutationRunOptions,
-  SemanticDataAccessProviderRunOptions,
+  SemanticProviderMutationRunOptions,
+  SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 import {createFolderListWithTransaction} from './addFolder/handler';
-import {folderConstants} from './constants';
+import {kFolderConstants} from './constants';
 import {FolderNotFoundError} from './errors';
 import {assertGetFolderWithMatcher} from './getFolderWithMatcher';
 
@@ -28,7 +28,7 @@ const folderFields = getFields<PublicFolder>({
   name: true,
   description: true,
   idPath: true,
-  namePath: true,
+  namepath: true,
   // tags: assignedTagListExtractor,
 });
 
@@ -44,11 +44,11 @@ export function splitFolderpath(path: string | string[]) {
     return path;
   }
 
-  const nameList = compact(posix.normalize(path).split(folderConstants.nameSeparator));
+  const nameList = compact(posix.normalize(path).split(kFolderConstants.separator));
 
-  if (nameList.length > folderConstants.maxFolderDepth) {
+  if (nameList.length > kFolderConstants.maxFolderDepth) {
     throw new Error(
-      `Path depth exceeds max path depth of ${folderConstants.maxFolderDepth}.`
+      `Path depth exceeds max path depth of ${kFolderConstants.maxFolderDepth}.`
     );
   }
 
@@ -65,42 +65,42 @@ export function assertSplitFolderpath(path: string) {
 }
 
 export interface FolderpathInfo {
-  providedPath: string | string[];
+  input: string | string[];
   name: string;
-
-  // includes workspace rootname
-  completeSplitPath: string[];
-
-  // does not include workspace rootname
-  itemSplitPath: string[];
-  splitParentPath: string[];
+  /** path array with workspace rootname */
+  splitPath: string[];
+  /** path array without workspace rootname */
+  namepath: string[];
+  /** without rootname */
+  parentSplitPath: string[];
+  /** without rootname */
   parentPath: string;
   hasParent: boolean;
-  workspaceRootname: string;
+  rootname: string;
 }
 
-export function getFolderpathInfo(providedPath: string | string[]): FolderpathInfo {
-  const splitPath = splitFolderpath(providedPath);
-  const workspaceRootname = defaultTo(first(splitPath), '');
+export function getFolderpathInfo(input: string | string[]): FolderpathInfo {
+  const splitPath = splitFolderpath(input);
+  const rootname = defaultTo(first(splitPath), '');
   const name = defaultTo(last(splitPath), '');
-  assertWorkspaceRootname(workspaceRootname);
+  assertWorkspaceRootname(rootname);
   assertFileOrFolderName(name);
-  const splitParentPath = splitPath.slice(
-    1, // workspace rootname is 0
-    -1 // file or folder name is last item
+  const parentSplitPath = splitPath.slice(
+    /** workspace rootname is 0 */ 1,
+    /** file or folder name is last item */ -1
   );
   const itemSplitPath = splitPath.slice(/* workspace rootname is 0 */ 1);
-  const parentPath = splitParentPath.join(folderConstants.nameSeparator);
-  const hasParent = splitParentPath.length > 0;
+  const parentPath = parentSplitPath.join(kFolderConstants.separator);
+  const hasParent = parentSplitPath.length > 0;
   return {
     hasParent,
-    splitParentPath,
+    parentSplitPath,
     name,
     parentPath,
-    providedPath,
-    workspaceRootname,
-    itemSplitPath,
-    completeSplitPath: splitPath,
+    splitPath,
+    rootname,
+    input,
+    namepath: itemSplitPath,
   };
 }
 
@@ -118,7 +118,7 @@ export async function checkFolderAuthorization(
   action: PermissionAction,
   workspace?: Workspace,
   UNSAFE_skipAuthCheck = false,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
   if (!workspace) {
     workspace = await checkWorkspaceExists(context, folder.workspaceId, opts);
@@ -150,7 +150,7 @@ export async function checkFolderAuthorization02(
   matcher: FolderMatcher,
   action: PermissionAction,
   workspace?: Workspace,
-  opts?: SemanticDataAccessProviderRunOptions,
+  opts?: SemanticProviderRunOptions,
   UNSAFE_skipAuthCheck = false
 ) {
   const folder = await assertGetFolderWithMatcher(context, matcher, opts);
@@ -165,7 +165,7 @@ export async function checkFolderAuthorization02(
 }
 
 export function getFolderName(folder: Folder) {
-  return folder.namePath.join(folderConstants.nameSeparator);
+  return folder.namepath.join(kFolderConstants.separator);
 }
 
 export function assertWorkspaceRootname(
@@ -195,7 +195,7 @@ export function addRootnameToPath<T extends string | string[] = string | string[
     return <T>[rootname, ...path];
   }
 
-  return <T>`${rootname}${folderConstants.nameSeparator}${path}`;
+  return <T>`${rootname}${kFolderConstants.separator}${path}`;
 }
 
 export function assertFolder(folder: Folder | null | undefined): asserts folder {
@@ -204,12 +204,30 @@ export function assertFolder(folder: Folder | null | undefined): asserts folder 
   }
 }
 
-export function stringifyFolderNamePath(
-  folder: Pick<Folder, 'namePath'>,
+export function stringifyFoldernamepath(
+  folder: Pick<Folder, 'namepath'>,
   rootname?: string
 ) {
-  const name = folder.namePath.join(folderConstants.nameSeparator);
+  const name = folder.namepath.join(kFolderConstants.separator);
   return rootname ? addRootnameToPath(name, rootname) : name;
+}
+
+export function areFolderpathsEqual(
+  folderpath01: string | string[],
+  folderpath02: string | string[]
+) {
+  const folderpath01List = isArray(folderpath01)
+    ? folderpath01
+    : folderpath01.split(kFolderConstants.separator);
+  const folderpath02List = isArray(folderpath02)
+    ? folderpath02
+    : folderpath02.split(kFolderConstants.separator);
+  return (
+    folderpath01List.length === folderpath02List.length &&
+    folderpath01List.every(
+      (path, index) => path.toLowerCase() === folderpath02List[index].toLowerCase()
+    )
+  );
 }
 
 export async function ensureFolders(
@@ -217,7 +235,7 @@ export async function ensureFolders(
   workspace: Workspace,
   /** folder path with workspace rootname */
   folderpath: string,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) {
   return await createFolderListWithTransaction(
     agent,

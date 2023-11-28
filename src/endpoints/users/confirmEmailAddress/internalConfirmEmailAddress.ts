@@ -1,7 +1,7 @@
 import {TokenAccessScopeMap} from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
-import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
 import {assertUser} from '../utils';
 
@@ -12,7 +12,7 @@ export default async function INTERNAL_confirmEmailAddress(
   context: BaseContextType,
   userId: string,
   user: User | null,
-  opts?: SemanticDataAccessProviderMutationRunOptions
+  opts?: SemanticProviderMutationRunOptions
 ) {
   return await context.semantic.utils.withTxn(
     context,

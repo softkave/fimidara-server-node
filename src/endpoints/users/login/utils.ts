@@ -10,7 +10,7 @@ import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {newResource} from '../../../utils/resource';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
-import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
 import {userExtractor} from '../utils';
 import {LoginResult} from './types';
@@ -35,7 +35,7 @@ export function toLoginResult(
 export async function getUserClientAssignedToken(
   context: BaseContextType,
   userId: string,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) {
   appAssert(
     context.appVariables.appWorkspaceId,
@@ -98,7 +98,7 @@ export async function getUserClientAssignedToken(
 export async function getUserToken(
   context: BaseContextType,
   userId: string,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) {
   let userToken = await context.semantic.agentToken.getOneAgentToken(
     userId,

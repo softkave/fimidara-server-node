@@ -6,9 +6,9 @@ import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
-import {kInjectionKeys} from '../../contexts/injectionKeys';
-import {SemanticDataAccessFolderProvider} from '../../contexts/semantic/folder/types';
-import {SemanticDataAccessProviderUtils} from '../../contexts/semantic/types';
+import {kInjectionKeys} from '../../contexts/injection';
+import {SemanticFolderProvider} from '../../contexts/semantic/folder/types';
+import {SemanticProviderUtils} from '../../contexts/semantic/types';
 
 export const kTestFolderNameSeparatorChars = ['-', '_', ' ', '.'];
 
@@ -48,11 +48,11 @@ export function generateTestFolderName(
 
 export function generateTestFolder(
   extra: Partial<Folder> & {parentId: string | null} = {parentId: null},
-  other: {parentNamePath?: string[]; parentIdPath?: string[]} = {}
+  other: {parentnamepath?: string[]; parentIdPath?: string[]} = {}
 ) {
   const id = getNewIdForResource(AppResourceTypeMap.Folder);
   const name = generateTestFolderName();
-  const namePath = other.parentNamePath ? other.parentNamePath.concat(name) : [name];
+  const namepath = other.parentnamepath ? other.parentnamepath.concat(name) : [name];
   const idPath = other.parentIdPath
     ? other.parentIdPath.concat(id)
     : extra.parentId
@@ -62,7 +62,7 @@ export function generateTestFolder(
   const folder: Folder = {
     name,
     createdAt,
-    namePath,
+    namepath,
     idPath,
     description: faker.lorem.paragraph(),
     createdBy: SYSTEM_SESSION_AGENT,
@@ -92,10 +92,10 @@ export async function generateAndInsertTestFolders(
   extra: Partial<Folder> & {parentId: string | null} = {parentId: null},
   other: Parameters<typeof generateTestFolder>[1] = {}
 ) {
-  const folderModel = container.resolve<SemanticDataAccessFolderProvider>(
+  const folderModel = container.resolve<SemanticFolderProvider>(
     kInjectionKeys.semantic.folder
   );
-  const semanticUtils = container.resolve<SemanticDataAccessProviderUtils>(
+  const semanticUtils = container.resolve<SemanticProviderUtils>(
     kInjectionKeys.semantic.utils
   );
 

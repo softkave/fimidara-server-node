@@ -5,9 +5,9 @@ import {
 import {PermissionAction, PermissionItem} from '../../../../definitions/permissionItem';
 import {AppResourceType, Resource} from '../../../../definitions/system';
 import {BaseContextType} from '../../types';
-import {SemanticDataAccessProviderRunOptions} from '../types';
+import {SemanticProviderRunOptions} from '../types';
 
-export type SemanticDataAccessPermissionProviderType_GetPermissionItemsProps = {
+export type SemanticPermissionProviderType_GetPermissionItemsProps = {
   entityId?: string | string[];
   action?: PermissionAction | PermissionAction[];
   targetParentId?: string;
@@ -23,20 +23,20 @@ export type SemanticDataAccessPermissionProviderType_GetPermissionItemsProps = {
   sortByEntity?: boolean;
 };
 
-export type SemanticDataAccessPermissionProviderType_CountPermissionItemsProps = {
+export type SemanticPermissionProviderType_CountPermissionItemsProps = {
   entityId?: string | string[];
   action?: PermissionAction | PermissionAction[];
   targetId?: string | string[];
   targetType?: AppResourceType | AppResourceType[];
 };
 
-export interface SemanticDataAccessPermissionProviderType {
+export interface SemanticPermissionProviderType {
   getEntityAssignedPermissionGroups(
     props: {
       entityId: string;
       fetchDeep?: boolean;
     },
-    options?: SemanticDataAccessProviderRunOptions
+    options?: SemanticProviderRunOptions
   ): Promise<{
     permissionGroups: PermissionGroup[];
     inheritanceMap: PermissionEntityInheritanceMap;
@@ -46,19 +46,19 @@ export interface SemanticDataAccessPermissionProviderType {
       entityId: string;
       fetchDeep?: boolean;
     },
-    options?: SemanticDataAccessProviderRunOptions
+    options?: SemanticProviderRunOptions
   ): Promise<PermissionEntityInheritanceMap>;
   getEntity(
     props: {context: BaseContextType; entityId: string},
-    opts?: SemanticDataAccessProviderRunOptions
+    opts?: SemanticProviderRunOptions
   ): Promise<Resource | null>;
   getPermissionItems(
-    props: SemanticDataAccessPermissionProviderType_GetPermissionItemsProps,
-    options?: SemanticDataAccessProviderRunOptions
+    props: SemanticPermissionProviderType_GetPermissionItemsProps,
+    options?: SemanticProviderRunOptions
   ): Promise<PermissionItem[]>;
   countPermissionItems(
-    props: SemanticDataAccessPermissionProviderType_CountPermissionItemsProps,
-    options?: SemanticDataAccessProviderRunOptions
+    props: SemanticPermissionProviderType_CountPermissionItemsProps,
+    options?: SemanticProviderRunOptions
   ): Promise<number>;
   sortItems(
     items: PermissionItem[],

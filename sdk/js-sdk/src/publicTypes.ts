@@ -231,7 +231,7 @@ export type File = {
   workspaceId: string;
   parentId: string | null;
   idPath: Array<string>;
-  namePath: Array<string>;
+  namepath: Array<string>;
   mimetype?: string;
   encoding?: string;
   createdBy: Agent;
@@ -352,7 +352,7 @@ export type Folder = {
   description?: string;
   workspaceId: string;
   idPath: Array<string>;
-  namePath: Array<string>;
+  namepath: Array<string>;
   parentId: string | null;
   providedResourceId?: string | null;
 };

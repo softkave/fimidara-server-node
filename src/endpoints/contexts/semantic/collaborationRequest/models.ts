@@ -1,17 +1,17 @@
 import {CollaborationRequest} from '../../../../definitions/collaborationRequest';
 import {getLowercaseRegExpForString} from '../../../../utils/fns';
 import {DataProviderQueryListParams} from '../../data/types';
-import {DataSemanticDataAccessWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
-import {SemanticDataAccessProviderRunOptions} from '../types';
-import {SemanticDataAccessCollaborationRequestProvider} from './types';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticWorkspaceResourceProvider';
+import {SemanticProviderRunOptions} from '../types';
+import {SemanticCollaborationRequestProvider} from './types';
 
-export class DataSemanticDataAccessCollaborationRequest
-  extends DataSemanticDataAccessWorkspaceResourceProvider<CollaborationRequest>
-  implements SemanticDataAccessCollaborationRequestProvider
+export class DataSemanticCollaborationRequest
+  extends DataSemanticWorkspaceResourceProvider<CollaborationRequest>
+  implements SemanticCollaborationRequestProvider
 {
   async countByEmail(
     email: string,
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<number> {
     return await this.data.countByQuery(
       {recipientEmail: {$regex: getLowercaseRegExpForString(email)}},
@@ -21,7 +21,7 @@ export class DataSemanticDataAccessCollaborationRequest
 
   async getOneByEmail(
     email: string,
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<CollaborationRequest | null> {
     return await this.data.getOneByQuery(
       {recipientEmail: {$regex: getLowercaseRegExpForString(email)}},
@@ -32,7 +32,7 @@ export class DataSemanticDataAccessCollaborationRequest
   async getOneByWorkspaceIdEmail(
     workspaceId: string,
     email: string,
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<CollaborationRequest | null> {
     return await this.data.getOneByQuery(
       {workspaceId, recipientEmail: {$regex: getLowercaseRegExpForString(email)}},
@@ -43,7 +43,7 @@ export class DataSemanticDataAccessCollaborationRequest
   async getManyByEmail(
     email: string,
     options?:
-      | (DataProviderQueryListParams<CollaborationRequest> & SemanticDataAccessProviderRunOptions)
+      | (DataProviderQueryListParams<CollaborationRequest> & SemanticProviderRunOptions)
       | undefined
   ): Promise<CollaborationRequest[]> {
     return await this.data.getManyByQuery(

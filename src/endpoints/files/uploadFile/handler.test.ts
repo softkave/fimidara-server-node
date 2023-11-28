@@ -11,7 +11,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
-import {getFilepathInfo, stringifyFileNamePath} from '../utils';
+import {getFilepathInfo, stringifyFilenamepath} from '../utils';
 import {UploadFileEndpointParams} from './types';
 import {uploadFileBaseTest} from './uploadFileTestUtils';
 
@@ -54,7 +54,7 @@ describe('uploadFile', () => {
       /** type */ 'png'
     );
     const update: Partial<UploadFileEndpointParams> = {
-      filepath: stringifyFileNamePath(
+      filepath: stringifyFilenamepath(
         savedFile,
         insertWorkspaceResult.workspace.rootname
       ),
@@ -78,7 +78,7 @@ describe('uploadFile', () => {
     expect(savedFile.name).toBe(updatedFile.name);
     expect(savedFile.extension).toBe(updatedFile.extension);
     expect(savedFile.idPath).toEqual(expect.arrayContaining(updatedFile.idPath));
-    expect(savedFile.namePath).toEqual(expect.arrayContaining(updatedFile.namePath));
+    expect(savedFile.namepath).toEqual(expect.arrayContaining(updatedFile.namepath));
     expect(savedFile.description).not.toBe(updatedFile.description);
     expect(savedFile.mimetype).not.toBe(updatedFile.mimetype);
     expect(savedFile.size).not.toBe(updatedFile.size);
@@ -96,7 +96,7 @@ describe('uploadFile', () => {
       context
     );
     const update: Partial<UploadFileEndpointParams> = {
-      filepath: stringifyFileNamePath(
+      filepath: stringifyFilenamepath(
         savedFile,
         insertWorkspaceResult.workspace.rootname
       ),
@@ -112,7 +112,7 @@ describe('uploadFile', () => {
     const files = await context.semantic.file.getManyByQuery({
       workspaceId: savedFile.workspaceId,
       extension: savedFile.extension,
-      namePath: {$all: savedFile.namePath, $size: savedFile.namePath.length},
+      namepath: {$all: savedFile.namepath, $size: savedFile.namepath.length},
     });
     expect(files.length).toBe(1);
   });
@@ -168,17 +168,17 @@ describe('uploadFile', () => {
     const pathinfo02 = getFilepathInfo(filepath02);
     const pathinfo03 = getFilepathInfo(filepath03);
     const [dbFile01, dbFile02, dbFile03] = await Promise.all([
-      context.semantic.file.getOneByNamePath(
+      context.semantic.file.getOneBynamepath(
         workspace.resourceId,
         pathinfo01.filepathExcludingExt,
         pathinfo01.extension
       ),
-      context.semantic.file.getOneByNamePath(
+      context.semantic.file.getOneBynamepath(
         workspace.resourceId,
         pathinfo02.filepathExcludingExt,
         pathinfo02.extension
       ),
-      context.semantic.file.getOneByNamePath(
+      context.semantic.file.getOneBynamepath(
         workspace.resourceId,
         pathinfo03.filepathExcludingExt,
         pathinfo03.extension
@@ -196,17 +196,17 @@ describe('uploadFile', () => {
     await insertFileForTest(context, userToken, workspace, {filepath: filepath01}, 'txt');
 
     const [latestDbFile01, latestDbFile02, latestDbFile03] = await Promise.all([
-      context.semantic.file.getOneByNamePath(
+      context.semantic.file.getOneBynamepath(
         workspace.resourceId,
         pathinfo01.filepathExcludingExt,
         pathinfo01.extension
       ),
-      context.semantic.file.getOneByNamePath(
+      context.semantic.file.getOneBynamepath(
         workspace.resourceId,
         pathinfo02.filepathExcludingExt,
         pathinfo02.extension
       ),
-      context.semantic.file.getOneByNamePath(
+      context.semantic.file.getOneBynamepath(
         workspace.resourceId,
         pathinfo03.filepathExcludingExt,
         pathinfo03.extension

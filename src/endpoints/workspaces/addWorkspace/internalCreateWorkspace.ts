@@ -14,7 +14,7 @@ import {
   addAssignedPermissionGroupList,
   assignWorkspaceToUser,
 } from '../../assignedItems/addAssignedItems';
-import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
 import {getDefaultThresholds} from '../../usageRecords/constants';
 import {
@@ -47,7 +47,7 @@ const INTERNAL_createWorkspace = async (
   data: NewWorkspaceInput,
   agent: Agent,
   userId: string | undefined,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) => {
   assertIsNotOnWaitlist(agent);
   await Promise.all([

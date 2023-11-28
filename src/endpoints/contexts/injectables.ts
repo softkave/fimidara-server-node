@@ -1,0 +1,45 @@
+import {container} from 'tsyringe';
+import {kInjectionKeys} from './injection';
+import {SemanticAgentTokenProvider} from './semantic/agentToken/types';
+import {
+  SemanticFilePresignedPathProvider,
+  SemanticFileProvider,
+} from './semantic/file/types';
+import {SemanticFileBackendConfigProvider} from './semantic/fileBackendConfig/types';
+import {SemanticFolderProvider} from './semantic/folder/types';
+import {SemanticPermissionProviderType} from './semantic/permission/types';
+import {
+  SemanticFileBackendMountProvider,
+  SemanticJobProvider,
+  SemanticProviderUtils,
+} from './semantic/types';
+import {SemanticUserProviderType} from './semantic/user/types';
+import {SemanticWorkspaceProviderType} from './semantic/workspace/types';
+
+export const kSemanticModels = {
+  user: () => container.resolve<SemanticUserProviderType>(kInjectionKeys.semantic.user),
+  file: () => container.resolve<SemanticFileProvider>(kInjectionKeys.semantic.file),
+  agentToken: () =>
+    container.resolve<SemanticAgentTokenProvider>(kInjectionKeys.semantic.file),
+  folder: () => container.resolve<SemanticFolderProvider>(kInjectionKeys.semantic.folder),
+  workspace: () =>
+    container.resolve<SemanticWorkspaceProviderType>(kInjectionKeys.semantic.workspace),
+  fileBackendConfig: () =>
+    container.resolve<SemanticFileBackendConfigProvider>(
+      kInjectionKeys.semantic.fileBackendConfig
+    ),
+  fileBackendMount: () =>
+    container.resolve<SemanticFileBackendMountProvider>(
+      kInjectionKeys.semantic.fileBackendMount
+    ),
+  filePresignedPath: () =>
+    container.resolve<SemanticFilePresignedPathProvider>(
+      kInjectionKeys.semantic.filePresignedPath
+    ),
+  permissions: () =>
+    container.resolve<SemanticPermissionProviderType>(
+      kInjectionKeys.semantic.permissions
+    ),
+  jobs: () => container.resolve<SemanticJobProvider>(kInjectionKeys.semantic.jobs),
+  utils: () => container.resolve<SemanticProviderUtils>(kInjectionKeys.semantic.utils),
+};

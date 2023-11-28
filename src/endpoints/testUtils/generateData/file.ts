@@ -67,8 +67,8 @@ export function generateTestFile(
       : extra.parentId
       ? [extra.parentId, id]
       : [id],
-    namePath: extra.namePath
-      ? extra.namePath.concat(nameinfo.filenameExcludingExt)
+    namepath: extra.namepath
+      ? extra.namepath.concat(nameinfo.filenameExcludingExt)
       : [nameinfo.filenameExcludingExt],
     resourceId: id,
     size: faker.number.int({min: 1}),

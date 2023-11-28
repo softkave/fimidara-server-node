@@ -1,53 +1,49 @@
 import {File, FileMatcher, FilePresignedPath} from '../../definitions/file';
 import {PermissionAction} from '../../definitions/permissionItem';
 import {AppResourceTypeMap} from '../../definitions/system';
-import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {tryGetResourceTypeFromId} from '../../utils/resource';
 import {
   makeUserSessionAgent,
   makeWorkspaceAgentTokenAgent,
 } from '../../utils/sessionUtils';
-import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
-import {BaseContextType} from '../contexts/types';
-import {folderConstants} from '../folders/constants';
+import {kSemanticModels} from '../contexts/injectables';
+import {
+  SemanticProviderMutationRunOptions,
+  SemanticProviderRunOptions,
+} from '../contexts/semantic/types';
+import {kFolderConstants} from '../folders/constants';
 import {PermissionDeniedError} from '../users/errors';
-import {assertWorkspace} from '../workspaces/utils';
-import {assertFile, checkFileAuthorization, getFilepathInfo} from './utils';
+import {assertFile, checkFileAuthorization, readOrIngestFileByFilepath} from './utils';
 
 export async function checkAndIncrementFilePresignedPathUsageCount(
-  context: BaseContextType,
   presignedPath: FilePresignedPath,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
-  return await context.semantic.utils.withTxn(
-    context,
-    async opts => {
-      if (
-        presignedPath.usageCount &&
-        presignedPath.usageCount <= presignedPath.spentUsageCount
-      ) {
-        // TODO: should we use a different error type?
-        throw new PermissionDeniedError();
-      }
+  return await kSemanticModels.utils().withTxn(async opts => {
+    if (
+      presignedPath.usageCount &&
+      presignedPath.usageCount <= presignedPath.spentUsageCount
+    ) {
+      // TODO: should we use a different error type?
+      throw new PermissionDeniedError();
+    }
 
-      const updatedPresignedPath =
-        await context.semantic.filePresignedPath.getAndUpdateOneById(
-          presignedPath.resourceId,
-          {spentUsageCount: presignedPath.spentUsageCount + 1},
-          opts
-        );
-      assertFile(updatedPresignedPath);
-      return updatedPresignedPath;
-    },
-    opts
-  );
+    const updatedPresignedPath = await kSemanticModels
+      .filePresignedPath()
+      .getAndUpdateOneById(
+        presignedPath.resourceId,
+        {spentUsageCount: presignedPath.spentUsageCount + 1},
+        opts
+      );
+    assertFile(updatedPresignedPath);
+
+    return updatedPresignedPath;
+  }, opts);
 }
 
 export function extractFilePresignedPathIdFromFilepath(filepath: string) {
-  return filepath.startsWith(folderConstants.nameSeparator)
-    ? filepath.slice(1)
-    : filepath;
+  return filepath.startsWith(kFolderConstants.separator) ? filepath.slice(1) : filepath;
 }
 
 export function isFilePresignedPath(filepath: string) {
@@ -57,21 +53,19 @@ export function isFilePresignedPath(filepath: string) {
 }
 
 export async function getFileByPresignedPath(
-  context: BaseContextType,
   filepath: string,
   action: PermissionAction,
   incrementUsageCount = false,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
   if (!isFilePresignedPath(filepath)) {
     return null;
   }
 
   const resourceId = extractFilePresignedPathIdFromFilepath(filepath);
-  let presignedPath = await context.semantic.filePresignedPath.assertGetOneByQuery(
-    {resourceId},
-    opts
-  );
+  let presignedPath = await kSemanticModels
+    .filePresignedPath()
+    .assertGetOneByQuery({resourceId}, opts);
   const now = Date.now();
 
   if (presignedPath.expiresAt && presignedPath.expiresAt < now) {
@@ -83,16 +77,17 @@ export async function getFileByPresignedPath(
 
   if (incrementUsageCount) {
     presignedPath = await checkAndIncrementFilePresignedPathUsageCount(
-      context,
       presignedPath,
       opts
     );
   }
 
-  const file = await context.semantic.file.getOneByNamePath(
-    presignedPath.workspaceId,
-    presignedPath.fileNamePath,
-    presignedPath.fileExtension,
+  const file = await kSemanticModels.file().getOneBynamepath(
+    {
+      workspaceId: presignedPath.workspaceId,
+      namepath: presignedPath.filepath,
+      extension: presignedPath.extension,
+    },
     opts
   );
   assertFile(file);
@@ -104,16 +99,15 @@ export async function getFileByPresignedPath(
   // deleted, etc. We don't need to explicitly handle invalidating presigned
   // paths through these multiple surface areas seeing we can just simply check
   // if the issuing agent token exists and still has permission.
-  const agentToken = await context.semantic.agentToken.assertGetOneByQuery(
-    {resourceId: presignedPath.agentTokenId},
-    opts
-  );
+  const agentToken = await kSemanticModels
+    .agentToken()
+    .assertGetOneByQuery({resourceId: presignedPath.agentTokenId}, opts);
+
   await checkFileAuthorization(
-    context,
     agentToken
       ? makeUserSessionAgent(
           // TODO: how can we reduce all the db fetches in this function
-          await context.semantic.user.assertGetOneByQuery({
+          await kSemanticModels.user().assertGetOneByQuery({
             resourceId: agentToken.separateEntityId,
           }),
           agentToken
@@ -126,56 +120,16 @@ export async function getFileByPresignedPath(
   return {presignedPath, file};
 }
 
-export async function getFileWithId(
-  context: BaseContextType,
-  fileId: string,
-  opts?: SemanticDataAccessProviderRunOptions
-) {
-  const file = await context.semantic.file.getOneById(fileId, opts);
-  return {file};
-}
-
-export async function getFileWithFilepath(
-  context: BaseContextType,
-  filepath: string,
-  opts?: SemanticDataAccessProviderRunOptions
-) {
-  const pathinfo = getFilepathInfo(filepath);
-  const workspace = await context.semantic.workspace.getByRootname(
-    pathinfo.workspaceRootname,
-    opts
-  );
-  assertWorkspace(workspace);
-  const file = await context.semantic.file.getOneByNamePath(
-    workspace.resourceId,
-    pathinfo.filepathExcludingExt,
-    pathinfo.extension,
-    opts
-  );
-
-  return {file, workspace};
-}
-
 export async function getFileWithMatcher(
-  context: BaseContextType,
   matcher: FileMatcher,
-  opts?: SemanticDataAccessProviderRunOptions
-): Promise<{file?: File | null; workspace?: Workspace}> {
+  opts: SemanticProviderMutationRunOptions,
+  workspaceId?: string
+): Promise<File | null> {
   if (matcher.fileId) {
-    return await getFileWithId(context, matcher.fileId, opts);
+    return await kSemanticModels.file().getOneById(matcher.fileId, opts);
   } else if (matcher.filepath) {
-    return await getFileWithFilepath(context, matcher.filepath, opts);
+    return await readOrIngestFileByFilepath(matcher.filepath, opts, workspaceId);
   }
 
-  return {};
-}
-
-export async function assertGetSingleFileWithMatcher(
-  context: BaseContextType,
-  matcher: FileMatcher,
-  opts?: SemanticDataAccessProviderRunOptions
-): Promise<File> {
-  const {file} = await getFileWithMatcher(context, matcher, opts);
-  assertFile(file);
-  return file;
+  return null;
 }

@@ -1,27 +1,27 @@
 import {Resource, WorkspaceResource} from '../../../definitions/system';
 import {getLowercaseRegExpForString} from '../../../utils/fns';
 import {DataProviderQueryListParams, DataQuery} from '../data/types';
-import {DataSemanticDataAccessBaseProvider} from './DataSemanticDataAccessBaseProvider';
+import {DataSemanticBaseProvider} from './DataSemanticBaseProvider';
 import {
-  SemanticDataAccessProviderMutationRunOptions,
-  SemanticDataAccessProviderRunOptions,
-  SemanticDataAccessWorkspaceResourceProviderBaseType,
-  SemanticDataAccessWorkspaceResourceProviderType,
+  SemanticProviderMutationRunOptions,
+  SemanticProviderRunOptions,
+  SemanticWorkspaceResourceProviderBaseType,
+  SemanticWorkspaceResourceProviderType,
 } from './types';
 import {getInAndNinQuery} from './utils';
 
-export class DataSemanticDataAccessWorkspaceResourceProvider<
-    T extends SemanticDataAccessWorkspaceResourceProviderBaseType
+export class DataSemanticWorkspaceResourceProvider<
+    T extends SemanticWorkspaceResourceProviderBaseType
   >
-  extends DataSemanticDataAccessBaseProvider<T>
-  implements SemanticDataAccessWorkspaceResourceProviderType<T>
+  extends DataSemanticBaseProvider<T>
+  implements SemanticWorkspaceResourceProviderType<T>
 {
   async getByName(
     workspaceId: string,
     name: string,
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<T | null> {
-    const query: DataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
+    const query: DataQuery<SemanticWorkspaceResourceProviderBaseType> = {
       workspaceId,
       name: {$regex: getLowercaseRegExpForString(name)},
     };
@@ -31,9 +31,9 @@ export class DataSemanticDataAccessWorkspaceResourceProvider<
   async existsByName(
     workspaceId: string,
     name: string,
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<boolean> {
-    const query: DataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
+    const query: DataQuery<SemanticWorkspaceResourceProviderBaseType> = {
       workspaceId,
       name: {$regex: getLowercaseRegExpForString(name)},
     };
@@ -43,9 +43,9 @@ export class DataSemanticDataAccessWorkspaceResourceProvider<
   async getByProvidedId(
     workspaceId: string,
     providedId: string,
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<T | null> {
-    const query: DataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
+    const query: DataQuery<SemanticWorkspaceResourceProviderBaseType> = {
       workspaceId,
       providedResourceId: providedId,
     };
@@ -55,9 +55,9 @@ export class DataSemanticDataAccessWorkspaceResourceProvider<
   async existsByProvidedId(
     workspaceId: string,
     providedId: string,
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<boolean> {
-    const query: DataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
+    const query: DataQuery<SemanticWorkspaceResourceProviderBaseType> = {
       workspaceId,
       providedResourceId: providedId,
     };
@@ -66,7 +66,7 @@ export class DataSemanticDataAccessWorkspaceResourceProvider<
 
   async deleteManyByWorkspaceId(
     workspaceId: string,
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticProviderMutationRunOptions
   ): Promise<void> {
     const query: DataQuery<WorkspaceResource> = {workspaceId};
     await this.data.deleteOneByQuery(query as DataQuery<T>, opts);
@@ -74,9 +74,9 @@ export class DataSemanticDataAccessWorkspaceResourceProvider<
 
   async countManyByIdList(
     idList: string[],
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<number> {
-    const query: DataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
+    const query: DataQuery<SemanticWorkspaceResourceProviderBaseType> = {
       resourceId: {$in: idList},
     };
     return await this.data.countByQuery(query as DataQuery<T>, opts);
@@ -88,9 +88,9 @@ export class DataSemanticDataAccessWorkspaceResourceProvider<
       resourceIdList?: string[] | undefined;
       excludeResourceIdList?: string[] | undefined;
     },
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<number> {
-    const countQuery: DataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
+    const countQuery: DataQuery<SemanticWorkspaceResourceProviderBaseType> = {
       workspaceId: query.workspaceId,
       ...getInAndNinQuery<Resource>(
         'resourceId',
@@ -107,9 +107,9 @@ export class DataSemanticDataAccessWorkspaceResourceProvider<
       resourceIdList?: string[] | undefined;
       excludeResourceIdList?: string[] | undefined;
     },
-    options?: (DataProviderQueryListParams<T> & SemanticDataAccessProviderRunOptions) | undefined
+    options?: (DataProviderQueryListParams<T> & SemanticProviderRunOptions) | undefined
   ): Promise<T[]> {
-    const getQuery: DataQuery<SemanticDataAccessWorkspaceResourceProviderBaseType> = {
+    const getQuery: DataQuery<SemanticWorkspaceResourceProviderBaseType> = {
       workspaceId: query.workspaceId,
       ...getInAndNinQuery<Resource>(
         'resourceId',

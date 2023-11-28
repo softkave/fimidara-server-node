@@ -15,8 +15,8 @@ import {getTimestamp} from '../../utils/dateFns';
 import {ID_SIZE, getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
 import {makeUserSessionAgent} from '../../utils/sessionUtils';
 import {
-  SemanticDataAccessProviderMutationRunOptions,
-  SemanticDataAccessProviderRunOptions,
+  SemanticProviderMutationRunOptions,
+  SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {createFolderListWithTransaction} from '../folders/addFolder/handler';
@@ -49,7 +49,7 @@ async function setupWorkspace(
   agent: SessionAgent,
   name: string,
   rootname: string,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) {
   return await INTERNAL_createWorkspace(
     context,
@@ -66,7 +66,7 @@ async function setupWorkspace(
 
 async function setupDefaultUser(
   context: BaseContextType,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) {
   let user = await context.semantic.user.getByEmail(
     context.appVariables.rootUserEmail,
@@ -107,7 +107,7 @@ async function setupDefaultUser(
 async function setupFolders(
   context: BaseContextType,
   workspace: Workspace,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) {
   const workspaceImagesFolder = await createFolderListWithTransaction(
     context,
@@ -147,7 +147,7 @@ async function setupImageUploadPermissionGroup(
   name: string,
   description: string,
   folder: Folder,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) {
   const imageUploadPermissionGroup = newWorkspaceResource<PermissionGroup>(
     SYSTEM_SESSION_AGENT,
@@ -186,7 +186,7 @@ async function setupImageUploadPermissionGroup(
 
 export async function isRootWorkspaceSetup(
   context: BaseContextType,
-  opts: SemanticDataAccessProviderRunOptions
+  opts: SemanticProviderRunOptions
 ) {
   const appRuntimeState = await context.data.appRuntimeState.getOneByQuery(
     EndpointReusableQueries.getByResourceId(APP_RUNTIME_STATE_DOC_ID),
@@ -198,7 +198,7 @@ export async function isRootWorkspaceSetup(
 async function getRootWorkspace(
   context: BaseContextType,
   appRuntimeState: AppRuntimeState,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
   const appRuntimeVars: Pick<
     FimidaraRuntimeConfig,
@@ -224,7 +224,7 @@ async function getRootWorkspace(
 async function setupAppArtifacts(
   context: BaseContextType,
   agent: SessionAgent,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) {
   const appRuntimeState = await isRootWorkspaceSetup(context, opts);
 

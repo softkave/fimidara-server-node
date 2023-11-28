@@ -1,13 +1,16 @@
-import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {WorkspaceExistsError, WorkspaceRootnameExistsError} from './errors';
 
 export async function checkWorkspaceNameExists(
   context: BaseContextType,
   name: string,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
-  const workspaceExists = await context.semantic.workspace.workspaceExistsByName(name, opts);
+  const workspaceExists = await context.semantic.workspace.workspaceExistsByName(
+    name,
+    opts
+  );
   if (workspaceExists) {
     throw new WorkspaceExistsError();
   }
@@ -16,9 +19,12 @@ export async function checkWorkspaceNameExists(
 export async function checkWorkspaceRootnameExists(
   context: BaseContextType,
   rootname: string,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
-  const workspaceExists = await context.semantic.workspace.existsByRootname(rootname, opts);
+  const workspaceExists = await context.semantic.workspace.existsByRootname(
+    rootname,
+    opts
+  );
   if (workspaceExists) {
     throw new WorkspaceRootnameExistsError();
   }

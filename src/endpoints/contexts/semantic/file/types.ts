@@ -1,17 +1,20 @@
 import {File, FilePresignedPath} from '../../../../definitions/file';
 import {DataProviderQueryListParams} from '../../data/types';
 import {
-  SemanticDataAccessProviderRunOptions,
-  SemanticDataAccessWorkspaceResourceProviderType,
+  SemanticProviderRunOptions,
+  SemanticWorkspaceResourceProviderType,
 } from '../types';
 
-export interface SemanticDataAccessFileProvider
-  extends SemanticDataAccessWorkspaceResourceProviderType<File> {
-  getOneByNamePath(
-    workspaceId: string,
-    namePath: string[],
-    extension?: string,
-    opts?: SemanticDataAccessProviderRunOptions
+export interface SemanticFileProvider
+  extends SemanticWorkspaceResourceProviderType<File> {
+  getOneBynamepath(
+    query: {workspaceId: string; namepath: string[]; extension?: string},
+    opts?: SemanticProviderRunOptions
+  ): Promise<File | null>;
+  getAndUpdateOneBynamepath(
+    query: {workspaceId: string; namepath: string[]; extension?: string},
+    update: Partial<File>,
+    opts?: SemanticProviderRunOptions
   ): Promise<File | null>;
   getManyByWorkspaceParentAndIdList(
     q: {
@@ -20,7 +23,7 @@ export interface SemanticDataAccessFileProvider
       resourceIdList?: string[];
       excludeResourceIdList?: string[];
     },
-    options?: DataProviderQueryListParams<File> & SemanticDataAccessProviderRunOptions
+    options?: DataProviderQueryListParams<File> & SemanticProviderRunOptions
   ): Promise<File[]>;
   countManyParentByIdList(
     q: {
@@ -29,9 +32,22 @@ export interface SemanticDataAccessFileProvider
       resourceIdList?: string[];
       excludeResourceIdList?: string[];
     },
-    opts?: SemanticDataAccessProviderRunOptions
+    opts?: SemanticProviderRunOptions
   ): Promise<number>;
 }
 
-export interface SemanticDataAccessFilePresignedPathProvider
-  extends SemanticDataAccessWorkspaceResourceProviderType<FilePresignedPath> {}
+export interface SemanticFilePresignedPathProvider
+  extends SemanticWorkspaceResourceProviderType<FilePresignedPath> {
+  getOneByFileId(
+    id: string,
+    options?: DataProviderQueryListParams<FilePresignedPath> & SemanticProviderRunOptions
+  ): Promise<FilePresignedPath | null>;
+  getOneByFilepath(
+    query: {workspaceId: string; namepath: string[]; extension?: string},
+    options?: DataProviderQueryListParams<FilePresignedPath> & SemanticProviderRunOptions
+  ): Promise<FilePresignedPath | null>;
+  getManyByFileIds(
+    ids: string[],
+    options?: DataProviderQueryListParams<FilePresignedPath> & SemanticProviderRunOptions
+  ): Promise<FilePresignedPath[]>;
+}

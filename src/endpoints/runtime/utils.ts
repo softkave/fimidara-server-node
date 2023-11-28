@@ -1,5 +1,5 @@
-import {reuseableErrors} from '../../utils/reusableErrors';
+import {kReuseableErrors} from '../../utils/reusableErrors';
 
 export function throwAppRuntimeStateFound() {
-  throw reuseableErrors.appRuntimeState.notFound();
+  throw kReuseableErrors.appRuntimeState.notFound();
 }

@@ -5,7 +5,7 @@ import {EndpointExportedError} from '../utils/OperationError';
 import {AnyFn, AnyObject, ObjectValues, OrPromise} from '../utils/types';
 import RequestData from './RequestData';
 import {DataProviderQueryListParams} from './contexts/data/types';
-import {SemanticDataAccessProviderMutationRunOptions} from './contexts/semantic/types';
+import {SemanticProviderMutationRunOptions} from './contexts/semantic/types';
 import {BaseContextType} from './contexts/types';
 
 export interface BaseEndpointResult {
@@ -80,7 +80,7 @@ export type DeleteResourceCascadeFnDefaultArgs = {
   resourceId: string;
 };
 export type DeleteResourceCascadeFnHelperFns = {
-  withTxn(fn: AnyFn<[SemanticDataAccessProviderMutationRunOptions]>): Promise<void>;
+  withTxn(fn: AnyFn<[SemanticProviderMutationRunOptions]>): Promise<void>;
 };
 export type DeleteResourceCascadeFn<Args = DeleteResourceCascadeFnDefaultArgs> = (
   context: BaseContextType,

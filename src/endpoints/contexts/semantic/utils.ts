@@ -9,16 +9,16 @@ import {
 } from '../data/types';
 import {BaseContextType} from '../types';
 import {
-  SemanticDataAccessProviderMutationRunOptions,
-  SemanticDataAccessProviderRunOptions,
-  SemanticDataAccessProviderUtils,
+  SemanticProviderMutationRunOptions,
+  SemanticProviderRunOptions,
+  SemanticProviderUtils,
 } from './types';
 
-export class DataSemanticDataAccessProviderUtils implements SemanticDataAccessProviderUtils {
+export class DataSemanticProviderUtils implements SemanticProviderUtils {
   async withTxn<TResult>(
     ctx: BaseContextType,
-    fn: AnyFn<[SemanticDataAccessProviderMutationRunOptions], Promise<TResult>>,
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    fn: AnyFn<[SemanticProviderMutationRunOptions], Promise<TResult>>,
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<TResult> {
     return ctx.data.utils.withTxn(
       ctx,
@@ -37,7 +37,8 @@ export function getStringListQuery<TData extends Record<string, any>>(
 ): Record<string, {$regex?: RegExp}> {
   const query: Record<
     string,
-    Pick<ComparisonLiteralFieldQueryOps, '$regex'> & Pick<ArrayFieldQueryOps<any>, '$size'>
+    Pick<ComparisonLiteralFieldQueryOps, '$regex'> &
+      Pick<ArrayFieldQueryOps<any>, '$size'>
   > = {};
   stringList.reduce((map, name, index) => {
     const key = `${prefix as string}.${index}`;

@@ -2,8 +2,8 @@ import {container} from 'tsyringe';
 import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kInjectionKeys} from '../../contexts/injectionKeys';
-import {SemanticDataAccessFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
+import {kInjectionKeys} from '../../contexts/injection';
+import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
 import {NotFoundError} from '../../errors';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {fileBackendConfigExtractor} from '../utils';
@@ -11,7 +11,7 @@ import {GetFileBackendConfigEndpoint} from './types';
 import {getFileBackendConfigJoiSchema} from './validation';
 
 const getFileBackendConfig: GetFileBackendConfigEndpoint = async (context, instData) => {
-  const configModel = container.resolve<SemanticDataAccessFileBackendConfigProvider>(
+  const configModel = container.resolve<SemanticFileBackendConfigProvider>(
     kInjectionKeys.semantic.fileBackendConfig
   );
 

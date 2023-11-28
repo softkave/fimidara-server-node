@@ -10,7 +10,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
-import {stringifyFileNamePath} from '../utils';
+import {stringifyFilenamepath} from '../utils';
 import getFileDetails from './handler';
 import {GetFileDetailsEndpointParams} from './types';
 
@@ -32,7 +32,7 @@ test('file details returned', async () => {
 
   const instData = RequestData.fromExpressRequest<GetFileDetailsEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
-    {filepath: stringifyFileNamePath(file, workspace.rootname)}
+    {filepath: stringifyFilenamepath(file, workspace.rootname)}
   );
   const result = await getFileDetails(context, instData);
   assertEndpointResultOk(result);

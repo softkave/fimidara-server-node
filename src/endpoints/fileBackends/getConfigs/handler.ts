@@ -1,7 +1,7 @@
 import {container} from 'tsyringe';
 import {validate} from '../../../utils/validate';
-import {kInjectionKeys} from '../../contexts/injectionKeys';
-import {SemanticDataAccessFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
+import {kInjectionKeys} from '../../contexts/injection';
+import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
@@ -16,7 +16,7 @@ const getFileBackendConfigs: GetFileBackendConfigsEndpoint = async (
   context,
   instData
 ) => {
-  const configModel = container.resolve<SemanticDataAccessFileBackendConfigProvider>(
+  const configModel = container.resolve<SemanticFileBackendConfigProvider>(
     kInjectionKeys.semantic.fileBackendConfig
   );
 

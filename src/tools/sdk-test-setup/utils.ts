@@ -6,7 +6,7 @@ import {INTERNAL_createAgentToken} from '../../endpoints/agentTokens/addToken/ut
 import {getPublicAgentToken} from '../../endpoints/agentTokens/utils';
 import {addAssignedPermissionGroupList} from '../../endpoints/assignedItems/addAssignedItems';
 import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
-import {SemanticDataAccessProviderMutationRunOptions} from '../../endpoints/contexts/semantic/types';
+import {SemanticProviderMutationRunOptions} from '../../endpoints/contexts/semantic/types';
 import {BaseContextType} from '../../endpoints/contexts/types';
 import {
   getLogicProviders,
@@ -46,7 +46,7 @@ async function setupContext() {
 
 async function insertWorkspace(
   context: BaseContextType,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) {
   const companyName = faker.company.name();
   return await INTERNAL_createWorkspace(
@@ -65,7 +65,7 @@ async function insertWorkspace(
 async function createAgentToken(
   context: BaseContextType,
   workspace: Workspace,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) {
   const token = await INTERNAL_createAgentToken(
     context,

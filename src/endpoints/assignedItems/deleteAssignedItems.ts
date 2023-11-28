@@ -1,5 +1,5 @@
 import {AppResourceType} from '../../definitions/system';
-import {SemanticDataAccessProviderMutationRunOptions} from '../contexts/semantic/types';
+import {SemanticProviderMutationRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 
 /**
@@ -13,7 +13,7 @@ export async function deleteResourceAssignedItems(
   workspaceId: string,
   resourceId: string | string[],
   assignedItemTypes: AppResourceType[] | undefined,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) {
   await context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
     workspaceId,
@@ -27,7 +27,7 @@ export async function deleteAssignableItemAssignedItems(
   context: BaseContextType,
   workspaceId: string,
   assignedItemId: string,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) {
   await context.semantic.assignedItem.deleteWorkspaceAssignedItemResources(
     workspaceId,

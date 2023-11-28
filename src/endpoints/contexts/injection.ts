@@ -12,10 +12,6 @@ function filePersistenceKey(name: string) {
   return `filePersistence_${name}`;
 }
 
-function fileBackendKey(name: string) {
-  return `fileBackend_${name}`;
-}
-
 function logicKey(name: string) {
   return `logic_${name}`;
 }
@@ -31,11 +27,13 @@ export const kInjectionKeys = {
     fileBackend: dataKey('fileBackend'),
   },
   semantic: {
+    user: semanticKey('user'),
     file: semanticKey('file'),
     folder: semanticKey('folder'),
     workspace: semanticKey('workspace'),
     fileBackendConfig: semanticKey('fileBackendConfig'),
     fileBackendMount: semanticKey('fileBackendMount'),
+    filePresignedPath: semanticKey('filePresignedPath'),
     permissions: semanticKey('permissions'),
     jobs: semanticKey('jobs'),
     utils: semanticKey('utils'),

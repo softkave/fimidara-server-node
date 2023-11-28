@@ -15,7 +15,7 @@ import {
   insertFolderForTest,
   mockExpressRequestForPublicAgent,
 } from '../../testUtils/testUtils';
-import {folderConstants} from '../constants';
+import {kFolderConstants} from '../constants';
 import deleteFolder from '../deleteFolder/handler';
 import {DeleteFolderEndpointParams} from '../deleteFolder/types';
 import getFolder from '../getFolder/handler';
@@ -107,25 +107,31 @@ export async function assertFolderPublicOps(
   folder: Folder,
   insertWorkspaceResult: IInsertWorkspaceForTestResult
 ) {
-  const folderpath = folder.namePath.join(folderConstants.nameSeparator);
+  const folderpath = folder.namepath.join(kFolderConstants.separator);
   const {folder: folder02} = await assertCanCreateFolderInPublicFolder(
     ctx,
     insertWorkspaceResult.workspace,
     folderpath
   );
 
-  const folder02Path = folder02.namePath.join(folderConstants.nameSeparator);
+  const folder02Path = folder02.namepath.join(kFolderConstants.separator);
   const {file} = await assertCanUploadToPublicFile(
     ctx,
     insertWorkspaceResult.workspace,
-    folder02Path + folderConstants.nameSeparator + generateTestFileName({includeStraySlashes: true})
+    folder02Path +
+      kFolderConstants.separator +
+      generateTestFileName({includeStraySlashes: true})
   );
 
-  await assertCanListContentOfPublicFolder(ctx, insertWorkspaceResult.workspace, folder02Path);
+  await assertCanListContentOfPublicFolder(
+    ctx,
+    insertWorkspaceResult.workspace,
+    folder02Path
+  );
   await assertCanUpdatePublicFolder(ctx, insertWorkspaceResult.workspace, folder02Path);
   await assertCanReadPublicFolder(ctx, insertWorkspaceResult.workspace, folder02Path);
 
-  const filepath = file.namePath.join(folderConstants.nameSeparator);
+  const filepath = file.namepath.join(kFolderConstants.separator);
   await assertCanReadPublicFile(ctx, insertWorkspaceResult.workspace, filepath);
   await assertCanUpdatePublicFile(ctx, insertWorkspaceResult.workspace, filepath);
   await assertCanUploadToPublicFile(ctx, insertWorkspaceResult.workspace, filepath);

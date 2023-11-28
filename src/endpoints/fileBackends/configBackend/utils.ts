@@ -5,51 +5,53 @@ import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {newWorkspaceResource} from '../../../utils/resource';
 import {EncryptionProvider} from '../../contexts/encryption/types';
-import {kInjectionKeys} from '../../contexts/injectionKeys';
-import {SemanticDataAccessFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
-import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {kInjectionKeys} from '../../contexts/injection';
+import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
+import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {ResourceExistsError} from '../../errors';
 import {ConfigFileBackendEndpointParams} from './types';
 
 export const INTERNAL_configFileBackend = async (
   agent: Agent,
   workspace: Workspace,
   data: ConfigFileBackendEndpointParams,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) => {
-  let backendConfig: FileBackendConfig | null = null;
-
-  const fileBackendConfigModel =
-    container.resolve<SemanticDataAccessFileBackendConfigProvider>(
-      kInjectionKeys.semantic.fileBackendConfig
-    );
+  const configModel = container.resolve<SemanticFileBackendConfigProvider>(
+    kInjectionKeys.semantic.fileBackendConfig
+  );
   const encryptionProvider = container.resolve<EncryptionProvider>(
     kInjectionKeys.encryption
   );
 
-  backendConfig = await fileBackendConfigModel.getOneByQuery(
-    {type: data.type, workspaceId: data.workspaceId},
-    opts
-  );
+  const configExists = await configModel.getByName(workspace.resourceId, data.name, opts);
 
-  if (!backendConfig) {
-    backendConfig = newWorkspaceResource<FileBackendConfig>(
-      agent,
-      AppResourceTypeMap.FileBackendConfig,
-      workspace.resourceId,
-      {type: data.type, credentials: '', cipher: ''}
-    );
+  if (configExists) {
+    throw new ResourceExistsError(`File backend config with name ${data.name} exists.`);
   }
+
+  const config = newWorkspaceResource<FileBackendConfig>(
+    agent,
+    AppResourceTypeMap.FileBackendConfig,
+    workspace.resourceId,
+    {
+      type: data.type,
+      credentials: '',
+      cipher: '',
+      name: data.name,
+      description: data.description,
+    }
+  );
 
   const unencryptedCredentials = JSON.stringify(data.credentials);
   const {cipher, encryptedText} = await encryptionProvider.encryptText(
     unencryptedCredentials
   );
-  backendConfig = await fileBackendConfigModel.getAndUpdateOneById(
-    backendConfig.resourceId,
-    {cipher, credentials: encryptedText},
-    opts
-  );
+  config.credentials = encryptedText;
+  config.cipher = cipher;
 
-  appAssert(backendConfig);
-  return backendConfig;
+  await configModel.insertItem(config, opts);
+
+  appAssert(config);
+  return config;
 };

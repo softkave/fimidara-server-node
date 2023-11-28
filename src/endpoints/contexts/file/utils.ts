@@ -1,7 +1,7 @@
 import {container} from 'tsyringe';
 import {FileBackendProductType} from '../../../definitions/fileBackend';
 import {FimidaraConfig} from '../../../resources/types';
-import {kInjectionKeys} from '../injectionKeys';
+import {kInjectionKeys} from '../injection';
 import {
   S3FilePersistenceProvider,
   S3FilePersistenceProviderInitParams,

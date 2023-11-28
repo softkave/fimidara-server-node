@@ -21,10 +21,10 @@ import {expectErrorThrown} from '../../../testUtils/helpers/error';
 import {completeTest} from '../../../testUtils/helpers/test';
 import {assertContext, initTestBaseContext} from '../../../testUtils/testUtils';
 import {BaseContextType} from '../../types';
-import {DataSemanticDataAccessPermission} from './models';
+import {DataSemanticPermission} from './models';
 
 let context: BaseContextType | null = null;
-const model = new DataSemanticDataAccessPermission();
+const model = new DataSemanticPermission();
 
 beforeAll(async () => {
   context = await initTestBaseContext();
@@ -34,7 +34,7 @@ afterAll(async () => {
   await completeTest({context});
 });
 
-describe('DataSemanticDataAccessPermission', () => {
+describe('DataSemanticPermission', () => {
   test('sortItems, with entity, no target or date', () => {
     const now = getTimestamp();
     const entityId01 = getNewIdForResource(AppResourceTypeMap.User);

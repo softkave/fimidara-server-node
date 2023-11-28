@@ -13,7 +13,7 @@ import {
 import {
   FimidaraEndpointWithBinaryResponseParamsOptional,
   fimidaraAddRootnameToPath,
-  stringifyFimidaraFileNamePath,
+  stringifyFimidaraFilenamepath,
 } from '../../utils';
 import {ITestVars, getTestFileReadStream} from '../utils';
 
@@ -116,7 +116,7 @@ async function getTestFilepath(
 
   if (!filepath && !props.fileId) {
     const file = await uploadFileTestExecFn(endpoint, vars, uploadFileProps);
-    filepath = stringifyFimidaraFileNamePath(
+    filepath = stringifyFimidaraFilenamepath(
       file.body.file,
       vars.workspaceRootname
     );

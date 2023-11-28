@@ -1,24 +1,40 @@
+import {container} from 'tsyringe';
 import {File, FileMatcher, FilePresignedPath, PublicFile} from '../../definitions/file';
+import {FileBackendMount} from '../../definitions/fileBackend';
 import {PermissionAction} from '../../definitions/permissionItem';
 import {SessionAgent} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
+import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
+import {kReuseableErrors} from '../../utils/reusableErrors';
 import {
   checkAuthorizationWithAgent,
   getFilePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
-import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
-import {BaseContextType} from '../contexts/types';
+import {kSemanticModels} from '../contexts/injectables';
+import {kInjectionKeys} from '../contexts/injection';
+import {SemanticFileProvider} from '../contexts/semantic/file/types';
+import {
+  SemanticProviderMutationRunOptions,
+  SemanticProviderRunOptions,
+} from '../contexts/semantic/types';
+import {SemanticWorkspaceProviderType} from '../contexts/semantic/workspace/types';
 import {NotFoundError} from '../errors';
-import {folderConstants} from '../folders/constants';
+import {
+  initBackendProvidersFromConfigs,
+  resolveBackendConfigsFromMounts,
+} from '../fileBackends/configUtils';
+import {
+  FileBackendMountWeights,
+  isOnlyMountFimidara,
+  resolveMountsForFolder,
+} from '../fileBackends/mountUtils';
+import {kFolderConstants} from '../folders/constants';
 import {FolderpathInfo, addRootnameToPath, getFolderpathInfo} from '../folders/utils';
 import {workspaceResourceFields} from '../utils';
 import {assertWorkspace, checkWorkspaceExists} from '../workspaces/utils';
 import {fileConstants} from './constants';
-import {
-  assertGetSingleFileWithMatcher as assertGetFileWithMatcher,
-  getFileByPresignedPath,
-} from './getFilesWithMatcher';
+import {getFileByPresignedPath, getFileWithMatcher} from './getFilesWithMatcher';
 
 const fileFields = getFields<PublicFile>({
   ...workspaceResourceFields,
@@ -30,7 +46,7 @@ const fileFields = getFields<PublicFile>({
   encoding: true,
   extension: true,
   idPath: true,
-  namePath: true,
+  namepath: true,
   version: true,
 });
 
@@ -38,15 +54,13 @@ export const fileExtractor = makeExtract(fileFields);
 export const fileListExtractor = makeListExtract(fileFields);
 
 export async function checkFileAuthorization(
-  context: BaseContextType,
   agent: SessionAgent,
   file: File,
   action: PermissionAction,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
-  const workspace = await checkWorkspaceExists(context, file.workspaceId, opts);
+  const workspace = await checkWorkspaceExists(file.workspaceId, opts);
   await checkAuthorizationWithAgent({
-    context,
     agent,
     workspace,
     opts,
@@ -60,30 +74,29 @@ export async function checkFileAuthorization(
   return {agent, file, workspace};
 }
 
-export async function checkFileAuthorization02(
-  context: BaseContextType,
+export async function readAndCheckFileAuthorization(
   agent: SessionAgent,
   matcher: FileMatcher,
   action: PermissionAction,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) {
-  const file = await assertGetFileWithMatcher(context, matcher, opts);
-  await checkFileAuthorization(context, agent, file, action);
-  return {file};
+  const file = await getFileWithMatcher(matcher, opts);
+  assertFile(file);
+
+  await checkFileAuthorization(agent, file, action);
+  return file;
 }
 
 export async function checkFileAuthorization03(
-  context: BaseContextType,
   agent: SessionAgent,
   matcher: FileMatcher,
   action: PermissionAction,
   supportPresignedPath = false,
   incrementPresignedPathUsageCount = false,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) {
   if (matcher.filepath && supportPresignedPath) {
     const presignedPathResult = await getFileByPresignedPath(
-      context,
       matcher.filepath,
       'readFile',
       incrementPresignedPathUsageCount,
@@ -96,8 +109,10 @@ export async function checkFileAuthorization03(
     }
   }
 
-  const file = await assertGetFileWithMatcher(context, matcher, opts);
-  await checkFileAuthorization(context, agent, file, action);
+  const file = await getFileWithMatcher(matcher, opts);
+  assertFile(file);
+
+  await checkFileAuthorization(agent, file, action);
   return {file};
 }
 
@@ -136,7 +151,7 @@ export interface FilepathInfo extends FilenameInfo, FolderpathInfo {
 export function getFilepathInfo(path: string | string[]): FilepathInfo {
   const folderpathInfo = getFolderpathInfo(path);
   const filenameInfo = getFilenameInfo(folderpathInfo.name);
-  const pathWithoutExtension = [...folderpathInfo.itemSplitPath];
+  const pathWithoutExtension = [...folderpathInfo.namepath];
   pathWithoutExtension[pathWithoutExtension.length - 1] =
     filenameInfo.filenameExcludingExt;
   return {
@@ -154,29 +169,31 @@ export function throwFilePresignedPathNotFound() {
   throw new NotFoundError('File presigned path not found.');
 }
 
-export async function getWorkspaceFromFilepath(
-  context: BaseContextType,
-  filepath: string
-) {
-  const pathWithDetails = getFilepathInfo(filepath);
-  const workspace = await context.semantic.workspace.getByRootname(
-    pathWithDetails.workspaceRootname
+export async function getWorkspaceFromFilepath(filepath: string): Promise<Workspace> {
+  const workspaceModel = container.resolve<SemanticWorkspaceProviderType>(
+    kInjectionKeys.semantic.workspace
   );
-  assertWorkspace(workspace);
+
+  const pathinfo = getFilepathInfo(filepath);
+  const workspace = await workspaceModel.getByRootname(pathinfo.rootname);
+
+  appAssert(
+    workspace,
+    kReuseableErrors.workspace.withRootnameNotFound(pathinfo.rootname)
+  );
   return workspace;
 }
 
 export async function getWorkspaceFromFileOrFilepath(
-  context: BaseContextType,
   file?: Pick<File, 'workspaceId'> | null,
   filepath?: string
 ) {
   let workspace: Workspace | null = null;
 
   if (file) {
-    workspace = await context.semantic.workspace.getOneById(file.workspaceId);
+    workspace = await kSemanticModels.workspace().getOneById(file.workspaceId);
   } else if (filepath) {
-    workspace = await getWorkspaceFromFilepath(context, filepath);
+    workspace = await getWorkspaceFromFilepath(filepath);
   }
 
   assertWorkspace(workspace);
@@ -189,12 +206,101 @@ export function assertFile(
   if (!file) throwFileNotFound();
 }
 
-export function stringifyFileNamePath(
-  file: Pick<File, 'namePath' | 'extension'>,
+export function stringifyFilenamepath(
+  file: Pick<File, 'namepath' | 'extension'>,
   rootname?: string
 ) {
   const name =
-    file.namePath.join(folderConstants.nameSeparator) +
+    file.namepath.join(kFolderConstants.separator) +
     (file.extension ? `.${file.extension}` : '');
   return rootname ? addRootnameToPath(name, rootname) : name;
+}
+
+export function mergeFilesByMount(
+  files: File[],
+  mountWeights: FileBackendMountWeights
+): File | null {
+  throw kReuseableErrors.common.notImplemented();
+}
+
+export async function ingestFileByFilepath(
+  /** filepath with workspace rootname */
+  filepath: string,
+  opts: SemanticProviderMutationRunOptions,
+  workspaceId: string,
+  mounts?: FileBackendMount[],
+  mountWeights?: FileBackendMountWeights
+) {
+  const fileModel = container.resolve<SemanticFileProvider>(kInjectionKeys.semantic.file);
+
+  const pathinfo = getFilepathInfo(filepath);
+
+  if (!workspaceId) {
+    ({workspaceId} = await getWorkspaceFromFilepath(filepath));
+  }
+
+  if (mounts) {
+    appAssert(mountWeights);
+  } else {
+    ({mounts, mountWeights} = await resolveMountsForFolder(
+      {workspaceId, namepath: pathinfo.parentSplitPath},
+      opts
+    ));
+  }
+
+  const configs = await resolveBackendConfigsFromMounts(mounts, true, opts);
+  const providersMap = await initBackendProvidersFromConfigs(configs);
+
+  const files = await Promise.all(
+    mounts.map(async mount => {
+      const provider = providersMap[mount.configId];
+      appAssert(provider);
+
+      return provider.normalizeFile(
+        workspaceId,
+        await provider.describeFile({
+          key: pathinfo.namepath.join(kFolderConstants.separator),
+        })
+      );
+    })
+  );
+  let file = mergeFilesByMount(files, mountWeights);
+
+  if (file) {
+    file = await fileModel.getAndUpdateOneBynamepath(file, file, opts);
+  }
+
+  return file;
+}
+
+export async function readOrIngestFileByFilepath(
+  /** filepath with workspace rootname */
+  filepath: string,
+  opts: SemanticProviderMutationRunOptions,
+  workspaceId?: string
+) {
+  const fileModel = container.resolve<SemanticFileProvider>(kInjectionKeys.semantic.file);
+
+  if (!workspaceId) {
+    ({workspaceId} = await getWorkspaceFromFilepath(filepath));
+  }
+
+  const pathinfo = getFilepathInfo(filepath);
+  const {mounts, mountWeights} = await resolveMountsForFolder(
+    {workspaceId, namepath: pathinfo.parentSplitPath},
+    opts
+  );
+
+  if (isOnlyMountFimidara(mounts)) {
+    return await fileModel.getOneBynamepath(
+      {
+        workspaceId,
+        extension: pathinfo.extension,
+        namepath: pathinfo.namepath,
+      },
+      opts
+    );
+  }
+
+  return await ingestFileByFilepath(filepath, opts, workspaceId, mounts, mountWeights);
 }

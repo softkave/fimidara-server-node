@@ -7,8 +7,8 @@ import RequestData from '../../RequestData';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {collaboratorExtractor} from '../../collaborators/utils';
 import {BaseContextType} from '../../contexts/types';
-import {stringifyFileNamePath} from '../../files/utils';
-import {stringifyFolderNamePath} from '../../folders/utils';
+import {stringifyFilenamepath} from '../../files/utils';
+import {stringifyFoldernamepath} from '../../folders/utils';
 import {generateAndInsertTestFiles} from '../../testUtils/generateData/file';
 import {generateAndInsertTestFolders} from '../../testUtils/generateData/folder';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
@@ -93,13 +93,13 @@ describe('getResources', () => {
     );
     items.forEach(item => addToExpectedResourcesById(item, 'updatePermission'));
     folders.forEach(folder => {
-      const folderpath = stringifyFolderNamePath(folder);
+      const folderpath = stringifyFoldernamepath(folder);
       filepathsMap[folderpath] = folder.resourceId;
       resourcesInput.push({folderpath, action: 'readFolder'});
       resourcesMap[folder.resourceId] = folder;
     });
     files.forEach(file => {
-      const filepath = stringifyFileNamePath(file);
+      const filepath = stringifyFilenamepath(file);
       filepathsMap[filepath] = file.resourceId;
       resourcesInput.push({filepath, action: 'readFolder'});
       resourcesMap[file.resourceId] = file;
@@ -118,11 +118,11 @@ describe('getResources', () => {
 
       if (resource.resourceType === 'file') {
         const fileId =
-          filepathsMap[stringifyFileNamePath(resource.resource as unknown as File)];
+          filepathsMap[stringifyFilenamepath(resource.resource as unknown as File)];
         expect(resourcesMap[fileId]).toMatchObject(resource.resource);
       } else if (resource.resourceType === 'folder') {
         const folderId =
-          filepathsMap[stringifyFolderNamePath(resource.resource as unknown as File)];
+          filepathsMap[stringifyFoldernamepath(resource.resource as unknown as File)];
         expect(resourcesMap[folderId]).toMatchObject(resource.resource);
       }
     });

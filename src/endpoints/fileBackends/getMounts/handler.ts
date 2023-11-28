@@ -1,7 +1,7 @@
 import {container} from 'tsyringe';
 import {validate} from '../../../utils/validate';
-import {kInjectionKeys} from '../../contexts/injectionKeys';
-import {SemanticDataAccessFileBackendMountProvider} from '../../contexts/semantic/types';
+import {kInjectionKeys} from '../../contexts/injection';
+import {SemanticFileBackendMountProvider} from '../../contexts/semantic/types';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
@@ -13,7 +13,7 @@ import {getFileBackendMountQuery} from './utils';
 import {getWorkspaceFileBackendMountJoiSchema} from './validation';
 
 const getFileBackendMounts: GetFileBackendMountEndpoint = async (context, instData) => {
-  const mountModel = container.resolve<SemanticDataAccessFileBackendMountProvider>(
+  const mountModel = container.resolve<SemanticFileBackendMountProvider>(
     kInjectionKeys.semantic.fileBackendMount
   );
 

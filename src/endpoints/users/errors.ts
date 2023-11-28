@@ -1,6 +1,6 @@
 import {isObject} from 'lodash';
 import {PermissionItem} from '../../definitions/permissionItem';
-import {appMessages} from '../../utils/messages';
+import {kAppMessages} from '../../utils/messages';
 import OperationError, {
   getErrorMessageFromParams,
   OperationErrorParameters,
@@ -23,7 +23,10 @@ export class InvalidCredentialsError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.unauthorized;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, appMessages.token.invalidCredentials);
+    this.message = getErrorMessageFromParams(
+      props,
+      kAppMessages.token.invalidCredentials
+    );
   }
 }
 
@@ -102,7 +105,7 @@ export class ChangePasswordError extends OperationError {
   action = ServerRecommendedActionsMap.RequestChangePassword;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, appMessages.user.changePassword());
+    this.message = getErrorMessageFromParams(props, kAppMessages.user.changePassword());
   }
 }
 
@@ -111,6 +114,6 @@ export class UserOnWaitlistError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.unauthorized;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, appMessages.user.userIsOnWaitlist());
+    this.message = getErrorMessageFromParams(props, kAppMessages.user.userIsOnWaitlist());
   }
 }

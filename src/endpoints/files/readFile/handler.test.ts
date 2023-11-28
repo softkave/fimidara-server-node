@@ -1,7 +1,8 @@
+import {UsageRecordCategoryMap} from '../../../definitions/usageRecord';
 import {streamToBuffer} from '../../../utils/fns';
 import RequestData from '../../RequestData';
 import {BaseContextType} from '../../contexts/types';
-import {folderConstants} from '../../folders/constants';
+import {kFolderConstants} from '../../folders/constants';
 import {addRootnameToPath} from '../../folders/utils';
 import {generateTestFileName} from '../../testUtils/generateData/file';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
@@ -22,12 +23,11 @@ import {
 } from '../../testUtils/testUtils';
 import {UsageLimitExceededError} from '../../usageRecords/errors';
 import {PermissionDeniedError} from '../../users/errors';
-import {stringifyFileNamePath} from '../utils';
+import {stringifyFilenamepath} from '../utils';
 import readFile from './handler';
 import {ReadFileEndpointParams} from './types';
 import sharp = require('sharp');
 import assert = require('assert');
-import {UsageRecordCategoryMap} from '../../../definitions/usageRecord';
 
 let context: BaseContextType | null = null;
 
@@ -48,7 +48,7 @@ describe('readFile', () => {
     const {file} = await insertFileForTest(context, userToken, workspace);
     const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
-      {filepath: stringifyFileNamePath(file, workspace.rootname)}
+      {filepath: stringifyFilenamepath(file, workspace.rootname)}
     );
     const result = await readFile(context, instData);
     assertEndpointResultOk(result);
@@ -70,7 +70,7 @@ describe('readFile', () => {
     const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
-        filepath: stringifyFileNamePath(file, workspace.rootname),
+        filepath: stringifyFilenamepath(file, workspace.rootname),
         imageResize: {
           width: expectedWidth,
           height: expectedHeight,
@@ -101,15 +101,15 @@ describe('readFile', () => {
     });
     const {file} = await insertFileForTest(context, userToken, workspace, {
       filepath: addRootnameToPath(
-        folder.namePath
+        folder.namepath
           .concat([generateTestFileName({includeStraySlashes: true})])
-          .join(folderConstants.nameSeparator),
+          .join(kFolderConstants.separator),
         workspace.rootname
       ),
     });
     const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestForPublicAgent(),
-      {filepath: stringifyFileNamePath(file, workspace.rootname)}
+      {filepath: stringifyFilenamepath(file, workspace.rootname)}
     );
     const result = await readFile(context, instData);
     assertEndpointResultOk(result);
@@ -128,7 +128,7 @@ describe('readFile', () => {
     });
     const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestForPublicAgent(),
-      {filepath: stringifyFileNamePath(file, workspace.rootname)}
+      {filepath: stringifyFilenamepath(file, workspace.rootname)}
     );
     const result = await readFile(context, instData);
     assertEndpointResultOk(result);
@@ -143,7 +143,7 @@ describe('readFile', () => {
     try {
       instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
         mockExpressRequestForPublicAgent(),
-        {filepath: stringifyFileNamePath(file, workspace.rootname)}
+        {filepath: stringifyFilenamepath(file, workspace.rootname)}
       );
       await readFile(context, instData);
     } catch (error: any) {
@@ -163,7 +163,7 @@ describe('readFile', () => {
     ]);
     const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
-      {filepath: stringifyFileNamePath(file, workspace.rootname)}
+      {filepath: stringifyFilenamepath(file, workspace.rootname)}
     );
     await expectErrorThrown(async () => {
       assertContext(context);

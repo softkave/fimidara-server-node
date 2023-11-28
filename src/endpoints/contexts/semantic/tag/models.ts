@@ -1,7 +1,7 @@
 import {Tag} from '../../../../definitions/tag';
-import {DataSemanticDataAccessWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
-import {SemanticDataAccessTagProviderType} from './types';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticWorkspaceResourceProvider';
+import {SemanticTagProviderType} from './types';
 
-export class DataSemanticDataAccessTag
-  extends DataSemanticDataAccessWorkspaceResourceProvider<Tag>
-  implements SemanticDataAccessTagProviderType {}
+export class DataSemanticTag
+  extends DataSemanticWorkspaceResourceProvider<Tag>
+  implements SemanticTagProviderType {}

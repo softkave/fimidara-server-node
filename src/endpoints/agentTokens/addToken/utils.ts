@@ -7,8 +7,8 @@ import {
 } from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {newWorkspaceResource} from '../../../utils/resource';
-import {reuseableErrors} from '../../../utils/reusableErrors';
-import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {kReuseableErrors} from '../../../utils/reusableErrors';
+import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
 import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists';
 import {NewAgentTokenInput} from './types';
@@ -18,7 +18,7 @@ export const INTERNAL_createAgentToken = async (
   agent: Agent,
   workspace: Workspace,
   data: NewAgentTokenInput,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) => {
   let token: AgentToken | null = null;
 
@@ -31,7 +31,7 @@ export const INTERNAL_createAgentToken = async (
   }
 
   if (token) {
-    throw reuseableErrors.agentToken.withProvidedIdExists(data.providedResourceId);
+    throw kReuseableErrors.agentToken.withProvidedIdExists(data.providedResourceId);
   }
 
   token = newWorkspaceResource<AgentToken>(

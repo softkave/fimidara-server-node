@@ -3,7 +3,7 @@ import {PermissionAction} from '../../definitions/permissionItem';
 import {AppResourceTypeMap, SessionAgent} from '../../definitions/system';
 import {AssignedTagInput} from '../../definitions/tag';
 import {Workspace} from '../../definitions/workspace';
-import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {checkResourcesBelongsToWorkspace} from '../resources/containerCheckFns';
 import {INTERNAL_getResources} from '../resources/getResources';
@@ -14,7 +14,7 @@ export default async function checkTagsExist(
   workspace: Workspace,
   items: Array<AssignedTagInput>,
   action: PermissionAction,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
   const resources = await INTERNAL_getResources({
     context,

@@ -8,7 +8,7 @@ import {
 } from '../types';
 import {DeleteFileEndpoint} from './deleteFile/types';
 import {GetFileDetailsEndpoint} from './getFileDetails/types';
-import {GetPresignedPathsForFilesEndpoint} from './getPresignedPathsForFiles/types';
+import {GetPresignedPathsForFilesEndpoint} from './getPresignedPaths/types';
 import {IssueFilePresignedPathEndpoint} from './issueFilePresignedPath/types';
 import {
   ReadFileEndpoint,

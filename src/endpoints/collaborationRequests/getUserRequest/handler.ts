@@ -1,6 +1,6 @@
 import {appAssert} from '../../../utils/assertion';
 import {isStringEqual} from '../../../utils/fns';
-import {reuseableErrors} from '../../../utils/reusableErrors';
+import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
 import {assertCollaborationRequest, collaborationRequestForUserExtractor} from '../utils';
 import {GetUserCollaborationRequestEndpoint} from './types';
@@ -16,7 +16,7 @@ const getUserCollaborationRequest: GetUserCollaborationRequestEndpoint = async (
   assertCollaborationRequest(request);
   appAssert(
     isStringEqual(request.recipientEmail, agent.user?.email),
-    reuseableErrors.collaborationRequest.notFound()
+    kReuseableErrors.collaborationRequest.notFound()
   );
   return {request: collaborationRequestForUserExtractor(request)};
 };

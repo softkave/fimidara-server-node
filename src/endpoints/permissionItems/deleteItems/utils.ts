@@ -15,7 +15,7 @@ import {GetTypeFromTypeOrArray} from '../../../utils/types';
 import {DataQuery} from '../../contexts/data/types';
 import {getInAndNinQuery} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
-import {folderConstants} from '../../folders/constants';
+import {kFolderConstants} from '../../folders/constants';
 import {enqueueDeleteResourceJob} from '../../jobs/runner';
 import {PermissionItemInputTarget} from '../types';
 import {getPermissionItemTargets} from '../utils';
@@ -40,13 +40,13 @@ export const INTERNAL_deletePermissionItems = async (
   ]);
 
   // For indexing files and folders by name path
-  const indexByNamePath = (item: ResourceWrapper) => {
+  const indexBynamepath = (item: ResourceWrapper) => {
     if (
       item.resourceType === AppResourceTypeMap.File ||
       item.resourceType === AppResourceTypeMap.Folder
     )
-      return (item.resource as unknown as Pick<File, 'namePath'>).namePath.join(
-        folderConstants.nameSeparator
+      return (item.resource as unknown as Pick<File, 'namepath'>).namepath.join(
+        kFolderConstants.separator
       );
     else return '';
   };
@@ -54,7 +54,7 @@ export const INTERNAL_deletePermissionItems = async (
   // Index targets by ID and name path (for files and folders). This is for fast
   // retrieval later down the line.
   const targetsMapById = indexArray(targets, {path: 'resourceId'});
-  const targetsMapByNamepath = indexArray(targets, {indexer: indexByNamePath});
+  const targetsMapBynamepath = indexArray(targets, {indexer: indexBynamepath});
   const workspaceWrapper: ResourceWrapper = {
     resource: workspace,
     resourceId: workspace.resourceId,
@@ -75,14 +75,14 @@ export const INTERNAL_deletePermissionItems = async (
 
     if (target.folderpath) {
       toArray(target.folderpath).forEach(folderpath => {
-        const folder = targetsMapByNamepath[folderpath];
+        const folder = targetsMapBynamepath[folderpath];
         if (folder) targets[folder.resourceId] = folder;
       });
     }
 
     if (target.filepath) {
       toArray(target.filepath).forEach(filepath => {
-        const file = targetsMapByNamepath[filepath];
+        const file = targetsMapBynamepath[filepath];
         if (file) targets[file.resourceId] = file;
       });
     }

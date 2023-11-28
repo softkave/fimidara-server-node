@@ -1,4 +1,4 @@
-import {defaultTo, first, get, set} from 'lodash';
+import {defaultTo, first, get, isString, set} from 'lodash';
 import {container} from 'tsyringe';
 import {File} from '../../../definitions/file';
 import {
@@ -13,20 +13,21 @@ import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {toArray, toCompactArray, toUniqArray} from '../../../utils/fns';
 import {getResourceTypeFromId} from '../../../utils/resource';
-import {reuseableErrors} from '../../../utils/reusableErrors';
+import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {Omit1} from '../../../utils/types';
 import {checkResourcesBelongsToWorkspace} from '../../resources/containerCheckFns';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../users/errors';
-import {kInjectionKeys} from '../injectionKeys';
+import {kSemanticModels} from '../injectables';
+import {kInjectionKeys} from '../injection';
 import {PermissionsLogicProvider} from '../logic/PermissionsLogicProvider';
-import {SemanticDataAccessPermissionProviderType} from '../semantic/permission/types';
-import {SemanticDataAccessProviderRunOptions} from '../semantic/types';
-import {SemanticDataAccessWorkspaceProviderType} from '../semantic/workspace/types';
+import {SemanticPermissionProviderType} from '../semantic/permission/types';
+import {SemanticProviderRunOptions} from '../semantic/types';
+import {SemanticWorkspaceProviderType} from '../semantic/workspace/types';
 
 export interface AccessCheckTarget {
   entityId: string;
+  action: PermissionAction | PermissionAction[];
   /** single target, or target + containers, e.g file + parent folder IDs */
-  action: PermissionAction;
   targetId: string | string[];
 }
 
@@ -34,7 +35,7 @@ export interface CheckAuthorizationParams {
   workspaceId: string;
   workspace?: Pick<Workspace, 'publicPermissionGroupId'>;
   target: AccessCheckTarget;
-  opts?: SemanticDataAccessProviderRunOptions;
+  opts?: SemanticProviderRunOptions;
   nothrow?: boolean;
 }
 
@@ -63,7 +64,7 @@ export interface ResolvedPermissionsAccessCheckerType {
     action: PermissionAction,
     nothrow?: boolean
   ) => ResolvedPermissionCheck;
-  checkAuthParams: (nothrow?: boolean) => ResolvedPermissionCheck;
+  checkAuthParams: (nothrow?: boolean) => ResolvedPermissionCheck[];
 }
 
 export type ResolvedTargetChildrenAccessCheck =
@@ -111,7 +112,9 @@ class ResolvedPermissionsAccessChecker implements ResolvedPermissionsAccessCheck
     const targetId = first(toArray(target.targetId));
 
     if (targetId) {
-      return this.checkForTargetId(target.entityId, targetId, target.action, nothrow);
+      return toArray(this.authParams.target.action).map(nextAction =>
+        this.checkForTargetId(target.entityId, targetId, nextAction, nothrow)
+      );
     } else {
       throw new ServerError('Target ID not present');
     }
@@ -148,10 +151,10 @@ export async function resolveEntityData(
 ) {
   const {target} = params;
 
-  const workspaceModel = container.resolve<SemanticDataAccessWorkspaceProviderType>(
+  const workspaceModel = container.resolve<SemanticWorkspaceProviderType>(
     kInjectionKeys.semantic.workspace
   );
-  const permissionsModel = container.resolve<SemanticDataAccessPermissionProviderType>(
+  const permissionsModel = container.resolve<SemanticPermissionProviderType>(
     kInjectionKeys.semantic.permissions
   );
   const permissionsLogicProvider = container.resolve<PermissionsLogicProvider>(
@@ -161,7 +164,7 @@ export async function resolveEntityData(
   const workspace =
     params.workspace ??
     (await workspaceModel.getOneById(params.workspaceId, params.opts));
-  appAssert(workspace, reuseableErrors.workspace.notFound());
+  appAssert(workspace, kReuseableErrors.workspace.notFound());
 
   const [entityInheritanceMap, publicInheritanceMap] = await Promise.all([
     permissionsModel.getEntityInheritanceMap(
@@ -194,14 +197,13 @@ export async function resolveEntityData(
 export async function fetchAgentPermissionItems(
   params: CheckAuthorizationParams & {fetchEntitiesDeep: boolean}
 ) {
-  const {context, workspaceId, target} = params;
-  const action = [target.action].concat(kPermissionsMap.wildcard),
+  const {workspaceId, target} = params;
+  const action = toArray(target.action).concat(kPermissionsMap.wildcard),
     targetId = toUniqArray(target.targetId, workspaceId);
   const {entityIdList} = await resolveEntityData(params);
 
-  return await context.semantic.permissions.getPermissionItems(
+  return await kSemanticModels.permissions().getPermissionItems(
     {
-      context,
       action,
       targetId,
       entityId: entityIdList,
@@ -246,16 +248,15 @@ function sortOutPermissionItems(
 async function resolveTargetChildrenPartialAccessCheck(
   params: Omit1<CheckAuthorizationParams, 'nothrow'>
 ) {
-  const {context, workspaceId, target} = params;
-  const action = [target.action].concat(kPermissionsMap.wildcard),
+  const {workspaceId, target} = params;
+  const action = toArray(target.action).concat(kPermissionsMap.wildcard),
     targetParentId = defaultTo(first(toCompactArray(target.targetId)), workspaceId);
 
   // TODO: preferrably fetch once cause it's currently fetched twice, in
   // checkAuthorization and in here
   const {entityIdList} = await resolveEntityData({...params, fetchEntitiesDeep: true});
-  const items = await context.semantic.permissions.getPermissionItems(
+  const items = await kSemanticModels.permissions().getPermissionItems(
     {
-      context,
       action,
       targetParentId,
       entityId: entityIdList,
@@ -291,13 +292,23 @@ async function resolveTargetChildrenPartialAccessCheck(
 export async function resolveTargetChildrenAccessCheck(
   params: Omit1<CheckAuthorizationParams, 'nothrow'>
 ): Promise<ResolvedTargetChildrenAccessCheck> {
+  const {target} = params;
+
+  // Only support single action reads
+  appAssert(isString(target.action));
+
   const [
-    parentCheck,
+    parentCheckList,
     {partialAllowIds, partialAllowItems, partialDenyIds, partialDenyItems},
   ] = await Promise.all([
     checkAuthorization({...params, nothrow: true}),
     resolveTargetChildrenPartialAccessCheck(params),
   ]);
+
+  const parentCheck = first(parentCheckList);
+
+  // Only supporting single action reads
+  appAssert(parentCheck && parentCheckList.length === 1);
 
   if (parentCheck.hasAccess) {
     return {partialDenyIds, partialDenyItems, access: 'full', item: parentCheck.item};
@@ -357,9 +368,14 @@ export function getResourcePermissionContainers(
 
 function checkActionRequiresUserVerification(
   agent: SessionAgent,
-  action: PermissionAction
+  action: PermissionAction | PermissionAction[]
 ) {
-  if (agent && agent.user && !agent.user.isEmailVerified && !action.startsWith('read')) {
+  if (
+    agent &&
+    agent.user &&
+    !agent.user.isEmailVerified &&
+    !toArray(action).every(nextAction => nextAction.startsWith('read'))
+  ) {
     // Only read actions are permitted for user's who aren't email verified.
     throw new EmailAddressNotVerifiedError();
   }

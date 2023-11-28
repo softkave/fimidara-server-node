@@ -2,7 +2,7 @@ import {isString} from 'lodash';
 import OperationError from './OperationError';
 import {ServerError} from './errors';
 import {serverLogger} from './logger/loggerUtils';
-import {reuseableErrors} from './reusableErrors';
+import {kReuseableErrors} from './reusableErrors';
 import {AnyFn} from './types';
 
 export function appAssert(
@@ -28,5 +28,5 @@ export function appAssert(
 }
 
 export function assertNotFound<T>(item?: T): asserts item {
-  appAssert(item, reuseableErrors.common.notFound());
+  appAssert(item, kReuseableErrors.common.notFound());
 }

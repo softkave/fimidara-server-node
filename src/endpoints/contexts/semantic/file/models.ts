@@ -1,26 +1,23 @@
 import {File, FilePresignedPath} from '../../../../definitions/file';
 import {Resource} from '../../../../definitions/system';
 import {DataProviderQueryListParams} from '../../data/types';
-import {DataSemanticDataAccessWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
-import {SemanticDataAccessProviderRunOptions} from '../types';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticWorkspaceResourceProvider';
+import {SemanticProviderRunOptions} from '../types';
 import {getInAndNinQuery} from '../utils';
-import {
-  SemanticDataAccessFilePresignedPathProvider,
-  SemanticDataAccessFileProvider,
-} from './types';
+import {SemanticFilePresignedPathProvider, SemanticFileProvider} from './types';
 
-export class DataSemanticDataAccessFile
-  extends DataSemanticDataAccessWorkspaceResourceProvider<File>
-  implements SemanticDataAccessFileProvider
+export class DataSemanticFile
+  extends DataSemanticWorkspaceResourceProvider<File>
+  implements SemanticFileProvider
 {
-  async getOneByNamePath(
+  async getOneBynamepath(
     workspaceId: string,
-    namePath: string[],
+    namepath: string[],
     extension?: string | undefined,
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<File | null> {
     return await this.data.getOneByQuery(
-      {workspaceId, extension, namePath: {$all: namePath, $size: namePath.length}},
+      {workspaceId, extension, namepath: {$all: namepath, $size: namepath.length}},
       opts
     );
   }
@@ -32,9 +29,7 @@ export class DataSemanticDataAccessFile
       resourceIdList?: string[] | undefined;
       excludeResourceIdList?: string[] | undefined;
     },
-    options?:
-      | (DataProviderQueryListParams<File> & SemanticDataAccessProviderRunOptions)
-      | undefined
+    options?: (DataProviderQueryListParams<File> & SemanticProviderRunOptions) | undefined
   ): Promise<File[]> {
     return await this.data.getManyByQuery(
       {
@@ -57,7 +52,7 @@ export class DataSemanticDataAccessFile
       resourceIdList?: string[] | undefined;
       excludeResourceIdList?: string[] | undefined;
     },
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<number> {
     return await this.data.countByQuery(
       {
@@ -74,6 +69,6 @@ export class DataSemanticDataAccessFile
   }
 }
 
-export class DataSemanticDataAccessFilePresignedPathProvider
-  extends DataSemanticDataAccessWorkspaceResourceProvider<FilePresignedPath>
-  implements SemanticDataAccessFilePresignedPathProvider {}
+export class DataSemanticFilePresignedPathProvider
+  extends DataSemanticWorkspaceResourceProvider<FilePresignedPath>
+  implements SemanticFilePresignedPathProvider {}

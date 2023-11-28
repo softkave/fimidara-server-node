@@ -3,7 +3,7 @@ import {AssignedItem, ResourceWithTags} from '../../definitions/assignedItem';
 import {AppResourceType, AppResourceTypeMap, Resource} from '../../definitions/system';
 import {User, UserWorkspace} from '../../definitions/user';
 import {cast} from '../../utils/fns';
-import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {
   assignedItemsToAssignedTagList,
@@ -21,7 +21,7 @@ export async function getResourceAssignedItems(
   workspaceId: string | undefined,
   resourceId: string,
   assignedItemTypes?: Array<AppResourceType>,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
   return await context.semantic.assignedItem.getWorkspaceResourceAssignedItems(
     workspaceId,
@@ -44,7 +44,7 @@ export async function getResourceAssignedItemsSortedByType(
   workspaceId: string | undefined,
   resourceId: string,
   assignedItemTypes?: Array<AppResourceType>,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
   const items = await getResourceAssignedItems(
     context,
@@ -158,7 +158,7 @@ export async function populateResourceListWithAssignedTags<
 export async function getUserWorkspaces(
   context: BaseContextType,
   userId: string,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ): Promise<UserWorkspace[]> {
   const sortedItems = await getResourceAssignedItemsSortedByType(
     context,
@@ -183,7 +183,7 @@ export async function getUserWorkspaces(
 export async function populateUserWorkspaces<T extends User>(
   context: BaseContextType,
   resource: T,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ): Promise<T & {workspaces: UserWorkspace[]}> {
   const updatedResource: T & {workspaces: UserWorkspace[]} = resource as T & {
     workspaces: UserWorkspace[];

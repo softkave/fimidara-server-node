@@ -19,7 +19,7 @@ import {
   AddFolderEndpointResult,
   NewFolderInput,
 } from './addFolder/types';
-import {folderConstants} from './constants';
+import {kFolderConstants} from './constants';
 import {
   CountFolderContentEndpointParams,
   CountFolderContentEndpointResult,
@@ -75,7 +75,7 @@ const folder = mddocConstruct
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
     workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),
     idPath: mddocConstruct.constructFieldObjectField(true, fReusables.idPath),
-    namePath: mddocConstruct.constructFieldObjectField(true, fReusables.folderNamePath),
+    namepath: mddocConstruct.constructFieldObjectField(true, fReusables.foldernamepath),
     parentId: mddocConstruct.constructFieldObjectField(true, fReusables.folderIdOrNull),
     providedResourceId: mddocConstruct.constructFieldObjectField(
       false,
@@ -206,7 +206,7 @@ export const addFolderEndpointDefinition = mddocConstruct
     InferFieldObjectType<AddFolderHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
     InferFieldObjectType<AddFolderHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
-  .setBasePathname(folderConstants.routes.addFolder)
+  .setBasePathname(kFolderConstants.routes.addFolder)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(addFolderParams)
   .setRequestHeaders(
@@ -228,7 +228,7 @@ export const getFolderEndpointDefinition = mddocConstruct
     InferFieldObjectType<GetFolderHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
     InferFieldObjectType<GetFolderHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
-  .setBasePathname(folderConstants.routes.getFolder)
+  .setBasePathname(kFolderConstants.routes.getFolder)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getFolderParams)
   .setRequestHeaders(
@@ -256,7 +256,7 @@ export const updateFolderEndpointDefinition = mddocConstruct
     >,
     InferFieldObjectType<UpdateFolderHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
-  .setBasePathname(folderConstants.routes.updateFolder)
+  .setBasePathname(kFolderConstants.routes.updateFolder)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(updateFolderParams)
   .setRequestHeaders(
@@ -284,7 +284,7 @@ export const deleteFolderEndpointDefinition = mddocConstruct
     >,
     InferFieldObjectType<DeleteFolderHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
-  .setBasePathname(folderConstants.routes.deleteFolder)
+  .setBasePathname(kFolderConstants.routes.deleteFolder)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(deleteFolderParams)
   .setRequestHeaders(
@@ -314,7 +314,7 @@ export const listFolderContentEndpointDefinition = mddocConstruct
       ListFolderContentHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(folderConstants.routes.listFolderContent)
+  .setBasePathname(kFolderConstants.routes.listFolderContent)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(listFolderContentParams)
   .setRequestHeaders(
@@ -344,7 +344,7 @@ export const countFolderContentEndpointDefinition = mddocConstruct
       CountFolderContentHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(folderConstants.routes.countFolderContent)
+  .setBasePathname(kFolderConstants.routes.countFolderContent)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(countFolderContentParams)
   .setRequestHeaders(

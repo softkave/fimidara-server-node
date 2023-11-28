@@ -15,7 +15,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
-import {folderConstants} from '../constants';
+import {kFolderConstants} from '../constants';
 import {addRootnameToPath, folderExtractor} from '../utils';
 import updateFolder from './handler';
 import {UpdateFolderEndpointParams, UpdateFolderInput} from './types';
@@ -39,10 +39,15 @@ async function updateFolderBaseTest(
 ) {
   insertUserResult = insertUserResult ?? (await insertUserForTest(ctx));
   insertWorkspaceResult =
-    insertWorkspaceResult ?? (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
+    insertWorkspaceResult ??
+    (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
   const {folder} = existingFolder
     ? {folder: existingFolder}
-    : await insertFolderForTest(ctx, insertUserResult.userToken, insertWorkspaceResult.workspace);
+    : await insertFolderForTest(
+        ctx,
+        insertUserResult.userToken,
+        insertWorkspaceResult.workspace
+      );
 
   const updateInput: UpdateFolderInput = {
     description: faker.lorem.words(20),
@@ -53,7 +58,7 @@ async function updateFolderBaseTest(
     mockExpressRequestWithAgentToken(insertUserResult.userToken),
     {
       folderpath: addRootnameToPath(
-        folder.namePath.join(folderConstants.nameSeparator),
+        folder.namepath.join(kFolderConstants.separator),
         insertWorkspaceResult.workspace.rootname
       ),
       folder: updateInput,

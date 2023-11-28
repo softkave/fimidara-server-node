@@ -37,7 +37,7 @@ import uploadFile from '../files/uploadFile/handler';
 import {UploadFileEndpointParams} from '../files/uploadFile/types';
 import addFolder from '../folders/addFolder/handler';
 import {AddFolderEndpointParams, NewFolderInput} from '../folders/addFolder/types';
-import {folderConstants} from '../folders/constants';
+import {kFolderConstants} from '../folders/constants';
 import {addRootnameToPath} from '../folders/utils';
 import addPermissionGroup from '../permissionGroups/addPermissionGroup/handler';
 import {
@@ -333,7 +333,7 @@ export async function insertFolderForTest(
       folder: {
         folderpath: addRootnameToPath(
           [generateTestFolderName({includeStraySlashes: true})].join(
-            folderConstants.nameSeparator
+            kFolderConstants.separator
           ),
           workspace.rootname
         ),
@@ -389,7 +389,7 @@ export async function insertFileForTest(
   const testStream = Readable.from([testBuffer]);
   const input: UploadFileEndpointParams = {
     filepath: addRootnameToPath(
-      [generateTestFileName()].join(folderConstants.nameSeparator),
+      [generateTestFileName()].join(kFolderConstants.separator),
       workspace.rootname
     ),
     description: faker.lorem.paragraph(),

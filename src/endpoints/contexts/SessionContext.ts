@@ -18,7 +18,7 @@ import {dateToSeconds} from '../../utils/dateFns';
 import {ServerError} from '../../utils/errors';
 import {cast, toArray} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
-import {reuseableErrors} from '../../utils/reusableErrors';
+import {kReuseableErrors} from '../../utils/reusableErrors';
 import {
   makeUserSessionAgent,
   makeWorkspaceAgentTokenAgent,
@@ -82,7 +82,7 @@ export default class SessionContext implements SessionContextType {
         if (agentToken.agentType === AppResourceTypeMap.User) {
           appAssert(agentToken.separateEntityId);
           const user = await ctx.semantic.user.getOneById(agentToken.separateEntityId);
-          appAssert(user, reuseableErrors.user.notFound());
+          appAssert(user, kReuseableErrors.user.notFound());
           agent = makeUserSessionAgent(user, agentToken);
         } else {
           agent = makeWorkspaceAgentTokenAgent(agentToken);
@@ -203,7 +203,7 @@ export default class SessionContext implements SessionContextType {
           first(scopeList) !== TokenAccessScopeMap.ChangePassword ||
           scopeList.length > 1
         )
-          throw reuseableErrors.user.changePassword();
+          throw kReuseableErrors.user.changePassword();
       }
     }
   }

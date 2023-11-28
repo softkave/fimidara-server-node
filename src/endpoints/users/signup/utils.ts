@@ -4,7 +4,7 @@ import {User} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource, newResource} from '../../../utils/resource';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
 import {assertEmailAddressAvailable} from '../utils';
 import {SignupEndpointParams} from './types';
@@ -13,7 +13,7 @@ export const INTERNAL_signupUser = async (
   context: BaseContextType,
   data: SignupEndpointParams,
   otherParams: Partial<User> = {},
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) => {
   await assertEmailAddressAvailable(context, data.email, opts);
 

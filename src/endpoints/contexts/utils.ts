@@ -45,23 +45,27 @@ import {
 import {MongoDataProviderUtils} from './data/utils';
 import {PermissionsLogicProvider} from './logic/PermissionsLogicProvider';
 import {UsageRecordLogicProvider} from './logic/UsageRecordLogicProvider';
-import {DataSemanticDataAccessAgentToken} from './semantic/agentToken/models';
-import {DataSemanticDataAccessAssignedItem} from './semantic/assignedItem/models';
-import {DataSemanticDataAccessCollaborationRequest} from './semantic/collaborationRequest/models';
+import {DataSemanticAgentToken} from './semantic/agentToken/models';
+import {DataSemanticAssignedItem} from './semantic/assignedItem/models';
+import {DataSemanticCollaborationRequest} from './semantic/collaborationRequest/models';
 import {
-  DataSemanticDataAccessFile,
-  DataSemanticDataAccessFilePresignedPathProvider,
+  DataSemanticFile,
+  DataSemanticFilePresignedPathProvider,
 } from './semantic/file/models';
-import {DataSemanticDataAccessFolder} from './semantic/folder/models';
-import {DataSemanticDataAccessPermission} from './semantic/permission/models';
-import {DataSemanticDataAccessPermissionGroup} from './semantic/permissionGroup/models';
-import {DataSemanticDataAccessPermissionItem} from './semantic/permissionItem/models';
-import {DataSemanticDataAccessTag} from './semantic/tag/models';
-import {DataSemanticDataAccessUsageRecord} from './semantic/usageRecord/models';
-import {DataSemanticDataAccessUser} from './semantic/user/models';
-import {DataSemanticDataAccessProviderUtils} from './semantic/utils';
-import {DataSemanticDataAccessWorkspace} from './semantic/workspace/models';
-import {BaseContextType, MongoBackedSemanticDataProviders, MongoDataProviders} from './types';
+import {DataSemanticFolder} from './semantic/folder/models';
+import {DataSemanticPermission} from './semantic/permission/models';
+import {DataSemanticPermissionGroup} from './semantic/permissionGroup/models';
+import {DataSemanticPermissionItem} from './semantic/permissionItem/models';
+import {DataSemanticTag} from './semantic/tag/models';
+import {DataSemanticUsageRecord} from './semantic/usageRecord/models';
+import {DataSemanticUser} from './semantic/user/models';
+import {DataSemanticProviderUtils} from './semantic/utils';
+import {DataSemanticWorkspace} from './semantic/workspace/models';
+import {
+  BaseContextType,
+  MongoBackedSemanticDataProviders,
+  MongoDataProviders,
+} from './types';
 
 export function getMongoModels(connection: Connection): AppMongoModels {
   return {
@@ -92,7 +96,9 @@ export function getMongoDataProviders(models: AppMongoModels): MongoDataProvider
     permissionItem: new PermissionItemMongoDataProvider(models.permissionItem),
     assignedItem: new AssignedItemMongoDataProvider(models.assignedItem),
     agentToken: new AgentTokenMongoDataProvider(models.agentToken),
-    collaborationRequest: new CollaborationRequestMongoDataProvider(models.collaborationRequest),
+    collaborationRequest: new CollaborationRequestMongoDataProvider(
+      models.collaborationRequest
+    ),
     folder: new FolderMongoDataProvider(models.folder),
     file: new FileMongoDataProvider(models.file),
     tag: new TagMongoDataProvider(models.tag),
@@ -107,32 +113,32 @@ export function getMongoBackedSemanticDataProviders(
   data: MongoDataProviders
 ): MongoBackedSemanticDataProviders {
   return {
-    folder: new DataSemanticDataAccessFolder(data.folder, assertFolder),
-    file: new DataSemanticDataAccessFile(data.file, assertFile),
-    agentToken: new DataSemanticDataAccessAgentToken(data.agentToken, assertAgentToken),
-    permissions: new DataSemanticDataAccessPermission(),
-    permissionItem: new DataSemanticDataAccessPermissionItem(
+    folder: new DataSemanticFolder(data.folder, assertFolder),
+    file: new DataSemanticFile(data.file, assertFile),
+    agentToken: new DataSemanticAgentToken(data.agentToken, assertAgentToken),
+    permissions: new DataSemanticPermission(),
+    permissionItem: new DataSemanticPermissionItem(
       data.permissionItem,
       assertPermissionItem
     ),
-    permissionGroup: new DataSemanticDataAccessPermissionGroup(
+    permissionGroup: new DataSemanticPermissionGroup(
       data.permissionGroup,
       assertPermissionGroup
     ),
-    workspace: new DataSemanticDataAccessWorkspace(data.workspace, assertWorkspace),
-    collaborationRequest: new DataSemanticDataAccessCollaborationRequest(
+    workspace: new DataSemanticWorkspace(data.workspace, assertWorkspace),
+    collaborationRequest: new DataSemanticCollaborationRequest(
       data.collaborationRequest,
       assertCollaborationRequest
     ),
-    user: new DataSemanticDataAccessUser(data.user, assertUser),
-    tag: new DataSemanticDataAccessTag(data.tag, assertTag),
-    assignedItem: new DataSemanticDataAccessAssignedItem(data.assignedItem, assertNotFound),
-    usageRecord: new DataSemanticDataAccessUsageRecord(data.usageRecord, assertUsageRecord),
-    filePresignedPath: new DataSemanticDataAccessFilePresignedPathProvider(
+    user: new DataSemanticUser(data.user, assertUser),
+    tag: new DataSemanticTag(data.tag, assertTag),
+    assignedItem: new DataSemanticAssignedItem(data.assignedItem, assertNotFound),
+    usageRecord: new DataSemanticUsageRecord(data.usageRecord, assertUsageRecord),
+    filePresignedPath: new DataSemanticFilePresignedPathProvider(
       data.filePresignedPath,
       assertFile
     ),
-    utils: new DataSemanticDataAccessProviderUtils(),
+    utils: new DataSemanticProviderUtils(),
   };
 }
 

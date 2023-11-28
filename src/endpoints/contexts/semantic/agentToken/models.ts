@@ -1,21 +1,18 @@
 import {AgentToken} from '../../../../definitions/agentToken';
 import {TokenAccessScope} from '../../../../definitions/system';
 import {toNonNullableArray} from '../../../../utils/fns';
-import {DataSemanticDataAccessWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
-import {
-  SemanticDataAccessProviderMutationRunOptions,
-  SemanticDataAccessProviderRunOptions,
-} from '../types';
-import {SemanticDataAccessAgentTokenProvider} from './types';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticWorkspaceResourceProvider';
+import {SemanticProviderMutationRunOptions, SemanticProviderRunOptions} from '../types';
+import {SemanticAgentTokenProvider} from './types';
 
-export class DataSemanticDataAccessAgentToken
-  extends DataSemanticDataAccessWorkspaceResourceProvider<AgentToken>
-  implements SemanticDataAccessAgentTokenProvider
+export class DataSemanticAgentToken
+  extends DataSemanticWorkspaceResourceProvider<AgentToken>
+  implements SemanticAgentTokenProvider
 {
   async deleteAgentTokens(
     agentId: string,
     tokenScope: TokenAccessScope | TokenAccessScope[] | undefined,
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticProviderMutationRunOptions
   ): Promise<void> {
     await this.data.deleteManyByQuery(
       {
@@ -29,7 +26,7 @@ export class DataSemanticDataAccessAgentToken
   async getOneAgentToken(
     agentId: string,
     tokenScope?: TokenAccessScope | TokenAccessScope[] | undefined,
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<AgentToken | null> {
     return await this.data.getOneByQuery(
       {

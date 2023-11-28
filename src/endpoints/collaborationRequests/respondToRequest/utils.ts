@@ -16,7 +16,7 @@ import {formatDate, getTimestamp} from '../../../utils/dateFns';
 import {ServerStateConflictError} from '../../../utils/errors';
 import {isStringEqual} from '../../../utils/fns';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
-import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
 import {PermissionDeniedError} from '../../users/errors';
 import {assertUser} from '../../users/utils';
@@ -52,7 +52,7 @@ export const INTERNAL_RespondToCollaborationRequest = async (
   context: BaseContextType,
   agent: SessionAgent,
   data: RespondToCollaborationRequestEndpointParams,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) => {
   const request = await context.semantic.collaborationRequest.getOneById(
     data.requestId,

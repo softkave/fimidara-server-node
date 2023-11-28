@@ -6,6 +6,8 @@ export interface ConfigFileBackendEndpointParams
   extends EndpointOptionalWorkspaceIDParam {
   type: FileBackendType;
   credentials: Record<string, unknown>;
+  name: string;
+  description?: string;
 }
 
 export interface ConfigFileBackendEndpointResult {

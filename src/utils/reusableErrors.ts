@@ -4,22 +4,23 @@ import {
   InvalidCredentialsError,
   UserOnWaitlistError,
 } from '../endpoints/users/errors';
-import {appMessages} from './messages';
+import {kAppMessages} from './messages';
 
-export const reuseableErrors = {
+export const kReuseableErrors = {
   workspace: {
     notFound(id?: string) {
-      return new NotFoundError(appMessages.workspace.notFound(id));
+      return new NotFoundError(kAppMessages.workspace.notFound(id));
     },
+    withRootnameNotFound: (rootname: string) => not_implemented,
   },
   entity: {
     notFound(id: string) {
-      return new NotFoundError(appMessages.entity.notFound(id));
+      return new NotFoundError(kAppMessages.entity.notFound(id));
     },
   },
   user: {
     notFound(id?: string) {
-      return new NotFoundError(appMessages.user.notFound(id));
+      return new NotFoundError(kAppMessages.user.notFound(id));
     },
     changePassword() {
       return new ChangePasswordError();
@@ -30,12 +31,12 @@ export const reuseableErrors = {
   },
   permissionGroup: {
     notFound(id?: string) {
-      return new NotFoundError(appMessages.permissionGroup.notFound(id));
+      return new NotFoundError(kAppMessages.permissionGroup.notFound(id));
     },
   },
   permissionItem: {
     notFound(id?: string) {
-      return new NotFoundError(appMessages.permissionItem.notFound(id));
+      return new NotFoundError(kAppMessages.permissionItem.notFound(id));
     },
   },
   credentials: {
@@ -45,51 +46,60 @@ export const reuseableErrors = {
   },
   collaborationRequest: {
     notFound(id?: string) {
-      return new NotFoundError(appMessages.collaborationRequest.notFound(id));
+      return new NotFoundError(kAppMessages.collaborationRequest.notFound(id));
     },
   },
   folder: {
     notFound(id?: string) {
-      return new NotFoundError(appMessages.folder.notFound(id));
+      return new NotFoundError(kAppMessages.folder.notFound(id));
     },
   },
   tag: {
     notFound(id?: string) {
-      return new NotFoundError(appMessages.tag.notFound(id));
+      return new NotFoundError(kAppMessages.tag.notFound(id));
     },
   },
   usageRecord: {
     notFound(id?: string) {
-      return new NotFoundError(appMessages.usageRecord.notFound(id));
+      return new NotFoundError(kAppMessages.usageRecord.notFound(id));
     },
   },
   file: {
     notFound(id?: string) {
-      return new NotFoundError(appMessages.file.notFound(id));
+      return new NotFoundError(kAppMessages.file.notFound(id));
     },
+    invalidMatcher: () => not_implemented,
+    provideNamepath: () => not_implemented,
   },
   appRuntimeState: {
     notFound() {
-      return new NotFoundError(appMessages.appRuntimeState.notFound());
+      return new NotFoundError(kAppMessages.appRuntimeState.notFound());
     },
   },
   agentToken: {
     notFound(id?: string) {
-      return new NotFoundError(appMessages.agentToken.notFound(id));
+      return new NotFoundError(kAppMessages.agentToken.notFound(id));
     },
     withIdExists(id?: string) {
-      return new ResourceExistsError(appMessages.agentToken.withIdExists(id));
+      return new ResourceExistsError(kAppMessages.agentToken.withIdExists(id));
     },
     withProvidedIdExists(id?: string) {
-      return new ResourceExistsError(appMessages.agentToken.withProvidedIdExists(id));
+      return new ResourceExistsError(kAppMessages.agentToken.withProvidedIdExists(id));
     },
+  },
+  mount: {
+    mountExists: () => not_implemented,
+    mountNameExists: (name: string) => not_implemented,
+  },
+  config: {
+    configNameExists: (name: string) => not_implemented,
   },
   common: {
     notImplemented() {
-      return new Error(appMessages.common.notImplementedYet());
+      return new Error(kAppMessages.common.notImplementedYet());
     },
     notFound(id?: string) {
-      return new NotFoundError(appMessages.common.notFound(id));
+      return new NotFoundError(kAppMessages.common.notFound(id));
     },
   },
 };

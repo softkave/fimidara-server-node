@@ -28,7 +28,7 @@ import {
   GetPresignedPathsForFilesEndpointParams,
   GetPresignedPathsForFilesEndpointResult,
   GetPresignedPathsForFilesItem,
-} from './getPresignedPathsForFiles/types';
+} from './getPresignedPaths/types';
 import {
   IssueFilePresignedPathEndpointParams,
   IssueFilePresignedPathEndpointResult,
@@ -116,7 +116,7 @@ const file = mddocConstruct
     workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),
     parentId: mddocConstruct.constructFieldObjectField(true, fReusables.folderIdOrNull),
     idPath: mddocConstruct.constructFieldObjectField(true, fReusables.idPath),
-    namePath: mddocConstruct.constructFieldObjectField(true, fReusables.folderNamePath),
+    namepath: mddocConstruct.constructFieldObjectField(true, fReusables.foldernamepath),
     mimetype: mddocConstruct.constructFieldObjectField(false, mimetype),
     encoding: mddocConstruct.constructFieldObjectField(false, encoding),
     createdBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),

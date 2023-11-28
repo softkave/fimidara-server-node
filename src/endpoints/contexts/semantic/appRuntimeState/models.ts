@@ -1,7 +1,7 @@
 import {AppRuntimeState} from '../../../../definitions/system';
-import {DataSemanticDataAccessBaseProvider} from '../DataSemanticDataAccessBaseProvider';
-import {SemanticDataAccessAppRuntimeStateProvider} from './types';
+import {DataSemanticBaseProvider} from '../DataSemanticBaseProvider';
+import {SemanticAppRuntimeStateProvider} from './types';
 
-export class DataSemanticDataAccessAppRuntimeState
-  extends DataSemanticDataAccessBaseProvider<AppRuntimeState>
-  implements SemanticDataAccessAppRuntimeStateProvider {}
+export class DataSemanticAppRuntimeState
+  extends DataSemanticBaseProvider<AppRuntimeState>
+  implements SemanticAppRuntimeStateProvider {}

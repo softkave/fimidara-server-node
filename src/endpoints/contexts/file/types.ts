@@ -24,43 +24,51 @@ export interface PersistedFile {
   contentLength?: number;
 }
 
-export type PersistedFileDescription =
-  | {
-      type: typeof AppResourceTypeMap.Folder;
-      name: string;
-    }
-  | {
-      type: typeof AppResourceTypeMap.File;
-      name: string;
-      size?: number;
-      lastUpdatedAt?: number;
-    };
+export type PersistedFileDescription = {
+  type: typeof AppResourceTypeMap.File;
+  name: string;
+  size?: number;
+  lastUpdatedAt?: number;
+};
 
-export interface FilePersistenceProviderListFolderChildrenParams {
+export type PersistedFolderDescription = {
+  type: typeof AppResourceTypeMap.Folder;
+  name: string;
+};
+
+export type PersistedEntityDescription =
+  | PersistedFileDescription
+  | PersistedFolderDescription;
+
+export interface FilePersistenceProviderDescribeFolderChildrenParams {
   key: string;
   max?: number;
   /** page or continuation token is different depending on provider, so pass
-   * what's returned in previous listFolderChildren calls */
+   * what's returned in previous describeFolderChildren calls */
   page?: unknown;
 }
 
-export interface FilePersistenceProviderListFolderChildrenResult {
-  children: PersistedFileDescription[];
+export interface FilePersistenceProviderDescribeFolderChildrenResult {
+  children: PersistedEntityDescription[];
   /** page or continuation token is different depending on provider, so pass
-   * what's returned in previous listFolderChildren calls */
+   * what's returned in previous describeFolderChildren calls */
   page?: unknown | null;
 }
 
 export interface FilePersistenceProvider {
   uploadFile: (params: FilePersistenceUploadFileParams) => Promise<void>;
   getFile: (params: FilePersistenceGetFileParams) => Promise<PersistedFile>;
+  describeFile: (
+    params: FilePersistenceGetFileParams
+  ) => Promise<PersistedFileDescription>;
+  describeFolder: (
+    params: FilePersistenceGetFileParams
+  ) => Promise<PersistedFolderDescription>;
   deleteFiles: (params: FilePersistenceDeleteFilesParams) => Promise<void>;
-  listFolderChildren: (
-    params: FilePersistenceProviderListFolderChildrenParams
-  ) => Promise<FilePersistenceProviderListFolderChildrenResult>;
-  /** Throws error if `file.type !== "file"` */
-  normalizeFile: (file: PersistedFileDescription) => File;
-  /** Throws error if `folder.type !== "folder"` */
-  normalizeFolder: (folder: PersistedFileDescription) => Folder;
+  describeFolderChildren: (
+    params: FilePersistenceProviderDescribeFolderChildrenParams
+  ) => Promise<FilePersistenceProviderDescribeFolderChildrenResult>;
+  normalizeFile: (workspaceId: string, file: PersistedFileDescription) => File;
+  normalizeFolder: (workspaceId: string, folder: PersistedFolderDescription) => Folder;
   close: () => Promise<void>;
 }

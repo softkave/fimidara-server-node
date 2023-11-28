@@ -14,7 +14,7 @@ export interface FileMountEntry {
 export interface File extends WorkspaceResource {
   parentId: string | null;
   idPath: string[];
-  namePath: string[];
+  namepath: string[];
   mimetype?: string;
   encoding?: string;
   size: number;
@@ -34,7 +34,7 @@ export type PublicFile = PublicWorkspaceResource &
       File,
       | 'parentId'
       | 'idPath'
-      | 'namePath'
+      | 'namepath'
       | 'mimetype'
       | 'encoding'
       | 'size'
@@ -54,8 +54,9 @@ export type FileMatcher = {
 export interface FilePresignedPath extends WorkspaceResource {
   /** File name path instead of ID because at the time of creation, the file may
    * not exist yet. */
-  fileNamePath: string[];
-  fileExtension?: string;
+  filepath: string[];
+  fileId?: string;
+  extension?: string;
   agentTokenId: string;
   usageCount?: number;
   spentUsageCount: number;

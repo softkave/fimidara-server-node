@@ -1,7 +1,7 @@
 import {SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {SemanticDataAccessProviderRunOptions} from '../../contexts/semantic/types';
+import {SemanticProviderRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
 
 export async function checkReadEntityAssignedPermissionGroups(
@@ -9,7 +9,7 @@ export async function checkReadEntityAssignedPermissionGroups(
   agent: SessionAgent,
   workspace: Workspace,
   entityId: string,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
   if (isFetchingOwnPermissionGroups(agent, entityId)) {
     return true;
@@ -34,7 +34,7 @@ export async function fetchEntityAssignedPermissionGroupList(
   context: BaseContextType,
   entityId: string,
   includeInheritedPermissionGroups = true,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
   return await context.semantic.permissions.getEntityAssignedPermissionGroups(
     {

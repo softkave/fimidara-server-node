@@ -21,7 +21,7 @@ import issueFilePresignedPath from '../issueFilePresignedPath/handler';
 import {IssueFilePresignedPathEndpointParams} from '../issueFilePresignedPath/types';
 import readFile from '../readFile/handler';
 import {ReadFileEndpointParams} from '../readFile/types';
-import {stringifyFileNamePath} from '../utils';
+import {stringifyFilenamepath} from '../utils';
 import getPresignedPathsForFiles from './handler';
 import {GetPresignedPathsForFilesEndpointParams} from './types';
 
@@ -48,8 +48,14 @@ describe('getPresignedPathsForFiles', () => {
       insertWorkspaceForTest(context, userToken),
     ]);
     const [files01, files02] = await Promise.all([
-      generateAndInsertTestFiles(context, 2, {workspaceId: w1.resourceId, parentId: null}),
-      generateAndInsertTestFiles(context, 2, {workspaceId: w2.resourceId, parentId: null}),
+      generateAndInsertTestFiles(context, 2, {
+        workspaceId: w1.resourceId,
+        parentId: null,
+      }),
+      generateAndInsertTestFiles(context, 2, {
+        workspaceId: w2.resourceId,
+        parentId: null,
+      }),
     ]);
     const paths = await issuePaths(
       userToken,
@@ -59,10 +65,11 @@ describe('getPresignedPathsForFiles', () => {
     const matchers: FileMatcher[] = toInterspersedMatchers(files01, w1.rootname).concat(
       toInterspersedMatchers(files02, w2.rootname)
     );
-    const instData = RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {files: matchers}
-    );
+    const instData =
+      RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {files: matchers}
+      );
     const result = await getPresignedPathsForFiles(context, instData);
     assertEndpointResultOk(result);
 
@@ -78,8 +85,14 @@ describe('getPresignedPathsForFiles', () => {
       insertWorkspaceForTest(context, userToken),
     ]);
     const [files01, files02] = await Promise.all([
-      generateAndInsertTestFiles(context, 2, {workspaceId: w1.resourceId, parentId: null}),
-      generateAndInsertTestFiles(context, 2, {workspaceId: w2.resourceId, parentId: null}),
+      generateAndInsertTestFiles(context, 2, {
+        workspaceId: w1.resourceId,
+        parentId: null,
+      }),
+      generateAndInsertTestFiles(context, 2, {
+        workspaceId: w2.resourceId,
+        parentId: null,
+      }),
     ]);
     const [paths01, paths02] = await Promise.all([
       issuePaths(
@@ -95,10 +108,11 @@ describe('getPresignedPathsForFiles', () => {
     const matchers: FileMatcher[] = toInterspersedMatchers(files01, w1.rootname).concat(
       toInterspersedMatchers(files02, w2.rootname)
     );
-    const instData = RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {files: matchers, workspaceId: w1.resourceId}
-    );
+    const instData =
+      RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {files: matchers, workspaceId: w1.resourceId}
+      );
     const result = await getPresignedPathsForFiles(context, instData);
     assertEndpointResultOk(result);
 
@@ -115,8 +129,14 @@ describe('getPresignedPathsForFiles', () => {
       insertWorkspaceForTest(context, userToken),
     ]);
     const [files01, files02] = await Promise.all([
-      generateAndInsertTestFiles(context, 2, {workspaceId: w1.resourceId, parentId: null}),
-      generateAndInsertTestFiles(context, 2, {workspaceId: w2.resourceId, parentId: null}),
+      generateAndInsertTestFiles(context, 2, {
+        workspaceId: w1.resourceId,
+        parentId: null,
+      }),
+      generateAndInsertTestFiles(context, 2, {
+        workspaceId: w2.resourceId,
+        parentId: null,
+      }),
     ]);
     const [paths01, paths02] = await Promise.all([
       issuePaths(
@@ -129,10 +149,11 @@ describe('getPresignedPathsForFiles', () => {
       ),
     ]);
 
-    const instData = RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {workspaceId: w1.resourceId}
-    );
+    const instData =
+      RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {workspaceId: w1.resourceId}
+      );
     const result = await getPresignedPathsForFiles(context, instData);
     assertEndpointResultOk(result);
 
@@ -149,18 +170,25 @@ describe('getPresignedPathsForFiles', () => {
       insertWorkspaceForTest(context, userToken),
     ]);
     const [files01, files02] = await Promise.all([
-      generateAndInsertTestFiles(context, 2, {workspaceId: w1.resourceId, parentId: null}),
-      generateAndInsertTestFiles(context, 2, {workspaceId: w2.resourceId, parentId: null}),
+      generateAndInsertTestFiles(context, 2, {
+        workspaceId: w1.resourceId,
+        parentId: null,
+      }),
+      generateAndInsertTestFiles(context, 2, {
+        workspaceId: w2.resourceId,
+        parentId: null,
+      }),
     ]);
     const paths = await issuePaths(
       userToken,
       files01.concat(files02).map(f => ({fileId: f.resourceId}))
     );
 
-    const instData = RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {}
-    );
+    const instData =
+      RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {}
+      );
     const result = await getPresignedPathsForFiles(context, instData);
     assertEndpointResultOk(result);
 
@@ -173,9 +201,18 @@ describe('getPresignedPathsForFiles', () => {
     const {userToken} = await insertUserForTest(context);
     const {workspace: w1} = await insertWorkspaceForTest(context, userToken);
     const [files01, files02, files03] = await Promise.all([
-      generateAndInsertTestFiles(context, 1, {workspaceId: w1.resourceId, parentId: null}),
-      generateAndInsertTestFiles(context, 1, {workspaceId: w1.resourceId, parentId: null}),
-      generateAndInsertTestFiles(context, 1, {workspaceId: w1.resourceId, parentId: null}),
+      generateAndInsertTestFiles(context, 1, {
+        workspaceId: w1.resourceId,
+        parentId: null,
+      }),
+      generateAndInsertTestFiles(context, 1, {
+        workspaceId: w1.resourceId,
+        parentId: null,
+      }),
+      generateAndInsertTestFiles(context, 1, {
+        workspaceId: w1.resourceId,
+        parentId: null,
+      }),
     ]);
     const [paths01, pathsWithDuration, pathsWithUsageCount] = await Promise.all([
       issuePaths(
@@ -205,10 +242,11 @@ describe('getPresignedPathsForFiles', () => {
     // Wait 1ms for path with duration 1ms
     await waitTimeout(1);
 
-    const instData = RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {workspaceId: w1.resourceId}
-    );
+    const instData =
+      RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {workspaceId: w1.resourceId}
+      );
     const result = await getPresignedPathsForFiles(context, instData);
     assertEndpointResultOk(result);
 
@@ -243,7 +281,7 @@ async function issuePaths(
 
 function toInterspersedMatchers(files: File[], rootname: string) {
   return files.map((f, i) =>
-    i % 2 === 0 ? {fileId: f.resourceId} : {filepath: stringifyFileNamePath(f, rootname)}
+    i % 2 === 0 ? {fileId: f.resourceId} : {filepath: stringifyFilenamepath(f, rootname)}
   );
 }
 

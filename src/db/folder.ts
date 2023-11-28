@@ -5,7 +5,7 @@ import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 const folderSchema = ensureMongoTypeFields<Folder>({
   ...workspaceResourceSchema,
   idPath: {type: [String], default: [], index: true},
-  namePath: {type: [String], default: [], index: true},
+  namepath: {type: [String], default: [], index: true},
   parentId: {type: String, index: true},
   name: {type: String, index: true},
   description: {type: String},

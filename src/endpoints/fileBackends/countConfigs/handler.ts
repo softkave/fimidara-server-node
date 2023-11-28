@@ -1,7 +1,7 @@
 import {container} from 'tsyringe';
 import {validate} from '../../../utils/validate';
-import {kInjectionKeys} from '../../contexts/injectionKeys';
-import {SemanticDataAccessFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
+import {kInjectionKeys} from '../../contexts/injection';
+import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {getFileBackendConfigsQuery} from '../getConfigs/utils';
 import {CountFileBackendConfigsEndpoint} from './types';
@@ -11,7 +11,7 @@ const countFileBackendConfigs: CountFileBackendConfigsEndpoint = async (
   context,
   instData
 ) => {
-  const configModel = container.resolve<SemanticDataAccessFileBackendConfigProvider>(
+  const configModel = container.resolve<SemanticFileBackendConfigProvider>(
     kInjectionKeys.semantic.fileBackendConfig
   );
 

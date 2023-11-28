@@ -37,7 +37,7 @@ import {
 import {
   UpdateAgentTokenEndpointParams,
   UpdateAgentTokenEndpointResult,
-} from './updateToken/types';
+} from './updateConfig/types';
 
 const newAgentTokenInput = mddocConstruct
   .constructFieldObject<NewAgentTokenInput>()

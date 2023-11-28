@@ -1,9 +1,9 @@
 import {PublicUser, User, UserWithWorkspace, UserWorkspace} from '../../definitions/user';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {reuseableErrors} from '../../utils/reusableErrors';
+import {kReuseableErrors} from '../../utils/reusableErrors';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
-import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {EmailAddressNotAvailableError} from './errors';
 
@@ -35,7 +35,7 @@ export const userExtractor = makeExtract(publicUserFields);
 export const userListExtractor = makeListExtract(publicUserFields);
 
 export function throwUserNotFound() {
-  throw reuseableErrors.user.notFound();
+  throw kReuseableErrors.user.notFound();
 }
 
 export function isUserInWorkspace(user: UserWithWorkspace, workspaceId: string) {
@@ -43,13 +43,13 @@ export function isUserInWorkspace(user: UserWithWorkspace, workspaceId: string) 
 }
 
 export function assertUser(user?: User | null): asserts user {
-  appAssert(user, reuseableErrors.user.notFound());
+  appAssert(user, kReuseableErrors.user.notFound());
 }
 
 export async function getCompleteUserDataByEmail(
   context: BaseContextType,
   email: string,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
   const user = await context.semantic.user.getByEmail(email, opts);
   assertUser(user);
@@ -59,7 +59,7 @@ export async function getCompleteUserDataByEmail(
 export async function assertEmailAddressAvailable(
   context: BaseContextType,
   email: string,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
   const userExists = await context.semantic.user.existsByEmail(email, opts);
   if (userExists) {

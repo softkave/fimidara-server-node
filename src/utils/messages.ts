@@ -1,6 +1,6 @@
 import {multilineTextToParagraph} from './fns';
 
-export const appMessages = {
+export const kAppMessages = {
   workspace: {
     notFound(id?: string) {
       return id ? `Workspace with ID ${id} not found.` : 'Workspace not found.';
@@ -30,12 +30,16 @@ export const appMessages = {
   },
   permissionGroup: {
     notFound(id?: string) {
-      return id ? `Permission group with ID ${id} not found.` : 'Permission group not found.';
+      return id
+        ? `Permission group with ID ${id} not found.`
+        : 'Permission group not found.';
     },
   },
   permissionItem: {
     notFound(id?: string) {
-      return id ? `Permission item with ID ${id} not found.` : 'Permission item not found.';
+      return id
+        ? `Permission item with ID ${id} not found.`
+        : 'Permission item not found.';
     },
   },
   collaborationRequest: {

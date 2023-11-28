@@ -2,8 +2,8 @@ import {container} from 'tsyringe';
 import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kInjectionKeys} from '../../contexts/injectionKeys';
-import {SemanticDataAccessFileBackendMountProvider} from '../../contexts/semantic/types';
+import {kInjectionKeys} from '../../contexts/injection';
+import {SemanticFileBackendMountProvider} from '../../contexts/semantic/types';
 import {NotFoundError} from '../../errors';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {fileBackendMountExtractor} from '../utils';
@@ -11,7 +11,7 @@ import {GetFileBackendMountEndpoint} from './types';
 import {getFileBackendMountJoiSchema} from './validation';
 
 const getFileBackendMount: GetFileBackendMountEndpoint = async (context, instData) => {
-  const mountModel = container.resolve<SemanticDataAccessFileBackendMountProvider>(
+  const mountModel = container.resolve<SemanticFileBackendMountProvider>(
     kInjectionKeys.semantic.fileBackendMount
   );
 

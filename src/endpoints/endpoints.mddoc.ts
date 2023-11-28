@@ -365,7 +365,7 @@ const filepathList = mddocConstruct.constructFieldArray<string>().setType(filepa
 const filepathOrList = mddocConstruct
   .constructFieldOrCombination<string | string[]>()
   .setTypes([filepath, filepathList]);
-const folderNamePath = mddocConstruct
+const foldernamepath = mddocConstruct
   .constructFieldArray<string>()
   .setType(foldername)
   .setDescription('List of parent folder names.');
@@ -449,7 +449,7 @@ export const fReusables = {
   folderId,
   idPath,
   foldername,
-  folderNamePath,
+  foldernamepath,
   filename,
   folderpath,
   filepath,

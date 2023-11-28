@@ -5,7 +5,7 @@ import {CountWorkspaceAgentTokensEndpoint} from './countConfigs/types';
 import {DeleteAgentTokenEndpoint} from './deleteToken/types';
 import {GetAgentTokenEndpoint} from './getConfig/types';
 import {GetWorkspaceAgentTokensEndpoint} from './getConfigs/types';
-import {UpdateAgentTokenEndpoint} from './updateToken/types';
+import {UpdateAgentTokenEndpoint} from './updateConfig/types';
 
 export type AddAgentTokenHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<AddAgentTokenEndpoint>;

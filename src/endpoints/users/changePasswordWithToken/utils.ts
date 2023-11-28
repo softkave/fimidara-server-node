@@ -2,7 +2,7 @@ import * as argon2 from 'argon2';
 import {getTimestamp} from '../../../utils/dateFns';
 import RequestData from '../../RequestData';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
 import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils';
 import {assertUser} from '../utils';
@@ -12,7 +12,7 @@ export async function INTERNAL_changePassword(
   reqData: RequestData,
   userId: string,
   props: {password: string},
-  opts?: SemanticDataAccessProviderMutationRunOptions
+  opts?: SemanticProviderMutationRunOptions
 ) {
   const hash = await argon2.hash(props.password);
   const updatedUser = await context.semantic.utils.withTxn(

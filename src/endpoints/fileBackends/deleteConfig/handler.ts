@@ -3,8 +3,8 @@ import {AppResourceTypeMap} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kInjectionKeys} from '../../contexts/injectionKeys';
-import {SemanticDataAccessFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
+import {kInjectionKeys} from '../../contexts/injection';
+import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
 import {NotFoundError} from '../../errors';
 import {enqueueDeleteResourceJob} from '../../jobs/runner';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
@@ -15,7 +15,7 @@ const deleteFileBackendConfig: DeleteFileBackendConfigEndpoint = async (
   context,
   instData
 ) => {
-  const configModel = container.resolve<SemanticDataAccessFileBackendConfigProvider>(
+  const configModel = container.resolve<SemanticFileBackendConfigProvider>(
     kInjectionKeys.semantic.fileBackendConfig
   );
 

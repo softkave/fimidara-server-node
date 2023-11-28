@@ -4,9 +4,9 @@ import {SessionAgent} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {cast} from '../../utils/fns';
-import {reuseableErrors} from '../../utils/reusableErrors';
+import {kReuseableErrors} from '../../utils/reusableErrors';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {workspaceResourceFields} from '../utils';
@@ -28,7 +28,7 @@ export async function checkAgentTokenAuthorization(
   agent: SessionAgent,
   token: AgentToken,
   action: PermissionAction,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
   appAssert(token.workspaceId);
   await checkAuthorizationWithAgent({
@@ -66,7 +66,7 @@ export async function checkAgentTokenAuthorization02(
 }
 
 export function throwAgentTokenNotFound() {
-  throw reuseableErrors.agentToken.notFound();
+  throw kReuseableErrors.agentToken.notFound();
 }
 
 export function getPublicAgentToken(context: BaseContextType, token: AgentToken) {
@@ -81,5 +81,5 @@ export function getPublicAgentToken(context: BaseContextType, token: AgentToken)
 }
 
 export function assertAgentToken(token?: AgentToken | null): asserts token {
-  appAssert(token, reuseableErrors.agentToken.notFound());
+  appAssert(token, kReuseableErrors.agentToken.notFound());
 }

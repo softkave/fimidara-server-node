@@ -8,10 +8,10 @@ import {
 import {Agent, AppResourceTypeMap} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
-import {kInjectionKeys} from '../../contexts/injectionKeys';
+import {kInjectionKeys} from '../../contexts/injection';
 import {
-  SemanticDataAccessFileBackendMountProvider,
-  SemanticDataAccessProviderUtils,
+  SemanticFileBackendMountProvider,
+  SemanticProviderUtils,
 } from '../../contexts/semantic/types';
 
 export function generateFileBackendMountForTest(seed: Partial<FileBackendMount> = {}) {
@@ -54,10 +54,10 @@ export async function generateAndInsertFileBackendMountListForTest(
   count = 20,
   seed: Partial<FileBackendMount> = {}
 ) {
-  const mountModel = container.resolve<SemanticDataAccessFileBackendMountProvider>(
+  const mountModel = container.resolve<SemanticFileBackendMountProvider>(
     kInjectionKeys.semantic.fileBackendMount
   );
-  const semanticUtils = container.resolve<SemanticDataAccessProviderUtils>(
+  const semanticUtils = container.resolve<SemanticProviderUtils>(
     kInjectionKeys.semantic.utils
   );
 

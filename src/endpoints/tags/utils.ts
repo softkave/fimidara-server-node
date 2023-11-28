@@ -3,9 +3,9 @@ import {SessionAgent} from '../../definitions/system';
 import {PublicAssignedTag, PublicTag, Tag} from '../../definitions/tag';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {reuseableErrors} from '../../utils/reusableErrors';
+import {kReuseableErrors} from '../../utils/reusableErrors';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {agentExtractor, workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
@@ -33,7 +33,7 @@ export async function checkTagAuthorization(
   agent: SessionAgent,
   tag: Tag,
   action: PermissionAction,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
   const workspace = await checkWorkspaceExists(context, tag.workspaceId);
   await checkAuthorizationWithAgent({
@@ -59,9 +59,9 @@ export async function checkTagAuthorization02(
 }
 
 export function throwTagNotFound() {
-  throw reuseableErrors.tag.notFound();
+  throw kReuseableErrors.tag.notFound();
 }
 
 export function assertTag(tag?: Tag | null): asserts tag {
-  appAssert(tag, reuseableErrors.tag.notFound());
+  appAssert(tag, kReuseableErrors.tag.notFound());
 }

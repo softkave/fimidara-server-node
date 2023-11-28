@@ -1,5 +1,5 @@
 import {UsageRecord} from '../../../../definitions/usageRecord';
-import {SemanticDataAccessWorkspaceResourceProviderType} from '../types';
+import {SemanticWorkspaceResourceProviderType} from '../types';
 
-export interface SemanticDataAccessUsageRecordProviderType
-  extends SemanticDataAccessWorkspaceResourceProviderType<UsageRecord> {}
+export interface SemanticUsageRecordProviderType
+  extends SemanticWorkspaceResourceProviderType<UsageRecord> {}

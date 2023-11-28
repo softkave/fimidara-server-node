@@ -19,9 +19,9 @@ import {
   checkAuthorizationWithAgent,
   getResourcePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
-import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
-import {folderConstants} from '../folders/constants';
+import {kFolderConstants} from '../folders/constants';
 import {checkResourcesBelongsToWorkspace} from './containerCheckFns';
 import {resourceListWithAssignedItems} from './resourceWithAssignedItems';
 import {FetchResourceItem} from './types';
@@ -50,7 +50,7 @@ export interface GetResourcesOptions {
   agent: SessionAgent;
   workspaceId: string;
   nothrowOnCheckError?: boolean;
-  dataFetchRunOptions?: SemanticDataAccessProviderRunOptions;
+  dataFetchRunOptions?: SemanticProviderRunOptions;
 
   /** User workspaces are automatically filled-in if `checkAuth` is true. */
   fillAssignedItems?: boolean;
@@ -176,7 +176,7 @@ function groupItemsToFetch(
 async function fetchResourcesById(
   context: BaseContextType,
   idsGroupedByType: InputsWithIdGroupedByType,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
   if (isObjectEmpty(idsGroupedByType)) return [];
 
@@ -297,9 +297,9 @@ const fetchFiles = async (
   const result = await Promise.all(
     // TODO: can we have $or or implement $in for array of arrays?
     map(filepathsMap, (action, filepath) =>
-      context.semantic.file.getOneByNamePath(
+      context.semantic.file.getOneBynamepath(
         workspaceId,
-        filepath.split(folderConstants.nameSeparator)
+        filepath.split(kFolderConstants.separator)
       )
     )
   );
@@ -326,9 +326,9 @@ const fetchFolders = async (
   const result = await Promise.all(
     // TODO: can we have $or or implement $in for array of arrays?
     map(folderpathsMap, (action, folderpath) =>
-      context.semantic.folder.getOneByNamePath(
+      context.semantic.folder.getOneBynamepath(
         workspaceId,
-        folderpath.split(folderConstants.nameSeparator)
+        folderpath.split(kFolderConstants.separator)
       )
     )
   );

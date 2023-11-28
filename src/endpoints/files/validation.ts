@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
 import {Readable} from 'stream';
 import {validationSchemas} from '../../utils/validationUtils';
-import {folderConstants} from '../folders/constants';
+import {kFolderConstants} from '../folders/constants';
 import folderValidationSchemas from '../folders/validation';
 import {fileConstants} from './constants';
 
@@ -12,9 +12,9 @@ const extension = Joi.string().max(fileConstants.maxExtensionCharLength);
 const buffer = Joi.binary().max(fileConstants.maxFileSizeInBytes);
 const filepath = Joi.string()
   .regex(folderValidationSchemas.pathRegex)
-  .min(folderConstants.minFolderNameLength)
+  .min(kFolderConstants.minFolderNameLength)
   .max(
-    folderConstants.maxFolderNameLength * (folderConstants.maxFolderDepth + 1) +
+    kFolderConstants.maxFolderNameLength * (kFolderConstants.maxFolderDepth + 1) +
       fileConstants.maxExtensionCharLength
   );
 const readable = Joi.any().custom((value, helpers) => {

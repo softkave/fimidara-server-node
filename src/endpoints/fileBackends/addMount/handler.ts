@@ -12,7 +12,7 @@ const addFileBackendMountEndpoint: AddFileBackendMountEndpoint = async (
 ) => {
   const data = validate(instData.data, addFileBackendMountJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
+  const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   await checkAuthorizationWithAgent({
     agent,
     workspace,

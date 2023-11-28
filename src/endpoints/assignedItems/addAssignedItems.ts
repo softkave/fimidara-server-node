@@ -13,8 +13,8 @@ import {
 } from '../../utils/resource';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {
-  SemanticDataAccessProviderMutationRunOptions,
-  SemanticDataAccessProviderRunOptions,
+  SemanticProviderMutationRunOptions,
+  SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {checkPermissionGroupsExist} from '../permissionGroups/utils';
@@ -34,7 +34,7 @@ async function filterExistingItems<T extends AssignedItem>(
   workspaceId: string,
   items: T[],
   comparatorFn?: (item01: T, item02: AssignedItem) => boolean,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
   const assigneeIdList: string[] = [];
   const assignedItemIdList: string[] = [];
@@ -86,7 +86,7 @@ export async function addAssignedItems<T extends AssignedItem>(
   items: T[],
   deletedExistingItems: boolean,
   comparatorFn: ((item01: T, item02: AssignedItem) => boolean) | undefined,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) {
   if (deletedExistingItems) {
     await context.semantic.assignedItem.insertItem(items, opts);
@@ -117,7 +117,7 @@ export async function addAssignedPermissionGroupList(
   deleteExisting: boolean,
   skipPermissionGroupsExistCheck = false,
   skipAuthCheck = false,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) {
   if (deleteExisting) {
     await deleteResourceAssignedItems(
@@ -191,7 +191,7 @@ export async function addAssignedTagList(
   tags: AssignedTagInput[],
   assigneeId: string,
   deleteExisting: boolean,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) {
   if (deleteExisting) {
     await deleteResourceAssignedItems(
@@ -254,7 +254,7 @@ export async function saveResourceAssignedItems(
   // TODO: deleteExisting should be false by default and add checks to avoid
   // duplication
   deleteExisting = true,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) {
   if (data.tags) {
     await addAssignedTagList(
@@ -274,7 +274,7 @@ export async function assignWorkspaceToUser(
   agent: Agent,
   workspaceId: string,
   userId: string,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) {
   const items: AssignedItem[] = [
     withAssignedAgent(

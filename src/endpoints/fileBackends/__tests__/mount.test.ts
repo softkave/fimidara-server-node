@@ -4,7 +4,7 @@ import {
   generateFileBackendMountForTest,
 } from '../../testUtils/generateData/fileBackend';
 import {generateAndInsertTestFolders} from '../../testUtils/generateData/folder';
-import {resolveMountsForFolder, sortMounts} from '../mount';
+import {resolveMountsForFolder, sortMounts} from '../mountUtils';
 
 describe('mount utils', () => {
   test('sortMounts', () => {
@@ -28,24 +28,24 @@ describe('mount utils', () => {
     const [folder02] = await generateAndInsertTestFolders(
       1,
       {workspaceId: folder01.workspaceId, parentId: folder01.resourceId},
-      {parentNamePath: folder01.namePath}
+      {parentnamepath: folder01.namepath}
     );
     const [folder03] = await generateAndInsertTestFolders(
       1,
       {workspaceId: folder02.workspaceId, parentId: folder02.resourceId},
-      {parentNamePath: folder02.namePath}
+      {parentnamepath: folder02.namepath}
     );
     const [mounts01, mounts02, mounts03] = await Promise.all([
       generateAndInsertFileBackendMountListForTest(2, {
-        folderpath: folder01.namePath,
+        folderpath: folder01.namepath,
         workspaceId: folder01.workspaceId,
       }),
       generateAndInsertFileBackendMountListForTest(2, {
-        folderpath: folder02.namePath,
+        folderpath: folder02.namepath,
         workspaceId: folder02.workspaceId,
       }),
       generateAndInsertFileBackendMountListForTest(2, {
-        folderpath: folder03.namePath,
+        folderpath: folder03.namepath,
         workspaceId: folder03.workspaceId,
       }),
     ]);

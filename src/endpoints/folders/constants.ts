@@ -1,10 +1,10 @@
 import {endpointConstants} from '../constants';
 
-export const folderConstants = {
+export const kFolderConstants = {
   minFolderNameLength: 1,
   maxFolderNameLength: 50,
   maxFolderDepth: 10,
-  nameSeparator: '/',
+  separator: '/',
   routes: {
     addFolder: `${endpointConstants.apiv1}/folders/addFolder`,
     deleteFolder: `${endpointConstants.apiv1}/folders/deleteFolder`,

@@ -17,10 +17,10 @@ function getByName(name: string, parent?: Folder) {
   return filter.build();
 }
 
-function folderExistsByNamePath(workspaceId: string, namePath: string[]) {
+function folderExistsBynamepath(workspaceId: string, namepath: string[]) {
   return newFilter()
     .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
-    .addItem('namePath', namePath, DataProviderFilterValueOperator.Equal)
+    .addItem('namepath', namepath, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
@@ -44,10 +44,10 @@ function getFoldersByParentId(
 }
 
 // This returns folders with the exact name path
-function getByNamePath(workspaceId: string, namePath: string[]) {
+function getBynamepath(workspaceId: string, namepath: string[]) {
   return newFilter()
     .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
-    .addItem('namePath', namePath, DataProviderFilterValueOperator.Equal)
+    .addItem('namepath', namepath, DataProviderFilterValueOperator.Equal)
     .build();
 }
 
@@ -68,8 +68,8 @@ function getRootFolders(workspaceId: string) {
 export default abstract class FolderQueries {
   static getByName = getByName;
   static getByParentId = getFoldersByParentId;
-  static getByNamePath = getByNamePath;
-  static folderExistsByNamePath = folderExistsByNamePath;
+  static getBynamepath = getBynamepath;
+  static folderExistsBynamepath = folderExistsBynamepath;
   static getRootContent = getRootFolders;
   static getByAncestor = getByAncestor;
 }

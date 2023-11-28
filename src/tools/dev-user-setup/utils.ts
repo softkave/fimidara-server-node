@@ -14,8 +14,8 @@ import {
 import {INTERNAL_RespondToCollaborationRequest} from '../../endpoints/collaborationRequests/respondToRequest/utils';
 import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
 import {
-  SemanticDataAccessProviderMutationRunOptions,
-  SemanticDataAccessProviderRunOptions,
+  SemanticProviderMutationRunOptions,
+  SemanticProviderRunOptions,
 } from '../../endpoints/contexts/semantic/types';
 import {BaseContextType} from '../../endpoints/contexts/types';
 import {
@@ -133,7 +133,7 @@ async function isUserAdmin(
   context: BaseContextType,
   userId: string,
   adminPermissionGroupId: string,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
   const {inheritanceMap} = await fetchEntityAssignedPermissionGroupList(
     context,
@@ -150,7 +150,7 @@ async function makeUserAdmin(
   userId: string,
   workspace: Workspace,
   adminPermissionGroupId: string,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) {
   const isAdmin = await isUserAdmin(context, userId, adminPermissionGroupId, opts);
 
@@ -173,7 +173,7 @@ async function makeUserAdmin(
 async function getUser(
   context: BaseContextType,
   runtimeOptions: ISetupDevUserOptions,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
   const {email} = await runtimeOptions.getUserEmail();
   const userExists = await context.semantic.user.existsByEmail(email, opts);

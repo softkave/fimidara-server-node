@@ -13,32 +13,30 @@ import {appAssert} from '../../../../utils/assertion';
 import {toCompactArray} from '../../../../utils/fns';
 import {indexArray} from '../../../../utils/indexArray';
 import {getResourceTypeFromId} from '../../../../utils/resource';
-import {reuseableErrors} from '../../../../utils/reusableErrors';
+import {kReuseableErrors} from '../../../../utils/reusableErrors';
 import {DataQuery, LiteralDataQuery} from '../../data/types';
 import {BaseContextType} from '../../types';
-import {SemanticDataAccessProviderRunOptions} from '../types';
+import {SemanticProviderRunOptions} from '../types';
 import {getInAndNinQuery} from '../utils';
 import {
-  SemanticDataAccessPermissionProviderType,
-  SemanticDataAccessPermissionProviderType_CountPermissionItemsProps,
-  SemanticDataAccessPermissionProviderType_GetPermissionItemsProps,
+  SemanticPermissionProviderType,
+  SemanticPermissionProviderType_CountPermissionItemsProps,
+  SemanticPermissionProviderType_GetPermissionItemsProps,
 } from './types';
 
-export class DataSemanticDataAccessPermission
-  implements SemanticDataAccessPermissionProviderType
-{
+export class DataSemanticPermission implements SemanticPermissionProviderType {
   async getEntityInheritanceMap(
     props: {
       context: BaseContextType;
       entityId: string;
       fetchDeep?: boolean | undefined;
     },
-    options?: SemanticDataAccessProviderRunOptions | undefined
+    options?: SemanticProviderRunOptions | undefined
   ): Promise<PermissionEntityInheritanceMap> {
     {
       const {context} = props;
       const entity = this.getEntity(props);
-      appAssert(entity, reuseableErrors.entity.notFound(props.entityId));
+      appAssert(entity, kReuseableErrors.entity.notFound(props.entityId));
 
       let nextIdList = [props.entityId];
       const map: PermissionEntityInheritanceMap = {
@@ -88,7 +86,7 @@ export class DataSemanticDataAccessPermission
       entityId: string;
       fetchDeep?: boolean | undefined;
     },
-    options?: SemanticDataAccessProviderRunOptions | undefined
+    options?: SemanticProviderRunOptions | undefined
   ): Promise<{
     permissionGroups: PermissionGroup[];
     inheritanceMap: PermissionEntityInheritanceMap;
@@ -103,8 +101,8 @@ export class DataSemanticDataAccessPermission
   }
 
   async getPermissionItems(
-    props: SemanticDataAccessPermissionProviderType_GetPermissionItemsProps,
-    options?: SemanticDataAccessProviderRunOptions | undefined
+    props: SemanticPermissionProviderType_GetPermissionItemsProps,
+    options?: SemanticProviderRunOptions | undefined
   ): Promise<PermissionItem[]> {
     const {targetItemsQuery} = this.getPermissionItemsQuery(props);
     const items = await props.context.semantic.permissionItem.getManyByQuery(
@@ -127,8 +125,8 @@ export class DataSemanticDataAccessPermission
   }
 
   async countPermissionItems(
-    props: SemanticDataAccessPermissionProviderType_CountPermissionItemsProps,
-    options?: SemanticDataAccessProviderRunOptions | undefined
+    props: SemanticPermissionProviderType_CountPermissionItemsProps,
+    options?: SemanticProviderRunOptions | undefined
   ): Promise<number> {
     const {targetItemsQuery} = this.getPermissionItemsQuery(props);
     return await props.context.semantic.permissionItem.countByQuery(
@@ -142,7 +140,7 @@ export class DataSemanticDataAccessPermission
       context: BaseContextType;
       entityId: string;
     },
-    opts?: SemanticDataAccessProviderRunOptions
+    opts?: SemanticProviderRunOptions
   ): Promise<Resource | null> {
     const type = getResourceTypeFromId(props.entityId);
     const query: LiteralDataQuery<Resource> = {resourceId: props.entityId};

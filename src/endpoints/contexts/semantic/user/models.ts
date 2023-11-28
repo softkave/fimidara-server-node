@@ -1,16 +1,16 @@
 import {User} from '../../../../definitions/user';
 import {getLowercaseRegExpForString} from '../../../../utils/fns';
-import {DataSemanticDataAccessBaseProvider} from '../DataSemanticDataAccessBaseProvider';
-import {SemanticDataAccessProviderRunOptions} from '../types';
-import {SemanticDataAccessUserProviderType} from './types';
+import {DataSemanticBaseProvider} from '../DataSemanticBaseProvider';
+import {SemanticProviderRunOptions} from '../types';
+import {SemanticUserProviderType} from './types';
 
-export class DataSemanticDataAccessUser
-  extends DataSemanticDataAccessBaseProvider<User>
-  implements SemanticDataAccessUserProviderType
+export class DataSemanticUser
+  extends DataSemanticBaseProvider<User>
+  implements SemanticUserProviderType
 {
   async getByEmail(
     email: string,
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<User | null> {
     return await this.data.getOneByQuery(
       {email: {$regex: getLowercaseRegExpForString(email)}},
@@ -20,7 +20,7 @@ export class DataSemanticDataAccessUser
 
   async existsByEmail(
     email: string,
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<boolean> {
     return await this.data.existsByQuery(
       {email: {$regex: getLowercaseRegExpForString(email)}},

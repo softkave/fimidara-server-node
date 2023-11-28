@@ -1,5 +1,5 @@
 import {FileBackendConfig} from '../../../../definitions/fileBackend';
-import {SemanticDataAccessWorkspaceResourceProviderType} from '../types';
+import {SemanticWorkspaceResourceProviderType} from '../types';
 
-export interface SemanticDataAccessFileBackendConfigProvider
-  extends SemanticDataAccessWorkspaceResourceProviderType<FileBackendConfig> {}
+export interface SemanticFileBackendConfigProvider
+  extends SemanticWorkspaceResourceProviderType<FileBackendConfig> {}

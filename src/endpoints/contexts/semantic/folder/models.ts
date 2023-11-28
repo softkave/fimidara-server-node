@@ -1,21 +1,21 @@
 import {Folder} from '../../../../definitions/folder';
 import {DataProviderQueryListParams, FolderQuery} from '../../data/types';
-import {DataSemanticDataAccessWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
-import {SemanticDataAccessProviderRunOptions} from '../types';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticWorkspaceResourceProvider';
+import {SemanticProviderRunOptions} from '../types';
 import {getInAndNinQuery} from '../utils';
-import {SemanticDataAccessFolderProvider} from './types';
+import {SemanticFolderProvider} from './types';
 
-export class DataSemanticDataAccessFolder
-  extends DataSemanticDataAccessWorkspaceResourceProvider<Folder>
-  implements SemanticDataAccessFolderProvider
+export class DataSemanticFolder
+  extends DataSemanticWorkspaceResourceProvider<Folder>
+  implements SemanticFolderProvider
 {
-  async getOneByNamePath(
+  async getOneBynamepath(
     workspaceId: string,
-    namePath: string[],
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    namepath: string[],
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<Folder | null> {
     return await this.data.getOneByQuery(
-      {workspaceId, namePath: {$all: namePath, $size: namePath.length}},
+      {workspaceId, namepath: {$all: namepath, $size: namepath.length}},
       opts
     );
   }
@@ -28,13 +28,17 @@ export class DataSemanticDataAccessFolder
       excludeResourceIdList?: string[] | undefined;
     },
     options?:
-      | (DataProviderQueryListParams<Folder> & SemanticDataAccessProviderRunOptions)
+      | (DataProviderQueryListParams<Folder> & SemanticProviderRunOptions)
       | undefined
   ): Promise<Folder[]> {
     const folderQuery: FolderQuery = {
       workspaceId: query.workspaceId,
       parentId: query.parentId,
-      ...getInAndNinQuery<Folder>('resourceId', query.resourceIdList, query.excludeResourceIdList),
+      ...getInAndNinQuery<Folder>(
+        'resourceId',
+        query.resourceIdList,
+        query.excludeResourceIdList
+      ),
     };
     return await this.data.getManyByQuery(folderQuery, options);
   }
@@ -46,7 +50,7 @@ export class DataSemanticDataAccessFolder
       resourceIdList?: string[] | undefined;
       excludeResourceIdList?: string[] | undefined;
     },
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<number> {
     return await this.data.countByQuery(
       {

@@ -3,7 +3,7 @@ import {SessionAgent} from '../../definitions/system';
 import {PublicCollaborator, UserWithWorkspace} from '../../definitions/user';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {SemanticDataAccessProviderRunOptions} from '../contexts/semantic/types';
+import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {assertUser} from '../users/utils';
@@ -42,7 +42,7 @@ export async function checkCollaboratorAuthorization(
   workspaceId: string,
   collaborator: UserWithWorkspace,
   action: PermissionAction,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
   const userWorkspace = getCollaboratorWorkspace(collaborator, workspaceId);
   if (!userWorkspace) {

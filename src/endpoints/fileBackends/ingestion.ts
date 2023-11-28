@@ -13,21 +13,18 @@ import {
 import {appAssert} from '../../utils/assertion';
 import {DataQuery} from '../contexts/data/types';
 import {PersistedFileDescription} from '../contexts/file/types';
-import {kInjectionKeys} from '../contexts/injectionKeys';
+import {kInjectionKeys} from '../contexts/injection';
 import {JobsLogicProvider} from '../contexts/logic/JobsLogicProvider';
-import {SemanticDataAccessFileProvider} from '../contexts/semantic/file/types';
-import {SemanticDataAccessFolderProvider} from '../contexts/semantic/folder/types';
-import {
-  SemanticDataAccessJobProvider,
-  SemanticDataAccessProviderUtils,
-} from '../contexts/semantic/types';
-import {stringifyFileNamePath} from '../files/utils';
-import {stringifyFolderNamePath} from '../folders/utils';
+import {SemanticFileProvider} from '../contexts/semantic/file/types';
+import {SemanticFolderProvider} from '../contexts/semantic/folder/types';
+import {SemanticJobProvider, SemanticProviderUtils} from '../contexts/semantic/types';
+import {stringifyFilenamepath} from '../files/utils';
+import {stringifyFoldernamepath} from '../folders/utils';
 import {
   initBackendProvidersFromConfigs,
   resolveBackendConfigsFromMounts,
-} from './configs';
-import {resolveMountsForFolder} from './mount';
+} from './configUtils';
+import {resolveMountsForFolder} from './mountUtils';
 
 /**
  * - how do redo in case of error?
@@ -36,11 +33,11 @@ import {resolveMountsForFolder} from './mount';
  * - calculate cost of ingestion and show customer
  */
 
-export async function ingestFolderpath(folder: Pick<Folder, 'workspaceId' | 'namePath'>) {
+export async function ingestFolderpath(folder: Pick<Folder, 'workspaceId' | 'namepath'>) {
   const {mounts, mountWeights} = await resolveMountsForFolder(folder);
 
   for (const mount of mounts) {
-    await ingestFolderpathFromMount(stringifyFolderNamePath(folder), mount, mountWeights);
+    await ingestFolderpathFromMount(stringifyFoldernamepath(folder), mount, mountWeights);
   }
 }
 
@@ -51,10 +48,8 @@ async function ingestFolderpathFromMount(
   parentJob?: Job
 ) {
   const jobsLogic = container.resolve<JobsLogicProvider>(kInjectionKeys.logic.jobs);
-  const jobsModel = container.resolve<SemanticDataAccessJobProvider>(
-    kInjectionKeys.semantic.jobs
-  );
-  const semanticUtils = container.resolve<SemanticDataAccessProviderUtils>(
+  const jobsModel = container.resolve<SemanticJobProvider>(kInjectionKeys.semantic.jobs);
+  const semanticUtils = container.resolve<SemanticProviderUtils>(
     kInjectionKeys.semantic.utils
   );
 
@@ -105,7 +100,7 @@ async function ingestFolderpathFromMount(
     let children: PersistedFileDescription[] = [];
 
     do {
-      ({children, page} = await provider.listFolderChildren({page, key: folderpath}));
+      ({children, page} = await provider.describeFolderChildren({page, key: folderpath}));
 
       const files: File[] = [];
       const folders: Folder[] = [];
@@ -130,7 +125,7 @@ async function ingestFolderpathFromMount(
           type: JobTypeMap.IngestFolderpath,
           workspaceId: mount.workspaceId,
           params: {
-            folderpath: stringifyFolderNamePath(folder),
+            folderpath: stringifyFoldernamepath(folder),
             mountId: mount.resourceId,
             immediateChildrenIngested: false,
           },
@@ -168,27 +163,25 @@ async function ingestFiles(
   mount: FileBackendMount,
   mountWeights: Record<string, number>
 ) {
-  const fileModel = container.resolve<SemanticDataAccessFileProvider>(
-    kInjectionKeys.semantic.file
-  );
-  const semanticUtils = container.resolve<SemanticDataAccessProviderUtils>(
+  const fileModel = container.resolve<SemanticFileProvider>(kInjectionKeys.semantic.file);
+  const semanticUtils = container.resolve<SemanticProviderUtils>(
     kInjectionKeys.semantic.utils
   );
 
   await semanticUtils.withTxn(async opts => {
     const existingFiles = await Promise.all(
       files.map(file =>
-        fileModel.getOneByNamePath(mount.workspaceId, file.namePath, file.extension, opts)
+        fileModel.getOneBynamepath(mount.workspaceId, file.namepath, file.extension, opts)
       )
     );
 
     const existingFilesMap = keyBy(existingFiles, file =>
-      file ? stringifyFileNamePath(file) : ''
+      file ? stringifyFilenamepath(file) : ''
     );
 
     await Promise.all(
       files.map(file => {
-        const existingFile = existingFilesMap[stringifyFileNamePath(file)];
+        const existingFile = existingFilesMap[stringifyFilenamepath(file)];
 
         if (existingFile) {
           const mountEntries = uniqAndSortMountEntries(
@@ -209,27 +202,27 @@ async function ingestFolders(
   mount: FileBackendMount,
   mountWeights: Record<string, number>
 ) {
-  const folderModel = container.resolve<SemanticDataAccessFolderProvider>(
+  const folderModel = container.resolve<SemanticFolderProvider>(
     kInjectionKeys.semantic.folder
   );
-  const semanticUtils = container.resolve<SemanticDataAccessProviderUtils>(
+  const semanticUtils = container.resolve<SemanticProviderUtils>(
     kInjectionKeys.semantic.utils
   );
 
   await semanticUtils.withTxn(async opts => {
     const existingFolders = await Promise.all(
       folders.map(folder =>
-        folderModel.getOneByNamePath(mount.workspaceId, folder.namePath, opts)
+        folderModel.getOneBynamepath(mount.workspaceId, folder.namepath, opts)
       )
     );
 
     const existingFoldersMap = keyBy(existingFolders, folder =>
-      folder ? stringifyFolderNamePath(folder) : ''
+      folder ? stringifyFoldernamepath(folder) : ''
     );
 
     await Promise.all(
       folders.map(folder => {
-        const existingFolder = existingFoldersMap[stringifyFolderNamePath(folder)];
+        const existingFolder = existingFoldersMap[stringifyFoldernamepath(folder)];
 
         if (existingFolder) {
           const mountEntries = uniqAndSortMountEntries(

@@ -1,7 +1,7 @@
 import {addMinutes, isBefore} from 'date-fns';
 import {User} from '../../../definitions/user';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
-import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
 import {RateLimitError} from '../../errors';
 import {userConstants} from '../constants';
@@ -21,7 +21,7 @@ const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async (
 export async function INTERNAL_sendEmailVerificationCode(
   context: BaseContextType,
   user: User,
-  opts?: SemanticDataAccessProviderMutationRunOptions
+  opts?: SemanticProviderMutationRunOptions
 ) {
   await context.semantic.utils.withTxn(
     context,
@@ -71,7 +71,7 @@ export async function INTERNAL_sendEmailVerificationCode(
 export async function getConfirmEmailLink(
   context: BaseContextType,
   user: User,
-  opts?: SemanticDataAccessProviderMutationRunOptions
+  opts?: SemanticProviderMutationRunOptions
 ) {
   return await withConfirmEmailAddressToken(
     context,

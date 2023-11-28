@@ -21,10 +21,10 @@ import {
 } from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {getResourceTypeFromId, newWorkspaceResource} from '../../../utils/resource';
-import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
 import {InvalidRequestError} from '../../errors';
-import {folderConstants} from '../../folders/constants';
+import {kFolderConstants} from '../../folders/constants';
 import {PermissionItemInputTarget} from '../types';
 import {
   getPermissionItemEntities,
@@ -47,7 +47,7 @@ export const INTERNAL_addPermissionItems = async (
   agent: SessionAgent,
   workspace: Workspace,
   data: AddPermissionItemsEndpointParams,
-  opts: SemanticDataAccessProviderMutationRunOptions
+  opts: SemanticProviderMutationRunOptions
 ) => {
   let inputEntities: string[] = [];
   let inputTargets: PermissionItemInputTarget[] = [];
@@ -72,13 +72,13 @@ export const INTERNAL_addPermissionItems = async (
     getPermissionItemTargets(context, agent, workspace, inputTargets),
   ]);
 
-  const indexByNamePath = (item: ResourceWrapper) => {
+  const indexBynamepath = (item: ResourceWrapper) => {
     if (
       item.resourceType === AppResourceTypeMap.File ||
       item.resourceType === AppResourceTypeMap.Folder
     ) {
-      return (item.resource as unknown as Pick<File, 'namePath'>).namePath.join(
-        folderConstants.nameSeparator
+      return (item.resource as unknown as Pick<File, 'namepath'>).namepath.join(
+        kFolderConstants.separator
       );
     } else {
       return '';
@@ -87,7 +87,7 @@ export const INTERNAL_addPermissionItems = async (
 
   const entitiesMapById = indexArray(entities, {path: 'resourceId'});
   const targetsMapById = indexArray(targets, {path: 'resourceId'});
-  const targetsMapByNamepath = indexArray(targets, {indexer: indexByNamePath});
+  const targetsMapBynamepath = indexArray(targets, {indexer: indexBynamepath});
   const workspaceWrapper: ResourceWrapper = {
     resource: workspace,
     resourceId: workspace.resourceId,
@@ -122,14 +122,14 @@ export const INTERNAL_addPermissionItems = async (
 
     if (inputTarget.folderpath) {
       toNonNullableArray(inputTarget.folderpath).forEach(folderpath => {
-        const folder = targetsMapByNamepath[folderpath];
+        const folder = targetsMapBynamepath[folderpath];
         if (folder) resourceTargets[folder.resourceId] = folder;
       });
     }
 
     if (inputTarget.filepath) {
       toNonNullableArray(inputTarget.filepath).forEach(filepath => {
-        const file = targetsMapByNamepath[filepath];
+        const file = targetsMapBynamepath[filepath];
         if (file) resourceTargets[file.resourceId] = file;
       });
     }

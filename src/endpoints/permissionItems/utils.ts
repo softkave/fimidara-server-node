@@ -10,7 +10,7 @@ import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {toArray} from '../../utils/fns';
 import {getResourceTypeFromId} from '../../utils/resource';
-import {reuseableErrors} from '../../utils/reusableErrors';
+import {kReuseableErrors} from '../../utils/reusableErrors';
 import {BaseContextType} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {checkResourcesBelongsToWorkspace} from '../resources/containerCheckFns';
@@ -34,7 +34,7 @@ export const permissionItemExtractor = makeExtract(permissionItemFields);
 export const permissionItemListExtractor = makeListExtract(permissionItemFields);
 
 export function throwPermissionItemNotFound() {
-  throw reuseableErrors.permissionItem.notFound();
+  throw kReuseableErrors.permissionItem.notFound();
 }
 
 export abstract class PermissionItemUtils {
@@ -56,7 +56,7 @@ export function getTargetType(data: {targetId?: string; targetType?: AppResource
 }
 
 export function assertPermissionItem(item?: PermissionItem | null): asserts item {
-  appAssert(item, reuseableErrors.permissionItem.notFound());
+  appAssert(item, kReuseableErrors.permissionItem.notFound());
 }
 
 export async function getPermissionItemEntities(

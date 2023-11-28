@@ -50,10 +50,12 @@ export const kPermissionsMap = {
   configFileBackend: 'configFileBackend',
   deleteFileBackendConfig: 'deleteFileBackendConfig',
   readFileBackendConfig: 'readFileBackendConfig',
+  updateFileBackendConfig: 'updateFileBackendConfig',
   addFileBackendMount: 'addFileBackendMount',
   deleteFileBackendMount: 'deleteFileBackendMount',
   ingestFileBackendMount: 'ingestFileBackendMount',
   readFileBackendMount: 'readFileBackendMount',
+  updateFileBackendMount: 'updateFileBackendMount',
 } as const;
 
 export type PermissionAction = ObjectValues<typeof kPermissionsMap>;

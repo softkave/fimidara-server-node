@@ -1,23 +1,23 @@
 import {PermissionItem} from '../../../../definitions/permissionItem';
 import {toNonNullableArray} from '../../../../utils/fns';
-import {DataSemanticDataAccessWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
-import {SemanticDataAccessProviderMutationRunOptions} from '../types';
-import {SemanticDataAccessPermissionItemProviderType} from './types';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticWorkspaceResourceProvider';
+import {SemanticProviderMutationRunOptions} from '../types';
+import {SemanticPermissionItemProviderType} from './types';
 
-export class DataSemanticDataAccessPermissionItem
-  extends DataSemanticDataAccessWorkspaceResourceProvider<PermissionItem>
-  implements SemanticDataAccessPermissionItemProviderType
+export class DataSemanticPermissionItem
+  extends DataSemanticWorkspaceResourceProvider<PermissionItem>
+  implements SemanticPermissionItemProviderType
 {
   async deleteManyByEntityId(
     id: string | string[],
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticProviderMutationRunOptions
   ): Promise<void> {
     await this.data.deleteManyByQuery({entityId: {$in: toNonNullableArray(id)}}, opts);
   }
 
   async deleteManyByTargetId(
     id: string | string[],
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticProviderMutationRunOptions
   ): Promise<void> {
     await this.data.deleteManyByQuery({targetId: {$in: toNonNullableArray(id)}}, opts);
   }

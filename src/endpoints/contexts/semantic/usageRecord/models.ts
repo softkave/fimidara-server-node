@@ -1,7 +1,7 @@
 import {UsageRecord} from '../../../../definitions/usageRecord';
-import {DataSemanticDataAccessWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
-import {SemanticDataAccessUsageRecordProviderType} from './types';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticWorkspaceResourceProvider';
+import {SemanticUsageRecordProviderType} from './types';
 
-export class DataSemanticDataAccessUsageRecord
-  extends DataSemanticDataAccessWorkspaceResourceProvider<UsageRecord>
-  implements SemanticDataAccessUsageRecordProviderType {}
+export class DataSemanticUsageRecord
+  extends DataSemanticWorkspaceResourceProvider<UsageRecord>
+  implements SemanticUsageRecordProviderType {}

@@ -13,12 +13,12 @@ import {getTimestamp} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {getResourceId} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
-import {reuseableErrors} from '../../utils/reusableErrors';
+import {kReuseableErrors} from '../../utils/reusableErrors';
 import {assertGetWorkspaceIdFromAgent} from '../../utils/sessionUtils';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {
-  SemanticDataAccessProviderMutationRunOptions,
-  SemanticDataAccessProviderRunOptions,
+  SemanticProviderMutationRunOptions,
+  SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {InvalidRequestError, NotFoundError} from '../errors';
@@ -54,7 +54,7 @@ export async function checkPermissionGroupAuthorization(
   agent: SessionAgent,
   permissionGroup: PermissionGroup,
   action: PermissionAction,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
   const workspace = await checkWorkspaceExists(context, permissionGroup.workspaceId);
   await checkAuthorizationWithAgent({
@@ -84,7 +84,7 @@ export async function checkPermissionGroupAuthorization03(
   agent: SessionAgent,
   input: PermissionGroupMatcher,
   action: PermissionAction,
-  opts?: SemanticDataAccessProviderRunOptions
+  opts?: SemanticProviderRunOptions
 ) {
   let permissionGroup: PermissionGroup | null = null;
 
@@ -114,7 +114,7 @@ export async function checkPermissionGroupsExist(
   context: BaseContextType,
   workspaceId: string,
   permissionGroupInputs: AssignPermissionGroupInput[],
-  opts?: SemanticDataAccessProviderMutationRunOptions
+  opts?: SemanticProviderMutationRunOptions
 ) {
   const idList = permissionGroupInputs.map(item => item.permissionGroupId);
 
@@ -128,7 +128,7 @@ export async function checkPermissionGroupsExist(
   if (idList.length !== permissionGroups.length) {
     const map = indexArray(permissionGroups, {indexer: getResourceId});
     idList.forEach(id =>
-      appAssert(map[id], reuseableErrors.permissionGroup.notFound(id))
+      appAssert(map[id], kReuseableErrors.permissionGroup.notFound(id))
     );
   }
 }
@@ -159,5 +159,5 @@ export function throwPermissionGroupNotFound() {
 export function assertPermissionGroup(
   permissionGroup?: PermissionGroup | null
 ): asserts permissionGroup {
-  appAssert(permissionGroup, reuseableErrors.permissionGroup.notFound());
+  appAssert(permissionGroup, kReuseableErrors.permissionGroup.notFound());
 }

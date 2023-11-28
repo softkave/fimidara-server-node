@@ -11,7 +11,7 @@ import {User} from '../../../definitions/user';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {newResource} from '../../../utils/resource';
 import {validate} from '../../../utils/validate';
-import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
 import {userConstants} from '../constants';
 import {assertUser} from '../utils';
@@ -29,7 +29,7 @@ export const forgotPassword: ForgotPasswordEndpoint = async (context, instData) 
 export async function INTERNAL_forgotPassword(
   context: BaseContextType,
   user: User,
-  opts?: SemanticDataAccessProviderMutationRunOptions
+  opts?: SemanticProviderMutationRunOptions
 ) {
   const forgotToken = await getForgotPasswordToken(context, user, opts);
   const link = getForgotPasswordLinkFromToken(context, forgotToken);
@@ -67,7 +67,7 @@ export function getForgotPasswordLinkFromToken(
 export async function getForgotPasswordToken(
   context: BaseContextType,
   user: User,
-  opts?: SemanticDataAccessProviderMutationRunOptions
+  opts?: SemanticProviderMutationRunOptions
 ) {
   const expiration = getForgotPasswordExpiration();
   const forgotToken = newResource<AgentToken>(AppResourceTypeMap.AgentToken, {

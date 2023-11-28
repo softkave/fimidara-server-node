@@ -2,13 +2,13 @@ import {Resource} from '../../../definitions/system';
 import {toArray} from '../../../utils/fns';
 import {BaseDataProvider, DataProviderQueryListParams, DataQuery} from '../data/types';
 import {
-  SemanticDataAccessBaseProviderType,
-  SemanticDataAccessProviderMutationRunOptions,
-  SemanticDataAccessProviderRunOptions,
+  SemanticBaseProviderType,
+  SemanticProviderMutationRunOptions,
+  SemanticProviderRunOptions,
 } from './types';
 
-export class DataSemanticDataAccessBaseProvider<T extends Resource>
-  implements SemanticDataAccessBaseProviderType<T>
+export class DataSemanticBaseProvider<T extends Resource>
+  implements SemanticBaseProviderType<T>
 {
   constructor(
     protected data: BaseDataProvider<T, DataQuery<T>>,
@@ -17,14 +17,14 @@ export class DataSemanticDataAccessBaseProvider<T extends Resource>
 
   async insertItem(
     item: T | T[],
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticProviderMutationRunOptions
   ): Promise<void> {
     await this.data.insertList(toArray(item), opts);
   }
 
   async getOneById(
     id: string,
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<T | null> {
     const query: DataQuery<Resource> = {resourceId: id};
     return await this.data.getOneByQuery(query as DataQuery<T>, opts);
@@ -32,7 +32,7 @@ export class DataSemanticDataAccessBaseProvider<T extends Resource>
 
   async existsById(
     id: string,
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<boolean> {
     const query: DataQuery<Resource> = {resourceId: id};
     return await this.data.existsByQuery(query as DataQuery<T>, opts);
@@ -41,7 +41,7 @@ export class DataSemanticDataAccessBaseProvider<T extends Resource>
   async updateOneById(
     id: string,
     update: Partial<T>,
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticProviderMutationRunOptions
   ): Promise<void> {
     const query: DataQuery<Resource> = {resourceId: id};
     return await this.data.updateOneByQuery(query as DataQuery<T>, update, opts);
@@ -50,7 +50,7 @@ export class DataSemanticDataAccessBaseProvider<T extends Resource>
   async updateManyByQuery(
     query: DataQuery<T>,
     update: Partial<T>,
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticProviderMutationRunOptions
   ): Promise<void> {
     return await this.data.updateManyByQuery(query as DataQuery<T>, update, opts);
   }
@@ -58,7 +58,7 @@ export class DataSemanticDataAccessBaseProvider<T extends Resource>
   async getAndUpdateOneById(
     id: string,
     update: Partial<T>,
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticProviderMutationRunOptions
   ): Promise<T> {
     const query: DataQuery<Resource> = {resourceId: id};
     const item = await this.data.getAndUpdateOneByQuery(
@@ -73,14 +73,14 @@ export class DataSemanticDataAccessBaseProvider<T extends Resource>
   async getAndUpdateManyByQuery(
     query: DataQuery<T>,
     update: Partial<T>,
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticProviderMutationRunOptions
   ): Promise<T[]> {
     return await await this.data.getAndUpdateManyByQuery(query, update, opts);
   }
 
   async deleteManyByIdList(
     idList: string[],
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticProviderMutationRunOptions
   ): Promise<void> {
     const query: DataQuery<Resource> = {resourceId: {$in: idList}};
     await this.data.deleteManyByQuery(query as DataQuery<T>, opts);
@@ -88,7 +88,7 @@ export class DataSemanticDataAccessBaseProvider<T extends Resource>
 
   async deleteOneById(
     id: string,
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticProviderMutationRunOptions
   ): Promise<void> {
     const query: DataQuery<Resource> = {resourceId: id};
     await this.data.deleteOneByQuery(query as DataQuery<T>, opts);
@@ -96,7 +96,7 @@ export class DataSemanticDataAccessBaseProvider<T extends Resource>
 
   async countManyByIdList(
     idList: string[],
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<number> {
     const query: DataQuery<Resource> = {resourceId: {$in: idList}};
     return await this.data.countByQuery(query as DataQuery<T>, opts);
@@ -104,9 +104,7 @@ export class DataSemanticDataAccessBaseProvider<T extends Resource>
 
   async getManyByIdList(
     idList: string[],
-    options?:
-      | (DataProviderQueryListParams<T> & SemanticDataAccessProviderRunOptions)
-      | undefined
+    options?: (DataProviderQueryListParams<T> & SemanticProviderRunOptions) | undefined
   ): Promise<T[]> {
     const query: DataQuery<Resource> = {resourceId: {$in: idList}};
     return await this.data.getManyByQuery(query as DataQuery<T>, options);
@@ -114,32 +112,28 @@ export class DataSemanticDataAccessBaseProvider<T extends Resource>
 
   async countByQuery(
     query: DataQuery<T>,
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<number> {
     return await this.data.countByQuery(query, opts);
   }
 
   async getManyByQuery(
     query: DataQuery<T>,
-    options?:
-      | (DataProviderQueryListParams<T> & SemanticDataAccessProviderRunOptions)
-      | undefined
+    options?: (DataProviderQueryListParams<T> & SemanticProviderRunOptions) | undefined
   ): Promise<T[]> {
     return await this.data.getManyByQuery(query, options);
   }
 
   async getManyByQueryList(
     query: DataQuery<T>[],
-    options?:
-      | (DataProviderQueryListParams<T> & SemanticDataAccessProviderRunOptions)
-      | undefined
+    options?: (DataProviderQueryListParams<T> & SemanticProviderRunOptions) | undefined
   ): Promise<T[]> {
     return await this.data.getManyByQueryList(query, options);
   }
 
   async assertGetOneByQuery(
     query: DataQuery<T>,
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<T> {
     const item = await this.data.getOneByQuery(query, opts);
     this.assertFn(item);
@@ -148,21 +142,21 @@ export class DataSemanticDataAccessBaseProvider<T extends Resource>
 
   async existsByQuery(
     query: DataQuery<T>,
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<boolean> {
     return await this.data.existsByQuery(query, opts);
   }
 
   async getOneByQuery(
     query: DataQuery<T>,
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<T | null> {
     return await this.data.getOneByQuery(query, opts);
   }
 
   async deleteManyByQuery(
     query: DataQuery<T>,
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticProviderMutationRunOptions
   ): Promise<void> {
     await this.data.deleteManyByQuery(query, opts);
   }

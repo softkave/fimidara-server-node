@@ -10,7 +10,7 @@ import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {ByteCounterPassThroughStream} from '../../../utils/streams';
 import {validate} from '../../../utils/validate';
 import {FileBackendProvider} from '../../contexts/file/types';
-import {kInjectionKeys} from '../../contexts/injectionKeys';
+import {kInjectionKeys} from '../../contexts/injection';
 import {FileNotWritableError} from '../errors';
 import {getFileWithMatcher} from '../getFilesWithMatcher';
 import {
@@ -74,8 +74,8 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
           extension: pathinfo.extension,
           name: pathinfo.filenameExcludingExt,
           idPath: parentFolder ? parentFolder.idPath.concat(fileId) : [fileId],
-          namePath: parentFolder
-            ? parentFolder.namePath.concat(pathinfo.filenameExcludingExt)
+          namepath: parentFolder
+            ? parentFolder.namepath.concat(pathinfo.filenameExcludingExt)
             : [pathinfo.filenameExcludingExt],
           parentId: parentFolder?.resourceId ?? null,
           size: 0,

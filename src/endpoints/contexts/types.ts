@@ -25,22 +25,22 @@ import {IEmailProviderContext} from './email/types';
 import {FilePersistenceProvider} from './file/types';
 import {PermissionsLogicProvider} from './logic/PermissionsLogicProvider';
 import {UsageRecordLogicProvider} from './logic/UsageRecordLogicProvider';
-import {SemanticDataAccessAgentTokenProvider} from './semantic/agentToken/types';
-import {SemanticDataAccessAssignedItemProvider} from './semantic/assignedItem/types';
-import {SemanticDataAccessCollaborationRequestProvider} from './semantic/collaborationRequest/types';
+import {SemanticAgentTokenProvider} from './semantic/agentToken/types';
+import {SemanticAssignedItemProvider} from './semantic/assignedItem/types';
+import {SemanticCollaborationRequestProvider} from './semantic/collaborationRequest/types';
 import {
-  SemanticDataAccessFilePresignedPathProvider,
-  SemanticDataAccessFileProvider,
+  SemanticFilePresignedPathProvider,
+  SemanticFileProvider,
 } from './semantic/file/types';
-import {SemanticDataAccessFolderProvider} from './semantic/folder/types';
-import {SemanticDataAccessPermissionProviderType} from './semantic/permission/types';
-import {SemanticDataAccessPermissionGroupProviderType} from './semantic/permissionGroup/types';
-import {SemanticDataAccessPermissionItemProviderType} from './semantic/permissionItem/types';
-import {SemanticDataAccessTagProviderType} from './semantic/tag/types';
-import {SemanticDataAccessProviderUtils} from './semantic/types';
-import {SemanticDataAccessUsageRecordProviderType} from './semantic/usageRecord/types';
-import {SemanticDataAccessUserProviderType} from './semantic/user/types';
-import {SemanticDataAccessWorkspaceProviderType} from './semantic/workspace/types';
+import {SemanticFolderProvider} from './semantic/folder/types';
+import {SemanticPermissionProviderType} from './semantic/permission/types';
+import {SemanticPermissionGroupProviderType} from './semantic/permissionGroup/types';
+import {SemanticPermissionItemProviderType} from './semantic/permissionItem/types';
+import {SemanticTagProviderType} from './semantic/tag/types';
+import {SemanticProviderUtils} from './semantic/types';
+import {SemanticUsageRecordProviderType} from './semantic/usageRecord/types';
+import {SemanticUserProviderType} from './semantic/user/types';
+import {SemanticWorkspaceProviderType} from './semantic/workspace/types';
 
 export interface IServerRequest extends Request {
   // decoded JWT token using the expressJWT middleware
@@ -73,20 +73,20 @@ export interface BaseContextLogicProviders {
 }
 
 export interface BaseContextSemanticDataProviders {
-  permissions: SemanticDataAccessPermissionProviderType;
-  workspace: SemanticDataAccessWorkspaceProviderType;
-  permissionGroup: SemanticDataAccessPermissionGroupProviderType;
-  permissionItem: SemanticDataAccessPermissionItemProviderType;
-  assignedItem: SemanticDataAccessAssignedItemProvider;
-  agentToken: SemanticDataAccessAgentTokenProvider;
-  collaborationRequest: SemanticDataAccessCollaborationRequestProvider;
-  folder: SemanticDataAccessFolderProvider;
-  file: SemanticDataAccessFileProvider;
-  tag: SemanticDataAccessTagProviderType;
-  usageRecord: SemanticDataAccessUsageRecordProviderType;
-  user: SemanticDataAccessUserProviderType;
-  filePresignedPath: SemanticDataAccessFilePresignedPathProvider;
-  utils: SemanticDataAccessProviderUtils;
+  permissions: SemanticPermissionProviderType;
+  workspace: SemanticWorkspaceProviderType;
+  permissionGroup: SemanticPermissionGroupProviderType;
+  permissionItem: SemanticPermissionItemProviderType;
+  assignedItem: SemanticAssignedItemProvider;
+  agentToken: SemanticAgentTokenProvider;
+  collaborationRequest: SemanticCollaborationRequestProvider;
+  folder: SemanticFolderProvider;
+  file: SemanticFileProvider;
+  tag: SemanticTagProviderType;
+  usageRecord: SemanticUsageRecordProviderType;
+  user: SemanticUserProviderType;
+  filePresignedPath: SemanticFilePresignedPathProvider;
+  utils: SemanticProviderUtils;
 }
 
 export type MongoBackedSemanticDataProviders = BaseContextSemanticDataProviders;

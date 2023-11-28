@@ -32,9 +32,13 @@ export interface FileBackendMount extends WorkspaceResource {
   product: FileBackendProductType;
   type: FileBackendType;
   configId: string;
+  name: string;
+  description?: string;
 }
 
 export interface FileBackendConfig extends WorkspaceResource {
+  name: string;
+  description?: string;
   type: FileBackendType;
   /** Encrypted JSON string */
   credentials: string;

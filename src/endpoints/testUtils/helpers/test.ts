@@ -1,6 +1,6 @@
 import {toCompactArray} from '../../../utils/fns';
 import {AnyFn} from '../../../utils/types';
-import {SemanticDataAccessProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {BaseContextType} from '../../contexts/types';
 import {globalDispose} from '../../globalUtils';
 import {executeServerInstanceJobs, waitForServerInstanceJobs} from '../../jobs/runner';
@@ -8,7 +8,7 @@ import {executeServerInstanceJobs, waitForServerInstanceJobs} from '../../jobs/r
 export function mutationTest(
   context: BaseContextType,
   name: string,
-  fn: AnyFn<[SemanticDataAccessProviderMutationRunOptions]>,
+  fn: AnyFn<[SemanticProviderMutationRunOptions]>,
   timeout?: number
 ) {
   context.semantic.utils.withTxn(context, async options => {
@@ -19,7 +19,7 @@ export function mutationTest(
 export function setupMutationTesting(context: BaseContextType) {
   async function mutationTest(
     name: string,
-    fn: AnyFn<[SemanticDataAccessProviderMutationRunOptions]>,
+    fn: AnyFn<[SemanticProviderMutationRunOptions]>,
     timeout?: number
   ) {
     context.semantic.utils.withTxn(context, async options => {

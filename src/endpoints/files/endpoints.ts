@@ -7,7 +7,7 @@ import {toArray} from '../../utils/fns';
 import {tryGetResourceTypeFromId} from '../../utils/resource';
 import {endpointConstants} from '../constants';
 import {InvalidRequestError} from '../errors';
-import {folderConstants} from '../folders/constants';
+import {kFolderConstants} from '../folders/constants';
 import {endpointDecodeURIComponent} from '../utils';
 import {fileConstants} from './constants';
 import deleteFile from './deleteFile/handler';
@@ -22,7 +22,7 @@ import {
   uploadFileEndpointDefinition,
 } from './endpoints.mddoc';
 import getFileDetails from './getFileDetails/handler';
-import getPresignedPathsForFiles from './getPresignedPathsForFiles/handler';
+import getPresignedPathsForFiles from './getPresignedPaths/handler';
 import issueFilePresignedPath from './issueFilePresignedPath/handler';
 import readFile from './readFile/handler';
 import {
@@ -62,12 +62,12 @@ function extractFilepathOrIdFromReqPath(req: Request, endpointPath: string) {
   const reqPath = req.path;
   let filepath = endpointDecodeURIComponent(last(reqPath.split(endpointPath)));
   let fileId: string | undefined = undefined;
-  const maybeFileId = filepath?.replace(folderConstants.nameSeparator, '');
+  const maybeFileId = filepath?.replace(kFolderConstants.separator, '');
 
   if (
     maybeFileId &&
     tryGetResourceTypeFromId(maybeFileId) === AppResourceTypeMap.File &&
-    maybeFileId.includes(folderConstants.nameSeparator) === false
+    maybeFileId.includes(kFolderConstants.separator) === false
   ) {
     fileId = maybeFileId;
     filepath = undefined;

@@ -1,16 +1,16 @@
 import {Workspace} from '../../../../definitions/workspace';
 import {getLowercaseRegExpForString} from '../../../../utils/fns';
-import {DataSemanticDataAccessWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
-import {SemanticDataAccessProviderRunOptions} from '../types';
-import {SemanticDataAccessWorkspaceProviderType} from './types';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticWorkspaceResourceProvider';
+import {SemanticProviderRunOptions} from '../types';
+import {SemanticWorkspaceProviderType} from './types';
 
-export class DataSemanticDataAccessWorkspace
-  extends DataSemanticDataAccessWorkspaceResourceProvider<Workspace>
-  implements SemanticDataAccessWorkspaceProviderType
+export class DataSemanticWorkspace
+  extends DataSemanticWorkspaceResourceProvider<Workspace>
+  implements SemanticWorkspaceProviderType
 {
   async getByRootname(
     name: string,
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<Workspace | null> {
     return await this.data.getOneByQuery(
       {rootname: {$regex: getLowercaseRegExpForString(name)}},
@@ -20,7 +20,7 @@ export class DataSemanticDataAccessWorkspace
 
   async existsByRootname(
     name: string,
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<boolean> {
     return await this.data.existsByQuery(
       {rootname: {$regex: getLowercaseRegExpForString(name)}},
@@ -30,8 +30,11 @@ export class DataSemanticDataAccessWorkspace
 
   async workspaceExistsByName(
     name: string,
-    opts?: SemanticDataAccessProviderRunOptions | undefined
+    opts?: SemanticProviderRunOptions | undefined
   ): Promise<boolean> {
-    return await this.data.existsByQuery({name: {$regex: getLowercaseRegExpForString(name)}}, opts);
+    return await this.data.existsByQuery(
+      {name: {$regex: getLowercaseRegExpForString(name)}},
+      opts
+    );
   }
 }

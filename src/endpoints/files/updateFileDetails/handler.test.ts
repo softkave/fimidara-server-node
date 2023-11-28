@@ -13,7 +13,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
-import {fileExtractor, stringifyFileNamePath} from '../utils';
+import {fileExtractor, stringifyFilenamepath} from '../utils';
 import updateFileDetails from './handler';
 import {UpdateFileDetailsEndpointParams, UpdateFileDetailsInput} from './types';
 
@@ -39,7 +39,7 @@ test('file updated', async () => {
 
   const instData = RequestData.fromExpressRequest<UpdateFileDetailsEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
-    {filepath: stringifyFileNamePath(file, workspace.rootname), file: updateInput}
+    {filepath: stringifyFilenamepath(file, workspace.rootname), file: updateInput}
   );
   const result = await updateFileDetails(context, instData);
   assertEndpointResultOk(result);

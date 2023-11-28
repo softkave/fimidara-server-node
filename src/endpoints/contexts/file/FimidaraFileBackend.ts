@@ -1,7 +1,7 @@
 import {finished} from 'stream';
 import {container} from 'tsyringe';
 import {noopAsync} from '../../../utils/fns';
-import {kInjectionKeys} from '../injectionKeys';
+import {kInjectionKeys} from '../injection';
 import {
   FileBackendDeleteFileVersionParams,
   FileBackendPersistFileParams,

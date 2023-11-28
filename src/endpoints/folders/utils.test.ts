@@ -22,23 +22,23 @@ afterAll(async () => {
 describe('utils', () => {
   test('case-insensitive file match', async () => {
     assertContext(context);
-    const parentNamePath = new Array(getRandomIntInclusive(1, 5))
+    const parentnamepath = new Array(getRandomIntInclusive(1, 5))
       .fill(0)
       .map(() => generateTestFolderName());
     const folders = await generateAndInsertTestFolders(
       context,
       /** count */ 5,
       {parentId: null},
-      {parentNamePath}
+      {parentnamepath}
     );
-    const folderNamePathList = folders.map(folder => folder.namePath);
+    const foldernamepathList = folders.map(folder => folder.namepath);
     const foldersByParent = await context.semantic.folder.getManyByQuery(
-      getStringListQuery<Folder>(parentNamePath, 'namePath')
+      getStringListQuery<Folder>(parentnamepath, 'namepath')
     );
     const returnedFolders = await Promise.all(
-      folderNamePathList.map(namePath =>
+      foldernamepathList.map(namepath =>
         context!.semantic.folder.getOneByQuery(
-          getStringListQuery<Folder>(namePath, 'namePath', /** include $size op */ true)
+          getStringListQuery<Folder>(namepath, 'namepath', /** include $size op */ true)
         )
       )
     );

@@ -3,17 +3,14 @@ import {AppResourceType, AppResourceTypeMap} from '../../../../definitions/syste
 import {toNonNullableArray} from '../../../../utils/fns';
 import {AnyObject} from '../../../../utils/types';
 import {DataProviderQueryListParams} from '../../data/types';
-import {DataSemanticDataAccessWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
-import {
-  SemanticDataAccessProviderMutationRunOptions,
-  SemanticDataAccessProviderRunOptions,
-} from '../types';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticWorkspaceResourceProvider';
+import {SemanticProviderMutationRunOptions, SemanticProviderRunOptions} from '../types';
 import {getInAndNinQuery} from '../utils';
-import {SemanticDataAccessAssignedItemProvider} from './types';
+import {SemanticAssignedItemProvider} from './types';
 
-export class DataSemanticDataAccessAssignedItem
-  extends DataSemanticDataAccessWorkspaceResourceProvider<AssignedItem>
-  implements SemanticDataAccessAssignedItemProvider
+export class DataSemanticAssignedItem
+  extends DataSemanticWorkspaceResourceProvider<AssignedItem>
+  implements SemanticAssignedItemProvider
 {
   async getByWorkspaceAssignedAndAssigneeIds(
     workspaceId: string,
@@ -21,7 +18,7 @@ export class DataSemanticDataAccessAssignedItem
     assigneeId: string | string[],
     options?:
       | (DataProviderQueryListParams<AssignedItem<AnyObject>> &
-          SemanticDataAccessProviderRunOptions)
+          SemanticProviderRunOptions)
       | undefined
   ): Promise<AssignedItem<AnyObject>[]> {
     return await this.data.getManyByQuery(
@@ -40,7 +37,7 @@ export class DataSemanticDataAccessAssignedItem
     assignedItemType?: AppResourceType | AppResourceType[] | undefined,
     options?:
       | (DataProviderQueryListParams<AssignedItem<AnyObject>> &
-          SemanticDataAccessProviderRunOptions)
+          SemanticProviderRunOptions)
       | undefined
   ): Promise<AssignedItem<AnyObject>[]> {
     return await this.data.getManyByQuery(
@@ -57,7 +54,7 @@ export class DataSemanticDataAccessAssignedItem
     assigneeId: string,
     options?:
       | (DataProviderQueryListParams<AssignedItem<AnyObject>> &
-          SemanticDataAccessProviderRunOptions)
+          SemanticProviderRunOptions)
       | undefined
   ): Promise<AssignedItem<AnyObject>[]> {
     return await this.data.getManyByQuery(
@@ -72,7 +69,7 @@ export class DataSemanticDataAccessAssignedItem
     assigneeId: string | string[],
     options?:
       | (DataProviderQueryListParams<AssignedItem<AnyObject>> &
-          SemanticDataAccessProviderRunOptions)
+          SemanticProviderRunOptions)
       | undefined
   ): Promise<boolean> {
     return await this.data.existsByQuery(
@@ -88,7 +85,7 @@ export class DataSemanticDataAccessAssignedItem
   async deleteWorkspaceAssignedItemResources(
     workspaceId: string,
     assignedItemId: string | string[],
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticProviderMutationRunOptions
   ): Promise<void> {
     await this.data.deleteManyByQuery(
       {
@@ -103,7 +100,7 @@ export class DataSemanticDataAccessAssignedItem
     workspaceId: string,
     assigneeId: string | string[],
     assignedItemType: AppResourceType | AppResourceType[] | undefined,
-    opts: SemanticDataAccessProviderMutationRunOptions
+    opts: SemanticProviderMutationRunOptions
   ): Promise<void> {
     await this.data.deleteManyByQuery(
       {

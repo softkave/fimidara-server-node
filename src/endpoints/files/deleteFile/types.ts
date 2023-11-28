@@ -13,5 +13,5 @@ export type DeleteFileEndpoint = Endpoint<
 export type DeleteFileCascadeDeleteFnsArgs = {
   workspaceId: string;
   fileIdList: string[];
-  files: Array<Pick<File, 'resourceId' | 'namePath' | 'extension'>>;
+  files: Array<Pick<File, 'resourceId' | 'namepath' | 'extension'>>;
 };

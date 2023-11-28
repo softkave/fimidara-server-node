@@ -15,7 +15,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
-import {folderConstants} from '../constants';
+import {kFolderConstants} from '../constants';
 import {addRootnameToPath} from '../utils';
 import deleteFolder from './handler';
 import {DeleteFolderEndpointParams} from './types';
@@ -59,17 +59,17 @@ test('folder deleted', async () => {
   const {folder: folder01} = await insertFolderForTest(context, userToken, workspace);
   const {folder: folder02} = await insertFolderForTest(context, userToken, workspace, {
     folderpath: addRootnameToPath(
-      folder01.namePath
+      folder01.namepath
         .concat(generateTestFolderName({includeStraySlashes: true}))
-        .join(folderConstants.nameSeparator),
+        .join(kFolderConstants.separator),
       workspace.rootname
     ),
   });
   const {file} = await insertFileForTest(context, userToken, workspace, {
     filepath: addRootnameToPath(
-      folder01.namePath
+      folder01.namepath
         .concat(generateTestFileName({includeStraySlashes: true}))
-        .join(folderConstants.nameSeparator),
+        .join(kFolderConstants.separator),
       workspace.rootname
     ),
   });

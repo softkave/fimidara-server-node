@@ -6,7 +6,7 @@ import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {assertWorkspace} from '../../workspaces/utils';
-import {assertFile, checkFileAuthorization02, fileExtractor} from '../utils';
+import {assertFile, fileExtractor, readAndCheckFileAuthorization} from '../utils';
 import {UpdateFileDetailsEndpoint} from './types';
 import {updateFileDetailsJoiSchema} from './validation';
 
@@ -19,7 +19,13 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async (context, instData) =
   const data = validate(instData.data, updateFileDetailsJoiSchema);
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
   let file = await context.semantic.utils.withTxn(context, async opts => {
-    let {file} = await checkFileAuthorization02(context, agent, data, 'updateFile', opts);
+    let {file} = await readAndCheckFileAuthorization(
+      context,
+      agent,
+      data,
+      'updateFile',
+      opts
+    );
 
     if (objectHasData(omit(data.file, 'tags'))) {
       const updatedFile = await context.semantic.file.getAndUpdateOneById(

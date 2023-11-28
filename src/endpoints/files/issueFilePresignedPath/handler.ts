@@ -3,16 +3,15 @@ import {AppResourceTypeMap, PERMISSION_AGENT_TYPES} from '../../../definitions/s
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {newWorkspaceResource} from '../../../utils/resource';
-import {reuseableErrors} from '../../../utils/reusableErrors';
+import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
 import {
   checkAuthorizationWithAgent,
   getResourcePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {InvalidRequestError} from '../../errors';
 import {getClosestExistingFolder} from '../../folders/getFolderWithMatcher';
 import {assertWorkspace} from '../../workspaces/utils';
-import {getFileWithFilepath, getFileWithId} from '../getFilesWithMatcher';
+import {getFileWithMatcher} from '../getFilesWithMatcher';
 import {checkFileAuthorization, getFilepathInfo} from '../utils';
 import {IssueFilePresignedPathEndpoint} from './types';
 import {issueFilePresignedPathJoiSchema} from './validation';
@@ -24,97 +23,84 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async (
   const data = validate(instData.data, issueFilePresignedPathJoiSchema);
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
 
-  let file: File | null = null;
-  let workspace: Workspace | undefined | null = undefined;
+  await context.semantic.utils.withTxn(context, async opts => {
+    let file: File | null = null;
+    let workspace: Workspace | undefined | null = undefined;
 
-  // Attempt to fetch file by file ID or filepath, the file doesn't need to
-  // exist yet
-  if (data.filepath) {
-    ({file, workspace} = await getFileWithFilepath(context, data.filepath));
-  } else if (data.fileId) {
-    ({file} = await getFileWithId(context, data.fileId));
+    file = await getFileWithMatcher(data, opts);
+
+    let namepath: string[] | undefined = undefined;
+    let extension: string | undefined = undefined;
+    let fileId: string | undefined = undefined;
 
     if (file) {
-      workspace = await context.semantic.workspace.assertGetOneByQuery({
-        resourceId: file?.workspaceId,
-      });
-    }
-  } else {
-    throw new InvalidRequestError('File ID or filepath not provided.');
-  }
+      // Happy path. If there's a file, get the name path and extension
+      ({namepath, extension, resourceId: fileId} = file);
+      await checkFileAuthorization(agent, file, 'readFile');
+    } else {
+      // File doesn't exist but we're generating presigned path for the filepath.
+      // Presigned paths for non-existing files will work just like filepaths for
+      // files that don't exist, it'll return 404.
 
-  let fileNamePath: string[] | undefined = undefined;
-  let fileExtension: string | undefined = undefined;
+      // Assert filepath is provided cause otherwise, we can't generate presigned
+      // path.
+      appAssert(data.filepath, kReuseableErrors.file.provideNamepath());
+      const pathinfo = getFilepathInfo(data.filepath);
+      ({namepath, extension} = pathinfo);
 
-  if (file) {
-    // Happy path. If there's a file, get the name path and extension
-    fileNamePath = file.namePath;
-    fileExtension = file.extension;
-    await checkFileAuthorization(context, agent, file, 'readFile');
-  } else {
-    // File doesn't exist but we're generating presigned path for the filepath.
-    // Presigned paths for non-existing files will work just like filepaths for
-    // files that don't exist, it'll return 404.
+      if (!workspace) {
+        workspace = await context.semantic.workspace.getByRootname(
+          pathinfo.rootname,
+          opts
+        );
+      }
 
-    // Assert filepath is provided cause otherwise, we can't generate presigned
-    // path.
-    appAssert(data.filepath, reuseableErrors.file.notFound(data.fileId));
-    const filepathInfo = getFilepathInfo(data.filepath);
-    fileNamePath = filepathInfo.filepathExcludingExt;
-    fileExtension = filepathInfo.extension;
+      assertWorkspace(workspace);
 
-    if (!workspace) {
-      workspace = await context.semantic.workspace.getByRootname(
-        filepathInfo.workspaceRootname
+      // Get closest existing folder for permission check.
+      const {closestFolder} = await getClosestExistingFolder(
+        workspace.resourceId,
+        pathinfo.parentSplitPath,
+        opts
       );
+      await checkAuthorizationWithAgent({
+        agent,
+        workspace,
+        opts,
+        workspaceId: workspace.resourceId,
+        target: {
+          targetId: getResourcePermissionContainers(
+            workspace.resourceId,
+            closestFolder,
+            /** include resource ID */ true
+          ),
+          action: 'readFile',
+        },
+      });
     }
 
     assertWorkspace(workspace);
+    let expiresAt = data.expires;
 
-    // Get closest existing folder for permission check.
-    const {closestFolder} = await getClosestExistingFolder(
-      context,
-      workspace.resourceId,
-      filepathInfo.splitParentPath
-    );
-    await checkAuthorizationWithAgent({
-      context,
-      agent,
-      workspace,
-      workspaceId: workspace.resourceId,
-      target: {
-        targetId: getResourcePermissionContainers(
-          workspace.resourceId,
-          closestFolder,
-          /** include resource ID */ true
-        ),
-        action: 'readFile',
-      },
-    });
-  }
-
-  assertWorkspace(workspace);
-  let expiresAt = data.expires;
-
-  if (!expiresAt && data.duration) {
-    expiresAt = Date.now() + data.duration;
-  }
-
-  const resource = newWorkspaceResource<FilePresignedPath>(
-    agent,
-    AppResourceTypeMap.FilePresignedPath,
-    workspace.resourceId,
-    {
-      expiresAt,
-      fileNamePath,
-      fileExtension,
-      action: ['readFile'],
-      agentTokenId: agent.agentTokenId,
-      usageCount: data.usageCount,
-      spentUsageCount: 0,
+    if (!expiresAt && data.duration) {
+      expiresAt = Date.now() + data.duration;
     }
-  );
-  await context.semantic.utils.withTxn(context, async opts => {
+
+    const resource = newWorkspaceResource<FilePresignedPath>(
+      agent,
+      AppResourceTypeMap.FilePresignedPath,
+      workspace.resourceId,
+      {
+        expiresAt,
+        fileId,
+        filepath: namepath,
+        extension: extension,
+        action: ['readFile'],
+        agentTokenId: agent.agentTokenId,
+        usageCount: data.usageCount,
+        spentUsageCount: 0,
+      }
+    );
     await context.semantic.filePresignedPath.insertItem(resource, opts);
   });
 

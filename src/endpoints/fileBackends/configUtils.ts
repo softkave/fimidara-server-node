@@ -5,20 +5,22 @@ import {extractResourceIdList} from '../../utils/fns';
 import {EncryptionProvider} from '../contexts/encryption/types';
 import {FilePersistenceProvider} from '../contexts/file/types';
 import {resolveFilePersistenceProvider} from '../contexts/file/utils';
-import {kInjectionKeys} from '../contexts/injectionKeys';
-import {SemanticDataAccessFileBackendConfigProvider} from '../contexts/semantic/fileBackendConfig/types';
+import {kInjectionKeys} from '../contexts/injection';
+import {SemanticFileBackendConfigProvider} from '../contexts/semantic/fileBackendConfig/types';
+import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
 
 export async function resolveBackendConfigsFromMounts(
   mounts: FileBackendMount[],
-  throwErrorIfConfigNotFound = true
+  throwErrorIfConfigNotFound = true,
+  opts?: SemanticProviderRunOptions
 ) {
-  const configModel = container.resolve<SemanticDataAccessFileBackendConfigProvider>(
+  const configModel = container.resolve<SemanticFileBackendConfigProvider>(
     kInjectionKeys.semantic.fileBackendConfig
   );
 
   const idList = extractResourceIdList(mounts);
-  const configs = await configModel.getManyByIdList(idList);
+  const configs = await configModel.getManyByIdList(idList, opts);
 
   if (throwErrorIfConfigNotFound) {
     const configsMap = keyBy(configs, config => config.resourceId);

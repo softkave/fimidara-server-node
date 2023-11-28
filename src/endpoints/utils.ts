@@ -20,13 +20,13 @@ import {
 } from '../utils/extract';
 import {isObjectEmpty} from '../utils/fns';
 import {serverLogger} from '../utils/logger/loggerUtils';
-import {reuseableErrors} from '../utils/reusableErrors';
+import {kReuseableErrors} from '../utils/reusableErrors';
 import {AnyFn, AnyObject} from '../utils/types';
 import RequestData from './RequestData';
 import {endpointConstants} from './constants';
 import {ResolvedTargetChildrenAccessCheck} from './contexts/authorizationChecks/checkAuthorizaton';
 import {getPage} from './contexts/data/utils';
-import {SemanticDataAccessProviderMutationRunOptions} from './contexts/semantic/types';
+import {SemanticProviderMutationRunOptions} from './contexts/semantic/types';
 import {BaseContextType, IServerRequest} from './contexts/types';
 import {InvalidRequestError, NotFoundError} from './errors';
 import {
@@ -151,7 +151,7 @@ export function throwNotFound() {
 }
 
 export function throwAgentTokenNotFound() {
-  throw reuseableErrors.agentToken.notFound();
+  throw kReuseableErrors.agentToken.notFound();
 }
 
 export type ResourceWithoutAssignedAgent<T> = Omit<T, 'assignedAt' | 'assignedBy'>;
@@ -235,7 +235,7 @@ export async function executeCascadeDelete<Args>(
   args: Args
 ) {
   const helperFns: DeleteResourceCascadeFnHelperFns = {
-    async withTxn(fn: AnyFn<[SemanticDataAccessProviderMutationRunOptions]>) {
+    async withTxn(fn: AnyFn<[SemanticProviderMutationRunOptions]>) {
       await context.semantic.utils.withTxn(context, opts => fn(opts));
     },
   };
@@ -270,4 +270,8 @@ export function registerExpressRouteFromEndpoint(
       ),
     ])
   );
+}
+
+export function isResourceNameEqual(name01: string, name02: string) {
+  return name01.toLowerCase() === name02.toLowerCase();
 }

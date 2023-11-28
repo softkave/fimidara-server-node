@@ -55,6 +55,10 @@
 - Alert customers if a mount mountedFrom is not found
 - Validate file persistence config/credentials before using
 - 2 servers, and 2 job runners
+- shared resources between different workspaces
+- use txns for most all db actions
+- should filepath be filePath, namePath or namepath, folderpath or folderPath
+- provide a log of all errors to users
 
 - Limits of http, and maybe increase upload limit
 - Read up on HTTP streaming
