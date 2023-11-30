@@ -13,7 +13,6 @@ import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
-import {BaseContextType} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
@@ -29,7 +28,6 @@ const folderFields = getFields<PublicFolder>({
   description: true,
   idPath: true,
   namepath: true,
-  // tags: assignedTagListExtractor,
 });
 
 export const folderExtractor = makeExtract(folderFields);
@@ -112,7 +110,6 @@ export function getWorkspaceRootnameFromPath(providedPath: string | string[]) {
 }
 
 export async function checkFolderAuthorization(
-  context: BaseContextType,
   agent: SessionAgent,
   folder: Folder,
   action: PermissionAction,
@@ -121,7 +118,7 @@ export async function checkFolderAuthorization(
   opts?: SemanticProviderRunOptions
 ) {
   if (!workspace) {
-    workspace = await checkWorkspaceExists(context, folder.workspaceId, opts);
+    workspace = await checkWorkspaceExists(folder.workspaceId, opts);
   }
 
   if (!UNSAFE_skipAuthCheck) {
@@ -145,7 +142,6 @@ export async function checkFolderAuthorization(
 }
 
 export async function checkFolderAuthorization02(
-  context: BaseContextType,
   agent: SessionAgent,
   matcher: FolderMatcher,
   action: PermissionAction,
@@ -153,15 +149,8 @@ export async function checkFolderAuthorization02(
   opts?: SemanticProviderRunOptions,
   UNSAFE_skipAuthCheck = false
 ) {
-  const folder = await assertGetFolderWithMatcher(context, matcher, opts);
-  return checkFolderAuthorization(
-    context,
-    agent,
-    folder,
-    action,
-    workspace,
-    UNSAFE_skipAuthCheck
-  );
+  const folder = await assertGetFolderWithMatcher(matcher, opts);
+  return checkFolderAuthorization(agent, folder, action, workspace, UNSAFE_skipAuthCheck);
 }
 
 export function getFolderName(folder: Folder) {
