@@ -9,7 +9,6 @@ import {kInjectionKeys} from '../contexts/injection';
 import {
   SemanticFileBackendMountProvider,
   SemanticProviderMutationRunOptions,
-  SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
 import {
@@ -77,12 +76,14 @@ export function isOnlyMountFimidara(mounts: FileBackendMount[]): boolean {
 }
 
 export async function getFileBackendForFile(file: File) {
-  const preferredMountEntry = first(file.mountEntries);
-  appAssert(preferredMountEntry);
+  const {mounts} = await resolveMountsForFolder({
+    workspaceId: file.workspaceId,
+    namepath: file.namepath.slice(0, -1),
+  });
+  const mount = first(mounts);
+  appAssert(mount);
 
-  const configs = await resolveBackendConfigsFromMounts([
-    {resourceId: preferredMountEntry.mountId},
-  ]);
+  const configs = await resolveBackendConfigsFromMounts([{resourceId: mount.configId}]);
   const config = first(configs);
   appAssert(config);
 
@@ -90,7 +91,7 @@ export async function getFileBackendForFile(file: File) {
   const provider = providersMap[config.resourceId];
   appAssert(provider);
 
-  return {provider, preferredMountEntry, config};
+  return {provider, mount, config};
 }
 
 export async function defaultMount(

@@ -1,6 +1,5 @@
 import {
   FileBackendProductType,
-  FileBackendType,
   PublicFileBackendMount,
 } from '../../../definitions/fileBackend';
 import {BaseContextType} from '../../contexts/types';
@@ -12,8 +11,10 @@ export interface AddFileBackendMountEndpointParams
   index: number;
   mountedFrom: string[];
   product: FileBackendProductType;
-  type: FileBackendType;
-  configId: string;
+  /** `null` for fimidara */
+  configId: string | null;
+  name: string;
+  description?: string;
 }
 
 export interface AddFileBackendMountEndpointResult {

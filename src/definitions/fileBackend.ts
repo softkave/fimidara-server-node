@@ -30,7 +30,6 @@ export interface FileBackendMount extends WorkspaceResource {
   /** string array of backend product + bucket? + folderpath? */
   mountedFrom: string[];
   product: FileBackendProductType;
-  type: FileBackendType;
   configId: string;
   name: string;
   description?: string;
@@ -47,7 +46,10 @@ export interface FileBackendConfig extends WorkspaceResource {
 
 export type PublicFileBackendMount = PublicWorkspaceResource &
   ConvertAgentToPublicAgent<
-    Pick<FileBackendMount, 'folderpath' | 'index' | 'mountedFrom' | 'product'>
+    Pick<
+      FileBackendMount,
+      'folderpath' | 'index' | 'mountedFrom' | 'product' | 'name' | 'description'
+    >
   >;
 
 export type PublicFileBackendConfig = PublicWorkspaceResource &

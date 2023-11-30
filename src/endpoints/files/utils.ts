@@ -292,12 +292,6 @@ export async function ingestFileByFilepath(
   const configs = await resolveBackendConfigsFromMounts(mounts, true, opts);
   const providersMap = await initBackendProvidersFromConfigs(configs);
 
-  /**
-   * - ensure folders
-   * - create file
-   * - merge mount files into
-   */
-
   const mountFiles = await Promise.all(
     mounts.map(async mount => {
       const provider = providersMap[mount.configId];
@@ -305,6 +299,7 @@ export async function ingestFileByFilepath(
 
       return await provider.describeFile({
         workspaceId,
+        mount,
         filepath: pathinfo.namepath.join(kFolderConstants.separator),
       });
     })

@@ -1,5 +1,5 @@
 import {merge, pick} from 'lodash';
-import {File, FileMountEntry} from '../../../definitions/file';
+import {File} from '../../../definitions/file';
 import {AppResourceTypeMap, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
@@ -9,11 +9,7 @@ import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {ByteCounterPassThroughStream} from '../../../utils/streams';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels} from '../../contexts/injectables';
-import {
-  defaultMount,
-  getFileBackendForFile,
-  resolveMountsForFolder,
-} from '../../fileBackends/mountUtils';
+import {getFileBackendForFile} from '../../fileBackends/mountUtils';
 import {ensureFolders} from '../../folders/utils';
 import {FileNotWritableError} from '../errors';
 import {getFileWithMatcher} from '../getFilesWithMatcher';
@@ -22,6 +18,7 @@ import {
   fileExtractor,
   getFilepathInfo,
   getWorkspaceFromFileOrFilepath,
+  stringifyFilenamepath,
 } from '../utils';
 import {UploadFileEndpoint} from './types';
 import {checkUploadFileAuth} from './utils';
@@ -69,20 +66,12 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
         opts
       );
 
-      const mounts = parentFolder
-        ? (await resolveMountsForFolder(parentFolder, opts)).mounts
-        : [await defaultMount(workspace.resourceId, opts)];
-
       const fileId = getNewIdForResource(AppResourceTypeMap.File);
-      const mountEntries = mounts.map((mount): FileMountEntry => {
-        return {key: fileId, mountId: mount.resourceId};
-      });
       file = newWorkspaceResource<File>(
         agent,
         AppResourceTypeMap.File,
         workspace.resourceId,
         {
-          mountEntries,
           workspaceId: workspace.resourceId,
           resourceId: fileId,
           extension: pathinfo.extension,
@@ -111,14 +100,16 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
 
   let {file} = result01;
 
-  const {preferredMountEntry, provider: backend} = await getFileBackendForFile(file);
+  const {mount, provider: backend} = await getFileBackendForFile(file);
 
   try {
     const bytesCounterStream = new ByteCounterPassThroughStream();
     data.data.pipe(bytesCounterStream);
 
     let update = await backend.uploadFile({
-      filepath: preferredMountEntry.key,
+      mount,
+      workspaceId: file.workspaceId,
+      filepath: stringifyFilenamepath(file),
       body: bytesCounterStream,
     });
     update = {

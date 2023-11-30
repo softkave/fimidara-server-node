@@ -77,7 +77,6 @@ function generateCollaboratorPermissions(
     kPermissionsMap.transferFolder,
     kPermissionsMap.addFile,
     kPermissionsMap.readFile,
-    kPermissionsMap.updateFile,
     kPermissionsMap.transferFile,
     kPermissionsMap.addAgentToken,
     kPermissionsMap.readAgentToken,

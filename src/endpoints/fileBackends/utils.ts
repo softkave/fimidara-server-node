@@ -22,7 +22,8 @@ const fileBackendMountFields = getFields<ConvertAgentToPublicAgent<FileBackendMo
   mountedFrom: true,
   product: true,
   configId: true,
-  type: true,
+  description: true,
+  name: true,
 });
 
 export const fileBackendMountExtractor = makeExtract(fileBackendMountFields);
