@@ -91,6 +91,7 @@ export const kReuseableErrors = {
   mount: {
     mountExists: () => not_implemented,
     mountNameExists: (name: string) => not_implemented,
+    s3MountSourceMissingBucket: () => not_implemented,
   },
   config: {
     configNameExists: (name: string) => not_implemented,

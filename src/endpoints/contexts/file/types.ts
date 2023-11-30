@@ -1,13 +1,13 @@
 import {Readable} from 'stream';
 import {File} from '../../../definitions/file';
-import {Folder} from '../../../definitions/folder';
-import {Agent, AppResourceTypeMap} from '../../../definitions/system';
-import {Omit1} from '../../../utils/types';
+import {FileBackendMount} from '../../../definitions/fileBackend';
+import {AppResourceTypeMap} from '../../../definitions/system';
 
 export interface FilePersistenceUploadFileParams {
   workspaceId: string;
   filepath: string;
   body: Readable;
+  mount: FileBackendMount;
   // contentLength?: number;
   // contentType?: string;
   // contentEncoding?: string;
@@ -16,16 +16,19 @@ export interface FilePersistenceUploadFileParams {
 export interface FilePersistenceGetFileParams {
   workspaceId: string;
   filepath: string;
+  mount: FileBackendMount;
 }
 
 export interface FilePersistenceDescribeFolderParams {
   workspaceId: string;
   folderpath: string;
+  mount: FileBackendMount;
 }
 
 export interface FilePersistenceDeleteFilesParams {
   workspaceId: string;
   filepaths: string[];
+  mount: FileBackendMount;
 }
 
 export interface PersistedFile {
@@ -52,6 +55,7 @@ export interface FilePersistenceProviderDescribeFolderChildrenParams {
   /** page or continuation token is different depending on provider, so pass
    * what's returned in previous describeFolderChildren calls */
   page: unknown;
+  mount: FileBackendMount;
 }
 
 export interface FilePersistenceProviderDescribeFolderChildrenResult {
@@ -61,23 +65,6 @@ export interface FilePersistenceProviderDescribeFolderChildrenResult {
    * what's returned in previous describeFolderChildren calls */
   page?: unknown | null;
 }
-
-interface FilePersistenceNormalizeFileParams {
-  agent: Agent;
-  workspaceId: string;
-  mountId: string;
-  file: PersistedFileDescription;
-}
-
-interface FilePersistenceNormalizeFolderParams {
-  agent: Agent;
-  workspaceId: string;
-  mountId: string;
-  folder: PersistedFolderDescription;
-}
-
-type FilePersistenceNormalizedFile = Omit1<File, 'idPath' | 'parentId'>;
-type FilePersistenceNormalizedFolder = Omit1<Folder, 'idPath' | 'parentId'>;
 
 export interface FilePersistenceProvider {
   uploadFile: (params: FilePersistenceUploadFileParams) => Promise<Partial<File>>;
