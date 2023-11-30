@@ -7,7 +7,7 @@ export default class TestMemoryFilePersistenceProviderContext
   private client: MemoryFilePersistenceProvider;
 
   uploadFile: ITestFilePersistenceProviderContext['uploadFile'];
-  getFile: ITestFilePersistenceProviderContext['getFile'];
+  readFile: ITestFilePersistenceProviderContext['readFile'];
   deleteFiles: ITestFilePersistenceProviderContext['deleteFiles'];
   ensureBucketReady: ITestFilePersistenceProviderContext['ensureBucketReady'];
   close: ITestFilePersistenceProviderContext['close'];
@@ -15,7 +15,7 @@ export default class TestMemoryFilePersistenceProviderContext
   constructor() {
     this.client = new MemoryFilePersistenceProvider();
     this.uploadFile = jest.fn(this.client.uploadFile).mockName('uploadFile');
-    this.getFile = jest.fn(this.client.getFile).mockName('getFile');
+    this.readFile = jest.fn(this.client.readFile).mockName('getFile');
     this.deleteFiles = jest.fn(this.client.deleteFiles).mockName('deleteFiles');
     this.ensureBucketReady = jest
       .fn(this.client.ensureBucketReady)

@@ -168,17 +168,17 @@ describe('uploadFile', () => {
     const pathinfo02 = getFilepathInfo(filepath02);
     const pathinfo03 = getFilepathInfo(filepath03);
     const [dbFile01, dbFile02, dbFile03] = await Promise.all([
-      context.semantic.file.getOneBynamepath(
+      context.semantic.file.getOneByNamepath(
         workspace.resourceId,
         pathinfo01.filepathExcludingExt,
         pathinfo01.extension
       ),
-      context.semantic.file.getOneBynamepath(
+      context.semantic.file.getOneByNamepath(
         workspace.resourceId,
         pathinfo02.filepathExcludingExt,
         pathinfo02.extension
       ),
-      context.semantic.file.getOneBynamepath(
+      context.semantic.file.getOneByNamepath(
         workspace.resourceId,
         pathinfo03.filepathExcludingExt,
         pathinfo03.extension
@@ -196,17 +196,17 @@ describe('uploadFile', () => {
     await insertFileForTest(context, userToken, workspace, {filepath: filepath01}, 'txt');
 
     const [latestDbFile01, latestDbFile02, latestDbFile03] = await Promise.all([
-      context.semantic.file.getOneBynamepath(
+      context.semantic.file.getOneByNamepath(
         workspace.resourceId,
         pathinfo01.filepathExcludingExt,
         pathinfo01.extension
       ),
-      context.semantic.file.getOneBynamepath(
+      context.semantic.file.getOneByNamepath(
         workspace.resourceId,
         pathinfo02.filepathExcludingExt,
         pathinfo02.extension
       ),
-      context.semantic.file.getOneBynamepath(
+      context.semantic.file.getOneByNamepath(
         workspace.resourceId,
         pathinfo03.filepathExcludingExt,
         pathinfo03.extension

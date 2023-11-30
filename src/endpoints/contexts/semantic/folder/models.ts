@@ -9,7 +9,7 @@ export class DataSemanticFolder
   extends DataSemanticWorkspaceResourceProvider<Folder>
   implements SemanticFolderProvider
 {
-  async getOneBynamepath(
+  async getOneByNamepath(
     workspaceId: string,
     namepath: string[],
     opts?: SemanticProviderRunOptions | undefined

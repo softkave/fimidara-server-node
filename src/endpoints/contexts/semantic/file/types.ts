@@ -7,10 +7,14 @@ import {
 
 export interface SemanticFileProvider
   extends SemanticWorkspaceResourceProviderType<File> {
-  getOneBynamepath(
+  getOneByNamepath(
     query: {workspaceId: string; namepath: string[]; extension?: string},
     opts?: SemanticProviderRunOptions
   ): Promise<File | null>;
+  getManyByNamepath(
+    query: {workspaceId: string; namepath: string[]; extension?: string},
+    opts?: SemanticProviderRunOptions & DataProviderQueryListParams<File>
+  ): Promise<File[]>;
   getAndUpdateOneBynamepath(
     query: {workspaceId: string; namepath: string[]; extension?: string},
     update: Partial<File>,
@@ -34,6 +38,10 @@ export interface SemanticFileProvider
     },
     opts?: SemanticProviderRunOptions
   ): Promise<number>;
+  deleteOneBynamepath(
+    query: {workspaceId: string; namepath: string[]; extension?: string},
+    opts?: SemanticProviderRunOptions
+  ): Promise<void>;
 }
 
 export interface SemanticFilePresignedPathProvider

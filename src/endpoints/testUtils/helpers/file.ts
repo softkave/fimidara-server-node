@@ -8,9 +8,9 @@ export async function assertFileBodyEqual(
   fileId: string,
   expectedBodyStream: Readable
 ) {
-  const savedFile = await context.fileBackend.getFile({
+  const savedFile = await context.fileBackend.readFile({
     bucket: context.appVariables.S3Bucket,
-    key: fileId,
+    filepath: fileId,
   });
   const savedBuffer = savedFile.body && (await streamToBuffer(savedFile.body));
   const expectedBuffer = await streamToBuffer(expectedBodyStream);

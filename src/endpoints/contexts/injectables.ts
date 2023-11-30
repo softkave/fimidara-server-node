@@ -1,4 +1,5 @@
 import {container} from 'tsyringe';
+import {FimidaraConfig} from '../../resources/types';
 import {kInjectionKeys} from './injection';
 import {SemanticAgentTokenProvider} from './semantic/agentToken/types';
 import {
@@ -42,4 +43,8 @@ export const kSemanticModels = {
     ),
   jobs: () => container.resolve<SemanticJobProvider>(kInjectionKeys.semantic.jobs),
   utils: () => container.resolve<SemanticProviderUtils>(kInjectionKeys.semantic.utils),
+};
+
+export const kUtilsInjectables = {
+  config: () => container.resolve<FimidaraConfig>(kInjectionKeys.config),
 };

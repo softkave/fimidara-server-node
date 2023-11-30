@@ -96,6 +96,9 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
           isWriteAvailable: false,
           isReadAvailable: false,
           version: 0,
+          description: data.description,
+          encoding: data.encoding,
+          mimetype: data.mimetype,
         }
       );
 
@@ -106,18 +109,16 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     return {file, workspace};
   });
 
-  const {workspace} = result01;
   let {file} = result01;
 
   const {preferredMountEntry, provider: backend} = await getFileBackendForFile(file);
 
   try {
     const bytesCounterStream = new ByteCounterPassThroughStream();
-    const previousVersion = file.version;
     data.data.pipe(bytesCounterStream);
 
     let update = await backend.uploadFile({
-      key: preferredMountEntry.key,
+      filepath: preferredMountEntry.key,
       body: bytesCounterStream,
     });
     update = {

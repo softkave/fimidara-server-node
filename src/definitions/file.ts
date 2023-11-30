@@ -25,7 +25,7 @@ export interface File extends WorkspaceResource {
   isReadAvailable?: boolean;
   head?: string;
   version: number;
-  mountEntries: FileMountEntry[];
+  // mountEntries: FileMountEntry[];
 }
 
 export type PublicFile = PublicWorkspaceResource &

@@ -82,7 +82,7 @@ export async function getFileByPresignedPath(
     );
   }
 
-  const file = await kSemanticModels.file().getOneBynamepath(
+  const file = await kSemanticModels.file().getOneByNamepath(
     {
       workspaceId: presignedPath.workspaceId,
       namepath: presignedPath.filepath,

@@ -7,11 +7,14 @@ import {
 
 export interface SemanticFolderProvider
   extends SemanticWorkspaceResourceProviderType<Folder> {
-  getOneBynamepath(
-    workspaceId: string,
-    namepath: string[],
+  getOneByNamepath(
+    query: {workspaceId: string; namepath: string[]},
     opts?: SemanticProviderRunOptions
   ): Promise<Folder | null>;
+  getManyByNamepath(
+    query: {workspaceId: string; namepath: string[]},
+    opts?: SemanticProviderRunOptions & DataProviderQueryListParams<Folder>
+  ): Promise<Folder[]>;
   getManyByWorkspaceParentAndIdList(
     q: {
       workspaceId: string;

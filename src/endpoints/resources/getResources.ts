@@ -297,7 +297,7 @@ const fetchFiles = async (
   const result = await Promise.all(
     // TODO: can we have $or or implement $in for array of arrays?
     map(filepathsMap, (action, filepath) =>
-      context.semantic.file.getOneBynamepath(
+      context.semantic.file.getOneByNamepath(
         workspaceId,
         filepath.split(kFolderConstants.separator)
       )
@@ -326,7 +326,7 @@ const fetchFolders = async (
   const result = await Promise.all(
     // TODO: can we have $or or implement $in for array of arrays?
     map(folderpathsMap, (action, folderpath) =>
-      context.semantic.folder.getOneBynamepath(
+      context.semantic.folder.getOneByNamepath(
         workspaceId,
         folderpath.split(kFolderConstants.separator)
       )

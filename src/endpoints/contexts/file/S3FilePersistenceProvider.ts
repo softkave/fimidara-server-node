@@ -35,7 +35,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
   uploadFile = async (params: FilePersistenceUploadFileParams) => {
     const command = new PutObjectCommand({
       Bucket: params.bucket,
-      Key: params.key,
+      Key: params.filepath,
       Body: params.body,
       // ContentLength: params.contentLength,
       // ContentType: params.contentType,
@@ -44,24 +44,24 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
     await this.s3.send(command);
   };
 
-  getFile = async (params: FilePersistenceGetFileParams): Promise<PersistedFile> => {
-    const command = new GetObjectCommand({Bucket: params.bucket, Key: params.key});
+  readFile = async (params: FilePersistenceGetFileParams): Promise<PersistedFile> => {
+    const command = new GetObjectCommand({Bucket: params.bucket, Key: params.filepath});
     const response = await this.s3.send(command);
     return {
       body: <Readable | undefined>response.Body,
-      contentLength: response.ContentLength,
+      size: response.ContentLength,
     };
   };
 
   deleteFiles = async (params: FilePersistenceDeleteFilesParams) => {
-    if (params.keys.length === 0) {
+    if (params.filepaths.length === 0) {
       // Short-circuit, no files to delete
       return;
     }
 
     const command = new DeleteObjectsCommand({
       Bucket: params.bucket,
-      Delete: {Objects: params.keys.map(key => ({Key: key})), Quiet: false},
+      Delete: {Objects: params.filepaths.map(key => ({Key: key})), Quiet: false},
     });
     await this.s3.send(command);
   };

@@ -10,7 +10,7 @@ export class DataSemanticFile
   extends DataSemanticWorkspaceResourceProvider<File>
   implements SemanticFileProvider
 {
-  async getOneBynamepath(
+  async getOneByNamepath(
     workspaceId: string,
     namepath: string[],
     extension?: string | undefined,
