@@ -101,7 +101,7 @@ async function setup() {
 setup();
 
 // TODO: move these error logs to mongo
-process.on('uncaughtException', (exp: any, origin: any) => {
+process.on('uncaughtException', (exp, origin) => {
   serverLogger.info('uncaughtException');
   serverLogger.error(exp);
   serverLogger.info(origin);

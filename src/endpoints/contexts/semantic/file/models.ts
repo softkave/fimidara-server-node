@@ -11,11 +11,10 @@ export class DataSemanticFile
   implements SemanticFileProvider
 {
   async getOneBynamepath(
-    workspaceId: string,
-    namepath: string[],
-    extension?: string | undefined,
-    opts?: SemanticProviderRunOptions | undefined
+    query: {workspaceId: string; namepath: string[]; extension?: string},
+    opts?: SemanticProviderRunOptions
   ): Promise<File | null> {
+    const {workspaceId, namepath, extension} = query;
     return await this.data.getOneByQuery(
       {workspaceId, extension, namepath: {$all: namepath, $size: namepath.length}},
       opts
