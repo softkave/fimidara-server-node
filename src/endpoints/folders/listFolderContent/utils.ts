@@ -14,14 +14,12 @@ import {assertWorkspace} from '../../workspaces/utils';
 import {checkFolderAuthorization02, getWorkspaceRootnameFromPath} from '../utils';
 
 export async function listFolderContentQuery(
-  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   contentType: typeof AppResourceTypeMap.File | typeof AppResourceTypeMap.Folder,
   parentFolder?: Folder | null
 ) {
   const report = await resolveTargetChildrenAccessCheckWithAgent({
-    context,
     agent,
     workspace,
     workspaceId: workspace.resourceId,
@@ -76,7 +74,6 @@ export async function getWorkspaceAndParentFolder(
   // rootname
   if (isUndefined(parentFolder)) {
     const checkResult = await checkFolderAuthorization02(
-      context,
       agent,
       matcher,
       'readFolder',
