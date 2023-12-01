@@ -22,7 +22,7 @@ import {stringifyFilenamepath} from '../files/utils';
 import {stringifyFoldernamepath} from '../folders/utils';
 import {
   initBackendProvidersFromConfigs,
-  resolveBackendConfigsFromMounts,
+  resolveBackendConfigsWithIdList,
 } from './configUtils';
 import {resolveMountsForFolder} from './mountUtils';
 
@@ -91,7 +91,7 @@ async function ingestFolderpathFromMount(
       parentJob
     );
 
-    const configs = await resolveBackendConfigsFromMounts([mount]);
+    const configs = await resolveBackendConfigsWithIdList([mount]);
     const providersMap = await initBackendProvidersFromConfigs(configs);
     const provider = providersMap[mount.configId];
     appAssert(provider);

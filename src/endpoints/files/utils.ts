@@ -1,3 +1,4 @@
+import {compact} from 'lodash';
 import {container} from 'tsyringe';
 import {File, FileMatcher, FilePresignedPath, PublicFile} from '../../definitions/file';
 import {FileBackendMount} from '../../definitions/fileBackend';
@@ -22,8 +23,8 @@ import {
 import {SemanticWorkspaceProviderType} from '../contexts/semantic/workspace/types';
 import {NotFoundError} from '../errors';
 import {
-  initBackendProvidersFromConfigs,
-  resolveBackendConfigsFromMounts,
+  initBackendProvidersForMounts,
+  resolveBackendConfigsWithIdList,
 } from '../fileBackends/configUtils';
 import {
   FileBackendMountWeights,
@@ -289,12 +290,16 @@ export async function ingestFileByFilepath(
     ));
   }
 
-  const configs = await resolveBackendConfigsFromMounts(mounts, true, opts);
-  const providersMap = await initBackendProvidersFromConfigs(configs);
+  const configs = await resolveBackendConfigsWithIdList(
+    compact(mounts.map(mount => mount.configId)),
+    /** throw error is config is not found */ true,
+    opts
+  );
+  const providersMap = await initBackendProvidersForMounts(mounts, configs);
 
   const mountFiles = await Promise.all(
     mounts.map(async mount => {
-      const provider = providersMap[mount.configId];
+      const provider = providersMap[mount.resourceId];
       appAssert(provider);
 
       return await provider.describeFile({

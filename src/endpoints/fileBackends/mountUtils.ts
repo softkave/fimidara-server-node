@@ -4,6 +4,7 @@ import {File} from '../../definitions/file';
 import {FileBackendMount} from '../../definitions/fileBackend';
 import {Folder} from '../../definitions/folder';
 import {appAssert} from '../../utils/assertion';
+import {ServerError} from '../../utils/errors';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {kInjectionKeys} from '../contexts/injection';
 import {
@@ -13,7 +14,7 @@ import {
 } from '../contexts/semantic/types';
 import {
   initBackendProvidersFromConfigs,
-  resolveBackendConfigsFromMounts,
+  resolveBackendConfigsWithIdList,
 } from './configUtils';
 
 export type FileBackendMountWeights = Record<string, number>;
@@ -57,10 +58,12 @@ export async function resolveMountsForFolder(
   const mounts: FileBackendMount[] = [];
   const mountWeights: FileBackendMountWeights = {};
 
+  let mountIndex = 0;
   mountsList.forEach(nextMountList => {
-    nextMountList.forEach((mount, index) => {
+    sortMounts(nextMountList).forEach(mount => {
       mounts.push(mount);
-      mountWeights[mount.resourceId] = index;
+      mountWeights[mount.resourceId] = mountIndex;
+      mountIndex += 1;
     });
   });
 
@@ -68,11 +71,11 @@ export async function resolveMountsForFolder(
 }
 
 export function isPrimaryMountFimidara(mounts: FileBackendMount[]): boolean {
-  throw kReuseableErrors.common.notImplemented();
+  return first(mounts)?.product === 'fimidara';
 }
 
 export function isOnlyMountFimidara(mounts: FileBackendMount[]): boolean {
-  throw kReuseableErrors.common.notImplemented();
+  return mounts.length === 1 && isPrimaryMountFimidara(mounts);
 }
 
 export async function getFileBackendForFile(file: File) {
@@ -83,7 +86,14 @@ export async function getFileBackendForFile(file: File) {
   const mount = first(mounts);
   appAssert(mount);
 
-  const configs = await resolveBackendConfigsFromMounts([{resourceId: mount.configId}]);
+  const configId = mount.configId;
+
+  if (mount.product !== 'fimidara' && !configId) {
+    console.log(`mount ${mount.resourceId} is not fimidara, and is missing config ID`);
+    throw new ServerError();
+  }
+
+  const configs = configId ? await resolveBackendConfigsWithIdList([configId]) : [];
   const config = first(configs);
   appAssert(config);
 

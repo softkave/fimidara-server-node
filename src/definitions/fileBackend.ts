@@ -30,7 +30,7 @@ export interface FileBackendMount extends WorkspaceResource {
   /** string array of backend product + bucket? + folderpath? */
   mountedFrom: string[];
   product: FileBackendProductType;
-  configId: string;
+  configId: string | null;
   name: string;
   description?: string;
 }

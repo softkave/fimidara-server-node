@@ -46,7 +46,7 @@ export type PublicFile = PublicWorkspaceResource &
   >;
 
 export type FileMatcher = {
-  /** file path with workspace root name */
+  /** file path with workspace rootname e.g rootname/folder/file.txt */
   filepath?: string;
   fileId?: string;
 };

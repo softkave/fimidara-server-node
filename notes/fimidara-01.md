@@ -62,6 +62,7 @@
 - tags and meta for files and other resource + provided resource ID
 - delete previous versions, and folder versioning on uploading files?
 - file linking and aliasing
+- close backend providers
 
 - Limits of http, and maybe increase upload limit
 - Read up on HTTP streaming
