@@ -1,7 +1,7 @@
 import {File, FilePresignedPath} from '../../../../definitions/file';
 import {Resource} from '../../../../definitions/system';
 import {DataProviderQueryListParams} from '../../data/types';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticWorkspaceResourceProvider';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {SemanticProviderRunOptions} from '../types';
 import {getInAndNinQuery} from '../utils';
 import {SemanticFilePresignedPathProvider, SemanticFileProvider} from './types';
@@ -10,12 +10,11 @@ export class DataSemanticFile
   extends DataSemanticWorkspaceResourceProvider<File>
   implements SemanticFileProvider
 {
-  async getOneByNamepath(
-    workspaceId: string,
-    namepath: string[],
-    extension?: string | undefined,
-    opts?: SemanticProviderRunOptions | undefined
+  async getOneBynamepath(
+    query: {workspaceId: string; namepath: string[]; extension?: string},
+    opts?: SemanticProviderRunOptions
   ): Promise<File | null> {
+    const {workspaceId, namepath, extension} = query;
     return await this.data.getOneByQuery(
       {workspaceId, extension, namepath: {$all: namepath, $size: namepath.length}},
       opts

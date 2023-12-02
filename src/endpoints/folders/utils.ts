@@ -1,19 +1,35 @@
 import {compact, defaultTo, first, isArray, last} from 'lodash';
 import {posix} from 'path';
+import {container} from 'tsyringe';
+import {FileBackendMount} from '../../definitions/fileBackend';
 import {Folder, FolderMatcher, PublicFolder} from '../../definitions/folder';
 import {PermissionAction} from '../../definitions/permissionItem';
 import {SessionAgent} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
+import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
+import {kReuseableErrors} from '../../utils/reusableErrors';
 import {
   checkAuthorizationWithAgent,
   getFilePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
+import {kInjectionKeys} from '../contexts/injection';
+import {SemanticFolderProvider} from '../contexts/semantic/folder/types';
 import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
+import {SemanticWorkspaceProviderType} from '../contexts/semantic/workspace/types';
 import {InvalidRequestError} from '../errors';
+import {
+  initBackendProvidersFromConfigs,
+  resolveBackendConfigsFromMounts,
+} from '../fileBackends/configUtils';
+import {
+  FileBackendMountWeights,
+  isOnlyMountFimidara,
+  resolveMountsForFolder,
+} from '../fileBackends/mountUtils';
 import {workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 import {createFolderListWithTransaction} from './addFolder/handler';
@@ -239,5 +255,112 @@ export async function ensureFolders(
     true,
     /** Throw on folder exists */ false,
     opts
+  );
+}
+
+export function mergeFoldersByMount(
+  folders: Folder[],
+  mountWeights: FileBackendMountWeights
+): Folder | null {
+  throw kReuseableErrors.common.notImplemented();
+}
+
+export async function getWorkspaceFromFolderpath(folderpath: string): Promise<Workspace> {
+  const workspaceModel = container.resolve<SemanticWorkspaceProviderType>(
+    kInjectionKeys.semantic.workspace
+  );
+
+  const pathinfo = getFolderpathInfo(folderpath);
+  const workspace = await workspaceModel.getByRootname(pathinfo.rootname);
+
+  appAssert(
+    workspace,
+    kReuseableErrors.workspace.withRootnameNotFound(pathinfo.rootname)
+  );
+  return workspace;
+}
+
+export async function ingestFolderByFolderpath(
+  /** folderpath with workspace rootname */
+  folderpath: string,
+  opts: SemanticProviderMutationRunOptions,
+  workspaceId: string,
+  mounts?: FileBackendMount[],
+  mountWeights?: FileBackendMountWeights
+) {
+  const folderModel = container.resolve<SemanticFolderProvider>(
+    kInjectionKeys.semantic.folder
+  );
+
+  const pathinfo = getFolderpathInfo(folderpath);
+
+  if (!workspaceId) {
+    ({workspaceId} = await getWorkspaceFromFolderpath(folderpath));
+  }
+
+  if (mounts) {
+    appAssert(mountWeights);
+  } else {
+    ({mounts, mountWeights} = await resolveMountsForFolder(
+      {workspaceId, namepath: pathinfo.parentSplitPath},
+      opts
+    ));
+  }
+
+  const configs = await resolveBackendConfigsFromMounts(mounts, true, opts);
+  const providersMap = await initBackendProvidersFromConfigs(configs);
+
+  const folders = await Promise.all(
+    mounts.map(async mount => {
+      const provider = providersMap[mount.configId];
+      appAssert(provider);
+
+      return provider.normalizeFolder(
+        workspaceId,
+        await provider.describeFolder({
+          key: pathinfo.namepath.join(kFolderConstants.separator),
+        })
+      );
+    })
+  );
+  let folder = mergeFoldersByMount(folders, mountWeights);
+
+  if (folder) {
+    folder = await folderModel.getAndUpdateOneBynamepath(folder, folder, opts);
+  }
+
+  return folder;
+}
+
+export async function readOrIngestFolderByFilepath(
+  /** folderpath with workspace rootname */
+  folderpath: string,
+  opts: SemanticProviderMutationRunOptions,
+  workspaceId?: string
+) {
+  const folderModel = container.resolve<SemanticFolderProvider>(
+    kInjectionKeys.semantic.folder
+  );
+
+  if (!workspaceId) {
+    ({workspaceId} = await getWorkspaceFromFolderpath(folderpath));
+  }
+
+  const pathinfo = getFolderpathInfo(folderpath);
+  const {mounts, mountWeights} = await resolveMountsForFolder(
+    {workspaceId, namepath: pathinfo.parentSplitPath},
+    opts
+  );
+
+  if (isOnlyMountFimidara(mounts)) {
+    return await folderModel.getOneBynamepath(workspaceId, pathinfo.namepath, opts);
+  }
+
+  return await ingestFolderByFolderpath(
+    folderpath,
+    opts,
+    workspaceId,
+    mounts,
+    mountWeights
   );
 }

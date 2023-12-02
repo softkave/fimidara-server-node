@@ -9,7 +9,9 @@ export interface Folder extends WorkspaceResource {
   description?: string;
 }
 
-export type PublicFolder = ConvertAgentToPublicAgent<Folder>;
+export type PublicFolder = ConvertAgentToPublicAgent<
+  Pick<Folder, 'parentId' | 'idPath' | 'namepath' | 'name' | 'description'>
+>;
 export interface FolderMatcher {
   /**
    * Folder path with workspace rootname, e.g /workspace-rootname/folder-name
