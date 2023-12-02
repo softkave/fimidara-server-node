@@ -25,7 +25,7 @@ export interface File extends WorkspaceResource {
   isReadAvailable?: boolean;
   head?: string;
   version: number;
-  mountEntries: FileMountEntry[];
+  // mountEntries: FileMountEntry[];
 }
 
 export type PublicFile = PublicWorkspaceResource &
@@ -46,7 +46,7 @@ export type PublicFile = PublicWorkspaceResource &
   >;
 
 export type FileMatcher = {
-  /** file path with workspace root name */
+  /** file path with workspace rootname e.g rootname/folder/file.txt */
   filepath?: string;
   fileId?: string;
 };

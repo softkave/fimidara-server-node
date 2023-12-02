@@ -1,6 +1,7 @@
 import {AppResourceTypeMap} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
+import {kSemanticModels} from '../../contexts/injectables';
 import {EmailAddressNotVerifiedError} from '../../users/errors';
 import {workspaceExtractor} from '../utils';
 import INTERNAL_createWorkspace from './internalCreateWorkspace';
@@ -19,18 +20,15 @@ const addWorkspace: AddWorkspaceEndpoint = async (context, instData) => {
   // TODO: find other routes that do not use checkAuthorization and devise a way
   // to always check that user is email verified before performing mutation
   // calls
-  if (!agent.user.isEmailVerified) throw new EmailAddressNotVerifiedError();
+  if (!agent.user.isEmailVerified) {
+    throw new EmailAddressNotVerifiedError();
+  }
 
-  const {workspace} = await context.semantic.utils.withTxn(context, async opts => {
+  const {workspace} = await kSemanticModels.utils().withTxn(async opts => {
     appAssert(agent.user);
-    return await INTERNAL_createWorkspace(
-      context,
-      data,
-      agent,
-      agent.user.resourceId,
-      opts
-    );
+    return await INTERNAL_createWorkspace(data, agent, agent.user.resourceId, opts);
   });
+
   return {workspace: workspaceExtractor(workspace)};
 };
 

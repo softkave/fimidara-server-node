@@ -80,3 +80,4 @@
 - backend fimidara & aws s3
 - folder
 - backends like s3 won't return folder, just files on describe
+- key is filepath

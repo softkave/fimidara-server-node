@@ -1,11 +1,13 @@
+import {compact} from 'lodash';
 import {container} from 'tsyringe';
 import {File, FileMatcher, FilePresignedPath, PublicFile} from '../../definitions/file';
 import {FileBackendMount} from '../../definitions/fileBackend';
 import {PermissionAction} from '../../definitions/permissionItem';
-import {SessionAgent} from '../../definitions/system';
+import {Agent, AppResourceTypeMap, SessionAgent} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
+import {getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {
   checkAuthorizationWithAgent,
@@ -21,8 +23,8 @@ import {
 import {SemanticWorkspaceProviderType} from '../contexts/semantic/workspace/types';
 import {NotFoundError} from '../errors';
 import {
-  initBackendProvidersFromConfigs,
-  resolveBackendConfigsFromMounts,
+  initBackendProvidersForMounts,
+  resolveBackendConfigsWithIdList,
 } from '../fileBackends/configUtils';
 import {
   FileBackendMountWeights,
@@ -30,7 +32,12 @@ import {
   resolveMountsForFolder,
 } from '../fileBackends/mountUtils';
 import {kFolderConstants} from '../folders/constants';
-import {FolderpathInfo, addRootnameToPath, getFolderpathInfo} from '../folders/utils';
+import {
+  FolderpathInfo,
+  addRootnameToPath,
+  ensureFolders,
+  getFolderpathInfo,
+} from '../folders/utils';
 import {workspaceResourceFields} from '../utils';
 import {assertWorkspace, checkWorkspaceExists} from '../workspaces/utils';
 import {fileConstants} from './constants';
@@ -216,18 +223,53 @@ export function stringifyFilenamepath(
   return rootname ? addRootnameToPath(name, rootname) : name;
 }
 
-export function mergeFilesByMount(
-  files: File[],
-  mountWeights: FileBackendMountWeights
-): File | null {
-  throw kReuseableErrors.common.notImplemented();
+export async function createNewFile(
+  agent: Agent,
+  workspace: Workspace,
+  pathinfo: FilepathInfo,
+  data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
+  opts: SemanticProviderMutationRunOptions,
+  seed: Partial<File> = {}
+) {
+  const parentFolder = await ensureFolders(agent, workspace, pathinfo.parentPath, opts);
+
+  const fileId = getNewIdForResource(AppResourceTypeMap.File);
+  const file = newWorkspaceResource<File>(
+    agent,
+    AppResourceTypeMap.File,
+    workspace.resourceId,
+    {
+      workspaceId: workspace.resourceId,
+      resourceId: fileId,
+      extension: pathinfo.extension,
+      name: pathinfo.filenameExcludingExt,
+      idPath: parentFolder ? parentFolder.idPath.concat(fileId) : [fileId],
+      namepath: parentFolder
+        ? parentFolder.namepath.concat(pathinfo.filenameExcludingExt)
+        : [pathinfo.filenameExcludingExt],
+      parentId: parentFolder?.resourceId ?? null,
+      size: 0,
+      isWriteAvailable: false,
+      isReadAvailable: false,
+      version: 0,
+      description: data.description,
+      encoding: data.encoding,
+      mimetype: data.mimetype,
+      ...seed,
+    }
+  );
+
+  await kSemanticModels.file().insertItem(file, opts);
+  return file;
 }
 
 export async function ingestFileByFilepath(
+  agent: Agent,
   /** filepath with workspace rootname */
   filepath: string,
   opts: SemanticProviderMutationRunOptions,
   workspaceId: string,
+  workspace?: Workspace,
   mounts?: FileBackendMount[],
   mountWeights?: FileBackendMountWeights
 ) {
@@ -235,8 +277,8 @@ export async function ingestFileByFilepath(
 
   const pathinfo = getFilepathInfo(filepath);
 
-  if (!workspaceId) {
-    ({workspaceId} = await getWorkspaceFromFilepath(filepath));
+  if (!workspace) {
+    workspace = await getWorkspaceFromFilepath(filepath);
   }
 
   if (mounts) {
@@ -248,32 +290,50 @@ export async function ingestFileByFilepath(
     ));
   }
 
-  const configs = await resolveBackendConfigsFromMounts(mounts, true, opts);
-  const providersMap = await initBackendProvidersFromConfigs(configs);
+  const configs = await resolveBackendConfigsWithIdList(
+    compact(mounts.map(mount => mount.configId)),
+    /** throw error is config is not found */ true,
+    opts
+  );
+  const providersMap = await initBackendProvidersForMounts(mounts, configs);
 
-  const files = await Promise.all(
+  const mountFiles = await Promise.all(
     mounts.map(async mount => {
-      const provider = providersMap[mount.configId];
+      const provider = providersMap[mount.resourceId];
       appAssert(provider);
 
-      return provider.normalizeFile(
+      return await provider.describeFile({
         workspaceId,
-        await provider.describeFile({
-          key: pathinfo.namepath.join(kFolderConstants.separator),
-        })
-      );
+        mount,
+        filepath: pathinfo.namepath.join(kFolderConstants.separator),
+      });
     })
   );
-  let file = mergeFilesByMount(files, mountWeights);
+  const mountFile = mountFiles.find(Boolean);
 
-  if (file) {
+  let file = await fileModel.getOneByNamepath(
+    {workspaceId, namepath: pathinfo.namepath, extension: pathinfo.extension},
+    opts
+  );
+
+  if (mountFile && file) {
     file = await fileModel.getAndUpdateOneBynamepath(file, file, opts);
+    appAssert(file);
+  } else if (mountFile && !file) {
+    file = await createNewFile(agent, workspace, pathinfo, {}, opts, {
+      isReadAvailable: true,
+      isWriteAvailable: true,
+      size: mountFile.size,
+      lastUpdatedAt: mountFile.lastUpdatedAt,
+    });
+    appAssert(file);
   }
 
   return file;
 }
 
 export async function readOrIngestFileByFilepath(
+  agent: Agent,
   /** filepath with workspace rootname */
   filepath: string,
   opts: SemanticProviderMutationRunOptions,
@@ -292,7 +352,7 @@ export async function readOrIngestFileByFilepath(
   );
 
   if (isOnlyMountFimidara(mounts)) {
-    return await fileModel.getOneBynamepath(
+    return await fileModel.getOneByNamepath(
       {
         workspaceId,
         extension: pathinfo.extension,
@@ -302,5 +362,13 @@ export async function readOrIngestFileByFilepath(
     );
   }
 
-  return await ingestFileByFilepath(filepath, opts, workspaceId, mounts, mountWeights);
+  return await ingestFileByFilepath(
+    agent,
+    filepath,
+    opts,
+    workspaceId,
+    /** workspace */ undefined,
+    mounts,
+    mountWeights
+  );
 }

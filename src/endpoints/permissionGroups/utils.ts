@@ -16,11 +16,11 @@ import {indexArray} from '../../utils/indexArray';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {assertGetWorkspaceIdFromAgent} from '../../utils/sessionUtils';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {kSemanticModels} from '../contexts/injectables';
 import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
-import {BaseContextType} from '../contexts/types';
 import {InvalidRequestError, NotFoundError} from '../errors';
 import {agentExtractor, workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
@@ -50,15 +50,13 @@ export const permissionGroupExtractor = makeExtract(permissionGroupFields);
 export const permissionGroupListExtractor = makeListExtract(permissionGroupFields);
 
 export async function checkPermissionGroupAuthorization(
-  context: BaseContextType,
   agent: SessionAgent,
   permissionGroup: PermissionGroup,
   action: PermissionAction,
   opts?: SemanticProviderRunOptions
 ) {
-  const workspace = await checkWorkspaceExists(context, permissionGroup.workspaceId);
+  const workspace = await checkWorkspaceExists(permissionGroup.workspaceId);
   await checkAuthorizationWithAgent({
-    context,
     agent,
     workspace,
     opts,
@@ -69,18 +67,16 @@ export async function checkPermissionGroupAuthorization(
 }
 
 export async function checkPermissionGroupAuthorization02(
-  context: BaseContextType,
   agent: SessionAgent,
   id: string,
   action: PermissionAction
 ) {
-  const permissionGroup = await context.semantic.permissionGroup.getOneById(id);
+  const permissionGroup = await kSemanticModels.permissionGroups().getOneById(id);
   assertPermissionGroup(permissionGroup);
-  return checkPermissionGroupAuthorization(context, agent, permissionGroup, action);
+  return checkPermissionGroupAuthorization(agent, permissionGroup, action);
 }
 
 export async function checkPermissionGroupAuthorization03(
-  context: BaseContextType,
   agent: SessionAgent,
   input: PermissionGroupMatcher,
   action: PermissionAction,
@@ -93,25 +89,21 @@ export async function checkPermissionGroupAuthorization03(
   }
 
   if (input.permissionGroupId) {
-    permissionGroup = await context.semantic.permissionGroup.getOneById(
-      input.permissionGroupId,
-      opts
-    );
+    permissionGroup = await kSemanticModels
+      .permissionGroups()
+      .getOneById(input.permissionGroupId, opts);
   } else if (input.name) {
     const workspaceId = input.workspaceId ?? assertGetWorkspaceIdFromAgent(agent);
-    permissionGroup = await context.semantic.permissionGroup.getByName(
-      workspaceId,
-      input.name,
-      opts
-    );
+    permissionGroup = await kSemanticModels
+      .permissionGroups()
+      .getByName(workspaceId, input.name, opts);
   }
 
   appAssert(permissionGroup, new PermissionGroupDoesNotExistError());
-  return checkPermissionGroupAuthorization(context, agent, permissionGroup, action);
+  return checkPermissionGroupAuthorization(agent, permissionGroup, action);
 }
 
 export async function checkPermissionGroupsExist(
-  context: BaseContextType,
   workspaceId: string,
   permissionGroupInputs: AssignPermissionGroupInput[],
   opts?: SemanticProviderMutationRunOptions
@@ -119,11 +111,9 @@ export async function checkPermissionGroupsExist(
   const idList = permissionGroupInputs.map(item => item.permissionGroupId);
 
   // TODO: use exists with $or or implement bulk ops
-  const permissionGroups =
-    await context.semantic.permissionGroup.getManyByWorkspaceAndIdList(
-      {workspaceId, resourceIdList: idList},
-      opts
-    );
+  const permissionGroups = await kSemanticModels
+    .permissionGroups()
+    .getManyByWorkspaceAndIdList({workspaceId, resourceIdList: idList}, opts);
 
   if (idList.length !== permissionGroups.length) {
     const map = indexArray(permissionGroups, {indexer: getResourceId});

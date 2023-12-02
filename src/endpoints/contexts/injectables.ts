@@ -1,6 +1,8 @@
 import {container} from 'tsyringe';
+import {FimidaraConfig} from '../../resources/types';
 import {kInjectionKeys} from './injection';
 import {SemanticAgentTokenProvider} from './semantic/agentToken/types';
+import {SemanticAssignedItemProvider} from './semantic/assignedItem/types';
 import {
   SemanticFilePresignedPathProvider,
   SemanticFileProvider,
@@ -8,6 +10,9 @@ import {
 import {SemanticFileBackendConfigProvider} from './semantic/fileBackendConfig/types';
 import {SemanticFolderProvider} from './semantic/folder/types';
 import {SemanticPermissionProviderType} from './semantic/permission/types';
+import {SemanticPermissionGroupProviderType} from './semantic/permissionGroup/types';
+import {SemanticPermissionItemProviderType} from './semantic/permissionItem/types';
+import {SemanticTagProviderType} from './semantic/tag/types';
 import {
   SemanticFileBackendMountProvider,
   SemanticJobProvider,
@@ -40,6 +45,23 @@ export const kSemanticModels = {
     container.resolve<SemanticPermissionProviderType>(
       kInjectionKeys.semantic.permissions
     ),
+  permissionGroups: () =>
+    container.resolve<SemanticPermissionGroupProviderType>(
+      kInjectionKeys.semantic.permissionGroups
+    ),
+  permissionItems: () =>
+    container.resolve<SemanticPermissionItemProviderType>(
+      kInjectionKeys.semantic.permissionItems
+    ),
+  tags: () => container.resolve<SemanticTagProviderType>(kInjectionKeys.semantic.tags),
+  assignedItems: () =>
+    container.resolve<SemanticAssignedItemProvider>(
+      kInjectionKeys.semantic.assignedItems
+    ),
   jobs: () => container.resolve<SemanticJobProvider>(kInjectionKeys.semantic.jobs),
   utils: () => container.resolve<SemanticProviderUtils>(kInjectionKeys.semantic.utils),
+};
+
+export const kUtilsInjectables = {
+  config: () => container.resolve<FimidaraConfig>(kInjectionKeys.config),
 };

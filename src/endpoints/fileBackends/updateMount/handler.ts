@@ -7,7 +7,6 @@ import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {EncryptionProvider} from '../../contexts/encryption/types';
 import {kInjectionKeys} from '../../contexts/injection';
 import {
   SemanticFileBackendMountProvider,
@@ -32,13 +31,10 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async (
   const semanticUtils = container.resolve<SemanticProviderUtils>(
     kInjectionKeys.semantic.utils
   );
-  const encryptionProvider = container.resolve<EncryptionProvider>(
-    kInjectionKeys.encryption
-  );
 
   const data = validate(instData.data, updateFileBackendMountJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
+  const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   await checkAuthorizationWithAgent({
     agent,
     workspace,

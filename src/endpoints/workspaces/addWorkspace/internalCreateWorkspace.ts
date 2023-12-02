@@ -14,8 +14,9 @@ import {
   addAssignedPermissionGroupList,
   assignWorkspaceToUser,
 } from '../../assignedItems/addAssignedItems';
+import {kSemanticModels} from '../../contexts/injectables';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {BaseContextType} from '../../contexts/types';
+import {INTERNAL_addFileBackendMount} from '../../fileBackends/addMount/utils';
 import {getDefaultThresholds} from '../../usageRecords/constants';
 import {
   checkWorkspaceNameExists,
@@ -43,7 +44,6 @@ export function transformUsageThresholInput(
 }
 
 const INTERNAL_createWorkspace = async (
-  context: BaseContextType,
   data: NewWorkspaceInput,
   agent: Agent,
   userId: string | undefined,
@@ -51,15 +51,15 @@ const INTERNAL_createWorkspace = async (
 ) => {
   assertIsNotOnWaitlist(agent);
   await Promise.all([
-    checkWorkspaceNameExists(context, data.name, opts),
-    checkWorkspaceRootnameExists(context, data.rootname, opts),
+    checkWorkspaceNameExists(data.name, opts),
+    checkWorkspaceRootnameExists(data.rootname, opts),
   ]);
 
   // TODO: replace with user defined usage thresholds when we implement billing
   const usageThresholds = getDefaultThresholds();
   const createdAt = getTimestamp();
   const id = getNewIdForResource(AppResourceTypeMap.Workspace);
-  const workspace: Workspace | null = {
+  const workspace: Workspace = {
     createdAt,
     usageThresholds,
     createdBy: agent,
@@ -83,17 +83,33 @@ const INTERNAL_createWorkspace = async (
     permissionItems,
   } = generateDefaultWorkspacePermissionGroups(agent, workspace);
   workspace.publicPermissionGroupId = publicPermissionGroup.resourceId;
-  await context.semantic.workspace.insertItem(workspace, opts);
+  await kSemanticModels.workspace().insertItem(workspace, opts);
+
   await Promise.all([
-    context.semantic.permissionGroup.insertItem(
-      [adminPermissionGroup, publicPermissionGroup, collaboratorPermissionGroup],
+    INTERNAL_addFileBackendMount(
+      agent,
+      workspace,
+      {
+        configId: null,
+        folderpath: [],
+        index: 0,
+        mountedFrom: [],
+        name: 'fimidara',
+        product: 'fimidara',
+        workspaceId: workspace.resourceId,
+      },
       opts
     ),
-    context.semantic.permissionItem.insertItem(permissionItems, opts),
-    userId && assignWorkspaceToUser(context, agent, workspace.resourceId, userId, opts),
+    kSemanticModels
+      .permissionGroups()
+      .insertItem(
+        [adminPermissionGroup, publicPermissionGroup, collaboratorPermissionGroup],
+        opts
+      ),
+    kSemanticModels.permissionItems().insertItem(permissionItems, opts),
+    userId && assignWorkspaceToUser(agent, workspace.resourceId, userId, opts),
     userId &&
       addAssignedPermissionGroupList(
-        context,
         agent,
         workspace.resourceId,
         [{permissionGroupId: adminPermissionGroup.resourceId}],

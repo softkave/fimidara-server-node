@@ -6,7 +6,6 @@ import {
 } from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {validate} from '../../../utils/validate';
-import {populateResourceListWithAssignedTags} from '../../assignedItems/getAssignedItems';
 import {BaseContextType} from '../../contexts/types';
 import {fileListExtractor} from '../../files/utils';
 import {PaginationQuery} from '../../types';
@@ -26,7 +25,6 @@ const listFolderContent: ListFolderContentEndpoint = async (context, instData) =
     context,
     agent,
     data,
-
     //  Skip auth check seeing the calling agent doesn't need to have read
     //  permission to the folder, just to it's content, the same way public
     //  agents don't need the workspace to be public but just a file to be
@@ -39,18 +37,13 @@ const listFolderContent: ListFolderContentEndpoint = async (context, instData) =
     AppResourceTypeMap.File,
     AppResourceTypeMap.Folder,
   ];
-  let [fetchedFolders, fetchedFiles] = await Promise.all([
+  const [fetchedFolders, fetchedFiles] = await Promise.all([
     contentType.includes(AppResourceTypeMap.Folder)
       ? fetchFolders(context, agent, workspace, parentFolder, data)
       : [],
     contentType.includes(AppResourceTypeMap.File)
       ? fetchFiles(context, agent, workspace, parentFolder, data)
       : [],
-  ]);
-
-  [fetchedFolders, fetchedFiles] = await Promise.all([
-    populateResourceListWithAssignedTags(context, workspace.resourceId, fetchedFolders),
-    populateResourceListWithAssignedTags(context, workspace.resourceId, fetchedFiles),
   ]);
 
   return {

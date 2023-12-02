@@ -1,42 +1,41 @@
 import {compact, defaultTo, first, isArray, last} from 'lodash';
-import {container} from 'tsyringe';
 import {posix} from 'path';
+import {container} from 'tsyringe';
+import {FileBackendMount} from '../../definitions/fileBackend';
 import {Folder, FolderMatcher, PublicFolder} from '../../definitions/folder';
 import {PermissionAction} from '../../definitions/permissionItem';
 import {SessionAgent} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
+import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
+import {kReuseableErrors} from '../../utils/reusableErrors';
 import {
   checkAuthorizationWithAgent,
   getFilePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
+import {kInjectionKeys} from '../contexts/injection';
+import {SemanticFolderProvider} from '../contexts/semantic/folder/types';
 import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
-import {BaseContextType} from '../contexts/types';
+import {SemanticWorkspaceProviderType} from '../contexts/semantic/workspace/types';
 import {InvalidRequestError} from '../errors';
+import {
+  initBackendProvidersFromConfigs,
+  resolveBackendConfigsFromMounts,
+} from '../fileBackends/configUtils';
+import {
+  FileBackendMountWeights,
+  isOnlyMountFimidara,
+  resolveMountsForFolder,
+} from '../fileBackends/mountUtils';
 import {workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 import {createFolderListWithTransaction} from './addFolder/handler';
 import {kFolderConstants} from './constants';
 import {FolderNotFoundError} from './errors';
 import {assertGetFolderWithMatcher} from './getFolderWithMatcher';
-import {SemanticFolderProvider} from '../contexts/semantic/folder/types';
-import {kInjectionKeys} from '../contexts/injection';
-import {SemanticWorkspaceProviderType} from '../contexts/semantic/workspace/types';
-import {appAssert} from '../../utils/assertion';
-import {kReuseableErrors} from '../../utils/reusableErrors';
-import {
-  FileBackendMountWeights,
-  isOnlyMountFimidara,
-  resolveMountsForFolder,
-} from '../fileBackends/mountUtils';
-import {FileBackendMount} from '../../definitions/fileBackend';
-import {
-  initBackendProvidersFromConfigs,
-  resolveBackendConfigsFromMounts,
-} from '../fileBackends/configUtils';
 
 const folderFields = getFields<PublicFolder>({
   ...workspaceResourceFields,
@@ -45,7 +44,6 @@ const folderFields = getFields<PublicFolder>({
   description: true,
   idPath: true,
   namepath: true,
-  // tags: assignedTagListExtractor,
 });
 
 export const folderExtractor = makeExtract(folderFields);
@@ -128,7 +126,6 @@ export function getWorkspaceRootnameFromPath(providedPath: string | string[]) {
 }
 
 export async function checkFolderAuthorization(
-  context: BaseContextType,
   agent: SessionAgent,
   folder: Folder,
   action: PermissionAction,
@@ -161,7 +158,6 @@ export async function checkFolderAuthorization(
 }
 
 export async function checkFolderAuthorization02(
-  context: BaseContextType,
   agent: SessionAgent,
   matcher: FolderMatcher,
   action: PermissionAction,
@@ -170,14 +166,7 @@ export async function checkFolderAuthorization02(
   UNSAFE_skipAuthCheck = false
 ) {
   const folder = await assertGetFolderWithMatcher(matcher, opts);
-  return checkFolderAuthorization(
-    context,
-    agent,
-    folder,
-    action,
-    workspace,
-    UNSAFE_skipAuthCheck
-  );
+  return checkFolderAuthorization(agent, folder, action, workspace, UNSAFE_skipAuthCheck);
 }
 
 export function getFolderName(folder: Folder) {

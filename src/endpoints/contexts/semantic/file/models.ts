@@ -1,7 +1,7 @@
 import {File, FilePresignedPath} from '../../../../definitions/file';
 import {Resource} from '../../../../definitions/system';
 import {DataProviderQueryListParams} from '../../data/types';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticWorkspaceResourceProvider';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {SemanticProviderRunOptions} from '../types';
 import {getInAndNinQuery} from '../utils';
 import {SemanticFilePresignedPathProvider, SemanticFileProvider} from './types';

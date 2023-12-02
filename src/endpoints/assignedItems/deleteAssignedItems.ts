@@ -1,37 +1,29 @@
 import {AppResourceType} from '../../definitions/system';
+import {kSemanticModels} from '../contexts/injectables';
 import {SemanticProviderMutationRunOptions} from '../contexts/semantic/types';
-import {BaseContextType} from '../contexts/types';
 
-/**
- * @param context
- * @param workspaceId - Use `undefined` for fetching user workspaces
- * @param resourceId
- * @param assignedItemTypes
- */
 export async function deleteResourceAssignedItems(
-  context: BaseContextType,
-  workspaceId: string,
+  /** Use `undefined` for fetching user workspaces */ workspaceId: string,
   resourceId: string | string[],
   assignedItemTypes: AppResourceType[] | undefined,
   opts: SemanticProviderMutationRunOptions
 ) {
-  await context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
-    workspaceId,
-    resourceId,
-    assignedItemTypes,
-    opts
-  );
+  await kSemanticModels
+    .assignedItems()
+    .deleteWorkspaceResourceAssignedItems(
+      workspaceId,
+      resourceId,
+      assignedItemTypes,
+      opts
+    );
 }
 
 export async function deleteAssignableItemAssignedItems(
-  context: BaseContextType,
   workspaceId: string,
   assignedItemId: string,
   opts: SemanticProviderMutationRunOptions
 ) {
-  await context.semantic.assignedItem.deleteWorkspaceAssignedItemResources(
-    workspaceId,
-    assignedItemId,
-    opts
-  );
+  await kSemanticModels
+    .assignedItems()
+    .deleteWorkspaceAssignedItemResources(workspaceId, assignedItemId, opts);
 }

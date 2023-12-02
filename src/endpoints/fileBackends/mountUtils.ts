@@ -4,17 +4,17 @@ import {File} from '../../definitions/file';
 import {FileBackendMount} from '../../definitions/fileBackend';
 import {Folder} from '../../definitions/folder';
 import {appAssert} from '../../utils/assertion';
+import {ServerError} from '../../utils/errors';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {kInjectionKeys} from '../contexts/injection';
 import {
   SemanticFileBackendMountProvider,
   SemanticProviderMutationRunOptions,
-  SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
 import {
   initBackendProvidersFromConfigs,
-  resolveBackendConfigsFromMounts,
+  resolveBackendConfigsWithIdList,
 } from './configUtils';
 
 export type FileBackendMountWeights = Record<string, number>;
@@ -58,10 +58,12 @@ export async function resolveMountsForFolder(
   const mounts: FileBackendMount[] = [];
   const mountWeights: FileBackendMountWeights = {};
 
+  let mountIndex = 0;
   mountsList.forEach(nextMountList => {
-    nextMountList.forEach((mount, index) => {
+    sortMounts(nextMountList).forEach(mount => {
       mounts.push(mount);
-      mountWeights[mount.resourceId] = index;
+      mountWeights[mount.resourceId] = mountIndex;
+      mountIndex += 1;
     });
   });
 
@@ -69,20 +71,29 @@ export async function resolveMountsForFolder(
 }
 
 export function isPrimaryMountFimidara(mounts: FileBackendMount[]): boolean {
-  throw kReuseableErrors.common.notImplemented();
+  return first(mounts)?.product === 'fimidara';
 }
 
 export function isOnlyMountFimidara(mounts: FileBackendMount[]): boolean {
-  throw kReuseableErrors.common.notImplemented();
+  return mounts.length === 1 && isPrimaryMountFimidara(mounts);
 }
 
 export async function getFileBackendForFile(file: File) {
-  const preferredMountEntry = first(file.mountEntries);
-  appAssert(preferredMountEntry);
+  const {mounts} = await resolveMountsForFolder({
+    workspaceId: file.workspaceId,
+    namepath: file.namepath.slice(0, -1),
+  });
+  const mount = first(mounts);
+  appAssert(mount);
 
-  const configs = await resolveBackendConfigsFromMounts([
-    {resourceId: preferredMountEntry.mountId},
-  ]);
+  const configId = mount.configId;
+
+  if (mount.product !== 'fimidara' && !configId) {
+    console.log(`mount ${mount.resourceId} is not fimidara, and is missing config ID`);
+    throw new ServerError();
+  }
+
+  const configs = configId ? await resolveBackendConfigsWithIdList([configId]) : [];
   const config = first(configs);
   appAssert(config);
 
@@ -90,7 +101,7 @@ export async function getFileBackendForFile(file: File) {
   const provider = providersMap[config.resourceId];
   appAssert(provider);
 
-  return {provider, preferredMountEntry, config};
+  return {provider, mount, config};
 }
 
 export async function defaultMount(

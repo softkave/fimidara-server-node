@@ -45,9 +45,9 @@ export const uploadFileBaseTest = async (
     input,
     type
   );
-  const persistedFile = await ctx.fileBackend.getFile({
+  const persistedFile = await ctx.fileBackend.readFile({
     bucket: ctx.appVariables.S3Bucket,
-    key: file.resourceId,
+    filepath: file.resourceId,
   });
   const savedBuffer = persistedFile.body && (await streamToBuffer(persistedFile.body));
   appAssert(savedBuffer);

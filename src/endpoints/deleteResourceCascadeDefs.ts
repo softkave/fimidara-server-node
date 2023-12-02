@@ -194,7 +194,7 @@ export const DELETE_FILE_CASCADE_FNS: DeleteResourceCascadeFnsMap<DeleteFileCasc
           context.semantic.file.deleteManyByIdList(args.fileIdList, opts),
           context.fileBackend.deleteFiles({
             bucket: context.appVariables.S3Bucket,
-            keys: args.fileIdList,
+            filepaths: args.fileIdList,
           }),
         ])
       ),

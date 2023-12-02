@@ -5,7 +5,7 @@ export default class NoopFilePersistenceProviderContext
   implements FilePersistenceProvider
 {
   uploadFile = noopAsync;
-  getFile = async () => ({});
+  readFile = async () => ({});
   deleteFiles = noopAsync;
   ensureBucketReady = noopAsync;
   close = noopAsync;

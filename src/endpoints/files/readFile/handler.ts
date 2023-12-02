@@ -6,7 +6,7 @@ import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels} from '../../contexts/injectables';
 import {getFileBackendForFile} from '../../fileBackends/mountUtils';
-import {checkFileAuthorization03} from '../utils';
+import {checkFileAuthorization03, stringifyFilenamepath} from '../utils';
 import {ReadFileEndpoint} from './types';
 import {readFileJoiSchema} from './validation';
 
@@ -30,9 +30,11 @@ const readFile: ReadFileEndpoint = async (context, instData) => {
     return file;
   });
 
-  const {provider, preferredMountEntry} = await getFileBackendForFile(file);
-  const persistedFile = await provider.getFile({
-    key: preferredMountEntry.key,
+  const {provider, mount} = await getFileBackendForFile(file);
+  const persistedFile = await provider.readFile({
+    mount,
+    workspaceId: file.workspaceId,
+    filepath: stringifyFilenamepath(file),
   });
 
   if (!persistedFile.body) {
@@ -48,7 +50,7 @@ const readFile: ReadFileEndpoint = async (context, instData) => {
       transformer.resize({
         width: data.imageResize.width,
         height: data.imageResize.height,
-        fit: data.imageResize.fit as any,
+        fit: data.imageResize.fit,
         position: data.imageResize.position,
         background: data.imageResize.background,
         withoutEnlargement: data.imageResize.withoutEnlargement,
@@ -64,13 +66,13 @@ const readFile: ReadFileEndpoint = async (context, instData) => {
     return {
       stream: outputStream,
       mimetype: 'image/png',
-      contentLength: persistedFile.contentLength,
+      contentLength: persistedFile.size,
     };
   } else {
     return {
       stream: persistedFile.body,
       mimetype: file.mimetype ?? 'application/octet-stream',
-      contentLength: persistedFile.contentLength,
+      contentLength: persistedFile.size,
     };
   }
 };

@@ -10,6 +10,7 @@ export interface AgentToken extends Resource {
   name?: string;
   description?: string;
   version: number;
+  /** this is set if agent is a user */
   separateEntityId: string | null;
   agentType: AppResourceType;
   workspaceId: string | null;

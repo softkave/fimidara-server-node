@@ -22,7 +22,7 @@ import {stringifyFilenamepath} from '../files/utils';
 import {stringifyFoldernamepath} from '../folders/utils';
 import {
   initBackendProvidersFromConfigs,
-  resolveBackendConfigsFromMounts,
+  resolveBackendConfigsWithIdList,
 } from './configUtils';
 import {resolveMountsForFolder} from './mountUtils';
 
@@ -91,7 +91,7 @@ async function ingestFolderpathFromMount(
       parentJob
     );
 
-    const configs = await resolveBackendConfigsFromMounts([mount]);
+    const configs = await resolveBackendConfigsWithIdList([mount]);
     const providersMap = await initBackendProvidersFromConfigs(configs);
     const provider = providersMap[mount.configId];
     appAssert(provider);
@@ -100,7 +100,10 @@ async function ingestFolderpathFromMount(
     let children: PersistedFileDescription[] = [];
 
     do {
-      ({children, page} = await provider.describeFolderChildren({page, key: folderpath}));
+      ({children, page} = await provider.describeFolderChildren({
+        page,
+        filepath: folderpath,
+      }));
 
       const files: File[] = [];
       const folders: Folder[] = [];
@@ -171,7 +174,7 @@ async function ingestFiles(
   await semanticUtils.withTxn(async opts => {
     const existingFiles = await Promise.all(
       files.map(file =>
-        fileModel.getOneBynamepath(mount.workspaceId, file.namepath, file.extension, opts)
+        fileModel.getOneByNamepath(mount.workspaceId, file.namepath, file.extension, opts)
       )
     );
 
@@ -212,7 +215,7 @@ async function ingestFolders(
   await semanticUtils.withTxn(async opts => {
     const existingFolders = await Promise.all(
       folders.map(folder =>
-        folderModel.getOneBynamepath(mount.workspaceId, folder.namepath, opts)
+        folderModel.getOneByNamepath(mount.workspaceId, folder.namepath, opts)
       )
     );
 

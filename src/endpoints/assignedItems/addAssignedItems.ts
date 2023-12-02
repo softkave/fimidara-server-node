@@ -12,6 +12,7 @@ import {
   newWorkspaceResource,
 } from '../../utils/resource';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {kSemanticModels} from '../contexts/injectables';
 import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
@@ -30,7 +31,6 @@ import {deleteResourceAssignedItems} from './deleteAssignedItems';
  * item, and `false` to not include item.
  */
 async function filterExistingItems<T extends AssignedItem>(
-  context: BaseContextType,
   workspaceId: string,
   items: T[],
   comparatorFn?: (item01: T, item02: AssignedItem) => boolean,
@@ -42,8 +42,9 @@ async function filterExistingItems<T extends AssignedItem>(
     assigneeIdList.push(item.assigneeId);
     assignedItemIdList.push(item.assignedItemId);
   });
-  const existingItems =
-    await context.semantic.assignedItem.getByWorkspaceAssignedAndAssigneeIds(
+  const existingItems = await kSemanticModels
+    .assignedItems()
+    .getByWorkspaceAssignedAndAssigneeIds(
       workspaceId,
       assignedItemIdList,
       assigneeIdList,
@@ -70,46 +71,33 @@ async function filterExistingItems<T extends AssignedItem>(
   return {itemIdListToDelete, resolvedItems};
 }
 
-/**
- *
- * @param context
- * @param workspaceId
- * @param items
- * @param deletedExistingItems - No need to delete existing items
- * @param comparatorFn
- * @param opts
- * @returns
- */
 export async function addAssignedItems<T extends AssignedItem>(
-  context: BaseContextType,
   workspaceId: string,
   items: T[],
-  deletedExistingItems: boolean,
+  /** No need to delete existing items */ deletedExistingItems: boolean,
   comparatorFn: ((item01: T, item02: AssignedItem) => boolean) | undefined,
   opts: SemanticProviderMutationRunOptions
 ) {
   if (deletedExistingItems) {
-    await context.semantic.assignedItem.insertItem(items, opts);
+    await kSemanticModels.assignedItems().insertItem(items, opts);
     return items;
   } else {
     const {itemIdListToDelete, resolvedItems} = await filterExistingItems(
-      context,
       workspaceId,
       items,
       comparatorFn,
       opts
     );
     await Promise.all([
-      context.semantic.assignedItem.insertItem(resolvedItems, opts),
+      kSemanticModels.assignedItems().insertItem(resolvedItems, opts),
       itemIdListToDelete &&
-        context.semantic.assignedItem.deleteManyByIdList(itemIdListToDelete, opts),
+        kSemanticModels.assignedItems().deleteManyByIdList(itemIdListToDelete, opts),
     ]);
     return resolvedItems;
   }
 }
 
 export async function addAssignedPermissionGroupList(
-  context: BaseContextType,
   agent: Agent,
   workspaceId: string,
   permissionGroupsInput: AssignPermissionGroupInput[],
@@ -121,7 +109,6 @@ export async function addAssignedPermissionGroupList(
 ) {
   if (deleteExisting) {
     await deleteResourceAssignedItems(
-      context,
       workspaceId,
       assigneeId,
       [AppResourceTypeMap.PermissionGroup],
@@ -130,12 +117,11 @@ export async function addAssignedPermissionGroupList(
   }
 
   if (!skipPermissionGroupsExistCheck) {
-    await checkPermissionGroupsExist(context, workspaceId, permissionGroupsInput, opts);
+    await checkPermissionGroupsExist(workspaceId, permissionGroupsInput, opts);
   }
 
   if (!skipAuthCheck) {
     await checkAuthorizationWithAgent({
-      context,
       agent,
       opts,
       workspaceId: workspaceId,
@@ -174,14 +160,7 @@ export async function addAssignedPermissionGroupList(
     return item01.meta.order !== (item02 as AssignedItem).meta.order;
   };
 
-  return await addAssignedItems(
-    context,
-    workspaceId,
-    items,
-    deleteExisting,
-    comparatorFn,
-    opts
-  );
+  return await addAssignedItems(workspaceId, items, deleteExisting, comparatorFn, opts);
 }
 
 export async function addAssignedTagList(
@@ -195,7 +174,6 @@ export async function addAssignedTagList(
 ) {
   if (deleteExisting) {
     await deleteResourceAssignedItems(
-      context,
       workspace.resourceId,
       assigneeId,
       [AppResourceTypeMap.Tag],
@@ -225,14 +203,7 @@ export async function addAssignedTagList(
   });
   await Promise.all([
     checkTagsExist(context, agent, workspace, tags, 'readTag'),
-    addAssignedItems(
-      context,
-      workspace.resourceId,
-      items,
-      deleteExisting,
-      undefined,
-      opts
-    ),
+    addAssignedItems(workspace.resourceId, items, deleteExisting, undefined, opts),
   ]);
 
   return items;
@@ -270,7 +241,6 @@ export async function saveResourceAssignedItems(
 }
 
 export async function assignWorkspaceToUser(
-  context: BaseContextType,
   agent: Agent,
   workspaceId: string,
   userId: string,
@@ -289,5 +259,6 @@ export async function assignWorkspaceToUser(
       })
     ),
   ];
-  return await context.semantic.assignedItem.insertItem(items, opts);
+
+  return await kSemanticModels.assignedItems().insertItem(items, opts);
 }

@@ -5,9 +5,6 @@ import {Endpoint} from '../../types';
 
 export interface UploadFileEndpointParams extends FileMatcher {
   data: Readable;
-
-  // TODO: can we validate that size matches stream length
-  size?: number;
   description?: string;
   encoding?: string;
   mimetype?: string; // TODO: define mimetypes

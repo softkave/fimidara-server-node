@@ -1,16 +1,27 @@
 import {
   DeleteObjectsCommand,
   GetObjectCommand,
+  HeadObjectCommand,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
+import {first} from 'lodash';
+import path from 'path';
 import {Readable} from 'stream';
+import {appAssert} from '../../../utils/assertion';
+import {kReuseableErrors} from '../../../utils/reusableErrors';
+import {kFolderConstants} from '../../folders/constants';
 import {
   FilePersistenceDeleteFilesParams,
+  FilePersistenceDescribeFolderParams,
   FilePersistenceGetFileParams,
   FilePersistenceProvider,
+  FilePersistenceProviderDescribeFolderChildrenParams,
+  FilePersistenceProviderDescribeFolderChildrenResult,
   FilePersistenceUploadFileParams,
   PersistedFile,
+  PersistedFileDescription,
+  PersistedFolderDescription,
 } from './types';
 
 export interface S3FilePersistenceProviderInitParams {
@@ -20,6 +31,23 @@ export interface S3FilePersistenceProviderInitParams {
 }
 
 export class S3FilePersistenceProvider implements FilePersistenceProvider {
+  static getBucketAndKey(
+    params: Pick<FilePersistenceUploadFileParams, 'mount' | 'filepath'>
+  ) {
+    const {filepath, mount} = params;
+    const bucket = first(mount.mountedFrom);
+    const prefix = mount.mountedFrom.slice(0).join(kFolderConstants.separator);
+    appAssert(bucket?.length, kReuseableErrors.mount.s3MountSourceMissingBucket());
+
+    const key = path.normalize(
+      `${prefix}/${filepath
+        .split(kFolderConstants.separator)
+        .slice(mount.folderpath.length)}`
+    );
+
+    return {bucket, key};
+  }
+
   protected s3: S3Client;
 
   constructor(params: S3FilePersistenceProviderInitParams) {
@@ -33,40 +61,78 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
   }
 
   uploadFile = async (params: FilePersistenceUploadFileParams) => {
+    const {bucket, key} = S3FilePersistenceProvider.getBucketAndKey(params);
     const command = new PutObjectCommand({
-      Bucket: params.bucket,
-      Key: params.key,
+      Bucket: bucket,
+      Key: key,
       Body: params.body,
       // ContentLength: params.contentLength,
       // ContentType: params.contentType,
       // ContentEncoding: params.contentEncoding,
     });
     await this.s3.send(command);
+
+    return {};
   };
 
-  getFile = async (params: FilePersistenceGetFileParams): Promise<PersistedFile> => {
-    const command = new GetObjectCommand({Bucket: params.bucket, Key: params.key});
+  readFile = async (params: FilePersistenceGetFileParams): Promise<PersistedFile> => {
+    const {bucket, key} = S3FilePersistenceProvider.getBucketAndKey(params);
+    const command = new GetObjectCommand({Bucket: bucket, Key: key});
     const response = await this.s3.send(command);
+
     return {
       body: <Readable | undefined>response.Body,
-      contentLength: response.ContentLength,
+      size: response.ContentLength,
     };
   };
 
   deleteFiles = async (params: FilePersistenceDeleteFilesParams) => {
-    if (params.keys.length === 0) {
+    if (params.filepaths.length === 0) {
       // Short-circuit, no files to delete
       return;
     }
 
+    const objectInfoList = params.filepaths.map(filepath =>
+      S3FilePersistenceProvider.getBucketAndKey({filepath, mount: params.mount})
+    );
+    const bucket = first(objectInfoList)?.bucket;
+    appAssert(bucket);
+
     const command = new DeleteObjectsCommand({
-      Bucket: params.bucket,
-      Delete: {Objects: params.keys.map(key => ({Key: key})), Quiet: false},
+      Bucket: bucket,
+      Delete: {Objects: objectInfoList.map(info => ({Key: info.key}))},
     });
     await this.s3.send(command);
   };
 
   close = async () => {
     await this.s3.destroy();
+  };
+
+  describeFile = async (
+    params: FilePersistenceGetFileParams
+  ): Promise<PersistedFileDescription | undefined> => {
+    const {bucket, key} = S3FilePersistenceProvider.getBucketAndKey(params);
+    const command = new HeadObjectCommand({Bucket: bucket, Key: key});
+    const response = await this.s3.send(command);
+
+    return {
+      filepath: params.filepath,
+      type: 'file',
+      size: response.ContentLength,
+      lastUpdatedAt: response.LastModified ? response.LastModified.valueOf() : undefined,
+    };
+  };
+
+  describeFolder = async (
+    params: FilePersistenceDescribeFolderParams
+  ): Promise<PersistedFolderDescription | undefined> => {
+    return undefined;
+  };
+
+  describeFolderChildren = async (
+    params: FilePersistenceProviderDescribeFolderChildrenParams
+  ): Promise<FilePersistenceProviderDescribeFolderChildrenResult> => {
+    return {files: [], folders: []};
   };
 }

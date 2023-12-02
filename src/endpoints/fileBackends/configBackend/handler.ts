@@ -1,5 +1,6 @@
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {kSemanticModels} from '../../contexts/injectables';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {fileBackendConfigExtractor} from '../utils';
 import {ConfigFileBackendEndpoint} from './types';
@@ -12,7 +13,7 @@ const configFileBackendEndpoint: ConfigFileBackendEndpoint = async (
 ) => {
   const data = validate(instData.data, configFileBackendJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
+  const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   await checkAuthorizationWithAgent({
     agent,
     workspace,
@@ -20,7 +21,7 @@ const configFileBackendEndpoint: ConfigFileBackendEndpoint = async (
     target: {action: 'configFileBackend', targetId: workspace.resourceId},
   });
 
-  const backend = await context.semantic.utils.withTxn(context, async opts => {
+  const backend = await kSemanticModels.utils().withTxn(async opts => {
     return await INTERNAL_configFileBackend(agent, workspace, data, opts);
   });
 

@@ -70,6 +70,7 @@ export const kReuseableErrors = {
     },
     invalidMatcher: () => not_implemented,
     provideNamepath: () => not_implemented,
+    unknownBackend: (backend: string) => not_implemented,
   },
   appRuntimeState: {
     notFound() {
@@ -90,6 +91,7 @@ export const kReuseableErrors = {
   mount: {
     mountExists: () => not_implemented,
     mountNameExists: (name: string) => not_implemented,
+    s3MountSourceMissingBucket: () => not_implemented,
   },
   config: {
     configNameExists: (name: string) => not_implemented,
