@@ -48,7 +48,7 @@ export async function initBackendProvidersFromConfigs(configs: FileBackendConfig
       });
       const initParams = JSON.parse(credentials);
       providersMap[config.resourceId] = resolveFilePersistenceProvider(
-        config.type,
+        config.backend,
         initParams
       );
     })
@@ -83,13 +83,13 @@ export async function initBackendProvidersForMounts(
   mounts.forEach(mount => {
     const {providerParams} = configsMap[mount.configId ?? ''] ?? {};
 
-    if (mount.product !== 'fimidara' && !providerParams) {
+    if (mount.backend !== 'fimidara' && !providerParams) {
       console.log(`mount ${mount.resourceId} is not fimidara, and is without config`);
       throw new ServerError();
     }
 
     providersMap[mount.resourceId] = resolveFilePersistenceProvider(
-      mount.product,
+      mount.backend,
       providerParams
     );
   });

@@ -1,6 +1,6 @@
 import {FieldObjectType} from '../../mddoc/mddoc';
 import {ExportedHttpEndpointWithMddocDefinition} from '../types';
-import {AddAgentTokenEndpoint, AddAgentTokenEndpointParams} from './configBackend/types';
+import {AddAgentTokenEndpoint, AddAgentTokenEndpointParams} from './addConfig/types';
 import {CountWorkspaceAgentTokensEndpoint} from './countConfigs/types';
 import {DeleteAgentTokenEndpoint} from './deleteToken/types';
 import {GetAgentTokenEndpoint} from './getConfig/types';

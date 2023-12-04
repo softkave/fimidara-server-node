@@ -32,8 +32,8 @@ export function generateFileBackendMountForTest(seed: Partial<FileBackendMount> 
     folderpath: faker.system.directoryPath().split('/'),
     index: faker.number.int(),
     mountedFrom: faker.system.directoryPath().split('/'),
-    product: faker.helpers.arrayElement(Object.values(FileBackendProductTypeMap)),
-    type: faker.helpers.arrayElement(Object.values(FileBackendTypeMap)),
+    backend: faker.helpers.arrayElement(Object.values(FileBackendProductTypeMap)),
+    backend: faker.helpers.arrayElement(Object.values(FileBackendTypeMap)),
     ...seed,
   };
   return token;

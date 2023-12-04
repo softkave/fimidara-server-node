@@ -7,12 +7,12 @@ const fileBackendMountSchema = ensureMongoTypeFields<FileBackendMount>({
   folderpath: {type: [String]},
   index: {type: Number},
   mountedFrom: {type: [String]},
-  product: {type: String},
+  backend: {type: String},
 });
 
 const fileBackendConfigSchema = ensureMongoTypeFields<FileBackendConfig>({
   ...workspaceResourceSchema,
-  type: {type: String},
+  backend: {type: String},
   credentials: {type: String},
   mounts: {type: [fileBackendMountSchema]},
 });

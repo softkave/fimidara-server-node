@@ -3,6 +3,16 @@ import {File} from '../../../definitions/file';
 import {FileBackendMount} from '../../../definitions/fileBackend';
 import {AppResourceTypeMap} from '../../../definitions/system';
 
+export type FilePersistenceProviderFeature =
+  | 'describeFile'
+  | 'describeFolder'
+  | 'describeFolderFiles'
+  | 'describeFolderFolders'
+  | 'uploadFile'
+  | 'readFile'
+  | 'deleteFiles'
+  | 'deleteFolders';
+
 export interface FilePersistenceUploadFileParams {
   workspaceId: string;
   filepath: string;
@@ -48,25 +58,31 @@ export type PersistedFolderDescription = {
   folderpath: string;
 };
 
-export interface FilePersistenceProviderDescribeFolderChildrenParams {
+interface DescribeFolderFilesParams {
   workspaceId: string;
   folderpath: string;
   max: number;
-  /** page or continuation token is different depending on provider, so pass
-   * what's returned in previous describeFolderChildren calls */
+  /* page is backend-dependent */
   page: unknown;
   mount: FileBackendMount;
 }
 
-export interface FilePersistenceProviderDescribeFolderChildrenResult {
-  files: PersistedFileDescription[];
-  folders: PersistedFolderDescription[];
-  /** page or continuation token is different depending on provider, so pass
-   * what's returned in previous describeFolderChildren calls */
-  page?: unknown | null;
+interface DescribeFolderFoldersParams {
+  workspaceId: string;
+  folderpath: string;
+  max: number;
+  page: unknown;
+  mount: FileBackendMount;
+}
+
+interface DeleteFoldersParams {
+  workspaceId: string;
+  folderpaths: string[];
+  mount: FileBackendMount;
 }
 
 export interface FilePersistenceProvider {
+  supportsFeature: (feature: FilePersistenceProviderFeature) => boolean;
   uploadFile: (params: FilePersistenceUploadFileParams) => Promise<Partial<File>>;
   readFile: (params: FilePersistenceGetFileParams) => Promise<PersistedFile>;
   describeFile: (
@@ -75,9 +91,17 @@ export interface FilePersistenceProvider {
   describeFolder: (
     params: FilePersistenceDescribeFolderParams
   ) => Promise<PersistedFolderDescription | undefined>;
-  describeFolderChildren: (
-    params: FilePersistenceProviderDescribeFolderChildrenParams
-  ) => Promise<FilePersistenceProviderDescribeFolderChildrenResult>;
+  describeFolderFiles: (params: DescribeFolderFilesParams) => Promise<{
+    files: PersistedFileDescription[];
+    /* null if content is exhausted */
+    page?: unknown | null;
+  }>;
+  describeFolderFolders: (params: DescribeFolderFoldersParams) => Promise<{
+    folders: PersistedFolderDescription[];
+    /* null if content is exhausted */
+    page?: unknown | null;
+  }>;
   deleteFiles: (params: FilePersistenceDeleteFilesParams) => Promise<void>;
+  deleteFolders: (params: DeleteFoldersParams) => Promise<void>;
   close: () => Promise<void>;
 }

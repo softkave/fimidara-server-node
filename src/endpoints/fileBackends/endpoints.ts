@@ -1,4 +1,4 @@
-import addAgentTokenEndpoint from './configBackend/handler';
+import addAgentTokenEndpoint from './addConfig/handler';
 import countWorkspaceAgentTokens from './countConfigs/handler';
 import deleteAgentToken from './deleteToken/handler';
 import {

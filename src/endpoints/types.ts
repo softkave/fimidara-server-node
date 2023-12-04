@@ -1,4 +1,5 @@
 import {Request, RequestHandler, Response} from 'express';
+import {FileBackendMount} from '../definitions/fileBackend';
 import {AppResourceType} from '../definitions/system';
 import {HttpEndpointDefinitionType} from '../mddoc/mddoc';
 import {EndpointExportedError} from '../utils/OperationError';
@@ -7,6 +8,7 @@ import RequestData from './RequestData';
 import {DataProviderQueryListParams} from './contexts/data/types';
 import {SemanticProviderMutationRunOptions} from './contexts/semantic/types';
 import {BaseContextType} from './contexts/types';
+import {kFolderConstants} from './folders/constants';
 
 export interface BaseEndpointResult {
   errors?: EndpointExportedError[];
@@ -159,3 +161,24 @@ export type InferMddocHttpEndpointFromMddocEndpointDefinition<T> =
   >
     ? HttpEndpointDefinitionType<T0, T1, T2, T3, T4, T5, T6>
     : never;
+
+export interface EndpointResultNote {
+  code: string;
+  message: string;
+}
+
+export const EndpointResultNoteCodeMap = {
+  unsupportedOperationInMountBackend: 'unsupportedOperationInMountBackend',
+} as const;
+
+export type EndpointResultNoteCode = ObjectValues<typeof EndpointResultNoteCodeMap>;
+
+export const kEndpointResultNotesToMessageMap: Record<
+  EndpointResultNoteCode,
+  string | ((...args: any[]) => string)
+> = {
+  unsupportedOperationInMountBackend: (mount: FileBackendMount) =>
+    `Mount ${mount.name} from ${mount.backend} mounted to ${mount.folderpath.join(
+      kFolderConstants.separator
+    )} does not support operation.`,
+};

@@ -1,6 +1,6 @@
 import {PublicFolder} from '../../../definitions/folder';
 import {BaseContextType} from '../../contexts/types';
-import {Endpoint} from '../../types';
+import {Endpoint, EndpointResultNote} from '../../types';
 
 export interface NewFolderInput {
   // folder path should include the workspace rootname
@@ -14,6 +14,7 @@ export interface AddFolderEndpointParams {
 
 export interface AddFolderEndpointResult {
   folder: PublicFolder;
+  notes?: EndpointResultNote[];
 }
 
 export type AddFolderEndpoint = Endpoint<

@@ -2,20 +2,23 @@ import {FileBackendType, PublicFileBackendConfig} from '../../../definitions/fil
 import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
-export interface ConfigFileBackendEndpointParams
-  extends EndpointOptionalWorkspaceIDParam {
+export interface NewConfigInput {
   type: FileBackendType;
   credentials: Record<string, unknown>;
   name: string;
   description?: string;
 }
 
-export interface ConfigFileBackendEndpointResult {
+export interface AddConfigEndpointParams extends EndpointOptionalWorkspaceIDParam {
+  config: NewConfigInput;
+}
+
+export interface AddConfigEndpointResult {
   config: PublicFileBackendConfig;
 }
 
-export type ConfigFileBackendEndpoint = Endpoint<
+export type AddConfigEndpoint = Endpoint<
   BaseContextType,
-  ConfigFileBackendEndpointParams,
-  ConfigFileBackendEndpointResult
+  AddConfigEndpointParams,
+  AddConfigEndpointResult
 >;

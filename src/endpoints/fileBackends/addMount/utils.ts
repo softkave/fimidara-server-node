@@ -28,7 +28,7 @@ export const INTERNAL_addFileBackendMount = async (
 
   const mountExists = await fileBackendMountModel.existsByQuery(
     {
-      product: data.product,
+      backend: data.backend,
       folderpath: {$all: data.folderpath, $size: data.folderpath.length},
       mountedFrom: {$all: data.mountedFrom, $size: data.mountedFrom.length},
     },
@@ -59,7 +59,7 @@ export const INTERNAL_addFileBackendMount = async (
       folderpath: data.folderpath,
       index: data.index,
       mountedFrom: data.mountedFrom,
-      product: data.product,
+      backend: data.backend,
       name: data.name,
       description: data.description,
     }
