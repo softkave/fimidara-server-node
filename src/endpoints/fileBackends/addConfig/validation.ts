@@ -1,12 +1,12 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utils/validationUtils';
 import {endpointValidationSchemas} from '../../validation';
-import {AddConfigEndpointParams} from './types';
+import {AddFileBackendConfigEndpointParams} from './types';
 
-export const addConfigJoiSchema = Joi.object<AddConfigEndpointParams>()
+export const addConfigJoiSchema = Joi.object<AddFileBackendConfigEndpointParams>()
   .keys({
     ...endpointValidationSchemas.optionalWorkspaceIdParts,
-    token: Joi.object<AddConfigEndpointParams['token']>()
+    token: Joi.object<AddFileBackendConfigEndpointParams['token']>()
       .keys({
         expires: validationSchemas.time.allow(null),
         providedResourceId: validationSchemas.providedResourceId.allow(null),

@@ -1,15 +1,18 @@
 import * as Joi from 'joi';
 import {JoiSchemaParts} from '../../../utils/types';
 import {endpointValidationSchemas} from '../../validation';
-import {ResolveMountsEndpointParams, ResolveMountsEndpointParamsBase} from './types';
+import {
+  ResolveFileBackendMountssEndpointParams,
+  ResolveMountsEndpointParamsBase,
+} from './types';
 
-export const getWorkspaceFileBackendMountBaseJoiSchemaParts: JoiSchemaParts<ResolveMountsEndpointParamsBase> =
+export const resolveWorkspaceFileBackendMountBaseJoiSchemaParts: JoiSchemaParts<ResolveMountsEndpointParamsBase> =
   endpointValidationSchemas.optionalWorkspaceIdParts;
 
-export const getWorkspaceFileBackendMountJoiSchema =
-  Joi.object<ResolveMountsEndpointParams>()
+export const resolveWorkspaceFileBackendMountJoiSchema =
+  Joi.object<ResolveFileBackendMountssEndpointParams>()
     .keys({
-      ...getWorkspaceFileBackendMountBaseJoiSchemaParts,
+      ...resolveWorkspaceFileBackendMountBaseJoiSchemaParts,
       ...endpointValidationSchemas.paginationParts,
     })
     .required();

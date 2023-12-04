@@ -13,7 +13,7 @@ import {
   mockExpressRequestWithFileBackendMount,
 } from '../../testUtils/testUtils';
 import resolveMountss from './handler';
-import {ResolveMountsEndpointParams} from './types';
+import {ResolveFileBackendMountssEndpointParams} from './types';
 
 let context: BaseContextType | null = null;
 
@@ -34,10 +34,11 @@ describe('resolveMounts', () => {
       insertFileBackendMountForTest(context, userToken, workspace.resourceId),
       insertFileBackendMountForTest(context, userToken, workspace.resourceId),
     ]);
-    const instData = RequestData.fromExpressRequest<ResolveMountsEndpointParams>(
-      mockExpressRequestWithFileBackendMount(userToken),
-      {workspaceId: workspace.resourceId}
-    );
+    const instData =
+      RequestData.fromExpressRequest<ResolveFileBackendMountssEndpointParams>(
+        mockExpressRequestWithFileBackendMount(userToken),
+        {workspaceId: workspace.resourceId}
+      );
     const result = await resolveMountss(context, instData);
     assertEndpointResultOk(result);
     expect(result.tokens).toContainEqual(token01);
@@ -56,17 +57,18 @@ describe('resolveMounts', () => {
     });
     const pageSize = 10;
     let page = 0;
-    let instData = RequestData.fromExpressRequest<ResolveMountsEndpointParams>(
-      mockExpressRequestWithFileBackendMount(userToken),
-      {page, pageSize, workspaceId: workspace.resourceId}
-    );
+    let instData =
+      RequestData.fromExpressRequest<ResolveFileBackendMountssEndpointParams>(
+        mockExpressRequestWithFileBackendMount(userToken),
+        {page, pageSize, workspaceId: workspace.resourceId}
+      );
     let result = await resolveMountss(context, instData);
     assertEndpointResultOk(result);
     expect(result.page).toBe(page);
     expect(result.tokens).toHaveLength(calculatePageSize(count, pageSize, page));
 
     page = 1;
-    instData = RequestData.fromExpressRequest<ResolveMountsEndpointParams>(
+    instData = RequestData.fromExpressRequest<ResolveFileBackendMountssEndpointParams>(
       mockExpressRequestWithFileBackendMount(userToken),
       {page, pageSize, workspaceId: workspace.resourceId}
     );

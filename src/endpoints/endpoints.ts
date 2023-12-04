@@ -13,6 +13,8 @@ import {
   CollaboratorsPublicExportedEndpoints,
 } from './collaborators/types';
 import {BaseContextType} from './contexts/types';
+import {getFileBackendsPublicHttpEndpoints} from './fileBackends/endpoints';
+import {FileBackendsExportedEndpoints} from './fileBackends/types';
 import {getFilesPublicHttpEndpoints} from './files/endpoints';
 import {FilesExportedEndpoints} from './files/types';
 import {getFoldersPublicHttpEndpoints} from './folders/endpoints';
@@ -30,13 +32,18 @@ import {ResourcesExportedEndpoints} from './resources/types';
 import {ExportedHttpEndpointWithMddocDefinition} from './types';
 import {getUsageRecordsPublicHttpEndpoints} from './usageRecords/endpoints';
 import {UsageRecordsExportedEndpoints} from './usageRecords/types';
-import {getUsersPrivateHttpEndpoints, getUsersPublicHttpEndpoints} from './users/endpoints';
+import {
+  getUsersPrivateHttpEndpoints,
+  getUsersPublicHttpEndpoints,
+} from './users/endpoints';
 import {UsersPrivateExportedEndpoints, UsersPublicExportedEndpoints} from './users/types';
 import {registerExpressRouteFromEndpoint} from './utils';
 import {getWorkspacesPublicHttpEndpoints} from './workspaces/endpoints';
 import {WorkspacesExportedEndpoints} from './workspaces/types';
 
-export type AppExportedHttpEndpoints = Array<ExportedHttpEndpointWithMddocDefinition<any>>;
+export type AppExportedHttpEndpoints = Array<
+  ExportedHttpEndpointWithMddocDefinition<any>
+>;
 
 type RecordExportedHttpEndpoints = Record<
   string,
@@ -58,7 +65,9 @@ type FimidaraPublicExportedHttpEndpoints = {
   usageRecords: UsageRecordsExportedEndpoints;
   users: UsersPublicExportedEndpoints;
   workspaces: WorkspacesExportedEndpoints;
+  fileBackends: FileBackendsExportedEndpoints;
 };
+
 type FimidaraPrivateExportedHttpEndpoints = {
   users: UsersPrivateExportedEndpoints;
   collaborators: CollaboratorsPrivateExportedEndpoints;
@@ -79,6 +88,7 @@ function getFimidaraRawPublicHttpEndpoints() {
     usageRecords: getUsageRecordsPublicHttpEndpoints(),
     users: getUsersPublicHttpEndpoints(),
     workspaces: getWorkspacesPublicHttpEndpoints(),
+    fileBackends: getFileBackendsPublicHttpEndpoints(),
   };
   return endpoints;
 }
@@ -91,7 +101,9 @@ function getFimidaraRawPrivateHttpEndpoints() {
   return endpoints;
 }
 
-function isExportedHttpEndpoint(item: any): item is ExportedHttpEndpointWithMddocDefinition {
+function isExportedHttpEndpoint(
+  item: any
+): item is ExportedHttpEndpointWithMddocDefinition {
   return (
     item &&
     (item as ExportedHttpEndpointWithMddocDefinition<any>).fn &&
@@ -99,7 +111,9 @@ function isExportedHttpEndpoint(item: any): item is ExportedHttpEndpointWithMddo
   );
 }
 
-function compileEndpoints(endpointsMap: RecordExportedHttpEndpoints): AppExportedHttpEndpoints {
+function compileEndpoints(
+  endpointsMap: RecordExportedHttpEndpoints
+): AppExportedHttpEndpoints {
   let endpoints: AppExportedHttpEndpoints = [];
   forEach(endpointsMap, e1 => {
     if (isExportedHttpEndpoint(e1)) {

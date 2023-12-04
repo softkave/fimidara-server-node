@@ -1,9 +1,9 @@
 import {PublicFileBackendMount} from '../../../definitions/fileBackend';
 import {BaseContextType} from '../../contexts/types';
-import {Endpoint, EndpointWorkspaceResourceParam} from '../../types';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
 export interface GetFileBackendMountEndpointParams
-  extends EndpointWorkspaceResourceParam {
+  extends EndpointOptionalWorkspaceIDParam {
   mountId: string;
 }
 

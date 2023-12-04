@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {FileMatcher, PublicFile} from '../../definitions/file';
+import {FileMatcher, FileResolvedMountEntry, PublicFile} from '../../definitions/file';
 import {
   FieldBinaryType,
   FieldObjectFieldsMap,
@@ -106,6 +106,22 @@ const format = mddocConstruct
   .setEnumName('ImageFormatEnum')
   .setValid(Object.values(ImageFormatEnumMap));
 
+const fileResolvedMountEntry = mddocConstruct
+  .constructFieldObject<FileResolvedMountEntry>()
+  .setName('FileResolvedMountEntry')
+  .setFields({
+    mountId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
+    resolvedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+  });
+
+const fileResolvedMountEntryList = mddocConstruct
+  .constructFieldArray<FileResolvedMountEntry>()
+  .setType(fileResolvedMountEntry);
+
+const version = mddocConstruct
+  .constructFieldNumber()
+  .setDescription('File version, representing how many times a file has been uploaded.');
+
 const file = mddocConstruct
   .constructFieldObject<PublicFile>()
   .setName('File')
@@ -125,9 +141,10 @@ const file = mddocConstruct
     lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
     name: mddocConstruct.constructFieldObjectField(true, fReusables.filename),
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
-    providedResourceId: mddocConstruct.constructFieldObjectField(
-      false,
-      fReusables.providedResourceIdOrNull
+    version: mddocConstruct.constructFieldObjectField(true, version),
+    resolvedEntries: mddocConstruct.constructFieldObjectField(
+      true,
+      fileResolvedMountEntryList
     ),
   });
 
@@ -170,13 +187,11 @@ const updateFileDetailsParams = mddocConstruct
   .setFields({
     file: mddocConstruct.constructFieldObjectField(true, updateFileDetailsInput),
     ...fileMatcherParts,
-  })
-  .setDescription('Update file details endpoint params.');
+  });
 const updateFileDetailsResponseBody = mddocConstruct
   .constructFieldObject<UpdateFileDetailsEndpointResult>()
   .setName('UpdateFileDetailsEndpointResult')
-  .setFields({file: mddocConstruct.constructFieldObjectField(true, file)})
-  .setDescription('Update file details endpoint success result.');
+  .setFields({file: mddocConstruct.constructFieldObjectField(true, file)});
 
 const issueFilePresignedPathParams = mddocConstruct
   .constructFieldObject<IssueFilePresignedPathEndpointParams>()
@@ -191,15 +206,13 @@ const issueFilePresignedPathParams = mddocConstruct
         .constructFieldNumber()
         .setDescription('How many uses the generated path is valid for.')
     ),
-  })
-  .setDescription('Issue file presigned path endpoint params.');
+  });
 const issueFilePresignedPathResponseBody = mddocConstruct
   .constructFieldObject<IssueFilePresignedPathEndpointResult>()
   .setName('IssueFilePresignedPathEndpointResult')
   .setFields({
     path: mddocConstruct.constructFieldObjectField(true, filePresignedPath),
-  })
-  .setDescription('Issue file presigned path endpoint success result.');
+  });
 
 const getPresignedPathsForFilesParams = mddocConstruct
   .constructFieldObject<GetPresignedPathsForFilesEndpointParams>()
@@ -213,8 +226,7 @@ const getPresignedPathsForFilesParams = mddocConstruct
         .setMax(endpointConstants.inputListMax)
     ),
     workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceId),
-  })
-  .setDescription('Get file presigned paths endpoint params.');
+  });
 const getPresignedPathsForFilesResponseBody = mddocConstruct
   .constructFieldObject<GetPresignedPathsForFilesEndpointResult>()
   .setName('GetPresignedPathsForFilesEndpointResult')
@@ -231,25 +243,21 @@ const getPresignedPathsForFilesResponseBody = mddocConstruct
           })
       )
     ),
-  })
-  .setDescription('Get file presigned paths endpoint success result.');
+  });
 
 const getFileDetailsParams = mddocConstruct
   .constructFieldObject<GetFileDetailsEndpointParams>()
   .setName('GetFileDetailsEndpointParams')
-  .setFields(fileMatcherParts)
-  .setDescription('Get file details endpoint params.');
+  .setFields(fileMatcherParts);
 const getFileDetailsResponseBody = mddocConstruct
   .constructFieldObject<GetFileDetailsEndpointResult>()
   .setName('GetFileDetailsEndpointResult')
-  .setFields({file: mddocConstruct.constructFieldObjectField(true, file)})
-  .setDescription('Get file details endpoint success result.');
+  .setFields({file: mddocConstruct.constructFieldObjectField(true, file)});
 
 const deleteFileParams = mddocConstruct
   .constructFieldObject<DeleteFileEndpointParams>()
   .setName('DeleteFileEndpointParams')
-  .setFields(fileMatcherParts)
-  .setDescription('Delete file endpoint params.');
+  .setFields(fileMatcherParts);
 
 const readFileParams = mddocConstruct
   .constructFieldObject<ReadFileEndpointParams>()
@@ -274,8 +282,7 @@ const readFileParams = mddocConstruct
         .setName('ImageResizeParams')
     ),
     imageFormat: mddocConstruct.constructFieldObjectField(false, format),
-  })
-  .setDescription('Get file endpoint params.');
+  });
 const readFileQuery = mddocConstruct
   .constructFieldObject<ReadFileEndpointHttpQuery>()
   .setFields({
@@ -325,7 +332,6 @@ const uploadFileParams = mddocConstruct
             .setMax(fileConstants.maxFileSizeInBytes)
         ),
       })
-      .setDescription('Upload file endpoint params.')
       .setName('UploadFileEndpointParams')
   );
 
@@ -343,9 +349,7 @@ const uploadFileSdkParamsDef = mddocConstruct
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
     encoding: mddocConstruct.constructFieldObjectField(false, encoding),
     mimetype: mddocConstruct.constructFieldObjectField(false, mimetype),
-    size: mddocConstruct.constructFieldObjectField(false, size),
   })
-  .setDescription('Upload file endpoint params.')
   .setName('UploadFileEndpointParams');
 
 const updloadFileSdkParams = mddocConstruct
@@ -363,10 +367,6 @@ const updloadFileSdkParams = mddocConstruct
         return ['header', 'x-fimidara-file-description'];
       case 'encoding':
         return ['header', 'content-encoding'];
-      // case 'mimetype':
-      //   return ['header', 'x-fimidara-file-mimetype'];
-      case 'size':
-        return ['header', 'content-length'];
       case 'filepath':
         return ['path', 'filepathOrId'];
       case 'fileId':
@@ -430,8 +430,7 @@ export const readFilePOSTEndpointDefinition = mddocConstruct
   .setRequestBody(readFileParams)
   .setResponseHeaders(readFileResponseHeaders)
   .setResponseBody(readFileResponseBody)
-  .setName('ReadFileEndpoint')
-  .setDescription('Read file endpoint.');
+  .setName('ReadFileEndpoint');
 
 export const readFileGETEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -460,8 +459,7 @@ export const readFileGETEndpointDefinition = mddocConstruct
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthOptional)
   .setResponseHeaders(readFileResponseHeaders)
   .setResponseBody(readFileResponseBody)
-  .setName('ReadFileEndpoint')
-  .setDescription('Read file endpoint.');
+  .setName('ReadFileEndpoint');
 
 export const uploadFileEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -485,8 +483,7 @@ export const uploadFileEndpointDefinition = mddocConstruct
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(uploadFileResponseBody)
   .setSdkParamsBody(updloadFileSdkParams)
-  .setName('UploadFileEndpoint')
-  .setDescription('Upload file endpoint.');
+  .setName('UploadFileEndpoint');
 
 export const getFileDetailsEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -515,8 +512,7 @@ export const getFileDetailsEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getFileDetailsResponseBody)
-  .setName('GetFileDetailsEndpoint')
-  .setDescription('Get file details endpoint.');
+  .setName('GetFileDetailsEndpoint');
 
 export const updateFileDetailsEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -545,8 +541,7 @@ export const updateFileDetailsEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(updateFileDetailsResponseBody)
-  .setName('UpdateFileDetailsEndpoint')
-  .setDescription('Update file details endpoint.');
+  .setName('UpdateFileDetailsEndpoint');
 
 export const deleteFileEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -569,8 +564,7 @@ export const deleteFileEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
-  .setName('DeleteFileEndpoint')
-  .setDescription('Delete file endpoint.');
+  .setName('DeleteFileEndpoint');
 
 export const issueFilePresignedPathEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -630,7 +624,7 @@ export const getPresignedPathsForFilesEndpointDefinition = mddocConstruct
       GetPresignedPathsForFilesHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(fileConstants.routes.getPresignedPathsForFiles)
+  .setBasePathname(fileConstants.routes.getPresignedPaths)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getPresignedPathsForFilesParams)
   .setRequestHeaders(

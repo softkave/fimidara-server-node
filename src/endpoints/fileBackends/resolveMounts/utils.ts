@@ -1,14 +1,14 @@
 import {SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
-import {resolveTargetChildrenAccessCheckWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {getWorkspaceResourceListQuery00} from '../../utils';
+import {resolveTarresolveChildrenAccessCheckWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {resolveWorkspaceResourceListQuery00} from '../../utils';
 
 export async function resolveMountsQuery(agent: SessionAgent, workspace: Workspace) {
-  const report = await resolveTargetChildrenAccessCheckWithAgent({
+  const report = await resolveTarresolveChildrenAccessCheckWithAgent({
     agent,
     workspace,
     workspaceId: workspace.resourceId,
-    target: {action: 'readFileBackendMount', targetId: workspace.resourceId},
+    tarresolve: {action: 'readFileBackendMount', tarresolveId: workspace.resourceId},
   });
-  return getWorkspaceResourceListQuery00(workspace, report);
+  return resolveWorkspaceResourceListQuery00(workspace, report);
 }

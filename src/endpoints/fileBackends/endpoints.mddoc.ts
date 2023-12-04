@@ -1,373 +1,801 @@
-import {PublicAgentToken} from '../../definitions/agentToken';
+import {
+  FileBackendTypeMap,
+  PublicFileBackendConfig,
+  PublicFileBackendMount,
+} from '../../definitions/fileBackend';
 import {
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
   mddocConstruct,
 } from '../../mddoc/mddoc';
+import {multilineTextToParagraph} from '../../utils/fns';
 import {
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
 import {
-  AddAgentTokenEndpointParams,
-  AddAgentTokenEndpointResult,
-  NewAgentTokenInput,
+  AddFileBackendConfigEndpointParams,
+  AddFileBackendConfigEndpointResult,
+  NewFileBackendConfigInput,
 } from './addConfig/types';
-import {fileBackendConstants} from './constants';
-import {CountWorkspaceAgentTokensEndpointParams} from './countConfigs/types';
-import {DeleteAgentTokenEndpointParams} from './deleteToken/types';
 import {
-  GetAgentTokenEndpointParams,
-  GetAgentTokenEndpointResult,
+  AddFileBackendMountEndpointParams,
+  AddFileBackendMountEndpointResult,
+  NewFileBackendMountInput,
+} from './addMount/types';
+import {fileBackendConstants} from './constants';
+import {CountFileBackendConfigsEndpointParams} from './countConfigs/types';
+import {CountFileBackendMountsEndpointParams} from './countMounts/types';
+import {DeleteFileBackendConfigEndpointParams} from './deleteConfig/types';
+import {DeleteFileBackendMountEndpointParams} from './deleteMount/types';
+import {
+  GetFileBackendConfigEndpointParams,
+  GetFileBackendConfigEndpointResult,
 } from './getConfig/types';
 import {
-  GetWorkspaceAgentTokensEndpointParams,
-  GetWorkspaceAgentTokensEndpointResult,
+  GetFileBackendConfigsEndpointParams,
+  GetFileBackendConfigsEndpointResult,
 } from './getConfigs/types';
 import {
-  AddAgentTokenHttpEndpoint,
-  CountWorkspaceAgentTokensHttpEndpoint,
-  DeleteAgentTokenHttpEndpoint,
-  GetAgentTokenHttpEndpoint,
-  GetWorkspaceAgentTokensHttpEndpoint,
-  UpdateAgentTokenHttpEndpoint,
+  GetFileBackendMountEndpointParams,
+  GetFileBackendMountEndpointResult,
+} from './getMount/types';
+import {
+  GetFileBackendMountsEndpointParams,
+  GetFileBackendMountsEndpointResult,
+} from './getMounts/types';
+import {
+  ResolveFileBackendMountsEndpointParams,
+  ResolveFileBackendMountsEndpointResult,
+} from './resolveMounts/types';
+import {
+  AddFileBackendConfigHttpEndpoint,
+  AddFileBackendMountHttpEndpoint,
+  CountFileBackendConfigsHttpEndpoint,
+  CountFileBackendMountsHttpEndpoint,
+  DeleteFileBackendConfigHttpEndpoint,
+  DeleteFileBackendMountHttpEndpoint,
+  GetFileBackendConfigHttpEndpoint,
+  GetFileBackendConfigsHttpEndpoint,
+  GetFileBackendMountHttpEndpoint,
+  GetFileBackendMountsHttpEndpoint,
+  ResolveFileBackendMountsHttpEndpoint,
+  UpdateFileBackendConfigHttpEndpoint,
+  UpdateFileBackendMountHttpEndpoint,
 } from './types';
 import {
-  UpdateAgentTokenEndpointParams,
-  UpdateAgentTokenEndpointResult,
+  UpdateFileBackendConfigEndpointParams,
+  UpdateFileBackendConfigEndpointResult,
+  UpdateFileBackendConfigInput,
 } from './updateConfig/types';
+import {
+  UpdateFileBackendMountEndpointParams,
+  UpdateFileBackendMountEndpointResult,
+  UpdateFileBackendMountInput,
+} from './updateMount/types';
 
-const newAgentTokenInput = mddocConstruct
-  .constructFieldObject<NewAgentTokenInput>()
-  .setName('NewAgentTokenInput')
+const backend = mddocConstruct
+  .constructFieldString()
+  .setDescription('File backend type.')
+  .setExample(FileBackendTypeMap.Fimidara)
+  .setValid(Object.values(FileBackendTypeMap))
+  .setEnumName('FileBackendType');
+
+const configId = fReusables.id.clone().setDescription('Backend config ID.');
+const configIdOrNull = mddocConstruct
+  .constructFieldOrCombination<string | null>()
+  .setTypes([configId, fReusables.nullValue]);
+
+const index = mddocConstruct
+  .constructFieldNumber()
+  .setDescription(
+    'File backend mount weight when compared to mounts attached to the same folder. ' +
+      'Lower values have higher weight.'
+  );
+
+const mountedFrom = fReusables.folderpathList.clone().setDescription(
+  multilineTextToParagraph(`
+    Files mount source. Exact shape is different for each provider. For AWS S3, this would be
+    just the bucket name or bucket name with folder prefix. E.g my-bucket or my-bucket/folder01 assuming
+    there is a folder01 within my-bucket.
+`)
+);
+
+const credentials = mddocConstruct
+  .constructFieldObject<Record<string, unknown>>()
+  .setFields({})
+  .setDescription(
+    multilineTextToParagraph(`
+      Exact shape depends on backend.
+  `)
+  );
+
+const newFileBackendMountInput = mddocConstruct
+  .constructFieldObject<NewFileBackendMountInput>()
+  .setName('NewFileBackendMountInput')
+  .setFields({
+    name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
+    description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
+    backend: mddocConstruct.constructFieldObjectField(true, backend),
+    folderpath: mddocConstruct.constructFieldObjectField(true, fReusables.folderpathList),
+    configId: mddocConstruct.constructFieldObjectField(true, configIdOrNull),
+    index: mddocConstruct.constructFieldObjectField(true, index),
+    mountedFrom: mddocConstruct.constructFieldObjectField(true, mountedFrom),
+  });
+
+const updateFileBackendMountInput = mddocConstruct
+  .constructFieldObject<UpdateFileBackendMountInput>()
+  .setName('UpdateFileBackendMountInput')
   .setFields({
     name: mddocConstruct.constructFieldObjectField(false, fReusables.name),
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
-    expires: mddocConstruct.constructFieldObjectField(false, fReusables.expires),
-    providedResourceId: mddocConstruct.constructFieldObjectField(
+    configId: mddocConstruct.constructFieldObjectField(false, configId),
+    folderpath: mddocConstruct.constructFieldObjectField(
       false,
-      fReusables.providedResourceId
+      fReusables.folderpathList
     ),
+    index: mddocConstruct.constructFieldObjectField(false, index),
+    mountedFrom: mddocConstruct.constructFieldObjectField(false, mountedFrom),
   });
 
-const agentToken = mddocConstruct
-  .constructFieldObject<PublicAgentToken>()
-  .setName('AgentToken')
+const fileBackendMount = mddocConstruct
+  .constructFieldObject<PublicFileBackendMount>()
+  .setName('FileBackendMount')
   .setFields({
     resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
     createdBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
     createdAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
     lastUpdatedBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
     lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+    workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),
+    name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
+    description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
+    backend: mddocConstruct.constructFieldObjectField(true, backend),
+    configId: mddocConstruct.constructFieldObjectField(true, configIdOrNull),
+    folderpath: mddocConstruct.constructFieldObjectField(true, fReusables.folderpathList),
+    index: mddocConstruct.constructFieldObjectField(true, index),
+    mountedFrom: mddocConstruct.constructFieldObjectField(true, mountedFrom),
+  });
+
+const fileBackendMountList = mddocConstruct
+  .constructFieldArray<PublicFileBackendMount>()
+  .setType(fileBackendMount);
+
+const newFileBackendConfigInput = mddocConstruct
+  .constructFieldObject<NewFileBackendConfigInput>()
+  .setName('NewFileBackendConfigInput')
+  .setFields({
+    name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
+    description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
+    backend: mddocConstruct.constructFieldObjectField(true, backend),
+    credentials: mddocConstruct.constructFieldObjectField(true, credentials),
+  });
+
+const updateFileBackendConfigInput = mddocConstruct
+  .constructFieldObject<UpdateFileBackendConfigInput>()
+  .setName('UpdateFileBackendConfigInput')
+  .setFields({
     name: mddocConstruct.constructFieldObjectField(false, fReusables.name),
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
+    credentials: mddocConstruct.constructFieldObjectField(false, credentials),
+  });
+
+const fileBackendConfig = mddocConstruct
+  .constructFieldObject<PublicFileBackendConfig>()
+  .setName('FileBackendConfig')
+  .setFields({
+    resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
+    createdBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
+    createdAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+    lastUpdatedBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
+    lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
     workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),
-    tokenStr: mddocConstruct.constructFieldObjectField(true, fReusables.tokenString),
-    expires: mddocConstruct.constructFieldObjectField(false, fReusables.expires),
-    providedResourceId: mddocConstruct.constructFieldObjectField(
+    name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
+    description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
+    backend: mddocConstruct.constructFieldObjectField(true, backend),
+  });
+
+const fileBackendConfigList = mddocConstruct
+  .constructFieldArray<PublicFileBackendConfig>()
+  .setType(fileBackendConfig);
+
+const addFileBackendMountParams = mddocConstruct
+  .constructFieldObject<AddFileBackendMountEndpointParams>()
+  .setName('AddFileBackendMountEndpointParams')
+  .setFields({
+    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceId),
+    mount: mddocConstruct.constructFieldObjectField(true, newFileBackendMountInput),
+  });
+const addFileBackendMountSuccessResponseBody = mddocConstruct
+  .constructFieldObject<AddFileBackendMountEndpointResult>()
+  .setName('AddFileBackendMountEndpointResult')
+  .setFields({mount: mddocConstruct.constructFieldObjectField(true, fileBackendMount)});
+
+const getFileBackendMountsParams = mddocConstruct
+  .constructFieldObject<GetFileBackendMountsEndpointParams>()
+  .setName('GetFileBackendMountsEndpointParams')
+  .setFields({
+    workspaceId: mddocConstruct.constructFieldObjectField(
       false,
-      fReusables.providedResourceIdOrNull
+      fReusables.workspaceIdInput
+    ),
+    backend: mddocConstruct.constructFieldObjectField(false, backend),
+    folderpath: mddocConstruct.constructFieldObjectField(false, fReusables.folderpath),
+    page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
+    pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
+  });
+const getFileBackendMountsSuccessResponseBody = mddocConstruct
+  .constructFieldObject<GetFileBackendMountsEndpointResult>()
+  .setName('GetFileBackendMountsEndpointResult')
+  .setFields({
+    mounts: mddocConstruct.constructFieldObjectField(true, fileBackendMountList),
+    page: mddocConstruct.constructFieldObjectField(true, fReusables.page),
+  });
+
+const countFileBackendMountsParams = mddocConstruct
+  .constructFieldObject<CountFileBackendMountsEndpointParams>()
+  .setName('CountFileBackendMountsEndpointParams')
+  .setFields({
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceIdInput
+    ),
+    backend: mddocConstruct.constructFieldObjectField(false, backend),
+    folderpath: mddocConstruct.constructFieldObjectField(false, fReusables.folderpath),
+  });
+
+const updateFileBackendMountParams = mddocConstruct
+  .constructFieldObject<UpdateFileBackendMountEndpointParams>()
+  .setName('UpdateFileBackendMountEndpointParams')
+  .setFields({
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceIdInput
+    ),
+    mountId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
+    mount: mddocConstruct.constructFieldObjectField(true, updateFileBackendMountInput),
+  });
+const updateFileBackendMountSuccessResponseBody = mddocConstruct
+  .constructFieldObject<UpdateFileBackendMountEndpointResult>()
+  .setName('UpdateFileBackendMountEndpointResult')
+  .setFields({
+    mount: mddocConstruct.constructFieldObjectField(true, fileBackendMount),
+    jobId: mddocConstruct.constructFieldObjectField(false, fReusables.jobId),
+  });
+
+const getFileBackendMountParams = mddocConstruct
+  .constructFieldObject<GetFileBackendMountEndpointParams>()
+  .setName('GetFileBackendMountEndpointParams')
+  .setFields({
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceIdInput
+    ),
+    mountId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
+  });
+const getFileBackendMountSuccessBody = mddocConstruct
+  .constructFieldObject<GetFileBackendMountEndpointResult>()
+  .setName('GetFileBackendMountEndpointResult')
+  .setFields({mount: mddocConstruct.constructFieldObjectField(true, fileBackendMount)});
+
+const deleteFileBackendMountParams = mddocConstruct
+  .constructFieldObject<DeleteFileBackendMountEndpointParams>()
+  .setName('DeleteFileBackendMountEndpointParams')
+  .setFields({
+    mountId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceIdInput
     ),
   });
 
-const addAgentTokenParams = mddocConstruct
-  .constructFieldObject<AddAgentTokenEndpointParams>()
-  .setName('AddAgentTokenEndpointParams')
+const resolveFileBackendMountsParams = mddocConstruct
+  .constructFieldObject<ResolveFileBackendMountsEndpointParams>()
+  .setName('ResolveFileBackendMountsEndpointParams')
+  .setFields({
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceIdInput
+    ),
+    folderId: mddocConstruct.constructFieldObjectField(false, fReusables.folderId),
+    folderpath: mddocConstruct.constructFieldObjectField(false, fReusables.folderpath),
+    fileId: mddocConstruct.constructFieldObjectField(false, fReusables.fileId),
+    filepath: mddocConstruct.constructFieldObjectField(false, fReusables.filepath),
+  });
+const resolveFileBackendMountsSuccessResponseBody = mddocConstruct
+  .constructFieldObject<ResolveFileBackendMountsEndpointResult>()
+  .setName('ResolveFileBackendMountsEndpointResult')
+  .setFields({
+    mounts: mddocConstruct.constructFieldObjectField(true, fileBackendMountList),
+    page: mddocConstruct.constructFieldObjectField(true, fReusables.page),
+  });
+
+const addFileBackendConfigParams = mddocConstruct
+  .constructFieldObject<AddFileBackendConfigEndpointParams>()
+  .setName('AddFileBackendConfigEndpointParams')
   .setFields({
     workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceId),
-    token: mddocConstruct.constructFieldObjectField(true, newAgentTokenInput),
-  })
-  .setDescription('Add agent token endpoint params.');
-const addAgentTokenSuccessResponseBody = mddocConstruct
-  .constructFieldObject<AddAgentTokenEndpointResult>()
-  .setName('AddAgentTokenEndpointResult')
-  .setFields({token: mddocConstruct.constructFieldObjectField(true, agentToken)})
-  .setDescription('Add agent token endpoint success result.');
+    config: mddocConstruct.constructFieldObjectField(true, newFileBackendConfigInput),
+  });
+const addFileBackendConfigSuccessResponseBody = mddocConstruct
+  .constructFieldObject<AddFileBackendConfigEndpointResult>()
+  .setName('AddFileBackendConfigEndpointResult')
+  .setFields({config: mddocConstruct.constructFieldObjectField(true, fileBackendConfig)});
 
-const getWorkspaceAgentTokensParams = mddocConstruct
-  .constructFieldObject<GetWorkspaceAgentTokensEndpointParams>()
-  .setName('GetWorkspaceAgentTokensEndpointParams')
+const getFileBackendConfigsParams = mddocConstruct
+  .constructFieldObject<GetFileBackendConfigsEndpointParams>()
+  .setName('GetFileBackendConfigsEndpointParams')
   .setFields({
     workspaceId: mddocConstruct.constructFieldObjectField(
       false,
       fReusables.workspaceIdInput
     ),
+    backend: mddocConstruct.constructFieldObjectField(false, backend),
+    mountId: mddocConstruct.constructFieldObjectField(false, fReusables.id),
     page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
     pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
-  })
-  .setDescription('Get workspace agent tokens endpoint params.');
-const getWorkspaceAgentTokensSuccessResponseBody = mddocConstruct
-  .constructFieldObject<GetWorkspaceAgentTokensEndpointResult>()
-  .setName('GetWorkspaceAgentTokensEndpointResult')
+  });
+const getFileBackendConfigsSuccessResponseBody = mddocConstruct
+  .constructFieldObject<GetFileBackendConfigsEndpointResult>()
+  .setName('GetFileBackendConfigsEndpointResult')
   .setFields({
-    tokens: mddocConstruct.constructFieldObjectField(
-      true,
-      mddocConstruct.constructFieldArray<PublicAgentToken>().setType(agentToken)
-    ),
+    configs: mddocConstruct.constructFieldObjectField(true, fileBackendConfigList),
     page: mddocConstruct.constructFieldObjectField(true, fReusables.page),
-  })
-  .setDescription('Add agent token endpoint success result.');
+  });
 
-const countWorkspaceAgentTokensParams = mddocConstruct
-  .constructFieldObject<CountWorkspaceAgentTokensEndpointParams>()
-  .setName('CountWorkspaceAgentTokensEndpointParams')
+const countFileBackendConfigsParams = mddocConstruct
+  .constructFieldObject<CountFileBackendConfigsEndpointParams>()
+  .setName('CountFileBackendConfigsEndpointParams')
   .setFields({
     workspaceId: mddocConstruct.constructFieldObjectField(
       false,
       fReusables.workspaceIdInput
     ),
-  })
-  .setDescription('Count workspace agent tokens endpoint params.');
+    backend: mddocConstruct.constructFieldObjectField(false, backend),
+    mountId: mddocConstruct.constructFieldObjectField(false, fReusables.id),
+  });
 
-const updateAgentTokenParams = mddocConstruct
-  .constructFieldObject<UpdateAgentTokenEndpointParams>()
-  .setName('UpdateAgentTokenEndpointParams')
+const updateFileBackendConfigParams = mddocConstruct
+  .constructFieldObject<UpdateFileBackendConfigEndpointParams>()
+  .setName('UpdateFileBackendConfigEndpointParams')
   .setFields({
     workspaceId: mddocConstruct.constructFieldObjectField(
       false,
       fReusables.workspaceIdInput
     ),
-    tokenId: mddocConstruct.constructFieldObjectField(false, fReusables.id),
-    onReferenced: mddocConstruct.constructFieldObjectField(
-      false,
-      fReusables.effectOnReferenced
-    ),
-    token: mddocConstruct.constructFieldObjectField(true, newAgentTokenInput),
-    providedResourceId: mddocConstruct.constructFieldObjectField(
-      false,
-      fReusables.providedResourceId
-    ),
-  })
-  .setDescription('Update agent token endpoint params.');
-const updateAgentTokenSuccessResponseBody = mddocConstruct
-  .constructFieldObject<UpdateAgentTokenEndpointResult>()
-  .setName('UpdateAgentTokenEndpointResult')
-  .setFields({token: mddocConstruct.constructFieldObjectField(true, agentToken)})
-  .setDescription('Update agent token endpoint success result.');
+    configId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
+    config: mddocConstruct.constructFieldObjectField(true, updateFileBackendConfigInput),
+  });
+const updateFileBackendConfigSuccessResponseBody = mddocConstruct
+  .constructFieldObject<UpdateFileBackendConfigEndpointResult>()
+  .setName('UpdateFileBackendConfigEndpointResult')
+  .setFields({
+    config: mddocConstruct.constructFieldObjectField(true, fileBackendConfig),
+  });
 
-const getAgentTokenParams = mddocConstruct
-  .constructFieldObject<GetAgentTokenEndpointParams>()
-  .setName('GetAgentTokenEndpointParams')
+const getFileBackendConfigParams = mddocConstruct
+  .constructFieldObject<GetFileBackendConfigEndpointParams>()
+  .setName('GetFileBackendConfigEndpointParams')
   .setFields({
     workspaceId: mddocConstruct.constructFieldObjectField(
       false,
       fReusables.workspaceIdInput
     ),
-    providedResourceId: mddocConstruct.constructFieldObjectField(
-      false,
-      fReusables.providedResourceId
-    ),
-    tokenId: mddocConstruct.constructFieldObjectField(false, fReusables.id),
-    onReferenced: mddocConstruct.constructFieldObjectField(
-      false,
-      fReusables.effectOnReferenced
-    ),
-  })
-  .setDescription('Get agent token endpoint params.');
-const getAgentTokenSuccessBody = mddocConstruct
-  .constructFieldObject<GetAgentTokenEndpointResult>()
-  .setName('GetAgentTokenEndpointResult')
-  .setFields({token: mddocConstruct.constructFieldObjectField(true, agentToken)})
-  .setDescription('Get agent token endpoint success result.');
+    configId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
+  });
+const getFileBackendConfigSuccessBody = mddocConstruct
+  .constructFieldObject<GetFileBackendConfigEndpointResult>()
+  .setName('GetFileBackendConfigEndpointResult')
+  .setFields({config: mddocConstruct.constructFieldObjectField(true, fileBackendConfig)});
 
-const deleteAgentTokenParams = mddocConstruct
-  .constructFieldObject<DeleteAgentTokenEndpointParams>()
-  .setName('DeleteAgentTokenEndpointParams')
+const deleteFileBackendConfigParams = mddocConstruct
+  .constructFieldObject<DeleteFileBackendConfigEndpointParams>()
+  .setName('DeleteFileBackendConfigEndpointParams')
   .setFields({
-    tokenId: mddocConstruct.constructFieldObjectField(false, fReusables.id),
-    onReferenced: mddocConstruct.constructFieldObjectField(
-      false,
-      fReusables.effectOnReferenced
-    ),
-    providedResourceId: mddocConstruct.constructFieldObjectField(
-      false,
-      fReusables.providedResourceId
-    ),
+    configId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
     workspaceId: mddocConstruct.constructFieldObjectField(
       false,
       fReusables.workspaceIdInput
     ),
-  })
-  .setDescription('Delete agent token endpoint params.');
+  });
 
-export const addAgentTokenEndpointDefinition = mddocConstruct
+export const addFileBackendMountEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
     InferFieldObjectType<
-      AddAgentTokenHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+      AddFileBackendMountHttpEndpoint['mddocHttpDefinition']['requestHeaders']
     >,
     InferFieldObjectType<
-      AddAgentTokenHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+      AddFileBackendMountHttpEndpoint['mddocHttpDefinition']['pathParamaters']
     >,
-    InferFieldObjectType<AddAgentTokenHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectType<AddFileBackendMountHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<
-      AddAgentTokenHttpEndpoint['mddocHttpDefinition']['requestBody']
+      AddFileBackendMountHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<
-      AddAgentTokenHttpEndpoint['mddocHttpDefinition']['responseHeaders']
-    >,
-    InferFieldObjectType<AddAgentTokenHttpEndpoint['mddocHttpDefinition']['responseBody']>
-  >()
-  .setBasePathname(fileBackendConstants.routes.addToken)
-  .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(addAgentTokenParams)
-  .setRequestHeaders(
-    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
-  )
-  .setResponseBody(addAgentTokenSuccessResponseBody)
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
-  .setName('AddAgentTokenEndpoint')
-  .setDescription('Add agent token endpoint.');
-
-export const getAgentTokenEndpointDefinition = mddocConstruct
-  .constructHttpEndpointDefinition<
-    InferFieldObjectType<
-      GetAgentTokenHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+      AddFileBackendMountHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      GetAgentTokenHttpEndpoint['mddocHttpDefinition']['pathParamaters']
-    >,
-    InferFieldObjectType<GetAgentTokenHttpEndpoint['mddocHttpDefinition']['query']>,
-    InferFieldObjectOrMultipartType<
-      GetAgentTokenHttpEndpoint['mddocHttpDefinition']['requestBody']
-    >,
-    InferFieldObjectType<
-      GetAgentTokenHttpEndpoint['mddocHttpDefinition']['responseHeaders']
-    >,
-    InferFieldObjectType<GetAgentTokenHttpEndpoint['mddocHttpDefinition']['responseBody']>
-  >()
-  .setBasePathname(fileBackendConstants.routes.getToken)
-  .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(getAgentTokenParams)
-  .setRequestHeaders(
-    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
-  )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
-  .setResponseBody(getAgentTokenSuccessBody)
-  .setName('GetAgentTokenEndpoint')
-  .setDescription('Get agent token endpoint.');
-
-export const updateAgentTokenEndpointDefinition = mddocConstruct
-  .constructHttpEndpointDefinition<
-    InferFieldObjectType<
-      UpdateAgentTokenHttpEndpoint['mddocHttpDefinition']['requestHeaders']
-    >,
-    InferFieldObjectType<
-      UpdateAgentTokenHttpEndpoint['mddocHttpDefinition']['pathParamaters']
-    >,
-    InferFieldObjectType<UpdateAgentTokenHttpEndpoint['mddocHttpDefinition']['query']>,
-    InferFieldObjectOrMultipartType<
-      UpdateAgentTokenHttpEndpoint['mddocHttpDefinition']['requestBody']
-    >,
-    InferFieldObjectType<
-      UpdateAgentTokenHttpEndpoint['mddocHttpDefinition']['responseHeaders']
-    >,
-    InferFieldObjectType<
-      UpdateAgentTokenHttpEndpoint['mddocHttpDefinition']['responseBody']
+      AddFileBackendMountHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(fileBackendConstants.routes.updateToken)
+  .setBasePathname(fileBackendConstants.routes.addMount)
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(updateAgentTokenParams)
+  .setRequestBody(addFileBackendMountParams)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
+  .setResponseBody(addFileBackendMountSuccessResponseBody)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setName('AddFileBackendMountEndpoint');
+
+export const getFileBackendMountEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      GetFileBackendMountHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      GetFileBackendMountHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<GetFileBackendMountHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectOrMultipartType<
+      GetFileBackendMountHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      GetFileBackendMountHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      GetFileBackendMountHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
+  >()
+  .setBasePathname(fileBackendConstants.routes.getMount)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(getFileBackendMountParams)
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
-  .setResponseBody(updateAgentTokenSuccessResponseBody)
-  .setName('UpdateAgentTokenEndpoint')
-  .setDescription('Update agent token endpoint.');
+  .setResponseBody(getFileBackendMountSuccessBody)
+  .setName('GetFileBackendMountEndpoint');
 
-export const deleteAgentTokenEndpointDefinition = mddocConstruct
+export const updateFileBackendMountEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
     InferFieldObjectType<
-      DeleteAgentTokenHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+      UpdateFileBackendMountHttpEndpoint['mddocHttpDefinition']['requestHeaders']
     >,
     InferFieldObjectType<
-      DeleteAgentTokenHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+      UpdateFileBackendMountHttpEndpoint['mddocHttpDefinition']['pathParamaters']
     >,
-    InferFieldObjectType<DeleteAgentTokenHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectType<
+      UpdateFileBackendMountHttpEndpoint['mddocHttpDefinition']['query']
+    >,
     InferFieldObjectOrMultipartType<
-      DeleteAgentTokenHttpEndpoint['mddocHttpDefinition']['requestBody']
+      UpdateFileBackendMountHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<
-      DeleteAgentTokenHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+      UpdateFileBackendMountHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      DeleteAgentTokenHttpEndpoint['mddocHttpDefinition']['responseBody']
+      UpdateFileBackendMountHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(fileBackendConstants.routes.deleteToken)
+  .setBasePathname(fileBackendConstants.routes.updateMount)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(updateFileBackendMountParams)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(updateFileBackendMountSuccessResponseBody)
+  .setName('UpdateFileBackendMountEndpoint');
+
+export const deleteFileBackendMountEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      DeleteFileBackendMountHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      DeleteFileBackendMountHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<
+      DeleteFileBackendMountHttpEndpoint['mddocHttpDefinition']['query']
+    >,
+    InferFieldObjectOrMultipartType<
+      DeleteFileBackendMountHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      DeleteFileBackendMountHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      DeleteFileBackendMountHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
+  >()
+  .setBasePathname(fileBackendConstants.routes.deleteMount)
   .setMethod(HttpEndpointMethod.Delete)
-  .setRequestBody(deleteAgentTokenParams)
+  .setRequestBody(deleteFileBackendMountParams)
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
-  .setName('DeleteAgentTokenEndpoint')
-  .setDescription('Delete agent token endpoint.');
+  .setName('DeleteFileBackendMountEndpoint');
 
-export const getWorkspaceAgentTokensEndpointDefinition = mddocConstruct
+export const getFileBackendMountsEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
     InferFieldObjectType<
-      GetWorkspaceAgentTokensHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+      GetFileBackendMountsHttpEndpoint['mddocHttpDefinition']['requestHeaders']
     >,
     InferFieldObjectType<
-      GetWorkspaceAgentTokensHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+      GetFileBackendMountsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
     >,
     InferFieldObjectType<
-      GetWorkspaceAgentTokensHttpEndpoint['mddocHttpDefinition']['query']
+      GetFileBackendMountsHttpEndpoint['mddocHttpDefinition']['query']
     >,
     InferFieldObjectOrMultipartType<
-      GetWorkspaceAgentTokensHttpEndpoint['mddocHttpDefinition']['requestBody']
+      GetFileBackendMountsHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<
-      GetWorkspaceAgentTokensHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+      GetFileBackendMountsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      GetWorkspaceAgentTokensHttpEndpoint['mddocHttpDefinition']['responseBody']
+      GetFileBackendMountsHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(fileBackendConstants.routes.getWorkspaceTokens)
+  .setBasePathname(fileBackendConstants.routes.getMounts)
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(getWorkspaceAgentTokensParams)
+  .setRequestBody(getFileBackendMountsParams)
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
-  .setResponseBody(getWorkspaceAgentTokensSuccessResponseBody)
-  .setName('GetWorkspaceAgentTokensEndpoint')
-  .setDescription('Get workspace agent tokens endpoint.');
+  .setResponseBody(getFileBackendMountsSuccessResponseBody)
+  .setName('GetFileBackendMountsEndpoint');
 
-export const countWorkspaceAgentTokensEndpointDefinition = mddocConstruct
+export const countFileBackendMountsEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
     InferFieldObjectType<
-      CountWorkspaceAgentTokensHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+      CountFileBackendMountsHttpEndpoint['mddocHttpDefinition']['requestHeaders']
     >,
     InferFieldObjectType<
-      CountWorkspaceAgentTokensHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+      CountFileBackendMountsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
     >,
     InferFieldObjectType<
-      CountWorkspaceAgentTokensHttpEndpoint['mddocHttpDefinition']['query']
+      CountFileBackendMountsHttpEndpoint['mddocHttpDefinition']['query']
     >,
     InferFieldObjectOrMultipartType<
-      CountWorkspaceAgentTokensHttpEndpoint['mddocHttpDefinition']['requestBody']
+      CountFileBackendMountsHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<
-      CountWorkspaceAgentTokensHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+      CountFileBackendMountsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      CountWorkspaceAgentTokensHttpEndpoint['mddocHttpDefinition']['responseBody']
+      CountFileBackendMountsHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(fileBackendConstants.routes.countWorkspaceTokens)
+  .setBasePathname(fileBackendConstants.routes.countMounts)
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(countWorkspaceAgentTokensParams)
+  .setRequestBody(countFileBackendMountsParams)
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
-  .setName('CountWorkspaceAgentTokensEndpoint')
-  .setDescription('Count workspace agent tokens endpoint.');
+  .setName('CountFileBackendMountsEndpoint');
+
+export const resolveFileBackendMountsEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      ResolveFileBackendMountsHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      ResolveFileBackendMountsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<
+      ResolveFileBackendMountsHttpEndpoint['mddocHttpDefinition']['query']
+    >,
+    InferFieldObjectOrMultipartType<
+      ResolveFileBackendMountsHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      ResolveFileBackendMountsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      ResolveFileBackendMountsHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
+  >()
+  .setBasePathname(fileBackendConstants.routes.resolveMounts)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(resolveFileBackendMountsParams)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(resolveFileBackendMountsSuccessResponseBody)
+  .setName('ResolveFileBackendMountsEndpoint');
+
+export const addFileBackendConfigEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      AddFileBackendConfigHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      AddFileBackendConfigHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<
+      AddFileBackendConfigHttpEndpoint['mddocHttpDefinition']['query']
+    >,
+    InferFieldObjectOrMultipartType<
+      AddFileBackendConfigHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      AddFileBackendConfigHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      AddFileBackendConfigHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
+  >()
+  .setBasePathname(fileBackendConstants.routes.addConfig)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(addFileBackendConfigParams)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
+  .setResponseBody(addFileBackendConfigSuccessResponseBody)
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setName('AddFileBackendConfigEndpoint');
+
+export const getFileBackendConfigEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      GetFileBackendConfigHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      GetFileBackendConfigHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<
+      GetFileBackendConfigHttpEndpoint['mddocHttpDefinition']['query']
+    >,
+    InferFieldObjectOrMultipartType<
+      GetFileBackendConfigHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      GetFileBackendConfigHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      GetFileBackendConfigHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
+  >()
+  .setBasePathname(fileBackendConstants.routes.getConfig)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(getFileBackendConfigParams)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(getFileBackendConfigSuccessBody)
+  .setName('GetFileBackendConfigEndpoint');
+
+export const updateFileBackendConfigEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      UpdateFileBackendConfigHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      UpdateFileBackendConfigHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<
+      UpdateFileBackendConfigHttpEndpoint['mddocHttpDefinition']['query']
+    >,
+    InferFieldObjectOrMultipartType<
+      UpdateFileBackendConfigHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      UpdateFileBackendConfigHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      UpdateFileBackendConfigHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
+  >()
+  .setBasePathname(fileBackendConstants.routes.updateConfig)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(updateFileBackendConfigParams)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(updateFileBackendConfigSuccessResponseBody)
+  .setName('UpdateFileBackendConfigEndpoint');
+
+export const deleteFileBackendConfigEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      DeleteFileBackendConfigHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      DeleteFileBackendConfigHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<
+      DeleteFileBackendConfigHttpEndpoint['mddocHttpDefinition']['query']
+    >,
+    InferFieldObjectOrMultipartType<
+      DeleteFileBackendConfigHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      DeleteFileBackendConfigHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      DeleteFileBackendConfigHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
+  >()
+  .setBasePathname(fileBackendConstants.routes.deleteConfig)
+  .setMethod(HttpEndpointMethod.Delete)
+  .setRequestBody(deleteFileBackendConfigParams)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
+  .setName('DeleteFileBackendConfigEndpoint');
+
+export const getFileBackendConfigsEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      GetFileBackendConfigsHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      GetFileBackendConfigsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<
+      GetFileBackendConfigsHttpEndpoint['mddocHttpDefinition']['query']
+    >,
+    InferFieldObjectOrMultipartType<
+      GetFileBackendConfigsHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      GetFileBackendConfigsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      GetFileBackendConfigsHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
+  >()
+  .setBasePathname(fileBackendConstants.routes.getConfigs)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(getFileBackendConfigsParams)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(getFileBackendConfigsSuccessResponseBody)
+  .setName('GetFileBackendConfigsEndpoint');
+
+export const countFileBackendConfigsEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      CountFileBackendConfigsHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      CountFileBackendConfigsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<
+      CountFileBackendConfigsHttpEndpoint['mddocHttpDefinition']['query']
+    >,
+    InferFieldObjectOrMultipartType<
+      CountFileBackendConfigsHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      CountFileBackendConfigsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      CountFileBackendConfigsHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
+  >()
+  .setBasePathname(fileBackendConstants.routes.countConfigs)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(countFileBackendConfigsParams)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
+  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
+  .setName('CountFileBackendConfigsEndpoint');
