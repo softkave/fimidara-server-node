@@ -7,8 +7,8 @@ import {
   getMongoModels,
 } from '../endpoints/contexts/utils';
 import {setupApp} from '../endpoints/runtime/initAppSetup';
-import NoopEmailProviderContext from '../endpoints/testUtils/context/NoopEmailProviderContext';
-import NoopFilePersistenceProviderContext from '../endpoints/testUtils/context/NoopFilePersistenceProviderContext';
+import NoopEmailProviderContext from '../endpoints/testUtils/context/email/NoopEmailProviderContext';
+import NoopFilePersistenceProviderContext from '../endpoints/testUtils/context/file/NoopFilePersistenceProviderContext';
 import {fimidaraConfig} from '../resources/vars';
 
 async function testGlobalSetup() {

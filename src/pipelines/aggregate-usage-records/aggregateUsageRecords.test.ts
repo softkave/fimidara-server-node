@@ -24,7 +24,7 @@ import {
   getMongoModels,
 } from '../../endpoints/contexts/utils';
 import EndpointReusableQueries from '../../endpoints/queries';
-import NoopEmailProviderContext from '../../endpoints/testUtils/context/NoopEmailProviderContext';
+import NoopEmailProviderContext from '../../endpoints/testUtils/context/email/NoopEmailProviderContext';
 import {
   generateTestFile,
   generateTestFiles,

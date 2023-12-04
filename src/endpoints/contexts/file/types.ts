@@ -1,6 +1,6 @@
 import {Readable} from 'stream';
 import {File} from '../../../definitions/file';
-import {FileBackendMount} from '../../../definitions/fileBackend';
+import {FileBackendMount, FileBackendType} from '../../../definitions/fileBackend';
 import {AppResourceTypeMap} from '../../../definitions/system';
 
 export type FilePersistenceProviderFeature =
@@ -113,3 +113,8 @@ export interface FilePersistenceProvider {
   deleteFolders: (params: FilePersistenceDeleteFoldersParams) => Promise<void>;
   close: () => Promise<void>;
 }
+
+export type FileProviderResolver = (
+  type: FileBackendType,
+  initParams: unknown
+) => FilePersistenceProvider;

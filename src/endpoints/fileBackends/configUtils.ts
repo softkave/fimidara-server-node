@@ -3,7 +3,6 @@ import {container} from 'tsyringe';
 import {FileBackendConfig, FileBackendMount} from '../../definitions/fileBackend';
 import {ServerError} from '../../utils/errors';
 import {FilePersistenceProvider} from '../contexts/file/types';
-import {resolveFilePersistenceProvider} from '../contexts/file/utils';
 import {kUtilsInjectables} from '../contexts/injectables';
 import {kInjectionKeys} from '../contexts/injection';
 import {SemanticFileBackendConfigProvider} from '../contexts/semantic/fileBackendConfig/types';
@@ -42,7 +41,7 @@ export async function initBackendProvidersFromConfigs(configs: FileBackendConfig
         id: config.secretId,
       });
       const initParams = JSON.parse(credentials);
-      providersMap[config.resourceId] = resolveFilePersistenceProvider(
+      providersMap[config.resourceId] = kUtilsInjectables.fileProviderResolver()(
         config.backend,
         initParams
       );
@@ -78,7 +77,7 @@ export async function initBackendProvidersForMounts(
       throw new ServerError();
     }
 
-    providersMap[mount.resourceId] = resolveFilePersistenceProvider(
+    providersMap[mount.resourceId] = kUtilsInjectables.fileProviderResolver()(
       mount.backend,
       providerParams
     );
