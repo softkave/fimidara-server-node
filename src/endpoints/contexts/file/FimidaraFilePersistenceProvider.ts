@@ -5,14 +5,20 @@ import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils';
 import {getFolderpathInfo, stringifyFoldernamepath} from '../../folders/utils';
 import {kSemanticModels, kUtilsInjectables} from '../injectables';
+import LocalFsFilePersistenceProvider from './LocalFsFilePersistenceProvider';
+import MemoryFilePersistenceProvider from './MemoryFilePersistenceProvider';
 import {S3FilePersistenceProvider} from './S3FilePersistenceProvider';
 import {
   FilePersistenceDeleteFilesParams,
+  FilePersistenceDeleteFoldersParams,
+  FilePersistenceDescribeFolderFilesParams,
+  FilePersistenceDescribeFolderFilesResult,
+  FilePersistenceDescribeFolderFoldersParams,
+  FilePersistenceDescribeFolderFoldersResult,
   FilePersistenceDescribeFolderParams,
   FilePersistenceGetFileParams,
   FilePersistenceProvider,
-  FilePersistenceProviderDescribeFolderChildrenParams,
-  FilePersistenceProviderDescribeFolderChildrenResult,
+  FilePersistenceProviderFeature,
   FilePersistenceUploadFileParams,
   PersistedFile,
   PersistedFileDescription,
@@ -25,6 +31,27 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
   constructor() {
     this.backend = this.getBackend();
   }
+
+  supportsFeature = (feature: FilePersistenceProviderFeature): boolean => {
+    switch (feature) {
+      case 'deleteFiles':
+        return true;
+      case 'deleteFolders':
+        return true;
+      case 'describeFile':
+        return true;
+      case 'describeFolder':
+        return true;
+      case 'describeFolderFiles':
+        return true;
+      case 'describeFolderFolders':
+        return true;
+      case 'readFile':
+        return true;
+      case 'uploadFile':
+        return true;
+    }
+  };
 
   uploadFile = async (
     params: FilePersistenceUploadFileParams
@@ -75,27 +102,24 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
     await this.backend.deleteFiles(params);
   };
 
-  describeFolderChildren = async (
-    params: FilePersistenceProviderDescribeFolderChildrenParams
-  ): Promise<FilePersistenceProviderDescribeFolderChildrenResult> => {
+  deleteFolders = async (params: FilePersistenceDeleteFoldersParams): Promise<void> => {
+    // fimidara persisted folders are stored in DB, so no need to delete them
+    // here, seeing deleteFolder will do that
+  };
+
+  describeFolderFiles = async (
+    params: FilePersistenceDescribeFolderFilesParams
+  ): Promise<FilePersistenceDescribeFolderFilesResult> => {
     const {folderpath, max, workspaceId, page} = params;
     appAssert(isNumber(page));
 
     const pathinfo = getFolderpathInfo(folderpath);
-    const [files, folders] = await Promise.all([
-      kSemanticModels
-        .file()
-        .getManyByNamepath(
-          {workspaceId, namepath: pathinfo.namepath},
-          {page: page as number, pageSize: max}
-        ),
-      kSemanticModels
-        .folder()
-        .getManyByNamepath(
-          {workspaceId, namepath: pathinfo.namepath},
-          {page, pageSize: max}
-        ),
-    ]);
+    const files = await kSemanticModels
+      .file()
+      .getManyByNamepath(
+        {workspaceId, namepath: pathinfo.namepath},
+        {page: page as number, pageSize: max}
+      );
 
     const childrenFiles = files.map((file): PersistedFileDescription => {
       return {
@@ -105,6 +129,24 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
         size: file.size,
       };
     });
+
+    return {nextPage: page + 1, files: childrenFiles};
+  };
+
+  describeFolderFolders = async (
+    params: FilePersistenceDescribeFolderFoldersParams
+  ): Promise<FilePersistenceDescribeFolderFoldersResult> => {
+    const {folderpath, max, workspaceId, page} = params;
+    appAssert(isNumber(page));
+
+    const pathinfo = getFolderpathInfo(folderpath);
+    const folders = await kSemanticModels
+      .folder()
+      .getManyByNamepath(
+        {workspaceId, namepath: pathinfo.namepath},
+        {page, pageSize: max}
+      );
+
     const childrenFolders = folders.map((folder): PersistedFolderDescription => {
       return {
         folderpath: stringifyFoldernamepath(folder),
@@ -112,7 +154,7 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
       };
     });
 
-    return {page: page + 1, files: childrenFiles, folders: childrenFolders};
+    return {nextPage: page + 1, folders: childrenFolders};
   };
 
   close = async () => {
@@ -130,7 +172,13 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
 
     switch (config.fileBackend) {
       case 'aws-s3':
+        appAssert(config.awsConfig);
         return new S3FilePersistenceProvider(config.awsConfig);
+      case 'local-fs':
+        appAssert(config.localFsDir);
+        return new LocalFsFilePersistenceProvider({dir: config.localFsDir});
+      case 'memory':
+        return new MemoryFilePersistenceProvider();
       default:
         throw kReuseableErrors.file.unknownBackend(config.fileBackend);
     }

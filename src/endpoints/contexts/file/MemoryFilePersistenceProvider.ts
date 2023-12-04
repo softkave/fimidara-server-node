@@ -4,11 +4,15 @@ import {appAssert} from '../../../utils/assertion';
 import {streamToBuffer} from '../../../utils/fns';
 import {
   FilePersistenceDeleteFilesParams,
+  FilePersistenceDeleteFoldersParams,
+  FilePersistenceDescribeFolderFilesParams,
+  FilePersistenceDescribeFolderFilesResult,
+  FilePersistenceDescribeFolderFoldersParams,
+  FilePersistenceDescribeFolderFoldersResult,
   FilePersistenceDescribeFolderParams,
   FilePersistenceGetFileParams,
   FilePersistenceProvider,
-  FilePersistenceProviderDescribeFolderChildrenParams,
-  FilePersistenceProviderDescribeFolderChildrenResult,
+  FilePersistenceProviderFeature,
   FilePersistenceUploadFileParams,
   PersistedFile,
   PersistedFileDescription,
@@ -18,15 +22,36 @@ import {
 type MemoryFilePersistenceProviderFile = PersistedFileDescription & {body: Buffer};
 
 export default class MemoryFilePersistenceProvider implements FilePersistenceProvider {
-  files: Map<
+  files: Record<
     /** workspaceId */ string,
-    Map</** filepath, lowercased */ string, MemoryFilePersistenceProviderFile>
-  > = new Map();
+    Record</** filepath, lowercased */ string, MemoryFilePersistenceProviderFile>
+  > = {};
+
+  supportsFeature = (feature: FilePersistenceProviderFeature): boolean => {
+    switch (feature) {
+      case 'deleteFiles':
+        return true;
+      case 'deleteFolders':
+        return false;
+      case 'describeFile':
+        return true;
+      case 'describeFolder':
+        return false;
+      case 'describeFolderFiles':
+        return true;
+      case 'describeFolderFolders':
+        return false;
+      case 'readFile':
+        return true;
+      case 'uploadFile':
+        return true;
+    }
+  };
 
   uploadFile = async (params: FilePersistenceUploadFileParams) => {
     const body = await streamToBuffer(params.body);
 
-    this.setFile(params, {
+    this.setMemoryFile(params, {
       body,
       filepath: params.filepath,
       type: 'file',
@@ -38,7 +63,7 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
   };
 
   readFile = async (params: FilePersistenceGetFileParams): Promise<PersistedFile> => {
-    const file = this.getFile(params);
+    const file = this.getMemoryFile(params);
 
     if (file) {
       return {
@@ -51,20 +76,24 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
   };
 
   deleteFiles = async (params: FilePersistenceDeleteFilesParams) => {
-    const workspaceMap = this.getWorkspaceMap(params);
+    const workspaceFilesMap = this.getWorkspaceFiles(params);
     params.filepaths.forEach(key => {
-      workspaceMap.delete(key);
+      delete workspaceFilesMap[key.toLowerCase()];
     });
   };
 
+  deleteFolders = async (params: FilePersistenceDeleteFoldersParams): Promise<void> => {
+    // not supported
+  };
+
   close = async () => {
-    this.files = new Map();
+    this.files = {};
   };
 
   describeFile = async (
     params: FilePersistenceGetFileParams
   ): Promise<PersistedFileDescription | undefined> => {
-    const file = this.getFile(params);
+    const file = this.getMemoryFile(params);
 
     if (file) {
       return {
@@ -81,28 +110,23 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
   describeFolder = async (
     params: FilePersistenceDescribeFolderParams
   ): Promise<PersistedFolderDescription | undefined> => {
+    // not supported
     return undefined;
   };
 
-  describeFolderChildren = async (
-    params: FilePersistenceProviderDescribeFolderChildrenParams
-  ): Promise<FilePersistenceProviderDescribeFolderChildrenResult> => {
-    const workspaceMap = this.getWorkspaceMap(params);
+  describeFolderFiles = async (
+    params: FilePersistenceDescribeFolderFilesParams
+  ): Promise<FilePersistenceDescribeFolderFilesResult> => {
+    const workspaceFilesMap = this.getWorkspaceFiles(params);
+    const workspaceFiles = Object.values(workspaceFilesMap);
     const files: PersistedFileDescription[] = [];
-
     appAssert(isNumber(params.page));
-    const startIndex = params.page * params.max;
-    let index = 0;
 
-    for (const [filepath, file] of workspaceMap.entries()) {
-      if (index < startIndex) {
-        index += 1;
-        continue;
-      }
+    let index = params.page;
+    for (; index < workspaceFiles.length && files.length < params.max; index++) {
+      const file = workspaceFiles[index];
 
-      index += 1;
-
-      if (filepath.startsWith(params.folderpath)) {
+      if (file.filepath.toLowerCase().startsWith(params.folderpath)) {
         files.push({
           type: 'file',
           filepath: file.filepath,
@@ -112,29 +136,39 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
       }
     }
 
-    return {files, folders: []};
+    return {files, nextPage: index};
   };
 
-  protected getWorkspaceMap = (params: {workspaceId: string}) => {
-    let workspaceMap = this.files.get(params.workspaceId);
+  describeFolderFolders = async (
+    params: FilePersistenceDescribeFolderFoldersParams
+  ): Promise<FilePersistenceDescribeFolderFoldersResult> => {
+    // not supported
+    return {folders: []};
+  };
 
-    if (!workspaceMap) {
-      this.files.set(params.workspaceId, (workspaceMap = new Map()));
+  protected getWorkspaceFiles = (params: {workspaceId: string}) => {
+    let workspaceFilesMap = this.files[params.workspaceId];
+
+    if (!workspaceFilesMap) {
+      workspaceFilesMap = this.files[params.workspaceId] = {};
     }
 
-    return workspaceMap;
+    return workspaceFilesMap;
   };
 
-  protected setFile = (
+  protected setMemoryFile = (
     params: {workspaceId: string; filepath: string},
     file: MemoryFilePersistenceProviderFile
   ) => {
-    const workspaceMap = this.getWorkspaceMap(params);
-    workspaceMap.set(params.filepath.toLowerCase(), file);
+    const workspaceFilesMap = this.getWorkspaceFiles(params);
+    workspaceFilesMap[params.filepath.toLowerCase()] = file;
   };
 
-  protected getFile = (params: {workspaceId: string; filepath: string}) => {
-    const workspaceMap = this.getWorkspaceMap(params);
-    return workspaceMap.get(params.filepath.toLowerCase());
+  protected getMemoryFile = (params: {
+    workspaceId: string;
+    filepath: string;
+  }): MemoryFilePersistenceProviderFile | undefined => {
+    const workspaceFilesMap = this.getWorkspaceFiles(params);
+    return workspaceFilesMap[params.filepath.toLowerCase()];
   };
 }

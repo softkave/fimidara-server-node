@@ -1,4 +1,4 @@
-import {FileBackendProductType} from '../../../definitions/fileBackend';
+import {FileBackendType} from '../../../definitions/fileBackend';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {FimidaraFilePersistenceProvider} from './FimidaraFilePersistenceProvider';
 import {
@@ -8,7 +8,7 @@ import {
 import {FilePersistenceProvider} from './types';
 
 export function resolveFilePersistenceProvider(
-  type: FileBackendProductType,
+  type: FileBackendType,
   initParams: unknown
 ): FilePersistenceProvider {
   if (type === 'fimidara') {

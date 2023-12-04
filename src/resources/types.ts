@@ -1,5 +1,5 @@
 import {RequiredKeysOf} from 'type-fest';
-import {FileBackendProductType} from '../definitions/fileBackend';
+import {FileBackendType} from '../definitions/fileBackend';
 import {AnyFn, AnyObject} from '../utils/types';
 
 export enum AppEnvVariables {
@@ -28,8 +28,12 @@ export interface FimidaraSuppliedConfig {
   rootUserEmail: string;
   rootUserFirstName: string;
   rootUserLastName: string;
-  fileBackend: FileBackendProductType;
-  awsConfig: {};
+  fileBackend: FileBackendType | 'local-fs' | 'memory';
+  awsConfig?: {
+    accessKeyId: string;
+    secretAccessKey: string;
+    region: string;
+  };
 
   // Primarily used by job runner to find unfinished jobs from previous
   // instances of the server. Since we currently only run one instance, the
