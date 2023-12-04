@@ -4,7 +4,7 @@ import {FileBackendConfig, FileBackendMount} from '../../definitions/fileBackend
 import {ServerError} from '../../utils/errors';
 import {EncryptionProvider} from '../contexts/encryption/types';
 import {FilePersistenceProvider} from '../contexts/file/types';
-import {resolveFilePersistenceProvider} from '../contexts/file/utils';
+import {kUtilsInjectables} from '../contexts/injectables';
 import {kInjectionKeys} from '../contexts/injection';
 import {SemanticFileBackendConfigProvider} from '../contexts/semantic/fileBackendConfig/types';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
@@ -47,7 +47,7 @@ export async function initBackendProvidersFromConfigs(configs: FileBackendConfig
         cipher: config.cipher,
       });
       const initParams = JSON.parse(credentials);
-      providersMap[config.resourceId] = resolveFilePersistenceProvider(
+      providersMap[config.resourceId] = kUtilsInjectables.fileProviderResolver()(
         config.backend,
         initParams
       );
@@ -88,7 +88,7 @@ export async function initBackendProvidersForMounts(
       throw new ServerError();
     }
 
-    providersMap[mount.resourceId] = resolveFilePersistenceProvider(
+    providersMap[mount.resourceId] = kUtilsInjectables.fileProviderResolver()(
       mount.backend,
       providerParams
     );

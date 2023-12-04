@@ -27,7 +27,7 @@ import {
 import {fetchEntityAssignedPermissionGroupList} from '../../endpoints/permissionGroups/getEntityAssignedPermissionGroups/utils';
 import {assertPermissionGroup} from '../../endpoints/permissionGroups/utils';
 import {setupApp} from '../../endpoints/runtime/initAppSetup';
-import NoopEmailProviderContext from '../../endpoints/testUtils/context/NoopEmailProviderContext';
+import NoopEmailProviderContext from '../../endpoints/testUtils/context/email/NoopEmailProviderContext';
 import changePasswordWithToken from '../../endpoints/users/changePasswordWithToken/handler';
 import {ChangePasswordWithTokenEndpointParams} from '../../endpoints/users/changePasswordWithToken/types';
 import INTERNAL_confirmEmailAddress from '../../endpoints/users/confirmEmailAddress/internalConfirmEmailAddress';
