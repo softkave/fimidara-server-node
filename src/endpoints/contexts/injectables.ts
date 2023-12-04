@@ -1,5 +1,6 @@
 import {container} from 'tsyringe';
 import {FimidaraConfig} from '../../resources/types';
+import {SecretsManagerProvider} from './encryption/types';
 import {kInjectionKeys} from './injection';
 import {SemanticAgentTokenProvider} from './semantic/agentToken/types';
 import {SemanticAssignedItemProvider} from './semantic/assignedItem/types';
@@ -64,4 +65,6 @@ export const kSemanticModels = {
 
 export const kUtilsInjectables = {
   config: () => container.resolve<FimidaraConfig>(kInjectionKeys.config),
+  secretsManager: () =>
+    container.resolve<SecretsManagerProvider>(kInjectionKeys.secretsManager),
 };

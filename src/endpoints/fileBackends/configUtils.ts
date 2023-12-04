@@ -2,9 +2,9 @@ import {keyBy} from 'lodash';
 import {container} from 'tsyringe';
 import {FileBackendConfig, FileBackendMount} from '../../definitions/fileBackend';
 import {ServerError} from '../../utils/errors';
-import {SecretManagerProvider} from '../contexts/encryption/types';
 import {FilePersistenceProvider} from '../contexts/file/types';
 import {resolveFilePersistenceProvider} from '../contexts/file/utils';
+import {kUtilsInjectables} from '../contexts/injectables';
 import {kInjectionKeys} from '../contexts/injection';
 import {SemanticFileBackendConfigProvider} from '../contexts/semantic/fileBackendConfig/types';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
@@ -34,17 +34,12 @@ export async function resolveBackendConfigsWithIdList(
 }
 
 export async function initBackendProvidersFromConfigs(configs: FileBackendConfig[]) {
-  const encryptionProvider = container.resolve<SecretManagerProvider>(
-    kInjectionKeys.encryption
-  );
-
   const providersMap: Record<string, FilePersistenceProvider> = {};
 
   await Promise.all(
     configs.map(async config => {
-      const credentials = await encryptionProvider.getSecret({
-        encryptedText: config.credentials,
-        cipher: config.cipher,
+      const {text: credentials} = await kUtilsInjectables.secretsManager().getSecret({
+        id: config.secretId,
       });
       const initParams = JSON.parse(credentials);
       providersMap[config.resourceId] = resolveFilePersistenceProvider(
@@ -61,19 +56,14 @@ export async function initBackendProvidersForMounts(
   mounts: FileBackendMount[],
   configs: FileBackendConfig[]
 ) {
-  const encryptionProvider = container.resolve<SecretManagerProvider>(
-    kInjectionKeys.encryption
-  );
-
   const providersMap: Record<string, FilePersistenceProvider> = {};
   const configsMap: Record<string, {config: FileBackendConfig; providerParams: unknown}> =
     {};
 
   await Promise.all(
     configs.map(async config => {
-      const credentials = await encryptionProvider.getSecret({
-        encryptedText: config.credentials,
-        cipher: config.cipher,
+      const {text: credentials} = await kUtilsInjectables.secretsManager().getSecret({
+        id: config.secretId,
       });
       const initParams = JSON.parse(credentials);
       configsMap[config.resourceId] = {config, providerParams: initParams};

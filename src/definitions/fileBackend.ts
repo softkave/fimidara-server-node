@@ -30,9 +30,7 @@ export interface FileBackendConfig extends WorkspaceResource {
   name: string;
   description?: string;
   backend: FileBackendType;
-  /** Encrypted JSON string */
-  credentials: string;
-  cipher: string;
+  secretId: string;
 }
 
 export type PublicFileBackendMount = PublicWorkspaceResource &
