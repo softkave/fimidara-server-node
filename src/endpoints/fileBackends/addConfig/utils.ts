@@ -4,7 +4,7 @@ import {Agent, AppResourceTypeMap} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {newWorkspaceResource} from '../../../utils/resource';
-import {EncryptionProvider} from '../../contexts/encryption/types';
+import {SecretManagerProvider} from '../../contexts/encryption/types';
 import {kInjectionKeys} from '../../contexts/injection';
 import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
@@ -20,7 +20,7 @@ export const INTERNAL_addConfig = async (
   const configModel = container.resolve<SemanticFileBackendConfigProvider>(
     kInjectionKeys.semantic.fileBackendConfig
   );
-  const encryptionProvider = container.resolve<EncryptionProvider>(
+  const encryptionProvider = container.resolve<SecretManagerProvider>(
     kInjectionKeys.encryption
   );
 
@@ -44,7 +44,7 @@ export const INTERNAL_addConfig = async (
   );
 
   const unencryptedCredentials = JSON.stringify(data.credentials);
-  const {cipher, encryptedText} = await encryptionProvider.encryptText(
+  const {cipher, encryptedText} = await encryptionProvider.addSecret(
     unencryptedCredentials
   );
   config.credentials = encryptedText;

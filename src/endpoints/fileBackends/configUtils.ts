@@ -2,7 +2,7 @@ import {keyBy} from 'lodash';
 import {container} from 'tsyringe';
 import {FileBackendConfig, FileBackendMount} from '../../definitions/fileBackend';
 import {ServerError} from '../../utils/errors';
-import {EncryptionProvider} from '../contexts/encryption/types';
+import {SecretManagerProvider} from '../contexts/encryption/types';
 import {FilePersistenceProvider} from '../contexts/file/types';
 import {resolveFilePersistenceProvider} from '../contexts/file/utils';
 import {kInjectionKeys} from '../contexts/injection';
@@ -34,7 +34,7 @@ export async function resolveBackendConfigsWithIdList(
 }
 
 export async function initBackendProvidersFromConfigs(configs: FileBackendConfig[]) {
-  const encryptionProvider = container.resolve<EncryptionProvider>(
+  const encryptionProvider = container.resolve<SecretManagerProvider>(
     kInjectionKeys.encryption
   );
 
@@ -42,7 +42,7 @@ export async function initBackendProvidersFromConfigs(configs: FileBackendConfig
 
   await Promise.all(
     configs.map(async config => {
-      const credentials = await encryptionProvider.decryptText({
+      const credentials = await encryptionProvider.getSecret({
         encryptedText: config.credentials,
         cipher: config.cipher,
       });
@@ -61,7 +61,7 @@ export async function initBackendProvidersForMounts(
   mounts: FileBackendMount[],
   configs: FileBackendConfig[]
 ) {
-  const encryptionProvider = container.resolve<EncryptionProvider>(
+  const encryptionProvider = container.resolve<SecretManagerProvider>(
     kInjectionKeys.encryption
   );
 
@@ -71,7 +71,7 @@ export async function initBackendProvidersForMounts(
 
   await Promise.all(
     configs.map(async config => {
-      const credentials = await encryptionProvider.decryptText({
+      const credentials = await encryptionProvider.getSecret({
         encryptedText: config.credentials,
         cipher: config.cipher,
       });
