@@ -7,7 +7,10 @@ import {
   PaginationQuery,
 } from '../../types';
 
-export type GetFileBackendConfigsEndpointParamsBase = EndpointOptionalWorkspaceIDParam;
+export type GetFileBackendConfigsEndpointParamsBase = EndpointOptionalWorkspaceIDParam & {
+  mountIds?: string[];
+  backends?: string[];
+};
 
 export interface GetFileBackendConfigsEndpointParams
   extends GetFileBackendConfigsEndpointParamsBase,

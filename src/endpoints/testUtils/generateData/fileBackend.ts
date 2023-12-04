@@ -1,10 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {container} from 'tsyringe';
-import {
-  FileBackendMount,
-  FileBackendProductTypeMap,
-  FileBackendTypeMap,
-} from '../../../definitions/fileBackend';
+import {FileBackendMount, FileBackendTypeMap} from '../../../definitions/fileBackend';
 import {Agent, AppResourceTypeMap} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
@@ -21,7 +17,7 @@ export function generateFileBackendMountForTest(seed: Partial<FileBackendMount> 
     agentType: AppResourceTypeMap.User,
     agentTokenId: getNewIdForResource(AppResourceTypeMap.AgentToken),
   };
-  const token: FileBackendMount = {
+  const mount: FileBackendMount = {
     createdAt,
     createdBy,
     lastUpdatedAt: createdAt,
@@ -32,11 +28,10 @@ export function generateFileBackendMountForTest(seed: Partial<FileBackendMount> 
     folderpath: faker.system.directoryPath().split('/'),
     index: faker.number.int(),
     mountedFrom: faker.system.directoryPath().split('/'),
-    product: faker.helpers.arrayElement(Object.values(FileBackendProductTypeMap)),
-    type: faker.helpers.arrayElement(Object.values(FileBackendTypeMap)),
+    backend: faker.helpers.arrayElement(Object.values(FileBackendTypeMap)),
     ...seed,
   };
-  return token;
+  return mount;
 }
 
 export function generateFileBackendMountListForTest(

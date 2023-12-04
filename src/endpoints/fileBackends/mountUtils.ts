@@ -71,7 +71,7 @@ export async function resolveMountsForFolder(
 }
 
 export function isPrimaryMountFimidara(mounts: FileBackendMount[]): boolean {
-  return first(mounts)?.product === 'fimidara';
+  return first(mounts)?.backend === 'fimidara';
 }
 
 export function isOnlyMountFimidara(mounts: FileBackendMount[]): boolean {
@@ -88,7 +88,7 @@ export async function getFileBackendForFile(file: File) {
 
   const configId = mount.configId;
 
-  if (mount.product !== 'fimidara' && !configId) {
+  if (mount.backend !== 'fimidara' && !configId) {
     console.log(`mount ${mount.resourceId} is not fimidara, and is missing config ID`);
     throw new ServerError();
   }

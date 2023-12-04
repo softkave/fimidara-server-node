@@ -9,12 +9,12 @@ import {kInjectionKeys} from '../../contexts/injection';
 import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {ResourceExistsError} from '../../errors';
-import {ConfigFileBackendEndpointParams} from './types';
+import {AddConfigEndpointParams} from './types';
 
-export const INTERNAL_configFileBackend = async (
+export const INTERNAL_addConfig = async (
   agent: Agent,
   workspace: Workspace,
-  data: ConfigFileBackendEndpointParams,
+  data: AddConfigEndpointParams,
   opts: SemanticProviderMutationRunOptions
 ) => {
   const configModel = container.resolve<SemanticFileBackendConfigProvider>(
@@ -35,7 +35,7 @@ export const INTERNAL_configFileBackend = async (
     AppResourceTypeMap.FileBackendConfig,
     workspace.resourceId,
     {
-      type: data.type,
+      backend: data.type,
       credentials: '',
       cipher: '',
       name: data.name,

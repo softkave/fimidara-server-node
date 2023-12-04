@@ -14,7 +14,7 @@ import {
   AddAgentTokenEndpointParams,
   AddAgentTokenEndpointResult,
   NewAgentTokenInput,
-} from './configBackend/types';
+} from './addConfig/types';
 import {fileBackendConstants} from './constants';
 import {CountWorkspaceAgentTokensEndpointParams} from './countConfigs/types';
 import {DeleteAgentTokenEndpointParams} from './deleteToken/types';

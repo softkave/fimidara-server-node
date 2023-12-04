@@ -7,19 +7,10 @@ import {
 
 export const FileBackendTypeMap = {
   Fimidara: 'fimidara',
-} as const;
-
-export const FileBackendProductTypeMap = {
-  Fimidara: 'fimidara',
   S3: 'aws-s3',
 } as const;
 
 export type FileBackendType = ObjectValues<typeof FileBackendTypeMap>;
-export type FileBackendProductType = ObjectValues<typeof FileBackendProductTypeMap>;
-export type FilePersistenceType = Exclude<
-  FileBackendProductType,
-  typeof FileBackendProductTypeMap.Fimidara
->;
 
 export interface FileBackendMount extends WorkspaceResource {
   /** folderpath without workspace rootname */
@@ -29,7 +20,7 @@ export interface FileBackendMount extends WorkspaceResource {
   index: number;
   /** string array of backend product + bucket? + folderpath? */
   mountedFrom: string[];
-  product: FileBackendProductType;
+  backend: FileBackendType;
   configId: string | null;
   name: string;
   description?: string;
@@ -38,7 +29,7 @@ export interface FileBackendMount extends WorkspaceResource {
 export interface FileBackendConfig extends WorkspaceResource {
   name: string;
   description?: string;
-  type: FileBackendType;
+  backend: FileBackendType;
   /** Encrypted JSON string */
   credentials: string;
   cipher: string;
@@ -48,9 +39,15 @@ export type PublicFileBackendMount = PublicWorkspaceResource &
   ConvertAgentToPublicAgent<
     Pick<
       FileBackendMount,
-      'folderpath' | 'index' | 'mountedFrom' | 'product' | 'name' | 'description'
+      | 'folderpath'
+      | 'index'
+      | 'mountedFrom'
+      | 'backend'
+      | 'name'
+      | 'description'
+      | 'configId'
     >
   >;
 
 export type PublicFileBackendConfig = PublicWorkspaceResource &
-  ConvertAgentToPublicAgent<Pick<FileBackendConfig, 'type'>>;
+  ConvertAgentToPublicAgent<Pick<FileBackendConfig, 'backend' | 'name' | 'description'>>;

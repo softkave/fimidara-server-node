@@ -20,7 +20,7 @@ const fileBackendMountFields = getFields<ConvertAgentToPublicAgent<FileBackendMo
   folderpath: true,
   index: true,
   mountedFrom: true,
-  product: true,
+  backend: true,
   configId: true,
   description: true,
   name: true,
@@ -31,7 +31,7 @@ export const fileBackendMountListExtractor = makeListExtract(fileBackendMountFie
 
 const fileBackendConfigFields = getFields<PublicFileBackendConfig>({
   ...workspaceResourceFields,
-  type: true,
+  backend: true,
 });
 
 export const fileBackendConfigExtractor = makeExtract(fileBackendConfigFields);
@@ -59,7 +59,7 @@ export async function mountExists(
 
   return await mountModel.existsByQuery(
     {
-      product: data.product,
+      backend: data.backend,
       folderpath: {$all: data.folderpath, $size: data.folderpath.length},
       mountedFrom: {$all: data.mountedFrom, $size: data.mountedFrom.length},
     },

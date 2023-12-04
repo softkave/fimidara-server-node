@@ -1,5 +1,10 @@
 import {ConvertAgentToPublicAgent, WorkspaceResource} from './system';
 
+export interface FolderResolvedMountEntry {
+  mountId: string;
+  resolvedAt: number;
+}
+
 export interface Folder extends WorkspaceResource {
   idPath: string[];
   namepath: string[];
@@ -7,10 +12,14 @@ export interface Folder extends WorkspaceResource {
   // maxFileSizeInBytes: number;
   name: string;
   description?: string;
+  resolvedEntries: FolderResolvedMountEntry[];
 }
 
 export type PublicFolder = ConvertAgentToPublicAgent<
-  Pick<Folder, 'parentId' | 'idPath' | 'namepath' | 'name' | 'description'>
+  Pick<
+    Folder,
+    'parentId' | 'idPath' | 'namepath' | 'name' | 'description' | 'resolvedEntries'
+  >
 >;
 export interface FolderMatcher {
   /**

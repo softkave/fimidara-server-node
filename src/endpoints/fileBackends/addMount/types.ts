@@ -1,20 +1,21 @@
-import {
-  FileBackendProductType,
-  PublicFileBackendMount,
-} from '../../../definitions/fileBackend';
+import {FileBackendType, PublicFileBackendMount} from '../../../definitions/fileBackend';
 import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
-export interface AddFileBackendMountEndpointParams
-  extends EndpointOptionalWorkspaceIDParam {
+export interface NewFileBackendMountInput {
   folderpath: string[];
   index: number;
   mountedFrom: string[];
-  product: FileBackendProductType;
+  backend: FileBackendType;
   /** `null` for fimidara */
   configId: string | null;
   name: string;
   description?: string;
+}
+
+export interface AddFileBackendMountEndpointParams
+  extends EndpointOptionalWorkspaceIDParam {
+  mount: NewFileBackendMountInput;
 }
 
 export interface AddFileBackendMountEndpointResult {
