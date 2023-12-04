@@ -162,10 +162,10 @@ export async function checkFolderAuthorization02(
   matcher: FolderMatcher,
   action: PermissionAction,
   workspace?: Workspace,
-  opts?: SemanticProviderRunOptions,
+  opts?: SemanticProviderMutationRunOptions,
   UNSAFE_skipAuthCheck = false
 ) {
-  const folder = await assertGetFolderWithMatcher(matcher, opts);
+  const folder = await assertGetFolderWithMatcher(matcher, opts, workspace?.workspaceId);
   return checkFolderAuthorization(agent, folder, action, workspace, UNSAFE_skipAuthCheck);
 }
 
@@ -332,7 +332,7 @@ export async function ingestFolderByFolderpath(
   return folder;
 }
 
-export async function readOrIngestFolderByFilepath(
+export async function readOrIngestFolderByFolderpath(
   /** folderpath with workspace rootname */
   folderpath: string,
   opts: SemanticProviderMutationRunOptions,
