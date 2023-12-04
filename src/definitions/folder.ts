@@ -1,4 +1,8 @@
-import {ConvertAgentToPublicAgent, WorkspaceResource} from './system';
+import {
+  ConvertAgentToPublicAgent,
+  PublicWorkspaceResource,
+  WorkspaceResource,
+} from './system';
 
 export interface FolderResolvedMountEntry {
   mountId: string;
@@ -15,12 +19,13 @@ export interface Folder extends WorkspaceResource {
   resolvedEntries: FolderResolvedMountEntry[];
 }
 
-export type PublicFolder = ConvertAgentToPublicAgent<
-  Pick<
-    Folder,
-    'parentId' | 'idPath' | 'namepath' | 'name' | 'description' | 'resolvedEntries'
-  >
->;
+export type PublicFolder = PublicWorkspaceResource &
+  ConvertAgentToPublicAgent<
+    Pick<
+      Folder,
+      'parentId' | 'idPath' | 'namepath' | 'name' | 'description' | 'resolvedEntries'
+    >
+  >;
 export interface FolderMatcher {
   /**
    * Folder path with workspace rootname, e.g /workspace-rootname/folder-name

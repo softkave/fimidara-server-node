@@ -1,4 +1,4 @@
-import {PublicFileBackendConfig} from '../../../definitions/fileBackend';
+import {FileBackendType, PublicFileBackendConfig} from '../../../definitions/fileBackend';
 import {BaseContextType} from '../../contexts/types';
 import {
   Endpoint,
@@ -8,8 +8,8 @@ import {
 } from '../../types';
 
 export type GetFileBackendConfigsEndpointParamsBase = EndpointOptionalWorkspaceIDParam & {
-  mountIds?: string[];
-  backends?: string[];
+  mountId?: string;
+  backend?: FileBackendType;
 };
 
 export interface GetFileBackendConfigsEndpointParams

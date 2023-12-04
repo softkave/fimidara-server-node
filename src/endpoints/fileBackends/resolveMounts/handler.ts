@@ -4,30 +4,33 @@ import {kInjectionKeys} from '../../contexts/injection';
 import {SemanticFileBackendMountProvider} from '../../contexts/semantic/types';
 import {
   applyDefaultEndpointPaginationOptions,
-  getEndpointPageFromInput,
+  resolveEndpointPageFromInput,
 } from '../../utils';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
+import {resolveWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {fileBackendMountListExtractor} from '../utils';
-import {GetFileBackendMountEndpoint} from './types';
-import {getFileBackendMountQuery} from './utils';
-import {getWorkspaceFileBackendMountJoiSchema} from './validation';
+import {ResolveFileBackendMountsEndpoint} from './types';
+import {resolveFileBackendMountsQuery} from './utils';
+import {resolveWorkspaceFileBackendMountJoiSchema} from './validation';
 
-const resolveMounts: GetFileBackendMountEndpoint = async (context, instData) => {
+const resolveFileBackendMounts: ResolveFileBackendMountsEndpoint = async (
+  context,
+  instData
+) => {
   const mountModel = container.resolve<SemanticFileBackendMountProvider>(
     kInjectionKeys.semantic.fileBackendMount
   );
 
-  const data = validate(instData.data, getWorkspaceFileBackendMountJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
-  const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
-  const query = await getFileBackendMountQuery(agent, workspace);
+  const data = validate(instData.data, resolveWorkspaceFileBackendMountJoiSchema);
+  const agent = await context.session.resolveAgent(context, instData);
+  const {workspace} = await resolveWorkspaceFromEndpointInput(context, agent, data);
+  const query = await resolveFileBackendMountsQuery(agent, workspace);
   applyDefaultEndpointPaginationOptions(data);
-  const mounts = await mountModel.getManyByWorkspaceAndIdList(query, data);
+  const mounts = await mountModel.resolveManyByWorkspaceAndIdList(query, data);
 
   return {
-    page: getEndpointPageFromInput(data),
+    page: resolveEndpointPageFromInput(data),
     mounts: fileBackendMountListExtractor(mounts),
   };
 };
 
-export default resolveMounts;
+export default resolveFileBackendMounts;

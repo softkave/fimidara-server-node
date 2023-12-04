@@ -103,9 +103,6 @@ const grantAccess = mddocConstruct
   .setDescription(
     'Whether access is granted or not. ' + 'Access is granted if true, denied if false.'
   );
-const grantAccessList = mddocConstruct
-  .constructFieldArray<boolean>()
-  .setType(grantAccess);
 
 // TODO: add or array to target, container, and entity, and confirm mddoc md
 // renderer renders it well.

@@ -1,9 +1,9 @@
 import {BaseContextType} from '../../contexts/types';
 import {LongRunningJobResult} from '../../jobs/types';
-import {Endpoint, EndpointWorkspaceResourceParam} from '../../types';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
 export interface DeleteFileBackendConfigEndpointParams
-  extends EndpointWorkspaceResourceParam {
+  extends EndpointOptionalWorkspaceIDParam {
   configId: string;
 }
 

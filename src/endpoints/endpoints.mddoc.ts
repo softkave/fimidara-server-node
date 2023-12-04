@@ -18,6 +18,8 @@ import {permissionGroupConstants} from './permissionGroups/constants';
 import {
   BaseEndpointResult,
   CountItemsEndpointResult,
+  EndpointResultNote,
+  EndpointResultNoteCodeMap,
   HttpEndpointRequestHeaders_AuthOptional,
   HttpEndpointRequestHeaders_AuthOptional_ContentType,
   HttpEndpointRequestHeaders_AuthRequired,
@@ -424,6 +426,28 @@ const pageSize = mddocConstruct
   .setExample(10)
   .setMin(endpointConstants.minPageSize)
   .setMax(endpointConstants.maxPageSize);
+const resultNoteCode = mddocConstruct
+  .constructFieldString()
+  .setDescription('Endpoint result or error note code.')
+  .setExample(EndpointResultNoteCodeMap.unsupportedOperationInMountBackend)
+  .setValid(Object.values(EndpointResultNoteCodeMap))
+  .setEnumName('EndpointResultNoteCode');
+const resultNoteMessage = mddocConstruct
+  .constructFieldString()
+  .setDescription('Endpoint result or error note message.')
+  .setExample(
+    "Some mounts in the requested folder's mount chain do not support operation abc."
+  );
+const resultNote = mddocConstruct
+  .constructFieldObject<EndpointResultNote>()
+  .setName('EndpointResultNote')
+  .setFields({
+    code: mddocConstruct.constructFieldObjectField(true, resultNoteCode),
+    message: mddocConstruct.constructFieldObjectField(true, resultNoteMessage),
+  });
+const resultNoteList = mddocConstruct
+  .constructFieldArray<EndpointResultNote>()
+  .setType(resultNote);
 
 export const fReusables = {
   agent,
@@ -479,6 +503,10 @@ export const fReusables = {
   usageFulfillmentStatusList,
   usageFulfillmentStatusOrList,
   dateOrNull,
+  nullValue,
+  resultNote,
+  resultNoteCode,
+  resultNoteList,
 };
 
 const errorObject = mddocConstruct

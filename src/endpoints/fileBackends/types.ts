@@ -1,35 +1,59 @@
-import {FieldObjectType} from '../../mddoc/mddoc';
 import {ExportedHttpEndpointWithMddocDefinition} from '../types';
-import {AddAgentTokenEndpoint, AddAgentTokenEndpointParams} from './addConfig/types';
-import {CountWorkspaceAgentTokensEndpoint} from './countConfigs/types';
-import {DeleteAgentTokenEndpoint} from './deleteToken/types';
-import {GetAgentTokenEndpoint} from './getConfig/types';
-import {GetWorkspaceAgentTokensEndpoint} from './getConfigs/types';
-import {UpdateAgentTokenEndpoint} from './updateConfig/types';
+import {AddFileBackendConfigEndpoint} from './addConfig/types';
+import {AddFileBackendMountEndpoint} from './addMount/types';
+import {CountFileBackendConfigsEndpoint} from './countConfigs/types';
+import {CountFileBackendMountsEndpoint} from './countMounts/types';
+import {DeleteFileBackendConfigEndpoint} from './deleteConfig/types';
+import {DeleteFileBackendMountEndpoint} from './deleteMount/types';
+import {GetFileBackendConfigEndpoint} from './getConfig/types';
+import {GetFileBackendConfigsEndpoint} from './getConfigs/types';
+import {GetFileBackendMountEndpoint} from './getMount/types';
+import {GetFileBackendMountsEndpoint} from './getMounts/types';
+import {ResolveFileBackendMountsEndpoint} from './resolveMounts/types';
+import {UpdateFileBackendConfigEndpoint} from './updateConfig/types';
+import {UpdateFileBackendMountEndpoint} from './updateMount/types';
 
-export type AddAgentTokenHttpEndpoint =
-  ExportedHttpEndpointWithMddocDefinition<AddAgentTokenEndpoint>;
-export type DeleteAgentTokenHttpEndpoint =
-  ExportedHttpEndpointWithMddocDefinition<DeleteAgentTokenEndpoint>;
-export type GetWorkspaceAgentTokensHttpEndpoint =
-  ExportedHttpEndpointWithMddocDefinition<GetWorkspaceAgentTokensEndpoint>;
-export type CountWorkspaceAgentTokensHttpEndpoint =
-  ExportedHttpEndpointWithMddocDefinition<CountWorkspaceAgentTokensEndpoint>;
-export type GetAgentTokenHttpEndpoint =
-  ExportedHttpEndpointWithMddocDefinition<GetAgentTokenEndpoint>;
-export type UpdateAgentTokenHttpEndpoint =
-  ExportedHttpEndpointWithMddocDefinition<UpdateAgentTokenEndpoint>;
+export type AddFileBackendMountHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<AddFileBackendMountEndpoint>;
+export type DeleteFileBackendMountHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<DeleteFileBackendMountEndpoint>;
+export type GetFileBackendMountsHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<GetFileBackendMountsEndpoint>;
+export type CountFileBackendMountsHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<CountFileBackendMountsEndpoint>;
+export type GetFileBackendMountHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<GetFileBackendMountEndpoint>;
+export type UpdateFileBackendMountHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<UpdateFileBackendMountEndpoint>;
+export type ResolveFileBackendMountsHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<ResolveFileBackendMountsEndpoint>;
 
-type TrueOrFalse =
-  FieldObjectType<AddAgentTokenEndpointParams> extends FieldObjectType<any>
-    ? true
-    : false;
+export type AddFileBackendConfigHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<AddFileBackendConfigEndpoint>;
+export type DeleteFileBackendConfigHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<DeleteFileBackendConfigEndpoint>;
+export type GetFileBackendConfigsHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<GetFileBackendConfigsEndpoint>;
+export type CountFileBackendConfigsHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<CountFileBackendConfigsEndpoint>;
+export type GetFileBackendConfigHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<GetFileBackendConfigEndpoint>;
+export type UpdateFileBackendConfigHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<UpdateFileBackendConfigEndpoint>;
 
-export type AgentTokensExportedEndpoints = {
-  addToken: AddAgentTokenHttpEndpoint;
-  deleteToken: DeleteAgentTokenHttpEndpoint;
-  getWorkspaceTokens: GetWorkspaceAgentTokensHttpEndpoint;
-  countWorkspaceTokens: CountWorkspaceAgentTokensHttpEndpoint;
-  getToken: GetAgentTokenHttpEndpoint;
-  updateToken: UpdateAgentTokenHttpEndpoint;
+export type FileBackendsExportedEndpoints = {
+  addMount: AddFileBackendMountHttpEndpoint;
+  deleteMount: DeleteFileBackendMountHttpEndpoint;
+  getMounts: GetFileBackendMountsHttpEndpoint;
+  countMounts: CountFileBackendMountsHttpEndpoint;
+  getMount: GetFileBackendMountHttpEndpoint;
+  updateMount: UpdateFileBackendMountHttpEndpoint;
+  resolveMounts: ResolveFileBackendMountsHttpEndpoint;
+
+  addConfig: AddFileBackendConfigHttpEndpoint;
+  deleteConfig: DeleteFileBackendConfigHttpEndpoint;
+  getConfigs: GetFileBackendConfigsHttpEndpoint;
+  countConfigs: CountFileBackendConfigsHttpEndpoint;
+  getConfig: GetFileBackendConfigHttpEndpoint;
+  updateConfig: UpdateFileBackendConfigHttpEndpoint;
 };

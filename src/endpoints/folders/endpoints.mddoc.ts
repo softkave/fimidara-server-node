@@ -1,5 +1,9 @@
 import {PublicFile} from '../../definitions/file';
-import {FolderMatcher, PublicFolder} from '../../definitions/folder';
+import {
+  FolderMatcher,
+  FolderResolvedMountEntry,
+  PublicFolder,
+} from '../../definitions/folder';
 import {AppResourceTypeMap} from '../../definitions/system';
 import {
   FieldObjectFieldsMap,
@@ -8,11 +12,7 @@ import {
   InferFieldObjectType,
   mddocConstruct,
 } from '../../mddoc/mddoc';
-import {
-  fReusables,
-  mddocEndpointHttpHeaderItems,
-  mddocEndpointHttpResponseItems,
-} from '../endpoints.mddoc';
+import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc';
 import {fileEndpointsParts} from '../files/endpoints.mddoc';
 import {
   AddFolderEndpointParams,
@@ -24,7 +24,10 @@ import {
   CountFolderContentEndpointParams,
   CountFolderContentEndpointResult,
 } from './countFolderContent/types';
-import {DeleteFolderEndpointParams} from './deleteFolder/types';
+import {
+  DeleteFolderEndpointParams,
+  DeleteFolderEndpointResult,
+} from './deleteFolder/types';
 import {GetFolderEndpointParams, GetFolderEndpointResult} from './getFolder/types';
 import {
   ListFolderContentEndpointParams,
@@ -59,14 +62,23 @@ const updateFolderInput = mddocConstruct
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
   });
 
+const folderResolvedMountEntry = mddocConstruct
+  .constructFieldObject<FolderResolvedMountEntry>()
+  .setName('FolderResolvedMountEntry')
+  .setFields({
+    mountId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
+    resolvedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+  });
+
+const folderResolvedMountEntryList = mddocConstruct
+  .constructFieldArray<FolderResolvedMountEntry>()
+  .setType(folderResolvedMountEntry);
+
 const folder = mddocConstruct
   .constructFieldObject<PublicFolder>()
   .setName('Folder')
   .setFields({
-    resourceId: mddocConstruct.constructFieldObjectField(
-      true,
-      mddocConstruct.constructFieldString()
-    ),
+    resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
     createdBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
     createdAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
     lastUpdatedBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
@@ -77,9 +89,9 @@ const folder = mddocConstruct
     idPath: mddocConstruct.constructFieldObjectField(true, fReusables.idPath),
     namepath: mddocConstruct.constructFieldObjectField(true, fReusables.foldernamepath),
     parentId: mddocConstruct.constructFieldObjectField(true, fReusables.folderIdOrNull),
-    providedResourceId: mddocConstruct.constructFieldObjectField(
-      false,
-      fReusables.providedResourceIdOrNull
+    resolvedEntries: mddocConstruct.constructFieldObjectField(
+      true,
+      folderResolvedMountEntryList
     ),
   });
 
@@ -93,13 +105,14 @@ const addFolderParams = mddocConstruct
   .setName('AddFolderEndpointParams')
   .setFields({
     folder: mddocConstruct.constructFieldObjectField(true, newFolderInput),
-  })
-  .setDescription('Add folder endpoint params.');
+  });
 const addFolderResponseBody = mddocConstruct
   .constructFieldObject<AddFolderEndpointResult>()
   .setName('AddFolderEndpointResult')
-  .setFields({folder: mddocConstruct.constructFieldObjectField(true, folder)})
-  .setDescription('Add folder endpoint success result.');
+  .setFields({
+    folder: mddocConstruct.constructFieldObjectField(true, folder),
+    notes: mddocConstruct.constructFieldObjectField(false, fReusables.resultNoteList),
+  });
 
 const listFolderContentParams = mddocConstruct
   .constructFieldObject<ListFolderContentEndpointParams>()
@@ -116,8 +129,7 @@ const listFolderContentParams = mddocConstruct
     ),
     page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
     pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
-  })
-  .setDescription('List folder content endpoint params.');
+  });
 const listFolderContentResponseBody = mddocConstruct
   .constructFieldObject<ListFolderContentEndpointResult>()
   .setName('ListFolderContentEndpointResult')
@@ -131,8 +143,8 @@ const listFolderContentResponseBody = mddocConstruct
       mddocConstruct.constructFieldArray<PublicFile>().setType(fileEndpointsParts.file)
     ),
     page: mddocConstruct.constructFieldObjectField(true, fReusables.page),
-  })
-  .setDescription('List folder content endpoint success result.');
+    notes: mddocConstruct.constructFieldObjectField(false, fReusables.resultNoteList),
+  });
 
 const countFolderContentParams = mddocConstruct
   .constructFieldObject<CountFolderContentEndpointParams>()
@@ -147,8 +159,7 @@ const countFolderContentParams = mddocConstruct
         .setExample(AppResourceTypeMap.File)
         .setValid([AppResourceTypeMap.File, AppResourceTypeMap.Folder])
     ),
-  })
-  .setDescription('List folder content endpoint params.');
+  });
 const countFolderContentResponseBody = mddocConstruct
   .constructFieldObject<CountFolderContentEndpointResult>()
   .setName('CountFolderContentEndpointResult')
@@ -161,8 +172,8 @@ const countFolderContentResponseBody = mddocConstruct
       true,
       mddocConstruct.constructFieldNumber()
     ),
-  })
-  .setDescription('Count folder content endpoint success result.');
+    notes: mddocConstruct.constructFieldObjectField(false, fReusables.resultNoteList),
+  });
 
 const updateFolderParams = mddocConstruct
   .constructFieldObject<UpdateFolderEndpointParams>()
@@ -170,30 +181,32 @@ const updateFolderParams = mddocConstruct
   .setFields({
     ...folderMatcherParts,
     folder: mddocConstruct.constructFieldObjectField(true, updateFolderInput),
-  })
-  .setDescription('Update folder endpoint params.');
+  });
 const updateFolderResponseBody = mddocConstruct
   .constructFieldObject<UpdateFolderEndpointResult>()
   .setName('UpdateFolderEndpointResult')
-  .setFields({folder: mddocConstruct.constructFieldObjectField(true, folder)})
-  .setDescription('Update folder endpoint success result.');
+  .setFields({folder: mddocConstruct.constructFieldObjectField(true, folder)});
 
 const getFolderParams = mddocConstruct
   .constructFieldObject<GetFolderEndpointParams>()
   .setName('GetFolderEndpointParams')
-  .setFields(folderMatcherParts)
-  .setDescription('Get folder endpoint params.');
+  .setFields(folderMatcherParts);
 const getFolderResponseBody = mddocConstruct
   .constructFieldObject<GetFolderEndpointResult>()
   .setName('GetFolderEndpointResult')
-  .setFields({folder: mddocConstruct.constructFieldObjectField(true, folder)})
-  .setDescription('Get folder endpoint success result.');
+  .setFields({folder: mddocConstruct.constructFieldObjectField(true, folder)});
 
 const deleteFolderParams = mddocConstruct
   .constructFieldObject<DeleteFolderEndpointParams>()
   .setName('DeleteFolderEndpointParams')
-  .setFields(folderMatcherParts)
-  .setDescription('Delete folder endpoint params.');
+  .setFields(folderMatcherParts);
+const deleteFolderResponseBody = mddocConstruct
+  .constructFieldObject<DeleteFolderEndpointResult>()
+  .setName('DeleteFolderEndpointResult')
+  .setFields({
+    jobId: mddocConstruct.constructFieldObjectField(false, fReusables.jobId),
+    notes: mddocConstruct.constructFieldObjectField(false, fReusables.resultNoteList),
+  });
 
 export const addFolderEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -214,8 +227,7 @@ export const addFolderEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(addFolderResponseBody)
-  .setName('AddFolderEndpoint')
-  .setDescription('Add folder endpoint.');
+  .setName('AddFolderEndpoint');
 
 export const getFolderEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -236,8 +248,7 @@ export const getFolderEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getFolderResponseBody)
-  .setName('GetFolderEndpoint')
-  .setDescription('Get folder endpoint.');
+  .setName('GetFolderEndpoint');
 
 export const updateFolderEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -264,8 +275,7 @@ export const updateFolderEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(updateFolderResponseBody)
-  .setName('UpdateFolderEndpoint')
-  .setDescription('Update folder endpoint.');
+  .setName('UpdateFolderEndpoint');
 
 export const deleteFolderEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -291,9 +301,8 @@ export const deleteFolderEndpointDefinition = mddocConstruct
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
-  .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
-  .setName('DeleteFolderEndpoint')
-  .setDescription('Delete folder endpoint.');
+  .setResponseBody(deleteFolderResponseBody)
+  .setName('DeleteFolderEndpoint');
 
 export const listFolderContentEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -322,8 +331,7 @@ export const listFolderContentEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(listFolderContentResponseBody)
-  .setName('ListFolderContentEndpoint')
-  .setDescription('List folder content endpoint.');
+  .setName('ListFolderContentEndpoint');
 
 export const countFolderContentEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -352,5 +360,4 @@ export const countFolderContentEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(countFolderContentResponseBody)
-  .setName('CountFolderContentEndpoint')
-  .setDescription('Count folder content endpoint.');
+  .setName('CountFolderContentEndpoint');

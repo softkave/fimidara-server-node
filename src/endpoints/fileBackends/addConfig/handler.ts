@@ -3,11 +3,11 @@ import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/ch
 import {kSemanticModels} from '../../contexts/injectables';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {fileBackendConfigExtractor} from '../utils';
-import {AddConfigEndpoint} from './types';
+import {AddFileBackendConfigEndpoint} from './types';
 import {INTERNAL_addConfig} from './utils';
 import {addConfigJoiSchema} from './validation';
 
-const addConfigEndpoint: AddConfigEndpoint = async (context, instData) => {
+const addFileBackendConfig: AddFileBackendConfigEndpoint = async (context, instData) => {
   const data = validate(instData.data, addConfigJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
@@ -25,4 +25,4 @@ const addConfigEndpoint: AddConfigEndpoint = async (context, instData) => {
   return {config: fileBackendConfigExtractor(backend)};
 };
 
-export default addConfigEndpoint;
+export default addFileBackendConfig;

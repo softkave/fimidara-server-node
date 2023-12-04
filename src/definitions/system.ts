@@ -133,7 +133,7 @@ export interface ResourceWrapper<T extends Resource = Resource> {
 
 export interface WorkspaceResource extends Resource {
   workspaceId: string;
-  providedResourceId?: string | null;
+  // providedResourceId?: string | null;
   lastUpdatedBy: Agent;
   createdBy: Agent;
 }
