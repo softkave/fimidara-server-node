@@ -7,6 +7,7 @@ import {
 } from '../contexts/semantic/types';
 import {assertFolder, readOrIngestFolderByFolderpath} from './utils';
 import {kSemanticModels} from '../contexts/injectables';
+import {Agent} from '../../definitions/system';
 
 export async function getClosestExistingFolder(
   workspaceId: string,
@@ -27,6 +28,7 @@ export async function getClosestExistingFolder(
 }
 
 export async function getFolderWithMatcher(
+  agent: Agent,
   matcher: FolderMatcher,
   opts?: SemanticProviderMutationRunOptions,
   workspaceId?: string
@@ -35,18 +37,24 @@ export async function getFolderWithMatcher(
     return await kSemanticModels.folder().getOneById(matcher.folderId, opts);
   } else if (matcher.folderpath) {
     if (opts)
-      return await readOrIngestFolderByFolderpath(matcher.folderpath, opts, workspaceId);
+      return await readOrIngestFolderByFolderpath(
+        agent,
+        matcher.folderpath,
+        opts,
+        workspaceId
+      );
   }
 
   return null;
 }
 
 export async function assertGetFolderWithMatcher(
+  agent: Agent,
   matcher: FolderMatcher,
   opts?: SemanticProviderMutationRunOptions,
   workspaceId?: string
 ) {
-  const folder = await getFolderWithMatcher(matcher, opts, workspaceId);
+  const folder = await getFolderWithMatcher(agent, matcher, opts, workspaceId);
   assertFolder(folder);
   return folder;
 }
