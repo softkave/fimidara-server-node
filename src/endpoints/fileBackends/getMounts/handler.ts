@@ -8,21 +8,21 @@ import {
 } from '../../utils';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {fileBackendMountListExtractor} from '../utils';
-import {GetFileBackendMountEndpoint} from './types';
-import {getFileBackendMountQuery} from './utils';
+import {GetFileBackendMountsEndpoint} from './types';
+import {getFileBackendMountsQuery} from './utils';
 import {getWorkspaceFileBackendMountJoiSchema} from './validation';
 
-const getFileBackendMounts: GetFileBackendMountEndpoint = async (context, instData) => {
+const getFileBackendMounts: GetFileBackendMountsEndpoint = async (context, instData) => {
   const mountModel = container.resolve<SemanticFileBackendMountProvider>(
     kInjectionKeys.semantic.fileBackendMount
   );
 
   const data = validate(instData.data, getWorkspaceFileBackendMountJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
-  const query = await getFileBackendMountQuery(agent, workspace);
+  const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
+  const query = await getFileBackendMountsQuery(agent, workspace, data);
   applyDefaultEndpointPaginationOptions(data);
-  const mounts = await mountModel.getManyByWorkspaceAndIdList(query, data);
+  const mounts = await mountModel.getManyByQuery(query, data);
 
   return {
     page: getEndpointPageFromInput(data),

@@ -223,6 +223,7 @@ const getFileBackendMountsParams = mddocConstruct
     ),
     backend: mddocConstruct.constructFieldObjectField(false, backend),
     folderpath: mddocConstruct.constructFieldObjectField(false, fReusables.folderpath),
+    configId: mddocConstruct.constructFieldObjectField(false, fReusables.id),
     page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
     pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
   });
@@ -244,6 +245,7 @@ const countFileBackendMountsParams = mddocConstruct
     ),
     backend: mddocConstruct.constructFieldObjectField(false, backend),
     folderpath: mddocConstruct.constructFieldObjectField(false, fReusables.folderpath),
+    configId: mddocConstruct.constructFieldObjectField(false, fReusables.id),
   });
 
 const updateFileBackendMountParams = mddocConstruct
