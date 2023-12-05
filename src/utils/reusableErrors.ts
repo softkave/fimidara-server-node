@@ -95,6 +95,7 @@ export const kReuseableErrors = {
   },
   config: {
     configNameExists: (name: string) => not_implemented,
+    configInUse: (mountsCount: number) => not_implemented,
   },
   common: {
     notImplemented() {
