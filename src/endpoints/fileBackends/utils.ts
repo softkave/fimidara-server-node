@@ -46,7 +46,7 @@ export async function mountNameExists(
 }
 
 export async function configNameExists(
-  mount: Pick<FileBackendConfig, 'workspaceId' | 'name'>
+  config: Pick<FileBackendConfig, 'workspaceId' | 'name'>
 ): Promise<boolean> {
   throw kReuseableErrors.common.notImplemented();
 }

@@ -1,18 +1,14 @@
 import {pick} from 'lodash';
-import {container} from 'tsyringe';
 import {FileBackendConfig} from '../../../definitions/fileBackend';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
+import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {SecretManagerProvider} from '../../contexts/encryption/types';
-import {kInjectionKeys} from '../../contexts/injection';
-import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
-import {SemanticProviderUtils} from '../../contexts/semantic/types';
-import {NotFoundError, ResourceExistsError} from '../../errors';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {fileBackendConfigExtractor} from '../utils';
+import {configNameExists, fileBackendConfigExtractor} from '../utils';
 import {UpdateFileBackendConfigEndpoint} from './types';
 import {updateFileBackendConfigJoiSchema} from './validation';
 
@@ -20,15 +16,8 @@ const updateFileBackendConfig: UpdateFileBackendConfigEndpoint = async (
   context,
   instData
 ) => {
-  const configModel = container.resolve<SemanticFileBackendConfigProvider>(
-    kInjectionKeys.semantic.fileBackendConfig
-  );
-  const semanticUtils = container.resolve<SemanticProviderUtils>(
-    kInjectionKeys.semantic.utils
-  );
-  const encryptionProvider = container.resolve<SecretManagerProvider>(
-    kInjectionKeys.encryption
-  );
+  const configModel = kSemanticModels.fileBackendConfig();
+  const secretsManager = kUtilsInjectables.secretsManager();
 
   const data = validate(instData.data, updateFileBackendConfigJoiSchema);
   const agent = await context.session.getAgent(context, instData);
@@ -40,9 +29,9 @@ const updateFileBackendConfig: UpdateFileBackendConfigEndpoint = async (
     target: {action: 'updateFileBackendConfig', targetId: workspace.resourceId},
   });
 
-  const updatedConfig = await semanticUtils.withTxn(async opts => {
+  const updatedConfig = await kSemanticModels.utils().withTxn(async opts => {
     const config = await configModel.getOneById(data.configId, opts);
-    appAssert(config, new NotFoundError('File backend config not found.'));
+    appAssert(config, kReuseableErrors.config.notFound());
 
     const configUpdate: Partial<FileBackendConfig> = {
       ...pick(data.config, ['name', 'description']),
@@ -50,30 +39,28 @@ const updateFileBackendConfig: UpdateFileBackendConfigEndpoint = async (
       lastUpdatedBy: getActionAgentFromSessionAgent(agent),
     };
 
-    if (data.config.credentials) {
-      const unencryptedCredentials = JSON.stringify(data.config.credentials);
-      const {cipher, encryptedText} = await encryptionProvider.addSecret(
-        unencryptedCredentials
-      );
-      configUpdate.credentials = encryptedText;
-      configUpdate.cipher = cipher;
-    }
-
     if (
       data.config.name &&
       data.config.name.toLowerCase() !== config.name.toLowerCase()
     ) {
-      const configExists = await configModel.getByName(
-        workspace.resourceId,
-        data.config.name,
-        opts
-      );
+      const configExists = await configNameExists({
+        name: data.config.name,
+        workspaceId: workspace.resourceId,
+      });
 
       if (configExists) {
-        throw new ResourceExistsError(
-          `File backend config with name ${data.config.name} exists.`
-        );
+        throw kReuseableErrors.config.configExists();
       }
+    }
+
+    if (data.config.credentials) {
+      const unencryptedCredentials = JSON.stringify(data.config.credentials);
+      const {id: secretId} = await secretsManager.addSecret({
+        name: config.resourceId,
+        text: unencryptedCredentials,
+      });
+
+      configUpdate.secretId = secretId;
     }
 
     return await configModel.getAndUpdateOneById(config.resourceId, configUpdate, opts);
