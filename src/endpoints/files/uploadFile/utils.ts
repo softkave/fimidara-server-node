@@ -8,10 +8,8 @@ import {
   getWorkspacePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {SemanticProviderRunOptions} from '../../contexts/semantic/types';
-import {BaseContextType} from '../../contexts/types';
 
 export async function checkUploadFileAuth(
-  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   file: File | null,
@@ -25,7 +23,6 @@ export async function checkUploadFileAuth(
   // else's file (or image) too. We need fine-grained permissions like only
   // allow an operation if the user/token created the file or owns the file.
   await checkAuthorizationWithAgent({
-    context,
     agent,
     workspace,
     opts,
