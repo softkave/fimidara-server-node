@@ -1,4 +1,5 @@
 import {compact, defaultTo, first, isArray, last} from 'lodash';
+import {Promise} from 'mongoose';
 import {posix} from 'path';
 import {container} from 'tsyringe';
 import {FileBackendMount} from '../../definitions/fileBackend';
@@ -28,12 +29,10 @@ import {
 } from '../contexts/semantic/types';
 import {SemanticWorkspaceProviderType} from '../contexts/semantic/workspace/types';
 import {InvalidRequestError} from '../errors';
-import {
-  initBackendProvidersForMounts,
-  resolveBackendConfigsWithIdList,
-} from '../fileBackends/configUtils';
+import {resolveBackendConfigsWithIdList} from '../fileBackends/configUtils';
 import {
   FileBackendMountWeights,
+  initBackendProvidersForMounts,
   isOnlyMountFimidara,
   resolveMountsForFolder,
 } from '../fileBackends/mountUtils';
