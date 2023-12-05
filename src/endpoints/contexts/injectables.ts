@@ -1,5 +1,7 @@
 import {container} from 'tsyringe';
 import {FimidaraConfig} from '../../resources/types';
+import {SecretsManagerProvider} from './encryption/types';
+import {FileProviderResolver} from './file/types';
 import {kInjectionKeys} from './injection';
 import {SemanticAgentTokenProvider} from './semantic/agentToken/types';
 import {SemanticAssignedItemProvider} from './semantic/assignedItem/types';
@@ -20,7 +22,6 @@ import {
 } from './semantic/types';
 import {SemanticUserProviderType} from './semantic/user/types';
 import {SemanticWorkspaceProviderType} from './semantic/workspace/types';
-import {FileProviderResolver} from './file/types';
 
 export const kSemanticModels = {
   user: () => container.resolve<SemanticUserProviderType>(kInjectionKeys.semantic.user),
@@ -65,6 +66,8 @@ export const kSemanticModels = {
 
 export const kUtilsInjectables = {
   config: () => container.resolve<FimidaraConfig>(kInjectionKeys.config),
+  secretsManager: () =>
+    container.resolve<SecretsManagerProvider>(kInjectionKeys.secretsManager),
   fileProviderResolver: () =>
     container.resolve<FileProviderResolver>(kInjectionKeys.fileProviderResolver),
 };

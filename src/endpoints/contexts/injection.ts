@@ -49,5 +49,6 @@ export const kInjectionKeys = {
   },
   encryption: 'encryption',
   config: 'config',
+  secretsManager: 'secretsManager',
   fileProviderResolver: 'fileProviderResolver',
 };

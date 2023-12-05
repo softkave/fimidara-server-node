@@ -6,7 +6,7 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {EncryptionProvider} from '../../contexts/encryption/types';
+import {SecretManagerProvider} from '../../contexts/encryption/types';
 import {kInjectionKeys} from '../../contexts/injection';
 import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
 import {SemanticProviderUtils} from '../../contexts/semantic/types';
@@ -26,7 +26,7 @@ const updateFileBackendConfig: UpdateFileBackendConfigEndpoint = async (
   const semanticUtils = container.resolve<SemanticProviderUtils>(
     kInjectionKeys.semantic.utils
   );
-  const encryptionProvider = container.resolve<EncryptionProvider>(
+  const encryptionProvider = container.resolve<SecretManagerProvider>(
     kInjectionKeys.encryption
   );
 
@@ -52,7 +52,7 @@ const updateFileBackendConfig: UpdateFileBackendConfigEndpoint = async (
 
     if (data.config.credentials) {
       const unencryptedCredentials = JSON.stringify(data.config.credentials);
-      const {cipher, encryptedText} = await encryptionProvider.encryptText(
+      const {cipher, encryptedText} = await encryptionProvider.addSecret(
         unencryptedCredentials
       );
       configUpdate.credentials = encryptedText;

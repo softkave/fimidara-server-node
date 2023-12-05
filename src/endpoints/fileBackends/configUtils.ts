@@ -2,7 +2,6 @@ import {keyBy} from 'lodash';
 import {container} from 'tsyringe';
 import {FileBackendConfig, FileBackendMount} from '../../definitions/fileBackend';
 import {ServerError} from '../../utils/errors';
-import {EncryptionProvider} from '../contexts/encryption/types';
 import {FilePersistenceProvider} from '../contexts/file/types';
 import {kUtilsInjectables} from '../contexts/injectables';
 import {kInjectionKeys} from '../contexts/injection';
@@ -34,17 +33,12 @@ export async function resolveBackendConfigsWithIdList(
 }
 
 export async function initBackendProvidersFromConfigs(configs: FileBackendConfig[]) {
-  const encryptionProvider = container.resolve<EncryptionProvider>(
-    kInjectionKeys.encryption
-  );
-
   const providersMap: Record<string, FilePersistenceProvider> = {};
 
   await Promise.all(
     configs.map(async config => {
-      const credentials = await encryptionProvider.decryptText({
-        encryptedText: config.credentials,
-        cipher: config.cipher,
+      const {text: credentials} = await kUtilsInjectables.secretsManager().getSecret({
+        id: config.secretId,
       });
       const initParams = JSON.parse(credentials);
       providersMap[config.resourceId] = kUtilsInjectables.fileProviderResolver()(
@@ -61,19 +55,14 @@ export async function initBackendProvidersForMounts(
   mounts: FileBackendMount[],
   configs: FileBackendConfig[]
 ) {
-  const encryptionProvider = container.resolve<EncryptionProvider>(
-    kInjectionKeys.encryption
-  );
-
   const providersMap: Record<string, FilePersistenceProvider> = {};
   const configsMap: Record<string, {config: FileBackendConfig; providerParams: unknown}> =
     {};
 
   await Promise.all(
     configs.map(async config => {
-      const credentials = await encryptionProvider.decryptText({
-        encryptedText: config.credentials,
-        cipher: config.cipher,
+      const {text: credentials} = await kUtilsInjectables.secretsManager().getSecret({
+        id: config.secretId,
       });
       const initParams = JSON.parse(credentials);
       configsMap[config.resourceId] = {config, providerParams: initParams};
