@@ -8,15 +8,16 @@ import {Agent, AppResourceTypeMap, SessionAgent} from '../../definitions/system'
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
+import {getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {
   checkAuthorizationWithAgent,
   getFilePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
+import {kSemanticModels} from '../contexts/injectables';
 import {kInjectionKeys} from '../contexts/injection';
 import {SemanticFolderProvider} from '../contexts/semantic/folder/types';
 import {
-  SemanticFileBackendMountProvider,
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
@@ -30,7 +31,6 @@ import {
   FileBackendMountWeights,
   isOnlyMountFimidara,
   resolveMountsForFolder,
-  sortMounts,
 } from '../fileBackends/mountUtils';
 import {workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
@@ -38,8 +38,6 @@ import {createFolderListWithTransaction} from './addFolder/handler';
 import {kFolderConstants} from './constants';
 import {FolderNotFoundError} from './errors';
 import {assertGetFolderWithMatcher} from './getFolderWithMatcher';
-import {getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
-import {kSemanticModels} from '../contexts/injectables';
 
 const folderFields = getFields<PublicFolder>({
   ...workspaceResourceFields,
@@ -426,35 +424,4 @@ export async function readOrIngestFolderByFolderpath(
     mounts,
     mountWeights
   );
-}
-
-export async function resolveFolder(
-  folder: Pick<Folder, 'workspaceId' | 'namepath'>,
-  opts: SemanticProviderMutationRunOptions
-) {
-  const mountModel = container.resolve<SemanticFileBackendMountProvider>(
-    kInjectionKeys.semantic.fileBackendMount
-  );
-  const mountsList: FileBackendMount[][] = [];
-  for (let index = 0; index <= folder.namepath.length; index++) {
-    const paths = folder.namepath.slice(0, folder.namepath.length - index);
-    const mounts = await mountModel.getManyByQuery(
-      {
-        workspaceId: folder.workspaceId,
-        folderpath: {$all: paths, $size: paths.length},
-      },
-      opts
-    );
-    mountsList.push(mounts);
-  }
-
-  const mounts: FileBackendMount[] = [];
-
-  mountsList.forEach(nextMountList => {
-    sortMounts(nextMountList).forEach(mount => {
-      mounts.push(mount);
-    });
-  });
-
-  return mounts;
 }
