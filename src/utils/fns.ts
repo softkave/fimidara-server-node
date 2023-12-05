@@ -254,3 +254,11 @@ export function streamToBuffer(stream: Readable): Promise<Buffer> {
     });
   });
 }
+
+export async function parallelFlowAsync<T extends AnyFn>(fns: T[]) {
+  return async (
+    ...args: Parameters<T>
+  ): Promise<Array<PromiseSettledResult<ReturnType<Awaited<T>>>>> => {
+    return await Promise.allSettled(fns.map(fn => fn(...args)));
+  };
+}

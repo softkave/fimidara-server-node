@@ -97,16 +97,9 @@ async function extractUploadFileParamsFromReq(
   req: Request
 ): Promise<UploadFileEndpointParams> {
   let waitTimeoutHandle: NodeJS.Timeout | undefined = undefined;
-  const contentLength = req.headers['content-length'];
   const contentEncoding = req.headers['content-encoding'];
-  // const contentType = req.headers[fileConstants.headers['x-fimidara-file-mimetype']];
   const description = req.headers[fileConstants.headers['x-fimidara-file-description']];
-
   appAssert(req.busboy, new InvalidRequestError('Invalid multipart/formdata request.'));
-  // appAssert(
-  //   contentLength,
-  //   new InvalidRequestError('The Content-Length HTTP header is required.')
-  // );
 
   return new Promise((resolve, reject) => {
     // Wait for data stream or end if timeout exceeded. This is to prevent
@@ -126,13 +119,12 @@ async function extractUploadFileParamsFromReq(
       resolve({
         ...matcher,
         data: stream,
-        size: Number(contentLength),
         encoding: info.encoding ?? contentEncoding,
-        // mimetype: info.mimeType ?? contentType,
         mimetype: info.mimeType,
         description: description ? first(toArray(description)) : undefined,
       });
     });
+
     req.pipe(req.busboy);
   });
 }
