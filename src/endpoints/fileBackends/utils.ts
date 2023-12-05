@@ -6,7 +6,7 @@ import {
 } from '../../definitions/fileBackend';
 import {ConvertAgentToPublicAgent} from '../../definitions/system';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {kReuseableErrors} from '../../utils/reusableErrors';
+import {kSemanticModels} from '../contexts/injectables';
 import {kInjectionKeys} from '../contexts/injection';
 import {
   SemanticFileBackendMountProvider,
@@ -14,6 +14,7 @@ import {
 } from '../contexts/semantic/types';
 import {workspaceResourceFields} from '../utils';
 import {NewFileBackendMountInput} from './addMount/types';
+import {config} from 'process';
 
 const fileBackendMountFields = getFields<ConvertAgentToPublicAgent<FileBackendMount>>({
   ...workspaceResourceFields,
@@ -40,15 +41,21 @@ export const fileBackendConfigExtractor = makeExtract(fileBackendConfigFields);
 export const fileBackendConfigListExtractor = makeListExtract(fileBackendConfigFields);
 
 export async function mountNameExists(
-  mount: Pick<FileBackendMount, 'workspaceId' | 'name'>
+  mount: Pick<FileBackendMount, 'workspaceId' | 'name'>,
+  opts?: SemanticProviderRunOptions
 ): Promise<boolean> {
-  throw kReuseableErrors.common.notImplemented();
+  return await kSemanticModels
+    .fileBackendMount()
+    .existsByName(mount.workspaceId, mount.name, opts);
 }
 
 export async function configNameExists(
-  config: Pick<FileBackendConfig, 'workspaceId' | 'name'>
+  config: Pick<FileBackendConfig, 'workspaceId' | 'name'>,
+  opts?: SemanticProviderRunOptions
 ): Promise<boolean> {
-  throw kReuseableErrors.common.notImplemented();
+  return await kSemanticModels
+    .fileBackendConfig()
+    .existsByName(config.workspaceId, config.name, opts);
 }
 
 export async function mountExists(
