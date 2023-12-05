@@ -1,5 +1,6 @@
 import {AppResourceTypeMap} from '../definitions/system';
-import {extractResourceIdList, noopAsync, noopAsync} from '../utils/fns';
+import {extractResourceIdList, noopAsync} from '../utils/fns';
+import {kReuseableErrors} from '../utils/reusableErrors';
 import {RemoveCollaboratorCascadeFnsArgs} from './collaborators/removeCollaborator/types';
 import {kSemanticModels} from './contexts/injectables';
 import {DeleteFileCascadeDeleteFnsArgs} from './files/deleteFile/types';
@@ -406,6 +407,37 @@ export const kDeleteFileBackendConfigCascadeFns: DeleteResourceCascadeFnsMap = {
     ),
   [AppResourceTypeMap.Tag]: noopAsync,
   [AppResourceTypeMap.AssignedItem]: noopAsync,
+};
+
+export const kDeleteFileBackendMountCascadeFns: DeleteResourceCascadeFnsMap = {
+  [AppResourceTypeMap.All]: noopAsync,
+  [AppResourceTypeMap.System]: noopAsync,
+  [AppResourceTypeMap.Public]: noopAsync,
+  [AppResourceTypeMap.Workspace]: noopAsync,
+  [AppResourceTypeMap.CollaborationRequest]: noopAsync,
+  [AppResourceTypeMap.AgentToken]: noopAsync,
+  [AppResourceTypeMap.PermissionGroup]: noopAsync,
+  [AppResourceTypeMap.Folder]: noopAsync,
+  [AppResourceTypeMap.File]: noopAsync,
+  [AppResourceTypeMap.User]: noopAsync,
+  [AppResourceTypeMap.UsageRecord]: noopAsync,
+  [AppResourceTypeMap.EndpointRequest]: noopAsync,
+  [AppResourceTypeMap.Job]: noopAsync,
+  [AppResourceTypeMap.FilePresignedPath]: noopAsync,
+  [AppResourceTypeMap.FileBackendMount]: (context, args, helpers) =>
+    helpers.withTxn(opts =>
+      kSemanticModels.fileBackendConfig().deleteOneById(args.resourceId, opts)
+    ),
+  [AppResourceTypeMap.FileBackendConfig]: noopAsync,
+  [AppResourceTypeMap.PermissionItem]: (context, args, helpers) =>
+    helpers.withTxn(opts =>
+      context.semantic.permissionItem.deleteManyByTargetId(args.resourceId, opts)
+    ),
+  [AppResourceTypeMap.Tag]: noopAsync,
+  [AppResourceTypeMap.AssignedItem]: noopAsync,
+  other: () => {
+    throw kReuseableErrors.common.notImplemented();
+  },
 };
 
 export const DELETE_WORKSPACE_CASCADE_FNS: DeleteResourceCascadeFnsMap = {

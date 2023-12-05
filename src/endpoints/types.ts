@@ -94,7 +94,8 @@ export type DeleteResourceCascadeFn<Args = DeleteResourceCascadeFnDefaultArgs> =
 ) => Promise<void>;
 
 export type DeleteResourceCascadeFnsMap<Args = DeleteResourceCascadeFnDefaultArgs> =
-  Record<AppResourceType, DeleteResourceCascadeFn<Args>>;
+  Record<AppResourceType, DeleteResourceCascadeFn<Args>> &
+    Partial<Record<'other', DeleteResourceCascadeFn<Args>>>;
 
 export type HttpEndpointRequestHeaders_AuthOptional = {
   Authorization?: string;
