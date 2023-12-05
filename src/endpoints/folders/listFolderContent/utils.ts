@@ -53,8 +53,7 @@ export async function listFolderContentQuery(
 export async function getWorkspaceAndParentFolder(
   context: BaseContextType,
   agent: SessionAgent,
-  matcher: FolderMatcher,
-  UNSAFE_skipAuthCheck = false
+  matcher: FolderMatcher
 ) {
   let workspace: Workspace | null | undefined = null,
     parentFolder: Folder | null | undefined = undefined;
@@ -78,8 +77,7 @@ export async function getWorkspaceAndParentFolder(
       matcher,
       'readFolder',
       workspace ?? undefined,
-      /** db run options */ undefined,
-      UNSAFE_skipAuthCheck
+      /** db run options */ undefined
     );
     ({workspace, folder: parentFolder} = checkResult);
   }

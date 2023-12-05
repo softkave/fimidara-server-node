@@ -4,8 +4,8 @@ import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels} from '../../contexts/injectables';
 import {InvalidRequestError} from '../../errors';
-import {getFilepathInfo} from '../../files/utils';
-import {getFolderpathInfo} from '../../folders/utils';
+import {checkFileAuthorization, getFilepathInfo} from '../../files/utils';
+import {checkFolderAuthorization, getFolderpathInfo} from '../../folders/utils';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {resolveMountsForFolder} from '../mountUtils';
 import {fileBackendMountListExtractor} from '../utils';
@@ -20,7 +20,7 @@ const resolveFileBackendMounts: ResolveFileBackendMountsEndpoint = async (
   const agent = await context.session.getAgent(context, instData);
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
 
-  let fileOrFolder: Pick<File, 'workspaceId' | 'namepath'> | null = null;
+  let fileOrFolder: Pick<File, 'workspaceId' | 'namepath' | 'idPath'> | null = null;
 
   if (data.folderpath) {
     const pathinfo = getFolderpathInfo(data.folderpath);
@@ -46,8 +46,10 @@ const resolveFileBackendMounts: ResolveFileBackendMountsEndpoint = async (
 
   if (data.folderId || data.folderpath) {
     appAssert(fileOrFolder, kReuseableErrors.folder.notFound());
+    checkFolderAuthorization(agent, fileOrFolder, 'readFolder', workspace);
   } else if (data.fileId || data.filepath) {
     appAssert(fileOrFolder, kReuseableErrors.file.notFound());
+    checkFileAuthorization(agent, fileOrFolder, 'readFile');
   }
 
   appAssert(fileOrFolder);

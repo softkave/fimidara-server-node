@@ -20,15 +20,9 @@ const countFolderContent: CountFolderContentEndpoint = async (context, instData)
   const {workspace, parentFolder} = await getWorkspaceAndParentFolder(
     context,
     agent,
-    data,
-
-    //  Skip auth check seeing the calling agent doesn't need to have read
-    //  permission to the folder, just to it's content, the same way public
-    //  agents don't need the workspace to be public but just a file to be
-    //  public.
-    // TODO: Let me (@abayomi) know if there's an issue with this.
-    /** skip auth check */ true
+    data
   );
+
   const contentType = data.contentType ?? [
     AppResourceTypeMap.File,
     AppResourceTypeMap.Folder,
@@ -51,12 +45,12 @@ async function countFolders(
   parentFolder: Folder | null
 ) {
   const q = await listFolderContentQuery(
-    context,
     agent,
     workspace,
     AppResourceTypeMap.Folder,
     parentFolder
   );
+
   return await context.semantic.folder.countManyParentByIdList(q);
 }
 
@@ -67,12 +61,12 @@ async function countFiles(
   parentFolder: Folder | null
 ) {
   const q = await listFolderContentQuery(
-    context,
     agent,
     workspace,
     AppResourceTypeMap.File,
     parentFolder
   );
+
   return await context.semantic.file.countManyParentByIdList(q);
 }
 
