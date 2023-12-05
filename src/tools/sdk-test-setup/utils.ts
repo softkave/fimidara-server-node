@@ -14,7 +14,7 @@ import {
   getMongoDataProviders,
   getMongoModels,
 } from '../../endpoints/contexts/utils';
-import NoopEmailProviderContext from '../../endpoints/testUtils/context/NoopEmailProviderContext';
+import NoopEmailProviderContext from '../../endpoints/testUtils/context/email/NoopEmailProviderContext';
 import INTERNAL_createWorkspace from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
 import {makeRootnameFromName} from '../../endpoints/workspaces/utils';
 import {fimidaraConfig} from '../../resources/vars';

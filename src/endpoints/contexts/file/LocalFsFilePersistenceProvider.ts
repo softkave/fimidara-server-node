@@ -4,11 +4,15 @@ import {appAssert} from '../../../utils/assertion';
 import {noopAsync} from '../../../utils/fns';
 import {
   FilePersistenceDeleteFilesParams,
+  FilePersistenceDeleteFoldersParams,
+  FilePersistenceDescribeFolderFilesParams,
+  FilePersistenceDescribeFolderFilesResult,
+  FilePersistenceDescribeFolderFoldersParams,
+  FilePersistenceDescribeFolderFoldersResult,
   FilePersistenceDescribeFolderParams,
   FilePersistenceGetFileParams,
   FilePersistenceProvider,
-  FilePersistenceProviderDescribeFolderChildrenParams,
-  FilePersistenceProviderDescribeFolderChildrenResult,
+  FilePersistenceProviderFeature,
   FilePersistenceUploadFileParams,
   PersistedFile,
   PersistedFileDescription,
@@ -16,7 +20,7 @@ import {
 } from './types';
 
 export interface LocalFsFilePersistenceProviderParams {
-  fileDir: string;
+  dir: string;
 }
 
 /**
@@ -25,11 +29,32 @@ export interface LocalFsFilePersistenceProviderParams {
  */
 export default class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
   constructor(private params: LocalFsFilePersistenceProviderParams) {
-    fse.ensureDirSync(params.fileDir);
+    fse.ensureDirSync(params.dir);
   }
 
+  supportsFeature = (feature: FilePersistenceProviderFeature): boolean => {
+    switch (feature) {
+      case 'deleteFiles':
+        return true;
+      case 'deleteFolders':
+        return true;
+      case 'describeFile':
+        return true;
+      case 'describeFolder':
+        return true;
+      case 'describeFolderFiles':
+        return true;
+      case 'describeFolderFolders':
+        return true;
+      case 'readFile':
+        return true;
+      case 'uploadFile':
+        return true;
+    }
+  };
+
   uploadFile = async (params: FilePersistenceUploadFileParams) => {
-    const filepath = `${this.params.fileDir}/${params.filepath}`;
+    const filepath = `${this.params.dir}/${params.filepath}`;
     await fse.ensureFile(filepath);
 
     return new Promise<{}>((resolve, reject) => {
@@ -44,7 +69,7 @@ export default class LocalFsFilePersistenceProvider implements FilePersistencePr
   };
 
   readFile = async (params: FilePersistenceGetFileParams): Promise<PersistedFile> => {
-    const filepath = `${this.params.fileDir}/${params.filepath}`;
+    const filepath = `${this.params.dir}/${params.filepath}`;
     const stat = await fse.promises.stat(filepath);
 
     if (!stat.isFile()) {
@@ -62,8 +87,22 @@ export default class LocalFsFilePersistenceProvider implements FilePersistencePr
     }
 
     const rmPromises = params.filepaths.map(async key => {
-      const filepath = `${this.params.fileDir}/${key}`;
-      await fse.promises.rm(filepath);
+      const filepath = `${this.params.dir}/${key}`;
+      await fse.promises.rm(filepath, {force: true});
+    });
+
+    await Promise.all(rmPromises);
+  };
+
+  deleteFolders = async (params: FilePersistenceDeleteFoldersParams) => {
+    if (params.folderpaths.length === 0) {
+      // Short-circuit, no files to delete
+      return;
+    }
+
+    const rmPromises = params.folderpaths.map(async key => {
+      const filepath = `${this.params.dir}/${key}`;
+      await fse.promises.rm(filepath, {recursive: true, force: true});
     });
 
     await Promise.all(rmPromises);
@@ -72,94 +111,158 @@ export default class LocalFsFilePersistenceProvider implements FilePersistencePr
   describeFile = async (
     params: FilePersistenceGetFileParams
   ): Promise<PersistedFileDescription | undefined> => {
-    const filepath = `${this.params.fileDir}/${params.filepath}`;
+    const filepath = `${this.params.dir}/${params.filepath}`;
     return first(
-      await this.stat([filepath], (stat): PersistedFileDescription | undefined => {
-        if (stat.isFile()) {
-          return {
-            type: 'file',
-            filepath: params.filepath,
-            size: stat.size,
-            lastUpdatedAt: stat.mtimeMs,
-          };
-        }
+      await this.getLocalStats(
+        [filepath],
+        (stat): PersistedFileDescription | undefined => {
+          if (stat.isFile()) {
+            return {
+              type: 'file',
+              filepath: params.filepath,
+              size: stat.size,
+              lastUpdatedAt: stat.mtimeMs,
+            };
+          }
 
-        return undefined;
-      })
+          return undefined;
+        }
+      )
     );
   };
 
   describeFolder = async (
     params: FilePersistenceDescribeFolderParams
   ): Promise<PersistedFolderDescription | undefined> => {
-    const folderpath = `${this.params.fileDir}/${params.folderpath}`;
+    const folderpath = `${this.params.dir}/${params.folderpath}`;
     return first(
-      await this.stat([folderpath], (stat): PersistedFolderDescription | undefined => {
-        if (stat.isDirectory()) {
-          return {type: 'folder', folderpath: params.folderpath};
-        }
+      await this.getLocalStats(
+        [folderpath],
+        (stat): PersistedFolderDescription | undefined => {
+          if (stat.isDirectory()) {
+            return {type: 'folder', folderpath: params.folderpath};
+          }
 
-        return undefined;
-      })
+          return undefined;
+        }
+      )
     );
   };
 
-  describeFolderChildren = async (
-    params: FilePersistenceProviderDescribeFolderChildrenParams
-  ): Promise<FilePersistenceProviderDescribeFolderChildrenResult> => {
-    const folderpath = `${this.params.fileDir}/${params.folderpath}`;
+  describeFolderFiles = async (
+    params: FilePersistenceDescribeFolderFilesParams
+  ): Promise<FilePersistenceDescribeFolderFilesResult> => {
+    const folderpath = `${this.params.dir}/${params.folderpath}`;
     appAssert(isNumber(params.page));
 
     try {
       // TODO: possible issue where folder children out use RAM. It's a string,
       // but there can be a lot.
       const children = await fse.promises.readdir(folderpath);
-      const files: PersistedFileDescription[] = [];
-      const folders: PersistedFolderDescription[] = [];
+      let files: PersistedFileDescription[] = [];
+      let pageIndex = params.page;
+      let stopIndex = pageIndex;
 
       for (
-        let startIndex = params.page * params.max;
-        startIndex < children.length ||
-        // TODO: should the combination of files & folders be `params.max`, or
-        // files and folders individually should be `params.max`
-        (files.length >= params.max && folders.length >= params.max);
-        startIndex = startIndex + params.max
+        ;
+        pageIndex < children.length || files.length >= params.max;
+        pageIndex = pageIndex + params.max
       ) {
-        await this.stat(
-          children.slice(startIndex, startIndex + params.max),
-          (stat, path) => {
-            if (stat.isFile() && files.length < params.max) {
-              files.push({
+        const pageFiles = await this.getLocalStats(
+          children.slice(pageIndex, pageIndex + params.max),
+          (stat, path): PersistedFileDescription | undefined => {
+            if (stat.isFile()) {
+              return {
                 type: 'file',
                 filepath: path,
                 size: stat.size,
                 lastUpdatedAt: stat.mtimeMs,
-              });
-            } else if (stat.isDirectory() && folders.length < params.max) {
-              folders.push({type: 'folder', folderpath: path});
+              };
             }
+
+            return undefined;
           }
         );
+
+        const remaining = params.max - files.length;
+        files = files.concat(pageFiles);
+
+        if (remaining >= pageFiles.length) {
+          files = files.concat(pageFiles);
+          stopIndex += pageFiles.length;
+        } else {
+          files = files.concat(pageFiles.slice(0, remaining));
+          stopIndex += remaining;
+        }
       }
 
-      return {files, folders, page: params.page + 1};
+      return {files, nextPage: stopIndex};
     } catch (error) {
       console.error(error);
-      return {files: [], folders: []};
+      return {files: []};
+    }
+  };
+
+  describeFolderFolders = async (
+    params: FilePersistenceDescribeFolderFoldersParams
+  ): Promise<FilePersistenceDescribeFolderFoldersResult> => {
+    const folderpath = `${this.params.dir}/${params.folderpath}`;
+    appAssert(isNumber(params.page));
+
+    try {
+      // TODO: possible issue where folder children out use RAM. It's a string,
+      // but there can be a lot.
+      const children = await fse.promises.readdir(folderpath);
+      let folders: PersistedFolderDescription[] = [];
+      let pageIndex = params.page;
+      let stopIndex = pageIndex;
+
+      for (
+        ;
+        pageIndex < children.length || folders.length >= params.max;
+        pageIndex = pageIndex + params.max
+      ) {
+        const pageFolders = await this.getLocalStats(
+          children.slice(pageIndex, pageIndex + params.max),
+          (stat, path): PersistedFolderDescription | undefined => {
+            if (stat.isDirectory()) {
+              return {type: 'folder', folderpath: path};
+            }
+
+            return undefined;
+          }
+        );
+
+        const remaining = params.max - folders.length;
+        folders = folders.concat(pageFolders);
+
+        if (remaining >= pageFolders.length) {
+          folders = folders.concat(pageFolders);
+          stopIndex += pageFolders.length;
+        } else {
+          folders = folders.concat(pageFolders.slice(0, remaining));
+          stopIndex += remaining;
+        }
+      }
+
+      return {folders, nextPage: stopIndex};
+    } catch (error) {
+      console.error(error);
+      return {folders: []};
     }
   };
 
   close = noopAsync;
 
-  protected async stat<T>(
+  protected async getLocalStats<T>(
     paths: string[],
-    process: (stat: fse.Stats, path: string) => T | undefined
+    process: (stat: fse.Stats, path: string, index: number) => T | undefined
   ): Promise<T[]> {
     const items = await Promise.all(
-      paths.map(async nextPath => {
+      paths.map(async (nextPath, index) => {
         try {
           const stat = await fse.promises.stat(nextPath);
-          return process(stat, nextPath);
+          return process(stat, nextPath, index);
         } catch (error) {
           console.error(error);
           return undefined;

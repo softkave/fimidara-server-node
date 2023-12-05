@@ -13,11 +13,13 @@ import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {kFolderConstants} from '../../folders/constants';
 import {
   FilePersistenceDeleteFilesParams,
+  FilePersistenceDeleteFoldersParams,
+  FilePersistenceDescribeFolderFilesParams,
+  FilePersistenceDescribeFolderFoldersParams,
   FilePersistenceDescribeFolderParams,
   FilePersistenceGetFileParams,
   FilePersistenceProvider,
-  FilePersistenceProviderDescribeFolderChildrenParams,
-  FilePersistenceProviderDescribeFolderChildrenResult,
+  FilePersistenceProviderFeature,
   FilePersistenceUploadFileParams,
   PersistedFile,
   PersistedFileDescription,
@@ -59,6 +61,27 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       },
     });
   }
+
+  supportsFeature = (feature: FilePersistenceProviderFeature): boolean => {
+    switch (feature) {
+      case 'deleteFiles':
+        return true;
+      case 'deleteFolders':
+        return false;
+      case 'describeFile':
+        return true;
+      case 'describeFolder':
+        return false;
+      case 'describeFolderFiles':
+        return false;
+      case 'describeFolderFolders':
+        return false;
+      case 'readFile':
+        return true;
+      case 'uploadFile':
+        return true;
+    }
+  };
 
   uploadFile = async (params: FilePersistenceUploadFileParams) => {
     const {bucket, key} = S3FilePersistenceProvider.getBucketAndKey(params);
@@ -127,12 +150,21 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
   describeFolder = async (
     params: FilePersistenceDescribeFolderParams
   ): Promise<PersistedFolderDescription | undefined> => {
+    // not supported
     return undefined;
   };
 
-  describeFolderChildren = async (
-    params: FilePersistenceProviderDescribeFolderChildrenParams
-  ): Promise<FilePersistenceProviderDescribeFolderChildrenResult> => {
-    return {files: [], folders: []};
+  describeFolderFiles = async (params: FilePersistenceDescribeFolderFilesParams) => {
+    // not supported
+    return {files: []};
+  };
+
+  describeFolderFolders = async (params: FilePersistenceDescribeFolderFoldersParams) => {
+    // not supported
+    return {folders: []};
+  };
+
+  deleteFolders = async (params: FilePersistenceDeleteFoldersParams): Promise<void> => {
+    // not supported
   };
 }

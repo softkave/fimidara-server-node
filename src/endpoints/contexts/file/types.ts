@@ -1,6 +1,6 @@
 import {Readable} from 'stream';
 import {File} from '../../../definitions/file';
-import {FileBackendMount} from '../../../definitions/fileBackend';
+import {FileBackendMount, FileBackendType} from '../../../definitions/fileBackend';
 import {AppResourceTypeMap} from '../../../definitions/system';
 
 export type FilePersistenceProviderFeature =
@@ -58,7 +58,7 @@ export type PersistedFolderDescription = {
   folderpath: string;
 };
 
-interface DescribeFolderFilesParams {
+export interface FilePersistenceDescribeFolderFilesParams {
   workspaceId: string;
   folderpath: string;
   max: number;
@@ -67,7 +67,7 @@ interface DescribeFolderFilesParams {
   mount: FileBackendMount;
 }
 
-interface DescribeFolderFoldersParams {
+export interface FilePersistenceDescribeFolderFoldersParams {
   workspaceId: string;
   folderpath: string;
   max: number;
@@ -75,10 +75,22 @@ interface DescribeFolderFoldersParams {
   mount: FileBackendMount;
 }
 
-interface DeleteFoldersParams {
+export interface FilePersistenceDeleteFoldersParams {
   workspaceId: string;
   folderpaths: string[];
   mount: FileBackendMount;
+}
+
+export interface FilePersistenceDescribeFolderFilesResult {
+  files: PersistedFileDescription[];
+  /* null if content is exhausted */
+  nextPage?: unknown | null;
+}
+
+export interface FilePersistenceDescribeFolderFoldersResult {
+  folders: PersistedFolderDescription[];
+  /* null if content is exhausted */
+  nextPage?: unknown | null;
 }
 
 export interface FilePersistenceProvider {
@@ -91,17 +103,18 @@ export interface FilePersistenceProvider {
   describeFolder: (
     params: FilePersistenceDescribeFolderParams
   ) => Promise<PersistedFolderDescription | undefined>;
-  describeFolderFiles: (params: DescribeFolderFilesParams) => Promise<{
-    files: PersistedFileDescription[];
-    /* null if content is exhausted */
-    page?: unknown | null;
-  }>;
-  describeFolderFolders: (params: DescribeFolderFoldersParams) => Promise<{
-    folders: PersistedFolderDescription[];
-    /* null if content is exhausted */
-    page?: unknown | null;
-  }>;
+  describeFolderFiles: (
+    params: FilePersistenceDescribeFolderFilesParams
+  ) => Promise<FilePersistenceDescribeFolderFilesResult>;
+  describeFolderFolders: (
+    params: FilePersistenceDescribeFolderFoldersParams
+  ) => Promise<FilePersistenceDescribeFolderFoldersResult>;
   deleteFiles: (params: FilePersistenceDeleteFilesParams) => Promise<void>;
-  deleteFolders: (params: DeleteFoldersParams) => Promise<void>;
+  deleteFolders: (params: FilePersistenceDeleteFoldersParams) => Promise<void>;
   close: () => Promise<void>;
 }
+
+export type FileProviderResolver = (
+  type: FileBackendType,
+  initParams: unknown
+) => FilePersistenceProvider;

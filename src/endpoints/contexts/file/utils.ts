@@ -1,16 +1,16 @@
-import {FileBackendProductType} from '../../../definitions/fileBackend';
+import {FileBackendType} from '../../../definitions/fileBackend';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {FimidaraFilePersistenceProvider} from './FimidaraFilePersistenceProvider';
 import {
   S3FilePersistenceProvider,
   S3FilePersistenceProviderInitParams,
 } from './S3FilePersistenceProvider';
-import {FilePersistenceProvider} from './types';
+import {FilePersistenceProvider, FileProviderResolver} from './types';
 
-export function resolveFilePersistenceProvider(
-  type: FileBackendProductType,
+export const resolveFilePersistenceProvider: FileProviderResolver = (
+  type: FileBackendType,
   initParams: unknown
-): FilePersistenceProvider {
+): FilePersistenceProvider => {
   if (type === 'fimidara') {
     return new FimidaraFilePersistenceProvider();
   } else if (type === 'aws-s3') {
@@ -20,4 +20,4 @@ export function resolveFilePersistenceProvider(
   }
 
   throw kReuseableErrors.file.unknownBackend(type);
-}
+};

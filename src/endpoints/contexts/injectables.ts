@@ -20,6 +20,7 @@ import {
 } from './semantic/types';
 import {SemanticUserProviderType} from './semantic/user/types';
 import {SemanticWorkspaceProviderType} from './semantic/workspace/types';
+import {FileProviderResolver} from './file/types';
 
 export const kSemanticModels = {
   user: () => container.resolve<SemanticUserProviderType>(kInjectionKeys.semantic.user),
@@ -64,4 +65,6 @@ export const kSemanticModels = {
 
 export const kUtilsInjectables = {
   config: () => container.resolve<FimidaraConfig>(kInjectionKeys.config),
+  fileProviderResolver: () =>
+    container.resolve<FileProviderResolver>(kInjectionKeys.fileProviderResolver),
 };
