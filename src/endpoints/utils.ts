@@ -5,6 +5,7 @@ import {
   PublicAgent,
   PublicResource,
   PublicWorkspaceResource,
+  WorkspaceResource,
 } from '../definitions/system';
 import {Workspace} from '../definitions/workspace';
 import OperationError, {FimidaraExternalError} from '../utils/OperationError';
@@ -26,8 +27,10 @@ import RequestData from './RequestData';
 import {endpointConstants} from './constants';
 import {kAsyncLocalStorageUtils} from './contexts/asyncLocalStorage';
 import {ResolvedTargetChildrenAccessCheck} from './contexts/authorizationChecks/checkAuthorizaton';
+import {DataQuery} from './contexts/data/types';
 import {getPage} from './contexts/data/utils';
 import {SemanticProviderMutationRunOptions} from './contexts/semantic/types';
+import {getInAndNinQuery} from './contexts/semantic/utils';
 import {BaseContextType, IServerRequest} from './contexts/types';
 import {InvalidRequestError, NotFoundError} from './errors';
 import {
@@ -232,6 +235,21 @@ export function getWorkspaceResourceListQuery00(
   }
 
   throw new PermissionDeniedError({item: report.item});
+}
+
+export function getWorkspaceResourceListQuery01(
+  workspace: Workspace,
+  report: ResolvedTargetChildrenAccessCheck
+): DataQuery<WorkspaceResource> {
+  const query = getWorkspaceResourceListQuery00(workspace, report);
+  return {
+    workspaceId: workspace.resourceId,
+    ...getInAndNinQuery<WorkspaceResource>(
+      'resourceId',
+      query.resourceIdList,
+      query.excludeResourceIdList
+    ),
+  };
 }
 
 export function applyDefaultEndpointPaginationOptions(data: PaginationQuery) {

@@ -8,7 +8,6 @@ import {
 } from '../../types';
 
 export type GetFileBackendConfigsEndpointParamsBase = EndpointOptionalWorkspaceIDParam & {
-  mountId?: string;
   backend?: FileBackendType;
 };
 

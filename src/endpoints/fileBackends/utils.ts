@@ -13,7 +13,7 @@ import {
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
 import {workspaceResourceFields} from '../utils';
-import {AddFileBackendMountEndpointParams} from './addMount/types';
+import {NewFileBackendMountInput} from './addMount/types';
 
 const fileBackendMountFields = getFields<ConvertAgentToPublicAgent<FileBackendMount>>({
   ...workspaceResourceFields,
@@ -32,6 +32,8 @@ export const fileBackendMountListExtractor = makeListExtract(fileBackendMountFie
 const fileBackendConfigFields = getFields<PublicFileBackendConfig>({
   ...workspaceResourceFields,
   backend: true,
+  description: true,
+  name: true,
 });
 
 export const fileBackendConfigExtractor = makeExtract(fileBackendConfigFields);
@@ -50,7 +52,7 @@ export async function configNameExists(
 }
 
 export async function mountExists(
-  data: Pick<AddFileBackendMountEndpointParams, 'folderpath' | 'mountedFrom' | 'product'>,
+  data: Pick<NewFileBackendMountInput, 'folderpath' | 'mountedFrom' | 'backend'>,
   opts?: SemanticProviderRunOptions
 ) {
   const mountModel = container.resolve<SemanticFileBackendMountProvider>(

@@ -333,7 +333,6 @@ const getFileBackendConfigsParams = mddocConstruct
       fReusables.workspaceIdInput
     ),
     backend: mddocConstruct.constructFieldObjectField(false, backend),
-    mountId: mddocConstruct.constructFieldObjectField(false, fReusables.id),
     page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
     pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
   });
@@ -354,7 +353,6 @@ const countFileBackendConfigsParams = mddocConstruct
       fReusables.workspaceIdInput
     ),
     backend: mddocConstruct.constructFieldObjectField(false, backend),
-    mountId: mddocConstruct.constructFieldObjectField(false, fReusables.id),
   });
 
 const updateFileBackendConfigParams = mddocConstruct
