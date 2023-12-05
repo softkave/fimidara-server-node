@@ -9,15 +9,17 @@ import {
   PublicFolder,
 } from '../../definitions/folder';
 import {PermissionAction} from '../../definitions/permissionItem';
-import {SessionAgent} from '../../definitions/system';
+import {Agent, AppResourceTypeMap, SessionAgent} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
+import {getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {
   checkAuthorizationWithAgent,
   getFilePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
+import {kSemanticModels} from '../contexts/injectables';
 import {kInjectionKeys} from '../contexts/injection';
 import {SemanticFolderProvider} from '../contexts/semantic/folder/types';
 import {
@@ -27,8 +29,8 @@ import {
 import {SemanticWorkspaceProviderType} from '../contexts/semantic/workspace/types';
 import {InvalidRequestError} from '../errors';
 import {
-  initBackendProvidersFromConfigs,
-  resolveBackendConfigsFromMounts,
+  initBackendProvidersForMounts,
+  resolveBackendConfigsWithIdList,
 } from '../fileBackends/configUtils';
 import {
   FileBackendMountWeights,
@@ -176,7 +178,12 @@ export async function checkFolderAuthorization02(
   workspace?: Workspace,
   opts?: SemanticProviderMutationRunOptions
 ) {
-  const folder = await assertGetFolderWithMatcher(matcher, opts, workspace?.workspaceId);
+  const folder = await assertGetFolderWithMatcher(
+    agent,
+    matcher,
+    opts,
+    workspace?.workspaceId
+  );
   return checkFolderAuthorization(agent, folder, action, workspace);
 }
 
@@ -269,13 +276,6 @@ export async function ensureFolders(
   );
 }
 
-export function mergeFoldersByMount(
-  folders: Folder[],
-  mountWeights: FileBackendMountWeights
-): Folder | null {
-  throw kReuseableErrors.common.notImplemented();
-}
-
 export async function getWorkspaceFromFolderpath(folderpath: string): Promise<Workspace> {
   const workspaceModel = container.resolve<SemanticWorkspaceProviderType>(
     kInjectionKeys.semantic.workspace
@@ -291,11 +291,47 @@ export async function getWorkspaceFromFolderpath(folderpath: string): Promise<Wo
   return workspace;
 }
 
+export async function createNewFolder(
+  agent: Agent,
+  workspace: Workspace,
+  pathinfo: FolderpathInfo,
+  data: Pick<Folder, 'parentId' | 'idPath' | 'namepath' | 'name' | 'description'>,
+  opts: SemanticProviderMutationRunOptions,
+  seed: Partial<Folder> = {}
+) {
+  const parentFolder = await ensureFolders(agent, workspace, pathinfo.parentPath, opts);
+
+  const folderId = getNewIdForResource(AppResourceTypeMap.Folder);
+  const folder = newWorkspaceResource<Folder>(
+    agent,
+    AppResourceTypeMap.File,
+    workspace.resourceId,
+    {
+      workspaceId: workspace.resourceId,
+      resourceId: folderId,
+      name: pathinfo.name,
+      idPath: parentFolder ? parentFolder.idPath.concat(folderId) : [folderId],
+      namepath: parentFolder
+        ? parentFolder.namepath.concat(pathinfo.name)
+        : [pathinfo.name],
+      parentId: parentFolder?.resourceId ?? data.parentId ?? null,
+      description: data.description,
+      resolvedEntries: [],
+      ...seed,
+    }
+  );
+
+  await kSemanticModels.folder().insertItem(folder, opts);
+  return folder;
+}
+
 export async function ingestFolderByFolderpath(
+  agent: Agent,
   /** folderpath with workspace rootname */
   folderpath: string,
   opts: SemanticProviderMutationRunOptions,
   workspaceId: string,
+  workspace?: Workspace,
   mounts?: FileBackendMount[],
   mountWeights?: FileBackendMountWeights
 ) {
@@ -305,8 +341,8 @@ export async function ingestFolderByFolderpath(
 
   const pathinfo = getFolderpathInfo(folderpath);
 
-  if (!workspaceId) {
-    ({workspaceId} = await getWorkspaceFromFolderpath(folderpath));
+  if (!workspace) {
+    workspace = await getWorkspaceFromFolderpath(folderpath);
   }
 
   if (mounts) {
@@ -318,32 +354,53 @@ export async function ingestFolderByFolderpath(
     ));
   }
 
-  const configs = await resolveBackendConfigsFromMounts(mounts, true, opts);
-  const providersMap = await initBackendProvidersFromConfigs(configs);
+  const configs = await resolveBackendConfigsWithIdList(
+    compact(mounts.map(mount => mount.configId)),
+    /** throw error is config is not found */ true,
+    opts
+  );
+  const providersMap = await initBackendProvidersForMounts(mounts, configs);
 
-  const folders = await Promise.all(
+  const mountFolders = await Promise.all(
     mounts.map(async mount => {
-      const provider = providersMap[mount.configId];
+      const provider = providersMap[mount.resourceId];
       appAssert(provider);
 
-      return provider.normalizeFolder(
+      return await provider.describeFolder({
         workspaceId,
-        await provider.describeFolder({
-          key: pathinfo.namepath.join(kFolderConstants.separator),
-        })
-      );
+        mount,
+        folderpath: pathinfo.namepath.join(kFolderConstants.separator),
+      });
     })
   );
-  let folder = mergeFoldersByMount(folders, mountWeights);
+  const mountFolder = mountFolders.find(Boolean);
+
+  let folder = await folderModel.getOneByNamepath(
+    {workspaceId, namepath: pathinfo.namepath},
+    opts
+  );
 
   if (folder) {
     folder = await folderModel.getAndUpdateOneBynamepath(folder, folder, opts);
+    appAssert(folder);
+  } else if (mountFolder && !folder) {
+    folder = await createNewFolder(
+      agent,
+      workspace,
+      pathinfo,
+      // Without passing this it through an error.
+      {description: '', idPath: [''], name: '', namepath: [''], parentId: ''},
+      opts,
+      {}
+    );
+    appAssert(folder);
   }
 
   return folder;
 }
 
 export async function readOrIngestFolderByFolderpath(
+  agent: Agent,
   /** folderpath with workspace rootname */
   folderpath: string,
   opts: SemanticProviderMutationRunOptions,
@@ -371,9 +428,11 @@ export async function readOrIngestFolderByFolderpath(
   }
 
   return await ingestFolderByFolderpath(
+    agent,
     folderpath,
     opts,
     workspaceId,
+    /** workspace */ undefined,
     mounts,
     mountWeights
   );
