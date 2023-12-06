@@ -68,11 +68,9 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async (
     if (isFolderpathChanged || isMountedFromChanged) {
       const exists = await mountExists(
         {
-          mount: {
-            backend: mount.backend,
-            folderpath: data.mount.folderpath || mount.folderpath,
-            mountedFrom: data.mount.mountedFrom || mount.mountedFrom,
-          },
+          backend: mount.backend,
+          folderpath: data.mount.folderpath || mount.folderpath,
+          mountedFrom: data.mount.mountedFrom || mount.mountedFrom,
         },
         opts
       );

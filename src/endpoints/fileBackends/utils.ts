@@ -13,7 +13,7 @@ import {
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
 import {workspaceResourceFields} from '../utils';
-import {AddFileBackendMountEndpointParams} from './addMount/types';
+import {NewFileBackendMountInput} from './addMount/types';
 
 const fileBackendMountFields = getFields<ConvertAgentToPublicAgent<FileBackendMount>>({
   ...workspaceResourceFields,
@@ -52,12 +52,7 @@ export async function configNameExists(
 }
 
 export async function mountExists(
-  data: {
-    mount: Pick<
-      AddFileBackendMountEndpointParams['mount'],
-      'backend' | 'folderpath' | 'mountedFrom'
-    >;
-  },
+  data: Pick<NewFileBackendMountInput, 'folderpath' | 'mountedFrom' | 'backend'>,
   opts?: SemanticProviderRunOptions
 ) {
   const mountModel = container.resolve<SemanticFileBackendMountProvider>(
@@ -66,9 +61,9 @@ export async function mountExists(
 
   return await mountModel.existsByQuery(
     {
-      backend: data.mount.backend,
-      folderpath: {$all: data.mount.folderpath, $size: data.mount.folderpath.length},
-      mountedFrom: {$all: data.mount.mountedFrom, $size: data.mount.mountedFrom.length},
+      backend: data.backend,
+      folderpath: {$all: data.folderpath, $size: data.folderpath.length},
+      mountedFrom: {$all: data.mountedFrom, $size: data.mountedFrom.length},
     },
     opts
   );
