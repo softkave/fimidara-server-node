@@ -10,6 +10,7 @@ import {
 export type GetFileBackendMountsEndpointParamsBase = EndpointOptionalWorkspaceIDParam & {
   folderpath?: string;
   backend?: FileBackendType;
+  configId?: string;
 };
 
 export interface GetFileBackendMountsEndpointParams

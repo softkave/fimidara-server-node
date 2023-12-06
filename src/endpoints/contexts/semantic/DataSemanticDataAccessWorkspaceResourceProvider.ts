@@ -1,7 +1,7 @@
 import {Resource, WorkspaceResource} from '../../../definitions/system';
 import {getLowercaseRegExpForString} from '../../../utils/fns';
 import {DataProviderQueryListParams, DataQuery} from '../data/types';
-import {DataSemanticBaseProvider} from './DataSemanticBaseProvider';
+import {DataSemanticBaseProvider} from './DataSemanticDataAccessBaseProvider';
 import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,

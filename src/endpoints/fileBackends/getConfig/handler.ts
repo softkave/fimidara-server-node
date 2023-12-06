@@ -17,7 +17,7 @@ const getFileBackendConfig: GetFileBackendConfigEndpoint = async (context, instD
 
   const data = validate(instData.data, getFileBackendConfigJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
+  const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   await checkAuthorizationWithAgent({
     agent,
     workspace,

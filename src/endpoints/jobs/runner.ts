@@ -14,14 +14,15 @@ import {newResource} from '../../utils/resource';
 import {SemanticProviderMutationRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {
-  DELETE_AGENT_TOKEN_CASCADE_FNS,
   DELETE_COLLABORATION_REQUEST_CASCADE_FNS,
   DELETE_FILE_CASCADE_FNS,
   DELETE_FOLDER_CASCADE_FNS,
   DELETE_PERMISSION_GROUP_CASCADE_FNS,
-  DELETE_PERMISSION_ITEMS_CASCADE_FNS,
   DELETE_TAG_CASCADE_FNS,
   DELETE_WORKSPACE_CASCADE_FNS,
+  kDeleteAgentTokenCascadeFns,
+  kDeleteFileBackendConfigCascadeFns,
+  kDeletePermissionItemsCascaseFns,
   REMOVE_COLLABORATOR_CASCADE_FNS,
 } from '../deleteResourceCascadeDefs';
 import {DeleteResourceCascadeFnsMap} from '../types';
@@ -114,12 +115,13 @@ const kCascadeDeleteDefs: Record<
   [AppResourceTypeMap.User]: REMOVE_COLLABORATOR_CASCADE_FNS,
   [AppResourceTypeMap.CollaborationRequest]: DELETE_COLLABORATION_REQUEST_CASCADE_FNS,
   [AppResourceTypeMap.Workspace]: DELETE_WORKSPACE_CASCADE_FNS,
-  [AppResourceTypeMap.AgentToken]: DELETE_AGENT_TOKEN_CASCADE_FNS,
+  [AppResourceTypeMap.AgentToken]: kDeleteAgentTokenCascadeFns,
   [AppResourceTypeMap.Folder]: DELETE_FOLDER_CASCADE_FNS,
   [AppResourceTypeMap.File]: DELETE_FILE_CASCADE_FNS,
   [AppResourceTypeMap.Tag]: DELETE_TAG_CASCADE_FNS,
   [AppResourceTypeMap.PermissionGroup]: DELETE_PERMISSION_GROUP_CASCADE_FNS,
-  [AppResourceTypeMap.PermissionItem]: DELETE_PERMISSION_ITEMS_CASCADE_FNS,
+  [AppResourceTypeMap.PermissionItem]: kDeletePermissionItemsCascaseFns,
+  [AppResourceTypeMap.FileBackendConfig]: kDeleteFileBackendConfigCascadeFns,
 };
 
 async function executeDeleteResourceJob(job: Job) {

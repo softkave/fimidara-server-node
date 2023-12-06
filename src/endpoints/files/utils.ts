@@ -75,7 +75,7 @@ export const fileListExtractor = makeListExtract(fileFields);
 
 export async function checkFileAuthorization(
   agent: SessionAgent,
-  file: File,
+  file: Pick<File, 'idPath' | 'workspaceId'>,
   action: PermissionAction,
   opts?: SemanticProviderRunOptions
 ) {

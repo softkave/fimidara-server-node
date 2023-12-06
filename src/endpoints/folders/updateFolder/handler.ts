@@ -12,9 +12,8 @@ import {updateFolderJoiSchema} from './validation';
 const updateFolder: UpdateFolderEndpoint = async (context, instData) => {
   const data = validate(instData.data, updateFolderJoiSchema);
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
-  let folder = await context.semantic.utils.withTxn(context, async opts => {
+  let folder = await context.semantic.utils.withTxn(async opts => {
     const {folder} = await checkFolderAuthorization02(
-      context,
       agent,
       data,
       'updateFolder',
