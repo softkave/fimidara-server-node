@@ -97,8 +97,6 @@ export interface FilePersistenceDescribeFolderFoldersResult {
 }
 
 export interface FilePersistenceProvider {
-  stringifyContinuationToken: (token?: unknown) => string | undefined;
-  parseContinuationToken: (hex?: string) => unknown | undefined;
   supportsFeature: (feature: FilePersistenceProviderFeature) => boolean;
   uploadFile: (params: FilePersistenceUploadFileParams) => Promise<Partial<File>>;
   readFile: (params: FilePersistenceGetFileParams) => Promise<PersistedFile>;

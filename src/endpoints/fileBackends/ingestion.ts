@@ -1,17 +1,18 @@
 import {compact, first, keyBy} from 'lodash';
 import {Folder, FolderResolvedMountEntry} from '../../definitions/folder';
-import {IngestFolderpathJobParams, Job} from '../../definitions/job';
+import {
+  IngestFolderpathJobParams,
+  IngestMountJobParams,
+  Job,
+} from '../../definitions/job';
 import {Agent} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
-import {
-  FilePersistenceDescribeFolderFoldersResult,
-  PersistedFolderDescription,
-} from '../contexts/file/types';
+import {PersistedFolderDescription} from '../contexts/file/types';
 import {kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
 import {kFolderConstants} from '../folders/constants';
 import {FolderpathInfo, createNewFolder, getFolderpathInfo} from '../folders/utils';
-import {JobInput, completeJob, queueJobs} from '../jobs/utils';
+import {JobInput, queueJobs} from '../jobs/utils';
 import {resolveBackendConfigsWithIdList} from './configUtils';
 import {initBackendProvidersForMounts} from './mountUtils';
 
@@ -19,7 +20,7 @@ async function ingestPersistedFolders(
   agent: Agent,
   workspaceId: string,
   parent: Folder | null,
-  resultList: FilePersistenceDescribeFolderFoldersResult[]
+  folders: PersistedFolderDescription[]
 ) {
   const mountFoldersMap: Record<
     string,
@@ -30,60 +31,60 @@ async function ingestPersistedFolders(
     }
   > = {};
 
-  resultList.forEach(nextResult => {
-    const {folders} = nextResult;
+  folders.forEach(nextMountFolder => {
+    let map = mountFoldersMap[nextMountFolder.folderpath];
 
-    folders.forEach(nextMountFolder => {
-      let map = mountFoldersMap[nextMountFolder.folderpath];
+    if (!map) {
+      map = mountFoldersMap[nextMountFolder.folderpath] = {
+        pathinfo: getFolderpathInfo(nextMountFolder.folderpath),
+        mountFolders: [],
+        mountEntries: [],
+      };
+    }
 
-      if (!map) {
-        map = mountFoldersMap[nextMountFolder.folderpath] = {
-          pathinfo: getFolderpathInfo(nextMountFolder.folderpath),
-          mountFolders: [],
-          mountEntries: [],
-        };
-      }
-
-      map.mountFolders.push(nextMountFolder);
-      map.mountEntries.push({
-        mountId: nextMountFolder.mountId,
-        resolvedAt: getTimestamp(),
-      });
+    map.mountFolders.push(nextMountFolder);
+    map.mountEntries.push({
+      mountId: nextMountFolder.mountId,
+      resolvedAt: getTimestamp(),
     });
   });
 
-  const extMountFoldersList = Object.values(mountFoldersMap);
-
-  // TODO: use $or query instead
-  const existingFolders = compact(
-    await Promise.all(
-      extMountFoldersList.map(({pathinfo}) => {
-        return kSemanticModels.folder().getOneByNamepath({
-          workspaceId,
-          namepath: pathinfo.namepath,
-        });
-      })
-    )
-  );
-
-  const existingFoldersMap = keyBy(existingFolders, file =>
-    file.namepath.join(kFolderConstants.separator)
-  );
-
-  const newFolders: Array<Folder> = [];
-
-  extMountFoldersList.forEach(({pathinfo, mountFolders: mountFiles}) => {
-    const mountFolder0 = first(mountFiles);
-    appAssert(mountFolder0);
-
-    if (!existingFoldersMap[mountFolder0.folderpath]) {
-      newFolders.push(
-        createNewFolder(agent, workspaceId, pathinfo, parent, /** new folder input */ {})
-      );
-    }
-  });
+  const mountFolderList = Object.values(mountFoldersMap);
 
   await kSemanticModels.utils().withTxn(async opts => {
+    // TODO: use $or query instead
+    const existingFolders = compact(
+      await Promise.all(
+        mountFolderList.map(({pathinfo}) => {
+          return kSemanticModels
+            .folder()
+            .getOneByNamepath({workspaceId, namepath: pathinfo.namepath}, opts);
+        })
+      )
+    );
+
+    const newFolders: Array<Folder> = [];
+    const existingFoldersMap = keyBy(existingFolders, file =>
+      file.namepath.join(kFolderConstants.separator)
+    );
+
+    mountFolderList.forEach(({pathinfo, mountFolders: mountFiles}) => {
+      const mountFolder0 = first(mountFiles);
+      appAssert(mountFolder0);
+
+      if (!existingFoldersMap[mountFolder0.folderpath]) {
+        newFolders.push(
+          createNewFolder(
+            agent,
+            workspaceId,
+            pathinfo,
+            parent,
+            /** new folder input */ {}
+          )
+        );
+      }
+    });
+
     const updateFoldersPromise = Promise.all(
       existingFolders.map(folder => {
         const entry = mountFoldersMap[folder.namepath.join(kFolderConstants.separator)];
@@ -116,8 +117,6 @@ export async function runIngestFolderpathJob(job: Job<IngestFolderpathJobParams>
   ]);
 
   if (!mount || !folder || mount.backend === 'fimidara') {
-    // short-circuit, fimidara is already in DB, no need to ingest
-    await completeJob(job.resourceId);
     return;
   }
 
@@ -139,7 +138,7 @@ export async function runIngestFolderpathJob(job: Job<IngestFolderpathJobParams>
     });
 
     continuationToken = result.continuationToken;
-    await ingestPersistedFolders(agent, job.workspaceId, folder, [result]);
+    await ingestPersistedFolders(agent, job.workspaceId, folder, result.folders);
     await queueJobs(
       job.workspaceId,
       job.resourceId,
@@ -155,6 +154,24 @@ export async function runIngestFolderpathJob(job: Job<IngestFolderpathJobParams>
       })
     );
   } while (continuationToken);
+}
 
-  await completeJob(job.resourceId);
+export async function runIngestMountJob(job: Job<IngestMountJobParams>) {
+  appAssert(job.workspaceId);
+  const mount = await kSemanticModels.fileBackendMount().getOneById(job.params.mountId);
+
+  if (!mount || mount.backend === 'fimidara') {
+    return;
+  }
+
+  const input: JobInput<IngestFolderpathJobParams> = {
+    type: 'ingestFolderpath',
+    params: {
+      folderpath: mount.folderpath.join(kFolderConstants.separator),
+      mountId: mount.resourceId,
+      agentId: job.params.agentId,
+    },
+  };
+
+  await queueJobs(job.workspaceId, job.resourceId, [input]);
 }

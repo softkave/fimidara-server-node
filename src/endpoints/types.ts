@@ -90,7 +90,6 @@ export type DeleteResourceCascadeFnHelperFns = {
 };
 
 export type DeleteResourceCascadeFn<Args = DeleteResourceCascadeFnDefaultArgs> = (
-  context: BaseContextType,
   args: Args,
   helpers: DeleteResourceCascadeFnHelperFns
 ) => Promise<void>;

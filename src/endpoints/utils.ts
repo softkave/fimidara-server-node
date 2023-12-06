@@ -28,6 +28,7 @@ import {endpointConstants} from './constants';
 import {kAsyncLocalStorageUtils} from './contexts/asyncLocalStorage';
 import {ResolvedTargetChildrenAccessCheck} from './contexts/authorizationChecks/checkAuthorizaton';
 import {DataQuery} from './contexts/data/types';
+import {kSemanticModels} from './contexts/injectables';
 import {SemanticProviderMutationRunOptions} from './contexts/semantic/types';
 import {getInAndNinQuery} from './contexts/semantic/utils';
 import {BaseContextType, IServerRequest} from './contexts/types';
@@ -247,17 +248,16 @@ export function getWorkspaceResourceListQuery01(
 }
 
 export async function executeCascadeDelete<Args>(
-  context: BaseContextType,
   cascadeDef: DeleteResourceCascadeFnsMap<Args>,
   args: Args
 ) {
   const helperFns: DeleteResourceCascadeFnHelperFns = {
     async withTxn(fn: AnyFn<[SemanticProviderMutationRunOptions]>) {
-      await context.semantic.utils.withTxn(opts => fn(opts));
+      await kSemanticModels.utils().withTxn(opts => fn(opts));
     },
   };
 
-  await Promise.all(Object.values(cascadeDef).map(fn => fn(context, args, helperFns)));
+  await Promise.all(Object.values(cascadeDef).map(fn => fn(args, helperFns)));
 }
 
 export function assertUpdateNotEmpty(update: AnyObject) {

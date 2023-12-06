@@ -6,8 +6,9 @@ import {AnyObject, ObjectValues} from '../utils/types';
 import {AppResourceTypeMap, Resource} from './system';
 
 export const JobTypeMap = {
-  DeleteResource: 'deleteResource',
-  IngestFolderpath: 'ingestFolderpath',
+  deleteResource: 'deleteResource',
+  ingestFolderpath: 'ingestFolderpath',
+  ingestMount: 'ingestMount',
 } as const;
 
 export const JobStatusMap = {
@@ -30,8 +31,6 @@ export interface Job<TParams extends AnyObject = AnyObject> extends Resource {
   version: number;
   serverInstanceId: string;
   parentJobId?: string;
-  childrenJobsCount?: number;
-  childrenJobsDone?: number;
 
   /** For checking the logs for the error that occurred during the job run. */
   errorTimestamp?: number;
@@ -74,4 +73,9 @@ export interface IngestFolderpathJobParams {
   agentId: string;
 }
 
-export const JOB_RUNNER_V1 = 1;
+export interface IngestMountJobParams {
+  mountId: string;
+  agentId: string;
+}
+
+export const kJobRunnerV1 = 1;

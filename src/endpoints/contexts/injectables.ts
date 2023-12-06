@@ -2,11 +2,28 @@ import {container} from 'tsyringe';
 import {FimidaraConfig} from '../../resources/types';
 import {SessionContextType} from './SessionContext';
 import {AsyncLocalStorageUtils} from './asyncLocalStorage';
+import {
+  AgentTokenDataProvider,
+  AssignedItemDataProvider,
+  DataProviderUtils,
+  FileBackendConfigDataProvider,
+  FileBackendMountDataProvider,
+  FileDataProvider,
+  FilePresignedPathDataProvider,
+  FolderDataProvider,
+  JobDataProvider,
+  PermissionGroupDataProvider,
+  PermissionItemDataProvider,
+  TagDataProvider,
+  UserDataProvider,
+  WorkspaceDataProvider,
+} from './data/types';
 import {SecretsManagerProvider} from './encryption/types';
 import {FileProviderResolver} from './file/types';
 import {kInjectionKeys} from './injection';
 import {SemanticAgentTokenProvider} from './semantic/agentToken/types';
 import {SemanticAssignedItemProvider} from './semantic/assignedItem/types';
+import {SemanticCollaborationRequestProvider} from './semantic/collaborationRequest/types';
 import {
   SemanticFilePresignedPathProvider,
   SemanticFileProvider,
@@ -22,6 +39,7 @@ import {
   SemanticJobProvider,
   SemanticProviderUtils,
 } from './semantic/types';
+import {SemanticUsageRecordProviderType} from './semantic/usageRecord/types';
 import {SemanticUserProviderType} from './semantic/user/types';
 import {SemanticWorkspaceProviderType} from './semantic/workspace/types';
 
@@ -33,6 +51,10 @@ export const kSemanticModels = {
   folder: () => container.resolve<SemanticFolderProvider>(kInjectionKeys.semantic.folder),
   workspace: () =>
     container.resolve<SemanticWorkspaceProviderType>(kInjectionKeys.semantic.workspace),
+  collaborationRequest: () =>
+    container.resolve<SemanticCollaborationRequestProvider>(
+      kInjectionKeys.semantic.collaborationRequest
+    ),
   fileBackendConfig: () =>
     container.resolve<SemanticFileBackendConfigProvider>(
       kInjectionKeys.semantic.fileBackendConfig
@@ -49,21 +71,51 @@ export const kSemanticModels = {
     container.resolve<SemanticPermissionProviderType>(
       kInjectionKeys.semantic.permissions
     ),
-  permissionGroups: () =>
+  permissionGroup: () =>
     container.resolve<SemanticPermissionGroupProviderType>(
-      kInjectionKeys.semantic.permissionGroups
+      kInjectionKeys.semantic.permissionGroup
     ),
-  permissionItems: () =>
+  permissionItem: () =>
     container.resolve<SemanticPermissionItemProviderType>(
-      kInjectionKeys.semantic.permissionItems
+      kInjectionKeys.semantic.permissionItem
     ),
-  tags: () => container.resolve<SemanticTagProviderType>(kInjectionKeys.semantic.tags),
-  assignedItems: () =>
-    container.resolve<SemanticAssignedItemProvider>(
-      kInjectionKeys.semantic.assignedItems
+  tag: () => container.resolve<SemanticTagProviderType>(kInjectionKeys.semantic.tag),
+  assignedItem: () =>
+    container.resolve<SemanticAssignedItemProvider>(kInjectionKeys.semantic.assignedItem),
+  job: () => container.resolve<SemanticJobProvider>(kInjectionKeys.semantic.job),
+  usageRecord: () =>
+    container.resolve<SemanticUsageRecordProviderType>(
+      kInjectionKeys.semantic.usageRecord
     ),
-  jobs: () => container.resolve<SemanticJobProvider>(kInjectionKeys.semantic.jobs),
   utils: () => container.resolve<SemanticProviderUtils>(kInjectionKeys.semantic.utils),
+};
+
+export const kDataModels = {
+  user: () => container.resolve<UserDataProvider>(kInjectionKeys.data.user),
+  file: () => container.resolve<FileDataProvider>(kInjectionKeys.data.file),
+  agentToken: () => container.resolve<AgentTokenDataProvider>(kInjectionKeys.data.file),
+  folder: () => container.resolve<FolderDataProvider>(kInjectionKeys.data.folder),
+  workspace: () =>
+    container.resolve<WorkspaceDataProvider>(kInjectionKeys.data.workspace),
+  fileBackendConfig: () =>
+    container.resolve<FileBackendConfigDataProvider>(
+      kInjectionKeys.data.fileBackendConfig
+    ),
+  fileBackendMount: () =>
+    container.resolve<FileBackendMountDataProvider>(kInjectionKeys.data.fileBackendMount),
+  filePresignedPath: () =>
+    container.resolve<FilePresignedPathDataProvider>(
+      kInjectionKeys.data.filePresignedPath
+    ),
+  permissionGroup: () =>
+    container.resolve<PermissionGroupDataProvider>(kInjectionKeys.data.permissionGroups),
+  permissionItem: () =>
+    container.resolve<PermissionItemDataProvider>(kInjectionKeys.data.permissionItems),
+  tag: () => container.resolve<TagDataProvider>(kInjectionKeys.data.tags),
+  assignedItem: () =>
+    container.resolve<AssignedItemDataProvider>(kInjectionKeys.data.assignedItems),
+  job: () => container.resolve<JobDataProvider>(kInjectionKeys.data.jobs),
+  utils: () => container.resolve<DataProviderUtils>(kInjectionKeys.data.utils),
 };
 
 export const kUtilsInjectables = {

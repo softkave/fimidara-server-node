@@ -140,4 +140,10 @@ export interface SemanticProviderUtils<> {
 
 export type SemanticFileBackendMountProvider =
   SemanticWorkspaceResourceProviderType<FileBackendMount>;
-export type SemanticJobProvider = SemanticBaseProviderType<Job>;
+
+export type SemanticJobProvider = SemanticBaseProviderType<Job> & {
+  deleteManyByWorkspaceId(
+    workspaceId: string,
+    opts: SemanticProviderMutationRunOptions
+  ): Promise<void>;
+};

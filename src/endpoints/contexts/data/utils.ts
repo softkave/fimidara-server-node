@@ -1,4 +1,5 @@
 import {isNumber, isObject, isObjectLike, isUndefined} from 'lodash';
+// eslint-disable-next-line node/no-extraneous-import
 import {BulkWriteOptions} from 'mongodb';
 import {ClientSession, FilterQuery, Model, QueryOptions} from 'mongoose';
 import {appAssert} from '../../../utils/assertion';
@@ -22,11 +23,15 @@ import {
   NumberLiteralFieldQueryOps,
 } from './types';
 
-export function getMongoQueryOptionsForOp(params?: DataProviderOpParams<any>): QueryOptions {
+export function getMongoQueryOptionsForOp(
+  params?: DataProviderOpParams<any>
+): QueryOptions {
   return {session: params?.txn as ClientSession, lean: true};
 }
 
-export function getMongoBulkWriteOptions(params?: DataProviderOpParams<any>): BulkWriteOptions {
+export function getMongoBulkWriteOptions(
+  params?: DataProviderOpParams<any>
+): BulkWriteOptions {
   return {session: params?.txn as ClientSession};
 }
 
@@ -62,7 +67,8 @@ export function getMongoQueryOptionsForMany(
 ): QueryOptions {
   const page = getPage(params?.page);
   const pageSize = getPageSize(params?.pageSize, page);
-  const skip = isNumber(page) && isNumber(pageSize) ? Math.max(page, 0) * pageSize : undefined;
+  const skip =
+    isNumber(page) && isNumber(pageSize) ? Math.max(page, 0) * pageSize : undefined;
   return {
     ...getMongoQueryOptionsForOp(params),
     skip,
@@ -120,7 +126,10 @@ export abstract class BaseMongoDataProvider<
     return items as unknown as T[];
   };
 
-  getOneByQuery = async (query: TQuery, otherProps?: DataProviderQueryParams<T> | undefined) => {
+  getOneByQuery = async (
+    query: TQuery,
+    otherProps?: DataProviderQueryParams<T> | undefined
+  ) => {
     const opts = getMongoQueryOptionsForOne(otherProps);
     const item = await this.model
       .findOne(BaseMongoDataProvider.getMongoQuery(query), opts.projection, opts)
@@ -224,7 +233,10 @@ export abstract class BaseMongoDataProvider<
       .exec();
   };
 
-  countByQueryList = async (query: TQuery[], otherProps?: DataProviderOpParams<T> | undefined) => {
+  countByQueryList = async (
+    query: TQuery[],
+    otherProps?: DataProviderOpParams<T> | undefined
+  ) => {
     const count = await this.model
       .countDocuments(
         {$or: query.map(next => BaseMongoDataProvider.getMongoQuery(next))},
@@ -239,7 +251,10 @@ export abstract class BaseMongoDataProvider<
     otherProps?: DataProviderOpParams<T> | undefined
   ) => {
     await this.model
-      .deleteMany(BaseMongoDataProvider.getMongoQuery(query), getMongoQueryOptionsForOp(otherProps))
+      .deleteMany(
+        BaseMongoDataProvider.getMongoQuery(query),
+        getMongoQueryOptionsForOp(otherProps)
+      )
       .exec();
   };
 
@@ -260,7 +275,10 @@ export abstract class BaseMongoDataProvider<
     otherProps?: DataProviderOpParams<T> | undefined
   ) => {
     await this.model
-      .deleteOne(BaseMongoDataProvider.getMongoQuery(query), getMongoQueryOptionsForOp(otherProps))
+      .deleteOne(
+        BaseMongoDataProvider.getMongoQuery(query),
+        getMongoQueryOptionsForOp(otherProps)
+      )
       .exec();
   };
 
@@ -378,7 +396,10 @@ export function isQueryBaseLiteralFn(query: any): query is DataProviderLiteralTy
  * behaviour you're looking for, consider updating the logic and this comment or
  * create another function.
  */
-export function toDataQuery<T extends AnyObject, Q extends DataQuery<any> = DataQuery<any>>(d: T) {
+export function toDataQuery<
+  T extends AnyObject,
+  Q extends DataQuery<any> = DataQuery<any>
+>(d: T) {
   return Object.keys(d).reduce((q, k) => {
     const v = d[k];
     if (!isObjectLike(v)) q[k] = {$eq: v};

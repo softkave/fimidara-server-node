@@ -29,28 +29,28 @@ export const kDeletePermissionItemsCascaseFns: DeleteResourceCascadeFnsMap<Delet
     [AppResourceTypeMap.FilePresignedPath]: noopAsync,
     [AppResourceTypeMap.FileBackendMount]: noopAsync,
     [AppResourceTypeMap.FileBackendConfig]: noopAsync,
-    [AppResourceTypeMap.PermissionItem]: async (context, args, helpers) => {
+    [AppResourceTypeMap.PermissionItem]: async (args, helpers) => {
       await helpers.withTxn(opts =>
         Promise.all([
-          context.semantic.permissionItem.deleteManyByIdList(
-            args.permissionItemsIdList,
-            opts
-          ),
-          context.semantic.permissionItem.deleteManyByTargetId(
-            args.permissionItemsIdList,
-            opts
-          ),
+          kSemanticModels
+            .permissionItem()
+            .deleteManyByIdList(args.permissionItemsIdList, opts),
+          kSemanticModels
+            .permissionItem()
+            .deleteManyByTargetId(args.permissionItemsIdList, opts),
         ])
       );
     },
-    [AppResourceTypeMap.AssignedItem]: async (context, args, helpers) =>
+    [AppResourceTypeMap.AssignedItem]: async (args, helpers) =>
       helpers.withTxn(opts =>
-        context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
-          args.workspaceId,
-          args.permissionItemsIdList,
-          undefined,
-          opts
-        )
+        kSemanticModels
+          .assignedItem()
+          .deleteWorkspaceResourceAssignedItems(
+            args.workspaceId,
+            args.permissionItemsIdList,
+            undefined,
+            opts
+          )
       ),
   };
 
@@ -70,33 +70,34 @@ export const kDeleteAgentTokenCascadeFns: DeleteResourceCascadeFnsMap = {
   [AppResourceTypeMap.Tag]: noopAsync,
   [AppResourceTypeMap.FileBackendMount]: noopAsync,
   [AppResourceTypeMap.FileBackendConfig]: noopAsync,
-  [AppResourceTypeMap.AgentToken]: (context, args, helpers) =>
+  [AppResourceTypeMap.AgentToken]: (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.agentToken.deleteOneById(args.resourceId, opts)
+      kSemanticModels.agentToken().deleteOneById(args.resourceId, opts)
     ),
-  [AppResourceTypeMap.PermissionItem]: async (context, args, helpers) => {
+  [AppResourceTypeMap.PermissionItem]: async (args, helpers) => {
     helpers.withTxn(opts =>
       Promise.all([
-        context.semantic.permissionItem.deleteManyByTargetId(args.resourceId, opts),
-        context.semantic.permissionItem.deleteManyByEntityId(args.resourceId, opts),
+        kSemanticModels.permissionItem().deleteManyByTargetId(args.resourceId, opts),
+        kSemanticModels.permissionItem().deleteManyByEntityId(args.resourceId, opts),
       ])
     );
   },
-  [AppResourceTypeMap.AssignedItem]: async (context, args, helpers) =>
+  [AppResourceTypeMap.AssignedItem]: async (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
-        args.workspaceId,
-        args.resourceId,
-        undefined,
-        opts
-      )
+      kSemanticModels
+        .assignedItem()
+        .deleteWorkspaceResourceAssignedItems(
+          args.workspaceId,
+          args.resourceId,
+          undefined,
+          opts
+        )
     ),
-  [AppResourceTypeMap.FilePresignedPath]: (context, args, helpers) =>
+  [AppResourceTypeMap.FilePresignedPath]: (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.filePresignedPath.deleteManyByQuery(
-        {agentTokenId: args.resourceId},
-        opts
-      )
+      kSemanticModels
+        .filePresignedPath()
+        .deleteManyByQuery({agentTokenId: args.resourceId}, opts)
     ),
 };
 
@@ -118,18 +119,20 @@ export const DELETE_COLLABORATION_REQUEST_CASCADE_FNS: DeleteResourceCascadeFnsM
   [AppResourceTypeMap.FilePresignedPath]: noopAsync,
   [AppResourceTypeMap.FileBackendMount]: noopAsync,
   [AppResourceTypeMap.FileBackendConfig]: noopAsync,
-  [AppResourceTypeMap.CollaborationRequest]: (context, args, helpers) =>
+  [AppResourceTypeMap.CollaborationRequest]: (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.collaborationRequest.deleteOneById(args.resourceId, opts)
+      kSemanticModels.collaborationRequest().deleteOneById(args.resourceId, opts)
     ),
-  [AppResourceTypeMap.AssignedItem]: async (context, args, helpers) =>
+  [AppResourceTypeMap.AssignedItem]: async (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
-        args.workspaceId,
-        args.resourceId,
-        undefined,
-        opts
-      )
+      kSemanticModels
+        .assignedItem()
+        .deleteWorkspaceResourceAssignedItems(
+          args.workspaceId,
+          args.resourceId,
+          undefined,
+          opts
+        )
     ),
 };
 
@@ -151,35 +154,38 @@ export const REMOVE_COLLABORATOR_CASCADE_FNS: DeleteResourceCascadeFnsMap<Remove
     [AppResourceTypeMap.Tag]: noopAsync,
     [AppResourceTypeMap.FileBackendMount]: noopAsync,
     [AppResourceTypeMap.FileBackendConfig]: noopAsync,
-    [AppResourceTypeMap.CollaborationRequest]: (context, args, helpers) =>
+    [AppResourceTypeMap.CollaborationRequest]: (args, helpers) =>
       helpers.withTxn(opts =>
-        context.semantic.collaborationRequest.deleteManyByQuery(
-          {workspaceId: args.workspaceId, recipientEmail: args.userEmail},
-          opts
-        )
+        kSemanticModels
+          .collaborationRequest()
+          .deleteManyByQuery(
+            {workspaceId: args.workspaceId, recipientEmail: args.userEmail},
+            opts
+          )
       ),
-    [AppResourceTypeMap.PermissionItem]: async (context, args, helpers) =>
+    [AppResourceTypeMap.PermissionItem]: async (args, helpers) =>
       helpers.withTxn(opts =>
         Promise.all([
-          context.semantic.permissionItem.deleteManyByTargetId(args.resourceId, opts),
-          context.semantic.permissionItem.deleteManyByEntityId(args.resourceId, opts),
+          kSemanticModels.permissionItem().deleteManyByTargetId(args.resourceId, opts),
+          kSemanticModels.permissionItem().deleteManyByEntityId(args.resourceId, opts),
         ])
       ),
-    [AppResourceTypeMap.AssignedItem]: (context, args, helpers) =>
+    [AppResourceTypeMap.AssignedItem]: (args, helpers) =>
       helpers.withTxn(opts =>
-        context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
-          args.workspaceId,
-          args.resourceId,
-          undefined,
-          opts
-        )
+        kSemanticModels
+          .assignedItem()
+          .deleteWorkspaceResourceAssignedItems(
+            args.workspaceId,
+            args.resourceId,
+            undefined,
+            opts
+          )
       ),
-    [AppResourceTypeMap.FilePresignedPath]: (context, args, helpers) =>
+    [AppResourceTypeMap.FilePresignedPath]: (args, helpers) =>
       helpers.withTxn(opts =>
-        context.semantic.filePresignedPath.deleteManyByQuery(
-          {agentTokenId: args.agentTokenId},
-          opts
-        )
+        kSemanticModels
+          .filePresignedPath()
+          .deleteManyByQuery({agentTokenId: args.agentTokenId}, opts)
       ),
   };
 
@@ -200,34 +206,36 @@ export const DELETE_FILE_CASCADE_FNS: DeleteResourceCascadeFnsMap<DeleteFileCasc
     [AppResourceTypeMap.Tag]: noopAsync,
     [AppResourceTypeMap.FileBackendMount]: noopAsync,
     [AppResourceTypeMap.FileBackendConfig]: noopAsync,
-    [AppResourceTypeMap.File]: async (context, args, helpers) =>
+    [AppResourceTypeMap.File]: async (args, helpers) =>
       helpers.withTxn(opts =>
         Promise.all([
-          context.semantic.file.deleteManyByIdList(args.fileIdList, opts),
+          kSemanticModels.file().deleteManyByIdList(args.fileIdList, opts),
           context.fileBackend.deleteFiles({
             bucket: context.appVariables.S3Bucket,
             filepaths: args.fileIdList,
           }),
         ])
       ),
-    [AppResourceTypeMap.PermissionItem]: (context, args, helpers) =>
+    [AppResourceTypeMap.PermissionItem]: (args, helpers) =>
       helpers.withTxn(opts =>
-        context.semantic.permissionItem.deleteManyByTargetId(args.fileIdList, opts)
+        kSemanticModels.permissionItem().deleteManyByTargetId(args.fileIdList, opts)
       ),
-    [AppResourceTypeMap.AssignedItem]: (context, args, helpers) =>
+    [AppResourceTypeMap.AssignedItem]: (args, helpers) =>
       helpers.withTxn(opts =>
-        context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
-          args.workspaceId,
-          args.fileIdList,
-          undefined,
-          opts
-        )
+        kSemanticModels
+          .assignedItem()
+          .deleteWorkspaceResourceAssignedItems(
+            args.workspaceId,
+            args.fileIdList,
+            undefined,
+            opts
+          )
       ),
-    [AppResourceTypeMap.FilePresignedPath]: async (context, args, helpers) =>
+    [AppResourceTypeMap.FilePresignedPath]: async (args, helpers) =>
       helpers.withTxn(opts =>
         Promise.all(
           args.files.map(f =>
-            context.semantic.filePresignedPath.deleteManyByQuery(
+            kSemanticModels.filePresignedPath().deleteManyByQuery(
               {
                 filepath: {$all: f.namepath, $size: f.namepath.length},
                 extension: f.extension,
@@ -256,18 +264,20 @@ export const DELETE_FOLDER_CASCADE_FNS: DeleteResourceCascadeFnsMap = {
   [AppResourceTypeMap.FilePresignedPath]: noopAsync,
   [AppResourceTypeMap.FileBackendMount]: noopAsync,
   [AppResourceTypeMap.FileBackendConfig]: noopAsync,
-  [AppResourceTypeMap.File]: async (context, args, helpers) => {
-    const files = await context.semantic.file.getManyByQuery(
-      FolderQueries.getByAncestor(args.workspaceId, args.resourceId)
-    );
+  [AppResourceTypeMap.File]: async (args, helpers) => {
+    const files = await kSemanticModels
+      .file()
+      .getManyByQuery(FolderQueries.getByAncestor(args.workspaceId, args.resourceId));
     await Promise.all([
       helpers.withTxn(opts =>
-        context.semantic.file.deleteManyByQuery(
-          FolderQueries.getByAncestor(args.workspaceId, args.resourceId),
-          opts
-        )
+        kSemanticModels
+          .file()
+          .deleteManyByQuery(
+            FolderQueries.getByAncestor(args.workspaceId, args.resourceId),
+            opts
+          )
       ),
-      executeCascadeDelete(context, DELETE_FILE_CASCADE_FNS, {
+      executeCascadeDelete(DELETE_FILE_CASCADE_FNS, {
         workspaceId: args.workspaceId,
         fileIdList: extractResourceIdList(files),
         files: files.map(f => ({
@@ -278,27 +288,31 @@ export const DELETE_FOLDER_CASCADE_FNS: DeleteResourceCascadeFnsMap = {
       }),
     ]);
   },
-  [AppResourceTypeMap.Folder]: async (context, args, helpers) => {
+  [AppResourceTypeMap.Folder]: async (args, helpers) => {
     // TODO: cascade delete folders instead
     await helpers.withTxn(opts =>
-      context.semantic.folder.deleteManyByQuery(
-        FolderQueries.getByAncestor(args.workspaceId, args.resourceId),
-        opts
-      )
+      kSemanticModels
+        .folder()
+        .deleteManyByQuery(
+          FolderQueries.getByAncestor(args.workspaceId, args.resourceId),
+          opts
+        )
     );
   },
-  [AppResourceTypeMap.PermissionItem]: (context, args, helpers) =>
+  [AppResourceTypeMap.PermissionItem]: (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.permissionItem.deleteManyByTargetId(args.resourceId, opts)
+      kSemanticModels.permissionItem().deleteManyByTargetId(args.resourceId, opts)
     ),
-  [AppResourceTypeMap.AssignedItem]: (context, args, helpers) =>
+  [AppResourceTypeMap.AssignedItem]: (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
-        args.workspaceId,
-        args.resourceId,
-        undefined,
-        opts
-      )
+      kSemanticModels
+        .assignedItem()
+        .deleteWorkspaceResourceAssignedItems(
+          args.workspaceId,
+          args.resourceId,
+          undefined,
+          opts
+        )
     ),
 };
 
@@ -319,31 +333,31 @@ export const DELETE_PERMISSION_GROUP_CASCADE_FNS: DeleteResourceCascadeFnsMap = 
   [AppResourceTypeMap.FilePresignedPath]: noopAsync,
   [AppResourceTypeMap.FileBackendMount]: noopAsync,
   [AppResourceTypeMap.FileBackendConfig]: noopAsync,
-  [AppResourceTypeMap.PermissionGroup]: (context, args, helpers) =>
+  [AppResourceTypeMap.PermissionGroup]: (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.permissionGroup.deleteOneById(args.resourceId, opts)
+      kSemanticModels.permissionGroup().deleteOneById(args.resourceId, opts)
     ),
-  [AppResourceTypeMap.PermissionItem]: async (context, args, helpers) =>
+  [AppResourceTypeMap.PermissionItem]: async (args, helpers) =>
     helpers.withTxn(opts =>
       Promise.all([
-        context.semantic.permissionItem.deleteManyByTargetId(args.resourceId, opts),
-        context.semantic.permissionItem.deleteManyByEntityId(args.resourceId, opts),
+        kSemanticModels.permissionItem().deleteManyByTargetId(args.resourceId, opts),
+        kSemanticModels.permissionItem().deleteManyByEntityId(args.resourceId, opts),
       ])
     ),
-  [AppResourceTypeMap.AssignedItem]: async (context, args, helpers) =>
+  [AppResourceTypeMap.AssignedItem]: async (args, helpers) =>
     helpers.withTxn(opts =>
       Promise.all([
-        context.semantic.assignedItem.deleteWorkspaceAssignedItemResources(
-          args.workspaceId,
-          args.resourceId,
-          opts
-        ),
-        context.semantic.assignedItem.deleteWorkspaceResourceAssignedItems(
-          args.workspaceId,
-          args.resourceId,
-          undefined,
-          opts
-        ),
+        kSemanticModels
+          .assignedItem()
+          .deleteWorkspaceAssignedItemResources(args.workspaceId, args.resourceId, opts),
+        kSemanticModels
+          .assignedItem()
+          .deleteWorkspaceResourceAssignedItems(
+            args.workspaceId,
+            args.resourceId,
+            undefined,
+            opts
+          ),
       ])
     ),
 };
@@ -365,19 +379,17 @@ export const DELETE_TAG_CASCADE_FNS: DeleteResourceCascadeFnsMap = {
   [AppResourceTypeMap.FilePresignedPath]: noopAsync,
   [AppResourceTypeMap.FileBackendMount]: noopAsync,
   [AppResourceTypeMap.FileBackendConfig]: noopAsync,
-  [AppResourceTypeMap.PermissionItem]: (context, args, helpers) =>
+  [AppResourceTypeMap.PermissionItem]: (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.permissionItem.deleteManyByTargetId(args.resourceId, opts)
+      kSemanticModels.permissionItem().deleteManyByTargetId(args.resourceId, opts)
     ),
-  [AppResourceTypeMap.Tag]: (context, args, helpers) =>
-    helpers.withTxn(opts => context.semantic.tag.deleteOneById(args.resourceId, opts)),
-  [AppResourceTypeMap.AssignedItem]: (context, args, helpers) =>
+  [AppResourceTypeMap.Tag]: (args, helpers) =>
+    helpers.withTxn(opts => kSemanticModels.tag().deleteOneById(args.resourceId, opts)),
+  [AppResourceTypeMap.AssignedItem]: (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.assignedItem.deleteWorkspaceAssignedItemResources(
-        args.workspaceId,
-        args.resourceId,
-        opts
-      )
+      kSemanticModels
+        .assignedItem()
+        .deleteWorkspaceAssignedItemResources(args.workspaceId, args.resourceId, opts)
     ),
 };
 
@@ -397,13 +409,13 @@ export const kDeleteFileBackendConfigCascadeFns: DeleteResourceCascadeFnsMap = {
   [AppResourceTypeMap.Job]: noopAsync,
   [AppResourceTypeMap.FilePresignedPath]: noopAsync,
   [AppResourceTypeMap.FileBackendMount]: noopAsync,
-  [AppResourceTypeMap.FileBackendConfig]: (context, args, helpers) =>
+  [AppResourceTypeMap.FileBackendConfig]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.fileBackendConfig().deleteOneById(args.resourceId, opts)
     ),
-  [AppResourceTypeMap.PermissionItem]: (context, args, helpers) =>
+  [AppResourceTypeMap.PermissionItem]: (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.permissionItem.deleteManyByTargetId(args.resourceId, opts)
+      kSemanticModels.permissionItem().deleteManyByTargetId(args.resourceId, opts)
     ),
   [AppResourceTypeMap.Tag]: noopAsync,
   [AppResourceTypeMap.AssignedItem]: noopAsync,
@@ -424,14 +436,14 @@ export const kDeleteFileBackendMountCascadeFns: DeleteResourceCascadeFnsMap = {
   [AppResourceTypeMap.EndpointRequest]: noopAsync,
   [AppResourceTypeMap.Job]: noopAsync,
   [AppResourceTypeMap.FilePresignedPath]: noopAsync,
-  [AppResourceTypeMap.FileBackendMount]: (context, args, helpers) =>
+  [AppResourceTypeMap.FileBackendMount]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.fileBackendConfig().deleteOneById(args.resourceId, opts)
     ),
   [AppResourceTypeMap.FileBackendConfig]: noopAsync,
-  [AppResourceTypeMap.PermissionItem]: (context, args, helpers) =>
+  [AppResourceTypeMap.PermissionItem]: (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.permissionItem.deleteManyByTargetId(args.resourceId, opts)
+      kSemanticModels.permissionItem().deleteManyByTargetId(args.resourceId, opts)
     ),
   [AppResourceTypeMap.Tag]: noopAsync,
   [AppResourceTypeMap.AssignedItem]: noopAsync,
@@ -446,63 +458,66 @@ export const DELETE_WORKSPACE_CASCADE_FNS: DeleteResourceCascadeFnsMap = {
   [AppResourceTypeMap.Public]: noopAsync,
   [AppResourceTypeMap.User]: noopAsync,
   [AppResourceTypeMap.EndpointRequest]: noopAsync,
-  [AppResourceTypeMap.Job]: (context, args) =>
-    context.data.job.deleteManyByQuery({workspaceId: args.workspaceId}),
-  [AppResourceTypeMap.Workspace]: (context, args, helpers) =>
+  [AppResourceTypeMap.Job]: (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.workspace.deleteManyByWorkspaceId(args.workspaceId, opts)
+      kSemanticModels.job().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.CollaborationRequest]: (context, args, helpers) =>
+  [AppResourceTypeMap.Workspace]: (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.collaborationRequest.deleteManyByWorkspaceId(
-        args.workspaceId,
-        opts
-      )
+      kSemanticModels.workspace().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.AgentToken]: (context, args, helpers) =>
+  [AppResourceTypeMap.CollaborationRequest]: (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.agentToken.deleteManyByWorkspaceId(args.workspaceId, opts)
+      kSemanticModels
+        .collaborationRequest()
+        .deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.PermissionGroup]: (context, args, helpers) =>
+  [AppResourceTypeMap.AgentToken]: (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.permissionGroup.deleteManyByWorkspaceId(args.workspaceId, opts)
+      kSemanticModels.agentToken().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.PermissionItem]: (context, args, helpers) =>
+  [AppResourceTypeMap.PermissionGroup]: (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.permissionItem.deleteManyByWorkspaceId(args.workspaceId, opts)
+      kSemanticModels.permissionGroup().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.Folder]: (context, args, helpers) =>
+  [AppResourceTypeMap.PermissionItem]: (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.folder.deleteManyByWorkspaceId(args.workspaceId, opts)
+      kSemanticModels.permissionItem().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.File]: async (context, args, helpers) =>
+  [AppResourceTypeMap.Folder]: (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.file.deleteManyByQuery(
-        EndpointReusableQueries.getByWorkspaceId(args.workspaceId),
-        opts
-      )
+      kSemanticModels.folder().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.Tag]: (context, args, helpers) =>
+  [AppResourceTypeMap.File]: async (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.tag.deleteManyByWorkspaceId(args.workspaceId, opts)
+      kSemanticModels
+        .file()
+        .deleteManyByQuery(
+          EndpointReusableQueries.getByWorkspaceId(args.workspaceId),
+          opts
+        )
     ),
-  [AppResourceTypeMap.AssignedItem]: (context, args, helpers) =>
+  [AppResourceTypeMap.Tag]: (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.assignedItem.deleteManyByWorkspaceId(args.workspaceId, opts)
+      kSemanticModels.tag().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.UsageRecord]: (context, args, helpers) =>
+  [AppResourceTypeMap.AssignedItem]: (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.usageRecord.deleteManyByWorkspaceId(args.workspaceId, opts)
+      kSemanticModels.assignedItem().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.FilePresignedPath]: (context, args, helpers) =>
+  [AppResourceTypeMap.UsageRecord]: (args, helpers) =>
     helpers.withTxn(opts =>
-      context.semantic.filePresignedPath.deleteManyByWorkspaceId(args.workspaceId, opts)
+      kSemanticModels.usageRecord().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.FileBackendMount]: (context, args, helpers) =>
+  [AppResourceTypeMap.FilePresignedPath]: (args, helpers) =>
+    helpers.withTxn(opts =>
+      kSemanticModels.filePresignedPath().deleteManyByWorkspaceId(args.workspaceId, opts)
+    ),
+  [AppResourceTypeMap.FileBackendMount]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.fileBackendMount().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.FileBackendConfig]: (context, args, helpers) =>
+  [AppResourceTypeMap.FileBackendConfig]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.fileBackendConfig().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
