@@ -369,6 +369,8 @@ export async function ingestFileByFilepath(
       isWriteAvailable: true,
       size: mountFile.size,
       lastUpdatedAt: mountFile.lastUpdatedAt,
+      mimetype: mountFile.mimetype,
+      encoding: mountFile.encoding,
     });
     appAssert(file);
   }

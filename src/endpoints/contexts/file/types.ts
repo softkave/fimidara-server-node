@@ -51,6 +51,8 @@ export type PersistedFileDescription = {
   filepath: string;
   size?: number;
   lastUpdatedAt?: number;
+  mimetype: string;
+  encoding: string;
   mountId: string;
 };
 
