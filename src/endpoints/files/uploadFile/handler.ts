@@ -12,7 +12,7 @@ import {FileNotWritableError} from '../errors';
 import {getFileWithMatcher} from '../getFilesWithMatcher';
 import {
   assertFile,
-  createNewFile,
+  createAndInsertNewFile,
   fileExtractor,
   getFilepathInfo,
   getWorkspaceFromFileOrFilepath,
@@ -47,7 +47,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     } else {
       appAssert(data.filepath, new ValidationError('Provide a filepath for new files.'));
       const pathinfo = getFilepathInfo(data.filepath);
-      const file = await createNewFile(agent, workspace, pathinfo, data, opts);
+      const file = await createAndInsertNewFile(agent, workspace, pathinfo, data, opts);
 
       await checkUploadFileAuth(agent, workspace, file, null, opts);
       return {file};

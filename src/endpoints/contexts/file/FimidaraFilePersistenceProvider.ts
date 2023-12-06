@@ -1,4 +1,4 @@
-import {isNumber} from 'lodash';
+import {isArray, isNumber, isObject} from 'lodash';
 import {File} from '../../../definitions/file';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
@@ -25,7 +25,27 @@ import {
   PersistedFolderDescription,
 } from './types';
 
+/** Seeing the root folder is mounted on fimidara, when we ingest new files or
+ * folders from other mounts, there's a possiblity they'll be re-fetched in
+ * subsequent fetchs when listing folder content, so we avoid this by fetching
+ * files or folders created after a date, and exclude the ones we have already.
+ * */
+export interface FimidaraFilePersistenceProviderPage {
+  page: number;
+  createdAt: number;
+  exclude: string[];
+}
+
 export class FimidaraFilePersistenceProvider implements FilePersistenceProvider {
+  static isPage(page: unknown): page is FimidaraFilePersistenceProviderPage {
+    return (
+      isObject(page) &&
+      isNumber((page as FimidaraFilePersistenceProviderPage).createdAt) &&
+      isNumber((page as FimidaraFilePersistenceProviderPage).page) &&
+      isArray((page as FimidaraFilePersistenceProviderPage).exclude)
+    );
+  }
+
   backend: FilePersistenceProvider;
 
   constructor() {
@@ -66,7 +86,7 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
   describeFile = async (
     params: FilePersistenceGetFileParams
   ): Promise<PersistedFileDescription | undefined> => {
-    const {workspaceId, filepath} = params;
+    const {workspaceId, filepath, mount} = params;
     const pathinfo = getFilepathInfo(filepath);
     const file = await kSemanticModels.file().getOneByNamepath({
       workspaceId,
@@ -75,7 +95,13 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
     });
 
     if (file) {
-      return {filepath, type: 'file', lastUpdatedAt: file.lastUpdatedAt, size: file.size};
+      return {
+        filepath,
+        type: 'file',
+        lastUpdatedAt: file.lastUpdatedAt,
+        size: file.size,
+        mountId: mount.resourceId,
+      };
     }
 
     return undefined;
@@ -84,7 +110,7 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
   describeFolder = async (
     params: FilePersistenceDescribeFolderParams
   ): Promise<PersistedFolderDescription | undefined> => {
-    const {workspaceId, folderpath} = params;
+    const {workspaceId, folderpath, mount} = params;
     const pathinfo = getFolderpathInfo(folderpath);
     const folder = await kSemanticModels.folder().getOneByNamepath({
       workspaceId,
@@ -92,7 +118,7 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
     });
 
     if (folder) {
-      return {folderpath, type: 'folder'};
+      return {folderpath, type: 'folder', mountId: mount.resourceId};
     }
 
     return undefined;
@@ -110,51 +136,95 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
   describeFolderFiles = async (
     params: FilePersistenceDescribeFolderFilesParams
   ): Promise<FilePersistenceDescribeFolderFilesResult> => {
-    const {folderpath, max, workspaceId, page} = params;
-    appAssert(isNumber(page));
+    const {folderpath, max, workspaceId, page, mount} = params;
+    const currentPage: FimidaraFilePersistenceProviderPage =
+      FimidaraFilePersistenceProvider.isPage(page)
+        ? page
+        : {page: 0, createdAt: Number.MAX_SAFE_INTEGER, exclude: []};
 
     const pathinfo = getFolderpathInfo(folderpath);
-    const files = await kSemanticModels
-      .file()
-      .getManyByNamepath(
-        {workspaceId, namepath: pathinfo.namepath},
-        {page: page as number, pageSize: max}
-      );
+    const files = await kSemanticModels.file().getManyByQuery(
+      {
+        workspaceId,
+        namepath: {$all: pathinfo.namepath, $size: pathinfo.namepath.length},
+        createdAt: {$lte: currentPage.createdAt},
+        resourceId: {$nin: currentPage.exclude},
+      },
+      {pageSize: max, sort: {createdAt: 'descending'}}
+    );
+
+    let createdAtN = currentPage.createdAt;
+    let exclude: string[] = currentPage.exclude;
 
     const childrenFiles = files.map((file): PersistedFileDescription => {
+      if (file.createdAt < createdAtN) {
+        createdAtN = file.createdAt;
+        exclude = [];
+      }
+
+      exclude.push(file.resourceId);
       return {
         filepath: stringifyFilenamepath(file),
         type: 'file',
         lastUpdatedAt: file.lastUpdatedAt,
         size: file.size,
+        mountId: mount.resourceId,
       };
     });
 
-    return {nextPage: page + 1, files: childrenFiles};
+    const nextPage: FimidaraFilePersistenceProviderPage = {
+      exclude,
+      page: currentPage.page++,
+      createdAt: createdAtN,
+    };
+
+    return {nextPage, files: childrenFiles};
   };
 
   describeFolderFolders = async (
     params: FilePersistenceDescribeFolderFoldersParams
   ): Promise<FilePersistenceDescribeFolderFoldersResult> => {
-    const {folderpath, max, workspaceId, page} = params;
-    appAssert(isNumber(page));
+    const {folderpath, max, workspaceId, page, mount} = params;
+    const currentPage: FimidaraFilePersistenceProviderPage =
+      FimidaraFilePersistenceProvider.isPage(page)
+        ? page
+        : {page: 0, createdAt: Number.MAX_SAFE_INTEGER, exclude: []};
 
     const pathinfo = getFolderpathInfo(folderpath);
-    const folders = await kSemanticModels
-      .folder()
-      .getManyByNamepath(
-        {workspaceId, namepath: pathinfo.namepath},
-        {page, pageSize: max}
-      );
+    const folders = await kSemanticModels.folder().getManyByQuery(
+      {
+        workspaceId,
+        namepath: {$all: pathinfo.namepath, $size: pathinfo.namepath.length},
+        createdAt: {$lte: currentPage.createdAt},
+        resourceId: {$nin: currentPage.exclude},
+      },
+      {pageSize: max, sort: {createdAt: 'descending'}}
+    );
+
+    let createdAtN = currentPage.createdAt;
+    let exclude: string[] = [];
 
     const childrenFolders = folders.map((folder): PersistedFolderDescription => {
+      if (folder.createdAt < createdAtN) {
+        createdAtN = folder.createdAt;
+        exclude = [];
+      }
+
+      exclude.push(folder.resourceId);
       return {
         folderpath: stringifyFoldernamepath(folder),
         type: 'folder',
+        mountId: mount.resourceId,
       };
     });
 
-    return {nextPage: page + 1, folders: childrenFolders};
+    const nextPage: FimidaraFilePersistenceProviderPage = {
+      exclude,
+      page: currentPage.page++,
+      createdAt: createdAtN,
+    };
+
+    return {nextPage, folders: childrenFolders};
   };
 
   close = async () => {

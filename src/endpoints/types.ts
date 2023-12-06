@@ -5,7 +5,6 @@ import {HttpEndpointDefinitionType} from '../mddoc/mddoc';
 import {EndpointExportedError} from '../utils/OperationError';
 import {AnyFn, AnyObject, ObjectValues, OrPromise} from '../utils/types';
 import RequestData from './RequestData';
-import {DataProviderQueryListParams} from './contexts/data/types';
 import {SemanticProviderMutationRunOptions} from './contexts/semantic/types';
 import {BaseContextType} from './contexts/types';
 import {kFolderConstants} from './folders/constants';
@@ -51,7 +50,14 @@ export const ServerRecommendedActionsMap = {
 
 export type ServerRecommendedActions = ObjectValues<typeof ServerRecommendedActionsMap>;
 
+export type PaginationQuery = {
+  pageSize: number;
+  continuationToken?: string;
+  page: number;
+};
+
 export interface PaginatedResult {
+  continuationToken: string;
   page: number;
 }
 
@@ -70,8 +76,6 @@ export interface EndpointRequiredWorkspaceIDParam {
 export interface EndpointWorkspaceResourceParam extends EndpointOptionalWorkspaceIDParam {
   providedResourceId?: string;
 }
-
-export type PaginationQuery = Pick<DataProviderQueryListParams<any>, 'page' | 'pageSize'>;
 
 export type PaginatedEndpointCountParams<T extends PaginationQuery> = Omit<
   T,

@@ -57,6 +57,7 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
       type: 'file',
       lastUpdatedAt: Date.now(),
       size: body.byteLength,
+      mountId: params.mount.resourceId,
     });
 
     return {};
@@ -101,6 +102,7 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
         filepath: file.filepath,
         lastUpdatedAt: file.lastUpdatedAt,
         size: file.size,
+        mountId: params.mount.resourceId,
       };
     }
 
@@ -132,6 +134,7 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
           filepath: file.filepath,
           lastUpdatedAt: file.lastUpdatedAt,
           size: file.size,
+          mountId: params.mount.resourceId,
         });
       }
     }

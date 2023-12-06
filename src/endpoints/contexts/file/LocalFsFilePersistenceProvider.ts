@@ -122,6 +122,7 @@ export default class LocalFsFilePersistenceProvider implements FilePersistencePr
               filepath: params.filepath,
               size: stat.size,
               lastUpdatedAt: stat.mtimeMs,
+              mountId: params.mount.resourceId,
             };
           }
 
@@ -140,7 +141,11 @@ export default class LocalFsFilePersistenceProvider implements FilePersistencePr
         [folderpath],
         (stat): PersistedFolderDescription | undefined => {
           if (stat.isDirectory()) {
-            return {type: 'folder', folderpath: params.folderpath};
+            return {
+              type: 'folder',
+              folderpath: params.folderpath,
+              mountId: params.mount.resourceId,
+            };
           }
 
           return undefined;
@@ -177,6 +182,7 @@ export default class LocalFsFilePersistenceProvider implements FilePersistencePr
                 filepath: path,
                 size: stat.size,
                 lastUpdatedAt: stat.mtimeMs,
+                mountId: params.mount.resourceId,
               };
             }
 
@@ -226,7 +232,7 @@ export default class LocalFsFilePersistenceProvider implements FilePersistencePr
           children.slice(pageIndex, pageIndex + params.max),
           (stat, path): PersistedFolderDescription | undefined => {
             if (stat.isDirectory()) {
-              return {type: 'folder', folderpath: path};
+              return {type: 'folder', folderpath: path, mountId: params.mount.resourceId};
             }
 
             return undefined;

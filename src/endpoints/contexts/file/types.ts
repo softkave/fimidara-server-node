@@ -51,11 +51,13 @@ export type PersistedFileDescription = {
   filepath: string;
   size?: number;
   lastUpdatedAt?: number;
+  mountId: string;
 };
 
 export type PersistedFolderDescription = {
   type: typeof AppResourceTypeMap.Folder;
   folderpath: string;
+  mountId: string;
 };
 
 export interface FilePersistenceDescribeFolderFilesParams {
@@ -63,7 +65,7 @@ export interface FilePersistenceDescribeFolderFilesParams {
   folderpath: string;
   max: number;
   /* page is backend-dependent */
-  page: unknown;
+  page?: unknown;
   mount: FileBackendMount;
 }
 
@@ -71,7 +73,7 @@ export interface FilePersistenceDescribeFolderFoldersParams {
   workspaceId: string;
   folderpath: string;
   max: number;
-  page: unknown;
+  page?: unknown;
   mount: FileBackendMount;
 }
 

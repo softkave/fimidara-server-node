@@ -8,6 +8,7 @@ import {
   PublicFile,
 } from '../../definitions/file';
 import {FileBackendMount} from '../../definitions/fileBackend';
+import {Folder} from '../../definitions/folder';
 import {PermissionAction} from '../../definitions/permissionItem';
 import {Agent, AppResourceTypeMap, SessionAgent} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
@@ -236,7 +237,56 @@ export function stringifyFilenamepath(
   return rootname ? addRootnameToPath(name, rootname) : name;
 }
 
-export async function createNewFile(
+export function createNewFile(
+  agent: Agent,
+  workspaceId: string,
+  pathinfo: FilepathInfo,
+  parentFolder: Folder | null,
+  data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
+  seed: Partial<File> = {}
+) {
+  const fileId = getNewIdForResource(AppResourceTypeMap.File);
+  const file = newWorkspaceResource<File>(agent, AppResourceTypeMap.File, workspaceId, {
+    workspaceId: workspaceId,
+    resourceId: fileId,
+    extension: pathinfo.extension,
+    name: pathinfo.filenameExcludingExt,
+    idPath: parentFolder ? parentFolder.idPath.concat(fileId) : [fileId],
+    namepath: parentFolder
+      ? parentFolder.namepath.concat(pathinfo.filenameExcludingExt)
+      : [pathinfo.filenameExcludingExt],
+    parentId: parentFolder?.resourceId ?? null,
+    size: 0,
+    isWriteAvailable: false,
+    isReadAvailable: false,
+    version: 0,
+    description: data.description,
+    encoding: data.encoding,
+    mimetype: data.mimetype,
+    resolvedEntries: [],
+    ...seed,
+  });
+
+  return file;
+}
+
+export async function createNewFileAndEnsureFolders(
+  agent: Agent,
+  workspace: Workspace,
+  pathinfo: FilepathInfo,
+  data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
+  opts: SemanticProviderMutationRunOptions,
+  seed: Partial<File> = {},
+  parentFolder?: Folder | null
+) {
+  if (!parentFolder) {
+    parentFolder = await ensureFolders(agent, workspace, pathinfo.parentPath, opts);
+  }
+
+  return createNewFile(agent, workspace.resourceId, pathinfo, parentFolder, data, seed);
+}
+
+export async function createAndInsertNewFile(
   agent: Agent,
   workspace: Workspace,
   pathinfo: FilepathInfo,
@@ -244,33 +294,13 @@ export async function createNewFile(
   opts: SemanticProviderMutationRunOptions,
   seed: Partial<File> = {}
 ) {
-  const parentFolder = await ensureFolders(agent, workspace, pathinfo.parentPath, opts);
-
-  const fileId = getNewIdForResource(AppResourceTypeMap.File);
-  const file = newWorkspaceResource<File>(
+  const file = await createNewFileAndEnsureFolders(
     agent,
-    AppResourceTypeMap.File,
-    workspace.resourceId,
-    {
-      workspaceId: workspace.resourceId,
-      resourceId: fileId,
-      extension: pathinfo.extension,
-      name: pathinfo.filenameExcludingExt,
-      idPath: parentFolder ? parentFolder.idPath.concat(fileId) : [fileId],
-      namepath: parentFolder
-        ? parentFolder.namepath.concat(pathinfo.filenameExcludingExt)
-        : [pathinfo.filenameExcludingExt],
-      parentId: parentFolder?.resourceId ?? null,
-      size: 0,
-      isWriteAvailable: false,
-      isReadAvailable: false,
-      version: 0,
-      description: data.description,
-      encoding: data.encoding,
-      mimetype: data.mimetype,
-      resolvedEntries: [],
-      ...seed,
-    }
+    workspace,
+    pathinfo,
+    data,
+    opts,
+    seed
   );
 
   await kSemanticModels.file().insertItem(file, opts);
@@ -334,7 +364,7 @@ export async function ingestFileByFilepath(
     file = await fileModel.getAndUpdateOneBynamepath(file, file, opts);
     appAssert(file);
   } else if (mountFile && !file) {
-    file = await createNewFile(agent, workspace, pathinfo, {}, opts, {
+    file = await createAndInsertNewFile(agent, workspace, pathinfo, {}, opts, {
       isReadAvailable: true,
       isWriteAvailable: true,
       size: mountFile.size,
