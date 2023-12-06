@@ -11,10 +11,11 @@ export const JobTypeMap = {
 } as const;
 
 export const JobStatusMap = {
-  Pending: 'pending',
-  InProgress: 'inProgress',
-  Completed: 'completed',
-  Failed: 'failed',
+  pending: 'pending',
+  inProgress: 'inProgress',
+  waitingForChildren: 'waitingForChildren',
+  completed: 'completed',
+  failed: 'failed',
 } as const;
 
 export type JobType = ObjectValues<typeof JobTypeMap>;
@@ -28,16 +29,12 @@ export interface Job<TParams extends AnyObject = AnyObject> extends Resource {
   statusDate: number;
   version: number;
   serverInstanceId: string;
-  steps: string[];
+  parentJobId?: string;
+  childrenJobsCount?: number;
+  childrenJobsDone?: number;
 
   /** For checking the logs for the error that occurred during the job run. */
   errorTimestamp?: number;
-}
-
-export interface JobInput<TParams extends AnyObject = AnyObject> {
-  type: JobType | (string & {});
-  params: TParams;
-  workspaceId?: string;
 }
 
 export type DeleteResourceJobParams =
@@ -71,8 +68,10 @@ export type DeleteResourceJobParams =
       args: DeletePermissionItemsCascadeFnsArgs;
     };
 
-export interface IngestMountJobParams {
+export interface IngestFolderpathJobParams {
   mountId: string;
+  folderpath: string;
+  agentId: string;
 }
 
 export const JOB_RUNNER_V1 = 1;

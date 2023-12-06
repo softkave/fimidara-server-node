@@ -578,7 +578,7 @@ export async function ingestFolderFilesByFolderpath(
         .fileBackendMount()
         .updateOneById(
           mount.resourceId,
-          {ingestFilesContinuationToken: hex, filesIngestedCompletely: !hex},
+          {ingestFilesContinuationToken: hex, filesCompletelyIngested: !hex},
           opts
         );
     })
@@ -734,7 +734,7 @@ export async function ingestFolderFoldersByFolderpath(
         .fileBackendMount()
         .updateOneById(
           mount.resourceId,
-          {ingestFoldersContinuationToken: hex, foldersIngestedCompletely: !hex},
+          {ingestFoldersContinuationToken: hex, foldersCompletelyIngested: !hex},
           opts
         );
     })

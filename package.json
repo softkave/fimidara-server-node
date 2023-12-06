@@ -78,6 +78,6 @@
     "run-rs": "^0.7.7",
     "ts-jest": "^28.0.7",
     "ts-node": "^10.9.1",
-    "typescript": "^5.0.2"
+    "typescript": "^5.3.2"
   }
 }

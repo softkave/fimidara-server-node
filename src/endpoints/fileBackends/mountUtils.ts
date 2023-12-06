@@ -76,7 +76,7 @@ export function isOnlyMountFimidara(mounts: FileBackendMount[]): boolean {
   return mounts.length === 1 && isPrimaryMountFimidara(mounts);
 }
 
-type FilePersistenceProvidersByMount = Record<
+export type FilePersistenceProvidersByMount = Record<
   /** mountId */ string,
   FilePersistenceProvider
 >;
@@ -132,4 +132,13 @@ export async function getFileBackendForFile(file: File) {
   appAssert(provider);
 
   return {provider, mount};
+}
+
+export async function areMountsCompletelyIngestedForFolder(
+  folder: Pick<Folder, 'workspaceId' | 'namepath'>
+) {
+  const {mounts} = await resolveMountsForFolder(folder);
+  return mounts.every(
+    mount => mount.filesCompletelyIngested && mount.filesCompletelyIngested
+  );
 }

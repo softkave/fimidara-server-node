@@ -38,6 +38,7 @@ export interface SessionContextType {
     permittedAgentTypes?: AppResourceType | AppResourceType[],
     tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
   ) => Promise<SessionAgent>;
+  getAgentById: (id: string) => Promise<SessionAgent>;
   getUser: (
     ctx: BaseContextType,
     data: RequestData,

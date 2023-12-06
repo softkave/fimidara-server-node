@@ -2,7 +2,7 @@ import {validate} from '../../../utils/validate';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
-} from '../../utils';
+} from '../../pagination';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {getPublicAgentToken} from '../utils';
 import {GetWorkspaceAgentTokensEndpoint} from './types';
@@ -15,7 +15,7 @@ const getWorkspaceAgentTokens: GetWorkspaceAgentTokensEndpoint = async (
 ) => {
   const data = validate(instData.data, getWorkspaceAgentTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
+  const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   const q = await getWorkspaceAgentTokensQuery(context, agent, workspace);
   applyDefaultEndpointPaginationOptions(data);
   const tokens = await context.semantic.agentToken.getManyByWorkspaceAndIdList(q, data);

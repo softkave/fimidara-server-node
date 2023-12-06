@@ -183,16 +183,19 @@ export interface EndpointResultNote {
 
 export const EndpointResultNoteCodeMap = {
   unsupportedOperationInMountBackend: 'unsupportedOperationInMountBackend',
+  mountsNotCompletelyIngested: 'mountsNotCompletelyIngested',
 } as const;
 
 export type EndpointResultNoteCode = ObjectValues<typeof EndpointResultNoteCodeMap>;
 
 export const kEndpointResultNotesToMessageMap: Record<
   EndpointResultNoteCode,
-  string | ((...args: any[]) => string)
+  (...args: any[]) => string
 > = {
   unsupportedOperationInMountBackend: (mount: FileBackendMount) =>
     `Mount ${mount.name} from ${mount.backend} mounted to ${mount.folderpath.join(
       kFolderConstants.separator
     )} does not support operation.`,
+  mountsNotCompletelyIngested: () =>
+    'Some mounts are not completely ingested, so actual result may differ.',
 };

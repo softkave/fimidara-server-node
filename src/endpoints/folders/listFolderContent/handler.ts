@@ -7,12 +7,17 @@ import {
 import {Workspace} from '../../../definitions/workspace';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels} from '../../contexts/injectables';
+import {areMountsCompletelyIngestedForFolder} from '../../fileBackends/mountUtils';
 import {fileListExtractor} from '../../files/utils';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
 } from '../../pagination';
-import {PaginationQuery} from '../../types';
+import {
+  EndpointResultNoteCodeMap,
+  PaginationQuery,
+  kEndpointResultNotesToMessageMap,
+} from '../../types';
 import {folderListExtractor} from '../utils';
 import {ListFolderContentEndpoint} from './types';
 import {getWorkspaceAndParentFolder, listFolderContentQuery} from './utils';
@@ -41,10 +46,22 @@ const listFolderContent: ListFolderContentEndpoint = async (context, instData) =
       : [],
   ]);
 
+  const mountsCompletelyIngested = await areMountsCompletelyIngestedForFolder(
+    parentFolder || {workspaceId: workspace.resourceId, namepath: []}
+  );
+
   return {
     folders: folderListExtractor(fetchedFolders),
     files: fileListExtractor(fetchedFiles),
     page: getEndpointPageFromInput(data),
+    notes: mountsCompletelyIngested
+      ? undefined
+      : [
+          {
+            code: EndpointResultNoteCodeMap.mountsNotCompletelyIngested,
+            message: kEndpointResultNotesToMessageMap.mountsNotCompletelyIngested(),
+          },
+        ],
   };
 };
 

@@ -24,11 +24,8 @@ export interface FileBackendMount extends WorkspaceResource {
   configId: string | null;
   name: string;
   description?: string;
-  /** hex string */
-  ingestFoldersContinuationToken?: string;
-  ingestFilesContinuationToken?: string;
-  foldersIngestedCompletely?: boolean;
-  filesIngestedCompletely?: boolean;
+  foldersCompletelyIngested?: boolean;
+  filesCompletelyIngested?: boolean;
 }
 
 export interface FileBackendConfig extends WorkspaceResource {
@@ -49,6 +46,8 @@ export type PublicFileBackendMount = PublicWorkspaceResource &
       | 'name'
       | 'description'
       | 'configId'
+      | 'filesCompletelyIngested'
+      | 'foldersCompletelyIngested'
     >
   >;
 

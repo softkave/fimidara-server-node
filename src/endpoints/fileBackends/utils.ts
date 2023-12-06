@@ -3,6 +3,7 @@ import {
   FileBackendConfig,
   FileBackendMount,
   PublicFileBackendConfig,
+  PublicFileBackendMount,
 } from '../../definitions/fileBackend';
 import {ConvertAgentToPublicAgent} from '../../definitions/system';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
@@ -14,9 +15,10 @@ import {
 } from '../contexts/semantic/types';
 import {workspaceResourceFields} from '../utils';
 import {NewFileBackendMountInput} from './addMount/types';
-import {config} from 'process';
 
-const fileBackendMountFields = getFields<ConvertAgentToPublicAgent<FileBackendMount>>({
+const fileBackendMountFields = getFields<
+  ConvertAgentToPublicAgent<PublicFileBackendMount>
+>({
   ...workspaceResourceFields,
   folderpath: true,
   index: true,
@@ -25,6 +27,8 @@ const fileBackendMountFields = getFields<ConvertAgentToPublicAgent<FileBackendMo
   configId: true,
   description: true,
   name: true,
+  filesCompletelyIngested: true,
+  foldersCompletelyIngested: true,
 });
 
 export const fileBackendMountExtractor = makeExtract(fileBackendMountFields);

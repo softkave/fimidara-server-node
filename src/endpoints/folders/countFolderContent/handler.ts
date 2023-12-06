@@ -6,7 +6,9 @@ import {
 } from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {validate} from '../../../utils/validate';
-import {BaseContextType} from '../../contexts/types';
+import {kSemanticModels} from '../../contexts/injectables';
+import {areMountsCompletelyIngestedForFolder} from '../../fileBackends/mountUtils';
+import {EndpointResultNoteCodeMap, kEndpointResultNotesToMessageMap} from '../../types';
 import {
   getWorkspaceAndParentFolder,
   listFolderContentQuery,
@@ -29,17 +31,32 @@ const countFolderContent: CountFolderContentEndpoint = async (context, instData)
   ];
   const [foldersCount, filesCount] = await Promise.all([
     contentType.includes(AppResourceTypeMap.Folder)
-      ? countFolders(context, agent, workspace, parentFolder)
+      ? countFolders(agent, workspace, parentFolder)
       : 0,
     contentType.includes(AppResourceTypeMap.File)
-      ? countFiles(context, agent, workspace, parentFolder)
+      ? countFiles(agent, workspace, parentFolder)
       : 0,
   ]);
-  return {foldersCount, filesCount};
+
+  const mountsCompletelyIngested = await areMountsCompletelyIngestedForFolder(
+    parentFolder || {workspaceId: workspace.resourceId, namepath: []}
+  );
+
+  return {
+    foldersCount,
+    filesCount,
+    notes: mountsCompletelyIngested
+      ? undefined
+      : [
+          {
+            code: EndpointResultNoteCodeMap.mountsNotCompletelyIngested,
+            message: kEndpointResultNotesToMessageMap.mountsNotCompletelyIngested(),
+          },
+        ],
+  };
 };
 
 async function countFolders(
-  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   parentFolder: Folder | null
@@ -51,11 +68,10 @@ async function countFolders(
     parentFolder
   );
 
-  return await context.semantic.folder.countManyParentByIdList(q);
+  return await kSemanticModels.folder().countManyParentByIdList(q);
 }
 
 async function countFiles(
-  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   parentFolder: Folder | null
@@ -67,7 +83,7 @@ async function countFiles(
     parentFolder
   );
 
-  return await context.semantic.file.countManyParentByIdList(q);
+  return await kSemanticModels.file().countManyParentByIdList(q);
 }
 
 export default countFolderContent;

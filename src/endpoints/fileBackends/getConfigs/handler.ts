@@ -2,15 +2,15 @@ import {container} from 'tsyringe';
 import {validate} from '../../../utils/validate';
 import {kInjectionKeys} from '../../contexts/injection';
 import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
-import {
-  applyDefaultEndpointPaginationOptions,
-  getEndpointPageFromInput,
-} from '../../utils';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {fileBackendConfigListExtractor} from '../utils';
 import {GetFileBackendConfigsEndpoint} from './types';
 import {getFileBackendConfigsQuery} from './utils';
 import {getWorkspaceFileBackendConfigJoiSchema} from './validation';
+import {
+  applyDefaultEndpointPaginationOptions,
+  getEndpointPageFromInput,
+} from '../../pagination';
 
 const getFileBackendConfigs: GetFileBackendConfigsEndpoint = async (
   context,
