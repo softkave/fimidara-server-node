@@ -1,7 +1,5 @@
 import {keyBy} from 'lodash';
-import {container} from 'tsyringe';
-import {kInjectionKeys} from '../contexts/injection';
-import {SemanticFileBackendConfigProvider} from '../contexts/semantic/fileBackendConfig/types';
+import {kSemanticModels} from '../contexts/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
 
@@ -14,11 +12,9 @@ export async function resolveBackendConfigsWithIdList(
     return [];
   }
 
-  const configModel = container.resolve<SemanticFileBackendConfigProvider>(
-    kInjectionKeys.semantic.fileBackendConfig
-  );
-
-  const configs = await configModel.getManyByIdList(configIdList, opts);
+  const configs = await kSemanticModels
+    .fileBackendConfig()
+    .getManyByIdList(configIdList, opts);
 
   if (throwErrorIfConfigNotFound) {
     const configsMap = keyBy(configs, config => config.resourceId);
