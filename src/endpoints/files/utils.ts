@@ -1,6 +1,12 @@
 import {compact} from 'lodash';
 import {container} from 'tsyringe';
-import {File, FileMatcher, FilePresignedPath, PublicFile} from '../../definitions/file';
+import {
+  File,
+  FileMatcher,
+  FilePresignedPath,
+  FileResolvedMountEntry,
+  PublicFile,
+} from '../../definitions/file';
 import {FileBackendMount} from '../../definitions/fileBackend';
 import {PermissionAction} from '../../definitions/permissionItem';
 import {Agent, AppResourceTypeMap, SessionAgent} from '../../definitions/system';
@@ -22,12 +28,10 @@ import {
 } from '../contexts/semantic/types';
 import {SemanticWorkspaceProviderType} from '../contexts/semantic/workspace/types';
 import {NotFoundError} from '../errors';
-import {
-  initBackendProvidersForMounts,
-  resolveBackendConfigsWithIdList,
-} from '../fileBackends/configUtils';
+import {resolveBackendConfigsWithIdList} from '../fileBackends/configUtils';
 import {
   FileBackendMountWeights,
+  initBackendProvidersForMounts,
   isOnlyMountFimidara,
   resolveMountsForFolder,
 } from '../fileBackends/mountUtils';
@@ -43,6 +47,14 @@ import {assertWorkspace, checkWorkspaceExists} from '../workspaces/utils';
 import {fileConstants} from './constants';
 import {getFileByPresignedPath, getFileWithMatcher} from './getFilesWithMatcher';
 
+const fileResolvedEntryFields = getFields<FileResolvedMountEntry>({
+  mountId: true,
+  resolvedAt: true,
+});
+
+export const fileResolvedEntryExtractor = makeExtract(fileResolvedEntryFields);
+export const fileResolvedEntryListExtractor = makeListExtract(fileResolvedEntryFields);
+
 const fileFields = getFields<PublicFile>({
   ...workspaceResourceFields,
   name: true,
@@ -55,6 +67,7 @@ const fileFields = getFields<PublicFile>({
   idPath: true,
   namepath: true,
   version: true,
+  resolvedEntries: fileResolvedEntryListExtractor,
 });
 
 export const fileExtractor = makeExtract(fileFields);
@@ -255,6 +268,7 @@ export async function createNewFile(
       description: data.description,
       encoding: data.encoding,
       mimetype: data.mimetype,
+      resolvedEntries: [],
       ...seed,
     }
   );

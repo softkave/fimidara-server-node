@@ -1,20 +1,18 @@
 import {merge, pick} from 'lodash';
-import {File} from '../../../definitions/file';
-import {AppResourceTypeMap, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
+import {PERMISSION_AGENT_TYPES} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {ValidationError} from '../../../utils/errors';
-import {getNewIdForResource, newWorkspaceResource} from '../../../utils/resource';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {ByteCounterPassThroughStream} from '../../../utils/streams';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels} from '../../contexts/injectables';
 import {getFileBackendForFile} from '../../fileBackends/mountUtils';
-import {ensureFolders} from '../../folders/utils';
 import {FileNotWritableError} from '../errors';
 import {getFileWithMatcher} from '../getFilesWithMatcher';
 import {
   assertFile,
+  createNewFile,
   fileExtractor,
   getFilepathInfo,
   getWorkspaceFromFileOrFilepath,
@@ -27,13 +25,12 @@ import {uploadFileJoiSchema} from './validation';
 const uploadFile: UploadFileEndpoint = async (context, instData) => {
   const data = validate(instData.data, uploadFileJoiSchema);
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
-  const result01 = await kSemanticModels.utils().withTxn(async opts => {
+  const createFileResult = await kSemanticModels.utils().withTxn(async opts => {
     let file = await getFileWithMatcher(data, opts);
     const workspace = await getWorkspaceFromFileOrFilepath(file, data.filepath);
 
     if (file) {
       await checkUploadFileAuth(
-        context,
         agent,
         workspace,
         file,
@@ -50,56 +47,17 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     } else {
       appAssert(data.filepath, new ValidationError('Provide a filepath for new files.'));
       const pathinfo = getFilepathInfo(data.filepath);
-      const parentFolder = await ensureFolders(
-        agent,
-        workspace,
-        pathinfo.parentPath,
-        opts
-      );
+      const file = await createNewFile(agent, workspace, pathinfo, data, opts);
 
-      await checkUploadFileAuth(
-        context,
-        agent,
-        workspace,
-        /** file */ null,
-        parentFolder,
-        opts
-      );
-
-      const fileId = getNewIdForResource(AppResourceTypeMap.File);
-      file = newWorkspaceResource<File>(
-        agent,
-        AppResourceTypeMap.File,
-        workspace.resourceId,
-        {
-          workspaceId: workspace.resourceId,
-          resourceId: fileId,
-          extension: pathinfo.extension,
-          name: pathinfo.filenameExcludingExt,
-          idPath: parentFolder ? parentFolder.idPath.concat(fileId) : [fileId],
-          namepath: parentFolder
-            ? parentFolder.namepath.concat(pathinfo.filenameExcludingExt)
-            : [pathinfo.filenameExcludingExt],
-          parentId: parentFolder?.resourceId ?? null,
-          size: 0,
-          isWriteAvailable: false,
-          isReadAvailable: false,
-          version: 0,
-          description: data.description,
-          encoding: data.encoding,
-          mimetype: data.mimetype,
-        }
-      );
-
-      await context.semantic.file.insertItem(file, opts);
+      await checkUploadFileAuth(agent, workspace, file, null, opts);
+      return {file};
     }
 
     assertFile(file);
     return {file, workspace};
   });
 
-  let {file} = result01;
-
+  let {file} = createFileResult;
   const {mount, provider: backend} = await getFileBackendForFile(file);
 
   try {

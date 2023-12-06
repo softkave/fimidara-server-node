@@ -1,21 +1,19 @@
-import {first} from 'lodash';
+import {compact, first} from 'lodash';
 import {container} from 'tsyringe';
 import {File} from '../../definitions/file';
-import {FileBackendMount} from '../../definitions/fileBackend';
+import {FileBackendConfig, FileBackendMount} from '../../definitions/fileBackend';
 import {Folder} from '../../definitions/folder';
 import {appAssert} from '../../utils/assertion';
 import {ServerError} from '../../utils/errors';
-import {kReuseableErrors} from '../../utils/reusableErrors';
+import {kAsyncLocalStorageUtils} from '../contexts/asyncLocalStorage';
+import {FilePersistenceProvider} from '../contexts/file/types';
+import {kUtilsInjectables} from '../contexts/injectables';
 import {kInjectionKeys} from '../contexts/injection';
 import {
   SemanticFileBackendMountProvider,
-  SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
-import {
-  initBackendProvidersFromConfigs,
-  resolveBackendConfigsWithIdList,
-} from './configUtils';
+import {resolveBackendConfigsWithIdList} from './configUtils';
 
 export type FileBackendMountWeights = Record<string, number>;
 
@@ -78,6 +76,48 @@ export function isOnlyMountFimidara(mounts: FileBackendMount[]): boolean {
   return mounts.length === 1 && isPrimaryMountFimidara(mounts);
 }
 
+type FilePersistenceProvidersByMount = Record<
+  /** mountId */ string,
+  FilePersistenceProvider
+>;
+
+export async function initBackendProvidersForMounts(
+  mounts: FileBackendMount[],
+  configs: FileBackendConfig[]
+) {
+  const providersMap: FilePersistenceProvidersByMount = {};
+  const configsMap: Record<string, {config: FileBackendConfig; providerParams: unknown}> =
+    {};
+
+  await Promise.all(
+    configs.map(async config => {
+      const {text: credentials} = await kUtilsInjectables.secretsManager().getSecret({
+        id: config.secretId,
+      });
+      const initParams = JSON.parse(credentials);
+      configsMap[config.resourceId] = {config, providerParams: initParams};
+    })
+  );
+
+  mounts.forEach(mount => {
+    const {providerParams} = configsMap[mount.configId ?? ''] ?? {};
+
+    if (mount.backend !== 'fimidara' && !providerParams) {
+      console.log(`mount ${mount.resourceId} is not fimidara, and is without config`);
+      throw new ServerError();
+    }
+
+    const provider = kUtilsInjectables.fileProviderResolver()(
+      mount.backend,
+      providerParams
+    );
+    providersMap[mount.resourceId] = provider;
+  });
+
+  kAsyncLocalStorageUtils.addDisposable(Object.values(providersMap));
+  return providersMap;
+}
+
 export async function getFileBackendForFile(file: File) {
   const {mounts} = await resolveMountsForFolder({
     workspaceId: file.workspaceId,
@@ -86,27 +126,10 @@ export async function getFileBackendForFile(file: File) {
   const mount = first(mounts);
   appAssert(mount);
 
-  const configId = mount.configId;
-
-  if (mount.backend !== 'fimidara' && !configId) {
-    console.log(`mount ${mount.resourceId} is not fimidara, and is missing config ID`);
-    throw new ServerError();
-  }
-
-  const configs = configId ? await resolveBackendConfigsWithIdList([configId]) : [];
-  const config = first(configs);
-  appAssert(config);
-
-  const providersMap = await initBackendProvidersFromConfigs(configs);
-  const provider = providersMap[config.resourceId];
+  const configs = await resolveBackendConfigsWithIdList(compact([mount.configId]));
+  const providersMap = await initBackendProvidersForMounts([mount], configs);
+  const provider = providersMap[mount.resourceId];
   appAssert(provider);
 
-  return {provider, mount, config};
-}
-
-export async function defaultMount(
-  workspaceId: string,
-  opts: SemanticProviderMutationRunOptions
-): Promise<FileBackendMount> {
-  throw kReuseableErrors.common.notImplemented();
+  return {provider, mount};
 }
