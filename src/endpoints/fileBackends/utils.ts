@@ -32,6 +32,8 @@ export const fileBackendMountListExtractor = makeListExtract(fileBackendMountFie
 const fileBackendConfigFields = getFields<PublicFileBackendConfig>({
   ...workspaceResourceFields,
   backend: true,
+  name: true,
+  description: true,
 });
 
 export const fileBackendConfigExtractor = makeExtract(fileBackendConfigFields);
@@ -50,7 +52,12 @@ export async function configNameExists(
 }
 
 export async function mountExists(
-  data: Pick<AddFileBackendMountEndpointParams, 'folderpath' | 'mountedFrom' | 'product'>,
+  data: {
+    mount: Pick<
+      AddFileBackendMountEndpointParams['mount'],
+      'backend' | 'folderpath' | 'mountedFrom'
+    >;
+  },
   opts?: SemanticProviderRunOptions
 ) {
   const mountModel = container.resolve<SemanticFileBackendMountProvider>(
@@ -59,9 +66,9 @@ export async function mountExists(
 
   return await mountModel.existsByQuery(
     {
-      backend: data.backend,
-      folderpath: {$all: data.folderpath, $size: data.folderpath.length},
-      mountedFrom: {$all: data.mountedFrom, $size: data.mountedFrom.length},
+      backend: data.mount.backend,
+      folderpath: {$all: data.mount.folderpath, $size: data.mount.folderpath.length},
+      mountedFrom: {$all: data.mount.mountedFrom, $size: data.mount.mountedFrom.length},
     },
     opts
   );
