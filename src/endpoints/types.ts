@@ -115,10 +115,12 @@ export type ExportedHttpEndpoint_HandleResponse = (
   res: Response,
   data: any
 ) => OrPromise<void>;
+
 export type ExportedHttpEndpoint_Cleanup = (
   req: Request,
   res: Response
 ) => OrPromise<void>;
+
 export type ExportedHttpEndpointWithMddocDefinition<
   TEndpoint extends Endpoint = Endpoint,
   TRequestHeaders extends AnyObject = HttpEndpointRequestHeaders_AuthRequired_ContentType,
@@ -144,7 +146,7 @@ export type ExportedHttpEndpointWithMddocDefinition<
     res: Response,
     data: InferEndpointResult<TEndpoint>
   ) => OrPromise<void>;
-  cleanup?: (req: Request, res: Response) => OrPromise<void>;
+  cleanup?: ExportedHttpEndpoint_Cleanup | Array<ExportedHttpEndpoint_Cleanup>;
   expressRouteMiddleware?: RequestHandler;
 };
 

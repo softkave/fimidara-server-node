@@ -27,6 +27,9 @@ export type ConvertDatesToStrings<T extends object> = ConvertTypeOneToTypeTwo<
   string
 >;
 export type AnyFn<Args extends any[] = any[], Result = any> = (...args: Args) => Result;
+export type AnyAsyncFn<Args extends any[] = any[], Result = any> = (
+  ...args: Args
+) => Promise<Result>;
 
 type Join<K, P> = K extends string | number
   ? P extends string | number
@@ -180,3 +183,7 @@ export type IsStringEnum<T> = IsNever<
 
 export type Not<T extends boolean> = T extends true ? false : true;
 export type IsBoolean<T> = T extends boolean ? true : false;
+
+export interface DisposableResource {
+  close: () => OrPromise<void>;
+}

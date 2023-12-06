@@ -1,5 +1,6 @@
 import {container} from 'tsyringe';
 import {FimidaraConfig} from '../../resources/types';
+import {AsyncLocalStorageUtils} from './asyncLocalStorage';
 import {SecretsManagerProvider} from './encryption/types';
 import {FileProviderResolver} from './file/types';
 import {kInjectionKeys} from './injection';
@@ -70,4 +71,6 @@ export const kUtilsInjectables = {
     container.resolve<SecretsManagerProvider>(kInjectionKeys.secretsManager),
   fileProviderResolver: () =>
     container.resolve<FileProviderResolver>(kInjectionKeys.fileProviderResolver),
+  asyncLocalStorage: () =>
+    container.resolve<AsyncLocalStorageUtils>(kInjectionKeys.asyncLocalStorage),
 };

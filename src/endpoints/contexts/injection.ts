@@ -51,4 +51,5 @@ export const kInjectionKeys = {
   config: 'config',
   secretsManager: 'secretsManager',
   fileProviderResolver: 'fileProviderResolver',
+  asyncLocalStorage: 'asyncLocalStorage',
 };

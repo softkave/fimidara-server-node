@@ -2,6 +2,7 @@ import {keyBy} from 'lodash';
 import {container} from 'tsyringe';
 import {FileBackendConfig, FileBackendMount} from '../../definitions/fileBackend';
 import {ServerError} from '../../utils/errors';
+import {kAsyncLocalStorageUtils} from '../contexts/asyncLocalStorage';
 import {FilePersistenceProvider} from '../contexts/file/types';
 import {kUtilsInjectables} from '../contexts/injectables';
 import {kInjectionKeys} from '../contexts/injection';
@@ -32,30 +33,16 @@ export async function resolveBackendConfigsWithIdList(
   return configs;
 }
 
-export async function initBackendProvidersFromConfigs(configs: FileBackendConfig[]) {
-  const providersMap: Record<string, FilePersistenceProvider> = {};
-
-  await Promise.all(
-    configs.map(async config => {
-      const {text: credentials} = await kUtilsInjectables.secretsManager().getSecret({
-        id: config.secretId,
-      });
-      const initParams = JSON.parse(credentials);
-      providersMap[config.resourceId] = kUtilsInjectables.fileProviderResolver()(
-        config.backend,
-        initParams
-      );
-    })
-  );
-
-  return providersMap;
-}
+type FilePersistenceProvidersByMount = Record<
+  /** mountId */ string,
+  FilePersistenceProvider
+>;
 
 export async function initBackendProvidersForMounts(
   mounts: FileBackendMount[],
   configs: FileBackendConfig[]
 ) {
-  const providersMap: Record<string, FilePersistenceProvider> = {};
+  const providersMap: FilePersistenceProvidersByMount = {};
   const configsMap: Record<string, {config: FileBackendConfig; providerParams: unknown}> =
     {};
 
@@ -77,11 +64,13 @@ export async function initBackendProvidersForMounts(
       throw new ServerError();
     }
 
-    providersMap[mount.resourceId] = kUtilsInjectables.fileProviderResolver()(
+    const provider = kUtilsInjectables.fileProviderResolver()(
       mount.backend,
       providerParams
     );
+    providersMap[mount.resourceId] = provider;
   });
 
+  kAsyncLocalStorageUtils.addDisposable(Object.values(providersMap));
   return providersMap;
 }

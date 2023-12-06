@@ -18,12 +18,13 @@ import {
   makeExtractIfPresent,
   makeListExtract,
 } from '../utils/extract';
-import {isObjectEmpty} from '../utils/fns';
+import {isObjectEmpty, toCompactArray} from '../utils/fns';
 import {serverLogger} from '../utils/logger/loggerUtils';
 import {kReuseableErrors} from '../utils/reusableErrors';
-import {AnyFn, AnyObject} from '../utils/types';
+import {AnyFn, AnyObject, OrPromise} from '../utils/types';
 import RequestData from './RequestData';
 import {endpointConstants} from './constants';
+import {kAsyncLocalStorageUtils} from './contexts/asyncLocalStorage';
 import {ResolvedTargetChildrenAccessCheck} from './contexts/authorizationChecks/checkAuthorizaton';
 import {getPage} from './contexts/data/utils';
 import {SemanticProviderMutationRunOptions} from './contexts/semantic/types';
@@ -86,6 +87,23 @@ export function prepareResponseError(error: unknown) {
   return {statusCode, preppedErrors};
 }
 
+export function settlePromisesAndLogFailed(promises: Array<OrPromise<unknown>>) {
+  Promise.allSettled(promises)
+    .then(results => {
+      results.forEach(nextResult => {
+        if (nextResult.status === 'rejected') {
+          serverLogger.error(nextResult.reason);
+        }
+      });
+    })
+    .catch(error => serverLogger.error(error));
+}
+
+export function defaultEndpointCleanup() {
+  const disposables = kAsyncLocalStorageUtils.getDisposables();
+  settlePromisesAndLogFailed(disposables.map(disposable => disposable.close()));
+}
+
 export const wrapEndpointREST = <
   Context extends BaseContextType,
   EndpointType extends Endpoint<Context>
@@ -94,7 +112,7 @@ export const wrapEndpointREST = <
   context: Context,
   handleResponse?: ExportedHttpEndpoint_HandleResponse,
   getData?: ExportedHttpEndpoint_GetDataFromReqFn,
-  cleanup?: ExportedHttpEndpoint_Cleanup
+  cleanup?: ExportedHttpEndpoint_Cleanup | Array<ExportedHttpEndpoint_Cleanup>
 ): ((req: Request, res: Response) => any) => {
   return async (req: Request, res: Response) => {
     try {
@@ -115,11 +133,8 @@ export const wrapEndpointREST = <
       const result = {errors: preppedErrors};
       res.status(statusCode).json(result);
     } finally {
-      if (cleanup) {
-        (cleanup(req, res) ?? Promise.resolve()).catch(
-          serverLogger.error.bind(serverLogger)
-        );
-      }
+      const cleanupFns = toCompactArray(cleanup).concat(defaultEndpointCleanup);
+      settlePromisesAndLogFailed(cleanupFns.map(fn => fn(req, res)));
     }
   };
 };
@@ -140,7 +155,7 @@ export const resourceFields: ExtractFieldsFrom<PublicResource> = {
 };
 export const workspaceResourceFields: ExtractFieldsFrom<PublicWorkspaceResource> = {
   ...resourceFields,
-  providedResourceId: true,
+  // providedResourceId: true,
   workspaceId: true,
   createdBy: agentExtractor,
   lastUpdatedBy: agentExtractor,
@@ -236,7 +251,7 @@ export async function executeCascadeDelete<Args>(
 ) {
   const helperFns: DeleteResourceCascadeFnHelperFns = {
     async withTxn(fn: AnyFn<[SemanticProviderMutationRunOptions]>) {
-      await context.semantic.utils.withTxn(context, opts => fn(opts));
+      await context.semantic.utils.withTxn(opts => fn(opts));
     },
   };
 
