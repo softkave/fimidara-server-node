@@ -72,6 +72,7 @@ export interface EndpointWorkspaceResourceParam extends EndpointOptionalWorkspac
 }
 
 export type PaginationQuery = Pick<DataProviderQueryListParams<any>, 'page' | 'pageSize'>;
+
 export type PaginatedEndpointCountParams<T extends PaginationQuery> = Omit<
   T,
   keyof PaginationQuery
@@ -81,9 +82,11 @@ export type DeleteResourceCascadeFnDefaultArgs = {
   workspaceId: string;
   resourceId: string;
 };
+
 export type DeleteResourceCascadeFnHelperFns = {
   withTxn(fn: AnyFn<[SemanticProviderMutationRunOptions]>): Promise<void>;
 };
+
 export type DeleteResourceCascadeFn<Args = DeleteResourceCascadeFnDefaultArgs> = (
   context: BaseContextType,
   args: Args,
@@ -91,26 +94,33 @@ export type DeleteResourceCascadeFn<Args = DeleteResourceCascadeFnDefaultArgs> =
 ) => Promise<void>;
 
 export type DeleteResourceCascadeFnsMap<Args = DeleteResourceCascadeFnDefaultArgs> =
-  Record<AppResourceType, DeleteResourceCascadeFn<Args>>;
+  Record<AppResourceType, DeleteResourceCascadeFn<Args>> &
+    Partial<Record<'other', DeleteResourceCascadeFn<Args>>>;
 
 export type HttpEndpointRequestHeaders_AuthOptional = {
   Authorization?: string;
 };
+
 export type HttpEndpointRequestHeaders_AuthRequired =
   Required<HttpEndpointRequestHeaders_AuthOptional>;
+
 export type HttpEndpointRequestHeaders_ContentType = {
   'Content-Type': string;
 };
+
 export type HttpEndpointRequestHeaders_AuthOptional_ContentType =
   HttpEndpointRequestHeaders_ContentType & HttpEndpointRequestHeaders_AuthOptional;
+
 export type HttpEndpointRequestHeaders_AuthRequired_ContentType =
   Required<HttpEndpointRequestHeaders_AuthOptional_ContentType>;
+
 export type HttpEndpointResponseHeaders_ContentType_ContentLength = {
   'Content-Type': string;
   'Content-Length': string;
 };
 
 export type ExportedHttpEndpoint_GetDataFromReqFn = (req: Request) => OrPromise<any>;
+
 export type ExportedHttpEndpoint_HandleResponse = (
   res: Response,
   data: any

@@ -147,11 +147,11 @@ export class DataSemanticBaseProvider<T extends Resource>
     return await this.data.existsByQuery(query, opts);
   }
 
-  async getOneByQuery(
+  async getOneByQuery<TResource02 extends T = T>(
     query: DataQuery<T>,
     opts?: SemanticProviderRunOptions | undefined
-  ): Promise<T | null> {
-    return await this.data.getOneByQuery(query, opts);
+  ): Promise<TResource02 | null> {
+    return (await this.data.getOneByQuery(query, opts)) as TResource02;
   }
 
   async deleteManyByQuery(

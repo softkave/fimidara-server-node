@@ -1,6 +1,6 @@
 import {PublicFileBackendMount} from '../../../definitions/fileBackend';
 import {BaseContextType} from '../../contexts/types';
-import {Endpoint, EndpointOptionalWorkspaceIDParam, PaginatedResult} from '../../types';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
 export interface ResolveFileBackendMountsEndpointParams
   extends EndpointOptionalWorkspaceIDParam {
@@ -11,7 +11,7 @@ export interface ResolveFileBackendMountsEndpointParams
   fileId?: string;
 }
 
-export interface ResolveFileBackendMountsEndpointResult extends PaginatedResult {
+export interface ResolveFileBackendMountsEndpointResult {
   mounts: PublicFileBackendMount[];
 }
 

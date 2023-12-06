@@ -17,9 +17,9 @@ const countFileBackendMounts: CountFileBackendMountsEndpoint = async (
 
   const data = validate(instData.data, countWorkspaceAgentTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
-  const query = await getFileBackendMountsQuery(agent, workspace);
-  const count = await mountModel.countManyByWorkspaceAndIdList(query);
+  const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
+  const query = await getFileBackendMountsQuery(agent, workspace, data);
+  const count = await mountModel.countByQuery(query);
 
   return {count};
 };

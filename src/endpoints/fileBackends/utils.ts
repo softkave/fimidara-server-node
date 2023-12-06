@@ -6,14 +6,15 @@ import {
 } from '../../definitions/fileBackend';
 import {ConvertAgentToPublicAgent} from '../../definitions/system';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {kReuseableErrors} from '../../utils/reusableErrors';
+import {kSemanticModels} from '../contexts/injectables';
 import {kInjectionKeys} from '../contexts/injection';
 import {
   SemanticFileBackendMountProvider,
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
 import {workspaceResourceFields} from '../utils';
-import {AddFileBackendMountEndpointParams} from './addMount/types';
+import {NewFileBackendMountInput} from './addMount/types';
+import {config} from 'process';
 
 const fileBackendMountFields = getFields<ConvertAgentToPublicAgent<FileBackendMount>>({
   ...workspaceResourceFields,
@@ -32,25 +33,33 @@ export const fileBackendMountListExtractor = makeListExtract(fileBackendMountFie
 const fileBackendConfigFields = getFields<PublicFileBackendConfig>({
   ...workspaceResourceFields,
   backend: true,
+  description: true,
+  name: true,
 });
 
 export const fileBackendConfigExtractor = makeExtract(fileBackendConfigFields);
 export const fileBackendConfigListExtractor = makeListExtract(fileBackendConfigFields);
 
 export async function mountNameExists(
-  mount: Pick<FileBackendMount, 'workspaceId' | 'name'>
+  mount: Pick<FileBackendMount, 'workspaceId' | 'name'>,
+  opts?: SemanticProviderRunOptions
 ): Promise<boolean> {
-  throw kReuseableErrors.common.notImplemented();
+  return await kSemanticModels
+    .fileBackendMount()
+    .existsByName(mount.workspaceId, mount.name, opts);
 }
 
 export async function configNameExists(
-  mount: Pick<FileBackendConfig, 'workspaceId' | 'name'>
+  config: Pick<FileBackendConfig, 'workspaceId' | 'name'>,
+  opts?: SemanticProviderRunOptions
 ): Promise<boolean> {
-  throw kReuseableErrors.common.notImplemented();
+  return await kSemanticModels
+    .fileBackendConfig()
+    .existsByName(config.workspaceId, config.name, opts);
 }
 
 export async function mountExists(
-  data: Pick<AddFileBackendMountEndpointParams, 'folderpath' | 'mountedFrom' | 'product'>,
+  data: Pick<NewFileBackendMountInput, 'folderpath' | 'mountedFrom' | 'backend'>,
   opts?: SemanticProviderRunOptions
 ) {
   const mountModel = container.resolve<SemanticFileBackendMountProvider>(

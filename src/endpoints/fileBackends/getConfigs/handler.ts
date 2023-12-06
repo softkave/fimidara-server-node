@@ -22,10 +22,10 @@ const getFileBackendConfigs: GetFileBackendConfigsEndpoint = async (
 
   const data = validate(instData.data, getWorkspaceFileBackendConfigJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
-  const query = await getFileBackendConfigsQuery(agent, workspace);
+  const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
+  const query = await getFileBackendConfigsQuery(agent, workspace, data);
   applyDefaultEndpointPaginationOptions(data);
-  const configs = await configModel.getManyByWorkspaceAndIdList(query, data);
+  const configs = await configModel.getManyByQuery(query, data);
 
   return {
     page: getEndpointPageFromInput(data),

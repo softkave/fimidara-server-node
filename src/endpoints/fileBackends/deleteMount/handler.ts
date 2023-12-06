@@ -3,6 +3,7 @@ import {AppResourceTypeMap} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {kSemanticModels} from '../../contexts/injectables';
 import {kInjectionKeys} from '../../contexts/injection';
 import {SemanticFileBackendMountProvider} from '../../contexts/semantic/types';
 import {NotFoundError} from '../../errors';
@@ -21,7 +22,7 @@ const deleteFileBackendMount: DeleteFileBackendMountEndpoint = async (
 
   const data = validate(instData.data, deleteFileBackendMountJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
+  const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   await checkAuthorizationWithAgent({
     agent,
     workspace,
@@ -32,10 +33,15 @@ const deleteFileBackendMount: DeleteFileBackendMountEndpoint = async (
   const mount = await mountModel.getOneById(data.mountId);
   appAssert(mount, new NotFoundError());
 
-  const job = await enqueueDeleteResourceJob(context, {
-    type: AppResourceTypeMap.FileBackendMount,
-    args: {workspaceId: mount.workspaceId, resourceId: mount.resourceId},
-  });
+  const job = await kSemanticModels.utils().withTxn(opts =>
+    enqueueDeleteResourceJob(
+      {
+        type: AppResourceTypeMap.FileBackendMount,
+        args: {workspaceId: mount.workspaceId, resourceId: mount.resourceId},
+      },
+      opts
+    )
+  );
 
   return {jobId: job.resourceId};
 };

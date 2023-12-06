@@ -1,8 +1,14 @@
 import {compact, defaultTo, first, isArray, last} from 'lodash';
+import {Promise} from 'mongoose';
 import {posix} from 'path';
 import {container} from 'tsyringe';
 import {FileBackendMount} from '../../definitions/fileBackend';
-import {Folder, FolderMatcher, PublicFolder} from '../../definitions/folder';
+import {
+  Folder,
+  FolderMatcher,
+  FolderResolvedMountEntry,
+  PublicFolder,
+} from '../../definitions/folder';
 import {PermissionAction} from '../../definitions/permissionItem';
 import {Agent, AppResourceTypeMap, SessionAgent} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
@@ -23,12 +29,10 @@ import {
 } from '../contexts/semantic/types';
 import {SemanticWorkspaceProviderType} from '../contexts/semantic/workspace/types';
 import {InvalidRequestError} from '../errors';
-import {
-  initBackendProvidersForMounts,
-  resolveBackendConfigsWithIdList,
-} from '../fileBackends/configUtils';
+import {resolveBackendConfigsWithIdList} from '../fileBackends/configUtils';
 import {
   FileBackendMountWeights,
+  initBackendProvidersForMounts,
   isOnlyMountFimidara,
   resolveMountsForFolder,
 } from '../fileBackends/mountUtils';
@@ -39,6 +43,17 @@ import {kFolderConstants} from './constants';
 import {FolderNotFoundError} from './errors';
 import {assertGetFolderWithMatcher} from './getFolderWithMatcher';
 
+const folderResolvedEntryFields = getFields<FolderResolvedMountEntry>({
+  ...workspaceResourceFields,
+  mountId: true,
+  resolvedAt: true,
+});
+
+export const folderResolvedEntryExtractor = makeExtract(folderResolvedEntryFields);
+export const folderResolvedEntryListExtractor = makeListExtract(
+  folderResolvedEntryFields
+);
+
 const folderFields = getFields<PublicFolder>({
   ...workspaceResourceFields,
   parentId: true,
@@ -46,6 +61,7 @@ const folderFields = getFields<PublicFolder>({
   description: true,
   idPath: true,
   namepath: true,
+  resolvedEntries: folderResolvedEntryListExtractor,
 });
 
 export const folderExtractor = makeExtract(folderFields);
@@ -127,34 +143,29 @@ export function getWorkspaceRootnameFromPath(providedPath: string | string[]) {
   return {rootname, splitPath};
 }
 
-export async function checkFolderAuthorization(
+export async function checkFolderAuthorization<
+  T extends Pick<Folder, 'idPath' | 'workspaceId'>
+>(
   agent: SessionAgent,
-  folder: Folder,
+  folder: T,
   action: PermissionAction,
   workspace?: Workspace,
-  UNSAFE_skipAuthCheck = false,
   opts?: SemanticProviderRunOptions
 ) {
   if (!workspace) {
     workspace = await checkWorkspaceExists(folder.workspaceId, opts);
   }
 
-  if (!UNSAFE_skipAuthCheck) {
-    // Primarily for listFolderContent, where we want to fetch the folder but
-    // the calling agent doesn't need permission to read the folder, just it's
-    // content.
-    // TODO: Let me (@abayomi) know if there's an issue with this.
-    await checkAuthorizationWithAgent({
-      agent,
-      workspace,
-      opts,
-      workspaceId: workspace.resourceId,
-      target: {
-        action,
-        targetId: getFilePermissionContainers(workspace.resourceId, folder, true),
-      },
-    });
-  }
+  await checkAuthorizationWithAgent({
+    agent,
+    workspace,
+    opts,
+    workspaceId: workspace.resourceId,
+    target: {
+      action,
+      targetId: getFilePermissionContainers(workspace.resourceId, folder, true),
+    },
+  });
 
   return {agent, workspace, folder};
 }
@@ -164,8 +175,7 @@ export async function checkFolderAuthorization02(
   matcher: FolderMatcher,
   action: PermissionAction,
   workspace?: Workspace,
-  opts?: SemanticProviderMutationRunOptions,
-  UNSAFE_skipAuthCheck = false
+  opts?: SemanticProviderMutationRunOptions
 ) {
   const folder = await assertGetFolderWithMatcher(
     agent,
@@ -173,7 +183,7 @@ export async function checkFolderAuthorization02(
     opts,
     workspace?.workspaceId
   );
-  return checkFolderAuthorization(agent, folder, action, workspace, UNSAFE_skipAuthCheck);
+  return checkFolderAuthorization(agent, folder, action, workspace);
 }
 
 export function getFolderName(folder: Folder) {
@@ -305,6 +315,7 @@ export async function createNewFolder(
         : [pathinfo.name],
       parentId: parentFolder?.resourceId ?? data.parentId ?? null,
       description: data.description,
+      resolvedEntries: [],
       ...seed,
     }
   );

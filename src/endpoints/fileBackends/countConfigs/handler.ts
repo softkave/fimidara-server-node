@@ -17,9 +17,9 @@ const countFileBackendConfigs: CountFileBackendConfigsEndpoint = async (
 
   const data = validate(instData.data, countWorkspaceAgentTokenJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
-  const query = await getFileBackendConfigsQuery(agent, workspace);
-  const count = await configModel.countManyByWorkspaceAndIdList(query);
+  const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
+  const query = await getFileBackendConfigsQuery(agent, workspace, data);
+  const count = await configModel.countByQuery(query);
 
   return {count};
 };
