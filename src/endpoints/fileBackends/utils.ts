@@ -14,7 +14,6 @@ import {
 } from '../contexts/semantic/types';
 import {workspaceResourceFields} from '../utils';
 import {NewFileBackendMountInput} from './addMount/types';
-import {config} from 'process';
 
 const fileBackendMountFields = getFields<ConvertAgentToPublicAgent<FileBackendMount>>({
   ...workspaceResourceFields,
@@ -33,8 +32,8 @@ export const fileBackendMountListExtractor = makeListExtract(fileBackendMountFie
 const fileBackendConfigFields = getFields<PublicFileBackendConfig>({
   ...workspaceResourceFields,
   backend: true,
-  description: true,
   name: true,
+  description: true,
 });
 
 export const fileBackendConfigExtractor = makeExtract(fileBackendConfigFields);
