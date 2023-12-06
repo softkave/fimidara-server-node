@@ -31,6 +31,7 @@ export interface Job<TParams extends AnyObject = AnyObject> extends Resource {
   version: number;
   serverInstanceId: string;
   parentJobId?: string;
+  idempotencyToken: string;
 
   /** For checking the logs for the error that occurred during the job run. */
   errorTimestamp?: number;

@@ -1,3 +1,4 @@
+import {keyBy} from 'lodash';
 import {AnyObject} from 'mongoose';
 import winston from 'winston';
 import {Job, JobStatusMap, JobType, kJobRunnerV1} from '../../definitions/job';
@@ -10,6 +11,7 @@ import {SemanticProviderMutationRunOptions} from '../contexts/semantic/types';
 export interface JobInput<TParams extends AnyObject = AnyObject> {
   type: JobType | (string & {});
   params: TParams;
+  idempotencyToken?: string;
 }
 
 export async function queueJobs(
@@ -23,10 +25,13 @@ export async function queueJobs(
   }
 
   const config = kUtilsInjectables.config();
+  const idempotencyTokens: string[] = [];
   const newJobs = jobsInput.map(input => {
+    const idempotencyToken = input.idempotencyToken || JSON.stringify(input.params);
     return newResource<Job>(AppResourceTypeMap.Job, {
       workspaceId,
       parentJobId,
+      idempotencyToken,
       params: input.params,
       type: input.type,
       serverInstanceId: config.serverInstanceId,
@@ -37,7 +42,18 @@ export async function queueJobs(
   });
 
   await kSemanticModels.utils().withTxn(async opts => {
-    await kSemanticModels.job().insertItem(newJobs, opts);
+    const existingJobs = await kSemanticModels
+      .job()
+      .getManyByQuery({idempotencyToken: {$in: idempotencyTokens}}, opts);
+    const existingJobsByIdempotencyToken = keyBy(
+      existingJobs,
+      job => job.idempotencyToken
+    );
+
+    const uniqueJobs = newJobs.filter(
+      job => !existingJobsByIdempotencyToken[job.idempotencyToken]
+    );
+    await kSemanticModels.job().insertItem(uniqueJobs, opts);
   }, opts);
 }
 
