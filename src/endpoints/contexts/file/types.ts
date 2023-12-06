@@ -64,8 +64,8 @@ export interface FilePersistenceDescribeFolderFilesParams {
   workspaceId: string;
   folderpath: string;
   max: number;
-  /* page is backend-dependent */
-  page?: unknown;
+  /* `continuationToken` is backend-dependent */
+  continuationToken?: unknown;
   mount: FileBackendMount;
 }
 
@@ -73,7 +73,8 @@ export interface FilePersistenceDescribeFolderFoldersParams {
   workspaceId: string;
   folderpath: string;
   max: number;
-  page?: unknown;
+  /* `continuationToken` is backend-dependent */
+  continuationToken?: unknown;
   mount: FileBackendMount;
 }
 
@@ -85,17 +86,19 @@ export interface FilePersistenceDeleteFoldersParams {
 
 export interface FilePersistenceDescribeFolderFilesResult {
   files: PersistedFileDescription[];
-  /* null if content is exhausted */
-  nextPage?: unknown | null;
+  /* `null` or `undefined` if content is exhausted */
+  continuationToken?: unknown | null;
 }
 
 export interface FilePersistenceDescribeFolderFoldersResult {
   folders: PersistedFolderDescription[];
-  /* null if content is exhausted */
-  nextPage?: unknown | null;
+  /* `null` or `undefined` if content is exhausted */
+  continuationToken?: unknown | null;
 }
 
 export interface FilePersistenceProvider {
+  stringifyContinuationToken: (token?: unknown) => string | undefined;
+  parseContinuationToken: (hex?: string) => unknown | undefined;
   supportsFeature: (feature: FilePersistenceProviderFeature) => boolean;
   uploadFile: (params: FilePersistenceUploadFileParams) => Promise<Partial<File>>;
   readFile: (params: FilePersistenceGetFileParams) => Promise<PersistedFile>;

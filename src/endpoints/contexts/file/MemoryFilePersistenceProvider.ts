@@ -122,9 +122,9 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
     const workspaceFilesMap = this.getWorkspaceFiles(params);
     const workspaceFiles = Object.values(workspaceFilesMap);
     const files: PersistedFileDescription[] = [];
-    appAssert(isNumber(params.page));
+    appAssert(isNumber(params.continuationToken));
 
-    let index = params.page;
+    let index = params.continuationToken;
     for (; index < workspaceFiles.length && files.length < params.max; index++) {
       const file = workspaceFiles[index];
 
@@ -139,7 +139,7 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
       }
     }
 
-    return {files, nextPage: index};
+    return {files, continuationToken: index};
   };
 
   describeFolderFolders = async (

@@ -22,6 +22,8 @@ import {
   getFilePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
 import {
+  FilePersistenceDescribeFolderFilesResult,
+  FilePersistenceDescribeFolderFoldersResult,
   PersistedFileDescription,
   PersistedFolderDescription,
 } from '../contexts/file/types';
@@ -428,7 +430,7 @@ export async function ingestFolderByFolderpath(
 
 export type FileProviderContinuationTokensByMount = Record<
   /** mountId */ string,
-  unknown
+  {continuationToken?: unknown; hex?: string}
 >;
 
 export async function ingestFolderFilesByFolderpath(
@@ -436,7 +438,6 @@ export async function ingestFolderFilesByFolderpath(
   folder: Folder | null,
   opts: SemanticProviderMutationRunOptions,
   workspaceId: string,
-  continuationMap: FileProviderContinuationTokensByMount,
   max: number,
   mounts?: FileBackendMount[],
   mountWeights?: FileBackendMountWeights
@@ -455,20 +456,24 @@ export async function ingestFolderFilesByFolderpath(
     /** throw error is config is not found */ true,
     opts
   );
-  const providersMap = await initBackendProvidersForMounts(mounts, configs);
 
+  const providersMap = await initBackendProvidersForMounts(mounts, configs);
   const resultList = await Promise.all(
-    mounts.map(async mount => {
-      const page = continuationMap[mount.resourceId];
+    mounts.map(async (mount): Promise<FilePersistenceDescribeFolderFilesResult> => {
       const provider = providersMap[mount.resourceId];
-      appAssert(provider);
-      appAssert(page);
+      const continuationToken = provider.parseContinuationToken(
+        mount.ingestFilesContinuationToken
+      );
+
+      if (!continuationToken) {
+        return {files: []};
+      }
 
       return await provider.describeFolderFiles({
         workspaceId,
         mount,
-        page,
         max,
+        continuationToken,
         folderpath: (folder?.namepath || []).join(kFolderConstants.separator),
       });
     })
@@ -485,12 +490,17 @@ export async function ingestFolderFilesByFolderpath(
   > = {};
 
   resultList.forEach((nextResult, index) => {
-    const {files, nextPage} = nextResult;
+    const {files, continuationToken} = nextResult;
 
     appAssert(mounts);
     const mount = mounts[index];
+    const provider = providersMap[mount.resourceId];
 
-    mountContinuationTokensMap[mount.resourceId] = nextPage;
+    mountContinuationTokensMap[mount.resourceId] = {
+      continuationToken,
+      hex: provider.stringifyContinuationToken(continuationToken),
+    };
+
     files.forEach(nextMountFile => {
       let map = mountFilesMap[nextMountFile.filepath];
 
@@ -527,7 +537,6 @@ export async function ingestFolderFilesByFolderpath(
   );
 
   const newFiles: Array<File> = [];
-
   extMountFilesList.forEach(({pathinfo, mountFiles}) => {
     const mountFile0 = first(mountFiles);
     appAssert(mountFile0);
@@ -551,7 +560,7 @@ export async function ingestFolderFilesByFolderpath(
   const updateFilesPromise = Promise.all(
     existingFiles.map(file => {
       const entry = mountFilesMap[file.namepath.join(kFolderConstants.separator)];
-      appAssert(entry);
+
       return kSemanticModels
         .file()
         .getAndUpdateOneById(
@@ -562,10 +571,26 @@ export async function ingestFolderFilesByFolderpath(
     })
   );
   const saveFilesPromise = kSemanticModels.file().insertItem(newFiles, opts);
-  const [updatedFiles] = await Promise.all([updateFilesPromise, saveFilesPromise]);
+  const saveContinuationTokensPromise = Promise.all(
+    mounts.map(mount => {
+      const {hex} = mountContinuationTokensMap[mount.resourceId];
+      return kSemanticModels
+        .fileBackendMount()
+        .updateOneById(
+          mount.resourceId,
+          {ingestFilesContinuationToken: hex, filesIngestedCompletely: !hex},
+          opts
+        );
+    })
+  );
+  const [updatedFiles] = await Promise.all([
+    updateFilesPromise,
+    saveFilesPromise,
+    saveContinuationTokensPromise,
+  ]);
   const completedFiles = compact(updatedFiles).concat(newFiles);
 
-  return {files: completedFiles, continuationToken: mountContinuationTokensMap};
+  return {files: completedFiles};
 }
 
 export async function ingestFolderFoldersByFolderpath(
@@ -573,7 +598,6 @@ export async function ingestFolderFoldersByFolderpath(
   folder: Folder | null,
   opts: SemanticProviderMutationRunOptions,
   workspaceId: string,
-  continuationMap: FileProviderContinuationTokensByMount,
   max: number,
   // TODO: reuse mounts and providers
   mounts?: FileBackendMount[],
@@ -593,19 +617,24 @@ export async function ingestFolderFoldersByFolderpath(
     /** throw error is config is not found */ true,
     opts
   );
-  const providersMap = await initBackendProvidersForMounts(mounts, configs);
 
+  const providersMap = await initBackendProvidersForMounts(mounts, configs);
   const resultList = await Promise.all(
-    mounts.map(async mount => {
-      const page = continuationMap[mount.resourceId];
+    mounts.map(async (mount): Promise<FilePersistenceDescribeFolderFoldersResult> => {
       const provider = providersMap[mount.resourceId];
-      appAssert(provider);
-      appAssert(page);
+      const continuationToken = provider.parseContinuationToken(
+        mount.ingestFoldersContinuationToken
+      );
+
+      if (!continuationToken) {
+        /** short-circuit, mount is done */
+        return {folders: []};
+      }
 
       return await provider.describeFolderFolders({
         workspaceId,
         mount,
-        page,
+        continuationToken,
         max,
         folderpath: (folder?.namepath || []).join(kFolderConstants.separator),
       });
@@ -623,12 +652,17 @@ export async function ingestFolderFoldersByFolderpath(
   > = {};
 
   resultList.forEach((nextResult, index) => {
-    const {folders, nextPage} = nextResult;
+    const {folders, continuationToken} = nextResult;
 
     appAssert(mounts);
     const mount = mounts[index];
+    const provider = providersMap[mount.resourceId];
 
-    mountContinuationTokensMap[mount.resourceId] = nextPage;
+    mountContinuationTokensMap[mount.resourceId] = {
+      continuationToken,
+      hex: provider.stringifyContinuationToken(continuationToken),
+    };
+
     folders.forEach(nextMountFolder => {
       let map = mountFoldersMap[nextMountFolder.folderpath];
 
@@ -693,7 +727,23 @@ export async function ingestFolderFoldersByFolderpath(
     })
   );
   const saveFoldersPromise = kSemanticModels.folder().insertItem(newFolders, opts);
-  const [updatedFolders] = await Promise.all([updateFoldersPromise, saveFoldersPromise]);
+  const saveContinuationTokensPromise = Promise.all(
+    mounts.map(mount => {
+      const {hex} = mountContinuationTokensMap[mount.resourceId];
+      return kSemanticModels
+        .fileBackendMount()
+        .updateOneById(
+          mount.resourceId,
+          {ingestFoldersContinuationToken: hex, foldersIngestedCompletely: !hex},
+          opts
+        );
+    })
+  );
+  const [updatedFolders] = await Promise.all([
+    updateFoldersPromise,
+    saveFoldersPromise,
+    saveContinuationTokensPromise,
+  ]);
   const completedFolders = compact(updatedFolders).concat(newFolders);
 
   return {folders: completedFolders, continuationToken: mountContinuationTokensMap};

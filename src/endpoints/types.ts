@@ -52,12 +52,10 @@ export type ServerRecommendedActions = ObjectValues<typeof ServerRecommendedActi
 
 export type PaginationQuery = {
   pageSize: number;
-  continuationToken?: string;
   page: number;
 };
 
 export interface PaginatedResult {
-  continuationToken: string;
   page: number;
 }
 

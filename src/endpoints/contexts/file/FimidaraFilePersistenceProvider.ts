@@ -136,7 +136,7 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
   describeFolderFiles = async (
     params: FilePersistenceDescribeFolderFilesParams
   ): Promise<FilePersistenceDescribeFolderFilesResult> => {
-    const {folderpath, max, workspaceId, page, mount} = params;
+    const {folderpath, max, workspaceId, continuationToken: page, mount} = params;
     const currentPage: FimidaraFilePersistenceProviderPage =
       FimidaraFilePersistenceProvider.isPage(page)
         ? page
@@ -178,13 +178,13 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
       createdAt: createdAtN,
     };
 
-    return {nextPage, files: childrenFiles};
+    return {continuationToken: nextPage, files: childrenFiles};
   };
 
   describeFolderFolders = async (
     params: FilePersistenceDescribeFolderFoldersParams
   ): Promise<FilePersistenceDescribeFolderFoldersResult> => {
-    const {folderpath, max, workspaceId, page, mount} = params;
+    const {folderpath, max, workspaceId, continuationToken: page, mount} = params;
     const currentPage: FimidaraFilePersistenceProviderPage =
       FimidaraFilePersistenceProvider.isPage(page)
         ? page
@@ -224,7 +224,7 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
       createdAt: createdAtN,
     };
 
-    return {nextPage, folders: childrenFolders};
+    return {continuationToken: nextPage, folders: childrenFolders};
   };
 
   close = async () => {

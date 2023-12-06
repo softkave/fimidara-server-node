@@ -9,19 +9,12 @@ import {validate} from '../../../utils/validate';
 import {kSemanticModels} from '../../contexts/injectables';
 import {fileListExtractor} from '../../files/utils';
 import {
-  getInternalPaginationQuery,
-  paginationToContinuationToken,
+  applyDefaultEndpointPaginationOptions,
+  getEndpointPageFromInput,
 } from '../../pagination';
-import {
-  FileProviderContinuationTokensByMount,
-  folderListExtractor,
-  ingestFolderFilesByFolderpath,
-  ingestFolderFoldersByFolderpath,
-} from '../utils';
-import {
-  ListFolderContentEndpoint,
-  ListFolderContentEndpointContinuationToken,
-} from './types';
+import {PaginationQuery} from '../../types';
+import {folderListExtractor} from '../utils';
+import {ListFolderContentEndpoint} from './types';
 import {getWorkspaceAndParentFolder, listFolderContentQuery} from './utils';
 import {listFolderContentJoiSchema} from './validation';
 
@@ -34,49 +27,24 @@ const listFolderContent: ListFolderContentEndpoint = async (context, instData) =
     data
   );
 
-  const pagination =
-    getInternalPaginationQuery<ListFolderContentEndpointContinuationToken>(data);
+  applyDefaultEndpointPaginationOptions(data);
   const contentType = data.contentType ?? [
     AppResourceTypeMap.File,
     AppResourceTypeMap.Folder,
   ];
-
-  const [
-    {folders, continuationToken: foldersContinuationToken},
-    {files, continuationToken: filesContinuationToken},
-  ] = await Promise.all([
+  const [fetchedFolders, fetchedFiles] = await Promise.all([
     contentType.includes(AppResourceTypeMap.Folder)
-      ? fetchFolders(
-          agent,
-          workspace,
-          parentFolder,
-          pagination.token?.folders || {},
-          pagination.pageSize
-        )
-      : ({} as Partial<Awaited<ReturnType<typeof fetchFolders>>>),
+      ? fetchFolders(agent, workspace, parentFolder, data)
+      : [],
     contentType.includes(AppResourceTypeMap.File)
-      ? fetchFiles(
-          agent,
-          workspace,
-          parentFolder,
-          pagination.token?.files || {},
-          pagination.pageSize
-        )
-      : ({} as Partial<Awaited<ReturnType<typeof fetchFiles>>>),
+      ? fetchFiles(agent, workspace, parentFolder, data)
+      : [],
   ]);
 
-  const continuation: ListFolderContentEndpointContinuationToken = {
-    files: filesContinuationToken,
-    folders: foldersContinuationToken,
-  };
-
   return {
-    folders: folderListExtractor(folders ?? []),
-    files: fileListExtractor(files ?? []),
-    page: pagination.page++,
-    continuationToken: paginationToContinuationToken({
-      token: continuation,
-    }),
+    folders: folderListExtractor(fetchedFolders),
+    files: fileListExtractor(fetchedFiles),
+    page: getEndpointPageFromInput(data),
   };
 };
 
@@ -84,8 +52,7 @@ async function fetchFolders(
   agent: SessionAgent,
   workspace: Workspace,
   parentFolder: Folder | null,
-  continuation: FileProviderContinuationTokensByMount,
-  max: number
+  pagination: PaginationQuery
 ) {
   const query = await listFolderContentQuery(
     agent,
@@ -95,25 +62,15 @@ async function fetchFolders(
   );
 
   return await kSemanticModels
-    .utils()
-    .withTxn(opts =>
-      ingestFolderFoldersByFolderpath(
-        agent,
-        parentFolder,
-        opts,
-        workspace.resourceId,
-        continuation,
-        max
-      )
-    );
+    .folder()
+    .getManyByWorkspaceParentAndIdList(query, pagination);
 }
 
 async function fetchFiles(
   agent: SessionAgent,
   workspace: Workspace,
   parentFolder: Folder | null,
-  continuation: FileProviderContinuationTokensByMount,
-  max: number
+  pagination: PaginationQuery
 ) {
   const query = await listFolderContentQuery(
     agent,
@@ -123,17 +80,8 @@ async function fetchFiles(
   );
 
   return await kSemanticModels
-    .utils()
-    .withTxn(opts =>
-      ingestFolderFilesByFolderpath(
-        agent,
-        parentFolder,
-        opts,
-        workspace.resourceId,
-        continuation,
-        max
-      )
-    );
+    .file()
+    .getManyByWorkspaceParentAndIdList(query, pagination);
 }
 
 export default listFolderContent;
