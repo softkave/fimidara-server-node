@@ -37,8 +37,8 @@ export const fileBackendMountListExtractor = makeListExtract(fileBackendMountFie
 const fileBackendConfigFields = getFields<PublicFileBackendConfig>({
   ...workspaceResourceFields,
   backend: true,
-  description: true,
   name: true,
+  description: true,
 });
 
 export const fileBackendConfigExtractor = makeExtract(fileBackendConfigFields);

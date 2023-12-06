@@ -20,7 +20,7 @@ const addFileBackendMountEndpoint: AddFileBackendMountEndpoint = async (
     target: {action: 'addFileBackendMount', targetId: workspace.resourceId},
   });
 
-  const mount = await context.semantic.utils.withTxn(context, async opts => {
+  const mount = await context.semantic.utils.withTxn(async opts => {
     return await INTERNAL_addFileBackendMount(agent, workspace, data, opts);
   });
 
