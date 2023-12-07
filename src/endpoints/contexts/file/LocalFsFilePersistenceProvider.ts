@@ -122,6 +122,7 @@ export default class LocalFsFilePersistenceProvider implements FilePersistencePr
               filepath: params.filepath,
               size: stat.size,
               lastUpdatedAt: stat.mtimeMs,
+              mountId: params.mount.resourceId,
             };
           }
 
@@ -140,7 +141,11 @@ export default class LocalFsFilePersistenceProvider implements FilePersistencePr
         [folderpath],
         (stat): PersistedFolderDescription | undefined => {
           if (stat.isDirectory()) {
-            return {type: 'folder', folderpath: params.folderpath};
+            return {
+              type: 'folder',
+              folderpath: params.folderpath,
+              mountId: params.mount.resourceId,
+            };
           }
 
           return undefined;
@@ -153,14 +158,14 @@ export default class LocalFsFilePersistenceProvider implements FilePersistencePr
     params: FilePersistenceDescribeFolderFilesParams
   ): Promise<FilePersistenceDescribeFolderFilesResult> => {
     const folderpath = `${this.params.dir}/${params.folderpath}`;
-    appAssert(isNumber(params.page));
+    appAssert(isNumber(params.continuationToken));
 
     try {
       // TODO: possible issue where folder children out use RAM. It's a string,
       // but there can be a lot.
       const children = await fse.promises.readdir(folderpath);
       let files: PersistedFileDescription[] = [];
-      let pageIndex = params.page;
+      let pageIndex = params.continuationToken;
       let stopIndex = pageIndex;
 
       for (
@@ -177,6 +182,7 @@ export default class LocalFsFilePersistenceProvider implements FilePersistencePr
                 filepath: path,
                 size: stat.size,
                 lastUpdatedAt: stat.mtimeMs,
+                mountId: params.mount.resourceId,
               };
             }
 
@@ -196,7 +202,7 @@ export default class LocalFsFilePersistenceProvider implements FilePersistencePr
         }
       }
 
-      return {files, nextPage: stopIndex};
+      return {files, continuationToken: stopIndex};
     } catch (error) {
       console.error(error);
       return {files: []};
@@ -207,14 +213,14 @@ export default class LocalFsFilePersistenceProvider implements FilePersistencePr
     params: FilePersistenceDescribeFolderFoldersParams
   ): Promise<FilePersistenceDescribeFolderFoldersResult> => {
     const folderpath = `${this.params.dir}/${params.folderpath}`;
-    appAssert(isNumber(params.page));
+    appAssert(isNumber(params.continuationToken));
 
     try {
       // TODO: possible issue where folder children out use RAM. It's a string,
       // but there can be a lot.
       const children = await fse.promises.readdir(folderpath);
       let folders: PersistedFolderDescription[] = [];
-      let pageIndex = params.page;
+      let pageIndex = params.continuationToken;
       let stopIndex = pageIndex;
 
       for (
@@ -226,7 +232,7 @@ export default class LocalFsFilePersistenceProvider implements FilePersistencePr
           children.slice(pageIndex, pageIndex + params.max),
           (stat, path): PersistedFolderDescription | undefined => {
             if (stat.isDirectory()) {
-              return {type: 'folder', folderpath: path};
+              return {type: 'folder', folderpath: path, mountId: params.mount.resourceId};
             }
 
             return undefined;
@@ -245,7 +251,7 @@ export default class LocalFsFilePersistenceProvider implements FilePersistencePr
         }
       }
 
-      return {folders, nextPage: stopIndex};
+      return {folders, continuationToken: stopIndex};
     } catch (error) {
       console.error(error);
       return {folders: []};

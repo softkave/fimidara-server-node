@@ -144,6 +144,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       type: 'file',
       size: response.ContentLength,
       lastUpdatedAt: response.LastModified ? response.LastModified.valueOf() : undefined,
+      mountId: params.mount.resourceId,
     };
   };
 

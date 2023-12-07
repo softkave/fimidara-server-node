@@ -5,7 +5,7 @@ import {populateUserListWithWorkspaces} from '../../assignedItems/getAssignedIte
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
-} from '../../utils';
+} from '../../pagination';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {collaboratorListExtractor} from '../utils';
 import {GetWorkspaceCollaboratorsEndpoint} from './types';
@@ -19,7 +19,7 @@ const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint = async (
   const data = validate(instData.data, getWorkspaceCollaboratorsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
-  const workspace = await checkWorkspaceExists(context, workspaceId);
+  const workspace = await checkWorkspaceExists(workspaceId);
   const assignedItemsQuery = await getWorkspaceCollaboratorsQuery(
     context,
     agent,

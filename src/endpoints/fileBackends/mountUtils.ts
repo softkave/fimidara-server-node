@@ -3,11 +3,13 @@ import {container} from 'tsyringe';
 import {File} from '../../definitions/file';
 import {FileBackendConfig, FileBackendMount} from '../../definitions/fileBackend';
 import {Folder} from '../../definitions/folder';
+import {IngestMountJobParams, Job} from '../../definitions/job';
 import {appAssert} from '../../utils/assertion';
 import {ServerError} from '../../utils/errors';
 import {kAsyncLocalStorageUtils} from '../contexts/asyncLocalStorage';
+import {DataQuery} from '../contexts/data/types';
 import {FilePersistenceProvider} from '../contexts/file/types';
-import {kUtilsInjectables} from '../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
 import {kInjectionKeys} from '../contexts/injection';
 import {
   SemanticFileBackendMountProvider,
@@ -76,7 +78,7 @@ export function isOnlyMountFimidara(mounts: FileBackendMount[]): boolean {
   return mounts.length === 1 && isPrimaryMountFimidara(mounts);
 }
 
-type FilePersistenceProvidersByMount = Record<
+export type FilePersistenceProvidersByMount = Record<
   /** mountId */ string,
   FilePersistenceProvider
 >;
@@ -132,4 +134,34 @@ export async function getFileBackendForFile(file: File) {
   appAssert(provider);
 
   return {provider, mount};
+}
+
+export async function areMountsCompletelyIngestedForFolder(
+  folder: Pick<Folder, 'workspaceId' | 'namepath'>
+) {
+  const {mounts} = await resolveMountsForFolder(folder);
+  const completionList = await Promise.all(
+    mounts.map(async mount => {
+      const query: DataQuery<Job<IngestMountJobParams>> = {
+        type: 'ingestMount',
+        params: {
+          $objMatch: {mountId: mount.resourceId},
+        },
+      };
+
+      const [completedJob, incompleteJob] = await Promise.all([
+        kSemanticModels
+          .job()
+          .existsByQuery<Job<IngestMountJobParams>>({...query, status: 'completed'}),
+        kSemanticModels.job().existsByQuery<Job<IngestMountJobParams>>({
+          ...query,
+          status: {$ne: 'completed'},
+        }),
+      ]);
+
+      return !!(completedJob && !incompleteJob);
+    })
+  );
+
+  return completionList.every(Boolean);
 }

@@ -2,7 +2,7 @@ import {validate} from '../../../utils/validate';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
-} from '../../utils';
+} from '../../pagination';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {PermissionItemUtils} from '../utils';
 import {GetEntityPermissionItemsEndpoint} from './types';
@@ -20,7 +20,7 @@ const getEntityPermissionItems: GetEntityPermissionItemsEndpoint = async (
 ) => {
   const data = validate(instData.data, getEntityPermissionItemsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
-  const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
+  const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   await doAccessCheckForGetEntityPermissionItems(context, agent, workspace, data);
   applyDefaultEndpointPaginationOptions(data);
   const items = await context.semantic.permissionItem.getManyByQuery(

@@ -2,7 +2,7 @@ import {validate} from '../../../utils/validate';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
-} from '../../utils';
+} from '../../pagination';
 import {collaborationRequestForUserListExtractor} from '../utils';
 import {GetUserCollaborationRequestsEndpoint} from './types';
 import {getUserRequestsJoiSchema} from './validation';

@@ -1,5 +1,5 @@
 import {Express, Request, Response} from 'express';
-import {compact, defaultTo, isString} from 'lodash';
+import {compact, isString} from 'lodash';
 import {
   Agent,
   PublicAgent,
@@ -28,7 +28,7 @@ import {endpointConstants} from './constants';
 import {kAsyncLocalStorageUtils} from './contexts/asyncLocalStorage';
 import {ResolvedTargetChildrenAccessCheck} from './contexts/authorizationChecks/checkAuthorizaton';
 import {DataQuery} from './contexts/data/types';
-import {getPage} from './contexts/data/utils';
+import {kSemanticModels} from './contexts/injectables';
 import {SemanticProviderMutationRunOptions} from './contexts/semantic/types';
 import {getInAndNinQuery} from './contexts/semantic/utils';
 import {BaseContextType, IServerRequest} from './contexts/types';
@@ -41,7 +41,6 @@ import {
   ExportedHttpEndpoint_Cleanup,
   ExportedHttpEndpoint_GetDataFromReqFn,
   ExportedHttpEndpoint_HandleResponse,
-  PaginationQuery,
 } from './types';
 import {PermissionDeniedError} from './users/errors';
 
@@ -212,10 +211,6 @@ export function endpointDecodeURIComponent(component?: any) {
   return component && isString(component) ? decodeURIComponent(component) : undefined;
 }
 
-export function getEndpointPageFromInput(p: PaginationQuery, defaultPage = 0): number {
-  return defaultTo(getPage(p.page), defaultPage);
-}
-
 export function getWorkspaceResourceListQuery00(
   workspace: Workspace,
   report: ResolvedTargetChildrenAccessCheck
@@ -252,28 +247,17 @@ export function getWorkspaceResourceListQuery01(
   };
 }
 
-export function applyDefaultEndpointPaginationOptions(data: PaginationQuery) {
-  if (data.page === undefined) data.page = endpointConstants.minPage;
-  else data.page = Math.max(endpointConstants.minPage, data.page);
-
-  if (data.pageSize === undefined) data.pageSize = endpointConstants.maxPageSize;
-  else data.pageSize = Math.max(endpointConstants.minPageSize, data.pageSize);
-
-  return data;
-}
-
 export async function executeCascadeDelete<Args>(
-  context: BaseContextType,
   cascadeDef: DeleteResourceCascadeFnsMap<Args>,
   args: Args
 ) {
   const helperFns: DeleteResourceCascadeFnHelperFns = {
     async withTxn(fn: AnyFn<[SemanticProviderMutationRunOptions]>) {
-      await context.semantic.utils.withTxn(opts => fn(opts));
+      await kSemanticModels.utils().withTxn(opts => fn(opts));
     },
   };
 
-  await Promise.all(Object.values(cascadeDef).map(fn => fn(context, args, helperFns)));
+  await Promise.all(Object.values(cascadeDef).map(fn => fn(args, helperFns)));
 }
 
 export function assertUpdateNotEmpty(update: AnyObject) {

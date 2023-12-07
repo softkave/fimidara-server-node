@@ -57,6 +57,7 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
       type: 'file',
       lastUpdatedAt: Date.now(),
       size: body.byteLength,
+      mountId: params.mount.resourceId,
     });
 
     return {};
@@ -101,6 +102,7 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
         filepath: file.filepath,
         lastUpdatedAt: file.lastUpdatedAt,
         size: file.size,
+        mountId: params.mount.resourceId,
       };
     }
 
@@ -120,9 +122,9 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
     const workspaceFilesMap = this.getWorkspaceFiles(params);
     const workspaceFiles = Object.values(workspaceFilesMap);
     const files: PersistedFileDescription[] = [];
-    appAssert(isNumber(params.page));
+    appAssert(isNumber(params.continuationToken));
 
-    let index = params.page;
+    let index = params.continuationToken;
     for (; index < workspaceFiles.length && files.length < params.max; index++) {
       const file = workspaceFiles[index];
 
@@ -132,11 +134,12 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
           filepath: file.filepath,
           lastUpdatedAt: file.lastUpdatedAt,
           size: file.size,
+          mountId: params.mount.resourceId,
         });
       }
     }
 
-    return {files, nextPage: index};
+    return {files, continuationToken: index};
   };
 
   describeFolderFolders = async (

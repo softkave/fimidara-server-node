@@ -4,14 +4,16 @@ import {ensureMongoTypeFields, resourceSchema} from './utils';
 
 const jobSchema = ensureMongoTypeFields<Job>({
   ...resourceSchema,
-  type: {type: String},
+  type: {type: String, index: true},
   status: {type: String, index: true},
   statusDate: {type: Number, index: true},
-  params: {type: SchemaTypes.Map},
+  params: {type: SchemaTypes.Map, index: true},
   version: {type: Number},
   serverInstanceId: {type: String, index: true},
   errorTimestamp: {type: Number},
   workspaceId: {type: String, index: true},
+  parentJobId: {type: String, index: true},
+  idempotencyToken: {type: String, index: true, unique: true},
 });
 
 export type JobDocument = Document<Job>;

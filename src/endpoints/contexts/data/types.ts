@@ -280,3 +280,7 @@ export type FileBackendConfigDataProvider = BaseDataProvider<
   FileBackendConfig,
   DataQuery<FileBackendConfig>
 >;
+export type FileBackendMountDataProvider = BaseDataProvider<
+  FileBackendMount,
+  DataQuery<FileBackendMount>
+>;

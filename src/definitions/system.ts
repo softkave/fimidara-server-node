@@ -25,9 +25,6 @@ export interface BaseTokenData<Sub extends TokenSubjectDefault = TokenSubjectDef
 
 export interface Agent {
   agentId: string;
-  /**
-   * One of user token, program token, client token, system or public.
-   */
   agentType: AppResourceType;
   agentTokenId: string;
 }

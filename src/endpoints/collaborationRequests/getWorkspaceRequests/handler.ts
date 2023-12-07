@@ -2,7 +2,7 @@ import {validate} from '../../../utils/validate';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
-} from '../../utils';
+} from '../../pagination';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {collaborationRequestForWorkspaceListExtractor} from '../utils';
 import {GetWorkspaceCollaborationRequestsEndpoint} from './types';
@@ -13,7 +13,7 @@ const getWorkspaceCollaborationRequests: GetWorkspaceCollaborationRequestsEndpoi
   async (context, instData) => {
     const data = validate(instData.data, getWorkspaceCollaborationRequestsJoiSchema);
     const agent = await context.session.getAgent(context, instData);
-    const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
+    const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
     const q = await getWorkspaceCollaborationRequestsQuery(context, agent, workspace);
     applyDefaultEndpointPaginationOptions(data);
     const requests =

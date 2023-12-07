@@ -101,12 +101,12 @@ const INTERNAL_createWorkspace = async (
       opts
     ),
     kSemanticModels
-      .permissionGroups()
+      .permissionGroup()
       .insertItem(
         [adminPermissionGroup, publicPermissionGroup, collaboratorPermissionGroup],
         opts
       ),
-    kSemanticModels.permissionItems().insertItem(permissionItems, opts),
+    kSemanticModels.permissionItem().insertItem(permissionItems, opts),
     userId && assignWorkspaceToUser(agent, workspace.resourceId, userId, opts),
     userId &&
       addAssignedPermissionGroupList(

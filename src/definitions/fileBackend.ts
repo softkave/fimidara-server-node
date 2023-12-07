@@ -18,7 +18,7 @@ export interface FileBackendMount extends WorkspaceResource {
   /** Preferred backend mount for file or folder look up when multiple backends
    * are mounted to the same folderpath */
   index: number;
-  /** string array of backend product + bucket? + folderpath? */
+  /** string array of + bucket? + folderpath? */
   mountedFrom: string[];
   backend: FileBackendType;
   configId: string | null;

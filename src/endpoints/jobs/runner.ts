@@ -1,16 +1,18 @@
 import {
   DeleteResourceJobParams,
+  IngestFolderpathJobParams,
   IngestMountJobParams,
   Job,
-  JOB_RUNNER_V1,
   JobStatusMap,
   JobTypeMap,
+  kJobRunnerV1,
 } from '../../definitions/job';
 import {AppResourceType, AppResourceTypeMap} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {serverLogger} from '../../utils/logger/loggerUtils';
 import {newResource} from '../../utils/resource';
+import {kDataModels} from '../contexts/injectables';
 import {SemanticProviderMutationRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {
@@ -20,13 +22,16 @@ import {
   DELETE_PERMISSION_GROUP_CASCADE_FNS,
   DELETE_TAG_CASCADE_FNS,
   DELETE_WORKSPACE_CASCADE_FNS,
+  REMOVE_COLLABORATOR_CASCADE_FNS,
   kDeleteAgentTokenCascadeFns,
   kDeleteFileBackendConfigCascadeFns,
+  kDeleteFileBackendMountCascadeFns,
   kDeletePermissionItemsCascaseFns,
-  REMOVE_COLLABORATOR_CASCADE_FNS,
 } from '../deleteResourceCascadeDefs';
+import {runIngestFolderpathJob, runIngestMountJob} from '../fileBackends/ingestion';
 import {DeleteResourceCascadeFnsMap} from '../types';
 import {executeCascadeDelete} from '../utils';
+import {completeJob} from './utils';
 
 let lastTimestamp = 0;
 const pendingJobsIdList: string[] = [];
@@ -42,7 +47,7 @@ export async function startJobRunner(context: BaseContextType) {
   let promise: Promise<void> | null = null;
   if (nextJob) {
     pendingJobsIdList.push(nextJob.resourceId);
-    promise = jobRunner(context, nextJob);
+    promise = jobRunner(nextJob);
   }
 
   setTimeout(() => startJobRunner(context), JOB_INTERVAL);
@@ -62,7 +67,7 @@ export async function startJobRunner(context: BaseContextType) {
 
 async function getNextUnfinishedJob(context: BaseContextType) {
   return await context.data.job.getOneByQuery({
-    status: JobStatusMap.InProgress,
+    status: JobStatusMap.inProgress,
 
     // Avoid fetching in-progress jobs belonging to the current instance,
     // seeing those jobs are already currently being run
@@ -74,7 +79,7 @@ async function getNextUnfinishedJob(context: BaseContextType) {
 
 async function getNextPendingJob(context: BaseContextType) {
   return await context.data.job.getOneByQuery({
-    status: JobStatusMap.Pending,
+    status: JobStatusMap.pending,
     statusDate: {$gte: lastTimestamp},
     resourceId: {$nin: pendingJobsIdList},
   });
@@ -82,19 +87,24 @@ async function getNextPendingJob(context: BaseContextType) {
 
 async function jobRunner(job: Job) {
   try {
-    if (job.type === JobTypeMap.DeleteResource)
-      await executeDeleteResourceJob(context, job);
-    await context.data.job.updateOneByQuery(
-      {resourceId: job.resourceId},
-      {status: JobStatusMap.Completed}
-    );
+    if (job.type === JobTypeMap.deleteResource) {
+      await executeDeleteResourceJob(job);
+    } else if (job.type === 'ingestFolderpath') {
+      await runIngestFolderpathJob(job as Job<IngestFolderpathJobParams>);
+    } else if (job.type === 'ingestMount') {
+      await runIngestMountJob(job as Job<IngestMountJobParams>);
+    }
+
+    await completeJob(job.resourceId);
   } catch (error: unknown) {
     // TODO: different parts of the app should have their own tagged loggers
     serverLogger.error(error);
-    await context.data.job.updateOneByQuery(
-      {resourceId: job.resourceId},
-      {status: JobStatusMap.Failed, errorTimestamp: getTimestamp()}
-    );
+    await kDataModels
+      .job()
+      .updateOneByQuery(
+        {resourceId: job.resourceId},
+        {status: 'failed', statusDate: getTimestamp(), errorTimestamp: getTimestamp()}
+      );
   }
 }
 
@@ -122,12 +132,13 @@ const kCascadeDeleteDefs: Record<
   [AppResourceTypeMap.PermissionGroup]: DELETE_PERMISSION_GROUP_CASCADE_FNS,
   [AppResourceTypeMap.PermissionItem]: kDeletePermissionItemsCascaseFns,
   [AppResourceTypeMap.FileBackendConfig]: kDeleteFileBackendConfigCascadeFns,
+  [AppResourceTypeMap.FileBackendMount]: kDeleteFileBackendMountCascadeFns,
 };
 
 async function executeDeleteResourceJob(job: Job) {
   const params = job.params as DeleteResourceJobParams;
   const cascadeDef = kCascadeDeleteDefs[params.type];
-  if (cascadeDef) await executeCascadeDelete(context, cascadeDef, params.args);
+  if (cascadeDef) await executeCascadeDelete(cascadeDef, params.args);
 }
 
 export async function enqueueDeleteResourceJob(
@@ -139,42 +150,8 @@ export async function enqueueDeleteResourceJob(
     serverInstanceId: context.appVariables.serverInstanceId,
     status: JobStatusMap.Pending,
     statusDate: getTimestamp(),
-    type: JobTypeMap.DeleteResource,
-    version: JOB_RUNNER_V1,
-    workspaceId: params.args.workspaceId,
-  });
-  await context.data.job.insertItem(job);
-  return job;
-}
-
-export async function enqueueIngestMountJob(
-  params: IngestMountJobParams,
-  opts: SemanticProviderMutationRunOptions
-) {
-  const job: Job = newResource(AppResourceTypeMap.Job, {
-    params,
-    serverInstanceId: context.appVariables.serverInstanceId,
-    status: JobStatusMap.Pending,
-    statusDate: getTimestamp(),
-    type: JobTypeMap.DeleteResource,
-    version: JOB_RUNNER_V1,
-    workspaceId: params.args.workspaceId,
-  });
-  await context.data.job.insertItem(job);
-  return job;
-}
-
-export async function enqueuePurgeMountFromFolderJob(
-  params: {},
-  opts: SemanticProviderMutationRunOptions
-) {
-  const job: Job = newResource(AppResourceTypeMap.Job, {
-    params,
-    serverInstanceId: context.appVariables.serverInstanceId,
-    status: JobStatusMap.Pending,
-    statusDate: getTimestamp(),
-    type: JobTypeMap.DeleteResource,
-    version: JOB_RUNNER_V1,
+    type: JobTypeMap.deleteResource,
+    version: kJobRunnerV1,
     workspaceId: params.args.workspaceId,
   });
   await context.data.job.insertItem(job);

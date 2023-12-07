@@ -69,8 +69,8 @@ export interface SemanticBaseProviderType<TResource extends Resource> {
     query: DataQuery<TResource>,
     opts?: SemanticProviderRunOptions
   ): Promise<TResource>;
-  existsByQuery(
-    query: DataQuery<TResource>,
+  existsByQuery<TResource02 extends TResource = TResource>(
+    query: DataQuery<TResource02>,
     opts?: SemanticProviderRunOptions
   ): Promise<boolean>;
   deleteManyByQuery(
@@ -140,4 +140,10 @@ export interface SemanticProviderUtils<> {
 
 export type SemanticFileBackendMountProvider =
   SemanticWorkspaceResourceProviderType<FileBackendMount>;
-export type SemanticJobProvider = SemanticBaseProviderType<Job>;
+
+export type SemanticJobProvider = SemanticBaseProviderType<Job> & {
+  deleteManyByWorkspaceId(
+    workspaceId: string,
+    opts: SemanticProviderMutationRunOptions
+  ): Promise<void>;
+};

@@ -5,7 +5,6 @@ import {HttpEndpointDefinitionType} from '../mddoc/mddoc';
 import {EndpointExportedError} from '../utils/OperationError';
 import {AnyFn, AnyObject, ObjectValues, OrPromise} from '../utils/types';
 import RequestData from './RequestData';
-import {DataProviderQueryListParams} from './contexts/data/types';
 import {SemanticProviderMutationRunOptions} from './contexts/semantic/types';
 import {BaseContextType} from './contexts/types';
 import {kFolderConstants} from './folders/constants';
@@ -51,6 +50,11 @@ export const ServerRecommendedActionsMap = {
 
 export type ServerRecommendedActions = ObjectValues<typeof ServerRecommendedActionsMap>;
 
+export type PaginationQuery = {
+  pageSize: number;
+  page: number;
+};
+
 export interface PaginatedResult {
   page: number;
 }
@@ -71,8 +75,6 @@ export interface EndpointWorkspaceResourceParam extends EndpointOptionalWorkspac
   providedResourceId?: string;
 }
 
-export type PaginationQuery = Pick<DataProviderQueryListParams<any>, 'page' | 'pageSize'>;
-
 export type PaginatedEndpointCountParams<T extends PaginationQuery> = Omit<
   T,
   keyof PaginationQuery
@@ -88,7 +90,6 @@ export type DeleteResourceCascadeFnHelperFns = {
 };
 
 export type DeleteResourceCascadeFn<Args = DeleteResourceCascadeFnDefaultArgs> = (
-  context: BaseContextType,
   args: Args,
   helpers: DeleteResourceCascadeFnHelperFns
 ) => Promise<void>;
@@ -181,16 +182,19 @@ export interface EndpointResultNote {
 
 export const EndpointResultNoteCodeMap = {
   unsupportedOperationInMountBackend: 'unsupportedOperationInMountBackend',
+  mountsNotCompletelyIngested: 'mountsNotCompletelyIngested',
 } as const;
 
 export type EndpointResultNoteCode = ObjectValues<typeof EndpointResultNoteCodeMap>;
 
 export const kEndpointResultNotesToMessageMap: Record<
   EndpointResultNoteCode,
-  string | ((...args: any[]) => string)
+  (...args: any[]) => string
 > = {
   unsupportedOperationInMountBackend: (mount: FileBackendMount) =>
     `Mount ${mount.name} from ${mount.backend} mounted to ${mount.folderpath.join(
       kFolderConstants.separator
     )} does not support operation.`,
+  mountsNotCompletelyIngested: () =>
+    'Some mounts are not completely ingested, so actual result may differ.',
 };

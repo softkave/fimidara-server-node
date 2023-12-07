@@ -63,6 +63,7 @@
 - delete previous versions, and folder versioning on uploading files?
 - file linking and aliasing
 - close backend providers
+- resolve permitted resource children gradually/in pages, not all at once
 
 - Limits of http, and maybe increase upload limit
 - Read up on HTTP streaming

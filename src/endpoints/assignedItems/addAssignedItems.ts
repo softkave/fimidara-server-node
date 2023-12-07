@@ -43,7 +43,7 @@ async function filterExistingItems<T extends AssignedItem>(
     assignedItemIdList.push(item.assignedItemId);
   });
   const existingItems = await kSemanticModels
-    .assignedItems()
+    .assignedItem()
     .getByWorkspaceAssignedAndAssigneeIds(
       workspaceId,
       assignedItemIdList,
@@ -79,7 +79,7 @@ export async function addAssignedItems<T extends AssignedItem>(
   opts: SemanticProviderMutationRunOptions
 ) {
   if (deletedExistingItems) {
-    await kSemanticModels.assignedItems().insertItem(items, opts);
+    await kSemanticModels.assignedItem().insertItem(items, opts);
     return items;
   } else {
     const {itemIdListToDelete, resolvedItems} = await filterExistingItems(
@@ -89,9 +89,9 @@ export async function addAssignedItems<T extends AssignedItem>(
       opts
     );
     await Promise.all([
-      kSemanticModels.assignedItems().insertItem(resolvedItems, opts),
+      kSemanticModels.assignedItem().insertItem(resolvedItems, opts),
       itemIdListToDelete &&
-        kSemanticModels.assignedItems().deleteManyByIdList(itemIdListToDelete, opts),
+        kSemanticModels.assignedItem().deleteManyByIdList(itemIdListToDelete, opts),
     ]);
     return resolvedItems;
   }
@@ -260,5 +260,5 @@ export async function assignWorkspaceToUser(
     ),
   ];
 
-  return await kSemanticModels.assignedItems().insertItem(items, opts);
+  return await kSemanticModels.assignedItem().insertItem(items, opts);
 }

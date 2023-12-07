@@ -51,19 +51,23 @@ export type PersistedFileDescription = {
   filepath: string;
   size?: number;
   lastUpdatedAt?: number;
+  mimetype: string;
+  encoding: string;
+  mountId: string;
 };
 
 export type PersistedFolderDescription = {
   type: typeof AppResourceTypeMap.Folder;
   folderpath: string;
+  mountId: string;
 };
 
 export interface FilePersistenceDescribeFolderFilesParams {
   workspaceId: string;
   folderpath: string;
   max: number;
-  /* page is backend-dependent */
-  page: unknown;
+  /* `continuationToken` is backend-dependent */
+  continuationToken?: unknown;
   mount: FileBackendMount;
 }
 
@@ -71,7 +75,8 @@ export interface FilePersistenceDescribeFolderFoldersParams {
   workspaceId: string;
   folderpath: string;
   max: number;
-  page: unknown;
+  /* `continuationToken` is backend-dependent */
+  continuationToken?: unknown;
   mount: FileBackendMount;
 }
 
@@ -83,14 +88,14 @@ export interface FilePersistenceDeleteFoldersParams {
 
 export interface FilePersistenceDescribeFolderFilesResult {
   files: PersistedFileDescription[];
-  /* null if content is exhausted */
-  nextPage?: unknown | null;
+  /* `null` or `undefined` if content is exhausted */
+  continuationToken?: unknown | null;
 }
 
 export interface FilePersistenceDescribeFolderFoldersResult {
   folders: PersistedFolderDescription[];
-  /* null if content is exhausted */
-  nextPage?: unknown | null;
+  /* `null` or `undefined` if content is exhausted */
+  continuationToken?: unknown | null;
 }
 
 export interface FilePersistenceProvider {
