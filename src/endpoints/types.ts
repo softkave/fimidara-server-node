@@ -1,16 +1,14 @@
 import {Request, RequestHandler, Response} from 'express';
-import {FileBackendMount} from '../definitions/fileBackend';
 import {AppResourceType} from '../definitions/system';
 import {HttpEndpointDefinitionType} from '../mddoc/mddoc';
-import {EndpointExportedError} from '../utils/OperationError';
+import {FimidaraExternalError} from '../utils/OperationError';
 import {AnyFn, AnyObject, ObjectValues, OrPromise} from '../utils/types';
 import RequestData from './RequestData';
 import {SemanticProviderMutationRunOptions} from './contexts/semantic/types';
 import {BaseContextType} from './contexts/types';
-import {kFolderConstants} from './folders/constants';
 
 export interface BaseEndpointResult {
-  errors?: EndpointExportedError[];
+  errors?: FimidaraExternalError[];
 }
 
 export type Endpoint<
@@ -51,8 +49,8 @@ export const ServerRecommendedActionsMap = {
 export type ServerRecommendedActions = ObjectValues<typeof ServerRecommendedActionsMap>;
 
 export type PaginationQuery = {
-  pageSize: number;
-  page: number;
+  pageSize?: number;
+  page?: number;
 };
 
 export interface PaginatedResult {
@@ -127,6 +125,15 @@ export type ExportedHttpEndpoint_HandleResponse = (
   data: any
 ) => OrPromise<void>;
 
+/** return `true` to defer error handling to server, allowing the function to
+ * only augment `processedErrors` instead. This can be useful for adding
+ * additional errors or fields to processed errors. */
+export type ExportedHttpEndpoint_HandleErrorFn = (
+  res: Response,
+  processedErrors: FimidaraExternalError[],
+  caughtErrors: unknown
+) => true | void;
+
 export type ExportedHttpEndpoint_Cleanup = (
   req: Request,
   res: Response
@@ -157,6 +164,7 @@ export type ExportedHttpEndpointWithMddocDefinition<
     res: Response,
     data: InferEndpointResult<TEndpoint>
   ) => OrPromise<void>;
+  handleError?: ExportedHttpEndpoint_HandleErrorFn;
   cleanup?: ExportedHttpEndpoint_Cleanup | Array<ExportedHttpEndpoint_Cleanup>;
   expressRouteMiddleware?: RequestHandler;
 };
@@ -175,11 +183,6 @@ export type InferMddocHttpEndpointFromMddocEndpointDefinition<T> =
     ? HttpEndpointDefinitionType<T0, T1, T2, T3, T4, T5, T6>
     : never;
 
-export interface EndpointResultNote {
-  code: string;
-  message: string;
-}
-
 export const EndpointResultNoteCodeMap = {
   unsupportedOperationInMountBackend: 'unsupportedOperationInMountBackend',
   mountsNotCompletelyIngested: 'mountsNotCompletelyIngested',
@@ -187,14 +190,15 @@ export const EndpointResultNoteCodeMap = {
 
 export type EndpointResultNoteCode = ObjectValues<typeof EndpointResultNoteCodeMap>;
 
-export const kEndpointResultNotesToMessageMap: Record<
-  EndpointResultNoteCode,
-  (...args: any[]) => string
-> = {
-  unsupportedOperationInMountBackend: (mount: FileBackendMount) =>
-    `Mount ${mount.name} from ${mount.backend} mounted to ${mount.folderpath.join(
-      kFolderConstants.separator
-    )} does not support operation.`,
-  mountsNotCompletelyIngested: () =>
+export const kEndpointResultNotesToMessageMap = {
+  // TODO: add which mount/backend, and which op
+  [EndpointResultNoteCodeMap.unsupportedOperationInMountBackend]: () =>
+    'Result may not be entirely accurate, some backends have unsupported ops relied upon during processing.',
+  [EndpointResultNoteCodeMap.mountsNotCompletelyIngested]: () =>
     'Some mounts are not completely ingested, so actual result may differ.',
 };
+
+export interface EndpointResultNote {
+  code: EndpointResultNoteCode;
+  message: string;
+}

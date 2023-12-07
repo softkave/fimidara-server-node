@@ -57,7 +57,10 @@ const getWorkspaceCollaboratorsParams = mddocConstruct
   .constructFieldObject<GetWorkspaceCollaboratorsEndpointParams>()
   .setName('GetWorkspaceCollaboratorsEndpointParams')
   .setFields({
-    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceIdInput
+    ),
     page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
     pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
   })
@@ -78,7 +81,10 @@ const getCollaboratorsWithoutPermissionParams = mddocConstruct
   .constructFieldObject<GetCollaboratorsWithoutPermissionEndpointParams>()
   .setName('GetCollaboratorsWithoutPermissionEndpointParams')
   .setFields({
-    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceIdInput
+    ),
   })
   .setDescription('Get workspace collaborators without permissions endpoint params.');
 const getCollaboratorsWithoutPermissionResponseBody = mddocConstruct
@@ -90,13 +96,18 @@ const getCollaboratorsWithoutPermissionResponseBody = mddocConstruct
       mddocConstruct.constructFieldArray<string>().setType(fReusables.id)
     ),
   })
-  .setDescription('Get workspace collaborators without permissions endpoint success result.');
+  .setDescription(
+    'Get workspace collaborators without permissions endpoint success result.'
+  );
 
 const countWorkspaceCollaboratorsParams = mddocConstruct
   .constructFieldObject<CountWorkspaceCollaboratorsEndpointParams>()
   .setName('CountWorkspaceCollaboratorsEndpointParams')
   .setFields({
-    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceIdInput
+    ),
   })
   .setDescription('Count workspace collaborators endpoint params.');
 
@@ -104,7 +115,10 @@ const getCollaboratorParams = mddocConstruct
   .constructFieldObject<GetCollaboratorEndpointParams>()
   .setName('GetCollaboratorEndpointParams')
   .setFields({
-    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceIdInput
+    ),
     collaboratorId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
   })
   .setDescription('Get collaborator endpoint params.');
@@ -118,26 +132,39 @@ const removeCollaboratorParams = mddocConstruct
   .constructFieldObject<RemoveCollaboratorEndpointParams>()
   .setName('RevokeCollaboratorEndpointParams')
   .setFields({
-    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceIdInput),
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceIdInput
+    ),
     collaboratorId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
   })
   .setDescription('Remove collaborator endpoint params.');
 
 export const getCollaboratorEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
-    InferFieldObjectType<GetCollaboratorHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
-    InferFieldObjectType<GetCollaboratorHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<
+      GetCollaboratorHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      GetCollaboratorHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
     InferFieldObjectType<GetCollaboratorHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<
       GetCollaboratorHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
-    InferFieldObjectType<GetCollaboratorHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<GetCollaboratorHttpEndpoint['mddocHttpDefinition']['responseBody']>
+    InferFieldObjectType<
+      GetCollaboratorHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      GetCollaboratorHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
   >()
   .setBasePathname(collaboratorConstants.routes.getCollaborator)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getCollaboratorParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getCollaboratorResponseBody)
   .setName('GetCollaboratorEndpoint')
@@ -145,19 +172,29 @@ export const getCollaboratorEndpointDefinition = mddocConstruct
 
 export const removeCollaboratorEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
-    InferFieldObjectType<RemoveCollaboratorHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
-    InferFieldObjectType<RemoveCollaboratorHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<
+      RemoveCollaboratorHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      RemoveCollaboratorHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
     InferFieldObjectType<RemoveCollaboratorHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<
       RemoveCollaboratorHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
-    InferFieldObjectType<RemoveCollaboratorHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<RemoveCollaboratorHttpEndpoint['mddocHttpDefinition']['responseBody']>
+    InferFieldObjectType<
+      RemoveCollaboratorHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      RemoveCollaboratorHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
   >()
   .setBasePathname(collaboratorConstants.routes.removeCollaborator)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(removeCollaboratorParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
   .setName('RemoveCollaboratorEndpoint')
@@ -171,7 +208,9 @@ export const getWorkspaceCollaboratorsEndpointDefinition = mddocConstruct
     InferFieldObjectType<
       GetWorkspaceCollaboratorsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
     >,
-    InferFieldObjectType<GetWorkspaceCollaboratorsHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectType<
+      GetWorkspaceCollaboratorsHttpEndpoint['mddocHttpDefinition']['query']
+    >,
     InferFieldObjectOrMultipartType<
       GetWorkspaceCollaboratorsHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
@@ -185,7 +224,9 @@ export const getWorkspaceCollaboratorsEndpointDefinition = mddocConstruct
   .setBasePathname(collaboratorConstants.routes.getWorkspaceCollaborators)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getWorkspaceCollaboratorsParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getWorkspaceCollaboratorsResponseBody)
   .setName('GetWorkspaceCollaboratorsEndpoint')
@@ -215,7 +256,9 @@ export const countWorkspaceCollaboratorsEndpointDefinition = mddocConstruct
   .setBasePathname(collaboratorConstants.routes.countWorkspaceCollaborators)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(countWorkspaceCollaboratorsParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
   .setName('CountWorkspaceCollaboratorsEndpoint')
@@ -245,7 +288,9 @@ export const getCollaboratorsWithoutPermissionEndpointDefinition = mddocConstruc
   .setBasePathname(collaboratorConstants.routes.getCollaboratorsWithoutPermission)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getCollaboratorsWithoutPermissionParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getCollaboratorsWithoutPermissionResponseBody)
   .setName('GetCollaboratorsWithoutPermissionEndpoint')

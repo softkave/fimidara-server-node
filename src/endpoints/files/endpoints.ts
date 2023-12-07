@@ -7,7 +7,9 @@ import {toArray} from '../../utils/fns';
 import {tryGetResourceTypeFromId} from '../../utils/resource';
 import {endpointConstants} from '../constants';
 import {InvalidRequestError} from '../errors';
+import {populateMountUnsupportedOpNoteInNotFoundError} from '../fileBackends/mountUtils';
 import {kFolderConstants} from '../folders/constants';
+import {ExportedHttpEndpoint_HandleErrorFn} from '../types';
 import {endpointDecodeURIComponent} from '../utils';
 import {fileConstants} from './constants';
 import deleteFile from './deleteFile/handler';
@@ -36,6 +38,16 @@ import uploadFile from './uploadFile/handler';
 import {UploadFileEndpointParams} from './uploadFile/types';
 
 const kFileStreamWaitTimeoutMS = 10000; // 10 seconds
+
+const handleNotFoundError: ExportedHttpEndpoint_HandleErrorFn = (
+  res,
+  proccessedErrors
+) => {
+  populateMountUnsupportedOpNoteInNotFoundError(proccessedErrors);
+
+  // populate notes only, and defer handling to server
+  return true;
+};
 
 function handleReadFileResponse(
   res: Response,
@@ -143,10 +155,12 @@ export function getFilesPublicHttpEndpoints() {
     deleteFile: {
       fn: deleteFile,
       mddocHttpDefinition: deleteFileEndpointDefinition,
+      handleError: handleNotFoundError,
     },
     getFileDetails: {
       fn: getFileDetails,
       mddocHttpDefinition: getFileDetailsEndpointDefinition,
+      handleError: handleNotFoundError,
     },
     readFile: [
       {
@@ -154,6 +168,7 @@ export function getFilesPublicHttpEndpoints() {
         mddocHttpDefinition: readFilePOSTEndpointDefinition,
         handleResponse: handleReadFileResponse,
         getDataFromReq: extractReadFileParamsFromReq,
+        handleError: handleNotFoundError,
       },
       {
         fn: readFile,
@@ -166,19 +181,23 @@ export function getFilesPublicHttpEndpoints() {
         mddocHttpDefinition: readFileGETEndpointDefinition,
         handleResponse: handleReadFileResponse,
         getDataFromReq: extractReadFileParamsFromReq,
+        handleError: handleNotFoundError,
       },
     ],
     updateFileDetails: {
       fn: updateFileDetails,
       mddocHttpDefinition: updateFileDetailsEndpointDefinition,
+      handleError: handleNotFoundError,
     },
     issueFilePresignedPath: {
       fn: issueFilePresignedPath,
       mddocHttpDefinition: issueFilePresignedPathEndpointDefinition,
+      handleError: handleNotFoundError,
     },
     getPresignedPathsForFiles: {
       fn: getPresignedPathsForFiles,
       mddocHttpDefinition: getPresignedPathsForFilesEndpointDefinition,
+      handleError: handleNotFoundError,
     },
     uploadFile: {
       fn: uploadFile,
@@ -188,6 +207,7 @@ export function getFilesPublicHttpEndpoints() {
       }),
       getDataFromReq: extractUploadFileParamsFromReq,
       cleanup: cleanupUploadFileReq,
+      handleError: handleNotFoundError,
     },
   };
   return filesExportedEndpoints;

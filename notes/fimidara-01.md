@@ -64,6 +64,9 @@
 - file linking and aliasing
 - close backend providers
 - resolve permitted resource children gradually/in pages, not all at once
+- hard delete in db and soft delete in mounts? how will that work without affecting ingestion
+- cache most frequently used files from mounted backends and save customers some money
+- calculate and show how much you cost customer to ingest, and how much you save them in local caching
 
 - Limits of http, and maybe increase upload limit
 - Read up on HTTP streaming

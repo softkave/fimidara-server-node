@@ -4,17 +4,24 @@ import {File} from '../../definitions/file';
 import {FileBackendConfig, FileBackendMount} from '../../definitions/fileBackend';
 import {Folder} from '../../definitions/folder';
 import {IngestMountJobParams, Job} from '../../definitions/job';
+import {FimidaraExternalError} from '../../utils/OperationError';
 import {appAssert} from '../../utils/assertion';
 import {ServerError} from '../../utils/errors';
 import {kAsyncLocalStorageUtils} from '../contexts/asyncLocalStorage';
 import {DataQuery} from '../contexts/data/types';
-import {FilePersistenceProvider} from '../contexts/file/types';
+import {
+  FilePersistenceProvider,
+  FilePersistenceProviderFeature,
+} from '../contexts/file/types';
+import {isFilePersistenceProvider} from '../contexts/file/utils';
 import {kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
 import {kInjectionKeys} from '../contexts/injection';
 import {
   SemanticFileBackendMountProvider,
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
+import {NotFoundError} from '../errors';
+import {EndpointResultNoteCodeMap, kEndpointResultNotesToMessageMap} from '../types';
 import {resolveBackendConfigsWithIdList} from './configUtils';
 
 export type FileBackendMountWeights = Record<string, number>;
@@ -164,4 +171,55 @@ export async function areMountsCompletelyIngestedForFolder(
   );
 
   return completionList.every(Boolean);
+}
+
+export function resolvedMountsHaveUnsupportedFeatures(
+  features: FilePersistenceProviderFeature[]
+) {
+  const disposables = kUtilsInjectables.asyncLocalStorage().getDisposables();
+  const fileProviders = disposables.filter(disposable =>
+    isFilePersistenceProvider(disposable)
+  ) as FilePersistenceProvider[];
+
+  if (fileProviders.length === 0) {
+    return false;
+  }
+
+  return fileProviders.some(provider =>
+    features.every(feature => provider.supportsFeature(feature))
+  );
+}
+
+export function populateMountUnsupportedOpNoteInNotFoundError(
+  errors: FimidaraExternalError[]
+) {
+  const notFoundError = errors.find(error => error instanceof NotFoundError);
+
+  if (!notFoundError) {
+    return;
+  }
+
+  const hasUnsupportedOp = resolvedMountsHaveUnsupportedFeatures([
+    'describeFile',
+    'describeFolder',
+    'describeFolderFolders',
+    'readFile',
+  ]);
+
+  if (hasUnsupportedOp) {
+    const notes = notFoundError.notes || [];
+    const hasUnsupportedOpNote = notes.some(
+      note => note.code === 'unsupportedOperationInMountBackend'
+    );
+
+    if (!hasUnsupportedOpNote) {
+      notes.push({
+        code: 'unsupportedOperationInMountBackend',
+        message:
+          kEndpointResultNotesToMessageMap[
+            EndpointResultNoteCodeMap.unsupportedOperationInMountBackend
+          ](),
+      });
+    }
+  }
 }

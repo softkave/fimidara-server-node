@@ -1,4 +1,5 @@
 import {isObject, isString} from 'lodash';
+import {EndpointResultNote} from '../endpoints/types';
 
 export interface OperationErrorParameters {
   message?: string;
@@ -6,13 +7,6 @@ export interface OperationErrorParameters {
   action?: string;
   value?: any;
 }
-
-export type EndpointExportedError = {
-  name: string;
-  message: string;
-  field?: string;
-  action?: string;
-};
 
 export default class OperationError extends Error {
   message = 'An error occurred.';
@@ -22,6 +16,7 @@ export default class OperationError extends Error {
   value?: string;
   statusCode?: number;
   isPublicError = true;
+  notes?: EndpointResultNote[];
 
   constructor(props?: OperationErrorParameters | string) {
     super();
@@ -40,7 +35,7 @@ export default class OperationError extends Error {
 
 export type FimidaraExternalError = Pick<
   OperationError,
-  'name' | 'message' | 'action' | 'field'
+  'name' | 'message' | 'action' | 'field' | 'notes'
 >;
 
 export function getErrorMessageFromParams(

@@ -9,7 +9,7 @@ import {
   UsageRecordFulfillmentStatusMap,
 } from '../definitions/usageRecord';
 import {mddocConstruct} from '../mddoc/mddoc';
-import {EndpointExportedError} from '../utils/OperationError';
+import {FimidaraExternalError} from '../utils/OperationError';
 import {ID_SEPARATOR, RESOURCE_TYPE_SHORT_NAMES} from '../utils/resource';
 import {AnyObject} from '../utils/types';
 import {endpointConstants} from './constants';
@@ -510,7 +510,7 @@ export const fReusables = {
 };
 
 const errorObject = mddocConstruct
-  .constructFieldObject<EndpointExportedError>()
+  .constructFieldObject<FimidaraExternalError>()
   .setName('OperationError')
   .setFields({
     name: mddocConstruct.constructFieldObjectField(
@@ -541,6 +541,7 @@ const errorObject = mddocConstruct
         .setExample('workspace.innerField.secondInnerField')
         .setDescription('Invalid field failing validation when error is ValidationError.')
     ),
+    notes: mddocConstruct.constructFieldObjectField(false, resultNoteList),
   });
 
 const errorResponseBody = mddocConstruct
@@ -550,7 +551,7 @@ const errorResponseBody = mddocConstruct
     errors: mddocConstruct.constructFieldObjectField(
       false,
       mddocConstruct
-        .constructFieldArray<EndpointExportedError>()
+        .constructFieldArray<FimidaraExternalError>()
         .setType(errorObject)
         .setDescription('Endpoint call response errors.')
     ),

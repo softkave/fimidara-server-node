@@ -40,6 +40,7 @@ import {
   ExportedHttpEndpointWithMddocDefinition,
   ExportedHttpEndpoint_Cleanup,
   ExportedHttpEndpoint_GetDataFromReqFn,
+  ExportedHttpEndpoint_HandleErrorFn,
   ExportedHttpEndpoint_HandleResponse,
 } from './types';
 import {PermissionDeniedError} from './users/errors';
@@ -52,6 +53,7 @@ export function extractExternalEndpointError(
     message: errorItem.message,
     action: errorItem.action,
     field: errorItem.field,
+    notes: errorItem.notes,
   };
 }
 
@@ -113,6 +115,7 @@ export const wrapEndpointREST = <
   endpoint: EndpointType,
   context: Context,
   handleResponse?: ExportedHttpEndpoint_HandleResponse,
+  handleError?: ExportedHttpEndpoint_HandleErrorFn,
   getData?: ExportedHttpEndpoint_GetDataFromReqFn,
   cleanup?: ExportedHttpEndpoint_Cleanup | Array<ExportedHttpEndpoint_Cleanup>
 ): ((req: Request, res: Response) => any) => {
@@ -130,8 +133,17 @@ export const wrapEndpointREST = <
       } else {
         res.status(endpointConstants.httpStatusCode.ok).json(result ?? {});
       }
-    } catch (error) {
+    } catch (error: unknown) {
       const {statusCode, preppedErrors} = prepareResponseError(error);
+
+      if (handleError) {
+        const deferHandling = handleError(res, preppedErrors, error);
+
+        if (deferHandling !== true) {
+          return;
+        }
+      }
+
       const result = {errors: preppedErrors};
       res.status(statusCode).json(result);
     } finally {
@@ -282,6 +294,7 @@ export function registerExpressRouteFromEndpoint(
         endpoint.fn,
         ctx,
         endpoint.handleResponse,
+        endpoint.handleError,
         endpoint.getDataFromReq,
         endpoint.cleanup
       ),

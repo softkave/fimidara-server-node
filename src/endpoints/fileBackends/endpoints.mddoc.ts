@@ -311,7 +311,6 @@ const resolveFileBackendMountsSuccessResponseBody = mddocConstruct
   .setName('ResolveFileBackendMountsEndpointResult')
   .setFields({
     mounts: mddocConstruct.constructFieldObjectField(true, fileBackendMountList),
-    page: mddocConstruct.constructFieldObjectField(true, fReusables.page),
   });
 
 const addFileBackendConfigParams = mddocConstruct

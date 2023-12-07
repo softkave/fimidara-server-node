@@ -1,3 +1,4 @@
+import {isObject} from 'lodash';
 import {FileBackendType} from '../../../definitions/fileBackend';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {FimidaraFilePersistenceProvider} from './FimidaraFilePersistenceProvider';
@@ -21,3 +22,14 @@ export const resolveFilePersistenceProvider: FileProviderResolver = (
 
   throw kReuseableErrors.file.unknownBackend(type);
 };
+
+export function isFilePersistenceProvider(
+  item: unknown
+): item is FilePersistenceProvider {
+  return (
+    isObject(item) &&
+    !!(item as FilePersistenceProvider).supportsFeature &&
+    !!(item as FilePersistenceProvider).uploadFile &&
+    !!(item as FilePersistenceProvider).readFile
+  );
+}
