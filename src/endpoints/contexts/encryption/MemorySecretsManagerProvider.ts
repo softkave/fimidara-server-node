@@ -6,6 +6,7 @@ import {
   SecretsManagerProviderAddSecretResult,
   SecretsManagerProviderGetSecretParams,
   SecretsManagerProviderGetSecretResult,
+  SecretsManagerProviderUpdateSecretParams,
 } from './types';
 
 export class MemorySecretsManagerProvider implements SecretsManagerProvider {
@@ -18,13 +19,22 @@ export class MemorySecretsManagerProvider implements SecretsManagerProvider {
     const id = getNewId();
     this.secrets[id] = {name, secret: text};
 
-    return {id};
+    return {secretId: id};
+  };
+
+  updateSecret = async (
+    params: SecretsManagerProviderUpdateSecretParams
+  ): Promise<SecretsManagerProviderAddSecretResult> => {
+    const {name, text, secretId} = params;
+    this.secrets[secretId] = {name, secret: text};
+
+    return {secretId};
   };
 
   getSecret = async (
     params: SecretsManagerProviderGetSecretParams
   ): Promise<SecretsManagerProviderGetSecretResult> => {
-    const {id} = params;
+    const {secretId: id} = params;
     const secret = this.secrets[id];
 
     appAssert(secret, new Error('Secret not found'));

@@ -41,7 +41,7 @@ export const INTERNAL_addConfig = async (
 
   await configModel.insertItem(config, opts);
   const unencryptedCredentials = JSON.stringify(data.credentials);
-  const {id: secretId} = await secretsManager.addSecret({
+  const {secretId: secretId} = await secretsManager.addSecret({
     name: config.resourceId,
     text: unencryptedCredentials,
   });

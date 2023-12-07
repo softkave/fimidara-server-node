@@ -3,12 +3,18 @@ export interface SecretsManagerProviderAddSecretParams {
   name: string;
 }
 
+export interface SecretsManagerProviderUpdateSecretParams {
+  secretId: string;
+  text: string;
+  name: string;
+}
+
 export interface SecretsManagerProviderAddSecretResult {
-  id: string;
+  secretId: string;
 }
 
 export interface SecretsManagerProviderGetSecretParams {
-  id: string;
+  secretId: string;
 }
 
 export interface SecretsManagerProviderGetSecretResult {
@@ -18,6 +24,9 @@ export interface SecretsManagerProviderGetSecretResult {
 export interface SecretsManagerProvider {
   addSecret: (
     params: SecretsManagerProviderAddSecretParams
+  ) => Promise<SecretsManagerProviderAddSecretResult>;
+  updateSecret: (
+    params: SecretsManagerProviderUpdateSecretParams
   ) => Promise<SecretsManagerProviderAddSecretResult>;
   /** throws if secret is not found */
   getSecret: (

@@ -101,7 +101,7 @@ export async function initBackendProvidersForMounts(
   await Promise.all(
     configs.map(async config => {
       const {text: credentials} = await kUtilsInjectables.secretsManager().getSecret({
-        id: config.secretId,
+        secretId: config.secretId,
       });
       const initParams = JSON.parse(credentials);
       configsMap[config.resourceId] = {config, providerParams: initParams};

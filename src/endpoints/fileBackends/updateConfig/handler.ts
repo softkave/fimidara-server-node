@@ -55,9 +55,10 @@ const updateFileBackendConfig: UpdateFileBackendConfigEndpoint = async (
 
     if (data.config.credentials) {
       const unencryptedCredentials = JSON.stringify(data.config.credentials);
-      const {id: secretId} = await secretsManager.addSecret({
+      const {secretId: secretId} = await secretsManager.updateSecret({
         name: config.resourceId,
         text: unencryptedCredentials,
+        secretId: config.secretId,
       });
 
       configUpdate.secretId = secretId;

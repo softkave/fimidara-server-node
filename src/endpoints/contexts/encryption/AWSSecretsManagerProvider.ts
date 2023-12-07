@@ -2,6 +2,7 @@ import {
   CreateSecretCommand,
   GetSecretValueCommand,
   SecretsManagerClient,
+  UpdateSecretCommand,
 } from '@aws-sdk/client-secrets-manager';
 import {appAssert} from '../../../utils/assertion';
 import {kUtilsInjectables} from '../injectables';
@@ -11,6 +12,7 @@ import {
   SecretsManagerProviderAddSecretResult,
   SecretsManagerProviderGetSecretParams,
   SecretsManagerProviderGetSecretResult,
+  SecretsManagerProviderUpdateSecretParams,
 } from './types';
 
 export class AWSSecretsManagerProvider implements SecretsManagerProvider {
@@ -36,13 +38,27 @@ export class AWSSecretsManagerProvider implements SecretsManagerProvider {
     const response = await this.client.send(command);
 
     appAssert(response.ARN);
-    return {id: response.ARN};
+    return {secretId: response.ARN};
+  };
+
+  updateSecret = async (
+    params: SecretsManagerProviderUpdateSecretParams
+  ): Promise<SecretsManagerProviderAddSecretResult> => {
+    const {text, secretId} = params;
+    const command = new UpdateSecretCommand({
+      SecretString: text,
+      SecretId: secretId,
+    });
+    const response = await this.client.send(command);
+
+    appAssert(response.ARN);
+    return {secretId: response.ARN};
   };
 
   getSecret = async (
     params: SecretsManagerProviderGetSecretParams
   ): Promise<SecretsManagerProviderGetSecretResult> => {
-    const {id} = params;
+    const {secretId: id} = params;
     const input = {SecretId: id};
     const command = new GetSecretValueCommand(input);
     const response = await this.client.send(command);
