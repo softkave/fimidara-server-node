@@ -18,9 +18,8 @@ export interface FilePersistenceUploadFileParams {
   filepath: string;
   body: Readable;
   mount: FileBackendMount;
-  // contentLength?: number;
-  // contentType?: string;
-  // contentEncoding?: string;
+  mimetype?: string;
+  encoding?: string;
 }
 
 export interface FilePersistenceGetFileParams {
@@ -51,8 +50,8 @@ export type PersistedFileDescription = {
   filepath: string;
   size?: number;
   lastUpdatedAt?: number;
-  mimetype: string;
-  encoding: string;
+  mimetype?: string;
+  encoding?: string;
   mountId: string;
 };
 

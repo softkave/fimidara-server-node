@@ -100,6 +100,8 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
         type: 'file',
         lastUpdatedAt: file.lastUpdatedAt,
         size: file.size,
+        mimetype: file.mimetype,
+        encoding: file.encoding,
         mountId: mount.resourceId,
       };
     }
@@ -168,6 +170,8 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
         type: 'file',
         lastUpdatedAt: file.lastUpdatedAt,
         size: file.size,
+        mimetype: file.mimetype,
+        encoding: file.encoding,
         mountId: mount.resourceId,
       };
     });

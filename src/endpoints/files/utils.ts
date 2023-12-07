@@ -30,10 +30,10 @@ import {
 import {SemanticWorkspaceProviderType} from '../contexts/semantic/workspace/types';
 import {NotFoundError} from '../errors';
 import {resolveBackendConfigsWithIdList} from '../fileBackends/configUtils';
+import {ingestPersistedFiles} from '../fileBackends/ingestion';
 import {
   FileBackendMountWeights,
   initBackendProvidersForMounts,
-  isOnlyMountFimidara,
   resolveMountsForFolder,
 } from '../fileBackends/mountUtils';
 import {kFolderConstants} from '../folders/constants';
@@ -317,8 +317,7 @@ export async function ingestFileByFilepath(
   mounts?: FileBackendMount[],
   mountWeights?: FileBackendMountWeights
 ) {
-  const fileModel = container.resolve<SemanticFileProvider>(kInjectionKeys.semantic.file);
-
+  const folderModel = kSemanticModels.folder();
   const pathinfo = getFilepathInfo(filepath);
 
   if (!workspace) {
@@ -340,7 +339,6 @@ export async function ingestFileByFilepath(
     opts
   );
   const providersMap = await initBackendProvidersForMounts(mounts, configs);
-
   const mountFiles = await Promise.all(
     mounts.map(async mount => {
       const provider = providersMap[mount.resourceId];
@@ -353,29 +351,12 @@ export async function ingestFileByFilepath(
       });
     })
   );
-  const mountFile = mountFiles.find(Boolean);
 
-  let file = await fileModel.getOneByNamepath(
-    {workspaceId, namepath: pathinfo.namepath, extension: pathinfo.extension},
+  const parentFolder = await folderModel.getOneByNamepath(
+    {workspaceId, namepath: pathinfo.parentSplitPath},
     opts
   );
-
-  if (mountFile && file) {
-    file = await fileModel.getAndUpdateOneBynamepath(file, file, opts);
-    appAssert(file);
-  } else if (mountFile && !file) {
-    file = await createAndInsertNewFile(agent, workspace, pathinfo, {}, opts, {
-      isReadAvailable: true,
-      isWriteAvailable: true,
-      size: mountFile.size,
-      lastUpdatedAt: mountFile.lastUpdatedAt,
-      mimetype: mountFile.mimetype,
-      encoding: mountFile.encoding,
-    });
-    appAssert(file);
-  }
-
-  return file;
+  await ingestPersistedFiles(agent, workspace, parentFolder, compact(mountFiles));
 }
 
 export async function readOrIngestFileByFilepath(
@@ -386,35 +367,26 @@ export async function readOrIngestFileByFilepath(
   workspaceId?: string
 ) {
   const fileModel = container.resolve<SemanticFileProvider>(kInjectionKeys.semantic.file);
+  let workspace: Workspace | undefined = undefined;
 
   if (!workspaceId) {
-    ({workspaceId} = await getWorkspaceFromFilepath(filepath));
+    workspace = await getWorkspaceFromFilepath(filepath);
+    workspaceId = workspace.resourceId;
   }
 
   const pathinfo = getFilepathInfo(filepath);
-  const {mounts, mountWeights} = await resolveMountsForFolder(
-    {workspaceId, namepath: pathinfo.parentSplitPath},
+  let file = await fileModel.getOneByNamepath(
+    {workspaceId, namepath: pathinfo.namepath},
     opts
   );
 
-  if (isOnlyMountFimidara(mounts)) {
-    return await fileModel.getOneByNamepath(
-      {
-        workspaceId,
-        extension: pathinfo.extension,
-        namepath: pathinfo.namepath,
-      },
+  if (!file) {
+    await ingestFileByFilepath(agent, filepath, opts, workspaceId, workspace);
+    file = await fileModel.getOneByNamepath(
+      {workspaceId, namepath: pathinfo.namepath},
       opts
     );
   }
 
-  return await ingestFileByFilepath(
-    agent,
-    filepath,
-    opts,
-    workspaceId,
-    /** workspace */ undefined,
-    mounts,
-    mountWeights
-  );
+  return file;
 }

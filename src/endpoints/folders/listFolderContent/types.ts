@@ -8,12 +8,6 @@ import {
   PaginatedResult,
   PaginationQuery,
 } from '../../types';
-import {FileProviderContinuationTokensByMount} from '../utils';
-
-export interface ListFolderContentEndpointContinuationToken {
-  files?: FileProviderContinuationTokensByMount;
-  folders?: FileProviderContinuationTokensByMount;
-}
 
 export interface ListFolderContentEndpointParamsBase extends FolderMatcher {
   contentType?: AppResourceType;

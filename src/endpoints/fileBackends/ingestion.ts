@@ -29,11 +29,12 @@ import {JobInput, queueJobs} from '../jobs/utils';
 import {resolveBackendConfigsWithIdList} from './configUtils';
 import {initBackendProvidersForMounts} from './mountUtils';
 
-async function ingestPersistedFolders(
+export async function ingestPersistedFolders(
   agent: Agent,
-  workspaceId: string,
+  workspace: Workspace,
   parent: Folder | null,
-  folders: PersistedFolderDescription[]
+  folders: PersistedFolderDescription[],
+  ensureNewFolders?: boolean
 ) {
   const mountFoldersMap: Record<
     string,
@@ -71,11 +72,15 @@ async function ingestPersistedFolders(
         mountFolderList.map(({pathinfo}) => {
           return kSemanticModels
             .folder()
-            .getOneByNamepath({workspaceId, namepath: pathinfo.namepath}, opts);
+            .getOneByNamepath(
+              {workspaceId: workspace.resourceId, namepath: pathinfo.namepath},
+              opts
+            );
         })
       )
     );
 
+    const newFoldersFolderpaths: Set<string> = new Set();
     const newFolders: Array<Folder> = [];
     const existingFoldersMap = keyBy(existingFolders, file =>
       file.namepath.join(kFolderConstants.separator)
@@ -86,10 +91,14 @@ async function ingestPersistedFolders(
       appAssert(mountFolder0);
 
       if (!existingFoldersMap[mountFolder0.folderpath]) {
+        if (pathinfo.parentPath && ensureNewFolders) {
+          newFoldersFolderpaths.add(pathinfo.parentPath);
+        }
+
         newFolders.push(
           createNewFolder(
             agent,
-            workspaceId,
+            workspace.resourceId,
             pathinfo,
             parent,
             /** new folder input */ {}
@@ -105,7 +114,7 @@ async function ingestPersistedFolders(
 
         return kSemanticModels
           .folder()
-          .getAndUpdateOneById(
+          .updateOneById(
             folder.resourceId,
             {resolvedEntries: folder.resolvedEntries.concat(entry.mountEntries)},
             opts
@@ -113,11 +122,16 @@ async function ingestPersistedFolders(
       })
     );
     const saveFoldersPromise = kSemanticModels.folder().insertItem(newFolders, opts);
-    await Promise.all([updateFoldersPromise, saveFoldersPromise]);
+    const ensureFoldersPromise = await Promise.all(
+      Array.from(newFoldersFolderpaths).map(folderpath =>
+        ensureFolders(agent, workspace, folderpath, opts)
+      )
+    );
+    await Promise.all([updateFoldersPromise, saveFoldersPromise, ensureFoldersPromise]);
   });
 }
 
-async function ingestPersistedFiles(
+export async function ingestPersistedFiles(
   agent: Agent,
   workspace: Workspace,
   parent: Folder | null,
@@ -209,7 +223,7 @@ async function ingestPersistedFiles(
 
         return kSemanticModels
           .file()
-          .getAndUpdateOneById(
+          .updateOneById(
             file.resourceId,
             {resolvedEntries: file.resolvedEntries.concat(entry.mountEntries)},
             opts
@@ -236,6 +250,8 @@ async function ingestFolderpathJobFolders(
 ) {
   appAssert(job.workspaceId);
   let continuationToken: unknown | undefined = undefined;
+  const workspace = await kSemanticModels.workspace().getOneById(job.workspaceId);
+  appAssert(workspace);
 
   do {
     const result = await provider.describeFolderFolders({
@@ -247,7 +263,7 @@ async function ingestFolderpathJobFolders(
     });
 
     continuationToken = result.continuationToken;
-    await ingestPersistedFolders(agent, job.workspaceId, folder, result.folders);
+    await ingestPersistedFolders(agent, workspace, folder, result.folders);
     await queueJobs(
       job.workspaceId,
       job.resourceId,

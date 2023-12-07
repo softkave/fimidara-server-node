@@ -2,12 +2,14 @@ import {
   DeleteObjectsCommand,
   GetObjectCommand,
   HeadObjectCommand,
+  ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
 import {first} from 'lodash';
 import path from 'path';
 import {Readable} from 'stream';
+import {FileBackendMount} from '../../../definitions/fileBackend';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {kFolderConstants} from '../../folders/constants';
@@ -15,6 +17,7 @@ import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
   FilePersistenceDescribeFolderFilesParams,
+  FilePersistenceDescribeFolderFilesResult,
   FilePersistenceDescribeFolderFoldersParams,
   FilePersistenceDescribeFolderParams,
   FilePersistenceGetFileParams,
@@ -33,19 +36,25 @@ export interface S3FilePersistenceProviderInitParams {
 }
 
 export class S3FilePersistenceProvider implements FilePersistenceProvider {
-  static getBucketAndKey(
-    params: Pick<FilePersistenceUploadFileParams, 'mount' | 'filepath'>
-  ) {
-    const {filepath, mount} = params;
+  static getBucketAndKey(params: {
+    mount: FileBackendMount;
+    filepath?: string;
+    folderpath?: string;
+  }) {
+    const {filepath, folderpath, mount} = params;
     const bucket = first(mount.mountedFrom);
     const prefix = mount.mountedFrom.slice(0).join(kFolderConstants.separator);
+    let key: string | undefined = undefined;
     appAssert(bucket?.length, kReuseableErrors.mount.s3MountSourceMissingBucket());
 
-    const key = path.normalize(
-      `${prefix}/${filepath
-        .split(kFolderConstants.separator)
-        .slice(mount.folderpath.length)}`
-    );
+    if (prefix || filepath || folderpath) {
+      const resourcePath = filepath || folderpath || '';
+      key = path.normalize(
+        `${prefix}/${resourcePath
+          .split(kFolderConstants.separator)
+          .slice(mount.folderpath.length)}`
+      );
+    }
 
     return {bucket, key};
   }
@@ -73,7 +82,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       case 'describeFolder':
         return false;
       case 'describeFolderFiles':
-        return false;
+        return true;
       case 'describeFolderFolders':
         return false;
       case 'readFile':
@@ -145,6 +154,8 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       size: response.ContentLength,
       lastUpdatedAt: response.LastModified ? response.LastModified.valueOf() : undefined,
       mountId: params.mount.resourceId,
+      encoding: response.ContentEncoding,
+      mimetype: response.ContentType,
     };
   };
 
@@ -155,9 +166,36 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
     return undefined;
   };
 
-  describeFolderFiles = async (params: FilePersistenceDescribeFolderFilesParams) => {
-    // not supported
-    return {files: []};
+  describeFolderFiles = async (
+    params: FilePersistenceDescribeFolderFilesParams
+  ): Promise<FilePersistenceDescribeFolderFilesResult> => {
+    const {bucket, key} = S3FilePersistenceProvider.getBucketAndKey(params);
+    const command = new ListObjectsV2Command({
+      Bucket: bucket,
+      MaxKeys: params.max,
+      Prefix: key,
+      ContinuationToken: params.continuationToken as string | undefined,
+    });
+    const response = await this.s3.send(command);
+
+    const files: PersistedFileDescription[] = [];
+    response.Contents?.forEach(content => {
+      if (!content.Key) {
+        return;
+      }
+
+      const pFile: PersistedFileDescription = {
+        filepath: content.Key,
+        type: 'file',
+        size: content.Size,
+        lastUpdatedAt: content.LastModified ? content.LastModified.valueOf() : undefined,
+        mountId: params.mount.resourceId,
+      };
+
+      files.push(pFile);
+    });
+
+    return {files, continuationToken: response.NextContinuationToken};
   };
 
   describeFolderFolders = async (params: FilePersistenceDescribeFolderFoldersParams) => {

@@ -58,6 +58,8 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
       lastUpdatedAt: Date.now(),
       size: body.byteLength,
       mountId: params.mount.resourceId,
+      mimetype: params.mimetype,
+      encoding: params.encoding,
     });
 
     return {};
@@ -102,6 +104,8 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
         filepath: file.filepath,
         lastUpdatedAt: file.lastUpdatedAt,
         size: file.size,
+        mimetype: file.mimetype,
+        encoding: file.encoding,
         mountId: params.mount.resourceId,
       };
     }
@@ -134,6 +138,8 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
           filepath: file.filepath,
           lastUpdatedAt: file.lastUpdatedAt,
           size: file.size,
+          mimetype: file.mimetype,
+          encoding: file.encoding,
           mountId: params.mount.resourceId,
         });
       }
