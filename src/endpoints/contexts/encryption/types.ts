@@ -9,6 +9,10 @@ export interface SecretsManagerProviderUpdateSecretParams {
   name: string;
 }
 
+export interface SecretsManagerProviderDeleteSecretParams {
+  secretId: string;
+}
+
 export interface SecretsManagerProviderAddSecretResult {
   secretId: string;
 }
@@ -28,6 +32,7 @@ export interface SecretsManagerProvider {
   updateSecret: (
     params: SecretsManagerProviderUpdateSecretParams
   ) => Promise<SecretsManagerProviderAddSecretResult>;
+  deleteSecret: (params: SecretsManagerProviderDeleteSecretParams) => Promise<void>;
   /** throws if secret is not found */
   getSecret: (
     params: SecretsManagerProviderGetSecretParams

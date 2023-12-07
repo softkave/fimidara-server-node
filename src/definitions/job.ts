@@ -1,4 +1,5 @@
 import {RemoveCollaboratorCascadeFnsArgs} from '../endpoints/collaborators/removeCollaborator/types';
+import {DeleteFileBackendConfigCascadeFnsArgs} from '../endpoints/fileBackends/deleteConfig/types';
 import {DeleteFileCascadeDeleteFnsArgs} from '../endpoints/files/deleteFile/types';
 import {DeletePermissionItemsCascadeFnsArgs} from '../endpoints/permissionItems/deleteItems/types';
 import {DeleteResourceCascadeFnDefaultArgs} from '../endpoints/types';
@@ -46,8 +47,7 @@ export type DeleteResourceJobParams =
         | typeof AppResourceTypeMap.Tag
         | typeof AppResourceTypeMap.PermissionGroup
         | typeof AppResourceTypeMap.CollaborationRequest
-        | typeof AppResourceTypeMap.FileBackendMount
-        | typeof AppResourceTypeMap.FileBackendConfig;
+        | typeof AppResourceTypeMap.FileBackendMount;
       args: DeleteResourceCascadeFnDefaultArgs;
     }
   | {
@@ -64,8 +64,8 @@ export type DeleteResourceJobParams =
       args: DeletePermissionItemsCascadeFnsArgs;
     }
   | {
-      type: typeof AppResourceTypeMap.Workspace;
-      args: DeletePermissionItemsCascadeFnsArgs;
+      type: typeof AppResourceTypeMap.FileBackendConfig;
+      args: DeleteFileBackendConfigCascadeFnsArgs;
     };
 
 export interface IngestFolderpathJobParams {

@@ -12,6 +12,7 @@ import {enqueueDeleteResourceJob} from '../../jobs/runner';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {DeleteFileBackendConfigEndpoint} from './types';
 import {deleteFileBackendConfigJoiSchema} from './validation';
+import {config} from 'process';
 
 const deleteFileBackendConfig: DeleteFileBackendConfigEndpoint = async (
   context,
@@ -46,7 +47,11 @@ const deleteFileBackendConfig: DeleteFileBackendConfigEndpoint = async (
     enqueueDeleteResourceJob(
       {
         type: AppResourceTypeMap.FileBackendConfig,
-        args: {workspaceId: config.workspaceId, resourceId: config.resourceId},
+        args: {
+          workspaceId: config.workspaceId,
+          resourceId: config.resourceId,
+          secretId: config.secretId,
+        },
       },
       opts
     )

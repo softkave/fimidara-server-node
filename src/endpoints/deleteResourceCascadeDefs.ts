@@ -2,7 +2,8 @@ import {AppResourceTypeMap} from '../definitions/system';
 import {extractResourceIdList, noopAsync} from '../utils/fns';
 import {kReuseableErrors} from '../utils/reusableErrors';
 import {RemoveCollaboratorCascadeFnsArgs} from './collaborators/removeCollaborator/types';
-import {kSemanticModels} from './contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from './contexts/injectables';
+import {DeleteFileBackendConfigCascadeFnsArgs} from './fileBackends/deleteConfig/types';
 import {DeleteFileCascadeDeleteFnsArgs} from './files/deleteFile/types';
 import FolderQueries from './folders/queries';
 import {DeletePermissionItemsCascadeFnsArgs} from './permissionItems/deleteItems/types';
@@ -419,6 +420,11 @@ export const kDeleteFileBackendConfigCascadeFns: DeleteResourceCascadeFnsMap = {
     ),
   [AppResourceTypeMap.Tag]: noopAsync,
   [AppResourceTypeMap.AssignedItem]: noopAsync,
+  other: async args => {
+    await kUtilsInjectables
+      .secretsManager()
+      .deleteSecret({secretId: (args as DeleteFileBackendConfigCascadeFnsArgs).secretId});
+  },
 };
 
 export const kDeleteFileBackendMountCascadeFns: DeleteResourceCascadeFnsMap = {

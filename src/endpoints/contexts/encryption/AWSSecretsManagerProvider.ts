@@ -1,5 +1,6 @@
 import {
   CreateSecretCommand,
+  DeleteSecretCommand,
   GetSecretValueCommand,
   SecretsManagerClient,
   UpdateSecretCommand,
@@ -10,6 +11,7 @@ import {
   SecretsManagerProvider,
   SecretsManagerProviderAddSecretParams,
   SecretsManagerProviderAddSecretResult,
+  SecretsManagerProviderDeleteSecretParams,
   SecretsManagerProviderGetSecretParams,
   SecretsManagerProviderGetSecretResult,
   SecretsManagerProviderUpdateSecretParams,
@@ -33,8 +35,7 @@ export class AWSSecretsManagerProvider implements SecretsManagerProvider {
     params: SecretsManagerProviderAddSecretParams
   ): Promise<SecretsManagerProviderAddSecretResult> => {
     const {name, text} = params;
-    const input = {Name: name, SecretString: text};
-    const command = new CreateSecretCommand(input);
+    const command = new CreateSecretCommand({Name: name, SecretString: text});
     const response = await this.client.send(command);
 
     appAssert(response.ARN);
@@ -53,6 +54,14 @@ export class AWSSecretsManagerProvider implements SecretsManagerProvider {
 
     appAssert(response.ARN);
     return {secretId: response.ARN};
+  };
+
+  deleteSecret = async (params: SecretsManagerProviderDeleteSecretParams) => {
+    const {secretId} = params;
+    const command = new DeleteSecretCommand({
+      SecretId: secretId,
+    });
+    await this.client.send(command);
   };
 
   getSecret = async (

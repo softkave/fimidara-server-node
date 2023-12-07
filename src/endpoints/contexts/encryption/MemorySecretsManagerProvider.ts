@@ -4,6 +4,7 @@ import {
   SecretsManagerProvider,
   SecretsManagerProviderAddSecretParams,
   SecretsManagerProviderAddSecretResult,
+  SecretsManagerProviderDeleteSecretParams,
   SecretsManagerProviderGetSecretParams,
   SecretsManagerProviderGetSecretResult,
   SecretsManagerProviderUpdateSecretParams,
@@ -29,6 +30,11 @@ export class MemorySecretsManagerProvider implements SecretsManagerProvider {
     this.secrets[secretId] = {name, secret: text};
 
     return {secretId};
+  };
+
+  deleteSecret = async (params: SecretsManagerProviderDeleteSecretParams) => {
+    const {secretId} = params;
+    delete this.secrets[secretId];
   };
 
   getSecret = async (
