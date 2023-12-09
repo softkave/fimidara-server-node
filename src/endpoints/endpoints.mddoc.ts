@@ -307,7 +307,8 @@ const effectOnReferenced = mddocConstruct
   .constructFieldBoolean()
   .setDescription(
     'Whether to perform action on the token used to authorize the API call ' +
-      'when performing actions on tokens and a token ID or provided resource ID is not provided.'
+      'when performing actions on tokens and a token ID or provided resource ID is not provided.' +
+      'Defaults to true if a call is made and a token ID is not provided.'
   );
 const providedResourceId = mddocConstruct
   .constructFieldString()
