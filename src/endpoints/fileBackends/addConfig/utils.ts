@@ -18,6 +18,10 @@ export const INTERNAL_addConfig = async (
   const configModel = kSemanticModels.fileBackendConfig();
   const secretsManager = kUtilsInjectables.secretsManager();
 
+  if (data.backend === 'fimidara') {
+    throw kReuseableErrors.config.fimidaraDoesNotSupportConfig();
+  }
+
   const configExists = await configNameExists({
     workspaceId: workspace.resourceId,
     name: data.name,

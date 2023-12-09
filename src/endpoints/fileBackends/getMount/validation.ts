@@ -7,7 +7,6 @@ export const getFileBackendMountJoiSchema =
   Joi.object<GetFileBackendMountEndpointParams>()
     .keys({
       ...endpointValidationSchemas.workspaceResourceParts,
-      tokenId: validationSchemas.resourceId,
-      onReferenced: Joi.boolean(),
+      mountId: validationSchemas.resourceId.required(),
     })
     .required();

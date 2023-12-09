@@ -1,17 +1,22 @@
 import * as Joi from 'joi';
 import {validationSchemas} from '../../../utils/validationUtils';
+import folderValidationSchemas from '../../folders/validation';
 import {endpointValidationSchemas} from '../../validation';
+import fileBackendValidationSchemas from '../validation';
 import {AddFileBackendMountEndpointParams} from './types';
 
 export const addFileBackendMountJoiSchema =
   Joi.object<AddFileBackendMountEndpointParams>()
     .keys({
       ...endpointValidationSchemas.optionalWorkspaceIdParts,
-      token: Joi.object<AddFileBackendMountEndpointParams['token']>()
+      mount: Joi.object<AddFileBackendMountEndpointParams['mount']>()
         .keys({
-          expires: validationSchemas.time.allow(null),
-          providedResourceId: validationSchemas.providedResourceId.allow(null),
-          name: validationSchemas.name.allow(null),
+          folderpath: folderValidationSchemas.folderpath.required(),
+          backend: fileBackendValidationSchemas.backend.required(),
+          configId: validationSchemas.resourceId.allow(null),
+          index: Joi.number().required(),
+          mountedFrom: folderValidationSchemas.folderpath.required(),
+          name: validationSchemas.name.required(),
           description: validationSchemas.description.allow(null),
         })
         .required(),
