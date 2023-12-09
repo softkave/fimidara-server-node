@@ -12,7 +12,6 @@ import {
   SemanticFileBackendMountProvider,
   SemanticProviderUtils,
 } from '../../contexts/semantic/types';
-import {NotFoundError} from '../../errors';
 import {areFolderpathsEqual} from '../../folders/utils';
 import {enqueuePurgeMountFromFolderJob} from '../../jobs/runner';
 import {isResourceNameEqual} from '../../utils';
@@ -44,7 +43,11 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async (
 
   const updatedMount = await semanticUtils.withTxn(async opts => {
     const mount = await mountModel.getOneById(data.mountId, opts);
-    appAssert(mount, new NotFoundError('File backend mount not found.'));
+    appAssert(mount, kReuseableErrors.mount.notFound());
+
+    if (mount.backend === 'fimidara') {
+      throw kReuseableErrors.mount.cannotUpdateFimidaraMount();
+    }
 
     const mountUpdate: Partial<FileBackendMount> = {
       ...pick(data.mount, [

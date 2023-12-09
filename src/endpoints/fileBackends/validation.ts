@@ -36,6 +36,9 @@ const awsRegions = [
 const awsSecretAccessKeyRegex = /^[A-Za-z0-9+/]$/;
 
 const backend = Joi.string().valid(Object.values(FileBackendTypeMap));
+const nonFimidaraBackend = Joi.string().valid(
+  Object.values(FileBackendTypeMap).filter(backend => backend !== 'fimidara')
+);
 const credentials = Joi.object().when('backend', {
   switch: [
     {
@@ -53,6 +56,6 @@ const credentials = Joi.object().when('backend', {
   ],
 });
 
-const fileBackendValidationSchemas = {backend, credentials};
+const fileBackendValidationSchemas = {backend, credentials, nonFimidaraBackend};
 
 export default fileBackendValidationSchemas;

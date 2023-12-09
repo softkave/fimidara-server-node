@@ -1,6 +1,7 @@
 import {container} from 'tsyringe';
 import {AppResourceTypeMap} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
+import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../../contexts/injectables';
@@ -32,6 +33,10 @@ const deleteFileBackendMount: DeleteFileBackendMountEndpoint = async (
 
   const mount = await mountModel.getOneById(data.mountId);
   appAssert(mount, new NotFoundError());
+
+  if (mount.backend === 'fimidara') {
+    throw kReuseableErrors.mount.cannotDeleteFimidaraMount();
+  }
 
   const job = await kSemanticModels.utils().withTxn(opts =>
     enqueueDeleteResourceJob(

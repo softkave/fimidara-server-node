@@ -11,6 +11,7 @@ import {getFileBackendForFile} from '../../fileBackends/mountUtils';
 import {FileNotWritableError} from '../errors';
 import {getFileWithMatcher} from '../getFilesWithMatcher';
 import {
+  addMountEntries,
   assertFile,
   createAndInsertNewFile,
   fileExtractor,
@@ -47,7 +48,14 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     } else {
       appAssert(data.filepath, new ValidationError('Provide a filepath for new files.'));
       const pathinfo = getFilepathInfo(data.filepath);
-      const file = await createAndInsertNewFile(agent, workspace, pathinfo, data, opts);
+      const file = await createAndInsertNewFile(
+        agent,
+        workspace,
+        pathinfo,
+        /** not persisted to any mount yet */ [],
+        data,
+        opts
+      );
 
       await checkUploadFileAuth(agent, workspace, file, null, opts);
       return {file};
@@ -78,6 +86,10 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
       isWriteAvailable: true,
       isReadAvailable: true,
       version: file.version + 1,
+      resolvedEntries: addMountEntries(
+        [mount],
+        (update.resolvedEntries || []).concat(file.resolvedEntries)
+      ),
     };
     merge(update, pick(data, ['description', 'encoding', 'mimetype']));
 

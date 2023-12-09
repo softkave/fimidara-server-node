@@ -12,7 +12,7 @@ export const addFileBackendMountJoiSchema =
       mount: Joi.object<AddFileBackendMountEndpointParams['mount']>()
         .keys({
           folderpath: folderValidationSchemas.folderpath.required(),
-          backend: fileBackendValidationSchemas.backend.required(),
+          backend: fileBackendValidationSchemas.nonFimidaraBackend.required(),
           configId: validationSchemas.resourceId.allow(null),
           index: Joi.number().required(),
           mountedFrom: folderValidationSchemas.folderpath.required(),

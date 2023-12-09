@@ -1,36 +1,34 @@
 import {last} from 'lodash';
 import {container} from 'tsyringe';
+import {FileBackendMount} from '../../../definitions/fileBackend';
 import {Folder} from '../../../definitions/folder';
-import {
-  AppResourceTypeMap,
-  PERMISSION_AGENT_TYPES,
-  SessionAgent,
-} from '../../../definitions/system';
+import {PERMISSION_AGENT_TYPES, SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
-import {getNewIdForResource, newWorkspaceResource} from '../../../utils/resource';
 import {validate} from '../../../utils/validate';
-import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {
   checkAuthorizationWithAgent,
   getFilePermissionContainers,
   getWorkspacePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {FolderQuery} from '../../contexts/data/types';
+import {kSemanticModels} from '../../contexts/injectables';
 import {kInjectionKeys} from '../../contexts/injection';
 import {SemanticFolderProvider} from '../../contexts/semantic/folder/types';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {BaseContextType} from '../../contexts/types';
+import {getFileBackendForFile} from '../../fileBackends/mountUtils';
 import {assertWorkspace} from '../../workspaces/utils';
+import {kFolderConstants} from '../constants';
 import {FolderExistsError} from '../errors';
-import {folderExtractor, getFolderpathInfo} from '../utils';
+import {createNewFolder, folderExtractor, getFolderpathInfo} from '../utils';
 import {AddFolderEndpoint, NewFolderInput} from './types';
 import {addFolderJoiSchema} from './validation';
 
 export async function createFolderListWithTransaction(
   agent: SessionAgent,
   workspace: Workspace,
+  mounts: Array<Pick<FileBackendMount, 'resourceId'>>,
   input: NewFolderInput,
   UNSAFE_skipAuthCheck = false,
   throwOnFolderExists = true,
@@ -71,20 +69,13 @@ export async function createFolderListWithTransaction(
     // The main folder we want to create
     const isMainFolder = i === pathinfo.namepath.length - 1;
     const name = pathinfo.namepath[i];
-    const folderId = getNewIdForResource(AppResourceTypeMap.Folder);
-    const folder: Folder = newWorkspaceResource(
+    const folder: Folder = createNewFolder(
       agent,
-      AppResourceTypeMap.Folder,
       workspace.resourceId,
-      {
-        name,
-        workspaceId: workspace.resourceId,
-        resourceId: folderId,
-        parentId: previousFolder?.resourceId ?? null,
-        idPath: previousFolder ? previousFolder.idPath.concat(folderId) : [folderId],
-        namepath: previousFolder ? previousFolder.namepath.concat(name) : [name],
-        description: isMainFolder ? input.description : undefined,
-      }
+      /** pathinfo */ {name},
+      previousFolder,
+      mounts,
+      /** input */ {description: isMainFolder ? input.description : undefined}
     );
 
     previousFolder = folder;
@@ -97,7 +88,6 @@ export async function createFolderListWithTransaction(
     // It's okay to check permission after, cause if it fails, it fails the
     // transaction, which reverts the changes.
     await checkAuthorizationWithAgent({
-      context,
       agent,
       workspace,
       opts,
@@ -112,7 +102,7 @@ export async function createFolderListWithTransaction(
   }
 
   if (newFolders.length) {
-    await context.semantic.folder.insertItem(newFolders, opts);
+    await kSemanticModels.folder().insertItem(newFolders, opts);
   }
 
   if (!previousFolder) {
@@ -122,44 +112,40 @@ export async function createFolderListWithTransaction(
   return previousFolder;
 }
 
-export async function createFolderList(
-  context: BaseContextType,
-  agent: SessionAgent,
-  workspace: Workspace,
-  input: NewFolderInput,
-  UNSAFE_skipAuthCheck = false,
-  throwOnFolderExists = true,
-  opts?: SemanticProviderMutationRunOptions
-) {
-  return await context.semantic.utils.withTxn(
-    context,
-    async opts => {
-      return await createFolderListWithTransaction(
-        context,
-        agent,
-        workspace,
-        input,
-        UNSAFE_skipAuthCheck,
-        throwOnFolderExists,
-        opts
-      );
-    },
-    opts
-  );
-}
-
-// TODO: Currently doesn't throw error if the folder already exists, do we want to change that behavior?
 const addFolder: AddFolderEndpoint = async (context, instData) => {
   const data = validate(instData.data, addFolderJoiSchema);
   const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
-  const pathWithDetails = getFolderpathInfo(data.folder.folderpath);
-  const workspace = await context.semantic.workspace.getByRootname(
-    pathWithDetails.rootname
-  );
+  const pathinfo = getFolderpathInfo(data.folder.folderpath);
+  const workspace = await context.semantic.workspace.getByRootname(pathinfo.rootname);
   assertWorkspace(workspace);
-  let folder = await createFolderList(context, agent, workspace, data.folder);
+
+  const {mount, provider: backend} = await getFileBackendForFile({
+    workspaceId: workspace.resourceId,
+    namepath: pathinfo.namepath,
+  });
+
+  const folder = await kSemanticModels.utils().withTxn(async opts => {
+    const [folder] = await Promise.all([
+      createFolderListWithTransaction(
+        agent,
+        workspace,
+        [mount],
+        data.folder,
+        /** skip auth check */ false,
+        /** throw if folder exists */ true,
+        opts
+      ),
+      backend.addFolder({
+        mount,
+        workspaceId: workspace.resourceId,
+        folderpath: pathinfo.namepath.join(kFolderConstants.separator),
+      }),
+    ]);
+
+    return folder;
+  });
+
   appAssert(folder, new ServerError('Error creating folder.'));
-  folder = await populateAssignedTags(context, folder.workspaceId, folder);
   return {folder: folderExtractor(folder)};
 };
 

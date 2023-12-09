@@ -1,11 +1,17 @@
 import sharp = require('sharp');
-import stream = require('stream');
+import {compact} from 'lodash';
+import {PassThrough, Readable} from 'stream';
+import {File} from '../../../definitions/file';
 import {PERMISSION_AGENT_TYPES} from '../../../definitions/system';
 import {isObjectFieldsEmpty} from '../../../utils/fns';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
+import {PersistedFile} from '../../contexts/file/types';
 import {kSemanticModels} from '../../contexts/injectables';
-import {getFileBackendForFile} from '../../fileBackends/mountUtils';
+import {resolveBackendConfigsWithIdList} from '../../fileBackends/configUtils';
+import {
+  initBackendProvidersForMounts,
+  resolveMountsForFolder,
+} from '../../fileBackends/mountUtils';
 import {checkFileAuthorization03, stringifyFilenamepath} from '../utils';
 import {ReadFileEndpoint} from './types';
 import {readFileJoiSchema} from './validation';
@@ -30,20 +36,11 @@ const readFile: ReadFileEndpoint = async (context, instData) => {
     return file;
   });
 
-  const {provider, mount} = await getFileBackendForFile(file);
-  const persistedFile = await provider.readFile({
-    mount,
-    workspaceId: file.workspaceId,
-    filepath: stringifyFilenamepath(file),
-  });
-
-  if (!persistedFile.body) {
-    throw kReuseableErrors.file.notFound();
-  }
-
+  const persistedFile = await readPersistedFile(file);
   const isImageResizeEmpty = isObjectFieldsEmpty(data.imageResize ?? {});
-  if (!isImageResizeEmpty || data.imageFormat) {
-    const outputStream = new stream.PassThrough();
+
+  if (persistedFile.body && (!isImageResizeEmpty || data.imageFormat)) {
+    const outputStream = new PassThrough();
     const transformer = sharp();
 
     if (data.imageResize && !isImageResizeEmpty) {
@@ -70,11 +67,51 @@ const readFile: ReadFileEndpoint = async (context, instData) => {
     };
   } else {
     return {
-      stream: persistedFile.body,
+      stream: persistedFile.body || Readable.from([]),
       mimetype: file.mimetype ?? 'application/octet-stream',
       contentLength: persistedFile.size,
     };
   }
 };
+
+async function readPersistedFile(file: File): Promise<PersistedFile> {
+  const {mounts, mountsMap} = await resolveMountsForFolder({
+    workspaceId: file.workspaceId,
+    namepath: file.namepath.slice(0, -1),
+  });
+  const configs = await resolveBackendConfigsWithIdList(
+    compact(mounts.map(mount => mount.configId))
+  );
+  const providersMap = await initBackendProvidersForMounts(mounts, configs);
+
+  for (const entry of file.resolvedEntries) {
+    const mount = mountsMap[entry.mountId];
+
+    if (!mount) {
+      continue;
+    }
+
+    const backend = providersMap[mount.resourceId];
+
+    if (!backend) {
+      continue;
+    }
+
+    const persistedFile = await backend.readFile({
+      mount,
+      workspaceId: file.workspaceId,
+      filepath: stringifyFilenamepath(file),
+    });
+
+    if (persistedFile) {
+      return persistedFile;
+    }
+  }
+
+  return {
+    size: 0,
+    body: Readable.from([]),
+  };
+}
 
 export default readFile;

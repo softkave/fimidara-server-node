@@ -27,8 +27,6 @@ const fileBackendMountFields = getFields<
   configId: true,
   description: true,
   name: true,
-  filesCompletelyIngested: true,
-  foldersCompletelyIngested: true,
 });
 
 export const fileBackendMountExtractor = makeExtract(fileBackendMountFields);

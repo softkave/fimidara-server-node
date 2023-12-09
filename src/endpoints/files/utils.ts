@@ -1,4 +1,4 @@
-import {compact} from 'lodash';
+import {compact, first, uniqBy} from 'lodash';
 import {container} from 'tsyringe';
 import {
   File,
@@ -13,6 +13,7 @@ import {PermissionAction} from '../../definitions/permissionItem';
 import {Agent, AppResourceTypeMap, SessionAgent} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
+import {getTimestamp} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
 import {kReuseableErrors} from '../../utils/reusableErrors';
@@ -242,6 +243,7 @@ export function createNewFile(
   workspaceId: string,
   pathinfo: FilepathInfo,
   parentFolder: Folder | null,
+  mounts: Array<Pick<FileBackendMount, 'resourceId'>>,
   data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
   seed: Partial<File> = {}
 ) {
@@ -263,7 +265,10 @@ export function createNewFile(
     description: data.description,
     encoding: data.encoding,
     mimetype: data.mimetype,
-    resolvedEntries: [],
+    resolvedEntries: mounts.map(mount => ({
+      mountId: mount.resourceId,
+      resolvedAt: getTimestamp(),
+    })),
     ...seed,
   });
 
@@ -274,22 +279,38 @@ export async function createNewFileAndEnsureFolders(
   agent: Agent,
   workspace: Workspace,
   pathinfo: FilepathInfo,
+  mounts: Array<Pick<FileBackendMount, 'resourceId'>>,
   data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
   opts: SemanticProviderMutationRunOptions,
   seed: Partial<File> = {},
   parentFolder?: Folder | null
 ) {
   if (!parentFolder) {
-    parentFolder = await ensureFolders(agent, workspace, pathinfo.parentPath, opts);
+    parentFolder = await ensureFolders(
+      agent,
+      workspace,
+      mounts,
+      pathinfo.parentPath,
+      opts
+    );
   }
 
-  return createNewFile(agent, workspace.resourceId, pathinfo, parentFolder, data, seed);
+  return createNewFile(
+    agent,
+    workspace.resourceId,
+    pathinfo,
+    parentFolder,
+    mounts,
+    data,
+    seed
+  );
 }
 
 export async function createAndInsertNewFile(
   agent: Agent,
   workspace: Workspace,
   pathinfo: FilepathInfo,
+  mounts: Array<Pick<FileBackendMount, 'resourceId'>>,
   data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
   opts: SemanticProviderMutationRunOptions,
   seed: Partial<File> = {}
@@ -298,6 +319,7 @@ export async function createAndInsertNewFile(
     agent,
     workspace,
     pathinfo,
+    mounts,
     data,
     opts,
     seed
@@ -339,7 +361,7 @@ export async function ingestFileByFilepath(
     opts
   );
   const providersMap = await initBackendProvidersForMounts(mounts, configs);
-  const mountFiles = await Promise.all(
+  const fileEntries = await Promise.all(
     mounts.map(async mount => {
       const provider = providersMap[mount.resourceId];
       appAssert(provider);
@@ -352,11 +374,15 @@ export async function ingestFileByFilepath(
     })
   );
 
-  const parentFolder = await folderModel.getOneByNamepath(
-    {workspaceId, namepath: pathinfo.parentSplitPath},
-    opts
-  );
-  await ingestPersistedFiles(agent, workspace, parentFolder, compact(mountFiles));
+  const fileEntry0 = first(fileEntries);
+
+  if (fileEntry0) {
+    const parentFolder = await folderModel.getOneByNamepath(
+      {workspaceId, namepath: pathinfo.parentSplitPath},
+      opts
+    );
+    await ingestPersistedFiles(agent, workspace, parentFolder, compact(fileEntries));
+  }
 }
 
 export async function readOrIngestFileByFilepath(
@@ -389,4 +415,21 @@ export async function readOrIngestFileByFilepath(
   }
 
   return file;
+}
+
+export function addMountEntries(
+  mounts: Array<Pick<FileBackendMount, 'resourceId'>>,
+  existingEntries?: FileResolvedMountEntry[]
+) {
+  return uniqBy(
+    mounts
+      .map(
+        (mount): FileResolvedMountEntry => ({
+          mountId: mount.resourceId,
+          resolvedAt: getTimestamp(),
+        })
+      )
+      .concat(existingEntries || []),
+    mount => mount.mountId
+  );
 }

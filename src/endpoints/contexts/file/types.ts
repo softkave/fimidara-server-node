@@ -97,6 +97,16 @@ export interface FilePersistenceDescribeFolderFoldersResult {
   continuationToken?: unknown | null;
 }
 
+export interface FilePersistenceAddFolderParams {
+  workspaceId: string;
+  folderpath: string;
+  mount: FileBackendMount;
+}
+
+export interface FilePersistenceAddFolderResult {
+  folder: PersistedFolderDescription;
+}
+
 export interface FilePersistenceProvider {
   supportsFeature: (feature: FilePersistenceProviderFeature) => boolean;
   uploadFile: (params: FilePersistenceUploadFileParams) => Promise<Partial<File>>;
@@ -104,6 +114,9 @@ export interface FilePersistenceProvider {
   describeFile: (
     params: FilePersistenceGetFileParams
   ) => Promise<PersistedFileDescription | undefined>;
+  addFolder: (
+    params: FilePersistenceAddFolderParams
+  ) => Promise<FilePersistenceAddFolderResult>;
   describeFolder: (
     params: FilePersistenceDescribeFolderParams
   ) => Promise<PersistedFolderDescription | undefined>;

@@ -3,20 +3,21 @@ import {FileBackendMount} from '../../../definitions/fileBackend';
 import {Agent, AppResourceTypeMap} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {newWorkspaceResource} from '../../../utils/resource';
+import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {kInjectionKeys} from '../../contexts/injection';
 import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
 import {
   SemanticFileBackendMountProvider,
   SemanticProviderMutationRunOptions,
 } from '../../contexts/semantic/types';
-import {NotFoundError, ResourceExistsError} from '../../errors';
+import {ResourceExistsError} from '../../errors';
 import {ensureFolders, stringifyFoldernamepath} from '../../folders/utils';
-import {AddFileBackendMountEndpointParams} from './types';
+import {NewFileBackendMountInput} from './types';
 
 export const INTERNAL_addFileBackendMount = async (
   agent: Agent,
   workspace: Workspace,
-  data: AddFileBackendMountEndpointParams,
+  data: NewFileBackendMountInput,
   opts: SemanticProviderMutationRunOptions
 ) => {
   const fileBackendMountModel = container.resolve<SemanticFileBackendMountProvider>(
@@ -42,12 +43,12 @@ export const INTERNAL_addFileBackendMount = async (
   }
 
   const backendConfig = await fileBackendConfigModel.getOneByQuery(
-    {workspaceId: data.workspaceId, resourceId: data.configId},
+    {workspaceId: workspace.resourceId, resourceId: data.configId},
     opts
   );
 
   if (!backendConfig) {
-    throw new NotFoundError(`Backend config with ID ${data.configId} does not exist.`);
+    throw kReuseableErrors.config.notFound();
   }
 
   const mount = newWorkspaceResource<FileBackendMount>(
@@ -69,6 +70,7 @@ export const INTERNAL_addFileBackendMount = async (
     ensureFolders(
       agent,
       workspace,
+      [mount],
       stringifyFoldernamepath({namepath: data.folderpath}, workspace.rootname),
       opts
     ),

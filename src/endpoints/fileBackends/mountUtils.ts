@@ -7,6 +7,7 @@ import {IngestMountJobParams, Job} from '../../definitions/job';
 import {FimidaraExternalError} from '../../utils/OperationError';
 import {appAssert} from '../../utils/assertion';
 import {ServerError} from '../../utils/errors';
+import {PartialRecord} from '../../utils/types';
 import {kAsyncLocalStorageUtils} from '../contexts/asyncLocalStorage';
 import {DataQuery} from '../contexts/data/types';
 import {
@@ -63,6 +64,7 @@ export async function resolveMountsForFolder(
   );
 
   const mounts: FileBackendMount[] = [];
+  const mountsMap: PartialRecord<string, FileBackendMount> = {};
   const mountWeights: FileBackendMountWeights = {};
 
   let mountIndex = 0;
@@ -70,11 +72,12 @@ export async function resolveMountsForFolder(
     sortMounts(nextMountList).forEach(mount => {
       mounts.push(mount);
       mountWeights[mount.resourceId] = mountIndex;
+      mountsMap[mount.resourceId] = mount;
       mountIndex += 1;
     });
   });
 
-  return {mounts, mountWeights};
+  return {mounts, mountWeights, mountsMap};
 }
 
 export function isPrimaryMountFimidara(mounts: FileBackendMount[]): boolean {
@@ -127,7 +130,9 @@ export async function initBackendProvidersForMounts(
   return providersMap;
 }
 
-export async function getFileBackendForFile(file: File) {
+export async function getFileBackendForFile(
+  file: Pick<File, 'workspaceId' | 'namepath'>
+) {
   const {mounts} = await resolveMountsForFolder({
     workspaceId: file.workspaceId,
     namepath: file.namepath.slice(0, -1),
