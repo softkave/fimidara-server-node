@@ -1,18 +1,17 @@
 import * as Joi from 'joi';
-import {JoiSchemaParts} from '../../../utils/types';
+import {validationSchemas} from '../../../utils/validationUtils';
+import fileValidationSchemas from '../../files/validation';
+import folderValidationSchemas from '../../folders/validation';
 import {endpointValidationSchemas} from '../../validation';
-import {
-  ResolveFileBackendMountssEndpointParams,
-  ResolveMountsEndpointParamsBase,
-} from './types';
-
-export const resolveWorkspaceFileBackendMountBaseJoiSchemaParts: JoiSchemaParts<ResolveMountsEndpointParamsBase> =
-  endpointValidationSchemas.optionalWorkspaceIdParts;
+import {ResolveFileBackendMountsEndpointParams} from './types';
 
 export const resolveWorkspaceFileBackendMountJoiSchema =
-  Joi.object<ResolveFileBackendMountssEndpointParams>()
+  Joi.object<ResolveFileBackendMountsEndpointParams>()
     .keys({
-      ...resolveWorkspaceFileBackendMountBaseJoiSchemaParts,
-      ...endpointValidationSchemas.paginationParts,
+      ...endpointValidationSchemas.optionalWorkspaceIdParts,
+      folderpath: folderValidationSchemas.folderpath,
+      filepath: fileValidationSchemas.fileMatcherParts.filepath,
+      folderId: validationSchemas.resourceId,
+      fileId: fileValidationSchemas.fileMatcherParts.fileId,
     })
     .required();

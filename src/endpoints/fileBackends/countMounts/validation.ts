@@ -1,8 +1,8 @@
 import * as Joi from 'joi';
-import {getWorkspaceAgentTokenBaseJoiSchemaParts} from '../getMounts/validation';
+import {getFileBackendMountsBaseJoiSchemaParts} from '../getMounts/validation';
 import {CountFileBackendMountsEndpointParams} from './types';
 
-export const countWorkspaceAgentTokenJoiSchema =
+export const countFileBackendMountsJoiSchema =
   Joi.object<CountFileBackendMountsEndpointParams>()
-    .keys(getWorkspaceAgentTokenBaseJoiSchemaParts)
+    .keys(getFileBackendMountsBaseJoiSchemaParts)
     .required();

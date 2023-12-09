@@ -28,7 +28,12 @@ export interface AgentToken extends Resource {
 export type PublicAgentToken = PublicWorkspaceResource &
   Pick<
     ConvertAgentToPublicAgent<AgentToken>,
-    'name' | 'description' | 'expires' | 'lastUpdatedBy' | 'createdBy'
+    | 'name'
+    | 'description'
+    | 'expires'
+    | 'lastUpdatedBy'
+    | 'createdBy'
+    | 'providedResourceId'
   > & {
     tokenStr: string;
   };

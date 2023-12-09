@@ -7,7 +7,6 @@ export const getFileBackendConfigJoiSchema =
   Joi.object<GetFileBackendConfigEndpointParams>()
     .keys({
       ...endpointValidationSchemas.workspaceResourceParts,
-      tokenId: validationSchemas.resourceId,
-      onReferenced: Joi.boolean(),
+      configId: validationSchemas.resourceId.required(),
     })
     .required();

@@ -5,7 +5,7 @@ import {SemanticFileBackendMountProvider} from '../../contexts/semantic/types';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {getFileBackendMountsQuery} from '../getMounts/utils';
 import {CountFileBackendMountsEndpoint} from './types';
-import {countWorkspaceAgentTokenJoiSchema} from './validation';
+import {countFileBackendMountsJoiSchema} from './validation';
 
 const countFileBackendMounts: CountFileBackendMountsEndpoint = async (
   context,
@@ -15,7 +15,7 @@ const countFileBackendMounts: CountFileBackendMountsEndpoint = async (
     kInjectionKeys.semantic.fileBackendMount
   );
 
-  const data = validate(instData.data, countWorkspaceAgentTokenJoiSchema);
+  const data = validate(instData.data, countFileBackendMountsJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   const query = await getFileBackendMountsQuery(agent, workspace, data);
