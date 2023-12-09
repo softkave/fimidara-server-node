@@ -137,7 +137,7 @@ export type BulkOpItem<T> =
 // TODO: infer resulting type from projection, otherwise default to full object
 export interface BaseDataProvider<
   TData,
-  TQuery extends DataQuery<TData> = DataQuery<TData>
+  TQuery extends DataQuery<TData> = DataQuery<TData>,
 > {
   insertItem: (item: TData, otherProps?: DataProviderOpParams<TData>) => Promise<TData>;
   insertList: (items: TData[], otherProps?: DataProviderOpParams<TData>) => Promise<void>;

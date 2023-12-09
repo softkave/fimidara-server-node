@@ -4,12 +4,15 @@ import {DeleteFileCascadeDeleteFnsArgs} from '../endpoints/files/deleteFile/type
 import {DeletePermissionItemsCascadeFnsArgs} from '../endpoints/permissionItems/deleteItems/types';
 import {DeleteResourceCascadeFnDefaultArgs} from '../endpoints/types';
 import {AnyObject, ObjectValues} from '../utils/types';
+import {FileMatcher} from './file';
+import {FolderMatcher} from './folder';
 import {AppResourceTypeMap, Resource} from './system';
 
 export const JobTypeMap = {
   deleteResource: 'deleteResource',
   ingestFolderpath: 'ingestFolderpath',
   ingestMount: 'ingestMount',
+  cleanupMountResolvedEntries: 'cleanupMountResolvedEntries',
 } as const;
 
 export const JobStatusMap = {
@@ -68,15 +71,22 @@ export type DeleteResourceJobParams =
       args: DeleteFileBackendConfigCascadeFnsArgs;
     };
 
-export interface IngestFolderpathJobParams {
+/** Prefer folderId for folders in DB, and folderpath [] for root folder */
+export interface IngestFolderpathJobParams extends FolderMatcher {
   mountId: string;
-  folderpath: string;
   agentId: string;
 }
 
 export interface IngestMountJobParams {
   mountId: string;
   agentId: string;
+}
+
+/** Prefer folderId for folders in DB, and folderpath [] for root folder */
+export interface CleanupMountResolvedEntriesJobParams
+  extends FolderMatcher,
+    Pick<FileMatcher, 'fileId'> {
+  mountId: string[];
 }
 
 export const kJobRunnerV1 = 1;

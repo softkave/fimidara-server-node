@@ -270,9 +270,13 @@ async function ingestFolderpathJobFolders(
   const workspace = await kSemanticModels.workspace().getOneById(job.workspaceId);
   appAssert(workspace);
 
+  const folderpath =
+    job.params.folderpath ?? folder?.namepath.join(kFolderConstants.separator);
+  appAssert(folderpath);
+
   do {
     const result = await provider.describeFolderFolders({
-      folderpath: job.params.folderpath,
+      folderpath,
       max: 1000,
       mount,
       workspaceId: mount.workspaceId,
@@ -310,9 +314,13 @@ async function ingestFolderpathJobFiles(
   const workspace = await kSemanticModels.workspace().getOneById(job.workspaceId);
   appAssert(workspace);
 
+  const folderpath =
+    job.params.folderpath ?? folder?.namepath.join(kFolderConstants.separator);
+  appAssert(folderpath);
+
   do {
     const result = await provider.describeFolderFiles({
-      folderpath: job.params.folderpath,
+      folderpath,
       max: 1000,
       mount,
       workspaceId: mount.workspaceId,
@@ -330,13 +338,10 @@ export async function runIngestFolderpathJob(job: Job<IngestFolderpathJobParams>
   const [mount, agent, folder] = await Promise.all([
     kSemanticModels.fileBackendMount().getOneById(job.params.mountId),
     kUtilsInjectables.session().getAgentById(job.params.agentId),
-    kSemanticModels.folder().getOneByNamepath({
-      workspaceId: job.workspaceId,
-      namepath: job.params.folderpath.split(kFolderConstants.separator),
-    }),
+    job.params.folderId ? kSemanticModels.folder().getOneById(job.params.folderId) : null,
   ]);
 
-  if (!mount || !folder || mount.backend === 'fimidara') {
+  if (!mount || mount.backend === 'fimidara') {
     return;
   }
 
