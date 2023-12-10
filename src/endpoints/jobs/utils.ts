@@ -14,14 +14,14 @@ export interface JobInput<TParams extends AnyObject = AnyObject> {
   idempotencyToken?: string;
 }
 
-export async function queueJobs(
+export async function queueJobs<TParams extends AnyObject = AnyObject>(
   workspaceId: string | undefined,
   parentJobId: string | undefined,
-  jobsInput: JobInput[],
+  jobsInput: JobInput<TParams>[],
   opts?: SemanticProviderMutationRunOptions
 ) {
   if (jobsInput.length === 0) {
-    return;
+    return [];
   }
 
   const config = kUtilsInjectables.config();
@@ -41,7 +41,7 @@ export async function queueJobs(
     });
   });
 
-  await kSemanticModels.utils().withTxn(async opts => {
+  return await kSemanticModels.utils().withTxn(async opts => {
     const existingJobs = await kSemanticModels
       .job()
       .getManyByQuery({idempotencyToken: {$in: idempotencyTokens}}, opts);
@@ -54,6 +54,8 @@ export async function queueJobs(
       job => !existingJobsByIdempotencyToken[job.idempotencyToken]
     );
     await kSemanticModels.job().insertItem(uniqueJobs, opts);
+
+    return uniqueJobs;
   }, opts);
 }
 

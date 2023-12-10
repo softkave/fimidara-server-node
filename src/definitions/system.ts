@@ -65,6 +65,7 @@ export const AppResourceTypeMap = {
   FilePresignedPath: 'filePresignedPath',
   FileBackendConfig: 'fileBackendConfig',
   FileBackendMount: 'fileBackendMount',
+  ResolvedMountEntry: 'resolvedMountEntry',
 } as const;
 
 export type AppResourceType = ObjectValues<typeof AppResourceTypeMap>;

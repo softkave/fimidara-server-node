@@ -1,7 +1,11 @@
-import {FolderMatcher} from '../../../definitions/folder';
+import {Folder, FolderMatcher} from '../../../definitions/folder';
 import {BaseContextType} from '../../contexts/types';
 import {LongRunningJobResult} from '../../jobs/types';
-import {Endpoint, EndpointResultNote} from '../../types';
+import {
+  DeleteResourceCascadeFnDefaultArgs,
+  Endpoint,
+  EndpointResultNote,
+} from '../../types';
 
 export type DeleteFolderEndpointParams = FolderMatcher;
 
@@ -14,3 +18,7 @@ export type DeleteFolderEndpoint = Endpoint<
   DeleteFolderEndpointParams,
   DeleteFolderEndpointResult
 >;
+
+export type DeleteFolderCascadeFnsArgs = DeleteResourceCascadeFnDefaultArgs & {
+  folder: Pick<Folder, 'namepath'>;
+};

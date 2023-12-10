@@ -16,17 +16,17 @@ import {kDataModels} from '../contexts/injectables';
 import {SemanticProviderMutationRunOptions} from '../contexts/semantic/types';
 import {BaseContextType} from '../contexts/types';
 import {
-  DELETE_COLLABORATION_REQUEST_CASCADE_FNS,
-  DELETE_FILE_CASCADE_FNS,
-  DELETE_FOLDER_CASCADE_FNS,
-  DELETE_PERMISSION_GROUP_CASCADE_FNS,
-  DELETE_TAG_CASCADE_FNS,
-  DELETE_WORKSPACE_CASCADE_FNS,
-  REMOVE_COLLABORATOR_CASCADE_FNS,
   kDeleteAgentTokenCascadeFns,
+  kDeleteCollaborationRequestsCascadeFns,
   kDeleteFileBackendConfigCascadeFns,
   kDeleteFileBackendMountCascadeFns,
+  kDeleteFileCascadeFns,
+  kDeleteFoldersCascadeFns,
+  kDeletePermissionGroupsCascadeFns,
   kDeletePermissionItemsCascaseFns,
+  kDeleteTagsCascadeFns,
+  kDeleteWorkspaceCascadeFns,
+  kRemoveCollaboratorCascadeFns,
 } from '../deleteResourceCascadeDefs';
 import {runIngestFolderpathJob, runIngestMountJob} from '../fileBackends/ingestion';
 import {DeleteResourceCascadeFnsMap} from '../types';
@@ -122,14 +122,14 @@ const kCascadeDeleteDefs: Record<
   [AppResourceTypeMap.FilePresignedPath]: undefined,
 
   // TODO: will need update when we implement deleting users
-  [AppResourceTypeMap.User]: REMOVE_COLLABORATOR_CASCADE_FNS,
-  [AppResourceTypeMap.CollaborationRequest]: DELETE_COLLABORATION_REQUEST_CASCADE_FNS,
-  [AppResourceTypeMap.Workspace]: DELETE_WORKSPACE_CASCADE_FNS,
+  [AppResourceTypeMap.User]: kRemoveCollaboratorCascadeFns,
+  [AppResourceTypeMap.CollaborationRequest]: kDeleteCollaborationRequestsCascadeFns,
+  [AppResourceTypeMap.Workspace]: kDeleteWorkspaceCascadeFns,
   [AppResourceTypeMap.AgentToken]: kDeleteAgentTokenCascadeFns,
-  [AppResourceTypeMap.Folder]: DELETE_FOLDER_CASCADE_FNS,
-  [AppResourceTypeMap.File]: DELETE_FILE_CASCADE_FNS,
-  [AppResourceTypeMap.Tag]: DELETE_TAG_CASCADE_FNS,
-  [AppResourceTypeMap.PermissionGroup]: DELETE_PERMISSION_GROUP_CASCADE_FNS,
+  [AppResourceTypeMap.Folder]: kDeleteFoldersCascadeFns,
+  [AppResourceTypeMap.File]: kDeleteFileCascadeFns,
+  [AppResourceTypeMap.Tag]: kDeleteTagsCascadeFns,
+  [AppResourceTypeMap.PermissionGroup]: kDeletePermissionGroupsCascadeFns,
   [AppResourceTypeMap.PermissionItem]: kDeletePermissionItemsCascaseFns,
   [AppResourceTypeMap.FileBackendConfig]: kDeleteFileBackendConfigCascadeFns,
   [AppResourceTypeMap.FileBackendMount]: kDeleteFileBackendMountCascadeFns,

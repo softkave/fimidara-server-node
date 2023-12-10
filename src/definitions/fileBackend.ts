@@ -37,6 +37,8 @@ export interface FileBackendConfig extends WorkspaceResource {
 export interface ResolvedMountEntry extends WorkspaceResource {
   mountId: string;
   resolvedAt: number;
+  namepath: string[];
+  extension?: string;
   resolvedFor: string;
   resolvedForType: AppResourceType;
 }
@@ -59,4 +61,9 @@ export type PublicFileBackendConfig = PublicWorkspaceResource &
   ConvertAgentToPublicAgent<Pick<FileBackendConfig, 'backend' | 'name' | 'description'>>;
 
 export type PublicResolvedMountEntry = PublicWorkspaceResource &
-  ConvertAgentToPublicAgent<Pick<ResolvedMountEntry, 'mountId' | 'resolvedAt'>>;
+  ConvertAgentToPublicAgent<
+    Pick<
+      ResolvedMountEntry,
+      'mountId' | 'resolvedAt' | 'namepath' | 'extension' | 'resolvedForType'
+    >
+  >;

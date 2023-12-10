@@ -34,7 +34,7 @@ import {getInAndNinQuery} from './contexts/semantic/utils';
 import {BaseContextType, IServerRequest} from './contexts/types';
 import {InvalidRequestError, NotFoundError} from './errors';
 import {
-  DeleteResourceCascadeFnHelperFns,
+  DeleteResourceCascadeFnHelpers,
   DeleteResourceCascadeFnsMap,
   Endpoint,
   ExportedHttpEndpointWithMddocDefinition,
@@ -110,7 +110,7 @@ export function defaultEndpointCleanup() {
 
 export const wrapEndpointREST = <
   Context extends BaseContextType,
-  EndpointType extends Endpoint<Context>
+  EndpointType extends Endpoint<Context>,
 >(
   endpoint: EndpointType,
   context: Context,
@@ -263,7 +263,7 @@ export async function executeCascadeDelete<Args>(
   cascadeDef: DeleteResourceCascadeFnsMap<Args>,
   args: Args
 ) {
-  const helperFns: DeleteResourceCascadeFnHelperFns = {
+  const helperFns: DeleteResourceCascadeFnHelpers = {
     async withTxn(fn: AnyFn<[SemanticProviderMutationRunOptions]>) {
       await kSemanticModels.utils().withTxn(opts => fn(opts));
     },

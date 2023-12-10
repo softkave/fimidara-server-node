@@ -1,4 +1,5 @@
 import {Request, RequestHandler, Response} from 'express';
+import {Job} from '../definitions/job';
 import {AppResourceType} from '../definitions/system';
 import {HttpEndpointDefinitionType} from '../mddoc/mddoc';
 import {FimidaraExternalError} from '../utils/OperationError';
@@ -14,7 +15,7 @@ export interface BaseEndpointResult {
 export type Endpoint<
   TContext extends BaseContextType = BaseContextType,
   TParams = any,
-  TResult = void
+  TResult = void,
 > = (
   context: TContext,
   instData: RequestData<TParams>
@@ -83,13 +84,14 @@ export type DeleteResourceCascadeFnDefaultArgs = {
   resourceId: string;
 };
 
-export type DeleteResourceCascadeFnHelperFns = {
+export type DeleteResourceCascadeFnHelpers = {
+  job: Job;
   withTxn(fn: AnyFn<[SemanticProviderMutationRunOptions]>): Promise<void>;
 };
 
 export type DeleteResourceCascadeFn<Args = DeleteResourceCascadeFnDefaultArgs> = (
   args: Args,
-  helpers: DeleteResourceCascadeFnHelperFns
+  helpers: DeleteResourceCascadeFnHelpers
 ) => Promise<void>;
 
 export type DeleteResourceCascadeFnsMap<Args = DeleteResourceCascadeFnDefaultArgs> =
@@ -145,9 +147,10 @@ export type ExportedHttpEndpointWithMddocDefinition<
   TPathParameters extends AnyObject = AnyObject,
   TQuery extends AnyObject = AnyObject,
   TRequestBody extends AnyObject = InferEndpointParams<TEndpoint>,
-  TResponseHeaders extends AnyObject = HttpEndpointResponseHeaders_ContentType_ContentLength,
+  TResponseHeaders extends
+    AnyObject = HttpEndpointResponseHeaders_ContentType_ContentLength,
   TResponseBody extends AnyObject = InferEndpointResult<TEndpoint>,
-  TSdkParams extends AnyObject = TRequestBody
+  TSdkParams extends AnyObject = TRequestBody,
 > = {
   fn: TEndpoint;
   mddocHttpDefinition: HttpEndpointDefinitionType<

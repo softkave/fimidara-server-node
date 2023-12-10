@@ -7,8 +7,12 @@ import {
   ResolvedMountEntry,
 } from '../../definitions/fileBackend';
 import {Folder} from '../../definitions/folder';
-import {IngestMountJobParams, Job} from '../../definitions/job';
-import {Agent} from '../../definitions/system';
+import {
+  CleanupMountResolvedEntriesJobParams,
+  IngestMountJobParams,
+  Job,
+} from '../../definitions/job';
+import {Agent, AppResourceTypeMap} from '../../definitions/system';
 import {FimidaraExternalError} from '../../utils/OperationError';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
@@ -264,12 +268,12 @@ export async function insertResolvedMountEntries(props: {
         updateEntries.push([existingEntry.resourceId, {resolvedAt: getTimestamp()}]);
       } else {
         newEntries.push(
-          newWorkspaceResource(agent, resolvedForType, workspaceId, {
-            mountId,
-            resolvedFor,
-            resolvedForType,
-            resolvedAt: getTimestamp(),
-          })
+          newWorkspaceResource(
+            agent,
+            AppResourceTypeMap.ResolvedMountEntry,
+            workspaceId,
+            {mountId, resolvedFor, resolvedForType, resolvedAt: getTimestamp()}
+          )
         );
       }
     });
@@ -283,4 +287,15 @@ export async function insertResolvedMountEntries(props: {
 
     await Promise.all([insertPromise, updatePromise]);
   }, opts);
+}
+
+export async function runCleanupMountResolvedEntriesJob(
+  job: Job<CleanupMountResolvedEntriesJobParams>
+) {
+  appAssert(job.workspaceId);
+  await kSemanticModels.utils().withTxn(async opts => {
+    await kSemanticModels
+      .resolvedMountEntry()
+      .deleteManyByQuery({mountId: job.params.mountId}, opts);
+  });
 }

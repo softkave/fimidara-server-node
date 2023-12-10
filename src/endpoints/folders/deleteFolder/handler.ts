@@ -15,7 +15,11 @@ const deleteFolder: DeleteFolderEndpoint = async (context, instData) => {
     enqueueDeleteResourceJob(
       {
         type: AppResourceTypeMap.Folder,
-        args: {workspaceId: folder.workspaceId, resourceId: folder.resourceId},
+        args: {
+          workspaceId: folder.workspaceId,
+          resourceId: folder.resourceId,
+          folder: {namepath: folder.namepath},
+        },
       },
       opts
     )
