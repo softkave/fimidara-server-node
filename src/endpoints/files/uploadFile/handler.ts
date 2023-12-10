@@ -89,7 +89,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
           opts,
           agent,
           workspaceId: file.workspaceId,
-          resolvedFor: file.resourceId,
+          resource: file,
           mountIds: [mount.resourceId],
         }),
       ]);

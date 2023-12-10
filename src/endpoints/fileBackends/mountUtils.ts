@@ -244,21 +244,21 @@ export function populateMountUnsupportedOpNoteInNotFoundError(
 export async function insertResolvedMountEntries(props: {
   agent: Agent;
   mountIds: string[];
-  resolvedFor: string;
+  resource: Pick<File, 'resourceId' | 'namepath' | 'extension'>;
   workspaceId: string;
   opts?: SemanticProviderMutationRunOptions;
 }) {
-  const {mountIds, resolvedFor, workspaceId, agent, opts} = props;
+  const {mountIds, resource, workspaceId, agent, opts} = props;
 
   await kSemanticModels.utils().withTxn(async opts => {
     const existingEntries = await kSemanticModels.resolvedMountEntry().getManyByQuery({
       workspaceId,
-      resolvedFor,
+      resourceId: resource.resourceId,
       mountId: {$in: mountIds},
     });
     const existingEntriesMap = keyBy(existingEntries, entry => entry.mountId);
 
-    const resolvedForType = getResourceTypeFromId(resolvedFor);
+    const resolvedForType = getResourceTypeFromId(resource.resourceId);
     const newEntries: ResolvedMountEntry[] = [];
     const updateEntries: Array<[string, Partial<ResolvedMountEntry>]> = [];
     mountIds.forEach(mountId => {
@@ -272,7 +272,14 @@ export async function insertResolvedMountEntries(props: {
             agent,
             AppResourceTypeMap.ResolvedMountEntry,
             workspaceId,
-            {mountId, resolvedFor, resolvedForType, resolvedAt: getTimestamp()}
+            {
+              mountId,
+              resolvedForType,
+              resolvedFor: resource.resourceId,
+              resolvedAt: getTimestamp(),
+              namepath: resource.namepath,
+              extension: resource.extension,
+            }
           )
         );
       }

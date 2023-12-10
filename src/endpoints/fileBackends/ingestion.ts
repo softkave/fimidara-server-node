@@ -193,7 +193,7 @@ export async function ingestPersistedFiles(
           mountIds: persistedFilesByFilepath[
             file.namepath.join(kFolderConstants.separator)
           ].mountFiles.map(pFile => pFile.mountId),
-          resolvedFor: file.resourceId,
+          resource: file,
         })
       )
     );
