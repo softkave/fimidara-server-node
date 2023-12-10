@@ -2,17 +2,11 @@ import {compact, defaultTo, first, isArray, last} from 'lodash';
 import {posix} from 'path';
 import {container} from 'tsyringe';
 import {FileBackendMount} from '../../definitions/fileBackend';
-import {
-  Folder,
-  FolderMatcher,
-  FolderResolvedMountEntry,
-  PublicFolder,
-} from '../../definitions/folder';
+import {Folder, FolderMatcher, PublicFolder} from '../../definitions/folder';
 import {PermissionAction} from '../../definitions/permissionItem';
 import {Agent, AppResourceTypeMap, SessionAgent} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
-import {getTimestamp} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
 import {kReuseableErrors} from '../../utils/reusableErrors';
@@ -42,17 +36,6 @@ import {kFolderConstants} from './constants';
 import {FolderNotFoundError} from './errors';
 import {assertGetFolderWithMatcher} from './getFolderWithMatcher';
 
-const folderResolvedEntryFields = getFields<FolderResolvedMountEntry>({
-  ...workspaceResourceFields,
-  mountId: true,
-  resolvedAt: true,
-});
-
-export const folderResolvedEntryExtractor = makeExtract(folderResolvedEntryFields);
-export const folderResolvedEntryListExtractor = makeListExtract(
-  folderResolvedEntryFields
-);
-
 const folderFields = getFields<PublicFolder>({
   ...workspaceResourceFields,
   parentId: true,
@@ -60,7 +43,6 @@ const folderFields = getFields<PublicFolder>({
   description: true,
   idPath: true,
   namepath: true,
-  resolvedEntries: folderResolvedEntryListExtractor,
 });
 
 export const folderExtractor = makeExtract(folderFields);
@@ -254,7 +236,6 @@ export function areFolderpathsEqual(
 export async function ensureFolders(
   agent: SessionAgent,
   workspace: Workspace,
-  mounts: Array<Pick<FileBackendMount, 'resourceId'>>,
   /** folder path with workspace rootname */
   folderpath: string,
   opts: SemanticProviderMutationRunOptions
@@ -262,7 +243,6 @@ export async function ensureFolders(
   return await createFolderListWithTransaction(
     agent,
     workspace,
-    mounts,
     {folderpath: addRootnameToPath(folderpath, workspace.rootname)},
     /** Skip auth check. Since what we really care about is file creation, and
      * a separate permission check is done for that. All of it is also done
@@ -296,7 +276,6 @@ export function createNewFolder(
   workspaceId: string,
   pathinfo: Pick<FolderpathInfo, 'name'>,
   parentFolder: Pick<Folder, 'idPath' | 'namepath' | 'resourceId'> | null,
-  mounts: Array<Pick<FileBackendMount, 'resourceId'>>,
   /** represents external data */
   data: Pick<Folder, 'description'>,
   /** represents internal data */
@@ -313,10 +292,6 @@ export function createNewFolder(
       : [pathinfo.name],
     parentId: parentFolder?.resourceId ?? null,
     description: data.description,
-    resolvedEntries: mounts.map(mount => ({
-      mountId: mount.resourceId,
-      resolvedAt: getTimestamp(),
-    })),
     ...seed,
   });
 }
@@ -325,34 +300,18 @@ export async function createNewFolderAndEnsureParents(
   agent: Agent,
   workspace: Workspace,
   pathinfo: FolderpathInfo,
-  mounts: Array<Pick<FileBackendMount, 'resourceId'>>,
   data: Pick<Folder, 'description'>,
   opts: SemanticProviderMutationRunOptions,
   seed: Partial<Folder> = {}
 ) {
-  const parentFolder = await ensureFolders(
-    agent,
-    workspace,
-    mounts,
-    pathinfo.parentPath,
-    opts
-  );
-  return createNewFolder(
-    agent,
-    workspace.resourceId,
-    pathinfo,
-    parentFolder,
-    mounts,
-    data,
-    seed
-  );
+  const parentFolder = await ensureFolders(agent, workspace, pathinfo.parentPath, opts);
+  return createNewFolder(agent, workspace.resourceId, pathinfo, parentFolder, data, seed);
 }
 
 export async function createAndInsertNewFolder(
   agent: Agent,
   workspace: Workspace,
   pathinfo: FolderpathInfo,
-  mounts: Array<Pick<FileBackendMount, 'resourceId'>>,
   data: Pick<Folder, 'description'>,
   opts: SemanticProviderMutationRunOptions,
   seed: Partial<Folder> = {}
@@ -361,7 +320,6 @@ export async function createAndInsertNewFolder(
     agent,
     workspace,
     pathinfo,
-    mounts,
     data,
     opts,
     seed

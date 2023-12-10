@@ -6,11 +6,6 @@ import {
   WorkspaceResource,
 } from './system';
 
-export interface FileResolvedMountEntry {
-  mountId: string;
-  resolvedAt: number;
-}
-
 export interface File extends WorkspaceResource {
   parentId: string | null;
   idPath: string[];
@@ -25,7 +20,6 @@ export interface File extends WorkspaceResource {
   isReadAvailable?: boolean;
   head?: string;
   version: number;
-  resolvedEntries: FileResolvedMountEntry[];
 }
 
 export type PublicFile = PublicWorkspaceResource &
@@ -42,7 +36,6 @@ export type PublicFile = PublicWorkspaceResource &
       | 'extension'
       | 'description'
       | 'version'
-      | 'resolvedEntries'
     >
   >;
 

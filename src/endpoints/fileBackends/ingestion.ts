@@ -16,12 +16,7 @@ import {
   PersistedFolderDescription,
 } from '../contexts/file/types';
 import {kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
-import {
-  FilepathInfo,
-  addMountEntries,
-  createNewFile,
-  getFilepathInfo,
-} from '../files/utils';
+import {FilepathInfo, createNewFile, getFilepathInfo} from '../files/utils';
 import {kFolderConstants} from '../folders/constants';
 import {
   FolderpathInfo,
@@ -31,7 +26,7 @@ import {
 } from '../folders/utils';
 import {JobInput, queueJobs} from '../jobs/utils';
 import {resolveBackendConfigsWithIdList} from './configUtils';
-import {initBackendProvidersForMounts} from './mountUtils';
+import {initBackendProvidersForMounts, insertResolvedMountEntries} from './mountUtils';
 
 export async function ingestPersistedFolders(
   agent: Agent,
@@ -74,10 +69,7 @@ export async function ingestPersistedFolders(
       )
     );
 
-    const folderpathsToEnsureMap: Map<
-      /** folderpath */ string,
-      /** mount IDs */ Set<string>
-    > = new Map();
+    const folderpathsToEnsure: Set</** folderpath */ string> = new Set();
     const newFolders: Array<Folder> = [];
     const existingFoldersMap = keyBy(existingFolders, file =>
       file.namepath.join(kFolderConstants.separator)
@@ -89,10 +81,7 @@ export async function ingestPersistedFolders(
 
       if (!existingFoldersMap[mountFolder0.folderpath]) {
         if (pathinfo.parentPath && ensureNewFolders) {
-          const mountIdSet =
-            folderpathsToEnsureMap.get(pathinfo.parentPath) || new Set<string>();
-          mountFolders.forEach(next => mountIdSet.add(next.mountId));
-          folderpathsToEnsureMap.set(pathinfo.parentPath, mountIdSet);
+          folderpathsToEnsure.add(pathinfo.parentPath);
         }
 
         newFolders.push(
@@ -101,43 +90,19 @@ export async function ingestPersistedFolders(
             workspace.resourceId,
             pathinfo,
             parent,
-            mountFolders.map(next => ({resourceId: next.mountId})),
             /** new folder input */ {}
           )
         );
       }
     });
 
-    const updateFoldersPromise = Promise.all(
-      existingFolders.map(folder => {
-        const entry = mountFoldersMap[folder.namepath.join(kFolderConstants.separator)];
-        appAssert(entry);
-
-        return kSemanticModels.folder().updateOneById(
-          folder.resourceId,
-          {
-            resolvedEntries: addMountEntries(
-              entry.mountFolders.map(next => ({resourceId: next.mountId})),
-              folder.resolvedEntries
-            ),
-          },
-          opts
-        );
-      })
-    );
     const saveFoldersPromise = kSemanticModels.folder().insertItem(newFolders, opts);
-    const ensureFoldersPromise = await Promise.all(
-      Array.from(folderpathsToEnsureMap).map(([folderpath, mountIdSet]) =>
-        ensureFolders(
-          agent,
-          workspace,
-          Array.from(mountIdSet).map(id => ({resourceId: id})),
-          folderpath,
-          opts
-        )
+    const ensureFoldersPromise = Promise.all(
+      Array.from(folderpathsToEnsure).map(folderpath =>
+        ensureFolders(agent, workspace, folderpath, opts)
       )
     );
-    await Promise.all([updateFoldersPromise, saveFoldersPromise, ensureFoldersPromise]);
+    await Promise.all([saveFoldersPromise, ensureFoldersPromise]);
   });
 }
 
@@ -147,16 +112,16 @@ export async function ingestPersistedFiles(
   parent: Folder | null,
   files: PersistedFileDescription[]
 ) {
-  const mountFilesMap: Record<
-    string,
+  const persistedFilesByFilepath: Record<
+    /** filepath */ string,
     {pathinfo: FilepathInfo; mountFiles: PersistedFileDescription[]}
   > = {};
 
   files.forEach(nextMountFile => {
-    let map = mountFilesMap[nextMountFile.filepath];
+    let map = persistedFilesByFilepath[nextMountFile.filepath];
 
     if (!map) {
-      map = mountFilesMap[nextMountFile.filepath] = {
+      map = persistedFilesByFilepath[nextMountFile.filepath] = {
         pathinfo: getFilepathInfo(nextMountFile.filepath),
         mountFiles: [],
       };
@@ -165,26 +130,25 @@ export async function ingestPersistedFiles(
     map.mountFiles.push(nextMountFile);
   });
 
-  const mountFileList = Object.values(mountFilesMap);
+  const mountFileList = Object.values(persistedFilesByFilepath);
   await kSemanticModels.utils().withTxn(async opts => {
     // TODO: use $or query instead
     const existingFiles = compact(
       await Promise.all(
         mountFileList.map(({pathinfo}) => {
-          return kSemanticModels
-            .file()
-            .getOneByNamepath(
-              {workspaceId: workspace.resourceId, namepath: pathinfo.namepath},
-              opts
-            );
+          return kSemanticModels.file().getOneByNamepath(
+            {
+              workspaceId: workspace.resourceId,
+              namepath: pathinfo.namepath,
+              extension: pathinfo.extension,
+            },
+            opts
+          );
         })
       )
     );
 
-    const folderpathsToEnsureMap: Map<
-      /** folderpath */ string,
-      /** mount IDs */ Set<string>
-    > = new Map();
+    const folderpathsToEnsure: Set</** folderpath */ string> = new Set();
     const newFiles: Array<File> = [];
     const existingFilesMap = keyBy(existingFiles, file =>
       file.namepath.join(kFolderConstants.separator)
@@ -196,10 +160,7 @@ export async function ingestPersistedFiles(
 
       if (!existingFilesMap[mountFile0.filepath]) {
         if (pathinfo.parentPath) {
-          const mountIdSet =
-            folderpathsToEnsureMap.get(pathinfo.parentPath) || new Set<string>();
-          mountFiles.forEach(next => mountIdSet.add(next.mountId));
-          folderpathsToEnsureMap.set(pathinfo.parentPath, mountIdSet);
+          folderpathsToEnsure.add(pathinfo.parentPath);
         }
 
         newFiles.push(
@@ -208,7 +169,6 @@ export async function ingestPersistedFiles(
             workspace.resourceId,
             pathinfo,
             parent,
-            mountFiles.map(next => ({resourceId: next.mountId})),
             /** new file input */ {},
             {
               isReadAvailable: true,
@@ -224,37 +184,30 @@ export async function ingestPersistedFiles(
     });
 
     const saveFilesPromise = kSemanticModels.file().insertItem(newFiles, opts);
-    const updateFilesPromise = Promise.all(
-      existingFiles.map(file => {
-        const entry = mountFilesMap[file.namepath.join(kFolderConstants.separator)];
-        appAssert(entry);
-
-        return kSemanticModels.file().updateOneById(
-          file.resourceId,
-          {
-            resolvedEntries: addMountEntries(
-              entry.mountFiles.map(next => ({resourceId: next.mountId})),
-              file.resolvedEntries
-            ),
-          },
-          opts
-        );
-      })
-    );
-
-    const ensureFoldersPromise = await Promise.all(
-      Array.from(folderpathsToEnsureMap).map(([folderpath, mountIdSet]) =>
-        ensureFolders(
+    const insertMountEntriesPromise = Promise.all(
+      newFiles.concat(existingFiles).map(file =>
+        insertResolvedMountEntries({
           agent,
-          workspace,
-          Array.from(mountIdSet).map(id => ({resourceId: id})),
-          folderpath,
-          opts
-        )
+          opts,
+          workspaceId: workspace.resourceId,
+          mountIds: persistedFilesByFilepath[
+            file.namepath.join(kFolderConstants.separator)
+          ].mountFiles.map(pFile => pFile.mountId),
+          resolvedFor: file.resourceId,
+        })
+      )
+    );
+    const ensureFoldersPromise = Promise.all(
+      Array.from(folderpathsToEnsure).map(folderpath =>
+        ensureFolders(agent, workspace, folderpath, opts)
       )
     );
 
-    await Promise.all([updateFilesPromise, saveFilesPromise, ensureFoldersPromise]);
+    await Promise.all([
+      insertMountEntriesPromise,
+      saveFilesPromise,
+      ensureFoldersPromise,
+    ]);
   });
 }
 

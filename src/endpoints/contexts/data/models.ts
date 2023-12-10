@@ -2,7 +2,11 @@ import {AgentToken} from '../../../definitions/agentToken';
 import {AssignedItem} from '../../../definitions/assignedItem';
 import {CollaborationRequest} from '../../../definitions/collaborationRequest';
 import {File, FilePresignedPath} from '../../../definitions/file';
-import {FileBackendConfig} from '../../../definitions/fileBackend';
+import {
+  FileBackendConfig,
+  FileBackendMount,
+  ResolvedMountEntry,
+} from '../../../definitions/fileBackend';
 import {Folder} from '../../../definitions/folder';
 import {Job} from '../../../definitions/job';
 import {PermissionGroup} from '../../../definitions/permissionGroups';
@@ -30,12 +34,14 @@ import {
   AssignedItemDataProvider,
   CollaborationRequestDataProvider,
   FileBackendConfigDataProvider,
+  FileBackendMountDataProvider,
   FileDataProvider,
   FilePresignedPathDataProvider,
   FolderDataProvider,
   JobDataProvider,
   PermissionGroupDataProvider,
   PermissionItemDataProvider,
+  ResolvedMountEntryDataProvider,
   ResourceDataProvider,
   TagDataProvider,
   UsageRecordDataProvider,
@@ -152,6 +158,20 @@ export class JobMongoDataProvider
 export class FileBackendConfigMongoDataProvider
   extends BaseMongoDataProvider<FileBackendConfig>
   implements FileBackendConfigDataProvider
+{
+  throwNotFound = throwNotFound;
+}
+
+export class FileBackendMountMongoDataProvider
+  extends BaseMongoDataProvider<FileBackendMount>
+  implements FileBackendMountDataProvider
+{
+  throwNotFound = throwNotFound;
+}
+
+export class ResolvedMountEntryMongoDataProvider
+  extends BaseMongoDataProvider<ResolvedMountEntry>
+  implements ResolvedMountEntryDataProvider
 {
   throwNotFound = throwNotFound;
 }

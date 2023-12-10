@@ -1,12 +1,19 @@
-import {compact, first} from 'lodash';
+import {compact, first, keyBy} from 'lodash';
 import {container} from 'tsyringe';
 import {File} from '../../definitions/file';
-import {FileBackendConfig, FileBackendMount} from '../../definitions/fileBackend';
+import {
+  FileBackendConfig,
+  FileBackendMount,
+  ResolvedMountEntry,
+} from '../../definitions/fileBackend';
 import {Folder} from '../../definitions/folder';
 import {IngestMountJobParams, Job} from '../../definitions/job';
+import {Agent} from '../../definitions/system';
 import {FimidaraExternalError} from '../../utils/OperationError';
 import {appAssert} from '../../utils/assertion';
+import {getTimestamp} from '../../utils/dateFns';
 import {ServerError} from '../../utils/errors';
+import {getResourceTypeFromId, newWorkspaceResource} from '../../utils/resource';
 import {PartialRecord} from '../../utils/types';
 import {kAsyncLocalStorageUtils} from '../contexts/asyncLocalStorage';
 import {DataQuery} from '../contexts/data/types';
@@ -19,6 +26,7 @@ import {kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
 import {kInjectionKeys} from '../contexts/injection';
 import {
   SemanticFileBackendMountProvider,
+  SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
@@ -227,4 +235,52 @@ export function populateMountUnsupportedOpNoteInNotFoundError(
       });
     }
   }
+}
+
+export async function insertResolvedMountEntries(props: {
+  agent: Agent;
+  mountIds: string[];
+  resolvedFor: string;
+  workspaceId: string;
+  opts?: SemanticProviderMutationRunOptions;
+}) {
+  const {mountIds, resolvedFor, workspaceId, agent, opts} = props;
+
+  await kSemanticModels.utils().withTxn(async opts => {
+    const existingEntries = await kSemanticModels.resolvedMountEntry().getManyByQuery({
+      workspaceId,
+      resolvedFor,
+      mountId: {$in: mountIds},
+    });
+    const existingEntriesMap = keyBy(existingEntries, entry => entry.mountId);
+
+    const resolvedForType = getResourceTypeFromId(resolvedFor);
+    const newEntries: ResolvedMountEntry[] = [];
+    const updateEntries: Array<[string, Partial<ResolvedMountEntry>]> = [];
+    mountIds.forEach(mountId => {
+      const existingEntry = existingEntriesMap[mountId];
+
+      if (existingEntry) {
+        updateEntries.push([existingEntry.resourceId, {resolvedAt: getTimestamp()}]);
+      } else {
+        newEntries.push(
+          newWorkspaceResource(agent, resolvedForType, workspaceId, {
+            mountId,
+            resolvedFor,
+            resolvedForType,
+            resolvedAt: getTimestamp(),
+          })
+        );
+      }
+    });
+
+    const insertPromise = kSemanticModels
+      .resolvedMountEntry()
+      .insertItem(newEntries, opts);
+    const updatePromise = updateEntries.map(([id, update]) =>
+      kSemanticModels.resolvedMountEntry().updateOneById(id, update, opts)
+    );
+
+    await Promise.all([insertPromise, updatePromise]);
+  }, opts);
 }

@@ -1,19 +1,12 @@
-import {compact, first, uniqBy} from 'lodash';
+import {compact, first} from 'lodash';
 import {container} from 'tsyringe';
-import {
-  File,
-  FileMatcher,
-  FilePresignedPath,
-  FileResolvedMountEntry,
-  PublicFile,
-} from '../../definitions/file';
+import {File, FileMatcher, FilePresignedPath, PublicFile} from '../../definitions/file';
 import {FileBackendMount} from '../../definitions/fileBackend';
 import {Folder} from '../../definitions/folder';
 import {PermissionAction} from '../../definitions/permissionItem';
 import {Agent, AppResourceTypeMap, SessionAgent} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
-import {getTimestamp} from '../../utils/dateFns';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
 import {kReuseableErrors} from '../../utils/reusableErrors';
@@ -49,14 +42,6 @@ import {assertWorkspace, checkWorkspaceExists} from '../workspaces/utils';
 import {fileConstants} from './constants';
 import {getFileByPresignedPath, getFileWithMatcher} from './getFilesWithMatcher';
 
-const fileResolvedEntryFields = getFields<FileResolvedMountEntry>({
-  mountId: true,
-  resolvedAt: true,
-});
-
-export const fileResolvedEntryExtractor = makeExtract(fileResolvedEntryFields);
-export const fileResolvedEntryListExtractor = makeListExtract(fileResolvedEntryFields);
-
 const fileFields = getFields<PublicFile>({
   ...workspaceResourceFields,
   name: true,
@@ -69,7 +54,6 @@ const fileFields = getFields<PublicFile>({
   idPath: true,
   namepath: true,
   version: true,
-  resolvedEntries: fileResolvedEntryListExtractor,
 });
 
 export const fileExtractor = makeExtract(fileFields);
@@ -243,7 +227,6 @@ export function createNewFile(
   workspaceId: string,
   pathinfo: FilepathInfo,
   parentFolder: Folder | null,
-  mounts: Array<Pick<FileBackendMount, 'resourceId'>>,
   data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
   seed: Partial<File> = {}
 ) {
@@ -265,10 +248,6 @@ export function createNewFile(
     description: data.description,
     encoding: data.encoding,
     mimetype: data.mimetype,
-    resolvedEntries: mounts.map(mount => ({
-      mountId: mount.resourceId,
-      resolvedAt: getTimestamp(),
-    })),
     ...seed,
   });
 
@@ -279,38 +258,22 @@ export async function createNewFileAndEnsureFolders(
   agent: Agent,
   workspace: Workspace,
   pathinfo: FilepathInfo,
-  mounts: Array<Pick<FileBackendMount, 'resourceId'>>,
   data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
   opts: SemanticProviderMutationRunOptions,
   seed: Partial<File> = {},
   parentFolder?: Folder | null
 ) {
   if (!parentFolder) {
-    parentFolder = await ensureFolders(
-      agent,
-      workspace,
-      mounts,
-      pathinfo.parentPath,
-      opts
-    );
+    parentFolder = await ensureFolders(agent, workspace, pathinfo.parentPath, opts);
   }
 
-  return createNewFile(
-    agent,
-    workspace.resourceId,
-    pathinfo,
-    parentFolder,
-    mounts,
-    data,
-    seed
-  );
+  return createNewFile(agent, workspace.resourceId, pathinfo, parentFolder, data, seed);
 }
 
 export async function createAndInsertNewFile(
   agent: Agent,
   workspace: Workspace,
   pathinfo: FilepathInfo,
-  mounts: Array<Pick<FileBackendMount, 'resourceId'>>,
   data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
   opts: SemanticProviderMutationRunOptions,
   seed: Partial<File> = {}
@@ -319,7 +282,6 @@ export async function createAndInsertNewFile(
     agent,
     workspace,
     pathinfo,
-    mounts,
     data,
     opts,
     seed
@@ -415,21 +377,4 @@ export async function readOrIngestFileByFilepath(
   }
 
   return file;
-}
-
-export function addMountEntries(
-  mounts: Array<Pick<FileBackendMount, 'resourceId'>>,
-  existingEntries?: FileResolvedMountEntry[]
-) {
-  return uniqBy(
-    mounts
-      .map(
-        (mount): FileResolvedMountEntry => ({
-          mountId: mount.resourceId,
-          resolvedAt: getTimestamp(),
-        })
-      )
-      .concat(existingEntries || []),
-    mount => mount.mountId
-  );
 }

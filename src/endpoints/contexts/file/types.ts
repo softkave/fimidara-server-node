@@ -104,7 +104,7 @@ export interface FilePersistenceAddFolderParams {
 }
 
 export interface FilePersistenceAddFolderResult {
-  folder: PersistedFolderDescription;
+  folder?: PersistedFolderDescription;
 }
 
 export interface FilePersistenceProvider {

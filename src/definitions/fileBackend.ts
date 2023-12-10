@@ -1,5 +1,6 @@
 import {ObjectValues} from '../utils/types';
 import {
+  AppResourceType,
   ConvertAgentToPublicAgent,
   PublicWorkspaceResource,
   WorkspaceResource,
@@ -33,6 +34,13 @@ export interface FileBackendConfig extends WorkspaceResource {
   secretId: string;
 }
 
+export interface ResolvedMountEntry extends WorkspaceResource {
+  mountId: string;
+  resolvedAt: number;
+  resolvedFor: string;
+  resolvedForType: AppResourceType;
+}
+
 export type PublicFileBackendMount = PublicWorkspaceResource &
   ConvertAgentToPublicAgent<
     Pick<
@@ -49,3 +57,6 @@ export type PublicFileBackendMount = PublicWorkspaceResource &
 
 export type PublicFileBackendConfig = PublicWorkspaceResource &
   ConvertAgentToPublicAgent<Pick<FileBackendConfig, 'backend' | 'name' | 'description'>>;
+
+export type PublicResolvedMountEntry = PublicWorkspaceResource &
+  ConvertAgentToPublicAgent<Pick<ResolvedMountEntry, 'mountId' | 'resolvedAt'>>;

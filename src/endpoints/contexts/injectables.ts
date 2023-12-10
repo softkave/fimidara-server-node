@@ -14,6 +14,7 @@ import {
   JobDataProvider,
   PermissionGroupDataProvider,
   PermissionItemDataProvider,
+  ResolvedMountEntryDataProvider,
   TagDataProvider,
   UserDataProvider,
   WorkspaceDataProvider,
@@ -38,6 +39,7 @@ import {
   SemanticFileBackendMountProvider,
   SemanticJobProvider,
   SemanticProviderUtils,
+  SemanticResolvedMountEntryProvider,
 } from './semantic/types';
 import {SemanticUsageRecordProviderType} from './semantic/usageRecord/types';
 import {SemanticUserProviderType} from './semantic/user/types';
@@ -87,6 +89,10 @@ export const kSemanticModels = {
     container.resolve<SemanticUsageRecordProviderType>(
       kInjectionKeys.semantic.usageRecord
     ),
+  resolvedMountEntry: () =>
+    container.resolve<SemanticResolvedMountEntryProvider>(
+      kInjectionKeys.semantic.resolvedMountEntry
+    ),
   utils: () => container.resolve<SemanticProviderUtils>(kInjectionKeys.semantic.utils),
 };
 
@@ -108,13 +114,17 @@ export const kDataModels = {
       kInjectionKeys.data.filePresignedPath
     ),
   permissionGroup: () =>
-    container.resolve<PermissionGroupDataProvider>(kInjectionKeys.data.permissionGroups),
+    container.resolve<PermissionGroupDataProvider>(kInjectionKeys.data.permissionGroup),
   permissionItem: () =>
-    container.resolve<PermissionItemDataProvider>(kInjectionKeys.data.permissionItems),
-  tag: () => container.resolve<TagDataProvider>(kInjectionKeys.data.tags),
+    container.resolve<PermissionItemDataProvider>(kInjectionKeys.data.permissionItem),
+  tag: () => container.resolve<TagDataProvider>(kInjectionKeys.data.tag),
   assignedItem: () =>
-    container.resolve<AssignedItemDataProvider>(kInjectionKeys.data.assignedItems),
-  job: () => container.resolve<JobDataProvider>(kInjectionKeys.data.jobs),
+    container.resolve<AssignedItemDataProvider>(kInjectionKeys.data.assignedItem),
+  job: () => container.resolve<JobDataProvider>(kInjectionKeys.data.job),
+  resolvedMountEntry: () =>
+    container.resolve<ResolvedMountEntryDataProvider>(
+      kInjectionKeys.data.resolvedMountEntry
+    ),
   utils: () => container.resolve<DataProviderUtils>(kInjectionKeys.data.utils),
 };
 
