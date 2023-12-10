@@ -21,6 +21,9 @@ const ResolvedEntryFields = getFields<PublicResolvedMountEntry>({
   ...workspaceResourceFields,
   mountId: true,
   resolvedAt: true,
+  extension: true,
+  namepath: true,
+  resolvedForType: true,
 });
 
 export const ResolvedEntryExtractor = makeExtract(ResolvedEntryFields);

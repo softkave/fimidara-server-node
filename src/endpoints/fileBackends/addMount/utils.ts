@@ -70,7 +70,6 @@ export const INTERNAL_addFileBackendMount = async (
     ensureFolders(
       agent,
       workspace,
-      [mount],
       stringifyFoldernamepath({namepath: data.folderpath}, workspace.rootname),
       opts
     ),

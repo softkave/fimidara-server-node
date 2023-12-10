@@ -333,10 +333,7 @@ export const kDeleteFoldersCascadeFns: DeleteResourceCascadeFnsMap = {
       await kSemanticModels.resolvedMountEntry().deleteManyByQuery(
         {
           workspaceId: args.workspaceId,
-          namepath: {
-            $all: cleanupArgs.folder.namepath,
-            $size: cleanupArgs.folder.namepath.length,
-          },
+          namepath: {$all: cleanupArgs.folder.namepath},
         },
         opts
       );
