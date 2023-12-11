@@ -1,6 +1,7 @@
 import {pick} from 'lodash';
 import {container} from 'tsyringe';
 import {FileBackendMount} from '../../../definitions/fileBackend';
+import {CleanupMountResolvedEntriesJobParams, Job} from '../../../definitions/job';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
@@ -12,9 +13,8 @@ import {
   SemanticFileBackendMountProvider,
   SemanticProviderUtils,
 } from '../../contexts/semantic/types';
-import {NotFoundError} from '../../errors';
 import {areFolderpathsEqual} from '../../folders/utils';
-import {enqueuePurgeMountFromFolderJob} from '../../jobs/runner';
+import {queueJobs} from '../../jobs/utils';
 import {isResourceNameEqual} from '../../utils';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {fileBackendMountExtractor, mountExists, mountNameExists} from '../utils';
@@ -42,9 +42,13 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async (
     target: {action: 'updateFileBackendMount', targetId: workspace.resourceId},
   });
 
-  const updatedMount = await semanticUtils.withTxn(async opts => {
+  const {updatedMount, job} = await semanticUtils.withTxn(async opts => {
     const mount = await mountModel.getOneById(data.mountId, opts);
-    appAssert(mount, new NotFoundError('File backend mount not found.'));
+    appAssert(mount, kReuseableErrors.mount.notFound());
+
+    if (mount.backend === 'fimidara') {
+      throw kReuseableErrors.mount.cannotUpdateFimidaraMount();
+    }
 
     const mountUpdate: Partial<FileBackendMount> = {
       ...pick(data.mount, [
@@ -91,19 +95,27 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async (
       }
     }
 
-    if (
-      isFolderpathChanged ||
-      isMountedFromChanged ||
-      (data.mount.index && data.mount.index !== mount.index)
-    ) {
-      await enqueuePurgeMountFromFolderJob({}, opts);
+    let job: Job | undefined = undefined;
+
+    if (isFolderpathChanged || isMountedFromChanged) {
+      [job] = await queueJobs<CleanupMountResolvedEntriesJobParams>(
+        workspace.resourceId,
+        /** parent job ID */ undefined,
+        [{type: 'cleanupMountResolvedEntries', params: {mountId: mount.resourceId}}]
+      );
     }
 
-    return await mountModel.getAndUpdateOneById(mount.resourceId, mountUpdate, opts);
+    const updatedMount = await mountModel.getAndUpdateOneById(
+      mount.resourceId,
+      mountUpdate,
+      opts
+    );
+
+    return {job, updatedMount};
   });
 
   appAssert(updatedMount);
-  return {mount: fileBackendMountExtractor(updatedMount)};
+  return {mount: fileBackendMountExtractor(updatedMount), jobId: job?.resourceId};
 };
 
 export default updateFileBackendMount;

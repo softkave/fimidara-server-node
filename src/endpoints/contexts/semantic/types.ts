@@ -1,4 +1,4 @@
-import {FileBackendMount} from '../../../definitions/fileBackend';
+import {FileBackendMount, ResolvedMountEntry} from '../../../definitions/fileBackend';
 import {Job} from '../../../definitions/job';
 import {Resource} from '../../../definitions/system';
 import {AnyFn} from '../../../utils/types';
@@ -86,7 +86,7 @@ export type SemanticWorkspaceResourceProviderBaseType = Resource & {
 };
 
 export interface SemanticWorkspaceResourceProviderType<
-  T extends SemanticWorkspaceResourceProviderBaseType
+  T extends SemanticWorkspaceResourceProviderBaseType,
 > extends SemanticBaseProviderType<T> {
   getByName(
     workspaceId: string,
@@ -147,3 +147,6 @@ export type SemanticJobProvider = SemanticBaseProviderType<Job> & {
     opts: SemanticProviderMutationRunOptions
   ): Promise<void>;
 };
+
+export type SemanticResolvedMountEntryProvider =
+  SemanticWorkspaceResourceProviderType<ResolvedMountEntry>;

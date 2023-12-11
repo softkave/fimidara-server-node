@@ -22,20 +22,16 @@ import {
 import {isObjectEmpty, toCompactArray} from '../utils/fns';
 import {serverLogger} from '../utils/logger/loggerUtils';
 import {kReuseableErrors} from '../utils/reusableErrors';
-import {AnyFn, AnyObject, OrPromise} from '../utils/types';
+import {AnyObject, OrPromise} from '../utils/types';
 import RequestData from './RequestData';
 import {endpointConstants} from './constants';
 import {kAsyncLocalStorageUtils} from './contexts/asyncLocalStorage';
 import {ResolvedTargetChildrenAccessCheck} from './contexts/authorizationChecks/checkAuthorizaton';
 import {DataQuery} from './contexts/data/types';
-import {kSemanticModels} from './contexts/injectables';
-import {SemanticProviderMutationRunOptions} from './contexts/semantic/types';
 import {getInAndNinQuery} from './contexts/semantic/utils';
 import {BaseContextType, IServerRequest} from './contexts/types';
 import {InvalidRequestError, NotFoundError} from './errors';
 import {
-  DeleteResourceCascadeFnHelperFns,
-  DeleteResourceCascadeFnsMap,
   Endpoint,
   ExportedHttpEndpointWithMddocDefinition,
   ExportedHttpEndpoint_Cleanup,
@@ -57,7 +53,7 @@ export function extractExternalEndpointError(
   };
 }
 
-export function getPublicErrors(inputError: any) {
+export function getPublicErrors(inputError: unknown) {
   const errors: OperationError[] = Array.isArray(inputError) ? inputError : [inputError];
 
   // We are mapping errors cause some values don't show if we don't
@@ -110,7 +106,7 @@ export function defaultEndpointCleanup() {
 
 export const wrapEndpointREST = <
   Context extends BaseContextType,
-  EndpointType extends Endpoint<Context>
+  EndpointType extends Endpoint<Context>,
 >(
   endpoint: EndpointType,
   context: Context,
@@ -118,7 +114,7 @@ export const wrapEndpointREST = <
   handleError?: ExportedHttpEndpoint_HandleErrorFn,
   getData?: ExportedHttpEndpoint_GetDataFromReqFn,
   cleanup?: ExportedHttpEndpoint_Cleanup | Array<ExportedHttpEndpoint_Cleanup>
-): ((req: Request, res: Response) => any) => {
+): ((req: Request, res: Response) => unknown) => {
   return async (req: Request, res: Response) => {
     try {
       const data = await (getData ? getData(req) : req.body);
@@ -219,7 +215,7 @@ export function withAssignedAgentList<T extends AnyObject>(
   }));
 }
 
-export function endpointDecodeURIComponent(component?: any) {
+export function endpointDecodeURIComponent(component?: unknown) {
   return component && isString(component) ? decodeURIComponent(component) : undefined;
 }
 
@@ -259,19 +255,6 @@ export function getWorkspaceResourceListQuery01(
   };
 }
 
-export async function executeCascadeDelete<Args>(
-  cascadeDef: DeleteResourceCascadeFnsMap<Args>,
-  args: Args
-) {
-  const helperFns: DeleteResourceCascadeFnHelperFns = {
-    async withTxn(fn: AnyFn<[SemanticProviderMutationRunOptions]>) {
-      await kSemanticModels.utils().withTxn(opts => fn(opts));
-    },
-  };
-
-  await Promise.all(Object.values(cascadeDef).map(fn => fn(args, helperFns)));
-}
-
 export function assertUpdateNotEmpty(update: AnyObject) {
   appAssert(
     !isObjectEmpty(update),
@@ -281,7 +264,7 @@ export function assertUpdateNotEmpty(update: AnyObject) {
 
 export function registerExpressRouteFromEndpoint(
   ctx: BaseContextType,
-  endpoint: ExportedHttpEndpointWithMddocDefinition<any>,
+  endpoint: ExportedHttpEndpointWithMddocDefinition<never>,
   app: Express
 ) {
   const p = endpoint.mddocHttpDefinition.assertGetBasePathname();

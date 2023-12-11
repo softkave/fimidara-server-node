@@ -87,11 +87,12 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
     params: FilePersistenceGetFileParams
   ): Promise<PersistedFileDescription | undefined> => {
     const {workspaceId, filepath, mount} = params;
-    const pathinfo = getFilepathInfo(filepath);
-    const file = await kSemanticModels.file().getOneByNamepath({
+    const {namepath, extension} = getFilepathInfo(filepath);
+    const file = await kSemanticModels.file().getOneByQuery({
       workspaceId,
-      namepath: pathinfo.namepath,
-      extension: pathinfo.extension,
+      extension,
+      namepath: {$all: namepath, $size: namepath.length},
+      resolvedEntries: {$elemMatch: {mountId: mount.resourceId}},
     });
 
     if (file) {
@@ -113,10 +114,11 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
     params: FilePersistenceDescribeFolderParams
   ): Promise<PersistedFolderDescription | undefined> => {
     const {workspaceId, folderpath, mount} = params;
-    const pathinfo = getFolderpathInfo(folderpath);
-    const folder = await kSemanticModels.folder().getOneByNamepath({
+    const {namepath} = getFolderpathInfo(folderpath);
+    const folder = await kSemanticModels.folder().getOneByQuery({
       workspaceId,
-      namepath: pathinfo.namepath,
+      namepath: {$all: namepath, $size: namepath.length},
+      resolvedEntries: {$elemMatch: {mountId: mount.resourceId}},
     });
 
     if (folder) {
@@ -151,6 +153,7 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
         namepath: {$all: pathinfo.namepath, $size: pathinfo.namepath.length},
         createdAt: {$lte: currentPage.createdAt},
         resourceId: {$nin: currentPage.exclude},
+        resolvedEntries: {$elemMatch: {mountId: mount.resourceId}},
       },
       {pageSize: max, sort: {createdAt: 'descending'}}
     );

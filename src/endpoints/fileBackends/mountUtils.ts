@@ -1,12 +1,24 @@
-import {compact, first} from 'lodash';
+import {compact, first, keyBy} from 'lodash';
 import {container} from 'tsyringe';
 import {File} from '../../definitions/file';
-import {FileBackendConfig, FileBackendMount} from '../../definitions/fileBackend';
+import {
+  FileBackendConfig,
+  FileBackendMount,
+  ResolvedMountEntry,
+} from '../../definitions/fileBackend';
 import {Folder} from '../../definitions/folder';
-import {IngestMountJobParams, Job} from '../../definitions/job';
+import {
+  CleanupMountResolvedEntriesJobParams,
+  IngestMountJobParams,
+  Job,
+} from '../../definitions/job';
+import {Agent, AppResourceTypeMap} from '../../definitions/system';
 import {FimidaraExternalError} from '../../utils/OperationError';
 import {appAssert} from '../../utils/assertion';
+import {getTimestamp} from '../../utils/dateFns';
 import {ServerError} from '../../utils/errors';
+import {getResourceTypeFromId, newWorkspaceResource} from '../../utils/resource';
+import {PartialRecord} from '../../utils/types';
 import {kAsyncLocalStorageUtils} from '../contexts/asyncLocalStorage';
 import {DataQuery} from '../contexts/data/types';
 import {
@@ -18,6 +30,7 @@ import {kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
 import {kInjectionKeys} from '../contexts/injection';
 import {
   SemanticFileBackendMountProvider,
+  SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
@@ -63,6 +76,7 @@ export async function resolveMountsForFolder(
   );
 
   const mounts: FileBackendMount[] = [];
+  const mountsMap: PartialRecord<string, FileBackendMount> = {};
   const mountWeights: FileBackendMountWeights = {};
 
   let mountIndex = 0;
@@ -70,11 +84,12 @@ export async function resolveMountsForFolder(
     sortMounts(nextMountList).forEach(mount => {
       mounts.push(mount);
       mountWeights[mount.resourceId] = mountIndex;
+      mountsMap[mount.resourceId] = mount;
       mountIndex += 1;
     });
   });
 
-  return {mounts, mountWeights};
+  return {mounts, mountWeights, mountsMap};
 }
 
 export function isPrimaryMountFimidara(mounts: FileBackendMount[]): boolean {
@@ -127,7 +142,9 @@ export async function initBackendProvidersForMounts(
   return providersMap;
 }
 
-export async function getFileBackendForFile(file: File) {
+export async function getFileBackendForFile(
+  file: Pick<File, 'workspaceId' | 'namepath'>
+) {
   const {mounts} = await resolveMountsForFolder({
     workspaceId: file.workspaceId,
     namepath: file.namepath.slice(0, -1),
@@ -222,4 +239,70 @@ export function populateMountUnsupportedOpNoteInNotFoundError(
       });
     }
   }
+}
+
+export async function insertResolvedMountEntries(props: {
+  agent: Agent;
+  mountIds: string[];
+  resource: Pick<File, 'resourceId' | 'namepath' | 'extension'>;
+  workspaceId: string;
+  opts?: SemanticProviderMutationRunOptions;
+}) {
+  const {mountIds, resource, workspaceId, agent, opts} = props;
+
+  await kSemanticModels.utils().withTxn(async opts => {
+    const existingEntries = await kSemanticModels.resolvedMountEntry().getManyByQuery({
+      workspaceId,
+      resourceId: resource.resourceId,
+      mountId: {$in: mountIds},
+    });
+    const existingEntriesMap = keyBy(existingEntries, entry => entry.mountId);
+
+    const resolvedForType = getResourceTypeFromId(resource.resourceId);
+    const newEntries: ResolvedMountEntry[] = [];
+    const updateEntries: Array<[string, Partial<ResolvedMountEntry>]> = [];
+    mountIds.forEach(mountId => {
+      const existingEntry = existingEntriesMap[mountId];
+
+      if (existingEntry) {
+        updateEntries.push([existingEntry.resourceId, {resolvedAt: getTimestamp()}]);
+      } else {
+        newEntries.push(
+          newWorkspaceResource(
+            agent,
+            AppResourceTypeMap.ResolvedMountEntry,
+            workspaceId,
+            {
+              mountId,
+              resolvedForType,
+              resolvedFor: resource.resourceId,
+              resolvedAt: getTimestamp(),
+              namepath: resource.namepath,
+              extension: resource.extension,
+            }
+          )
+        );
+      }
+    });
+
+    const insertPromise = kSemanticModels
+      .resolvedMountEntry()
+      .insertItem(newEntries, opts);
+    const updatePromise = updateEntries.map(([id, update]) =>
+      kSemanticModels.resolvedMountEntry().updateOneById(id, update, opts)
+    );
+
+    await Promise.all([insertPromise, updatePromise]);
+  }, opts);
+}
+
+export async function runCleanupMountResolvedEntriesJob(
+  job: Job<CleanupMountResolvedEntriesJobParams>
+) {
+  appAssert(job.workspaceId);
+  await kSemanticModels.utils().withTxn(async opts => {
+    await kSemanticModels
+      .resolvedMountEntry()
+      .deleteManyByQuery({mountId: job.params.mountId}, opts);
+  });
 }

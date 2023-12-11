@@ -13,4 +13,5 @@ export const kFolderConstants = {
     countFolderContent: `${endpointConstants.apiv1}/folders/countFolderContent`,
     updateFolder: `${endpointConstants.apiv1}/folders/updateFolder`,
   },
+  rootFolderName: 'root',
 };

@@ -1,7 +1,14 @@
 import {keyBy} from 'lodash';
 import {AnyObject} from 'mongoose';
 import winston from 'winston';
-import {Job, JobStatusMap, JobType, kJobRunnerV1} from '../../definitions/job';
+import {
+  DeleteResourceJobParams,
+  Job,
+  JobStatusMap,
+  JobType,
+  JobTypeMap,
+  kJobRunnerV1,
+} from '../../definitions/job';
 import {AppResourceTypeMap} from '../../definitions/system';
 import {getTimestamp} from '../../utils/dateFns';
 import {newResource} from '../../utils/resource';
@@ -14,14 +21,14 @@ export interface JobInput<TParams extends AnyObject = AnyObject> {
   idempotencyToken?: string;
 }
 
-export async function queueJobs(
+export async function queueJobs<TParams extends AnyObject = AnyObject>(
   workspaceId: string | undefined,
   parentJobId: string | undefined,
-  jobsInput: JobInput[],
+  jobsInput: JobInput<TParams>[],
   opts?: SemanticProviderMutationRunOptions
 ) {
   if (jobsInput.length === 0) {
-    return;
+    return [];
   }
 
   const config = kUtilsInjectables.config();
@@ -41,7 +48,7 @@ export async function queueJobs(
     });
   });
 
-  await kSemanticModels.utils().withTxn(async opts => {
+  return await kSemanticModels.utils().withTxn(async opts => {
     const existingJobs = await kSemanticModels
       .job()
       .getManyByQuery({idempotencyToken: {$in: idempotencyTokens}}, opts);
@@ -54,6 +61,8 @@ export async function queueJobs(
       job => !existingJobsByIdempotencyToken[job.idempotencyToken]
     );
     await kSemanticModels.job().insertItem(uniqueJobs, opts);
+
+    return uniqueJobs;
   }, opts);
 }
 
@@ -85,4 +94,18 @@ export async function completeJob(
   if (job && job.status === 'completed' && job.parentJobId) {
     completeJob(job.parentJobId).catch(error => winston.error(error));
   }
+}
+
+export async function enqueueDeleteResourceJob(
+  params: DeleteResourceJobParams,
+  opts?: SemanticProviderMutationRunOptions
+) {
+  const [job] = await queueJobs(
+    params.args.workspaceId,
+    undefined,
+    [{params, type: JobTypeMap.deleteResource}],
+    opts
+  );
+
+  return job;
 }

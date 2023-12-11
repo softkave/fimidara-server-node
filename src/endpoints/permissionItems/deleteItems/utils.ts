@@ -16,7 +16,7 @@ import {DataQuery} from '../../contexts/data/types';
 import {getInAndNinQuery} from '../../contexts/semantic/utils';
 import {BaseContextType} from '../../contexts/types';
 import {kFolderConstants} from '../../folders/constants';
-import {enqueueDeleteResourceJob} from '../../jobs/runner';
+import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {PermissionItemInputTarget} from '../types';
 import {getPermissionItemTargets} from '../utils';
 import {DeletePermissionItemInput, DeletePermissionItemsEndpointParams} from './types';
@@ -159,9 +159,11 @@ export const INTERNAL_deletePermissionItems = async (
   );
   const permissionItems = flatten(result);
   const permissionItemsIdList = extractResourceIdList(permissionItems);
-  const job = await enqueueDeleteResourceJob(context, {
+
+  const job = await enqueueDeleteResourceJob({
     type: AppResourceTypeMap.PermissionItem,
     args: {permissionItemsIdList, workspaceId: workspace.resourceId},
   });
+
   return job;
 };

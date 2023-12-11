@@ -8,11 +8,10 @@ import {kSemanticModels} from '../../contexts/injectables';
 import {kInjectionKeys} from '../../contexts/injection';
 import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
 import {NotFoundError} from '../../errors';
-import {enqueueDeleteResourceJob} from '../../jobs/runner';
+import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {DeleteFileBackendConfigEndpoint} from './types';
 import {deleteFileBackendConfigJoiSchema} from './validation';
-import {config} from 'process';
 
 const deleteFileBackendConfig: DeleteFileBackendConfigEndpoint = async (
   context,
@@ -43,19 +42,14 @@ const deleteFileBackendConfig: DeleteFileBackendConfigEndpoint = async (
     throw kReuseableErrors.config.configInUse(configMountsCount);
   }
 
-  const job = await kSemanticModels.utils().withTxn(opts =>
-    enqueueDeleteResourceJob(
-      {
-        type: AppResourceTypeMap.FileBackendConfig,
-        args: {
-          workspaceId: config.workspaceId,
-          resourceId: config.resourceId,
-          secretId: config.secretId,
-        },
-      },
-      opts
-    )
-  );
+  const job = await enqueueDeleteResourceJob({
+    type: AppResourceTypeMap.FileBackendConfig,
+    args: {
+      workspaceId: config.workspaceId,
+      resourceId: config.resourceId,
+      secretId: config.secretId,
+    },
+  });
 
   return {jobId: job.resourceId};
 };

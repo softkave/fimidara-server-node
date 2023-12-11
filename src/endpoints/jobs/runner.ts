@@ -5,43 +5,39 @@ import {
   Job,
   JobStatusMap,
   JobTypeMap,
-  kJobRunnerV1,
 } from '../../definitions/job';
 import {AppResourceType, AppResourceTypeMap} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {serverLogger} from '../../utils/logger/loggerUtils';
-import {newResource} from '../../utils/resource';
-import {kDataModels} from '../contexts/injectables';
-import {SemanticProviderMutationRunOptions} from '../contexts/semantic/types';
-import {BaseContextType} from '../contexts/types';
+import {kDataModels, kUtilsInjectables} from '../contexts/injectables';
 import {
-  DELETE_COLLABORATION_REQUEST_CASCADE_FNS,
-  DELETE_FILE_CASCADE_FNS,
-  DELETE_FOLDER_CASCADE_FNS,
-  DELETE_PERMISSION_GROUP_CASCADE_FNS,
-  DELETE_TAG_CASCADE_FNS,
-  DELETE_WORKSPACE_CASCADE_FNS,
-  REMOVE_COLLABORATOR_CASCADE_FNS,
   kDeleteAgentTokenCascadeFns,
+  kDeleteCollaborationRequestsCascadeFns,
   kDeleteFileBackendConfigCascadeFns,
   kDeleteFileBackendMountCascadeFns,
+  kDeleteFileCascadeFns,
+  kDeleteFoldersCascadeFns,
+  kDeletePermissionGroupsCascadeFns,
   kDeletePermissionItemsCascaseFns,
+  kDeleteTagsCascadeFns,
+  kDeleteWorkspaceCascadeFns,
+  kRemoveCollaboratorCascadeFns,
+  runDeleteResourceJob,
 } from '../deleteResourceCascadeDefs';
 import {runIngestFolderpathJob, runIngestMountJob} from '../fileBackends/ingestion';
 import {DeleteResourceCascadeFnsMap} from '../types';
-import {executeCascadeDelete} from '../utils';
 import {completeJob} from './utils';
 
 let lastTimestamp = 0;
 const pendingJobsIdList: string[] = [];
 const JOB_INTERVAL = 1000; // 1 second
 
-export async function startJobRunner(context: BaseContextType) {
+export async function startJobRunner() {
   let nextJob: Job | null = null;
-  nextJob = await getNextUnfinishedJob(context);
+  nextJob = await getNextUnfinishedJob();
   if (!nextJob) {
-    nextJob = await getNextPendingJob(context);
+    nextJob = await getNextPendingJob();
   }
 
   let promise: Promise<void> | null = null;
@@ -50,7 +46,7 @@ export async function startJobRunner(context: BaseContextType) {
     promise = jobRunner(nextJob);
   }
 
-  setTimeout(() => startJobRunner(context), JOB_INTERVAL);
+  setTimeout(() => startJobRunner(), JOB_INTERVAL);
 
   if (promise) {
     try {
@@ -65,20 +61,21 @@ export async function startJobRunner(context: BaseContextType) {
   }
 }
 
-async function getNextUnfinishedJob(context: BaseContextType) {
-  return await context.data.job.getOneByQuery({
+async function getNextUnfinishedJob() {
+  const config = kUtilsInjectables.config();
+  return await kDataModels.job().getOneByQuery({
     status: JobStatusMap.inProgress,
 
     // Avoid fetching in-progress jobs belonging to the current instance,
     // seeing those jobs are already currently being run
-    serverInstanceId: {$ne: context.appVariables.serverInstanceId},
+    serverInstanceId: {$ne: config.serverInstanceId},
     statusDate: {$gte: lastTimestamp},
     resourceId: {$nin: pendingJobsIdList},
   });
 }
 
-async function getNextPendingJob(context: BaseContextType) {
-  return await context.data.job.getOneByQuery({
+async function getNextPendingJob() {
+  return await kDataModels.job().getOneByQuery({
     status: JobStatusMap.pending,
     statusDate: {$gte: lastTimestamp},
     resourceId: {$nin: pendingJobsIdList},
@@ -110,7 +107,7 @@ async function jobRunner(job: Job) {
 
 const kCascadeDeleteDefs: Record<
   AppResourceType,
-  DeleteResourceCascadeFnsMap<any> | undefined
+  DeleteResourceCascadeFnsMap<never> | undefined
 > = {
   [AppResourceTypeMap.All]: undefined,
   [AppResourceTypeMap.System]: undefined,
@@ -120,16 +117,17 @@ const kCascadeDeleteDefs: Record<
   [AppResourceTypeMap.AssignedItem]: undefined,
   [AppResourceTypeMap.Job]: undefined,
   [AppResourceTypeMap.FilePresignedPath]: undefined,
+  [AppResourceTypeMap.ResolvedMountEntry]: undefined,
 
   // TODO: will need update when we implement deleting users
-  [AppResourceTypeMap.User]: REMOVE_COLLABORATOR_CASCADE_FNS,
-  [AppResourceTypeMap.CollaborationRequest]: DELETE_COLLABORATION_REQUEST_CASCADE_FNS,
-  [AppResourceTypeMap.Workspace]: DELETE_WORKSPACE_CASCADE_FNS,
+  [AppResourceTypeMap.User]: kRemoveCollaboratorCascadeFns,
+  [AppResourceTypeMap.CollaborationRequest]: kDeleteCollaborationRequestsCascadeFns,
+  [AppResourceTypeMap.Workspace]: kDeleteWorkspaceCascadeFns,
   [AppResourceTypeMap.AgentToken]: kDeleteAgentTokenCascadeFns,
-  [AppResourceTypeMap.Folder]: DELETE_FOLDER_CASCADE_FNS,
-  [AppResourceTypeMap.File]: DELETE_FILE_CASCADE_FNS,
-  [AppResourceTypeMap.Tag]: DELETE_TAG_CASCADE_FNS,
-  [AppResourceTypeMap.PermissionGroup]: DELETE_PERMISSION_GROUP_CASCADE_FNS,
+  [AppResourceTypeMap.Folder]: kDeleteFoldersCascadeFns,
+  [AppResourceTypeMap.File]: kDeleteFileCascadeFns,
+  [AppResourceTypeMap.Tag]: kDeleteTagsCascadeFns,
+  [AppResourceTypeMap.PermissionGroup]: kDeletePermissionGroupsCascadeFns,
   [AppResourceTypeMap.PermissionItem]: kDeletePermissionItemsCascaseFns,
   [AppResourceTypeMap.FileBackendConfig]: kDeleteFileBackendConfigCascadeFns,
   [AppResourceTypeMap.FileBackendMount]: kDeleteFileBackendMountCascadeFns,
@@ -138,36 +136,19 @@ const kCascadeDeleteDefs: Record<
 async function executeDeleteResourceJob(job: Job) {
   const params = job.params as DeleteResourceJobParams;
   const cascadeDef = kCascadeDeleteDefs[params.type];
-  if (cascadeDef) await executeCascadeDelete(cascadeDef, params.args);
-}
 
-export async function enqueueDeleteResourceJob(
-  params: DeleteResourceJobParams,
-  opts: SemanticProviderMutationRunOptions
-) {
-  const job: Job = newResource(AppResourceTypeMap.Job, {
-    params,
-    serverInstanceId: context.appVariables.serverInstanceId,
-    status: JobStatusMap.Pending,
-    statusDate: getTimestamp(),
-    type: JobTypeMap.deleteResource,
-    version: kJobRunnerV1,
-    workspaceId: params.args.workspaceId,
-  });
-  await context.data.job.insertItem(job);
-  return job;
-}
-
-export async function getJob(jobId: string) {
-  return await context.data.job.assertGetOneByQuery({resourceId: jobId});
+  if (cascadeDef) {
+    await runDeleteResourceJob(cascadeDef, params.args, job);
+  }
 }
 
 export async function waitForServerInstanceJobs(serverInstanceId: string) {
   return new Promise<void>(resolve => {
     const getPendingJobs = async () => {
-      const jobs = await context.data.job.getManyByQuery({
+      const jobs = await kDataModels.job().getManyByQuery({
         serverInstanceId,
-        status: {$in: [JobStatusMap.Pending, JobStatusMap.InProgress] as any[]},
+        // @ts-ignore
+        status: {$in: [JobStatusMap.pending, JobStatusMap.inProgress]},
       });
 
       if (!jobs.length) resolve();
@@ -180,34 +161,37 @@ export async function waitForServerInstanceJobs(serverInstanceId: string) {
 
 export async function executeServerInstanceJobs(serverInstanceId: string) {
   const getPendingJobs = async () => {
-    return await context.data.job.getManyByQuery({
+    return await kDataModels.job().getManyByQuery({
       serverInstanceId,
-      status: JobStatusMap.Pending,
+      status: JobStatusMap.pending,
     });
   };
 
   let jobs = await getPendingJobs();
   while (jobs.length) {
-    await Promise.all(jobs.map(job => jobRunner(context, job)));
+    await Promise.all(jobs.map(job => jobRunner(job)));
     jobs = await getPendingJobs();
   }
 }
 
 export async function executeJob(jobId: string) {
-  const job = await context.data.job.getOneByQuery({
+  const job = await kDataModels.job().getOneByQuery({
     resourceId: jobId,
-    status: JobStatusMap.Pending,
+    status: JobStatusMap.pending,
   });
 
-  if (job) await jobRunner(context, job);
+  if (job) await jobRunner(job);
 }
 
 export async function waitForJob(jobId: string) {
   return new Promise<void>(resolve => {
     const getPendingJob = async () => {
-      const job = await context.data.job.getOneByQuery({
+      const job = await kDataModels.job().getOneByQuery({
         resourceId: jobId,
-        status: {$in: [JobStatusMap.Pending, JobStatusMap.InProgress] as any[]},
+        status: {
+          // @ts-ignore
+          $in: [JobStatusMap.pending, JobStatusMap.inProgress],
+        },
       });
 
       if (!job) resolve();

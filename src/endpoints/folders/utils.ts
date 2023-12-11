@@ -2,12 +2,7 @@ import {compact, defaultTo, first, isArray, last} from 'lodash';
 import {posix} from 'path';
 import {container} from 'tsyringe';
 import {FileBackendMount} from '../../definitions/fileBackend';
-import {
-  Folder,
-  FolderMatcher,
-  FolderResolvedMountEntry,
-  PublicFolder,
-} from '../../definitions/folder';
+import {Folder, FolderMatcher, PublicFolder} from '../../definitions/folder';
 import {PermissionAction} from '../../definitions/permissionItem';
 import {Agent, AppResourceTypeMap, SessionAgent} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
@@ -41,17 +36,6 @@ import {kFolderConstants} from './constants';
 import {FolderNotFoundError} from './errors';
 import {assertGetFolderWithMatcher} from './getFolderWithMatcher';
 
-const folderResolvedEntryFields = getFields<FolderResolvedMountEntry>({
-  ...workspaceResourceFields,
-  mountId: true,
-  resolvedAt: true,
-});
-
-export const folderResolvedEntryExtractor = makeExtract(folderResolvedEntryFields);
-export const folderResolvedEntryListExtractor = makeListExtract(
-  folderResolvedEntryFields
-);
-
 const folderFields = getFields<PublicFolder>({
   ...workspaceResourceFields,
   parentId: true,
@@ -59,7 +43,6 @@ const folderFields = getFields<PublicFolder>({
   description: true,
   idPath: true,
   namepath: true,
-  resolvedEntries: folderResolvedEntryListExtractor,
 });
 
 export const folderExtractor = makeExtract(folderFields);
@@ -142,7 +125,7 @@ export function getWorkspaceRootnameFromPath(providedPath: string | string[]) {
 }
 
 export async function checkFolderAuthorization<
-  T extends Pick<Folder, 'idPath' | 'workspaceId'>
+  T extends Pick<Folder, 'idPath' | 'workspaceId'>,
 >(
   agent: SessionAgent,
   folder: T,
@@ -291,32 +274,26 @@ export async function getWorkspaceFromFolderpath(folderpath: string): Promise<Wo
 export function createNewFolder(
   agent: Agent,
   workspaceId: string,
-  pathinfo: FolderpathInfo,
+  pathinfo: Pick<FolderpathInfo, 'name'>,
   parentFolder: Pick<Folder, 'idPath' | 'namepath' | 'resourceId'> | null,
+  /** represents external data */
   data: Pick<Folder, 'description'>,
+  /** represents internal data */
   seed: Partial<Folder> = {}
 ) {
   const folderId = getNewIdForResource(AppResourceTypeMap.Folder);
-  const folder = newWorkspaceResource<Folder>(
-    agent,
-    AppResourceTypeMap.Folder,
+  return newWorkspaceResource<Folder>(agent, AppResourceTypeMap.Folder, workspaceId, {
     workspaceId,
-    {
-      workspaceId,
-      resourceId: folderId,
-      name: pathinfo.name,
-      idPath: parentFolder ? parentFolder.idPath.concat(folderId) : [folderId],
-      namepath: parentFolder
-        ? parentFolder.namepath.concat(pathinfo.name)
-        : [pathinfo.name],
-      parentId: parentFolder?.resourceId ?? null,
-      description: data.description,
-      resolvedEntries: [],
-      ...seed,
-    }
-  );
-
-  return folder;
+    resourceId: folderId,
+    name: pathinfo.name,
+    idPath: parentFolder ? parentFolder.idPath.concat(folderId) : [folderId],
+    namepath: parentFolder
+      ? parentFolder.namepath.concat(pathinfo.name)
+      : [pathinfo.name],
+    parentId: parentFolder?.resourceId ?? null,
+    description: data.description,
+    ...seed,
+  });
 }
 
 export async function createNewFolderAndEnsureParents(
@@ -384,7 +361,7 @@ export async function ingestFolderByFolderpath(
     opts
   );
   const providersMap = await initBackendProvidersForMounts(mounts, configs);
-  const mountFolders = await Promise.all(
+  const folderEntries = await Promise.all(
     mounts.map(async mount => {
       const provider = providersMap[mount.resourceId];
       appAssert(provider);
@@ -397,17 +374,21 @@ export async function ingestFolderByFolderpath(
     })
   );
 
-  const parentFolder = await folderModel.getOneByNamepath(
-    {workspaceId, namepath: pathinfo.parentSplitPath},
-    opts
-  );
-  await ingestPersistedFolders(
-    agent,
-    workspace,
-    parentFolder,
-    compact(mountFolders),
-    /** ensure new folder parents */ true
-  );
+  const folderEntry0 = first(folderEntries);
+
+  if (folderEntry0) {
+    const parentFolder = await folderModel.getOneByNamepath(
+      {workspaceId, namepath: pathinfo.parentSplitPath},
+      opts
+    );
+    await ingestPersistedFolders(
+      agent,
+      workspace,
+      parentFolder,
+      compact(folderEntries),
+      /** ensure new folder parents */ true
+    );
+  }
 }
 
 export async function readOrIngestFolderByFolderpath(

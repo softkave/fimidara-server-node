@@ -3,7 +3,11 @@ import {AgentToken} from '../../../definitions/agentToken';
 import {AssignedItem} from '../../../definitions/assignedItem';
 import {CollaborationRequest} from '../../../definitions/collaborationRequest';
 import {File, FilePresignedPath} from '../../../definitions/file';
-import {FileBackendConfig, FileBackendMount} from '../../../definitions/fileBackend';
+import {
+  FileBackendConfig,
+  FileBackendMount,
+  ResolvedMountEntry,
+} from '../../../definitions/fileBackend';
 import {Folder} from '../../../definitions/folder';
 import {Job} from '../../../definitions/job';
 import {PermissionGroup} from '../../../definitions/permissionGroups';
@@ -20,11 +24,11 @@ export type DataQuerySort<T, K extends keyof T = keyof T> = {
   [P in K]?: SortOrder;
 };
 
-export interface DataProviderOpParams<T> {
+export interface DataProviderOpParams {
   txn?: unknown;
 }
 
-export interface DataProviderQueryListParams<T> extends DataProviderOpParams<T> {
+export interface DataProviderQueryListParams<T> extends DataProviderOpParams {
   /** zero-based index */
   page?: number;
   pageSize?: number;
@@ -44,7 +48,7 @@ export type DataProviderLiteralType = string | number | boolean | null | undefin
 
 export interface ComparisonLiteralFieldQueryOps<T = DataProviderLiteralType> {
   $eq?: T | null;
-  $in?: T[] | Array<T | null>;
+  $in?: Array<T | null>;
   $ne?: T | null;
   $nin?: Array<T | null>;
 
@@ -137,13 +141,13 @@ export type BulkOpItem<T> =
 // TODO: infer resulting type from projection, otherwise default to full object
 export interface BaseDataProvider<
   TData,
-  TQuery extends DataQuery<TData> = DataQuery<TData>
+  TQuery extends DataQuery<TData> = DataQuery<TData>,
 > {
-  insertItem: (item: TData, otherProps?: DataProviderOpParams<TData>) => Promise<TData>;
-  insertList: (items: TData[], otherProps?: DataProviderOpParams<TData>) => Promise<void>;
+  insertItem: (item: TData, otherProps?: DataProviderOpParams) => Promise<TData>;
+  insertList: (items: TData[], otherProps?: DataProviderOpParams) => Promise<void>;
   existsByQuery: <ExtendedQueryType extends TQuery = TQuery>(
     query: ExtendedQueryType,
-    otherProps?: DataProviderOpParams<TData>
+    otherProps?: DataProviderOpParams
   ) => Promise<boolean>;
   getManyByQuery: (
     query: TQuery,
@@ -168,21 +172,21 @@ export interface BaseDataProvider<
   ) => Promise<TData>;
   countByQuery: <ExtendedQueryType extends TQuery = TQuery>(
     query: ExtendedQueryType,
-    otherProps?: DataProviderOpParams<TData>
+    otherProps?: DataProviderOpParams
   ) => Promise<number>;
   countByQueryList: (
     query: TQuery[],
-    otherProps?: DataProviderOpParams<TData>
+    otherProps?: DataProviderOpParams
   ) => Promise<number>;
   updateManyByQuery: (
     query: TQuery,
     data: Partial<TData>,
-    otherProps?: DataProviderOpParams<TData>
+    otherProps?: DataProviderOpParams
   ) => Promise<void>;
   updateOneByQuery: (
     query: TQuery,
     data: Partial<TData>,
-    otherProps?: DataProviderOpParams<TData>
+    otherProps?: DataProviderOpParams
   ) => Promise<void>;
   getAndUpdateOneByQuery: (
     query: TQuery,
@@ -192,23 +196,23 @@ export interface BaseDataProvider<
   getAndUpdateManyByQuery: (
     query: TQuery,
     data: Partial<TData>,
-    otherProps?: DataProviderOpParams<TData>
+    otherProps?: DataProviderOpParams
   ) => Promise<TData[]>;
   deleteManyByQuery: <TOpQuery extends TQuery = TQuery>(
     query: TOpQuery,
-    otherProps?: DataProviderOpParams<TData>
+    otherProps?: DataProviderOpParams
   ) => Promise<void>;
   deleteManyByQueryList: <ExtendedQueryType extends TQuery = TQuery>(
     query: ExtendedQueryType[],
-    otherProps?: DataProviderOpParams<TData>
+    otherProps?: DataProviderOpParams
   ) => Promise<void>;
   deleteOneByQuery: <ExtendedQueryType extends TQuery = TQuery>(
     query: ExtendedQueryType,
-    otherProps?: DataProviderOpParams<TData>
+    otherProps?: DataProviderOpParams
   ) => Promise<void>;
   bulkWrite(
     ops: Array<BulkOpItem<TData>>,
-    otherProps?: DataProviderOpParams<TData>
+    otherProps?: DataProviderOpParams
   ): Promise<void>;
 }
 
@@ -239,6 +243,7 @@ export type UserQuery = DataQuery<User>;
 export type WorkspaceQuery = DataQuery<Workspace>;
 export type FileBackendConfigQuery = DataQuery<FileBackendConfig>;
 export type FileBackendMountQuery = DataQuery<FileBackendMount>;
+export type ResolvedMountEntryQuery = DataQuery<ResolvedMountEntry>;
 
 export type AgentTokenDataProvider = BaseDataProvider<AgentToken, DataQuery<AgentToken>>;
 export type AppRuntimeStateDataProvider = BaseDataProvider<
@@ -283,4 +288,8 @@ export type FileBackendConfigDataProvider = BaseDataProvider<
 export type FileBackendMountDataProvider = BaseDataProvider<
   FileBackendMount,
   DataQuery<FileBackendMount>
+>;
+export type ResolvedMountEntryDataProvider = BaseDataProvider<
+  ResolvedMountEntry,
+  DataQuery<ResolvedMountEntry>
 >;

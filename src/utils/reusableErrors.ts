@@ -94,6 +94,8 @@ export const kReuseableErrors = {
     s3MountSourceMissingBucket: () => not_implemented,
     notFound: () => not_implemented,
     cannotMountFimidaraExplicitly: () => not_implemented,
+    cannotDeleteFimidaraMount: () => not_implemented,
+    cannotUpdateFimidaraMount: () => not_implemented,
   },
   config: {
     configNameExists: (name: string) => not_implemented,
@@ -101,6 +103,9 @@ export const kReuseableErrors = {
     notFound: () => not_implemented,
     configExists: () => not_implemented,
     fimidaraDoesNotSupportConfig: () => not_implemented,
+  },
+  job: {
+    notFound: () => not_implemented,
   },
   common: {
     notImplemented() {

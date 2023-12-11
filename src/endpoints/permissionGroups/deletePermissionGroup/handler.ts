@@ -1,7 +1,7 @@
 import {AppResourceTypeMap} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {InvalidRequestError} from '../../errors';
-import {enqueueDeleteResourceJob} from '../../jobs/runner';
+import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {checkPermissionGroupAuthorization03} from '../utils';
 import {DeletePermissionGroupEndpoint} from './types';
 import {deletePermissionGroupJoiSchema} from './validation';
@@ -13,7 +13,6 @@ const deletePermissionGroup: DeletePermissionGroupEndpoint = async (
   const data = validate(instData.data, deletePermissionGroupJoiSchema);
   const agent = await context.session.getAgent(context, instData);
   const {permissionGroup, workspace} = await checkPermissionGroupAuthorization03(
-    context,
     agent,
     data,
     'updatePermission'
@@ -25,13 +24,11 @@ const deletePermissionGroup: DeletePermissionGroupEndpoint = async (
     );
   }
 
-  const job = await enqueueDeleteResourceJob(context, {
+  const job = await enqueueDeleteResourceJob({
     type: AppResourceTypeMap.PermissionGroup,
-    args: {
-      workspaceId: workspace.resourceId,
-      resourceId: permissionGroup.resourceId,
-    },
+    args: {workspaceId: workspace.resourceId, resourceId: permissionGroup.resourceId},
   });
+
   return {jobId: job.resourceId};
 };
 

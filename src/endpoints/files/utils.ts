@@ -1,12 +1,6 @@
-import {compact} from 'lodash';
+import {compact, first} from 'lodash';
 import {container} from 'tsyringe';
-import {
-  File,
-  FileMatcher,
-  FilePresignedPath,
-  FileResolvedMountEntry,
-  PublicFile,
-} from '../../definitions/file';
+import {File, FileMatcher, FilePresignedPath, PublicFile} from '../../definitions/file';
 import {FileBackendMount} from '../../definitions/fileBackend';
 import {Folder} from '../../definitions/folder';
 import {PermissionAction} from '../../definitions/permissionItem';
@@ -48,14 +42,6 @@ import {assertWorkspace, checkWorkspaceExists} from '../workspaces/utils';
 import {fileConstants} from './constants';
 import {getFileByPresignedPath, getFileWithMatcher} from './getFilesWithMatcher';
 
-const fileResolvedEntryFields = getFields<FileResolvedMountEntry>({
-  mountId: true,
-  resolvedAt: true,
-});
-
-export const fileResolvedEntryExtractor = makeExtract(fileResolvedEntryFields);
-export const fileResolvedEntryListExtractor = makeListExtract(fileResolvedEntryFields);
-
 const fileFields = getFields<PublicFile>({
   ...workspaceResourceFields,
   name: true,
@@ -68,7 +54,6 @@ const fileFields = getFields<PublicFile>({
   idPath: true,
   namepath: true,
   version: true,
-  resolvedEntries: fileResolvedEntryListExtractor,
 });
 
 export const fileExtractor = makeExtract(fileFields);
@@ -263,7 +248,6 @@ export function createNewFile(
     description: data.description,
     encoding: data.encoding,
     mimetype: data.mimetype,
-    resolvedEntries: [],
     ...seed,
   });
 
@@ -339,7 +323,7 @@ export async function ingestFileByFilepath(
     opts
   );
   const providersMap = await initBackendProvidersForMounts(mounts, configs);
-  const mountFiles = await Promise.all(
+  const fileEntries = await Promise.all(
     mounts.map(async mount => {
       const provider = providersMap[mount.resourceId];
       appAssert(provider);
@@ -352,11 +336,15 @@ export async function ingestFileByFilepath(
     })
   );
 
-  const parentFolder = await folderModel.getOneByNamepath(
-    {workspaceId, namepath: pathinfo.parentSplitPath},
-    opts
-  );
-  await ingestPersistedFiles(agent, workspace, parentFolder, compact(mountFiles));
+  const fileEntry0 = first(fileEntries);
+
+  if (fileEntry0) {
+    const parentFolder = await folderModel.getOneByNamepath(
+      {workspaceId, namepath: pathinfo.parentSplitPath},
+      opts
+    );
+    await ingestPersistedFiles(agent, workspace, parentFolder, compact(fileEntries));
+  }
 }
 
 export async function readOrIngestFileByFilepath(

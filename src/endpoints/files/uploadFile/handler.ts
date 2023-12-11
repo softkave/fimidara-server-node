@@ -7,7 +7,10 @@ import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {ByteCounterPassThroughStream} from '../../../utils/streams';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels} from '../../contexts/injectables';
-import {getFileBackendForFile} from '../../fileBackends/mountUtils';
+import {
+  getFileBackendForFile,
+  insertResolvedMountEntries,
+} from '../../fileBackends/mountUtils';
 import {FileNotWritableError} from '../errors';
 import {getFileWithMatcher} from '../getFilesWithMatcher';
 import {
@@ -39,16 +42,13 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
       );
 
       appAssert(file.isWriteAvailable, new FileNotWritableError());
-      file = await context.semantic.file.getAndUpdateOneById(
-        file.resourceId,
-        {isWriteAvailable: false},
-        opts
-      );
+      file = await kSemanticModels
+        .file()
+        .getAndUpdateOneById(file.resourceId, {isWriteAvailable: false}, opts);
     } else {
       appAssert(data.filepath, new ValidationError('Provide a filepath for new files.'));
       const pathinfo = getFilepathInfo(data.filepath);
       const file = await createAndInsertNewFile(agent, workspace, pathinfo, data, opts);
-
       await checkUploadFileAuth(agent, workspace, file, null, opts);
       return {file};
     }
@@ -64,6 +64,7 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     const bytesCounterStream = new ByteCounterPassThroughStream();
     data.data.pipe(bytesCounterStream);
 
+    // TODO: should we wait here, cause it may take a while
     let update = await backend.uploadFile({
       mount,
       workspaceId: file.workspaceId,
@@ -82,11 +83,17 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     merge(update, pick(data, ['description', 'encoding', 'mimetype']));
 
     file = await kSemanticModels.utils().withTxn(async opts => {
-      const savedFile = await context.semantic.file.getAndUpdateOneById(
-        file.resourceId,
-        update,
-        opts
-      );
+      const [savedFile] = await Promise.all([
+        kSemanticModels.file().getAndUpdateOneById(file.resourceId, update, opts),
+        insertResolvedMountEntries({
+          opts,
+          agent,
+          workspaceId: file.workspaceId,
+          resource: file,
+          mountIds: [mount.resourceId],
+        }),
+      ]);
+
       assertFile(savedFile);
       return savedFile;
     });
@@ -95,11 +102,9 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
     return {file: fileExtractor(file)};
   } catch (error) {
     await kSemanticModels.utils().withTxn(async opts => {
-      await context.semantic.file.getAndUpdateOneById(
-        file.resourceId,
-        {isWriteAvailable: true},
-        opts
-      );
+      await kSemanticModels
+        .file()
+        .getAndUpdateOneById(file.resourceId, {isWriteAvailable: true}, opts);
     });
 
     throw error;

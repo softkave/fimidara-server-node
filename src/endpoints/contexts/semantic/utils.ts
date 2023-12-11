@@ -7,7 +7,6 @@ import {
   DataQuery,
   KeyedComparisonOps,
 } from '../data/types';
-import {BaseContextType} from '../types';
 import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
@@ -16,7 +15,6 @@ import {
 
 export class DataSemanticProviderUtils implements SemanticProviderUtils {
   async withTxn<TResult>(
-    ctx: BaseContextType,
     fn: AnyFn<[SemanticProviderMutationRunOptions], Promise<TResult>>,
     opts?: SemanticProviderRunOptions | undefined
   ): Promise<TResult> {
@@ -55,7 +53,7 @@ export function getStringListQuery<TData extends Record<string, any>>(
 
 export function getInAndNinQuery<
   TData extends Record<string, any>,
-  TKey extends StringKeysOnly<TData> = StringKeysOnly<TData>
+  TKey extends StringKeysOnly<TData> = StringKeysOnly<TData>,
 >(
   prefix: TKey,
   /** `null` or `undefined` will not go into query. To explicitly handle them,
