@@ -6,7 +6,8 @@ import {PermissionAction} from '../../definitions/permissionItem';
 import {SessionAgent} from '../../definitions/system';
 import {makeKey} from '../../utils/fns';
 import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
-import {BaseContextType, IServerRequest} from '../contexts/types';
+import {kSemanticModels} from '../contexts/injectables';
+import {IServerRequest} from '../contexts/types';
 import addPermissionItems from '../permissionItems/addItems/handler';
 import RequestData from '../RequestData';
 
@@ -29,29 +30,28 @@ export function toAssignedPgListInput(pgList: Pick<PermissionGroup, 'resourceId'
 }
 
 export async function assignPgListToIdList(
-  context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
   entityIdList: string[],
   pgInputList: AssignPermissionGroupInput[]
 ) {
-  await context.semantic.utils.withTxn(context, async opts =>
-    addAssignedPermissionGroupList(
-      context,
-      agent,
-      workspaceId,
-      pgInputList,
-      entityIdList,
-      /** delete existing */ false,
-      /** skip permission groups check */ true,
-      /** skip auth check */ true,
-      opts
-    )
-  );
+  await kSemanticModels
+    .utils()
+    .withTxn(async opts =>
+      addAssignedPermissionGroupList(
+        agent,
+        workspaceId,
+        pgInputList,
+        entityIdList,
+        /** delete existing */ false,
+        /** skip permission groups check */ true,
+        /** skip auth check */ true,
+        opts
+      )
+    );
 }
 
 export async function grantPermission(
-  context: BaseContextType,
   req: IServerRequest,
   workspaceId: string,
   agentId: string,
@@ -59,7 +59,6 @@ export async function grantPermission(
   action: PermissionAction
 ) {
   await addPermissionItems(
-    context,
     RequestData.fromExpressRequest(req, {
       workspaceId,
       items: [

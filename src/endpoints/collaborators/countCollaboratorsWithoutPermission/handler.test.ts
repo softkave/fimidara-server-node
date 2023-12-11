@@ -1,12 +1,9 @@
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
-import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generateData/collaborator';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -14,24 +11,20 @@ import {
 import countCollaboratorsWithoutPermission from './handler';
 import {CountCollaboratorsWithoutPermissionEndpointParams} from './types';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('countCollaboratorsWithoutPermission', () => {
   test('count', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const seedCount = 15;
     await generateAndInsertCollaboratorListForTest(
-      context,
       SYSTEM_SESSION_AGENT,
       workspace.resourceId,
       seedCount
@@ -42,7 +35,7 @@ describe('countCollaboratorsWithoutPermission', () => {
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId}
       );
-    const result = await countCollaboratorsWithoutPermission(context, instData);
+    const result = await countCollaboratorsWithoutPermission(instData);
     assertEndpointResultOk(result);
     expect(result.count).toBe(seedCount);
   });

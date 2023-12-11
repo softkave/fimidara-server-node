@@ -1,9 +1,6 @@
-import {BaseContextType} from '../../contexts/types';
 import {generateTestFolderName} from '../../testUtils/generateData/folder';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
-  initTestBaseContext,
   insertFolderForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -16,21 +13,18 @@ import {addRootnameToPath} from '../utils';
  * - Test on root
  */
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('addFolder', () => {
   test('folder created', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
 
     const folderName00 = generateTestFolderName();
     const folderName01 = generateTestFolderName();
@@ -39,12 +33,12 @@ describe('addFolder', () => {
       '/' + folderName00 + '/' + folderName01 + '/' + folderName02,
       workspace.rootname
     );
-    await insertFolderForTest(context, userToken, workspace, {
+    await insertFolderForTest(userToken, workspace, {
       folderpath: folderpath02,
     });
 
     const inputNames = [folderName00, folderName01, folderName02];
-    const savedFolders = await context.semantic.folder.getManyByQuery({
+    const savedFolders = await kSemanticModels.folder().getManyByQuery({
       workspaceId: workspace.resourceId,
       name: {$in: inputNames},
     });

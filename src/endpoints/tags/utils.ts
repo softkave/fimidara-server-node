@@ -5,8 +5,8 @@ import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {kSemanticModels} from '../contexts/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
-import {BaseContextType} from '../contexts/types';
 import {agentExtractor, workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
 
@@ -29,15 +29,13 @@ export const tagExtractor = makeExtract(tagFields);
 export const tagListExtractor = makeListExtract(tagFields);
 
 export async function checkTagAuthorization(
-  context: BaseContextType,
   agent: SessionAgent,
   tag: Tag,
   action: PermissionAction,
   opts?: SemanticProviderRunOptions
 ) {
-  const workspace = await checkWorkspaceExists(context, tag.workspaceId);
+  const workspace = await checkWorkspaceExists(tag.workspaceId);
   await checkAuthorizationWithAgent({
-    context,
     agent,
     workspace,
     opts,
@@ -48,14 +46,13 @@ export async function checkTagAuthorization(
 }
 
 export async function checkTagAuthorization02(
-  context: BaseContextType,
   agent: SessionAgent,
   id: string,
   action: PermissionAction
 ) {
-  const tag = await context.semantic.tag.getOneById(id);
+  const tag = await kSemanticModels.tag().getOneById(id);
   assertTag(tag);
-  return checkTagAuthorization(context, agent, tag, action);
+  return checkTagAuthorization(agent, tag, action);
 }
 
 export function throwTagNotFound() {

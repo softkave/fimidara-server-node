@@ -1,10 +1,7 @@
-import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {BaseContextType} from '../../contexts/types';
-import EndpointReusableQueries from '../../queries';
+import {kSemanticModels} from '../../contexts/injectables';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
-  initTestBaseContext,
+  initTest,
   insertAgentTokenForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -17,30 +14,20 @@ import {agentTokenExtractor, getPublicAgentToken} from '../utils';
  * [Low] - Test that hanlder fails if permissionGroups don't exist
  */
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 test('Agent token added', async () => {
-  assertContext(context);
-  const {userToken} = await insertUserForTest(context);
-  const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {token} = await insertAgentTokenForTest(context, userToken, workspace.resourceId);
+  const {userToken} = await insertUserForTest();
+  const {workspace} = await insertWorkspaceForTest(userToken);
+  const {token} = await insertAgentTokenForTest(userToken, workspace.resourceId);
   const savedToken = getPublicAgentToken(
-    context,
-    await populateAssignedTags(
-      context,
-      workspace.resourceId,
-      await context.semantic.agentToken.assertGetOneByQuery(
-        EndpointReusableQueries.getByResourceId(token.resourceId)
-      )
-    )
+    await kSemanticModels.agentToken().assertGetOneByQuery({resourceId: token.resourceId})
   );
   expect(agentTokenExtractor(savedToken)).toMatchObject(token);
 });

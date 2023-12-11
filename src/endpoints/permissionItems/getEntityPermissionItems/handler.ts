@@ -1,4 +1,5 @@
 import {validate} from '../../../utils/validate';
+import {kUtilsInjectables, kSemanticModels} from '../../contexts/injectables';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
@@ -14,19 +15,15 @@ import {getEntityPermissionItemsJoiSchema} from './validation';
  * TODO: Support returning all permission items belonging to an entity directly
  * or inherited
  */
-const getEntityPermissionItems: GetEntityPermissionItemsEndpoint = async (
-  context,
-  instData
-) => {
+const getEntityPermissionItems: GetEntityPermissionItemsEndpoint = async instData => {
   const data = validate(instData.data, getEntityPermissionItemsJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
+  const agent = await kUtilsInjectables.session().getAgent(instData);
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
-  await doAccessCheckForGetEntityPermissionItems(context, agent, workspace, data);
+  await doAccessCheckForGetEntityPermissionItems(agent, workspace, data);
   applyDefaultEndpointPaginationOptions(data);
-  const items = await context.semantic.permissionItem.getManyByQuery(
-    {entityId: data.entityId},
-    data
-  );
+  const items = await kSemanticModels
+    .permissionItem()
+    .getManyByQuery({entityId: data.entityId}, data);
   return {
     page: getEndpointPageFromInput(data),
     items: PermissionItemUtils.extractPublicPermissionItemList(items),

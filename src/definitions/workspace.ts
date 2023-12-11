@@ -43,9 +43,9 @@ export interface Workspace extends WorkspaceResource {
   usageThresholdLocks: UsageThresholdLocksByCategory;
 
   /** configs */
-  enableFileVersioning?: boolean;
-  deleteInExternalBackend?: boolean;
-  renameInExternalBackend?: boolean;
+  // enableFileVersioning?: boolean;
+  // deleteInExternalBackend?: boolean;
+  // renameInExternalBackend?: boolean;
 }
 
 export type PublicWorkspace = ConvertAgentToPublicAgent<Workspace>;

@@ -10,7 +10,7 @@ import {
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
-import {BaseContextType} from '../../contexts/types';
+import {kSemanticModels} from '../../contexts/injectables';
 import {generateTestWorkspace} from './workspace';
 
 export function generateWorkspaceWithCategoryUsageExceeded(
@@ -57,7 +57,7 @@ export function generateUsageRecordList(count = 10, extra: Partial<UsageRecord> 
       lastUpdatedAt: getTimestamp(),
       lastUpdatedBy: SYSTEM_SESSION_AGENT,
       category: randomCategory(),
-      summationType: randomSummationType() as any,
+      summationType: randomSummationType(),
       fulfillmentStatus: randomFulfillmentStatus(),
       usage: 0,
       usageCost: 0,
@@ -69,13 +69,12 @@ export function generateUsageRecordList(count = 10, extra: Partial<UsageRecord> 
 }
 
 export async function generateAndInsertUsageRecordList(
-  ctx: BaseContextType,
   count = 20,
   extra: Partial<UsageRecord> = {}
 ) {
   const items = generateUsageRecordList(count, extra);
-  await ctx.semantic.utils.withTxn(ctx, async opts =>
-    ctx.semantic.usageRecord.insertItem(items, opts)
-  );
+  await kSemanticModels
+    .utils()
+    .withTxn(async opts => kSemanticModels.usageRecord().insertItem(items, opts));
   return items;
 }

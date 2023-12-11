@@ -130,11 +130,9 @@ export interface SemanticWorkspaceResourceProviderType<
   ): Promise<number>;
 }
 
-export interface SemanticProviderUtils<> {
+export interface SemanticProviderUtils {
   withTxn<TResult>(
-    fn: AnyFn<[SemanticProviderMutationRunOptions], Promise<TResult>>,
-    /** Reuse existing txn options when present */
-    opts?: SemanticProviderRunOptions
+    fn: AnyFn<[SemanticProviderMutationRunOptions], Promise<TResult>>
   ): Promise<TResult>;
 }
 

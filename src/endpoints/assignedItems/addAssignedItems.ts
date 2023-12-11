@@ -17,7 +17,6 @@ import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
-import {BaseContextType} from '../contexts/types';
 import {checkPermissionGroupsExist} from '../permissionGroups/utils';
 import checkTagsExist from '../tags/checkTagsExist';
 import {withAssignedAgent} from '../utils';
@@ -164,7 +163,6 @@ export async function addAssignedPermissionGroupList(
 }
 
 export async function addAssignedTagList(
-  context: BaseContextType,
   agent: Agent,
   workspace: Workspace,
   tags: AssignedTagInput[],
@@ -202,7 +200,7 @@ export async function addAssignedTagList(
     );
   });
   await Promise.all([
-    checkTagsExist(context, agent, workspace, tags, 'readTag'),
+    checkTagsExist(agent, workspace, tags, 'readTag'),
     addAssignedItems(workspace.resourceId, items, deleteExisting, undefined, opts),
   ]);
 
@@ -214,7 +212,6 @@ export interface ISaveResourceAssignedItemsOptions {
 }
 
 export async function saveResourceAssignedItems(
-  context: BaseContextType,
   agent: Agent,
   workspace: Workspace,
 
@@ -229,7 +226,6 @@ export async function saveResourceAssignedItems(
 ) {
   if (data.tags) {
     await addAssignedTagList(
-      context,
       agent,
       workspace,
       data.tags,

@@ -1,11 +1,8 @@
-import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -13,32 +10,30 @@ import {
 import countWorkspacePermissionGroups from './handler';
 import {CountWorkspacePermissionGroupsEndpointParams} from './types';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('countWorkspacePermissionGroups', () => {
   test('count', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
-    await generateAndInsertPermissionGroupListForTest(context, 15, {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    await generateAndInsertPermissionGroupListForTest(15, {
       workspaceId: workspace.resourceId,
     });
-    const count = await context.semantic.permissionGroup.countByQuery({
+    const count = await kSemanticModels.permissionGroup().countByQuery({
       workspaceId: workspace.resourceId,
     });
-    const instData = RequestData.fromExpressRequest<CountWorkspacePermissionGroupsEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {workspaceId: workspace.resourceId}
-    );
-    const result = await countWorkspacePermissionGroups(context, instData);
+    const instData =
+      RequestData.fromExpressRequest<CountWorkspacePermissionGroupsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {workspaceId: workspace.resourceId}
+      );
+    const result = await countWorkspacePermissionGroups(instData);
     assertEndpointResultOk(result);
     expect(result.count).toBe(count);
   });

@@ -7,27 +7,20 @@ import {
   DataQuery,
   KeyedComparisonOps,
 } from '../data/types';
-import {
-  SemanticProviderMutationRunOptions,
-  SemanticProviderRunOptions,
-  SemanticProviderUtils,
-} from './types';
+import {kDataModels} from '../injectables';
+import {SemanticProviderMutationRunOptions, SemanticProviderUtils} from './types';
 
 export class DataSemanticProviderUtils implements SemanticProviderUtils {
   async withTxn<TResult>(
-    fn: AnyFn<[SemanticProviderMutationRunOptions], Promise<TResult>>,
-    opts?: SemanticProviderRunOptions | undefined
+    fn: AnyFn<[SemanticProviderMutationRunOptions], Promise<TResult>>
   ): Promise<TResult> {
-    return ctx.data.utils.withTxn(
-      ctx,
-      async txn => {
-        return await fn({txn});
-      },
-      opts?.txn
-    );
+    return kDataModels.utils().withTxn(async txn => {
+      return await fn({txn});
+    });
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getStringListQuery<TData extends Record<string, any>>(
   stringList: string[],
   prefix: keyof TData,
@@ -36,8 +29,10 @@ export function getStringListQuery<TData extends Record<string, any>>(
   const query: Record<
     string,
     Pick<ComparisonLiteralFieldQueryOps, '$regex'> &
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Pick<ArrayFieldQueryOps<any>, '$size'>
   > = {};
+
   stringList.reduce((map, name, index) => {
     const key = `${prefix as string}.${index}`;
     map[key] = {$regex: getLowercaseRegExpForString(name)};
@@ -52,6 +47,7 @@ export function getStringListQuery<TData extends Record<string, any>>(
 }
 
 export function getInAndNinQuery<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TData extends Record<string, any>,
   TKey extends StringKeysOnly<TData> = StringKeysOnly<TData>,
 >(

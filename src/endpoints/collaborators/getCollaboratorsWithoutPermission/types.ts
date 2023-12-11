@@ -1,4 +1,3 @@
-import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
 export interface GetCollaboratorsWithoutPermissionEndpointParamsBase
@@ -12,7 +11,6 @@ export interface GetCollaboratorsWithoutPermissionEndpointResult {
 }
 
 export type GetCollaboratorsWithoutPermissionEndpoint = Endpoint<
-  BaseContextType,
   GetCollaboratorsWithoutPermissionEndpointParams,
   GetCollaboratorsWithoutPermissionEndpointResult
 >;

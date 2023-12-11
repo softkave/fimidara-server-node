@@ -14,7 +14,7 @@ import {
 import {getTimestamp} from '../../../utils/dateFns';
 import {cast, isObjectEmpty} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
-import {BaseContextType} from '../../contexts/types';
+import {kSemanticModels} from '../../contexts/injectables';
 import {usageRecordConstants} from '../../usageRecords/constants';
 import {transformUsageThresholInput} from '../../workspaces/addWorkspace/internalCreateWorkspace';
 import {NewWorkspaceInput} from '../../workspaces/addWorkspace/types';
@@ -122,19 +122,18 @@ export function generateTestWorkspace(seed: PartialDeep<Workspace> = {}) {
 export function generateWorkspaceListForTest(count = 20, seed: Partial<Workspace> = {}) {
   const workspaces: Workspace[] = [];
   for (let i = 0; i < count; i++) {
-    workspaces.push(generateTestWorkspace());
+    workspaces.push(generateTestWorkspace(seed));
   }
   return workspaces;
 }
 
 export async function generateAndInsertWorkspaceListForTest(
-  ctx: BaseContextType,
   count = 20,
   extra: Partial<Workspace> = {}
 ) {
   const items = generateWorkspaceListForTest(count, extra);
-  await ctx.semantic.utils.withTxn(ctx, async opts =>
-    ctx.semantic.workspace.insertItem(items, opts)
-  );
+  await kSemanticModels
+    .utils()
+    .withTxn(async opts => kSemanticModels.workspace().insertItem(items, opts));
   return items;
 }

@@ -1,11 +1,8 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
-import {BaseContextType} from '../../contexts/types';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
 } from '../../testUtils/testUtils';
@@ -18,32 +15,32 @@ import {LoginEndpointParams} from './types';
  * - test that login fails on invalid email and password
  */
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 test('user login successful with token reuse', async () => {
-  assertContext(context);
   const password = faker.internet.password();
-  const {user, userToken} = await insertUserForTest(context, {
+  const {user, userToken} = await insertUserForTest({
     password,
   });
 
-  const instData = RequestData.fromExpressRequest<LoginEndpointParams>(mockExpressRequest(), {
-    password,
-    email: user.email,
-  });
+  const instData = RequestData.fromExpressRequest<LoginEndpointParams>(
+    mockExpressRequest(),
+    {
+      password,
+      email: user.email,
+    }
+  );
 
-  const result = await login(context, instData);
+  const result = await login(instData);
   assertEndpointResultOk(result);
   expect(result.user).toMatchObject(user);
 
-  const jwtToken = context.session.decodeToken(context, result.token);
+  const jwtToken = kUtilsInjectables.session().decodeToken(result.token);
   expect(jwtToken.sub.id).toBe(userToken.resourceId);
 });

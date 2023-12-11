@@ -1,4 +1,5 @@
 import {validate} from '../../../utils/validate';
+import {kUtilsInjectables, kSemanticModels} from '../../contexts/injectables';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
@@ -7,17 +8,13 @@ import {collaborationRequestForUserListExtractor} from '../utils';
 import {GetUserCollaborationRequestsEndpoint} from './types';
 import {getUserRequestsJoiSchema} from './validation';
 
-const getUserCollaborationRequests: GetUserCollaborationRequestsEndpoint = async (
-  context,
-  d
-) => {
+const getUserCollaborationRequests: GetUserCollaborationRequestsEndpoint = async d => {
   const data = validate(d.data, getUserRequestsJoiSchema);
-  const user = await context.session.getUser(context, d);
+  const user = await kUtilsInjectables.session().getUser(d);
   applyDefaultEndpointPaginationOptions(data);
-  const requests = await context.semantic.collaborationRequest.getManyByEmail(
-    user.email,
-    data
-  );
+  const requests = await kSemanticModels
+    .collaborationRequest()
+    .getManyByEmail(user.email, data);
   return {
     page: getEndpointPageFromInput(data),
     requests: collaborationRequestForUserListExtractor(requests),

@@ -1,12 +1,11 @@
 import {calculatePageSize} from '../../../utils/fns';
-import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
+import {kSemanticModels} from '../../contexts/injectables';
 import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generateData/agentToken';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
+  initTest,
   insertAgentTokenForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -15,41 +14,40 @@ import {
 import getWorkspaceAgentTokens from './handler';
 import {GetWorkspaceAgentTokensEndpointParams} from './types';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('getWorkspaceAgentTokens', () => {
   test('workspace agent tokens returned', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const [{token: token01}, {token: token02}] = await Promise.all([
-      insertAgentTokenForTest(context, userToken, workspace.resourceId),
-      insertAgentTokenForTest(context, userToken, workspace.resourceId),
+      insertAgentTokenForTest(userToken, workspace.resourceId),
+      insertAgentTokenForTest(userToken, workspace.resourceId),
     ]);
-    const instData = RequestData.fromExpressRequest<GetWorkspaceAgentTokensEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {workspaceId: workspace.resourceId}
-    );
-    const result = await getWorkspaceAgentTokens(context, instData);
+    const instData =
+      RequestData.fromExpressRequest<GetWorkspaceAgentTokensEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {workspaceId: workspace.resourceId}
+      );
+    const result = await getWorkspaceAgentTokens(instData);
     assertEndpointResultOk(result);
     expect(result.tokens).toContainEqual(token01);
     expect(result.tokens).toContainEqual(token02);
   });
 
   test('pagination', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
-    await generateAndInsertAgentTokenListForTest(context, 15, {workspaceId: workspace.resourceId});
-    const count = await context.semantic.agentToken.countByQuery({
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    await generateAndInsertAgentTokenListForTest(15, {
+      workspaceId: workspace.resourceId,
+    });
+    const count = await kSemanticModels.agentToken().countByQuery({
       workspaceId: workspace.resourceId,
     });
     const pageSize = 10;
@@ -58,7 +56,7 @@ describe('getWorkspaceAgentTokens', () => {
       mockExpressRequestWithAgentToken(userToken),
       {page, pageSize, workspaceId: workspace.resourceId}
     );
-    let result = await getWorkspaceAgentTokens(context, instData);
+    let result = await getWorkspaceAgentTokens(instData);
     assertEndpointResultOk(result);
     expect(result.page).toBe(page);
     expect(result.tokens).toHaveLength(calculatePageSize(count, pageSize, page));
@@ -68,7 +66,7 @@ describe('getWorkspaceAgentTokens', () => {
       mockExpressRequestWithAgentToken(userToken),
       {page, pageSize, workspaceId: workspace.resourceId}
     );
-    result = await getWorkspaceAgentTokens(context, instData);
+    result = await getWorkspaceAgentTokens(instData);
     assertEndpointResultOk(result);
     expect(result.page).toBe(page);
     expect(result.tokens).toHaveLength(calculatePageSize(count, pageSize, page));

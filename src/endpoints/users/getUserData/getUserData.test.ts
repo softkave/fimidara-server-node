@@ -1,11 +1,8 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
-import {BaseContextType} from '../../contexts/types';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
@@ -18,24 +15,20 @@ import getUserData from './getUserData';
  * - test that hanlder fails if user does not exist
  */
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 test('user data is returned', async () => {
-  assertContext(context);
   const password = faker.internet.password();
-  const {user, userToken} = await insertUserForTest(context, {
+  const {user, userToken} = await insertUserForTest({
     password,
   });
   const result = await getUserData(
-    context,
     RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken))
   );
   assertEndpointResultOk(result);

@@ -3,7 +3,6 @@ import {merge} from 'lodash';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {Agent, AppResourceType, AppResourceTypeMap} from '../../../definitions/system';
 import {getNewIdForResource} from '../../../utils/resource';
-import {seed} from 'faker';
 
 export type GeneratePartialTestDataFn<T> = (
   index: number,

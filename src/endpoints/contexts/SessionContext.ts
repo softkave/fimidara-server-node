@@ -29,31 +29,25 @@ import {
   InvalidCredentialsError,
   PermissionDeniedError,
 } from '../users/errors';
-import {BaseContextType} from './types';
+import {kSemanticModels, kUtilsInjectables} from './injectables';
 
 export interface SessionContextType {
   getAgent: (
-    ctx: BaseContextType,
     data: RequestData,
     permittedAgentTypes?: AppResourceType | AppResourceType[],
     tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
   ) => Promise<SessionAgent>;
   getAgentById: (id: string) => Promise<SessionAgent>;
   getUser: (
-    ctx: BaseContextType,
     data: RequestData,
     tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
   ) => Promise<User>;
-  decodeToken: (
-    ctx: BaseContextType,
-    token: string
-  ) => BaseTokenData<TokenSubjectDefault>;
+  decodeToken: (token: string) => BaseTokenData<TokenSubjectDefault>;
   tokenContainsScope: (
     tokenData: AgentToken,
     expectedTokenScopes: TokenAccessScope | TokenAccessScope[]
   ) => boolean;
   encodeToken: (
-    ctx: BaseContextType,
     tokenId: string,
     expires?: string | Date | number | null,
     issuedAt?: string | Date | number | null
@@ -62,7 +56,6 @@ export interface SessionContextType {
 
 export default class SessionContext implements SessionContextType {
   getAgent = async (
-    ctx: BaseContextType,
     data: RequestData,
     permittedAgentTypes: AppResourceType | AppResourceType[] = [
       AppResourceTypeMap.User,
@@ -75,14 +68,16 @@ export default class SessionContext implements SessionContextType {
 
     if (!agent) {
       if (incomingTokenData) {
-        const agentToken = await ctx.semantic.agentToken.getOneById(
-          incomingTokenData.sub.id
-        );
+        const agentToken = await kSemanticModels
+          .agentToken()
+          .getOneById(incomingTokenData.sub.id);
         appAssert(agentToken, new InvalidCredentialsError());
 
         if (agentToken.agentType === AppResourceTypeMap.User) {
           appAssert(agentToken.separateEntityId);
-          const user = await ctx.semantic.user.getOneById(agentToken.separateEntityId);
+          const user = await kSemanticModels
+            .user()
+            .getOneById(agentToken.separateEntityId);
           appAssert(user, kReuseableErrors.user.notFound());
           agent = makeUserSessionAgent(user, agentToken);
         } else {
@@ -94,30 +89,26 @@ export default class SessionContext implements SessionContextType {
     }
 
     this.checkPermittedAgentTypes(agent, permittedAgentTypes);
-    this.checkAgentTokenAccessScope(ctx, agent, tokenAccessScope);
+    this.checkAgentTokenAccessScope(agent, tokenAccessScope);
     this.checkRequiresPasswordChange(agent, tokenAccessScope);
 
     return agent;
   };
 
   getUser = async (
-    ctx: BaseContextType,
     data: RequestData,
     tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
   ) => {
-    const agent = await ctx.session.getAgent(
-      ctx,
-      data,
-      [AppResourceTypeMap.User],
-      tokenAccessScope
-    );
+    const agent = await kUtilsInjectables
+      .session()
+      .getAgent(data, [AppResourceTypeMap.User], tokenAccessScope);
     appAssert(agent.user, new ServerError());
     return agent.user;
   };
 
-  decodeToken = (ctx: BaseContextType, token: string) => {
+  decodeToken = (token: string) => {
     const tokenData = cast<BaseTokenData<TokenSubjectDefault>>(
-      jwt.verify(token, ctx.appVariables.jwtSecret, {
+      jwt.verify(token, kUtilsInjectables.config().jwtSecret, {
         complete: false,
       })
     );
@@ -144,7 +135,6 @@ export default class SessionContext implements SessionContextType {
   };
 
   encodeToken = (
-    ctx: BaseContextType,
     tokenId: string,
     expires?: string | Date | number | null,
     issuedAt?: string | Date | number | null
@@ -157,7 +147,7 @@ export default class SessionContext implements SessionContextType {
     if (expires) payload.exp = dateToSeconds(expires);
     if (issuedAt) payload.iat = dateToSeconds(issuedAt);
 
-    return jwt.sign(payload, ctx.appVariables.jwtSecret);
+    return jwt.sign(payload, kUtilsInjectables.config().jwtSecret);
   };
 
   private checkPermittedAgentTypes(
@@ -174,7 +164,6 @@ export default class SessionContext implements SessionContextType {
   }
 
   private checkAgentTokenAccessScope(
-    ctx: BaseContextType,
     agent: SessionAgent,
     tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
   ) {
@@ -183,7 +172,11 @@ export default class SessionContext implements SessionContextType {
       agent.agentType === AppResourceTypeMap.User &&
       agent.agentToken
     ) {
-      if (!ctx.session.tokenContainsScope(agent.agentToken, tokenAccessScope))
+      if (
+        !kUtilsInjectables
+          .session()
+          .tokenContainsScope(agent.agentToken, tokenAccessScope)
+      )
         throw new PermissionDeniedError();
     }
   }

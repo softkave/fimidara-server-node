@@ -1,5 +1,4 @@
 import {PublicCollaborator} from '../../../definitions/user';
-import {BaseContextType} from '../../contexts/types';
 import {
   Endpoint,
   EndpointOptionalWorkspaceIDParam,
@@ -19,7 +18,6 @@ export interface GetWorkspaceCollaboratorsEndpointResult extends PaginatedResult
 }
 
 export type GetWorkspaceCollaboratorsEndpoint = Endpoint<
-  BaseContextType,
   GetWorkspaceCollaboratorsEndpointParams,
   GetWorkspaceCollaboratorsEndpointResult
 >;

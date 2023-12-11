@@ -2,18 +2,18 @@ import {appAssert} from '../../../utils/assertion';
 import {tryGetAgentTokenId} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
+import {kUtilsInjectables} from '../../contexts/injectables';
 import {tryGetWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {checkAgentTokenAuthorization02, getPublicAgentToken} from '../utils';
 import {GetAgentTokenEndpoint} from './types';
 import {getAgentTokenJoiSchema} from './validation';
 
-const getAgentToken: GetAgentTokenEndpoint = async (context, instData) => {
+const getAgentToken: GetAgentTokenEndpoint = async instData => {
   const data = validate(instData.data, getAgentTokenJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
-  const {workspace} = await tryGetWorkspaceFromEndpointInput(context, agent, data);
+  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const {workspace} = await tryGetWorkspaceFromEndpointInput(agent, data);
   const tokenId = tryGetAgentTokenId(agent, data.tokenId, data.onReferenced);
   let {token} = await checkAgentTokenAuthorization02(
-    context,
     agent,
     workspace?.resourceId,
     tokenId,
@@ -21,8 +21,8 @@ const getAgentToken: GetAgentTokenEndpoint = async (context, instData) => {
     'readAgentToken'
   );
   appAssert(token.workspaceId);
-  token = await populateAssignedTags(context, token.workspaceId, token);
-  return {token: getPublicAgentToken(context, token)};
+  token = await populateAssignedTags(token.workspaceId, token);
+  return {token: getPublicAgentToken(token)};
 };
 
 export default getAgentToken;

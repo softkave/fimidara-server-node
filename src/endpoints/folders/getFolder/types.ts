@@ -1,5 +1,4 @@
 import {FolderMatcher, PublicFolder} from '../../../definitions/folder';
-import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export type GetFolderEndpointParams = FolderMatcher;
@@ -8,7 +7,6 @@ export interface GetFolderEndpointResult {
 }
 
 export type GetFolderEndpoint = Endpoint<
-  BaseContextType,
   GetFolderEndpointParams,
   GetFolderEndpointResult
 >;

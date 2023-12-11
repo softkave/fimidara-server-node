@@ -5,17 +5,16 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource, newResource} from '../../../utils/resource';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {BaseContextType} from '../../contexts/types';
 import {assertEmailAddressAvailable} from '../utils';
 import {SignupEndpointParams} from './types';
+import {kUtilsInjectables, kSemanticModels} from '../../contexts/injectables';
 
 export const INTERNAL_signupUser = async (
-  context: BaseContextType,
   data: SignupEndpointParams,
   otherParams: Partial<User> = {},
   opts: SemanticProviderMutationRunOptions
 ) => {
-  await assertEmailAddressAvailable(context, data.email, opts);
+  await assertEmailAddressAvailable(data.email, opts);
 
   const hash = await argon2.hash(data.password);
   const now = getTimestamp();
@@ -29,9 +28,9 @@ export const INTERNAL_signupUser = async (
     passwordLastChangedAt: now,
     isEmailVerified: false,
     lastUpdatedAt: now,
-    isOnWaitlist: context.appVariables.FLAG_waitlistNewSignups,
+    isOnWaitlist: kUtilsInjectables.config().FLAG_waitlistNewSignups,
     ...otherParams,
   });
-  await context.semantic.user.insertItem(user, opts);
-  return await populateUserWorkspaces(context, user, opts);
+  await kSemanticModels.user().insertItem(user, opts);
+  return await populateUserWorkspaces(user, opts);
 };

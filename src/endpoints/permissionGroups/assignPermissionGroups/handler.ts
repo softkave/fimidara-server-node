@@ -2,21 +2,18 @@ import {toNonNullableArray} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {checkPermissionEntitiesExist} from '../../permissionItems/checkPermissionArtifacts';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {checkPermissionGroupsExist} from '../utils';
 import {AssignPermissionGroupsEndpoint} from './types';
 import {assignPermissionGroupsJoiSchema} from './validation';
 
-const assignPermissionGroups: AssignPermissionGroupsEndpoint = async (
-  context,
-  instData
-) => {
+const assignPermissionGroups: AssignPermissionGroupsEndpoint = async instData => {
   const data = validate(instData.data, assignPermissionGroupsJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
-  const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
+  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   await checkAuthorizationWithAgent({
-    context,
     agent,
     workspace,
     workspaceId: workspace.resourceId,
@@ -25,30 +22,24 @@ const assignPermissionGroups: AssignPermissionGroupsEndpoint = async (
   const entityIdList = toNonNullableArray(data.entityId);
   await Promise.all([
     await checkPermissionEntitiesExist(
-      context,
       agent,
       workspace.resourceId,
       entityIdList,
       'updatePermission'
     ),
-    await checkPermissionGroupsExist(
-      context,
-      workspace.resourceId,
-      data.permissionGroups
-    ),
+    await checkPermissionGroupsExist(workspace.resourceId, data.permissionGroups),
   ]);
 
-  await context.semantic.utils.withTxn(context, async opts => {
+  await kSemanticModels.utils().withTxn(async opts => {
     // TODO: getEntityAssignedPermissionGroups should support entity ID array
 
     // Get entities' immediately existing permission groups to avoid assigning
     // twice
     const existingPermissionGroups = await Promise.all(
       entityIdList.map(entityId =>
-        context.semantic.permissions.getEntityAssignedPermissionGroups(
-          {context, entityId, fetchDeep: false},
-          opts
-        )
+        kSemanticModels
+          .permissions()
+          .getEntityAssignedPermissionGroups({entityId, fetchDeep: false}, opts)
       )
     );
 
@@ -67,7 +58,6 @@ const assignPermissionGroups: AssignPermissionGroupsEndpoint = async (
 
         // Assign permission groups to entity
         return addAssignedPermissionGroupList(
-          context,
           agent,
           workspace.resourceId,
           permissionGroupList,

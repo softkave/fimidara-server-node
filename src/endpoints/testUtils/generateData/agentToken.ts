@@ -6,7 +6,7 @@ import {
   CURRENT_TOKEN_VERSION,
 } from '../../../definitions/system';
 import {getNewIdForResource, newResource} from '../../../utils/resource';
-import {BaseContextType} from '../../contexts/types';
+import {kSemanticModels} from '../../contexts/injectables';
 
 export function generateAgentTokenForTest(
   seed: Partial<AgentToken> & {workspaceId: string | null} = {workspaceId: null}
@@ -43,13 +43,12 @@ export function generateAgentTokenListForTest(
 }
 
 export async function generateAndInsertAgentTokenListForTest(
-  ctx: BaseContextType,
   count = 20,
   seed: Partial<AgentToken> & {workspaceId: string | null} = {workspaceId: null}
 ) {
   const items = generateAgentTokenListForTest(count, seed);
-  await ctx.semantic.utils.withTxn(ctx, async opts =>
-    ctx.semantic.agentToken.insertItem(items, opts)
-  );
+  await kSemanticModels
+    .utils()
+    .withTxn(async opts => kSemanticModels.agentToken().insertItem(items, opts));
   return items;
 }

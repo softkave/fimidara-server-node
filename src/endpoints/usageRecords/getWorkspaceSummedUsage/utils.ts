@@ -8,18 +8,16 @@ import {
 import {getTimestamp} from '../../../utils/dateFns';
 import {toArray} from '../../../utils/fns';
 import {LiteralDataQuery} from '../../contexts/data/types';
-import {BaseContextType} from '../../contexts/types';
 import {checkWorkspaceAuthorization02} from '../../workspaces/utils';
 import {GetWorkspaceSummedUsageEndpointParams} from './types';
 
 export async function getWorkspaceSummedUsageQuery(
-  context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
   data: GetWorkspaceSummedUsageEndpointParams
 ) {
   // TODO: should we include permissions check for usage records?
-  await checkWorkspaceAuthorization02(context, agent, 'readUsageRecord', workspaceId);
+  await checkWorkspaceAuthorization02(agent, 'readUsageRecord', workspaceId);
 
   const query: LiteralDataQuery<UsageRecord> = {
     workspaceId: {$eq: workspaceId},
@@ -36,22 +34,23 @@ export async function getWorkspaceSummedUsageQuery(
   }
 
   if (data.query?.category) {
-    // TODO: correct type
-    query.category = {$in: toArray(data.query.category) as any[]};
+    // @ts-ignore
+    query.category = {$in: toArray(data.query.category)};
   }
 
   // don't include the fulfillment status if it's undecided
   if (data.query?.fulfillmentStatus) {
     query.fulfillmentStatus = {
-      // TODO: correct type
-      $in: toArray(data.query.fulfillmentStatus) as any[],
+      // @ts-ignore
+      $in: toArray(data.query.fulfillmentStatus),
     };
   } else {
     query.fulfillmentStatus = {
       $in: [
+        // @ts-ignore
         UsageRecordFulfillmentStatusMap.Fulfilled,
         UsageRecordFulfillmentStatusMap.Dropped,
-      ] as any[],
+      ],
     };
   }
 

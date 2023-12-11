@@ -1,13 +1,8 @@
 import {faker} from '@faker-js/faker';
-import {BaseContextType} from '../../contexts/types';
 import {generateAndInsertUserListForTest} from '../../testUtils/generateData/user';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTest} from '../../testUtils/helpers/test';
-import {
-  assertContext,
-  initTestBaseContext,
-  insertUserForTest,
-} from '../../testUtils/testUtils';
+import {insertUserForTest} from '../../testUtils/testUtils';
 import UserQueries from '../UserQueries';
 import {EmailAddressNotAvailableError} from '../errors';
 
@@ -16,19 +11,16 @@ import {EmailAddressNotAvailableError} from '../errors';
  * - test that email verification email is sent
  */
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('signup', () => {
   test('user signup successful with token creation', async () => {
-    assertContext(context);
     const userInput = {
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
@@ -36,17 +28,16 @@ describe('signup', () => {
       password: faker.internet.password(),
     };
 
-    const result = await insertUserForTest(context, userInput);
-    const savedUser = await context.semantic.user.assertGetOneByQuery(
-      UserQueries.getById(result.user.resourceId)
-    );
+    const result = await insertUserForTest(userInput);
+    const savedUser = await kSemanticModels
+      .user()
+      .assertGetOneByQuery(UserQueries.getById(result.user.resourceId));
     expect(savedUser).toBeTruthy();
     expect(result.userToken).toBeTruthy();
     expect(result.userTokenStr).toBeTruthy();
   });
 
   test('new signups are waitlisted', async () => {
-    assertContext(context);
     const userInput = {
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
@@ -54,22 +45,21 @@ describe('signup', () => {
       password: faker.internet.password(),
     };
 
-    context.appVariables.FLAG_waitlistNewSignups = true;
-    const result = await insertUserForTest(context, userInput);
-    const savedUser = await context.semantic.user.assertGetOneByQuery(
-      UserQueries.getById(result.user.resourceId)
-    );
+    kUtilsInjectables.config().FLAG_waitlistNewSignups = true;
+    const result = await insertUserForTest(userInput);
+    const savedUser = await kSemanticModels
+      .user()
+      .assertGetOneByQuery(UserQueries.getById(result.user.resourceId));
     expect(savedUser.isOnWaitlist).toBeTruthy();
 
     // TODO: if we ever switch to concurrent tests, then create a context for
     // this test instead
-    context.appVariables.FLAG_waitlistNewSignups = false;
+    kUtilsInjectables.config().FLAG_waitlistNewSignups = false;
   });
 
   test('signup fails if email is not available', async () => {
-    assertContext(context);
     const email = faker.internet.email();
-    await generateAndInsertUserListForTest(context, /** count */ 1, () => ({email}));
+    await generateAndInsertUserListForTest(/** count */ 1, () => ({email}));
     const userInput = {
       email,
       firstName: faker.person.firstName(),
@@ -78,8 +68,7 @@ describe('signup', () => {
     };
 
     await expectErrorThrown(async () => {
-      assertContext(context);
-      await insertUserForTest(context, userInput);
+      await insertUserForTest(userInput);
     }, [EmailAddressNotAvailableError.name]);
   });
 });

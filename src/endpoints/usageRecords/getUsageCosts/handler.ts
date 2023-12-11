@@ -1,7 +1,7 @@
 import {usageCosts} from '../constants';
 import {GetUsageCostsEndpoint} from './types';
 
-const getUsageCosts: GetUsageCostsEndpoint = async (context, instData) => {
+const getUsageCosts: GetUsageCostsEndpoint = async () => {
   return {costs: usageCosts};
 };
 

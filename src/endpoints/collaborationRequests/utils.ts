@@ -10,8 +10,8 @@ import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {kSemanticModels} from '../contexts/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
-import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {workspaceResourceFields} from '../utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
@@ -46,15 +46,13 @@ const userCollaborationRequestForWorkspaceFields =
   });
 
 export async function checkCollaborationRequestAuthorization(
-  context: BaseContextType,
   agent: SessionAgent,
   request: CollaborationRequest,
   action: PermissionAction,
   opts?: SemanticProviderRunOptions
 ) {
-  const workspace = await checkWorkspaceExists(context, request.workspaceId);
+  const workspace = await checkWorkspaceExists(request.workspaceId);
   await checkAuthorizationWithAgent({
-    context,
     agent,
     opts,
     workspaceId: workspace.resourceId,
@@ -65,15 +63,16 @@ export async function checkCollaborationRequestAuthorization(
 }
 
 export async function checkCollaborationRequestAuthorization02(
-  context: BaseContextType,
   agent: SessionAgent,
   requestId: string,
   action: PermissionAction,
   opts?: SemanticProviderRunOptions
 ) {
-  const request = await context.semantic.collaborationRequest.getOneById(requestId, opts);
+  const request = await kSemanticModels
+    .collaborationRequest()
+    .getOneById(requestId, opts);
   assertCollaborationRequest(request);
-  return checkCollaborationRequestAuthorization(context, agent, request, action);
+  return checkCollaborationRequestAuthorization(agent, request, action);
 }
 
 export const collaborationRequestForUserExtractor = makeExtract(
@@ -94,15 +93,13 @@ export function throwCollaborationRequestNotFound() {
 }
 
 export async function populateRequestAssignedPermissionGroups(
-  context: BaseContextType,
   request: CollaborationRequest
 ): Promise<
   CollaborationRequest & {
     permissionGroupsAssignedOnAcceptingRequest: AssignedPermissionGroupMeta[];
   }
 > {
-  const inheritanceMap = await context.semantic.permissions.getEntityInheritanceMap({
-    context,
+  const inheritanceMap = await kSemanticModels.permissions().getEntityInheritanceMap({
     entityId: request.resourceId,
     fetchDeep: false,
   });
@@ -113,11 +110,10 @@ export async function populateRequestAssignedPermissionGroups(
 }
 
 export async function populateRequestListPermissionGroups(
-  context: BaseContextType,
   requests: CollaborationRequest[]
 ) {
   return await Promise.all(
-    requests.map(request => populateRequestAssignedPermissionGroups(context, request))
+    requests.map(request => populateRequestAssignedPermissionGroups(request))
   );
 }
 

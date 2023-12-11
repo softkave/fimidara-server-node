@@ -1,5 +1,4 @@
 import {PermissionAction} from '../../../definitions/permissionItem';
-import {BaseContextType} from '../../contexts/types';
 import {LongRunningJobResult} from '../../jobs/types';
 import {Endpoint} from '../../types';
 import {PermissionItemInputTarget} from '../types';
@@ -18,7 +17,6 @@ export interface DeletePermissionItemsEndpointParams {
 }
 
 export type DeletePermissionItemsEndpoint = Endpoint<
-  BaseContextType,
   DeletePermissionItemsEndpointParams,
   LongRunningJobResult
 >;

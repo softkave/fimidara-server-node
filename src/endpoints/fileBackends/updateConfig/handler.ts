@@ -12,15 +12,12 @@ import {configNameExists, fileBackendConfigExtractor} from '../utils';
 import {UpdateFileBackendConfigEndpoint} from './types';
 import {updateFileBackendConfigJoiSchema} from './validation';
 
-const updateFileBackendConfig: UpdateFileBackendConfigEndpoint = async (
-  context,
-  instData
-) => {
+const updateFileBackendConfig: UpdateFileBackendConfigEndpoint = async instData => {
   const configModel = kSemanticModels.fileBackendConfig();
   const secretsManager = kUtilsInjectables.secretsManager();
 
   const data = validate(instData.data, updateFileBackendConfigJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
+  const agent = await kUtilsInjectables.session().getAgent(instData);
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   await checkAuthorizationWithAgent({
     agent,

@@ -19,19 +19,18 @@ import {generateAgent, generateTestList} from '../../../testUtils/generateData/u
 import {expectContainsExactly} from '../../../testUtils/helpers/assertion';
 import {expectErrorThrown} from '../../../testUtils/helpers/error';
 import {completeTest} from '../../../testUtils/helpers/test';
-import {assertContext, initTestBaseContext} from '../../../testUtils/testUtils';
-import {BaseContextType} from '../../types';
+import {initTest} from '../../../testUtils/testUtils';
+import {kSemanticModels} from '../../injectables';
 import {DataSemanticPermission} from './models';
 
-let context: BaseContextType | null = null;
 const model = new DataSemanticPermission();
 
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('DataSemanticPermission', () => {
@@ -213,48 +212,42 @@ describe('DataSemanticPermission', () => {
   });
 
   test('getEntity, user', async () => {
-    assertContext(context);
-    const [user] = await generateAndInsertUserListForTest(context, 1);
+    const [user] = await generateAndInsertUserListForTest(1);
 
-    const retrievedUser = await model.getEntity({context, entityId: user.resourceId});
+    const retrievedUser = await model.getEntity({entityId: user.resourceId});
 
     expect(retrievedUser).toMatchObject(user);
   });
 
   test('getEntity, agent token', async () => {
-    assertContext(context);
-    const [token] = await generateAndInsertAgentTokenListForTest(context, 1);
+    const [token] = await generateAndInsertAgentTokenListForTest(1);
 
-    const retrievedToken = await model.getEntity({context, entityId: token.resourceId});
+    const retrievedToken = await model.getEntity({entityId: token.resourceId});
 
     expect(retrievedToken).toMatchObject(token);
   });
 
   test('getEntity, permission group', async () => {
-    assertContext(context);
-    const [pg] = await generateAndInsertAgentTokenListForTest(context, 1);
+    const [pg] = await generateAndInsertAgentTokenListForTest(1);
 
-    const retrievedPg = await model.getEntity({context, entityId: pg.resourceId});
+    const retrievedPg = await model.getEntity({entityId: pg.resourceId});
 
     expect(retrievedPg).toMatchObject(pg);
   });
 
   test('getPermissionItems, no query throws error', async () => {
-    assertContext(context);
-
     await expectErrorThrown(
       async () => await model.getPermissionItems({context: context!})
     );
   });
 
   test('getPermissionItems, every query', async () => {
-    assertContext(context);
     const entityId = getNewIdForResource(AppResourceTypeMap.PermissionGroup);
     const action = faker.helpers.arrayElement(Object.values(kPermissionsMap));
     const targetParentId = getNewIdForResource(AppResourceTypeMap.Folder);
     const targetId = getNewIdForResource(AppResourceTypeMap.File);
     const targetType = faker.helpers.arrayElement(Object.values(AppResourceTypeMap));
-    const pItems = await generateAndInsertPermissionItemListForTest(context, 5, {
+    const pItems = await generateAndInsertPermissionItemListForTest(5, {
       entityId,
       action,
       targetParentId,
@@ -263,7 +256,6 @@ describe('DataSemanticPermission', () => {
     });
 
     const items = await model.getPermissionItems({
-      context,
       entityId,
       action,
       targetParentId,
@@ -276,7 +268,6 @@ describe('DataSemanticPermission', () => {
   });
 
   test('getPermissionItems, every query + multiple items', async () => {
-    assertContext(context);
     const resourceTypes = Object.values(AppResourceTypeMap);
     const count = faker.number.int({min: 2, max: 5});
     const idList = generateTestList(
@@ -297,12 +288,11 @@ describe('DataSemanticPermission', () => {
         }),
       count
     );
-    await context.semantic.utils.withTxn(context, async opts =>
-      context!.semantic.permissionItem.insertItem(rawItems, opts)
-    );
+    await kSemanticModels
+      .utils()
+      .withTxn(async opts => context!.semantic.permissionItem.insertItem(rawItems, opts));
 
     const items = await model.getPermissionItems({
-      context,
       targetParentId,
       targetType,
       entityId: idList,
@@ -315,45 +305,44 @@ describe('DataSemanticPermission', () => {
   });
 
   test('getEntityInheritanceMap, shallow', async () => {
-    assertContext(context);
-    const [pg] = await generateAndInsertPermissionGroupListForTest(context, 1);
-    const [pg02, pg03] = await generateAndInsertPermissionGroupListForTest(context, 2);
-    const [pg04, pg05] = await generateAndInsertPermissionGroupListForTest(context, 2);
+    const [pg] = await generateAndInsertPermissionGroupListForTest(1);
+    const [pg02, pg03] = await generateAndInsertPermissionGroupListForTest(2);
+    const [pg04, pg05] = await generateAndInsertPermissionGroupListForTest(2);
     const assignedAt = getTimestamp();
     const assignedBy = generateAgent();
 
     await Promise.all([
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         assignedItemId: pg02.resourceId,
         assigneeId: pg.resourceId,
         createdAt: assignedAt,
         createdBy: assignedBy,
       }),
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         assignedItemId: pg03.resourceId,
         assigneeId: pg.resourceId,
         createdAt: assignedAt,
         createdBy: assignedBy,
       }),
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         assignedItemId: pg04.resourceId,
         assigneeId: pg02.resourceId,
         createdAt: assignedAt,
         createdBy: assignedBy,
       }),
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         assignedItemId: pg04.resourceId,
         assigneeId: pg03.resourceId,
         createdAt: assignedAt,
         createdBy: assignedBy,
       }),
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         assignedItemId: pg05.resourceId,
         assigneeId: pg02.resourceId,
         createdAt: assignedAt,
         createdBy: assignedBy,
       }),
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         assignedItemId: pg05.resourceId,
         assigneeId: pg03.resourceId,
         createdAt: assignedAt,
@@ -362,7 +351,6 @@ describe('DataSemanticPermission', () => {
     ]);
 
     const map = await model.getEntityInheritanceMap({
-      context,
       entityId: pg.resourceId,
       fetchDeep: false,
     });
@@ -400,40 +388,38 @@ describe('DataSemanticPermission', () => {
   });
 
   test('getEntityInheritanceMap, deep', async () => {
-    assertContext(context);
-    const [pg] = await generateAndInsertPermissionGroupListForTest(context, 1);
-    const [pg02, pg03] = await generateAndInsertPermissionGroupListForTest(context, 2);
-    const [pg04, pg05] = await generateAndInsertPermissionGroupListForTest(context, 2);
+    const [pg] = await generateAndInsertPermissionGroupListForTest(1);
+    const [pg02, pg03] = await generateAndInsertPermissionGroupListForTest(2);
+    const [pg04, pg05] = await generateAndInsertPermissionGroupListForTest(2);
 
     await Promise.all([
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         assignedItemId: pg02.resourceId,
         assigneeId: pg.resourceId,
       }),
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         assignedItemId: pg03.resourceId,
         assigneeId: pg.resourceId,
       }),
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         assignedItemId: pg04.resourceId,
         assigneeId: pg02.resourceId,
       }),
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         assignedItemId: pg04.resourceId,
         assigneeId: pg03.resourceId,
       }),
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         assignedItemId: pg05.resourceId,
         assigneeId: pg02.resourceId,
       }),
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         assignedItemId: pg05.resourceId,
         assigneeId: pg03.resourceId,
       }),
     ]);
 
     const map = await model.getEntityInheritanceMap({
-      context,
       entityId: pg.resourceId,
       fetchDeep: true,
     });
@@ -473,40 +459,38 @@ describe('DataSemanticPermission', () => {
   });
 
   test('getEntityAssignedPermissionGroups, shallow', async () => {
-    assertContext(context);
-    const [pg] = await generateAndInsertPermissionGroupListForTest(context, 1);
-    const [pg02, pg03] = await generateAndInsertPermissionGroupListForTest(context, 2);
-    const [pg04, pg05] = await generateAndInsertPermissionGroupListForTest(context, 2);
+    const [pg] = await generateAndInsertPermissionGroupListForTest(1);
+    const [pg02, pg03] = await generateAndInsertPermissionGroupListForTest(2);
+    const [pg04, pg05] = await generateAndInsertPermissionGroupListForTest(2);
 
     await Promise.all([
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         assignedItemId: pg02.resourceId,
         assigneeId: pg.resourceId,
       }),
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         assignedItemId: pg03.resourceId,
         assigneeId: pg.resourceId,
       }),
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         assignedItemId: pg04.resourceId,
         assigneeId: pg02.resourceId,
       }),
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         assignedItemId: pg04.resourceId,
         assigneeId: pg03.resourceId,
       }),
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         assignedItemId: pg05.resourceId,
         assigneeId: pg02.resourceId,
       }),
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         assignedItemId: pg05.resourceId,
         assigneeId: pg03.resourceId,
       }),
     ]);
 
     const {permissionGroups} = await model.getEntityAssignedPermissionGroups({
-      context,
       entityId: pg.resourceId,
       fetchDeep: false,
     });

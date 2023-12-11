@@ -11,7 +11,6 @@ import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {toArray} from '../../utils/fns';
 import {getResourceTypeFromId} from '../../utils/resource';
 import {kReuseableErrors} from '../../utils/reusableErrors';
-import {BaseContextType} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {checkResourcesBelongsToWorkspace} from '../resources/containerCheckFns';
 import {INTERNAL_getResources} from '../resources/getResources';
@@ -60,13 +59,11 @@ export function assertPermissionItem(item?: PermissionItem | null): asserts item
 }
 
 export async function getPermissionItemEntities(
-  context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
   entityIds: string | string[]
 ) {
   let resources = await INTERNAL_getResources({
-    context,
     agent,
     allowedTypes: [
       AppResourceTypeMap.User,
@@ -81,7 +78,7 @@ export async function getPermissionItemEntities(
     checkAuth: true,
     checkBelongsToWorkspace: true,
   });
-  resources = await resourceListWithAssignedItems(context, workspaceId, resources, [
+  resources = await resourceListWithAssignedItems(workspaceId, resources, [
     AppResourceTypeMap.User,
   ]);
   checkResourcesBelongsToWorkspace(workspaceId, resources);
@@ -89,13 +86,11 @@ export async function getPermissionItemEntities(
 }
 
 export async function getPermissionItemTargets(
-  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   target: Partial<PermissionItemInputTarget> | Partial<PermissionItemInputTarget>[]
 ) {
   return await INTERNAL_getResources({
-    context,
     agent,
     workspaceId: workspace.resourceId,
     allowedTypes: getWorkspaceResourceTypeList(),

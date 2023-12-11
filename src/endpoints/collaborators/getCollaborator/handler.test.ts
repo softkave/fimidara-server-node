@@ -1,12 +1,9 @@
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -15,20 +12,17 @@ import {collaboratorExtractor} from '../utils';
 import getCollaborator from './handler';
 import {GetCollaboratorEndpointParams} from './types';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 test('collaborator returned', async () => {
-  assertContext(context);
-  const {userToken, user} = await insertUserForTest(context);
-  const {workspace} = await insertWorkspaceForTest(context, userToken);
+  const {userToken, user} = await insertUserForTest();
+  const {workspace} = await insertWorkspaceForTest(userToken);
   const instData = RequestData.fromExpressRequest<GetCollaboratorEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
@@ -37,15 +31,14 @@ test('collaborator returned', async () => {
     }
   );
 
-  const result = await getCollaborator(context, instData);
+  const result = await getCollaborator(instData);
   assertEndpointResultOk(result);
   expect(result.collaborator).toMatchObject(
     collaboratorExtractor(
       await populateUserWorkspaces(
-        context,
-        await context.semantic.user.assertGetOneByQuery(
-          EndpointReusableQueries.getByResourceId(user.resourceId)
-        )
+        await kSemanticModels
+          .user()
+          .assertGetOneByQuery(EndpointReusableQueries.getByResourceId(user.resourceId))
       ),
       workspace.resourceId
     )

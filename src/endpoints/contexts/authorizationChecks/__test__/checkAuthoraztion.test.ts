@@ -14,38 +14,33 @@ import {generatePermissionItemForTest} from '../../../testUtils/generateData/per
 import {expectErrorThrown} from '../../../testUtils/helpers/error';
 import {completeTest} from '../../../testUtils/helpers/test';
 import {
-  assertContext,
-  initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../../testUtils/testUtils';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../../users/errors';
 import {SignupEndpointParams} from '../../../users/signup/types';
-import {BaseContextType} from '../../types';
+import {kSemanticModels, kUtilsInjectables} from '../../injectables';
 import {
   checkAuthorizationWithAgent,
   getFilePermissionContainers,
   resolveTargetChildrenAccessCheckWithAgent,
 } from '../checkAuthorizaton';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('checkAuthorization', () => {
   test('check auth with target + entity, access & no access', async () => {
-    assertContext(context);
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
-    const [file01, file02, file03] = await generateAndInsertTestFiles(context, 3, {
+    const [file01, file02, file03] = await generateAndInsertTestFiles(3, {
       workspaceId: rawWorkspace.resourceId,
       parentId: null,
     });
@@ -60,7 +55,6 @@ describe('checkAuthorization', () => {
     ]);
 
     await checkAuthorizationWithAgent({
-      context,
       agent: user02SessionAgent,
       target: {
         action: 'readFile',
@@ -70,9 +64,7 @@ describe('checkAuthorization', () => {
       workspace: rawWorkspace,
     });
     await expectErrorThrown(async () => {
-      assertContext(context);
       await checkAuthorizationWithAgent({
-        context,
         agent: user02SessionAgent,
         target: {
           action: 'readFile',
@@ -83,9 +75,7 @@ describe('checkAuthorization', () => {
       });
     }, [PermissionDeniedError.name]);
     await expectErrorThrown(async () => {
-      assertContext(context);
       await checkAuthorizationWithAgent({
-        context,
         agent: user02SessionAgent,
         target: {
           action: 'readFile',
@@ -98,16 +88,15 @@ describe('checkAuthorization', () => {
   });
 
   test('check auth with target + inherited entity, access & no access', async () => {
-    assertContext(context);
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
     const [[file01, file02, file03, file04], [pg01, pg02]] = await Promise.all([
-      generateAndInsertTestFiles(context, 4, {
+      generateAndInsertTestFiles(4, {
         workspaceId: rawWorkspace.resourceId,
         parentId: null,
       }),
-      generateAndInsertPermissionGroupListForTest(context, 2, {
+      generateAndInsertPermissionGroupListForTest(2, {
         workspaceId: rawWorkspace.resourceId,
       }),
     ]);
@@ -127,13 +116,13 @@ describe('checkAuthorization', () => {
         access: false,
       }),
       // Assign pg02 to pg01
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         workspaceId: rawWorkspace.resourceId,
         assignedItemId: pg02.resourceId,
         assigneeId: pg01.resourceId,
       }),
       // Assign pg01 to user02
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         workspaceId: rawWorkspace.resourceId,
         assignedItemId: pg01.resourceId,
         assigneeId: user02.resourceId,
@@ -141,7 +130,6 @@ describe('checkAuthorization', () => {
     ]);
 
     await checkAuthorizationWithAgent({
-      context,
       agent: user02SessionAgent,
       target: {
         targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
@@ -151,7 +139,6 @@ describe('checkAuthorization', () => {
       workspace: rawWorkspace,
     });
     await checkAuthorizationWithAgent({
-      context,
       agent: user02SessionAgent,
       target: {
         targetId: getFilePermissionContainers(rawWorkspace.resourceId, file02, true),
@@ -162,9 +149,7 @@ describe('checkAuthorization', () => {
     });
 
     await expectErrorThrown(async () => {
-      assertContext(context);
       await checkAuthorizationWithAgent({
-        context,
         agent: user02SessionAgent,
         target: {
           targetId: getFilePermissionContainers(rawWorkspace.resourceId, file03, true),
@@ -175,9 +160,7 @@ describe('checkAuthorization', () => {
       });
     }, [PermissionDeniedError.name]);
     await expectErrorThrown(async () => {
-      assertContext(context);
       await checkAuthorizationWithAgent({
-        context,
         agent: user02SessionAgent,
         target: {
           targetId: getFilePermissionContainers(rawWorkspace.resourceId, file04, true),
@@ -190,25 +173,23 @@ describe('checkAuthorization', () => {
   });
 
   test('check auth with parent + entity, access & no access', async () => {
-    assertContext(context);
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
-    const [folder01, folder02, folder03] = await generateAndInsertTestFolders(
-      context,
-      3,
-      {workspaceId: rawWorkspace.resourceId, parentId: null}
-    );
+    const [folder01, folder02, folder03] = await generateAndInsertTestFolders(3, {
+      workspaceId: rawWorkspace.resourceId,
+      parentId: null,
+    });
     const [[file01], [file02], [file03]] = await Promise.all([
-      generateAndInsertTestFiles(context, 1, {
+      generateAndInsertTestFiles(1, {
         workspaceId: rawWorkspace.resourceId,
         parentId: folder01.resourceId,
       }),
-      generateAndInsertTestFiles(context, 1, {
+      generateAndInsertTestFiles(1, {
         workspaceId: rawWorkspace.resourceId,
         parentId: folder02.resourceId,
       }),
-      generateAndInsertTestFiles(context, 1, {
+      generateAndInsertTestFiles(1, {
         workspaceId: rawWorkspace.resourceId,
         parentId: folder03.resourceId,
       }),
@@ -224,7 +205,6 @@ describe('checkAuthorization', () => {
     ]);
 
     await checkAuthorizationWithAgent({
-      context,
       agent: user02SessionAgent,
       target: {
         action: 'readFile',
@@ -234,9 +214,7 @@ describe('checkAuthorization', () => {
       workspace: rawWorkspace,
     });
     await expectErrorThrown(async () => {
-      assertContext(context);
       await checkAuthorizationWithAgent({
-        context,
         agent: user02SessionAgent,
         target: {
           action: 'readFile',
@@ -247,9 +225,7 @@ describe('checkAuthorization', () => {
       });
     }, [PermissionDeniedError.name]);
     await expectErrorThrown(async () => {
-      assertContext(context);
       await checkAuthorizationWithAgent({
-        context,
         agent: user02SessionAgent,
         target: {
           action: 'readFile',
@@ -262,33 +238,32 @@ describe('checkAuthorization', () => {
   });
 
   test('check auth with parent + inherited entity, access & no access', async () => {
-    assertContext(context);
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
     const [[folder01, folder02, folder03, folder04], [pg01, pg02]] = await Promise.all([
-      generateAndInsertTestFolders(context, 4, {
+      generateAndInsertTestFolders(4, {
         workspaceId: rawWorkspace.resourceId,
         parentId: null,
       }),
-      generateAndInsertPermissionGroupListForTest(context, 2, {
+      generateAndInsertPermissionGroupListForTest(2, {
         workspaceId: rawWorkspace.resourceId,
       }),
     ]);
     const [[file01], [file02], [file03], [file04]] = await Promise.all([
-      generateAndInsertTestFiles(context, 1, {
+      generateAndInsertTestFiles(1, {
         workspaceId: rawWorkspace.resourceId,
         parentId: folder01.resourceId,
       }),
-      generateAndInsertTestFiles(context, 1, {
+      generateAndInsertTestFiles(1, {
         workspaceId: rawWorkspace.resourceId,
         parentId: folder02.resourceId,
       }),
-      generateAndInsertTestFiles(context, 1, {
+      generateAndInsertTestFiles(1, {
         workspaceId: rawWorkspace.resourceId,
         parentId: folder03.resourceId,
       }),
-      generateAndInsertTestFiles(context, 1, {
+      generateAndInsertTestFiles(1, {
         workspaceId: rawWorkspace.resourceId,
         parentId: folder04.resourceId,
       }),
@@ -308,13 +283,13 @@ describe('checkAuthorization', () => {
         access: false,
       }),
       // Assign pg02 to pg01
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         workspaceId: rawWorkspace.resourceId,
         assignedItemId: pg02.resourceId,
         assigneeId: pg01.resourceId,
       }),
       // Assign pg01 to user02
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         workspaceId: rawWorkspace.resourceId,
         assignedItemId: pg01.resourceId,
         assigneeId: user02.resourceId,
@@ -322,7 +297,6 @@ describe('checkAuthorization', () => {
     ]);
 
     await checkAuthorizationWithAgent({
-      context,
       agent: user02SessionAgent,
       target: {
         action: 'readFile',
@@ -332,7 +306,6 @@ describe('checkAuthorization', () => {
       workspace: rawWorkspace,
     });
     await checkAuthorizationWithAgent({
-      context,
       agent: user02SessionAgent,
       target: {
         action: 'readFile',
@@ -343,9 +316,7 @@ describe('checkAuthorization', () => {
     });
 
     await expectErrorThrown(async () => {
-      assertContext(context);
       await checkAuthorizationWithAgent({
-        context,
         agent: user02SessionAgent,
         target: {
           action: 'readFile',
@@ -356,9 +327,7 @@ describe('checkAuthorization', () => {
       });
     }, [PermissionDeniedError.name]);
     await expectErrorThrown(async () => {
-      assertContext(context);
       await checkAuthorizationWithAgent({
-        context,
         agent: user02SessionAgent,
         target: {
           action: 'readFile',
@@ -371,11 +340,10 @@ describe('checkAuthorization', () => {
   });
 
   test('no throw', async () => {
-    assertContext(context);
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
-    const [file01, file02] = await generateAndInsertTestFiles(context, 2, {
+    const [file01, file02] = await generateAndInsertTestFiles(2, {
       workspaceId: rawWorkspace.resourceId,
       parentId: null,
     });
@@ -390,7 +358,6 @@ describe('checkAuthorization', () => {
     ]);
 
     const check01 = await checkAuthorizationWithAgent({
-      context,
       agent: user02SessionAgent,
       target: {
         action: 'readFile',
@@ -401,7 +368,6 @@ describe('checkAuthorization', () => {
       nothrow: true,
     });
     const check02 = await checkAuthorizationWithAgent({
-      context,
       agent: user02SessionAgent,
       target: {
         action: 'readFile',
@@ -419,11 +385,10 @@ describe('checkAuthorization', () => {
   });
 
   test('wildcard', async () => {
-    assertContext(context);
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
-    const [file01, file03] = await generateAndInsertTestFiles(context, 2, {
+    const [file01, file03] = await generateAndInsertTestFiles(2, {
       workspaceId: rawWorkspace.resourceId,
       parentId: null,
     });
@@ -438,7 +403,6 @@ describe('checkAuthorization', () => {
     ]);
 
     await checkAuthorizationWithAgent({
-      context,
       agent: user02SessionAgent,
       target: {
         action: 'readFile',
@@ -448,9 +412,7 @@ describe('checkAuthorization', () => {
       workspace: rawWorkspace,
     });
     await expectErrorThrown(async () => {
-      assertContext(context);
       await checkAuthorizationWithAgent({
-        context,
         agent: user02SessionAgent,
         target: {
           action: 'readFile',
@@ -463,16 +425,15 @@ describe('checkAuthorization', () => {
   });
 
   test('entity > inherited entity weight', async () => {
-    assertContext(context);
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
     const [[file01], [pg01]] = await Promise.all([
-      generateAndInsertTestFiles(context, 1, {
+      generateAndInsertTestFiles(1, {
         workspaceId: rawWorkspace.resourceId,
         parentId: null,
       }),
-      generateAndInsertPermissionGroupListForTest(context, 1, {
+      generateAndInsertPermissionGroupListForTest(1, {
         workspaceId: rawWorkspace.resourceId,
       }),
     ]);
@@ -488,7 +449,7 @@ describe('checkAuthorization', () => {
         access: false,
       }),
       // Assign pg01 to user02
-      generateAndInsertAssignedItemListForTest(context, {
+      generateAndInsertAssignedItemListForTest({
         workspaceId: rawWorkspace.resourceId,
         assignedItemId: pg01.resourceId,
         assigneeId: user02.resourceId,
@@ -496,7 +457,6 @@ describe('checkAuthorization', () => {
     ]);
 
     await checkAuthorizationWithAgent({
-      context,
       agent: user02SessionAgent,
       target: {
         targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
@@ -508,16 +468,15 @@ describe('checkAuthorization', () => {
   });
 
   test('target > parent weight', async () => {
-    assertContext(context);
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
-    const [folder01] = await generateAndInsertTestFolders(context, 1, {
+    const [folder01] = await generateAndInsertTestFolders(1, {
       workspaceId: rawWorkspace.resourceId,
       parentId: null,
     });
     const [[file01]] = await Promise.all([
-      generateAndInsertTestFiles(context, 1, {
+      generateAndInsertTestFiles(1, {
         workspaceId: rawWorkspace.resourceId,
         parentId: folder01.resourceId,
       }),
@@ -533,7 +492,6 @@ describe('checkAuthorization', () => {
     ]);
 
     await checkAuthorizationWithAgent({
-      context,
       agent: user02SessionAgent,
       target: {
         action: 'readFile',
@@ -545,11 +503,10 @@ describe('checkAuthorization', () => {
   });
 
   test('date weight', async () => {
-    assertContext(context);
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
-    const [file01] = await generateAndInsertTestFiles(context, 1, {
+    const [file01] = await generateAndInsertTestFiles(1, {
       workspaceId: rawWorkspace.resourceId,
       parentId: null,
     });
@@ -564,7 +521,6 @@ describe('checkAuthorization', () => {
     });
 
     await checkAuthorizationWithAgent({
-      context,
       agent: user02SessionAgent,
       target: {
         action: 'readFile',
@@ -576,11 +532,10 @@ describe('checkAuthorization', () => {
   });
 
   test('agent not verified', async () => {
-    assertContext(context);
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId, {}, true);
-    const [file01] = await generateAndInsertTestFiles(context, 1, {
+    const [file01] = await generateAndInsertTestFiles(1, {
       workspaceId: rawWorkspace.resourceId,
       parentId: null,
     });
@@ -592,9 +547,7 @@ describe('checkAuthorization', () => {
 
     assert(user02.isEmailVerified === false);
     await expectErrorThrown(async () => {
-      assertContext(context);
       await checkAuthorizationWithAgent({
-        context,
         agent: user02SessionAgent,
         target: {
           action: 'updateFile',
@@ -607,11 +560,10 @@ describe('checkAuthorization', () => {
   });
 
   test('resolve target children full access', async () => {
-    assertContext(context);
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
-    const [folder01] = await generateAndInsertTestFolders(context, 1, {
+    const [folder01] = await generateAndInsertTestFolders(1, {
       workspaceId: rawWorkspace.resourceId,
       parentId: null,
     });
@@ -622,7 +574,6 @@ describe('checkAuthorization', () => {
     ]);
 
     const resolveResult = await resolveTargetChildrenAccessCheckWithAgent({
-      context,
       agent: user02SessionAgent,
       target: {
         action: 'readFile',
@@ -639,11 +590,10 @@ describe('checkAuthorization', () => {
   });
 
   test('resolve target children no access', async () => {
-    assertContext(context);
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
-    const [folder01, folder02] = await generateAndInsertTestFolders(context, 2, {
+    const [folder01, folder02] = await generateAndInsertTestFolders(2, {
       workspaceId: rawWorkspace.resourceId,
       parentId: null,
     });
@@ -655,7 +605,6 @@ describe('checkAuthorization', () => {
     ]);
 
     const resolveResult01 = await resolveTargetChildrenAccessCheckWithAgent({
-      context,
       agent: user02SessionAgent,
       target: {
         action: 'readFile',
@@ -665,7 +614,6 @@ describe('checkAuthorization', () => {
       workspace: rawWorkspace,
     });
     const resolveResult02 = await resolveTargetChildrenAccessCheckWithAgent({
-      context,
       agent: user02SessionAgent,
       target: {
         action: 'readFile',
@@ -685,16 +633,15 @@ describe('checkAuthorization', () => {
   });
 
   test('resolve target children partial access', async () => {
-    assertContext(context);
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
-    const [folder01] = await generateAndInsertTestFolders(context, 1, {
+    const [folder01] = await generateAndInsertTestFolders(1, {
       workspaceId: rawWorkspace.resourceId,
       parentId: null,
     });
     const [[file01, file02]] = await Promise.all([
-      generateAndInsertTestFiles(context, 2, {
+      generateAndInsertTestFiles(2, {
         workspaceId: rawWorkspace.resourceId,
         parentId: folder01.resourceId,
       }),
@@ -712,7 +659,6 @@ describe('checkAuthorization', () => {
     ]);
 
     const resolveResult = await resolveTargetChildrenAccessCheckWithAgent({
-      context,
       agent: user02SessionAgent,
       target: {
         action: 'readFile',
@@ -730,16 +676,15 @@ describe('checkAuthorization', () => {
   });
 
   test('resolve target children partial access with parent deny and some children access', async () => {
-    assertContext(context);
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
-    const [folder01] = await generateAndInsertTestFolders(context, 1, {
+    const [folder01] = await generateAndInsertTestFolders(1, {
       workspaceId: rawWorkspace.resourceId,
       parentId: null,
     });
     const [[file01]] = await Promise.all([
-      generateAndInsertTestFiles(context, 2, {
+      generateAndInsertTestFiles(2, {
         workspaceId: rawWorkspace.resourceId,
         parentId: folder01.resourceId,
       }),
@@ -756,7 +701,6 @@ describe('checkAuthorization', () => {
     ]);
 
     const resolveResult = await resolveTargetChildrenAccessCheckWithAgent({
-      context,
       agent: user02SessionAgent,
       target: {
         action: 'readFile',
@@ -775,16 +719,15 @@ describe('checkAuthorization', () => {
   });
 
   test('resolve target children partial access with parent allow and some children deny', async () => {
-    assertContext(context);
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
-    const [folder01] = await generateAndInsertTestFolders(context, 1, {
+    const [folder01] = await generateAndInsertTestFolders(1, {
       workspaceId: rawWorkspace.resourceId,
       parentId: null,
     });
     const [[file01]] = await Promise.all([
-      generateAndInsertTestFiles(context, 2, {
+      generateAndInsertTestFiles(2, {
         workspaceId: rawWorkspace.resourceId,
         parentId: folder01.resourceId,
       }),
@@ -801,7 +744,6 @@ describe('checkAuthorization', () => {
     ]);
 
     const resolveResult = await resolveTargetChildrenAccessCheckWithAgent({
-      context,
       agent: user02SessionAgent,
       target: {
         action: 'readFile',
@@ -819,11 +761,10 @@ describe('checkAuthorization', () => {
   });
 
   test('returns correct access permission', async () => {
-    assertContext(context);
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
-    const [file01] = await generateAndInsertTestFiles(context, 1, {
+    const [file01] = await generateAndInsertTestFiles(1, {
       workspaceId: rawWorkspace.resourceId,
       parentId: null,
     });
@@ -835,7 +776,6 @@ describe('checkAuthorization', () => {
     );
 
     const checkResult = await checkAuthorizationWithAgent({
-      context,
       agent: user02SessionAgent,
       target: {
         action: 'readFile',
@@ -856,7 +796,6 @@ async function addPermissions(
   permissions: PermissionAction | PermissionAction[],
   other?: Partial<PermissionItem>
 ) {
-  assertContext(context);
   const items = toArray(permissions).map(action =>
     generatePermissionItemForTest({
       action,
@@ -866,9 +805,9 @@ async function addPermissions(
       ...other,
     })
   );
-  await context.semantic.utils.withTxn(context, opts =>
-    context!.data.permissionItem.insertList(items, opts)
-  );
+  await kSemanticModels
+    .utils()
+    .withTxn(opts => context!.data.permissionItem.insertList(items, opts));
   return items;
 }
 
@@ -876,14 +815,14 @@ async function generateUserAndWorkspace(
   userInput: Partial<SignupEndpointParams> = {},
   skipAutoVerifyEmail = false
 ) {
-  assertContext(context);
-  const usersResult = await insertUserForTest(context, userInput, skipAutoVerifyEmail);
+  const usersResult = await insertUserForTest(userInput, skipAutoVerifyEmail);
   const {userToken} = usersResult;
-  const workspaceResult = await insertWorkspaceForTest(context, userToken);
-  const sessionAgent = await context.session.getAgent(
-    context,
-    RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken))
-  );
+  const workspaceResult = await insertWorkspaceForTest(userToken);
+  const sessionAgent = await kUtilsInjectables
+    .session()
+    .getAgent(
+      RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken))
+    );
   return {...usersResult, ...workspaceResult, sessionAgent};
 }
 
@@ -892,21 +831,17 @@ async function generateUserAndAddToWorkspace(
   userInput: Partial<SignupEndpointParams> = {},
   skipAutoVerifyEmail = false
 ) {
-  assertContext(context);
-  const usersResult = await insertUserForTest(context, userInput, skipAutoVerifyEmail);
+  const usersResult = await insertUserForTest(userInput, skipAutoVerifyEmail);
   const {user, userToken} = usersResult;
-  await context.semantic.utils.withTxn(context, opts =>
-    assignWorkspaceToUser(
-      context!,
-      SYSTEM_SESSION_AGENT,
-      workspaceId,
-      user.resourceId,
-      opts
-    )
-  );
-  const sessionAgent = await context.session.getAgent(
-    context,
-    RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken))
-  );
+  await kSemanticModels
+    .utils()
+    .withTxn(opts =>
+      assignWorkspaceToUser(SYSTEM_SESSION_AGENT, workspaceId, user.resourceId, opts)
+    );
+  const sessionAgent = await kUtilsInjectables
+    .session()
+    .getAgent(
+      RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken))
+    );
   return {...usersResult, sessionAgent};
 }

@@ -2,7 +2,7 @@ import {File} from '../../../definitions/file';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {InvalidRequestError} from '../../errors';
 import {checkFileAuthorization, getFilepathInfo} from '../../files/utils';
 import {checkFolderAuthorization, getFolderpathInfo} from '../../folders/utils';
@@ -12,12 +12,9 @@ import {fileBackendMountListExtractor} from '../utils';
 import {ResolveFileBackendMountsEndpoint} from './types';
 import {resolveWorkspaceFileBackendMountJoiSchema} from './validation';
 
-const resolveFileBackendMounts: ResolveFileBackendMountsEndpoint = async (
-  context,
-  instData
-) => {
+const resolveFileBackendMounts: ResolveFileBackendMountsEndpoint = async instData => {
   const data = validate(instData.data, resolveWorkspaceFileBackendMountJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
+  const agent = await kUtilsInjectables.session().getAgent(instData);
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
 
   let fileOrFolder: Pick<File, 'workspaceId' | 'namepath' | 'idPath'> | null = null;

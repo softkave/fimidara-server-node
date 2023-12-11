@@ -3,8 +3,8 @@ import {SessionAgent} from '../../definitions/system';
 import {PublicCollaborator, UserWithWorkspace} from '../../definitions/user';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {kSemanticModels} from '../contexts/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
-import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {assertUser} from '../users/utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
@@ -37,7 +37,6 @@ export const collaboratorListExtractor = (
 };
 
 export async function checkCollaboratorAuthorization(
-  context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
   collaborator: UserWithWorkspace,
@@ -49,9 +48,8 @@ export async function checkCollaboratorAuthorization(
     throwCollaboratorNotFound();
   }
 
-  const workspace = await checkWorkspaceExists(context, workspaceId);
+  const workspace = await checkWorkspaceExists(workspaceId);
   await checkAuthorizationWithAgent({
-    context,
     agent,
     opts,
     workspaceId: workspace.resourceId,
@@ -62,22 +60,15 @@ export async function checkCollaboratorAuthorization(
 }
 
 export async function checkCollaboratorAuthorization02(
-  context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
   collaboratorId: string,
   action: PermissionAction
 ) {
-  const user = await context.semantic.user.getOneById(collaboratorId);
+  const user = await kSemanticModels.user().getOneById(collaboratorId);
   assertUser(user);
-  const collaborator = await populateUserWorkspaces(context, user);
-  return checkCollaboratorAuthorization(
-    context,
-    agent,
-    workspaceId,
-    collaborator,
-    action
-  );
+  const collaborator = await populateUserWorkspaces(user);
+  return checkCollaboratorAuthorization(agent, workspaceId, collaborator, action);
 }
 
 export function throwCollaboratorNotFound() {

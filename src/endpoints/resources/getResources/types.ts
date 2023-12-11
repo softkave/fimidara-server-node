@@ -1,5 +1,4 @@
 import {ResourceWrapper} from '../../../definitions/system';
-import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 import {FetchResourceItem} from '../types';
 
@@ -13,7 +12,6 @@ export interface GetResourcesEndpointResult {
 }
 
 export type GetResourcesEndpoint = Endpoint<
-  BaseContextType,
   GetResourcesEndpointParams,
   GetResourcesEndpointResult
 >;

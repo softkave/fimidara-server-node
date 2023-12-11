@@ -1,10 +1,7 @@
-import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertFolderForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -14,28 +11,25 @@ import {addRootnameToPath} from '../utils';
 import getFolder from './handler';
 import {GetFolderEndpointParams} from './types';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 test('folder returned', async () => {
-  assertContext(context);
-  const {userToken} = await insertUserForTest(context);
-  const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {folder: folder01} = await insertFolderForTest(context, userToken, workspace);
+  const {userToken} = await insertUserForTest();
+  const {workspace} = await insertWorkspaceForTest(userToken);
+  const {folder: folder01} = await insertFolderForTest(userToken, workspace);
 
   const instData = RequestData.fromExpressRequest<GetFolderEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {folderpath: addRootnameToPath(folder01.name, workspace.rootname)}
   );
 
-  const result = await getFolder(context, instData);
+  const result = await getFolder(instData);
   assertEndpointResultOk(result);
   expect(result.folder).toEqual(folder01);
 });

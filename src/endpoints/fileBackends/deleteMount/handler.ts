@@ -7,21 +7,19 @@ import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/ch
 import {kInjectionKeys} from '../../contexts/injection';
 import {SemanticFileBackendMountProvider} from '../../contexts/semantic/types';
 import {NotFoundError} from '../../errors';
+import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {DeleteFileBackendMountEndpoint} from './types';
 import {deleteFileBackendMountJoiSchema} from './validation';
-import {enqueueDeleteResourceJob} from '../../jobs/utils';
+import {kUtilsInjectables} from '../../contexts/injectables';
 
-const deleteFileBackendMount: DeleteFileBackendMountEndpoint = async (
-  context,
-  instData
-) => {
+const deleteFileBackendMount: DeleteFileBackendMountEndpoint = async instData => {
   const mountModel = container.resolve<SemanticFileBackendMountProvider>(
     kInjectionKeys.semantic.fileBackendMount
   );
 
   const data = validate(instData.data, deleteFileBackendMountJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
+  const agent = await kUtilsInjectables.session().getAgent(instData);
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   await checkAuthorizationWithAgent({
     agent,

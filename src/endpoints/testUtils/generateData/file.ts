@@ -5,7 +5,7 @@ import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
-import {BaseContextType} from '../../contexts/types';
+import {kSemanticModels} from '../../contexts/injectables';
 import {getFilenameInfo} from '../../files/utils';
 import {addRootnameToPath} from '../../folders/utils';
 import {generateTestFolderName} from './folder';
@@ -96,13 +96,12 @@ export function generateTestFiles(
 }
 
 export async function generateAndInsertTestFiles(
-  ctx: BaseContextType,
   count = 20,
   extra: Partial<File> & {parentId: string | null} = {parentId: null}
 ) {
   const items = generateTestFiles(count, extra);
-  await ctx.semantic.utils.withTxn(ctx, async opts =>
-    ctx.semantic.file.insertItem(items, opts)
-  );
+  await kSemanticModels
+    .utils()
+    .withTxn(async opts => kSemanticModels.file().insertItem(items, opts));
   return items;
 }

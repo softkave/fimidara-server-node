@@ -1,15 +1,12 @@
 import {faker} from '@faker-js/faker';
 import {Folder} from '../../../definitions/folder';
-import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
   IInsertUserForTestResult,
   IInsertWorkspaceForTestResult,
-  initTestBaseContext,
   insertFolderForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -20,18 +17,15 @@ import {addRootnameToPath, folderExtractor} from '../utils';
 import updateFolder from './handler';
 import {UpdateFolderEndpointParams, UpdateFolderInput} from './types';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 async function updateFolderBaseTest(
-  ctx: BaseContextType,
   incomingUpdateInput: Partial<UpdateFolderInput> = {},
   insertUserResult?: IInsertUserForTestResult,
   insertWorkspaceResult?: IInsertWorkspaceForTestResult,
@@ -39,12 +33,10 @@ async function updateFolderBaseTest(
 ) {
   insertUserResult = insertUserResult ?? (await insertUserForTest(ctx));
   insertWorkspaceResult =
-    insertWorkspaceResult ??
-    (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
+    insertWorkspaceResult ?? (await insertWorkspaceForTest(insertUserResult.userToken));
   const {folder} = existingFolder
     ? {folder: existingFolder}
     : await insertFolderForTest(
-        ctx,
         insertUserResult.userToken,
         insertWorkspaceResult.workspace
       );
@@ -65,7 +57,7 @@ async function updateFolderBaseTest(
     }
   );
 
-  const result = await updateFolder(ctx, instData);
+  const result = await updateFolder(instData);
   assertEndpointResultOk(result);
   expect(result.folder.resourceId).toEqual(folder.resourceId);
   expect(result.folder).toMatchObject(folderExtractor(updateInput));
@@ -83,14 +75,14 @@ async function updateFolderBaseTest(
 }
 
 // const updateFolderWithPublicAccessOpsTest = async (
-//   ctx: BaseContext,
+//   ctx: Base
 //   incomingUpdateInput: Partial<UpdateFolderInput> = {},
 //   insertUserResult?: IInsertUserForTestResult,
 //   insertWorkspaceResult?: IInsertWorkspaceForTestResult,
 //   existingFolder?: Folder
 // ) => {
 //   const uploadResult = await updateFolderBaseTest(
-//     ctx,
+//
 //     incomingUpdateInput,
 //     insertUserResult,
 //     insertWorkspaceResult,
@@ -101,7 +93,7 @@ async function updateFolderBaseTest(
 //   insertUserResult = uploadResult.insertUserResult;
 //   insertWorkspaceResult = uploadResult.insertWorkspaceResult;
 //   await assertPublicAccessOps(
-//     ctx,
+//
 //     savedFolder,
 //     insertWorkspaceResult,
 //     incomingUpdateInput.publicAccessOps ?? []
@@ -111,31 +103,30 @@ async function updateFolderBaseTest(
 
 describe('updateFolder', () => {
   test('folder updated', async () => {
-    assertContext(context);
-    await updateFolderBaseTest(context);
+    await updateFolderBaseTest();
   });
 
   // test('folder updated with public access ops', async () => {
-  //   assertContext(context);
+  //
   //   const {savedFolder, insertWorkspaceResult} = await updateFolderWithPublicAccessOpsTest(
-  //     context,
+  //
   //     {publicAccessOps: makeEveryFolderPublicAccessOp()}
   //   );
-  //   await assertFolderPublicOps(context, savedFolder, insertWorkspaceResult);
+  //   await assertFolderPublicOps( savedFolder, insertWorkspaceResult);
   // });
 
   // test('folder public access ops removed', async () => {
-  //   assertContext(context);
+  //
   //   const {
   //     insertWorkspaceResult,
   //     insertUserResult,
   //     savedFolder: savedFolder01,
-  //   } = await updateFolderWithPublicAccessOpsTest(context, {
+  //   } = await updateFolderWithPublicAccessOpsTest( {
   //     publicAccessOps: makeEveryFolderPublicAccessOp(),
   //   });
 
   //   const {savedFolder} = await updateFolderWithPublicAccessOpsTest(
-  //     context,
+  //
   //     {removePublicAccessOps: true},
   //     insertUserResult,
   //     insertWorkspaceResult,
@@ -143,12 +134,12 @@ describe('updateFolder', () => {
   //   );
 
   //   await expectErrorThrown(async () => {
-  //     assertContext(context);
-  //     await assertFolderPublicOps(context, savedFolder, insertWorkspaceResult);
+  //
+  //     await assertFolderPublicOps( savedFolder, insertWorkspaceResult);
   //   }, [PermissionDeniedError.name]);
 
   //   await assertPublicPermissionsDonotExistForContainer(
-  //     context,
+  //
   //     insertWorkspaceResult.workspace,
   //     savedFolder.resourceId
   //   );

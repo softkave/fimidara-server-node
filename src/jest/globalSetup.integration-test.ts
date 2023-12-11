@@ -1,14 +1,14 @@
-import {getMongoConnection} from '../db/connection';
-import BaseContext, {getFileProvider} from '../endpoints/contexts/BaseContext';
+import { getMongoConnection } from '../db/connection';
 import {
-  getLogicProviders,
-  getMongoBackedSemanticDataProviders,
-  getMongoDataProviders,
-  getMongoModels,
+    getLogicProviders,
+    getMongoBackedSemanticDataProviders,
+    getMongoDataProviders,
+    getMongoModels,
 } from '../endpoints/contexts/utils';
-import {setupApp} from '../endpoints/runtime/initAppSetup';
+import { setupApp } from '../endpoints/runtime/initAppSetup';
 import NoopEmailProviderContext from '../endpoints/testUtils/context/email/NoopEmailProviderContext';
-import {fimidaraConfig} from '../resources/vars';
+import { fimidaraConfig } from '../resources/vars';
+import Base {getFileProvider} from '../endpoints/contexts/BaseContext';
 
 async function integrationTestGlobalSetup() {
   const connection = await getMongoConnection(

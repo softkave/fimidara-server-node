@@ -2,31 +2,25 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {waitTimeout} from '../../../utils/fns';
 import {FimidaraLoggerServiceNames} from '../../../utils/logger/loggerUtils';
 import RequestData from '../../RequestData';
-import {BaseContextType} from '../../contexts/types';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
+  initTest,
   mockExpressRequestForPublicAgent,
 } from '../../testUtils/testUtils';
 import ingestLogs from './handler';
 import {ClientLog, IngestLogsEndpointParams} from './types';
-import assert = require('assert');
-
-let context: BaseContextType | null = null;
 
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('ingestLogs', () => {
   test('client logs ingested', async () => {
-    assertContext(context);
     const testLogs: ClientLog[] = [];
     const randomTag = Math.random().toString();
     for (let i = 0; i < 10; i++) {
@@ -44,7 +38,7 @@ describe('ingestLogs', () => {
       {logs: testLogs}
     );
 
-    const result = await ingestLogs(context, reqData);
+    const result = await ingestLogs(reqData);
     assertEndpointResultOk(result);
     await waitTimeout(1000);
     // TODO: check that logs are saved correctly

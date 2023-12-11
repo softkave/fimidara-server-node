@@ -6,7 +6,7 @@ import {ValidationError} from '../../../utils/errors';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {ByteCounterPassThroughStream} from '../../../utils/streams';
 import {validate} from '../../../utils/validate';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {
   getFileBackendForFile,
   insertResolvedMountEntries,
@@ -25,9 +25,11 @@ import {UploadFileEndpoint} from './types';
 import {checkUploadFileAuth} from './utils';
 import {uploadFileJoiSchema} from './validation';
 
-const uploadFile: UploadFileEndpoint = async (context, instData) => {
+const uploadFile: UploadFileEndpoint = async instData => {
   const data = validate(instData.data, uploadFileJoiSchema);
-  const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgent(instData, PERMISSION_AGENT_TYPES);
   const createFileResult = await kSemanticModels.utils().withTxn(async opts => {
     let file = await getFileWithMatcher(data, opts);
     const workspace = await getWorkspaceFromFileOrFilepath(file, data.filepath);
@@ -86,7 +88,6 @@ const uploadFile: UploadFileEndpoint = async (context, instData) => {
       const [savedFile] = await Promise.all([
         kSemanticModels.file().getAndUpdateOneById(file.resourceId, update, opts),
         insertResolvedMountEntries({
-          opts,
           agent,
           workspaceId: file.workspaceId,
           resource: file,

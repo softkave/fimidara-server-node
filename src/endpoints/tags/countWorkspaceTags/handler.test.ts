@@ -1,11 +1,8 @@
-import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertTagListForTest} from '../../testUtils/generateData/tag';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -13,28 +10,29 @@ import {
 import countWorkspaceTags from './handler';
 import {CountWorkspaceTagsEndpointParams} from './types';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('countWorkspaceTags', () => {
   test('count', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
-    await generateAndInsertTagListForTest(context, 15, {workspaceId: workspace.resourceId});
-    const count = await context.semantic.tag.countByQuery({workspaceId: workspace.resourceId});
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    await generateAndInsertTagListForTest(15, {
+      workspaceId: workspace.resourceId,
+    });
+    const count = await kSemanticModels.tag().countByQuery({
+      workspaceId: workspace.resourceId,
+    });
     const instData = RequestData.fromExpressRequest<CountWorkspaceTagsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId}
     );
-    const result = await countWorkspaceTags(context, instData);
+    const result = await countWorkspaceTags(instData);
     assertEndpointResultOk(result);
     expect(result.count).toBe(count);
   });

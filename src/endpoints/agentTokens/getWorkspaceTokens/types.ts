@@ -1,5 +1,4 @@
 import {PublicAgentToken} from '../../../definitions/agentToken';
-import {BaseContextType} from '../../contexts/types';
 import {
   Endpoint,
   EndpointOptionalWorkspaceIDParam,
@@ -19,7 +18,6 @@ export interface GetWorkspaceAgentTokensEndpointResult extends PaginatedResult {
 }
 
 export type GetWorkspaceAgentTokensEndpoint = Endpoint<
-  BaseContextType,
   GetWorkspaceAgentTokensEndpointParams,
   GetWorkspaceAgentTokensEndpointResult
 >;

@@ -1,17 +1,17 @@
 import {AppResourceTypeMap} from '../../../definitions/system';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
+import {kUtilsInjectables} from '../../contexts/injectables';
 import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {checkCollaboratorAuthorization02} from '../utils';
 import {RemoveCollaboratorEndpoint} from './types';
 import {removeCollaboratorJoiSchema} from './validation';
 
-const removeCollaborator: RemoveCollaboratorEndpoint = async (context, instData) => {
+const removeCollaborator: RemoveCollaboratorEndpoint = async instData => {
   const data = validate(instData.data, removeCollaboratorJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
+  const agent = await kUtilsInjectables.session().getAgent(instData);
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const {collaborator} = await checkCollaboratorAuthorization02(
-    context,
     agent,
     workspaceId,
     data.collaboratorId,

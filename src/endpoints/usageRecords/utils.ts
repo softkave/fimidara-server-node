@@ -16,9 +16,9 @@ import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {kAppMessages} from '../../utils/messages';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {getActionAgentFromSessionAgent} from '../../utils/sessionUtils';
+import {kLogicProviders, kUtilsInjectables} from '../contexts/injectables';
 import {UsageRecordInput} from '../contexts/logic/UsageRecordLogicProvider';
 import {SemanticProviderMutationRunOptions} from '../contexts/semantic/types';
-import {BaseContextType} from '../contexts/types';
 import {NotFoundError} from '../errors';
 import {stringifyFilenamepath} from '../files/utils';
 import RequestData from '../RequestData';
@@ -26,16 +26,15 @@ import {workspaceResourceFields} from '../utils';
 import {UsageLimitExceededError} from './errors';
 
 async function insertRecord(
-  ctx: BaseContextType,
   reqData: RequestData,
   input: UsageRecordInput,
   opts: SemanticProviderMutationRunOptions,
   nothrow = false
 ) {
   const agent = getActionAgentFromSessionAgent(
-    await ctx.session.getAgent(ctx, reqData, PERMISSION_AGENT_TYPES)
+    await kUtilsInjectables.session().getAgent(reqData, PERMISSION_AGENT_TYPES)
   );
-  const {permitted} = await ctx.logic.usageRecord.insert(ctx, agent, input, opts);
+  const {permitted} = await kLogicProviders.usageRecords().insert(agent, input, opts);
 
   if (!permitted && !nothrow) {
     throw new UsageLimitExceededError();
@@ -45,7 +44,6 @@ async function insertRecord(
 }
 
 export async function insertStorageUsageRecordInput(
-  ctx: BaseContextType,
   reqData: RequestData,
   file: File,
   action: PermissionAction,
@@ -74,11 +72,10 @@ export async function insertStorageUsageRecordInput(
     ],
   };
 
-  await insertRecord(ctx, reqData, input, opts, nothrow);
+  await insertRecord(reqData, input, opts, nothrow);
 }
 
 export async function insertBandwidthInUsageRecordInput(
-  ctx: BaseContextType,
   reqData: RequestData,
   file: File,
   action: PermissionAction,
@@ -105,11 +102,10 @@ export async function insertBandwidthInUsageRecordInput(
     ],
   };
 
-  await insertRecord(ctx, reqData, input, opts, nothrow);
+  await insertRecord(reqData, input, opts, nothrow);
 }
 
 export async function insertBandwidthOutUsageRecordInput(
-  ctx: BaseContextType,
   reqData: RequestData,
   file: File,
   action: PermissionAction,
@@ -136,11 +132,11 @@ export async function insertBandwidthOutUsageRecordInput(
     ],
   };
 
-  await insertRecord(ctx, reqData, input, opts, nothrow);
+  await insertRecord(reqData, input, opts, nothrow);
 }
 
 // export async function insertDbObjectUsageRecordInput(
-//   ctx: BaseContext,
+//   ctx: Base
 //   reqData: RequestData,
 //   workspaceId: string,
 //   resourceId: string,
@@ -167,7 +163,7 @@ export async function insertBandwidthOutUsageRecordInput(
 //     ],
 //   };
 
-//   await insertRecord(ctx, reqData, input, nothrow);
+//   await insertRecord( reqData, input, nothrow);
 // }
 
 export function getRecordingPeriod() {

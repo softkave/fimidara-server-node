@@ -1,21 +1,18 @@
-import {faker} from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 import RequestData from '../../RequestData';
-import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {BaseContextType} from '../../contexts/types';
+import { populateAssignedTags } from '../../assignedItems/getAssignedItems';
 import EndpointReusableQueries from '../../queries';
-import {completeTest} from '../../testUtils/helpers/test';
+import { completeTest } from '../../testUtils/helpers/test';
 import {
-  assertContext,
-  assertEndpointResultOk,
-  initTestBaseContext,
-  insertFileBackendMountForTest,
-  insertUserForTest,
-  insertWorkspaceForTest,
-  mockExpressRequestWithFileBackendMount,
+    assertEndpointResultOk,
+    insertFileBackendMountForTest,
+    insertUserForTest,
+    insertWorkspaceForTest,
+    mockExpressRequestWithFileBackendMount,
 } from '../../testUtils/testUtils';
-import {fileBackendMountExtractor, getPublicFileBackendMount} from '../utils';
+import { fileBackendMountExtractor, getPublicFileBackendMount } from '../utils';
 import updateFileBackendMount from './handler';
-import {UpdateFileBackendMountEndpointParams, UpdateFileBackendMountInput} from './types';
+import { UpdateFileBackendMountEndpointParams, UpdateFileBackendMountInput } from './types';
 
 /**
  * TODO:
@@ -23,22 +20,21 @@ import {UpdateFileBackendMountEndpointParams, UpdateFileBackendMountInput} from 
  * - [Low] Test that onReferenced feature works
  */
 
-let context: BaseContextType | null = null;
+
 
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 test('agent mount updated', async () => {
-  assertContext(context);
-  const {userMount} = await insertUserForTest(context);
-  const {workspace} = await insertWorkspaceForTest(context, userMount);
+  
+  const {userMount} = await insertUserForTest();
+  const {workspace} = await insertWorkspaceForTest(userMount);
   const {mount: mount01} = await insertFileBackendMountForTest(
-    context,
     userMount,
     workspace.resourceId
   );
@@ -55,15 +51,13 @@ test('agent mount updated', async () => {
       workspaceId: workspace.resourceId,
     }
   );
-  const result = await updateFileBackendMount(context, instData);
+  const result = await updateFileBackendMount(instData);
   assertEndpointResultOk(result);
 
   const updatedMount = getPublicFileBackendMount(
-    context,
     await populateAssignedTags(
-      context,
       workspace.resourceId,
-      await context.semantic.fileBackendMount.assertGetOneByQuery(
+      await kSemanticModels.file()BackendMount.assertGetOneByQuery(
         EndpointReusableQueries.getByResourceId(mount01.resourceId)
       )
     )

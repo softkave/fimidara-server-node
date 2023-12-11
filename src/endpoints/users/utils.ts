@@ -3,8 +3,8 @@ import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
+import {kSemanticModels} from '../contexts/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
-import {BaseContextType} from '../contexts/types';
 import {EmailAddressNotAvailableError} from './errors';
 
 const publicUserWorkspaceFields = getFields<UserWorkspace>({
@@ -47,21 +47,19 @@ export function assertUser(user?: User | null): asserts user {
 }
 
 export async function getCompleteUserDataByEmail(
-  context: BaseContextType,
   email: string,
   opts?: SemanticProviderRunOptions
 ) {
-  const user = await context.semantic.user.getByEmail(email, opts);
+  const user = await kSemanticModels.user().getByEmail(email, opts);
   assertUser(user);
-  return await populateUserWorkspaces(context, user);
+  return await populateUserWorkspaces(user);
 }
 
 export async function assertEmailAddressAvailable(
-  context: BaseContextType,
   email: string,
   opts?: SemanticProviderRunOptions
 ) {
-  const userExists = await context.semantic.user.existsByEmail(email, opts);
+  const userExists = await kSemanticModels.user().existsByEmail(email, opts);
   if (userExists) {
     throw new EmailAddressNotAvailableError();
   }

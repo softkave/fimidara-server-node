@@ -3,7 +3,6 @@ import {PublicWorkspace, Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {streamToBuffer} from '../../../utils/fns';
 import RequestData from '../../RequestData';
-import {BaseContextType} from '../../contexts/types';
 import {addRootnameToPath} from '../../folders/utils';
 import EndpointReusableQueries from '../../queries';
 import {
@@ -28,7 +27,6 @@ import {fileExtractor} from '../utils';
 import {UploadFileEndpointParams} from './types';
 
 export const uploadFileBaseTest = async (
-  ctx: BaseContextType,
   input: Partial<UploadFileEndpointParams> = {},
   type: 'png' | 'txt' = 'png',
   insertUserResult?: IInsertUserForTestResult,
@@ -36,17 +34,15 @@ export const uploadFileBaseTest = async (
 ) => {
   insertUserResult = insertUserResult ?? (await insertUserForTest(ctx));
   insertWorkspaceResult =
-    insertWorkspaceResult ??
-    (await insertWorkspaceForTest(ctx, insertUserResult.userToken));
+    insertWorkspaceResult ?? (await insertWorkspaceForTest(insertUserResult.userToken));
   const {file, dataBuffer} = await insertFileForTest(
-    ctx,
     insertUserResult.userToken,
     insertWorkspaceResult.workspace,
     input,
     type
   );
   const persistedFile = await ctx.fileBackend.readFile({
-    bucket: ctx.appVariables.S3Bucket,
+    bucket: kUtilsInjectables.config().S3Bucket,
     filepath: file.resourceId,
   });
   const savedBuffer = persistedFile.body && (await streamToBuffer(persistedFile.body));
@@ -68,7 +64,6 @@ export const uploadFileBaseTest = async (
 };
 
 export async function assertCanReadPublicFile(
-  ctx: BaseContextType,
   workspace: Pick<Workspace, 'rootname'>,
   filepath: string
 ) {
@@ -77,22 +72,20 @@ export async function assertCanReadPublicFile(
     {filepath: addRootnameToPath(filepath, workspace.rootname)}
   );
 
-  const result = await getFile(ctx, instData);
+  const result = await getFile(instData);
   assertEndpointResultOk(result);
 }
 
 export async function assertCanUploadToPublicFile(
-  ctx: BaseContextType,
   workspace: PublicWorkspace,
   filepath: string
 ) {
-  return await insertFileForTest(ctx, null, workspace, {
+  return await insertFileForTest(null, workspace, {
     filepath: addRootnameToPath(filepath, workspace.rootname),
   });
 }
 
 export async function assertCanUpdatePublicFile(
-  ctx: BaseContextType,
   workspace: Pick<Workspace, 'rootname'>,
   filepath: string
 ) {
@@ -109,12 +102,11 @@ export async function assertCanUpdatePublicFile(
     }
   );
 
-  const result = await updateFileDetails(ctx, instData);
+  const result = await updateFileDetails(instData);
   assertEndpointResultOk(result);
 }
 
 export async function assertCanDeletePublicFile(
-  ctx: BaseContextType,
   workspace: Pick<Workspace, 'rootname'>,
   filepath: string
 ) {
@@ -123,6 +115,6 @@ export async function assertCanDeletePublicFile(
     {filepath: addRootnameToPath(filepath, workspace.rootname)}
   );
 
-  const result = await deleteFile(ctx, instData);
+  const result = await deleteFile(instData);
   assertEndpointResultOk(result);
 }

@@ -1,5 +1,4 @@
 import {PublicUser} from '../../../definitions/user';
-import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export interface LoginEndpointParams {
@@ -13,4 +12,4 @@ export interface LoginResult {
   clientAssignedToken: string;
 }
 
-export type LoginEndpoint = Endpoint<BaseContextType, LoginEndpointParams, LoginResult>;
+export type LoginEndpoint = Endpoint<LoginEndpointParams, LoginResult>;

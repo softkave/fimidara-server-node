@@ -1,5 +1,4 @@
 import {PublicPermissionItem} from '../../../definitions/permissionItem';
-import {BaseContextType} from '../../contexts/types';
 import {
   Endpoint,
   EndpointOptionalWorkspaceIDParam,
@@ -21,7 +20,6 @@ export interface GetEntityPermissionItemsEndpointResult extends PaginatedResult 
 }
 
 export type GetEntityPermissionItemsEndpoint = Endpoint<
-  BaseContextType,
   GetEntityPermissionItemsEndpointParams,
   GetEntityPermissionItemsEndpointResult
 >;

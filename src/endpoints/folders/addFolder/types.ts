@@ -1,5 +1,4 @@
 import {PublicFolder} from '../../../definitions/folder';
-import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointResultNote} from '../../types';
 
 export interface NewFolderInput {
@@ -18,7 +17,6 @@ export interface AddFolderEndpointResult {
 }
 
 export type AddFolderEndpoint = Endpoint<
-  BaseContextType,
   AddFolderEndpointParams,
   AddFolderEndpointResult
 >;

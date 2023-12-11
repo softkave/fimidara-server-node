@@ -2,19 +2,19 @@ import {AppResourceTypeMap} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {tryGetAgentTokenId} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
+import {kUtilsInjectables} from '../../contexts/injectables';
 import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {tryGetWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {checkAgentTokenAuthorization02} from '../utils';
 import {DeleteAgentTokenEndpoint} from './types';
 import {deleteAgentTokenJoiSchema} from './validation';
 
-const deleteAgentToken: DeleteAgentTokenEndpoint = async (context, instData) => {
+const deleteAgentToken: DeleteAgentTokenEndpoint = async instData => {
   const data = validate(instData.data, deleteAgentTokenJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
+  const agent = await kUtilsInjectables.session().getAgent(instData);
   const tokenId = tryGetAgentTokenId(agent, data.tokenId, data.onReferenced);
   const {workspace} = await tryGetWorkspaceFromEndpointInput(agent, data);
   const {token} = await checkAgentTokenAuthorization02(
-    context,
     agent,
     workspace?.resourceId,
     tokenId,

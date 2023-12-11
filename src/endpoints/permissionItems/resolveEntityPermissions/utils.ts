@@ -17,7 +17,6 @@ import {
   getResourcePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {SemanticProviderRunOptions} from '../../contexts/semantic/types';
-import {BaseContextType} from '../../contexts/types';
 import {InvalidRequestError} from '../../errors';
 import {kFolderConstants} from '../../folders/constants';
 import {PermissionItemInputTarget} from '../types';
@@ -43,7 +42,6 @@ type FlattenedPermissionRequestItem = {
 
 /** Fetch artifacts and ensure they belong to workspace. */
 async function getArtifacts(
-  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   data: ResolveEntityPermissionsEndpointParams
@@ -61,8 +59,8 @@ async function getArtifacts(
     new InvalidRequestError('No permission entity provided.')
   );
   const [entities, targets] = await Promise.all([
-    getPermissionItemEntities(context, agent, workspace.resourceId, inputEntities),
-    getPermissionItemTargets(context, agent, workspace, inputTargets),
+    getPermissionItemEntities(agent, workspace.resourceId, inputEntities),
+    getPermissionItemTargets(agent, workspace, inputTargets),
   ]);
 
   return {entities, targets};
@@ -152,12 +150,11 @@ function indexArtifacts(
 }
 
 export const INTERNAL_resolveEntityPermissions = async (
-  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   data: ResolveEntityPermissionsEndpointParams
 ) => {
-  const {entities, targets} = await getArtifacts(context, agent, workspace, data);
+  const {entities, targets} = await getArtifacts(agent, workspace, data);
   const {getEntities, getTargets} = indexArtifacts(workspace, entities, targets);
 
   // Requested permissions flattened to individual items, for example, list of
@@ -213,7 +210,6 @@ export const INTERNAL_resolveEntityPermissions = async (
   const checkers = await Promise.all(
     itemsToResolve.map(nextItem =>
       getAuthorizationAccessChecker({
-        context,
         workspace,
         workspaceId: workspace.resourceId,
         target: {
@@ -254,7 +250,6 @@ export const INTERNAL_resolveEntityPermissions = async (
 };
 
 export async function checkResolveEntityPermissionsAuth(
-  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   data: ResolveEntityPermissionsEndpointParams,
@@ -266,7 +261,6 @@ export async function checkResolveEntityPermissionsAuth(
 
   if (!isResolvingOwnPermissions) {
     await checkAuthorizationWithAgent({
-      context,
       agent,
       workspace,
       opts,

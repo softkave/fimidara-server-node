@@ -1,5 +1,3 @@
-import {BaseContextType} from '../types';
-
 export interface SendEmailParams {
   destination: string[];
   source: string;
@@ -11,6 +9,6 @@ export interface SendEmailParams {
 }
 
 export interface IEmailProviderContext {
-  sendEmail: (context: BaseContextType, params: SendEmailParams) => Promise<void>;
+  sendEmail: (params: SendEmailParams) => Promise<void>;
   close: () => void | Promise<void>;
 }

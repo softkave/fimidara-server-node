@@ -1,38 +1,34 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
 import RequestData from '../../RequestData';
-import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertRequestForTest,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import updateCollaborationRequest from './handler';
-import {UpdateCollaborationRequestEndpointParams, UpdateCollaborationRequestInput} from './types';
-
-let context: BaseContextType | null = null;
+import {
+  UpdateCollaborationRequestEndpointParams,
+  UpdateCollaborationRequestInput,
+} from './types';
 
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('updateCollaborationRequest', () => {
   test('collaboration request updated', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const {request: request01} = await insertRequestForTest(
-      context,
       userToken,
       workspace.resourceId
     );
@@ -41,15 +37,16 @@ describe('updateCollaborationRequest', () => {
       expires: add(Date.now(), {days: 1}).valueOf(),
     };
 
-    const instData = RequestData.fromExpressRequest<UpdateCollaborationRequestEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {requestId: request01.resourceId, request: updateCollaborationRequestInput}
-    );
-    const result = await updateCollaborationRequest(context, instData);
+    const instData =
+      RequestData.fromExpressRequest<UpdateCollaborationRequestEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {requestId: request01.resourceId, request: updateCollaborationRequestInput}
+      );
+    const result = await updateCollaborationRequest(instData);
     assertEndpointResultOk(result);
-    const updatedRequest = await context.semantic.collaborationRequest.assertGetOneByQuery(
-      EndpointReusableQueries.getByResourceId(request01.resourceId)
-    );
+    const updatedRequest = await kSemanticModels
+      .collaborationRequest()
+      .assertGetOneByQuery(EndpointReusableQueries.getByResourceId(request01.resourceId));
 
     expect(result.request.resourceId).toEqual(request01.resourceId);
     expect(result.request.message).toBe(updateCollaborationRequestInput.message);

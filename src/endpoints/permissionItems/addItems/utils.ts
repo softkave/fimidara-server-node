@@ -22,7 +22,6 @@ import {
 import {indexArray} from '../../../utils/indexArray';
 import {getResourceTypeFromId, newWorkspaceResource} from '../../../utils/resource';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {BaseContextType} from '../../contexts/types';
 import {InvalidRequestError} from '../../errors';
 import {kFolderConstants} from '../../folders/constants';
 import {PermissionItemInputTarget} from '../types';
@@ -32,6 +31,7 @@ import {
   getTargetType,
 } from '../utils';
 import {AddPermissionItemsEndpointParams} from './types';
+import {kSemanticModels} from '../../contexts/injectables';
 
 /**
  * - separate entities, separate targets
@@ -43,7 +43,6 @@ import {AddPermissionItemsEndpointParams} from './types';
  */
 
 export const INTERNAL_addPermissionItems = async (
-  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   data: AddPermissionItemsEndpointParams,
@@ -68,8 +67,8 @@ export const INTERNAL_addPermissionItems = async (
   );
 
   const [entities, targets] = await Promise.all([
-    getPermissionItemEntities(context, agent, workspace.resourceId, inputEntities),
-    getPermissionItemTargets(context, agent, workspace, inputTargets),
+    getPermissionItemEntities(agent, workspace.resourceId, inputEntities),
+    getPermissionItemTargets(agent, workspace, inputTargets),
   ]);
 
   const indexBynamepath = (item: ResourceWrapper) => {
@@ -213,8 +212,7 @@ export const INTERNAL_addPermissionItems = async (
   // Not using transaction read because heavy computation may happen next to
   // filter out existing permission items, and I don't want to keep other
   // permission insertion operations waiting.
-  const existingPermissionItems = await context.semantic.permissions.getPermissionItems({
-    context,
+  const existingPermissionItems = await kSemanticModels.permissions().getPermissionItems({
     entityId: extractResourceIdList(entities),
     sortByDate: true,
   });
@@ -247,6 +245,6 @@ export const INTERNAL_addPermissionItems = async (
     return isNew;
   });
 
-  await context.semantic.permissionItem.insertItem(newPermissions, opts);
+  await kSemanticModels.permissionItem().insertItem(newPermissions, opts);
   return inputItems;
 };

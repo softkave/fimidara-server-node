@@ -4,9 +4,7 @@ import RequestData from '../../RequestData';
 import {ITestBaseContext} from '../../testUtils/context/types';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
 } from '../../testUtils/testUtils';
@@ -23,48 +21,57 @@ import {ForgotPasswordEndpointParams} from './types';
 let context: ITestBaseContext | null = null;
 
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 test('forgot password with email sent', async () => {
-  assertContext(context);
-  const {user} = await insertUserForTest(context);
+  const {user} = await insertUserForTest();
   const instData = RequestData.fromExpressRequest<ForgotPasswordEndpointParams>(
     mockExpressRequest(),
     {email: user.email}
   );
-  const result = await forgotPassword(context, instData);
+  const result = await forgotPassword(instData);
   assertEndpointResultOk(result);
-  const forgotPasswordToken = await context.semantic.agentToken.assertGetOneByQuery(
-    UserTokenQueries.getByUserIdAndTokenAccessScope(
-      user.resourceId,
-      TokenAccessScopeMap.ChangePassword
-    )
-  );
+  const forgotPasswordToken = await kSemanticModels
+    .agentToken()
+    .assertGetOneByQuery(
+      UserTokenQueries.getByUserIdAndTokenAccessScope(
+        user.resourceId,
+        TokenAccessScopeMap.ChangePassword
+      )
+    );
 
   // confirm forgot password email was sent
-  const link = getForgotPasswordLinkFromToken(context, forgotPasswordToken);
-  expect(context.email.sendEmail.mock.lastCall[1].body.html.includes(link)).toBeTruthy();
-  expect(context.email.sendEmail.mock.lastCall[1].body.text.includes(link)).toBeTruthy();
-  expect(context.email.sendEmail.mock.lastCall[1].destination).toContainEqual(user.email);
-  expect(context.email.sendEmail.mock.lastCall[1].subject).toBe(forgotPasswordEmailTitle);
+  const link = getForgotPasswordLinkFromToken(forgotPasswordToken);
+  expect(
+    kUtilsInjectables.email().sendEmail.mock.lastCall[1].body.html.includes(link)
+  ).toBeTruthy();
+  expect(
+    kUtilsInjectables.email().sendEmail.mock.lastCall[1].body.text.includes(link)
+  ).toBeTruthy();
+  expect(kUtilsInjectables.email().sendEmail.mock.lastCall[1].destination).toContainEqual(
+    user.email
+  );
+  expect(kUtilsInjectables.email().sendEmail.mock.lastCall[1].subject).toBe(
+    forgotPasswordEmailTitle
+  );
 
   // const forgotPasswordEmailProps: ForgotPasswordEmailProps = {
   //   link,
   //   expiration: getForgotPasswordExpiration(),
-  //   signupLink: context.appVariables.clientSignupLink,
-  //   loginLink: context.appVariables.clientLoginLink,
+  //   signupLink: kUtilsInjectables.config().clientSignupLink,
+  //   loginLink: kUtilsInjectables.config().clientLoginLink,
   // };
   // const html = forgotPasswordEmailHTML(forgotPasswordEmailProps);
   // const text = forgotPasswordEmailText(forgotPasswordEmailProps);
-  // expect(context.email.sendEmail).toHaveBeenLastCalledWith(expect.anything(), {
+  // expect(kUtilsInjectables.email().sendEmail).toHaveBeenLastCalledWith(expect.anything(), {
   //   subject: forgotPasswordEmailTitle,
   //   body: {html, text},
   //   destination: [user.email],
-  //   source: context.appVariables.appDefaultEmailAddressFrom,
+  //   source: kUtilsInjectables.config().appDefaultEmailAddressFrom,
   // });
 });

@@ -8,13 +8,12 @@ import {
 import {Workspace} from '../../../definitions/workspace';
 import {newWorkspaceResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
+import {kSemanticModels} from '../../contexts/injectables';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {BaseContextType} from '../../contexts/types';
 import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists';
 import {NewAgentTokenInput} from './types';
 
 export const INTERNAL_createAgentToken = async (
-  context: BaseContextType,
   agent: Agent,
   workspace: Workspace,
   data: NewAgentTokenInput,
@@ -23,11 +22,9 @@ export const INTERNAL_createAgentToken = async (
   let token: AgentToken | null = null;
 
   if (data.providedResourceId) {
-    token = await context.semantic.agentToken.getByProvidedId(
-      workspace.resourceId,
-      data.providedResourceId,
-      opts
-    );
+    token = await kSemanticModels
+      .agentToken()
+      .getByProvidedId(workspace.resourceId, data.providedResourceId, opts);
   }
 
   if (token) {
@@ -47,9 +44,8 @@ export const INTERNAL_createAgentToken = async (
     }
   );
   await Promise.all([
-    data.name &&
-      checkAgentTokenNameExists(context, workspace.resourceId, data.name, opts),
+    data.name && checkAgentTokenNameExists(workspace.resourceId, data.name, opts),
   ]);
-  await context.semantic.agentToken.insertItem(token, opts);
+  await kSemanticModels.agentToken().insertItem(token, opts);
   return token;
 };

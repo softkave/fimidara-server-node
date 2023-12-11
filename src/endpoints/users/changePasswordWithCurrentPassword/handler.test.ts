@@ -1,12 +1,9 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
-import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
   mockExpressRequestWithAgentToken,
@@ -17,47 +14,48 @@ import {userExtractor} from '../utils';
 import changePasswordWithCurrentPassword from './handler';
 import {ChangePasswordWithCurrentPasswordEndpointParams} from './types';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 test('password changed with current password', async () => {
-  assertContext(context);
   const oldPassword = faker.internet.password();
-  const {user, userToken, rawUser} = await insertUserForTest(context, {
+  const {user, userToken, rawUser} = await insertUserForTest({
     password: oldPassword,
   });
 
   const newPassword = 'gt5_g3!op0';
-  const instData = RequestData.fromExpressRequest<ChangePasswordWithCurrentPasswordEndpointParams>(
-    mockExpressRequestWithAgentToken(userToken),
-    {
-      currentPassword: oldPassword,
-      password: newPassword,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<ChangePasswordWithCurrentPasswordEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {
+        currentPassword: oldPassword,
+        password: newPassword,
+      }
+    );
 
   const oldHash = rawUser.hash;
-  const result = await changePasswordWithCurrentPassword(context, instData);
+  const result = await changePasswordWithCurrentPassword(instData);
   assertEndpointResultOk(result);
-  const updatedUser = await context.semantic.user.assertGetOneByQuery(
-    EndpointReusableQueries.getByResourceId(result.user.resourceId)
-  );
+  const updatedUser = await kSemanticModels
+    .user()
+    .assertGetOneByQuery(EndpointReusableQueries.getByResourceId(result.user.resourceId));
 
   expect(updatedUser.hash).not.toEqual(oldHash);
   expect(updatedUser.resourceId).toEqual(rawUser.resourceId);
-  const loginReqData = RequestData.fromExpressRequest<LoginEndpointParams>(mockExpressRequest(), {
-    password: newPassword,
-    email: user.email,
-  });
+  const loginReqData = RequestData.fromExpressRequest<LoginEndpointParams>(
+    mockExpressRequest(),
+    {
+      password: newPassword,
+      email: user.email,
+    }
+  );
 
-  const loginResult = await login(context, loginReqData);
+  const loginResult = await login(loginReqData);
   assertEndpointResultOk(loginResult);
   expect(loginResult.user).toMatchObject(userExtractor(updatedUser));
 });

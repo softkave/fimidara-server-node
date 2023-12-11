@@ -9,10 +9,8 @@ import {
   populateAssignedTags,
   populateUserWorkspaces,
 } from '../assignedItems/getAssignedItems';
-import {BaseContextType} from '../contexts/types';
 
 export async function resourceWithAssignedItems<T extends ResourceWrapper>(
-  context: BaseContextType,
   workspaceId: string,
   resource: T
 ) {
@@ -21,17 +19,10 @@ export async function resourceWithAssignedItems<T extends ResourceWrapper>(
     case AppResourceTypeMap.Folder:
     case AppResourceTypeMap.File:
     case AppResourceTypeMap.PermissionGroup:
-      resource.resource = await populateAssignedTags(
-        context,
-        workspaceId,
-        resource.resource
-      );
+      resource.resource = await populateAssignedTags(workspaceId, resource.resource);
       return resource;
     case AppResourceTypeMap.User:
-      resource.resource = await populateUserWorkspaces(
-        context,
-        resource.resource as User
-      );
+      resource.resource = await populateUserWorkspaces(resource.resource as User);
       return resource;
     case AppResourceTypeMap.Workspace:
     case AppResourceTypeMap.CollaborationRequest:
@@ -42,7 +33,6 @@ export async function resourceWithAssignedItems<T extends ResourceWrapper>(
 }
 
 export async function resourceListWithAssignedItems<T extends ResourceWrapper>(
-  context: BaseContextType,
   workspaceId: string,
   resourceList: T[],
   forTypes: AppResourceType[] = Object.values(AppResourceTypeMap)
@@ -53,9 +43,7 @@ export async function resourceListWithAssignedItems<T extends ResourceWrapper>(
   // instead of individually?
   return Promise.all(
     resourceList.map(item =>
-      forTypesMap[item.resourceType]
-        ? resourceWithAssignedItems(context, workspaceId, item)
-        : item
+      forTypesMap[item.resourceType] ? resourceWithAssignedItems(workspaceId, item) : item
     )
   );
 }

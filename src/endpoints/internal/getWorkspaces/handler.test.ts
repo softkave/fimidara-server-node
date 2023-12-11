@@ -1,15 +1,12 @@
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {extractResourceIdList} from '../../../utils/fns';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
-import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generateData/workspace';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
@@ -17,28 +14,23 @@ import {PermissionDeniedError} from '../../users/errors';
 import getWorkspaces from './handler';
 import {GetWorkspacesEndpointParams} from './types';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('getWorkspaces', () => {
   test('returns workspaces', async () => {
-    assertContext(context);
-    const {userToken, user} = await insertUserForTest(context);
+    const {userToken, user} = await insertUserForTest();
     const [workspaceList] = await Promise.all([
-      generateAndInsertWorkspaceListForTest(context, /** count */ 2),
-      context.semantic.utils.withTxn(context, opts => {
-        assertContext(context);
+      generateAndInsertWorkspaceListForTest(/** count */ 2),
+      kSemanticModels.utils().withTxn(opts => {
         return assignWorkspaceToUser(
-          context,
           SYSTEM_SESSION_AGENT,
-          context.appVariables.appWorkspaceId,
+          kUtilsInjectables.config().appWorkspaceId,
           user.resourceId,
           opts
         );
@@ -46,7 +38,6 @@ describe('getWorkspaces', () => {
     ]);
 
     const result = await getWorkspaces(
-      context,
       RequestData.fromExpressRequest<GetWorkspacesEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {}
@@ -59,12 +50,9 @@ describe('getWorkspaces', () => {
   });
 
   test('fails if user not part of root workspace', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
+    const {userToken} = await insertUserForTest();
     await expectErrorThrown(() => {
-      assertContext(context);
       return getWorkspaces(
-        context,
         RequestData.fromExpressRequest<GetWorkspacesEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
           {}

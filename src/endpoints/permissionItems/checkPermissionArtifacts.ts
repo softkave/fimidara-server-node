@@ -8,7 +8,6 @@ import {
   getWorkspaceResourceTypeList,
 } from '../../definitions/system';
 import {getResourceTypeFromId} from '../../utils/resource';
-import {BaseContextType} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {
   checkResourcesBelongToContainer,
@@ -18,7 +17,6 @@ import {INTERNAL_getResources} from '../resources/getResources';
 import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems';
 
 export async function checkPermissionEntitiesExist(
-  context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
   entities: Array<string>,
@@ -38,7 +36,6 @@ export async function checkPermissionEntitiesExist(
 
   // Intentionally not using transaction read for performance.
   return await INTERNAL_getResources({
-    context,
     agent,
     workspaceId,
     allowedTypes: PERMISSION_ENTITY_TYPES,
@@ -49,7 +46,6 @@ export async function checkPermissionEntitiesExist(
 }
 
 export async function checkPermissionContainersExist(
-  context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
   items: Array<string>,
@@ -65,7 +61,6 @@ export async function checkPermissionContainersExist(
 
   // Intentionally not using transaction read for performance.
   const resources = await INTERNAL_getResources({
-    context,
     agent,
     workspaceId,
     allowedTypes: PERMISSION_CONTAINER_TYPES,
@@ -84,7 +79,6 @@ const targetTypes = getWorkspaceResourceTypeList().filter(
 );
 
 export async function checkPermissionTargetsExist(
-  context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
   items: Array<string>,
@@ -102,14 +96,13 @@ export async function checkPermissionTargetsExist(
 
   // Intentionally not using transaction read for performance.
   let resources = await INTERNAL_getResources({
-    context,
     agent,
     workspaceId,
     allowedTypes: targetTypes,
     inputResources: items.map(id => ({action, resourceId: id})),
     checkAuth: true,
   });
-  resources = await resourceListWithAssignedItems(context, workspaceId, resources, [
+  resources = await resourceListWithAssignedItems(workspaceId, resources, [
     AppResourceTypeMap.User,
   ]);
 

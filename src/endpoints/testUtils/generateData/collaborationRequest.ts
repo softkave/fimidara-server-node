@@ -6,7 +6,7 @@ import {
 import {Agent, AppResourceTypeMap} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
-import {BaseContextType} from '../../contexts/types';
+import {kSemanticModels} from '../../contexts/injectables';
 import {
   GeneratePartialTestDataFn,
   defaultGeneratePartialTestDataFn,
@@ -47,13 +47,14 @@ export function generateCollaborationRequestListForTest(
 }
 
 export async function generateAndInsertCollaborationRequestListForTest(
-  ctx: BaseContextType,
   count = 20,
   genPartial: GeneratePartialTestDataFn<CollaborationRequest> = defaultGeneratePartialTestDataFn
 ) {
   const items = generateCollaborationRequestListForTest(count, genPartial);
-  await ctx.semantic.utils.withTxn(ctx, async opts =>
-    ctx.semantic.collaborationRequest.insertItem(items, opts)
-  );
+  await kSemanticModels
+    .utils()
+    .withTxn(async opts =>
+      kSemanticModels.collaborationRequest().insertItem(items, opts)
+    );
   return items;
 }

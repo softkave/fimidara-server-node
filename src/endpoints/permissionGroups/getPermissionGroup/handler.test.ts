@@ -1,11 +1,8 @@
 import {PermissionGroupMatcher} from '../../../definitions/permissionGroups';
-import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -13,22 +10,18 @@ import {
 } from '../../testUtils/testUtils';
 import getPermissionGroup from './handler';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 test('referenced permissionGroup returned', async () => {
-  assertContext(context);
-  const {userToken} = await insertUserForTest(context);
-  const {workspace} = await insertWorkspaceForTest(context, userToken);
+  const {userToken} = await insertUserForTest();
+  const {workspace} = await insertWorkspaceForTest(userToken);
   const {permissionGroup: permissionGroup} = await insertPermissionGroupForTest(
-    context,
     userToken,
     workspace.resourceId
   );
@@ -37,7 +30,7 @@ test('referenced permissionGroup returned', async () => {
     mockExpressRequestWithAgentToken(userToken),
     {permissionGroupId: permissionGroup.resourceId}
   );
-  const result = await getPermissionGroup(context, instData);
+  const result = await getPermissionGroup(instData);
   assertEndpointResultOk(result);
   expect(result.permissionGroup).toMatchObject(permissionGroup);
 });

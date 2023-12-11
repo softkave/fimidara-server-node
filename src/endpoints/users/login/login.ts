@@ -5,10 +5,11 @@ import {InvalidEmailOrPasswordError} from '../errors';
 import {LoginEndpoint} from './types';
 import {getUserClientAssignedToken, getUserToken, toLoginResult} from './utils';
 import {loginJoiSchema} from './validation';
+import {kSemanticModels} from '../../contexts/injectables';
 
-const login: LoginEndpoint = async (context, instData) => {
+const login: LoginEndpoint = async instData => {
   const data = validate(instData.data, loginJoiSchema);
-  const user = await context.semantic.user.getByEmail(data.email);
+  const user = await kSemanticModels.user().getByEmail(data.email);
 
   if (!user) {
     throw new InvalidEmailOrPasswordError();
@@ -20,16 +21,16 @@ const login: LoginEndpoint = async (context, instData) => {
     throw new InvalidEmailOrPasswordError();
   }
 
-  const [userToken, clientAssignedToken] = await context.semantic.utils.withTxn(
-    context,
-    opts =>
+  const [userToken, clientAssignedToken] = await kSemanticModels
+    .utils()
+    .withTxn(opts =>
       Promise.all([
-        getUserToken(context, user.resourceId, opts),
-        getUserClientAssignedToken(context, user.resourceId, opts),
+        getUserToken(user.resourceId, opts),
+        getUserClientAssignedToken(user.resourceId, opts),
       ])
-  );
-  const userWithWorkspaces = await populateUserWorkspaces(context, user);
-  return toLoginResult(context, userWithWorkspaces, userToken, clientAssignedToken);
+    );
+  const userWithWorkspaces = await populateUserWorkspaces(user);
+  return toLoginResult(userWithWorkspaces, userToken, clientAssignedToken);
 };
 
 export default login;

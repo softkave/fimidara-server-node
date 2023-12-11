@@ -1,5 +1,6 @@
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
+import {kUtilsInjectables} from '../../contexts/injectables';
 import {
   checkCollaboratorAuthorization02,
   collaboratorExtractor,
@@ -8,14 +9,13 @@ import {
 import {GetCollaboratorEndpoint} from './types';
 import {getCollaboratorJoiSchema} from './validation';
 
-const getCollaborator: GetCollaboratorEndpoint = async (context, instData) => {
+const getCollaborator: GetCollaboratorEndpoint = async instData => {
   const data = validate(instData.data, getCollaboratorJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
+  const agent = await kUtilsInjectables.session().getAgent(instData);
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
 
   // checkCollaboratorAuthorization fills in the user workspaces
   const {collaborator} = await checkCollaboratorAuthorization02(
-    context,
     agent,
     workspaceId,
     data.collaboratorId,

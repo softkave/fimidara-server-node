@@ -3,47 +3,43 @@ import {first} from 'lodash';
 import {extractResourceIdList, getResourceId} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import RequestData from '../../RequestData';
-import {BaseContextType} from '../../contexts/types';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generateData/collaborator';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
 import {expectContainsExactlyForAnyType} from '../../testUtils/helpers/assertion';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import {fetchEntityAssignedPermissionGroupList} from '../getEntityAssignedPermissionGroups/utils';
-import {makeKeyFromAssignedPermissionGroupMetaOrInput, toAssignedPgListInput} from '../testUtils';
+import {
+  makeKeyFromAssignedPermissionGroupMetaOrInput,
+  toAssignedPgListInput,
+} from '../testUtils';
 import assignPermissionGroups from './handler';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('assignPermissionGroups', () => {
   test('assign permission groups to users', async () => {
-    assertContext(context);
-    const {userToken, rawUser} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken, rawUser} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const agent = makeUserSessionAgent(rawUser, userToken);
     const [pgList01, collaboratorList] = await Promise.all([
-      generateAndInsertPermissionGroupListForTest(context, 2, {workspaceId: workspace.resourceId}),
-      generateAndInsertCollaboratorListForTest(context, agent, workspace.resourceId, 2),
+      generateAndInsertPermissionGroupListForTest(2, {workspaceId: workspace.resourceId}),
+      generateAndInsertCollaboratorListForTest(agent, workspace.resourceId, 2),
     ]);
     const pgList01Input = toAssignedPgListInput(pgList01);
 
     const result01 = await assignPermissionGroups(
-      context,
       RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
         workspaceId: workspace.resourceId,
         permissionGroups: pgList01Input,
@@ -68,20 +64,18 @@ describe('assignPermissionGroups', () => {
   });
 
   test('assign permission groups to single user', async () => {
-    assertContext(context);
-    const {userToken, rawUser} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken, rawUser} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const agent = makeUserSessionAgent(rawUser, userToken);
     const [pgList01, collaboratorList] = await Promise.all([
-      generateAndInsertPermissionGroupListForTest(context, 2, {workspaceId: workspace.resourceId}),
-      generateAndInsertCollaboratorListForTest(context, agent, workspace.resourceId, 1),
+      generateAndInsertPermissionGroupListForTest(2, {workspaceId: workspace.resourceId}),
+      generateAndInsertCollaboratorListForTest(agent, workspace.resourceId, 1),
     ]);
     const pgList01Input = toAssignedPgListInput(pgList01);
     const collaborator = first(collaboratorList);
     assert(collaborator);
 
     const result01 = await assignPermissionGroups(
-      context,
       RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
         workspaceId: workspace.resourceId,
         permissionGroups: pgList01Input,

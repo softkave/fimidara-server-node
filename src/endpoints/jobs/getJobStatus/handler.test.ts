@@ -1,12 +1,10 @@
 import assert from 'assert';
+import {JobStatusMap} from '../../../definitions/job';
 import RequestData from '../../RequestData';
-import {BaseContextType} from '../../contexts/types';
 import deletePermissionGroup from '../../permissionGroups/deletePermissionGroup/handler';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -14,29 +12,23 @@ import {
 } from '../../testUtils/testUtils';
 import {executeJob, waitForJob} from '../runner';
 import getJobStatus from './handler';
-import {JobStatusMap} from '../../../definitions/job';
-
-let context: BaseContextType | null = null;
 
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 test('getOpStatus', async () => {
-  assertContext(context);
-  const {userToken} = await insertUserForTest(context);
-  const {workspace} = await insertWorkspaceForTest(context, userToken);
+  const {userToken} = await insertUserForTest();
+  const {workspace} = await insertWorkspaceForTest(userToken);
   const {permissionGroup} = await insertPermissionGroupForTest(
-    context,
     userToken,
     workspace.resourceId
   );
   const {jobId} = await deletePermissionGroup(
-    context,
     RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
       permissionGroupId: permissionGroup.resourceId,
       workspaceId: workspace.resourceId,
@@ -44,11 +36,10 @@ test('getOpStatus', async () => {
   );
 
   assert(jobId);
-  await executeJob(context, jobId);
-  await waitForJob(context, jobId);
+  await executeJob(jobId);
+  await waitForJob(jobId);
 
   const result = await getJobStatus(
-    context,
     RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
       jobId,
     })

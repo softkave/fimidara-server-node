@@ -1,4 +1,7 @@
-import {AssignedItem, AssignedItemMainFieldsMatcher} from '../../definitions/assignedItem';
+import {
+  AssignedItem,
+  AssignedItemMainFieldsMatcher,
+} from '../../definitions/assignedItem';
 import {AssignedPermissionGroupMeta} from '../../definitions/permissionGroups';
 import {AssignedTag} from '../../definitions/tag';
 import {UserWorkspace} from '../../definitions/user';
@@ -41,7 +44,9 @@ export function assignedItemToAssignedWorkspace(item: AssignedItem): UserWorkspa
   };
 }
 
-export function assignedItemsToAssignedWorkspaceList(items: AssignedItem[]): UserWorkspace[] {
+export function assignedItemsToAssignedWorkspaceList(
+  items: AssignedItem[]
+): UserWorkspace[] {
   return items.map(item => assignedItemToAssignedWorkspace(item));
 }
 

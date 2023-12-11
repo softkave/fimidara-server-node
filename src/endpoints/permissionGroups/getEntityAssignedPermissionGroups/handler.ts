@@ -1,4 +1,5 @@
 import {validate} from '../../../utils/validate';
+import {kUtilsInjectables} from '../../contexts/injectables';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {permissionGroupListExtractor} from '../utils';
 import {GetEntityAssignedPermissionGroupsEndpoint} from './types';
@@ -9,18 +10,12 @@ import {
 import {getEntityAssignedPermissionGroupsJoiSchema} from './validation';
 
 const getEntityAssignedPermissionGroups: GetEntityAssignedPermissionGroupsEndpoint =
-  async (context, instData) => {
+  async instData => {
     const data = validate(instData.data, getEntityAssignedPermissionGroupsJoiSchema);
-    const agent = await context.session.getAgent(context, instData);
-    const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
-    await checkReadEntityAssignedPermissionGroups(
-      context,
-      agent,
-      workspace,
-      data.entityId
-    );
+    const agent = await kUtilsInjectables.session().getAgent(instData);
+    const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
+    await checkReadEntityAssignedPermissionGroups(agent, workspace, data.entityId);
     const result = await fetchEntityAssignedPermissionGroupList(
-      context,
       data.entityId,
       data.includeInheritedPermissionGroups ?? false
     );

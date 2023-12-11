@@ -1,14 +1,11 @@
 import {getResourceAssignedItems} from '../../assignedItems/getAssignedItems';
-import {BaseContextType} from '../../contexts/types';
 import {NotFoundError} from '../../errors';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import RequestData from '../../RequestData';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -25,49 +22,42 @@ import {RemoveCollaboratorEndpointParams} from './types';
  * -  Test that user agent token
  */
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('removeCollaborator', () => {
   test('collaborator removed', async () => {
-    assertContext(context);
-    const {userToken, user} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken, user} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const instData = RequestData.fromExpressRequest<RemoveCollaboratorEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId, collaboratorId: user.resourceId}
     );
 
-    const result = await removeCollaborator(context, instData);
+    const result = await removeCollaborator(instData);
     assertEndpointResultOk(result);
 
     if (result.jobId) {
-      await executeJob(context, result.jobId);
-      await waitForJob(context, result.jobId);
+      await executeJob(result.jobId);
+      await waitForJob(result.jobId);
     }
 
     const assignedItems = await getResourceAssignedItems(
-      context,
       workspace.resourceId,
       user.resourceId
     );
     expect(assignedItems.findIndex(item => item.assigneeId === user.resourceId)).toBe(-1);
 
     await expectErrorThrown(async () => {
-      assertContext(context);
-      await getCollaborator(context, instData);
+      await getCollaborator(instData);
     }, [NotFoundError.name]);
     await expectErrorThrown(async () => {
-      assertContext(context);
       await getWorkspace(
-        context,
         RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
           workspaceId: workspace.resourceId,
         })

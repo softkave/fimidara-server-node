@@ -9,6 +9,7 @@ import {
   checkAuthorizationWithAgent,
   getResourcePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {kUtilsInjectables, kSemanticModels} from '../../contexts/injectables';
 import {getClosestExistingFolder} from '../../folders/getFolderWithMatcher';
 import {assertWorkspace} from '../../workspaces/utils';
 import {getFileWithMatcher} from '../getFilesWithMatcher';
@@ -16,14 +17,13 @@ import {checkFileAuthorization, getFilepathInfo} from '../utils';
 import {IssueFilePresignedPathEndpoint} from './types';
 import {issueFilePresignedPathJoiSchema} from './validation';
 
-const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async (
-  context,
-  instData
-) => {
+const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async instData => {
   const data = validate(instData.data, issueFilePresignedPathJoiSchema);
-  const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgent(instData, PERMISSION_AGENT_TYPES);
 
-  const resource = await await context.semantic.utils.withTxn(async opts => {
+  const resource = await await kSemanticModels.utils().withTxn(async opts => {
     let file: File | null = null;
     let workspace: Workspace | undefined | null = undefined;
 
@@ -49,10 +49,9 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async (
       ({namepath, extension} = pathinfo);
 
       if (!workspace) {
-        workspace = await context.semantic.workspace.getByRootname(
-          pathinfo.rootname,
-          opts
-        );
+        workspace = await kSemanticModels
+          .workspace()
+          .getByRootname(pathinfo.rootname, opts);
       }
 
       assertWorkspace(workspace);
@@ -101,7 +100,7 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async (
         spentUsageCount: 0,
       }
     );
-    await context.semantic.filePresignedPath.insertItem(presignedPath, opts);
+    await kSemanticModels.filePresignedPath().insertItem(presignedPath, opts);
 
     return presignedPath;
   });

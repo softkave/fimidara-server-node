@@ -75,4 +75,5 @@ export const kAsyncLocalStorageUtils: AsyncLocalStorageUtils = {
 
 export const kAsyncLocalStorageKeys = {
   dispose: 'dispose',
+  txn: 'txn',
 };

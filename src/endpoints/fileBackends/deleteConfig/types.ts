@@ -1,4 +1,3 @@
-import {BaseContextType} from '../../contexts/types';
 import {LongRunningJobResult} from '../../jobs/types';
 import {
   DeleteResourceCascadeFnDefaultArgs,
@@ -12,7 +11,6 @@ export interface DeleteFileBackendConfigEndpointParams
 }
 
 export type DeleteFileBackendConfigEndpoint = Endpoint<
-  BaseContextType,
   DeleteFileBackendConfigEndpointParams,
   LongRunningJobResult
 >;

@@ -1,7 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {AgentToken} from '../../../definitions/agentToken';
 import RequestData from '../../RequestData';
-import {BaseContextType} from '../../contexts/types';
 import addTag from '../../tags/addTag/handler';
 import {AddTagEndpointParams, NewTagInput} from '../../tags/addTag/types';
 import {
@@ -11,7 +10,6 @@ import {
 } from '../testUtils';
 
 export async function insertTagForTest(
-  context: BaseContextType,
   userToken: AgentToken | null,
   workspaceId: string,
   tagInput: Partial<NewTagInput> = {}
@@ -30,7 +28,7 @@ export async function insertTagForTest(
     }
   );
 
-  const result = await addTag(context, instData);
+  const result = await addTag(instData);
   assertEndpointResultOk(result);
   return result;
 }

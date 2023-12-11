@@ -1,7 +1,6 @@
 import {makeKey} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import RequestData from '../../RequestData';
-import {BaseContextType} from '../../contexts/types';
 import {
   assignPgListToIdList,
   toAssignedPgListInput,
@@ -10,9 +9,7 @@ import {generateAndInsertTestFiles} from '../../testUtils/generateData/file';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertFolderForTest,
   insertPermissionItemsForTest,
   insertUserForTest,
@@ -30,28 +27,25 @@ import {
 
 // TODO: test container and target appliesTo
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('resolveEntityPermissions', () => {
   test('correct results returned', async () => {
     // TODO: add more tests for target and appliesTo
 
-    assertContext(context);
-    const {userToken, rawUser} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken, rawUser} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const [[pg01, pg02, pg03, pg04, pg05], [file01]] = await Promise.all([
-      generateAndInsertPermissionGroupListForTest(context, /** count */ 5, {
+      generateAndInsertPermissionGroupListForTest(/** count */ 5, {
         workspaceId: workspace.resourceId,
       }),
-      generateAndInsertTestFiles(context, /** count */ 1, {
+      generateAndInsertTestFiles(/** count */ 1, {
         workspaceId: workspace.resourceId,
         parentId: null,
       }),
@@ -80,7 +74,7 @@ describe('resolveEntityPermissions', () => {
       access: false,
       entityId: pg03.resourceId,
     };
-    await insertPermissionItemsForTest(context, userToken, workspace.resourceId, [
+    await insertPermissionItemsForTest(userToken, workspace.resourceId, [
       pItem01,
       pItem02,
       pItem03,
@@ -89,7 +83,6 @@ describe('resolveEntityPermissions', () => {
     // Assign pg01 to another to grant it it's permissions
     const sessionAgent = makeUserSessionAgent(rawUser, userToken);
     await assignPgListToIdList(
-      context,
       sessionAgent,
       workspace.resourceId,
       [pg04.resourceId],
@@ -122,7 +115,7 @@ describe('resolveEntityPermissions', () => {
           ],
         }
       );
-    const result = await resolveEntityPermissions(context, reqData);
+    const result = await resolveEntityPermissions(reqData);
     assertEndpointResultOk(result);
 
     const expected = [
@@ -176,11 +169,10 @@ describe('resolveEntityPermissions', () => {
   });
 
   test('combination of wildcard and appliesTo', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {folder} = await insertFolderForTest(context, userToken, workspace);
-    const adminPg = await context.semantic.permissionGroup.assertGetOneByQuery({
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    const {folder} = await insertFolderForTest(userToken, workspace);
+    const adminPg = await kSemanticModels.permissionGroup().assertGetOneByQuery({
       name: DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
       workspaceId: workspace.resourceId,
     });
@@ -199,7 +191,7 @@ describe('resolveEntityPermissions', () => {
           ],
         }
       );
-    const result = await resolveEntityPermissions(context, reqData);
+    const result = await resolveEntityPermissions(reqData);
     assertEndpointResultOk(result);
 
     const expected = [

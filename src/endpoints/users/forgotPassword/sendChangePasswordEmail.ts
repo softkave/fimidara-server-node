@@ -4,20 +4,19 @@ import {
   forgotPasswordEmailText,
   forgotPasswordEmailTitle,
 } from '../../../emailTemplates/forgotPassword';
-import {BaseContextType} from '../../contexts/types';
+import {kUtilsInjectables} from '../../contexts/injectables';
 
 async function sendChangePasswordEmail(
-  ctx: BaseContextType,
   emailAddress: string,
   props: ForgotPasswordEmailProps
 ) {
   const html = forgotPasswordEmailHTML(props);
   const text = forgotPasswordEmailText(props);
-  await ctx.email.sendEmail(ctx, {
+  await kUtilsInjectables.email().sendEmail({
     subject: forgotPasswordEmailTitle,
     body: {html, text},
     destination: [emailAddress],
-    source: ctx.appVariables.appDefaultEmailAddressFrom,
+    source: kUtilsInjectables.config().appDefaultEmailAddressFrom,
   });
 }
 

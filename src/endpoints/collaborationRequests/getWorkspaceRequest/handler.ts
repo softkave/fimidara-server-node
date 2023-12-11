@@ -1,4 +1,5 @@
 import {validate} from '../../../utils/validate';
+import {kUtilsInjectables} from '../../contexts/injectables';
 import {
   checkCollaborationRequestAuthorization02,
   collaborationRequestForWorkspaceExtractor,
@@ -6,19 +7,16 @@ import {
 import {GetWorkspaceCollaborationRequestEndpoint} from './types';
 import {getWorkspaceCollaborationRequestJoiSchema} from './validation';
 
-const getWorkspaceCollaborationRequest: GetWorkspaceCollaborationRequestEndpoint = async (
-  context,
-  instData
-) => {
-  const data = validate(instData.data, getWorkspaceCollaborationRequestJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
-  const {request} = await checkCollaborationRequestAuthorization02(
-    context,
-    agent,
-    data.requestId,
-    'readAgentToken'
-  );
-  return {request: collaborationRequestForWorkspaceExtractor(request)};
-};
+const getWorkspaceCollaborationRequest: GetWorkspaceCollaborationRequestEndpoint =
+  async instData => {
+    const data = validate(instData.data, getWorkspaceCollaborationRequestJoiSchema);
+    const agent = await kUtilsInjectables.session().getAgent(instData);
+    const {request} = await checkCollaborationRequestAuthorization02(
+      agent,
+      data.requestId,
+      'readAgentToken'
+    );
+    return {request: collaborationRequestForWorkspaceExtractor(request)};
+  };
 
 export default getWorkspaceCollaborationRequest;

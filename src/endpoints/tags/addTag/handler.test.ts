@@ -1,28 +1,23 @@
-import {BaseContextType} from '../../contexts/types';
 import {insertTagForTest} from '../../testUtils/helpers/tag';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
-  initTestBaseContext,
+  initTest,
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../testUtils/testUtils';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('addTag', () => {
   test('tag added', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
-    await insertTagForTest(context, userToken, workspace.resourceId);
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    await insertTagForTest(userToken, workspace.resourceId);
   });
 });

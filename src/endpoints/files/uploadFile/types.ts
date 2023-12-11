@@ -1,6 +1,5 @@
 import {Readable} from 'stream';
 import {FileMatcher, PublicFile} from '../../../definitions/file';
-import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export interface UploadFileEndpointParams extends FileMatcher {
@@ -15,7 +14,6 @@ export interface UploadFileEndpointResult {
 }
 
 export type UploadFileEndpoint = Endpoint<
-  BaseContextType,
   UploadFileEndpointParams,
   UploadFileEndpointResult
 >;

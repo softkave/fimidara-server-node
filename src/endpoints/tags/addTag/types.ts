@@ -1,5 +1,4 @@
 import {PublicTag} from '../../../definitions/tag';
-import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
 export interface NewTagInput {
@@ -15,4 +14,4 @@ export interface AddTagEndpointResult {
   tag: PublicTag;
 }
 
-export type AddTagEndpoint = Endpoint<BaseContextType, AddTagEndpointParams, AddTagEndpointResult>;
+export type AddTagEndpoint = Endpoint<AddTagEndpointParams, AddTagEndpointResult>;

@@ -1,7 +1,6 @@
 import {Readable} from 'stream';
 import {FileMatcher} from '../../../definitions/file';
 import {ObjectValues} from '../../../utils/types';
-import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export const ImageResizeFitEnumMap = {
@@ -83,11 +82,7 @@ export interface ReadFileEndpointResult {
   contentLength?: number;
 }
 
-export type ReadFileEndpoint = Endpoint<
-  BaseContextType,
-  ReadFileEndpointParams,
-  ReadFileEndpointResult
->;
+export type ReadFileEndpoint = Endpoint<ReadFileEndpointParams, ReadFileEndpointResult>;
 
 export type ReadFileEndpointHttpQuery = {
   w?: number;

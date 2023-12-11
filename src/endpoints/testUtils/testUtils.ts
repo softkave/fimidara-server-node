@@ -2,13 +2,11 @@ import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
 import {merge} from 'lodash';
 import {Readable} from 'stream';
-import {getMongoConnection} from '../../db/connection';
 import {AgentToken} from '../../definitions/agentToken';
 import {BaseTokenData, CURRENT_TOKEN_VERSION} from '../../definitions/system';
 import {PublicUser, UserWithWorkspace} from '../../definitions/user';
 import {PublicWorkspace, Workspace} from '../../definitions/workspace';
 import {FimidaraConfig} from '../../resources/types';
-import {fimidaraConfig} from '../../resources/vars';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {toArray} from '../../utils/fns';
@@ -25,14 +23,8 @@ import {
   CollaborationRequestInput,
   SendCollaborationRequestEndpointParams,
 } from '../collaborationRequests/sendRequest/types';
-import BaseContext from '../contexts/BaseContext';
-import {BaseContextType, IServerRequest} from '../contexts/types';
-import {
-  getLogicProviders,
-  getMongoBackedSemanticDataProviders,
-  getMongoDataProviders,
-  getMongoModels,
-} from '../contexts/utils';
+import {kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
+import {IServerRequest} from '../contexts/types';
 import uploadFile from '../files/uploadFile/handler';
 import {UploadFileEndpointParams} from '../files/uploadFile/types';
 import addFolder from '../folders/addFolder/handler';
@@ -60,13 +52,12 @@ import MockTestEmailProviderContext from './context/email/MockTestEmailProviderC
 import TestLocalFsFilePersistenceProviderContext from './context/file/TestLocalFsFilePersistenceProviderContext';
 import TestMemoryFilePersistenceProviderContext from './context/file/TestMemoryFilePersistenceProviderContext';
 import TestS3FilePersistenceProviderContext from './context/file/TestS3FilePersistenceProviderContext';
-import {ITestBaseContext} from './context/types';
 import {generateTestFileName} from './generateData/file';
 import {generateTestFolderName} from './generateData/folder';
 import sharp = require('sharp');
 import assert = require('assert');
 
-export function getTestEmailProvider(appVariables: FimidaraConfig) {
+export function getTestEmailProvider() {
   return new MockTestEmailProviderContext();
 }
 
@@ -83,33 +74,8 @@ export function getTestFileProvider(appVariables: FimidaraConfig) {
   throw new Error(`Invalid file backend type ${appVariables.fileBackend}`);
 }
 
-export async function initTestBaseContext(): Promise<ITestBaseContext> {
-  const connection = await getMongoConnection(
-    fimidaraConfig.mongoDbURI,
-    fimidaraConfig.mongoDbDatabaseName
-  );
-  const models = getMongoModels(connection);
-  const data = getMongoDataProviders(models);
-  const ctx = new BaseContext(
-    data,
-    getTestEmailProvider(fimidaraConfig),
-    getTestFileProvider(fimidaraConfig),
-    fimidaraConfig,
-    getLogicProviders(),
-    getMongoBackedSemanticDataProviders(data),
-    connection,
-    models,
-    async () => {
-      await connection.close();
-    }
-  );
-  await ctx.init();
-  await setupApp(ctx);
-  return ctx;
-}
-
-export function assertContext(ctx: any): asserts ctx is BaseContextType {
-  assert(ctx, 'Context is not yet initialized.');
+export async function initTest() {
+  await setupApp();
 }
 
 export function assertEndpointResultOk(result?: BaseEndpointResult | void) {
@@ -157,7 +123,6 @@ export interface IInsertUserForTestResult {
 }
 
 export async function insertUserForTest(
-  context: BaseContextType,
   userInput: Partial<SignupEndpointParams> = {},
   /** Tests that mutate data will fail otherwise */
   skipAutoVerifyEmail = false
@@ -173,25 +138,21 @@ export async function insertUserForTest(
     }
   );
 
-  const result = await signup(context, instData);
+  const result = await signup(instData);
   assertEndpointResultOk(result);
   let rawUser: UserWithWorkspace;
 
   if (!skipAutoVerifyEmail) {
-    const user = await INTERNAL_confirmEmailAddress(
-      context,
-      result.user.resourceId,
-      null
-    );
-    rawUser = await populateUserWorkspaces(context, user);
+    const user = await INTERNAL_confirmEmailAddress(result.user.resourceId, null);
+    rawUser = await populateUserWorkspaces(user);
   } else {
-    const user = await context.semantic.user.getOneById(result.user.resourceId);
+    const user = await kSemanticModels.user().getOneById(result.user.resourceId);
     assertUser(user);
-    rawUser = await populateUserWorkspaces(context, user);
+    rawUser = await populateUserWorkspaces(user);
   }
 
-  const tokenData = context.session.decodeToken(context, result.token);
-  const userToken = await context.semantic.agentToken.getOneById(tokenData.sub.id);
+  const tokenData = kUtilsInjectables.session().decodeToken(result.token);
+  const userToken = await kSemanticModels.agentToken().getOneById(tokenData.sub.id);
   assertAgentToken(userToken);
   return {
     rawUser,
@@ -208,7 +169,6 @@ export interface IInsertWorkspaceForTestResult {
 }
 
 export async function insertWorkspaceForTest(
-  context: BaseContextType,
   userToken: AgentToken,
   workspaceInput: Partial<AddWorkspaceEndpointParams> = {}
 ): Promise<IInsertWorkspaceForTestResult> {
@@ -224,17 +184,16 @@ export async function insertWorkspaceForTest(
     }
   );
 
-  const result = await addWorkspace(context, instData);
+  const result = await addWorkspace(instData);
   assertEndpointResultOk(result);
-  const rawWorkspace = await context.semantic.workspace.getOneById(
-    result.workspace.resourceId
-  );
+  const rawWorkspace = await kSemanticModels
+    .workspace()
+    .getOneById(result.workspace.resourceId);
   assert(rawWorkspace);
   return {rawWorkspace, workspace: result.workspace};
 }
 
 export async function insertPermissionGroupForTest(
-  context: BaseContextType,
   userToken: AgentToken,
   workspaceId: string,
   permissionGroupInput: Partial<NewPermissionGroupInput> = {}
@@ -251,13 +210,12 @@ export async function insertPermissionGroupForTest(
     }
   );
 
-  const result = await addPermissionGroup(context, instData);
+  const result = await addPermissionGroup(instData);
   assertEndpointResultOk(result);
   return result;
 }
 
 export async function insertPermissionItemsForTest(
-  context: BaseContextType,
   userToken: AgentToken,
   workspaceId: string,
   input: PermissionItemInput | PermissionItemInput[]
@@ -266,13 +224,12 @@ export async function insertPermissionItemsForTest(
     mockExpressRequestWithAgentToken(userToken),
     {workspaceId, items: toArray(input)}
   );
-  const result = await addPermissionItems(context, instData);
+  const result = await addPermissionItems(instData);
   assertEndpointResultOk(result);
   return result;
 }
 
 export async function insertRequestForTest(
-  context: BaseContextType,
   userToken: AgentToken,
   workspaceId: string,
   requestInput: Partial<CollaborationRequestInput> = {}
@@ -290,13 +247,12 @@ export async function insertRequestForTest(
     }
   );
 
-  const result = await sendRequest(context, instData);
+  const result = await sendRequest(instData);
   assertEndpointResultOk(result);
   return result;
 }
 
 export async function insertAgentTokenForTest(
-  context: BaseContextType,
   userToken: AgentToken,
   workspaceId: string,
   tokenInput: Partial<NewAgentTokenInput> = {}
@@ -314,13 +270,12 @@ export async function insertAgentTokenForTest(
     }
   );
 
-  const result = await addAgentTokenEndpoint(context, instData);
+  const result = await addAgentTokenEndpoint(instData);
   assertEndpointResultOk(result);
   return result;
 }
 
 export async function insertFolderForTest(
-  context: BaseContextType,
   userToken: AgentToken | null,
   workspace: PublicWorkspace,
   folderInput: Partial<NewFolderInput> = {}
@@ -343,7 +298,7 @@ export async function insertFolderForTest(
     }
   );
 
-  const result = await addFolder(context, instData);
+  const result = await addFolder(instData);
   assertEndpointResultOk(result);
   return result;
 }
@@ -378,7 +333,6 @@ export function generateTestTextFile() {
 }
 
 export async function insertFileForTest(
-  context: BaseContextType,
   userToken: AgentToken | null, // Pass null for public agent
   workspace: Pick<Workspace, 'rootname'>,
   fileInput: Partial<UploadFileEndpointParams> = {},
@@ -395,7 +349,6 @@ export async function insertFileForTest(
     description: faker.lorem.paragraph(),
     data: testStream,
     mimetype: 'application/octet-stream',
-    size: testBuffer.byteLength,
   };
 
   assert(input.filepath);
@@ -405,13 +358,11 @@ export async function insertFileForTest(
     if (type === 'png') {
       const {imgBuffer, imgStream} = await generateTestImage(imageProps);
       input.data = imgStream;
-      input.size = imgBuffer.byteLength;
       input.mimetype = 'image/png';
       dataBuffer = imgBuffer;
     } else {
       const {textBuffer, textStream} = generateTestTextFile();
       input.data = textStream;
-      input.size = textBuffer.byteLength;
       input.mimetype = 'text/plain';
       input.encoding = 'utf-8';
       dataBuffer = textBuffer;
@@ -425,7 +376,7 @@ export async function insertFileForTest(
       : mockExpressRequestForPublicAgent(),
     input
   );
-  const result = await uploadFile(context, instData);
+  const result = await uploadFile(instData);
   assertEndpointResultOk(result);
   return {...result, dataBuffer, reqData: instData};
 }

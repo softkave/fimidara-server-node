@@ -1,12 +1,9 @@
-import {BaseContextType} from '../../contexts/types';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -16,41 +13,38 @@ import {stringifyFilenamepath} from '../utils';
 import deleteFile from './handler';
 import {DeleteFileEndpointParams} from './types';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
-async function assertFileDeleted(context: BaseContextType, id: string) {
-  const exists = await context.semantic.file.existsByQuery(
-    EndpointReusableQueries.getByResourceId(id)
-  );
+async function assertFileDeleted(id: string) {
+  const exists = await kSemanticModels
+    .file()
+    .existsByQuery(EndpointReusableQueries.getByResourceId(id));
   expect(exists).toBeFalsy();
 }
 
 test('file deleted', async () => {
-  assertContext(context);
-  const {userToken} = await insertUserForTest(context);
-  const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {file} = await insertFileForTest(context, userToken, workspace);
+  const {userToken} = await insertUserForTest();
+  const {workspace} = await insertWorkspaceForTest(userToken);
+  const {file} = await insertFileForTest(userToken, workspace);
   const instData = RequestData.fromExpressRequest<DeleteFileEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
       filepath: stringifyFilenamepath(file, workspace.rootname),
     }
   );
-  const result = await deleteFile(context, instData);
+  const result = await deleteFile(instData);
 
   if (result.jobId) {
-    await executeJob(context, result.jobId);
-    await waitForJob(context, result.jobId);
+    await executeJob(result.jobId);
+    await waitForJob(result.jobId);
   }
 
   assertEndpointResultOk(result);
-  await assertFileDeleted(context, file.resourceId);
+  await assertFileDeleted(file.resourceId);
 });

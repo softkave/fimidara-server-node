@@ -12,7 +12,6 @@ import {
   CollaboratorsPrivateExportedEndpoints,
   CollaboratorsPublicExportedEndpoints,
 } from './collaborators/types';
-import {BaseContextType} from './contexts/types';
 import {getFileBackendsPublicHttpEndpoints} from './fileBackends/endpoints';
 import {FileBackendsExportedEndpoints} from './fileBackends/types';
 import {getFilesPublicHttpEndpoints} from './files/endpoints';
@@ -134,17 +133,13 @@ export function getFimidaraPrivateHttpEndpoints() {
   return compileEndpoints(getFimidaraRawPrivateHttpEndpoints());
 }
 
-function setupAppHttpEndpoints(
-  ctx: BaseContextType,
-  app: Express,
-  endpoints: AppExportedHttpEndpoints
-) {
+function setupAppHttpEndpoints(app: Express, endpoints: AppExportedHttpEndpoints) {
   forEach(endpoints, e1 => {
-    registerExpressRouteFromEndpoint(ctx, e1, app);
+    registerExpressRouteFromEndpoint(e1, app);
   });
 }
 
-export function setupFimidaraHttpEndpoints(ctx: BaseContextType, app: Express) {
-  setupAppHttpEndpoints(ctx, app, getFimidaraPublicHttpEndpoints());
-  setupAppHttpEndpoints(ctx, app, getFimidaraPrivateHttpEndpoints());
+export function setupFimidaraHttpEndpoints(app: Express) {
+  setupAppHttpEndpoints(app, getFimidaraPublicHttpEndpoints());
+  setupAppHttpEndpoints(app, getFimidaraPrivateHttpEndpoints());
 }

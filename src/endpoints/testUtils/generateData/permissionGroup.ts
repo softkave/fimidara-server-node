@@ -4,7 +4,7 @@ import {PermissionGroup} from '../../../definitions/permissionGroups';
 import {Agent, AppResourceTypeMap} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource, getResourceTypeFromId} from '../../../utils/resource';
-import {BaseContextType} from '../../contexts/types';
+import {kSemanticModels} from '../../contexts/injectables';
 
 export function generatePermissionGroupForTest(seed: Partial<PermissionGroup> = {}) {
   const createdAt = getTimestamp();
@@ -41,14 +41,13 @@ export function generatePermissionGroupListForTest(
 }
 
 export async function generateAndInsertPermissionGroupListForTest(
-  ctx: BaseContextType,
   count = 20,
   seed: Partial<PermissionGroup> = {}
 ) {
   const items = generatePermissionGroupListForTest(count, seed);
-  await ctx.semantic.utils.withTxn(ctx, async opts =>
-    ctx.semantic.permissionGroup.insertItem(items, opts)
-  );
+  await kSemanticModels
+    .utils()
+    .withTxn(async opts => kSemanticModels.permissionGroup().insertItem(items, opts));
   return items;
 }
 
@@ -94,13 +93,12 @@ export function generateAssignedItemListForTest(
 }
 
 export async function generateAndInsertAssignedItemListForTest(
-  ctx: BaseContextType,
   seed: Partial<AssignedItem> = {},
   count = 1
 ) {
   const items = generateAssignedItemListForTest(seed, count);
-  await ctx.semantic.utils.withTxn(ctx, async opts =>
-    ctx.semantic.assignedItem.insertItem(items, opts)
-  );
+  await kSemanticModels
+    .utils()
+    .withTxn(async opts => kSemanticModels.assignedItem().insertItem(items, opts));
   return items;
 }

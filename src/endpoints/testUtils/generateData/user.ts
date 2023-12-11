@@ -3,12 +3,12 @@ import {AppResourceTypeMap} from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
-import {BaseContextType} from '../../contexts/types';
 import {
   defaultGeneratePartialTestDataFn,
   GeneratePartialTestDataFn,
   generateTestList,
 } from './utils';
+import {kSemanticModels} from '../../contexts/injectables';
 
 export function generateUserForTest(seed: Partial<User> = {}) {
   const createdAt = getTimestamp();
@@ -36,13 +36,12 @@ export function generateUserListForTest(
 }
 
 export async function generateAndInsertUserListForTest(
-  ctx: BaseContextType,
   count = 20,
   genPartial: GeneratePartialTestDataFn<User> = defaultGeneratePartialTestDataFn
 ) {
   const items = generateUserListForTest(count, genPartial);
-  await ctx.semantic.utils.withTxn(ctx, async opts =>
-    ctx.semantic.user.insertItem(items, opts)
-  );
+  await kSemanticModels
+    .utils()
+    .withTxn(async opts => kSemanticModels.user().insertItem(items, opts));
   return items;
 }

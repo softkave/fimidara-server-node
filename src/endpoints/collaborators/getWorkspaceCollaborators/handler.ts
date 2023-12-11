@@ -2,6 +2,7 @@ import {UserWithWorkspace} from '../../../definitions/user';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {populateUserListWithWorkspaces} from '../../assignedItems/getAssignedItems';
+import {kUtilsInjectables, kSemanticModels} from '../../contexts/injectables';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
@@ -12,31 +13,23 @@ import {GetWorkspaceCollaboratorsEndpoint} from './types';
 import {getWorkspaceCollaboratorsQuery} from './utils';
 import {getWorkspaceCollaboratorsJoiSchema} from './validation';
 
-const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint = async (
-  context,
-  instData
-) => {
+const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint = async instData => {
   const data = validate(instData.data, getWorkspaceCollaboratorsJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
+  const agent = await kUtilsInjectables.session().getAgent(instData);
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(workspaceId);
-  const assignedItemsQuery = await getWorkspaceCollaboratorsQuery(
-    context,
-    agent,
-    workspace
-  );
+  const assignedItemsQuery = await getWorkspaceCollaboratorsQuery(agent, workspace);
   applyDefaultEndpointPaginationOptions(data);
-  const assignedItems = await context.semantic.assignedItem.getManyByQuery(
-    assignedItemsQuery,
-    data
-  );
+  const assignedItems = await kSemanticModels
+    .assignedItem()
+    .getManyByQuery(assignedItemsQuery, data);
   let usersWithWorkspaces: UserWithWorkspace[] = [];
   if (assignedItems.length > 0) {
     const userIdList = assignedItems.map(item => item.assigneeId);
-    const users = await context.semantic.user.getManyByIdList(userIdList);
+    const users = await kSemanticModels.user().getManyByIdList(userIdList);
 
     // TODO: only populate the calling workspace
-    usersWithWorkspaces = await populateUserListWithWorkspaces(context, users);
+    usersWithWorkspaces = await populateUserListWithWorkspaces(users);
   }
 
   return {

@@ -4,16 +4,13 @@ import {Workspace} from '../../../definitions/workspace';
 import {resolveTargetChildrenAccessCheckWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {DataQuery} from '../../contexts/data/types';
 import {getInAndNinQuery} from '../../contexts/semantic/utils';
-import {BaseContextType} from '../../contexts/types';
 import {PermissionDeniedError} from '../../users/errors';
 
 export async function getWorkspaceCollaboratorsQuery(
-  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace
 ): Promise<DataQuery<AssignedItem>> {
   const permissionsSummaryReport = await resolveTargetChildrenAccessCheckWithAgent({
-    context,
     agent,
     workspaceId: workspace.resourceId,
     workspace: workspace,

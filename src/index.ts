@@ -8,7 +8,7 @@ import BaseContext, {
   getEmailProvider,
   getFileProvider,
 } from './endpoints/contexts/BaseContext';
-import {BaseContextType} from './endpoints/contexts/types';
+import {kUtilsInjectables} from './endpoints/contexts/injectables';
 import {
   getLogicProviders,
   getMongoBackedSemanticDataProviders,
@@ -47,11 +47,11 @@ if (process.env.NODE_ENV === 'production') {
 app.use(cors(corsOption));
 app.use(express.json() as express.RequestHandler);
 
-function setupJWT(ctx: BaseContextType) {
+function setupJWT() {
   app.use(
     // TODO: do further research on JWT options, algorithms and best practices
     expressjwt({
-      secret: ctx.appVariables.jwtSecret,
+      secret: kUtilsInjectables.config().jwtSecret,
       credentialsRequired: false,
       algorithms: ['HS256'],
     })
@@ -81,20 +81,20 @@ async function setup() {
     () => connection.close()
   );
   await ctx.init();
-  const defaultWorkspace = await setupApp(ctx);
+  const defaultWorkspace = await setupApp();
   serverLogger.info(`Default workspace ID - ${defaultWorkspace.resourceId}`);
 
-  setupJWT(ctx);
-  setupFimidaraHttpEndpoints(ctx, app);
+  setupJWT();
+  setupFimidaraHttpEndpoints(app);
   app.use(handleErrors);
 
-  httpServer.listen(ctx.appVariables.port, async () => {
-    serverLogger.info(ctx.appVariables.appName);
-    serverLogger.info(ctx.appVariables.nodeEnv);
-    serverLogger.info(`server listening on port ${ctx.appVariables.port}`);
+  httpServer.listen(kUtilsInjectables.config().port, async () => {
+    serverLogger.info(kUtilsInjectables.config().appName);
+    serverLogger.info(kUtilsInjectables.config().nodeEnv);
+    serverLogger.info(`server listening on port ${kUtilsInjectables.config().port}`);
 
     // start job runner
-    startJobRunner(ctx).catch(error => serverLogger.error(error));
+    startJobRunner().catch(error => serverLogger.error(error));
   });
 }
 

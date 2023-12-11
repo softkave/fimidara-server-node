@@ -8,10 +8,10 @@ import {
   getResourcePermissionContainers,
   resolveTargetChildrenAccessCheckWithAgent,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {BaseContextType} from '../../contexts/types';
 import {PermissionDeniedError} from '../../users/errors';
 import {assertWorkspace} from '../../workspaces/utils';
 import {checkFolderAuthorization02, getWorkspaceRootnameFromPath} from '../utils';
+import {kSemanticModels} from '../../contexts/injectables';
 
 export async function listFolderContentQuery(
   agent: SessionAgent,
@@ -51,7 +51,6 @@ export async function listFolderContentQuery(
 }
 
 export async function getWorkspaceAndParentFolder(
-  context: BaseContextType,
   agent: SessionAgent,
   matcher: FolderMatcher
 ) {
@@ -64,7 +63,7 @@ export async function getWorkspaceAndParentFolder(
     const {rootname, splitPath} = getWorkspaceRootnameFromPath(matcher.folderpath);
     const containsRootnameOnly = first(splitPath) === rootname && splitPath.length === 1;
     if (containsRootnameOnly) {
-      workspace = await context.semantic.workspace.getByRootname(rootname);
+      workspace = await kSemanticModels.workspace().getByRootname(rootname);
       parentFolder = null;
     }
   }

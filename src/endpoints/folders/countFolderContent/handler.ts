@@ -6,7 +6,7 @@ import {
 } from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {validate} from '../../../utils/validate';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {areMountsCompletelyIngestedForFolder} from '../../fileBackends/mountUtils';
 import {EndpointResultNoteCodeMap, kEndpointResultNotesToMessageMap} from '../../types';
 import {
@@ -16,14 +16,12 @@ import {
 import {CountFolderContentEndpoint} from './types';
 import {countFolderContentJoiSchema} from './validation';
 
-const countFolderContent: CountFolderContentEndpoint = async (context, instData) => {
+const countFolderContent: CountFolderContentEndpoint = async instData => {
   const data = validate(instData.data, countFolderContentJoiSchema);
-  const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
-  const {workspace, parentFolder} = await getWorkspaceAndParentFolder(
-    context,
-    agent,
-    data
-  );
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgent(instData, PERMISSION_AGENT_TYPES);
+  const {workspace, parentFolder} = await getWorkspaceAndParentFolder(agent, data);
 
   const contentType = data.contentType ?? [
     AppResourceTypeMap.File,

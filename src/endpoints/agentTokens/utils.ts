@@ -6,8 +6,8 @@ import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {cast} from '../../utils/fns';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
+import {kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
-import {BaseContextType} from '../contexts/types';
 import {InvalidRequestError} from '../errors';
 import {workspaceResourceFields} from '../utils';
 
@@ -17,6 +17,7 @@ const agentTokenFields = getFields<PublicAgentToken>({
   description: true,
   tokenStr: true,
   expires: true,
+  providedResourceId: true,
   // tags: assignedTagListExtractor,
 });
 
@@ -24,7 +25,6 @@ export const agentTokenExtractor = makeExtract(agentTokenFields);
 export const agentTokenListExtractor = makeListExtract(agentTokenFields);
 
 export async function checkAgentTokenAuthorization(
-  context: BaseContextType,
   agent: SessionAgent,
   token: AgentToken,
   action: PermissionAction,
@@ -32,7 +32,6 @@ export async function checkAgentTokenAuthorization(
 ) {
   appAssert(token.workspaceId);
   await checkAuthorizationWithAgent({
-    context,
     agent,
     opts,
     workspaceId: token.workspaceId,
@@ -42,7 +41,6 @@ export async function checkAgentTokenAuthorization(
 }
 
 export async function checkAgentTokenAuthorization02(
-  context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string | undefined,
   tokenId: string | undefined | null,
@@ -52,30 +50,26 @@ export async function checkAgentTokenAuthorization02(
   let token: AgentToken | null = null;
 
   if (tokenId) {
-    token = await context.semantic.agentToken.getOneById(tokenId);
+    token = await kSemanticModels.agentToken().getOneById(tokenId);
   } else if (providedResourceId) {
     appAssert(workspaceId, new InvalidRequestError('Workspace ID not provided.'));
-    token = await context.semantic.agentToken.getByProvidedId(
-      workspaceId,
-      providedResourceId
-    );
+    token = await kSemanticModels
+      .agentToken()
+      .getByProvidedId(workspaceId, providedResourceId);
   }
 
   assertAgentToken(token);
-  return await checkAgentTokenAuthorization(context, agent, token, action);
+  return await checkAgentTokenAuthorization(agent, token, action);
 }
 
 export function throwAgentTokenNotFound() {
   throw kReuseableErrors.agentToken.notFound();
 }
 
-export function getPublicAgentToken(context: BaseContextType, token: AgentToken) {
-  const tokenStr = context.session.encodeToken(
-    context,
-    token.resourceId,
-    null,
-    token.createdAt
-  );
+export function getPublicAgentToken(token: AgentToken) {
+  const tokenStr = kUtilsInjectables
+    .session()
+    .encodeToken(token.resourceId, null, token.createdAt);
   cast<PublicAgentToken>(token).tokenStr = tokenStr;
   return agentTokenExtractor(token);
 }

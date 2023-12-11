@@ -10,7 +10,7 @@ import {
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
-import {BaseContextType} from '../../contexts/types';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {InvalidRequestError} from '../../errors';
 import {
   assertCollaborationRequest,
@@ -20,53 +20,47 @@ import {
 import {RevokeCollaborationRequestEndpoint} from './types';
 import {revokeCollaborationRequestJoiSchema} from './validation';
 
-const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async (
-  context,
-  instData
-) => {
+const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async instData => {
   const data = validate(instData.data, revokeCollaborationRequestJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
-  const {request, workspace} = await context.semantic.utils.withTxn(
-    context,
-    async opts => {
-      const {request, workspace} = await checkCollaborationRequestAuthorization02(
-        context,
-        agent,
+  const agent = await kUtilsInjectables.session().getAgent(instData);
+
+  const {request, workspace} = await kSemanticModels.utils().withTxn(async opts => {
+    const {request, workspace} = await checkCollaborationRequestAuthorization02(
+      agent,
+      data.requestId,
+      'revokeCollaborationRequest',
+      opts
+    );
+
+    const isRevoked = request.status === CollaborationRequestStatusTypeMap.Revoked;
+    appAssert(
+      isRevoked === false,
+      new InvalidRequestError('Collaboration request already revoked.')
+    );
+    const updatedRequest = await kSemanticModels
+      .collaborationRequest()
+      .getAndUpdateOneById(
         data.requestId,
-        'revokeCollaborationRequest',
+        {statusDate: getTimestamp(), status: CollaborationRequestStatusTypeMap.Revoked},
         opts
       );
 
-      const isRevoked = request.status === CollaborationRequestStatusTypeMap.Revoked;
-      appAssert(
-        isRevoked === false,
-        new InvalidRequestError('Collaboration request already revoked.')
-      );
-      const updatedRequest =
-        await context.semantic.collaborationRequest.getAndUpdateOneById(
-          data.requestId,
-          {statusDate: getTimestamp(), status: CollaborationRequestStatusTypeMap.Revoked},
-          opts
-        );
-
-      assertCollaborationRequest(updatedRequest);
-      return {workspace, request: updatedRequest};
-    }
-  );
+    assertCollaborationRequest(updatedRequest);
+    return {workspace, request: updatedRequest};
+  });
 
   // TODO: fire and forget
-  await sendRevokeCollaborationRequestEmail(context, request, workspace.name);
+  await sendRevokeCollaborationRequestEmail(request, workspace.name);
   return {request: collaborationRequestForWorkspaceExtractor(request)};
 };
 
 async function sendRevokeCollaborationRequestEmail(
-  context: BaseContextType,
   request: CollaborationRequest,
   workspaceName: string
 ) {
-  const recipient = await context.semantic.user.getByEmail(request.recipientEmail);
-  const signupLink = context.appVariables.clientSignupLink;
-  const loginLink = context.appVariables.clientLoginLink;
+  const recipient = await kSemanticModels.user().getByEmail(request.recipientEmail);
+  const signupLink = kUtilsInjectables.config().clientSignupLink;
+  const loginLink = kUtilsInjectables.config().clientLoginLink;
   const html = collaborationRequestRevokedEmailHTML({
     workspaceName,
     signupLink,
@@ -79,11 +73,11 @@ async function sendRevokeCollaborationRequestEmail(
     loginLink,
     firstName: recipient?.firstName,
   });
-  await context.email.sendEmail(context, {
+  await kUtilsInjectables.email().sendEmail({
     subject: collaborationRequestRevokedEmailTitle(workspaceName),
     body: {html, text},
     destination: [request.recipientEmail],
-    source: context.appVariables.appDefaultEmailAddressFrom,
+    source: kUtilsInjectables.config().appDefaultEmailAddressFrom,
   });
 }
 

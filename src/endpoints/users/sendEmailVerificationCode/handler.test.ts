@@ -1,10 +1,7 @@
-import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
@@ -16,33 +13,25 @@ import sendEmailVerificationCode from './handler';
  * - that email has verification link
  */
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 test('email verification code sent', async () => {
-  assertContext(context);
   const {user, userToken} = await insertUserForTest(
-    context,
     /**userInput */ {},
     /**skipAutoVerifyEmail */ true
   );
-  await context.semantic.utils.withTxn(context, opts => {
-    assertContext(context);
-    return context.semantic.user.getAndUpdateOneById(
-      user.resourceId,
-      {emailVerificationEmailSentAt: null},
-      opts
-    );
+  await kSemanticModels.utils().withTxn(opts => {
+    return kSemanticModels
+      .user()
+      .getAndUpdateOneById(user.resourceId, {emailVerificationEmailSentAt: null}, opts);
   });
   const result = await sendEmailVerificationCode(
-    context,
     RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken))
   );
   assertEndpointResultOk(result);
@@ -53,14 +42,14 @@ test('email verification code sent', async () => {
 
   // const confirmEmailProps: ConfirmEmailAddressEmailProps = {
   //   firstName: user.firstName,
-  //   link: await getConfirmEmailLink(context, rawUser),
+  //   link: await getConfirmEmailLink( rawUser),
   // };
   // const html = confirmEmailAddressEmailHTML(confirmEmailProps);
   // const text = confirmEmailAddressEmailText(confirmEmailProps);
-  // expect(context.email.sendEmail).toHaveBeenCalledWith(context, {
+  // expect(kUtilsInjectables.email().sendEmail).toHaveBeenCalledWith( {
   //   subject: confirmEmailAddressEmailTitle,
   //   body: {html, text},
   //   destination: [user.email],
-  //   source: context.appVariables.appDefaultEmailAddressFrom,
+  //   source: kUtilsInjectables.config().appDefaultEmailAddressFrom,
   // });
 });

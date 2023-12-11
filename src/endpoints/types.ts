@@ -6,25 +6,18 @@ import {FimidaraExternalError} from '../utils/OperationError';
 import {AnyFn, AnyObject, ObjectValues, OrPromise} from '../utils/types';
 import RequestData from './RequestData';
 import {SemanticProviderMutationRunOptions} from './contexts/semantic/types';
-import {BaseContextType} from './contexts/types';
 
 export interface BaseEndpointResult {
   errors?: FimidaraExternalError[];
 }
 
-export type Endpoint<
-  TContext extends BaseContextType = BaseContextType,
-  TParams = any,
-  TResult = void,
-> = (
-  context: TContext,
+export type Endpoint<TParams = any, TResult = void> = (
   instData: RequestData<TParams>
 ) => Promise<
   TResult extends void ? void | BaseEndpointResult : TResult & BaseEndpointResult
 >;
 
 export type InferEndpointResult<TEndpoint> = TEndpoint extends Endpoint<
-  any,
   any,
   infer InferedResult
 >
@@ -34,7 +27,6 @@ export type InferEndpointResult<TEndpoint> = TEndpoint extends Endpoint<
   : any;
 
 export type InferEndpointParams<TEndpoint> = TEndpoint extends Endpoint<
-  any,
   infer InferedParams,
   any
 >

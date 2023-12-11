@@ -18,7 +18,6 @@ import {getCostForUsage} from '../../usageRecords/constants';
 import {getRecordingPeriod} from '../../usageRecords/utils';
 import {assertWorkspace} from '../../workspaces/utils';
 import {SemanticProviderMutationRunOptions} from '../semantic/types';
-import {BaseContextType} from '../types';
 
 export interface UsageRecordInput {
   resourceId?: string;
@@ -40,7 +39,6 @@ export type UsageRecordInsertStatus =
 
 export class UsageRecordLogicProvider {
   insert = async (
-    ctx: BaseContextType,
     agent: Agent,
     input: UsageRecordInput,
     opts: SemanticProviderMutationRunOptions
@@ -49,7 +47,6 @@ export class UsageRecordLogicProvider {
     const workspace = await ctx.semantic.workspace.getOneById(record.workspaceId, opts);
     assertWorkspace(workspace);
     const billOverdue = await this.checkWorkspaceBillStatus(
-      ctx,
       agent,
       workspace,
       record,
@@ -61,7 +58,6 @@ export class UsageRecordLogicProvider {
     }
 
     const usageExceeded = await this.checkWorkspaceUsageLocks(
-      ctx,
       agent,
       workspace,
       record,
@@ -73,7 +69,6 @@ export class UsageRecordLogicProvider {
     }
 
     const exceedsRemainingUsage = await this.checkExceedsRemainingUsage(
-      ctx,
       agent,
       workspace,
       record,
@@ -129,14 +124,13 @@ export class UsageRecordLogicProvider {
   };
 
   private async getUsagel2(
-    context: BaseContextType,
     agent: Agent,
     record: UsageRecord,
     category: UsageRecordCategory,
     status: UsageRecordFulfillmentStatus,
     opts: SemanticProviderMutationRunOptions
   ) {
-    let usageL2 = await context.semantic.usageRecord.getOneByQuery(
+    let usageL2 = await kSemanticModels.usageRecord().getOneByQuery(
       {
         category,
         month: record.month,
@@ -156,14 +150,13 @@ export class UsageRecordLogicProvider {
         usageCost: 0,
       });
       appAssert(usageL2);
-      await context.semantic.usageRecord.insertItem(usageL2, opts);
+      await kSemanticModels.usageRecord().insertItem(usageL2, opts);
     }
 
     return usageL2;
   }
 
   private checkWorkspaceBillStatus = async (
-    context: BaseContextType,
     agent: Agent,
     workspace: Workspace,
     record: UsageRecord,
@@ -171,7 +164,6 @@ export class UsageRecordLogicProvider {
   ) => {
     if (workspace.billStatus === WorkspaceBillStatusMap.BillOverdue) {
       await this.dropRecord(
-        context,
         agent,
         record,
         UsageRecordDropReasonMap.BillOverdue,
@@ -184,7 +176,6 @@ export class UsageRecordLogicProvider {
   };
 
   private checkWorkspaceUsageLocks = async (
-    context: BaseContextType,
     agent: Agent,
     workspace: Workspace,
     record: UsageRecord,
@@ -197,7 +188,6 @@ export class UsageRecordLogicProvider {
       usageLocks[UsageRecordCategoryMap.Total]?.locked
     ) {
       await this.dropRecord(
-        context,
         agent,
         record,
         UsageRecordDropReasonMap.UsageExceeded,
@@ -209,7 +199,6 @@ export class UsageRecordLogicProvider {
 
     if (usageLocks[record.category] && usageLocks[record.category]?.locked) {
       await this.dropRecord(
-        context,
         agent,
         record,
         UsageRecordDropReasonMap.UsageExceeded,
@@ -223,7 +212,6 @@ export class UsageRecordLogicProvider {
   };
 
   private checkExceedsRemainingUsage = async (
-    context: BaseContextType,
     agent: Agent,
     workspace: Workspace,
     record: UsageRecord,
@@ -231,7 +219,6 @@ export class UsageRecordLogicProvider {
   ) => {
     const [usageFulfilledL2, usageTotalFulfilled, usageDroppedL2] = await Promise.all([
       this.getUsagel2(
-        context,
         agent,
         record,
         record.category,
@@ -239,7 +226,6 @@ export class UsageRecordLogicProvider {
         opts
       ),
       this.getUsagel2(
-        context,
         agent,
         record,
         UsageRecordCategoryMap.Total,
@@ -247,7 +233,6 @@ export class UsageRecordLogicProvider {
         opts
       ),
       this.getUsagel2(
-        context,
         agent,
         record,
         record.category,
@@ -267,7 +252,6 @@ export class UsageRecordLogicProvider {
       totalMonthUsageThreshold.budget < projectedUsageCost
     ) {
       await this.dropRecord(
-        context,
         agent,
         record,
         UsageRecordDropReasonMap.ExceedsRemainingUsage,
@@ -282,7 +266,6 @@ export class UsageRecordLogicProvider {
       categoryMonthUsageThreshold.budget < projectedUsageCost
     ) {
       await this.dropRecord(
-        context,
         agent,
         record,
         UsageRecordDropReasonMap.ExceedsRemainingUsage,
@@ -292,19 +275,11 @@ export class UsageRecordLogicProvider {
       return true;
     }
 
-    await this.fulfillRecord(
-      context,
-      agent,
-      record,
-      usageFulfilledL2,
-      usageTotalFulfilled,
-      opts
-    );
+    await this.fulfillRecord(agent, record, usageFulfilledL2, usageTotalFulfilled, opts);
     return false;
   };
 
   private fulfillRecord = async (
-    context: BaseContextType,
     agent: Agent,
     record: UsageRecord,
     usageFulfilledL2: UsageRecord | undefined,
@@ -314,7 +289,6 @@ export class UsageRecordLogicProvider {
     [usageFulfilledL2, usageTotalFulfilled] = await Promise.all([
       usageFulfilledL2 ??
         this.getUsagel2(
-          context,
           agent,
           record,
           record.category,
@@ -323,7 +297,6 @@ export class UsageRecordLogicProvider {
         ),
       usageTotalFulfilled ??
         this.getUsagel2(
-          context,
           agent,
           record,
           UsageRecordCategoryMap.Total,
@@ -334,8 +307,8 @@ export class UsageRecordLogicProvider {
 
     record.fulfillmentStatus = UsageRecordFulfillmentStatusMap.Fulfilled;
     await Promise.all([
-      context.semantic.usageRecord.insertItem(record, opts),
-      context.semantic.usageRecord.updateOneById(
+      kSemanticModels.usageRecord().insertItem(record, opts),
+      kSemanticModels.usageRecord().updateOneById(
         usageFulfilledL2.resourceId,
         {
           usage: usageFulfilledL2.usage + record.usage,
@@ -343,16 +316,17 @@ export class UsageRecordLogicProvider {
         },
         opts
       ),
-      context.semantic.usageRecord.updateOneById(
-        usageTotalFulfilled.resourceId,
-        {usageCost: usageTotalFulfilled.usageCost + record.usageCost},
-        opts
-      ),
+      kSemanticModels
+        .usageRecord()
+        .updateOneById(
+          usageTotalFulfilled.resourceId,
+          {usageCost: usageTotalFulfilled.usageCost + record.usageCost},
+          opts
+        ),
     ]);
   };
 
   private dropRecord = async (
-    context: BaseContextType,
     agent: Agent,
     record: UsageRecord,
     dropReason: UsageRecordDropReason,
@@ -361,7 +335,6 @@ export class UsageRecordLogicProvider {
   ) => {
     if (!usageDroppedL2) {
       usageDroppedL2 = await this.getUsagel2(
-        context,
         agent,
         record,
         record.category,
@@ -373,8 +346,8 @@ export class UsageRecordLogicProvider {
     record.fulfillmentStatus = UsageRecordFulfillmentStatusMap.Dropped;
     record.dropReason = dropReason;
     await Promise.all([
-      context.semantic.usageRecord.insertItem(record, opts),
-      context.semantic.usageRecord.updateOneById(
+      kSemanticModels.usageRecord().insertItem(record, opts),
+      kSemanticModels.usageRecord().updateOneById(
         usageDroppedL2.resourceId,
         {
           usage: usageDroppedL2.usage + record.usage,

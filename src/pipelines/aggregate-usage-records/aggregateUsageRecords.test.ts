@@ -36,7 +36,6 @@ import {
 import {dropMongoConnection, genDbName} from '../../endpoints/testUtils/helpers/mongo';
 import {completeTest} from '../../endpoints/testUtils/helpers/test';
 import {
-  assertContext,
   getTestFileProvider,
   mockExpressRequestForPublicAgent,
 } from '../../endpoints/testUtils/testUtils';
@@ -95,13 +94,12 @@ async function getContextAndConnection() {
     models
   );
   await context.init();
-  contexts.push(context);
+  contexts.push();
   connections.push(connection);
-  return {context, connection};
+  return {connection};
 }
 
 async function insertUsageRecordsForFiles(
-  context: BaseContextType,
   workspace: Workspace,
   category: Extract<
     UsageRecordCategory,
@@ -131,10 +129,9 @@ async function insertUsageRecordsForFiles(
   for (; totalUsage <= limit; ) {
     const f = files[random(0, files.length - 1)];
     f.size = usage;
-    const insertPromise = context.semantic.utils.withTxn(context, async opts => {
+    const insertPromise = kSemanticModels.utils().withTxn(async opts => {
       if (category === UsageRecordCategoryMap.Storage) {
         return insertStorageUsageRecordInput(
-          context,
           reqData,
           f,
           'addFile',
@@ -143,23 +140,9 @@ async function insertUsageRecordsForFiles(
           nothrow
         );
       } else if (category === UsageRecordCategoryMap.BandwidthIn) {
-        return insertBandwidthInUsageRecordInput(
-          context,
-          reqData,
-          f,
-          'addFile',
-          opts,
-          nothrow
-        );
+        return insertBandwidthInUsageRecordInput(reqData, f, 'addFile', opts, nothrow);
       } else if (category === UsageRecordCategoryMap.BandwidthOut) {
-        return insertBandwidthOutUsageRecordInput(
-          context,
-          reqData,
-          f,
-          'addFile',
-          opts,
-          nothrow
-        );
+        return insertBandwidthOutUsageRecordInput(reqData, f, 'addFile', opts, nothrow);
       }
     });
 
@@ -185,24 +168,18 @@ async function insertUsageRecordsForFiles(
   return {totalUsage, count};
 }
 
-async function setupForFile(
-  context: BaseContextType,
-  exceedLimit = false,
-  nothrow = true,
-  exceedBy = 0
-) {
+async function setupForFile(exceedLimit = false, nothrow = true, exceedBy = 0) {
   const workspace = generateTestWorkspace();
   workspace.usageThresholds = transformUsageThresholInput(
     PUBLIC_SESSION_AGENT,
     generateTestUsageThresholdInputMap()
   );
-  await context.semantic.utils.withTxn(context, opts =>
-    context.semantic.workspace.insertItem(workspace, opts)
-  );
+  await kSemanticModels
+    .utils()
+    .withTxn(opts => kSemanticModels.workspace().insertItem(workspace, opts));
   const ut = workspace.usageThresholds[UsageRecordCategoryMap.Storage];
   assert(ut);
   const {totalUsage, count} = await insertUsageRecordsForFiles(
-    context,
     workspace,
     UsageRecordCategoryMap.Storage,
     getUsageForCost(ut.category, ut.budget),
@@ -221,21 +198,23 @@ async function setupForFile(
  * @param expectedState
  */
 async function checkLocks(
-  context: BaseContextType,
   wId: string,
   categories?: Partial<Record<UsageRecordCategory, boolean>> | null,
   expectedState = true
 ) {
   if (!categories) {
-    categories = Object.values(UsageRecordCategoryMap).reduce((acc, key) => {
-      acc[key] = expectedState;
-      return acc;
-    }, {} as Record<UsageRecordCategory, boolean>);
+    categories = Object.values(UsageRecordCategoryMap).reduce(
+      (acc, key) => {
+        acc[key] = expectedState;
+        return acc;
+      },
+      {} as Record<UsageRecordCategory, boolean>
+    );
   }
 
-  const w = await context.semantic.workspace.getOneByQuery(
-    EndpointReusableQueries.getByResourceId(wId)
-  );
+  const w = await kSemanticModels
+    .workspace()
+    .getOneByQuery(EndpointReusableQueries.getByResourceId(wId));
   assert(w);
   const locks = w.usageThresholdLocks ?? {};
   for (const category in categories) {
@@ -273,20 +252,14 @@ async function checkFailedRecordExistsForFile(
   expect(a?.requestId).toBe(reqData.requestId);
 }
 
-async function assertRecordInsertionFails(
-  context: BaseContextType,
-  connection: Connection,
-  w1: Workspace
-) {
+async function assertRecordInsertionFails(connection: Connection, w1: Workspace) {
   const f1 = generateTestFile({workspaceId: w1.resourceId, parentId: null});
   await expect(async () => {
-    assertContext(context);
-    await context.semantic.utils.withTxn(context, opts =>
-      insertStorageUsageRecordInput(context, reqData, f1, 'addFile', {}, opts)
-    );
+    await kSemanticModels
+      .utils()
+      .withTxn(opts => insertStorageUsageRecordInput(reqData, f1, 'addFile', {}, opts));
   }).rejects.toThrow(UsageLimitExceededError);
 
-  assertContext(context);
   await checkFailedRecordExistsForFile(connection, w1, f1);
   return {workspace: w1, file: f1};
 }
@@ -323,18 +296,18 @@ async function assertRecordLevel2Exists(
 describe('usage-records-pipeline', () => {
   test('workspace not locked if below threshold', async () => {
     // Setup
-    const {context, connection} = await getContextAndConnection();
-    const {workspace: w1, totalUsage: totalUsage1} = await setupForFile(context);
-    const {workspace: w2, totalUsage: totalUsage2} = await setupForFile(context);
+    const {connection} = await getContextAndConnection();
+    const {workspace: w1, totalUsage: totalUsage1} = await setupForFile();
+    const {workspace: w2, totalUsage: totalUsage2} = await setupForFile();
 
     // Run
     assert(connection);
     await aggregateRecords(connection, runInfo);
 
     // Assert
-    assertContext(context);
-    await checkLocks(context, w1.resourceId, null, false);
-    await checkLocks(context, w2.resourceId, null, false);
+
+    await checkLocks(w1.resourceId, null, false);
+    await checkLocks(w2.resourceId, null, false);
     await assertRecordLevel2Exists(
       connection,
       w1,
@@ -354,25 +327,24 @@ describe('usage-records-pipeline', () => {
 
   test('category locked if threshold reached', async () => {
     // Setup
-    const {context, connection} = await getContextAndConnection();
+    const {connection} = await getContextAndConnection();
     const {workspace: w1, totalUsage: totalUsage1} = await setupForFile(
-      context,
       /** exceedLimit */ true
     );
-    const {workspace: w2, totalUsage: totalUsage2} = await setupForFile(context);
+    const {workspace: w2, totalUsage: totalUsage2} = await setupForFile();
 
     // Run
     assert(connection);
     await aggregateRecords(connection, runInfo);
 
     // Assert
-    assertContext(context);
-    await checkLocks(context, w2.resourceId, null, false);
-    await checkLocks(context, w1.resourceId, {
+
+    await checkLocks(w2.resourceId, null, false);
+    await checkLocks(w1.resourceId, {
       [UsageRecordCategoryMap.Storage]: true,
     });
 
-    await assertRecordInsertionFails(context, connection, w1);
+    await assertRecordInsertionFails(connection, w1);
     await assertRecordLevel2Exists(
       connection,
       w1,
@@ -392,7 +364,7 @@ describe('usage-records-pipeline', () => {
 
   test('usage category total locked if usage exceeds total threshold', async () => {
     // Setup
-    const {context, connection} = await getContextAndConnection();
+    const {connection} = await getContextAndConnection();
     const workspace = generateTestWorkspace();
     workspace.usageThresholds = transformUsageThresholInput(PUBLIC_SESSION_AGENT, {
       [UsageRecordCategoryMap.Total]: {
@@ -401,13 +373,12 @@ describe('usage-records-pipeline', () => {
       },
     });
 
-    await context.semantic.utils.withTxn(context, opts =>
-      context.semantic.workspace.insertItem(workspace, opts)
-    );
+    await kSemanticModels
+      .utils()
+      .withTxn(opts => kSemanticModels.workspace().insertItem(workspace, opts));
     const ut = workspace.usageThresholds[UsageRecordCategoryMap.Total];
     assert(ut);
     const {totalUsage} = await insertUsageRecordsForFiles(
-      context,
       workspace,
       UsageRecordCategoryMap.Storage,
       getUsageForCost(UsageRecordCategoryMap.Storage, ut.budget),
@@ -419,8 +390,8 @@ describe('usage-records-pipeline', () => {
     await aggregateRecords(connection, runInfo);
 
     // Assert
-    assertContext(context);
-    await checkLocks(context, workspace.resourceId, {
+
+    await checkLocks(workspace.resourceId, {
       [UsageRecordCategoryMap.Total]: true,
     });
 
@@ -432,12 +403,12 @@ describe('usage-records-pipeline', () => {
       UsageRecordFulfillmentStatusMap.Fulfilled
     );
 
-    await assertRecordInsertionFails(context, connection, workspace);
+    await assertRecordInsertionFails(connection, workspace);
   });
 
   test('aggregates dropped usage records', async () => {
     // Setup
-    const {context, connection} = await getContextAndConnection();
+    const {connection} = await getContextAndConnection();
     const workspace = generateTestWorkspace();
     workspace.usageThresholds = transformUsageThresholInput(PUBLIC_SESSION_AGENT, {
       [UsageRecordCategoryMap.Total]: {
@@ -446,13 +417,12 @@ describe('usage-records-pipeline', () => {
       },
     });
 
-    await context.semantic.utils.withTxn(context, opts =>
-      context.semantic.workspace.insertItem(workspace, opts)
-    );
+    await kSemanticModels
+      .utils()
+      .withTxn(opts => kSemanticModels.workspace().insertItem(workspace, opts));
     const ut = workspace.usageThresholds[UsageRecordCategoryMap.Total];
     assert(ut);
     await insertUsageRecordsForFiles(
-      context,
       workspace,
       UsageRecordCategoryMap.Storage,
       getUsageForCost(UsageRecordCategoryMap.Storage, ut.budget),
@@ -464,24 +434,19 @@ describe('usage-records-pipeline', () => {
     await aggregateRecords(connection, runInfo);
 
     // Assert
-    await checkLocks(context, workspace.resourceId, {
+    await checkLocks(workspace.resourceId, {
       [UsageRecordCategoryMap.Total]: true,
     });
 
     // Setup
     const exceedBy = 100;
-    await insertUsageRecordsForFiles(
-      context,
-      workspace,
-      UsageRecordCategoryMap.Storage,
-      exceedBy
-    );
+    await insertUsageRecordsForFiles(workspace, UsageRecordCategoryMap.Storage, exceedBy);
 
     // Run
     await aggregateRecords(connection, runInfo);
 
     // Assert
-    assertContext(context);
+
     await assertRecordLevel2Exists(
       connection,
       workspace,

@@ -10,6 +10,10 @@ import {AnyFn} from '../../utils/types';
 import {agentTokenExtractor} from '../agentTokens/utils';
 import {collaborationRequestForWorkspaceExtractor} from '../collaborationRequests/utils';
 import {collaboratorExtractor} from '../collaborators/utils';
+import {
+  fileBackendConfigExtractor,
+  fileBackendMountExtractor,
+} from '../fileBackends/utils';
 import {fileExtractor} from '../files/utils';
 import {folderExtractor} from '../folders/utils';
 import {permissionGroupExtractor} from '../permissionGroups/utils';
@@ -28,7 +32,7 @@ const kResourceTypeToExtractorMap: Record<
   [AppResourceTypeMap.EndpointRequest]: identity,
   [AppResourceTypeMap.AssignedItem]: identity,
   [AppResourceTypeMap.Job]: identity,
-  [AppResourceTypeMap.FilePresignedPath]: identity,
+  [AppResourceTypeMap.FilePresignedPath]: not_implemented,
   [AppResourceTypeMap.Workspace]: workspaceExtractor,
   [AppResourceTypeMap.CollaborationRequest]: collaborationRequestForWorkspaceExtractor,
   [AppResourceTypeMap.AgentToken]: agentTokenExtractor,
@@ -39,6 +43,9 @@ const kResourceTypeToExtractorMap: Record<
   [AppResourceTypeMap.User]: collaboratorExtractor,
   [AppResourceTypeMap.Tag]: tagExtractor,
   [AppResourceTypeMap.UsageRecord]: usageRecordExtractor,
+  [AppResourceTypeMap.FileBackendConfig]: fileBackendConfigExtractor,
+  [AppResourceTypeMap.FileBackendMount]: fileBackendMountExtractor,
+  [AppResourceTypeMap.ResolvedMountEntry]: not_implemented,
 };
 
 export function getPublicResource(resource: ResourceWrapper, workspaceId: string) {

@@ -1,36 +1,33 @@
-import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generateData/collaborationRequest';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
+  initTest,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import countUserCollaborationRequests from './handler';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('countUserRequests', () => {
   test('count', async () => {
-    assertContext(context);
-    const {user: user02, userToken: user02Token} = await insertUserForTest(context);
+    const {user: user02, userToken: user02Token} = await insertUserForTest();
     const count = 5;
-    await generateAndInsertCollaborationRequestListForTest(context, count, () => ({
+    await generateAndInsertCollaborationRequestListForTest(count, () => ({
       recipientEmail: user02.email,
     }));
-    const instData = RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(user02Token));
-    const result = await countUserCollaborationRequests(context, instData);
+    const instData = RequestData.fromExpressRequest(
+      mockExpressRequestWithAgentToken(user02Token)
+    );
+    const result = await countUserCollaborationRequests(instData);
     assertEndpointResultOk(result);
     expect(result.count).toBe(count);
   });

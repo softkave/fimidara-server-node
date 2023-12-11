@@ -1,14 +1,11 @@
 import assert from 'assert';
 import RequestData from '../../RequestData';
-import {BaseContextType} from '../../contexts/types';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import {insertTagForTest} from '../../testUtils/helpers/tag';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -16,36 +13,33 @@ import {
 import deleteTag from './handler';
 import {DeleteTagEndpointParams} from './types';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('deleteTag', () => {
   test('tag deleted', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {tag} = await insertTagForTest(context, userToken, workspace.resourceId);
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    const {tag} = await insertTagForTest(userToken, workspace.resourceId);
 
     const instData = RequestData.fromExpressRequest<DeleteTagEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {tagId: tag.resourceId}
     );
-    const result = await deleteTag(context, instData);
+    const result = await deleteTag(instData);
     assertEndpointResultOk(result);
     assert(result.jobId);
-    await executeJob(context, result.jobId);
-    await waitForJob(context, result.jobId);
+    await executeJob(result.jobId);
+    await waitForJob(result.jobId);
 
-    const deletedTagExists = await context.semantic.tag.existsByQuery(
-      EndpointReusableQueries.getByResourceId(tag.resourceId)
-    );
+    const deletedTagExists = await kSemanticModels
+      .tag()
+      .existsByQuery(EndpointReusableQueries.getByResourceId(tag.resourceId));
     expect(deletedTagExists).toBeFalsy();
   });
 });

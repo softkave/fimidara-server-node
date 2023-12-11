@@ -1,5 +1,4 @@
 import {PublicAgentToken} from '../../../definitions/agentToken';
-import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
 export interface NewAgentTokenInput {
@@ -18,7 +17,6 @@ export interface AddAgentTokenEndpointResult {
 }
 
 export type AddAgentTokenEndpoint = Endpoint<
-  BaseContextType,
   AddAgentTokenEndpointParams,
   AddAgentTokenEndpointResult
 >;

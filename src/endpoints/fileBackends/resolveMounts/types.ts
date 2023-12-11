@@ -1,5 +1,4 @@
 import {PublicFileBackendMount} from '../../../definitions/fileBackend';
-import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
 export interface ResolveFileBackendMountsEndpointParams
@@ -16,7 +15,6 @@ export interface ResolveFileBackendMountsEndpointResult {
 }
 
 export type ResolveFileBackendMountsEndpoint = Endpoint<
-  BaseContextType,
   ResolveFileBackendMountsEndpointParams,
   ResolveFileBackendMountsEndpointResult
 >;

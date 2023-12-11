@@ -2,7 +2,6 @@ import {
   PublicAssignedPermissionGroupMeta,
   PublicPermissionGroup,
 } from '../../../definitions/permissionGroups';
-import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
 export interface GetEntityAssignedPermissionGroupsEndpointParamsBase
@@ -20,7 +19,6 @@ export interface GetEntityAssignedPermissionGroupsEndpointResult {
 }
 
 export type GetEntityAssignedPermissionGroupsEndpoint = Endpoint<
-  BaseContextType,
   GetEntityAssignedPermissionGroupsEndpointParams,
   GetEntityAssignedPermissionGroupsEndpointResult
 >;

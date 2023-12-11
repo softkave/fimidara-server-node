@@ -2,14 +2,11 @@ import {faker} from '@faker-js/faker';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
 import RequestData from '../../RequestData';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {BaseContextType} from '../../contexts/types';
 import {generateAndInsertTestFolders} from '../../testUtils/generateData/folder';
 import {expectEntityHasPermissionsTargetingId} from '../../testUtils/helpers/permissionItem';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -20,33 +17,30 @@ import {PermissionItemInput} from '../types';
 import addPermissionItems from './handler';
 import {AddPermissionItemsEndpointParams} from './types';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('addItems', () => {
   test('permission items added', async () => {
     // TODO: add more tests for target and appliesTo
 
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const [
       {permissionGroup: pg01},
       {permissionGroup: pg02},
       {permissionGroup: pg03},
       {permissionGroup: pg04},
     ] = await Promise.all([
-      insertPermissionGroupForTest(context, userToken, workspace.resourceId),
-      insertPermissionGroupForTest(context, userToken, workspace.resourceId),
-      insertPermissionGroupForTest(context, userToken, workspace.resourceId),
-      insertPermissionGroupForTest(context, userToken, workspace.resourceId),
+      insertPermissionGroupForTest(userToken, workspace.resourceId),
+      insertPermissionGroupForTest(userToken, workspace.resourceId),
+      insertPermissionGroupForTest(userToken, workspace.resourceId),
+      insertPermissionGroupForTest(userToken, workspace.resourceId),
     ]);
 
     const grantAccess = faker.datatype.boolean();
@@ -80,7 +74,7 @@ describe('addItems', () => {
         workspaceId: workspace.resourceId,
       }
     );
-    const result = await addPermissionItems(context, reqData);
+    const result = await addPermissionItems(reqData);
     assertEndpointResultOk(result);
     await Promise.all(
       [pg01, pg02].map(pg =>
@@ -106,7 +100,6 @@ describe('addItems', () => {
     );
 
     await checkAuthorization({
-      context,
       workspace,
       workspaceId: workspace.resourceId,
       target: {
@@ -123,11 +116,9 @@ describe('addItems', () => {
   });
 
   test('permission items are not duplicated', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const {permissionGroup: permissionGroup} = await insertPermissionGroupForTest(
-      context,
       userToken,
       workspace.resourceId
     );
@@ -156,24 +147,24 @@ describe('addItems', () => {
     );
 
     // First insert
-    await addPermissionItems(context, reqData);
+    await addPermissionItems(reqData);
 
     // Second insert of the very same permission items as the first insert
-    const result = await addPermissionItems(context, reqData);
+    const result = await addPermissionItems(reqData);
     assertEndpointResultOk(result);
 
-    const pgPermissionItems = await context.semantic.permissionItem.getManyByQuery(
-      PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId)
-    );
+    const pgPermissionItems = await kSemanticModels
+      .permissionItem()
+      .getManyByQuery(
+        PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId)
+      );
     expect(pgPermissionItems.length).toBe(itemsUniq.length);
   });
 
   test('permission items folded into wildcard', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const {permissionGroup: permissionGroup} = await insertPermissionGroupForTest(
-      context,
       userToken,
       workspace.resourceId
     );
@@ -192,33 +183,36 @@ describe('addItems', () => {
       {items: itemsUniq, workspaceId: workspace.resourceId}
     );
 
-    let result = await addPermissionItems(context, reqData);
+    let result = await addPermissionItems(reqData);
     assertEndpointResultOk(result);
 
-    let pgPermissionItems = await context.semantic.permissionItem.getManyByQuery(
-      PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId)
-    );
+    let pgPermissionItems = await kSemanticModels
+      .permissionItem()
+      .getManyByQuery(
+        PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId)
+      );
     expect(pgPermissionItems.length).toBe(1);
 
     // Trying again
-    result = await addPermissionItems(context, reqData);
+    result = await addPermissionItems(reqData);
     assertEndpointResultOk(result);
 
-    pgPermissionItems = await context.semantic.permissionItem.getManyByQuery(
-      PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId)
-    );
+    pgPermissionItems = await kSemanticModels
+      .permissionItem()
+      .getManyByQuery(
+        PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId)
+      );
     expect(pgPermissionItems.length).toBe(1);
   });
 
   test('correct targetParentId added', async () => {
-    assertContext(context);
-    const {userToken, user} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const [folder01] = await generateAndInsertTestFolders(context, 1, {
+    const {userToken, user} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    const [folder01] = await generateAndInsertTestFolders(1, {
       workspaceId: workspace.resourceId,
       parentId: null,
     });
-    const [folder02] = await generateAndInsertTestFolders(context, 1, {
+    const [folder02] = await generateAndInsertTestFolders(1, {
       workspaceId: workspace.resourceId,
       parentId: folder01.resourceId,
     });
@@ -241,12 +235,12 @@ describe('addItems', () => {
       {items: itemsInput, workspaceId: workspace.resourceId}
     );
 
-    const result = await addPermissionItems(context, reqData);
+    const result = await addPermissionItems(reqData);
     assertEndpointResultOk(result);
 
-    const pItems = await context.semantic.permissionItem.getManyByQuery(
-      PermissionItemQueries.getByPermissionEntity(user.resourceId)
-    );
+    const pItems = await kSemanticModels
+      .permissionItem()
+      .getManyByQuery(PermissionItemQueries.getByPermissionEntity(user.resourceId));
     const pItemFolder01 = pItems.find(item => item.targetId === folder01.resourceId);
     const pItemFolder02 = pItems.find(item => item.targetId === folder02.resourceId);
     expect(pItemFolder01).toBeTruthy();

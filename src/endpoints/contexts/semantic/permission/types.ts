@@ -4,7 +4,6 @@ import {
 } from '../../../../definitions/permissionGroups';
 import {PermissionAction, PermissionItem} from '../../../../definitions/permissionItem';
 import {AppResourceType, Resource} from '../../../../definitions/system';
-import {BaseContextType} from '../../types';
 import {SemanticProviderRunOptions} from '../types';
 
 export type SemanticPermissionProviderType_GetPermissionItemsProps = {
@@ -49,7 +48,7 @@ export interface SemanticPermissionProviderType {
     options?: SemanticProviderRunOptions
   ): Promise<PermissionEntityInheritanceMap>;
   getEntity(
-    props: {context: BaseContextType; entityId: string},
+    props: {entityId: string},
     opts?: SemanticProviderRunOptions
   ): Promise<Resource | null>;
   getPermissionItems(

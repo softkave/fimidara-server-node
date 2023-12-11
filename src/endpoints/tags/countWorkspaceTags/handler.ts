@@ -1,15 +1,16 @@
 import {validate} from '../../../utils/validate';
+import {kUtilsInjectables, kSemanticModels} from '../../contexts/injectables';
 import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils';
 import {getWorkspaceTagsQuery} from '../getWorkspaceTags/utils';
 import {CountWorkspaceTagsEndpoint} from './types';
 import {countWorkspaceTagJoiSchema} from './validation';
 
-const countWorkspaceTags: CountWorkspaceTagsEndpoint = async (context, instData) => {
+const countWorkspaceTags: CountWorkspaceTagsEndpoint = async instData => {
   const data = validate(instData.data, countWorkspaceTagJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
-  const workspace = await checkWorkspaceExistsWithAgent(context, agent, data.workspaceId);
-  const q = await getWorkspaceTagsQuery(context, agent, workspace);
-  const count = await context.semantic.tag.countManyByWorkspaceAndIdList(q);
+  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const workspace = await checkWorkspaceExistsWithAgent(agent, data.workspaceId);
+  const q = await getWorkspaceTagsQuery(agent, workspace);
+  const count = await kSemanticModels.tag().countManyByWorkspaceAndIdList(q);
   return {count};
 };
 

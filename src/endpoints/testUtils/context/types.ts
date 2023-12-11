@@ -1,10 +1,10 @@
-import {AnyFn} from '../../../utils/types';
-import {IEmailProviderContext} from '../../contexts/email/types';
-import {FilePersistenceProvider} from '../../contexts/file/types';
+import { AnyFn } from '../../../utils/types';
+import { IEmailProviderContext } from '../../contexts/email/types';
+import { FilePersistenceProvider } from '../../contexts/file/types';
 import {
-  BaseContextType,
-  MongoBackedSemanticDataProviders,
-  MongoDataProviders,
+    BaseContextType,
+    MongoBackedSemanticDataProviders,
+    MongoDataProviders,
 } from '../../contexts/types';
 
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
@@ -20,6 +20,6 @@ export type ITestFilePersistenceProviderContext = LayerJestMock<FilePersistenceP
 export type ITestBaseContext = BaseContextType<
   MongoDataProviders,
   MongoBackedSemanticDataProviders,
-  ITestEmailProviderContext,
+  ITestEmailProvider
   ITestFilePersistenceProviderContext
 >;

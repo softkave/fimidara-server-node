@@ -1,7 +1,6 @@
 import {PublicFile} from '../../../definitions/file';
 import {FolderMatcher, PublicFolder} from '../../../definitions/folder';
 import {AppResourceType} from '../../../definitions/system';
-import {BaseContextType} from '../../contexts/types';
 import {
   Endpoint,
   EndpointResultNote,
@@ -24,7 +23,6 @@ export interface ListFolderContentEndpointResult extends PaginatedResult {
 }
 
 export type ListFolderContentEndpoint = Endpoint<
-  BaseContextType,
   ListFolderContentEndpointParams,
   ListFolderContentEndpointResult
 >;

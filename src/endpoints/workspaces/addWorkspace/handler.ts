@@ -1,20 +1,18 @@
 import {AppResourceTypeMap} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {EmailAddressNotVerifiedError} from '../../users/errors';
 import {workspaceExtractor} from '../utils';
 import INTERNAL_createWorkspace from './internalCreateWorkspace';
 import {AddWorkspaceEndpoint} from './types';
 import {addWorkspaceJoiSchema} from './validation';
 
-const addWorkspace: AddWorkspaceEndpoint = async (context, instData) => {
+const addWorkspace: AddWorkspaceEndpoint = async instData => {
   const data = validate(instData.data, addWorkspaceJoiSchema);
-  const agent = await context.session.getAgent(
-    context,
-    instData,
-    AppResourceTypeMap.User
-  );
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgent(instData, AppResourceTypeMap.User);
   appAssert(agent.user);
 
   // TODO: find other routes that do not use checkAuthorization and devise a way

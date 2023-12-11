@@ -1,4 +1,3 @@
-import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 import {PermissionItemInput} from '../types';
 
@@ -7,7 +6,4 @@ export interface AddPermissionItemsEndpointParams
   items: PermissionItemInput[];
 }
 
-export type AddPermissionItemsEndpoint = Endpoint<
-  BaseContextType,
-  AddPermissionItemsEndpointParams
->;
+export type AddPermissionItemsEndpoint = Endpoint<AddPermissionItemsEndpointParams>;

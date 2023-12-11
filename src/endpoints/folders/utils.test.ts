@@ -1,40 +1,36 @@
 import {Folder} from '../../definitions/folder';
 import {getRandomIntInclusive} from '../../utils/fns';
+import {kSemanticModels} from '../contexts/injectables';
 import {getStringListQuery} from '../contexts/semantic/utils';
-import {BaseContextType} from '../contexts/types';
 import {
   generateAndInsertTestFolders,
   generateTestFolderName,
 } from '../testUtils/generateData/folder';
 import {completeTest} from '../testUtils/helpers/test';
-import {assertContext, initTestBaseContext} from '../testUtils/testUtils';
-
-let context: BaseContextType | null = null;
+import {initTest} from '../testUtils/testUtils';
 
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('utils', () => {
   test('case-insensitive file match', async () => {
-    assertContext(context);
     const parentnamepath = new Array(getRandomIntInclusive(1, 5))
       .fill(0)
       .map(() => generateTestFolderName());
     const folders = await generateAndInsertTestFolders(
-      context,
       /** count */ 5,
       {parentId: null},
       {parentnamepath}
     );
     const foldernamepathList = folders.map(folder => folder.namepath);
-    const foldersByParent = await context.semantic.folder.getManyByQuery(
-      getStringListQuery<Folder>(parentnamepath, 'namepath')
-    );
+    const foldersByParent = await kSemanticModels
+      .folder()
+      .getManyByQuery(getStringListQuery<Folder>(parentnamepath, 'namepath'));
     const returnedFolders = await Promise.all(
       foldernamepathList.map(namepath =>
         context!.semantic.folder.getOneByQuery(

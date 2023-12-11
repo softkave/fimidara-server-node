@@ -6,17 +6,15 @@ import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {getFileBackendMountsQuery} from '../getMounts/utils';
 import {CountFileBackendMountsEndpoint} from './types';
 import {countFileBackendMountsJoiSchema} from './validation';
+import {kUtilsInjectables} from '../../contexts/injectables';
 
-const countFileBackendMounts: CountFileBackendMountsEndpoint = async (
-  context,
-  instData
-) => {
+const countFileBackendMounts: CountFileBackendMountsEndpoint = async instData => {
   const mountModel = container.resolve<SemanticFileBackendMountProvider>(
     kInjectionKeys.semantic.fileBackendMount
   );
 
   const data = validate(instData.data, countFileBackendMountsJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
+  const agent = await kUtilsInjectables.session().getAgent(instData);
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   const query = await getFileBackendMountsQuery(agent, workspace, data);
   const count = await mountModel.countByQuery(query);

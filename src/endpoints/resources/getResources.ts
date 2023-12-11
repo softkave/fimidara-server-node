@@ -19,8 +19,8 @@ import {
   checkAuthorizationWithAgent,
   getResourcePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
+import {kSemanticModels} from '../contexts/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
-import {BaseContextType} from '../contexts/types';
 import {kFolderConstants} from '../folders/constants';
 import {checkResourcesBelongsToWorkspace} from './containerCheckFns';
 import {resourceListWithAssignedItems} from './resourceWithAssignedItems';
@@ -43,7 +43,6 @@ interface WorkspaceRootnameWithAction {
 }
 
 export interface GetResourcesOptions {
-  context: BaseContextType;
   inputResources: Array<FetchResourceItem>;
   allowedTypes: AppResourceType[];
   checkAuth?: boolean;
@@ -64,7 +63,6 @@ type GetResourcesResourceWrapper = ResourceWrapper & {action: PermissionAction};
 
 export async function INTERNAL_getResources(options: GetResourcesOptions) {
   const {
-    context,
     inputResources,
     agent,
     workspaceId,
@@ -79,10 +77,10 @@ export async function INTERNAL_getResources(options: GetResourcesOptions) {
   const {filepathsMap, folderpathsMap, inputsWithIdByType, workspaceRootname} =
     groupItemsToFetch(inputResources, allowedTypes);
   const fetchResults = await Promise.all([
-    fetchResourcesById(context, inputsWithIdByType, dataFetchRunOptions),
-    fetchFiles(context, workspaceId, filepathsMap),
-    fetchFolders(context, workspaceId, folderpathsMap),
-    fetchWorkspace(context, workspaceRootname),
+    fetchResourcesById(inputsWithIdByType, dataFetchRunOptions),
+    fetchFiles(workspaceId, filepathsMap),
+    fetchFolders(workspaceId, folderpathsMap),
+    fetchWorkspace(workspaceRootname),
   ]);
 
   const [resourcesById, files, folders, workspaceResource] = fetchResults;
@@ -90,13 +88,13 @@ export async function INTERNAL_getResources(options: GetResourcesOptions) {
   let resources = resourcesById.concat(files, folders, workspaceResource);
 
   if (fillAssignedItems) {
-    resources = await resourceListWithAssignedItems(context, workspaceId, resources);
+    resources = await resourceListWithAssignedItems(workspaceId, resources);
     assignedItemsFilled = true;
   }
 
   if (checkBelongsToWorkspace) {
     if (!assignedItemsFilled) {
-      resources = await resourceListWithAssignedItems(context, workspaceId, resources, [
+      resources = await resourceListWithAssignedItems(workspaceId, resources, [
         AppResourceTypeMap.User,
       ]);
       assignedItemsFilled = true;
@@ -107,14 +105,13 @@ export async function INTERNAL_getResources(options: GetResourcesOptions) {
 
   if (checkAuth) {
     if (!assignedItemsFilled) {
-      resources = await resourceListWithAssignedItems(context, workspaceId, resources, [
+      resources = await resourceListWithAssignedItems(workspaceId, resources, [
         AppResourceTypeMap.User,
       ]);
       assignedItemsFilled = true;
     }
 
     resources = await authCheckResources(
-      context,
       agent,
       workspaceId,
       resources,
@@ -174,7 +171,6 @@ function groupItemsToFetch(
 }
 
 async function fetchResourcesById(
-  context: BaseContextType,
   idsGroupedByType: InputsWithIdGroupedByType,
   opts?: SemanticProviderRunOptions
 ) {
@@ -187,7 +183,9 @@ async function fetchResourcesById(
       case AppResourceTypeMap.Workspace: {
         promises.push({
           id: AppResourceTypeMap.Workspace,
-          promise: context.semantic.workspace.getManyByIdList(Object.keys(typeMap), opts),
+          promise: kSemanticModels
+            .workspace()
+            .getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
         break;
@@ -195,10 +193,9 @@ async function fetchResourcesById(
       case AppResourceTypeMap.CollaborationRequest: {
         promises.push({
           id: AppResourceTypeMap.CollaborationRequest,
-          promise: context.semantic.collaborationRequest.getManyByIdList(
-            Object.keys(typeMap),
-            opts
-          ),
+          promise: kSemanticModels
+            .collaborationRequest()
+            .getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
         break;
@@ -206,10 +203,9 @@ async function fetchResourcesById(
       case AppResourceTypeMap.AgentToken: {
         promises.push({
           id: AppResourceTypeMap.AgentToken,
-          promise: context.semantic.agentToken.getManyByIdList(
-            Object.keys(typeMap),
-            opts
-          ),
+          promise: kSemanticModels
+            .agentToken()
+            .getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
         break;
@@ -217,10 +213,9 @@ async function fetchResourcesById(
       case AppResourceTypeMap.PermissionGroup: {
         promises.push({
           id: AppResourceTypeMap.PermissionGroup,
-          promise: context.semantic.permissionGroup.getManyByIdList(
-            Object.keys(typeMap),
-            opts
-          ),
+          promise: kSemanticModels
+            .permissionGroup()
+            .getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
         break;
@@ -228,10 +223,9 @@ async function fetchResourcesById(
       case AppResourceTypeMap.PermissionItem: {
         promises.push({
           id: AppResourceTypeMap.PermissionItem,
-          promise: context.semantic.permissionItem.getManyByIdList(
-            Object.keys(typeMap),
-            opts
-          ),
+          promise: kSemanticModels
+            .permissionItem()
+            .getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
         break;
@@ -239,7 +233,7 @@ async function fetchResourcesById(
       case AppResourceTypeMap.Folder: {
         promises.push({
           id: AppResourceTypeMap.Folder,
-          promise: context.semantic.folder.getManyByIdList(Object.keys(typeMap), opts),
+          promise: kSemanticModels.folder().getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
         break;
@@ -247,7 +241,7 @@ async function fetchResourcesById(
       case AppResourceTypeMap.File: {
         promises.push({
           id: AppResourceTypeMap.File,
-          promise: context.semantic.file.getManyByIdList(Object.keys(typeMap), opts),
+          promise: kSemanticModels.file().getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
         break;
@@ -255,7 +249,7 @@ async function fetchResourcesById(
       case AppResourceTypeMap.User: {
         promises.push({
           id: AppResourceTypeMap.User,
-          promise: context.semantic.user.getManyByIdList(Object.keys(typeMap), opts),
+          promise: kSemanticModels.user().getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
         break;
@@ -287,20 +281,15 @@ async function fetchResourcesById(
   return resources;
 }
 
-const fetchFiles = async (
-  context: BaseContextType,
-  workspaceId: string,
-  filepathsMap: FilePathsMap
-) => {
+const fetchFiles = async (workspaceId: string, filepathsMap: FilePathsMap) => {
   if (isObjectEmpty(filepathsMap)) return [];
 
   const result = await Promise.all(
     // TODO: can we have $or or implement $in for array of arrays?
     map(filepathsMap, (action, filepath) =>
-      context.semantic.file.getOneByNamepath(
-        workspaceId,
-        filepath.split(kFolderConstants.separator)
-      )
+      kSemanticModels
+        .file()
+        .getOneByNamepath(workspaceId, filepath.split(kFolderConstants.separator))
     )
   );
 
@@ -316,20 +305,15 @@ const fetchFiles = async (
   });
 };
 
-const fetchFolders = async (
-  context: BaseContextType,
-  workspaceId: string,
-  folderpathsMap: FilePathsMap
-) => {
+const fetchFolders = async (workspaceId: string, folderpathsMap: FilePathsMap) => {
   if (isObjectEmpty(folderpathsMap)) return [];
 
   const result = await Promise.all(
     // TODO: can we have $or or implement $in for array of arrays?
     map(folderpathsMap, (action, folderpath) =>
-      context.semantic.folder.getOneByNamepath(
-        workspaceId,
-        folderpath.split(kFolderConstants.separator)
-      )
+      kSemanticModels
+        .folder()
+        .getOneByNamepath(workspaceId, folderpath.split(kFolderConstants.separator))
     )
   );
 
@@ -345,15 +329,12 @@ const fetchFolders = async (
   });
 };
 
-const fetchWorkspace = async (
-  context: BaseContextType,
-  workspaceRootname?: WorkspaceRootnameWithAction
-) => {
+const fetchWorkspace = async (workspaceRootname?: WorkspaceRootnameWithAction) => {
   if (!workspaceRootname) return [];
 
-  const result = await context.semantic.workspace.getByRootname(
-    workspaceRootname.workspaceRootname
-  );
+  const result = await kSemanticModels
+    .workspace()
+    .getByRootname(workspaceRootname.workspaceRootname);
   const resources: GetResourcesResourceWrapper[] = result
     ? [
         {
@@ -368,7 +349,6 @@ const fetchWorkspace = async (
 };
 
 async function authCheckResources(
-  context: BaseContextType,
   agent: SessionAgent,
   workspaceId: string,
   resources: Array<GetResourcesResourceWrapper>,
@@ -377,7 +357,6 @@ async function authCheckResources(
   const results = await Promise.all(
     resources.map(resource =>
       checkAuthorizationWithAgent({
-        context,
         agent,
         workspaceId,
         nothrow: nothrowOnCheckError,

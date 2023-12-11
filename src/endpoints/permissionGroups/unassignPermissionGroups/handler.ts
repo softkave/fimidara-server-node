@@ -3,19 +3,16 @@ import {toArray} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {LiteralDataQuery} from '../../contexts/data/types';
+import {kUtilsInjectables, kSemanticModels} from '../../contexts/injectables';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {UnassignPermissionGroupsEndpoint} from './types';
 import {unassignPermissionGroupsJoiSchema} from './validation';
 
-const unassignPermissionGroups: UnassignPermissionGroupsEndpoint = async (
-  context,
-  instData
-) => {
+const unassignPermissionGroups: UnassignPermissionGroupsEndpoint = async instData => {
   const data = validate(instData.data, unassignPermissionGroupsJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
-  const {workspace} = await getWorkspaceFromEndpointInput(context, agent, data);
+  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   await checkAuthorizationWithAgent({
-    context,
     agent,
     workspace,
     workspaceId: workspace.resourceId,
@@ -29,10 +26,10 @@ const unassignPermissionGroups: UnassignPermissionGroupsEndpoint = async (
     });
   });
 
-  await context.semantic.utils.withTxn(context, async opts => {
+  await kSemanticModels.utils().withTxn(async opts => {
     // TODO: use $or query when we implement $or
     await Promise.all(
-      queries.map(q => context.semantic.assignedItem.deleteManyByQuery(q, opts))
+      queries.map(q => kSemanticModels.assignedItem().deleteManyByQuery(q, opts))
     );
   });
 };

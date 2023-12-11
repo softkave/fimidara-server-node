@@ -1,5 +1,4 @@
 import {FileMatcher} from '../../../definitions/file';
-import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export type IssueFilePresignedPathEndpointParams = FileMatcher & {
@@ -20,7 +19,6 @@ export interface IssueFilePresignedPathEndpointResult {
 }
 
 export type IssueFilePresignedPathEndpoint = Endpoint<
-  BaseContextType,
   IssueFilePresignedPathEndpointParams,
   IssueFilePresignedPathEndpointResult
 >;

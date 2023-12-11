@@ -12,7 +12,7 @@ import {
   getWorkspacePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {FolderQuery} from '../../contexts/data/types';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {kInjectionKeys} from '../../contexts/injection';
 import {SemanticFolderProvider} from '../../contexts/semantic/folder/types';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
@@ -105,11 +105,13 @@ export async function createFolderListWithTransaction(
   return previousFolder;
 }
 
-const addFolder: AddFolderEndpoint = async (context, instData) => {
+const addFolder: AddFolderEndpoint = async instData => {
   const data = validate(instData.data, addFolderJoiSchema);
-  const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgent(instData, PERMISSION_AGENT_TYPES);
   const pathinfo = getFolderpathInfo(data.folder.folderpath);
-  const workspace = await context.semantic.workspace.getByRootname(pathinfo.rootname);
+  const workspace = await kSemanticModels.workspace().getByRootname(pathinfo.rootname);
   assertWorkspace(workspace);
 
   const folder = await kSemanticModels.utils().withTxn(async opts => {

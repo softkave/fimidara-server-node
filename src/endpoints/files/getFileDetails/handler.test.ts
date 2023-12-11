@@ -1,10 +1,7 @@
-import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -14,27 +11,24 @@ import {stringifyFilenamepath} from '../utils';
 import getFileDetails from './handler';
 import {GetFileDetailsEndpointParams} from './types';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 test('file details returned', async () => {
-  assertContext(context);
-  const {userToken} = await insertUserForTest(context);
-  const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {file} = await insertFileForTest(context, userToken, workspace);
+  const {userToken} = await insertUserForTest();
+  const {workspace} = await insertWorkspaceForTest(userToken);
+  const {file} = await insertFileForTest(userToken, workspace);
 
   const instData = RequestData.fromExpressRequest<GetFileDetailsEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {filepath: stringifyFilenamepath(file, workspace.rootname)}
   );
-  const result = await getFileDetails(context, instData);
+  const result = await getFileDetails(instData);
   assertEndpointResultOk(result);
   expect(result.file).toEqual(file);
 });

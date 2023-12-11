@@ -5,9 +5,7 @@ import {Workspace} from '../../definitions/workspace';
 import {INTERNAL_createAgentToken} from '../../endpoints/agentTokens/addToken/utils';
 import {getPublicAgentToken} from '../../endpoints/agentTokens/utils';
 import {addAssignedPermissionGroupList} from '../../endpoints/assignedItems/addAssignedItems';
-import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
 import {SemanticProviderMutationRunOptions} from '../../endpoints/contexts/semantic/types';
-import {BaseContextType} from '../../endpoints/contexts/types';
 import {
   getLogicProviders,
   getMongoBackedSemanticDataProviders,
@@ -21,6 +19,8 @@ import {fimidaraConfig} from '../../resources/vars';
 import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {serverLogger} from '../../utils/logger/loggerUtils';
+import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
+import {kSemanticModels} from '../../endpoints/contexts/injectables';
 
 async function setupContext() {
   const connection = await getMongoConnection(
@@ -44,13 +44,9 @@ async function setupContext() {
   return ctx;
 }
 
-async function insertWorkspace(
-  context: BaseContextType,
-  opts: SemanticProviderMutationRunOptions
-) {
+async function insertWorkspace(opts: SemanticProviderMutationRunOptions) {
   const companyName = faker.company.name();
   return await INTERNAL_createWorkspace(
-    context,
     {
       name: companyName,
       rootname: makeRootnameFromName(companyName),
@@ -63,12 +59,10 @@ async function insertWorkspace(
 }
 
 async function createAgentToken(
-  context: BaseContextType,
   workspace: Workspace,
   opts: SemanticProviderMutationRunOptions
 ) {
   const token = await INTERNAL_createAgentToken(
-    context,
     SYSTEM_SESSION_AGENT,
     workspace,
     {
@@ -78,19 +72,18 @@ async function createAgentToken(
     opts
   );
   appAssert(token.workspaceId);
-  const tokenStr = getPublicAgentToken(context, token).tokenStr;
+  const tokenStr = getPublicAgentToken(token).tokenStr;
   return {tokenStr, token};
 }
 
 export async function setupSDKTestReq() {
   const context = await setupContext();
-  const {workspace, token, tokenStr} = await context.semantic.utils.withTxn(
-    context,
-    async opts => {
-      const {workspace, adminPermissionGroup} = await insertWorkspace(context, opts);
-      const {token, tokenStr} = await createAgentToken(context, workspace, opts);
+  const {workspace, token, tokenStr} = await kSemanticModels
+    .utils()
+    .withTxn(async opts => {
+      const {workspace, adminPermissionGroup} = await insertWorkspace(opts);
+      const {token, tokenStr} = await createAgentToken(workspace, opts);
       await addAssignedPermissionGroupList(
-        context,
         SYSTEM_SESSION_AGENT,
         workspace.resourceId,
         [{permissionGroupId: adminPermissionGroup.resourceId}],
@@ -101,8 +94,7 @@ export async function setupSDKTestReq() {
         opts
       );
       return {workspace, token, tokenStr};
-    }
-  );
+    });
 
   try {
     const jsSdkTestEnvFilepath = './sdk/js-sdk/.env.test';

@@ -2,14 +2,12 @@ import {
   UsageRecordFulfillmentStatusMap,
   UsageSummationTypeMap,
 } from '../../../definitions/usageRecord';
-import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
+import {kSemanticModels} from '../../contexts/injectables';
 import {generateAndInsertUsageRecordList} from '../../testUtils/generateData/usageRecord';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -17,27 +15,24 @@ import {
 import countWorkspaceSummedUsage from './handler';
 import {CountWorkspaceSummedUsageEndpointParams} from './types';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('countWorkspaceSummedUsage', () => {
   test('count', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
-    await generateAndInsertUsageRecordList(context, 15, {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    await generateAndInsertUsageRecordList(15, {
       workspaceId: workspace.resourceId,
       summationType: UsageSummationTypeMap.Month,
       fulfillmentStatus: UsageRecordFulfillmentStatusMap.Fulfilled,
     });
-    const count = await context.semantic.usageRecord.countByQuery({
+    const count = await kSemanticModels.usageRecord().countByQuery({
       workspaceId: workspace.resourceId,
       summationType: UsageSummationTypeMap.Month,
       fulfillmentStatus: UsageRecordFulfillmentStatusMap.Fulfilled,
@@ -50,7 +45,7 @@ describe('countWorkspaceSummedUsage', () => {
           query: {fulfillmentStatus: UsageRecordFulfillmentStatusMap.Fulfilled},
         }
       );
-    const result = await countWorkspaceSummedUsage(context, instData);
+    const result = await countWorkspaceSummedUsage(instData);
     assertEndpointResultOk(result);
     expect(result.count).toBe(count);
   });

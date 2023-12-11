@@ -1,11 +1,8 @@
 import {Promise} from 'mongoose';
 import RequestData from '../../RequestData';
-import {BaseContextType} from '../../contexts/types';
 import {generateTestFileName} from '../../testUtils/generateData/file';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
-  initTestBaseContext,
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -29,27 +26,22 @@ import {uploadFileBaseTest} from './uploadFileTestUtils';
  * - file recovers on error / file is marked write available on error
  */
 
-let context: BaseContextType | null = null;
-
 jest.setTimeout(300000); // 5 minutes
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('uploadFile', () => {
   test('file uploaded', async () => {
-    assertContext(context);
-    await uploadFileBaseTest(context);
+    await uploadFileBaseTest();
   });
 
   test('file updated when new data uploaded', async () => {
-    assertContext(context);
     const {savedFile, insertUserResult, insertWorkspaceResult} = await uploadFileBaseTest(
-      context,
       /** seed */ {},
       /** type */ 'png'
     );
@@ -61,19 +53,19 @@ describe('uploadFile', () => {
     };
 
     const {savedFile: updatedFile} = await uploadFileBaseTest(
-      context,
       update,
       /* type */ 'txt',
       insertUserResult,
       insertWorkspaceResult
     );
 
-    const agent = await context.session.getAgent(
-      context,
-      RequestData.fromExpressRequest(
-        mockExpressRequestWithAgentToken(insertUserResult.userToken)
-      )
-    );
+    const agent = await kUtilsInjectables
+      .session()
+      .getAgent(
+        RequestData.fromExpressRequest(
+          mockExpressRequestWithAgentToken(insertUserResult.userToken)
+        )
+      );
     expect(savedFile.resourceId).toBe(updatedFile.resourceId);
     expect(savedFile.name).toBe(updatedFile.name);
     expect(savedFile.extension).toBe(updatedFile.extension);
@@ -91,10 +83,8 @@ describe('uploadFile', () => {
   });
 
   test('file not duplicated', async () => {
-    assertContext(context);
-    const {savedFile, insertUserResult, insertWorkspaceResult} = await uploadFileBaseTest(
-      context
-    );
+    const {savedFile, insertUserResult, insertWorkspaceResult} =
+      await uploadFileBaseTest();
     const update: Partial<UploadFileEndpointParams> = {
       filepath: stringifyFilenamepath(
         savedFile,
@@ -102,14 +92,13 @@ describe('uploadFile', () => {
       ),
     };
     await uploadFileBaseTest(
-      context,
       update,
       /* type */ 'txt',
       insertUserResult,
       insertWorkspaceResult
     );
 
-    const files = await context.semantic.file.getManyByQuery({
+    const files = await kSemanticModels.file().getManyByQuery({
       workspaceId: savedFile.workspaceId,
       extension: savedFile.extension,
       namepath: {$all: savedFile.namepath, $size: savedFile.namepath.length},
@@ -118,16 +107,13 @@ describe('uploadFile', () => {
   });
 
   test('file versioned correctly', async () => {
-    assertContext(context);
-
-    const result01 = await uploadFileBaseTest(context, /** seeed */ {}, 'png');
+    const result01 = await uploadFileBaseTest(/** seeed */ {}, 'png');
     const {insertUserResult, insertWorkspaceResult} = result01;
     let {savedFile} = result01;
 
     expect(savedFile.version).toBe(1);
 
     ({savedFile} = await uploadFileBaseTest(
-      context,
       /** seed */ {},
       'png',
       insertUserResult,
@@ -136,15 +122,13 @@ describe('uploadFile', () => {
 
     expect(savedFile.version).toBe(2);
 
-    const dbFile = await context.semantic.file.getOneById(savedFile.resourceId);
+    const dbFile = await kSemanticModels.file().getOneById(savedFile.resourceId);
     expect(dbFile?.version).toBe(2);
   });
 
   test('files with same name but diff ext are separate', async () => {
-    assertContext(context);
-
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const filepath01 = generateTestFileName({
       rootname: workspace.rootname,
       extension: 'txt01',
@@ -159,30 +143,36 @@ describe('uploadFile', () => {
     });
 
     await Promise.all([
-      insertFileForTest(context, userToken, workspace, {filepath: filepath01}, 'txt'),
-      insertFileForTest(context, userToken, workspace, {filepath: filepath02}, 'txt'),
-      insertFileForTest(context, userToken, workspace, {filepath: filepath03}, 'txt'),
+      insertFileForTest(userToken, workspace, {filepath: filepath01}, 'txt'),
+      insertFileForTest(userToken, workspace, {filepath: filepath02}, 'txt'),
+      insertFileForTest(userToken, workspace, {filepath: filepath03}, 'txt'),
     ]);
 
     const pathinfo01 = getFilepathInfo(filepath01);
     const pathinfo02 = getFilepathInfo(filepath02);
     const pathinfo03 = getFilepathInfo(filepath03);
     const [dbFile01, dbFile02, dbFile03] = await Promise.all([
-      context.semantic.file.getOneByNamepath(
-        workspace.resourceId,
-        pathinfo01.filepathExcludingExt,
-        pathinfo01.extension
-      ),
-      context.semantic.file.getOneByNamepath(
-        workspace.resourceId,
-        pathinfo02.filepathExcludingExt,
-        pathinfo02.extension
-      ),
-      context.semantic.file.getOneByNamepath(
-        workspace.resourceId,
-        pathinfo03.filepathExcludingExt,
-        pathinfo03.extension
-      ),
+      kSemanticModels
+        .file()
+        .getOneByNamepath(
+          workspace.resourceId,
+          pathinfo01.filepathExcludingExt,
+          pathinfo01.extension
+        ),
+      kSemanticModels
+        .file()
+        .getOneByNamepath(
+          workspace.resourceId,
+          pathinfo02.filepathExcludingExt,
+          pathinfo02.extension
+        ),
+      kSemanticModels
+        .file()
+        .getOneByNamepath(
+          workspace.resourceId,
+          pathinfo03.filepathExcludingExt,
+          pathinfo03.extension
+        ),
     ]);
 
     expect(dbFile01).toBeTruthy();
@@ -193,24 +183,30 @@ describe('uploadFile', () => {
     expect(dbFile02.resourceId).not.toBe(dbFile03.resourceId);
 
     // Replace file to confirm only the file with that extension is updated
-    await insertFileForTest(context, userToken, workspace, {filepath: filepath01}, 'txt');
+    await insertFileForTest(userToken, workspace, {filepath: filepath01}, 'txt');
 
     const [latestDbFile01, latestDbFile02, latestDbFile03] = await Promise.all([
-      context.semantic.file.getOneByNamepath(
-        workspace.resourceId,
-        pathinfo01.filepathExcludingExt,
-        pathinfo01.extension
-      ),
-      context.semantic.file.getOneByNamepath(
-        workspace.resourceId,
-        pathinfo02.filepathExcludingExt,
-        pathinfo02.extension
-      ),
-      context.semantic.file.getOneByNamepath(
-        workspace.resourceId,
-        pathinfo03.filepathExcludingExt,
-        pathinfo03.extension
-      ),
+      kSemanticModels
+        .file()
+        .getOneByNamepath(
+          workspace.resourceId,
+          pathinfo01.filepathExcludingExt,
+          pathinfo01.extension
+        ),
+      kSemanticModels
+        .file()
+        .getOneByNamepath(
+          workspace.resourceId,
+          pathinfo02.filepathExcludingExt,
+          pathinfo02.extension
+        ),
+      kSemanticModels
+        .file()
+        .getOneByNamepath(
+          workspace.resourceId,
+          pathinfo03.filepathExcludingExt,
+          pathinfo03.extension
+        ),
     ]);
 
     expect(latestDbFile01.lastUpdatedAt).not.toBe(dbFile01.lastUpdatedAt);

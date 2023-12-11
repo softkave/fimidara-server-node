@@ -1,5 +1,4 @@
 import {PublicCollaborationRequestForWorkspace} from '../../../definitions/collaborationRequest';
-import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
 export interface CollaborationRequestInput {
@@ -8,7 +7,8 @@ export interface CollaborationRequestInput {
   expires?: number;
 }
 
-export interface SendCollaborationRequestEndpointParams extends EndpointOptionalWorkspaceIDParam {
+export interface SendCollaborationRequestEndpointParams
+  extends EndpointOptionalWorkspaceIDParam {
   request: CollaborationRequestInput;
 }
 
@@ -17,7 +17,6 @@ export interface SendCollaborationRequestEndpointResult {
 }
 
 export type SendCollaborationRequestEndpoint = Endpoint<
-  BaseContextType,
   SendCollaborationRequestEndpointParams,
   SendCollaborationRequestEndpointResult
 >;

@@ -2,7 +2,6 @@ import {faker} from '@faker-js/faker';
 import {Folder} from '../../../definitions/folder';
 import {PublicWorkspace, Workspace} from '../../../definitions/workspace';
 import RequestData from '../../RequestData';
-import {BaseContextType} from '../../contexts/types';
 import {
   assertCanReadPublicFile,
   assertCanUpdatePublicFile,
@@ -27,17 +26,15 @@ import {UpdateFolderEndpointParams, UpdateFolderInput} from '../updateFolder/typ
 import {addRootnameToPath} from '../utils';
 
 export async function assertCanCreateFolderInPublicFolder(
-  ctx: BaseContextType,
   workspace: PublicWorkspace,
   folderpath: string
 ) {
-  return await insertFolderForTest(ctx, null, workspace, {
+  return await insertFolderForTest(null, workspace, {
     folderpath: addRootnameToPath(folderpath, workspace.rootname),
   });
 }
 
 export async function assertCanReadPublicFolder(
-  ctx: BaseContextType,
   workspace: Pick<Workspace, 'rootname'>,
   folderpath: string
 ) {
@@ -48,13 +45,12 @@ export async function assertCanReadPublicFolder(
     }
   );
 
-  const result = await getFolder(ctx, instData);
+  const result = await getFolder(instData);
   assertEndpointResultOk(result);
   return result;
 }
 
 export async function assertCanUpdatePublicFolder(
-  ctx: BaseContextType,
   workspace: Pick<Workspace, 'rootname'>,
   folderpath: string
 ) {
@@ -70,12 +66,11 @@ export async function assertCanUpdatePublicFolder(
     }
   );
 
-  const result = await updateFolder(ctx, instData);
+  const result = await updateFolder(instData);
   assertEndpointResultOk(result);
 }
 
 export async function assertCanListContentOfPublicFolder(
-  ctx: BaseContextType,
   workspace: Pick<Workspace, 'rootname'>,
   folderpath: string
 ) {
@@ -84,12 +79,11 @@ export async function assertCanListContentOfPublicFolder(
     {folderpath: addRootnameToPath(folderpath, workspace.rootname)}
   );
 
-  const result = await listFolderContent(ctx, instData);
+  const result = await listFolderContent(instData);
   assertEndpointResultOk(result);
 }
 
 export async function assertCanDeletePublicFolder(
-  ctx: BaseContextType,
   workspace: Pick<Workspace, 'rootname'>,
   folderpath: string
 ) {
@@ -98,42 +92,35 @@ export async function assertCanDeletePublicFolder(
     {folderpath: addRootnameToPath(folderpath, workspace.rootname)}
   );
 
-  const result = await deleteFolder(ctx, instData);
+  const result = await deleteFolder(instData);
   assertEndpointResultOk(result);
 }
 
 export async function assertFolderPublicOps(
-  ctx: BaseContextType,
   folder: Folder,
   insertWorkspaceResult: IInsertWorkspaceForTestResult
 ) {
   const folderpath = folder.namepath.join(kFolderConstants.separator);
   const {folder: folder02} = await assertCanCreateFolderInPublicFolder(
-    ctx,
     insertWorkspaceResult.workspace,
     folderpath
   );
 
   const folder02Path = folder02.namepath.join(kFolderConstants.separator);
   const {file} = await assertCanUploadToPublicFile(
-    ctx,
     insertWorkspaceResult.workspace,
     folder02Path +
       kFolderConstants.separator +
       generateTestFileName({includeStraySlashes: true})
   );
 
-  await assertCanListContentOfPublicFolder(
-    ctx,
-    insertWorkspaceResult.workspace,
-    folder02Path
-  );
-  await assertCanUpdatePublicFolder(ctx, insertWorkspaceResult.workspace, folder02Path);
-  await assertCanReadPublicFolder(ctx, insertWorkspaceResult.workspace, folder02Path);
+  await assertCanListContentOfPublicFolder(insertWorkspaceResult.workspace, folder02Path);
+  await assertCanUpdatePublicFolder(insertWorkspaceResult.workspace, folder02Path);
+  await assertCanReadPublicFolder(insertWorkspaceResult.workspace, folder02Path);
 
   const filepath = file.namepath.join(kFolderConstants.separator);
-  await assertCanReadPublicFile(ctx, insertWorkspaceResult.workspace, filepath);
-  await assertCanUpdatePublicFile(ctx, insertWorkspaceResult.workspace, filepath);
-  await assertCanUploadToPublicFile(ctx, insertWorkspaceResult.workspace, filepath);
-  await assertCanDeletePublicFolder(ctx, insertWorkspaceResult.workspace, folderpath);
+  await assertCanReadPublicFile(insertWorkspaceResult.workspace, filepath);
+  await assertCanUpdatePublicFile(insertWorkspaceResult.workspace, filepath);
+  await assertCanUploadToPublicFile(insertWorkspaceResult.workspace, filepath);
+  await assertCanDeletePublicFolder(insertWorkspaceResult.workspace, folderpath);
 }

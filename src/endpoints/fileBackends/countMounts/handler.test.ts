@@ -1,11 +1,8 @@
-import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generateData/agentToken';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -13,32 +10,29 @@ import {
 import countFileBackendMounts from './handler';
 import {CountFileBackendMountsEndpointParams} from './types';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('countFileBackendMounts', () => {
   test('count', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
-    await generateAndInsertAgentTokenListForTest(context, 15, {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    await generateAndInsertAgentTokenListForTest(15, {
       workspaceId: workspace.resourceId,
     });
-    const count = await context.semantic.agentToken.countByQuery({
+    const count = await kSemanticModels.agentToken().countByQuery({
       workspaceId: workspace.resourceId,
     });
     const instData = RequestData.fromExpressRequest<CountFileBackendMountsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId}
     );
-    const result = await countFileBackendMounts(context, instData);
+    const result = await countFileBackendMounts(instData);
     assertEndpointResultOk(result);
     expect(result.count).toBe(count);
   });

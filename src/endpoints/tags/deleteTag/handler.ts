@@ -1,14 +1,15 @@
 import {AppResourceTypeMap} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
+import {kUtilsInjectables} from '../../contexts/injectables';
 import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {checkTagAuthorization02} from '../utils';
 import {DeleteTagEndpoint} from './types';
 import {deleteTagJoiSchema} from './validation';
 
-const deleteTag: DeleteTagEndpoint = async (context, instData) => {
+const deleteTag: DeleteTagEndpoint = async instData => {
   const data = validate(instData.data, deleteTagJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
-  const {tag} = await checkTagAuthorization02(context, agent, data.tagId, 'deleteTag');
+  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const {tag} = await checkTagAuthorization02(agent, data.tagId, 'deleteTag');
 
   const job = await enqueueDeleteResourceJob({
     type: AppResourceTypeMap.Tag,

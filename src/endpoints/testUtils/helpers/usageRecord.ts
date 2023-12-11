@@ -3,15 +3,14 @@ import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {Workspace} from '../../../definitions/workspace';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
-import {BaseContextType} from '../../contexts/types';
+import {kSemanticModels} from '../../contexts/injectables';
 
 export async function updateTestWorkspaceUsageLocks(
-  context: BaseContextType,
   id: string,
   categories: UsageRecordCategory[]
 ) {
-  return await context.semantic.utils.withTxn(context, async opts => {
-    let workspace = await context.semantic.workspace.getOneById(id, opts);
+  return await kSemanticModels.utils().withTxn(async opts => {
+    let workspace = await kSemanticModels.workspace().getOneById(id, opts);
     const usageThresholdLocks: Workspace['usageThresholdLocks'] = {
       ...defaultTo(workspace?.usageThresholdLocks, {}),
     };
@@ -23,11 +22,9 @@ export async function updateTestWorkspaceUsageLocks(
         lastUpdatedAt: getTimestamp(),
       };
     });
-    workspace = await context.semantic.workspace.getAndUpdateOneById(
-      id,
-      {usageThresholdLocks},
-      opts
-    );
+    workspace = await kSemanticModels
+      .workspace()
+      .getAndUpdateOneById(id, {usageThresholdLocks}, opts);
     return {workspace};
   });
 }

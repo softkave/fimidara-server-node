@@ -9,14 +9,15 @@ import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {fileBackendConfigExtractor} from '../utils';
 import {GetFileBackendConfigEndpoint} from './types';
 import {getFileBackendConfigJoiSchema} from './validation';
+import {kUtilsInjectables} from '../../contexts/injectables';
 
-const getFileBackendConfig: GetFileBackendConfigEndpoint = async (context, instData) => {
+const getFileBackendConfig: GetFileBackendConfigEndpoint = async instData => {
   const configModel = container.resolve<SemanticFileBackendConfigProvider>(
     kInjectionKeys.semantic.fileBackendConfig
   );
 
   const data = validate(instData.data, getFileBackendConfigJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
+  const agent = await kUtilsInjectables.session().getAgent(instData);
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   await checkAuthorizationWithAgent({
     agent,

@@ -1,12 +1,9 @@
 import {AppResourceTypeMap} from '../../../definitions/system';
-import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -14,27 +11,24 @@ import {
 import countEntityPermissionItems from './handler';
 import {CountEntityPermissionItemsEndpointParams} from './types';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe.skip('countEntityPermissionItems', () => {
   test('count', async () => {
-    assertContext(context);
-    const {userToken, user} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
-    await generateAndInsertPermissionItemListForTest(context, 15, {
+    const {userToken, user} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    await generateAndInsertPermissionItemListForTest(15, {
       workspaceId: workspace.resourceId,
       entityId: user.resourceId,
       entityType: AppResourceTypeMap.User,
     });
-    const count = await context.semantic.permissionItem.countByQuery({
+    const count = await kSemanticModels.permissionItem().countByQuery({
       workspaceId: workspace.resourceId,
       entityId: user.resourceId,
     });
@@ -43,7 +37,7 @@ describe.skip('countEntityPermissionItems', () => {
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId, entityId: user.resourceId}
       );
-    const result = await countEntityPermissionItems(context, instData);
+    const result = await countEntityPermissionItems(instData);
     assertEndpointResultOk(result);
     expect(result.count).toBe(count);
   });

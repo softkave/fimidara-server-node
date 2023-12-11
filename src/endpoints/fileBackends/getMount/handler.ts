@@ -9,14 +9,15 @@ import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {fileBackendMountExtractor} from '../utils';
 import {GetFileBackendMountEndpoint} from './types';
 import {getFileBackendMountJoiSchema} from './validation';
+import {kUtilsInjectables} from '../../contexts/injectables';
 
-const getFileBackendMount: GetFileBackendMountEndpoint = async (context, instData) => {
+const getFileBackendMount: GetFileBackendMountEndpoint = async instData => {
   const mountModel = container.resolve<SemanticFileBackendMountProvider>(
     kInjectionKeys.semantic.fileBackendMount
   );
 
   const data = validate(instData.data, getFileBackendMountJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
+  const agent = await kUtilsInjectables.session().getAgent(instData);
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   await checkAuthorizationWithAgent({
     agent,

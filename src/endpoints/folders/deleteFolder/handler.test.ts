@@ -1,4 +1,3 @@
-import {BaseContextType} from '../../contexts/types';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
@@ -6,9 +5,7 @@ import {generateTestFileName} from '../../testUtils/generateData/file';
 import {generateTestFolderName} from '../../testUtils/generateData/folder';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertFileForTest,
   insertFolderForTest,
   insertUserForTest,
@@ -26,38 +23,35 @@ import {DeleteFolderEndpointParams} from './types';
  * - Test path strings
  */
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
-async function assertFolderDeleted(context: BaseContextType, id: string) {
-  const exists = await context.semantic.folder.existsByQuery(
-    EndpointReusableQueries.getByResourceId(id)
-  );
+async function assertFolderDeleted(id: string) {
+  const exists = await kSemanticModels
+    .folder()
+    .existsByQuery(EndpointReusableQueries.getByResourceId(id));
 
   expect(exists).toBeFalsy();
 }
 
-async function assertFileDeleted(context: BaseContextType, id: string) {
-  const exists = await context.semantic.file.existsByQuery(
-    EndpointReusableQueries.getByResourceId(id)
-  );
+async function assertFileDeleted(id: string) {
+  const exists = await kSemanticModels
+    .file()
+    .existsByQuery(EndpointReusableQueries.getByResourceId(id));
 
   expect(exists).toBeFalsy();
 }
 
 test('folder deleted', async () => {
-  assertContext(context);
-  const {userToken} = await insertUserForTest(context);
-  const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {folder: folder01} = await insertFolderForTest(context, userToken, workspace);
-  const {folder: folder02} = await insertFolderForTest(context, userToken, workspace, {
+  const {userToken} = await insertUserForTest();
+  const {workspace} = await insertWorkspaceForTest(userToken);
+  const {folder: folder01} = await insertFolderForTest(userToken, workspace);
+  const {folder: folder02} = await insertFolderForTest(userToken, workspace, {
     folderpath: addRootnameToPath(
       folder01.namepath
         .concat(generateTestFolderName({includeStraySlashes: true}))
@@ -65,7 +59,7 @@ test('folder deleted', async () => {
       workspace.rootname
     ),
   });
-  const {file} = await insertFileForTest(context, userToken, workspace, {
+  const {file} = await insertFileForTest(userToken, workspace, {
     filepath: addRootnameToPath(
       folder01.namepath
         .concat(generateTestFileName({includeStraySlashes: true}))
@@ -79,15 +73,15 @@ test('folder deleted', async () => {
     {folderpath: addRootnameToPath(folder01.name, workspace.rootname)}
   );
 
-  const result = await deleteFolder(context, instData);
+  const result = await deleteFolder(instData);
   assertEndpointResultOk(result);
 
   if (result.jobId) {
-    await executeJob(context, result.jobId);
-    await waitForJob(context, result.jobId);
+    await executeJob(result.jobId);
+    await waitForJob(result.jobId);
   }
 
-  await assertFolderDeleted(context, folder01.resourceId);
-  await assertFolderDeleted(context, folder02.resourceId);
-  await assertFileDeleted(context, file.resourceId);
+  await assertFolderDeleted(folder01.resourceId);
+  await assertFolderDeleted(folder02.resourceId);
+  await assertFileDeleted(file.resourceId);
 });

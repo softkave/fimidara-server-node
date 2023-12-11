@@ -1,4 +1,3 @@
-import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export type ClientLog = {
@@ -13,4 +12,4 @@ export interface IngestLogsEndpointParams {
   logs: ClientLog[];
 }
 
-export type IngestLogsEndpoint = Endpoint<BaseContextType, IngestLogsEndpointParams>;
+export type IngestLogsEndpoint = Endpoint<IngestLogsEndpointParams>;

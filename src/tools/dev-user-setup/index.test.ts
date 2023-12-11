@@ -1,11 +1,8 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
-import {BaseContextType} from '../../endpoints/contexts/types';
 import {generateAndInsertUserListForTest} from '../../endpoints/testUtils/generateData/user';
 import {completeTest} from '../../endpoints/testUtils/helpers/test';
-import {ISetupDevUserOptions, devUserSetupInitContext, setupDevUser} from './utils';
-
-let context: BaseContextType | null = null;
+import {ISetupDevUserOptions, setupDevUser} from './utils';
 
 beforeAll(async () => {
   context = await devUserSetupInitContext();
@@ -31,22 +28,22 @@ const appOptions: ISetupDevUserOptions = {
 
 describe('dev user setup', () => {
   test('dev user setup', async () => {
-    assert(context);
-    await setupDevUser(context, appOptions);
+    assert();
+    await setupDevUser(appOptions);
   });
 
   test('changes user password if user requires password change', async () => {
-    assert(context);
+    assert();
     const userEmail = await appOptions.getUserEmail();
-    await generateAndInsertUserListForTest(context, 1, () => ({
+    await generateAndInsertUserListForTest(1, () => ({
       requiresPasswordChange: true,
       email: userEmail.email,
     }));
-    await setupDevUser(context, {
+    await setupDevUser({
       ...appOptions,
       getUserEmail: () => Promise.resolve({email: userEmail.email}),
     });
-    const user = await context.semantic.user.assertGetOneByQuery({
+    const user = await kSemanticModels.user().assertGetOneByQuery({
       email: userEmail.email,
     });
     expect(user.requiresPasswordChange).toBeFalsy();

@@ -14,11 +14,11 @@ import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {ID_SIZE, getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
 import {makeUserSessionAgent} from '../../utils/sessionUtils';
+import {kDataModels, kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
 import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
-import {BaseContextType} from '../contexts/types';
 import {createFolderListWithTransaction} from '../folders/addFolder/handler';
 import {addRootnameToPath} from '../folders/utils';
 import EndpointReusableQueries from '../queries';
@@ -45,14 +45,12 @@ const appSetupVars = {
 };
 
 async function setupWorkspace(
-  context: BaseContextType,
   agent: SessionAgent,
   name: string,
   rootname: string,
   opts: SemanticProviderMutationRunOptions
 ) {
   return await INTERNAL_createWorkspace(
-    context,
     {
       name,
       rootname,
@@ -64,26 +62,21 @@ async function setupWorkspace(
   );
 }
 
-async function setupDefaultUser(
-  context: BaseContextType,
-  opts: SemanticProviderMutationRunOptions
-) {
-  let user = await context.semantic.user.getByEmail(
-    context.appVariables.rootUserEmail,
-    opts
-  );
+async function setupDefaultUser(opts: SemanticProviderMutationRunOptions) {
+  let user = await kSemanticModels
+    .user()
+    .getByEmail(kUtilsInjectables.config().rootUserEmail, opts);
 
   if (!user) {
     const isDevEnv =
-      context.appVariables.nodeEnv === 'development' ||
-      context.appVariables.nodeEnv === 'test';
+      kUtilsInjectables.config().nodeEnv === 'development' ||
+      kUtilsInjectables.config().nodeEnv === 'test';
     user = await INTERNAL_signupUser(
-      context,
       {
-        email: context.appVariables.rootUserEmail,
-        firstName: context.appVariables.rootUserFirstName,
-        lastName: context.appVariables.rootUserLastName,
-        password: context.appVariables.rootUserEmail,
+        email: kUtilsInjectables.config().rootUserEmail,
+        firstName: kUtilsInjectables.config().rootUserFirstName,
+        lastName: kUtilsInjectables.config().rootUserLastName,
+        password: kUtilsInjectables.config().rootUserEmail,
       },
       {
         requiresPasswordChange: isDevEnv ? false : true,
@@ -94,23 +87,21 @@ async function setupDefaultUser(
     );
 
     if (!isDevEnv) {
-      await INTERNAL_forgotPassword(context, user, opts);
-      await INTERNAL_sendEmailVerificationCode(context, user, opts);
+      await INTERNAL_forgotPassword(user, opts);
+      await INTERNAL_sendEmailVerificationCode(user, opts);
     }
   }
 
-  const userToken = await getUserToken(context, user.resourceId, opts);
+  const userToken = await getUserToken(user.resourceId, opts);
   const agent = makeUserSessionAgent(user, userToken);
   return {user, userToken, agent};
 }
 
 async function setupFolders(
-  context: BaseContextType,
   workspace: Workspace,
   opts: SemanticProviderMutationRunOptions
 ) {
   const workspaceImagesFolder = await createFolderListWithTransaction(
-    context,
     SYSTEM_SESSION_AGENT,
     workspace,
     {
@@ -124,7 +115,6 @@ async function setupFolders(
     opts
   );
   const userImagesFolder = await createFolderListWithTransaction(
-    context,
     SYSTEM_SESSION_AGENT,
     workspace,
     {
@@ -142,7 +132,6 @@ async function setupFolders(
 }
 
 async function setupImageUploadPermissionGroup(
-  context: BaseContextType,
   workspaceId: string,
   name: string,
   description: string,
@@ -178,25 +167,23 @@ async function setupImageUploadPermissionGroup(
   });
 
   await Promise.all([
-    await context.semantic.permissionGroup.insertItem(imageUploadPermissionGroup, opts),
-    await context.semantic.permissionItem.insertItem(permissionItems, opts),
+    await kSemanticModels.permissionGroup().insertItem(imageUploadPermissionGroup, opts),
+    await kSemanticModels.permissionItem().insertItem(permissionItems, opts),
   ]);
   return imageUploadPermissionGroup;
 }
 
-export async function isRootWorkspaceSetup(
-  context: BaseContextType,
-  opts: SemanticProviderRunOptions
-) {
-  const appRuntimeState = await context.data.appRuntimeState.getOneByQuery(
-    EndpointReusableQueries.getByResourceId(APP_RUNTIME_STATE_DOC_ID),
-    opts
-  );
+export async function isRootWorkspaceSetup(opts: SemanticProviderRunOptions) {
+  const appRuntimeState = await kDataModels
+    .appRuntimeState()
+    .getOneByQuery(
+      EndpointReusableQueries.getByResourceId(APP_RUNTIME_STATE_DOC_ID),
+      opts
+    );
   return appRuntimeState;
 }
 
 async function getRootWorkspace(
-  context: BaseContextType,
   appRuntimeState: AppRuntimeState,
   opts?: SemanticProviderRunOptions
 ) {
@@ -212,40 +199,36 @@ async function getRootWorkspace(
     appUsersImageUploadPermissionGroupId:
       appRuntimeState.appUsersImageUploadPermissionGroupId,
   };
-  merge(context.appVariables, appRuntimeVars);
-  const workspace = await context.semantic.workspace.getOneById(
-    appRuntimeState.appWorkspaceId,
-    opts
-  );
+  merge(kUtilsInjectables.config(), appRuntimeVars);
+  const workspace = await kSemanticModels
+    .workspace()
+    .getOneById(appRuntimeState.appWorkspaceId, opts);
   assertWorkspace(workspace);
   return workspace;
 }
 
 async function setupAppArtifacts(
-  context: BaseContextType,
   agent: SessionAgent,
   opts: SemanticProviderMutationRunOptions
 ) {
-  const appRuntimeState = await isRootWorkspaceSetup(context, opts);
+  const appRuntimeState = await isRootWorkspaceSetup(opts);
 
   if (appRuntimeState) {
-    return await getRootWorkspace(context, appRuntimeState, opts);
+    return await getRootWorkspace(appRuntimeState, opts);
   }
 
   const {workspace} = await setupWorkspace(
-    context,
     agent,
     appSetupVars.workspaceName,
     appSetupVars.rootname,
     opts
   );
   const [{workspaceImagesFolder, userImagesFolder}] = await Promise.all([
-    setupFolders(context, workspace, opts),
+    setupFolders(workspace, opts),
   ]);
   const [appWorkspacesImageUploadPermissionGroup, appUsersImageUploadPermissionGroup] =
     await Promise.all([
       setupImageUploadPermissionGroup(
-        context,
         workspace.resourceId,
         appSetupVars.workspacesImageUploadPermissionGroupName,
         'Auto-generated permission group for uploading images to the workspace images folder.',
@@ -253,7 +236,6 @@ async function setupAppArtifacts(
         opts
       ),
       setupImageUploadPermissionGroup(
-        context,
         workspace.resourceId,
         appSetupVars.usersImageUploadPermissionGroupName,
         'Auto-generated permission group for uploading images to the user images folder.',
@@ -273,7 +255,7 @@ async function setupAppArtifacts(
       appWorkspacesImageUploadPermissionGroup.resourceId,
     appUsersImageUploadPermissionGroupId: appUsersImageUploadPermissionGroup.resourceId,
   };
-  await context.data.appRuntimeState.insertItem(
+  await kDataModels.appRuntimeState().insertItem(
     {
       isAppSetup: true,
       resourceId: APP_RUNTIME_STATE_DOC_ID,
@@ -283,17 +265,13 @@ async function setupAppArtifacts(
     },
     opts
   );
-  merge(context.appVariables, appRuntimeVars);
+  merge(kUtilsInjectables.config(), appRuntimeVars);
   return workspace;
 }
 
-export async function setupApp(context: BaseContextType) {
-  return await context.semantic.utils.withTxn(
-    context,
-    async opts => {
-      const {agent} = await setupDefaultUser(context, opts);
-      return await setupAppArtifacts(context, agent, opts);
-    },
-    undefined
-  );
+export async function setupApp() {
+  return await kSemanticModels.utils().withTxn(async opts => {
+    const {agent} = await setupDefaultUser(opts);
+    return await setupAppArtifacts(agent, opts);
+  });
 }

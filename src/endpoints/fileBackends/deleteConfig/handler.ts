@@ -4,7 +4,7 @@ import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {kInjectionKeys} from '../../contexts/injection';
 import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
 import {NotFoundError} from '../../errors';
@@ -13,16 +13,13 @@ import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {DeleteFileBackendConfigEndpoint} from './types';
 import {deleteFileBackendConfigJoiSchema} from './validation';
 
-const deleteFileBackendConfig: DeleteFileBackendConfigEndpoint = async (
-  context,
-  instData
-) => {
+const deleteFileBackendConfig: DeleteFileBackendConfigEndpoint = async instData => {
   const configModel = container.resolve<SemanticFileBackendConfigProvider>(
     kInjectionKeys.semantic.fileBackendConfig
   );
 
   const data = validate(instData.data, deleteFileBackendConfigJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
+  const agent = await kUtilsInjectables.session().getAgent(instData);
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   await checkAuthorizationWithAgent({
     agent,

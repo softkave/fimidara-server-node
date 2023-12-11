@@ -1,5 +1,4 @@
 import {PermissionAction} from '../../../definitions/permissionItem';
-import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 import {PermissionItemInputTarget} from '../types';
 
@@ -42,7 +41,6 @@ export interface ResolveEntityPermissionsEndpointResult {
 }
 
 export type ResolveEntityPermissionsEndpoint = Endpoint<
-  BaseContextType,
   ResolveEntityPermissionsEndpointParams,
   ResolveEntityPermissionsEndpointResult
 >;

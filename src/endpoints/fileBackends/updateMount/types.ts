@@ -1,5 +1,4 @@
 import {PublicFileBackendMount} from '../../../definitions/fileBackend';
-import {BaseContextType} from '../../contexts/types';
 import {LongRunningJobResult} from '../../jobs/types';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
@@ -22,7 +21,6 @@ export interface UpdateFileBackendMountEndpointResult extends LongRunningJobResu
 }
 
 export type UpdateFileBackendMountEndpoint = Endpoint<
-  BaseContextType,
   UpdateFileBackendMountEndpointParams,
   UpdateFileBackendMountEndpointResult
 >;

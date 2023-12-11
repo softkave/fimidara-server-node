@@ -2,10 +2,8 @@ import {SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {SemanticProviderRunOptions} from '../../contexts/semantic/types';
-import {BaseContextType} from '../../contexts/types';
 
 export async function checkReadEntityAssignedPermissionGroups(
-  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   entityId: string,
@@ -15,7 +13,6 @@ export async function checkReadEntityAssignedPermissionGroups(
     return true;
   } else {
     await checkAuthorizationWithAgent({
-      context,
       agent,
       workspace,
       opts,
@@ -31,14 +28,12 @@ export function isFetchingOwnPermissionGroups(agent: SessionAgent, entityId: str
 }
 
 export async function fetchEntityAssignedPermissionGroupList(
-  context: BaseContextType,
   entityId: string,
   includeInheritedPermissionGroups = true,
   opts?: SemanticProviderRunOptions
 ) {
-  return await context.semantic.permissions.getEntityAssignedPermissionGroups(
+  return await kSemanticModels.permissions().getEntityAssignedPermissionGroups(
     {
-      context,
       entityId,
       fetchDeep: includeInheritedPermissionGroups,
     },

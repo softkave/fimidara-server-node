@@ -1,5 +1,4 @@
 import {FileBackendType, PublicFileBackendConfig} from '../../../definitions/fileBackend';
-import {BaseContextType} from '../../contexts/types';
 import {
   Endpoint,
   EndpointOptionalWorkspaceIDParam,
@@ -20,7 +19,6 @@ export interface GetFileBackendConfigsEndpointResult extends PaginatedResult {
 }
 
 export type GetFileBackendConfigsEndpoint = Endpoint<
-  BaseContextType,
   GetFileBackendConfigsEndpointParams,
   GetFileBackendConfigsEndpointResult
 >;

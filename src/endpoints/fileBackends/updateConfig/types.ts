@@ -1,5 +1,4 @@
 import {PublicFileBackendConfig} from '../../../definitions/fileBackend';
-import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
 export type UpdateFileBackendConfigInput = {
@@ -18,7 +17,6 @@ export interface UpdateFileBackendConfigEndpointResult {
 }
 
 export type UpdateFileBackendConfigEndpoint = Endpoint<
-  BaseContextType,
   UpdateFileBackendConfigEndpointParams,
   UpdateFileBackendConfigEndpointResult
 >;

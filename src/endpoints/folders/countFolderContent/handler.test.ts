@@ -1,12 +1,9 @@
-import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertTestFiles} from '../../testUtils/generateData/file';
 import {generateAndInsertTestFolders} from '../../testUtils/generateData/folder';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -14,34 +11,34 @@ import {
 import countFolderContent from './handler';
 import {CountFolderContentEndpointParams} from './types';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('countFolderContent', () => {
   test('count', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     await Promise.all([
-      generateAndInsertTestFolders(context, 15, {
+      generateAndInsertTestFolders(15, {
         workspaceId: workspace.resourceId,
         parentId: null,
       }),
-      generateAndInsertTestFiles(context, 15, {workspaceId: workspace.resourceId, parentId: null}),
+      generateAndInsertTestFiles(15, {
+        workspaceId: workspace.resourceId,
+        parentId: null,
+      }),
     ]);
     const [foldersCount, filesCount] = await Promise.all([
-      context.semantic.folder.countByQuery({
+      kSemanticModels.folder().countByQuery({
         workspaceId: workspace.resourceId,
         parentId: null,
       }),
-      context.semantic.file.countByQuery({
+      kSemanticModels.file().countByQuery({
         workspaceId: workspace.resourceId,
         parentId: null,
       }),
@@ -50,7 +47,7 @@ describe('countFolderContent', () => {
       mockExpressRequestWithAgentToken(userToken),
       {folderpath: workspace.rootname}
     );
-    const result = await countFolderContent(context, instData);
+    const result = await countFolderContent(instData);
     assertEndpointResultOk(result);
     expect(result.filesCount).toBe(filesCount);
     expect(result.foldersCount).toBe(foldersCount);

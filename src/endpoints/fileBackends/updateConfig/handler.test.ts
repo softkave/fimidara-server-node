@@ -1,23 +1,20 @@
-import {faker} from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 import RequestData from '../../RequestData';
-import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {BaseContextType} from '../../contexts/types';
+import { populateAssignedTags } from '../../assignedItems/getAssignedItems';
 import EndpointReusableQueries from '../../queries';
-import {completeTest} from '../../testUtils/helpers/test';
+import { completeTest } from '../../testUtils/helpers/test';
 import {
-  assertContext,
-  assertEndpointResultOk,
-  initTestBaseContext,
-  insertFileBackendConfigForTest,
-  insertUserForTest,
-  insertWorkspaceForTest,
-  mockExpressRequestWithFileBackendConfig,
+    assertEndpointResultOk,
+    insertFileBackendConfigForTest,
+    insertUserForTest,
+    insertWorkspaceForTest,
+    mockExpressRequestWithFileBackendConfig,
 } from '../../testUtils/testUtils';
-import {fileBackendConfigExtractor, getPublicFileBackendConfig} from '../utils';
+import { fileBackendConfigExtractor, getPublicFileBackendConfig } from '../utils';
 import updateFileBackendConfig from './handler';
 import {
-  UpdateFileBackendConfigEndpointParams,
-  UpdateFileBackendConfigInput,
+    UpdateFileBackendConfigEndpointParams,
+    UpdateFileBackendConfigInput,
 } from './types';
 
 /**
@@ -26,22 +23,21 @@ import {
  * - [Low] Test that onReferenced feature works
  */
 
-let context: BaseContextType | null = null;
+
 
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 test('agent config updated', async () => {
-  assertContext(context);
-  const {userConfig} = await insertUserForTest(context);
-  const {workspace} = await insertWorkspaceForTest(context, userConfig);
+  
+  const {userConfig} = await insertUserForTest();
+  const {workspace} = await insertWorkspaceForTest(userConfig);
   const {config: config01} = await insertFileBackendConfigForTest(
-    context,
     userConfig,
     workspace.resourceId
   );
@@ -58,15 +54,13 @@ test('agent config updated', async () => {
       workspaceId: workspace.resourceId,
     }
   );
-  const result = await updateFileBackendConfig(context, instData);
+  const result = await updateFileBackendConfig(instData);
   assertEndpointResultOk(result);
 
   const updatedConfig = getPublicFileBackendConfig(
-    context,
     await populateAssignedTags(
-      context,
       workspace.resourceId,
-      await context.semantic.fileBackendConfig.assertGetOneByQuery(
+      await kSemanticModels.file()BackendConfig.assertGetOneByQuery(
         EndpointReusableQueries.getByResourceId(config01.resourceId)
       )
     )

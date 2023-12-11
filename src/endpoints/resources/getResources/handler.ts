@@ -1,6 +1,7 @@
 import {AppResourceTypeMap} from '../../../definitions/system';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
+import {kUtilsInjectables} from '../../contexts/injectables';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {getPublicResourceList} from '../getPublicResource';
 import {INTERNAL_getResources} from '../getResources';
@@ -20,13 +21,12 @@ const kAllowedTypes = [
   AppResourceTypeMap.UsageRecord,
 ];
 
-const getResources: GetResourcesEndpoint = async (context, instData) => {
+const getResources: GetResourcesEndpoint = async instData => {
   const data = validate(instData.data, getResourcesJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
+  const agent = await kUtilsInjectables.session().getAgent(instData);
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
-  const workspace = await checkWorkspaceExists(context, workspaceId);
+  const workspace = await checkWorkspaceExists(workspaceId);
   const resources = await INTERNAL_getResources({
-    context,
     agent,
     allowedTypes: kAllowedTypes,
     workspaceId: workspace.resourceId,

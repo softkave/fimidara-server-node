@@ -2,51 +2,41 @@ import * as argon2 from 'argon2';
 import {getTimestamp} from '../../../utils/dateFns';
 import RequestData from '../../RequestData';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {BaseContextType} from '../../contexts/types';
+import {kSemanticModels} from '../../contexts/injectables';
 import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils';
 import {assertUser} from '../utils';
 
 export async function INTERNAL_changePassword(
-  context: BaseContextType,
   reqData: RequestData,
   userId: string,
-  props: {password: string},
-  opts?: SemanticProviderMutationRunOptions
+  props: {password: string}
 ) {
   const hash = await argon2.hash(props.password);
-  const updatedUser = await context.semantic.utils.withTxn(
-    context,
-    async opts => {
-      const updatedUser = await context.semantic.user.getAndUpdateOneById(
+  const updatedUser = await kSemanticModels.utils().withTxn(async opts => {
+    const updatedUser = await kSemanticModels
+      .user()
+      .getAndUpdateOneById(
         userId,
         {hash, passwordLastChangedAt: getTimestamp(), requiresPasswordChange: false},
         opts
       );
-      assertUser(updatedUser);
+    assertUser(updatedUser);
 
-      // Delete existing user tokens cause they're no longer valid
-      await context.semantic.agentToken.deleteAgentTokens(
-        updatedUser.resourceId,
-        undefined,
-        opts
-      );
-      return updatedUser;
-    },
-    opts
-  );
+    // Delete existing user tokens cause they're no longer valid
+    await kSemanticModels
+      .agentToken()
+      .deleteAgentTokens(updatedUser.resourceId, undefined, opts);
+    return updatedUser;
+  });
 
   // Delete user token and incomingTokenData since they are no longer valid
   delete reqData.agent?.agentToken;
   delete reqData.incomingTokenData;
-  const completeUserData = await populateUserWorkspaces(context, updatedUser);
-  const [userToken, clientAssignedToken] = await context.semantic.utils.withTxn(
-    context,
-    opts =>
-      Promise.all([
-        getUserToken(context, userId, opts),
-        getUserClientAssignedToken(context, userId, opts),
-      ])
-  );
-  return toLoginResult(context, completeUserData, userToken, clientAssignedToken);
+  const completeUserData = await populateUserWorkspaces(updatedUser);
+  const [userToken, clientAssignedToken] = await kSemanticModels
+    .utils()
+    .withTxn(opts =>
+      Promise.all([getUserToken(userId, opts), getUserClientAssignedToken(userId, opts)])
+    );
+  return toLoginResult(completeUserData, userToken, clientAssignedToken);
 }

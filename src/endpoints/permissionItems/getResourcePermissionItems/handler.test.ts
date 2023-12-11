@@ -2,13 +2,10 @@ import {faker} from '@faker-js/faker';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {AppResourceTypeMap} from '../../../definitions/system';
 import RequestData from '../../RequestData';
-import {BaseContextType} from '../../contexts/types';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -20,24 +17,21 @@ import {PermissionItemInput} from '../types';
 import {default as getResourcePermissionItems} from './handler';
 import {GetResourcePermissionItemsEndpointParams} from './types';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe.skip('getResourcePermissionItems', () => {
   test('resource permission items returned', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const [{permissionGroup: pg01}, {permissionGroup: pg02}] = await Promise.all([
-      insertPermissionGroupForTest(context, userToken, workspace.resourceId),
-      insertPermissionGroupForTest(context, userToken, workspace.resourceId),
+      insertPermissionGroupForTest(userToken, workspace.resourceId),
+      insertPermissionGroupForTest(userToken, workspace.resourceId),
     ]);
     const inputItems = Object.values(kPermissionsMap).map(
       (action): PermissionItemInput => ({
@@ -52,24 +46,23 @@ describe.skip('getResourcePermissionItems', () => {
         mockExpressRequestWithAgentToken(userToken),
         {items: inputItems, workspaceId: workspace.resourceId}
       );
-    await addPermissionItems(context, addPermissionItemsReqData);
+    await addPermissionItems(addPermissionItemsReqData);
 
     const instData =
       RequestData.fromExpressRequest<GetResourcePermissionItemsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId, target: {targetId: pg02.resourceId}}
       );
-    const result = await getResourcePermissionItems(context, instData);
+    const result = await getResourcePermissionItems(instData);
     assertEndpointResultOk(result);
 
     throw new Error('Check that permissions belong to target');
   });
 
   test('pagination', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
-    await generateAndInsertPermissionItemListForTest(context, 15, {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    await generateAndInsertPermissionItemListForTest(15, {
       workspaceId: workspace.resourceId,
       targetType: AppResourceTypeMap.Workspace,
       targetId: workspace.resourceId,
@@ -80,7 +73,7 @@ describe.skip('getResourcePermissionItems', () => {
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId, target: {targetId: workspace.resourceId}}
       );
-    const result = await getResourcePermissionItems(context, instData);
+    const result = await getResourcePermissionItems(instData);
     assertEndpointResultOk(result);
   });
 });

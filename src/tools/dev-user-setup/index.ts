@@ -14,8 +14,8 @@ const appOptions: ISetupDevUserOptions = {
 };
 
 async function main() {
-  const context = await devUserSetupInitContext();
-  await setupDevUser(context, appOptions);
+  await devUserSetupInitContext();
+  await setupDevUser(appOptions);
 }
 
 main()

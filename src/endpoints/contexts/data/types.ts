@@ -18,7 +18,6 @@ import {UsageRecord} from '../../../definitions/usageRecord';
 import {User} from '../../../definitions/user';
 import {Workspace} from '../../../definitions/workspace';
 import {AnyFn, AnyObject} from '../../../utils/types';
-import {BaseContextType} from '../types';
 
 export type DataQuerySort<T, K extends keyof T = keyof T> = {
   [P in K]?: SortOrder;
@@ -217,13 +216,7 @@ export interface BaseDataProvider<
 }
 
 export interface DataProviderUtils {
-  withTxn<TResult>(
-    ctx: BaseContextType,
-    fn: AnyFn<[txn: unknown], Promise<TResult>>,
-
-    /** Reuse existing txn when present */
-    txn?: unknown
-  ): Promise<TResult>;
+  withTxn<TResult>(fn: AnyFn<[txn: unknown], Promise<TResult>>): Promise<TResult>;
 }
 
 export type AgentTokenQuery = DataQuery<AgentToken>;

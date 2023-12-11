@@ -1,14 +1,11 @@
 import {extractResourceIdList} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import RequestData from '../../RequestData';
-import {BaseContextType} from '../../contexts/types';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generateData/collaborator';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -17,30 +14,26 @@ import {fetchEntityAssignedPermissionGroupList} from '../getEntityAssignedPermis
 import {assignPgListToIdList, toAssignedPgListInput} from '../testUtils';
 import unassignPermissionGroups from './handler';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('unassignPermissionGroups', () => {
   test('permission groups unassigned', async () => {
-    assertContext(context);
-    const {userToken, rawUser} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken, rawUser} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const agent = makeUserSessionAgent(rawUser, userToken);
     const [pgList01, cList01] = await Promise.all([
-      generateAndInsertPermissionGroupListForTest(context, 2, {workspaceId: workspace.resourceId}),
-      generateAndInsertCollaboratorListForTest(context, agent, workspace.resourceId, 2),
+      generateAndInsertPermissionGroupListForTest(2, {workspaceId: workspace.resourceId}),
+      generateAndInsertCollaboratorListForTest(agent, workspace.resourceId, 2),
     ]);
     const cList01Ids = extractResourceIdList(cList01);
     const pgList01Ids = extractResourceIdList(pgList01);
     await assignPgListToIdList(
-      context,
       agent,
       workspace.resourceId,
       cList01Ids,
@@ -48,7 +41,6 @@ describe('unassignPermissionGroups', () => {
     );
 
     const result01 = await unassignPermissionGroups(
-      context,
       RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
         workspaceId: workspace.resourceId,
         permissionGroups: pgList01Ids,

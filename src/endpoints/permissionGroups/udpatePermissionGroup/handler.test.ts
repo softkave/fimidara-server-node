@@ -1,13 +1,10 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -22,32 +19,26 @@ import {UpdatePermissionGroupEndpointParams, UpdatePermissionGroupInput} from '.
  * - [Low] Test that hanlder fails if assigned permissionGroups doesn't exist
  */
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 test('permissionGroup updated', async () => {
-  assertContext(context);
-  const {userToken, user} = await insertUserForTest(context);
-  const {workspace} = await insertWorkspaceForTest(context, userToken);
+  const {userToken, user} = await insertUserForTest();
+  const {workspace} = await insertWorkspaceForTest(userToken);
   const {permissionGroup: permissionGroup00} = await insertPermissionGroupForTest(
-    context,
     userToken,
     workspace.resourceId
   );
   const {permissionGroup: permissionGroup01} = await insertPermissionGroupForTest(
-    context,
     userToken,
     workspace.resourceId
   );
   const {permissionGroup: permissionGroup02} = await insertPermissionGroupForTest(
-    context,
     userToken,
     workspace.resourceId
   );
@@ -64,18 +55,23 @@ test('permissionGroup updated', async () => {
     }
   );
 
-  const result = await updatePermissionGroup(context, instData);
+  const result = await updatePermissionGroup(instData);
   assertEndpointResultOk(result);
 
   const updatedPermissionGroup = await populateAssignedTags(
-    context,
     workspace.resourceId,
-    await context.semantic.permissionGroup.assertGetOneByQuery(
-      EndpointReusableQueries.getByResourceId(permissionGroup00.resourceId)
-    )
+    await kSemanticModels
+      .permissionGroup()
+      .assertGetOneByQuery(
+        EndpointReusableQueries.getByResourceId(permissionGroup00.resourceId)
+      )
   );
 
-  expect(permissionGroupExtractor(updatedPermissionGroup)).toMatchObject(result.permissionGroup);
+  expect(permissionGroupExtractor(updatedPermissionGroup)).toMatchObject(
+    result.permissionGroup
+  );
   expect(updatedPermissionGroup.name).toEqual(updatePermissionGroupInput.name);
-  expect(updatedPermissionGroup.description).toEqual(updatePermissionGroupInput.description);
+  expect(updatedPermissionGroup.description).toEqual(
+    updatePermissionGroupInput.description
+  );
 });

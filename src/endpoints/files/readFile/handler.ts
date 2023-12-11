@@ -6,7 +6,7 @@ import {PERMISSION_AGENT_TYPES} from '../../../definitions/system';
 import {isObjectFieldsEmpty} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {PersistedFile} from '../../contexts/file/types';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {resolveBackendConfigsWithIdList} from '../../fileBackends/configUtils';
 import {
   initBackendProvidersForMounts,
@@ -19,9 +19,11 @@ import {readFileJoiSchema} from './validation';
 // TODO: implement accept ranges, cache control, etags, etc.
 // see aws s3 sdk getObject function
 
-const readFile: ReadFileEndpoint = async (context, instData) => {
+const readFile: ReadFileEndpoint = async instData => {
   const data = validate(instData.data, readFileJoiSchema);
-  const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgent(instData, PERMISSION_AGENT_TYPES);
 
   const file = await await kSemanticModels.utils().withTxn(async opts => {
     const {file} = await checkFileAuthorization03(

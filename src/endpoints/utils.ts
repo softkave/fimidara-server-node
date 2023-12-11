@@ -29,7 +29,7 @@ import {kAsyncLocalStorageUtils} from './contexts/asyncLocalStorage';
 import {ResolvedTargetChildrenAccessCheck} from './contexts/authorizationChecks/checkAuthorizaton';
 import {DataQuery} from './contexts/data/types';
 import {getInAndNinQuery} from './contexts/semantic/utils';
-import {BaseContextType, IServerRequest} from './contexts/types';
+import {IServerRequest} from './contexts/types';
 import {InvalidRequestError, NotFoundError} from './errors';
 import {
   Endpoint,
@@ -104,12 +104,8 @@ export function defaultEndpointCleanup() {
   settlePromisesAndLogFailed(disposables.map(disposable => disposable.close()));
 }
 
-export const wrapEndpointREST = <
-  Context extends BaseContextType,
-  EndpointType extends Endpoint<Context>,
->(
+export const wrapEndpointREST = <EndpointType extends Endpoint>(
   endpoint: EndpointType,
-  context: Context,
   handleResponse?: ExportedHttpEndpoint_HandleResponse,
   handleError?: ExportedHttpEndpoint_HandleErrorFn,
   getData?: ExportedHttpEndpoint_GetDataFromReqFn,
@@ -122,7 +118,7 @@ export const wrapEndpointREST = <
         req as unknown as IServerRequest,
         data
       );
-      const result = await endpoint(context, instData);
+      const result = await endpoint(instData);
 
       if (handleResponse) {
         await handleResponse(res, result);
@@ -263,7 +259,6 @@ export function assertUpdateNotEmpty(update: AnyObject) {
 }
 
 export function registerExpressRouteFromEndpoint(
-  ctx: BaseContextType,
   endpoint: ExportedHttpEndpointWithMddocDefinition<never>,
   app: Express
 ) {
@@ -275,7 +270,6 @@ export function registerExpressRouteFromEndpoint(
       endpoint.expressRouteMiddleware,
       wrapEndpointREST(
         endpoint.fn,
-        ctx,
         endpoint.handleResponse,
         endpoint.handleError,
         endpoint.getDataFromReq,

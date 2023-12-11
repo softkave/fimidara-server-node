@@ -13,7 +13,6 @@ import {AppResourceTypeMap} from '../../definitions/system';
 import {getTimestamp} from '../../utils/dateFns';
 import {newResource} from '../../utils/resource';
 import {kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
-import {SemanticProviderMutationRunOptions} from '../contexts/semantic/types';
 
 export interface JobInput<TParams extends AnyObject = AnyObject> {
   type: JobType | (string & {});
@@ -24,8 +23,7 @@ export interface JobInput<TParams extends AnyObject = AnyObject> {
 export async function queueJobs<TParams extends AnyObject = AnyObject>(
   workspaceId: string | undefined,
   parentJobId: string | undefined,
-  jobsInput: JobInput<TParams>[],
-  opts?: SemanticProviderMutationRunOptions
+  jobsInput: JobInput<TParams>[]
 ) {
   if (jobsInput.length === 0) {
     return [];
@@ -63,13 +61,10 @@ export async function queueJobs<TParams extends AnyObject = AnyObject>(
     await kSemanticModels.job().insertItem(uniqueJobs, opts);
 
     return uniqueJobs;
-  }, opts);
+  });
 }
 
-export async function completeJob(
-  jobId: string,
-  opts?: SemanticProviderMutationRunOptions
-) {
+export async function completeJob(jobId: string) {
   const job = await kSemanticModels.utils().withTxn(async opts => {
     const jobsModel = kSemanticModels.job();
     const [job, hasIncompleteChildren] = await Promise.all([
@@ -89,23 +84,17 @@ export async function completeJob(
       },
       opts
     );
-  }, opts);
+  });
 
   if (job && job.status === 'completed' && job.parentJobId) {
     completeJob(job.parentJobId).catch(error => winston.error(error));
   }
 }
 
-export async function enqueueDeleteResourceJob(
-  params: DeleteResourceJobParams,
-  opts?: SemanticProviderMutationRunOptions
-) {
-  const [job] = await queueJobs(
-    params.args.workspaceId,
-    undefined,
-    [{params, type: JobTypeMap.deleteResource}],
-    opts
-  );
+export async function enqueueDeleteResourceJob(params: DeleteResourceJobParams) {
+  const [job] = await queueJobs(params.args.workspaceId, undefined, [
+    {params, type: JobTypeMap.deleteResource},
+  ]);
 
   return job;
 }

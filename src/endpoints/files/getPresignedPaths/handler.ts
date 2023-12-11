@@ -6,8 +6,7 @@ import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels} from '../../contexts/injectables';
-import {BaseContextType} from '../../contexts/types';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {kFolderConstants} from '../../folders/constants';
 import {addRootnameToPath} from '../../folders/utils';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
@@ -17,27 +16,21 @@ import {getPresignedPathsForFilesJoiSchema} from './validation';
 
 // TODO: filter out expired or spent presigned paths and delete them
 
-const getPresignedPathsForFiles: GetPresignedPathsForFilesEndpoint = async (
-  context,
-  instData
-) => {
+const getPresignedPathsForFiles: GetPresignedPathsForFilesEndpoint = async instData => {
   const data = validate(instData.data, getPresignedPathsForFilesJoiSchema);
-  const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgent(instData, PERMISSION_AGENT_TYPES);
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   let presignedPaths: Array<FilePresignedPath | null> = [];
 
   if (data.files) {
     // Fetch presigned paths generated for files with matcher and optional
     // workspaceId.
-    presignedPaths = await getPresignedPathsByFileMatchers(
-      context,
-      agent,
-      data.files,
-      workspace
-    );
+    presignedPaths = await getPresignedPathsByFileMatchers(agent, data.files, workspace);
   } else {
     // Fetch agent's presigned paths with optional workspaceId.
-    presignedPaths = await context.semantic.filePresignedPath.getManyByQuery({
+    presignedPaths = await kSemanticModels.filePresignedPath().getManyByQuery({
       agentTokenId: agent.agentTokenId,
       workspaceId: workspace.resourceId,
     });
@@ -78,7 +71,6 @@ const getPresignedPathsForFiles: GetPresignedPathsForFilesEndpoint = async (
 };
 
 async function getPresignedPathsByFileMatchers(
-  context: BaseContextType,
   agent: SessionAgent,
   matchers: FileMatcher[],
   workspace: Workspace

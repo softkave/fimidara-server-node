@@ -1,13 +1,10 @@
 import {AppResourceTypeMap} from '../../../definitions/system';
 import {calculatePageSize} from '../../../utils/fns';
-import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertPermissionGroupForTest,
   insertPermissionItemsForTest,
   insertUserForTest,
@@ -17,27 +14,23 @@ import {
 import getEntityPermissionItems from './handler';
 import {GetEntityPermissionItemsEndpointParams} from './types';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe.skip('getEntityPermissionitems', () => {
   test('entity permission items returned', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const {permissionGroup: permissionGroup} = await insertPermissionGroupForTest(
-      context,
       userToken,
       workspace.resourceId
     );
-    await insertPermissionItemsForTest(context, userToken, workspace.resourceId, [
+    await insertPermissionItemsForTest(userToken, workspace.resourceId, [
       {
         entityId: permissionGroup.resourceId,
         target: {targetId: workspace.resourceId},
@@ -54,23 +47,22 @@ describe.skip('getEntityPermissionitems', () => {
           entityId: permissionGroup.resourceId,
         }
       );
-    const result = await getEntityPermissionItems(context, instData);
+    const result = await getEntityPermissionItems(instData);
     assertEndpointResultOk(result);
 
     throw new Error('Check that permissions belong to entity');
   });
 
   test('pagination', async () => {
-    assertContext(context);
-    const {userToken, user} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
-    await generateAndInsertPermissionItemListForTest(context, 15, {
+    const {userToken, user} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    await generateAndInsertPermissionItemListForTest(15, {
       workspaceId: workspace.resourceId,
       entityId: user.resourceId,
       entityType: AppResourceTypeMap.User,
       targetId: workspace.resourceId,
     });
-    const count = await context.semantic.permissionItem.countByQuery({
+    const count = await kSemanticModels.permissionItem().countByQuery({
       workspaceId: workspace.resourceId,
       entityId: user.resourceId,
       targetId: workspace.resourceId,
@@ -86,7 +78,7 @@ describe.skip('getEntityPermissionitems', () => {
         entityId: user.resourceId,
       }
     );
-    let result = await getEntityPermissionItems(context, instData);
+    let result = await getEntityPermissionItems(instData);
     assertEndpointResultOk(result);
     expect(result.page).toBe(page);
     expect(result.items).toHaveLength(calculatePageSize(count, pageSize, page));
@@ -101,7 +93,7 @@ describe.skip('getEntityPermissionitems', () => {
         entityId: user.resourceId,
       }
     );
-    result = await getEntityPermissionItems(context, instData);
+    result = await getEntityPermissionItems(instData);
     assertEndpointResultOk(result);
     expect(result.page).toBe(page);
     expect(result.items).toHaveLength(calculatePageSize(count, pageSize, page));

@@ -1,28 +1,27 @@
-import {toCompactArray} from '../../../utils/fns';
-import {AnyFn} from '../../../utils/types';
-import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {BaseContextType} from '../../contexts/types';
-import {globalDispose} from '../../globalUtils';
-import {executeServerInstanceJobs, waitForServerInstanceJobs} from '../../jobs/runner';
+import { toCompactArray } from '../../../utils/fns';
+import { AnyFn } from '../../../utils/types';
+import { kSemanticModels, kUtilsInjectables } from '../../contexts/injectables';
+import { SemanticProviderMutationRunOptions } from '../../contexts/semantic/types';
+import { globalDispose } from '../../globalUtils';
+import { executeServerInstanceJobs, waitForServerInstanceJobs } from '../../jobs/runner';
 
 export function mutationTest(
-  context: BaseContextType,
   name: string,
   fn: AnyFn<[SemanticProviderMutationRunOptions]>,
   timeout?: number
 ) {
-  context.semantic.utils.withTxn(context, async options => {
+  kSemanticModels.utils().withTxn(async options => {
     await test(name, () => fn(options), timeout);
   });
 }
 
-export function setupMutationTesting(context: BaseContextType) {
+export function setupMutationTesting() {
   async function mutationTest(
     name: string,
     fn: AnyFn<[SemanticProviderMutationRunOptions]>,
     timeout?: number
   ) {
-    context.semantic.utils.withTxn(context, async options => {
+    kSemanticModels.utils().withTxn(async options => {
       await test(name, () => fn(options), timeout);
     });
   }
@@ -30,18 +29,12 @@ export function setupMutationTesting(context: BaseContextType) {
   return {mutationTest};
 }
 
-export async function completeTest(
-  props: {
-    context?: (BaseContextType | null) | Array<BaseContextType | null>;
-  } = {}
-) {
-  const {context} = props;
-
-  if (context) {
+export async function completeTest(props: {} = {}) {
+  if () {
     await Promise.all(
-      toCompactArray(context).map(async context => {
-        await executeServerInstanceJobs(context, context.appVariables.serverInstanceId);
-        await waitForServerInstanceJobs(context, context.appVariables.serverInstanceId);
+      toCompactArray().map(async context => {
+        await executeServerInstanceJobs(kUtilsInjectables.config().serverInstanceId);
+        await waitForServerInstanceJobs(kUtilsInjectables.config().serverInstanceId);
         await context.dispose();
       })
     );

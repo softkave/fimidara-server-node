@@ -1,15 +1,15 @@
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {fileBackendConfigExtractor} from '../utils';
 import {AddFileBackendConfigEndpoint} from './types';
 import {INTERNAL_addConfig} from './utils';
 import {addConfigJoiSchema} from './validation';
 
-const addFileBackendConfig: AddFileBackendConfigEndpoint = async (context, instData) => {
+const addFileBackendConfig: AddFileBackendConfigEndpoint = async instData => {
   const data = validate(instData.data, addConfigJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
+  const agent = await kUtilsInjectables.session().getAgent(instData);
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   await checkAuthorizationWithAgent({
     agent,

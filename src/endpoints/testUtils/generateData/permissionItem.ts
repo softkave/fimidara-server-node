@@ -3,7 +3,7 @@ import {PermissionItem} from '../../../definitions/permissionItem';
 import {Agent, AppResourceTypeMap} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource, getResourceTypeFromId} from '../../../utils/resource';
-import {BaseContextType} from '../../contexts/types';
+import {kSemanticModels} from '../../contexts/injectables';
 import {randomAction, randomResourceType} from './utils';
 
 export function generatePermissionItemForTest(seed: Partial<PermissionItem> = {}) {
@@ -48,13 +48,12 @@ export function generatePermissionItemListForTest(
 }
 
 export async function generateAndInsertPermissionItemListForTest(
-  ctx: BaseContextType,
   count = 20,
   seed: Partial<PermissionItem> = {}
 ) {
   const items = generatePermissionItemListForTest(count, seed);
-  await ctx.semantic.utils.withTxn(ctx, async opts =>
-    ctx.semantic.permissionItem.insertItem(items, opts)
-  );
+  await kSemanticModels
+    .utils()
+    .withTxn(async opts => kSemanticModels.permissionItem().insertItem(items, opts));
   return items;
 }

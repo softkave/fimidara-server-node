@@ -1,4 +1,3 @@
-import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export interface DeletePermissionItemsByIdEndpointParams {
@@ -6,7 +5,5 @@ export interface DeletePermissionItemsByIdEndpointParams {
   itemIds: string[];
 }
 
-export type DeletePermissionItemsByIdEndpoint = Endpoint<
-  BaseContextType,
-  DeletePermissionItemsByIdEndpointParams
->;
+export type DeletePermissionItemsByIdEndpoint =
+  Endpoint<DeletePermissionItemsByIdEndpointParams>;

@@ -4,14 +4,11 @@ import {AgentToken} from '../../../definitions/agentToken';
 import {File, FileMatcher} from '../../../definitions/file';
 import {waitTimeout} from '../../../utils/fns';
 import RequestData from '../../RequestData';
-import {BaseContextType} from '../../contexts/types';
 import {generateAndInsertTestFiles} from '../../testUtils/generateData/file';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestForPublicAgent,
@@ -29,30 +26,27 @@ import {GetPresignedPathsForFilesEndpointParams} from './types';
  * - expired and spent
  */
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('getPresignedPathsForFiles', () => {
   test('with file matcher', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
+    const {userToken} = await insertUserForTest();
     const [{workspace: w1}, {workspace: w2}] = await Promise.all([
-      insertWorkspaceForTest(context, userToken),
-      insertWorkspaceForTest(context, userToken),
+      insertWorkspaceForTest(userToken),
+      insertWorkspaceForTest(userToken),
     ]);
     const [files01, files02] = await Promise.all([
-      generateAndInsertTestFiles(context, 2, {
+      generateAndInsertTestFiles(2, {
         workspaceId: w1.resourceId,
         parentId: null,
       }),
-      generateAndInsertTestFiles(context, 2, {
+      generateAndInsertTestFiles(2, {
         workspaceId: w2.resourceId,
         parentId: null,
       }),
@@ -70,7 +64,7 @@ describe('getPresignedPathsForFiles', () => {
         mockExpressRequestWithAgentToken(userToken),
         {files: matchers}
       );
-    const result = await getPresignedPathsForFiles(context, instData);
+    const result = await getPresignedPathsForFiles(instData);
     assertEndpointResultOk(result);
 
     const returnedPaths = result.paths.map(p => p.path);
@@ -78,18 +72,17 @@ describe('getPresignedPathsForFiles', () => {
   });
 
   test('with file matcher and workspaceId', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
+    const {userToken} = await insertUserForTest();
     const [{workspace: w1}, {workspace: w2}] = await Promise.all([
-      insertWorkspaceForTest(context, userToken),
-      insertWorkspaceForTest(context, userToken),
+      insertWorkspaceForTest(userToken),
+      insertWorkspaceForTest(userToken),
     ]);
     const [files01, files02] = await Promise.all([
-      generateAndInsertTestFiles(context, 2, {
+      generateAndInsertTestFiles(2, {
         workspaceId: w1.resourceId,
         parentId: null,
       }),
-      generateAndInsertTestFiles(context, 2, {
+      generateAndInsertTestFiles(2, {
         workspaceId: w2.resourceId,
         parentId: null,
       }),
@@ -113,7 +106,7 @@ describe('getPresignedPathsForFiles', () => {
         mockExpressRequestWithAgentToken(userToken),
         {files: matchers, workspaceId: w1.resourceId}
       );
-    const result = await getPresignedPathsForFiles(context, instData);
+    const result = await getPresignedPathsForFiles(instData);
     assertEndpointResultOk(result);
 
     const returnedPaths = result.paths.map(p => p.path);
@@ -122,18 +115,17 @@ describe('getPresignedPathsForFiles', () => {
   });
 
   test('with workspaceId and agent token', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
+    const {userToken} = await insertUserForTest();
     const [{workspace: w1}, {workspace: w2}] = await Promise.all([
-      insertWorkspaceForTest(context, userToken),
-      insertWorkspaceForTest(context, userToken),
+      insertWorkspaceForTest(userToken),
+      insertWorkspaceForTest(userToken),
     ]);
     const [files01, files02] = await Promise.all([
-      generateAndInsertTestFiles(context, 2, {
+      generateAndInsertTestFiles(2, {
         workspaceId: w1.resourceId,
         parentId: null,
       }),
-      generateAndInsertTestFiles(context, 2, {
+      generateAndInsertTestFiles(2, {
         workspaceId: w2.resourceId,
         parentId: null,
       }),
@@ -154,7 +146,7 @@ describe('getPresignedPathsForFiles', () => {
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: w1.resourceId}
       );
-    const result = await getPresignedPathsForFiles(context, instData);
+    const result = await getPresignedPathsForFiles(instData);
     assertEndpointResultOk(result);
 
     const returnedPaths = result.paths.map(p => p.path);
@@ -163,18 +155,17 @@ describe('getPresignedPathsForFiles', () => {
   });
 
   test('with agent token', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
+    const {userToken} = await insertUserForTest();
     const [{workspace: w1}, {workspace: w2}] = await Promise.all([
-      insertWorkspaceForTest(context, userToken),
-      insertWorkspaceForTest(context, userToken),
+      insertWorkspaceForTest(userToken),
+      insertWorkspaceForTest(userToken),
     ]);
     const [files01, files02] = await Promise.all([
-      generateAndInsertTestFiles(context, 2, {
+      generateAndInsertTestFiles(2, {
         workspaceId: w1.resourceId,
         parentId: null,
       }),
-      generateAndInsertTestFiles(context, 2, {
+      generateAndInsertTestFiles(2, {
         workspaceId: w2.resourceId,
         parentId: null,
       }),
@@ -189,7 +180,7 @@ describe('getPresignedPathsForFiles', () => {
         mockExpressRequestWithAgentToken(userToken),
         {}
       );
-    const result = await getPresignedPathsForFiles(context, instData);
+    const result = await getPresignedPathsForFiles(instData);
     assertEndpointResultOk(result);
 
     const returnedPaths = result.paths.map(p => p.path);
@@ -197,19 +188,18 @@ describe('getPresignedPathsForFiles', () => {
   });
 
   test('filters out expired and spent paths', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace: w1} = await insertWorkspaceForTest(context, userToken);
+    const {userToken} = await insertUserForTest();
+    const {workspace: w1} = await insertWorkspaceForTest(userToken);
     const [files01, files02, files03] = await Promise.all([
-      generateAndInsertTestFiles(context, 1, {
+      generateAndInsertTestFiles(1, {
         workspaceId: w1.resourceId,
         parentId: null,
       }),
-      generateAndInsertTestFiles(context, 1, {
+      generateAndInsertTestFiles(1, {
         workspaceId: w1.resourceId,
         parentId: null,
       }),
-      generateAndInsertTestFiles(context, 1, {
+      generateAndInsertTestFiles(1, {
         workspaceId: w1.resourceId,
         parentId: null,
       }),
@@ -247,7 +237,7 @@ describe('getPresignedPathsForFiles', () => {
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: w1.resourceId}
       );
-    const result = await getPresignedPathsForFiles(context, instData);
+    const result = await getPresignedPathsForFiles(instData);
     assertEndpointResultOk(result);
 
     const returnedPaths = result.paths.map(p => p.path);
@@ -264,9 +254,7 @@ async function issuePaths(
 ) {
   const result = await Promise.all(
     matchers.map(async matcher => {
-      assertContext(context);
       const result = await issueFilePresignedPath(
-        context,
         RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
           ...input,
           ...matcher,
@@ -286,10 +274,9 @@ function toInterspersedMatchers(files: File[], rootname: string) {
 }
 
 async function tryReadFile(presignedPath: string) {
-  assertContext(context);
   const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
     mockExpressRequestForPublicAgent(),
     {filepath: presignedPath}
   );
-  return await readFile(context, instData);
+  return await readFile(instData);
 }

@@ -1,58 +1,55 @@
-import {calculatePageSize} from '../../../utils/fns';
-import {BaseContextType} from '../../contexts/types';
+import { calculatePageSize } from '../../../utils/fns';
 import RequestData from '../../RequestData';
-import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generateData/fileBackendMount';
-import {completeTest} from '../../testUtils/helpers/test';
+import { generateAndInsertFileBackendMountListForTest } from '../../testUtils/generateData/fileBackendMount';
+import { completeTest } from '../../testUtils/helpers/test';
 import {
-  assertContext,
-  assertEndpointResultOk,
-  initTestBaseContext,
-  insertFileBackendMountForTest,
-  insertUserForTest,
-  insertWorkspaceForTest,
-  mockExpressRequestWithFileBackendMount,
+    assertEndpointResultOk,
+    insertFileBackendMountForTest,
+    insertUserForTest,
+    insertWorkspaceForTest,
+    mockExpressRequestWithFileBackendMount,
 } from '../../testUtils/testUtils';
 import resolveMountss from './handler';
-import {ResolveFileBackendMountssEndpointParams} from './types';
+import { ResolveFileBackendMountssEndpointParams } from './types';
 
-let context: BaseContextType | null = null;
+
 
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('resolveMounts', () => {
   test('workspace agent tokens returned', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const [{token: token01}, {token: token02}] = await Promise.all([
-      insertFileBackendMountForTest(context, userToken, workspace.resourceId),
-      insertFileBackendMountForTest(context, userToken, workspace.resourceId),
+      insertFileBackendMountForTest(userToken, workspace.resourceId),
+      insertFileBackendMountForTest(userToken, workspace.resourceId),
     ]);
     const instData =
       RequestData.fromExpressRequest<ResolveFileBackendMountssEndpointParams>(
         mockExpressRequestWithFileBackendMount(userToken),
         {workspaceId: workspace.resourceId}
       );
-    const result = await resolveMountss(context, instData);
+    const result = await resolveMountss(instData);
     assertEndpointResultOk(result);
     expect(result.tokens).toContainEqual(token01);
     expect(result.tokens).toContainEqual(token02);
   });
 
   test('pagination', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
-    await generateAndInsertFileBackendMountListForTest(context, 15, {
+    
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    await generateAndInsertFileBackendMountListForTest(15, {
       workspaceId: workspace.resourceId,
     });
-    const count = await context.semantic.fileBackendMount.countByQuery({
+    const count = await kSemanticModels.file()BackendMount.countByQuery({
       workspaceId: workspace.resourceId,
     });
     const pageSize = 10;
@@ -62,7 +59,7 @@ describe('resolveMounts', () => {
         mockExpressRequestWithFileBackendMount(userToken),
         {page, pageSize, workspaceId: workspace.resourceId}
       );
-    let result = await resolveMountss(context, instData);
+    let result = await resolveMountss(instData);
     assertEndpointResultOk(result);
     expect(result.page).toBe(page);
     expect(result.tokens).toHaveLength(calculatePageSize(count, pageSize, page));
@@ -72,7 +69,7 @@ describe('resolveMounts', () => {
       mockExpressRequestWithFileBackendMount(userToken),
       {page, pageSize, workspaceId: workspace.resourceId}
     );
-    result = await resolveMountss(context, instData);
+    result = await resolveMountss(instData);
     assertEndpointResultOk(result);
     expect(result.page).toBe(page);
     expect(result.tokens).toHaveLength(calculatePageSize(count, pageSize, page));

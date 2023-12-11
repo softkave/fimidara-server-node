@@ -1,4 +1,5 @@
 import {validate} from '../../../utils/validate';
+import {kUtilsInjectables, kSemanticModels} from '../../contexts/injectables';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
@@ -9,13 +10,13 @@ import {GetWorkspaceTagsEndpoint} from './types';
 import {getWorkspaceTagsQuery} from './utils';
 import {getWorkspaceTagJoiSchema} from './validation';
 
-const getWorkspaceTags: GetWorkspaceTagsEndpoint = async (context, instData) => {
+const getWorkspaceTags: GetWorkspaceTagsEndpoint = async instData => {
   const data = validate(instData.data, getWorkspaceTagJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
+  const agent = await kUtilsInjectables.session().getAgent(instData);
   const workspace = await checkWorkspaceExistsWithAgent(agent, data.workspaceId);
-  const q = await getWorkspaceTagsQuery(context, agent, workspace);
+  const q = await getWorkspaceTagsQuery(agent, workspace);
   applyDefaultEndpointPaginationOptions(data);
-  const tags = await context.semantic.tag.getManyByWorkspaceAndIdList(q, data);
+  const tags = await kSemanticModels.tag().getManyByWorkspaceAndIdList(q, data);
   return {tags: tags.map(tag => tagExtractor(tag)), page: getEndpointPageFromInput(data)};
 };
 

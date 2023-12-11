@@ -9,7 +9,6 @@ import {SemanticProviderMutationRunOptions} from './contexts/semantic/types';
 import {DeleteFileBackendConfigCascadeFnsArgs} from './fileBackends/deleteConfig/types';
 import {DeleteFileCascadeDeleteFnsArgs} from './files/deleteFile/types';
 import {DeleteFolderCascadeFnsArgs} from './folders/deleteFolder/types';
-import FolderQueries from './folders/queries';
 import {queueJobs} from './jobs/utils';
 import {DeletePermissionItemsCascadeFnsArgs} from './permissionItems/deleteItems/types';
 import EndpointReusableQueries from './queries';
@@ -235,7 +234,7 @@ export const kDeleteFileCascadeFns: DeleteResourceCascadeFnsMap<DeleteFileCascad
         Promise.all([
           kSemanticModels.file().deleteManyByIdList(args.fileIdList, opts),
           context.fileBackend.deleteFiles({
-            bucket: context.appVariables.S3Bucket,
+            bucket: kUtilsInjectables.config().S3Bucket,
             filepaths: args.fileIdList,
           }),
         ])
@@ -504,13 +503,10 @@ export const kDeleteFileBackendMountCascadeFns: DeleteResourceCascadeFnsMap = {
   [AppResourceTypeMap.Tag]: noopAsync,
   [AppResourceTypeMap.AssignedItem]: noopAsync,
   other: async (args, helpers) => {
-    await helpers.withTxn(opts =>
-      queueJobs<CleanupMountResolvedEntriesJobParams>(
-        args.workspaceId,
-        helpers.job.resourceId,
-        [{type: 'cleanupMountResolvedEntries', params: {mountId: args.resourceId}}],
-        opts
-      )
+    await queueJobs<CleanupMountResolvedEntriesJobParams>(
+      args.workspaceId,
+      helpers.job.resourceId,
+      [{type: 'cleanupMountResolvedEntries', params: {mountId: args.resourceId}}]
     );
   },
 };

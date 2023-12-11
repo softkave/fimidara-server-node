@@ -1,7 +1,6 @@
 import {UsageRecordCategoryMap} from '../../../definitions/usageRecord';
 import {streamToBuffer} from '../../../utils/fns';
 import RequestData from '../../RequestData';
-import {BaseContextType} from '../../contexts/types';
 import {kFolderConstants} from '../../folders/constants';
 import {addRootnameToPath} from '../../folders/utils';
 import {generateTestFileName} from '../../testUtils/generateData/file';
@@ -10,9 +9,8 @@ import {assertFileBodyEqual} from '../../testUtils/helpers/file';
 import {completeTest} from '../../testUtils/helpers/test';
 import {updateTestWorkspaceUsageLocks} from '../../testUtils/helpers/usageRecord';
 import {
-  assertContext,
+  assert,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertFileForTest,
   insertFolderForTest,
   insertPermissionItemsForTest,
@@ -29,39 +27,35 @@ import {ReadFileEndpointParams} from './types';
 import sharp = require('sharp');
 import assert = require('assert');
 
-let context: BaseContextType | null = null;
-
 jest.setTimeout(300000); // 5 minutes
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('readFile', () => {
   test('file returned', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {file} = await insertFileForTest(context, userToken, workspace);
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    const {file} = await insertFileForTest(userToken, workspace);
     const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {filepath: stringifyFilenamepath(file, workspace.rootname)}
     );
-    const result = await readFile(context, instData);
+    const result = await readFile(instData);
     assertEndpointResultOk(result);
-    await assertFileBodyEqual(context, file.resourceId, result.stream);
+    await assertFileBodyEqual(file.resourceId, result.stream);
   });
 
   test('file resized', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const startWidth = 500;
     const startHeight = 500;
-    const {file} = await insertFileForTest(context, userToken, workspace, {}, 'png', {
+    const {file} = await insertFileForTest(userToken, workspace, {}, 'png', {
       width: startWidth,
       height: startHeight,
     });
@@ -77,7 +71,7 @@ describe('readFile', () => {
         },
       }
     );
-    const result = await readFile(context, instData);
+    const result = await readFile(instData);
     assertEndpointResultOk(result);
     const resultBuffer = await streamToBuffer(result.stream);
     assert(resultBuffer);
@@ -87,19 +81,18 @@ describe('readFile', () => {
   });
 
   test('can read file from public folder', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
 
     // Make public folder
-    const {folder} = await insertFolderForTest(context, userToken, workspace);
-    await insertPermissionItemsForTest(context, userToken, workspace.resourceId, {
+    const {folder} = await insertFolderForTest(userToken, workspace);
+    await insertPermissionItemsForTest(userToken, workspace.resourceId, {
       target: {targetId: folder.resourceId},
       action: 'readFile',
       access: true,
       entityId: workspace.publicPermissionGroupId,
     });
-    const {file} = await insertFileForTest(context, userToken, workspace, {
+    const {file} = await insertFileForTest(userToken, workspace, {
       filepath: addRootnameToPath(
         folder.namepath
           .concat([generateTestFileName({includeStraySlashes: true})])
@@ -111,16 +104,15 @@ describe('readFile', () => {
       mockExpressRequestForPublicAgent(),
       {filepath: stringifyFilenamepath(file, workspace.rootname)}
     );
-    const result = await readFile(context, instData);
+    const result = await readFile(instData);
     assertEndpointResultOk(result);
   });
 
   test('can read public file', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {file} = await insertFileForTest(context, userToken, workspace);
-    await insertPermissionItemsForTest(context, userToken, workspace.resourceId, {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    const {file} = await insertFileForTest(userToken, workspace);
+    await insertPermissionItemsForTest(userToken, workspace.resourceId, {
       target: {targetId: file.resourceId},
       action: 'readFile',
       access: true,
@@ -130,35 +122,33 @@ describe('readFile', () => {
       mockExpressRequestForPublicAgent(),
       {filepath: stringifyFilenamepath(file, workspace.rootname)}
     );
-    const result = await readFile(context, instData);
+    const result = await readFile(instData);
     assertEndpointResultOk(result);
   });
 
   test('cannot read private file', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {file} = await insertFileForTest(context, userToken, workspace);
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    const {file} = await insertFileForTest(userToken, workspace);
     let instData: RequestData | null = null;
     try {
       instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
         mockExpressRequestForPublicAgent(),
         {filepath: stringifyFilenamepath(file, workspace.rootname)}
       );
-      await readFile(context, instData);
+      await readFile(instData);
     } catch (error: any) {
       expect(error?.name).toBe(PermissionDeniedError.name);
     }
   });
 
   test('file not returned if bandwidth usage is exceeded', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
-    const {file} = await insertFileForTest(context, userToken, workspace);
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    const {file} = await insertFileForTest(userToken, workspace);
 
     // Update usage locks
-    await updateTestWorkspaceUsageLocks(context, workspace.resourceId, [
+    await updateTestWorkspaceUsageLocks(workspace.resourceId, [
       UsageRecordCategoryMap.BandwidthOut,
     ]);
     const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
@@ -166,8 +156,7 @@ describe('readFile', () => {
       {filepath: stringifyFilenamepath(file, workspace.rootname)}
     );
     await expectErrorThrown(async () => {
-      assertContext(context);
-      await readFile(context, reqData);
+      await readFile(reqData);
     }, [UsageLimitExceededError.name]);
   });
 });

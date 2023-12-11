@@ -1,27 +1,27 @@
-import {map} from 'lodash';
-import {Connection as MongoConnection} from 'mongoose';
-import {AppMongoModels} from '../../db/types';
-import {FilePersistenceType, FimidaraConfig} from '../../resources/types';
-import {appAssert} from '../../utils/assertion';
-import {logRejectedPromisesAndThrow} from '../../utils/waitOnPromises';
-import SessionContext, {SessionContextType} from './SessionContext';
-import {SESEmailProviderContext} from './email/SESEmailProviderContext';
-import {IEmailProviderContext} from './email/types';
+import { map } from 'lodash';
+import { Connection as MongoConnection } from 'mongoose';
+import { AppMongoModels } from '../../db/types';
+import { FilePersistenceType, FimidaraConfig } from '../../resources/types';
+import { appAssert } from '../../utils/assertion';
+import { logRejectedPromisesAndThrow } from '../../utils/waitOnPromises';
+import { SESEmailProviderContext } from './email/SESEmailProviderContext';
+import { IEmailProviderContext } from './email/types';
 import LocalFsFilePersistenceProvider from './file/LocalFsFilePersistenceProvider';
 import MemoryFilePersistenceProvider from './file/MemoryFilePersistenceProvider';
-import {S3FilePersistenceProvider} from './file/S3FilePersistenceProvider';
-import {FilePersistenceProvider} from './file/types';
+import { S3FilePersistenceProvider } from './file/S3FilePersistenceProvider';
+import { FilePersistenceProvider } from './file/types';
 import {
   BaseContextDataProviders,
   BaseContextLogicProviders,
   BaseContextSemanticDataProviders,
   BaseContextType,
 } from './types';
+import Session {SessionContextType} from './SessionContext';
 
 export default class BaseContext<
   Data extends BaseContextDataProviders = BaseContextDataProviders,
   SemanticData extends BaseContextSemanticDataProviders = BaseContextSemanticDataProviders,
-  Email extends IEmailProviderContext = IEmailProviderContext,
+  Email extends IEmailProviderContext = IEmailProvider
   FileBackend extends FilePersistenceProvider = FilePersistenceProvider,
   AppVars extends FimidaraConfig = FimidaraConfig,
   Logic extends BaseContextLogicProviders = BaseContextLogicProviders

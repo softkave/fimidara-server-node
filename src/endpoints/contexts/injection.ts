@@ -20,6 +20,7 @@ export const kInjectionKeys = {
   logic: {
     permissions: logicKey('permissions'),
     jobs: logicKey('jobs'),
+    usageRecords: logicKey('usageRecords'),
   },
   data: {
     user: dataKey('user'),
@@ -36,6 +37,7 @@ export const kInjectionKeys = {
     tag: dataKey('tag'),
     job: dataKey('job'),
     resolvedMountEntry: dataKey('resolvedMountEntry'),
+    appRuntimeState: dataKey('appRuntimeState'),
     utils: dataKey('utils'),
   },
   semantic: {
@@ -68,4 +70,6 @@ export const kInjectionKeys = {
   fileProviderResolver: 'fileProviderResolver',
   asyncLocalStorage: 'asyncLocalStorage',
   session: 'session',
+  mongoConnection: 'mongoConnection',
+  email: 'email',
 };

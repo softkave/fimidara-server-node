@@ -1,12 +1,9 @@
 import {PermissionGroupMatcher} from '../../../definitions/permissionGroups';
-import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -14,22 +11,18 @@ import {
 } from '../../testUtils/testUtils';
 import deletePermissionGroup from './handler';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 test('permissionGroup permission group deleted', async () => {
-  assertContext(context);
-  const {userToken} = await insertUserForTest(context);
-  const {workspace} = await insertWorkspaceForTest(context, userToken);
+  const {userToken} = await insertUserForTest();
+  const {workspace} = await insertWorkspaceForTest(userToken);
   const {permissionGroup} = await insertPermissionGroupForTest(
-    context,
     userToken,
     workspace.resourceId
   );
@@ -39,10 +32,10 @@ test('permissionGroup permission group deleted', async () => {
       permissionGroupId: permissionGroup.resourceId,
     }
   );
-  const result = await deletePermissionGroup(context, instData);
+  const result = await deletePermissionGroup(instData);
   assertEndpointResultOk(result);
-  const deletedPermissionGroupExists = await context.semantic.agentToken.existsByQuery(
-    EndpointReusableQueries.getByResourceId(permissionGroup.resourceId)
-  );
+  const deletedPermissionGroupExists = await kSemanticModels
+    .agentToken()
+    .existsByQuery(EndpointReusableQueries.getByResourceId(permissionGroup.resourceId));
   expect(deletedPermissionGroupExists).toBeFalsy();
 });

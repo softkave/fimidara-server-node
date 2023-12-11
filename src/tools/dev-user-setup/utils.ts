@@ -1,45 +1,47 @@
 import * as assert from 'assert';
 import * as inquirer from 'inquirer';
-import {getMongoConnection} from '../../db/connection';
-import {CollaborationRequestStatusTypeMap} from '../../definitions/collaborationRequest';
-import {TokenAccessScopeMap} from '../../definitions/system';
-import {UserWithWorkspace} from '../../definitions/user';
-import {Workspace} from '../../definitions/workspace';
+import { getMongoConnection } from '../../db/connection';
+import { CollaborationRequestStatusTypeMap } from '../../definitions/collaborationRequest';
+import { TokenAccessScopeMap } from '../../definitions/system';
+import { UserWithWorkspace } from '../../definitions/user';
+import { Workspace } from '../../definitions/workspace';
 import RequestData from '../../endpoints/RequestData';
-import {assertAgentToken} from '../../endpoints/agentTokens/utils';
+import { assertAgentToken } from '../../endpoints/agentTokens/utils';
 import {
   addAssignedPermissionGroupList,
   assignWorkspaceToUser,
 } from '../../endpoints/assignedItems/addAssignedItems';
-import {INTERNAL_RespondToCollaborationRequest} from '../../endpoints/collaborationRequests/respondToRequest/utils';
-import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
+import { INTERNAL_RespondToCollaborationRequest } from '../../endpoints/collaborationRequests/respondToRequest/utils';
+import BaseContext, { getFileProvider } from '../../endpoints/contexts/BaseContext';
+import { kSemanticModels } from '../../endpoints/contexts/injectables';
 import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
 } from '../../endpoints/contexts/semantic/types';
-import {BaseContextType} from '../../endpoints/contexts/types';
 import {
   getLogicProviders,
   getMongoBackedSemanticDataProviders,
   getMongoDataProviders,
   getMongoModels,
 } from '../../endpoints/contexts/utils';
-import {fetchEntityAssignedPermissionGroupList} from '../../endpoints/permissionGroups/getEntityAssignedPermissionGroups/utils';
-import {assertPermissionGroup} from '../../endpoints/permissionGroups/utils';
-import {setupApp} from '../../endpoints/runtime/initAppSetup';
+import { fetchEntityAssignedPermissionGroupList } from '../../endpoints/permissionGroups/getEntityAssignedPermissionGroups/utils';
+import { assertPermissionGroup } from '../../endpoints/permissionGroups/utils';
+import { setupApp } from '../../endpoints/runtime/initAppSetup';
 import NoopEmailProviderContext from '../../endpoints/testUtils/context/email/NoopEmailProviderContext';
 import changePasswordWithToken from '../../endpoints/users/changePasswordWithToken/handler';
-import {ChangePasswordWithTokenEndpointParams} from '../../endpoints/users/changePasswordWithToken/types';
+import { ChangePasswordWithTokenEndpointParams } from '../../endpoints/users/changePasswordWithToken/types';
 import INTERNAL_confirmEmailAddress from '../../endpoints/users/confirmEmailAddress/internalConfirmEmailAddress';
-import {getForgotPasswordToken} from '../../endpoints/users/forgotPassword/forgotPassword';
-import {INTERNAL_signupUser} from '../../endpoints/users/signup/utils';
-import {getCompleteUserDataByEmail, isUserInWorkspace} from '../../endpoints/users/utils';
-import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME} from '../../endpoints/workspaces/addWorkspace/utils';
-import {fimidaraConfig} from '../../resources/vars';
-import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
-import {getTimestamp} from '../../utils/dateFns';
-import {serverLogger} from '../../utils/logger/loggerUtils';
-import {makeUserSessionAgent} from '../../utils/sessionUtils';
+import { getForgotPasswordToken } from '../../endpoints/users/forgotPassword/forgotPassword';
+import { INTERNAL_signupUser } from '../../endpoints/users/signup/utils';
+import { getCompleteUserDataByEmail, isUserInWorkspace } from '../../endpoints/users/utils';
+import { DEFAULT_ADMIN_PERMISSION_GROUP_NAME } from '../../endpoints/workspaces/addWorkspace/utils';
+import { fimidaraConfig } from '../../resources/vars';
+import { SYSTEM_SESSION_AGENT } from '../../utils/agent';
+import { getTimestamp } from '../../utils/dateFns';
+import { serverLogger } from '../../utils/logger/loggerUtils';
+import { makeUserSessionAgent } from '../../utils/sessionUtils';
+import Baseimport { from } from 'rxjs';
+ {getFileProvider} from '../../endpoints/contexts/BaseContext';
 
 export interface PromptEmailAnswers {
   email: string;
@@ -130,13 +132,13 @@ export async function devUserSetupPromptUserPassword() {
 }
 
 async function isUserAdmin(
-  context: BaseContextType,
+  
   userId: string,
   adminPermissionGroupId: string,
   opts?: SemanticProviderRunOptions
 ) {
   const {inheritanceMap} = await fetchEntityAssignedPermissionGroupList(
-    context,
+    
     userId,
     /** include inherited permission groups */ true,
     opts
@@ -146,18 +148,18 @@ async function isUserAdmin(
 }
 
 async function makeUserAdmin(
-  context: BaseContextType,
+  
   userId: string,
   workspace: Workspace,
   adminPermissionGroupId: string,
   opts: SemanticProviderMutationRunOptions
 ) {
-  const isAdmin = await isUserAdmin(context, userId, adminPermissionGroupId, opts);
+  const isAdmin = await isUserAdmin( userId, adminPermissionGroupId, opts);
 
   if (!isAdmin) {
     serverLogger.info('Making user admin');
     await addAssignedPermissionGroupList(
-      context,
+      
       SYSTEM_SESSION_AGENT,
       workspace.resourceId,
       [{permissionGroupId: adminPermissionGroupId}],
@@ -171,23 +173,25 @@ async function makeUserAdmin(
 }
 
 async function getUser(
-  context: BaseContextType,
+  
   runtimeOptions: ISetupDevUserOptions,
   opts?: SemanticProviderRunOptions
 ) {
   const {email} = await runtimeOptions.getUserEmail();
-  const userExists = await context.semantic.user.existsByEmail(email, opts);
+  const userExists = await kSemanticModels.user().existsByEmail(email, opts);
   let user: UserWithWorkspace;
 
   if (userExists) {
-    user = await getCompleteUserDataByEmail(context, email, opts);
+    user = await getCompleteUserDataByEmail( email, opts);
   } else {
     const userInfo = await runtimeOptions.getUserInfo();
-    user = await context.semantic.utils.withTxn(
-      context,
-      opts => INTERNAL_signupUser(context, {...userInfo, email}, {}, opts),
-      opts
-    );
+    user = await kSemanticModels
+      .utils()
+      .withTxn(
+        
+        opts => INTERNAL_signupUser( {...userInfo, email}, {}, opts),
+        opts
+      );
   }
 
   assert.ok(user);
@@ -195,19 +199,19 @@ async function getUser(
 }
 
 export async function setupDevUser(
-  context: BaseContextType,
+  
   appOptions: ISetupDevUserOptions
 ) {
   const consoleLogger = serverLogger;
-  const workspace = await setupApp(context);
-  const user = await getUser(context, appOptions);
+  const workspace = await setupApp();
+  const user = await getUser( appOptions);
   const isInWorkspace = isUserInWorkspace(user, workspace.resourceId);
 
   if (user.requiresPasswordChange) {
-    const forgotToken = await getForgotPasswordToken(context, user);
+    const forgotToken = await getForgotPasswordToken( user);
     const userPassword = await appOptions.getUserPassword();
     await changePasswordWithToken(
-      context,
+      
       new RequestData<ChangePasswordWithTokenEndpointParams>({
         data: {password: userPassword.password},
         agent: makeUserSessionAgent(user, forgotToken),
@@ -216,17 +220,19 @@ export async function setupDevUser(
   }
 
   if (user.isOnWaitlist) {
-    await context.semantic.utils.withTxn(context, opts =>
-      context.semantic.user.updateOneById(
-        user.resourceId,
-        {isOnWaitlist: false, removedFromWaitlistOn: getTimestamp()},
-        opts
-      )
-    );
+    await kSemanticModels
+      .utils()
+      .withTxn(opts =>
+        kSemanticModels.user().updateOneById(
+          user.resourceId,
+          {isOnWaitlist: false, removedFromWaitlistOn: getTimestamp()},
+          opts
+        )
+      );
   }
 
-  await context.semantic.utils.withTxn(context, async opts => {
-    const adminPermissionGroup = await context.semantic.permissionGroup.getByName(
+  await kSemanticModels.utils().withTxn(async opts => {
+    const adminPermissionGroup = await kSemanticModels.permissionGroup().getByName(
       workspace.resourceId,
       DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
       opts
@@ -235,14 +241,14 @@ export async function setupDevUser(
 
     if (isInWorkspace) {
       await makeUserAdmin(
-        context,
+        
         user.resourceId,
         workspace,
         adminPermissionGroup.resourceId,
         opts
       );
     } else {
-      const request = await context.semantic.collaborationRequest.getOneByEmail(
+      const request = await kSemanticModels.collaborationRequest().getOneByEmail(
         user.email,
         opts
       );
@@ -250,7 +256,7 @@ export async function setupDevUser(
       if (request) {
         consoleLogger.info('Existing collaboration request found');
         consoleLogger.info(`Accepting request ${request.resourceId}`);
-        const agentToken = await context.semantic.agentToken.getOneAgentToken(
+        const agentToken = await kSemanticModels.agentToken().getOneAgentToken(
           user.resourceId,
           TokenAccessScopeMap.Login,
           opts
@@ -258,7 +264,7 @@ export async function setupDevUser(
         assertAgentToken(agentToken);
         const agent = makeUserSessionAgent(user, agentToken);
         await INTERNAL_RespondToCollaborationRequest(
-          context,
+          
           agent,
           {
             requestId: request.resourceId,
@@ -269,7 +275,7 @@ export async function setupDevUser(
       } else {
         consoleLogger.info('Adding user to workspace');
         await assignWorkspaceToUser(
-          context,
+          
           SYSTEM_SESSION_AGENT,
           workspace.resourceId,
           user.resourceId,
@@ -278,7 +284,7 @@ export async function setupDevUser(
       }
 
       await makeUserAdmin(
-        context,
+        
         user.resourceId,
         workspace,
         adminPermissionGroup.resourceId,
@@ -293,6 +299,6 @@ export async function setupDevUser(
 
   if (!user.isEmailVerified) {
     consoleLogger.info(`Verifying email address for user ${user.email}`);
-    await INTERNAL_confirmEmailAddress(context, user.resourceId, user);
+    await INTERNAL_confirmEmailAddress( user.resourceId, user);
   }
 }

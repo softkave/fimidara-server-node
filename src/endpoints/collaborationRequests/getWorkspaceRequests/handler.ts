@@ -1,4 +1,5 @@
 import {validate} from '../../../utils/validate';
+import {kUtilsInjectables, kSemanticModels} from '../../contexts/injectables';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
@@ -10,14 +11,15 @@ import {getWorkspaceCollaborationRequestsQuery} from './utils';
 import {getWorkspaceCollaborationRequestsJoiSchema} from './validation';
 
 const getWorkspaceCollaborationRequests: GetWorkspaceCollaborationRequestsEndpoint =
-  async (context, instData) => {
+  async instData => {
     const data = validate(instData.data, getWorkspaceCollaborationRequestsJoiSchema);
-    const agent = await context.session.getAgent(context, instData);
+    const agent = await kUtilsInjectables.session().getAgent(instData);
     const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
-    const q = await getWorkspaceCollaborationRequestsQuery(context, agent, workspace);
+    const q = await getWorkspaceCollaborationRequestsQuery(agent, workspace);
     applyDefaultEndpointPaginationOptions(data);
-    const requests =
-      await context.semantic.collaborationRequest.getManyByWorkspaceAndIdList(q, data);
+    const requests = await kSemanticModels
+      .collaborationRequest()
+      .getManyByWorkspaceAndIdList(q, data);
     return {
       page: getEndpointPageFromInput(data),
       requests: collaborationRequestForWorkspaceListExtractor(requests),

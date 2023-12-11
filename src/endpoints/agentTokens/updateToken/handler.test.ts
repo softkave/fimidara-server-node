@@ -1,13 +1,12 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {BaseContextType} from '../../contexts/types';
+import {kSemanticModels} from '../../contexts/injectables';
 import EndpointReusableQueries from '../../queries';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
+  initTest,
   insertAgentTokenForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -23,21 +22,18 @@ import {UpdateAgentTokenEndpointParams, UpdateAgentTokenInput} from './types';
  * - [Low] Test that onReferenced feature works
  */
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 test('agent token updated', async () => {
-  assertContext(context);
-  const {userToken} = await insertUserForTest(context);
-  const {workspace} = await insertWorkspaceForTest(context, userToken);
-  const {token: token01} = await insertAgentTokenForTest(context, userToken, workspace.resourceId);
+  const {userToken} = await insertUserForTest();
+  const {workspace} = await insertWorkspaceForTest(userToken);
+  const {token: token01} = await insertAgentTokenForTest(userToken, workspace.resourceId);
   const tokenUpdateInput: UpdateAgentTokenInput = {
     name: faker.lorem.words(10),
     description: faker.lorem.words(10),
@@ -45,19 +41,21 @@ test('agent token updated', async () => {
 
   const instData = RequestData.fromExpressRequest<UpdateAgentTokenEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
-    {tokenId: token01.resourceId, token: tokenUpdateInput, workspaceId: workspace.resourceId}
+    {
+      tokenId: token01.resourceId,
+      token: tokenUpdateInput,
+      workspaceId: workspace.resourceId,
+    }
   );
-  const result = await updateAgentToken(context, instData);
+  const result = await updateAgentToken(instData);
   assertEndpointResultOk(result);
 
   const updatedToken = getPublicAgentToken(
-    context,
     await populateAssignedTags(
-      context,
       workspace.resourceId,
-      await context.semantic.agentToken.assertGetOneByQuery(
-        EndpointReusableQueries.getByResourceId(token01.resourceId)
-      )
+      await kSemanticModels
+        .agentToken()
+        .assertGetOneByQuery(EndpointReusableQueries.getByResourceId(token01.resourceId))
     )
   );
   expect(agentTokenExtractor(updatedToken)).toMatchObject(result.token);

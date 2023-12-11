@@ -1,5 +1,4 @@
 import {Folder, FolderMatcher} from '../../../definitions/folder';
-import {BaseContextType} from '../../contexts/types';
 import {LongRunningJobResult} from '../../jobs/types';
 import {
   DeleteResourceCascadeFnDefaultArgs,
@@ -14,7 +13,6 @@ export interface DeleteFolderEndpointResult extends LongRunningJobResult {
 }
 
 export type DeleteFolderEndpoint = Endpoint<
-  BaseContextType,
   DeleteFolderEndpointParams,
   DeleteFolderEndpointResult
 >;

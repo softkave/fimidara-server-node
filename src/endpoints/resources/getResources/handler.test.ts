@@ -6,7 +6,6 @@ import {AppResourceTypeMap, Resource} from '../../../definitions/system';
 import RequestData from '../../RequestData';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {collaboratorExtractor} from '../../collaborators/utils';
-import {BaseContextType} from '../../contexts/types';
 import {stringifyFilenamepath} from '../../files/utils';
 import {stringifyFoldernamepath} from '../../folders/utils';
 import {generateAndInsertTestFiles} from '../../testUtils/generateData/file';
@@ -14,9 +13,7 @@ import {generateAndInsertTestFolders} from '../../testUtils/generateData/folder'
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -31,28 +28,25 @@ import {GetResourcesEndpointParams} from './types';
  * - test resources that the agent doesn't have read permission to
  */
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('getResources', () => {
   test('resources returned', async () => {
-    assertContext(context);
-    const {userToken, rawUser} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken, rawUser} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const [{permissionGroup}, folders, files] = await Promise.all([
-      insertPermissionGroupForTest(context, userToken, workspace.resourceId),
-      generateAndInsertTestFolders(context, 2, {
+      insertPermissionGroupForTest(userToken, workspace.resourceId),
+      generateAndInsertTestFolders(2, {
         workspaceId: workspace.resourceId,
         parentId: null,
       }),
-      generateAndInsertTestFiles(context, 2, {
+      generateAndInsertTestFiles(2, {
         workspaceId: workspace.resourceId,
         parentId: null,
       }),
@@ -85,10 +79,7 @@ describe('getResources', () => {
     addToExpectedResourcesById(workspace, 'readWorkspace');
     addToExpectedResourcesById(permissionGroup, 'updatePermission');
     addToExpectedResourcesById(
-      collaboratorExtractor(
-        await populateUserWorkspaces(context, rawUser),
-        workspace.resourceId
-      ),
+      collaboratorExtractor(await populateUserWorkspaces(rawUser), workspace.resourceId),
       'readCollaborator'
     );
     items.forEach(item => addToExpectedResourcesById(item, 'updatePermission'));
@@ -109,7 +100,7 @@ describe('getResources', () => {
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId, resources: resourcesInput}
     );
-    const result = await getResources(context, instData);
+    const result = await getResources(instData);
 
     assertEndpointResultOk(result);
     expect(result.resources).toHaveLength(resourcesInput.length);

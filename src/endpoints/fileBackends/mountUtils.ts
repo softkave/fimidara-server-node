@@ -30,7 +30,6 @@ import {kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
 import {kInjectionKeys} from '../contexts/injection';
 import {
   SemanticFileBackendMountProvider,
-  SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
@@ -246,9 +245,8 @@ export async function insertResolvedMountEntries(props: {
   mountIds: string[];
   resource: Pick<File, 'resourceId' | 'namepath' | 'extension'>;
   workspaceId: string;
-  opts?: SemanticProviderMutationRunOptions;
 }) {
-  const {mountIds, resource, workspaceId, agent, opts} = props;
+  const {mountIds, resource, workspaceId, agent} = props;
 
   await kSemanticModels.utils().withTxn(async opts => {
     const existingEntries = await kSemanticModels.resolvedMountEntry().getManyByQuery({
@@ -293,7 +291,7 @@ export async function insertResolvedMountEntries(props: {
     );
 
     await Promise.all([insertPromise, updatePromise]);
-  }, opts);
+  });
 }
 
 export async function runCleanupMountResolvedEntriesJob(

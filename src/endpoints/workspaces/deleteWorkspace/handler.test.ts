@@ -1,13 +1,10 @@
 import assert from 'assert';
 import RequestData from '../../RequestData';
-import {BaseContextType} from '../../contexts/types';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -19,32 +16,28 @@ import deleteWorkspace from './handler';
  * - Confirm that workspace artifacts are deleted
  */
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 test('workspace deleted', async () => {
-  assertContext(context);
-  const {userToken} = await insertUserForTest(context);
-  const {workspace} = await insertWorkspaceForTest(context, userToken);
+  const {userToken} = await insertUserForTest();
+  const {workspace} = await insertWorkspaceForTest(userToken);
   const result = await deleteWorkspace(
-    context,
     RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
       workspaceId: workspace.resourceId,
     })
   );
   assertEndpointResultOk(result);
   assert(result.jobId);
-  await executeJob(context, result.jobId);
-  await waitForJob(context, result.jobId);
-  const savedWorkspace = await context.semantic.workspace.getOneByQuery(
-    EndpointReusableQueries.getByResourceId(workspace.resourceId)
-  );
+  await executeJob(result.jobId);
+  await waitForJob(result.jobId);
+  const savedWorkspace = await kSemanticModels
+    .workspace()
+    .getOneByQuery(EndpointReusableQueries.getByResourceId(workspace.resourceId));
   expect(savedWorkspace).toBeFalsy();
 });

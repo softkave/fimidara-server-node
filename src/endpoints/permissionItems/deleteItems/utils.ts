@@ -14,7 +14,6 @@ import {indexArray} from '../../../utils/indexArray';
 import {GetTypeFromTypeOrArray} from '../../../utils/types';
 import {DataQuery} from '../../contexts/data/types';
 import {getInAndNinQuery} from '../../contexts/semantic/utils';
-import {BaseContextType} from '../../contexts/types';
 import {kFolderConstants} from '../../folders/constants';
 import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {PermissionItemInputTarget} from '../types';
@@ -22,7 +21,6 @@ import {getPermissionItemTargets} from '../utils';
 import {DeletePermissionItemInput, DeletePermissionItemsEndpointParams} from './types';
 
 export const INTERNAL_deletePermissionItems = async (
-  context: BaseContextType,
   agent: SessionAgent,
   workspace: Workspace,
   data: DeletePermissionItemsEndpointParams
@@ -36,7 +34,7 @@ export const INTERNAL_deletePermissionItems = async (
 
   // Fetch targets
   const [targets] = await Promise.all([
-    getPermissionItemTargets(context, agent, workspace, inputTargets),
+    getPermissionItemTargets(agent, workspace, inputTargets),
   ]);
 
   // For indexing files and folders by name path
@@ -155,7 +153,7 @@ export const INTERNAL_deletePermissionItems = async (
 
   // TODO: deleting one after the other may not be the best way to go here
   const result: PermissionItem[] = await Promise.all(
-    queries.map(query => context.semantic.permissionItem.getManyByQuery(query))
+    queries.map(query => kSemanticModels.permissionItem().getManyByQuery(query))
   );
   const permissionItems = flatten(result);
   const permissionItemsIdList = extractResourceIdList(permissionItems);

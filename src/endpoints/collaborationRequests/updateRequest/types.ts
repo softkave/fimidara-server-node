@@ -1,5 +1,4 @@
 import {PublicCollaborationRequestForWorkspace} from '../../../definitions/collaborationRequest';
-import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export interface UpdateCollaborationRequestInput {
@@ -18,7 +17,6 @@ export interface UpdateCollaborationRequestEndpointResult {
 }
 
 export type UpdateCollaborationRequestEndpoint = Endpoint<
-  BaseContextType,
   UpdateCollaborationRequestEndpointParams,
   UpdateCollaborationRequestEndpointResult
 >;

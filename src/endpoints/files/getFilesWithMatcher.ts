@@ -17,8 +17,7 @@ import {PermissionDeniedError} from '../users/errors';
 import {assertFile, checkFileAuthorization, readOrIngestFileByFilepath} from './utils';
 
 export async function checkAndIncrementFilePresignedPathUsageCount(
-  presignedPath: FilePresignedPath,
-  opts?: SemanticProviderRunOptions
+  presignedPath: FilePresignedPath
 ) {
   return await kSemanticModels.utils().withTxn(async opts => {
     if (
@@ -39,7 +38,7 @@ export async function checkAndIncrementFilePresignedPathUsageCount(
     assertFile(updatedPresignedPath);
 
     return updatedPresignedPath;
-  }, opts);
+  });
 }
 
 export function extractFilePresignedPathIdFromFilepath(filepath: string) {
@@ -76,10 +75,7 @@ export async function getFileByPresignedPath(
   appAssert(presignedPath.action.includes(action), new PermissionDeniedError());
 
   if (incrementUsageCount) {
-    presignedPath = await checkAndIncrementFilePresignedPathUsageCount(
-      presignedPath,
-      opts
-    );
+    presignedPath = await checkAndIncrementFilePresignedPathUsageCount(presignedPath);
   }
 
   const file = await kSemanticModels.file().getOneByNamepath(

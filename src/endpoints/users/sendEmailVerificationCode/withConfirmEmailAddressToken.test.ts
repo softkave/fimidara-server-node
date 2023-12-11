@@ -8,24 +8,21 @@ import {
 import {User} from '../../../definitions/user';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getNewIdForResource, newResource} from '../../../utils/resource';
-import {BaseContextType} from '../../contexts/types';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {completeTest} from '../../testUtils/helpers/test';
-import {assertContext, initTestBaseContext} from '../../testUtils/testUtils';
+import {initTest} from '../../testUtils/testUtils';
 import {userConstants} from '../constants';
 import {withConfirmEmailAddressToken} from './withConfirmEmailAddressToken';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 async function createTestEmailVerificationToken(userId: string) {
-  assertContext(context);
   const token = newResource<AgentToken>(AppResourceTypeMap.AgentToken, {
     separateEntityId: userId,
     scope: [TokenAccessScopeMap.ConfirmEmailAddress],
@@ -35,9 +32,9 @@ async function createTestEmailVerificationToken(userId: string) {
     createdBy: SYSTEM_SESSION_AGENT,
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
   });
-  await context.semantic.utils.withTxn(context, opts =>
-    context!.semantic.agentToken.insertItem(token, opts)
-  );
+  await kSemanticModels
+    .utils()
+    .withTxn(opts => context!.semantic.agentToken.insertItem(token, opts));
   return token;
 }
 
@@ -58,10 +55,8 @@ function assertLinkWithToken(link: string, token?: string | null, prevLink?: str
 
 describe('withConfirmEmailAddress', () => {
   test('email verification token added with other params preserved', async () => {
-    assertContext(context);
     const prevLink = 'http://localhost/?token=prevToken';
     const link = await withConfirmEmailAddressToken(
-      context,
       {
         resourceId: getNewIdForResource(AppResourceTypeMap.User),
         isEmailVerified: false,
@@ -72,35 +67,27 @@ describe('withConfirmEmailAddress', () => {
   });
 
   test('email verification token reused', async () => {
-    assertContext(context);
     const userId = getNewIdForResource(AppResourceTypeMap.User);
     const token = await createTestEmailVerificationToken(userId);
     const prevLink = 'http://localhost/?token=prevToken';
     const link = await withConfirmEmailAddressToken(
-      context,
       {resourceId: userId, isEmailVerified: false} as User,
       prevLink
     );
-    const encodedToken = context.session.encodeToken(
-      context,
-      token.resourceId,
-      token.expires
-    );
+    const encodedToken = kUtilsInjectables
+      .session()
+      .encodeToken(token.resourceId, token.expires);
     assertLinkWithToken(link, encodedToken, prevLink);
   });
 
   test('email verification token not added if already exist', async () => {
-    assertContext(context);
     const userId = getNewIdForResource(AppResourceTypeMap.User);
     const token = await createTestEmailVerificationToken(userId);
-    const encodedToken = context.session.encodeToken(
-      context,
-      token.resourceId,
-      token.expires
-    );
+    const encodedToken = kUtilsInjectables
+      .session()
+      .encodeToken(token.resourceId, token.expires);
     const prevLink = `http://localhost/?token=prevToken&${userConstants.confirmEmailTokenQueryParam}=${encodedToken}`;
     const link = await withConfirmEmailAddressToken(
-      context,
       {
         resourceId: getNewIdForResource(AppResourceTypeMap.User),
         isEmailVerified: false,
@@ -112,10 +99,8 @@ describe('withConfirmEmailAddress', () => {
   });
 
   test('email verification token not added if user already verified', async () => {
-    assertContext(context);
     const prevLink = 'http://localhost/';
     const link = await withConfirmEmailAddressToken(
-      context,
       {
         resourceId: getNewIdForResource(AppResourceTypeMap.User),
         isEmailVerified: true,

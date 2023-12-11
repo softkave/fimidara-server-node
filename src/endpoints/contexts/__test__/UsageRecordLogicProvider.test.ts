@@ -20,8 +20,8 @@ import {generateTestWorkspace} from '../../testUtils/generateData/workspace';
 import {dropMongoConnection} from '../../testUtils/helpers/mongo';
 import {completeTest} from '../../testUtils/helpers/test';
 import BaseContext from '../BaseContext';
+import {kSemanticModels} from '../injectables';
 import {UsageRecordInput} from '../logic/UsageRecordLogicProvider';
-import {BaseContextType} from '../types';
 import {
   getLogicProviders,
   getMongoBackedSemanticDataProviders,
@@ -36,7 +36,6 @@ import assert = require('assert');
  */
 
 let connection: Connection | null = null;
-let context: BaseContextType | null = null;
 
 beforeAll(async () => {
   const testVars = merge({}, fimidaraConfig);
@@ -61,16 +60,16 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 function assertDeps() {
   assert(connection);
-  assert(context);
+  assert();
   return {connection, context};
 }
 
-async function getSumRecords(ctx: BaseContextType, recordId: string) {
+async function getSumRecords(recordId: string) {
   const record = await ctx.data.usageRecord.assertGetOneByQuery(
     EndpointReusableQueries.getByResourceId(recordId)
   );
@@ -84,9 +83,9 @@ describe('UsageRecordLogicProvider', () => {
     const workspace = generateTestWorkspace({
       usageThresholds: {storage: {budget: threshold}},
     });
-    await context.semantic.utils.withTxn(context, opts =>
-      context!.semantic.workspace.insertItem(workspace, opts)
-    );
+    await kSemanticModels
+      .utils()
+      .withTxn(opts => context!.semantic.workspace.insertItem(workspace, opts));
     const recordId = getNewIdForResource(AppResourceTypeMap.UsageRecord);
     const input: UsageRecordInput = {
       resourceId: recordId,
@@ -95,12 +94,14 @@ describe('UsageRecordLogicProvider', () => {
       usage: threshold - 1,
     };
 
-    const status = await context.semantic.utils.withTxn(context, opts =>
-      context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input, opts)
-    );
+    const status = await kSemanticModels
+      .utils()
+      .withTxn(opts =>
+        context.logic.usageRecord.insert(SYSTEM_SESSION_AGENT, input, opts)
+      );
 
     expect(status).toMatchObject({permitted: true, reason: null});
-    const {record} = await getSumRecords(context, recordId);
+    const {record} = await getSumRecords(recordId);
     expect(record.summationType).toBe(UsageSummationTypeMap.Instance);
     expect(record.fulfillmentStatus).toBe(UsageRecordFulfillmentStatusMap.Fulfilled);
     expect(record).toMatchObject(input);
@@ -110,9 +111,9 @@ describe('UsageRecordLogicProvider', () => {
     const {context} = assertDeps();
     const workspace = generateTestWorkspace();
     workspace.billStatus = WorkspaceBillStatusMap.BillOverdue;
-    await context.semantic.utils.withTxn(context, opts =>
-      context!.semantic.workspace.insertItem(workspace, opts)
-    );
+    await kSemanticModels
+      .utils()
+      .withTxn(opts => context!.semantic.workspace.insertItem(workspace, opts));
     const recordId = getNewIdForResource(AppResourceTypeMap.UsageRecord);
     const input: UsageRecordInput = {
       resourceId: recordId,
@@ -120,14 +121,16 @@ describe('UsageRecordLogicProvider', () => {
       category: UsageRecordCategoryMap.Storage,
       usage: faker.number.int(),
     };
-    const status = await context.semantic.utils.withTxn(context, opts =>
-      context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input, opts)
-    );
+    const status = await kSemanticModels
+      .utils()
+      .withTxn(opts =>
+        context.logic.usageRecord.insert(SYSTEM_SESSION_AGENT, input, opts)
+      );
     expect(status).toMatchObject({
       permitted: false,
       reason: UsageRecordDropReasonMap.BillOverdue,
     });
-    const {record} = await getSumRecords(context, recordId);
+    const {record} = await getSumRecords(recordId);
     expect(record.summationType).toBe(UsageSummationTypeMap.Instance);
     expect(record.fulfillmentStatus).toBe(UsageRecordFulfillmentStatusMap.Dropped);
     expect(record).toMatchObject(input);
@@ -138,9 +141,9 @@ describe('UsageRecordLogicProvider', () => {
     const workspace = generateWorkspaceWithCategoryUsageExceeded([
       UsageRecordCategoryMap.Total,
     ]);
-    await context.semantic.utils.withTxn(context, opts =>
-      context!.semantic.workspace.insertItem(workspace, opts)
-    );
+    await kSemanticModels
+      .utils()
+      .withTxn(opts => context!.semantic.workspace.insertItem(workspace, opts));
     const recordId = getNewIdForResource(AppResourceTypeMap.UsageRecord);
     const input: UsageRecordInput = {
       resourceId: recordId,
@@ -148,14 +151,16 @@ describe('UsageRecordLogicProvider', () => {
       category: UsageRecordCategoryMap.Storage,
       usage: faker.number.int(),
     };
-    const status = await context.semantic.utils.withTxn(context, opts =>
-      context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input, opts)
-    );
+    const status = await kSemanticModels
+      .utils()
+      .withTxn(opts =>
+        context.logic.usageRecord.insert(SYSTEM_SESSION_AGENT, input, opts)
+      );
     expect(status).toMatchObject({
       permitted: false,
       reason: UsageRecordDropReasonMap.UsageExceeded,
     });
-    const {record} = await getSumRecords(context, recordId);
+    const {record} = await getSumRecords(recordId);
     expect(record.summationType).toBe(UsageSummationTypeMap.Instance);
     expect(record.fulfillmentStatus).toBe(UsageRecordFulfillmentStatusMap.Dropped);
     expect(record).toMatchObject(input);
@@ -166,9 +171,9 @@ describe('UsageRecordLogicProvider', () => {
     const workspace = generateWorkspaceWithCategoryUsageExceeded([
       UsageRecordCategoryMap.Storage,
     ]);
-    await context.semantic.utils.withTxn(context, opts =>
-      context!.semantic.workspace.insertItem(workspace, opts)
-    );
+    await kSemanticModels
+      .utils()
+      .withTxn(opts => context!.semantic.workspace.insertItem(workspace, opts));
     const recordId = getNewIdForResource(AppResourceTypeMap.UsageRecord);
     const input: UsageRecordInput = {
       resourceId: recordId,
@@ -176,14 +181,16 @@ describe('UsageRecordLogicProvider', () => {
       category: UsageRecordCategoryMap.Storage,
       usage: faker.number.int(),
     };
-    const status = await context.semantic.utils.withTxn(context, opts =>
-      context.logic.usageRecord.insert(context, SYSTEM_SESSION_AGENT, input, opts)
-    );
+    const status = await kSemanticModels
+      .utils()
+      .withTxn(opts =>
+        context.logic.usageRecord.insert(SYSTEM_SESSION_AGENT, input, opts)
+      );
     expect(status).toMatchObject({
       permitted: false,
       reason: UsageRecordDropReasonMap.UsageExceeded,
     });
-    const {record} = await getSumRecords(context, recordId);
+    const {record} = await getSumRecords(recordId);
     expect(record.summationType).toBe(UsageSummationTypeMap.Instance);
     expect(record.fulfillmentStatus).toBe(UsageRecordFulfillmentStatusMap.Dropped);
     expect(record).toMatchObject(input);

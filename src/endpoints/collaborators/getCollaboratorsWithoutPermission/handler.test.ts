@@ -4,7 +4,6 @@ import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {extractResourceIdList, getResourceId} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import RequestData from '../../RequestData';
-import {BaseContextType} from '../../contexts/types';
 import {
   assignPgListToIdList,
   toAssignedPgListInput,
@@ -14,9 +13,7 @@ import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/gener
 import {expectContainsNoneInForAnyType} from '../../testUtils/helpers/assertion';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertPermissionItemsForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -25,24 +22,20 @@ import {
 import getCollaboratorsWithoutPermission from './handler';
 import {GetCollaboratorsWithoutPermissionEndpointParams} from './types';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('getCollaboratorsWithoutPermission', () => {
   test('success', async () => {
-    assertContext(context);
-    const {userToken, rawUser} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken, rawUser} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const seedCount = 12;
     const seedUsers = await generateAndInsertCollaboratorListForTest(
-      context,
       SYSTEM_SESSION_AGENT,
       workspace.resourceId,
       seedCount
@@ -52,16 +45,11 @@ describe('getCollaboratorsWithoutPermission', () => {
     const seedUserWithoutPermissions = seedUsers.slice(6);
 
     // assign permissionn group to a subset of users
-    const permissionGroups = await generateAndInsertPermissionGroupListForTest(
-      context,
-      1,
-      {
-        workspaceId: workspace.resourceId,
-      }
-    );
+    const permissionGroups = await generateAndInsertPermissionGroupListForTest(1, {
+      workspaceId: workspace.resourceId,
+    });
     const sessionAgent = makeUserSessionAgent(rawUser, userToken);
     await assignPgListToIdList(
-      context,
       sessionAgent,
       workspace.resourceId,
       extractResourceIdList(seedUserWithPermissionGroups),
@@ -69,7 +57,7 @@ describe('getCollaboratorsWithoutPermission', () => {
     );
 
     // add permission items to a subset of users
-    await insertPermissionItemsForTest(context, userToken, workspace.resourceId, {
+    await insertPermissionItemsForTest(userToken, workspace.resourceId, {
       entityId: extractResourceIdList(seedUserWithPermissionItems),
       target: {targetId: workspace.resourceId},
       access: true,
@@ -82,11 +70,10 @@ describe('getCollaboratorsWithoutPermission', () => {
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId}
       );
-    const result = await getCollaboratorsWithoutPermission(context, instData);
+    const result = await getCollaboratorsWithoutPermission(instData);
     assertEndpointResultOk(result);
     expect(result.collaboratorIds).toHaveLength(seedUserWithoutPermissions.length);
     await assertCollaboratorsDoNotHavePermissions(
-      context,
       result.collaboratorIds,
       seedUserWithPermissionGroups.concat(seedUserWithPermissionItems)
     );
@@ -94,16 +81,15 @@ describe('getCollaboratorsWithoutPermission', () => {
 });
 
 async function assertCollaboratorsDoNotHavePermissions(
-  context: BaseContextType,
   collaboratorIdList: string[],
   notContainedInList?: Resource[]
 ) {
-  let count = await context.semantic.assignedItem.countByQuery({
+  let count = await kSemanticModels.assignedItem().countByQuery({
     assigneeId: {$in: collaboratorIdList},
     assignedItemType: AppResourceTypeMap.PermissionGroup,
   });
   expect(count).toBe(0);
-  count = await context.semantic.permissionItem.countByQuery({
+  count = await kSemanticModels.permissionItem().countByQuery({
     entityId: {$in: collaboratorIdList},
   });
   expect(count).toBe(0);

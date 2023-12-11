@@ -1,10 +1,7 @@
-import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertFileBackendConfigForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -18,22 +15,18 @@ import {GetFileBackendConfigEndpointParams} from './types';
  * - [Low] Check that onReferenced feature works
  */
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 test('referenced agent token returned', async () => {
-  assertContext(context);
-  const {userToken} = await insertUserForTest(context);
-  const {workspace} = await insertWorkspaceForTest(context, userToken);
+  const {userToken} = await insertUserForTest();
+  const {workspace} = await insertWorkspaceForTest(userToken);
   const {token: token01} = await insertFileBackendConfigForTest(
-    context,
     userToken,
     workspace.resourceId
   );
@@ -42,7 +35,7 @@ test('referenced agent token returned', async () => {
     mockExpressRequestWithFileBackendConfig(userToken),
     {tokenId: token01.resourceId, workspaceId: workspace.resourceId}
   );
-  const result = await getFileBackendConfig(context, instData);
+  const result = await getFileBackendConfig(instData);
   assertEndpointResultOk(result);
   expect(result.token).toEqual(token01);
 });

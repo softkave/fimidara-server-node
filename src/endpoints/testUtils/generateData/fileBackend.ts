@@ -29,6 +29,7 @@ export function generateFileBackendMountForTest(seed: Partial<FileBackendMount> 
     index: faker.number.int(),
     mountedFrom: faker.system.directoryPath().split('/'),
     backend: faker.helpers.arrayElement(Object.values(FileBackendTypeMap)),
+    name: faker.lorem.words(),
     ...seed,
   };
   return mount;

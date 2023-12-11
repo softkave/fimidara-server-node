@@ -1,9 +1,11 @@
+import {Connection} from 'mongoose';
 import {container} from 'tsyringe';
 import {FimidaraConfig} from '../../resources/types';
 import {SessionContextType} from './SessionContext';
 import {AsyncLocalStorageUtils} from './asyncLocalStorage';
 import {
   AgentTokenDataProvider,
+  AppRuntimeStateDataProvider,
   AssignedItemDataProvider,
   DataProviderUtils,
   FileBackendConfigDataProvider,
@@ -19,9 +21,11 @@ import {
   UserDataProvider,
   WorkspaceDataProvider,
 } from './data/types';
+import {IEmailProviderContext} from './email/types';
 import {SecretsManagerProvider} from './encryption/types';
 import {FileProviderResolver} from './file/types';
 import {kInjectionKeys} from './injection';
+import {UsageRecordLogicProvider} from './logic/UsageRecordLogicProvider';
 import {SemanticAgentTokenProvider} from './semantic/agentToken/types';
 import {SemanticAssignedItemProvider} from './semantic/assignedItem/types';
 import {SemanticCollaborationRequestProvider} from './semantic/collaborationRequest/types';
@@ -125,6 +129,8 @@ export const kDataModels = {
     container.resolve<ResolvedMountEntryDataProvider>(
       kInjectionKeys.data.resolvedMountEntry
     ),
+  appRuntimeState: () =>
+    container.resolve<AppRuntimeStateDataProvider>(kInjectionKeys.data.appRuntimeState),
   utils: () => container.resolve<DataProviderUtils>(kInjectionKeys.data.utils),
 };
 
@@ -137,4 +143,11 @@ export const kUtilsInjectables = {
   asyncLocalStorage: () =>
     container.resolve<AsyncLocalStorageUtils>(kInjectionKeys.asyncLocalStorage),
   session: () => container.resolve<SessionContextType>(kInjectionKeys.session),
+  mongoConnection: () => container.resolve<Connection>(kInjectionKeys.mongoConnection),
+  email: () => container.resolve<IEmailProviderContext>(kInjectionKeys.email),
+};
+
+export const kLogicProviders = {
+  usageRecords: () =>
+    container.resolve<UsageRecordLogicProvider>(kInjectionKeys.logic.usageRecords),
 };

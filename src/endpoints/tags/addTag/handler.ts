@@ -3,18 +3,18 @@ import {Tag} from '../../../definitions/tag';
 import {newWorkspaceResource} from '../../../utils/resource';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils';
 import {checkTagNameExists} from '../checkTagNameExists';
 import {tagExtractor} from '../utils';
 import {AddTagEndpoint} from './types';
 import {addTagJoiSchema} from './validation';
 
-const addTag: AddTagEndpoint = async (context, instData) => {
+const addTag: AddTagEndpoint = async instData => {
   const data = validate(instData.data, addTagJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
-  const workspace = await checkWorkspaceExistsWithAgent(context, agent, data.workspaceId);
+  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const workspace = await checkWorkspaceExistsWithAgent(agent, data.workspaceId);
   await checkAuthorizationWithAgent({
-    context,
     agent,
     workspace,
     workspaceId: workspace.resourceId,
@@ -27,9 +27,9 @@ const addTag: AddTagEndpoint = async (context, instData) => {
     workspace.resourceId,
     {...data.tag}
   );
-  await context.semantic.utils.withTxn(context, async opts => {
-    await checkTagNameExists(context, workspace.resourceId, data.tag.name, opts);
-    await context.semantic.tag.insertItem(tag, opts);
+  await kSemanticModels.utils().withTxn(async opts => {
+    await checkTagNameExists(workspace.resourceId, data.tag.name, opts);
+    await kSemanticModels.tag().insertItem(tag, opts);
   });
 
   return {tag: tagExtractor(tag)};

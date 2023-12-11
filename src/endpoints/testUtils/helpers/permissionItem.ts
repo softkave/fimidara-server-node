@@ -2,11 +2,10 @@ import {PermissionAction, PermissionItem} from '../../../definitions/permissionI
 import {AppResourceType} from '../../../definitions/system';
 import {makeKey, toArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
+import {kSemanticModels} from '../../contexts/injectables';
 import {getInAndNinQuery} from '../../contexts/semantic/utils';
-import {BaseContextType} from '../../contexts/types';
 
 export async function expectEntityHasPermissionsTargetingId(
-  context: BaseContextType,
   entityId: string | string[],
   action: PermissionAction | PermissionAction[],
   targetId: string | string[],
@@ -16,7 +15,7 @@ export async function expectEntityHasPermissionsTargetingId(
   // implementation is not factoring in appliesTo
 
   // fetch permission items
-  const items = await context.semantic.permissionItem.getManyByQuery({
+  const items = await kSemanticModels.permissionItem().getManyByQuery({
     ...getInAndNinQuery<PermissionItem>('entityId', entityId),
     ...getInAndNinQuery<PermissionItem>('action', action),
     ...getInAndNinQuery<PermissionItem>('targetId', targetId),
@@ -41,7 +40,6 @@ export async function expectEntityHasPermissionsTargetingId(
 }
 
 export async function expectEntityHasPermissionsTargetingType(
-  context: BaseContextType,
   entityId: string | string[],
   action: PermissionAction | PermissionAction[],
   targetId: string,
@@ -49,7 +47,7 @@ export async function expectEntityHasPermissionsTargetingType(
   result: boolean
 ) {
   // fetch permission items
-  const items = await context.semantic.permissionItem.getManyByQuery({
+  const items = await kSemanticModels.permissionItem().getManyByQuery({
     ...getInAndNinQuery<PermissionItem>('entityId', entityId),
     ...getInAndNinQuery<PermissionItem>('action', action),
     ...getInAndNinQuery<PermissionItem>('targetType', targetType),

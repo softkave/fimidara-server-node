@@ -6,7 +6,7 @@ import {
 } from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {validate} from '../../../utils/validate';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {areMountsCompletelyIngestedForFolder} from '../../fileBackends/mountUtils';
 import {fileListExtractor} from '../../files/utils';
 import {
@@ -23,14 +23,12 @@ import {ListFolderContentEndpoint} from './types';
 import {getWorkspaceAndParentFolder, listFolderContentQuery} from './utils';
 import {listFolderContentJoiSchema} from './validation';
 
-const listFolderContent: ListFolderContentEndpoint = async (context, instData) => {
+const listFolderContent: ListFolderContentEndpoint = async instData => {
   const data = validate(instData.data, listFolderContentJoiSchema);
-  const agent = await context.session.getAgent(context, instData, PERMISSION_AGENT_TYPES);
-  const {workspace, parentFolder} = await getWorkspaceAndParentFolder(
-    context,
-    agent,
-    data
-  );
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgent(instData, PERMISSION_AGENT_TYPES);
+  const {workspace, parentFolder} = await getWorkspaceAndParentFolder(agent, data);
 
   applyDefaultEndpointPaginationOptions(data);
   const contentType = data.contentType ?? [

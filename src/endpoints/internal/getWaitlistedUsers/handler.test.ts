@@ -1,15 +1,12 @@
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {extractResourceIdList} from '../../../utils/fns';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
-import {BaseContextType} from '../../contexts/types';
 import RequestData from '../../RequestData';
 import {generateAndInsertUserListForTest} from '../../testUtils/generateData/user';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
@@ -17,29 +14,26 @@ import {PermissionDeniedError} from '../../users/errors';
 import getWaitlistedUsers from './handler';
 import {GetWaitlistedUsersEndpointParams} from './types';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('getWaitlistedUsers', () => {
   test('returns waitlisted users', async () => {
-    assertContext(context);
-    const {userToken, user} = await insertUserForTest(context);
+    const {userToken, user} = await insertUserForTest();
     const [waitlistedUsers, upgradedUsers] = await Promise.all([
-      generateAndInsertUserListForTest(context, /** count */ 2, () => ({isOnWaitlist: true})),
-      generateAndInsertUserListForTest(context, /** count */ 2),
-      context.semantic.utils.withTxn(context, opts => {
-        assertContext(context);
+      generateAndInsertUserListForTest(/** count */ 2, () => ({
+        isOnWaitlist: true,
+      })),
+      generateAndInsertUserListForTest(/** count */ 2),
+      kSemanticModels.utils().withTxn(opts => {
         return assignWorkspaceToUser(
-          context,
           SYSTEM_SESSION_AGENT,
-          context.appVariables.appWorkspaceId,
+          kUtilsInjectables.config().appWorkspaceId,
           user.resourceId,
           opts
         );
@@ -47,7 +41,6 @@ describe('getWaitlistedUsers', () => {
     ]);
 
     const result = await getWaitlistedUsers(
-      context,
       RequestData.fromExpressRequest<GetWaitlistedUsersEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {}
@@ -62,13 +55,10 @@ describe('getWaitlistedUsers', () => {
   });
 
   test('fails if user not part of root workspace', async () => {
-    assertContext(context);
-    const {userToken} = await insertUserForTest(context);
+    const {userToken} = await insertUserForTest();
 
     await expectErrorThrown(() => {
-      assertContext(context);
       return getWaitlistedUsers(
-        context,
         RequestData.fromExpressRequest<GetWaitlistedUsersEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
           {}

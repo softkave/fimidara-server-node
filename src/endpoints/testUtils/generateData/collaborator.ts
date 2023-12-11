@@ -1,21 +1,22 @@
 import {Agent} from '../../../definitions/system';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
-import {BaseContextType} from '../../contexts/types';
+import {kSemanticModels} from '../../contexts/injectables';
 import {generateAndInsertUserListForTest} from './user';
 
 export async function generateAndInsertCollaboratorListForTest(
-  ctx: BaseContextType,
   agent: Agent,
   workspaceId: string,
   count = 20
 ) {
-  const users = await generateAndInsertUserListForTest(ctx, count);
-  await ctx.semantic.utils.withTxn(ctx, opts =>
-    Promise.all(
-      users.map(user =>
-        assignWorkspaceToUser(ctx, agent, workspaceId, user.resourceId, opts)
+  const users = await generateAndInsertUserListForTest(count);
+  await kSemanticModels
+    .utils()
+    .withTxn(opts =>
+      Promise.all(
+        users.map(user =>
+          assignWorkspaceToUser(agent, workspaceId, user.resourceId, opts)
+        )
       )
-    )
-  );
+    );
   return users;
 }

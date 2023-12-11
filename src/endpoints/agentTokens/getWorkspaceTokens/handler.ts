@@ -1,4 +1,5 @@
 import {validate} from '../../../utils/validate';
+import {kUtilsInjectables, kSemanticModels} from '../../contexts/injectables';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
@@ -9,19 +10,16 @@ import {GetWorkspaceAgentTokensEndpoint} from './types';
 import {getWorkspaceAgentTokensQuery} from './utils';
 import {getWorkspaceAgentTokenJoiSchema} from './validation';
 
-const getWorkspaceAgentTokens: GetWorkspaceAgentTokensEndpoint = async (
-  context,
-  instData
-) => {
+const getWorkspaceAgentTokens: GetWorkspaceAgentTokensEndpoint = async instData => {
   const data = validate(instData.data, getWorkspaceAgentTokenJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
+  const agent = await kUtilsInjectables.session().getAgent(instData);
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
-  const q = await getWorkspaceAgentTokensQuery(context, agent, workspace);
+  const q = await getWorkspaceAgentTokensQuery(agent, workspace);
   applyDefaultEndpointPaginationOptions(data);
-  const tokens = await context.semantic.agentToken.getManyByWorkspaceAndIdList(q, data);
+  const tokens = await kSemanticModels.agentToken().getManyByWorkspaceAndIdList(q, data);
   return {
     page: getEndpointPageFromInput(data),
-    tokens: tokens.map(token => getPublicAgentToken(context, token)),
+    tokens: tokens.map(token => getPublicAgentToken(token)),
   };
 };
 

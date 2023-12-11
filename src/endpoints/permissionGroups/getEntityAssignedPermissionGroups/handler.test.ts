@@ -3,7 +3,6 @@ import {first} from 'lodash';
 import {extractResourceIdList, getResourceId} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import RequestData from '../../RequestData';
-import {BaseContextType} from '../../contexts/types';
 import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generateData/agentToken';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
 import {
@@ -12,9 +11,7 @@ import {
 } from '../../testUtils/helpers/assertion';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -27,33 +24,30 @@ import {
 } from '../testUtils';
 import getEntityAssignedPermissionGroups from './handler';
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 describe('getEntityAssignedPermissionGroups', () => {
   test('implicit access and do not include inherited permission groups', async () => {
-    assertContext(context);
-    const {userToken, rawUser} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken, rawUser} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const [pgList01, pgListAssignedToIn01, pgListAssignedToIn02, tokens] =
       await Promise.all([
-        generateAndInsertPermissionGroupListForTest(context, 2, {
+        generateAndInsertPermissionGroupListForTest(2, {
           workspaceId: workspace.resourceId,
         }),
-        generateAndInsertPermissionGroupListForTest(context, 4, {
+        generateAndInsertPermissionGroupListForTest(4, {
           workspaceId: workspace.resourceId,
         }),
-        generateAndInsertPermissionGroupListForTest(context, 6, {
+        generateAndInsertPermissionGroupListForTest(6, {
           workspaceId: workspace.resourceId,
         }),
-        generateAndInsertAgentTokenListForTest(context, 1, {
+        generateAndInsertAgentTokenListForTest(1, {
           workspaceId: workspace.resourceId,
         }),
       ]);
@@ -69,21 +63,18 @@ describe('getEntityAssignedPermissionGroups', () => {
     const agentToken01Req = mockExpressRequestWithAgentToken(agentToken01);
     await Promise.all([
       assignPgListToIdList(
-        context,
         userTokenSessionAgent,
         workspace.resourceId,
         pgList01IdList,
         pgListAssignedTo01Input
       ),
       assignPgListToIdList(
-        context,
         userTokenSessionAgent,
         workspace.resourceId,
         pgListAssignedTo01IdList,
         pgListAssignedTo02Input
       ),
       assignPgListToIdList(
-        context,
         userTokenSessionAgent,
         workspace.resourceId,
         tokenIdList,
@@ -95,7 +86,6 @@ describe('getEntityAssignedPermissionGroups', () => {
     // also tests the implicit access granted the calling agent because it is
     // fetching it's own permisison groups.
     const result01 = await getEntityAssignedPermissionGroups(
-      context,
       RequestData.fromExpressRequest(agentToken01Req, {entityId: agentToken01.resourceId})
     );
     assertEndpointResultOk(result01);
@@ -113,20 +103,19 @@ describe('getEntityAssignedPermissionGroups', () => {
   });
 
   test('include inherited permission groups', async () => {
-    assertContext(context);
-    const {userToken, rawUser} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken, rawUser} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const [pgList01, pgListAssignedTo01, pgListAssignedTo02, tokens] = await Promise.all([
-      generateAndInsertPermissionGroupListForTest(context, 2, {
+      generateAndInsertPermissionGroupListForTest(2, {
         workspaceId: workspace.resourceId,
       }),
-      generateAndInsertPermissionGroupListForTest(context, 4, {
+      generateAndInsertPermissionGroupListForTest(4, {
         workspaceId: workspace.resourceId,
       }),
-      generateAndInsertPermissionGroupListForTest(context, 6, {
+      generateAndInsertPermissionGroupListForTest(6, {
         workspaceId: workspace.resourceId,
       }),
-      generateAndInsertAgentTokenListForTest(context, 1, {
+      generateAndInsertAgentTokenListForTest(1, {
         workspaceId: workspace.resourceId,
       }),
     ]);
@@ -142,31 +131,22 @@ describe('getEntityAssignedPermissionGroups', () => {
     const agentToken01Req = mockExpressRequestWithAgentToken(agentToken01);
     await Promise.all([
       assignPgListToIdList(
-        context,
         agent,
         workspace.resourceId,
         pgList01IdList,
         pgListAssignedTo01Input
       ),
       assignPgListToIdList(
-        context,
         agent,
         workspace.resourceId,
         pgListAssignedTo01IdList,
         pgListAssignedTo02Input
       ),
-      assignPgListToIdList(
-        context,
-        agent,
-        workspace.resourceId,
-        tokenIdList,
-        pgList01Input
-      ),
+      assignPgListToIdList(agent, workspace.resourceId, tokenIdList, pgList01Input),
     ]);
 
     // Test fetching including inherited permission groups
     const result02 = await getEntityAssignedPermissionGroups(
-      context,
       RequestData.fromExpressRequest(agentToken01Req, {
         entityId: agentToken01.resourceId,
         includeInheritedPermissionGroups: true,
@@ -181,20 +161,19 @@ describe('getEntityAssignedPermissionGroups', () => {
   });
 
   test('with read permission', async () => {
-    assertContext(context);
-    const {userToken, rawUser} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken, rawUser} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const [pgList01, pgListAssignedTo01, pgListAssignedTo02, tokens] = await Promise.all([
-      generateAndInsertPermissionGroupListForTest(context, 2, {
+      generateAndInsertPermissionGroupListForTest(2, {
         workspaceId: workspace.resourceId,
       }),
-      generateAndInsertPermissionGroupListForTest(context, 4, {
+      generateAndInsertPermissionGroupListForTest(4, {
         workspaceId: workspace.resourceId,
       }),
-      generateAndInsertPermissionGroupListForTest(context, 6, {
+      generateAndInsertPermissionGroupListForTest(6, {
         workspaceId: workspace.resourceId,
       }),
-      generateAndInsertAgentTokenListForTest(context, 1, {
+      generateAndInsertAgentTokenListForTest(1, {
         workspaceId: workspace.resourceId,
       }),
     ]);
@@ -209,21 +188,18 @@ describe('getEntityAssignedPermissionGroups', () => {
     const agentToken02Req = mockExpressRequestWithAgentToken(agentToken02);
     await Promise.all([
       assignPgListToIdList(
-        context,
         agent,
         workspace.resourceId,
         pgList01IdList,
         pgListAssignedTo01Input
       ),
       assignPgListToIdList(
-        context,
         agent,
         workspace.resourceId,
         pgListAssignedTo01IdList,
         pgListAssignedTo02Input
       ),
       grantPermission(
-        context,
         userReq,
         workspace.resourceId,
         agentToken02.resourceId,
@@ -234,7 +210,6 @@ describe('getEntityAssignedPermissionGroups', () => {
 
     // Fetch with an agent assigned read permission
     const result03 = await getEntityAssignedPermissionGroups(
-      context,
       RequestData.fromExpressRequest(agentToken02Req, {
         entityId: first(pgList01)!.resourceId,
       })
@@ -249,14 +224,13 @@ describe('getEntityAssignedPermissionGroups', () => {
   });
 
   test('reading own permission groups', async () => {
-    assertContext(context);
-    const {userToken, rawUser} = await insertUserForTest(context);
-    const {workspace} = await insertWorkspaceForTest(context, userToken);
+    const {userToken, rawUser} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const [pgList01, tokens] = await Promise.all([
-      generateAndInsertPermissionGroupListForTest(context, 2, {
+      generateAndInsertPermissionGroupListForTest(2, {
         workspaceId: workspace.resourceId,
       }),
-      generateAndInsertAgentTokenListForTest(context, 1, {
+      generateAndInsertAgentTokenListForTest(1, {
         workspaceId: workspace.resourceId,
       }),
     ]);
@@ -266,7 +240,6 @@ describe('getEntityAssignedPermissionGroups', () => {
     const agentToken02Req = mockExpressRequestWithAgentToken(agentToken02);
     await Promise.all([
       assignPgListToIdList(
-        context,
         agent,
         workspace.resourceId,
         [agentToken02.resourceId],
@@ -275,7 +248,6 @@ describe('getEntityAssignedPermissionGroups', () => {
     ]);
 
     const result03 = await getEntityAssignedPermissionGroups(
-      context,
       RequestData.fromExpressRequest(agentToken02Req, {entityId: agentToken02.resourceId})
     );
     assertEndpointResultOk(result03);

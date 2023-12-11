@@ -1,15 +1,16 @@
 import {AppResourceTypeMap} from '../../../definitions/system';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {userListExtractor} from '../../users/utils';
 import {assertUserIsPartOfRootWorkspace} from '../utils';
 import {GetUsersEndpoint} from './types';
 
-const getUsers: GetUsersEndpoint = async (context, instData) => {
-  const agent = await context.session.getAgent(context, instData, [
-    AppResourceTypeMap.User,
-  ]);
-  await assertUserIsPartOfRootWorkspace(context, agent);
-  const users = await context.semantic.user.getManyByQuery({});
-  return {users: userListExtractor(users as any)};
+const getUsers: GetUsersEndpoint = async instData => {
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgent(instData, [AppResourceTypeMap.User]);
+  await assertUserIsPartOfRootWorkspace(agent);
+  const users = await kSemanticModels.user().getManyByQuery({});
+  return {users: userListExtractor(users)};
 };
 
 export default getUsers;

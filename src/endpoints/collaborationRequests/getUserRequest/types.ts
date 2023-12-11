@@ -1,5 +1,4 @@
 import {PublicCollaborationRequestForUser} from '../../../definitions/collaborationRequest';
-import {BaseContextType} from '../../contexts/types';
 import {Endpoint} from '../../types';
 
 export interface GetUserCollaborationRequestEndpointParams {
@@ -11,7 +10,6 @@ export interface GetUserCollaborationRequestEndpointResult {
 }
 
 export type GetUserCollaborationRequestEndpoint = Endpoint<
-  BaseContextType,
   GetUserCollaborationRequestEndpointParams,
   GetUserCollaborationRequestEndpointResult
 >;

@@ -3,8 +3,8 @@ import {AssignedItem, ResourceWithTags} from '../../definitions/assignedItem';
 import {AppResourceType, AppResourceTypeMap, Resource} from '../../definitions/system';
 import {User, UserWorkspace} from '../../definitions/user';
 import {cast} from '../../utils/fns';
+import {kSemanticModels} from '../contexts/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
-import {BaseContextType} from '../contexts/types';
 import {
   assignedItemsToAssignedTagList,
   assignedItemsToAssignedWorkspaceList,
@@ -17,18 +17,14 @@ import {
  * @param assignedItemTypes
  */
 export async function getResourceAssignedItems(
-  context: BaseContextType,
   workspaceId: string | undefined,
   resourceId: string,
   assignedItemTypes?: Array<AppResourceType>,
   opts?: SemanticProviderRunOptions
 ) {
-  return await context.semantic.assignedItem.getWorkspaceResourceAssignedItems(
-    workspaceId,
-    resourceId,
-    assignedItemTypes,
-    opts
-  );
+  return await kSemanticModels
+    .assignedItem()
+    .getWorkspaceResourceAssignedItems(workspaceId, resourceId, assignedItemTypes, opts);
 }
 
 /**
@@ -40,14 +36,12 @@ export async function getResourceAssignedItems(
  * contain empty arrays if no assigned items of the specified type are found.
  */
 export async function getResourceAssignedItemsSortedByType(
-  context: BaseContextType,
   workspaceId: string | undefined,
   resourceId: string,
   assignedItemTypes?: Array<AppResourceType>,
   opts?: SemanticProviderRunOptions
 ) {
   const items = await getResourceAssignedItems(
-    context,
     workspaceId,
     resourceId,
     assignedItemTypes,
@@ -56,10 +50,13 @@ export async function getResourceAssignedItemsSortedByType(
 
   // Add default values if specific assigned item types are specified
   const sortedItems: Record<string, AssignedItem[]> = assignedItemTypes
-    ? assignedItemTypes.reduce((acc, type) => {
-        acc[type] = [];
-        return acc;
-      }, {} as Record<string, AssignedItem[]>)
+    ? assignedItemTypes.reduce(
+        (acc, type) => {
+          acc[type] = [];
+          return acc;
+        },
+        {} as Record<string, AssignedItem[]>
+      )
     : {};
 
   items.forEach(item => {
@@ -73,24 +70,24 @@ export async function getResourceAssignedItemsSortedByType(
 
 export async function populateAssignedItems<
   T extends Resource,
-  AT extends Array<typeof AppResourceTypeMap.Tag>
+  TAssignedItemsType extends Array<typeof AppResourceTypeMap.Tag>,
 >(
-  context: BaseContextType,
   workspaceId: string,
   resource: T,
-  assignedItemTypes: AT = [AppResourceTypeMap.Tag] as any
+  // @ts-ignore
+  assignedItemTypes: TAssignedItemsType = [AppResourceTypeMap.Tag]
 ): Promise<
   typeof assignedItemTypes extends Array<typeof AppResourceTypeMap.Tag>
     ? ResourceWithTags<T>
     : ResourceWithTags<T>
 > {
   const sortedItems = await getResourceAssignedItemsSortedByType(
-    context,
     workspaceId,
     resource.resourceId,
     assignedItemTypes
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const updatedResource = cast<any>(resource);
 
   // prefill expected fields with empty arrays
@@ -118,21 +115,20 @@ export async function populateAssignedItems<
 export async function populateAssignedTags<
   T extends Resource,
   R extends T | undefined = undefined,
-  Final = R extends undefined ? ResourceWithTags<T> : R
+  Final = R extends undefined ? ResourceWithTags<T> : R,
 >(
-  context: BaseContextType,
   workspaceId: string,
   resource: NonNullable<T>,
   labels: Partial<Record<AppResourceType, keyof Omit<R, keyof T>>> = {}
 ): Promise<NonNullable<Final>> {
   const sortedItems = await getResourceAssignedItemsSortedByType(
-    context,
     workspaceId,
     resource.resourceId,
     [AppResourceTypeMap.Tag]
   );
   const updatedResource = cast<NonNullable<Final>>(resource);
   const tagsLabel = labels[AppResourceTypeMap.Tag] ?? 'tags';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (updatedResource as any)[tagsLabel] = assignedItemsToAssignedTagList(
     sortedItems[AppResourceTypeMap.Tag]
   );
@@ -141,27 +137,22 @@ export async function populateAssignedTags<
 
 export async function populateResourceListWithAssignedTags<
   T extends Resource,
-  R extends T | undefined = undefined
+  R extends T | undefined = undefined,
 >(
-  context: BaseContextType,
   workspaceId: string,
   resources: T[],
   labels: Partial<Record<AppResourceType, keyof Omit<R, keyof T>>> = {}
 ) {
   return await Promise.all(
-    resources.map(resource =>
-      populateAssignedTags<T, R>(context, workspaceId, resource, labels)
-    )
+    resources.map(resource => populateAssignedTags<T, R>(workspaceId, resource, labels))
   );
 }
 
 export async function getUserWorkspaces(
-  context: BaseContextType,
   userId: string,
   opts?: SemanticProviderRunOptions
 ): Promise<UserWorkspace[]> {
   const sortedItems = await getResourceAssignedItemsSortedByType(
-    context,
     /** workspaceId */ undefined,
     userId,
     undefined,
@@ -181,26 +172,16 @@ export async function getUserWorkspaces(
 }
 
 export async function populateUserWorkspaces<T extends User>(
-  context: BaseContextType,
   resource: T,
   opts?: SemanticProviderRunOptions
 ): Promise<T & {workspaces: UserWorkspace[]}> {
   const updatedResource: T & {workspaces: UserWorkspace[]} = resource as T & {
     workspaces: UserWorkspace[];
   };
-  updatedResource.workspaces = await getUserWorkspaces(
-    context,
-    resource.resourceId,
-    opts
-  );
+  updatedResource.workspaces = await getUserWorkspaces(resource.resourceId, opts);
   return updatedResource;
 }
 
-export async function populateUserListWithWorkspaces<T extends User>(
-  context: BaseContextType,
-  resources: T[]
-) {
-  return await Promise.all(
-    resources.map(resource => populateUserWorkspaces(context, resource))
-  );
+export async function populateUserListWithWorkspaces<T extends User>(resources: T[]) {
+  return await Promise.all(resources.map(resource => populateUserWorkspaces(resource)));
 }

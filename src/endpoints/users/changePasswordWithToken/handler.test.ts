@@ -9,13 +9,10 @@ import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {newResource} from '../../../utils/resource';
 import RequestData from '../../RequestData';
-import {BaseContextType} from '../../contexts/types';
 import EndpointReusableQueries from '../../queries';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
-  assertContext,
   assertEndpointResultOk,
-  initTestBaseContext,
   insertUserForTest,
   mockExpressRequest,
   mockExpressRequestWithAgentToken,
@@ -34,20 +31,17 @@ import {ChangePasswordWithTokenEndpointParams} from './types';
  * - test that user cannot login with old password
  */
 
-let context: BaseContextType | null = null;
-
 beforeAll(async () => {
-  context = await initTestBaseContext();
+  await initTest();
 });
 
 afterAll(async () => {
-  await completeTest({context});
+  await completeTest({});
 });
 
 async function changePasswordWithTokenTest() {
-  assertContext(context);
   const oldPassword = 'abd784_!';
-  const {user} = await insertUserForTest(context, {password: oldPassword});
+  const {user} = await insertUserForTest({password: oldPassword});
   const newPassword = 'abd784_!new';
   const token = newResource<AgentToken>(AppResourceTypeMap.AgentToken, {
     scope: [TokenAccessScopeMap.ChangePassword],
@@ -63,20 +57,19 @@ async function changePasswordWithTokenTest() {
     createdBy: SYSTEM_SESSION_AGENT,
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
   });
-  await context.semantic.utils.withTxn(context, opts =>
-    context!.semantic.agentToken.insertItem(token, opts)
-  );
+  await kSemanticModels
+    .utils()
+    .withTxn(opts => context!.semantic.agentToken.insertItem(token, opts));
   const result = await changePasswordWithToken(
-    context,
     RequestData.fromExpressRequest<ChangePasswordWithTokenEndpointParams>(
       mockExpressRequestWithAgentToken(token),
       {password: newPassword}
     )
   );
   assertEndpointResultOk(result);
-  const updatedUser = await context.semantic.user.assertGetOneByQuery(
-    EndpointReusableQueries.getByResourceId(result.user.resourceId)
-  );
+  const updatedUser = await kSemanticModels
+    .user()
+    .assertGetOneByQuery(EndpointReusableQueries.getByResourceId(result.user.resourceId));
   expect(result.user).toMatchObject(userExtractor(updatedUser));
   const loginReqData = RequestData.fromExpressRequest<LoginEndpointParams>(
     mockExpressRequest(),
@@ -85,7 +78,7 @@ async function changePasswordWithTokenTest() {
       email: user.email,
     }
   );
-  const loginResult = await login(context, loginReqData);
+  const loginResult = await login(loginReqData);
   assertEndpointResultOk(loginResult);
   expect(loginResult.user).toMatchObject(userExtractor(updatedUser));
   return loginResult;

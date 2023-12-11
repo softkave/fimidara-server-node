@@ -3,7 +3,7 @@ import {Agent, AppResourceTypeMap} from '../../../definitions/system';
 import {Tag} from '../../../definitions/tag';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
-import {BaseContextType} from '../../contexts/types';
+import {kSemanticModels} from '../../contexts/injectables';
 
 export function generateTagForTest(seed: Partial<Tag> = {}) {
   const createdAt = getTimestamp();
@@ -35,13 +35,12 @@ export function generateTagListForTest(count = 20, seed: Partial<Tag> = {}) {
 }
 
 export async function generateAndInsertTagListForTest(
-  ctx: BaseContextType,
   count = 20,
   seed: Partial<Tag> = {}
 ) {
   const items = generateTagListForTest(count, seed);
-  await ctx.semantic.utils.withTxn(ctx, async opts =>
-    ctx.semantic.tag.insertItem(items, opts)
-  );
+  await kSemanticModels
+    .utils()
+    .withTxn(async opts => kSemanticModels.tag().insertItem(items, opts));
   return items;
 }

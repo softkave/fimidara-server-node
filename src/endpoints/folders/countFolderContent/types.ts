@@ -1,4 +1,3 @@
-import {BaseContextType} from '../../contexts/types';
 import {Endpoint, EndpointResultNote} from '../../types';
 import {ListFolderContentEndpointParamsBase} from '../listFolderContent/types';
 
@@ -11,7 +10,6 @@ export interface CountFolderContentEndpointResult {
 }
 
 export type CountFolderContentEndpoint = Endpoint<
-  BaseContextType,
   CountFolderContentEndpointParams,
   CountFolderContentEndpointResult
 >;

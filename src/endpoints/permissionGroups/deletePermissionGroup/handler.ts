@@ -1,17 +1,15 @@
 import {AppResourceTypeMap} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
+import {kUtilsInjectables} from '../../contexts/injectables';
 import {InvalidRequestError} from '../../errors';
 import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {checkPermissionGroupAuthorization03} from '../utils';
 import {DeletePermissionGroupEndpoint} from './types';
 import {deletePermissionGroupJoiSchema} from './validation';
 
-const deletePermissionGroup: DeletePermissionGroupEndpoint = async (
-  context,
-  instData
-) => {
+const deletePermissionGroup: DeletePermissionGroupEndpoint = async instData => {
   const data = validate(instData.data, deletePermissionGroupJoiSchema);
-  const agent = await context.session.getAgent(context, instData);
+  const agent = await kUtilsInjectables.session().getAgent(instData);
   const {permissionGroup, workspace} = await checkPermissionGroupAuthorization03(
     agent,
     data,
