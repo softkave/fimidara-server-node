@@ -22,12 +22,13 @@ import {
 import {isObjectEmpty, toCompactArray} from '../utils/fns';
 import {serverLogger} from '../utils/logger/loggerUtils';
 import {kReuseableErrors} from '../utils/reusableErrors';
-import {AnyObject, OrPromise} from '../utils/types';
+import {AnyObject} from '../utils/types';
 import RequestData from './RequestData';
 import {endpointConstants} from './constants';
 import {kAsyncLocalStorageUtils} from './contexts/asyncLocalStorage';
 import {ResolvedTargetChildrenAccessCheck} from './contexts/authorizationChecks/checkAuthorizaton';
 import {DataQuery} from './contexts/data/types';
+import {kUtilsInjectables} from './contexts/injectables';
 import {getInAndNinQuery} from './contexts/semantic/utils';
 import {IServerRequest} from './contexts/types';
 import {InvalidRequestError, NotFoundError} from './errors';
@@ -87,21 +88,11 @@ export function prepareResponseError(error: unknown) {
   return {statusCode, preppedErrors};
 }
 
-export function settlePromisesAndLogFailed(promises: Array<OrPromise<unknown>>) {
-  Promise.allSettled(promises)
-    .then(results => {
-      results.forEach(nextResult => {
-        if (nextResult.status === 'rejected') {
-          serverLogger.error(nextResult.reason);
-        }
-      });
-    })
-    .catch(error => serverLogger.error(error));
-}
-
 export function defaultEndpointCleanup() {
   const disposables = kAsyncLocalStorageUtils.getDisposables();
-  settlePromisesAndLogFailed(disposables.map(disposable => disposable.close()));
+  disposables.forEach(disposable =>
+    kUtilsInjectables.promiseStore().forget(disposable.close())
+  );
 }
 
 export const wrapEndpointREST = <EndpointType extends Endpoint>(
@@ -139,8 +130,9 @@ export const wrapEndpointREST = <EndpointType extends Endpoint>(
       const result = {errors: preppedErrors};
       res.status(statusCode).json(result);
     } finally {
-      const cleanupFns = toCompactArray(cleanup).concat(defaultEndpointCleanup);
-      settlePromisesAndLogFailed(cleanupFns.map(fn => fn(req, res)));
+      toCompactArray(cleanup)
+        .concat(defaultEndpointCleanup)
+        .forEach(fn => kUtilsInjectables.promiseStore().forget(fn(req, res)));
     }
   };
 };

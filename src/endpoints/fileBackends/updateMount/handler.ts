@@ -20,6 +20,7 @@ import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {fileBackendMountExtractor, mountExists, mountNameExists} from '../utils';
 import {UpdateFileBackendMountEndpoint} from './types';
 import {updateFileBackendMountJoiSchema} from './validation';
+import {kUtilsInjectables} from '../../contexts/injectables';
 
 const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData => {
   const mountModel = container.resolve<SemanticFileBackendMountProvider>(

@@ -18,6 +18,4 @@ async function main() {
   await setupDevUser(appOptions);
 }
 
-main()
-  .then(() => console.log('dev user setup complete'))
-  .catch(console.error.bind(console));
+main();

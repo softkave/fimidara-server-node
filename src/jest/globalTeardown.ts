@@ -5,7 +5,7 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 import mongoose from 'mongoose';
-import {globalDispose} from '../endpoints/globalUtils';
+import {globalDispose} from '../endpoints/contexts/globalUtils';
 import {dropMongoConnection} from '../endpoints/testUtils/helpers/mongo';
 import {FilePersistenceType, FimidaraConfig} from '../resources/types';
 import {fimidaraConfig} from '../resources/vars';
