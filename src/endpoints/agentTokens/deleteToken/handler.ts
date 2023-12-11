@@ -2,8 +2,7 @@ import {AppResourceTypeMap} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {tryGetAgentTokenId} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {kSemanticModels} from '../../contexts/injectables';
-import {enqueueDeleteResourceJob} from '../../jobs/runner';
+import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {tryGetWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {checkAgentTokenAuthorization02} from '../utils';
 import {DeleteAgentTokenEndpoint} from './types';
@@ -25,18 +24,10 @@ const deleteAgentToken: DeleteAgentTokenEndpoint = async (context, instData) => 
   const workspaceId = token.workspaceId;
   appAssert(workspaceId);
 
-  const job = await kSemanticModels.utils().withTxn(opts =>
-    enqueueDeleteResourceJob(
-      {
-        type: AppResourceTypeMap.AgentToken,
-        args: {
-          workspaceId,
-          resourceId: token.resourceId,
-        },
-      },
-      opts
-    )
-  );
+  const job = await enqueueDeleteResourceJob({
+    type: AppResourceTypeMap.AgentToken,
+    args: {workspaceId, resourceId: token.resourceId},
+  });
 
   return {jobId: job.resourceId};
 };

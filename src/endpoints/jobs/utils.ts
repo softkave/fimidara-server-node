@@ -1,7 +1,14 @@
 import {keyBy} from 'lodash';
 import {AnyObject} from 'mongoose';
 import winston from 'winston';
-import {Job, JobStatusMap, JobType, kJobRunnerV1} from '../../definitions/job';
+import {
+  DeleteResourceJobParams,
+  Job,
+  JobStatusMap,
+  JobType,
+  JobTypeMap,
+  kJobRunnerV1,
+} from '../../definitions/job';
 import {AppResourceTypeMap} from '../../definitions/system';
 import {getTimestamp} from '../../utils/dateFns';
 import {newResource} from '../../utils/resource';
@@ -87,4 +94,18 @@ export async function completeJob(
   if (job && job.status === 'completed' && job.parentJobId) {
     completeJob(job.parentJobId).catch(error => winston.error(error));
   }
+}
+
+export async function enqueueDeleteResourceJob(
+  params: DeleteResourceJobParams,
+  opts?: SemanticProviderMutationRunOptions
+) {
+  const [job] = await queueJobs(
+    params.args.workspaceId,
+    undefined,
+    [{params, type: JobTypeMap.deleteResource}],
+    opts
+  );
+
+  return job;
 }

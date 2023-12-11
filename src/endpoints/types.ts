@@ -120,11 +120,11 @@ export type HttpEndpointResponseHeaders_ContentType_ContentLength = {
   'Content-Length': string;
 };
 
-export type ExportedHttpEndpoint_GetDataFromReqFn = (req: Request) => OrPromise<any>;
+export type ExportedHttpEndpoint_GetDataFromReqFn = (req: Request) => OrPromise<unknown>;
 
 export type ExportedHttpEndpoint_HandleResponse = (
   res: Response,
-  data: any
+  data: unknown
 ) => OrPromise<void>;
 
 /** return `true` to defer error handling to server, allowing the function to

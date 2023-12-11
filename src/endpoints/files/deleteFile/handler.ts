@@ -1,7 +1,7 @@
 import {AppResourceTypeMap, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels} from '../../contexts/injectables';
-import {enqueueDeleteResourceJob} from '../../jobs/runner';
+import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {readAndCheckFileAuthorization} from '../utils';
 import {DeleteFileEndpoint} from './types';
 import {deleteFileJoiSchema} from './validation';

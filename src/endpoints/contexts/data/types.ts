@@ -48,7 +48,7 @@ export type DataProviderLiteralType = string | number | boolean | null | undefin
 
 export interface ComparisonLiteralFieldQueryOps<T = DataProviderLiteralType> {
   $eq?: T | null;
-  $in?: T[] | Array<T | null>;
+  $in?: Array<T | null>;
   $ne?: T | null;
   $nin?: Array<T | null>;
 

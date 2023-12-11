@@ -104,6 +104,9 @@ export const kReuseableErrors = {
     configExists: () => not_implemented,
     fimidaraDoesNotSupportConfig: () => not_implemented,
   },
+  job: {
+    notFound: () => not_implemented,
+  },
   common: {
     notImplemented() {
       return new Error(kAppMessages.common.notImplementedYet());

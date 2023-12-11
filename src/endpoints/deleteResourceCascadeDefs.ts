@@ -1,8 +1,11 @@
-import {CleanupMountResolvedEntriesJobParams} from '../definitions/job';
+import {CleanupMountResolvedEntriesJobParams, Job} from '../definitions/job';
 import {AppResourceTypeMap} from '../definitions/system';
 import {extractResourceIdList, noopAsync} from '../utils/fns';
+import {kReuseableErrors} from '../utils/reusableErrors';
+import {AnyFn} from '../utils/types';
 import {RemoveCollaboratorCascadeFnsArgs} from './collaborators/removeCollaborator/types';
 import {kSemanticModels, kUtilsInjectables} from './contexts/injectables';
+import {SemanticProviderMutationRunOptions} from './contexts/semantic/types';
 import {DeleteFileBackendConfigCascadeFnsArgs} from './fileBackends/deleteConfig/types';
 import {DeleteFileCascadeDeleteFnsArgs} from './files/deleteFile/types';
 import {DeleteFolderCascadeFnsArgs} from './folders/deleteFolder/types';
@@ -10,8 +13,22 @@ import FolderQueries from './folders/queries';
 import {queueJobs} from './jobs/utils';
 import {DeletePermissionItemsCascadeFnsArgs} from './permissionItems/deleteItems/types';
 import EndpointReusableQueries from './queries';
-import {DeleteResourceCascadeFnsMap} from './types';
-import {executeCascadeDelete} from './utils';
+import {DeleteResourceCascadeFnHelpers, DeleteResourceCascadeFnsMap} from './types';
+
+export async function runDeleteResourceJob<Args>(
+  cascadeDef: DeleteResourceCascadeFnsMap<Args>,
+  args: Args,
+  job: Job
+) {
+  const helperFns: DeleteResourceCascadeFnHelpers = {
+    job,
+    async withTxn(fn: AnyFn<[SemanticProviderMutationRunOptions]>) {
+      await kSemanticModels.utils().withTxn(opts => fn(opts));
+    },
+  };
+
+  await Promise.all(Object.values(cascadeDef).map(fn => fn(args, helperFns)));
+}
 
 export const kDeletePermissionItemsCascaseFns: DeleteResourceCascadeFnsMap<DeletePermissionItemsCascadeFnsArgs> =
   {
@@ -278,6 +295,8 @@ export const kDeleteFoldersCascadeFns: DeleteResourceCascadeFnsMap = {
   [AppResourceTypeMap.FileBackendMount]: noopAsync,
   [AppResourceTypeMap.FileBackendConfig]: noopAsync,
   [AppResourceTypeMap.File]: async (args, helpers) => {
+    // TODO: very inefficient
+    throw kReuseableErrors.common.notImplemented();
     const files = await kSemanticModels
       .file()
       .getManyByQuery(FolderQueries.getByAncestor(args.workspaceId, args.resourceId));
@@ -290,15 +309,19 @@ export const kDeleteFoldersCascadeFns: DeleteResourceCascadeFnsMap = {
             opts
           )
       ),
-      executeCascadeDelete(kDeleteFileCascadeFns, {
-        workspaceId: args.workspaceId,
-        fileIdList: extractResourceIdList(files),
-        files: files.map(f => ({
-          namepath: f.namepath,
-          extension: f.extension,
-          resourceId: f.resourceId,
-        })),
-      }),
+      runDeleteResourceJob(
+        kDeleteFileCascadeFns,
+        {
+          workspaceId: args.workspaceId,
+          fileIdList: extractResourceIdList(files),
+          files: files.map(f => ({
+            namepath: f.namepath,
+            extension: f.extension,
+            resourceId: f.resourceId,
+          })),
+        },
+        helpers.job
+      ),
     ]);
   },
   [AppResourceTypeMap.Folder]: async (args, helpers) => {
