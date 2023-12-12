@@ -25,6 +25,16 @@ import {
 } from '../collaborationRequests/sendRequest/types';
 import {kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
 import {IServerRequest} from '../contexts/types';
+import addFileBackendConfig from '../fileBackends/addConfig/handler';
+import {
+  AddFileBackendConfigEndpointParams,
+  NewFileBackendConfigInput,
+} from '../fileBackends/addConfig/types';
+import addFileBackendMountEndpoint from '../fileBackends/addMount/handler';
+import {
+  AddFileBackendMountEndpointParams,
+  NewFileBackendMountInput,
+} from '../fileBackends/addMount/types';
 import uploadFile from '../files/uploadFile/handler';
 import {UploadFileEndpointParams} from '../files/uploadFile/types';
 import addFolder from '../folders/addFolder/handler';
@@ -53,6 +63,10 @@ import TestLocalFsFilePersistenceProviderContext from './context/file/TestLocalF
 import TestMemoryFilePersistenceProviderContext from './context/file/TestMemoryFilePersistenceProviderContext';
 import TestS3FilePersistenceProviderContext from './context/file/TestS3FilePersistenceProviderContext';
 import {generateTestFileName} from './generateData/file';
+import {
+  generateFileBackendConfigInput,
+  generateFileBackendMountInput,
+} from './generateData/fileBackend';
 import {generateTestFolderName} from './generateData/folder';
 import sharp = require('sharp');
 import assert = require('assert');
@@ -271,6 +285,42 @@ export async function insertAgentTokenForTest(
   );
 
   const result = await addAgentTokenEndpoint(instData);
+  assertEndpointResultOk(result);
+  return result;
+}
+
+export async function insertFileBackendConfigForTest(
+  userToken: AgentToken,
+  workspaceId: string,
+  input: Partial<NewFileBackendConfigInput> = {}
+) {
+  const instData = RequestData.fromExpressRequest<AddFileBackendConfigEndpointParams>(
+    mockExpressRequestWithAgentToken(userToken),
+    {
+      workspaceId,
+      config: generateFileBackendConfigInput(input),
+    }
+  );
+
+  const result = await addFileBackendConfig(instData);
+  assertEndpointResultOk(result);
+  return result;
+}
+
+export async function insertFileBackendMountForTest(
+  userToken: AgentToken,
+  workspaceId: string,
+  input: Partial<NewFileBackendMountInput> = {}
+) {
+  const instData = RequestData.fromExpressRequest<AddFileBackendMountEndpointParams>(
+    mockExpressRequestWithAgentToken(userToken),
+    {
+      workspaceId,
+      mount: generateFileBackendMountInput(input),
+    }
+  );
+
+  const result = await addFileBackendMountEndpoint(instData);
   assertEndpointResultOk(result);
   return result;
 }

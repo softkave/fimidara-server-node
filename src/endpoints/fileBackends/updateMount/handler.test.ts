@@ -4,15 +4,17 @@ import { populateAssignedTags } from '../../assignedItems/getAssignedItems';
 import EndpointReusableQueries from '../../queries';
 import { completeTest } from '../../testUtils/helpers/test';
 import {
-    assertEndpointResultOk,
-    insertFileBackendMountForTest,
-    insertUserForTest,
-    insertWorkspaceForTest,
-    mockExpressRequestWithFileBackendMount,
+  assertEndpointResultOk,
+  initTest,
+  insertFileBackendMountForTest,
+  insertUserForTest,
+  insertWorkspaceForTest,
+  mockExpressRequestWithFileBackendMount,
 } from '../../testUtils/testUtils';
 import { fileBackendMountExtractor, getPublicFileBackendMount } from '../utils';
 import updateFileBackendMount from './handler';
 import { UpdateFileBackendMountEndpointParams, UpdateFileBackendMountInput } from './types';
+import { kSemanticModels } from '../../contexts/injectables';
 
 /**
  * TODO:
@@ -27,7 +29,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTest();
 });
 
 test('agent mount updated', async () => {

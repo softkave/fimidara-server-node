@@ -4,11 +4,69 @@ import {FileBackendMount, FileBackendTypeMap} from '../../../definitions/fileBac
 import {Agent, AppResourceTypeMap} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
+import {validationConstants} from '../../../utils/validationUtils';
+import {S3FilePersistenceProviderInitParams} from '../../contexts/file/S3FilePersistenceProvider';
 import {kInjectionKeys} from '../../contexts/injection';
 import {
   SemanticFileBackendMountProvider,
   SemanticProviderUtils,
 } from '../../contexts/semantic/types';
+import {NewFileBackendConfigInput} from '../../fileBackends/addConfig/types';
+import {NewFileBackendMountInput} from '../../fileBackends/addMount/types';
+import {kFileBackendConstants} from '../../fileBackends/constants';
+import {generateTestFolderpath} from './folder';
+
+export function generateAWSS3Credentials(
+  seed: Partial<S3FilePersistenceProviderInitParams> = {}
+): S3FilePersistenceProviderInitParams {
+  return {
+    accessKeyId: faker.string.alphanumeric(validationConstants.awsAccessKeyIdLength),
+    secretAccessKey: faker.string.alphanumeric(
+      validationConstants.awsSecretAccessKeyLength
+    ),
+    region: faker.helpers.arrayElement(kFileBackendConstants.awsRegions),
+    ...seed,
+  };
+}
+
+export function generateFileBackendTypeForInput() {
+  return faker.helpers.arrayElement(
+    Object.values(FileBackendTypeMap).filter(type => type !== 'fimidara')
+  );
+}
+
+export const fileBackendToCredentialsGenerator = {
+  [FileBackendTypeMap.S3]: generateAWSS3Credentials,
+  [FileBackendTypeMap.Fimidara]: () => ({}),
+} as const;
+
+export function generateFileBackendConfigInput(
+  seed: Partial<NewFileBackendConfigInput>
+): NewFileBackendConfigInput {
+  const backend = generateFileBackendTypeForInput();
+  return {
+    backend,
+    name: faker.lorem.words(7),
+    description: faker.lorem.words(10),
+    credentials: fileBackendToCredentialsGenerator[backend](),
+    ...seed,
+  };
+}
+
+export function generateFileBackendMountInput(
+  seed: Partial<NewFileBackendMountInput>
+): NewFileBackendMountInput {
+  return {
+    name: faker.lorem.words(7),
+    description: faker.lorem.words(10),
+    folderpath: generateTestFolderpath(),
+    index: faker.number.int(),
+    mountedFrom: generateTestFolderpath(),
+    backend: generateFileBackendTypeForInput(),
+    configId: getNewIdForResource(AppResourceTypeMap.FileBackendConfig),
+    ...seed,
+  };
+}
 
 export function generateFileBackendMountForTest(seed: Partial<FileBackendMount> = {}) {
   const createdAt = getTimestamp();

@@ -3,11 +3,11 @@ import RequestData from '../../RequestData';
 import { generateAndInsertFileBackendMountListForTest } from '../../testUtils/generateData/fileBackendMount';
 import { completeTest } from '../../testUtils/helpers/test';
 import {
-    assertEndpointResultOk,
-    insertFileBackendMountForTest,
-    insertUserForTest,
-    insertWorkspaceForTest,
-    mockExpressRequestWithFileBackendMount,
+  assertEndpointResultOk,
+  insertFileBackendMountForTest,
+  insertUserForTest,
+  insertWorkspaceForTest,
+  mockExpressRequestWithFileBackendMount,
 } from '../../testUtils/testUtils';
 import getFileBackendMountss from './handler';
 import { GetFileBackendMountsEndpointParams } from './types';
@@ -19,7 +19,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTest();
 });
 
 describe('getFileBackendMounts', () => {

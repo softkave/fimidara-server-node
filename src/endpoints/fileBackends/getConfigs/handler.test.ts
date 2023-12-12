@@ -3,11 +3,11 @@ import RequestData from '../../RequestData';
 import { generateAndInsertFileBackendConfigListForTest } from '../../testUtils/generateData/fileBackendConfig';
 import { completeTest } from '../../testUtils/helpers/test';
 import {
-    assertEndpointResultOk,
-    insertFileBackendConfigForTest,
-    insertUserForTest,
-    insertWorkspaceForTest,
-    mockExpressRequestWithFileBackendConfig,
+  assertEndpointResultOk,
+  insertFileBackendConfigForTest,
+  insertUserForTest,
+  insertWorkspaceForTest,
+  mockExpressRequestWithFileBackendConfig,
 } from '../../testUtils/testUtils';
 import getFileBackendConfigs from './handler';
 import { GetFileBackendConfigsEndpointParams } from './types';
@@ -19,7 +19,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTest();
 });
 
 describe('getFileBackendConfigs', () => {

@@ -46,6 +46,12 @@ export function generateTestFolderName(
     : name;
 }
 
+export function generateTestFolderpath(length = 3) {
+  return Array(length)
+    .fill(0)
+    .map(() => generateTestFolderName());
+}
+
 export function generateTestFolder(
   extra: Partial<Folder> & {parentId: string | null} = {parentId: null},
   other: {parentnamepath?: string[]; parentIdPath?: string[]} = {}

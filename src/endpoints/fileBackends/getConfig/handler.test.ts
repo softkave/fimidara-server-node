@@ -2,6 +2,7 @@ import RequestData from '../../RequestData';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTest,
   insertFileBackendConfigForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -20,7 +21,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTest();
 });
 
 test('referenced agent token returned', async () => {

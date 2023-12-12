@@ -1,7 +1,9 @@
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
+import {kSemanticModels} from '../../contexts/injectables';
 import EndpointReusableQueries from '../../queries';
 import {completeTest} from '../../testUtils/helpers/test';
 import {
+  initTest,
   insertAgentTokenForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -19,7 +21,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTest();
 });
 
 test('Agent token added', async () => {
