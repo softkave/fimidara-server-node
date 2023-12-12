@@ -43,7 +43,7 @@ export const fileBackendToCredentialsGenerator = {
 export function generateFileBackendConfigInput(
   seed: Partial<NewFileBackendConfigInput>
 ): NewFileBackendConfigInput {
-  const backend = generateFileBackendTypeForInput();
+  const backend = seed.backend || generateFileBackendTypeForInput();
   return {
     backend,
     name: faker.lorem.words(7),

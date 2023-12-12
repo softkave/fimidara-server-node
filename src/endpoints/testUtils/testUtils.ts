@@ -310,19 +310,23 @@ export async function insertFileBackendConfigForTest(
 export async function insertFileBackendMountForTest(
   userToken: AgentToken,
   workspaceId: string,
-  input: Partial<NewFileBackendMountInput> = {}
+  input: Partial<NewFileBackendMountInput> = {},
+  insertConfig = true
 ) {
+  const mountInput = generateFileBackendMountInput(input);
+  const addConfigResult = insertConfig
+    ? await insertFileBackendConfigForTest(userToken, workspaceId, {
+        backend: mountInput.backend,
+      })
+    : {};
   const instData = RequestData.fromExpressRequest<AddFileBackendMountEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
-    {
-      workspaceId,
-      mount: generateFileBackendMountInput(input),
-    }
+    {workspaceId, mount: mountInput}
   );
 
   const result = await addFileBackendMountEndpoint(instData);
   assertEndpointResultOk(result);
-  return result;
+  return merge(result, addConfigResult);
 }
 
 export async function insertFolderForTest(

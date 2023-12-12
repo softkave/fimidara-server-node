@@ -6,6 +6,7 @@ import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
+import {kSemanticModels} from '../../contexts/injectables';
 import {kInjectionKeys} from '../../contexts/injection';
 import {SemanticFolderProvider} from '../../contexts/semantic/folder/types';
 import {SemanticProviderUtils} from '../../contexts/semantic/types';
@@ -50,6 +51,27 @@ export function generateTestFolderpath(length = 3) {
   return Array(length)
     .fill(0)
     .map(() => generateTestFolderName());
+}
+
+export async function generateUniqueFolderpath(workspaceId: string) {
+  let length = 3;
+  const max = 10;
+
+  while (length < max) {
+    const folderpath = generateTestFolderpath(length);
+    const folder = await kSemanticModels.folder().getOneByNamepath({
+      workspaceId,
+      namepath: folderpath,
+    });
+
+    if (!folder) {
+      return folderpath;
+    }
+
+    length += 1;
+  }
+
+  throw new Error('Could not generate unique folderpath.');
 }
 
 export function generateTestFolder(

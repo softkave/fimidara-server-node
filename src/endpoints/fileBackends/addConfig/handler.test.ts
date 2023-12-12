@@ -1,5 +1,4 @@
 import {ValidationError} from '../../../utils/errors';
-import {agentTokenExtractor} from '../../agentTokens/utils';
 import {kSemanticModels} from '../../contexts/injectables';
 import {ResourceExistsError} from '../../errors';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
@@ -33,7 +32,7 @@ describe('addConfig', () => {
         .fileBackendConfig()
         .assertGetOneByQuery({resourceId: config.resourceId})
     );
-    expect(agentTokenExtractor(savedConfig)).toMatchObject(config);
+    expect(savedConfig).toMatchObject(config);
   });
 
   test('fails if config with name exists', async () => {
