@@ -1,6 +1,12 @@
 import {compact, first} from 'lodash';
 import {container} from 'tsyringe';
-import {File, FileMatcher, FilePresignedPath, PublicFile} from '../../definitions/file';
+import {
+  File,
+  FileMatcher,
+  FilePresignedPath,
+  PublicFile,
+  PublicFilePresignedPath,
+} from '../../definitions/file';
 import {FileBackendMount} from '../../definitions/fileBackend';
 import {Folder} from '../../definitions/folder';
 import {PermissionAction} from '../../definitions/permissionItem';
@@ -41,6 +47,20 @@ import {workspaceResourceFields} from '../utils';
 import {assertWorkspace, checkWorkspaceExists} from '../workspaces/utils';
 import {fileConstants} from './constants';
 import {getFileByPresignedPath, getFileWithMatcher} from './getFilesWithMatcher';
+
+const filePresignedPathFields = getFields<PublicFilePresignedPath>({
+  ...workspaceResourceFields,
+  filepath: true,
+  fileId: true,
+  agentTokenId: true,
+  usageCount: true,
+  extension: true,
+  spentUsageCount: true,
+  action: true,
+});
+
+export const filePresignedPathExtractor = makeExtract(filePresignedPathFields);
+export const filePresignedPathListExtractor = makeListExtract(filePresignedPathFields);
 
 const fileFields = getFields<PublicFile>({
   ...workspaceResourceFields,

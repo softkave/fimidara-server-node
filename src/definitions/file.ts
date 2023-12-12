@@ -61,6 +61,20 @@ export interface FilePresignedPath extends WorkspaceResource {
   // description?: string
 }
 
+export type PublicFilePresignedPath = PublicWorkspaceResource &
+  ConvertAgentToPublicAgent<
+    Pick<
+      FilePresignedPath,
+      | 'filepath'
+      | 'fileId'
+      | 'agentTokenId'
+      | 'usageCount'
+      | 'spentUsageCount'
+      | 'action'
+      | 'extension'
+    >
+  >;
+
 export const FilePersistenceProviderTypeMap = {
   Fs: 'fs',
 } as const;
