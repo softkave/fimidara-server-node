@@ -14,6 +14,7 @@ import {generatePermissionItemForTest} from '../../../testUtils/generateData/per
 import {expectErrorThrown} from '../../../testUtils/helpers/error';
 import {completeTest} from '../../../testUtils/helpers/test';
 import {
+  initTest,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -357,7 +358,7 @@ describe('checkAuthorization', () => {
       }),
     ]);
 
-    const check01 = await checkAuthorizationWithAgent({
+    const [check01] = await checkAuthorizationWithAgent({
       agent: user02SessionAgent,
       target: {
         action: 'readFile',
@@ -367,7 +368,7 @@ describe('checkAuthorization', () => {
       workspace: rawWorkspace,
       nothrow: true,
     });
-    const check02 = await checkAuthorizationWithAgent({
+    const [check02] = await checkAuthorizationWithAgent({
       agent: user02SessionAgent,
       target: {
         action: 'readFile',
@@ -540,7 +541,7 @@ describe('checkAuthorization', () => {
       parentId: null,
     });
     await Promise.all([
-      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'updateFile', {
+      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'addFile', {
         targetId: file01.resourceId,
       }),
     ]);
@@ -550,7 +551,7 @@ describe('checkAuthorization', () => {
       await checkAuthorizationWithAgent({
         agent: user02SessionAgent,
         target: {
-          action: 'updateFile',
+          action: 'addFile',
           targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
         },
         workspaceId: rawWorkspace.resourceId,
@@ -775,7 +776,7 @@ describe('checkAuthorization', () => {
       {targetId: file01.resourceId}
     );
 
-    const checkResult = await checkAuthorizationWithAgent({
+    const [checkResult] = await checkAuthorizationWithAgent({
       agent: user02SessionAgent,
       target: {
         action: 'readFile',
@@ -807,7 +808,7 @@ async function addPermissions(
   );
   await kSemanticModels
     .utils()
-    .withTxn(opts => context!.data.permissionItem.insertList(items, opts));
+    .withTxn(opts => kSemanticModels.permissionItem().insertItem(items, opts));
   return items;
 }
 
