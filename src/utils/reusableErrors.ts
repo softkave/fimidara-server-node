@@ -1,4 +1,15 @@
-import {NotFoundError, ResourceExistsError} from '../endpoints/errors';
+import {
+  NotFoundError,
+  ResourceExistsError,
+  ResourceInUseError,
+} from '../endpoints/errors';
+import {
+  BackendUnknownError,
+  FimidaraDoesNotSupportConfigError,
+  FimidaraNotAllowedError,
+  MountSourceMissingBucketError,
+} from '../endpoints/fileBackends/errors';
+import {InvalidMatcherError, ProvideNamepathError} from '../endpoints/files/errors';
 import {
   ChangePasswordError,
   InvalidCredentialsError,
@@ -11,7 +22,9 @@ export const kReuseableErrors = {
     notFound(id?: string) {
       return new NotFoundError(kAppMessages.workspace.notFound(id));
     },
-    withRootnameNotFound: (rootname: string) => not_implemented,
+    withRootnameNotFound(rootname: string) {
+      return new NotFoundError(kAppMessages.workspace.withRootnameNotFound(rootname));
+    },
   },
   entity: {
     notFound(id: string) {
@@ -68,9 +81,15 @@ export const kReuseableErrors = {
     notFound(id?: string) {
       return new NotFoundError(kAppMessages.file.notFound(id));
     },
-    invalidMatcher: () => not_implemented,
-    provideNamepath: () => not_implemented,
-    unknownBackend: (backend: string) => not_implemented,
+    invalidMatcher() {
+      return new InvalidMatcherError(kAppMessages.file.invalidMatcher);
+    },
+    provideNamepath() {
+      return new ProvideNamepathError(kAppMessages.file.provideNamepath);
+    },
+    unknownBackend(backend: string) {
+      return new BackendUnknownError(kAppMessages.file.unknownBackend(backend));
+    },
   },
   appRuntimeState: {
     notFound() {
@@ -89,23 +108,55 @@ export const kReuseableErrors = {
     },
   },
   mount: {
-    mountExists: () => not_implemented,
-    mountNameExists: (name: string) => not_implemented,
-    s3MountSourceMissingBucket: () => not_implemented,
-    notFound: () => not_implemented,
-    cannotMountFimidaraExplicitly: () => not_implemented,
-    cannotDeleteFimidaraMount: () => not_implemented,
-    cannotUpdateFimidaraMount: () => not_implemented,
+    mountExists() {
+      return new NotFoundError(kAppMessages.mount.mountExists);
+    },
+    mountNameExists(name: string) {
+      return new ResourceExistsError(kAppMessages.mount.mountNameExists(name));
+    },
+    s3MountSourceMissingBucket() {
+      return new MountSourceMissingBucketError(
+        kAppMessages.mount.s3MountSourceMissingBucket
+      );
+    },
+    notFound(id?: string) {
+      return new NotFoundError(kAppMessages.mount.notFound(id));
+    },
+    cannotMountFimidaraExplicitly() {
+      return new FimidaraNotAllowedError(
+        kAppMessages.mount.cannotMountFimidaraExplicitly
+      );
+    },
+    cannotDeleteFimidaraMount() {
+      return new FimidaraNotAllowedError(kAppMessages.mount.cannotDeleteFimidaraMount);
+    },
+    cannotUpdateFimidaraMount() {
+      return new FimidaraNotAllowedError(kAppMessages.mount.cannotUpdateFimidaraMount);
+    },
   },
   config: {
-    configNameExists: (name: string) => not_implemented,
-    configInUse: (mountsCount: number) => not_implemented,
-    notFound: () => not_implemented,
-    configExists: () => not_implemented,
-    fimidaraDoesNotSupportConfig: () => not_implemented,
+    notFound(id?: string) {
+      return new NotFoundError(kAppMessages.config.notFound(id));
+    },
+    configInUse(mountsCount: number) {
+      return new ResourceInUseError(kAppMessages.config.configInUse(mountsCount));
+    },
+    configExists() {
+      return new ResourceExistsError(kAppMessages.config.configExists);
+    },
+    configNameExists(name: string) {
+      return new ResourceExistsError(kAppMessages.config.configNameExists(name));
+    },
+    fimidaraDoesNotSupportConfig() {
+      return new FimidaraDoesNotSupportConfigError(
+        kAppMessages.config.fimidaraDoesNotSupportConfig
+      );
+    },
   },
   job: {
-    notFound: () => not_implemented,
+    notFound(id?: string) {
+      return new NotFoundError(kAppMessages.job.notFound(id));
+    },
   },
   common: {
     notImplemented() {

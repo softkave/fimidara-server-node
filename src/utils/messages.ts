@@ -5,6 +5,11 @@ export const kAppMessages = {
     notFound(id?: string) {
       return id ? `Workspace with ID ${id} not found.` : 'Workspace not found.';
     },
+    withRootnameNotFound(rootname?: string) {
+      return rootname
+        ? `Workspace with Root Name ${rootname} not found.`
+        : 'Workspace not found.';
+    },
   },
   entity: {
     notFound(id: string) {
@@ -68,6 +73,11 @@ export const kAppMessages = {
     notFound(id?: string) {
       return id ? `File with ID ${id} not found.` : 'File not found.';
     },
+    invalidMatcher: 'Invalid matcher.',
+    provideNamepath: 'Please provide a namepath.',
+    unknownBackend(backend: string) {
+      return backend ? `Backend ${backend} unknown.` : 'Backend unknown.';
+    },
   },
   appRuntimeState: {
     notFound() {
@@ -94,6 +104,37 @@ export const kAppMessages = {
     },
     notImplementedYet(fnName?: string) {
       return fnName ? `${fnName} not implemented yet.` : 'Not implemented yet.';
+    },
+  },
+  job: {
+    notFound(id?: string) {
+      return id ? `Job with ID ${id} not found.` : 'Job not found.';
+    },
+  },
+  config: {
+    notFound(id?: string) {
+      return id ? `Config with ID ${id} not found.` : 'Config not found.';
+    },
+    configInUse(mountsCount: number) {
+      return `Config already in use by ${mountsCount} config mounts`;
+    },
+    configExists: 'Config exists.',
+    configNameExists(name: string) {
+      return name ? `Config Name with name ${name} exists.` : 'Config Name exists.';
+    },
+    fimidaraDoesNotSupportConfig: "Sorry Fimidara dooesn't support this config",
+  },
+  mount: {
+    mountExists: 'Mount exists.',
+    s3MountSourceMissingBucket: 'S3 mount source missing bucket.',
+    cannotMountFimidaraExplicitly: 'Sorry cannot mount Fimidara explicitly.',
+    cannotDeleteFimidaraMount: 'Sorry cannot delete Fimidara mount.',
+    cannotUpdateFimidaraMount: 'Sorry cannot delete Fimidara mount.',
+    notFound(id?: string) {
+      return id ? `Config with ID ${id} not found.` : 'Config not found.';
+    },
+    mountNameExists(name: string) {
+      return name ? `Mount Name with name ${name} exists.` : 'Mount Name exists.';
     },
   },
 };
