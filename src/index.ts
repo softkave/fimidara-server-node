@@ -94,7 +94,7 @@ async function setup() {
     serverLogger.info(`server listening on port ${kUtilsInjectables.config().port}`);
 
     // start job runner
-    startJobRunner().catch(error => serverLogger.error(error));
+    kUtilsInjectables.promiseStore().forget(startJobRunner());
   });
 }
 

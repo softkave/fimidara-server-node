@@ -1,16 +1,16 @@
 import {Dictionary, isArray} from 'lodash';
 import {serverLogger} from './logger/loggerUtils';
 
-export interface PromiseWithId<T = any> {
+export interface PromiseWithId<T = unknown> {
   promise: Promise<T>;
   id: string | number;
 }
 
-export type SettledPromise<Value = any, Reason = any> =
+export type SettledPromise<Value = unknown, Reason = unknown> =
   | {resolved: true; value: Value}
   | {resolved: false; reason?: Reason};
 
-export type SettledPromiseWithId<Value = any, Reason = any> = SettledPromise<
+export type SettledPromiseWithId<Value = unknown, Reason = unknown> = SettledPromise<
   Value,
   Reason
 > & {
@@ -25,13 +25,15 @@ export type InferPromiseWithIdData<T extends PromiseWithId> = T extends PromiseW
 
 export type GetSettledPromise<
   T extends PromiseWithId,
-  TData = InferPromiseWithIdData<T>
+  TData = InferPromiseWithIdData<T>,
 > = SettledPromiseWithId<TData> & Pick<T, Exclude<keyof T, keyof SettledPromiseWithId>>;
 
 function wrapPromiseWithId<T extends PromiseWithId>(p: T) {
   return new Promise<GetSettledPromise<T>>(resolve => {
     p.promise
-      .then(result => resolve({...p, resolved: true, value: result}))
+      .then(result =>
+        resolve({...p, resolved: true, value: result as InferPromiseWithIdData<T>})
+      )
       .catch(error => resolve({...p, resolved: false, reason: error}));
   });
 }
@@ -49,23 +51,15 @@ export const waitOnPromisesWithId = async <T extends PromiseWithId>(
   return await Promise.all(mappedPromises);
 };
 
-function wrapPromise<T = any>(p: Promise<T>) {
+function wrapPromise<T = unknown>(p: Promise<T>) {
   return new Promise<SettledPromise<T>>(resolve => {
-    p.then(result =>
-      resolve({
-        resolved: true,
-        value: result,
-      })
-    ).catch(error =>
-      resolve({
-        resolved: false,
-        reason: error,
-      })
+    p.then(result => resolve({resolved: true, value: result})).catch(error =>
+      resolve({resolved: false, reason: error})
     );
   });
 }
 
-export const waitOnPromises = <ProvidedPromise extends Promise<any>[]>(
+export const waitOnPromises = <ProvidedPromise extends Promise<unknown>[]>(
   promises: ProvidedPromise
 ): Promise<
   SettledPromise<
@@ -77,7 +71,7 @@ export const waitOnPromises = <ProvidedPromise extends Promise<any>[]>(
   return Promise.all(mappedPromises);
 };
 
-export function logRejectedPromisesAndThrow(p: PromiseSettledResult<any>[]) {
+export function logRejectedPromisesAndThrow(p: PromiseSettledResult<unknown>[]) {
   const rejected: PromiseRejectedResult[] = p.filter(
     p => p.status === 'rejected'
   ) as unknown as PromiseRejectedResult[];

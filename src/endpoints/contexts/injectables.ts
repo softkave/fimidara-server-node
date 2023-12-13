@@ -1,6 +1,7 @@
 import {Connection} from 'mongoose';
 import {container} from 'tsyringe';
 import {FimidaraConfig} from '../../resources/types';
+import {PromiseStore} from './PromiseStore';
 import {SessionContextType} from './SessionContext';
 import {AsyncLocalStorageUtils} from './asyncLocalStorage';
 import {
@@ -145,6 +146,7 @@ export const kUtilsInjectables = {
   session: () => container.resolve<SessionContextType>(kInjectionKeys.session),
   mongoConnection: () => container.resolve<Connection>(kInjectionKeys.mongoConnection),
   email: () => container.resolve<IEmailProviderContext>(kInjectionKeys.email),
+  promiseStore: () => container.resolve<PromiseStore>(kInjectionKeys.promiseStore),
 };
 
 export const kLogicProviders = {

@@ -1,9 +1,8 @@
-import { toCompactArray } from '../../../utils/fns';
-import { AnyFn } from '../../../utils/types';
-import { kSemanticModels, kUtilsInjectables } from '../../contexts/injectables';
-import { SemanticProviderMutationRunOptions } from '../../contexts/semantic/types';
-import { globalDispose } from '../../globalUtils';
-import { executeServerInstanceJobs, waitForServerInstanceJobs } from '../../jobs/runner';
+import {AnyFn} from '../../../utils/types';
+import {globalDispose} from '../../contexts/globalUtils';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {executeServerInstanceJobs, waitForServerInstanceJobs} from '../../jobs/runner';
 
 export function mutationTest(
   name: string,
@@ -29,16 +28,12 @@ export function setupMutationTesting() {
   return {mutationTest};
 }
 
-export async function completeTest(props: {} = {}) {
-  if () {
-    await Promise.all(
-      toCompactArray().map(async context => {
-        await executeServerInstanceJobs(kUtilsInjectables.config().serverInstanceId);
-        await waitForServerInstanceJobs(kUtilsInjectables.config().serverInstanceId);
-        await context.dispose();
-      })
-    );
-  }
+export async function completeTest() {
+  await Promise.all([
+    context.dispose(),
+    executeServerInstanceJobs(kUtilsInjectables.config().serverInstanceId),
+    waitForServerInstanceJobs(kUtilsInjectables.config().serverInstanceId),
+  ]);
 
   await globalDispose();
 }

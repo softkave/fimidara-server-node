@@ -53,8 +53,14 @@ export async function startJobRunner() {
       appAssert(nextJob);
       await promise;
       const index = pendingJobsIdList.indexOf(nextJob.resourceId);
-      if (index !== -1) pendingJobsIdList.splice(index, 1);
-      if (nextJob.createdAt > lastTimestamp) lastTimestamp = nextJob.createdAt;
+
+      if (index !== -1) {
+        pendingJobsIdList.splice(index, 1);
+      }
+
+      if (nextJob.createdAt > lastTimestamp) {
+        lastTimestamp = nextJob.createdAt;
+      }
     } catch (error: unknown) {
       serverLogger.error(error);
     }

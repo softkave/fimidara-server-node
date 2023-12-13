@@ -1,6 +1,5 @@
 import {keyBy} from 'lodash';
 import {AnyObject} from 'mongoose';
-import winston from 'winston';
 import {
   DeleteResourceJobParams,
   Job,
@@ -87,7 +86,7 @@ export async function completeJob(jobId: string) {
   });
 
   if (job && job.status === 'completed' && job.parentJobId) {
-    completeJob(job.parentJobId).catch(error => winston.error(error));
+    kUtilsInjectables.promiseStore().forget(completeJob(job.parentJobId));
   }
 }
 

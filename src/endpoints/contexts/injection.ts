@@ -72,4 +72,5 @@ export const kInjectionKeys = {
   session: 'session',
   mongoConnection: 'mongoConnection',
   email: 'email',
+  promiseStore: 'promiseStore',
 };
