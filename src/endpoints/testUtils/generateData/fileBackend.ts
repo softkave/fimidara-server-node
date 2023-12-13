@@ -1,6 +1,10 @@
 import {faker} from '@faker-js/faker';
 import {container} from 'tsyringe';
-import {FileBackendMount, FileBackendTypeMap} from '../../../definitions/fileBackend';
+import {
+  FileBackendConfig,
+  FileBackendMount,
+  FileBackendTypeMap,
+} from '../../../definitions/fileBackend';
 import {Agent, AppResourceTypeMap} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
@@ -15,6 +19,7 @@ import {NewFileBackendConfigInput} from '../../fileBackends/addConfig/types';
 import {NewFileBackendMountInput} from '../../fileBackends/addMount/types';
 import {kFileBackendConstants} from '../../fileBackends/constants';
 import {generateTestFolderpath} from './folder';
+import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
 
 export function generateAWSS3Credentials(
   seed: Partial<S3FilePersistenceProviderInitParams> = {}
@@ -93,6 +98,28 @@ export function generateFileBackendMountForTest(seed: Partial<FileBackendMount> 
   return mount;
 }
 
+export function generateFileBackendConfigForTest(seed: Partial<FileBackendConfig> = {}) {
+  const createdAt = getTimestamp();
+  const createdBy: Agent = {
+    agentId: getNewIdForResource(AppResourceTypeMap.User),
+    agentType: AppResourceTypeMap.User,
+    agentTokenId: getNewIdForResource(AppResourceTypeMap.AgentToken),
+  };
+  const config: FileBackendConfig = {
+    createdAt,
+    createdBy,
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: createdBy,
+    resourceId: getNewIdForResource(AppResourceTypeMap.FileBackendConfig),
+    workspaceId: getNewIdForResource(AppResourceTypeMap.Workspace),
+    name: faker.lorem.words(),
+    backend: faker.helpers.arrayElement(Object.values(FileBackendTypeMap)),
+    secretId: faker.string.alphanumeric(),
+    ...seed,
+  };
+  return config;
+}
+
 export function generateFileBackendMountListForTest(
   count = 20,
   seed: Partial<FileBackendMount> = {}
@@ -100,6 +127,17 @@ export function generateFileBackendMountListForTest(
   const items: FileBackendMount[] = [];
   for (let i = 0; i < count; i++) {
     items.push(generateFileBackendMountForTest(seed));
+  }
+  return items;
+}
+
+export function generateFileBackendConfigListForTest(
+  count = 20,
+  seed: Partial<FileBackendConfig> = {}
+) {
+  const items: FileBackendConfig[] = [];
+  for (let i = 0; i < count; i++) {
+    items.push(generateFileBackendConfigForTest(seed));
   }
   return items;
 }
@@ -117,5 +155,21 @@ export async function generateAndInsertFileBackendMountListForTest(
 
   const items = generateFileBackendMountListForTest(count, seed);
   await semanticUtils.withTxn(async opts => mountModel.insertItem(items, opts));
+  return items;
+}
+
+export async function generateAndInsertFileBackendConfigListForTest(
+  count = 20,
+  seed: Partial<FileBackendConfig> = {}
+) {
+  const configModel = container.resolve<SemanticFileBackendConfigProvider>(
+    kInjectionKeys.semantic.fileBackendConfig
+  );
+  const semanticUtils = container.resolve<SemanticProviderUtils>(
+    kInjectionKeys.semantic.utils
+  );
+
+  const items = generateFileBackendConfigListForTest(count, seed);
+  await semanticUtils.withTxn(async opts => configModel.insertItem(items, opts));
   return items;
 }
