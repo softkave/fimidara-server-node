@@ -2,9 +2,9 @@ import {ValidationError} from '../../../utils/errors';
 import {kSemanticModels} from '../../contexts/injectables';
 import {ResourceExistsError} from '../../errors';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
-  initTest,
+  initTests,
   insertFileBackendConfigForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -12,11 +12,11 @@ import {
 import {fileBackendConfigExtractor} from '../utils';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 describe('addConfig', () => {

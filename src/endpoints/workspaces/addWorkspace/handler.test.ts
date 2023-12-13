@@ -4,7 +4,7 @@ import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {fetchEntityAssignedPermissionGroupList} from '../../permissionGroups/getEntityAssignedPermissionGroups/utils';
 import EndpointReusableQueries from '../../queries';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {insertUserForTest, insertWorkspaceForTest} from '../../testUtils/testUtils';
 import {UserOnWaitlistError} from '../../users/errors';
 import {WorkspaceExistsError, WorkspaceRootnameExistsError} from '../errors';
@@ -20,7 +20,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 describe('addWorkspace', () => {

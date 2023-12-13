@@ -7,7 +7,7 @@ import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generateData/workspace';
 import {expectContainsNoneIn} from '../../testUtils/helpers/assertion';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertUserForTest,
@@ -22,7 +22,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 describe('getUserWorkspaces', () => {

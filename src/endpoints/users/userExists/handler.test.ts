@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertUserForTest,
@@ -14,7 +14,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 test('returns true if user exists', async () => {

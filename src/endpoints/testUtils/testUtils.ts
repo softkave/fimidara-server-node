@@ -88,7 +88,7 @@ export function getTestFileProvider(appVariables: FimidaraConfig) {
   throw new Error(`Invalid file backend type ${appVariables.fileBackend}`);
 }
 
-export async function initTest() {
+export async function initTests() {
   await setupApp();
 }
 

@@ -2,21 +2,21 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {waitTimeout} from '../../../utils/fns';
 import {FimidaraLoggerServiceNames} from '../../../utils/logger/loggerUtils';
 import RequestData from '../../RequestData';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
-  initTest,
+  initTests,
   mockExpressRequestForPublicAgent,
 } from '../../testUtils/testUtils';
 import ingestLogs from './handler';
 import {ClientLog, IngestLogsEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 describe('ingestLogs', () => {

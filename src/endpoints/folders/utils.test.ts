@@ -6,15 +6,15 @@ import {
   generateAndInsertTestFolders,
   generateTestFolderName,
 } from '../testUtils/generateData/folder';
-import {completeTest} from '../testUtils/helpers/test';
-import {initTest} from '../testUtils/testUtils';
+import {completeTests} from '../testUtils/helpers/test';
+import {initTests} from '../testUtils/testUtils';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 describe('utils', () => {

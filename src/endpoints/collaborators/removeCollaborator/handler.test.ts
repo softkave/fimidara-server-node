@@ -3,7 +3,7 @@ import {NotFoundError} from '../../errors';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import RequestData from '../../RequestData';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertUserForTest,
@@ -27,7 +27,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 describe('removeCollaborator', () => {

@@ -2,7 +2,7 @@ import assert from 'assert';
 import {JobStatusMap} from '../../../definitions/job';
 import RequestData from '../../RequestData';
 import deletePermissionGroup from '../../permissionGroups/deletePermissionGroup/handler';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertPermissionGroupForTest,
@@ -18,7 +18,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 test('getOpStatus', async () => {

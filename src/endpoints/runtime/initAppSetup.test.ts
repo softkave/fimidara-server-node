@@ -1,14 +1,14 @@
 import EndpointReusableQueries from '../queries';
-import {completeTest} from '../testUtils/helpers/test';
-import {initTest} from '../testUtils/testUtils';
+import {completeTests} from '../testUtils/helpers/test';
+import {initTests} from '../testUtils/testUtils';
 import {APP_RUNTIME_STATE_DOC_ID, setupApp} from './initAppSetup';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 describe('init app setup', () => {

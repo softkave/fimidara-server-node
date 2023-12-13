@@ -11,7 +11,7 @@ import {stringifyFoldernamepath} from '../../folders/utils';
 import {generateAndInsertTestFiles} from '../../testUtils/generateData/file';
 import {generateAndInsertTestFolders} from '../../testUtils/generateData/folder';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertPermissionGroupForTest,
@@ -33,7 +33,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 describe('getResources', () => {

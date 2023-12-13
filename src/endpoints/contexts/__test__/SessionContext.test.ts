@@ -4,17 +4,17 @@ import RequestData from '../../RequestData';
 import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generateData/agentToken';
 import {generateAndInsertUserListForTest} from '../../testUtils/generateData/user';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTest} from '../../testUtils/helpers/test';
-import {initTest} from '../../testUtils/testUtils';
+import {completeTests} from '../../testUtils/helpers/test';
+import {initTests} from '../../testUtils/testUtils';
 import {ChangePasswordError, PermissionDeniedError} from '../../users/errors';
 import {kUtilsInjectables} from '../injectables';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 describe('SessionContext', () => {

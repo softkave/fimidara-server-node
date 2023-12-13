@@ -1,20 +1,20 @@
 import { faker } from '@faker-js/faker';
 import RequestData from '../../RequestData';
 import { populateAssignedTags } from '../../assignedItems/getAssignedItems';
+import { kSemanticModels } from '../../contexts/injectables';
 import EndpointReusableQueries from '../../queries';
-import { completeTest } from '../../testUtils/helpers/test';
+import { completeTests } from '../../testUtils/helpers/test';
 import {
-  assertEndpointResultOk,
-  initTest,
-  insertFileBackendMountForTest,
-  insertUserForTest,
-  insertWorkspaceForTest,
-  mockExpressRequestWithFileBackendMount,
+    assertEndpointResultOk,
+    initTests,
+    insertFileBackendMountForTest,
+    insertUserForTest,
+    insertWorkspaceForTest,
+    mockExpressRequestWithFileBackendMount,
 } from '../../testUtils/testUtils';
 import { fileBackendMountExtractor, getPublicFileBackendMount } from '../utils';
 import updateFileBackendMount from './handler';
 import { UpdateFileBackendMountEndpointParams, UpdateFileBackendMountInput } from './types';
-import { kSemanticModels } from '../../contexts/injectables';
 
 /**
  * TODO:
@@ -25,11 +25,11 @@ import { kSemanticModels } from '../../contexts/injectables';
 
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 test('agent mount updated', async () => {

@@ -1,10 +1,10 @@
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injectables';
 import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generateData/collaborationRequest';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
-  initTest,
+  initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -13,11 +13,11 @@ import countWorkspaceCollaborationRequests from './handler';
 import {CountWorkspaceCollaborationRequestsEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 describe('countWorkspaceRequests', () => {

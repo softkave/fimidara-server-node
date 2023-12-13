@@ -1,8 +1,8 @@
 import RequestData from '../../RequestData';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
-  initTest,
+  initTests,
   insertAgentTokenForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -17,11 +17,11 @@ import {GetAgentTokenEndpointParams} from './types';
  */
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 test('referenced agent token returned', async () => {

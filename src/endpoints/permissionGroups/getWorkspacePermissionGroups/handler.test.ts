@@ -1,7 +1,7 @@
 import {calculatePageSize, findItemWithField} from '../../../utils/fns';
 import RequestData from '../../RequestData';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertPermissionGroupForTest,
@@ -17,7 +17,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 describe('getWorkspacePermissionGroups', () => {

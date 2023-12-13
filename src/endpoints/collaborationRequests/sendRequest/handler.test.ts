@@ -3,7 +3,7 @@ import {add} from 'date-fns';
 import {CollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
 import {getTimestamp} from '../../../utils/dateFns';
 import EndpointReusableQueries from '../../queries';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   insertRequestForTest,
   insertUserForTest,
@@ -16,7 +16,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 describe('sendCollaborationRequest', () => {

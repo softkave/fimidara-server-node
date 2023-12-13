@@ -34,7 +34,7 @@ import {
   generateTestWorkspace,
 } from '../../endpoints/testUtils/generateData/workspace';
 import {dropMongoConnection, genDbName} from '../../endpoints/testUtils/helpers/mongo';
-import {completeTest} from '../../endpoints/testUtils/helpers/test';
+import {completeTests} from '../../endpoints/testUtils/helpers/test';
 import {
   getTestFileProvider,
   mockExpressRequestForPublicAgent,
@@ -68,7 +68,7 @@ const runInfo = pipelineRunInfoFactory({
 });
 
 afterAll(async () => {
-  await completeTest({context: contexts});
+  await completeTests({context: contexts});
   await Promise.all(connections.map(c => dropMongoConnection(c)));
   await runInfo.logger.close();
 });

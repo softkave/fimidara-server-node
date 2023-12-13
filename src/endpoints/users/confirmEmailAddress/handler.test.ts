@@ -8,7 +8,7 @@ import {
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {newResource} from '../../../utils/resource';
 import RequestData from '../../RequestData';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {assertUserTokenIsSame} from '../../testUtils/helpers/user';
 import {
   assertEndpointResultOk,
@@ -22,7 +22,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 test('email address is confirmed', async () => {

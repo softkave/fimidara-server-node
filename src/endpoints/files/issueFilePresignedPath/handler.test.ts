@@ -8,7 +8,7 @@ import {addRootnameToPath} from '../../folders/utils';
 import {generateTestFileName} from '../../testUtils/generateData/file';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {assertFileBodyEqual} from '../../testUtils/helpers/file';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertAgentTokenForTest,
@@ -31,7 +31,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 describe('issueFilePresignedPath', () => {

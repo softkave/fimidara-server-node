@@ -1,6 +1,6 @@
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import EndpointReusableQueries from '../../queries';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   insertPermissionGroupForTest,
   insertUserForTest,
@@ -18,7 +18,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 describe('addPermissionGroup', () => {

@@ -1,7 +1,7 @@
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generateData/collaborator';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertUserForTest,
@@ -16,7 +16,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 describe('countCollaboratorsWithoutPermission', () => {

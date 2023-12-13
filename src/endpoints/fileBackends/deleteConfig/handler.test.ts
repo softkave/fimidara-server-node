@@ -1,7 +1,7 @@
 import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertAgentTokenForTest,
@@ -22,7 +22,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 test('Agent token deleted', async () => {

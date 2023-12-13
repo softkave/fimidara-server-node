@@ -28,7 +28,7 @@ export function setupMutationTesting() {
   return {mutationTest};
 }
 
-export async function completeTest() {
+export async function completeTests() {
   await Promise.all([
     context.dispose(),
     executeServerInstanceJobs(kUtilsInjectables.config().serverInstanceId),

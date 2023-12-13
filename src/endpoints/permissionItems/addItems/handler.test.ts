@@ -4,7 +4,7 @@ import RequestData from '../../RequestData';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {generateAndInsertTestFolders} from '../../testUtils/generateData/folder';
 import {expectEntityHasPermissionsTargetingId} from '../../testUtils/helpers/permissionItem';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertPermissionGroupForTest,
@@ -22,7 +22,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 describe('addItems', () => {

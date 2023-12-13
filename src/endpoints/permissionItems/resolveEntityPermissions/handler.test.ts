@@ -7,7 +7,7 @@ import {
 } from '../../permissionGroups/testUtils';
 import {generateAndInsertTestFiles} from '../../testUtils/generateData/file';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertFolderForTest,
@@ -32,7 +32,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 describe('resolveEntityPermissions', () => {

@@ -6,7 +6,7 @@ import {addRootnameToPath} from '../../folders/utils';
 import {generateTestFileName} from '../../testUtils/generateData/file';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {assertFileBodyEqual} from '../../testUtils/helpers/file';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {updateTestWorkspaceUsageLocks} from '../../testUtils/helpers/usageRecord';
 import {
   assert,
@@ -33,7 +33,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 describe('readFile', () => {

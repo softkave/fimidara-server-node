@@ -1,5 +1,5 @@
 import {generateTestFolderName} from '../../testUtils/generateData/folder';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   insertFolderForTest,
   insertUserForTest,
@@ -18,7 +18,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 describe('addFolder', () => {

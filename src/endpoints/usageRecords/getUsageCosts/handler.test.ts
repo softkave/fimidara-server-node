@@ -1,5 +1,5 @@
 import RequestData from '../../RequestData';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {mockExpressRequestForPublicAgent} from '../../testUtils/testUtils';
 import {usageCosts} from '../constants';
 import getUsageCosts from './handler';
@@ -10,7 +10,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 describe('getUsageCosts', () => {

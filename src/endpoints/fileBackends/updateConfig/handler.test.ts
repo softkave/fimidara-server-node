@@ -2,19 +2,19 @@ import { faker } from '@faker-js/faker';
 import RequestData from '../../RequestData';
 import { populateAssignedTags } from '../../assignedItems/getAssignedItems';
 import EndpointReusableQueries from '../../queries';
-import { completeTest } from '../../testUtils/helpers/test';
+import { completeTests } from '../../testUtils/helpers/test';
 import {
-  assertEndpointResultOk,
-  insertFileBackendConfigForTest,
-  insertUserForTest,
-  insertWorkspaceForTest,
-  mockExpressRequestWithFileBackendConfig,
+    assertEndpointResultOk,
+    insertFileBackendConfigForTest,
+    insertUserForTest,
+    insertWorkspaceForTest,
+    mockExpressRequestWithFileBackendConfig,
 } from '../../testUtils/testUtils';
 import { fileBackendConfigExtractor, getPublicFileBackendConfig } from '../utils';
 import updateFileBackendConfig from './handler';
 import {
-  UpdateFileBackendConfigEndpointParams,
-  UpdateFileBackendConfigInput,
+    UpdateFileBackendConfigEndpointParams,
+    UpdateFileBackendConfigInput,
 } from './types';
 
 /**
@@ -30,7 +30,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 test('agent config updated', async () => {

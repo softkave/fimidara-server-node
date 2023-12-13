@@ -1,17 +1,17 @@
 import {insertTagForTest} from '../../testUtils/helpers/tag';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
-  initTest,
+  initTests,
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../testUtils/testUtils';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 describe('addTag', () => {

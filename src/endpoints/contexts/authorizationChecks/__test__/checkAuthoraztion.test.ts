@@ -12,9 +12,9 @@ import {
 } from '../../../testUtils/generateData/permissionGroup';
 import {generatePermissionItemForTest} from '../../../testUtils/generateData/permissionItem';
 import {expectErrorThrown} from '../../../testUtils/helpers/error';
-import {completeTest} from '../../../testUtils/helpers/test';
+import {completeTests} from '../../../testUtils/helpers/test';
 import {
-  initTest,
+  initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -29,11 +29,11 @@ import {
 } from '../checkAuthorizaton';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
 });
 
 describe('checkAuthorization', () => {
