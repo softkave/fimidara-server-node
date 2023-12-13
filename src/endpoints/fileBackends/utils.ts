@@ -17,7 +17,7 @@ import {
 import {workspaceResourceFields} from '../utils';
 import {NewFileBackendMountInput} from './addMount/types';
 
-const ResolvedEntryFields = getFields<PublicResolvedMountEntry>({
+const resolvedEntryFields = getFields<PublicResolvedMountEntry>({
   ...workspaceResourceFields,
   mountId: true,
   resolvedAt: true,
@@ -26,8 +26,8 @@ const ResolvedEntryFields = getFields<PublicResolvedMountEntry>({
   resolvedForType: true,
 });
 
-export const ResolvedEntryExtractor = makeExtract(ResolvedEntryFields);
-export const ResolvedEntryListExtractor = makeListExtract(ResolvedEntryFields);
+export const resolvedEntryExtractor = makeExtract(resolvedEntryFields);
+export const resolvedEntryListExtractor = makeListExtract(resolvedEntryFields);
 
 const fileBackendMountFields = getFields<
   ConvertAgentToPublicAgent<PublicFileBackendMount>

@@ -38,7 +38,7 @@ export class FimidaraDoesNotSupportConfigError extends OperationError {
     super(props);
     this.message = getErrorMessageFromParams(
       props,
-      'Sorry Fimidara does not support this config.'
+      'Sorry fimidara does not support this config.'
     );
   }
 }
@@ -50,7 +50,7 @@ export class FimidaraNotAllowedError extends OperationError {
     super(props);
     this.message = getErrorMessageFromParams(
       props,
-      'Sorry you cannot carry out this operation on Fimidara.'
+      'Sorry you cannot carry out this operation on fimidara.'
     );
   }
 }

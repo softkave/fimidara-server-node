@@ -7,7 +7,7 @@ export const kAppMessages = {
     },
     withRootnameNotFound(rootname?: string) {
       return rootname
-        ? `Workspace with Root Name ${rootname} not found.`
+        ? `Workspace with rootname ${rootname} not found.`
         : 'Workspace not found.';
     },
   },
@@ -116,25 +116,25 @@ export const kAppMessages = {
       return id ? `Config with ID ${id} not found.` : 'Config not found.';
     },
     configInUse(mountsCount: number) {
-      return `Config already in use by ${mountsCount} config mounts`;
+      return `Config already in use by ${mountsCount} mounts`;
     },
     configExists: 'Config exists.',
     configNameExists(name: string) {
-      return name ? `Config Name with name ${name} exists.` : 'Config Name exists.';
+      return name ? `Config with name ${name} exists.` : 'Config name exists.';
     },
-    fimidaraDoesNotSupportConfig: "Sorry Fimidara dooesn't support this config",
+    fimidaraDoesNotSupportConfig: 'Sorry fimidara does not support this config.',
   },
   mount: {
     mountExists: 'Mount exists.',
     s3MountSourceMissingBucket: 'S3 mount source missing bucket.',
-    cannotMountFimidaraExplicitly: 'Sorry cannot mount Fimidara explicitly.',
-    cannotDeleteFimidaraMount: 'Sorry cannot delete Fimidara mount.',
-    cannotUpdateFimidaraMount: 'Sorry cannot delete Fimidara mount.',
+    cannotMountFimidaraExplicitly: 'Sorry cannot mount fimidara explicitly.',
+    cannotDeleteFimidaraMount: 'Sorry cannot delete fimidara mount.',
+    cannotUpdateFimidaraMount: 'Sorry cannot update fimidara mount.',
     notFound(id?: string) {
       return id ? `Config with ID ${id} not found.` : 'Config not found.';
     },
     mountNameExists(name: string) {
-      return name ? `Mount Name with name ${name} exists.` : 'Mount Name exists.';
+      return name ? `Mount with name ${name} exists.` : 'Mount name exists.';
     },
   },
 };

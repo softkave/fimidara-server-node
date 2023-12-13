@@ -11,9 +11,9 @@ import {agentTokenExtractor} from '../agentTokens/utils';
 import {collaborationRequestForWorkspaceExtractor} from '../collaborationRequests/utils';
 import {collaboratorExtractor} from '../collaborators/utils';
 import {
-  ResolvedEntryExtractor,
   fileBackendConfigExtractor,
   fileBackendMountExtractor,
+  resolvedEntryExtractor,
 } from '../fileBackends/utils';
 import {fileExtractor, filePresignedPathExtractor} from '../files/utils';
 import {folderExtractor} from '../folders/utils';
@@ -46,7 +46,7 @@ const kResourceTypeToExtractorMap: Record<
   [AppResourceTypeMap.UsageRecord]: usageRecordExtractor,
   [AppResourceTypeMap.FileBackendConfig]: fileBackendConfigExtractor,
   [AppResourceTypeMap.FileBackendMount]: fileBackendMountExtractor,
-  [AppResourceTypeMap.ResolvedMountEntry]: ResolvedEntryExtractor,
+  [AppResourceTypeMap.ResolvedMountEntry]: resolvedEntryExtractor,
 };
 
 export function getPublicResource(resource: ResourceWrapper, workspaceId: string) {
