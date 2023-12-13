@@ -1,7 +1,7 @@
 import {PermissionGroupMatcher} from '../../../definitions/permissionGroups';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertPermissionGroupForTest,
@@ -16,7 +16,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 test('permissionGroup permission group deleted', async () => {

@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {generateAndInsertUserListForTest} from '../../endpoints/testUtils/generateData/user';
-import {completeTest} from '../../endpoints/testUtils/helpers/test';
+import {completeTests} from '../../endpoints/testUtils/helpers/test';
 import {ISetupDevUserOptions, setupDevUser} from './utils';
 
 beforeAll(async () => {
@@ -9,7 +9,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  completeTest({context});
+  completeTests({context});
 });
 
 const appOptions: ISetupDevUserOptions = {

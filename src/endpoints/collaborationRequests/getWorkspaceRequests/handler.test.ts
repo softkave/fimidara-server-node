@@ -2,7 +2,7 @@ import {calculatePageSize} from '../../../utils/fns';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generateData/collaborationRequest';
 import {expectContainsEveryItemIn} from '../../testUtils/helpers/assertion';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertRequestForTest,
@@ -23,7 +23,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 describe('getWorkspaceRequests', () => {

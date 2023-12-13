@@ -10,7 +10,7 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {newResource} from '../../../utils/resource';
 import RequestData from '../../RequestData';
 import EndpointReusableQueries from '../../queries';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertUserForTest,
@@ -36,7 +36,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 async function changePasswordWithTokenTest() {

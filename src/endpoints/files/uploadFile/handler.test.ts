@@ -1,7 +1,7 @@
 import {Promise} from 'mongoose';
 import RequestData from '../../RequestData';
 import {generateTestFileName} from '../../testUtils/generateData/file';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   insertFileForTest,
   insertUserForTest,
@@ -32,7 +32,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 describe('uploadFile', () => {

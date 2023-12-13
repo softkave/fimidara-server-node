@@ -1,10 +1,10 @@
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injectables';
 import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generateData/agentToken';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
-  initTest,
+  initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -13,11 +13,11 @@ import countWorkspaceAgentTokens from './handler';
 import {CountWorkspaceAgentTokensEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 describe('countWorkspaceAgentTokens', () => {

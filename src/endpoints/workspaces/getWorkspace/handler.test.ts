@@ -1,5 +1,5 @@
 import RequestData from '../../RequestData';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertUserForTest,
@@ -13,7 +13,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 test('workspace returned', async () => {

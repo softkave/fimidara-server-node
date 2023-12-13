@@ -3,7 +3,7 @@ import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {generateTestFileName} from '../../testUtils/generateData/file';
 import {generateTestFolderName} from '../../testUtils/generateData/folder';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertFileForTest,
@@ -28,7 +28,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 async function assertFolderDeleted(id: string) {

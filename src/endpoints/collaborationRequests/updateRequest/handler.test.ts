@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
 import RequestData from '../../RequestData';
 import EndpointReusableQueries from '../../queries';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertRequestForTest,
@@ -21,7 +21,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 describe('updateCollaborationRequest', () => {

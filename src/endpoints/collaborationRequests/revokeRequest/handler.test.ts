@@ -1,7 +1,7 @@
 import {CollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertRequestForTest,
@@ -18,7 +18,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 test('collaboration request revoked', async () => {

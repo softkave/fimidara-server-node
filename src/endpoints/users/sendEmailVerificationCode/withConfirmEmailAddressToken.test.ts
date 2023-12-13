@@ -9,17 +9,17 @@ import {User} from '../../../definitions/user';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getNewIdForResource, newResource} from '../../../utils/resource';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
-import {completeTest} from '../../testUtils/helpers/test';
-import {initTest} from '../../testUtils/testUtils';
+import {completeTests} from '../../testUtils/helpers/test';
+import {initTests} from '../../testUtils/testUtils';
 import {userConstants} from '../constants';
 import {withConfirmEmailAddressToken} from './withConfirmEmailAddressToken';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 async function createTestEmailVerificationToken(userId: string) {

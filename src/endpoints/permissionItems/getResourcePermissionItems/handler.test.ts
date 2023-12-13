@@ -3,7 +3,7 @@ import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {AppResourceTypeMap} from '../../../definitions/system';
 import RequestData from '../../RequestData';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertPermissionGroupForTest,
@@ -22,7 +22,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 describe.skip('getResourcePermissionItems', () => {

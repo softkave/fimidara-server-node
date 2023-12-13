@@ -1,7 +1,7 @@
 import { calculatePageSize } from '../../../utils/fns';
 import RequestData from '../../RequestData';
 import { generateAndInsertFileBackendConfigListForTest } from '../../testUtils/generateData/fileBackendConfig';
-import { completeTest } from '../../testUtils/helpers/test';
+import { completeTests } from '../../testUtils/helpers/test';
 import {
     assertEndpointResultOk,
     insertFileBackendConfigForTest,
@@ -19,7 +19,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 describe('getFileBackendConfigs', () => {

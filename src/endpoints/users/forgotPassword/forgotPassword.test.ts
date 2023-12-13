@@ -2,7 +2,7 @@ import {TokenAccessScopeMap} from '../../../definitions/system';
 import {forgotPasswordEmailTitle} from '../../../emailTemplates/forgotPassword';
 import RequestData from '../../RequestData';
 import {ITestBaseContext} from '../../testUtils/context/types';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertUserForTest,
@@ -25,7 +25,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 test('forgot password with email sent', async () => {

@@ -1,8 +1,10 @@
 import RequestData from '../../RequestData';
+import {kSemanticModels} from '../../contexts/injectables';
 import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generateData/agentToken';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -11,11 +13,11 @@ import countFileBackendMounts from './handler';
 import {CountFileBackendMountsEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 describe('countFileBackendMounts', () => {

@@ -11,7 +11,7 @@ import {
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generateData/collaborator';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
 import {expectContainsNoneInForAnyType} from '../../testUtils/helpers/assertion';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertPermissionItemsForTest,
@@ -27,7 +27,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 describe('getCollaboratorsWithoutPermission', () => {

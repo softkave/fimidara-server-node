@@ -1,20 +1,20 @@
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generateData/collaborationRequest';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
-  initTest,
+  initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import countUserCollaborationRequests from './handler';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 describe('countUserRequests', () => {

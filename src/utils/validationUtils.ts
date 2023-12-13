@@ -8,11 +8,13 @@ const str = /^[\w ]*$/;
 const hexColor = /#([a-f0-9]{3}|[a-f0-9]{4}(?:[a-f0-9]{2}){0,2})\b/;
 const zipcodeRegex = /^\d{5}(?:[-\s]\d{4})?$/;
 const phoneRegex = /^(?:\+\d{1,2}[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
+const awsSecretAccessKey = /^[A-Za-z0-9+/]$/;
 
-export const regExPatterns = {
+export const ValidationRegExPatterns = {
   password,
   str,
   hexColor,
+  awsSecretAccessKey,
   zipcode: zipcodeRegex,
   phone: phoneRegex,
 };
@@ -22,10 +24,12 @@ export const validationConstants = {
   minVerificationCodeLength: 6,
   maxVerificationCodeLength: 6,
   maxResourceIdInputLength: 1000,
+  awsAccessKeyIdLength: 20,
+  awsSecretAccessKeyLength: 40,
 };
 
-// const uuid = Joi.string().guid().trim();
-const color = Joi.string().trim().lowercase().regex(regExPatterns.hexColor);
+const uuid = Joi.string().guid().trim();
+const color = Joi.string().trim().lowercase().regex(ValidationRegExPatterns.hexColor);
 const alphanum = Joi.string().regex(str);
 const URL = Joi.string().uri().trim().max(validationConstants.maxImageURLLength);
 const positiveNum = Joi.number().integer().positive();
@@ -34,8 +38,8 @@ const description = Joi.string()
   .allow(null, '')
   .max(endpointConstants.maxDescriptionLength)
   .trim();
-const zipcode = Joi.string().regex(regExPatterns.zipcode);
-const phone = Joi.string().regex(regExPatterns.phone);
+const zipcode = Joi.string().regex(ValidationRegExPatterns.zipcode);
+const phone = Joi.string().regex(ValidationRegExPatterns.phone);
 const time = Joi.date().timestamp().cast('number');
 const verificationCode = Joi.string()
   .trim()
@@ -80,6 +84,7 @@ export const validationSchemas = {
   crudActionList,
   crudActionOrList,
   providedResourceId,
+  uuid,
 };
 
 export function stripOnEmpty(schema: Joi.Schema, fieldName: string) {

@@ -1,7 +1,7 @@
 import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertFileForTest,
@@ -18,7 +18,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 async function assertFileDeleted(id: string) {

@@ -25,7 +25,7 @@ import {
   AddFileBackendMountEndpointResult,
   NewFileBackendMountInput,
 } from './addMount/types';
-import {fileBackendConstants} from './constants';
+import {kFileBackendConstants} from './constants';
 import {CountFileBackendConfigsEndpointParams} from './countConfigs/types';
 import {CountFileBackendMountsEndpointParams} from './countMounts/types';
 import {DeleteFileBackendConfigEndpointParams} from './deleteConfig/types';
@@ -419,7 +419,7 @@ export const addFileBackendMountEndpointDefinition = mddocConstruct
       AddFileBackendMountHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(fileBackendConstants.routes.addMount)
+  .setBasePathname(kFileBackendConstants.routes.addMount)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(addFileBackendMountParams)
   .setRequestHeaders(
@@ -448,7 +448,7 @@ export const getFileBackendMountEndpointDefinition = mddocConstruct
       GetFileBackendMountHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(fileBackendConstants.routes.getMount)
+  .setBasePathname(kFileBackendConstants.routes.getMount)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getFileBackendMountParams)
   .setRequestHeaders(
@@ -479,7 +479,7 @@ export const updateFileBackendMountEndpointDefinition = mddocConstruct
       UpdateFileBackendMountHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(fileBackendConstants.routes.updateMount)
+  .setBasePathname(kFileBackendConstants.routes.updateMount)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(updateFileBackendMountParams)
   .setRequestHeaders(
@@ -510,7 +510,7 @@ export const deleteFileBackendMountEndpointDefinition = mddocConstruct
       DeleteFileBackendMountHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(fileBackendConstants.routes.deleteMount)
+  .setBasePathname(kFileBackendConstants.routes.deleteMount)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(deleteFileBackendMountParams)
   .setRequestHeaders(
@@ -541,7 +541,7 @@ export const getFileBackendMountsEndpointDefinition = mddocConstruct
       GetFileBackendMountsHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(fileBackendConstants.routes.getMounts)
+  .setBasePathname(kFileBackendConstants.routes.getMounts)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getFileBackendMountsParams)
   .setRequestHeaders(
@@ -572,7 +572,7 @@ export const countFileBackendMountsEndpointDefinition = mddocConstruct
       CountFileBackendMountsHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(fileBackendConstants.routes.countMounts)
+  .setBasePathname(kFileBackendConstants.routes.countMounts)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(countFileBackendMountsParams)
   .setRequestHeaders(
@@ -603,7 +603,7 @@ export const resolveFileBackendMountsEndpointDefinition = mddocConstruct
       ResolveFileBackendMountsHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(fileBackendConstants.routes.resolveMounts)
+  .setBasePathname(kFileBackendConstants.routes.resolveMounts)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(resolveFileBackendMountsParams)
   .setRequestHeaders(
@@ -634,7 +634,7 @@ export const addFileBackendConfigEndpointDefinition = mddocConstruct
       AddFileBackendConfigHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(fileBackendConstants.routes.addConfig)
+  .setBasePathname(kFileBackendConstants.routes.addConfig)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(addFileBackendConfigParams)
   .setRequestHeaders(
@@ -665,7 +665,7 @@ export const getFileBackendConfigEndpointDefinition = mddocConstruct
       GetFileBackendConfigHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(fileBackendConstants.routes.getConfig)
+  .setBasePathname(kFileBackendConstants.routes.getConfig)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getFileBackendConfigParams)
   .setRequestHeaders(
@@ -696,7 +696,7 @@ export const updateFileBackendConfigEndpointDefinition = mddocConstruct
       UpdateFileBackendConfigHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(fileBackendConstants.routes.updateConfig)
+  .setBasePathname(kFileBackendConstants.routes.updateConfig)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(updateFileBackendConfigParams)
   .setRequestHeaders(
@@ -727,7 +727,7 @@ export const deleteFileBackendConfigEndpointDefinition = mddocConstruct
       DeleteFileBackendConfigHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(fileBackendConstants.routes.deleteConfig)
+  .setBasePathname(kFileBackendConstants.routes.deleteConfig)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(deleteFileBackendConfigParams)
   .setRequestHeaders(
@@ -758,7 +758,7 @@ export const getFileBackendConfigsEndpointDefinition = mddocConstruct
       GetFileBackendConfigsHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(fileBackendConstants.routes.getConfigs)
+  .setBasePathname(kFileBackendConstants.routes.getConfigs)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getFileBackendConfigsParams)
   .setRequestHeaders(
@@ -789,7 +789,7 @@ export const countFileBackendConfigsEndpointDefinition = mddocConstruct
       CountFileBackendConfigsHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(fileBackendConstants.routes.countConfigs)
+  .setBasePathname(kFileBackendConstants.routes.countConfigs)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(countFileBackendConfigsParams)
   .setRequestHeaders(

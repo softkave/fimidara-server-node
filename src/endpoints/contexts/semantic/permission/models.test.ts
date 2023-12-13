@@ -18,19 +18,19 @@ import {generateAndInsertUserListForTest} from '../../../testUtils/generateData/
 import {generateAgent, generateTestList} from '../../../testUtils/generateData/utils';
 import {expectContainsExactly} from '../../../testUtils/helpers/assertion';
 import {expectErrorThrown} from '../../../testUtils/helpers/error';
-import {completeTest} from '../../../testUtils/helpers/test';
-import {initTest} from '../../../testUtils/testUtils';
+import {completeTests} from '../../../testUtils/helpers/test';
+import {initTests} from '../../../testUtils/testUtils';
 import {kSemanticModels} from '../../injectables';
 import {DataSemanticPermission} from './models';
 
 const model = new DataSemanticPermission();
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 describe('DataSemanticPermission', () => {

@@ -13,7 +13,7 @@ import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import RequestData from '../../RequestData';
 import {generateAndInsertUserListForTest} from '../../testUtils/generateData/user';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertUserForTest,
@@ -28,7 +28,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 describe('upgradeWaitlistedUsers', () => {

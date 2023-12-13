@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import {Folder} from '../../../definitions/folder';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   IInsertUserForTestResult,
@@ -22,7 +22,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 async function updateFolderBaseTest(

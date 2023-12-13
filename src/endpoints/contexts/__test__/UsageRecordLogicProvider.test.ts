@@ -14,11 +14,10 @@ import {fimidaraConfig} from '../../../resources/vars';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {cast} from '../../../utils/fns';
 import {getNewId, getNewIdForResource} from '../../../utils/resource';
-import EndpointReusableQueries from '../../queries';
 import {generateWorkspaceWithCategoryUsageExceeded} from '../../testUtils/generateData/usageRecord';
 import {generateTestWorkspace} from '../../testUtils/generateData/workspace';
 import {dropMongoConnection} from '../../testUtils/helpers/mongo';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import BaseContext from '../BaseContext';
 import {kSemanticModels} from '../injectables';
 import {UsageRecordInput} from '../logic/UsageRecordLogicProvider';
@@ -60,7 +59,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 function assertDeps() {

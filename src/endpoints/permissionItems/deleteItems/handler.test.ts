@@ -3,7 +3,7 @@ import {AppResourceTypeMap} from '../../../definitions/system';
 import RequestData from '../../RequestData';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import {expectEntityHasPermissionsTargetingType} from '../../testUtils/helpers/permissionItem';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertPermissionGroupForTest,
@@ -20,7 +20,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 test('permission items deleted', async () => {

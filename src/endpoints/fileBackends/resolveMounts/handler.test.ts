@@ -1,9 +1,11 @@
 import { calculatePageSize } from '../../../utils/fns';
 import RequestData from '../../RequestData';
+import { kSemanticModels } from '../../contexts/injectables';
 import { generateAndInsertFileBackendMountListForTest } from '../../testUtils/generateData/fileBackendMount';
-import { completeTest } from '../../testUtils/helpers/test';
+import { completeTests } from '../../testUtils/helpers/test';
 import {
     assertEndpointResultOk,
+    initTests,
     insertFileBackendMountForTest,
     insertUserForTest,
     insertWorkspaceForTest,
@@ -15,11 +17,11 @@ import { ResolveFileBackendMountssEndpointParams } from './types';
 
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 describe('resolveMounts', () => {

@@ -11,7 +11,7 @@ import {
   generateTestFolderName,
 } from '../../testUtils/generateData/folder';
 import {expectContainsExactly} from '../../testUtils/helpers/assertion';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertAgentTokenForTest,
@@ -36,7 +36,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 describe('listFolderContent', () => {

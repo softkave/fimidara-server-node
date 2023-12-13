@@ -1,7 +1,7 @@
 import RequestData from '../../RequestData';
 import {generateAndInsertTestFiles} from '../../testUtils/generateData/file';
 import {generateAndInsertTestFolders} from '../../testUtils/generateData/folder';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertUserForTest,
@@ -16,7 +16,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 describe('countFolderContent', () => {

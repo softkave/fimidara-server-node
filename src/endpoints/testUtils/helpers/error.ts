@@ -1,9 +1,9 @@
 import assert = require('assert');
-import {isArray} from 'lodash';
+import {isArray, isFunction, isString} from 'lodash';
 import {format} from 'util';
 import {AnyFn} from '../../../utils/types';
 
-export function assertErrorHasName(error: any, expectedErrorNames: string[]) {
+export function assertErrorHasName(error: unknown, expectedErrorNames: string[]) {
   const errorList = isArray(error) ? error : [error];
   const matchedTypes = expectedErrorNames.map(name =>
     errorList.find(item => item?.name === name)
@@ -24,15 +24,25 @@ export function assertErrorHasName(error: any, expectedErrorNames: string[]) {
 
 export async function expectErrorThrown(
   fn: AnyFn,
-  expectedErrorNames?: string[],
+  expected?: string[] | AnyFn<[unknown], boolean | string>,
   finallyFn?: AnyFn
 ) {
   try {
     await fn();
     assert.fail('Error not thrown.');
   } catch (error) {
-    if (expectedErrorNames) assertErrorHasName(error, expectedErrorNames);
+    if (isFunction(expected)) {
+      const assertionResult = expected(error);
+      assert(
+        assertionResult === true,
+        isString(assertionResult) ? assertionResult : 'Expectation not met.'
+      );
+    } else if (expected) {
+      assertErrorHasName(error, expected);
+    }
   } finally {
-    if (finallyFn) finallyFn();
+    if (finallyFn) {
+      finallyFn();
+    }
   }
 }

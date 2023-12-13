@@ -9,20 +9,20 @@ import {
 } from '../../permissionGroups/testUtils';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
 import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
-  initTest,
+  initTests,
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../testUtils/testUtils';
 import {addAssignedPermissionGroupList} from '../addAssignedItems';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 describe('addAssignedItems', () => {

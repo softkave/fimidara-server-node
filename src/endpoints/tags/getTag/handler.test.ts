@@ -1,6 +1,6 @@
 import RequestData from '../../RequestData';
 import {insertTagForTest} from '../../testUtils/helpers/tag';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertUserForTest,
@@ -15,7 +15,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 describe('getTag', () => {

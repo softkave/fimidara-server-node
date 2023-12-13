@@ -7,7 +7,7 @@ import {UsageRecordCategoryMap} from '../../definitions/usageRecord';
 import {Workspace} from '../../definitions/workspace';
 import {generateWorkspaceListForTest} from '../../endpoints/testUtils/generateData/workspace';
 import {dropMongoConnection} from '../../endpoints/testUtils/helpers/mongo';
-import {completeTest} from '../../endpoints/testUtils/helpers/test';
+import {completeTests} from '../../endpoints/testUtils/helpers/test';
 import {fimidaraConfig} from '../../resources/vars';
 import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {getTimestamp} from '../../utils/dateFns';
@@ -22,7 +22,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest();
+  await completeTests();
   if (connection) {
     await dropMongoConnection(connection);
   }

@@ -2,10 +2,10 @@ import {kSemanticModels} from '../../contexts/injectables';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
-  initTest,
+  initTests,
   insertAgentTokenForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -20,11 +20,11 @@ import {DeleteAgentTokenEndpointParams} from './types';
  */
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 test('Agent token deleted', async () => {

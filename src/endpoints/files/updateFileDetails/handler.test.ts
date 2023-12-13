@@ -3,7 +3,7 @@ import RequestData from '../../RequestData';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {kSemanticModels} from '../../contexts/injectables';
 import EndpointReusableQueries from '../../queries';
-import {completeTest} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   insertFileForTest,
@@ -20,7 +20,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 test('file updated', async () => {

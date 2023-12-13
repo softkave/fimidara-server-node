@@ -1,30 +1,39 @@
-import { calculatePageSize } from '../../../utils/fns';
+import {FileBackendMount} from '../../../definitions/fileBackend';
+import {calculatePageSize} from '../../../utils/fns';
 import RequestData from '../../RequestData';
-import { generateAndInsertFileBackendMountListForTest } from '../../testUtils/generateData/fileBackendMount';
-import { completeTest } from '../../testUtils/helpers/test';
+import {kSemanticModels} from '../../contexts/injectables';
+import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generateData/fileBackendMount';
+import {completeTests} from '../../testUtils/helpers/test';
 import {
-    assertEndpointResultOk,
-    insertFileBackendMountForTest,
-    insertUserForTest,
-    insertWorkspaceForTest,
-    mockExpressRequestWithFileBackendMount,
+  assertEndpointResultOk,
+  initTests,
+  insertFileBackendMountForTest,
+  insertUserForTest,
+  insertWorkspaceForTest,
+  mockExpressRequestWithFileBackendMount,
 } from '../../testUtils/testUtils';
 import getFileBackendMountss from './handler';
-import { GetFileBackendMountsEndpointParams } from './types';
+import {GetFileBackendMountsEndpointParams} from './types';
 
-
+/**
+ * - mounts
+ * - pagination
+ * - folderpath
+ * - backend
+ * - config
+ * - workspace
+ */
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
-  await completeTest({});
+  await completeTests();
 });
 
 describe('getFileBackendMounts', () => {
   test('workspace agent tokens returned', async () => {
-    
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const [{token: token01}, {token: token02}] = await Promise.all([
@@ -42,15 +51,15 @@ describe('getFileBackendMounts', () => {
   });
 
   test('pagination', async () => {
-    
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    await generateAndInsertFileBackendMountListForTest(15, {
+    const mounts = await generateAndInsertFileBackendMountListForTest(15, {
       workspaceId: workspace.resourceId,
     });
-    const count = await kSemanticModels.file()BackendMount.countByQuery({
+    const count = await kSemanticModels.fileBackendMount().countByQuery({
       workspaceId: workspace.resourceId,
     });
+
     const pageSize = 10;
     let page = 0;
     let instData = RequestData.fromExpressRequest<GetFileBackendMountsEndpointParams>(
@@ -59,8 +68,10 @@ describe('getFileBackendMounts', () => {
     );
     let result = await getFileBackendMountss(instData);
     assertEndpointResultOk(result);
+
     expect(result.page).toBe(page);
-    expect(result.tokens).toHaveLength(calculatePageSize(count, pageSize, page));
+    expect(result.mounts).toHaveLength(calculatePageSize(count, pageSize, page));
+    expect(result.mounts.every(mount));
 
     page = 1;
     instData = RequestData.fromExpressRequest<GetFileBackendMountsEndpointParams>(
@@ -70,6 +81,8 @@ describe('getFileBackendMounts', () => {
     result = await getFileBackendMountss(instData);
     assertEndpointResultOk(result);
     expect(result.page).toBe(page);
-    expect(result.tokens).toHaveLength(calculatePageSize(count, pageSize, page));
+    expect(result.mounts).toHaveLength(calculatePageSize(count, pageSize, page));
   });
 });
+
+function expectWorkspaceId(mount: FileBackendMount, workspaceId: string) {}
