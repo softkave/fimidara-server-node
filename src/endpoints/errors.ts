@@ -56,3 +56,13 @@ export class ResourceExistsError extends OperationError {
     this.message = getErrorMessageFromParams(props, 'Resource exist.');
   }
 }
+
+export class ResourceInUseError extends OperationError {
+  name = 'ResourceInUseError';
+  statusCode = endpointConstants.httpStatusCode.conflict;
+
+  constructor(props?: OperationErrorParameters | string) {
+    super(props);
+    this.message = getErrorMessageFromParams(props, 'Resource is in use.');
+  }
+}

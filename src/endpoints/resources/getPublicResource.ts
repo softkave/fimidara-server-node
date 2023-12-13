@@ -13,8 +13,9 @@ import {collaboratorExtractor} from '../collaborators/utils';
 import {
   fileBackendConfigExtractor,
   fileBackendMountExtractor,
+  resolvedEntryExtractor,
 } from '../fileBackends/utils';
-import {fileExtractor} from '../files/utils';
+import {fileExtractor, filePresignedPathExtractor} from '../files/utils';
 import {folderExtractor} from '../folders/utils';
 import {permissionGroupExtractor} from '../permissionGroups/utils';
 import {permissionItemExtractor} from '../permissionItems/utils';
@@ -32,7 +33,7 @@ const kResourceTypeToExtractorMap: Record<
   [AppResourceTypeMap.EndpointRequest]: identity,
   [AppResourceTypeMap.AssignedItem]: identity,
   [AppResourceTypeMap.Job]: identity,
-  [AppResourceTypeMap.FilePresignedPath]: not_implemented,
+  [AppResourceTypeMap.FilePresignedPath]: filePresignedPathExtractor,
   [AppResourceTypeMap.Workspace]: workspaceExtractor,
   [AppResourceTypeMap.CollaborationRequest]: collaborationRequestForWorkspaceExtractor,
   [AppResourceTypeMap.AgentToken]: agentTokenExtractor,
@@ -45,7 +46,7 @@ const kResourceTypeToExtractorMap: Record<
   [AppResourceTypeMap.UsageRecord]: usageRecordExtractor,
   [AppResourceTypeMap.FileBackendConfig]: fileBackendConfigExtractor,
   [AppResourceTypeMap.FileBackendMount]: fileBackendMountExtractor,
-  [AppResourceTypeMap.ResolvedMountEntry]: not_implemented,
+  [AppResourceTypeMap.ResolvedMountEntry]: resolvedEntryExtractor,
 };
 
 export function getPublicResource(resource: ResourceWrapper, workspaceId: string) {
