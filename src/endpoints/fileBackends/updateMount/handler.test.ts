@@ -130,11 +130,51 @@ describe('updateMount', async () => {
               expect(result.mount.description).toBe(input.description);
             },
           },
+          {
+            matcher: input => !input.folderpath && !input.mountedFrom,
+            expect: (input, result) => {
+              expect(result.jobId).toBeFalsy();
+            },
+          },
+          {
+            matcher: input => !!input.folderpath || !!input.mountedFrom,
+            expect: async (input, result) => {
+              expect(result.jobId).toBeTruthy();
+
+              const job = await kSemanticModels.job().getOneByQuery({
+                resourceId: result.jobId,
+                type: 'cleanupMountResolvedEntries',
+                params: {$objMatch: {mountId: mount.resourceId}},
+              });
+              expect(job).toBeTruthy();
+            },
+          },
         ],
         update,
         result
       );
     });
+  });
+
+  test('fails if mount does not exist', async () => {
+    const instData = RequestData.fromExpressRequest<UpdateFileBackendMountEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {
+        mountId: getNewIdForResource(AppResourceTypeMap.FileBackendMount),
+        mount: {configId: getNewIdForResource(AppResourceTypeMap.FileBackendConfig)},
+        workspaceId: workspace.resourceId,
+      }
+    );
+
+    await expectErrorThrown(
+      async () => {
+        await updateFileBackendMount(instData);
+      },
+      error =>
+        expect((error as NotFoundError).message).toBe(
+          kReuseableErrors.mount.notFound().message
+        )
+    );
   });
 
   test('fails if config does not exist', async () => {

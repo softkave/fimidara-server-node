@@ -145,3 +145,47 @@ describe('updateConfig s3', async () => {
     ]);
   });
 });
+
+describe('updateConfig', async () => {
+  const {userToken} = await insertUserForTest();
+  const {workspace} = await insertWorkspaceForTest(userToken);
+
+  test('fails if config with name exists', async () => {
+    const [{config: config01}, {config: config02}] = await Promise.all([
+      insertFileBackendConfigForTest(userToken, workspace.resourceId),
+      insertFileBackendConfigForTest(userToken, workspace.resourceId),
+    ]);
+
+    const instData01 =
+      RequestData.fromExpressRequest<UpdateFileBackendConfigEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          configId: config01.resourceId,
+          config: {name: config01.name},
+          workspaceId: workspace.resourceId,
+        }
+      );
+    const instData02 =
+      RequestData.fromExpressRequest<UpdateFileBackendConfigEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          configId: config02.resourceId,
+          config: {name: config01.name},
+          workspaceId: workspace.resourceId,
+        }
+      );
+
+    await Promise.all([
+      updateFileBackendConfig(instData01),
+      expectErrorThrown(
+        async () => {
+          await updateFileBackendConfig(instData02);
+        },
+        error =>
+          expect((error as Error).message).toBe(
+            kReuseableErrors.config.configExists().message
+          )
+      ),
+    ]);
+  });
+});
