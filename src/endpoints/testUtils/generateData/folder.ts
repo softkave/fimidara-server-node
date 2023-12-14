@@ -10,6 +10,7 @@ import {kSemanticModels} from '../../contexts/injectables';
 import {kInjectionKeys} from '../../contexts/injection';
 import {SemanticFolderProvider} from '../../contexts/semantic/folder/types';
 import {SemanticProviderUtils} from '../../contexts/semantic/types';
+import {kFolderConstants} from '../../folders/constants';
 
 export const kTestFolderNameSeparatorChars = ['-', '_', ' ', '.'];
 
@@ -51,6 +52,13 @@ export function generateTestFolderpath(length = 3) {
   return Array(length)
     .fill(0)
     .map(() => generateTestFolderName());
+}
+
+export function generateTestFolderpathString(length = 3): string {
+  return Array(length)
+    .fill(0)
+    .map(() => generateTestFolderName())
+    .join(kFolderConstants.separator);
 }
 
 export async function generateUniqueFolderpath(workspaceId: string) {

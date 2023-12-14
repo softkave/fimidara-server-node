@@ -11,6 +11,7 @@ import {getNewIdForResource} from '../../../utils/resource';
 import {validationConstants} from '../../../utils/validationUtils';
 import {S3FilePersistenceProviderInitParams} from '../../contexts/file/S3FilePersistenceProvider';
 import {kInjectionKeys} from '../../contexts/injection';
+import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
 import {
   SemanticFileBackendMountProvider,
   SemanticProviderUtils,
@@ -19,7 +20,6 @@ import {NewFileBackendConfigInput} from '../../fileBackends/addConfig/types';
 import {NewFileBackendMountInput} from '../../fileBackends/addMount/types';
 import {kFileBackendConstants} from '../../fileBackends/constants';
 import {generateTestFolderpath} from './folder';
-import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
 
 export function generateAWSS3Credentials(
   seed: Partial<S3FilePersistenceProviderInitParams> = {}
@@ -32,6 +32,10 @@ export function generateAWSS3Credentials(
     region: faker.helpers.arrayElement(kFileBackendConstants.awsRegions),
     ...seed,
   };
+}
+
+export function generateFileBackendType() {
+  return faker.helpers.arrayElement(Object.values(FileBackendTypeMap));
 }
 
 export function generateFileBackendTypeForInput() {

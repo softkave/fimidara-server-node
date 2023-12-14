@@ -3,11 +3,11 @@ import {Readable} from 'stream';
 import {Resource} from '../definitions/system';
 import {AnyFn, AnyObject} from './types';
 
-export function cast<ToType>(resource: any): ToType {
+export function cast<ToType>(resource: unknown): ToType {
   return resource as unknown as ToType;
 }
 
-export function isObjectEmpty(data: Record<string | number, any>) {
+export function isObjectEmpty(data: Record<string | number, unknown>) {
   return Object.keys(data).length === 0;
 }
 
@@ -20,12 +20,15 @@ export function isObjectFieldsEmpty<T extends AnyObject>(data: T) {
   return true;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getFirstArg<T extends any[]>(...args: T): T[0] {
   return args[0];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
 export async function noopAsync(...args: any) {}
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function applyMixins(derivedConstructors: any, baseConstructors: any[]) {
   baseConstructors.forEach(baseConstructor => {
     Object.getOwnPropertyNames(baseConstructor.prototype).forEach(name => {
@@ -59,7 +62,7 @@ export function applyMixins04<C1, C2, C3, C4>(
 
 export function findItemWithField<T>(
   items: T[],
-  val: any,
+  val: unknown,
   field: keyof T
 ): T | undefined {
   return items.find(item => {
@@ -86,7 +89,7 @@ export function waitTimeout(ms: number) {
   return new Promise<void>(resolve => setTimeout(resolve, ms));
 }
 
-export function makeWaitTimeoutFn<TFn extends AnyFn>(timeoutMs: number) {
+export function makeWaitTimeoutFn(timeoutMs: number) {
   return () => waitTimeout(timeoutMs);
 }
 
@@ -136,10 +139,18 @@ export function calculatePageSize(
   count = Math.max(count, 0);
   pageSize = Math.max(pageSize, 0);
   page = Math.max(page, 0);
-  if (count === 0 ?? pageSize === 0) return 0;
+
+  if (count === 0 ?? pageSize === 0) {
+    return 0;
+  }
+
   const maxFullPages = Math.floor(count / pageSize);
   const pageCount = page < maxFullPages ? pageSize : count - maxFullPages * pageSize;
   return pageCount;
+}
+
+export function calculateMaxPages(count: number, pageSize: number) {
+  return Math.ceil(count / pageSize);
 }
 
 export function getResourceId(resource: Pick<Resource, 'resourceId'>) {
