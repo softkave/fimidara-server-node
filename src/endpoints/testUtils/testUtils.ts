@@ -304,7 +304,13 @@ export async function insertFileBackendConfigForTest(
 
   const result = await addFileBackendConfig(instData);
   assertEndpointResultOk(result);
-  return result;
+
+  const rawConfig = await kSemanticModels
+    .fileBackendConfig()
+    .getOneById(result.config.resourceId);
+  assert(rawConfig);
+
+  return {...result, rawConfig};
 }
 
 export async function insertFileBackendMountForTest(

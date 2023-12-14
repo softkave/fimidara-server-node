@@ -51,6 +51,13 @@ export const INTERNAL_addFileBackendMount = async (
     throw kReuseableErrors.config.notFound();
   }
 
+  if (backendConfig.backend !== data.backend) {
+    throw kReuseableErrors.mount.configMountBackendMismatch(
+      backendConfig.backend,
+      data.backend
+    );
+  }
+
   const mount = newWorkspaceResource<FileBackendMount>(
     agent,
     AppResourceTypeMap.FileBackendMount,

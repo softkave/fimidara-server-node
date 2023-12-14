@@ -6,7 +6,7 @@ import {
   getRandomInt,
   toArray,
 } from '../../../utils/fns';
-import {AnyFn, AnyObject, OrArray} from '../../../utils/types';
+import {AnyFn, AnyObject, OrArray, OrPromise} from '../../../utils/types';
 import RequestData from '../../RequestData';
 import {globalDispose} from '../../contexts/globalUtils';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
@@ -100,4 +100,24 @@ export function expectFields<T extends AnyObject>(mounts: T[], fields: Partial<T
       expect(mount[key as keyof T]).toBe(value);
     }
   });
+}
+
+export interface MatchExpect<TContexts extends unknown[] = unknown[]> {
+  matcher: AnyFn<TContexts, OrPromise<boolean>>;
+  expect: AnyFn<TContexts, OrPromise<void>>;
+}
+
+export async function matchExpects<TContexts extends unknown[]>(
+  expects: Array<MatchExpect<TContexts>>,
+  ...args: TContexts
+) {
+  await Promise.all(
+    expects.map(async ({matcher, expect}) => {
+      const matches = matcher(...args);
+
+      if (matches) {
+        expect(...args);
+      }
+    })
+  );
 }

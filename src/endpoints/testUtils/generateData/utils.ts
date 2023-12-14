@@ -4,7 +4,7 @@ import {AnyObject} from 'mongoose';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {Agent, AppResourceType, AppResourceTypeMap} from '../../../definitions/system';
 import {getNewIdForResource} from '../../../utils/resource';
-import {AnyFn} from '../../../utils/types';
+import {AnyFn, OrPromise} from '../../../utils/types';
 
 export type GeneratePartialTestDataFn<T> = (
   index: number,
@@ -59,25 +59,32 @@ export type GenerateTestFieldsDef<
   T extends AnyObject,
   TOtherArgs extends unknown[] = unknown[],
 > = {
-  [K in keyof T]: AnyFn<[K, ...TOtherArgs], T[K]>;
+  [K in keyof T]: AnyFn<[K, ...TOtherArgs], OrPromise<T[K]>>;
 };
 
-export function generateTestFields<T extends AnyObject>(
+export async function generateTestFields<T extends AnyObject>(
   def: GenerateTestFieldsDef<T>,
   ...otherArgs: unknown[]
-): Partial<T> {
-  return Object.entries(def).reduce((acc, [key, genFn]) => {
-    acc[key] = genFn(key, ...otherArgs);
-    return acc;
-  }, {} as AnyObject) as Partial<T>;
+): Promise<Partial<T>> {
+  const acc: AnyObject = {};
+  await Promise.all(
+    Object.entries(def).map(async ([key, genFn]) => {
+      acc[key] = genFn(key, ...otherArgs);
+      return acc;
+    })
+  );
+
+  return acc as Partial<T>;
 }
 
-export function generateTestFieldsCombinations<T extends AnyObject>(
+export async function generateTestFieldsCombinations<T extends AnyObject>(
   def: GenerateTestFieldsDef<T>,
   ...otherArgs: unknown[]
-): Array<Partial<T>> {
-  return Object.keys(def).map((unused, index, keys) => {
-    const subDef = pick(def, keys.slice(0, index + 1)) as GenerateTestFieldsDef<T>;
-    return generateTestFields<T>(subDef, ...otherArgs);
-  });
+): Promise<Array<Partial<T>>> {
+  return await Promise.all(
+    Object.keys(def).map((unused, index, keys) => {
+      const subDef = pick(def, keys.slice(0, index + 1)) as GenerateTestFieldsDef<T>;
+      return generateTestFields<T>(subDef, ...otherArgs);
+    })
+  );
 }

@@ -37,7 +37,7 @@ describe('getFileBackendConfigs', async () => {
     backend: generateFileBackendType,
     workspaceId: () => workspace.resourceId,
   };
-  const queries = generateTestFieldsCombinations(queryDefs);
+  const queries = await generateTestFieldsCombinations(queryDefs);
 
   queries.forEach(query => {
     test(`pagination with queries ${Object.keys(query).join(',')}`, async () => {
