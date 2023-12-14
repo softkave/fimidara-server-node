@@ -1,75 +1,56 @@
-import { calculatePageSize } from '../../../utils/fns';
-import RequestData from '../../RequestData';
-import { generateAndInsertFileBackendConfigListForTest } from '../../testUtils/generateData/fileBackendConfig';
-import { completeTests } from '../../testUtils/helpers/test';
+import {kSemanticModels} from '../../contexts/injectables';
 import {
-    assertEndpointResultOk,
-    insertFileBackendConfigForTest,
-    insertUserForTest,
-    insertWorkspaceForTest,
-    mockExpressRequestWithFileBackendConfig,
+  generateAndInsertFileBackendConfigListForTest,
+  generateFileBackendType,
+} from '../../testUtils/generateData/fileBackend';
+import {
+  GenerateTestFieldsDef,
+  generateTestFieldsCombinations,
+} from '../../testUtils/generateData/utils';
+import {
+  completeTests,
+  expectFields,
+  performPaginationTest,
+} from '../../testUtils/helpers/test';
+import {
+  initTests,
+  insertUserForTest,
+  insertWorkspaceForTest,
+  mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import getFileBackendConfigs from './handler';
-import { GetFileBackendConfigsEndpointParams } from './types';
-
-
+import {GetFileBackendConfigsEndpointParamsBase} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
   await completeTests();
 });
 
-describe('getFileBackendConfigs', () => {
-  test('workspace agent tokens returned', async () => {
-    
-    const {userToken} = await insertUserForTest();
-    const {workspace} = await insertWorkspaceForTest(userToken);
-    const [{token: token01}, {token: token02}] = await Promise.all([
-      insertFileBackendConfigForTest(userToken, workspace.resourceId),
-      insertFileBackendConfigForTest(userToken, workspace.resourceId),
-    ]);
-    const instData = RequestData.fromExpressRequest<GetFileBackendConfigsEndpointParams>(
-      mockExpressRequestWithFileBackendConfig(userToken),
-      {workspaceId: workspace.resourceId}
-    );
-    const result = await getFileBackendConfigs(instData);
-    assertEndpointResultOk(result);
-    expect(result.tokens).toContainEqual(token01);
-    expect(result.tokens).toContainEqual(token02);
-  });
+describe('getFileBackendConfigs', async () => {
+  const {userToken} = await insertUserForTest();
+  const {workspace} = await insertWorkspaceForTest(userToken);
 
-  test('pagination', async () => {
-    
-    const {userToken} = await insertUserForTest();
-    const {workspace} = await insertWorkspaceForTest(userToken);
-    await generateAndInsertFileBackendConfigListForTest(15, {
-      workspaceId: workspace.resourceId,
-    });
-    const count = await kSemanticModels.file()BackendConfig.countByQuery({
-      workspaceId: workspace.resourceId,
-    });
-    const pageSize = 10;
-    let page = 0;
-    let instData = RequestData.fromExpressRequest<GetFileBackendConfigsEndpointParams>(
-      mockExpressRequestWithFileBackendConfig(userToken),
-      {page, pageSize, workspaceId: workspace.resourceId}
-    );
-    let result = await getFileBackendConfigs(instData);
-    assertEndpointResultOk(result);
-    expect(result.page).toBe(page);
-    expect(result.tokens).toHaveLength(calculatePageSize(count, pageSize, page));
+  const queryDefs: GenerateTestFieldsDef<GetFileBackendConfigsEndpointParamsBase> = {
+    backend: generateFileBackendType,
+    workspaceId: () => workspace.resourceId,
+  };
+  const queries = generateTestFieldsCombinations(queryDefs);
 
-    page = 1;
-    instData = RequestData.fromExpressRequest<GetFileBackendConfigsEndpointParams>(
-      mockExpressRequestWithFileBackendConfig(userToken),
-      {page, pageSize, workspaceId: workspace.resourceId}
-    );
-    result = await getFileBackendConfigs(instData);
-    assertEndpointResultOk(result);
-    expect(result.page).toBe(page);
-    expect(result.tokens).toHaveLength(calculatePageSize(count, pageSize, page));
+  queries.forEach(query => {
+    test(`pagination with queries ${Object.keys(query).join(',')}`, async () => {
+      await generateAndInsertFileBackendConfigListForTest(10, query);
+      const count = await kSemanticModels.fileBackendConfig().countByQuery(query);
+
+      await performPaginationTest(getFileBackendConfigs, {
+        count,
+        fields: 'configs',
+        req: mockExpressRequestWithAgentToken(userToken),
+        params: query,
+        otherTestsFn: result => expectFields(result.configs, query),
+      });
+    });
   });
 });

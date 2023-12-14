@@ -47,24 +47,18 @@ describe('getFileBackendMounts', async () => {
 
   queries.forEach(query => {
     test(`pagination with queries ${Object.keys(query).join(',')}`, async () => {
-      await generateAndInsertFileBackendMountListForTest(10, {
-        ...query,
-        folderpath: query.folderpath?.split(kFolderConstants.separator),
-      });
-      const count = await kSemanticModels.fileBackendMount().countByQuery({
-        workspaceId: workspace.resourceId,
-      });
+      const folderpath = query.folderpath?.split(kFolderConstants.separator);
+      await generateAndInsertFileBackendMountListForTest(10, {...query, folderpath});
+      const count = await kSemanticModels
+        .fileBackendMount()
+        .countByQuery({...query, folderpath: {$all: folderpath}});
 
       await performPaginationTest(getFileBackendMounts, {
         count,
         fields: 'mounts',
         req: mockExpressRequestWithAgentToken(userToken),
         params: query,
-        otherTestsFn: result =>
-          expectFields(result.mounts, {
-            ...query,
-            folderpath: query.folderpath?.split(kFolderConstants.separator),
-          }),
+        otherTestsFn: result => expectFields(result.mounts, {...query, folderpath}),
       });
     });
   });

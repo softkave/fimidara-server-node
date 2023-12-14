@@ -1,8 +1,10 @@
 import RequestData from '../../RequestData';
-import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generateData/agentToken';
+import {kSemanticModels} from '../../contexts/injectables';
+import {generateAndInsertFileBackendConfigListForTest} from '../../testUtils/generateData/fileBackend';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -11,7 +13,7 @@ import countFileBackendConfigs from './handler';
 import {CountFileBackendConfigsEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
@@ -22,18 +24,20 @@ describe('countFileBackendConfigs', () => {
   test('count', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    await generateAndInsertAgentTokenListForTest(15, {
+    await generateAndInsertFileBackendConfigListForTest(10, {
       workspaceId: workspace.resourceId,
     });
-    const count = await kSemanticModels.agentToken().countByQuery({
+    const count = await kSemanticModels.fileBackendConfig().countByQuery({
       workspaceId: workspace.resourceId,
     });
+
     const instData =
       RequestData.fromExpressRequest<CountFileBackendConfigsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId}
       );
     const result = await countFileBackendConfigs(instData);
+
     assertEndpointResultOk(result);
     expect(result.count).toBe(count);
   });

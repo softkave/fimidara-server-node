@@ -1,6 +1,5 @@
 import assert from 'assert';
 import {noop} from 'lodash';
-import {FileBackendMount, PublicFileBackendMount} from '../../../definitions/fileBackend';
 import {
   calculateMaxPages,
   calculatePageSize,
@@ -94,14 +93,11 @@ export async function performPaginationTest<T extends Endpoint<any, PaginatedRes
   }
 }
 
-export function expectFields(
-  mounts: PublicFileBackendMount[],
-  fields: Partial<FileBackendMount>
-) {
+export function expectFields<T extends AnyObject>(mounts: T[], fields: Partial<T>) {
   mounts.forEach(mount => {
     for (const key in fields) {
-      const value = fields[key as keyof FileBackendMount];
-      expect(mount[key as keyof FileBackendMount]).toBe(value);
+      const value = fields[key as keyof T];
+      expect(mount[key as keyof T]).toBe(value);
     }
   });
 }
