@@ -1,11 +1,15 @@
 import {faker} from '@faker-js/faker';
 import {appAssert} from '../../../utils/assertion';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {fetchEntityAssignedPermissionGroupList} from '../../permissionGroups/getEntityAssignedPermissionGroups/utils';
-import EndpointReusableQueries from '../../queries';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests} from '../../testUtils/helpers/test';
-import {insertUserForTest, insertWorkspaceForTest} from '../../testUtils/testUtils';
+import {
+  initTests,
+  insertUserForTest,
+  insertWorkspaceForTest,
+} from '../../testUtils/testUtils';
 import {UserOnWaitlistError} from '../../users/errors';
 import {WorkspaceExistsError, WorkspaceRootnameExistsError} from '../errors';
 import {assertWorkspace, makeRootnameFromName, workspaceExtractor} from '../utils';
@@ -14,9 +18,10 @@ import {
   DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
   DEFAULT_PUBLIC_PERMISSION_GROUP_NAME,
 } from './utils';
+import EndpointReusableQueries from '../../queries';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

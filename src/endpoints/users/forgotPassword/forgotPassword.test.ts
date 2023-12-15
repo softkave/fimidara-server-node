@@ -1,14 +1,14 @@
 import {TokenAccessScopeMap} from '../../../definitions/system';
 import {forgotPasswordEmailTitle} from '../../../emailTemplates/forgotPassword';
 import RequestData from '../../RequestData';
-import {ITestBaseContext} from '../../testUtils/context/types';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   mockExpressRequest,
 } from '../../testUtils/testUtils';
-import UserTokenQueries from '../UserTokenQueries';
 import forgotPassword, {getForgotPasswordLinkFromToken} from './forgotPassword';
 import {ForgotPasswordEndpointParams} from './types';
 
@@ -18,10 +18,8 @@ import {ForgotPasswordEndpointParams} from './types';
  * - that email has verification link
  */
 
-let context: ITestBaseContext | null = null;
-
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
@@ -36,14 +34,10 @@ test('forgot password with email sent', async () => {
   );
   const result = await forgotPassword(instData);
   assertEndpointResultOk(result);
-  const forgotPasswordToken = await kSemanticModels
-    .agentToken()
-    .assertGetOneByQuery(
-      UserTokenQueries.getByUserIdAndTokenAccessScope(
-        user.resourceId,
-        TokenAccessScopeMap.ChangePassword
-      )
-    );
+  const forgotPasswordToken = await kSemanticModels.agentToken().assertGetOneByQuery({
+    resourceId: user.resourceId,
+    scope: {$eq: [TokenAccessScopeMap.ChangePassword]},
+  });
 
   // confirm forgot password email was sent
   const link = getForgotPasswordLinkFromToken(forgotPasswordToken);

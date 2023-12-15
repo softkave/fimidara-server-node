@@ -3,6 +3,7 @@ import RequestData from '../../RequestData';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -11,7 +12,7 @@ import {
 import getPermissionGroup from './handler';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

@@ -3,6 +3,7 @@ import {appAssert} from '../../../utils/assertion';
 import {calculatePageSize, getResourceId} from '../../../utils/fns';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {kSemanticModels} from '../../contexts/injectables';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generateData/workspace';
@@ -10,6 +11,7 @@ import {expectContainsNoneIn} from '../../testUtils/helpers/assertion';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -18,7 +20,7 @@ import getUserWorkspaces from './handler';
 import {GetUserWorkspacesEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
@@ -52,7 +54,6 @@ describe('getUserWorkspaces', () => {
         Promise.all(
           workspaces.map(w =>
             assignWorkspaceToUser(
-              context!,
               SYSTEM_SESSION_AGENT,
               w.resourceId,
               rawUser.resourceId,

@@ -14,6 +14,7 @@ import {expectContainsNoneInForAnyType} from '../../testUtils/helpers/assertion'
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertPermissionItemsForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -21,9 +22,10 @@ import {
 } from '../../testUtils/testUtils';
 import getCollaboratorsWithoutPermission from './handler';
 import {GetCollaboratorsWithoutPermissionEndpointParams} from './types';
+import {kSemanticModels} from '../../contexts/injectables';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

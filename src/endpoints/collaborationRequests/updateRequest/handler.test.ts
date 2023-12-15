@@ -1,10 +1,11 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
 import RequestData from '../../RequestData';
-import EndpointReusableQueries from '../../queries';
+import {kSemanticModels} from '../../contexts/injectables';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertRequestForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -17,7 +18,7 @@ import {
 } from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
@@ -46,7 +47,7 @@ describe('updateCollaborationRequest', () => {
     assertEndpointResultOk(result);
     const updatedRequest = await kSemanticModels
       .collaborationRequest()
-      .assertGetOneByQuery(EndpointReusableQueries.getByResourceId(request01.resourceId));
+      .assertGetOneByQuery({resourceId: request01.resourceId});
 
     expect(result.request.resourceId).toEqual(request01.resourceId);
     expect(result.request.message).toBe(updateCollaborationRequestInput.message);

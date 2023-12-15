@@ -6,6 +6,7 @@ import {expectEntityHasPermissionsTargetingType} from '../../testUtils/helpers/p
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertPermissionGroupForTest,
   insertPermissionItemsForTest,
   insertUserForTest,
@@ -16,7 +17,7 @@ import deletePermissionItems from './handler';
 import {DeletePermissionItemsEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

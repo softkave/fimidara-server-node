@@ -1,9 +1,10 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
-import EndpointReusableQueries from '../../queries';
+import {kSemanticModels} from '../../contexts/injectables';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   mockExpressRequest,
   mockExpressRequestWithAgentToken,
@@ -13,9 +14,10 @@ import {LoginEndpointParams} from '../login/types';
 import {userExtractor} from '../utils';
 import changePasswordWithCurrentPassword from './handler';
 import {ChangePasswordWithCurrentPasswordEndpointParams} from './types';
+import EndpointReusableQueries from '../../queries';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

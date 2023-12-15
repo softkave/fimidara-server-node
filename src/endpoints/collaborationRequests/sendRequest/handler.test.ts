@@ -2,9 +2,10 @@ import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
 import {CollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
 import {getTimestamp} from '../../../utils/dateFns';
-import EndpointReusableQueries from '../../queries';
+import {kSemanticModels} from '../../contexts/injectables';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
+  initTests,
   insertRequestForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -12,7 +13,7 @@ import {
 import {CollaborationRequestInput} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
@@ -37,7 +38,7 @@ describe('sendCollaborationRequest', () => {
 
     const savedRequest = await kSemanticModels
       .collaborationRequest()
-      .assertGetOneByQuery(EndpointReusableQueries.getByResourceId(request01.resourceId));
+      .assertGetOneByQuery({resourceId: request01.resourceId});
     expect(savedRequest).toMatchObject(request01);
     expect(savedRequest.status).toBe(CollaborationRequestStatusTypeMap.Pending);
   });

@@ -1,10 +1,12 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
+import {kSemanticModels} from '../../contexts/injectables';
 import EndpointReusableQueries from '../../queries';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -14,7 +16,7 @@ import updateWorkspace from './handler';
 import {UpdateWorkspaceEndpointParams, UpdateWorkspaceInput} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

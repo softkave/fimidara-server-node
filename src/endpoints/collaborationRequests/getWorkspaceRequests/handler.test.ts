@@ -1,10 +1,12 @@
 import {calculatePageSize} from '../../../utils/fns';
 import RequestData from '../../RequestData';
+import {kSemanticModels} from '../../contexts/injectables';
 import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generateData/collaborationRequest';
 import {expectContainsEveryItemIn} from '../../testUtils/helpers/assertion';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertRequestForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -19,7 +21,7 @@ import {GetWorkspaceCollaborationRequestsEndpointParams} from './types';
  */
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

@@ -1,12 +1,12 @@
 import RequestData from '../../RequestData';
 import {completeTests} from '../../testUtils/helpers/test';
-import {mockExpressRequestForPublicAgent} from '../../testUtils/testUtils';
+import {initTests, mockExpressRequestForPublicAgent} from '../../testUtils/testUtils';
 import {usageCosts} from '../constants';
 import getUsageCosts from './handler';
 import {GetUsageCostsEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

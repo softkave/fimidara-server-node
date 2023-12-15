@@ -1,5 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {Folder} from '../../../definitions/folder';
+import {kSemanticModels} from '../../contexts/injectables';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {completeTests} from '../../testUtils/helpers/test';
@@ -7,6 +8,7 @@ import {
   assertEndpointResultOk,
   IInsertUserForTestResult,
   IInsertWorkspaceForTestResult,
+  initTests,
   insertFolderForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -18,7 +20,7 @@ import updateFolder from './handler';
 import {UpdateFolderEndpointParams, UpdateFolderInput} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
@@ -31,7 +33,7 @@ async function updateFolderBaseTest(
   insertWorkspaceResult?: IInsertWorkspaceForTestResult,
   existingFolder?: Folder
 ) {
-  insertUserResult = insertUserResult ?? (await insertUserForTest(ctx));
+  insertUserResult = insertUserResult ?? (await insertUserForTest());
   insertWorkspaceResult =
     insertWorkspaceResult ?? (await insertWorkspaceForTest(insertUserResult.userToken));
   const {folder} = existingFolder
@@ -61,9 +63,9 @@ async function updateFolderBaseTest(
   assertEndpointResultOk(result);
   expect(result.folder.resourceId).toEqual(folder.resourceId);
   expect(result.folder).toMatchObject(folderExtractor(updateInput));
-  const savedFolder = await ctx.semantic.folder.assertGetOneByQuery(
-    EndpointReusableQueries.getByResourceId(folder.resourceId)
-  );
+  const savedFolder = await kSemanticModels
+    .folder()
+    .assertGetOneByQuery(EndpointReusableQueries.getByResourceId(folder.resourceId));
 
   expect(result.folder).toMatchObject(folderExtractor(savedFolder));
   return {

@@ -5,6 +5,7 @@ import deletePermissionGroup from '../../permissionGroups/deletePermissionGroup/
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -14,7 +15,7 @@ import {executeJob, waitForJob} from '../runner';
 import getJobStatus from './handler';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
@@ -45,5 +46,5 @@ test('getOpStatus', async () => {
     })
   );
   assertEndpointResultOk(result);
-  expect(result.status).toBe(JobStatusMap.Completed);
+  expect(result.status).toBe(JobStatusMap.completed);
 });

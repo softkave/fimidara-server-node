@@ -10,12 +10,14 @@ import {extractResourceIdList} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {getNewIdForResource} from '../../../utils/resource';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import RequestData from '../../RequestData';
 import {generateAndInsertUserListForTest} from '../../testUtils/generateData/user';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
@@ -24,7 +26,7 @@ import upgradeWaitlistedUsers from './handler';
 import {UpgradeWaitlistedUsersEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

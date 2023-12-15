@@ -9,6 +9,7 @@ import {expectContainsExactlyForAnyType} from '../../testUtils/helpers/assertion
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -21,7 +22,7 @@ import {
 import assignPermissionGroups from './handler';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
@@ -50,7 +51,7 @@ describe('assignPermissionGroups', () => {
 
     const permissionGroupsResult = await Promise.all(
       collaboratorList.map(collaborator =>
-        fetchEntityAssignedPermissionGroupList(context!, collaborator.resourceId, false)
+        fetchEntityAssignedPermissionGroupList(collaborator.resourceId, false)
       )
     );
     permissionGroupsResult.forEach(next => {
@@ -85,7 +86,6 @@ describe('assignPermissionGroups', () => {
     assertEndpointResultOk(result01);
 
     const permissionGroupsResult = await fetchEntityAssignedPermissionGroupList(
-      context!,
       collaborator.resourceId,
       false
     );

@@ -9,10 +9,12 @@ import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {newResource} from '../../../utils/resource';
 import RequestData from '../../RequestData';
+import {kSemanticModels} from '../../contexts/injectables';
 import EndpointReusableQueries from '../../queries';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   mockExpressRequest,
   mockExpressRequestWithAgentToken,
@@ -32,7 +34,7 @@ import {ChangePasswordWithTokenEndpointParams} from './types';
  */
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
@@ -59,7 +61,7 @@ async function changePasswordWithTokenTest() {
   });
   await kSemanticModels
     .utils()
-    .withTxn(opts => context!.semantic.agentToken.insertItem(token, opts));
+    .withTxn(opts => kSemanticModels.agentToken().insertItem(token, opts));
   const result = await changePasswordWithToken(
     RequestData.fromExpressRequest<ChangePasswordWithTokenEndpointParams>(
       mockExpressRequestWithAgentToken(token),

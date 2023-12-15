@@ -1,9 +1,11 @@
 import {PermissionGroupMatcher} from '../../../definitions/permissionGroups';
+import {kSemanticModels} from '../../contexts/injectables';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -12,7 +14,7 @@ import {
 import deletePermissionGroup from './handler';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

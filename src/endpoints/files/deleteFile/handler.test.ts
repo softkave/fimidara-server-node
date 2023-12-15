@@ -1,9 +1,11 @@
+import {kSemanticModels} from '../../contexts/injectables';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -14,7 +16,7 @@ import deleteFile from './handler';
 import {DeleteFileEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

@@ -1,20 +1,22 @@
 import assert from 'assert';
 import RequestData from '../../RequestData';
+import {kSemanticModels} from '../../contexts/injectables';
 import {executeJob, waitForJob} from '../../jobs/runner';
-import EndpointReusableQueries from '../../queries';
 import {insertTagForTest} from '../../testUtils/helpers/tag';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import deleteTag from './handler';
 import {DeleteTagEndpointParams} from './types';
+import EndpointReusableQueries from '../../queries';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

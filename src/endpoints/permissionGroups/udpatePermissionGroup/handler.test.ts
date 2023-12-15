@@ -1,10 +1,12 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
+import {kSemanticModels} from '../../contexts/injectables';
 import EndpointReusableQueries from '../../queries';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -20,7 +22,7 @@ import {UpdatePermissionGroupEndpointParams, UpdatePermissionGroupInput} from '.
  */
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
@@ -28,20 +30,14 @@ afterAll(async () => {
 });
 
 test('permissionGroup updated', async () => {
-  const {userToken, user} = await insertUserForTest();
+  const {userToken} = await insertUserForTest();
   const {workspace} = await insertWorkspaceForTest(userToken);
   const {permissionGroup: permissionGroup00} = await insertPermissionGroupForTest(
     userToken,
     workspace.resourceId
   );
-  const {permissionGroup: permissionGroup01} = await insertPermissionGroupForTest(
-    userToken,
-    workspace.resourceId
-  );
-  const {permissionGroup: permissionGroup02} = await insertPermissionGroupForTest(
-    userToken,
-    workspace.resourceId
-  );
+  await insertPermissionGroupForTest(userToken, workspace.resourceId);
+  await insertPermissionGroupForTest(userToken, workspace.resourceId);
 
   const updatePermissionGroupInput: UpdatePermissionGroupInput = {
     name: faker.lorem.words(2),
