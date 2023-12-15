@@ -1,7 +1,9 @@
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
+import {kSemanticModels} from '../../contexts/injectables';
 import EndpointReusableQueries from '../../queries';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
+  initTests,
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -14,7 +16,7 @@ import {permissionGroupExtractor} from '../utils';
  */
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

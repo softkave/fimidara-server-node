@@ -90,3 +90,12 @@ export async function mountExists(
     opts
   );
 }
+
+export async function countFolderAttachedMounts(
+  folderpath: string[],
+  opts?: SemanticProviderRunOptions
+) {
+  return await kSemanticModels
+    .fileBackendMount()
+    .existsByQuery({folderpath: {$all: folderpath, $size: folderpath.length}}, opts);
+}

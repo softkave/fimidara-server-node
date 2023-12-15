@@ -1,4 +1,3 @@
-import assert = require('assert');
 import {add, endOfMonth, startOfMonth, sub} from 'date-fns';
 import {
   UsageRecord,
@@ -16,6 +15,7 @@ import {generateAndInsertUsageRecordList} from '../../testUtils/generateData/usa
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -24,7 +24,7 @@ import getWorkspaceSummedUsage from './handler';
 import {GetWorkspaceSummedUsageEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

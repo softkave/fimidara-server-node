@@ -1,6 +1,8 @@
+import {kSemanticModels} from '../../contexts/injectables';
 import {generateTestFolderName} from '../../testUtils/generateData/folder';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
+  initTests,
   insertFolderForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -14,7 +16,7 @@ import {addRootnameToPath} from '../utils';
  */
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

@@ -11,6 +11,7 @@ import {assertFileBodyEqual} from '../../testUtils/helpers/file';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertAgentTokenForTest,
   insertFileForTest,
   insertFolderForTest,
@@ -27,7 +28,7 @@ import issueFilePresignedPath from './handler';
 import {IssueFilePresignedPathEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

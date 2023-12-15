@@ -8,6 +8,7 @@ import {generateAndInsertUsageRecordList} from '../../testUtils/generateData/usa
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -16,7 +17,7 @@ import countWorkspaceSummedUsage from './handler';
 import {CountWorkspaceSummedUsageEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

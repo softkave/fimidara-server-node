@@ -1,10 +1,11 @@
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
-import AssignedItemQueries from '../../assignedItems/queries';
+import {kSemanticModels} from '../../contexts/injectables';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generateData/collaborator';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -13,7 +14,7 @@ import countWorkspaceCollaborators from './handler';
 import {CountWorkspaceCollaboratorsEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
@@ -30,11 +31,10 @@ describe('countWorkspaceCollaborators', () => {
       workspace.resourceId,
       seedCount
     );
-    const count = await kSemanticModels
-      .assignedItem()
-      .countByQuery(
-        AssignedItemQueries.getByAssignedItem(workspace.resourceId, workspace.resourceId)
-      );
+    const count = await kSemanticModels.assignedItem().countByQuery({
+      workspaceId: workspace.resourceId,
+      assignedItemId: workspace.resourceId,
+    });
     expect(count).toBeGreaterThanOrEqual(seedCount);
 
     const instData =

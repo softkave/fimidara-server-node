@@ -3,11 +3,13 @@ import RequestData from '../../RequestData';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   mockExpressRequest,
 } from '../../testUtils/testUtils';
 import login from './login';
 import {LoginEndpointParams} from './types';
+import {kUtilsInjectables} from '../../contexts/injectables';
 
 /**
  * TODO:
@@ -16,7 +18,7 @@ import {LoginEndpointParams} from './types';
  */
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

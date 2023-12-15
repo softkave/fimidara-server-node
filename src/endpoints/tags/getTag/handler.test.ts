@@ -3,6 +3,7 @@ import {insertTagForTest} from '../../testUtils/helpers/tag';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -11,7 +12,7 @@ import getTag from './handler';
 import {GetTagEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

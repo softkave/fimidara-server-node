@@ -1,4 +1,5 @@
 import {
+  InvalidRequestError,
   NotFoundError,
   ResourceExistsError,
   ResourceInUseError,
@@ -133,6 +134,10 @@ export const kReuseableErrors = {
     cannotUpdateFimidaraMount() {
       return new FimidaraNotAllowedError(kAppMessages.mount.cannotUpdateFimidaraMount);
     },
+    configMountBackendMismatch: (configBackend: string, mountBackend: string) =>
+      new InvalidRequestError(
+        kAppMessages.mount.configMountBackendMismatch(configBackend, mountBackend)
+      ),
   },
   config: {
     notFound(id?: string) {

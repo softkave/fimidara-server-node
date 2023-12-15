@@ -8,17 +8,19 @@ import {
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {newResource} from '../../../utils/resource';
 import RequestData from '../../RequestData';
+import {kSemanticModels} from '../../contexts/injectables';
 import {completeTests} from '../../testUtils/helpers/test';
 import {assertUserTokenIsSame} from '../../testUtils/helpers/user';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import confirmEmailAddress from './handler';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
@@ -41,7 +43,7 @@ test('email address is confirmed', async () => {
   });
   await kSemanticModels
     .utils()
-    .withTxn(opts => context!.semantic.agentToken.insertItem(token, opts));
+    .withTxn(opts => kSemanticModels.agentToken().insertItem(token, opts));
   const result = await confirmEmailAddress(
     RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(token))
   );

@@ -2,11 +2,13 @@ import {faker} from '@faker-js/faker';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
 import RequestData from '../../RequestData';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {kSemanticModels} from '../../contexts/injectables';
 import {generateAndInsertTestFolders} from '../../testUtils/generateData/folder';
 import {expectEntityHasPermissionsTargetingId} from '../../testUtils/helpers/permissionItem';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -18,7 +20,7 @@ import addPermissionItems from './handler';
 import {AddPermissionItemsEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
@@ -79,7 +81,6 @@ describe('addItems', () => {
     await Promise.all(
       [pg01, pg02].map(pg =>
         expectEntityHasPermissionsTargetingId(
-          context!,
           pg.resourceId,
           actionsWithoutWildcard,
           workspace.resourceId,
@@ -90,7 +91,6 @@ describe('addItems', () => {
     await Promise.all(
       [pg03, pg04].map(pg =>
         expectEntityHasPermissionsTargetingId(
-          context!,
           pg.resourceId,
           subsetWorkspaceActions,
           workspace.resourceId,

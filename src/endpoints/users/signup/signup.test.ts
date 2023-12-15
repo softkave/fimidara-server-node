@@ -1,9 +1,9 @@
 import {faker} from '@faker-js/faker';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {generateAndInsertUserListForTest} from '../../testUtils/generateData/user';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests} from '../../testUtils/helpers/test';
-import {insertUserForTest} from '../../testUtils/testUtils';
-import UserQueries from '../UserQueries';
+import {initTests, insertUserForTest} from '../../testUtils/testUtils';
 import {EmailAddressNotAvailableError} from '../errors';
 
 /**
@@ -12,7 +12,7 @@ import {EmailAddressNotAvailableError} from '../errors';
  */
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
@@ -31,7 +31,7 @@ describe('signup', () => {
     const result = await insertUserForTest(userInput);
     const savedUser = await kSemanticModels
       .user()
-      .assertGetOneByQuery(UserQueries.getById(result.user.resourceId));
+      .assertGetOneByQuery({resourceId: result.user.resourceId});
     expect(savedUser).toBeTruthy();
     expect(result.userToken).toBeTruthy();
     expect(result.userTokenStr).toBeTruthy();
@@ -49,7 +49,7 @@ describe('signup', () => {
     const result = await insertUserForTest(userInput);
     const savedUser = await kSemanticModels
       .user()
-      .assertGetOneByQuery(UserQueries.getById(result.user.resourceId));
+      .assertGetOneByQuery({resourceId: result.user.resourceId});
     expect(savedUser.isOnWaitlist).toBeTruthy();
 
     // TODO: if we ever switch to concurrent tests, then create a context for

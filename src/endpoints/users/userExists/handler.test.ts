@@ -3,6 +3,7 @@ import RequestData from '../../RequestData';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   mockExpressRequest,
 } from '../../testUtils/testUtils';
@@ -10,7 +11,7 @@ import userExists from './handler';
 import {UserExistsEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

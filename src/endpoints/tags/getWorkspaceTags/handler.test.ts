@@ -1,10 +1,12 @@
 import {calculatePageSize} from '../../../utils/fns';
 import RequestData from '../../RequestData';
+import {kSemanticModels} from '../../contexts/injectables';
 import {generateAndInsertTagListForTest} from '../../testUtils/generateData/tag';
 import {insertTagForTest} from '../../testUtils/helpers/tag';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -13,7 +15,7 @@ import getWorkspaceTags from './handler';
 import {GetWorkspaceTagsEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

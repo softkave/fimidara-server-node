@@ -1,15 +1,17 @@
 import assert from 'assert';
 import RequestData from '../../RequestData';
+import {kSemanticModels} from '../../contexts/injectables';
 import {executeJob, waitForJob} from '../../jobs/runner';
-import EndpointReusableQueries from '../../queries';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import deleteWorkspace from './handler';
+import EndpointReusableQueries from '../../queries';
 
 /**
  * TODO:
@@ -17,7 +19,7 @@ import deleteWorkspace from './handler';
  */
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

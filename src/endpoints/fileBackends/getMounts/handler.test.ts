@@ -1,14 +1,14 @@
-import {AppResourceTypeMap} from '../../../definitions/system';
-import {getResourceTypeFromId} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injectables';
 import {kFolderConstants} from '../../folders/constants';
 import {
+  generateAndInsertFileBackendConfigListForTest,
   generateAndInsertFileBackendMountListForTest,
   generateFileBackendType,
 } from '../../testUtils/generateData/fileBackend';
 import {generateTestFolderpathString} from '../../testUtils/generateData/folder';
 import {
   GenerateTestFieldsDef,
+  TestFieldsPresetCombinations,
   generateTestFieldsCombinations,
 } from '../../testUtils/generateData/utils';
 import {
@@ -39,11 +39,20 @@ describe('getFileBackendMounts', async () => {
 
   const queryDefs: GenerateTestFieldsDef<GetFileBackendMountsEndpointParamsBase> = {
     backend: generateFileBackendType,
-    configId: () => getResourceTypeFromId(AppResourceTypeMap.FileBackendConfig),
+    configId: async () => {
+      const [config] = await generateAndInsertFileBackendConfigListForTest(1, {
+        workspaceId: workspace.resourceId,
+      });
+
+      return config.resourceId;
+    },
     workspaceId: () => workspace.resourceId,
     folderpath: () => generateTestFolderpathString(),
   };
-  const queries = generateTestFieldsCombinations(queryDefs);
+  const queries = await generateTestFieldsCombinations(
+    queryDefs,
+    TestFieldsPresetCombinations.incrementallyAdd
+  );
 
   queries.forEach(query => {
     test(`pagination with queries ${Object.keys(query).join(',')}`, async () => {

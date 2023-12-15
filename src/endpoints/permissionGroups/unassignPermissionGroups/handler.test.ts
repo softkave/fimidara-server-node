@@ -6,6 +6,7 @@ import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/gener
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -15,7 +16,7 @@ import {assignPgListToIdList, toAssignedPgListInput} from '../testUtils';
 import unassignPermissionGroups from './handler';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
@@ -51,7 +52,7 @@ describe('unassignPermissionGroups', () => {
 
     const entityPgListResult = await Promise.all(
       cList01.map(collaborator =>
-        fetchEntityAssignedPermissionGroupList(context!, collaborator.resourceId, false)
+        fetchEntityAssignedPermissionGroupList(collaborator.resourceId, false)
       )
     );
     const entityPgListId: string[] = [];

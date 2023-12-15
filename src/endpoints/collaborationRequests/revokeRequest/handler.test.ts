@@ -1,9 +1,10 @@
 import {CollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
-import EndpointReusableQueries from '../../queries';
+import {kSemanticModels} from '../../contexts/injectables';
 import RequestData from '../../RequestData';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertRequestForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -14,7 +15,7 @@ import revokeCollaborationRequest from './handler';
 import {RevokeCollaborationRequestEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
@@ -39,7 +40,7 @@ test('collaboration request revoked', async () => {
   assertEndpointResultOk(result);
   const updatedRequest = await kSemanticModels
     .collaborationRequest()
-    .assertGetOneByQuery(EndpointReusableQueries.getByResourceId(request01.resourceId));
+    .assertGetOneByQuery({resourceId: request01.resourceId});
   expect(result.request.resourceId).toEqual(request01.resourceId);
   expect(result.request).toMatchObject(
     collaborationRequestForUserExtractor(updatedRequest)

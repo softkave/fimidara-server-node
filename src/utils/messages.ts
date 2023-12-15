@@ -136,5 +136,7 @@ export const kAppMessages = {
     mountNameExists(name: string) {
       return name ? `Mount with name ${name} exists.` : 'Mount name exists.';
     },
+    configMountBackendMismatch: (configBackend: string, mountBackend: string) =>
+      `Config for backend ${configBackend} cannot be used for mount with backend ${mountBackend}`,
   },
 };

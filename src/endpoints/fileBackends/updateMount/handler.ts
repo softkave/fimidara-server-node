@@ -8,6 +8,7 @@ import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {kInjectionKeys} from '../../contexts/injection';
 import {
   SemanticFileBackendMountProvider,
@@ -20,7 +21,6 @@ import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {fileBackendMountExtractor, mountExists, mountNameExists} from '../utils';
 import {UpdateFileBackendMountEndpoint} from './types';
 import {updateFileBackendMountJoiSchema} from './validation';
-import {kUtilsInjectables} from '../../contexts/injectables';
 
 const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData => {
   const mountModel = container.resolve<SemanticFileBackendMountProvider>(
@@ -46,6 +46,26 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData =>
 
     if (mount.backend === 'fimidara') {
       throw kReuseableErrors.mount.cannotUpdateFimidaraMount();
+    }
+
+    if (data.mount.configId) {
+      const backendConfig = await kSemanticModels
+        .fileBackendConfig()
+        .getOneByQuery(
+          {workspaceId: workspace.resourceId, resourceId: data.mount.configId},
+          opts
+        );
+
+      if (!backendConfig) {
+        throw kReuseableErrors.config.notFound();
+      }
+
+      if (backendConfig.backend !== mount.backend) {
+        throw kReuseableErrors.mount.configMountBackendMismatch(
+          backendConfig.backend,
+          mount.backend
+        );
+      }
     }
 
     const mountUpdate: Partial<FileBackendMount> = {

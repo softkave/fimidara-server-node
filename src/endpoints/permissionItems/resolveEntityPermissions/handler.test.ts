@@ -1,6 +1,7 @@
 import {makeKey} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import RequestData from '../../RequestData';
+import {kSemanticModels} from '../../contexts/injectables';
 import {
   assignPgListToIdList,
   toAssignedPgListInput,
@@ -10,6 +11,7 @@ import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/gener
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertFolderForTest,
   insertPermissionItemsForTest,
   insertUserForTest,
@@ -28,7 +30,7 @@ import {
 // TODO: test container and target appliesTo
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

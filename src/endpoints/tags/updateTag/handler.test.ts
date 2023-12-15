@@ -1,10 +1,11 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
-import EndpointReusableQueries from '../../queries';
+import {kSemanticModels} from '../../contexts/injectables';
 import {insertTagForTest} from '../../testUtils/helpers/tag';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -12,9 +13,10 @@ import {
 import {tagExtractor} from '../utils';
 import updateTag from './handler';
 import {UpdateTagEndpointParams, UpdateTagInput} from './types';
+import EndpointReusableQueries from '../../queries';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

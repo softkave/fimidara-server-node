@@ -1,15 +1,17 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {kSemanticModels} from '../../contexts/injectables';
+import EndpointReusableQueries from '../../queries';
 import {generateAndInsertUserListForTest} from '../../testUtils/generateData/user';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
-import UserQueries from '../UserQueries';
 import {EmailAddressNotAvailableError} from '../errors';
 import {userExtractor} from '../utils';
 import updateUser from './handler';
@@ -21,7 +23,7 @@ import {UpdateUserEndpointParams} from './types';
  */
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
@@ -47,7 +49,9 @@ describe('updateUser', () => {
     const savedUser = await populateUserWorkspaces(
       await kSemanticModels
         .user()
-        .assertGetOneByQuery(UserQueries.getById(result.user.resourceId))
+        .assertGetOneByQuery(
+          EndpointReusableQueries.getByResourceId(result.user.resourceId)
+        )
     );
     expect(userExtractor(savedUser)).toMatchObject(result.user);
     expect(savedUser).toMatchObject(updateInput);
@@ -65,7 +69,9 @@ describe('updateUser', () => {
 
     const savedUser = await kSemanticModels
       .user()
-      .assertGetOneByQuery(UserQueries.getById(result.user.resourceId));
+      .assertGetOneByQuery(
+        EndpointReusableQueries.getByResourceId(result.user.resourceId)
+      );
     expect(savedUser.isEmailVerified).toBeFalsy();
   });
 

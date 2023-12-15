@@ -9,8 +9,8 @@ import {assertFileBodyEqual} from '../../testUtils/helpers/file';
 import {completeTests} from '../../testUtils/helpers/test';
 import {updateTestWorkspaceUsageLocks} from '../../testUtils/helpers/usageRecord';
 import {
-  assert,
   assertEndpointResultOk,
+  initTests,
   insertFileForTest,
   insertFolderForTest,
   insertPermissionItemsForTest,
@@ -29,7 +29,7 @@ import assert = require('assert');
 
 jest.setTimeout(300000); // 5 minutes
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
@@ -137,8 +137,8 @@ describe('readFile', () => {
         {filepath: stringifyFilenamepath(file, workspace.rootname)}
       );
       await readFile(instData);
-    } catch (error: any) {
-      expect(error?.name).toBe(PermissionDeniedError.name);
+    } catch (error) {
+      expect((error as Error)?.name).toBe(PermissionDeniedError.name);
     }
   });
 

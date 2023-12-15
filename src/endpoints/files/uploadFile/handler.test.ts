@@ -1,8 +1,10 @@
 import {Promise} from 'mongoose';
 import RequestData from '../../RequestData';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {generateTestFileName} from '../../testUtils/generateData/file';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
+  initTests,
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -28,7 +30,7 @@ import {uploadFileBaseTest} from './uploadFileTestUtils';
 
 jest.setTimeout(300000); // 5 minutes
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
@@ -152,27 +154,21 @@ describe('uploadFile', () => {
     const pathinfo02 = getFilepathInfo(filepath02);
     const pathinfo03 = getFilepathInfo(filepath03);
     const [dbFile01, dbFile02, dbFile03] = await Promise.all([
-      kSemanticModels
-        .file()
-        .getOneByNamepath(
-          workspace.resourceId,
-          pathinfo01.filepathExcludingExt,
-          pathinfo01.extension
-        ),
-      kSemanticModels
-        .file()
-        .getOneByNamepath(
-          workspace.resourceId,
-          pathinfo02.filepathExcludingExt,
-          pathinfo02.extension
-        ),
-      kSemanticModels
-        .file()
-        .getOneByNamepath(
-          workspace.resourceId,
-          pathinfo03.filepathExcludingExt,
-          pathinfo03.extension
-        ),
+      kSemanticModels.file().getOneByNamepath({
+        workspaceId: workspace.resourceId,
+        namepath: pathinfo01.filepathExcludingExt,
+        extension: pathinfo01.extension,
+      }),
+      kSemanticModels.file().getOneByNamepath({
+        workspaceId: workspace.resourceId,
+        namepath: pathinfo02.filepathExcludingExt,
+        extension: pathinfo02.extension,
+      }),
+      kSemanticModels.file().getOneByNamepath({
+        workspaceId: workspace.resourceId,
+        namepath: pathinfo03.filepathExcludingExt,
+        extension: pathinfo03.extension,
+      }),
     ]);
 
     expect(dbFile01).toBeTruthy();
@@ -186,27 +182,21 @@ describe('uploadFile', () => {
     await insertFileForTest(userToken, workspace, {filepath: filepath01}, 'txt');
 
     const [latestDbFile01, latestDbFile02, latestDbFile03] = await Promise.all([
-      kSemanticModels
-        .file()
-        .getOneByNamepath(
-          workspace.resourceId,
-          pathinfo01.filepathExcludingExt,
-          pathinfo01.extension
-        ),
-      kSemanticModels
-        .file()
-        .getOneByNamepath(
-          workspace.resourceId,
-          pathinfo02.filepathExcludingExt,
-          pathinfo02.extension
-        ),
-      kSemanticModels
-        .file()
-        .getOneByNamepath(
-          workspace.resourceId,
-          pathinfo03.filepathExcludingExt,
-          pathinfo03.extension
-        ),
+      kSemanticModels.file().getOneByNamepath({
+        workspaceId: workspace.resourceId,
+        namepath: pathinfo01.filepathExcludingExt,
+        extension: pathinfo01.extension,
+      }),
+      kSemanticModels.file().getOneByNamepath({
+        workspaceId: workspace.resourceId,
+        namepath: pathinfo02.filepathExcludingExt,
+        extension: pathinfo02.extension,
+      }),
+      kSemanticModels.file().getOneByNamepath({
+        workspaceId: workspace.resourceId,
+        namepath: pathinfo03.filepathExcludingExt,
+        extension: pathinfo03.extension,
+      }),
     ]);
 
     expect(latestDbFile01.lastUpdatedAt).not.toBe(dbFile01.lastUpdatedAt);

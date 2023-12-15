@@ -2,6 +2,7 @@ import RequestData from '../../RequestData';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -12,7 +13,7 @@ import getFileDetails from './handler';
 import {GetFileDetailsEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

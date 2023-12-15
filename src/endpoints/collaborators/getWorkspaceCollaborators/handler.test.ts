@@ -2,12 +2,13 @@ import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {calculatePageSize} from '../../../utils/fns';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import AssignedItemQueries from '../../assignedItems/queries';
-import EndpointReusableQueries from '../../queries';
+import {kSemanticModels} from '../../contexts/injectables';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generateData/collaborator';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -22,7 +23,7 @@ import {GetWorkspaceCollaboratorsEndpointParams} from './types';
  */
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
@@ -41,9 +42,7 @@ describe('getWorkspaceCollaborators', () => {
     const result = await getWorkspaceCollaborators(instData);
     assertEndpointResultOk(result);
     const updatedUser = await populateUserWorkspaces(
-      await kSemanticModels
-        .user()
-        .assertGetOneByQuery(EndpointReusableQueries.getByResourceId(user.resourceId))
+      await kSemanticModels.user().assertGetOneByQuery({resourceId: user.resourceId})
     );
     expect(result.collaborators).toContainEqual(
       collaboratorExtractor(updatedUser, workspace.resourceId)

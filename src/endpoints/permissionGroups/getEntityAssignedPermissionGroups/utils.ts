@@ -1,6 +1,7 @@
 import {SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {kSemanticModels} from '../../contexts/injectables';
 import {SemanticProviderRunOptions} from '../../contexts/semantic/types';
 
 export async function checkReadEntityAssignedPermissionGroups(

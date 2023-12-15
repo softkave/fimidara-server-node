@@ -7,6 +7,7 @@ import {getRandomIntInclusive} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injectables';
 import {getFilenameInfo} from '../../files/utils';
+import {kFolderConstants} from '../../folders/constants';
 import {addRootnameToPath} from '../../folders/utils';
 import {generateTestFolderName} from './folder';
 
@@ -45,6 +46,19 @@ export function generateTestFileName(
   }
 
   return filename;
+}
+
+export function generateTestFilepath(length = 3) {
+  return Array(length)
+    .fill(0)
+    .map(() => generateTestFileName());
+}
+
+export function generateTestFilepathString(length = 3): string {
+  return Array(length)
+    .fill(0)
+    .map(() => generateTestFileName())
+    .join(kFolderConstants.separator);
 }
 
 export function generateTestFile(

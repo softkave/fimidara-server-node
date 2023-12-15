@@ -4,6 +4,7 @@ import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -12,7 +13,7 @@ import countCollaboratorsWithoutPermission from './handler';
 import {CountCollaboratorsWithoutPermissionEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

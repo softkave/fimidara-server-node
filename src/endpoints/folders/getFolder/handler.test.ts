@@ -2,6 +2,7 @@ import RequestData from '../../RequestData';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertFolderForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -12,7 +13,7 @@ import getFolder from './handler';
 import {GetFolderEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

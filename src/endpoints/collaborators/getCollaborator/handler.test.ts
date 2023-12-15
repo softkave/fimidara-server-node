@@ -1,9 +1,10 @@
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import EndpointReusableQueries from '../../queries';
+import {kSemanticModels} from '../../contexts/injectables';
 import RequestData from '../../RequestData';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -13,7 +14,7 @@ import getCollaborator from './handler';
 import {GetCollaboratorEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
@@ -25,10 +26,7 @@ test('collaborator returned', async () => {
   const {workspace} = await insertWorkspaceForTest(userToken);
   const instData = RequestData.fromExpressRequest<GetCollaboratorEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
-    {
-      workspaceId: workspace.resourceId,
-      collaboratorId: user.resourceId,
-    }
+    {workspaceId: workspace.resourceId, collaboratorId: user.resourceId}
   );
 
   const result = await getCollaborator(instData);
@@ -36,9 +34,7 @@ test('collaborator returned', async () => {
   expect(result.collaborator).toMatchObject(
     collaboratorExtractor(
       await populateUserWorkspaces(
-        await kSemanticModels
-          .user()
-          .assertGetOneByQuery(EndpointReusableQueries.getByResourceId(user.resourceId))
+        await kSemanticModels.user().assertGetOneByQuery({resourceId: user.resourceId})
       ),
       workspace.resourceId
     )

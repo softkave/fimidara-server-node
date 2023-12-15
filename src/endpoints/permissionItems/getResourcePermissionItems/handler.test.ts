@@ -6,6 +6,7 @@ import {generateAndInsertPermissionItemListForTest} from '../../testUtils/genera
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -18,7 +19,7 @@ import {default as getResourcePermissionItems} from './handler';
 import {GetResourcePermissionItemsEndpointParams} from './types';
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {

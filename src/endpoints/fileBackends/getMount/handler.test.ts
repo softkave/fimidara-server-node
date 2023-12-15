@@ -1,41 +1,58 @@
+import {kReuseableErrors} from '../../../utils/reusableErrors';
 import RequestData from '../../RequestData';
+import {NotFoundError} from '../../errors';
+import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertFileBackendMountForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithFileBackendMount,
+  mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import getFileBackendMount from './handler';
 import {GetFileBackendMountEndpointParams} from './types';
 
-/**
- * TODO:
- * - [Low] Check that onReferenced feature works
- */
-
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
   await completeTests();
 });
 
-test('referenced agent token returned', async () => {
-  const {userToken} = await insertUserForTest();
-  const {workspace} = await insertWorkspaceForTest(userToken);
-  const {token: token01} = await insertFileBackendMountForTest(
-    userToken,
-    workspace.resourceId
-  );
+describe('getMount', () => {
+  test('mount returned', async () => {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    const {mount} = await insertFileBackendMountForTest(userToken, workspace.resourceId);
 
-  const instData = RequestData.fromExpressRequest<GetFileBackendMountEndpointParams>(
-    mockExpressRequestWithFileBackendMount(userToken),
-    {tokenId: token01.resourceId, workspaceId: workspace.resourceId}
-  );
-  const result = await getFileBackendMount(instData);
-  assertEndpointResultOk(result);
-  expect(result.token).toEqual(token01);
+    const instData = RequestData.fromExpressRequest<GetFileBackendMountEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {mountId: mount.resourceId, workspaceId: workspace.resourceId}
+    );
+    const result = await getFileBackendMount(instData);
+
+    assertEndpointResultOk(result);
+    expect(result.mount).toEqual(mount);
+  });
+
+  test('fails if mount does not exist', async () => {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    const {mount} = await insertFileBackendMountForTest(userToken, workspace.resourceId);
+
+    const instData = RequestData.fromExpressRequest<GetFileBackendMountEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {mountId: mount.resourceId, workspaceId: workspace.resourceId}
+    );
+    await expectErrorThrown(
+      () => getFileBackendMount(instData),
+      error =>
+        expect((error as NotFoundError).message).toBe(
+          kReuseableErrors.mount.notFound().message
+        )
+    );
+  });
 });

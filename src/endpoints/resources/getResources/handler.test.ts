@@ -14,6 +14,7 @@ import {generateAndInsertPermissionItemListForTest} from '../../testUtils/genera
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
@@ -29,7 +30,7 @@ import {GetResourcesEndpointParams} from './types';
  */
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
@@ -53,7 +54,7 @@ describe('getResources', () => {
     ]);
     const itemsList = await Promise.all(
       Object.values(kPermissionsMap).map(action =>
-        generateAndInsertPermissionItemListForTest(context!, 1, {
+        generateAndInsertPermissionItemListForTest(1, {
           action: action,
           access: faker.datatype.boolean(),
           targetId: workspace.resourceId,
@@ -65,7 +66,7 @@ describe('getResources', () => {
     );
     const items = flatten(itemsList);
     const resourcesInput: FetchResourceItem[] = [];
-    const resourcesMap: Record<string, any> = {};
+    const resourcesMap: Record<string, unknown> = {};
     const filepathsMap: Record<string, string> = {};
 
     const addToExpectedResourcesById = (

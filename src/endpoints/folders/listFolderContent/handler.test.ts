@@ -1,5 +1,6 @@
 import {AppResourceTypeMap} from '../../../definitions/system';
 import {calculatePageSize, getResourceId} from '../../../utils/fns';
+import {kSemanticModels} from '../../contexts/injectables';
 import addPermissionItems from '../../permissionItems/addItems/handler';
 import RequestData from '../../RequestData';
 import {
@@ -14,6 +15,7 @@ import {expectContainsExactly} from '../../testUtils/helpers/assertion';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
+  initTests,
   insertAgentTokenForTest,
   insertFileForTest,
   insertFolderForTest,
@@ -32,7 +34,7 @@ import {ListFolderContentEndpointParams} from './types';
  */
 
 beforeAll(async () => {
-  await initTest();
+  await initTests();
 });
 
 afterAll(async () => {
