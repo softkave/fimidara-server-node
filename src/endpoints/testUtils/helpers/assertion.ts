@@ -84,3 +84,8 @@ export function expectContainsExactly<T2, T1 extends T2>(
 ) {
   expectContainsExactlyForAnyType(received, expected, indexer, indexer);
 }
+
+export function expectListSubsetMatch(list01: unknown[], list02: unknown[]) {
+  const subsetLength = Math.min(list01.length, list02.length);
+  return expect(list01.slice(0, subsetLength)).toEqual(list02.slice(0, subsetLength));
+}

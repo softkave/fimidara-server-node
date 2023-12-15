@@ -8,6 +8,7 @@ import {
 import {generateTestFolderpathString} from '../../testUtils/generateData/folder';
 import {
   GenerateTestFieldsDef,
+  TestFieldsPresetCombinations,
   generateTestFieldsCombinations,
 } from '../../testUtils/generateData/utils';
 import {
@@ -48,7 +49,10 @@ describe('getFileBackendMounts', async () => {
     workspaceId: () => workspace.resourceId,
     folderpath: () => generateTestFolderpathString(),
   };
-  const queries = await generateTestFieldsCombinations(queryDefs);
+  const queries = await generateTestFieldsCombinations(
+    queryDefs,
+    TestFieldsPresetCombinations.incrementallyAdd
+  );
 
   queries.forEach(query => {
     test(`pagination with queries ${Object.keys(query).join(',')}`, async () => {

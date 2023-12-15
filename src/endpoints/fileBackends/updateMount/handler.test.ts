@@ -10,6 +10,7 @@ import {generateAndInsertFileBackendConfigListForTest} from '../../testUtils/gen
 import {generateTestFolderpath} from '../../testUtils/generateData/folder';
 import {
   GenerateTestFieldsDef,
+  TestFieldsPresetCombinations,
   generateTestFieldsCombinations,
 } from '../../testUtils/generateData/utils';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
@@ -55,7 +56,10 @@ describe('updateMount', async () => {
     name: () => faker.lorem.words(),
     description: () => faker.lorem.paragraph(),
   };
-  const updates = await generateTestFieldsCombinations(updateDefs);
+  const updates = await generateTestFieldsCombinations(
+    updateDefs,
+    TestFieldsPresetCombinations.incrementallyAdd
+  );
 
   updates.forEach(update => {
     test(`with updates ${Object.keys(update).join(',')}`, async () => {

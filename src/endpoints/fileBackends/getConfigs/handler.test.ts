@@ -5,6 +5,7 @@ import {
 } from '../../testUtils/generateData/fileBackend';
 import {
   GenerateTestFieldsDef,
+  TestFieldsPresetCombinations,
   generateTestFieldsCombinations,
 } from '../../testUtils/generateData/utils';
 import {
@@ -37,7 +38,10 @@ describe('getFileBackendConfigs', async () => {
     backend: generateFileBackendType,
     workspaceId: () => workspace.resourceId,
   };
-  const queries = await generateTestFieldsCombinations(queryDefs);
+  const queries = await generateTestFieldsCombinations(
+    queryDefs,
+    TestFieldsPresetCombinations.incrementallyAdd
+  );
 
   queries.forEach(query => {
     test(`pagination with queries ${Object.keys(query).join(',')}`, async () => {

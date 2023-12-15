@@ -47,4 +47,6 @@ export const kFileBackendConstants = {
     'me-central-1',
     'sa-east-1',
   ],
+
+  maxFolderAttachedMounts: 20,
 };

@@ -6,6 +6,7 @@ import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {generateAWSS3Credentials} from '../../testUtils/generateData/fileBackend';
 import {
   GenerateTestFieldsDef,
+  TestFieldsPresetCombinations,
   generateTestFieldsCombinations,
 } from '../../testUtils/generateData/utils';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
@@ -42,7 +43,10 @@ describe('updateConfig s3', async () => {
     name: () => faker.lorem.words(),
     description: () => faker.lorem.paragraph(),
   };
-  const updates = await generateTestFieldsCombinations(updateDefs);
+  const updates = await generateTestFieldsCombinations(
+    updateDefs,
+    TestFieldsPresetCombinations.incrementallyAdd
+  );
 
   updates.forEach(update => {
     test(`with updates ${Object.keys(update).join(',')}`, async () => {
