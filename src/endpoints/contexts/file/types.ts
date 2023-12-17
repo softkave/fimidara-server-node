@@ -1,6 +1,6 @@
 import {Readable} from 'stream';
 import {File} from '../../../definitions/file';
-import {FileBackendMount, FileBackendType} from '../../../definitions/fileBackend';
+import {FileBackendConfig, FileBackendMount} from '../../../definitions/fileBackend';
 import {AppResourceTypeMap} from '../../../definitions/system';
 
 export type FilePersistenceProviderFeature =
@@ -114,9 +114,6 @@ export interface FilePersistenceProvider {
   describeFile: (
     params: FilePersistenceGetFileParams
   ) => Promise<PersistedFileDescription | undefined>;
-  addFolder: (
-    params: FilePersistenceAddFolderParams
-  ) => Promise<FilePersistenceAddFolderResult>;
   describeFolder: (
     params: FilePersistenceDescribeFolderParams
   ) => Promise<PersistedFolderDescription | undefined>;
@@ -132,6 +129,7 @@ export interface FilePersistenceProvider {
 }
 
 export type FileProviderResolver = (
-  type: FileBackendType,
-  initParams: unknown
+  mount: FileBackendMount,
+  initParams: unknown,
+  config: FileBackendConfig
 ) => FilePersistenceProvider;

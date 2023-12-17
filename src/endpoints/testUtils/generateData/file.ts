@@ -1,4 +1,5 @@
 import {faker} from '@faker-js/faker';
+import {isBoolean, isEqual, isString, isUndefined} from 'lodash';
 import {File} from '../../../definitions/file';
 import {AppResourceTypeMap} from '../../../definitions/system';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
@@ -9,10 +10,10 @@ import {kSemanticModels} from '../../contexts/injectables';
 import {getFilenameInfo} from '../../files/utils';
 import {kFolderConstants} from '../../folders/constants';
 import {addRootnameToPath} from '../../folders/utils';
-import {generateTestFolderName} from './folder';
+import {generateTestFolderName, generateTestFolderpath} from './folder';
 
-function addExtenstion(name: string, ext: string) {
-  return name + '.' + ext;
+function addExtenstion(name: string, ext: string | undefined) {
+  return ext ? name + '.' + ext : name;
 }
 
 export const kTestFileNameSeparatorChars = ['-', '_', ' '];
@@ -21,24 +22,38 @@ export function generateTestFileName(
   props: {
     separatorChars?: string[];
     includeStraySlashes?: boolean;
-    extension?: string;
+    extension?: string | boolean;
     rootname?: string;
-  } = {
-    separatorChars: kTestFileNameSeparatorChars,
-    includeStraySlashes: false,
-  }
+  } = {}
 ) {
-  const seed = getRandomIntInclusive(1, 3);
+  const {
+    extension,
+    includeStraySlashes = false,
+    separatorChars = kTestFileNameSeparatorChars,
+  } = props;
   let filename = '';
 
-  if (seed === 1) {
-    const extCount = getRandomIntInclusive(1, 5);
+  if (
+    isUndefined(extension) &&
+    isUndefined(includeStraySlashes) &&
+    isUndefined(separatorChars)
+  ) {
+    const extCount = getRandomIntInclusive(0, 5);
     filename = faker.system.fileName({extensionCount: extCount});
-  } else if (seed === 2) {
-    const name = generateTestFolderName(props);
-    filename = addExtenstion(name, props.extension ?? faker.system.fileExt());
-  } else {
+  } else if (isEqual(extension, false)) {
     filename = generateTestFolderName(props);
+  } else {
+    const name = generateTestFolderName(props);
+    filename = addExtenstion(
+      name,
+      isBoolean(extension)
+        ? extension === true
+          ? faker.system.fileExt()
+          : isString(extension)
+          ? extension
+          : undefined
+        : undefined
+    );
   }
 
   if (props.rootname) {
@@ -48,17 +63,21 @@ export function generateTestFileName(
   return filename;
 }
 
-export function generateTestFilepath(length = 3) {
-  return Array(length)
-    .fill(0)
-    .map(() => generateTestFileName());
+export function generateTestFilepath(
+  props: Parameters<typeof generateTestFileName>[0] &
+    Parameters<typeof generateTestFolderpath>[0] & {length?: number} = {}
+) {
+  const {length = 3} = props;
+  return generateTestFolderpath({...props, length: length - 1}).concat(
+    length - (length - 1) > 0 ? generateTestFileName(props) : []
+  );
 }
 
-export function generateTestFilepathString(length = 3): string {
-  return Array(length)
-    .fill(0)
-    .map(() => generateTestFileName())
-    .join(kFolderConstants.separator);
+export function generateTestFilepathString(
+  props: Parameters<typeof generateTestFileName>[0] &
+    Parameters<typeof generateTestFolderpath>[0] & {length?: number} = {}
+): string {
+  return generateTestFilepath(props).join(kFolderConstants.separator);
 }
 
 export function generateTestFile(

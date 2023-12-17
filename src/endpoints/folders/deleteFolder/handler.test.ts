@@ -56,7 +56,7 @@ test('folder deleted', async () => {
   const {folder: folder02} = await insertFolderForTest(userToken, workspace, {
     folderpath: addRootnameToPath(
       folder01.namepath
-        .concat(generateTestFolderName({includeStraySlashes: true}))
+        .concat(generateTestFolderName({includeStraySeparators: true}))
         .join(kFolderConstants.separator),
       workspace.rootname
     ),

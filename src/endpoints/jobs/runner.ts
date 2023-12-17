@@ -36,6 +36,7 @@ const JOB_INTERVAL = 1000; // 1 second
 export async function startJobRunner() {
   let nextJob: Job | null = null;
   nextJob = await getNextUnfinishedJob();
+
   if (!nextJob) {
     nextJob = await getNextPendingJob();
   }
@@ -186,7 +187,9 @@ export async function executeJob(jobId: string) {
     status: JobStatusMap.pending,
   });
 
-  if (job) await jobRunner(job);
+  if (job) {
+    await jobRunner(job);
+  }
 }
 
 export async function waitForJob(jobId: string) {

@@ -15,11 +15,8 @@ import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {kFolderConstants} from '../../folders/constants';
 import {
   FilePersistenceDeleteFilesParams,
-  FilePersistenceDeleteFoldersParams,
   FilePersistenceDescribeFolderFilesParams,
   FilePersistenceDescribeFolderFilesResult,
-  FilePersistenceDescribeFolderFoldersParams,
-  FilePersistenceDescribeFolderParams,
   FilePersistenceGetFileParams,
   FilePersistenceProvider,
   FilePersistenceProviderFeature,
@@ -159,9 +156,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
     };
   };
 
-  describeFolder = async (
-    params: FilePersistenceDescribeFolderParams
-  ): Promise<PersistedFolderDescription | undefined> => {
+  describeFolder = async (): Promise<PersistedFolderDescription | undefined> => {
     // not supported
     return undefined;
   };
@@ -198,12 +193,12 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
     return {files, continuationToken: response.NextContinuationToken};
   };
 
-  describeFolderFolders = async (params: FilePersistenceDescribeFolderFoldersParams) => {
+  describeFolderFolders = async () => {
     // not supported
     return {folders: []};
   };
 
-  deleteFolders = async (params: FilePersistenceDeleteFoldersParams): Promise<void> => {
+  deleteFolders = async (): Promise<void> => {
     // not supported
   };
 }

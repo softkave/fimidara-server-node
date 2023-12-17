@@ -108,6 +108,7 @@ export async function initBackendProvidersForMounts(
   mounts: FileBackendMount[],
   configs: FileBackendConfig[]
 ) {
+  const fileProviderResolver = kUtilsInjectables.fileProviderResolver();
   const providersMap: FilePersistenceProvidersByMount = {};
   const configsMap: Record<string, {config: FileBackendConfig; providerParams: unknown}> =
     {};
@@ -123,17 +124,14 @@ export async function initBackendProvidersForMounts(
   );
 
   mounts.forEach(mount => {
-    const {providerParams} = configsMap[mount.configId ?? ''] ?? {};
+    const {providerParams, config} = configsMap[mount.configId ?? ''] ?? {};
 
     if (mount.backend !== 'fimidara' && !providerParams) {
       console.log(`mount ${mount.resourceId} is not fimidara, and is without config`);
       throw new ServerError();
     }
 
-    const provider = kUtilsInjectables.fileProviderResolver()(
-      mount.backend,
-      providerParams
-    );
+    const provider = fileProviderResolver(mount, providerParams, config);
     providersMap[mount.resourceId] = provider;
   });
 
@@ -243,14 +241,13 @@ export function populateMountUnsupportedOpNoteInNotFoundError(
 export async function insertResolvedMountEntries(props: {
   agent: Agent;
   mountIds: string[];
-  resource: Pick<File, 'resourceId' | 'namepath' | 'extension'>;
-  workspaceId: string;
+  resource: Pick<File, 'resourceId' | 'namepath' | 'extension' | 'workspaceId'>;
 }) {
-  const {mountIds, resource, workspaceId, agent} = props;
+  const {mountIds, resource, agent} = props;
 
   await kSemanticModels.utils().withTxn(async opts => {
     const existingEntries = await kSemanticModels.resolvedMountEntry().getManyByQuery({
-      workspaceId,
+      workspaceId: resource.workspaceId,
       resourceId: resource.resourceId,
       mountId: {$in: mountIds},
     });
@@ -269,7 +266,7 @@ export async function insertResolvedMountEntries(props: {
           newWorkspaceResource(
             agent,
             AppResourceTypeMap.ResolvedMountEntry,
-            workspaceId,
+            resource.workspaceId,
             {
               mountId,
               resolvedForType,
@@ -303,4 +300,13 @@ export async function runCleanupMountResolvedEntriesJob(
       .resolvedMountEntry()
       .deleteManyByQuery({mountId: job.params.mountId}, opts);
   });
+}
+
+export async function getResolvedMountEntries(
+  id: string,
+  opts?: SemanticProviderRunOptions
+) {
+  return await kSemanticModels
+    .resolvedMountEntry()
+    .getManyByQuery({resolvedFor: id}, opts);
 }

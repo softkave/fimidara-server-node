@@ -49,6 +49,7 @@ import {
 import addPermissionItems from '../permissionItems/addItems/handler';
 import {AddPermissionItemsEndpointParams} from '../permissionItems/addItems/types';
 import {PermissionItemInput} from '../permissionItems/types';
+import EndpointReusableQueries from '../queries';
 import {setupApp} from '../runtime/initAppSetup';
 import {BaseEndpointResult} from '../types';
 import INTERNAL_confirmEmailAddress from '../users/confirmEmailAddress/internalConfirmEmailAddress';
@@ -168,6 +169,7 @@ export async function insertUserForTest(
   const tokenData = kUtilsInjectables.session().decodeToken(result.token);
   const userToken = await kSemanticModels.agentToken().getOneById(tokenData.sub.id);
   assertAgentToken(userToken);
+
   return {
     rawUser,
     userToken,
@@ -347,7 +349,7 @@ export async function insertFolderForTest(
     {
       folder: {
         folderpath: addRootnameToPath(
-          [generateTestFolderName({includeStraySlashes: true})].join(
+          [generateTestFolderName({includeStraySeparators: true})].join(
             kFolderConstants.separator
           ),
           workspace.rootname
@@ -438,5 +440,10 @@ export async function insertFileForTest(
   );
   const result = await uploadFile(instData);
   assertEndpointResultOk(result);
-  return {...result, dataBuffer, reqData: instData};
+
+  const rawFile = await kSemanticModels
+    .file()
+    .assertGetOneByQuery(EndpointReusableQueries.getByResourceId(result.file.resourceId));
+
+  return {...result, dataBuffer, rawFile, reqData: instData};
 }

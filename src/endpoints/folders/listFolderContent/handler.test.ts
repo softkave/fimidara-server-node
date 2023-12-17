@@ -50,7 +50,7 @@ describe('listFolderContent', () => {
       insertFolderForTest(userToken, workspace, {
         folderpath: addRootnameToPath(
           folder01.namepath
-            .concat(generateTestFolderName({includeStraySlashes: true}))
+            .concat(generateTestFolderName({includeStraySeparators: true}))
             .join(kFolderConstants.separator),
           workspace.rootname
         ),
@@ -81,7 +81,7 @@ describe('listFolderContent', () => {
     const [{folder: folder02}, {file}] = await Promise.all([
       insertFolderForTest(userToken, workspace, {
         folderpath: addRootnameToPath(
-          generateTestFolderName({includeStraySlashes: true}),
+          generateTestFolderName({includeStraySeparators: true}),
           workspace.rootname
         ),
       }),
@@ -110,7 +110,7 @@ describe('listFolderContent', () => {
     const {folder: folder02} = await insertFolderForTest(userToken, workspace, {
       folderpath: addRootnameToPath(
         folder01.namepath
-          .concat(generateTestFolderName({includeStraySlashes: true}))
+          .concat(generateTestFolderName({includeStraySeparators: true}))
           .join(kFolderConstants.separator),
         workspace.rootname
       ),

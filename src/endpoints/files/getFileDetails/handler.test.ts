@@ -20,16 +20,18 @@ afterAll(async () => {
   await completeTests();
 });
 
-test('file details returned', async () => {
-  const {userToken} = await insertUserForTest();
-  const {workspace} = await insertWorkspaceForTest(userToken);
-  const {file} = await insertFileForTest(userToken, workspace);
+describe('getFileDetails', () => {
+  test('file details returned', async () => {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    const {file} = await insertFileForTest(userToken, workspace);
 
-  const instData = RequestData.fromExpressRequest<GetFileDetailsEndpointParams>(
-    mockExpressRequestWithAgentToken(userToken),
-    {filepath: stringifyFilenamepath(file, workspace.rootname)}
-  );
-  const result = await getFileDetails(instData);
-  assertEndpointResultOk(result);
-  expect(result.file).toEqual(file);
+    const instData = RequestData.fromExpressRequest<GetFileDetailsEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {filepath: stringifyFilenamepath(file, workspace.rootname)}
+    );
+    const result = await getFileDetails(instData);
+    assertEndpointResultOk(result);
+    expect(result.file).toEqual(file);
+  });
 });

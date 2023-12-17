@@ -4,12 +4,14 @@ import {
   FileBackendConfig,
   FileBackendMount,
   FileBackendTypeMap,
+  ResolvedMountEntry,
 } from '../../../definitions/fileBackend';
 import {Agent, AppResourceTypeMap} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {validationConstants} from '../../../utils/validationUtils';
 import {S3FilePersistenceProviderInitParams} from '../../contexts/file/S3FilePersistenceProvider';
+import {kSemanticModels} from '../../contexts/injectables';
 import {kInjectionKeys} from '../../contexts/injection';
 import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
 import {
@@ -19,6 +21,7 @@ import {
 import {NewFileBackendConfigInput} from '../../fileBackends/addConfig/types';
 import {NewFileBackendMountInput} from '../../fileBackends/addMount/types';
 import {kFileBackendConstants} from '../../fileBackends/constants';
+import {generateTestFilepath} from './file';
 import {generateTestFolderpath} from './folder';
 
 export function generateAWSS3Credentials(
@@ -124,14 +127,43 @@ export function generateFileBackendConfigForTest(seed: Partial<FileBackendConfig
   return config;
 }
 
+export function generateResolvedMountEntryForTest(
+  seed: Partial<ResolvedMountEntry> = {}
+) {
+  const createdAt = getTimestamp();
+  const createdBy: Agent = {
+    agentId: getNewIdForResource(AppResourceTypeMap.User),
+    agentType: AppResourceTypeMap.User,
+    agentTokenId: getNewIdForResource(AppResourceTypeMap.AgentToken),
+  };
+  const config: ResolvedMountEntry = {
+    createdAt,
+    createdBy,
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: createdBy,
+    resourceId: getNewIdForResource(AppResourceTypeMap.ResolvedMountEntry),
+    workspaceId: getNewIdForResource(AppResourceTypeMap.Workspace),
+    mountId: getNewIdForResource(AppResourceTypeMap.FileBackendMount),
+    resolvedAt: getTimestamp(),
+    namepath: generateTestFilepath(),
+    extension: faker.system.fileExt(),
+    resolvedFor: getNewIdForResource(AppResourceTypeMap.File),
+    resolvedForType: AppResourceTypeMap.File,
+    ...seed,
+  };
+  return config;
+}
+
 export function generateFileBackendMountListForTest(
   count = 20,
   seed: Partial<FileBackendMount> = {}
 ) {
   const items: FileBackendMount[] = [];
+
   for (let i = 0; i < count; i++) {
     items.push(generateFileBackendMountForTest(seed));
   }
+
   return items;
 }
 
@@ -140,9 +172,24 @@ export function generateFileBackendConfigListForTest(
   seed: Partial<FileBackendConfig> = {}
 ) {
   const items: FileBackendConfig[] = [];
+
   for (let i = 0; i < count; i++) {
     items.push(generateFileBackendConfigForTest(seed));
   }
+
+  return items;
+}
+
+export function generateResolvedMountEntryListForTest(
+  count = 20,
+  seed: Partial<ResolvedMountEntry> = {}
+) {
+  const items: ResolvedMountEntry[] = [];
+
+  for (let i = 0; i < count; i++) {
+    items.push(generateResolvedMountEntryForTest(seed));
+  }
+
   return items;
 }
 
@@ -175,5 +222,17 @@ export async function generateAndInsertFileBackendConfigListForTest(
 
   const items = generateFileBackendConfigListForTest(count, seed);
   await semanticUtils.withTxn(async opts => configModel.insertItem(items, opts));
+  return items;
+}
+
+export async function generateAndInsertResolvedMountEntryListForTest(
+  count = 20,
+  seed: Partial<ResolvedMountEntry> = {}
+) {
+  const model = kSemanticModels.resolvedMountEntry();
+  const items = generateResolvedMountEntryListForTest(count, seed);
+
+  await kSemanticModels.utils().withTxn(async opts => model.insertItem(items, opts));
+
   return items;
 }

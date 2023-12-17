@@ -6,6 +6,7 @@ import {kReuseableErrors} from '../../../utils/reusableErrors';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injectables';
 import {NotFoundError} from '../../errors';
+import {executeJob, waitForJob} from '../../jobs/runner';
 import {generateAndInsertFileBackendConfigListForTest} from '../../testUtils/generateData/fileBackend';
 import {generateTestFolderpath} from '../../testUtils/generateData/folder';
 import {
@@ -151,6 +152,16 @@ describe('updateMount', async () => {
                 params: {$objMatch: {mountId: mount.resourceId}},
               });
               expect(job).toBeTruthy();
+
+              assert(result.jobId);
+              await executeJob(result.jobId);
+              await waitForJob(result.jobId);
+
+              const [dbMountEntries] = await Promise.all([
+                kSemanticModels.resolvedMountEntry().getMountEntries(mount.resourceId),
+              ]);
+
+              expect(dbMountEntries).toHaveLength(0);
             },
           },
         ],

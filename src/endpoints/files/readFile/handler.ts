@@ -9,6 +9,7 @@ import {PersistedFile} from '../../contexts/file/types';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {resolveBackendConfigsWithIdList} from '../../fileBackends/configUtils';
 import {
+  getResolvedMountEntries,
   initBackendProvidersForMounts,
   resolveMountsForFolder,
 } from '../../fileBackends/mountUtils';
@@ -85,8 +86,9 @@ async function readPersistedFile(file: File): Promise<PersistedFile> {
     compact(mounts.map(mount => mount.configId))
   );
   const providersMap = await initBackendProvidersForMounts(mounts, configs);
+  const resolvedEntries = await getResolvedMountEntries(file.resourceId);
 
-  for (const entry of file.resolvedEntries) {
+  for (const entry of resolvedEntries) {
     const mount = mountsMap[entry.mountId];
 
     if (!mount) {
@@ -105,7 +107,7 @@ async function readPersistedFile(file: File): Promise<PersistedFile> {
       filepath: stringifyFilenamepath(file),
     });
 
-    if (persistedFile) {
+    if (persistedFile?.body) {
       return persistedFile;
     }
   }

@@ -1,8 +1,12 @@
+import assert from 'assert';
 import {AppResourceTypeMap} from '../../../definitions/system';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import RequestData from '../../RequestData';
+import {kSemanticModels} from '../../contexts/injectables';
 import {NotFoundError} from '../../errors';
+import {executeJob, waitForJob} from '../../jobs/runner';
+import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generateData/fileBackend';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
@@ -45,6 +49,28 @@ describe('deleteMount', async () => {
     );
   });
 
+  test('fails if mount is fimidara', async () => {
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId: workspace.resourceId,
+      backend: 'fimidara',
+    });
+
+    const instData = RequestData.fromExpressRequest<DeleteFileBackendMountEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {mountId: mount.resourceId}
+    );
+
+    await expectErrorThrown(
+      async () => {
+        await updateFileBackendMount(instData);
+      },
+      error =>
+        expect((error as NotFoundError).message).toBe(
+          kReuseableErrors.mount.cannotDeleteFimidaraMount().message
+        )
+    );
+  });
+
   test('succeeds if mount exists', async () => {
     const {mount} = await insertFileBackendMountForTest(userToken, workspace.resourceId);
 
@@ -56,5 +82,17 @@ describe('deleteMount', async () => {
     assertEndpointResultOk(result);
 
     expect(result.jobId).toBeTruthy();
+
+    assert(result.jobId);
+    await executeJob(result.jobId);
+    await waitForJob(result.jobId);
+
+    const [dbMount, dbMountEntries] = await Promise.all([
+      kSemanticModels.fileBackendMount().getOneById(mount.resourceId),
+      kSemanticModels.resolvedMountEntry().getMountEntries(mount.resourceId),
+    ]);
+
+    expect(dbMount).toBeFalsy();
+    expect(dbMountEntries).toHaveLength(0);
   });
 });

@@ -1,16 +1,23 @@
-import {UsageRecordCategoryMap} from '../../../definitions/usageRecord';
+import {Readable} from 'stream';
 import {streamToBuffer} from '../../../utils/fns';
+import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import RequestData from '../../RequestData';
+import {FilePersistenceProvider, PersistedFile} from '../../contexts/file/types';
+import {kRegisterUtilsInjectables} from '../../contexts/injectables';
+import {insertResolvedMountEntries} from '../../fileBackends/mountUtils';
 import {kFolderConstants} from '../../folders/constants';
 import {addRootnameToPath} from '../../folders/utils';
-import {generateTestFileName} from '../../testUtils/generateData/file';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {assertFileBodyEqual} from '../../testUtils/helpers/file';
+import NoopFilePersistenceProviderContext from '../../testUtils/context/file/NoopFilePersistenceProviderContext';
+import {
+  generateTestFileName,
+  generateTestFilepathString,
+} from '../../testUtils/generateData/file';
+import {expectFileBodyEqual, expectFileBodyEqualById} from '../../testUtils/helpers/file';
 import {completeTests} from '../../testUtils/helpers/test';
-import {updateTestWorkspaceUsageLocks} from '../../testUtils/helpers/usageRecord';
 import {
   assertEndpointResultOk,
   initTests,
+  insertFileBackendMountForTest,
   insertFileForTest,
   insertFolderForTest,
   insertPermissionItemsForTest,
@@ -19,7 +26,6 @@ import {
   mockExpressRequestForPublicAgent,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
-import {UsageLimitExceededError} from '../../usageRecords/errors';
 import {PermissionDeniedError} from '../../users/errors';
 import {stringifyFilenamepath} from '../utils';
 import readFile from './handler';
@@ -41,13 +47,15 @@ describe('readFile', () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
+
     const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {filepath: stringifyFilenamepath(file, workspace.rootname)}
     );
     const result = await readFile(instData);
     assertEndpointResultOk(result);
-    await assertFileBodyEqual(file.resourceId, result.stream);
+
+    await expectFileBodyEqualById(file.resourceId, result.stream);
   });
 
   test('file resized', async () => {
@@ -59,6 +67,7 @@ describe('readFile', () => {
       width: startWidth,
       height: startHeight,
     });
+
     const expectedWidth = 300;
     const expectedHeight = 300;
     const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
@@ -73,6 +82,7 @@ describe('readFile', () => {
     );
     const result = await readFile(instData);
     assertEndpointResultOk(result);
+
     const resultBuffer = await streamToBuffer(result.stream);
     assert(resultBuffer);
     const fileMetadata = await sharp(resultBuffer).metadata();
@@ -142,21 +152,70 @@ describe('readFile', () => {
     }
   });
 
-  test('file not returned if bandwidth usage is exceeded', async () => {
-    const {userToken} = await insertUserForTest();
+  test('reads file from other entries if primary entry is not present', async () => {
+    const {userToken, rawUser} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const {file} = await insertFileForTest(userToken, workspace);
+    const {file} = await insertFileForTest(userToken, workspace, {
+      filepath: generateTestFilepathString(),
+    });
+    const {mount} = await insertFileBackendMountForTest(userToken, workspace.resourceId, {
+      folderpath: file.namepath.slice(0, -1),
+    });
+    await insertResolvedMountEntries({
+      agent: makeUserSessionAgent(rawUser, userToken),
+      mountIds: [mount.resourceId],
+      resource: file,
+    });
 
-    // Update usage locks
-    await updateTestWorkspaceUsageLocks(workspace.resourceId, [
-      UsageRecordCategoryMap.BandwidthOut,
-    ]);
-    const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
+    const testBuffer = Buffer.from('Reading from secondary mount source.');
+    const testStream = Readable.from([testBuffer]);
+    kRegisterUtilsInjectables.fileProviderResolver(forMount => {
+      if (mount.resourceId === forMount.resourceId) {
+        class SecondaryFileProvider
+          extends NoopFilePersistenceProviderContext
+          implements FilePersistenceProvider
+        {
+          readFile = async (): Promise<PersistedFile> => ({
+            body: testStream,
+            size: testBuffer.byteLength,
+          });
+        }
+
+        return new SecondaryFileProvider();
+      } else {
+        return new NoopFilePersistenceProviderContext();
+      }
+    });
+
+    const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+      mockExpressRequestForPublicAgent(),
       {filepath: stringifyFilenamepath(file, workspace.rootname)}
     );
-    await expectErrorThrown(async () => {
-      await readFile(reqData);
-    }, [UsageLimitExceededError.name]);
+    const result = await readFile(instData);
+    assertEndpointResultOk(result);
+
+    await expectFileBodyEqual(testBuffer, result.stream);
+  });
+
+  test('returns an empty stream if file exists and backends do not have file', async () => {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    const {file} = await insertFileForTest(userToken, workspace, {
+      filepath: generateTestFilepathString(),
+    });
+
+    kRegisterUtilsInjectables.fileProviderResolver(() => {
+      return new NoopFilePersistenceProviderContext();
+    });
+
+    const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+      mockExpressRequestForPublicAgent(),
+      {filepath: stringifyFilenamepath(file, workspace.rootname)}
+    );
+    const result = await readFile(instData);
+    assertEndpointResultOk(result);
+
+    const testBuffer = Buffer.from([]);
+    await expectFileBodyEqual(testBuffer, result.stream);
   });
 });

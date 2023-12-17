@@ -15,14 +15,10 @@ import {kFolderConstants} from '../../folders/constants';
 export const kTestFolderNameSeparatorChars = ['-', '_', ' ', '.'];
 
 export function generateTestFolderName(
-  {
-    separatorChars,
-    includeStraySlashes: includeStraySeparators,
-  }: {separatorChars?: string[]; includeStraySlashes?: boolean} = {
-    separatorChars: kTestFolderNameSeparatorChars,
-    includeStraySlashes: false,
-  }
+  props: {separatorChars?: string[]; includeStraySeparators?: boolean} = {}
 ) {
+  const {separatorChars = kTestFolderNameSeparatorChars, includeStraySeparators = false} =
+    props;
   const wordCount = getRandomIntInclusive(3, 10);
   const seed = getRandomIntInclusive(1, 2);
   const separator = faker.helpers.arrayElement(
@@ -48,17 +44,19 @@ export function generateTestFolderName(
     : name;
 }
 
-export function generateTestFolderpath(length = 3) {
-  return Array(length)
+export function generateTestFolderpath(
+  props: Parameters<typeof generateTestFolderName>[0] & {length?: number} = {}
+) {
+  const {length = 3} = props;
+  return Array(Math.max(length, 0))
     .fill(0)
-    .map(() => generateTestFolderName());
+    .map(() => generateTestFolderName(props));
 }
 
-export function generateTestFolderpathString(length = 3): string {
-  return Array(length)
-    .fill(0)
-    .map(() => generateTestFolderName())
-    .join(kFolderConstants.separator);
+export function generateTestFolderpathString(
+  props: Parameters<typeof generateTestFolderpath>[0] = {}
+): string {
+  return generateTestFolderpath(props).join(kFolderConstants.separator);
 }
 
 export async function generateUniqueFolderpath(workspaceId: string) {
@@ -66,7 +64,7 @@ export async function generateUniqueFolderpath(workspaceId: string) {
   const max = 10;
 
   while (length < max) {
-    const folderpath = generateTestFolderpath(length);
+    const folderpath = generateTestFolderpath({length});
     const folder = await kSemanticModels.folder().getOneByNamepath({
       workspaceId,
       namepath: folderpath,

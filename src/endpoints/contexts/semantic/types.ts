@@ -147,4 +147,9 @@ export type SemanticJobProvider = SemanticBaseProviderType<Job> & {
 };
 
 export type SemanticResolvedMountEntryProvider =
-  SemanticWorkspaceResourceProviderType<ResolvedMountEntry>;
+  SemanticWorkspaceResourceProviderType<ResolvedMountEntry> & {
+    getMountEntries: (
+      mountId: string,
+      opts?: SemanticProviderRunOptions
+    ) => Promise<ResolvedMountEntry[]>;
+  };

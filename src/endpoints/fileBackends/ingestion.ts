@@ -188,8 +188,6 @@ export async function ingestPersistedFiles(
       newFiles.concat(existingFiles).map(file =>
         insertResolvedMountEntries({
           agent,
-          opts,
-          workspaceId: workspace.resourceId,
           mountIds: persistedFilesByFilepath[
             file.namepath.join(kFolderConstants.separator)
           ].mountFiles.map(pFile => pFile.mountId),

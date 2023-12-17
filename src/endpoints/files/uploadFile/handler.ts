@@ -89,7 +89,6 @@ const uploadFile: UploadFileEndpoint = async instData => {
         kSemanticModels.file().getAndUpdateOneById(file.resourceId, update, opts),
         insertResolvedMountEntries({
           agent,
-          workspaceId: file.workspaceId,
           resource: file,
           mountIds: [mount.resourceId],
         }),

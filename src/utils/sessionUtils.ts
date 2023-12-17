@@ -76,7 +76,7 @@ export function getActionAgentFromSessionAgent(sessionAgent: SessionAgent): Agen
   return agent;
 }
 
-export function isSessionAgent(agent: any): agent is SessionAgent {
+export function isSessionAgent(agent: unknown): agent is SessionAgent {
   if (!(agent as SessionAgent).agentId || !(agent as SessionAgent).agentType)
     return false;
   if (

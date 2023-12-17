@@ -7,7 +7,7 @@ import {NotFoundError} from '../../errors';
 import {addRootnameToPath} from '../../folders/utils';
 import {generateTestFileName} from '../../testUtils/generateData/file';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {assertFileBodyEqual} from '../../testUtils/helpers/file';
+import {expectFileBodyEqualById} from '../../testUtils/helpers/file';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
@@ -49,7 +49,7 @@ describe('issueFilePresignedPath', () => {
     assertEndpointResultOk(result);
 
     const readFileResult = await tryReadFile(result.path);
-    await assertFileBodyEqual(file.resourceId, readFileResult.stream);
+    await expectFileBodyEqualById(file.resourceId, readFileResult.stream);
   });
 
   test('issued with fileId', async () => {
@@ -65,7 +65,7 @@ describe('issueFilePresignedPath', () => {
     assertEndpointResultOk(result);
 
     const readFileResult = await tryReadFile(result.path);
-    await assertFileBodyEqual(file.resourceId, readFileResult.stream);
+    await expectFileBodyEqualById(file.resourceId, readFileResult.stream);
   });
 
   test('file presigned path issued with duration', async () => {
