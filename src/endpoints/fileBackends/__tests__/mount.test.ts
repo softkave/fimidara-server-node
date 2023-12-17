@@ -8,9 +8,9 @@ import {resolveMountsForFolder, sortMounts} from '../mountUtils';
 
 describe('mount utils', () => {
   test('sortMounts', () => {
-    const mount01 = generateFileBackendMountForTest({index: 0});
-    const mount02 = generateFileBackendMountForTest({index: 1, createdAt: 10});
-    const mount03 = generateFileBackendMountForTest({index: 1, createdAt: 11});
+    const mount01 = generateFileBackendMountForTest({index: 5});
+    const mount02 = generateFileBackendMountForTest({index: 4, createdAt: 10});
+    const mount03 = generateFileBackendMountForTest({index: 3, createdAt: 11});
     const mount04 = generateFileBackendMountForTest({index: 2});
 
     const sortedMounts = sortMounts(

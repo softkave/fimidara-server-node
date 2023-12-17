@@ -4,12 +4,9 @@ import {appAssert} from '../../../utils/assertion';
 import {streamToBuffer} from '../../../utils/fns';
 import {
   FilePersistenceDeleteFilesParams,
-  FilePersistenceDeleteFoldersParams,
   FilePersistenceDescribeFolderFilesParams,
   FilePersistenceDescribeFolderFilesResult,
-  FilePersistenceDescribeFolderFoldersParams,
   FilePersistenceDescribeFolderFoldersResult,
-  FilePersistenceDescribeFolderParams,
   FilePersistenceGetFileParams,
   FilePersistenceProvider,
   FilePersistenceProviderFeature,
@@ -48,7 +45,7 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
     }
   };
 
-  uploadFile = async (params: FilePersistenceUploadFileParams) => {
+  async uploadFile(params: FilePersistenceUploadFileParams) {
     const body = await streamToBuffer(params.body);
 
     this.setMemoryFile(params, {
@@ -63,7 +60,7 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
     });
 
     return {};
-  };
+  }
 
   readFile = async (params: FilePersistenceGetFileParams): Promise<PersistedFile> => {
     const file = this.getMemoryFile(params);
@@ -85,7 +82,7 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
     });
   };
 
-  deleteFolders = async (params: FilePersistenceDeleteFoldersParams): Promise<void> => {
+  deleteFolders = async (): Promise<void> => {
     // not supported
   };
 
@@ -113,9 +110,7 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
     return undefined;
   };
 
-  describeFolder = async (
-    params: FilePersistenceDescribeFolderParams
-  ): Promise<PersistedFolderDescription | undefined> => {
+  describeFolder = async (): Promise<PersistedFolderDescription | undefined> => {
     // not supported
     return undefined;
   };
@@ -148,14 +143,13 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
     return {files, continuationToken: index};
   };
 
-  describeFolderFolders = async (
-    params: FilePersistenceDescribeFolderFoldersParams
-  ): Promise<FilePersistenceDescribeFolderFoldersResult> => {
-    // not supported
-    return {folders: []};
-  };
+  describeFolderFolders =
+    async (): Promise<FilePersistenceDescribeFolderFoldersResult> => {
+      // not supported
+      return {folders: []};
+    };
 
-  protected getWorkspaceFiles = (params: {workspaceId: string}) => {
+  getWorkspaceFiles = (params: {workspaceId: string}) => {
     let workspaceFilesMap = this.files[params.workspaceId];
 
     if (!workspaceFilesMap) {
@@ -165,7 +159,7 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
     return workspaceFilesMap;
   };
 
-  protected setMemoryFile = (
+  setMemoryFile = (
     params: {workspaceId: string; filepath: string},
     file: MemoryFilePersistenceProviderFile
   ) => {
@@ -173,7 +167,7 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
     workspaceFilesMap[params.filepath.toLowerCase()] = file;
   };
 
-  protected getMemoryFile = (params: {
+  getMemoryFile = (params: {
     workspaceId: string;
     filepath: string;
   }): MemoryFilePersistenceProviderFile | undefined => {

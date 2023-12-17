@@ -1,8 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {PublicWorkspace, Workspace} from '../../../definitions/workspace';
-import {appAssert} from '../../../utils/assertion';
-import {streamToBuffer} from '../../../utils/fns';
 import RequestData from '../../RequestData';
+import {kSemanticModels} from '../../contexts/injectables';
 import {addRootnameToPath} from '../../folders/utils';
 import EndpointReusableQueries from '../../queries';
 import {
@@ -32,34 +31,28 @@ export const uploadFileBaseTest = async (
   insertUserResult?: IInsertUserForTestResult,
   insertWorkspaceResult?: IInsertWorkspaceForTestResult
 ) => {
-  insertUserResult = insertUserResult ?? (await insertUserForTest(ctx));
+  insertUserResult = insertUserResult ?? (await insertUserForTest());
   insertWorkspaceResult =
     insertWorkspaceResult ?? (await insertWorkspaceForTest(insertUserResult.userToken));
-  const {file, dataBuffer} = await insertFileForTest(
+  const insertFileResult = await insertFileForTest(
     insertUserResult.userToken,
     insertWorkspaceResult.workspace,
     input,
     type
   );
-  const persistedFile = await ctx.fileBackend.readFile({
-    bucket: kUtilsInjectables.config().S3Bucket,
-    filepath: file.resourceId,
-  });
-  const savedBuffer = persistedFile.body && (await streamToBuffer(persistedFile.body));
-  appAssert(savedBuffer);
-  appAssert(dataBuffer);
-  expect(dataBuffer.equals(savedBuffer)).toBe(true);
 
-  const savedFile = await ctx.semantic.file.assertGetOneByQuery(
-    EndpointReusableQueries.getByResourceId(file.resourceId)
-  );
+  const {file} = insertFileResult;
+  const savedFile = await kSemanticModels
+    .file()
+    .assertGetOneByQuery(EndpointReusableQueries.getByResourceId(file.resourceId));
+
   expect(file).toMatchObject(fileExtractor(savedFile));
+
   return {
-    file,
     savedFile,
     insertUserResult,
     insertWorkspaceResult,
-    savedBuffer,
+    ...insertFileResult,
   };
 };
 

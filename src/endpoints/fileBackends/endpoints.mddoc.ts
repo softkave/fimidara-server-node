@@ -92,7 +92,7 @@ const index = mddocConstruct
   .constructFieldNumber()
   .setDescription(
     'File backend mount weight when compared to mounts attached to the same folder. ' +
-      'Lower values have higher weight.'
+      'Higher values have higher weight.'
   );
 
 const mountedFrom = fReusables.folderpathList.clone().setDescription(

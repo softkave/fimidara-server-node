@@ -445,5 +445,6 @@ export async function insertFileForTest(
     .file()
     .assertGetOneByQuery(EndpointReusableQueries.getByResourceId(result.file.resourceId));
 
+  assert(dataBuffer);
   return {...result, dataBuffer, rawFile, reqData: instData};
 }
