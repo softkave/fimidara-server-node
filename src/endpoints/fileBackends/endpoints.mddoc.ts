@@ -95,12 +95,22 @@ const index = mddocConstruct
       'Higher values have higher weight.'
   );
 
-const mountedFrom = fReusables.folderpathList.clone().setDescription(
+const mountedFrom = fReusables.folderpath
+  .clone()
+  .setDescription(
+    multilineTextToParagraph(`
+      Files mount source. Exact shape is different for each provider. For AWS S3, this would be
+      just the bucket name or bucket name with folder prefix. E.g my-bucket or my-bucket/folder01 assuming
+      there is a folder01 within my-bucket.
+    `)
+  )
+  .setExample('/bucket-name/folder-name');
+const mountedFromAsList = fReusables.folderpathList.clone().setDescription(
   multilineTextToParagraph(`
-    Files mount source. Exact shape is different for each provider. For AWS S3, this would be
-    just the bucket name or bucket name with folder prefix. E.g my-bucket or my-bucket/folder01 assuming
-    there is a folder01 within my-bucket.
-`)
+      Files mount source. Exact shape is different for each provider. For AWS S3, this would be
+      just the bucket name or bucket name with folder prefix. E.g ["my-bucket"] or ["my-bucket", "folder01"] assuming
+      there is a folder01 within my-bucket.
+    `)
 );
 
 const credentials = mddocConstruct
@@ -119,7 +129,7 @@ const newFileBackendMountInput = mddocConstruct
     name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
     backend: mddocConstruct.constructFieldObjectField(true, backend),
-    folderpath: mddocConstruct.constructFieldObjectField(true, fReusables.folderpathList),
+    folderpath: mddocConstruct.constructFieldObjectField(true, fReusables.folderpath),
     configId: mddocConstruct.constructFieldObjectField(true, configIdOrNull),
     index: mddocConstruct.constructFieldObjectField(true, index),
     mountedFrom: mddocConstruct.constructFieldObjectField(true, mountedFrom),
@@ -132,10 +142,7 @@ const updateFileBackendMountInput = mddocConstruct
     name: mddocConstruct.constructFieldObjectField(false, fReusables.name),
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
     configId: mddocConstruct.constructFieldObjectField(false, configId),
-    folderpath: mddocConstruct.constructFieldObjectField(
-      false,
-      fReusables.folderpathList
-    ),
+    folderpath: mddocConstruct.constructFieldObjectField(false, fReusables.folderpath),
     index: mddocConstruct.constructFieldObjectField(false, index),
     mountedFrom: mddocConstruct.constructFieldObjectField(false, mountedFrom),
   });
@@ -156,7 +163,7 @@ const fileBackendMount = mddocConstruct
     configId: mddocConstruct.constructFieldObjectField(true, configIdOrNull),
     folderpath: mddocConstruct.constructFieldObjectField(true, fReusables.folderpathList),
     index: mddocConstruct.constructFieldObjectField(true, index),
-    mountedFrom: mddocConstruct.constructFieldObjectField(true, mountedFrom),
+    mountedFrom: mddocConstruct.constructFieldObjectField(true, mountedFromAsList),
   });
 
 const fileBackendMountList = mddocConstruct

@@ -11,11 +11,16 @@ import {kInjectionKeys} from '../../contexts/injection';
 import {SemanticFolderProvider} from '../../contexts/semantic/folder/types';
 import {SemanticProviderUtils} from '../../contexts/semantic/types';
 import {kFolderConstants} from '../../folders/constants';
+import {addRootnameToPath} from '../../folders/utils';
 
 export const kTestFolderNameSeparatorChars = ['-', '_', ' ', '.'];
 
 export function generateTestFolderName(
-  props: {separatorChars?: string[]; includeStraySeparators?: boolean} = {}
+  props: {
+    separatorChars?: string[];
+    includeStraySeparators?: boolean;
+    rootname?: string;
+  } = {}
 ) {
   const {separatorChars = kTestFolderNameSeparatorChars, includeStraySeparators = false} =
     props;
@@ -24,33 +29,42 @@ export function generateTestFolderName(
   const separator = faker.helpers.arrayElement(
     separatorChars ?? kTestFolderNameSeparatorChars
   );
-  const name = faker.lorem
+  let name = faker.lorem
     .words(wordCount)
     .split(' ')
     .map(word =>
       /** introduce a little randomness in the name, mixing uppercase and
-       * lowercase characters to test that names are matched case-insensitively.
-       */
+       * lowercase characters to test that names are matched case-insensitively. */
       seed === 1 ? word : word.toUpperCase()
     )
     .join(separator);
 
   // Randomly inlcude stray separators to test that empty names are handled
   // appropriately
-  return includeStraySeparators
-    ? seed === 1
-      ? new Array(getRandomIntInclusive(1, 3)).fill('/').join('') + name
-      : name
+  name = includeStraySeparators
+    ? new Array(getRandomIntInclusive(1, 3)).fill('/').join('') + name
     : name;
+
+  if (props.rootname) {
+    name = addRootnameToPath(name, props.rootname);
+  }
+
+  return name;
 }
 
 export function generateTestFolderpath(
   props: Parameters<typeof generateTestFolderName>[0] & {length?: number} = {}
 ) {
   const {length = 3} = props;
-  return Array(Math.max(length, 0))
+  let folderpath = Array(Math.max(length, 0))
     .fill(0)
-    .map(() => generateTestFolderName(props));
+    .map(() => generateTestFolderName({...props, rootname: undefined}));
+
+  if (props.rootname) {
+    folderpath = addRootnameToPath(folderpath, props.rootname);
+  }
+
+  return folderpath;
 }
 
 export function generateTestFolderpathString(

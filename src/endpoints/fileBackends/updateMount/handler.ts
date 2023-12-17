@@ -14,7 +14,8 @@ import {
   SemanticFileBackendMountProvider,
   SemanticProviderUtils,
 } from '../../contexts/semantic/types';
-import {areFolderpathsEqual} from '../../folders/utils';
+import {kFolderConstants} from '../../folders/constants';
+import {areFolderpathsEqual, getFolderpathInfo} from '../../folders/utils';
 import {queueJobs} from '../../jobs/utils';
 import {isResourceNameEqual} from '../../utils';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
@@ -69,30 +70,57 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData =>
     }
 
     const mountUpdate: Partial<FileBackendMount> = {
-      ...pick(data.mount, [
-        'configId',
-        'folderpath',
-        'index',
-        'mountedFrom',
-        'name',
-        'description',
-      ]),
+      ...pick(data.mount, ['configId', 'index', 'name', 'description']),
       lastUpdatedAt: getTimestamp(),
       lastUpdatedBy: getActionAgentFromSessionAgent(agent),
     };
 
+    if (data.mount.folderpath) {
+      const folderpathinfo = getFolderpathInfo(data.mount.folderpath);
+      appAssert(
+        workspace.rootname === folderpathinfo.rootname,
+        kReuseableErrors.workspace.rootnameDoesNotMatchFolderRootname(
+          workspace.rootname,
+          folderpathinfo.rootname
+        )
+      );
+
+      mountUpdate.folderpath = folderpathinfo.namepath;
+    }
+
+    if (data.mount.mountedFrom) {
+      mountUpdate.mountedFrom = data.mount.mountedFrom.split(kFolderConstants.separator);
+    }
+
     const isFolderpathChanged =
       data.mount.folderpath &&
-      !areFolderpathsEqual(data.mount.folderpath, mount.folderpath);
+      !areFolderpathsEqual(
+        data.mount.folderpath,
+        mount.folderpath,
+        /** isCaseSensitive */ true
+      );
+
+    // TODO: different backends may observe different case-sensitivities, so
+    // rather than assume they are all not case-sensitive, use backend's
+    // case-sensitivity
     const isMountedFromChanged =
-      data.mount.mountedFrom && data.mount.mountedFrom !== mount.mountedFrom;
+      data.mount.mountedFrom &&
+      !areFolderpathsEqual(
+        data.mount.mountedFrom,
+        mount.mountedFrom,
+        /** isCaseSensitive */ false
+      );
 
     if (isFolderpathChanged || isMountedFromChanged) {
       const exists = await mountExists(
         {
           backend: mount.backend,
-          folderpath: data.mount.folderpath || mount.folderpath,
-          mountedFrom: data.mount.mountedFrom || mount.mountedFrom,
+          folderpath: data.mount.folderpath
+            ? getFolderpathInfo(data.mount.folderpath).namepath
+            : mount.folderpath,
+          mountedFrom: data.mount.mountedFrom
+            ? data.mount.mountedFrom.split(kFolderConstants.separator)
+            : mount.mountedFrom,
         },
         opts
       );

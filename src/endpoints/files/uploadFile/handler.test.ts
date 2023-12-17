@@ -11,6 +11,7 @@ import {
   kUtilsInjectables,
 } from '../../contexts/injectables';
 import {kFolderConstants} from '../../folders/constants';
+import {stringifyFoldernamepath} from '../../folders/utils';
 import {
   generateTestFileName,
   generateTestFilepath,
@@ -38,7 +39,6 @@ import {uploadFileBaseTest} from './uploadFileTestUtils';
 /**
  * TODO:
  * - stale versions removed
- * - cannot double write file
  *
  * - recover resolver after each test
  */
@@ -61,11 +61,17 @@ describe('uploadFile', () => {
     const {workspace} = insertWorkspaceResult;
     const filepath = generateTestFilepath({rootname: workspace.rootname, length: 4});
     const [{mount: closerMount}] = await Promise.all([
-      insertFileBackendMountForTest(userToken, workspace.resourceId, {
-        folderpath: filepath.slice(0, -1),
+      insertFileBackendMountForTest(userToken, workspace, {
+        folderpath: stringifyFoldernamepath(
+          {namepath: filepath.slice(0, -1)},
+          workspace.rootname
+        ),
       }),
-      insertFileBackendMountForTest(userToken, workspace.resourceId, {
-        folderpath: filepath.slice(0, -2),
+      insertFileBackendMountForTest(userToken, workspace, {
+        folderpath: stringifyFoldernamepath(
+          {namepath: filepath.slice(0, -2)},
+          workspace.rootname
+        ),
       }),
     ]);
     const closerMountBackend = new MemoryFilePersistenceProvider();
@@ -109,12 +115,18 @@ describe('uploadFile', () => {
     const {workspace} = insertWorkspaceResult;
     const filepath = generateTestFilepath({rootname: workspace.rootname, length: 4});
     const [{mount: closerMount}] = await Promise.all([
-      insertFileBackendMountForTest(userToken, workspace.resourceId, {
-        folderpath: filepath.slice(0, -1),
+      insertFileBackendMountForTest(userToken, workspace, {
+        folderpath: stringifyFoldernamepath(
+          {namepath: filepath.slice(0, -1)},
+          workspace.rootname
+        ),
         index: 2,
       }),
-      insertFileBackendMountForTest(userToken, workspace.resourceId, {
-        folderpath: filepath.slice(0, -1),
+      insertFileBackendMountForTest(userToken, workspace, {
+        folderpath: stringifyFoldernamepath(
+          {namepath: filepath.slice(0, -1)},
+          workspace.rootname
+        ),
         index: 1,
       }),
     ]);

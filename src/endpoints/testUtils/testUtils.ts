@@ -63,7 +63,7 @@ import MockTestEmailProviderContext from './context/email/MockTestEmailProviderC
 import TestLocalFsFilePersistenceProviderContext from './context/file/TestLocalFsFilePersistenceProviderContext';
 import TestMemoryFilePersistenceProviderContext from './context/file/TestMemoryFilePersistenceProviderContext';
 import TestS3FilePersistenceProviderContext from './context/file/TestS3FilePersistenceProviderContext';
-import {generateTestFileName} from './generateData/file';
+import {generateTestFileName, generateTestFilepathString} from './generateData/file';
 import {
   generateFileBackendConfigInput,
   generateFileBackendMountInput,
@@ -317,11 +317,15 @@ export async function insertFileBackendConfigForTest(
 
 export async function insertFileBackendMountForTest(
   userToken: AgentToken,
-  workspaceId: string,
+  workspace: Pick<Workspace, 'resourceId' | 'rootname'>,
   input: Partial<NewFileBackendMountInput> = {},
   insertConfig = true
 ) {
-  const mountInput = generateFileBackendMountInput(input);
+  const {rootname, resourceId: workspaceId} = workspace;
+  const mountInput = generateFileBackendMountInput({
+    folderpath: generateTestFilepathString({rootname}),
+    ...input,
+  });
   const addConfigResult = insertConfig
     ? await insertFileBackendConfigForTest(userToken, workspaceId, {
         backend: mountInput.backend,

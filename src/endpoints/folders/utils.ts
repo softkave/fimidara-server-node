@@ -217,7 +217,8 @@ export function stringifyFoldernamepath(
 
 export function areFolderpathsEqual(
   folderpath01: string | string[],
-  folderpath02: string | string[]
+  folderpath02: string | string[],
+  isCaseSensitive: boolean
 ) {
   const folderpath01List = isArray(folderpath01)
     ? folderpath01
@@ -227,9 +228,13 @@ export function areFolderpathsEqual(
     : folderpath02.split(kFolderConstants.separator);
   return (
     folderpath01List.length === folderpath02List.length &&
-    folderpath01List.every(
-      (path, index) => path.toLowerCase() === folderpath02List[index].toLowerCase()
-    )
+    folderpath01List.every((path, index) => {
+      if (isCaseSensitive) {
+        return path === folderpath02List[index];
+      } else {
+        return path.toLowerCase() === folderpath02List[index].toLowerCase();
+      }
+    })
   );
 }
 

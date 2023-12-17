@@ -22,7 +22,7 @@ import {NewFileBackendConfigInput} from '../../fileBackends/addConfig/types';
 import {NewFileBackendMountInput} from '../../fileBackends/addMount/types';
 import {kFileBackendConstants} from '../../fileBackends/constants';
 import {generateTestFilepath} from './file';
-import {generateTestFolderpath} from './folder';
+import {generateTestFolderpathString} from './folder';
 
 export function generateAWSS3Credentials(
   seed: Partial<S3FilePersistenceProviderInitParams> = {}
@@ -71,9 +71,9 @@ export function generateFileBackendMountInput(
   return {
     name: faker.lorem.words(7),
     description: faker.lorem.words(10),
-    folderpath: generateTestFolderpath(),
+    folderpath: generateTestFolderpathString(),
     index: faker.number.int(),
-    mountedFrom: generateTestFolderpath(),
+    mountedFrom: generateTestFolderpathString(),
     backend: generateFileBackendTypeForInput(),
     configId: getNewIdForResource(AppResourceTypeMap.FileBackendConfig),
     ...seed,

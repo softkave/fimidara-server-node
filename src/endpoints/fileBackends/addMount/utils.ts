@@ -2,6 +2,7 @@ import {container} from 'tsyringe';
 import {FileBackendMount} from '../../../definitions/fileBackend';
 import {Agent, AppResourceTypeMap} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
+import {appAssert} from '../../../utils/assertion';
 import {newWorkspaceResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {kInjectionKeys} from '../../contexts/injection';
@@ -10,8 +11,8 @@ import {
   SemanticFileBackendMountProvider,
   SemanticProviderMutationRunOptions,
 } from '../../contexts/semantic/types';
-import {ResourceExistsError} from '../../errors';
-import {ensureFolders, stringifyFoldernamepath} from '../../folders/utils';
+import {kFolderConstants} from '../../folders/constants';
+import {ensureFolders, getFolderpathInfo} from '../../folders/utils';
 import {NewFileBackendMountInput} from './types';
 
 export const INTERNAL_addFileBackendMount = async (
@@ -27,18 +28,31 @@ export const INTERNAL_addFileBackendMount = async (
     kInjectionKeys.semantic.fileBackendConfig
   );
 
+  const folderpathinfo = getFolderpathInfo(data.folderpath);
+  appAssert(
+    workspace.rootname === folderpathinfo.rootname,
+    kReuseableErrors.workspace.rootnameDoesNotMatchFolderRootname(
+      workspace.rootname,
+      folderpathinfo.rootname
+    )
+  );
+
+  const mountedFromSplit = data.mountedFrom.split(kFolderConstants.separator);
   const mountExists = await fileBackendMountModel.existsByQuery(
     {
       backend: data.backend,
-      folderpath: {$all: data.folderpath, $size: data.folderpath.length},
-      mountedFrom: {$all: data.mountedFrom, $size: data.mountedFrom.length},
+      workspaceId: workspace.resourceId,
+      folderpath: {$all: folderpathinfo.namepath, $size: folderpathinfo.namepath.length},
+      mountedFrom: {$all: mountedFromSplit, $size: mountedFromSplit.length},
     },
     opts
   );
 
   if (mountExists) {
-    throw new ResourceExistsError(
-      `Mount exists from ${data.mountedFrom.join('/')} to ${data.folderpath.join('/')}`
+    throw kReuseableErrors.mount.exactMountConfigExists(
+      data.mountedFrom,
+      data.folderpath,
+      data.backend
     );
   }
 
@@ -64,9 +78,9 @@ export const INTERNAL_addFileBackendMount = async (
     workspace.resourceId,
     {
       configId: data.configId,
-      folderpath: data.folderpath,
+      folderpath: folderpathinfo.namepath,
       index: data.index,
-      mountedFrom: data.mountedFrom,
+      mountedFrom: mountedFromSplit,
       backend: data.backend,
       name: data.name,
       description: data.description,
@@ -74,12 +88,7 @@ export const INTERNAL_addFileBackendMount = async (
   );
 
   await Promise.all([
-    ensureFolders(
-      agent,
-      workspace,
-      stringifyFoldernamepath({namepath: data.folderpath}, workspace.rootname),
-      opts
-    ),
+    ensureFolders(agent, workspace, data.folderpath, opts),
     fileBackendMountModel.insertItem(mount, opts),
   ]);
 

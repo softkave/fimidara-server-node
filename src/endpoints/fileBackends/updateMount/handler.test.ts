@@ -6,9 +6,10 @@ import {kReuseableErrors} from '../../../utils/reusableErrors';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injectables';
 import {NotFoundError} from '../../errors';
+import {getFolderpathInfo} from '../../folders/utils';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import {generateAndInsertFileBackendConfigListForTest} from '../../testUtils/generateData/fileBackend';
-import {generateTestFolderpath} from '../../testUtils/generateData/folder';
+import {generateTestFolderpathString} from '../../testUtils/generateData/folder';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,
@@ -51,9 +52,9 @@ describe('updateMount', async () => {
 
       return config.resourceId;
     },
-    folderpath: () => generateTestFolderpath(),
+    folderpath: () => generateTestFolderpathString({rootname: workspace.rootname}),
     index: () => faker.number.int(),
-    mountedFrom: () => generateTestFolderpath(),
+    mountedFrom: () => generateTestFolderpathString(),
     name: () => faker.lorem.words(),
     description: () => faker.lorem.paragraph(),
   };
@@ -64,10 +65,7 @@ describe('updateMount', async () => {
 
   updates.forEach(update => {
     test(`with updates ${Object.keys(update).join(',')}`, async () => {
-      const {mount} = await insertFileBackendMountForTest(
-        userToken,
-        workspace.resourceId
-      );
+      const {mount} = await insertFileBackendMountForTest(userToken, workspace);
 
       const instData =
         RequestData.fromExpressRequest<UpdateFileBackendMountEndpointParams>(
@@ -96,12 +94,13 @@ describe('updateMount', async () => {
           {
             matcher: input => !!input.folderpath,
             expect: async (input, result) => {
-              expect(updatedMount.folderpath).toBe(input.folderpath);
-              expect(result.mount.folderpath).toBe(input.folderpath);
+              const {namepath} = getFolderpathInfo(input.folderpath!);
+              expect(updatedMount.folderpath).toBe(namepath);
+              expect(result.mount.folderpath).toBe(namepath);
 
               const folder = await kSemanticModels.folder().getOneByNamepath({
+                namepath,
                 workspaceId: workspace.resourceId,
-                namepath: input.folderpath!,
               });
 
               expect(folder).toBeTruthy();
@@ -193,7 +192,7 @@ describe('updateMount', async () => {
   });
 
   test('fails if config does not exist', async () => {
-    const {mount} = await insertFileBackendMountForTest(userToken, workspace.resourceId);
+    const {mount} = await insertFileBackendMountForTest(userToken, workspace);
 
     const instData = RequestData.fromExpressRequest<UpdateFileBackendMountEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
@@ -217,8 +216,8 @@ describe('updateMount', async () => {
 
   test('fails if mount with name exists', async () => {
     const [{mount: mount01}, {mount: mount02}] = await Promise.all([
-      insertFileBackendMountForTest(userToken, workspace.resourceId),
-      insertFileBackendMountForTest(userToken, workspace.resourceId),
+      insertFileBackendMountForTest(userToken, workspace),
+      insertFileBackendMountForTest(userToken, workspace),
     ]);
 
     const instData01 =

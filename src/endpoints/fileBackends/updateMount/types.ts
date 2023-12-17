@@ -3,9 +3,9 @@ import {LongRunningJobResult} from '../../jobs/types';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
 export type UpdateFileBackendMountInput = {
-  folderpath?: string[];
+  folderpath?: string;
   index?: number;
-  mountedFrom?: string[];
+  mountedFrom?: string;
   configId?: string;
   name?: string;
   description?: string;

@@ -68,9 +68,19 @@ export function generateTestFilepath(
     Parameters<typeof generateTestFolderpath>[0] & {length?: number} = {}
 ) {
   const {length = 3} = props;
-  return generateTestFolderpath({...props, length: length - 1}).concat(
-    length - (length - 1) > 0 ? generateTestFileName(props) : []
+  let filepath = generateTestFolderpath({
+    ...props,
+    length: length - 1,
+    rootname: undefined,
+  }).concat(
+    length - (length - 1) > 0 ? generateTestFileName({...props, rootname: undefined}) : []
   );
+
+  if (props.rootname) {
+    filepath = addRootnameToPath(filepath, props.rootname);
+  }
+
+  return filepath;
 }
 
 export function generateTestFilepathString(

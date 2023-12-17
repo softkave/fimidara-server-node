@@ -10,6 +10,8 @@ export const kAppMessages = {
         ? `Workspace with rootname ${rootname} not found.`
         : 'Workspace not found.';
     },
+    rootnameDoesNotMatchFolderRootname: (rootname: string, rootname02: string) =>
+      `Workspace rootname ${rootname} does not match folder rootname ${rootname02}`,
   },
   entity: {
     notFound(id: string) {
@@ -138,5 +140,7 @@ export const kAppMessages = {
     },
     configMountBackendMismatch: (configBackend: string, mountBackend: string) =>
       `Config for backend ${configBackend} cannot be used for mount with backend ${mountBackend}`,
+    exactMountConfigExists: (mountedFrom: string, folderpath: string, backend: string) =>
+      `Mount exists from ${mountedFrom} to ${folderpath} with backend ${backend}`,
   },
 };

@@ -26,6 +26,10 @@ export const kReuseableErrors = {
     withRootnameNotFound(rootname: string) {
       return new NotFoundError(kAppMessages.workspace.withRootnameNotFound(rootname));
     },
+    rootnameDoesNotMatchFolderRootname: (rootname: string, rootname02: string) =>
+      new InvalidRequestError(
+        kAppMessages.workspace.rootnameDoesNotMatchFolderRootname(rootname, rootname02)
+      ),
   },
   entity: {
     notFound(id: string) {
@@ -137,6 +141,10 @@ export const kReuseableErrors = {
     configMountBackendMismatch: (configBackend: string, mountBackend: string) =>
       new InvalidRequestError(
         kAppMessages.mount.configMountBackendMismatch(configBackend, mountBackend)
+      ),
+    exactMountConfigExists: (mountedFrom: string, folderpath: string, backend: string) =>
+      new InvalidRequestError(
+        kAppMessages.mount.exactMountConfigExists(mountedFrom, folderpath, backend)
       ),
   },
   config: {

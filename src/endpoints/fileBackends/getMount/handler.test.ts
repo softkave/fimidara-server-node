@@ -26,7 +26,7 @@ describe('getMount', () => {
   test('mount returned', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const {mount} = await insertFileBackendMountForTest(userToken, workspace.resourceId);
+    const {mount} = await insertFileBackendMountForTest(userToken, workspace);
 
     const instData = RequestData.fromExpressRequest<GetFileBackendMountEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
@@ -41,7 +41,7 @@ describe('getMount', () => {
   test('fails if mount does not exist', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const {mount} = await insertFileBackendMountForTest(userToken, workspace.resourceId);
+    const {mount} = await insertFileBackendMountForTest(userToken, workspace);
 
     const instData = RequestData.fromExpressRequest<GetFileBackendMountEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),

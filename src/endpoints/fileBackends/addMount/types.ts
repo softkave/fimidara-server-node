@@ -2,9 +2,9 @@ import {FileBackendType, PublicFileBackendMount} from '../../../definitions/file
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
 export interface NewFileBackendMountInput {
-  folderpath: string[];
+  folderpath: string;
   index: number;
-  mountedFrom: string[];
+  mountedFrom: string;
   backend: FileBackendType;
   /** `null` for fimidara */
   configId: string | null;

@@ -6,7 +6,7 @@ import {FilePersistenceProvider, PersistedFile} from '../../contexts/file/types'
 import {kRegisterUtilsInjectables} from '../../contexts/injectables';
 import {insertResolvedMountEntries} from '../../fileBackends/mountUtils';
 import {kFolderConstants} from '../../folders/constants';
-import {addRootnameToPath} from '../../folders/utils';
+import {addRootnameToPath, stringifyFoldernamepath} from '../../folders/utils';
 import NoopFilePersistenceProviderContext from '../../testUtils/context/file/NoopFilePersistenceProviderContext';
 import {
   generateTestFileName,
@@ -158,8 +158,11 @@ describe('readFile', () => {
     const {file} = await insertFileForTest(userToken, workspace, {
       filepath: generateTestFilepathString(),
     });
-    const {mount} = await insertFileBackendMountForTest(userToken, workspace.resourceId, {
-      folderpath: file.namepath.slice(0, -1),
+    const {mount} = await insertFileBackendMountForTest(userToken, workspace, {
+      folderpath: stringifyFoldernamepath(
+        {namepath: file.namepath.slice(0, -1)},
+        workspace.rootname
+      ),
     });
     await insertResolvedMountEntries({
       agent: makeUserSessionAgent(rawUser, userToken),

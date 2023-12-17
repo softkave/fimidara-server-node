@@ -72,7 +72,7 @@ describe('deleteMount', async () => {
   });
 
   test('succeeds if mount exists', async () => {
-    const {mount} = await insertFileBackendMountForTest(userToken, workspace.resourceId);
+    const {mount} = await insertFileBackendMountForTest(userToken, workspace);
 
     const instData = RequestData.fromExpressRequest<DeleteFileBackendMountEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
