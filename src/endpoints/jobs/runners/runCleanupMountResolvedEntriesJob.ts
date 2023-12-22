@@ -1,11 +1,9 @@
 import {CleanupMountResolvedEntriesJobParams, Job} from '../../../definitions/job';
-import {appAssert} from '../../../utils/assertion';
 import {kSemanticModels} from '../../contexts/injectables';
 
 export async function runCleanupMountResolvedEntriesJob(
-  job: Job<CleanupMountResolvedEntriesJobParams>
+  job: Pick<Job<CleanupMountResolvedEntriesJobParams>, 'params'>
 ) {
-  appAssert(job.workspaceId);
   await kSemanticModels.utils().withTxn(async opts => {
     await kSemanticModels
       .resolvedMountEntry()

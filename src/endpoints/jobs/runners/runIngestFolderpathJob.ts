@@ -40,7 +40,7 @@ async function ingestFolderpathJobFolders(
     });
 
     continuationToken = result.continuationToken;
-    await ingestPersistedFolders(agent, workspace, folder, result.folders);
+    await ingestPersistedFolders(agent, workspace, result.folders);
     await queueJobs(
       job.workspaceId,
       job.resourceId,
@@ -84,7 +84,7 @@ async function ingestFolderpathJobFiles(
     });
 
     continuationToken = result.continuationToken;
-    await ingestPersistedFiles(agent, workspace, folder, result.files);
+    await ingestPersistedFiles(agent, workspace, result.files);
   } while (continuationToken);
 }
 

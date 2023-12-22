@@ -1,16 +1,23 @@
-import {CleanupMountResolvedEntriesJobParams} from '../definitions/job';
-import {AppResourceTypeMap} from '../definitions/system';
-import {extractResourceIdList, noopAsync} from '../utils/fns';
-import {kReuseableErrors} from '../utils/reusableErrors';
-import {RemoveCollaboratorCascadeFnsArgs} from './collaborators/removeCollaborator/types';
-import {kSemanticModels, kUtilsInjectables} from './contexts/injectables';
-import {DeleteFileBackendConfigCascadeFnsArgs} from './fileBackends/deleteConfig/types';
-import {DeleteFileCascadeDeleteFnsArgs} from './files/deleteFile/types';
-import {DeleteFolderCascadeFnsArgs} from './folders/deleteFolder/types';
-import {queueJobs} from './jobs/utils';
-import {DeletePermissionItemsCascadeFnsArgs} from './permissionItems/deleteItems/types';
-import EndpointReusableQueries from './queries';
-import {DeleteResourceCascadeFnsMap} from './types';
+import {
+  CleanupMountResolvedEntriesJobParams,
+  DeleteResourceJobParams,
+  Job,
+} from '../../../definitions/job';
+import {AppResourceType, AppResourceTypeMap} from '../../../definitions/system';
+import {extractResourceIdList, noopAsync} from '../../../utils/fns';
+import {kReuseableErrors} from '../../../utils/reusableErrors';
+import {AnyFn} from '../../../utils/types';
+import {RemoveCollaboratorCascadeFnsArgs} from '../../collaborators/removeCollaborator/types';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {DeleteFileBackendConfigCascadeFnsArgs} from '../../fileBackends/deleteConfig/types';
+import {DeleteFileCascadeDeleteFnsArgs} from '../../files/deleteFile/types';
+import {DeleteFolderCascadeFnsArgs} from '../../folders/deleteFolder/types';
+import {FolderQueries} from '../../folders/queries';
+import {DeletePermissionItemsCascadeFnsArgs} from '../../permissionItems/deleteItems/types';
+import EndpointReusableQueries from '../../queries';
+import {DeleteResourceCascadeFnHelpers, DeleteResourceCascadeFnsMap} from '../../types';
+import {queueJobs} from '../utils';
 
 export const kDeletePermissionItemsCascaseFns: DeleteResourceCascadeFnsMap<DeletePermissionItemsCascadeFnsArgs> =
   {
@@ -568,3 +575,48 @@ export const kDeleteWorkspaceCascadeFns: DeleteResourceCascadeFnsMap = {
       kSemanticModels.resolvedMountEntry().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
 };
+
+const kCascadeDeleteDefs: Record<
+  AppResourceType,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  DeleteResourceCascadeFnsMap<any> | undefined
+> = {
+  [AppResourceTypeMap.All]: undefined,
+  [AppResourceTypeMap.System]: undefined,
+  [AppResourceTypeMap.Public]: undefined,
+  [AppResourceTypeMap.UsageRecord]: undefined,
+  [AppResourceTypeMap.EndpointRequest]: undefined,
+  [AppResourceTypeMap.AssignedItem]: undefined,
+  [AppResourceTypeMap.Job]: undefined,
+  [AppResourceTypeMap.FilePresignedPath]: undefined,
+  [AppResourceTypeMap.ResolvedMountEntry]: undefined,
+
+  // TODO: will need update when we implement deleting users
+  [AppResourceTypeMap.User]: kRemoveCollaboratorCascadeFns,
+  [AppResourceTypeMap.CollaborationRequest]: kDeleteCollaborationRequestsCascadeFns,
+  [AppResourceTypeMap.Workspace]: kDeleteWorkspaceCascadeFns,
+  [AppResourceTypeMap.AgentToken]: kDeleteAgentTokenCascadeFns,
+  [AppResourceTypeMap.Folder]: kDeleteFoldersCascadeFns,
+  [AppResourceTypeMap.File]: kDeleteFileCascadeFns,
+  [AppResourceTypeMap.Tag]: kDeleteTagsCascadeFns,
+  [AppResourceTypeMap.PermissionGroup]: kDeletePermissionGroupsCascadeFns,
+  [AppResourceTypeMap.PermissionItem]: kDeletePermissionItemsCascaseFns,
+  [AppResourceTypeMap.FileBackendConfig]: kDeleteFileBackendConfigCascadeFns,
+  [AppResourceTypeMap.FileBackendMount]: kDeleteFileBackendMountCascadeFns,
+};
+
+export async function runDeleteResourceJob(job: Job) {
+  const params = job.params as DeleteResourceJobParams;
+  const cascadeDef = kCascadeDeleteDefs[params.type];
+
+  if (cascadeDef) {
+    const helperFns: DeleteResourceCascadeFnHelpers = {
+      job,
+      async withTxn(fn: AnyFn<[SemanticProviderMutationRunOptions]>) {
+        await kSemanticModels.utils().withTxn(opts => fn(opts));
+      },
+    };
+
+    await Promise.all(Object.values(cascadeDef).map(fn => fn(params.args, helperFns)));
+  }
+}

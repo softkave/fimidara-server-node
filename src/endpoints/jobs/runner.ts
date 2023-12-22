@@ -1,32 +1,17 @@
 import {
-  DeleteResourceJobParams,
   IngestFolderpathJobParams,
   IngestMountJobParams,
   Job,
   JobStatusMap,
   JobTypeMap,
 } from '../../definitions/job';
-import {AppResourceType, AppResourceTypeMap} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {serverLogger} from '../../utils/logger/loggerUtils';
 import {kDataModels, kUtilsInjectables} from '../contexts/injectables';
-import {
-  kDeleteAgentTokenCascadeFns,
-  kDeleteCollaborationRequestsCascadeFns,
-  kDeleteFileBackendConfigCascadeFns,
-  kDeleteFileBackendMountCascadeFns,
-  kDeleteFileCascadeFns,
-  kDeleteFoldersCascadeFns,
-  kDeletePermissionGroupsCascadeFns,
-  kDeletePermissionItemsCascaseFns,
-  kDeleteTagsCascadeFns,
-  kDeleteWorkspaceCascadeFns,
-  kRemoveCollaboratorCascadeFns,
-  runDeleteResourceJob,
-} from '../deleteResourceCascadeDefs';
-import {runIngestFolderpathJob, runIngestMountJob} from '../fileBackends/ingestionUtils';
-import {DeleteResourceCascadeFnsMap} from '../types';
+import {runDeleteResourceJob} from './runners/runDeleteResourceJob';
+import {runIngestFolderpathJob} from './runners/runIngestFolderpathJob';
+import {runIngestMountJob} from './runners/runIngestMountJob';
 import {completeJob} from './utils';
 
 let lastTimestamp = 0;
@@ -92,7 +77,7 @@ async function getNextPendingJob() {
 async function jobRunner(job: Job) {
   try {
     if (job.type === JobTypeMap.deleteResource) {
-      await executeDeleteResourceJob(job);
+      await runDeleteResourceJob(job);
     } else if (job.type === 'ingestFolderpath') {
       await runIngestFolderpathJob(job as Job<IngestFolderpathJobParams>);
     } else if (job.type === 'ingestMount') {
@@ -109,43 +94,6 @@ async function jobRunner(job: Job) {
         {resourceId: job.resourceId},
         {status: 'failed', statusDate: getTimestamp(), errorTimestamp: getTimestamp()}
       );
-  }
-}
-
-const kCascadeDeleteDefs: Record<
-  AppResourceType,
-  DeleteResourceCascadeFnsMap<never> | undefined
-> = {
-  [AppResourceTypeMap.All]: undefined,
-  [AppResourceTypeMap.System]: undefined,
-  [AppResourceTypeMap.Public]: undefined,
-  [AppResourceTypeMap.UsageRecord]: undefined,
-  [AppResourceTypeMap.EndpointRequest]: undefined,
-  [AppResourceTypeMap.AssignedItem]: undefined,
-  [AppResourceTypeMap.Job]: undefined,
-  [AppResourceTypeMap.FilePresignedPath]: undefined,
-  [AppResourceTypeMap.ResolvedMountEntry]: undefined,
-
-  // TODO: will need update when we implement deleting users
-  [AppResourceTypeMap.User]: kRemoveCollaboratorCascadeFns,
-  [AppResourceTypeMap.CollaborationRequest]: kDeleteCollaborationRequestsCascadeFns,
-  [AppResourceTypeMap.Workspace]: kDeleteWorkspaceCascadeFns,
-  [AppResourceTypeMap.AgentToken]: kDeleteAgentTokenCascadeFns,
-  [AppResourceTypeMap.Folder]: kDeleteFoldersCascadeFns,
-  [AppResourceTypeMap.File]: kDeleteFileCascadeFns,
-  [AppResourceTypeMap.Tag]: kDeleteTagsCascadeFns,
-  [AppResourceTypeMap.PermissionGroup]: kDeletePermissionGroupsCascadeFns,
-  [AppResourceTypeMap.PermissionItem]: kDeletePermissionItemsCascaseFns,
-  [AppResourceTypeMap.FileBackendConfig]: kDeleteFileBackendConfigCascadeFns,
-  [AppResourceTypeMap.FileBackendMount]: kDeleteFileBackendMountCascadeFns,
-};
-
-async function executeDeleteResourceJob(job: Job) {
-  const params = job.params as DeleteResourceJobParams;
-  const cascadeDef = kCascadeDeleteDefs[params.type];
-
-  if (cascadeDef) {
-    await runDeleteResourceJob(cascadeDef, params.args, job);
   }
 }
 

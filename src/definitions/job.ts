@@ -5,7 +5,6 @@ import {DeleteFolderCascadeFnsArgs} from '../endpoints/folders/deleteFolder/type
 import {DeletePermissionItemsCascadeFnsArgs} from '../endpoints/permissionItems/deleteItems/types';
 import {DeleteResourceCascadeFnDefaultArgs} from '../endpoints/types';
 import {AnyObject, ObjectValues} from '../utils/types';
-import {FolderMatcher} from './folder';
 import {AppResourceTypeMap, Resource} from './system';
 
 export const JobTypeMap = {
@@ -73,10 +72,14 @@ export type DeleteResourceJobParams =
       args: DeleteFileBackendConfigCascadeFnsArgs;
     };
 
-/** Prefer folderId for folders in DB, and folderpath [] for root folder */
-export interface IngestFolderpathJobParams extends FolderMatcher {
+export interface IngestFolderpathJobParams {
   mountId: string;
   agentId: string;
+  /** Prefer folderId for folders in DB, an empty [] for the root folder, and
+   * folderpath for mount folders you're not sure are in db yet. Folder path
+   * should not contain workspace rootname. */
+  folderpath?: string;
+  folderId?: string;
 }
 
 export interface IngestMountJobParams {
