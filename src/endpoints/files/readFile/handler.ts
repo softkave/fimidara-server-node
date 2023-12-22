@@ -7,7 +7,7 @@ import {isObjectFieldsEmpty} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {PersistedFile} from '../../contexts/file/types';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
-import {resolveBackendConfigsWithIdList} from '../../fileBackends/configUtils';
+import {getBackendConfigsWithIdList} from '../../fileBackends/configUtils';
 import {
   getResolvedMountEntries,
   initBackendProvidersForMounts,
@@ -82,7 +82,7 @@ async function readPersistedFile(file: File): Promise<PersistedFile> {
     workspaceId: file.workspaceId,
     namepath: file.namepath.slice(0, -1),
   });
-  const configs = await resolveBackendConfigsWithIdList(
+  const configs = await getBackendConfigsWithIdList(
     compact(mounts.map(mount => mount.configId))
   );
   const providersMap = await initBackendProvidersForMounts(mounts, configs);

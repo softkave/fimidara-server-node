@@ -1,108 +1,184 @@
 import {last} from 'lodash';
-import {container} from 'tsyringe';
 import {Folder} from '../../../definitions/folder';
-import {PERMISSION_AGENT_TYPES, SessionAgent} from '../../../definitions/system';
+import {
+  PERMISSION_AGENT_TYPES,
+  Resource,
+  SessionAgent,
+} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
+import {toArray} from '../../../utils/fns';
+import {indexArray} from '../../../utils/indexArray';
 import {validate} from '../../../utils/validate';
 import {
   checkAuthorizationWithAgent,
-  getFilePermissionContainers,
-  getWorkspacePermissionContainers,
+  getResourcePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {FolderQuery} from '../../contexts/data/types';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
-import {kInjectionKeys} from '../../contexts/injection';
-import {SemanticFolderProvider} from '../../contexts/semantic/folder/types';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {assertWorkspace} from '../../workspaces/utils';
+import {kFolderConstants} from '../constants';
 import {FolderExistsError} from '../errors';
-import {createNewFolder, folderExtractor, getFolderpathInfo} from '../utils';
+import {
+  FolderpathInfo,
+  createNewFolder,
+  folderExtractor,
+  getFolderpathInfo,
+} from '../utils';
 import {AddFolderEndpoint, NewFolderInput} from './types';
 import {addFolderJoiSchema} from './validation';
 
 export async function createFolderListWithTransaction(
   agent: SessionAgent,
   workspace: Workspace,
-  input: NewFolderInput,
+  input: NewFolderInput | NewFolderInput[],
   UNSAFE_skipAuthCheck = false,
   throwOnFolderExists = true,
   opts: SemanticProviderMutationRunOptions
 ) {
-  const folderModel = container.resolve<SemanticFolderProvider>(
-    kInjectionKeys.semantic.folder
+  const folderModel = kSemanticModels.folder();
+
+  const inputList = toArray(input);
+  const pathinfoList: FolderpathInfo[] = inputList.map(nextInput =>
+    getFolderpathInfo(nextInput.folderpath)
   );
 
-  const pathinfo = getFolderpathInfo(input.folderpath);
-  let closestExistingFolder: Folder | null = null;
-  let previousFolder: Folder | null = null;
-  const folderQueries = pathinfo.namepath
-    .map((p, i) => pathinfo.namepath.slice(0, i + 1))
-    .map(
-      (nextnamepath): FolderQuery => ({
+  // Make a set of individual folders, so "/parent/folder" will become
+  // "/parent", and "/parent/folder". This is useful for finding the closest
+  // existing folder, and using a set avoids repetitions
+  const namepathSet = pathinfoList.reduce((acc, pathinfo) => {
+    pathinfo.namepath.forEach((name, index) => {
+      acc.add(pathinfo.namepath.slice(0, index + 1).join(kFolderConstants.separator));
+    });
+    return acc;
+  }, new Set<string>());
+  const namepathList: Array<string[]> = [];
+  namepathSet.forEach(namepath => {
+    namepathList.push(namepath.split(kFolderConstants.separator));
+  });
+
+  const existingFolders = await folderModel.getManyByQueryList(
+    namepathList.map(
+      (namepath): FolderQuery => ({
         workspaceId: workspace.resourceId,
-        namepath: {$all: nextnamepath, $size: nextnamepath.length},
+        namepath: {$all: namepath, $size: namepath.length},
       })
-    );
-  const existingFolders = await folderModel.getManyByQueryList(folderQueries, opts);
-  existingFolders.sort((f1, f2) => f1.namepath.length - f2.namepath.length);
+    ),
+    opts
+  );
+  const foldersByNamepath = indexArray(existingFolders, {
+    indexer: folder => folder.namepath.join(kFolderConstants.separator),
+  });
 
-  if (existingFolders.length >= pathinfo.namepath.length && throwOnFolderExists) {
-    throw new FolderExistsError();
-  }
+  function getSelfOrParent(namepath: string[]) {
+    // Attempt to retrieve a folder that matches namepath or the closest
+    // existing parent
+    for (let i = namepath.length; i >= 0; i--) {
+      const partNamepath = namepath.slice(0, i);
+      const key = partNamepath.join(kFolderConstants.separator);
+      const folder = foldersByNamepath[key];
 
-  closestExistingFolder = last(existingFolders) ?? null;
-  previousFolder = closestExistingFolder ?? null;
-  const newFolders: Folder[] = [];
-
-  for (let i = existingFolders.length; i < pathinfo.namepath.length; i++) {
-    if (existingFolders[i]) {
-      previousFolder = existingFolders[i];
-      continue;
+      if (folder) {
+        return folder;
+      }
     }
 
-    // The main folder we want to create
-    const isMainFolder = i === pathinfo.namepath.length - 1;
-    const name = pathinfo.namepath[i];
-    const folder: Folder = createNewFolder(
-      agent,
-      workspace.resourceId,
-      /** pathinfo */ {name},
-      previousFolder,
-      /** input */ {description: isMainFolder ? input.description : undefined}
-    );
-
-    previousFolder = folder;
-    newFolders.push(folder);
+    return null;
   }
 
-  if (!UNSAFE_skipAuthCheck && newFolders.length) {
-    // It's okay to check permission after, cause if it fails, it fails the
-    // transaction, which reverts the changes.
-    await checkAuthorizationWithAgent({
-      agent,
-      workspace,
-      opts,
-      workspaceId: workspace.resourceId,
-      target: {
-        action: 'addFolder',
-        targetId: closestExistingFolder
-          ? getFilePermissionContainers(workspace.resourceId, closestExistingFolder, true)
-          : getWorkspacePermissionContainers(workspace.resourceId),
-      },
+  const newFolders: Folder[] = [];
+  // Use a set to avoid duplicating auth checks to the same target
+  const checkAuthTargets: Set<Resource> = new Set();
+
+  pathinfoList.forEach((pathinfo, pathinfoIndex) => {
+    const inputForIndex = inputList[pathinfoIndex];
+    let prevFolder = getSelfOrParent(pathinfo.namepath);
+    const existingDepth = prevFolder?.namepath.length ?? 0;
+
+    // If existingDepth matches namepath length, then the folder exists
+    if (throwOnFolderExists && existingDepth === pathinfo.namepath.length) {
+      throw new FolderExistsError();
+    }
+
+    // Create folders for folders not found starting from the closest existing
+    // parent represented by existingDepth. If existingDepth ===
+    // namepath.length, then folder exists, and no new folder is created
+    pathinfo.namepath.slice(0, existingDepth).forEach((name, nameIndex) => {
+      const actualNameIndex = nameIndex + existingDepth;
+      const folder: Folder = createNewFolder(
+        agent,
+        workspace.resourceId,
+        /** pathinfo */ {name},
+        prevFolder,
+        /** input */ {
+          // description belongs to only the actual folder from input
+          description:
+            actualNameIndex === pathinfo.namepath.length - 1
+              ? inputForIndex.description
+              : undefined,
+        }
+      );
+
+      if (
+        !UNSAFE_skipAuthCheck &&
+        // If there is no parent, seeing actualNameIndex will only ever be 0 if
+        // there is no prevFolder, we need to do auth check using workspace,
+        // seeing that's the closest permission container
+        actualNameIndex === 0
+      ) {
+        checkAuthTargets.add(workspace);
+      } else if (
+        !UNSAFE_skipAuthCheck &&
+        // If we have a parent, and this folder is the next one right after, use
+        // the parent, represented by prevFolder for auth check, seeing it's the
+        // closest permission container.
+        existingDepth &&
+        actualNameIndex === existingDepth + 1
+      ) {
+        appAssert(prevFolder);
+        checkAuthTargets.add(prevFolder);
+      }
+
+      // Set prevFolder to current folder, so the next folder can use it as
+      // parent, and set it also in foldersByNamepath so other inputs can use it
+      // (not sure how much useful the last part is, but just in case)
+      foldersByNamepath[folder.namepath.join(kFolderConstants.separator)] = prevFolder =
+        folder;
+      newFolders.push(folder);
     });
-  }
+  });
 
   if (newFolders.length) {
-    await kSemanticModels.folder().insertItem(newFolders, opts);
+    const checkAuthPromises: Array<Promise<unknown>> = [];
+    const saveFilesPromise = kSemanticModels.folder().insertItem(newFolders, opts);
+
+    // No need to check auth if there are no new folders, so only check if we
+    // have newFolders
+    checkAuthTargets.forEach(target => {
+      checkAuthPromises.push(
+        checkAuthorizationWithAgent({
+          agent,
+          workspace,
+          opts,
+          workspaceId: workspace.resourceId,
+          target: {
+            action: 'addFolder',
+            targetId: getResourcePermissionContainers(
+              workspace.resourceId,
+              target,
+              /** include target ID in containers */ true
+            ),
+          },
+        })
+      );
+    });
+
+    await Promise.all([Promise.all(checkAuthPromises), saveFilesPromise]);
   }
 
-  if (!previousFolder) {
-    previousFolder = last(newFolders) ?? null;
-  }
-
-  return previousFolder;
+  return {newFolders, existingFolders};
 }
 
 const addFolder: AddFolderEndpoint = async instData => {
@@ -114,21 +190,21 @@ const addFolder: AddFolderEndpoint = async instData => {
   const workspace = await kSemanticModels.workspace().getByRootname(pathinfo.rootname);
   assertWorkspace(workspace);
 
-  const folder = await kSemanticModels.utils().withTxn(async opts => {
-    const [folder] = await Promise.all([
-      createFolderListWithTransaction(
-        agent,
-        workspace,
-        data.folder,
-        /** skip auth check */ false,
-        /** throw if folder exists */ true,
-        opts
-      ),
-    ]);
-
-    appAssert(folder, new ServerError('Error creating folder.'));
-    return folder;
+  const {newFolders} = await kSemanticModels.utils().withTxn(async opts => {
+    return await createFolderListWithTransaction(
+      agent,
+      workspace,
+      data.folder,
+      /** skip auth check */ false,
+      /** throw if folder exists */ true,
+      opts
+    );
   });
+
+  // The last folder will be the folder represented by our input, seeing it
+  // creates parent folders in order
+  const folder = last(newFolders);
+  appAssert(folder, new ServerError('Error creating folder.'));
 
   return {folder: folderExtractor(folder)};
 };

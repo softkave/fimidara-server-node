@@ -7,11 +7,7 @@ import {
   ResolvedMountEntry,
 } from '../../definitions/fileBackend';
 import {Folder} from '../../definitions/folder';
-import {
-  CleanupMountResolvedEntriesJobParams,
-  IngestMountJobParams,
-  Job,
-} from '../../definitions/job';
+import {IngestMountJobParams, Job} from '../../definitions/job';
 import {Agent, AppResourceTypeMap} from '../../definitions/system';
 import {FimidaraExternalError} from '../../utils/OperationError';
 import {appAssert} from '../../utils/assertion';
@@ -34,7 +30,7 @@ import {
 } from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
 import {EndpointResultNoteCodeMap, kEndpointResultNotesToMessageMap} from '../types';
-import {resolveBackendConfigsWithIdList} from './configUtils';
+import {getBackendConfigsWithIdList} from './configUtils';
 
 export type FileBackendMountWeights = Record<string, number>;
 
@@ -149,7 +145,7 @@ export async function getFileBackendForFile(
   const mount = first(mounts);
   appAssert(mount);
 
-  const configs = await resolveBackendConfigsWithIdList(compact([mount.configId]));
+  const configs = await getBackendConfigsWithIdList(compact([mount.configId]));
   const providersMap = await initBackendProvidersForMounts([mount], configs);
   const provider = providersMap[mount.resourceId];
   appAssert(provider);
@@ -288,17 +284,6 @@ export async function insertResolvedMountEntries(props: {
     );
 
     await Promise.all([insertPromise, updatePromise]);
-  });
-}
-
-export async function runCleanupMountResolvedEntriesJob(
-  job: Job<CleanupMountResolvedEntriesJobParams>
-) {
-  appAssert(job.workspaceId);
-  await kSemanticModels.utils().withTxn(async opts => {
-    await kSemanticModels
-      .resolvedMountEntry()
-      .deleteManyByQuery({mountId: job.params.mountId}, opts);
   });
 }
 

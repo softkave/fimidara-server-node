@@ -6,7 +6,7 @@ import {
 import {generateAndInsertTestFolders} from '../../testUtils/generateData/folder';
 import {resolveMountsForFolder, sortMounts} from '../mountUtils';
 
-describe('mount utils', () => {
+describe('file backend mount utils', () => {
   test('sortMounts', () => {
     const mount01 = generateFileBackendMountForTest({index: 5});
     const mount02 = generateFileBackendMountForTest({index: 4, createdAt: 10});
@@ -50,7 +50,7 @@ describe('mount utils', () => {
       }),
     ]);
 
-    const folderMounts = await resolveMountsForFolder(folder03);
+    const {mounts: folderMounts} = await resolveMountsForFolder(folder03);
 
     expect(folderMounts.slice(0, 2)).toEqual(expect.arrayContaining(mounts01));
     expect(folderMounts.slice(2, 4)).toEqual(expect.arrayContaining(mounts02));

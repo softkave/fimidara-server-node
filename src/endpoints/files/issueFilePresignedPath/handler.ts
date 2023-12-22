@@ -9,7 +9,7 @@ import {
   checkAuthorizationWithAgent,
   getResourcePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kUtilsInjectables, kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {getClosestExistingFolder} from '../../folders/getFolderWithMatcher';
 import {assertWorkspace} from '../../workspaces/utils';
 import {getFileWithMatcher} from '../getFilesWithMatcher';
@@ -59,7 +59,7 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async instData =>
       // Get closest existing folder for permission check.
       const {closestFolder} = await getClosestExistingFolder(
         workspace.resourceId,
-        pathinfo.parentSplitPath,
+        pathinfo.parentNamepath,
         opts
       );
       await checkAuthorizationWithAgent({

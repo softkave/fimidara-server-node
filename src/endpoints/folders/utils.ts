@@ -22,8 +22,8 @@ import {
 } from '../contexts/semantic/types';
 import {SemanticWorkspaceProviderType} from '../contexts/semantic/workspace/types';
 import {InvalidRequestError} from '../errors';
-import {resolveBackendConfigsWithIdList} from '../fileBackends/configUtils';
-import {ingestPersistedFolders} from '../fileBackends/ingestion';
+import {getBackendConfigsWithIdList} from '../fileBackends/configUtils';
+import {ingestPersistedFolders} from '../fileBackends/ingestionUtils';
 import {
   FileBackendMountWeights,
   initBackendProvidersForMounts,
@@ -80,40 +80,43 @@ export function assertSplitFolderpath(path: string) {
 export interface FolderpathInfo {
   input: string | string[];
   name: string;
-  /** path array with workspace rootname */
-  splitPath: string[];
   /** path array without workspace rootname */
   namepath: string[];
-  /** without rootname */
-  parentSplitPath: string[];
-  /** without rootname */
-  parentPath: string;
+  /** parent namepath split without rootname */
+  parentNamepath: string[];
+  /** parent namepath without rootname */
+  parentStringPath: string;
   hasParent: boolean;
   rootname: string;
 }
 
-export function getFolderpathInfo(input: string | string[]): FolderpathInfo {
+export function getFolderpathInfo(
+  input: string | string[],
+  options: {/** Defaults to `true` */ containsRootname?: boolean} = {}
+): FolderpathInfo {
+  const {containsRootname = true} = options;
   const splitPath = splitFolderpath(input);
-  const rootname = defaultTo(first(splitPath), '');
+  const rootname = defaultTo(containsRootname ? splitPath.shift() : undefined, '');
   const name = defaultTo(last(splitPath), '');
-  assertWorkspaceRootname(rootname);
+
+  if (containsRootname) {
+    assertWorkspaceRootname(rootname);
+  }
+
   assertFileOrFolderName(name);
-  const parentSplitPath = splitPath.slice(
-    /** workspace rootname is 0 */ 1,
-    /** file or folder name is last item */ -1
-  );
-  const itemSplitPath = splitPath.slice(/* workspace rootname is 0 */ 1);
-  const parentPath = parentSplitPath.join(kFolderConstants.separator);
-  const hasParent = parentSplitPath.length > 0;
+
+  const parentNamepath = splitPath.slice(0, /** file or folder name is last item */ -1);
+  const parentStringPath = parentNamepath.join(kFolderConstants.separator);
+  const hasParent = parentNamepath.length > 0;
+
   return {
     hasParent,
-    parentSplitPath,
+    parentNamepath,
     name,
-    parentPath,
-    splitPath,
     rootname,
     input,
-    namepath: itemSplitPath,
+    parentStringPath,
+    namepath: splitPath,
   };
 }
 
@@ -245,7 +248,7 @@ export async function ensureFolders(
   folderpath: string,
   opts: SemanticProviderMutationRunOptions
 ) {
-  return await createFolderListWithTransaction(
+  const {newFolders, existingFolders} = await createFolderListWithTransaction(
     agent,
     workspace,
     {folderpath: addRootnameToPath(folderpath, workspace.rootname)},
@@ -259,6 +262,15 @@ export async function ensureFolders(
     /** Throw on folder exists */ false,
     opts
   );
+
+  existingFolders.sort((folder01, folder02) => {
+    return folder01.namepath.length - folder02.namepath.length;
+  });
+
+  // newFolders should already be sorted, having parents comning first
+  const folders = existingFolders.concat(newFolders);
+  const folder = last(folders) || null;
+  return {folder, folders};
 }
 
 export async function getWorkspaceFromFolderpath(folderpath: string): Promise<Workspace> {
@@ -309,8 +321,8 @@ export async function createNewFolderAndEnsureParents(
   opts: SemanticProviderMutationRunOptions,
   seed: Partial<Folder> = {}
 ) {
-  const parentFolder = await ensureFolders(agent, workspace, pathinfo.parentPath, opts);
-  return createNewFolder(agent, workspace.resourceId, pathinfo, parentFolder, data, seed);
+  const {folder} = await ensureFolders(agent, workspace, pathinfo.parentStringPath, opts);
+  return createNewFolder(agent, workspace.resourceId, pathinfo, folder, data, seed);
 }
 
 export async function createAndInsertNewFolder(
@@ -344,7 +356,6 @@ export async function ingestFolderByFolderpath(
   mounts?: FileBackendMount[],
   mountWeights?: FileBackendMountWeights
 ) {
-  const folderModel = kSemanticModels.folder();
   const pathinfo = getFolderpathInfo(folderpath);
 
   if (!workspace) {
@@ -355,12 +366,12 @@ export async function ingestFolderByFolderpath(
     appAssert(mountWeights);
   } else {
     ({mounts, mountWeights} = await resolveMountsForFolder(
-      {workspaceId, namepath: pathinfo.parentSplitPath},
+      {workspaceId, namepath: pathinfo.parentNamepath},
       opts
     ));
   }
 
-  const configs = await resolveBackendConfigsWithIdList(
+  const configs = await getBackendConfigsWithIdList(
     compact(mounts.map(mount => mount.configId)),
     /** throw error is config is not found */ true,
     opts
@@ -382,17 +393,7 @@ export async function ingestFolderByFolderpath(
   const folderEntry0 = first(folderEntries);
 
   if (folderEntry0) {
-    const parentFolder = await folderModel.getOneByNamepath(
-      {workspaceId, namepath: pathinfo.parentSplitPath},
-      opts
-    );
-    await ingestPersistedFolders(
-      agent,
-      workspace,
-      parentFolder,
-      compact(folderEntries),
-      /** ensure new folder parents */ true
-    );
+    await ingestPersistedFolders(agent, workspace, compact(folderEntries));
   }
 }
 

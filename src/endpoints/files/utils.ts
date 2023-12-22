@@ -29,8 +29,8 @@ import {
 } from '../contexts/semantic/types';
 import {SemanticWorkspaceProviderType} from '../contexts/semantic/workspace/types';
 import {NotFoundError} from '../errors';
-import {resolveBackendConfigsWithIdList} from '../fileBackends/configUtils';
-import {ingestPersistedFiles} from '../fileBackends/ingestion';
+import {getBackendConfigsWithIdList} from '../fileBackends/configUtils';
+import {ingestPersistedFiles} from '../fileBackends/ingestionUtils';
 import {
   FileBackendMountWeights,
   initBackendProvidersForMounts,
@@ -174,12 +174,16 @@ export interface FilepathInfo extends FilenameInfo, FolderpathInfo {
   filepathExcludingExt: string[];
 }
 
-export function getFilepathInfo(path: string | string[]): FilepathInfo {
-  const folderpathInfo = getFolderpathInfo(path);
+export function getFilepathInfo(
+  path: string | string[],
+  options: {/** Defaults to `true` */ containsRootname?: boolean} = {}
+): FilepathInfo {
+  const folderpathInfo = getFolderpathInfo(path, options);
   const filenameInfo = getFilenameInfo(folderpathInfo.name);
   const pathWithoutExtension = [...folderpathInfo.namepath];
   pathWithoutExtension[pathWithoutExtension.length - 1] =
     filenameInfo.filenameExcludingExt;
+
   return {
     ...folderpathInfo,
     ...filenameInfo,
@@ -284,7 +288,12 @@ export async function createNewFileAndEnsureFolders(
   parentFolder?: Folder | null
 ) {
   if (!parentFolder) {
-    parentFolder = await ensureFolders(agent, workspace, pathinfo.parentPath, opts);
+    ({folder: parentFolder} = await ensureFolders(
+      agent,
+      workspace,
+      pathinfo.parentStringPath,
+      opts
+    ));
   }
 
   return createNewFile(agent, workspace.resourceId, pathinfo, parentFolder, data, seed);
@@ -321,7 +330,6 @@ export async function ingestFileByFilepath(
   mounts?: FileBackendMount[],
   mountWeights?: FileBackendMountWeights
 ) {
-  const folderModel = kSemanticModels.folder();
   const pathinfo = getFilepathInfo(filepath);
 
   if (!workspace) {
@@ -332,12 +340,12 @@ export async function ingestFileByFilepath(
     appAssert(mountWeights);
   } else {
     ({mounts, mountWeights} = await resolveMountsForFolder(
-      {workspaceId, namepath: pathinfo.parentSplitPath},
+      {workspaceId, namepath: pathinfo.parentNamepath},
       opts
     ));
   }
 
-  const configs = await resolveBackendConfigsWithIdList(
+  const configs = await getBackendConfigsWithIdList(
     compact(mounts.map(mount => mount.configId)),
     /** throw error is config is not found */ true,
     opts
@@ -359,11 +367,7 @@ export async function ingestFileByFilepath(
   const fileEntry0 = first(fileEntries);
 
   if (fileEntry0) {
-    const parentFolder = await folderModel.getOneByNamepath(
-      {workspaceId, namepath: pathinfo.parentSplitPath},
-      opts
-    );
-    await ingestPersistedFiles(agent, workspace, parentFolder, compact(fileEntries));
+    await ingestPersistedFiles(agent, workspace, compact(fileEntries));
   }
 }
 

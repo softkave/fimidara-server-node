@@ -11,6 +11,10 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {validationConstants} from '../../../utils/validationUtils';
 import {S3FilePersistenceProviderInitParams} from '../../contexts/file/S3FilePersistenceProvider';
+import {
+  PersistedFileDescription,
+  PersistedFolderDescription,
+} from '../../contexts/file/types';
 import {kSemanticModels} from '../../contexts/injectables';
 import {kInjectionKeys} from '../../contexts/injection';
 import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
@@ -21,7 +25,7 @@ import {
 import {NewFileBackendConfigInput} from '../../fileBackends/addConfig/types';
 import {NewFileBackendMountInput} from '../../fileBackends/addMount/types';
 import {kFileBackendConstants} from '../../fileBackends/constants';
-import {generateTestFilepath} from './file';
+import {generateTestFilepath, generateTestFilepathString} from './file';
 import {generateTestFolderpathString} from './folder';
 
 export function generateAWSS3Credentials(
@@ -154,6 +158,28 @@ export function generateResolvedMountEntryForTest(
   return config;
 }
 
+export function generatePersistedFolderDescriptionForTest(
+  seed: Partial<PersistedFolderDescription> = {}
+): PersistedFolderDescription {
+  return {
+    folderpath: generateTestFolderpathString(),
+    mountId: getNewIdForResource(AppResourceTypeMap.FileBackendMount),
+    type: 'folder',
+    ...seed,
+  };
+}
+
+export function generatePersistedFileDescriptionForTest(
+  seed: Partial<PersistedFileDescription> = {}
+): PersistedFileDescription {
+  return {
+    filepath: generateTestFilepathString(),
+    mountId: getNewIdForResource(AppResourceTypeMap.FileBackendMount),
+    type: 'file',
+    ...seed,
+  };
+}
+
 export function generateFileBackendMountListForTest(
   count = 20,
   seed: Partial<FileBackendMount> = {}
@@ -188,6 +214,32 @@ export function generateResolvedMountEntryListForTest(
 
   for (let i = 0; i < count; i++) {
     items.push(generateResolvedMountEntryForTest(seed));
+  }
+
+  return items;
+}
+
+export function generatePersistedFolderDescriptionListForTest(
+  count = 20,
+  seed: Partial<PersistedFolderDescription> = {}
+) {
+  const items: PersistedFolderDescription[] = [];
+
+  for (let i = 0; i < count; i++) {
+    items.push(generatePersistedFolderDescriptionForTest(seed));
+  }
+
+  return items;
+}
+
+export function generatePersistedFileDescriptionListForTest(
+  count = 20,
+  seed: Partial<PersistedFileDescription> = {}
+) {
+  const items: PersistedFileDescription[] = [];
+
+  for (let i = 0; i < count; i++) {
+    items.push(generatePersistedFileDescriptionForTest(seed));
   }
 
   return items;

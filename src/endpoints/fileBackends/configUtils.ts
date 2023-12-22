@@ -3,7 +3,7 @@ import {kSemanticModels} from '../contexts/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
 
-export async function resolveBackendConfigsWithIdList(
+export async function getBackendConfigsWithIdList(
   configIdList: Array<string>,
   throwErrorIfConfigNotFound = true,
   opts?: SemanticProviderRunOptions

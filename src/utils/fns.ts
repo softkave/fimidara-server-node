@@ -1,4 +1,4 @@
-import {compact, flatten, uniq} from 'lodash';
+import {compact, flatten, mergeWith, uniq} from 'lodash';
 import {Readable} from 'stream';
 import {Resource} from '../definitions/system';
 import {AnyFn, AnyObject} from './types';
@@ -273,3 +273,40 @@ export async function parallelFlowAsync<T extends AnyFn>(fns: T[]) {
     return await Promise.allSettled(fns.map(fn => fn(...args)));
   };
 }
+
+export interface IMergeDataMeta {
+  /**
+   * `merge` - Lodash's default, check out Lodash's `mergeWith` for details.
+   * `concat` - Joins both arrays, returning a new array.
+   * `replace` - Replaces the old array with the new array value.
+   * `retain` - Retains the old array value.
+   */
+  arrayUpdateStrategy: 'merge' | 'concat' | 'replace' | 'retain';
+}
+
+export interface IMergeDataMetaExported {
+  meta?: IMergeDataMeta;
+}
+
+export const mergeData = <ResourceType = unknown>(
+  resource: ResourceType,
+  data: Partial<ResourceType>,
+  meta: IMergeDataMeta = {arrayUpdateStrategy: 'replace'}
+) => {
+  const result = mergeWith(resource, data, (objValue, srcValue) => {
+    if (Array.isArray(objValue) && srcValue) {
+      if (meta.arrayUpdateStrategy === 'concat') {
+        return objValue.concat(srcValue);
+      } else if (meta.arrayUpdateStrategy === 'replace') {
+        return srcValue;
+      } else if (meta.arrayUpdateStrategy === 'retain') {
+        return objValue;
+      }
+
+      // No need to handle the "merge" arrayUpdateStrategy, it happens by
+      // default if nothing is returned
+    }
+  });
+
+  return result;
+};

@@ -3,7 +3,7 @@ import {compact} from 'lodash';
 import {File} from '../../../definitions/file';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injectables';
-import {resolveBackendConfigsWithIdList} from '../../fileBackends/configUtils';
+import {getBackendConfigsWithIdList} from '../../fileBackends/configUtils';
 import {
   initBackendProvidersForMounts,
   resolveMountsForFolder,
@@ -39,7 +39,7 @@ async function assertFileDeleted(file: File) {
       .existsByQuery(EndpointReusableQueries.getByResourceId(file.resourceId)),
     resolveMountsForFolder(file),
   ]);
-  const configs = await resolveBackendConfigsWithIdList(
+  const configs = await getBackendConfigsWithIdList(
     compact(mounts.map(mount => mount.configId))
   );
   const providersMap = await initBackendProvidersForMounts(mounts, configs);

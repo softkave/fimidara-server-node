@@ -87,8 +87,8 @@ async function setupDefaultUser(opts: SemanticProviderMutationRunOptions) {
     );
 
     if (!isDevEnv) {
-      await INTERNAL_forgotPassword(user, opts);
-      await INTERNAL_sendEmailVerificationCode(user, opts);
+      await INTERNAL_forgotPassword(user);
+      await INTERNAL_sendEmailVerificationCode(user);
     }
   }
 
@@ -101,32 +101,41 @@ async function setupFolders(
   workspace: Workspace,
   opts: SemanticProviderMutationRunOptions
 ) {
-  const workspaceImagesFolder = await createFolderListWithTransaction(
-    SYSTEM_SESSION_AGENT,
-    workspace,
-    {
-      folderpath: addRootnameToPath(
-        appSetupVars.workspaceImagesfolderpath,
-        workspace.rootname
-      ),
-    },
-    /** skip auth check */ true,
-    /** throw on folder exists */ false,
-    opts
-  );
-  const userImagesFolder = await createFolderListWithTransaction(
-    SYSTEM_SESSION_AGENT,
-    workspace,
-    {
-      folderpath: addRootnameToPath(
-        appSetupVars.userImagesfolderpath,
-        workspace.rootname
-      ),
-    },
-    /** skip auth check */ true,
-    /** throw on folder exists */ false,
-    opts
-  );
+  const [workspaceImagesFolders, userImagesFolders] = await Promise.all([
+    createFolderListWithTransaction(
+      SYSTEM_SESSION_AGENT,
+      workspace,
+      {
+        folderpath: addRootnameToPath(
+          appSetupVars.workspaceImagesfolderpath,
+          workspace.rootname
+        ),
+      },
+      /** skip auth check */ true,
+      /** throw on folder exists */ false,
+      opts
+    ),
+    createFolderListWithTransaction(
+      SYSTEM_SESSION_AGENT,
+      workspace,
+      {
+        folderpath: addRootnameToPath(
+          appSetupVars.userImagesfolderpath,
+          workspace.rootname
+        ),
+      },
+      /** skip auth check */ true,
+      /** throw on folder exists */ false,
+      opts
+    ),
+  ]);
+
+  const workspaceImagesFolder =
+    last(workspaceImagesFolders.existingFolders) ||
+    last(workspaceImagesFolders.newFolders);
+  const userImagesFolder =
+    last(userImagesFolders.existingFolders) || last(userImagesFolders.newFolders);
+
   appAssert(workspaceImagesFolder && userImagesFolder);
   return {workspaceImagesFolder, userImagesFolder};
 }

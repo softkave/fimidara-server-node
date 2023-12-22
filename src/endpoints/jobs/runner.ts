@@ -25,7 +25,7 @@ import {
   kRemoveCollaboratorCascadeFns,
   runDeleteResourceJob,
 } from '../deleteResourceCascadeDefs';
-import {runIngestFolderpathJob, runIngestMountJob} from '../fileBackends/ingestion';
+import {runIngestFolderpathJob, runIngestMountJob} from '../fileBackends/ingestionUtils';
 import {DeleteResourceCascadeFnsMap} from '../types';
 import {completeJob} from './utils';
 

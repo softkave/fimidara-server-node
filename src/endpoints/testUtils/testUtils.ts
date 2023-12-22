@@ -3,13 +3,18 @@ import {add} from 'date-fns';
 import {merge} from 'lodash';
 import {Readable} from 'stream';
 import {AgentToken} from '../../definitions/agentToken';
-import {BaseTokenData, CURRENT_TOKEN_VERSION} from '../../definitions/system';
+import {
+  BaseTokenData,
+  CURRENT_TOKEN_VERSION,
+  SessionAgent,
+} from '../../definitions/system';
 import {PublicUser, UserWithWorkspace} from '../../definitions/user';
 import {PublicWorkspace, Workspace} from '../../definitions/workspace';
 import {FimidaraConfig} from '../../resources/types';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {toArray} from '../../utils/fns';
+import {makeUserSessionAgent} from '../../utils/sessionUtils';
 import RequestData from '../RequestData';
 import addAgentTokenEndpoint from '../agentTokens/addToken/handler';
 import {
@@ -135,6 +140,7 @@ export interface IInsertUserForTestResult {
   user: PublicUser;
   userTokenStr: string;
   reqData: RequestData<SignupEndpointParams>;
+  sessionAgent: SessionAgent;
 }
 
 export async function insertUserForTest(
@@ -170,9 +176,12 @@ export async function insertUserForTest(
   const userToken = await kSemanticModels.agentToken().getOneById(tokenData.sub.id);
   assertAgentToken(userToken);
 
+  const sessionAgent = makeUserSessionAgent(rawUser, userToken);
+
   return {
     rawUser,
     userToken,
+    sessionAgent,
     user: {...result.user, isEmailVerified: rawUser.isEmailVerified},
     userTokenStr: result.token,
     reqData: instData,
