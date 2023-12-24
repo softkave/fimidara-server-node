@@ -1,11 +1,11 @@
 import {faker} from '@faker-js/faker';
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {waitTimeout} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import RequestData from '../../RequestData';
 import {NotFoundError} from '../../errors';
 import {addRootnameToPath} from '../../folders/utils';
-import {generateTestFileName} from '../../testUtils/generateData/file';
+import {generateTestFileName} from '../../testUtils/generate/file';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {expectFileBodyEqualById} from '../../testUtils/helpers/file';
 import {completeTests} from '../../testUtils/helpers/test';
@@ -205,7 +205,7 @@ describe('issueFilePresignedPath', () => {
       const instData =
         RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
-          {fileId: getNewIdForResource(AppResourceTypeMap.File)}
+          {fileId: getNewIdForResource(kAppResourceType.File)}
         );
       await issueFilePresignedPath(instData);
     }, [NotFoundError.name]);

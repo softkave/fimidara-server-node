@@ -3,17 +3,17 @@ import {nanoid} from 'nanoid';
 import {
   Agent,
   AppResourceType,
-  AppResourceTypeMap,
+  kAppResourceType,
   Resource,
   SessionAgent,
   WorkspaceResource,
 } from '../definitions/system';
 import {endpointConstants} from '../endpoints/constants';
-import OperationError, {
-  OperationErrorParameters,
-  getErrorMessageFromParams,
-} from './OperationError';
 import {getTimestamp} from './dateFns';
+import OperationError, {
+  getErrorMessageFromParams,
+  OperationErrorParameters,
+} from './OperationError';
 import {getActionAgentFromSessionAgent, isSessionAgent} from './sessionUtils';
 import {AnyObject, InvertRecord} from './types';
 
@@ -32,23 +32,23 @@ function padShortName(shortName: string) {
 }
 
 export const RESOURCE_TYPE_SHORT_NAMES: Record<AppResourceType, string> = {
-  [AppResourceTypeMap.All]: padShortName('*'),
-  [AppResourceTypeMap.System]: padShortName('system'),
-  [AppResourceTypeMap.Public]: padShortName('public'),
-  [AppResourceTypeMap.Workspace]: padShortName('wrkspce'),
-  [AppResourceTypeMap.CollaborationRequest]: padShortName('corqst'),
-  [AppResourceTypeMap.AgentToken]: padShortName('agtoken'),
-  [AppResourceTypeMap.PermissionGroup]: padShortName('pmgroup'),
-  [AppResourceTypeMap.PermissionItem]: padShortName('prmitem'),
-  [AppResourceTypeMap.Folder]: padShortName('folder'),
-  [AppResourceTypeMap.File]: padShortName('file'),
-  [AppResourceTypeMap.User]: padShortName('user'),
-  [AppResourceTypeMap.Tag]: padShortName('tag'),
-  [AppResourceTypeMap.AssignedItem]: padShortName('asgitem'),
-  [AppResourceTypeMap.UsageRecord]: padShortName('urecord'),
-  [AppResourceTypeMap.EndpointRequest]: padShortName('endrqst'),
-  [AppResourceTypeMap.Job]: padShortName('job'),
-  [AppResourceTypeMap.FilePresignedPath]: padShortName('filepsp'),
+  [kAppResourceType.All]: padShortName('*'),
+  [kAppResourceType.System]: padShortName('system'),
+  [kAppResourceType.Public]: padShortName('public'),
+  [kAppResourceType.Workspace]: padShortName('wrkspce'),
+  [kAppResourceType.CollaborationRequest]: padShortName('corqst'),
+  [kAppResourceType.AgentToken]: padShortName('agtoken'),
+  [kAppResourceType.PermissionGroup]: padShortName('pmgroup'),
+  [kAppResourceType.PermissionItem]: padShortName('prmitem'),
+  [kAppResourceType.Folder]: padShortName('folder'),
+  [kAppResourceType.File]: padShortName('file'),
+  [kAppResourceType.User]: padShortName('user'),
+  [kAppResourceType.Tag]: padShortName('tag'),
+  [kAppResourceType.AssignedItem]: padShortName('asgitem'),
+  [kAppResourceType.UsageRecord]: padShortName('urecord'),
+  [kAppResourceType.EndpointRequest]: padShortName('endrqst'),
+  [kAppResourceType.Job]: padShortName('job'),
+  [kAppResourceType.FilePresignedPath]: padShortName('filepsp'),
 };
 
 export const SHORT_NAME_TO_RESOURCE_TYPE = invert(
@@ -84,8 +84,8 @@ export const ID_0 = ''.padEnd(ID_SIZE, RESOURCE_TYPE_SHORT_NAME_PADDING);
 export function getNewIdForResource(
   resourceType: AppResourceType,
   size = ID_SIZE,
-  id0 = resourceType === AppResourceTypeMap.System ||
-    resourceType === AppResourceTypeMap.Public
+  id0 = resourceType === kAppResourceType.System ||
+    resourceType === kAppResourceType.Public
 ) {
   let id = ID_0;
   if (!id0) {

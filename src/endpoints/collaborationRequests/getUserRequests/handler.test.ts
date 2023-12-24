@@ -1,7 +1,7 @@
 import {calculatePageSize, getResourceId} from '../../../utils/fns';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injectables';
-import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generateData/collaborationRequest';
+import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generate/collaborationRequest';
 import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion';
 import {completeTests} from '../../testUtils/helpers/test';
 import {

@@ -1,19 +1,19 @@
 import {faker} from '@faker-js/faker';
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
+import {kSemanticModels} from '../../contexts/injectables';
 import {
   defaultGeneratePartialTestDataFn,
   GeneratePartialTestDataFn,
   generateTestList,
 } from './utils';
-import {kSemanticModels} from '../../contexts/injectables';
 
 export function generateUserForTest(seed: Partial<User> = {}) {
   const createdAt = getTimestamp();
   const item: User = {
-    resourceId: getNewIdForResource(AppResourceTypeMap.User),
+    resourceId: getNewIdForResource(kAppResourceType.User),
     createdAt,
     lastUpdatedAt: createdAt,
     firstName: faker.person.firstName(),

@@ -1,3 +1,4 @@
+import {App} from '../../../definitions/app';
 import {FileBackendMount, ResolvedMountEntry} from '../../../definitions/fileBackend';
 import {Job} from '../../../definitions/job';
 import {Resource} from '../../../definitions/system';
@@ -138,6 +139,7 @@ export interface SemanticProviderUtils {
 
 export type SemanticFileBackendMountProvider =
   SemanticWorkspaceResourceProviderType<FileBackendMount>;
+export type SemanticAppProvider = SemanticWorkspaceResourceProviderType<App>;
 
 export type SemanticJobProvider = SemanticBaseProviderType<Job> & {
   deleteManyByWorkspaceId(

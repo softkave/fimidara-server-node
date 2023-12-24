@@ -1,21 +1,21 @@
 import {faker} from '@faker-js/faker';
 import {PermissionEntityInheritanceMapItem} from '../../../../definitions/permissionGroups';
 import {kPermissionsMap} from '../../../../definitions/permissionItem';
-import {AppResourceTypeMap} from '../../../../definitions/system';
+import {kAppResourceType} from '../../../../definitions/system';
 import {getTimestamp} from '../../../../utils/dateFns';
 import {getNewIdForResource} from '../../../../utils/resource';
-import {generateAndInsertAgentTokenListForTest} from '../../../testUtils/generateData/agentToken';
+import {generateAndInsertAgentTokenListForTest} from '../../../testUtils/generate/agentToken';
 import {
   generateAndInsertAssignedItemListForTest,
   generateAndInsertPermissionGroupListForTest,
-} from '../../../testUtils/generateData/permissionGroup';
+} from '../../../testUtils/generate/permissionGroup';
 import {
   generateAndInsertPermissionItemListForTest,
   generatePermissionItemForTest,
   generatePermissionItemListForTest,
-} from '../../../testUtils/generateData/permissionItem';
-import {generateAndInsertUserListForTest} from '../../../testUtils/generateData/user';
-import {generateAgent, generateTestList} from '../../../testUtils/generateData/utils';
+} from '../../../testUtils/generate/permissionItem';
+import {generateAndInsertUserListForTest} from '../../../testUtils/generate/user';
+import {generateAgent, generateTestList} from '../../../testUtils/generate/utils';
 import {expectContainsExactly} from '../../../testUtils/helpers/assertion';
 import {expectErrorThrown} from '../../../testUtils/helpers/error';
 import {completeTests} from '../../../testUtils/helpers/test';
@@ -36,10 +36,10 @@ afterAll(async () => {
 describe('DataSemanticPermission', () => {
   test('sortItems, with entity, no target or date', () => {
     const now = getTimestamp();
-    const entityId01 = getNewIdForResource(AppResourceTypeMap.User);
-    const entityId02 = getNewIdForResource(AppResourceTypeMap.User);
-    const targetId01 = getNewIdForResource(AppResourceTypeMap.Folder);
-    const targetId02 = getNewIdForResource(AppResourceTypeMap.Folder);
+    const entityId01 = getNewIdForResource(kAppResourceType.User);
+    const entityId02 = getNewIdForResource(kAppResourceType.User);
+    const targetId01 = getNewIdForResource(kAppResourceType.Folder);
+    const targetId02 = getNewIdForResource(kAppResourceType.Folder);
     const [p01] = generatePermissionItemListForTest(1, {
       lastUpdatedAt: now + 5,
       targetId: targetId01,
@@ -77,10 +77,10 @@ describe('DataSemanticPermission', () => {
 
   test('sortItems, with target, no entity or date', () => {
     const now = getTimestamp();
-    const entityId01 = getNewIdForResource(AppResourceTypeMap.User);
-    const entityId02 = getNewIdForResource(AppResourceTypeMap.User);
-    const targetId01 = getNewIdForResource(AppResourceTypeMap.Folder);
-    const targetId02 = getNewIdForResource(AppResourceTypeMap.Folder);
+    const entityId01 = getNewIdForResource(kAppResourceType.User);
+    const entityId02 = getNewIdForResource(kAppResourceType.User);
+    const targetId01 = getNewIdForResource(kAppResourceType.Folder);
+    const targetId02 = getNewIdForResource(kAppResourceType.Folder);
     const [p01] = generatePermissionItemListForTest(1, {
       lastUpdatedAt: now + 5,
       targetId: targetId01,
@@ -118,10 +118,10 @@ describe('DataSemanticPermission', () => {
 
   test('sortItems, with date, no entity or target', () => {
     const now = getTimestamp();
-    const entityId01 = getNewIdForResource(AppResourceTypeMap.User);
-    const entityId02 = getNewIdForResource(AppResourceTypeMap.User);
-    const targetId01 = getNewIdForResource(AppResourceTypeMap.Folder);
-    const targetId02 = getNewIdForResource(AppResourceTypeMap.Folder);
+    const entityId01 = getNewIdForResource(kAppResourceType.User);
+    const entityId02 = getNewIdForResource(kAppResourceType.User);
+    const targetId01 = getNewIdForResource(kAppResourceType.Folder);
+    const targetId02 = getNewIdForResource(kAppResourceType.Folder);
     const [p01] = generatePermissionItemListForTest(1, {
       lastUpdatedAt: now + 5,
       targetId: targetId01,
@@ -159,10 +159,10 @@ describe('DataSemanticPermission', () => {
 
   test('sortItems, all options', () => {
     const now = getTimestamp();
-    const entityId01 = getNewIdForResource(AppResourceTypeMap.User);
-    const entityId02 = getNewIdForResource(AppResourceTypeMap.User);
-    const targetId01 = getNewIdForResource(AppResourceTypeMap.Folder);
-    const targetId02 = getNewIdForResource(AppResourceTypeMap.Folder);
+    const entityId01 = getNewIdForResource(kAppResourceType.User);
+    const entityId02 = getNewIdForResource(kAppResourceType.User);
+    const targetId01 = getNewIdForResource(kAppResourceType.Folder);
+    const targetId02 = getNewIdForResource(kAppResourceType.Folder);
     const [p01] = generatePermissionItemListForTest(1, {
       lastUpdatedAt: now - 5,
       targetId: targetId01,
@@ -242,11 +242,11 @@ describe('DataSemanticPermission', () => {
   });
 
   test('getPermissionItems, every query', async () => {
-    const entityId = getNewIdForResource(AppResourceTypeMap.PermissionGroup);
+    const entityId = getNewIdForResource(kAppResourceType.PermissionGroup);
     const action = faker.helpers.arrayElement(Object.values(kPermissionsMap));
-    const targetParentId = getNewIdForResource(AppResourceTypeMap.Folder);
-    const targetId = getNewIdForResource(AppResourceTypeMap.File);
-    const targetType = faker.helpers.arrayElement(Object.values(AppResourceTypeMap));
+    const targetParentId = getNewIdForResource(kAppResourceType.Folder);
+    const targetId = getNewIdForResource(kAppResourceType.File);
+    const targetType = faker.helpers.arrayElement(Object.values(kAppResourceType));
     const pItems = await generateAndInsertPermissionItemListForTest(5, {
       entityId,
       action,
@@ -268,14 +268,14 @@ describe('DataSemanticPermission', () => {
   });
 
   test('getPermissionItems, every query + multiple items', async () => {
-    const resourceTypes = Object.values(AppResourceTypeMap);
+    const resourceTypes = Object.values(kAppResourceType);
     const count = faker.number.int({min: 2, max: 5});
     const idList = generateTestList(
       () => getNewIdForResource(faker.helpers.arrayElement(resourceTypes)),
       count
     );
     const actionList = faker.helpers.arrayElements(Object.values(kPermissionsMap), count);
-    const targetParentId = getNewIdForResource(AppResourceTypeMap.Folder);
+    const targetParentId = getNewIdForResource(kAppResourceType.Folder);
     const targetType = faker.helpers.arrayElements(resourceTypes, count);
     const rawItems = generateTestList(
       () =>

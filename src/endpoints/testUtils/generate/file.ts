@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {isBoolean, isEqual, isString, isUndefined} from 'lodash';
 import {File} from '../../../definitions/file';
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive} from '../../../utils/fns';
@@ -93,7 +93,7 @@ export function generateTestFilepathString(
 export function generateTestFile(
   extra: Partial<File> & {parentId: string | null} = {parentId: null}
 ) {
-  const id = getNewIdForResource(AppResourceTypeMap.File);
+  const id = getNewIdForResource(kAppResourceType.File);
   const name = generateTestFileName();
   const nameinfo = getFilenameInfo(name);
   const createdAt = getTimestamp();
@@ -115,7 +115,7 @@ export function generateTestFile(
       : [nameinfo.filenameExcludingExt],
     resourceId: id,
     size: faker.number.int({min: 1}),
-    workspaceId: getNewIdForResource(AppResourceTypeMap.Workspace),
+    workspaceId: getNewIdForResource(kAppResourceType.Workspace),
     extension: nameinfo.extension,
     version: 1,
     isReadAvailable: true,

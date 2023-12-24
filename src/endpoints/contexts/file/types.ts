@@ -1,7 +1,7 @@
 import {Readable} from 'stream';
 import {File} from '../../../definitions/file';
 import {FileBackendConfig, FileBackendMount} from '../../../definitions/fileBackend';
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 
 export type FilePersistenceProviderFeature =
   | 'describeFile'
@@ -46,7 +46,7 @@ export interface PersistedFile {
 }
 
 export type PersistedFileDescription = {
-  type: typeof AppResourceTypeMap.File;
+  type: typeof kAppResourceType.File;
   filepath: string;
   size?: number;
   lastUpdatedAt?: number;
@@ -56,7 +56,7 @@ export type PersistedFileDescription = {
 };
 
 export type PersistedFolderDescription = {
-  type: typeof AppResourceTypeMap.Folder;
+  type: typeof kAppResourceType.Folder;
   folderpath: string;
   mountId: string;
 };

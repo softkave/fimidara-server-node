@@ -1,6 +1,6 @@
 import {first, isUndefined} from 'lodash';
 import {Folder, FolderMatcher} from '../../../definitions/folder';
-import {AppResourceTypeMap, SessionAgent} from '../../../definitions/system';
+import {SessionAgent, kAppResourceType} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
@@ -8,15 +8,15 @@ import {
   getResourcePermissionContainers,
   resolveTargetChildrenAccessCheckWithAgent,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {kSemanticModels} from '../../contexts/injectables';
 import {PermissionDeniedError} from '../../users/errors';
 import {assertWorkspace} from '../../workspaces/utils';
 import {checkFolderAuthorization02, getWorkspaceRootnameFromPath} from '../utils';
-import {kSemanticModels} from '../../contexts/injectables';
 
 export async function listFolderContentQuery(
   agent: SessionAgent,
   workspace: Workspace,
-  contentType: typeof AppResourceTypeMap.File | typeof AppResourceTypeMap.Folder,
+  contentType: typeof kAppResourceType.File | typeof kAppResourceType.Folder,
   parentFolder?: Folder | null
 ) {
   const report = await resolveTargetChildrenAccessCheckWithAgent({
@@ -24,7 +24,7 @@ export async function listFolderContentQuery(
     workspace,
     workspaceId: workspace.resourceId,
     target: {
-      action: contentType === AppResourceTypeMap.File ? 'readFile' : 'readFolder',
+      action: contentType === kAppResourceType.File ? 'readFile' : 'readFolder',
       targetId: getResourcePermissionContainers(workspace.resourceId, parentFolder, true),
     },
   });

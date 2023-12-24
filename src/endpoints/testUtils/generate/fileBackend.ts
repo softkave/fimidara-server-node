@@ -6,7 +6,7 @@ import {
   FileBackendTypeMap,
   ResolvedMountEntry,
 } from '../../../definitions/fileBackend';
-import {Agent, AppResourceTypeMap} from '../../../definitions/system';
+import {Agent, kAppResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {validationConstants} from '../../../utils/validationUtils';
@@ -79,7 +79,7 @@ export function generateFileBackendMountInput(
     index: faker.number.int(),
     mountedFrom: generateTestFolderpathString(),
     backend: generateFileBackendTypeForInput(),
-    configId: getNewIdForResource(AppResourceTypeMap.FileBackendConfig),
+    configId: getNewIdForResource(kAppResourceType.FileBackendConfig),
     ...seed,
   };
 }
@@ -87,18 +87,18 @@ export function generateFileBackendMountInput(
 export function generateFileBackendMountForTest(seed: Partial<FileBackendMount> = {}) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
-    agentId: getNewIdForResource(AppResourceTypeMap.User),
-    agentType: AppResourceTypeMap.User,
-    agentTokenId: getNewIdForResource(AppResourceTypeMap.AgentToken),
+    agentId: getNewIdForResource(kAppResourceType.User),
+    agentType: kAppResourceType.User,
+    agentTokenId: getNewIdForResource(kAppResourceType.AgentToken),
   };
   const mount: FileBackendMount = {
     createdAt,
     createdBy,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
-    resourceId: getNewIdForResource(AppResourceTypeMap.FileBackendMount),
-    workspaceId: getNewIdForResource(AppResourceTypeMap.Workspace),
-    configId: getNewIdForResource(AppResourceTypeMap.FileBackendConfig),
+    resourceId: getNewIdForResource(kAppResourceType.FileBackendMount),
+    workspaceId: getNewIdForResource(kAppResourceType.Workspace),
+    configId: getNewIdForResource(kAppResourceType.FileBackendConfig),
     folderpath: faker.system.directoryPath().split('/'),
     index: faker.number.int(),
     mountedFrom: faker.system.directoryPath().split('/'),
@@ -112,17 +112,17 @@ export function generateFileBackendMountForTest(seed: Partial<FileBackendMount> 
 export function generateFileBackendConfigForTest(seed: Partial<FileBackendConfig> = {}) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
-    agentId: getNewIdForResource(AppResourceTypeMap.User),
-    agentType: AppResourceTypeMap.User,
-    agentTokenId: getNewIdForResource(AppResourceTypeMap.AgentToken),
+    agentId: getNewIdForResource(kAppResourceType.User),
+    agentType: kAppResourceType.User,
+    agentTokenId: getNewIdForResource(kAppResourceType.AgentToken),
   };
   const config: FileBackendConfig = {
     createdAt,
     createdBy,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
-    resourceId: getNewIdForResource(AppResourceTypeMap.FileBackendConfig),
-    workspaceId: getNewIdForResource(AppResourceTypeMap.Workspace),
+    resourceId: getNewIdForResource(kAppResourceType.FileBackendConfig),
+    workspaceId: getNewIdForResource(kAppResourceType.Workspace),
     name: faker.lorem.words(),
     backend: faker.helpers.arrayElement(Object.values(FileBackendTypeMap)),
     secretId: faker.string.alphanumeric(),
@@ -136,23 +136,23 @@ export function generateResolvedMountEntryForTest(
 ) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
-    agentId: getNewIdForResource(AppResourceTypeMap.User),
-    agentType: AppResourceTypeMap.User,
-    agentTokenId: getNewIdForResource(AppResourceTypeMap.AgentToken),
+    agentId: getNewIdForResource(kAppResourceType.User),
+    agentType: kAppResourceType.User,
+    agentTokenId: getNewIdForResource(kAppResourceType.AgentToken),
   };
   const config: ResolvedMountEntry = {
     createdAt,
     createdBy,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
-    resourceId: getNewIdForResource(AppResourceTypeMap.ResolvedMountEntry),
-    workspaceId: getNewIdForResource(AppResourceTypeMap.Workspace),
-    mountId: getNewIdForResource(AppResourceTypeMap.FileBackendMount),
+    resourceId: getNewIdForResource(kAppResourceType.ResolvedMountEntry),
+    workspaceId: getNewIdForResource(kAppResourceType.Workspace),
+    mountId: getNewIdForResource(kAppResourceType.FileBackendMount),
     resolvedAt: getTimestamp(),
     namepath: generateTestFilepath(),
     extension: faker.system.fileExt(),
-    resolvedFor: getNewIdForResource(AppResourceTypeMap.File),
-    resolvedForType: AppResourceTypeMap.File,
+    resolvedFor: getNewIdForResource(kAppResourceType.File),
+    resolvedForType: kAppResourceType.File,
     ...seed,
   };
   return config;
@@ -163,7 +163,7 @@ export function generatePersistedFolderDescriptionForTest(
 ): PersistedFolderDescription {
   return {
     folderpath: generateTestFolderpathString(),
-    mountId: getNewIdForResource(AppResourceTypeMap.FileBackendMount),
+    mountId: getNewIdForResource(kAppResourceType.FileBackendMount),
     type: 'folder',
     ...seed,
   };
@@ -174,7 +174,7 @@ export function generatePersistedFileDescriptionForTest(
 ): PersistedFileDescription {
   return {
     filepath: generateTestFilepathString(),
-    mountId: getNewIdForResource(AppResourceTypeMap.FileBackendMount),
+    mountId: getNewIdForResource(kAppResourceType.FileBackendMount),
     type: 'file',
     ...seed,
   };

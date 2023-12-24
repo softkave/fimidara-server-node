@@ -1,5 +1,5 @@
 import {PublicPermissionItem} from '../../definitions/permissionItem';
-import {AppResourceTypeMap, getWorkspaceResourceTypeList} from '../../definitions/system';
+import {getWorkspaceResourceTypeList, kAppResourceType} from '../../definitions/system';
 import {
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
@@ -93,9 +93,9 @@ const entityType = mddocConstruct
       'This can be a user, a permission group, or an agent token.'
   )
   .setValid([
-    AppResourceTypeMap.User,
-    AppResourceTypeMap.PermissionGroup,
-    AppResourceTypeMap.AgentToken,
+    kAppResourceType.User,
+    kAppResourceType.PermissionGroup,
+    kAppResourceType.AgentToken,
   ])
   .setEnumName('EntityAppResourceType');
 const grantAccess = mddocConstruct

@@ -4,7 +4,7 @@ import {defaultTo} from 'lodash';
 import {Connection} from 'mongoose';
 import {getUsageRecordModel} from '../../db/usageRecord';
 import {getWorkspaceModel} from '../../db/workspace';
-import {AppResourceTypeMap} from '../../definitions/system';
+import {kAppResourceType} from '../../definitions/system';
 import {
   UsageRecord,
   UsageRecordCategoryMap,
@@ -153,7 +153,7 @@ async function getUsageRecordsLevel2(
         month,
         year,
         fulfillmentStatus,
-        resourceId: getNewIdForResource(AppResourceTypeMap.UsageRecord),
+        resourceId: getNewIdForResource(kAppResourceType.UsageRecord),
         createdAt: getTimestamp(),
         createdBy: SYSTEM_SESSION_AGENT,
         lastUpdatedAt: getTimestamp(),

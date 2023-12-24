@@ -1,4 +1,4 @@
-import {JobStatusMap} from '../../definitions/job';
+import {kJobStatus} from '../../definitions/job';
 import {
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
@@ -16,7 +16,7 @@ import {GetJobStatusHttpEndpoint} from './types';
 const jobStatus = mddocConstruct
   .constructFieldString()
   .setDescription('Job status.')
-  .setValid(Object.values(JobStatusMap))
+  .setValid(Object.values(kJobStatus))
   .setEnumName('JobStatus');
 
 const getJobStatusParams = mddocConstruct

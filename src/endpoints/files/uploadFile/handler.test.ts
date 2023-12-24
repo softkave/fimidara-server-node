@@ -16,7 +16,7 @@ import {
   generateTestFileName,
   generateTestFilepath,
   generateTestFilepathString,
-} from '../../testUtils/generateData/file';
+} from '../../testUtils/generate/file';
 import {expectFileBodyEqual} from '../../testUtils/helpers/file';
 import {completeTests} from '../../testUtils/helpers/test';
 import {

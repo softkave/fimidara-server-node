@@ -6,8 +6,8 @@ import {
 import {PermissionAction, PermissionItem} from '../../../../definitions/permissionItem';
 import {
   AppResourceType,
-  AppResourceTypeMap,
   Resource,
+  kAppResourceType,
 } from '../../../../definitions/system';
 import {appAssert} from '../../../../utils/assertion';
 import {toCompactArray} from '../../../../utils/fns';
@@ -46,7 +46,7 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
         const assignedItems = await kSemanticModels.assignedItem().getManyByQuery(
           {
             assigneeId: {$in: nextIdList},
-            assignedItemType: AppResourceTypeMap.PermissionGroup,
+            assignedItemType: kAppResourceType.PermissionGroup,
           },
           options
         );
@@ -137,11 +137,11 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
   ): Promise<Resource | null> {
     const type = getResourceTypeFromId(props.entityId);
     const query: LiteralDataQuery<Resource> = {resourceId: props.entityId};
-    if (type === AppResourceTypeMap.User)
+    if (type === kAppResourceType.User)
       return await props.kSemanticModels.user().getOneByQuery(query, opts);
-    if (type === AppResourceTypeMap.AgentToken)
+    if (type === kAppResourceType.AgentToken)
       return await props.kSemanticModels.agentToken().getOneByQuery(query, opts);
-    if (type === AppResourceTypeMap.PermissionGroup)
+    if (type === kAppResourceType.PermissionGroup)
       return await props.kSemanticModels.permissionGroup().getOneByQuery(query, opts);
     return null;
   }

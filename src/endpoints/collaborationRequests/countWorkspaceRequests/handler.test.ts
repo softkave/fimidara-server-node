@@ -1,6 +1,6 @@
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injectables';
-import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generateData/collaborationRequest';
+import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generate/collaborationRequest';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,

@@ -2,8 +2,8 @@ import {kSemanticModels} from '../../contexts/injectables';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {generateTestFileName} from '../../testUtils/generateData/file';
-import {generateTestFolderName} from '../../testUtils/generateData/folder';
+import {generateTestFileName} from '../../testUtils/generate/file';
+import {generateTestFolderName} from '../../testUtils/generate/folder';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,

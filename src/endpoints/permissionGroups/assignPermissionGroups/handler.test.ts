@@ -3,8 +3,8 @@ import {first} from 'lodash';
 import {extractResourceIdList, getResourceId} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import RequestData from '../../RequestData';
-import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generateData/collaborator';
-import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
+import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator';
+import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup';
 import {expectContainsExactlyForAnyType} from '../../testUtils/helpers/assertion';
 import {completeTests} from '../../testUtils/helpers/test';
 import {

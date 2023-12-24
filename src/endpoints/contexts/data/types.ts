@@ -18,6 +18,7 @@ import {UsageRecord} from '../../../definitions/usageRecord';
 import {User} from '../../../definitions/user';
 import {Workspace} from '../../../definitions/workspace';
 import {AnyFn, AnyObject} from '../../../utils/types';
+import {App} from '../../../definitions/app';
 
 export type DataQuerySort<T, K extends keyof T = keyof T> = {
   [P in K]?: SortOrder;
@@ -237,6 +238,7 @@ export type WorkspaceQuery = DataQuery<Workspace>;
 export type FileBackendConfigQuery = DataQuery<FileBackendConfig>;
 export type FileBackendMountQuery = DataQuery<FileBackendMount>;
 export type ResolvedMountEntryQuery = DataQuery<ResolvedMountEntry>;
+export type AppQuery = DataQuery<App>;
 
 export type AgentTokenDataProvider = BaseDataProvider<AgentToken, DataQuery<AgentToken>>;
 export type AppRuntimeStateDataProvider = BaseDataProvider<
@@ -286,3 +288,4 @@ export type ResolvedMountEntryDataProvider = BaseDataProvider<
   ResolvedMountEntry,
   DataQuery<ResolvedMountEntry>
 >;
+export type AppDataProvider = BaseDataProvider<App, DataQuery<App>>;

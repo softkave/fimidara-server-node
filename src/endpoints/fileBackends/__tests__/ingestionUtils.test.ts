@@ -1,5 +1,5 @@
 import {ResolvedMountEntry} from '../../../definitions/fileBackend';
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {indexArray} from '../../../utils/indexArray';
 import {FileQuery, FolderQuery} from '../../contexts/data/types';
 import {kSemanticModels} from '../../contexts/injectables';
@@ -7,16 +7,16 @@ import {FileQueries} from '../../files/queries';
 import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils';
 import {kFolderConstants} from '../../folders/constants';
 import {FolderQueries} from '../../folders/queries';
-import {generateTestFilepath} from '../../testUtils/generateData/file';
+import {generateTestFilepath} from '../../testUtils/generate/file';
 import {
   generatePersistedFileDescriptionListForTest,
   generatePersistedFolderDescriptionListForTest,
-} from '../../testUtils/generateData/fileBackend';
+} from '../../testUtils/generate/fileBackend';
 import {
   generateAndInsertTestFolders,
   generateTestFolderpath,
-} from '../../testUtils/generateData/folder';
-import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generateData/workspace';
+} from '../../testUtils/generate/folder';
+import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generate/workspace';
 import {insertUserForTest} from '../../testUtils/testUtils';
 import {ingestPersistedFiles, ingestPersistedFolders} from '../ingestionUtils';
 
@@ -129,7 +129,7 @@ describe('mount ingestion utils', () => {
         extension,
         mountId: pFile.mountId,
         resolvedFor: insertedFile.resourceId,
-        resolvedForType: AppResourceTypeMap.File,
+        resolvedForType: kAppResourceType.File,
       };
 
       expect(insertedMountEntry).toMatchObject(expectedMountEntry);

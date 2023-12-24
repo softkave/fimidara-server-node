@@ -5,7 +5,7 @@ import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {kSemanticModels} from '../../contexts/injectables';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generateData/workspace';
+import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generate/workspace';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,

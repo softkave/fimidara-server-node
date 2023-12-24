@@ -3,10 +3,10 @@ import {compact, get, map, mapKeys} from 'lodash';
 import {PermissionAction} from '../../definitions/permissionItem';
 import {
   AppResourceType,
-  AppResourceTypeMap,
   Resource,
   ResourceWrapper,
   SessionAgent,
+  kAppResourceType,
 } from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {ServerError} from '../../utils/errors';
@@ -95,7 +95,7 @@ export async function INTERNAL_getResources(options: GetResourcesOptions) {
   if (checkBelongsToWorkspace) {
     if (!assignedItemsFilled) {
       resources = await resourceListWithAssignedItems(workspaceId, resources, [
-        AppResourceTypeMap.User,
+        kAppResourceType.User,
       ]);
       assignedItemsFilled = true;
     }
@@ -106,7 +106,7 @@ export async function INTERNAL_getResources(options: GetResourcesOptions) {
   if (checkAuth) {
     if (!assignedItemsFilled) {
       resources = await resourceListWithAssignedItems(workspaceId, resources, [
-        AppResourceTypeMap.User,
+        kAppResourceType.User,
       ]);
       assignedItemsFilled = true;
     }
@@ -138,7 +138,7 @@ function groupItemsToFetch(
       idList.forEach(resourceId => {
         const type = getResourceTypeFromId(resourceId);
 
-        if (allowedTypesMap[AppResourceTypeMap.All] || allowedTypesMap[type]) {
+        if (allowedTypesMap[kAppResourceType.All] || allowedTypesMap[type]) {
           let inputByIdMap = inputsWithIdByType[type];
           if (!inputByIdMap) inputsWithIdByType[type] = inputByIdMap = {};
 
@@ -180,9 +180,9 @@ async function fetchResourcesById(
   mapKeys(idsGroupedByType, (typeMap, type) => {
     appAssert(typeMap);
     switch (type) {
-      case AppResourceTypeMap.Workspace: {
+      case kAppResourceType.Workspace: {
         promises.push({
-          id: AppResourceTypeMap.Workspace,
+          id: kAppResourceType.Workspace,
           promise: kSemanticModels
             .workspace()
             .getManyByIdList(Object.keys(typeMap), opts),
@@ -190,9 +190,9 @@ async function fetchResourcesById(
         });
         break;
       }
-      case AppResourceTypeMap.CollaborationRequest: {
+      case kAppResourceType.CollaborationRequest: {
         promises.push({
-          id: AppResourceTypeMap.CollaborationRequest,
+          id: kAppResourceType.CollaborationRequest,
           promise: kSemanticModels
             .collaborationRequest()
             .getManyByIdList(Object.keys(typeMap), opts),
@@ -200,9 +200,9 @@ async function fetchResourcesById(
         });
         break;
       }
-      case AppResourceTypeMap.AgentToken: {
+      case kAppResourceType.AgentToken: {
         promises.push({
-          id: AppResourceTypeMap.AgentToken,
+          id: kAppResourceType.AgentToken,
           promise: kSemanticModels
             .agentToken()
             .getManyByIdList(Object.keys(typeMap), opts),
@@ -210,9 +210,9 @@ async function fetchResourcesById(
         });
         break;
       }
-      case AppResourceTypeMap.PermissionGroup: {
+      case kAppResourceType.PermissionGroup: {
         promises.push({
-          id: AppResourceTypeMap.PermissionGroup,
+          id: kAppResourceType.PermissionGroup,
           promise: kSemanticModels
             .permissionGroup()
             .getManyByIdList(Object.keys(typeMap), opts),
@@ -220,9 +220,9 @@ async function fetchResourcesById(
         });
         break;
       }
-      case AppResourceTypeMap.PermissionItem: {
+      case kAppResourceType.PermissionItem: {
         promises.push({
-          id: AppResourceTypeMap.PermissionItem,
+          id: kAppResourceType.PermissionItem,
           promise: kSemanticModels
             .permissionItem()
             .getManyByIdList(Object.keys(typeMap), opts),
@@ -230,25 +230,25 @@ async function fetchResourcesById(
         });
         break;
       }
-      case AppResourceTypeMap.Folder: {
+      case kAppResourceType.Folder: {
         promises.push({
-          id: AppResourceTypeMap.Folder,
+          id: kAppResourceType.Folder,
           promise: kSemanticModels.folder().getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
         break;
       }
-      case AppResourceTypeMap.File: {
+      case kAppResourceType.File: {
         promises.push({
-          id: AppResourceTypeMap.File,
+          id: kAppResourceType.File,
           promise: kSemanticModels.file().getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
         break;
       }
-      case AppResourceTypeMap.User: {
+      case kAppResourceType.User: {
         promises.push({
-          id: AppResourceTypeMap.User,
+          id: kAppResourceType.User,
           promise: kSemanticModels.user().getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
@@ -299,7 +299,7 @@ const fetchFiles = async (workspaceId: string, filepathsMap: FilePathsMap) => {
     return {
       action,
       resourceId: item.resourceId,
-      resourceType: AppResourceTypeMap.File,
+      resourceType: kAppResourceType.File,
       resource: item,
     };
   });
@@ -323,7 +323,7 @@ const fetchFolders = async (workspaceId: string, folderpathsMap: FilePathsMap) =
     return {
       action,
       resourceId: item.resourceId,
-      resourceType: AppResourceTypeMap.Folder,
+      resourceType: kAppResourceType.Folder,
       resource: item,
     };
   });
@@ -339,7 +339,7 @@ const fetchWorkspace = async (workspaceRootname?: WorkspaceRootnameWithAction) =
     ? [
         {
           resourceId: result.resourceId,
-          resourceType: AppResourceTypeMap.Workspace,
+          resourceType: kAppResourceType.Workspace,
           resource: result,
           action: workspaceRootname.action,
         },

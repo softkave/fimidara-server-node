@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {PartialDeep} from 'type-fest';
-import {Agent, AppResourceTypeMap} from '../../../definitions/system';
+import {Agent, kAppResourceType} from '../../../definitions/system';
 import {
   UsageRecordCategory,
   UsageRecordCategoryMap,
@@ -81,14 +81,14 @@ export function generateTestUsageThresholdInputMap(
 export function generateTestWorkspace(seed: PartialDeep<Workspace> = {}) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
-    agentId: getNewIdForResource(AppResourceTypeMap.User),
-    agentType: AppResourceTypeMap.User,
-    agentTokenId: getNewIdForResource(AppResourceTypeMap.AgentToken),
+    agentId: getNewIdForResource(kAppResourceType.User),
+    agentType: kAppResourceType.User,
+    agentTokenId: getNewIdForResource(kAppResourceType.AgentToken),
     ...seed.createdBy,
   };
   const lastUpdatedBy: Agent = {...createdBy, ...seed.lastUpdatedBy};
   const name = faker.company.name();
-  const resourceId = getNewIdForResource(AppResourceTypeMap.Workspace);
+  const resourceId = getNewIdForResource(kAppResourceType.Workspace);
 
   const workspace: Workspace = {
     createdAt,
@@ -100,7 +100,7 @@ export function generateTestWorkspace(seed: PartialDeep<Workspace> = {}) {
     description: faker.lorem.sentence(),
     billStatus: WorkspaceBillStatusMap.Ok,
     billStatusAssignedAt: createdAt,
-    publicPermissionGroupId: getNewIdForResource(AppResourceTypeMap.PermissionGroup),
+    publicPermissionGroupId: getNewIdForResource(kAppResourceType.PermissionGroup),
     ...seed,
     createdBy,
     lastUpdatedBy,

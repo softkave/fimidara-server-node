@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
-import {generateAndInsertUserListForTest} from '../../endpoints/testUtils/generateData/user';
+import {generateAndInsertUserListForTest} from '../../endpoints/testUtils/generate/user';
 import {completeTests} from '../../endpoints/testUtils/helpers/test';
 import {ISetupDevUserOptions, setupDevUser} from './utils';
 

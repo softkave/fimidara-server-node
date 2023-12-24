@@ -1,5 +1,5 @@
 import {defaultTo, random} from 'lodash';
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {
   UsageRecord,
   UsageRecordCategory,
@@ -48,10 +48,10 @@ export function generateUsageRecordList(count = 10, extra: Partial<UsageRecord> 
   const records: UsageRecord[] = [];
   for (let i = 0; i < count; i++) {
     records.push({
-      workspaceId: getNewIdForResource(AppResourceTypeMap.Workspace),
+      workspaceId: getNewIdForResource(kAppResourceType.Workspace),
       month: random(0, 11),
       year: random(1, 10_000),
-      resourceId: getNewIdForResource(AppResourceTypeMap.UsageRecord),
+      resourceId: getNewIdForResource(kAppResourceType.UsageRecord),
       createdAt: getTimestamp(),
       createdBy: SYSTEM_SESSION_AGENT,
       lastUpdatedAt: getTimestamp(),

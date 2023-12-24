@@ -3,7 +3,7 @@ import {
   CollaborationRequestResponse,
   CollaborationRequestStatusTypeMap,
 } from '../../../definitions/collaborationRequest';
-import {AppResourceTypeMap, SessionAgent} from '../../../definitions/system';
+import {SessionAgent, kAppResourceType} from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {
   CollaborationRequestResponseEmailProps,
@@ -101,13 +101,13 @@ export async function notifyUserOnCollaborationRequestResponse(
   const workspace = await kSemanticModels.workspace().getOneById(request.workspaceId);
   assertWorkspace(workspace);
   const notifyUser =
-    request.createdBy.agentType === AppResourceTypeMap.User ||
-    workspace.createdBy.agentType === AppResourceTypeMap.User
+    request.createdBy.agentType === kAppResourceType.User ||
+    workspace.createdBy.agentType === kAppResourceType.User
       ? // TODO: check if agent is a user or associated type before fetching
         await kSemanticModels
           .user()
           .getOneById(
-            request.createdBy.agentType === AppResourceTypeMap.User
+            request.createdBy.agentType === kAppResourceType.User
               ? request.createdBy.agentId
               : workspace.createdBy.agentId
           )

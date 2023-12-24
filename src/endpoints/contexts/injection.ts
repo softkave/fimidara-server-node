@@ -38,6 +38,7 @@ export const kInjectionKeys = {
     job: dataKey('job'),
     resolvedMountEntry: dataKey('resolvedMountEntry'),
     appRuntimeState: dataKey('appRuntimeState'),
+    app: dataKey('app'),
     utils: dataKey('utils'),
   },
   semantic: {
@@ -57,6 +58,7 @@ export const kInjectionKeys = {
     collaborationRequest: semanticKey('collaborationRequest'),
     usageRecord: semanticKey('usageRecord'),
     resolvedMountEntry: semanticKey('resolvedMountEntry'),
+    app: semanticKey('app'),
     utils: semanticKey('utils'),
   },
   filePersistence: {

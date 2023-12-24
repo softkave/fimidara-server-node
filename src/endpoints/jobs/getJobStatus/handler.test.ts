@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {JobStatusMap} from '../../../definitions/job';
+import {kJobStatus} from '../../../definitions/job';
 import RequestData from '../../RequestData';
 import deletePermissionGroup from '../../permissionGroups/deletePermissionGroup/handler';
 import {completeTests} from '../../testUtils/helpers/test';
@@ -46,5 +46,5 @@ test('getOpStatus', async () => {
     })
   );
   assertEndpointResultOk(result);
-  expect(result.status).toBe(JobStatusMap.completed);
+  expect(result.status).toBe(kJobStatus.completed);
 });

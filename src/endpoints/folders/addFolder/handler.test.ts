@@ -1,5 +1,5 @@
 import {kSemanticModels} from '../../contexts/injectables';
-import {generateTestFolderName} from '../../testUtils/generateData/folder';
+import {generateTestFolderName} from '../../testUtils/generate/folder';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   initTests,

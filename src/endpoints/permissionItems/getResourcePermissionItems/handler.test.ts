@@ -1,8 +1,8 @@
 import {faker} from '@faker-js/faker';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import RequestData from '../../RequestData';
-import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
+import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generate/permissionItem';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
@@ -65,7 +65,7 @@ describe.skip('getResourcePermissionItems', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     await generateAndInsertPermissionItemListForTest(15, {
       workspaceId: workspace.resourceId,
-      targetType: AppResourceTypeMap.Workspace,
+      targetType: kAppResourceType.Workspace,
       targetId: workspace.resourceId,
     });
 

@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {AssignedItem} from '../../../definitions/assignedItem';
 import {PermissionGroup} from '../../../definitions/permissionGroups';
-import {Agent, AppResourceTypeMap} from '../../../definitions/system';
+import {Agent, kAppResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource, getResourceTypeFromId} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injectables';
@@ -9,17 +9,17 @@ import {kSemanticModels} from '../../contexts/injectables';
 export function generatePermissionGroupForTest(seed: Partial<PermissionGroup> = {}) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
-    agentId: getNewIdForResource(AppResourceTypeMap.User),
-    agentType: AppResourceTypeMap.User,
-    agentTokenId: getNewIdForResource(AppResourceTypeMap.AgentToken),
+    agentId: getNewIdForResource(kAppResourceType.User),
+    agentType: kAppResourceType.User,
+    agentTokenId: getNewIdForResource(kAppResourceType.AgentToken),
   };
   const token: PermissionGroup = {
     createdAt,
     createdBy,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
-    resourceId: getNewIdForResource(AppResourceTypeMap.PermissionGroup),
-    workspaceId: getNewIdForResource(AppResourceTypeMap.Workspace),
+    resourceId: getNewIdForResource(kAppResourceType.PermissionGroup),
+    workspaceId: getNewIdForResource(kAppResourceType.Workspace),
     name: faker.company.name(),
     description: faker.lorem.sentence(),
     ...seed,
@@ -54,25 +54,25 @@ export async function generateAndInsertPermissionGroupListForTest(
 export function generateAssignedItemForTest(seed: Partial<AssignedItem> = {}) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
-    agentId: getNewIdForResource(AppResourceTypeMap.User),
-    agentType: AppResourceTypeMap.User,
-    agentTokenId: getNewIdForResource(AppResourceTypeMap.AgentToken),
+    agentId: getNewIdForResource(kAppResourceType.User),
+    agentType: kAppResourceType.User,
+    agentTokenId: getNewIdForResource(kAppResourceType.AgentToken),
   };
   const item: AssignedItem = {
     createdAt,
     createdBy,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
-    resourceId: getNewIdForResource(AppResourceTypeMap.AssignedItem),
-    workspaceId: getNewIdForResource(AppResourceTypeMap.Workspace),
-    assignedItemId: getNewIdForResource(AppResourceTypeMap.PermissionGroup),
+    resourceId: getNewIdForResource(kAppResourceType.AssignedItem),
+    workspaceId: getNewIdForResource(kAppResourceType.Workspace),
+    assignedItemId: getNewIdForResource(kAppResourceType.PermissionGroup),
     assignedItemType: seed.assignedItemId
       ? getResourceTypeFromId(seed.assignedItemId)
-      : AppResourceTypeMap.PermissionGroup,
-    assigneeId: getNewIdForResource(AppResourceTypeMap.PermissionGroup),
+      : kAppResourceType.PermissionGroup,
+    assigneeId: getNewIdForResource(kAppResourceType.PermissionGroup),
     assigneeType: seed.assigneeId
       ? getResourceTypeFromId(seed.assigneeId)
-      : AppResourceTypeMap.PermissionGroup,
+      : kAppResourceType.PermissionGroup,
     meta: {},
     ...seed,
   };

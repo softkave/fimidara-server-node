@@ -1,4 +1,4 @@
-import {AppResourceTypeMap, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
+import {kAppResourceType, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {kUtilsInjectables} from '../../contexts/injectables';
 import {enqueueDeleteResourceJob} from '../../jobs/utils';
@@ -14,7 +14,7 @@ const deleteFolder: DeleteFolderEndpoint = async instData => {
   const {folder} = await checkFolderAuthorization02(agent, data, 'deleteFolder');
 
   const job = await enqueueDeleteResourceJob({
-    type: AppResourceTypeMap.Folder,
+    type: kAppResourceType.Folder,
     args: {
       workspaceId: folder.workspaceId,
       resourceId: folder.resourceId,

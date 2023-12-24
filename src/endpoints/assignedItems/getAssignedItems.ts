@@ -1,6 +1,6 @@
 import {defaultTo} from 'lodash';
 import {AssignedItem, ResourceWithTags} from '../../definitions/assignedItem';
-import {AppResourceType, AppResourceTypeMap, Resource} from '../../definitions/system';
+import {AppResourceType, Resource, kAppResourceType} from '../../definitions/system';
 import {User, UserWorkspace} from '../../definitions/user';
 import {cast} from '../../utils/fns';
 import {kSemanticModels} from '../contexts/injectables';
@@ -70,14 +70,14 @@ export async function getResourceAssignedItemsSortedByType(
 
 export async function populateAssignedItems<
   T extends Resource,
-  TAssignedItemsType extends Array<typeof AppResourceTypeMap.Tag>,
+  TAssignedItemsType extends Array<typeof kAppResourceType.Tag>,
 >(
   workspaceId: string,
   resource: T,
   // @ts-ignore
-  assignedItemTypes: TAssignedItemsType = [AppResourceTypeMap.Tag]
+  assignedItemTypes: TAssignedItemsType = [kAppResourceType.Tag]
 ): Promise<
-  typeof assignedItemTypes extends Array<typeof AppResourceTypeMap.Tag>
+  typeof assignedItemTypes extends Array<typeof kAppResourceType.Tag>
     ? ResourceWithTags<T>
     : ResourceWithTags<T>
 > {
@@ -93,7 +93,7 @@ export async function populateAssignedItems<
   // prefill expected fields with empty arrays
   assignedItemTypes?.forEach(type => {
     switch (type) {
-      case AppResourceTypeMap.Tag:
+      case kAppResourceType.Tag:
         cast<ResourceWithTags<T>>(updatedResource).tags = [];
         break;
     }
@@ -101,7 +101,7 @@ export async function populateAssignedItems<
 
   for (const type in sortedItems) {
     switch (type) {
-      case AppResourceTypeMap.Tag:
+      case kAppResourceType.Tag:
         cast<ResourceWithTags<T>>(updatedResource).tags = assignedItemsToAssignedTagList(
           sortedItems[type]
         );
@@ -124,13 +124,13 @@ export async function populateAssignedTags<
   const sortedItems = await getResourceAssignedItemsSortedByType(
     workspaceId,
     resource.resourceId,
-    [AppResourceTypeMap.Tag]
+    [kAppResourceType.Tag]
   );
   const updatedResource = cast<NonNullable<Final>>(resource);
-  const tagsLabel = labels[AppResourceTypeMap.Tag] ?? 'tags';
+  const tagsLabel = labels[kAppResourceType.Tag] ?? 'tags';
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (updatedResource as any)[tagsLabel] = assignedItemsToAssignedTagList(
-    sortedItems[AppResourceTypeMap.Tag]
+    sortedItems[kAppResourceType.Tag]
   );
   return updatedResource;
 }
@@ -162,7 +162,7 @@ export async function getUserWorkspaces(
 
   for (const type in sortedItems) {
     switch (type) {
-      case AppResourceTypeMap.Workspace:
+      case kAppResourceType.Workspace:
         assignedWorkspaceItems = sortedItems[type];
         break;
     }

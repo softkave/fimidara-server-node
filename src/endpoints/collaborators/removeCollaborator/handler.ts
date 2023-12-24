@@ -1,4 +1,4 @@
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {kUtilsInjectables} from '../../contexts/injectables';
@@ -18,7 +18,7 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async instData => {
     'removeCollaborator'
   );
   const job = await enqueueDeleteResourceJob({
-    type: AppResourceTypeMap.User,
+    type: kAppResourceType.User,
     args: {
       workspaceId,
       resourceId: collaborator.resourceId,

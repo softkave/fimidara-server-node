@@ -1,9 +1,9 @@
 import {PermissionItem, PublicPermissionItem} from '../../definitions/permissionItem';
 import {
   AppResourceType,
-  AppResourceTypeMap,
   SessionAgent,
   getWorkspaceResourceTypeList,
+  kAppResourceType,
 } from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
@@ -66,9 +66,9 @@ export async function getPermissionItemEntities(
   let resources = await INTERNAL_getResources({
     agent,
     allowedTypes: [
-      AppResourceTypeMap.User,
-      AppResourceTypeMap.PermissionGroup,
-      AppResourceTypeMap.AgentToken,
+      kAppResourceType.User,
+      kAppResourceType.PermissionGroup,
+      kAppResourceType.AgentToken,
     ],
     workspaceId,
     inputResources: toArray(entityIds).map(entityId => ({
@@ -79,7 +79,7 @@ export async function getPermissionItemEntities(
     checkBelongsToWorkspace: true,
   });
   resources = await resourceListWithAssignedItems(workspaceId, resources, [
-    AppResourceTypeMap.User,
+    kAppResourceType.User,
   ]);
   checkResourcesBelongsToWorkspace(workspaceId, resources);
   return resources;

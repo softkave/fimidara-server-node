@@ -266,6 +266,8 @@ export function streamToBuffer(stream: Readable): Promise<Buffer> {
   });
 }
 
+/** Returns a function that calls input functions in parallel with any arguments
+ * passed to it. */
 export async function parallelFlowAsync<T extends AnyFn>(fns: T[]) {
   return async (
     ...args: Parameters<T>
@@ -310,3 +312,15 @@ export const mergeData = <ResourceType = unknown>(
 
   return result;
 };
+
+/** Returns a function that calls `afterFn` with the result of, and arguments of
+ * `fn`. */
+export function callAfterAsync<
+  TFn extends AnyFn,
+  TAfterFn extends AnyFn<[Awaited<ReturnType<TFn>>, ...Parameters<TFn>]>,
+>(fn: TFn, afterFn: TAfterFn) {
+  return async (...args: Parameters<TFn>) => {
+    const result = await fn(...args);
+    return await afterFn(result, ...args);
+  };
+}

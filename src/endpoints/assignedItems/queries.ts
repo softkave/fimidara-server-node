@@ -3,7 +3,7 @@ import {
   AssignedItem,
   AssignedItemMainFieldsMatcher,
 } from '../../definitions/assignedItem';
-import {AppResourceType, AppResourceTypeMap} from '../../definitions/system';
+import {AppResourceType, kAppResourceType} from '../../definitions/system';
 import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider';
 import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder';
 
@@ -27,13 +27,13 @@ function getWorkspaceCollaborators(
     .addItem('assignedItemId', workspaceId, DataProviderFilterValueOperator.Equal)
     .addItem(
       'assignedItemType',
-      AppResourceTypeMap.Workspace,
+      kAppResourceType.Workspace,
       DataProviderFilterValueOperator.Equal
     )
     .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
     .addItem(
       'assigneeType',
-      AppResourceTypeMap.User,
+      kAppResourceType.User,
       DataProviderFilterValueOperator.Equal
     );
   if (includedassigneeIdList?.length) {

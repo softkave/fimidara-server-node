@@ -1,7 +1,7 @@
 import {customAlphabet} from 'nanoid';
 import {AssignPermissionGroupInput} from '../definitions/permissionGroups';
 import {PermissionAction, kPermissionsMap} from '../definitions/permissionItem';
-import {AppResourceTypeMap, PublicAgent, VALID_AGENT_TYPES} from '../definitions/system';
+import {PublicAgent, VALID_AGENT_TYPES, kAppResourceType} from '../definitions/system';
 import {
   UsageRecordCategory,
   UsageRecordCategoryMap,
@@ -195,7 +195,7 @@ const agent = mddocConstruct
       mddocConstruct
         .constructFieldString()
         .setDescription('Agent type.')
-        .setExample(AppResourceTypeMap.AgentToken)
+        .setExample(kAppResourceType.AgentToken)
         .setValid(VALID_AGENT_TYPES)
         .setEnumName('AgentType')
     ),
@@ -211,7 +211,7 @@ const id = mddocConstruct
   .setDescription('Resource ID.')
   .setExample(
     `${
-      RESOURCE_TYPE_SHORT_NAMES[AppResourceTypeMap.Workspace]
+      RESOURCE_TYPE_SHORT_NAMES[kAppResourceType.Workspace]
     }${ID_SEPARATOR}${customAlphabet('0')()}`
   );
 const idList = mddocConstruct
@@ -225,7 +225,7 @@ const jobId = mddocConstruct
   .constructFieldString()
   .setDescription('Long running job ID.')
   .setExample(
-    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceTypeMap.Job]}${ID_SEPARATOR}${customAlphabet(
+    `${RESOURCE_TYPE_SHORT_NAMES[kAppResourceType.Job]}${ID_SEPARATOR}${customAlphabet(
       '0'
     )()}`
   );
@@ -236,7 +236,7 @@ const workspaceId = mddocConstruct
   )
   .setExample(
     `${
-      RESOURCE_TYPE_SHORT_NAMES[AppResourceTypeMap.Workspace]
+      RESOURCE_TYPE_SHORT_NAMES[kAppResourceType.Workspace]
     }${ID_SEPARATOR}${customAlphabet('0')()}`
   );
 const workspaceIdInput = workspaceId
@@ -249,9 +249,9 @@ const folderId = mddocConstruct
   .constructFieldString()
   .setDescription('Folder ID.')
   .setExample(
-    `${
-      RESOURCE_TYPE_SHORT_NAMES[AppResourceTypeMap.Folder]
-    }${ID_SEPARATOR}${customAlphabet('0')()}`
+    `${RESOURCE_TYPE_SHORT_NAMES[kAppResourceType.Folder]}${ID_SEPARATOR}${customAlphabet(
+      '0'
+    )()}`
   );
 const folderIdOrNull = mddocConstruct
   .constructFieldOrCombination<string | null>()
@@ -260,7 +260,7 @@ const fileId = mddocConstruct
   .constructFieldString()
   .setDescription('File ID.')
   .setExample(
-    `${RESOURCE_TYPE_SHORT_NAMES[AppResourceTypeMap.File]}${ID_SEPARATOR}${customAlphabet(
+    `${RESOURCE_TYPE_SHORT_NAMES[kAppResourceType.File]}${ID_SEPARATOR}${customAlphabet(
       '0'
     )()}`
   );
@@ -269,7 +269,7 @@ const permissionGroupId = mddocConstruct
   .setDescription('Permission group ID.')
   .setExample(
     `${
-      RESOURCE_TYPE_SHORT_NAMES[AppResourceTypeMap.PermissionGroup]
+      RESOURCE_TYPE_SHORT_NAMES[kAppResourceType.PermissionGroup]
     }${ID_SEPARATOR}${customAlphabet('0')()}`
   );
 const permissionItemId = mddocConstruct
@@ -277,7 +277,7 @@ const permissionItemId = mddocConstruct
   .setDescription('Permission item ID.')
   .setExample(
     `${
-      RESOURCE_TYPE_SHORT_NAMES[AppResourceTypeMap.PermissionItem]
+      RESOURCE_TYPE_SHORT_NAMES[kAppResourceType.PermissionItem]
     }${ID_SEPARATOR}${customAlphabet('0')()}`
   );
 const idPath = mddocConstruct
@@ -385,8 +385,8 @@ const actionOrList = mddocConstruct
 const resourceType = mddocConstruct
   .constructFieldString()
   .setDescription('Resource type.')
-  .setExample(AppResourceTypeMap.File)
-  .setValid(Object.values(AppResourceTypeMap))
+  .setExample(kAppResourceType.File)
+  .setValid(Object.values(kAppResourceType))
   .setEnumName('AppResourceType');
 const usageCategory = mddocConstruct
   .constructFieldString()

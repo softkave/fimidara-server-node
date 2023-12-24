@@ -1,4 +1,4 @@
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {
   UpgradedFromWaitlistEmailProps,
   upgradedFromWaitlistEmailHTML,
@@ -16,7 +16,7 @@ const upgradeWaitlistedUsers: UpgradeWaitlistedUsersEndpoint = async reqData => 
   const data = validate(reqData.data, upgradeWaitlistedUsersJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(reqData, [AppResourceTypeMap.User]);
+    .getAgent(reqData, [kAppResourceType.User]);
   await assertUserIsPartOfRootWorkspace(agent);
   const users = await kSemanticModels.utils().withTxn(opts => {
     return kSemanticModels

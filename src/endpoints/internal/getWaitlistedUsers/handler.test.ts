@@ -3,7 +3,7 @@ import {extractResourceIdList} from '../../../utils/fns';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import RequestData from '../../RequestData';
-import {generateAndInsertUserListForTest} from '../../testUtils/generateData/user';
+import {generateAndInsertUserListForTest} from '../../testUtils/generate/user';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests} from '../../testUtils/helpers/test';
 import {

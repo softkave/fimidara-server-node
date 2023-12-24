@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {PermissionItem} from '../../../definitions/permissionItem';
-import {Agent, AppResourceTypeMap} from '../../../definitions/system';
+import {Agent, kAppResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource, getResourceTypeFromId} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injectables';
@@ -9,11 +9,11 @@ import {randomAction, randomResourceType} from './utils';
 export function generatePermissionItemForTest(seed: Partial<PermissionItem> = {}) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
-    agentId: getNewIdForResource(AppResourceTypeMap.User),
-    agentType: AppResourceTypeMap.User,
-    agentTokenId: getNewIdForResource(AppResourceTypeMap.AgentToken),
+    agentId: getNewIdForResource(kAppResourceType.User),
+    agentType: kAppResourceType.User,
+    agentTokenId: getNewIdForResource(kAppResourceType.AgentToken),
   };
-  const workspaceId = getNewIdForResource(AppResourceTypeMap.Workspace);
+  const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
   const itemType = randomResourceType();
   const item: PermissionItem = {
     createdAt,
@@ -22,11 +22,11 @@ export function generatePermissionItemForTest(seed: Partial<PermissionItem> = {}
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
     targetParentId: workspaceId,
-    resourceId: getNewIdForResource(AppResourceTypeMap.PermissionItem),
+    resourceId: getNewIdForResource(kAppResourceType.PermissionItem),
     entityId: createdBy.agentId,
     entityType: seed.entityId
       ? getResourceTypeFromId(seed.entityId)
-      : AppResourceTypeMap.User,
+      : kAppResourceType.User,
     targetId: getNewIdForResource(itemType),
     targetType: seed.targetId ? getResourceTypeFromId(seed.targetId) : itemType,
     action: randomAction(),

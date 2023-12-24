@@ -1,4 +1,4 @@
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {calculatePageSize, getResourceId} from '../../../utils/fns';
 import {kSemanticModels} from '../../contexts/injectables';
 import addPermissionItems from '../../permissionItems/addItems/handler';
@@ -6,11 +6,11 @@ import RequestData from '../../RequestData';
 import {
   generateAndInsertTestFiles,
   generateTestFileName,
-} from '../../testUtils/generateData/file';
+} from '../../testUtils/generate/file';
 import {
   generateAndInsertTestFolders,
   generateTestFolderName,
-} from '../../testUtils/generateData/folder';
+} from '../../testUtils/generate/folder';
 import {expectContainsExactly} from '../../testUtils/helpers/assertion';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
@@ -129,7 +129,7 @@ describe('listFolderContent', () => {
         mockExpressRequestWithAgentToken(userToken),
         {
           folderpath: addRootnameToPath(folder01.name, workspace.rootname),
-          contentType: AppResourceTypeMap.File,
+          contentType: kAppResourceType.File,
         }
       );
     const fetchFilesResult = await listFolderContent(fetchFilesReqData);
@@ -141,7 +141,7 @@ describe('listFolderContent', () => {
         mockExpressRequestWithAgentToken(userToken),
         {
           folderpath: addRootnameToPath(folder01.name, workspace.rootname),
-          contentType: AppResourceTypeMap.Folder,
+          contentType: kAppResourceType.Folder,
         }
       );
     const fetchFoldersResult = await listFolderContent(fetchFoldersReqData);

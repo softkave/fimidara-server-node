@@ -1,5 +1,5 @@
 import {CleanupMountResolvedEntriesJobParams} from '../definitions/job';
-import {AppResourceTypeMap} from '../definitions/system';
+import {kAppResourceType} from '../definitions/system';
 import {extractResourceIdList, noopAsync} from '../utils/fns';
 import {kReuseableErrors} from '../utils/reusableErrors';
 import {RemoveCollaboratorCascadeFnsArgs} from './collaborators/removeCollaborator/types';
@@ -14,25 +14,25 @@ import {DeleteResourceCascadeFnsMap} from './types';
 
 export const kDeletePermissionItemsCascaseFns: DeleteResourceCascadeFnsMap<DeletePermissionItemsCascadeFnsArgs> =
   {
-    [AppResourceTypeMap.All]: noopAsync,
-    [AppResourceTypeMap.System]: noopAsync,
-    [AppResourceTypeMap.Public]: noopAsync,
-    [AppResourceTypeMap.Workspace]: noopAsync,
-    [AppResourceTypeMap.CollaborationRequest]: noopAsync,
-    [AppResourceTypeMap.AgentToken]: noopAsync,
-    [AppResourceTypeMap.Folder]: noopAsync,
-    [AppResourceTypeMap.File]: noopAsync,
-    [AppResourceTypeMap.User]: noopAsync,
-    [AppResourceTypeMap.UsageRecord]: noopAsync,
-    [AppResourceTypeMap.EndpointRequest]: noopAsync,
-    [AppResourceTypeMap.Job]: noopAsync,
-    [AppResourceTypeMap.Tag]: noopAsync,
-    [AppResourceTypeMap.PermissionGroup]: noopAsync,
-    [AppResourceTypeMap.FilePresignedPath]: noopAsync,
-    [AppResourceTypeMap.FileBackendMount]: noopAsync,
-    [AppResourceTypeMap.FileBackendConfig]: noopAsync,
-    [AppResourceTypeMap.ResolvedMountEntry]: noopAsync,
-    [AppResourceTypeMap.PermissionItem]: async (args, helpers) => {
+    [kAppResourceType.All]: noopAsync,
+    [kAppResourceType.System]: noopAsync,
+    [kAppResourceType.Public]: noopAsync,
+    [kAppResourceType.Workspace]: noopAsync,
+    [kAppResourceType.CollaborationRequest]: noopAsync,
+    [kAppResourceType.AgentToken]: noopAsync,
+    [kAppResourceType.Folder]: noopAsync,
+    [kAppResourceType.File]: noopAsync,
+    [kAppResourceType.User]: noopAsync,
+    [kAppResourceType.UsageRecord]: noopAsync,
+    [kAppResourceType.EndpointRequest]: noopAsync,
+    [kAppResourceType.Job]: noopAsync,
+    [kAppResourceType.Tag]: noopAsync,
+    [kAppResourceType.PermissionGroup]: noopAsync,
+    [kAppResourceType.FilePresignedPath]: noopAsync,
+    [kAppResourceType.FileBackendMount]: noopAsync,
+    [kAppResourceType.FileBackendConfig]: noopAsync,
+    [kAppResourceType.ResolvedMountEntry]: noopAsync,
+    [kAppResourceType.PermissionItem]: async (args, helpers) => {
       await helpers.withTxn(opts =>
         Promise.all([
           kSemanticModels
@@ -44,7 +44,7 @@ export const kDeletePermissionItemsCascaseFns: DeleteResourceCascadeFnsMap<Delet
         ])
       );
     },
-    [AppResourceTypeMap.AssignedItem]: async (args, helpers) =>
+    [kAppResourceType.AssignedItem]: async (args, helpers) =>
       helpers.withTxn(opts =>
         kSemanticModels
           .assignedItem()
@@ -58,27 +58,27 @@ export const kDeletePermissionItemsCascaseFns: DeleteResourceCascadeFnsMap<Delet
   };
 
 export const kDeleteAgentTokenCascadeFns: DeleteResourceCascadeFnsMap = {
-  [AppResourceTypeMap.All]: noopAsync,
-  [AppResourceTypeMap.System]: noopAsync,
-  [AppResourceTypeMap.Public]: noopAsync,
-  [AppResourceTypeMap.Workspace]: noopAsync,
-  [AppResourceTypeMap.CollaborationRequest]: noopAsync,
-  [AppResourceTypeMap.PermissionGroup]: noopAsync,
-  [AppResourceTypeMap.Folder]: noopAsync,
-  [AppResourceTypeMap.File]: noopAsync,
-  [AppResourceTypeMap.User]: noopAsync,
-  [AppResourceTypeMap.UsageRecord]: noopAsync,
-  [AppResourceTypeMap.EndpointRequest]: noopAsync,
-  [AppResourceTypeMap.Job]: noopAsync,
-  [AppResourceTypeMap.Tag]: noopAsync,
-  [AppResourceTypeMap.FileBackendMount]: noopAsync,
-  [AppResourceTypeMap.FileBackendConfig]: noopAsync,
-  [AppResourceTypeMap.ResolvedMountEntry]: noopAsync,
-  [AppResourceTypeMap.AgentToken]: (args, helpers) =>
+  [kAppResourceType.All]: noopAsync,
+  [kAppResourceType.System]: noopAsync,
+  [kAppResourceType.Public]: noopAsync,
+  [kAppResourceType.Workspace]: noopAsync,
+  [kAppResourceType.CollaborationRequest]: noopAsync,
+  [kAppResourceType.PermissionGroup]: noopAsync,
+  [kAppResourceType.Folder]: noopAsync,
+  [kAppResourceType.File]: noopAsync,
+  [kAppResourceType.User]: noopAsync,
+  [kAppResourceType.UsageRecord]: noopAsync,
+  [kAppResourceType.EndpointRequest]: noopAsync,
+  [kAppResourceType.Job]: noopAsync,
+  [kAppResourceType.Tag]: noopAsync,
+  [kAppResourceType.FileBackendMount]: noopAsync,
+  [kAppResourceType.FileBackendConfig]: noopAsync,
+  [kAppResourceType.ResolvedMountEntry]: noopAsync,
+  [kAppResourceType.AgentToken]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.agentToken().deleteOneById(args.resourceId, opts)
     ),
-  [AppResourceTypeMap.PermissionItem]: async (args, helpers) => {
+  [kAppResourceType.PermissionItem]: async (args, helpers) => {
     helpers.withTxn(opts =>
       Promise.all([
         kSemanticModels.permissionItem().deleteManyByTargetId(args.resourceId, opts),
@@ -86,7 +86,7 @@ export const kDeleteAgentTokenCascadeFns: DeleteResourceCascadeFnsMap = {
       ])
     );
   },
-  [AppResourceTypeMap.AssignedItem]: async (args, helpers) =>
+  [kAppResourceType.AssignedItem]: async (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels
         .assignedItem()
@@ -97,7 +97,7 @@ export const kDeleteAgentTokenCascadeFns: DeleteResourceCascadeFnsMap = {
           opts
         )
     ),
-  [AppResourceTypeMap.FilePresignedPath]: (args, helpers) =>
+  [kAppResourceType.FilePresignedPath]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels
         .filePresignedPath()
@@ -106,29 +106,29 @@ export const kDeleteAgentTokenCascadeFns: DeleteResourceCascadeFnsMap = {
 };
 
 export const kDeleteCollaborationRequestsCascadeFns: DeleteResourceCascadeFnsMap = {
-  [AppResourceTypeMap.All]: noopAsync,
-  [AppResourceTypeMap.System]: noopAsync,
-  [AppResourceTypeMap.Public]: noopAsync,
-  [AppResourceTypeMap.Workspace]: noopAsync,
-  [AppResourceTypeMap.PermissionGroup]: noopAsync,
-  [AppResourceTypeMap.Folder]: noopAsync,
-  [AppResourceTypeMap.File]: noopAsync,
-  [AppResourceTypeMap.User]: noopAsync,
-  [AppResourceTypeMap.UsageRecord]: noopAsync,
-  [AppResourceTypeMap.EndpointRequest]: noopAsync,
-  [AppResourceTypeMap.Job]: noopAsync,
-  [AppResourceTypeMap.Tag]: noopAsync,
-  [AppResourceTypeMap.AgentToken]: noopAsync,
-  [AppResourceTypeMap.PermissionItem]: noopAsync,
-  [AppResourceTypeMap.FilePresignedPath]: noopAsync,
-  [AppResourceTypeMap.FileBackendMount]: noopAsync,
-  [AppResourceTypeMap.FileBackendConfig]: noopAsync,
-  [AppResourceTypeMap.ResolvedMountEntry]: noopAsync,
-  [AppResourceTypeMap.CollaborationRequest]: (args, helpers) =>
+  [kAppResourceType.All]: noopAsync,
+  [kAppResourceType.System]: noopAsync,
+  [kAppResourceType.Public]: noopAsync,
+  [kAppResourceType.Workspace]: noopAsync,
+  [kAppResourceType.PermissionGroup]: noopAsync,
+  [kAppResourceType.Folder]: noopAsync,
+  [kAppResourceType.File]: noopAsync,
+  [kAppResourceType.User]: noopAsync,
+  [kAppResourceType.UsageRecord]: noopAsync,
+  [kAppResourceType.EndpointRequest]: noopAsync,
+  [kAppResourceType.Job]: noopAsync,
+  [kAppResourceType.Tag]: noopAsync,
+  [kAppResourceType.AgentToken]: noopAsync,
+  [kAppResourceType.PermissionItem]: noopAsync,
+  [kAppResourceType.FilePresignedPath]: noopAsync,
+  [kAppResourceType.FileBackendMount]: noopAsync,
+  [kAppResourceType.FileBackendConfig]: noopAsync,
+  [kAppResourceType.ResolvedMountEntry]: noopAsync,
+  [kAppResourceType.CollaborationRequest]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.collaborationRequest().deleteOneById(args.resourceId, opts)
     ),
-  [AppResourceTypeMap.AssignedItem]: async (args, helpers) =>
+  [kAppResourceType.AssignedItem]: async (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels
         .assignedItem()
@@ -144,23 +144,23 @@ export const kDeleteCollaborationRequestsCascadeFns: DeleteResourceCascadeFnsMap
 // TODO: delete client token and client token artifacts using provided resource ID
 export const kRemoveCollaboratorCascadeFns: DeleteResourceCascadeFnsMap<RemoveCollaboratorCascadeFnsArgs> =
   {
-    [AppResourceTypeMap.All]: noopAsync,
-    [AppResourceTypeMap.System]: noopAsync,
-    [AppResourceTypeMap.Public]: noopAsync,
-    [AppResourceTypeMap.Workspace]: noopAsync,
-    [AppResourceTypeMap.AgentToken]: noopAsync,
-    [AppResourceTypeMap.PermissionGroup]: noopAsync,
-    [AppResourceTypeMap.Folder]: noopAsync,
-    [AppResourceTypeMap.File]: noopAsync,
-    [AppResourceTypeMap.User]: noopAsync,
-    [AppResourceTypeMap.UsageRecord]: noopAsync,
-    [AppResourceTypeMap.EndpointRequest]: noopAsync,
-    [AppResourceTypeMap.Job]: noopAsync,
-    [AppResourceTypeMap.Tag]: noopAsync,
-    [AppResourceTypeMap.FileBackendMount]: noopAsync,
-    [AppResourceTypeMap.FileBackendConfig]: noopAsync,
-    [AppResourceTypeMap.ResolvedMountEntry]: noopAsync,
-    [AppResourceTypeMap.CollaborationRequest]: (args, helpers) =>
+    [kAppResourceType.All]: noopAsync,
+    [kAppResourceType.System]: noopAsync,
+    [kAppResourceType.Public]: noopAsync,
+    [kAppResourceType.Workspace]: noopAsync,
+    [kAppResourceType.AgentToken]: noopAsync,
+    [kAppResourceType.PermissionGroup]: noopAsync,
+    [kAppResourceType.Folder]: noopAsync,
+    [kAppResourceType.File]: noopAsync,
+    [kAppResourceType.User]: noopAsync,
+    [kAppResourceType.UsageRecord]: noopAsync,
+    [kAppResourceType.EndpointRequest]: noopAsync,
+    [kAppResourceType.Job]: noopAsync,
+    [kAppResourceType.Tag]: noopAsync,
+    [kAppResourceType.FileBackendMount]: noopAsync,
+    [kAppResourceType.FileBackendConfig]: noopAsync,
+    [kAppResourceType.ResolvedMountEntry]: noopAsync,
+    [kAppResourceType.CollaborationRequest]: (args, helpers) =>
       helpers.withTxn(opts =>
         kSemanticModels
           .collaborationRequest()
@@ -169,14 +169,14 @@ export const kRemoveCollaboratorCascadeFns: DeleteResourceCascadeFnsMap<RemoveCo
             opts
           )
       ),
-    [AppResourceTypeMap.PermissionItem]: async (args, helpers) =>
+    [kAppResourceType.PermissionItem]: async (args, helpers) =>
       helpers.withTxn(opts =>
         Promise.all([
           kSemanticModels.permissionItem().deleteManyByTargetId(args.resourceId, opts),
           kSemanticModels.permissionItem().deleteManyByEntityId(args.resourceId, opts),
         ])
       ),
-    [AppResourceTypeMap.AssignedItem]: (args, helpers) =>
+    [kAppResourceType.AssignedItem]: (args, helpers) =>
       helpers.withTxn(opts =>
         kSemanticModels
           .assignedItem()
@@ -187,7 +187,7 @@ export const kRemoveCollaboratorCascadeFns: DeleteResourceCascadeFnsMap<RemoveCo
             opts
           )
       ),
-    [AppResourceTypeMap.FilePresignedPath]: (args, helpers) =>
+    [kAppResourceType.FilePresignedPath]: (args, helpers) =>
       helpers.withTxn(opts =>
         kSemanticModels
           .filePresignedPath()
@@ -197,22 +197,22 @@ export const kRemoveCollaboratorCascadeFns: DeleteResourceCascadeFnsMap<RemoveCo
 
 export const kDeleteFileCascadeFns: DeleteResourceCascadeFnsMap<DeleteFileCascadeDeleteFnsArgs> =
   {
-    [AppResourceTypeMap.All]: noopAsync,
-    [AppResourceTypeMap.System]: noopAsync,
-    [AppResourceTypeMap.Public]: noopAsync,
-    [AppResourceTypeMap.Workspace]: noopAsync,
-    [AppResourceTypeMap.CollaborationRequest]: noopAsync,
-    [AppResourceTypeMap.AgentToken]: noopAsync,
-    [AppResourceTypeMap.PermissionGroup]: noopAsync,
-    [AppResourceTypeMap.Folder]: noopAsync,
-    [AppResourceTypeMap.User]: noopAsync,
-    [AppResourceTypeMap.UsageRecord]: noopAsync,
-    [AppResourceTypeMap.EndpointRequest]: noopAsync,
-    [AppResourceTypeMap.Job]: noopAsync,
-    [AppResourceTypeMap.Tag]: noopAsync,
-    [AppResourceTypeMap.FileBackendMount]: noopAsync,
-    [AppResourceTypeMap.FileBackendConfig]: noopAsync,
-    [AppResourceTypeMap.File]: async (args, helpers) =>
+    [kAppResourceType.All]: noopAsync,
+    [kAppResourceType.System]: noopAsync,
+    [kAppResourceType.Public]: noopAsync,
+    [kAppResourceType.Workspace]: noopAsync,
+    [kAppResourceType.CollaborationRequest]: noopAsync,
+    [kAppResourceType.AgentToken]: noopAsync,
+    [kAppResourceType.PermissionGroup]: noopAsync,
+    [kAppResourceType.Folder]: noopAsync,
+    [kAppResourceType.User]: noopAsync,
+    [kAppResourceType.UsageRecord]: noopAsync,
+    [kAppResourceType.EndpointRequest]: noopAsync,
+    [kAppResourceType.Job]: noopAsync,
+    [kAppResourceType.Tag]: noopAsync,
+    [kAppResourceType.FileBackendMount]: noopAsync,
+    [kAppResourceType.FileBackendConfig]: noopAsync,
+    [kAppResourceType.File]: async (args, helpers) =>
       helpers.withTxn(opts =>
         Promise.all([
           kSemanticModels.file().deleteManyByIdList(args.fileIdList, opts),
@@ -222,11 +222,11 @@ export const kDeleteFileCascadeFns: DeleteResourceCascadeFnsMap<DeleteFileCascad
           }),
         ])
       ),
-    [AppResourceTypeMap.PermissionItem]: (args, helpers) =>
+    [kAppResourceType.PermissionItem]: (args, helpers) =>
       helpers.withTxn(opts =>
         kSemanticModels.permissionItem().deleteManyByTargetId(args.fileIdList, opts)
       ),
-    [AppResourceTypeMap.AssignedItem]: (args, helpers) =>
+    [kAppResourceType.AssignedItem]: (args, helpers) =>
       helpers.withTxn(opts =>
         kSemanticModels
           .assignedItem()
@@ -237,7 +237,7 @@ export const kDeleteFileCascadeFns: DeleteResourceCascadeFnsMap<DeleteFileCascad
             opts
           )
       ),
-    [AppResourceTypeMap.FilePresignedPath]: async (args, helpers) =>
+    [kAppResourceType.FilePresignedPath]: async (args, helpers) =>
       helpers.withTxn(opts =>
         Promise.all(
           args.files.map(f =>
@@ -252,7 +252,7 @@ export const kDeleteFileCascadeFns: DeleteResourceCascadeFnsMap<DeleteFileCascad
           )
         )
       ),
-    [AppResourceTypeMap.ResolvedMountEntry]: (args, helpers) =>
+    [kAppResourceType.ResolvedMountEntry]: (args, helpers) =>
       helpers.withTxn(async opts => {
         await kSemanticModels
           .resolvedMountEntry()
@@ -261,22 +261,22 @@ export const kDeleteFileCascadeFns: DeleteResourceCascadeFnsMap<DeleteFileCascad
   };
 
 export const kDeleteFoldersCascadeFns: DeleteResourceCascadeFnsMap = {
-  [AppResourceTypeMap.All]: noopAsync,
-  [AppResourceTypeMap.System]: noopAsync,
-  [AppResourceTypeMap.Public]: noopAsync,
-  [AppResourceTypeMap.Workspace]: noopAsync,
-  [AppResourceTypeMap.CollaborationRequest]: noopAsync,
-  [AppResourceTypeMap.AgentToken]: noopAsync,
-  [AppResourceTypeMap.PermissionGroup]: noopAsync,
-  [AppResourceTypeMap.User]: noopAsync,
-  [AppResourceTypeMap.UsageRecord]: noopAsync,
-  [AppResourceTypeMap.EndpointRequest]: noopAsync,
-  [AppResourceTypeMap.Job]: noopAsync,
-  [AppResourceTypeMap.Tag]: noopAsync,
-  [AppResourceTypeMap.FilePresignedPath]: noopAsync,
-  [AppResourceTypeMap.FileBackendMount]: noopAsync,
-  [AppResourceTypeMap.FileBackendConfig]: noopAsync,
-  [AppResourceTypeMap.File]: async (args, helpers) => {
+  [kAppResourceType.All]: noopAsync,
+  [kAppResourceType.System]: noopAsync,
+  [kAppResourceType.Public]: noopAsync,
+  [kAppResourceType.Workspace]: noopAsync,
+  [kAppResourceType.CollaborationRequest]: noopAsync,
+  [kAppResourceType.AgentToken]: noopAsync,
+  [kAppResourceType.PermissionGroup]: noopAsync,
+  [kAppResourceType.User]: noopAsync,
+  [kAppResourceType.UsageRecord]: noopAsync,
+  [kAppResourceType.EndpointRequest]: noopAsync,
+  [kAppResourceType.Job]: noopAsync,
+  [kAppResourceType.Tag]: noopAsync,
+  [kAppResourceType.FilePresignedPath]: noopAsync,
+  [kAppResourceType.FileBackendMount]: noopAsync,
+  [kAppResourceType.FileBackendConfig]: noopAsync,
+  [kAppResourceType.File]: async (args, helpers) => {
     // TODO: very inefficient
     throw kReuseableErrors.common.notImplemented();
     const files = await kSemanticModels
@@ -306,7 +306,7 @@ export const kDeleteFoldersCascadeFns: DeleteResourceCascadeFnsMap = {
       ),
     ]);
   },
-  [AppResourceTypeMap.Folder]: async (args, helpers) => {
+  [kAppResourceType.Folder]: async (args, helpers) => {
     // TODO: cascade delete folders instead
     await helpers.withTxn(opts =>
       kSemanticModels
@@ -317,11 +317,11 @@ export const kDeleteFoldersCascadeFns: DeleteResourceCascadeFnsMap = {
         )
     );
   },
-  [AppResourceTypeMap.PermissionItem]: (args, helpers) =>
+  [kAppResourceType.PermissionItem]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.permissionItem().deleteManyByTargetId(args.resourceId, opts)
     ),
-  [AppResourceTypeMap.AssignedItem]: (args, helpers) =>
+  [kAppResourceType.AssignedItem]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels
         .assignedItem()
@@ -332,7 +332,7 @@ export const kDeleteFoldersCascadeFns: DeleteResourceCascadeFnsMap = {
           opts
         )
     ),
-  [AppResourceTypeMap.ResolvedMountEntry]: (args, helpers) =>
+  [kAppResourceType.ResolvedMountEntry]: (args, helpers) =>
     helpers.withTxn(async opts => {
       const cleanupArgs = args as DeleteFolderCascadeFnsArgs;
       await kSemanticModels.resolvedMountEntry().deleteManyByQuery(
@@ -346,35 +346,35 @@ export const kDeleteFoldersCascadeFns: DeleteResourceCascadeFnsMap = {
 };
 
 export const kDeletePermissionGroupsCascadeFns: DeleteResourceCascadeFnsMap = {
-  [AppResourceTypeMap.All]: noopAsync,
-  [AppResourceTypeMap.System]: noopAsync,
-  [AppResourceTypeMap.Public]: noopAsync,
-  [AppResourceTypeMap.Workspace]: noopAsync,
-  [AppResourceTypeMap.CollaborationRequest]: noopAsync,
-  [AppResourceTypeMap.AgentToken]: noopAsync,
-  [AppResourceTypeMap.Folder]: noopAsync,
-  [AppResourceTypeMap.File]: noopAsync,
-  [AppResourceTypeMap.User]: noopAsync,
-  [AppResourceTypeMap.UsageRecord]: noopAsync,
-  [AppResourceTypeMap.EndpointRequest]: noopAsync,
-  [AppResourceTypeMap.Job]: noopAsync,
-  [AppResourceTypeMap.Tag]: noopAsync,
-  [AppResourceTypeMap.FilePresignedPath]: noopAsync,
-  [AppResourceTypeMap.FileBackendMount]: noopAsync,
-  [AppResourceTypeMap.FileBackendConfig]: noopAsync,
-  [AppResourceTypeMap.ResolvedMountEntry]: noopAsync,
-  [AppResourceTypeMap.PermissionGroup]: (args, helpers) =>
+  [kAppResourceType.All]: noopAsync,
+  [kAppResourceType.System]: noopAsync,
+  [kAppResourceType.Public]: noopAsync,
+  [kAppResourceType.Workspace]: noopAsync,
+  [kAppResourceType.CollaborationRequest]: noopAsync,
+  [kAppResourceType.AgentToken]: noopAsync,
+  [kAppResourceType.Folder]: noopAsync,
+  [kAppResourceType.File]: noopAsync,
+  [kAppResourceType.User]: noopAsync,
+  [kAppResourceType.UsageRecord]: noopAsync,
+  [kAppResourceType.EndpointRequest]: noopAsync,
+  [kAppResourceType.Job]: noopAsync,
+  [kAppResourceType.Tag]: noopAsync,
+  [kAppResourceType.FilePresignedPath]: noopAsync,
+  [kAppResourceType.FileBackendMount]: noopAsync,
+  [kAppResourceType.FileBackendConfig]: noopAsync,
+  [kAppResourceType.ResolvedMountEntry]: noopAsync,
+  [kAppResourceType.PermissionGroup]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.permissionGroup().deleteOneById(args.resourceId, opts)
     ),
-  [AppResourceTypeMap.PermissionItem]: async (args, helpers) =>
+  [kAppResourceType.PermissionItem]: async (args, helpers) =>
     helpers.withTxn(opts =>
       Promise.all([
         kSemanticModels.permissionItem().deleteManyByTargetId(args.resourceId, opts),
         kSemanticModels.permissionItem().deleteManyByEntityId(args.resourceId, opts),
       ])
     ),
-  [AppResourceTypeMap.AssignedItem]: async (args, helpers) =>
+  [kAppResourceType.AssignedItem]: async (args, helpers) =>
     helpers.withTxn(opts =>
       Promise.all([
         kSemanticModels
@@ -393,30 +393,30 @@ export const kDeletePermissionGroupsCascadeFns: DeleteResourceCascadeFnsMap = {
 };
 
 export const kDeleteTagsCascadeFns: DeleteResourceCascadeFnsMap = {
-  [AppResourceTypeMap.All]: noopAsync,
-  [AppResourceTypeMap.System]: noopAsync,
-  [AppResourceTypeMap.Public]: noopAsync,
-  [AppResourceTypeMap.Workspace]: noopAsync,
-  [AppResourceTypeMap.CollaborationRequest]: noopAsync,
-  [AppResourceTypeMap.AgentToken]: noopAsync,
-  [AppResourceTypeMap.PermissionGroup]: noopAsync,
-  [AppResourceTypeMap.Folder]: noopAsync,
-  [AppResourceTypeMap.File]: noopAsync,
-  [AppResourceTypeMap.User]: noopAsync,
-  [AppResourceTypeMap.UsageRecord]: noopAsync,
-  [AppResourceTypeMap.EndpointRequest]: noopAsync,
-  [AppResourceTypeMap.Job]: noopAsync,
-  [AppResourceTypeMap.FilePresignedPath]: noopAsync,
-  [AppResourceTypeMap.FileBackendMount]: noopAsync,
-  [AppResourceTypeMap.FileBackendConfig]: noopAsync,
-  [AppResourceTypeMap.ResolvedMountEntry]: noopAsync,
-  [AppResourceTypeMap.PermissionItem]: (args, helpers) =>
+  [kAppResourceType.All]: noopAsync,
+  [kAppResourceType.System]: noopAsync,
+  [kAppResourceType.Public]: noopAsync,
+  [kAppResourceType.Workspace]: noopAsync,
+  [kAppResourceType.CollaborationRequest]: noopAsync,
+  [kAppResourceType.AgentToken]: noopAsync,
+  [kAppResourceType.PermissionGroup]: noopAsync,
+  [kAppResourceType.Folder]: noopAsync,
+  [kAppResourceType.File]: noopAsync,
+  [kAppResourceType.User]: noopAsync,
+  [kAppResourceType.UsageRecord]: noopAsync,
+  [kAppResourceType.EndpointRequest]: noopAsync,
+  [kAppResourceType.Job]: noopAsync,
+  [kAppResourceType.FilePresignedPath]: noopAsync,
+  [kAppResourceType.FileBackendMount]: noopAsync,
+  [kAppResourceType.FileBackendConfig]: noopAsync,
+  [kAppResourceType.ResolvedMountEntry]: noopAsync,
+  [kAppResourceType.PermissionItem]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.permissionItem().deleteManyByTargetId(args.resourceId, opts)
     ),
-  [AppResourceTypeMap.Tag]: (args, helpers) =>
+  [kAppResourceType.Tag]: (args, helpers) =>
     helpers.withTxn(opts => kSemanticModels.tag().deleteOneById(args.resourceId, opts)),
-  [AppResourceTypeMap.AssignedItem]: (args, helpers) =>
+  [kAppResourceType.AssignedItem]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels
         .assignedItem()
@@ -425,32 +425,32 @@ export const kDeleteTagsCascadeFns: DeleteResourceCascadeFnsMap = {
 };
 
 export const kDeleteFileBackendConfigCascadeFns: DeleteResourceCascadeFnsMap = {
-  [AppResourceTypeMap.All]: noopAsync,
-  [AppResourceTypeMap.System]: noopAsync,
-  [AppResourceTypeMap.Public]: noopAsync,
-  [AppResourceTypeMap.Workspace]: noopAsync,
-  [AppResourceTypeMap.CollaborationRequest]: noopAsync,
-  [AppResourceTypeMap.AgentToken]: noopAsync,
-  [AppResourceTypeMap.PermissionGroup]: noopAsync,
-  [AppResourceTypeMap.Folder]: noopAsync,
-  [AppResourceTypeMap.File]: noopAsync,
-  [AppResourceTypeMap.User]: noopAsync,
-  [AppResourceTypeMap.UsageRecord]: noopAsync,
-  [AppResourceTypeMap.EndpointRequest]: noopAsync,
-  [AppResourceTypeMap.Job]: noopAsync,
-  [AppResourceTypeMap.FilePresignedPath]: noopAsync,
-  [AppResourceTypeMap.FileBackendMount]: noopAsync,
-  [AppResourceTypeMap.ResolvedMountEntry]: noopAsync,
-  [AppResourceTypeMap.FileBackendConfig]: (args, helpers) =>
+  [kAppResourceType.All]: noopAsync,
+  [kAppResourceType.System]: noopAsync,
+  [kAppResourceType.Public]: noopAsync,
+  [kAppResourceType.Workspace]: noopAsync,
+  [kAppResourceType.CollaborationRequest]: noopAsync,
+  [kAppResourceType.AgentToken]: noopAsync,
+  [kAppResourceType.PermissionGroup]: noopAsync,
+  [kAppResourceType.Folder]: noopAsync,
+  [kAppResourceType.File]: noopAsync,
+  [kAppResourceType.User]: noopAsync,
+  [kAppResourceType.UsageRecord]: noopAsync,
+  [kAppResourceType.EndpointRequest]: noopAsync,
+  [kAppResourceType.Job]: noopAsync,
+  [kAppResourceType.FilePresignedPath]: noopAsync,
+  [kAppResourceType.FileBackendMount]: noopAsync,
+  [kAppResourceType.ResolvedMountEntry]: noopAsync,
+  [kAppResourceType.FileBackendConfig]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.fileBackendConfig().deleteOneById(args.resourceId, opts)
     ),
-  [AppResourceTypeMap.PermissionItem]: (args, helpers) =>
+  [kAppResourceType.PermissionItem]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.permissionItem().deleteManyByTargetId(args.resourceId, opts)
     ),
-  [AppResourceTypeMap.Tag]: noopAsync,
-  [AppResourceTypeMap.AssignedItem]: noopAsync,
+  [kAppResourceType.Tag]: noopAsync,
+  [kAppResourceType.AssignedItem]: noopAsync,
   other: async args => {
     await kUtilsInjectables
       .secretsManager()
@@ -459,32 +459,32 @@ export const kDeleteFileBackendConfigCascadeFns: DeleteResourceCascadeFnsMap = {
 };
 
 export const kDeleteFileBackendMountCascadeFns: DeleteResourceCascadeFnsMap = {
-  [AppResourceTypeMap.All]: noopAsync,
-  [AppResourceTypeMap.System]: noopAsync,
-  [AppResourceTypeMap.Public]: noopAsync,
-  [AppResourceTypeMap.Workspace]: noopAsync,
-  [AppResourceTypeMap.CollaborationRequest]: noopAsync,
-  [AppResourceTypeMap.AgentToken]: noopAsync,
-  [AppResourceTypeMap.PermissionGroup]: noopAsync,
-  [AppResourceTypeMap.Folder]: noopAsync,
-  [AppResourceTypeMap.File]: noopAsync,
-  [AppResourceTypeMap.User]: noopAsync,
-  [AppResourceTypeMap.UsageRecord]: noopAsync,
-  [AppResourceTypeMap.EndpointRequest]: noopAsync,
-  [AppResourceTypeMap.Job]: noopAsync,
-  [AppResourceTypeMap.FilePresignedPath]: noopAsync,
-  [AppResourceTypeMap.ResolvedMountEntry]: noopAsync,
-  [AppResourceTypeMap.FileBackendMount]: (args, helpers) =>
+  [kAppResourceType.All]: noopAsync,
+  [kAppResourceType.System]: noopAsync,
+  [kAppResourceType.Public]: noopAsync,
+  [kAppResourceType.Workspace]: noopAsync,
+  [kAppResourceType.CollaborationRequest]: noopAsync,
+  [kAppResourceType.AgentToken]: noopAsync,
+  [kAppResourceType.PermissionGroup]: noopAsync,
+  [kAppResourceType.Folder]: noopAsync,
+  [kAppResourceType.File]: noopAsync,
+  [kAppResourceType.User]: noopAsync,
+  [kAppResourceType.UsageRecord]: noopAsync,
+  [kAppResourceType.EndpointRequest]: noopAsync,
+  [kAppResourceType.Job]: noopAsync,
+  [kAppResourceType.FilePresignedPath]: noopAsync,
+  [kAppResourceType.ResolvedMountEntry]: noopAsync,
+  [kAppResourceType.FileBackendMount]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.fileBackendConfig().deleteOneById(args.resourceId, opts)
     ),
-  [AppResourceTypeMap.FileBackendConfig]: noopAsync,
-  [AppResourceTypeMap.PermissionItem]: (args, helpers) =>
+  [kAppResourceType.FileBackendConfig]: noopAsync,
+  [kAppResourceType.PermissionItem]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.permissionItem().deleteManyByTargetId(args.resourceId, opts)
     ),
-  [AppResourceTypeMap.Tag]: noopAsync,
-  [AppResourceTypeMap.AssignedItem]: noopAsync,
+  [kAppResourceType.Tag]: noopAsync,
+  [kAppResourceType.AssignedItem]: noopAsync,
   other: async (args, helpers) => {
     await queueJobs<CleanupMountResolvedEntriesJobParams>(
       args.workspaceId,
@@ -495,42 +495,42 @@ export const kDeleteFileBackendMountCascadeFns: DeleteResourceCascadeFnsMap = {
 };
 
 export const kDeleteWorkspaceCascadeFns: DeleteResourceCascadeFnsMap = {
-  [AppResourceTypeMap.All]: noopAsync,
-  [AppResourceTypeMap.System]: noopAsync,
-  [AppResourceTypeMap.Public]: noopAsync,
-  [AppResourceTypeMap.User]: noopAsync,
-  [AppResourceTypeMap.EndpointRequest]: noopAsync,
-  [AppResourceTypeMap.Job]: (args, helpers) =>
+  [kAppResourceType.All]: noopAsync,
+  [kAppResourceType.System]: noopAsync,
+  [kAppResourceType.Public]: noopAsync,
+  [kAppResourceType.User]: noopAsync,
+  [kAppResourceType.EndpointRequest]: noopAsync,
+  [kAppResourceType.Job]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.job().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.Workspace]: (args, helpers) =>
+  [kAppResourceType.Workspace]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.workspace().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.CollaborationRequest]: (args, helpers) =>
+  [kAppResourceType.CollaborationRequest]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels
         .collaborationRequest()
         .deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.AgentToken]: (args, helpers) =>
+  [kAppResourceType.AgentToken]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.agentToken().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.PermissionGroup]: (args, helpers) =>
+  [kAppResourceType.PermissionGroup]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.permissionGroup().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.PermissionItem]: (args, helpers) =>
+  [kAppResourceType.PermissionItem]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.permissionItem().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.Folder]: (args, helpers) =>
+  [kAppResourceType.Folder]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.folder().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.File]: async (args, helpers) =>
+  [kAppResourceType.File]: async (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels
         .file()
@@ -539,31 +539,31 @@ export const kDeleteWorkspaceCascadeFns: DeleteResourceCascadeFnsMap = {
           opts
         )
     ),
-  [AppResourceTypeMap.Tag]: (args, helpers) =>
+  [kAppResourceType.Tag]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.tag().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.AssignedItem]: (args, helpers) =>
+  [kAppResourceType.AssignedItem]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.assignedItem().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.UsageRecord]: (args, helpers) =>
+  [kAppResourceType.UsageRecord]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.usageRecord().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.FilePresignedPath]: (args, helpers) =>
+  [kAppResourceType.FilePresignedPath]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.filePresignedPath().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.FileBackendMount]: (args, helpers) =>
+  [kAppResourceType.FileBackendMount]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.fileBackendMount().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.FileBackendConfig]: (args, helpers) =>
+  [kAppResourceType.FileBackendConfig]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.fileBackendConfig().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [AppResourceTypeMap.ResolvedMountEntry]: (args, helpers) =>
+  [kAppResourceType.ResolvedMountEntry]: (args, helpers) =>
     helpers.withTxn(opts =>
       kSemanticModels.resolvedMountEntry().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),

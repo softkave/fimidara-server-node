@@ -1,6 +1,6 @@
 import {File} from '../../definitions/file';
 import {PermissionAction} from '../../definitions/permissionItem';
-import {AppResourceTypeMap, PERMISSION_AGENT_TYPES} from '../../definitions/system';
+import {kAppResourceType, PERMISSION_AGENT_TYPES} from '../../definitions/system';
 import {
   BandwidthUsageRecordArtifact,
   FileUsageRecordArtifact,
@@ -67,7 +67,7 @@ export async function insertStorageUsageRecordInput(
         action,
         artifact: artifactMeta,
         type: UsageRecordArtifactTypeMap.File,
-        resourceType: AppResourceTypeMap.File,
+        resourceType: kAppResourceType.File,
       },
     ],
   };
@@ -97,7 +97,7 @@ export async function insertBandwidthInUsageRecordInput(
         action,
         artifact: artifactMeta,
         type: UsageRecordArtifactTypeMap.File,
-        resourceType: AppResourceTypeMap.File,
+        resourceType: kAppResourceType.File,
       },
     ],
   };
@@ -127,7 +127,7 @@ export async function insertBandwidthOutUsageRecordInput(
         action,
         artifact: artifactMeta,
         type: UsageRecordArtifactTypeMap.File,
-        resourceType: AppResourceTypeMap.File,
+        resourceType: kAppResourceType.File,
       },
     ],
   };

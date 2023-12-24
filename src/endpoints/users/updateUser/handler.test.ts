@@ -3,7 +3,7 @@ import RequestData from '../../RequestData';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {kSemanticModels} from '../../contexts/injectables';
 import EndpointReusableQueries from '../../queries';
-import {generateAndInsertUserListForTest} from '../../testUtils/generateData/user';
+import {generateAndInsertUserListForTest} from '../../testUtils/generate/user';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests} from '../../testUtils/helpers/test';
 import {

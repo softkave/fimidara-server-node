@@ -1,11 +1,11 @@
 import {format} from 'util';
 import {PermissionAction} from '../../definitions/permissionItem';
 import {
-  AppResourceTypeMap,
   PERMISSION_CONTAINER_TYPES,
   PERMISSION_ENTITY_TYPES,
   SessionAgent,
   getWorkspaceResourceTypeList,
+  kAppResourceType,
 } from '../../definitions/system';
 import {getResourceTypeFromId} from '../../utils/resource';
 import {InvalidRequestError} from '../errors';
@@ -75,7 +75,7 @@ export async function checkPermissionContainersExist(
 }
 
 const targetTypes = getWorkspaceResourceTypeList().filter(
-  type => type !== AppResourceTypeMap.All
+  type => type !== kAppResourceType.All
 );
 
 export async function checkPermissionTargetsExist(
@@ -103,7 +103,7 @@ export async function checkPermissionTargetsExist(
     checkAuth: true,
   });
   resources = await resourceListWithAssignedItems(workspaceId, resources, [
-    AppResourceTypeMap.User,
+    kAppResourceType.User,
   ]);
 
   checkResourcesBelongsToWorkspace(workspaceId, resources);

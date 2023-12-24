@@ -1,15 +1,16 @@
 import {identity} from 'lodash';
-import {AppResourceTypeMap, Resource} from '../../../definitions/system';
+import {kAppResourceType, Resource} from '../../../definitions/system';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {extractResourceIdList, getResourceId} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
-import RequestData from '../../RequestData';
+import {kSemanticModels} from '../../contexts/injectables';
 import {
   assignPgListToIdList,
   toAssignedPgListInput,
 } from '../../permissionGroups/testUtils';
-import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generateData/collaborator';
-import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
+import RequestData from '../../RequestData';
+import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator';
+import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup';
 import {expectContainsNoneInForAnyType} from '../../testUtils/helpers/assertion';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
@@ -22,7 +23,6 @@ import {
 } from '../../testUtils/testUtils';
 import getCollaboratorsWithoutPermission from './handler';
 import {GetCollaboratorsWithoutPermissionEndpointParams} from './types';
-import {kSemanticModels} from '../../contexts/injectables';
 
 beforeAll(async () => {
   await initTests();
@@ -88,7 +88,7 @@ async function assertCollaboratorsDoNotHavePermissions(
 ) {
   let count = await kSemanticModels.assignedItem().countByQuery({
     assigneeId: {$in: collaboratorIdList},
-    assignedItemType: AppResourceTypeMap.PermissionGroup,
+    assignedItemType: kAppResourceType.PermissionGroup,
   });
   expect(count).toBe(0);
   count = await kSemanticModels.permissionItem().countByQuery({

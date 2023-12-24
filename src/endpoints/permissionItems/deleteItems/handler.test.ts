@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import RequestData from '../../RequestData';
 import {executeJob, waitForJob} from '../../jobs/runner';
 import {expectEntityHasPermissionsTargetingType} from '../../testUtils/helpers/permissionItem';
@@ -53,7 +53,7 @@ test('permission items deleted', async () => {
     permissionGroup.resourceId,
     'readFile',
     workspace.resourceId,
-    AppResourceTypeMap.File,
+    kAppResourceType.File,
     /** expected result */ false
   );
 });

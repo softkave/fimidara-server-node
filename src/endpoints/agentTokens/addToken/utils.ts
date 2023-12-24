@@ -2,8 +2,8 @@ import {defaultTo, omit} from 'lodash';
 import {AgentToken} from '../../../definitions/agentToken';
 import {
   Agent,
-  AppResourceTypeMap,
   CURRENT_TOKEN_VERSION,
+  kAppResourceType,
 } from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {newWorkspaceResource} from '../../../utils/resource';
@@ -33,14 +33,14 @@ export const INTERNAL_createAgentToken = async (
 
   token = newWorkspaceResource<AgentToken>(
     agent,
-    AppResourceTypeMap.AgentToken,
+    kAppResourceType.AgentToken,
     workspace.resourceId,
     {
       ...omit(data, 'tags'),
       providedResourceId: defaultTo(data.providedResourceId, null),
       version: CURRENT_TOKEN_VERSION,
       separateEntityId: null,
-      agentType: AppResourceTypeMap.AgentToken,
+      agentType: kAppResourceType.AgentToken,
     }
   );
   await Promise.all([

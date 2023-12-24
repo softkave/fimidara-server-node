@@ -3,13 +3,13 @@ import {first} from 'lodash';
 import {AgentToken} from '../../definitions/agentToken';
 import {
   AppResourceType,
-  AppResourceTypeMap,
   BaseTokenData,
   CURRENT_TOKEN_VERSION,
   SessionAgent,
   TokenAccessScope,
   TokenAccessScopeMap,
   TokenSubjectDefault,
+  kAppResourceType,
 } from '../../definitions/system';
 import {User} from '../../definitions/user';
 import {PUBLIC_SESSION_AGENT} from '../../utils/agent';
@@ -58,8 +58,8 @@ export default class SessionContext implements SessionContextType {
   getAgent = async (
     data: RequestData,
     permittedAgentTypes: AppResourceType | AppResourceType[] = [
-      AppResourceTypeMap.User,
-      AppResourceTypeMap.AgentToken,
+      kAppResourceType.User,
+      kAppResourceType.AgentToken,
     ],
     tokenAccessScope: TokenAccessScope | TokenAccessScope[] = TokenAccessScopeMap.Login
   ) => {
@@ -73,7 +73,7 @@ export default class SessionContext implements SessionContextType {
           .getOneById(incomingTokenData.sub.id);
         appAssert(agentToken, new InvalidCredentialsError());
 
-        if (agentToken.agentType === AppResourceTypeMap.User) {
+        if (agentToken.agentType === kAppResourceType.User) {
           appAssert(agentToken.separateEntityId);
           const user = await kSemanticModels
             .user()
@@ -101,7 +101,7 @@ export default class SessionContext implements SessionContextType {
   ) => {
     const agent = await kUtilsInjectables
       .session()
-      .getAgent(data, [AppResourceTypeMap.User], tokenAccessScope);
+      .getAgent(data, [kAppResourceType.User], tokenAccessScope);
     appAssert(agent.user, new ServerError());
     return agent.user;
   };
@@ -169,7 +169,7 @@ export default class SessionContext implements SessionContextType {
   ) {
     if (
       tokenAccessScope &&
-      agent.agentType === AppResourceTypeMap.User &&
+      agent.agentType === kAppResourceType.User &&
       agent.agentToken
     ) {
       if (
@@ -185,7 +185,7 @@ export default class SessionContext implements SessionContextType {
     agent: SessionAgent,
     tokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) {
-    if (agent.agentType === AppResourceTypeMap.User) {
+    if (agent.agentType === kAppResourceType.User) {
       appAssert(agent.user);
       if (agent.user.requiresPasswordChange) {
         const scopeList = toArray(tokenAccessScope);

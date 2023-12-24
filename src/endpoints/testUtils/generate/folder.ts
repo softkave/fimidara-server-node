@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {container} from 'tsyringe';
 import {Folder} from '../../../definitions/folder';
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive} from '../../../utils/fns';
@@ -98,7 +98,7 @@ export function generateTestFolder(
   extra: Partial<Folder> & {parentId: string | null} = {parentId: null},
   other: {parentnamepath?: string[]; parentIdPath?: string[]} = {}
 ) {
-  const id = getNewIdForResource(AppResourceTypeMap.Folder);
+  const id = getNewIdForResource(kAppResourceType.Folder);
   const name = generateTestFolderName();
   const namepath = other.parentnamepath ? other.parentnamepath.concat(name) : [name];
   const idPath = other.parentIdPath
@@ -117,7 +117,7 @@ export function generateTestFolder(
     lastUpdatedAt: createdAt,
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
     resourceId: id,
-    workspaceId: getNewIdForResource(AppResourceTypeMap.Workspace),
+    workspaceId: getNewIdForResource(kAppResourceType.Workspace),
     ...extra,
   };
   return folder;

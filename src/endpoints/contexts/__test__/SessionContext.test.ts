@@ -1,8 +1,8 @@
-import {AppResourceTypeMap, TokenAccessScopeMap} from '../../../definitions/system';
+import {kAppResourceType, TokenAccessScopeMap} from '../../../definitions/system';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import RequestData from '../../RequestData';
-import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generateData/agentToken';
-import {generateAndInsertUserListForTest} from '../../testUtils/generateData/user';
+import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generate/agentToken';
+import {generateAndInsertUserListForTest} from '../../testUtils/generate/user';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests} from '../../testUtils/helpers/test';
 import {initTests} from '../../testUtils/testUtils';
@@ -24,7 +24,7 @@ describe('SessionContext', () => {
       scope: [TokenAccessScopeMap.ChangePassword],
       workspaceId: null,
       separateEntityId: user.resourceId,
-      agentType: AppResourceTypeMap.User,
+      agentType: kAppResourceType.User,
     });
     await expectErrorThrown(async () => {
       const reqData = new RequestData({
@@ -32,7 +32,7 @@ describe('SessionContext', () => {
       });
       await kUtilsInjectables
         .session()
-        .getAgent(reqData, [AppResourceTypeMap.User], [TokenAccessScopeMap.Login]);
+        .getAgent(reqData, [kAppResourceType.User], [TokenAccessScopeMap.Login]);
     }, [PermissionDeniedError.name]);
   });
 
@@ -44,7 +44,7 @@ describe('SessionContext', () => {
       scope: [TokenAccessScopeMap.Login],
       workspaceId: null,
       separateEntityId: user.resourceId,
-      agentType: AppResourceTypeMap.User,
+      agentType: kAppResourceType.User,
     });
     await expectErrorThrown(async () => {
       const reqData = new RequestData({
@@ -52,7 +52,7 @@ describe('SessionContext', () => {
       });
       await kUtilsInjectables
         .session()
-        .getAgent(reqData, [AppResourceTypeMap.User], [TokenAccessScopeMap.Login]);
+        .getAgent(reqData, [kAppResourceType.User], [TokenAccessScopeMap.Login]);
     }, [ChangePasswordError.name]);
   });
 });

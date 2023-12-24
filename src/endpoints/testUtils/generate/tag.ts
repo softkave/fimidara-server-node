@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {Agent, AppResourceTypeMap} from '../../../definitions/system';
+import {Agent, kAppResourceType} from '../../../definitions/system';
 import {Tag} from '../../../definitions/tag';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
@@ -8,22 +8,22 @@ import {kSemanticModels} from '../../contexts/injectables';
 export function generateTagForTest(seed: Partial<Tag> = {}) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
-    agentId: getNewIdForResource(AppResourceTypeMap.User),
-    agentType: AppResourceTypeMap.User,
-    agentTokenId: getNewIdForResource(AppResourceTypeMap.AgentToken),
+    agentId: getNewIdForResource(kAppResourceType.User),
+    agentType: kAppResourceType.User,
+    agentTokenId: getNewIdForResource(kAppResourceType.AgentToken),
   };
-  const token: Tag = {
+  const tag: Tag = {
     createdAt,
     createdBy,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
-    resourceId: getNewIdForResource(AppResourceTypeMap.Tag),
-    workspaceId: getNewIdForResource(AppResourceTypeMap.Workspace),
+    resourceId: getNewIdForResource(kAppResourceType.Tag),
+    workspaceId: getNewIdForResource(kAppResourceType.Workspace),
     name: faker.company.name(),
     description: faker.lorem.sentence(),
     ...seed,
   };
-  return token;
+  return tag;
 }
 
 export function generateTagListForTest(count = 20, seed: Partial<Tag> = {}) {

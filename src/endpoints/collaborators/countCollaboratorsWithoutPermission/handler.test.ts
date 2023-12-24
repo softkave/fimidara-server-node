@@ -1,6 +1,6 @@
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import RequestData from '../../RequestData';
-import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generateData/collaborator';
+import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,

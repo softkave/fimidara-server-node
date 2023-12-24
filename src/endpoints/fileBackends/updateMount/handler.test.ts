@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import RequestData from '../../RequestData';
@@ -8,13 +8,13 @@ import {kSemanticModels} from '../../contexts/injectables';
 import {NotFoundError} from '../../errors';
 import {getFolderpathInfo} from '../../folders/utils';
 import {executeJob, waitForJob} from '../../jobs/runner';
-import {generateAndInsertFileBackendConfigListForTest} from '../../testUtils/generateData/fileBackend';
-import {generateTestFolderpathString} from '../../testUtils/generateData/folder';
+import {generateAndInsertFileBackendConfigListForTest} from '../../testUtils/generate/fileBackend';
+import {generateTestFolderpathString} from '../../testUtils/generate/folder';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,
   generateTestFieldsCombinations,
-} from '../../testUtils/generateData/utils';
+} from '../../testUtils/generate/utils';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests, matchExpects} from '../../testUtils/helpers/test';
 import {
@@ -174,8 +174,8 @@ describe('updateMount', async () => {
     const instData = RequestData.fromExpressRequest<UpdateFileBackendMountEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
-        mountId: getNewIdForResource(AppResourceTypeMap.FileBackendMount),
-        mount: {configId: getNewIdForResource(AppResourceTypeMap.FileBackendConfig)},
+        mountId: getNewIdForResource(kAppResourceType.FileBackendMount),
+        mount: {configId: getNewIdForResource(kAppResourceType.FileBackendConfig)},
         workspaceId: workspace.resourceId,
       }
     );
@@ -198,7 +198,7 @@ describe('updateMount', async () => {
       mockExpressRequestWithAgentToken(userToken),
       {
         mountId: mount.resourceId,
-        mount: {configId: getNewIdForResource(AppResourceTypeMap.FileBackendConfig)},
+        mount: {configId: getNewIdForResource(kAppResourceType.FileBackendConfig)},
         workspaceId: workspace.resourceId,
       }
     );

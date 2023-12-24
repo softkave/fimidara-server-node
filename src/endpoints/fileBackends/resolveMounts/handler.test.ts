@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {FileBackendMount} from '../../../definitions/fileBackend';
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import RequestData from '../../RequestData';
@@ -10,18 +10,18 @@ import {kFolderConstants} from '../../folders/constants';
 import {
   generateAndInsertTestFiles,
   generateTestFilepathString,
-} from '../../testUtils/generateData/file';
-import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generateData/fileBackend';
+} from '../../testUtils/generate/file';
+import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend';
 import {
   generateAndInsertTestFolders,
   generateTestFolderpathString,
-} from '../../testUtils/generateData/folder';
+} from '../../testUtils/generate/folder';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,
   generateTestFieldsCombinations,
   matchGenerators,
-} from '../../testUtils/generateData/utils';
+} from '../../testUtils/generate/utils';
 import {expectListSubsetMatch} from '../../testUtils/helpers/assertion';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests, matchExpects} from '../../testUtils/helpers/test';
@@ -194,7 +194,7 @@ describe('resolveMounts', async () => {
       RequestData.fromExpressRequest<ResolveFileBackendMountsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
-          fileId: getNewIdForResource(AppResourceTypeMap.File),
+          fileId: getNewIdForResource(kAppResourceType.File),
           workspaceId: workspace.resourceId,
         }
       );
@@ -215,7 +215,7 @@ describe('resolveMounts', async () => {
       RequestData.fromExpressRequest<ResolveFileBackendMountsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
-          folderId: getNewIdForResource(AppResourceTypeMap.Folder),
+          folderId: getNewIdForResource(kAppResourceType.Folder),
           workspaceId: workspace.resourceId,
         }
       );

@@ -1,4 +1,4 @@
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {kUtilsInjectables} from '../../contexts/injectables';
 import {enqueueDeleteResourceJob} from '../../jobs/utils';
@@ -12,7 +12,7 @@ const deleteTag: DeleteTagEndpoint = async instData => {
   const {tag} = await checkTagAuthorization02(agent, data.tagId, 'deleteTag');
 
   const job = await enqueueDeleteResourceJob({
-    type: AppResourceTypeMap.Tag,
+    type: kAppResourceType.Tag,
     args: {workspaceId: tag.workspaceId, resourceId: tag.resourceId},
   });
 

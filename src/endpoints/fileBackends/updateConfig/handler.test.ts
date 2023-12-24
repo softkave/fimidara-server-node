@@ -3,12 +3,12 @@ import assert from 'assert';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import RequestData from '../../RequestData';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
-import {generateAWSS3Credentials} from '../../testUtils/generateData/fileBackend';
+import {generateAWSS3Credentials} from '../../testUtils/generate/fileBackend';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,
   generateTestFieldsCombinations,
-} from '../../testUtils/generateData/utils';
+} from '../../testUtils/generate/utils';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests, matchExpects} from '../../testUtils/helpers/test';
 import {

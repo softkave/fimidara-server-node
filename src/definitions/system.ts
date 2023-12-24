@@ -45,7 +45,7 @@ export interface SessionAgent extends Agent {
 
 // TODO: separate data resources from symbolic resources (resources that are not
 // saved in DB).
-export const AppResourceTypeMap = {
+export const kAppResourceType = {
   All: '*',
   System: 'system',
   Public: 'public',
@@ -66,48 +66,49 @@ export const AppResourceTypeMap = {
   FileBackendConfig: 'fileBackendConfig',
   FileBackendMount: 'fileBackendMount',
   ResolvedMountEntry: 'resolvedMountEntry',
+  App: 'app',
 } as const;
 
-export type AppResourceType = ObjectValues<typeof AppResourceTypeMap>;
+export type AppResourceType = ObjectValues<typeof kAppResourceType>;
 
 export const PERMISSION_AGENT_TYPES: AppResourceType[] = [
-  AppResourceTypeMap.AgentToken,
-  AppResourceTypeMap.User,
-  AppResourceTypeMap.Public,
+  kAppResourceType.AgentToken,
+  kAppResourceType.User,
+  kAppResourceType.Public,
 ];
 
 export const PERMISSION_ENTITY_TYPES: AppResourceType[] = [
-  AppResourceTypeMap.User,
-  AppResourceTypeMap.AgentToken,
-  AppResourceTypeMap.PermissionGroup,
+  kAppResourceType.User,
+  kAppResourceType.AgentToken,
+  kAppResourceType.PermissionGroup,
 ];
 
 export const PERMISSION_CONTAINER_TYPES: AppResourceType[] = [
-  AppResourceTypeMap.Workspace,
-  AppResourceTypeMap.Folder,
+  kAppResourceType.Workspace,
+  kAppResourceType.Folder,
 ];
 
 export function getWorkspaceResourceTypeList(): AppResourceType[] {
   return [
-    AppResourceTypeMap.All,
-    AppResourceTypeMap.Workspace,
-    AppResourceTypeMap.CollaborationRequest,
-    AppResourceTypeMap.AgentToken,
-    AppResourceTypeMap.PermissionGroup,
-    AppResourceTypeMap.PermissionItem,
-    AppResourceTypeMap.Folder,
-    AppResourceTypeMap.File,
-    AppResourceTypeMap.User,
-    AppResourceTypeMap.Tag,
-    AppResourceTypeMap.UsageRecord,
+    kAppResourceType.All,
+    kAppResourceType.Workspace,
+    kAppResourceType.CollaborationRequest,
+    kAppResourceType.AgentToken,
+    kAppResourceType.PermissionGroup,
+    kAppResourceType.PermissionItem,
+    kAppResourceType.Folder,
+    kAppResourceType.File,
+    kAppResourceType.User,
+    kAppResourceType.Tag,
+    kAppResourceType.UsageRecord,
   ];
 }
 
 export const VALID_AGENT_TYPES: AppResourceType[] = [
-  AppResourceTypeMap.User,
-  AppResourceTypeMap.AgentToken,
+  kAppResourceType.User,
+  kAppResourceType.AgentToken,
 ];
-export const APP_RESOURCE_TYPE_LIST = Object.values(AppResourceTypeMap);
+export const APP_RESOURCE_TYPE_LIST = Object.values(kAppResourceType);
 
 export interface AppRuntimeState extends Resource {
   resourceId: string; // use APP_RUNTIME_STATE_DOC_ID

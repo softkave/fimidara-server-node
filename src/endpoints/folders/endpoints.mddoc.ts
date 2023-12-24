@@ -4,7 +4,7 @@ import {
   FolderResolvedMountEntry,
   PublicFolder,
 } from '../../definitions/folder';
-import {AppResourceTypeMap} from '../../definitions/system';
+import {kAppResourceType} from '../../definitions/system';
 import {
   FieldObjectFieldsMap,
   HttpEndpointMethod,
@@ -124,8 +124,8 @@ const listFolderContentParams = mddocConstruct
       mddocConstruct
         .constructFieldString()
         .setDescription('Fetch children files or folders. To fetch both, pass nothing.')
-        .setExample(AppResourceTypeMap.File)
-        .setValid([AppResourceTypeMap.File, AppResourceTypeMap.Folder])
+        .setExample(kAppResourceType.File)
+        .setValid([kAppResourceType.File, kAppResourceType.Folder])
     ),
     page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
     pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
@@ -156,8 +156,8 @@ const countFolderContentParams = mddocConstruct
       mddocConstruct
         .constructFieldString()
         .setDescription('Count children files or folders. To count both, pass nothing.')
-        .setExample(AppResourceTypeMap.File)
-        .setValid([AppResourceTypeMap.File, AppResourceTypeMap.Folder])
+        .setExample(kAppResourceType.File)
+        .setValid([kAppResourceType.File, kAppResourceType.Folder])
     ),
   });
 const countFolderContentResponseBody = mddocConstruct

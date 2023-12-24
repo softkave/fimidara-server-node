@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import {merge, pick} from 'lodash';
 import {AnyObject} from 'mongoose';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {Agent, AppResourceType, AppResourceTypeMap} from '../../../definitions/system';
+import {Agent, AppResourceType, kAppResourceType} from '../../../definitions/system';
 import {getNewIdForResource} from '../../../utils/resource';
 import {AnyFn, OrPromise} from '../../../utils/types';
 
@@ -35,7 +35,7 @@ export function generateTestList<
 }
 
 export function randomResourceType(
-  types: AppResourceType[] = Object.values(AppResourceTypeMap)
+  types: AppResourceType[] = Object.values(kAppResourceType)
 ) {
   return faker.helpers.arrayElement(types);
 }
@@ -45,7 +45,7 @@ export function randomAction(actions = Object.values(kPermissionsMap)) {
 }
 
 export function generateAgent(seed: Partial<Agent> = {}): Agent {
-  const agentType = AppResourceTypeMap.AgentToken;
+  const agentType = kAppResourceType.AgentToken;
   const agentTokenId = getNewIdForResource(agentType);
   return {
     agentType,

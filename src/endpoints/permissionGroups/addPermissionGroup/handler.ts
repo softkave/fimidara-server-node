@@ -1,5 +1,5 @@
 import {PermissionGroup} from '../../../definitions/permissionGroups';
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {newWorkspaceResource} from '../../../utils/resource';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
@@ -32,7 +32,7 @@ const addPermissionGroup: AddPermissionGroupEndpoint = async instData => {
     );
     const permissionGroup = newWorkspaceResource<PermissionGroup>(
       agent,
-      AppResourceTypeMap.PermissionGroup,
+      kAppResourceType.PermissionGroup,
       workspace.resourceId,
       {...data.permissionGroup, workspaceId: workspace.resourceId}
     );

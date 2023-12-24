@@ -1,5 +1,5 @@
 import {FileBackendConfig} from '../../../definitions/fileBackend';
-import {Agent, AppResourceTypeMap} from '../../../definitions/system';
+import {Agent, kAppResourceType} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {newWorkspaceResource} from '../../../utils/resource';
@@ -33,7 +33,7 @@ export const INTERNAL_addConfig = async (
 
   let config = newWorkspaceResource<FileBackendConfig>(
     agent,
-    AppResourceTypeMap.FileBackendConfig,
+    kAppResourceType.FileBackendConfig,
     workspace.resourceId,
     {
       backend: data.backend,

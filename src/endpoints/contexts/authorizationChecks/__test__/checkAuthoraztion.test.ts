@@ -4,13 +4,13 @@ import {SYSTEM_SESSION_AGENT} from '../../../../utils/agent';
 import {toArray} from '../../../../utils/fns';
 import RequestData from '../../../RequestData';
 import {assignWorkspaceToUser} from '../../../assignedItems/addAssignedItems';
-import {generateAndInsertTestFiles} from '../../../testUtils/generateData/file';
-import {generateAndInsertTestFolders} from '../../../testUtils/generateData/folder';
+import {generateAndInsertTestFiles} from '../../../testUtils/generate/file';
+import {generateAndInsertTestFolders} from '../../../testUtils/generate/folder';
 import {
   generateAndInsertAssignedItemListForTest,
   generateAndInsertPermissionGroupListForTest,
-} from '../../../testUtils/generateData/permissionGroup';
-import {generatePermissionItemForTest} from '../../../testUtils/generateData/permissionItem';
+} from '../../../testUtils/generate/permissionGroup';
+import {generatePermissionItemForTest} from '../../../testUtils/generate/permissionItem';
 import {expectErrorThrown} from '../../../testUtils/helpers/error';
 import {completeTests} from '../../../testUtils/helpers/test';
 import {

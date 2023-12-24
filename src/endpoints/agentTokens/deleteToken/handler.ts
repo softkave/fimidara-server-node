@@ -1,4 +1,4 @@
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {tryGetAgentTokenId} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
@@ -25,7 +25,7 @@ const deleteAgentToken: DeleteAgentTokenEndpoint = async instData => {
   appAssert(workspaceId);
 
   const job = await enqueueDeleteResourceJob({
-    type: AppResourceTypeMap.AgentToken,
+    type: kAppResourceType.AgentToken,
     args: {workspaceId, resourceId: token.resourceId},
   });
 

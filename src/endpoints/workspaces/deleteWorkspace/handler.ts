@@ -1,4 +1,4 @@
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {kUtilsInjectables} from '../../contexts/injectables';
 import {enqueueDeleteResourceJob} from '../../jobs/utils';
@@ -10,7 +10,7 @@ const deleteWorkspace: DeleteWorkspaceEndpoint = async instData => {
   const data = validate(instData.data, deleteWorkspaceJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, AppResourceTypeMap.User);
+    .getAgent(instData, kAppResourceType.User);
   const {workspace} = await checkWorkspaceAuthorization02(
     agent,
     'deleteWorkspace',
@@ -18,7 +18,7 @@ const deleteWorkspace: DeleteWorkspaceEndpoint = async instData => {
   );
 
   const job = await enqueueDeleteResourceJob({
-    type: AppResourceTypeMap.Workspace,
+    type: kAppResourceType.Workspace,
     args: {workspaceId: workspace.resourceId, resourceId: workspace.resourceId},
   });
 

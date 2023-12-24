@@ -1,4 +1,4 @@
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {Tag} from '../../../definitions/tag';
 import {newWorkspaceResource} from '../../../utils/resource';
 import {validate} from '../../../utils/validate';
@@ -23,7 +23,7 @@ const addTag: AddTagEndpoint = async instData => {
 
   const tag = newWorkspaceResource<Tag>(
     agent,
-    AppResourceTypeMap.Tag,
+    kAppResourceType.Tag,
     workspace.resourceId,
     {...data.tag}
   );

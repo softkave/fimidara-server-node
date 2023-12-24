@@ -1,7 +1,7 @@
 import busboy from 'connect-busboy';
 import {Request, Response} from 'express';
 import {first, last} from 'lodash';
-import {AppResourceTypeMap} from '../../definitions/system';
+import {kAppResourceType} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {toArray} from '../../utils/fns';
 import {tryGetResourceTypeFromId} from '../../utils/resource';
@@ -78,7 +78,7 @@ function extractFilepathOrIdFromReqPath(req: Request, endpointPath: string) {
 
   if (
     maybeFileId &&
-    tryGetResourceTypeFromId(maybeFileId) === AppResourceTypeMap.File &&
+    tryGetResourceTypeFromId(maybeFileId) === kAppResourceType.File &&
     maybeFileId.includes(kFolderConstants.separator) === false
   ) {
     fileId = maybeFileId;

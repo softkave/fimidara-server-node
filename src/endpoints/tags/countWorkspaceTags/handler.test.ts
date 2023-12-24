@@ -1,6 +1,6 @@
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injectables';
-import {generateAndInsertTagListForTest} from '../../testUtils/generateData/tag';
+import {generateAndInsertTagListForTest} from '../../testUtils/generate/tag';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,

@@ -68,12 +68,12 @@ import MockTestEmailProviderContext from './context/email/MockTestEmailProviderC
 import TestLocalFsFilePersistenceProviderContext from './context/file/TestLocalFsFilePersistenceProviderContext';
 import TestMemoryFilePersistenceProviderContext from './context/file/TestMemoryFilePersistenceProviderContext';
 import TestS3FilePersistenceProviderContext from './context/file/TestS3FilePersistenceProviderContext';
-import {generateTestFileName, generateTestFilepathString} from './generateData/file';
+import {generateTestFileName, generateTestFilepathString} from './generate/file';
 import {
   generateFileBackendConfigInput,
   generateFileBackendMountInput,
-} from './generateData/fileBackend';
-import {generateTestFolderName} from './generateData/folder';
+} from './generate/fileBackend';
+import {generateTestFolderName} from './generate/folder';
 import sharp = require('sharp');
 import assert = require('assert');
 

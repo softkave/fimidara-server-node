@@ -3,9 +3,9 @@ import {add} from 'date-fns';
 import {stringify} from 'querystring';
 import {AgentToken} from '../../../definitions/agentToken';
 import {
-  AppResourceTypeMap,
   CURRENT_TOKEN_VERSION,
   TokenAccessScopeMap,
+  kAppResourceType,
 } from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
@@ -56,13 +56,13 @@ export function getForgotPasswordLinkFromToken(forgotToken: AgentToken) {
 
 export async function getForgotPasswordToken(user: User) {
   const expiration = getForgotPasswordExpiration();
-  const forgotToken = newResource<AgentToken>(AppResourceTypeMap.AgentToken, {
+  const forgotToken = newResource<AgentToken>(kAppResourceType.AgentToken, {
     scope: [TokenAccessScopeMap.ChangePassword],
     version: CURRENT_TOKEN_VERSION,
     expires: expiration.valueOf(),
     separateEntityId: user.resourceId,
     workspaceId: null,
-    agentType: AppResourceTypeMap.User,
+    agentType: kAppResourceType.User,
     createdBy: SYSTEM_SESSION_AGENT,
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
   });

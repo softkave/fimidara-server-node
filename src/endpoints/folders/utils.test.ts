@@ -5,7 +5,7 @@ import {getStringListQuery} from '../contexts/semantic/utils';
 import {
   generateAndInsertTestFolders,
   generateTestFolderName,
-} from '../testUtils/generateData/folder';
+} from '../testUtils/generate/folder';
 import {completeTests} from '../testUtils/helpers/test';
 import {initTests} from '../testUtils/testUtils';
 

@@ -10,7 +10,7 @@ import {
 import {FileBackendMount} from '../../definitions/fileBackend';
 import {Folder} from '../../definitions/folder';
 import {PermissionAction} from '../../definitions/permissionItem';
-import {Agent, AppResourceTypeMap, SessionAgent} from '../../definitions/system';
+import {Agent, SessionAgent, kAppResourceType} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
@@ -254,8 +254,8 @@ export function createNewFile(
   data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
   seed: Partial<File> = {}
 ) {
-  const fileId = getNewIdForResource(AppResourceTypeMap.File);
-  const file = newWorkspaceResource<File>(agent, AppResourceTypeMap.File, workspaceId, {
+  const fileId = getNewIdForResource(kAppResourceType.File);
+  const file = newWorkspaceResource<File>(agent, kAppResourceType.File, workspaceId, {
     workspaceId: workspaceId,
     resourceId: fileId,
     extension: pathinfo.extension,

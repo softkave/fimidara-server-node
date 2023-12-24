@@ -1,6 +1,6 @@
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injectables';
-import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
+import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,

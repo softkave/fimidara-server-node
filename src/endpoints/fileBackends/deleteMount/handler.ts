@@ -1,9 +1,10 @@
 import {container} from 'tsyringe';
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {kUtilsInjectables} from '../../contexts/injectables';
 import {kInjectionKeys} from '../../contexts/injection';
 import {SemanticFileBackendMountProvider} from '../../contexts/semantic/types';
 import {NotFoundError} from '../../errors';
@@ -11,7 +12,6 @@ import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {DeleteFileBackendMountEndpoint} from './types';
 import {deleteFileBackendMountJoiSchema} from './validation';
-import {kUtilsInjectables} from '../../contexts/injectables';
 
 const deleteFileBackendMount: DeleteFileBackendMountEndpoint = async instData => {
   const mountModel = container.resolve<SemanticFileBackendMountProvider>(
@@ -36,7 +36,7 @@ const deleteFileBackendMount: DeleteFileBackendMountEndpoint = async instData =>
   }
 
   const job = await enqueueDeleteResourceJob({
-    type: AppResourceTypeMap.FileBackendMount,
+    type: kAppResourceType.FileBackendMount,
     args: {workspaceId: mount.workspaceId, resourceId: mount.resourceId},
   });
 

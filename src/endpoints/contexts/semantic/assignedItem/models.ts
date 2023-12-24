@@ -1,5 +1,5 @@
 import {AssignedItem} from '../../../../definitions/assignedItem';
-import {AppResourceType, AppResourceTypeMap} from '../../../../definitions/system';
+import {AppResourceType, kAppResourceType} from '../../../../definitions/system';
 import {toNonNullableArray} from '../../../../utils/fns';
 import {AnyObject} from '../../../../utils/types';
 import {DataProviderQueryListParams} from '../../data/types';
@@ -58,7 +58,7 @@ export class DataSemanticAssignedItem
       | undefined
   ): Promise<AssignedItem<AnyObject>[]> {
     return await this.data.getManyByQuery(
-      {assigneeId, assignedItemType: AppResourceTypeMap.Workspace},
+      {assigneeId, assignedItemType: kAppResourceType.Workspace},
       options
     );
   }

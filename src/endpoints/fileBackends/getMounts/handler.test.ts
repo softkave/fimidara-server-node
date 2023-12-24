@@ -4,13 +4,13 @@ import {
   generateAndInsertFileBackendConfigListForTest,
   generateAndInsertFileBackendMountListForTest,
   generateFileBackendType,
-} from '../../testUtils/generateData/fileBackend';
-import {generateTestFolderpathString} from '../../testUtils/generateData/folder';
+} from '../../testUtils/generate/fileBackend';
+import {generateTestFolderpathString} from '../../testUtils/generate/folder';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,
   generateTestFieldsCombinations,
-} from '../../testUtils/generateData/utils';
+} from '../../testUtils/generate/utils';
 import {
   completeTests,
   expectFields,

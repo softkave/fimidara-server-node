@@ -1,21 +1,21 @@
-import {AppResourceTypeMap, SessionAgent} from '../definitions/system';
-import {ID_SIZE, getNewIdForResource} from './resource';
+import {kAppResourceType, SessionAgent} from '../definitions/system';
+import {getNewIdForResource, ID_SIZE} from './resource';
 
 export const SYSTEM_SESSION_AGENT: SessionAgent = {
-  agentId: getNewIdForResource(AppResourceTypeMap.System),
-  agentType: AppResourceTypeMap.System,
+  agentId: getNewIdForResource(kAppResourceType.System),
+  agentType: kAppResourceType.System,
   agentTokenId: getNewIdForResource(
-    AppResourceTypeMap.AgentToken,
+    kAppResourceType.AgentToken,
     ID_SIZE,
     /** fill with zeros 000.. */ true
   ),
 };
 
 export const PUBLIC_SESSION_AGENT: SessionAgent = {
-  agentId: getNewIdForResource(AppResourceTypeMap.Public),
-  agentType: AppResourceTypeMap.Public,
+  agentId: getNewIdForResource(kAppResourceType.Public),
+  agentType: kAppResourceType.Public,
   agentTokenId: getNewIdForResource(
-    AppResourceTypeMap.AgentToken,
+    kAppResourceType.AgentToken,
     ID_SIZE,
     /** fill with zeros 000.. */ true
   ),

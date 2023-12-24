@@ -1,4 +1,4 @@
-import {AppResourceTypeMap, BaseTokenData, SessionAgent} from '../definitions/system';
+import {BaseTokenData, SessionAgent, kAppResourceType} from '../definitions/system';
 import {User} from '../definitions/user';
 import {getNewIdForResource} from '../utils/resource';
 import {IServerRequest} from './contexts/types';
@@ -58,7 +58,7 @@ export default class RequestData<T = any> {
   agent?: SessionAgent | null;
 
   constructor(arg?: IRequestContructorParams<T>) {
-    this.requestId = getNewIdForResource(AppResourceTypeMap.EndpointRequest);
+    this.requestId = getNewIdForResource(kAppResourceType.EndpointRequest);
     if (!arg) return;
 
     this.req = arg.req;

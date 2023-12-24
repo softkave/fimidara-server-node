@@ -2,8 +2,8 @@ import {faker} from '@faker-js/faker';
 import {
   generateAndInsertFileBackendMountListForTest,
   generateFileBackendMountForTest,
-} from '../../testUtils/generateData/fileBackend';
-import {generateAndInsertTestFolders} from '../../testUtils/generateData/folder';
+} from '../../testUtils/generate/fileBackend';
+import {generateAndInsertTestFolders} from '../../testUtils/generate/folder';
 import {resolveMountsForFolder, sortMounts} from '../mountUtils';
 
 describe('file backend mount utils', () => {

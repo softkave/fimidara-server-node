@@ -1,7 +1,7 @@
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injectables';
-import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
+import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generate/permissionItem';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
@@ -28,7 +28,7 @@ describe.skip('countEntityPermissionItems', () => {
     await generateAndInsertPermissionItemListForTest(15, {
       workspaceId: workspace.resourceId,
       entityId: user.resourceId,
-      entityType: AppResourceTypeMap.User,
+      entityType: kAppResourceType.User,
     });
     const count = await kSemanticModels.permissionItem().countByQuery({
       workspaceId: workspace.resourceId,

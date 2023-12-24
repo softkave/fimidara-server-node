@@ -4,7 +4,7 @@ import {container} from 'tsyringe';
 import {FileBackendMount} from '../../definitions/fileBackend';
 import {Folder, FolderMatcher, PublicFolder} from '../../definitions/folder';
 import {PermissionAction} from '../../definitions/permissionItem';
-import {Agent, AppResourceTypeMap, SessionAgent} from '../../definitions/system';
+import {Agent, SessionAgent, kAppResourceType} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
@@ -298,8 +298,8 @@ export function createNewFolder(
   /** represents internal data */
   seed: Partial<Folder> = {}
 ) {
-  const folderId = getNewIdForResource(AppResourceTypeMap.Folder);
-  return newWorkspaceResource<Folder>(agent, AppResourceTypeMap.Folder, workspaceId, {
+  const folderId = getNewIdForResource(kAppResourceType.Folder);
+  return newWorkspaceResource<Folder>(agent, kAppResourceType.Folder, workspaceId, {
     workspaceId,
     resourceId: folderId,
     name: pathinfo.name,

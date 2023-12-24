@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import {merge} from 'lodash';
 import {Connection} from 'mongoose';
 import {getMongoConnection} from '../../../db/connection';
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {
   UsageRecordCategoryMap,
   UsageRecordDropReasonMap,
@@ -14,8 +14,8 @@ import {fimidaraConfig} from '../../../resources/vars';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
 import {cast} from '../../../utils/fns';
 import {getNewId, getNewIdForResource} from '../../../utils/resource';
-import {generateWorkspaceWithCategoryUsageExceeded} from '../../testUtils/generateData/usageRecord';
-import {generateTestWorkspace} from '../../testUtils/generateData/workspace';
+import {generateWorkspaceWithCategoryUsageExceeded} from '../../testUtils/generate/usageRecord';
+import {generateTestWorkspace} from '../../testUtils/generate/workspace';
 import {dropMongoConnection} from '../../testUtils/helpers/mongo';
 import {completeTests} from '../../testUtils/helpers/test';
 import BaseContext from '../BaseContext';
@@ -85,7 +85,7 @@ describe('UsageRecordLogicProvider', () => {
     await kSemanticModels
       .utils()
       .withTxn(opts => context!.semantic.workspace.insertItem(workspace, opts));
-    const recordId = getNewIdForResource(AppResourceTypeMap.UsageRecord);
+    const recordId = getNewIdForResource(kAppResourceType.UsageRecord);
     const input: UsageRecordInput = {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
@@ -113,7 +113,7 @@ describe('UsageRecordLogicProvider', () => {
     await kSemanticModels
       .utils()
       .withTxn(opts => context!.semantic.workspace.insertItem(workspace, opts));
-    const recordId = getNewIdForResource(AppResourceTypeMap.UsageRecord);
+    const recordId = getNewIdForResource(kAppResourceType.UsageRecord);
     const input: UsageRecordInput = {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
@@ -143,7 +143,7 @@ describe('UsageRecordLogicProvider', () => {
     await kSemanticModels
       .utils()
       .withTxn(opts => context!.semantic.workspace.insertItem(workspace, opts));
-    const recordId = getNewIdForResource(AppResourceTypeMap.UsageRecord);
+    const recordId = getNewIdForResource(kAppResourceType.UsageRecord);
     const input: UsageRecordInput = {
       resourceId: recordId,
       workspaceId: workspace.resourceId,
@@ -173,7 +173,7 @@ describe('UsageRecordLogicProvider', () => {
     await kSemanticModels
       .utils()
       .withTxn(opts => context!.semantic.workspace.insertItem(workspace, opts));
-    const recordId = getNewIdForResource(AppResourceTypeMap.UsageRecord);
+    const recordId = getNewIdForResource(kAppResourceType.UsageRecord);
     const input: UsageRecordInput = {
       resourceId: recordId,
       workspaceId: workspace.resourceId,

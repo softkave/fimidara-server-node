@@ -1,9 +1,9 @@
 import {URL} from 'url';
 import {AgentToken} from '../../../definitions/agentToken';
 import {
-  AppResourceTypeMap,
   CURRENT_TOKEN_VERSION,
   TokenAccessScopeMap,
+  kAppResourceType,
 } from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
@@ -23,11 +23,11 @@ afterAll(async () => {
 });
 
 async function createTestEmailVerificationToken(userId: string) {
-  const token = newResource<AgentToken>(AppResourceTypeMap.AgentToken, {
+  const token = newResource<AgentToken>(kAppResourceType.AgentToken, {
     separateEntityId: userId,
     scope: [TokenAccessScopeMap.ConfirmEmailAddress],
     version: CURRENT_TOKEN_VERSION,
-    agentType: AppResourceTypeMap.User,
+    agentType: kAppResourceType.User,
     workspaceId: null,
     createdBy: SYSTEM_SESSION_AGENT,
     lastUpdatedBy: SYSTEM_SESSION_AGENT,
@@ -58,7 +58,7 @@ describe('withConfirmEmailAddress', () => {
     const prevLink = 'http://localhost/?token=prevToken';
     const link = await withConfirmEmailAddressToken(
       {
-        resourceId: getNewIdForResource(AppResourceTypeMap.User),
+        resourceId: getNewIdForResource(kAppResourceType.User),
         isEmailVerified: false,
       } as User,
       prevLink
@@ -67,7 +67,7 @@ describe('withConfirmEmailAddress', () => {
   });
 
   test('email verification token reused', async () => {
-    const userId = getNewIdForResource(AppResourceTypeMap.User);
+    const userId = getNewIdForResource(kAppResourceType.User);
     const token = await createTestEmailVerificationToken(userId);
     const prevLink = 'http://localhost/?token=prevToken';
     const link = await withConfirmEmailAddressToken(
@@ -81,7 +81,7 @@ describe('withConfirmEmailAddress', () => {
   });
 
   test('email verification token not added if already exist', async () => {
-    const userId = getNewIdForResource(AppResourceTypeMap.User);
+    const userId = getNewIdForResource(kAppResourceType.User);
     const token = await createTestEmailVerificationToken(userId);
     const encodedToken = kUtilsInjectables
       .session()
@@ -89,7 +89,7 @@ describe('withConfirmEmailAddress', () => {
     const prevLink = `http://localhost/?token=prevToken&${userConstants.confirmEmailTokenQueryParam}=${encodedToken}`;
     const link = await withConfirmEmailAddressToken(
       {
-        resourceId: getNewIdForResource(AppResourceTypeMap.User),
+        resourceId: getNewIdForResource(kAppResourceType.User),
         isEmailVerified: false,
       } as User,
       prevLink
@@ -102,7 +102,7 @@ describe('withConfirmEmailAddress', () => {
     const prevLink = 'http://localhost/';
     const link = await withConfirmEmailAddressToken(
       {
-        resourceId: getNewIdForResource(AppResourceTypeMap.User),
+        resourceId: getNewIdForResource(kAppResourceType.User),
         isEmailVerified: true,
       } as User,
       prevLink

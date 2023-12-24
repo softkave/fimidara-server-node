@@ -1,4 +1,4 @@
-import {AppResourceTypeMap, TokenAccessScopeMap} from '../../../definitions/system';
+import {kAppResourceType, TokenAccessScopeMap} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
@@ -14,7 +14,7 @@ const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async reqData =
   const data = validate(reqData.data, changePasswordWithTokenJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(reqData, [AppResourceTypeMap.User], [TokenAccessScopeMap.ChangePassword]);
+    .getAgent(reqData, [kAppResourceType.User], [TokenAccessScopeMap.ChangePassword]);
 
   if (!agent.agentToken?.expires) throw new InvalidCredentialsError();
   if (Date.now() > agent.agentToken.expires) throw new CredentialsExpiredError();

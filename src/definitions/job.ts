@@ -5,16 +5,21 @@ import {DeleteFolderCascadeFnsArgs} from '../endpoints/folders/deleteFolder/type
 import {DeletePermissionItemsCascadeFnsArgs} from '../endpoints/permissionItems/deleteItems/types';
 import {DeleteResourceCascadeFnDefaultArgs} from '../endpoints/types';
 import {AnyObject, ObjectValues} from '../utils/types';
-import {AppResourceTypeMap, Resource} from './system';
+import {AppShard} from './app';
+import {Resource, kAppResourceType} from './system';
 
-export const JobTypeMap = {
+export const kJobType = {
   deleteResource: 'deleteResource',
   ingestFolderpath: 'ingestFolderpath',
   ingestMount: 'ingestMount',
   cleanupMountResolvedEntries: 'cleanupMountResolvedEntries',
+  /** Primarily used for testing. A job that does nothing. */
+  noop: 'noop',
+  /** Primarily used for testing. A job that will always fail! */
+  fail: 'fail',
 } as const;
 
-export const JobStatusMap = {
+export const kJobStatus = {
   pending: 'pending',
   inProgress: 'inProgress',
   waitingForChildren: 'waitingForChildren',
@@ -22,53 +27,71 @@ export const JobStatusMap = {
   failed: 'failed',
 } as const;
 
-export type JobType = ObjectValues<typeof JobTypeMap>;
-export type JobStatus = ObjectValues<typeof JobStatusMap>;
+export const kJobPresetPriority = {
+  p1: 1,
+  p2: 2,
+  p3: 3,
+  p4: 4,
+  p5: 5,
+};
+
+export type JobType = ObjectValues<typeof kJobType>;
+export type JobStatus = ObjectValues<typeof kJobStatus>;
+
+export interface JobStatusHistory {
+  status: JobStatus;
+  statusLastUpdatedAt: number;
+  runnerId?: string;
+}
 
 export interface Job<TParams extends AnyObject = AnyObject> extends Resource {
   type: JobType | (string & {});
   params: TParams;
   workspaceId?: string;
   status: JobStatus;
-  statusDate: number;
-  version: number;
-  serverInstanceId: string;
+  statusLastUpdatedAt: number;
+  minRunnerVersion: number;
+  runnerId?: string;
   parentJobId?: string;
   idempotencyToken: string;
-  /** For checking the logs for the error that occurred during the job run. */
-  errorTimestamp?: number;
+  statusHistory: JobStatusHistory[];
+  /** Higher number carries more weight. */
+  priority: number;
+  /** For selectively picking jobs so runners don't run jobs that do not apply
+   * to them, for example during testing. */
+  shard: AppShard;
 }
 
 export type DeleteResourceJobParams =
   | {
       type:
-        | typeof AppResourceTypeMap.Workspace
-        | typeof AppResourceTypeMap.AgentToken
-        | typeof AppResourceTypeMap.Tag
-        | typeof AppResourceTypeMap.PermissionGroup
-        | typeof AppResourceTypeMap.CollaborationRequest
-        | typeof AppResourceTypeMap.FileBackendMount;
+        | typeof kAppResourceType.Workspace
+        | typeof kAppResourceType.AgentToken
+        | typeof kAppResourceType.Tag
+        | typeof kAppResourceType.PermissionGroup
+        | typeof kAppResourceType.CollaborationRequest
+        | typeof kAppResourceType.FileBackendMount;
       args: DeleteResourceCascadeFnDefaultArgs;
     }
   | {
-      type: typeof AppResourceTypeMap.User;
+      type: typeof kAppResourceType.User;
       args: RemoveCollaboratorCascadeFnsArgs;
       isRemoveCollaborator: true;
     }
   | {
-      type: typeof AppResourceTypeMap.File;
+      type: typeof kAppResourceType.File;
       args: DeleteFileCascadeDeleteFnsArgs;
     }
   | {
-      type: typeof AppResourceTypeMap.PermissionItem;
+      type: typeof kAppResourceType.PermissionItem;
       args: DeletePermissionItemsCascadeFnsArgs;
     }
   | {
-      type: typeof AppResourceTypeMap.Folder;
+      type: typeof kAppResourceType.Folder;
       args: DeleteFolderCascadeFnsArgs;
     }
   | {
-      type: typeof AppResourceTypeMap.FileBackendConfig;
+      type: typeof kAppResourceType.FileBackendConfig;
       args: DeleteFileBackendConfigCascadeFnsArgs;
     };
 

@@ -1,4 +1,4 @@
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {
   upgradedFromWaitlistEmailHTML,
   UpgradedFromWaitlistEmailProps,
@@ -12,7 +12,7 @@ import {getNewIdForResource} from '../../../utils/resource';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import RequestData from '../../RequestData';
-import {generateAndInsertUserListForTest} from '../../testUtils/generateData/user';
+import {generateAndInsertUserListForTest} from '../../testUtils/generate/user';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
@@ -93,7 +93,7 @@ describe('upgradeWaitlistedUsers', () => {
       return upgradeWaitlistedUsers(
         RequestData.fromExpressRequest<UpgradeWaitlistedUsersEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
-          {userIds: [getNewIdForResource(AppResourceTypeMap.User)]}
+          {userIds: [getNewIdForResource(kAppResourceType.User)]}
         )
       );
     }, [PermissionDeniedError.name]);

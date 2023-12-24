@@ -11,7 +11,7 @@ import NoopFilePersistenceProviderContext from '../../testUtils/context/file/Noo
 import {
   generateTestFileName,
   generateTestFilepathString,
-} from '../../testUtils/generateData/file';
+} from '../../testUtils/generate/file';
 import {expectFileBodyEqual, expectFileBodyEqualById} from '../../testUtils/helpers/file';
 import {completeTests} from '../../testUtils/helpers/test';
 import {

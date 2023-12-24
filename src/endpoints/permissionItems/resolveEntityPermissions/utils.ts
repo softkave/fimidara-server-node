@@ -2,10 +2,10 @@ import {first, forEach, isString} from 'lodash';
 import {File} from '../../../definitions/file';
 import {PermissionAction} from '../../../definitions/permissionItem';
 import {
-  AppResourceTypeMap,
   Resource,
   ResourceWrapper,
   SessionAgent,
+  kAppResourceType,
 } from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
@@ -74,8 +74,8 @@ function indexArtifacts(
 ) {
   const indexBynamepath = (item: ResourceWrapper) => {
     if (
-      item.resourceType === AppResourceTypeMap.File ||
-      item.resourceType === AppResourceTypeMap.Folder
+      item.resourceType === kAppResourceType.File ||
+      item.resourceType === kAppResourceType.Folder
     )
       return (item.resource as unknown as Pick<File, 'namepath'>).namepath.join(
         kFolderConstants.separator
@@ -92,7 +92,7 @@ function indexArtifacts(
   const workspaceWrapper: ResourceWrapper = {
     resource: workspace,
     resourceId: workspace.resourceId,
-    resourceType: AppResourceTypeMap.Workspace,
+    resourceType: kAppResourceType.Workspace,
   };
 
   const getEntities = (inputEntity: string | string[]) => {

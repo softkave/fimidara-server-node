@@ -2,7 +2,7 @@ import {
   CollaborationRequest,
   CollaborationRequestStatusTypeMap,
 } from '../../../definitions/collaborationRequest';
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {
   CollaborationRequestEmailProps,
@@ -72,7 +72,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async instDat
 
     const request: CollaborationRequest = newWorkspaceResource(
       agent,
-      AppResourceTypeMap.CollaborationRequest,
+      kAppResourceType.CollaborationRequest,
       workspace.resourceId,
       {
         message: data.request.message,

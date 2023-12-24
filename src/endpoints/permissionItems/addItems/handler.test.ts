@@ -3,7 +3,7 @@ import {kPermissionsMap} from '../../../definitions/permissionItem';
 import RequestData from '../../RequestData';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../../contexts/injectables';
-import {generateAndInsertTestFolders} from '../../testUtils/generateData/folder';
+import {generateAndInsertTestFolders} from '../../testUtils/generate/folder';
 import {expectEntityHasPermissionsTargetingId} from '../../testUtils/helpers/permissionItem';
 import {completeTests} from '../../testUtils/helpers/test';
 import {

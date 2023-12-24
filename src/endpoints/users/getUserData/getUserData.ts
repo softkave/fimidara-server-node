@@ -1,6 +1,6 @@
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {kUtilsInjectables, kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils';
 import {assertUser} from '../utils';
 import {GetUserDataEndpoint} from './types';
@@ -8,7 +8,7 @@ import {GetUserDataEndpoint} from './types';
 const getUserData: GetUserDataEndpoint = async instData => {
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, AppResourceTypeMap.User);
+    .getAgent(instData, kAppResourceType.User);
   const [userToken, clientAssignedToken] = await kSemanticModels
     .utils()
     .withTxn(opts =>

@@ -7,7 +7,7 @@ import {
   assertCanUpdatePublicFile,
   assertCanUploadToPublicFile,
 } from '../../files/uploadFile/uploadFileTestUtils';
-import {generateTestFileName} from '../../testUtils/generateData/file';
+import {generateTestFileName} from '../../testUtils/generate/file';
 import {
   IInsertWorkspaceForTestResult,
   assertEndpointResultOk,

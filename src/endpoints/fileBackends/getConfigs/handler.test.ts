@@ -2,12 +2,12 @@ import {kSemanticModels} from '../../contexts/injectables';
 import {
   generateAndInsertFileBackendConfigListForTest,
   generateFileBackendType,
-} from '../../testUtils/generateData/fileBackend';
+} from '../../testUtils/generate/fileBackend';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,
   generateTestFieldsCombinations,
-} from '../../testUtils/generateData/utils';
+} from '../../testUtils/generate/utils';
 import {
   completeTests,
   expectFields,

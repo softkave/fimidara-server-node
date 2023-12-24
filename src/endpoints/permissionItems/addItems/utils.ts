@@ -7,9 +7,9 @@ import {
 } from '../../../definitions/permissionItem';
 import {
   AppResourceType,
-  AppResourceTypeMap,
   ResourceWrapper,
   SessionAgent,
+  kAppResourceType,
 } from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
@@ -21,6 +21,7 @@ import {
 } from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {getResourceTypeFromId, newWorkspaceResource} from '../../../utils/resource';
+import {kSemanticModels} from '../../contexts/injectables';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {InvalidRequestError} from '../../errors';
 import {kFolderConstants} from '../../folders/constants';
@@ -31,7 +32,6 @@ import {
   getTargetType,
 } from '../utils';
 import {AddPermissionItemsEndpointParams} from './types';
-import {kSemanticModels} from '../../contexts/injectables';
 
 /**
  * - separate entities, separate targets
@@ -73,8 +73,8 @@ export const INTERNAL_addPermissionItems = async (
 
   const indexBynamepath = (item: ResourceWrapper) => {
     if (
-      item.resourceType === AppResourceTypeMap.File ||
-      item.resourceType === AppResourceTypeMap.Folder
+      item.resourceType === kAppResourceType.File ||
+      item.resourceType === kAppResourceType.Folder
     ) {
       return (item.resource as unknown as Pick<File, 'namepath'>).namepath.join(
         kFolderConstants.separator
@@ -90,7 +90,7 @@ export const INTERNAL_addPermissionItems = async (
   const workspaceWrapper: ResourceWrapper = {
     resource: workspace,
     resourceId: workspace.resourceId,
-    resourceType: AppResourceTypeMap.Workspace,
+    resourceType: kAppResourceType.Workspace,
   };
 
   const getEntities = (inputEntity: string | string[]) => {
@@ -182,8 +182,8 @@ export const INTERNAL_addPermissionItems = async (
     let targetParentId: string;
 
     if (
-      item.target.resourceType === AppResourceTypeMap.File ||
-      item.target.resourceType === AppResourceTypeMap.Folder
+      item.target.resourceType === kAppResourceType.File ||
+      item.target.resourceType === kAppResourceType.Folder
     ) {
       const idPath = (item.target.resource as unknown as Pick<File, 'idPath'>).idPath;
       const containerId = idPath[idPath.length - 2] ?? workspace.resourceId;
@@ -195,7 +195,7 @@ export const INTERNAL_addPermissionItems = async (
 
     return newWorkspaceResource(
       agent,
-      AppResourceTypeMap.PermissionItem,
+      kAppResourceType.PermissionItem,
       workspace.resourceId,
       {
         targetType,

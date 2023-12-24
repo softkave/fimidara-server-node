@@ -1,9 +1,9 @@
 import {URL} from 'url';
 import {AgentToken} from '../../../definitions/agentToken';
 import {
-  AppResourceTypeMap,
   CURRENT_TOKEN_VERSION,
   TokenAccessScopeMap,
+  kAppResourceType,
 } from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
@@ -24,12 +24,12 @@ export async function withConfirmEmailAddressToken(user: User, link: string) {
         .getOneAgentToken(user.resourceId, TokenAccessScopeMap.ConfirmEmailAddress, opts);
 
       if (!token) {
-        token = newResource<AgentToken>(AppResourceTypeMap.AgentToken, {
+        token = newResource<AgentToken>(kAppResourceType.AgentToken, {
           scope: [TokenAccessScopeMap.ConfirmEmailAddress],
           version: CURRENT_TOKEN_VERSION,
           separateEntityId: user.resourceId,
           workspaceId: null,
-          agentType: AppResourceTypeMap.User,
+          agentType: kAppResourceType.User,
           createdBy: SYSTEM_SESSION_AGENT,
           lastUpdatedBy: SYSTEM_SESSION_AGENT,
         });

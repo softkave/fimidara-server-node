@@ -1,6 +1,6 @@
 import {
   AppResourceType,
-  AppResourceTypeMap,
+  kAppResourceType,
   ResourceWrapper,
 } from '../../definitions/system';
 import {User} from '../../definitions/user';
@@ -15,18 +15,18 @@ export async function resourceWithAssignedItems<T extends ResourceWrapper>(
   resource: T
 ) {
   switch (resource.resourceType) {
-    case AppResourceTypeMap.AgentToken:
-    case AppResourceTypeMap.Folder:
-    case AppResourceTypeMap.File:
-    case AppResourceTypeMap.PermissionGroup:
+    case kAppResourceType.AgentToken:
+    case kAppResourceType.Folder:
+    case kAppResourceType.File:
+    case kAppResourceType.PermissionGroup:
       resource.resource = await populateAssignedTags(workspaceId, resource.resource);
       return resource;
-    case AppResourceTypeMap.User:
+    case kAppResourceType.User:
       resource.resource = await populateUserWorkspaces(resource.resource as User);
       return resource;
-    case AppResourceTypeMap.Workspace:
-    case AppResourceTypeMap.CollaborationRequest:
-    case AppResourceTypeMap.PermissionItem:
+    case kAppResourceType.Workspace:
+    case kAppResourceType.CollaborationRequest:
+    case kAppResourceType.PermissionItem:
     default:
       return resource;
   }
@@ -35,7 +35,7 @@ export async function resourceWithAssignedItems<T extends ResourceWrapper>(
 export async function resourceListWithAssignedItems<T extends ResourceWrapper>(
   workspaceId: string,
   resourceList: T[],
-  forTypes: AppResourceType[] = Object.values(AppResourceTypeMap)
+  forTypes: AppResourceType[] = Object.values(kAppResourceType)
 ) {
   const forTypesMap = indexArray(forTypes);
 

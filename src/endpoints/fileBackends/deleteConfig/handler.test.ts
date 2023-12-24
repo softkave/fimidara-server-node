@@ -1,12 +1,12 @@
 import assert from 'assert';
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injectables';
 import {NotFoundError} from '../../errors';
 import {executeJob, waitForJob} from '../../jobs/runner';
-import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generateData/fileBackend';
+import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
@@ -36,7 +36,7 @@ describe('deleteConfig', async () => {
     const instData =
       RequestData.fromExpressRequest<DeleteFileBackendConfigEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
-        {configId: getNewIdForResource(AppResourceTypeMap.FileBackendConfig)}
+        {configId: getNewIdForResource(kAppResourceType.FileBackendConfig)}
       );
 
     await expectErrorThrown(
@@ -60,7 +60,7 @@ describe('deleteConfig', async () => {
     const instData =
       RequestData.fromExpressRequest<DeleteFileBackendConfigEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
-        {configId: getNewIdForResource(AppResourceTypeMap.FileBackendConfig)}
+        {configId: getNewIdForResource(kAppResourceType.FileBackendConfig)}
       );
 
     await expectErrorThrown(

@@ -1,5 +1,5 @@
 import assert = require('assert');
-import {Agent, AppResourceTypeMap} from '../../../definitions/system';
+import {Agent, kAppResourceType} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {
   UsageThresholdsByCategory,
@@ -58,7 +58,7 @@ const INTERNAL_createWorkspace = async (
   // TODO: replace with user defined usage thresholds when we implement billing
   const usageThresholds = getDefaultThresholds();
   const createdAt = getTimestamp();
-  const id = getNewIdForResource(AppResourceTypeMap.Workspace);
+  const id = getNewIdForResource(kAppResourceType.Workspace);
   const workspace: Workspace = {
     createdAt,
     usageThresholds,

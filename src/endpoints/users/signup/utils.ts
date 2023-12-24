@@ -1,13 +1,13 @@
 import * as argon2 from 'argon2';
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource, newResource} from '../../../utils/resource';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {assertEmailAddressAvailable} from '../utils';
 import {SignupEndpointParams} from './types';
-import {kUtilsInjectables, kSemanticModels} from '../../contexts/injectables';
 
 export const INTERNAL_signupUser = async (
   data: SignupEndpointParams,
@@ -18,9 +18,9 @@ export const INTERNAL_signupUser = async (
 
   const hash = await argon2.hash(data.password);
   const now = getTimestamp();
-  const user: User = newResource(AppResourceTypeMap.User, {
+  const user: User = newResource(kAppResourceType.User, {
     hash,
-    resourceId: getNewIdForResource(AppResourceTypeMap.User),
+    resourceId: getNewIdForResource(kAppResourceType.User),
     email: data.email,
     firstName: data.firstName,
     lastName: data.lastName,

@@ -14,6 +14,16 @@ export class ServerError extends OperationError {
   }
 }
 
+export class TimeoutError extends OperationError {
+  name = 'TimeoutError';
+  statusCode = endpointConstants.httpStatusCode.serverError;
+
+  constructor(props?: OperationErrorParameters | string) {
+    super(props);
+    this.message = getErrorMessageFromParams(props, 'Request timed out.');
+  }
+}
+
 export class ValidationError extends OperationError {
   name = 'ValidationError';
   statusCode = endpointConstants.httpStatusCode.badRequest;

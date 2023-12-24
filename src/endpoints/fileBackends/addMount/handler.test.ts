@@ -3,7 +3,7 @@ import {kSemanticModels} from '../../contexts/injectables';
 import {ResourceExistsError} from '../../errors';
 import {kFolderConstants} from '../../folders/constants';
 import {stringifyFoldernamepath} from '../../folders/utils';
-import {generateUniqueFolderpath} from '../../testUtils/generateData/folder';
+import {generateUniqueFolderpath} from '../../testUtils/generate/folder';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests} from '../../testUtils/helpers/test';
 import {

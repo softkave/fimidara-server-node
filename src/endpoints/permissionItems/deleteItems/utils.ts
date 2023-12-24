@@ -4,9 +4,9 @@ import {File} from '../../../definitions/file';
 import {PermissionItem} from '../../../definitions/permissionItem';
 import {
   AppResourceType,
-  AppResourceTypeMap,
   ResourceWrapper,
   SessionAgent,
+  kAppResourceType,
 } from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {extractResourceIdList, isObjectEmpty, toArray} from '../../../utils/fns';
@@ -40,8 +40,8 @@ export const INTERNAL_deletePermissionItems = async (
   // For indexing files and folders by name path
   const indexBynamepath = (item: ResourceWrapper) => {
     if (
-      item.resourceType === AppResourceTypeMap.File ||
-      item.resourceType === AppResourceTypeMap.Folder
+      item.resourceType === kAppResourceType.File ||
+      item.resourceType === kAppResourceType.Folder
     )
       return (item.resource as unknown as Pick<File, 'namepath'>).namepath.join(
         kFolderConstants.separator
@@ -56,7 +56,7 @@ export const INTERNAL_deletePermissionItems = async (
   const workspaceWrapper: ResourceWrapper = {
     resource: workspace,
     resourceId: workspace.resourceId,
-    resourceType: AppResourceTypeMap.Workspace,
+    resourceType: kAppResourceType.Workspace,
   };
 
   const getTargets = (
@@ -159,7 +159,7 @@ export const INTERNAL_deletePermissionItems = async (
   const permissionItemsIdList = extractResourceIdList(permissionItems);
 
   const job = await enqueueDeleteResourceJob({
-    type: AppResourceTypeMap.PermissionItem,
+    type: kAppResourceType.PermissionItem,
     args: {permissionItemsIdList, workspaceId: workspace.resourceId},
   });
 

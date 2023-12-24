@@ -2,15 +2,15 @@ import {faker} from '@faker-js/faker';
 import {flatten} from 'lodash';
 import {File} from '../../../definitions/file';
 import {PermissionAction, kPermissionsMap} from '../../../definitions/permissionItem';
-import {AppResourceTypeMap, Resource} from '../../../definitions/system';
+import {Resource, kAppResourceType} from '../../../definitions/system';
 import RequestData from '../../RequestData';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {collaboratorExtractor} from '../../collaborators/utils';
 import {stringifyFilenamepath} from '../../files/utils';
 import {stringifyFoldernamepath} from '../../folders/utils';
-import {generateAndInsertTestFiles} from '../../testUtils/generateData/file';
-import {generateAndInsertTestFolders} from '../../testUtils/generateData/folder';
-import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generateData/permissionItem';
+import {generateAndInsertTestFiles} from '../../testUtils/generate/file';
+import {generateAndInsertTestFolders} from '../../testUtils/generate/folder';
+import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generate/permissionItem';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
@@ -58,7 +58,7 @@ describe('getResources', () => {
           action: action,
           access: faker.datatype.boolean(),
           targetId: workspace.resourceId,
-          targetType: AppResourceTypeMap.Workspace,
+          targetType: kAppResourceType.Workspace,
           workspaceId: workspace.resourceId,
           entityId: permissionGroup.resourceId,
         })

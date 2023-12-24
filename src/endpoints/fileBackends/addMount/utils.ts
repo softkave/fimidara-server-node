@@ -1,6 +1,6 @@
 import {container} from 'tsyringe';
 import {FileBackendMount} from '../../../definitions/fileBackend';
-import {Agent, AppResourceTypeMap} from '../../../definitions/system';
+import {Agent, kAppResourceType} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {newWorkspaceResource} from '../../../utils/resource';
@@ -74,7 +74,7 @@ export const INTERNAL_addFileBackendMount = async (
 
   const mount = newWorkspaceResource<FileBackendMount>(
     agent,
-    AppResourceTypeMap.FileBackendMount,
+    kAppResourceType.FileBackendMount,
     workspace.resourceId,
     {
       configId: data.configId,

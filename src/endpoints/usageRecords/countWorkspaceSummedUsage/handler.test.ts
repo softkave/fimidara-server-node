@@ -4,7 +4,7 @@ import {
 } from '../../../definitions/usageRecord';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injectables';
-import {generateAndInsertUsageRecordList} from '../../testUtils/generateData/usageRecord';
+import {generateAndInsertUsageRecordList} from '../../testUtils/generate/usageRecord';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,

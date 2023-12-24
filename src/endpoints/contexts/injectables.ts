@@ -6,6 +6,7 @@ import {SessionContextType} from './SessionContext';
 import {AsyncLocalStorageUtils} from './asyncLocalStorage';
 import {
   AgentTokenDataProvider,
+  AppDataProvider,
   AppRuntimeStateDataProvider,
   AssignedItemDataProvider,
   DataProviderUtils,
@@ -41,6 +42,7 @@ import {SemanticPermissionGroupProviderType} from './semantic/permissionGroup/ty
 import {SemanticPermissionItemProviderType} from './semantic/permissionItem/types';
 import {SemanticTagProviderType} from './semantic/tag/types';
 import {
+  SemanticAppProvider,
   SemanticFileBackendMountProvider,
   SemanticJobProvider,
   SemanticProviderUtils,
@@ -98,6 +100,7 @@ export const kSemanticModels = {
     container.resolve<SemanticResolvedMountEntryProvider>(
       kInjectionKeys.semantic.resolvedMountEntry
     ),
+  app: () => container.resolve<SemanticAppProvider>(kInjectionKeys.semantic.app),
   utils: () => container.resolve<SemanticProviderUtils>(kInjectionKeys.semantic.utils),
 };
 
@@ -132,6 +135,7 @@ export const kDataModels = {
     ),
   appRuntimeState: () =>
     container.resolve<AppRuntimeStateDataProvider>(kInjectionKeys.data.appRuntimeState),
+  app: () => container.resolve<AppDataProvider>(kInjectionKeys.data.app),
   utils: () => container.resolve<DataProviderUtils>(kInjectionKeys.data.utils),
 };
 

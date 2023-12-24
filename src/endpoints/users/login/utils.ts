@@ -1,8 +1,8 @@
 import {AgentToken} from '../../../definitions/agentToken';
 import {
-  AppResourceTypeMap,
   CURRENT_TOKEN_VERSION,
   TokenAccessScopeMap,
+  kAppResourceType,
 } from '../../../definitions/system';
 import {UserWithWorkspace} from '../../../definitions/user';
 import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
@@ -10,7 +10,7 @@ import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {newResource} from '../../../utils/resource';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
-import {kUtilsInjectables, kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {userExtractor} from '../utils';
 import {LoginResult} from './types';
@@ -54,12 +54,12 @@ export async function getUserClientAssignedToken(
     .getByProvidedId(kUtilsInjectables.config().appWorkspaceId, userId, opts);
 
   if (!token) {
-    token = newResource<AgentToken>(AppResourceTypeMap.AgentToken, {
+    token = newResource<AgentToken>(kAppResourceType.AgentToken, {
       providedResourceId: userId,
       workspaceId: kUtilsInjectables.config().appWorkspaceId,
       version: CURRENT_TOKEN_VERSION,
       separateEntityId: null,
-      agentType: AppResourceTypeMap.AgentToken,
+      agentType: kAppResourceType.AgentToken,
       createdBy: SYSTEM_SESSION_AGENT,
       lastUpdatedBy: SYSTEM_SESSION_AGENT,
     });
@@ -100,12 +100,12 @@ export async function getUserToken(
     .getOneAgentToken(userId, TokenAccessScopeMap.Login, opts);
 
   if (!userToken) {
-    userToken = newResource<AgentToken>(AppResourceTypeMap.AgentToken, {
+    userToken = newResource<AgentToken>(kAppResourceType.AgentToken, {
       scope: [TokenAccessScopeMap.Login],
       version: CURRENT_TOKEN_VERSION,
       separateEntityId: userId,
       workspaceId: null,
-      agentType: AppResourceTypeMap.User,
+      agentType: kAppResourceType.User,
       createdBy: SYSTEM_SESSION_AGENT,
       lastUpdatedBy: SYSTEM_SESSION_AGENT,
     });

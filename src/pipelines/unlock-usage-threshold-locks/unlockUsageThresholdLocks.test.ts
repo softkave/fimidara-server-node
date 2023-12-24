@@ -5,7 +5,7 @@ import {getMongoConnection} from '../../db/connection';
 import {getWorkspaceModel} from '../../db/workspace';
 import {UsageRecordCategoryMap} from '../../definitions/usageRecord';
 import {Workspace} from '../../definitions/workspace';
-import {generateWorkspaceListForTest} from '../../endpoints/testUtils/generateData/workspace';
+import {generateWorkspaceListForTest} from '../../endpoints/testUtils/generate/workspace';
 import {dropMongoConnection} from '../../endpoints/testUtils/helpers/mongo';
 import {completeTests} from '../../endpoints/testUtils/helpers/test';
 import {fimidaraConfig} from '../../resources/vars';

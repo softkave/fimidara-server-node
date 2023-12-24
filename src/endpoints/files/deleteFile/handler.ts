@@ -1,4 +1,4 @@
-import {AppResourceTypeMap, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
+import {kAppResourceType, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {enqueueDeleteResourceJob} from '../../jobs/utils';
@@ -15,7 +15,7 @@ const deleteFile: DeleteFileEndpoint = async instData => {
     const file = await readAndCheckFileAuthorization(agent, data, 'deleteFile', opts);
     return await enqueueDeleteResourceJob(
       {
-        type: AppResourceTypeMap.File,
+        type: kAppResourceType.File,
         args: {
           workspaceId: file.workspaceId,
           fileIdList: [file.resourceId],

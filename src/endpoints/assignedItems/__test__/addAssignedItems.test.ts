@@ -7,7 +7,7 @@ import {
   assignPgListToIdList,
   toAssignedPgListInput,
 } from '../../permissionGroups/testUtils';
-import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
+import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup';
 import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion';
 import {completeTests} from '../../testUtils/helpers/test';
 import {

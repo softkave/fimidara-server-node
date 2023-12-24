@@ -1,4 +1,4 @@
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {kUtilsInjectables} from '../../contexts/injectables';
 import {InvalidRequestError} from '../../errors';
@@ -23,7 +23,7 @@ const deletePermissionGroup: DeletePermissionGroupEndpoint = async instData => {
   }
 
   const job = await enqueueDeleteResourceJob({
-    type: AppResourceTypeMap.PermissionGroup,
+    type: kAppResourceType.PermissionGroup,
     args: {workspaceId: workspace.resourceId, resourceId: permissionGroup.resourceId},
   });
 

@@ -4,7 +4,7 @@ import {AgentToken} from '../../../definitions/agentToken';
 import {File, FileMatcher} from '../../../definitions/file';
 import {waitTimeout} from '../../../utils/fns';
 import RequestData from '../../RequestData';
-import {generateAndInsertTestFiles} from '../../testUtils/generateData/file';
+import {generateAndInsertTestFiles} from '../../testUtils/generate/file';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests} from '../../testUtils/helpers/test';
 import {

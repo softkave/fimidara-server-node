@@ -2,7 +2,7 @@ import {format} from 'util';
 import {File} from '../../definitions/file';
 import {Folder} from '../../definitions/folder';
 import {
-  AppResourceTypeMap,
+  kAppResourceType,
   ResourceWrapper,
   WorkspaceResource,
 } from '../../definitions/system';
@@ -17,16 +17,16 @@ export function isResourcePartOfWorkspace(
   resource: ResourceWrapper
 ) {
   switch (resource.resourceType) {
-    case AppResourceTypeMap.Workspace:
+    case kAppResourceType.Workspace:
       return resource.resourceId === workspaceId;
-    case AppResourceTypeMap.CollaborationRequest:
-    case AppResourceTypeMap.AgentToken:
-    case AppResourceTypeMap.PermissionGroup:
-    case AppResourceTypeMap.PermissionItem:
-    case AppResourceTypeMap.Folder:
-    case AppResourceTypeMap.File:
+    case kAppResourceType.CollaborationRequest:
+    case kAppResourceType.AgentToken:
+    case kAppResourceType.PermissionGroup:
+    case kAppResourceType.PermissionItem:
+    case kAppResourceType.Folder:
+    case kAppResourceType.File:
       return (resource.resource as WorkspaceResource).workspaceId === workspaceId;
-    case AppResourceTypeMap.User: {
+    case kAppResourceType.User: {
       const user = resource.resource as UserWithWorkspace;
       appAssert(user.workspaces, new ServerError(), 'User workspaces not filled in.');
       return !!getCollaboratorWorkspace(
@@ -44,25 +44,25 @@ export function isResourcePartOfContainer(
   resource: ResourceWrapper
 ) {
   switch (resource.resourceType) {
-    case AppResourceTypeMap.Workspace:
+    case kAppResourceType.Workspace:
       return resource.resourceId === containerId;
-    case AppResourceTypeMap.CollaborationRequest:
-    case AppResourceTypeMap.AgentToken:
-    case AppResourceTypeMap.PermissionGroup:
-    case AppResourceTypeMap.PermissionItem:
+    case kAppResourceType.CollaborationRequest:
+    case kAppResourceType.AgentToken:
+    case kAppResourceType.PermissionGroup:
+    case kAppResourceType.PermissionItem:
       return (resource.resource as WorkspaceResource).workspaceId === containerId;
-    case AppResourceTypeMap.Folder:
+    case kAppResourceType.Folder:
       return (
         (resource.resource as WorkspaceResource).workspaceId === containerId ||
         (resource.resource as WorkspaceResource).resourceId === containerId ||
         (resource.resource as unknown as Folder).idPath.includes(containerId)
       );
-    case AppResourceTypeMap.File:
+    case kAppResourceType.File:
       return (
         (resource.resource as WorkspaceResource).workspaceId === containerId ||
         (resource.resource as unknown as File).idPath.includes(containerId)
       );
-    case AppResourceTypeMap.User: {
+    case kAppResourceType.User: {
       const user = resource.resource as UserWithWorkspace;
       appAssert(user.workspaces, new ServerError(), 'User workspaces not filled in.');
       return !!getCollaboratorWorkspace(

@@ -1,7 +1,7 @@
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injectables';
-import {generateAndInsertTestFiles} from '../../testUtils/generateData/file';
-import {generateAndInsertTestFolders} from '../../testUtils/generateData/folder';
+import {generateAndInsertTestFiles} from '../../testUtils/generate/file';
+import {generateAndInsertTestFolders} from '../../testUtils/generate/folder';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,

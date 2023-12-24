@@ -6,8 +6,8 @@ import {
   assignPgListToIdList,
   toAssignedPgListInput,
 } from '../../permissionGroups/testUtils';
-import {generateAndInsertTestFiles} from '../../testUtils/generateData/file';
-import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generateData/permissionGroup';
+import {generateAndInsertTestFiles} from '../../testUtils/generate/file';
+import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,

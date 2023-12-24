@@ -1,5 +1,5 @@
 import {container} from 'tsyringe';
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
@@ -40,7 +40,7 @@ const deleteFileBackendConfig: DeleteFileBackendConfigEndpoint = async instData 
   }
 
   const job = await enqueueDeleteResourceJob({
-    type: AppResourceTypeMap.FileBackendConfig,
+    type: kAppResourceType.FileBackendConfig,
     args: {
       workspaceId: config.workspaceId,
       resourceId: config.resourceId,

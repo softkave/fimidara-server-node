@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
-import {generateAndInsertUserListForTest} from '../../testUtils/generateData/user';
+import {generateAndInsertUserListForTest} from '../../testUtils/generate/user';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests} from '../../testUtils/helpers/test';
 import {initTests, insertUserForTest} from '../../testUtils/testUtils';

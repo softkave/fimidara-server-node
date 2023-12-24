@@ -1,5 +1,5 @@
 import {PermissionItem} from '../../definitions/permissionItem';
-import {AppResourceType, AppResourceTypeMap} from '../../definitions/system';
+import {AppResourceType, kAppResourceType} from '../../definitions/system';
 import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider';
 import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder';
 
@@ -26,7 +26,7 @@ function getByResource(
   if (includeWildcardTargetType) {
     filter.addItem(
       'targetType',
-      [resourceType, AppResourceTypeMap.All],
+      [resourceType, kAppResourceType.All],
       DataProviderFilterValueOperator.In
     );
   } else {

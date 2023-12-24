@@ -3,7 +3,7 @@ import {
   CollaborationRequest,
   CollaborationRequestStatusTypeMap,
 } from '../../../definitions/collaborationRequest';
-import {Agent, AppResourceTypeMap} from '../../../definitions/system';
+import {Agent, kAppResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injectables';
@@ -18,18 +18,18 @@ export function generateCollaborationRequestForTest(
 ) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
-    agentId: getNewIdForResource(AppResourceTypeMap.User),
-    agentType: AppResourceTypeMap.User,
-    agentTokenId: getNewIdForResource(AppResourceTypeMap.AgentToken),
+    agentId: getNewIdForResource(kAppResourceType.User),
+    agentType: kAppResourceType.User,
+    agentTokenId: getNewIdForResource(kAppResourceType.AgentToken),
   };
   const item: CollaborationRequest = {
     createdAt,
     createdBy,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
-    resourceId: getNewIdForResource(AppResourceTypeMap.CollaborationRequest),
+    resourceId: getNewIdForResource(kAppResourceType.CollaborationRequest),
     workspaceName: faker.company.name(),
-    workspaceId: getNewIdForResource(AppResourceTypeMap.Workspace),
+    workspaceId: getNewIdForResource(kAppResourceType.Workspace),
     recipientEmail: faker.internet.email(),
     message: '',
     status: CollaborationRequestStatusTypeMap.Pending,

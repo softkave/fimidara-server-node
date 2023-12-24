@@ -1,7 +1,7 @@
 import {isArray} from 'lodash';
 import {AssignedItem} from '../../definitions/assignedItem';
 import {AssignPermissionGroupInput} from '../../definitions/permissionGroups';
-import {Agent, AppResourceTypeMap} from '../../definitions/system';
+import {Agent, kAppResourceType} from '../../definitions/system';
 import {AssignedTagInput} from '../../definitions/tag';
 import {Workspace} from '../../definitions/workspace';
 import {makeKey} from '../../utils/fns';
@@ -110,7 +110,7 @@ export async function addAssignedPermissionGroupList(
     await deleteResourceAssignedItems(
       workspaceId,
       assigneeId,
-      [AppResourceTypeMap.PermissionGroup],
+      [kAppResourceType.PermissionGroup],
       opts
     );
   }
@@ -137,15 +137,15 @@ export async function addAssignedPermissionGroupList(
         agent,
         newWorkspaceResource<AssignedItem>(
           agent,
-          AppResourceTypeMap.AssignedItem,
+          kAppResourceType.AssignedItem,
           workspaceId,
           {
             meta: {},
             assigneeId: id,
             assigneeType: getResourceTypeFromId(id),
-            resourceId: getNewIdForResource(AppResourceTypeMap.AssignedItem),
+            resourceId: getNewIdForResource(kAppResourceType.AssignedItem),
             assignedItemId: input.permissionGroupId,
-            assignedItemType: AppResourceTypeMap.PermissionGroup,
+            assignedItemType: kAppResourceType.PermissionGroup,
           }
         )
       );
@@ -174,7 +174,7 @@ export async function addAssignedTagList(
     await deleteResourceAssignedItems(
       workspace.resourceId,
       assigneeId,
-      [AppResourceTypeMap.Tag],
+      [kAppResourceType.Tag],
       opts
     );
   }
@@ -186,15 +186,15 @@ export async function addAssignedTagList(
       agent,
       newWorkspaceResource<AssignedItem>(
         agent,
-        AppResourceTypeMap.AssignedItem,
+        kAppResourceType.AssignedItem,
         workspace.resourceId,
         {
           assigneeId,
           assigneeType: getResourceTypeFromId(assigneeId),
           meta: {},
-          resourceId: getNewIdForResource(AppResourceTypeMap.AssignedItem),
+          resourceId: getNewIdForResource(kAppResourceType.AssignedItem),
           assignedItemId: tag.tagId,
-          assignedItemType: AppResourceTypeMap.PermissionGroup,
+          assignedItemType: kAppResourceType.PermissionGroup,
         }
       )
     );
@@ -245,13 +245,13 @@ export async function assignWorkspaceToUser(
   const items: AssignedItem[] = [
     withAssignedAgent(
       agent,
-      newWorkspaceResource(agent, AppResourceTypeMap.AssignedItem, workspaceId, {
+      newWorkspaceResource(agent, kAppResourceType.AssignedItem, workspaceId, {
         assigneeId: userId,
-        assigneeType: AppResourceTypeMap.User,
+        assigneeType: kAppResourceType.User,
         meta: {},
-        resourceId: getNewIdForResource(AppResourceTypeMap.AssignedItem),
+        resourceId: getNewIdForResource(kAppResourceType.AssignedItem),
         assignedItemId: workspaceId,
-        assignedItemType: AppResourceTypeMap.Workspace,
+        assignedItemType: kAppResourceType.Workspace,
       })
     ),
   ];

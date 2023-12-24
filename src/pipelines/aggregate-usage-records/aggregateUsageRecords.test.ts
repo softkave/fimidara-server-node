@@ -28,11 +28,11 @@ import NoopEmailProviderContext from '../../endpoints/testUtils/context/email/No
 import {
   generateTestFile,
   generateTestFiles,
-} from '../../endpoints/testUtils/generateData/file';
+} from '../../endpoints/testUtils/generate/file';
 import {
   generateTestUsageThresholdInputMap,
   generateTestWorkspace,
-} from '../../endpoints/testUtils/generateData/workspace';
+} from '../../endpoints/testUtils/generate/workspace';
 import {dropMongoConnection, genDbName} from '../../endpoints/testUtils/helpers/mongo';
 import {completeTests} from '../../endpoints/testUtils/helpers/test';
 import {

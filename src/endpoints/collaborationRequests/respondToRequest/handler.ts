@@ -1,4 +1,4 @@
-import {AppResourceTypeMap} from '../../../definitions/system';
+import {kAppResourceType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {collaborationRequestForUserExtractor} from '../utils';
@@ -14,7 +14,7 @@ const respondToCollaborationRequest: RespondToCollaborationRequestEndpoint =
     const data = validate(instData.data, respondToCollaborationRequestJoiSchema);
     const agent = await kUtilsInjectables
       .session()
-      .getAgent(instData, AppResourceTypeMap.User);
+      .getAgent(instData, kAppResourceType.User);
 
     const request = await kSemanticModels.utils().withTxn(async opts => {
       return await INTERNAL_RespondToCollaborationRequest(agent, data, opts);
