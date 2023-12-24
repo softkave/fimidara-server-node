@@ -10,7 +10,7 @@ import {
 } from '../definitions/usageRecord';
 import {mddocConstruct} from '../mddoc/mddoc';
 import {FimidaraExternalError} from '../utils/OperationError';
-import {ID_SEPARATOR, RESOURCE_TYPE_SHORT_NAMES} from '../utils/resource';
+import {kIdSeparator, kResourceTypeShortNames} from '../utils/resource';
 import {AnyObject} from '../utils/types';
 import {endpointConstants} from './constants';
 import {LongRunningJobResult} from './jobs/types';
@@ -211,8 +211,8 @@ const id = mddocConstruct
   .setDescription('Resource ID.')
   .setExample(
     `${
-      RESOURCE_TYPE_SHORT_NAMES[kAppResourceType.Workspace]
-    }${ID_SEPARATOR}${customAlphabet('0')()}`
+      kResourceTypeShortNames[kAppResourceType.Workspace]
+    }${kIdSeparator}${customAlphabet('0')()}`
   );
 const idList = mddocConstruct
   .constructFieldArray<string>()
@@ -225,7 +225,7 @@ const jobId = mddocConstruct
   .constructFieldString()
   .setDescription('Long running job ID.')
   .setExample(
-    `${RESOURCE_TYPE_SHORT_NAMES[kAppResourceType.Job]}${ID_SEPARATOR}${customAlphabet(
+    `${kResourceTypeShortNames[kAppResourceType.Job]}${kIdSeparator}${customAlphabet(
       '0'
     )()}`
   );
@@ -236,8 +236,8 @@ const workspaceId = mddocConstruct
   )
   .setExample(
     `${
-      RESOURCE_TYPE_SHORT_NAMES[kAppResourceType.Workspace]
-    }${ID_SEPARATOR}${customAlphabet('0')()}`
+      kResourceTypeShortNames[kAppResourceType.Workspace]
+    }${kIdSeparator}${customAlphabet('0')()}`
   );
 const workspaceIdInput = workspaceId
   .clone()
@@ -249,7 +249,7 @@ const folderId = mddocConstruct
   .constructFieldString()
   .setDescription('Folder ID.')
   .setExample(
-    `${RESOURCE_TYPE_SHORT_NAMES[kAppResourceType.Folder]}${ID_SEPARATOR}${customAlphabet(
+    `${kResourceTypeShortNames[kAppResourceType.Folder]}${kIdSeparator}${customAlphabet(
       '0'
     )()}`
   );
@@ -260,7 +260,7 @@ const fileId = mddocConstruct
   .constructFieldString()
   .setDescription('File ID.')
   .setExample(
-    `${RESOURCE_TYPE_SHORT_NAMES[kAppResourceType.File]}${ID_SEPARATOR}${customAlphabet(
+    `${kResourceTypeShortNames[kAppResourceType.File]}${kIdSeparator}${customAlphabet(
       '0'
     )()}`
   );
@@ -269,16 +269,16 @@ const permissionGroupId = mddocConstruct
   .setDescription('Permission group ID.')
   .setExample(
     `${
-      RESOURCE_TYPE_SHORT_NAMES[kAppResourceType.PermissionGroup]
-    }${ID_SEPARATOR}${customAlphabet('0')()}`
+      kResourceTypeShortNames[kAppResourceType.PermissionGroup]
+    }${kIdSeparator}${customAlphabet('0')()}`
   );
 const permissionItemId = mddocConstruct
   .constructFieldString()
   .setDescription('Permission item ID.')
   .setExample(
     `${
-      RESOURCE_TYPE_SHORT_NAMES[kAppResourceType.PermissionItem]
-    }${ID_SEPARATOR}${customAlphabet('0')()}`
+      kResourceTypeShortNames[kAppResourceType.PermissionItem]
+    }${kIdSeparator}${customAlphabet('0')()}`
   );
 const idPath = mddocConstruct
   .constructFieldArray<string>()

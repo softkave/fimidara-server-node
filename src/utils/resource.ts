@@ -17,21 +17,21 @@ import OperationError, {
 import {getActionAgentFromSessionAgent, isSessionAgent} from './sessionUtils';
 import {AnyObject, InvertRecord} from './types';
 
-export const RESOURCE_TYPE_SHORT_NAME_MAX_LEN = 7;
-export const RESOURCE_TYPE_SHORT_NAME_PADDING = '0';
+export const kResourceTypeShortNameMaxLength = 7;
+export const kResourceTypeShortNamePadding = '0';
 
 function padShortName(shortName: string) {
-  if (shortName.length > RESOURCE_TYPE_SHORT_NAME_MAX_LEN) {
+  if (shortName.length > kResourceTypeShortNameMaxLength) {
     throw new Error(
-      `Resource short name is more than ${RESOURCE_TYPE_SHORT_NAME_MAX_LEN} characters`
+      `Resource short name is more than ${kResourceTypeShortNameMaxLength} characters`
     );
   }
   return shortName
-    .padEnd(RESOURCE_TYPE_SHORT_NAME_MAX_LEN, RESOURCE_TYPE_SHORT_NAME_PADDING)
+    .padEnd(kResourceTypeShortNameMaxLength, kResourceTypeShortNamePadding)
     .toLowerCase();
 }
 
-export const RESOURCE_TYPE_SHORT_NAMES: Record<AppResourceType, string> = {
+export const kResourceTypeShortNames: Record<AppResourceType, string> = {
   [kAppResourceType.All]: padShortName('*'),
   [kAppResourceType.System]: padShortName('system'),
   [kAppResourceType.Public]: padShortName('public'),
@@ -49,11 +49,15 @@ export const RESOURCE_TYPE_SHORT_NAMES: Record<AppResourceType, string> = {
   [kAppResourceType.EndpointRequest]: padShortName('endrqst'),
   [kAppResourceType.Job]: padShortName('job'),
   [kAppResourceType.FilePresignedPath]: padShortName('filepsp'),
+  [kAppResourceType.App]: padShortName('app'),
+  [kAppResourceType.FileBackendConfig]: padShortName('bckconf'),
+  [kAppResourceType.FileBackendMount]: padShortName('mount'),
+  [kAppResourceType.ResolvedMountEntry]: padShortName('mtentry'),
 };
 
-export const SHORT_NAME_TO_RESOURCE_TYPE = invert(
-  RESOURCE_TYPE_SHORT_NAMES
-) as InvertRecord<typeof RESOURCE_TYPE_SHORT_NAMES>;
+export const kShortNameToResourceType = invert(kResourceTypeShortNames) as InvertRecord<
+  typeof kResourceTypeShortNames
+>;
 
 export class InvalidResourceIdError extends OperationError {
   name = 'InvalidResourceIdError';
@@ -69,9 +73,9 @@ export function getNewId(size?: number) {
   return nanoid(size);
 }
 
-export const ID_SIZE = 21;
-export const ID_SEPARATOR = '_';
-export const ID_0 = ''.padEnd(ID_SIZE, RESOURCE_TYPE_SHORT_NAME_PADDING);
+export const kIdSize = 21;
+export const kIdSeparator = '_';
+export const kId0 = ''.padEnd(kIdSize, kResourceTypeShortNamePadding);
 
 // TODO: write Joi schema
 /**
@@ -83,38 +87,40 @@ export const ID_0 = ''.padEnd(ID_SIZE, RESOURCE_TYPE_SHORT_NAME_PADDING);
  */
 export function getNewIdForResource(
   resourceType: AppResourceType,
-  size = ID_SIZE,
+  size = kIdSize,
   id0 = resourceType === kAppResourceType.System ||
     resourceType === kAppResourceType.Public
 ) {
-  let id = ID_0;
+  let id = kId0;
   if (!id0) {
     id = nanoid(size);
   }
 
-  const shortName = RESOURCE_TYPE_SHORT_NAMES[resourceType];
-  return `${shortName}${ID_SEPARATOR}${id}`;
+  const shortName = kResourceTypeShortNames[resourceType];
+  return `${shortName}${kIdSeparator}${id}`;
 }
 
 export function isAppResourceId(resourceId: string) {
-  const shortName = resourceId.slice(0, RESOURCE_TYPE_SHORT_NAME_MAX_LEN);
-  if (!shortName ?? !SHORT_NAME_TO_RESOURCE_TYPE[shortName]) {
+  const shortName = resourceId.slice(0, kResourceTypeShortNameMaxLength);
+  if (!shortName ?? !kShortNameToResourceType[shortName]) {
     return false;
   }
   return true;
 }
 
 export function tryGetResourceTypeFromId(id: string): AppResourceType | undefined {
-  const shortName = id.slice(0, RESOURCE_TYPE_SHORT_NAME_MAX_LEN);
-  const type = SHORT_NAME_TO_RESOURCE_TYPE[shortName];
+  const shortName = id.slice(0, kResourceTypeShortNameMaxLength);
+  const type = kShortNameToResourceType[shortName];
   return type;
 }
 
 export function getResourceTypeFromId(id: string) {
   const type = tryGetResourceTypeFromId(id);
+
   if (!type) {
     throw new InvalidResourceIdError();
   }
+
   return type;
 }
 

@@ -11,6 +11,7 @@ export interface BaseEndpointResult {
   errors?: FimidaraExternalError[];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Endpoint<TParams = any, TResult = void> = (
   instData: RequestData<TParams>
 ) => Promise<
@@ -18,16 +19,20 @@ export type Endpoint<TParams = any, TResult = void> = (
 >;
 
 export type InferEndpointResult<TEndpoint> = TEndpoint extends Endpoint<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   any,
   infer InferedResult
 >
   ? InferedResult extends AnyObject
     ? InferedResult
-    : any
-  : any;
+    : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      any
+  : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any;
 
 export type InferEndpointParams<TEndpoint> = TEndpoint extends Endpoint<
   infer InferedParams,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   any
 >
   ? InferedParams
@@ -116,7 +121,8 @@ export type ExportedHttpEndpoint_GetDataFromReqFn = (req: Request) => OrPromise<
 
 export type ExportedHttpEndpoint_HandleResponse = (
   res: Response,
-  data: unknown
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: any
 ) => OrPromise<void>;
 
 /** return `true` to defer error handling to server, allowing the function to
@@ -166,6 +172,7 @@ export type ExportedHttpEndpointWithMddocDefinition<
 
 export type InferMddocHttpEndpointFromMddocEndpointDefinition<T> =
   T extends ExportedHttpEndpointWithMddocDefinition<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     any,
     infer T0,
     infer T1,

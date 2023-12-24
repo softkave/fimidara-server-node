@@ -251,7 +251,8 @@ export function assertUpdateNotEmpty(update: AnyObject) {
 }
 
 export function registerExpressRouteFromEndpoint(
-  endpoint: ExportedHttpEndpointWithMddocDefinition<never>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  endpoint: ExportedHttpEndpointWithMddocDefinition<any>,
   app: Express
 ) {
   const p = endpoint.mddocHttpDefinition.assertGetBasePathname();

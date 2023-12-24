@@ -1,17 +1,17 @@
 import Joi from 'joi';
-import {FileBackendTypeMap} from '../../definitions/fileBackend';
+import {kFileBackendType} from '../../definitions/fileBackend';
 import {ValidationRegExPatterns, validationConstants} from '../../utils/validationUtils';
 import {S3FilePersistenceProviderInitParams} from '../contexts/file/S3FilePersistenceProvider';
 import {kFileBackendConstants} from './constants';
 
-const backend = Joi.string().valid(Object.values(FileBackendTypeMap));
+const backend = Joi.string().valid(Object.values(kFileBackendType));
 const nonFimidaraBackend = Joi.string().valid(
-  Object.values(FileBackendTypeMap).filter(backend => backend !== 'fimidara')
+  Object.values(kFileBackendType).filter(backend => backend !== 'fimidara')
 );
 const credentials = Joi.object().when('backend', {
   switch: [
     {
-      is: Joi.string().valid(FileBackendTypeMap.S3),
+      is: Joi.string().valid(kFileBackendType.S3),
       then: Joi.object<S3FilePersistenceProviderInitParams>().keys({
         accessKeyId: Joi.string()
           .alphanum()

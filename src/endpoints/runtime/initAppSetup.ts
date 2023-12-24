@@ -8,7 +8,7 @@ import {FimidaraRuntimeConfig} from '../../resources/types';
 import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
-import {ID_SIZE, getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
+import {getNewIdForResource, kIdSize, newWorkspaceResource} from '../../utils/resource';
 import {makeUserSessionAgent} from '../../utils/sessionUtils';
 import {kDataModels, kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
 import {
@@ -27,7 +27,7 @@ import {assertWorkspace} from '../workspaces/utils';
 
 export const APP_RUNTIME_STATE_DOC_ID = getNewIdForResource(
   kAppResourceType.System,
-  ID_SIZE,
+  kIdSize,
   true
 );
 const imagesPath = '/files/images';

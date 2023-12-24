@@ -35,6 +35,11 @@ export interface SemanticBaseProviderType<TResource extends Resource> {
     update: Partial<TResource>,
     opts: SemanticProviderMutationRunOptions
   ): Promise<void>;
+  updateManyByQueryList(
+    query: DataQuery<TResource>[],
+    update: Partial<TResource>,
+    opts: SemanticProviderMutationRunOptions
+  ): Promise<TResource[]>;
   getAndUpdateOneById(
     id: string,
     update: Partial<TResource>,

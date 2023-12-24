@@ -3,7 +3,7 @@ import {container} from 'tsyringe';
 import {
   FileBackendConfig,
   FileBackendMount,
-  FileBackendTypeMap,
+  kFileBackendType,
   ResolvedMountEntry,
 } from '../../../definitions/fileBackend';
 import {Agent, kAppResourceType} from '../../../definitions/system';
@@ -42,18 +42,18 @@ export function generateAWSS3Credentials(
 }
 
 export function generateFileBackendType() {
-  return faker.helpers.arrayElement(Object.values(FileBackendTypeMap));
+  return faker.helpers.arrayElement(Object.values(kFileBackendType));
 }
 
 export function generateFileBackendTypeForInput() {
   return faker.helpers.arrayElement(
-    Object.values(FileBackendTypeMap).filter(type => type !== 'fimidara')
+    Object.values(kFileBackendType).filter(type => type !== 'fimidara')
   );
 }
 
 export const fileBackendToCredentialsGenerator = {
-  [FileBackendTypeMap.S3]: generateAWSS3Credentials,
-  [FileBackendTypeMap.Fimidara]: () => ({}),
+  [kFileBackendType.S3]: generateAWSS3Credentials,
+  [kFileBackendType.Fimidara]: () => ({}),
 } as const;
 
 export function generateFileBackendConfigInput(
@@ -102,7 +102,7 @@ export function generateFileBackendMountForTest(seed: Partial<FileBackendMount> 
     folderpath: faker.system.directoryPath().split('/'),
     index: faker.number.int(),
     mountedFrom: faker.system.directoryPath().split('/'),
-    backend: faker.helpers.arrayElement(Object.values(FileBackendTypeMap)),
+    backend: faker.helpers.arrayElement(Object.values(kFileBackendType)),
     name: faker.lorem.words(),
     ...seed,
   };
@@ -124,7 +124,7 @@ export function generateFileBackendConfigForTest(seed: Partial<FileBackendConfig
     resourceId: getNewIdForResource(kAppResourceType.FileBackendConfig),
     workspaceId: getNewIdForResource(kAppResourceType.Workspace),
     name: faker.lorem.words(),
-    backend: faker.helpers.arrayElement(Object.values(FileBackendTypeMap)),
+    backend: faker.helpers.arrayElement(Object.values(kFileBackendType)),
     secretId: faker.string.alphanumeric(),
     ...seed,
   };

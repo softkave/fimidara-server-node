@@ -1,4 +1,4 @@
-import {first, isObject, keyBy, noop} from 'lodash';
+import {defaultTo, first, isObject, keyBy, noop} from 'lodash';
 import {AnyObject} from 'mongoose';
 import {availableParallelism} from 'os';
 import {App, AppShard, kAppPresetShards, kAppType} from '../../definitions/app';
@@ -53,23 +53,30 @@ export async function queueJobs<TParams extends AnyObject = AnyObject>(
   workspaceId: string | undefined,
   parentJobId: string | undefined,
   jobsInput: JobInput<TParams>[]
-) {
+): Promise<Array<Job<TParams>>> {
   if (jobsInput.length === 0) {
     return [];
   }
 
+  const parentJob = parentJobId
+    ? await kSemanticModels.job().getOneById(parentJobId)
+    : undefined;
+  const parents = defaultTo(parentJob?.parents, []).concat(parentJobId ?? []);
   const idempotencyTokens: string[] = [];
   const newJobs = jobsInput.map(input => {
-    const idempotencyToken = input.idempotencyToken || JSON.stringify(input.params);
+    const idempotencyToken =
+      input.idempotencyToken || JSON.stringify(input.params) + (parentJobId || '');
     const status: JobStatusHistory = {
       status: kJobStatus.pending,
       statusLastUpdatedAt: getTimestamp(),
     };
 
+    idempotencyTokens.push(idempotencyToken);
     return newResource<Job>(kAppResourceType.Job, {
       workspaceId,
       parentJobId,
       idempotencyToken,
+      parents,
       params: input.params,
       type: input.type,
       minRunnerVersion: kJobRunnerV1,
@@ -94,7 +101,7 @@ export async function queueJobs<TParams extends AnyObject = AnyObject>(
     );
     await kSemanticModels.job().insertItem(uniqueJobs, opts);
 
-    return uniqueJobs;
+    return uniqueJobs as Array<Job<TParams>>;
   });
 }
 
@@ -146,17 +153,17 @@ export async function runJob(job: Job) {
   try {
     if (job.type === kJobType.deleteResource) {
       await runDeleteResourceJob(job);
-    } else if (job.type === 'ingestFolderpath') {
+    } else if (job.type === kJobType.ingestFolderpath) {
       await runIngestFolderpathJob(job as Job<IngestFolderpathJobParams>);
-    } else if (job.type === 'ingestMount') {
+    } else if (job.type === kJobType.ingestMount) {
       await runIngestMountJob(job as Job<IngestMountJobParams>);
-    } else if (job.type === 'noop') {
+    } else if (job.type === kJobType.noop) {
       noop();
-    } else if (job.type === 'cleanupMountResolvedEntries') {
+    } else if (job.type === kJobType.cleanupMountResolvedEntries) {
       await runCleanupMountResolvedEntriesJob(
         job as Job<CleanupMountResolvedEntriesJobParams>
       );
-    } else if (job.type === 'fail') {
+    } else if (job.type === kJobType.fail) {
       throw new Error('Fail job.');
     } else {
       console.log(`unknown job type ${job.type}`);
@@ -212,13 +219,18 @@ export async function waitForJob(
   const startMs = getTimestamp();
 
   if (bumpPriority) {
-    await kSemanticModels
-      .utils()
-      .withTxn(opts =>
-        kSemanticModels
-          .job()
-          .updateOneById(jobId, {priority: Number.MAX_SAFE_INTEGER}, opts)
-      );
+    await kSemanticModels.utils().withTxn(opts =>
+      kSemanticModels.job().updateManyByQueryList(
+        [
+          // Bump children priority
+          {parents: {$elemMatch: jobId}},
+          // Bump job priority
+          {resourceId: jobId},
+        ],
+        {priority: Number.MAX_SAFE_INTEGER},
+        opts
+      )
+    );
   }
 
   return new Promise<void>((resolve, reject) => {

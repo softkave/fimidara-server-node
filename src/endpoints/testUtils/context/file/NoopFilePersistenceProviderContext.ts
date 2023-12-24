@@ -1,7 +1,13 @@
-import {noopAsync} from '../../../../utils/fns';
 import {
+  FilePersistenceDescribeFolderFilesParams,
+  FilePersistenceDescribeFolderFilesResult,
+  FilePersistenceDescribeFolderFoldersParams,
+  FilePersistenceDescribeFolderFoldersResult,
   FilePersistenceProvider,
   FilePersistenceProviderFeature,
+  PersistedFile,
+  PersistedFileDescription,
+  PersistedFolderDescription,
 } from '../../../contexts/file/types';
 
 export default class NoopFilePersistenceProviderContext
@@ -10,39 +16,45 @@ export default class NoopFilePersistenceProviderContext
   supportsFeature = (feature: FilePersistenceProviderFeature): boolean => {
     switch (feature) {
       case 'deleteFiles':
-        return false;
       case 'deleteFolders':
-        return false;
       case 'describeFile':
-        return false;
       case 'describeFolder':
-        return false;
       case 'describeFolderFiles':
-        return false;
       case 'describeFolderFolders':
-        return false;
       case 'readFile':
-        return false;
       case 'uploadFile':
         return false;
     }
   };
 
+  readFile = async (): Promise<PersistedFile> => {
+    return {body: undefined};
+  };
+
+  deleteFiles = async () => {};
+  deleteFolders = async (): Promise<void> => {};
+  close = async () => {};
+
+  describeFile = async (): Promise<PersistedFileDescription | undefined> => {
+    return undefined;
+  };
+
+  describeFolder = async (): Promise<PersistedFolderDescription | undefined> => {
+    return undefined;
+  };
+
   uploadFile = async () => ({});
-  readFile = async () => ({});
-  deleteFiles = noopAsync;
-  deleteFolders = noopAsync;
-  describeFile = async () => {
-    return undefined;
-  };
-  describeFolder = async () => {
-    return undefined;
-  };
-  describeFolderFiles = async () => {
+  describeFolderFiles = async (
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    params: FilePersistenceDescribeFolderFilesParams
+  ): Promise<FilePersistenceDescribeFolderFilesResult> => {
     return {files: []};
   };
-  describeFolderFolders = async () => {
+
+  describeFolderFolders = async (
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    params: FilePersistenceDescribeFolderFoldersParams
+  ): Promise<FilePersistenceDescribeFolderFoldersResult> => {
     return {folders: []};
   };
-  close = noopAsync;
 }

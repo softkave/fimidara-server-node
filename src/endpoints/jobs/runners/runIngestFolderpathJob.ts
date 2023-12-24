@@ -1,6 +1,6 @@
 import {FileBackendMount} from '../../../definitions/fileBackend';
 import {Folder} from '../../../definitions/folder';
-import {IngestFolderpathJobParams, Job} from '../../../definitions/job';
+import {IngestFolderpathJobParams, Job, kJobType} from '../../../definitions/job';
 import {Agent} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {FilePersistenceProvider} from '../../contexts/file/types';
@@ -41,19 +41,25 @@ async function ingestFolderpathJobFolders(
 
     continuationToken = result.continuationToken;
     await ingestPersistedFolders(agent, workspace, result.folders);
-    await queueJobs(
-      job.workspaceId,
-      job.resourceId,
-      result.folders.map((mountFolder): JobInput<IngestFolderpathJobParams> => {
-        return {
-          type: 'ingestFolderpath',
-          params: {
+
+    kUtilsInjectables.promiseStore().forget(
+      queueJobs(
+        job.workspaceId,
+        job.resourceId,
+        result.folders.map((mountFolder): JobInput<IngestFolderpathJobParams> => {
+          const jobParams: IngestFolderpathJobParams = {
             folderpath: mountFolder.folderpath,
             mountId: mountFolder.mountId,
             agentId: job.params.agentId,
-          },
-        };
-      })
+          };
+          return {
+            type: kJobType.ingestFolderpath,
+            params: jobParams,
+            priority: job.priority,
+            shard: job.shard,
+          };
+        })
+      )
     );
   } while (continuationToken);
 }

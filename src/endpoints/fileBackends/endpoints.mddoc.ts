@@ -1,5 +1,5 @@
 import {
-  FileBackendTypeMap,
+  kFileBackendType,
   PublicFileBackendConfig,
   PublicFileBackendMount,
 } from '../../definitions/fileBackend';
@@ -79,8 +79,8 @@ import {
 const backend = mddocConstruct
   .constructFieldString()
   .setDescription('File backend type.')
-  .setExample(FileBackendTypeMap.Fimidara)
-  .setValid(Object.values(FileBackendTypeMap))
+  .setExample(kFileBackendType.Fimidara)
+  .setValid(Object.values(kFileBackendType))
   .setEnumName('FileBackendType');
 
 const configId = fReusables.id.clone().setDescription('Backend config ID.');

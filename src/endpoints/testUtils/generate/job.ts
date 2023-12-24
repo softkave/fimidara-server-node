@@ -60,6 +60,7 @@ export function generateJobForTest(seed: Partial<Job> = {}) {
     priority: getRandomJobPresetPriority(),
     statusHistory: [status],
     workspaceId: getNewIdForResource(kAppResourceType.Workspace),
+    parents: [],
     ...status,
     ...seed,
   };

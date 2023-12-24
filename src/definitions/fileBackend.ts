@@ -6,12 +6,12 @@ import {
   WorkspaceResource,
 } from './system';
 
-export const FileBackendTypeMap = {
+export const kFileBackendType = {
   Fimidara: 'fimidara',
   S3: 'aws-s3',
 } as const;
 
-export type FileBackendType = ObjectValues<typeof FileBackendTypeMap>;
+export type FileBackendType = ObjectValues<typeof kFileBackendType>;
 
 export interface FileBackendMount extends WorkspaceResource {
   /** folderpath without workspace rootname */

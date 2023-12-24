@@ -170,9 +170,7 @@ export function getFilenameInfo(providedName: string): FilenameInfo {
   };
 }
 
-export interface FilepathInfo extends FilenameInfo, FolderpathInfo {
-  filepathExcludingExt: string[];
-}
+export interface FilepathInfo extends FilenameInfo, FolderpathInfo {}
 
 export function getFilepathInfo(
   path: string | string[],
@@ -180,14 +178,12 @@ export function getFilepathInfo(
 ): FilepathInfo {
   const folderpathInfo = getFolderpathInfo(path, options);
   const filenameInfo = getFilenameInfo(folderpathInfo.name);
-  const pathWithoutExtension = [...folderpathInfo.namepath];
-  pathWithoutExtension[pathWithoutExtension.length - 1] =
+  folderpathInfo.namepath[folderpathInfo.namepath.length - 1] =
     filenameInfo.filenameExcludingExt;
 
   return {
     ...folderpathInfo,
     ...filenameInfo,
-    filepathExcludingExt: pathWithoutExtension,
   };
 }
 

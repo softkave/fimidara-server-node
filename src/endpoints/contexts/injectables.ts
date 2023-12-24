@@ -143,7 +143,7 @@ export const kUtilsInjectables = {
   config: () => container.resolve<FimidaraConfig>(kInjectionKeys.config),
   secretsManager: () =>
     container.resolve<SecretsManagerProvider>(kInjectionKeys.secretsManager),
-  fileProviderResolver: () =>
+  fileProviderResolver: (item?: FileProviderResolver) =>
     container.resolve<FileProviderResolver>(kInjectionKeys.fileProviderResolver),
   asyncLocalStorage: () =>
     container.resolve<AsyncLocalStorageUtils>(kInjectionKeys.asyncLocalStorage),

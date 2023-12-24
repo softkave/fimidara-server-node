@@ -53,6 +53,9 @@ export interface Job<TParams extends AnyObject = AnyObject> extends Resource {
   minRunnerVersion: number;
   runnerId?: string;
   parentJobId?: string;
+  // TODO: consider a bit packing or bloom filter-related alternative, that
+  // allows for false-positives but no false-negatives
+  parents: string[];
   idempotencyToken: string;
   statusHistory: JobStatusHistory[];
   /** Higher number carries more weight. */
