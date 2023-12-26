@@ -8,6 +8,7 @@ import {
   IngestFolderpathJobParams,
   IngestMountJobParams,
   Job,
+  JobStatus,
   JobStatusHistory,
   JobType,
   kJobPresetPriority,
@@ -105,13 +106,33 @@ export async function queueJobs<TParams extends AnyObject = AnyObject>(
   });
 }
 
-export async function completeJob(jobId: string) {
+// TODO: wait for parents
+// TODO: merge (settle kind) with existing
+
+export async function completeJob(
+  jobId: string,
+  status: JobStatus = kJobStatus.completed
+) {
   const job = await kSemanticModels.utils().withTxn(async opts => {
     const jobsModel = kSemanticModels.job();
-
-    const [job, hasIncompleteChildren] = await Promise.all([
+    const [job, hasPendingChild, hasFailedChild] = await Promise.all([
       jobsModel.getOneById(jobId, opts),
-      jobsModel.existsByQuery({parentJobId: jobId, status: {$ne: kJobStatus.completed}}),
+      jobsModel.existsByQuery(
+        {
+          parents: {$elemMatch: jobId},
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          status: {$nin: [kJobStatus.completed, kJobStatus.failed] as any[]},
+        },
+        opts
+      ),
+      jobsModel.existsByQuery(
+        {
+          parents: {$elemMatch: jobId},
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          status: {$eq: kJobStatus.failed},
+        },
+        opts
+      ),
     ]);
 
     if (!job) {
@@ -119,22 +140,28 @@ export async function completeJob(jobId: string) {
     }
 
     appAssert(job.runnerId);
-    const status: JobStatusHistory = {
-      status: hasIncompleteChildren
+    const statusItem: JobStatusHistory = {
+      status: hasPendingChild
         ? kJobStatus.waitingForChildren
-        : kJobStatus.completed,
+        : hasFailedChild
+        ? kJobStatus.failed
+        : status,
       statusLastUpdatedAt: getTimestamp(),
       runnerId: job.runnerId,
     };
 
     return await jobsModel.getAndUpdateOneById(
       jobId,
-      {...status, statusHistory: job.statusHistory.concat(status)},
+      {...statusItem, statusHistory: job.statusHistory.concat(statusItem)},
       opts
     );
   });
 
-  if (job && job.status === kJobStatus.completed && job.parentJobId) {
+  if (
+    job &&
+    (job.status === kJobStatus.completed || job.status === kJobStatus.failed) &&
+    job.parentJobId
+  ) {
     kUtilsInjectables.promiseStore().forget(completeJob(job.parentJobId));
   }
 

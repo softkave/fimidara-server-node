@@ -24,6 +24,13 @@ import {
   waitForJob,
 } from '../utils';
 
+/**
+ * completeJob - if has pending child
+ * completeJob - if has failed child
+ * completeJob - pass status
+ * completeJob - updates parent on completed or failed
+ */
+
 const shard = getNewId();
 
 describe('utils', () => {
@@ -139,7 +146,26 @@ describe('utils', () => {
     expect(last(dbJob.statusHistory)).toMatchObject({status: kJobStatus.completed});
   });
 
-  test('completeJob, parent job completed', async () => {
+  test('completeJob with status', async () => {
+    const [job] = await generateAndInsertJobListForTest(/** count */ 1, {
+      shard,
+      status: kJobStatus.inProgress,
+      type: kJobType.noop,
+    });
+
+    const status = faker.helpers.arrayElement([kJobStatus.completed, kJobStatus.failed]);
+    const completedJob = await completeJob(job.resourceId, status);
+    const dbJob = await kSemanticModels.job().getOneById(job.resourceId);
+
+    assert(completedJob);
+    assert(dbJob);
+    expect(completedJob).toEqual(dbJob);
+    expect(dbJob.status).toBe(status);
+    expect(dbJob.statusLastUpdatedAt).toBeGreaterThan(job.statusLastUpdatedAt);
+    expect(last(dbJob.statusHistory)).toMatchObject({status: status});
+  });
+
+  test('completeJob, parent job with only one child updated', async () => {
     const [parentJob] = await generateAndInsertJobListForTest(/** count */ 1, {
       shard,
       status: kJobStatus.inProgress,
@@ -152,13 +178,70 @@ describe('utils', () => {
       type: kJobType.noop,
     });
 
-    await completeJob(job.resourceId);
+    const status = faker.helpers.arrayElement([kJobStatus.completed, kJobStatus.failed]);
+    await completeJob(job.resourceId, status);
     const dbParentJob = await kSemanticModels.job().getOneById(parentJob.resourceId);
 
     assert(dbParentJob);
-    expect(dbParentJob.status).toBe(kJobStatus.completed);
+    expect(dbParentJob.status).toBe(status);
     expect(dbParentJob.statusLastUpdatedAt).toBeGreaterThan(job.statusLastUpdatedAt);
-    expect(last(dbParentJob.statusHistory)).toMatchObject({status: kJobStatus.completed});
+    expect(last(dbParentJob.statusHistory)).toMatchObject({status: status});
+  });
+
+  test('completeJob, parent job with multiple children marked waiting', async () => {
+    const [parentJob] = await generateAndInsertJobListForTest(/** count */ 1, {
+      shard,
+      status: kJobStatus.inProgress,
+      type: kJobType.noop,
+    });
+    const [job01] = await generateAndInsertJobListForTest(/** count */ 2, {
+      shard,
+      status: kJobStatus.inProgress,
+      parentJobId: parentJob.resourceId,
+      type: kJobType.noop,
+    });
+
+    const status = faker.helpers.arrayElement([kJobStatus.completed, kJobStatus.failed]);
+    await completeJob(job01.resourceId, status);
+    const dbParentJob = await kSemanticModels.job().getOneById(parentJob.resourceId);
+
+    assert(dbParentJob);
+    expect(dbParentJob.status).toBe(kJobStatus.waitingForChildren);
+    expect(dbParentJob.statusLastUpdatedAt).toBeGreaterThan(job01.statusLastUpdatedAt);
+    expect(last(dbParentJob.statusHistory)).toMatchObject({
+      status: kJobStatus.waitingForChildren,
+    });
+  });
+
+  test('completeJob, parent job with existing failed child marked failed', async () => {
+    const [parentJob] = await generateAndInsertJobListForTest(/** count */ 1, {
+      shard,
+      status: kJobStatus.inProgress,
+      type: kJobType.noop,
+    });
+    const [[job01]] = await Promise.all([
+      generateAndInsertJobListForTest(/** count */ 1, {
+        shard,
+        status: kJobStatus.inProgress,
+        parentJobId: parentJob.resourceId,
+        type: kJobType.noop,
+      }),
+      generateAndInsertJobListForTest(/** count */ 1, {
+        shard,
+        status: kJobStatus.failed,
+        parentJobId: parentJob.resourceId,
+      }),
+    ]);
+
+    await completeJob(job01.resourceId);
+    const dbParentJob = await kSemanticModels.job().getOneById(parentJob.resourceId);
+
+    assert(dbParentJob);
+    expect(dbParentJob.status).toBe(kJobStatus.failed);
+    expect(dbParentJob.statusLastUpdatedAt).toBeGreaterThan(job01.statusLastUpdatedAt);
+    expect(last(dbParentJob.statusHistory)).toMatchObject({
+      status: kJobStatus.failed,
+    });
   });
 
   test('completeJob, marked waiting for children if has incomplete children', async () => {

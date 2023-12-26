@@ -1,5 +1,6 @@
 import {ProjectionType, SortOrder} from 'mongoose';
 import {AgentToken} from '../../../definitions/agentToken';
+import {App} from '../../../definitions/app';
 import {AssignedItem} from '../../../definitions/assignedItem';
 import {CollaborationRequest} from '../../../definitions/collaborationRequest';
 import {File, FilePresignedPath} from '../../../definitions/file';
@@ -18,7 +19,6 @@ import {UsageRecord} from '../../../definitions/usageRecord';
 import {User} from '../../../definitions/user';
 import {Workspace} from '../../../definitions/workspace';
 import {AnyFn, AnyObject} from '../../../utils/types';
-import {App} from '../../../definitions/app';
 
 export type DataQuerySort<T, K extends keyof T = keyof T> = {
   [P in K]?: SortOrder;
@@ -32,6 +32,8 @@ export interface DataProviderQueryListParams<T> extends DataProviderOpParams {
   /** zero-based index */
   page?: number;
   pageSize?: number;
+  // TODO: Pick projection fields and return only projection fields in data and
+  // semantic APIs
   projection?: ProjectionType<T>;
   sort?: DataQuerySort<T>;
 }

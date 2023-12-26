@@ -1,16 +1,15 @@
-/**
- * - keeps continuation token and does not start from the beginning
- * - folderID
- * - root folder
- *
- * - reset injectables
- */
-
 import {faker} from '@faker-js/faker';
 import {keyBy, pick} from 'lodash';
 import {kFileBackendType} from '../../../../definitions/fileBackend';
-import {IngestFolderpathJobParams, Job, kJobType} from '../../../../definitions/job';
+import {
+  IngestFolderpathJobMeta,
+  IngestFolderpathJobParams,
+  Job,
+  kJobType,
+} from '../../../../definitions/job';
+import {kAppResourceType} from '../../../../definitions/system';
 import {getNewId} from '../../../../utils/resource';
+import {AnyObject} from '../../../../utils/types';
 import {
   FilePersistenceDescribeFolderFilesParams,
   FilePersistenceDescribeFolderFilesResult,
@@ -39,9 +38,14 @@ import {
   generateTestFolderName,
   generateTestFolderpath,
 } from '../../../testUtils/generate/folder';
+import {expectErrorThrown} from '../../../testUtils/helpers/error';
 import {insertUserForTest, insertWorkspaceForTest} from '../../../testUtils/testUtils';
 import {queueJobs, waitForJob} from '../../utils';
 import {runIngestFolderpathJob} from '../runIngestFolderpathJob';
+
+/**
+ * - TODO: reset injectables
+ */
 
 describe('runIngestFolderpathJob', () => {
   test('files ingested with a backend that supports folders', async () => {
@@ -69,7 +73,7 @@ describe('runIngestFolderpathJob', () => {
     const withContinuationToken = faker.datatype.boolean();
     const pFolderContinuationTokensByFolderpath: Record<string, string> = {};
     const pFileContinuationTokensByFolderpath: Record<string, string> = {};
-
+    const mountedFromString = mountedFrom.join(kFolderConstants.separator);
     class TestBackend
       extends NoopFilePersistenceProviderContext
       implements FilePersistenceProvider
@@ -178,7 +182,7 @@ describe('runIngestFolderpathJob', () => {
           shard,
           type: kJobType.ingestFolderpath,
           params: {
-            folderpath: mountFolderpath.join(kFolderConstants.separator),
+            ingestFrom: mountedFromString,
             agentId: userToken.resourceId,
             mountId: mount.resourceId,
           },
@@ -206,14 +210,14 @@ describe('runIngestFolderpathJob', () => {
       expect(Object.values(pFileContinuationTokensByFolderpath)).toBe(0);
     }
 
-    const jobsByFolderpath = keyBy(
+    const jobsByMountSource = keyBy(
       jobs,
-      job => (job.params as IngestFolderpathJobParams).folderpath ?? ''
+      job => (job.params as IngestFolderpathJobParams).ingestFrom ?? ''
     );
     const expectedJobsByFolderpath = pFolders.map(
       (pFolder): Partial<Job<IngestFolderpathJobParams>> => ({
         params: {
-          folderpath: pFolder.folderpath,
+          ingestFrom: pFolder.folderpath,
           mountId: pFolder.mountId,
           agentId: userToken.resourceId,
         },
@@ -221,7 +225,7 @@ describe('runIngestFolderpathJob', () => {
         shard: job.shard,
       })
     );
-    expect(jobsByFolderpath).toMatchObject(expectedJobsByFolderpath);
+    expect(jobsByMountSource).toMatchObject(expectedJobsByFolderpath);
 
     const [dbFolders, dbFiles] = await Promise.all([
       kSemanticModels.folder().getManyByQueryList(
@@ -280,6 +284,7 @@ describe('runIngestFolderpathJob', () => {
     });
     const withContinuationToken = faker.datatype.boolean();
     const pFileContinuationTokensByFolderpath: Record<string, string> = {};
+    const mountedFromString = mountedFrom.join(kFolderConstants.separator);
 
     class TestBackend
       extends NoopFilePersistenceProviderContext
@@ -345,8 +350,8 @@ describe('runIngestFolderpathJob', () => {
       workspaceId: workspace.resourceId,
     });
     const [mount] = await generateAndInsertFileBackendMountListForTest(/** count */ 1, {
-      folderpath: mountFolderpath,
       mountedFrom,
+      folderpath: mountFolderpath,
       workspaceId: workspace.resourceId,
       configId: config.resourceId,
       backend: kFileBackendType.S3,
@@ -360,7 +365,7 @@ describe('runIngestFolderpathJob', () => {
           shard,
           type: kJobType.ingestFolderpath,
           params: {
-            folderpath: mountFolderpath.join(kFolderConstants.separator),
+            ingestFrom: mountedFromString,
             agentId: userToken.resourceId,
             mountId: mount.resourceId,
           },
@@ -444,6 +449,7 @@ describe('runIngestFolderpathJob', () => {
     const mountFolderpath = generateTestFolderpath({
       length: faker.number.int({min: 0, max: 2}),
     });
+    const mountedFromString = mountedFrom.join(kFolderConstants.separator);
 
     class TestBackend
       extends NoopFilePersistenceProviderContext
@@ -482,8 +488,8 @@ describe('runIngestFolderpathJob', () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const [mount] = await generateAndInsertFileBackendMountListForTest(/** count */ 1, {
-      folderpath: mountFolderpath,
       mountedFrom,
+      folderpath: mountFolderpath,
       workspaceId: workspace.resourceId,
       backend: kFileBackendType.Fimidara,
     });
@@ -496,7 +502,7 @@ describe('runIngestFolderpathJob', () => {
           shard,
           type: kJobType.ingestFolderpath,
           params: {
-            folderpath: mountFolderpath.join(kFolderConstants.separator),
+            ingestFrom: mountedFromString,
             agentId: userToken.resourceId,
             mountId: mount.resourceId,
           },
@@ -514,5 +520,227 @@ describe('runIngestFolderpathJob', () => {
     const jobs = await kSemanticModels.job().getManyByQuery({shard});
     // Should contain original job only
     expect(jobs.length).toBe(1);
+  });
+
+  test('saves and reuses continuation tokens', async () => {
+    const kBreakAtCall = 2;
+    const kDoNotBreak = -1;
+    const kMaxCalls = 5;
+    const kBreakForType =
+      faker.number.int({min: 1, max: 2}) === 1
+        ? kAppResourceType.File
+        : kAppResourceType.Folder;
+    const mountedFrom = generateTestFolderpath({
+      length: faker.number.int({min: 0, max: 2}),
+    });
+    const mountFolderpath = generateTestFolderpath({
+      length: faker.number.int({min: 0, max: 2}),
+    });
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    const [config] = await generateAndInsertFileBackendConfigListForTest(/** count */ 1, {
+      workspaceId: workspace.resourceId,
+    });
+    const [mount] = await generateAndInsertFileBackendMountListForTest(/** count */ 1, {
+      folderpath: mountFolderpath,
+      mountedFrom,
+      workspaceId: workspace.resourceId,
+      configId: config.resourceId,
+      backend: kFileBackendType.S3,
+    });
+    const mountedFromString = mountedFrom.join(kFolderConstants.separator);
+
+    class ContinuationHelper {
+      protected continuationTokens: Array<{folderpath: string; token: string}> = [];
+      protected calls: Record<string, number> = {};
+
+      constructor(
+        public breakAtCall: number,
+        protected maxCalls: number
+      ) {}
+
+      addToken(folderpath: string, token: string) {
+        this.continuationTokens.push({folderpath, token});
+      }
+
+      getLastToken(folderpath: string) {
+        for (let i = this.continuationTokens.length - 1; i >= 0; i--) {
+          const entry = this.continuationTokens[i];
+
+          if (entry.folderpath === folderpath) {
+            return entry;
+          }
+        }
+
+        return undefined;
+      }
+
+      everyToken(folderpath: string) {
+        return this.continuationTokens.filter(next => next.folderpath === folderpath);
+      }
+
+      countTokens(folderpath: string) {
+        return this.everyToken(folderpath).length;
+      }
+
+      addCall(folderpath: string) {
+        const existingCalls = this.calls[folderpath] || 0;
+        this.calls[folderpath] = existingCalls + 1;
+      }
+
+      countCalls(folderpath: string) {
+        return this.calls[folderpath] || 0;
+      }
+
+      check(folderpath: string, token: string | undefined) {
+        const callCount = this.countCalls(folderpath);
+        this.addCall(folderpath);
+
+        if (callCount > 0) {
+          expect(token).toBeTruthy();
+          expect(token).toBe(this.getLastToken(folderpath)?.token);
+        }
+
+        if (callCount === this.breakAtCall) {
+          throw new Error('Break at call!');
+        }
+
+        if (callCount < this.maxCalls) {
+          const newToken = getNewId();
+          this.addToken(folderpath, newToken);
+          return newToken;
+        } else {
+          return undefined;
+        }
+      }
+    }
+
+    const fileContinuations = new ContinuationHelper(
+      kBreakForType === kAppResourceType.File ? kBreakAtCall : kDoNotBreak,
+      kMaxCalls
+    );
+    const folderContinuations = new ContinuationHelper(
+      kBreakForType === kAppResourceType.Folder ? kBreakAtCall : kDoNotBreak,
+      kMaxCalls
+    );
+
+    class TestBackend
+      extends NoopFilePersistenceProviderContext
+      implements FilePersistenceProvider
+    {
+      supportsFeature = (feature: FilePersistenceProviderFeature): boolean => {
+        switch (feature) {
+          case 'deleteFiles':
+          case 'deleteFolders':
+          case 'describeFile':
+          case 'describeFolder':
+          case 'readFile':
+          case 'uploadFile':
+            return false;
+          case 'describeFolderFolders':
+          case 'describeFolderFiles':
+            return true;
+        }
+      };
+
+      describeFolderFiles = async (
+        params: FilePersistenceDescribeFolderFilesParams
+      ): Promise<FilePersistenceDescribeFolderFilesResult> => {
+        const {folderpath, continuationToken} = params;
+        const nextContinuationToken = fileContinuations.check(
+          folderpath,
+          continuationToken as string | undefined
+        );
+
+        const folderpathSplit = folderpath.split(kFolderConstants.separator);
+        const files: PersistedFileDescription[] = Array(/** count */ 1)
+          .fill(0)
+          .map(() =>
+            generatePersistedFileDescriptionForTest({
+              filepath: folderpathSplit
+                .concat(generateTestFileName())
+                .join(kFolderConstants.separator),
+            })
+          );
+
+        return {files, continuationToken: nextContinuationToken};
+      };
+
+      describeFolderFolders = async (
+        params: FilePersistenceDescribeFolderFoldersParams
+      ): Promise<FilePersistenceDescribeFolderFoldersResult> => {
+        const {folderpath, continuationToken} = params;
+        const nextContinuationToken = folderContinuations.check(
+          folderpath,
+          continuationToken as string | undefined
+        );
+
+        const folderpathSplit = folderpath.split(kFolderConstants.separator);
+        const folders: PersistedFolderDescription[] = Array(/** count */ 1)
+          .fill(0)
+          .map(() =>
+            generatePersistedFolderDescriptionForTest({
+              folderpath: folderpathSplit
+                .concat(generateTestFolderName())
+                .join(kFolderConstants.separator),
+            })
+          );
+
+        return {folders, continuationToken: nextContinuationToken};
+      };
+    }
+
+    kUtilsInjectables.fileProviderResolver((): FilePersistenceProvider => {
+      return new TestBackend();
+    });
+
+    const shard = getNewId();
+    const [job] = await queueJobs<IngestFolderpathJobParams>(
+      workspace.resourceId,
+      /** parent job ID */ undefined,
+      [
+        {
+          shard,
+          type: kJobType.ingestFolderpath,
+          params: {
+            folderpath: mountFolderpath.join(kFolderConstants.separator),
+            agentId: userToken.resourceId,
+            mountId: mount.resourceId,
+          },
+        },
+      ]
+    );
+
+    await expectErrorThrown(() => runIngestFolderpathJob(job));
+
+    let dbJob = await kSemanticModels
+      .job()
+      .getOneById<Job<AnyObject, IngestFolderpathJobMeta>>(job.resourceId);
+
+    if (kBreakForType === kAppResourceType.File) {
+      expect(fileContinuations.countCalls(mountedFromString)).toBe(kBreakAtCall);
+      expect(dbJob?.meta?.getFilesContinuationToken).toBe(
+        fileContinuations.getLastToken(mountedFromString)
+      );
+    } else {
+      expect(folderContinuations.countCalls(mountedFromString)).toBe(kBreakAtCall);
+      expect(dbJob?.meta?.getFoldersContinuationToken).toBe(
+        folderContinuations.getLastToken(mountedFromString)
+      );
+    }
+
+    await runIngestFolderpathJob(job);
+
+    dbJob = await kSemanticModels
+      .job()
+      .getOneById<Job<AnyObject, IngestFolderpathJobMeta>>(job.resourceId);
+    expect(fileContinuations.countCalls(mountedFromString)).toBe(kMaxCalls);
+    expect(dbJob?.meta?.getFilesContinuationToken).toBe(
+      fileContinuations.getLastToken(mountedFromString)
+    );
+    expect(folderContinuations.countCalls(mountedFromString)).toBe(kMaxCalls);
+    expect(dbJob?.meta?.getFoldersContinuationToken).toBe(
+      folderContinuations.getLastToken(mountedFromString)
+    );
   });
 });

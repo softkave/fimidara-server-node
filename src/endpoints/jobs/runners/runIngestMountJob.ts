@@ -1,7 +1,7 @@
 import {
-  Job,
-  IngestMountJobParams,
   IngestFolderpathJobParams,
+  IngestMountJobParams,
+  Job,
 } from '../../../definitions/job';
 import {appAssert} from '../../../utils/assertion';
 import {kSemanticModels} from '../../contexts/injectables';
@@ -19,7 +19,7 @@ export async function runIngestMountJob(job: Job<IngestMountJobParams>) {
   const input: JobInput<IngestFolderpathJobParams> = {
     type: 'ingestFolderpath',
     params: {
-      folderpath: mount.folderpath.join(kFolderConstants.separator),
+      ingestFrom: mount.mountedFrom.join(kFolderConstants.separator),
       mountId: mount.resourceId,
       agentId: job.params.agentId,
     },

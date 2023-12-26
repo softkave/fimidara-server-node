@@ -44,9 +44,13 @@ export interface JobStatusHistory {
   runnerId?: string;
 }
 
-export interface Job<TParams extends AnyObject = AnyObject> extends Resource {
+export interface Job<
+  TParams extends AnyObject = AnyObject,
+  TMeta extends AnyObject = AnyObject,
+> extends Resource {
   type: JobType | (string & {});
   params: TParams;
+  meta?: TMeta;
   workspaceId?: string;
   status: JobStatus;
   statusLastUpdatedAt: number;
@@ -101,11 +105,16 @@ export type DeleteResourceJobParams =
 export interface IngestFolderpathJobParams {
   mountId: string;
   agentId: string;
-  /** Prefer folderId for folders in DB, an empty [] for the root folder, and
-   * folderpath for mount folders you're not sure are in db yet. Folder path
-   * should not contain workspace rootname. */
-  folderpath?: string;
-  folderId?: string;
+  /** Not always the mount's mountedFrom, but what folder to ingest from. So,
+   * for the 1st ingestion job, this will be the mount's source, but for mounts
+   * that support describing folders, this can also be subsequent folder
+   * children. */
+  ingestFrom: string;
+}
+
+export interface IngestFolderpathJobMeta {
+  getFilesContinuationToken?: unknown;
+  getFoldersContinuationToken?: unknown;
 }
 
 export interface IngestMountJobParams {

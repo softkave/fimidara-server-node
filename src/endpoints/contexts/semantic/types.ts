@@ -3,7 +3,11 @@ import {FileBackendMount, ResolvedMountEntry} from '../../../definitions/fileBac
 import {Job} from '../../../definitions/job';
 import {Resource} from '../../../definitions/system';
 import {AnyFn} from '../../../utils/types';
-import {DataProviderQueryListParams, DataQuery} from '../data/types';
+import {
+  DataProviderQueryListParams,
+  DataProviderQueryParams,
+  DataQuery,
+} from '../data/types';
 
 export interface SemanticProviderRunOptions {
   txn?: unknown;
@@ -13,21 +17,28 @@ export interface SemanticProviderMutationRunOptions {
   txn: unknown;
 }
 
+export interface SemanticProviderQueryRunOptions<TResource extends Resource>
+  extends SemanticProviderRunOptions,
+    DataProviderQueryParams<TResource> {}
+
 export interface SemanticBaseProviderType<TResource extends Resource> {
   insertItem(
     item: TResource | TResource[],
     opts: SemanticProviderMutationRunOptions
   ): Promise<void>;
-  getOneById(id: string, opts?: SemanticProviderRunOptions): Promise<TResource | null>;
+  getOneById<TResource02 extends TResource = TResource>(
+    id: string,
+    opts?: SemanticProviderQueryRunOptions<TResource02>
+  ): Promise<TResource02 | null>;
   getManyByIdList(
     idList: string[],
     options?: DataProviderQueryListParams<TResource> & SemanticProviderRunOptions
   ): Promise<TResource[]>;
   countManyByIdList(idList: string[], opts?: SemanticProviderRunOptions): Promise<number>;
   existsById(id: string, opts?: SemanticProviderRunOptions): Promise<boolean>;
-  updateOneById(
+  updateOneById<TResource02 extends TResource>(
     id: string,
-    update: Partial<TResource>,
+    update: Partial<TResource02>,
     opts: SemanticProviderMutationRunOptions
   ): Promise<void>;
   updateManyByQuery(
@@ -138,7 +149,9 @@ export interface SemanticWorkspaceResourceProviderType<
 
 export interface SemanticProviderUtils {
   withTxn<TResult>(
-    fn: AnyFn<[SemanticProviderMutationRunOptions], Promise<TResult>>
+    fn: AnyFn<[SemanticProviderMutationRunOptions], Promise<TResult>>,
+    /** Whether or not to reuse an existing txn from async local storage. */
+    reuseAsyncLocalTxn?: boolean
   ): Promise<TResult>;
 }
 

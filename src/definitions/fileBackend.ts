@@ -14,13 +14,15 @@ export const kFileBackendType = {
 export type FileBackendType = ObjectValues<typeof kFileBackendType>;
 
 export interface FileBackendMount extends WorkspaceResource {
+  // TODO: is there any advantage to having folderpath and mountedFrom as string
+  // arrays? If not, make them string
   /** folderpath without workspace rootname */
   folderpath: string[];
+  /** string array of + bucket? + folderpath? */
+  mountedFrom: string[];
   /** Preferred backend mount for file or folder look up when multiple backends
    * are mounted to the same folderpath */
   index: number;
-  /** string array of + bucket? + folderpath? */
-  mountedFrom: string[];
   backend: FileBackendType;
   configId: string | null;
   name: string;
