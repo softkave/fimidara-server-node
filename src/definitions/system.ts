@@ -2,15 +2,15 @@ import {AnyObject, ObjectValues} from '../utils/types';
 import {AgentToken} from './agentToken';
 import {User} from './user';
 
-export const CURRENT_TOKEN_VERSION = 1;
+export const kCurrentJWTTokenVersion = 1;
 
-export const TokenAccessScopeMap = {
+export const kTokenAccessScope = {
   Login: 'login',
   ChangePassword: 'changePassword',
   ConfirmEmailAddress: 'confirmEmail',
 } as const;
 
-export type TokenAccessScope = ObjectValues<typeof TokenAccessScopeMap>;
+export type TokenAccessScope = ObjectValues<typeof kTokenAccessScope>;
 
 export interface TokenSubjectDefault {
   id: string;
@@ -71,19 +71,19 @@ export const kAppResourceType = {
 
 export type AppResourceType = ObjectValues<typeof kAppResourceType>;
 
-export const PERMISSION_AGENT_TYPES: AppResourceType[] = [
+export const kPermissionAgentTypes: AppResourceType[] = [
   kAppResourceType.AgentToken,
   kAppResourceType.User,
   kAppResourceType.Public,
 ];
 
-export const PERMISSION_ENTITY_TYPES: AppResourceType[] = [
+export const kPermissionEntityTypes: AppResourceType[] = [
   kAppResourceType.User,
   kAppResourceType.AgentToken,
   kAppResourceType.PermissionGroup,
 ];
 
-export const PERMISSION_CONTAINER_TYPES: AppResourceType[] = [
+export const kPermissionContainerTypes: AppResourceType[] = [
   kAppResourceType.Workspace,
   kAppResourceType.Folder,
 ];
@@ -104,14 +104,14 @@ export function getWorkspaceResourceTypeList(): AppResourceType[] {
   ];
 }
 
-export const VALID_AGENT_TYPES: AppResourceType[] = [
+export const kValidAgentTypes: AppResourceType[] = [
   kAppResourceType.User,
   kAppResourceType.AgentToken,
 ];
-export const APP_RESOURCE_TYPE_LIST = Object.values(kAppResourceType);
+export const kAppResourceTypeList = Object.values(kAppResourceType);
 
 export interface AppRuntimeState extends Resource {
-  resourceId: string; // use APP_RUNTIME_STATE_DOC_ID
+  resourceId: string; // use kAppRuntimeStatsDocId
   isAppSetup: boolean;
   appWorkspaceId: string;
   appWorkspacesImageUploadPermissionGroupId: string;

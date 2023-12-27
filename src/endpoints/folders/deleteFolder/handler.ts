@@ -1,4 +1,4 @@
-import {kAppResourceType, PERMISSION_AGENT_TYPES} from '../../../definitions/system';
+import {kAppResourceType, kPermissionAgentTypes} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {kUtilsInjectables} from '../../contexts/injectables';
 import {enqueueDeleteResourceJob} from '../../jobs/utils';
@@ -10,16 +10,12 @@ const deleteFolder: DeleteFolderEndpoint = async instData => {
   const data = validate(instData.data, deleteFolderJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, PERMISSION_AGENT_TYPES);
+    .getAgent(instData, kPermissionAgentTypes);
   const {folder} = await checkFolderAuthorization02(agent, data, 'deleteFolder');
 
   const job = await enqueueDeleteResourceJob({
     type: kAppResourceType.Folder,
-    args: {
-      workspaceId: folder.workspaceId,
-      resourceId: folder.resourceId,
-      folder: {namepath: folder.namepath},
-    },
+    args: {workspaceId: folder.workspaceId, resourceId: folder.resourceId},
   });
 
   return {jobId: job.resourceId};

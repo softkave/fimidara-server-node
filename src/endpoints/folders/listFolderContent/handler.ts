@@ -1,7 +1,7 @@
 import {Folder} from '../../../definitions/folder';
 import {
   kAppResourceType,
-  PERMISSION_AGENT_TYPES,
+  kPermissionAgentTypes,
   SessionAgent,
 } from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
@@ -27,7 +27,7 @@ const listFolderContent: ListFolderContentEndpoint = async instData => {
   const data = validate(instData.data, listFolderContentJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, PERMISSION_AGENT_TYPES);
+    .getAgent(instData, kPermissionAgentTypes);
   const {workspace, parentFolder} = await getWorkspaceAndParentFolder(agent, data);
 
   applyDefaultEndpointPaginationOptions(data);

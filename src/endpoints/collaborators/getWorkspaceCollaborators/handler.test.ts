@@ -1,4 +1,4 @@
-import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
+import {kSystemSessionAgent} from '../../../utils/agent';
 import {calculatePageSize} from '../../../utils/fns';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import AssignedItemQueries from '../../assignedItems/queries';
@@ -54,7 +54,7 @@ describe('getWorkspaceCollaborators', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     const seedCount = 15;
     await generateAndInsertCollaboratorListForTest(
-      SYSTEM_SESSION_AGENT,
+      kSystemSessionAgent,
       workspace.resourceId,
       seedCount
     );

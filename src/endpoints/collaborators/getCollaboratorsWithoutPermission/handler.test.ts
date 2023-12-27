@@ -1,6 +1,6 @@
 import {identity} from 'lodash';
 import {kAppResourceType, Resource} from '../../../definitions/system';
-import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
+import {kSystemSessionAgent} from '../../../utils/agent';
 import {extractResourceIdList, getResourceId} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import {kSemanticModels} from '../../contexts/injectables';
@@ -38,7 +38,7 @@ describe('getCollaboratorsWithoutPermission', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     const seedCount = 12;
     const seedUsers = await generateAndInsertCollaboratorListForTest(
-      SYSTEM_SESSION_AGENT,
+      kSystemSessionAgent,
       workspace.resourceId,
       seedCount
     );

@@ -20,7 +20,7 @@ import {
   PersistedFileDescription,
   PersistedFolderDescription,
 } from '../../../contexts/file/types';
-import {kSemanticModels, kUtilsInjectables} from '../../../contexts/injectables';
+import {kRegisterUtilsInjectables, kSemanticModels} from '../../../contexts/injectables';
 import {FileQueries} from '../../../files/queries';
 import {getFilepathInfo, stringifyFilenamepath} from '../../../files/utils';
 import {kFolderConstants} from '../../../folders/constants';
@@ -39,8 +39,9 @@ import {
   generateTestFolderpath,
 } from '../../../testUtils/generate/folder';
 import {expectErrorThrown} from '../../../testUtils/helpers/error';
+import {executeShardJobs} from '../../../testUtils/helpers/job';
 import {insertUserForTest, insertWorkspaceForTest} from '../../../testUtils/testUtils';
-import {queueJobs, waitForJob} from '../../utils';
+import {queueJobs} from '../../utils';
 import {runIngestFolderpathJob} from '../runIngestFolderpathJob';
 
 /**
@@ -74,6 +75,7 @@ describe('runIngestFolderpathJob', () => {
     const pFolderContinuationTokensByFolderpath: Record<string, string> = {};
     const pFileContinuationTokensByFolderpath: Record<string, string> = {};
     const mountedFromString = mountedFrom.join(kFolderConstants.separator);
+
     class TestBackend
       extends NoopFilePersistenceProviderContext
       implements FilePersistenceProvider
@@ -169,7 +171,7 @@ describe('runIngestFolderpathJob', () => {
       };
     }
 
-    kUtilsInjectables.fileProviderResolver((): FilePersistenceProvider => {
+    kRegisterUtilsInjectables.fileProviderResolver((): FilePersistenceProvider => {
       return new TestBackend();
     });
 
@@ -191,11 +193,7 @@ describe('runIngestFolderpathJob', () => {
     );
 
     await runIngestFolderpathJob(job);
-    await waitForJob(
-      job.resourceId,
-      /** bump priority */ true,
-      /** 15 secs timeouts */ 15_000
-    );
+    await executeShardJobs(shard);
 
     const jobs = await kSemanticModels.job().getManyByQuery({shard});
     expect(pFolders.length).toBeGreaterThan(0);
@@ -340,7 +338,7 @@ describe('runIngestFolderpathJob', () => {
       };
     }
 
-    kUtilsInjectables.fileProviderResolver((): FilePersistenceProvider => {
+    kRegisterUtilsInjectables.fileProviderResolver((): FilePersistenceProvider => {
       return new TestBackend();
     });
 
@@ -374,11 +372,7 @@ describe('runIngestFolderpathJob', () => {
     );
 
     await runIngestFolderpathJob(job);
-    await waitForJob(
-      job.resourceId,
-      /** bump priority */ true,
-      /** 15 secs timeouts */ 15_000
-    );
+    await executeShardJobs(shard);
 
     const jobs = await kSemanticModels.job().getManyByQuery({shard});
     // There should only be the initial job
@@ -481,7 +475,7 @@ describe('runIngestFolderpathJob', () => {
         };
     }
 
-    kUtilsInjectables.fileProviderResolver((): FilePersistenceProvider => {
+    kRegisterUtilsInjectables.fileProviderResolver((): FilePersistenceProvider => {
       return new TestBackend();
     });
 
@@ -511,11 +505,7 @@ describe('runIngestFolderpathJob', () => {
     );
 
     await runIngestFolderpathJob(job);
-    await waitForJob(
-      job.resourceId,
-      /** bump priority */ true,
-      /** 15 secs timeouts */ 15_000
-    );
+    await executeShardJobs(shard);
 
     const jobs = await kSemanticModels.job().getManyByQuery({shard});
     // Should contain original job only
@@ -690,7 +680,7 @@ describe('runIngestFolderpathJob', () => {
       };
     }
 
-    kUtilsInjectables.fileProviderResolver((): FilePersistenceProvider => {
+    kRegisterUtilsInjectables.fileProviderResolver((): FilePersistenceProvider => {
       return new TestBackend();
     });
 
@@ -703,7 +693,7 @@ describe('runIngestFolderpathJob', () => {
           shard,
           type: kJobType.ingestFolderpath,
           params: {
-            folderpath: mountFolderpath.join(kFolderConstants.separator),
+            ingestFrom: mountedFromString,
             agentId: userToken.resourceId,
             mountId: mount.resourceId,
           },

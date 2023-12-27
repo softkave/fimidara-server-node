@@ -1,7 +1,3 @@
-import {RemoveCollaboratorCascadeFnsArgs} from '../endpoints/collaborators/removeCollaborator/types';
-import {DeleteFileBackendConfigCascadeFnsArgs} from '../endpoints/fileBackends/deleteConfig/types';
-import {DeleteFileCascadeDeleteFnsArgs} from '../endpoints/files/deleteFile/types';
-import {DeleteFolderCascadeFnsArgs} from '../endpoints/folders/deleteFolder/types';
 import {DeletePermissionItemsCascadeFnsArgs} from '../endpoints/permissionItems/deleteItems/types';
 import {DeleteResourceCascadeFnDefaultArgs} from '../endpoints/types';
 import {AnyObject, ObjectValues} from '../utils/types';
@@ -77,29 +73,20 @@ export type DeleteResourceJobParams =
         | typeof kAppResourceType.Tag
         | typeof kAppResourceType.PermissionGroup
         | typeof kAppResourceType.CollaborationRequest
-        | typeof kAppResourceType.FileBackendMount;
+        | typeof kAppResourceType.FileBackendMount
+        | typeof kAppResourceType.Folder
+        | typeof kAppResourceType.FileBackendConfig
+        | typeof kAppResourceType.File;
       args: DeleteResourceCascadeFnDefaultArgs;
     }
   | {
       type: typeof kAppResourceType.User;
-      args: RemoveCollaboratorCascadeFnsArgs;
+      args: DeleteResourceCascadeFnDefaultArgs;
       isRemoveCollaborator: true;
-    }
-  | {
-      type: typeof kAppResourceType.File;
-      args: DeleteFileCascadeDeleteFnsArgs;
     }
   | {
       type: typeof kAppResourceType.PermissionItem;
       args: DeletePermissionItemsCascadeFnsArgs;
-    }
-  | {
-      type: typeof kAppResourceType.Folder;
-      args: DeleteFolderCascadeFnsArgs;
-    }
-  | {
-      type: typeof kAppResourceType.FileBackendConfig;
-      args: DeleteFileBackendConfigCascadeFnsArgs;
     };
 
 export interface IngestFolderpathJobParams {

@@ -1,9 +1,5 @@
 import {LongRunningJobResult} from '../../jobs/types';
-import {
-  DeleteResourceCascadeFnDefaultArgs,
-  Endpoint,
-  EndpointOptionalWorkspaceIDParam,
-} from '../../types';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
 export interface RemoveCollaboratorEndpointParams
   extends EndpointOptionalWorkspaceIDParam {
@@ -14,8 +10,3 @@ export type RemoveCollaboratorEndpoint = Endpoint<
   RemoveCollaboratorEndpointParams,
   LongRunningJobResult
 >;
-
-export type RemoveCollaboratorCascadeFnsArgs = DeleteResourceCascadeFnDefaultArgs & {
-  userEmail: string;
-  agentTokenId: string;
-};

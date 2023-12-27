@@ -1,6 +1,6 @@
 import {File} from '../../definitions/file';
 import {PermissionAction} from '../../definitions/permissionItem';
-import {kAppResourceType, PERMISSION_AGENT_TYPES} from '../../definitions/system';
+import {kAppResourceType, kPermissionAgentTypes} from '../../definitions/system';
 import {
   BandwidthUsageRecordArtifact,
   FileUsageRecordArtifact,
@@ -32,7 +32,7 @@ async function insertRecord(
   nothrow = false
 ) {
   const agent = getActionAgentFromSessionAgent(
-    await kUtilsInjectables.session().getAgent(reqData, PERMISSION_AGENT_TYPES)
+    await kUtilsInjectables.session().getAgent(reqData, kPermissionAgentTypes)
   );
   const {permitted} = await kLogicProviders.usageRecords().insert(agent, input, opts);
 

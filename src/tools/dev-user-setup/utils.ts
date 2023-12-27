@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import * as inquirer from 'inquirer';
 import { getMongoConnection } from '../../db/connection';
 import { CollaborationRequestStatusTypeMap } from '../../definitions/collaborationRequest';
-import { TokenAccessScopeMap } from '../../definitions/system';
+import { kTokenAccessScope } from '../../definitions/system';
 import { UserWithWorkspace } from '../../definitions/user';
 import { Workspace } from '../../definitions/workspace';
 import RequestData from '../../endpoints/RequestData';
@@ -36,7 +36,7 @@ import { INTERNAL_signupUser } from '../../endpoints/users/signup/utils';
 import { getCompleteUserDataByEmail, isUserInWorkspace } from '../../endpoints/users/utils';
 import { DEFAULT_ADMIN_PERMISSION_GROUP_NAME } from '../../endpoints/workspaces/addWorkspace/utils';
 import { fimidaraConfig } from '../../resources/vars';
-import { SYSTEM_SESSION_AGENT } from '../../utils/agent';
+import { kSystemSessionAgent } from '../../utils/agent';
 import { getTimestamp } from '../../utils/dateFns';
 import { serverLogger } from '../../utils/logger/loggerUtils';
 import { makeUserSessionAgent } from '../../utils/sessionUtils';
@@ -160,7 +160,7 @@ async function makeUserAdmin(
     serverLogger.info('Making user admin');
     await addAssignedPermissionGroupList(
       
-      SYSTEM_SESSION_AGENT,
+      kSystemSessionAgent,
       workspace.resourceId,
       [{permissionGroupId: adminPermissionGroupId}],
       userId,
@@ -258,7 +258,7 @@ export async function setupDevUser(
         consoleLogger.info(`Accepting request ${request.resourceId}`);
         const agentToken = await kSemanticModels.agentToken().getOneAgentToken(
           user.resourceId,
-          TokenAccessScopeMap.Login,
+          kTokenAccessScope.Login,
           opts
         );
         assertAgentToken(agentToken);
@@ -276,7 +276,7 @@ export async function setupDevUser(
         consoleLogger.info('Adding user to workspace');
         await assignWorkspaceToUser(
           
-          SYSTEM_SESSION_AGENT,
+          kSystemSessionAgent,
           workspace.resourceId,
           user.resourceId,
           opts

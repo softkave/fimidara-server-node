@@ -146,6 +146,7 @@ export const kReuseableErrors = {
       new InvalidRequestError(
         kAppMessages.mount.exactMountConfigExists(mountedFrom, folderpath, backend)
       ),
+    mountsNotSetup: () => new InvalidRequestError(kAppMessages.mount.mountsNotSetup),
   },
   config: {
     notFound(id?: string) {

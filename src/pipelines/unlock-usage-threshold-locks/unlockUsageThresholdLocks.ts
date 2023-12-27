@@ -1,6 +1,6 @@
 import {Connection} from 'mongoose';
 import {getWorkspaceModel} from '../../db/workspace';
-import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
+import {kSystemSessionAgent} from '../../utils/agent';
 import {getTimestamp} from '../../utils/dateFns';
 
 /**
@@ -25,7 +25,7 @@ export async function unlockUsageThresholdLocks(connection: Connection) {
       if (lock.locked) {
         lock.locked = false;
         lock.lastUpdatedAt = getTimestamp();
-        lock.lastUpdatedBy = SYSTEM_SESSION_AGENT;
+        lock.lastUpdatedBy = kSystemSessionAgent;
         anyLocked = true;
       }
     }

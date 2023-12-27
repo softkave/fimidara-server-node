@@ -5,7 +5,7 @@ import {Readable} from 'stream';
 import {AgentToken} from '../../definitions/agentToken';
 import {
   BaseTokenData,
-  CURRENT_TOKEN_VERSION,
+  kCurrentJWTTokenVersion,
   SessionAgent,
 } from '../../definitions/system';
 import {PublicUser, UserWithWorkspace} from '../../definitions/user';
@@ -15,7 +15,6 @@ import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {toArray} from '../../utils/fns';
 import {makeUserSessionAgent} from '../../utils/sessionUtils';
-import RequestData from '../RequestData';
 import addAgentTokenEndpoint from '../agentTokens/addToken/handler';
 import {
   AddAgentTokenEndpointParams,
@@ -55,6 +54,7 @@ import addPermissionItems from '../permissionItems/addItems/handler';
 import {AddPermissionItemsEndpointParams} from '../permissionItems/addItems/types';
 import {PermissionItemInput} from '../permissionItems/types';
 import EndpointReusableQueries from '../queries';
+import RequestData from '../RequestData';
 import {setupApp} from '../runtime/initAppSetup';
 import {BaseEndpointResult} from '../types';
 import INTERNAL_confirmEmailAddress from '../users/confirmEmailAddress/internalConfirmEmailAddress';
@@ -118,7 +118,7 @@ export function mockExpressRequestWithAgentToken(
 ) {
   const req: IServerRequest = {
     auth: {
-      version: CURRENT_TOKEN_VERSION,
+      version: kCurrentJWTTokenVersion,
       sub: {id: token.resourceId},
       iat: token.createdAt,
       exp: token.expires,

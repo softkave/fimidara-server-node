@@ -1,4 +1,4 @@
-import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
+import {kSystemSessionAgent} from '../../../utils/agent';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator';
 import {completeTests} from '../../testUtils/helpers/test';
@@ -26,7 +26,7 @@ describe('countCollaboratorsWithoutPermission', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     const seedCount = 15;
     await generateAndInsertCollaboratorListForTest(
-      SYSTEM_SESSION_AGENT,
+      kSystemSessionAgent,
       workspace.resourceId,
       seedCount
     );

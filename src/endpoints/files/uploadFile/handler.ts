@@ -1,5 +1,5 @@
 import {merge, pick} from 'lodash';
-import {PERMISSION_AGENT_TYPES} from '../../../definitions/system';
+import {kPermissionAgentTypes} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {ValidationError} from '../../../utils/errors';
@@ -29,7 +29,7 @@ const uploadFile: UploadFileEndpoint = async instData => {
   const data = validate(instData.data, uploadFileJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, PERMISSION_AGENT_TYPES);
+    .getAgent(instData, kPermissionAgentTypes);
   const createFileResult = await kSemanticModels.utils().withTxn(async opts => {
     let file = await getFileWithMatcher(data, opts);
     const workspace = await getWorkspaceFromFileOrFilepath(file, data.filepath);
@@ -60,15 +60,15 @@ const uploadFile: UploadFileEndpoint = async instData => {
   });
 
   let {file} = createFileResult;
-  const {mount, provider: backend} = await getFileBackendForFile(file);
+  const {primaryMount, primaryBackend} = await getFileBackendForFile(file);
 
   try {
     const bytesCounterStream = new ByteCounterPassThroughStream();
     data.data.pipe(bytesCounterStream);
 
     // TODO: should we wait here, cause it may take a while
-    let update = await backend.uploadFile({
-      mount,
+    let update = await primaryBackend.uploadFile({
+      mount: primaryMount,
       workspaceId: file.workspaceId,
       filepath: stringifyFilenamepath(file),
       body: bytesCounterStream,
@@ -90,7 +90,7 @@ const uploadFile: UploadFileEndpoint = async instData => {
         insertResolvedMountEntries({
           agent,
           resource: file,
-          mountIds: [mount.resourceId],
+          mountIds: [primaryMount.resourceId],
         }),
       ]);
 

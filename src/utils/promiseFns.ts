@@ -7,7 +7,7 @@ export async function waitOnPromisesAndLogErrors(promises: Promise<unknown>[]) {
   );
 }
 
-export async function timedAwait(promise: Promise<unknown>, timeoutMs: number) {
+export async function awaitOrTimeout(promise: Promise<unknown>, timeoutMs: number) {
   const timeoutHandle = setTimeout(() => {
     throw new TimeoutError();
   }, timeoutMs);

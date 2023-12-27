@@ -1,5 +1,7 @@
 ## Now
 
+- [ ] Support . and .. folder matchers
+- [ ] Should messages have an ending period?
 - [ ] Move logs to it's own service
 - [ ] Write to local fs primarily
 - [ ] Log and process endpoint calls

@@ -1,6 +1,6 @@
 import {omit} from 'lodash';
 import {Folder} from '../../../definitions/folder';
-import {PERMISSION_AGENT_TYPES} from '../../../definitions/system';
+import {kPermissionAgentTypes} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
@@ -14,7 +14,7 @@ const updateFolder: UpdateFolderEndpoint = async instData => {
   const data = validate(instData.data, updateFolderJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, PERMISSION_AGENT_TYPES);
+    .getAgent(instData, kPermissionAgentTypes);
   let folder = await kSemanticModels.utils().withTxn(async opts => {
     const {folder} = await checkFolderAuthorization02(
       agent,

@@ -1,4 +1,4 @@
-import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
+import {kSystemSessionAgent} from '../../../utils/agent';
 import {appAssert} from '../../../utils/assertion';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
@@ -33,7 +33,7 @@ describe('countUserWorkspaces', () => {
         Promise.all(
           workspaces.map(w =>
             assignWorkspaceToUser(
-              SYSTEM_SESSION_AGENT,
+              kSystemSessionAgent,
               w.resourceId,
               rawUser.resourceId,
               opts

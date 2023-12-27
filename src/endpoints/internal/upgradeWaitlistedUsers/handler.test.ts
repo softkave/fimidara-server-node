@@ -5,7 +5,7 @@ import {
   upgradedFromWaitlistEmailText,
   upgradedFromWaitlistEmailTitle,
 } from '../../../emailTemplates/upgradedFromWaitlist';
-import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
+import {kSystemSessionAgent} from '../../../utils/agent';
 import {extractResourceIdList} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {getNewIdForResource} from '../../../utils/resource';
@@ -42,7 +42,7 @@ describe('upgradeWaitlistedUsers', () => {
       })),
       kSemanticModels.utils().withTxn(opts => {
         return assignWorkspaceToUser(
-          SYSTEM_SESSION_AGENT,
+          kSystemSessionAgent,
           kUtilsInjectables.config().appWorkspaceId,
           user.resourceId,
           opts

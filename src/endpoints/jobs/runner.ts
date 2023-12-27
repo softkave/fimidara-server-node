@@ -82,14 +82,15 @@ function tryGetRunnerId() {
   return isMainThread ? null : getWorkerData().runnerId;
 }
 
-export async function messageRunner(
+export async function messageRunner<TMessage extends AnyObject = AnyObject>(
   port: Pick<Worker, 'postMessage'> | undefined | null,
-  message: AnyObject,
+  message: Omit<TMessage, keyof BaseRunnerMessage>,
   /** If true, waits until message is ack-ed before resolving. Otherwise resolve
    * once message is posted. */
-  expectAck = true,
-  /** How long to wait for ack message, otherwise, wait indefinitely. */
-  ackTimeoutMs?: number
+  expectAck = false,
+  /** How long to wait for ack message. Always supply a timeout, if the default
+   * does not work for you. */
+  ackTimeoutMs: number = 5_000 // 5 secs
 ) {
   return new Promise<unknown>((resolve, reject) => {
     if (port) {
@@ -180,6 +181,9 @@ function handleRunnerMessage(message: unknown) {
     runnerId: tryGetRunnerId(),
   };
 
+  // Not all message types are handled here, like `setActiveRunnerIds`, some are
+  // handled by specialized functions that call for them as ack messages and use
+  // them
   switch (message.type) {
     case kRunnerWorkerMessageType.getActiveRunnerIds: {
       const response: RunnerWorkerMessage = {
@@ -189,6 +193,10 @@ function handleRunnerMessage(message: unknown) {
       };
       ackMessage = response;
       break;
+    }
+
+    case kRunnerWorkerMessageType.fail: {
+      throw new Error('Planned fail!');
     }
 
     case kRunnerWorkerMessageType.ack: {
@@ -304,7 +312,10 @@ async function refreshChildRunnerActiveRunnerIds() {
     /** timeout, 5 secs */ 5_000
   );
 
-  if (isRunnerWorkerMessage(ackMessage) && ackMessage.type === 'setActiveRunnerIds') {
+  if (
+    isRunnerWorkerMessage(ackMessage) &&
+    ackMessage.type === kRunnerWorkerMessageType.setActiveRunnerIds
+  ) {
     activeRunnerIds = ackMessage.activeRunnerIds;
   }
 }

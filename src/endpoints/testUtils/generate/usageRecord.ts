@@ -7,7 +7,7 @@ import {
   UsageRecordFulfillmentStatusMap,
   UsageSummationTypeMap,
 } from '../../../definitions/usageRecord';
-import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
+import {kSystemSessionAgent} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injectables';
@@ -22,7 +22,7 @@ export function generateWorkspaceWithCategoryUsageExceeded(
     usageLocks[category] = {
       category,
       locked: true,
-      lastUpdatedBy: SYSTEM_SESSION_AGENT,
+      lastUpdatedBy: kSystemSessionAgent,
       lastUpdatedAt: getTimestamp(),
     };
   });
@@ -53,9 +53,9 @@ export function generateUsageRecordList(count = 10, extra: Partial<UsageRecord> 
       year: random(1, 10_000),
       resourceId: getNewIdForResource(kAppResourceType.UsageRecord),
       createdAt: getTimestamp(),
-      createdBy: SYSTEM_SESSION_AGENT,
+      createdBy: kSystemSessionAgent,
       lastUpdatedAt: getTimestamp(),
-      lastUpdatedBy: SYSTEM_SESSION_AGENT,
+      lastUpdatedBy: kSystemSessionAgent,
       category: randomCategory(),
       summationType: randomSummationType(),
       fulfillmentStatus: randomFulfillmentStatus(),

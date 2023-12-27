@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import {container} from 'tsyringe';
 import {Folder} from '../../../definitions/folder';
 import {kAppResourceType} from '../../../definitions/system';
-import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
+import {kSystemSessionAgent} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
@@ -113,9 +113,9 @@ export function generateTestFolder(
     namepath,
     idPath,
     description: faker.lorem.paragraph(),
-    createdBy: SYSTEM_SESSION_AGENT,
+    createdBy: kSystemSessionAgent,
     lastUpdatedAt: createdAt,
-    lastUpdatedBy: SYSTEM_SESSION_AGENT,
+    lastUpdatedBy: kSystemSessionAgent,
     resourceId: id,
     workspaceId: getNewIdForResource(kAppResourceType.Workspace),
     ...extra,

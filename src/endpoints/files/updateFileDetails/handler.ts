@@ -1,5 +1,5 @@
 import {omit} from 'lodash';
-import {PERMISSION_AGENT_TYPES} from '../../../definitions/system';
+import {kPermissionAgentTypes} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {objectHasData} from '../../../utils/fns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
@@ -19,7 +19,7 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async instData => {
   const data = validate(instData.data, updateFileDetailsJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, PERMISSION_AGENT_TYPES);
+    .getAgent(instData, kPermissionAgentTypes);
   const file = await kSemanticModels.utils().withTxn(async opts => {
     let file = await readAndCheckFileAuthorization(agent, data, 'addFile', opts);
 

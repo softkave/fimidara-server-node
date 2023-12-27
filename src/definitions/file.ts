@@ -49,6 +49,7 @@ export interface FilePresignedPath extends WorkspaceResource {
   /** File name path instead of ID because at the time of creation, the file may
    * not exist yet. */
   filepath: string[];
+  /** File ID if the file exists. */
   fileId?: string;
   extension?: string;
   agentTokenId: string;

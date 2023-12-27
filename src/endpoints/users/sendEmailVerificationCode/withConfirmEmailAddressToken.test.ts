@@ -1,12 +1,12 @@
 import {URL} from 'url';
 import {AgentToken} from '../../../definitions/agentToken';
 import {
-  CURRENT_TOKEN_VERSION,
-  TokenAccessScopeMap,
   kAppResourceType,
+  kCurrentJWTTokenVersion,
+  kTokenAccessScope,
 } from '../../../definitions/system';
 import {User} from '../../../definitions/user';
-import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
+import {kSystemSessionAgent} from '../../../utils/agent';
 import {getNewIdForResource, newResource} from '../../../utils/resource';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {completeTests} from '../../testUtils/helpers/test';
@@ -25,12 +25,12 @@ afterAll(async () => {
 async function createTestEmailVerificationToken(userId: string) {
   const token = newResource<AgentToken>(kAppResourceType.AgentToken, {
     separateEntityId: userId,
-    scope: [TokenAccessScopeMap.ConfirmEmailAddress],
-    version: CURRENT_TOKEN_VERSION,
+    scope: [kTokenAccessScope.ConfirmEmailAddress],
+    version: kCurrentJWTTokenVersion,
     agentType: kAppResourceType.User,
     workspaceId: null,
-    createdBy: SYSTEM_SESSION_AGENT,
-    lastUpdatedBy: SYSTEM_SESSION_AGENT,
+    createdBy: kSystemSessionAgent,
+    lastUpdatedBy: kSystemSessionAgent,
   });
   await kSemanticModels
     .utils()

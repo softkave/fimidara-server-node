@@ -1,4 +1,4 @@
-import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
+import {kSystemSessionAgent} from '../../../utils/agent';
 import {extractResourceIdList} from '../../../utils/fns';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
@@ -31,7 +31,7 @@ describe('getWorkspaces', () => {
       generateAndInsertWorkspaceListForTest(/** count */ 2),
       kSemanticModels.utils().withTxn(opts => {
         return assignWorkspaceToUser(
-          SYSTEM_SESSION_AGENT,
+          kSystemSessionAgent,
           kUtilsInjectables.config().appWorkspaceId,
           user.resourceId,
           opts

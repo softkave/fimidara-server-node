@@ -3,12 +3,12 @@ import {add} from 'date-fns';
 import {stringify} from 'querystring';
 import {AgentToken} from '../../../definitions/agentToken';
 import {
-  CURRENT_TOKEN_VERSION,
-  TokenAccessScopeMap,
   kAppResourceType,
+  kCurrentJWTTokenVersion,
+  kTokenAccessScope,
 } from '../../../definitions/system';
 import {User} from '../../../definitions/user';
-import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
+import {kSystemSessionAgent} from '../../../utils/agent';
 import {newResource} from '../../../utils/resource';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
@@ -57,14 +57,14 @@ export function getForgotPasswordLinkFromToken(forgotToken: AgentToken) {
 export async function getForgotPasswordToken(user: User) {
   const expiration = getForgotPasswordExpiration();
   const forgotToken = newResource<AgentToken>(kAppResourceType.AgentToken, {
-    scope: [TokenAccessScopeMap.ChangePassword],
-    version: CURRENT_TOKEN_VERSION,
+    scope: [kTokenAccessScope.ChangePassword],
+    version: kCurrentJWTTokenVersion,
     expires: expiration.valueOf(),
     separateEntityId: user.resourceId,
     workspaceId: null,
     agentType: kAppResourceType.User,
-    createdBy: SYSTEM_SESSION_AGENT,
-    lastUpdatedBy: SYSTEM_SESSION_AGENT,
+    createdBy: kSystemSessionAgent,
+    lastUpdatedBy: kSystemSessionAgent,
   });
 
   await kSemanticModels.utils().withTxn(async opts => {

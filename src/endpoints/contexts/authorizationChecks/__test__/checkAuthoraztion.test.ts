@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {PermissionAction, PermissionItem} from '../../../../definitions/permissionItem';
-import {SYSTEM_SESSION_AGENT} from '../../../../utils/agent';
+import {kSystemSessionAgent} from '../../../../utils/agent';
 import {toArray} from '../../../../utils/fns';
 import RequestData from '../../../RequestData';
 import {assignWorkspaceToUser} from '../../../assignedItems/addAssignedItems';
@@ -837,7 +837,7 @@ async function generateUserAndAddToWorkspace(
   await kSemanticModels
     .utils()
     .withTxn(opts =>
-      assignWorkspaceToUser(SYSTEM_SESSION_AGENT, workspaceId, user.resourceId, opts)
+      assignWorkspaceToUser(kSystemSessionAgent, workspaceId, user.resourceId, opts)
     );
   const sessionAgent = await kUtilsInjectables
     .session()

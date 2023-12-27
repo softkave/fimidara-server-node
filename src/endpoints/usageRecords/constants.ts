@@ -1,7 +1,7 @@
 import {Agent} from '../../definitions/system';
 import {UsageRecordCategory, UsageRecordCategoryMap} from '../../definitions/usageRecord';
 import {Workspace} from '../../definitions/workspace';
-import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
+import {kSystemSessionAgent} from '../../utils/agent';
 import {getTimestamp} from '../../utils/dateFns';
 import {endpointConstants} from '../constants';
 
@@ -59,7 +59,7 @@ export function getUsageForCost(category: UsageRecordCategory, cost: number) {
   return costPerUnit ? cost / costPerUnit : 0;
 }
 
-export function getDefaultThresholds(agent: Agent = SYSTEM_SESSION_AGENT) {
+export function getDefaultThresholds(agent: Agent = kSystemSessionAgent) {
   const defaultUsageThresholds: Workspace['usageThresholds'] = {
     [UsageRecordCategoryMap.Total]: {
       category: UsageRecordCategoryMap.Storage,

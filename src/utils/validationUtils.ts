@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
 import {kPermissionsMap} from '../definitions/permissionItem';
-import {APP_RESOURCE_TYPE_LIST as systemAppResourceTypesList} from '../definitions/system';
+import {kAppResourceTypeList as systemAppResourceTypesList} from '../definitions/system';
 import {endpointConstants} from '../endpoints/constants';
 
 const password = /[A-Za-z0-9!()?_`~#$^&*+=]/;

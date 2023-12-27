@@ -1,4 +1,4 @@
-import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
+import {kSystemSessionAgent} from '../../../utils/agent';
 import {kSemanticModels} from '../../contexts/injectables';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator';
@@ -27,7 +27,7 @@ describe('countWorkspaceCollaborators', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     const seedCount = 15;
     await generateAndInsertCollaboratorListForTest(
-      SYSTEM_SESSION_AGENT,
+      kSystemSessionAgent,
       workspace.resourceId,
       seedCount
     );

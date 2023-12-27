@@ -1,11 +1,11 @@
 import {format} from 'util';
 import {PermissionAction} from '../../definitions/permissionItem';
 import {
-  PERMISSION_CONTAINER_TYPES,
-  PERMISSION_ENTITY_TYPES,
   SessionAgent,
   getWorkspaceResourceTypeList,
   kAppResourceType,
+  kPermissionContainerTypes,
+  kPermissionEntityTypes,
 } from '../../definitions/system';
 import {getResourceTypeFromId} from '../../utils/resource';
 import {InvalidRequestError} from '../errors';
@@ -28,7 +28,7 @@ export async function checkPermissionEntitiesExist(
 
   entities.forEach(id => {
     const itemType = getResourceTypeFromId(id);
-    if (!PERMISSION_ENTITY_TYPES.includes(itemType)) {
+    if (!kPermissionEntityTypes.includes(itemType)) {
       const message = format('Invalid permission entity type %s', itemType);
       throw new InvalidRequestError(message);
     }
@@ -38,7 +38,7 @@ export async function checkPermissionEntitiesExist(
   return await INTERNAL_getResources({
     agent,
     workspaceId,
-    allowedTypes: PERMISSION_ENTITY_TYPES,
+    allowedTypes: kPermissionEntityTypes,
     inputResources: entities.map(id => ({action, resourceId: id})),
     checkAuth: true,
     checkBelongsToWorkspace: true,
@@ -53,7 +53,7 @@ export async function checkPermissionContainersExist(
 ) {
   items.forEach(id => {
     const containerType = getResourceTypeFromId(id);
-    if (!PERMISSION_CONTAINER_TYPES.includes(containerType)) {
+    if (!kPermissionContainerTypes.includes(containerType)) {
       const message = format('Invalid permission container type %s', containerType);
       throw new InvalidRequestError(message);
     }
@@ -63,7 +63,7 @@ export async function checkPermissionContainersExist(
   const resources = await INTERNAL_getResources({
     agent,
     workspaceId,
-    allowedTypes: PERMISSION_CONTAINER_TYPES,
+    allowedTypes: kPermissionContainerTypes,
     inputResources: items.map(id => {
       const containerType = getResourceTypeFromId(id);
       return {action, resourceId: id, resourceType: containerType};

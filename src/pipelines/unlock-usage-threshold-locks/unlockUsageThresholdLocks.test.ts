@@ -9,7 +9,7 @@ import {generateWorkspaceListForTest} from '../../endpoints/testUtils/generate/w
 import {dropMongoConnection} from '../../endpoints/testUtils/helpers/mongo';
 import {completeTests} from '../../endpoints/testUtils/helpers/test';
 import {fimidaraConfig} from '../../resources/vars';
-import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
+import {kSystemSessionAgent} from '../../utils/agent';
 import {getTimestamp} from '../../utils/dateFns';
 import {unlockUsageThresholdLocks} from './unlockUsageThresholdLocks';
 
@@ -38,7 +38,7 @@ describe('unlockUsageThresholds', () => {
         locked: true,
         category: k,
         lastUpdatedAt: getTimestamp(),
-        lastUpdatedBy: SYSTEM_SESSION_AGENT,
+        lastUpdatedBy: kSystemSessionAgent,
       };
     });
 

@@ -1,4 +1,4 @@
-import {kAppResourceType, TokenAccessScopeMap} from '../../../definitions/system';
+import {kAppResourceType, kTokenAccessScope} from '../../../definitions/system';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import RequestData from '../../RequestData';
 import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generate/agentToken';
@@ -21,7 +21,7 @@ describe('SessionContext', () => {
   test('getAgent fails if token does not contain scope', async () => {
     const [user] = await generateAndInsertUserListForTest(1);
     const [userAgentToken] = await generateAndInsertAgentTokenListForTest(1, {
-      scope: [TokenAccessScopeMap.ChangePassword],
+      scope: [kTokenAccessScope.ChangePassword],
       workspaceId: null,
       separateEntityId: user.resourceId,
       agentType: kAppResourceType.User,
@@ -32,7 +32,7 @@ describe('SessionContext', () => {
       });
       await kUtilsInjectables
         .session()
-        .getAgent(reqData, [kAppResourceType.User], [TokenAccessScopeMap.Login]);
+        .getAgent(reqData, [kAppResourceType.User], [kTokenAccessScope.Login]);
     }, [PermissionDeniedError.name]);
   });
 
@@ -41,7 +41,7 @@ describe('SessionContext', () => {
       requiresPasswordChange: true,
     }));
     const [userAgentToken] = await generateAndInsertAgentTokenListForTest(1, {
-      scope: [TokenAccessScopeMap.Login],
+      scope: [kTokenAccessScope.Login],
       workspaceId: null,
       separateEntityId: user.resourceId,
       agentType: kAppResourceType.User,
@@ -52,7 +52,7 @@ describe('SessionContext', () => {
       });
       await kUtilsInjectables
         .session()
-        .getAgent(reqData, [kAppResourceType.User], [TokenAccessScopeMap.Login]);
+        .getAgent(reqData, [kAppResourceType.User], [kTokenAccessScope.Login]);
     }, [ChangePasswordError.name]);
   });
 });

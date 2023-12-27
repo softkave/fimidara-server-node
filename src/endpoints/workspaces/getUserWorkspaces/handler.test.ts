@@ -1,4 +1,4 @@
-import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
+import {kSystemSessionAgent} from '../../../utils/agent';
 import {appAssert} from '../../../utils/assertion';
 import {calculatePageSize, getResourceId} from '../../../utils/fns';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
@@ -54,7 +54,7 @@ describe('getUserWorkspaces', () => {
         Promise.all(
           workspaces.map(w =>
             assignWorkspaceToUser(
-              SYSTEM_SESSION_AGENT,
+              kSystemSessionAgent,
               w.resourceId,
               rawUser.resourceId,
               opts

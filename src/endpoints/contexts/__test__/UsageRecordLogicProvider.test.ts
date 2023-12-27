@@ -11,7 +11,7 @@ import {
 } from '../../../definitions/usageRecord';
 import {WorkspaceBillStatusMap} from '../../../definitions/workspace';
 import {fimidaraConfig} from '../../../resources/vars';
-import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
+import {kSystemSessionAgent} from '../../../utils/agent';
 import {cast} from '../../../utils/fns';
 import {getNewId, getNewIdForResource} from '../../../utils/resource';
 import {generateWorkspaceWithCategoryUsageExceeded} from '../../testUtils/generate/usageRecord';
@@ -96,7 +96,7 @@ describe('UsageRecordLogicProvider', () => {
     const status = await kSemanticModels
       .utils()
       .withTxn(opts =>
-        context.logic.usageRecord.insert(SYSTEM_SESSION_AGENT, input, opts)
+        context.logic.usageRecord.insert(kSystemSessionAgent, input, opts)
       );
 
     expect(status).toMatchObject({permitted: true, reason: null});
@@ -123,7 +123,7 @@ describe('UsageRecordLogicProvider', () => {
     const status = await kSemanticModels
       .utils()
       .withTxn(opts =>
-        context.logic.usageRecord.insert(SYSTEM_SESSION_AGENT, input, opts)
+        context.logic.usageRecord.insert(kSystemSessionAgent, input, opts)
       );
     expect(status).toMatchObject({
       permitted: false,
@@ -153,7 +153,7 @@ describe('UsageRecordLogicProvider', () => {
     const status = await kSemanticModels
       .utils()
       .withTxn(opts =>
-        context.logic.usageRecord.insert(SYSTEM_SESSION_AGENT, input, opts)
+        context.logic.usageRecord.insert(kSystemSessionAgent, input, opts)
       );
     expect(status).toMatchObject({
       permitted: false,
@@ -183,7 +183,7 @@ describe('UsageRecordLogicProvider', () => {
     const status = await kSemanticModels
       .utils()
       .withTxn(opts =>
-        context.logic.usageRecord.insert(SYSTEM_SESSION_AGENT, input, opts)
+        context.logic.usageRecord.insert(kSystemSessionAgent, input, opts)
       );
     expect(status).toMatchObject({
       permitted: false,

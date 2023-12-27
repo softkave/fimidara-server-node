@@ -1,6 +1,6 @@
 import {compact, map} from 'lodash';
 import {FileMatcher, FilePresignedPath} from '../../../definitions/file';
-import {PERMISSION_AGENT_TYPES, SessionAgent} from '../../../definitions/system';
+import {SessionAgent, kPermissionAgentTypes} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
@@ -20,7 +20,7 @@ const getPresignedPathsForFiles: GetPresignedPathsForFilesEndpoint = async instD
   const data = validate(instData.data, getPresignedPathsForFilesJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, PERMISSION_AGENT_TYPES);
+    .getAgent(instData, kPermissionAgentTypes);
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   let presignedPaths: Array<FilePresignedPath | null> = [];
 

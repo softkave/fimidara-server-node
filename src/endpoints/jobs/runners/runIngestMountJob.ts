@@ -1,7 +1,9 @@
+import {kFileBackendType} from '../../../definitions/fileBackend';
 import {
   IngestFolderpathJobParams,
   IngestMountJobParams,
   Job,
+  kJobType,
 } from '../../../definitions/job';
 import {appAssert} from '../../../utils/assertion';
 import {kSemanticModels} from '../../contexts/injectables';
@@ -12,12 +14,12 @@ export async function runIngestMountJob(job: Job<IngestMountJobParams>) {
   appAssert(job.workspaceId);
   const mount = await kSemanticModels.fileBackendMount().getOneById(job.params.mountId);
 
-  if (!mount || mount.backend === 'fimidara') {
+  if (!mount || mount.backend === kFileBackendType.Fimidara) {
     return;
   }
 
   const input: JobInput<IngestFolderpathJobParams> = {
-    type: 'ingestFolderpath',
+    type: kJobType.ingestFolderpath,
     params: {
       ingestFrom: mount.mountedFrom.join(kFolderConstants.separator),
       mountId: mount.resourceId,

@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import {isBoolean, isEqual, isString, isUndefined} from 'lodash';
 import {File} from '../../../definitions/file';
 import {kAppResourceType} from '../../../definitions/system';
-import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
+import {kSystemSessionAgent} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
@@ -102,9 +102,9 @@ export function generateTestFile(
     createdAt,
     description: faker.lorem.paragraph(),
     mimetype: 'application/octet-stream',
-    createdBy: SYSTEM_SESSION_AGENT,
+    createdBy: kSystemSessionAgent,
     lastUpdatedAt: createdAt,
-    lastUpdatedBy: SYSTEM_SESSION_AGENT,
+    lastUpdatedBy: kSystemSessionAgent,
     idPath: extra.idPath
       ? extra.idPath.concat(id)
       : extra.parentId

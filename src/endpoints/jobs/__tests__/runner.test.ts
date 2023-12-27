@@ -1,9 +1,12 @@
 import assert from 'assert';
+import {first, map} from 'lodash';
 import {kAppPresetShards, kAppType} from '../../../definitions/app';
+import {kJobStatus, kJobType} from '../../../definitions/job';
 import {getTimestamp} from '../../../utils/dateFns';
 import {extractResourceIdList, waitTimeout} from '../../../utils/fns';
+import {awaitOrTimeout} from '../../../utils/promiseFns';
 import {getNewId} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kRegisterSemanticModels, kSemanticModels} from '../../contexts/injectables';
 import {generateAndInsertAppListForTest} from '../../testUtils/generate/app';
 import {generateAndInsertJobListForTest} from '../../testUtils/generate/job';
 import {
@@ -18,7 +21,7 @@ import {
   startRunner,
   stopRunner,
 } from '../runner';
-import {RunnerWorkerMessage} from '../types';
+import {RunnerWorkerMessage, kRunnerWorkerMessageType} from '../types';
 import {
   isRunnerWorkerMessage,
   kDefaultActiveRunnerHeartbeatFactor,
@@ -135,7 +138,7 @@ describe('runner', () => {
     await Promise.all(
       Object.values(workers).map(async worker => {
         const inMessage: RunnerWorkerMessage = {
-          type: 'getActiveRunnerIds',
+          type: kRunnerWorkerMessageType.getActiveRunnerIds,
           runnerId: null,
         };
         const outMessage = await messageRunner(
@@ -146,7 +149,8 @@ describe('runner', () => {
         );
 
         assert(
-          isRunnerWorkerMessage(outMessage) && outMessage.type === 'setActiveRunnerIds'
+          isRunnerWorkerMessage(outMessage) &&
+            outMessage.type === kRunnerWorkerMessageType.setActiveRunnerIds
         );
         expect(outMessage.activeRunnerIds).toEqual(
           expect.arrayContaining(extractResourceIdList(fillerRunners))
@@ -187,28 +191,32 @@ describe('runner', () => {
     const heartbeatInterval = 50;
     const shard = getNewId();
 
-    const jobs = await generateAndInsertJobListForTest(/** count */ 2, {
-      shard,
-      status: 'pending',
-      type: 'fail',
-    });
-
     setRunnerCount(count);
     setRunnerHeartbeatInterval(heartbeatInterval);
     setRunnerShard(shard);
+
+    kRegisterSemanticModels.job(() => {
+      throw new Error('Fail so as to break runner!');
+    });
+
     await startRunner();
 
     let workers = getWorkers();
     const startWorkerIds = Object.keys(workers);
-
-    await waitTimeout(heartbeatInterval);
-    await Promise.all(
-      jobs.map(job => waitForJob(job.resourceId, /** bump priority */ true))
+    const worker0 = first(Object.values(workers));
+    assert(worker0);
+    await messageRunner<RunnerWorkerMessage>(
+      worker0,
+      {type: kRunnerWorkerMessageType.fail},
+      /** expectAck */ false
     );
 
+    await waitTimeout(heartbeatInterval);
+
     workers = getWorkers();
-    const endWorkerIds = Object.values(workers);
-    expect(Object.values(workers).length).toBe(count);
+    const endWorkerIds = Object.keys(workers);
+    expect(startWorkerIds.length).toBe(count);
+    expect(endWorkerIds.length).toBe(count);
     expect(startWorkerIds).not.toEqual(expect.arrayContaining(endWorkerIds));
 
     await stopRunner();
@@ -219,12 +227,6 @@ describe('runner', () => {
     const heartbeatInterval = 20;
     const shard = getNewId();
 
-    const jobs = await generateAndInsertJobListForTest(/** count */ 2, {
-      shard,
-      status: 'pending',
-      type: 'fail',
-    });
-
     setRunnerCount(count);
     setRunnerHeartbeatInterval(heartbeatInterval);
     setRunnerShard(shard);
@@ -234,11 +236,17 @@ describe('runner', () => {
     const startWorkerIds = Object.keys(workers);
 
     const deadTimestamp = getTimestamp();
-    await waitTimeout(heartbeatInterval * 3);
     await Promise.all(
-      jobs.map(job => waitForJob(job.resourceId, /** bump priority */ true))
+      map(workers, worker => {
+        return messageRunner<RunnerWorkerMessage>(
+          worker,
+          {type: kRunnerWorkerMessageType.fail},
+          /** expectAck */ false
+        );
+      })
     );
 
+    await waitTimeout(heartbeatInterval * 3);
     const runnerWorkers = await kSemanticModels.app().getManyByIdList(startWorkerIds);
     runnerWorkers.forEach(nextRunner => {
       expect(nextRunner.lastUpdatedAt).toBeLessThan(deadTimestamp);
@@ -253,8 +261,8 @@ describe('runner', () => {
 
     const jobs = await generateAndInsertJobListForTest(/** count */ 10, {
       shard,
-      status: 'pending',
-      type: 'noop',
+      status: kJobStatus.pending,
+      type: kJobType.noop,
     });
 
     setRunnerCount(count);
@@ -263,16 +271,11 @@ describe('runner', () => {
 
     // Wait for 5 secs and fail if jobs are not run. That should be enough
     // seeing we're only running noop jobs
-    const timeoutHandle = setTimeout(
-      () => assert.fail(new Error('Wait timeout')),
-      /** 5 secs */ 5_000
+    await awaitOrTimeout(
+      Promise.all(jobs.map(job => waitForJob(job.resourceId, /** bump priority */ true))),
+      /** timeout, 5 secs */ 5_000
     );
 
-    await Promise.all(
-      jobs.map(job => waitForJob(job.resourceId, /** bump priority */ true))
-    );
-
-    clearTimeout(timeoutHandle);
     await stopRunner();
   });
 });

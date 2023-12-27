@@ -1,4 +1,4 @@
-import {TokenAccessScopeMap} from '../../../definitions/system';
+import {kTokenAccessScope} from '../../../definitions/system';
 import {forgotPasswordEmailTitle} from '../../../emailTemplates/forgotPassword';
 import RequestData from '../../RequestData';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
@@ -36,7 +36,7 @@ test('forgot password with email sent', async () => {
   assertEndpointResultOk(result);
   const forgotPasswordToken = await kSemanticModels.agentToken().assertGetOneByQuery({
     resourceId: user.resourceId,
-    scope: {$eq: [TokenAccessScopeMap.ChangePassword]},
+    scope: {$eq: [kTokenAccessScope.ChangePassword]},
   });
 
   // confirm forgot password email was sent

@@ -4,15 +4,15 @@ import {AgentToken} from '../../definitions/agentToken';
 import {
   AppResourceType,
   BaseTokenData,
-  CURRENT_TOKEN_VERSION,
   SessionAgent,
   TokenAccessScope,
-  TokenAccessScopeMap,
   TokenSubjectDefault,
   kAppResourceType,
+  kCurrentJWTTokenVersion,
+  kTokenAccessScope,
 } from '../../definitions/system';
 import {User} from '../../definitions/user';
-import {PUBLIC_SESSION_AGENT} from '../../utils/agent';
+import {kPublicSessionAgent} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {dateToSeconds} from '../../utils/dateFns';
 import {ServerError} from '../../utils/errors';
@@ -61,7 +61,7 @@ export default class SessionContext implements SessionContextType {
       kAppResourceType.User,
       kAppResourceType.AgentToken,
     ],
-    tokenAccessScope: TokenAccessScope | TokenAccessScope[] = TokenAccessScopeMap.Login
+    tokenAccessScope: TokenAccessScope | TokenAccessScope[] = kTokenAccessScope.Login
   ) => {
     const incomingTokenData = data.incomingTokenData;
     let agent: SessionAgent | null | undefined = data.agent;
@@ -84,7 +84,7 @@ export default class SessionContext implements SessionContextType {
           agent = makeWorkspaceAgentTokenAgent(agentToken);
         }
       } else {
-        agent = PUBLIC_SESSION_AGENT;
+        agent = kPublicSessionAgent;
       }
     }
 
@@ -113,7 +113,7 @@ export default class SessionContext implements SessionContextType {
       })
     );
 
-    if (tokenData.version < CURRENT_TOKEN_VERSION) {
+    if (tokenData.version < kCurrentJWTTokenVersion) {
       throw new CredentialsExpiredError();
     }
 
@@ -140,7 +140,7 @@ export default class SessionContext implements SessionContextType {
     issuedAt?: string | Date | number | null
   ) => {
     const payload: Omit<BaseTokenData, 'iat'> & {iat?: number} = {
-      version: CURRENT_TOKEN_VERSION,
+      version: kCurrentJWTTokenVersion,
       sub: {id: tokenId},
     };
 
@@ -192,9 +192,9 @@ export default class SessionContext implements SessionContextType {
         const agentToken = agent.agentToken;
         if (
           !agentToken ||
-          !this.tokenContainsScope(agentToken, TokenAccessScopeMap.ChangePassword) ||
+          !this.tokenContainsScope(agentToken, kTokenAccessScope.ChangePassword) ||
           // Action must be strictly change password
-          first(scopeList) !== TokenAccessScopeMap.ChangePassword ||
+          first(scopeList) !== kTokenAccessScope.ChangePassword ||
           scopeList.length > 1
         )
           throw kReuseableErrors.user.changePassword();

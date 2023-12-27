@@ -5,7 +5,7 @@ import {PermissionAction, PermissionItem} from '../../definitions/permissionItem
 import {AppRuntimeState, SessionAgent, kAppResourceType} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {FimidaraRuntimeConfig} from '../../resources/types';
-import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
+import {kSystemSessionAgent} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {getNewIdForResource, kIdSize, newWorkspaceResource} from '../../utils/resource';
@@ -25,7 +25,7 @@ import {INTERNAL_signupUser} from '../users/signup/utils';
 import INTERNAL_createWorkspace from '../workspaces/addWorkspace/internalCreateWorkspace';
 import {assertWorkspace} from '../workspaces/utils';
 
-export const APP_RUNTIME_STATE_DOC_ID = getNewIdForResource(
+export const kAppRuntimeStatsDocId = getNewIdForResource(
   kAppResourceType.System,
   kIdSize,
   true
@@ -99,7 +99,7 @@ async function setupFolders(
 ) {
   const [workspaceImagesFolders, userImagesFolders] = await Promise.all([
     createFolderListWithTransaction(
-      SYSTEM_SESSION_AGENT,
+      kSystemSessionAgent,
       workspace,
       {
         folderpath: addRootnameToPath(
@@ -112,7 +112,7 @@ async function setupFolders(
       opts
     ),
     createFolderListWithTransaction(
-      SYSTEM_SESSION_AGENT,
+      kSystemSessionAgent,
       workspace,
       {
         folderpath: addRootnameToPath(
@@ -144,7 +144,7 @@ async function setupImageUploadPermissionGroup(
   opts: SemanticProviderMutationRunOptions
 ) {
   const imageUploadPermissionGroup = newWorkspaceResource<PermissionGroup>(
-    SYSTEM_SESSION_AGENT,
+    kSystemSessionAgent,
     kAppResourceType.PermissionGroup,
     workspaceId,
     {name, description}
@@ -155,7 +155,7 @@ async function setupImageUploadPermissionGroup(
     const targetParentId = containerIds.length ? last(containerIds) : workspaceId;
     appAssert(targetParentId);
     const item: PermissionItem = newWorkspaceResource<PermissionItem>(
-      SYSTEM_SESSION_AGENT,
+      kSystemSessionAgent,
       kAppResourceType.PermissionItem,
       workspaceId,
       {
@@ -181,10 +181,7 @@ async function setupImageUploadPermissionGroup(
 export async function isRootWorkspaceSetup(opts: SemanticProviderRunOptions) {
   const appRuntimeState = await kDataModels
     .appRuntimeState()
-    .getOneByQuery(
-      EndpointReusableQueries.getByResourceId(APP_RUNTIME_STATE_DOC_ID),
-      opts
-    );
+    .getOneByQuery(EndpointReusableQueries.getByResourceId(kAppRuntimeStatsDocId), opts);
   return appRuntimeState;
 }
 
@@ -263,7 +260,7 @@ async function setupAppArtifacts(
   await kDataModels.appRuntimeState().insertItem(
     {
       isAppSetup: true,
-      resourceId: APP_RUNTIME_STATE_DOC_ID,
+      resourceId: kAppRuntimeStatsDocId,
       ...appRuntimeVars,
       createdAt: getTimestamp(),
       lastUpdatedAt: getTimestamp(),

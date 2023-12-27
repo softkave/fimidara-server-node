@@ -1,11 +1,11 @@
 import {faker} from '@faker-js/faker';
 import {AgentToken} from '../../../definitions/agentToken';
 import {
-  CURRENT_TOKEN_VERSION,
-  TokenAccessScopeMap,
   kAppResourceType,
+  kCurrentJWTTokenVersion,
+  kTokenAccessScope,
 } from '../../../definitions/system';
-import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
+import {kSystemSessionAgent} from '../../../utils/agent';
 import {newResource} from '../../../utils/resource';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injectables';
@@ -34,12 +34,12 @@ test('email address is confirmed', async () => {
   });
   const token = newResource<AgentToken>(kAppResourceType.All, {
     separateEntityId: user.resourceId,
-    scope: [TokenAccessScopeMap.ConfirmEmailAddress],
-    version: CURRENT_TOKEN_VERSION,
+    scope: [kTokenAccessScope.ConfirmEmailAddress],
+    version: kCurrentJWTTokenVersion,
     workspaceId: null,
     agentType: kAppResourceType.User,
-    createdBy: SYSTEM_SESSION_AGENT,
-    lastUpdatedBy: SYSTEM_SESSION_AGENT,
+    createdBy: kSystemSessionAgent,
+    lastUpdatedBy: kSystemSessionAgent,
   });
   await kSemanticModels
     .utils()

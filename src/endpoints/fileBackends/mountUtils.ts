@@ -14,6 +14,7 @@ import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {ServerError} from '../../utils/errors';
 import {getResourceTypeFromId, newWorkspaceResource} from '../../utils/resource';
+import {kReuseableErrors} from '../../utils/reusableErrors';
 import {PartialRecord} from '../../utils/types';
 import {kAsyncLocalStorageUtils} from '../contexts/asyncLocalStorage';
 import {DataQuery} from '../contexts/data/types';
@@ -136,21 +137,33 @@ export async function initBackendProvidersForMounts(
 }
 
 export async function getFileBackendForFile(
-  file: Pick<File, 'workspaceId' | 'namepath'>
+  file: Pick<File, 'workspaceId' | 'namepath'>,
+  initPrimaryBackendOnly = true
 ) {
   const {mounts} = await resolveMountsForFolder({
     workspaceId: file.workspaceId,
     namepath: file.namepath.slice(0, -1),
   });
-  const mount = first(mounts);
-  appAssert(mount);
+  const requiredMounts = initPrimaryBackendOnly ? mounts.slice(0, 1) : mounts;
+  appAssert(requiredMounts.length, kReuseableErrors.mount.mountsNotSetup());
 
-  const configs = await getBackendConfigsWithIdList(compact([mount.configId]));
-  const providersMap = await initBackendProvidersForMounts([mount], configs);
-  const provider = providersMap[mount.resourceId];
-  appAssert(provider);
+  const configs = await getBackendConfigsWithIdList(
+    compact(requiredMounts.map(mount => mount.configId))
+  );
+  const providersMap = await initBackendProvidersForMounts(requiredMounts, configs);
 
-  return {provider, mount};
+  const primaryMount = first(mounts);
+  appAssert(primaryMount);
+  const primaryBackend = providersMap[primaryMount.resourceId];
+  appAssert(primaryBackend);
+
+  return {
+    primaryBackend,
+    primaryMount,
+    configs,
+    providersMap,
+    mounts,
+  };
 }
 
 export async function areMountsCompletelyIngestedForFolder(

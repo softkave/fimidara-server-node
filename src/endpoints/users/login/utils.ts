@@ -1,11 +1,11 @@
 import {AgentToken} from '../../../definitions/agentToken';
 import {
-  CURRENT_TOKEN_VERSION,
-  TokenAccessScopeMap,
   kAppResourceType,
+  kCurrentJWTTokenVersion,
+  kTokenAccessScope,
 } from '../../../definitions/system';
 import {UserWithWorkspace} from '../../../definitions/user';
-import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
+import {kSystemSessionAgent} from '../../../utils/agent';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {newResource} from '../../../utils/resource';
@@ -57,17 +57,17 @@ export async function getUserClientAssignedToken(
     token = newResource<AgentToken>(kAppResourceType.AgentToken, {
       providedResourceId: userId,
       workspaceId: kUtilsInjectables.config().appWorkspaceId,
-      version: CURRENT_TOKEN_VERSION,
+      version: kCurrentJWTTokenVersion,
       separateEntityId: null,
       agentType: kAppResourceType.AgentToken,
-      createdBy: SYSTEM_SESSION_AGENT,
-      lastUpdatedBy: SYSTEM_SESSION_AGENT,
+      createdBy: kSystemSessionAgent,
+      lastUpdatedBy: kSystemSessionAgent,
     });
 
     await Promise.all([
       kSemanticModels.agentToken().insertItem(token, opts),
       addAssignedPermissionGroupList(
-        SYSTEM_SESSION_AGENT,
+        kSystemSessionAgent,
         kUtilsInjectables.config().appWorkspaceId,
         [
           {
@@ -97,17 +97,17 @@ export async function getUserToken(
 ) {
   let userToken = await kSemanticModels
     .agentToken()
-    .getOneAgentToken(userId, TokenAccessScopeMap.Login, opts);
+    .getOneAgentToken(userId, kTokenAccessScope.Login, opts);
 
   if (!userToken) {
     userToken = newResource<AgentToken>(kAppResourceType.AgentToken, {
-      scope: [TokenAccessScopeMap.Login],
-      version: CURRENT_TOKEN_VERSION,
+      scope: [kTokenAccessScope.Login],
+      version: kCurrentJWTTokenVersion,
       separateEntityId: userId,
       workspaceId: null,
       agentType: kAppResourceType.User,
-      createdBy: SYSTEM_SESSION_AGENT,
-      lastUpdatedBy: SYSTEM_SESSION_AGENT,
+      createdBy: kSystemSessionAgent,
+      lastUpdatedBy: kSystemSessionAgent,
     });
     await kSemanticModels.agentToken().insertItem(userToken, opts);
   }

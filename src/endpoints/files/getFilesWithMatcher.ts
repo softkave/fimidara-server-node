@@ -1,6 +1,7 @@
 import {File, FileMatcher, FilePresignedPath} from '../../definitions/file';
 import {PermissionAction} from '../../definitions/permissionItem';
 import {kAppResourceType} from '../../definitions/system';
+import {kSystemSessionAgent} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {tryGetResourceTypeFromId} from '../../utils/resource';
 import {
@@ -124,7 +125,12 @@ export async function getFileWithMatcher(
   if (matcher.fileId) {
     return await kSemanticModels.file().getOneById(matcher.fileId, opts);
   } else if (matcher.filepath) {
-    return await readOrIngestFileByFilepath(matcher.filepath, opts, workspaceId);
+    return await readOrIngestFileByFilepath(
+      kSystemSessionAgent,
+      matcher.filepath,
+      opts,
+      workspaceId
+    );
   }
 
   return null;

@@ -5,6 +5,8 @@ import {Workspace} from '../../definitions/workspace';
 import {INTERNAL_createAgentToken} from '../../endpoints/agentTokens/addToken/utils';
 import {getPublicAgentToken} from '../../endpoints/agentTokens/utils';
 import {addAssignedPermissionGroupList} from '../../endpoints/assignedItems/addAssignedItems';
+import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
+import {kSemanticModels} from '../../endpoints/contexts/injectables';
 import {SemanticProviderMutationRunOptions} from '../../endpoints/contexts/semantic/types';
 import {
   getLogicProviders,
@@ -16,11 +18,9 @@ import NoopEmailProviderContext from '../../endpoints/testUtils/context/email/No
 import INTERNAL_createWorkspace from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
 import {makeRootnameFromName} from '../../endpoints/workspaces/utils';
 import {fimidaraConfig} from '../../resources/vars';
-import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
+import {kSystemSessionAgent} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {serverLogger} from '../../utils/logger/loggerUtils';
-import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
-import {kSemanticModels} from '../../endpoints/contexts/injectables';
 
 async function setupContext() {
   const connection = await getMongoConnection(
@@ -52,7 +52,7 @@ async function insertWorkspace(opts: SemanticProviderMutationRunOptions) {
       rootname: makeRootnameFromName(companyName),
       description: 'For SDK tests',
     },
-    SYSTEM_SESSION_AGENT,
+    kSystemSessionAgent,
     undefined,
     opts
   );
@@ -63,7 +63,7 @@ async function createAgentToken(
   opts: SemanticProviderMutationRunOptions
 ) {
   const token = await INTERNAL_createAgentToken(
-    SYSTEM_SESSION_AGENT,
+    kSystemSessionAgent,
     workspace,
     {
       name: faker.lorem.words(2),
@@ -84,7 +84,7 @@ export async function setupSDKTestReq() {
       const {workspace, adminPermissionGroup} = await insertWorkspace(opts);
       const {token, tokenStr} = await createAgentToken(workspace, opts);
       await addAssignedPermissionGroupList(
-        SYSTEM_SESSION_AGENT,
+        kSystemSessionAgent,
         workspace.resourceId,
         [{permissionGroupId: adminPermissionGroup.resourceId}],
         token.resourceId,

@@ -1,11 +1,11 @@
 import {add} from 'date-fns';
 import {AgentToken} from '../../../definitions/agentToken';
 import {
-  CURRENT_TOKEN_VERSION,
-  TokenAccessScopeMap,
   kAppResourceType,
+  kCurrentJWTTokenVersion,
+  kTokenAccessScope,
 } from '../../../definitions/system';
-import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
+import {kSystemSessionAgent} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {newResource} from '../../../utils/resource';
 import RequestData from '../../RequestData';
@@ -46,8 +46,8 @@ async function changePasswordWithTokenTest() {
   const {user} = await insertUserForTest({password: oldPassword});
   const newPassword = 'abd784_!new';
   const token = newResource<AgentToken>(kAppResourceType.AgentToken, {
-    scope: [TokenAccessScopeMap.ChangePassword],
-    version: CURRENT_TOKEN_VERSION,
+    scope: [kTokenAccessScope.ChangePassword],
+    version: kCurrentJWTTokenVersion,
     expires: getTimestamp(
       add(new Date(), {
         days: userConstants.changePasswordTokenExpDurationInDays,
@@ -56,8 +56,8 @@ async function changePasswordWithTokenTest() {
     separateEntityId: user.resourceId,
     agentType: kAppResourceType.User,
     workspaceId: null,
-    createdBy: SYSTEM_SESSION_AGENT,
-    lastUpdatedBy: SYSTEM_SESSION_AGENT,
+    createdBy: kSystemSessionAgent,
+    lastUpdatedBy: kSystemSessionAgent,
   });
   await kSemanticModels
     .utils()

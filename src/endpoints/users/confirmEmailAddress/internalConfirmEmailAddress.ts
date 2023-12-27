@@ -1,4 +1,4 @@
-import {TokenAccessScopeMap} from '../../../definitions/system';
+import {kTokenAccessScope} from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
 import {kSemanticModels} from '../../contexts/injectables';
@@ -22,7 +22,7 @@ export default async function INTERNAL_confirmEmailAddress(
         ),
       kSemanticModels
         .agentToken()
-        .deleteAgentTokens(userId, TokenAccessScopeMap.ConfirmEmailAddress, opts),
+        .deleteAgentTokens(userId, kTokenAccessScope.ConfirmEmailAddress, opts),
     ]);
 
     assertUser(user);

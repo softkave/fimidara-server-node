@@ -42,19 +42,26 @@ export const kDefaultActiveRunnerHeartbeatFactor = 2;
 export const kDefaultRunnerCount = availableParallelism();
 export const kEnsureRunnerCountPromiseName = 'runner_ensureRunnerCount';
 
-export interface JobInput<TParams extends AnyObject = AnyObject> {
+export interface JobInput<
+  TParams extends AnyObject = AnyObject,
+  TMeta extends AnyObject = AnyObject,
+> {
   type: JobType | (string & {});
   params: TParams;
+  meta?: TMeta;
   idempotencyToken?: string;
   priority?: number;
   shard?: AppShard;
 }
 
-export async function queueJobs<TParams extends AnyObject = AnyObject>(
+export async function queueJobs<
+  TParams extends AnyObject = AnyObject,
+  TMeta extends AnyObject = AnyObject,
+>(
   workspaceId: string | undefined,
   parentJobId: string | undefined,
-  jobsInput: JobInput<TParams>[]
-): Promise<Array<Job<TParams>>> {
+  jobsInput: JobInput<TParams, TMeta>[]
+): Promise<Array<Job<TParams, TMeta>>> {
   if (jobsInput.length === 0) {
     return [];
   }
@@ -79,6 +86,7 @@ export async function queueJobs<TParams extends AnyObject = AnyObject>(
       idempotencyToken,
       parents,
       params: input.params,
+      meta: input.meta,
       type: input.type,
       minRunnerVersion: kJobRunnerV1,
       statusHistory: [status],
@@ -102,7 +110,7 @@ export async function queueJobs<TParams extends AnyObject = AnyObject>(
     );
     await kSemanticModels.job().insertItem(uniqueJobs, opts);
 
-    return uniqueJobs as Array<Job<TParams>>;
+    return uniqueJobs as Array<Job<TParams, TMeta>>;
   });
 }
 
@@ -200,21 +208,7 @@ export async function runJob(job: Job) {
     return await completeJob(job.resourceId);
   } catch (error: unknown) {
     console.error(error);
-    return await kSemanticModels.utils().withTxn(async opts => {
-      const status: JobStatusHistory = {
-        status: kJobStatus.failed,
-        statusLastUpdatedAt: getTimestamp(),
-        runnerId: job.runnerId,
-      };
-
-      return await kSemanticModels
-        .job()
-        .getAndUpdateOneById(
-          job.resourceId,
-          {...status, statusHistory: job.statusHistory.concat(status)},
-          opts
-        );
-    });
+    return await completeJob(job.resourceId, kJobStatus.failed);
   }
 }
 
@@ -235,53 +229,6 @@ export async function markJobStarted(
       {...status, statusHistory: job.statusHistory.concat(status)},
       opts
     );
-}
-
-export async function waitForJob(
-  jobId: string,
-  bumpPriority = true,
-  timeoutMs = /** 5 minutes */ 5 * 60 * 1000,
-  pollIntervalMs = 100 // 100 milliseconds
-) {
-  const startMs = getTimestamp();
-
-  if (bumpPriority) {
-    await kSemanticModels.utils().withTxn(opts =>
-      kSemanticModels.job().updateManyByQueryList(
-        [
-          // Bump children priority
-          {parents: {$elemMatch: jobId}},
-          // Bump job priority
-          {resourceId: jobId},
-        ],
-        {priority: Number.MAX_SAFE_INTEGER},
-        opts
-      )
-    );
-  }
-
-  return new Promise<void>((resolve, reject) => {
-    const waitFn = async () => {
-      const job = await kSemanticModels.job().getOneByQuery({resourceId: jobId});
-
-      if (
-        !job ||
-        job.status === kJobStatus.completed ||
-        job.status === kJobStatus.failed
-      ) {
-        resolve();
-        return;
-      }
-
-      if (getTimestamp() > startMs + timeoutMs) {
-        setTimeout(waitFn, pollIntervalMs);
-      } else {
-        reject(new TimeoutError());
-      }
-    };
-
-    waitFn();
-  });
 }
 
 export async function insertRunnerInDB(seed: Pick<App, 'resourceId'> & Partial<App>) {
@@ -379,5 +326,54 @@ export async function getNextJob(
     }
 
     return selectedJob;
+  });
+}
+
+/** Waits for job and children to complete. Use extremely sparingly, and
+ * primarily for testing. */
+export async function waitForJob(
+  jobId: string,
+  bumpPriority = true,
+  timeoutMs = /** 5 minutes */ 5 * 60 * 1000,
+  pollIntervalMs = 100 // 100 milliseconds
+) {
+  const startMs = getTimestamp();
+
+  if (bumpPriority) {
+    await kSemanticModels.utils().withTxn(opts =>
+      kSemanticModels.job().updateManyByQueryList(
+        [
+          // Bump children priority
+          {parents: {$elemMatch: jobId}},
+          // Bump job priority
+          {resourceId: jobId},
+        ],
+        {priority: Number.MAX_SAFE_INTEGER},
+        opts
+      )
+    );
+  }
+
+  return new Promise<void>((resolve, reject) => {
+    const waitFn = async () => {
+      const job = await kSemanticModels.job().getOneByQuery({resourceId: jobId});
+
+      if (
+        !job ||
+        job.status === kJobStatus.completed ||
+        job.status === kJobStatus.failed
+      ) {
+        resolve();
+        return;
+      }
+
+      if (getTimestamp() > startMs + timeoutMs) {
+        setTimeout(waitFn, pollIntervalMs);
+      } else {
+        reject(new TimeoutError());
+      }
+    };
+
+    waitFn();
   });
 }

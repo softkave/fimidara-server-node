@@ -14,7 +14,7 @@ import {
 } from '../../definitions/usageRecord';
 import {UsageThresholdLock, Workspace} from '../../definitions/workspace';
 import {usageRecordConstants} from '../../endpoints/usageRecords/constants';
-import {SYSTEM_SESSION_AGENT} from '../../utils/agent';
+import {kSystemSessionAgent} from '../../utils/agent';
 import {getTimestamp} from '../../utils/dateFns';
 import {getNewIdForResource} from '../../utils/resource';
 import {IFimidaraPipelineRunInfo} from '../utils';
@@ -155,9 +155,9 @@ async function getUsageRecordsLevel2(
         fulfillmentStatus,
         resourceId: getNewIdForResource(kAppResourceType.UsageRecord),
         createdAt: getTimestamp(),
-        createdBy: SYSTEM_SESSION_AGENT,
+        createdBy: kSystemSessionAgent,
         lastUpdatedAt: getTimestamp(),
-        lastUpdatedBy: SYSTEM_SESSION_AGENT,
+        lastUpdatedBy: kSystemSessionAgent,
         category: k,
         summationType: UsageSummationTypeMap.Month,
         usage: 0,
@@ -175,7 +175,7 @@ async function incrementRecordLevel2(connection: Connection, recordLevel2: Usage
   recordLevel2.usage += sumUsage;
   recordLevel2.usageCost += sumCost;
   recordLevel2.lastUpdatedAt = getTimestamp();
-  recordLevel2.lastUpdatedBy = SYSTEM_SESSION_AGENT;
+  recordLevel2.lastUpdatedBy = kSystemSessionAgent;
   return recordLevel2;
 }
 
@@ -213,7 +213,7 @@ async function aggregateRecordsLevel2(
   });
 
   totalRecord.lastUpdatedAt = getTimestamp();
-  totalRecord.lastUpdatedBy = SYSTEM_SESSION_AGENT;
+  totalRecord.lastUpdatedBy = kSystemSessionAgent;
   const model = makeUsageRecordModel(connection);
   await model.bulkWrite(
     records.map(r => ({
@@ -247,7 +247,7 @@ async function aggregateRecordsInWorkspaceAndLockIfUsageExceeded(
         ...defaultTo(locks[r.category], {}),
         category: r.category,
         lastUpdatedAt: getTimestamp(),
-        lastUpdatedBy: SYSTEM_SESSION_AGENT,
+        lastUpdatedBy: kSystemSessionAgent,
         locked: true,
       };
 

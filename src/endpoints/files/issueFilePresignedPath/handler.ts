@@ -1,5 +1,6 @@
-import {File, FilePresignedPath} from '../../../definitions/file';
-import {PERMISSION_AGENT_TYPES, kAppResourceType} from '../../../definitions/system';
+import {FilePresignedPath} from '../../../definitions/file';
+import {kPermissionsMap} from '../../../definitions/permissionItem';
+import {kAppResourceType, kPermissionAgentTypes} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {newWorkspaceResource} from '../../../utils/resource';
@@ -21,29 +22,26 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async instData =>
   const data = validate(instData.data, issueFilePresignedPathJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, PERMISSION_AGENT_TYPES);
+    .getAgent(instData, kPermissionAgentTypes);
 
   const resource = await await kSemanticModels.utils().withTxn(async opts => {
-    let file: File | null = null;
+    const file = await getFileWithMatcher(data, opts);
     let workspace: Workspace | undefined | null = undefined;
-
-    file = await getFileWithMatcher(data, opts);
-
     let namepath: string[] | undefined = undefined;
     let extension: string | undefined = undefined;
     let fileId: string | undefined = undefined;
 
     if (file) {
-      // Happy path. If there's a file, get the name path and extension
+      // Happy path. If there's a file, get the namepath, ID, and extension
       ({namepath, extension, resourceId: fileId} = file);
-      await checkFileAuthorization(agent, file, 'readFile');
+      await checkFileAuthorization(agent, file, kPermissionsMap.readFile);
     } else {
-      // File doesn't exist but we're generating presigned path for the filepath.
-      // Presigned paths for non-existing files will work just like filepaths for
-      // files that don't exist, it'll return 404.
+      // File doesn't exist but we're generating presigned path for the
+      // filepath. Presigned paths for non-existing files should work just like
+      // filepaths for files that don't exist, it should return 404.
 
       // Assert filepath is provided cause otherwise, we can't generate presigned
-      // path.
+      // path without one.
       appAssert(data.filepath, kReuseableErrors.file.provideNamepath());
       const pathinfo = getFilepathInfo(data.filepath);
       ({namepath, extension} = pathinfo);
@@ -73,7 +71,7 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async instData =>
             closestFolder,
             /** include resource ID */ true
           ),
-          action: 'readFile',
+          action: kPermissionsMap.readFile,
         },
       });
     }

@@ -1,7 +1,7 @@
 import {defaultTo} from 'lodash';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {Workspace} from '../../../definitions/workspace';
-import {SYSTEM_SESSION_AGENT} from '../../../utils/agent';
+import {kSystemSessionAgent} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {kSemanticModels} from '../../contexts/injectables';
 
@@ -18,7 +18,7 @@ export async function updateTestWorkspaceUsageLocks(
       usageThresholdLocks[category] = {
         category,
         locked: true,
-        lastUpdatedBy: SYSTEM_SESSION_AGENT,
+        lastUpdatedBy: kSystemSessionAgent,
         lastUpdatedAt: getTimestamp(),
       };
     });

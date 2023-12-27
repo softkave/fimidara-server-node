@@ -2,8 +2,8 @@ import {faker} from '@faker-js/faker';
 import {AgentToken} from '../../../definitions/agentToken';
 import {
   Agent,
-  CURRENT_TOKEN_VERSION,
   kAppResourceType,
+  kCurrentJWTTokenVersion,
 } from '../../../definitions/system';
 import {getNewIdForResource, newResource} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injectables';
@@ -24,7 +24,7 @@ export function generateAgentTokenForTest(
     lastUpdatedBy: createdBy,
     name: faker.company.name(),
     description: faker.lorem.sentence(),
-    version: CURRENT_TOKEN_VERSION,
+    version: kCurrentJWTTokenVersion,
     separateEntityId: null,
     ...seed,
   });

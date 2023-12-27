@@ -1,7 +1,7 @@
 import {customAlphabet} from 'nanoid';
 import {AssignPermissionGroupInput} from '../definitions/permissionGroups';
 import {PermissionAction, kPermissionsMap} from '../definitions/permissionItem';
-import {PublicAgent, VALID_AGENT_TYPES, kAppResourceType} from '../definitions/system';
+import {PublicAgent, kAppResourceType, kValidAgentTypes} from '../definitions/system';
 import {
   UsageRecordCategory,
   UsageRecordCategoryMap,
@@ -196,7 +196,7 @@ const agent = mddocConstruct
         .constructFieldString()
         .setDescription('Agent type.')
         .setExample(kAppResourceType.AgentToken)
-        .setValid(VALID_AGENT_TYPES)
+        .setValid(kValidAgentTypes)
         .setEnumName('AgentType')
     ),
   });

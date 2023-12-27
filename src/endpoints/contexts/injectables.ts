@@ -1,6 +1,8 @@
+import {isFunction} from 'lodash';
 import {Connection} from 'mongoose';
 import {container} from 'tsyringe';
 import {FimidaraConfig} from '../../resources/types';
+import {AnyFn} from '../../utils/types';
 import {PromiseStore} from './PromiseStore';
 import {SessionContextType} from './SessionContext';
 import {AsyncLocalStorageUtils} from './asyncLocalStorage';
@@ -143,7 +145,7 @@ export const kUtilsInjectables = {
   config: () => container.resolve<FimidaraConfig>(kInjectionKeys.config),
   secretsManager: () =>
     container.resolve<SecretsManagerProvider>(kInjectionKeys.secretsManager),
-  fileProviderResolver: (item?: FileProviderResolver) =>
+  fileProviderResolver: () =>
     container.resolve<FileProviderResolver>(kInjectionKeys.fileProviderResolver),
   asyncLocalStorage: () =>
     container.resolve<AsyncLocalStorageUtils>(kInjectionKeys.asyncLocalStorage),
@@ -158,100 +160,94 @@ export const kLogicProviders = {
     container.resolve<UsageRecordLogicProvider>(kInjectionKeys.logic.usageRecords),
 };
 
+type RegisterItem<T> = T | AnyFn<[], T>;
+
+function register(token: string, item: RegisterItem<unknown>) {
+  if (isFunction(item)) {
+    register(kInjectionKeys.semantic.user, {useFactory: item});
+  } else {
+    register(kInjectionKeys.semantic.user, {useValue: item});
+  }
+}
+
 export const kRegisterSemanticModels = {
-  user: (item: SemanticUserProviderType) =>
-    container.register(kInjectionKeys.semantic.user, {useValue: item}),
-  file: (item: SemanticFileProvider) =>
-    container.register(kInjectionKeys.semantic.file, {useValue: item}),
+  user: (item: SemanticUserProviderType) => register(kInjectionKeys.semantic.user, item),
+  file: (item: SemanticFileProvider) => register(kInjectionKeys.semantic.file, item),
   agentToken: (item: SemanticAgentTokenProvider) =>
-    container.register(kInjectionKeys.semantic.file, {useValue: item}),
+    register(kInjectionKeys.semantic.file, item),
   folder: (item: SemanticFolderProvider) =>
-    container.register(kInjectionKeys.semantic.folder, {useValue: item}),
+    register(kInjectionKeys.semantic.folder, item),
   workspace: (item: SemanticWorkspaceProviderType) =>
-    container.register(kInjectionKeys.semantic.workspace, {useValue: item}),
+    register(kInjectionKeys.semantic.workspace, item),
   collaborationRequest: (item: SemanticCollaborationRequestProvider) =>
-    container.register(kInjectionKeys.semantic.collaborationRequest, {useValue: item}),
+    register(kInjectionKeys.semantic.collaborationRequest, item),
   fileBackendConfig: (item: SemanticFileBackendConfigProvider) =>
-    container.register(kInjectionKeys.semantic.fileBackendConfig, {useValue: item}),
+    register(kInjectionKeys.semantic.fileBackendConfig, item),
   fileBackendMount: (item: SemanticFileBackendMountProvider) =>
-    container.register(kInjectionKeys.semantic.fileBackendMount, {useValue: item}),
+    register(kInjectionKeys.semantic.fileBackendMount, item),
   filePresignedPath: (item: SemanticFilePresignedPathProvider) =>
-    container.register(kInjectionKeys.semantic.filePresignedPath, {useValue: item}),
+    register(kInjectionKeys.semantic.filePresignedPath, item),
   permissions: (item: SemanticPermissionProviderType) =>
-    container.register(kInjectionKeys.semantic.permissions, {useValue: item}),
+    register(kInjectionKeys.semantic.permissions, item),
   permissionGroup: (item: SemanticPermissionGroupProviderType) =>
-    container.register(kInjectionKeys.semantic.permissionGroup, {useValue: item}),
+    register(kInjectionKeys.semantic.permissionGroup, item),
   permissionItem: (item: SemanticPermissionItemProviderType) =>
-    container.register(kInjectionKeys.semantic.permissionItem, {useValue: item}),
-  tag: (item: SemanticTagProviderType) =>
-    container.register(kInjectionKeys.semantic.tag, {useValue: item}),
+    register(kInjectionKeys.semantic.permissionItem, item),
+  tag: (item: SemanticTagProviderType) => register(kInjectionKeys.semantic.tag, item),
   assignedItem: (item: SemanticAssignedItemProvider) =>
-    container.register(kInjectionKeys.semantic.assignedItem, {useValue: item}),
-  job: (item: SemanticJobProvider) =>
-    container.register(kInjectionKeys.semantic.job, {useValue: item}),
+    register(kInjectionKeys.semantic.assignedItem, item),
+  job: (item: SemanticJobProvider | AnyFn<[], SemanticJobProvider>) =>
+    register(kInjectionKeys.semantic.job, item),
   usageRecord: (item: SemanticUsageRecordProviderType) =>
-    container.register(kInjectionKeys.semantic.usageRecord, {useValue: item}),
+    register(kInjectionKeys.semantic.usageRecord, item),
   resolvedMountEntry: (item: SemanticResolvedMountEntryProvider) =>
-    container.register(kInjectionKeys.semantic.resolvedMountEntry, {useValue: item}),
-  utils: (item: SemanticProviderUtils) =>
-    container.register(kInjectionKeys.semantic.utils, {useValue: item}),
+    register(kInjectionKeys.semantic.resolvedMountEntry, item),
+  utils: (item: SemanticProviderUtils) => register(kInjectionKeys.semantic.utils, item),
 };
 
 export const kRegisterDataModels = {
-  user: (item: UserDataProvider) =>
-    container.register(kInjectionKeys.data.user, {useValue: item}),
-  file: (item: FileDataProvider) =>
-    container.register(kInjectionKeys.data.file, {useValue: item}),
-  agentToken: (item: AgentTokenDataProvider) =>
-    container.register(kInjectionKeys.data.file, {useValue: item}),
-  folder: (item: FolderDataProvider) =>
-    container.register(kInjectionKeys.data.folder, {useValue: item}),
+  user: (item: UserDataProvider) => register(kInjectionKeys.data.user, item),
+  file: (item: FileDataProvider) => register(kInjectionKeys.data.file, item),
+  agentToken: (item: AgentTokenDataProvider) => register(kInjectionKeys.data.file, item),
+  folder: (item: FolderDataProvider) => register(kInjectionKeys.data.folder, item),
   workspace: (item: WorkspaceDataProvider) =>
-    container.register(kInjectionKeys.data.workspace, {useValue: item}),
+    register(kInjectionKeys.data.workspace, item),
   fileBackendConfig: (item: FileBackendConfigDataProvider) =>
-    container.register(kInjectionKeys.data.fileBackendConfig, {useValue: item}),
+    register(kInjectionKeys.data.fileBackendConfig, item),
   fileBackendMount: (item: FileBackendMountDataProvider) =>
-    container.register(kInjectionKeys.data.fileBackendMount, {useValue: item}),
+    register(kInjectionKeys.data.fileBackendMount, item),
   filePresignedPath: (item: FilePresignedPathDataProvider) =>
-    container.register(kInjectionKeys.data.filePresignedPath, {useValue: item}),
+    register(kInjectionKeys.data.filePresignedPath, item),
   permissionGroup: (item: PermissionGroupDataProvider) =>
-    container.register(kInjectionKeys.data.permissionGroup, {useValue: item}),
+    register(kInjectionKeys.data.permissionGroup, item),
   permissionItem: (item: PermissionItemDataProvider) =>
-    container.register(kInjectionKeys.data.permissionItem, {useValue: item}),
-  tag: (item: TagDataProvider) =>
-    container.register(kInjectionKeys.data.tag, {useValue: item}),
+    register(kInjectionKeys.data.permissionItem, item),
+  tag: (item: TagDataProvider) => register(kInjectionKeys.data.tag, item),
   assignedItem: (item: AssignedItemDataProvider) =>
-    container.register(kInjectionKeys.data.assignedItem, {useValue: item}),
-  job: (item: JobDataProvider) =>
-    container.register(kInjectionKeys.data.job, {useValue: item}),
+    register(kInjectionKeys.data.assignedItem, item),
+  job: (item: JobDataProvider) => register(kInjectionKeys.data.job, item),
   resolvedMountEntry: (item: ResolvedMountEntryDataProvider) =>
-    container.register(kInjectionKeys.data.resolvedMountEntry, {useValue: item}),
+    register(kInjectionKeys.data.resolvedMountEntry, item),
   appRuntimeState: (item: AppRuntimeStateDataProvider) =>
-    container.register(kInjectionKeys.data.appRuntimeState, {useValue: item}),
-  utils: (item: DataProviderUtils) =>
-    container.register(kInjectionKeys.data.utils, {useValue: item}),
+    register(kInjectionKeys.data.appRuntimeState, item),
+  utils: (item: DataProviderUtils) => register(kInjectionKeys.data.utils, item),
 };
 
 export const kRegisterUtilsInjectables = {
-  config: (item: FimidaraConfig) =>
-    container.register(kInjectionKeys.config, {useValue: item}),
+  config: (item: FimidaraConfig) => register(kInjectionKeys.config, item),
   secretsManager: (item: SecretsManagerProvider) =>
-    container.register(kInjectionKeys.secretsManager, {useValue: item}),
+    register(kInjectionKeys.secretsManager, item),
   fileProviderResolver: (item: FileProviderResolver) =>
-    container.register(kInjectionKeys.fileProviderResolver, {useValue: item}),
+    register(kInjectionKeys.fileProviderResolver, item),
   asyncLocalStorage: (item: AsyncLocalStorageUtils) =>
-    container.register(kInjectionKeys.asyncLocalStorage, {useValue: item}),
-  session: (item: SessionContextType) =>
-    container.register(kInjectionKeys.session, {useValue: item}),
-  mongoConnection: (item: Connection) =>
-    container.register(kInjectionKeys.mongoConnection, {useValue: item}),
-  email: (item: IEmailProviderContext) =>
-    container.register(kInjectionKeys.email, {useValue: item}),
-  promiseStore: (item: PromiseStore) =>
-    container.register(kInjectionKeys.promiseStore, {useValue: item}),
+    register(kInjectionKeys.asyncLocalStorage, item),
+  session: (item: SessionContextType) => register(kInjectionKeys.session, item),
+  mongoConnection: (item: Connection) => register(kInjectionKeys.mongoConnection, item),
+  email: (item: IEmailProviderContext) => register(kInjectionKeys.email, item),
+  promiseStore: (item: PromiseStore) => register(kInjectionKeys.promiseStore, item),
 };
 
 export const kRegisterLogicProviders = {
   usageRecords: (item: UsageRecordLogicProvider) =>
-    container.register(kInjectionKeys.logic.usageRecords, {useValue: item}),
+    register(kInjectionKeys.logic.usageRecords, {useValue: item}),
 };

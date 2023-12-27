@@ -1,9 +1,5 @@
 import {LongRunningJobResult} from '../../jobs/types';
-import {
-  DeleteResourceCascadeFnDefaultArgs,
-  Endpoint,
-  EndpointOptionalWorkspaceIDParam,
-} from '../../types';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 
 export interface DeleteFileBackendConfigEndpointParams
   extends EndpointOptionalWorkspaceIDParam {
@@ -14,7 +10,3 @@ export type DeleteFileBackendConfigEndpoint = Endpoint<
   DeleteFileBackendConfigEndpointParams,
   LongRunningJobResult
 >;
-
-export type DeleteFileBackendConfigCascadeFnsArgs = DeleteResourceCascadeFnDefaultArgs & {
-  secretId: string;
-};

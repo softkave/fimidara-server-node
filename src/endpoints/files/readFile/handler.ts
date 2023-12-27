@@ -2,7 +2,7 @@ import sharp = require('sharp');
 import {compact} from 'lodash';
 import {PassThrough, Readable} from 'stream';
 import {File} from '../../../definitions/file';
-import {PERMISSION_AGENT_TYPES} from '../../../definitions/system';
+import {kPermissionAgentTypes} from '../../../definitions/system';
 import {isObjectFieldsEmpty} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {PersistedFile} from '../../contexts/file/types';
@@ -24,7 +24,7 @@ const readFile: ReadFileEndpoint = async instData => {
   const data = validate(instData.data, readFileJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, PERMISSION_AGENT_TYPES);
+    .getAgent(instData, kPermissionAgentTypes);
 
   const file = await await kSemanticModels.utils().withTxn(async opts => {
     const {file} = await checkFileAuthorization03(

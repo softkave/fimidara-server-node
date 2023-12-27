@@ -48,7 +48,7 @@ import {
 } from '../../endpoints/usageRecords/utils';
 import {transformUsageThresholInput} from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
 import {fimidaraConfig} from '../../resources/vars';
-import {PUBLIC_SESSION_AGENT} from '../../utils/agent';
+import {kPublicSessionAgent} from '../../utils/agent';
 import {cast} from '../../utils/fns';
 import {FimidaraPipelineNames, pipelineRunInfoFactory} from '../utils';
 import {
@@ -171,7 +171,7 @@ async function insertUsageRecordsForFiles(
 async function setupForFile(exceedLimit = false, nothrow = true, exceedBy = 0) {
   const workspace = generateTestWorkspace();
   workspace.usageThresholds = transformUsageThresholInput(
-    PUBLIC_SESSION_AGENT,
+    kPublicSessionAgent,
     generateTestUsageThresholdInputMap()
   );
   await kSemanticModels
@@ -366,7 +366,7 @@ describe('usage-records-pipeline', () => {
     // Setup
     const {connection} = await getContextAndConnection();
     const workspace = generateTestWorkspace();
-    workspace.usageThresholds = transformUsageThresholInput(PUBLIC_SESSION_AGENT, {
+    workspace.usageThresholds = transformUsageThresholInput(kPublicSessionAgent, {
       [UsageRecordCategoryMap.Total]: {
         budget: 1000,
         category: UsageRecordCategoryMap.Total,
@@ -410,7 +410,7 @@ describe('usage-records-pipeline', () => {
     // Setup
     const {connection} = await getContextAndConnection();
     const workspace = generateTestWorkspace();
-    workspace.usageThresholds = transformUsageThresholInput(PUBLIC_SESSION_AGENT, {
+    workspace.usageThresholds = transformUsageThresholInput(kPublicSessionAgent, {
       [UsageRecordCategoryMap.Total]: {
         budget: 1000,
         category: UsageRecordCategoryMap.Total,

@@ -1,7 +1,8 @@
+import {kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
 import EndpointReusableQueries from '../queries';
 import {completeTests} from '../testUtils/helpers/test';
 import {initTests} from '../testUtils/testUtils';
-import {APP_RUNTIME_STATE_DOC_ID, setupApp} from './initAppSetup';
+import {kAppRuntimeStatsDocId, setupApp} from './initAppSetup';
 
 beforeAll(async () => {
   await initTests();
@@ -16,7 +17,7 @@ describe('init app setup', () => {
     // setupApp is called internally when getting test context
 
     await context.data.appRuntimeState.assertGetOneByQuery(
-      EndpointReusableQueries.getByResourceId(APP_RUNTIME_STATE_DOC_ID)
+      EndpointReusableQueries.getByResourceId(kAppRuntimeStatsDocId)
     );
     await kSemanticModels.user().assertGetOneByQuery({
       email: kUtilsInjectables.config().rootUserEmail,

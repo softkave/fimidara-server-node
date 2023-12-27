@@ -142,5 +142,6 @@ export const kAppMessages = {
       `Config for backend ${configBackend} cannot be used for mount with backend ${mountBackend}`,
     exactMountConfigExists: (mountedFrom: string, folderpath: string, backend: string) =>
       `Mount exists from ${mountedFrom} to ${folderpath} with backend ${backend}`,
+    mountsNotSetup: 'File backend mounts not setup.',
   },
 };
