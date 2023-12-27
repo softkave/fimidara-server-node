@@ -39,8 +39,8 @@ export const INTERNAL_createAgentToken = async (
       ...omit(data, 'tags'),
       providedResourceId: defaultTo(data.providedResourceId, null),
       version: kCurrentJWTTokenVersion,
-      separateEntityId: null,
-      agentType: kAppResourceType.AgentToken,
+      forEntityId: null,
+      entityType: kAppResourceType.AgentToken,
     }
   );
   await Promise.all([

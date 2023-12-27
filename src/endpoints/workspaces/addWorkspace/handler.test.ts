@@ -3,6 +3,7 @@ import {appAssert} from '../../../utils/assertion';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {fetchEntityAssignedPermissionGroupList} from '../../permissionGroups/getEntityAssignedPermissionGroups/utils';
+import EndpointReusableQueries from '../../queries';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
@@ -18,7 +19,6 @@ import {
   DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
   DEFAULT_PUBLIC_PERMISSION_GROUP_NAME,
 } from './utils';
-import EndpointReusableQueries from '../../queries';
 
 beforeAll(async () => {
   await initTests();
@@ -66,12 +66,12 @@ describe('addWorkspace', () => {
         )
       );
 
-    appAssert(userToken.separateEntityId);
+    appAssert(userToken.forEntityId);
     const user = await populateUserWorkspaces(
       await kSemanticModels
         .user()
         .assertGetOneByQuery(
-          EndpointReusableQueries.getByResourceId(userToken.separateEntityId)
+          EndpointReusableQueries.getByResourceId(userToken.forEntityId)
         )
     );
     const userWorkspace = user.workspaces.find(
@@ -80,7 +80,7 @@ describe('addWorkspace', () => {
 
     expect(userWorkspace).toBeTruthy();
     const userPermissionGroupsResult = await fetchEntityAssignedPermissionGroupList(
-      userToken.separateEntityId
+      userToken.forEntityId
     );
     const assignedAdminPermissionGroup = userPermissionGroupsResult.permissionGroups.find(
       item => item.resourceId === adminPermissionGroup.resourceId

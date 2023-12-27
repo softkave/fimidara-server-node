@@ -375,7 +375,7 @@ const foldernamepath = mddocConstruct
 const action = mddocConstruct
   .constructFieldString()
   .setDescription('Action')
-  .setExample(kPermissionsMap.addFile)
+  .setExample(kPermissionsMap.uploadFile)
   .setValid(Object.values(kPermissionsMap))
   .setEnumName('AppActionType');
 const actionList = mddocConstruct.constructFieldArray<PermissionAction>().setType(action);

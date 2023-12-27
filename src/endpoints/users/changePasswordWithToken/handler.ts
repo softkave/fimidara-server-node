@@ -16,8 +16,8 @@ const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async reqData =
     .session()
     .getAgent(reqData, [kAppResourceType.User], [kTokenAccessScope.ChangePassword]);
 
-  if (!agent.agentToken?.expires) throw new InvalidCredentialsError();
-  if (Date.now() > agent.agentToken.expires) throw new CredentialsExpiredError();
+  if (!agent.agentToken?.expiresAt) throw new InvalidCredentialsError();
+  if (Date.now() > agent.agentToken.expiresAt) throw new CredentialsExpiredError();
 
   let user = agent.user;
   assertUser(user);

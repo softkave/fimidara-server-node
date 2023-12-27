@@ -1,4 +1,5 @@
 import {merge, pick} from 'lodash';
+import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {kPermissionAgentTypes} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
@@ -31,10 +32,18 @@ const uploadFile: UploadFileEndpoint = async instData => {
     .session()
     .getAgent(instData, kPermissionAgentTypes);
   const createFileResult = await kSemanticModels.utils().withTxn(async opts => {
-    let file = await getFileWithMatcher(data, opts);
+    // eslint-disable-next-line prefer-const
+    let {file, presignedPath} = await getFileWithMatcher({
+      opts,
+      matcher: data,
+      incrementPresignedPathUsageCount: true,
+      presignedPathAction: kPermissionsMap.uploadFile,
+      supportPresignedPath: true,
+    });
     const workspace = await getWorkspaceFromFileOrFilepath(file, data.filepath);
 
-    if (file) {
+    if (file && !presignedPath) {
+      // Permission is already checked if there's a `presignedPath`
       await checkUploadFileAuth(
         agent,
         workspace,

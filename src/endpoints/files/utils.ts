@@ -22,7 +22,6 @@ import {
 } from '../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../contexts/injectables';
 import {kInjectionKeys} from '../contexts/injection';
-import {SemanticFileProvider} from '../contexts/semantic/file/types';
 import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
@@ -46,17 +45,17 @@ import {
 import {workspaceResourceFields} from '../utils';
 import {assertWorkspace, checkWorkspaceExists} from '../workspaces/utils';
 import {fileConstants} from './constants';
-import {getFileByPresignedPath, getFileWithMatcher} from './getFilesWithMatcher';
+import {getFileWithMatcher} from './getFilesWithMatcher';
 
 const filePresignedPathFields = getFields<PublicFilePresignedPath>({
   ...workspaceResourceFields,
   filepath: true,
   fileId: true,
-  agentTokenId: true,
-  usageCount: true,
+  issueAgentTokenId: true,
+  maxUsageCount: true,
   extension: true,
   spentUsageCount: true,
-  action: true,
+  actions: true,
 });
 
 export const filePresignedPathExtractor = makeExtract(filePresignedPathFields);
@@ -100,46 +99,29 @@ export async function checkFileAuthorization(
   return {agent, file, workspace};
 }
 
-export async function readAndCheckFileAuthorization(
-  agent: SessionAgent,
-  matcher: FileMatcher,
-  action: PermissionAction,
-  opts: SemanticProviderMutationRunOptions
-) {
-  const file = await getFileWithMatcher(matcher, opts);
+export async function readAndCheckFileAuthorization(props: {
+  agent: SessionAgent;
+  matcher: FileMatcher;
+  action: PermissionAction;
+  opts: SemanticProviderMutationRunOptions;
+  incrementPresignedPathUsageCount: boolean;
+}) {
+  const {agent, matcher, action, opts, incrementPresignedPathUsageCount} = props;
+  const {file, presignedPath} = await getFileWithMatcher({
+    matcher,
+    opts,
+    supportPresignedPath: true,
+    presignedPathAction: action,
+    incrementPresignedPathUsageCount: incrementPresignedPathUsageCount,
+  });
   assertFile(file);
 
-  await checkFileAuthorization(agent, file, action);
-  return file;
-}
-
-export async function checkFileAuthorization03(
-  agent: SessionAgent,
-  matcher: FileMatcher,
-  action: PermissionAction,
-  supportPresignedPath = false,
-  incrementPresignedPathUsageCount = false,
-  opts: SemanticProviderMutationRunOptions
-) {
-  if (matcher.filepath && supportPresignedPath) {
-    const presignedPathResult = await getFileByPresignedPath(
-      matcher.filepath,
-      'readFile',
-      incrementPresignedPathUsageCount,
-      opts
-    );
-
-    if (presignedPathResult) {
-      const {file, presignedPath} = presignedPathResult;
-      return {file, presignedPath};
-    }
+  if (!presignedPath) {
+    // Permission is already checked if there's a `presignedPath`
+    await checkFileAuthorization(agent, file, action);
   }
 
-  const file = await getFileWithMatcher(matcher, opts);
-  assertFile(file);
-
-  await checkFileAuthorization(agent, file, action);
-  return {file};
+  return file;
 }
 
 export interface FilenameInfo {
@@ -316,16 +298,19 @@ export async function createAndInsertNewFile(
   return file;
 }
 
-export async function ingestFileByFilepath(
-  agent: Agent,
-  /** filepath with workspace rootname */
-  filepath: string,
-  opts: SemanticProviderMutationRunOptions,
-  workspaceId: string,
-  workspace?: Workspace,
-  mounts?: FileBackendMount[],
-  mountWeights?: FileBackendMountWeights
-) {
+export async function ingestFileByFilepath(props: {
+  /** agent used for ingesting */
+  agent: Agent;
+  /** filepath with extension and workspace rootname */
+  filepath: string;
+  opts: SemanticProviderMutationRunOptions;
+  workspace?: Workspace;
+  /** Reuse mounts and mountWeights */
+  mounts?: FileBackendMount[];
+  mountWeights?: FileBackendMountWeights;
+}) {
+  const {agent, filepath, opts} = props;
+  let {workspace, mounts, mountWeights} = props;
   const pathinfo = getFilepathInfo(filepath);
 
   if (!workspace) {
@@ -336,7 +321,7 @@ export async function ingestFileByFilepath(
     appAssert(mountWeights);
   } else {
     ({mounts, mountWeights} = await resolveMountsForFolder(
-      {workspaceId, namepath: pathinfo.parentNamepath},
+      {workspaceId: workspace.resourceId, namepath: pathinfo.parentNamepath},
       opts
     ));
   }
@@ -353,8 +338,8 @@ export async function ingestFileByFilepath(
       appAssert(provider);
 
       return await provider.describeFile({
-        workspaceId,
         mount,
+        workspaceId: workspace!.resourceId,
         filepath: pathinfo.namepath.join(kFolderConstants.separator),
       });
     })
@@ -365,36 +350,4 @@ export async function ingestFileByFilepath(
   if (fileEntry0) {
     await ingestPersistedFiles(agent, workspace, compact(fileEntries));
   }
-}
-
-export async function readOrIngestFileByFilepath(
-  agent: Agent,
-  /** filepath with workspace rootname */
-  filepath: string,
-  opts: SemanticProviderMutationRunOptions,
-  workspaceId?: string
-) {
-  const fileModel = container.resolve<SemanticFileProvider>(kInjectionKeys.semantic.file);
-  let workspace: Workspace | undefined = undefined;
-
-  if (!workspaceId) {
-    workspace = await getWorkspaceFromFilepath(filepath);
-    workspaceId = workspace.resourceId;
-  }
-
-  const pathinfo = getFilepathInfo(filepath);
-  let file = await fileModel.getOneByNamepath(
-    {workspaceId, namepath: pathinfo.namepath},
-    opts
-  );
-
-  if (!file) {
-    await ingestFileByFilepath(agent, filepath, opts, workspaceId, workspace);
-    file = await fileModel.getOneByNamepath(
-      {workspaceId, namepath: pathinfo.namepath},
-      opts
-    );
-  }
-
-  return file;
 }

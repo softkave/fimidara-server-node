@@ -1,4 +1,5 @@
 import {omit} from 'lodash';
+import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {kPermissionAgentTypes} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {objectHasData} from '../../../utils/fns';
@@ -21,7 +22,13 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async instData => {
     .session()
     .getAgent(instData, kPermissionAgentTypes);
   const file = await kSemanticModels.utils().withTxn(async opts => {
-    let file = await readAndCheckFileAuthorization(agent, data, 'addFile', opts);
+    let file = await readAndCheckFileAuthorization({
+      agent,
+      opts,
+      matcher: data,
+      action: kPermissionsMap.uploadFile,
+      incrementPresignedPathUsageCount: true,
+    });
 
     if (objectHasData(omit(data.file, 'tags'))) {
       const updatedFile = await kSemanticModels.file().getAndUpdateOneById(

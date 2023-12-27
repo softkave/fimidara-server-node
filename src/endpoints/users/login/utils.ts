@@ -22,10 +22,10 @@ export function toLoginResult(
 ): LoginResult {
   return {
     user: userExtractor(user),
-    token: kUtilsInjectables.session().encodeToken(token.resourceId, token.expires),
+    token: kUtilsInjectables.session().encodeToken(token.resourceId, token.expiresAt),
     clientAssignedToken: kUtilsInjectables
       .session()
-      .encodeToken(clientAssignedToken.resourceId, token.expires),
+      .encodeToken(clientAssignedToken.resourceId, token.expiresAt),
   };
 }
 
@@ -58,8 +58,8 @@ export async function getUserClientAssignedToken(
       providedResourceId: userId,
       workspaceId: kUtilsInjectables.config().appWorkspaceId,
       version: kCurrentJWTTokenVersion,
-      separateEntityId: null,
-      agentType: kAppResourceType.AgentToken,
+      forEntityId: null,
+      entityType: kAppResourceType.AgentToken,
       createdBy: kSystemSessionAgent,
       lastUpdatedBy: kSystemSessionAgent,
     });
@@ -103,9 +103,9 @@ export async function getUserToken(
     userToken = newResource<AgentToken>(kAppResourceType.AgentToken, {
       scope: [kTokenAccessScope.Login],
       version: kCurrentJWTTokenVersion,
-      separateEntityId: userId,
+      forEntityId: userId,
       workspaceId: null,
-      agentType: kAppResourceType.User,
+      entityType: kAppResourceType.User,
       createdBy: kSystemSessionAgent,
       lastUpdatedBy: kSystemSessionAgent,
     });

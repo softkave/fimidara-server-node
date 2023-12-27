@@ -10,5 +10,6 @@ export const issueFilePresignedPathJoiSchema =
       expires: validationSchemas.time.allow(null),
       duration: Joi.number().integer().min(0).allow(null),
       usageCount: Joi.number().integer().min(0).allow(null),
+      action: validationSchemas.crudActionOrList,
     })
     .required();

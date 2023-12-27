@@ -120,7 +120,6 @@ export function generateTestFile(
     version: 1,
     isReadAvailable: true,
     isWriteAvailable: true,
-    head: id,
     ...extra,
   };
 

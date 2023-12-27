@@ -33,11 +33,11 @@ test('email address is confirmed', async () => {
     password,
   });
   const token = newResource<AgentToken>(kAppResourceType.All, {
-    separateEntityId: user.resourceId,
+    forEntityId: user.resourceId,
     scope: [kTokenAccessScope.ConfirmEmailAddress],
     version: kCurrentJWTTokenVersion,
     workspaceId: null,
-    agentType: kAppResourceType.User,
+    entityType: kAppResourceType.User,
     createdBy: kSystemSessionAgent,
     lastUpdatedBy: kSystemSessionAgent,
   });

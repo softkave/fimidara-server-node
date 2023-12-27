@@ -73,11 +73,9 @@ export default class SessionContext implements SessionContextType {
           .getOneById(incomingTokenData.sub.id);
         appAssert(agentToken, new InvalidCredentialsError());
 
-        if (agentToken.agentType === kAppResourceType.User) {
-          appAssert(agentToken.separateEntityId);
-          const user = await kSemanticModels
-            .user()
-            .getOneById(agentToken.separateEntityId);
+        if (agentToken.entityType === kAppResourceType.User) {
+          appAssert(agentToken.forEntityId);
+          const user = await kSemanticModels.user().getOneById(agentToken.forEntityId);
           appAssert(user, kReuseableErrors.user.notFound());
           agent = makeUserSessionAgent(user, agentToken);
         } else {

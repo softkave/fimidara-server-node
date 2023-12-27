@@ -16,7 +16,7 @@ const agentTokenFields = getFields<PublicAgentToken>({
   name: true,
   description: true,
   tokenStr: true,
-  expires: true,
+  expiresAt: true,
   providedResourceId: true,
   // tags: assignedTagListExtractor,
 });

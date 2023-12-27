@@ -1,4 +1,3 @@
-import {ObjectValues} from '../utils/types';
 import {PermissionAction} from './permissionItem';
 import {
   ConvertAgentToPublicAgent,
@@ -18,7 +17,6 @@ export interface File extends WorkspaceResource {
   description?: string;
   isWriteAvailable?: boolean;
   isReadAvailable?: boolean;
-  head?: string;
   version: number;
 }
 
@@ -46,17 +44,17 @@ export type FileMatcher = {
 };
 
 export interface FilePresignedPath extends WorkspaceResource {
-  /** File name path instead of ID because at the time of creation, the file may
-   * not exist yet. */
+  /** File name path (without extension) instead of ID because at the time of
+   * creation, the file may not exist yet. */
   filepath: string[];
   /** File ID if the file exists. */
   fileId?: string;
   extension?: string;
-  agentTokenId: string;
-  usageCount?: number;
+  issueAgentTokenId: string;
+  maxUsageCount?: number;
   spentUsageCount: number;
   expiresAt?: number;
-  action: PermissionAction[];
+  actions: PermissionAction[];
 
   // TODO: should we add description?
   // description?: string
@@ -68,18 +66,10 @@ export type PublicFilePresignedPath = PublicWorkspaceResource &
       FilePresignedPath,
       | 'filepath'
       | 'fileId'
-      | 'agentTokenId'
-      | 'usageCount'
+      | 'issueAgentTokenId'
+      | 'maxUsageCount'
       | 'spentUsageCount'
-      | 'action'
+      | 'actions'
       | 'extension'
     >
   >;
-
-export const FilePersistenceProviderTypeMap = {
-  Fs: 'fs',
-} as const;
-
-export type FilePersistenceProviderType = ObjectValues<
-  typeof FilePersistenceProviderTypeMap
->;

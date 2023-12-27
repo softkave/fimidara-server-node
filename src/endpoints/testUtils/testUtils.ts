@@ -121,7 +121,7 @@ export function mockExpressRequestWithAgentToken(
       version: kCurrentJWTTokenVersion,
       sub: {id: token.resourceId},
       iat: token.createdAt,
-      exp: token.expires,
+      exp: token.expiresAt,
     },
   } as unknown as IServerRequest;
   return req;

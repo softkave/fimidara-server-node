@@ -24,10 +24,10 @@ afterAll(async () => {
 
 async function createTestEmailVerificationToken(userId: string) {
   const token = newResource<AgentToken>(kAppResourceType.AgentToken, {
-    separateEntityId: userId,
+    forEntityId: userId,
     scope: [kTokenAccessScope.ConfirmEmailAddress],
     version: kCurrentJWTTokenVersion,
-    agentType: kAppResourceType.User,
+    entityType: kAppResourceType.User,
     workspaceId: null,
     createdBy: kSystemSessionAgent,
     lastUpdatedBy: kSystemSessionAgent,
@@ -76,7 +76,7 @@ describe('withConfirmEmailAddress', () => {
     );
     const encodedToken = kUtilsInjectables
       .session()
-      .encodeToken(token.resourceId, token.expires);
+      .encodeToken(token.resourceId, token.expiresAt);
     assertLinkWithToken(link, encodedToken, prevLink);
   });
 
@@ -85,7 +85,7 @@ describe('withConfirmEmailAddress', () => {
     const token = await createTestEmailVerificationToken(userId);
     const encodedToken = kUtilsInjectables
       .session()
-      .encodeToken(token.resourceId, token.expires);
+      .encodeToken(token.resourceId, token.expiresAt);
     const prevLink = `http://localhost/?token=prevToken&${userConstants.confirmEmailTokenQueryParam}=${encodedToken}`;
     const link = await withConfirmEmailAddressToken(
       {

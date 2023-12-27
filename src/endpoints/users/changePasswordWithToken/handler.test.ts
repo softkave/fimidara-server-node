@@ -48,13 +48,13 @@ async function changePasswordWithTokenTest() {
   const token = newResource<AgentToken>(kAppResourceType.AgentToken, {
     scope: [kTokenAccessScope.ChangePassword],
     version: kCurrentJWTTokenVersion,
-    expires: getTimestamp(
+    expiresAt: getTimestamp(
       add(new Date(), {
         days: userConstants.changePasswordTokenExpDurationInDays,
       })
     ),
-    separateEntityId: user.resourceId,
-    agentType: kAppResourceType.User,
+    forEntityId: user.resourceId,
+    entityType: kAppResourceType.User,
     workspaceId: null,
     createdBy: kSystemSessionAgent,
     lastUpdatedBy: kSystemSessionAgent,

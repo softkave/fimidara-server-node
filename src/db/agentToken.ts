@@ -5,11 +5,11 @@ import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 const agentTokenSchema = ensureMongoTypeFields<AgentToken>({
   ...workspaceResourceSchema,
   name: {type: String, index: true},
-  separateEntityId: {type: String, index: true},
-  agentType: {type: String, index: true},
+  forEntityId: {type: String, index: true},
+  entityType: {type: String, index: true},
   workspaceId: {type: String, index: true},
   version: {type: Number},
-  expires: {type: Number},
+  expiresAt: {type: Number},
   description: {type: String},
   scope: {type: [String], index: true},
 });

@@ -1,6 +1,10 @@
 import {FilePresignedPath} from '../../../definitions/file';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {kAppResourceType, kPermissionAgentTypes} from '../../../definitions/system';
+import {
+  Resource,
+  kAppResourceType,
+  kPermissionAgentTypes,
+} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {newWorkspaceResource} from '../../../utils/resource';
@@ -14,7 +18,7 @@ import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {getClosestExistingFolder} from '../../folders/getFolderWithMatcher';
 import {assertWorkspace} from '../../workspaces/utils';
 import {getFileWithMatcher} from '../getFilesWithMatcher';
-import {checkFileAuthorization, getFilepathInfo} from '../utils';
+import {getFilepathInfo} from '../utils';
 import {IssueFilePresignedPathEndpoint} from './types';
 import {issueFilePresignedPathJoiSchema} from './validation';
 
@@ -23,18 +27,26 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async instData =>
   const agent = await kUtilsInjectables
     .session()
     .getAgent(instData, kPermissionAgentTypes);
+  const actions = data.action || [kPermissionsMap.readFile];
 
   const resource = await await kSemanticModels.utils().withTxn(async opts => {
-    const file = await getFileWithMatcher(data, opts);
-    let workspace: Workspace | undefined | null = undefined;
-    let namepath: string[] | undefined = undefined;
-    let extension: string | undefined = undefined;
-    let fileId: string | undefined = undefined;
+    const {file} = await getFileWithMatcher({
+      opts,
+      matcher: data,
+      incrementPresignedPathUsageCount: true,
+      supportPresignedPath: true,
+    });
+    let workspace: Workspace | undefined | null = undefined,
+      namepath: string[],
+      extension: string | undefined,
+      fileId: string | undefined,
+      permissionTarget: Resource,
+      workspaceId: string;
 
     if (file) {
-      // Happy path. If there's a file, get the namepath, ID, and extension
-      ({namepath, extension, resourceId: fileId} = file);
-      await checkFileAuthorization(agent, file, kPermissionsMap.readFile);
+      // Happy path. Extract necessary data and continue.
+      ({namepath, extension, workspaceId, resourceId: fileId} = file);
+      permissionTarget = file;
     } else {
       // File doesn't exist but we're generating presigned path for the
       // filepath. Presigned paths for non-existing files should work just like
@@ -46,12 +58,9 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async instData =>
       const pathinfo = getFilepathInfo(data.filepath);
       ({namepath, extension} = pathinfo);
 
-      if (!workspace) {
-        workspace = await kSemanticModels
-          .workspace()
-          .getByRootname(pathinfo.rootname, opts);
-      }
-
+      workspace = await kSemanticModels
+        .workspace()
+        .getByRootname(pathinfo.rootname, opts);
       assertWorkspace(workspace);
 
       // Get closest existing folder for permission check.
@@ -60,23 +69,30 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async instData =>
         pathinfo.parentNamepath,
         opts
       );
-      await checkAuthorizationWithAgent({
-        agent,
-        workspace,
-        opts,
-        workspaceId: workspace.resourceId,
-        target: {
-          targetId: getResourcePermissionContainers(
-            workspace.resourceId,
-            closestFolder,
-            /** include resource ID */ true
-          ),
-          action: kPermissionsMap.readFile,
-        },
-      });
+      permissionTarget = closestFolder || workspace;
+      workspaceId = workspace.resourceId;
     }
 
-    assertWorkspace(workspace);
+    // Check issuer has permission for requested actions/permissions
+    await Promise.all(
+      actions.map(action =>
+        checkAuthorizationWithAgent({
+          agent,
+          opts,
+          workspaceId: workspaceId!,
+          workspace: workspace || undefined,
+          target: {
+            action,
+            targetId: getResourcePermissionContainers(
+              workspaceId!,
+              permissionTarget,
+              /** include resource ID */ true
+            ),
+          },
+        })
+      )
+    );
+
     let expiresAt = data.expires;
 
     if (!expiresAt && data.duration) {
@@ -86,15 +102,15 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async instData =>
     const presignedPath = newWorkspaceResource<FilePresignedPath>(
       agent,
       kAppResourceType.FilePresignedPath,
-      workspace.resourceId,
+      workspaceId,
       {
         expiresAt,
         fileId,
+        extension,
+        actions,
         filepath: namepath,
-        extension: extension,
-        action: ['readFile'],
-        agentTokenId: agent.agentTokenId,
-        usageCount: data.usageCount,
+        issueAgentTokenId: agent.agentTokenId,
+        maxUsageCount: data.usageCount,
         spentUsageCount: 0,
       }
     );

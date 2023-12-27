@@ -41,12 +41,12 @@ describe('countUserWorkspaces', () => {
           )
         )
       );
-    appAssert(userToken.separateEntityId);
+    appAssert(userToken.forEntityId);
     const user = await populateUserWorkspaces(
       await kSemanticModels
         .user()
         .assertGetOneByQuery(
-          EndpointReusableQueries.getByResourceId(userToken.separateEntityId)
+          EndpointReusableQueries.getByResourceId(userToken.forEntityId)
         )
     );
     const count = user.workspaces.length;

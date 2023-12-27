@@ -106,7 +106,7 @@ export const kDeleteAgentTokenCascadeFns: DeleteResourceCascadeFnsMap = {
     helpers.withTxn(opts =>
       kSemanticModels
         .filePresignedPath()
-        .deleteManyByQuery({agentTokenId: args.resourceId}, opts)
+        .deleteManyByQuery({issueAgentTokenId: args.resourceId}, opts)
     ),
 };
 
@@ -202,7 +202,7 @@ export const kRemoveCollaboratorCascadeFns: DeleteResourceCascadeFnsMap = {
       const user = await kSemanticModels.user().getOneById(args.resourceId);
       await kSemanticModels
         .filePresignedPath()
-        .deleteManyByQuery({agentTokenId: args.agentTokenId}, opts);
+        .deleteManyByQuery({issueAgentTokenId: args.agentTokenId}, opts);
     });
   },
 };

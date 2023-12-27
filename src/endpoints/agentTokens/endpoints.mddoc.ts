@@ -62,7 +62,7 @@ const agentToken = mddocConstruct
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
     workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),
     tokenStr: mddocConstruct.constructFieldObjectField(true, fReusables.tokenString),
-    expires: mddocConstruct.constructFieldObjectField(false, fReusables.expires),
+    expiresAt: mddocConstruct.constructFieldObjectField(false, fReusables.expires),
     providedResourceId: mddocConstruct.constructFieldObjectField(
       false,
       fReusables.providedResourceIdOrNull

@@ -1,3 +1,4 @@
+import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {kPermissionAgentTypes} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
@@ -10,9 +11,16 @@ const getFileDetails: GetFileDetailsEndpoint = async instData => {
   const agent = await kUtilsInjectables
     .session()
     .getAgent(instData, kPermissionAgentTypes);
-  const file = await kSemanticModels
-    .utils()
-    .withTxn(opts => readAndCheckFileAuthorization(agent, data, 'readFile', opts));
+
+  const file = await kSemanticModels.utils().withTxn(opts =>
+    readAndCheckFileAuthorization({
+      agent,
+      opts,
+      matcher: data,
+      action: kPermissionsMap.readFile,
+      incrementPresignedPathUsageCount: false,
+    })
+  );
 
   return {file: fileExtractor(file)};
 };

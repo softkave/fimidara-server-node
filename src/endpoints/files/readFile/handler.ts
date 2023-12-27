@@ -2,9 +2,14 @@ import sharp = require('sharp');
 import {compact} from 'lodash';
 import {PassThrough, Readable} from 'stream';
 import {File} from '../../../definitions/file';
+import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {kPermissionAgentTypes} from '../../../definitions/system';
 import {isObjectFieldsEmpty} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
+import {
+  checkAuthorizationWithAgent,
+  getFilePermissionContainers,
+} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {PersistedFile} from '../../contexts/file/types';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {getBackendConfigsWithIdList} from '../../fileBackends/configUtils';
@@ -13,7 +18,8 @@ import {
   initBackendProvidersForMounts,
   resolveMountsForFolder,
 } from '../../fileBackends/mountUtils';
-import {checkFileAuthorization03, stringifyFilenamepath} from '../utils';
+import {getFileWithMatcher} from '../getFilesWithMatcher';
+import {assertFile, stringifyFilenamepath} from '../utils';
 import {ReadFileEndpoint} from './types';
 import {readFileJoiSchema} from './validation';
 
@@ -27,18 +33,35 @@ const readFile: ReadFileEndpoint = async instData => {
     .getAgent(instData, kPermissionAgentTypes);
 
   const file = await await kSemanticModels.utils().withTxn(async opts => {
-    const {file} = await checkFileAuthorization03(
-      agent,
-      data,
-      'readFile',
-      /** support presigned path */ true,
-      /** increment presigned path usage count */ true,
-      opts
-    );
+    const {file, presignedPath} = await getFileWithMatcher({
+      opts,
+      matcher: data,
+      presignedPathAction: kPermissionsMap.readFile,
+      incrementPresignedPathUsageCount: true,
+      supportPresignedPath: true,
+    });
+
+    if (!presignedPath && file) {
+      // If there's `presignedPath`, then permission is already checked
+      await checkAuthorizationWithAgent({
+        agent,
+        opts,
+        workspaceId: file.workspaceId,
+        target: {
+          action: kPermissionsMap.readFile,
+          targetId: getFilePermissionContainers(
+            file.workspaceId,
+            file,
+            /** include resource ID */ true
+          ),
+        },
+      });
+    }
 
     return file;
   });
 
+  assertFile(file);
   const persistedFile = await readPersistedFile(file);
   const isImageResizeEmpty = isObjectFieldsEmpty(data.imageResize ?? {});
 

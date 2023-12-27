@@ -28,9 +28,9 @@ export const forgotPassword: ForgotPasswordEndpoint = async instData => {
 export async function INTERNAL_forgotPassword(user: User) {
   const forgotToken = await getForgotPasswordToken(user);
   const link = getForgotPasswordLinkFromToken(forgotToken);
-  assert(forgotToken.expires);
+  assert(forgotToken.expiresAt);
   await sendChangePasswordEmail(user.email, {
-    expiration: new Date(forgotToken.expires),
+    expiration: new Date(forgotToken.expiresAt),
     link,
     signupLink: kUtilsInjectables.config().clientSignupLink,
     loginLink: kUtilsInjectables.config().clientLoginLink,
@@ -47,7 +47,7 @@ export function getForgotPasswordExpiration() {
 export function getForgotPasswordLinkFromToken(forgotToken: AgentToken) {
   const encodedToken = kUtilsInjectables
     .session()
-    .encodeToken(forgotToken.resourceId, forgotToken.expires);
+    .encodeToken(forgotToken.resourceId, forgotToken.expiresAt);
   const link = `${kUtilsInjectables.config().changePasswordLink}?${stringify({
     [userConstants.defaultTokenQueryParam]: encodedToken,
   })}`;
@@ -59,10 +59,10 @@ export async function getForgotPasswordToken(user: User) {
   const forgotToken = newResource<AgentToken>(kAppResourceType.AgentToken, {
     scope: [kTokenAccessScope.ChangePassword],
     version: kCurrentJWTTokenVersion,
-    expires: expiration.valueOf(),
-    separateEntityId: user.resourceId,
+    expiresAt: expiration.valueOf(),
+    forEntityId: user.resourceId,
     workspaceId: null,
-    agentType: kAppResourceType.User,
+    entityType: kAppResourceType.User,
     createdBy: kSystemSessionAgent,
     lastUpdatedBy: kSystemSessionAgent,
   });

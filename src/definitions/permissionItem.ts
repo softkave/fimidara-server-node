@@ -18,7 +18,7 @@ export const kPermissionsMap = {
   transferFolder: 'transferFolder',
   deleteFolder: 'deleteFolder',
 
-  addFile: 'addFile',
+  uploadFile: 'uploadFile',
   readFile: 'readFile',
   transferFile: 'transferFile',
   deleteFile: 'deleteFile',

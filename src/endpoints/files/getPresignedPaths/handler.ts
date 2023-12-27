@@ -31,7 +31,7 @@ const getPresignedPathsForFiles: GetPresignedPathsForFilesEndpoint = async instD
   } else {
     // Fetch agent's presigned paths with optional workspaceId.
     presignedPaths = await kSemanticModels.filePresignedPath().getManyByQuery({
-      agentTokenId: agent.agentTokenId,
+      issueAgentTokenId: agent.agentTokenId,
       workspaceId: workspace.resourceId,
     });
   }
@@ -106,7 +106,7 @@ async function getPresignedPathsByFileMatchers(
             agent,
             workspace,
             opts,
-            target: {targetId: nextPath.fileId, action: nextPath.action},
+            target: {targetId: nextPath.fileId, action: nextPath.actions},
             workspaceId: nextPath.workspaceId,
           });
         }
@@ -127,7 +127,7 @@ function filterActivePaths(presignedPaths: Array<FilePresignedPath | null>) {
     if (!nextPath) {
       return;
     } else if (
-      (nextPath.usageCount && nextPath.usageCount <= nextPath.spentUsageCount) ||
+      (nextPath.maxUsageCount && nextPath.maxUsageCount <= nextPath.spentUsageCount) ||
       (nextPath.expiresAt && nextPath.expiresAt < now)
     ) {
       expiredOrSpentPaths.push(nextPath);

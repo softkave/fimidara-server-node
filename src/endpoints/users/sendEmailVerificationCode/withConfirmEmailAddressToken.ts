@@ -27,9 +27,9 @@ export async function withConfirmEmailAddressToken(user: User, link: string) {
         token = newResource<AgentToken>(kAppResourceType.AgentToken, {
           scope: [kTokenAccessScope.ConfirmEmailAddress],
           version: kCurrentJWTTokenVersion,
-          separateEntityId: user.resourceId,
+          forEntityId: user.resourceId,
           workspaceId: null,
-          agentType: kAppResourceType.User,
+          entityType: kAppResourceType.User,
           createdBy: kSystemSessionAgent,
           lastUpdatedBy: kSystemSessionAgent,
         });
@@ -38,7 +38,7 @@ export async function withConfirmEmailAddressToken(user: User, link: string) {
 
       const encodedToken = kUtilsInjectables
         .session()
-        .encodeToken(token.resourceId, token.expires);
+        .encodeToken(token.resourceId, token.expiresAt);
       url.searchParams.set(userConstants.confirmEmailTokenQueryParam, encodedToken);
       link = url.toString();
     }

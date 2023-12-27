@@ -20,12 +20,12 @@ export function generateAgentTokenForTest(
   };
   const token = newResource<AgentToken>(kAppResourceType.AgentToken, {
     createdBy,
-    agentType,
+    entityType: agentType,
     lastUpdatedBy: createdBy,
     name: faker.company.name(),
     description: faker.lorem.sentence(),
     version: kCurrentJWTTokenVersion,
-    separateEntityId: null,
+    forEntityId: null,
     ...seed,
   });
   return token;

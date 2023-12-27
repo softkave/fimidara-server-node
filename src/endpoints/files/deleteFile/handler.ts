@@ -1,3 +1,4 @@
+import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {kAppResourceType, kPermissionAgentTypes} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
@@ -11,8 +12,16 @@ const deleteFile: DeleteFileEndpoint = async instData => {
   const agent = await kUtilsInjectables
     .session()
     .getAgent(instData, kPermissionAgentTypes);
+
   const job = await kSemanticModels.utils().withTxn(async opts => {
-    const file = await readAndCheckFileAuthorization(agent, data, 'deleteFile', opts);
+    const file = await readAndCheckFileAuthorization({
+      agent,
+      opts,
+      matcher: data,
+      action: kPermissionsMap.deleteFile,
+      incrementPresignedPathUsageCount: true,
+    });
+
     return await enqueueDeleteResourceJob({
       type: kAppResourceType.File,
       args: {workspaceId: file.workspaceId, resourceId: file.resourceId},

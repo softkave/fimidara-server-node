@@ -23,8 +23,8 @@ describe('SessionContext', () => {
     const [userAgentToken] = await generateAndInsertAgentTokenListForTest(1, {
       scope: [kTokenAccessScope.ChangePassword],
       workspaceId: null,
-      separateEntityId: user.resourceId,
-      agentType: kAppResourceType.User,
+      forEntityId: user.resourceId,
+      entityType: kAppResourceType.User,
     });
     await expectErrorThrown(async () => {
       const reqData = new RequestData({
@@ -43,8 +43,8 @@ describe('SessionContext', () => {
     const [userAgentToken] = await generateAndInsertAgentTokenListForTest(1, {
       scope: [kTokenAccessScope.Login],
       workspaceId: null,
-      separateEntityId: user.resourceId,
-      agentType: kAppResourceType.User,
+      forEntityId: user.resourceId,
+      entityType: kAppResourceType.User,
     });
     await expectErrorThrown(async () => {
       const reqData = new RequestData({
