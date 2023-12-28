@@ -31,7 +31,7 @@ export class DataSemanticAssignedItem
     );
   }
 
-  async getWorkspaceResourceAssignedItems(
+  async getResourceAssignedItems(
     workspaceId: string | undefined,
     assigneeId: string | string[],
     assignedItemType?: AppResourceType | AppResourceType[] | undefined,
@@ -82,7 +82,7 @@ export class DataSemanticAssignedItem
     );
   }
 
-  async deleteWorkspaceAssignedItemResources(
+  async deleteResourceAssigneeItems(
     workspaceId: string,
     assignedItemId: string | string[],
     opts: SemanticProviderMutationRunOptions
@@ -96,7 +96,7 @@ export class DataSemanticAssignedItem
     );
   }
 
-  async deleteWorkspaceResourceAssignedItems(
+  async deleteResourceAssignedItems(
     workspaceId: string,
     assigneeId: string | string[],
     assignedItemType: AppResourceType | AppResourceType[] | undefined,

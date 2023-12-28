@@ -136,7 +136,7 @@ export async function initBackendProvidersForMounts(
   return providersMap;
 }
 
-export async function getFileBackendForFile(
+export async function resolveBackendsMountsAndConfigs(
   file: Pick<File, 'workspaceId' | 'namepath'>,
   initPrimaryBackendOnly = true
 ) {

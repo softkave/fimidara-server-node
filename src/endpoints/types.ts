@@ -1,11 +1,8 @@
 import {Request, RequestHandler, Response} from 'express';
-import {Job} from '../definitions/job';
-import {AppResourceType} from '../definitions/system';
 import {HttpEndpointDefinitionType} from '../mddoc/mddoc';
 import {FimidaraExternalError} from '../utils/OperationError';
-import {AnyFn, AnyObject, ObjectValues, OrPromise} from '../utils/types';
+import {AnyObject, ObjectValues, OrPromise} from '../utils/types';
 import RequestData from './RequestData';
-import {SemanticProviderMutationRunOptions} from './contexts/semantic/types';
 
 export interface BaseEndpointResult {
   errors?: FimidaraExternalError[];
@@ -75,25 +72,6 @@ export type PaginatedEndpointCountParams<T extends PaginationQuery> = Omit<
   T,
   keyof PaginationQuery
 >;
-
-export type DeleteResourceCascadeFnDefaultArgs = {
-  workspaceId: string;
-  resourceId: string;
-};
-
-export type DeleteResourceCascadeFnHelpers = {
-  job: Job;
-  withTxn(fn: AnyFn<[SemanticProviderMutationRunOptions]>): Promise<void>;
-};
-
-export type DeleteResourceCascadeFn<Args = DeleteResourceCascadeFnDefaultArgs> = (
-  args: Args,
-  helpers: DeleteResourceCascadeFnHelpers
-) => Promise<void>;
-
-export type DeleteResourceCascadeFnsMap<Args = DeleteResourceCascadeFnDefaultArgs> =
-  Record<AppResourceType, DeleteResourceCascadeFn<Args>> &
-    Partial<Record<'other', DeleteResourceCascadeFn<Args>>>;
 
 export type HttpEndpointRequestHeaders_AuthOptional = {
   Authorization?: string;

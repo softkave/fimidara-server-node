@@ -52,7 +52,7 @@ const getPresignedPathsForFiles: GetPresignedPathsForFilesEndpoint = async instD
     }
 
     const filepath = addRootnameToPath(
-      nextPath.filepath.join(kFolderConstants.separator),
+      nextPath.namepath.join(kFolderConstants.separator),
       workspace.rootname
     );
     activePathsMap[nextPath.resourceId] = filepath;

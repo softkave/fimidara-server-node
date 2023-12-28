@@ -96,7 +96,7 @@ export async function getFileByPresignedPath(props: {
   const file = await kSemanticModels.file().getOneByNamepath(
     {
       workspaceId: presignedPath.workspaceId,
-      namepath: presignedPath.filepath,
+      namepath: presignedPath.namepath,
       extension: presignedPath.extension,
     },
     opts

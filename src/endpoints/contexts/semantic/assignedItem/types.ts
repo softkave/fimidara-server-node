@@ -1,9 +1,8 @@
 import {AssignedItem} from '../../../../definitions/assignedItem';
 import {AppResourceType} from '../../../../definitions/system';
-import {DataProviderQueryListParams} from '../../data/types';
 import {
   SemanticProviderMutationRunOptions,
-  SemanticProviderRunOptions,
+  SemanticProviderQueryListRunOptions,
   SemanticWorkspaceResourceProviderType,
 } from '../types';
 
@@ -13,31 +12,38 @@ export interface SemanticAssignedItemProvider
     workspaceId: string,
     assignedItemId: string | string[],
     assigneeId: string | string[],
-    options?: DataProviderQueryListParams<AssignedItem> & SemanticProviderRunOptions
+    options?: SemanticProviderQueryListRunOptions<AssignedItem>
   ): Promise<AssignedItem[]>;
   existsByWorkspaceAssignedAndAssigneeIds(
     workspaceId: string,
     assignedItemId: string | string[],
     assigneeId: string | string[],
-    options?: DataProviderQueryListParams<AssignedItem> & SemanticProviderRunOptions
+    options?: SemanticProviderQueryListRunOptions<AssignedItem>
   ): Promise<boolean>;
-  getWorkspaceResourceAssignedItems(
+  getResourceAssignedItems(
     workspaceId: string | undefined,
     assigneeId: string | string[],
     assignedItemType?: AppResourceType | AppResourceType[],
-    options?: DataProviderQueryListParams<AssignedItem> & SemanticProviderRunOptions
+    options?: SemanticProviderQueryListRunOptions<AssignedItem>
+  ): Promise<AssignedItem[]>;
+  getResourceAssigneeItems(
+    workspaceId: string | undefined,
+    assignedItemId: string | string[],
+    options?: SemanticProviderQueryListRunOptions<AssignedItem>
   ): Promise<AssignedItem[]>;
   getUserWorkspaces(
     assigneeId: string,
-    options?: DataProviderQueryListParams<AssignedItem> & SemanticProviderRunOptions
+    options?: SemanticProviderQueryListRunOptions<AssignedItem>
   ): Promise<AssignedItem[]>;
-  deleteWorkspaceResourceAssignedItems(
+  /** Deletes items assigned to resource. */
+  deleteResourceAssignedItems(
     workspaceId: string,
     assigneeId: string | string[],
     assignedItemType: AppResourceType | AppResourceType[] | undefined,
     opts: SemanticProviderMutationRunOptions
   ): Promise<void>;
-  deleteWorkspaceAssignedItemResources(
+  /** Deletes items resource is assigned to. */
+  deleteResourceAssigneeItems(
     workspaceId: string,
     assignedItemId: string | string[],
     opts: SemanticProviderMutationRunOptions

@@ -49,7 +49,7 @@ import {getFileWithMatcher} from './getFilesWithMatcher';
 
 const filePresignedPathFields = getFields<PublicFilePresignedPath>({
   ...workspaceResourceFields,
-  filepath: true,
+  namepath: true,
   fileId: true,
   issueAgentTokenId: true,
   maxUsageCount: true,

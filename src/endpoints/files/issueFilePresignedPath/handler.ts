@@ -108,7 +108,7 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async instData =>
         fileId,
         extension,
         actions,
-        filepath: namepath,
+        namepath: namepath,
         issueAgentTokenId: agent.agentTokenId,
         maxUsageCount: data.usageCount,
         spentUsageCount: 0,

@@ -30,12 +30,26 @@ describe('utils', () => {
     const foldernamepathList = folders.map(folder => folder.namepath);
     const foldersByParent = await kSemanticModels
       .folder()
-      .getManyByQuery(getStringListQuery<Folder>(parentnamepath, 'namepath'));
+      .getManyByQuery(
+        getStringListQuery<Folder>(
+          parentnamepath,
+          /** prefix */ 'namepath',
+          /** match op */ '$regex',
+          /** include size op */ true
+        )
+      );
     const returnedFolders = await Promise.all(
       foldernamepathList.map(namepath =>
-        context!.semantic.folder.getOneByQuery(
-          getStringListQuery<Folder>(namepath, 'namepath', /** include $size op */ true)
-        )
+        kSemanticModels
+          .folder()
+          .getOneByQuery(
+            getStringListQuery<Folder>(
+              namepath,
+              /** prefix */ 'namepath',
+              /** matcher op */ '$regex',
+              /** include $size op */ true
+            )
+          )
       )
     );
 

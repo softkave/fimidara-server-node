@@ -94,7 +94,6 @@ type ElemMatchQueryOp<T> = T extends AnyObject
 
 export interface ArrayFieldQueryOps<T> {
   $size?: number;
-
   // TODO: support $objMatch and $elemMatch in $all
   $all?: T extends DataProviderLiteralType ? Array<LiteralFieldQueryOps<T>> : never;
   $elemMatch?: ElemMatchQueryOp<T>;

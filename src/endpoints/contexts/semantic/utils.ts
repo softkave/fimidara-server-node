@@ -1,12 +1,7 @@
 import {isNil, set} from 'lodash';
 import {getLowercaseRegExpForString, toArray} from '../../../utils/fns';
-import {AnyFn, OrArray, StringKeysOnly} from '../../../utils/types';
-import {
-  ArrayFieldQueryOps,
-  ComparisonLiteralFieldQueryOps,
-  DataQuery,
-  KeyedComparisonOps,
-} from '../data/types';
+import {AnyFn, AnyObject, OrArray, StringKeysOnly} from '../../../utils/types';
+import {DataQuery, KeyedComparisonOps} from '../data/types';
 import {kDataModels} from '../injectables';
 import {SemanticProviderMutationRunOptions, SemanticProviderUtils} from './types';
 
@@ -20,22 +15,17 @@ export class DataSemanticProviderUtils implements SemanticProviderUtils {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function getStringListQuery<TData extends Record<string, any>>(
+export function getStringListQuery<TData extends AnyObject>(
   stringList: string[],
   prefix: keyof TData,
-  includeSizeOp = false
-): Record<string, {$regex?: RegExp}> {
-  const query: Record<
-    string,
-    Pick<ComparisonLiteralFieldQueryOps, '$regex'> &
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      Pick<ArrayFieldQueryOps<any>, '$size'>
-  > = {};
+  op: '$regex' | '$eq' = '$eq',
+  includeSizeOp: boolean = false
+): DataQuery<TData> {
+  const query: DataQuery<AnyObject> = {};
 
   stringList.reduce((map, name, index) => {
     const key = `${prefix as string}.${index}`;
-    map[key] = {$regex: getLowercaseRegExpForString(name)};
+    map[key] = {[op]: getLowercaseRegExpForString(name)};
     return map;
   }, query);
 

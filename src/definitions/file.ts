@@ -46,7 +46,7 @@ export type FileMatcher = {
 export interface FilePresignedPath extends WorkspaceResource {
   /** File name path (without extension) instead of ID because at the time of
    * creation, the file may not exist yet. */
-  filepath: string[];
+  namepath: string[];
   /** File ID if the file exists. */
   fileId?: string;
   extension?: string;
@@ -64,7 +64,7 @@ export type PublicFilePresignedPath = PublicWorkspaceResource &
   ConvertAgentToPublicAgent<
     Pick<
       FilePresignedPath,
-      | 'filepath'
+      | 'namepath'
       | 'fileId'
       | 'issueAgentTokenId'
       | 'maxUsageCount'

@@ -9,8 +9,8 @@ import {ByteCounterPassThroughStream} from '../../../utils/streams';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
 import {
-  getFileBackendForFile,
   insertResolvedMountEntries,
+  resolveBackendsMountsAndConfigs,
 } from '../../fileBackends/mountUtils';
 import {FileNotWritableError} from '../errors';
 import {getFileWithMatcher} from '../getFilesWithMatcher';
@@ -69,7 +69,7 @@ const uploadFile: UploadFileEndpoint = async instData => {
   });
 
   let {file} = createFileResult;
-  const {primaryMount, primaryBackend} = await getFileBackendForFile(file);
+  const {primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs(file);
 
   try {
     const bytesCounterStream = new ByteCounterPassThroughStream();

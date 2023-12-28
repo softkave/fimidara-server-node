@@ -21,6 +21,10 @@ export interface SemanticProviderQueryRunOptions<TResource extends Resource>
   extends SemanticProviderRunOptions,
     DataProviderQueryParams<TResource> {}
 
+export interface SemanticProviderQueryListRunOptions<TResource extends Resource>
+  extends SemanticProviderRunOptions,
+    DataProviderQueryListParams<TResource> {}
+
 export interface SemanticBaseProviderType<TResource extends Resource> {
   insertItem(
     item: TResource | TResource[],
@@ -125,6 +129,10 @@ export interface SemanticWorkspaceResourceProviderType<
     providedId: string,
     opts?: SemanticProviderRunOptions
   ): Promise<boolean>;
+  getManyByWorkspaceId(
+    workspaceId: string,
+    opts?: SemanticProviderQueryListRunOptions<T>
+  ): Promise<T[]>;
   deleteManyByWorkspaceId(
     workspaceId: string,
     opts: SemanticProviderMutationRunOptions
@@ -164,6 +172,10 @@ export type SemanticJobProvider = SemanticBaseProviderType<Job> & {
     workspaceId: string,
     opts: SemanticProviderMutationRunOptions
   ): Promise<void>;
+  getManyByWorkspaceId(
+    workspaceId: string,
+    opts?: SemanticProviderQueryListRunOptions<Job>
+  ): Promise<Job[]>;
 };
 
 export type SemanticResolvedMountEntryProvider =

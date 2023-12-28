@@ -268,11 +268,28 @@ export function streamToBuffer(stream: Readable): Promise<Buffer> {
 
 /** Returns a function that calls input functions in parallel with any arguments
  * passed to it. */
-export async function parallelFlowAsync<T extends AnyFn>(fns: T[]) {
-  return async (
-    ...args: Parameters<T>
-  ): Promise<Array<PromiseSettledResult<ReturnType<Awaited<T>>>>> => {
-    return await Promise.allSettled(fns.map(fn => fn(...args)));
+export function overArgsAsync<
+  TFn extends AnyFn,
+  TUsePromiseSettled extends boolean,
+  TTransformFn extends AnyFn<
+    [
+      TUsePromiseSettled extends true
+        ? Array<PromiseSettledResult<Awaited<ReturnType<TFn>>>>
+        : Array<Awaited<ReturnType<TFn>>>,
+    ]
+  >,
+>(
+  fns: TFn[],
+  /** Whether to use `Promise.allSettled()` or `Promise.all()` */
+  usePromiseSettled: TUsePromiseSettled,
+  transformFn: TTransformFn
+) {
+  return async (...args: Parameters<TFn>): Promise<Awaited<ReturnType<TTransformFn>>> => {
+    const promises = fns.map(fn => fn(...args));
+    const result = await (usePromiseSettled
+      ? Promise.allSettled(promises)
+      : Promise.all(promises));
+    return transformFn(result);
   };
 }
 

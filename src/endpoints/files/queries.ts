@@ -3,7 +3,7 @@ import {FileQuery} from '../contexts/data/types';
 
 function getByNamepath(
   file: Pick<File, 'workspaceId' | 'namepath' | 'extension'>
-): FileQuery {
+): Pick<FileQuery, 'extension' | 'workspaceId' | 'namepath'> {
   const {extension, namepath, workspaceId} = file;
   return {
     extension,

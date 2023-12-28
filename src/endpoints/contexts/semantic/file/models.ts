@@ -127,7 +127,7 @@ export class DataSemanticFilePresignedPathProvider
   ): Promise<FilePresignedPath | null> {
     const {workspaceId, namepath, extension} = query;
     return await this.data.getOneByQuery(
-      {workspaceId, extension, filepath: {$all: namepath, $size: namepath.length}},
+      {workspaceId, extension, namepath: {$all: namepath, $size: namepath.length}},
       options
     );
   }

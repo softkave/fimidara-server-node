@@ -1,8 +1,7 @@
-import {DeletePermissionItemsCascadeFnsArgs} from '../endpoints/permissionItems/deleteItems/types';
-import {DeleteResourceCascadeFnDefaultArgs} from '../endpoints/types';
+import {DeleteResourceCascadeFnDefaultArgs} from '../endpoints/jobs/runners/runDeleteResourceJob/types';
 import {AnyObject, ObjectValues} from '../utils/types';
 import {AppShard} from './app';
-import {Resource, kAppResourceType} from './system';
+import {AppResourceType, Resource, kAppResourceType} from './system';
 
 export const kJobType = {
   deleteResource: 'deleteResource',
@@ -67,27 +66,20 @@ export interface Job<
 
 export type DeleteResourceJobParams =
   | {
-      type:
-        | typeof kAppResourceType.Workspace
-        | typeof kAppResourceType.AgentToken
-        | typeof kAppResourceType.Tag
-        | typeof kAppResourceType.PermissionGroup
-        | typeof kAppResourceType.CollaborationRequest
-        | typeof kAppResourceType.FileBackendMount
-        | typeof kAppResourceType.Folder
-        | typeof kAppResourceType.FileBackendConfig
-        | typeof kAppResourceType.File;
+      type: Exclude<AppResourceType, typeof kAppResourceType.User>;
       args: DeleteResourceCascadeFnDefaultArgs;
     }
   | {
       type: typeof kAppResourceType.User;
       args: DeleteResourceCascadeFnDefaultArgs;
       isRemoveCollaborator: true;
-    }
-  | {
-      type: typeof kAppResourceType.PermissionItem;
-      args: DeletePermissionItemsCascadeFnsArgs;
     };
+
+// export interface DeleteResourceJobMeta {
+//   processedComplexArtifacts: Partial<
+//     Record<AppResourceType, {page?: number; pageSize?: number; done?: boolean}>
+//   >;
+// }
 
 export interface IngestFolderpathJobParams {
   mountId: string;
