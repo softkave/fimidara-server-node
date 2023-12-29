@@ -132,6 +132,7 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
     await this.backend.deleteFiles(params);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   deleteFolders = async (params: FilePersistenceDeleteFoldersParams): Promise<void> => {
     // fimidara persisted folders are stored in DB, so no need to delete them
     // here, seeing deleteFolder will do that

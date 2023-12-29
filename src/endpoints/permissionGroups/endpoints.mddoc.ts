@@ -76,10 +76,6 @@ const permissionGroup = mddocConstruct
     workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),
     name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
-    providedResourceId: mddocConstruct.constructFieldObjectField(
-      false,
-      fReusables.providedResourceIdOrNull
-    ),
   });
 
 const assignedPermissionGroupMeta = mddocConstruct

@@ -1,5 +1,6 @@
 import {SendEmailCommand, SESv2Client} from '@aws-sdk/client-sesv2';
-import {SendEmailParams} from './types';
+import {IEmailProviderContext, SendEmailParams} from './types';
+import {kUtilsInjectables} from '../injectables';
 
 export class SESEmailProviderContext implements IEmailProviderContext {
   protected ses: SESv2Client;

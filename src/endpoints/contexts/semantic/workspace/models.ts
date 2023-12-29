@@ -1,6 +1,6 @@
 import {Workspace} from '../../../../definitions/workspace';
 import {getLowercaseRegExpForString} from '../../../../utils/fns';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticWorkspaceResourceProvider';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {SemanticProviderRunOptions} from '../types';
 import {SemanticWorkspaceProviderType} from './types';
 

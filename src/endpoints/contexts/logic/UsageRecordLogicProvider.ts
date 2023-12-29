@@ -17,6 +17,7 @@ import {getNewIdForResource, newWorkspaceResource} from '../../../utils/resource
 import {getCostForUsage} from '../../usageRecords/constants';
 import {getRecordingPeriod} from '../../usageRecords/utils';
 import {assertWorkspace} from '../../workspaces/utils';
+import {kSemanticModels} from '../injectables';
 import {SemanticProviderMutationRunOptions} from '../semantic/types';
 
 export interface UsageRecordInput {
@@ -44,7 +45,9 @@ export class UsageRecordLogicProvider {
     opts: SemanticProviderMutationRunOptions
   ): Promise<UsageRecordInsertStatus> => {
     const record = this.makeLevel01Record(agent, input);
-    const workspace = await ctx.semantic.workspace.getOneById(record.workspaceId, opts);
+    const workspace = await kSemanticModels
+      .workspace()
+      .getOneById(record.workspaceId, opts);
     assertWorkspace(workspace);
     const billOverdue = await this.checkWorkspaceBillStatus(
       agent,

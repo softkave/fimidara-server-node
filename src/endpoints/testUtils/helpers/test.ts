@@ -9,10 +9,9 @@ import {
 import {AnyFn, AnyObject, OrArray, OrPromise} from '../../../utils/types';
 import RequestData from '../../RequestData';
 import {globalDispose} from '../../contexts/globalUtils';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injectables';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {IServerRequest} from '../../contexts/types';
-import {executeServerInstanceJobs, waitForServerInstanceJobs} from '../../jobs/runner';
 import {
   Endpoint,
   InferEndpointParams,
@@ -47,12 +46,6 @@ export function setupMutationTesting() {
 }
 
 export async function completeTests() {
-  await Promise.all([
-    context.dispose(),
-    executeServerInstanceJobs(kUtilsInjectables.config().serverInstanceId),
-    waitForServerInstanceJobs(kUtilsInjectables.config().serverInstanceId),
-  ]);
-
   await globalDispose();
 }
 

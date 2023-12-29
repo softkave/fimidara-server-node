@@ -8,10 +8,10 @@ import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
 const fileBackendConfigSchema = ensureMongoTypeFields<FileBackendConfig>({
   ...workspaceResourceSchema,
-  backend: {type: String},
+  backend: {type: String, index: true},
   secretId: {type: String},
   description: {type: String},
-  name: {type: String},
+  name: {type: String, index: true},
 });
 
 const configSchema = new Schema<FileBackendConfig>(fileBackendConfigSchema);
@@ -32,12 +32,12 @@ export type FileBackendConfigModel = Model<FileBackendConfig>;
 const fileBackendMountSchema = ensureMongoTypeFields<FileBackendMount>({
   ...workspaceResourceSchema,
   folderpath: {type: [String], index: true},
-  index: {type: Number},
-  mountedFrom: {type: [String]},
-  backend: {type: String},
-  configId: {type: String},
+  index: {type: Number, index: true},
+  mountedFrom: {type: [String], index: true},
+  backend: {type: String, index: true},
+  configId: {type: String, index: true},
   description: {type: String},
-  name: {type: String},
+  name: {type: String, index: true},
 });
 
 const mountSchema = new Schema<FileBackendMount>(fileBackendMountSchema);
@@ -57,8 +57,12 @@ export type FileBackendMountModel = Model<FileBackendMount>;
 
 const resolvedMountEntrySchema = ensureMongoTypeFields<ResolvedMountEntry>({
   ...workspaceResourceSchema,
-  mountId: {type: String},
-  resolvedAt: {type: Number},
+  mountId: {type: String, index: true},
+  resolvedAt: {type: Number, index: true},
+  namepath: {type: [String], index: true},
+  extension: {type: String, index: true},
+  resolvedFor: {type: String, index: true},
+  resolvedForType: {type: String, index: true},
 });
 
 const resolvedEntrySchema = new Schema<ResolvedMountEntry>(resolvedMountEntrySchema);

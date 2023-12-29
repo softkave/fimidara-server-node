@@ -2,7 +2,6 @@ import {addMinutes, isBefore} from 'date-fns';
 import {User} from '../../../definitions/user';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
-import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {RateLimitError} from '../../errors';
 import {userConstants} from '../constants';
 import {EmailAddressVerifiedError} from '../errors';
@@ -39,7 +38,7 @@ export async function INTERNAL_sendEmailVerificationCode(user: User) {
       }
     }
 
-    const link = await getConfirmEmailLink(user, opts);
+    const link = await getConfirmEmailLink(user);
     await Promise.all([
       sendConfirmEmailAddressEmail({
         link,
@@ -59,14 +58,10 @@ export async function INTERNAL_sendEmailVerificationCode(user: User) {
   });
 }
 
-export async function getConfirmEmailLink(
-  user: User,
-  opts?: SemanticProviderMutationRunOptions
-) {
+export async function getConfirmEmailLink(user: User) {
   return await withConfirmEmailAddressToken(
     user,
-    kUtilsInjectables.config().verifyEmailLink,
-    opts
+    kUtilsInjectables.config().verifyEmailLink
   );
 }
 

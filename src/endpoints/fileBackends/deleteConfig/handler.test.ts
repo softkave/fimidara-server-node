@@ -1,11 +1,11 @@
-import assert from 'assert';
+import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
 import {kAppResourceType} from '../../../definitions/system';
+import {appAssert} from '../../../utils/assertion';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injectables';
 import {NotFoundError} from '../../errors';
-import {executeJob, waitForJob} from '../../jobs/runner';
 import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests} from '../../testUtils/helpers/test';
@@ -88,14 +88,20 @@ describe('deleteConfig', async () => {
     const result = await updateFileBackendConfig(instData);
     assertEndpointResultOk(result);
 
-    expect(result.jobId).toBeTruthy();
-
-    assert(result.jobId);
-    await executeJob(result.jobId);
-    await waitForJob(result.jobId);
-
-    expect(
-      await kSemanticModels.fileBackendConfig().getOneById(config.resourceId)
-    ).toBeFalsy();
+    appAssert(result.jobId);
+    const job = await kSemanticModels.job().getOneByQuery<Job<DeleteResourceJobParams>>({
+      type: kJobType.deleteResource,
+      resourceId: result.jobId,
+      params: {
+        $objMatch: {
+          type: kAppResourceType.FileBackendConfig,
+        },
+      },
+    });
+    expect(job).toBeTruthy();
+    expect(job?.params.args).toMatchObject({
+      resourceId: config.resourceId,
+      workspaceId: workspace.resourceId,
+    });
   });
 });

@@ -2,26 +2,15 @@ import cors = require('cors');
 import express = require('express');
 import http = require('http');
 import {expressjwt} from 'express-jwt';
-import {getMongoConnection} from './db/connection';
 import {endpointConstants} from './endpoints/constants';
-import BaseContext, {
-  getEmailProvider,
-  getFileProvider,
-} from './endpoints/contexts/BaseContext';
 import {kUtilsInjectables} from './endpoints/contexts/injectables';
-import {
-  getLogicProviders,
-  getMongoBackedSemanticDataProviders,
-  getMongoDataProviders,
-  getMongoModels,
-} from './endpoints/contexts/utils';
 import {setupFimidaraHttpEndpoints} from './endpoints/endpoints';
-import {startJobRunner} from './endpoints/jobs/runner';
+import {startRunner} from './endpoints/jobs/runner';
 import {setupApp} from './endpoints/runtime/initAppSetup';
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
-import {fimidaraConfig} from './resources/vars';
 import {serverLogger} from './utils/logger/loggerUtils';
+import process = require('process');
 
 serverLogger.info('server initialization');
 
@@ -59,28 +48,9 @@ function setupJWT() {
 }
 
 async function setup() {
-  const connection = await getMongoConnection(
-    fimidaraConfig.mongoDbURI,
-    fimidaraConfig.mongoDbDatabaseName
-  );
-
   // Run scripts here
   // End of scripts
 
-  const models = getMongoModels(connection);
-  const data = getMongoDataProviders(models);
-  const ctx = new BaseContext(
-    data,
-    getEmailProvider(fimidaraConfig),
-    getFileProvider(fimidaraConfig),
-    fimidaraConfig,
-    getLogicProviders(),
-    getMongoBackedSemanticDataProviders(data),
-    connection,
-    models,
-    () => connection.close()
-  );
-  await ctx.init();
   const defaultWorkspace = await setupApp();
   serverLogger.info(`Default workspace ID - ${defaultWorkspace.resourceId}`);
 
@@ -94,7 +64,7 @@ async function setup() {
     serverLogger.info(`server listening on port ${kUtilsInjectables.config().port}`);
 
     // start job runner
-    kUtilsInjectables.promiseStore().forget(startJobRunner());
+    kUtilsInjectables.promiseStore().forget(startRunner());
   });
 }
 

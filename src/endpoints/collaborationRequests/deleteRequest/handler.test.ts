@@ -1,7 +1,8 @@
-import {kSemanticModels} from '../../contexts/injectables';
-import {executeJob, waitForJob} from '../../jobs/runner';
-import EndpointReusableQueries from '../../queries';
+import assert from 'assert';
+import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
+import {kAppResourceType} from '../../../definitions/system';
 import RequestData from '../../RequestData';
+import {kSemanticModels} from '../../contexts/injectables';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
@@ -35,14 +36,15 @@ test('collaboration request deleted', async () => {
   const result = await deleteCollaborationRequest(instData);
   assertEndpointResultOk(result);
 
-  if (result.jobId) {
-    await executeJob(result.jobId);
-    await waitForJob(result.jobId);
-  }
-
-  const deletedRequestExists = await kSemanticModels
-    .collaborationRequest()
-    .existsByQuery(EndpointReusableQueries.getByResourceId(request.resourceId));
-
-  expect(deletedRequestExists).toBeFalsy();
+  assert(result.jobId);
+  const job = await kSemanticModels.job().getOneByQuery<Job<DeleteResourceJobParams>>({
+    type: kJobType.deleteResource,
+    resourceId: result.jobId,
+    params: {$objMatch: {type: kAppResourceType.CollaborationRequest}},
+  });
+  expect(job).toBeTruthy();
+  expect(job?.params.args).toMatchObject({
+    resourceId: request.resourceId,
+    workspaceId: workspace.resourceId,
+  });
 });

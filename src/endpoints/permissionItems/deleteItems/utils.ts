@@ -19,6 +19,7 @@ import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {PermissionItemInputTarget} from '../types';
 import {getPermissionItemTargets} from '../utils';
 import {DeletePermissionItemInput, DeletePermissionItemsEndpointParams} from './types';
+import {kSemanticModels} from '../../contexts/injectables';
 
 export const INTERNAL_deletePermissionItems = async (
   agent: SessionAgent,

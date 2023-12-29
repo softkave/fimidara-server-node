@@ -1,7 +1,7 @@
 import {CollaborationRequest} from '../../../../definitions/collaborationRequest';
 import {getLowercaseRegExpForString} from '../../../../utils/fns';
 import {DataProviderQueryListParams} from '../../data/types';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticWorkspaceResourceProvider';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {SemanticProviderRunOptions} from '../types';
 import {SemanticCollaborationRequestProvider} from './types';
 

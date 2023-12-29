@@ -8,6 +8,7 @@ const agentTokenSchema = ensureMongoTypeFields<AgentToken>({
   forEntityId: {type: String, index: true},
   entityType: {type: String, index: true},
   workspaceId: {type: String, index: true},
+  providedResourceId: {type: String, index: true},
   version: {type: Number},
   expiresAt: {type: Number},
   description: {type: String},

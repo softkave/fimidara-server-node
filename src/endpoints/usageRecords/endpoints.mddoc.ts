@@ -87,10 +87,6 @@ const usageRecord = mddocConstruct
     ),
     month: mddocConstruct.constructFieldObjectField(true, month),
     year: mddocConstruct.constructFieldObjectField(true, year),
-    providedResourceId: mddocConstruct.constructFieldObjectField(
-      false,
-      fReusables.providedResourceIdOrNull
-    ),
     lastUpdatedBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
     lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
     workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),

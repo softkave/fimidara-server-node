@@ -7,6 +7,7 @@ import {
 } from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
+import {toArray} from '../../../utils/fns';
 import {newWorkspaceResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
@@ -75,7 +76,7 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async instData =>
 
     // Check issuer has permission for requested actions/permissions
     await Promise.all(
-      actions.map(action =>
+      toArray(actions).map(action =>
         checkAuthorizationWithAgent({
           agent,
           opts,
@@ -107,7 +108,7 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async instData =>
         expiresAt,
         fileId,
         extension,
-        actions,
+        actions: toArray(actions),
         namepath: namepath,
         issueAgentTokenId: agent.agentTokenId,
         maxUsageCount: data.usageCount,

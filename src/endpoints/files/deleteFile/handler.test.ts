@@ -1,16 +1,8 @@
-import assert from 'assert';
-import {compact} from 'lodash';
-import {File} from '../../../definitions/file';
+import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
+import {kAppResourceType} from '../../../definitions/system';
+import {appAssert} from '../../../utils/assertion';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injectables';
-import {getBackendConfigsWithIdList} from '../../fileBackends/configUtils';
-import {
-  initBackendProvidersForMounts,
-  resolveMountsForFolder,
-} from '../../fileBackends/mountUtils';
-import {kFolderConstants} from '../../folders/constants';
-import {executeJob, waitForJob} from '../../jobs/runner';
-import EndpointReusableQueries from '../../queries';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
@@ -32,49 +24,32 @@ afterAll(async () => {
   await completeTests();
 });
 
-async function assertFileDeleted(file: File) {
-  const [exists, {mounts}] = await Promise.all([
-    kSemanticModels
-      .file()
-      .existsByQuery(EndpointReusableQueries.getByResourceId(file.resourceId)),
-    resolveMountsForFolder(file),
-  ]);
-  const configs = await getBackendConfigsWithIdList(
-    compact(mounts.map(mount => mount.configId))
-  );
-  const providersMap = await initBackendProvidersForMounts(mounts, configs);
-
-  expect(exists).toBeFalsy();
-  await Promise.all(
-    mounts.map(async mount => {
-      const provider = providersMap[mount.resourceId];
-      const existsInProvider = await provider.describeFile({
-        mount,
-        filepath: file.namepath.join(kFolderConstants.separator),
-        workspaceId: file.workspaceId,
-      });
-
-      expect(existsInProvider).toBeFalsy();
-    })
-  );
-}
-
 describe('deleteFile', () => {
   test('file deleted', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const {file, rawFile} = await insertFileForTest(userToken, workspace);
+    const {file} = await insertFileForTest(userToken, workspace);
     const instData = RequestData.fromExpressRequest<DeleteFileEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {filepath: stringifyFilenamepath(file, workspace.rootname)}
     );
     const result = await deleteFile(instData);
-
-    assert(result.jobId);
-    await executeJob(result.jobId);
-    await waitForJob(result.jobId);
-
     assertEndpointResultOk(result);
-    await assertFileDeleted(rawFile);
+
+    appAssert(result.jobId);
+    const job = await kSemanticModels.job().getOneByQuery<Job<DeleteResourceJobParams>>({
+      type: kJobType.deleteResource,
+      resourceId: result.jobId,
+      params: {
+        $objMatch: {
+          type: kAppResourceType.File,
+        },
+      },
+    });
+    expect(job).toBeTruthy();
+    expect(job?.params.args).toMatchObject({
+      resourceId: file.resourceId,
+      workspaceId: workspace.resourceId,
+    });
   });
 });

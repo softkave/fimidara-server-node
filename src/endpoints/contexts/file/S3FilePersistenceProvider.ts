@@ -15,8 +15,11 @@ import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {kFolderConstants} from '../../folders/constants';
 import {
   FilePersistenceDeleteFilesParams,
+  FilePersistenceDeleteFoldersParams,
   FilePersistenceDescribeFolderFilesParams,
   FilePersistenceDescribeFolderFilesResult,
+  FilePersistenceDescribeFolderFoldersParams,
+  FilePersistenceDescribeFolderParams,
   FilePersistenceGetFileParams,
   FilePersistenceProvider,
   FilePersistenceProviderFeature,
@@ -156,7 +159,10 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
     };
   };
 
-  describeFolder = async (): Promise<PersistedFolderDescription | undefined> => {
+  describeFolder = async (
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    params: FilePersistenceDescribeFolderParams
+  ): Promise<PersistedFolderDescription | undefined> => {
     // not supported
     return undefined;
   };
@@ -193,12 +199,14 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
     return {files, continuationToken: response.NextContinuationToken};
   };
 
-  describeFolderFolders = async () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  describeFolderFolders = async (params: FilePersistenceDescribeFolderFoldersParams) => {
     // not supported
     return {folders: []};
   };
 
-  deleteFolders = async (): Promise<void> => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  deleteFolders = async (params: FilePersistenceDeleteFoldersParams): Promise<void> => {
     // not supported
   };
 }

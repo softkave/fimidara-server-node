@@ -1,48 +1,16 @@
 import {faker} from '@faker-js/faker';
 import {promises as fspromises} from 'fs';
-import {getMongoConnection} from '../../db/connection';
 import {Workspace} from '../../definitions/workspace';
 import {INTERNAL_createAgentToken} from '../../endpoints/agentTokens/addToken/utils';
 import {getPublicAgentToken} from '../../endpoints/agentTokens/utils';
 import {addAssignedPermissionGroupList} from '../../endpoints/assignedItems/addAssignedItems';
-import BaseContext, {getFileProvider} from '../../endpoints/contexts/BaseContext';
 import {kSemanticModels} from '../../endpoints/contexts/injectables';
 import {SemanticProviderMutationRunOptions} from '../../endpoints/contexts/semantic/types';
-import {
-  getLogicProviders,
-  getMongoBackedSemanticDataProviders,
-  getMongoDataProviders,
-  getMongoModels,
-} from '../../endpoints/contexts/utils';
-import NoopEmailProviderContext from '../../endpoints/testUtils/context/email/NoopEmailProviderContext';
 import INTERNAL_createWorkspace from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
 import {makeRootnameFromName} from '../../endpoints/workspaces/utils';
-import {fimidaraConfig} from '../../resources/vars';
 import {kSystemSessionAgent} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {serverLogger} from '../../utils/logger/loggerUtils';
-
-async function setupContext() {
-  const connection = await getMongoConnection(
-    fimidaraConfig.mongoDbURI,
-    fimidaraConfig.mongoDbDatabaseName
-  );
-  const models = getMongoModels(connection);
-  const data = getMongoDataProviders(models);
-  const ctx = new BaseContext(
-    data,
-    new NoopEmailProviderContext(),
-    getFileProvider(fimidaraConfig),
-    fimidaraConfig,
-    getLogicProviders(),
-    getMongoBackedSemanticDataProviders(data),
-    connection,
-    models,
-    () => connection.close()
-  );
-  await ctx.init();
-  return ctx;
-}
 
 async function insertWorkspace(opts: SemanticProviderMutationRunOptions) {
   const companyName = faker.company.name();
@@ -77,7 +45,6 @@ async function createAgentToken(
 }
 
 export async function setupSDKTestReq() {
-  const context = await setupContext();
   const {workspace, token, tokenStr} = await kSemanticModels
     .utils()
     .withTxn(async opts => {
@@ -117,5 +84,4 @@ FIMIDARA_SERVER_URL="http://localhost:5005"`;
   serverLogger.info(`Workspace rootname: ${workspace.rootname}`);
   serverLogger.info(`Agent token ID: ${token.resourceId}`);
   serverLogger.info(`Agent token token: ${tokenStr}`);
-  await context.dispose();
 }

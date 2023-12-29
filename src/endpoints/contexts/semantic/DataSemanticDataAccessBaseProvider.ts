@@ -22,12 +22,12 @@ export class DataSemanticBaseProvider<T extends Resource>
     await this.data.insertList(toArray(item), opts);
   }
 
-  async getOneById(
+  async getOneById<TResource02 extends T = T>(
     id: string,
     opts?: SemanticProviderRunOptions | undefined
-  ): Promise<T | null> {
+  ): Promise<TResource02 | null> {
     const query: DataQuery<Resource> = {resourceId: id};
-    return await this.data.getOneByQuery(query as DataQuery<T>, opts);
+    return (await this.data.getOneByQuery(query as DataQuery<T>, opts)) as TResource02;
   }
 
   async existsById(
@@ -129,6 +129,14 @@ export class DataSemanticBaseProvider<T extends Resource>
     options?: (DataProviderQueryListParams<T> & SemanticProviderRunOptions) | undefined
   ): Promise<T[]> {
     return await this.data.getManyByQueryList(query, options);
+  }
+
+  async updateManyByQueryList(
+    query: DataQuery<T>[],
+    update: Partial<T>,
+    opts: SemanticProviderMutationRunOptions
+  ): Promise<void> {
+    await this.data.updateManyByQueryList(query, update, opts);
   }
 
   async assertGetOneByQuery(

@@ -7,9 +7,9 @@ import {
 import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
 const artifactSchema = ensureMongoTypeFields<UsageRecordArtifact>({
-  type: {type: String},
-  resourceType: {type: String},
-  action: {type: String},
+  type: {type: String, index: true},
+  resourceType: {type: String, index: true},
+  action: {type: String, index: true},
   artifact: SchemaTypes.Map,
 });
 

@@ -1,7 +1,7 @@
 import {AgentToken} from '../../../../definitions/agentToken';
 import {TokenAccessScope} from '../../../../definitions/system';
-import {toNonNullableArray} from '../../../../utils/fns';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticWorkspaceResourceProvider';
+import {toCompactArray} from '../../../../utils/fns';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {SemanticProviderMutationRunOptions, SemanticProviderRunOptions} from '../types';
 import {SemanticAgentTokenProvider} from './types';
 
@@ -16,8 +16,9 @@ export class DataSemanticAgentToken
   ): Promise<void> {
     await this.data.deleteManyByQuery(
       {
-        separateEntityId: agentId,
-        scope: tokenScope ? {$all: toNonNullableArray(tokenScope)} : undefined,
+        forEntityId: agentId,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        scope: tokenScope ? {$all: toCompactArray(tokenScope) as any} : undefined,
       },
       opts
     );
@@ -30,8 +31,9 @@ export class DataSemanticAgentToken
   ): Promise<AgentToken | null> {
     return await this.data.getOneByQuery(
       {
-        separateEntityId: agentId,
-        scope: tokenScope ? {$all: toNonNullableArray(tokenScope)} : undefined,
+        forEntityId: agentId,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        scope: tokenScope ? {$all: toCompactArray(tokenScope) as any} : undefined,
       },
       opts
     );

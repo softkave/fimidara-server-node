@@ -1,6 +1,6 @@
 import {User} from '../../../../definitions/user';
 import {getLowercaseRegExpForString} from '../../../../utils/fns';
-import {DataSemanticBaseProvider} from '../DataSemanticBaseProvider';
+import {DataSemanticBaseProvider} from '../DataSemanticDataAccessBaseProvider';
 import {SemanticProviderRunOptions} from '../types';
 import {SemanticUserProviderType} from './types';
 

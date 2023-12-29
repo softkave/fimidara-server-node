@@ -34,7 +34,7 @@ async function createTestEmailVerificationToken(userId: string) {
   });
   await kSemanticModels
     .utils()
-    .withTxn(opts => context!.semantic.agentToken.insertItem(token, opts));
+    .withTxn(opts => kSemanticModels.agentToken().insertItem(token, opts));
   return token;
 }
 

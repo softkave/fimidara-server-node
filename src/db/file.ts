@@ -4,15 +4,18 @@ import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
 const fileSchema = ensureMongoTypeFields<File>({
   ...workspaceResourceSchema,
-  idPath: {type: [String], default: [], index: true},
-  namepath: {type: [String], default: [], index: true},
+  idPath: {type: [String], index: true},
+  namepath: {type: [String], index: true},
+  extension: {type: String, index: true},
   parentId: {type: String, index: true},
   name: {type: String, index: true},
-  extension: {type: String, index: true},
   size: {type: Number},
   description: {type: String},
   encoding: {type: String},
   mimetype: {type: String},
+  isReadAvailable: {type: Boolean},
+  isWriteAvailable: {type: Boolean},
+  version: {type: Number},
 });
 
 export type FileDocument = Document<File>;

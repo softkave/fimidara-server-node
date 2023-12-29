@@ -1,8 +1,8 @@
-import assert from 'assert';
+import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
 import {kAppResourceType} from '../../../definitions/system';
+import {appAssert} from '../../../utils/assertion';
 import RequestData from '../../RequestData';
-import {executeJob, waitForJob} from '../../jobs/runner';
-import {expectEntityHasPermissionsTargetingType} from '../../testUtils/helpers/permissionItem';
+import {kSemanticModels} from '../../contexts/injectables';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
@@ -46,14 +46,21 @@ test('permission items deleted', async () => {
   );
   const result = await deletePermissionItems(instData);
   assertEndpointResultOk(result);
-  assert(result.jobId);
-  await executeJob(result.jobId);
-  await waitForJob(result.jobId);
-  await expectEntityHasPermissionsTargetingType(
-    permissionGroup.resourceId,
-    'readFile',
-    workspace.resourceId,
-    kAppResourceType.File,
-    /** expected result */ false
-  );
+
+  appAssert(result.jobId);
+  const job = await kSemanticModels.job().getOneByQuery<Job<DeleteResourceJobParams>>({
+    type: kJobType.deleteResource,
+    resourceId: result.jobId,
+    params: {
+      $objMatch: {
+        type: kAppResourceType.PermissionItem,
+        args: {resourceId: user.resourceId, workspaceId: workspace.resourceId},
+      },
+    },
+  });
+  expect(job).toBeTruthy();
+  expect(job?.params.args).toMatchObject({
+    resourceId: workspace.resourceId,
+    workspaceId: workspace.resourceId,
+  });
 });

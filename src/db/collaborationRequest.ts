@@ -9,7 +9,7 @@ const collaborationRequestSchema = ensureMongoTypeFields<CollaborationRequest>({
   message: {type: String},
   expiresAt: {type: Number},
   readAt: {type: Number},
-  status: {type: String},
+  status: {type: String, index: true},
   statusDate: {type: Number},
 });
 

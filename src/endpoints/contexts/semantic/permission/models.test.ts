@@ -236,9 +236,7 @@ describe('DataSemanticPermission', () => {
   });
 
   test('getPermissionItems, no query throws error', async () => {
-    await expectErrorThrown(
-      async () => await model.getPermissionItems({context: context!})
-    );
+    await expectErrorThrown(async () => await model.getPermissionItems({}));
   });
 
   test('getPermissionItems, every query', async () => {
@@ -290,7 +288,7 @@ describe('DataSemanticPermission', () => {
     );
     await kSemanticModels
       .utils()
-      .withTxn(async opts => context!.semantic.permissionItem.insertItem(rawItems, opts));
+      .withTxn(async opts => kSemanticModels.permissionItem().insertItem(rawItems, opts));
 
     const items = await model.getPermissionItems({
       targetParentId,

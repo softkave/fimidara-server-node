@@ -1,7 +1,8 @@
-import assert from 'assert';
+import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
+import {kAppResourceType} from '../../../definitions/system';
+import {appAssert} from '../../../utils/assertion';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injectables';
-import {executeJob, waitForJob} from '../../jobs/runner';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
@@ -11,7 +12,6 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import deleteWorkspace from './handler';
-import EndpointReusableQueries from '../../queries';
 
 /**
  * TODO:
@@ -29,17 +29,23 @@ afterAll(async () => {
 test('workspace deleted', async () => {
   const {userToken} = await insertUserForTest();
   const {workspace} = await insertWorkspaceForTest(userToken);
+
   const result = await deleteWorkspace(
     RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
       workspaceId: workspace.resourceId,
     })
   );
   assertEndpointResultOk(result);
-  assert(result.jobId);
-  await executeJob(result.jobId);
-  await waitForJob(result.jobId);
-  const savedWorkspace = await kSemanticModels
-    .workspace()
-    .getOneByQuery(EndpointReusableQueries.getByResourceId(workspace.resourceId));
-  expect(savedWorkspace).toBeFalsy();
+
+  appAssert(result.jobId);
+  const job = await kSemanticModels.job().getOneByQuery<Job<DeleteResourceJobParams>>({
+    type: kJobType.deleteResource,
+    resourceId: result.jobId,
+    params: {$objMatch: {type: kAppResourceType.Workspace}},
+  });
+  expect(job).toBeTruthy();
+  expect(job?.params.args).toMatchObject({
+    resourceId: workspace.resourceId,
+    workspaceId: workspace.resourceId,
+  });
 });

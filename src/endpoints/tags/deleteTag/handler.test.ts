@@ -1,7 +1,8 @@
-import assert from 'assert';
+import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
+import {kAppResourceType} from '../../../definitions/system';
+import {appAssert} from '../../../utils/assertion';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injectables';
-import {executeJob, waitForJob} from '../../jobs/runner';
 import {insertTagForTest} from '../../testUtils/helpers/tag';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
@@ -13,7 +14,6 @@ import {
 } from '../../testUtils/testUtils';
 import deleteTag from './handler';
 import {DeleteTagEndpointParams} from './types';
-import EndpointReusableQueries from '../../queries';
 
 beforeAll(async () => {
   await initTests();
@@ -35,13 +35,17 @@ describe('deleteTag', () => {
     );
     const result = await deleteTag(instData);
     assertEndpointResultOk(result);
-    assert(result.jobId);
-    await executeJob(result.jobId);
-    await waitForJob(result.jobId);
 
-    const deletedTagExists = await kSemanticModels
-      .tag()
-      .existsByQuery(EndpointReusableQueries.getByResourceId(tag.resourceId));
-    expect(deletedTagExists).toBeFalsy();
+    appAssert(result.jobId);
+    const job = await kSemanticModels.job().getOneByQuery<Job<DeleteResourceJobParams>>({
+      type: kJobType.deleteResource,
+      resourceId: result.jobId,
+      params: {$objMatch: {type: kAppResourceType.Tag}},
+    });
+    expect(job).toBeTruthy();
+    expect(job?.params.args).toMatchObject({
+      resourceId: tag.resourceId,
+      workspaceId: workspace.resourceId,
+    });
   });
 });

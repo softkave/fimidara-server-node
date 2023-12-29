@@ -1,7 +1,11 @@
 import {last, merge} from 'lodash';
 import {Folder} from '../../definitions/folder';
 import {PermissionGroup} from '../../definitions/permissionGroups';
-import {PermissionAction, PermissionItem} from '../../definitions/permissionItem';
+import {
+  PermissionAction,
+  PermissionItem,
+  kPermissionsMap,
+} from '../../definitions/permissionItem';
 import {AppRuntimeState, SessionAgent, kAppResourceType} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {FimidaraRuntimeConfig} from '../../resources/types';
@@ -149,7 +153,10 @@ async function setupImageUploadPermissionGroup(
     workspaceId,
     {name, description}
   );
-  const actions: PermissionAction[] = ['addFile', 'readFile'];
+  const actions: PermissionAction[] = [
+    kPermissionsMap.uploadFile,
+    kPermissionsMap.readFile,
+  ];
   const permissionItems: PermissionItem[] = actions.map(action => {
     const containerIds = folder.idPath.slice(0, -1);
     const targetParentId = containerIds.length ? last(containerIds) : workspaceId;

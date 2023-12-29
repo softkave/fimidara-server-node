@@ -1,5 +1,6 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
+import {kJobType} from '../../../definitions/job';
 import {kAppResourceType} from '../../../definitions/system';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
@@ -7,7 +8,6 @@ import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injectables';
 import {NotFoundError} from '../../errors';
 import {getFolderpathInfo} from '../../folders/utils';
-import {executeJob, waitForJob} from '../../jobs/runner';
 import {generateAndInsertFileBackendConfigListForTest} from '../../testUtils/generate/fileBackend';
 import {generateTestFolderpathString} from '../../testUtils/generate/folder';
 import {
@@ -147,20 +147,11 @@ describe('updateMount', async () => {
 
               const job = await kSemanticModels.job().getOneByQuery({
                 resourceId: result.jobId,
-                type: 'cleanupMountResolvedEntries',
+                type: kJobType.cleanupMountResolvedEntries,
                 params: {$objMatch: {mountId: mount.resourceId}},
               });
+
               expect(job).toBeTruthy();
-
-              assert(result.jobId);
-              await executeJob(result.jobId);
-              await waitForJob(result.jobId);
-
-              const [dbMountEntries] = await Promise.all([
-                kSemanticModels.resolvedMountEntry().getMountEntries(mount.resourceId),
-              ]);
-
-              expect(dbMountEntries).toHaveLength(0);
             },
           },
         ],

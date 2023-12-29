@@ -1,7 +1,7 @@
 import {FileBackendConfig} from '../../../../definitions/fileBackend';
-import {DataSemanticBaseProvider} from '../DataSemanticBaseProvider';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {SemanticFileBackendConfigProvider} from './types';
 
 export class DataSemanticFileBackendConfig
-  extends DataSemanticBaseProvider<FileBackendConfig>
+  extends DataSemanticWorkspaceResourceProvider<FileBackendConfig>
   implements SemanticFileBackendConfigProvider {}

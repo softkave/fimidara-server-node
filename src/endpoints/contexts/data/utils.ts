@@ -127,6 +127,20 @@ export abstract class BaseMongoDataProvider<
     return items as unknown as T[];
   };
 
+  updateManyByQueryList = async (
+    query: TQuery[],
+    data: Partial<T>,
+    otherProps?: DataProviderOpParams
+  ) => {
+    await this.model
+      .updateMany(
+        {$or: query.map(next => BaseMongoDataProvider.getMongoQuery(next))},
+        data,
+        getMongoQueryOptionsForMany(otherProps)
+      )
+      .exec();
+  };
+
   getOneByQuery = async (
     query: TQuery,
     otherProps?: DataProviderQueryParams<T> | undefined

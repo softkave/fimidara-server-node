@@ -18,6 +18,7 @@ import {dateToSeconds} from '../../utils/dateFns';
 import {ServerError} from '../../utils/errors';
 import {cast, toArray} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
+import {getResourceTypeFromId} from '../../utils/resource';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {
   makeUserSessionAgent,
@@ -91,6 +92,28 @@ export default class SessionContext implements SessionContextType {
     this.checkRequiresPasswordChange(agent, tokenAccessScope);
 
     return agent;
+  };
+
+  getAgentById = async (id: string): Promise<SessionAgent> => {
+    const type = getResourceTypeFromId(id);
+
+    switch (type) {
+      case kAppResourceType.User: {
+        const user = await kSemanticModels.user().getOneById(id);
+        const token = await kSemanticModels.agentToken().getOneByQuery({forEntityId: id});
+        appAssert(user);
+        appAssert(token);
+        return makeUserSessionAgent(user, token);
+      }
+
+      case kAppResourceType.AgentToken: {
+        const token = await kSemanticModels.agentToken().getOneById(id);
+        appAssert(token);
+        return makeWorkspaceAgentTokenAgent(token);
+      }
+    }
+
+    throw new Error(`Unsupported agent type ${type} from ID ${id}`);
   };
 
   getUser = async (

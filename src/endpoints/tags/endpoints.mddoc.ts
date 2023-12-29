@@ -61,10 +61,6 @@ const tag = mddocConstruct
     name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
     workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),
-    providedResourceId: mddocConstruct.constructFieldObjectField(
-      false,
-      fReusables.providedResourceIdOrNull
-    ),
   });
 
 const addTagParams = mddocConstruct

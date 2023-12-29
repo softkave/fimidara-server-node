@@ -17,4 +17,3 @@ renderCollaborationRequestResponseMedia();
 renderUpgradedFromWaitlistMedia();
 renderUsageExceededMedia();
 console.log('Completed writing templates');
-process.exit(0);

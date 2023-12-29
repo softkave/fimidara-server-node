@@ -1,6 +1,5 @@
 import {
   ISetupDevUserOptions,
-  devUserSetupInitContext,
   devUserSetupPromptEmail,
   devUserSetupPromptUserInfo,
   devUserSetupPromptUserPassword,
@@ -14,7 +13,6 @@ const appOptions: ISetupDevUserOptions = {
 };
 
 async function main() {
-  await devUserSetupInitContext();
   await setupDevUser(appOptions);
 }
 

@@ -1,15 +1,9 @@
-import {FilePersistenceProviderTypeMap} from '../../definitions/file';
-
 function dataKey(name: string) {
   return `data_${name}`;
 }
 
 function semanticKey(name: string) {
   return `semantic_${name}`;
-}
-
-function filePersistenceKey(name: string) {
-  return `filePersistence_${name}`;
 }
 
 function logicKey(name: string) {
@@ -60,11 +54,6 @@ export const kInjectionKeys = {
     resolvedMountEntry: semanticKey('resolvedMountEntry'),
     app: semanticKey('app'),
     utils: semanticKey('utils'),
-  },
-  filePersistence: {
-    [FilePersistenceProviderTypeMap.Fs]: filePersistenceKey(
-      FilePersistenceProviderTypeMap.Fs
-    ),
   },
   encryption: 'encryption',
   config: 'config',

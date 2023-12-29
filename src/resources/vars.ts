@@ -2,16 +2,15 @@ import {readFileSync} from 'fs';
 import {forEach, isBoolean, isString, isUndefined} from 'lodash';
 import {UnionToIntersection} from 'type-fest';
 import {getFirstArg} from '../utils/fns';
-import {getNewId} from '../utils/resource';
 import {AnyFn, AnyObject} from '../utils/types';
 import {
   AppEnvVariables,
-  FilePersistenceType,
   FimidaraConfig,
   FimidaraConfigSchema,
   FimidaraRuntimeConfig,
   InputFimidaraConfig,
   InputFimidaraConfigItem,
+  kFimidaraConfigFilePersistenceProvider,
 } from './types';
 import Joi = require('joi');
 import assert = require('assert');
@@ -66,7 +65,7 @@ export const configSchema: FimidaraConfigSchema = {
   rootUserEmail: {required: true},
   rootUserFirstName: {required: true},
   rootUserLastName: {required: true},
-  fileBackend: {required: true, defaultValue: FilePersistenceType.S3},
+  fileBackend: {required: true, defaultValue: kFimidaraConfigFilePersistenceProvider.s3},
   FLAG_waitlistNewSignups: {
     required: false,
     defaultValue: false,
@@ -83,15 +82,16 @@ export const configSchema: FimidaraConfigSchema = {
   appName: {required: false, defaultValue: 'fimidara'},
   awsEmailEncoding: {required: false, defaultValue: 'UTF-8'},
   dateFormat: {required: false, defaultValue: 'MMM DD, YYYY'},
-  serverInstanceId: {required: false, defaultValue: getNewId()},
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unnecessary-type-constraint
 type EnvProcessFn<T extends any = any> = (value: any, envName: string) => T;
 
 function fromEnv(envName: string) {
   return process.env[envName];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint, @typescript-eslint/no-explicit-any
 function getRequired<T extends any = any>(
   envName: string,
   processFn: EnvProcessFn<T> = getFirstArg
@@ -118,10 +118,19 @@ function checkRequiredSuppliedConfig(base: FimidaraConfig) {
     const meta = configSchema[key as keyof FimidaraConfigSchema];
     let value = base[key as keyof FimidaraConfig];
 
-    if (!meta) throw new Error(`Unknown env var key ${key}`);
-    if (meta.required && !value) missingVariables.push(key);
-    if (value && meta.transform)
+    if (!meta) {
+      throw new Error(`Unknown env var key ${key}`);
+    }
+
+    if (meta.required && !value) {
+      missingVariables.push(key);
+    }
+
+    if (value && meta.transform) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       value = (base as any)[key] = meta.transform(value as string);
+    }
+
     if (meta.validator) {
       const validationResult = meta.validator(value);
       if (isString(validationResult)) validationErrors.push([key, validationResult]);

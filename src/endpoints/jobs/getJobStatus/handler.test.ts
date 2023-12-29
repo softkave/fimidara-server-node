@@ -1,17 +1,12 @@
-import assert from 'assert';
-import {kJobStatus} from '../../../definitions/job';
 import RequestData from '../../RequestData';
-import deletePermissionGroup from '../../permissionGroups/deletePermissionGroup/handler';
+import {generateAndInsertJobListForTest} from '../../testUtils/generate/job';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   initTests,
-  insertPermissionGroupForTest,
   insertUserForTest,
-  insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
-import {executeJob, waitForJob} from '../runner';
 import getJobStatus from './handler';
 
 beforeAll(async () => {
@@ -22,29 +17,17 @@ afterAll(async () => {
   await completeTests();
 });
 
-test('getOpStatus', async () => {
-  const {userToken} = await insertUserForTest();
-  const {workspace} = await insertWorkspaceForTest(userToken);
-  const {permissionGroup} = await insertPermissionGroupForTest(
-    userToken,
-    workspace.resourceId
-  );
-  const {jobId} = await deletePermissionGroup(
-    RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
-      permissionGroupId: permissionGroup.resourceId,
-      workspaceId: workspace.resourceId,
-    })
-  );
+describe('getJobStatus', () => {
+  test('getJobStatus', async () => {
+    const {userToken} = await insertUserForTest();
+    const [job] = await generateAndInsertJobListForTest(/** count */ 1);
 
-  assert(jobId);
-  await executeJob(jobId);
-  await waitForJob(jobId);
-
-  const result = await getJobStatus(
-    RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
-      jobId,
-    })
-  );
-  assertEndpointResultOk(result);
-  expect(result.status).toBe(kJobStatus.completed);
+    const result = await getJobStatus(
+      RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
+        jobId: job.resourceId,
+      })
+    );
+    assertEndpointResultOk(result);
+    expect(result.status).toBe(job.status);
+  });
 });

@@ -1,6 +1,8 @@
+import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
 import {PermissionGroupMatcher} from '../../../definitions/permissionGroups';
+import {kAppResourceType} from '../../../definitions/system';
+import {appAssert} from '../../../utils/assertion';
 import {kSemanticModels} from '../../contexts/injectables';
-import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
@@ -30,14 +32,24 @@ test('permissionGroup permission group deleted', async () => {
   );
   const instData = RequestData.fromExpressRequest<PermissionGroupMatcher>(
     mockExpressRequestWithAgentToken(userToken),
-    {
-      permissionGroupId: permissionGroup.resourceId,
-    }
+    {permissionGroupId: permissionGroup.resourceId}
   );
   const result = await deletePermissionGroup(instData);
   assertEndpointResultOk(result);
-  const deletedPermissionGroupExists = await kSemanticModels
-    .agentToken()
-    .existsByQuery(EndpointReusableQueries.getByResourceId(permissionGroup.resourceId));
-  expect(deletedPermissionGroupExists).toBeFalsy();
+
+  appAssert(result.jobId);
+  const job = await kSemanticModels.job().getOneByQuery<Job<DeleteResourceJobParams>>({
+    type: kJobType.deleteResource,
+    resourceId: result.jobId,
+    params: {
+      $objMatch: {
+        type: kAppResourceType.PermissionGroup,
+      },
+    },
+  });
+  expect(job).toBeTruthy();
+  expect(job?.params.args).toMatchObject({
+    resourceId: permissionGroup.resourceId,
+    workspaceId: workspace.resourceId,
+  });
 });

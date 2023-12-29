@@ -1,19 +1,6 @@
 import assert from 'assert';
 import {Readable} from 'stream';
 import {streamToBuffer} from '../../../utils/fns';
-import {kUtilsInjectables} from '../../contexts/injectables';
-
-export async function expectFileBodyEqualById(
-  fileId: string,
-  expectedBody: Buffer | Readable
-) {
-  const savedFile = await context.fileBackend.readFile({
-    bucket: kUtilsInjectables.config().S3Bucket,
-    filepath: fileId,
-  });
-
-  expectFileBodyEqual(savedFile.body, expectedBody);
-}
 
 export async function expectFileBodyEqual(
   body: Buffer | Readable,

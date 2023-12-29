@@ -26,7 +26,7 @@ export const resourceSchema = ensureMongoTypeFields<Resource>({
 export const workspaceResourceSchema = ensureMongoTypeFields<WorkspaceResource>({
   ...resourceSchema,
   workspaceId: {type: String, index: true},
-  providedResourceId: {type: String, index: true},
+  // providedResourceId: {type: String, index: true},
   createdBy: {type: agentSchema},
   lastUpdatedBy: {type: agentSchema},
 });

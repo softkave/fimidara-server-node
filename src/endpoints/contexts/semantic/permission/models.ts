@@ -15,6 +15,7 @@ import {indexArray} from '../../../../utils/indexArray';
 import {getResourceTypeFromId} from '../../../../utils/resource';
 import {kReuseableErrors} from '../../../../utils/reusableErrors';
 import {DataQuery, LiteralDataQuery} from '../../data/types';
+import {kSemanticModels} from '../../injectables';
 import {SemanticProviderRunOptions} from '../types';
 import {getInAndNinQuery} from '../utils';
 import {
@@ -32,7 +33,6 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
     options?: SemanticProviderRunOptions | undefined
   ): Promise<PermissionEntityInheritanceMap> {
     {
-      const {context} = props;
       const entity = this.getEntity(props);
       appAssert(entity, kReuseableErrors.entity.notFound(props.entityId));
 
@@ -90,7 +90,7 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
   }> {
     const map = await this.getEntityInheritanceMap(props, options);
     const idList = Object.keys(map).filter(id => id !== props.entityId);
-    const permissionGroups = await props.kSemanticModels
+    const permissionGroups = await kSemanticModels
       .permissionGroup()
       .getManyByQuery({resourceId: {$in: idList}}, options);
     return {permissionGroups, inheritanceMap: map};
@@ -101,7 +101,7 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
     options?: SemanticProviderRunOptions | undefined
   ): Promise<PermissionItem[]> {
     const {targetItemsQuery} = this.getPermissionItemsQuery(props);
-    const items = await props.kSemanticModels
+    const items = await kSemanticModels
       .permissionItem()
       .getManyByQuery(targetItemsQuery, options);
 
@@ -124,9 +124,7 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
     options?: SemanticProviderRunOptions | undefined
   ): Promise<number> {
     const {targetItemsQuery} = this.getPermissionItemsQuery(props);
-    return await props.kSemanticModels
-      .permissionItem()
-      .countByQuery(targetItemsQuery, options);
+    return await kSemanticModels.permissionItem().countByQuery(targetItemsQuery, options);
   }
 
   async getEntity(
@@ -138,11 +136,11 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
     const type = getResourceTypeFromId(props.entityId);
     const query: LiteralDataQuery<Resource> = {resourceId: props.entityId};
     if (type === kAppResourceType.User)
-      return await props.kSemanticModels.user().getOneByQuery(query, opts);
+      return await kSemanticModels.user().getOneByQuery(query, opts);
     if (type === kAppResourceType.AgentToken)
-      return await props.kSemanticModels.agentToken().getOneByQuery(query, opts);
+      return await kSemanticModels.agentToken().getOneByQuery(query, opts);
     if (type === kAppResourceType.PermissionGroup)
-      return await props.kSemanticModels.permissionGroup().getOneByQuery(query, opts);
+      return await kSemanticModels.permissionGroup().getOneByQuery(query, opts);
     return null;
   }
 

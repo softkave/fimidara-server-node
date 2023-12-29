@@ -54,7 +54,7 @@ export interface SemanticBaseProviderType<TResource extends Resource> {
     query: DataQuery<TResource>[],
     update: Partial<TResource>,
     opts: SemanticProviderMutationRunOptions
-  ): Promise<TResource[]>;
+  ): Promise<void>;
   getAndUpdateOneById(
     id: string,
     update: Partial<TResource>,

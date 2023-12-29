@@ -7,7 +7,7 @@ export type IssueFilePresignedPathEndpointParams = FileMatcher & {
   duration?: number;
   usageCount?: number;
   /** Permissions allowed on the generated presigned path. */
-  action?: PermissionAction[];
+  action?: PermissionAction | PermissionAction[];
   // downloadUsageCount?: number;
   // uploadUsageCount?: number;
   // origin?: string | string[];

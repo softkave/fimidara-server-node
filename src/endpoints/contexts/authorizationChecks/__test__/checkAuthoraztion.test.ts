@@ -1,5 +1,9 @@
 import assert from 'assert';
-import {PermissionAction, PermissionItem} from '../../../../definitions/permissionItem';
+import {
+  PermissionAction,
+  PermissionItem,
+  kPermissionsMap,
+} from '../../../../definitions/permissionItem';
 import {kSystemSessionAgent} from '../../../../utils/agent';
 import {toArray} from '../../../../utils/fns';
 import RequestData from '../../../RequestData';
@@ -541,9 +545,12 @@ describe('checkAuthorization', () => {
       parentId: null,
     });
     await Promise.all([
-      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'addFile', {
-        targetId: file01.resourceId,
-      }),
+      addPermissions(
+        rawWorkspace.resourceId,
+        user02.resourceId,
+        kPermissionsMap.uploadFile,
+        {targetId: file01.resourceId}
+      ),
     ]);
 
     assert(user02.isEmailVerified === false);
@@ -551,7 +558,7 @@ describe('checkAuthorization', () => {
       await checkAuthorizationWithAgent({
         agent: user02SessionAgent,
         target: {
-          action: 'addFile',
+          action: kPermissionsMap.uploadFile,
           targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
         },
         workspaceId: rawWorkspace.resourceId,

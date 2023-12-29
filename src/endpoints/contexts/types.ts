@@ -1,46 +1,40 @@
-import { Request } from 'express';
-import { Connection as MongoConnection } from 'mongoose';
-import { AppMongoModels } from '../../db/types';
-import { BaseTokenData } from '../../definitions/system';
-import { FimidaraConfig } from '../../resources/types';
-import { SessionContextType } from './SessionContext';
+import {Request} from 'express';
+import {BaseTokenData} from '../../definitions/system';
 import {
-    AgentTokenDataProvider,
-    AppRuntimeStateDataProvider,
-    AssignedItemDataProvider,
-    CollaborationRequestDataProvider,
-    DataProviderUtils,
-    FileDataProvider,
-    FilePresignedPathDataProvider,
-    FolderDataProvider,
-    JobDataProvider,
-    PermissionGroupDataProvider,
-    PermissionItemDataProvider,
-    TagDataProvider,
-    UsageRecordDataProvider,
-    UserDataProvider,
-    WorkspaceDataProvider,
+  AgentTokenDataProvider,
+  AppRuntimeStateDataProvider,
+  AssignedItemDataProvider,
+  CollaborationRequestDataProvider,
+  DataProviderUtils,
+  FileDataProvider,
+  FilePresignedPathDataProvider,
+  FolderDataProvider,
+  JobDataProvider,
+  PermissionGroupDataProvider,
+  PermissionItemDataProvider,
+  TagDataProvider,
+  UsageRecordDataProvider,
+  UserDataProvider,
+  WorkspaceDataProvider,
 } from './data/types';
-import { IEmailProviderContext } from './email/types';
-import { FilePersistenceProvider } from './file/types';
-import { PermissionsLogicProvider } from './logic/PermissionsLogicProvider';
-import { UsageRecordLogicProvider } from './logic/UsageRecordLogicProvider';
-import { SemanticAgentTokenProvider } from './semantic/agentToken/types';
-import { SemanticAssignedItemProvider } from './semantic/assignedItem/types';
-import { SemanticCollaborationRequestProvider } from './semantic/collaborationRequest/types';
+import {PermissionsLogicProvider} from './logic/PermissionsLogicProvider';
+import {UsageRecordLogicProvider} from './logic/UsageRecordLogicProvider';
+import {SemanticAgentTokenProvider} from './semantic/agentToken/types';
+import {SemanticAssignedItemProvider} from './semantic/assignedItem/types';
+import {SemanticCollaborationRequestProvider} from './semantic/collaborationRequest/types';
 import {
-    SemanticFilePresignedPathProvider,
-    SemanticFileProvider,
+  SemanticFilePresignedPathProvider,
+  SemanticFileProvider,
 } from './semantic/file/types';
-import { SemanticFolderProvider } from './semantic/folder/types';
-import { SemanticPermissionProviderType } from './semantic/permission/types';
-import { SemanticPermissionGroupProviderType } from './semantic/permissionGroup/types';
-import { SemanticPermissionItemProviderType } from './semantic/permissionItem/types';
-import { SemanticTagProviderType } from './semantic/tag/types';
-import { SemanticProviderUtils } from './semantic/types';
-import { SemanticUsageRecordProviderType } from './semantic/usageRecord/types';
-import { SemanticUserProviderType } from './semantic/user/types';
-import { SemanticWorkspaceProviderType } from './semantic/workspace/types';
+import {SemanticFolderProvider} from './semantic/folder/types';
+import {SemanticPermissionProviderType} from './semantic/permission/types';
+import {SemanticPermissionGroupProviderType} from './semantic/permissionGroup/types';
+import {SemanticPermissionItemProviderType} from './semantic/permissionItem/types';
+import {SemanticTagProviderType} from './semantic/tag/types';
+import {SemanticProviderUtils} from './semantic/types';
+import {SemanticUsageRecordProviderType} from './semantic/usageRecord/types';
+import {SemanticUserProviderType} from './semantic/user/types';
+import {SemanticWorkspaceProviderType} from './semantic/workspace/types';
 
 export interface IServerRequest extends Request {
   // decoded JWT token using the expressJWT middleware
@@ -90,24 +84,3 @@ export interface BaseContextSemanticDataProviders {
 }
 
 export type MongoBackedSemanticDataProviders = BaseContextSemanticDataProviders;
-
-export interface BaseContextType<
-  Data extends BaseContextDataProviders = BaseContextDataProviders,
-  SemanticData extends BaseContextSemanticDataProviders = BaseContextSemanticDataProviders,
-  Email extends IEmailProviderContext = IEmailProvider
-  FileBackend extends FilePersistenceProvider = FilePersistenceProvider,
-  AppVars extends FimidaraConfig = FimidaraConfig,
-  Logic extends BaseContextLogicProviders = BaseContextLogicProviders
-> {
-  appVariables: AppVars;
-  session: SessionContextType;
-  data: Data;
-  semantic: SemanticData;
-  logic: Logic;
-  email: Email;
-  fileBackend: FileBackend;
-  mongoConnection: MongoConnection | null;
-  mongoModels: AppMongoModels | null;
-  init: () => Promise<void>;
-  dispose: () => Promise<void>;
-}

@@ -1,7 +1,12 @@
 import {pick} from 'lodash';
 import {container} from 'tsyringe';
-import {FileBackendMount} from '../../../definitions/fileBackend';
-import {CleanupMountResolvedEntriesJobParams, Job} from '../../../definitions/job';
+import {FileBackendMount, kFileBackendType} from '../../../definitions/fileBackend';
+import {
+  CleanupMountResolvedEntriesJobParams,
+  Job,
+  kJobType,
+} from '../../../definitions/job';
+import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
@@ -38,14 +43,17 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData =>
     agent,
     workspace,
     workspaceId: workspace.resourceId,
-    target: {action: 'updateFileBackendMount', targetId: workspace.resourceId},
+    target: {
+      action: kPermissionsMap.updateFileBackendMount,
+      targetId: workspace.resourceId,
+    },
   });
 
   const {updatedMount, job} = await semanticUtils.withTxn(async opts => {
     const mount = await mountModel.getOneById(data.mountId, opts);
     appAssert(mount, kReuseableErrors.mount.notFound());
 
-    if (mount.backend === 'fimidara') {
+    if (mount.backend === kFileBackendType.Fimidara) {
       throw kReuseableErrors.mount.cannotUpdateFimidaraMount();
     }
 
@@ -147,7 +155,12 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData =>
       [job] = await queueJobs<CleanupMountResolvedEntriesJobParams>(
         workspace.resourceId,
         /** parent job ID */ undefined,
-        [{type: 'cleanupMountResolvedEntries', params: {mountId: mount.resourceId}}]
+        [
+          {
+            type: kJobType.cleanupMountResolvedEntries,
+            params: {mountId: mount.resourceId},
+          },
+        ]
       );
     }
 

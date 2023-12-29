@@ -153,11 +153,21 @@ export const resourceFields: ExtractFieldsFrom<PublicResource> = {
 };
 export const workspaceResourceFields: ExtractFieldsFrom<PublicWorkspaceResource> = {
   ...resourceFields,
-  // providedResourceId: true,
   workspaceId: true,
   createdBy: agentExtractor,
   lastUpdatedBy: agentExtractor,
 };
+
+export const resourceExtractor = makeExtract(getFields<PublicResource>(resourceFields));
+export const resourceListExtractor = makeListExtract(
+  getFields<PublicResource>(resourceFields)
+);
+export const workspaceResourceExtractor = makeExtract(
+  getFields<PublicWorkspaceResource>(workspaceResourceFields)
+);
+export const workspaceResourceListExtractor = makeListExtract(
+  getFields<PublicWorkspaceResource>(workspaceResourceFields)
+);
 
 export function throwNotFound() {
   throw new NotFoundError();

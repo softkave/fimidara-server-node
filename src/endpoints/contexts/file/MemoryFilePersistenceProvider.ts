@@ -4,9 +4,12 @@ import {appAssert} from '../../../utils/assertion';
 import {streamToBuffer} from '../../../utils/fns';
 import {
   FilePersistenceDeleteFilesParams,
+  FilePersistenceDeleteFoldersParams,
   FilePersistenceDescribeFolderFilesParams,
   FilePersistenceDescribeFolderFilesResult,
+  FilePersistenceDescribeFolderFoldersParams,
   FilePersistenceDescribeFolderFoldersResult,
+  FilePersistenceDescribeFolderParams,
   FilePersistenceGetFileParams,
   FilePersistenceProvider,
   FilePersistenceProviderFeature,
@@ -82,7 +85,8 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
     });
   };
 
-  deleteFolders = async (): Promise<void> => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  deleteFolders = async (params: FilePersistenceDeleteFoldersParams): Promise<void> => {
     // not supported
   };
 
@@ -110,7 +114,10 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
     return undefined;
   };
 
-  describeFolder = async (): Promise<PersistedFolderDescription | undefined> => {
+  describeFolder = async (
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    params: FilePersistenceDescribeFolderParams
+  ): Promise<PersistedFolderDescription | undefined> => {
     // not supported
     return undefined;
   };
@@ -143,11 +150,13 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
     return {files, continuationToken: index};
   };
 
-  describeFolderFolders =
-    async (): Promise<FilePersistenceDescribeFolderFoldersResult> => {
-      // not supported
-      return {folders: []};
-    };
+  describeFolderFolders = async (
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    params: FilePersistenceDescribeFolderFoldersParams
+  ): Promise<FilePersistenceDescribeFolderFoldersResult> => {
+    // not supported
+    return {folders: []};
+  };
 
   getWorkspaceFiles = (params: {workspaceId: string}) => {
     let workspaceFilesMap = this.files[params.workspaceId];

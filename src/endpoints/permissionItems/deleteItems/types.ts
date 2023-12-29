@@ -16,6 +16,10 @@ export interface DeletePermissionItemsEndpointParams {
   items?: DeletePermissionItemInput[];
 }
 
+export interface DeletePermissionItemsEndpointResult {
+  jobs: Array<{resourceId: string; jobId: string}>;
+}
+
 export type DeletePermissionItemsEndpoint = Endpoint<
   DeletePermissionItemsEndpointParams,
   LongRunningJobResult

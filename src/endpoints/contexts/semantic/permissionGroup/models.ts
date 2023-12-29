@@ -1,5 +1,5 @@
 import {PermissionGroup} from '../../../../definitions/permissionGroups';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticWorkspaceResourceProvider';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {SemanticPermissionGroupProviderType} from './types';
 
 export class DataSemanticPermissionGroup

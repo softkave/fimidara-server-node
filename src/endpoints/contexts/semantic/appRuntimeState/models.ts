@@ -1,5 +1,5 @@
 import {AppRuntimeState} from '../../../../definitions/system';
-import {DataSemanticBaseProvider} from '../DataSemanticBaseProvider';
+import {DataSemanticBaseProvider} from '../DataSemanticDataAccessBaseProvider';
 import {SemanticAppRuntimeStateProvider} from './types';
 
 export class DataSemanticAppRuntimeState

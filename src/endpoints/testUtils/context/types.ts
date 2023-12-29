@@ -1,11 +1,6 @@
-import { AnyFn } from '../../../utils/types';
-import { IEmailProviderContext } from '../../contexts/email/types';
-import { FilePersistenceProvider } from '../../contexts/file/types';
-import {
-    BaseContextType,
-    MongoBackedSemanticDataProviders,
-    MongoDataProviders,
-} from '../../contexts/types';
+import {AnyFn} from '../../../utils/types';
+import {IEmailProviderContext} from '../../contexts/email/types';
+import {FilePersistenceProvider} from '../../contexts/file/types';
 
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 export type LayerJestMock<T extends {[key: string]: any}> = {
@@ -16,10 +11,3 @@ export type LayerJestMock<T extends {[key: string]: any}> = {
 
 export type ITestEmailProviderContext = LayerJestMock<IEmailProviderContext>;
 export type ITestFilePersistenceProviderContext = LayerJestMock<FilePersistenceProvider>;
-
-export type ITestBaseContext = BaseContextType<
-  MongoDataProviders,
-  MongoBackedSemanticDataProviders,
-  ITestEmailProvider
-  ITestFilePersistenceProviderContext
->;

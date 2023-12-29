@@ -1,15 +1,11 @@
 import {faker} from '@faker-js/faker';
-import assert from 'assert';
+import {kSemanticModels} from '../../endpoints/contexts/injectables';
 import {generateAndInsertUserListForTest} from '../../endpoints/testUtils/generate/user';
 import {completeTests} from '../../endpoints/testUtils/helpers/test';
 import {ISetupDevUserOptions, setupDevUser} from './utils';
 
-beforeAll(async () => {
-  context = await devUserSetupInitContext();
-});
-
 afterAll(async () => {
-  completeTests({context});
+  completeTests();
 });
 
 const appOptions: ISetupDevUserOptions = {
@@ -28,12 +24,10 @@ const appOptions: ISetupDevUserOptions = {
 
 describe('dev user setup', () => {
   test('dev user setup', async () => {
-    assert();
     await setupDevUser(appOptions);
   });
 
   test('changes user password if user requires password change', async () => {
-    assert();
     const userEmail = await appOptions.getUserEmail();
     await generateAndInsertUserListForTest(1, () => ({
       requiresPasswordChange: true,

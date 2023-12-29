@@ -21,7 +21,8 @@ import {
 } from '../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../contexts/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
-import {kFolderConstants} from '../folders/constants';
+import {getFilepathInfo} from '../files/utils';
+import {getFolderpathInfo} from '../folders/utils';
 import {checkResourcesBelongsToWorkspace} from './containerCheckFns';
 import {resourceListWithAssignedItems} from './resourceWithAssignedItems';
 import {FetchResourceItem} from './types';
@@ -287,9 +288,7 @@ const fetchFiles = async (workspaceId: string, filepathsMap: FilePathsMap) => {
   const result = await Promise.all(
     // TODO: can we have $or or implement $in for array of arrays?
     map(filepathsMap, (action, filepath) =>
-      kSemanticModels
-        .file()
-        .getOneByNamepath(workspaceId, filepath.split(kFolderConstants.separator))
+      kSemanticModels.file().getOneByNamepath({workspaceId, ...getFilepathInfo(filepath)})
     )
   );
 
@@ -313,7 +312,7 @@ const fetchFolders = async (workspaceId: string, folderpathsMap: FilePathsMap) =
     map(folderpathsMap, (action, folderpath) =>
       kSemanticModels
         .folder()
-        .getOneByNamepath(workspaceId, folderpath.split(kFolderConstants.separator))
+        .getOneByNamepath({workspaceId, ...getFolderpathInfo(folderpath)})
     )
   );
 
@@ -368,6 +367,8 @@ async function authCheckResources(
     )
   );
 
-  const permitted = resources.filter((resource, index) => results[index].hasAccess);
+  const permitted = resources.filter((resource, index) =>
+    results[index].every(check => check.hasAccess)
+  );
   return permitted;
 }

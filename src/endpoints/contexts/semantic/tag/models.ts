@@ -1,5 +1,5 @@
 import {Tag} from '../../../../definitions/tag';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticWorkspaceResourceProvider';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {SemanticTagProviderType} from './types';
 
 export class DataSemanticTag

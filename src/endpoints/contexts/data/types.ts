@@ -184,6 +184,11 @@ export interface BaseDataProvider<
     data: Partial<TData>,
     otherProps?: DataProviderOpParams
   ) => Promise<void>;
+  updateManyByQueryList: (
+    query: TQuery[],
+    data: Partial<TData>,
+    otherProps?: DataProviderOpParams
+  ) => Promise<void>;
   updateOneByQuery: (
     query: TQuery,
     data: Partial<TData>,

@@ -1,4 +1,3 @@
-import {identity} from 'lodash';
 import {
   AppResourceType,
   kAppResourceType,
@@ -21,18 +20,21 @@ import {permissionGroupExtractor} from '../permissionGroups/utils';
 import {permissionItemExtractor} from '../permissionItems/utils';
 import {tagExtractor} from '../tags/utils';
 import {usageRecordExtractor} from '../usageRecords/utils';
+import {resourceExtractor} from '../utils';
 import {workspaceExtractor} from '../workspaces/utils';
 
 const kResourceTypeToExtractorMap: Record<
   AppResourceType,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   AnyFn<[any, string], Resource>
 > = {
-  [kAppResourceType.All]: identity,
-  [kAppResourceType.System]: identity,
-  [kAppResourceType.Public]: identity,
-  [kAppResourceType.EndpointRequest]: identity,
-  [kAppResourceType.AssignedItem]: identity,
-  [kAppResourceType.Job]: identity,
+  [kAppResourceType.All]: resourceExtractor,
+  [kAppResourceType.System]: resourceExtractor,
+  [kAppResourceType.Public]: resourceExtractor,
+  [kAppResourceType.EndpointRequest]: resourceExtractor,
+  [kAppResourceType.AssignedItem]: resourceExtractor,
+  [kAppResourceType.Job]: resourceExtractor,
+  [kAppResourceType.App]: resourceExtractor,
   [kAppResourceType.FilePresignedPath]: filePresignedPathExtractor,
   [kAppResourceType.Workspace]: workspaceExtractor,
   [kAppResourceType.CollaborationRequest]: collaborationRequestForWorkspaceExtractor,

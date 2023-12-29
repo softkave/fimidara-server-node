@@ -91,9 +91,9 @@ const INTERNAL_createWorkspace = async (
       workspace,
       {
         configId: null,
-        folderpath: [],
+        folderpath: '',
         index: 0,
-        mountedFrom: [],
+        mountedFrom: '',
         name: 'fimidara',
         backend: 'fimidara',
       },

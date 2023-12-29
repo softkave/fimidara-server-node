@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {FileMatcher, FileResolvedMountEntry, PublicFile} from '../../definitions/file';
+import {FileMatcher, PublicFile} from '../../definitions/file';
 import {
   FieldBinaryType,
   FieldObjectFieldsMap,
@@ -106,18 +106,6 @@ const format = mddocConstruct
   .setEnumName('ImageFormatEnum')
   .setValid(Object.values(ImageFormatEnumMap));
 
-const fileResolvedMountEntry = mddocConstruct
-  .constructFieldObject<FileResolvedMountEntry>()
-  .setName('FileResolvedMountEntry')
-  .setFields({
-    mountId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-    resolvedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
-  });
-
-const fileResolvedMountEntryList = mddocConstruct
-  .constructFieldArray<FileResolvedMountEntry>()
-  .setType(fileResolvedMountEntry);
-
 const version = mddocConstruct
   .constructFieldNumber()
   .setDescription('File version, representing how many times a file has been uploaded.');
@@ -142,10 +130,6 @@ const file = mddocConstruct
     name: mddocConstruct.constructFieldObjectField(true, fReusables.filename),
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
     version: mddocConstruct.constructFieldObjectField(true, version),
-    resolvedEntries: mddocConstruct.constructFieldObjectField(
-      true,
-      fileResolvedMountEntryList
-    ),
   });
 
 const updateFileDetailsInput = mddocConstruct
@@ -198,6 +182,7 @@ const issueFilePresignedPathParams = mddocConstruct
   .setName('IssueFilePresignedPathEndpointParams')
   .setFields({
     ...fileMatcherParts,
+    action: mddocConstruct.constructFieldObjectField(false, fReusables.actionOrList),
     duration: mddocConstruct.constructFieldObjectField(false, fReusables.duration),
     expires: mddocConstruct.constructFieldObjectField(false, fReusables.expires),
     usageCount: mddocConstruct.constructFieldObjectField(

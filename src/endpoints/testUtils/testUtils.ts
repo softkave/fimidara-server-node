@@ -10,8 +10,6 @@ import {
 } from '../../definitions/system';
 import {PublicUser, UserWithWorkspace} from '../../definitions/user';
 import {PublicWorkspace, Workspace} from '../../definitions/workspace';
-import {FimidaraConfig} from '../../resources/types';
-import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {toArray} from '../../utils/fns';
 import {makeUserSessionAgent} from '../../utils/sessionUtils';
@@ -65,9 +63,6 @@ import addWorkspace from '../workspaces/addWorkspace/handler';
 import {AddWorkspaceEndpointParams} from '../workspaces/addWorkspace/types';
 import {makeRootnameFromName} from '../workspaces/utils';
 import MockTestEmailProviderContext from './context/email/MockTestEmailProviderContext';
-import TestLocalFsFilePersistenceProviderContext from './context/file/TestLocalFsFilePersistenceProviderContext';
-import TestMemoryFilePersistenceProviderContext from './context/file/TestMemoryFilePersistenceProviderContext';
-import TestS3FilePersistenceProviderContext from './context/file/TestS3FilePersistenceProviderContext';
 import {generateTestFileName, generateTestFilepathString} from './generate/file';
 import {
   generateFileBackendConfigInput,
@@ -79,19 +74,6 @@ import assert = require('assert');
 
 export function getTestEmailProvider() {
   return new MockTestEmailProviderContext();
-}
-
-export function getTestFileProvider(appVariables: FimidaraConfig) {
-  if (appVariables.fileBackend === FilePersistenceType.S3) {
-    return new TestS3FilePersistenceProviderContext(appVariables.awsRegion);
-  } else if (appVariables.fileBackend === FilePersistenceType.Memory) {
-    return new TestMemoryFilePersistenceProviderContext();
-  } else if (appVariables.fileBackend === FilePersistenceType.LocalFs) {
-    appAssert(appVariables.localFsDir);
-    return new TestLocalFsFilePersistenceProviderContext(appVariables.localFsDir);
-  }
-
-  throw new Error(`Invalid file backend type ${appVariables.fileBackend}`);
 }
 
 export async function initTests() {
@@ -114,7 +96,7 @@ export function mockExpressRequest(token?: BaseTokenData) {
 }
 
 export function mockExpressRequestWithAgentToken(
-  token: Pick<AgentToken, 'resourceId' | 'createdAt' | 'expires'>
+  token: Pick<AgentToken, 'resourceId' | 'createdAt' | 'expiresAt'>
 ) {
   const req: IServerRequest = {
     auth: {

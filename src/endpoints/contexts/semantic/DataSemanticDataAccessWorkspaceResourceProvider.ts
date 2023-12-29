@@ -4,6 +4,7 @@ import {DataProviderQueryListParams, DataQuery} from '../data/types';
 import {DataSemanticBaseProvider} from './DataSemanticDataAccessBaseProvider';
 import {
   SemanticProviderMutationRunOptions,
+  SemanticProviderQueryListRunOptions,
   SemanticProviderRunOptions,
   SemanticWorkspaceResourceProviderBaseType,
   SemanticWorkspaceResourceProviderType,
@@ -11,7 +12,7 @@ import {
 import {getInAndNinQuery} from './utils';
 
 export class DataSemanticWorkspaceResourceProvider<
-    T extends SemanticWorkspaceResourceProviderBaseType
+    T extends SemanticWorkspaceResourceProviderBaseType,
   >
   extends DataSemanticBaseProvider<T>
   implements SemanticWorkspaceResourceProviderType<T>
@@ -69,7 +70,15 @@ export class DataSemanticWorkspaceResourceProvider<
     opts: SemanticProviderMutationRunOptions
   ): Promise<void> {
     const query: DataQuery<WorkspaceResource> = {workspaceId};
-    await this.data.deleteOneByQuery(query as DataQuery<T>, opts);
+    await this.data.deleteManyByQuery(query as DataQuery<T>, opts);
+  }
+
+  async getManyByWorkspaceId(
+    workspaceId: string,
+    opts?: SemanticProviderQueryListRunOptions<T>
+  ): Promise<T[]> {
+    const query: DataQuery<WorkspaceResource> = {workspaceId};
+    return await this.data.getManyByQuery(query as DataQuery<T>, opts);
   }
 
   async countManyByIdList(

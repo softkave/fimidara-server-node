@@ -4,8 +4,9 @@ import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 
 const filePresignedPathSchema = ensureMongoTypeFields<FilePresignedPath>({
   ...workspaceResourceSchema,
-  namepath: {type: [String], default: [], index: true},
-  actions: {type: [String], default: [], index: true},
+  fileId: {type: String, index: true},
+  namepath: {type: [String], index: true},
+  actions: {type: [String], index: true},
   extension: {type: String, index: true},
   maxUsageCount: {type: Number},
   expiresAt: {type: Date},

@@ -22,7 +22,6 @@ import {throwFileNotFound, throwFilePresignedPathNotFound} from '../../files/uti
 import {throwFolderNotFound} from '../../folders/utils';
 import {throwPermissionGroupNotFound} from '../../permissionGroups/utils';
 import {throwPermissionItemNotFound} from '../../permissionItems/utils';
-import {throwAppRuntimeStateFound} from '../../runtime/utils';
 import {throwTagNotFound} from '../../tags/utils';
 import {throwUsageRecordNotFound} from '../../usageRecords/utils';
 import {throwUserNotFound} from '../../users/utils';
@@ -131,7 +130,7 @@ export class AppRuntimeStateMongoDataProvider
   extends BaseMongoDataProvider<AppRuntimeState>
   implements AppRuntimeStateDataProvider
 {
-  throwNotFound = throwAppRuntimeStateFound;
+  throwNotFound = throwNotFound;
 }
 
 export class AgentTokenMongoDataProvider

@@ -11,15 +11,6 @@ export interface SemanticFolderProvider
     query: {workspaceId: string; namepath: string[]},
     opts?: SemanticProviderRunOptions
   ): Promise<Folder | null>;
-  getAndUpdateOneBynamepath(
-    query: {workspaceId: string; namepath: string[]},
-    update: Partial<Folder>,
-    opts?: SemanticProviderRunOptions
-  ): Promise<Folder | null>;
-  getManyByNamepath(
-    query: {workspaceId: string; namepath: string[]},
-    opts?: SemanticProviderRunOptions & DataProviderQueryListParams<Folder>
-  ): Promise<Folder[]>;
   getManyByWorkspaceParentAndIdList(
     q: {
       workspaceId: string;
