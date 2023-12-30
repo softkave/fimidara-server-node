@@ -377,14 +377,12 @@ const uploadFileEndpointHTTPHeaders = mddocConstruct
     'x-fimidara-file-mimetype': mddocConstruct.constructFieldObjectField(false, mimetype),
     'content-encoding': mddocConstruct.constructFieldObjectField(false, encoding),
   })
-  .setDescription('Upload file endpoint HTTP headers.')
+
   .setName('UploadFileEndpointHTTPHeaders');
 const uploadFileResponseBody = mddocConstruct
   .constructFieldObject<UploadFileEndpointResult>()
   .setName('UploadFileEndpointResult')
-  .setFields({file: mddocConstruct.constructFieldObjectField(true, file)})
-  .setDescription('Upload file endpoint success result.');
-
+  .setFields({file: mddocConstruct.constructFieldObjectField(true, file)});
 export const readFilePOSTEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
     InferFieldObjectType<

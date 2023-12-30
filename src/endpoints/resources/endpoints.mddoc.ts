@@ -73,9 +73,7 @@ const getResourcesResponseBody = mddocConstruct
       true,
       mddocConstruct.constructFieldArray<ResourceWrapper>().setType(resourceWrapper)
     ),
-  })
-  .setDescription('Get resources endpoint success result.');
-
+  });
 export const getResourcesEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
     InferFieldObjectType<

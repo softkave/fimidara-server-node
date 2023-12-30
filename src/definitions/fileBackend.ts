@@ -1,4 +1,5 @@
-import {ObjectValues} from '../utils/types';
+import {PersistedFileDescription} from '../endpoints/contexts/file/types';
+import {ObjectValues, Omit1} from '../utils/types';
 import {
   AppResourceType,
   ConvertAgentToPublicAgent,
@@ -43,6 +44,7 @@ export interface ResolvedMountEntry extends WorkspaceResource {
   extension?: string;
   resolvedFor: string;
   resolvedForType: AppResourceType;
+  other: Omit1<PersistedFileDescription, 'filepath' | 'mountId' | 'type'> | null;
 }
 
 export type PublicFileBackendMount = PublicWorkspaceResource &

@@ -153,6 +153,7 @@ export function generateResolvedMountEntryForTest(
     extension: faker.system.fileExt(),
     resolvedFor: getNewIdForResource(kAppResourceType.File),
     resolvedForType: kAppResourceType.File,
+    other: null,
     ...seed,
   };
   return config;

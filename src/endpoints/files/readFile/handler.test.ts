@@ -1,4 +1,5 @@
 import {Readable} from 'stream';
+import {kAppResourceType} from '../../../definitions/system';
 import {streamToBuffer} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import RequestData from '../../RequestData';
@@ -166,8 +167,17 @@ describe('readFile', () => {
     });
     await insertResolvedMountEntries({
       agent: makeUserSessionAgent(rawUser, userToken),
-      mountIds: [mount.resourceId],
       resource: file,
+      mountFiles: [
+        {
+          mountId: mount.resourceId,
+          type: kAppResourceType.File,
+          encoding: file.encoding,
+          mimetype: file.mimetype,
+          size: file.size,
+          lastUpdatedAt: file.lastUpdatedAt,
+        },
+      ],
     });
 
     const testBuffer = Buffer.from('Reading from secondary mount source.');

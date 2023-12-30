@@ -1,6 +1,7 @@
 import {flatten, forEach} from 'lodash';
 import {Promise} from 'mongoose';
 import {File} from '../../../definitions/file';
+import {DeleteResourceJobParams, kJobType} from '../../../definitions/job';
 import {PermissionItem} from '../../../definitions/permissionItem';
 import {
   AppResourceType,
@@ -9,17 +10,17 @@ import {
   kAppResourceType,
 } from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
-import {extractResourceIdList, isObjectEmpty, toArray} from '../../../utils/fns';
+import {isObjectEmpty, toArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {GetTypeFromTypeOrArray} from '../../../utils/types';
 import {DataQuery} from '../../contexts/data/types';
+import {kSemanticModels} from '../../contexts/injectables';
 import {getInAndNinQuery} from '../../contexts/semantic/utils';
 import {kFolderConstants} from '../../folders/constants';
-import {enqueueDeleteResourceJob} from '../../jobs/utils';
+import {JobInput, queueJobs} from '../../jobs/utils';
 import {PermissionItemInputTarget} from '../types';
 import {getPermissionItemTargets} from '../utils';
 import {DeletePermissionItemInput, DeletePermissionItemsEndpointParams} from './types';
-import {kSemanticModels} from '../../contexts/injectables';
 
 export const INTERNAL_deletePermissionItems = async (
   agent: SessionAgent,
@@ -30,7 +31,9 @@ export const INTERNAL_deletePermissionItems = async (
 
   // Extract out targets
   data.items?.forEach(item => {
-    if (item.target) inputTargets = inputTargets.concat(toArray(item.target));
+    if (item.target) {
+      inputTargets = inputTargets.concat(toArray(item.target));
+    }
   });
 
   // Fetch targets
@@ -43,11 +46,13 @@ export const INTERNAL_deletePermissionItems = async (
     if (
       item.resourceType === kAppResourceType.File ||
       item.resourceType === kAppResourceType.Folder
-    )
+    ) {
       return (item.resource as unknown as Pick<File, 'namepath'>).namepath.join(
         kFolderConstants.separator
       );
-    else return '';
+    } else {
+      return '';
+    }
   };
 
   // Index targets by ID and name path (for files and folders). This is for fast
@@ -149,7 +154,7 @@ export const INTERNAL_deletePermissionItems = async (
   });
 
   if (!queries.length) {
-    return;
+    return [];
   }
 
   // TODO: deleting one after the other may not be the best way to go here
@@ -157,12 +162,19 @@ export const INTERNAL_deletePermissionItems = async (
     queries.map(query => kSemanticModels.permissionItem().getManyByQuery(query))
   );
   const permissionItems = flatten(result);
-  const permissionItemsIdList = extractResourceIdList(permissionItems);
+  const jobs = await queueJobs(
+    workspace.resourceId,
+    /** parentjobId */ undefined,
+    permissionItems.map(
+      (item): JobInput<DeleteResourceJobParams> => ({
+        type: kJobType.deleteResource,
+        params: {
+          type: kAppResourceType.PermissionItem,
+          args: {workspaceId: workspace.resourceId, resourceId: item.resourceId},
+        },
+      })
+    )
+  );
 
-  const job = await enqueueDeleteResourceJob({
-    type: kAppResourceType.PermissionItem,
-    args: {permissionItemsIdList, workspaceId: workspace.resourceId},
-  });
-
-  return job;
+  return jobs;
 };

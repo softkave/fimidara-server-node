@@ -1,14 +1,16 @@
+import {keyBy} from 'lodash';
 import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
+import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {kAppResourceType} from '../../../definitions/system';
-import {appAssert} from '../../../utils/assertion';
+import {extractResourceIdList} from '../../../utils/fns';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injectables';
+import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generate/permissionItem';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   initTests,
   insertPermissionGroupForTest,
-  insertPermissionItemsForTest,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -31,36 +33,44 @@ test('permission items deleted', async () => {
     userToken,
     workspace.resourceId
   );
-  await insertPermissionItemsForTest(userToken, workspace.resourceId, {
+  const items = await generateAndInsertPermissionItemListForTest(10, {
+    workspaceId: workspace.resourceId,
+    action: kPermissionsMap.readFile,
+    targetId: workspace.resourceId,
     entityId: permissionGroup.resourceId,
-    target: {targetId: workspace.resourceId},
-    access: true,
-    action: 'readFile',
   });
+
   const instData = RequestData.fromExpressRequest<DeletePermissionItemsEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
       workspaceId: workspace.resourceId,
-      items: [{action: 'readFile', target: {targetId: workspace.resourceId}}],
+      items: [
+        {action: kPermissionsMap.readFile, target: {targetId: workspace.resourceId}},
+      ],
     }
   );
   const result = await deletePermissionItems(instData);
   assertEndpointResultOk(result);
 
-  appAssert(result.jobId);
-  const job = await kSemanticModels.job().getOneByQuery<Job<DeleteResourceJobParams>>({
+  const itemIds = extractResourceIdList(items);
+  const jobItemIds = result.jobs.map(job => job.resourceId);
+  expect(itemIds).toEqual(expect.arrayContaining(jobItemIds));
+
+  const resultJobsById = keyBy(result.jobs, job => job.jobId);
+  const jobIds = Object.keys(resultJobsById);
+  const jobs = (await kSemanticModels.job().getManyByQuery({
     type: kJobType.deleteResource,
-    resourceId: result.jobId,
-    params: {
-      $objMatch: {
-        type: kAppResourceType.PermissionItem,
-        args: {resourceId: user.resourceId, workspaceId: workspace.resourceId},
-      },
-    },
-  });
-  expect(job).toBeTruthy();
-  expect(job?.params.args).toMatchObject({
-    resourceId: workspace.resourceId,
-    workspaceId: workspace.resourceId,
+    resourceId: {$in: jobIds},
+  })) as Job<DeleteResourceJobParams>[];
+  const jobsById = keyBy(jobs, job => job.resourceId);
+  jobIds.forEach(id => {
+    const resultJob = resultJobsById[id];
+    const job = jobsById[id];
+    expect(job).toBeTruthy();
+    const params: DeleteResourceJobParams = {
+      type: kAppResourceType.PermissionItem,
+      args: {resourceId: resultJob.resourceId, workspaceId: workspace.resourceId},
+    };
+    expect(job.params).toMatchObject(params);
   });
 });

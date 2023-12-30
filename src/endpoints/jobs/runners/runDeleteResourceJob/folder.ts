@@ -40,7 +40,7 @@ const getComplexArtifacts: DeleteResourceGetComplexArtifactsFns = {
     if (folder) {
       return await kSemanticModels
         .folder()
-        .getManyByQuery(FolderQueries.getByParent(folder), opts);
+        .getManyByQuery(FolderQueries.getByParentId(folder), opts);
     }
 
     return [];
@@ -51,7 +51,7 @@ const getComplexArtifacts: DeleteResourceGetComplexArtifactsFns = {
     if (folder) {
       return await kSemanticModels
         .file()
-        .getManyByQuery(FolderQueries.getByParent(folder), opts);
+        .getManyByQuery(FolderQueries.getByParentId(folder), opts);
     }
 
     return [];

@@ -5,17 +5,15 @@ import {
   mddocConstruct,
 } from '../../mddoc/mddoc';
 import {multilineTextToParagraph} from '../../utils/fns';
-import {
-  fReusables,
-  mddocEndpointHttpHeaderItems,
-  mddocEndpointHttpResponseItems,
-} from '../endpoints.mddoc';
+import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc';
 import {AddPermissionItemsEndpointParams} from './addItems/types';
 import {permissionItemConstants} from './constants';
 import {
   DeletePermissionItemInput,
   DeletePermissionItemInputTarget,
   DeletePermissionItemsEndpointParams,
+  DeletePermissionItemsEndpointResult,
+  DeletePermissionItemsEndpointResultJobItem,
 } from './deleteItems/types';
 import {
   ResolveEntityPermissionItemInput,
@@ -252,9 +250,7 @@ const addPermissionItemsParams = mddocConstruct
       fReusables.workspaceIdInput
     ),
     items: mddocConstruct.constructFieldObjectField(true, newPermissionItemInputList),
-  })
-  .setDescription('Add permission items endpoint params.');
-
+  });
 const resolveEntityPermissionsParams = mddocConstruct
   .constructFieldObject<ResolveEntityPermissionsEndpointParams>()
   .setName('ResolveEntityPermissionsEndpointParams')
@@ -267,16 +263,13 @@ const resolveEntityPermissionsParams = mddocConstruct
       true,
       resolvePermissionsItemInputList
     ),
-  })
-  .setDescription('Resolve entity permissions endpoint params.');
+  });
 const resolveEntityPermissionsResponseBody = mddocConstruct
   .constructFieldObject<ResolveEntityPermissionsEndpointResult>()
   .setName('ResolveEntityPermissionsEndpointResult')
   .setFields({
     items: mddocConstruct.constructFieldObjectField(true, resolvedPermissionItemList),
-  })
-  .setDescription('Resolve entity permissions endpoint result.');
-
+  });
 const deletePermissionItemsParams = mddocConstruct
   .constructFieldObject<DeletePermissionItemsEndpointParams>()
   .setName('DeletePermissionItemsEndpointParams')
@@ -286,9 +279,25 @@ const deletePermissionItemsParams = mddocConstruct
       fReusables.workspaceIdInput
     ),
     items: mddocConstruct.constructFieldObjectField(false, deletePermissionItemInputList),
-  })
-  .setDescription('Delete permission items endpoint params.');
-
+  });
+const deletePermissionItemsResultJobItem = mddocConstruct
+  .constructFieldObject<DeletePermissionItemsEndpointResultJobItem>()
+  .setName('DeletePermissionItemsEndpointResultJobItem')
+  .setFields({
+    jobId: mddocConstruct.constructFieldObjectField(true, fReusables.jobId),
+    resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
+  });
+const deletePermissionItemsResult = mddocConstruct
+  .constructFieldObject<DeletePermissionItemsEndpointResult>()
+  .setName('DeletePermissionItemsEndpointResult')
+  .setFields({
+    jobs: mddocConstruct.constructFieldObjectField(
+      true,
+      mddocConstruct
+        .constructFieldArray<DeletePermissionItemsEndpointResultJobItem>()
+        .setType(deletePermissionItemsResultJobItem)
+    ),
+  });
 export const addPermissionItemsEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
     InferFieldObjectType<
@@ -314,8 +323,7 @@ export const addPermissionItemsEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setName('AddPermissionItemsEndpoint')
-  .setDescription('Add permission items endpoint.');
+  .setName('AddPermissionItemsEndpoint');
 
 export const deletePermissionItemsEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -345,9 +353,8 @@ export const deletePermissionItemsEndpointDefinition = mddocConstruct
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
-  .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
-  .setName('DeletePermissionItemsEndpoint')
-  .setDescription('Delete permission items endpoint.');
+  .setResponseBody(deletePermissionItemsResult)
+  .setName('DeletePermissionItemsEndpoint');
 
 export const resolveEntityPermissionsEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -378,7 +385,6 @@ export const resolveEntityPermissionsEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(resolveEntityPermissionsResponseBody)
-  .setName('ResolveEntityPermissionsEndpoint')
-  .setDescription('Resolve entity permissions endpoint.');
+  .setName('ResolveEntityPermissionsEndpoint');
 
 export const permissionItemMddocParts = {entityId, entityIdOrList, entityIdList};

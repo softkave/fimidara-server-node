@@ -300,17 +300,17 @@ describe('uploadFile', () => {
     const [dbFile01, dbFile02, dbFile03] = await Promise.all([
       kSemanticModels.file().getOneByNamepath({
         workspaceId: workspace.resourceId,
-        namepath: pathinfo01.filepathExcludingExt,
+        namepath: pathinfo01.namepath,
         extension: pathinfo01.extension,
       }),
       kSemanticModels.file().getOneByNamepath({
         workspaceId: workspace.resourceId,
-        namepath: pathinfo02.filepathExcludingExt,
+        namepath: pathinfo02.namepath,
         extension: pathinfo02.extension,
       }),
       kSemanticModels.file().getOneByNamepath({
         workspaceId: workspace.resourceId,
-        namepath: pathinfo03.filepathExcludingExt,
+        namepath: pathinfo03.namepath,
         extension: pathinfo03.extension,
       }),
     ]);
@@ -328,17 +328,17 @@ describe('uploadFile', () => {
     const [latestDbFile01, latestDbFile02, latestDbFile03] = await Promise.all([
       kSemanticModels.file().getOneByNamepath({
         workspaceId: workspace.resourceId,
-        namepath: pathinfo01.filepathExcludingExt,
+        namepath: pathinfo01.namepath,
         extension: pathinfo01.extension,
       }),
       kSemanticModels.file().getOneByNamepath({
         workspaceId: workspace.resourceId,
-        namepath: pathinfo02.filepathExcludingExt,
+        namepath: pathinfo02.namepath,
         extension: pathinfo02.extension,
       }),
       kSemanticModels.file().getOneByNamepath({
         workspaceId: workspace.resourceId,
-        namepath: pathinfo03.filepathExcludingExt,
+        namepath: pathinfo03.namepath,
         extension: pathinfo03.extension,
       }),
     ]);

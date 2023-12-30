@@ -170,14 +170,11 @@ const addWorkspaceParams = mddocConstruct
       fReusables.workspaceRootname
     ),
     description: mddocConstruct.constructFieldObjectField(false, workspaceDescription),
-  })
-  .setDescription('Add workspace endpoint params.');
+  });
 const addWorkspaceResponseBody = mddocConstruct
   .constructFieldObject<AddWorkspaceEndpointResult>()
   .setName('AddWorkspaceEndpointResult')
-  .setFields({workspace: mddocConstruct.constructFieldObjectField(true, workspace)})
-  .setDescription('Add workspace endpoint success result.');
-
+  .setFields({workspace: mddocConstruct.constructFieldObjectField(true, workspace)});
 const getWorkspaceParams = mddocConstruct
   .constructFieldObject<EndpointOptionalWorkspaceIDParam>()
   .setName('GetWorkspaceEndpointParams')
@@ -186,22 +183,18 @@ const getWorkspaceParams = mddocConstruct
       false,
       fReusables.workspaceIdInput
     ),
-  })
-  .setDescription('Get workspace endpoint params.');
+  });
 const getWorkspaceResponseBody = mddocConstruct
   .constructFieldObject<GetWorkspaceEndpointResult>()
   .setName('GetWorkspaceEndpointResult')
-  .setFields({workspace: mddocConstruct.constructFieldObjectField(true, workspace)})
-  .setDescription('Get workspace endpoint success result.');
-
+  .setFields({workspace: mddocConstruct.constructFieldObjectField(true, workspace)});
 const getUserWorkspacesParams = mddocConstruct
   .constructFieldObject<GetUserWorkspacesEndpointParams>()
   .setName('GetUserWorkspacesEndpointParams')
   .setFields({
     page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
     pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
-  })
-  .setDescription('Get user workspaces endpoint params.');
+  });
 const getUserWorkspacesResponseBody = mddocConstruct
   .constructFieldObject<GetUserWorkspacesEndpointResult>()
   .setName('GetUserWorkspacesEndpointResult')
@@ -211,9 +204,7 @@ const getUserWorkspacesResponseBody = mddocConstruct
       true,
       mddocConstruct.constructFieldArray<PublicWorkspace>().setType(workspace)
     ),
-  })
-  .setDescription('Get user workspaces endpoint success result.');
-
+  });
 const updateWorkspaceParams = mddocConstruct
   .constructFieldObject<UpdateWorkspaceEndpointParams>()
   .setName('UpdateWorkspaceEndpointParams')
@@ -235,14 +226,11 @@ const updateWorkspaceParams = mddocConstruct
           ),
         })
     ),
-  })
-  .setDescription('Update workspace endpoint params.');
+  });
 const updateWorkspaceResponseBody = mddocConstruct
   .constructFieldObject<UpdateWorkspaceEndpointResult>()
   .setName('UpdateWorkspaceEndpointResult')
-  .setFields({workspace: mddocConstruct.constructFieldObjectField(true, workspace)})
-  .setDescription('Update workspace endpoint success result.');
-
+  .setFields({workspace: mddocConstruct.constructFieldObjectField(true, workspace)});
 const deleteWorkspaceParams = mddocConstruct
   .constructFieldObject<EndpointOptionalWorkspaceIDParam>()
   .setName('DeleteWorkspaceEndpointParams')
@@ -251,9 +239,7 @@ const deleteWorkspaceParams = mddocConstruct
       false,
       fReusables.workspaceIdInput
     ),
-  })
-  .setDescription('Delete workspace endpoint params.');
-
+  });
 export const addWorkspaceEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
     InferFieldObjectType<
@@ -279,8 +265,7 @@ export const addWorkspaceEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(addWorkspaceResponseBody)
-  .setName('AddWorkspaceEndpoint')
-  .setDescription('Add workspace endpoint.');
+  .setName('AddWorkspaceEndpoint');
 
 export const getWorkspaceEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -307,8 +292,7 @@ export const getWorkspaceEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getWorkspaceResponseBody)
-  .setName('GetWorkspaceEndpoint')
-  .setDescription('Get workspace endpoint.');
+  .setName('GetWorkspaceEndpoint');
 
 export const getUserWorkspacesEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -337,8 +321,7 @@ export const getUserWorkspacesEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getUserWorkspacesResponseBody)
-  .setName('GetUserWorkspacesEndpoint')
-  .setDescription('Get user workspaces endpoint.');
+  .setName('GetUserWorkspacesEndpoint');
 
 export const updateWorkspaceEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -367,8 +350,7 @@ export const updateWorkspaceEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(updateWorkspaceResponseBody)
-  .setName('UpdateWorkspaceEndpoint')
-  .setDescription('Update workspace endpoint.');
+  .setName('UpdateWorkspaceEndpoint');
 
 export const deleteWorkspaceEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -397,8 +379,7 @@ export const deleteWorkspaceEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
-  .setName('DeleteWorkspaceEndpoint')
-  .setDescription('Delete workspace endpoint.');
+  .setName('DeleteWorkspaceEndpoint');
 
 export const countUserWorkspacesEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -426,7 +407,6 @@ export const countUserWorkspacesEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
-  .setName('CountUserWorkspacesEndpoint')
-  .setDescription('Count workspace user workspaces endpoint.');
+  .setName('CountUserWorkspacesEndpoint');
 
 export const workspaceEndpointsMddocParts = {workspace};

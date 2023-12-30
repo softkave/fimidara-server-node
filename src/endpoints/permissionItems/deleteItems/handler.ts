@@ -3,7 +3,10 @@ import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kUtilsInjectables} from '../../contexts/injectables';
 import {checkWorkspaceExists} from '../../workspaces/utils';
-import {DeletePermissionItemsEndpoint} from './types';
+import {
+  DeletePermissionItemsEndpoint,
+  DeletePermissionItemsEndpointResult,
+} from './types';
 import {INTERNAL_deletePermissionItems} from './utils';
 import {deletePermissionItemsJoiSchema} from './validation';
 
@@ -18,8 +21,17 @@ const deletePermissionItems: DeletePermissionItemsEndpoint = async instData => {
     workspace,
     target: {targetId: workspaceId, action: 'updatePermission'},
   });
-  const job = await INTERNAL_deletePermissionItems(agent, workspace, data);
-  return {jobId: job?.resourceId};
+
+  const jobs = await INTERNAL_deletePermissionItems(agent, workspace, data);
+  const result = jobs.reduce(
+    (acc, job) => {
+      acc.push({jobId: job.resourceId, resourceId: job.params.args.resourceId});
+      return acc;
+    },
+    [] as DeletePermissionItemsEndpointResult['jobs']
+  );
+
+  return {jobs: result};
 };
 
 export default deletePermissionItems;

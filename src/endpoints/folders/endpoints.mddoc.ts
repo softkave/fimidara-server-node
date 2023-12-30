@@ -1,9 +1,5 @@
 import {PublicFile} from '../../definitions/file';
-import {
-  FolderMatcher,
-  FolderResolvedMountEntry,
-  PublicFolder,
-} from '../../definitions/folder';
+import {FolderMatcher, PublicFolder} from '../../definitions/folder';
 import {kAppResourceType} from '../../definitions/system';
 import {
   FieldObjectFieldsMap,
@@ -62,18 +58,6 @@ const updateFolderInput = mddocConstruct
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
   });
 
-const folderResolvedMountEntry = mddocConstruct
-  .constructFieldObject<FolderResolvedMountEntry>()
-  .setName('FolderResolvedMountEntry')
-  .setFields({
-    mountId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-    resolvedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
-  });
-
-const folderResolvedMountEntryList = mddocConstruct
-  .constructFieldArray<FolderResolvedMountEntry>()
-  .setType(folderResolvedMountEntry);
-
 const folder = mddocConstruct
   .constructFieldObject<PublicFolder>()
   .setName('Folder')
@@ -89,10 +73,6 @@ const folder = mddocConstruct
     idPath: mddocConstruct.constructFieldObjectField(true, fReusables.idPath),
     namepath: mddocConstruct.constructFieldObjectField(true, fReusables.foldernamepath),
     parentId: mddocConstruct.constructFieldObjectField(true, fReusables.folderIdOrNull),
-    resolvedEntries: mddocConstruct.constructFieldObjectField(
-      true,
-      folderResolvedMountEntryList
-    ),
   });
 
 const folderMatcherParts: FieldObjectFieldsMap<FolderMatcher> = {

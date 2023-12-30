@@ -103,8 +103,7 @@ const getWorkspaceSummedUsageParams = mddocConstruct
     page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
     pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
     query: mddocConstruct.constructFieldObjectField(false, summedUsageQuery),
-  })
-  .setDescription('Get workspace summed usage records endpoint params.');
+  });
 const getWorkspaceSummedUsageResponseBody = mddocConstruct
   .constructFieldObject<GetWorkspaceSummedUsageEndpointResult>()
   .setName('GetWorkspaceSummedUsageEndpointResult')
@@ -114,9 +113,7 @@ const getWorkspaceSummedUsageResponseBody = mddocConstruct
       mddocConstruct.constructFieldArray<PublicUsageRecord>().setType(usageRecord)
     ),
     page: mddocConstruct.constructFieldObjectField(true, fReusables.page),
-  })
-  .setDescription('Get workspace summed usage records endpoint success result.');
-
+  });
 const countWorkspaceSummedUsageParams = mddocConstruct
   .constructFieldObject<CountWorkspaceSummedUsageEndpointParams>()
   .setName('CountWorkspaceSummedUsageEndpointParams')
@@ -126,15 +123,11 @@ const countWorkspaceSummedUsageParams = mddocConstruct
       fReusables.workspaceIdInput
     ),
     query: mddocConstruct.constructFieldObjectField(false, summedUsageQuery),
-  })
-  .setDescription('Count workspace summed usage records endpoint params.');
-
+  });
 const getUsageCostsResponseBody = mddocConstruct
   .constructFieldObject<GetUsageCostsEndpointResult>()
   .setName('GetUsageCostsEndpointResult')
-  .setFields({costs: mddocConstruct.constructFieldObjectField(true, usageCosts)})
-  .setDescription('Get usage costs endpoint success result.');
-
+  .setFields({costs: mddocConstruct.constructFieldObjectField(true, usageCosts)});
 export const getUsageCostsEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
     InferFieldObjectType<
@@ -159,8 +152,7 @@ export const getUsageCostsEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getUsageCostsResponseBody)
-  .setName('GetUsageCostsEndpoint')
-  .setDescription('Get usage costs endpoint.');
+  .setName('GetUsageCostsEndpoint');
 
 export const getWorkspaceSummedUsageEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -191,8 +183,7 @@ export const getWorkspaceSummedUsageEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getWorkspaceSummedUsageResponseBody)
-  .setName('GetWorkspaceSummedUsageEndpoint')
-  .setDescription('Get workspace summed usage records endpoint.');
+  .setName('GetWorkspaceSummedUsageEndpoint');
 
 export const countWorkspaceSummedUsageEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -223,5 +214,4 @@ export const countWorkspaceSummedUsageEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
-  .setName('CountWorkspaceSummedUsageEndpoint')
-  .setDescription('Count workspace summed usage records endpoint.');
+  .setName('CountWorkspaceSummedUsageEndpoint');

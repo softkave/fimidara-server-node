@@ -78,7 +78,7 @@ const statusType = mddocConstruct
   .setEnumName('CollaborationRequestStatusType');
 const response = mddocConstruct
   .constructFieldString()
-  .setDescription('Collaboration request response.')
+
   .setValid([
     CollaborationRequestStatusTypeMap.Accepted,
     CollaborationRequestStatusTypeMap.Declined,
@@ -139,10 +139,6 @@ const collaborationRequestForWorkspace = mddocConstruct
     readAt: mddocConstruct.constructFieldObjectField(false, fReusables.date),
     status: mddocConstruct.constructFieldObjectField(true, statusType),
     statusDate: mddocConstruct.constructFieldObjectField(true, fReusables.date),
-    providedResourceId: mddocConstruct.constructFieldObjectField(
-      false,
-      fReusables.providedResourceIdOrNull
-    ),
   });
 
 const sendCollaborationRequestParams = mddocConstruct
@@ -151,8 +147,7 @@ const sendCollaborationRequestParams = mddocConstruct
   .setFields({
     workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceId),
     request: mddocConstruct.constructFieldObjectField(true, newCollaborationRequestInput),
-  })
-  .setDescription('Send collaboration request endpoint params.');
+  });
 const sendCollaborationRequestResponseBody = mddocConstruct
   .constructFieldObject<SendCollaborationRequestEndpointResult>()
   .setName('SendCollaborationRequestEndpointResult')
@@ -161,9 +156,7 @@ const sendCollaborationRequestResponseBody = mddocConstruct
       true,
       collaborationRequestForWorkspace
     ),
-  })
-  .setDescription('Send collaboration request endpoint success result.');
-
+  });
 const getWorkspaceCollaborationRequestsParams = mddocConstruct
   .constructFieldObject<GetWorkspaceCollaborationRequestsEndpointParams>()
   .setName('GetWorkspaceCollaborationRequestsEndpointParams')
@@ -174,8 +167,7 @@ const getWorkspaceCollaborationRequestsParams = mddocConstruct
     ),
     page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
     pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
-  })
-  .setDescription('Get workspace collaboration requests endpoint params.');
+  });
 const getWorkspaceCollaborationRequestsResponseBody = mddocConstruct
   .constructFieldObject<GetWorkspaceCollaborationRequestsEndpointResult>()
   .setName('GetWorkspaceCollaborationRequestsEndpointResult')
@@ -187,9 +179,7 @@ const getWorkspaceCollaborationRequestsResponseBody = mddocConstruct
         .setType(collaborationRequestForWorkspace)
     ),
     page: mddocConstruct.constructFieldObjectField(true, fReusables.page),
-  })
-  .setDescription('Get workspace collaboration requests endpoint success result.');
-
+  });
 const countWorkspaceCollaborationRequestsParams = mddocConstruct
   .constructFieldObject<CountWorkspaceCollaborationRequestsEndpointParams>()
   .setName('CountWorkspaceCollaborationRequestsEndpointParams')
@@ -198,17 +188,14 @@ const countWorkspaceCollaborationRequestsParams = mddocConstruct
       false,
       fReusables.workspaceIdInput
     ),
-  })
-  .setDescription('Count workspace collaboration requests endpoint params.');
-
+  });
 const getUserCollaborationRequestsParams = mddocConstruct
   .constructFieldObject<GetUserCollaborationRequestsEndpointParams>()
   .setName('GetUserCollaborationRequestsEndpointParams')
   .setFields({
     page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
     pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
-  })
-  .setDescription('Get user collaboration requests endpoint params.');
+  });
 const getUserCollaborationRequestsResponseBody = mddocConstruct
   .constructFieldObject<GetUserCollaborationRequestsEndpointResult>()
   .setName('GetUserCollaborationRequestsEndpointResult')
@@ -220,9 +207,7 @@ const getUserCollaborationRequestsResponseBody = mddocConstruct
         .setType(collaborationRequestForUser)
     ),
     page: mddocConstruct.constructFieldObjectField(true, fReusables.page),
-  })
-  .setDescription('Get user collaboration requests endpoint success result.');
-
+  });
 const updateCollaborationRequestParams = mddocConstruct
   .constructFieldObject<UpdateCollaborationRequestEndpointParams>()
   .setName('UpdateCollaborationRequestEndpointParams')
@@ -232,8 +217,7 @@ const updateCollaborationRequestParams = mddocConstruct
       true,
       updateCollaborationRequestInput
     ),
-  })
-  .setDescription('Update collaboration request endpoint params.');
+  });
 const updateCollaborationRequestResponseBody = mddocConstruct
   .constructFieldObject<UpdateCollaborationRequestEndpointResult>()
   .setName('UpdateCollaborationRequestEndpointResult')
@@ -242,40 +226,32 @@ const updateCollaborationRequestResponseBody = mddocConstruct
       true,
       collaborationRequestForWorkspace
     ),
-  })
-  .setDescription('Update collaboration request endpoint success result.');
-
+  });
 const respondToCollaborationRequestParams = mddocConstruct
   .constructFieldObject<RespondToCollaborationRequestEndpointParams>()
   .setName('RespondToCollaborationRequestEndpointParams')
   .setFields({
     requestId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
     response: mddocConstruct.constructFieldObjectField(true, response),
-  })
-  .setDescription('Respond to collaboration request endpoint params.');
+  });
 const respondToCollaborationRequestResponseBody = mddocConstruct
   .constructFieldObject<RespondToCollaborationRequestEndpointResult>()
   .setName('RespondToCollaborationRequestEndpointResult')
   .setFields({
     request: mddocConstruct.constructFieldObjectField(true, collaborationRequestForUser),
-  })
-  .setDescription('Respond to collaboration request endpoint success result.');
-
+  });
 const getCollaborationRequestForUserParams = mddocConstruct
   .constructFieldObject<GetUserCollaborationRequestEndpointParams>()
   .setName('GetUserCollaborationRequestEndpointParams')
   .setFields({
     requestId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-  })
-  .setDescription('Get collaboration request endpoint params.');
+  });
 const getCollaborationRequestForUserResponseBody = mddocConstruct
   .constructFieldObject<GetUserCollaborationRequestEndpointResult>()
   .setName('GetUserCollaborationRequestEndpointResult')
   .setFields({
     request: mddocConstruct.constructFieldObjectField(true, collaborationRequestForUser),
-  })
-  .setDescription('Get collaboration request endpoint success result.');
-
+  });
 const getCollaborationRequestForWorkspaceParams = mddocConstruct
   .constructFieldObject<GetWorkspaceCollaborationRequestEndpointParams>()
   .setName('GetWorkspaceCollaborationRequestEndpointParams')
@@ -285,8 +261,7 @@ const getCollaborationRequestForWorkspaceParams = mddocConstruct
       false,
       fReusables.workspaceIdInput
     ),
-  })
-  .setDescription('Get collaboration request endpoint params.');
+  });
 const getCollaborationRequestForWorkspaceResponseBody = mddocConstruct
   .constructFieldObject<GetWorkspaceCollaborationRequestEndpointResult>()
   .setName('GetWorkspaceCollaborationRequestEndpointResult')
@@ -295,16 +270,13 @@ const getCollaborationRequestForWorkspaceResponseBody = mddocConstruct
       true,
       collaborationRequestForWorkspace
     ),
-  })
-  .setDescription('Get collaboration request endpoint success result.');
-
+  });
 const revokeCollaborationRequestParams = mddocConstruct
   .constructFieldObject<RevokeCollaborationRequestEndpointParams>()
   .setName('RevokeCollaborationRequestEndpointParams')
   .setFields({
     requestId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-  })
-  .setDescription('Revoke collaboration request endpoint params.');
+  });
 const revokeCollaborationRequestResponseBody = mddocConstruct
   .constructFieldObject<RevokeCollaborationRequestEndpointResult>()
   .setName('RevokeCollaborationRequestEndpointResult')
@@ -313,17 +285,13 @@ const revokeCollaborationRequestResponseBody = mddocConstruct
       true,
       collaborationRequestForWorkspace
     ),
-  })
-  .setDescription('Revoke collaboration request endpoint success result.');
-
+  });
 const deleteCollaborationRequestParams = mddocConstruct
   .constructFieldObject<DeleteCollaborationRequestEndpointParams>()
   .setName('DeleteCollaborationRequestEndpointParams')
   .setFields({
     requestId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-  })
-  .setDescription('Delete collaboration request endpoint params.');
-
+  });
 export const sendCollaborationRequestEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
     InferFieldObjectType<
@@ -353,8 +321,7 @@ export const sendCollaborationRequestEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(sendCollaborationRequestResponseBody)
-  .setName('SendCollaborationRequestEndpoint')
-  .setDescription('Send collaboration request endpoint.');
+  .setName('SendCollaborationRequestEndpoint');
 
 export const getUserCollaborationRequestEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -385,8 +352,7 @@ export const getUserCollaborationRequestEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getCollaborationRequestForUserResponseBody)
-  .setName('GetUserCollaborationRequestEndpoint')
-  .setDescription('Get user collaboration request endpoint.');
+  .setName('GetUserCollaborationRequestEndpoint');
 
 export const getWorkspaceCollaborationRequestEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -417,8 +383,7 @@ export const getWorkspaceCollaborationRequestEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getCollaborationRequestForWorkspaceResponseBody)
-  .setName('GetWorkspaceCollaborationRequestEndpoint')
-  .setDescription('Get workspace collaboration request endpoint.');
+  .setName('GetWorkspaceCollaborationRequestEndpoint');
 
 export const updateCollaborationRequestEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -449,8 +414,7 @@ export const updateCollaborationRequestEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(updateCollaborationRequestResponseBody)
-  .setName('UpdateCollaborationRequestEndpoint')
-  .setDescription('Update collaboration request endpoint.');
+  .setName('UpdateCollaborationRequestEndpoint');
 
 export const respondToCollaborationRequestEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -481,8 +445,7 @@ export const respondToCollaborationRequestEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(respondToCollaborationRequestResponseBody)
-  .setName('RespondToCollaborationRequestEndpoint')
-  .setDescription('Respond to collaboration request endpoint.');
+  .setName('RespondToCollaborationRequestEndpoint');
 
 export const revokeCollaborationRequestEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -513,8 +476,7 @@ export const revokeCollaborationRequestEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(revokeCollaborationRequestResponseBody)
-  .setName('RevokeCollaborationRequestEndpoint')
-  .setDescription('Revoke collaboration request endpoint.');
+  .setName('RevokeCollaborationRequestEndpoint');
 
 export const deleteCollaborationRequestEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -545,8 +507,7 @@ export const deleteCollaborationRequestEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
-  .setName('DeleteCollaborationRequestEndpoint')
-  .setDescription('Delete collaboration request endpoint.');
+  .setName('DeleteCollaborationRequestEndpoint');
 
 export const getWorkspaceCollaborationRequestsEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -577,8 +538,7 @@ export const getWorkspaceCollaborationRequestsEndpointDefinition = mddocConstruc
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getWorkspaceCollaborationRequestsResponseBody)
-  .setName('GetWorkspaceCollaborationRequestsEndpoint')
-  .setDescription('Get workspace collaboration requests endpoint.');
+  .setName('GetWorkspaceCollaborationRequestsEndpoint');
 
 export const getUserCollaborationRequestsEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -609,8 +569,7 @@ export const getUserCollaborationRequestsEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getUserCollaborationRequestsResponseBody)
-  .setName('GetUserCollaborationRequestsEndpoint')
-  .setDescription('Get user collaboration requests endpoint.');
+  .setName('GetUserCollaborationRequestsEndpoint');
 
 export const countUserCollaborationRequestsEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -640,8 +599,7 @@ export const countUserCollaborationRequestsEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
-  .setName('CountUserCollaborationRequestsEndpoint')
-  .setDescription('Count user collaboration requests endpoint.');
+  .setName('CountUserCollaborationRequestsEndpoint');
 
 export const countWorkspaceCollaborationRequestsEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -672,5 +630,4 @@ export const countWorkspaceCollaborationRequestsEndpointDefinition = mddocConstr
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
-  .setName('CountWorkspaceCollaborationRequestsEndpoint')
-  .setDescription('Count workspace collaboration requests endpoint.');
+  .setName('CountWorkspaceCollaborationRequestsEndpoint');

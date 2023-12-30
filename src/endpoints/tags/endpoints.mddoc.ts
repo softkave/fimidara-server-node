@@ -69,14 +69,11 @@ const addTagParams = mddocConstruct
   .setFields({
     workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceId),
     tag: mddocConstruct.constructFieldObjectField(true, newTagInput),
-  })
-  .setDescription('Add tag endpoint params.');
+  });
 const addTagResponseBody = mddocConstruct
   .constructFieldObject<AddTagEndpointResult>()
   .setName('AddTagEndpointResult')
-  .setFields({tag: mddocConstruct.constructFieldObjectField(true, tag)})
-  .setDescription('Add tag endpoint success result.');
-
+  .setFields({tag: mddocConstruct.constructFieldObjectField(true, tag)});
 const getWorkspaceTagsParams = mddocConstruct
   .constructFieldObject<GetWorkspaceTagsEndpointParams>()
   .setName('GetWorkspaceTagsEndpointParams')
@@ -87,8 +84,7 @@ const getWorkspaceTagsParams = mddocConstruct
     ),
     page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
     pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
-  })
-  .setDescription('Get workspace tags endpoint params.');
+  });
 const getWorkspaceTagsResponseBody = mddocConstruct
   .constructFieldObject<GetWorkspaceTagsEndpointResult>()
   .setName('GetWorkspaceTagsEndpointResult')
@@ -98,9 +94,7 @@ const getWorkspaceTagsResponseBody = mddocConstruct
       mddocConstruct.constructFieldArray<PublicTag>().setType(tag)
     ),
     page: mddocConstruct.constructFieldObjectField(true, fReusables.page),
-  })
-  .setDescription('Get workspace tags endpoint success result.');
-
+  });
 const countWorkspaceTagsParams = mddocConstruct
   .constructFieldObject<CountWorkspaceTagsEndpointParams>()
   .setName('CountWorkspaceTagsEndpointParams')
@@ -109,44 +103,34 @@ const countWorkspaceTagsParams = mddocConstruct
       false,
       fReusables.workspaceIdInput
     ),
-  })
-  .setDescription('Count workspace tags endpoint params.');
-
+  });
 const updateTagParams = mddocConstruct
   .constructFieldObject<UpdateTagEndpointParams>()
   .setName('UpdateTagEndpointParams')
   .setFields({
     tagId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
     tag: mddocConstruct.constructFieldObjectField(true, updateTagInput),
-  })
-  .setDescription('Update tag endpoint params.');
+  });
 const updateTagResponseBody = mddocConstruct
   .constructFieldObject<UpdateTagEndpointResult>()
   .setName('UpdateTagEndpointResult')
-  .setFields({tag: mddocConstruct.constructFieldObjectField(true, tag)})
-  .setDescription('Update tag endpoint success result.');
-
+  .setFields({tag: mddocConstruct.constructFieldObjectField(true, tag)});
 const getTagParams = mddocConstruct
   .constructFieldObject<GetTagEndpointParams>()
   .setName('GetTagEndpointParams')
   .setFields({
     tagId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-  })
-  .setDescription('Get tag endpoint params.');
+  });
 const getTagResponseBody = mddocConstruct
   .constructFieldObject<GetTagEndpointResult>()
   .setName('GetTagEndpointResult')
-  .setFields({tag: mddocConstruct.constructFieldObjectField(true, tag)})
-  .setDescription('Get tag endpoint success result.');
-
+  .setFields({tag: mddocConstruct.constructFieldObjectField(true, tag)});
 const deleteTagParams = mddocConstruct
   .constructFieldObject<DeleteTagEndpointParams>()
   .setName('DeleteTagEndpointParams')
   .setFields({
     tagId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-  })
-  .setDescription('Delete tag endpoint params.');
-
+  });
 export const addTagEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
     InferFieldObjectType<AddTagHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
@@ -166,8 +150,7 @@ export const addTagEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(addTagResponseBody)
-  .setName('AddTagEndpoint')
-  .setDescription('Add tag endpoint.');
+  .setName('AddTagEndpoint');
 
 export const getTagEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -188,8 +171,7 @@ export const getTagEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getTagResponseBody)
-  .setName('GetTagEndpoint')
-  .setDescription('Get tag endpoint.');
+  .setName('GetTagEndpoint');
 
 export const updateTagEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -210,8 +192,7 @@ export const updateTagEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(updateTagResponseBody)
-  .setName('UpdateTagEndpoint')
-  .setDescription('Update tag endpoint.');
+  .setName('UpdateTagEndpoint');
 
 export const deleteTagEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -232,8 +213,7 @@ export const deleteTagEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
-  .setName('DeleteTagEndpoint')
-  .setDescription('Delete tag endpoint.');
+  .setName('DeleteTagEndpoint');
 
 export const getWorkspaceTagsEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -262,8 +242,7 @@ export const getWorkspaceTagsEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getWorkspaceTagsResponseBody)
-  .setName('GetWorkspaceTagsEndpoint')
-  .setDescription('Get workspace tags endpoint.');
+  .setName('GetWorkspaceTagsEndpoint');
 
 export const countWorkspaceTagsEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -292,5 +271,4 @@ export const countWorkspaceTagsEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
-  .setName('CountWorkspaceTagsEndpoint')
-  .setDescription('Count workspace tags endpoint.');
+  .setName('CountWorkspaceTagsEndpoint');

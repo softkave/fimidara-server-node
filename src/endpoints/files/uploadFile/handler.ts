@@ -1,6 +1,6 @@
 import {merge, pick} from 'lodash';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {kPermissionAgentTypes} from '../../../definitions/system';
+import {kAppResourceType, kPermissionAgentTypes} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {ValidationError} from '../../../utils/errors';
@@ -99,7 +99,16 @@ const uploadFile: UploadFileEndpoint = async instData => {
         insertResolvedMountEntries({
           agent,
           resource: file,
-          mountIds: [primaryMount.resourceId],
+          mountFiles: [
+            {
+              mountId: primaryMount.resourceId,
+              type: kAppResourceType.File,
+              encoding: file.encoding,
+              mimetype: file.mimetype,
+              size: file.size,
+              lastUpdatedAt: file.lastUpdatedAt,
+            },
+          ],
         }),
       ]);
 

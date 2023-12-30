@@ -75,13 +75,11 @@ const addAgentTokenParams = mddocConstruct
   .setFields({
     workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceId),
     token: mddocConstruct.constructFieldObjectField(true, newAgentTokenInput),
-  })
-  .setDescription('Add agent token endpoint params.');
+  });
 const addAgentTokenSuccessResponseBody = mddocConstruct
   .constructFieldObject<AddAgentTokenEndpointResult>()
   .setName('AddAgentTokenEndpointResult')
-  .setFields({token: mddocConstruct.constructFieldObjectField(true, agentToken)})
-  .setDescription('Add agent token endpoint success result.');
+  .setFields({token: mddocConstruct.constructFieldObjectField(true, agentToken)});
 
 const getWorkspaceAgentTokensParams = mddocConstruct
   .constructFieldObject<GetWorkspaceAgentTokensEndpointParams>()
@@ -93,8 +91,7 @@ const getWorkspaceAgentTokensParams = mddocConstruct
     ),
     page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
     pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
-  })
-  .setDescription('Get workspace agent tokens endpoint params.');
+  });
 const getWorkspaceAgentTokensSuccessResponseBody = mddocConstruct
   .constructFieldObject<GetWorkspaceAgentTokensEndpointResult>()
   .setName('GetWorkspaceAgentTokensEndpointResult')
@@ -104,8 +101,7 @@ const getWorkspaceAgentTokensSuccessResponseBody = mddocConstruct
       mddocConstruct.constructFieldArray<PublicAgentToken>().setType(agentToken)
     ),
     page: mddocConstruct.constructFieldObjectField(true, fReusables.page),
-  })
-  .setDescription('Add agent token endpoint success result.');
+  });
 
 const countWorkspaceAgentTokensParams = mddocConstruct
   .constructFieldObject<CountWorkspaceAgentTokensEndpointParams>()
@@ -115,8 +111,7 @@ const countWorkspaceAgentTokensParams = mddocConstruct
       false,
       fReusables.workspaceIdInput
     ),
-  })
-  .setDescription('Count workspace agent tokens endpoint params.');
+  });
 
 const updateAgentTokenParams = mddocConstruct
   .constructFieldObject<UpdateAgentTokenEndpointParams>()
@@ -136,14 +131,11 @@ const updateAgentTokenParams = mddocConstruct
       false,
       fReusables.providedResourceId
     ),
-  })
-  .setDescription('Update agent token endpoint params.');
+  });
 const updateAgentTokenSuccessResponseBody = mddocConstruct
   .constructFieldObject<UpdateAgentTokenEndpointResult>()
   .setName('UpdateAgentTokenEndpointResult')
-  .setFields({token: mddocConstruct.constructFieldObjectField(true, agentToken)})
-  .setDescription('Update agent token endpoint success result.');
-
+  .setFields({token: mddocConstruct.constructFieldObjectField(true, agentToken)});
 const getAgentTokenParams = mddocConstruct
   .constructFieldObject<GetAgentTokenEndpointParams>()
   .setName('GetAgentTokenEndpointParams')
@@ -161,14 +153,11 @@ const getAgentTokenParams = mddocConstruct
       false,
       fReusables.effectOnReferenced
     ),
-  })
-  .setDescription('Get agent token endpoint params.');
+  });
 const getAgentTokenSuccessBody = mddocConstruct
   .constructFieldObject<GetAgentTokenEndpointResult>()
   .setName('GetAgentTokenEndpointResult')
-  .setFields({token: mddocConstruct.constructFieldObjectField(true, agentToken)})
-  .setDescription('Get agent token endpoint success result.');
-
+  .setFields({token: mddocConstruct.constructFieldObjectField(true, agentToken)});
 const deleteAgentTokenParams = mddocConstruct
   .constructFieldObject<DeleteAgentTokenEndpointParams>()
   .setName('DeleteAgentTokenEndpointParams')
@@ -186,9 +175,7 @@ const deleteAgentTokenParams = mddocConstruct
       false,
       fReusables.workspaceIdInput
     ),
-  })
-  .setDescription('Delete agent token endpoint params.');
-
+  });
 export const addAgentTokenEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
     InferFieldObjectType<
@@ -214,8 +201,7 @@ export const addAgentTokenEndpointDefinition = mddocConstruct
   )
   .setResponseBody(addAgentTokenSuccessResponseBody)
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
-  .setName('AddAgentTokenEndpoint')
-  .setDescription('Add agent token endpoint.');
+  .setName('AddAgentTokenEndpoint');
 
 export const getAgentTokenEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -242,8 +228,7 @@ export const getAgentTokenEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getAgentTokenSuccessBody)
-  .setName('GetAgentTokenEndpoint')
-  .setDescription('Get agent token endpoint.');
+  .setName('GetAgentTokenEndpoint');
 
 export const updateAgentTokenEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -272,8 +257,7 @@ export const updateAgentTokenEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(updateAgentTokenSuccessResponseBody)
-  .setName('UpdateAgentTokenEndpoint')
-  .setDescription('Update agent token endpoint.');
+  .setName('UpdateAgentTokenEndpoint');
 
 export const deleteAgentTokenEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -302,8 +286,7 @@ export const deleteAgentTokenEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
-  .setName('DeleteAgentTokenEndpoint')
-  .setDescription('Delete agent token endpoint.');
+  .setName('DeleteAgentTokenEndpoint');
 
 export const getWorkspaceAgentTokensEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -334,8 +317,7 @@ export const getWorkspaceAgentTokensEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(getWorkspaceAgentTokensSuccessResponseBody)
-  .setName('GetWorkspaceAgentTokensEndpoint')
-  .setDescription('Get workspace agent tokens endpoint.');
+  .setName('GetWorkspaceAgentTokensEndpoint');
 
 export const countWorkspaceAgentTokensEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -366,5 +348,4 @@ export const countWorkspaceAgentTokensEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
-  .setName('CountWorkspaceAgentTokensEndpoint')
-  .setDescription('Count workspace agent tokens endpoint.');
+  .setName('CountWorkspaceAgentTokensEndpoint');

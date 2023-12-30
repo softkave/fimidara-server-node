@@ -31,8 +31,7 @@ const getJobStatusResponseBody = mddocConstruct
   .setName('GetJobStatusEndpointResult')
   .setFields({
     status: mddocConstruct.constructFieldObjectField(true, jobStatus),
-  })
-  .setDescription('Get job status endpoint success result.');
+  });
 
 export const getJobStatusEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<

@@ -25,7 +25,23 @@ function getByAncestor(
   };
 }
 
-function getByParent(
+function getByParentPath(
+  folder: Pick<Folder, 'workspaceId' | 'namepath'>
+): Pick<FolderQuery, 'workspaceId' | 'namepath'> {
+  const {namepath, workspaceId} = folder;
+  return {
+    workspaceId,
+    namepath: {$size: namepath.length + 1},
+    ...getStringListQuery<Folder>(
+      namepath,
+      /** prefix */ 'namepath',
+      /** matcher op */ '$eq',
+      /** include size */ false
+    ),
+  };
+}
+
+function getByParentId(
   folder: Pick<Folder, 'workspaceId' | 'resourceId'>
 ): Pick<FolderQuery, 'workspaceId' | 'parentId'> {
   const {resourceId, workspaceId} = folder;
@@ -35,5 +51,6 @@ function getByParent(
 export abstract class FolderQueries {
   static getByNamepath = getByNamepath;
   static getByAncestor = getByAncestor;
-  static getByParent = getByParent;
+  static getByParentId = getByParentId;
+  static getByParentPath = getByParentPath;
 }

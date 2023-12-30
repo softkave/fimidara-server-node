@@ -15,12 +15,13 @@ import {getTimestamp} from '../../utils/dateFns';
 import {ServerError} from '../../utils/errors';
 import {getResourceTypeFromId, newWorkspaceResource} from '../../utils/resource';
 import {kReuseableErrors} from '../../utils/reusableErrors';
-import {PartialRecord} from '../../utils/types';
+import {Omit1, PartialRecord} from '../../utils/types';
 import {kAsyncLocalStorageUtils} from '../contexts/asyncLocalStorage';
 import {DataQuery} from '../contexts/data/types';
 import {
   FilePersistenceProvider,
   FilePersistenceProviderFeature,
+  PersistedFileDescription,
 } from '../contexts/file/types';
 import {isFilePersistenceProvider} from '../contexts/file/utils';
 import {kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
@@ -249,15 +250,17 @@ export function populateMountUnsupportedOpNoteInNotFoundError(
 
 export async function insertResolvedMountEntries(props: {
   agent: Agent;
-  mountIds: string[];
-  resource: Pick<File, 'resourceId' | 'namepath' | 'extension' | 'workspaceId'>;
+  resource: Pick<File, 'resourceId' | 'workspaceId' | 'namepath' | 'extension'>;
+  mountFiles: Array<Omit1<PersistedFileDescription, 'filepath'>>;
 }) {
-  const {mountIds, resource, agent} = props;
+  const {resource, agent, mountFiles} = props;
+  const mountFilesByMountId = keyBy(mountFiles, mountFile => mountFile.mountId);
+  const mountIds = Object.keys(mountFilesByMountId);
 
   await kSemanticModels.utils().withTxn(async opts => {
     const existingEntries = await kSemanticModels.resolvedMountEntry().getManyByQuery({
       workspaceId: resource.workspaceId,
-      resourceId: resource.resourceId,
+      resolvedFor: resource.resourceId,
       mountId: {$in: mountIds},
     });
     const existingEntriesMap = keyBy(existingEntries, entry => entry.mountId);
@@ -267,9 +270,21 @@ export async function insertResolvedMountEntries(props: {
     const updateEntries: Array<[string, Partial<ResolvedMountEntry>]> = [];
     mountIds.forEach(mountId => {
       const existingEntry = existingEntriesMap[mountId];
+      const mountFile = mountFilesByMountId[mountId];
 
       if (existingEntry) {
-        updateEntries.push([existingEntry.resourceId, {resolvedAt: getTimestamp()}]);
+        updateEntries.push([
+          existingEntry.resourceId,
+          {
+            resolvedAt: getTimestamp(),
+            other: {
+              encoding: mountFile.encoding,
+              mimetype: mountFile.mimetype,
+              size: mountFile.size,
+              lastUpdatedAt: mountFile.lastUpdatedAt,
+            },
+          },
+        ]);
       } else {
         newEntries.push(
           newWorkspaceResource(
@@ -283,6 +298,12 @@ export async function insertResolvedMountEntries(props: {
               resolvedAt: getTimestamp(),
               namepath: resource.namepath,
               extension: resource.extension,
+              other: {
+                encoding: mountFile.encoding,
+                mimetype: mountFile.mimetype,
+                size: mountFile.size,
+                lastUpdatedAt: mountFile.lastUpdatedAt,
+              },
             }
           )
         );

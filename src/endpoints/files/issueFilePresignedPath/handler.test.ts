@@ -7,7 +7,6 @@ import {NotFoundError} from '../../errors';
 import {addRootnameToPath} from '../../folders/utils';
 import {generateTestFileName} from '../../testUtils/generate/file';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {expectFileBodyEqualById} from '../../testUtils/helpers/file';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
@@ -26,6 +25,7 @@ import {ReadFileEndpointParams} from '../readFile/types';
 import {stringifyFilenamepath} from '../utils';
 import issueFilePresignedPath from './handler';
 import {IssueFilePresignedPathEndpointParams} from './types';
+import {expectFileBodyEqualById} from '../../testUtils/helpers/file';
 
 beforeAll(async () => {
   await initTests();

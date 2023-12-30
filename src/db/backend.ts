@@ -1,4 +1,4 @@
-import {Connection, Document, Model, Schema} from 'mongoose';
+import {Connection, Document, Model, Schema, SchemaTypes} from 'mongoose';
 import {
   FileBackendConfig,
   FileBackendMount,
@@ -63,6 +63,7 @@ const resolvedMountEntrySchema = ensureMongoTypeFields<ResolvedMountEntry>({
   extension: {type: String, index: true},
   resolvedFor: {type: String, index: true},
   resolvedForType: {type: String, index: true},
+  other: {type: SchemaTypes.Map},
 });
 
 const resolvedEntrySchema = new Schema<ResolvedMountEntry>(resolvedMountEntrySchema);

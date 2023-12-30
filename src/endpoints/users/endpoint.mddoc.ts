@@ -88,9 +88,7 @@ const loginResponseBody = mddocConstruct
       true,
       fReusables.tokenString
     ),
-  })
-  .setDescription('User login result.');
-
+  });
 const signupParams = mddocConstruct
   .constructFieldObject<SignupEndpointParams>()
   .setName('SignupEndpointParams')
@@ -99,41 +97,31 @@ const signupParams = mddocConstruct
     lastName: mddocConstruct.constructFieldObjectField(true, fReusables.lastName),
     email: mddocConstruct.constructFieldObjectField(true, fReusables.emailAddress),
     password: mddocConstruct.constructFieldObjectField(true, fReusables.password),
-  })
-  .setDescription('Signup user endpoint params.');
-
+  });
 const loginParams = mddocConstruct
   .constructFieldObject<LoginEndpointParams>()
   .setName('LoginParams')
   .setFields({
     email: mddocConstruct.constructFieldObjectField(true, fReusables.emailAddress),
     password: mddocConstruct.constructFieldObjectField(true, currentPassword),
-  })
-  .setDescription('Login endpoint params.');
-
+  });
 const forgotPasswordParams = mddocConstruct
   .constructFieldObject<ForgotPasswordEndpointParams>()
   .setName('ForgotPasswordEndpointParams')
   .setFields({
     email: mddocConstruct.constructFieldObjectField(true, fReusables.emailAddress),
-  })
-  .setDescription('Forgot password endpoint params.');
-
+  });
 const changePasswordWithCurrentPasswordParams = mddocConstruct
   .constructFieldObject<ChangePasswordWithCurrentPasswordEndpointParams>()
   .setName('ChangePasswordWithCurrentPasswordEndpointParams')
   .setFields({
     currentPassword: mddocConstruct.constructFieldObjectField(true, currentPassword),
     password: mddocConstruct.constructFieldObjectField(true, newPassword),
-  })
-  .setDescription('Change password with current password endpoint params.');
-
+  });
 const changePasswordWithTokenParams = mddocConstruct
   .constructFieldObject<ChangePasswordWithTokenEndpointParams>()
   .setName('ChangePasswordWithTokenEndpointParams')
-  .setFields({password: mddocConstruct.constructFieldObjectField(true, newPassword)})
-  .setDescription('Change password with token endpoint params.');
-
+  .setFields({password: mddocConstruct.constructFieldObjectField(true, newPassword)});
 const updateUserParams = mddocConstruct
   .constructFieldObject<UpdateUserEndpointParams>()
   .setName('UpdateUserEndpointParams')
@@ -141,23 +129,19 @@ const updateUserParams = mddocConstruct
     firstName: mddocConstruct.constructFieldObjectField(false, fReusables.firstName),
     lastName: mddocConstruct.constructFieldObjectField(false, fReusables.lastName),
     email: mddocConstruct.constructFieldObjectField(false, fReusables.emailAddress),
-  })
-  .setDescription('Update user endpoint params.');
+  });
 const updateUserResponseBody = mddocConstruct
   .constructFieldObject<UpdateUserEndpointResult>()
   .setName('UpdateUserEndpointResult')
   .setFields({
     user: mddocConstruct.constructFieldObjectField(true, user),
-  })
-  .setDescription('Update user result.');
-
+  });
 const userExistsParams = mddocConstruct
   .constructFieldObject<UserExistsEndpointParams>()
   .setName('UserExistsEndpointParams')
   .setFields({
     email: mddocConstruct.constructFieldObjectField(true, fReusables.emailAddress),
-  })
-  .setDescription('User exists endpoint params.');
+  });
 const userExistsHttpResponseBody = mddocConstruct
   .constructFieldObject<UserExistsEndpointResult>()
   .setFields({
@@ -185,8 +169,7 @@ export const signupEndpointDefinition = mddocConstruct
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_JsonContentType)
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(loginResponseBody)
-  .setName('SignupEndpoint')
-  .setDescription('Signup user endpoint.');
+  .setName('SignupEndpoint');
 
 export const loginEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -205,8 +188,7 @@ export const loginEndpointDefinition = mddocConstruct
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_JsonContentType)
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(loginResponseBody)
-  .setName('LoginEndpoint')
-  .setDescription('Login endpoint.');
+  .setName('LoginEndpoint');
 
 export const forgotPasswordEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -231,8 +213,7 @@ export const forgotPasswordEndpointDefinition = mddocConstruct
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(forgotPasswordParams)
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_JsonContentType)
-  .setName('ForgotPasswordEndpoint')
-  .setDescription('Forgot password endpoint.');
+  .setName('ForgotPasswordEndpoint');
 
 // TODO: mddoc doesn't enforce required types, we may have to switch to just
 // types and objects
@@ -299,8 +280,7 @@ export const changePasswordWithCurrentPasswordEndpointDefinition = mddocConstruc
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(loginResponseBody)
-  .setName('ChangePasswordWithCurrentPasswordEndpoint')
-  .setDescription('Change password with current password endpoint.');
+  .setName('ChangePasswordWithCurrentPasswordEndpoint');
 
 export const confirmEmailAddressEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -412,8 +392,7 @@ export const updateUserEndpointDefinition = mddocConstruct
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(updateUserResponseBody)
-  .setName('UpdateUserEndpoint')
-  .setDescription('Update user endpoint.');
+  .setName('UpdateUserEndpoint');
 
 export const userExistsEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -434,7 +413,6 @@ export const userExistsEndpointDefinition = mddocConstruct
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_JsonContentType)
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(userExistsHttpResponseBody)
-  .setName('UserExistsEndpoint')
-  .setDescription('User exists endpoint.');
+  .setName('UserExistsEndpoint');
 
 export const userEndpointsMddocParts = {user};

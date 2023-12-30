@@ -1,8 +1,12 @@
 import {isArray, isNumber, isObject} from 'lodash';
 import {File} from '../../../definitions/file';
+import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraConfigFilePersistenceProvider} from '../../../resources/types';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
+import {FileQueries} from '../../files/queries';
 import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils';
+import {FolderQueries} from '../../folders/queries';
 import {getFolderpathInfo, stringifyFoldernamepath} from '../../folders/utils';
 import {kSemanticModels, kUtilsInjectables} from '../injectables';
 import LocalFsFilePersistenceProvider from './LocalFsFilePersistenceProvider';
@@ -55,19 +59,12 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
   supportsFeature = (feature: FilePersistenceProviderFeature): boolean => {
     switch (feature) {
       case 'deleteFiles':
-        return true;
       case 'deleteFolders':
-        return true;
       case 'describeFile':
-        return true;
       case 'describeFolder':
-        return true;
       case 'describeFolderFiles':
-        return true;
       case 'describeFolderFolders':
-        return true;
       case 'readFile':
-        return true;
       case 'uploadFile':
         return true;
     }
@@ -88,21 +85,19 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
   ): Promise<PersistedFileDescription | undefined> => {
     const {workspaceId, filepath, mount} = params;
     const {namepath, extension} = getFilepathInfo(filepath);
-    const file = await kSemanticModels.file().getOneByQuery({
-      workspaceId,
-      extension,
-      namepath: {$all: namepath, $size: namepath.length},
-      resolvedEntries: {$elemMatch: {mountId: mount.resourceId}},
+    const entry = await kSemanticModels.resolvedMountEntry().getOneByQuery({
+      ...FileQueries.getByNamepath({workspaceId, namepath, extension}),
+      mountId: mount.resourceId,
     });
 
-    if (file) {
+    if (entry) {
       return {
         filepath,
-        type: 'file',
-        lastUpdatedAt: file.lastUpdatedAt,
-        size: file.size,
-        mimetype: file.mimetype,
-        encoding: file.encoding,
+        type: kAppResourceType.File,
+        lastUpdatedAt: entry.lastUpdatedAt,
+        size: entry.other?.size,
+        mimetype: entry.other?.mimetype,
+        encoding: entry.other?.encoding,
         mountId: mount.resourceId,
       };
     }
@@ -115,14 +110,12 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
   ): Promise<PersistedFolderDescription | undefined> => {
     const {workspaceId, folderpath, mount} = params;
     const {namepath} = getFolderpathInfo(folderpath);
-    const folder = await kSemanticModels.folder().getOneByQuery({
-      workspaceId,
-      namepath: {$all: namepath, $size: namepath.length},
-      resolvedEntries: {$elemMatch: {mountId: mount.resourceId}},
-    });
+    const folder = await kSemanticModels
+      .folder()
+      .getOneByQuery(FolderQueries.getByNamepath({workspaceId, namepath}));
 
     if (folder) {
-      return {folderpath, type: 'folder', mountId: mount.resourceId};
+      return {folderpath, type: kAppResourceType.Folder, mountId: mount.resourceId};
     }
 
     return undefined;
@@ -148,13 +141,12 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
         : {page: 0, createdAt: Number.MAX_SAFE_INTEGER, exclude: []};
 
     const pathinfo = getFolderpathInfo(folderpath);
-    const files = await kSemanticModels.file().getManyByQuery(
+    const entries = await kSemanticModels.resolvedMountEntry().getManyByQuery(
       {
-        workspaceId,
-        namepath: {$all: pathinfo.namepath, $size: pathinfo.namepath.length},
+        ...FolderQueries.getByParentPath({workspaceId, namepath: pathinfo.namepath}),
         createdAt: {$lte: currentPage.createdAt},
         resourceId: {$nin: currentPage.exclude},
-        resolvedEntries: {$elemMatch: {mountId: mount.resourceId}},
+        mountId: mount.resourceId,
       },
       {pageSize: max, sort: {createdAt: 'descending'}}
     );
@@ -162,20 +154,20 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
     let createdAtN = currentPage.createdAt;
     let exclude: string[] = currentPage.exclude;
 
-    const childrenFiles = files.map((file): PersistedFileDescription => {
-      if (file.createdAt < createdAtN) {
-        createdAtN = file.createdAt;
+    const childrenFiles = entries.map((entry): PersistedFileDescription => {
+      if (entry.createdAt < createdAtN) {
+        createdAtN = entry.createdAt;
         exclude = [];
       }
 
-      exclude.push(file.resourceId);
+      exclude.push(entry.resourceId);
       return {
-        filepath: stringifyFilenamepath(file),
+        filepath: stringifyFilenamepath(entry),
         type: 'file',
-        lastUpdatedAt: file.lastUpdatedAt,
-        size: file.size,
-        mimetype: file.mimetype,
-        encoding: file.encoding,
+        lastUpdatedAt: entry.lastUpdatedAt,
+        size: entry.other?.size,
+        mimetype: entry.other?.mimetype,
+        encoding: entry.other?.encoding,
         mountId: mount.resourceId,
       };
     });
@@ -201,8 +193,7 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
     const pathinfo = getFolderpathInfo(folderpath);
     const folders = await kSemanticModels.folder().getManyByQuery(
       {
-        workspaceId,
-        namepath: {$all: pathinfo.namepath, $size: pathinfo.namepath.length},
+        ...FolderQueries.getByParentPath({workspaceId, namepath: pathinfo.namepath}),
         createdAt: {$lte: currentPage.createdAt},
         resourceId: {$nin: currentPage.exclude},
       },
@@ -221,7 +212,7 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
       exclude.push(folder.resourceId);
       return {
         folderpath: stringifyFoldernamepath(folder),
-        type: 'folder',
+        type: kAppResourceType.Folder,
         mountId: mount.resourceId,
       };
     });
@@ -242,20 +233,14 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
   protected getBackend = (): FilePersistenceProvider => {
     const config = kUtilsInjectables.config();
 
-    if (config.fileBackend === 'fimidara') {
-      throw new Error(
-        'Restart the server with a different file backend besides fimidara'
-      );
-    }
-
     switch (config.fileBackend) {
-      case 'aws-s3':
+      case kFimidaraConfigFilePersistenceProvider.s3:
         appAssert(config.awsConfig);
         return new S3FilePersistenceProvider(config.awsConfig);
-      case 'local-fs':
+      case kFimidaraConfigFilePersistenceProvider.fs:
         appAssert(config.localFsDir);
         return new LocalFsFilePersistenceProvider({dir: config.localFsDir});
-      case 'memory':
+      case kFimidaraConfigFilePersistenceProvider.memory:
         return new MemoryFilePersistenceProvider();
       default:
         throw kReuseableErrors.file.unknownBackend(config.fileBackend);
