@@ -21,7 +21,7 @@ export class AWSSecretsManagerProvider implements SecretsManagerProvider {
   protected client: SecretsManagerClient;
 
   constructor() {
-    const config = kUtilsInjectables.config();
+    const config = kUtilsInjectables.suppliedConfig();
     appAssert(config.awsConfig);
 
     const {accessKeyId, secretAccessKey, region} = config.awsConfig;
@@ -74,5 +74,9 @@ export class AWSSecretsManagerProvider implements SecretsManagerProvider {
 
     appAssert(response.SecretString);
     return {text: response.SecretString};
+  };
+
+  close = async () => {
+    await this.client.destroy();
   };
 }

@@ -1,4 +1,4 @@
-import {fimidaraConfig} from '../resources/vars';
+import {kUtilsInjectables} from '../endpoints/contexts/injectables';
 import {
   emailHelperChars,
   emailStylingHelpers,
@@ -13,14 +13,18 @@ import {
 } from './helpers';
 import {BaseEmailTemplateProps} from './types';
 
-export const upgradedFromWaitlistEmailTitle = `You've been upgraded from the waitlist`;
-const message = `You've been upgraded from the waitlist, now you have full access to ${fimidaraConfig.appName}.`;
+export const upgradedFromWaitlistEmailTitle = "You've been upgraded from the waitlist";
+const message = `You've been upgraded from the waitlist, now you have full access to ${
+  kUtilsInjectables.suppliedConfig().appName
+}.`;
 
 export interface UpgradedFromWaitlistEmailProps extends BaseEmailTemplateProps {
   firstName: string;
 }
 
-export function upgradedFromWaitlistEmailHTML(props: UpgradedFromWaitlistEmailProps): string {
+export function upgradedFromWaitlistEmailHTML(
+  props: UpgradedFromWaitlistEmailProps
+): string {
   return `
 <!DOCTYPE html>
 <html lang="en-US">
@@ -44,7 +48,9 @@ export function upgradedFromWaitlistEmailHTML(props: UpgradedFromWaitlistEmailPr
   `;
 }
 
-export function upgradedFromWaitlistEmailText(props: UpgradedFromWaitlistEmailProps): string {
+export function upgradedFromWaitlistEmailText(
+  props: UpgradedFromWaitlistEmailProps
+): string {
   const text = `${getHeaderText(upgradedFromWaitlistEmailTitle)}
 ${emailHelperChars.emDash}
 ${getGreetingText(props)}

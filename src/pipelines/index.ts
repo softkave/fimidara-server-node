@@ -1,6 +1,7 @@
 import {CronJob} from 'cron';
 import {getMongoConnection} from '../db/connection';
-import {fimidaraConfig} from '../resources/vars';
+import {getSuppliedConfig} from '../resources/config';
+import {appAssert} from '../utils/assertion';
 import {aggregateRecords} from './aggregate-usage-records/aggregateUsageRecords';
 import {unlockUsageThresholdLocks} from './unlock-usage-threshold-locks/unlockUsageThresholdLocks';
 import {FimidaraPipelineNames, pipelineRunInfoFactory} from './utils';
@@ -10,16 +11,20 @@ import {FimidaraPipelineNames, pipelineRunInfoFactory} from './utils';
 // done
 const aggregateUsageRecordsJob = new CronJob(
   /** cronTime */ '0 */10 * * * *', // every 10 minutes
-  /** onTick */ async function () {
+  /** onTick */ async () => {
     const runInfo = pipelineRunInfoFactory({
       job: FimidaraPipelineNames.AggregateUsageRecordsJob,
     });
 
     try {
       runInfo.logger.info('Aggregate usage records job started');
-      const connection = await getMongoConnection(
-        fimidaraConfig.mongoDbURI,
-        fimidaraConfig.mongoDbDatabaseName
+      const config = await getSuppliedConfig();
+      appAssert(config.mongoDbURI);
+      appAssert(config.mongoDbDatabaseName);
+
+      const {connection} = await getMongoConnection(
+        config.mongoDbURI,
+        config.mongoDbDatabaseName
       );
       await aggregateRecords(connection, runInfo);
     } catch (err: any) {
@@ -40,16 +45,20 @@ const aggregateUsageRecordsJob = new CronJob(
 
 const unlockWorkspaceLocksJob = new CronJob(
   /** cronTime */ '0 0 */27 * *', // every month on the 27th at midnight
-  /** onTick */ async function () {
+  /** onTick */ async () => {
     const runInfo = pipelineRunInfoFactory({
       job: FimidaraPipelineNames.UnlockWorkspaceLocksJob,
     });
 
     try {
       runInfo.logger.info('Unlocking workspace locks job started');
-      const connection = await getMongoConnection(
-        fimidaraConfig.mongoDbURI,
-        fimidaraConfig.mongoDbDatabaseName
+      const config = await getSuppliedConfig();
+      appAssert(config.mongoDbURI);
+      appAssert(config.mongoDbDatabaseName);
+
+      const {connection} = await getMongoConnection(
+        config.mongoDbURI,
+        config.mongoDbDatabaseName
       );
 
       await unlockUsageThresholdLocks(connection);

@@ -1,7 +1,12 @@
 import {faker} from '@faker-js/faker';
+import {merge} from 'lodash';
 import {appAssert} from '../../../utils/assertion';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {
+  kRegisterUtilsInjectables,
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injectables';
 import {fetchEntityAssignedPermissionGroupList} from '../../permissionGroups/getEntityAssignedPermissionGroups/utils';
 import EndpointReusableQueries from '../../queries';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
@@ -109,7 +114,9 @@ describe('addWorkspace', () => {
   });
 
   test('fails if user is on waitlist', async () => {
-    kUtilsInjectables.config().FLAG_waitlistNewSignups = true;
+    kRegisterUtilsInjectables.suppliedConfig(
+      merge(kUtilsInjectables.suppliedConfig(), {FLAG_waitlistNewSignups: true})
+    );
     const {userToken} = await insertUserForTest();
     await expectErrorThrown(
       async () => {
@@ -119,7 +126,9 @@ describe('addWorkspace', () => {
       () => {
         // TODO: if we ever switch to concurrent tests, then create a context
         // for this test instead
-        kUtilsInjectables.config().FLAG_waitlistNewSignups = false;
+        kRegisterUtilsInjectables.suppliedConfig(
+          merge(kUtilsInjectables.suppliedConfig(), {FLAG_waitlistNewSignups: false})
+        );
       }
     );
   });

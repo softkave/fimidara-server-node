@@ -1,4 +1,5 @@
-import {last, merge} from 'lodash';
+import assert from 'assert';
+import {last} from 'lodash';
 import {Folder} from '../../definitions/folder';
 import {PermissionGroup} from '../../definitions/permissionGroups';
 import {
@@ -8,13 +9,18 @@ import {
 } from '../../definitions/permissionItem';
 import {AppRuntimeState, SessionAgent, kAppResourceType} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
-import {FimidaraRuntimeConfig} from '../../resources/types';
+import {FimidaraRuntimeConfig} from '../../resources/config';
 import {kSystemSessionAgent} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {getNewIdForResource, kIdSize, newWorkspaceResource} from '../../utils/resource';
 import {makeUserSessionAgent} from '../../utils/sessionUtils';
-import {kDataModels, kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
+import {
+  kDataModels,
+  kRegisterUtilsInjectables,
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../contexts/injectables';
 import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
@@ -63,30 +69,32 @@ async function setupWorkspace(
 }
 
 async function setupDefaultUser(opts: SemanticProviderMutationRunOptions) {
-  let user = await kSemanticModels
-    .user()
-    .getByEmail(kUtilsInjectables.config().rootUserEmail, opts);
+  const suppliedConfig = kUtilsInjectables.suppliedConfig();
+  const nodeEnv = process.env.NODE_ENV;
+  assert(suppliedConfig.rootUserEmail);
+  assert(suppliedConfig.rootUserFirstName);
+  assert(suppliedConfig.rootUserLastName);
+
+  let user = await kSemanticModels.user().getByEmail(suppliedConfig.rootUserEmail, opts);
 
   if (!user) {
-    const isDevEnv =
-      kUtilsInjectables.config().nodeEnv === 'development' ||
-      kUtilsInjectables.config().nodeEnv === 'test';
+    const isDeRelatedvEnv = nodeEnv === 'development' || nodeEnv === 'test';
     user = await INTERNAL_signupUser(
       {
-        email: kUtilsInjectables.config().rootUserEmail,
-        firstName: kUtilsInjectables.config().rootUserFirstName,
-        lastName: kUtilsInjectables.config().rootUserLastName,
-        password: kUtilsInjectables.config().rootUserEmail,
+        email: suppliedConfig.rootUserEmail,
+        firstName: suppliedConfig.rootUserFirstName,
+        lastName: suppliedConfig.rootUserLastName,
+        password: suppliedConfig.rootUserEmail,
       },
       {
-        requiresPasswordChange: isDevEnv ? false : true,
-        isEmailVerified: isDevEnv ? true : false,
+        requiresPasswordChange: isDeRelatedvEnv ? false : true,
+        isEmailVerified: isDeRelatedvEnv ? true : false,
         isOnWaitlist: false,
       },
       opts
     );
 
-    if (!isDevEnv) {
+    if (!isDeRelatedvEnv) {
       await INTERNAL_forgotPassword(user);
       await INTERNAL_sendEmailVerificationCode(user);
     }
@@ -208,7 +216,8 @@ async function getRootWorkspace(
     appUsersImageUploadPermissionGroupId:
       appRuntimeState.appUsersImageUploadPermissionGroupId,
   };
-  merge(kUtilsInjectables.config(), appRuntimeVars);
+
+  kRegisterUtilsInjectables.runtimeConfig(appRuntimeVars);
   const workspace = await kSemanticModels
     .workspace()
     .getOneById(appRuntimeState.appWorkspaceId, opts);
@@ -274,7 +283,8 @@ async function setupAppArtifacts(
     },
     opts
   );
-  merge(kUtilsInjectables.config(), appRuntimeVars);
+
+  kRegisterUtilsInjectables.runtimeConfig(appRuntimeVars);
   return workspace;
 }
 

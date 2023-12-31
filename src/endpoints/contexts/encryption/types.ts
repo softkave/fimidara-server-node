@@ -1,3 +1,5 @@
+import {DisposableResource} from '../../../utils/disposables';
+
 export interface SecretsManagerProviderAddSecretParams {
   text: string;
   name: string;
@@ -25,7 +27,7 @@ export interface SecretsManagerProviderGetSecretResult {
   text: string;
 }
 
-export interface SecretsManagerProvider {
+export interface SecretsManagerProvider extends DisposableResource {
   addSecret: (
     params: SecretsManagerProviderAddSecretParams
   ) => Promise<SecretsManagerProviderAddSecretResult>;

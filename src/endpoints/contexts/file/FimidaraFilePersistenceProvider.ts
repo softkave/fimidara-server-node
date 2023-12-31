@@ -1,7 +1,7 @@
 import {isArray, isNumber, isObject} from 'lodash';
 import {File} from '../../../definitions/file';
 import {kAppResourceType} from '../../../definitions/system';
-import {kFimidaraConfigFilePersistenceProvider} from '../../../resources/types';
+import {kFimidaraConfigFilePersistenceProvider} from '../../../resources/config';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {FileQueries} from '../../files/queries';
@@ -231,7 +231,8 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
   };
 
   protected getBackend = (): FilePersistenceProvider => {
-    const config = kUtilsInjectables.config();
+    const config = kUtilsInjectables.suppliedConfig();
+    appAssert(config.awsConfig);
 
     switch (config.fileBackend) {
       case kFimidaraConfigFilePersistenceProvider.s3:
@@ -243,7 +244,7 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
       case kFimidaraConfigFilePersistenceProvider.memory:
         return new MemoryFilePersistenceProvider();
       default:
-        throw kReuseableErrors.file.unknownBackend(config.fileBackend);
+        throw kReuseableErrors.file.unknownBackend(config.fileBackend || '');
     }
   };
 }

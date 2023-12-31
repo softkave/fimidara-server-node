@@ -29,11 +29,16 @@ async function sendCollaborationRequestResponseEmail(
   response: CollaborationRequestResponse,
   toUser: User
 ) {
+  const suppliedConfig = kUtilsInjectables.suppliedConfig();
+  appAssert(suppliedConfig.clientLoginLink);
+  appAssert(suppliedConfig.clientSignupLink);
+  appAssert(suppliedConfig.appDefaultEmailAddressFrom);
+
   const emailProps: CollaborationRequestResponseEmailProps = {
     response,
     workspaceName: request.workspaceName,
-    loginLink: kUtilsInjectables.config().clientLoginLink,
-    signupLink: kUtilsInjectables.config().clientSignupLink,
+    loginLink: suppliedConfig.clientLoginLink,
+    signupLink: suppliedConfig.clientSignupLink,
     recipientEmail: request.recipientEmail,
     firstName: toUser?.firstName,
   };
@@ -43,7 +48,7 @@ async function sendCollaborationRequestResponseEmail(
     subject: collaborationRequestResponseEmailTitle(emailProps),
     body: {html, text},
     destination: [toUser.email],
-    source: kUtilsInjectables.config().appDefaultEmailAddressFrom,
+    source: suppliedConfig.appDefaultEmailAddressFrom,
   });
 }
 

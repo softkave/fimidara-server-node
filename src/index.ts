@@ -1,15 +1,17 @@
-import cors = require('cors');
-import express = require('express');
-import http = require('http');
 import {expressjwt} from 'express-jwt';
+import 'reflect-metadata';
 import {endpointConstants} from './endpoints/constants';
-import {kUtilsInjectables} from './endpoints/contexts/injectables';
+import {kUtilsInjectables, registerInjectables} from './endpoints/contexts/injectables';
 import {setupFimidaraHttpEndpoints} from './endpoints/endpoints';
 import {startRunner} from './endpoints/jobs/runner';
 import {setupApp} from './endpoints/runtime/initAppSetup';
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
+import {appAssert} from './utils/assertion';
 import {serverLogger} from './utils/logger/loggerUtils';
+import cors = require('cors');
+import express = require('express');
+import http = require('http');
 import process = require('process');
 
 serverLogger.info('server initialization');
@@ -37,10 +39,13 @@ app.use(cors(corsOption));
 app.use(express.json() as express.RequestHandler);
 
 function setupJWT() {
+  const suppliedConfig = kUtilsInjectables.suppliedConfig();
+  appAssert(suppliedConfig.jwtSecret);
+
   app.use(
     // TODO: do further research on JWT options, algorithms and best practices
     expressjwt({
-      secret: kUtilsInjectables.config().jwtSecret,
+      secret: suppliedConfig.jwtSecret,
       credentialsRequired: false,
       algorithms: ['HS256'],
     })
@@ -48,6 +53,8 @@ function setupJWT() {
 }
 
 async function setup() {
+  registerInjectables();
+
   // Run scripts here
   // End of scripts
 
@@ -58,10 +65,14 @@ async function setup() {
   setupFimidaraHttpEndpoints(app);
   app.use(handleErrors);
 
-  httpServer.listen(kUtilsInjectables.config().port, async () => {
-    serverLogger.info(kUtilsInjectables.config().appName);
-    serverLogger.info(kUtilsInjectables.config().nodeEnv);
-    serverLogger.info(`server listening on port ${kUtilsInjectables.config().port}`);
+  const suppliedConfig = kUtilsInjectables.suppliedConfig();
+  appAssert(suppliedConfig.port);
+  appAssert(suppliedConfig.appName);
+
+  httpServer.listen(suppliedConfig.port, async () => {
+    serverLogger.info(suppliedConfig.appName);
+    serverLogger.info(process.env.NODE_ENV);
+    serverLogger.info(`server listening on port ${suppliedConfig.port}`);
 
     // start job runner
     kUtilsInjectables.promiseStore().forget(startRunner());

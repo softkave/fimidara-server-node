@@ -9,6 +9,7 @@ import {
 } from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {kSystemSessionAgent} from '../../../utils/agent';
+import {appAssert} from '../../../utils/assertion';
 import {newResource} from '../../../utils/resource';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
@@ -26,14 +27,18 @@ export const forgotPassword: ForgotPasswordEndpoint = async instData => {
 };
 
 export async function INTERNAL_forgotPassword(user: User) {
+  const suppliedConfig = kUtilsInjectables.suppliedConfig();
+  appAssert(suppliedConfig.clientLoginLink);
+  appAssert(suppliedConfig.clientSignupLink);
+
   const forgotToken = await getForgotPasswordToken(user);
   const link = getForgotPasswordLinkFromToken(forgotToken);
   assert(forgotToken.expiresAt);
   await sendChangePasswordEmail(user.email, {
     expiration: new Date(forgotToken.expiresAt),
     link,
-    signupLink: kUtilsInjectables.config().clientSignupLink,
-    loginLink: kUtilsInjectables.config().clientLoginLink,
+    signupLink: suppliedConfig.clientSignupLink,
+    loginLink: suppliedConfig.clientLoginLink,
     firstName: user.firstName,
   });
 }
@@ -45,10 +50,11 @@ export function getForgotPasswordExpiration() {
 }
 
 export function getForgotPasswordLinkFromToken(forgotToken: AgentToken) {
+  const suppliedConfig = kUtilsInjectables.suppliedConfig();
   const encodedToken = kUtilsInjectables
     .session()
     .encodeToken(forgotToken.resourceId, forgotToken.expiresAt);
-  const link = `${kUtilsInjectables.config().changePasswordLink}?${stringify({
+  const link = `${suppliedConfig.changePasswordLink}?${stringify({
     [userConstants.defaultTokenQueryParam]: encodedToken,
   })}`;
   return link;

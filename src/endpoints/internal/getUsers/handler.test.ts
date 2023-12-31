@@ -32,7 +32,7 @@ describe('getUsers', () => {
       kSemanticModels.utils().withTxn(opts => {
         return assignWorkspaceToUser(
           kSystemSessionAgent,
-          kUtilsInjectables.config().appWorkspaceId,
+          kUtilsInjectables.runtimeConfig().appWorkspaceId,
           user.resourceId,
           opts
         );

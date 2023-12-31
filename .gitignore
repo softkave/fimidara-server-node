@@ -122,3 +122,6 @@ test-local-fs/
 
 # Runtime logs
 runtime-logs/
+
+# config
+local.json

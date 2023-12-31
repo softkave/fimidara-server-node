@@ -5,10 +5,11 @@ import {getMongoConnection} from '../../db/connection';
 import {getWorkspaceModel} from '../../db/workspace';
 import {UsageRecordCategoryMap} from '../../definitions/usageRecord';
 import {Workspace} from '../../definitions/workspace';
+import {kUtilsInjectables} from '../../endpoints/contexts/injectables';
 import {generateWorkspaceListForTest} from '../../endpoints/testUtils/generate/workspace';
 import {dropMongoConnection} from '../../endpoints/testUtils/helpers/mongo';
 import {completeTests} from '../../endpoints/testUtils/helpers/test';
-import {fimidaraConfig} from '../../resources/vars';
+import {initTests} from '../../endpoints/testUtils/testUtils';
 import {kSystemSessionAgent} from '../../utils/agent';
 import {getTimestamp} from '../../utils/dateFns';
 import {unlockUsageThresholdLocks} from './unlockUsageThresholdLocks';
@@ -17,12 +18,17 @@ let connection: Connection | null = null;
 let dbName: string | null = null;
 
 beforeAll(async () => {
+  initTests();
   dbName = faker.lorem.words(5).replace(/ /g, '_');
-  connection = await getMongoConnection(fimidaraConfig.mongoDbURI, dbName);
+  ({connection} = await getMongoConnection(
+    kUtilsInjectables.suppliedConfig().mongoDbURI!,
+    dbName
+  ));
 });
 
 afterAll(async () => {
   await completeTests();
+
   if (connection) {
     await dropMongoConnection(connection);
   }

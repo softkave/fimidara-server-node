@@ -15,19 +15,19 @@ afterAll(async () => {
 describe('init app setup', () => {
   test('app is setup', async () => {
     // setupApp is called internally when getting test context
-
+    const suppliedConfig = kUtilsInjectables.suppliedConfig();
     await kDataModels
       .appRuntimeState()
       .assertGetOneByQuery(
         EndpointReusableQueries.getByResourceId(kAppRuntimeStatsDocId)
       );
     await kSemanticModels.user().assertGetOneByQuery({
-      email: kUtilsInjectables.config().rootUserEmail,
+      email: suppliedConfig.rootUserEmail,
     });
   });
 
   test('app not setup a second time', async () => {
-    const workspaceId = kUtilsInjectables.config().appWorkspaceId;
+    const workspaceId = kUtilsInjectables.runtimeConfig().appWorkspaceId;
     const workspace = await setupApp();
     expect(workspace.resourceId).toBe(workspaceId);
   });

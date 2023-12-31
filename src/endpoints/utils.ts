@@ -21,7 +21,6 @@ import {
 } from '../utils/extract';
 import {isObjectEmpty, toCompactArray} from '../utils/fns';
 import {serverLogger} from '../utils/logger/loggerUtils';
-import {kReuseableErrors} from '../utils/reusableErrors';
 import {AnyObject} from '../utils/types';
 import RequestData from './RequestData';
 import {endpointConstants} from './constants';
@@ -171,10 +170,6 @@ export const workspaceResourceListExtractor = makeListExtract(
 
 export function throwNotFound() {
   throw new NotFoundError();
-}
-
-export function throwAgentTokenNotFound() {
-  throw kReuseableErrors.agentToken.notFound();
 }
 
 export type ResourceWithoutAssignedAgent<T> = Omit<T, 'assignedAt' | 'assignedBy'>;

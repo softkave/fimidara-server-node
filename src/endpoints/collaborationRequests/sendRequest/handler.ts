@@ -96,11 +96,16 @@ async function sendCollaborationRequestEmail(
   request: CollaborationRequest,
   toUser: User | null
 ) {
+  const suppliedConfig = kUtilsInjectables.suppliedConfig();
+  appAssert(suppliedConfig.clientLoginLink);
+  appAssert(suppliedConfig.clientSignupLink);
+  appAssert(suppliedConfig.appDefaultEmailAddressFrom);
+
   const emailProps: CollaborationRequestEmailProps = {
     workspaceName: request.workspaceName,
     isRecipientAUser: !!toUser,
-    loginLink: kUtilsInjectables.config().clientLoginLink,
-    signupLink: kUtilsInjectables.config().clientSignupLink,
+    loginLink: suppliedConfig.clientLoginLink,
+    signupLink: suppliedConfig.clientSignupLink,
     expires: request.expiresAt,
     message: request.message,
     firstName: toUser?.firstName,
@@ -111,7 +116,7 @@ async function sendCollaborationRequestEmail(
     subject: collaborationRequestEmailTitle(request.workspaceName),
     body: {html, text},
     destination: [request.recipientEmail],
-    source: kUtilsInjectables.config().appDefaultEmailAddressFrom,
+    source: suppliedConfig.appDefaultEmailAddressFrom,
   });
 }
 

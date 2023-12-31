@@ -16,7 +16,7 @@ import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {kAppMessages} from '../../utils/messages';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {getActionAgentFromSessionAgent} from '../../utils/sessionUtils';
-import {kLogicProviders, kUtilsInjectables} from '../contexts/injectables';
+import {kUtilsInjectables} from '../contexts/injectables';
 import {UsageRecordInput} from '../contexts/logic/UsageRecordLogicProvider';
 import {SemanticProviderMutationRunOptions} from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
@@ -34,7 +34,7 @@ async function insertRecord(
   const agent = getActionAgentFromSessionAgent(
     await kUtilsInjectables.session().getAgent(reqData, kPermissionAgentTypes)
   );
-  const {permitted} = await kLogicProviders.usageRecords().insert(agent, input, opts);
+  const {permitted} = await kUtilsInjectables.usageLogic().insert(agent, input, opts);
 
   if (!permitted && !nothrow) {
     throw new UsageLimitExceededError();

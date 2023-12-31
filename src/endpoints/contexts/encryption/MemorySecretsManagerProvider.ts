@@ -1,3 +1,4 @@
+import {noop} from 'lodash';
 import {appAssert} from '../../../utils/assertion';
 import {getNewId} from '../../../utils/resource';
 import {
@@ -46,4 +47,6 @@ export class MemorySecretsManagerProvider implements SecretsManagerProvider {
     appAssert(secret, new Error('Secret not found'));
     return {text: secret.secret};
   };
+
+  close = noop;
 }

@@ -13,6 +13,12 @@ export async function globalDispose() {
     })
   );
 
-  await Promise.all([closeLoggersPromise, kUtilsInjectables.email()?.close()]);
+  await Promise.all([
+    closeLoggersPromise,
+    kUtilsInjectables.email().close(),
+    kUtilsInjectables.secretsManager().close(),
+    kUtilsInjectables.mongoConnection().close(),
+    kUtilsInjectables.disposablesStore().disposeAll(),
+  ]);
   await kUtilsInjectables.promiseStore().close().flush();
 }

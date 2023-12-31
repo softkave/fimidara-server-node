@@ -16,6 +16,7 @@ import {Tag} from '../../../definitions/tag';
 import {UsageRecord} from '../../../definitions/usageRecord';
 import {User} from '../../../definitions/user';
 import {Workspace} from '../../../definitions/workspace';
+import {throwAgentTokenNotFound} from '../../agentTokens/utils';
 import {throwAssignedItemNotFound} from '../../assignedItems/utils';
 import {throwCollaborationRequestNotFound} from '../../collaborationRequests/utils';
 import {throwFileNotFound, throwFilePresignedPathNotFound} from '../../files/utils';
@@ -25,7 +26,7 @@ import {throwPermissionItemNotFound} from '../../permissionItems/utils';
 import {throwTagNotFound} from '../../tags/utils';
 import {throwUsageRecordNotFound} from '../../usageRecords/utils';
 import {throwUserNotFound} from '../../users/utils';
-import {throwAgentTokenNotFound, throwNotFound} from '../../utils';
+import {throwNotFound} from '../../utils';
 import {throwWorkspaceNotFound} from '../../workspaces/utils';
 import {
   AgentTokenDataProvider,

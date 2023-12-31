@@ -1,5 +1,10 @@
 import {faker} from '@faker-js/faker';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {merge} from 'lodash';
+import {
+  kRegisterUtilsInjectables,
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injectables';
 import {generateAndInsertUserListForTest} from '../../testUtils/generate/user';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests} from '../../testUtils/helpers/test';
@@ -45,7 +50,9 @@ describe('signup', () => {
       password: faker.internet.password(),
     };
 
-    kUtilsInjectables.config().FLAG_waitlistNewSignups = true;
+    kRegisterUtilsInjectables.suppliedConfig(
+      merge(kUtilsInjectables.suppliedConfig(), {FLAG_waitlistNewSignups: true})
+    );
     const result = await insertUserForTest(userInput);
     const savedUser = await kSemanticModels
       .user()
@@ -54,7 +61,9 @@ describe('signup', () => {
 
     // TODO: if we ever switch to concurrent tests, then create a context for
     // this test instead
-    kUtilsInjectables.config().FLAG_waitlistNewSignups = false;
+    kRegisterUtilsInjectables.suppliedConfig(
+      merge(kUtilsInjectables.suppliedConfig(), {FLAG_waitlistNewSignups: false})
+    );
   });
 
   test('signup fails if email is not available', async () => {

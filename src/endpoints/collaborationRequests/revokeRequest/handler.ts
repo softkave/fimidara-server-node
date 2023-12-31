@@ -58,9 +58,14 @@ async function sendRevokeCollaborationRequestEmail(
   request: CollaborationRequest,
   workspaceName: string
 ) {
+  const suppliedConfig = kUtilsInjectables.suppliedConfig();
+  appAssert(suppliedConfig.clientLoginLink);
+  appAssert(suppliedConfig.clientSignupLink);
+  appAssert(suppliedConfig.appDefaultEmailAddressFrom);
+
   const recipient = await kSemanticModels.user().getByEmail(request.recipientEmail);
-  const signupLink = kUtilsInjectables.config().clientSignupLink;
-  const loginLink = kUtilsInjectables.config().clientLoginLink;
+  const signupLink = suppliedConfig.clientSignupLink;
+  const loginLink = suppliedConfig.clientLoginLink;
   const html = collaborationRequestRevokedEmailHTML({
     workspaceName,
     signupLink,
@@ -77,7 +82,7 @@ async function sendRevokeCollaborationRequestEmail(
     subject: collaborationRequestRevokedEmailTitle(workspaceName),
     body: {html, text},
     destination: [request.recipientEmail],
-    source: kUtilsInjectables.config().appDefaultEmailAddressFrom,
+    source: suppliedConfig.appDefaultEmailAddressFrom,
   });
 }
 

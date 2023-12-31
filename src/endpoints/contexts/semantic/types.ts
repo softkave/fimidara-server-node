@@ -165,6 +165,7 @@ export interface SemanticProviderUtils {
 
 export type SemanticFileBackendMountProvider =
   SemanticWorkspaceResourceProviderType<FileBackendMount>;
+
 export type SemanticAppProvider = SemanticWorkspaceResourceProviderType<App>;
 
 export type SemanticJobProvider = SemanticBaseProviderType<Job> & {

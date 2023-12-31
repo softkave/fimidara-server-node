@@ -28,7 +28,7 @@ export const INTERNAL_signupUser = async (
     passwordLastChangedAt: now,
     isEmailVerified: false,
     lastUpdatedAt: now,
-    isOnWaitlist: kUtilsInjectables.config().FLAG_waitlistNewSignups,
+    isOnWaitlist: kUtilsInjectables.suppliedConfig().FLAG_waitlistNewSignups || false,
     ...otherParams,
   });
   await kSemanticModels.user().insertItem(user, opts);

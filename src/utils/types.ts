@@ -60,7 +60,7 @@ type Prev = [
   18,
   19,
   20,
-  ...0[]
+  ...0[],
 ];
 
 export type Paths<T, D extends number = 10> = [D] extends [never]
@@ -168,7 +168,7 @@ type Push<T extends any[], V> = [...T, V];
 export type UnionToTuple<
   T,
   TLast = LastOf<T>,
-  TNever = [T] extends [never] ? true : false
+  TNever = [T] extends [never] ? true : false,
 > = true extends TNever ? [] : Push<UnionToTuple<Exclude<T, TLast>>, TLast>;
 
 type TTL<T> = T extends string ? 'string' : T extends null ? 'null' : 'never';
@@ -183,7 +183,3 @@ export type IsStringEnum<T> = IsNever<
 
 export type Not<T extends boolean> = T extends true ? false : true;
 export type IsBoolean<T> = T extends boolean ? true : false;
-
-export interface DisposableResource {
-  close: () => OrPromise<void>;
-}

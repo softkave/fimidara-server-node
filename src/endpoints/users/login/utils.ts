@@ -34,29 +34,29 @@ export async function getUserClientAssignedToken(
   opts: SemanticProviderMutationRunOptions
 ) {
   appAssert(
-    kUtilsInjectables.config().appWorkspaceId,
+    kUtilsInjectables.runtimeConfig().appWorkspaceId,
     new ServerError(),
     'App workspace ID not set.'
   );
   appAssert(
-    kUtilsInjectables.config().appWorkspacesImageUploadPermissionGroupId,
+    kUtilsInjectables.runtimeConfig().appWorkspacesImageUploadPermissionGroupId,
     new ServerError(),
     'App workspaces image upload permission group ID not set.'
   );
   appAssert(
-    kUtilsInjectables.config().appUsersImageUploadPermissionGroupId,
+    kUtilsInjectables.runtimeConfig().appUsersImageUploadPermissionGroupId,
     new ServerError(),
     'App users image upload permission group ID not set.'
   );
 
   let token = await kSemanticModels
     .agentToken()
-    .getByProvidedId(kUtilsInjectables.config().appWorkspaceId, userId, opts);
+    .getByProvidedId(kUtilsInjectables.runtimeConfig().appWorkspaceId, userId, opts);
 
   if (!token) {
     token = newResource<AgentToken>(kAppResourceType.AgentToken, {
       providedResourceId: userId,
-      workspaceId: kUtilsInjectables.config().appWorkspaceId,
+      workspaceId: kUtilsInjectables.runtimeConfig().appWorkspaceId,
       version: kCurrentJWTTokenVersion,
       forEntityId: null,
       entityType: kAppResourceType.AgentToken,
@@ -68,15 +68,15 @@ export async function getUserClientAssignedToken(
       kSemanticModels.agentToken().insertItem(token, opts),
       addAssignedPermissionGroupList(
         kSystemSessionAgent,
-        kUtilsInjectables.config().appWorkspaceId,
+        kUtilsInjectables.runtimeConfig().appWorkspaceId,
         [
           {
             permissionGroupId:
-              kUtilsInjectables.config().appWorkspacesImageUploadPermissionGroupId,
+              kUtilsInjectables.runtimeConfig().appWorkspacesImageUploadPermissionGroupId,
           },
           {
             permissionGroupId:
-              kUtilsInjectables.config().appUsersImageUploadPermissionGroupId,
+              kUtilsInjectables.runtimeConfig().appUsersImageUploadPermissionGroupId,
           },
         ],
         token.resourceId,

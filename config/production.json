@@ -1,0 +1,14 @@
+{
+  "clientDomain": "https://www.fimidara.com",
+  "port": 5000,
+  "rootUserEmail": "abayomi@softkave.com",
+  "rootUserFirstName": "Abayomi",
+  "rootUserLastName": "Akintomide",
+  "fileBackend": "s3",
+  "emailProvider": "ses",
+  "FLAG_waitlistNewSignups": true,
+  "clientLoginLink": "https://www.fimidara.com/login",
+  "clientSignupLink": "https://www.fimidara.com/signup",
+  "changePasswordLink": "https://www.fimidara.com/change-password",
+  "verifyEmailLink": "https://www.fimidara.com/verify-email"
+}

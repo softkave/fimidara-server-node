@@ -25,7 +25,11 @@ import {
   CollaborationRequestInput,
   SendCollaborationRequestEndpointParams,
 } from '../collaborationRequests/sendRequest/types';
-import {kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+  registerInjectables,
+} from '../contexts/injectables';
 import {IServerRequest} from '../contexts/types';
 import addFileBackendConfig from '../fileBackends/addConfig/handler';
 import {
@@ -77,6 +81,7 @@ export function getTestEmailProvider() {
 }
 
 export async function initTests() {
+  registerInjectables();
   await setupApp();
 }
 
@@ -89,9 +94,7 @@ export function assertEndpointResultOk(result?: BaseEndpointResult | void) {
 }
 
 export function mockExpressRequest(token?: BaseTokenData) {
-  const req: IServerRequest = {
-    auth: token,
-  } as unknown as IServerRequest;
+  const req: IServerRequest = {auth: token} as unknown as IServerRequest;
   return req;
 }
 

@@ -128,10 +128,11 @@ export default class SessionContext implements SessionContextType {
   };
 
   decodeToken = (token: string) => {
+    const suppliedConfig = kUtilsInjectables.suppliedConfig();
+    appAssert(suppliedConfig.jwtSecret);
+
     const tokenData = cast<BaseTokenData<TokenSubjectDefault>>(
-      jwt.verify(token, kUtilsInjectables.config().jwtSecret, {
-        complete: false,
-      })
+      jwt.verify(token, suppliedConfig.jwtSecret, {complete: false})
     );
 
     if (tokenData.version < kCurrentJWTTokenVersion) {
@@ -160,6 +161,9 @@ export default class SessionContext implements SessionContextType {
     expires?: string | Date | number | null,
     issuedAt?: string | Date | number | null
   ) => {
+    const suppliedConfig = kUtilsInjectables.suppliedConfig();
+    appAssert(suppliedConfig.jwtSecret);
+
     const payload: Omit<BaseTokenData, 'iat'> & {iat?: number} = {
       version: kCurrentJWTTokenVersion,
       sub: {id: tokenId},
@@ -168,7 +172,7 @@ export default class SessionContext implements SessionContextType {
     if (expires) payload.exp = dateToSeconds(expires);
     if (issuedAt) payload.iat = dateToSeconds(issuedAt);
 
-    return jwt.sign(payload, kUtilsInjectables.config().jwtSecret);
+    return jwt.sign(payload, suppliedConfig.jwtSecret);
   };
 
   private checkPermittedAgentTypes(

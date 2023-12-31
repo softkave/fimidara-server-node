@@ -6,6 +6,7 @@ import {
   upgradedFromWaitlistEmailTitle,
 } from '../../../emailTemplates/upgradedFromWaitlist';
 import {kSystemSessionAgent} from '../../../utils/agent';
+import {appAssert} from '../../../utils/assertion';
 import {extractResourceIdList} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {getNewIdForResource} from '../../../utils/resource';
@@ -43,7 +44,7 @@ describe('upgradeWaitlistedUsers', () => {
       kSemanticModels.utils().withTxn(opts => {
         return assignWorkspaceToUser(
           kSystemSessionAgent,
-          kUtilsInjectables.config().appWorkspaceId,
+          kUtilsInjectables.runtimeConfig().appWorkspaceId,
           user.resourceId,
           opts
         );
@@ -70,9 +71,14 @@ describe('upgradeWaitlistedUsers', () => {
       expect(usersMap[user.resourceId]).toBeTruthy();
 
       // confirm email sent
+      const suppliedConfig = kUtilsInjectables.suppliedConfig();
+      appAssert(suppliedConfig.clientLoginLink);
+      appAssert(suppliedConfig.clientSignupLink);
+      appAssert(suppliedConfig.appDefaultEmailAddressFrom);
+
       const upgradedFromWaitlistEmailProps: UpgradedFromWaitlistEmailProps = {
-        signupLink: kUtilsInjectables.config().clientSignupLink,
-        loginLink: kUtilsInjectables.config().clientLoginLink,
+        signupLink: suppliedConfig.clientSignupLink,
+        loginLink: suppliedConfig.clientLoginLink,
         firstName: user.firstName,
       };
       const html = upgradedFromWaitlistEmailHTML(upgradedFromWaitlistEmailProps);
@@ -81,7 +87,7 @@ describe('upgradeWaitlistedUsers', () => {
         subject: upgradedFromWaitlistEmailTitle,
         body: {html, text},
         destination: [user.email],
-        source: kUtilsInjectables.config().appDefaultEmailAddressFrom,
+        source: suppliedConfig.appDefaultEmailAddressFrom,
       });
     });
   });

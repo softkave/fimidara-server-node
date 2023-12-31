@@ -5,6 +5,7 @@ import {
   upgradedFromWaitlistEmailText,
   upgradedFromWaitlistEmailTitle,
 } from '../../../emailTemplates/upgradedFromWaitlist';
+import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
@@ -13,6 +14,10 @@ import {UpgradeWaitlistedUsersEndpoint} from './types';
 import {upgradeWaitlistedUsersJoiSchema} from './validation';
 
 const upgradeWaitlistedUsers: UpgradeWaitlistedUsersEndpoint = async reqData => {
+  const suppliedConfig = kUtilsInjectables.suppliedConfig();
+  appAssert(suppliedConfig.clientLoginLink);
+  appAssert(suppliedConfig.clientSignupLink);
+
   const data = validate(reqData.data, upgradeWaitlistedUsersJoiSchema);
   const agent = await kUtilsInjectables
     .session()
@@ -31,13 +36,13 @@ const upgradeWaitlistedUsers: UpgradeWaitlistedUsersEndpoint = async reqData => 
   // TODO: fire and forget or send in a job. Do the same for other email send
   // calls
   await Promise.all(
-    users.map(user =>
-      sendUserUpgradedFromWaitlistEmail(user.email, {
+    users.map(user => {
+      return sendUserUpgradedFromWaitlistEmail(user.email, {
         firstName: user.firstName,
-        signupLink: kUtilsInjectables.config().clientSignupLink,
-        loginLink: kUtilsInjectables.config().clientLoginLink,
-      })
-    )
+        signupLink: suppliedConfig.clientSignupLink!,
+        loginLink: suppliedConfig.clientLoginLink!,
+      });
+    })
   );
 };
 
@@ -47,12 +52,15 @@ async function sendUserUpgradedFromWaitlistEmail(
   emailAddress: string,
   props: UpgradedFromWaitlistEmailProps
 ) {
+  const suppliedConfig = kUtilsInjectables.suppliedConfig();
+  appAssert(suppliedConfig.appDefaultEmailAddressFrom);
+
   const html = upgradedFromWaitlistEmailHTML(props);
   const text = upgradedFromWaitlistEmailText(props);
   await kUtilsInjectables.email().sendEmail({
     subject: upgradedFromWaitlistEmailTitle,
     body: {html, text},
     destination: [emailAddress],
-    source: kUtilsInjectables.config().appDefaultEmailAddressFrom,
+    source: suppliedConfig.appDefaultEmailAddressFrom,
   });
 }

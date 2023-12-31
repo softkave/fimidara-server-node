@@ -1,4 +1,4 @@
-import {fimidaraConfig} from '../resources/vars';
+import {kUtilsInjectables} from '../endpoints/contexts/injectables';
 import {BaseEmailTemplateProps} from './types';
 
 export const emailHelperChars = {emDash: '—'};
@@ -54,7 +54,7 @@ export function getFooterHTML(withDonotReply = true): string {
   return `
 <footer class="${classNamePrefix}-footer ${classNamePrefix}-content-center">
   ${withDonotReply ? 'Auto-generated email, do not reply. <br />' : ''}
-  &copy; - ${fimidaraConfig.appName} - ${new Date().getFullYear()}
+  &copy; - ${kUtilsInjectables.suppliedConfig().appName} - ${new Date().getFullYear()}
 </footer>
     `;
 }
@@ -62,7 +62,9 @@ export function getFooterHTML(withDonotReply = true): string {
 export function getHeaderHTML(title: string) {
   return `
 <header class="${classNamePrefix}-header ${classNamePrefix}-content-center">
-  <h1>${fimidaraConfig.appName} ${emailHelperChars.emDash} <br /> ${title}</h1>
+  <h1>${kUtilsInjectables.suppliedConfig().appName} ${
+    emailHelperChars.emDash
+  } <br /> ${title}</h1>
 </header>
     `;
 }
@@ -112,7 +114,9 @@ Login to your account here ${emailHelperChars.emDash} ${props.loginLink}\n
 }
 
 export function getHeaderText(title: string) {
-  return `${fimidaraConfig.appName} ${emailHelperChars.emDash} ${title}`;
+  return `${kUtilsInjectables.suppliedConfig().appName} ${
+    emailHelperChars.emDash
+  } ${title}`;
 }
 
 export function getGreetingHTML(props: {firstName?: string}) {

@@ -1,0 +1,6 @@
+{
+  "emailProvider": "noop",
+  "FLAG_waitlistNewSignups": false,
+  "localFsDir": "./test-local-fs",
+  "fileBackend": "fs"
+}

@@ -1,7 +1,8 @@
 import {AsyncLocalStorage} from 'async_hooks';
 import {get, isUndefined, set} from 'lodash';
+import {DisposableResource} from '../../utils/disposables';
 import {toArray} from '../../utils/fns';
-import {AnyFn, DisposableResource} from '../../utils/types';
+import {AnyFn} from '../../utils/types';
 
 export type FimidaraAsyncLocalStorageStore = Record<string, unknown>;
 export type FimidaraAsyncLocalStorage = AsyncLocalStorage<FimidaraAsyncLocalStorageStore>;
