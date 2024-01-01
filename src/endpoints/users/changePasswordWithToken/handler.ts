@@ -2,7 +2,7 @@ import {kAppResourceType, kTokenAccessScope} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {kUtilsInjectables} from '../../contexts/injectables';
+import {kUtilsInjectables} from '../../contexts/injection/injectables';
 import INTERNAL_confirmEmailAddress from '../confirmEmailAddress/internalConfirmEmailAddress';
 import {CredentialsExpiredError, InvalidCredentialsError} from '../errors';
 import {assertUser, userExtractor} from '../utils';

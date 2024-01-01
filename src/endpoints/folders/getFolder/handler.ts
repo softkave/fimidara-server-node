@@ -1,6 +1,6 @@
 import {kPermissionAgentTypes} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
-import {kUtilsInjectables} from '../../contexts/injectables';
+import {kUtilsInjectables} from '../../contexts/injection/injectables';
 import {checkFolderAuthorization02, folderExtractor} from '../utils';
 import {GetFolderEndpoint} from './types';
 import {getFolderJoiSchema} from './validation';

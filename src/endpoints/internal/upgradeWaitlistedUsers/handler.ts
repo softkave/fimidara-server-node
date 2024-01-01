@@ -8,7 +8,7 @@ import {
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {assertUserIsPartOfRootWorkspace} from '../utils';
 import {UpgradeWaitlistedUsersEndpoint} from './types';
 import {upgradeWaitlistedUsersJoiSchema} from './validation';

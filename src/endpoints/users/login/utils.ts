@@ -10,7 +10,7 @@ import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {newResource} from '../../../utils/resource';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {userExtractor} from '../utils';
 import {LoginResult} from './types';

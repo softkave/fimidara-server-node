@@ -3,7 +3,7 @@ import {PermissionItem} from '../../../definitions/permissionItem';
 import {Agent, kAppResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource, getResourceTypeFromId} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {randomAction, randomResourceType} from './utils';
 
 export function generatePermissionItemForTest(seed: Partial<PermissionItem> = {}) {

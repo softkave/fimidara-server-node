@@ -2,7 +2,7 @@ import {UserWithWorkspace} from '../../../definitions/user';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {populateUserListWithWorkspaces} from '../../assignedItems/getAssignedItems';
-import {kUtilsInjectables, kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,

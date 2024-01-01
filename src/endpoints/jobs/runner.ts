@@ -8,7 +8,7 @@ import {TimeoutError} from '../../utils/errors';
 import {callAfterAsync} from '../../utils/fns';
 import {getNewId, getNewIdForResource} from '../../utils/resource';
 import {AnyFn, AnyObject} from '../../utils/types';
-import {kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
 import {
   BaseRunnerMessage,
   ChildRunnerWorkerData,

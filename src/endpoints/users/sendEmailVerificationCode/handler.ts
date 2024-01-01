@@ -2,7 +2,7 @@ import {addMinutes, isBefore} from 'date-fns';
 import {User} from '../../../definitions/user';
 import {appAssert} from '../../../utils/assertion';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {RateLimitError} from '../../errors';
 import {userConstants} from '../constants';
 import {EmailAddressVerifiedError} from '../errors';

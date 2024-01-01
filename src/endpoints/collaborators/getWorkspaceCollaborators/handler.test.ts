@@ -2,7 +2,7 @@ import {kSystemSessionAgent} from '../../../utils/agent';
 import {calculatePageSize} from '../../../utils/fns';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import AssignedItemQueries from '../../assignedItems/queries';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator';
 import {completeTests} from '../../testUtils/helpers/test';

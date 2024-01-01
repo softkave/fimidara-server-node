@@ -1,12 +1,12 @@
 import {container} from 'tsyringe';
 import {validate} from '../../../utils/validate';
-import {kInjectionKeys} from '../../contexts/injection';
+import {kUtilsInjectables} from '../../contexts/injection/injectables';
+import {kInjectionKeys} from '../../contexts/injection/keys';
 import {SemanticFileBackendMountProvider} from '../../contexts/semantic/types';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {getFileBackendMountsQuery} from '../getMounts/utils';
 import {CountFileBackendMountsEndpoint} from './types';
 import {countFileBackendMountsJoiSchema} from './validation';
-import {kUtilsInjectables} from '../../contexts/injectables';
 
 const countFileBackendMounts: CountFileBackendMountsEndpoint = async instData => {
   const mountModel = container.resolve<SemanticFileBackendMountProvider>(

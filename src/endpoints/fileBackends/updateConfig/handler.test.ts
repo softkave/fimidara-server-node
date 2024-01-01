@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import RequestData from '../../RequestData';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {generateAWSS3Credentials} from '../../testUtils/generate/fileBackend';
 import {
   GenerateTestFieldsDef,

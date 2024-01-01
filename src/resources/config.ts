@@ -1,9 +1,5 @@
 import config from 'config';
-import {existsSync} from 'fs';
-import {pathExists, readJSON, readJSONSync} from 'fs-extra';
-import {merge} from 'lodash';
-import path from 'path';
-import {AnyObject, ObjectValues} from '../utils/types';
+import {ObjectValues} from '../utils/types';
 
 /** Added after the app initialization phase. */
 export interface FimidaraRuntimeConfig {
@@ -31,6 +27,15 @@ export type FimidaraConfigEmailProvider = ObjectValues<
   typeof kFimidaraConfigEmailProvider
 >;
 
+export const kFimidaraConfigSecretsManagerProvider = {
+  awsSecretsManager: 'awsSecretsManager',
+  memory: 'memory',
+} as const;
+
+export type FimidaraConfigSecretManagerProvider = ObjectValues<
+  typeof kFimidaraConfigSecretsManagerProvider
+>;
+
 export type FimidaraSuppliedConfig = Partial<{
   clientDomain: string;
   mongoDbURI: string;
@@ -43,6 +48,7 @@ export type FimidaraSuppliedConfig = Partial<{
   rootUserLastName: string;
   fileBackend: FimidaraConfigFilePersistenceProvider;
   emailProvider: FimidaraConfigEmailProvider;
+  secretsManagerProvider: FimidaraConfigSecretManagerProvider;
   awsConfig: {
     accessKeyId: string;
     secretAccessKey: string;
@@ -66,30 +72,7 @@ export type FimidaraSuppliedConfig = Partial<{
 
 export type FimidaraConfig = FimidaraSuppliedConfig & FimidaraRuntimeConfig;
 
-export function getSuppliedConfigSync(): FimidaraSuppliedConfig {
+export function getSuppliedConfig(): FimidaraSuppliedConfig {
   const envSuppliedConfig = config.util.toObject();
-  const configLocalOverrideFilePath = path.normalize(
-    process.cwd() + './config/local.json'
-  );
-  let configLocalOverride: AnyObject = {};
-
-  if (existsSync(configLocalOverrideFilePath)) {
-    configLocalOverride = readJSONSync(configLocalOverrideFilePath);
-  }
-
-  return merge({}, envSuppliedConfig, configLocalOverride);
-}
-
-export async function getSuppliedConfig(): Promise<FimidaraSuppliedConfig> {
-  const envSuppliedConfig = config.util.toObject();
-  const configLocalOverrideFilePath = path.normalize(
-    process.cwd() + './config/local.json'
-  );
-  let configLocalOverride: AnyObject = {};
-
-  if (await pathExists(configLocalOverrideFilePath)) {
-    configLocalOverride = await readJSON(configLocalOverrideFilePath);
-  }
-
-  return merge({}, envSuppliedConfig, configLocalOverride);
+  return envSuppliedConfig;
 }

@@ -1,7 +1,7 @@
 import {SendEmailCommand, SESv2Client} from '@aws-sdk/client-sesv2';
 import {appAssert} from '../../../utils/assertion';
 import {S3FilePersistenceProviderInitParams} from '../file/S3FilePersistenceProvider';
-import {kUtilsInjectables} from '../injectables';
+import {kUtilsInjectables} from '../injection/injectables';
 import {IEmailProviderContext, SendEmailParams} from './types';
 
 export class SESEmailProviderContext implements IEmailProviderContext {

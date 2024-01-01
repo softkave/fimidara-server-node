@@ -1,6 +1,6 @@
 import {Folder} from '../../definitions/folder';
 import {getRandomIntInclusive} from '../../utils/fns';
-import {kSemanticModels} from '../contexts/injectables';
+import {kSemanticModels} from '../contexts/injection/injectables';
 import {getStringListQuery} from '../contexts/semantic/utils';
 import {
   generateAndInsertTestFolders,

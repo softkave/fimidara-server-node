@@ -19,7 +19,7 @@ import {
   checkAuthorizationWithAgent,
   getResourcePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels} from '../contexts/injectables';
+import {kSemanticModels} from '../contexts/injection/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {getFilepathInfo} from '../files/utils';
 import {getFolderpathInfo} from '../folders/utils';

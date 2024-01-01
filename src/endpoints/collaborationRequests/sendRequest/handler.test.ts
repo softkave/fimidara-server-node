@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
 import {CollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
 import {getTimestamp} from '../../../utils/dateFns';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   initTests,

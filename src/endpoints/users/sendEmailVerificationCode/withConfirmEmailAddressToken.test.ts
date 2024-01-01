@@ -8,7 +8,7 @@ import {
 import {User} from '../../../definitions/user';
 import {kSystemSessionAgent} from '../../../utils/agent';
 import {getNewIdForResource, newResource} from '../../../utils/resource';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {completeTests} from '../../testUtils/helpers/test';
 import {initTests} from '../../testUtils/testUtils';
 import {userConstants} from '../constants';

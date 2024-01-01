@@ -3,7 +3,7 @@ import {
   FimidaraLoggerServiceNames,
   createAppLogger,
 } from '../../utils/logger/loggerUtils';
-import {kUtilsInjectables} from './injectables';
+import {kUtilsInjectables} from './injection/injectables';
 
 export async function globalDispose() {
   const closeLoggersPromise = Promise.all(

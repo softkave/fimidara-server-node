@@ -20,8 +20,8 @@ import {
   checkAuthorizationWithAgent,
   getFilePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels} from '../contexts/injectables';
-import {kInjectionKeys} from '../contexts/injection';
+import {kSemanticModels} from '../contexts/injection/injectables';
+import {kInjectionKeys} from '../contexts/injection/keys';
 import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,

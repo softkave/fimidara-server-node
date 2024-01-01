@@ -5,7 +5,7 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {assertFolder, checkFolderAuthorization02, folderExtractor} from '../utils';
 import {UpdateFolderEndpoint} from './types';
 import {updateFolderJoiSchema} from './validation';

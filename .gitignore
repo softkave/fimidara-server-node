@@ -125,3 +125,4 @@ runtime-logs/
 
 # config
 local.json
+local-*.json

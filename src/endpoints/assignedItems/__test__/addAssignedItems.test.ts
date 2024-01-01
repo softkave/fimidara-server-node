@@ -2,7 +2,7 @@ import {AssignedItem} from '../../../definitions/assignedItem';
 import {AssignPermissionGroupInput} from '../../../definitions/permissionGroups';
 import {extractResourceIdList, makeKey} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {
   assignPgListToIdList,
   toAssignedPgListInput,

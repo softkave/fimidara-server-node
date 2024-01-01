@@ -2,7 +2,7 @@ import {ResolvedMountEntry} from '../../../definitions/fileBackend';
 import {kAppResourceType} from '../../../definitions/system';
 import {indexArray} from '../../../utils/indexArray';
 import {FileQuery, FolderQuery} from '../../contexts/data/types';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {FileQueries} from '../../files/queries';
 import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils';
 import {kFolderConstants} from '../../folders/constants';

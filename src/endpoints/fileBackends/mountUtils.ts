@@ -24,8 +24,8 @@ import {
   PersistedFileDescription,
 } from '../contexts/file/types';
 import {isFilePersistenceProvider} from '../contexts/file/utils';
-import {kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
-import {kInjectionKeys} from '../contexts/injection';
+import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
+import {kInjectionKeys} from '../contexts/injection/keys';
 import {
   SemanticFileBackendMountProvider,
   SemanticProviderRunOptions,

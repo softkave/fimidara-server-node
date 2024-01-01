@@ -25,11 +25,7 @@ import {
   CollaborationRequestInput,
   SendCollaborationRequestEndpointParams,
 } from '../collaborationRequests/sendRequest/types';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-  registerInjectables,
-} from '../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
 import {IServerRequest} from '../contexts/types';
 import addFileBackendConfig from '../fileBackends/addConfig/handler';
 import {
@@ -75,6 +71,7 @@ import {
 import {generateTestFolderName} from './generate/folder';
 import sharp = require('sharp');
 import assert = require('assert');
+import {registerInjectables} from '../contexts/injection/register';
 
 export function getTestEmailProvider() {
   return new MockTestEmailProviderContext();

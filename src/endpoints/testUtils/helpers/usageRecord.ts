@@ -3,7 +3,7 @@ import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {Workspace} from '../../../definitions/workspace';
 import {kSystemSessionAgent} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 
 export async function updateTestWorkspaceUsageLocks(
   id: string,

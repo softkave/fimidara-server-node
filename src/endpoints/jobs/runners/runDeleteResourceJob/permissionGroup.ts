@@ -1,5 +1,5 @@
 import {kAppResourceType} from '../../../../definitions/system';
-import {kSemanticModels} from '../../../contexts/injectables';
+import {kSemanticModels} from '../../../contexts/injection/injectables';
 import {
   DeleteResourceCascadeEntry,
   DeleteResourceDeleteSimpleArtifactsFns,

@@ -17,10 +17,10 @@ import {getNewIdForResource, kIdSize, newWorkspaceResource} from '../../utils/re
 import {makeUserSessionAgent} from '../../utils/sessionUtils';
 import {
   kDataModels,
-  kRegisterUtilsInjectables,
   kSemanticModels,
   kUtilsInjectables,
-} from '../contexts/injectables';
+} from '../contexts/injection/injectables';
+import {kRegisterUtilsInjectables} from '../contexts/injection/register';
 import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,

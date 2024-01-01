@@ -3,7 +3,7 @@ import {toArray} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {LiteralDataQuery} from '../../contexts/data/types';
-import {kUtilsInjectables, kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {UnassignPermissionGroupsEndpoint} from './types';
 import {unassignPermissionGroupsJoiSchema} from './validation';

@@ -1,5 +1,5 @@
 import {Job, kJobStatus} from '../../../definitions/job';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {runJob} from '../../jobs/utils';
 
 /** Expects there isn't any other runner running jobs in provided shard. */

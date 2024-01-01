@@ -3,7 +3,7 @@ import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {checkResourcesBelongsToWorkspace} from '../../resources/containerCheckFns';
 import {GetJobStatusEndpoint} from './types';
 import {getJobStatusJoiSchema} from './validation';

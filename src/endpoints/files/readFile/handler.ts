@@ -11,7 +11,7 @@ import {
   getFilePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {PersistedFile} from '../../contexts/file/types';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {getBackendConfigsWithIdList} from '../../fileBackends/configUtils';
 import {
   getResolvedMountEntries,

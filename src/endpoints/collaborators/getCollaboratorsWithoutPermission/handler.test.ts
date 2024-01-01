@@ -3,7 +3,7 @@ import {kAppResourceType, Resource} from '../../../definitions/system';
 import {kSystemSessionAgent} from '../../../utils/agent';
 import {extractResourceIdList, getResourceId} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {
   assignPgListToIdList,
   toAssignedPgListInput,

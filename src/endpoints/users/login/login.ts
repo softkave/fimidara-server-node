@@ -1,11 +1,11 @@
 import * as argon2 from 'argon2';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {InvalidEmailOrPasswordError} from '../errors';
 import {LoginEndpoint} from './types';
 import {getUserClientAssignedToken, getUserToken, toLoginResult} from './utils';
 import {loginJoiSchema} from './validation';
-import {kSemanticModels} from '../../contexts/injectables';
 
 const login: LoginEndpoint = async instData => {
   const data = validate(instData.data, loginJoiSchema);

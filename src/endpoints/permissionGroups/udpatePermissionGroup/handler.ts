@@ -4,6 +4,7 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {checkPermissionGroupNameExists} from '../checkPermissionGroupNameExists';
 import {
   assertPermissionGroup,
@@ -12,7 +13,6 @@ import {
 } from '../utils';
 import {UpdatePermissionGroupEndpoint} from './types';
 import {updatePermissionGroupJoiSchema} from './validation';
-import {kUtilsInjectables, kSemanticModels} from '../../contexts/injectables';
 
 const updatePermissionGroup: UpdatePermissionGroupEndpoint = async instData => {
   const data = validate(instData.data, updatePermissionGroupJoiSchema);

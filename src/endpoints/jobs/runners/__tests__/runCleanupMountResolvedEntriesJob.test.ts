@@ -1,7 +1,7 @@
 import {kAppResourceType} from '../../../../definitions/system';
 import {extractResourceIdList} from '../../../../utils/fns';
 import {getNewIdForResource} from '../../../../utils/resource';
-import {kSemanticModels} from '../../../contexts/injectables';
+import {kSemanticModels} from '../../../contexts/injection/injectables';
 import {generateAndInsertResolvedMountEntryListForTest} from '../../../testUtils/generate/fileBackend';
 import {runCleanupMountResolvedEntriesJob} from '../runCleanupMountResolvedEntriesJob';
 

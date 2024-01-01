@@ -7,7 +7,7 @@ import {cast} from '../../../utils/fns';
 import {AnyFn, AnyObject} from '../../../utils/types';
 import {endpointConstants} from '../../constants';
 import {kAsyncLocalStorageKeys} from '../asyncLocalStorage';
-import {kUtilsInjectables} from '../injectables';
+import {kUtilsInjectables} from '../injection/injectables';
 import {
   ArrayFieldQueryOps,
   BaseDataProvider,

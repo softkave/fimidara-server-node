@@ -9,7 +9,7 @@ import {
 import {AnyFn, AnyObject, OrArray, OrPromise} from '../../../utils/types';
 import RequestData from '../../RequestData';
 import {globalDispose} from '../../contexts/globalUtils';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {IServerRequest} from '../../contexts/types';
 import {

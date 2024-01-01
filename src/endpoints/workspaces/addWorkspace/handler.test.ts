@@ -2,11 +2,8 @@ import {faker} from '@faker-js/faker';
 import {merge} from 'lodash';
 import {appAssert} from '../../../utils/assertion';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {
-  kRegisterUtilsInjectables,
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
+import {kRegisterUtilsInjectables} from '../../contexts/injection/register';
 import {fetchEntityAssignedPermissionGroupList} from '../../permissionGroups/getEntityAssignedPermissionGroups/utils';
 import EndpointReusableQueries from '../../queries';
 import {expectErrorThrown} from '../../testUtils/helpers/error';

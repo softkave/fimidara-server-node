@@ -8,7 +8,7 @@ import {
 import {User} from '../../../definitions/user';
 import {kSystemSessionAgent} from '../../../utils/agent';
 import {newResource} from '../../../utils/resource';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {userConstants} from '../constants';
 
 export async function withConfirmEmailAddressToken(user: User, link: string) {

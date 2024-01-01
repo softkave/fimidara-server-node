@@ -17,7 +17,7 @@ import {getNewIdForResource, newWorkspaceResource} from '../../../utils/resource
 import {getCostForUsage} from '../../usageRecords/constants';
 import {getRecordingPeriod} from '../../usageRecords/utils';
 import {assertWorkspace} from '../../workspaces/utils';
-import {kSemanticModels} from '../injectables';
+import {kSemanticModels} from '../injection/injectables';
 import {SemanticProviderMutationRunOptions} from '../semantic/types';
 
 export interface UsageRecordInput {

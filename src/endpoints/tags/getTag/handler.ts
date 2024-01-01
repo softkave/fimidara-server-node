@@ -1,5 +1,5 @@
 import {validate} from '../../../utils/validate';
-import {kUtilsInjectables} from '../../contexts/injectables';
+import {kUtilsInjectables} from '../../contexts/injection/injectables';
 import {checkTagAuthorization02, tagExtractor} from '../utils';
 import {GetTagEndpoint} from './types';
 import {getTagJoiSchema} from './validation';

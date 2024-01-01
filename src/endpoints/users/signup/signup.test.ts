@@ -1,10 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {merge} from 'lodash';
-import {
-  kRegisterUtilsInjectables,
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
+import {kRegisterUtilsInjectables} from '../../contexts/injection/register';
 import {generateAndInsertUserListForTest} from '../../testUtils/generate/user';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests} from '../../testUtils/helpers/test';

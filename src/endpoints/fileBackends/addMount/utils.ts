@@ -1,16 +1,11 @@
-import {container} from 'tsyringe';
 import {FileBackendMount} from '../../../definitions/fileBackend';
 import {Agent, kAppResourceType} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {newWorkspaceResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {kInjectionKeys} from '../../contexts/injection';
-import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
-import {
-  SemanticFileBackendMountProvider,
-  SemanticProviderMutationRunOptions,
-} from '../../contexts/semantic/types';
+import {kSemanticModels} from '../../contexts/injection/injectables';
+import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {kFolderConstants} from '../../folders/constants';
 import {ensureFolders, getFolderpathInfo} from '../../folders/utils';
 import {NewFileBackendMountInput} from './types';
@@ -21,12 +16,8 @@ export const INTERNAL_addFileBackendMount = async (
   data: NewFileBackendMountInput,
   opts: SemanticProviderMutationRunOptions
 ) => {
-  const fileBackendMountModel = container.resolve<SemanticFileBackendMountProvider>(
-    kInjectionKeys.semantic.fileBackendMount
-  );
-  const fileBackendConfigModel = container.resolve<SemanticFileBackendConfigProvider>(
-    kInjectionKeys.semantic.fileBackendConfig
-  );
+  const fileBackendMountModel = kSemanticModels.fileBackendMount();
+  const fileBackendConfigModel = kSemanticModels.fileBackendConfig();
 
   const folderpathinfo = getFolderpathInfo(data.folderpath);
   appAssert(

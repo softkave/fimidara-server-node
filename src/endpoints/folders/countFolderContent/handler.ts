@@ -6,7 +6,7 @@ import {
 } from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {validate} from '../../../utils/validate';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {areMountsCompletelyIngestedForFolder} from '../../fileBackends/mountUtils';
 import {EndpointResultNoteCodeMap, kEndpointResultNotesToMessageMap} from '../../types';
 import {

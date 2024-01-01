@@ -14,7 +14,7 @@ import {isObjectEmpty, toArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {GetTypeFromTypeOrArray} from '../../../utils/types';
 import {DataQuery} from '../../contexts/data/types';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {getInAndNinQuery} from '../../contexts/semantic/utils';
 import {kFolderConstants} from '../../folders/constants';
 import {JobInput, queueJobs} from '../../jobs/utils';

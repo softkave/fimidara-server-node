@@ -12,7 +12,7 @@ import {
   newWorkspaceResource,
 } from '../../utils/resource';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels} from '../contexts/injectables';
+import {kSemanticModels} from '../contexts/injection/injectables';
 import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,

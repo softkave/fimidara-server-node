@@ -1,5 +1,5 @@
 import {validate} from '../../../utils/validate';
-import {kUtilsInjectables} from '../../contexts/injectables';
+import {kUtilsInjectables} from '../../contexts/injection/injectables';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {permissionGroupListExtractor} from '../utils';
 import {GetEntityAssignedPermissionGroupsEndpoint} from './types';

@@ -6,7 +6,7 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {extractResourceIdList, waitTimeout} from '../../../utils/fns';
 import {awaitOrTimeout} from '../../../utils/promiseFns';
 import {getNewId} from '../../../utils/resource';
-import {kRegisterSemanticModels, kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {generateAndInsertAppListForTest} from '../../testUtils/generate/app';
 import {generateAndInsertJobListForTest} from '../../testUtils/generate/job';
 import {
@@ -29,6 +29,7 @@ import {
   kDefaultRunnerCount,
   waitForJob,
 } from '../utils';
+import {kRegisterSemanticModels} from '../../contexts/injection/register';
 
 afterEach(() => {
   // Reset runner options

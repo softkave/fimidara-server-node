@@ -10,7 +10,8 @@
   "rootUserLastName": "",
   "fileBackend": "fs",
   "localFsDir": "./dev-local-fs",
-  "emailProvider": "ses",
+  "emailProvider": "noop",
+  "secretsManagerProvider": "memory",
   "awsConfig": {
     "accessKeyId": "",
     "secretAccessKey": "",

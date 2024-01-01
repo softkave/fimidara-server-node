@@ -20,7 +20,8 @@ import {
   PersistedFileDescription,
   PersistedFolderDescription,
 } from '../../../contexts/file/types';
-import {kRegisterUtilsInjectables, kSemanticModels} from '../../../contexts/injectables';
+import {kSemanticModels} from '../../../contexts/injection/injectables';
+import {kRegisterUtilsInjectables} from '../../../contexts/injection/register';
 import {FileQueries} from '../../../files/queries';
 import {getFilepathInfo, stringifyFilenamepath} from '../../../files/utils';
 import {kFolderConstants} from '../../../folders/constants';

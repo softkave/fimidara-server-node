@@ -2,7 +2,7 @@ import {PermissionAction, PermissionItem} from '../../../definitions/permissionI
 import {AppResourceType} from '../../../definitions/system';
 import {makeKey, toArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {getInAndNinQuery} from '../../contexts/semantic/utils';
 
 export async function expectEntityHasPermissionsTargetingId(

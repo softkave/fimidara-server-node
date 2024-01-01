@@ -1,4 +1,4 @@
-import {kSemanticModels} from '../../../contexts/injectables';
+import {kSemanticModels} from '../../../contexts/injection/injectables';
 import {noopDeleteSimpleArtifacts, noopGetComplexArtifacts} from './noop';
 import {DeleteResourceCascadeEntry, DeleteResourceFn} from './types';
 

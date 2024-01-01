@@ -11,7 +11,7 @@ import {
 import {kAppResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {JobInput} from '../../jobs/utils';
 import {getRandomAppType} from './app';
 

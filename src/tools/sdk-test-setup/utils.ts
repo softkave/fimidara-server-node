@@ -4,7 +4,7 @@ import {Workspace} from '../../definitions/workspace';
 import {INTERNAL_createAgentToken} from '../../endpoints/agentTokens/addToken/utils';
 import {getPublicAgentToken} from '../../endpoints/agentTokens/utils';
 import {addAssignedPermissionGroupList} from '../../endpoints/assignedItems/addAssignedItems';
-import {kSemanticModels} from '../../endpoints/contexts/injectables';
+import {kSemanticModels} from '../../endpoints/contexts/injection/injectables';
 import {SemanticProviderMutationRunOptions} from '../../endpoints/contexts/semantic/types';
 import INTERNAL_createWorkspace from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
 import {makeRootnameFromName} from '../../endpoints/workspaces/utils';

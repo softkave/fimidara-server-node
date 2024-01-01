@@ -6,7 +6,7 @@ import {
   kCurrentJWTTokenVersion,
 } from '../../../definitions/system';
 import {getNewIdForResource, newResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 
 export function generateAgentTokenForTest(
   seed: Partial<AgentToken> & {workspaceId: string | null} = {workspaceId: null}

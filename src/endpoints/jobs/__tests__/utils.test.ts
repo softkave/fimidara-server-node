@@ -7,7 +7,7 @@ import {kAppResourceType} from '../../../definitions/system';
 import {TimeoutError} from '../../../utils/errors';
 import {extractResourceIdList, waitTimeout} from '../../../utils/fns';
 import {getNewId, getNewIdForResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {
   generateAndInsertJobListForTest,
   generateJobInput,

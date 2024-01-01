@@ -13,8 +13,8 @@ import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
-import {kInjectionKeys} from '../../contexts/injection';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
+import {kInjectionKeys} from '../../contexts/injection/keys';
 import {
   SemanticFileBackendMountProvider,
   SemanticProviderUtils,

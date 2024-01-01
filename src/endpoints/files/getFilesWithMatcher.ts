@@ -12,8 +12,8 @@ import {
   makeUserSessionAgent,
   makeWorkspaceAgentTokenAgent,
 } from '../../utils/sessionUtils';
-import {kSemanticModels} from '../contexts/injectables';
-import {kInjectionKeys} from '../contexts/injection';
+import {kSemanticModels} from '../contexts/injection/injectables';
+import {kInjectionKeys} from '../contexts/injection/keys';
 import {SemanticFileProvider} from '../contexts/semantic/file/types';
 import {
   SemanticProviderMutationRunOptions,

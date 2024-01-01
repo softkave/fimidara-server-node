@@ -5,7 +5,7 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {objectHasData} from '../../../utils/fns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {assertWorkspace} from '../../workspaces/utils';
 import {assertFile, fileExtractor, readAndCheckFileAuthorization} from '../utils';
 import {UpdateFileDetailsEndpoint} from './types';

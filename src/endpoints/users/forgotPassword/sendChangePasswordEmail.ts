@@ -5,7 +5,7 @@ import {
   forgotPasswordEmailTitle,
 } from '../../../emailTemplates/forgotPassword';
 import {appAssert} from '../../../utils/assertion';
-import {kUtilsInjectables} from '../../contexts/injectables';
+import {kUtilsInjectables} from '../../contexts/injection/injectables';
 
 async function sendChangePasswordEmail(
   emailAddress: string,

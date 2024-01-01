@@ -1,17 +1,12 @@
-import {container} from 'tsyringe';
 import {validate} from '../../../utils/validate';
-import {kInjectionKeys} from '../../contexts/injection';
-import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {getFileBackendConfigsQuery} from '../getConfigs/utils';
 import {CountFileBackendConfigsEndpoint} from './types';
 import {countWorkspaceAgentTokenJoiSchema} from './validation';
-import {kUtilsInjectables} from '../../contexts/injectables';
 
 const countFileBackendConfigs: CountFileBackendConfigsEndpoint = async instData => {
-  const configModel = container.resolve<SemanticFileBackendConfigProvider>(
-    kInjectionKeys.semantic.fileBackendConfig
-  );
+  const configModel = kSemanticModels.fileBackendConfig();
 
   const data = validate(instData.data, countWorkspaceAgentTokenJoiSchema);
   const agent = await kUtilsInjectables.session().getAgent(instData);

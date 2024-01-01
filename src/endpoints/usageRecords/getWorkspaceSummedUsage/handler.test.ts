@@ -10,7 +10,7 @@ import {
 import {getTimestamp} from '../../../utils/dateFns';
 import {calculatePageSize} from '../../../utils/fns';
 import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {generateAndInsertUsageRecordList} from '../../testUtils/generate/usageRecord';
 import {completeTests} from '../../testUtils/helpers/test';
 import {

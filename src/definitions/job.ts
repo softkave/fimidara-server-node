@@ -1,4 +1,3 @@
-import {DeleteResourceCascadeFnDefaultArgs} from '../endpoints/jobs/runners/runDeleteResourceJob/types';
 import {AnyObject, ObjectValues} from '../utils/types';
 import {AppShard} from './app';
 import {AppResourceType, Resource, kAppResourceType} from './system';
@@ -63,6 +62,11 @@ export interface Job<
    * to them, for example during testing. */
   shard: AppShard;
 }
+
+export type DeleteResourceCascadeFnDefaultArgs = {
+  workspaceId: string;
+  resourceId: string;
+};
 
 export type DeleteResourceJobParams =
   | {

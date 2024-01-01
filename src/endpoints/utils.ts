@@ -27,7 +27,7 @@ import {endpointConstants} from './constants';
 import {kAsyncLocalStorageUtils} from './contexts/asyncLocalStorage';
 import {ResolvedTargetChildrenAccessCheck} from './contexts/authorizationChecks/checkAuthorizaton';
 import {DataQuery} from './contexts/data/types';
-import {kUtilsInjectables} from './contexts/injectables';
+import {kUtilsInjectables} from './contexts/injection/injectables';
 import {getInAndNinQuery} from './contexts/semantic/utils';
 import {IServerRequest} from './contexts/types';
 import {InvalidRequestError, NotFoundError} from './errors';

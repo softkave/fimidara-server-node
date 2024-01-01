@@ -21,7 +21,11 @@ import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {TimeoutError} from '../../utils/errors';
 import {newResource} from '../../utils/resource';
-import {kDataModels, kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
+import {
+  kDataModels,
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../contexts/injection/injectables';
 import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,

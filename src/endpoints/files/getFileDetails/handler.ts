@@ -1,7 +1,7 @@
 import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {kPermissionAgentTypes} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {fileExtractor, readAndCheckFileAuthorization} from '../utils';
 import {GetFileDetailsEndpoint} from './types';
 import {getFileDetailsJoiSchema} from './validation';

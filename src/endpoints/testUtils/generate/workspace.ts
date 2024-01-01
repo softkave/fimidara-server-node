@@ -14,7 +14,7 @@ import {
 import {getTimestamp} from '../../../utils/dateFns';
 import {cast, isObjectEmpty} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {usageRecordConstants} from '../../usageRecords/constants';
 import {transformUsageThresholInput} from '../../workspaces/addWorkspace/internalCreateWorkspace';
 import {NewWorkspaceInput} from '../../workspaces/addWorkspace/types';

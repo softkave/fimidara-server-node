@@ -1,6 +1,6 @@
 import {kAppResourceType} from '../../../definitions/system';
 import {calculatePageSize, getResourceId} from '../../../utils/fns';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import addPermissionItems from '../../permissionItems/addItems/handler';
 import RequestData from '../../RequestData';
 import {

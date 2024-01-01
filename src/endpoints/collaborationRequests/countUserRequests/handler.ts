@@ -1,4 +1,4 @@
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {CountUserCollaborationRequestsEndpoint} from './types';
 
 const countUserCollaborationRequests: CountUserCollaborationRequestsEndpoint =

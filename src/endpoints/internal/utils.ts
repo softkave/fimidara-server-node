@@ -1,6 +1,6 @@
 import {SessionAgent} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
-import {kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
 import {PermissionDeniedError} from '../users/errors';
 
 export async function assertUserIsPartOfRootWorkspace(agent: SessionAgent) {

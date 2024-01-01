@@ -10,7 +10,7 @@ import {
 import {kSystemSessionAgent} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {generateTestWorkspace} from './workspace';
 
 export function generateWorkspaceWithCategoryUsageExceeded(

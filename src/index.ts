@@ -1,7 +1,7 @@
 import {expressjwt} from 'express-jwt';
-import 'reflect-metadata';
 import {endpointConstants} from './endpoints/constants';
-import {kUtilsInjectables, registerInjectables} from './endpoints/contexts/injectables';
+import {kUtilsInjectables} from './endpoints/contexts/injection/injectables';
+import {registerInjectables} from './endpoints/contexts/injection/register';
 import {setupFimidaraHttpEndpoints} from './endpoints/endpoints';
 import {startRunner} from './endpoints/jobs/runner';
 import {setupApp} from './endpoints/runtime/initAppSetup';

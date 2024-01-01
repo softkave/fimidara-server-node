@@ -4,7 +4,7 @@ import {streamToBuffer} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import RequestData from '../../RequestData';
 import {FilePersistenceProvider, PersistedFile} from '../../contexts/file/types';
-import {kRegisterUtilsInjectables} from '../../contexts/injectables';
+import {kRegisterUtilsInjectables} from '../../contexts/injection/register';
 import {insertResolvedMountEntries} from '../../fileBackends/mountUtils';
 import {kFolderConstants} from '../../folders/constants';
 import {addRootnameToPath, stringifyFoldernamepath} from '../../folders/utils';

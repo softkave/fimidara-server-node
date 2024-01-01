@@ -2,7 +2,7 @@ import {File} from '../../../definitions/file';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {InvalidRequestError} from '../../errors';
 import {checkFileAuthorization, getFilepathInfo} from '../../files/utils';
 import {checkFolderAuthorization, getFolderpathInfo} from '../../folders/utils';

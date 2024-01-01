@@ -6,7 +6,7 @@ import {PermissionAction} from '../../definitions/permissionItem';
 import {SessionAgent} from '../../definitions/system';
 import {makeKey} from '../../utils/fns';
 import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
-import {kSemanticModels} from '../contexts/injectables';
+import {kSemanticModels} from '../contexts/injection/injectables';
 import {IServerRequest} from '../contexts/types';
 import addPermissionItems from '../permissionItems/addItems/handler';
 import RequestData from '../RequestData';

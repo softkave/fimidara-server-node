@@ -1,6 +1,6 @@
 import {kAppResourceType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
-import {kUtilsInjectables} from '../../contexts/injectables';
+import {kUtilsInjectables} from '../../contexts/injection/injectables';
 import {InvalidRequestError} from '../../errors';
 import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {checkPermissionGroupAuthorization03} from '../utils';

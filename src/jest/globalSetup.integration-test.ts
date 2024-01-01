@@ -1,5 +1,4 @@
-import 'reflect-metadata';
-import {registerInjectables} from '../endpoints/contexts/injectables';
+import {registerInjectables} from '../endpoints/contexts/injection/register';
 import {setupApp} from '../endpoints/runtime/initAppSetup';
 
 async function integrationTestGlobalSetup() {

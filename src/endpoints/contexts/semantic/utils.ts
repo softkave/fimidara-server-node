@@ -2,7 +2,7 @@ import {isNil, set} from 'lodash';
 import {getLowercaseRegExpForString, toArray} from '../../../utils/fns';
 import {AnyFn, AnyObject, OrArray, StringKeysOnly} from '../../../utils/types';
 import {DataQuery, KeyedComparisonOps} from '../data/types';
-import {kDataModels} from '../injectables';
+import {kDataModels} from '../injection/injectables';
 import {SemanticProviderMutationRunOptions, SemanticProviderUtils} from './types';
 
 export class DataSemanticProviderUtils implements SemanticProviderUtils {

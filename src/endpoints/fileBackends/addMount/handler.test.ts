@@ -1,5 +1,5 @@
 import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {ResourceExistsError} from '../../errors';
 import {kFolderConstants} from '../../folders/constants';
 import {stringifyFoldernamepath} from '../../folders/utils';

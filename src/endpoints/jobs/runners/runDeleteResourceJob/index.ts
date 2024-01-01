@@ -1,13 +1,18 @@
 import assert from 'assert';
 import {pick} from 'lodash';
-import {DeleteResourceJobParams, Job, kJobType} from '../../../../definitions/job';
+import {
+  DeleteResourceCascadeFnDefaultArgs,
+  DeleteResourceJobParams,
+  Job,
+  kJobType,
+} from '../../../../definitions/job';
 import {
   AppResourceType,
   Resource,
   kAppResourceType,
 } from '../../../../definitions/system';
 import {AnyFn} from '../../../../utils/types';
-import {kSemanticModels} from '../../../contexts/injectables';
+import {kSemanticModels} from '../../../contexts/injection/injectables';
 import {SemanticProviderMutationRunOptions} from '../../../contexts/semantic/types';
 import {JobInput, queueJobs} from '../../utils';
 import {deleteAgentTokenCascadeEntry} from './agentToken';
@@ -23,7 +28,6 @@ import {deletePermissionItemCascadeEntry} from './permissionItem';
 import {deleteTagCascadeEntry} from './tag';
 import {
   DeleteResourceCascadeDefinitions,
-  DeleteResourceCascadeFnDefaultArgs,
   DeleteResourceCascadeFnHelpers,
   DeleteResourceDeleteSimpleArtifactsFns,
   DeleteResourceGetComplexArtifactsFns,

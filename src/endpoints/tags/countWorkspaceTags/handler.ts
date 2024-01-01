@@ -1,5 +1,5 @@
 import {validate} from '../../../utils/validate';
-import {kUtilsInjectables, kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils';
 import {getWorkspaceTagsQuery} from '../getWorkspaceTags/utils';
 import {CountWorkspaceTagsEndpoint} from './types';

@@ -6,6 +6,7 @@
   "rootUserLastName": "Akintomide",
   "fileBackend": "s3",
   "emailProvider": "ses",
+  "secretsManagerProvider": "awsSecretsManager",
   "FLAG_waitlistNewSignups": true,
   "clientLoginLink": "https://www.fimidara.com/login",
   "clientSignupLink": "https://www.fimidara.com/signup",

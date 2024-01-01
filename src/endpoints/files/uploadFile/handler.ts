@@ -7,7 +7,7 @@ import {ValidationError} from '../../../utils/errors';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {ByteCounterPassThroughStream} from '../../../utils/streams';
 import {validate} from '../../../utils/validate';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {
   insertResolvedMountEntries,
   resolveBackendsMountsAndConfigs,

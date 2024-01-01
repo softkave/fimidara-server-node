@@ -2,7 +2,7 @@ import {appAssert} from '../../../utils/assertion';
 import {isStringEqual} from '../../../utils/fns';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
-import {kUtilsInjectables, kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {assertCollaborationRequest, collaborationRequestForUserExtractor} from '../utils';
 import {GetUserCollaborationRequestEndpoint} from './types';
 import {getUserCollaborationRequestJoiSchema} from './validation';

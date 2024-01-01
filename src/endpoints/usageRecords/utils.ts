@@ -16,7 +16,7 @@ import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {kAppMessages} from '../../utils/messages';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {getActionAgentFromSessionAgent} from '../../utils/sessionUtils';
-import {kUtilsInjectables} from '../contexts/injectables';
+import {kUtilsInjectables} from '../contexts/injection/injectables';
 import {UsageRecordInput} from '../contexts/logic/UsageRecordLogicProvider';
 import {SemanticProviderMutationRunOptions} from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';

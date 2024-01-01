@@ -1,7 +1,14 @@
 import {App} from '../../../definitions/app';
-import {FileBackendMount, ResolvedMountEntry} from '../../../definitions/fileBackend';
+import {
+  FileBackendConfig,
+  FileBackendMount,
+  ResolvedMountEntry,
+} from '../../../definitions/fileBackend';
 import {Job} from '../../../definitions/job';
-import {Resource} from '../../../definitions/system';
+import {PermissionGroup} from '../../../definitions/permissionGroups';
+import {AppRuntimeState, Resource} from '../../../definitions/system';
+import {Tag} from '../../../definitions/tag';
+import {UsageRecord} from '../../../definitions/usageRecord';
 import {AnyFn} from '../../../utils/types';
 import {
   DataProviderQueryListParams,
@@ -186,3 +193,18 @@ export type SemanticResolvedMountEntryProvider =
       opts?: SemanticProviderRunOptions
     ) => Promise<ResolvedMountEntry[]>;
   };
+
+export interface SemanticTagProviderType
+  extends SemanticWorkspaceResourceProviderType<Tag> {}
+
+export interface SemanticUsageRecordProviderType
+  extends SemanticWorkspaceResourceProviderType<UsageRecord> {}
+
+export interface SemanticPermissionGroupProviderType
+  extends SemanticWorkspaceResourceProviderType<PermissionGroup> {}
+
+export interface SemanticFileBackendConfigProvider
+  extends SemanticWorkspaceResourceProviderType<FileBackendConfig> {}
+
+export interface SemanticAppRuntimeStateProvider
+  extends SemanticBaseProviderType<AppRuntimeState> {}

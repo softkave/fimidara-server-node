@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import {kFileBackendType} from '../../../../definitions/fileBackend';
 import {IngestFolderpathJobParams, kJobType} from '../../../../definitions/job';
 import {getNewId} from '../../../../utils/resource';
-import {kSemanticModels} from '../../../contexts/injectables';
+import {kSemanticModels} from '../../../contexts/injection/injectables';
 import {kFolderConstants} from '../../../folders/constants';
 import {
   generateAndInsertFileBackendConfigListForTest,

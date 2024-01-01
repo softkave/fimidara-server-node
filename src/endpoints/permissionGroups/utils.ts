@@ -16,7 +16,7 @@ import {indexArray} from '../../utils/indexArray';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {assertGetWorkspaceIdFromAgent} from '../../utils/sessionUtils';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels} from '../contexts/injectables';
+import {kSemanticModels} from '../contexts/injection/injectables';
 import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,

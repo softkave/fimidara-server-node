@@ -12,7 +12,7 @@ import {
   assignWorkspaceToUser,
 } from '../../endpoints/assignedItems/addAssignedItems';
 import {INTERNAL_RespondToCollaborationRequest} from '../../endpoints/collaborationRequests/respondToRequest/utils';
-import {kSemanticModels} from '../../endpoints/contexts/injectables';
+import {kSemanticModels} from '../../endpoints/contexts/injection/injectables';
 import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,

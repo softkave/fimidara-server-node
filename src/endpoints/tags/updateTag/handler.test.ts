@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
+import EndpointReusableQueries from '../../queries';
 import {insertTagForTest} from '../../testUtils/helpers/tag';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
@@ -13,7 +14,6 @@ import {
 import {tagExtractor} from '../utils';
 import updateTag from './handler';
 import {UpdateTagEndpointParams, UpdateTagInput} from './types';
-import EndpointReusableQueries from '../../queries';
 
 beforeAll(async () => {
   await initTests();

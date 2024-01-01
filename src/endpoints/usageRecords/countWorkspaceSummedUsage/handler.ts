@@ -1,6 +1,6 @@
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {getWorkspaceSummedUsageQuery} from '../getWorkspaceSummedUsage/utils';
 import {CountWorkspaceSummedUsageEndpoint} from './types';
 import {countWorkspaceSummedUsageJoiSchema} from './validation';

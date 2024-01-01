@@ -2,7 +2,7 @@ import assert from 'assert';
 import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
 import {kAppResourceType} from '../../../definitions/system';
 import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,

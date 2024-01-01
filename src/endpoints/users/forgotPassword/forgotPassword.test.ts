@@ -2,7 +2,7 @@ import assert from 'assert';
 import {kTokenAccessScope} from '../../../definitions/system';
 import {forgotPasswordEmailTitle} from '../../../emailTemplates/forgotPassword';
 import RequestData from '../../RequestData';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import MockTestEmailProviderContext from '../../testUtils/context/email/MockTestEmailProviderContext';
 import {completeTests} from '../../testUtils/helpers/test';
 import {

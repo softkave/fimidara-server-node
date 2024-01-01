@@ -1,5 +1,5 @@
 import {CleanupMountResolvedEntriesJobParams, Job} from '../../../definitions/job';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 
 export async function runCleanupMountResolvedEntriesJob(
   job: Pick<Job<CleanupMountResolvedEntriesJobParams>, 'params'>

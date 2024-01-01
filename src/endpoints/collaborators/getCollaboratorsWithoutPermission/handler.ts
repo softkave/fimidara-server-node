@@ -4,7 +4,7 @@ import {indexArray} from '../../../utils/indexArray';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {DataQuery} from '../../contexts/data/types';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {PaginationQuery} from '../../types';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {getWorkspaceCollaboratorsQuery} from '../getWorkspaceCollaborators/utils';

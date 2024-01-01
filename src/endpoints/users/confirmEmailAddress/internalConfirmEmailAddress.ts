@@ -1,7 +1,7 @@
 import {kTokenAccessScope} from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {assertUser} from '../utils';
 
 /**

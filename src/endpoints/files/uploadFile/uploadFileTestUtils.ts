@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {PublicWorkspace, Workspace} from '../../../definitions/workspace';
 import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {addRootnameToPath} from '../../folders/utils';
 import EndpointReusableQueries from '../../queries';
 import {

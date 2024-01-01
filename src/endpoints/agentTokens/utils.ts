@@ -6,7 +6,7 @@ import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {cast} from '../../utils/fns';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {InvalidRequestError} from '../errors';
 import {workspaceResourceFields} from '../utils';

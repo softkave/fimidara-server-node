@@ -1,10 +1,10 @@
 import * as argon2 from 'argon2';
 import {validate} from '../../../utils/validate';
+import {kUtilsInjectables} from '../../contexts/injection/injectables';
 import {INTERNAL_changePassword} from '../changePasswordWithToken/utils';
 import {IncorrectPasswordError} from '../errors';
 import {ChangePasswordWithCurrentPasswordEndpoint} from './types';
 import {changePasswordWithPasswordJoiSchema} from './validation';
-import {kUtilsInjectables} from '../../contexts/injectables';
 
 const changePasswordWithCurrentPassword: ChangePasswordWithCurrentPasswordEndpoint =
   async instData => {

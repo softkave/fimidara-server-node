@@ -12,7 +12,7 @@ import {kSystemSessionAgent} from '../../../utils/agent';
 import {appAssert} from '../../../utils/assertion';
 import {newResource} from '../../../utils/resource';
 import {validate} from '../../../utils/validate';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {userConstants} from '../constants';
 import {assertUser} from '../utils';
 import sendChangePasswordEmail from './sendChangePasswordEmail';

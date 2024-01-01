@@ -11,7 +11,7 @@ import {extractResourceIdList} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {getNewIdForResource} from '../../../utils/resource';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import RequestData from '../../RequestData';
 import {generateAndInsertUserListForTest} from '../../testUtils/generate/user';
 import {expectErrorThrown} from '../../testUtils/helpers/error';

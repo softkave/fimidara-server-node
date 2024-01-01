@@ -1,5 +1,5 @@
 import {validate} from '../../../utils/validate';
-import {kUtilsInjectables, kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {getWorkspacePermissionGroupsQuery} from '../getWorkspacePermissionGroups/utils';
 import {CountWorkspacePermissionGroupsEndpoint} from './types';

@@ -2,7 +2,7 @@ import {toNonNullableArray} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {checkPermissionEntitiesExist} from '../../permissionItems/checkPermissionArtifacts';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {checkPermissionGroupsExist} from '../utils';

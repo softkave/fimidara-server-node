@@ -1,7 +1,7 @@
 import assert from 'assert';
 import {Readable} from 'stream';
 import {streamToBuffer} from '../../../utils/fns';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils';
 import {stringifyFilenamepath} from '../../files/utils';
 

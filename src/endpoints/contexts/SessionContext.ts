@@ -30,7 +30,7 @@ import {
   InvalidCredentialsError,
   PermissionDeniedError,
 } from '../users/errors';
-import {kSemanticModels, kUtilsInjectables} from './injectables';
+import {kSemanticModels, kUtilsInjectables} from './injection/injectables';
 
 export interface SessionContextType {
   getAgent: (

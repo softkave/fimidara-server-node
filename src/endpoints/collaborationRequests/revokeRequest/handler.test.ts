@@ -1,5 +1,5 @@
 import {CollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import RequestData from '../../RequestData';
 import {completeTests} from '../../testUtils/helpers/test';
 import {

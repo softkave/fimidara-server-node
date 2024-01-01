@@ -8,8 +8,8 @@ import {
 } from '../../definitions/fileBackend';
 import {ConvertAgentToPublicAgent} from '../../definitions/system';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {kSemanticModels} from '../contexts/injectables';
-import {kInjectionKeys} from '../contexts/injection';
+import {kSemanticModels} from '../contexts/injection/injectables';
+import {kInjectionKeys} from '../contexts/injection/keys';
 import {
   SemanticFileBackendMountProvider,
   SemanticProviderRunOptions,

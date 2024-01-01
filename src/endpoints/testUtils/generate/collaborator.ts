@@ -1,6 +1,6 @@
 import {Agent} from '../../../definitions/system';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {generateAndInsertUserListForTest} from './user';
 
 export async function generateAndInsertCollaboratorListForTest(

@@ -5,11 +5,7 @@ import {
   FilePersistenceProvider,
   FilePersistenceUploadFileParams,
 } from '../../contexts/file/types';
-import {
-  kRegisterUtilsInjectables,
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {kFolderConstants} from '../../folders/constants';
 import {stringifyFoldernamepath} from '../../folders/utils';
 import {
@@ -35,6 +31,7 @@ import {ReadFileEndpointParams} from '../readFile/types';
 import {getFilepathInfo, stringifyFilenamepath} from '../utils';
 import {UploadFileEndpointParams} from './types';
 import {uploadFileBaseTest} from './uploadFileTestUtils';
+import {kRegisterUtilsInjectables} from '../../contexts/injection/register';
 
 /**
  * TODO:

@@ -1,5 +1,5 @@
 import {validate} from '../../../utils/validate';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {UserExistsEndpoint} from './types';
 import {userExistsJoiSchema} from './validation';
 

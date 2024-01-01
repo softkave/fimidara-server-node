@@ -1,16 +1,11 @@
 import {AnyObject} from 'mongoose';
-import {Job} from '../../../../definitions/job';
+import {DeleteResourceCascadeFnDefaultArgs, Job} from '../../../../definitions/job';
 import {AppResourceType, Resource} from '../../../../definitions/system';
 import {AnyFn} from '../../../../utils/types';
 import {
   SemanticProviderMutationRunOptions,
   SemanticProviderQueryListRunOptions,
 } from '../../../contexts/semantic/types';
-
-export type DeleteResourceCascadeFnDefaultArgs = {
-  workspaceId: string;
-  resourceId: string;
-};
 
 export type DeleteResourceCascadeFnHelpers = {
   job: Job;

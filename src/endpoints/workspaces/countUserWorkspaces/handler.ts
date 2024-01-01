@@ -1,4 +1,4 @@
-import {kUtilsInjectables, kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {CountUserWorkspacesEndpoint} from './types';
 
 const countUserWorkspaces: CountUserWorkspacesEndpoint = async d => {

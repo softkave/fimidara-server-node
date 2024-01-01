@@ -3,13 +3,13 @@ import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kInjectionKeys} from '../../contexts/injection';
+import {kUtilsInjectables} from '../../contexts/injection/injectables';
+import {kInjectionKeys} from '../../contexts/injection/keys';
 import {SemanticFileBackendMountProvider} from '../../contexts/semantic/types';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {fileBackendMountExtractor} from '../utils';
 import {GetFileBackendMountEndpoint} from './types';
 import {getFileBackendMountJoiSchema} from './validation';
-import {kUtilsInjectables} from '../../contexts/injectables';
 
 const getFileBackendMount: GetFileBackendMountEndpoint = async instData => {
   const mountModel = container.resolve<SemanticFileBackendMountProvider>(

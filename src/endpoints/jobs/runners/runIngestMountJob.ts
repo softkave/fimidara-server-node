@@ -6,7 +6,7 @@ import {
   kJobType,
 } from '../../../definitions/job';
 import {appAssert} from '../../../utils/assertion';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {kFolderConstants} from '../../folders/constants';
 import {JobInput, queueJobs} from '../utils';
 

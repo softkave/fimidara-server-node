@@ -8,7 +8,7 @@ import {
   PersistedFileDescription,
   PersistedFolderDescription,
 } from '../contexts/file/types';
-import {kSemanticModels} from '../contexts/injectables';
+import {kSemanticModels} from '../contexts/injection/injectables';
 import {FilepathInfo, createNewFile, getFilepathInfo} from '../files/utils';
 import {createFolderListWithTransaction} from '../folders/addFolder/handler';
 import {NewFolderInput} from '../folders/addFolder/types';

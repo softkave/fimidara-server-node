@@ -14,7 +14,7 @@ import {
   addAssignedPermissionGroupList,
   assignWorkspaceToUser,
 } from '../../assignedItems/addAssignedItems';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {INTERNAL_addFileBackendMount} from '../../fileBackends/addMount/utils';
 import {getDefaultThresholds} from '../../usageRecords/constants';

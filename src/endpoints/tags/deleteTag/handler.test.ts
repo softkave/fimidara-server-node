@@ -2,7 +2,7 @@ import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
 import {kAppResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {insertTagForTest} from '../../testUtils/helpers/tag';
 import {completeTests} from '../../testUtils/helpers/test';
 import {

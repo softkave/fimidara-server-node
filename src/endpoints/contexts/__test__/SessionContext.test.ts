@@ -7,7 +7,7 @@ import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests} from '../../testUtils/helpers/test';
 import {initTests} from '../../testUtils/testUtils';
 import {ChangePasswordError, PermissionDeniedError} from '../../users/errors';
-import {kUtilsInjectables} from '../injectables';
+import {kUtilsInjectables} from '../injection/injectables';
 
 beforeAll(async () => {
   await initTests();

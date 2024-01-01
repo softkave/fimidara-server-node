@@ -1,20 +1,15 @@
-import {container} from 'tsyringe';
 import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kInjectionKeys} from '../../contexts/injection';
-import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {NotFoundError} from '../../errors';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {fileBackendConfigExtractor} from '../utils';
 import {GetFileBackendConfigEndpoint} from './types';
 import {getFileBackendConfigJoiSchema} from './validation';
-import {kUtilsInjectables} from '../../contexts/injectables';
 
 const getFileBackendConfig: GetFileBackendConfigEndpoint = async instData => {
-  const configModel = container.resolve<SemanticFileBackendConfigProvider>(
-    kInjectionKeys.semantic.fileBackendConfig
-  );
+  const configModel = kSemanticModels.fileBackendConfig();
 
   const data = validate(instData.data, getFileBackendConfigJoiSchema);
   const agent = await kUtilsInjectables.session().getAgent(instData);

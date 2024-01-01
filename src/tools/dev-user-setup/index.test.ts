@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {kSemanticModels} from '../../endpoints/contexts/injectables';
+import {kSemanticModels} from '../../endpoints/contexts/injection/injectables';
 import {generateAndInsertUserListForTest} from '../../endpoints/testUtils/generate/user';
 import {completeTests} from '../../endpoints/testUtils/helpers/test';
 import {ISetupDevUserOptions, setupDevUser} from './utils';

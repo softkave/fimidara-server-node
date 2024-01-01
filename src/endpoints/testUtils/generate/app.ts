@@ -3,7 +3,7 @@ import {App, kAppPresetShards, kAppType} from '../../../definitions/app';
 import {kAppResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 
 export function getRandomAppType() {
   return faker.helpers.arrayElement(Object.values(kAppType));

@@ -1,6 +1,6 @@
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils';
 import {INTERNAL_sendEmailVerificationCode} from '../sendEmailVerificationCode/handler';
 import {SignupEndpoint} from './types';

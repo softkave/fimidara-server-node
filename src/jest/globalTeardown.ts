@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import 'reflect-metadata';
 import {dropMongoConnection} from '../endpoints/testUtils/helpers/mongo';
 import {FimidaraSuppliedConfig, getSuppliedConfig} from '../resources/config';
 import {testLogger} from '../utils/logger/loggerUtils';

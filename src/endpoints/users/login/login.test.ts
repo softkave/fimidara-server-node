@@ -1,5 +1,6 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
+import {kUtilsInjectables} from '../../contexts/injection/injectables';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
@@ -9,7 +10,6 @@ import {
 } from '../../testUtils/testUtils';
 import login from './login';
 import {LoginEndpointParams} from './types';
-import {kUtilsInjectables} from '../../contexts/injectables';
 
 /**
  * TODO:

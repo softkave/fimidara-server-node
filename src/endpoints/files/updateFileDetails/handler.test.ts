@@ -1,7 +1,8 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
+import EndpointReusableQueries from '../../queries';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
@@ -14,7 +15,6 @@ import {
 import {fileExtractor, stringifyFilenamepath} from '../utils';
 import updateFileDetails from './handler';
 import {UpdateFileDetailsEndpointParams, UpdateFileDetailsInput} from './types';
-import EndpointReusableQueries from '../../queries';
 
 beforeAll(async () => {
   await initTests();

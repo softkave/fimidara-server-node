@@ -8,7 +8,7 @@ import {FileQueries} from '../../files/queries';
 import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils';
 import {FolderQueries} from '../../folders/queries';
 import {getFolderpathInfo, stringifyFoldernamepath} from '../../folders/utils';
-import {kSemanticModels, kUtilsInjectables} from '../injectables';
+import {kSemanticModels, kUtilsInjectables} from '../injection/injectables';
 import LocalFsFilePersistenceProvider from './LocalFsFilePersistenceProvider';
 import MemoryFilePersistenceProvider from './MemoryFilePersistenceProvider';
 import {S3FilePersistenceProvider} from './S3FilePersistenceProvider';
@@ -232,11 +232,12 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
 
   protected getBackend = (): FilePersistenceProvider => {
     const config = kUtilsInjectables.suppliedConfig();
-    appAssert(config.awsConfig);
 
     switch (config.fileBackend) {
       case kFimidaraConfigFilePersistenceProvider.s3:
-        appAssert(config.awsConfig);
+        appAssert(config.awsConfig?.accessKeyId);
+        appAssert(config.awsConfig?.region);
+        appAssert(config.awsConfig?.secretAccessKey);
         return new S3FilePersistenceProvider(config.awsConfig);
       case kFimidaraConfigFilePersistenceProvider.fs:
         appAssert(config.localFsDir);

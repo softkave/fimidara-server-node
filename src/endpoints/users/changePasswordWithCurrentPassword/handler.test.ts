@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
+import EndpointReusableQueries from '../../queries';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
@@ -14,7 +15,6 @@ import {LoginEndpointParams} from '../login/types';
 import {userExtractor} from '../utils';
 import changePasswordWithCurrentPassword from './handler';
 import {ChangePasswordWithCurrentPasswordEndpointParams} from './types';
-import EndpointReusableQueries from '../../queries';
 
 beforeAll(async () => {
   await initTests();

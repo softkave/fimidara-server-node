@@ -1,5 +1,5 @@
 import {validate} from '../../../utils/validate';
-import {kUtilsInjectables} from '../../contexts/injectables';
+import {kUtilsInjectables} from '../../contexts/injection/injectables';
 import {checkWorkspaceAuthorization02, workspaceExtractor} from '../utils';
 import {GetWorkspaceEndpoint} from './types';
 import {getWorkspaceJoiSchema} from './validation';

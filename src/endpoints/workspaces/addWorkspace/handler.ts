@@ -1,7 +1,7 @@
 import {kAppResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {EmailAddressNotVerifiedError} from '../../users/errors';
 import {workspaceExtractor} from '../utils';
 import INTERNAL_createWorkspace from './internalCreateWorkspace';

@@ -3,7 +3,7 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {isStringEqual} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {kUtilsInjectables, kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {assertEmailAddressAvailable, assertUser, userExtractor} from '../utils';
 import {UpdateUserEndpoint} from './types';
 import {updateUserJoiSchema} from './validation';

@@ -4,7 +4,7 @@ import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {kAppResourceType} from '../../../definitions/system';
 import {extractResourceIdList} from '../../../utils/fns';
 import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generate/permissionItem';
 import {completeTests} from '../../testUtils/helpers/test';
 import {

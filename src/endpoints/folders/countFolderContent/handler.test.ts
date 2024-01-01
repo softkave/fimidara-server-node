@@ -1,5 +1,5 @@
 import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {generateAndInsertTestFiles} from '../../testUtils/generate/file';
 import {generateAndInsertTestFolders} from '../../testUtils/generate/folder';
 import {completeTests} from '../../testUtils/helpers/test';

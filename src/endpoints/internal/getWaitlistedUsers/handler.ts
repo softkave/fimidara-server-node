@@ -1,5 +1,5 @@
 import {kAppResourceType} from '../../../definitions/system';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {userListExtractor} from '../../users/utils';
 import {assertUserIsPartOfRootWorkspace} from '../utils';
 import {GetWaitlistedUsersEndpoint} from './types';

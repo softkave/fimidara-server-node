@@ -1,6 +1,6 @@
 import {kAppResourceType, kPermissionAgentTypes} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
-import {kUtilsInjectables} from '../../contexts/injectables';
+import {kUtilsInjectables} from '../../contexts/injection/injectables';
 import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {checkFolderAuthorization02} from '../utils';
 import {DeleteFolderEndpoint} from './types';

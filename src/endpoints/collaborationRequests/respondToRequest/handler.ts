@@ -1,6 +1,6 @@
 import {kAppResourceType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {collaborationRequestForUserExtractor} from '../utils';
 import {RespondToCollaborationRequestEndpoint} from './types';
 import {

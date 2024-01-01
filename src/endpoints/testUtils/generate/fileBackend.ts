@@ -15,9 +15,8 @@ import {
   PersistedFileDescription,
   PersistedFolderDescription,
 } from '../../contexts/file/types';
-import {kSemanticModels} from '../../contexts/injectables';
-import {kInjectionKeys} from '../../contexts/injection';
-import {SemanticFileBackendConfigProvider} from '../../contexts/semantic/fileBackendConfig/types';
+import {kSemanticModels} from '../../contexts/injection/injectables';
+import {kInjectionKeys} from '../../contexts/injection/keys';
 import {
   SemanticFileBackendMountProvider,
   SemanticProviderUtils,
@@ -266,12 +265,8 @@ export async function generateAndInsertFileBackendConfigListForTest(
   count = 20,
   seed: Partial<FileBackendConfig> = {}
 ) {
-  const configModel = container.resolve<SemanticFileBackendConfigProvider>(
-    kInjectionKeys.semantic.fileBackendConfig
-  );
-  const semanticUtils = container.resolve<SemanticProviderUtils>(
-    kInjectionKeys.semantic.utils
-  );
+  const configModel = kSemanticModels.fileBackendConfig();
+  const semanticUtils = kSemanticModels.utils();
 
   const items = generateFileBackendConfigListForTest(count, seed);
   await semanticUtils.withTxn(async opts => configModel.insertItem(items, opts));

@@ -1,6 +1,6 @@
 import {kAppResourceType} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
-import {kUtilsInjectables} from '../../contexts/injectables';
+import {kUtilsInjectables} from '../../contexts/injection/injectables';
 import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {checkCollaborationRequestAuthorization02} from '../utils';
 import {DeleteCollaborationRequestEndpoint} from './types';

@@ -1,6 +1,6 @@
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {kUtilsInjectables} from '../../contexts/injectables';
+import {kUtilsInjectables} from '../../contexts/injection/injectables';
 import {checkPermissionGroupAuthorization03, permissionGroupExtractor} from '../utils';
 import {GetPermissionGroupEndpoint} from './types';
 import {getPermissionGroupJoiSchema} from './validation';

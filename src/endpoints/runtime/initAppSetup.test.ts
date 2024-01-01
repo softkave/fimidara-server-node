@@ -1,4 +1,8 @@
-import {kDataModels, kSemanticModels, kUtilsInjectables} from '../contexts/injectables';
+import {
+  kDataModels,
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../contexts/injection/injectables';
 import EndpointReusableQueries from '../queries';
 import {completeTests} from '../testUtils/helpers/test';
 import {initTests} from '../testUtils/testUtils';

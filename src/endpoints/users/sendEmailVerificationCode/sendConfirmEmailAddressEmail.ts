@@ -5,7 +5,7 @@ import {
   confirmEmailAddressEmailTitle,
 } from '../../../emailTemplates/confirmEmailAddress';
 import {appAssert} from '../../../utils/assertion';
-import {kUtilsInjectables} from '../../contexts/injectables';
+import {kUtilsInjectables} from '../../contexts/injection/injectables';
 
 export interface SendConfirmEmailAddressEmailParams
   extends ConfirmEmailAddressEmailProps {

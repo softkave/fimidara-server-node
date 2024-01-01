@@ -3,7 +3,7 @@ import {AssignedItem, ResourceWithTags} from '../../definitions/assignedItem';
 import {AppResourceType, Resource, kAppResourceType} from '../../definitions/system';
 import {User, UserWorkspace} from '../../definitions/user';
 import {cast} from '../../utils/fns';
-import {kSemanticModels} from '../contexts/injectables';
+import {kSemanticModels} from '../contexts/injection/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {
   assignedItemsToAssignedTagList,

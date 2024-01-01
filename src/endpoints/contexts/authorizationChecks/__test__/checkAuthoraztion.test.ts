@@ -25,7 +25,7 @@ import {
 } from '../../../testUtils/testUtils';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../../users/errors';
 import {SignupEndpointParams} from '../../../users/signup/types';
-import {kSemanticModels, kUtilsInjectables} from '../../injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../injection/injectables';
 import {
   checkAuthorizationWithAgent,
   getFilePermissionContainers,

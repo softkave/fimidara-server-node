@@ -15,7 +15,7 @@ import {indexArray} from '../../../../utils/indexArray';
 import {getResourceTypeFromId} from '../../../../utils/resource';
 import {kReuseableErrors} from '../../../../utils/reusableErrors';
 import {DataQuery, LiteralDataQuery} from '../../data/types';
-import {kSemanticModels} from '../../injectables';
+import {kSemanticModels} from '../../injection/injectables';
 import {SemanticProviderRunOptions} from '../types';
 import {getInAndNinQuery} from '../utils';
 import {
