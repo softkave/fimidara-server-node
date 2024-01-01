@@ -90,7 +90,7 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
     // not supported
   };
 
-  close = async () => {
+  dispose = async () => {
     this.files = {};
   };
 

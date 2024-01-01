@@ -1,5 +1,4 @@
 import {compact, first, keyBy} from 'lodash';
-import {container} from 'tsyringe';
 import {File} from '../../definitions/file';
 import {
   FileBackendConfig,
@@ -25,11 +24,7 @@ import {
 } from '../contexts/file/types';
 import {isFilePersistenceProvider} from '../contexts/file/utils';
 import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
-import {kInjectionKeys} from '../contexts/injection/keys';
-import {
-  SemanticFileBackendMountProvider,
-  SemanticProviderRunOptions,
-} from '../contexts/semantic/types';
+import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
 import {EndpointResultNoteCodeMap, kEndpointResultNotesToMessageMap} from '../types';
 import {getBackendConfigsWithIdList} from './configUtils';
@@ -55,10 +50,7 @@ export async function resolveMountsForFolder(
   folder: Pick<Folder, 'workspaceId' | 'namepath'>,
   opts?: SemanticProviderRunOptions
 ) {
-  const mountModel = container.resolve<SemanticFileBackendMountProvider>(
-    kInjectionKeys.semantic.fileBackendMount
-  );
-
+  const mountModel = kSemanticModels.fileBackendMount();
   const mountsList = await Promise.all(
     folder.namepath.map((name, index) => {
       const paths = folder.namepath.slice(0, folder.namepath.length - index);
@@ -133,7 +125,7 @@ export async function initBackendProvidersForMounts(
     providersMap[mount.resourceId] = provider;
   });
 
-  kAsyncLocalStorageUtils.addDisposable(Object.values(providersMap));
+  kAsyncLocalStorageUtils.disposables().add(Object.values(providersMap));
   return providersMap;
 }
 
@@ -200,7 +192,7 @@ export async function areMountsCompletelyIngestedForFolder(
 export function resolvedMountsHaveUnsupportedFeatures(
   features: FilePersistenceProviderFeature[]
 ) {
-  const disposables = kUtilsInjectables.asyncLocalStorage().getDisposables();
+  const disposables = kUtilsInjectables.asyncLocalStorage().disposables().getList();
   const fileProviders = disposables.filter(disposable =>
     isFilePersistenceProvider(disposable)
   ) as FilePersistenceProvider[];

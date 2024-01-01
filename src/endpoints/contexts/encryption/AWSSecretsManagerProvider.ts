@@ -78,7 +78,7 @@ export class AWSSecretsManagerProvider implements SecretsManagerProvider {
     return {text: response.SecretString};
   };
 
-  close = async () => {
+  dispose = async () => {
     await this.client.destroy();
   };
 }

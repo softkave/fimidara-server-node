@@ -101,7 +101,7 @@ export async function createFolderListWithTransaction(
     // Create folders for folders not found starting from the closest existing
     // parent represented by existingDepth. If existingDepth ===
     // namepath.length, then folder exists, and no new folder is created
-    pathinfo.namepath.slice(0, existingDepth).forEach((name, nameIndex) => {
+    pathinfo.namepath.slice(existingDepth).forEach((name, nameIndex) => {
       const actualNameIndex = nameIndex + existingDepth;
       const folder: Folder = createNewFolder(
         agent,

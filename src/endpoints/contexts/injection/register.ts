@@ -31,22 +31,20 @@ import {
   kFimidaraConfigEmailProvider,
   kFimidaraConfigSecretsManagerProvider,
 } from '../../../resources/config';
-import {appAssert} from '../../../utils/assertion';
-import {DisposablesStore} from '../../../utils/disposables';
+import {appAssert, assertNotFound} from '../../../utils/assertion';
+import {DisposableResource, DisposablesStore} from '../../../utils/disposables';
 import {AnyFn} from '../../../utils/types';
-import {throwAgentTokenNotFound} from '../../agentTokens/utils';
-import {throwAssignedItemNotFound} from '../../assignedItems/utils';
-import {throwCollaborationRequestNotFound} from '../../collaborationRequests/utils';
-import {throwFileNotFound, throwFilePresignedPathNotFound} from '../../files/utils';
-import {throwFolderNotFound} from '../../folders/utils';
-import {throwPermissionGroupNotFound} from '../../permissionGroups/utils';
-import {throwPermissionItemNotFound} from '../../permissionItems/utils';
-import {throwTagNotFound} from '../../tags/utils';
+import {assertAgentToken} from '../../agentTokens/utils';
+import {assertCollaborationRequest} from '../../collaborationRequests/utils';
+import {assertFile} from '../../files/utils';
+import {assertFolder} from '../../folders/utils';
+import {assertPermissionGroup} from '../../permissionGroups/utils';
+import {assertPermissionItem} from '../../permissionItems/utils';
+import {assertTag} from '../../tags/utils';
 import NoopEmailProviderContext from '../../testUtils/context/email/NoopEmailProviderContext';
-import {throwUsageRecordNotFound} from '../../usageRecords/utils';
-import {throwUserNotFound} from '../../users/utils';
-import {throwNotFound} from '../../utils';
-import {throwWorkspaceNotFound} from '../../workspaces/utils';
+import {assertUsageRecord} from '../../usageRecords/utils';
+import {assertUser} from '../../users/utils';
+import {assertWorkspace} from '../../workspaces/utils';
 import {PromiseStore} from '../PromiseStore';
 import SessionContext, {SessionContextType} from '../SessionContext';
 import {AsyncLocalStorageUtils, kAsyncLocalStorageUtils} from '../asyncLocalStorage';
@@ -151,6 +149,10 @@ function registerToken(token: string, item: RegisterItem<unknown>) {
   if (isFunction(item)) {
     container.register(token, {useFactory: item});
   } else {
+    if (isFunction((item as DisposableResource).dispose)) {
+      kUtilsInjectables.disposables().add(item as DisposableResource);
+    }
+
     container.register(token, {useValue: item});
   }
 }
@@ -242,9 +244,9 @@ export const kRegisterUtilsInjectables = {
   mongoConnection: (item: Connection) =>
     registerToken(kInjectionKeys.mongoConnection, item),
   email: (item: IEmailProviderContext) => registerToken(kInjectionKeys.email, item),
-  promiseStore: (item: PromiseStore) => registerToken(kInjectionKeys.promiseStore, item),
-  disposablesStore: (item: DisposablesStore) =>
-    registerToken(kInjectionKeys.disposablesStore, item),
+  promises: (item: PromiseStore) => registerToken(kInjectionKeys.promises, item),
+  disposables: (item: DisposablesStore) =>
+    registerToken(kInjectionKeys.disposables, item),
   usageLogic: (item: UsageRecordLogicProvider) =>
     registerToken(kInjectionKeys.usageLogic, item),
 };
@@ -299,62 +301,52 @@ export function registerDataModelInjectables() {
 }
 
 export function registerSemanticModelInjectables() {
-  kRegisterSemanticModels.user(
-    new DataSemanticUser(kDataModels.user(), throwUserNotFound)
-  );
-  kRegisterSemanticModels.file(
-    new DataSemanticFile(kDataModels.file(), throwFileNotFound)
-  );
+  kRegisterSemanticModels.user(new DataSemanticUser(kDataModels.user(), assertUser));
+  kRegisterSemanticModels.file(new DataSemanticFile(kDataModels.file(), assertFile));
   kRegisterSemanticModels.agentToken(
-    new DataSemanticAgentToken(kDataModels.agentToken(), throwAgentTokenNotFound)
+    new DataSemanticAgentToken(kDataModels.agentToken(), assertAgentToken)
   );
   kRegisterSemanticModels.folder(
-    new DataSemanticFolder(kDataModels.folder(), throwFolderNotFound)
+    new DataSemanticFolder(kDataModels.folder(), assertFolder)
   );
   kRegisterSemanticModels.workspace(
-    new DataSemanticWorkspace(kDataModels.workspace(), throwWorkspaceNotFound)
+    new DataSemanticWorkspace(kDataModels.workspace(), assertWorkspace)
   );
   kRegisterSemanticModels.collaborationRequest(
     new DataSemanticCollaborationRequest(
       kDataModels.collaborationRequest(),
-      throwCollaborationRequestNotFound
+      assertCollaborationRequest
     )
   );
   kRegisterSemanticModels.fileBackendConfig(
-    new DataSemanticFileBackendConfig(kDataModels.fileBackendConfig(), throwNotFound)
+    new DataSemanticFileBackendConfig(kDataModels.fileBackendConfig(), assertNotFound)
   );
   kRegisterSemanticModels.fileBackendMount(
-    new DataSemanticFileBackendMount(kDataModels.fileBackendMount(), throwNotFound)
+    new DataSemanticFileBackendMount(kDataModels.fileBackendMount(), assertNotFound)
   );
   kRegisterSemanticModels.filePresignedPath(
     new DataSemanticFilePresignedPathProvider(
       kDataModels.filePresignedPath(),
-      throwFilePresignedPathNotFound
+      assertNotFound
     )
   );
   kRegisterSemanticModels.permissions(new DataSemanticPermission());
   kRegisterSemanticModels.permissionGroup(
-    new DataSemanticPermissionGroup(
-      kDataModels.permissionGroup(),
-      throwPermissionGroupNotFound
-    )
+    new DataSemanticPermissionGroup(kDataModels.permissionGroup(), assertPermissionGroup)
   );
   kRegisterSemanticModels.permissionItem(
-    new DataSemanticPermissionItem(
-      kDataModels.permissionItem(),
-      throwPermissionItemNotFound
-    )
+    new DataSemanticPermissionItem(kDataModels.permissionItem(), assertPermissionItem)
   );
-  kRegisterSemanticModels.tag(new DataSemanticTag(kDataModels.tag(), throwTagNotFound));
+  kRegisterSemanticModels.tag(new DataSemanticTag(kDataModels.tag(), assertTag));
   kRegisterSemanticModels.assignedItem(
-    new DataSemanticAssignedItem(kDataModels.assignedItem(), throwAssignedItemNotFound)
+    new DataSemanticAssignedItem(kDataModels.assignedItem(), assertNotFound)
   );
-  kRegisterSemanticModels.job(new DataSemanticJob(kDataModels.job(), throwNotFound));
+  kRegisterSemanticModels.job(new DataSemanticJob(kDataModels.job(), assertNotFound));
   kRegisterSemanticModels.usageRecord(
-    new DataSemanticUsageRecord(kDataModels.usageRecord(), throwUsageRecordNotFound)
+    new DataSemanticUsageRecord(kDataModels.usageRecord(), assertUsageRecord)
   );
   kRegisterSemanticModels.resolvedMountEntry(
-    new DataSemanticResolvedMountEntry(kDataModels.resolvedMountEntry(), throwNotFound)
+    new DataSemanticResolvedMountEntry(kDataModels.resolvedMountEntry(), assertNotFound)
   );
   kRegisterSemanticModels.utils(new DataSemanticProviderUtils());
 }
@@ -363,11 +355,11 @@ export function registerUtilsInjectables() {
   const suppliedConfig = getSuppliedConfig();
 
   kRegisterUtilsInjectables.suppliedConfig(suppliedConfig);
-  kRegisterUtilsInjectables.disposablesStore(new DisposablesStore());
-  kRegisterUtilsInjectables.fileProviderResolver(defaultFileProviderResolver);
+  kRegisterUtilsInjectables.disposables(new DisposablesStore());
   kRegisterUtilsInjectables.asyncLocalStorage(kAsyncLocalStorageUtils);
+  kRegisterUtilsInjectables.promises(new PromiseStore());
+  kRegisterUtilsInjectables.fileProviderResolver(defaultFileProviderResolver);
   kRegisterUtilsInjectables.session(new SessionContext());
-  kRegisterUtilsInjectables.promiseStore(new PromiseStore());
   kRegisterUtilsInjectables.usageLogic(new UsageRecordLogicProvider());
 
   assert(suppliedConfig.mongoDbURI);

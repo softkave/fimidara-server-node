@@ -1,30 +1,31 @@
-import {toArray} from 'lodash';
 import {ReadonlyDeep} from 'type-fest';
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
+import {toArray} from './fns';
 import {OrPromise} from './types';
 
 export interface DisposableResource {
   /** Dispose of resource in /src/endpoints/contexts/globalUtils.ts */
-  close: () => OrPromise<void>;
+  dispose: () => OrPromise<void>;
 }
 
+/** NOTE: `DisposablesStore` must never be a disposable resource (basically any
+ * resource with a `close()` function) because we automatically add all
+ * disposable resources registered with our dep injection container into
+ * `DisposablesStore`. */
 export class DisposablesStore {
-  map = new Map<DisposableResource, DisposableResource>();
+  protected disposablesMap = new Map<DisposableResource, DisposableResource>();
 
-  addDisposable = (disposable: DisposableResource | DisposableResource[]) => {
-    toArray(disposable).forEach(next => this.map.set(next, next));
+  add = (disposable: DisposableResource | DisposableResource[]) => {
+    toArray(disposable).forEach(next => this.disposablesMap.set(next, next));
   };
 
-  getDisposablesList = (): ReadonlyDeep<DisposableResource[]> => {
-    return Array.from(this.map.values());
+  getList = (): ReadonlyDeep<DisposableResource[]> => {
+    return Array.from(this.disposablesMap.values());
   };
 
-  disposeAll = async () => {
-    const promises: OrPromise<unknown>[] = [];
-
-    for (const [disposable] of this.map) {
-      promises.push(disposable.close());
-    }
-
-    return await Promise.all(promises);
+  disposeAll = () => {
+    this.disposablesMap.forEach(disposable => {
+      kUtilsInjectables.promises().forget(disposable.dispose());
+    });
   };
 }

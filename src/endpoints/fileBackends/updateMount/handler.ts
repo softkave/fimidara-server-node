@@ -1,5 +1,4 @@
 import {pick} from 'lodash';
-import {container} from 'tsyringe';
 import {FileBackendMount, kFileBackendType} from '../../../definitions/fileBackend';
 import {
   CleanupMountResolvedEntriesJobParams,
@@ -14,11 +13,6 @@ import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {kInjectionKeys} from '../../contexts/injection/keys';
-import {
-  SemanticFileBackendMountProvider,
-  SemanticProviderUtils,
-} from '../../contexts/semantic/types';
 import {kFolderConstants} from '../../folders/constants';
 import {areFolderpathsEqual, getFolderpathInfo} from '../../folders/utils';
 import {queueJobs} from '../../jobs/utils';
@@ -29,12 +23,8 @@ import {UpdateFileBackendMountEndpoint} from './types';
 import {updateFileBackendMountJoiSchema} from './validation';
 
 const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData => {
-  const mountModel = container.resolve<SemanticFileBackendMountProvider>(
-    kInjectionKeys.semantic.fileBackendMount
-  );
-  const semanticUtils = container.resolve<SemanticProviderUtils>(
-    kInjectionKeys.semantic.utils
-  );
+  const mountModel = kSemanticModels.fileBackendMount();
+  const semanticUtils = kSemanticModels.utils();
 
   const data = validate(instData.data, updateFileBackendMountJoiSchema);
   const agent = await kUtilsInjectables.session().getAgent(instData);

@@ -24,7 +24,6 @@ import {serverLogger} from '../utils/logger/loggerUtils';
 import {AnyObject} from '../utils/types';
 import RequestData from './RequestData';
 import {endpointConstants} from './constants';
-import {kAsyncLocalStorageUtils} from './contexts/asyncLocalStorage';
 import {ResolvedTargetChildrenAccessCheck} from './contexts/authorizationChecks/checkAuthorizaton';
 import {DataQuery} from './contexts/data/types';
 import {kUtilsInjectables} from './contexts/injection/injectables';
@@ -87,13 +86,6 @@ export function prepareResponseError(error: unknown) {
   return {statusCode, preppedErrors};
 }
 
-export function defaultEndpointCleanup() {
-  const disposables = kAsyncLocalStorageUtils.getDisposables();
-  disposables.forEach(disposable =>
-    kUtilsInjectables.promiseStore().forget(disposable.close())
-  );
-}
-
 export const wrapEndpointREST = <EndpointType extends Endpoint>(
   endpoint: EndpointType,
   handleResponse?: ExportedHttpEndpoint_HandleResponse,
@@ -102,37 +94,39 @@ export const wrapEndpointREST = <EndpointType extends Endpoint>(
   cleanup?: ExportedHttpEndpoint_Cleanup | Array<ExportedHttpEndpoint_Cleanup>
 ): ((req: Request, res: Response) => unknown) => {
   return async (req: Request, res: Response) => {
-    try {
-      const data = await (getData ? getData(req) : req.body);
-      const instData = RequestData.fromExpressRequest(
-        req as unknown as IServerRequest,
-        data
-      );
-      const result = await endpoint(instData);
+    kUtilsInjectables.asyncLocalStorage().run(async () => {
+      try {
+        const data = await (getData ? getData(req) : req.body);
+        const instData = RequestData.fromExpressRequest(
+          req as unknown as IServerRequest,
+          data
+        );
+        const result = await endpoint(instData);
 
-      if (handleResponse) {
-        await handleResponse(res, result);
-      } else {
-        res.status(endpointConstants.httpStatusCode.ok).json(result ?? {});
-      }
-    } catch (error: unknown) {
-      const {statusCode, preppedErrors} = prepareResponseError(error);
-
-      if (handleError) {
-        const deferHandling = handleError(res, preppedErrors, error);
-
-        if (deferHandling !== true) {
-          return;
+        if (handleResponse) {
+          await handleResponse(res, result);
+        } else {
+          res.status(endpointConstants.httpStatusCode.ok).json(result ?? {});
         }
-      }
+      } catch (error: unknown) {
+        const {statusCode, preppedErrors} = prepareResponseError(error);
 
-      const result = {errors: preppedErrors};
-      res.status(statusCode).json(result);
-    } finally {
-      toCompactArray(cleanup)
-        .concat(defaultEndpointCleanup)
-        .forEach(fn => kUtilsInjectables.promiseStore().forget(fn(req, res)));
-    }
+        if (handleError) {
+          const deferHandling = handleError(res, preppedErrors, error);
+
+          if (deferHandling !== true) {
+            return;
+          }
+        }
+
+        const result = {errors: preppedErrors};
+        res.status(statusCode).json(result);
+      } finally {
+        toCompactArray(cleanup).forEach(fn =>
+          kUtilsInjectables.promises().forget(fn(req, res))
+        );
+      }
+    });
   };
 };
 

@@ -288,7 +288,7 @@ function ensureRunnerCount() {
 
   if (isMainThread) {
     return kUtilsInjectables
-      .promiseStore()
+      .promises()
       .executeAfter(internalFn, kEnsureRunnerCountPromiseName)
       .get(kEnsureRunnerCountPromiseName);
   }

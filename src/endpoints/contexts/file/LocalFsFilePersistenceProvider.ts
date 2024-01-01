@@ -258,7 +258,7 @@ export default class LocalFsFilePersistenceProvider implements FilePersistencePr
     }
   };
 
-  close = noopAsync;
+  dispose = noopAsync;
 
   protected async getLocalStats<T>(
     paths: string[],

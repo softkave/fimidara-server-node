@@ -1,5 +1,4 @@
 import {faker} from '@faker-js/faker';
-import {container} from 'tsyringe';
 import {Folder} from '../../../definitions/folder';
 import {kAppResourceType} from '../../../definitions/system';
 import {kSystemSessionAgent} from '../../../utils/agent';
@@ -7,9 +6,6 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {kInjectionKeys} from '../../contexts/injection/keys';
-import {SemanticFolderProvider} from '../../contexts/semantic/folder/types';
-import {SemanticProviderUtils} from '../../contexts/semantic/types';
 import {kFolderConstants} from '../../folders/constants';
 import {addRootnameToPath} from '../../folders/utils';
 
@@ -140,13 +136,8 @@ export async function generateAndInsertTestFolders(
   extra: Partial<Folder> & {parentId: string | null} = {parentId: null},
   other: Parameters<typeof generateTestFolder>[1] = {}
 ) {
-  const folderModel = container.resolve<SemanticFolderProvider>(
-    kInjectionKeys.semantic.folder
-  );
-  const semanticUtils = container.resolve<SemanticProviderUtils>(
-    kInjectionKeys.semantic.utils
-  );
-
+  const folderModel = kSemanticModels.folder();
+  const semanticUtils = kSemanticModels.utils();
   const items = generateTestFolders(count, extra, other);
   await semanticUtils.withTxn(async opts => folderModel.insertItem(items, opts));
   return items;

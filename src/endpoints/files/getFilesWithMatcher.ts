@@ -1,5 +1,4 @@
 import {isNumber} from 'lodash';
-import {container} from 'tsyringe';
 import {File, FileMatcher, FilePresignedPath} from '../../definitions/file';
 import {PermissionAction, kPermissionsMap} from '../../definitions/permissionItem';
 import {kAppResourceType} from '../../definitions/system';
@@ -13,8 +12,6 @@ import {
   makeWorkspaceAgentTokenAgent,
 } from '../../utils/sessionUtils';
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {kInjectionKeys} from '../contexts/injection/keys';
-import {SemanticFileProvider} from '../contexts/semantic/file/types';
 import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
@@ -138,7 +135,7 @@ export async function getFileByFilepath(props: {
   opts: SemanticProviderMutationRunOptions;
   workspaceId?: string;
 }) {
-  const fileModel = container.resolve<SemanticFileProvider>(kInjectionKeys.semantic.file);
+  const fileModel = kSemanticModels.file();
   const {filepath, opts} = props;
   let {workspaceId} = props;
   let workspace: Workspace | undefined;

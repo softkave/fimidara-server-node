@@ -33,7 +33,7 @@ export default class NoopFilePersistenceProviderContext
 
   deleteFiles = async () => {};
   deleteFolders = async (): Promise<void> => {};
-  close = async () => {};
+  dispose = async () => {};
 
   describeFile = async (): Promise<PersistedFileDescription | undefined> => {
     return undefined;

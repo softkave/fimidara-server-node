@@ -165,9 +165,8 @@ export const kUtilsInjectables = {
   session: () => container.resolve<SessionContextType>(kInjectionKeys.session),
   mongoConnection: () => container.resolve<Connection>(kInjectionKeys.mongoConnection),
   email: () => container.resolve<IEmailProviderContext>(kInjectionKeys.email),
-  promiseStore: () => container.resolve<PromiseStore>(kInjectionKeys.promiseStore),
-  disposablesStore: () =>
-    container.resolve<DisposablesStore>(kInjectionKeys.disposablesStore),
+  promises: () => container.resolve<PromiseStore>(kInjectionKeys.promises),
+  disposables: () => container.resolve<DisposablesStore>(kInjectionKeys.disposables),
   usageLogic: () =>
     container.resolve<UsageRecordLogicProvider>(kInjectionKeys.usageLogic),
 };

@@ -48,5 +48,5 @@ export class MemorySecretsManagerProvider implements SecretsManagerProvider {
     return {text: secret.secret};
   };
 
-  close = noop;
+  dispose = noop;
 }

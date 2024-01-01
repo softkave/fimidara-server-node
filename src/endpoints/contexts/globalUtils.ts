@@ -9,16 +9,10 @@ export async function globalDispose() {
   const closeLoggersPromise = Promise.all(
     Object.values(FimidaraLoggerServiceNames).map(service => {
       const logger = createAppLogger.cache.get(service) as Logger | undefined;
-      return logger?.close();
+      logger?.close();
     })
   );
-
-  await Promise.all([
-    closeLoggersPromise,
-    kUtilsInjectables.email().close(),
-    kUtilsInjectables.secretsManager().close(),
-    kUtilsInjectables.mongoConnection().close(),
-    kUtilsInjectables.disposablesStore().disposeAll(),
-  ]);
-  await kUtilsInjectables.promiseStore().close().flush();
+  kUtilsInjectables.disposables().disposeAll();
+  await Promise.all([closeLoggersPromise, kUtilsInjectables.mongoConnection().close()]);
+  await kUtilsInjectables.promises().close().flush();
 }

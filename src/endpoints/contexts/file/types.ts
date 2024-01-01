@@ -2,6 +2,7 @@ import {Readable} from 'stream';
 import {File} from '../../../definitions/file';
 import {FileBackendConfig, FileBackendMount} from '../../../definitions/fileBackend';
 import {kAppResourceType} from '../../../definitions/system';
+import {DisposableResource} from '../../../utils/disposables';
 
 export type FilePersistenceProviderFeature =
   | 'describeFile'
@@ -107,7 +108,7 @@ export interface FilePersistenceAddFolderResult {
   folder?: PersistedFolderDescription;
 }
 
-export interface FilePersistenceProvider {
+export interface FilePersistenceProvider extends DisposableResource {
   supportsFeature: (feature: FilePersistenceProviderFeature) => boolean;
   uploadFile: (params: FilePersistenceUploadFileParams) => Promise<Partial<File>>;
   readFile: (params: FilePersistenceGetFileParams) => Promise<PersistedFile>;
@@ -125,7 +126,6 @@ export interface FilePersistenceProvider {
   ) => Promise<FilePersistenceDescribeFolderFoldersResult>;
   deleteFiles: (params: FilePersistenceDeleteFilesParams) => Promise<void>;
   deleteFolders: (params: FilePersistenceDeleteFoldersParams) => Promise<void>;
-  close: () => Promise<void>;
 }
 
 export type FileProviderResolver = (

@@ -9,9 +9,11 @@ import {
 import {AnyFn, AnyObject, OrArray, OrPromise} from '../../../utils/types';
 import RequestData from '../../RequestData';
 import {globalDispose} from '../../contexts/globalUtils';
-import {kSemanticModels} from '../../contexts/injection/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
+import {registerInjectables} from '../../contexts/injection/register';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {IServerRequest} from '../../contexts/types';
+import {setupApp} from '../../runtime/initAppSetup';
 import {
   Endpoint,
   InferEndpointParams,
@@ -31,22 +33,29 @@ export function mutationTest(
   });
 }
 
-export function setupMutationTesting() {
-  async function mutationTest(
-    name: string,
-    fn: AnyFn<[SemanticProviderMutationRunOptions]>,
-    timeout?: number
-  ) {
-    kSemanticModels.utils().withTxn(async options => {
-      await test(name, () => fn(options), timeout);
-    });
-  }
-
-  return {mutationTest};
-}
-
 export async function completeTests() {
   await globalDispose();
+}
+
+export function startTesting() {
+  beforeAll(async () => {
+    registerInjectables();
+    await setupApp();
+  });
+
+  afterAll(async () => {
+    await globalDispose();
+  });
+}
+
+export function softkaveTest(name: string, fn: AnyFn, timeout?: number) {
+  test(
+    name,
+    async () => {
+      await kUtilsInjectables.asyncLocalStorage().run(fn);
+    },
+    timeout
+  );
 }
 
 export interface PerformPaginationTestParams<

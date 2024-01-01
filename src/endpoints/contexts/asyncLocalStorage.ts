@@ -1,7 +1,6 @@
 import {AsyncLocalStorage} from 'async_hooks';
-import {get, isUndefined, set} from 'lodash';
-import {DisposableResource} from '../../utils/disposables';
-import {toArray} from '../../utils/fns';
+import {get, set} from 'lodash';
+import {DisposablesStore} from '../../utils/disposables';
 import {AnyFn} from '../../utils/types';
 
 export type FimidaraAsyncLocalStorageStore = Record<string, unknown>;
@@ -9,17 +8,10 @@ export type FimidaraAsyncLocalStorage = AsyncLocalStorage<FimidaraAsyncLocalStor
 
 export interface AsyncLocalStorageUtils {
   asyncLocalStorage: FimidaraAsyncLocalStorage;
-  run: (cb: AnyFn) => void;
+  run: <TFn extends AnyFn>(cb: TFn) => ReturnType<TFn>;
   get: <T = unknown>(key: string) => T | undefined;
   set: <T = unknown>(key: string, value: T) => T;
-  defaultTo: <T = unknown>(
-    key: string,
-    defaultValue: T,
-    /** set to `defaultValue` if `true` and value is `undefined` */
-    set?: boolean
-  ) => T;
-  addDisposable: (disposable: DisposableResource | DisposableResource[]) => void;
-  getDisposables: () => DisposableResource[];
+  disposables: () => DisposablesStore;
 }
 
 const asyncLocalStorage = new AsyncLocalStorage<FimidaraAsyncLocalStorageStore>();
@@ -29,52 +21,35 @@ const getFn = <T = unknown>(key: string) => {
 };
 
 const setFn = <T = unknown>(key: string, value: T) => {
-  return set(asyncLocalStorage.getStore() ?? {}, key, value) as T;
+  set(asyncLocalStorage.getStore() ?? {}, key, value);
+  return value;
 };
 
 export const kAsyncLocalStorageUtils: AsyncLocalStorageUtils = {
   asyncLocalStorage,
 
-  run: (cb: AnyFn) => {
-    asyncLocalStorage.run({}, () => {
-      cb();
+  run: <TFn extends AnyFn>(cb: TFn) => {
+    return asyncLocalStorage.run(/** init store */ {}, () => {
+      try {
+        return cb();
+      } finally {
+        kAsyncLocalStorageUtils.disposables().disposeAll();
+      }
     });
   },
 
   get: getFn,
   set: setFn,
 
-  defaultTo: <T = unknown>(key: string, defaultValue: T, set?: boolean) => {
-    const value = getFn<T>(key);
-
-    if (isUndefined(value)) {
-      if (set) {
-        setFn(key, defaultValue);
-      }
-
-      return defaultValue;
-    }
-
-    return value;
-  },
-
-  addDisposable(disposable) {
-    const existingDisposables = this.defaultTo<DisposableResource[]>(
-      kAsyncLocalStorageKeys.dispose,
-      []
+  disposables() {
+    return (
+      this.get(kAsyncLocalStorageKeys.disposables) ||
+      this.set(kAsyncLocalStorageKeys.disposables, new DisposablesStore())
     );
-    this.set(
-      kAsyncLocalStorageKeys.dispose,
-      existingDisposables.concat(toArray(disposable))
-    );
-  },
-
-  getDisposables() {
-    return this.defaultTo<DisposableResource[]>(kAsyncLocalStorageKeys.dispose, []);
   },
 };
 
 export const kAsyncLocalStorageKeys = {
-  dispose: 'dispose',
   txn: 'txn',
+  disposables: 'disposables',
 };

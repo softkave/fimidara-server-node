@@ -1,8 +1,5 @@
-import {container} from 'tsyringe';
 import {validate} from '../../../utils/validate';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {kInjectionKeys} from '../../contexts/injection/keys';
-import {SemanticFileBackendMountProvider} from '../../contexts/semantic/types';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
@@ -14,10 +11,7 @@ import {getFileBackendMountsQuery} from './utils';
 import {getFileBackendMountsJoiSchema} from './validation';
 
 const getFileBackendMounts: GetFileBackendMountsEndpoint = async instData => {
-  const mountModel = container.resolve<SemanticFileBackendMountProvider>(
-    kInjectionKeys.semantic.fileBackendMount
-  );
-
+  const mountModel = kSemanticModels.fileBackendMount();
   const data = validate(instData.data, getFileBackendMountsJoiSchema);
   const agent = await kUtilsInjectables.session().getAgent(instData);
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);

@@ -174,7 +174,7 @@ export async function completeJob(
     (job.status === kJobStatus.completed || job.status === kJobStatus.failed) &&
     job.parentJobId
   ) {
-    kUtilsInjectables.promiseStore().forget(completeJob(job.parentJobId));
+    kUtilsInjectables.promises().forget(completeJob(job.parentJobId));
   }
 
   return job;

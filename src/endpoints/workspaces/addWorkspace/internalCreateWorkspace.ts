@@ -1,4 +1,5 @@
 import assert = require('assert');
+import {kFileBackendType} from '../../../definitions/fileBackend';
 import {Agent, kAppResourceType} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {
@@ -91,11 +92,11 @@ const INTERNAL_createWorkspace = async (
       workspace,
       {
         configId: null,
-        folderpath: '',
+        folderpath: workspace.rootname,
         index: 0,
         mountedFrom: '',
-        name: 'fimidara',
-        backend: 'fimidara',
+        name: kFileBackendType.Fimidara,
+        backend: kFileBackendType.Fimidara,
       },
       opts
     ),

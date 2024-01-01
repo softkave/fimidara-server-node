@@ -47,7 +47,7 @@ export class SESEmailProviderContext implements IEmailProviderContext {
     await this.ses.send(command);
   };
 
-  close = async () => {
+  dispose = async () => {
     await this.ses.destroy();
   };
 }

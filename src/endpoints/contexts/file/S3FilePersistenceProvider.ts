@@ -137,7 +137,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
     await this.s3.send(command);
   };
 
-  close = async () => {
+  dispose = async () => {
     await this.s3.destroy();
   };
 

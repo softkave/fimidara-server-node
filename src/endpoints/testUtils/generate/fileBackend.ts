@@ -1,5 +1,4 @@
 import {faker} from '@faker-js/faker';
-import {container} from 'tsyringe';
 import {
   FileBackendConfig,
   FileBackendMount,
@@ -16,11 +15,6 @@ import {
   PersistedFolderDescription,
 } from '../../contexts/file/types';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {kInjectionKeys} from '../../contexts/injection/keys';
-import {
-  SemanticFileBackendMountProvider,
-  SemanticProviderUtils,
-} from '../../contexts/semantic/types';
 import {NewFileBackendConfigInput} from '../../fileBackends/addConfig/types';
 import {NewFileBackendMountInput} from '../../fileBackends/addMount/types';
 import {kFileBackendConstants} from '../../fileBackends/constants';
@@ -249,12 +243,8 @@ export async function generateAndInsertFileBackendMountListForTest(
   count = 20,
   seed: Partial<FileBackendMount> = {}
 ) {
-  const mountModel = container.resolve<SemanticFileBackendMountProvider>(
-    kInjectionKeys.semantic.fileBackendMount
-  );
-  const semanticUtils = container.resolve<SemanticProviderUtils>(
-    kInjectionKeys.semantic.utils
-  );
+  const mountModel = kSemanticModels.fileBackendMount();
+  const semanticUtils = kSemanticModels.utils();
 
   const items = generateFileBackendMountListForTest(count, seed);
   await semanticUtils.withTxn(async opts => mountModel.insertItem(items, opts));

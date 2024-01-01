@@ -35,6 +35,12 @@ import {INTERNAL_signupUser} from '../users/signup/utils';
 import INTERNAL_createWorkspace from '../workspaces/addWorkspace/internalCreateWorkspace';
 import {assertWorkspace} from '../workspaces/utils';
 
+// TODO: there's currently a backwards way of doing things, where we first
+// initialize app before we run unit tests, meaning, the same things we're
+// trying to test are required to work before we can even test them. We need to
+// fix this for unit tests at the very least, but it may be okay for integration
+// tests.
+
 export const kAppRuntimeStatsDocId = getNewIdForResource(
   kAppResourceType.System,
   kIdSize,
@@ -144,7 +150,8 @@ async function setupFolders(
   const userImagesFolder =
     last(userImagesFolders.existingFolders) || last(userImagesFolders.newFolders);
 
-  appAssert(workspaceImagesFolder && userImagesFolder);
+  appAssert(workspaceImagesFolder);
+  appAssert(userImagesFolder);
   return {workspaceImagesFolder, userImagesFolder};
 }
 

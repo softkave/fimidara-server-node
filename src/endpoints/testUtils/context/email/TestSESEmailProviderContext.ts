@@ -6,11 +6,11 @@ export default class TestSESEmailProviderContext implements ITestEmailProviderCo
   private client: SESEmailProviderContext;
 
   sendEmail: ITestEmailProviderContext['sendEmail'];
-  close: ITestEmailProviderContext['close'];
+  dispose: ITestEmailProviderContext['dispose'];
 
   constructor(params: S3FilePersistenceProviderInitParams) {
     this.client = new SESEmailProviderContext(params);
     this.sendEmail = jest.fn(this.client.sendEmail).mockName('sendEmail');
-    this.close = jest.fn(this.client.close).mockName('close');
+    this.dispose = jest.fn(this.client.dispose).mockName('close');
   }
 }

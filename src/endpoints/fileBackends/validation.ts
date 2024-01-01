@@ -4,9 +4,9 @@ import {ValidationRegExPatterns, validationConstants} from '../../utils/validati
 import {S3FilePersistenceProviderInitParams} from '../contexts/file/S3FilePersistenceProvider';
 import {kFileBackendConstants} from './constants';
 
-const backend = Joi.string().valid(Object.values(kFileBackendType));
+const backend = Joi.string().valid(...Object.values(kFileBackendType));
 const nonFimidaraBackend = Joi.string().valid(
-  Object.values(kFileBackendType).filter(backend => backend !== 'fimidara')
+  ...Object.values(kFileBackendType).filter(backend => backend !== 'fimidara')
 );
 const credentials = Joi.object().when('backend', {
   switch: [
@@ -21,11 +21,13 @@ const credentials = Joi.object().when('backend', {
           .regex(ValidationRegExPatterns.awsSecretAccessKey)
           .length(validationConstants.awsSecretAccessKeyLength)
           .required(),
-        region: Joi.string().valid(kFileBackendConstants.awsRegions).required(),
+        region: Joi.string()
+          .valid(...kFileBackendConstants.awsRegions)
+          .required(),
       }),
     },
-    {otherwise: Joi.forbidden()},
   ],
+  otherwise: Joi.forbidden(),
 });
 
 const fileBackendValidationSchemas = {backend, credentials, nonFimidaraBackend};

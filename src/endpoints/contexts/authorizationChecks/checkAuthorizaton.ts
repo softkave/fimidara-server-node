@@ -1,5 +1,4 @@
 import {defaultTo, first, get, isString, set} from 'lodash';
-import {container} from 'tsyringe';
 import {File} from '../../../definitions/file';
 import {
   PermissionAction,
@@ -12,17 +11,14 @@ import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {toArray, toCompactArray, toUniqArray} from '../../../utils/fns';
+import {sortPermissionEntityInheritanceMap} from '../../../utils/permissionEntityUtils';
 import {getResourceTypeFromId} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {Omit1} from '../../../utils/types';
 import {checkResourcesBelongsToWorkspace} from '../../resources/containerCheckFns';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../users/errors';
 import {kSemanticModels} from '../injection/injectables';
-import {kInjectionKeys} from '../injection/keys';
-import {PermissionsLogicProvider} from '../logic/PermissionsLogicProvider';
-import {SemanticPermissionProviderType} from '../semantic/permission/types';
 import {SemanticProviderRunOptions} from '../semantic/types';
-import {SemanticWorkspaceProviderType} from '../semantic/workspace/types';
 
 export interface AccessCheckTarget {
   entityId: string;
@@ -151,15 +147,8 @@ export async function resolveEntityData(
 ) {
   const {target} = params;
 
-  const workspaceModel = container.resolve<SemanticWorkspaceProviderType>(
-    kInjectionKeys.semantic.workspace
-  );
-  const permissionsModel = container.resolve<SemanticPermissionProviderType>(
-    kInjectionKeys.semantic.permissions
-  );
-  const permissionsLogicProvider = container.resolve<PermissionsLogicProvider>(
-    kInjectionKeys.logic.permissions
-  );
+  const workspaceModel = kSemanticModels.workspace();
+  const permissionsModel = kSemanticModels.permissions();
 
   const workspace =
     params.workspace ??
@@ -177,16 +166,14 @@ export async function resolveEntityData(
     ),
   ]);
 
-  const {sortedItemsList: entitySortedItemList} =
-    permissionsLogicProvider.sortInheritanceMap({
-      map: entityInheritanceMap,
-      entityId: target.entityId,
-    });
-  const {sortedItemsList: publicSortedItemList} =
-    permissionsLogicProvider.sortInheritanceMap({
-      map: publicInheritanceMap,
-      entityId: workspace.publicPermissionGroupId,
-    });
+  const {sortedItemsList: entitySortedItemList} = sortPermissionEntityInheritanceMap({
+    map: entityInheritanceMap,
+    entityId: target.entityId,
+  });
+  const {sortedItemsList: publicSortedItemList} = sortPermissionEntityInheritanceMap({
+    map: publicInheritanceMap,
+    entityId: workspace.publicPermissionGroupId,
+  });
 
   const sortedItemsList = entitySortedItemList.concat(publicSortedItemList);
   const entityIdList = sortedItemsList.map(item => item.id);

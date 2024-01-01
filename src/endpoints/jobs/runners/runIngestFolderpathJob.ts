@@ -74,13 +74,13 @@ async function ingestFolderpathJobFolders(
 
     continuationToken = result.continuationToken;
     kUtilsInjectables
-      .promiseStore()
+      .promises()
       .forget(
         setContinuationTokenInJob(job, {getFoldersContinuationToken: continuationToken})
       );
     await ingestPersistedFolders(agent, workspace, result.folders);
 
-    kUtilsInjectables.promiseStore().forget(
+    kUtilsInjectables.promises().forget(
       queueJobs(
         job.workspaceId,
         job.resourceId,
@@ -126,7 +126,7 @@ async function ingestFolderpathJobFiles(
 
     continuationToken = result.continuationToken;
     kUtilsInjectables
-      .promiseStore()
+      .promises()
       .forget(
         setContinuationTokenInJob(job, {getFilesContinuationToken: continuationToken})
       );

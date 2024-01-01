@@ -67,7 +67,7 @@ export const kInjectionKeys = {
   session: 'session',
   mongoConnection: 'mongoConnection',
   email: 'email',
-  promiseStore: 'promiseStore',
-  disposablesStore: 'disposablesStore',
+  promises: 'promises',
+  disposables: 'disposables',
   usageLogic: 'usageLogic',
 };

@@ -1,4 +1,3 @@
-import {container} from 'tsyringe';
 import {
   FileBackendConfig,
   FileBackendMount,
@@ -9,11 +8,7 @@ import {
 import {ConvertAgentToPublicAgent} from '../../definitions/system';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {kInjectionKeys} from '../contexts/injection/keys';
-import {
-  SemanticFileBackendMountProvider,
-  SemanticProviderRunOptions,
-} from '../contexts/semantic/types';
+import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {workspaceResourceFields} from '../utils';
 
 const resolvedEntryFields = getFields<PublicResolvedMountEntry>({
@@ -76,10 +71,7 @@ export async function mountExists(
   data: Pick<FileBackendMount, 'folderpath' | 'mountedFrom' | 'backend'>,
   opts?: SemanticProviderRunOptions
 ) {
-  const mountModel = container.resolve<SemanticFileBackendMountProvider>(
-    kInjectionKeys.semantic.fileBackendMount
-  );
-
+  const mountModel = kSemanticModels.fileBackendMount();
   return await mountModel.existsByQuery(
     {
       backend: data.backend,

@@ -1,4 +1,4 @@
-import {FileBackendMount} from '../../../definitions/fileBackend';
+import {FileBackendMount, kFileBackendType} from '../../../definitions/fileBackend';
 import {Agent, kAppResourceType} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
@@ -19,7 +19,7 @@ export const INTERNAL_addFileBackendMount = async (
   const fileBackendMountModel = kSemanticModels.fileBackendMount();
   const fileBackendConfigModel = kSemanticModels.fileBackendConfig();
 
-  const folderpathinfo = getFolderpathInfo(data.folderpath);
+  const folderpathinfo = getFolderpathInfo(data.folderpath, {allowRootFolder: true});
   appAssert(
     workspace.rootname === folderpathinfo.rootname,
     kReuseableErrors.workspace.rootnameDoesNotMatchFolderRootname(
@@ -47,19 +47,18 @@ export const INTERNAL_addFileBackendMount = async (
     );
   }
 
-  const backendConfig = await fileBackendConfigModel.getOneByQuery(
-    {workspaceId: workspace.resourceId, resourceId: data.configId},
-    opts
-  );
-
-  if (!backendConfig) {
-    throw kReuseableErrors.config.notFound();
-  }
-
-  if (backendConfig.backend !== data.backend) {
-    throw kReuseableErrors.mount.configMountBackendMismatch(
-      backendConfig.backend,
-      data.backend
+  if (data.backend !== kFileBackendType.Fimidara) {
+    const backendConfig = await fileBackendConfigModel.getOneByQuery(
+      {workspaceId: workspace.resourceId, resourceId: data.configId},
+      opts
+    );
+    appAssert(backendConfig, kReuseableErrors.config.notFound());
+    appAssert(
+      backendConfig.backend !== data.backend,
+      kReuseableErrors.mount.configMountBackendMismatch(
+        backendConfig.backend,
+        data.backend
+      )
     );
   }
 

@@ -1,3 +1,5 @@
+import {DisposableResource} from '../../../utils/disposables';
+
 export interface SendEmailParams {
   destination: string[];
   source: string;
@@ -8,7 +10,6 @@ export interface SendEmailParams {
   };
 }
 
-export interface IEmailProviderContext {
+export interface IEmailProviderContext extends DisposableResource {
   sendEmail: (params: SendEmailParams) => Promise<void>;
-  close: () => void | Promise<void>;
 }

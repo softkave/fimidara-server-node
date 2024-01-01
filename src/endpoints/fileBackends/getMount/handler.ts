@@ -1,21 +1,15 @@
-import {container} from 'tsyringe';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {kInjectionKeys} from '../../contexts/injection/keys';
-import {SemanticFileBackendMountProvider} from '../../contexts/semantic/types';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {fileBackendMountExtractor} from '../utils';
 import {GetFileBackendMountEndpoint} from './types';
 import {getFileBackendMountJoiSchema} from './validation';
 
 const getFileBackendMount: GetFileBackendMountEndpoint = async instData => {
-  const mountModel = container.resolve<SemanticFileBackendMountProvider>(
-    kInjectionKeys.semantic.fileBackendMount
-  );
-
+  const mountModel = kSemanticModels.fileBackendMount();
   const data = validate(instData.data, getFileBackendMountJoiSchema);
   const agent = await kUtilsInjectables.session().getAgent(instData);
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);

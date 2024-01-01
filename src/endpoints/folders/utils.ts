@@ -1,6 +1,5 @@
 import {compact, defaultTo, first, isArray, last} from 'lodash';
 import {posix} from 'path';
-import {container} from 'tsyringe';
 import {FileBackendMount} from '../../definitions/fileBackend';
 import {Folder, FolderMatcher, PublicFolder} from '../../definitions/folder';
 import {PermissionAction} from '../../definitions/permissionItem';
@@ -15,12 +14,10 @@ import {
   getFilePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {kInjectionKeys} from '../contexts/injection/keys';
 import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
-import {SemanticWorkspaceProviderType} from '../contexts/semantic/workspace/types';
 import {InvalidRequestError} from '../errors';
 import {getBackendConfigsWithIdList} from '../fileBackends/configUtils';
 import {ingestPersistedFolders} from '../fileBackends/ingestionUtils';
@@ -92,9 +89,15 @@ export interface FolderpathInfo {
 
 export function getFolderpathInfo(
   input: string | string[],
-  options: {/** Defaults to `true` */ containsRootname?: boolean} = {}
+  options: {
+    /** Whether `input` contains workspace rootname or not. Defaults to `true`. */
+    containsRootname?: boolean;
+    /** Whether to allow an empty folder name representing root folder or not.
+     * Defaults to `false`. */
+    allowRootFolder?: boolean;
+  } = {}
 ): FolderpathInfo {
-  const {containsRootname = true} = options;
+  const {containsRootname = true, allowRootFolder = false} = options;
   const splitPath = splitFolderpath(input);
   const rootname = defaultTo(containsRootname ? splitPath.shift() : undefined, '');
   const name = defaultTo(last(splitPath), '');
@@ -103,7 +106,9 @@ export function getFolderpathInfo(
     assertWorkspaceRootname(rootname);
   }
 
-  assertFileOrFolderName(name);
+  if (!allowRootFolder) {
+    assertFileOrFolderName(name);
+  }
 
   const parentNamepath = splitPath.slice(0, /** file or folder name is last item */ -1);
   const parentStringPath = parentNamepath.join(kFolderConstants.separator);
@@ -274,10 +279,7 @@ export async function ensureFolders(
 }
 
 export async function getWorkspaceFromFolderpath(folderpath: string): Promise<Workspace> {
-  const workspaceModel = container.resolve<SemanticWorkspaceProviderType>(
-    kInjectionKeys.semantic.workspace
-  );
-
+  const workspaceModel = kSemanticModels.workspace();
   const pathinfo = getFolderpathInfo(folderpath);
   const workspace = await workspaceModel.getByRootname(pathinfo.rootname);
 

@@ -36,11 +36,6 @@ export function throwPermissionItemNotFound() {
   throw kReuseableErrors.permissionItem.notFound();
 }
 
-export abstract class PermissionItemUtils {
-  static extractPublicPermissionItem = permissionItemExtractor;
-  static extractPublicPermissionItemList = permissionItemListExtractor;
-}
-
 export function getTargetType(data: {targetId?: string; targetType?: AppResourceType}) {
   const targetType = data.targetType
     ? data.targetType

@@ -7,7 +7,7 @@ import {UsageRecordCategoryMap} from '../../definitions/usageRecord';
 import {Workspace} from '../../definitions/workspace';
 import {kUtilsInjectables} from '../../endpoints/contexts/injection/injectables';
 import {generateWorkspaceListForTest} from '../../endpoints/testUtils/generate/workspace';
-import {dropMongoConnection} from '../../endpoints/testUtils/helpers/mongo';
+import {dropMongoDBAndEndConnection} from '../../endpoints/testUtils/helpers/mongo';
 import {completeTests} from '../../endpoints/testUtils/helpers/test';
 import {initTests} from '../../endpoints/testUtils/testUtils';
 import {kSystemSessionAgent} from '../../utils/agent';
@@ -30,7 +30,7 @@ afterAll(async () => {
   await completeTests();
 
   if (connection) {
-    await dropMongoConnection(connection);
+    await dropMongoDBAndEndConnection(connection);
   }
 });
 

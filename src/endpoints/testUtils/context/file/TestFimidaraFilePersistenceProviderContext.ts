@@ -15,7 +15,7 @@ export default class TestFimidaraFilePersistenceProviderContext
   describeFolderFiles: ITestFilePersistenceProviderContext['describeFolderFiles'];
   describeFolderFolders: ITestFilePersistenceProviderContext['describeFolderFolders'];
   supportsFeature: ITestFilePersistenceProviderContext['supportsFeature'];
-  close: ITestFilePersistenceProviderContext['close'];
+  dispose: ITestFilePersistenceProviderContext['dispose'];
 
   constructor() {
     this.client = new FimidaraFilePersistenceProvider();
@@ -31,7 +31,7 @@ export default class TestFimidaraFilePersistenceProviderContext
     this.describeFolderFolders = jest
       .fn(this.client.describeFolderFolders)
       .mockName('describeFolderFolders');
-    this.close = jest.fn(this.client.close).mockName('close');
+    this.dispose = jest.fn(this.client.dispose).mockName('close');
     this.supportsFeature = jest
       .fn(this.client.supportsFeature)
       .mockName('supportsFeature');

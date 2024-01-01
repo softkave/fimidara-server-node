@@ -6,7 +6,7 @@ function generateId() {
 }
 
 export class PromiseStore {
-  protected promiseMap: Record<string, Promise<unknown>> = {};
+  protected promiseRecord: Record<string, Promise<unknown>> = {};
   protected isClosed = false;
 
   add(promise: unknown, id = generateId()) {
@@ -18,7 +18,7 @@ export class PromiseStore {
 
   merge(promise: unknown, id: string, forget = true) {
     this.failInsertIfClosed();
-    const existingPromise = this.promiseMap[id];
+    const existingPromise = this.promiseRecord[id];
 
     if (existingPromise) {
       this.replace(Promise.all([existingPromise, promise]), id, forget);
@@ -31,7 +31,7 @@ export class PromiseStore {
 
   after(promise: unknown, id: string, forget = true) {
     this.failInsertIfClosed();
-    const existingPromise = this.promiseMap[id];
+    const existingPromise = this.promiseRecord[id];
 
     if (existingPromise) {
       const newPromise = (async () => {
@@ -47,7 +47,7 @@ export class PromiseStore {
   }
 
   executeAfter<TFn extends AnyFn>(fn: TFn, id: string) {
-    const existingPromise = this.promiseMap[id] || Promise.resolve();
+    const existingPromise = this.promiseRecord[id] || Promise.resolve();
     existingPromise.finally(() => fn());
     return this.add(fn(), id);
   }
@@ -68,7 +68,7 @@ export class PromiseStore {
   /** Returns a promise resolved when all the promises at the time of calling
    * are resolved. This does not include promises stored after this call. */
   async flush() {
-    await Promise.allSettled(Object.values(this.promiseMap));
+    await Promise.allSettled(Object.values(this.promiseRecord));
   }
 
   /** Prevents addition of new promises. */
@@ -78,7 +78,7 @@ export class PromiseStore {
   }
 
   get(id: string) {
-    return this.promiseMap[id];
+    return this.promiseRecord[id];
   }
 
   protected failInsertIfClosed() {
@@ -94,14 +94,14 @@ export class PromiseStore {
       return;
     }
 
-    this.promiseMap[id] = promise;
+    this.promiseRecord[id] = promise;
 
     if (forget) {
       promise.catch(error => serverLogger.error(error));
     }
 
     promise.finally(() => {
-      delete this.promiseMap[id];
+      delete this.promiseRecord[id];
     });
   }
 }

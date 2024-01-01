@@ -226,8 +226,8 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
     return {continuationToken: nextPage, folders: childrenFolders};
   };
 
-  close = async () => {
-    await this.backend.close();
+  dispose = async () => {
+    await this.backend.dispose();
   };
 
   protected getBackend = (): FilePersistenceProvider => {

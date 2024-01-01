@@ -1,5 +1,4 @@
 import {compact, first} from 'lodash';
-import {container} from 'tsyringe';
 import {
   File,
   FileMatcher,
@@ -21,12 +20,10 @@ import {
   getFilePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {kInjectionKeys} from '../contexts/injection/keys';
 import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
-import {SemanticWorkspaceProviderType} from '../contexts/semantic/workspace/types';
 import {NotFoundError} from '../errors';
 import {getBackendConfigsWithIdList} from '../fileBackends/configUtils';
 import {ingestPersistedFiles} from '../fileBackends/ingestionUtils';
@@ -178,10 +175,7 @@ export function throwFilePresignedPathNotFound() {
 }
 
 export async function getWorkspaceFromFilepath(filepath: string): Promise<Workspace> {
-  const workspaceModel = container.resolve<SemanticWorkspaceProviderType>(
-    kInjectionKeys.semantic.workspace
-  );
-
+  const workspaceModel = kSemanticModels.workspace();
   const pathinfo = getFilepathInfo(filepath);
   const workspace = await workspaceModel.getByRootname(pathinfo.rootname);
 

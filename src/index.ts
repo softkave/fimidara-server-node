@@ -75,7 +75,7 @@ async function setup() {
     serverLogger.info(`server listening on port ${suppliedConfig.port}`);
 
     // start job runner
-    kUtilsInjectables.promiseStore().forget(startRunner());
+    kUtilsInjectables.promises().forget(startRunner());
   });
 }
 

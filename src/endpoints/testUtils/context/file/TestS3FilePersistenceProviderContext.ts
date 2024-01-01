@@ -18,7 +18,7 @@ export default class TestS3FilePersistenceProviderContext
   describeFolderFiles: ITestFilePersistenceProviderContext['describeFolderFiles'];
   describeFolderFolders: ITestFilePersistenceProviderContext['describeFolderFolders'];
   supportsFeature: ITestFilePersistenceProviderContext['supportsFeature'];
-  close: ITestFilePersistenceProviderContext['close'];
+  dispose: ITestFilePersistenceProviderContext['dispose'];
 
   constructor(params: S3FilePersistenceProviderInitParams) {
     this.client = new S3FilePersistenceProvider(params);
@@ -34,7 +34,7 @@ export default class TestS3FilePersistenceProviderContext
     this.describeFolderFolders = jest
       .fn(this.client.describeFolderFolders)
       .mockName('describeFolderFolders');
-    this.close = jest.fn(this.client.close).mockName('close');
+    this.dispose = jest.fn(this.client.dispose).mockName('dispose');
     this.supportsFeature = jest
       .fn(this.client.supportsFeature)
       .mockName('supportsFeature');
