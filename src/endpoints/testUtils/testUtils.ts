@@ -26,6 +26,7 @@ import {
   SendCollaborationRequestEndpointParams,
 } from '../collaborationRequests/sendRequest/types';
 import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
+import {registerInjectables} from '../contexts/injection/register';
 import {IServerRequest} from '../contexts/types';
 import addFileBackendConfig from '../fileBackends/addConfig/handler';
 import {
@@ -67,11 +68,11 @@ import {generateTestFileName, generateTestFilepathString} from './generate/file'
 import {
   generateFileBackendConfigInput,
   generateFileBackendMountInput,
+  generateFileBackendTypeForInput,
 } from './generate/fileBackend';
 import {generateTestFolderName} from './generate/folder';
 import sharp = require('sharp');
 import assert = require('assert');
-import {registerInjectables} from '../contexts/injection/register';
 
 export function getTestEmailProvider() {
   return new MockTestEmailProviderContext();
@@ -313,15 +314,16 @@ export async function insertFileBackendMountForTest(
   insertConfig = true
 ) {
   const {rootname, resourceId: workspaceId} = workspace;
+  const backend = generateFileBackendTypeForInput() || input.backend;
+  const addConfigResult = insertConfig
+    ? await insertFileBackendConfigForTest(userToken, workspaceId, {backend})
+    : null;
   const mountInput = generateFileBackendMountInput({
+    backend,
+    configId: addConfigResult?.config.resourceId,
     folderpath: generateTestFilepathString({rootname}),
     ...input,
   });
-  const addConfigResult = insertConfig
-    ? await insertFileBackendConfigForTest(userToken, workspaceId, {
-        backend: mountInput.backend,
-      })
-    : {};
   const instData = RequestData.fromExpressRequest<AddFileBackendMountEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {workspaceId, mount: mountInput}

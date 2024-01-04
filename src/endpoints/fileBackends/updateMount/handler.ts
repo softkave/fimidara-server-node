@@ -43,7 +43,7 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData =>
     const mount = await mountModel.getOneById(data.mountId, opts);
     appAssert(mount, kReuseableErrors.mount.notFound());
 
-    if (mount.backend === kFileBackendType.Fimidara) {
+    if (mount.backend === kFileBackendType.fimidara) {
       throw kReuseableErrors.mount.cannotUpdateFimidaraMount();
     }
 
@@ -112,6 +112,7 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData =>
     if (isFolderpathChanged || isMountedFromChanged) {
       const exists = await mountExists(
         {
+          workspaceId: workspace.resourceId,
           backend: mount.backend,
           folderpath: data.mount.folderpath
             ? getFolderpathInfo(data.mount.folderpath).namepath

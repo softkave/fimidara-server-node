@@ -43,18 +43,6 @@ export class FimidaraDoesNotSupportConfigError extends OperationError {
   }
 }
 
-export class FimidaraNotAllowedError extends OperationError {
-  name = 'FimidaraNotAllowedError';
-  statusCode = endpointConstants.httpStatusCode.notFound;
-  constructor(props?: OperationErrorParameters | string) {
-    super(props);
-    this.message = getErrorMessageFromParams(
-      props,
-      'Sorry you cannot carry out this operation on fimidara.'
-    );
-  }
-}
-
 export class MountSourceMissingBucketError extends OperationError {
   name = 'MountSourceMissingBucketError';
   statusCode = endpointConstants.httpStatusCode.notFound;

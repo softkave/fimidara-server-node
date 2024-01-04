@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../../utils/validationUtils';
+import {kValidationSchemas} from '../../../utils/validationUtils';
 import {endpointConstants} from '../../constants';
 import workspaceValidationSchemas from '../../workspaces/validation';
 import {permissionItemConstants} from '../constants';
@@ -21,7 +21,7 @@ const itemInput = Joi.object<ResolveEntityPermissionItemInput>().keys({
   target: Joi.alternatives()
     .try(target, Joi.array().items(target).max(endpointConstants.inputListMax))
     .required(),
-  action: validationSchemas.crudActionOrList.required(),
+  action: kValidationSchemas.crudActionOrList.required(),
 });
 const itemInputList = Joi.array()
   .items(itemInput)
@@ -30,7 +30,7 @@ const itemInputList = Joi.array()
 export const resolveEntityPermissionsJoiSchema =
   Joi.object<ResolveEntityPermissionsEndpointParams>()
     .keys({
-      workspaceId: validationSchemas.resourceId,
+      workspaceId: kValidationSchemas.resourceId,
       items: itemInputList.required(),
     })
     .required();

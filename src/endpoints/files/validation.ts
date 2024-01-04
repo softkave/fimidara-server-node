@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
 import {Readable} from 'stream';
-import {validationSchemas} from '../../utils/validationUtils';
+import {kValidationSchemas} from '../../utils/validationUtils';
 import {kFolderConstants} from '../folders/constants';
 import folderValidationSchemas from '../folders/validation';
 import {fileConstants} from './constants';
@@ -26,7 +26,7 @@ const readable = Joi.any().custom((value, helpers) => {
 
 const fileMatcherParts = {
   filepath,
-  fileId: validationSchemas.resourceId,
+  fileId: kValidationSchemas.resourceId,
 };
 
 const fileValidationSchemas = {

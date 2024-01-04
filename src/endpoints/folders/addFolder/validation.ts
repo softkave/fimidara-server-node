@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../../utils/validationUtils';
+import {kValidationSchemas} from '../../../utils/validationUtils';
 import folderValidationSchemas from '../validation';
 import {AddFolderEndpointParams, NewFolderInput} from './types';
 
@@ -8,7 +8,7 @@ export const addFolderJoiSchema = Joi.object<AddFolderEndpointParams>()
     folder: Joi.object<NewFolderInput>()
       .keys({
         folderpath: folderValidationSchemas.folderpath.required(),
-        description: validationSchemas.description.allow(null),
+        description: kValidationSchemas.description.allow(null),
       })
       .required(),
   })

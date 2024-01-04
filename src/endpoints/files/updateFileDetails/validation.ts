@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../../utils/validationUtils';
+import {kValidationSchemas} from '../../../utils/validationUtils';
 import fileValidationSchemas from '../validation';
 import {UpdateFileDetailsEndpointParams} from './types';
 
@@ -8,7 +8,7 @@ export const updateFileDetailsJoiSchema = Joi.object<UpdateFileDetailsEndpointPa
     ...fileValidationSchemas.fileMatcherParts,
     file: Joi.object()
       .keys({
-        description: validationSchemas.description.allow(null),
+        description: kValidationSchemas.description.allow(null),
         mimetype: fileValidationSchemas.mimetype.allow(null),
       })
       .required(),

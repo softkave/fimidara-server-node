@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {noop} from 'lodash';
+import {get, noop} from 'lodash';
 import {
   calculateMaxPages,
   calculatePageSize,
@@ -86,10 +86,13 @@ export async function performPaginationTest<T extends Endpoint<any, PaginatedRes
     const result = await endpoint(instData);
     assertEndpointResultOk(result);
 
-    const expectedPageSize = calculatePageSize(count, pageSize, page);
+    // Seeing page is 0-based, when page === maxPages, expectedPageSize should
+    // be 0
+    const expectedPageSize =
+      page < maxPages ? calculatePageSize(count, pageSize, page) : 0;
     expect(result.page).toBe(page);
     toArray(fields).forEach(field => {
-      expect((result as AnyObject)[field]).toHaveLength(expectedPageSize);
+      expect(get(result, field)).toHaveLength(expectedPageSize);
     });
     otherTestsFn(result as InferEndpointResult<T>);
   }
@@ -122,4 +125,21 @@ export async function matchExpects<TContexts extends unknown[]>(
       }
     })
   );
+}
+
+export async function testCombinations<TCombination extends AnyObject>(
+  combinations: TCombination[],
+  fn: AnyFn<[TCombination]>
+) {
+  for (const combination of combinations) {
+    await fn(combination);
+    // try {
+    // } catch (error) {
+    //   const message =
+    //     `with updates ${Object.keys(combination).join(',')}\n` +
+    //     (error as Error)?.message;
+    //   // (error as Error).message = message;
+    //   throw new Error(message);
+    // }
+  }
 }

@@ -1,10 +1,11 @@
+import {kFileBackendType} from '../../../definitions/fileBackend';
+import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {kAppResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {NotFoundError} from '../../errors';
 import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {DeleteFileBackendMountEndpoint} from './types';
@@ -19,13 +20,16 @@ const deleteFileBackendMount: DeleteFileBackendMountEndpoint = async instData =>
     agent,
     workspace,
     workspaceId: workspace.resourceId,
-    target: {action: 'deleteFileBackendMount', targetId: workspace.resourceId},
+    target: {
+      action: kPermissionsMap.deleteFileBackendMount,
+      targetId: workspace.resourceId,
+    },
   });
 
   const mount = await mountModel.getOneById(data.mountId);
-  appAssert(mount, new NotFoundError());
+  appAssert(mount, kReuseableErrors.mount.notFound());
 
-  if (mount.backend === 'fimidara') {
+  if (mount.backend === kFileBackendType.fimidara) {
     throw kReuseableErrors.mount.cannotDeleteFimidaraMount();
   }
 

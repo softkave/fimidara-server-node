@@ -1,8 +1,8 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../../utils/validationUtils';
+import {kValidationSchemas} from '../../../utils/validationUtils';
 
 export const getJobStatusJoiSchema = Joi.object()
   .keys({
-    jobId: validationSchemas.resourceId.required(),
+    jobId: kValidationSchemas.resourceId.required(),
   })
   .required();

@@ -118,7 +118,9 @@ export const kAppMessages = {
       return id ? `Config with ID ${id} not found.` : 'Config not found.';
     },
     configInUse(mountsCount: number) {
-      return `Config already in use by ${mountsCount} mounts`;
+      return `Config already in use by ${mountsCount} ${
+        mountsCount === 1 ? 'mount' : 'mounts'
+      }`;
     },
     configExists: 'Config exists.',
     configNameExists(name: string) {

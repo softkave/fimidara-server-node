@@ -23,9 +23,9 @@ export const defaultFileProviderResolver: FileProviderResolver = (
   initParams: unknown
 ) => {
   switch (mount.backend) {
-    case kFileBackendType.Fimidara:
+    case kFileBackendType.fimidara:
       return new FimidaraFilePersistenceProvider();
-    case kFileBackendType.S3:
+    case kFileBackendType.s3:
       return new S3FilePersistenceProvider(
         initParams as S3FilePersistenceProviderInitParams
       );

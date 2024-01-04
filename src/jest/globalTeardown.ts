@@ -23,6 +23,11 @@ async function jestGlobalTeardown() {
   const config = await getSuppliedConfig();
   const dropMongoPromise = dropMongoCollections(config);
   await Promise.all([dropMongoPromise, testLogger.close()]);
+
+  // TODO: there are open handles keeping the test from closing, find and fix
+  // them, then remove this
+  // eslint-disable-next-line no-process-exit
+  process.exit();
 }
 
 module.exports = jestGlobalTeardown;

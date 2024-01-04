@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import {ValidationRegExPatterns} from '../../utils/validationUtils';
+import {kValidationRegExPatterns} from '../../utils/validationUtils';
 import {userConstants} from './constants';
 
 const email = Joi.string().trim().email();
@@ -7,7 +7,7 @@ const password = Joi.string()
   .trim()
   .min(userConstants.minPasswordLength)
   .max(userConstants.maxPasswordLength)
-  .regex(ValidationRegExPatterns.password);
+  .regex(kValidationRegExPatterns.password);
 const name = Joi.string()
   .trim()
   .min(userConstants.minNameLength)

@@ -1,13 +1,13 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../../utils/validationUtils';
+import {kValidationSchemas} from '../../../utils/validationUtils';
 
 export const updateTagJoiSchema = Joi.object()
   .keys({
-    tagId: validationSchemas.resourceId.required(),
+    tagId: kValidationSchemas.resourceId.required(),
     tag: Joi.object()
       .keys({
-        name: validationSchemas.name.allow(null),
-        description: validationSchemas.description.allow(null),
+        name: kValidationSchemas.name.allow(null),
+        description: kValidationSchemas.description.allow(null),
       })
       .required(),
   })

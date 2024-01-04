@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../utils/validationUtils';
+import {kValidationSchemas} from '../../utils/validationUtils';
 import {kFolderConstants} from './constants';
 
 /**
@@ -20,8 +20,8 @@ const folderpath = Joi.string()
 
 const folderMatcherParts = {
   folderpath,
-  folderId: validationSchemas.resourceId,
-  workspaceId: validationSchemas.resourceId,
+  folderId: kValidationSchemas.resourceId,
+  workspaceId: kValidationSchemas.resourceId,
 };
 
 const folderValidationSchemas = {

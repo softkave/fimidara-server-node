@@ -1,8 +1,8 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../../utils/validationUtils';
+import {kValidationSchemas} from '../../../utils/validationUtils';
 
 export const getUserCollaborationRequestJoiSchema = Joi.object()
   .keys({
-    requestId: validationSchemas.resourceId.required(),
+    requestId: kValidationSchemas.resourceId.required(),
   })
   .required();

@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../../utils/validationUtils';
+import {kValidationSchemas} from '../../../utils/validationUtils';
 import folderValidationSchemas from '../../folders/validation';
 import {endpointValidationSchemas} from '../../validation';
 import fileBackendValidationSchemas from '../validation';
@@ -13,11 +13,11 @@ export const addFileBackendMountJoiSchema =
         .keys({
           folderpath: folderValidationSchemas.folderpath.required(),
           backend: fileBackendValidationSchemas.nonFimidaraBackend.required(),
-          configId: validationSchemas.resourceId.allow(null),
+          configId: kValidationSchemas.resourceId.allow(null),
           index: Joi.number().required(),
           mountedFrom: folderValidationSchemas.folderpath.required(),
-          name: validationSchemas.name.required(),
-          description: validationSchemas.description.allow(null),
+          name: kValidationSchemas.name.required(),
+          description: kValidationSchemas.description.allow(null),
         })
         .required(),
     })

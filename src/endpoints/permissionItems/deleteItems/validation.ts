@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../../utils/validationUtils';
+import {kValidationSchemas} from '../../../utils/validationUtils';
 import {endpointConstants} from '../../constants';
 import workspaceValidationSchemas from '../../workspaces/validation';
 import {permissionItemConstants} from '../constants';
@@ -23,14 +23,14 @@ const itemInput = Joi.object<DeletePermissionItemInput>().keys({
     target,
     Joi.array().items(target).max(endpointConstants.inputListMax)
   ),
-  action: validationSchemas.crudActionOrList,
+  action: kValidationSchemas.crudActionOrList,
   access: Joi.boolean(),
 });
 
 export const deletePermissionItemsJoiSchema =
   Joi.object<DeletePermissionItemsEndpointParams>()
     .keys({
-      workspaceId: validationSchemas.resourceId,
+      workspaceId: kValidationSchemas.resourceId,
       items: Joi.array()
         .items(itemInput)
         .max(permissionItemConstants.maxPermissionItemsPerRequest)

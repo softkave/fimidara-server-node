@@ -1,8 +1,9 @@
+import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {appAssert} from '../../../utils/assertion';
+import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {NotFoundError} from '../../errors';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {fileBackendConfigExtractor} from '../utils';
 import {GetFileBackendConfigEndpoint} from './types';
@@ -18,11 +19,14 @@ const getFileBackendConfig: GetFileBackendConfigEndpoint = async instData => {
     agent,
     workspace,
     workspaceId: workspace.resourceId,
-    target: {action: 'readFileBackendConfig', targetId: workspace.resourceId},
+    target: {
+      action: kPermissionsMap.readFileBackendConfig,
+      targetId: workspace.resourceId,
+    },
   });
 
   const config = await configModel.getOneById(data.configId);
-  appAssert(config, new NotFoundError());
+  appAssert(config, kReuseableErrors.config.notFound());
 
   return {config: fileBackendConfigExtractor(config)};
 };

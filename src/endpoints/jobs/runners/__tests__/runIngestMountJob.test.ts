@@ -32,7 +32,7 @@ describe('runIngestMountJob', () => {
       mountedFrom,
       workspaceId: workspace.resourceId,
       configId: config.resourceId,
-      backend: kFileBackendType.S3,
+      backend: kFileBackendType.s3,
     });
     const shard = getNewId();
     const [job] = await queueJobs<IngestFolderpathJobParams>(

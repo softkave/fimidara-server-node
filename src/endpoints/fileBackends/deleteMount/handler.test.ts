@@ -1,3 +1,4 @@
+import {kFileBackendType} from '../../../definitions/fileBackend';
 import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
 import {kAppResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
@@ -17,7 +18,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
-import updateFileBackendMount from './handler';
+import deleteFileBackendMount from './handler';
 import {DeleteFileBackendMountEndpointParams} from './types';
 
 beforeAll(async () => {
@@ -28,19 +29,21 @@ afterAll(async () => {
   await completeTests();
 });
 
-describe('deleteMount', async () => {
-  const {userToken} = await insertUserForTest();
-  const {workspace} = await insertWorkspaceForTest(userToken);
-
+describe('deleteMount', () => {
   test('fails if mount does not exist', async () => {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const instData = RequestData.fromExpressRequest<DeleteFileBackendMountEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
-      {mountId: getNewIdForResource(kAppResourceType.FileBackendMount)}
+      {
+        mountId: getNewIdForResource(kAppResourceType.FileBackendMount),
+        workspaceId: workspace.resourceId,
+      }
     );
 
     await expectErrorThrown(
       async () => {
-        await updateFileBackendMount(instData);
+        await deleteFileBackendMount(instData);
       },
       error =>
         expect((error as NotFoundError).message).toBe(
@@ -50,19 +53,21 @@ describe('deleteMount', async () => {
   });
 
   test('fails if mount is fimidara', async () => {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
       workspaceId: workspace.resourceId,
-      backend: 'fimidara',
+      backend: kFileBackendType.fimidara,
     });
 
     const instData = RequestData.fromExpressRequest<DeleteFileBackendMountEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
-      {mountId: mount.resourceId}
+      {mountId: mount.resourceId, workspaceId: workspace.resourceId}
     );
 
     await expectErrorThrown(
       async () => {
-        await updateFileBackendMount(instData);
+        await deleteFileBackendMount(instData);
       },
       error =>
         expect((error as NotFoundError).message).toBe(
@@ -72,13 +77,15 @@ describe('deleteMount', async () => {
   });
 
   test('succeeds if mount exists', async () => {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const {mount} = await insertFileBackendMountForTest(userToken, workspace);
 
     const instData = RequestData.fromExpressRequest<DeleteFileBackendMountEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {mountId: mount.resourceId, workspaceId: workspace.resourceId}
     );
-    const result = await updateFileBackendMount(instData);
+    const result = await deleteFileBackendMount(instData);
     assertEndpointResultOk(result);
 
     appAssert(result.jobId);

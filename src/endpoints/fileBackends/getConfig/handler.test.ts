@@ -1,3 +1,5 @@
+import {kAppResourceType} from '../../../definitions/system';
+import {getNewIdForResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import RequestData from '../../RequestData';
 import {NotFoundError} from '../../errors';
@@ -44,14 +46,13 @@ describe('getConfig', () => {
   test('fails if config does not exist', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const {config} = await insertFileBackendConfigForTest(
-      userToken,
-      workspace.resourceId
-    );
 
     const instData = RequestData.fromExpressRequest<GetFileBackendConfigEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
-      {configId: config.resourceId, workspaceId: workspace.resourceId}
+      {
+        configId: getNewIdForResource(kAppResourceType.FileBackendConfig),
+        workspaceId: workspace.resourceId,
+      }
     );
     await expectErrorThrown(
       () => getFileBackendConfig(instData),

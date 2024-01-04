@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
 import {JoiSchemaParts} from '../../../utils/types';
-import {validationSchemas} from '../../../utils/validationUtils';
+import {kValidationSchemas} from '../../../utils/validationUtils';
 import {endpointValidationSchemas} from '../../validation';
 import {
   GetEntityAssignedPermissionGroupsEndpointParams,
@@ -10,7 +10,7 @@ import {
 export const getEntityAssignedPermissionGroupsBaseJoiSchemaParts: JoiSchemaParts<GetEntityAssignedPermissionGroupsEndpointParamsBase> =
   {
     ...endpointValidationSchemas.optionalWorkspaceIdParts,
-    entityId: validationSchemas.resourceId.required(),
+    entityId: kValidationSchemas.resourceId.required(),
     includeInheritedPermissionGroups: Joi.boolean(),
   };
 

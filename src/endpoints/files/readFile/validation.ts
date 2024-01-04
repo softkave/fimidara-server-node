@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../../utils/validationUtils';
+import {kValidationSchemas} from '../../../utils/validationUtils';
 import {fileConstants} from '../constants';
 import fileValidationSchemas from '../validation';
 import {
@@ -20,9 +20,12 @@ export const readFileJoiSchema = Joi.object<ReadFileEndpointParams>()
           .valid(...Object.values(ImageResizeFitEnumMap))
           .allow(null),
         position: Joi.alternatives()
-          .try(Joi.number(), Joi.string().valid(...Object.values(ImageResizePositionEnumMap)))
+          .try(
+            Joi.number(),
+            Joi.string().valid(...Object.values(ImageResizePositionEnumMap))
+          )
           .allow(null),
-        background: validationSchemas.color.allow(null),
+        background: kValidationSchemas.color.allow(null),
         withoutEnlargement: Joi.boolean().allow(null),
       })
       .allow(null),

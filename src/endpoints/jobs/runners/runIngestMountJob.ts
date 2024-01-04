@@ -14,7 +14,7 @@ export async function runIngestMountJob(job: Job<IngestMountJobParams>) {
   appAssert(job.workspaceId);
   const mount = await kSemanticModels.fileBackendMount().getOneById(job.params.mountId);
 
-  if (!mount || mount.backend === kFileBackendType.Fimidara) {
+  if (!mount || mount.backend === kFileBackendType.fimidara) {
     return;
   }
 

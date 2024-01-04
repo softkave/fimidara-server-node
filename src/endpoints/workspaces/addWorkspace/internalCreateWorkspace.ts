@@ -95,8 +95,8 @@ const INTERNAL_createWorkspace = async (
         folderpath: workspace.rootname,
         index: 0,
         mountedFrom: '',
-        name: kFileBackendType.Fimidara,
-        backend: kFileBackendType.Fimidara,
+        name: kFileBackendType.fimidara,
+        backend: kFileBackendType.fimidara,
       },
       opts
     ),

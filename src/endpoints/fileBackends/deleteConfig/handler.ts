@@ -1,10 +1,10 @@
+import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {kAppResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {NotFoundError} from '../../errors';
 import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {DeleteFileBackendConfigEndpoint} from './types';
@@ -20,11 +20,14 @@ const deleteFileBackendConfig: DeleteFileBackendConfigEndpoint = async instData 
     agent,
     workspace,
     workspaceId: workspace.resourceId,
-    target: {action: 'deleteFileBackendConfig', targetId: workspace.resourceId},
+    target: {
+      action: kPermissionsMap.deleteFileBackendConfig,
+      targetId: workspace.resourceId,
+    },
   });
 
   const config = await configModel.getOneById(data.configId);
-  appAssert(config, new NotFoundError());
+  appAssert(config, kReuseableErrors.config.notFound());
 
   const configMountsCount = await kSemanticModels
     .fileBackendMount()

@@ -8,6 +8,7 @@ import {kSemanticModels} from '../../contexts/injection/injectables';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {kFolderConstants} from '../../folders/constants';
 import {ensureFolders, getFolderpathInfo} from '../../folders/utils';
+import {mountExists, mountNameExists} from '../utils';
 import {NewFileBackendMountInput} from './types';
 
 export const INTERNAL_addFileBackendMount = async (
@@ -28,18 +29,27 @@ export const INTERNAL_addFileBackendMount = async (
     )
   );
 
+  let exists = await mountNameExists(
+    {workspaceId: workspace.resourceId, name: data.name},
+    opts
+  );
+
+  if (exists) {
+    throw kReuseableErrors.mount.mountExists();
+  }
+
   const mountedFromSplit = data.mountedFrom.split(kFolderConstants.separator);
-  const mountExists = await fileBackendMountModel.existsByQuery(
+  exists = await mountExists(
     {
       backend: data.backend,
       workspaceId: workspace.resourceId,
-      folderpath: {$all: folderpathinfo.namepath, $size: folderpathinfo.namepath.length},
-      mountedFrom: {$all: mountedFromSplit, $size: mountedFromSplit.length},
+      folderpath: folderpathinfo.namepath,
+      mountedFrom: mountedFromSplit,
     },
     opts
   );
 
-  if (mountExists) {
+  if (exists) {
     throw kReuseableErrors.mount.exactMountConfigExists(
       data.mountedFrom,
       data.folderpath,
@@ -47,14 +57,14 @@ export const INTERNAL_addFileBackendMount = async (
     );
   }
 
-  if (data.backend !== kFileBackendType.Fimidara) {
+  if (data.backend !== kFileBackendType.fimidara) {
     const backendConfig = await fileBackendConfigModel.getOneByQuery(
       {workspaceId: workspace.resourceId, resourceId: data.configId},
       opts
     );
     appAssert(backendConfig, kReuseableErrors.config.notFound());
     appAssert(
-      backendConfig.backend !== data.backend,
+      backendConfig.backend === data.backend,
       kReuseableErrors.mount.configMountBackendMismatch(
         backendConfig.backend,
         data.backend
@@ -78,7 +88,7 @@ export const INTERNAL_addFileBackendMount = async (
   );
 
   await Promise.all([
-    ensureFolders(agent, workspace, data.folderpath, opts),
+    ensureFolders(agent, workspace, folderpathinfo.namepath, opts),
     fileBackendMountModel.insertItem(mount, opts),
   ]);
 

@@ -16,7 +16,12 @@ import {
   generateTestFieldsCombinations,
 } from '../../testUtils/generate/utils';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests, matchExpects} from '../../testUtils/helpers/test';
+import {
+  completeTests,
+  matchExpects,
+  softkaveTest,
+  testCombinations,
+} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   initTests,
@@ -40,37 +45,39 @@ afterAll(async () => {
   await completeTests();
 });
 
-describe('updateMount', async () => {
-  const {userToken} = await insertUserForTest();
-  const {workspace} = await insertWorkspaceForTest(userToken);
+describe('updateMount', () => {
+  softkaveTest('updates', async () => {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    const updateDefs: GenerateTestFieldsDef<UpdateFileBackendMountInput> = {
+      configId: async () => {
+        const [config] = await generateAndInsertFileBackendConfigListForTest(1, {
+          workspaceId: workspace.resourceId,
+        });
 
-  const updateDefs: GenerateTestFieldsDef<UpdateFileBackendMountInput> = {
-    configId: async () => {
-      const [config] = await generateAndInsertFileBackendConfigListForTest(1, {
-        workspaceId: workspace.resourceId,
-      });
+        return config.resourceId;
+      },
+      folderpath: () => generateTestFolderpathString({rootname: workspace.rootname}),
+      index: () => faker.number.int(),
+      mountedFrom: () => generateTestFolderpathString(),
+      name: () => faker.lorem.words(),
+      description: () => faker.lorem.paragraph(),
+    };
+    const combinations = await generateTestFieldsCombinations(
+      updateDefs,
+      TestFieldsPresetCombinations.incrementallyAdd
+    );
 
-      return config.resourceId;
-    },
-    folderpath: () => generateTestFolderpathString({rootname: workspace.rootname}),
-    index: () => faker.number.int(),
-    mountedFrom: () => generateTestFolderpathString(),
-    name: () => faker.lorem.words(),
-    description: () => faker.lorem.paragraph(),
-  };
-  const updates = await generateTestFieldsCombinations(
-    updateDefs,
-    TestFieldsPresetCombinations.incrementallyAdd
-  );
-
-  updates.forEach(update => {
-    test(`with updates ${Object.keys(update).join(',')}`, async () => {
+    await testCombinations(combinations, async combination => {
       const {mount} = await insertFileBackendMountForTest(userToken, workspace);
-
       const instData =
         RequestData.fromExpressRequest<UpdateFileBackendMountEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
-          {mountId: mount.resourceId, mount: update, workspaceId: workspace.resourceId}
+          {
+            mountId: mount.resourceId,
+            mount: combination,
+            workspaceId: workspace.resourceId,
+          }
         );
       const result = await updateFileBackendMount(instData);
       assertEndpointResultOk(result);
@@ -155,13 +162,15 @@ describe('updateMount', async () => {
             },
           },
         ],
-        update,
+        combination,
         result
       );
     });
   });
 
-  test('fails if mount does not exist', async () => {
+  softkaveTest('fails if mount does not exist', async () => {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const instData = RequestData.fromExpressRequest<UpdateFileBackendMountEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
@@ -182,9 +191,10 @@ describe('updateMount', async () => {
     );
   });
 
-  test('fails if config does not exist', async () => {
+  softkaveTest('fails if config does not exist', async () => {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const {mount} = await insertFileBackendMountForTest(userToken, workspace);
-
     const instData = RequestData.fromExpressRequest<UpdateFileBackendMountEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
@@ -205,7 +215,9 @@ describe('updateMount', async () => {
     );
   });
 
-  test('fails if mount with name exists', async () => {
+  softkaveTest('fails if mount with name exists', async () => {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const [{mount: mount01}, {mount: mount02}] = await Promise.all([
       insertFileBackendMountForTest(userToken, workspace),
       insertFileBackendMountForTest(userToken, workspace),

@@ -70,7 +70,7 @@ describe('runIngestFolderpathJob', () => {
       mountedFrom,
       workspaceId: workspace.resourceId,
       configId: config.resourceId,
-      backend: kFileBackendType.S3,
+      backend: kFileBackendType.s3,
     });
     const withContinuationToken = faker.datatype.boolean();
     const pFolderContinuationTokensByFolderpath: Record<string, string> = {};
@@ -353,7 +353,7 @@ describe('runIngestFolderpathJob', () => {
       folderpath: mountFolderpath,
       workspaceId: workspace.resourceId,
       configId: config.resourceId,
-      backend: kFileBackendType.S3,
+      backend: kFileBackendType.s3,
     });
     const shard = getNewId();
     const [job] = await queueJobs<IngestFolderpathJobParams>(
@@ -486,7 +486,7 @@ describe('runIngestFolderpathJob', () => {
       mountedFrom,
       folderpath: mountFolderpath,
       workspaceId: workspace.resourceId,
-      backend: kFileBackendType.Fimidara,
+      backend: kFileBackendType.fimidara,
     });
     const shard = getNewId();
     const [job] = await queueJobs<IngestFolderpathJobParams>(
@@ -537,7 +537,7 @@ describe('runIngestFolderpathJob', () => {
       mountedFrom,
       workspaceId: workspace.resourceId,
       configId: config.resourceId,
-      backend: kFileBackendType.S3,
+      backend: kFileBackendType.s3,
     });
     const mountedFromString = mountedFrom.join(kFolderConstants.separator);
 

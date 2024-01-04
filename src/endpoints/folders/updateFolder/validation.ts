@@ -1,11 +1,11 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../../utils/validationUtils';
+import {kValidationSchemas} from '../../../utils/validationUtils';
 import folderValidationSchemas from '../validation';
 import {UpdateFolderEndpointParams, UpdateFolderInput} from './types';
 
 export const folderInputJoiSchema = Joi.object().keys({
-  name: validationSchemas.name,
-  description: validationSchemas.description,
+  name: kValidationSchemas.name,
+  description: kValidationSchemas.description,
 });
 
 export const updateFolderJoiSchema = Joi.object<UpdateFolderEndpointParams>()
@@ -13,7 +13,7 @@ export const updateFolderJoiSchema = Joi.object<UpdateFolderEndpointParams>()
     ...folderValidationSchemas.folderMatcherParts,
     folder: Joi.object<UpdateFolderInput>()
       .keys({
-        description: validationSchemas.description.allow(null),
+        description: kValidationSchemas.description.allow(null),
       })
       .required(),
   })

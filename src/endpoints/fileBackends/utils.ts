@@ -68,12 +68,13 @@ export async function configNameExists(
 }
 
 export async function mountExists(
-  data: Pick<FileBackendMount, 'folderpath' | 'mountedFrom' | 'backend'>,
+  data: Pick<FileBackendMount, 'folderpath' | 'mountedFrom' | 'backend' | 'workspaceId'>,
   opts?: SemanticProviderRunOptions
 ) {
   const mountModel = kSemanticModels.fileBackendMount();
   return await mountModel.existsByQuery(
     {
+      workspaceId: data.workspaceId,
       backend: data.backend,
       folderpath: {$all: data.folderpath, $size: data.folderpath.length},
       mountedFrom: {$all: data.mountedFrom, $size: data.mountedFrom.length},

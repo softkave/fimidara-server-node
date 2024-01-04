@@ -202,6 +202,7 @@ export function addRootnameToPath<T extends string | string[] = string | string[
   const rootname = isArray(workspaceRootname)
     ? last(workspaceRootname)
     : workspaceRootname;
+
   if (isArray(path)) {
     return <T>[rootname, ...path];
   }
@@ -249,14 +250,23 @@ export function areFolderpathsEqual(
 export async function ensureFolders(
   agent: SessionAgent,
   workspace: Workspace,
-  /** folder path with workspace rootname */
-  folderpath: string,
+  /** folder path **without** workspace rootname */
+  namepath: string | string[],
   opts: SemanticProviderMutationRunOptions
-) {
+): Promise<{folder: Folder | null; folders: Folder[]}> {
+  if (!namepath || (isArray(namepath) && namepath.length === 0)) {
+    return {folder: null, folders: []};
+  }
+
   const {newFolders, existingFolders} = await createFolderListWithTransaction(
     agent,
     workspace,
-    {folderpath: addRootnameToPath(folderpath, workspace.rootname)},
+    {
+      folderpath: addRootnameToPath(
+        isArray(namepath) ? namepath.join(kFolderConstants.separator) : namepath,
+        workspace.rootname
+      ),
+    },
     /** Skip auth check. Since what we really care about is file creation, and
      * a separate permission check is done for that. All of it is also done
      * with transaction so should upload file permission check fail, it'll get

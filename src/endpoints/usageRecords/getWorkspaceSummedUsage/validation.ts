@@ -4,7 +4,7 @@ import {
   UsageRecordFulfillmentStatusMap,
 } from '../../../definitions/usageRecord';
 import {JoiSchemaParts} from '../../../utils/types';
-import {validationSchemas} from '../../../utils/validationUtils';
+import {kValidationSchemas} from '../../../utils/validationUtils';
 import {endpointValidationSchemas} from '../../validation';
 import {
   GetWorkspaceSummedUsageEndpointParams,
@@ -29,8 +29,8 @@ const fulfillmentStateOrArray = Joi.alternatives().try(
 
 const queryJoiSchema = Joi.object<WorkspaceSummedUsageQuery>({
   category: categoryOrArray,
-  fromDate: endpointValidationSchemas.op(validationSchemas.time),
-  toDate: endpointValidationSchemas.op(validationSchemas.time),
+  fromDate: endpointValidationSchemas.op(kValidationSchemas.time),
+  toDate: endpointValidationSchemas.op(kValidationSchemas.time),
   fulfillmentStatus: fulfillmentStateOrArray,
 });
 

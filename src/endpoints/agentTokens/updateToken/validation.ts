@@ -1,20 +1,20 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../../utils/validationUtils';
+import {kValidationSchemas} from '../../../utils/validationUtils';
 import {endpointValidationSchemas} from '../../validation';
-import {UpdateAgentTokenEndpointParams} from './types';
 import agentTokenValidationSchemas from '../validation';
+import {UpdateAgentTokenEndpointParams} from './types';
 
 export const updateAgentTokenJoiSchema = Joi.object<UpdateAgentTokenEndpointParams>()
   .keys({
     ...endpointValidationSchemas.workspaceResourceParts,
-    tokenId: validationSchemas.resourceId,
+    tokenId: kValidationSchemas.resourceId,
     onReferenced: agentTokenValidationSchemas.onReferenced,
     token: Joi.object<UpdateAgentTokenEndpointParams['token']>()
       .keys({
-        expires: validationSchemas.time.allow(null),
-        providedResourceId: validationSchemas.providedResourceId.allow(null),
-        name: validationSchemas.name.allow(null),
-        description: validationSchemas.description.allow(null),
+        expires: kValidationSchemas.time.allow(null),
+        providedResourceId: kValidationSchemas.providedResourceId.allow(null),
+        name: kValidationSchemas.name.allow(null),
+        description: kValidationSchemas.description.allow(null),
       })
       .required(),
   })

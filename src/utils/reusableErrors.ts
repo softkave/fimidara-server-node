@@ -7,7 +7,6 @@ import {
 import {
   BackendUnknownError,
   FimidaraDoesNotSupportConfigError,
-  FimidaraNotAllowedError,
   MountSourceMissingBucketError,
 } from '../endpoints/fileBackends/errors';
 import {InvalidMatcherError, ProvideNamepathError} from '../endpoints/files/errors';
@@ -114,7 +113,7 @@ export const kReuseableErrors = {
   },
   mount: {
     mountExists() {
-      return new NotFoundError(kAppMessages.mount.mountExists);
+      return new ResourceExistsError(kAppMessages.mount.mountExists);
     },
     mountNameExists(name: string) {
       return new ResourceExistsError(kAppMessages.mount.mountNameExists(name));
@@ -128,22 +127,20 @@ export const kReuseableErrors = {
       return new NotFoundError(kAppMessages.mount.notFound(id));
     },
     cannotMountFimidaraExplicitly() {
-      return new FimidaraNotAllowedError(
-        kAppMessages.mount.cannotMountFimidaraExplicitly
-      );
+      return new InvalidRequestError(kAppMessages.mount.cannotMountFimidaraExplicitly);
     },
     cannotDeleteFimidaraMount() {
-      return new FimidaraNotAllowedError(kAppMessages.mount.cannotDeleteFimidaraMount);
+      return new InvalidRequestError(kAppMessages.mount.cannotDeleteFimidaraMount);
     },
     cannotUpdateFimidaraMount() {
-      return new FimidaraNotAllowedError(kAppMessages.mount.cannotUpdateFimidaraMount);
+      return new InvalidRequestError(kAppMessages.mount.cannotUpdateFimidaraMount);
     },
     configMountBackendMismatch: (configBackend: string, mountBackend: string) =>
       new InvalidRequestError(
         kAppMessages.mount.configMountBackendMismatch(configBackend, mountBackend)
       ),
     exactMountConfigExists: (mountedFrom: string, folderpath: string, backend: string) =>
-      new InvalidRequestError(
+      new ResourceExistsError(
         kAppMessages.mount.exactMountConfigExists(mountedFrom, folderpath, backend)
       ),
     mountsNotSetup: () => new InvalidRequestError(kAppMessages.mount.mountsNotSetup),

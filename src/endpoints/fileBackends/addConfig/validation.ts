@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import {validationSchemas} from '../../../utils/validationUtils';
+import {kValidationSchemas} from '../../../utils/validationUtils';
 import {endpointValidationSchemas} from '../../validation';
 import fileBackendValidationSchemas from '../validation';
 import {AddFileBackendConfigEndpointParams} from './types';
@@ -11,8 +11,8 @@ export const addConfigJoiSchema = Joi.object<AddFileBackendConfigEndpointParams>
       .keys({
         backend: fileBackendValidationSchemas.nonFimidaraBackend.required(),
         credentials: fileBackendValidationSchemas.credentials.required(),
-        name: validationSchemas.name.required(),
-        description: validationSchemas.description.allow(null),
+        name: kValidationSchemas.name.required(),
+        description: kValidationSchemas.description.allow(null),
       })
       .required(),
   })

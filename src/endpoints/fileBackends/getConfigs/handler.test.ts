@@ -12,6 +12,7 @@ import {
   completeTests,
   expectFields,
   performPaginationTest,
+  testCombinations,
 } from '../../testUtils/helpers/test';
 import {
   initTests,
@@ -30,21 +31,22 @@ afterAll(async () => {
   await completeTests();
 });
 
-describe('getFileBackendConfigs', async () => {
-  const {userToken} = await insertUserForTest();
-  const {workspace} = await insertWorkspaceForTest(userToken);
+describe('getFileBackendConfigs', () => {
+  test('pagination', async () => {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
 
-  const queryDefs: GenerateTestFieldsDef<GetFileBackendConfigsEndpointParamsBase> = {
-    backend: generateFileBackendType,
-    workspaceId: () => workspace.resourceId,
-  };
-  const queries = await generateTestFieldsCombinations(
-    queryDefs,
-    TestFieldsPresetCombinations.incrementallyAdd
-  );
+    const queryDefs: GenerateTestFieldsDef<GetFileBackendConfigsEndpointParamsBase> = {
+      backend: generateFileBackendType,
+      workspaceId: () => workspace.resourceId,
+    };
+    const queries = await generateTestFieldsCombinations(
+      queryDefs,
+      TestFieldsPresetCombinations.incrementallyAdd
+    );
 
-  queries.forEach(query => {
-    test(`pagination with queries ${Object.keys(query).join(',')}`, async () => {
+    await testCombinations(queries, async query => {
+      query = {...query, workspaceId: workspace.resourceId};
       await generateAndInsertFileBackendConfigListForTest(10, query);
       const count = await kSemanticModels.fileBackendConfig().countByQuery(query);
 

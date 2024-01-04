@@ -8,7 +8,7 @@ import {
 import {Agent, kAppResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
-import {validationConstants} from '../../../utils/validationUtils';
+import {kValidationConstants} from '../../../utils/validationUtils';
 import {S3FilePersistenceProviderInitParams} from '../../contexts/file/S3FilePersistenceProvider';
 import {
   PersistedFileDescription,
@@ -25,9 +25,9 @@ export function generateAWSS3Credentials(
   seed: Partial<S3FilePersistenceProviderInitParams> = {}
 ): S3FilePersistenceProviderInitParams {
   return {
-    accessKeyId: faker.string.alphanumeric(validationConstants.awsAccessKeyIdLength),
+    accessKeyId: faker.string.alphanumeric(kValidationConstants.awsAccessKeyIdLength),
     secretAccessKey: faker.string.alphanumeric(
-      validationConstants.awsSecretAccessKeyLength
+      kValidationConstants.awsSecretAccessKeyLength
     ),
     region: faker.helpers.arrayElement(kFileBackendConstants.awsRegions),
     ...seed,
@@ -45,8 +45,8 @@ export function generateFileBackendTypeForInput() {
 }
 
 export const fileBackendToCredentialsGenerator = {
-  [kFileBackendType.S3]: generateAWSS3Credentials,
-  [kFileBackendType.Fimidara]: () => ({}),
+  [kFileBackendType.s3]: generateAWSS3Credentials,
+  [kFileBackendType.fimidara]: () => ({}),
 } as const;
 
 export function generateFileBackendConfigInput(

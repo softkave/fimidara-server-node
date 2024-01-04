@@ -8,9 +8,9 @@ const str = /^[\w ]*$/;
 const hexColor = /#([a-f0-9]{3}|[a-f0-9]{4}(?:[a-f0-9]{2}){0,2})\b/;
 const zipcodeRegex = /^\d{5}(?:[-\s]\d{4})?$/;
 const phoneRegex = /^(?:\+\d{1,2}[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
-const awsSecretAccessKey = /^[A-Za-z0-9+/]$/;
+const awsSecretAccessKey = /^[A-Za-z0-9/+]+$/;
 
-export const ValidationRegExPatterns = {
+export const kValidationRegExPatterns = {
   password,
   str,
   hexColor,
@@ -19,7 +19,7 @@ export const ValidationRegExPatterns = {
   phone: phoneRegex,
 };
 
-export const validationConstants = {
+export const kValidationConstants = {
   maxImageURLLength: 300,
   minVerificationCodeLength: 6,
   maxVerificationCodeLength: 6,
@@ -29,27 +29,27 @@ export const validationConstants = {
 };
 
 const uuid = Joi.string().guid().trim();
-const color = Joi.string().trim().lowercase().regex(ValidationRegExPatterns.hexColor);
+const color = Joi.string().trim().lowercase().regex(kValidationRegExPatterns.hexColor);
 const alphanum = Joi.string().regex(str);
-const URL = Joi.string().uri().trim().max(validationConstants.maxImageURLLength);
+const URL = Joi.string().uri().trim().max(kValidationConstants.maxImageURLLength);
 const positiveNum = Joi.number().integer().positive();
 const name = Joi.string().trim().max(endpointConstants.maxNameLength);
 const description = Joi.string()
   .allow(null, '')
   .max(endpointConstants.maxDescriptionLength)
   .trim();
-const zipcode = Joi.string().regex(ValidationRegExPatterns.zipcode);
-const phone = Joi.string().regex(ValidationRegExPatterns.phone);
+const zipcode = Joi.string().regex(kValidationRegExPatterns.zipcode);
+const phone = Joi.string().regex(kValidationRegExPatterns.phone);
 const time = Joi.date().timestamp().cast('number');
 const verificationCode = Joi.string()
   .trim()
-  .min(validationConstants.minVerificationCodeLength)
-  .max(validationConstants.maxVerificationCodeLength);
+  .min(kValidationConstants.minVerificationCodeLength)
+  .max(kValidationConstants.maxVerificationCodeLength);
 const resourceId = Joi.string().trim().max(50);
 const resourceIdList = Joi.array()
   .items(resourceId)
   .min(1)
-  .max(validationConstants.maxResourceIdInputLength);
+  .max(kValidationConstants.maxResourceIdInputLength);
 const resourceIdOrResourceIdList = Joi.alternatives().try(resourceId, resourceIdList);
 const fromNowMs = Joi.number().integer().min(0);
 const fromNowSecs = Joi.number().integer().min(0);
@@ -63,7 +63,7 @@ const providedResourceId = Joi.string().max(
 );
 const crudActionOrList = Joi.alternatives().try(crudAction, crudActionList);
 
-export const validationSchemas = {
+export const kValidationSchemas = {
   resourceId,
   resourceIdList,
   resourceIdOrResourceIdList,

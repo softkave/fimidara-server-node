@@ -1,6 +1,6 @@
 import Joi = require('joi');
 import {getWorkspaceResourceTypeList} from '../../definitions/system';
-import {validationSchemas} from '../../utils/validationUtils';
+import {kValidationSchemas} from '../../utils/validationUtils';
 import {endpointConstants} from '../constants';
 import fileValidationSchemas from '../files/validation';
 import folderValidationSchemas from '../folders/validation';
@@ -8,9 +8,9 @@ import workspaceValidationSchemas from '../workspaces/validation';
 import {permissionItemConstants} from './constants';
 import {PermissionItemInput, PermissionItemInputTarget} from './types';
 
-const targetId = validationSchemas.resourceId;
+const targetId = kValidationSchemas.resourceId;
 const targetType = Joi.string().valid(...getWorkspaceResourceTypeList());
-const entityId = validationSchemas.resourceId;
+const entityId = kValidationSchemas.resourceId;
 
 // TODO: review max items
 const targetParts = {
@@ -54,7 +54,7 @@ const entityParts = {
 };
 const itemInput = Joi.object<PermissionItemInput>().keys({
   target: targetOrList.required(),
-  action: validationSchemas.crudActionOrList.required(),
+  action: kValidationSchemas.crudActionOrList.required(),
   access: Joi.boolean().required(),
   entityId: entityParts.entityId,
 });
@@ -62,12 +62,12 @@ const itemInputList = Joi.array()
   .items(itemInput)
   .max(permissionItemConstants.maxPermissionItemsPerRequest);
 const itemIds = Joi.array()
-  .items(validationSchemas.resourceId.required())
+  .items(kValidationSchemas.resourceId.required())
   .max(permissionItemConstants.maxPermissionItemsPerRequest)
   .unique();
 const publicAccessOp = Joi.object().keys({
-  action: validationSchemas.crudAction.required(),
-  resourceType: validationSchemas.resourceType.required(),
+  action: kValidationSchemas.crudAction.required(),
+  resourceType: kValidationSchemas.resourceType.required(),
 });
 const publicAccessOpList = Joi.array()
   .items(publicAccessOp)

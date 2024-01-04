@@ -1,7 +1,7 @@
 import Joi from 'joi';
 import {merge} from 'lodash';
 import {JoiSchemaParts} from '../utils/types';
-import {validationSchemas} from '../utils/validationUtils';
+import {kValidationSchemas} from '../utils/validationUtils';
 import {endpointConstants} from './constants';
 import {
   EndpointOptionalWorkspaceIDParam,
@@ -68,11 +68,11 @@ const op = (schema: Joi.Schema) =>
 const page = Joi.number().integer();
 const pageSize = Joi.number().integer();
 const optionalWorkspaceIdParts: JoiSchemaParts<EndpointOptionalWorkspaceIDParam> = {
-  workspaceId: validationSchemas.resourceId,
+  workspaceId: kValidationSchemas.resourceId,
 };
 const workspaceResourceParts: JoiSchemaParts<EndpointWorkspaceResourceParam> = {
-  workspaceId: validationSchemas.resourceId,
-  providedResourceId: validationSchemas.resourceId,
+  workspaceId: kValidationSchemas.resourceId,
+  providedResourceId: kValidationSchemas.resourceId,
 };
 const paginationParts: JoiSchemaParts<PaginationQuery> = {
   page,

@@ -1,6 +1,9 @@
 import Joi from 'joi';
 import {kFileBackendType} from '../../definitions/fileBackend';
-import {ValidationRegExPatterns, validationConstants} from '../../utils/validationUtils';
+import {
+  kValidationConstants,
+  kValidationRegExPatterns,
+} from '../../utils/validationUtils';
 import {S3FilePersistenceProviderInitParams} from '../contexts/file/S3FilePersistenceProvider';
 import {kFileBackendConstants} from './constants';
 
@@ -11,15 +14,15 @@ const nonFimidaraBackend = Joi.string().valid(
 const credentials = Joi.object().when('backend', {
   switch: [
     {
-      is: Joi.string().valid(kFileBackendType.S3),
+      is: Joi.string().valid(kFileBackendType.s3),
       then: Joi.object<S3FilePersistenceProviderInitParams>().keys({
         accessKeyId: Joi.string()
           .alphanum()
-          .length(validationConstants.awsAccessKeyIdLength)
+          .length(kValidationConstants.awsAccessKeyIdLength)
           .required(),
         secretAccessKey: Joi.string()
-          .regex(ValidationRegExPatterns.awsSecretAccessKey)
-          .length(validationConstants.awsSecretAccessKeyLength)
+          .regex(kValidationRegExPatterns.awsSecretAccessKey)
+          .length(kValidationConstants.awsSecretAccessKeyLength)
           .required(),
         region: Joi.string()
           .valid(...kFileBackendConstants.awsRegions)

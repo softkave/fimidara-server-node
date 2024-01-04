@@ -8,8 +8,8 @@ import {
 } from './system';
 
 export const kFileBackendType = {
-  Fimidara: 'fimidara',
-  S3: 'aws-s3',
+  fimidara: 'fimidara',
+  s3: 'aws-s3',
 } as const;
 
 export type FileBackendType = ObjectValues<typeof kFileBackendType>;

@@ -79,7 +79,7 @@ import {
 const backend = mddocConstruct
   .constructFieldString()
   .setDescription('File backend type.')
-  .setExample(kFileBackendType.Fimidara)
+  .setExample(kFileBackendType.fimidara)
   .setValid(Object.values(kFileBackendType))
   .setEnumName('FileBackendType');
 
