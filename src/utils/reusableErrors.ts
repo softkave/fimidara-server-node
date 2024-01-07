@@ -115,7 +115,7 @@ export const kReuseableErrors = {
     mountExists() {
       return new ResourceExistsError(kAppMessages.mount.mountExists);
     },
-    mountNameExists(name: string) {
+    mountNameExists(name?: string) {
       return new ResourceExistsError(kAppMessages.mount.mountNameExists(name));
     },
     s3MountSourceMissingBucket() {

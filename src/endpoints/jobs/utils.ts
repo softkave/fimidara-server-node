@@ -64,8 +64,13 @@ export async function queueJobs<
 >(
   workspaceId: string | undefined,
   parentJobId: string | undefined,
-  jobsInput: JobInput<TParams, TMeta>[]
+  jobsInput: JobInput<TParams, TMeta>[],
+  insertOptions: {
+    jobsToReturn?: 'all' | 'new';
+  } = {}
 ): Promise<Array<Job<TParams, TMeta>>> {
+  const {jobsToReturn = 'all'} = insertOptions;
+
   if (jobsInput.length === 0) {
     return [];
   }
@@ -109,12 +114,21 @@ export async function queueJobs<
       job => job.idempotencyToken
     );
 
-    const uniqueJobs = newJobs.filter(
-      job => !existingJobsByIdempotencyToken[job.idempotencyToken]
-    );
-    await kSemanticModels.job().insertItem(uniqueJobs, opts);
+    const jobs: Array<Job> = [];
+    const uniqueJobs: Array<Job> = [];
+    newJobs.forEach(job => {
+      const existingJob = existingJobsByIdempotencyToken[job.idempotencyToken];
 
-    return uniqueJobs as Array<Job<TParams, TMeta>>;
+      if (existingJob) {
+        jobs.push(existingJob);
+      } else {
+        jobs.push(job);
+        uniqueJobs.push(job);
+      }
+    });
+
+    await kSemanticModels.job().insertItem(uniqueJobs, opts);
+    return (jobsToReturn === 'all' ? jobs : uniqueJobs) as Array<Job<TParams, TMeta>>;
   });
 }
 

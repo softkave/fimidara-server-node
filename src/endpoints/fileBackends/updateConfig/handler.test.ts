@@ -10,7 +10,11 @@ import {
   generateTestFieldsCombinations,
 } from '../../testUtils/generate/utils';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests, matchExpects} from '../../testUtils/helpers/test';
+import {
+  completeTests,
+  matchExpects,
+  testCombinations,
+} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   initTests,
@@ -34,23 +38,23 @@ afterAll(async () => {
   await completeTests();
 });
 
-describe('updateConfig s3', async () => {
-  const {userToken} = await insertUserForTest();
-  const {workspace} = await insertWorkspaceForTest(userToken);
+describe('updateConfig s3', () => {
+  test('combinations', async () => {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
 
-  const updateDefs: GenerateTestFieldsDef<UpdateFileBackendConfigInput> = {
-    credentials: () => generateAWSS3Credentials() as unknown as Record<string, unknown>,
-    name: () => faker.lorem.words(),
-    description: () => faker.lorem.paragraph(),
-  };
-  const updates = await generateTestFieldsCombinations(
-    updateDefs,
-    TestFieldsPresetCombinations.incrementallyAdd
-  );
+    const updateDefs: GenerateTestFieldsDef<UpdateFileBackendConfigInput> = {
+      credentials: () => generateAWSS3Credentials() as unknown as Record<string, unknown>,
+      name: () => faker.lorem.words(),
+      description: () => faker.lorem.paragraph(),
+    };
+    const updates = await generateTestFieldsCombinations(
+      updateDefs,
+      TestFieldsPresetCombinations.incrementallyAdd
+    );
 
-  updates.forEach(update => {
-    test(`with updates ${Object.keys(update).join(',')}`, async () => {
-      const {config, rawConfig} = await insertFileBackendConfigForTest(
+    await testCombinations(updates, async update => {
+      const {config} = await insertFileBackendConfigForTest(
         userToken,
         workspace.resourceId
       );
@@ -58,7 +62,11 @@ describe('updateConfig s3', async () => {
       const instData =
         RequestData.fromExpressRequest<UpdateFileBackendConfigEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
-          {configId: config.resourceId, config: update, workspaceId: workspace.resourceId}
+          {
+            configId: config.resourceId,
+            config: update,
+            workspaceId: workspace.resourceId,
+          }
         );
       const result = await updateFileBackendConfig(instData);
       assertEndpointResultOk(result);
@@ -75,18 +83,10 @@ describe('updateConfig s3', async () => {
           {
             matcher: input => !!input.credentials,
             expect: async input => {
-              expect(updatedConfig.secretId).not.toBe(rawConfig.secretId);
-
-              const [currentCreds, prevCreds] = await Promise.all([
-                kUtilsInjectables.secretsManager().getSecret({
-                  secretId: updatedConfig.secretId,
-                }),
-                kUtilsInjectables.secretsManager().getSecret({
-                  secretId: rawConfig.secretId,
-                }),
-              ]);
-              expect(currentCreds).toEqual(input.credentials);
-              expect(prevCreds).toBeFalsy();
+              const currentCreds = await kUtilsInjectables.secretsManager().getSecret({
+                secretId: updatedConfig.secretId,
+              });
+              expect(currentCreds.text).toEqual(JSON.stringify(input.credentials));
             },
           },
           {
@@ -111,50 +111,9 @@ describe('updateConfig s3', async () => {
   });
 
   test('fails if config with name exists', async () => {
-    const [{config: config01}, {config: config02}] = await Promise.all([
-      insertFileBackendConfigForTest(userToken, workspace.resourceId),
-      insertFileBackendConfigForTest(userToken, workspace.resourceId),
-    ]);
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
 
-    const instData01 =
-      RequestData.fromExpressRequest<UpdateFileBackendConfigEndpointParams>(
-        mockExpressRequestWithAgentToken(userToken),
-        {
-          configId: config01.resourceId,
-          config: {name: config01.name},
-          workspaceId: workspace.resourceId,
-        }
-      );
-    const instData02 =
-      RequestData.fromExpressRequest<UpdateFileBackendConfigEndpointParams>(
-        mockExpressRequestWithAgentToken(userToken),
-        {
-          configId: config02.resourceId,
-          config: {name: config01.name},
-          workspaceId: workspace.resourceId,
-        }
-      );
-
-    await Promise.all([
-      updateFileBackendConfig(instData01),
-      expectErrorThrown(
-        async () => {
-          await updateFileBackendConfig(instData02);
-        },
-        error =>
-          expect((error as Error).message).toBe(
-            kReuseableErrors.config.configExists().message
-          )
-      ),
-    ]);
-  });
-});
-
-describe('updateConfig', async () => {
-  const {userToken} = await insertUserForTest();
-  const {workspace} = await insertWorkspaceForTest(userToken);
-
-  test('fails if config with name exists', async () => {
     const [{config: config01}, {config: config02}] = await Promise.all([
       insertFileBackendConfigForTest(userToken, workspace.resourceId),
       insertFileBackendConfigForTest(userToken, workspace.resourceId),

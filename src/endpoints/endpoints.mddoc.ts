@@ -19,7 +19,6 @@ import {
   BaseEndpointResult,
   CountItemsEndpointResult,
   EndpointResultNote,
-  EndpointResultNoteCodeMap,
   HttpEndpointRequestHeaders_AuthOptional,
   HttpEndpointRequestHeaders_AuthOptional_ContentType,
   HttpEndpointRequestHeaders_AuthRequired,
@@ -27,6 +26,7 @@ import {
   HttpEndpointRequestHeaders_ContentType,
   HttpEndpointResponseHeaders_ContentType_ContentLength,
   ServerRecommendedActionsMap,
+  kEndpointResultNoteCodeMap,
 } from './types';
 
 export const mddocEndpointStatusCodes = {
@@ -430,8 +430,8 @@ const pageSize = mddocConstruct
 const resultNoteCode = mddocConstruct
   .constructFieldString()
   .setDescription('Endpoint result or error note code.')
-  .setExample(EndpointResultNoteCodeMap.unsupportedOperationInMountBackend)
-  .setValid(Object.values(EndpointResultNoteCodeMap))
+  .setExample(kEndpointResultNoteCodeMap.unsupportedOperationInMountBackend)
+  .setValid(Object.values(kEndpointResultNoteCodeMap))
   .setEnumName('EndpointResultNoteCode');
 const resultNoteMessage = mddocConstruct
   .constructFieldString()

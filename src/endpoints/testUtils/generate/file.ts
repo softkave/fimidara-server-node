@@ -90,9 +90,8 @@ export function generateTestFilepathString(
   return generateTestFilepath(props).join(kFolderConstants.separator);
 }
 
-export function generateTestFile(
-  extra: Partial<File> & {parentId: string | null} = {parentId: null}
-) {
+export function generateTestFile(extra: Partial<File> & {parentId?: string | null} = {}) {
+  const {parentId = null} = extra;
   const id = getNewIdForResource(kAppResourceType.File);
   const name = generateTestFileName();
   const nameinfo = getFilenameInfo(name);
@@ -100,8 +99,9 @@ export function generateTestFile(
   const file: File = {
     name,
     createdAt,
+    parentId,
     description: faker.lorem.paragraph(),
-    mimetype: 'application/octet-stream',
+    mimetype: faker.system.mimeType(),
     createdBy: kSystemSessionAgent,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: kSystemSessionAgent,

@@ -4,9 +4,10 @@ import {
   FileBackendConfig,
   FileBackendMount,
   ResolvedMountEntry,
+  kFileBackendType,
 } from '../../definitions/fileBackend';
 import {Folder} from '../../definitions/folder';
-import {IngestMountJobParams, Job} from '../../definitions/job';
+import {IngestMountJobParams, Job, kJobStatus, kJobType} from '../../definitions/job';
 import {Agent, kAppResourceType} from '../../definitions/system';
 import {FimidaraExternalError} from '../../utils/OperationError';
 import {appAssert} from '../../utils/assertion';
@@ -26,19 +27,16 @@ import {isFilePersistenceProvider} from '../contexts/file/utils';
 import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
-import {EndpointResultNoteCodeMap, kEndpointResultNotesToMessageMap} from '../types';
+import {kEndpointResultNoteCodeMap, kEndpointResultNotesToMessageMap} from '../types';
 import {getBackendConfigsWithIdList} from './configUtils';
 
 export type FileBackendMountWeights = Record<string, number>;
 
 export function sortMounts(mounts: FileBackendMount[]) {
   return mounts.sort((mount01, mount02) => {
-    const isMount01Lower = mount01.index < mount02.index;
-    const isMount01Higher = mount01.index > mount02.index;
-
-    if (isMount01Lower) {
+    if (mount01.index > mount02.index) {
       return -1;
-    } else if (isMount01Higher) {
+    } else if (mount01.index < mount02.index) {
       return 1;
     }
 
@@ -57,7 +55,7 @@ export async function resolveMountsForFolder(
       return mountModel.getManyByQuery(
         {
           workspaceId: folder.workspaceId,
-          folderpath: {$all: paths, $size: paths.length},
+          namepath: {$all: paths, $size: paths.length},
         },
         opts
       );
@@ -82,7 +80,7 @@ export async function resolveMountsForFolder(
 }
 
 export function isPrimaryMountFimidara(mounts: FileBackendMount[]): boolean {
-  return first(mounts)?.backend === 'fimidara';
+  return first(mounts)?.backend === kFileBackendType.fimidara;
 }
 
 export function isOnlyMountFimidara(mounts: FileBackendMount[]): boolean {
@@ -116,7 +114,7 @@ export async function initBackendProvidersForMounts(
   mounts.forEach(mount => {
     const {providerParams, config} = configsMap[mount.configId ?? ''] ?? {};
 
-    if (mount.backend !== 'fimidara' && !providerParams) {
+    if (mount.backend !== kFileBackendType.fimidara && !providerParams) {
       console.log(`mount ${mount.resourceId} is not fimidara, and is without config`);
       throw new ServerError();
     }
@@ -141,7 +139,10 @@ export async function resolveBackendsMountsAndConfigs(
   appAssert(requiredMounts.length, kReuseableErrors.mount.mountsNotSetup());
 
   const configs = await getBackendConfigsWithIdList(
-    compact(requiredMounts.map(mount => mount.configId))
+    compact(requiredMounts.map(mount => mount.configId)),
+    /** Do not throw if some configs are not found. This is because fimidara
+     * mount does not use configs. */
+    false
   );
   const providersMap = await initBackendProvidersForMounts(requiredMounts, configs);
 
@@ -166,7 +167,7 @@ export async function areMountsCompletelyIngestedForFolder(
   const completionList = await Promise.all(
     mounts.map(async mount => {
       const query: DataQuery<Job<IngestMountJobParams>> = {
-        type: 'ingestMount',
+        type: kJobType.ingestMount,
         params: {
           $objMatch: {mountId: mount.resourceId},
         },
@@ -178,7 +179,7 @@ export async function areMountsCompletelyIngestedForFolder(
           .existsByQuery<Job<IngestMountJobParams>>({...query, status: 'completed'}),
         kSemanticModels.job().existsByQuery<Job<IngestMountJobParams>>({
           ...query,
-          status: {$ne: 'completed'},
+          status: {$ne: kJobStatus.completed},
         }),
       ]);
 
@@ -225,15 +226,15 @@ export function populateMountUnsupportedOpNoteInNotFoundError(
   if (hasUnsupportedOp) {
     const notes = notFoundError.notes || [];
     const hasUnsupportedOpNote = notes.some(
-      note => note.code === 'unsupportedOperationInMountBackend'
+      note => note.code === kEndpointResultNoteCodeMap.unsupportedOperationInMountBackend
     );
 
     if (!hasUnsupportedOpNote) {
       notes.push({
-        code: 'unsupportedOperationInMountBackend',
+        code: kEndpointResultNoteCodeMap.unsupportedOperationInMountBackend,
         message:
           kEndpointResultNotesToMessageMap[
-            EndpointResultNoteCodeMap.unsupportedOperationInMountBackend
+            kEndpointResultNoteCodeMap.unsupportedOperationInMountBackend
           ](),
       });
     }
@@ -250,6 +251,7 @@ export async function insertResolvedMountEntries(props: {
   const mountIds = Object.keys(mountFilesByMountId);
 
   await kSemanticModels.utils().withTxn(async opts => {
+    // TODO: do this incrementally to avoid overwhelming the server
     const existingEntries = await kSemanticModels.resolvedMountEntry().getManyByQuery({
       workspaceId: resource.workspaceId,
       resolvedFor: resource.resourceId,

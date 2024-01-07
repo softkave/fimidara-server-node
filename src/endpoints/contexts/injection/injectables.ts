@@ -61,7 +61,7 @@ export const kSemanticModels = {
   user: () => container.resolve<SemanticUserProviderType>(kInjectionKeys.semantic.user),
   file: () => container.resolve<SemanticFileProvider>(kInjectionKeys.semantic.file),
   agentToken: () =>
-    container.resolve<SemanticAgentTokenProvider>(kInjectionKeys.semantic.file),
+    container.resolve<SemanticAgentTokenProvider>(kInjectionKeys.semantic.agentToken),
   folder: () => container.resolve<SemanticFolderProvider>(kInjectionKeys.semantic.folder),
   workspace: () =>
     container.resolve<SemanticWorkspaceProviderType>(kInjectionKeys.semantic.workspace),
@@ -112,7 +112,8 @@ export const kSemanticModels = {
 export const kDataModels = {
   user: () => container.resolve<UserDataProvider>(kInjectionKeys.data.user),
   file: () => container.resolve<FileDataProvider>(kInjectionKeys.data.file),
-  agentToken: () => container.resolve<AgentTokenDataProvider>(kInjectionKeys.data.file),
+  agentToken: () =>
+    container.resolve<AgentTokenDataProvider>(kInjectionKeys.data.agentToken),
   folder: () => container.resolve<FolderDataProvider>(kInjectionKeys.data.folder),
   workspace: () =>
     container.resolve<WorkspaceDataProvider>(kInjectionKeys.data.workspace),

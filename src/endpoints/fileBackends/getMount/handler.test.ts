@@ -1,3 +1,5 @@
+import {kAppResourceType} from '../../../definitions/system';
+import {getNewIdForResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import RequestData from '../../RequestData';
 import {NotFoundError} from '../../errors';
@@ -41,11 +43,13 @@ describe('getMount', () => {
   test('fails if mount does not exist', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const {mount} = await insertFileBackendMountForTest(userToken, workspace);
 
     const instData = RequestData.fromExpressRequest<GetFileBackendMountEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
-      {mountId: mount.resourceId, workspaceId: workspace.resourceId}
+      {
+        mountId: getNewIdForResource(kAppResourceType.FileBackendMount),
+        workspaceId: workspace.resourceId,
+      }
     );
     await expectErrorThrown(
       () => getFileBackendMount(instData),

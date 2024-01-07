@@ -1,3 +1,4 @@
+import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
@@ -17,7 +18,10 @@ const getFileBackendMount: GetFileBackendMountEndpoint = async instData => {
     agent,
     workspace,
     workspaceId: workspace.resourceId,
-    target: {action: 'readFileBackendMount', targetId: workspace.resourceId},
+    target: {
+      action: kPermissionsMap.readFileBackendMount,
+      targetId: workspace.resourceId,
+    },
   });
 
   const mount = await mountModel.getOneById(data.mountId);

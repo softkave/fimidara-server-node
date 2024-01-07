@@ -161,7 +161,7 @@ const fileBackendMount = mddocConstruct
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
     backend: mddocConstruct.constructFieldObjectField(true, backend),
     configId: mddocConstruct.constructFieldObjectField(true, configIdOrNull),
-    folderpath: mddocConstruct.constructFieldObjectField(true, fReusables.folderpathList),
+    namepath: mddocConstruct.constructFieldObjectField(true, fReusables.folderpathList),
     index: mddocConstruct.constructFieldObjectField(true, index),
     mountedFrom: mddocConstruct.constructFieldObjectField(true, mountedFromAsList),
   });

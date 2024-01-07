@@ -29,5 +29,7 @@ export const defaultFileProviderResolver: FileProviderResolver = (
       return new S3FilePersistenceProvider(
         initParams as S3FilePersistenceProviderInitParams
       );
+    default:
+      throw new Error(`unknown backend type ${mount.backend}`);
   }
 };

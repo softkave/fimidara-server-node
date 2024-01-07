@@ -43,7 +43,7 @@ export const INTERNAL_addFileBackendMount = async (
     {
       backend: data.backend,
       workspaceId: workspace.resourceId,
-      folderpath: folderpathinfo.namepath,
+      namepath: folderpathinfo.namepath,
       mountedFrom: mountedFromSplit,
     },
     opts
@@ -78,7 +78,7 @@ export const INTERNAL_addFileBackendMount = async (
     workspace.resourceId,
     {
       configId: data.configId,
-      folderpath: folderpathinfo.namepath,
+      namepath: folderpathinfo.namepath,
       index: data.index,
       mountedFrom: mountedFromSplit,
       backend: data.backend,

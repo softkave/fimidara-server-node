@@ -66,7 +66,7 @@ describe('runIngestFolderpathJob', () => {
       workspaceId: workspace.resourceId,
     });
     const [mount] = await generateAndInsertFileBackendMountListForTest(/** count */ 1, {
-      folderpath: mountFolderpath,
+      namepath: mountFolderpath,
       mountedFrom,
       workspaceId: workspace.resourceId,
       configId: config.resourceId,
@@ -350,7 +350,7 @@ describe('runIngestFolderpathJob', () => {
     });
     const [mount] = await generateAndInsertFileBackendMountListForTest(/** count */ 1, {
       mountedFrom,
-      folderpath: mountFolderpath,
+      namepath: mountFolderpath,
       workspaceId: workspace.resourceId,
       configId: config.resourceId,
       backend: kFileBackendType.s3,
@@ -484,7 +484,7 @@ describe('runIngestFolderpathJob', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     const [mount] = await generateAndInsertFileBackendMountListForTest(/** count */ 1, {
       mountedFrom,
-      folderpath: mountFolderpath,
+      namepath: mountFolderpath,
       workspaceId: workspace.resourceId,
       backend: kFileBackendType.fimidara,
     });
@@ -533,7 +533,7 @@ describe('runIngestFolderpathJob', () => {
       workspaceId: workspace.resourceId,
     });
     const [mount] = await generateAndInsertFileBackendMountListForTest(/** count */ 1, {
-      folderpath: mountFolderpath,
+      namepath: mountFolderpath,
       mountedFrom,
       workspaceId: workspace.resourceId,
       configId: config.resourceId,

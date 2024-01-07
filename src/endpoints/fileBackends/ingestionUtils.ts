@@ -9,7 +9,12 @@ import {
   PersistedFolderDescription,
 } from '../contexts/file/types';
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {FilepathInfo, createNewFile, getFilepathInfo} from '../files/utils';
+import {
+  FilepathInfo,
+  createNewFile,
+  getFilepathInfo,
+  stringifyFilenamepath,
+} from '../files/utils';
 import {createFolderListWithTransaction} from '../folders/addFolder/handler';
 import {NewFolderInput} from '../folders/addFolder/types';
 import {kFolderConstants} from '../folders/constants';
@@ -66,7 +71,7 @@ export async function ingestPersistedFiles(
 
     if (!map) {
       map = persistedFilesByFilepath[nextMountFile.filepath] = {
-        pathinfo: getFilepathInfo(nextMountFile.filepath),
+        pathinfo: getFilepathInfo(nextMountFile.filepath, {containsRootname: false}),
         mountFiles: [],
       };
     }
@@ -151,16 +156,17 @@ export async function ingestPersistedFiles(
     });
 
     const saveFilesPromise = kSemanticModels.file().insertItem(newFiles, opts);
+    const everyFile = newFiles.concat(existingFiles);
     const insertMountEntriesPromise = Promise.all(
-      newFiles.concat(existingFiles).map(file =>
-        insertResolvedMountEntries({
+      everyFile.map(file => {
+        const entry = persistedFilesByFilepath[stringifyFilenamepath(file)];
+        appAssert(entry);
+        return insertResolvedMountEntries({
           agent,
           resource: file,
-          mountFiles:
-            persistedFilesByFilepath[file.namepath.join(kFolderConstants.separator)]
-              .mountFiles,
-        })
-      )
+          mountFiles: entry.mountFiles,
+        });
+      })
     );
 
     await Promise.all([insertMountEntriesPromise, saveFilesPromise]);

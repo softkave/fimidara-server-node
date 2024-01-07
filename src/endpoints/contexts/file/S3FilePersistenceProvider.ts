@@ -52,7 +52,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       key = path.normalize(
         `${prefix}/${resourcePath
           .split(kFolderConstants.separator)
-          .slice(mount.folderpath.length)}`
+          .slice(mount.namepath.length)}`
       );
     }
 

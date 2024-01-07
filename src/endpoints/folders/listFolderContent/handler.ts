@@ -14,7 +14,7 @@ import {
   getEndpointPageFromInput,
 } from '../../pagination';
 import {
-  EndpointResultNoteCodeMap,
+  kEndpointResultNoteCodeMap,
   kEndpointResultNotesToMessageMap,
   PaginationQuery,
 } from '../../types';
@@ -56,7 +56,7 @@ const listFolderContent: ListFolderContentEndpoint = async instData => {
       ? undefined
       : [
           {
-            code: EndpointResultNoteCodeMap.mountsNotCompletelyIngested,
+            code: kEndpointResultNoteCodeMap.mountsNotCompletelyIngested,
             message: kEndpointResultNotesToMessageMap.mountsNotCompletelyIngested(),
           },
         ],

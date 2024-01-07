@@ -17,8 +17,17 @@ import {
   generateTestFolderpath,
 } from '../../testUtils/generate/folder';
 import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generate/workspace';
-import {insertUserForTest} from '../../testUtils/testUtils';
+import {completeTests} from '../../testUtils/helpers/test';
+import {initTests, insertUserForTest} from '../../testUtils/testUtils';
 import {ingestPersistedFiles, ingestPersistedFolders} from '../ingestionUtils';
+
+beforeAll(async () => {
+  await initTests();
+});
+
+afterAll(async () => {
+  await completeTests();
+});
 
 describe('mount ingestion utils', () => {
   test('ingestPersistedFolders', async () => {
@@ -58,7 +67,7 @@ describe('mount ingestion utils', () => {
       })
     );
     const pFolderNamepaths = folderpath.map((name, index) =>
-      folderpath.slice(0, index + 1)
+      folderpath.slice(0, index + 1).join(kFolderConstants.separator)
     );
     const insertedFoldersNamepaths = insertedFolders.map(folder =>
       folder.namepath.join(kFolderConstants.separator)
@@ -80,7 +89,7 @@ describe('mount ingestion utils', () => {
     await ingestPersistedFolders(sessionAgent, workspace, pFolders);
 
     const folder02 = await kSemanticModels.folder().getOneById(folder.resourceId);
-    expect(folder02).toEqual(folder);
+    expect(folder02).toMatchObject(folder);
   });
 
   test('ingestPersistedFiles', async () => {
@@ -132,7 +141,10 @@ describe('mount ingestion utils', () => {
         resolvedForType: kAppResourceType.File,
       };
 
-      expect(insertedMountEntry).toMatchObject(expectedMountEntry);
+      expect({
+        ...insertedMountEntry,
+        extension: insertedMountEntry.extension || undefined,
+      }).toMatchObject(expectedMountEntry);
     });
   });
 

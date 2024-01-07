@@ -27,7 +27,7 @@ const fileBackendMountFields = getFields<
   ConvertAgentToPublicAgent<PublicFileBackendMount>
 >({
   ...workspaceResourceFields,
-  folderpath: true,
+  namepath: true,
   index: true,
   mountedFrom: true,
   backend: true,
@@ -68,7 +68,7 @@ export async function configNameExists(
 }
 
 export async function mountExists(
-  data: Pick<FileBackendMount, 'folderpath' | 'mountedFrom' | 'backend' | 'workspaceId'>,
+  data: Pick<FileBackendMount, 'namepath' | 'mountedFrom' | 'backend' | 'workspaceId'>,
   opts?: SemanticProviderRunOptions
 ) {
   const mountModel = kSemanticModels.fileBackendMount();
@@ -76,7 +76,7 @@ export async function mountExists(
     {
       workspaceId: data.workspaceId,
       backend: data.backend,
-      folderpath: {$all: data.folderpath, $size: data.folderpath.length},
+      namepath: {$all: data.namepath, $size: data.namepath.length},
       mountedFrom: {$all: data.mountedFrom, $size: data.mountedFrom.length},
     },
     opts
@@ -89,5 +89,5 @@ export async function countFolderAttachedMounts(
 ) {
   return await kSemanticModels
     .fileBackendMount()
-    .existsByQuery({folderpath: {$all: folderpath, $size: folderpath.length}}, opts);
+    .existsByQuery({namepath: {$all: folderpath, $size: folderpath.length}}, opts);
 }

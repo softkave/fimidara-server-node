@@ -31,7 +31,7 @@ export type FileBackendConfigModel = Model<FileBackendConfig>;
 
 const fileBackendMountSchema = ensureMongoTypeFields<FileBackendMount>({
   ...workspaceResourceSchema,
-  folderpath: {type: [String], index: true},
+  namepath: {type: [String], index: true},
   index: {type: Number, index: true},
   mountedFrom: {type: [String], index: true},
   backend: {type: String, index: true},

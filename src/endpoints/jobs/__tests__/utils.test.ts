@@ -72,7 +72,9 @@ describe('utils', () => {
     // First add should add job to DB
     const jobs01 = await queueJobs(workspaceId, parentJobId, [input01]);
     // Second add should not add anything to DB
-    const jobs02 = await queueJobs(workspaceId, parentJobId, [input01]);
+    const jobs02 = await queueJobs(workspaceId, parentJobId, [input01], {
+      jobsToReturn: 'new',
+    });
     const dbJobs = await kSemanticModels.job().getManyByQuery({
       params: {$objMatch: {id: internalParamId}},
       resourceId: {$in: extractResourceIdList(jobs01)},

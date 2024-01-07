@@ -18,11 +18,11 @@ export interface FileBackendMount extends WorkspaceResource {
   // TODO: is there any advantage to having folderpath and mountedFrom as string
   // arrays? If not, make them string
   /** folderpath without workspace rootname */
-  folderpath: string[];
+  namepath: string[];
   /** string array of + bucket? + folderpath? */
   mountedFrom: string[];
   /** Preferred backend mount for file or folder look up when multiple backends
-   * are mounted to the same folderpath */
+   * are mounted to the same folderpath. Higher values have higher weight. */
   index: number;
   backend: FileBackendType;
   configId: string | null;
@@ -51,7 +51,7 @@ export type PublicFileBackendMount = PublicWorkspaceResource &
   ConvertAgentToPublicAgent<
     Pick<
       FileBackendMount,
-      | 'folderpath'
+      | 'namepath'
       | 'index'
       | 'mountedFrom'
       | 'backend'

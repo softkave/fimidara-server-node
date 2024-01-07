@@ -28,7 +28,7 @@ describe('runIngestMountJob', () => {
       workspaceId: workspace.resourceId,
     });
     const [mount] = await generateAndInsertFileBackendMountListForTest(/** count */ 1, {
-      folderpath: mountFolderpath,
+      namepath: mountFolderpath,
       mountedFrom,
       workspaceId: workspace.resourceId,
       configId: config.resourceId,

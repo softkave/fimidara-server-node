@@ -28,7 +28,7 @@ export async function getFileBackendMountsQuery(
 
   if (other.folderpath) {
     const folderpathSplit = other.folderpath.split(kFolderConstants.separator);
-    query.folderpath = {$all: folderpathSplit, $size: folderpathSplit.length};
+    query.namepath = {$all: folderpathSplit, $size: folderpathSplit.length};
   }
 
   if (other.configId) {

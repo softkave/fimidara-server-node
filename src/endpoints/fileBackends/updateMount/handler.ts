@@ -14,7 +14,7 @@ import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {kFolderConstants} from '../../folders/constants';
-import {areFolderpathsEqual, getFolderpathInfo} from '../../folders/utils';
+import {areFolderpathsEqual, ensureFolders, getFolderpathInfo} from '../../folders/utils';
 import {queueJobs} from '../../jobs/utils';
 import {isResourceNameEqual} from '../../utils';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
@@ -82,8 +82,7 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData =>
           folderpathinfo.rootname
         )
       );
-
-      mountUpdate.folderpath = folderpathinfo.namepath;
+      mountUpdate.namepath = folderpathinfo.namepath;
     }
 
     if (data.mount.mountedFrom) {
@@ -94,7 +93,7 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData =>
       data.mount.folderpath &&
       !areFolderpathsEqual(
         data.mount.folderpath,
-        mount.folderpath,
+        mount.namepath,
         /** isCaseSensitive */ true
       );
 
@@ -114,9 +113,9 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData =>
         {
           workspaceId: workspace.resourceId,
           backend: mount.backend,
-          folderpath: data.mount.folderpath
+          namepath: data.mount.folderpath
             ? getFolderpathInfo(data.mount.folderpath).namepath
-            : mount.folderpath,
+            : mount.namepath,
           mountedFrom: data.mount.mountedFrom
             ? data.mount.mountedFrom.split(kFolderConstants.separator)
             : mount.mountedFrom,
@@ -136,7 +135,7 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData =>
       });
 
       if (nameExists) {
-        throw kReuseableErrors.mount.mountNameExists(data.mount.name);
+        throw kReuseableErrors.mount.mountNameExists();
       }
     }
 
@@ -151,15 +150,15 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData =>
             type: kJobType.cleanupMountResolvedEntries,
             params: {mountId: mount.resourceId},
           },
-        ]
+        ],
+        {jobsToReturn: 'all'}
       );
     }
 
-    const updatedMount = await mountModel.getAndUpdateOneById(
-      mount.resourceId,
-      mountUpdate,
-      opts
-    );
+    const [updatedMount] = await Promise.all([
+      mountModel.getAndUpdateOneById(mount.resourceId, mountUpdate, opts),
+      mountUpdate.namepath && ensureFolders(agent, workspace, mountUpdate.namepath, opts),
+    ]);
 
     return {job, updatedMount};
   });

@@ -163,18 +163,18 @@ export type InferMddocHttpEndpointFromMddocEndpointDefinition<T> =
     ? HttpEndpointDefinitionType<T0, T1, T2, T3, T4, T5, T6>
     : never;
 
-export const EndpointResultNoteCodeMap = {
+export const kEndpointResultNoteCodeMap = {
   unsupportedOperationInMountBackend: 'unsupportedOperationInMountBackend',
   mountsNotCompletelyIngested: 'mountsNotCompletelyIngested',
 } as const;
 
-export type EndpointResultNoteCode = ObjectValues<typeof EndpointResultNoteCodeMap>;
+export type EndpointResultNoteCode = ObjectValues<typeof kEndpointResultNoteCodeMap>;
 
 export const kEndpointResultNotesToMessageMap = {
   // TODO: add which mount/backend, and which op
-  [EndpointResultNoteCodeMap.unsupportedOperationInMountBackend]: () =>
+  [kEndpointResultNoteCodeMap.unsupportedOperationInMountBackend]: () =>
     'Result may not be entirely accurate, some backends have unsupported ops relied upon during processing.',
-  [EndpointResultNoteCodeMap.mountsNotCompletelyIngested]: () =>
+  [kEndpointResultNoteCodeMap.mountsNotCompletelyIngested]: () =>
     'Some mounts are not completely ingested, so actual result may differ.',
 };
 

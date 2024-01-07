@@ -1,4 +1,5 @@
 import {File} from '../../../definitions/file';
+import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
@@ -13,6 +14,7 @@ import {ResolveFileBackendMountsEndpoint} from './types';
 import {resolveWorkspaceFileBackendMountJoiSchema} from './validation';
 
 const resolveFileBackendMounts: ResolveFileBackendMountsEndpoint = async instData => {
+  const fileModel = kSemanticModels.file();
   const data = validate(instData.data, resolveWorkspaceFileBackendMountJoiSchema);
   const agent = await kUtilsInjectables.session().getAgent(instData);
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
@@ -26,7 +28,7 @@ const resolveFileBackendMounts: ResolveFileBackendMountsEndpoint = async instDat
       .getOneByNamepath({workspaceId: workspace.resourceId, namepath: pathinfo.namepath});
   } else if (data.filepath) {
     const pathinfo = getFilepathInfo(data.filepath);
-    fileOrFolder = await kSemanticModels.file().getOneByNamepath({
+    fileOrFolder = await fileModel.getOneByNamepath({
       workspaceId: workspace.resourceId,
       namepath: pathinfo.namepath,
       extension: pathinfo.extension,
@@ -34,7 +36,7 @@ const resolveFileBackendMounts: ResolveFileBackendMountsEndpoint = async instDat
   } else if (data.folderId) {
     fileOrFolder = await kSemanticModels.folder().getOneById(data.folderId);
   } else if (data.fileId) {
-    fileOrFolder = await kSemanticModels.file().getOneById(data.fileId);
+    fileOrFolder = await fileModel.getOneById(data.fileId);
   } else {
     throw new InvalidRequestError(
       'Provide one of folderpath, folderId, filepath, or fileId.'
@@ -43,10 +45,10 @@ const resolveFileBackendMounts: ResolveFileBackendMountsEndpoint = async instDat
 
   if (data.folderId || data.folderpath) {
     appAssert(fileOrFolder, kReuseableErrors.folder.notFound());
-    checkFolderAuthorization(agent, fileOrFolder, 'readFolder', workspace);
+    checkFolderAuthorization(agent, fileOrFolder, kPermissionsMap.readFolder, workspace);
   } else if (data.fileId || data.filepath) {
     appAssert(fileOrFolder, kReuseableErrors.file.notFound());
-    checkFileAuthorization(agent, fileOrFolder, 'readFile');
+    checkFileAuthorization(agent, fileOrFolder, kPermissionsMap.readFile);
   }
 
   appAssert(fileOrFolder);

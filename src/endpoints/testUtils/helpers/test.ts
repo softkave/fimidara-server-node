@@ -48,15 +48,33 @@ export function startTesting() {
   });
 }
 
-export function softkaveTest(name: string, fn: AnyFn, timeout?: number) {
-  test(
-    name,
-    async () => {
-      await kUtilsInjectables.asyncLocalStorage().run(fn);
-    },
-    timeout
-  );
+type TestFn = (name: string, fn: AnyFn, timeout?: number) => void;
+
+export interface SoftkaveTest {
+  run: TestFn;
+  only: TestFn;
 }
+
+export const softkaveTest: SoftkaveTest = {
+  run: (name: string, fn: AnyFn, timeout?: number) => {
+    test(
+      name,
+      async () => {
+        await kUtilsInjectables.asyncLocalStorage().run(fn);
+      },
+      timeout
+    );
+  },
+  only: (name: string, fn: AnyFn, timeout?: number) => {
+    test.only(
+      name,
+      async () => {
+        await kUtilsInjectables.asyncLocalStorage().run(fn);
+      },
+      timeout
+    );
+  },
+};
 
 export interface PerformPaginationTestParams<
   T extends Endpoint<AnyObject, PaginatedResult>,
@@ -98,11 +116,12 @@ export async function performPaginationTest<T extends Endpoint<any, PaginatedRes
   }
 }
 
-export function expectFields<T extends AnyObject>(mounts: T[], fields: Partial<T>) {
-  mounts.forEach(mount => {
+export function expectFields<T extends AnyObject>(resources: T[], fields: Partial<T>) {
+  resources.forEach(resource => {
     for (const key in fields) {
-      const value = fields[key as keyof T];
-      expect(mount[key as keyof T]).toBe(value);
+      const expectedValue = fields[key as keyof T];
+      const receivedValue = resource[key as keyof T];
+      expect({[key]: expectedValue}).toEqual({[key]: receivedValue});
     }
   });
 }
@@ -116,15 +135,13 @@ export async function matchExpects<TContexts extends unknown[]>(
   expects: Array<MatchExpect<TContexts>>,
   ...args: TContexts
 ) {
-  await Promise.all(
-    expects.map(async ({matcher, expect}) => {
-      const matches = matcher(...args);
+  for (const {matcher, expect} of expects) {
+    const matches = await matcher(...args);
 
-      if (matches) {
-        expect(...args);
-      }
-    })
-  );
+    if (matches) {
+      await expect(...args);
+    }
+  }
 }
 
 export async function testCombinations<TCombination extends AnyObject>(
@@ -133,13 +150,5 @@ export async function testCombinations<TCombination extends AnyObject>(
 ) {
   for (const combination of combinations) {
     await fn(combination);
-    // try {
-    // } catch (error) {
-    //   const message =
-    //     `with updates ${Object.keys(combination).join(',')}\n` +
-    //     (error as Error)?.message;
-    //   // (error as Error).message = message;
-    //   throw new Error(message);
-    // }
   }
 }

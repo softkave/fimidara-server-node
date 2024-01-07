@@ -143,13 +143,12 @@ import {SemanticWorkspaceProviderType} from '../semantic/workspace/types';
 import {kDataModels, kUtilsInjectables} from './injectables';
 import {kInjectionKeys} from './keys';
 
-type RegisterItem<T> = T | AnyFn<[], T>;
-
-function registerToken(token: string, item: RegisterItem<unknown>) {
-  if (isFunction(item)) {
-    container.register(token, {useFactory: item});
+function registerToken(token: string, item: unknown, use: 'value' | 'factory' = 'value') {
+  if (use === 'factory') {
+    assert(isFunction(item));
+    container.register(token, {useFactory: item as AnyFn});
   } else {
-    if (isFunction((item as DisposableResource).dispose)) {
+    if (isFunction((item as DisposableResource | undefined)?.dispose)) {
       kUtilsInjectables.disposables().add(item as DisposableResource);
     }
 
@@ -162,7 +161,7 @@ export const kRegisterSemanticModels = {
     registerToken(kInjectionKeys.semantic.user, item),
   file: (item: SemanticFileProvider) => registerToken(kInjectionKeys.semantic.file, item),
   agentToken: (item: SemanticAgentTokenProvider) =>
-    registerToken(kInjectionKeys.semantic.file, item),
+    registerToken(kInjectionKeys.semantic.agentToken, item),
   folder: (item: SemanticFolderProvider) =>
     registerToken(kInjectionKeys.semantic.folder, item),
   workspace: (item: SemanticWorkspaceProviderType) =>
@@ -199,7 +198,7 @@ export const kRegisterDataModels = {
   user: (item: UserDataProvider) => registerToken(kInjectionKeys.data.user, item),
   file: (item: FileDataProvider) => registerToken(kInjectionKeys.data.file, item),
   agentToken: (item: AgentTokenDataProvider) =>
-    registerToken(kInjectionKeys.data.file, item),
+    registerToken(kInjectionKeys.data.agentToken, item),
   folder: (item: FolderDataProvider) => registerToken(kInjectionKeys.data.folder, item),
   workspace: (item: WorkspaceDataProvider) =>
     registerToken(kInjectionKeys.data.workspace, item),

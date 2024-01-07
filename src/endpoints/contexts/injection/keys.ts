@@ -19,6 +19,7 @@ export const kInjectionKeys = {
   data: {
     user: dataKey('user'),
     file: dataKey('file'),
+    agentToken: dataKey('agentToken'),
     folder: dataKey('folder'),
     workspace: dataKey('workspace'),
     fileBackendConfig: dataKey('fileBackendConfig'),
@@ -40,6 +41,7 @@ export const kInjectionKeys = {
   semantic: {
     user: semanticKey('user'),
     file: semanticKey('file'),
+    agentToken: semanticKey('agentToken'),
     folder: semanticKey('folder'),
     workspace: semanticKey('workspace'),
     fileBackendConfig: semanticKey('fileBackendConfig'),

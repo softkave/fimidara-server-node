@@ -57,7 +57,7 @@ describe('addMount', () => {
       await insertFileBackendMountForTest(userToken, workspace, {
         backend: mount01.backend,
         folderpath: stringifyFoldernamepath(
-          {namepath: mount01.folderpath},
+          {namepath: mount01.namepath},
           workspace.rootname
         ),
         mountedFrom: mount01.mountedFrom.join(kFolderConstants.separator),

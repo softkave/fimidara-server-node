@@ -34,7 +34,7 @@ import {
 startTesting();
 
 describe('checkAuthorization', () => {
-  softkaveTest('check auth with target + entity, access & no access', async () => {
+  softkaveTest.run('check auth with target + entity, access & no access', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
@@ -85,7 +85,7 @@ describe('checkAuthorization', () => {
     }, [PermissionDeniedError.name]);
   });
 
-  softkaveTest(
+  softkaveTest.run(
     'check auth with target + inherited entity, access & no access',
     async () => {
       const {rawWorkspace} = await generateUserAndWorkspace();
@@ -173,7 +173,7 @@ describe('checkAuthorization', () => {
     }
   );
 
-  softkaveTest('check auth with parent + entity, access & no access', async () => {
+  softkaveTest.run('check auth with parent + entity, access & no access', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
@@ -238,7 +238,7 @@ describe('checkAuthorization', () => {
     }, [PermissionDeniedError.name]);
   });
 
-  softkaveTest(
+  softkaveTest.run(
     'check auth with parent + inherited entity, access & no access',
     async () => {
       const {rawWorkspace} = await generateUserAndWorkspace();
@@ -343,7 +343,7 @@ describe('checkAuthorization', () => {
     }
   );
 
-  softkaveTest('no throw', async () => {
+  softkaveTest.run('no throw', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
@@ -388,7 +388,7 @@ describe('checkAuthorization', () => {
     expect(check02.item).toBeTruthy();
   });
 
-  softkaveTest('wildcard', async () => {
+  softkaveTest.run('wildcard', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
@@ -428,7 +428,7 @@ describe('checkAuthorization', () => {
     }, [PermissionDeniedError.name]);
   });
 
-  softkaveTest('entity > inherited entity weight', async () => {
+  softkaveTest.run('entity > inherited entity weight', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
@@ -471,7 +471,7 @@ describe('checkAuthorization', () => {
     });
   });
 
-  softkaveTest('target > parent weight', async () => {
+  softkaveTest.run('target > parent weight', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
@@ -506,7 +506,7 @@ describe('checkAuthorization', () => {
     });
   });
 
-  softkaveTest('date weight', async () => {
+  softkaveTest.run('date weight', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
@@ -535,7 +535,7 @@ describe('checkAuthorization', () => {
     });
   });
 
-  softkaveTest('agent not verified', async () => {
+  softkaveTest.run('agent not verified', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId, {}, true);
@@ -566,7 +566,7 @@ describe('checkAuthorization', () => {
     }, [EmailAddressNotVerifiedError.name]);
   });
 
-  softkaveTest('resolve target children full access', async () => {
+  softkaveTest.run('resolve target children full access', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
@@ -596,7 +596,7 @@ describe('checkAuthorization', () => {
     expect(resolveResult.partialDenyItems.length).toBe(0);
   });
 
-  softkaveTest('resolve target children no access', async () => {
+  softkaveTest.run('resolve target children no access', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
@@ -639,7 +639,7 @@ describe('checkAuthorization', () => {
     expect(resolveResult02.partialAllowItems.length).toBe(0);
   });
 
-  softkaveTest('resolve target children partial access', async () => {
+  softkaveTest.run('resolve target children partial access', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
@@ -682,7 +682,7 @@ describe('checkAuthorization', () => {
     expect(resolveResult.partialAllowIds).toContain(file01.resourceId);
   });
 
-  softkaveTest(
+  softkaveTest.run(
     'resolve target children partial access with parent deny and some children access',
     async () => {
       const {rawWorkspace} = await generateUserAndWorkspace();
@@ -728,7 +728,7 @@ describe('checkAuthorization', () => {
     }
   );
 
-  softkaveTest(
+  softkaveTest.run(
     'resolve target children partial access with parent allow and some children deny',
     async () => {
       const {rawWorkspace} = await generateUserAndWorkspace();
@@ -773,7 +773,7 @@ describe('checkAuthorization', () => {
     }
   );
 
-  softkaveTest('returns correct access permission', async () => {
+  softkaveTest.run('returns correct access permission', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);

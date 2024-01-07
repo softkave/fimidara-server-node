@@ -69,7 +69,7 @@ export async function generateTestFields<T extends AnyObject>(
   const acc: AnyObject = {};
   await Promise.all(
     Object.entries(def).map(async ([key, genFn]) => {
-      acc[key] = genFn(key, ...otherArgs);
+      acc[key] = await genFn(key, ...otherArgs);
       return acc;
     })
   );

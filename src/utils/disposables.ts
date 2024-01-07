@@ -19,6 +19,10 @@ export class DisposablesStore {
     toArray(disposable).forEach(next => this.disposablesMap.set(next, next));
   };
 
+  getMap = (): ReadonlyDeep<Map<DisposableResource, DisposableResource>> => {
+    return this.disposablesMap;
+  };
+
   getList = (): ReadonlyDeep<DisposableResource[]> => {
     return Array.from(this.disposablesMap.values());
   };

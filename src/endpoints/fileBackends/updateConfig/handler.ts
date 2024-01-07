@@ -1,5 +1,6 @@
 import {pick} from 'lodash';
 import {FileBackendConfig} from '../../../definitions/fileBackend';
+import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
@@ -23,7 +24,10 @@ const updateFileBackendConfig: UpdateFileBackendConfigEndpoint = async instData 
     agent,
     workspace,
     workspaceId: workspace.resourceId,
-    target: {action: 'updateFileBackendConfig', targetId: workspace.resourceId},
+    target: {
+      action: kPermissionsMap.updateFileBackendConfig,
+      targetId: workspace.resourceId,
+    },
   });
 
   const updatedConfig = await kSemanticModels.utils().withTxn(async opts => {
@@ -52,12 +56,11 @@ const updateFileBackendConfig: UpdateFileBackendConfigEndpoint = async instData 
 
     if (data.config.credentials) {
       const unencryptedCredentials = JSON.stringify(data.config.credentials);
-      const {secretId: secretId} = await secretsManager.updateSecret({
+      const {secretId} = await secretsManager.updateSecret({
         name: config.resourceId,
         text: unencryptedCredentials,
         secretId: config.secretId,
       });
-
       configUpdate.secretId = secretId;
     }
 

@@ -126,18 +126,18 @@ export const kAppMessages = {
     configNameExists(name: string) {
       return name ? `Config with name ${name} exists.` : 'Config name exists.';
     },
-    fimidaraDoesNotSupportConfig: 'Sorry fimidara does not support this config.',
+    fimidaraDoesNotSupportConfig: 'fimidara does not support this config.',
   },
   mount: {
     mountExists: 'Mount exists.',
     s3MountSourceMissingBucket: 'S3 mount source missing bucket.',
-    cannotMountFimidaraExplicitly: 'Sorry cannot mount fimidara explicitly.',
-    cannotDeleteFimidaraMount: 'Sorry cannot delete fimidara mount.',
-    cannotUpdateFimidaraMount: 'Sorry cannot update fimidara mount.',
+    cannotMountFimidaraExplicitly: 'Cannot mount fimidara explicitly.',
+    cannotDeleteFimidaraMount: 'Cannot delete fimidara mount.',
+    cannotUpdateFimidaraMount: 'Cannot update fimidara mount.',
     notFound(id?: string) {
-      return id ? `Config with ID ${id} not found.` : 'Config not found.';
+      return id ? `Mount with ID ${id} not found.` : 'Mount not found.';
     },
-    mountNameExists(name: string) {
+    mountNameExists(name?: string) {
       return name ? `Mount with name ${name} exists.` : 'Mount name exists.';
     },
     configMountBackendMismatch: (configBackend: string, mountBackend: string) =>

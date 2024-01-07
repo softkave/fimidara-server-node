@@ -92,7 +92,7 @@ export function generateFileBackendMountForTest(seed: Partial<FileBackendMount> 
     resourceId: getNewIdForResource(kAppResourceType.FileBackendMount),
     workspaceId: getNewIdForResource(kAppResourceType.Workspace),
     configId: getNewIdForResource(kAppResourceType.FileBackendConfig),
-    folderpath: faker.system.directoryPath().split('/'),
+    namepath: faker.system.directoryPath().split('/'),
     index: faker.number.int(),
     mountedFrom: faker.system.directoryPath().split('/'),
     backend: faker.helpers.arrayElement(Object.values(kFileBackendType)),
@@ -158,7 +158,7 @@ export function generatePersistedFolderDescriptionForTest(
   return {
     folderpath: generateTestFolderpathString(),
     mountId: getNewIdForResource(kAppResourceType.FileBackendMount),
-    type: 'folder',
+    type: kAppResourceType.Folder,
     ...seed,
   };
 }
@@ -169,7 +169,11 @@ export function generatePersistedFileDescriptionForTest(
   return {
     filepath: generateTestFilepathString(),
     mountId: getNewIdForResource(kAppResourceType.FileBackendMount),
-    type: 'file',
+    type: kAppResourceType.File,
+    lastUpdatedAt: getTimestamp(),
+    mimetype: faker.system.mimeType(),
+    encoding: 'utf-8',
+    size: faker.number.int(),
     ...seed,
   };
 }

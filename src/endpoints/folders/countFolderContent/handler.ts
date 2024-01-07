@@ -8,7 +8,7 @@ import {Workspace} from '../../../definitions/workspace';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {areMountsCompletelyIngestedForFolder} from '../../fileBackends/mountUtils';
-import {EndpointResultNoteCodeMap, kEndpointResultNotesToMessageMap} from '../../types';
+import {kEndpointResultNoteCodeMap, kEndpointResultNotesToMessageMap} from '../../types';
 import {
   getWorkspaceAndParentFolder,
   listFolderContentQuery,
@@ -47,7 +47,7 @@ const countFolderContent: CountFolderContentEndpoint = async instData => {
       ? undefined
       : [
           {
-            code: EndpointResultNoteCodeMap.mountsNotCompletelyIngested,
+            code: kEndpointResultNoteCodeMap.mountsNotCompletelyIngested,
             message: kEndpointResultNotesToMessageMap.mountsNotCompletelyIngested(),
           },
         ],

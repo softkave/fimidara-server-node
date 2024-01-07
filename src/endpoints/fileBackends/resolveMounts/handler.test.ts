@@ -6,16 +6,12 @@ import {kReuseableErrors} from '../../../utils/reusableErrors';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {NotFoundError} from '../../errors';
+import {stringifyFilenamepath} from '../../files/utils';
 import {kFolderConstants} from '../../folders/constants';
-import {
-  generateAndInsertTestFiles,
-  generateTestFilepathString,
-} from '../../testUtils/generate/file';
+import {stringifyFoldernamepath} from '../../folders/utils';
+import {generateAndInsertTestFiles} from '../../testUtils/generate/file';
 import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend';
-import {
-  generateAndInsertTestFolders,
-  generateTestFolderpathString,
-} from '../../testUtils/generate/folder';
+import {generateAndInsertTestFolders} from '../../testUtils/generate/folder';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,
@@ -24,7 +20,11 @@ import {
 } from '../../testUtils/generate/utils';
 import {expectListSubsetMatch} from '../../testUtils/helpers/assertion';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests, matchExpects} from '../../testUtils/helpers/test';
+import {
+  completeTests,
+  matchExpects,
+  testCombinations,
+} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   initTests,
@@ -46,37 +46,47 @@ afterAll(async () => {
   await completeTests();
 });
 
-describe('resolveMounts', async () => {
-  const {userToken} = await insertUserForTest();
-  const {workspace} = await insertWorkspaceForTest(userToken);
+describe('resolveMounts', () => {
+  test('combinations', async () => {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
 
-  const queryDefs: GenerateTestFieldsDef<ResolveFileBackendMountsEndpointParams> = {
-    folderpath: () => generateTestFolderpathString(),
-    filepath: () => generateTestFilepathString(),
-    fileId: async () => {
-      const [file] = await generateAndInsertTestFiles(1, {
-        workspaceId: workspace.resourceId,
-        parentId: null,
-      });
+    const queryDefs: GenerateTestFieldsDef<ResolveFileBackendMountsEndpointParams> = {
+      folderpath: async () => {
+        const [folder] = await generateAndInsertTestFolders(1, {
+          workspaceId: workspace.resourceId,
+          parentId: null,
+        });
+        return stringifyFoldernamepath(folder, workspace.rootname);
+      },
+      filepath: async () => {
+        const [file] = await generateAndInsertTestFiles(1, {
+          workspaceId: workspace.resourceId,
+          parentId: null,
+        });
+        return stringifyFilenamepath(file, workspace.rootname);
+      },
+      fileId: async () => {
+        const [file] = await generateAndInsertTestFiles(1, {
+          workspaceId: workspace.resourceId,
+          parentId: null,
+        });
+        return file.resourceId;
+      },
+      folderId: async () => {
+        const [folder] = await generateAndInsertTestFolders(1, {
+          workspaceId: workspace.resourceId,
+          parentId: null,
+        });
+        return folder.resourceId;
+      },
+    };
+    const queries = await generateTestFieldsCombinations(
+      queryDefs,
+      TestFieldsPresetCombinations.oneOfEach
+    );
 
-      return file.resourceId;
-    },
-    folderId: async () => {
-      const [folder] = await generateAndInsertTestFolders(1, {
-        workspaceId: workspace.resourceId,
-        parentId: null,
-      });
-
-      return folder.resourceId;
-    },
-  };
-  const queries = await generateTestFieldsCombinations(
-    queryDefs,
-    TestFieldsPresetCombinations.oneOfEach
-  );
-
-  queries.forEach(query => {
-    test(`with queries ${Object.keys(query).join(',')}`, async () => {
+    await testCombinations(queries, async query => {
       const seed = await matchGenerators<
         Partial<FileBackendMount>,
         [ResolveFileBackendMountsEndpointParams]
@@ -87,7 +97,7 @@ describe('resolveMounts', async () => {
             generator: async params => {
               const file = await kSemanticModels.file().getOneById(params.fileId!);
               assert(file);
-              return {folderpath: file.namepath.slice(0, -1)};
+              return {namepath: file.namepath.slice(0, -1)};
             },
           },
           {
@@ -95,23 +105,21 @@ describe('resolveMounts', async () => {
             generator: async params => {
               const folder = await kSemanticModels.folder().getOneById(params.folderId!);
               assert(folder);
-              return {folderpath: folder.namepath};
+              return {namepath: folder.namepath};
             },
           },
           {
             matcher: params => !!params.filepath,
             generator: params => {
               return {
-                folderpath: params
-                  .filepath!.split(kFolderConstants.separator)
-                  .slice(0, -1),
+                namepath: params.filepath!.split(kFolderConstants.separator).slice(0, -1),
               };
             },
           },
           {
             matcher: params => !!params.folderpath,
             generator: params => {
-              return {folderpath: params.folderpath!.split(kFolderConstants.separator)};
+              return {namepath: params.folderpath!.split(kFolderConstants.separator)};
             },
           },
         ],
@@ -121,7 +129,7 @@ describe('resolveMounts', async () => {
         workspaceId: workspace.resourceId,
         ...seed,
       });
-      assert(seed?.folderpath);
+      assert(seed?.namepath);
 
       const instData =
         RequestData.fromExpressRequest<ResolveFileBackendMountsEndpointParams>(
@@ -147,7 +155,7 @@ describe('resolveMounts', async () => {
             matcher: input => !!input.folderpath,
             expect: (input, result) => {
               result.mounts.forEach(mount => {
-                expectListSubsetMatch(mount.folderpath, seed.folderpath ?? []);
+                expectListSubsetMatch(mount.namepath, seed.namepath ?? []);
               });
             },
           },
@@ -157,7 +165,7 @@ describe('resolveMounts', async () => {
               const folder = await kSemanticModels.folder().getOneById(input.folderId!);
 
               result.mounts.forEach(mount => {
-                expectListSubsetMatch(mount.folderpath, folder?.namepath ?? []);
+                expectListSubsetMatch(mount.namepath, folder?.namepath ?? []);
               });
             },
           },
@@ -165,7 +173,7 @@ describe('resolveMounts', async () => {
             matcher: input => !!input.filepath,
             expect: (input, result) => {
               result.mounts.forEach(mount => {
-                expectListSubsetMatch(mount.folderpath, seed.folderpath ?? []);
+                expectListSubsetMatch(mount.namepath, seed.namepath ?? []);
               });
             },
           },
@@ -175,10 +183,7 @@ describe('resolveMounts', async () => {
               const file = await kSemanticModels.file().getOneById(input.fileId!);
 
               result.mounts.forEach(mount => {
-                expectListSubsetMatch(
-                  mount.folderpath,
-                  file?.namepath.slice(0, -1) ?? []
-                );
+                expectListSubsetMatch(mount.namepath, file?.namepath.slice(0, -1) ?? []);
               });
             },
           },
@@ -190,6 +195,9 @@ describe('resolveMounts', async () => {
   });
 
   test('fails if file with fileId does not exist', async () => {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+
     const instData =
       RequestData.fromExpressRequest<ResolveFileBackendMountsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
@@ -211,6 +219,8 @@ describe('resolveMounts', async () => {
   });
 
   test('fails if folder with folderId does not exist', async () => {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
     const instData =
       RequestData.fromExpressRequest<ResolveFileBackendMountsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
