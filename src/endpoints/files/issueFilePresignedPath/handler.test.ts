@@ -7,7 +7,8 @@ import {NotFoundError} from '../../errors';
 import {addRootnameToPath} from '../../folders/utils';
 import {generateTestFileName} from '../../testUtils/generate/file';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/test';
+import {expectFileBodyEqualById} from '../../testUtils/helpers/file';
+import {completeTests, softkaveTest} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   initTests,
@@ -25,7 +26,6 @@ import {ReadFileEndpointParams} from '../readFile/types';
 import {stringifyFilenamepath} from '../utils';
 import issueFilePresignedPath from './handler';
 import {IssueFilePresignedPathEndpointParams} from './types';
-import {expectFileBodyEqualById} from '../../testUtils/helpers/file';
 
 beforeAll(async () => {
   await initTests();
@@ -36,7 +36,7 @@ afterAll(async () => {
 });
 
 describe('issueFilePresignedPath', () => {
-  test('file presigned path issued', async () => {
+  softkaveTest.run('file presigned path issued', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
@@ -52,7 +52,7 @@ describe('issueFilePresignedPath', () => {
     await expectFileBodyEqualById(file.resourceId, readFileResult.stream);
   });
 
-  test('issued with fileId', async () => {
+  softkaveTest.run('issued with fileId', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
@@ -68,7 +68,7 @@ describe('issueFilePresignedPath', () => {
     await expectFileBodyEqualById(file.resourceId, readFileResult.stream);
   });
 
-  test('file presigned path issued with duration', async () => {
+  softkaveTest.run('file presigned path issued with duration', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
@@ -88,7 +88,7 @@ describe('issueFilePresignedPath', () => {
     await expectReadFileFails(result.path, PermissionDeniedError.name);
   });
 
-  test('file presigned path issued with expiration timestamp', async () => {
+  softkaveTest.run('file presigned path issued with expiration timestamp', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
@@ -109,7 +109,7 @@ describe('issueFilePresignedPath', () => {
     await expectReadFileFails(result.path, PermissionDeniedError.name);
   });
 
-  test('file presigned path issued with usage count', async () => {
+  softkaveTest.run('file presigned path issued with usage count', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
@@ -133,7 +133,7 @@ describe('issueFilePresignedPath', () => {
     await expectReadFileFails(result.path, PermissionDeniedError.name);
   });
 
-  test('fails if agent does not have permission', async () => {
+  softkaveTest.run('fails if agent does not have permission', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
@@ -153,28 +153,31 @@ describe('issueFilePresignedPath', () => {
     }, [PermissionDeniedError.name]);
   });
 
-  test('fails if agent does not have permission and file does not exist', async () => {
-    const {userToken} = await insertUserForTest();
-    const {workspace} = await insertWorkspaceForTest(userToken);
-    const {folder} = await insertFolderForTest(userToken, workspace);
-    const {token} = await insertAgentTokenForTest(userToken, workspace.resourceId);
+  softkaveTest.run(
+    'fails if agent does not have permission and file does not exist',
+    async () => {
+      const {userToken} = await insertUserForTest();
+      const {workspace} = await insertWorkspaceForTest(userToken);
+      const {folder} = await insertFolderForTest(userToken, workspace);
+      const {token} = await insertAgentTokenForTest(userToken, workspace.resourceId);
 
-    const filepath = addRootnameToPath(
-      folder.namepath.join('/') + `/${faker.lorem.word()}`,
-      workspace.rootname
-    );
+      const filepath = addRootnameToPath(
+        folder.namepath.join('/') + `/${faker.lorem.word()}`,
+        workspace.rootname
+      );
 
-    await expectErrorThrown(async () => {
-      const instData =
-        RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
-          mockExpressRequestWithAgentToken(token),
-          {filepath}
-        );
-      await issueFilePresignedPath(instData);
-    }, [PermissionDeniedError.name]);
-  });
+      await expectErrorThrown(async () => {
+        const instData =
+          RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
+            mockExpressRequestWithAgentToken(token),
+            {filepath}
+          );
+        await issueFilePresignedPath(instData);
+      }, [PermissionDeniedError.name]);
+    }
+  );
 
-  test('passes if file does not exist yet', async () => {
+  softkaveTest.run('passes if file does not exist yet', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {folder} = await insertFolderForTest(userToken, workspace);
@@ -198,7 +201,7 @@ describe('issueFilePresignedPath', () => {
     await tryReadFile(result.path);
   });
 
-  test('fails if file does not exist and filepath not provided', async () => {
+  softkaveTest.run('fails if file does not exist and filepath not provided', async () => {
     const {userToken} = await insertUserForTest();
 
     await expectErrorThrown(async () => {

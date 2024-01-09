@@ -11,7 +11,7 @@ const filePresignedPathSchema = ensureMongoTypeFields<FilePresignedPath>({
   maxUsageCount: {type: Number},
   expiresAt: {type: Date},
   spentUsageCount: {type: Number},
-  issueAgentTokenId: {type: String, index: true},
+  issuerAgentTokenId: {type: String, index: true},
 });
 
 export type FilePresignedPathDocument = Document<FilePresignedPath>;

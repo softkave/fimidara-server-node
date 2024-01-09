@@ -1,13 +1,21 @@
 import {Folder} from '../../definitions/folder';
 import {FolderQuery} from '../contexts/data/types';
 import {getStringListQuery} from '../contexts/semantic/utils';
+import EndpointReusableQueries from '../queries';
+
+function getByNamepathOnly(folder: Pick<Folder, 'namepath'>): FolderQuery {
+  const {namepath} = folder;
+  return {
+    // MongoDB array queries with `{$all: [], $size: 0}` do not work, so using
+    // `{$eq: []}` instead, since that works
+    namepath:
+      namepath.length === 0 ? {$eq: []} : {$all: namepath, $size: namepath.length},
+  };
+}
 
 function getByNamepath(folder: Pick<Folder, 'workspaceId' | 'namepath'>): FolderQuery {
-  const {namepath, workspaceId} = folder;
-  return {
-    workspaceId,
-    namepath: {$all: namepath, $size: namepath.length},
-  };
+  const {workspaceId} = folder;
+  return EndpointReusableQueries.merge({workspaceId}, getByNamepathOnly(folder));
 }
 
 function getByAncestor(
@@ -50,6 +58,7 @@ function getByParentId(
 
 export abstract class FolderQueries {
   static getByNamepath = getByNamepath;
+  static getByNamepathOnly = getByNamepathOnly;
   static getByAncestor = getByAncestor;
   static getByParentId = getByParentId;
   static getByParentPath = getByParentPath;

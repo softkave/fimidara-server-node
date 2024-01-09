@@ -14,7 +14,7 @@ import {
   generateTestFilepathString,
 } from '../../testUtils/generate/file';
 import {expectFileBodyEqual, expectFileBodyEqualById} from '../../testUtils/helpers/file';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests, softkaveTest} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   initTests,
@@ -44,7 +44,7 @@ afterAll(async () => {
 });
 
 describe('readFile', () => {
-  test('file returned', async () => {
+  softkaveTest.run('file returned', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
@@ -59,7 +59,7 @@ describe('readFile', () => {
     await expectFileBodyEqualById(file.resourceId, result.stream);
   });
 
-  test('file resized', async () => {
+  softkaveTest.run('file resized', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const startWidth = 500;
@@ -91,7 +91,7 @@ describe('readFile', () => {
     expect(fileMetadata.height).toEqual(expectedHeight);
   });
 
-  test('can read file from public folder', async () => {
+  softkaveTest.run('can read file from public folder', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
 
@@ -119,7 +119,7 @@ describe('readFile', () => {
     assertEndpointResultOk(result);
   });
 
-  test('can read public file', async () => {
+  softkaveTest.run('can read public file', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
@@ -137,7 +137,7 @@ describe('readFile', () => {
     assertEndpointResultOk(result);
   });
 
-  test('cannot read private file', async () => {
+  softkaveTest.run('cannot read private file', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
@@ -153,82 +153,88 @@ describe('readFile', () => {
     }
   });
 
-  test('reads file from other entries if primary entry is not present', async () => {
-    const {userToken, rawUser} = await insertUserForTest();
-    const {workspace} = await insertWorkspaceForTest(userToken);
-    const {file} = await insertFileForTest(userToken, workspace, {
-      filepath: generateTestFilepathString(),
-    });
-    const {mount} = await insertFileBackendMountForTest(userToken, workspace, {
-      folderpath: stringifyFoldernamepath(
-        {namepath: file.namepath.slice(0, -1)},
-        workspace.rootname
-      ),
-    });
-    await insertResolvedMountEntries({
-      agent: makeUserSessionAgent(rawUser, userToken),
-      resource: file,
-      mountFiles: [
-        {
-          mountId: mount.resourceId,
-          type: kAppResourceType.File,
-          encoding: file.encoding,
-          mimetype: file.mimetype,
-          size: file.size,
-          lastUpdatedAt: file.lastUpdatedAt,
-        },
-      ],
-    });
+  softkaveTest.run(
+    'reads file from other entries if primary entry is not present',
+    async () => {
+      const {userToken, rawUser} = await insertUserForTest();
+      const {workspace} = await insertWorkspaceForTest(userToken);
+      const {file} = await insertFileForTest(userToken, workspace, {
+        filepath: generateTestFilepathString({rootname: workspace.rootname}),
+      });
+      const {mount} = await insertFileBackendMountForTest(userToken, workspace, {
+        folderpath: stringifyFoldernamepath(
+          {namepath: file.namepath.slice(0, -1)},
+          workspace.rootname
+        ),
+      });
+      await insertResolvedMountEntries({
+        agent: makeUserSessionAgent(rawUser, userToken),
+        resource: file,
+        mountFiles: [
+          {
+            mountId: mount.resourceId,
+            type: kAppResourceType.File,
+            encoding: file.encoding,
+            mimetype: file.mimetype,
+            size: file.size,
+            lastUpdatedAt: file.lastUpdatedAt,
+          },
+        ],
+      });
 
-    const testBuffer = Buffer.from('Reading from secondary mount source.');
-    const testStream = Readable.from([testBuffer]);
-    kRegisterUtilsInjectables.fileProviderResolver(forMount => {
-      if (mount.resourceId === forMount.resourceId) {
-        class SecondaryFileProvider
-          extends NoopFilePersistenceProviderContext
-          implements FilePersistenceProvider
-        {
-          readFile = async (): Promise<PersistedFile> => ({
-            body: testStream,
-            size: testBuffer.byteLength,
-          });
+      const testBuffer = Buffer.from('Reading from secondary mount source.');
+      const testStream = Readable.from([testBuffer]);
+      kRegisterUtilsInjectables.fileProviderResolver(forMount => {
+        if (mount.resourceId === forMount.resourceId) {
+          class SecondaryFileProvider
+            extends NoopFilePersistenceProviderContext
+            implements FilePersistenceProvider
+          {
+            readFile = async (): Promise<PersistedFile> => ({
+              body: testStream,
+              size: testBuffer.byteLength,
+            });
+          }
+
+          return new SecondaryFileProvider();
+        } else {
+          return new NoopFilePersistenceProviderContext();
         }
+      });
 
-        return new SecondaryFileProvider();
-      } else {
+      const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {filepath: stringifyFilenamepath(file, workspace.rootname)}
+      );
+      const result = await readFile(instData);
+      assertEndpointResultOk(result);
+
+      await expectFileBodyEqual(testBuffer, result.stream);
+    }
+  );
+
+  softkaveTest.run(
+    'returns an empty stream if file exists and backends do not have file',
+    async () => {
+      const {userToken} = await insertUserForTest();
+      const {workspace} = await insertWorkspaceForTest(userToken);
+      const {file} = await insertFileForTest(userToken, workspace, {
+        filepath: generateTestFilepathString({rootname: workspace.rootname}),
+      });
+
+      kRegisterUtilsInjectables.fileProviderResolver(() => {
         return new NoopFilePersistenceProviderContext();
-      }
-    });
+      });
 
-    const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
-      mockExpressRequestForPublicAgent(),
-      {filepath: stringifyFilenamepath(file, workspace.rootname)}
-    );
-    const result = await readFile(instData);
-    assertEndpointResultOk(result);
+      const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {filepath: stringifyFilenamepath(file, workspace.rootname)}
+      );
+      const result = await readFile(instData);
+      assertEndpointResultOk(result);
 
-    await expectFileBodyEqual(testBuffer, result.stream);
-  });
-
-  test('returns an empty stream if file exists and backends do not have file', async () => {
-    const {userToken} = await insertUserForTest();
-    const {workspace} = await insertWorkspaceForTest(userToken);
-    const {file} = await insertFileForTest(userToken, workspace, {
-      filepath: generateTestFilepathString(),
-    });
-
-    kRegisterUtilsInjectables.fileProviderResolver(() => {
-      return new NoopFilePersistenceProviderContext();
-    });
-
-    const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
-      mockExpressRequestForPublicAgent(),
-      {filepath: stringifyFilenamepath(file, workspace.rootname)}
-    );
-    const result = await readFile(instData);
-    assertEndpointResultOk(result);
-
-    const testBuffer = Buffer.from([]);
-    await expectFileBodyEqual(testBuffer, result.stream);
-  });
+      const testBuffer = Buffer.from([]);
+      await expectFileBodyEqual(testBuffer, result.stream);
+    }
+  );
 });

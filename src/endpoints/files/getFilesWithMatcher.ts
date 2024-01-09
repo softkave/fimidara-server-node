@@ -109,7 +109,7 @@ export async function getFileByPresignedPath(props: {
   // if the issuing agent token exists and still has permission.
   const agentToken = await kSemanticModels
     .agentToken()
-    .assertGetOneByQuery({resourceId: presignedPath.issueAgentTokenId}, opts);
+    .assertGetOneByQuery({resourceId: presignedPath.issuerAgentTokenId}, opts);
 
   await checkFileAuthorization(
     agentToken

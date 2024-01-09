@@ -38,7 +38,7 @@ const getComplexArtifacts: DeleteResourceGetComplexArtifactsFns = {
     if (token) {
       return await kSemanticModels
         .filePresignedPath()
-        .getManyByQuery({issueAgentTokenId: token.resourceId}, opts);
+        .getManyByQuery({issuerAgentTokenId: token.resourceId}, opts);
     }
 
     return [];
@@ -72,7 +72,7 @@ const deleteSimpleArtifacts: DeleteResourceDeleteSimpleArtifactsFns = {
       await helpers.withTxn(opts =>
         kSemanticModels
           .filePresignedPath()
-          .getManyByQuery({issueAgentTokenId: token.resourceId}, opts)
+          .getManyByQuery({issuerAgentTokenId: token.resourceId}, opts)
       );
     }
   },

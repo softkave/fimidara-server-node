@@ -48,7 +48,7 @@ const filePresignedPathFields = getFields<PublicFilePresignedPath>({
   ...workspaceResourceFields,
   namepath: true,
   fileId: true,
-  issueAgentTokenId: true,
+  issuerAgentTokenId: true,
   maxUsageCount: true,
   extension: true,
   spentUsageCount: true,

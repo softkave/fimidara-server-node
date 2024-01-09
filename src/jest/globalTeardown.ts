@@ -24,6 +24,9 @@ async function jestGlobalTeardown() {
   const dropMongoPromise = dropMongoCollections(config);
   await Promise.all([dropMongoPromise, testLogger.close()]);
 
+  // {@link https://nodejs.org/docs/latest/api/process.html#processgetactiveresourcesinfo}
+  // console.log('Active resources', getActiveResourcesInfo());
+
   // TODO: there are open handles keeping the test from closing, find and fix
   // them, then remove this
   // eslint-disable-next-line no-process-exit

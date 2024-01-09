@@ -6,7 +6,7 @@ import {waitTimeout} from '../../../utils/fns';
 import RequestData from '../../RequestData';
 import {generateAndInsertTestFiles} from '../../testUtils/generate/file';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests, softkaveTest} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   initTests,
@@ -36,7 +36,7 @@ afterAll(async () => {
 });
 
 describe('getPresignedPathsForFiles', () => {
-  test('with file matcher', async () => {
+  softkaveTest.run('with file matcher', async () => {
     const {userToken} = await insertUserForTest();
     const [{workspace: w1}, {workspace: w2}] = await Promise.all([
       insertWorkspaceForTest(userToken),
@@ -72,7 +72,7 @@ describe('getPresignedPathsForFiles', () => {
     expect(returnedPaths).toEqual(expect.arrayContaining(paths));
   });
 
-  test('with file matcher and workspaceId', async () => {
+  softkaveTest.run('with file matcher and workspaceId', async () => {
     const {userToken} = await insertUserForTest();
     const [{workspace: w1}, {workspace: w2}] = await Promise.all([
       insertWorkspaceForTest(userToken),
@@ -115,7 +115,7 @@ describe('getPresignedPathsForFiles', () => {
     expect(returnedPaths).toEqual(expect.not.arrayContaining(paths02));
   });
 
-  test('with workspaceId and agent token', async () => {
+  softkaveTest.run('with workspaceId and agent token', async () => {
     const {userToken} = await insertUserForTest();
     const [{workspace: w1}, {workspace: w2}] = await Promise.all([
       insertWorkspaceForTest(userToken),
@@ -155,7 +155,7 @@ describe('getPresignedPathsForFiles', () => {
     expect(returnedPaths).toEqual(expect.not.arrayContaining(paths02));
   });
 
-  test('with agent token', async () => {
+  softkaveTest.run('with user token', async () => {
     const {userToken} = await insertUserForTest();
     const [{workspace: w1}, {workspace: w2}] = await Promise.all([
       insertWorkspaceForTest(userToken),
@@ -171,10 +171,12 @@ describe('getPresignedPathsForFiles', () => {
         parentId: null,
       }),
     ]);
-    const paths = await issuePaths(
-      userToken,
-      files01.concat(files02).map(f => ({fileId: f.resourceId}))
-    );
+    const [expectedPaths] = await Promise.all([
+      issuePaths(
+        userToken,
+        files01.concat(files02).map(f => ({fileId: f.resourceId}))
+      ),
+    ]);
 
     const instData =
       RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
@@ -185,10 +187,10 @@ describe('getPresignedPathsForFiles', () => {
     assertEndpointResultOk(result);
 
     const returnedPaths = result.paths.map(p => p.path);
-    expect(returnedPaths).toEqual(expect.arrayContaining(paths));
+    expect(returnedPaths).toEqual(expect.arrayContaining(expectedPaths));
   });
 
-  test('filters out expired and spent paths', async () => {
+  softkaveTest.run('filters out expired and spent paths', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace: w1} = await insertWorkspaceForTest(userToken);
     const [files01, files02, files03] = await Promise.all([

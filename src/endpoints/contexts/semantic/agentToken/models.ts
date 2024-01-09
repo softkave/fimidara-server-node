@@ -1,6 +1,6 @@
 import {AgentToken} from '../../../../definitions/agentToken';
 import {TokenAccessScope} from '../../../../definitions/system';
-import {toCompactArray} from '../../../../utils/fns';
+import {AgentTokenQueries} from '../../../agentTokens/queries';
 import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {SemanticProviderMutationRunOptions, SemanticProviderRunOptions} from '../types';
 import {SemanticAgentTokenProvider} from './types';
@@ -15,11 +15,7 @@ export class DataSemanticAgentToken
     opts: SemanticProviderMutationRunOptions
   ): Promise<void> {
     await this.data.deleteManyByQuery(
-      {
-        forEntityId: agentId,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        scope: tokenScope ? {$all: toCompactArray(tokenScope) as any} : undefined,
-      },
+      AgentTokenQueries.getByEntityAndScope({forEntityId: agentId, scope: tokenScope}),
       opts
     );
   }
@@ -30,11 +26,7 @@ export class DataSemanticAgentToken
     opts?: SemanticProviderRunOptions | undefined
   ): Promise<AgentToken | null> {
     return await this.data.getOneByQuery(
-      {
-        forEntityId: agentId,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        scope: tokenScope ? {$all: toCompactArray(tokenScope) as any} : undefined,
-      },
+      AgentTokenQueries.getByEntityAndScope({forEntityId: agentId, scope: tokenScope}),
       opts
     );
   }

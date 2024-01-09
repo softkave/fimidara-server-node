@@ -3,6 +3,8 @@ import {Workspace} from '../../../definitions/workspace';
 import {resolveTargetChildrenAccessCheckWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {FileBackendMountQuery} from '../../contexts/data/types';
 import {kFolderConstants} from '../../folders/constants';
+import {FolderQueries} from '../../folders/queries';
+import EndpointReusableQueries from '../../queries';
 import {getWorkspaceResourceListQuery01} from '../../utils';
 import {GetFileBackendMountsEndpointParamsBase} from './types';
 
@@ -20,7 +22,7 @@ export async function getFileBackendMountsQuery(
     workspaceId: workspace.resourceId,
     target: {action: 'readFileBackendMount', targetId: workspace.resourceId},
   });
-  const query: FileBackendMountQuery = getWorkspaceResourceListQuery01(workspace, report);
+  let query: FileBackendMountQuery = getWorkspaceResourceListQuery01(workspace, report);
 
   if (other.backend) {
     query.backend = other.backend;
@@ -28,7 +30,10 @@ export async function getFileBackendMountsQuery(
 
   if (other.folderpath) {
     const folderpathSplit = other.folderpath.split(kFolderConstants.separator);
-    query.namepath = {$all: folderpathSplit, $size: folderpathSplit.length};
+    query = EndpointReusableQueries.merge(
+      query,
+      FolderQueries.getByNamepathOnly({namepath: folderpathSplit})
+    );
   }
 
   if (other.configId) {

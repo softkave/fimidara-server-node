@@ -17,6 +17,7 @@ import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types'
 import {assertWorkspace} from '../../workspaces/utils';
 import {kFolderConstants} from '../constants';
 import {FolderExistsError} from '../errors';
+import {FolderQueries} from '../queries';
 import {
   createNewFolder,
   folderExtractor,
@@ -57,10 +58,11 @@ export async function createFolderListWithTransaction(
 
   const existingFolders = await folderModel.getManyByQueryList(
     namepathList.map(
-      (namepath): FolderQuery => ({
-        workspaceId: workspace.resourceId,
-        namepath: {$all: namepath, $size: namepath.length},
-      })
+      (namepath): FolderQuery =>
+        FolderQueries.getByNamepath({
+          namepath,
+          workspaceId: workspace.resourceId,
+        })
     ),
     opts
   );

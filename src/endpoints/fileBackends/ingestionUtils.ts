@@ -9,6 +9,7 @@ import {
   PersistedFolderDescription,
 } from '../contexts/file/types';
 import {kSemanticModels} from '../contexts/injection/injectables';
+import {FileQueries} from '../files/queries';
 import {
   FilepathInfo,
   createNewFile,
@@ -83,11 +84,11 @@ export async function ingestPersistedFiles(
   await kSemanticModels.utils().withTxn(async opts => {
     const existingFiles = await kSemanticModels.file().getManyByQueryList(
       mountFileList.map(({pathinfo}): FileQuery => {
-        return {
+        return FileQueries.getByNamepath({
           workspaceId: workspace.resourceId,
           extension: pathinfo.extension,
-          namepath: {$all: pathinfo.namepath, $size: pathinfo.namepath.length},
-        };
+          namepath: pathinfo.namepath,
+        });
       }),
       opts
     );

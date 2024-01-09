@@ -8,7 +8,10 @@ function getByNamepath(
   return {
     extension,
     workspaceId,
-    namepath: {$all: namepath, $size: namepath.length},
+    // MongoDB array queries with `{$all: [], $size: 0}` do not work, so using
+    // `{$eq: []}` instead, since that works
+    namepath:
+      namepath.length === 0 ? {$eq: []} : {$all: namepath, $size: namepath.length},
   };
 }
 

@@ -1,6 +1,8 @@
 import {compact, flatten, mergeWith, uniq} from 'lodash';
 import {Readable} from 'stream';
 import {Resource} from '../definitions/system';
+import {appAssert} from './assertion';
+import {kReuseableErrors} from './reusableErrors';
 import {AnyFn, AnyObject} from './types';
 
 export function cast<ToType>(resource: unknown): ToType {
@@ -195,23 +197,123 @@ export function defaultArrayTo<T>(array: T[], data: NonNullable<T | T[]>) {
   return array.length ? array : toCompactArray(data);
 }
 
-export function loop(count = 1, fn: AnyFn) {
-  while (count > 0) {
-    fn();
-    count -= 1;
+export function loop<
+  TOtherParams extends unknown[],
+  TFn extends AnyFn<[number, ...TOtherParams]>,
+>(
+  fn: TFn,
+  /** counting is `0`-index based, so last iteration would be `6` if count is
+   * `7`, while first iteration will be `0`. */
+  max: number,
+  ...otherParams: TOtherParams
+) {
+  appAssert(max >= 0);
+
+  for (let i = 0; i < max; i++) {
+    fn(i, ...otherParams);
   }
 }
 
-export function loopAndCollate<Fn extends AnyFn>(
-  count = 1,
-  fn: Fn
-): Array<ReturnType<Fn>> {
-  const result: Array<ReturnType<Fn>> = [];
-  while (count > 0) {
-    result.push(fn());
-    count -= 1;
+/**
+ * - `all` - uses `Promise.all()`
+ * - `allSettled` - uses `Promise.allSettled()`
+ * - `oneByOne` - invokes and waits for `fn` one at a time
+ */
+export type LoopAsyncSettlementType = 'all' | 'allSettled' | 'oneByOne';
+
+/** See {@link loop} */
+export async function loopAsync<
+  TOtherParams extends unknown[],
+  TFn extends AnyFn<[number, ...TOtherParams]>,
+>(
+  fn: TFn,
+  max: number,
+  settlement: LoopAsyncSettlementType,
+  ...otherParams: TOtherParams
+) {
+  appAssert(max >= 0);
+
+  if (settlement === 'oneByOne') {
+    for (let i = 0; i < max; i++) {
+      await fn(i, ...otherParams);
+    }
+  } else {
+    const promises: Array<Promise<unknown>> = Array(max);
+
+    for (let i = 0; i < max; i++) {
+      promises.push(fn(i, ...otherParams));
+    }
+
+    if (settlement === 'all') {
+      await Promise.all(promises);
+    } else if (settlement === 'allSettled') {
+      await Promise.allSettled(promises);
+    } else {
+      throw kReuseableErrors.common.invalidState(`Unknown settlement type ${settlement}`);
+    }
   }
+}
+
+/**
+ * See {@link loop}
+ * Returns a list containing results of `fn` invocations
+ */
+export function loopAndCollate<
+  TOtherParams extends unknown[],
+  TFn extends AnyFn<[number, ...TOtherParams]>,
+>(fn: TFn, max: number, ...otherParams: TOtherParams): Array<ReturnType<TFn>> {
+  appAssert(max >= 0);
+  const result: Array<ReturnType<TFn>> = Array(max);
+
+  for (let i = 0; i < max; i++) {
+    result[i] = fn(i, ...otherParams);
+  }
+
   return result;
+}
+
+/**
+ * See {@link loopAndCollate}
+ * Returns a list containing results of `fn` invocations
+ */
+export async function loopAndCollateAsync<
+  TOtherParams extends unknown[],
+  TFn extends AnyFn<[number, ...TOtherParams]>,
+  TSettlementType extends LoopAsyncSettlementType,
+  TResult = TSettlementType extends 'allSettled'
+    ? PromiseSettledResult<Awaited<ReturnType<TFn>>>[]
+    : Awaited<ReturnType<TFn>>[],
+>(
+  fn: TFn,
+  max: number,
+  settlement: TSettlementType,
+  ...otherParams: TOtherParams
+): Promise<TResult> {
+  appAssert(max >= 0);
+
+  if (settlement === 'oneByOne') {
+    const result: unknown[] = Array(max);
+
+    for (let i = 0; i < max; i++) {
+      result[i] = await fn(i, ...otherParams);
+    }
+
+    return result as TResult;
+  } else {
+    const promises: unknown[] = Array(max);
+
+    for (let i = 0; i < max; i++) {
+      promises[i] = fn(i, ...otherParams);
+    }
+
+    if (settlement === 'all') {
+      return (await Promise.all(promises)) as TResult;
+    } else if (settlement === 'allSettled') {
+      return (await Promise.allSettled(promises)) as TResult;
+    }
+  }
+
+  throw kReuseableErrors.common.invalidState(`Unknown settlement type ${settlement}`);
 }
 
 export function pick00<T>(data: T, keys: Array<keyof T>) {
@@ -340,4 +442,8 @@ export function callAfterAsync<
     const result = await fn(...args);
     return await afterFn(result, ...args);
   };
+}
+
+export function identityArgs<TArgs extends unknown[]>(...args: TArgs) {
+  return args;
 }

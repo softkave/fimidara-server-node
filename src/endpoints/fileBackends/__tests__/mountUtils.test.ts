@@ -81,7 +81,11 @@ describe('file backend mount utils', () => {
       {workspaceId: folder02.workspaceId, parentId: folder02.resourceId},
       {parentnamepath: folder02.namepath}
     );
-    const [mounts01, mounts02, mounts03] = await Promise.all([
+    const [mounts00, mounts01, mounts02, mounts03] = await Promise.all([
+      generateAndInsertFileBackendMountListForTest(/** count */ 2, {
+        namepath: [],
+        workspaceId: folder01.workspaceId,
+      }),
       generateAndInsertFileBackendMountListForTest(/** count */ 2, {
         namepath: folder01.namepath,
         workspaceId: folder01.workspaceId,
@@ -104,8 +108,11 @@ describe('file backend mount utils', () => {
     expect(extractResourceIdList(folderMounts.slice(2, 4))).toEqual(
       expect.arrayContaining(extractResourceIdList(mounts02))
     );
-    expect(extractResourceIdList(folderMounts.slice(4))).toEqual(
+    expect(extractResourceIdList(folderMounts.slice(4, 6))).toEqual(
       expect.arrayContaining(extractResourceIdList(mounts01))
+    );
+    expect(extractResourceIdList(folderMounts.slice(6))).toEqual(
+      expect.arrayContaining(extractResourceIdList(mounts00))
     );
   });
 
@@ -198,8 +205,11 @@ describe('file backend mount utils', () => {
       // fimidara mount does not use config
       expect(result.configs).toHaveLength(0);
       expect(Object.keys(result.providersMap)).toEqual([fimidaraMount.resourceId]);
-      // Currently, all mounts are fetched then sorted
-      expect(result.mounts).toHaveLength(2);
+      // Currently, all mounts are fetched then sorted so this will be the count
+      // of all mounts resolved for resource. Also, 3 instead of 2
+      // (fimidaraMount & s3Mount), because workspaces have a default fimidara
+      // mount mounted to root
+      expect(result.mounts).toHaveLength(3);
     }
   );
 
@@ -241,7 +251,9 @@ describe('file backend mount utils', () => {
     expect(Object.keys(result.providersMap)).toEqual(
       expect.arrayContaining([fimidaraMount.resourceId, s3Mount.resourceId])
     );
-    expect(result.mounts).toHaveLength(2);
+    // 3 instead of 2 (fimidaraMount & s3Mount), because workspaces have a
+    // default fimidara mount mounted to root
+    expect(result.mounts).toHaveLength(3);
   });
 
   softkaveTest.run('insertResolvedMountEntries', async () => {

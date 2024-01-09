@@ -6,7 +6,7 @@ import {kReuseableErrors} from './reusableErrors';
 import {AnyFn} from './types';
 
 export function appAssert(
-  value: any,
+  value: unknown,
   response: string | Error | AnyFn = new ServerError(),
   logMessage?: string
 ): asserts value {

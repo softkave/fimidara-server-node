@@ -1,5 +1,9 @@
+import {merge} from 'lodash';
+import {UnionToIntersection} from 'type-fest';
+import {AnyObject} from '../utils/types';
 import {DataProviderFilterValueOperator} from './contexts/data/DataProvider';
 import DataProviderFilterBuilder from './contexts/data/DataProviderFilterBuilder';
+import {DataQuery} from './contexts/data/types';
 
 function getByWorkspaceId(id: string) {
   return new DataProviderFilterBuilder<{workspaceId: string}>()
@@ -63,6 +67,12 @@ function getByProvidedId(workspaceId: string, id: string) {
     .build();
 }
 
+function mergeQueries<TQueries extends DataQuery<AnyObject>[]>(...queries: TQueries) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  return merge(...queries) as UnionToIntersection<TQueries[number]>;
+}
+
 export default abstract class EndpointReusableQueries {
   static getByWorkspaceId = getByWorkspaceId;
   static getByWorkspaceIdAndName = getByWorkspaceIdAndName;
@@ -72,4 +82,5 @@ export default abstract class EndpointReusableQueries {
   static getByWorkspaceIdAndResourceIdList = getByWorkspaceIdAndResourceIdList;
   static getByWorkspaceIdAndExcludeResourceIdList =
     getByWorkspaceIdAndExcludeResourceIdList;
+  static merge = mergeQueries;
 }

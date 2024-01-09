@@ -9,7 +9,7 @@ export class DataSemanticProviderUtils implements SemanticProviderUtils {
   async withTxn<TResult>(
     fn: AnyFn<[SemanticProviderMutationRunOptions], Promise<TResult>>
   ): Promise<TResult> {
-    return kDataModels.utils().withTxn(async txn => {
+    return await kDataModels.utils().withTxn(async txn => {
       return await fn({txn});
     });
   }

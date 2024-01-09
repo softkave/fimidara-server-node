@@ -410,21 +410,25 @@ export class MongoDataProviderUtils implements DataProviderUtils {
     fn: AnyFn<[txn: ClientSession], Promise<TResult>>
   ): Promise<TResult> {
     const connection = kUtilsInjectables.mongoConnection();
-    const txn = kUtilsInjectables
+    const existingSession = kUtilsInjectables
       .asyncLocalStorage()
       .get<ClientSession>(kAsyncLocalStorageKeys.txn);
     let result: TResult | undefined = undefined;
     appAssert(connection);
 
-    if (txn) {
-      result = await fn(txn);
+    if (existingSession && existingSession.transaction.isActive) {
+      result = await fn(existingSession);
     } else {
       const session = await connection.startSession();
-      await session.withTransaction(async () => {
-        kUtilsInjectables.asyncLocalStorage().set(kAsyncLocalStorageKeys.txn, session);
-        result = await fn(session);
-        kUtilsInjectables.asyncLocalStorage().set(kAsyncLocalStorageKeys.txn, undefined);
-      });
+      await session.withTransaction(async () =>
+        kUtilsInjectables
+          .asyncLocalStorage()
+          .shadowSetForce(
+            kAsyncLocalStorageKeys.txn,
+            session,
+            async () => (result = await fn(session))
+          )
+      );
       await session.endSession();
     }
 

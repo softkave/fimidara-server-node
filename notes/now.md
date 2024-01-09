@@ -2,6 +2,7 @@
 
 - [ ] Support . and .. folder matchers
 - [ ] Should messages have an ending period?
+- [ ] We mostly test with user tokens, also do tests with agent tokens
 - [ ] Move logs to it's own service
 - [ ] Write to local fs primarily
 - [ ] Log and process endpoint calls

@@ -3,7 +3,7 @@ import {kAppResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests, softkaveTest} from '../../testUtils/helpers/test';
 import {
   assertEndpointResultOk,
   initTests,
@@ -25,7 +25,7 @@ afterAll(async () => {
 });
 
 describe('deleteFile', () => {
-  test('file deleted', async () => {
+  softkaveTest.run('file deleted', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);

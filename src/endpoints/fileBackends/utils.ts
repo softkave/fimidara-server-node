@@ -9,7 +9,9 @@ import {ConvertAgentToPublicAgent} from '../../definitions/system';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {kSemanticModels} from '../contexts/injection/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
+import {FolderQueries} from '../folders/queries';
 import {workspaceResourceFields} from '../utils';
+import {FileMountQueries} from './mountQueries';
 
 const resolvedEntryFields = getFields<PublicResolvedMountEntry>({
   ...workspaceResourceFields,
@@ -72,15 +74,7 @@ export async function mountExists(
   opts?: SemanticProviderRunOptions
 ) {
   const mountModel = kSemanticModels.fileBackendMount();
-  return await mountModel.existsByQuery(
-    {
-      workspaceId: data.workspaceId,
-      backend: data.backend,
-      namepath: {$all: data.namepath, $size: data.namepath.length},
-      mountedFrom: {$all: data.mountedFrom, $size: data.mountedFrom.length},
-    },
-    opts
-  );
+  return await mountModel.existsByQuery(FileMountQueries.getBySignature(data), opts);
 }
 
 export async function countFolderAttachedMounts(
@@ -89,5 +83,5 @@ export async function countFolderAttachedMounts(
 ) {
   return await kSemanticModels
     .fileBackendMount()
-    .existsByQuery({namepath: {$all: folderpath, $size: folderpath.length}}, opts);
+    .existsByQuery(FolderQueries.getByNamepathOnly({namepath: folderpath}), opts);
 }

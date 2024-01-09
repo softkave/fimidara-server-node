@@ -9,7 +9,7 @@ import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
 const fileBackendConfigSchema = ensureMongoTypeFields<FileBackendConfig>({
   ...workspaceResourceSchema,
   backend: {type: String, index: true},
-  secretId: {type: String},
+  secretId: {type: String, index: true},
   description: {type: String},
   name: {type: String, index: true},
 });

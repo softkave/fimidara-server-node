@@ -107,6 +107,11 @@ export const kAppMessages = {
     notImplementedYet(fnName?: string) {
       return fnName ? `${fnName} not implemented yet.` : 'Not implemented yet.';
     },
+    invalidState(state?: string) {
+      return state
+        ? `Program is in an invalid state:\n ${state}.`
+        : 'Program is in an invalid state.';
+    },
   },
   job: {
     notFound(id?: string) {

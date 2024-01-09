@@ -13,6 +13,7 @@ import {FimidaraExternalError} from '../../utils/OperationError';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {ServerError} from '../../utils/errors';
+import {loopAndCollateAsync} from '../../utils/fns';
 import {getResourceTypeFromId, newWorkspaceResource} from '../../utils/resource';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {Omit1, PartialRecord} from '../../utils/types';
@@ -27,6 +28,7 @@ import {isFilePersistenceProvider} from '../contexts/file/utils';
 import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
+import {FolderQueries} from '../folders/queries';
 import {kEndpointResultNoteCodeMap, kEndpointResultNotesToMessageMap} from '../types';
 import {getBackendConfigsWithIdList} from './configUtils';
 
@@ -49,17 +51,16 @@ export async function resolveMountsForFolder(
   opts?: SemanticProviderRunOptions
 ) {
   const mountModel = kSemanticModels.fileBackendMount();
-  const mountsList = await Promise.all(
-    folder.namepath.map((name, index) => {
+  const mountsList = await loopAndCollateAsync(
+    index => {
       const paths = folder.namepath.slice(0, folder.namepath.length - index);
       return mountModel.getManyByQuery(
-        {
-          workspaceId: folder.workspaceId,
-          namepath: {$all: paths, $size: paths.length},
-        },
+        FolderQueries.getByNamepath({workspaceId: folder.workspaceId, namepath: paths}),
         opts
       );
-    })
+    },
+    folder.namepath.length + 1,
+    /** settlement type */ 'all'
   );
 
   const mounts: FileBackendMount[] = [];

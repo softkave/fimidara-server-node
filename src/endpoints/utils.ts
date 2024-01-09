@@ -94,7 +94,7 @@ export const wrapEndpointREST = <EndpointType extends Endpoint>(
   cleanup?: ExportedHttpEndpoint_Cleanup | Array<ExportedHttpEndpoint_Cleanup>
 ): ((req: Request, res: Response) => unknown) => {
   return async (req: Request, res: Response) => {
-    kUtilsInjectables.asyncLocalStorage().run(async () => {
+    await kUtilsInjectables.asyncLocalStorage().run(async () => {
       try {
         const data = await (getData ? getData(req) : req.body);
         const instData = RequestData.fromExpressRequest(

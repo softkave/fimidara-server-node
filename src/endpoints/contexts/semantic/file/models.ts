@@ -1,5 +1,6 @@
 import {File, FilePresignedPath} from '../../../../definitions/file';
 import {Resource} from '../../../../definitions/system';
+import {FileQueries} from '../../../files/queries';
 import {DataProviderQueryListParams} from '../../data/types';
 import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {SemanticProviderRunOptions} from '../types';
@@ -14,22 +15,14 @@ export class DataSemanticFile
     query: {workspaceId: string; namepath: string[]; extension?: string},
     opts?: SemanticProviderRunOptions
   ): Promise<File | null> {
-    const {workspaceId, namepath, extension} = query;
-    return await this.data.getOneByQuery(
-      {workspaceId, extension, namepath: {$all: namepath, $size: namepath.length}},
-      opts
-    );
+    return await this.data.getOneByQuery(FileQueries.getByNamepath(query), opts);
   }
 
   async deleteOneBynamepath(
     query: {workspaceId: string; namepath: string[]; extension?: string},
     opts?: SemanticProviderRunOptions
   ) {
-    const {workspaceId, namepath, extension} = query;
-    await this.data.deleteOneByQuery(
-      {workspaceId, extension, namepath: {$all: namepath, $size: namepath.length}},
-      opts
-    );
+    await this.data.deleteOneByQuery(FileQueries.getByNamepath(query), opts);
   }
 
   async getAndUpdateOneBynamepath(
@@ -37,9 +30,8 @@ export class DataSemanticFile
     update: Partial<File>,
     opts?: SemanticProviderRunOptions
   ): Promise<File | null> {
-    const {workspaceId, namepath, extension} = query;
     return await this.data.getAndUpdateOneByQuery(
-      {workspaceId, extension, namepath: {$all: namepath, $size: namepath.length}},
+      FileQueries.getByNamepath(query),
       update,
       opts
     );
@@ -49,11 +41,7 @@ export class DataSemanticFile
     query: {workspaceId: string; namepath: string[]; extension?: string},
     opts?: SemanticProviderRunOptions
   ): Promise<File[]> {
-    const {workspaceId, namepath, extension} = query;
-    return await this.data.getManyByQuery(
-      {workspaceId, extension, namepath: {$all: namepath, $size: namepath.length}},
-      opts
-    );
+    return await this.data.getManyByQuery(FileQueries.getByNamepath(query), opts);
   }
 
   async getManyByWorkspaceParentAndIdList(
@@ -125,10 +113,6 @@ export class DataSemanticFilePresignedPathProvider
     query: {workspaceId: string; namepath: string[]; extension?: string},
     options?: DataProviderQueryListParams<FilePresignedPath> & SemanticProviderRunOptions
   ): Promise<FilePresignedPath | null> {
-    const {workspaceId, namepath, extension} = query;
-    return await this.data.getOneByQuery(
-      {workspaceId, extension, namepath: {$all: namepath, $size: namepath.length}},
-      options
-    );
+    return await this.data.getOneByQuery(FileQueries.getByNamepath(query), options);
   }
 }

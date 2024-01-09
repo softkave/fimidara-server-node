@@ -7,6 +7,7 @@ import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
+import {FolderQueries} from './queries';
 import {assertFolder, readOrIngestFolderByFolderpath} from './utils';
 
 export async function getClosestExistingFolder(
@@ -17,10 +18,11 @@ export async function getClosestExistingFolder(
   const folderQueries = namepath
     .map((p, i) => namepath.slice(0, i + 1))
     .map(
-      (nextnamepath): FileQuery => ({
-        workspaceId: workspaceId,
-        namepath: {$all: nextnamepath, $size: nextnamepath.length},
-      })
+      (nextNamepath): FileQuery =>
+        FolderQueries.getByNamepath({
+          workspaceId: workspaceId,
+          namepath: nextNamepath,
+        })
     );
   const folders = await kSemanticModels.folder().getManyByQueryList(folderQueries, opts);
   folders.sort((f1, f2) => f1.namepath.length - f2.namepath.length);

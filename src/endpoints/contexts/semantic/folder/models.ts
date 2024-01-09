@@ -1,4 +1,5 @@
 import {Folder} from '../../../../definitions/folder';
+import {FolderQueries} from '../../../folders/queries';
 import {DataProviderQueryListParams, FolderQuery} from '../../data/types';
 import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {SemanticProviderRunOptions} from '../types';
@@ -13,11 +14,7 @@ export class DataSemanticFolder
     query: {workspaceId: string; namepath: string[]},
     opts?: SemanticProviderRunOptions
   ): Promise<Folder | null> {
-    const {namepath, workspaceId} = query;
-    return await this.data.getOneByQuery(
-      {workspaceId, namepath: {$all: namepath, $size: namepath.length}},
-      opts
-    );
+    return await this.data.getOneByQuery(FolderQueries.getByNamepath(query), opts);
   }
 
   async getManyByWorkspaceParentAndIdList(

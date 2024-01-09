@@ -50,7 +50,7 @@ export interface FilePresignedPath extends WorkspaceResource {
   /** File ID if the file exists. */
   fileId?: string;
   extension?: string;
-  issueAgentTokenId: string;
+  issuerAgentTokenId: string;
   maxUsageCount?: number;
   spentUsageCount: number;
   expiresAt?: number;
@@ -66,7 +66,7 @@ export type PublicFilePresignedPath = PublicWorkspaceResource &
       FilePresignedPath,
       | 'namepath'
       | 'fileId'
-      | 'issueAgentTokenId'
+      | 'issuerAgentTokenId'
       | 'maxUsageCount'
       | 'spentUsageCount'
       | 'actions'

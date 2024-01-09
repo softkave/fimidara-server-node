@@ -80,12 +80,12 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async instData =>
         checkAuthorizationWithAgent({
           agent,
           opts,
-          workspaceId: workspaceId!,
+          workspaceId,
           workspace: workspace || undefined,
           target: {
             action,
             targetId: getResourcePermissionContainers(
-              workspaceId!,
+              workspaceId,
               permissionTarget,
               /** include resource ID */ true
             ),
@@ -110,13 +110,12 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async instData =>
         extension,
         actions: toArray(actions),
         namepath: namepath,
-        issueAgentTokenId: agent.agentTokenId,
+        issuerAgentTokenId: agent.agentTokenId,
         maxUsageCount: data.usageCount,
         spentUsageCount: 0,
       }
     );
     await kSemanticModels.filePresignedPath().insertItem(presignedPath, opts);
-
     return presignedPath;
   });
 

@@ -176,5 +176,8 @@ export const kReuseableErrors = {
     notFound(id?: string) {
       return new NotFoundError(kAppMessages.common.notFound(id));
     },
+    invalidState(state?: string) {
+      return new Error(kAppMessages.common.invalidState(state));
+    },
   },
 };

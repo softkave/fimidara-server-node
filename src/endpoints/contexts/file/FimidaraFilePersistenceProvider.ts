@@ -84,7 +84,7 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
     params: FilePersistenceGetFileParams
   ): Promise<PersistedFileDescription | undefined> => {
     const {workspaceId, filepath, mount} = params;
-    const {namepath, extension} = getFilepathInfo(filepath);
+    const {namepath, extension} = getFilepathInfo(filepath, {containsRootname: false});
     const entry = await kSemanticModels.resolvedMountEntry().getOneByQuery({
       ...FileQueries.getByNamepath({workspaceId, namepath, extension}),
       mountId: mount.resourceId,

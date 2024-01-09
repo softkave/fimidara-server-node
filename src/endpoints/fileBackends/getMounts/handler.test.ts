@@ -1,6 +1,8 @@
 import {omit} from 'lodash';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {kFolderConstants} from '../../folders/constants';
+import {FolderQueries} from '../../folders/queries';
+import EndpointReusableQueries from '../../queries';
 import {
   generateAndInsertFileBackendConfigListForTest,
   generateAndInsertFileBackendMountListForTest,
@@ -66,7 +68,12 @@ describe('getFileBackendMounts', () => {
       });
       const count = await kSemanticModels
         .fileBackendMount()
-        .countByQuery({...query, namepath: {$all: folderpath}});
+        .countByQuery(
+          EndpointReusableQueries.merge(
+            query,
+            folderpath ? FolderQueries.getByNamepathOnly({namepath: folderpath}) : {}
+          )
+        );
 
       await performPaginationTest(getFileBackendMounts, {
         count,
