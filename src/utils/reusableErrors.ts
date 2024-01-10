@@ -1,20 +1,11 @@
 import {
   InvalidRequestError,
+  InvalidStateError,
   NotFoundError,
   ResourceExistsError,
-  ResourceInUseError,
 } from '../endpoints/errors';
-import {
-  BackendUnknownError,
-  FimidaraDoesNotSupportConfigError,
-  MountSourceMissingBucketError,
-} from '../endpoints/fileBackends/errors';
-import {InvalidMatcherError, ProvideNamepathError} from '../endpoints/files/errors';
-import {
-  ChangePasswordError,
-  InvalidCredentialsError,
-  UserOnWaitlistError,
-} from '../endpoints/users/errors';
+import {MountSourceMissingBucketError} from '../endpoints/fileBackends/errors';
+import {ChangePasswordError, InvalidCredentialsError} from '../endpoints/users/errors';
 import {kAppMessages} from './messages';
 
 export const kReuseableErrors = {
@@ -43,7 +34,7 @@ export const kReuseableErrors = {
       return new ChangePasswordError();
     },
     userOnWaitlist() {
-      return new UserOnWaitlistError();
+      return new InvalidStateError(kAppMessages.user.userIsOnWaitlist());
     },
   },
   permissionGroup: {
@@ -86,13 +77,13 @@ export const kReuseableErrors = {
       return new NotFoundError(kAppMessages.file.notFound(id));
     },
     invalidMatcher() {
-      return new InvalidMatcherError(kAppMessages.file.invalidMatcher);
+      return new InvalidRequestError(kAppMessages.file.invalidMatcher);
     },
     provideNamepath() {
-      return new ProvideNamepathError(kAppMessages.file.provideNamepath);
+      return new InvalidRequestError(kAppMessages.file.provideNamepath);
     },
     unknownBackend(backend: string) {
-      return new BackendUnknownError(kAppMessages.file.unknownBackend(backend));
+      return new InvalidRequestError(kAppMessages.file.unknownBackend(backend));
     },
   },
   appRuntimeState: {
@@ -150,7 +141,7 @@ export const kReuseableErrors = {
       return new NotFoundError(kAppMessages.config.notFound(id));
     },
     configInUse(mountsCount: number) {
-      return new ResourceInUseError(kAppMessages.config.configInUse(mountsCount));
+      return new InvalidRequestError(kAppMessages.config.configInUse(mountsCount));
     },
     configExists() {
       return new ResourceExistsError(kAppMessages.config.configExists);
@@ -159,9 +150,7 @@ export const kReuseableErrors = {
       return new ResourceExistsError(kAppMessages.config.configNameExists(name));
     },
     fimidaraDoesNotSupportConfig() {
-      return new FimidaraDoesNotSupportConfigError(
-        kAppMessages.config.fimidaraDoesNotSupportConfig
-      );
+      return new InvalidRequestError(kAppMessages.config.fimidaraDoesNotSupportConfig);
     },
   },
   job: {

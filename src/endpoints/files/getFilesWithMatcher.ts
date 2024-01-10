@@ -126,7 +126,7 @@ export async function getFileByPresignedPath(props: {
     opts
   );
 
-  return {presignedPath, file};
+  return {presignedPath, file, isPresignedPath: true};
 }
 
 export async function getFileByFilepath(props: {
@@ -187,7 +187,7 @@ export async function getFileWithMatcher(props: {
         incrementUsageCount: incrementPresignedPathUsageCount,
       });
 
-      if (getByPresignedPathResult?.file) {
+      if (getByPresignedPathResult?.isPresignedPath) {
         return getByPresignedPathResult;
       }
     }

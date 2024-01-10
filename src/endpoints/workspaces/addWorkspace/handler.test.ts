@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {merge} from 'lodash';
 import {appAssert} from '../../../utils/assertion';
+import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {kRegisterUtilsInjectables} from '../../contexts/injection/register';
@@ -13,7 +14,6 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../testUtils/testUtils';
-import {UserOnWaitlistError} from '../../users/errors';
 import {WorkspaceExistsError, WorkspaceRootnameExistsError} from '../errors';
 import {assertWorkspace, makeRootnameFromName, workspaceExtractor} from '../utils';
 import {AddWorkspaceEndpointParams} from './types';
@@ -119,7 +119,10 @@ describe('addWorkspace', () => {
       async () => {
         await insertWorkspaceForTest(userToken);
       },
-      [UserOnWaitlistError.name],
+      error =>
+        expect((error as Error).name).toBe(
+          kReuseableErrors.user.userOnWaitlist().message
+        ),
       () => {
         // TODO: if we ever switch to concurrent tests, then create a context
         // for this test instead

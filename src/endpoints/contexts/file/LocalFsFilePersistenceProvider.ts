@@ -35,19 +35,12 @@ export default class LocalFsFilePersistenceProvider implements FilePersistencePr
   supportsFeature = (feature: FilePersistenceProviderFeature): boolean => {
     switch (feature) {
       case 'deleteFiles':
-        return true;
       case 'deleteFolders':
-        return true;
       case 'describeFile':
-        return true;
       case 'describeFolder':
-        return true;
       case 'describeFolderFiles':
-        return true;
       case 'describeFolderFolders':
-        return true;
       case 'readFile':
-        return true;
       case 'uploadFile':
         return true;
     }

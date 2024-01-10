@@ -1,3 +1,5 @@
+import {noop} from 'lodash';
+import {DisposableResource} from '../../../utils/disposables';
 import {waitTimeout} from '../../../utils/fns';
 import {completeTests} from '../../testUtils/helpers/test';
 import {initTests} from '../../testUtils/testUtils';
@@ -37,6 +39,20 @@ describe('asyncLocalStorage', () => {
         [key]: outerValue,
       });
     }, outerStore);
+  });
+
+  test('run disposes disposables only for real stores', async () => {
+    const disposable: DisposableResource = {
+      dispose: jest.fn(),
+    };
+
+    await kAsyncLocalStorageUtils.run(() => {
+      kAsyncLocalStorageUtils.disposables().add(disposable);
+      kAsyncLocalStorageUtils.shadowSet('key', 'value', noop);
+      expect(kAsyncLocalStorageUtils.disposables().getList()).toContain(disposable);
+    });
+
+    expect(disposable.dispose).toHaveBeenCalled();
   });
 
   test('shadowSet', async () => {

@@ -74,21 +74,15 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
   supportsFeature = (feature: FilePersistenceProviderFeature): boolean => {
     switch (feature) {
       case 'deleteFiles':
-        return true;
-      case 'deleteFolders':
-        return false;
       case 'describeFile':
-        return true;
-      case 'describeFolder':
-        return false;
       case 'describeFolderFiles':
-        return true;
-      case 'describeFolderFolders':
-        return false;
       case 'readFile':
-        return true;
       case 'uploadFile':
         return true;
+      case 'deleteFolders':
+      case 'describeFolder':
+      case 'describeFolderFolders':
+        return false;
     }
   };
 

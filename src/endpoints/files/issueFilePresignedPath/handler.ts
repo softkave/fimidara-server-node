@@ -48,6 +48,9 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async instData =>
       // Happy path. Extract necessary data and continue.
       ({namepath, extension, workspaceId, resourceId: fileId} = file);
       permissionTarget = file;
+    } else if (data.fileId) {
+      // Throw error if there's no file, and we're provided a fileId
+      throw kReuseableErrors.file.notFound();
     } else {
       // File doesn't exist but we're generating presigned path for the
       // filepath. Presigned paths for non-existing files should work just like

@@ -22,27 +22,6 @@ export class AgentTokenDoesNotExistError extends OperationError {
   }
 }
 
-export class BackendUnknownError extends OperationError {
-  name = 'BackendUnknownError';
-  statusCode = endpointConstants.httpStatusCode.notFound;
-  constructor(props?: OperationErrorParameters | string) {
-    super(props);
-    this.message = getErrorMessageFromParams(props, 'Unknown backend.');
-  }
-}
-
-export class FimidaraDoesNotSupportConfigError extends OperationError {
-  name = 'FimidaraDoesNotSupportConfigError';
-  statusCode = endpointConstants.httpStatusCode.notFound;
-  constructor(props?: OperationErrorParameters | string) {
-    super(props);
-    this.message = getErrorMessageFromParams(
-      props,
-      'Sorry fimidara does not support this config.'
-    );
-  }
-}
-
 export class MountSourceMissingBucketError extends OperationError {
   name = 'MountSourceMissingBucketError';
   statusCode = endpointConstants.httpStatusCode.notFound;

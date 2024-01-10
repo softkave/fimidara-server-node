@@ -85,7 +85,7 @@ describe('issueFilePresignedPath', () => {
     assertEndpointResultOk(result);
 
     await waitTimeout(duration);
-    await expectReadFileFails(result.path, PermissionDeniedError.name);
+    await expectReadFileFails(result.path, NotFoundError.name);
   });
 
   softkaveTest.run('file presigned path issued with expiration timestamp', async () => {
@@ -106,7 +106,7 @@ describe('issueFilePresignedPath', () => {
     assertEndpointResultOk(result);
 
     await waitTimeout(duration);
-    await expectReadFileFails(result.path, PermissionDeniedError.name);
+    await expectReadFileFails(result.path, NotFoundError.name);
   });
 
   softkaveTest.run('file presigned path issued with usage count', async () => {
@@ -130,7 +130,7 @@ describe('issueFilePresignedPath', () => {
     await tryReadFile(result.path);
 
     // 3rd read should fail
-    await expectReadFileFails(result.path, PermissionDeniedError.name);
+    await expectReadFileFails(result.path, NotFoundError.name);
   });
 
   softkaveTest.run('fails if agent does not have permission', async () => {

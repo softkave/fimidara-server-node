@@ -95,13 +95,19 @@ function shadowDelete(store: AnyObject | undefined, key: string) {
   }
 }
 
+function isShadowStore(store: AnyObject) {
+  return !!getImmediateRealStore(store);
+}
+
 export const kAsyncLocalStorageUtils: AsyncLocalStorageUtils = {
   run: <TFn extends AnyFn>(cb: TFn, store: AnyObject = {}) => {
     return asyncLocalStorage.run(store, async () => {
       try {
         return await cb();
       } finally {
-        kAsyncLocalStorageUtils.disposables().disposeAll();
+        if (!isShadowStore(getAsyncLocalStore())) {
+          kAsyncLocalStorageUtils.disposables().disposeAll();
+        }
       }
     });
   },

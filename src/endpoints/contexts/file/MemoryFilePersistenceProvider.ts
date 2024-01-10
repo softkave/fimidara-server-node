@@ -1,5 +1,6 @@
 import {isNumber} from 'lodash';
 import {Readable} from 'stream';
+import {kAppResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {streamToBuffer} from '../../../utils/fns';
 import {
@@ -30,21 +31,15 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
   supportsFeature = (feature: FilePersistenceProviderFeature): boolean => {
     switch (feature) {
       case 'deleteFiles':
-        return true;
-      case 'deleteFolders':
-        return false;
       case 'describeFile':
-        return true;
-      case 'describeFolder':
-        return false;
       case 'describeFolderFiles':
-        return true;
-      case 'describeFolderFolders':
-        return false;
       case 'readFile':
-        return true;
       case 'uploadFile':
         return true;
+      case 'deleteFolders':
+      case 'describeFolder':
+      case 'describeFolderFolders':
+        return false;
     }
   };
 
@@ -54,7 +49,7 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
     this.setMemoryFile(params, {
       body,
       filepath: params.filepath,
-      type: 'file',
+      type: kAppResourceType.File,
       lastUpdatedAt: Date.now(),
       size: body.byteLength,
       mountId: params.mount.resourceId,
@@ -101,7 +96,7 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
 
     if (file) {
       return {
-        type: 'file',
+        type: kAppResourceType.File,
         filepath: file.filepath,
         lastUpdatedAt: file.lastUpdatedAt,
         size: file.size,
@@ -136,7 +131,7 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
 
       if (file.filepath.toLowerCase().startsWith(params.folderpath)) {
         files.push({
-          type: 'file',
+          type: kAppResourceType.File,
           filepath: file.filepath,
           lastUpdatedAt: file.lastUpdatedAt,
           size: file.size,

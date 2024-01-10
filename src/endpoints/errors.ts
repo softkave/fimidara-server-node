@@ -14,6 +14,19 @@ export class InvalidRequestError extends OperationError {
   }
 }
 
+export class InvalidStateError extends OperationError {
+  name = 'InvalidStateError';
+  statusCode = endpointConstants.httpStatusCode.conflict;
+
+  constructor(props?: OperationErrorParameters | string) {
+    super(props);
+    this.message = getErrorMessageFromParams(
+      props,
+      'A resource involved in processing the request is in an invalid state.'
+    );
+  }
+}
+
 export class RateLimitError extends OperationError {
   name = 'RateLimitError';
   statusCode = endpointConstants.httpStatusCode.tooManyRequests;
@@ -54,15 +67,5 @@ export class ResourceExistsError extends OperationError {
   constructor(props?: OperationErrorParameters | string) {
     super(props);
     this.message = getErrorMessageFromParams(props, 'Resource exist.');
-  }
-}
-
-export class ResourceInUseError extends OperationError {
-  name = 'ResourceInUseError';
-  statusCode = endpointConstants.httpStatusCode.conflict;
-
-  constructor(props?: OperationErrorParameters | string) {
-    super(props);
-    this.message = getErrorMessageFromParams(props, 'Resource is in use.');
   }
 }
