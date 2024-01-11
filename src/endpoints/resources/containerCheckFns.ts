@@ -110,6 +110,7 @@ export function checkResourcesBelongsToWorkspace(
   getErrorFn = returnNotFoundError
 ) {
   const outsideResources = getResourcesNotPartOfWorkspace(workspaceId, resources);
+
   if (outsideResources.length) {
     throw getErrorFn(outsideResources);
   }

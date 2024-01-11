@@ -1,7 +1,6 @@
 import {expressjwt} from 'express-jwt';
 import {endpointConstants} from './endpoints/constants';
 import {kUtilsInjectables} from './endpoints/contexts/injection/injectables';
-import {registerInjectables} from './endpoints/contexts/injection/register';
 import {setupFimidaraHttpEndpoints} from './endpoints/endpoints';
 import {startRunner} from './endpoints/jobs/runner';
 import {setupApp} from './endpoints/runtime/initAppSetup';
@@ -13,6 +12,7 @@ import cors = require('cors');
 import express = require('express');
 import http = require('http');
 import process = require('process');
+import {globalSetup} from './endpoints/contexts/globalUtils';
 
 serverLogger.info('server initialization');
 
@@ -53,7 +53,7 @@ function setupJWT() {
 }
 
 async function setup() {
-  registerInjectables();
+  await globalSetup();
 
   // Run scripts here
   // End of scripts
@@ -79,6 +79,7 @@ async function setup() {
   });
 }
 
+// TODO: run global dispose on close/end server
 setup();
 
 // TODO: move these error logs to mongo

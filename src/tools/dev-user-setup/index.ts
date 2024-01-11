@@ -1,3 +1,4 @@
+import {globalDispose, globalSetup} from '../../endpoints/contexts/globalUtils';
 import {
   ISetupDevUserOptions,
   devUserSetupPromptEmail,
@@ -13,7 +14,9 @@ const appOptions: ISetupDevUserOptions = {
 };
 
 async function main() {
+  await globalSetup();
   await setupDevUser(appOptions);
+  await globalDispose();
 }
 
 main();

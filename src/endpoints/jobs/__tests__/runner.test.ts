@@ -7,8 +7,11 @@ import {extractResourceIdList, waitTimeout} from '../../../utils/fns';
 import {awaitOrTimeout} from '../../../utils/promiseFns';
 import {getNewId} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injection/injectables';
+import {kRegisterSemanticModels} from '../../contexts/injection/register';
 import {generateAndInsertAppListForTest} from '../../testUtils/generate/app';
 import {generateAndInsertJobListForTest} from '../../testUtils/generate/job';
+import {completeTests} from '../../testUtils/helpers/test';
+import {initTests} from '../../testUtils/testUtils';
 import {
   getActiveRunnerIds,
   getWorkers,
@@ -29,7 +32,14 @@ import {
   kDefaultRunnerCount,
   waitForJob,
 } from '../utils';
-import {kRegisterSemanticModels} from '../../contexts/injection/register';
+
+beforeEach(async () => {
+  await initTests();
+});
+
+afterEach(async () => {
+  await completeTests();
+});
 
 afterEach(() => {
   // Reset runner options

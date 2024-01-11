@@ -120,7 +120,7 @@ describe('addWorkspace', () => {
         await insertWorkspaceForTest(userToken);
       },
       error =>
-        expect((error as Error).name).toBe(
+        expect((error as Error).message).toBe(
           kReuseableErrors.user.userOnWaitlist().message
         ),
       () => {

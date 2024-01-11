@@ -5,6 +5,7 @@ import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
+  insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import getJobStatus from './handler';
@@ -20,7 +21,10 @@ afterAll(async () => {
 describe('getJobStatus', () => {
   test('getJobStatus', async () => {
     const {userToken} = await insertUserForTest();
-    const [job] = await generateAndInsertJobListForTest(/** count */ 1);
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    const [job] = await generateAndInsertJobListForTest(/** count */ 1, {
+      workspaceId: workspace.resourceId,
+    });
 
     const result = await getJobStatus(
       RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {

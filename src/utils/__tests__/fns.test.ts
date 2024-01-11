@@ -1,5 +1,6 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
+import {isArray, isNumber, isObject} from 'lodash';
 import {expectErrorThrown} from '../../endpoints/testUtils/helpers/error';
 import {
   identityArgs,
@@ -8,6 +9,7 @@ import {
   loopAndCollateAsync,
   loopAsync,
   multilineTextToParagraph,
+  omitDeep,
   waitTimeout,
 } from '../fns';
 
@@ -253,5 +255,52 @@ describe('fns', () => {
     const result = identityArgs(...args);
 
     expect(args).toEqual(result);
+  });
+
+  test('omitDeep', () => {
+    const data = [
+      {
+        one: 1,
+        obj: {
+          two: 2,
+          array: [
+            {
+              three: 3,
+              innerObject: {
+                four: 4,
+              },
+            },
+          ],
+        },
+      },
+    ];
+    const expectedDataWithoutArrays = [
+      {
+        one: 1,
+        obj: {
+          two: 2,
+        },
+      },
+    ];
+    const expectedDataWithoutNumbers = [
+      {
+        obj: {
+          array: [
+            {
+              innerObject: {},
+            },
+          ],
+        },
+      },
+    ];
+    const expectedDataWithoutObjects: unknown[] = [];
+
+    const dataWithoutArrays = omitDeep(data, isArray);
+    const dataWithoutObjects = omitDeep(data, isObject);
+    const dataWithoutNumbers = omitDeep(data, isNumber);
+
+    expect(dataWithoutArrays).toEqual(expectedDataWithoutArrays);
+    expect(dataWithoutNumbers).toEqual(expectedDataWithoutNumbers);
+    expect(dataWithoutObjects).toEqual(expectedDataWithoutObjects);
   });
 });

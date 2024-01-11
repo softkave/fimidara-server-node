@@ -1,8 +1,8 @@
-import {registerInjectables} from '../endpoints/contexts/injection/register';
+import {globalSetup} from '../endpoints/contexts/globalUtils';
 import {setupApp} from '../endpoints/runtime/initAppSetup';
 
 async function testGlobalSetup() {
-  registerInjectables();
+  await globalSetup();
   await setupApp();
 }
 

@@ -32,7 +32,6 @@ export function generateJobInput(seed: Partial<JobInput> = {}): JobInput {
   return {
     params,
     type: getRandomJobType(),
-    idempotencyToken: JSON.stringify(params),
     priority: getRandomJobPresetPriority(),
     shard: getRandomAppType(),
     ...seed,
@@ -60,7 +59,7 @@ export function generateJobForTest(seed: Partial<Job> = {}) {
     priority: getRandomJobPresetPriority(),
     statusHistory: [status],
     workspaceId: getNewIdForResource(kAppResourceType.Workspace),
-    parents: [],
+    parents: seed.parentJobId && !seed.parents ? [seed.parentJobId] : [],
     ...status,
     ...seed,
   };

@@ -67,7 +67,7 @@ export const kInjectionKeys = {
   fileProviderResolver: 'fileProviderResolver',
   asyncLocalStorage: 'asyncLocalStorage',
   session: 'session',
-  mongoConnection: 'mongoConnection',
+  dbConnection: 'dbConnection',
   email: 'email',
   promises: 'promises',
   disposables: 'disposables',

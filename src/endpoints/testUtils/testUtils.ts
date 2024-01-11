@@ -25,8 +25,8 @@ import {
   CollaborationRequestInput,
   SendCollaborationRequestEndpointParams,
 } from '../collaborationRequests/sendRequest/types';
+import {globalSetup} from '../contexts/globalUtils';
 import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
-import {registerInjectables} from '../contexts/injection/register';
 import {IServerRequest} from '../contexts/types';
 import addFileBackendConfig from '../fileBackends/addConfig/handler';
 import {
@@ -79,7 +79,7 @@ export function getTestEmailProvider() {
 }
 
 export async function initTests() {
-  registerInjectables();
+  await globalSetup();
   await setupApp();
 }
 

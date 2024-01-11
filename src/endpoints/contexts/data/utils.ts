@@ -2,6 +2,7 @@ import {isNumber, isObject, isObjectLike, isUndefined} from 'lodash';
 // eslint-disable-next-line node/no-extraneous-import
 import {BulkWriteOptions} from 'mongodb';
 import {ClientSession, FilterQuery, Model, QueryOptions} from 'mongoose';
+import {isMongoConnection} from '../../../db/connection';
 import {appAssert} from '../../../utils/assertion';
 import {cast} from '../../../utils/fns';
 import {AnyFn, AnyObject} from '../../../utils/types';
@@ -116,12 +117,11 @@ export abstract class BaseMongoDataProvider<
     query: TQuery[],
     otherProps?: DataProviderQueryListParams<T> | undefined
   ) => {
+    const mongoQuery = {
+      $or: query.map(next => BaseMongoDataProvider.getMongoQuery(next)),
+    };
     const items = await this.model
-      .find(
-        {$or: query.map(next => BaseMongoDataProvider.getMongoQuery(next))},
-        otherProps?.projection,
-        getMongoQueryOptionsForMany(otherProps)
-      )
+      .find(mongoQuery, otherProps?.projection, getMongoQueryOptionsForMany(otherProps))
       .lean()
       .exec();
     return items as unknown as T[];
@@ -132,12 +132,11 @@ export abstract class BaseMongoDataProvider<
     data: Partial<T>,
     otherProps?: DataProviderOpParams
   ) => {
+    const mongoQuery = {
+      $or: query.map(next => BaseMongoDataProvider.getMongoQuery(next)),
+    };
     await this.model
-      .updateMany(
-        {$or: query.map(next => BaseMongoDataProvider.getMongoQuery(next))},
-        data,
-        getMongoQueryOptionsForMany(otherProps)
-      )
+      .updateMany(mongoQuery, data, getMongoQueryOptionsForMany(otherProps))
       .exec();
   };
 
@@ -409,7 +408,8 @@ export class MongoDataProviderUtils implements DataProviderUtils {
   async withTxn<TResult>(
     fn: AnyFn<[txn: ClientSession], Promise<TResult>>
   ): Promise<TResult> {
-    const connection = kUtilsInjectables.mongoConnection();
+    const connection = kUtilsInjectables.dbConnection().get();
+    appAssert(isMongoConnection(connection));
     const existingSession = kUtilsInjectables
       .asyncLocalStorage()
       .get<ClientSession>(kAsyncLocalStorageKeys.txn);

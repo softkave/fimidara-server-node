@@ -4,6 +4,7 @@ import {
   createAppLogger,
 } from '../../utils/logger/loggerUtils';
 import {kUtilsInjectables} from './injection/injectables';
+import {registerInjectables} from './injection/register';
 
 export async function globalDispose() {
   const closeLoggersPromise = Promise.all(
@@ -13,6 +14,11 @@ export async function globalDispose() {
     })
   );
   kUtilsInjectables.disposables().disposeAll();
-  await Promise.all([closeLoggersPromise, kUtilsInjectables.mongoConnection().close()]);
+  await Promise.all([closeLoggersPromise, kUtilsInjectables.dbConnection().close()]);
   await kUtilsInjectables.promises().close().flush();
+}
+
+export async function globalSetup() {
+  registerInjectables();
+  await kUtilsInjectables.dbConnection().wait();
 }

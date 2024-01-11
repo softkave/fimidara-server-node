@@ -8,9 +8,8 @@ import {
 } from '../../../utils/fns';
 import {AnyFn, AnyObject, OrArray, OrPromise} from '../../../utils/types';
 import RequestData from '../../RequestData';
-import {globalDispose} from '../../contexts/globalUtils';
+import {globalDispose, globalSetup} from '../../contexts/globalUtils';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {registerInjectables} from '../../contexts/injection/register';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {IServerRequest} from '../../contexts/types';
 import {setupApp} from '../../runtime/initAppSetup';
@@ -39,7 +38,7 @@ export async function completeTests() {
 
 export function startTesting() {
   beforeAll(async () => {
-    registerInjectables();
+    await globalSetup();
     await setupApp();
   });
 

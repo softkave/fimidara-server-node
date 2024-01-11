@@ -60,9 +60,7 @@ const deleteSimpleArtifacts: DeleteResourceDeleteSimpleArtifactsFns = {
   // they'll never have complex artifacts
   [kAppResourceType.Job]: ({args, helpers}) =>
     helpers.withTxn(opts =>
-      kSemanticModels
-        .job()
-        .deleteManyByQuery({parents: {$elemMatch: args.resourceId}}, opts)
+      kSemanticModels.job().deleteManyByQuery({parents: args.resourceId}, opts)
     ),
 };
 

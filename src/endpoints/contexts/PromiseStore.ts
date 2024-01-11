@@ -16,6 +16,8 @@ export class PromiseStore {
     return this;
   }
 
+  /** Merge an existing promise and a new one into one new one, resolved when
+   * both are resolved. Uses Promise.all() */
   merge(promise: unknown, id: string, forget = true) {
     this.failInsertIfClosed();
     const existingPromise = this.promiseRecord[id];
@@ -29,6 +31,8 @@ export class PromiseStore {
     return this;
   }
 
+  /** Merge an existing promise and a new one into one new one, resolved when
+   * both are resolved. Existing promise is resolved before the new one. */
   after(promise: unknown, id: string, forget = true) {
     this.failInsertIfClosed();
     const existingPromise = this.promiseRecord[id];
@@ -46,12 +50,14 @@ export class PromiseStore {
     return this;
   }
 
+  /** Execute `fn` after promise with `id` resolves or fails. */
   executeAfter<TFn extends AnyFn>(fn: TFn, id: string) {
     const existingPromise = this.promiseRecord[id] || Promise.resolve();
     existingPromise.finally(() => fn());
     return this.add(fn(), id);
   }
 
+  /** Add a promise, but handle it's failure if it fails and do nothing. */
   forget(promise: unknown, id?: string) {
     if (!(promise instanceof Promise)) {
       return;

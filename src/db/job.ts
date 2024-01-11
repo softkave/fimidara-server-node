@@ -15,7 +15,7 @@ const jobSchema = ensureMongoTypeFields<Job>({
   minRunnerVersion: {type: Number},
   workspaceId: {type: String, index: true},
   parentJobId: {type: String, index: true},
-  idempotencyToken: {type: String, index: true, unique: true},
+  idempotencyToken: {type: String, index: true},
   statusHistory: {type: [statusItemSchema]},
   meta: {type: SchemaTypes.Map},
   parents: {type: [String], index: true},

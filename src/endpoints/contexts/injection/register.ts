@@ -2,7 +2,6 @@ import 'reflect-metadata';
 
 import assert from 'assert';
 import {isFunction} from 'lodash';
-import {Connection} from 'mongoose';
 import {container} from 'tsyringe';
 import {getAgentTokenModel} from '../../../db/agentToken';
 import {getAppRuntimeStateModel} from '../../../db/appRuntimeState';
@@ -13,7 +12,7 @@ import {
   getResolvedMountEntryModel,
 } from '../../../db/backend';
 import {getCollaborationRequestModel} from '../../../db/collaborationRequest';
-import {getMongoConnection} from '../../../db/connection';
+import {DbConnection, MongoDbConnection, isMongoConnection} from '../../../db/connection';
 import {getFileModel} from '../../../db/file';
 import {getFilePresignedPathMongoModel} from '../../../db/filePresignedPath';
 import {getFolderDatabaseModel} from '../../../db/folder';
@@ -240,8 +239,8 @@ export const kRegisterUtilsInjectables = {
   asyncLocalStorage: (item: AsyncLocalStorageUtils) =>
     registerToken(kInjectionKeys.asyncLocalStorage, item),
   session: (item: SessionContextType) => registerToken(kInjectionKeys.session, item),
-  mongoConnection: (item: Connection) =>
-    registerToken(kInjectionKeys.mongoConnection, item),
+  mongoConnection: (item: DbConnection) =>
+    registerToken(kInjectionKeys.dbConnection, item),
   email: (item: IEmailProviderContext) => registerToken(kInjectionKeys.email, item),
   promises: (item: PromiseStore) => registerToken(kInjectionKeys.promises, item),
   disposables: (item: DisposablesStore) =>
@@ -251,7 +250,8 @@ export const kRegisterUtilsInjectables = {
 };
 
 export function registerDataModelInjectables() {
-  const connection = kUtilsInjectables.mongoConnection();
+  const connection = kUtilsInjectables.dbConnection().get();
+  appAssert(isMongoConnection(connection));
 
   kRegisterDataModels.user(new UserMongoDataProvider(getUserModel(connection)));
   kRegisterDataModels.file(new FileMongoDataProvider(getFileModel(connection)));
@@ -364,8 +364,7 @@ export function registerUtilsInjectables() {
   assert(suppliedConfig.mongoDbURI);
   assert(suppliedConfig.mongoDbDatabaseName);
   kRegisterUtilsInjectables.mongoConnection(
-    getMongoConnection(suppliedConfig.mongoDbURI, suppliedConfig.mongoDbDatabaseName)
-      .connection
+    new MongoDbConnection(suppliedConfig.mongoDbURI, suppliedConfig.mongoDbDatabaseName)
   );
 
   if (suppliedConfig.emailProvider === kFimidaraConfigEmailProvider.ses) {

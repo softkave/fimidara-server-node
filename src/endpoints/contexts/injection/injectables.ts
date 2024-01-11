@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 
-import {Connection} from 'mongoose';
 import {container} from 'tsyringe';
+import {DbConnection} from '../../../db/connection';
 import {FimidaraRuntimeConfig, FimidaraSuppliedConfig} from '../../../resources/config';
 import {DisposablesStore} from '../../../utils/disposables';
 import {PromiseStore} from '../PromiseStore';
@@ -164,7 +164,7 @@ export const kUtilsInjectables = {
   asyncLocalStorage: () =>
     container.resolve<AsyncLocalStorageUtils>(kInjectionKeys.asyncLocalStorage),
   session: () => container.resolve<SessionContextType>(kInjectionKeys.session),
-  mongoConnection: () => container.resolve<Connection>(kInjectionKeys.mongoConnection),
+  dbConnection: () => container.resolve<DbConnection>(kInjectionKeys.dbConnection),
   email: () => container.resolve<IEmailProviderContext>(kInjectionKeys.email),
   promises: () => container.resolve<PromiseStore>(kInjectionKeys.promises),
   disposables: () => container.resolve<DisposablesStore>(kInjectionKeys.disposables),

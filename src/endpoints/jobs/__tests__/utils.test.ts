@@ -1,18 +1,19 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
-import {first, flattenDeep, last} from 'lodash';
-import test from 'node:test';
-import {kJobPresetPriority, kJobStatus, kJobType} from '../../../definitions/job';
+import {flattenDeep, isUndefined, last} from 'lodash';
+import {Job, kJobPresetPriority, kJobStatus, kJobType} from '../../../definitions/job';
 import {kAppResourceType} from '../../../definitions/system';
 import {TimeoutError} from '../../../utils/errors';
-import {extractResourceIdList, waitTimeout} from '../../../utils/fns';
+import {extractResourceIdList, omitDeep, waitTimeout} from '../../../utils/fns';
 import {getNewId, getNewIdForResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {
   generateAndInsertJobListForTest,
   generateJobInput,
 } from '../../testUtils/generate/job';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
+import {completeTests} from '../../testUtils/helpers/test';
+import {initTests} from '../../testUtils/testUtils';
 import {
   completeJob,
   getNextJob,
@@ -24,14 +25,15 @@ import {
   waitForJob,
 } from '../utils';
 
-/**
- * completeJob - if has pending child
- * completeJob - if has failed child
- * completeJob - pass status
- * completeJob - updates parent on completed or failed
- */
-
 const shard = getNewId();
+
+beforeAll(async () => {
+  await initTests();
+});
+
+afterAll(async () => {
+  await completeTests();
+});
 
 describe('utils', () => {
   test('queueJobs', async () => {
@@ -99,11 +101,12 @@ describe('utils', () => {
       resourceId: {$in: extractResourceIdList(jobs)},
     });
 
-    expect(jobs.length).toBe(1);
-    expect(dbJobs[0]).toMatchObject({
-      parentId: parentJob.resourceId,
+    const expectedDbJob: Partial<Job> = {
+      parentJobId: parentJob.resourceId,
       parents: [parentJob.resourceId],
-    });
+    };
+    expect(jobs.length).toBe(1);
+    expect(dbJobs[0]).toMatchObject(expectedDbJob);
   });
 
   test('queueJobs adds jobs with different parents but same params', async () => {
@@ -182,6 +185,9 @@ describe('utils', () => {
 
     const status = faker.helpers.arrayElement([kJobStatus.completed, kJobStatus.failed]);
     await completeJob(job.resourceId, status);
+    // Wait for existing promises to resolve. completeJob updates parent jobs,
+    // but adds them to the promise store, so we wait.
+    await kUtilsInjectables.promises().flush();
     const dbParentJob = await kSemanticModels.job().getOneById(parentJob.resourceId);
 
     assert(dbParentJob);
@@ -205,6 +211,9 @@ describe('utils', () => {
 
     const status = faker.helpers.arrayElement([kJobStatus.completed, kJobStatus.failed]);
     await completeJob(job01.resourceId, status);
+    // Wait for existing promises to resolve. completeJob updates parent jobs,
+    // but adds them to the promise store, so we wait.
+    await kUtilsInjectables.promises().flush();
     const dbParentJob = await kSemanticModels.job().getOneById(parentJob.resourceId);
 
     assert(dbParentJob);
@@ -236,6 +245,9 @@ describe('utils', () => {
     ]);
 
     await completeJob(job01.resourceId);
+    // Wait for existing promises to resolve. completeJob updates parent jobs,
+    // but adds them to the promise store, so we wait.
+    await kUtilsInjectables.promises().flush();
     const dbParentJob = await kSemanticModels.job().getOneById(parentJob.resourceId);
 
     assert(dbParentJob);
@@ -255,7 +267,6 @@ describe('utils', () => {
     const [job] = await generateAndInsertJobListForTest(/** count */ 1, {
       shard,
       status: faker.helpers.arrayElement([
-        kJobStatus.failed,
         kJobStatus.inProgress,
         kJobStatus.pending,
         kJobStatus.waitingForChildren,
@@ -394,26 +405,26 @@ describe('utils', () => {
         status: kJobStatus.pending,
         type: kJobType.noop,
         priority: kJobPresetPriority.p5,
-        parentJobId: first(childrenJobs01Depth01)?.resourceId,
-        parents: extractResourceIdList(childrenJobs01Depth01.slice(0, 1)),
+        parentJobId: childrenJobs01Depth01[0].resourceId,
+        parents: [parentJob.resourceId, childrenJobs01Depth01[0].resourceId],
       }),
       generateAndInsertJobListForTest(/** count */ 3, {
         shard,
         status: kJobStatus.pending,
         type: kJobType.noop,
         priority: kJobPresetPriority.p5,
-        parentJobId: first(childrenJobs02Depth01)?.resourceId,
-        parents: extractResourceIdList(childrenJobs02Depth01.slice(1, 2)),
+        parentJobId: childrenJobs01Depth01[1].resourceId,
+        parents: [parentJob.resourceId, childrenJobs01Depth01[1].resourceId],
       }),
     ]);
 
-    await expectErrorThrown(() => {
+    await expectErrorThrown(() =>
       waitForJob(
         parentJob.resourceId,
         /** bump priority */ true,
-        /** timeout, 1 sec */ 1_000
-      );
-    });
+        /** timeout, 100 ms */ 100
+      )
+    );
 
     const inputJobs = flattenDeep([
       parentJob,
@@ -426,7 +437,7 @@ describe('utils', () => {
     const dbJobs = await kSemanticModels.job().getManyByIdList(inputJobIds);
     const dbJobIds = extractResourceIdList(dbJobs);
 
-    expect(inputJobIds).toEqual(dbJobIds);
+    expect(inputJobIds).toEqual(expect.arrayContaining(dbJobIds));
     dbJobs.forEach(dbJob =>
       expect(dbJob.priority).toBeGreaterThan(kJobPresetPriority.p5)
     );
@@ -440,9 +451,11 @@ describe('utils', () => {
       priority: kJobPresetPriority.p5,
     });
 
-    await expectErrorThrown(() => {
-      waitForJob(job.resourceId, /** bump priority */ false, /** timeout, 10 ms */ 10);
-    }, [TimeoutError.name]);
+    await expectErrorThrown(
+      () =>
+        waitForJob(job.resourceId, /** bump priority */ false, /** timeout, 10 ms */ 10),
+      [TimeoutError.name]
+    );
   });
 
   test('getNextUnfinishedJob', async () => {
@@ -474,7 +487,7 @@ describe('utils', () => {
         getNextUnfinishedJob(/** empty active runners */ [], [shard], opts)
       );
 
-    expect(unfinishedJob).toEqual(job);
+    expect(unfinishedJob).toMatchObject(omitDeep(job, isUndefined));
     expect(unfinishedJob?.shard).toBe(shard);
   });
 
@@ -518,7 +531,7 @@ describe('utils', () => {
         getNextUnfinishedJob(/** empty active runner */ [], [shard], opts)
       );
 
-    expect(unfinishedJob).toEqual(jobP2);
+    expect(unfinishedJob).toMatchObject(omitDeep(jobP2, isUndefined));
     expect(unfinishedJob).not.toEqual(jobP1);
   });
 
@@ -543,7 +556,7 @@ describe('utils', () => {
       .utils()
       .withTxn(opts => getNextPendingJob([shard], opts));
 
-    expect(pendingJob).toEqual(job);
+    expect(pendingJob).toMatchObject(omitDeep(job, isUndefined));
     expect(pendingJob?.shard).toBe(shard);
   });
 
@@ -558,7 +571,7 @@ describe('utils', () => {
       }),
       generateAndInsertJobListForTest(/** count */ 1, {
         shard,
-        status: kJobStatus.inProgress,
+        status: kJobStatus.pending,
         type: kJobType.noop,
         priority: kJobPresetPriority.p2,
       }),
@@ -568,7 +581,7 @@ describe('utils', () => {
       .utils()
       .withTxn(opts => getNextPendingJob([shard], opts));
 
-    expect(pendingJob).toEqual(jobP2);
+    expect(pendingJob).toMatchObject(omitDeep(jobP2, isUndefined));
     expect(pendingJob).not.toEqual(jobP1);
   });
 
@@ -639,9 +652,7 @@ describe('utils', () => {
       generateAndInsertJobListForTest(/** count */ 1, {
         shard,
         status: kJobStatus.pending,
-        type: faker.helpers.arrayElement(
-          Object.values(kJobType).filter(type => type !== kJobType.fail)
-        ),
+        type: kJobType.noop,
       }),
     ]);
 

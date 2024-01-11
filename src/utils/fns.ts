@@ -1,4 +1,4 @@
-import {compact, flatten, mergeWith, uniq} from 'lodash';
+import {compact, flatten, isArray, isObject, mergeWith, uniq} from 'lodash';
 import {Readable} from 'stream';
 import {Resource} from '../definitions/system';
 import {appAssert} from './assertion';
@@ -446,4 +446,24 @@ export function callAfterAsync<
 
 export function identityArgs<TArgs extends unknown[]>(...args: TArgs) {
   return args;
+}
+
+export function omitDeep(data: AnyObject, byFn: AnyFn<[unknown], boolean>) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const result: any = isArray(data) ? [] : isObject(data) ? {} : undefined;
+  appAssert(result);
+
+  for (const key in data) {
+    let value = data[key];
+
+    if (!byFn(value)) {
+      if (isObject(value)) {
+        value = omitDeep(value, byFn);
+      }
+
+      result[key] = value;
+    }
+  }
+
+  return result;
 }

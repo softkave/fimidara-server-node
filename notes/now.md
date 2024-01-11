@@ -1,6 +1,7 @@
 ## Now
 
 - [ ] Support . and .. folder matchers
+- [ ] Should we fail other pending children jobs if parent job is marked failed?
 - [ ] Everything (resources, websites, platforms) a file, like Linux
 - [ ] Should messages have an ending period?
 - [ ] We mostly test with user tokens, also do tests with agent tokens

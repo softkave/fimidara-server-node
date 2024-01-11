@@ -3,6 +3,7 @@ import {kTokenAccessScope} from '../../../definitions/system';
 import {kForgotPasswordEmailArtifacts} from '../../../emailTemplates/forgotPassword';
 import RequestData from '../../RequestData';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
+import {kRegisterUtilsInjectables} from '../../contexts/injection/register';
 import MockTestEmailProviderContext from '../../testUtils/context/email/MockTestEmailProviderContext';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
@@ -20,16 +21,18 @@ import {ForgotPasswordEndpointParams} from './types';
  * - that email has verification link
  */
 
-beforeAll(async () => {
+beforeEach(async () => {
   await initTests();
 });
 
-afterAll(async () => {
+afterEach(async () => {
   await completeTests();
 });
 
 describe('forgotPassword', () => {
   test('forgot password with email sent', async () => {
+    kRegisterUtilsInjectables.email(new MockTestEmailProviderContext());
+
     const {user} = await insertUserForTest();
     const instData = RequestData.fromExpressRequest<ForgotPasswordEndpointParams>(
       mockExpressRequest(),
@@ -38,7 +41,7 @@ describe('forgotPassword', () => {
     const result = await forgotPassword(instData);
     assertEndpointResultOk(result);
     const forgotPasswordToken = await kSemanticModels.agentToken().assertGetOneByQuery({
-      resourceId: user.resourceId,
+      forEntityId: user.resourceId,
       scope: {$eq: [kTokenAccessScope.ChangePassword]},
     });
 
@@ -47,18 +50,11 @@ describe('forgotPassword', () => {
 
     // confirm forgot password email was sent
     const link = getForgotPasswordLinkFromToken(forgotPasswordToken);
-    expect(
-      emailProvider.sendEmail.mock.lastCall[1].body.html.includes(link)
-    ).toBeTruthy();
-    expect(
-      emailProvider.sendEmail.mock.lastCall[1].body.text.includes(link)
-    ).toBeTruthy();
-    expect(emailProvider.sendEmail.mock.lastCall[1].destination).toContainEqual(
-      user.email
-    );
-    expect(emailProvider.sendEmail.mock.lastCall[1].subject).toBe(
-      kForgotPasswordEmailArtifacts.title
-    );
+    const lastCall = emailProvider.sendEmail.mock.lastCall;
+    expect(lastCall[0].body.html.includes(link)).toBeTruthy();
+    expect(lastCall[0].body.text.includes(link)).toBeTruthy();
+    expect(lastCall[0].destination).toContainEqual(user.email);
+    expect(lastCall[0].subject).toBe(kForgotPasswordEmailArtifacts.title);
 
     // const forgotPasswordEmailProps: ForgotPasswordEmailProps = {
     //   link,

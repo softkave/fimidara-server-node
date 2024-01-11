@@ -1,4 +1,4 @@
-import {defaultTo, first, isObject, keyBy, noop} from 'lodash';
+import {defaultTo, first, isNumber, isObject, keyBy, noop} from 'lodash';
 import {AnyObject} from 'mongoose';
 import {availableParallelism} from 'os';
 import {App, AppShard, kAppPresetShards, kAppType} from '../../definitions/app';
@@ -145,15 +145,21 @@ export async function completeJob(
       jobsModel.getOneById(jobId, opts),
       jobsModel.existsByQuery(
         {
-          parents: {$elemMatch: jobId},
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          status: {$nin: [kJobStatus.completed, kJobStatus.failed] as any[]},
+          parents: jobId,
+          status: {
+            $in: [
+              kJobStatus.pending,
+              kJobStatus.inProgress,
+              kJobStatus.waitingForChildren,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ] as any[],
+          },
         },
         opts
       ),
       jobsModel.existsByQuery(
         {
-          parents: {$elemMatch: jobId},
+          parents: jobId,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           status: {$eq: kJobStatus.failed},
         },
@@ -165,12 +171,11 @@ export async function completeJob(
       return;
     }
 
-    appAssert(job.runnerId);
     const statusItem: JobStatusHistory = {
-      status: hasPendingChild
-        ? kJobStatus.waitingForChildren
-        : hasFailedChild
+      status: hasFailedChild
         ? kJobStatus.failed
+        : hasPendingChild
+        ? kJobStatus.waitingForChildren
         : status,
       statusLastUpdatedAt: getTimestamp(),
       runnerId: job.runnerId,
@@ -351,25 +356,31 @@ export async function getNextJob(
  * primarily for testing. */
 export async function waitForJob(
   jobId: string,
-  bumpPriority = true,
+  bumpPriority: boolean | number = true,
   timeoutMs = /** 5 minutes */ 5 * 60 * 1000,
   pollIntervalMs = 100 // 100 milliseconds
 ) {
   const startMs = getTimestamp();
 
   if (bumpPriority) {
-    await kSemanticModels.utils().withTxn(opts =>
-      kSemanticModels.job().updateManyByQueryList(
+    await kSemanticModels.utils().withTxn(async opts => {
+      const sampleJob = await kSemanticModels.job().getOneById(jobId, opts);
+      appAssert(sampleJob);
+      await kSemanticModels.job().updateManyByQueryList(
         [
           // Bump children priority
-          {parents: {$elemMatch: jobId}},
+          {parents: jobId},
           // Bump job priority
           {resourceId: jobId},
         ],
-        {priority: Number.MAX_SAFE_INTEGER},
+        {
+          priority: isNumber(bumpPriority)
+            ? bumpPriority
+            : Math.min(sampleJob.priority * 2, Number.MAX_SAFE_INTEGER),
+        },
         opts
-      )
-    );
+      );
+    });
   }
 
   return new Promise<void>((resolve, reject) => {
@@ -385,7 +396,7 @@ export async function waitForJob(
         return;
       }
 
-      if (getTimestamp() > startMs + timeoutMs) {
+      if (getTimestamp() < startMs + timeoutMs) {
         setTimeout(waitFn, pollIntervalMs);
       } else {
         reject(new TimeoutError());

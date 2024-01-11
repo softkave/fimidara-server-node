@@ -1,4 +1,5 @@
 import {ProjectionType, SortOrder} from 'mongoose';
+import {Primitive} from 'type-fest';
 import {AgentToken} from '../../../definitions/agentToken';
 import {App} from '../../../definitions/app';
 import {AssignedItem} from '../../../definitions/assignedItem';
@@ -104,7 +105,7 @@ export type DataQuery<T> = {
   [P in keyof T]?:
     | LiteralFieldQueryOps<T[P]>
     | (NonNullable<T[P]> extends Array<infer U>
-        ? ArrayFieldQueryOps<U>
+        ? ArrayFieldQueryOps<U> | (U extends Primitive ? U : never)
         : NonNullable<T[P]> extends AnyObject
         ? IRecordFieldQueryOps<NonNullable<T[P]>>
         : never);
