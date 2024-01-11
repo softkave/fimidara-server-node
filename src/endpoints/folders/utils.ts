@@ -362,7 +362,6 @@ export async function ingestFolderByFolderpath(
   agent: Agent,
   /** folderpath with workspace rootname */
   folderpath: string,
-  opts: SemanticProviderMutationRunOptions,
   workspaceId: string,
   workspace?: Workspace,
   mounts?: FileBackendMount[],
@@ -377,16 +376,15 @@ export async function ingestFolderByFolderpath(
   if (mounts) {
     appAssert(mountWeights);
   } else {
-    ({mounts, mountWeights} = await resolveMountsForFolder(
-      {workspaceId, namepath: pathinfo.parentNamepath},
-      opts
-    ));
+    ({mounts, mountWeights} = await resolveMountsForFolder({
+      workspaceId,
+      namepath: pathinfo.parentNamepath,
+    }));
   }
 
   const configs = await getBackendConfigsWithIdList(
     compact(mounts.map(mount => mount.configId)),
-    /** throw error is config is not found */ true,
-    opts
+    /** throw error is config is not found */ true
   );
   const providersMap = await initBackendProvidersForMounts(mounts, configs);
   const folderEntries = await Promise.all(
@@ -413,11 +411,11 @@ export async function readOrIngestFolderByFolderpath(
   agent: Agent,
   /** folderpath with workspace rootname */
   folderpath: string,
-  opts: SemanticProviderMutationRunOptions,
+  opts?: SemanticProviderRunOptions,
   workspaceId?: string
 ) {
   const folderModel = kSemanticModels.folder();
-  let workspace: Workspace | undefined = undefined;
+  let workspace: Workspace | undefined;
 
   if (!workspaceId) {
     workspace = await getWorkspaceFromFolderpath(folderpath);
@@ -431,7 +429,7 @@ export async function readOrIngestFolderByFolderpath(
   );
 
   if (!folder) {
-    await ingestFolderByFolderpath(agent, folderpath, opts, workspaceId, workspace);
+    await ingestFolderByFolderpath(agent, folderpath, workspaceId, workspace);
     folder = await folderModel.getOneByNamepath(
       {workspaceId, namepath: pathinfo.namepath},
       opts

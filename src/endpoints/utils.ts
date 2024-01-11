@@ -24,7 +24,10 @@ import {serverLogger} from '../utils/logger/loggerUtils';
 import {AnyObject} from '../utils/types';
 import RequestData from './RequestData';
 import {endpointConstants} from './constants';
-import {ResolvedTargetChildrenAccessCheck} from './contexts/authorizationChecks/checkAuthorizaton';
+import {
+  ResolvedTargetChildrenAccessCheck,
+  kResolvedTargetChildrenAccess,
+} from './contexts/authorizationChecks/checkAuthorizaton';
 import {DataQuery} from './contexts/data/types';
 import {kUtilsInjectables} from './contexts/injection/injectables';
 import {getInAndNinQuery} from './contexts/semantic/utils';
@@ -210,14 +213,14 @@ export function getWorkspaceResourceListQuery00(
   workspace: Workspace,
   report: ResolvedTargetChildrenAccessCheck
 ) {
-  if (report.access === 'full') {
+  if (report.access === kResolvedTargetChildrenAccess.full) {
     return {
       workspaceId: workspace.resourceId,
       excludeResourceIdList: report.partialDenyIds?.length
         ? report.partialDenyIds
         : undefined,
     };
-  } else if (report.access === 'partial') {
+  } else if (report.access === kResolvedTargetChildrenAccess.partial) {
     return {
       workspaceId: workspace.resourceId,
       resourceIdList: report.partialAllowIds,

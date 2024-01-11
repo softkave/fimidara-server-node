@@ -148,10 +148,11 @@ export function makeRootnameFromName(name: string): string {
 
 export async function getWorkspaceFromEndpointInput(
   agent: SessionAgent,
-  data: EndpointOptionalWorkspaceIDParam
+  data: EndpointOptionalWorkspaceIDParam,
+  opts?: SemanticProviderRunOptions
 ) {
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
-  const workspace = await checkWorkspaceExists(workspaceId);
+  const workspace = await checkWorkspaceExists(workspaceId, opts);
   return {workspace};
 }
 

@@ -1,6 +1,7 @@
 ## Now
 
 - [ ] Support . and .. folder matchers
+- [ ] Everything (resources, websites, platforms) a file, like Linux
 - [ ] Should messages have an ending period?
 - [ ] We mostly test with user tokens, also do tests with agent tokens
 - [ ] Move logs to it's own service

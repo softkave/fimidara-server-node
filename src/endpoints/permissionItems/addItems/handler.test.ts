@@ -124,7 +124,9 @@ describe('addItems', () => {
     );
     const grantAccess = faker.datatype.boolean();
     const actions = Object.values(kPermissionsMap);
-    const actionsWithoutWildcard = actions.filter(action => action !== 'wildcard');
+    const actionsWithoutWildcard = actions.filter(
+      action => action !== kPermissionsMap.wildcard
+    );
     const itemsUniq = actionsWithoutWildcard.map(
       (action): PermissionItemInput => ({
         action,
@@ -219,13 +221,13 @@ describe('addItems', () => {
     const itemsInput: PermissionItemInput[] = [
       {
         access: true,
-        action: 'readFile',
+        action: kPermissionsMap.readFile,
         entityId: user.resourceId,
         target: {targetId: folder01.resourceId},
       },
       {
         access: true,
-        action: 'readFile',
+        action: kPermissionsMap.readFile,
         entityId: user.resourceId,
         target: {targetId: folder02.resourceId},
       },

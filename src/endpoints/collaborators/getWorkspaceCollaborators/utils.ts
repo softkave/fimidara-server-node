@@ -1,7 +1,10 @@
 import {AssignedItem} from '../../../definitions/assignedItem';
 import {kAppResourceType, SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
-import {resolveTargetChildrenAccessCheckWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
+import {
+  kResolvedTargetChildrenAccess,
+  resolveTargetChildrenAccessCheckWithAgent,
+} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {DataQuery} from '../../contexts/data/types';
 import {getInAndNinQuery} from '../../contexts/semantic/utils';
 import {PermissionDeniedError} from '../../users/errors';
@@ -17,7 +20,7 @@ export async function getWorkspaceCollaboratorsQuery(
     target: {targetId: workspace.resourceId, action: 'readCollaborator'},
   });
 
-  if (permissionsSummaryReport.access === 'full') {
+  if (permissionsSummaryReport.access === kResolvedTargetChildrenAccess.full) {
     return {
       workspaceId: workspace.resourceId,
       assignedItemType: kAppResourceType.Workspace,
@@ -28,7 +31,7 @@ export async function getWorkspaceCollaboratorsQuery(
         permissionsSummaryReport.partialDenyIds
       ),
     };
-  } else if (permissionsSummaryReport.access === 'partial') {
+  } else if (permissionsSummaryReport.access === kResolvedTargetChildrenAccess.partial) {
     return {
       workspaceId: workspace.resourceId,
       assigneeId: permissionsSummaryReport.partialAllowIds && {

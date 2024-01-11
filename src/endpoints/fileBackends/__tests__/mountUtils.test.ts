@@ -74,12 +74,12 @@ describe('file backend mount utils', () => {
     const [folder02] = await generateAndInsertTestFolders(
       /** count */ 1,
       {workspaceId: folder01.workspaceId, parentId: folder01.resourceId},
-      {parentnamepath: folder01.namepath}
+      {parentNamepath: folder01.namepath}
     );
     const [folder03] = await generateAndInsertTestFolders(
       /** count */ 1,
       {workspaceId: folder02.workspaceId, parentId: folder02.resourceId},
-      {parentnamepath: folder02.namepath}
+      {parentNamepath: folder02.namepath}
     );
     const [mounts00, mounts01, mounts02, mounts03] = await Promise.all([
       generateAndInsertFileBackendMountListForTest(/** count */ 2, {

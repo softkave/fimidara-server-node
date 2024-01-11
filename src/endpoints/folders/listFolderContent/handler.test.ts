@@ -1,3 +1,4 @@
+import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {kAppResourceType} from '../../../definitions/system';
 import {calculatePageSize, getResourceId} from '../../../utils/fns';
 import {kSemanticModels} from '../../contexts/injection/injectables';
@@ -256,13 +257,13 @@ describe('listFolderContent', () => {
         items: [
           {
             target: {targetId: folder02.resourceId},
-            action: 'readFolder',
+            action: kPermissionsMap.readFolder,
             access: true,
             entityId: [agToken.resourceId],
           },
           {
             target: {targetId: file01.resourceId},
-            action: 'readFile',
+            action: kPermissionsMap.readFile,
             access: true,
             entityId: [agToken.resourceId],
           },

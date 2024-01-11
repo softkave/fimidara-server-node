@@ -2,7 +2,7 @@ import {ObjectValues, Omit1} from '../utils/types';
 import {AppResourceType, ConvertAgentToPublicAgent, WorkspaceResource} from './system';
 
 export const kPermissionsMap = {
-  wildcard: 'wildcard',
+  wildcard: '*',
   // wildcardAdd: 'wildcardAdd',
   // wildcardRead: 'wildcardRead',
   // wildcardUpdate: 'wildcardUpdate',

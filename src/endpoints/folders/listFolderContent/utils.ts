@@ -1,17 +1,20 @@
 import {first, isUndefined} from 'lodash';
 import {Folder, FolderMatcher} from '../../../definitions/folder';
+import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {SessionAgent, kAppResourceType} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
-import {appAssert} from '../../../utils/assertion';
-import {ServerError} from '../../../utils/errors';
 import {
   getResourcePermissionContainers,
+  kResolvedTargetChildrenAccess,
   resolveTargetChildrenAccessCheckWithAgent,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../../contexts/injection/injectables';
+import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {EndpointOptionalWorkspaceIDParam} from '../../types';
 import {PermissionDeniedError} from '../../users/errors';
-import {assertWorkspace} from '../../workspaces/utils';
-import {checkFolderAuthorization02, getWorkspaceRootnameFromPath} from '../utils';
+import {assertWorkspace, getWorkspaceFromEndpointInput} from '../../workspaces/utils';
+import {getFolderWithMatcher} from '../getFolderWithMatcher';
+import {getWorkspaceRootnameFromPath} from '../utils';
 
 export async function listFolderContentQuery(
   agent: SessionAgent,
@@ -24,14 +27,17 @@ export async function listFolderContentQuery(
     workspace,
     workspaceId: workspace.resourceId,
     target: {
-      action: contentType === kAppResourceType.File ? 'readFile' : 'readFolder',
+      action:
+        contentType === kAppResourceType.File
+          ? kPermissionsMap.readFile
+          : kPermissionsMap.readFolder,
       targetId: getResourcePermissionContainers(workspace.resourceId, parentFolder, true),
     },
   });
 
   const parentId = parentFolder?.resourceId ?? null;
 
-  if (report.access === 'full') {
+  if (report.access === kResolvedTargetChildrenAccess.full) {
     return {
       parentId,
       workspaceId: workspace.resourceId,
@@ -39,7 +45,7 @@ export async function listFolderContentQuery(
         ? report.partialDenyIds
         : undefined,
     };
-  } else if (report.access === 'partial') {
+  } else if (report.access === kResolvedTargetChildrenAccess.partial) {
     return {
       parentId,
       workspaceId: workspace.resourceId,
@@ -52,18 +58,20 @@ export async function listFolderContentQuery(
 
 export async function getWorkspaceAndParentFolder(
   agent: SessionAgent,
-  matcher: FolderMatcher
+  data: FolderMatcher & EndpointOptionalWorkspaceIDParam,
+  opts?: SemanticProviderMutationRunOptions
 ) {
   let workspace: Workspace | null | undefined = null,
     parentFolder: Folder | null | undefined = undefined;
 
   // Check if folderpath contains only the workspace rootname and fetch
   // root-level folders and files
-  if (matcher.folderpath) {
-    const {rootname, splitPath} = getWorkspaceRootnameFromPath(matcher.folderpath);
+  if (data.folderpath) {
+    const {rootname, splitPath} = getWorkspaceRootnameFromPath(data.folderpath);
     const containsRootnameOnly = first(splitPath) === rootname && splitPath.length === 1;
+
     if (containsRootnameOnly) {
-      workspace = await kSemanticModels.workspace().getByRootname(rootname);
+      workspace = await kSemanticModels.workspace().getByRootname(rootname, opts);
       parentFolder = null;
     }
   }
@@ -71,22 +79,19 @@ export async function getWorkspaceAndParentFolder(
   // Fetch using folder matcher if folderpath doesn't contain only the workspace
   // rootname
   if (isUndefined(parentFolder)) {
-    const checkResult = await checkFolderAuthorization02(
-      agent,
-      matcher,
-      'readFolder',
-      workspace ?? undefined,
-      /** db run options */ undefined
-    );
-    ({workspace, folder: parentFolder} = checkResult);
+    parentFolder = await getFolderWithMatcher(agent, data, opts, workspace?.resourceId);
+
+    if (parentFolder && !workspace) {
+      workspace = await kSemanticModels
+        .workspace()
+        .getOneById(parentFolder.workspaceId, opts);
+    }
+  }
+
+  if (!parentFolder && !workspace) {
+    ({workspace} = await getWorkspaceFromEndpointInput(agent, data, opts));
   }
 
   assertWorkspace(workspace);
-  appAssert(
-    !isUndefined(parentFolder),
-    new ServerError(),
-    'Parent folder should be null or folder, not undefined.'
-  );
-
   return {workspace, parentFolder};
 }

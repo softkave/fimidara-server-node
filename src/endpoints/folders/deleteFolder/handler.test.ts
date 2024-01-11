@@ -12,7 +12,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
-import {addRootnameToPath} from '../utils';
+import {stringifyFoldernamepath} from '../utils';
 import deleteFolder from './handler';
 import {DeleteFolderEndpointParams} from './types';
 
@@ -37,9 +37,8 @@ test('folder deleted', async () => {
 
   const instData = RequestData.fromExpressRequest<DeleteFolderEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
-    {folderpath: addRootnameToPath(folder01.name, workspace.rootname)}
+    {folderpath: stringifyFoldernamepath(folder01, workspace.rootname)}
   );
-
   const result = await deleteFolder(instData);
   assertEndpointResultOk(result);
 

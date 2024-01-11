@@ -4,7 +4,7 @@ import {kSemanticModels} from '../contexts/injection/injectables';
 import {getStringListQuery} from '../contexts/semantic/utils';
 import {
   generateAndInsertTestFolders,
-  generateTestFolderName,
+  generateTestFolderpath,
 } from '../testUtils/generate/folder';
 import {completeTests} from '../testUtils/helpers/test';
 import {initTests} from '../testUtils/testUtils';
@@ -19,27 +19,24 @@ afterAll(async () => {
 
 describe('utils', () => {
   test('case-insensitive file match', async () => {
-    const parentnamepath = new Array(getRandomIntInclusive(1, 5))
-      .fill(0)
-      .map(() => generateTestFolderName());
+    const parentNamepath = generateTestFolderpath({length: getRandomIntInclusive(1, 5)});
     const folders = await generateAndInsertTestFolders(
       /** count */ 5,
       {parentId: null},
-      {parentnamepath}
+      {parentNamepath}
     );
-    const foldernamepathList = folders.map(folder => folder.namepath);
+    const folderNamepathList = folders.map(folder => folder.namepath);
     const foldersByParent = await kSemanticModels
       .folder()
       .getManyByQuery(
         getStringListQuery<Folder>(
-          parentnamepath,
+          parentNamepath,
           /** prefix */ 'namepath',
-          /** match op */ '$regex',
-          /** include size op */ true
+          /** match op */ '$regex'
         )
       );
     const returnedFolders = await Promise.all(
-      foldernamepathList.map(namepath =>
+      folderNamepathList.map(namepath =>
         kSemanticModels
           .folder()
           .getOneByQuery(

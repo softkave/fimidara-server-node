@@ -14,7 +14,7 @@ import {toArray, toCompactArray, toUniqArray} from '../../../utils/fns';
 import {sortPermissionEntityInheritanceMap} from '../../../utils/permissionEntityUtils';
 import {getResourceTypeFromId} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {Omit1} from '../../../utils/types';
+import {ObjectValues, Omit1} from '../../../utils/types';
 import {checkResourcesBelongsToWorkspace} from '../../resources/containerCheckFns';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../users/errors';
 import {kSemanticModels} from '../injection/injectables';
@@ -63,19 +63,29 @@ export interface ResolvedPermissionsAccessCheckerType {
   checkAuthParams: (nothrow?: boolean) => ResolvedPermissionCheck[];
 }
 
+export const kResolvedTargetChildrenAccess = {
+  full: 'full',
+  deny: 'deny',
+  partial: 'partial',
+} as const;
+
+export type ResolvedTargetChildrenAccess = ObjectValues<
+  typeof kResolvedTargetChildrenAccess
+>;
+
 export type ResolvedTargetChildrenAccessCheck =
   | {
-      access: 'full';
+      access: typeof kResolvedTargetChildrenAccess.full;
       item: PermissionItem;
       partialDenyItems: PermissionItem[];
       partialDenyIds: string[];
     }
   | {
-      access: 'deny';
+      access: typeof kResolvedTargetChildrenAccess.deny;
       item: PermissionItem;
     }
   | {
-      access: 'partial';
+      access: typeof kResolvedTargetChildrenAccess.partial;
       item?: PermissionItem;
       partialAllowItems: PermissionItem[];
       partialAllowIds: string[];
@@ -298,14 +308,19 @@ export async function resolveTargetChildrenAccessCheck(
   appAssert(parentCheck && parentCheckList.length === 1);
 
   if (parentCheck.hasAccess) {
-    return {partialDenyIds, partialDenyItems, access: 'full', item: parentCheck.item};
+    return {
+      partialDenyIds,
+      partialDenyItems,
+      access: kResolvedTargetChildrenAccess.full,
+      item: parentCheck.item,
+    };
   } else if (!parentCheck.hasAccess && parentCheck.item && partialAllowIds.length === 0) {
-    return {access: 'deny', item: parentCheck.item};
+    return {access: kResolvedTargetChildrenAccess.deny, item: parentCheck.item};
   } else {
     return {
       partialAllowIds,
       partialAllowItems,
-      access: 'partial',
+      access: kResolvedTargetChildrenAccess.partial,
     };
   }
 }

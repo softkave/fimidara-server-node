@@ -92,11 +92,11 @@ export async function generateUniqueFolderpath(workspaceId: string) {
 
 export function generateTestFolder(
   extra: Partial<Folder> & {parentId: string | null} = {parentId: null},
-  other: {parentnamepath?: string[]; parentIdPath?: string[]} = {}
+  other: {parentNamepath?: string[]; parentIdPath?: string[]} = {}
 ) {
   const id = getNewIdForResource(kAppResourceType.Folder);
   const name = generateTestFolderName();
-  const namepath = other.parentnamepath ? other.parentnamepath.concat(name) : [name];
+  const namepath = other.parentNamepath ? other.parentNamepath.concat(name) : [name];
   const idPath = other.parentIdPath
     ? other.parentIdPath.concat(id)
     : extra.parentId

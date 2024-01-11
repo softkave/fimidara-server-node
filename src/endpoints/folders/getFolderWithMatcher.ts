@@ -38,13 +38,12 @@ export async function getFolderWithMatcher(
   if (matcher.folderId) {
     return await kSemanticModels.folder().getOneById(matcher.folderId, opts);
   } else if (matcher.folderpath) {
-    if (opts)
-      return await readOrIngestFolderByFolderpath(
-        agent,
-        matcher.folderpath,
-        opts,
-        workspaceId
-      );
+    return await readOrIngestFolderByFolderpath(
+      agent,
+      matcher.folderpath,
+      opts,
+      workspaceId
+    );
   }
 
   return null;

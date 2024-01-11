@@ -28,6 +28,7 @@ import {kSemanticModels, kUtilsInjectables} from '../../injection/injectables';
 import {
   checkAuthorizationWithAgent,
   getFilePermissionContainers,
+  kResolvedTargetChildrenAccess,
   resolveTargetChildrenAccessCheckWithAgent,
 } from '../checkAuthorizaton';
 
@@ -43,19 +44,24 @@ describe('checkAuthorization', () => {
       parentId: null,
     });
     await Promise.all([
-      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
-        targetId: file01.resourceId,
-      }),
-      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
-        targetId: file03.resourceId,
-        access: false,
-      }),
+      addPermissions(
+        rawWorkspace.resourceId,
+        user02.resourceId,
+        kPermissionsMap.readFile,
+        {targetId: file01.resourceId}
+      ),
+      addPermissions(
+        rawWorkspace.resourceId,
+        user02.resourceId,
+        kPermissionsMap.readFile,
+        {targetId: file03.resourceId, access: false}
+      ),
     ]);
 
     await checkAuthorizationWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: 'readFile',
+        action: kPermissionsMap.readFile,
         targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
       },
       workspaceId: rawWorkspace.resourceId,
@@ -65,7 +71,7 @@ describe('checkAuthorization', () => {
       await checkAuthorizationWithAgent({
         agent: user02SessionAgent,
         target: {
-          action: 'readFile',
+          action: kPermissionsMap.readFile,
           targetId: getFilePermissionContainers(rawWorkspace.resourceId, file02, true),
         },
         workspaceId: rawWorkspace.resourceId,
@@ -76,7 +82,7 @@ describe('checkAuthorization', () => {
       await checkAuthorizationWithAgent({
         agent: user02SessionAgent,
         target: {
-          action: 'readFile',
+          action: kPermissionsMap.readFile,
           targetId: getFilePermissionContainers(rawWorkspace.resourceId, file03, true),
         },
         workspaceId: rawWorkspace.resourceId,
@@ -103,18 +109,26 @@ describe('checkAuthorization', () => {
 
       await Promise.all([
         // Add readFile access to file01 for pg01
-        addPermissions(rawWorkspace.resourceId, pg01.resourceId, 'readFile', {
-          targetId: file01.resourceId,
-        }),
+        addPermissions(
+          rawWorkspace.resourceId,
+          pg01.resourceId,
+          kPermissionsMap.readFile,
+          {targetId: file01.resourceId}
+        ),
         // Add readFile access to file02 for pg02
-        addPermissions(rawWorkspace.resourceId, pg02.resourceId, 'readFile', {
-          targetId: file02.resourceId,
-        }),
+        addPermissions(
+          rawWorkspace.resourceId,
+          pg02.resourceId,
+          kPermissionsMap.readFile,
+          {targetId: file02.resourceId}
+        ),
         // Add deny readFile access to file04 for pg01
-        addPermissions(rawWorkspace.resourceId, pg02.resourceId, 'readFile', {
-          targetId: file04.resourceId,
-          access: false,
-        }),
+        addPermissions(
+          rawWorkspace.resourceId,
+          pg02.resourceId,
+          kPermissionsMap.readFile,
+          {targetId: file04.resourceId, access: false}
+        ),
         // Assign pg02 to pg01
         generateAndInsertAssignedItemListForTest({
           workspaceId: rawWorkspace.resourceId,
@@ -133,7 +147,7 @@ describe('checkAuthorization', () => {
         agent: user02SessionAgent,
         target: {
           targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
-          action: 'readFile',
+          action: kPermissionsMap.readFile,
         },
         workspaceId: rawWorkspace.resourceId,
         workspace: rawWorkspace,
@@ -142,7 +156,7 @@ describe('checkAuthorization', () => {
         agent: user02SessionAgent,
         target: {
           targetId: getFilePermissionContainers(rawWorkspace.resourceId, file02, true),
-          action: 'readFile',
+          action: kPermissionsMap.readFile,
         },
         workspaceId: rawWorkspace.resourceId,
         workspace: rawWorkspace,
@@ -153,7 +167,7 @@ describe('checkAuthorization', () => {
           agent: user02SessionAgent,
           target: {
             targetId: getFilePermissionContainers(rawWorkspace.resourceId, file03, true),
-            action: 'readFile',
+            action: kPermissionsMap.readFile,
           },
           workspaceId: rawWorkspace.resourceId,
           workspace: rawWorkspace,
@@ -164,7 +178,7 @@ describe('checkAuthorization', () => {
           agent: user02SessionAgent,
           target: {
             targetId: getFilePermissionContainers(rawWorkspace.resourceId, file04, true),
-            action: 'readFile',
+            action: kPermissionsMap.readFile,
           },
           workspaceId: rawWorkspace.resourceId,
           workspace: rawWorkspace,
@@ -196,19 +210,24 @@ describe('checkAuthorization', () => {
       }),
     ]);
     await Promise.all([
-      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
-        targetId: folder01.resourceId,
-      }),
-      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
-        targetId: folder03.resourceId,
-        access: false,
-      }),
+      addPermissions(
+        rawWorkspace.resourceId,
+        user02.resourceId,
+        kPermissionsMap.readFile,
+        {targetId: folder01.resourceId}
+      ),
+      addPermissions(
+        rawWorkspace.resourceId,
+        user02.resourceId,
+        kPermissionsMap.readFile,
+        {targetId: folder03.resourceId, access: false}
+      ),
     ]);
 
     await checkAuthorizationWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: 'readFile',
+        action: kPermissionsMap.readFile,
         targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
       },
       workspaceId: rawWorkspace.resourceId,
@@ -218,7 +237,7 @@ describe('checkAuthorization', () => {
       await checkAuthorizationWithAgent({
         agent: user02SessionAgent,
         target: {
-          action: 'readFile',
+          action: kPermissionsMap.readFile,
           targetId: getFilePermissionContainers(rawWorkspace.resourceId, file02, true),
         },
         workspaceId: rawWorkspace.resourceId,
@@ -229,7 +248,7 @@ describe('checkAuthorization', () => {
       await checkAuthorizationWithAgent({
         agent: user02SessionAgent,
         target: {
-          action: 'readFile',
+          action: kPermissionsMap.readFile,
           targetId: getFilePermissionContainers(rawWorkspace.resourceId, file03, true),
         },
         workspaceId: rawWorkspace.resourceId,
@@ -273,18 +292,26 @@ describe('checkAuthorization', () => {
       ]);
       await Promise.all([
         // Add readFile access to folder01 for pg01
-        addPermissions(rawWorkspace.resourceId, pg01.resourceId, 'readFile', {
-          targetId: folder01.resourceId,
-        }),
+        addPermissions(
+          rawWorkspace.resourceId,
+          pg01.resourceId,
+          kPermissionsMap.readFile,
+          {targetId: folder01.resourceId}
+        ),
         // Add readFile access to folder02 for pg02
-        addPermissions(rawWorkspace.resourceId, pg02.resourceId, 'readFile', {
-          targetId: folder02.resourceId,
-        }),
+        addPermissions(
+          rawWorkspace.resourceId,
+          pg02.resourceId,
+          kPermissionsMap.readFile,
+          {targetId: folder02.resourceId}
+        ),
         // Add deny readFile access to folder04 for pg02
-        addPermissions(rawWorkspace.resourceId, pg02.resourceId, 'readFile', {
-          targetId: folder04.resourceId,
-          access: false,
-        }),
+        addPermissions(
+          rawWorkspace.resourceId,
+          pg02.resourceId,
+          kPermissionsMap.readFile,
+          {targetId: folder04.resourceId, access: false}
+        ),
         // Assign pg02 to pg01
         generateAndInsertAssignedItemListForTest({
           workspaceId: rawWorkspace.resourceId,
@@ -302,7 +329,7 @@ describe('checkAuthorization', () => {
       await checkAuthorizationWithAgent({
         agent: user02SessionAgent,
         target: {
-          action: 'readFile',
+          action: kPermissionsMap.readFile,
           targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
         },
         workspaceId: rawWorkspace.resourceId,
@@ -311,7 +338,7 @@ describe('checkAuthorization', () => {
       await checkAuthorizationWithAgent({
         agent: user02SessionAgent,
         target: {
-          action: 'readFile',
+          action: kPermissionsMap.readFile,
           targetId: getFilePermissionContainers(rawWorkspace.resourceId, file02, true),
         },
         workspaceId: rawWorkspace.resourceId,
@@ -322,7 +349,7 @@ describe('checkAuthorization', () => {
         await checkAuthorizationWithAgent({
           agent: user02SessionAgent,
           target: {
-            action: 'readFile',
+            action: kPermissionsMap.readFile,
             targetId: getFilePermissionContainers(rawWorkspace.resourceId, file03, true),
           },
           workspaceId: rawWorkspace.resourceId,
@@ -333,7 +360,7 @@ describe('checkAuthorization', () => {
         await checkAuthorizationWithAgent({
           agent: user02SessionAgent,
           target: {
-            action: 'readFile',
+            action: kPermissionsMap.readFile,
             targetId: getFilePermissionContainers(rawWorkspace.resourceId, file04, true),
           },
           workspaceId: rawWorkspace.resourceId,
@@ -352,19 +379,24 @@ describe('checkAuthorization', () => {
       parentId: null,
     });
     await Promise.all([
-      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
-        targetId: file01.resourceId,
-      }),
-      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
-        targetId: file02.resourceId,
-        access: false,
-      }),
+      addPermissions(
+        rawWorkspace.resourceId,
+        user02.resourceId,
+        kPermissionsMap.readFile,
+        {targetId: file01.resourceId}
+      ),
+      addPermissions(
+        rawWorkspace.resourceId,
+        user02.resourceId,
+        kPermissionsMap.readFile,
+        {targetId: file02.resourceId, access: false}
+      ),
     ]);
 
     const [check01] = await checkAuthorizationWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: 'readFile',
+        action: kPermissionsMap.readFile,
         targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
       },
       workspaceId: rawWorkspace.resourceId,
@@ -374,7 +406,7 @@ describe('checkAuthorization', () => {
     const [check02] = await checkAuthorizationWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: 'readFile',
+        action: kPermissionsMap.readFile,
         targetId: getFilePermissionContainers(rawWorkspace.resourceId, file02, true),
       },
       workspaceId: rawWorkspace.resourceId,
@@ -397,19 +429,24 @@ describe('checkAuthorization', () => {
       parentId: null,
     });
     await Promise.all([
-      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'wildcard', {
-        targetId: file01.resourceId,
-      }),
-      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'wildcard', {
-        targetId: file03.resourceId,
-        access: false,
-      }),
+      addPermissions(
+        rawWorkspace.resourceId,
+        user02.resourceId,
+        kPermissionsMap.wildcard,
+        {targetId: file01.resourceId}
+      ),
+      addPermissions(
+        rawWorkspace.resourceId,
+        user02.resourceId,
+        kPermissionsMap.wildcard,
+        {targetId: file03.resourceId, access: false}
+      ),
     ]);
 
     await checkAuthorizationWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: 'readFile',
+        action: kPermissionsMap.readFile,
         targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
       },
       workspaceId: rawWorkspace.resourceId,
@@ -419,7 +456,7 @@ describe('checkAuthorization', () => {
       await checkAuthorizationWithAgent({
         agent: user02SessionAgent,
         target: {
-          action: 'readFile',
+          action: kPermissionsMap.readFile,
           targetId: getFilePermissionContainers(rawWorkspace.resourceId, file03, true),
         },
         workspaceId: rawWorkspace.resourceId,
@@ -444,11 +481,14 @@ describe('checkAuthorization', () => {
 
     await Promise.all([
       // Add readFile access to file01 for user02
-      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
-        targetId: file01.resourceId,
-      }),
+      addPermissions(
+        rawWorkspace.resourceId,
+        user02.resourceId,
+        kPermissionsMap.readFile,
+        {targetId: file01.resourceId}
+      ),
       // Add deny readFile access to file01 for pg01
-      addPermissions(rawWorkspace.resourceId, pg01.resourceId, 'readFile', {
+      addPermissions(rawWorkspace.resourceId, pg01.resourceId, kPermissionsMap.readFile, {
         targetId: file01.resourceId,
         access: false,
       }),
@@ -464,7 +504,7 @@ describe('checkAuthorization', () => {
       agent: user02SessionAgent,
       target: {
         targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
-        action: 'readFile',
+        action: kPermissionsMap.readFile,
       },
       workspaceId: rawWorkspace.resourceId,
       workspace: rawWorkspace,
@@ -486,19 +526,24 @@ describe('checkAuthorization', () => {
       }),
     ]);
     await Promise.all([
-      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
-        targetId: file01.resourceId,
-      }),
-      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
-        targetId: folder01.resourceId,
-        access: false,
-      }),
+      addPermissions(
+        rawWorkspace.resourceId,
+        user02.resourceId,
+        kPermissionsMap.readFile,
+        {targetId: file01.resourceId}
+      ),
+      addPermissions(
+        rawWorkspace.resourceId,
+        user02.resourceId,
+        kPermissionsMap.readFile,
+        {targetId: folder01.resourceId, access: false}
+      ),
     ]);
 
     await checkAuthorizationWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: 'readFile',
+        action: kPermissionsMap.readFile,
         targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
       },
       workspaceId: rawWorkspace.resourceId,
@@ -515,19 +560,24 @@ describe('checkAuthorization', () => {
       parentId: null,
     });
     // Assign deny permission to file
-    await addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
-      targetId: file01.resourceId,
-      access: false,
-    });
+    await addPermissions(
+      rawWorkspace.resourceId,
+      user02.resourceId,
+      kPermissionsMap.readFile,
+      {targetId: file01.resourceId, access: false}
+    );
     // Assign allow permission which should override deny permission
-    await addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
-      targetId: file01.resourceId,
-    });
+    await addPermissions(
+      rawWorkspace.resourceId,
+      user02.resourceId,
+      kPermissionsMap.readFile,
+      {targetId: file01.resourceId}
+    );
 
     await checkAuthorizationWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: 'readFile',
+        action: kPermissionsMap.readFile,
         targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
       },
       workspaceId: rawWorkspace.resourceId,
@@ -575,22 +625,25 @@ describe('checkAuthorization', () => {
       parentId: null,
     });
     await Promise.all([
-      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
-        targetId: folder01.resourceId,
-      }),
+      addPermissions(
+        rawWorkspace.resourceId,
+        user02.resourceId,
+        kPermissionsMap.readFile,
+        {targetId: folder01.resourceId}
+      ),
     ]);
 
     const resolveResult = await resolveTargetChildrenAccessCheckWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: 'readFile',
+        action: kPermissionsMap.readFile,
         targetId: getFilePermissionContainers(rawWorkspace.resourceId, folder01, true),
       },
       workspaceId: rawWorkspace.resourceId,
       workspace: rawWorkspace,
     });
 
-    assert(resolveResult.access === 'full');
+    assert(resolveResult.access === kResolvedTargetChildrenAccess.full);
     expect(resolveResult.item).toBeTruthy();
     expect(resolveResult.partialDenyIds.length).toBe(0);
     expect(resolveResult.partialDenyItems.length).toBe(0);
@@ -605,16 +658,18 @@ describe('checkAuthorization', () => {
       parentId: null,
     });
     await Promise.all([
-      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
-        targetId: folder01.resourceId,
-        access: false,
-      }),
+      addPermissions(
+        rawWorkspace.resourceId,
+        user02.resourceId,
+        kPermissionsMap.readFile,
+        {targetId: folder01.resourceId, access: false}
+      ),
     ]);
 
     const resolveResult01 = await resolveTargetChildrenAccessCheckWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: 'readFile',
+        action: kPermissionsMap.readFile,
         targetId: getFilePermissionContainers(rawWorkspace.resourceId, folder01, true),
       },
       workspaceId: rawWorkspace.resourceId,
@@ -623,17 +678,17 @@ describe('checkAuthorization', () => {
     const resolveResult02 = await resolveTargetChildrenAccessCheckWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: 'readFile',
+        action: kPermissionsMap.readFile,
         targetId: getFilePermissionContainers(rawWorkspace.resourceId, folder02, true),
       },
       workspaceId: rawWorkspace.resourceId,
       workspace: rawWorkspace,
     });
 
-    assert(resolveResult01.access === 'deny');
+    assert(resolveResult01.access === kResolvedTargetChildrenAccess.deny);
     expect(resolveResult01.item).toBeTruthy();
 
-    assert(resolveResult02.access === 'partial');
+    assert(resolveResult02.access === kResolvedTargetChildrenAccess.partial);
     expect(resolveResult02.item).toBeFalsy();
     expect(resolveResult02.partialAllowIds.length).toBe(0);
     expect(resolveResult02.partialAllowItems.length).toBe(0);
@@ -654,28 +709,31 @@ describe('checkAuthorization', () => {
       }),
     ]);
     await Promise.all([
-      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
-        targetId: file01.resourceId,
-        targetParentId: folder01.resourceId,
-      }),
-      addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
-        targetId: file02.resourceId,
-        access: false,
-        targetParentId: folder01.resourceId,
-      }),
+      addPermissions(
+        rawWorkspace.resourceId,
+        user02.resourceId,
+        kPermissionsMap.readFile,
+        {targetId: file01.resourceId, targetParentId: folder01.resourceId}
+      ),
+      addPermissions(
+        rawWorkspace.resourceId,
+        user02.resourceId,
+        kPermissionsMap.readFile,
+        {targetId: file02.resourceId, access: false, targetParentId: folder01.resourceId}
+      ),
     ]);
 
     const resolveResult = await resolveTargetChildrenAccessCheckWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: 'readFile',
+        action: kPermissionsMap.readFile,
         targetId: getFilePermissionContainers(rawWorkspace.resourceId, folder01, true),
       },
       workspaceId: rawWorkspace.resourceId,
       workspace: rawWorkspace,
     });
 
-    assert(resolveResult.access === 'partial');
+    assert(resolveResult.access === kResolvedTargetChildrenAccess.partial);
     expect(resolveResult.item).toBeFalsy();
     expect(resolveResult.partialAllowIds?.length).toBe(1);
     expect(resolveResult.partialAllowItems?.length).toBe(1);
@@ -699,28 +757,32 @@ describe('checkAuthorization', () => {
         }),
       ]);
       await Promise.all([
-        addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
-          targetId: file01.resourceId,
-          targetParentId: folder01.resourceId,
-        }),
-        addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
-          targetId: folder01.resourceId,
-          access: false,
-        }),
+        addPermissions(
+          rawWorkspace.resourceId,
+          user02.resourceId,
+          kPermissionsMap.readFile,
+          {targetId: file01.resourceId, targetParentId: folder01.resourceId}
+        ),
+        addPermissions(
+          rawWorkspace.resourceId,
+          user02.resourceId,
+          kPermissionsMap.readFile,
+          {targetId: folder01.resourceId, access: false}
+        ),
       ]);
 
       const resolveResult = await resolveTargetChildrenAccessCheckWithAgent({
         agent: user02SessionAgent,
         target: {
-          action: 'readFile',
+          action: kPermissionsMap.readFile,
           targetId: getFilePermissionContainers(rawWorkspace.resourceId, folder01, true),
         },
         workspaceId: rawWorkspace.resourceId,
         workspace: rawWorkspace,
       });
 
-      expect(resolveResult.access).toBe('partial');
-      assert(resolveResult.access === 'partial');
+      expect(resolveResult.access).toBe(kResolvedTargetChildrenAccess.partial);
+      assert(resolveResult.access === kResolvedTargetChildrenAccess.partial);
       expect(resolveResult.item).toBeFalsy();
       expect(resolveResult.partialAllowIds?.length).toBe(1);
       expect(resolveResult.partialAllowItems?.length).toBe(1);
@@ -745,27 +807,35 @@ describe('checkAuthorization', () => {
         }),
       ]);
       await Promise.all([
-        addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
-          targetId: file01.resourceId,
-          access: false,
-          targetParentId: folder01.resourceId,
-        }),
-        addPermissions(rawWorkspace.resourceId, user02.resourceId, 'readFile', {
-          targetId: folder01.resourceId,
-        }),
+        addPermissions(
+          rawWorkspace.resourceId,
+          user02.resourceId,
+          kPermissionsMap.readFile,
+          {
+            targetId: file01.resourceId,
+            access: false,
+            targetParentId: folder01.resourceId,
+          }
+        ),
+        addPermissions(
+          rawWorkspace.resourceId,
+          user02.resourceId,
+          kPermissionsMap.readFile,
+          {targetId: folder01.resourceId}
+        ),
       ]);
 
       const resolveResult = await resolveTargetChildrenAccessCheckWithAgent({
         agent: user02SessionAgent,
         target: {
-          action: 'readFile',
+          action: kPermissionsMap.readFile,
           targetId: getFilePermissionContainers(rawWorkspace.resourceId, folder01, true),
         },
         workspaceId: rawWorkspace.resourceId,
         workspace: rawWorkspace,
       });
 
-      assert(resolveResult.access === 'full');
+      assert(resolveResult.access === kResolvedTargetChildrenAccess.full);
       expect(resolveResult.item).toBeTruthy();
       expect(resolveResult.partialDenyIds?.length).toBe(1);
       expect(resolveResult.partialDenyItems?.length).toBe(1);
@@ -784,14 +854,14 @@ describe('checkAuthorization', () => {
     const [pItem01] = await addPermissions(
       rawWorkspace.resourceId,
       user02.resourceId,
-      'readFile',
+      kPermissionsMap.readFile,
       {targetId: file01.resourceId}
     );
 
     const [checkResult] = await checkAuthorizationWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: 'readFile',
+        action: kPermissionsMap.readFile,
         targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
       },
       workspaceId: rawWorkspace.resourceId,

@@ -39,6 +39,7 @@ export function getWorkspaceIdFromSessionAgent(
   providedWorkspaceId?: string
 ) {
   const workspaceId = getWorkspaceIdNoThrow(agent, providedWorkspaceId);
+
   if (!workspaceId) {
     throw new InvalidRequestError('Workspace ID not provided.');
   }
