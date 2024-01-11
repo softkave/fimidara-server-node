@@ -2,7 +2,7 @@ import {
   ForgotPasswordEmailProps,
   forgotPasswordEmailHTML,
   forgotPasswordEmailText,
-  forgotPasswordEmailTitle,
+  kForgotPasswordEmailArtifacts,
 } from '../../../emailTemplates/forgotPassword';
 import {appAssert} from '../../../utils/assertion';
 import {kUtilsInjectables} from '../../contexts/injection/injectables';
@@ -17,7 +17,7 @@ async function sendChangePasswordEmail(
   const html = forgotPasswordEmailHTML(props);
   const text = forgotPasswordEmailText(props);
   await kUtilsInjectables.email().sendEmail({
-    subject: forgotPasswordEmailTitle,
+    subject: kForgotPasswordEmailArtifacts.title,
     body: {html, text},
     destination: [emailAddress],
     source: suppliedConfig.appDefaultEmailAddressFrom,

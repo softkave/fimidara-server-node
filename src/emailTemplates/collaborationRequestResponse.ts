@@ -19,20 +19,19 @@ export interface CollaborationRequestResponseEmailProps extends BaseEmailTemplat
   response: CollaborationRequestResponse;
 }
 
-export function collaborationRequestResponseEmailTitle(
-  props: CollaborationRequestResponseEmailProps
-) {
-  return `Collaboration request ${props.response} on ${props.workspaceName}`;
-}
-
-function getMessage(props: CollaborationRequestResponseEmailProps) {
-  return `This is to notify you that the collaboration request sent to ${props.recipientEmail} to join the workspace ${props.workspaceName} has been ${props.response}.`;
-}
+export const kCollaborationRequestResponseArtifacts = {
+  title: (props: CollaborationRequestResponseEmailProps) => {
+    return `Collaboration request ${props.response} on ${props.workspaceName}`;
+  },
+  message: (props: CollaborationRequestResponseEmailProps) => {
+    return `This is to notify you that the collaboration request sent to ${props.recipientEmail} to join the workspace ${props.workspaceName} has been ${props.response}.`;
+  },
+};
 
 export function collaborationRequestResponseEmailHTML(
   props: CollaborationRequestResponseEmailProps
 ) {
-  const title = collaborationRequestResponseEmailTitle(props);
+  const title = kCollaborationRequestResponseArtifacts.title(props);
   return `
 <!DOCTYPE html>
 <html lang="en-US">
@@ -46,7 +45,7 @@ export function collaborationRequestResponseEmailHTML(
   ${getCenteredContentHTML(`
     ${getGreetingHTML(props)}
       <p>
-      ${getMessage(props)}
+      ${kCollaborationRequestResponseArtifacts.message(props)}
       </p>
     `)}
   ${getLoginSectionHTML(props)}
@@ -59,11 +58,11 @@ export function collaborationRequestResponseEmailHTML(
 export function collaborationRequestResponseEmailText(
   props: CollaborationRequestResponseEmailProps
 ) {
-  const title = collaborationRequestResponseEmailTitle(props);
+  const title = kCollaborationRequestResponseArtifacts.title(props);
   const txt = `${getHeaderText(title)}
 ${emailHelperChars.emDash}
 ${getGreetingText(props)}
-${getMessage(props)}
+${kCollaborationRequestResponseArtifacts.message(props)}
 ${getLoginSectionText(props)}
 `;
 

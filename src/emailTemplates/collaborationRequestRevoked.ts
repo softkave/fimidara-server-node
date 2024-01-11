@@ -16,12 +16,16 @@ export interface CollaborationRequestRevokedEmailProps extends BaseEmailTemplate
   workspaceName: string;
 }
 
-export function collaborationRequestRevokedEmailTitle(workspaceName: string) {
-  return `Collaboration request from ${workspaceName} revoked`;
-}
+export const kCollaborationRequestRevokedEmail = {
+  title: (workspaceName: string) => {
+    return `Collaboration request from ${workspaceName} revoked`;
+  },
+};
 
-export function collaborationRequestRevokedEmailHTML(props: CollaborationRequestRevokedEmailProps) {
-  const title = collaborationRequestRevokedEmailTitle(props.workspaceName);
+export function collaborationRequestRevokedEmailHTML(
+  props: CollaborationRequestRevokedEmailProps
+) {
+  const title = kCollaborationRequestRevokedEmail.title(props.workspaceName);
   return `
 <!DOCTYPE html>
 <html lang="en-US">
@@ -45,8 +49,10 @@ export function collaborationRequestRevokedEmailHTML(props: CollaborationRequest
 `;
 }
 
-export function collaborationRequestRevokedEmailText(props: CollaborationRequestRevokedEmailProps) {
-  const title = collaborationRequestRevokedEmailTitle(props.workspaceName);
+export function collaborationRequestRevokedEmailText(
+  props: CollaborationRequestRevokedEmailProps
+) {
+  const title = kCollaborationRequestRevokedEmail.title(props.workspaceName);
   const txt = `${getHeaderText(title)}
 ${emailHelperChars.emDash}
 ${getGreetingText(props)}

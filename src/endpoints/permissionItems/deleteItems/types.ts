@@ -4,7 +4,7 @@ import {PermissionItemInputTarget} from '../types';
 
 export type DeletePermissionItemInputTarget = Partial<PermissionItemInputTarget>;
 export type DeletePermissionItemInput = {
-  target: DeletePermissionItemInputTarget | DeletePermissionItemInputTarget[];
+  target?: DeletePermissionItemInputTarget | DeletePermissionItemInputTarget[];
   action?: PermissionAction | PermissionAction[];
   access?: boolean;
   entityId?: string | string[];

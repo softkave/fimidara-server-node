@@ -8,7 +8,7 @@ import {
   CollaborationRequestEmailProps,
   collaborationRequestEmailHTML,
   collaborationRequestEmailText,
-  collaborationRequestEmailTitle,
+  kCollaborationRequestEmailArtifacts,
 } from '../../../emailTemplates/collaborationRequest';
 import {appAssert} from '../../../utils/assertion';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
@@ -113,7 +113,7 @@ async function sendCollaborationRequestEmail(
   const html = collaborationRequestEmailHTML(emailProps);
   const text = collaborationRequestEmailText(emailProps);
   await kUtilsInjectables.email().sendEmail({
-    subject: collaborationRequestEmailTitle(request.workspaceName),
+    subject: kCollaborationRequestEmailArtifacts.title(request.workspaceName),
     body: {html, text},
     destination: [request.recipientEmail],
     source: suppliedConfig.appDefaultEmailAddressFrom,

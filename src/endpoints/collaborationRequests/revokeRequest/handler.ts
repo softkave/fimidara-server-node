@@ -5,7 +5,7 @@ import {
 import {
   collaborationRequestRevokedEmailHTML,
   collaborationRequestRevokedEmailText,
-  collaborationRequestRevokedEmailTitle,
+  kCollaborationRequestRevokedEmail,
 } from '../../../emailTemplates/collaborationRequestRevoked';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
@@ -79,7 +79,7 @@ async function sendRevokeCollaborationRequestEmail(
     firstName: recipient?.firstName,
   });
   await kUtilsInjectables.email().sendEmail({
-    subject: collaborationRequestRevokedEmailTitle(workspaceName),
+    subject: kCollaborationRequestRevokedEmail.title(workspaceName),
     body: {html, text},
     destination: [request.recipientEmail],
     source: suppliedConfig.appDefaultEmailAddressFrom,

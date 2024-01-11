@@ -2,7 +2,7 @@ import {
   ConfirmEmailAddressEmailProps,
   confirmEmailAddressEmailHTML,
   confirmEmailAddressEmailText,
-  confirmEmailAddressEmailTitle,
+  kConfirmEmailAddressEmail,
 } from '../../../emailTemplates/confirmEmailAddress';
 import {appAssert} from '../../../utils/assertion';
 import {kUtilsInjectables} from '../../contexts/injection/injectables';
@@ -19,7 +19,7 @@ async function sendConfirmEmailAddressEmail(props: SendConfirmEmailAddressEmailP
   const html = confirmEmailAddressEmailHTML(props);
   const text = confirmEmailAddressEmailText(props);
   await kUtilsInjectables.email().sendEmail({
-    subject: confirmEmailAddressEmailTitle,
+    subject: kConfirmEmailAddressEmail.title,
     body: {html, text},
     destination: [props.emailAddress],
     source: suppliedConfig.appDefaultEmailAddressFrom,

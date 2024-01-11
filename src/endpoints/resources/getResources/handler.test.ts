@@ -23,6 +23,7 @@ import {
 import {FetchResourceItem} from '../types';
 import getResources from './handler';
 import {GetResourcesEndpointParams} from './types';
+import {Folder} from '../../../definitions/folder';
 
 /**
  * TODO:
@@ -55,7 +56,7 @@ describe('getResources', () => {
     const itemsList = await Promise.all(
       Object.values(kPermissionsMap).map(action =>
         generateAndInsertPermissionItemListForTest(1, {
-          action: action,
+          action,
           access: faker.datatype.boolean(),
           targetId: workspace.resourceId,
           targetType: kAppResourceType.Workspace,
@@ -77,23 +78,25 @@ describe('getResources', () => {
       resourcesMap[item.resourceId] = item;
     };
 
-    addToExpectedResourcesById(workspace, 'readWorkspace');
-    addToExpectedResourcesById(permissionGroup, 'updatePermission');
+    addToExpectedResourcesById(workspace, kPermissionsMap.readWorkspace);
+    addToExpectedResourcesById(permissionGroup, kPermissionsMap.updatePermission);
     addToExpectedResourcesById(
       collaboratorExtractor(await populateUserWorkspaces(rawUser), workspace.resourceId),
-      'readCollaborator'
+      kPermissionsMap.readCollaborator
     );
-    items.forEach(item => addToExpectedResourcesById(item, 'updatePermission'));
+    items.forEach(item =>
+      addToExpectedResourcesById(item, kPermissionsMap.updatePermission)
+    );
     folders.forEach(folder => {
-      const folderpath = stringifyFoldernamepath(folder);
+      const folderpath = stringifyFoldernamepath(folder, workspace.rootname);
       filepathsMap[folderpath] = folder.resourceId;
-      resourcesInput.push({folderpath, action: 'readFolder'});
+      resourcesInput.push({folderpath, action: kPermissionsMap.readFolder});
       resourcesMap[folder.resourceId] = folder;
     });
     files.forEach(file => {
-      const filepath = stringifyFilenamepath(file);
+      const filepath = stringifyFilenamepath(file, workspace.rootname);
       filepathsMap[filepath] = file.resourceId;
-      resourcesInput.push({filepath, action: 'readFolder'});
+      resourcesInput.push({filepath, action: kPermissionsMap.readFolder});
       resourcesMap[file.resourceId] = file;
     });
 
@@ -108,13 +111,23 @@ describe('getResources', () => {
     result.resources.forEach(resource => {
       expect(resourcesMap[resource.resourceId]).toMatchObject(resource.resource);
 
-      if (resource.resourceType === 'file') {
+      if (resource.resourceType === kAppResourceType.File) {
         const fileId =
-          filepathsMap[stringifyFilenamepath(resource.resource as unknown as File)];
+          filepathsMap[
+            stringifyFilenamepath(
+              resource.resource as unknown as File,
+              workspace.rootname
+            )
+          ];
         expect(resourcesMap[fileId]).toMatchObject(resource.resource);
-      } else if (resource.resourceType === 'folder') {
+      } else if (resource.resourceType === kAppResourceType.Folder) {
         const folderId =
-          filepathsMap[stringifyFoldernamepath(resource.resource as unknown as File)];
+          filepathsMap[
+            stringifyFoldernamepath(
+              resource.resource as unknown as Folder,
+              workspace.rootname
+            )
+          ];
         expect(resourcesMap[folderId]).toMatchObject(resource.resource);
       }
     });

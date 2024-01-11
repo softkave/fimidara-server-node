@@ -1,9 +1,9 @@
 import {kAppResourceType} from '../../../definitions/system';
 import {
+  kUpgradeFromWaitlistEmailArtifacts,
   upgradedFromWaitlistEmailHTML,
   UpgradedFromWaitlistEmailProps,
   upgradedFromWaitlistEmailText,
-  upgradedFromWaitlistEmailTitle,
 } from '../../../emailTemplates/upgradedFromWaitlist';
 import {kSystemSessionAgent} from '../../../utils/agent';
 import {appAssert} from '../../../utils/assertion';
@@ -12,7 +12,9 @@ import {indexArray} from '../../../utils/indexArray';
 import {getNewIdForResource} from '../../../utils/resource';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
+import {kRegisterUtilsInjectables} from '../../contexts/injection/register';
 import RequestData from '../../RequestData';
+import MockTestEmailProviderContext from '../../testUtils/context/email/MockTestEmailProviderContext';
 import {generateAndInsertUserListForTest} from '../../testUtils/generate/user';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests} from '../../testUtils/helpers/test';
@@ -26,11 +28,11 @@ import {PermissionDeniedError} from '../../users/errors';
 import upgradeWaitlistedUsers from './handler';
 import {UpgradeWaitlistedUsersEndpointParams} from './types';
 
-beforeAll(async () => {
+beforeEach(async () => {
   await initTests();
 });
 
-afterAll(async () => {
+afterEach(async () => {
   await completeTests();
 });
 
@@ -50,6 +52,8 @@ describe('upgradeWaitlistedUsers', () => {
         );
       }),
     ]);
+
+    kRegisterUtilsInjectables.email(new MockTestEmailProviderContext());
 
     const waitlistedUserIds = extractResourceIdList(waitlistedUsers);
     const result = await upgradeWaitlistedUsers(
@@ -84,7 +88,7 @@ describe('upgradeWaitlistedUsers', () => {
       const html = upgradedFromWaitlistEmailHTML(upgradedFromWaitlistEmailProps);
       const text = upgradedFromWaitlistEmailText(upgradedFromWaitlistEmailProps);
       expect(kUtilsInjectables.email().sendEmail).toHaveBeenCalledWith({
-        subject: upgradedFromWaitlistEmailTitle,
+        subject: kUpgradeFromWaitlistEmailArtifacts.title,
         body: {html, text},
         destination: [user.email],
         source: suppliedConfig.appDefaultEmailAddressFrom,

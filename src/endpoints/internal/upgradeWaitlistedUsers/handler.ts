@@ -1,9 +1,9 @@
 import {kAppResourceType} from '../../../definitions/system';
 import {
   UpgradedFromWaitlistEmailProps,
+  kUpgradeFromWaitlistEmailArtifacts,
   upgradedFromWaitlistEmailHTML,
   upgradedFromWaitlistEmailText,
-  upgradedFromWaitlistEmailTitle,
 } from '../../../emailTemplates/upgradedFromWaitlist';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
@@ -58,7 +58,7 @@ async function sendUserUpgradedFromWaitlistEmail(
   const html = upgradedFromWaitlistEmailHTML(props);
   const text = upgradedFromWaitlistEmailText(props);
   await kUtilsInjectables.email().sendEmail({
-    subject: upgradedFromWaitlistEmailTitle,
+    subject: kUpgradeFromWaitlistEmailArtifacts.title,
     body: {html, text},
     destination: [emailAddress],
     source: suppliedConfig.appDefaultEmailAddressFrom,

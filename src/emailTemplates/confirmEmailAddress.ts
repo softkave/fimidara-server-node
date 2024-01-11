@@ -10,24 +10,28 @@ import {
 } from './helpers';
 import {BaseEmailTemplateProps} from './types';
 
-export const confirmEmailAddressEmailTitle = 'Confirm your email address';
+export const kConfirmEmailAddressEmail = {
+  title: 'Confirm your email address',
+};
 
 export interface ConfirmEmailAddressEmailProps extends BaseEmailTemplateProps {
   firstName: string;
   link: string;
 }
 
-export function confirmEmailAddressEmailHTML(props: ConfirmEmailAddressEmailProps): string {
+export function confirmEmailAddressEmailHTML(
+  props: ConfirmEmailAddressEmailProps
+): string {
   return `
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
   <meta charset="utf-8" />
-  <title>${getHeaderText(confirmEmailAddressEmailTitle)}</title>
+  <title>${getHeaderText(kConfirmEmailAddressEmail.title)}</title>
   ${emailTemplateStyles}
 </head>
 <body>
-  ${getHeaderHTML(confirmEmailAddressEmailTitle)}
+  ${getHeaderHTML(kConfirmEmailAddressEmail.title)}
   <div class="${emailStylingHelpers.classNamePrefix}-body">
     <div class="${emailStylingHelpers.classNamePrefix}-content-center">
       ${getGreetingHTML(props)}
@@ -43,8 +47,10 @@ export function confirmEmailAddressEmailHTML(props: ConfirmEmailAddressEmailProp
   `;
 }
 
-export function confirmEmailAddressEmailText(props: ConfirmEmailAddressEmailProps): string {
-  const text = `${getHeaderText(confirmEmailAddressEmailTitle)}
+export function confirmEmailAddressEmailText(
+  props: ConfirmEmailAddressEmailProps
+): string {
+  const text = `${getHeaderText(kConfirmEmailAddressEmail.title)}
 ${emailHelperChars.emDash}
 ${getGreetingText(props)}
 Visit the link below to verify your email address:

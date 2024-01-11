@@ -1,4 +1,4 @@
-import {flatten, forEach} from 'lodash';
+import {forEach} from 'lodash';
 import {Promise} from 'mongoose';
 import {File} from '../../../definitions/file';
 import {DeleteResourceJobParams, kJobType} from '../../../definitions/job';
@@ -12,7 +12,6 @@ import {
 import {Workspace} from '../../../definitions/workspace';
 import {isObjectEmpty, toArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
-import {GetTypeFromTypeOrArray} from '../../../utils/types';
 import {DataQuery} from '../../contexts/data/types';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {getInAndNinQuery} from '../../contexts/semantic/utils';
@@ -20,7 +19,11 @@ import {kFolderConstants} from '../../folders/constants';
 import {JobInput, queueJobs} from '../../jobs/utils';
 import {PermissionItemInputTarget} from '../types';
 import {getPermissionItemTargets} from '../utils';
-import {DeletePermissionItemInput, DeletePermissionItemsEndpointParams} from './types';
+import {
+  DeletePermissionItemInput,
+  DeletePermissionItemInputTarget,
+  DeletePermissionItemsEndpointParams,
+} from './types';
 
 export const INTERNAL_deletePermissionItems = async (
   agent: SessionAgent,
@@ -65,9 +68,7 @@ export const INTERNAL_deletePermissionItems = async (
     resourceType: kAppResourceType.Workspace,
   };
 
-  const getTargets = (
-    target: GetTypeFromTypeOrArray<DeletePermissionItemInput['target']>
-  ) => {
+  const getTargets = (target: DeletePermissionItemInputTarget) => {
     const targets: Record<string, ResourceWrapper> = {};
 
     // TODO: should we throw error when some targets are not found?
@@ -133,6 +134,7 @@ export const INTERNAL_deletePermissionItems = async (
 
   const queries: DataQuery<PermissionItem>[] = [];
 
+  // TODO: we need more tests for these queries mix and match
   forEach(resolvedInputsMap.targetsMap, targetEntry => {
     const query: DataQuery<PermissionItem> = {
       targetId: targetEntry.resource.resourceId,
@@ -158,14 +160,11 @@ export const INTERNAL_deletePermissionItems = async (
   }
 
   // TODO: deleting one after the other may not be the best way to go here
-  const result: PermissionItem[] = await Promise.all(
-    queries.map(query => kSemanticModels.permissionItem().getManyByQuery(query))
-  );
-  const permissionItems = flatten(result);
+  const items = await kSemanticModels.permissionItem().getManyByQueryList(queries);
   const jobs = await queueJobs(
     workspace.resourceId,
     /** parentjobId */ undefined,
-    permissionItems.map(
+    items.map(
       (item): JobInput<DeleteResourceJobParams> => ({
         type: kJobType.deleteResource,
         params: {

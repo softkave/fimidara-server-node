@@ -144,7 +144,7 @@ const deletePermissionItemInput = mddocConstruct
   .setName('DeletePermissionItemInput')
   .setFields({
     target: mddocConstruct.constructFieldObjectField(
-      true,
+      false,
       deletePermissionItemTargetOrList
     ),
     action: mddocConstruct.constructFieldObjectField(false, fReusables.actionOrList),

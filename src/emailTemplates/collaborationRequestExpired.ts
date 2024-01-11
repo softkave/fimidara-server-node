@@ -16,12 +16,16 @@ export interface CollaborationRequestExpiredEmailProps extends BaseEmailTemplate
   workspaceName: string;
 }
 
-function getTitle(props: CollaborationRequestExpiredEmailProps) {
-  return `Collaboration request from ${props.workspaceName} expired`;
-}
+export const kCollaborationRequestExpiredArtifacts = {
+  title: (props: CollaborationRequestExpiredEmailProps) => {
+    return `Collaboration request from ${props.workspaceName} expired`;
+  },
+};
 
-export function collaborationRequestExpiredEmailHTML(props: CollaborationRequestExpiredEmailProps) {
-  const title = getTitle(props);
+export function collaborationRequestExpiredEmailHTML(
+  props: CollaborationRequestExpiredEmailProps
+) {
+  const title = kCollaborationRequestExpiredArtifacts.title(props);
   return `
 <!DOCTYPE html>
 <html lang="en-US">
@@ -46,8 +50,10 @@ export function collaborationRequestExpiredEmailHTML(props: CollaborationRequest
 `;
 }
 
-export function collaborationRequestExpiredEmailText(props: CollaborationRequestExpiredEmailProps) {
-  const title = getTitle(props);
+export function collaborationRequestExpiredEmailText(
+  props: CollaborationRequestExpiredEmailProps
+) {
+  const title = kCollaborationRequestExpiredArtifacts.title(props);
   const txt = `${getHeaderText(title)}
 ${emailHelperChars.emDash}
 ${getGreetingText(props)}

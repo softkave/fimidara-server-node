@@ -20,8 +20,29 @@ export interface UsageExceededEmailProps extends BaseEmailTemplateProps {
   threshold: UsageThreshold;
 }
 
+export const kUsageExceededEmailArtifacts = {
+  title: (workspaceName: string, threshold: UsageThreshold) => {
+    let message = '';
+    switch (threshold.category) {
+      case UsageRecordCategoryMap.Storage:
+        message = `Storage usage exceeded for workspace ${workspaceName}.`;
+        break;
+      case UsageRecordCategoryMap.BandwidthIn:
+        message = `Incoming bandwidth usage exceeded for workspace ${workspaceName}.`;
+        break;
+      case UsageRecordCategoryMap.BandwidthOut:
+        message = `Outgoing bandwidth usage exceeded for workspace ${workspaceName}.`;
+        break;
+      default:
+        message = `${threshold.category} usage exceeded for workspace ${workspaceName}.`;
+    }
+
+    return message;
+  },
+};
+
 export function usageExceededEmailHTML(props: UsageExceededEmailProps) {
-  const title = getUsageExceededEmailTitle(props.workspaceName, props.threshold);
+  const title = kUsageExceededEmailArtifacts.title(props.workspaceName, props.threshold);
   return `
 <!DOCTYPE html>
 <html lang="en-US">
@@ -46,7 +67,7 @@ export function usageExceededEmailHTML(props: UsageExceededEmailProps) {
 }
 
 export function usageExceededEmailText(props: UsageExceededEmailProps) {
-  const title = getUsageExceededEmailTitle(props.workspaceName, props.threshold);
+  const title = kUsageExceededEmailArtifacts.title(props.workspaceName, props.threshold);
   const txt = `${getHeaderText(title)}
 ${emailHelperChars.emDash}
 ${getGreetingText(props)}
@@ -84,26 +105,4 @@ export function getUsageExceededEmailMessage(
     Further requests of this type will not be served. 
     Please login to your workspace to increase your usage thresholds.`
   );
-}
-
-export function getUsageExceededEmailTitle(
-  workspaceName: string,
-  threshold: UsageThreshold
-) {
-  let message = '';
-  switch (threshold.category) {
-    case UsageRecordCategoryMap.Storage:
-      message = `Storage usage exceeded for workspace ${workspaceName}.`;
-      break;
-    case UsageRecordCategoryMap.BandwidthIn:
-      message = `Incoming bandwidth usage exceeded for workspace ${workspaceName}.`;
-      break;
-    case UsageRecordCategoryMap.BandwidthOut:
-      message = `Outgoing bandwidth usage exceeded for workspace ${workspaceName}.`;
-      break;
-    default:
-      message = `${threshold.category} usage exceeded for workspace ${workspaceName}.`;
-  }
-
-  return message;
 }

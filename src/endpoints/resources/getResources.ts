@@ -21,8 +21,9 @@ import {
 } from '../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../contexts/injection/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
-import {getFilepathInfo} from '../files/utils';
-import {getFolderpathInfo} from '../folders/utils';
+import {getFilepathInfo, stringifyFilenamepath} from '../files/utils';
+import {kFolderConstants} from '../folders/constants';
+import {getFolderpathInfo, stringifyFoldernamepath} from '../folders/utils';
 import {checkResourcesBelongsToWorkspace} from './containerCheckFns';
 import {resourceListWithAssignedItems} from './resourceWithAssignedItems';
 import {FetchResourceItem} from './types';
@@ -141,18 +142,31 @@ function groupItemsToFetch(
 
         if (allowedTypesMap[kAppResourceType.All] || allowedTypesMap[type]) {
           let inputByIdMap = inputsWithIdByType[type];
-          if (!inputByIdMap) inputsWithIdByType[type] = inputByIdMap = {};
+
+          if (!inputByIdMap) {
+            inputsWithIdByType[type] = inputByIdMap = {};
+          }
 
           inputByIdMap[resourceId] = item.action;
         }
       });
     } else if (item.filepath) {
       toArray(item.filepath).forEach(filepath => {
-        filepathsMap[filepath] = item.action;
+        filepathsMap[
+          filepath
+            .split(kFolderConstants.separator)
+            .slice(1)
+            .join(kFolderConstants.separator)
+        ] = item.action;
       });
     } else if (item.folderpath) {
       toArray(item.folderpath).forEach(folderpath => {
-        folderpathsMap[folderpath] = item.action;
+        folderpathsMap[
+          folderpath
+            .split(kFolderConstants.separator)
+            .slice(1)
+            .join(kFolderConstants.separator)
+        ] = item.action;
       });
     } else if (item.workspaceRootname) {
       workspaceRootname = {
@@ -288,12 +302,15 @@ const fetchFiles = async (workspaceId: string, filepathsMap: FilePathsMap) => {
   const result = await Promise.all(
     // TODO: can we have $or or implement $in for array of arrays?
     map(filepathsMap, (action, filepath) =>
-      kSemanticModels.file().getOneByNamepath({workspaceId, ...getFilepathInfo(filepath)})
+      kSemanticModels.file().getOneByNamepath({
+        workspaceId,
+        ...getFilepathInfo(filepath, {containsRootname: false}),
+      })
     )
   );
 
   return compact(result).map((item): GetResourcesResourceWrapper => {
-    const action = filepathsMap[item.resourceId];
+    const action = filepathsMap[stringifyFilenamepath(item)];
     assert(action);
     return {
       action,
@@ -310,14 +327,15 @@ const fetchFolders = async (workspaceId: string, folderpathsMap: FilePathsMap) =
   const result = await Promise.all(
     // TODO: can we have $or or implement $in for array of arrays?
     map(folderpathsMap, (action, folderpath) =>
-      kSemanticModels
-        .folder()
-        .getOneByNamepath({workspaceId, ...getFolderpathInfo(folderpath)})
+      kSemanticModels.folder().getOneByNamepath({
+        workspaceId,
+        ...getFolderpathInfo(folderpath, {containsRootname: false}),
+      })
     )
   );
 
   return compact(result).map((item): GetResourcesResourceWrapper => {
-    const action = folderpathsMap[item.resourceId];
+    const action = folderpathsMap[stringifyFoldernamepath(item)];
     assert(action);
     return {
       action,
@@ -329,7 +347,9 @@ const fetchFolders = async (workspaceId: string, folderpathsMap: FilePathsMap) =
 };
 
 const fetchWorkspace = async (workspaceRootname?: WorkspaceRootnameWithAction) => {
-  if (!workspaceRootname) return [];
+  if (!workspaceRootname) {
+    return [];
+  }
 
   const result = await kSemanticModels
     .workspace()

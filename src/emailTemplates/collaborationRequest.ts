@@ -18,12 +18,14 @@ export interface CollaborationRequestEmailProps extends BaseEmailTemplateProps {
   expires?: number;
 }
 
-export function collaborationRequestEmailTitle(workspaceName: string) {
-  return `Collaboration request from ${workspaceName}`;
-}
+export const kCollaborationRequestEmailArtifacts = {
+  title: (workspaceName: string) => {
+    return `Collaboration request from ${workspaceName}`;
+  },
+};
 
 export function collaborationRequestEmailHTML(props: CollaborationRequestEmailProps) {
-  const title = collaborationRequestEmailTitle(props.workspaceName);
+  const title = kCollaborationRequestEmailArtifacts.title(props.workspaceName);
   return `
 <!DOCTYPE html>
 <html lang="en-US">
@@ -58,7 +60,7 @@ export function collaborationRequestEmailHTML(props: CollaborationRequestEmailPr
 
 export function collaborationRequestEmailText(props: CollaborationRequestEmailProps) {
   let linkText = '';
-  const title = collaborationRequestEmailTitle(props.workspaceName);
+  const title = kCollaborationRequestEmailArtifacts.title(props.workspaceName);
   if (props.isRecipientAUser) {
     linkText = `Login to your account here - ${props.loginLink}`;
   } else {

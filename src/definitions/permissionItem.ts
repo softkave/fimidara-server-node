@@ -33,6 +33,7 @@ export const kPermissionsMap = {
 
   updatePermission: 'updatePermission',
   readPermission: 'readPermission',
+  deletePermission: 'deletePermission',
 
   addAgentToken: 'addAgentToken',
   readAgentToken: 'readAgentToken',

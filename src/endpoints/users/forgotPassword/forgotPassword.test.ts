@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {kTokenAccessScope} from '../../../definitions/system';
-import {forgotPasswordEmailTitle} from '../../../emailTemplates/forgotPassword';
+import {kForgotPasswordEmailArtifacts} from '../../../emailTemplates/forgotPassword';
 import RequestData from '../../RequestData';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import MockTestEmailProviderContext from '../../testUtils/context/email/MockTestEmailProviderContext';
@@ -57,7 +57,7 @@ describe('forgotPassword', () => {
       user.email
     );
     expect(emailProvider.sendEmail.mock.lastCall[1].subject).toBe(
-      forgotPasswordEmailTitle
+      kForgotPasswordEmailArtifacts.title
     );
 
     // const forgotPasswordEmailProps: ForgotPasswordEmailProps = {

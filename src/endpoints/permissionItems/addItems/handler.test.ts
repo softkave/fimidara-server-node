@@ -4,6 +4,7 @@ import RequestData from '../../RequestData';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {generateAndInsertTestFolders} from '../../testUtils/generate/folder';
+import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {expectEntityHasPermissionsTargetingId} from '../../testUtils/helpers/permissionItem';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
@@ -30,7 +31,6 @@ afterAll(async () => {
 describe('addItems', () => {
   test('permission items added', async () => {
     // TODO: add more tests for target and appliesTo
-
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const [
@@ -78,6 +78,7 @@ describe('addItems', () => {
     );
     const result = await addPermissionItems(reqData);
     assertEndpointResultOk(result);
+
     await Promise.all(
       [pg01, pg02].map(pg =>
         expectEntityHasPermissionsTargetingId(
@@ -99,20 +100,37 @@ describe('addItems', () => {
       )
     );
 
-    await checkAuthorization({
-      workspace,
-      workspaceId: workspace.resourceId,
-      target: {
-        entityId: faker.helpers.arrayElement([
-          pg01.resourceId,
-          pg02.resourceId,
-          pg03.resourceId,
-          pg04.resourceId,
-        ]),
-        action: faker.helpers.arrayElement(actionsWithoutWildcard),
-        targetId: workspace.resourceId,
-      },
-    });
+    async function randomCheckAuth() {
+      await checkAuthorization({
+        workspace,
+        workspaceId: workspace.resourceId,
+        target: {
+          entityId: faker.helpers.arrayElement([pg01.resourceId, pg02.resourceId]),
+          action: faker.helpers.arrayElement(actionsWithoutWildcard),
+          targetId: workspace.resourceId,
+        },
+      });
+      await checkAuthorization({
+        workspace,
+        workspaceId: workspace.resourceId,
+        target: {
+          entityId: faker.helpers.arrayElement([
+            pg01.resourceId,
+            pg02.resourceId,
+            pg03.resourceId,
+            pg04.resourceId,
+          ]),
+          action: faker.helpers.arrayElement(subsetWorkspaceActions),
+          targetId: workspace.resourceId,
+        },
+      });
+    }
+
+    if (grantAccess) {
+      await randomCheckAuth();
+    } else {
+      await expectErrorThrown(randomCheckAuth);
+    }
   });
 
   test('permission items are not duplicated', async () => {
@@ -166,7 +184,7 @@ describe('addItems', () => {
   test('permission items folded into wildcard', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const {permissionGroup: permissionGroup} = await insertPermissionGroupForTest(
+    const {permissionGroup} = await insertPermissionGroupForTest(
       userToken,
       workspace.resourceId
     );

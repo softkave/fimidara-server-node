@@ -13,10 +13,13 @@ import {
 } from './helpers';
 import {BaseEmailTemplateProps} from './types';
 
-export const upgradedFromWaitlistEmailTitle = "You've been upgraded from the waitlist";
-const message = `You've been upgraded from the waitlist, now you have full access to ${
-  kUtilsInjectables.suppliedConfig().appName
-}.`;
+export const kUpgradeFromWaitlistEmailArtifacts = {
+  title: "You've been upgraded from the waitlist",
+  message: () =>
+    `You've been upgraded from the waitlist, now you have full access to ${
+      kUtilsInjectables.suppliedConfig().appName
+    }.`,
+};
 
 export interface UpgradedFromWaitlistEmailProps extends BaseEmailTemplateProps {
   firstName: string;
@@ -30,15 +33,15 @@ export function upgradedFromWaitlistEmailHTML(
 <html lang="en-US">
 <head>
   <meta charset="utf-8" />
-  <title>${getHeaderText(upgradedFromWaitlistEmailTitle)}</title>
+  <title>${getHeaderText(kUpgradeFromWaitlistEmailArtifacts.title)}</title>
   ${emailTemplateStyles}
 </head>
 <body>
-  ${getHeaderHTML(upgradedFromWaitlistEmailTitle)}
+  ${getHeaderHTML(kUpgradeFromWaitlistEmailArtifacts.title)}
   <div class="${emailStylingHelpers.classNamePrefix}-body">
     <div class="${emailStylingHelpers.classNamePrefix}-content-center">
       ${getGreetingHTML(props)}
-      <p>${message}</p>
+      <p>${kUpgradeFromWaitlistEmailArtifacts.message()}</p>
       ${getLoginSectionHTML(props)}
     </div>
   </div>
@@ -51,10 +54,10 @@ export function upgradedFromWaitlistEmailHTML(
 export function upgradedFromWaitlistEmailText(
   props: UpgradedFromWaitlistEmailProps
 ): string {
-  const text = `${getHeaderText(upgradedFromWaitlistEmailTitle)}
+  const text = `${getHeaderText(kUpgradeFromWaitlistEmailArtifacts.title)}
 ${emailHelperChars.emDash}
 ${getGreetingText(props)}
-${message}
+${kUpgradeFromWaitlistEmailArtifacts.message()}
 ${getLoginSectionText(props)}
 `;
 

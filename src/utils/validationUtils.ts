@@ -54,10 +54,10 @@ const resourceIdOrResourceIdList = Joi.alternatives().try(resourceId, resourceId
 const fromNowMs = Joi.number().integer().min(0);
 const fromNowSecs = Joi.number().integer().min(0);
 const resourceType = Joi.string().valid(...systemAppResourceTypesList);
-const crudAction = Joi.string().valid(...Object.keys(kPermissionsMap));
+const crudAction = Joi.string().valid(...Object.values(kPermissionsMap));
 const crudActionList = Joi.array()
   .items(crudAction)
-  .max(Object.keys(kPermissionsMap).length);
+  .max(Object.values(kPermissionsMap).length);
 const providedResourceId = Joi.string().max(
   endpointConstants.providedResourceIdMaxLength
 );

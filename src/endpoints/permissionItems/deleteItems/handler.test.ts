@@ -29,23 +29,37 @@ afterAll(async () => {
 test('permission items deleted', async () => {
   const {userToken} = await insertUserForTest();
   const {workspace} = await insertWorkspaceForTest(userToken);
-  const {permissionGroup} = await insertPermissionGroupForTest(
-    userToken,
-    workspace.resourceId
-  );
-  const items = await generateAndInsertPermissionItemListForTest(10, {
-    workspaceId: workspace.resourceId,
-    action: kPermissionsMap.readFile,
-    targetId: workspace.resourceId,
-    entityId: permissionGroup.resourceId,
-  });
+  const [{permissionGroup: pg01}, {permissionGroup: pg02}] = await Promise.all([
+    insertPermissionGroupForTest(userToken, workspace.resourceId),
+    insertPermissionGroupForTest(userToken, workspace.resourceId),
+  ]);
+  const [items01, items02] = await Promise.all([
+    generateAndInsertPermissionItemListForTest(10, {
+      workspaceId: workspace.resourceId,
+      action: kPermissionsMap.addTag,
+      targetId: workspace.resourceId,
+      entityId: pg01.resourceId,
+    }),
+    generateAndInsertPermissionItemListForTest(10, {
+      workspaceId: workspace.resourceId,
+      action: kPermissionsMap.addTag,
+      targetId: workspace.resourceId,
+      entityId: pg02.resourceId,
+    }),
+  ]);
+  const items = items01.concat(items02);
 
   const instData = RequestData.fromExpressRequest<DeletePermissionItemsEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
       workspaceId: workspace.resourceId,
       items: [
-        {action: kPermissionsMap.readFile, target: {targetId: workspace.resourceId}},
+        {
+          action: kPermissionsMap.addTag,
+          target: {targetId: workspace.resourceId},
+          entityId: pg01.resourceId,
+        },
+        {entityId: pg02.resourceId},
       ],
     }
   );

@@ -1,3 +1,4 @@
+import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
@@ -19,7 +20,7 @@ const deletePermissionItems: DeletePermissionItemsEndpoint = async instData => {
     agent,
     workspaceId,
     workspace,
-    target: {targetId: workspaceId, action: 'updatePermission'},
+    target: {targetId: workspaceId, action: kPermissionsMap.deletePermission},
   });
 
   const jobs = await INTERNAL_deletePermissionItems(agent, workspace, data);

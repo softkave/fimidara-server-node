@@ -11,7 +11,9 @@ import {
 } from './helpers';
 import {BaseEmailTemplateProps} from './types';
 
-export const forgotPasswordEmailTitle = 'Change your password';
+export const kForgotPasswordEmailArtifacts = {
+  title: 'Change your password',
+};
 
 export interface ForgotPasswordEmailProps extends BaseEmailTemplateProps {
   link: string;
@@ -24,11 +26,11 @@ export function forgotPasswordEmailHTML(props: ForgotPasswordEmailProps): string
 <html lang="en-US">
 <head>
   <meta charset="utf-8" />
-  <title>${getHeaderText(forgotPasswordEmailTitle)}</title>
+  <title>${getHeaderText(kForgotPasswordEmailArtifacts.title)}</title>
   ${emailTemplateStyles}
 </head>
 <body>
-  ${getHeaderHTML(forgotPasswordEmailTitle)}
+  ${getHeaderHTML(kForgotPasswordEmailArtifacts.title)}
   <div class="${emailStylingHelpers.classNamePrefix}-body">
     <div class="${emailStylingHelpers.classNamePrefix}-content-center">
       ${getGreetingHTML(props)}
@@ -43,10 +45,10 @@ export function forgotPasswordEmailHTML(props: ForgotPasswordEmailProps): string
       </p>
       <p>
         <strong>
-          This link expires in ${formatDistance(props.expiration, new Date())}, on ${format(
-    props.expiration,
-    'MM/dd/yyyy hh:mm aaa'
-  )}.
+          This link expires in ${formatDistance(
+            props.expiration,
+            new Date()
+          )}, on ${format(props.expiration, 'MM/dd/yyyy hh:mm aaa')}.
         </strong>
       </p>
       <p>
@@ -65,7 +67,7 @@ export function forgotPasswordEmailHTML(props: ForgotPasswordEmailProps): string
 }
 
 export function forgotPasswordEmailText(props: ForgotPasswordEmailProps): string {
-  const text = `${getHeaderText(forgotPasswordEmailTitle)}
+  const text = `${getHeaderText(kForgotPasswordEmailArtifacts.title)}
 ${emailHelperChars.emDash}
 ${getGreetingText(props)}
 To change your password, copy the following link, and visit in your browser: ${props.link}

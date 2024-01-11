@@ -4,7 +4,7 @@ import {BaseEmailTemplateProps} from './types';
 export const emailHelperChars = {emDash: '—'};
 
 const maxWidth = '700px';
-const classNamePrefix = 'fimidara';
+const classNamePrefix = 'fm';
 export const emailStylingHelpers = {
   maxWidth,
   classNamePrefix,
