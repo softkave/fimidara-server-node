@@ -1,8 +1,11 @@
 import {isNumber} from 'lodash';
+import path from 'path';
 import {Readable} from 'stream';
-import {kAppResourceType} from '../../../definitions/system';
+import {FileBackendMount} from '../../../definitions/fileBackend';
 import {appAssert} from '../../../utils/assertion';
 import {streamToBuffer} from '../../../utils/fns';
+import {Omit1} from '../../../utils/types';
+import {kFolderConstants} from '../../folders/constants';
 import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
@@ -14,13 +17,20 @@ import {
   FilePersistenceGetFileParams,
   FilePersistenceProvider,
   FilePersistenceProviderFeature,
+  FilePersistenceToFimidaraPathParams,
+  FilePersistenceToFimidaraPathResult,
   FilePersistenceUploadFileParams,
+  FimidaraToFilePersistencePathParams,
+  FimidaraToFilePersistencePathResult,
   PersistedFile,
   PersistedFileDescription,
   PersistedFolderDescription,
 } from './types';
 
-type MemoryFilePersistenceProviderFile = PersistedFileDescription & {body: Buffer};
+type MemoryFilePersistenceProviderFile = Omit1<PersistedFileDescription, 'filepath'> & {
+  body: Buffer;
+  nativePath: string;
+};
 
 export default class MemoryFilePersistenceProvider implements FilePersistenceProvider {
   files: Record<
@@ -44,12 +54,13 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
   };
 
   async uploadFile(params: FilePersistenceUploadFileParams) {
+    const {mount, filepath} = params;
+    const {nativePath} = this.toNativePath({fimidaraPath: filepath, mount: mount});
     const body = await streamToBuffer(params.body);
 
     this.setMemoryFile(params, {
       body,
-      filepath: params.filepath,
-      type: kAppResourceType.File,
+      nativePath,
       lastUpdatedAt: Date.now(),
       size: body.byteLength,
       mountId: params.mount.resourceId,
@@ -96,8 +107,8 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
 
     if (file) {
       return {
-        type: kAppResourceType.File,
-        filepath: file.filepath,
+        filepath: this.toFimidaraPath({nativePath: file.nativePath, mount: params.mount})
+          .fimidaraPath,
         lastUpdatedAt: file.lastUpdatedAt,
         size: file.size,
         mimetype: file.mimetype,
@@ -129,10 +140,13 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
     for (; index < workspaceFiles.length && files.length < params.max; index++) {
       const file = workspaceFiles[index];
 
-      if (file.filepath.toLowerCase().startsWith(params.folderpath)) {
+      if (file.nativePath.startsWith(params.folderpath)) {
+        const {fimidaraPath} = this.toFimidaraPath({
+          nativePath: file.nativePath,
+          mount: params.mount,
+        });
         files.push({
-          type: kAppResourceType.File,
-          filepath: file.filepath,
+          filepath: fimidaraPath,
           lastUpdatedAt: file.lastUpdatedAt,
           size: file.size,
           mimetype: file.mimetype,
@@ -151,6 +165,25 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
   ): Promise<FilePersistenceDescribeFolderFoldersResult> => {
     // not supported
     return {folders: []};
+  };
+
+  toNativePath = (
+    params: FimidaraToFilePersistencePathParams
+  ): FimidaraToFilePersistencePathResult => {
+    const {fimidaraPath, mount} = params;
+    const nativePath = path.normalize(
+      mount.mountedFrom.concat(fimidaraPath).join(kFolderConstants.separator)
+    );
+    return {nativePath};
+  };
+
+  toFimidaraPath = (
+    params: FilePersistenceToFimidaraPathParams
+  ): FilePersistenceToFimidaraPathResult => {
+    const {nativePath, mount} = params;
+    const prefix = path.normalize(mount.mountedFrom.join(kFolderConstants.separator));
+    const fimidaraPath = nativePath.slice(prefix.length);
+    return {fimidaraPath};
   };
 
   getWorkspaceFiles = (params: {workspaceId: string}) => {
@@ -174,8 +207,11 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
   getMemoryFile = (params: {
     workspaceId: string;
     filepath: string;
+    mount: FileBackendMount;
   }): MemoryFilePersistenceProviderFile | undefined => {
+    const {mount, filepath} = params;
+    const {nativePath} = this.toNativePath({fimidaraPath: filepath, mount: mount});
     const workspaceFilesMap = this.getWorkspaceFiles(params);
-    return workspaceFilesMap[params.filepath.toLowerCase()];
+    return workspaceFilesMap[nativePath];
   };
 }

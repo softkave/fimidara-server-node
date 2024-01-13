@@ -10,6 +10,7 @@ import {
 } from '../../definitions/system';
 import {PublicUser, UserWithWorkspace} from '../../definitions/user';
 import {PublicWorkspace, Workspace} from '../../definitions/workspace';
+import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {toArray} from '../../utils/fns';
 import {makeUserSessionAgent} from '../../utils/sessionUtils';
@@ -331,7 +332,13 @@ export async function insertFileBackendMountForTest(
 
   const result = await addFileBackendMountEndpoint(instData);
   assertEndpointResultOk(result);
-  return merge(result, addConfigResult);
+
+  const rawMount = await kSemanticModels
+    .fileBackendMount()
+    .getOneById(result.mount.resourceId);
+  appAssert(rawMount);
+
+  return merge(result, addConfigResult, {rawMount});
 }
 
 export async function insertFolderForTest(

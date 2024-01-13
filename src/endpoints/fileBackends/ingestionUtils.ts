@@ -81,6 +81,11 @@ export async function ingestPersistedFiles(
   });
 
   const mountFileList = Object.values(persistedFilesByFilepath);
+
+  if (mountFileList.length === 0) {
+    return;
+  }
+
   await kSemanticModels.utils().withTxn(async opts => {
     const existingFiles = await kSemanticModels.file().getManyByQueryList(
       mountFileList.map(({pathinfo}): FileQuery => {

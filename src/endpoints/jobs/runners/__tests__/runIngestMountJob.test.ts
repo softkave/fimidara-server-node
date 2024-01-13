@@ -9,9 +9,22 @@ import {
   generateAndInsertFileBackendMountListForTest,
 } from '../../../testUtils/generate/fileBackend';
 import {generateTestFolderpath} from '../../../testUtils/generate/folder';
-import {insertUserForTest, insertWorkspaceForTest} from '../../../testUtils/testUtils';
+import {
+  initTests,
+  insertUserForTest,
+  insertWorkspaceForTest,
+} from '../../../testUtils/testUtils';
 import {queueJobs} from '../../utils';
 import {runIngestMountJob} from '../runIngestMountJob';
+import {completeTests} from '../../../testUtils/helpers/test';
+
+beforeAll(async () => {
+  await initTests();
+});
+
+afterAll(async () => {
+  await completeTests();
+});
 
 describe('runIngestMountJob', () => {
   test('creates ingestFolderpath jobs', async () => {

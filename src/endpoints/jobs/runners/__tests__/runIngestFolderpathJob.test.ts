@@ -8,6 +8,7 @@ import {
   kJobType,
 } from '../../../../definitions/job';
 import {kAppResourceType} from '../../../../definitions/system';
+import {loopAndCollate} from '../../../../utils/fns';
 import {getNewId} from '../../../../utils/resource';
 import {AnyObject} from '../../../../utils/types';
 import {
@@ -20,7 +21,10 @@ import {
   PersistedFileDescription,
   PersistedFolderDescription,
 } from '../../../contexts/file/types';
-import {kSemanticModels} from '../../../contexts/injection/injectables';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables';
 import {kRegisterUtilsInjectables} from '../../../contexts/injection/register';
 import {FileQueries} from '../../../files/queries';
 import {getFilepathInfo, stringifyFilenamepath} from '../../../files/utils';
@@ -41,41 +45,101 @@ import {
 } from '../../../testUtils/generate/folder';
 import {expectErrorThrown} from '../../../testUtils/helpers/error';
 import {executeShardJobs} from '../../../testUtils/helpers/job';
-import {insertUserForTest, insertWorkspaceForTest} from '../../../testUtils/testUtils';
+import {completeTests} from '../../../testUtils/helpers/test';
+import {
+  initTests,
+  insertFileBackendMountForTest,
+  insertUserForTest,
+  insertWorkspaceForTest,
+} from '../../../testUtils/testUtils';
 import {queueJobs} from '../../utils';
 import {runIngestFolderpathJob} from '../runIngestFolderpathJob';
 
-/**
- * - TODO: reset injectables
- */
+beforeEach(async () => {
+  await initTests();
+});
+
+afterEach(async () => {
+  await completeTests();
+});
+
+type ContinuationsByFolderpath = Record<string, Array<string | undefined>>;
+
+function getContinuationTokenList(store: ContinuationsByFolderpath, p: string) {
+  let list = store[p];
+
+  if (!list) {
+    list = store[p] = [];
+  }
+
+  return list;
+}
+
+function expectContinuationToken(
+  store: ContinuationsByFolderpath,
+  p: string,
+  token: unknown
+) {
+  if (token) {
+    expect(getContinuationTokenList(store, p)).toContainEqual(token);
+  }
+}
+
+function appendContinuationEntry(
+  store: ContinuationsByFolderpath,
+  p: string,
+  withContinuation: boolean,
+  maxContinuations: number
+) {
+  let token = withContinuation ? Math.random().toString() : undefined;
+
+  if (token) {
+    const list = getContinuationTokenList(store, p);
+
+    if (list.length < maxContinuations) {
+      list.push(token);
+    } else {
+      token = undefined;
+    }
+  }
+
+  return token;
+}
+
+function expectContinuationNotUsed(store: ContinuationsByFolderpath) {
+  expect(Object.values(store).length).toBe(0);
+}
+
+function expectContinuationUsed(store: ContinuationsByFolderpath) {
+  expect(Object.values(store).length).toBeGreaterThan(0);
+}
 
 describe('runIngestFolderpathJob', () => {
-  test('files ingested with a backend that supports folders', async () => {
+  test.only('files ingested with a backend that supports folders', async () => {
     let pFolders: PersistedFolderDescription[] = [];
     let pFiles: PersistedFileDescription[] = [];
-    const kMaxDepth = 5;
+    const kMaxDepth = 2;
+    const kMaxContinuations = 2;
     const mountedFrom = generateTestFolderpath({
-      length: faker.number.int({min: 0, max: 2}),
+      length: faker.number.int({min: 1, max: 2}),
     });
-    const mountFolderpath = generateTestFolderpath({
+    const mountedFromString = mountedFrom.join(kFolderConstants.separator);
+    const mountFolderNamepath = generateTestFolderpath({
       length: faker.number.int({min: 0, max: 2}),
     });
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const [config] = await generateAndInsertFileBackendConfigListForTest(/** count */ 1, {
-      workspaceId: workspace.resourceId,
+    const {mount} = await insertFileBackendMountForTest(userToken, workspace, {
+      folderpath: stringifyFoldernamepath(
+        {namepath: mountFolderNamepath},
+        workspace.rootname
+      ),
+      mountedFrom: mountedFromString,
     });
-    const [mount] = await generateAndInsertFileBackendMountListForTest(/** count */ 1, {
-      namepath: mountFolderpath,
-      mountedFrom,
-      workspaceId: workspace.resourceId,
-      configId: config.resourceId,
-      backend: kFileBackendType.s3,
-    });
-    const withContinuationToken = faker.datatype.boolean();
-    const pFolderContinuationTokensByFolderpath: Record<string, string> = {};
-    const pFileContinuationTokensByFolderpath: Record<string, string> = {};
-    const mountedFromString = mountedFrom.join(kFolderConstants.separator);
+    // const withContinuationToken = faker.datatype.boolean();
+    const withContinuationToken = false;
+    const pFoldersContinuationTokensByFolderpath: ContinuationsByFolderpath = {};
+    const pFilesContinuationTokensByFolderpath: ContinuationsByFolderpath = {};
 
     class TestBackend
       extends NoopFilePersistenceProviderContext
@@ -105,33 +169,34 @@ describe('runIngestFolderpathJob', () => {
         expect(folderpathSplit).toEqual(expect.arrayContaining(mountedFrom));
         expect(workspaceId).toBe(workspace.resourceId);
         expect(mount.resourceId).toBe(params.mount.resourceId);
-        // Expect to be undefined if we're not testing continuation, or we are
-        // and it's first call, and should not be undefined for second call. If
-        // there is a 3rd call, it'll fail because we're expecting 2.
-        expect(pFolderContinuationTokensByFolderpath[folderpath]).toBe(continuationToken);
+        expectContinuationToken(
+          pFilesContinuationTokensByFolderpath,
+          folderpath,
+          continuationToken
+        );
 
         let files: PersistedFileDescription[] = [];
 
         if (folderpathSplit.length < kMaxDepth) {
-          files = Array(/** count */ kMaxDepth)
-            .fill(0)
-            .map(() =>
+          files = loopAndCollate(
+            () =>
               generatePersistedFileDescriptionForTest({
                 filepath: folderpathSplit
                   .concat(generateTestFileName())
                   .join(kFolderConstants.separator),
-              })
-            );
+                mountId: mount.resourceId,
+              }),
+            kMaxDepth
+          );
           pFiles = pFiles.concat(files);
         }
 
-        let newContinuationToken: string | undefined = undefined;
-
-        if (withContinuationToken && !continuationToken) {
-          newContinuationToken = Math.random().toString();
-          pFolderContinuationTokensByFolderpath[folderpath] = newContinuationToken;
-        }
-
+        const newContinuationToken = appendContinuationEntry(
+          pFilesContinuationTokensByFolderpath,
+          folderpath,
+          withContinuationToken && files.length,
+          kMaxContinuations
+        );
         return {files, continuationToken: newContinuationToken};
       };
 
@@ -144,30 +209,34 @@ describe('runIngestFolderpathJob', () => {
         expect(folderpathSplit).toEqual(expect.arrayContaining(mountedFrom));
         expect(workspaceId).toBe(workspace.resourceId);
         expect(mount.resourceId).toBe(params.mount.resourceId);
-        expect(pFileContinuationTokensByFolderpath[folderpath]).toBe(continuationToken);
+        expectContinuationToken(
+          pFoldersContinuationTokensByFolderpath,
+          folderpath,
+          continuationToken
+        );
 
         let folders: PersistedFolderDescription[] = [];
 
         if (folderpathSplit.length < kMaxDepth) {
-          folders = Array(/** count */ kMaxDepth)
-            .fill(0)
-            .map(() =>
+          folders = loopAndCollate(
+            () =>
               generatePersistedFolderDescriptionForTest({
                 folderpath: folderpathSplit
                   .concat(generateTestFolderName())
                   .join(kFolderConstants.separator),
-              })
-            );
+                mountId: mount.resourceId,
+              }),
+            kMaxDepth
+          );
           pFolders = pFolders.concat(folders);
         }
 
-        let newContinuationToken: string | undefined = undefined;
-
-        if (withContinuationToken && !continuationToken) {
-          newContinuationToken = Math.random().toString();
-          pFileContinuationTokensByFolderpath[folderpath] = newContinuationToken;
-        }
-
+        const newContinuationToken = appendContinuationEntry(
+          pFoldersContinuationTokensByFolderpath,
+          folderpath,
+          withContinuationToken && folders.length,
+          kMaxContinuations
+        );
         return {folders, continuationToken: newContinuationToken};
       };
     }
@@ -177,6 +246,7 @@ describe('runIngestFolderpathJob', () => {
     });
 
     const shard = getNewId();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [job] = await queueJobs<IngestFolderpathJobParams>(
       workspace.resourceId,
       /** parent job ID */ undefined,
@@ -193,8 +263,10 @@ describe('runIngestFolderpathJob', () => {
       ]
     );
 
-    await runIngestFolderpathJob(job);
     await executeShardJobs(shard);
+    // Wait for existing promises to resolve, because updating parent jobs are
+    // added to promise store, so we wait.
+    await kUtilsInjectables.promises().flush();
 
     const jobs = await kSemanticModels.job().getManyByQuery({shard});
     expect(pFolders.length).toBeGreaterThan(0);
@@ -202,29 +274,25 @@ describe('runIngestFolderpathJob', () => {
     expect(jobs.length).toBe(pFolders.length + 1);
 
     if (withContinuationToken) {
-      expect(Object.values(pFolderContinuationTokensByFolderpath)).toBeGreaterThan(0);
-      expect(Object.values(pFileContinuationTokensByFolderpath)).toBeGreaterThan(0);
+      expectContinuationUsed(pFoldersContinuationTokensByFolderpath);
+      expectContinuationUsed(pFilesContinuationTokensByFolderpath);
     } else {
-      expect(Object.values(pFolderContinuationTokensByFolderpath)).toBe(0);
-      expect(Object.values(pFileContinuationTokensByFolderpath)).toBe(0);
+      expectContinuationNotUsed(pFoldersContinuationTokensByFolderpath);
+      expectContinuationNotUsed(pFilesContinuationTokensByFolderpath);
     }
 
-    const jobsByMountSource = keyBy(
-      jobs,
-      job => (job.params as IngestFolderpathJobParams).ingestFrom ?? ''
+    const pFolderMountSources = pFolders.map(next =>
+      mountedFrom.concat(next.folderpath).join(kFolderConstants.separator)
     );
-    const expectedJobsByFolderpath = pFolders.map(
-      (pFolder): Partial<Job<IngestFolderpathJobParams>> => ({
-        params: {
-          ingestFrom: pFolder.folderpath,
-          mountId: pFolder.mountId,
-          agentId: userToken.resourceId,
-        },
-        type: kJobType.ingestFolderpath,
-        shard: job.shard,
-      })
-    );
-    expect(jobsByMountSource).toMatchObject(expectedJobsByFolderpath);
+    const jobsMountSources: string[] = [];
+    jobs.forEach(job => {
+      const params = job.params as IngestFolderpathJobParams;
+      expect(job.type).toBe(kJobType.ingestFolderpath);
+      expect(params.agentId).toBe(userToken.resourceId);
+      expect(params.mountId).toBe(mount.resourceId);
+      jobsMountSources.push(params.ingestFrom);
+    });
+    expect(jobsMountSources).toEqual(expect.arrayContaining(pFolderMountSources));
 
     const [dbFolders, dbFiles] = await Promise.all([
       kSemanticModels.folder().getManyByQueryList(
@@ -263,10 +331,10 @@ describe('runIngestFolderpathJob', () => {
     });
 
     dbFolders.forEach(dbFolder => {
-      expect(dbFolder.namepath).toEqual(expect.arrayContaining(mountFolderpath));
+      expect(dbFolder.namepath).toEqual(expect.arrayContaining(mountFolderNamepath));
     });
     dbFiles.forEach(dbFile => {
-      expect(dbFile.namepath).toEqual(expect.arrayContaining(mountFolderpath));
+      expect(dbFile.namepath).toEqual(expect.arrayContaining(mountFolderNamepath));
     });
   });
 

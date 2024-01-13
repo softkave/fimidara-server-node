@@ -44,7 +44,7 @@ export interface ResolvedMountEntry extends WorkspaceResource {
   extension?: string;
   resolvedFor: string;
   resolvedForType: AppResourceType;
-  other: Omit1<PersistedFileDescription, 'filepath' | 'mountId' | 'type'> | null;
+  other: Omit1<PersistedFileDescription, 'filepath' | 'mountId'> | null;
 }
 
 export type PublicFileBackendMount = PublicWorkspaceResource &

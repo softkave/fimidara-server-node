@@ -23,7 +23,10 @@ import {
   FilePersistenceGetFileParams,
   FilePersistenceProvider,
   FilePersistenceProviderFeature,
+  FilePersistenceToFimidaraPathParams,
+  FilePersistenceToFimidaraPathResult,
   FilePersistenceUploadFileParams,
+  FimidaraToFilePersistencePathParams,
   PersistedFile,
   PersistedFileDescription,
   PersistedFolderDescription,
@@ -36,27 +39,16 @@ export interface S3FilePersistenceProviderInitParams {
 }
 
 export class S3FilePersistenceProvider implements FilePersistenceProvider {
-  static getBucketAndKey(params: {
+  static getBucketAndPrefix(params: {
     mount: FileBackendMount;
     filepath?: string;
     folderpath?: string;
   }) {
-    const {filepath, folderpath, mount} = params;
+    const {mount} = params;
     const bucket = first(mount.mountedFrom);
-    const prefix = mount.mountedFrom.slice(0).join(kFolderConstants.separator);
-    let key: string | undefined = undefined;
+    const prefix = mount.mountedFrom.slice(1).join(kFolderConstants.separator);
     appAssert(bucket?.length, kReuseableErrors.mount.s3MountSourceMissingBucket());
-
-    if (prefix || filepath || folderpath) {
-      const resourcePath = filepath || folderpath || '';
-      key = path.normalize(
-        `${prefix}/${resourcePath
-          .split(kFolderConstants.separator)
-          .slice(mount.namepath.length)}`
-      );
-    }
-
-    return {bucket, key};
+    return {bucket, prefix};
   }
 
   protected s3: S3Client;
@@ -87,10 +79,14 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
   };
 
   uploadFile = async (params: FilePersistenceUploadFileParams) => {
-    const {bucket, key} = S3FilePersistenceProvider.getBucketAndKey(params);
+    const {bucket, nativePath} = this.toNativePath({
+      fimidaraPath: params.filepath,
+      mount: params.mount,
+    });
+    appAssert(nativePath);
     const command = new PutObjectCommand({
       Bucket: bucket,
-      Key: key,
+      Key: nativePath,
       Body: params.body,
       // ContentLength: params.contentLength,
       // ContentType: params.contentType,
@@ -102,8 +98,11 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
   };
 
   readFile = async (params: FilePersistenceGetFileParams): Promise<PersistedFile> => {
-    const {bucket, key} = S3FilePersistenceProvider.getBucketAndKey(params);
-    const command = new GetObjectCommand({Bucket: bucket, Key: key});
+    const {bucket, nativePath} = this.toNativePath({
+      fimidaraPath: params.filepath,
+      mount: params.mount,
+    });
+    const command = new GetObjectCommand({Bucket: bucket, Key: nativePath});
     const response = await this.s3.send(command);
 
     return {
@@ -119,14 +118,14 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
     }
 
     const objectInfoList = params.filepaths.map(filepath =>
-      S3FilePersistenceProvider.getBucketAndKey({filepath, mount: params.mount})
+      this.toNativePath({fimidaraPath: filepath, mount: params.mount})
     );
     const bucket = first(objectInfoList)?.bucket;
     appAssert(bucket);
 
     const command = new DeleteObjectsCommand({
       Bucket: bucket,
-      Delete: {Objects: objectInfoList.map(info => ({Key: info.key}))},
+      Delete: {Objects: objectInfoList.map(info => ({Key: info.nativePath}))},
     });
     await this.s3.send(command);
   };
@@ -138,13 +137,15 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
   describeFile = async (
     params: FilePersistenceGetFileParams
   ): Promise<PersistedFileDescription | undefined> => {
-    const {bucket, key} = S3FilePersistenceProvider.getBucketAndKey(params);
-    const command = new HeadObjectCommand({Bucket: bucket, Key: key});
+    const {bucket, nativePath} = this.toNativePath({
+      fimidaraPath: params.filepath,
+      mount: params.mount,
+    });
+    const command = new HeadObjectCommand({Bucket: bucket, Key: nativePath});
     const response = await this.s3.send(command);
 
     return {
       filepath: params.filepath,
-      type: 'file',
       size: response.ContentLength,
       lastUpdatedAt: response.LastModified ? response.LastModified.valueOf() : undefined,
       mountId: params.mount.resourceId,
@@ -164,11 +165,14 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
   describeFolderFiles = async (
     params: FilePersistenceDescribeFolderFilesParams
   ): Promise<FilePersistenceDescribeFolderFilesResult> => {
-    const {bucket, key} = S3FilePersistenceProvider.getBucketAndKey(params);
+    const {bucket, nativePath} = this.toNativePath({
+      fimidaraPath: params.folderpath,
+      mount: params.mount,
+    });
     const command = new ListObjectsV2Command({
       Bucket: bucket,
       MaxKeys: params.max,
-      Prefix: key,
+      Prefix: nativePath,
       ContinuationToken: params.continuationToken as string | undefined,
     });
     const response = await this.s3.send(command);
@@ -180,8 +184,8 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       }
 
       const pFile: PersistedFileDescription = {
-        filepath: content.Key,
-        type: 'file',
+        filepath: this.toFimidaraPath({nativePath: content.Key, mount: params.mount})
+          .fimidaraPath,
         size: content.Size,
         lastUpdatedAt: content.LastModified ? content.LastModified.valueOf() : undefined,
         mountId: params.mount.resourceId,
@@ -202,5 +206,23 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   deleteFolders = async (params: FilePersistenceDeleteFoldersParams): Promise<void> => {
     // not supported
+  };
+
+  toNativePath = (params: FimidaraToFilePersistencePathParams) => {
+    const {fimidaraPath} = params;
+    const {bucket, prefix} = S3FilePersistenceProvider.getBucketAndPrefix(params);
+    const nativePath = path.normalize(
+      [prefix].concat(fimidaraPath).join(kFolderConstants.separator)
+    );
+    return {nativePath, bucket, prefix};
+  };
+
+  toFimidaraPath = (
+    params: FilePersistenceToFimidaraPathParams
+  ): FilePersistenceToFimidaraPathResult => {
+    const {nativePath} = params;
+    const {prefix} = S3FilePersistenceProvider.getBucketAndPrefix(params);
+    const fimidaraPath = nativePath.slice(prefix.length);
+    return {fimidaraPath};
   };
 }

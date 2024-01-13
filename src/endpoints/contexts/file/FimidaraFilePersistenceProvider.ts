@@ -1,6 +1,6 @@
 import {isArray, isNumber, isObject} from 'lodash';
+import path from 'path';
 import {File} from '../../../definitions/file';
-import {kAppResourceType} from '../../../definitions/system';
 import {kFimidaraConfigFilePersistenceProvider} from '../../../resources/config';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
@@ -23,7 +23,11 @@ import {
   FilePersistenceGetFileParams,
   FilePersistenceProvider,
   FilePersistenceProviderFeature,
+  FilePersistenceToFimidaraPathParams,
+  FilePersistenceToFimidaraPathResult,
   FilePersistenceUploadFileParams,
+  FimidaraToFilePersistencePathParams,
+  FimidaraToFilePersistencePathResult,
   PersistedFile,
   PersistedFileDescription,
   PersistedFolderDescription,
@@ -73,11 +77,11 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
   uploadFile = async (
     params: FilePersistenceUploadFileParams
   ): Promise<Partial<File>> => {
-    return await this.backend.uploadFile(params);
+    return await this.backend.uploadFile(this.prefixParamsPath(params));
   };
 
   readFile = async (params: FilePersistenceGetFileParams): Promise<PersistedFile> => {
-    return await this.backend.readFile(params);
+    return await this.backend.readFile(this.prefixParamsPath(params));
   };
 
   describeFile = async (
@@ -93,7 +97,6 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
     if (entry) {
       return {
         filepath,
-        type: kAppResourceType.File,
         lastUpdatedAt: entry.lastUpdatedAt,
         size: entry.other?.size,
         mimetype: entry.other?.mimetype,
@@ -115,20 +118,20 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
       .getOneByQuery(FolderQueries.getByNamepath({workspaceId, namepath}));
 
     if (folder) {
-      return {folderpath, type: kAppResourceType.Folder, mountId: mount.resourceId};
+      return {folderpath, mountId: mount.resourceId};
     }
 
     return undefined;
   };
 
   deleteFiles = async (params: FilePersistenceDeleteFilesParams): Promise<void> => {
-    await this.backend.deleteFiles(params);
+    await this.backend.deleteFiles(this.prefixParamsPath(params));
   };
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   deleteFolders = async (params: FilePersistenceDeleteFoldersParams): Promise<void> => {
     // fimidara persisted folders are stored in DB, so no need to delete them
-    // here, seeing deleteFolder will do that
+    // here, seeing deleteFolder endpoint will do that
   };
 
   describeFolderFiles = async (
@@ -163,7 +166,6 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
       exclude.push(entry.resourceId);
       return {
         filepath: stringifyFilenamepath(entry),
-        type: 'file',
         lastUpdatedAt: entry.lastUpdatedAt,
         size: entry.other?.size,
         mimetype: entry.other?.mimetype,
@@ -210,11 +212,7 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
       }
 
       exclude.push(folder.resourceId);
-      return {
-        folderpath: stringifyFoldernamepath(folder),
-        type: kAppResourceType.Folder,
-        mountId: mount.resourceId,
-      };
+      return {folderpath: stringifyFoldernamepath(folder), mountId: mount.resourceId};
     });
 
     const nextPage: FimidaraFilePersistenceProviderPage = {
@@ -228,6 +226,18 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
 
   dispose = async () => {
     await this.backend.dispose();
+  };
+
+  toNativePath = (
+    params: FimidaraToFilePersistencePathParams
+  ): FimidaraToFilePersistencePathResult => {
+    return {nativePath: params.fimidaraPath};
+  };
+
+  toFimidaraPath = (
+    params: FilePersistenceToFimidaraPathParams
+  ): FilePersistenceToFimidaraPathResult => {
+    return {fimidaraPath: params.nativePath};
   };
 
   protected getBackend = (): FilePersistenceProvider => {
@@ -248,4 +258,38 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
         throw kReuseableErrors.file.unknownBackend(config.fileBackend || '');
     }
   };
+
+  protected prefixPath(workspaceId: string, p: string): string {
+    return path.normalize(`${workspaceId}/${p}`);
+  }
+
+  /** Prefixes file and folder paths with workspace ID for uniqueness due to
+   * multi-tenancy. */
+  protected prefixParamsPath<
+    T extends {
+      workspaceId: string;
+      filepath?: string;
+      folderpath?: string;
+      folderpaths?: string[];
+      filepaths?: string[];
+    },
+  >(params: T): T {
+    if (params.filepath) {
+      params.filepath = this.prefixPath(params.workspaceId, params.filepath);
+      return params;
+    } else if (params.folderpath) {
+      params.folderpath = this.prefixPath(params.workspaceId, params.folderpath);
+      return params;
+    } else if (params.filepaths) {
+      params.filepaths = params.filepaths.map(p =>
+        this.prefixPath(params.workspaceId, p)
+      );
+    } else if (params.folderpaths) {
+      params.folderpaths = params.folderpaths.map(p =>
+        this.prefixPath(params.workspaceId, p)
+      );
+    }
+
+    return params;
+  }
 }

@@ -1,4 +1,5 @@
 import assert from 'assert';
+import {kFileBackendType} from '../../../definitions/fileBackend';
 import RequestData from '../../RequestData';
 import MemoryFilePersistenceProvider from '../../contexts/file/MemoryFilePersistenceProvider';
 import {
@@ -57,7 +58,7 @@ describe('uploadFile', () => {
     const insertWorkspaceResult = await insertWorkspaceForTest(userToken);
     const {workspace} = insertWorkspaceResult;
     const filepath = generateTestFilepath({rootname: workspace.rootname, length: 4});
-    const [{mount: closerMount}] = await Promise.all([
+    const [{rawMount: closerMount}, {rawMount: fartherMount}] = await Promise.all([
       insertFileBackendMountForTest(userToken, workspace, {
         folderpath: stringifyFoldernamepath(
           {namepath: filepath.slice(0, -1)}
@@ -89,10 +90,12 @@ describe('uploadFile', () => {
     );
 
     const persistedFile = closerMountBackend.getMemoryFile({
+      mount: closerMount,
       workspaceId: workspace.resourceId,
       filepath: stringifyFilenamepath(file),
     });
     const fartherMountPersistedFile = fartherMountBackend.getMemoryFile({
+      mount: fartherMount,
       workspaceId: workspace.resourceId,
       filepath: stringifyFilenamepath(file),
     });
@@ -113,7 +116,7 @@ describe('uploadFile', () => {
       const insertWorkspaceResult = await insertWorkspaceForTest(userToken);
       const {workspace} = insertWorkspaceResult;
       const filepath = generateTestFilepath({rootname: workspace.rootname, length: 4});
-      const [{mount: closerMount}] = await Promise.all([
+      const [{rawMount: closerMount}, {rawMount: fartherMount}] = await Promise.all([
         insertFileBackendMountForTest(userToken, workspace, {
           folderpath: stringifyFoldernamepath(
             {namepath: filepath.slice(0, -1)}
@@ -147,10 +150,12 @@ describe('uploadFile', () => {
       );
 
       const persistedFile = closerMountBackend.getMemoryFile({
+        mount: closerMount,
         workspaceId: workspace.resourceId,
         filepath: stringifyFilenamepath(file),
       });
       const fartherMountPersistedFile = fartherMountBackend.getMemoryFile({
+        mount: fartherMount,
         workspaceId: workspace.resourceId,
         filepath: stringifyFilenamepath(file),
       });
@@ -207,7 +212,13 @@ describe('uploadFile', () => {
       agentType: agent.agentType,
     });
 
+    const fimidaraMount = await kSemanticModels.fileBackendMount().getOneByQuery({
+      workspaceId: insertWorkspaceResult.workspace.resourceId,
+      backend: kFileBackendType.fimidara,
+    });
+    assert(fimidaraMount);
     const persistedFile = backend.getMemoryFile({
+      mount: fimidaraMount,
       workspaceId: insertWorkspaceResult.workspace.resourceId,
       filepath: stringifyFilenamepath(savedFile),
     });

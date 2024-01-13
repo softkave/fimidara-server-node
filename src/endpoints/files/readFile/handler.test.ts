@@ -1,5 +1,4 @@
 import {Readable} from 'stream';
-import {kAppResourceType} from '../../../definitions/system';
 import {streamToBuffer} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import RequestData from '../../RequestData';
@@ -173,7 +172,6 @@ describe('readFile', () => {
         mountFiles: [
           {
             mountId: mount.resourceId,
-            type: kAppResourceType.File,
             encoding: file.encoding,
             mimetype: file.mimetype,
             size: file.size,

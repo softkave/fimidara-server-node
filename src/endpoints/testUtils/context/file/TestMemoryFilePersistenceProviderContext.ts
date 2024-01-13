@@ -7,6 +7,8 @@ export default class TestMemoryFilePersistenceProviderContext
   private client: MemoryFilePersistenceProvider;
 
   uploadFile: ITestFilePersistenceProviderContext['uploadFile'];
+  toFimidaraPath: ITestFilePersistenceProviderContext['toFimidaraPath'];
+  toNativePath: ITestFilePersistenceProviderContext['toNativePath'];
   readFile: ITestFilePersistenceProviderContext['readFile'];
   deleteFiles: ITestFilePersistenceProviderContext['deleteFiles'];
   deleteFolders: ITestFilePersistenceProviderContext['deleteFolders'];
@@ -20,6 +22,8 @@ export default class TestMemoryFilePersistenceProviderContext
   constructor() {
     this.client = new MemoryFilePersistenceProvider();
     this.uploadFile = jest.fn(this.client.uploadFile).mockName('uploadFile');
+    this.toFimidaraPath = jest.fn(this.client.toFimidaraPath).mockName('toFimidaraPath');
+    this.toNativePath = jest.fn(this.client.toNativePath).mockName('toNativePath');
     this.readFile = jest.fn(this.client.readFile).mockName('getFile');
     this.deleteFiles = jest.fn(this.client.deleteFiles).mockName('deleteFiles');
     this.deleteFolders = jest.fn(this.client.deleteFolders).mockName('deleteFolders');

@@ -1,3 +1,4 @@
+import {noopAsync} from '../../../../utils/fns';
 import {
   FilePersistenceDescribeFolderFilesParams,
   FilePersistenceDescribeFolderFilesResult,
@@ -5,6 +6,10 @@ import {
   FilePersistenceDescribeFolderFoldersResult,
   FilePersistenceProvider,
   FilePersistenceProviderFeature,
+  FilePersistenceToFimidaraPathParams,
+  FilePersistenceToFimidaraPathResult,
+  FimidaraToFilePersistencePathParams,
+  FimidaraToFilePersistencePathResult,
   PersistedFile,
   PersistedFileDescription,
   PersistedFolderDescription,
@@ -31,9 +36,9 @@ export default class NoopFilePersistenceProviderContext
     return {body: undefined};
   };
 
-  deleteFiles = async () => {};
-  deleteFolders = async (): Promise<void> => {};
-  dispose = async () => {};
+  deleteFiles = noopAsync;
+  deleteFolders = noopAsync;
+  dispose = noopAsync;
 
   describeFile = async (): Promise<PersistedFileDescription | undefined> => {
     return undefined;
@@ -56,5 +61,17 @@ export default class NoopFilePersistenceProviderContext
     params: FilePersistenceDescribeFolderFoldersParams
   ): Promise<FilePersistenceDescribeFolderFoldersResult> => {
     return {folders: []};
+  };
+
+  toFimidaraPath = (
+    params: FilePersistenceToFimidaraPathParams
+  ): FilePersistenceToFimidaraPathResult => {
+    return {fimidaraPath: params.nativePath};
+  };
+
+  toNativePath = (
+    params: FimidaraToFilePersistencePathParams
+  ): FimidaraToFilePersistencePathResult => {
+    return {nativePath: params.fimidaraPath};
   };
 }

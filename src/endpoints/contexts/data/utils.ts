@@ -117,6 +117,10 @@ export abstract class BaseMongoDataProvider<
     query: TQuery[],
     otherProps?: DataProviderQueryListParams<T> | undefined
   ) => {
+    if (query.length === 0) {
+      return [];
+    }
+
     const mongoQuery = {
       $or: query.map(next => BaseMongoDataProvider.getMongoQuery(next)),
     };
@@ -132,6 +136,10 @@ export abstract class BaseMongoDataProvider<
     data: Partial<T>,
     otherProps?: DataProviderOpParams
   ) => {
+    if (query.length === 0) {
+      return;
+    }
+
     const mongoQuery = {
       $or: query.map(next => BaseMongoDataProvider.getMongoQuery(next)),
     };
@@ -251,11 +259,15 @@ export abstract class BaseMongoDataProvider<
     query: TQuery[],
     otherProps?: DataProviderOpParams | undefined
   ) => {
+    if (query.length === 0) {
+      return 0;
+    }
+
+    const mongoQuery = {
+      $or: query.map(next => BaseMongoDataProvider.getMongoQuery(next)),
+    };
     const count = await this.model
-      .countDocuments(
-        {$or: query.map(next => BaseMongoDataProvider.getMongoQuery(next))},
-        getMongoQueryOptionsForOp(otherProps)
-      )
+      .countDocuments(mongoQuery, getMongoQueryOptionsForOp(otherProps))
       .exec();
     return count;
   };
@@ -276,12 +288,14 @@ export abstract class BaseMongoDataProvider<
     query: ExtendedQueryType[],
     otherProps?: DataProviderOpParams | undefined
   ) => {
-    await this.model
-      .deleteMany(
-        {$or: query.map(next => BaseMongoDataProvider.getMongoQuery(next))},
-        getMongoQueryOptionsForOp(otherProps)
-      )
-      .exec();
+    if (query.length === 0) {
+      return;
+    }
+
+    const mongoQuery = {
+      $or: query.map(next => BaseMongoDataProvider.getMongoQuery(next)),
+    };
+    await this.model.deleteMany(mongoQuery, getMongoQueryOptionsForOp(otherProps)).exec();
   };
 
   deleteOneByQuery = async <ExtendedQueryType extends TQuery = TQuery>(

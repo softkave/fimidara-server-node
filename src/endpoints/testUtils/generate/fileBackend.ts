@@ -158,7 +158,6 @@ export function generatePersistedFolderDescriptionForTest(
   return {
     folderpath: generateTestFolderpathString(),
     mountId: getNewIdForResource(kAppResourceType.FileBackendMount),
-    type: kAppResourceType.Folder,
     ...seed,
   };
 }
@@ -169,7 +168,6 @@ export function generatePersistedFileDescriptionForTest(
   return {
     filepath: generateTestFilepathString(),
     mountId: getNewIdForResource(kAppResourceType.FileBackendMount),
-    type: kAppResourceType.File,
     lastUpdatedAt: getTimestamp(),
     mimetype: faker.system.mimeType(),
     encoding: 'utf-8',
