@@ -3,10 +3,9 @@ import {Folder} from '../../../definitions/folder';
 import {kAppResourceType} from '../../../definitions/system';
 import {kSystemSessionAgent} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
-import {getRandomIntInclusive, loopAndCollate} from '../../../utils/fns';
+import {getRandomIntInclusive, loopAndCollate, pathJoin} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {kFolderConstants} from '../../folders/constants';
 import {addRootnameToPath} from '../../folders/utils';
 
 export const kTestFolderNameSeparatorChars = ['-', '_', ' ', '.'];
@@ -73,7 +72,7 @@ export function generateTestFolderpath(
 export function generateTestFolderpathString(
   props: Parameters<typeof generateTestFolderpath>[0] = {}
 ): string {
-  return generateTestFolderpath(props).join(kFolderConstants.separator);
+  return pathJoin(generateTestFolderpath(props));
 }
 
 export async function generateUniqueFolderpath(workspaceId: string) {

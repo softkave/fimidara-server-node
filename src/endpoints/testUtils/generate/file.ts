@@ -4,11 +4,10 @@ import {File} from '../../../definitions/file';
 import {kAppResourceType} from '../../../definitions/system';
 import {kSystemSessionAgent} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
-import {getRandomIntInclusive} from '../../../utils/fns';
+import {getRandomIntInclusive, pathJoin} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {getFilenameInfo} from '../../files/utils';
-import {kFolderConstants} from '../../folders/constants';
 import {addRootnameToPath} from '../../folders/utils';
 import {generateTestFolderName, generateTestFolderpath} from './folder';
 
@@ -87,7 +86,7 @@ export function generateTestFilepathString(
   props: Parameters<typeof generateTestFileName>[0] &
     Parameters<typeof generateTestFolderpath>[0] & {length?: number} = {}
 ): string {
-  return generateTestFilepath(props).join(kFolderConstants.separator);
+  return pathJoin(generateTestFilepath(props));
 }
 
 export function generateTestFile(extra: Partial<File> & {parentId?: string | null} = {}) {

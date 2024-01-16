@@ -84,9 +84,11 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
   };
 
   deleteFiles = async (params: FilePersistenceDeleteFilesParams) => {
+    const {mount} = params;
     const workspaceFilesMap = this.getWorkspaceFiles(params);
     params.filepaths.forEach(key => {
-      delete workspaceFilesMap[key.toLowerCase()];
+      const {nativePath} = this.toNativePath({mount, fimidaraPath: key});
+      delete workspaceFilesMap[nativePath];
     });
   };
 
@@ -130,19 +132,28 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
   describeFolderFiles = async (
     params: FilePersistenceDescribeFolderFilesParams
   ): Promise<FilePersistenceDescribeFolderFilesResult> => {
+    const {mount, folderpath, max, continuationToken} = params;
     const workspaceFilesMap = this.getWorkspaceFiles(params);
     const workspaceFiles = Object.values(workspaceFilesMap);
     const files: PersistedFileDescription[] = [];
-    appAssert(isNumber(params.continuationToken));
 
-    let index = params.continuationToken;
-    for (; index < workspaceFiles.length && files.length < params.max; index++) {
+    if (continuationToken) {
+      appAssert(isNumber(continuationToken));
+    }
+
+    let index = (continuationToken as number | undefined) || 0;
+    const {nativePath: folderNativePath} = this.toNativePath({
+      mount,
+      fimidaraPath: folderpath,
+    });
+
+    for (; index < workspaceFiles.length && files.length < max; index++) {
       const file = workspaceFiles[index];
 
-      if (file.nativePath.startsWith(params.folderpath)) {
+      if (file.nativePath.startsWith(folderNativePath)) {
         const {fimidaraPath} = this.toFimidaraPath({
           nativePath: file.nativePath,
-          mount: params.mount,
+          mount: mount,
         });
         files.push({
           filepath: fimidaraPath,
@@ -150,12 +161,13 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
           size: file.size,
           mimetype: file.mimetype,
           encoding: file.encoding,
-          mountId: params.mount.resourceId,
+          mountId: mount.resourceId,
         });
       }
     }
 
-    return {files, continuationToken: index};
+    const nextContinuationToken = index < workspaceFiles.length - 1 ? index : undefined;
+    return {files, continuationToken: nextContinuationToken};
   };
 
   describeFolderFolders = async (
@@ -203,11 +215,11 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
   };
 
   setMemoryFile = (
-    params: {workspaceId: string; filepath: string},
+    params: {workspaceId: string},
     file: MemoryFilePersistenceProviderFile
   ) => {
     const workspaceFilesMap = this.getWorkspaceFiles(params);
-    workspaceFilesMap[params.filepath.toLowerCase()] = file;
+    workspaceFilesMap[file.nativePath] = file;
   };
 
   getMemoryFile = (params: {

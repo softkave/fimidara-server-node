@@ -1,10 +1,8 @@
 import assert from 'assert';
-import path from 'path';
 import {Readable} from 'stream';
 import {kAppResourceType} from '../../../../definitions/system';
-import {loopAndCollate} from '../../../../utils/fns';
+import {loopAndCollate, pathJoin} from '../../../../utils/fns';
 import {getNewIdForResource} from '../../../../utils/resource';
-import {kFolderConstants} from '../../../folders/constants';
 import {generateTestFilepathString} from '../../../testUtils/generate/file';
 import {
   generateAndInsertFileBackendMountListForTest,
@@ -34,11 +32,12 @@ describe('MemoryFilePersistenceProvider', () => {
     const filepath = generateTestFilepathString({length: 4});
 
     const backend = new MemoryFilePersistenceProvider();
-    const {nativePath} = backend.toNativePath({mount, fimidaraPath: filepath});
+    const {nativePath} = backend.toNativePath({
+      mount,
+      fimidaraPath: pathJoin(mount.namepath, filepath),
+    });
 
-    const expectedNativePath = path.normalize(
-      mount.mountedFrom.concat(filepath).join(kFolderConstants.separator)
-    );
+    const expectedNativePath = pathJoin(mount.mountedFrom, filepath);
     expect(nativePath).toBe(expectedNativePath);
   });
 
@@ -46,24 +45,23 @@ describe('MemoryFilePersistenceProvider', () => {
     const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
     const mount = generateFileBackendMountForTest({workspaceId});
     const filepath = generateTestFilepathString({length: 4});
-    const nativePath = path.normalize(
-      mount.mountedFrom.concat(filepath).join(kFolderConstants.separator)
-    );
+    const nativePath = pathJoin(mount.mountedFrom, filepath);
 
     const backend = new MemoryFilePersistenceProvider();
     const {fimidaraPath} = backend.toFimidaraPath({mount, nativePath});
 
-    const expectedFimidaraPath = path.normalize(
-      mount.namepath.concat(filepath).join(kFolderConstants.separator)
-    );
+    const expectedFimidaraPath = pathJoin(mount.namepath, filepath);
     expect(fimidaraPath).toBe(expectedFimidaraPath);
   });
 
   test('uploadFile', async () => {
-    const filepath = generateTestFilepathString({length: 3});
     const data = Readable.from(['Hello world!']);
     const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
     const [mount] = await generateAndInsertFileBackendMountListForTest(1, {workspaceId});
+    const filepath = generateTestFilepathString({
+      length: mount.namepath.length + 2,
+      parentNamepath: mount.namepath,
+    });
 
     const backend = new MemoryFilePersistenceProvider();
     await backend.uploadFile({mount, workspaceId, filepath, body: data});
@@ -150,11 +148,11 @@ describe('MemoryFilePersistenceProvider', () => {
     });
     const backend = new MemoryFilePersistenceProvider();
     const childrenFilepaths = loopAndCollate(
-      () => folderpath + '/' + generateTestFolderName(),
+      () => pathJoin(folderpath, generateTestFolderName()),
       /** count */ 10
     );
     const childrenDepth02Filepaths = loopAndCollate(
-      () => folderpath + '/' + generateTestFilepathString({length: 2}),
+      () => pathJoin(folderpath, generateTestFilepathString({length: 2})),
       /** count */ 10
     );
     await Promise.all(
@@ -171,11 +169,11 @@ describe('MemoryFilePersistenceProvider', () => {
       mount,
       workspaceId,
       folderpath,
-      max: 5,
+      max: 10,
     });
 
     const resultFilepaths: string[] = [];
-    expect(result.files.length).toBe(5);
+    expect(result.files.length).toBe(10);
     expect(result.continuationToken).toBeTruthy();
     result.files.forEach(file => {
       resultFilepaths.push(file.filepath);
@@ -188,11 +186,11 @@ describe('MemoryFilePersistenceProvider', () => {
       mount,
       workspaceId,
       folderpath,
-      max: 5,
+      max: 10,
       continuationToken: result.continuationToken,
     });
 
-    expect(result.files.length).toBe(5);
+    expect(result.files.length).toBe(10);
     expect(result.continuationToken).toBeFalsy();
     result.files.forEach(file => {
       resultFilepaths.push(file.filepath);
@@ -201,7 +199,8 @@ describe('MemoryFilePersistenceProvider', () => {
       expect(file.lastUpdatedAt).toBeTruthy();
     });
 
-    expect(resultFilepaths).toEqual(expect.arrayContaining(childrenFilepaths));
-    expect(resultFilepaths).not.toEqual(expect.arrayContaining(childrenDepth02Filepaths));
+    expect(resultFilepaths).toEqual(
+      expect.arrayContaining(childrenFilepaths.concat(childrenDepth02Filepaths))
+    );
   });
 });

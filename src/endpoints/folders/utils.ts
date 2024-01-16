@@ -6,7 +6,7 @@ import {Agent, SessionAgent, kAppResourceType} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {pathSplit} from '../../utils/fns';
+import {pathJoin, pathSplit} from '../../utils/fns';
 import {getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {
@@ -202,12 +202,13 @@ export function addRootnameToPath<T extends string | string[] = string | string[
   const rootname = isArray(workspaceRootname)
     ? last(workspaceRootname)
     : workspaceRootname;
+  appAssert(rootname);
 
   if (isArray(path)) {
     return <T>[rootname, ...path];
   }
 
-  return <T>`${rootname}${kFolderConstants.separator}${path}`;
+  return <T>pathJoin(rootname, path);
 }
 
 export function assertFolder(folder: Folder | null | undefined): asserts folder {
@@ -220,7 +221,7 @@ export function stringifyFoldernamepath(
   folder: Pick<Folder, 'namepath'>,
   rootname?: string
 ) {
-  const name = folder.namepath.join(kFolderConstants.separator);
+  const name = pathJoin(folder.namepath);
   return rootname ? addRootnameToPath(name, rootname) : name;
 }
 
