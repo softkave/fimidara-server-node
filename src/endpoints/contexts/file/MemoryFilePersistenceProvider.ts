@@ -1,11 +1,9 @@
 import {isNumber} from 'lodash';
-import path from 'path';
 import {Readable} from 'stream';
 import {FileBackendMount} from '../../../definitions/fileBackend';
 import {appAssert} from '../../../utils/assertion';
 import {streamToBuffer} from '../../../utils/fns';
 import {Omit1} from '../../../utils/types';
-import {kFolderConstants} from '../../folders/constants';
 import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
@@ -26,16 +24,17 @@ import {
   PersistedFileDescription,
   PersistedFolderDescription,
 } from './types';
+import {defaultToFimidaraPath, defaultToNativePath} from './utils';
 
 type MemoryFilePersistenceProviderFile = Omit1<PersistedFileDescription, 'filepath'> & {
   body: Buffer;
   nativePath: string;
 };
 
-export default class MemoryFilePersistenceProvider implements FilePersistenceProvider {
+export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
   files: Record<
     /** workspaceId */ string,
-    Record</** filepath, lowercased */ string, MemoryFilePersistenceProviderFile>
+    Record</** nativePath */ string, MemoryFilePersistenceProviderFile>
   > = {};
 
   supportsFeature = (feature: FilePersistenceProviderFeature): boolean => {
@@ -170,9 +169,12 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
   toNativePath = (
     params: FimidaraToFilePersistencePathParams
   ): FimidaraToFilePersistencePathResult => {
-    const {fimidaraPath, mount} = params;
-    const nativePath = path.normalize(
-      mount.mountedFrom.concat(fimidaraPath).join(kFolderConstants.separator)
+    const {fimidaraPath, mount, postMountedFromPrefix} = params;
+    const nativePath = defaultToNativePath(
+      mount,
+      fimidaraPath,
+      [],
+      postMountedFromPrefix
     );
     return {nativePath};
   };
@@ -180,9 +182,13 @@ export default class MemoryFilePersistenceProvider implements FilePersistencePro
   toFimidaraPath = (
     params: FilePersistenceToFimidaraPathParams
   ): FilePersistenceToFimidaraPathResult => {
-    const {nativePath, mount} = params;
-    const prefix = path.normalize(mount.mountedFrom.join(kFolderConstants.separator));
-    const fimidaraPath = nativePath.slice(prefix.length);
+    const {nativePath, mount, postMountedFromPrefix} = params;
+    const fimidaraPath = defaultToFimidaraPath(
+      mount,
+      nativePath,
+      [],
+      postMountedFromPrefix
+    );
     return {fimidaraPath};
   };
 

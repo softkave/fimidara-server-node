@@ -1,5 +1,4 @@
 import {isArray, isNumber, isObject} from 'lodash';
-import path from 'path';
 import {File} from '../../../definitions/file';
 import {kFimidaraConfigFilePersistenceProvider} from '../../../resources/config';
 import {appAssert} from '../../../utils/assertion';
@@ -9,8 +8,8 @@ import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils';
 import {FolderQueries} from '../../folders/queries';
 import {getFolderpathInfo, stringifyFoldernamepath} from '../../folders/utils';
 import {kSemanticModels, kUtilsInjectables} from '../injection/injectables';
-import LocalFsFilePersistenceProvider from './LocalFsFilePersistenceProvider';
-import MemoryFilePersistenceProvider from './MemoryFilePersistenceProvider';
+import {LocalFsFilePersistenceProvider} from './LocalFsFilePersistenceProvider';
+import {MemoryFilePersistenceProvider} from './MemoryFilePersistenceProvider';
 import {S3FilePersistenceProvider} from './S3FilePersistenceProvider';
 import {
   FilePersistenceDeleteFilesParams,
@@ -77,11 +76,11 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
   uploadFile = async (
     params: FilePersistenceUploadFileParams
   ): Promise<Partial<File>> => {
-    return await this.backend.uploadFile(this.prefixParamsPath(params));
+    return await this.backend.uploadFile(this.prepareParams(params));
   };
 
   readFile = async (params: FilePersistenceGetFileParams): Promise<PersistedFile> => {
-    return await this.backend.readFile(this.prefixParamsPath(params));
+    return await this.backend.readFile(this.prepareParams(params));
   };
 
   describeFile = async (
@@ -125,7 +124,7 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
   };
 
   deleteFiles = async (params: FilePersistenceDeleteFilesParams): Promise<void> => {
-    await this.backend.deleteFiles(this.prefixParamsPath(params));
+    await this.backend.deleteFiles(this.prepareParams(params));
   };
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -240,6 +239,12 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
     return {fimidaraPath: params.nativePath};
   };
 
+  prepareParams<TParams extends {postMountedFromPrefix?: string[]; workspaceId: string}>(
+    params: TParams
+  ): TParams {
+    return {...params, postMountedFromPrefix: [params.workspaceId]};
+  }
+
   protected getBackend = (): FilePersistenceProvider => {
     const config = kUtilsInjectables.suppliedConfig();
 
@@ -258,38 +263,4 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
         throw kReuseableErrors.file.unknownBackend(config.fileBackend || '');
     }
   };
-
-  protected prefixPath(workspaceId: string, p: string): string {
-    return path.normalize(`${workspaceId}/${p}`);
-  }
-
-  /** Prefixes file and folder paths with workspace ID for uniqueness due to
-   * multi-tenancy. */
-  protected prefixParamsPath<
-    T extends {
-      workspaceId: string;
-      filepath?: string;
-      folderpath?: string;
-      folderpaths?: string[];
-      filepaths?: string[];
-    },
-  >(params: T): T {
-    if (params.filepath) {
-      params.filepath = this.prefixPath(params.workspaceId, params.filepath);
-      return params;
-    } else if (params.folderpath) {
-      params.folderpath = this.prefixPath(params.workspaceId, params.folderpath);
-      return params;
-    } else if (params.filepaths) {
-      params.filepaths = params.filepaths.map(p =>
-        this.prefixPath(params.workspaceId, p)
-      );
-    } else if (params.folderpaths) {
-      params.folderpaths = params.folderpaths.map(p =>
-        this.prefixPath(params.workspaceId, p)
-      );
-    }
-
-    return params;
-  }
 }

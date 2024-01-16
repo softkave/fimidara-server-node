@@ -1,4 +1,4 @@
-import LocalFsFilePersistenceProvider from '../../../contexts/file/LocalFsFilePersistenceProvider';
+import {LocalFsFilePersistenceProvider} from '../../../contexts/file/LocalFsFilePersistenceProvider';
 import {ITestFilePersistenceProviderContext} from '../types';
 
 export default class TestLocalFsFilePersistenceProviderContext

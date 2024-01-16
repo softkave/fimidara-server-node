@@ -6,7 +6,7 @@ import {
   getFimidaraPrivateHttpEndpoints,
   getFimidaraPublicHttpEndpoints,
 } from '../endpoints/endpoints';
-import {isObjectEmpty} from '../utils/fns';
+import {isObjectEmpty, pathSplit} from '../utils/fns';
 import {AnyObject} from '../utils/types';
 import {
   FieldArrayType,
@@ -475,7 +475,7 @@ function generateEveryEndpointCode(
   > = {};
 
   endpoints.forEach(e1 => {
-    const [empty, version, ...rest] = e1.assertGetBasePathname().split('/');
+    const [, , ...rest] = pathSplit(e1.assertGetBasePathname());
 
     const fnName = last(rest);
     const groupName = rest.length > 1 ? nth(rest, rest.length - 2) : 'fimidara';
@@ -534,7 +534,7 @@ function uniqEnpoints(endpoints: Array<HttpEndpointDefinitionType>) {
   const endpointNameMap: Record<string, string> = {};
 
   endpoints.forEach(e1 => {
-    const names = e1.assertGetBasePathname().split('/');
+    const names = pathSplit(e1.assertGetBasePathname());
     const fnName = last(names);
     const method = e1.assertGetMethod().toLowerCase();
     const key = `${fnName}__${method}`;
@@ -542,7 +542,7 @@ function uniqEnpoints(endpoints: Array<HttpEndpointDefinitionType>) {
   });
 
   return endpoints.filter(e1 => {
-    const names = e1.assertGetBasePathname().split('/');
+    const names = pathSplit(e1.assertGetBasePathname());
     const fnName = last(names);
     const method = e1.assertGetMethod().toLowerCase();
     const ownKey = `${fnName}__${method}`;

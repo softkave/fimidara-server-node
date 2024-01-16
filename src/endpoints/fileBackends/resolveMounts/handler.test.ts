@@ -1,13 +1,13 @@
 import assert from 'assert';
 import {FileBackendMount} from '../../../definitions/fileBackend';
 import {kAppResourceType} from '../../../definitions/system';
+import {pathSplit} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {NotFoundError} from '../../errors';
 import {stringifyFilenamepath} from '../../files/utils';
-import {kFolderConstants} from '../../folders/constants';
 import {stringifyFoldernamepath} from '../../folders/utils';
 import {generateAndInsertTestFiles} from '../../testUtils/generate/file';
 import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend';
@@ -111,15 +111,13 @@ describe('resolveMounts', () => {
           {
             matcher: params => !!params.filepath,
             generator: params => {
-              return {
-                namepath: params.filepath!.split(kFolderConstants.separator).slice(0, -1),
-              };
+              return {namepath: pathSplit(params.filepath).slice(0, -1)};
             },
           },
           {
             matcher: params => !!params.folderpath,
             generator: params => {
-              return {namepath: params.folderpath!.split(kFolderConstants.separator)};
+              return {namepath: pathSplit(params.folderpath)};
             },
           },
         ],

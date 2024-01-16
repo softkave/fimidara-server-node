@@ -2,11 +2,11 @@ import {FileBackendMount, kFileBackendType} from '../../../definitions/fileBacke
 import {Agent, kAppResourceType} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
+import {pathSplit} from '../../../utils/fns';
 import {newWorkspaceResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {kFolderConstants} from '../../folders/constants';
 import {ensureFolders, getFolderpathInfo} from '../../folders/utils';
 import {mountExists, mountNameExists} from '../utils';
 import {NewFileBackendMountInput} from './types';
@@ -38,7 +38,7 @@ export const INTERNAL_addFileBackendMount = async (
     throw kReuseableErrors.mount.mountExists();
   }
 
-  const mountedFromSplit = data.mountedFrom.split(kFolderConstants.separator);
+  const mountedFromSplit = pathSplit(data.mountedFrom);
   exists = await mountExists(
     {
       backend: data.backend,

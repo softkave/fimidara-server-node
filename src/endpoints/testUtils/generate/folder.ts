@@ -3,7 +3,7 @@ import {Folder} from '../../../definitions/folder';
 import {kAppResourceType} from '../../../definitions/system';
 import {kSystemSessionAgent} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
-import {getRandomIntInclusive} from '../../../utils/fns';
+import {getRandomIntInclusive, loopAndCollate} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {kFolderConstants} from '../../folders/constants';
@@ -49,12 +49,19 @@ export function generateTestFolderName(
 }
 
 export function generateTestFolderpath(
-  props: Parameters<typeof generateTestFolderName>[0] & {length?: number} = {}
+  props: Parameters<typeof generateTestFolderName>[0] & {
+    length?: number;
+    parentNamepath?: string[];
+  } = {}
 ) {
-  const {length = 3} = props;
-  let folderpath = Array(Math.max(length, 0))
-    .fill(0)
-    .map(() => generateTestFolderName({...props, rootname: undefined}));
+  const {parentNamepath = [], length = 3} = props;
+  let folderpath = loopAndCollate(
+    index => {
+      const name = generateTestFolderName({...props, rootname: undefined});
+      return index < length + 1 ? parentNamepath[index] || name : name;
+    },
+    /** count */ Math.max(length, 0)
+  );
 
   if (props.rootname) {
     folderpath = addRootnameToPath(folderpath, props.rootname);

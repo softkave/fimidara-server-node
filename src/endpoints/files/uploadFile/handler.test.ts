@@ -1,7 +1,7 @@
 import assert from 'assert';
 import {kFileBackendType} from '../../../definitions/fileBackend';
 import RequestData from '../../RequestData';
-import MemoryFilePersistenceProvider from '../../contexts/file/MemoryFilePersistenceProvider';
+import {MemoryFilePersistenceProvider} from '../../contexts/file/MemoryFilePersistenceProvider';
 import {
   FilePersistenceProvider,
   FilePersistenceUploadFileParams,

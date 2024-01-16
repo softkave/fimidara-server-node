@@ -10,6 +10,8 @@ import {
   loopAsync,
   multilineTextToParagraph,
   omitDeep,
+  pathJoin,
+  pathSplit,
   waitTimeout,
 } from '../fns';
 
@@ -302,5 +304,25 @@ describe('fns', () => {
     expect(dataWithoutArrays).toEqual(expectedDataWithoutArrays);
     expect(dataWithoutNumbers).toEqual(expectedDataWithoutNumbers);
     expect(dataWithoutObjects).toEqual(expectedDataWithoutObjects);
+  });
+
+  test('pathJoin', () => {
+    const inputP1 = '//abayomi/yomi';
+    const inputP2 = 'fimidara/softkave//';
+    const inputP3 = ['/nigeria', 'usa/', '//'];
+
+    const output = pathJoin(inputP1, inputP2, inputP3);
+
+    const expectedP = '/abayomi/yomi/fimidara/softkave/nigeria/usa';
+    expect(output).toBe(expectedP);
+  });
+
+  test('pathSplit', () => {
+    const input = '///abayomi/fimidara/yomi//softkave//';
+
+    const output = pathSplit(input);
+
+    const expectP = ['abayomi', 'fimidara', 'yomi', 'softkave'];
+    expect(output).toEqual(expect.arrayContaining(expectP));
   });
 });

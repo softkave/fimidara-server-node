@@ -36,6 +36,12 @@ export type FimidaraConfigSecretManagerProvider = ObjectValues<
   typeof kFimidaraConfigSecretsManagerProvider
 >;
 
+export interface AWSConfig {
+  accessKeyId: string;
+  secretAccessKey: string;
+  region: string;
+}
+
 export type FimidaraSuppliedConfig = Partial<{
   clientDomain: string;
   mongoDbURI: string;
@@ -49,11 +55,7 @@ export type FimidaraSuppliedConfig = Partial<{
   fileBackend: FimidaraConfigFilePersistenceProvider;
   emailProvider: FimidaraConfigEmailProvider;
   secretsManagerProvider: FimidaraConfigSecretManagerProvider;
-  awsConfig: {
-    accessKeyId: string;
-    secretAccessKey: string;
-    region: string;
-  };
+  awsConfig: AWSConfig;
   /** Users on waitlist cannot create workspaces but can be added to an existing
    * workspace. */
   FLAG_waitlistNewSignups: boolean;
@@ -68,6 +70,11 @@ export type FimidaraSuppliedConfig = Partial<{
   clientSignupLink: string;
   changePasswordLink: string;
   verifyEmailLink: string;
+  test: {
+    awsConfig?: AWSConfig;
+    bucket?: string;
+    localFsDir?: string;
+  };
 }>;
 
 export type FimidaraConfig = FimidaraSuppliedConfig & FimidaraRuntimeConfig;

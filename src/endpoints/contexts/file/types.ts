@@ -16,11 +16,7 @@ export type FilePersistenceProviderFeature =
 interface DefaultMatcher {
   workspaceId: string;
   mount: FileBackendMount;
-  /** Not a real word, but I like it. It's a prefix appended to native file and
-   * folderpaths for multi-tenancy. fimidara mount uses another backend
-   * underneath (e.g local, s3, etc), and to maintain uniqueness, each entry
-   * needs a prefix or appendum (which can be the workspaceId). */
-  appendum?: string;
+  postMountedFromPrefix?: string[];
 }
 
 interface FilepathMatcher extends DefaultMatcher {
@@ -108,7 +104,7 @@ export interface FilePersistenceAddFolderResult {
 }
 
 export interface FilePersistenceToFimidaraPathParams
-  extends Pick<DefaultMatcher, 'mount'> {
+  extends Pick<DefaultMatcher, 'mount' | 'postMountedFromPrefix'> {
   nativePath: string;
 }
 
@@ -117,7 +113,7 @@ export interface FilePersistenceToFimidaraPathResult {
 }
 
 export interface FimidaraToFilePersistencePathParams
-  extends Pick<DefaultMatcher, 'mount'> {
+  extends Pick<DefaultMatcher, 'mount' | 'postMountedFromPrefix'> {
   fimidaraPath: string;
 }
 
@@ -153,6 +149,6 @@ export interface FilePersistenceProvider extends DisposableResource {
 
 export type FileProviderResolver = (
   mount: FileBackendMount,
-  initParams: unknown,
-  config: FileBackendConfig
+  initParams?: unknown,
+  config?: FileBackendConfig
 ) => FilePersistenceProvider;

@@ -10,7 +10,7 @@ import {
 } from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {ServerError} from '../../utils/errors';
-import {isObjectEmpty, toArray} from '../../utils/fns';
+import {isObjectEmpty, pathSplit, toArray} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
 import {getResourceTypeFromId} from '../../utils/resource';
 import {PartialRecord} from '../../utils/types';
@@ -152,21 +152,13 @@ function groupItemsToFetch(
       });
     } else if (item.filepath) {
       toArray(item.filepath).forEach(filepath => {
-        filepathsMap[
-          filepath
-            .split(kFolderConstants.separator)
-            .slice(1)
-            .join(kFolderConstants.separator)
-        ] = item.action;
+        filepathsMap[pathSplit(filepath).slice(1).join(kFolderConstants.separator)] =
+          item.action;
       });
     } else if (item.folderpath) {
       toArray(item.folderpath).forEach(folderpath => {
-        folderpathsMap[
-          folderpath
-            .split(kFolderConstants.separator)
-            .slice(1)
-            .join(kFolderConstants.separator)
-        ] = item.action;
+        folderpathsMap[pathSplit(folderpath).slice(1).join(kFolderConstants.separator)] =
+          item.action;
       });
     } else if (item.workspaceRootname) {
       workspaceRootname = {

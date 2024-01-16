@@ -1,5 +1,6 @@
 import {isObject} from 'lodash';
 import {FileBackendMount, kFileBackendType} from '../../../definitions/fileBackend';
+import {pathJoin, pathSplit} from '../../../utils/fns';
 import {FimidaraFilePersistenceProvider} from './FimidaraFilePersistenceProvider';
 import {
   S3FilePersistenceProvider,
@@ -33,3 +34,33 @@ export const defaultFileProviderResolver: FileProviderResolver = (
       throw new Error(`unknown backend type ${mount.backend}`);
   }
 };
+
+export function defaultToNativePath(
+  mount: FileBackendMount,
+  fimidaraPath: string,
+  preMountedFromPrefix: string[] = [],
+  postMountedFromPrefix: string[] = []
+) {
+  return pathJoin(
+    preMountedFromPrefix,
+    mount.mountedFrom,
+    postMountedFromPrefix,
+    pathSplit(fimidaraPath).slice(mount.namepath.length)
+  );
+}
+
+export function defaultToFimidaraPath(
+  mount: FileBackendMount,
+  nativePath: string,
+  preMountedFromPrefix: string[] = [],
+  postMountedFromPrefix: string[] = []
+) {
+  return pathJoin(
+    mount.namepath,
+    pathSplit(nativePath).slice(
+      preMountedFromPrefix.length +
+        mount.mountedFrom.length +
+        postMountedFromPrefix.length
+    )
+  );
+}

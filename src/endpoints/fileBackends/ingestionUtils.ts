@@ -3,6 +3,7 @@ import {Folder} from '../../definitions/folder';
 import {Agent} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
+import {pathJoin} from '../../utils/fns';
 import {FileQuery} from '../contexts/data/types';
 import {
   PersistedFileDescription,
@@ -18,7 +19,6 @@ import {
 } from '../files/utils';
 import {createFolderListWithTransaction} from '../folders/addFolder/handler';
 import {NewFolderInput} from '../folders/addFolder/types';
-import {kFolderConstants} from '../folders/constants';
 import {addRootnameToPath} from '../folders/utils';
 import {insertResolvedMountEntries} from './mountUtils';
 
@@ -99,9 +99,7 @@ export async function ingestPersistedFiles(
     );
 
     const folderpathsToEnsure: Set</** folderpath */ string> = new Set();
-    const existingFilesMap = keyBy(existingFiles, file =>
-      file.namepath.join(kFolderConstants.separator)
-    );
+    const existingFilesMap = keyBy(existingFiles, file => pathJoin(file.namepath));
     const newMountFileList = mountFileList.filter(({pathinfo, mountFiles}) => {
       const mountFile0 = first(mountFiles);
       appAssert(mountFile0);
@@ -132,7 +130,7 @@ export async function ingestPersistedFiles(
       opts
     );
     const foldersByPath = keyBy(newFolders.concat(existingFolders), folder =>
-      folder.namepath.join(kFolderConstants.separator)
+      pathJoin(folder.namepath)
     );
 
     const newFiles = newMountFileList.map(({pathinfo, mountFiles}) => {

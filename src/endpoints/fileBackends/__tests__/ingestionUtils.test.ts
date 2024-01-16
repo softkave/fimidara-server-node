@@ -1,5 +1,6 @@
 import {ResolvedMountEntry} from '../../../definitions/fileBackend';
 import {kAppResourceType} from '../../../definitions/system';
+import {pathSplit} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {FileQuery, FolderQuery} from '../../contexts/data/types';
 import {kSemanticModels} from '../../contexts/injection/injectables';
@@ -39,7 +40,7 @@ describe('mount ingestion utils', () => {
 
     const insertedFolders = await kSemanticModels.folder().getManyByQueryList(
       pFolders.map((pFolder): FolderQuery => {
-        const namepath = pFolder.folderpath.split(kFolderConstants.separator);
+        const namepath = pathSplit(pFolder.folderpath);
         return FolderQueries.getByNamepath({namepath, workspaceId: workspace.resourceId});
       })
     );

@@ -1,6 +1,8 @@
 import {compact, flatten, isArray, isObject, mergeWith, uniq} from 'lodash';
+import path from 'path';
 import {Readable} from 'stream';
 import {Resource} from '../definitions/system';
+import {kFolderConstants} from '../endpoints/folders/constants';
 import {appAssert} from './assertion';
 import {kReuseableErrors} from './reusableErrors';
 import {AnyFn, AnyObject} from './types';
@@ -466,4 +468,24 @@ export function omitDeep(data: AnyObject, byFn: AnyFn<[unknown], boolean>) {
   }
 
   return result;
+}
+
+export function pathJoin(...args: Array<string | string[]>) {
+  let p = path.join(
+    ...args.map(arg => (isArray(arg) ? arg.join(kFolderConstants.separator) : arg))
+  );
+
+  if (p[0] !== kFolderConstants.separator) {
+    p = kFolderConstants.separator + p;
+  }
+
+  if (p[p.length - 1] === kFolderConstants.separator) {
+    p = p.slice(0, -1);
+  }
+
+  return p;
+}
+
+export function pathSplit(p: string = '') {
+  return compact(p.split(kFolderConstants.separator));
 }

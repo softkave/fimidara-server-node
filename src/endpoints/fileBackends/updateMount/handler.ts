@@ -8,12 +8,12 @@ import {
 import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
+import {pathSplit} from '../../../utils/fns';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {kFolderConstants} from '../../folders/constants';
 import {areFolderpathsEqual, ensureFolders, getFolderpathInfo} from '../../folders/utils';
 import {queueJobs} from '../../jobs/utils';
 import {isResourceNameEqual} from '../../utils';
@@ -86,7 +86,7 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData =>
     }
 
     if (data.mount.mountedFrom) {
-      mountUpdate.mountedFrom = data.mount.mountedFrom.split(kFolderConstants.separator);
+      mountUpdate.mountedFrom = pathSplit(data.mount.mountedFrom);
     }
 
     const isFolderpathChanged =
@@ -117,7 +117,7 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData =>
             ? getFolderpathInfo(data.mount.folderpath).namepath
             : mount.namepath,
           mountedFrom: data.mount.mountedFrom
-            ? data.mount.mountedFrom.split(kFolderConstants.separator)
+            ? pathSplit(data.mount.mountedFrom)
             : mount.mountedFrom,
         },
         opts

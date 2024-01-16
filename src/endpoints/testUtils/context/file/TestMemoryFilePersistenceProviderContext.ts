@@ -1,4 +1,4 @@
-import MemoryFilePersistenceProvider from '../../../contexts/file/MemoryFilePersistenceProvider';
+import {MemoryFilePersistenceProvider} from '../../../contexts/file/MemoryFilePersistenceProvider';
 import {ITestFilePersistenceProviderContext} from '../types';
 
 export default class TestMemoryFilePersistenceProviderContext

@@ -129,8 +129,8 @@ export interface FilenameInfo {
 
 export function getFilenameInfo(providedName: string): FilenameInfo {
   providedName = providedName.startsWith('/') ? providedName.slice(1) : providedName;
-  const [nameWithoutExtension, ...extensionList] = providedName.split(
-    fileConstants.nameExtensionSeparator
+  const [nameWithoutExtension, ...extensionList] = compact(
+    providedName.split(fileConstants.nameExtensionSeparator)
   );
   let extension: string | undefined = extensionList.join(
     fileConstants.nameExtensionSeparator

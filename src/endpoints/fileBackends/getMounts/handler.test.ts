@@ -1,6 +1,6 @@
 import {omit} from 'lodash';
+import {pathSplit} from '../../../utils/fns';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {kFolderConstants} from '../../folders/constants';
 import {FolderQueries} from '../../folders/queries';
 import EndpointReusableQueries from '../../queries';
 import {
@@ -61,7 +61,7 @@ describe('getFileBackendMounts', () => {
 
     await testCombinations(queries, async query => {
       query = {...query, workspaceId: workspace.resourceId};
-      const folderpath = query.folderpath?.split(kFolderConstants.separator);
+      const folderpath = pathSplit(query.folderpath);
       await generateAndInsertFileBackendMountListForTest(10, {
         ...query,
         namepath: folderpath,

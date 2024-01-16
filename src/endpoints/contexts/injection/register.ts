@@ -382,7 +382,12 @@ export function registerUtilsInjectables() {
     suppliedConfig.secretsManagerProvider ===
     kFimidaraConfigSecretsManagerProvider.awsSecretsManager
   ) {
-    kRegisterUtilsInjectables.secretsManager(new AWSSecretsManagerProvider());
+    appAssert(suppliedConfig.awsConfig?.accessKeyId);
+    appAssert(suppliedConfig.awsConfig?.region);
+    appAssert(suppliedConfig.awsConfig?.secretAccessKey);
+    kRegisterUtilsInjectables.secretsManager(
+      new AWSSecretsManagerProvider(suppliedConfig.awsConfig)
+    );
   } else {
     kRegisterUtilsInjectables.secretsManager(new MemorySecretsManagerProvider());
   }

@@ -353,7 +353,7 @@ describe('file backend mount utils, mutates injectables', () => {
     ]);
 
     kRegisterUtilsInjectables.fileProviderResolver(
-      (mount: FileBackendMount, initParams: unknown, config: FileBackendConfig) => {
+      (mount: FileBackendMount, initParams: unknown, config?: FileBackendConfig) => {
         switch (mount.backend) {
           case kFileBackendType.fimidara:
             expect(initParams).toBeFalsy();

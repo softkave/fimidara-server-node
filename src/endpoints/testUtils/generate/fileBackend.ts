@@ -7,6 +7,7 @@ import {
 } from '../../../definitions/fileBackend';
 import {Agent, kAppResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
+import {pathSplit} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kValidationConstants} from '../../../utils/validationUtils';
 import {S3FilePersistenceProviderInitParams} from '../../contexts/file/S3FilePersistenceProvider';
@@ -92,9 +93,9 @@ export function generateFileBackendMountForTest(seed: Partial<FileBackendMount> 
     resourceId: getNewIdForResource(kAppResourceType.FileBackendMount),
     workspaceId: getNewIdForResource(kAppResourceType.Workspace),
     configId: getNewIdForResource(kAppResourceType.FileBackendConfig),
-    namepath: faker.system.directoryPath().split('/'),
+    namepath: pathSplit(faker.system.directoryPath()),
     index: faker.number.int(),
-    mountedFrom: faker.system.directoryPath().split('/'),
+    mountedFrom: pathSplit(faker.system.directoryPath()),
     backend: faker.helpers.arrayElement(Object.values(kFileBackendType)),
     name: faker.lorem.words(),
     ...seed,

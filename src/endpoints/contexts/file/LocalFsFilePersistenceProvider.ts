@@ -1,9 +1,8 @@
 import fse from 'fs-extra';
 import {compact, first, isNumber} from 'lodash';
-import path from 'path';
 import {appAssert} from '../../../utils/assertion';
-import {noopAsync} from '../../../utils/fns';
-import {kFolderConstants} from '../../folders/constants';
+import {noopAsync, pathJoin, pathSplit} from '../../../utils/fns';
+import {AnyFn} from '../../../utils/types';
 import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
@@ -24,6 +23,7 @@ import {
   PersistedFileDescription,
   PersistedFolderDescription,
 } from './types';
+import {defaultToFimidaraPath, defaultToNativePath} from './utils';
 
 export interface LocalFsFilePersistenceProviderParams {
   dir: string;
@@ -33,9 +33,12 @@ export interface LocalFsFilePersistenceProviderParams {
  * - Does not use the `bucket` param, so it's okay passing an empty string for
  *   that
  */
-export default class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
+export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
+  protected dirNamepath: string[];
+
   constructor(private params: LocalFsFilePersistenceProviderParams) {
     fse.ensureDirSync(params.dir);
+    this.dirNamepath = pathSplit(params.dir);
   }
 
   supportsFeature = (feature: FilePersistenceProviderFeature): boolean => {
@@ -158,106 +161,46 @@ export default class LocalFsFilePersistenceProvider implements FilePersistencePr
   describeFolderFiles = async (
     params: FilePersistenceDescribeFolderFilesParams
   ): Promise<FilePersistenceDescribeFolderFilesResult> => {
-    const {mount, folderpath} = params;
-    const {nativePath} = this.toNativePath({fimidaraPath: folderpath, mount: mount});
-    appAssert(isNumber(params.continuationToken));
-
-    try {
-      // TODO: possible issue where folder children out use RAM. It's a string,
-      // but there can be a lot.
-      const children = await fse.promises.readdir(nativePath);
-      let files: PersistedFileDescription[] = [];
-      let pageIndex = params.continuationToken;
-      let stopIndex = pageIndex;
-
-      for (
-        ;
-        pageIndex < children.length || files.length >= params.max;
-        pageIndex = pageIndex + params.max
-      ) {
-        const pageFiles = await this.getLocalStats(
-          children.slice(pageIndex, pageIndex + params.max),
-          (stat, nativePath): PersistedFileDescription | undefined => {
-            if (stat.isFile()) {
-              return {
-                filepath: this.toFimidaraPath({nativePath, mount}).fimidaraPath,
-                size: stat.size,
-                lastUpdatedAt: stat.mtimeMs,
-                mountId: params.mount.resourceId,
-              };
-            }
-
-            return undefined;
-          }
-        );
-
-        const remaining = params.max - files.length;
-        files = files.concat(pageFiles);
-
-        if (remaining >= pageFiles.length) {
-          files = files.concat(pageFiles);
-          stopIndex += pageFiles.length;
-        } else {
-          files = files.concat(pageFiles.slice(0, remaining));
-          stopIndex += remaining;
+    const {mount} = params;
+    const {items, continuationToken} = await this.produceFromChildren(
+      params,
+      (stat, nativePath) => {
+        if (stat.isFile()) {
+          const file: PersistedFileDescription = {
+            filepath: this.toFimidaraPath({nativePath, mount}).fimidaraPath,
+            size: stat.size,
+            lastUpdatedAt: stat.mtimeMs,
+            mountId: mount.resourceId,
+          };
+          return file;
         }
-      }
 
-      return {files, continuationToken: stopIndex};
-    } catch (error) {
-      console.error(error);
-      return {files: []};
-    }
+        return undefined;
+      }
+    );
+
+    return {continuationToken, files: items};
   };
 
   describeFolderFolders = async (
     params: FilePersistenceDescribeFolderFoldersParams
   ): Promise<FilePersistenceDescribeFolderFoldersResult> => {
-    const {mount, folderpath} = params;
-    const {nativePath} = this.toNativePath({fimidaraPath: folderpath, mount: mount});
-    appAssert(isNumber(params.continuationToken));
-
-    try {
-      // TODO: possible issue where folder children out use RAM. It's a string,
-      // but there can be a lot.
-      const children = await fse.promises.readdir(nativePath);
-      let folders: PersistedFolderDescription[] = [];
-      let pageIndex = params.continuationToken;
-      let stopIndex = pageIndex;
-
-      for (
-        ;
-        pageIndex < children.length || folders.length >= params.max;
-        pageIndex = pageIndex + params.max
-      ) {
-        const pageFolders = await this.getLocalStats(
-          children.slice(pageIndex, pageIndex + params.max),
-          (stat, path): PersistedFolderDescription | undefined => {
-            if (stat.isDirectory()) {
-              return {folderpath: path, mountId: params.mount.resourceId};
-            }
-
-            return undefined;
-          }
-        );
-
-        const remaining = params.max - folders.length;
-        folders = folders.concat(pageFolders);
-
-        if (remaining >= pageFolders.length) {
-          folders = folders.concat(pageFolders);
-          stopIndex += pageFolders.length;
-        } else {
-          folders = folders.concat(pageFolders.slice(0, remaining));
-          stopIndex += remaining;
+    const {mount} = params;
+    const {items, continuationToken} = await this.produceFromChildren(
+      params,
+      (stat, nativePath): PersistedFolderDescription | undefined => {
+        if (stat.isDirectory()) {
+          return {
+            folderpath: this.toFimidaraPath({nativePath, mount}).fimidaraPath,
+            mountId: mount.resourceId,
+          };
         }
-      }
 
-      return {folders, continuationToken: stopIndex};
-    } catch (error) {
-      console.error(error);
-      return {folders: []};
-    }
+        return undefined;
+      }
+    );
+
+    return {continuationToken, folders: items};
   };
 
   dispose = noopAsync;
@@ -265,11 +208,12 @@ export default class LocalFsFilePersistenceProvider implements FilePersistencePr
   toNativePath = (
     params: FimidaraToFilePersistencePathParams
   ): FimidaraToFilePersistencePathResult => {
-    const {fimidaraPath, mount} = params;
-    const nativePath = path.normalize(
-      [this.params.dir]
-        .concat(mount.mountedFrom, fimidaraPath)
-        .join(kFolderConstants.separator)
+    const {fimidaraPath, mount, postMountedFromPrefix} = params;
+    const nativePath = defaultToNativePath(
+      mount,
+      fimidaraPath,
+      this.dirNamepath,
+      postMountedFromPrefix
     );
     return {nativePath};
   };
@@ -277,12 +221,66 @@ export default class LocalFsFilePersistenceProvider implements FilePersistencePr
   toFimidaraPath = (
     params: FilePersistenceToFimidaraPathParams
   ): FilePersistenceToFimidaraPathResult => {
-    const {nativePath, mount} = params;
-    const prefix = path.normalize(
-      [this.params.dir].concat(mount.mountedFrom).join(kFolderConstants.separator)
+    const {nativePath, mount, postMountedFromPrefix} = params;
+    const fimidaraPath = defaultToFimidaraPath(
+      mount,
+      nativePath,
+      this.dirNamepath,
+      postMountedFromPrefix
     );
-    const fimidaraPath = nativePath.slice(prefix.length);
     return {fimidaraPath};
+  };
+
+  protected produceFromChildren = async <
+    TFn extends AnyFn<[fse.Stats, string, number]>,
+    TResult = NonNullable<Awaited<ReturnType<TFn>>>,
+  >(
+    params: FilePersistenceDescribeFolderFoldersParams,
+    fn: TFn
+  ): Promise<{continuationToken?: number; items: TResult[]}> => {
+    const {mount, folderpath, continuationToken, max} = params;
+    const {nativePath} = this.toNativePath({fimidaraPath: folderpath, mount: mount});
+
+    if (continuationToken) {
+      appAssert(isNumber(continuationToken));
+    }
+
+    try {
+      // TODO: possible issue where folder children out use RAM. It's a string,
+      // but there can be a lot.
+      const children = await fse.promises.readdir(nativePath);
+      const items: TResult[] = [];
+      let pageIndex = (continuationToken as number | undefined) || 0;
+      let stopIndex = pageIndex;
+
+      for (
+        ;
+        pageIndex < children.length && items.length < max;
+        pageIndex = pageIndex + max
+      ) {
+        await this.getLocalStats(
+          children.slice(pageIndex, pageIndex + max).map(p => pathJoin(nativePath, p)),
+          (stat, nativePath, statIndex) => {
+            if (items.length < max) {
+              const item = fn(stat, nativePath, statIndex);
+
+              if (item) {
+                items.push(item);
+              }
+
+              stopIndex = pageIndex + statIndex + 1;
+            }
+          }
+        );
+      }
+
+      const nextContinuationToken =
+        stopIndex < children.length - 1 ? stopIndex : undefined;
+      return {items, continuationToken: nextContinuationToken};
+    } catch (error) {
+      console.error(error);
+      return {items: []};
+    }
   };
 
   protected async getLocalStats<T>(

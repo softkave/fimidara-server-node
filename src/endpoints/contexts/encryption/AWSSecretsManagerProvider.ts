@@ -5,8 +5,8 @@ import {
   SecretsManagerClient,
   UpdateSecretCommand,
 } from '@aws-sdk/client-secrets-manager';
+import {AWSConfig} from '../../../resources/config';
 import {appAssert} from '../../../utils/assertion';
-import {kUtilsInjectables} from '../injection/injectables';
 import {
   SecretsManagerProvider,
   SecretsManagerProviderAddSecretParams,
@@ -20,13 +20,8 @@ import {
 export class AWSSecretsManagerProvider implements SecretsManagerProvider {
   protected client: SecretsManagerClient;
 
-  constructor() {
-    const config = kUtilsInjectables.suppliedConfig();
-    appAssert(config.awsConfig?.accessKeyId);
-    appAssert(config.awsConfig?.region);
-    appAssert(config.awsConfig?.secretAccessKey);
-
-    const {accessKeyId, secretAccessKey, region} = config.awsConfig;
+  constructor(params: AWSConfig) {
+    const {accessKeyId, secretAccessKey, region} = params;
     this.client = new SecretsManagerClient({
       region,
       credentials: {accessKeyId, secretAccessKey},

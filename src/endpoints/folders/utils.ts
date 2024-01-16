@@ -1,5 +1,4 @@
 import {compact, defaultTo, first, isArray, last} from 'lodash';
-import {posix} from 'path';
 import {FileBackendMount} from '../../definitions/fileBackend';
 import {Folder, FolderMatcher, PublicFolder} from '../../definitions/folder';
 import {PermissionAction} from '../../definitions/permissionItem';
@@ -7,6 +6,7 @@ import {Agent, SessionAgent, kAppResourceType} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
+import {pathSplit} from '../../utils/fns';
 import {getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {
@@ -54,7 +54,7 @@ export function splitFolderpath(path: string | string[]) {
     return path;
   }
 
-  const nameList = compact(posix.normalize(path).split(kFolderConstants.separator));
+  const nameList = pathSplit(path);
 
   if (nameList.length > kFolderConstants.maxFolderDepth) {
     throw new Error(
@@ -229,12 +229,8 @@ export function areFolderpathsEqual(
   folderpath02: string | string[],
   isCaseSensitive: boolean
 ) {
-  const folderpath01List = isArray(folderpath01)
-    ? folderpath01
-    : folderpath01.split(kFolderConstants.separator);
-  const folderpath02List = isArray(folderpath02)
-    ? folderpath02
-    : folderpath02.split(kFolderConstants.separator);
+  const folderpath01List = isArray(folderpath01) ? folderpath01 : pathSplit(folderpath01);
+  const folderpath02List = isArray(folderpath02) ? folderpath02 : pathSplit(folderpath02);
   return (
     folderpath01List.length === folderpath02List.length &&
     folderpath01List.every((path, index) => {

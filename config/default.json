@@ -25,5 +25,8 @@
   "clientLoginLink": "http://localhost:3000/login",
   "clientSignupLink": "http://localhost:3000/signup",
   "changePasswordLink": "http://localhost:3000/change-password",
-  "verifyEmailLink": "http://localhost:3000/verify-email"
+  "verifyEmailLink": "http://localhost:3000/verify-email",
+  "test": {
+    "localFsDir": "./test-local-fs"
+  }
 }

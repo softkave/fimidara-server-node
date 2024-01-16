@@ -1,8 +1,8 @@
 import {SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
+import {pathSplit} from '../../../utils/fns';
 import {resolveTargetChildrenAccessCheckWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {FileBackendMountQuery} from '../../contexts/data/types';
-import {kFolderConstants} from '../../folders/constants';
 import {FolderQueries} from '../../folders/queries';
 import EndpointReusableQueries from '../../queries';
 import {getWorkspaceResourceListQuery01} from '../../utils';
@@ -29,7 +29,7 @@ export async function getFileBackendMountsQuery(
   }
 
   if (other.folderpath) {
-    const folderpathSplit = other.folderpath.split(kFolderConstants.separator);
+    const folderpathSplit = pathSplit(other.folderpath);
     query = EndpointReusableQueries.merge(
       query,
       FolderQueries.getByNamepathOnly({namepath: folderpathSplit})

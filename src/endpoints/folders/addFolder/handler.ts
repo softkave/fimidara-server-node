@@ -4,7 +4,7 @@ import {kPermissionAgentTypes, Resource, SessionAgent} from '../../../definition
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
-import {toArray} from '../../../utils/fns';
+import {pathSplit, toArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {validate} from '../../../utils/validate';
 import {
@@ -53,7 +53,7 @@ export async function createFolderListWithTransaction(
   }, new Set<string>());
   const namepathList: Array<string[]> = [];
   namepathSet.forEach(namepath => {
-    namepathList.push(namepath.split(kFolderConstants.separator));
+    namepathList.push(pathSplit(namepath));
   });
 
   const existingFolders = await folderModel.getManyByQueryList(

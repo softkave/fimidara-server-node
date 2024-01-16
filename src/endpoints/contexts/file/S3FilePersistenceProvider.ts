@@ -7,12 +7,10 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 import {first} from 'lodash';
-import path from 'path';
 import {Readable} from 'stream';
 import {FileBackendMount} from '../../../definitions/fileBackend';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {kFolderConstants} from '../../folders/constants';
 import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
@@ -31,6 +29,7 @@ import {
   PersistedFileDescription,
   PersistedFolderDescription,
 } from './types';
+import {defaultToFimidaraPath, defaultToNativePath} from './utils';
 
 export interface S3FilePersistenceProviderInitParams {
   accessKeyId: string;
@@ -46,7 +45,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
   }) {
     const {mount} = params;
     const bucket = first(mount.mountedFrom);
-    const prefix = mount.mountedFrom.slice(1).join(kFolderConstants.separator);
+    const prefix = mount.mountedFrom.slice(1);
     appAssert(bucket?.length, kReuseableErrors.mount.s3MountSourceMissingBucket());
     return {bucket, prefix};
   }
@@ -209,10 +208,13 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
   };
 
   toNativePath = (params: FimidaraToFilePersistencePathParams) => {
-    const {fimidaraPath} = params;
+    const {fimidaraPath, mount, postMountedFromPrefix} = params;
     const {bucket, prefix} = S3FilePersistenceProvider.getBucketAndPrefix(params);
-    const nativePath = path.normalize(
-      [prefix].concat(fimidaraPath).join(kFolderConstants.separator)
+    const nativePath = defaultToNativePath(
+      mount,
+      fimidaraPath,
+      prefix,
+      postMountedFromPrefix
     );
     return {nativePath, bucket, prefix};
   };
@@ -220,9 +222,14 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
   toFimidaraPath = (
     params: FilePersistenceToFimidaraPathParams
   ): FilePersistenceToFimidaraPathResult => {
-    const {nativePath} = params;
+    const {nativePath, mount, postMountedFromPrefix} = params;
     const {prefix} = S3FilePersistenceProvider.getBucketAndPrefix(params);
-    const fimidaraPath = nativePath.slice(prefix.length);
+    const fimidaraPath = defaultToFimidaraPath(
+      mount,
+      nativePath,
+      prefix,
+      postMountedFromPrefix
+    );
     return {fimidaraPath};
   };
 }
