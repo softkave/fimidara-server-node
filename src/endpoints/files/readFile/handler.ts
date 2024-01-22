@@ -124,14 +124,18 @@ async function readPersistedFile(file: File): Promise<PersistedFile> {
       continue;
     }
 
-    const persistedFile = await backend.readFile({
-      mount,
-      workspaceId: file.workspaceId,
-      filepath: stringifyFilenamepath(file),
-    });
+    try {
+      const persistedFile = await backend.readFile({
+        mount,
+        workspaceId: file.workspaceId,
+        filepath: stringifyFilenamepath(file),
+      });
 
-    if (persistedFile?.body) {
-      return persistedFile;
+      if (persistedFile?.body) {
+        return persistedFile;
+      }
+    } catch (error) {
+      console.error(error);
     }
   }
 

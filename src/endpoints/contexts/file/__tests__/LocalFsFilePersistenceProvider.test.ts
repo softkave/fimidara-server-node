@@ -252,7 +252,7 @@ describe('LocalFsFilePersistenceProvider', () => {
     expect(result.mountId).toBe(mount.resourceId);
   });
 
-  test('describeFolderFiles', async () => {
+  test('describeFolderContent', async () => {
     assert(testDir);
     const buffer = Buffer.from('Hello, world!');
     const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
@@ -268,17 +268,20 @@ describe('LocalFsFilePersistenceProvider', () => {
     });
     const childrenNativePaths = loopAndCollate(
       () => pathJoin(nativePath, generateTestFolderName()),
-      /** count */ 10
+      /** count */ 5
     );
     const childrenDepth02NativePaths = loopAndCollate(
       () => pathJoin(nativePath, generateTestFilepathString({length: 2})),
-      /** count */ 10
+      /** count */ 5
     );
     const childrenFilepaths = childrenNativePaths.map(
       p => backend.toFimidaraPath({mount, nativePath: p}).fimidaraPath
     );
     const childrenDepth02Filepaths = childrenDepth02NativePaths.map(
       p => backend.toFimidaraPath({mount, nativePath: p}).fimidaraPath
+    );
+    const childrenFolderpaths = childrenDepth02Filepaths.map(p =>
+      pathJoin(pathSplit(p).slice(0, -1))
     );
     await Promise.all([fse.ensureDir(nativePath)]);
     await Promise.all(
@@ -287,7 +290,7 @@ describe('LocalFsFilePersistenceProvider', () => {
         .concat(childrenDepth02NativePaths.map(p => fse.outputFile(p, buffer)))
     );
 
-    let result = await backend.describeFolderFiles({
+    let result = await backend.describeFolderContent({
       mount,
       workspaceId,
       folderpath,
@@ -295,7 +298,8 @@ describe('LocalFsFilePersistenceProvider', () => {
     });
 
     const resultFilepaths: string[] = [];
-    expect(result.files.length).toBe(5);
+    const resultFolderpaths: string[] = [];
+    expect(result.files.length + result.folders.length).toBe(5);
     expect(result.continuationToken).toBeTruthy();
     result.files.forEach(file => {
       resultFilepaths.push(file.filepath);
@@ -303,8 +307,12 @@ describe('LocalFsFilePersistenceProvider', () => {
       expect(file.size).toBe(buffer.byteLength);
       expect(file.lastUpdatedAt).toBeTruthy();
     });
+    result.folders.forEach(folder => {
+      resultFolderpaths.push(folder.folderpath);
+      expect(folder.mountId).toBe(mount.resourceId);
+    });
 
-    result = await backend.describeFolderFiles({
+    result = await backend.describeFolderContent({
       mount,
       workspaceId,
       folderpath,
@@ -312,116 +320,20 @@ describe('LocalFsFilePersistenceProvider', () => {
       continuationToken: result.continuationToken,
     });
 
-    expect(result.files.length).toBe(5);
+    expect(result.files.length + result.folders.length).toBe(5);
     result.files.forEach(file => {
       resultFilepaths.push(file.filepath);
       expect(file.mountId).toBe(mount.resourceId);
       expect(file.size).toBe(buffer.byteLength);
       expect(file.lastUpdatedAt).toBeTruthy();
     });
-
-    if (result.continuationToken) {
-      result = await backend.describeFolderFiles({
-        mount,
-        workspaceId,
-        folderpath,
-        max: 5,
-        continuationToken: result.continuationToken,
-      });
-
-      expect(result.continuationToken).toBeFalsy();
-      expect(result.files.length).toBe(0);
-    }
+    result.folders.forEach(folder => {
+      resultFolderpaths.push(folder.folderpath);
+      expect(folder.mountId).toBe(mount.resourceId);
+    });
 
     expect(resultFilepaths).toEqual(expect.arrayContaining(childrenFilepaths));
-    expect(resultFilepaths).not.toEqual(expect.arrayContaining(childrenDepth02Filepaths));
-  });
-
-  test('describeFolderFolders', async () => {
-    assert(testDir);
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
-    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {workspaceId});
-    const folderpath = generateTestFolderpathString({
-      length: mount.namepath.length + 2,
-      parentNamepath: mount.namepath,
-    });
-    const backend = new LocalFsFilePersistenceProvider({dir: testDir});
-    const {nativePath} = backend.toNativePath({
-      mount,
-      fimidaraPath: folderpath,
-    });
-    const childrenNativePaths = loopAndCollate(
-      () => pathJoin(nativePath, generateTestFolderName()),
-      /** count */ 5
-    );
-    const childrenNativeFilePaths = loopAndCollate(
-      () => pathJoin(nativePath, generateTestFolderName()),
-      /** count */ 5
-    );
-    const childrenDepth02NativePaths = loopAndCollate(
-      () => pathJoin(nativePath, generateTestFolderpathString({length: 2})),
-      /** count */ 5
-    );
-    const childrenFolderpaths = childrenNativePaths.map(
-      p => backend.toFimidaraPath({mount, nativePath: p}).fimidaraPath
-    );
-    const childrenDepth02Folderpaths = childrenDepth02NativePaths.map(
-      p => backend.toFimidaraPath({mount, nativePath: p}).fimidaraPath
-    );
-    await Promise.all([fse.ensureDir(nativePath)]);
-    await Promise.all(
-      childrenNativePaths
-        .map(p => fse.ensureDir(p))
-        .concat(childrenDepth02NativePaths.map(p => fse.ensureDir(p)))
-        .concat(childrenNativeFilePaths.map(p => fse.outputFile(p, 'Hello, world!')))
-    );
-
-    let result = await backend.describeFolderFolders({
-      mount,
-      workspaceId,
-      folderpath,
-      max: 5,
-    });
-
-    const resultFolderpaths: string[] = [];
-    expect(result.folders.length).toBe(5);
-    expect(result.continuationToken).toBeTruthy();
-    result.folders.forEach(folder => {
-      resultFolderpaths.push(folder.folderpath);
-      expect(folder.mountId).toBe(mount.resourceId);
-    });
-
-    result = await backend.describeFolderFolders({
-      mount,
-      workspaceId,
-      folderpath,
-      max: 5,
-      continuationToken: result.continuationToken,
-    });
-
-    expect(result.folders.length).toBe(5);
-    expect(result.continuationToken).toBeFalsy();
-    result.folders.forEach(folder => {
-      resultFolderpaths.push(folder.folderpath);
-      expect(folder.mountId).toBe(mount.resourceId);
-    });
-
-    if (result.continuationToken) {
-      result = await backend.describeFolderFolders({
-        mount,
-        workspaceId,
-        folderpath,
-        max: 5,
-        continuationToken: result.continuationToken,
-      });
-
-      expect(result.continuationToken).toBeFalsy();
-      expect(result.folders.length).toBe(0);
-    }
-
     expect(resultFolderpaths).toEqual(expect.arrayContaining(childrenFolderpaths));
-    expect(resultFolderpaths).not.toEqual(
-      expect.arrayContaining(childrenDepth02Folderpaths)
-    );
+    expect(resultFilepaths).not.toEqual(expect.arrayContaining(childrenDepth02Filepaths));
   });
 });

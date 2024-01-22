@@ -1,4 +1,5 @@
 import {FimidaraFilePersistenceProvider} from '../../../contexts/file/FimidaraFilePersistenceProvider';
+import {mockWith} from '../../helpers/mock';
 import {ITestFilePersistenceProviderContext} from '../types';
 
 export default class TestFimidaraFilePersistenceProviderContext
@@ -14,8 +15,7 @@ export default class TestFimidaraFilePersistenceProviderContext
   deleteFolders: ITestFilePersistenceProviderContext['deleteFolders'];
   describeFile: ITestFilePersistenceProviderContext['describeFile'];
   describeFolder: ITestFilePersistenceProviderContext['describeFolder'];
-  describeFolderFiles: ITestFilePersistenceProviderContext['describeFolderFiles'];
-  describeFolderFolders: ITestFilePersistenceProviderContext['describeFolderFolders'];
+  describeFolderContent: ITestFilePersistenceProviderContext['describeFolderContent'];
   supportsFeature: ITestFilePersistenceProviderContext['supportsFeature'];
   dispose: ITestFilePersistenceProviderContext['dispose'];
 
@@ -29,15 +29,14 @@ export default class TestFimidaraFilePersistenceProviderContext
     this.deleteFolders = jest.fn(this.client.deleteFolders).mockName('deleteFolders');
     this.describeFile = jest.fn(this.client.describeFile).mockName('describeFile');
     this.describeFolder = jest.fn(this.client.describeFolder).mockName('describeFolder');
-    this.describeFolderFiles = jest
-      .fn(this.client.describeFolderFiles)
-      .mockName('describeFolderFiles');
-    this.describeFolderFolders = jest
-      .fn(this.client.describeFolderFolders)
-      .mockName('describeFolderFolders');
+    this.describeFolderContent = jest
+      .fn(this.client.describeFolderContent)
+      .mockName('describeFolderContent');
     this.dispose = jest.fn(this.client.dispose).mockName('close');
     this.supportsFeature = jest
       .fn(this.client.supportsFeature)
       .mockName('supportsFeature');
+
+    mockWith(this.client, this);
   }
 }

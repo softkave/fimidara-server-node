@@ -6,8 +6,7 @@ import {DisposableResource} from '../../../utils/disposables';
 export type FilePersistenceProviderFeature =
   | 'describeFile'
   | 'describeFolder'
-  | 'describeFolderFiles'
-  | 'describeFolderFolders'
+  | 'describeFolderContent'
   | 'uploadFile'
   | 'readFile'
   | 'deleteFiles'
@@ -77,6 +76,12 @@ export interface FilePersistenceDescribeFolderFilesParams extends FolderpathMatc
   continuationToken?: unknown;
 }
 
+export interface FilePersistenceDescribeFolderContentParams extends FolderpathMatcher {
+  max: number;
+  /* `continuationToken` is backend-dependent */
+  continuationToken?: unknown;
+}
+
 export interface FilePersistenceDescribeFolderFoldersParams extends FolderpathMatcher {
   max: number;
   /* `continuationToken` is backend-dependent */
@@ -87,6 +92,13 @@ export interface FilePersistenceDeleteFoldersParams extends FolderpathListMatche
 
 export interface FilePersistenceDescribeFolderFilesResult {
   files: PersistedFileDescription[];
+  /* `null` or `undefined` if content is exhausted */
+  continuationToken?: unknown | null;
+}
+
+export interface FilePersistenceDescribeFolderContentResult {
+  files: PersistedFileDescription[];
+  folders: PersistedFolderDescription[];
   /* `null` or `undefined` if content is exhausted */
   continuationToken?: unknown | null;
 }
@@ -131,12 +143,9 @@ export interface FilePersistenceProvider extends DisposableResource {
   describeFolder: (
     params: FilePersistenceDescribeFolderParams
   ) => Promise<PersistedFolderDescription | undefined>;
-  describeFolderFiles: (
-    params: FilePersistenceDescribeFolderFilesParams
-  ) => Promise<FilePersistenceDescribeFolderFilesResult>;
-  describeFolderFolders: (
-    params: FilePersistenceDescribeFolderFoldersParams
-  ) => Promise<FilePersistenceDescribeFolderFoldersResult>;
+  describeFolderContent: (
+    params: FilePersistenceDescribeFolderContentParams
+  ) => Promise<FilePersistenceDescribeFolderContentResult>;
   deleteFiles: (params: FilePersistenceDeleteFilesParams) => Promise<void>;
   deleteFolders: (params: FilePersistenceDeleteFoldersParams) => Promise<void>;
   toNativePath: (

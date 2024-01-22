@@ -3,19 +3,21 @@ import {
   GetObjectCommand,
   HeadObjectCommand,
   ListObjectsV2Command,
-  PutObjectCommand,
+  ObjectIdentifier,
   S3Client,
 } from '@aws-sdk/client-s3';
+import {Upload} from '@aws-sdk/lib-storage';
 import {first} from 'lodash';
 import {Readable} from 'stream';
 import {FileBackendMount} from '../../../definitions/fileBackend';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
+import {kFolderConstants} from '../../folders/constants';
 import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
-  FilePersistenceDescribeFolderFilesParams,
-  FilePersistenceDescribeFolderFilesResult,
+  FilePersistenceDescribeFolderContentParams,
+  FilePersistenceDescribeFolderContentResult,
   FilePersistenceDescribeFolderFoldersParams,
   FilePersistenceDescribeFolderParams,
   FilePersistenceGetFileParams,
@@ -66,42 +68,49 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
     switch (feature) {
       case 'deleteFiles':
       case 'describeFile':
-      case 'describeFolderFiles':
+      case 'describeFolderContent':
       case 'readFile':
       case 'uploadFile':
+      case 'describeFolder':
         return true;
       case 'deleteFolders':
-      case 'describeFolder':
-      case 'describeFolderFolders':
+        // TODO: implement delete folders using job
         return false;
     }
   };
 
-  uploadFile = async (params: FilePersistenceUploadFileParams) => {
+  async uploadFile(params: FilePersistenceUploadFileParams) {
     const {bucket, nativePath} = this.toNativePath({
       fimidaraPath: params.filepath,
       mount: params.mount,
     });
-    appAssert(nativePath);
-    const command = new PutObjectCommand({
-      Bucket: bucket,
-      Key: nativePath,
-      Body: params.body,
-      // ContentLength: params.contentLength,
-      // ContentType: params.contentType,
-      // ContentEncoding: params.contentEncoding,
+    const parallelUploads3 = new Upload({
+      client: this.s3,
+      params: {
+        Bucket: bucket,
+        Key: this.formatKey(nativePath, {removeStartingSeparator: true}),
+        Body: params.body,
+        ContentType: params.mimetype,
+        ContentEncoding: params.encoding,
+      },
+      queueSize: 4,
+      partSize: 1024 * 1024 * 5, // 5MB
+      leavePartsOnError: false,
     });
-    await this.s3.send(command);
 
+    await parallelUploads3.done();
     return {};
-  };
+  }
 
   readFile = async (params: FilePersistenceGetFileParams): Promise<PersistedFile> => {
     const {bucket, nativePath} = this.toNativePath({
       fimidaraPath: params.filepath,
       mount: params.mount,
     });
-    const command = new GetObjectCommand({Bucket: bucket, Key: nativePath});
+    const command = new GetObjectCommand({
+      Bucket: bucket,
+      Key: this.formatKey(nativePath, {removeStartingSeparator: true}),
+    });
     const response = await this.s3.send(command);
 
     return {
@@ -116,15 +125,31 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       return;
     }
 
-    const objectInfoList = params.filepaths.map(filepath =>
-      this.toNativePath({fimidaraPath: filepath, mount: params.mount})
-    );
-    const bucket = first(objectInfoList)?.bucket;
-    appAssert(bucket);
+    let bucket: string | undefined;
+    const ids: ObjectIdentifier[] = params.filepaths.map(filepath => {
+      const nativeInfo = this.toNativePath({
+        fimidaraPath: filepath,
+        mount: params.mount,
+      });
+      bucket = nativeInfo.bucket;
+      return {
+        Key: this.formatKey(nativeInfo.nativePath, {removeStartingSeparator: true}),
+      };
+    });
 
+    appAssert(bucket);
+    await this.deleteFilesUsingObjectIds({bucket, ids});
+  };
+
+  deleteFilesUsingObjectIds = async (params: {
+    bucket: string;
+    ids: ObjectIdentifier[];
+  }) => {
     const command = new DeleteObjectsCommand({
-      Bucket: bucket,
-      Delete: {Objects: objectInfoList.map(info => ({Key: info.nativePath}))},
+      Bucket: params.bucket,
+      Delete: {
+        Objects: params.ids,
+      },
     });
     await this.s3.send(command);
   };
@@ -140,7 +165,10 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       fimidaraPath: params.filepath,
       mount: params.mount,
     });
-    const command = new HeadObjectCommand({Bucket: bucket, Key: nativePath});
+    const command = new HeadObjectCommand({
+      Bucket: bucket,
+      Key: this.formatKey(nativePath, {removeStartingSeparator: true}),
+    });
     const response = await this.s3.send(command);
 
     return {
@@ -154,46 +182,82 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
   };
 
   describeFolder = async (
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     params: FilePersistenceDescribeFolderParams
   ): Promise<PersistedFolderDescription | undefined> => {
-    // not supported
-    return undefined;
-  };
-
-  describeFolderFiles = async (
-    params: FilePersistenceDescribeFolderFilesParams
-  ): Promise<FilePersistenceDescribeFolderFilesResult> => {
     const {bucket, nativePath} = this.toNativePath({
       fimidaraPath: params.folderpath,
       mount: params.mount,
     });
+    const prefix = this.formatKey(nativePath, {
+      removeStartingSeparator: true,
+      addEndingSeparator: true,
+    });
+    const command = new ListObjectsV2Command({
+      Bucket: bucket,
+      MaxKeys: 1,
+      Prefix: prefix,
+      Delimiter: kFolderConstants.separator,
+    });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const response = await this.s3.send(command);
+
+    // As long as it doesn't throw a NoSuchKey error, then it exists
+    return {
+      folderpath: params.folderpath,
+      mountId: params.mount.resourceId,
+    };
+  };
+
+  describeFolderContent = async (
+    params: FilePersistenceDescribeFolderContentParams
+  ): Promise<FilePersistenceDescribeFolderContentResult> => {
+    const {bucket, nativePath} = this.toNativePath({
+      fimidaraPath: params.folderpath,
+      mount: params.mount,
+    });
+    const prefix = this.formatKey(nativePath, {
+      removeStartingSeparator: true,
+      addEndingSeparator: true,
+    });
     const command = new ListObjectsV2Command({
       Bucket: bucket,
       MaxKeys: params.max,
-      Prefix: nativePath,
+      Prefix: prefix,
+      Delimiter: kFolderConstants.separator,
       ContinuationToken: params.continuationToken as string | undefined,
     });
     const response = await this.s3.send(command);
 
     const files: PersistedFileDescription[] = [];
+    const folders: PersistedFolderDescription[] = [];
+
     response.Contents?.forEach(content => {
       if (!content.Key) {
         return;
       }
 
-      const pFile: PersistedFileDescription = {
+      files.push({
         filepath: this.toFimidaraPath({nativePath: content.Key, mount: params.mount})
           .fimidaraPath,
         size: content.Size,
         lastUpdatedAt: content.LastModified ? content.LastModified.valueOf() : undefined,
         mountId: params.mount.resourceId,
-      };
-
-      files.push(pFile);
+      });
     });
 
-    return {files, continuationToken: response.NextContinuationToken};
+    response.CommonPrefixes?.forEach(content => {
+      if (!content.Prefix) {
+        return;
+      }
+
+      folders.push({
+        folderpath: this.toFimidaraPath({nativePath: content.Prefix, mount: params.mount})
+          .fimidaraPath,
+        mountId: params.mount.resourceId,
+      });
+    });
+
+    return {files, folders, continuationToken: response.NextContinuationToken};
   };
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -211,7 +275,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
     const {fimidaraPath, mount, postMountedFromPrefix} = params;
     const {bucket, prefix} = S3FilePersistenceProvider.getBucketAndPrefix(params);
     const nativePath = defaultToNativePath(
-      mount,
+      {mountedFrom: prefix, namepath: mount.namepath},
       fimidaraPath,
       prefix,
       postMountedFromPrefix
@@ -225,11 +289,33 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
     const {nativePath, mount, postMountedFromPrefix} = params;
     const {prefix} = S3FilePersistenceProvider.getBucketAndPrefix(params);
     const fimidaraPath = defaultToFimidaraPath(
-      mount,
+      {mountedFrom: prefix, namepath: mount.namepath},
       nativePath,
       prefix,
       postMountedFromPrefix
     );
     return {fimidaraPath};
   };
+
+  formatKey(
+    key: string,
+    options: {
+      removeStartingSeparator?: boolean;
+      addEndingSeparator?: boolean;
+    }
+  ) {
+    const {removeStartingSeparator = true, addEndingSeparator = false} = options;
+
+    if (removeStartingSeparator) {
+      if (key[0] === kFolderConstants.separator) {
+        key = key.slice(1);
+      }
+    }
+
+    if (addEndingSeparator) {
+      key = key + kFolderConstants.separator;
+    }
+
+    return key;
+  }
 }

@@ -10,8 +10,7 @@ import {Agent} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {AnyObject} from '../../../utils/types';
 import {
-  FilePersistenceDescribeFolderFilesResult,
-  FilePersistenceDescribeFolderFoldersResult,
+  FilePersistenceDescribeFolderContentResult,
   FilePersistenceProvider,
 } from '../../contexts/file/types';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
@@ -25,10 +24,7 @@ import {JobInput, queueJobs} from '../utils';
 
 async function setContinuationTokenInJob(
   job: Job,
-  continuationTokens: Pick<
-    IngestFolderpathJobMeta,
-    'getFilesContinuationToken' | 'getFoldersContinuationToken'
-  >
+  continuationTokens: Pick<IngestFolderpathJobMeta, 'getContentContinuationToken'>
 ) {
   return await kSemanticModels.utils().withTxn(async opts => {
     const latestJob: Pick<Job<AnyObject, IngestFolderpathJobMeta>, 'meta'> | null =
@@ -62,14 +58,14 @@ async function ingestFolderpathJobFolders(
   provider: FilePersistenceProvider
 ) {
   appAssert(job.workspaceId);
-  let result: FilePersistenceDescribeFolderFoldersResult | undefined;
+  let result: FilePersistenceDescribeFolderContentResult | undefined;
   const workspace = await kSemanticModels.workspace().getOneById(job.workspaceId);
   appAssert(workspace);
 
   const ingestFrom = job.params.ingestFrom;
 
   do {
-    result = await provider.describeFolderFolders({
+    result = await provider.describeFolderContent({
       mount,
       folderpath: ingestFrom,
       max: 1000,
@@ -78,10 +74,13 @@ async function ingestFolderpathJobFolders(
     });
     kUtilsInjectables.promises().forget(
       setContinuationTokenInJob(job, {
-        getFoldersContinuationToken: result.continuationToken,
+        getContentContinuationToken: result.continuationToken,
       })
     );
-    await ingestPersistedFolders(agent, workspace, result.folders);
+    await Promise.all([
+      ingestPersistedFolders(agent, workspace, result.folders),
+      ingestPersistedFiles(agent, workspace, result.files),
+    ]);
     kUtilsInjectables.promises().forget(
       queueJobs(
         job.workspaceId,
@@ -101,37 +100,7 @@ async function ingestFolderpathJobFolders(
         })
       )
     );
-  } while (result.continuationToken && result.folders.length);
-}
-
-async function ingestFolderpathJobFiles(
-  agent: Agent,
-  job: Job<IngestFolderpathJobParams>,
-  mount: FileBackendMount,
-  provider: FilePersistenceProvider
-) {
-  appAssert(job.workspaceId);
-  let result: FilePersistenceDescribeFolderFilesResult | undefined;
-  const workspace = await kSemanticModels.workspace().getOneById(job.workspaceId);
-  appAssert(workspace);
-
-  const ingestFrom = job.params.ingestFrom;
-
-  do {
-    result = await provider.describeFolderFiles({
-      mount,
-      folderpath: ingestFrom,
-      max: 1000,
-      workspaceId: mount.workspaceId,
-      continuationToken: result?.continuationToken,
-    });
-    kUtilsInjectables.promises().forget(
-      setContinuationTokenInJob(job, {
-        getFilesContinuationToken: result.continuationToken,
-      })
-    );
-    await ingestPersistedFiles(agent, workspace, result.files);
-  } while (result.continuationToken && result.files.length);
+  } while (result.continuationToken && (result.folders.length || result.files.length));
 }
 
 export async function runIngestFolderpathJob(job: Job<IngestFolderpathJobParams>) {
@@ -152,9 +121,5 @@ export async function runIngestFolderpathJob(job: Job<IngestFolderpathJobParams>
   );
   const providersMap = await initBackendProvidersForMounts([mount], configs);
   const provider = providersMap[mount.resourceId];
-
-  await Promise.all([
-    ingestFolderpathJobFolders(agent, job, mount, provider),
-    ingestFolderpathJobFiles(agent, job, mount, provider),
-  ]);
+  await ingestFolderpathJobFolders(agent, job, mount, provider);
 }

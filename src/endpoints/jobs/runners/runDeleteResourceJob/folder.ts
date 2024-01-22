@@ -87,17 +87,21 @@ const deleteSimpleArtifacts: DeleteResourceDeleteSimpleArtifactsFns = {
       const folderpath = folder.namepath.join(kFolderConstants.separator);
       const {providersMap, mounts} = await resolveBackendsMountsAndConfigs(folder);
       await Promise.all(
-        mounts.map(mount => {
-          const provider = providersMap[mount.resourceId];
-          // TODO: if we're deleting a folder, do we then need to delete
-          // children folder and files too, or won't that be taken care of here?
-          // A possible way to save on cost for backends that support deleting
-          // folders
-          return provider.deleteFolders({
-            mount,
-            folderpaths: [folderpath],
-            workspaceId: folder.workspaceId,
-          });
+        mounts.map(async mount => {
+          try {
+            const provider = providersMap[mount.resourceId];
+            // TODO: if we're deleting a folder, do we then need to delete
+            // children folder and files too, or won't that be taken care of here?
+            // A possible way to save on cost for backends that support deleting
+            // folders
+            await provider.deleteFolders({
+              mount,
+              folderpaths: [folderpath],
+              workspaceId: folder.workspaceId,
+            });
+          } catch (error) {
+            console.error(error);
+          }
         })
       );
     }

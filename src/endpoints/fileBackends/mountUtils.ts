@@ -220,7 +220,7 @@ export function populateMountUnsupportedOpNoteInNotFoundError(
   const hasUnsupportedOp = resolvedMountsHaveUnsupportedFeatures([
     'describeFile',
     'describeFolder',
-    'describeFolderFolders',
+    'describeFolderContent',
     'readFile',
   ]);
 

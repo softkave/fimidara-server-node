@@ -36,7 +36,7 @@ export const defaultFileProviderResolver: FileProviderResolver = (
 };
 
 export function defaultToNativePath(
-  mount: FileBackendMount,
+  mount: Pick<FileBackendMount, 'mountedFrom' | 'namepath'>,
   fimidaraPath: string,
   preMountedFromPrefix: string[] = [],
   postMountedFromPrefix: string[] = []
@@ -50,7 +50,7 @@ export function defaultToNativePath(
 }
 
 export function defaultToFimidaraPath(
-  mount: FileBackendMount,
+  mount: Pick<FileBackendMount, 'mountedFrom' | 'namepath'>,
   nativePath: string,
   preMountedFromPrefix: string[] = [],
   postMountedFromPrefix: string[] = []

@@ -7,8 +7,8 @@ import {Omit1} from '../../../utils/types';
 import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
-  FilePersistenceDescribeFolderFilesParams,
-  FilePersistenceDescribeFolderFilesResult,
+  FilePersistenceDescribeFolderContentParams,
+  FilePersistenceDescribeFolderContentResult,
   FilePersistenceDescribeFolderFoldersParams,
   FilePersistenceDescribeFolderFoldersResult,
   FilePersistenceDescribeFolderParams,
@@ -41,13 +41,12 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
     switch (feature) {
       case 'deleteFiles':
       case 'describeFile':
-      case 'describeFolderFiles':
+      case 'describeFolderContent':
       case 'readFile':
       case 'uploadFile':
         return true;
       case 'deleteFolders':
       case 'describeFolder':
-      case 'describeFolderFolders':
         return false;
     }
   };
@@ -129,9 +128,9 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
     return undefined;
   };
 
-  describeFolderFiles = async (
-    params: FilePersistenceDescribeFolderFilesParams
-  ): Promise<FilePersistenceDescribeFolderFilesResult> => {
+  describeFolderContent = async (
+    params: FilePersistenceDescribeFolderContentParams
+  ): Promise<FilePersistenceDescribeFolderContentResult> => {
     const {mount, folderpath, max, continuationToken} = params;
     const workspaceFilesMap = this.getWorkspaceFiles(params);
     const workspaceFiles = Object.values(workspaceFilesMap);
@@ -167,7 +166,7 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
     }
 
     const nextContinuationToken = index < workspaceFiles.length - 1 ? index : undefined;
-    return {files, continuationToken: nextContinuationToken};
+    return {files, continuationToken: nextContinuationToken, folders: []};
   };
 
   describeFolderFolders = async (

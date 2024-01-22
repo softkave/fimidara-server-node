@@ -67,8 +67,8 @@ const resolvedMountEntrySchema = ensureMongoTypeFields<ResolvedMountEntry>({
 });
 
 const resolvedEntrySchema = new Schema<ResolvedMountEntry>(resolvedMountEntrySchema);
-const resolvedEntryModelName = 'file-backend-mount';
-const resolvedEntryCollectionName = 'file-backend-mounts';
+const resolvedEntryModelName = 'resolved-mount-entry';
+const resolvedEntryCollectionName = 'resolved-mount-entries';
 
 export function getResolvedMountEntryModel(connection: Connection) {
   return connection.model<ResolvedMountEntry>(

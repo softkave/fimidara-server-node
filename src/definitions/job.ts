@@ -96,8 +96,7 @@ export interface IngestFolderpathJobParams {
 }
 
 export interface IngestFolderpathJobMeta {
-  getFilesContinuationToken?: unknown;
-  getFoldersContinuationToken?: unknown;
+  getContentContinuationToken?: unknown;
 }
 
 export interface IngestMountJobParams {

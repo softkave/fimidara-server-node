@@ -1,7 +1,7 @@
 import {noopAsync} from '../../../../utils/fns';
 import {
-  FilePersistenceDescribeFolderFilesParams,
-  FilePersistenceDescribeFolderFilesResult,
+  FilePersistenceDescribeFolderContentParams,
+  FilePersistenceDescribeFolderContentResult,
   FilePersistenceDescribeFolderFoldersParams,
   FilePersistenceDescribeFolderFoldersResult,
   FilePersistenceProvider,
@@ -24,8 +24,7 @@ export default class NoopFilePersistenceProviderContext
       case 'deleteFolders':
       case 'describeFile':
       case 'describeFolder':
-      case 'describeFolderFiles':
-      case 'describeFolderFolders':
+      case 'describeFolderContent':
       case 'readFile':
       case 'uploadFile':
         return false;
@@ -49,11 +48,11 @@ export default class NoopFilePersistenceProviderContext
   };
 
   uploadFile = async () => ({});
-  describeFolderFiles = async (
+  describeFolderContent = async (
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    params: FilePersistenceDescribeFolderFilesParams
-  ): Promise<FilePersistenceDescribeFolderFilesResult> => {
-    return {files: []};
+    params: FilePersistenceDescribeFolderContentParams
+  ): Promise<FilePersistenceDescribeFolderContentResult> => {
+    return {files: [], folders: []};
   };
 
   describeFolderFolders = async (

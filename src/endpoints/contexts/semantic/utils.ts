@@ -25,7 +25,7 @@ export function getStringListQuery<TData extends AnyObject>(
 
   stringList.reduce((map, name, index) => {
     const key = `${prefix as string}.${index}`;
-    map[key] = {[op]: getLowercaseRegExpForString(name)};
+    map[key] = {[op]: op === '$eq' ? name : getLowercaseRegExpForString(name)};
     return map;
   }, query);
 

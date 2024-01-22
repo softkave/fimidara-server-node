@@ -1,4 +1,5 @@
 import {faker} from '@faker-js/faker';
+import {merge} from 'lodash';
 import {
   FileBackendConfig,
   FileBackendMount,
@@ -148,9 +149,8 @@ export function generateResolvedMountEntryForTest(
     resolvedFor: getNewIdForResource(kAppResourceType.File),
     resolvedForType: kAppResourceType.File,
     other: null,
-    ...seed,
   };
-  return config;
+  return merge(config, seed);
 }
 
 export function generatePersistedFolderDescriptionForTest(

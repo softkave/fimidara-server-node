@@ -86,16 +86,20 @@ const deleteSimpleArtifacts: DeleteResourceDeleteSimpleArtifactsFns = {
       const filepath = file.namepath.join(kFolderConstants.separator);
       const {providersMap, mounts} = await resolveBackendsMountsAndConfigs(file);
       await Promise.all(
-        mounts.map(mount => {
-          const provider = providersMap[mount.resourceId];
-          // TODO: if we're deleting the parent folder, for jobs created from a
-          // parent folder, do we still need to delete the file, for backends
-          // that support deleting folders?
-          return provider.deleteFiles({
-            mount,
-            filepaths: [filepath],
-            workspaceId: file.workspaceId,
-          });
+        mounts.map(async mount => {
+          try {
+            const provider = providersMap[mount.resourceId];
+            // TODO: if we're deleting the parent folder, for jobs created from a
+            // parent folder, do we still need to delete the file, for backends
+            // that support deleting folders?
+            await provider.deleteFiles({
+              mount,
+              filepaths: [filepath],
+              workspaceId: file.workspaceId,
+            });
+          } catch (error) {
+            console.error(error);
+          }
         })
       );
     }

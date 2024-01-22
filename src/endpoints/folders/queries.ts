@@ -27,7 +27,7 @@ function getByAncestor(
     ...getStringListQuery<Folder>(
       namepath,
       /** prefix */ 'namepath',
-      /** matcher op */ '$eq',
+      /** matcher op */ '$regex',
       /** include size */ false
     ),
   };
@@ -43,7 +43,7 @@ function getByParentPath(
     ...getStringListQuery<Folder>(
       namepath,
       /** prefix */ 'namepath',
-      /** matcher op */ '$eq',
+      /** matcher op */ '$regex',
       /** include size */ false
     ),
   };

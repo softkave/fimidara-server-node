@@ -137,7 +137,7 @@ describe('MemoryFilePersistenceProvider', () => {
     expect(result.lastUpdatedAt).toBeTruthy();
   });
 
-  test('describeFolderFiles', async () => {
+  test('describeFolderContent', async () => {
     const buffer = Buffer.from('Hello, world!');
     const data = Readable.from(buffer);
     const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
@@ -165,7 +165,7 @@ describe('MemoryFilePersistenceProvider', () => {
         )
     );
 
-    let result = await backend.describeFolderFiles({
+    let result = await backend.describeFolderContent({
       mount,
       workspaceId,
       folderpath,
@@ -182,7 +182,7 @@ describe('MemoryFilePersistenceProvider', () => {
       expect(file.lastUpdatedAt).toBeTruthy();
     });
 
-    result = await backend.describeFolderFiles({
+    result = await backend.describeFolderContent({
       mount,
       workspaceId,
       folderpath,

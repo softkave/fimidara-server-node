@@ -1,4 +1,5 @@
 import {MemoryFilePersistenceProvider} from '../../../contexts/file/MemoryFilePersistenceProvider';
+import {mockWith} from '../../helpers/mock';
 import {ITestFilePersistenceProviderContext} from '../types';
 
 export default class TestMemoryFilePersistenceProviderContext
@@ -14,8 +15,7 @@ export default class TestMemoryFilePersistenceProviderContext
   deleteFolders: ITestFilePersistenceProviderContext['deleteFolders'];
   describeFile: ITestFilePersistenceProviderContext['describeFile'];
   describeFolder: ITestFilePersistenceProviderContext['describeFolder'];
-  describeFolderFiles: ITestFilePersistenceProviderContext['describeFolderFiles'];
-  describeFolderFolders: ITestFilePersistenceProviderContext['describeFolderFolders'];
+  describeFolderContent: ITestFilePersistenceProviderContext['describeFolderContent'];
   supportsFeature: ITestFilePersistenceProviderContext['supportsFeature'];
   dispose: ITestFilePersistenceProviderContext['dispose'];
 
@@ -29,15 +29,14 @@ export default class TestMemoryFilePersistenceProviderContext
     this.deleteFolders = jest.fn(this.client.deleteFolders).mockName('deleteFolders');
     this.describeFile = jest.fn(this.client.describeFile).mockName('describeFile');
     this.describeFolder = jest.fn(this.client.describeFolder).mockName('describeFolder');
-    this.describeFolderFiles = jest
-      .fn(this.client.describeFolderFiles)
-      .mockName('describeFolderFiles');
-    this.describeFolderFolders = jest
-      .fn(this.client.describeFolderFolders)
-      .mockName('describeFolderFolders');
-    this.dispose = jest.fn(this.client.dispose).mockName('close');
+    this.describeFolderContent = jest
+      .fn(this.client.describeFolderContent)
+      .mockName('describeFolderContent');
+    this.dispose = jest.fn(this.client.dispose).mockName('dispose');
     this.supportsFeature = jest
       .fn(this.client.supportsFeature)
       .mockName('supportsFeature');
+
+    mockWith(this.client, this);
   }
 }

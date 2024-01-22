@@ -1,6 +1,8 @@
 ## Now
 
 - [ ] Support . and .. folder matchers
+- [ ] Document what permissions are needed for what operations
+- [ ] Fimidara logging, add every call and what permissions were missing for access denied
 - [ ] Should we fail other pending children jobs if parent job is marked failed?
 - [ ] Everything (resources, websites, platforms) a file, like Linux
 - [ ] Should messages have an ending period?
