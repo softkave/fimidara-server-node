@@ -1,10 +1,13 @@
 import {Response} from 'express';
 import {JsonWebTokenError, NotBeforeError, TokenExpiredError} from 'jsonwebtoken';
 import {endpointConstants} from '../endpoints/constants';
-import {CredentialsExpiredError, InvalidCredentialsError} from '../endpoints/users/errors';
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
+import {
+  CredentialsExpiredError,
+  InvalidCredentialsError,
+} from '../endpoints/users/errors';
 import {getPublicErrors} from '../endpoints/utils';
 import {ServerError} from '../utils/errors';
-import {serverLogger} from '../utils/logger/loggerUtils';
 
 export function resolveJWTError(err: Error) {
   switch (err.name) {
@@ -24,7 +27,7 @@ export function resolveJWTError(err: Error) {
   }
 }
 
-function getArg(name: 'err' | 'req' | 'res' | 'next', args: any[]) {
+function getArg(name: 'err' | 'req' | 'res' | 'next', args: unknown[]) {
   switch (name) {
     case 'err':
       return args.length === 4 ? args[0] : undefined;
@@ -37,10 +40,10 @@ function getArg(name: 'err' | 'req' | 'res' | 'next', args: any[]) {
   }
 }
 
-function handleErrors(...args: any[]) {
+function handleErrors(...args: unknown[]) {
   const err = getArg('err', args) as Error | undefined;
   // const req: Request = getArg('req', args);
-  const res: Response = getArg('res', args);
+  const res = getArg('res', args) as Response;
 
   if (!err) {
     res.status(endpointConstants.httpStatusCode.serverError).send({
@@ -50,7 +53,7 @@ function handleErrors(...args: any[]) {
     return;
   }
 
-  serverLogger.error(err);
+  kUtilsInjectables.logger().error(err);
   const JWTError = resolveJWTError(err);
   if (JWTError) {
     res.status(endpointConstants.httpStatusCode.unauthorized).json({

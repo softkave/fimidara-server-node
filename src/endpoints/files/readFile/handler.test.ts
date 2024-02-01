@@ -1,11 +1,10 @@
 import {Readable} from 'stream';
-import {streamToBuffer} from '../../../utils/fns';
+import {pathJoin, streamToBuffer} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import RequestData from '../../RequestData';
 import {FilePersistenceProvider, PersistedFile} from '../../contexts/file/types';
 import {kRegisterUtilsInjectables} from '../../contexts/injection/register';
 import {insertResolvedMountEntries} from '../../fileBackends/mountUtils';
-import {kFolderConstants} from '../../folders/constants';
 import {addRootnameToPath, stringifyFoldernamepath} from '../../folders/utils';
 import NoopFilePersistenceProviderContext from '../../testUtils/context/file/NoopFilePersistenceProviderContext';
 import {
@@ -104,9 +103,9 @@ describe('readFile', () => {
     });
     const {file} = await insertFileForTest(userToken, workspace, {
       filepath: addRootnameToPath(
-        folder.namepath
-          .concat([generateTestFileName({includeStraySlashes: true})])
-          .join(kFolderConstants.separator),
+        pathJoin(
+          folder.namepath.concat([generateTestFileName({includeStraySlashes: true})])
+        ),
         workspace.rootname
       ),
     });

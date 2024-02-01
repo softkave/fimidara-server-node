@@ -11,7 +11,7 @@ import {populateMountUnsupportedOpNoteInNotFoundError} from '../fileBackends/mou
 import {kFolderConstants} from '../folders/constants';
 import {ExportedHttpEndpoint_HandleErrorFn} from '../types';
 import {endpointDecodeURIComponent} from '../utils';
-import {fileConstants} from './constants';
+import {kFileConstants} from './constants';
 import deleteFile from './deleteFile/handler';
 import {
   deleteFileEndpointDefinition,
@@ -91,7 +91,7 @@ function extractFilepathOrIdFromReqPath(req: Request, endpointPath: string) {
 function extractReadFileParamsFromReq(req: Request): ReadFileEndpointParams {
   const query = req.query as Partial<ReadFileEndpointHttpQuery>;
   return {
-    ...extractFilepathOrIdFromReqPath(req, fileConstants.routes.readFile),
+    ...extractFilepathOrIdFromReqPath(req, kFileConstants.routes.readFile),
     imageResize: {
       width: endpointDecodeURIComponent(query.w),
       height: endpointDecodeURIComponent(query.h),
@@ -110,7 +110,7 @@ async function extractUploadFileParamsFromReq(
 ): Promise<UploadFileEndpointParams> {
   let waitTimeoutHandle: NodeJS.Timeout | undefined = undefined;
   const contentEncoding = req.headers['content-encoding'];
-  const description = req.headers[fileConstants.headers['x-fimidara-file-description']];
+  const description = req.headers[kFileConstants.headers['x-fimidara-file-description']];
   appAssert(req.busboy, new InvalidRequestError('Invalid multipart/formdata request.'));
 
   return new Promise((resolve, reject) => {
@@ -126,7 +126,7 @@ async function extractUploadFileParamsFromReq(
       clearTimeout(waitTimeoutHandle);
       const matcher = extractFilepathOrIdFromReqPath(
         req,
-        fileConstants.routes.uploadFile
+        kFileConstants.routes.uploadFile
       );
       resolve({
         ...matcher,
@@ -203,7 +203,7 @@ export function getFilesPublicHttpEndpoints() {
       fn: uploadFile,
       mddocHttpDefinition: uploadFileEndpointDefinition,
       expressRouteMiddleware: busboy({
-        limits: fileConstants.multipartLimits,
+        limits: kFileConstants.multipartLimits,
       }),
       getDataFromReq: extractUploadFileParamsFromReq,
       cleanup: cleanupUploadFileReq,

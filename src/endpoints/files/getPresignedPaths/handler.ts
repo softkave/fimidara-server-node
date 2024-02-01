@@ -10,6 +10,7 @@ import {SemanticProviderRunOptions} from '../../contexts/semantic/types';
 import {getFilepathInfo, stringifyFilenamepath} from '../utils';
 import {GetPresignedPathsForFilesEndpoint, GetPresignedPathsForFilesItem} from './types';
 import {getPresignedPathsForFilesJoiSchema} from './validation';
+import {assertRootname} from '../../workspaces/utils';
 
 // TODO: filter out expired or spent presigned paths and delete them
 
@@ -97,6 +98,7 @@ async function getPresignedPathsByFileMatchers(
         let workspace: Workspace | null;
 
         if (!workspaceId) {
+          assertRootname(pathinfo.rootname);
           workspace = await kSemanticModels.workspace().getByRootname(pathinfo.rootname);
           appAssert(workspace);
           workspaceDict[workspace.resourceId] = workspace;

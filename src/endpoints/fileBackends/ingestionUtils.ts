@@ -99,7 +99,7 @@ export async function ingestPersistedFiles(
     );
 
     const folderpathsToEnsure: Set</** folderpath */ string> = new Set();
-    const existingFilesMap = keyBy(existingFiles, file => pathJoin(file.namepath));
+    const existingFilesMap = keyBy(existingFiles, file => stringifyFilenamepath(file));
     const newMountFileList = mountFileList.filter(({pathinfo, mountFiles}) => {
       const mountFile0 = first(mountFiles);
       appAssert(mountFile0);

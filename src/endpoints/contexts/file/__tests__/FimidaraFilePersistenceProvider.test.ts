@@ -7,7 +7,6 @@ import {getTimestamp} from '../../../../utils/dateFns';
 import {loopAndCollate, loopAndCollateAsync, pathJoin} from '../../../../utils/fns';
 import {getNewIdForResource} from '../../../../utils/resource';
 import {getFilepathInfo, stringifyFilenamepath} from '../../../files/utils';
-import {kFolderConstants} from '../../../folders/constants';
 import {getFolderpathInfo, stringifyFoldernamepath} from '../../../folders/utils';
 import TestMemoryFilePersistenceProviderContext from '../../../testUtils/context/file/TestMemoryFilePersistenceProviderContext';
 import {
@@ -282,7 +281,7 @@ describe('FimidaraFilePersistenceProvider', () => {
     let {files, continuationToken} = await backend.describeFolderFiles({
       mount,
       workspaceId,
-      folderpath: folderpath.join(kFolderConstants.separator),
+      folderpath: pathJoin(folderpath),
       max: 5,
     });
 
@@ -299,7 +298,7 @@ describe('FimidaraFilePersistenceProvider', () => {
       mount,
       workspaceId,
       continuationToken,
-      folderpath: folderpath.join(kFolderConstants.separator),
+      folderpath: pathJoin(folderpath),
       max: 5,
     }));
 
@@ -348,7 +347,7 @@ describe('FimidaraFilePersistenceProvider', () => {
     let {folders, continuationToken} = await backend.describeFolderFolders({
       mount,
       workspaceId,
-      folderpath: parentFolderpath.join(kFolderConstants.separator),
+      folderpath: pathJoin(parentFolderpath),
       max: 5,
     });
 
@@ -365,7 +364,7 @@ describe('FimidaraFilePersistenceProvider', () => {
       mount,
       workspaceId,
       continuationToken,
-      folderpath: parentFolderpath.join(kFolderConstants.separator),
+      folderpath: pathJoin(parentFolderpath),
       max: 5,
     }));
 

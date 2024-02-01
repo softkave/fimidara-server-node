@@ -339,7 +339,7 @@ export function getFileExtenstion(name = '') {
   return undefined;
 }
 
-export function getLowercaseRegExpForString(str: string) {
+export function getIgnoreCaseRegExpForString(str: string) {
   return new RegExp(`^${str}$`, 'i');
 }
 
@@ -471,21 +471,45 @@ export function omitDeep(data: AnyObject, byFn: AnyFn<[unknown], boolean>) {
 }
 
 export function pathJoin(...args: Array<string | string[]>) {
-  let p = path.join(
+  let pJoined = path.posix.join(
     ...args.map(arg => (isArray(arg) ? arg.join(kFolderConstants.separator) : arg))
   );
 
-  if (p[0] !== kFolderConstants.separator) {
-    p = kFolderConstants.separator + p;
+  if (pJoined.match(/^[./]*$/) || !pJoined) {
+    return '';
   }
 
-  if (p[p.length - 1] === kFolderConstants.separator) {
-    p = p.slice(0, -1);
+  if (pJoined[0] !== kFolderConstants.separator) {
+    pJoined = kFolderConstants.separator + pJoined;
   }
 
-  return p;
+  if (pJoined[pJoined.length - 1] === kFolderConstants.separator) {
+    pJoined = pJoined.slice(0, -1);
+  }
+
+  return pJoined;
 }
 
-export function pathSplit(p: string = '') {
-  return compact(p.split(kFolderConstants.separator));
+export function pathSplit(input: string = '') {
+  return compact(input.split(kFolderConstants.separator));
+}
+
+export function isPathEmpty(input: string | string[]) {
+  const pJoined = pathJoin(input, 'E');
+  return pJoined === '/E';
+}
+
+export function pathExtension(input: string) {
+  return path.posix.extname(input).replace('.', '');
+}
+
+export function pathBasename(input: string) {
+  const ext = pathExtension(input);
+  let basename = path.posix.basename(input, `.${ext}`);
+
+  if (basename.match(/^[.]*$/)) {
+    basename = '';
+  }
+
+  return {basename, ext};
 }

@@ -1,8 +1,11 @@
 import {kAppResourceType} from '../../../../definitions/system';
-import {kSemanticModels} from '../../../contexts/injection/injectables';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables';
 import {resolveBackendsMountsAndConfigs} from '../../../fileBackends/mountUtils';
 import {FileQueries} from '../../../files/queries';
-import {kFolderConstants} from '../../../folders/constants';
+import {stringifyFilenamepath} from '../../../files/utils';
 import {
   DeleteResourceCascadeEntry,
   DeleteResourceDeleteSimpleArtifactsFns,
@@ -83,7 +86,7 @@ const deleteSimpleArtifacts: DeleteResourceDeleteSimpleArtifactsFns = {
     const file = await kSemanticModels.file().getOneById(args.resourceId);
 
     if (file) {
-      const filepath = file.namepath.join(kFolderConstants.separator);
+      const filepath = stringifyFilenamepath(file);
       const {providersMap, mounts} = await resolveBackendsMountsAndConfigs(file);
       await Promise.all(
         mounts.map(async mount => {
@@ -98,7 +101,7 @@ const deleteSimpleArtifacts: DeleteResourceDeleteSimpleArtifactsFns = {
               workspaceId: file.workspaceId,
             });
           } catch (error) {
-            console.error(error);
+            kUtilsInjectables.logger().error(error);
           }
         })
       );

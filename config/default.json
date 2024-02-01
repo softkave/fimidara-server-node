@@ -28,5 +28,7 @@
   "verifyEmailLink": "http://localhost:3000/verify-email",
   "test": {
     "localFsDir": "./test-local-fs"
-  }
+  },
+  "loggerType": "console",
+  "runnerLocation": "./build/src/endpoints/jobs/runner.js"
 }

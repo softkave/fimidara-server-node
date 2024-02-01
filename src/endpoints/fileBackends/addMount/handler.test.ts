@@ -1,7 +1,7 @@
+import {pathJoin} from '../../../utils/fns';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {ResourceExistsError} from '../../errors';
-import {kFolderConstants} from '../../folders/constants';
 import {stringifyFoldernamepath} from '../../folders/utils';
 import {generateUniqueFolderpath} from '../../testUtils/generate/folder';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
@@ -60,7 +60,7 @@ describe('addMount', () => {
           {namepath: mount01.namepath},
           workspace.rootname
         ),
-        mountedFrom: mount01.mountedFrom.join(kFolderConstants.separator),
+        mountedFrom: pathJoin(mount01.mountedFrom),
       });
     }, [ResourceExistsError.name]);
   });

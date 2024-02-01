@@ -17,7 +17,7 @@ import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injec
 import {areFolderpathsEqual, ensureFolders, getFolderpathInfo} from '../../folders/utils';
 import {queueJobs} from '../../jobs/utils';
 import {isResourceNameEqual} from '../../utils';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
+import {assertRootname, getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {fileBackendMountExtractor, mountExists, mountNameExists} from '../utils';
 import {UpdateFileBackendMountEndpoint} from './types';
 import {updateFileBackendMountJoiSchema} from './validation';
@@ -75,6 +75,7 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData =>
 
     if (data.mount.folderpath) {
       const folderpathinfo = getFolderpathInfo(data.mount.folderpath);
+      assertRootname(folderpathinfo.rootname);
       appAssert(
         workspace.rootname === folderpathinfo.rootname,
         kReuseableErrors.workspace.rootnameDoesNotMatchFolderRootname(

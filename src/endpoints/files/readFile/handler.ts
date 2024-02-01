@@ -135,7 +135,7 @@ async function readPersistedFile(file: File): Promise<PersistedFile> {
         return persistedFile;
       }
     } catch (error) {
-      console.error(error);
+      kUtilsInjectables.logger().error(error);
     }
   }
 

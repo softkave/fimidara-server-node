@@ -12,7 +12,7 @@ import {PublicUser, UserWithWorkspace} from '../../definitions/user';
 import {PublicWorkspace, Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
-import {toArray} from '../../utils/fns';
+import {pathJoin, toArray} from '../../utils/fns';
 import {makeUserSessionAgent} from '../../utils/sessionUtils';
 import addAgentTokenEndpoint from '../agentTokens/addToken/handler';
 import {
@@ -43,7 +43,6 @@ import uploadFile from '../files/uploadFile/handler';
 import {UploadFileEndpointParams} from '../files/uploadFile/types';
 import addFolder from '../folders/addFolder/handler';
 import {AddFolderEndpointParams, NewFolderInput} from '../folders/addFolder/types';
-import {kFolderConstants} from '../folders/constants';
 import {addRootnameToPath} from '../folders/utils';
 import addPermissionGroup from '../permissionGroups/addPermissionGroup/handler';
 import {
@@ -353,9 +352,7 @@ export async function insertFolderForTest(
     {
       folder: {
         folderpath: addRootnameToPath(
-          [generateTestFolderName({includeStraySeparators: true})].join(
-            kFolderConstants.separator
-          ),
+          pathJoin([generateTestFolderName({includeStraySeparators: true})]),
           workspace.rootname
         ),
         description: faker.lorem.paragraph(),
@@ -408,10 +405,7 @@ export async function insertFileForTest(
   const testBuffer = Buffer.from('Hello world!');
   const testStream = Readable.from([testBuffer]);
   const input: UploadFileEndpointParams = {
-    filepath: addRootnameToPath(
-      [generateTestFileName()].join(kFolderConstants.separator),
-      workspace.rootname
-    ),
+    filepath: addRootnameToPath(pathJoin([generateTestFileName()]), workspace.rootname),
     description: faker.lorem.paragraph(),
     data: testStream,
     mimetype: 'application/octet-stream',

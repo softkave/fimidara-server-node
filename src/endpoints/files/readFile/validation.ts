@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
 import {kValidationSchemas} from '../../../utils/validationUtils';
-import {fileConstants} from '../constants';
+import {kFileConstants} from '../constants';
 import fileValidationSchemas from '../validation';
 import {
   ImageFormatEnumMap,
@@ -14,8 +14,8 @@ export const readFileJoiSchema = Joi.object<ReadFileEndpointParams>()
     ...fileValidationSchemas.fileMatcherParts,
     imageResize: Joi.object()
       .keys({
-        width: Joi.number().max(fileConstants.maxFileWidth).allow(null),
-        height: Joi.number().max(fileConstants.maxFileHeight).allow(null),
+        width: Joi.number().max(kFileConstants.maxFileWidth).allow(null),
+        height: Joi.number().max(kFileConstants.maxFileHeight).allow(null),
         fit: Joi.string()
           .valid(...Object.values(ImageResizeFitEnumMap))
           .allow(null),

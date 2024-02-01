@@ -1,6 +1,5 @@
 import {getTimestamp} from '../../../utils/dateFns';
 import {waitTimeout} from '../../../utils/fns';
-import {FimidaraLoggerServiceNames} from '../../../utils/logger/loggerUtils';
 import RequestData from '../../RequestData';
 import {completeTests} from '../../testUtils/helpers/test';
 import {
@@ -29,7 +28,7 @@ describe('ingestLogs', () => {
         message: `Test client log ${i}`,
         timestamp: getTimestamp(),
         stack: randomTag,
-        service: FimidaraLoggerServiceNames.Test,
+        service: 'test',
       });
     }
 

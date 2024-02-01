@@ -12,7 +12,10 @@ import {
   assignWorkspaceToUser,
 } from '../../endpoints/assignedItems/addAssignedItems';
 import {INTERNAL_RespondToCollaborationRequest} from '../../endpoints/collaborationRequests/respondToRequest/utils';
-import {kSemanticModels} from '../../endpoints/contexts/injection/injectables';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../endpoints/contexts/injection/injectables';
 import {
   SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
@@ -29,7 +32,6 @@ import {getCompleteUserDataByEmail, isUserInWorkspace} from '../../endpoints/use
 import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME} from '../../endpoints/workspaces/addWorkspace/utils';
 import {kSystemSessionAgent} from '../../utils/agent';
 import {getTimestamp} from '../../utils/dateFns';
-import {serverLogger} from '../../utils/logger/loggerUtils';
 import {makeUserSessionAgent} from '../../utils/sessionUtils';
 
 export interface PromptEmailAnswers {
@@ -121,7 +123,7 @@ async function makeUserAdmin(
   const isAdmin = await isUserAdmin(userId, adminPermissionGroupId, opts);
 
   if (!isAdmin) {
-    serverLogger.info('Making user admin');
+    kUtilsInjectables.logger().log('Making user admin');
     await addAssignedPermissionGroupList(
       kSystemSessionAgent,
       workspace.resourceId,
@@ -157,7 +159,6 @@ async function getUser(
 }
 
 export async function setupDevUser(appOptions: ISetupDevUserOptions) {
-  const consoleLogger = serverLogger;
   const workspace = await setupApp();
   const user = await getUser(appOptions);
   const isInWorkspace = isUserInWorkspace(user, workspace.resourceId);
@@ -206,8 +207,8 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
         .getOneByEmail(user.email, opts);
 
       if (request) {
-        consoleLogger.info('Existing collaboration request found');
-        consoleLogger.info(`Accepting request ${request.resourceId}`);
+        kUtilsInjectables.logger().log('Existing collaboration request found');
+        kUtilsInjectables.logger().log(`Accepting request ${request.resourceId}`);
         const agentToken = await kSemanticModels
           .agentToken()
           .getOneAgentToken(user.resourceId, kTokenAccessScope.Login, opts);
@@ -222,7 +223,7 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
           opts
         );
       } else {
-        consoleLogger.info('Adding user to workspace');
+        kUtilsInjectables.logger().log('Adding user to workspace');
         await assignWorkspaceToUser(
           kSystemSessionAgent,
           workspace.resourceId,
@@ -239,13 +240,13 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
       );
     }
 
-    consoleLogger.info(
-      `User ${user.email} is now an admin of workspace ${workspace.name}`
-    );
+    kUtilsInjectables
+      .logger()
+      .log(`User ${user.email} is now an admin of workspace ${workspace.name}`);
   });
 
   if (!user.isEmailVerified) {
-    consoleLogger.info(`Verifying email address for user ${user.email}`);
+    kUtilsInjectables.logger().log(`Verifying email address for user ${user.email}`);
     await INTERNAL_confirmEmailAddress(user.resourceId, user);
   }
 }

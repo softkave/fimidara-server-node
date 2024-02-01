@@ -1,4 +1,5 @@
 import {compact, first} from 'lodash';
+import path from 'path';
 import {
   File,
   FileMatcher,
@@ -13,6 +14,7 @@ import {Agent, SessionAgent, kAppResourceType} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
+import {pathJoin} from '../../utils/fns';
 import {getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {
@@ -32,7 +34,6 @@ import {
   initBackendProvidersForMounts,
   resolveMountsForFolder,
 } from '../fileBackends/mountUtils';
-import {kFolderConstants} from '../folders/constants';
 import {
   FolderpathInfo,
   addRootnameToPath,
@@ -40,8 +41,8 @@ import {
   getFolderpathInfo,
 } from '../folders/utils';
 import {workspaceResourceFields} from '../utils';
-import {assertWorkspace, checkWorkspaceExists} from '../workspaces/utils';
-import {fileConstants} from './constants';
+import {assertRootname, assertWorkspace, checkWorkspaceExists} from '../workspaces/utils';
+import {kFileConstants} from './constants';
 import {getFileWithMatcher} from './getFilesWithMatcher';
 
 const filePresignedPathFields = getFields<PublicFilePresignedPath>({
@@ -130,15 +131,17 @@ export interface FilenameInfo {
 export function getFilenameInfo(providedName: string): FilenameInfo {
   providedName = providedName.startsWith('/') ? providedName.slice(1) : providedName;
   const [nameWithoutExtension, ...extensionList] = compact(
-    providedName.split(fileConstants.nameExtensionSeparator)
+    providedName.split(kFileConstants.nameExtensionSeparator)
   );
   let extension: string | undefined = extensionList.join(
-    fileConstants.nameExtensionSeparator
+    kFileConstants.nameExtensionSeparator
   );
+
+  const ext = path.posix.extname(providedName);
 
   // Handle file names without extension, seeing arr.join() would always produce
   // a string
-  if (extension === '' && !providedName.endsWith(fileConstants.nameExtensionSeparator)) {
+  if (extension === '' && !providedName.endsWith(kFileConstants.nameExtensionSeparator)) {
     extension = undefined;
   }
 
@@ -177,8 +180,8 @@ export function throwFilePresignedPathNotFound() {
 export async function getWorkspaceFromFilepath(filepath: string): Promise<Workspace> {
   const workspaceModel = kSemanticModels.workspace();
   const pathinfo = getFilepathInfo(filepath);
+  assertRootname(pathinfo.rootname);
   const workspace = await workspaceModel.getByRootname(pathinfo.rootname);
-
   appAssert(
     workspace,
     kReuseableErrors.workspace.withRootnameNotFound(pathinfo.rootname)
@@ -213,8 +216,8 @@ export function stringifyFilenamepath(
   rootname?: string
 ) {
   const name =
-    file.namepath.join(kFolderConstants.separator) +
-    (file.extension ? `.${file.extension}` : '');
+    pathJoin(file.namepath) +
+    (file.extension ? `${kFileConstants.nameExtensionSeparator}${file.extension}` : '');
   return rootname ? addRootnameToPath(name, rootname) : name;
 }
 
@@ -334,7 +337,7 @@ export async function ingestFileByFilepath(props: {
       return await provider.describeFile({
         mount,
         workspaceId: workspace!.resourceId,
-        filepath: pathinfo.namepath.join(kFolderConstants.separator),
+        filepath: pathJoin(pathinfo.namepath),
       });
     })
   );

@@ -3,6 +3,7 @@ import {compact, first, isNumber} from 'lodash';
 import {appAssert} from '../../../utils/assertion';
 import {noopAsync, pathJoin, pathSplit} from '../../../utils/fns';
 import {AnyFn} from '../../../utils/types';
+import {kUtilsInjectables} from '../injection/injectables';
 import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
@@ -252,7 +253,7 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
         stopIndex < children.length - 1 ? stopIndex : undefined;
       return {continuationToken: nextContinuationToken};
     } catch (error) {
-      console.error(error);
+      kUtilsInjectables.logger().error(error);
       return {};
     }
   };
@@ -267,7 +268,7 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
           const stat = await fse.promises.stat(nextPath);
           return process(stat, nextPath, index);
         } catch (error) {
-          console.error(error);
+          kUtilsInjectables.logger().error(error);
           return undefined;
         }
       })

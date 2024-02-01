@@ -224,7 +224,13 @@ export interface BaseDataProvider<
 }
 
 export interface DataProviderUtils {
-  withTxn<TResult>(fn: AnyFn<[txn: unknown], Promise<TResult>>): Promise<TResult>;
+  withTxn<TResult>(
+    fn: AnyFn<
+      [txn: unknown],
+      Promise<TResult>
+    > /** Whether or not to reuse an existing txn from async local storage. */,
+    reuseAsyncLocalTxn?: boolean
+  ): Promise<TResult>;
 }
 
 export type AgentTokenQuery = DataQuery<AgentToken>;

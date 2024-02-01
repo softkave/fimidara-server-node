@@ -3,8 +3,9 @@ import 'reflect-metadata';
 import {container} from 'tsyringe';
 import {DbConnection} from '../../../db/connection';
 import {FimidaraRuntimeConfig, FimidaraSuppliedConfig} from '../../../resources/config';
+import {LockStore} from '../../../utils/LockStore';
+import {PromiseStore} from '../../../utils/PromiseStore';
 import {DisposablesStore} from '../../../utils/disposables';
-import {PromiseStore} from '../PromiseStore';
 import {SessionContextType} from '../SessionContext';
 import {AsyncLocalStorageUtils} from '../asyncLocalStorage';
 import {
@@ -31,6 +32,7 @@ import {
 import {IEmailProviderContext} from '../email/types';
 import {SecretsManagerProvider} from '../encryption/types';
 import {FileProviderResolver} from '../file/types';
+import {Logger} from '../logger/types';
 import {UsageRecordLogicProvider} from '../logic/UsageRecordLogicProvider';
 import {SemanticAgentTokenProvider} from '../semantic/agentToken/types';
 import {SemanticAssignedItemProvider} from '../semantic/assignedItem/types';
@@ -167,7 +169,9 @@ export const kUtilsInjectables = {
   dbConnection: () => container.resolve<DbConnection>(kInjectionKeys.dbConnection),
   email: () => container.resolve<IEmailProviderContext>(kInjectionKeys.email),
   promises: () => container.resolve<PromiseStore>(kInjectionKeys.promises),
+  locks: () => container.resolve<LockStore>(kInjectionKeys.locks),
   disposables: () => container.resolve<DisposablesStore>(kInjectionKeys.disposables),
   usageLogic: () =>
     container.resolve<UsageRecordLogicProvider>(kInjectionKeys.usageLogic),
+  logger: () => container.resolve<Logger>(kInjectionKeys.logger),
 };

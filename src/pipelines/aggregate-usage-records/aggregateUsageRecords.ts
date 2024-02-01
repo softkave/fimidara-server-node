@@ -13,11 +13,11 @@ import {
   UsageSummationTypeMap,
 } from '../../definitions/usageRecord';
 import {UsageThresholdLock, Workspace} from '../../definitions/workspace';
+import {kUtilsInjectables} from '../../endpoints/contexts/injection/injectables';
 import {usageRecordConstants} from '../../endpoints/usageRecords/constants';
 import {kSystemSessionAgent} from '../../utils/agent';
 import {getTimestamp} from '../../utils/dateFns';
 import {getNewIdForResource} from '../../utils/resource';
-import {IFimidaraPipelineRunInfo} from '../utils';
 
 /**
  * Aggregates usage records by month by category and total.
@@ -274,31 +274,25 @@ async function aggregateDroppedRecordsInWorkspace(
 
 async function tryAggregateRecordsInWorkspace(
   connection: Connection,
-  workspace: Workspace,
-  runInfo: IFimidaraPipelineRunInfo
+  workspace: Workspace
 ) {
   try {
     await aggregateRecordsInWorkspaceAndLockIfUsageExceeded(connection, workspace);
     await aggregateDroppedRecordsInWorkspace(connection, workspace);
   } catch (e) {
-    runInfo.logger.info(
+    kUtilsInjectables.logger().log(
       `
       Error processing workspace usage records 
       Workspace ID: ${workspace.resourceId} 
       Rootname: ${workspace.rootname}
       `
     );
-    runInfo.logger.error(e);
+    kUtilsInjectables.logger().error(e);
   }
 }
 
-export async function aggregateRecords(
-  connection: Connection,
-  runInfo: IFimidaraPipelineRunInfo
-) {
+export async function aggregateRecords(connection: Connection) {
   const workspaces = await getWorkspaces(connection);
-  const promises = workspaces.map(w =>
-    tryAggregateRecordsInWorkspace(connection, w, runInfo)
-  );
+  const promises = workspaces.map(w => tryAggregateRecordsInWorkspace(connection, w));
   await Promise.all(promises);
 }

@@ -1,5 +1,6 @@
 import {expressjwt} from 'express-jwt';
 import {endpointConstants} from './endpoints/constants';
+import {globalSetup} from './endpoints/contexts/globalUtils';
 import {kUtilsInjectables} from './endpoints/contexts/injection/injectables';
 import {setupFimidaraHttpEndpoints} from './endpoints/endpoints';
 import {startRunner} from './endpoints/jobs/runner';
@@ -7,14 +8,10 @@ import {setupApp} from './endpoints/runtime/initAppSetup';
 import handleErrors from './middlewares/handleErrors';
 import httpToHttps from './middlewares/httpToHttps';
 import {appAssert} from './utils/assertion';
-import {serverLogger} from './utils/logger/loggerUtils';
 import cors = require('cors');
 import express = require('express');
 import http = require('http');
 import process = require('process');
-import {globalSetup} from './endpoints/contexts/globalUtils';
-
-serverLogger.info('server initialization');
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -53,13 +50,14 @@ function setupJWT() {
 }
 
 async function setup() {
+  kUtilsInjectables.logger().log('server initialization');
   await globalSetup();
 
   // Run scripts here
   // End of scripts
 
   const defaultWorkspace = await setupApp();
-  serverLogger.info(`Default workspace ID - ${defaultWorkspace.resourceId}`);
+  kUtilsInjectables.logger().log(`Default workspace ID - ${defaultWorkspace.resourceId}`);
 
   setupJWT();
   setupFimidaraHttpEndpoints(app);
@@ -70,9 +68,9 @@ async function setup() {
   appAssert(suppliedConfig.appName);
 
   httpServer.listen(suppliedConfig.port, async () => {
-    serverLogger.info(suppliedConfig.appName);
-    serverLogger.info(process.env.NODE_ENV);
-    serverLogger.info(`server listening on port ${suppliedConfig.port}`);
+    kUtilsInjectables.logger().log(suppliedConfig.appName);
+    kUtilsInjectables.logger().log(process.env.NODE_ENV);
+    kUtilsInjectables.logger().log(`server listening on port ${suppliedConfig.port}`);
 
     // start job runner
     kUtilsInjectables.promises().forget(startRunner());
@@ -84,13 +82,13 @@ setup();
 
 // TODO: move these error logs to mongo
 process.on('uncaughtException', (exp, origin) => {
-  serverLogger.info('uncaughtException');
-  serverLogger.error(exp);
-  serverLogger.info(origin);
+  kUtilsInjectables.logger().log('uncaughtException');
+  kUtilsInjectables.logger().error(exp);
+  kUtilsInjectables.logger().log(origin);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  serverLogger.info('unhandledRejection');
-  serverLogger.info(promise);
-  serverLogger.info(reason);
+  kUtilsInjectables.logger().log('unhandledRejection');
+  kUtilsInjectables.logger().log(promise);
+  kUtilsInjectables.logger().log(reason);
 });

@@ -1,3 +1,4 @@
+import {AppShard} from '../../definitions/app';
 import {ExportedHttpEndpointWithMddocDefinition} from '../types';
 import {GetJobStatusEndpoint} from './getJobStatus/types';
 
@@ -25,11 +26,16 @@ export const kRunnerWorkerMessageType = {
   ack: 'ack',
   /** Instruments the worker thread to fail, primarily used for testing. */
   fail: 'fail',
+  exit: 'exit',
+  getPickFromShards: 'getPickFromShards',
+  setPickFromShards: 'setPickFromShards',
 } as const;
 export const kRunnerWorkerMessageTypeList = Object.values(kRunnerWorkerMessageType);
 
 export interface ChildRunnerWorkerData {
   runnerId: string;
+  activeRunnerIds: string[];
+  pickFromShards: AppShard[];
 }
 
 export interface BaseRunnerMessage {
@@ -45,12 +51,22 @@ export type RunnerWorkerMessage = BaseRunnerMessage &
         activeRunnerIds: string[];
       }
     | {
+        type: typeof kRunnerWorkerMessageType.setPickFromShards;
+        pickFromShards: AppShard[];
+      }
+    | {
         type: typeof kRunnerWorkerMessageType.getActiveRunnerIds;
+      }
+    | {
+        type: typeof kRunnerWorkerMessageType.getPickFromShards;
       }
     | {
         type: typeof kRunnerWorkerMessageType.ack;
       }
     | {
         type: typeof kRunnerWorkerMessageType.fail;
+      }
+    | {
+        type: typeof kRunnerWorkerMessageType.exit;
       }
   );

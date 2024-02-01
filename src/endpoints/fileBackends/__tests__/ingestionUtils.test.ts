@@ -1,12 +1,11 @@
 import {ResolvedMountEntry} from '../../../definitions/fileBackend';
 import {kAppResourceType} from '../../../definitions/system';
-import {pathSplit} from '../../../utils/fns';
+import {pathJoin, pathSplit} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {FileQuery, FolderQuery} from '../../contexts/data/types';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {FileQueries} from '../../files/queries';
 import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils';
-import {kFolderConstants} from '../../folders/constants';
 import {FolderQueries} from '../../folders/queries';
 import {generateTestFilepath} from '../../testUtils/generate/file';
 import {
@@ -46,7 +45,7 @@ describe('mount ingestion utils', () => {
     );
     const pFolderNamepaths = pFolders.map(pFolder => pFolder.folderpath);
     const insertedFoldersNamepaths = insertedFolders.map(folder =>
-      folder.namepath.join(kFolderConstants.separator)
+      pathJoin(folder.namepath)
     );
     expect(pFolderNamepaths).toEqual(expect.arrayContaining(insertedFoldersNamepaths));
   });
@@ -56,7 +55,7 @@ describe('mount ingestion utils', () => {
     const [workspace] = await generateAndInsertWorkspaceListForTest(/** count */ 1);
     const folderpath = generateTestFolderpath({length: 5});
     const pFolders = generatePersistedFolderDescriptionListForTest(/** count */ 1, {
-      folderpath: folderpath.join(kFolderConstants.separator),
+      folderpath: pathJoin(folderpath),
     });
 
     await ingestPersistedFolders(sessionAgent, workspace, pFolders);
@@ -68,10 +67,10 @@ describe('mount ingestion utils', () => {
       })
     );
     const pFolderNamepaths = folderpath.map((name, index) =>
-      folderpath.slice(0, index + 1).join(kFolderConstants.separator)
+      pathJoin(folderpath.slice(0, index + 1))
     );
     const insertedFoldersNamepaths = insertedFolders.map(folder =>
-      folder.namepath.join(kFolderConstants.separator)
+      pathJoin(folder.namepath)
     );
     expect(pFolderNamepaths).toEqual(expect.arrayContaining(insertedFoldersNamepaths));
   });
@@ -84,7 +83,7 @@ describe('mount ingestion utils', () => {
       parentId: null,
     });
     const pFolders = generatePersistedFolderDescriptionListForTest(/** count */ 1, {
-      folderpath: folder.namepath.join(kFolderConstants.separator),
+      folderpath: pathJoin(folder.namepath),
     });
 
     await ingestPersistedFolders(sessionAgent, workspace, pFolders);
@@ -168,7 +167,7 @@ describe('mount ingestion utils', () => {
       folderpath.slice(0, index + 1)
     );
     const insertedFoldersNamepaths = insertedFolders.map(folder =>
-      folder.namepath.join(kFolderConstants.separator)
+      pathJoin(folder.namepath)
     );
     expect(pFolderNamepaths).toEqual(expect.arrayContaining(insertedFoldersNamepaths));
   });

@@ -5,6 +5,9 @@ export const kAppMessages = {
     notFound(id?: string) {
       return id ? `Workspace with ID ${id} not found.` : 'Workspace not found.';
     },
+    noRootname() {
+      return 'Workspace rootname not provided.';
+    },
     withRootnameNotFound(rootname?: string) {
       return rootname
         ? `Workspace with rootname ${rootname} not found.`

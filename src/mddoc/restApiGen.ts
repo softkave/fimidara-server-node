@@ -1,3 +1,4 @@
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
 import {restApiEndpointsInfoGen} from './restApiEndpointsInfoGen';
 import {restApiTableOfContentGen} from './restApiTableOfContentGen';
 
@@ -6,5 +7,5 @@ async function main() {
 }
 
 main()
-  .then(() => console.log('mddoc gen rest api complete'))
-  .catch(console.error.bind(console));
+  .then(() => kUtilsInjectables.logger().log('mddoc gen rest api complete'))
+  .catch(kUtilsInjectables.logger().error.bind(kUtilsInjectables.logger()));

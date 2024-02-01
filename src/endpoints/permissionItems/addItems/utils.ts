@@ -1,5 +1,6 @@
 import {forEach, get, has, set} from 'lodash';
 import {File} from '../../../definitions/file';
+import {Folder} from '../../../definitions/folder';
 import {
   PermissionAction,
   PermissionItem,
@@ -24,7 +25,8 @@ import {getResourceTypeFromId, newWorkspaceResource} from '../../../utils/resour
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {InvalidRequestError} from '../../errors';
-import {kFolderConstants} from '../../folders/constants';
+import {stringifyFilenamepath} from '../../files/utils';
+import {stringifyFoldernamepath} from '../../folders/utils';
 import {PermissionItemInputTarget} from '../types';
 import {
   getPermissionItemEntities,
@@ -72,13 +74,10 @@ export const INTERNAL_addPermissionItems = async (
   ]);
 
   const indexBynamepath = (item: ResourceWrapper) => {
-    if (
-      item.resourceType === kAppResourceType.File ||
-      item.resourceType === kAppResourceType.Folder
-    ) {
-      return (item.resource as unknown as Pick<File, 'namepath'>).namepath.join(
-        kFolderConstants.separator
-      );
+    if (item.resourceType === kAppResourceType.File) {
+      return stringifyFilenamepath(item.resource as unknown as File);
+    } else if (item.resourceType === kAppResourceType.Folder) {
+      return stringifyFoldernamepath(item.resource as unknown as Folder);
     } else {
       return '';
     }

@@ -7,7 +7,7 @@ const multipartLimits: ConnectBusboyOptions['limits'] = {
   fileSize: maxFileSizeInBytes,
   files: 1,
 };
-export const fileConstants = {
+export const kFileConstants = {
   maxFileSizeInBytes,
   multipartLimits,
   nameExtensionSeparator: '.',

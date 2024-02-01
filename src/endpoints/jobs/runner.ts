@@ -2,12 +2,15 @@ import {ReadonlyDeep} from 'type-fest';
 import {Worker, isMainThread, parentPort, workerData} from 'worker_threads';
 import {AppShard, kAppPresetShards, kAppType} from '../../definitions/app';
 import {kAppResourceType} from '../../definitions/system';
+import {LockableResource} from '../../utils/LockStore';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {TimeoutError} from '../../utils/errors';
-import {callAfterAsync} from '../../utils/fns';
+import {callAfterAsync, loopAsync} from '../../utils/fns';
 import {getNewId, getNewIdForResource} from '../../utils/resource';
-import {AnyFn, AnyObject} from '../../utils/types';
+import {AnyFn, AnyObject, Omit1} from '../../utils/types';
+import {AppQuery} from '../contexts/data/types';
+import {globalDispose, globalSetup} from '../contexts/globalUtils';
 import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
 import {
   BaseRunnerMessage,
@@ -60,10 +63,13 @@ let recordHeartbeatIntervalHandle: NodeJS.Timeout | undefined = undefined;
 /** Shards to pick jobs from. Job sharding allow us to discriminate and pick
  * only from a subset of jobs. A primary advantage of this is not picking stale
  * jobs from tests. */
-let pickFromShards: Array<string | number> = [kAppPresetShards.fimidaraMain];
+let pickFromShards: Array<AppShard> = [kAppPresetShards.fimidaraMain];
 
 /** On which shard should we register our runners in DB. */
 let shard: AppShard = kAppPresetShards.fimidaraMain;
+
+/** Whether this runner thread is ended or not. */
+const runnerEnded = new LockableResource<boolean>(false);
 
 /** Represents a list of message handlers to fan incoming messages to. Different
  * for parent, and worker threads. */
@@ -82,7 +88,12 @@ function tryGetRunnerId() {
   return isMainThread ? null : getWorkerData().runnerId;
 }
 
-export async function messageRunner<TMessage extends AnyObject = AnyObject>(
+export async function messageRunner<
+  TMessage extends Omit1<RunnerWorkerMessage, keyof BaseRunnerMessage> = Omit1<
+    RunnerWorkerMessage,
+    keyof BaseRunnerMessage
+  >,
+>(
   port: Pick<Worker, 'postMessage'> | undefined | null,
   message: Omit<TMessage, keyof BaseRunnerMessage>,
   /** If true, waits until message is ack-ed before resolving. Otherwise resolve
@@ -147,7 +158,9 @@ function wrapWorkerHandler(
   handler: AnyFn<[ChildRunnerWorkerData, ...unknown[]]>,
   runnerData: ChildRunnerWorkerData
 ) {
-  return (...args: unknown[]) => handler(runnerData, ...args);
+  return (...args: unknown[]) => {
+    handler(runnerData, ...args);
+  };
 }
 
 function getWorker(id: string) {
@@ -161,24 +174,25 @@ async function handleRunnerOnline(runnerData: ChildRunnerWorkerData) {
 
   try {
     await insertRunnerInDB({shard, resourceId: runnerData.runnerId});
-    workers[runnerData.runnerId] = worker;
     activeRunnerIds.push(runnerData.runnerId);
   } catch (error) {
-    console.error(error);
+    kUtilsInjectables.logger().error(error);
+    delete workers[runnerData.runnerId];
     await worker.terminate();
 
     // TODO: ensure runners count?
   }
 }
 
-function handleRunnerMessage(message: unknown) {
+async function handleRunnerMessage(message: unknown) {
   if (!isRunnerWorkerMessage(message)) {
     return;
   }
 
-  let ackMessage: BaseRunnerMessage | undefined = {
+  let ackMessage: RunnerWorkerMessage | undefined = {
     messageId: message.messageId,
     runnerId: tryGetRunnerId(),
+    type: kRunnerWorkerMessageType.ack,
   };
 
   // Not all message types are handled here, like `setActiveRunnerIds`, some are
@@ -188,8 +202,18 @@ function handleRunnerMessage(message: unknown) {
     case kRunnerWorkerMessageType.getActiveRunnerIds: {
       const response: RunnerWorkerMessage = {
         ...ackMessage,
+        activeRunnerIds,
         type: kRunnerWorkerMessageType.setActiveRunnerIds,
-        activeRunnerIds: activeRunnerIds,
+      };
+      ackMessage = response;
+      break;
+    }
+
+    case kRunnerWorkerMessageType.getPickFromShards: {
+      const response: RunnerWorkerMessage = {
+        ...ackMessage,
+        pickFromShards,
+        type: kRunnerWorkerMessageType.setPickFromShards,
       };
       ackMessage = response;
       break;
@@ -202,6 +226,13 @@ function handleRunnerMessage(message: unknown) {
     case kRunnerWorkerMessageType.ack: {
       // We do not need to ack an ack message. Also, to prevent infinite acking!
       ackMessage = undefined;
+      break;
+    }
+
+    case kRunnerWorkerMessageType.exit: {
+      await runnerEnded.run(() => true);
+      await globalDispose();
+      break;
     }
   }
 
@@ -211,12 +242,14 @@ function handleRunnerMessage(message: unknown) {
   }
 }
 
-function handleRunnerError(runnerData: ChildRunnerWorkerData) {
+function handleRunnerError(runnerData: ChildRunnerWorkerData, error?: unknown) {
+  kUtilsInjectables.logger().error(error);
   removeExistingRunner(runnerData.runnerId);
-  ensureRunnerCount();
+  // TODO: ensure runner count
 }
 
 function handleRunnerExit(runnerData: ChildRunnerWorkerData) {
+  // TODO: how & where to run globalDispose() when worker is done
   removeExistingRunner(runnerData.runnerId);
 }
 
@@ -228,14 +261,24 @@ function removeExistingRunner(id: string) {
 async function startNewRunner() {
   return new Promise<void>(resolve => {
     const runnerData: ChildRunnerWorkerData = {
+      activeRunnerIds,
+      pickFromShards,
       runnerId: getNewIdForResource(kAppResourceType.App),
     };
-    const worker = new Worker(__filename, {workerData: runnerData});
+    const runnerFilepath = kUtilsInjectables.suppliedConfig().runnerLocation;
+    appAssert(runnerFilepath);
+    const worker = new Worker(runnerFilepath, {workerData: runnerData});
 
+    workers[runnerData.runnerId] = worker;
     worker.on('message', handleMessage);
     worker.on(
       'online',
-      wrapWorkerHandler(callAfterAsync(handleRunnerOnline, resolve), runnerData)
+      wrapWorkerHandler(
+        callAfterAsync(handleRunnerOnline, () => {
+          resolve();
+        }),
+        runnerData
+      )
     );
     worker.on('error', wrapWorkerHandler(handleRunnerError, runnerData));
     worker.on('exit', wrapWorkerHandler(handleRunnerExit, runnerData));
@@ -243,56 +286,46 @@ async function startNewRunner() {
 }
 
 async function refreshActiveRunnerIds() {
-  const runners = await kSemanticModels.app().getManyByQuery({
+  const activeFromMs = getTimestamp() - heartbeatInterval * activeRunnerHeartbeatFactor;
+  const q: AppQuery = {
     type: kAppType.runner,
-    lastUpdatedAt: {
-      $gte: getTimestamp() - heartbeatInterval * activeRunnerHeartbeatFactor,
-    },
-  });
-
+    lastUpdatedAt: {$gte: activeFromMs},
+  };
+  const runners = await kSemanticModels.app().getManyByQuery(q);
   activeRunnerIds = runners.map(runner => runner.resourceId);
 }
 
 async function recordHeartbeat() {
-  await kSemanticModels
-    .utils()
-    .withTxn(opts =>
-      kSemanticModels
-        .app()
-        .updateManyByQuery(
-          {resourceId: {$in: Object.keys(workers)}},
-          {lastUpdatedAt: getTimestamp()},
-          opts
-        )
-    );
+  await kSemanticModels.utils().withTxn(async opts => {
+    const q: AppQuery = {resourceId: {$in: Object.keys(workers)}};
+    await kSemanticModels
+      .app()
+      .updateManyByQuery(q, {lastUpdatedAt: getTimestamp()}, opts);
+  });
   await refreshActiveRunnerIds();
 }
 
 async function stopExistingRunner(id: string) {
   await workers[id]?.terminate();
+  removeExistingRunner(id);
 }
 
-function ensureRunnerCount() {
+async function ensureRunnerCount() {
   async function internalFn() {
     const workerIds = Object.keys(workers);
     const workerCount = workerIds.length;
 
     if (workerCount < runnerCount) {
-      await Promise.all(
-        new Array(runnerCount - workerCount).fill(0).map(() => startNewRunner)
-      );
+      const count = runnerCount - workerCount;
+      await loopAsync(startNewRunner, count, 'all');
     } else {
       await Promise.all(workerIds.slice(runnerCount).map(stopExistingRunner));
     }
   }
 
   if (isMainThread) {
-    return kUtilsInjectables
-      .promises()
-      .executeAfter(internalFn, kEnsureRunnerCountPromiseName)
-      .get(kEnsureRunnerCountPromiseName);
+    await kUtilsInjectables.locks().run(kEnsureRunnerCountPromiseName, internalFn);
   }
-  return undefined;
 }
 
 function getWorkerData() {
@@ -301,40 +334,97 @@ function getWorkerData() {
 }
 
 async function refreshChildRunnerActiveRunnerIds() {
-  const message: RunnerWorkerMessage = {
-    type: kRunnerWorkerMessageType.getActiveRunnerIds,
-    runnerId: tryGetRunnerId(),
-  };
-  const ackMessage = await messageRunner(
-    parentPort,
-    message,
-    /** expectAck */ true,
-    /** timeout, 5 secs */ 5_000
-  );
+  try {
+    const message: RunnerWorkerMessage = {
+      type: kRunnerWorkerMessageType.getActiveRunnerIds,
+      runnerId: tryGetRunnerId(),
+    };
+    const ackMessage = await messageRunner(
+      parentPort,
+      message,
+      /** expectAck */ true,
+      /** timeout, 5 secs */ 5_000
+    );
 
-  if (
-    isRunnerWorkerMessage(ackMessage) &&
-    ackMessage.type === kRunnerWorkerMessageType.setActiveRunnerIds
-  ) {
-    activeRunnerIds = ackMessage.activeRunnerIds;
+    if (
+      isRunnerWorkerMessage(ackMessage) &&
+      ackMessage.type === kRunnerWorkerMessageType.setActiveRunnerIds
+    ) {
+      activeRunnerIds = ackMessage.activeRunnerIds;
+    }
+  } catch (error) {
+    kUtilsInjectables.logger().error(error);
+  }
+}
+
+async function refreshChildRunnerPickFromShards() {
+  try {
+    const message: RunnerWorkerMessage = {
+      type: kRunnerWorkerMessageType.getPickFromShards,
+      runnerId: tryGetRunnerId(),
+    };
+    const ackMessage = await messageRunner(
+      parentPort,
+      message,
+      /** expectAck */ true,
+      /** timeout, 5 secs */ 5_000
+    );
+
+    if (
+      isRunnerWorkerMessage(ackMessage) &&
+      ackMessage.type === kRunnerWorkerMessageType.setPickFromShards
+    ) {
+      pickFromShards = ackMessage.pickFromShards;
+    }
+  } catch (error) {
+    kUtilsInjectables.logger().error(error);
   }
 }
 
 async function beginConsumeJobs() {
-  refreshChildRunnerActiveRunnerIds();
-  const job = await getNextJob(activeRunnerIds, getWorkerData().runnerId, pickFromShards);
+  await runnerEnded.run(async isEnded => {
+    if (isEnded) {
+      return;
+    }
 
-  if (job) {
-    await runJob(job);
-  }
+    kUtilsInjectables.promises().forget(refreshChildRunnerActiveRunnerIds());
+    kUtilsInjectables.promises().forget(refreshChildRunnerPickFromShards);
+    const job = await getNextJob(
+      activeRunnerIds,
+      getWorkerData().runnerId,
+      pickFromShards
+    );
 
-  beginConsumeJobs();
+    if (job) {
+      await runJob(job);
+    }
+
+    setTimeout(beginConsumeJobs, 0);
+  });
 }
 
 export async function startRunner() {
   if (isMainThread) {
     await ensureRunnerCount();
-    recordHeartbeatIntervalHandle = setInterval(recordHeartbeat, heartbeatInterval);
+
+    if (!recordHeartbeatIntervalHandle) {
+      recordHeartbeatIntervalHandle = setInterval(recordHeartbeat, heartbeatInterval);
+    }
+  }
+}
+
+export async function stopWorker(worker: Worker) {
+  try {
+    await messageRunner(
+      worker,
+      {type: kRunnerWorkerMessageType.exit},
+      /** expectAck */ true,
+      /** ack timeout */ 10_000
+    );
+  } catch (error) {
+    kUtilsInjectables.logger().error(error);
+  } finally {
+    await worker.terminate();
   }
 }
 
@@ -342,9 +432,10 @@ export async function stopRunner() {
   if (isMainThread) {
     if (recordHeartbeatIntervalHandle) {
       clearInterval(recordHeartbeatIntervalHandle);
+      recordHeartbeatIntervalHandle = undefined;
     }
 
-    await Promise.all(Object.values(workers).map(worker => worker.terminate()));
+    await Promise.allSettled(Object.values(workers).map(stopWorker));
   }
 }
 
@@ -365,15 +456,9 @@ export function getActiveRunnerHeartbeatFactor() {
   return activeRunnerHeartbeatFactor;
 }
 
-export function setRunnerCount(count: number, ensureCount = false) {
+export function setRunnerCount(count: number) {
   appAssert(count >= 0);
   runnerCount = count;
-
-  if (ensureCount) {
-    return ensureRunnerCount();
-  }
-
-  return undefined;
 }
 
 export function getRunnerCount() {
@@ -404,10 +489,23 @@ export function getActiveRunnerIds(): ReadonlyDeep<typeof activeRunnerIds> {
   return activeRunnerIds;
 }
 
-if (isMainThread) {
+function parentMain() {
   registerMessageHandler(handleRunnerMessage);
-} else {
+}
+
+async function workerMain() {
+  const workerData = getWorkerData();
+  activeRunnerIds = workerData.activeRunnerIds;
+  pickFromShards = workerData.pickFromShards;
+
+  await globalSetup();
   registerMessageHandler(handleRunnerMessage);
   parentPort?.on('message', handleMessage);
   beginConsumeJobs();
+}
+
+if (isMainThread) {
+  parentMain();
+} else {
+  workerMain();
 }

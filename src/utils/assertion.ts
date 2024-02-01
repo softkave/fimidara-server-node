@@ -1,9 +1,9 @@
 import {isString} from 'lodash';
 import OperationError from './OperationError';
 import {ServerError} from './errors';
-import {serverLogger} from './logger/loggerUtils';
 import {kReuseableErrors} from './reusableErrors';
 import {AnyFn} from './types';
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
 
 export function appAssert(
   value: unknown,
@@ -12,7 +12,7 @@ export function appAssert(
 ): asserts value {
   if (!value) {
     if (logMessage) {
-      serverLogger.error(logMessage);
+      kUtilsInjectables.logger().error(logMessage);
     }
 
     if (isString(response)) {

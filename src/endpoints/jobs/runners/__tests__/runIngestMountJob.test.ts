@@ -1,14 +1,15 @@
 import {faker} from '@faker-js/faker';
 import {kFileBackendType} from '../../../../definitions/fileBackend';
 import {IngestFolderpathJobParams, kJobType} from '../../../../definitions/job';
+import {pathJoin} from '../../../../utils/fns';
 import {getNewId} from '../../../../utils/resource';
 import {kSemanticModels} from '../../../contexts/injection/injectables';
-import {kFolderConstants} from '../../../folders/constants';
 import {
   generateAndInsertFileBackendConfigListForTest,
   generateAndInsertFileBackendMountListForTest,
 } from '../../../testUtils/generate/fileBackend';
 import {generateTestFolderpath} from '../../../testUtils/generate/folder';
+import {completeTests} from '../../../testUtils/helpers/test';
 import {
   initTests,
   insertUserForTest,
@@ -16,7 +17,6 @@ import {
 } from '../../../testUtils/testUtils';
 import {queueJobs} from '../../utils';
 import {runIngestMountJob} from '../runIngestMountJob';
-import {completeTests} from '../../../testUtils/helpers/test';
 
 beforeAll(async () => {
   await initTests();
@@ -34,7 +34,7 @@ describe('runIngestMountJob', () => {
     const mountFolderpath = generateTestFolderpath({
       length: faker.number.int({min: 0, max: 2}),
     });
-    const mountedFromString = mountedFrom.join(kFolderConstants.separator);
+    const mountedFromString = pathJoin(mountedFrom);
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const [config] = await generateAndInsertFileBackendConfigListForTest(/** count */ 1, {
@@ -56,7 +56,7 @@ describe('runIngestMountJob', () => {
           shard,
           type: kJobType.ingestFolderpath,
           params: {
-            ingestFrom: mountedFromString,
+            ingestFrom: mountedFrom,
             agentId: userToken.resourceId,
             mountId: mount.resourceId,
           },
@@ -67,6 +67,7 @@ describe('runIngestMountJob', () => {
     await runIngestMountJob(job);
 
     const injestFolderpathJobs = await kSemanticModels.job().getManyByQuery({
+      shard,
       type: kJobType.ingestFolderpath,
       params: {
         $objMatch: {

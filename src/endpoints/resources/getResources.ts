@@ -10,7 +10,7 @@ import {
 } from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {ServerError} from '../../utils/errors';
-import {isObjectEmpty, pathSplit, toArray} from '../../utils/fns';
+import {isObjectEmpty, pathJoin, pathSplit, toArray} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
 import {getResourceTypeFromId} from '../../utils/resource';
 import {PartialRecord} from '../../utils/types';
@@ -22,7 +22,6 @@ import {
 import {kSemanticModels} from '../contexts/injection/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {getFilepathInfo, stringifyFilenamepath} from '../files/utils';
-import {kFolderConstants} from '../folders/constants';
 import {getFolderpathInfo, stringifyFoldernamepath} from '../folders/utils';
 import {checkResourcesBelongsToWorkspace} from './containerCheckFns';
 import {resourceListWithAssignedItems} from './resourceWithAssignedItems';
@@ -152,13 +151,11 @@ function groupItemsToFetch(
       });
     } else if (item.filepath) {
       toArray(item.filepath).forEach(filepath => {
-        filepathsMap[pathSplit(filepath).slice(1).join(kFolderConstants.separator)] =
-          item.action;
+        filepathsMap[pathJoin(pathSplit(filepath).slice(1))] = item.action;
       });
     } else if (item.folderpath) {
       toArray(item.folderpath).forEach(folderpath => {
-        folderpathsMap[pathSplit(folderpath).slice(1).join(kFolderConstants.separator)] =
-          item.action;
+        folderpathsMap[pathJoin(pathSplit(folderpath).slice(1))] = item.action;
       });
     } else if (item.workspaceRootname) {
       workspaceRootname = {

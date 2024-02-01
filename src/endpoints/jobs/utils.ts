@@ -157,14 +157,7 @@ export async function completeJob(
         },
         opts
       ),
-      jobsModel.existsByQuery(
-        {
-          parents: jobId,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          status: {$eq: kJobStatus.failed},
-        },
-        opts
-      ),
+      jobsModel.existsByQuery({parents: jobId, status: {$eq: kJobStatus.failed}}, opts),
     ]);
 
     if (!job) {
@@ -224,13 +217,13 @@ export async function runJob(job: Job) {
     } else if (job.type === kJobType.fail) {
       throw new Error('Fail job.');
     } else {
-      console.log(`unknown job type ${job.type}`);
+      kUtilsInjectables.logger().log(`unknown job type ${job.type}`);
       return undefined;
     }
 
     return await completeJob(job.resourceId);
   } catch (error: unknown) {
-    console.error(error);
+    kUtilsInjectables.logger().error(error);
     return await completeJob(job.resourceId, kJobStatus.failed);
   }
 }
@@ -357,8 +350,8 @@ export async function getNextJob(
 export async function waitForJob(
   jobId: string,
   bumpPriority: boolean | number = true,
-  timeoutMs = /** 5 minutes */ 5 * 60 * 1000,
-  pollIntervalMs = 100 // 100 milliseconds
+  timeoutMs = /** 5 mins */ 5 * 60 * 1000,
+  pollIntervalMs = 100 // 100ms
 ) {
   const startMs = getTimestamp();
 

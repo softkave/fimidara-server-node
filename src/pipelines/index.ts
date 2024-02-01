@@ -1,10 +1,10 @@
 import {CronJob} from 'cron';
 import {getMongoConnection} from '../db/connection';
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
 import {getSuppliedConfig} from '../resources/config';
 import {appAssert} from '../utils/assertion';
 import {aggregateRecords} from './aggregate-usage-records/aggregateUsageRecords';
 import {unlockUsageThresholdLocks} from './unlock-usage-threshold-locks/unlockUsageThresholdLocks';
-import {FimidaraPipelineNames, pipelineRunInfoFactory} from './utils';
 
 // TODO: move to worker thread
 // TODO: have a mechanism to preven the start of another until the previous is
@@ -12,12 +12,8 @@ import {FimidaraPipelineNames, pipelineRunInfoFactory} from './utils';
 const aggregateUsageRecordsJob = new CronJob(
   /** cronTime */ '0 */10 * * * *', // every 10 minutes
   /** onTick */ async () => {
-    const runInfo = pipelineRunInfoFactory({
-      job: FimidaraPipelineNames.AggregateUsageRecordsJob,
-    });
-
     try {
-      runInfo.logger.info('Aggregate usage records job started');
+      kUtilsInjectables.logger().log('Aggregate usage records job started');
       const config = await getSuppliedConfig();
       appAssert(config.mongoDbURI);
       appAssert(config.mongoDbDatabaseName);
@@ -26,13 +22,11 @@ const aggregateUsageRecordsJob = new CronJob(
         config.mongoDbURI,
         config.mongoDbDatabaseName
       );
-      await aggregateRecords(connection, runInfo);
-    } catch (err: any) {
-      runInfo.logger.info('Error in aggregate usage records job: ');
-      runInfo.logger.error(err);
+      await aggregateRecords(connection);
+    } catch (err: unknown) {
+      kUtilsInjectables.logger().log('Error in aggregate usage records job: ');
+      kUtilsInjectables.logger().error(err);
     }
-
-    await runInfo.logger.close();
   },
   /** onComplete */ null,
   /** startNow */ false,
@@ -46,12 +40,8 @@ const aggregateUsageRecordsJob = new CronJob(
 const unlockWorkspaceLocksJob = new CronJob(
   /** cronTime */ '0 0 */27 * *', // every month on the 27th at midnight
   /** onTick */ async () => {
-    const runInfo = pipelineRunInfoFactory({
-      job: FimidaraPipelineNames.UnlockWorkspaceLocksJob,
-    });
-
     try {
-      runInfo.logger.info('Unlocking workspace locks job started');
+      kUtilsInjectables.logger().log('Unlocking workspace locks job started');
       const config = await getSuppliedConfig();
       appAssert(config.mongoDbURI);
       appAssert(config.mongoDbDatabaseName);
@@ -62,12 +52,10 @@ const unlockWorkspaceLocksJob = new CronJob(
       );
 
       await unlockUsageThresholdLocks(connection);
-    } catch (error: any) {
-      runInfo.logger.info('Error in unlocking workspace locks job: ');
-      runInfo.logger.error(error);
+    } catch (error: unknown) {
+      kUtilsInjectables.logger().log('Error in unlocking workspace locks job: ');
+      kUtilsInjectables.logger().error(error);
     }
-
-    await runInfo.logger.close();
   },
   /** onComplete */ null,
   /** startNow */ false,

@@ -1,6 +1,6 @@
 import {tmpdir} from 'os';
 import {kFileBackendType} from '../../../../definitions/fileBackend';
-import {kFolderConstants} from '../../../folders/constants';
+import {pathJoin} from '../../../../utils/fns';
 import {generateTestFilepath} from '../../../testUtils/generate/file';
 import {
   generateAWSS3Credentials,
@@ -64,9 +64,7 @@ describe('utils', () => {
     const preMountPrefix = generateTestFolderpath({length: 2});
     const postMountPrefix = generateTestFolderpath({length: 2});
     const filepathMinusMountPath = generateTestFilepath({length: 2});
-    const filepath = mount.namepath
-      .concat(filepathMinusMountPath)
-      .join(kFolderConstants.separator);
+    const filepath = pathJoin(mount.namepath.concat(filepathMinusMountPath));
 
     const nativePath = defaultToNativePath(
       mount,
@@ -75,9 +73,12 @@ describe('utils', () => {
       postMountPrefix
     );
 
-    const extpectedNativePath = ([] as string[])
-      .concat(preMountPrefix, mount.mountedFrom, postMountPrefix, filepathMinusMountPath)
-      .join(kFolderConstants.separator);
+    const extpectedNativePath = pathJoin(
+      preMountPrefix,
+      mount.mountedFrom,
+      postMountPrefix,
+      filepathMinusMountPath
+    );
     expect(nativePath).toBe(extpectedNativePath);
   });
 
@@ -86,12 +87,13 @@ describe('utils', () => {
     const preMountPrefix = generateTestFolderpath({length: 2});
     const postMountPrefix = generateTestFolderpath({length: 2});
     const filepathMinusMountPath = generateTestFilepath({length: 2});
-    const filepath = mount.namepath
-      .concat(filepathMinusMountPath)
-      .join(kFolderConstants.separator);
-    const nativePath = ([] as string[])
-      .concat(preMountPrefix, mount.mountedFrom, postMountPrefix, filepathMinusMountPath)
-      .join(kFolderConstants.separator);
+    const filepath = pathJoin(mount.namepath.concat(filepathMinusMountPath));
+    const nativePath = pathJoin(
+      preMountPrefix,
+      mount.mountedFrom,
+      postMountPrefix,
+      filepathMinusMountPath
+    );
 
     const fimidaraPath = defaultToFimidaraPath(
       mount,

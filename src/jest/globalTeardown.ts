@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
 import {dropMongoDBAndEndConnection} from '../endpoints/testUtils/helpers/mongo';
 import {FimidaraSuppliedConfig, getSuppliedConfig} from '../resources/config';
-import {testLogger} from '../utils/logger/loggerUtils';
 
 async function dropMongoCollections(config: FimidaraSuppliedConfig) {
   const mongoURI = config.mongoDbURI;
@@ -11,7 +11,7 @@ async function dropMongoCollections(config: FimidaraSuppliedConfig) {
     return;
   }
 
-  testLogger.info(`Dropping db - ${appDbName}`);
+  kUtilsInjectables.logger().log(`Dropping db - ${appDbName}`);
 
   const connection = await mongoose
     .createConnection(mongoURI, {dbName: appDbName})
@@ -22,10 +22,10 @@ async function dropMongoCollections(config: FimidaraSuppliedConfig) {
 async function jestGlobalTeardown() {
   const config = await getSuppliedConfig();
   const dropMongoPromise = dropMongoCollections(config);
-  await Promise.all([dropMongoPromise, testLogger.close()]);
+  await Promise.all([dropMongoPromise]);
 
   // {@link https://nodejs.org/docs/latest/api/process.html#processgetactiveresourcesinfo}
-  // console.log('Active resources', getActiveResourcesInfo());
+  // kUtilsInjectables.logger().log('Active resources', getActiveResourcesInfo());
 
   // TODO: there are open handles keeping the test from closing, find and fix
   // them, then remove this

@@ -1,6 +1,5 @@
-import winston = require('winston');
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
 import {getTimestamp} from '../utils/dateFns';
-import {serverLogger} from '../utils/logger/loggerUtils';
 
 export enum FimidaraScriptNames {
   AddThresholdToExistingWorkspaces = 'script_AddThresholdToExistingWorkspaces',
@@ -9,21 +8,16 @@ export enum FimidaraScriptNames {
 export interface IFimidaraScriptRunInfo {
   job: FimidaraScriptNames;
   runId: string | number;
-  logger: winston.Logger;
 }
 
 export function scriptRunInfoFactory(
   opts: Pick<IFimidaraScriptRunInfo, 'job'>
 ): IFimidaraScriptRunInfo {
-  return {
-    job: opts.job,
-    runId: getTimestamp(),
-    logger: serverLogger,
-  };
+  return {job: opts.job, runId: getTimestamp()};
 }
 
 export function logScriptMessage(runInfo: IFimidaraScriptRunInfo, message: string) {
-  runInfo.logger.info(`script ${runInfo.job}: ${message}`);
+  kUtilsInjectables.logger().log(`script ${runInfo.job}: ${message}`);
 }
 
 export function logScriptStarted(runInfo: IFimidaraScriptRunInfo) {
@@ -37,6 +31,6 @@ export function logScriptSuccessful(runInfo: IFimidaraScriptRunInfo) {
 export function logScriptFailed(runInfo: IFimidaraScriptRunInfo, error?: Error) {
   logScriptMessage(runInfo, 'failed');
   if (error) {
-    runInfo.logger.error(error);
+    kUtilsInjectables.logger().error(error);
   }
 }

@@ -3,19 +3,19 @@ import {Readable} from 'stream';
 import {kValidationSchemas} from '../../utils/validationUtils';
 import {kFolderConstants} from '../folders/constants';
 import folderValidationSchemas from '../folders/validation';
-import {fileConstants} from './constants';
+import {kFileConstants} from './constants';
 
-const fileSizeInBytes = Joi.number().min(0).max(fileConstants.maxFileSizeInBytes);
-const mimetype = Joi.string().max(fileConstants.maxMimeTypeCharLength);
-const encoding = Joi.string().max(fileConstants.maxEncodingCharLength);
-const extension = Joi.string().max(fileConstants.maxExtensionCharLength);
-const buffer = Joi.binary().max(fileConstants.maxFileSizeInBytes);
+const fileSizeInBytes = Joi.number().min(0).max(kFileConstants.maxFileSizeInBytes);
+const mimetype = Joi.string().max(kFileConstants.maxMimeTypeCharLength);
+const encoding = Joi.string().max(kFileConstants.maxEncodingCharLength);
+const extension = Joi.string().max(kFileConstants.maxExtensionCharLength);
+const buffer = Joi.binary().max(kFileConstants.maxFileSizeInBytes);
 const filepath = Joi.string()
   .regex(folderValidationSchemas.pathRegex)
   .min(kFolderConstants.minFolderNameLength)
   .max(
     kFolderConstants.maxFolderNameLength * (kFolderConstants.maxFolderDepth + 1) +
-      fileConstants.maxExtensionCharLength
+      kFileConstants.maxExtensionCharLength
   );
 const readable = Joi.any().custom((value, helpers) => {
   if (value instanceof Readable) {

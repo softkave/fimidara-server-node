@@ -14,8 +14,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
-import {kFolderConstants} from '../constants';
-import {addRootnameToPath, folderExtractor} from '../utils';
+import {folderExtractor, stringifyFoldernamepath} from '../utils';
 import updateFolder from './handler';
 import {UpdateFolderEndpointParams, UpdateFolderInput} from './types';
 
@@ -51,8 +50,8 @@ async function updateFolderBaseTest(
   const instData = RequestData.fromExpressRequest<UpdateFolderEndpointParams>(
     mockExpressRequestWithAgentToken(insertUserResult.userToken),
     {
-      folderpath: addRootnameToPath(
-        folder.namepath.join(kFolderConstants.separator),
+      folderpath: stringifyFoldernamepath(
+        folder,
         insertWorkspaceResult.workspace.rootname
       ),
       folder: updateInput,

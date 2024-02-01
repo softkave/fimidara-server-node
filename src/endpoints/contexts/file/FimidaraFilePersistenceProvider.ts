@@ -284,7 +284,9 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
   };
 
   dispose = async () => {
-    await this.backend.dispose();
+    if (this.backend.dispose) {
+      await this.backend.dispose();
+    }
   };
 
   toNativePath = (

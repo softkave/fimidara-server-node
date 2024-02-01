@@ -1,5 +1,5 @@
 import {User} from '../../../../definitions/user';
-import {getLowercaseRegExpForString} from '../../../../utils/fns';
+import {getIgnoreCaseRegExpForString} from '../../../../utils/fns';
 import {DataSemanticBaseProvider} from '../DataSemanticDataAccessBaseProvider';
 import {SemanticProviderRunOptions} from '../types';
 import {SemanticUserProviderType} from './types';
@@ -13,7 +13,7 @@ export class DataSemanticUser
     opts?: SemanticProviderRunOptions | undefined
   ): Promise<User | null> {
     return await this.data.getOneByQuery(
-      {email: {$regex: getLowercaseRegExpForString(email)}},
+      {email: {$regex: getIgnoreCaseRegExpForString(email)}},
       opts
     );
   }
@@ -23,7 +23,7 @@ export class DataSemanticUser
     opts?: SemanticProviderRunOptions | undefined
   ): Promise<boolean> {
     return await this.data.existsByQuery(
-      {email: {$regex: getLowercaseRegExpForString(email)}},
+      {email: {$regex: getIgnoreCaseRegExpForString(email)}},
       opts
     );
   }

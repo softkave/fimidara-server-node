@@ -1,5 +1,5 @@
 import {Dictionary, isArray} from 'lodash';
-import {serverLogger} from './logger/loggerUtils';
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
 
 export interface PromiseWithId<T = unknown> {
   promise: Promise<T>;
@@ -78,7 +78,7 @@ export function logRejectedPromisesAndThrow(p: PromiseSettledResult<unknown>[]) 
 
   if (rejected.length > 0) {
     rejected.forEach(p => {
-      serverLogger.error(p.reason);
+      kUtilsInjectables.logger().error(p.reason);
     });
     throw new Error('One or more promises rejected');
   }

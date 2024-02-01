@@ -7,7 +7,6 @@ import {
 } from '../../../definitions/job';
 import {appAssert} from '../../../utils/assertion';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {kFolderConstants} from '../../folders/constants';
 import {JobInput, queueJobs} from '../utils';
 
 export async function runIngestMountJob(job: Job<IngestMountJobParams>) {
@@ -21,7 +20,7 @@ export async function runIngestMountJob(job: Job<IngestMountJobParams>) {
   const input: JobInput<IngestFolderpathJobParams> = {
     type: kJobType.ingestFolderpath,
     params: {
-      ingestFrom: mount.mountedFrom.join(kFolderConstants.separator),
+      ingestFrom: mount.mountedFrom,
       mountId: mount.resourceId,
       agentId: job.params.agentId,
     },

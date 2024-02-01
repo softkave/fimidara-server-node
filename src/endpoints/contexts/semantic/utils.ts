@@ -1,5 +1,5 @@
 import {isNil, set} from 'lodash';
-import {getLowercaseRegExpForString, toArray} from '../../../utils/fns';
+import {getIgnoreCaseRegExpForString, toArray} from '../../../utils/fns';
 import {AnyFn, AnyObject, OrArray, StringKeysOnly} from '../../../utils/types';
 import {DataQuery, KeyedComparisonOps} from '../data/types';
 import {kDataModels} from '../injection/injectables';
@@ -7,11 +7,12 @@ import {SemanticProviderMutationRunOptions, SemanticProviderUtils} from './types
 
 export class DataSemanticProviderUtils implements SemanticProviderUtils {
   async withTxn<TResult>(
-    fn: AnyFn<[SemanticProviderMutationRunOptions], Promise<TResult>>
+    fn: AnyFn<[SemanticProviderMutationRunOptions], Promise<TResult>>,
+    reuseAsyncLocalTxn: boolean = true
   ): Promise<TResult> {
     return await kDataModels.utils().withTxn(async txn => {
       return await fn({txn});
-    });
+    }, reuseAsyncLocalTxn);
   }
 }
 
@@ -23,9 +24,16 @@ export function getStringListQuery<TData extends AnyObject>(
 ): DataQuery<TData> {
   const query: DataQuery<AnyObject> = {};
 
+  if (stringList.length === 0) {
+    // MongoDB array queries with `{$all: [], $size: 0}` do not work, so using
+    // `{$eq: []}` instead, since that works
+    query[prefix as string] = {$eq: []};
+    return query;
+  }
+
   stringList.reduce((map, name, index) => {
     const key = `${prefix as string}.${index}`;
-    map[key] = {[op]: op === '$eq' ? name : getLowercaseRegExpForString(name)};
+    map[key] = {[op]: op === '$eq' ? name : getIgnoreCaseRegExpForString(name)};
     return map;
   }, query);
 

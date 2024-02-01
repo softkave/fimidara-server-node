@@ -7,6 +7,7 @@ import {
   PublicWorkspace,
   Workspace,
 } from '../../definitions/workspace';
+import {appAssert} from '../../utils/assertion';
 import {
   ExtractFieldsFrom,
   getFields,
@@ -14,6 +15,7 @@ import {
   makeExtractIfPresent,
   makeListExtract,
 } from '../../utils/extract';
+import {kReuseableErrors} from '../../utils/reusableErrors';
 import {
   getWorkspaceIdFromSessionAgent,
   getWorkspaceIdNoThrow,
@@ -164,4 +166,8 @@ export async function tryGetWorkspaceFromEndpointInput(
   const workspaceId = getWorkspaceIdNoThrow(agent, data.workspaceId);
   if (workspaceId) workspace = await checkWorkspaceExists(workspaceId);
   return {workspace};
+}
+
+export function assertRootname(rootname: unknown): asserts rootname {
+  appAssert(rootname, kReuseableErrors.workspace.noRootname());
 }

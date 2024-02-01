@@ -1,17 +1,25 @@
+import {isString} from 'lodash';
 import {File} from '../../definitions/file';
+import {Folder} from '../../definitions/folder';
+import {getIgnoreCaseRegExpForString} from '../../utils/fns';
 import {FileQuery} from '../contexts/data/types';
+import {getStringListQuery} from '../contexts/semantic/utils';
 
 function getByNamepath(
   file: Pick<File, 'workspaceId' | 'namepath' | 'extension'>
 ): Pick<FileQuery, 'extension' | 'workspaceId' | 'namepath'> {
   const {extension, namepath, workspaceId} = file;
   return {
-    extension,
     workspaceId,
-    // MongoDB array queries with `{$all: [], $size: 0}` do not work, so using
-    // `{$eq: []}` instead, since that works
-    namepath:
-      namepath.length === 0 ? {$eq: []} : {$all: namepath, $size: namepath.length},
+    extension: isString(extension)
+      ? {$regex: getIgnoreCaseRegExpForString(extension)}
+      : undefined,
+    ...getStringListQuery<Folder>(
+      namepath,
+      /** prefix */ 'namepath',
+      /** matcher op */ '$regex',
+      /** include size */ true
+    ),
   };
 }
 

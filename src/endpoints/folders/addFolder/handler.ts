@@ -4,7 +4,7 @@ import {kPermissionAgentTypes, Resource, SessionAgent} from '../../../definition
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
-import {pathSplit, toArray} from '../../../utils/fns';
+import {pathJoin, pathSplit, toArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {validate} from '../../../utils/validate';
 import {
@@ -14,8 +14,7 @@ import {
 import {FolderQuery} from '../../contexts/data/types';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
-import {assertWorkspace} from '../../workspaces/utils';
-import {kFolderConstants} from '../constants';
+import {assertRootname, assertWorkspace} from '../../workspaces/utils';
 import {FolderExistsError} from '../errors';
 import {FolderQueries} from '../queries';
 import {
@@ -47,7 +46,7 @@ export async function createFolderListWithTransaction(
   // existing folder, and using a set avoids repetitions
   const namepathSet = pathinfoList.reduce((acc, pathinfo) => {
     pathinfo.namepath.forEach((name, index) => {
-      acc.add(pathinfo.namepath.slice(0, index + 1).join(kFolderConstants.separator));
+      acc.add(pathJoin(pathinfo.namepath.slice(0, index + 1)));
     });
     return acc;
   }, new Set<string>());
@@ -67,7 +66,7 @@ export async function createFolderListWithTransaction(
     opts
   );
   const foldersByNamepath = indexArray(existingFolders, {
-    indexer: folder => folder.namepath.join(kFolderConstants.separator),
+    indexer: folder => pathJoin(folder.namepath),
   });
 
   function getSelfOrParent(namepath: string[]) {
@@ -75,7 +74,7 @@ export async function createFolderListWithTransaction(
     // existing parent
     for (let i = namepath.length; i >= 0; i--) {
       const partNamepath = namepath.slice(0, i);
-      const key = partNamepath.join(kFolderConstants.separator);
+      const key = pathJoin(partNamepath);
       const folder = foldersByNamepath[key];
 
       if (folder) {
@@ -142,8 +141,7 @@ export async function createFolderListWithTransaction(
       // Set prevFolder to current folder, so the next folder can use it as
       // parent, and set it also in foldersByNamepath so other inputs can use it
       // (not sure how much useful the last part is, but just in case)
-      foldersByNamepath[folder.namepath.join(kFolderConstants.separator)] = prevFolder =
-        folder;
+      foldersByNamepath[pathJoin(folder.namepath)] = prevFolder = folder;
       newFolders.push(folder);
     });
   });
@@ -185,6 +183,7 @@ const addFolder: AddFolderEndpoint = async instData => {
     .session()
     .getAgent(instData, kPermissionAgentTypes);
   const pathinfo = getFolderpathInfo(data.folder.folderpath);
+  assertRootname(pathinfo.rootname);
   const workspace = await kSemanticModels.workspace().getByRootname(pathinfo.rootname);
   assertWorkspace(workspace);
 

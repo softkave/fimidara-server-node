@@ -1,6 +1,6 @@
 import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {kAppResourceType} from '../../../definitions/system';
-import {calculatePageSize, getResourceId} from '../../../utils/fns';
+import {calculatePageSize, getResourceId, pathJoin} from '../../../utils/fns';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import addPermissionItems from '../../permissionItems/addItems/handler';
 import RequestData from '../../RequestData';
@@ -24,7 +24,6 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
-import {kFolderConstants} from '../constants';
 import {addRootnameToPath, stringifyFoldernamepath} from '../utils';
 import listFolderContent from './handler';
 import {ListFolderContentEndpointParams} from './types';
@@ -50,17 +49,19 @@ describe('listFolderContent', () => {
     const [{folder: folder02}, {file}] = await Promise.all([
       insertFolderForTest(userToken, workspace, {
         folderpath: addRootnameToPath(
-          folder01.namepath
-            .concat(generateTestFolderName({includeStraySeparators: true}))
-            .join(kFolderConstants.separator),
+          pathJoin(
+            folder01.namepath.concat(
+              generateTestFolderName({includeStraySeparators: true})
+            )
+          ),
           workspace.rootname
         ),
       }),
       insertFileForTest(userToken, workspace, {
         filepath: addRootnameToPath(
-          folder01.namepath
-            .concat(generateTestFileName({includeStraySlashes: true}))
-            .join(kFolderConstants.separator),
+          pathJoin(
+            folder01.namepath.concat(generateTestFileName({includeStraySlashes: true}))
+          ),
           workspace.rootname
         ),
       }),
@@ -110,17 +111,17 @@ describe('listFolderContent', () => {
     const {folder: folder01} = await insertFolderForTest(userToken, workspace);
     const {folder: folder02} = await insertFolderForTest(userToken, workspace, {
       folderpath: addRootnameToPath(
-        folder01.namepath
-          .concat(generateTestFolderName({includeStraySeparators: true}))
-          .join(kFolderConstants.separator),
+        pathJoin(
+          folder01.namepath.concat(generateTestFolderName({includeStraySeparators: true}))
+        ),
         workspace.rootname
       ),
     });
     const {file} = await insertFileForTest(userToken, workspace, {
       filepath: addRootnameToPath(
-        folder01.namepath
-          .concat(generateTestFileName({includeStraySlashes: true}))
-          .join(kFolderConstants.separator),
+        pathJoin(
+          folder01.namepath.concat(generateTestFileName({includeStraySlashes: true}))
+        ),
         workspace.rootname
       ),
     });

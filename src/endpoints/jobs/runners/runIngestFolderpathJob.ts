@@ -8,6 +8,7 @@ import {
 } from '../../../definitions/job';
 import {Agent} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
+import {pathJoin, pathSplit} from '../../../utils/fns';
 import {AnyObject} from '../../../utils/types';
 import {
   FilePersistenceDescribeFolderContentResult,
@@ -38,7 +39,7 @@ async function setContinuationTokenInJob(
       // TODO: implement a way to update specific fields without overwriting
       // existing data, and without needing to get data from DB like we're
       // doing here
-      kSemanticModels
+      await kSemanticModels
         .job()
         .updateOneById<Job<AnyObject, IngestFolderpathJobMeta>>(
           job.resourceId,
@@ -51,14 +52,15 @@ async function setContinuationTokenInJob(
   }, /** reuse txn from async local store */ false);
 }
 
-async function ingestFolderpathJobFolders(
+async function ingestFolderpathContents(
   agent: Agent,
-  job: Job<IngestFolderpathJobParams>,
+  job: Job<IngestFolderpathJobParams, IngestFolderpathJobMeta>,
   mount: FileBackendMount,
   provider: FilePersistenceProvider
 ) {
   appAssert(job.workspaceId);
   let result: FilePersistenceDescribeFolderContentResult | undefined;
+  let continuationToken = job.meta?.getContentContinuationToken;
   const workspace = await kSemanticModels.workspace().getOneById(job.workspaceId);
   appAssert(workspace);
 
@@ -67,11 +69,12 @@ async function ingestFolderpathJobFolders(
   do {
     result = await provider.describeFolderContent({
       mount,
-      folderpath: ingestFrom,
+      continuationToken,
+      folderpath: pathJoin(ingestFrom),
       max: 1000,
       workspaceId: mount.workspaceId,
-      continuationToken: result?.continuationToken,
     });
+    continuationToken = result.continuationToken;
     kUtilsInjectables.promises().forget(
       setContinuationTokenInJob(job, {
         getContentContinuationToken: result.continuationToken,
@@ -87,7 +90,7 @@ async function ingestFolderpathJobFolders(
         job.resourceId,
         result.folders.map((mountFolder): JobInput<IngestFolderpathJobParams> => {
           const jobParams: IngestFolderpathJobParams = {
-            ingestFrom: mountFolder.folderpath,
+            ingestFrom: pathSplit(mountFolder.folderpath),
             mountId: mountFolder.mountId,
             agentId: job.params.agentId,
           };
@@ -100,16 +103,24 @@ async function ingestFolderpathJobFolders(
         })
       )
     );
-  } while (result.continuationToken && (result.folders.length || result.files.length));
+  } while (continuationToken && (result.folders.length || result.files.length));
 }
 
-export async function runIngestFolderpathJob(job: Job<IngestFolderpathJobParams>) {
+export async function runIngestFolderpathJob(
+  job: Job<IngestFolderpathJobParams, IngestFolderpathJobMeta>
+) {
   appAssert(job.workspaceId);
 
-  const [mount, agent] = await Promise.all([
+  const [mount, agent, job_] = await Promise.all([
     kSemanticModels.fileBackendMount().getOneById(job.params.mountId),
     kUtilsInjectables.session().getAgentById(job.params.agentId),
+    // Refetch job so as to use latest continuation token set in meta
+    kSemanticModels.job().getOneById(job.resourceId),
   ]);
+
+  if (job_) {
+    job = job_ as Job<IngestFolderpathJobParams, IngestFolderpathJobMeta>;
+  }
 
   if (!mount || mount.backend === 'fimidara') {
     return;
@@ -121,5 +132,5 @@ export async function runIngestFolderpathJob(job: Job<IngestFolderpathJobParams>
   );
   const providersMap = await initBackendProvidersForMounts([mount], configs);
   const provider = providersMap[mount.resourceId];
-  await ingestFolderpathJobFolders(agent, job, mount, provider);
+  await ingestFolderpathContents(agent, job, mount, provider);
 }

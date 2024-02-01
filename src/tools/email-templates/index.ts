@@ -1,5 +1,5 @@
-import console from 'console';
 import {globalDispose, globalSetup} from '../../endpoints/contexts/globalUtils';
+import {kUtilsInjectables} from '../../endpoints/contexts/injection/injectables';
 import {
   renderCollaborationRequestMedia,
   renderCollaborationRequestResponseMedia,
@@ -13,7 +13,7 @@ import {
 async function main() {
   await globalSetup();
 
-  console.log('Writing templates');
+  kUtilsInjectables.logger().log('Writing templates');
   renderConfirmEmailAddressMedia();
   renderForgotPasswordMedia();
   renderCollaborationRequestMedia();
@@ -21,7 +21,7 @@ async function main() {
   renderCollaborationRequestResponseMedia();
   renderUpgradedFromWaitlistMedia();
   renderUsageExceededMedia();
-  console.log('Completed writing templates');
+  kUtilsInjectables.logger().log('Completed writing templates');
 
   await globalDispose();
 }

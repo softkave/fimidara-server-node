@@ -20,7 +20,6 @@ import {
   makeListExtract,
 } from '../utils/extract';
 import {isObjectEmpty, toCompactArray} from '../utils/fns';
-import {serverLogger} from '../utils/logger/loggerUtils';
 import {AnyObject} from '../utils/types';
 import RequestData from './RequestData';
 import {endpointConstants} from './constants';
@@ -77,7 +76,7 @@ export function getPublicErrors(inputError: unknown) {
 }
 
 export function prepareResponseError(error: unknown) {
-  serverLogger.error(error);
+  kUtilsInjectables.logger().error(error);
   let statusCode = endpointConstants.httpStatusCode.serverError;
   const errors = Array.isArray(error) ? error : [error];
   const preppedErrors = getPublicErrors(errors);

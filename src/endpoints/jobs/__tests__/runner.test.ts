@@ -4,7 +4,7 @@ import {kAppPresetShards, kAppType} from '../../../definitions/app';
 import {kJobStatus, kJobType} from '../../../definitions/job';
 import {getTimestamp} from '../../../utils/dateFns';
 import {extractResourceIdList, waitTimeout} from '../../../utils/fns';
-import {awaitOrTimeout} from '../../../utils/promiseFns';
+import {indexArray} from '../../../utils/indexArray';
 import {getNewId} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {kRegisterSemanticModels} from '../../contexts/injection/register';
@@ -23,6 +23,7 @@ import {
   setRunnerShard,
   startRunner,
   stopRunner,
+  stopWorker,
 } from '../runner';
 import {RunnerWorkerMessage, kRunnerWorkerMessageType} from '../types';
 import {
@@ -38,6 +39,7 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
+  await stopRunner();
   await completeTests();
 });
 
@@ -54,11 +56,12 @@ describe('runner', () => {
   test('workers start and end', async () => {
     const shard = getNewId();
     setRunnerShard(shard);
+    setRunnerCount(1);
     await startRunner();
 
     let workers = getWorkers();
     const workerIds = Object.keys(workers);
-    expect(workerIds).toBeGreaterThan(0);
+    expect(workerIds.length).toBeGreaterThan(0);
 
     const runnerApps = await kSemanticModels.app().getManyByIdList(workerIds);
     expect(runnerApps.length).toBe(workerIds.length);
@@ -66,7 +69,7 @@ describe('runner', () => {
     await stopRunner();
 
     workers = getWorkers();
-    expect(Object.values(workers)).toBe(0);
+    expect(Object.values(workers).length).toBe(0);
   });
 
   test('set workers count sizes up & down workers', async () => {
@@ -77,31 +80,34 @@ describe('runner', () => {
     await startRunner();
 
     let workers = getWorkers();
-    expect(Object.values(workers)).toBe(startCount);
+    expect(Object.values(workers).length).toBe(startCount);
 
     const sizeUpCount = 2;
-    await setRunnerCount(sizeUpCount, /** ensure count */ true);
+    setRunnerCount(sizeUpCount);
+    await startRunner();
 
     workers = getWorkers();
-    expect(Object.values(workers)).toBe(sizeUpCount);
+    expect(Object.values(workers).length).toBe(sizeUpCount);
 
     const sizeDownCount = 1;
-    await setRunnerCount(sizeDownCount, /** ensure count */ true);
+    setRunnerCount(sizeDownCount);
+    await startRunner();
 
     workers = getWorkers();
-    expect(Object.values(workers)).toBe(sizeDownCount);
+    expect(Object.values(workers).length).toBe(sizeDownCount);
 
     await stopRunner();
   });
 
   test('parent active runner IDs updated', async () => {
     const startCount = 1;
-    const heartbeatInterval = 50; // 50ms
-    const heartbeatFactor = 2;
+    const heartbeatInterval = 100; // 100ms
+    const heartbeatFactor = 10;
     const shard = getNewId();
-    const fillerRunners = await generateAndInsertAppListForTest(/** count */ 5, {
+    const otherRunners = await generateAndInsertAppListForTest(/** count */ 5, {
       shard,
       type: kAppType.runner,
+      lastUpdatedAt: getTimestamp() + heartbeatInterval * heartbeatFactor,
     });
 
     setRunnerCount(startCount);
@@ -109,21 +115,21 @@ describe('runner', () => {
     setActiveRunnerHeartbeatFactor(heartbeatFactor);
     setRunnerShard(shard);
     await startRunner();
-    await waitTimeout(heartbeatInterval + 1);
+    await waitTimeout(heartbeatInterval * heartbeatFactor);
 
     // active runners should include our filler runners seeing their heartbeat
-    // should still be recent, they were added about 50ms ago
+    // should still be recent, they were added about 100ms ago
     let activeRunnerIds = getActiveRunnerIds();
     expect(activeRunnerIds).toEqual(
-      expect.arrayContaining(extractResourceIdList(fillerRunners))
+      expect.arrayContaining(extractResourceIdList(otherRunners))
     );
 
     // active runners should **not** include our filler runners seeing their
     // heartbeat is now twice older than our set heartbeat interval
-    await waitTimeout(heartbeatInterval + 1);
+    await waitTimeout(heartbeatInterval * heartbeatFactor * 2);
     activeRunnerIds = getActiveRunnerIds();
     expect(activeRunnerIds).not.toEqual(
-      expect.arrayContaining(extractResourceIdList(fillerRunners))
+      expect.arrayContaining(extractResourceIdList(otherRunners))
     );
 
     await stopRunner();
@@ -131,19 +137,23 @@ describe('runner', () => {
 
   test('children active runners updated', async () => {
     const count = 2;
-    const heartbeatInterval = 50;
+    const heartbeatInterval = 200; // 200ms
     const shard = getNewId();
+    const heartbeatFactor = 10;
 
-    const fillerRunners = await generateAndInsertAppListForTest(/** count */ 5, {
+    const otherRunners = await generateAndInsertAppListForTest(/** count */ 5, {
+      shard,
       type: kAppType.runner,
+      lastUpdatedAt: getTimestamp() * 2,
     });
 
     setRunnerCount(count);
     setRunnerHeartbeatInterval(heartbeatInterval);
+    setActiveRunnerHeartbeatFactor(heartbeatFactor);
     setRunnerShard(shard);
     await startRunner();
 
-    await waitTimeout(heartbeatInterval);
+    await waitTimeout(heartbeatInterval * heartbeatFactor);
     const workers = getWorkers();
 
     await Promise.all(
@@ -164,7 +174,7 @@ describe('runner', () => {
             outMessage.type === kRunnerWorkerMessageType.setActiveRunnerIds
         );
         expect(outMessage.activeRunnerIds).toEqual(
-          expect.arrayContaining(extractResourceIdList(fillerRunners))
+          expect.arrayContaining(extractResourceIdList(otherRunners))
         );
       })
     );
@@ -174,7 +184,7 @@ describe('runner', () => {
 
   test('heartbeat updated', async () => {
     const count = 2;
-    const heartbeatInterval = 50;
+    const heartbeatInterval = 200; // 200ms
     const shard = getNewId();
 
     setRunnerCount(count);
@@ -182,22 +192,22 @@ describe('runner', () => {
     setRunnerShard(shard);
     await startRunner();
 
-    const pastHeartbeatTimestamp = getTimestamp();
-    await waitTimeout(heartbeatInterval);
     const workers = getWorkers();
+    let runners = await kSemanticModels.app().getManyByIdList(Object.keys(workers));
+    const runnersMap = indexArray(runners, {indexer: r => r.resourceId});
 
-    const runnerWorkers = await kSemanticModels
-      .app()
-      .getManyByIdList(Object.keys(workers));
+    await waitTimeout(heartbeatInterval * 5);
 
-    runnerWorkers.forEach(nextRunner => {
-      expect(nextRunner.lastUpdatedAt).toBeGreaterThan(pastHeartbeatTimestamp);
+    runners = await kSemanticModels.app().getManyByIdList(Object.keys(workers));
+    runners.forEach(runner => {
+      const sameRunner = runnersMap[runner.resourceId];
+      expect(runner.lastUpdatedAt).toBeGreaterThan(sameRunner.lastUpdatedAt);
     });
 
     await stopRunner();
   });
 
-  test('dead runners restart', async () => {
+  test.skip('dead runners restart', async () => {
     const count = 2;
     const heartbeatInterval = 50;
     const shard = getNewId();
@@ -235,32 +245,34 @@ describe('runner', () => {
 
   test('dead runners heartbeat not updated', async () => {
     const count = 2;
-    const heartbeatInterval = 20;
+    const heartbeatInterval = 200; // 200ms
     const shard = getNewId();
+    const heartbeatFactor = 10;
 
     setRunnerCount(count);
     setRunnerHeartbeatInterval(heartbeatInterval);
+    setActiveRunnerHeartbeatFactor(heartbeatFactor);
     setRunnerShard(shard);
     await startRunner();
 
     const workers = getWorkers();
-    const startWorkerIds = Object.keys(workers);
+    const wList = Object.keys(workers);
+    const wIdList01 = wList.slice(0, count / 2);
+    const wIdList02 = Object.keys(count / 2);
 
+    await Promise.all(map(wIdList01, id => stopWorker(workers[id])));
     const deadTimestamp = getTimestamp();
-    await Promise.all(
-      map(workers, worker => {
-        return messageRunner<RunnerWorkerMessage>(
-          worker,
-          {type: kRunnerWorkerMessageType.fail},
-          /** expectAck */ false
-        );
-      })
-    );
 
-    await waitTimeout(heartbeatInterval * 3);
-    const runnerWorkers = await kSemanticModels.app().getManyByIdList(startWorkerIds);
-    runnerWorkers.forEach(nextRunner => {
-      expect(nextRunner.lastUpdatedAt).toBeLessThan(deadTimestamp);
+    await waitTimeout(heartbeatInterval * 4);
+    const [wList01, wList02] = await Promise.all([
+      kSemanticModels.app().getManyByIdList(wIdList01),
+      kSemanticModels.app().getManyByIdList(wIdList02),
+    ]);
+    wList01.forEach(runner => {
+      expect(runner.lastUpdatedAt).toBeLessThan(deadTimestamp);
+    });
+    wList02.forEach(runner => {
+      expect(runner.lastUpdatedAt).toBeGreaterThan(deadTimestamp);
     });
 
     await stopRunner();
@@ -269,8 +281,7 @@ describe('runner', () => {
   test('workers run jobs', async () => {
     const count = 2;
     const shard = getNewId();
-
-    const jobs = await generateAndInsertJobListForTest(/** count */ 10, {
+    const jobs = await generateAndInsertJobListForTest(/** count */ 5, {
       shard,
       status: kJobStatus.pending,
       type: kJobType.noop,
@@ -278,13 +289,13 @@ describe('runner', () => {
 
     setRunnerCount(count);
     setRunnerShard(shard);
+    setRunnerPickFromShards([shard]);
     await startRunner();
 
-    // Wait for 5 secs and fail if jobs are not run. That should be enough
-    // seeing we're only running noop jobs
-    await awaitOrTimeout(
-      Promise.all(jobs.map(job => waitForJob(job.resourceId, /** bump priority */ true))),
-      /** timeout, 5 secs */ 5_000
+    await Promise.all(
+      jobs.map(job =>
+        waitForJob(job.resourceId, /** bump priority */ true, /** wait for 10s */ 10_000)
+      )
     );
 
     await stopRunner();

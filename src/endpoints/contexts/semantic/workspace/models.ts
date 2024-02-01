@@ -1,5 +1,5 @@
 import {Workspace} from '../../../../definitions/workspace';
-import {getLowercaseRegExpForString} from '../../../../utils/fns';
+import {getIgnoreCaseRegExpForString} from '../../../../utils/fns';
 import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {SemanticProviderRunOptions} from '../types';
 import {SemanticWorkspaceProviderType} from './types';
@@ -13,7 +13,7 @@ export class DataSemanticWorkspace
     opts?: SemanticProviderRunOptions | undefined
   ): Promise<Workspace | null> {
     return await this.data.getOneByQuery(
-      {rootname: {$regex: getLowercaseRegExpForString(name)}},
+      {rootname: {$regex: getIgnoreCaseRegExpForString(name)}},
       opts
     );
   }
@@ -23,7 +23,7 @@ export class DataSemanticWorkspace
     opts?: SemanticProviderRunOptions | undefined
   ): Promise<boolean> {
     return await this.data.existsByQuery(
-      {rootname: {$regex: getLowercaseRegExpForString(name)}},
+      {rootname: {$regex: getIgnoreCaseRegExpForString(name)}},
       opts
     );
   }
@@ -33,7 +33,7 @@ export class DataSemanticWorkspace
     opts?: SemanticProviderRunOptions | undefined
   ): Promise<boolean> {
     return await this.data.existsByQuery(
-      {name: {$regex: getLowercaseRegExpForString(name)}},
+      {name: {$regex: getIgnoreCaseRegExpForString(name)}},
       opts
     );
   }

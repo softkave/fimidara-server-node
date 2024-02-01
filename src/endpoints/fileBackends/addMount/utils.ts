@@ -8,6 +8,7 @@ import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
 import {ensureFolders, getFolderpathInfo} from '../../folders/utils';
+import {assertRootname} from '../../workspaces/utils';
 import {mountExists, mountNameExists} from '../utils';
 import {NewFileBackendMountInput} from './types';
 
@@ -21,6 +22,7 @@ export const INTERNAL_addFileBackendMount = async (
   const fileBackendConfigModel = kSemanticModels.fileBackendConfig();
 
   const folderpathinfo = getFolderpathInfo(data.folderpath, {allowRootFolder: true});
+  assertRootname(folderpathinfo.rootname);
   appAssert(
     workspace.rootname === folderpathinfo.rootname,
     kReuseableErrors.workspace.rootnameDoesNotMatchFolderRootname(

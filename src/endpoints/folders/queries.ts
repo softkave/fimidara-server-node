@@ -5,12 +5,12 @@ import EndpointReusableQueries from '../queries';
 
 function getByNamepathOnly(folder: Pick<Folder, 'namepath'>): FolderQuery {
   const {namepath} = folder;
-  return {
-    // MongoDB array queries with `{$all: [], $size: 0}` do not work, so using
-    // `{$eq: []}` instead, since that works
-    namepath:
-      namepath.length === 0 ? {$eq: []} : {$all: namepath, $size: namepath.length},
-  };
+  return getStringListQuery<Folder>(
+    namepath,
+    /** prefix */ 'namepath',
+    /** matcher op */ '$regex',
+    /** include size */ true
+  );
 }
 
 function getByNamepath(folder: Pick<Folder, 'workspaceId' | 'namepath'>): FolderQuery {
@@ -39,13 +39,13 @@ function getByParentPath(
   const {namepath, workspaceId} = folder;
   return {
     workspaceId,
-    namepath: {$size: namepath.length + 1},
     ...getStringListQuery<Folder>(
       namepath,
       /** prefix */ 'namepath',
       /** matcher op */ '$regex',
       /** include size */ false
     ),
+    namepath: {$size: namepath.length + 1},
   };
 }
 

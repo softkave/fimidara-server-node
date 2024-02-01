@@ -284,7 +284,9 @@ const idPath = mddocConstruct
   .constructFieldArray<string>()
   .setType(folderId)
   .setDescription('List of parent folder IDs.');
-const name = mddocConstruct.constructFieldString().setDescription('Name');
+const name = mddocConstruct
+  .constructFieldString()
+  .setDescription('Name, case insensitive');
 const description = mddocConstruct.constructFieldString().setDescription('Description');
 const expires = mddocConstruct.constructFieldNumber().setDescription('Expiration date.');
 const duration = mddocConstruct
@@ -319,38 +321,38 @@ const providedResourceIdOrNull = mddocConstruct
   .setTypes([providedResourceId, nullValue]);
 const workspaceName = mddocConstruct
   .constructFieldString()
-  .setDescription('Workspace name.')
+  .setDescription('Workspace name, case insensitive')
   .setExample('fimidara');
 
 // TODO: set allowed characters for rootname and file and folder name
 const workspaceRootname = mddocConstruct
   .constructFieldString()
-  .setDescription('Workspace root name, must be a URL compatible name.')
+  .setDescription('Workspace root name, must be a URL compatible name, case insensitive')
   .setExample('fimidara-rootname');
 const firstName = mddocConstruct
   .constructFieldString()
-  .setDescription('First name.')
+  .setDescription('First name')
   .setExample('Jesus');
 const lastName = mddocConstruct
   .constructFieldString()
-  .setDescription('Last name.')
+  .setDescription('Last name')
   .setExample('Christ');
 const password = mddocConstruct.constructFieldString().setDescription('Password.');
 const emailAddress = mddocConstruct
   .constructFieldString()
-  .setDescription('Email address.')
+  .setDescription('Email address, case insensitive')
   .setExample('my-email-address@email-domain.com');
 const foldername = mddocConstruct
   .constructFieldString()
-  .setDescription('Folder name.')
+  .setDescription('Folder name, case insensitive')
   .setExample('my-folder');
 const filename = mddocConstruct
   .constructFieldString()
-  .setDescription('File name.')
+  .setDescription('File name, case insensitive')
   .setExample('my-file');
 const folderpath = mddocConstruct
   .constructFieldString()
-  .setDescription('Folder path with workspace rootname.')
+  .setDescription('Folder path with workspace rootname, case insensitive')
   .setExample('/workspace-rootname/my-outer-folder/my-inner-folder');
 const folderpathList = mddocConstruct.constructFieldArray<string>().setType(folderpath);
 const folderpathOrList = mddocConstruct
@@ -358,11 +360,11 @@ const folderpathOrList = mddocConstruct
   .setTypes([folderpath, folderpathList]);
 const filepath = mddocConstruct
   .constructFieldString()
-  .setDescription('File path with workspace rootname.')
+  .setDescription('File path with workspace rootname, case insensitive')
   .setExample('/workspace-rootname/my-outer-folder/my-image-file.png');
 const filepathOrId = mddocConstruct
   .constructFieldString()
-  .setDescription('File path with workspace rootname or file ID.')
+  .setDescription('File path with workspace rootname (case insensitive) or file ID.')
   .setExample('/workspace-rootname/folder/file.extension or file000-remaining-file-id');
 const filepathList = mddocConstruct.constructFieldArray<string>().setType(filepath);
 const filepathOrList = mddocConstruct
@@ -371,7 +373,7 @@ const filepathOrList = mddocConstruct
 const foldernamepath = mddocConstruct
   .constructFieldArray<string>()
   .setType(foldername)
-  .setDescription('List of parent folder names.');
+  .setDescription('List of parent folder names, case insensitive');
 const action = mddocConstruct
   .constructFieldString()
   .setDescription('Action')

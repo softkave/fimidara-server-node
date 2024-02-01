@@ -36,6 +36,7 @@ import {
   objectHasRequiredFields,
 } from './mddoc';
 import path = require('path');
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
 
 class Doc {
   protected disclaimer =
@@ -598,5 +599,5 @@ async function main() {
 }
 
 main()
-  .then(() => console.log('mddoc gen js sdk complete'))
-  .catch(console.error.bind(console));
+  .then(() => kUtilsInjectables.logger().log('mddoc gen js sdk complete'))
+  .catch(kUtilsInjectables.logger().error.bind(kUtilsInjectables.logger()));

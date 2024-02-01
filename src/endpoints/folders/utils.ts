@@ -6,7 +6,7 @@ import {Agent, SessionAgent, kAppResourceType} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {pathJoin, pathSplit} from '../../utils/fns';
+import {isPathEmpty, pathJoin, pathSplit} from '../../utils/fns';
 import {getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {
@@ -27,7 +27,7 @@ import {
   resolveMountsForFolder,
 } from '../fileBackends/mountUtils';
 import {workspaceResourceFields} from '../utils';
-import {checkWorkspaceExists} from '../workspaces/utils';
+import {assertRootname, checkWorkspaceExists} from '../workspaces/utils';
 import {createFolderListWithTransaction} from './addFolder/handler';
 import {kFolderConstants} from './constants';
 import {FolderNotFoundError} from './errors';
@@ -84,7 +84,7 @@ export interface FolderpathInfo {
   /** parent namepath without rootname */
   parentStringPath: string;
   hasParent: boolean;
-  rootname: string;
+  rootname?: string;
 }
 
 export function getFolderpathInfo(
@@ -99,7 +99,7 @@ export function getFolderpathInfo(
 ): FolderpathInfo {
   const {containsRootname = true, allowRootFolder = false} = options;
   const splitPath = splitFolderpath(input);
-  const rootname = defaultTo(containsRootname ? splitPath.shift() : undefined, '');
+  const rootname = containsRootname ? splitPath.shift() : undefined;
   const name = defaultTo(last(splitPath), '');
 
   if (containsRootname) {
@@ -111,7 +111,7 @@ export function getFolderpathInfo(
   }
 
   const parentNamepath = splitPath.slice(0, /** file or folder name is last item */ -1);
-  const parentStringPath = parentNamepath.join(kFolderConstants.separator);
+  const parentStringPath = pathJoin(parentNamepath);
   const hasParent = parentNamepath.length > 0;
 
   return {
@@ -175,10 +175,6 @@ export async function checkFolderAuthorization02(
   return checkFolderAuthorization(agent, folder, action, workspace);
 }
 
-export function getFolderName(folder: Folder) {
-  return folder.namepath.join(kFolderConstants.separator);
-}
-
 export function assertWorkspaceRootname(
   workspaceRootname?: string | null
 ): asserts workspaceRootname {
@@ -203,12 +199,13 @@ export function addRootnameToPath<T extends string | string[] = string | string[
     ? last(workspaceRootname)
     : workspaceRootname;
   appAssert(rootname);
+  const pJoined = pathJoin(rootname, path);
 
   if (isArray(path)) {
-    return <T>[rootname, ...path];
+    return <T>pJoined.split(kFolderConstants.separator);
   }
 
-  return <T>pathJoin(rootname, path);
+  return <T>pJoined;
 }
 
 export function assertFolder(folder: Folder | null | undefined): asserts folder {
@@ -251,19 +248,14 @@ export async function ensureFolders(
   namepath: string | string[],
   opts: SemanticProviderMutationRunOptions
 ): Promise<{folder: Folder | null; folders: Folder[]}> {
-  if (!namepath || (isArray(namepath) && namepath.length === 0)) {
+  if (isPathEmpty(namepath)) {
     return {folder: null, folders: []};
   }
 
   const {newFolders, existingFolders} = await createFolderListWithTransaction(
     agent,
     workspace,
-    {
-      folderpath: addRootnameToPath(
-        isArray(namepath) ? namepath.join(kFolderConstants.separator) : namepath,
-        workspace.rootname
-      ),
-    },
+    {folderpath: addRootnameToPath(pathJoin(namepath), workspace.rootname)},
     /** Skip auth check. Since what we really care about is file creation, and
      * a separate permission check is done for that. All of it is also done
      * with transaction so should upload file permission check fail, it'll get
@@ -288,6 +280,7 @@ export async function ensureFolders(
 export async function getWorkspaceFromFolderpath(folderpath: string): Promise<Workspace> {
   const workspaceModel = kSemanticModels.workspace();
   const pathinfo = getFolderpathInfo(folderpath);
+  assertRootname(pathinfo.rootname);
   const workspace = await workspaceModel.getByRootname(pathinfo.rootname);
 
   appAssert(
@@ -392,7 +385,7 @@ export async function ingestFolderByFolderpath(
       return await provider.describeFolder({
         workspaceId,
         mount,
-        folderpath: pathinfo.namepath.join(kFolderConstants.separator),
+        folderpath: pathJoin(pathinfo.namepath),
       });
     })
   );

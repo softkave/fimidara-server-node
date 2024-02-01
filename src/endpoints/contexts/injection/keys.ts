@@ -70,6 +70,8 @@ export const kInjectionKeys = {
   dbConnection: 'dbConnection',
   email: 'email',
   promises: 'promises',
+  locks: 'locks',
   disposables: 'disposables',
   usageLogic: 'usageLogic',
+  logger: 'logger',
 };

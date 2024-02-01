@@ -17,7 +17,7 @@ import {
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {getClosestExistingFolder} from '../../folders/getFolderWithMatcher';
-import {assertWorkspace} from '../../workspaces/utils';
+import {assertRootname, assertWorkspace} from '../../workspaces/utils';
 import {getFileWithMatcher} from '../getFilesWithMatcher';
 import {getFilepathInfo} from '../utils';
 import {IssueFilePresignedPathEndpoint} from './types';
@@ -62,6 +62,7 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async instData =>
       const pathinfo = getFilepathInfo(data.filepath);
       ({namepath, extension} = pathinfo);
 
+      assertRootname(pathinfo.rootname);
       workspace = await kSemanticModels
         .workspace()
         .getByRootname(pathinfo.rootname, opts);

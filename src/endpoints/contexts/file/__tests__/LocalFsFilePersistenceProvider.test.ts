@@ -5,7 +5,6 @@ import {Readable} from 'stream';
 import {kAppResourceType} from '../../../../definitions/system';
 import {loopAndCollate, pathJoin, pathSplit} from '../../../../utils/fns';
 import {getNewIdForResource} from '../../../../utils/resource';
-import {kFolderConstants} from '../../../folders/constants';
 import {
   generateTestFileName,
   generateTestFilepathString,
@@ -51,14 +50,10 @@ describe('LocalFsFilePersistenceProvider', () => {
     const backend = new LocalFsFilePersistenceProvider({dir: testDir});
     const {nativePath} = backend.toNativePath({
       mount,
-      fimidaraPath: path.join(mount.namepath.join(kFolderConstants.separator), filepath),
+      fimidaraPath: pathJoin(mount.namepath, filepath),
     });
 
-    const expectedNativePath = path.normalize(
-      ([] as string[])
-        .concat(testDir, mount.mountedFrom, filepath)
-        .join(kFolderConstants.separator)
-    );
+    const expectedNativePath = pathJoin(testDir, mount.mountedFrom, filepath);
     const p1 = pathSplit(nativePath);
     const p2 = pathSplit(expectedNativePath);
     expect(p1).toEqual(expect.arrayContaining(p2));
@@ -69,11 +64,7 @@ describe('LocalFsFilePersistenceProvider', () => {
     const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
     const mount = generateFileBackendMountForTest({workspaceId});
     const filepath = generateTestFilepathString({length: 4});
-    const nativePath = path.normalize(
-      ([] as string[])
-        .concat(testDir, mount.mountedFrom, filepath)
-        .join(kFolderConstants.separator)
-    );
+    const nativePath = pathJoin(testDir, mount.mountedFrom, filepath);
 
     const backend = new LocalFsFilePersistenceProvider({dir: testDir});
     const {fimidaraPath} = backend.toFimidaraPath({mount, nativePath});

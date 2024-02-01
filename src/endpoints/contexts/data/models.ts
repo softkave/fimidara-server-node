@@ -1,4 +1,5 @@
 import {AgentToken} from '../../../definitions/agentToken';
+import {App} from '../../../definitions/app';
 import {AssignedItem} from '../../../definitions/assignedItem';
 import {CollaborationRequest} from '../../../definitions/collaborationRequest';
 import {File, FilePresignedPath} from '../../../definitions/file';
@@ -30,6 +31,7 @@ import {throwNotFound} from '../../utils';
 import {throwWorkspaceNotFound} from '../../workspaces/utils';
 import {
   AgentTokenDataProvider,
+  AppDataProvider,
   AppRuntimeStateDataProvider,
   AssignedItemDataProvider,
   CollaborationRequestDataProvider,
@@ -172,6 +174,13 @@ export class FileBackendMountMongoDataProvider
 export class ResolvedMountEntryMongoDataProvider
   extends BaseMongoDataProvider<ResolvedMountEntry>
   implements ResolvedMountEntryDataProvider
+{
+  throwNotFound = throwNotFound;
+}
+
+export class AppMongoDataProvider
+  extends BaseMongoDataProvider<App>
+  implements AppDataProvider
 {
   throwNotFound = throwNotFound;
 }

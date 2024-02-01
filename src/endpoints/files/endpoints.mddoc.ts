@@ -18,7 +18,7 @@ import {
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
 import {HttpEndpointResponseHeaders_ContentType_ContentLength} from '../types';
-import {fileConstants} from './constants';
+import {kFileConstants} from './constants';
 import {DeleteFileEndpointParams} from './deleteFile/types';
 import {
   GetFileDetailsEndpointParams,
@@ -67,8 +67,10 @@ const encoding = mddocConstruct.constructFieldString().setDescription('File enco
 const size = mddocConstruct
   .constructFieldNumber()
   .setDescription('File size in bytes')
-  .setMax(fileConstants.maxFileSizeInBytes);
-const extension = mddocConstruct.constructFieldString().setDescription('File extension');
+  .setMax(kFileConstants.maxFileSizeInBytes);
+const extension = mddocConstruct
+  .constructFieldString()
+  .setDescription('File extension, case insensitive');
 const height = mddocConstruct
   .constructFieldNumber()
   .setDescription('Resize to height if file is an image.');
@@ -314,7 +316,7 @@ const uploadFileParams = mddocConstruct
           mddocConstruct
             .constructFieldBinary()
             .setDescription('File binary.')
-            .setMax(fileConstants.maxFileSizeInBytes)
+            .setMax(kFileConstants.maxFileSizeInBytes)
         ),
       })
       .setName('UploadFileEndpointParams')
@@ -329,7 +331,7 @@ const uploadFileSdkParamsDef = mddocConstruct
       mddocConstruct
         .constructFieldBinary()
         .setDescription('File binary.')
-        .setMax(fileConstants.maxFileSizeInBytes)
+        .setMax(kFileConstants.maxFileSizeInBytes)
     ),
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
     encoding: mddocConstruct.constructFieldObjectField(false, encoding),
@@ -403,7 +405,7 @@ export const readFilePOSTEndpointDefinition = mddocConstruct
       FieldBinaryType
     >
   >()
-  .setBasePathname(fileConstants.routes.readFile)
+  .setBasePathname(kFileConstants.routes.readFile)
   .setPathParamaters(fileMatcherPathParameters)
   .setMethod(HttpEndpointMethod.Post)
   .setQuery(readFileQuery)
@@ -435,7 +437,7 @@ export const readFileGETEndpointDefinition = mddocConstruct
       FieldBinaryType
     >
   >()
-  .setBasePathname(fileConstants.routes.readFile)
+  .setBasePathname(kFileConstants.routes.readFile)
   .setPathParamaters(fileMatcherPathParameters)
   .setMethod(HttpEndpointMethod.Get)
   .setQuery(readFileQuery)
@@ -458,7 +460,7 @@ export const uploadFileEndpointDefinition = mddocConstruct
     InferFieldObjectType<UploadFileHttpEndpoint['mddocHttpDefinition']['responseBody']>,
     InferSdkParamsType<UploadFileHttpEndpoint['mddocHttpDefinition']['sdkParamsBody']>
   >()
-  .setBasePathname(fileConstants.routes.uploadFile)
+  .setBasePathname(kFileConstants.routes.uploadFile)
   .setPathParamaters(fileMatcherPathParameters)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(uploadFileParams)
@@ -487,7 +489,7 @@ export const getFileDetailsEndpointDefinition = mddocConstruct
       GetFileDetailsHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(fileConstants.routes.getFileDetails)
+  .setBasePathname(kFileConstants.routes.getFileDetails)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getFileDetailsParams)
   .setRequestHeaders(
@@ -516,7 +518,7 @@ export const updateFileDetailsEndpointDefinition = mddocConstruct
       UpdateFileDetailsHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(fileConstants.routes.updateFileDetails)
+  .setBasePathname(kFileConstants.routes.updateFileDetails)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(updateFileDetailsParams)
   .setRequestHeaders(
@@ -539,7 +541,7 @@ export const deleteFileEndpointDefinition = mddocConstruct
     >,
     InferFieldObjectType<DeleteFileHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
-  .setBasePathname(fileConstants.routes.deleteFile)
+  .setBasePathname(kFileConstants.routes.deleteFile)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(deleteFileParams)
   .setRequestHeaders(
@@ -570,7 +572,7 @@ export const issueFilePresignedPathEndpointDefinition = mddocConstruct
       IssueFilePresignedPathHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(fileConstants.routes.issueFilePresignedPath)
+  .setBasePathname(kFileConstants.routes.issueFilePresignedPath)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(issueFilePresignedPathParams)
   .setRequestHeaders(
@@ -607,7 +609,7 @@ export const getPresignedPathsForFilesEndpointDefinition = mddocConstruct
       GetPresignedPathsForFilesHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(fileConstants.routes.getPresignedPaths)
+  .setBasePathname(kFileConstants.routes.getPresignedPaths)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getPresignedPathsForFilesParams)
   .setRequestHeaders(

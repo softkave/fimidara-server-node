@@ -1,5 +1,5 @@
 import {Resource, WorkspaceResource} from '../../../definitions/system';
-import {getLowercaseRegExpForString} from '../../../utils/fns';
+import {getIgnoreCaseRegExpForString} from '../../../utils/fns';
 import {DataProviderQueryListParams, DataQuery} from '../data/types';
 import {DataSemanticBaseProvider} from './DataSemanticDataAccessBaseProvider';
 import {
@@ -24,7 +24,7 @@ export class DataSemanticWorkspaceResourceProvider<
   ): Promise<T | null> {
     const query: DataQuery<SemanticWorkspaceResourceProviderBaseType> = {
       workspaceId,
-      name: {$regex: getLowercaseRegExpForString(name)},
+      name: {$regex: getIgnoreCaseRegExpForString(name)},
     };
     return await this.data.getOneByQuery(query as DataQuery<T>, opts);
   }
@@ -36,7 +36,7 @@ export class DataSemanticWorkspaceResourceProvider<
   ): Promise<boolean> {
     const query: DataQuery<SemanticWorkspaceResourceProviderBaseType> = {
       workspaceId,
-      name: {$regex: getLowercaseRegExpForString(name)},
+      name: {$regex: getIgnoreCaseRegExpForString(name)},
     };
     return await this.data.existsByQuery(query as DataQuery<T>, opts);
   }

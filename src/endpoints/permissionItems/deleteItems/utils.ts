@@ -1,6 +1,7 @@
 import {forEach} from 'lodash';
 import {Promise} from 'mongoose';
 import {File} from '../../../definitions/file';
+import {Folder} from '../../../definitions/folder';
 import {DeleteResourceJobParams, kJobType} from '../../../definitions/job';
 import {PermissionItem} from '../../../definitions/permissionItem';
 import {
@@ -15,7 +16,8 @@ import {indexArray} from '../../../utils/indexArray';
 import {DataQuery} from '../../contexts/data/types';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {getInAndNinQuery} from '../../contexts/semantic/utils';
-import {kFolderConstants} from '../../folders/constants';
+import {stringifyFilenamepath} from '../../files/utils';
+import {stringifyFoldernamepath} from '../../folders/utils';
 import {JobInput, queueJobs} from '../../jobs/utils';
 import {PermissionItemInputTarget} from '../types';
 import {getPermissionItemTargets} from '../utils';
@@ -46,13 +48,10 @@ export const INTERNAL_deletePermissionItems = async (
 
   // For indexing files and folders by name path
   const indexBynamepath = (item: ResourceWrapper) => {
-    if (
-      item.resourceType === kAppResourceType.File ||
-      item.resourceType === kAppResourceType.Folder
-    ) {
-      return (item.resource as unknown as Pick<File, 'namepath'>).namepath.join(
-        kFolderConstants.separator
-      );
+    if (item.resourceType === kAppResourceType.File) {
+      return stringifyFilenamepath(item.resource as unknown as File);
+    } else if (item.resourceType === kAppResourceType.Folder) {
+      return stringifyFoldernamepath(item.resource as unknown as Folder);
     } else {
       return '';
     }

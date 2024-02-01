@@ -116,7 +116,9 @@ export async function initBackendProvidersForMounts(
     const {providerParams, config} = configsMap[mount.configId ?? ''] ?? {};
 
     if (mount.backend !== kFileBackendType.fimidara && !providerParams) {
-      console.log(`mount ${mount.resourceId} is not fimidara, and is without config`);
+      kUtilsInjectables
+        .logger()
+        .log(`mount ${mount.resourceId} is not fimidara, and is without config`);
       throw new ServerError();
     }
 

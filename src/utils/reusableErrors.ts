@@ -13,6 +13,9 @@ export const kReuseableErrors = {
     notFound(id?: string) {
       return new NotFoundError(kAppMessages.workspace.notFound(id));
     },
+    noRootname() {
+      return new InvalidRequestError(kAppMessages.workspace.noRootname());
+    },
     withRootnameNotFound(rootname: string) {
       return new NotFoundError(kAppMessages.workspace.withRootnameNotFound(rootname));
     },

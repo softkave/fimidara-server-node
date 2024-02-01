@@ -1,12 +1,11 @@
 import {faker} from '@faker-js/faker';
-import test, {describe} from 'node:test';
 import {
   IngestFolderpathJobMeta,
   IngestFolderpathJobParams,
   Job,
   kJobType,
 } from '../../../../definitions/job';
-import {loopAndCollate} from '../../../../utils/fns';
+import {loopAndCollate, pathJoin} from '../../../../utils/fns';
 import {getNewId} from '../../../../utils/resource';
 import {MemoryFilePersistenceProvider} from '../../../contexts/file/MemoryFilePersistenceProvider';
 import {
@@ -15,11 +14,13 @@ import {
   PersistedFileDescription,
   PersistedFolderDescription,
 } from '../../../contexts/file/types';
-import {kSemanticModels} from '../../../contexts/injection/injectables';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables';
 import {kRegisterUtilsInjectables} from '../../../contexts/injection/register';
 import {FileQueries} from '../../../files/queries';
 import {getFilepathInfo} from '../../../files/utils';
-import {kFolderConstants} from '../../../folders/constants';
 import {FolderQueries} from '../../../folders/queries';
 import {getFolderpathInfo, stringifyFoldernamepath} from '../../../folders/utils';
 import TestMemoryFilePersistenceProviderContext from '../../../testUtils/context/file/TestMemoryFilePersistenceProviderContext';
@@ -32,6 +33,7 @@ import {
   generateTestFolderName,
   generateTestFolderpath,
 } from '../../../testUtils/generate/folder';
+import {expectErrorThrown} from '../../../testUtils/helpers/error';
 import {completeTests} from '../../../testUtils/helpers/test';
 import {
   initTests,
@@ -58,6 +60,7 @@ describe('runIngestFolderpathJob', () => {
 
     const {job} = await setup01();
     await runIngestFolderpathJob(job);
+    await kUtilsInjectables.promises().flush();
 
     expect(backend.describeFolderContent).toHaveBeenCalled();
   });
@@ -98,6 +101,7 @@ describe('runIngestFolderpathJob', () => {
 
     const {job} = await setup01();
     await runIngestFolderpathJob(job);
+    await kUtilsInjectables.promises().flush();
 
     expect(prevContinuationToken).toBeTruthy();
     expect(numCalls).toBe(2);
@@ -121,6 +125,7 @@ describe('runIngestFolderpathJob', () => {
 
     const {job} = await setup01();
     await runIngestFolderpathJob(job);
+    await kUtilsInjectables.promises().flush();
 
     expect(numCalls).toBe(1);
   });
@@ -131,9 +136,7 @@ describe('runIngestFolderpathJob', () => {
       () =>
         generatePersistedFileDescriptionForTest({
           mountId: mount.resourceId,
-          filepath: mount.namepath
-            .concat(generateTestFileName())
-            .join(kFolderConstants.separator),
+          filepath: pathJoin(mount.namepath.concat(generateTestFileName())),
         }),
       /** count */ 3
     );
@@ -151,6 +154,7 @@ describe('runIngestFolderpathJob', () => {
     kRegisterUtilsInjectables.fileProviderResolver(() => backend);
 
     await runIngestFolderpathJob(job);
+    await kUtilsInjectables.promises().flush();
 
     const pathinfoList = pFiles.map(pFile =>
       getFilepathInfo(pFile.filepath, {containsRootname: false})
@@ -179,9 +183,7 @@ describe('runIngestFolderpathJob', () => {
       () =>
         generatePersistedFolderDescriptionForTest({
           mountId: mount.resourceId,
-          folderpath: mount.namepath
-            .concat(generateTestFolderName())
-            .join(kFolderConstants.separator),
+          folderpath: pathJoin(mount.namepath.concat(generateTestFolderName())),
         }),
       /** count */ 3
     );
@@ -199,9 +201,12 @@ describe('runIngestFolderpathJob', () => {
     kRegisterUtilsInjectables.fileProviderResolver(() => backend);
 
     await runIngestFolderpathJob(job);
+    await kUtilsInjectables.promises().flush();
 
-    const pathInfoList = pFolders.map(pFolder => getFolderpathInfo(pFolder.folderpath));
-    const folders = await kSemanticModels.file().getManyByQueryList(
+    const pathInfoList = pFolders.map(pFolder =>
+      getFolderpathInfo(pFolder.folderpath, {containsRootname: false})
+    );
+    const folders = await kSemanticModels.folder().getManyByQueryList(
       pathInfoList.map(pathinfo => {
         return FolderQueries.getByNamepath({workspaceId: mount.workspaceId, ...pathinfo});
       })
@@ -216,9 +221,7 @@ describe('runIngestFolderpathJob', () => {
       () =>
         generatePersistedFolderDescriptionForTest({
           mountId: mount.resourceId,
-          folderpath: mount.namepath
-            .concat(generateTestFolderName())
-            .join(kFolderConstants.separator),
+          folderpath: pathJoin(mount.namepath.concat(generateTestFolderName())),
         }),
       /** count */ 3
     );
@@ -236,14 +239,17 @@ describe('runIngestFolderpathJob', () => {
     kRegisterUtilsInjectables.fileProviderResolver(() => backend);
 
     await runIngestFolderpathJob(job);
+    await kUtilsInjectables.promises().flush();
 
-    const pathInfoList = pFolders.map(pFolder => getFolderpathInfo(pFolder.folderpath));
+    const pathInfoList = pFolders.map(pFolder =>
+      getFolderpathInfo(pFolder.folderpath, {containsRootname: false})
+    );
     const jobs = await kSemanticModels.job().getManyByQueryList(
       pathInfoList.map(pathinfo => {
         const params: IngestFolderpathJobParams = {
           agentId: userToken.resourceId,
           mountId: mount.resourceId,
-          ingestFrom: pathinfo.namepath.join(kFolderConstants.separator),
+          ingestFrom: pathinfo.namepath,
         };
         return {shard, workspaceId: mount.workspaceId, params: {$objMatch: params}};
       })
@@ -280,7 +286,8 @@ describe('runIngestFolderpathJob', () => {
     kRegisterUtilsInjectables.fileProviderResolver(() => backend);
 
     const {job} = await setup01();
-    await runIngestFolderpathJob(job);
+    await expectErrorThrown(() => runIngestFolderpathJob(job));
+    await kUtilsInjectables.promises().flush();
 
     const dbJob = await kSemanticModels
       .job()
@@ -320,6 +327,7 @@ describe('runIngestFolderpathJob', () => {
       );
 
     await runIngestFolderpathJob(job);
+    await kUtilsInjectables.promises().flush();
   });
 });
 
@@ -328,7 +336,7 @@ async function setup01() {
   const mountedFrom = generateTestFolderpath({
     length: faker.number.int({min: 1, max: 2}),
   });
-  const mountedFromString = mountedFrom.join(kFolderConstants.separator);
+  const mountedFromString = pathJoin(mountedFrom);
   const mountFolderNamepath = generateTestFolderpath({
     length: faker.number.int({min: 0, max: 2}),
   });
@@ -349,7 +357,7 @@ async function setup01() {
         shard,
         type: kJobType.ingestFolderpath,
         params: {
-          ingestFrom: mountedFromString,
+          ingestFrom: mountedFrom,
           agentId: userToken.resourceId,
           mountId: mount.resourceId,
         },

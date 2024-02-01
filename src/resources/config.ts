@@ -1,4 +1,5 @@
 import config from 'config';
+import {LoggerType} from '../endpoints/contexts/logger/types';
 import {ObjectValues} from '../utils/types';
 
 /** Added after the app initialization phase. */
@@ -75,6 +76,8 @@ export type FimidaraSuppliedConfig = Partial<{
     bucket?: string;
     localFsDir?: string;
   };
+  loggerType: LoggerType;
+  runnerLocation: string;
 }>;
 
 export type FimidaraConfig = FimidaraSuppliedConfig & FimidaraRuntimeConfig;

@@ -1,5 +1,6 @@
 import {first, forEach, isString} from 'lodash';
 import {File} from '../../../definitions/file';
+import {Folder} from '../../../definitions/folder';
 import {PermissionAction} from '../../../definitions/permissionItem';
 import {
   Resource,
@@ -18,7 +19,8 @@ import {
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {SemanticProviderRunOptions} from '../../contexts/semantic/types';
 import {InvalidRequestError} from '../../errors';
-import {kFolderConstants} from '../../folders/constants';
+import {stringifyFilenamepath} from '../../files/utils';
+import {stringifyFoldernamepath} from '../../folders/utils';
 import {PermissionItemInputTarget} from '../types';
 import {getPermissionItemEntities, getPermissionItemTargets} from '../utils';
 import {
@@ -73,14 +75,13 @@ function indexArtifacts(
   targets: ResourceWrapper<Resource>[]
 ) {
   const indexBynamepath = (item: ResourceWrapper) => {
-    if (
-      item.resourceType === kAppResourceType.File ||
-      item.resourceType === kAppResourceType.Folder
-    )
-      return (item.resource as unknown as Pick<File, 'namepath'>).namepath.join(
-        kFolderConstants.separator
-      );
-    else return '';
+    if (item.resourceType === kAppResourceType.File) {
+      return stringifyFilenamepath(item.resource as unknown as File);
+    } else if (item.resourceType === kAppResourceType.Folder) {
+      return stringifyFoldernamepath(item.resource as unknown as Folder);
+    } else {
+      return '';
+    }
   };
 
   const entitiesMapById = indexArray(entities, {path: 'resourceId'});

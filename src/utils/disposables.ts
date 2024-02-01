@@ -5,7 +5,7 @@ import {OrPromise} from './types';
 
 export interface DisposableResource {
   /** Dispose of resource in /src/endpoints/contexts/globalUtils.ts */
-  dispose: () => OrPromise<void>;
+  dispose?: () => OrPromise<void>;
 }
 
 /** NOTE: `DisposablesStore` must never be a disposable resource (basically any
@@ -29,7 +29,9 @@ export class DisposablesStore {
 
   disposeAll = () => {
     this.disposablesMap.forEach(disposable => {
-      kUtilsInjectables.promises().forget(disposable.dispose());
+      if (disposable.dispose) {
+        kUtilsInjectables.promises().forget(disposable.dispose());
+      }
     });
   };
 }

@@ -1,12 +1,14 @@
 import {faker} from '@faker-js/faker';
 import {Folder} from '../../../definitions/folder';
 import {PublicWorkspace, Workspace} from '../../../definitions/workspace';
+import {pathJoin} from '../../../utils/fns';
 import RequestData from '../../RequestData';
 import {
   assertCanReadPublicFile,
   assertCanUpdatePublicFile,
   assertCanUploadToPublicFile,
 } from '../../files/uploadFile/uploadFileTestUtils';
+import {stringifyFilenamepath} from '../../files/utils';
 import {generateTestFileName} from '../../testUtils/generate/file';
 import {
   IInsertWorkspaceForTestResult,
@@ -14,7 +16,6 @@ import {
   insertFolderForTest,
   mockExpressRequestForPublicAgent,
 } from '../../testUtils/testUtils';
-import {kFolderConstants} from '../constants';
 import deleteFolder from '../deleteFolder/handler';
 import {DeleteFolderEndpointParams} from '../deleteFolder/types';
 import getFolder from '../getFolder/handler';
@@ -23,7 +24,7 @@ import listFolderContent from '../listFolderContent/handler';
 import {ListFolderContentEndpointParams} from '../listFolderContent/types';
 import updateFolder from '../updateFolder/handler';
 import {UpdateFolderEndpointParams, UpdateFolderInput} from '../updateFolder/types';
-import {addRootnameToPath} from '../utils';
+import {addRootnameToPath, stringifyFoldernamepath} from '../utils';
 
 export async function assertCanCreateFolderInPublicFolder(
   workspace: PublicWorkspace,
@@ -100,25 +101,23 @@ export async function assertFolderPublicOps(
   folder: Folder,
   insertWorkspaceResult: IInsertWorkspaceForTestResult
 ) {
-  const folderpath = folder.namepath.join(kFolderConstants.separator);
+  const folderpath = stringifyFoldernamepath(folder);
   const {folder: folder02} = await assertCanCreateFolderInPublicFolder(
     insertWorkspaceResult.workspace,
     folderpath
   );
 
-  const folder02Path = folder02.namepath.join(kFolderConstants.separator);
+  const folder02Path = stringifyFoldernamepath(folder02);
   const {file} = await assertCanUploadToPublicFile(
     insertWorkspaceResult.workspace,
-    folder02Path +
-      kFolderConstants.separator +
-      generateTestFileName({includeStraySlashes: true})
+    pathJoin(folder02Path, generateTestFileName({includeStraySlashes: true}))
   );
 
   await assertCanListContentOfPublicFolder(insertWorkspaceResult.workspace, folder02Path);
   await assertCanUpdatePublicFolder(insertWorkspaceResult.workspace, folder02Path);
   await assertCanReadPublicFolder(insertWorkspaceResult.workspace, folder02Path);
 
-  const filepath = file.namepath.join(kFolderConstants.separator);
+  const filepath = stringifyFilenamepath(file);
   await assertCanReadPublicFile(insertWorkspaceResult.workspace, filepath);
   await assertCanUpdatePublicFile(insertWorkspaceResult.workspace, filepath);
   await assertCanUploadToPublicFile(insertWorkspaceResult.workspace, filepath);

@@ -4,6 +4,7 @@ import assert from 'assert';
 import {isFunction} from 'lodash';
 import {container} from 'tsyringe';
 import {getAgentTokenModel} from '../../../db/agentToken';
+import {getAppModel} from '../../../db/app';
 import {getAppRuntimeStateModel} from '../../../db/appRuntimeState';
 import {getAssignedItemModel} from '../../../db/assignedItem';
 import {
@@ -30,6 +31,8 @@ import {
   kFimidaraConfigEmailProvider,
   kFimidaraConfigSecretsManagerProvider,
 } from '../../../resources/config';
+import {LockStore} from '../../../utils/LockStore';
+import {PromiseStore} from '../../../utils/PromiseStore';
 import {appAssert, assertNotFound} from '../../../utils/assertion';
 import {DisposableResource, DisposablesStore} from '../../../utils/disposables';
 import {AnyFn} from '../../../utils/types';
@@ -44,11 +47,11 @@ import NoopEmailProviderContext from '../../testUtils/context/email/NoopEmailPro
 import {assertUsageRecord} from '../../usageRecords/utils';
 import {assertUser} from '../../users/utils';
 import {assertWorkspace} from '../../workspaces/utils';
-import {PromiseStore} from '../PromiseStore';
 import SessionContext, {SessionContextType} from '../SessionContext';
 import {AsyncLocalStorageUtils, kAsyncLocalStorageUtils} from '../asyncLocalStorage';
 import {
   AgentTokenMongoDataProvider,
+  AppMongoDataProvider,
   AppRuntimeStateMongoDataProvider,
   AssignedItemMongoDataProvider,
   CollaborationRequestMongoDataProvider,
@@ -68,6 +71,7 @@ import {
 } from '../data/models';
 import {
   AgentTokenDataProvider,
+  AppDataProvider,
   AppRuntimeStateDataProvider,
   AssignedItemDataProvider,
   CollaborationRequestDataProvider,
@@ -94,6 +98,8 @@ import {MemorySecretsManagerProvider} from '../encryption/MemorySecretsManagerPr
 import {SecretsManagerProvider} from '../encryption/types';
 import {FileProviderResolver} from '../file/types';
 import {defaultFileProviderResolver} from '../file/utils';
+import {Logger} from '../logger/types';
+import {getLogger} from '../logger/utils';
 import {UsageRecordLogicProvider} from '../logic/UsageRecordLogicProvider';
 import {DataSemanticAgentToken} from '../semantic/agentToken/models';
 import {SemanticAgentTokenProvider} from '../semantic/agentToken/types';
@@ -112,6 +118,7 @@ import {
 import {DataSemanticFolder} from '../semantic/folder/models';
 import {SemanticFolderProvider} from '../semantic/folder/types';
 import {
+  DataSemanticApp,
   DataSemanticFileBackendConfig,
   DataSemanticFileBackendMount,
   DataSemanticJob,
@@ -125,6 +132,7 @@ import {SemanticPermissionProviderType} from '../semantic/permission/types';
 import {DataSemanticPermissionItem} from '../semantic/permissionItem/models';
 import {SemanticPermissionItemProviderType} from '../semantic/permissionItem/types';
 import {
+  SemanticAppProvider,
   SemanticFileBackendConfigProvider,
   SemanticFileBackendMountProvider,
   SemanticJobProvider,
@@ -189,6 +197,7 @@ export const kRegisterSemanticModels = {
     registerToken(kInjectionKeys.semantic.usageRecord, item),
   resolvedMountEntry: (item: SemanticResolvedMountEntryProvider) =>
     registerToken(kInjectionKeys.semantic.resolvedMountEntry, item),
+  app: (item: SemanticAppProvider) => registerToken(kInjectionKeys.semantic.app, item),
   utils: (item: SemanticProviderUtils) =>
     registerToken(kInjectionKeys.semantic.utils, item),
 };
@@ -223,6 +232,7 @@ export const kRegisterDataModels = {
     registerToken(kInjectionKeys.data.resolvedMountEntry, item),
   appRuntimeState: (item: AppRuntimeStateDataProvider) =>
     registerToken(kInjectionKeys.data.appRuntimeState, item),
+  app: (item: AppDataProvider) => registerToken(kInjectionKeys.data.app, item),
   utils: (item: DataProviderUtils) => registerToken(kInjectionKeys.data.utils, item),
 };
 
@@ -243,10 +253,12 @@ export const kRegisterUtilsInjectables = {
     registerToken(kInjectionKeys.dbConnection, item),
   email: (item: IEmailProviderContext) => registerToken(kInjectionKeys.email, item),
   promises: (item: PromiseStore) => registerToken(kInjectionKeys.promises, item),
+  locks: (item: LockStore) => registerToken(kInjectionKeys.locks, item),
   disposables: (item: DisposablesStore) =>
     registerToken(kInjectionKeys.disposables, item),
   usageLogic: (item: UsageRecordLogicProvider) =>
     registerToken(kInjectionKeys.usageLogic, item),
+  logger: (item: Logger) => registerToken(kInjectionKeys.logger, item),
 };
 
 export function registerDataModelInjectables() {
@@ -296,6 +308,7 @@ export function registerDataModelInjectables() {
   kRegisterDataModels.usageRecord(
     new UsageRecordMongoDataProvider(getUsageRecordModel(connection))
   );
+  kRegisterDataModels.app(new AppMongoDataProvider(getAppModel(connection)));
   kRegisterDataModels.utils(new MongoDataProviderUtils());
 }
 
@@ -347,6 +360,7 @@ export function registerSemanticModelInjectables() {
   kRegisterSemanticModels.resolvedMountEntry(
     new DataSemanticResolvedMountEntry(kDataModels.resolvedMountEntry(), assertNotFound)
   );
+  kRegisterSemanticModels.app(new DataSemanticApp(kDataModels.app(), assertNotFound));
   kRegisterSemanticModels.utils(new DataSemanticProviderUtils());
 }
 
@@ -357,9 +371,11 @@ export function registerUtilsInjectables() {
   kRegisterUtilsInjectables.disposables(new DisposablesStore());
   kRegisterUtilsInjectables.asyncLocalStorage(kAsyncLocalStorageUtils);
   kRegisterUtilsInjectables.promises(new PromiseStore());
+  kRegisterUtilsInjectables.locks(new LockStore());
   kRegisterUtilsInjectables.fileProviderResolver(defaultFileProviderResolver);
   kRegisterUtilsInjectables.session(new SessionContext());
   kRegisterUtilsInjectables.usageLogic(new UsageRecordLogicProvider());
+  kRegisterUtilsInjectables.logger(getLogger(suppliedConfig.loggerType));
 
   assert(suppliedConfig.mongoDbURI);
   assert(suppliedConfig.mongoDbDatabaseName);

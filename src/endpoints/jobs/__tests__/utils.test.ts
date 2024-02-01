@@ -209,8 +209,7 @@ describe('utils', () => {
       type: kJobType.noop,
     });
 
-    const status = faker.helpers.arrayElement([kJobStatus.completed, kJobStatus.failed]);
-    await completeJob(job01.resourceId, status);
+    await completeJob(job01.resourceId, kJobStatus.completed);
     // Wait for existing promises to resolve. completeJob updates parent jobs,
     // but adds them to the promise store, so we wait.
     await kUtilsInjectables.promises().flush();

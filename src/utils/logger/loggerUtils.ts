@@ -29,9 +29,7 @@ export const createAppLogger = memoize(
     const logger = createLogger({
       level: 'info',
       format: format.combine(
-        format.timestamp({
-          format: 'YYYY-MM-DDTHH:mm:ssZ',
-        }),
+        format.timestamp({format: 'YYYY-MM-DDTHH:mm:ssZ'}),
         format.errors({stack: true}),
         format.metadata(),
         format.json()
@@ -67,27 +65,3 @@ export const createAppLogger = memoize(
   },
   opts => opts.meta.service
 );
-
-export enum FimidaraLoggerServiceNames {
-  Server = 'fimidara-server',
-  Pipeline = 'fimidara-pipeline',
-  Web = 'fimidara-web',
-  Test = 'fimidara-test',
-}
-
-export const serverLogger = createAppLogger({
-  meta: {service: FimidaraLoggerServiceNames.Server},
-  transports: ['console', 'file'],
-});
-export const pipelineLogger = createAppLogger({
-  meta: {service: FimidaraLoggerServiceNames.Pipeline},
-  transports: ['console', 'file'],
-});
-export const webLogger = createAppLogger({
-  meta: {service: FimidaraLoggerServiceNames.Web},
-  transports: ['console', 'file'],
-});
-export const testLogger = createAppLogger({
-  meta: {service: FimidaraLoggerServiceNames.Test},
-  transports: ['console', 'file'],
-});

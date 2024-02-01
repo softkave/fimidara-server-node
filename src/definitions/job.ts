@@ -92,7 +92,7 @@ export interface IngestFolderpathJobParams {
    * for the 1st ingestion job, this will be the mount's source, but for mounts
    * that support describing folders, this can also be subsequent folder
    * children. */
-  ingestFrom: string;
+  ingestFrom: string[];
 }
 
 export interface IngestFolderpathJobMeta {

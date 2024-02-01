@@ -2,12 +2,12 @@ import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {kJobType} from '../../../definitions/job';
 import {kAppResourceType} from '../../../definitions/system';
+import {pathJoin} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {NotFoundError} from '../../errors';
-import {kFolderConstants} from '../../folders/constants';
 import {getFolderpathInfo} from '../../folders/utils';
 import {generateAndInsertFileBackendConfigListForTest} from '../../testUtils/generate/fileBackend';
 import {generateTestFolderpathString} from '../../testUtils/generate/folder';
@@ -126,12 +126,8 @@ describe('updateMount', () => {
           {
             matcher: input => !!input.mountedFrom,
             expect: (input, result) => {
-              expect(updatedMount.mountedFrom.join(kFolderConstants.separator)).toEqual(
-                input.mountedFrom
-              );
-              expect(result.mount.mountedFrom.join(kFolderConstants.separator)).toEqual(
-                input.mountedFrom
-              );
+              expect(pathJoin(updatedMount.mountedFrom)).toEqual(input.mountedFrom);
+              expect(pathJoin(result.mount.mountedFrom)).toEqual(input.mountedFrom);
             },
           },
           {

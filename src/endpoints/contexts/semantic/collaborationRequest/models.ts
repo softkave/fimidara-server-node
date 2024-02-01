@@ -1,5 +1,5 @@
 import {CollaborationRequest} from '../../../../definitions/collaborationRequest';
-import {getLowercaseRegExpForString} from '../../../../utils/fns';
+import {getIgnoreCaseRegExpForString} from '../../../../utils/fns';
 import {DataProviderQueryListParams} from '../../data/types';
 import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {SemanticProviderRunOptions} from '../types';
@@ -14,7 +14,7 @@ export class DataSemanticCollaborationRequest
     opts?: SemanticProviderRunOptions | undefined
   ): Promise<number> {
     return await this.data.countByQuery(
-      {recipientEmail: {$regex: getLowercaseRegExpForString(email)}},
+      {recipientEmail: {$regex: getIgnoreCaseRegExpForString(email)}},
       opts
     );
   }
@@ -24,7 +24,7 @@ export class DataSemanticCollaborationRequest
     opts?: SemanticProviderRunOptions | undefined
   ): Promise<CollaborationRequest | null> {
     return await this.data.getOneByQuery(
-      {recipientEmail: {$regex: getLowercaseRegExpForString(email)}},
+      {recipientEmail: {$regex: getIgnoreCaseRegExpForString(email)}},
       opts
     );
   }
@@ -35,7 +35,7 @@ export class DataSemanticCollaborationRequest
     opts?: SemanticProviderRunOptions | undefined
   ): Promise<CollaborationRequest | null> {
     return await this.data.getOneByQuery(
-      {workspaceId, recipientEmail: {$regex: getLowercaseRegExpForString(email)}},
+      {workspaceId, recipientEmail: {$regex: getIgnoreCaseRegExpForString(email)}},
       opts
     );
   }
@@ -47,7 +47,7 @@ export class DataSemanticCollaborationRequest
       | undefined
   ): Promise<CollaborationRequest[]> {
     return await this.data.getManyByQuery(
-      {recipientEmail: {$regex: getLowercaseRegExpForString(email)}},
+      {recipientEmail: {$regex: getIgnoreCaseRegExpForString(email)}},
       options
     );
   }

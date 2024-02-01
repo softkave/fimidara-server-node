@@ -420,7 +420,8 @@ export function isQueryBaseLiteralFn(query: unknown): query is DataProviderLiter
 
 export class MongoDataProviderUtils implements DataProviderUtils {
   async withTxn<TResult>(
-    fn: AnyFn<[txn: ClientSession], Promise<TResult>>
+    fn: AnyFn<[txn: ClientSession], Promise<TResult>>,
+    reuseAsyncLocalTxn: boolean = true
   ): Promise<TResult> {
     const connection = kUtilsInjectables.dbConnection().get();
     appAssert(isMongoConnection(connection));
@@ -430,7 +431,7 @@ export class MongoDataProviderUtils implements DataProviderUtils {
     let result: TResult | undefined = undefined;
     appAssert(connection);
 
-    if (existingSession && existingSession.transaction.isActive) {
+    if (reuseAsyncLocalTxn && existingSession && existingSession.transaction.isActive) {
       result = await fn(existingSession);
     } else {
       const session = await connection.startSession();

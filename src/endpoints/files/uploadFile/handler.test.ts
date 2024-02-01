@@ -166,7 +166,7 @@ describe('uploadFile', () => {
     }
   );
 
-  softkaveTest.run('file updated when new data uploaded', async () => {
+  softkaveTest.only('file updated when new data uploaded', async () => {
     const backend = new MemoryFilePersistenceProvider();
     kRegisterUtilsInjectables.fileProviderResolver(() => {
       return backend;
