@@ -1,16 +1,17 @@
-import {compact, keyBy, map, merge, uniqBy} from 'lodash';
+import {compact, keyBy, map, uniqBy} from 'lodash';
 import {FileMatcher, FilePresignedPath} from '../../../definitions/file';
 import {SessionAgent, kPermissionAgentTypes} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
+import {mergeData} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {SemanticProviderRunOptions} from '../../contexts/semantic/types';
+import {assertRootname} from '../../workspaces/utils';
 import {getFilepathInfo, stringifyFilenamepath} from '../utils';
 import {GetPresignedPathsForFilesEndpoint, GetPresignedPathsForFilesItem} from './types';
 import {getPresignedPathsForFilesJoiSchema} from './validation';
-import {assertRootname} from '../../workspaces/utils';
 
 // TODO: filter out expired or spent presigned paths and delete them
 
@@ -134,12 +135,13 @@ async function fetchAndMergeUnfetchedWorkspaces(
   const unfetchedWorkspaceIdList = pList
     .filter(p => !workspaceDict[p.workspaceId])
     .map(p => p.workspaceId);
-  merge(
+  mergeData(
     workspaceDict,
     keyBy(
       await kSemanticModels.workspace().getManyByIdList(unfetchedWorkspaceIdList),
       w => w.resourceId
-    )
+    ),
+    {arrayUpdateStrategy: 'replace'}
   );
 }
 

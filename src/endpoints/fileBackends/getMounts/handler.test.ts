@@ -19,7 +19,7 @@ import {
   expectFields,
   performPaginationTest,
   testCombinations,
-} from '../../testUtils/helpers/test';
+} from '../../testUtils/helpers/testFns';
 import {
   initTests,
   insertUserForTest,
@@ -70,6 +70,7 @@ describe('getFileBackendMounts', () => {
         .fileBackendMount()
         .countByQuery(
           EndpointReusableQueries.merge(
+            {},
             query,
             folderpath ? FolderQueries.getByNamepathOnly({namepath: folderpath}) : {}
           )
@@ -79,7 +80,12 @@ describe('getFileBackendMounts', () => {
         count,
         fields: 'mounts',
         req: mockExpressRequestWithAgentToken(userToken),
-        params: query,
+        params: {
+          backend: query.backend,
+          configId: query.configId,
+          folderpath: query.folderpath,
+          workspaceId: query.workspaceId,
+        },
         otherTestsFn: result =>
           expectFields(
             result.mounts,

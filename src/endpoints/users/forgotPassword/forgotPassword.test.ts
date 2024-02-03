@@ -5,7 +5,7 @@ import RequestData from '../../RequestData';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {kRegisterUtilsInjectables} from '../../contexts/injection/register';
 import MockTestEmailProviderContext from '../../testUtils/context/email/MockTestEmailProviderContext';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,

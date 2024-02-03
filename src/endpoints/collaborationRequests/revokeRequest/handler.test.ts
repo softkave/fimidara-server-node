@@ -1,7 +1,7 @@
 import {CollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import RequestData from '../../RequestData';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,

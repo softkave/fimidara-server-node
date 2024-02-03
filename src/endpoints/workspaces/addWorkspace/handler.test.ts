@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
-import {merge} from 'lodash';
 import {appAssert} from '../../../utils/assertion';
+import {mergeData} from '../../../utils/fns';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
@@ -8,7 +8,7 @@ import {kRegisterUtilsInjectables} from '../../contexts/injection/register';
 import {fetchEntityAssignedPermissionGroupList} from '../../permissionGroups/getEntityAssignedPermissionGroups/utils';
 import EndpointReusableQueries from '../../queries';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   initTests,
   insertUserForTest,
@@ -112,7 +112,11 @@ describe('addWorkspace', () => {
 
   test('fails if user is on waitlist', async () => {
     kRegisterUtilsInjectables.suppliedConfig(
-      merge(kUtilsInjectables.suppliedConfig(), {FLAG_waitlistNewSignups: true})
+      mergeData(
+        kUtilsInjectables.suppliedConfig(),
+        {FLAG_waitlistNewSignups: true},
+        {arrayUpdateStrategy: 'replace'}
+      )
     );
     const {userToken} = await insertUserForTest();
     await expectErrorThrown(
@@ -127,7 +131,11 @@ describe('addWorkspace', () => {
         // TODO: if we ever switch to concurrent tests, then create a context
         // for this test instead
         kRegisterUtilsInjectables.suppliedConfig(
-          merge(kUtilsInjectables.suppliedConfig(), {FLAG_waitlistNewSignups: false})
+          mergeData(
+            kUtilsInjectables.suppliedConfig(),
+            {FLAG_waitlistNewSignups: false},
+            {arrayUpdateStrategy: 'replace'}
+          )
         );
       }
     );

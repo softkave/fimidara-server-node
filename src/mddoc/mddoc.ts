@@ -1,4 +1,3 @@
-import {merge} from 'lodash';
 import {Readable} from 'stream';
 // eslint-disable-next-line node/no-unpublished-import
 import {IsNever, OptionalKeysOf} from 'type-fest';
@@ -12,6 +11,7 @@ import {
   makeGetAccessor,
   makeSetAccessor,
 } from '../utils/classAccessors';
+import {mergeData} from '../utils/fns';
 import {AnyFn, AnyObject, IsBoolean, IsStringEnum, IsUnion, Not} from '../utils/types';
 
 export interface FieldBaseType {
@@ -152,7 +152,7 @@ export interface FieldObjectFieldType<T, TRequired extends boolean = any> {
 }
 export type ConvertToMddocType<
   T = any,
-  TAllowOrCombination extends boolean = true
+  TAllowOrCombination extends boolean = true,
 > = IsNever<
   IsUnion<Exclude<T, undefined>> &
     TAllowOrCombination &
@@ -231,7 +231,7 @@ export type MappingFn<
   TRequestHeaders,
   TPathParameters,
   TQuery,
-  TRequestBody
+  TRequestBody,
 > = AnyFn<
   [keyof TSdkParams],
   | ['header', keyof TRequestHeaders]
@@ -245,7 +245,7 @@ export type SdkParamsToRequestArtifactsMapping<
   TRequestHeaders,
   TPathParameters,
   TQuery,
-  TRequestBody
+  TRequestBody,
 > = AnyFn<
   [keyof TSdkParams],
   Array<
@@ -260,7 +260,7 @@ export interface SdkParamsBodyType<
   TRequestHeaders extends object = any,
   TPathParameters extends object = any,
   TQuery extends object = any,
-  TRequestBody extends object = any
+  TRequestBody extends object = any,
 > {
   __id: string;
   def?: FieldObjectType<T>;
@@ -297,7 +297,7 @@ export interface HttpEndpointDefinitionType<
   TRequestBody extends AnyObject = AnyObject,
   TResponseHeaders extends AnyObject = AnyObject,
   TResponseBody extends AnyObject = AnyObject,
-  TSdkParams extends AnyObject = TRequestBody
+  TSdkParams extends AnyObject = TRequestBody,
 > {
   __id: string;
   basePathname?: string;
@@ -569,7 +569,7 @@ function constructFieldBase() {
     assertGetDescription: makeAssertGetAccessor(ff0, 'description'),
     clone: makeClone(ff0),
   };
-  return merge(ff0, ff);
+  return mergeData(ff0, ff, {arrayUpdateStrategy: 'replace'});
 }
 
 function constructFieldString() {
@@ -598,7 +598,7 @@ function constructFieldString() {
     assertGetEnumName: makeAssertGetAccessor(ff0, 'enumName'),
     clone: makeClone(ff0),
   };
-  return merge(ff0, ff);
+  return mergeData(ff0, ff, {arrayUpdateStrategy: 'replace'});
 }
 
 function constructFieldNumber() {
@@ -624,7 +624,7 @@ function constructFieldNumber() {
     assertGetExample: makeAssertGetAccessor(ff0, 'example'),
     clone: makeClone(ff0),
   };
-  return merge(ff0, ff);
+  return mergeData(ff0, ff, {arrayUpdateStrategy: 'replace'});
 }
 
 function constructFieldBoolean() {
@@ -641,7 +641,7 @@ function constructFieldBoolean() {
     assertGetExample: makeAssertGetAccessor(ff0, 'example'),
     clone: makeClone(ff0),
   };
-  return merge(ff0, ff);
+  return mergeData(ff0, ff, {arrayUpdateStrategy: 'replace'});
 }
 
 function constructFieldNull() {
@@ -655,7 +655,7 @@ function constructFieldNull() {
     assertGetDescription: makeAssertGetAccessor(ff0, 'description'),
     clone: makeClone(ff0),
   };
-  return merge(ff0, ff);
+  return mergeData(ff0, ff, {arrayUpdateStrategy: 'replace'});
 }
 
 function constructFieldUndefined() {
@@ -669,7 +669,7 @@ function constructFieldUndefined() {
     assertGetDescription: makeAssertGetAccessor(ff0, 'description'),
     clone: makeClone(ff0),
   };
-  return merge(ff0, ff);
+  return mergeData(ff0, ff, {arrayUpdateStrategy: 'replace'});
 }
 
 function constructFieldDate() {
@@ -686,7 +686,7 @@ function constructFieldDate() {
     assertGetExample: makeAssertGetAccessor(ff0, 'example'),
     clone: makeClone(ff0),
   };
-  return merge(ff0, ff);
+  return mergeData(ff0, ff, {arrayUpdateStrategy: 'replace'});
 }
 
 function constructFieldArray<T>() {
@@ -709,7 +709,7 @@ function constructFieldArray<T>() {
     assertGetMax: makeAssertGetAccessor(ff0, 'max'),
     clone: makeClone(ff0),
   };
-  return merge(ff0, ff);
+  return mergeData(ff0, ff, {arrayUpdateStrategy: 'replace'});
 }
 
 function constructFieldObjectField<T, TRequired extends boolean = false>(
@@ -734,7 +734,7 @@ function constructFieldObjectField<T, TRequired extends boolean = false>(
     assertGetData: makeAssertGetAccessor(ff0, 'data'),
     clone: makeClone(ff0),
   };
-  return merge(ff0, ff);
+  return mergeData(ff0, ff, {arrayUpdateStrategy: 'replace'});
 }
 
 function constructFieldObject<T extends object>() {
@@ -754,7 +754,7 @@ function constructFieldObject<T extends object>() {
     assertGetFields: makeAssertGetAccessor(ff0, 'fields'),
     clone: makeClone(ff0),
   };
-  return merge(ff0, ff);
+  return mergeData(ff0, ff, {arrayUpdateStrategy: 'replace'});
 }
 
 function constructSdkParamsBody<
@@ -762,7 +762,7 @@ function constructSdkParamsBody<
   TRequestHeaders extends object = any,
   TPathParameters extends object = any,
   TQuery extends object = any,
-  TRequestBody extends object = any
+  TRequestBody extends object = any,
 >(mappings: MappingFn<T, TRequestHeaders, TPathParameters, TQuery, TRequestBody>) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -782,7 +782,7 @@ function constructSdkParamsBody<
       assertGetDef: makeAssertGetAccessor(ff0, 'def'),
       clone: makeClone(ff0),
     };
-  return merge(ff0, ff);
+  return mergeData(ff0, ff, {arrayUpdateStrategy: 'replace'});
 }
 
 function constructFieldOrCombination<T>() {
@@ -799,7 +799,7 @@ function constructFieldOrCombination<T>() {
     assertGetTypes: makeAssertGetAccessor(ff0, 'types'),
     clone: makeClone(ff0),
   };
-  return merge(ff0, ff);
+  return mergeData(ff0, ff, {arrayUpdateStrategy: 'replace'});
 }
 
 function constructFieldBinary() {
@@ -819,7 +819,7 @@ function constructFieldBinary() {
     assertGetMax: makeAssertGetAccessor(ff0, 'max'),
     clone: makeClone(ff0),
   };
-  return merge(ff0, ff);
+  return mergeData(ff0, ff, {arrayUpdateStrategy: 'replace'});
 }
 
 export enum HttpEndpointMethod {
@@ -842,7 +842,7 @@ function constructHttpEndpointMultipartFormdata<T extends object>() {
     assertGetItems: makeAssertGetAccessor(ff0, 'items'),
     clone: makeClone(ff0),
   };
-  return merge(ff0, ff);
+  return mergeData(ff0, ff, {arrayUpdateStrategy: 'replace'});
 }
 
 function constructHttpEndpointDefinition<
@@ -852,7 +852,7 @@ function constructHttpEndpointDefinition<
   TRequestBody extends AnyObject = AnyObject,
   TResponseHeaders extends AnyObject = AnyObject,
   TResponseBody extends AnyObject = AnyObject,
-  TSdkParams extends AnyObject = TRequestBody
+  TSdkParams extends AnyObject = TRequestBody,
 >() {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -916,7 +916,7 @@ function constructHttpEndpointDefinition<
     assertGetErrorResponseBody: makeAssertGetAccessor(ff0, 'errorResponseBody'),
     clone: makeClone(ff0),
   };
-  return merge(ff0, ff);
+  return mergeData(ff0, ff, {arrayUpdateStrategy: 'replace'});
 }
 
 export const mddocConstruct = {

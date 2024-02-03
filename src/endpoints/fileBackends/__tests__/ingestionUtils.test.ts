@@ -17,7 +17,7 @@ import {
   generateTestFolderpath,
 } from '../../testUtils/generate/folder';
 import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generate/workspace';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {initTests, insertUserForTest} from '../../testUtils/testUtils';
 import {ingestPersistedFiles, ingestPersistedFolders} from '../ingestionUtils';
 
@@ -143,7 +143,7 @@ describe('mount ingestion utils', () => {
 
       expect({
         ...insertedMountEntry,
-        extension: insertedMountEntry.extension || undefined,
+        extension: insertedMountEntry.extension || '',
       }).toMatchObject(expectedMountEntry);
     });
   });

@@ -8,7 +8,7 @@ import {
 } from '../../permissionGroups/testUtils';
 import {generateAndInsertTestFiles} from '../../testUtils/generate/file';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,

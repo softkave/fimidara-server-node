@@ -1,7 +1,8 @@
 import {AsyncLocalStorage} from 'async_hooks';
-import {get, merge, set} from 'lodash';
+import {get, set} from 'lodash';
 import {ReadonlyDeep} from 'type-fest';
 import {DisposablesStore} from '../../utils/disposables';
+import {mergeData} from '../../utils/fns';
 import {AnyFn, AnyObject} from '../../utils/types';
 
 export type FimidaraAsyncLocalStorageStore = Record<string, unknown>;
@@ -113,7 +114,10 @@ export const kAsyncLocalStorageUtils: AsyncLocalStorageUtils = {
   },
 
   inheritAndRun: <TFn extends AnyFn>(cb: TFn, store: AnyObject = {}) => {
-    return kAsyncLocalStorageUtils.run(cb, merge(store, getAsyncLocalStore()));
+    return kAsyncLocalStorageUtils.run(
+      cb,
+      mergeData(store, getAsyncLocalStore(), {arrayUpdateStrategy: 'replace'})
+    );
   },
 
   get: <T = unknown>(key: string) => {

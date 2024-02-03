@@ -2,7 +2,7 @@ import {calculatePageSize} from '../../../utils/fns';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generate/agentToken';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,

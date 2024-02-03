@@ -5,7 +5,7 @@ import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injec
 import RequestData from '../../RequestData';
 import {generateAndInsertUserListForTest} from '../../testUtils/generate/user';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,

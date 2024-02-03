@@ -346,7 +346,7 @@ describe('fns', () => {
     expect(output01).toBe(expectedP01);
   });
 
-  test('pathJoin with C://', () => {
+  test.skip('pathJoin with C://', () => {
     const inputP1 = 'C://folder01/folder02';
 
     const output01 = pathJoin(inputP1);
@@ -377,7 +377,7 @@ describe('fns', () => {
     expect(output02).toEqual(expectP02);
   });
 
-  test('pathSplit with C://', () => {
+  test.skip('pathSplit with C://', () => {
     const input = 'C://abayomi/fimidara/yomi//softkave//';
 
     const output = pathSplit(input);

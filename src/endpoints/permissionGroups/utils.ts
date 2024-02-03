@@ -22,7 +22,7 @@ import {
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
 import {InvalidRequestError, NotFoundError} from '../errors';
-import {agentExtractor, workspaceResourceFields} from '../utils';
+import {agentExtractor, workspaceResourceFields} from '../extractors';
 import {checkWorkspaceExists} from '../workspaces/utils';
 import {PermissionGroupDoesNotExistError} from './errors';
 

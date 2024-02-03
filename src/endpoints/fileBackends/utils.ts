@@ -9,8 +9,9 @@ import {ConvertAgentToPublicAgent} from '../../definitions/system';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {kSemanticModels} from '../contexts/injection/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
+import {workspaceResourceFields} from '../extractors';
 import {FolderQueries} from '../folders/queries';
-import {workspaceResourceFields} from '../utils';
+
 import {FileMountQueries} from './mountQueries';
 
 const resolvedEntryFields = getFields<PublicResolvedMountEntry>({

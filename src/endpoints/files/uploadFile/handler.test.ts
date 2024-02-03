@@ -16,7 +16,7 @@ import {
 } from '../../testUtils/generate/file';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {expectFileBodyEqual} from '../../testUtils/helpers/file';
-import {completeTests, softkaveTest} from '../../testUtils/helpers/test';
+import {completeTests, softkaveTest} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,
@@ -225,7 +225,7 @@ describe('uploadFile', () => {
     expectFileBodyEqual(dataBuffer, persistedFile.body);
   });
 
-  softkaveTest.only('file not duplicated', async () => {
+  softkaveTest.run('file not duplicated', async () => {
     const {savedFile, insertUserResult, insertWorkspaceResult} =
       await uploadFileBaseTest();
     const update: Partial<UploadFileEndpointParams> = {

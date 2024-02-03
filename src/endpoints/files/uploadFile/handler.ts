@@ -1,9 +1,10 @@
-import {merge, pick} from 'lodash';
+import {pick} from 'lodash';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {kPermissionAgentTypes} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {ValidationError} from '../../../utils/errors';
+import {mergeData} from '../../../utils/fns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {ByteCounterPassThroughStream} from '../../../utils/streams';
 import {validate} from '../../../utils/validate';
@@ -91,7 +92,9 @@ const uploadFile: UploadFileEndpoint = async instData => {
       isReadAvailable: true,
       version: file.version + 1,
     };
-    merge(update, pick(data, ['description', 'encoding', 'mimetype']));
+    mergeData(update, pick(data, ['description', 'encoding', 'mimetype']), {
+      arrayUpdateStrategy: 'replace',
+    });
 
     file = await kSemanticModels.utils().withTxn(async opts => {
       const [savedFile] = await Promise.all([

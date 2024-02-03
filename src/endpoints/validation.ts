@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import {merge} from 'lodash';
+import {mergeData} from '../utils/fns';
 import {JoiSchemaParts} from '../utils/types';
 import {kValidationSchemas} from '../utils/validationUtils';
 import {endpointConstants} from './constants';
@@ -26,7 +26,9 @@ const numberLiteralOps = (schema: Joi.Schema) => ({
 });
 
 const fullLiteralOps = (schema: Joi.Schema) =>
-  merge(numberLiteralOps(schema), comparisonOps(schema));
+  mergeData(numberLiteralOps(schema), comparisonOps(schema), {
+    arrayUpdateStrategy: 'replace',
+  });
 const objectOps = (schema: Joi.Schema) => ({
   $objMatch: schema,
 });

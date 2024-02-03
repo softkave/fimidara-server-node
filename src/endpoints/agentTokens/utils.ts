@@ -9,7 +9,7 @@ import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/check
 import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {InvalidRequestError} from '../errors';
-import {workspaceResourceFields} from '../utils';
+import {workspaceResourceFields} from '../extractors';
 
 const agentTokenFields = getFields<PublicAgentToken>({
   ...workspaceResourceFields,

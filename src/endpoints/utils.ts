@@ -1,24 +1,11 @@
 import {Express, Request, Response} from 'express';
 import {compact, isString} from 'lodash';
-import {
-  Agent,
-  PublicAgent,
-  PublicResource,
-  PublicWorkspaceResource,
-  WorkspaceResource,
-} from '../definitions/system';
+import {Agent, WorkspaceResource} from '../definitions/system';
 import {Workspace} from '../definitions/workspace';
 import OperationError, {FimidaraExternalError} from '../utils/OperationError';
 import {appAssert} from '../utils/assertion';
 import {getTimestamp} from '../utils/dateFns';
 import {ServerError} from '../utils/errors';
-import {
-  ExtractFieldsFrom,
-  getFields,
-  makeExtract,
-  makeExtractIfPresent,
-  makeListExtract,
-} from '../utils/extract';
 import {isObjectEmpty, toCompactArray} from '../utils/fns';
 import {AnyObject} from '../utils/types';
 import RequestData from './RequestData';
@@ -131,38 +118,6 @@ export const wrapEndpointREST = <EndpointType extends Endpoint>(
     });
   };
 };
-
-const agentPublicFields = getFields<PublicAgent>({
-  agentId: true,
-  agentType: true,
-});
-
-export const agentExtractor = makeExtract(agentPublicFields);
-export const agentExtractorIfPresent = makeExtractIfPresent(agentPublicFields);
-export const agentListExtractor = makeListExtract(agentPublicFields);
-
-export const resourceFields: ExtractFieldsFrom<PublicResource> = {
-  resourceId: true,
-  createdAt: true,
-  lastUpdatedAt: true,
-};
-export const workspaceResourceFields: ExtractFieldsFrom<PublicWorkspaceResource> = {
-  ...resourceFields,
-  workspaceId: true,
-  createdBy: agentExtractor,
-  lastUpdatedBy: agentExtractor,
-};
-
-export const resourceExtractor = makeExtract(getFields<PublicResource>(resourceFields));
-export const resourceListExtractor = makeListExtract(
-  getFields<PublicResource>(resourceFields)
-);
-export const workspaceResourceExtractor = makeExtract(
-  getFields<PublicWorkspaceResource>(workspaceResourceFields)
-);
-export const workspaceResourceListExtractor = makeListExtract(
-  getFields<PublicWorkspaceResource>(workspaceResourceFields)
-);
 
 export function throwNotFound() {
   throw new NotFoundError();

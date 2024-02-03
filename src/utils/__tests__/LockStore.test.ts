@@ -1,4 +1,4 @@
-import {completeTests} from '../../endpoints/testUtils/helpers/test';
+import {completeTests} from '../../endpoints/testUtils/helpers/testFns';
 import {initTests} from '../../endpoints/testUtils/testUtils';
 import {LockStore, LockableResource} from '../LockStore';
 import {waitTimeout} from '../fns';

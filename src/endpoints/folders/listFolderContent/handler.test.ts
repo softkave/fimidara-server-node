@@ -13,7 +13,7 @@ import {
   generateTestFolderName,
 } from '../../testUtils/generate/folder';
 import {expectContainsExactly} from '../../testUtils/helpers/assertion';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,

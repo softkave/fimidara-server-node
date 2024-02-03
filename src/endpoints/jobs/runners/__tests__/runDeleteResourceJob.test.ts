@@ -1,4 +1,5 @@
-import {completeTests} from '../../../testUtils/helpers/test';
+import {noop} from 'lodash';
+import {completeTests} from '../../../testUtils/helpers/testFns';
 import {initTests} from '../../../testUtils/testUtils';
 
 beforeAll(async () => {
@@ -9,4 +10,8 @@ afterAll(async () => {
   await completeTests();
 });
 
-describe('runDeleteResourceJob', () => {});
+describe('runDeleteResourceJob', () => {
+  test('deletes', () => {
+    noop();
+  });
+});

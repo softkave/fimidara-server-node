@@ -3,7 +3,7 @@ import {kAppResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {completeTests, softkaveTest} from '../../testUtils/helpers/test';
+import {completeTests, softkaveTest} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,

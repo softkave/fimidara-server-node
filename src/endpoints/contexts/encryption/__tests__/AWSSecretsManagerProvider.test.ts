@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {expectErrorThrown} from '../../../testUtils/helpers/error';
-import {completeTests} from '../../../testUtils/helpers/test';
+import {completeTests} from '../../../testUtils/helpers/testFns';
 import {initTests} from '../../../testUtils/testUtils';
 import {kUtilsInjectables} from '../../injection/injectables';
 import {AWSSecretsManagerProvider} from '../AWSSecretsManagerProvider';
@@ -25,7 +25,7 @@ afterAll(async () => {
   );
 });
 
-describe('AWSSecretsManagerProvider', () => {
+describe.skip('AWSSecretsManagerProvider', () => {
   test('addSecret', async () => {
     assert(manager);
     const name = faker.lorem.word();

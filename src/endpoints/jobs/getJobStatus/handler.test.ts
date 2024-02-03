@@ -1,6 +1,6 @@
 import RequestData from '../../RequestData';
 import {generateAndInsertJobListForTest} from '../../testUtils/generate/job';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,

@@ -1,5 +1,4 @@
 import {compact, first} from 'lodash';
-import path from 'path';
 import {
   File,
   FileMatcher,
@@ -14,7 +13,7 @@ import {Agent, SessionAgent, kAppResourceType} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {pathJoin} from '../../utils/fns';
+import {pathBasename, pathJoin} from '../../utils/fns';
 import {getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {
@@ -40,7 +39,8 @@ import {
   ensureFolders,
   getFolderpathInfo,
 } from '../folders/utils';
-import {workspaceResourceFields} from '../utils';
+
+import {workspaceResourceFields} from '../extractors';
 import {assertRootname, assertWorkspace, checkWorkspaceExists} from '../workspaces/utils';
 import {kFileConstants} from './constants';
 import {getFileWithMatcher} from './getFilesWithMatcher';
@@ -130,25 +130,12 @@ export interface FilenameInfo {
 
 export function getFilenameInfo(providedName: string): FilenameInfo {
   providedName = providedName.startsWith('/') ? providedName.slice(1) : providedName;
-  const [nameWithoutExtension, ...extensionList] = compact(
-    providedName.split(kFileConstants.nameExtensionSeparator)
-  );
-  let extension: string | undefined = extensionList.join(
-    kFileConstants.nameExtensionSeparator
-  );
-
-  const ext = path.posix.extname(providedName);
-
-  // Handle file names without extension, seeing arr.join() would always produce
-  // a string
-  if (extension === '' && !providedName.endsWith(kFileConstants.nameExtensionSeparator)) {
-    extension = undefined;
-  }
+  const {basename, ext: extension} = pathBasename(providedName);
 
   return {
     providedName,
     extension,
-    filenameExcludingExt: nameWithoutExtension,
+    filenameExcludingExt: basename,
   };
 }
 

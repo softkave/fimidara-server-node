@@ -6,7 +6,7 @@ import {waitTimeout} from '../../../utils/fns';
 import RequestData from '../../RequestData';
 import {generateAndInsertTestFiles} from '../../testUtils/generate/file';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests, softkaveTest} from '../../testUtils/helpers/test';
+import {completeTests, softkaveTest} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,

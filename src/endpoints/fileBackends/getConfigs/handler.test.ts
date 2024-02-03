@@ -13,7 +13,7 @@ import {
   expectFields,
   performPaginationTest,
   testCombinations,
-} from '../../testUtils/helpers/test';
+} from '../../testUtils/helpers/testFns';
 import {
   initTests,
   insertUserForTest,

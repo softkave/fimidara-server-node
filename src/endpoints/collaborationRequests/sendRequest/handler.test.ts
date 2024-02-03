@@ -3,7 +3,7 @@ import {add} from 'date-fns';
 import {CollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
 import {getTimestamp} from '../../../utils/dateFns';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   initTests,
   insertRequestForTest,

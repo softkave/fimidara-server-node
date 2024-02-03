@@ -9,7 +9,7 @@ import {kSystemSessionAgent} from '../../../utils/agent';
 import {newResource} from '../../../utils/resource';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {assertUserTokenIsSame} from '../../testUtils/helpers/user';
 import {
   assertEndpointResultOk,

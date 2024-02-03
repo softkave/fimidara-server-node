@@ -18,7 +18,7 @@ import {generateAndInsertUserListForTest} from '../../../testUtils/generate/user
 import {generateAgent, generateTestList} from '../../../testUtils/generate/utils';
 import {expectContainsExactly} from '../../../testUtils/helpers/assertion';
 import {expectErrorThrown} from '../../../testUtils/helpers/error';
-import {completeTests} from '../../../testUtils/helpers/test';
+import {completeTests} from '../../../testUtils/helpers/testFns';
 import {initTests} from '../../../testUtils/testUtils';
 import {kSemanticModels} from '../../injection/injectables';
 import {DataSemanticPermission} from './models';

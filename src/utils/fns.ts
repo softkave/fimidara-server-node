@@ -411,12 +411,12 @@ export interface IMergeDataMetaExported {
   meta?: IMergeDataMeta;
 }
 
-export const mergeData = <ResourceType = unknown>(
-  resource: ResourceType,
-  data: Partial<ResourceType>,
+export const mergeData = <T1 = unknown, T2 = unknown>(
+  dest: T1,
+  source: T2,
   meta: IMergeDataMeta = {arrayUpdateStrategy: 'replace'}
 ) => {
-  const result = mergeWith(resource, data, (objValue, srcValue) => {
+  const result = mergeWith(dest, source, (objValue, srcValue) => {
     if (Array.isArray(objValue) && srcValue) {
       if (meta.arrayUpdateStrategy === 'concat') {
         return objValue.concat(srcValue);
@@ -431,7 +431,7 @@ export const mergeData = <ResourceType = unknown>(
     }
   });
 
-  return result;
+  return result as T1 & T2;
 };
 
 /** Returns a function that calls `afterFn` with the result of, and arguments of
@@ -479,9 +479,6 @@ export function pathJoin(...args: Array<string | string[]>) {
     return '';
   }
 
-  const parsed = path.posix.parse(pJoined);
-  pJoined = path.posix.normalize(parsed.dir + kFolderConstants.separator + parsed.base);
-
   if (pJoined[0] !== kFolderConstants.separator) {
     pJoined = kFolderConstants.separator + pJoined;
   }
@@ -493,8 +490,8 @@ export function pathJoin(...args: Array<string | string[]>) {
   return pJoined;
 }
 
-export function pathSplit(input: string = '') {
-  return compact(input.split(kFolderConstants.separator));
+export function pathSplit(input: string | string[] = '') {
+  return compact(pathJoin(input).split(kFolderConstants.separator));
 }
 
 export function isPathEmpty(input: string | string[]) {

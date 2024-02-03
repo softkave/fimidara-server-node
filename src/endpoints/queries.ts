@@ -1,5 +1,5 @@
-import {merge} from 'lodash';
 import {UnionToIntersection} from 'type-fest';
+import {mergeData} from '../utils/fns';
 import {AnyObject} from '../utils/types';
 import {DataProviderFilterValueOperator} from './contexts/data/DataProvider';
 import DataProviderFilterBuilder from './contexts/data/DataProviderFilterBuilder';
@@ -70,7 +70,10 @@ function getByProvidedId(workspaceId: string, id: string) {
 function mergeQueries<TQueries extends DataQuery<AnyObject>[]>(...queries: TQueries) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  return merge(...queries) as UnionToIntersection<TQueries[number]>;
+  return queries.reduce(
+    (dest, query) => mergeData(dest, query, {arrayUpdateStrategy: 'replace'}),
+    {}
+  ) as UnionToIntersection<TQueries[number]>;
 }
 
 export default abstract class EndpointReusableQueries {

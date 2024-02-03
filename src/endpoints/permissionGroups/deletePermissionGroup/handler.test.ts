@@ -4,7 +4,7 @@ import {kAppResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import RequestData from '../../RequestData';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,

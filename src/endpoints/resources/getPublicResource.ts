@@ -9,6 +9,7 @@ import {AnyFn} from '../../utils/types';
 import {agentTokenExtractor} from '../agentTokens/utils';
 import {collaborationRequestForWorkspaceExtractor} from '../collaborationRequests/utils';
 import {collaboratorExtractor} from '../collaborators/utils';
+import {resourceExtractor} from '../extractors';
 import {
   fileBackendConfigExtractor,
   fileBackendMountExtractor,
@@ -20,7 +21,6 @@ import {permissionGroupExtractor} from '../permissionGroups/utils';
 import {permissionItemExtractor} from '../permissionItems/utils';
 import {tagExtractor} from '../tags/utils';
 import {usageRecordExtractor} from '../usageRecords/utils';
-import {resourceExtractor} from '../utils';
 import {workspaceExtractor} from '../workspaces/utils';
 
 const kResourceTypeToExtractorMap: Record<

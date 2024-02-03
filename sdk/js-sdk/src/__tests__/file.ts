@@ -9,7 +9,7 @@ import {
 } from '../testutils/tests/file';
 
 describe('file', () => {
-  test.only('upload file with node.js readable', async () => {
+  test('upload file with node.js readable', async () => {
     await test_uploadFile_nodeReadable();
   });
 

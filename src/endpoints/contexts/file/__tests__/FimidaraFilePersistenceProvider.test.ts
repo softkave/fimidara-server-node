@@ -24,7 +24,7 @@ import {
   generateTestFolderpathString,
 } from '../../../testUtils/generate/folder';
 import {expectErrorThrown} from '../../../testUtils/helpers/error';
-import {completeTests} from '../../../testUtils/helpers/test';
+import {completeTests} from '../../../testUtils/helpers/testFns';
 import {initTests} from '../../../testUtils/testUtils';
 import {kUtilsInjectables} from '../../injection/injectables';
 import {kRegisterUtilsInjectables} from '../../injection/register';

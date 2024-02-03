@@ -13,7 +13,7 @@ import {
   generateTestFolderpathString,
 } from '../../../testUtils/generate/folder';
 import {expectFileBodyEqual} from '../../../testUtils/helpers/file';
-import {completeTests} from '../../../testUtils/helpers/test';
+import {completeTests} from '../../../testUtils/helpers/testFns';
 import {initTests} from '../../../testUtils/testUtils';
 import {MemoryFilePersistenceProvider} from '../MemoryFilePersistenceProvider';
 

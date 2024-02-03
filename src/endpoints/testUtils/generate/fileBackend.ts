@@ -1,5 +1,4 @@
 import {faker} from '@faker-js/faker';
-import {merge} from 'lodash';
 import {
   FileBackendConfig,
   FileBackendMount,
@@ -8,7 +7,7 @@ import {
 } from '../../../definitions/fileBackend';
 import {Agent, kAppResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
-import {pathSplit} from '../../../utils/fns';
+import {mergeData, pathSplit} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kValidationConstants} from '../../../utils/validationUtils';
 import {S3FilePersistenceProviderInitParams} from '../../contexts/file/S3FilePersistenceProvider';
@@ -150,7 +149,7 @@ export function generateResolvedMountEntryForTest(
     resolvedForType: kAppResourceType.File,
     other: null,
   };
-  return merge(config, seed);
+  return mergeData(config, seed, {arrayUpdateStrategy: 'replace'});
 }
 
 export function generatePersistedFolderDescriptionForTest(

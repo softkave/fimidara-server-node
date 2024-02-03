@@ -12,7 +12,7 @@ import {
   generateTestFilepathString,
 } from '../../testUtils/generate/file';
 import {expectFileBodyEqual, expectFileBodyEqualById} from '../../testUtils/helpers/file';
-import {completeTests, softkaveTest} from '../../testUtils/helpers/test';
+import {completeTests, softkaveTest} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,

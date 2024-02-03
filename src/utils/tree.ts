@@ -1,4 +1,5 @@
-import {isBoolean, isNull, merge} from 'lodash';
+import {isBoolean, isNull} from 'lodash';
+import {mergeData} from './fns';
 import {AnyFn} from './types';
 
 /** Return `-1` to move from node, `0` to enter node, `1` to select node, `2` to
@@ -44,7 +45,7 @@ export class Tree<TNode> {
     const place = isNull(result) ? this.nodes : result ? result[1] : undefined;
 
     if (place) {
-      merge(place, nodes);
+      mergeData(place, nodes, {arrayUpdateStrategy: 'replace'});
     }
   }
 
@@ -53,7 +54,7 @@ export class Tree<TNode> {
     const place = isNull(result) ? this.nodes : result ? result[1] : undefined;
 
     if (place) {
-      merge(place, nodes);
+      mergeData(place, nodes, {arrayUpdateStrategy: 'replace'});
     }
   }
 

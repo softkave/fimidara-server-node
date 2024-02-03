@@ -20,9 +20,10 @@ import {kUtilsInjectables} from '../contexts/injection/injectables';
 import {UsageRecordInput} from '../contexts/logic/UsageRecordLogicProvider';
 import {SemanticProviderMutationRunOptions} from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
+import {workspaceResourceFields} from '../extractors';
 import {stringifyFilenamepath} from '../files/utils';
 import RequestData from '../RequestData';
-import {workspaceResourceFields} from '../utils';
+
 import {UsageLimitExceededError} from './errors';
 
 async function insertRecord(

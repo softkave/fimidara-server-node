@@ -2,7 +2,7 @@ import {kSystemSessionAgent} from '../../../utils/agent';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import RequestData from '../../RequestData';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,

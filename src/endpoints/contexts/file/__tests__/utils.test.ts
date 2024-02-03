@@ -8,7 +8,7 @@ import {
   generateFileBackendMountForTest,
 } from '../../../testUtils/generate/fileBackend';
 import {generateTestFolderpath} from '../../../testUtils/generate/folder';
-import {completeTests} from '../../../testUtils/helpers/test';
+import {completeTests} from '../../../testUtils/helpers/testFns';
 import {initTests} from '../../../testUtils/testUtils';
 import {FimidaraFilePersistenceProvider} from '../FimidaraFilePersistenceProvider';
 import {LocalFsFilePersistenceProvider} from '../LocalFsFilePersistenceProvider';

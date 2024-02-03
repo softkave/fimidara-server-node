@@ -55,12 +55,13 @@ export function defaultToFimidaraPath(
   preMountedFromPrefix: string | string[] = [],
   postMountedFromPrefix: string | string[] = []
 ) {
-  return pathJoin(
-    mount.namepath,
-    pathSplit(nativePath).slice(
-      preMountedFromPrefix.length +
-        mount.mountedFrom.length +
-        postMountedFromPrefix.length
-    )
-  );
+  const nativePathSplit = pathSplit(nativePath);
+  const preMountedFromPrefixSplit = pathSplit(preMountedFromPrefix);
+  const postMountedFromPrefixSplit = pathSplit(postMountedFromPrefix);
+  const sliceFrom =
+    preMountedFromPrefixSplit.length +
+    mount.mountedFrom.length +
+    postMountedFromPrefixSplit.length;
+  const fPath = pathJoin(mount.namepath, nativePathSplit.slice(sliceFrom));
+  return fPath;
 }

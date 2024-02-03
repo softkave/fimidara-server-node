@@ -24,9 +24,9 @@ import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/check
 import {kSemanticModels} from '../contexts/injection/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
+import {agentExtractor, workspaceResourceFields} from '../extractors';
 import folderValidationSchemas from '../folders/validation';
 import {EndpointOptionalWorkspaceIDParam} from '../types';
-import {agentExtractor, workspaceResourceFields} from '../utils';
 
 const usageThresholdItemPublicFields = getFields<PublicUsageThreshold>({
   lastUpdatedBy: agentExtractor,

@@ -5,7 +5,7 @@ import {ResourceExistsError} from '../../errors';
 import {stringifyFoldernamepath} from '../../folders/utils';
 import {generateUniqueFolderpath} from '../../testUtils/generate/folder';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   initTests,
   insertFileBackendMountForTest,

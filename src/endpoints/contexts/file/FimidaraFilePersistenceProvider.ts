@@ -1,4 +1,5 @@
 import {isArray, isNumber, isObject} from 'lodash';
+import path from 'path';
 import {File} from '../../../definitions/file';
 import {kAppResourceType} from '../../../definitions/system';
 import {kFimidaraConfigFilePersistenceProvider} from '../../../resources/config';
@@ -316,9 +317,11 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
         appAssert(config.awsConfig?.region);
         appAssert(config.awsConfig?.secretAccessKey);
         return new S3FilePersistenceProvider(config.awsConfig);
-      case kFimidaraConfigFilePersistenceProvider.fs:
+      case kFimidaraConfigFilePersistenceProvider.fs: {
         appAssert(config.localFsDir);
-        return new LocalFsFilePersistenceProvider({dir: config.localFsDir});
+        const pathResolved = path.resolve(config.localFsDir);
+        return new LocalFsFilePersistenceProvider({dir: pathResolved});
+      }
       case kFimidaraConfigFilePersistenceProvider.memory:
         return new MemoryFilePersistenceProvider();
       default:

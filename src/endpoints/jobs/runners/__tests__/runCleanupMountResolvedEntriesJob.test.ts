@@ -3,7 +3,7 @@ import {extractResourceIdList} from '../../../../utils/fns';
 import {getNewIdForResource} from '../../../../utils/resource';
 import {kSemanticModels} from '../../../contexts/injection/injectables';
 import {generateAndInsertResolvedMountEntryListForTest} from '../../../testUtils/generate/fileBackend';
-import {completeTests} from '../../../testUtils/helpers/test';
+import {completeTests} from '../../../testUtils/helpers/testFns';
 import {initTests} from '../../../testUtils/testUtils';
 import {runCleanupMountResolvedEntriesJob} from '../runCleanupMountResolvedEntriesJob';
 

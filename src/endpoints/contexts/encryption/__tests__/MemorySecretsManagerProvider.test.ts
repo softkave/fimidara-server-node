@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {expectErrorThrown} from '../../../testUtils/helpers/error';
-import {completeTests} from '../../../testUtils/helpers/test';
+import {completeTests} from '../../../testUtils/helpers/testFns';
 import {initTests} from '../../../testUtils/testUtils';
 import {MemorySecretsManagerProvider} from '../MemorySecretsManagerProvider';
 

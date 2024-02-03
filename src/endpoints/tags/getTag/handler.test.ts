@@ -1,6 +1,6 @@
 import RequestData from '../../RequestData';
 import {insertTagForTest} from '../../testUtils/helpers/tag';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,

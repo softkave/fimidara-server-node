@@ -4,7 +4,7 @@ import RequestData from '../../RequestData';
 import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generate/agentToken';
 import {generateAndInsertUserListForTest} from '../../testUtils/generate/user';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {initTests} from '../../testUtils/testUtils';
 import {ChangePasswordError, PermissionDeniedError} from '../../users/errors';
 import {kUtilsInjectables} from '../injection/injectables';

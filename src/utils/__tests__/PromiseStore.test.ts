@@ -1,5 +1,6 @@
+import assert from 'assert';
 import {expectErrorThrown} from '../../endpoints/testUtils/helpers/error';
-import {completeTests} from '../../endpoints/testUtils/helpers/test';
+import {completeTests} from '../../endpoints/testUtils/helpers/testFns';
 import {initTests} from '../../endpoints/testUtils/testUtils';
 import {PromiseStore} from '../PromiseStore';
 import {waitTimeout} from '../fns';
@@ -14,13 +15,22 @@ afterAll(async () => {
 });
 
 describe('PromiseStore', () => {
-  test.only('forget', async () => {
-    const store = new TestPromiseStore();
+  test('forget', async () => {
+    try {
+      const store = new TestPromiseStore();
 
-    // test will fail if exception was not handled
-    store.forget(Promise.reject());
-    await waitTimeout(1);
-    await store.flush();
+      store.forget(
+        (async (): Promise<void> => {
+          waitTimeout(1_000);
+          return Promise.reject();
+        })()
+      );
+
+      await waitTimeout(1);
+      await store.flush();
+    } catch (error) {
+      assert.fail('error not caught');
+    }
   });
 
   test('flush', async () => {

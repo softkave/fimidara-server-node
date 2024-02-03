@@ -3,7 +3,7 @@ import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
 import {kAppResourceType} from '../../../definitions/system';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,

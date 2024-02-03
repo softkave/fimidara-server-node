@@ -6,7 +6,7 @@ import {extractResourceIdList} from '../../../utils/fns';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generate/permissionItem';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,

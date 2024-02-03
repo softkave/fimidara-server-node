@@ -17,7 +17,7 @@ import RequestData from '../../RequestData';
 import MockTestEmailProviderContext from '../../testUtils/context/email/MockTestEmailProviderContext';
 import {generateAndInsertUserListForTest} from '../../testUtils/generate/user';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,

@@ -1,5 +1,5 @@
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   initTests,
   insertAgentTokenForTest,

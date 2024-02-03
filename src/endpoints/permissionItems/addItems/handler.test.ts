@@ -6,7 +6,7 @@ import {kSemanticModels} from '../../contexts/injection/injectables';
 import {generateAndInsertTestFolders} from '../../testUtils/generate/folder';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {expectEntityHasPermissionsTargetingId} from '../../testUtils/helpers/permissionItem';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,

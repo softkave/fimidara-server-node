@@ -9,7 +9,7 @@ import {
   expectContainsExactly,
   expectContainsExactlyForAnyType,
 } from '../../testUtils/helpers/assertion';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,

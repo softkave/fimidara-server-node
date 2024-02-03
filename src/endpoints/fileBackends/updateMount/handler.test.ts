@@ -22,7 +22,7 @@ import {
   matchExpects,
   softkaveTest,
   testCombinations,
-} from '../../testUtils/helpers/test';
+} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,

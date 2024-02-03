@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
 import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,

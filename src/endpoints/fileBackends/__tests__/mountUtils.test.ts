@@ -29,7 +29,7 @@ import {
   generateTestFolderpath,
 } from '../../testUtils/generate/folder';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests, softkaveTest} from '../../testUtils/helpers/test';
+import {completeTests, softkaveTest} from '../../testUtils/helpers/testFns';
 import {
   initTests,
   insertFileBackendConfigForTest,
@@ -289,6 +289,7 @@ describe('file backend mount utils', () => {
       entry => entry.mountId === existingEntry.mountId
     );
     const dbNewEntry = dbEntries.find(entry => entry.mountId === newPFile.mountId);
+
     // 1 new entry, and existing entry should be overwritten
     expect(dbEntries).toHaveLength(2);
     expect(dbExistingEntry?.resolvedAt).toBeGreaterThan(existingEntry.resolvedAt);

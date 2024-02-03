@@ -1,6 +1,5 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
-import {merge} from 'lodash';
 import {Readable} from 'stream';
 import {AgentToken} from '../../definitions/agentToken';
 import {
@@ -12,7 +11,7 @@ import {PublicUser, UserWithWorkspace} from '../../definitions/user';
 import {PublicWorkspace, Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
-import {pathJoin, toArray} from '../../utils/fns';
+import {mergeData, pathJoin, toArray} from '../../utils/fns';
 import {makeUserSessionAgent} from '../../utils/sessionUtils';
 import addAgentTokenEndpoint from '../agentTokens/addToken/handler';
 import {
@@ -337,7 +336,11 @@ export async function insertFileBackendMountForTest(
     .getOneById(result.mount.resourceId);
   appAssert(rawMount);
 
-  return merge(result, addConfigResult, {rawMount});
+  return mergeData(
+    result,
+    mergeData(addConfigResult, {rawMount}, {arrayUpdateStrategy: 'replace'}),
+    {arrayUpdateStrategy: 'replace'}
+  );
 }
 
 export async function insertFolderForTest(
@@ -429,7 +432,7 @@ export async function insertFileForTest(
     }
   }
 
-  merge(input, fileInput);
+  mergeData(input, fileInput, {arrayUpdateStrategy: 'replace'});
   const instData = RequestData.fromExpressRequest<UploadFileEndpointParams>(
     userToken
       ? mockExpressRequestWithAgentToken(userToken)

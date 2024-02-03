@@ -2,12 +2,10 @@ import {compact, defaultTo, first, isArray, last} from 'lodash';
 import {Folder, FolderMatcher, PublicFolder} from '../../definitions/folder';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {isPathEmpty, pathJoin, pathSplit} from '../../utils/fns';
-import {workspaceResourceFields} from '../utils';
-import {kFolderConstants} from './constants';
-import {FolderNotFoundError} from './errors';
+
 import {FileBackendMount} from '../../definitions/fileBackend';
 import {PermissionAction} from '../../definitions/permissionItem';
-import {SessionAgent, Agent, kAppResourceType} from '../../definitions/system';
+import {Agent, SessionAgent, kAppResourceType} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
@@ -18,20 +16,23 @@ import {
 } from '../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../contexts/injection/injectables';
 import {
-  SemanticProviderRunOptions,
   SemanticProviderMutationRunOptions,
+  SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
 import {InvalidRequestError} from '../errors';
 import {getBackendConfigsWithIdList} from '../fileBackends/configUtils';
 import {ingestPersistedFolders} from '../fileBackends/ingestionUtils';
 import {
   FileBackendMountWeights,
-  resolveMountsForFolder,
   initBackendProvidersForMounts,
+  resolveMountsForFolder,
 } from '../fileBackends/mountUtils';
-import {checkWorkspaceExists, assertRootname} from '../workspaces/utils';
+import {assertRootname, checkWorkspaceExists} from '../workspaces/utils';
 import {createFolderListWithTransaction} from './addFolder/handler';
+import {kFolderConstants} from './constants';
+import {FolderNotFoundError} from './errors';
 import {assertGetFolderWithMatcher} from './getFolderWithMatcher';
+import {workspaceResourceFields} from '../extractors';
 
 const folderFields = getFields<PublicFolder>({
   ...workspaceResourceFields,

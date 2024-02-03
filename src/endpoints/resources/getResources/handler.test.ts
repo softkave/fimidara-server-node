@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {flatten} from 'lodash';
 import {File} from '../../../definitions/file';
+import {Folder} from '../../../definitions/folder';
 import {PermissionAction, kPermissionsMap} from '../../../definitions/permissionItem';
 import {Resource, kAppResourceType} from '../../../definitions/system';
 import RequestData from '../../RequestData';
@@ -11,7 +12,7 @@ import {stringifyFoldernamepath} from '../../folders/utils';
 import {generateAndInsertTestFiles} from '../../testUtils/generate/file';
 import {generateAndInsertTestFolders} from '../../testUtils/generate/folder';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generate/permissionItem';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,
@@ -23,7 +24,6 @@ import {
 import {FetchResourceItem} from '../types';
 import getResources from './handler';
 import {GetResourcesEndpointParams} from './types';
-import {Folder} from '../../../definitions/folder';
 
 /**
  * TODO:

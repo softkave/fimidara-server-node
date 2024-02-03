@@ -4,7 +4,7 @@ import {getNewIdForResource} from '../../../utils/resource';
 import {NotFoundError} from '../../errors';
 import {generateAndInsertFileBackendConfigListForTest} from '../../testUtils/generate/fileBackend';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {initTests} from '../../testUtils/testUtils';
 import {getBackendConfigsWithIdList} from '../configUtils';
 

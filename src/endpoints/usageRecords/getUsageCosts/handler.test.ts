@@ -1,5 +1,5 @@
 import RequestData from '../../RequestData';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {initTests, mockExpressRequestForPublicAgent} from '../../testUtils/testUtils';
 import {usageCosts} from '../constants';
 import getUsageCosts from './handler';

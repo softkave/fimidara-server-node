@@ -16,7 +16,7 @@ import {
 } from '../../../testUtils/generate/permissionGroup';
 import {generatePermissionItemForTest} from '../../../testUtils/generate/permissionItem';
 import {expectErrorThrown} from '../../../testUtils/helpers/error';
-import {softkaveTest, startTesting} from '../../../testUtils/helpers/test';
+import {softkaveTest, startTesting} from '../../../testUtils/helpers/testFns';
 import {
   insertUserForTest,
   insertWorkspaceForTest,

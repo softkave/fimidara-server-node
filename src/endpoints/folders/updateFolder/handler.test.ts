@@ -3,7 +3,7 @@ import {Folder} from '../../../definitions/folder';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   IInsertUserForTestResult,

@@ -13,7 +13,8 @@ import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/check
 import {kSemanticModels} from '../contexts/injection/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
-import {workspaceResourceFields} from '../utils';
+import {workspaceResourceFields} from '../extractors';
+
 import {checkWorkspaceExists} from '../workspaces/utils';
 
 const userCollaborationRequestForUserFields =

@@ -4,7 +4,7 @@ import {
   kUtilsInjectables,
 } from '../contexts/injection/injectables';
 import EndpointReusableQueries from '../queries';
-import {completeTests} from '../testUtils/helpers/test';
+import {completeTests} from '../testUtils/helpers/testFns';
 import {initTests} from '../testUtils/testUtils';
 import {kAppRuntimeStatsDocId, setupApp} from './initAppSetup';
 

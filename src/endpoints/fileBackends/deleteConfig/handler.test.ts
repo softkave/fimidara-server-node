@@ -8,7 +8,7 @@ import {kSemanticModels} from '../../contexts/injection/injectables';
 import {NotFoundError} from '../../errors';
 import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,

@@ -12,11 +12,12 @@ import {toArray} from '../../utils/fns';
 import {getResourceTypeFromId} from '../../utils/resource';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {InvalidRequestError} from '../errors';
+import {workspaceResourceFields} from '../extractors';
 import {checkResourcesBelongsToWorkspace} from '../resources/containerCheckFns';
 import {INTERNAL_getResources} from '../resources/getResources';
 import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems';
 import {FetchResourceItem} from '../resources/types';
-import {workspaceResourceFields} from '../utils';
+
 import {PermissionItemInputTarget} from './types';
 
 const permissionItemFields = getFields<PublicPermissionItem>({

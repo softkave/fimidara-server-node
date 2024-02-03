@@ -8,7 +8,7 @@ import {Workspace} from '../../definitions/workspace';
 import {kUtilsInjectables} from '../../endpoints/contexts/injection/injectables';
 import {generateWorkspaceListForTest} from '../../endpoints/testUtils/generate/workspace';
 import {dropMongoDBAndEndConnection} from '../../endpoints/testUtils/helpers/mongo';
-import {completeTests} from '../../endpoints/testUtils/helpers/test';
+import {completeTests} from '../../endpoints/testUtils/helpers/testFns';
 import {initTests} from '../../endpoints/testUtils/testUtils';
 import {kSystemSessionAgent} from '../../utils/agent';
 import {getTimestamp} from '../../utils/dateFns';

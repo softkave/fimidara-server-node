@@ -1,6 +1,7 @@
 import assert = require('assert');
-import {cloneDeep, isFunction, isObject, merge} from 'lodash';
+import {cloneDeep, isFunction, isObject} from 'lodash';
 import {AnyObject} from 'mongoose';
+import {mergeData} from './fns';
 import {AnyFn} from './types';
 
 export function makeGetAccessor<T, K extends keyof T>(obj: T, k: K) {
@@ -80,5 +81,5 @@ export function accessorFieldsToObject(
   });
   const augment = augmenter(instance, json);
 
-  return merge(json, augment);
+  return mergeData(json, augment, {arrayUpdateStrategy: 'replace'});
 }

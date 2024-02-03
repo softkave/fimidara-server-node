@@ -7,7 +7,7 @@ import {kReuseableErrors} from '../../utils/reusableErrors';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../contexts/injection/injectables';
 import {SemanticProviderRunOptions} from '../contexts/semantic/types';
-import {agentExtractor, workspaceResourceFields} from '../utils';
+import {agentExtractor, workspaceResourceFields} from '../extractors';
 import {checkWorkspaceExists} from '../workspaces/utils';
 
 const assignedTagFields = getFields<PublicAssignedTag>({

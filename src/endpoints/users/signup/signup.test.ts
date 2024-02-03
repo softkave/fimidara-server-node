@@ -1,10 +1,10 @@
 import {faker} from '@faker-js/faker';
-import {merge} from 'lodash';
+import {mergeData} from '../../../utils/fns';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {kRegisterUtilsInjectables} from '../../contexts/injection/register';
 import {generateAndInsertUserListForTest} from '../../testUtils/generate/user';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {initTests, insertUserForTest} from '../../testUtils/testUtils';
 import {EmailAddressNotAvailableError} from '../errors';
 
@@ -48,7 +48,11 @@ describe('signup', () => {
     };
 
     kRegisterUtilsInjectables.suppliedConfig(
-      merge(kUtilsInjectables.suppliedConfig(), {FLAG_waitlistNewSignups: true})
+      mergeData(
+        kUtilsInjectables.suppliedConfig(),
+        {FLAG_waitlistNewSignups: true},
+        {arrayUpdateStrategy: 'replace'}
+      )
     );
     const result = await insertUserForTest(userInput);
     const savedUser = await kSemanticModels
@@ -59,7 +63,11 @@ describe('signup', () => {
     // TODO: if we ever switch to concurrent tests, then create a context for
     // this test instead
     kRegisterUtilsInjectables.suppliedConfig(
-      merge(kUtilsInjectables.suppliedConfig(), {FLAG_waitlistNewSignups: false})
+      mergeData(
+        kUtilsInjectables.suppliedConfig(),
+        {FLAG_waitlistNewSignups: false},
+        {arrayUpdateStrategy: 'replace'}
+      )
     );
   });
 

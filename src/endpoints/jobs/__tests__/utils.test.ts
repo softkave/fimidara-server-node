@@ -12,7 +12,7 @@ import {
   generateJobInput,
 } from '../../testUtils/generate/job';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {initTests} from '../../testUtils/testUtils';
 import {
   completeJob,

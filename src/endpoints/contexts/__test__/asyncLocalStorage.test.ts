@@ -1,7 +1,7 @@
 import {noop} from 'lodash';
 import {DisposableResource} from '../../../utils/disposables';
 import {waitTimeout} from '../../../utils/fns';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {initTests} from '../../testUtils/testUtils';
 import {kAsyncLocalStorageUtils} from '../asyncLocalStorage';
 

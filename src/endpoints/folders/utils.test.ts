@@ -6,7 +6,7 @@ import {
   generateAndInsertTestFolders,
   generateTestFolderpath,
 } from '../testUtils/generate/folder';
-import {completeTests} from '../testUtils/helpers/test';
+import {completeTests} from '../testUtils/helpers/testFns';
 import {initTests} from '../testUtils/testUtils';
 
 beforeAll(async () => {

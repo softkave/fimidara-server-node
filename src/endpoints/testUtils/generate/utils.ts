@@ -1,8 +1,9 @@
 import {faker} from '@faker-js/faker';
-import {merge, pick} from 'lodash';
+import {pick} from 'lodash';
 import {AnyObject} from 'mongoose';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {Agent, AppResourceType, kAppResourceType} from '../../../definitions/system';
+import {mergeData} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {AnyFn, OrPromise} from '../../../utils/types';
 
@@ -28,7 +29,9 @@ export function generateTestList<
   const data: T[] = [];
   for (let i = 0; i < count; i++) {
     const f = generareFullDataFn(i, cache);
-    const item = merge(f, generatePartialDataFn(i, f, cache));
+    const item = mergeData(f, generatePartialDataFn(i, f, cache), {
+      arrayUpdateStrategy: 'replace',
+    });
     data.push(item);
   }
   return data;

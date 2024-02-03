@@ -2,7 +2,7 @@ import {ValidationError} from '../../../utils/errors';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {ResourceExistsError} from '../../errors';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   initTests,
   insertFileBackendConfigForTest,

@@ -9,7 +9,7 @@ import {
 } from '../../permissionGroups/testUtils';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup';
 import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion';
-import {completeTests} from '../../testUtils/helpers/test';
+import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   initTests,
   insertUserForTest,
