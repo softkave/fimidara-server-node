@@ -52,7 +52,7 @@ export async function checkAgentTokenAuthorization02(
   if (tokenId) {
     token = await kSemanticModels.agentToken().getOneById(tokenId);
   } else if (providedResourceId) {
-    appAssert(workspaceId, new InvalidRequestError('Workspace ID not provided.'));
+    appAssert(workspaceId, new InvalidRequestError('Workspace ID not provided'));
     token = await kSemanticModels
       .agentToken()
       .getByProvidedId(workspaceId, providedResourceId);

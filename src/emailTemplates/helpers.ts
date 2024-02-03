@@ -80,7 +80,7 @@ export function getCenteredContentHTML(content: string) {
 }
 
 export function getDoNotReplyHTML() {
-  return getCenteredContentHTML('This is an auto-generated email, do not reply.');
+  return getCenteredContentHTML('This is an auto-generated email, do not reply');
 }
 
 export function getAccountAccessSectionHTML(props: BaseEmailTemplateProps) {

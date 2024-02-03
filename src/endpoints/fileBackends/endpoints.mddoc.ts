@@ -78,12 +78,12 @@ import {
 
 const backend = mddocConstruct
   .constructFieldString()
-  .setDescription('File backend type.')
+  .setDescription('File backend type')
   .setExample(kFileBackendType.fimidara)
   .setValid(Object.values(kFileBackendType))
   .setEnumName('FileBackendType');
 
-const configId = fReusables.id.clone().setDescription('Backend config ID.');
+const configId = fReusables.id.clone().setDescription('Backend config ID');
 const configIdOrNull = mddocConstruct
   .constructFieldOrCombination<string | null>()
   .setTypes([configId, fReusables.nullValue]);
@@ -92,7 +92,7 @@ const index = mddocConstruct
   .constructFieldNumber()
   .setDescription(
     'File backend mount weight when compared to mounts attached to the same folder. ' +
-      'Higher values have higher weight.'
+      'Higher values have higher weight'
   );
 
 const mountedFrom = fReusables.folderpath

@@ -103,7 +103,7 @@ const listFolderContentParams = mddocConstruct
       false,
       mddocConstruct
         .constructFieldString()
-        .setDescription('Fetch children files or folders. To fetch both, pass nothing.')
+        .setDescription('Fetch children files or folders. To fetch both, pass nothing')
         .setExample(kAppResourceType.File)
         .setValid([kAppResourceType.File, kAppResourceType.Folder])
     ),
@@ -135,7 +135,7 @@ const countFolderContentParams = mddocConstruct
       false,
       mddocConstruct
         .constructFieldString()
-        .setDescription('Count children files or folders. To count both, pass nothing.')
+        .setDescription('Count children files or folders. To count both, pass nothing')
         .setExample(kAppResourceType.File)
         .setValid([kAppResourceType.File, kAppResourceType.Folder])
     ),

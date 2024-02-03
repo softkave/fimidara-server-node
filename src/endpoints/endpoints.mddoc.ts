@@ -36,27 +36,27 @@ export const mddocEndpointStatusCodes = {
 
 const requestHeaderItem_JsonContentType = mddocConstruct
   .constructFieldString()
-  .setDescription('HTTP JSON request content type.')
+  .setDescription('HTTP JSON request content type')
   .setExample('application/json');
 const requestHeaderItem_MultipartFormdataContentType = mddocConstruct
   .constructFieldString()
-  .setDescription('HTTP multipart form-data request content type.')
+  .setDescription('HTTP multipart form-data request content type')
   .setExample('multipart/form-data')
   .setValid(['multipart/form-data']);
 const responseHeaderItem_JsonContentType = mddocConstruct
   .constructFieldString()
-  .setDescription('HTTP JSON response content type.')
+  .setDescription('HTTP JSON response content type')
   .setExample('application/json');
 const responseHeaderItem_ContentLength = mddocConstruct
   .constructFieldString()
-  .setDescription('HTTP response content length in bytes.');
+  .setDescription('HTTP response content length in bytes');
 const requestHeaderItem_Authorization = mddocConstruct
   .constructFieldString()
-  .setDescription('Access token.')
+  .setDescription('Access token')
   .setExample('Bearer <token>');
 const requestHeaderItem_ContentType = mddocConstruct
   .constructFieldString()
-  .setDescription('HTTP request content type.')
+  .setDescription('HTTP request content type')
   .setExample('application/json or multipart/form-data');
 
 const requestHeaders_AuthRequired_JsonContentType = mddocConstruct
@@ -188,13 +188,13 @@ const agent = mddocConstruct
       true,
       mddocConstruct
         .constructFieldString()
-        .setDescription('Agent ID. Possible agents are users and agent tokens.')
+        .setDescription('Agent ID. Possible agents are users and agent tokens')
     ),
     agentType: mddocConstruct.constructFieldObjectField(
       true,
       mddocConstruct
         .constructFieldString()
-        .setDescription('Agent type.')
+        .setDescription('Agent type')
         .setExample(kAppResourceType.AgentToken)
         .setValid(kValidAgentTypes)
         .setEnumName('AgentType')
@@ -202,13 +202,13 @@ const agent = mddocConstruct
   });
 const date = mddocConstruct
   .constructFieldNumber()
-  .setDescription('UTC timestamp in milliseconds.');
+  .setDescription('UTC timestamp in milliseconds');
 const dateOrNull = mddocConstruct
   .constructFieldOrCombination<number | null>()
   .setTypes([date, nullValue]);
 const id = mddocConstruct
   .constructFieldString()
-  .setDescription('Resource ID.')
+  .setDescription('Resource ID')
   .setExample(
     `${
       kResourceTypeShortNames[kAppResourceType.Workspace]
@@ -217,13 +217,13 @@ const id = mddocConstruct
 const idList = mddocConstruct
   .constructFieldArray<string>()
   .setType(id)
-  .setDescription('List of resource IDs.');
+  .setDescription('List of resource IDs');
 const idOrList = mddocConstruct
   .constructFieldOrCombination<string | string[]>()
   .setTypes([id, idList]);
 const jobId = mddocConstruct
   .constructFieldString()
-  .setDescription('Long running job ID.')
+  .setDescription('Long running job ID')
   .setExample(
     `${kResourceTypeShortNames[kAppResourceType.Job]}${kIdSeparator}${customAlphabet(
       '0'
@@ -232,7 +232,7 @@ const jobId = mddocConstruct
 const workspaceId = mddocConstruct
   .constructFieldString()
   .setDescription(
-    'Workspace ID. When not provided, will default to using workspace ID from agent token.'
+    'Workspace ID. When not provided, will default to using workspace ID from agent token'
   )
   .setExample(
     `${
@@ -242,12 +242,12 @@ const workspaceId = mddocConstruct
 const workspaceIdInput = workspaceId
   .clone()
   .setDescription(
-    'Workspace ID. When not provided, will default to using workspace ID from agent token.'
+    'Workspace ID. When not provided, will default to using workspace ID from agent token'
   );
 
 const folderId = mddocConstruct
   .constructFieldString()
-  .setDescription('Folder ID.')
+  .setDescription('Folder ID')
   .setExample(
     `${kResourceTypeShortNames[kAppResourceType.Folder]}${kIdSeparator}${customAlphabet(
       '0'
@@ -258,7 +258,7 @@ const folderIdOrNull = mddocConstruct
   .setTypes([folderId, mddocConstruct.constructFieldNull()]);
 const fileId = mddocConstruct
   .constructFieldString()
-  .setDescription('File ID.')
+  .setDescription('File ID')
   .setExample(
     `${kResourceTypeShortNames[kAppResourceType.File]}${kIdSeparator}${customAlphabet(
       '0'
@@ -266,7 +266,7 @@ const fileId = mddocConstruct
   );
 const permissionGroupId = mddocConstruct
   .constructFieldString()
-  .setDescription('Permission group ID.')
+  .setDescription('Permission group ID')
   .setExample(
     `${
       kResourceTypeShortNames[kAppResourceType.PermissionGroup]
@@ -274,7 +274,7 @@ const permissionGroupId = mddocConstruct
   );
 const permissionItemId = mddocConstruct
   .constructFieldString()
-  .setDescription('Permission item ID.')
+  .setDescription('Permission item ID')
   .setExample(
     `${
       kResourceTypeShortNames[kAppResourceType.PermissionItem]
@@ -283,18 +283,18 @@ const permissionItemId = mddocConstruct
 const idPath = mddocConstruct
   .constructFieldArray<string>()
   .setType(folderId)
-  .setDescription('List of parent folder IDs.');
+  .setDescription('List of parent folder IDs');
 const name = mddocConstruct
   .constructFieldString()
   .setDescription('Name, case insensitive');
 const description = mddocConstruct.constructFieldString().setDescription('Description');
-const expires = mddocConstruct.constructFieldNumber().setDescription('Expiration date.');
+const expires = mddocConstruct.constructFieldNumber().setDescription('Expiration date');
 const duration = mddocConstruct
   .constructFieldNumber()
-  .setDescription('Time duration in milliseconds, for example, 1000 for 1 second.');
+  .setDescription('Time duration in milliseconds, for example, 1000 for 1 second');
 const tokenString = mddocConstruct
   .constructFieldString()
-  .setDescription('JWT token string.');
+  .setDescription('JWT token string');
 const assignPermissionGroup = mddocConstruct
   .constructFieldObject<AssignPermissionGroupInput>()
   .setName('AssignPermissionGroupInput')
@@ -309,12 +309,12 @@ const effectOnReferenced = mddocConstruct
   .constructFieldBoolean()
   .setDescription(
     'Whether to perform action on the token used to authorize the API call ' +
-      'when performing actions on tokens and a token ID or provided resource ID is not provided.' +
-      'Defaults to true if a call is made and a token ID is not provided.'
+      'when performing actions on tokens and a token ID or provided resource ID is not provided' +
+      'Defaults to true if a call is made and a token ID is not provided'
   );
 const providedResourceId = mddocConstruct
   .constructFieldString()
-  .setDescription('Resource ID provided by you.')
+  .setDescription('Resource ID provided by you')
   .setMax(endpointConstants.providedResourceIdMaxLength);
 const providedResourceIdOrNull = mddocConstruct
   .constructFieldOrCombination<string | null>()
@@ -337,7 +337,7 @@ const lastName = mddocConstruct
   .constructFieldString()
   .setDescription('Last name')
   .setExample('Christ');
-const password = mddocConstruct.constructFieldString().setDescription('Password.');
+const password = mddocConstruct.constructFieldString().setDescription('Password');
 const emailAddress = mddocConstruct
   .constructFieldString()
   .setDescription('Email address, case insensitive')
@@ -364,7 +364,7 @@ const filepath = mddocConstruct
   .setExample('/workspace-rootname/my-outer-folder/my-image-file.png');
 const filepathOrId = mddocConstruct
   .constructFieldString()
-  .setDescription('File path with workspace rootname (case insensitive) or file ID.')
+  .setDescription('File path with workspace rootname (case insensitive) or file ID')
   .setExample('/workspace-rootname/folder/file.extension or file000-remaining-file-id');
 const filepathList = mddocConstruct.constructFieldArray<string>().setType(filepath);
 const filepathOrList = mddocConstruct
@@ -386,13 +386,13 @@ const actionOrList = mddocConstruct
   .setTypes([action, actionList]);
 const resourceType = mddocConstruct
   .constructFieldString()
-  .setDescription('Resource type.')
+  .setDescription('Resource type')
   .setExample(kAppResourceType.File)
   .setValid(Object.values(kAppResourceType))
   .setEnumName('AppResourceType');
 const usageCategory = mddocConstruct
   .constructFieldString()
-  .setDescription('Usage record category.')
+  .setDescription('Usage record category')
   .setExample(UsageRecordCategoryMap.Storage)
   .setValid(Object.values(UsageRecordCategoryMap))
   .setEnumName('UsageRecordCategory');
@@ -404,7 +404,7 @@ const usageCategoryOrList = mddocConstruct
   .setTypes([usageCategory, usageCategoryList]);
 const usageFulfillmentStatus = mddocConstruct
   .constructFieldString()
-  .setDescription('Usage record fulfillment status.')
+  .setDescription('Usage record fulfillment status')
   .setExample(UsageRecordFulfillmentStatusMap.Fulfilled)
   .setValid(Object.values(UsageRecordFulfillmentStatusMap))
   .setEnumName('UsageRecordFulfillmentStatus');
@@ -419,25 +419,25 @@ const usageFulfillmentStatusOrList = mddocConstruct
 const page = mddocConstruct
   .constructFieldNumber()
   .setDescription(
-    'Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ...'
+    'Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ..'
   )
   .setExample(0)
   .setMin(endpointConstants.minPage);
 const pageSize = mddocConstruct
   .constructFieldNumber()
-  .setDescription('Paginated list page size.')
+  .setDescription('Paginated list page size')
   .setExample(10)
   .setMin(endpointConstants.minPageSize)
   .setMax(endpointConstants.maxPageSize);
 const resultNoteCode = mddocConstruct
   .constructFieldString()
-  .setDescription('Endpoint result or error note code.')
+  .setDescription('Endpoint result or error note code')
   .setExample(kEndpointResultNoteCodeMap.unsupportedOperationInMountBackend)
   .setValid(Object.values(kEndpointResultNoteCodeMap))
   .setEnumName('EndpointResultNoteCode');
 const resultNoteMessage = mddocConstruct
   .constructFieldString()
-  .setDescription('Endpoint result or error note message.')
+  .setDescription('Endpoint result or error note message')
   .setExample(
     "Some mounts in the requested folder's mount chain do not support operation abc."
   );
@@ -520,21 +520,21 @@ const errorObject = mddocConstruct
       true,
       mddocConstruct
         .constructFieldString()
-        .setDescription('Error name.')
+        .setDescription('Error name')
         .setExample('ValidationError')
     ),
     message: mddocConstruct.constructFieldObjectField(
       true,
       mddocConstruct
         .constructFieldString()
-        .setDescription('Error message.')
-        .setExample('Workspace name is invalid.')
+        .setDescription('Error message')
+        .setExample('Workspace name is invalid')
     ),
     action: mddocConstruct.constructFieldObjectField(
       false,
       mddocConstruct
         .constructFieldString()
-        .setDescription('Recommended action.')
+        .setDescription('Recommended action')
         .setValid(Object.values(ServerRecommendedActionsMap))
     ),
     field: mddocConstruct.constructFieldObjectField(
@@ -542,7 +542,7 @@ const errorObject = mddocConstruct
       mddocConstruct
         .constructFieldString()
         .setExample('workspace.innerField.secondInnerField')
-        .setDescription('Invalid field failing validation when error is ValidationError.')
+        .setDescription('Invalid field failing validation when error is ValidationError')
     ),
     notes: mddocConstruct.constructFieldObjectField(false, resultNoteList),
   });
@@ -556,16 +556,16 @@ const errorResponseBody = mddocConstruct
       mddocConstruct
         .constructFieldArray<FimidaraExternalError>()
         .setType(errorObject)
-        .setDescription('Endpoint call response errors.')
+        .setDescription('Endpoint call response errors')
     ),
   })
-  .setDescription('Endpoint error result.');
+  .setDescription('Endpoint error result');
 
 const emptySuccessResponseBody = mddocConstruct
   .constructFieldObject<AnyObject>()
   .setName('EmptyEndpointResult')
   .setFields({})
-  .setDescription('Empty endpoint success result.');
+  .setDescription('Empty endpoint success result');
 
 const longRunningJobResponseBody = mddocConstruct
   .constructFieldObject<LongRunningJobResult>()
@@ -573,7 +573,7 @@ const longRunningJobResponseBody = mddocConstruct
   .setFields({
     jobId: mddocConstruct.constructFieldObjectField(false, jobId),
   })
-  .setDescription('Long running job endpoint success result.');
+  .setDescription('Long running job endpoint success result');
 
 const countResponseBody = mddocConstruct
   .constructFieldObject<CountItemsEndpointResult>()
@@ -581,10 +581,10 @@ const countResponseBody = mddocConstruct
   .setFields({
     count: mddocConstruct.constructFieldObjectField(
       true,
-      mddocConstruct.constructFieldNumber().setDescription('Resource count.')
+      mddocConstruct.constructFieldNumber().setDescription('Resource count')
     ),
   })
-  .setDescription('Count endpoint success result.');
+  .setDescription('Count endpoint success result');
 
 export const mddocEndpointHttpResponseItems = {
   errorResponseBody,

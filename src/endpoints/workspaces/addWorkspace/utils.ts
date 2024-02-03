@@ -106,7 +106,7 @@ export function generateDefaultWorkspacePermissionGroups(
     createdBy: agent,
     name: DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
     description:
-      'Auto-generated permission group with access to every resource in this workspace.',
+      'Auto-generated permission group with access to every resource in this workspace',
   };
   const publicPermissionGroup: PermissionGroup = {
     createdAt,
@@ -118,7 +118,7 @@ export function generateDefaultWorkspacePermissionGroups(
     name: DEFAULT_PUBLIC_PERMISSION_GROUP_NAME,
     description:
       'Auto-generated permission group for public/anonymous users. ' +
-      'Assign permissions to this group for resource/actions you want to be publicly accessible.',
+      'Assign permissions to this group for resource/actions you want to be publicly accessible',
   };
   const collaboratorPermissionGroup: PermissionGroup = {
     createdAt,
@@ -129,7 +129,7 @@ export function generateDefaultWorkspacePermissionGroups(
     createdBy: agent,
     name: DEFAULT_COLLABORATOR_PERMISSION_GROUP_NAME,
     description:
-      'Auto-generated permission group for collaborators. Open permission group to see permissions.',
+      'Auto-generated permission group for collaborators. Open permission group to see permissions',
   };
   const permissionItems = generateAdminPermissions(
     agent,

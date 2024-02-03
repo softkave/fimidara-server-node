@@ -57,7 +57,7 @@ const uploadFile: UploadFileEndpoint = async instData => {
         .file()
         .getAndUpdateOneById(file.resourceId, {isWriteAvailable: false}, opts);
     } else {
-      appAssert(data.filepath, new ValidationError('Provide a filepath for new files.'));
+      appAssert(data.filepath, new ValidationError('Provide a filepath for new files'));
       const pathinfo = getFilepathInfo(data.filepath);
       const file = await createAndInsertNewFile(agent, workspace, pathinfo, data, opts);
       await checkUploadFileAuth(agent, workspace, file, null, opts);

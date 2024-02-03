@@ -21,7 +21,7 @@ const readable = Joi.any().custom((value, helpers) => {
   if (value instanceof Readable) {
     return value;
   }
-  throw new Error('Invalid data provided.');
+  throw new Error('Invalid data provided');
 });
 
 const fileMatcherParts = {

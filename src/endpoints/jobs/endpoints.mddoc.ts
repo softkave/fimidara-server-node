@@ -15,7 +15,7 @@ import {GetJobStatusHttpEndpoint} from './types';
 
 const jobStatus = mddocConstruct
   .constructFieldString()
-  .setDescription('Job status.')
+  .setDescription('Job status')
   .setValid(Object.values(kJobStatus))
   .setEnumName('JobStatus');
 

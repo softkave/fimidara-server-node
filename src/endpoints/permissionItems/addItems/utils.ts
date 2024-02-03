@@ -65,7 +65,7 @@ export const INTERNAL_addPermissionItems = async (
 
   appAssert(
     inputEntities.length,
-    new InvalidRequestError('No permission entity provided.')
+    new InvalidRequestError('No permission entity provided')
   );
 
   const [entities, targets] = await Promise.all([

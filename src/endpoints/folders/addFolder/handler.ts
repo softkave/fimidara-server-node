@@ -201,7 +201,7 @@ const addFolder: AddFolderEndpoint = async instData => {
   // The last folder will be the folder represented by our input, seeing it
   // creates parent folders in order
   const folder = last(newFolders);
-  appAssert(folder, new ServerError('Error creating folder.'));
+  appAssert(folder, new ServerError('Error creating folder'));
 
   return {folder: folderExtractor(folder)};
 };

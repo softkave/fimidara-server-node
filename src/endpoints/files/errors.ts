@@ -9,7 +9,7 @@ export class FileExistsError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.conflict;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'File exists.');
+    this.message = getErrorMessageFromParams(props, 'File exists');
   }
 }
 
@@ -21,7 +21,7 @@ export class FileNotWritableError extends OperationError {
     this.message = getErrorMessageFromParams(
       props,
       'File not in a writable state. ' +
-        'This is most likely because the file is currently being written to.'
+        'This is most likely because the file is currently being written to'
     );
   }
 }

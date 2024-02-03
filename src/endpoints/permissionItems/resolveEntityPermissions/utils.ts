@@ -58,7 +58,7 @@ async function getArtifacts(
 
   appAssert(
     inputEntities.length,
-    new InvalidRequestError('No permission entity provided.')
+    new InvalidRequestError('No permission entity provided')
   );
   const [entities, targets] = await Promise.all([
     getPermissionItemEntities(agent, workspace.resourceId, inputEntities),

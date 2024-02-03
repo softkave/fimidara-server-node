@@ -11,6 +11,6 @@ export async function checkAgentTokenNameExists(
     .agentToken()
     .existsByName(workspaceId, name, opts);
   if (itemExists) {
-    throw new ResourceExistsError('Agent token exists.');
+    throw new ResourceExistsError('Agent token exists');
   }
 }

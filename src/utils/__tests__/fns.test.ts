@@ -310,9 +310,9 @@ describe('fns', () => {
   });
 
   test('pathJoin', () => {
-    const inputP1 = '//abayomi/yomi';
+    const inputP1 = './/abayomi/yomi';
     const inputP2 = 'fimidara/softkave//';
-    const inputP3 = ['/nigeria', 'usa/', '//'];
+    const inputP3 = ['/nigeria', 'usa/', './/'];
 
     const output = pathJoin(inputP1, inputP2, inputP3);
 
@@ -346,13 +346,22 @@ describe('fns', () => {
     expect(output01).toBe(expectedP01);
   });
 
+  test('pathJoin with C://', () => {
+    const inputP1 = 'C://folder01/folder02';
+
+    const output01 = pathJoin(inputP1);
+
+    const expectedP01 = '/folder01/folder02';
+    expect(output01).toBe(expectedP01);
+  });
+
   test('pathSplit', () => {
     const input = '///abayomi/fimidara/yomi//softkave//';
 
     const output = pathSplit(input);
 
     const expectP = ['abayomi', 'fimidara', 'yomi', 'softkave'];
-    expect(output).toEqual(expect.arrayContaining(expectP));
+    expect(output).toEqual(expectP);
   });
 
   test('pathSplit with . and ..', () => {
@@ -364,8 +373,17 @@ describe('fns', () => {
 
     const expectP01 = ['abayomi', 'fimidara'];
     const expectP02: string[] = [];
-    expect(output01).toEqual(expect.arrayContaining(expectP01));
-    expect(output02).toEqual(expect.arrayContaining(expectP02));
+    expect(output01).toEqual(expectP01);
+    expect(output02).toEqual(expectP02);
+  });
+
+  test('pathSplit with C://', () => {
+    const input = 'C://abayomi/fimidara/yomi//softkave//';
+
+    const output = pathSplit(input);
+
+    const expectP = ['abayomi', 'fimidara', 'yomi', 'softkave'];
+    expect(output).toEqual(expectP);
   });
 
   test('isPathEmpty', () => {

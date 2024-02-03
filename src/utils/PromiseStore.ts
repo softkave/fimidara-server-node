@@ -30,7 +30,7 @@ export class PromiseStore {
 
   protected assertNotClosed() {
     if (this.isClosed) {
-      throw new Error('PromiseStore is closed.');
+      throw new Error('PromiseStore is closed');
     }
   }
 

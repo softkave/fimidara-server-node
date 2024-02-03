@@ -10,7 +10,7 @@ export class ServerError extends OperationError {
 
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Server error.');
+    this.message = getErrorMessageFromParams(props, 'Server error');
   }
 }
 
@@ -20,7 +20,7 @@ export class TimeoutError extends OperationError {
 
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Request timed out.');
+    this.message = getErrorMessageFromParams(props, 'Request timed out');
   }
 }
 

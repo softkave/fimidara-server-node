@@ -57,7 +57,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async instDat
       appAssert(
         collaboratorExists === false,
         new ResourceExistsError(
-          'Collaborator with same email address exists in this workspace.'
+          'Collaborator with same email address exists in this workspace'
         )
       );
     }

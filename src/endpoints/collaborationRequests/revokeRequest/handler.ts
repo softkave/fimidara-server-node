@@ -35,7 +35,7 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async ins
     const isRevoked = request.status === CollaborationRequestStatusTypeMap.Revoked;
     appAssert(
       isRevoked === false,
-      new InvalidRequestError('Collaboration request already revoked.')
+      new InvalidRequestError('Collaboration request already revoked')
     );
     const updatedRequest = await kSemanticModels
       .collaborationRequest()

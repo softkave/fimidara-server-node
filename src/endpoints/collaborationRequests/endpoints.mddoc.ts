@@ -70,10 +70,10 @@ const recipientEmail = mddocConstruct
   .setDescription("Recipient's email address.");
 const message = mddocConstruct
   .constructFieldString()
-  .setDescription('Message to recipient.');
+  .setDescription('Message to recipient');
 const statusType = mddocConstruct
   .constructFieldString()
-  .setDescription('Collaboration request status.')
+  .setDescription('Collaboration request status')
   .setValid(Object.values(CollaborationRequestStatusTypeMap))
   .setEnumName('CollaborationRequestStatusType');
 const response = mddocConstruct

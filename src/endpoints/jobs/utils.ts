@@ -215,7 +215,7 @@ export async function runJob(job: Job) {
         job as Job<CleanupMountResolvedEntriesJobParams>
       );
     } else if (job.type === kJobType.fail) {
-      throw new Error('Fail job.');
+      throw new Error('Fail job');
     } else {
       kUtilsInjectables.logger().log(`unknown job type ${job.type}`);
       return undefined;

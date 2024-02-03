@@ -36,17 +36,17 @@ export async function getUserClientAssignedToken(
   appAssert(
     kUtilsInjectables.runtimeConfig().appWorkspaceId,
     new ServerError(),
-    'App workspace ID not set.'
+    'App workspace ID not set'
   );
   appAssert(
     kUtilsInjectables.runtimeConfig().appWorkspacesImageUploadPermissionGroupId,
     new ServerError(),
-    'App workspaces image upload permission group ID not set.'
+    'App workspaces image upload permission group ID not set'
   );
   appAssert(
     kUtilsInjectables.runtimeConfig().appUsersImageUploadPermissionGroupId,
     new ServerError(),
-    'App users image upload permission group ID not set.'
+    'App users image upload permission group ID not set'
   );
 
   let token = await kSemanticModels

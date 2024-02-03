@@ -173,9 +173,9 @@ export type EndpointResultNoteCode = ObjectValues<typeof kEndpointResultNoteCode
 export const kEndpointResultNotesToMessageMap = {
   // TODO: add which mount/backend, and which op
   [kEndpointResultNoteCodeMap.unsupportedOperationInMountBackend]: () =>
-    'Result may not be entirely accurate, some backends have unsupported ops relied upon during processing.',
+    'Result may not be entirely accurate, some backends have unsupported ops relied upon during processing',
   [kEndpointResultNoteCodeMap.mountsNotCompletelyIngested]: () =>
-    'Some mounts are not completely ingested, so actual result may differ.',
+    'Some mounts are not completely ingested, so actual result may differ',
 };
 
 export interface EndpointResultNote {

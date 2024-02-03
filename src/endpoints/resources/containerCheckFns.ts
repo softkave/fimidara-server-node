@@ -28,7 +28,7 @@ export function isResourcePartOfWorkspace(
       return (resource.resource as WorkspaceResource).workspaceId === workspaceId;
     case kAppResourceType.User: {
       const user = resource.resource as UserWithWorkspace;
-      appAssert(user.workspaces, new ServerError(), 'User workspaces not filled in.');
+      appAssert(user.workspaces, new ServerError(), 'User workspaces not filled in');
       return !!getCollaboratorWorkspace(
         resource.resource as UserWithWorkspace,
         workspaceId
@@ -64,7 +64,7 @@ export function isResourcePartOfContainer(
       );
     case kAppResourceType.User: {
       const user = resource.resource as UserWithWorkspace;
-      appAssert(user.workspaces, new ServerError(), 'User workspaces not filled in.');
+      appAssert(user.workspaces, new ServerError(), 'User workspaces not filled in');
       return !!getCollaboratorWorkspace(
         resource.resource as UserWithWorkspace,
         containerId

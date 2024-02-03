@@ -16,19 +16,19 @@ const clientLogInput = mddocConstruct
     timestamp: mddocConstruct.constructFieldObjectField(true, fReusables.date),
     level: mddocConstruct.constructFieldObjectField(
       true,
-      mddocConstruct.constructFieldString().setDescription('Log level.')
+      mddocConstruct.constructFieldString().setDescription('Log level')
     ),
     message: mddocConstruct.constructFieldObjectField(
       true,
-      mddocConstruct.constructFieldString().setDescription('Log message.')
+      mddocConstruct.constructFieldString().setDescription('Log message')
     ),
     service: mddocConstruct.constructFieldObjectField(
       true,
-      mddocConstruct.constructFieldString().setDescription('Fimidara service.')
+      mddocConstruct.constructFieldString().setDescription('Fimidara service')
     ),
     stack: mddocConstruct.constructFieldObjectField(
       false,
-      mddocConstruct.constructFieldString().setDescription('Error log stack.')
+      mddocConstruct.constructFieldString().setDescription('Error log stack')
     ),
   });
 
@@ -47,12 +47,18 @@ export const ingestLogsEndpointDefinition = mddocConstruct
     InferFieldObjectType<IngestLogsHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
     InferFieldObjectType<IngestLogsHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
     InferFieldObjectType<IngestLogsHttpEndpoint['mddocHttpDefinition']['query']>,
-    InferFieldObjectOrMultipartType<IngestLogsHttpEndpoint['mddocHttpDefinition']['requestBody']>,
-    InferFieldObjectType<IngestLogsHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
+    InferFieldObjectOrMultipartType<
+      IngestLogsHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      IngestLogsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
     InferFieldObjectType<IngestLogsHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
   .setBasePathname(clientLogsConstants.routes.ingestLogs)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(ingestLogsParams)
-  .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
   .setName('IngestLogsEndpoint');

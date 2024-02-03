@@ -9,7 +9,7 @@ export class AgentTokenExistsError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.conflict;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Agent token exists.');
+    this.message = getErrorMessageFromParams(props, 'Agent token exists');
   }
 }
 
@@ -18,6 +18,6 @@ export class AgentTokenDoesNotExistError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.notFound;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Agent token not found.');
+    this.message = getErrorMessageFromParams(props, 'Agent token not found');
   }
 }

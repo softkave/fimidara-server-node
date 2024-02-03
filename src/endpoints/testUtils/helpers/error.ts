@@ -29,7 +29,7 @@ export async function expectErrorThrown(
 ) {
   try {
     await fn();
-    assert.fail('Error not thrown.');
+    assert.fail('Error not thrown');
   } catch (error) {
     if (isFunction(expected)) {
       const assertionResult = expected(error);
@@ -37,7 +37,7 @@ export async function expectErrorThrown(
       if (!isUndefined(assertionResult)) {
         assert(
           assertionResult === true,
-          isString(assertionResult) ? assertionResult : 'Expectation not met.'
+          isString(assertionResult) ? assertionResult : 'Expectation not met'
         );
       }
     } else if (expected) {

@@ -1,7 +1,7 @@
 import fse from 'fs-extra';
 import {compact, first, isNumber} from 'lodash';
 import {appAssert} from '../../../utils/assertion';
-import {noopAsync, pathJoin, pathSplit} from '../../../utils/fns';
+import {noopAsync, pathJoin} from '../../../utils/fns';
 import {AnyFn} from '../../../utils/types';
 import {kUtilsInjectables} from '../injection/injectables';
 import {
@@ -34,11 +34,11 @@ export interface LocalFsFilePersistenceProviderParams {
  *   that
  */
 export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
-  protected dirNamepath: string[];
+  protected dirNamepath: string;
 
   constructor(private params: LocalFsFilePersistenceProviderParams) {
     fse.ensureDirSync(params.dir);
-    this.dirNamepath = pathSplit(params.dir);
+    this.dirNamepath = params.dir;
   }
 
   supportsFeature = (feature: FilePersistenceProviderFeature): boolean => {

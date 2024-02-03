@@ -89,7 +89,7 @@ export function renderCollaborationRequestMedia() {
     loginLink: 'https://fimidara.com/accounts/signup',
     signupLink: 'https://fimidara.com/accounts/login',
     expires: getTimestamp(),
-    message: 'Test collaboration request message. ' + 'Not too long, and not too short.',
+    message: 'Test collaboration request message. ' + 'Not too long, and not too short',
     firstName: 'Abayomi',
   };
 

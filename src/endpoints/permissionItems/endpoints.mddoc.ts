@@ -33,7 +33,7 @@ import {
 
 const targetId = fReusables.id
   .clone()
-  .setDescription('Resource ID permission is effected on.');
+  .setDescription('Resource ID permission is effected on');
 const targetIdList = mddocConstruct.constructFieldArray<string>().setType(targetId);
 const targetIdOrList = mddocConstruct
   .constructFieldOrCombination<string | string[]>()
@@ -43,7 +43,7 @@ const entityId = fReusables.id
   .setDescription(
     'Permission entity resource ID. ' +
       'A permission entity is a resource granted or deny access. ' +
-      'This can be a user, a permission group, or an agent token.'
+      'This can be a user, a permission group, or an agent token'
   );
 const entityIdList = mddocConstruct
   .constructFieldArray<string>()
@@ -51,7 +51,7 @@ const entityIdList = mddocConstruct
   .setDescription(
     'Permission entity resource ID list. ' +
       'A permission entity is a resource granted or deny access. ' +
-      'This can be a user, a permission group, or an agent token.'
+      'This can be a user, a permission group, or an agent token'
   );
 const entityIdOrList = mddocConstruct
   .constructFieldOrCombination<string | string[]>()
@@ -59,12 +59,12 @@ const entityIdOrList = mddocConstruct
   .setDescription(
     'Permission entity resource ID list. ' +
       'A permission entity is a resource granted or deny access. ' +
-      'This can be a user, a permission group, or an agent token.'
+      'This can be a user, a permission group, or an agent token'
   );
 const grantAccess = mddocConstruct
   .constructFieldBoolean()
   .setDescription(
-    'Whether access is granted or not. ' + 'Access is granted if true, denied if false.'
+    'Whether access is granted or not. ' + 'Access is granted if true, denied if false'
   );
 
 // TODO: add or array to target, container, and entity, and confirm mddoc md

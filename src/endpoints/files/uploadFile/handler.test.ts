@@ -37,8 +37,6 @@ import {uploadFileBaseTest} from './uploadFileTestUtils';
 /**
  * TODO:
  * - stale versions removed
- *
- * - recover resolver after each test
  */
 
 jest.setTimeout(300000); // 5 minutes
@@ -166,7 +164,7 @@ describe('uploadFile', () => {
     }
   );
 
-  softkaveTest.only('file updated when new data uploaded', async () => {
+  softkaveTest.run('file updated when new data uploaded', async () => {
     const backend = new MemoryFilePersistenceProvider();
     kRegisterUtilsInjectables.fileProviderResolver(() => {
       return backend;
@@ -227,7 +225,7 @@ describe('uploadFile', () => {
     expectFileBodyEqual(dataBuffer, persistedFile.body);
   });
 
-  softkaveTest.run('file not duplicated', async () => {
+  softkaveTest.only('file not duplicated', async () => {
     const {savedFile, insertUserResult, insertWorkspaceResult} =
       await uploadFileBaseTest();
     const update: Partial<UploadFileEndpointParams> = {

@@ -256,14 +256,14 @@ async function setupAppArtifacts(
       setupImageUploadPermissionGroup(
         workspace.resourceId,
         appSetupVars.workspacesImageUploadPermissionGroupName,
-        'Auto-generated permission group for uploading images to the workspace images folder.',
+        'Auto-generated permission group for uploading images to the workspace images folder',
         workspaceImagesFolder,
         opts
       ),
       setupImageUploadPermissionGroup(
         workspace.resourceId,
         appSetupVars.usersImageUploadPermissionGroupName,
-        'Auto-generated permission group for uploading images to the user images folder.',
+        'Auto-generated permission group for uploading images to the user images folder',
         userImagesFolder,
         opts
       ),

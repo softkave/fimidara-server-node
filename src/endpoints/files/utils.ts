@@ -170,11 +170,11 @@ export function getFilepathInfo(
 }
 
 export function throwFileNotFound() {
-  throw new NotFoundError('File not found.');
+  throw new NotFoundError('File not found');
 }
 
 export function throwFilePresignedPathNotFound() {
-  throw new NotFoundError('File presigned path not found.');
+  throw new NotFoundError('File presigned path not found');
 }
 
 export async function getWorkspaceFromFilepath(filepath: string): Promise<Workspace> {

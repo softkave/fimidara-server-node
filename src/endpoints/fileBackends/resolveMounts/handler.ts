@@ -39,7 +39,7 @@ const resolveFileBackendMounts: ResolveFileBackendMountsEndpoint = async instDat
     fileOrFolder = await fileModel.getOneById(data.fileId);
   } else {
     throw new InvalidRequestError(
-      'Provide one of folderpath, folderId, filepath, or fileId.'
+      'Provide one of folderpath, folderId, filepath, or fileId'
     );
   }
 

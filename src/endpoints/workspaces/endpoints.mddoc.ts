@@ -43,19 +43,19 @@ import {
 
 const workspaceDescription = mddocConstruct
   .constructFieldString()
-  .setDescription('Workspace description.')
+  .setDescription('Workspace description')
   .setExample(
-    'fimidara, a super awesome company that offers file management with access control for devs.'
+    'fimidara, a super awesome company that offers file management with access control for devs'
   );
 const usageRecordCategory = mddocConstruct
   .constructFieldString()
-  .setDescription('Usage record category.')
+  .setDescription('Usage record category')
   .setExample(UsageRecordCategoryMap.Storage)
   .setValid(Object.values(UsageRecordCategoryMap))
   .setEnumName('UsageRecordCategory');
 const price = mddocConstruct
   .constructFieldNumber()
-  .setDescription('Price in USD.')
+  .setDescription('Price in USD')
   .setExample(5);
 const usageThreshold = mddocConstruct
   .constructFieldObject<PublicUsageThreshold>()
@@ -77,7 +77,7 @@ const usageThresholdLock = mddocConstruct
       true,
       mddocConstruct
         .constructFieldBoolean()
-        .setDescription('Flag for whether a certain usage category is locked or not.')
+        .setDescription('Flag for whether a certain usage category is locked or not')
     ),
   });
 const workspace = mddocConstruct

@@ -56,7 +56,7 @@ const resourceWrapper = mddocConstruct
       true,
       mddocConstruct
         .constructFieldObject<Resource>()
-        .setDescription('Resource shape depends on resource type.')
+        .setDescription('Resource shape depends on resource type')
         .setFields({
           resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
           createdAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),

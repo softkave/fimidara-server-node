@@ -247,7 +247,7 @@ export function getWorkspaceResourceListQuery01(
 export function assertUpdateNotEmpty(update: AnyObject) {
   appAssert(
     !isObjectEmpty(update),
-    new InvalidRequestError('Update data provided is empty.')
+    new InvalidRequestError('Update data provided is empty')
   );
 }
 

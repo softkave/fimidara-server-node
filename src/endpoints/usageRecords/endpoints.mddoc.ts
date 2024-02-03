@@ -24,13 +24,11 @@ import {
   GetWorkspaceSummedUsageHttpEndpoint,
 } from './types';
 
-const cost = mddocConstruct.constructFieldNumber().setDescription('Usage cost in USD.');
+const cost = mddocConstruct.constructFieldNumber().setDescription('Usage cost in USD');
 const month = mddocConstruct
   .constructFieldNumber()
-  .setDescription('Usage recording month from 0-11, January-Decemeber.');
-const year = mddocConstruct
-  .constructFieldNumber()
-  .setDescription('Usage recording year.');
+  .setDescription('Usage recording month from 0-11, January-Decemeber');
+const year = mddocConstruct.constructFieldNumber().setDescription('Usage recording year');
 const usage = mddocConstruct
   .constructFieldNumber()
   .setDescription(

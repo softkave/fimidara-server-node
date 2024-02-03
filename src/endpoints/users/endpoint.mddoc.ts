@@ -27,8 +27,8 @@ import {
 import {UpdateUserEndpointParams, UpdateUserEndpointResult} from './updateUser/types';
 import {UserExistsEndpointParams, UserExistsEndpointResult} from './userExists/types';
 
-const currentPassword = fReusables.password.clone().setDescription('Current password.');
-const newPassword = fReusables.password.clone().setDescription('New password.');
+const currentPassword = fReusables.password.clone().setDescription('Current password');
+const newPassword = fReusables.password.clone().setDescription('New password');
 
 const userWorkspace = mddocConstruct
   .constructFieldObject<UserWorkspace>()
@@ -247,9 +247,7 @@ export const changePasswordWithTokenEndpointDefinition = mddocConstruct
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(loginResponseBody)
   .setName('ChangePasswordWithTokenEndpoint')
-  .setDescription(
-    'Change password with token endpoint. Uses the `Authorization` header.'
-  );
+  .setDescription('Change password with token endpoint. Uses the `Authorization` header');
 
 export const changePasswordWithCurrentPasswordEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -310,7 +308,7 @@ export const confirmEmailAddressEndpointDefinition = mddocConstruct
   .setResponseBody(loginResponseBody)
   .setName('SendEmailVerificationCodeEndpoint')
   .setDescription(
-    'Confirm email address endpoint. Uses the `Authorization` header, and expects a token issued from `forgotPassword`.'
+    'Confirm email address endpoint. Uses the `Authorization` header, and expects a token issued from `forgotPassword`'
   );
 
 export const getUserDataEndpointDefinition = mddocConstruct
@@ -338,7 +336,7 @@ export const getUserDataEndpointDefinition = mddocConstruct
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(loginResponseBody)
   .setName('ConfirmEmailAddressEndpoint')
-  .setDescription('Confirm email address endpoint. Uses the `Authorization` header.');
+  .setDescription('Confirm email address endpoint. Uses the `Authorization` header');
 
 export const sendEmailVerificationCodeEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -368,7 +366,7 @@ export const sendEmailVerificationCodeEndpointDefinition = mddocConstruct
   )
   .setName('SendEmailVerificationCodeEndpoint')
   .setDescription(
-    'Send email verification code endpoint. Uses the `Authorization` header, and sends a verification token to the email address of the user referenced in the token.'
+    'Send email verification code endpoint. Uses the `Authorization` header, and sends a verification token to the email address of the user referenced in the token'
   );
 
 export const updateUserEndpointDefinition = mddocConstruct

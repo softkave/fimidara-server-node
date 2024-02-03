@@ -73,44 +73,44 @@ const extension = mddocConstruct
   .setDescription('File extension, case insensitive');
 const height = mddocConstruct
   .constructFieldNumber()
-  .setDescription('Resize to height if file is an image.');
+  .setDescription('Resize to height if file is an image');
 const width = mddocConstruct
   .constructFieldNumber()
-  .setDescription('Resize to width if file is an image.');
+  .setDescription('Resize to width if file is an image');
 const fit = mddocConstruct
   .constructFieldString()
-  .setDescription('How the image should be resized to fit provided dimensions.')
+  .setDescription('How the image should be resized to fit provided dimensions')
   .setEnumName('ImageResizeFitEnum')
   .setValid(Object.values(ImageResizeFitEnumMap));
 const positionEnum = mddocConstruct
   .constructFieldString()
-  .setDescription('Gravity or strategy to use when fit is cover or contain.')
+  .setDescription('Gravity or strategy to use when fit is cover or contain')
   .setEnumName('ImageResizePositionEnum')
   .setValid(Object.values(ImageResizePositionEnumMap));
 const positionNum = mddocConstruct
   .constructFieldNumber()
-  .setDescription('Position to use when fit is cover or contain.');
+  .setDescription('Position to use when fit is cover or contain');
 const position = mddocConstruct
   .constructFieldOrCombination<number | ImageResizePositionEnum>()
   .setTypes([positionEnum, positionNum]);
 const background = mddocConstruct
   .constructFieldString()
-  .setDescription('Hex background color to use when fit is contain.')
+  .setDescription('Hex background color to use when fit is contain')
   .setExample('#FFFFFF');
 const withoutEnlargement = mddocConstruct
   .constructFieldBoolean()
   .setDescription(
-    'Do not enlarge if the width or height are already less than provided dimensions.'
+    'Do not enlarge if the width or height are already less than provided dimensions'
   );
 const format = mddocConstruct
   .constructFieldString()
-  .setDescription('Format to transform image to if file is an image.')
+  .setDescription('Format to transform image to if file is an image')
   .setEnumName('ImageFormatEnum')
   .setValid(Object.values(ImageFormatEnumMap));
 
 const version = mddocConstruct
   .constructFieldNumber()
-  .setDescription('File version, representing how many times a file has been uploaded.');
+  .setDescription('File version, representing how many times a file has been uploaded');
 
 const file = mddocConstruct
   .constructFieldObject<PublicFile>()
@@ -164,7 +164,7 @@ const fileMatcher = mddocConstruct
 const filePresignedPath = mddocConstruct
   .constructFieldString()
   .setDescription(
-    'String path that only works with readFile endpoint. Can be used in place of filepath.'
+    'String path that only works with readFile endpoint. Can be used in place of filepath'
   );
 
 const updateFileDetailsParams = mddocConstruct
@@ -191,7 +191,7 @@ const issueFilePresignedPathParams = mddocConstruct
       false,
       mddocConstruct
         .constructFieldNumber()
-        .setDescription('How many uses the generated path is valid for.')
+        .setDescription('How many uses the generated path is valid for')
     ),
   });
 const issueFilePresignedPathResponseBody = mddocConstruct
@@ -295,7 +295,7 @@ const readFileResponseHeaders = mddocConstruct
           'Get file endpoint result content type. ' +
             "If request is successful, it will be the file's content type " +
             'if it is known or application/octet-stream otherwise, ' +
-            'and application/json containing errors if request fails.'
+            'and application/json containing errors if request fails'
         )
     ),
     'Content-Length': mddocConstruct.constructFieldObjectField(
@@ -315,7 +315,7 @@ const uploadFileParams = mddocConstruct
           true,
           mddocConstruct
             .constructFieldBinary()
-            .setDescription('File binary.')
+            .setDescription('File binary')
             .setMax(kFileConstants.maxFileSizeInBytes)
         ),
       })
@@ -330,7 +330,7 @@ const uploadFileSdkParamsDef = mddocConstruct
       true,
       mddocConstruct
         .constructFieldBinary()
-        .setDescription('File binary.')
+        .setDescription('File binary')
         .setMax(kFileConstants.maxFileSizeInBytes)
     ),
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
@@ -619,7 +619,7 @@ export const getPresignedPathsForFilesEndpointDefinition = mddocConstruct
   .setResponseBody(getPresignedPathsForFilesResponseBody)
   .setName('GetPresignedPathsForFilesEndpoint')
   .setDescription(
-    'Retrieves file presigned paths for reading private files without passing Authorization header, like in <img /> html tags.'
+    'Retrieves file presigned paths for reading private files without passing Authorization header, like in <img /> html tags'
   );
 
 export const fileEndpointsParts = {file};

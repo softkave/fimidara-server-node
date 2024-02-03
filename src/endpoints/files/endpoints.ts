@@ -111,7 +111,7 @@ async function extractUploadFileParamsFromReq(
   let waitTimeoutHandle: NodeJS.Timeout | undefined = undefined;
   const contentEncoding = req.headers['content-encoding'];
   const description = req.headers[kFileConstants.headers['x-fimidara-file-description']];
-  appAssert(req.busboy, new InvalidRequestError('Invalid multipart/formdata request.'));
+  appAssert(req.busboy, new InvalidRequestError('Invalid multipart/formdata request'));
 
   return new Promise((resolve, reject) => {
     // Wait for data stream or end if timeout exceeded. This is to prevent

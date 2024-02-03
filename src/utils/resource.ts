@@ -65,7 +65,7 @@ export class InvalidResourceIdError extends OperationError {
 
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Invalid resource ID.');
+    this.message = getErrorMessageFromParams(props, 'Invalid resource ID');
   }
 }
 

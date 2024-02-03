@@ -68,7 +68,7 @@ export function splitFolderpath(path: string | string[]) {
 export function assertSplitFolderpath(path: string) {
   const splitPath = splitFolderpath(path);
   if (splitPath.length === 0) {
-    throw new InvalidRequestError('Path is empty.');
+    throw new InvalidRequestError('Path is empty');
   }
 
   return splitPath;

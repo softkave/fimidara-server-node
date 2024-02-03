@@ -13,7 +13,7 @@ export class EmailAddressNotAvailableError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.conflict;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Email address is not available.');
+    this.message = getErrorMessageFromParams(props, 'Email address is not available');
   }
 }
 
@@ -36,7 +36,7 @@ export class CredentialsExpiredError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.unauthorized;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Credentials expired.');
+    this.message = getErrorMessageFromParams(props, 'Credentials expired');
   }
 }
 
@@ -45,7 +45,7 @@ export class InvalidEmailOrPasswordError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.unauthorized;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Invalid email or password.');
+    this.message = getErrorMessageFromParams(props, 'Invalid email or password');
   }
 }
 
@@ -60,7 +60,7 @@ export class PermissionDeniedError extends OperationError {
 
   constructor(props?: PermissionDeniedErrorParams | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Permission denied.');
+    this.message = getErrorMessageFromParams(props, 'Permission denied');
     if (isObject(props)) this.item = props.item;
   }
 }
@@ -70,7 +70,7 @@ export class EmailAddressVerifiedError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.conflict;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Email address already verified.');
+    this.message = getErrorMessageFromParams(props, 'Email address already verified');
   }
 }
 
@@ -82,7 +82,7 @@ export class EmailAddressNotVerifiedError extends OperationError {
     this.message = getErrorMessageFromParams(
       props,
       'Only read-related actions are permitted for unverified email addresses. ' +
-        'Please login and go to the Settings page to verify your email address.'
+        'Please login and go to the Settings page to verify your email address'
     );
   }
 }
@@ -94,7 +94,7 @@ export class IncorrectPasswordError extends OperationError {
     super(props);
     this.message = getErrorMessageFromParams(
       props,
-      'The password you entered is incorrect.'
+      'The password you entered is incorrect'
     );
   }
 }

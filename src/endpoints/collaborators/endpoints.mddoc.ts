@@ -45,11 +45,11 @@ const collaborator = mddocConstruct
     joinedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
     createdAt: mddocConstruct.constructFieldObjectField(
       true,
-      fReusables.date.clone().setDescription('Always 0.')
+      fReusables.date.clone().setDescription('Always 0')
     ),
     lastUpdatedAt: mddocConstruct.constructFieldObjectField(
       true,
-      fReusables.date.clone().setDescription('Always 0.')
+      fReusables.date.clone().setDescription('Always 0')
     ),
   });
 
@@ -93,7 +93,7 @@ const getCollaboratorsWithoutPermissionResponseBody = mddocConstruct
     ),
   })
   .setDescription(
-    'Get workspace collaborators without permissions endpoint success result.'
+    'Get workspace collaborators without permissions endpoint success result'
   );
 
 const countWorkspaceCollaboratorsParams = mddocConstruct

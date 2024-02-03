@@ -9,7 +9,7 @@ export interface OperationErrorParameters {
 }
 
 export default class OperationError extends Error {
-  message = 'An error occurred.';
+  message = 'An error occurred';
   field?: string;
   // recommended action for the client
   action?: string;

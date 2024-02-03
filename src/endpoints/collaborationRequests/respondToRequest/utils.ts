@@ -65,7 +65,7 @@ export const INTERNAL_RespondToCollaborationRequest = async (
   assertUser(user);
   appAssert(
     isStringEqual(user.email, request.recipientEmail),
-    new PermissionDeniedError('User is not the collaboration request recipient.')
+    new PermissionDeniedError('User is not the collaboration request recipient')
   );
 
   const isExpired =

@@ -479,6 +479,9 @@ export function pathJoin(...args: Array<string | string[]>) {
     return '';
   }
 
+  const parsed = path.posix.parse(pJoined);
+  pJoined = path.posix.normalize(parsed.dir + kFolderConstants.separator + parsed.base);
+
   if (pJoined[0] !== kFolderConstants.separator) {
     pJoined = kFolderConstants.separator + pJoined;
   }

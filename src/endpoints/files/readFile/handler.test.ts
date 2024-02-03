@@ -179,7 +179,7 @@ describe('readFile', () => {
         ],
       });
 
-      const testBuffer = Buffer.from('Reading from secondary mount source.');
+      const testBuffer = Buffer.from('Reading from secondary mount source');
       const testStream = Readable.from([testBuffer]);
       kRegisterUtilsInjectables.fileProviderResolver(forMount => {
         if (mount.resourceId === forMount.resourceId) {

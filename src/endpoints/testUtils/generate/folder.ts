@@ -93,7 +93,7 @@ export async function generateUniqueFolderpath(workspaceId: string) {
     length += 1;
   }
 
-  throw new Error('Could not generate unique folderpath.');
+  throw new Error('Could not generate unique folderpath');
 }
 
 export function generateTestFolder(

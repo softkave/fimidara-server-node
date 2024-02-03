@@ -9,7 +9,7 @@ export class WorkspaceExistsError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.conflict;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Workspace exists.');
+    this.message = getErrorMessageFromParams(props, 'Workspace exists');
   }
 }
 
@@ -18,7 +18,7 @@ export class WorkspaceRootnameExistsError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.conflict;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Workspace root name exists.');
+    this.message = getErrorMessageFromParams(props, 'Workspace root name exists');
   }
 }
 
@@ -27,6 +27,6 @@ export class WorkspaceDoesNotExistError extends OperationError {
   statusCode = endpointConstants.httpStatusCode.notFound;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Workspace not found.');
+    this.message = getErrorMessageFromParams(props, 'Workspace not found');
   }
 }

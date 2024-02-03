@@ -38,8 +38,8 @@ export const defaultFileProviderResolver: FileProviderResolver = (
 export function defaultToNativePath(
   mount: Pick<FileBackendMount, 'mountedFrom' | 'namepath'>,
   fimidaraPath: string,
-  preMountedFromPrefix: string[] = [],
-  postMountedFromPrefix: string[] = []
+  preMountedFromPrefix: string | string[] = [],
+  postMountedFromPrefix: string | string[] = []
 ) {
   return pathJoin(
     preMountedFromPrefix,
@@ -52,8 +52,8 @@ export function defaultToNativePath(
 export function defaultToFimidaraPath(
   mount: Pick<FileBackendMount, 'mountedFrom' | 'namepath'>,
   nativePath: string,
-  preMountedFromPrefix: string[] = [],
-  postMountedFromPrefix: string[] = []
+  preMountedFromPrefix: string | string[] = [],
+  postMountedFromPrefix: string | string[] = []
 ) {
   return pathJoin(
     mount.namepath,

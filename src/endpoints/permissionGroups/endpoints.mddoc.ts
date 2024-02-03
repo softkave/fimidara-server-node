@@ -97,18 +97,18 @@ const assignedPermissionGroupMeta = mddocConstruct
 const permissionGroupId = fReusables.permissionGroupId
   .clone()
   .setDescription(
-    'Permission group ID. Either provide the permission group ID, or provide the workspace ID and permission group name.'
+    'Permission group ID. Either provide the permission group ID, or provide the workspace ID and permission group name'
   );
 const name = fReusables.name
   .clone()
   .setDescription(
-    'Permission group name. Either provide the permission group ID, or provide the workspace ID and permission group name.'
+    'Permission group name. Either provide the permission group ID, or provide the workspace ID and permission group name'
   );
 const workspaceIdInput = fReusables.workspaceIdInput
   .clone()
   .setDescription(
     fReusables.workspaceIdInput.assertGetDescription() +
-      'Either provide the permission group ID, or provide the workspace ID and permission group name.'
+      'Either provide the permission group ID, or provide the workspace ID and permission group name'
   );
 
 const permissionGroupMatcherParts: FieldObjectFieldsMap<PermissionGroupMatcher> = {
@@ -174,7 +174,7 @@ const getEntityAssignedPermissionGroupsParams = mddocConstruct
       mddocConstruct
         .constructFieldBoolean()
         .setDescription(
-          'Whether to include permission groups not directly assigned but inherited through permission groups assigned to entity.'
+          'Whether to include permission groups not directly assigned but inherited through permission groups assigned to entity'
         )
     ),
   });
@@ -272,7 +272,7 @@ const unassignPermissionGroupsParams = mddocConstruct
         .constructFieldOrCombination<string | string[]>()
         .setTypes([
           fReusables.id.clone().setDescription('Permission group ID'),
-          fReusables.idList.clone().setDescription('List of permission group IDs.'),
+          fReusables.idList.clone().setDescription('List of permission group IDs'),
         ])
     ),
   });
