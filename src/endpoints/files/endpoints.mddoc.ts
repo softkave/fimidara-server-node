@@ -584,7 +584,7 @@ export const issueFilePresignedPathEndpointDefinition = mddocConstruct
   .setDescription(
     multilineTextToParagraph(
       `Issues file presigned paths for reading private files without passing Authorization header, like in <img /> html tags.
-      It's only supports reading files at the moment. Eventually, we'll support uploading files.`
+      It's only supports reading files at the moment. Eventually, we'll support uploading files`
     )
   );
 

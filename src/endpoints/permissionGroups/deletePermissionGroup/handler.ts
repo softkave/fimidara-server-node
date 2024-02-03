@@ -18,7 +18,7 @@ const deletePermissionGroup: DeletePermissionGroupEndpoint = async instData => {
 
   if (permissionGroup.resourceId === workspace.publicPermissionGroupId) {
     throw new InvalidRequestError(
-      "Cannot delete the workspace's public public permission group."
+      "Cannot delete the workspace's public public permission group"
     );
   }
 

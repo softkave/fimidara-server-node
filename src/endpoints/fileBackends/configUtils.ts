@@ -20,7 +20,7 @@ export async function getBackendConfigsWithIdList(
     const configsMap = keyBy(configs, config => config.resourceId);
     configIdList.forEach(id => {
       if (!configsMap[id]) {
-        throw new NotFoundError(`Backend config with ID ${id} does not exist.`);
+        throw new NotFoundError(`Backend config with ID ${id} does not exist`);
       }
     });
   }

@@ -71,7 +71,7 @@ export function collaborationRequestEmailText(props: CollaborationRequestEmailPr
 ${emailHelperChars.emDash}
 ${getGreetingText(props)}
 You have a new collaboration request from ${props.workspaceName}.
-${props.message ? `Message: ${props.message}.` : ''}
+${props.message ? `Message: ${props.message}` : ''}
 ${props.expires ? `Expires: ${formatDateTime(props.expires)}` : ''}
 ${emailHelperChars.emDash}
 To respond to this request, ${linkText}

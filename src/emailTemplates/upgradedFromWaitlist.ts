@@ -18,7 +18,7 @@ export const kUpgradeFromWaitlistEmailArtifacts = {
   message: () =>
     `You've been upgraded from the waitlist, now you have full access to ${
       kUtilsInjectables.suppliedConfig().appName
-    }.`,
+    }`,
 };
 
 export interface UpgradedFromWaitlistEmailProps extends BaseEmailTemplateProps {

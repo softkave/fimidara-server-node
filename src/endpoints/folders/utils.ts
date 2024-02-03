@@ -1,12 +1,15 @@
 import {compact, defaultTo, first, isArray, last} from 'lodash';
-import {FileBackendMount} from '../../definitions/fileBackend';
 import {Folder, FolderMatcher, PublicFolder} from '../../definitions/folder';
-import {PermissionAction} from '../../definitions/permissionItem';
-import {Agent, SessionAgent, kAppResourceType} from '../../definitions/system';
-import {Workspace} from '../../definitions/workspace';
-import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {isPathEmpty, pathJoin, pathSplit} from '../../utils/fns';
+import {workspaceResourceFields} from '../utils';
+import {kFolderConstants} from './constants';
+import {FolderNotFoundError} from './errors';
+import {FileBackendMount} from '../../definitions/fileBackend';
+import {PermissionAction} from '../../definitions/permissionItem';
+import {SessionAgent, Agent, kAppResourceType} from '../../definitions/system';
+import {Workspace} from '../../definitions/workspace';
+import {appAssert} from '../../utils/assertion';
 import {getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {
@@ -15,22 +18,19 @@ import {
 } from '../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../contexts/injection/injectables';
 import {
-  SemanticProviderMutationRunOptions,
   SemanticProviderRunOptions,
+  SemanticProviderMutationRunOptions,
 } from '../contexts/semantic/types';
 import {InvalidRequestError} from '../errors';
 import {getBackendConfigsWithIdList} from '../fileBackends/configUtils';
 import {ingestPersistedFolders} from '../fileBackends/ingestionUtils';
 import {
   FileBackendMountWeights,
-  initBackendProvidersForMounts,
   resolveMountsForFolder,
+  initBackendProvidersForMounts,
 } from '../fileBackends/mountUtils';
-import {workspaceResourceFields} from '../utils';
-import {assertRootname, checkWorkspaceExists} from '../workspaces/utils';
+import {checkWorkspaceExists, assertRootname} from '../workspaces/utils';
 import {createFolderListWithTransaction} from './addFolder/handler';
-import {kFolderConstants} from './constants';
-import {FolderNotFoundError} from './errors';
 import {assertGetFolderWithMatcher} from './getFolderWithMatcher';
 
 const folderFields = getFields<PublicFolder>({
@@ -58,7 +58,7 @@ export function splitFolderpath(path: string | string[]) {
 
   if (nameList.length > kFolderConstants.maxFolderDepth) {
     throw new Error(
-      `Path depth exceeds max path depth of ${kFolderConstants.maxFolderDepth}.`
+      `Path depth exceeds max path depth of ${kFolderConstants.maxFolderDepth}`
     );
   }
 

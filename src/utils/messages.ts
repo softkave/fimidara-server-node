@@ -3,14 +3,14 @@ import {multilineTextToParagraph} from './fns';
 export const kAppMessages = {
   workspace: {
     notFound(id?: string) {
-      return id ? `Workspace with ID ${id} not found.` : 'Workspace not found';
+      return id ? `Workspace with ID ${id} not found` : 'Workspace not found';
     },
     noRootname() {
       return 'Workspace rootname not provided';
     },
     withRootnameNotFound(rootname?: string) {
       return rootname
-        ? `Workspace with rootname ${rootname} not found.`
+        ? `Workspace with rootname ${rootname} not found`
         : 'Workspace not found';
     },
     rootnameDoesNotMatchFolderRootname: (rootname: string, rootname02: string) =>
@@ -18,7 +18,7 @@ export const kAppMessages = {
   },
   entity: {
     notFound(id: string) {
-      return `Permission entity with ID ${id} not found.`;
+      return `Permission entity with ID ${id} not found`;
     },
   },
   token: {
@@ -26,7 +26,7 @@ export const kAppMessages = {
   },
   user: {
     notFound(id?: string) {
-      return id ? `User with ID ${id} not found.` : 'User not found';
+      return id ? `User with ID ${id} not found` : 'User not found';
     },
     changePassword() {
       return 'Please change your password to continue';
@@ -41,48 +41,46 @@ export const kAppMessages = {
   permissionGroup: {
     notFound(id?: string) {
       return id
-        ? `Permission group with ID ${id} not found.`
+        ? `Permission group with ID ${id} not found`
         : 'Permission group not found';
     },
   },
   permissionItem: {
     notFound(id?: string) {
-      return id
-        ? `Permission item with ID ${id} not found.`
-        : 'Permission item not found';
+      return id ? `Permission item with ID ${id} not found` : 'Permission item not found';
     },
   },
   collaborationRequest: {
     notFound(id?: string) {
       return id
-        ? `Collaboration request with ID ${id} not found.`
+        ? `Collaboration request with ID ${id} not found`
         : 'Collaboration request not found';
     },
   },
   folder: {
     notFound(id?: string) {
-      return id ? `Folder with ID ${id} not found.` : 'Folder not found';
+      return id ? `Folder with ID ${id} not found` : 'Folder not found';
     },
   },
   tag: {
     notFound(id?: string) {
-      return id ? `Tag with ID ${id} not found.` : 'Tag not found';
+      return id ? `Tag with ID ${id} not found` : 'Tag not found';
     },
   },
   usageRecord: {
     notFound(id?: string) {
-      return id ? `Usage record with ID ${id} not found.` : 'Usage record not found';
+      return id ? `Usage record with ID ${id} not found` : 'Usage record not found';
     },
   },
   file: {
     notFound(id?: string) {
-      return id ? `File with ID ${id} not found.` : 'File not found';
+      return id ? `File with ID ${id} not found` : 'File not found';
     },
     invalidMatcher: 'Invalid matcher',
     provideNamepath: 'Please provide a namepath',
     multipleVolumeSeparators: "Supplied path has multiple volume separators ':'",
     unknownBackend(backend: string) {
-      return backend ? `Backend ${backend} unknown.` : 'Backend unknown';
+      return backend ? `Backend ${backend} unknown` : 'Backend unknown';
     },
   },
   appRuntimeState: {
@@ -92,39 +90,39 @@ export const kAppMessages = {
   },
   agentToken: {
     notFound(id?: string) {
-      return id ? `Agent token with ID ${id} not found.` : 'Agent token not found';
+      return id ? `Agent token with ID ${id} not found` : 'Agent token not found';
     },
     withIdExists(id?: string) {
-      return id ? `Agent token with ID ${id} exists.` : 'Agent token exists';
+      return id ? `Agent token with ID ${id} exists` : 'Agent token exists';
     },
     withProvidedIdExists(id?: string) {
-      return id ? `Agent token with provided ID ${id} exists.` : 'Agent token exists';
+      return id ? `Agent token with provided ID ${id} exists` : 'Agent token exists';
     },
   },
   common: {
     notFound(id?: string) {
-      return id ? `Resource with ID ${id} not found.` : 'Resource not found';
+      return id ? `Resource with ID ${id} not found` : 'Resource not found';
     },
     permissionDenied(id?: string) {
-      return id ? `Permission denied for resource with ID ${id}.` : 'Permission denied';
+      return id ? `Permission denied for resource with ID ${id}` : 'Permission denied';
     },
     notImplementedYet(fnName?: string) {
-      return fnName ? `${fnName} not implemented yet.` : 'Not implemented yet';
+      return fnName ? `${fnName} not implemented yet` : 'Not implemented yet';
     },
     invalidState(state?: string) {
       return state
-        ? `Program is in an invalid state:\n ${state}.`
+        ? `Program is in an invalid state:\n ${state}`
         : 'Program is in an invalid state';
     },
   },
   job: {
     notFound(id?: string) {
-      return id ? `Job with ID ${id} not found.` : 'Job not found';
+      return id ? `Job with ID ${id} not found` : 'Job not found';
     },
   },
   config: {
     notFound(id?: string) {
-      return id ? `Config with ID ${id} not found.` : 'Config not found';
+      return id ? `Config with ID ${id} not found` : 'Config not found';
     },
     configInUse(mountsCount: number) {
       return `Config already in use by ${mountsCount} ${
@@ -133,7 +131,7 @@ export const kAppMessages = {
     },
     configExists: 'Config exists',
     configNameExists(name: string) {
-      return name ? `Config with name ${name} exists.` : 'Config name exists';
+      return name ? `Config with name ${name} exists` : 'Config name exists';
     },
     fimidaraDoesNotSupportConfig: 'fimidara does not support this config',
   },
@@ -144,10 +142,10 @@ export const kAppMessages = {
     cannotDeleteFimidaraMount: 'Cannot delete fimidara mount',
     cannotUpdateFimidaraMount: 'Cannot update fimidara mount',
     notFound(id?: string) {
-      return id ? `Mount with ID ${id} not found.` : 'Mount not found';
+      return id ? `Mount with ID ${id} not found` : 'Mount not found';
     },
     mountNameExists(name?: string) {
-      return name ? `Mount with name ${name} exists.` : 'Mount name exists';
+      return name ? `Mount with name ${name} exists` : 'Mount name exists';
     },
     configMountBackendMismatch: (configBackend: string, mountBackend: string) =>
       `Config for backend ${configBackend} cannot be used for mount with backend ${mountBackend}`,

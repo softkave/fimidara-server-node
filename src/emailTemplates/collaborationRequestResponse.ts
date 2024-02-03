@@ -24,7 +24,7 @@ export const kCollaborationRequestResponseArtifacts = {
     return `Collaboration request ${props.response} on ${props.workspaceName}`;
   },
   message: (props: CollaborationRequestResponseEmailProps) => {
-    return `This is to notify you that the collaboration request sent to ${props.recipientEmail} to join the workspace ${props.workspaceName} has been ${props.response}.`;
+    return `This is to notify you that the collaboration request sent to ${props.recipientEmail} to join the workspace ${props.workspaceName} has been ${props.response}`;
   },
 };
 

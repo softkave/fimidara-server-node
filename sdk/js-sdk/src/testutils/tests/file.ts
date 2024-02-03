@@ -71,7 +71,7 @@ export const test_uploadFile_string = async () => {
 
 export const test_uploadFile_nodeReadableNotFromFile = async () => {
   const stringStream = Readable.from([
-    'Hello world! Node Readable stream not from file test.',
+    'Hello world! Node Readable stream not from file test',
   ]);
   await uploadFileTestExecFn(fimidara, vars, {data: stringStream});
 };

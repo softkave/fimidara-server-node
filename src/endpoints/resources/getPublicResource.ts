@@ -58,7 +58,7 @@ export function getPublicResource(resource: ResourceWrapper, workspaceId: string
     return extractor(resource.resource, workspaceId);
   }
 
-  throw new ServerError(`Resource type ${resource.resourceType} not supported.`);
+  throw new ServerError(`Resource type ${resource.resourceType} not supported`);
 }
 
 export function getPublicResourceList(resources: ResourceWrapper[], workspaceId: string) {

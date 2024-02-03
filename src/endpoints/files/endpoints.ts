@@ -18,7 +18,6 @@ import {
   getFileDetailsEndpointDefinition,
   getPresignedPathsForFilesEndpointDefinition,
   issueFilePresignedPathEndpointDefinition,
-  readFileGETEndpointDefinition,
   readFilePOSTEndpointDefinition,
   updateFileDetailsEndpointDefinition,
   uploadFileEndpointDefinition,
@@ -117,7 +116,7 @@ async function extractUploadFileParamsFromReq(
     // Wait for data stream or end if timeout exceeded. This is to prevent
     // waiting forever, for whatever reason if stream event is not fired.
     waitTimeoutHandle = setTimeout(() => {
-      reject(new Error(`Upload file wait timeout ${kFileStreamWaitTimeoutMS} exceeded.`));
+      reject(new Error(`Upload file wait timeout ${kFileStreamWaitTimeoutMS} exceeded`));
     }, kFileStreamWaitTimeoutMS);
 
     req.busboy.on('file', (filename, stream, info) => {

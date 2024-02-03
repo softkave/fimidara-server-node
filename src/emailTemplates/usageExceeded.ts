@@ -25,16 +25,16 @@ export const kUsageExceededEmailArtifacts = {
     let message = '';
     switch (threshold.category) {
       case UsageRecordCategoryMap.Storage:
-        message = `Storage usage exceeded for workspace ${workspaceName}.`;
+        message = `Storage usage exceeded for workspace ${workspaceName}`;
         break;
       case UsageRecordCategoryMap.BandwidthIn:
-        message = `Incoming bandwidth usage exceeded for workspace ${workspaceName}.`;
+        message = `Incoming bandwidth usage exceeded for workspace ${workspaceName}`;
         break;
       case UsageRecordCategoryMap.BandwidthOut:
-        message = `Outgoing bandwidth usage exceeded for workspace ${workspaceName}.`;
+        message = `Outgoing bandwidth usage exceeded for workspace ${workspaceName}`;
         break;
       default:
-        message = `${threshold.category} usage exceeded for workspace ${workspaceName}.`;
+        message = `${threshold.category} usage exceeded for workspace ${workspaceName}`;
     }
 
     return message;
@@ -85,24 +85,24 @@ export function getUsageExceededEmailMessage(
   let message = '';
   switch (threshold.category) {
     case UsageRecordCategoryMap.Storage:
-      message = `You have reached your storage usage threshold for workspace ${workspaceName}.`;
+      message = `You have reached your storage usage threshold for workspace ${workspaceName}`;
       break;
     case UsageRecordCategoryMap.BandwidthIn:
-      message = `You have reached your incoming bandwidth usage threshold for workspace ${workspaceName}.`;
+      message = `You have reached your incoming bandwidth usage threshold for workspace ${workspaceName}`;
       break;
     case UsageRecordCategoryMap.BandwidthOut:
-      message = `You have reached your outgoing bandwidth usage threshold for workspace ${workspaceName}.`;
+      message = `You have reached your outgoing bandwidth usage threshold for workspace ${workspaceName}`;
       break;
     // case UsageRecordCategoryMap.Request:
-    //   message = `You have reached your API requests usage threshold for workspace ${workspaceName}.`;
+    //   message = `You have reached your API requests usage threshold for workspace ${workspaceName}`
     //   break;
     default:
-      message = `You have reached your ${threshold.category} usage threshold for workspace ${workspaceName}.`;
+      message = `You have reached your ${threshold.category} usage threshold for workspace ${workspaceName}`;
   }
 
   return multilineTextToParagraph(
     `${message} Limit was $${threshold.budget}. 
     Further requests of this type will not be served. 
-    Please login to your workspace to increase your usage thresholds.`
+    Please login to your workspace to increase your usage thresholds`
   );
 }

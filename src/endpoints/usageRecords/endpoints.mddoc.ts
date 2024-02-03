@@ -14,14 +14,14 @@ import {usageRecordConstants} from './constants';
 import {CountWorkspaceSummedUsageEndpointParams} from './countWorkspaceSummedUsage/types';
 import {GetUsageCostsEndpointResult} from './getUsageCosts/types';
 import {
+  WorkspaceSummedUsageQuery,
   GetWorkspaceSummedUsageEndpointParams,
   GetWorkspaceSummedUsageEndpointResult,
-  WorkspaceSummedUsageQuery,
 } from './getWorkspaceSummedUsage/types';
 import {
-  CountWorkspaceSummedUsageHttpEndpoint,
   GetUsageCostsHttpEndpoint,
   GetWorkspaceSummedUsageHttpEndpoint,
+  CountWorkspaceSummedUsageHttpEndpoint,
 } from './types';
 
 const cost = mddocConstruct.constructFieldNumber().setDescription('Usage cost in USD');
@@ -32,7 +32,7 @@ const year = mddocConstruct.constructFieldNumber().setDescription('Usage recordi
 const usage = mddocConstruct
   .constructFieldNumber()
   .setDescription(
-    `Usage amount. Bytes for ${UsageRecordCategoryMap.Storage}, ${UsageRecordCategoryMap.BandwidthIn}, and ${UsageRecordCategoryMap.BandwidthOut}. Always 0 for ${UsageRecordCategoryMap.Total}, use \`usageCost\` instead.`
+    `Usage amount. Bytes for ${UsageRecordCategoryMap.Storage}, ${UsageRecordCategoryMap.BandwidthIn}, and ${UsageRecordCategoryMap.BandwidthOut}. Always 0 for ${UsageRecordCategoryMap.Total}, use \`usageCost\` instead`
   );
 const usageCosts = mddocConstruct
   .constructFieldObject<GetUsageCostsEndpointResult['costs']>()

@@ -1,6 +1,7 @@
 import assert = require('assert');
 import {cloneDeep, isFunction, isObject, merge} from 'lodash';
-import {AnyFn, AnyObject} from './types';
+import {AnyObject} from 'mongoose';
+import {AnyFn} from './types';
 
 export function makeGetAccessor<T, K extends keyof T>(obj: T, k: K) {
   return () => {
@@ -10,7 +11,7 @@ export function makeGetAccessor<T, K extends keyof T>(obj: T, k: K) {
 
 export function makeAssertGetAccessor<T, K extends keyof T>(obj: T, k: K) {
   return () => {
-    assert(obj[k], `${k.toString()} is not present.`);
+    assert(obj[k], `${k.toString()} is not present`);
     return obj[k] as NonNullable<T[K]>;
   };
 }

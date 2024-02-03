@@ -439,7 +439,7 @@ const resultNoteMessage = mddocConstruct
   .constructFieldString()
   .setDescription('Endpoint result or error note message')
   .setExample(
-    "Some mounts in the requested folder's mount chain do not support operation abc."
+    "Some mounts in the requested folder's mount chain do not support operation abc"
   );
 const resultNote = mddocConstruct
   .constructFieldObject<EndpointResultNote>()

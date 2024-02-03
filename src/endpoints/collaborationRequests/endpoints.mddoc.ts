@@ -67,7 +67,7 @@ import {
 
 const recipientEmail = mddocConstruct
   .constructFieldString()
-  .setDescription("Recipient's email address.");
+  .setDescription("Recipient's email address");
 const message = mddocConstruct
   .constructFieldString()
   .setDescription('Message to recipient');

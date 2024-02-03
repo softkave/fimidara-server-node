@@ -34,7 +34,7 @@ export class FimidaraEndpointError extends Error {
     public headers?: EndpointHeaders
   ) {
     super(
-      errors.map(item => item.message).join('\n') || 'Fimidara endpoint error.'
+      errors.map(item => item.message).join('\n') || 'Fimidara endpoint error'
     );
   }
 }
@@ -335,7 +335,7 @@ function getFilepath(props: {
       )
     : undefined;
 
-  if (!filepath) throw new Error('Filepath not provided.');
+  if (!filepath) throw new Error('Filepath not provided');
   return filepath;
 }
 

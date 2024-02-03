@@ -1,13 +1,13 @@
 import {addMinutes, isBefore} from 'date-fns';
 import {User} from '../../../definitions/user';
-import {appAssert} from '../../../utils/assertion';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {RateLimitError} from '../../errors';
 import {userConstants} from '../constants';
 import {EmailAddressVerifiedError} from '../errors';
-import sendConfirmEmailAddressEmail from './sendConfirmEmailAddressEmail';
 import {SendEmailVerificationCodeEndpoint} from './types';
+import {appAssert} from '../../../utils/assertion';
+import sendConfirmEmailAddressEmail from './sendConfirmEmailAddressEmail';
 import {withConfirmEmailAddressToken} from './withConfirmEmailAddressToken';
 
 const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async instData => {
@@ -34,7 +34,7 @@ export async function INTERNAL_sendEmailVerificationCode(user: User) {
         throw new RateLimitError(
           `We sent an email verification email to ${user.email} on ${formatDate(
             user.emailVerificationEmailSentAt
-          )}. Please try again later from ${formatDate(nextDate)}.`
+          )}. Please try again later from ${formatDate(nextDate)}`
         );
       }
     }

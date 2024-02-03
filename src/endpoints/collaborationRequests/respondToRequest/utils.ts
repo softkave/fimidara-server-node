@@ -74,7 +74,7 @@ export const INTERNAL_RespondToCollaborationRequest = async (
 
   if (isExpired) {
     throw new ServerStateConflictError(
-      `Collaboration request expired on ${formatDate(request.expiresAt!)}.`
+      `Collaboration request expired on ${formatDate(request.expiresAt!)}`
     );
   }
 
