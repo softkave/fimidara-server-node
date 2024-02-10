@@ -7,8 +7,8 @@ export function getMongoConnection(uri: string, dbName: string) {
 }
 
 export interface DbConnection<T = unknown> {
-  get: () => T;
-  wait: () => Promise<T>;
+  get: <TConnection = T>() => TConnection;
+  wait: <TConnection = T>() => Promise<TConnection>;
   close: () => Promise<void>;
 }
 
@@ -22,12 +22,12 @@ export class MongoDbConnection implements DbConnection<Connection> {
     this.promise = promise;
   }
 
-  get = () => {
-    return this.connection;
+  get = <TConnection = Connection>() => {
+    return this.connection as TConnection;
   };
 
-  wait = () => {
-    return this.promise;
+  wait = <TConnection = Connection>() => {
+    return this.promise as TConnection;
   };
 
   close = async () => {

@@ -24,7 +24,7 @@ export interface SemanticProviderMutationRunOptions {
   txn: unknown;
 }
 
-export interface SemanticProviderQueryRunOptions<TResource extends Resource>
+export interface SemanticProviderQueryRunOptions<TResource extends Partial<Resource>>
   extends SemanticProviderRunOptions,
     DataProviderQueryParams<TResource> {}
 
@@ -37,19 +37,19 @@ export interface SemanticBaseProviderType<TResource extends Resource> {
     item: TResource | TResource[],
     opts: SemanticProviderMutationRunOptions
   ): Promise<void>;
-  getOneById<TResource02 extends TResource = TResource>(
+  getOneById<TFinal extends Partial<TResource> = TResource>(
     id: string,
-    opts?: SemanticProviderQueryRunOptions<TResource02>
-  ): Promise<TResource02 | null>;
+    opts?: SemanticProviderQueryRunOptions<TFinal>
+  ): Promise<TFinal | null>;
   getManyByIdList(
     idList: string[],
     options?: DataProviderQueryListParams<TResource> & SemanticProviderRunOptions
   ): Promise<TResource[]>;
   countManyByIdList(idList: string[], opts?: SemanticProviderRunOptions): Promise<number>;
   existsById(id: string, opts?: SemanticProviderRunOptions): Promise<boolean>;
-  updateOneById<TResource02 extends TResource>(
+  updateOneById<TFinal extends TResource>(
     id: string,
-    update: Partial<TResource02>,
+    update: Partial<TFinal>,
     opts: SemanticProviderMutationRunOptions
   ): Promise<void>;
   updateManyByQuery(
@@ -77,28 +77,28 @@ export interface SemanticBaseProviderType<TResource extends Resource> {
     idList: string[],
     opts: SemanticProviderMutationRunOptions
   ): Promise<void>;
-  getOneByQuery<TResource02 extends TResource = TResource>(
-    query: DataQuery<TResource02>,
+  getOneByQuery<TFinal extends TResource = TResource>(
+    query: DataQuery<TFinal>,
     opts?: SemanticProviderRunOptions
-  ): Promise<TResource02 | null>;
-  getManyByQuery(
-    query: DataQuery<TResource>,
-    options?: DataProviderQueryListParams<TResource> & SemanticProviderRunOptions
-  ): Promise<TResource[]>;
+  ): Promise<TFinal | null>;
+  getManyByQuery<TFinal extends TResource = TResource>(
+    query: DataQuery<TFinal>,
+    options?: DataProviderQueryListParams<TFinal> & SemanticProviderRunOptions
+  ): Promise<TFinal[]>;
   getManyByQueryList(
     query: DataQuery<TResource>[],
     options?: DataProviderQueryListParams<TResource> & SemanticProviderRunOptions
   ): Promise<TResource[]>;
-  countByQuery(
-    query: DataQuery<TResource>,
+  countByQuery<TFinal extends TResource = TResource>(
+    query: DataQuery<TFinal>,
     opts?: SemanticProviderRunOptions
   ): Promise<number>;
   assertGetOneByQuery(
     query: DataQuery<TResource>,
     opts?: SemanticProviderRunOptions
   ): Promise<TResource>;
-  existsByQuery<TResource02 extends TResource = TResource>(
-    query: DataQuery<TResource02>,
+  existsByQuery<TFinal extends TResource = TResource>(
+    query: DataQuery<TFinal>,
     opts?: SemanticProviderRunOptions
   ): Promise<boolean>;
   deleteManyByQuery(

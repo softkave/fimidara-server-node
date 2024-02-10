@@ -18,8 +18,9 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async instData => {
     'removeCollaborator'
   );
   const job = await enqueueDeleteResourceJob({
+    workspaceId,
     type: kAppResourceType.User,
-    args: {workspaceId, resourceId: collaborator.resourceId},
+    resourceId: collaborator.resourceId,
     isRemoveCollaborator: true,
   });
   return {jobId: job.resourceId};

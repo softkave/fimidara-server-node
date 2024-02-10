@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {isBoolean, isEqual, isString, isUndefined} from 'lodash';
-import {File} from '../../../definitions/file';
+import {File, FilePresignedPath} from '../../../definitions/file';
 import {kAppResourceType} from '../../../definitions/system';
 import {kSystemSessionAgent} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
@@ -10,6 +10,7 @@ import {kSemanticModels} from '../../contexts/injection/injectables';
 import {getFilenameInfo} from '../../files/utils';
 import {addRootnameToPath} from '../../folders/utils';
 import {generateTestFolderName, generateTestFolderpath} from './folder';
+import {randomActionList} from './utils';
 
 function addExtenstion(name: string, ext: string | undefined) {
   return ext ? name + '.' + ext : name;
@@ -144,5 +145,52 @@ export async function generateAndInsertTestFiles(
   await kSemanticModels
     .utils()
     .withTxn(async opts => kSemanticModels.file().insertItem(items, opts));
+  return items;
+}
+
+export function generateTestFilePresignedPath(extra: Partial<FilePresignedPath> = {}) {
+  const id = getNewIdForResource(kAppResourceType.FilePresignedPath);
+  const createdAt = getTimestamp();
+  const data: FilePresignedPath = {
+    namepath: generateTestFilepath(),
+    fileId: getNewIdForResource(kAppResourceType.File),
+    extension: faker.system.fileExt(),
+    issuerAgentTokenId: getNewIdForResource(kAppResourceType.AgentToken),
+    maxUsageCount: faker.number.int({min: 0}),
+    spentUsageCount: faker.number.int({min: 0}),
+    expiresAt: getTimestamp(),
+    actions: randomActionList(),
+    createdAt,
+    createdBy: kSystemSessionAgent,
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: kSystemSessionAgent,
+    resourceId: id,
+    workspaceId: getNewIdForResource(kAppResourceType.Workspace),
+
+    ...extra,
+  };
+
+  return data;
+}
+
+export function generateTestFilePresignedPathList(
+  count = 20,
+  extra: Partial<FilePresignedPath> = {}
+) {
+  const itemList: FilePresignedPath[] = [];
+  for (let i = 0; i < count; i++) {
+    itemList.push(generateTestFilePresignedPath(extra));
+  }
+  return itemList;
+}
+
+export async function generateAndInsertTestFilePresignedPathList(
+  count = 20,
+  extra: Partial<FilePresignedPath> = {}
+) {
+  const items = generateTestFilePresignedPathList(count, extra);
+  await kSemanticModels
+    .utils()
+    .withTxn(async opts => kSemanticModels.filePresignedPath().insertItem(items, opts));
   return items;
 }

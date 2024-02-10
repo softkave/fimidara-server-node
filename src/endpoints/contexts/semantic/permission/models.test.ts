@@ -310,37 +310,37 @@ describe('DataSemanticPermission', () => {
     const assignedBy = generateAgent();
 
     await Promise.all([
-      generateAndInsertAssignedItemListForTest({
+      generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg02.resourceId,
         assigneeId: pg.resourceId,
         createdAt: assignedAt,
         createdBy: assignedBy,
       }),
-      generateAndInsertAssignedItemListForTest({
+      generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg03.resourceId,
         assigneeId: pg.resourceId,
         createdAt: assignedAt,
         createdBy: assignedBy,
       }),
-      generateAndInsertAssignedItemListForTest({
+      generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg04.resourceId,
         assigneeId: pg02.resourceId,
         createdAt: assignedAt,
         createdBy: assignedBy,
       }),
-      generateAndInsertAssignedItemListForTest({
+      generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg04.resourceId,
         assigneeId: pg03.resourceId,
         createdAt: assignedAt,
         createdBy: assignedBy,
       }),
-      generateAndInsertAssignedItemListForTest({
+      generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg05.resourceId,
         assigneeId: pg02.resourceId,
         createdAt: assignedAt,
         createdBy: assignedBy,
       }),
-      generateAndInsertAssignedItemListForTest({
+      generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg05.resourceId,
         assigneeId: pg03.resourceId,
         createdAt: assignedAt,
@@ -391,27 +391,27 @@ describe('DataSemanticPermission', () => {
     const [pg04, pg05] = await generateAndInsertPermissionGroupListForTest(2);
 
     await Promise.all([
-      generateAndInsertAssignedItemListForTest({
+      generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg02.resourceId,
         assigneeId: pg.resourceId,
       }),
-      generateAndInsertAssignedItemListForTest({
+      generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg03.resourceId,
         assigneeId: pg.resourceId,
       }),
-      generateAndInsertAssignedItemListForTest({
+      generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg04.resourceId,
         assigneeId: pg02.resourceId,
       }),
-      generateAndInsertAssignedItemListForTest({
+      generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg04.resourceId,
         assigneeId: pg03.resourceId,
       }),
-      generateAndInsertAssignedItemListForTest({
+      generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg05.resourceId,
         assigneeId: pg02.resourceId,
       }),
-      generateAndInsertAssignedItemListForTest({
+      generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg05.resourceId,
         assigneeId: pg03.resourceId,
       }),
@@ -462,27 +462,27 @@ describe('DataSemanticPermission', () => {
     const [pg04, pg05] = await generateAndInsertPermissionGroupListForTest(2);
 
     await Promise.all([
-      generateAndInsertAssignedItemListForTest({
+      generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg02.resourceId,
         assigneeId: pg.resourceId,
       }),
-      generateAndInsertAssignedItemListForTest({
+      generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg03.resourceId,
         assigneeId: pg.resourceId,
       }),
-      generateAndInsertAssignedItemListForTest({
+      generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg04.resourceId,
         assigneeId: pg02.resourceId,
       }),
-      generateAndInsertAssignedItemListForTest({
+      generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg04.resourceId,
         assigneeId: pg03.resourceId,
       }),
-      generateAndInsertAssignedItemListForTest({
+      generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg05.resourceId,
         assigneeId: pg02.resourceId,
       }),
-      generateAndInsertAssignedItemListForTest({
+      generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg05.resourceId,
         assigneeId: pg03.resourceId,
       }),

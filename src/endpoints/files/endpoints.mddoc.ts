@@ -11,7 +11,7 @@ import {
 } from '../../mddoc/mddoc';
 import {multilineTextToParagraph} from '../../utils/fns';
 import {EmptyObject} from '../../utils/types';
-import {endpointConstants} from '../constants';
+import {kEndpointConstants} from '../constants';
 import {
   fReusables,
   mddocEndpointHttpHeaderItems,
@@ -210,7 +210,7 @@ const getPresignedPathsForFilesParams = mddocConstruct
       mddocConstruct
         .constructFieldArray<FileMatcher>()
         .setType(fileMatcher)
-        .setMax(endpointConstants.inputListMax)
+        .setMax(kEndpointConstants.inputListMax)
     ),
     workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceId),
   });

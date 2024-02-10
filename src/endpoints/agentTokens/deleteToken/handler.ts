@@ -25,8 +25,9 @@ const deleteAgentToken: DeleteAgentTokenEndpoint = async instData => {
   appAssert(workspaceId);
 
   const job = await enqueueDeleteResourceJob({
+    workspaceId,
     type: kAppResourceType.AgentToken,
-    args: {workspaceId, resourceId: token.resourceId},
+    resourceId: token.resourceId,
   });
 
   return {jobId: job.resourceId};

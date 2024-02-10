@@ -2,7 +2,7 @@ import Joi from 'joi';
 import {mergeData} from '../utils/fns';
 import {JoiSchemaParts} from '../utils/types';
 import {kValidationSchemas} from '../utils/validationUtils';
-import {endpointConstants} from './constants';
+import {kEndpointConstants} from './constants';
 import {
   EndpointOptionalWorkspaceIDParam,
   EndpointWorkspaceResourceParam,
@@ -11,9 +11,9 @@ import {
 
 const comparisonOps = (schema: Joi.Schema) => ({
   $eq: schema,
-  $in: Joi.array().items(schema).max(endpointConstants.inputListMax),
+  $in: Joi.array().items(schema).max(kEndpointConstants.inputListMax),
   $ne: schema,
-  $nin: Joi.array().items(schema).max(endpointConstants.inputListMax),
+  $nin: Joi.array().items(schema).max(kEndpointConstants.inputListMax),
   $exists: Joi.boolean(),
   // we do not export $regex op
 });
@@ -44,7 +44,7 @@ const objectOpsSchema = (schema: Joi.Schema) =>
 
 const arrayOps = (schema: Joi.Schema) => ({
   $size: Joi.number().integer(),
-  $all: Joi.array().items(schema).max(endpointConstants.inputListMax),
+  $all: Joi.array().items(schema).max(kEndpointConstants.inputListMax),
   $elemMatch:
     schema.type === 'object'
       ? objectOpsSchema(schema)

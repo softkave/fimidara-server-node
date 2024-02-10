@@ -1,5 +1,5 @@
 import {ConnectBusboyOptions} from 'connect-busboy';
-import {endpointConstants} from '../constants';
+import {kEndpointConstants} from '../constants';
 
 const maxFileSizeInBytes = 1024 * 1024 ** 2; // 2Gb
 const multipartLimits: ConnectBusboyOptions['limits'] = {
@@ -18,13 +18,13 @@ export const kFileConstants = {
   maxFileHeight: 5000, // px
   uploadedFileFieldName: 'data',
   routes: {
-    readFile: `${endpointConstants.apiv1}/files/readFile`,
-    deleteFile: `${endpointConstants.apiv1}/files/deleteFile`,
-    getFileDetails: `${endpointConstants.apiv1}/files/getFileDetails`,
-    updateFileDetails: `${endpointConstants.apiv1}/files/updateFileDetails`,
-    uploadFile: `${endpointConstants.apiv1}/files/uploadFile`,
-    issueFilePresignedPath: `${endpointConstants.apiv1}/files/issueFilePresignedPath`,
-    getPresignedPaths: `${endpointConstants.apiv1}/files/getPresignedPaths`,
+    readFile: `${kEndpointConstants.apiv1}/files/readFile`,
+    deleteFile: `${kEndpointConstants.apiv1}/files/deleteFile`,
+    getFileDetails: `${kEndpointConstants.apiv1}/files/getFileDetails`,
+    updateFileDetails: `${kEndpointConstants.apiv1}/files/updateFileDetails`,
+    uploadFile: `${kEndpointConstants.apiv1}/files/uploadFile`,
+    issueFilePresignedPath: `${kEndpointConstants.apiv1}/files/issueFilePresignedPath`,
+    getPresignedPaths: `${kEndpointConstants.apiv1}/files/getPresignedPaths`,
   },
   headers: {
     'x-fimidara-file-description': 'x-fimidara-file-description',

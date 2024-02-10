@@ -3,7 +3,7 @@ import {UsageRecordCategory, UsageRecordCategoryMap} from '../../definitions/usa
 import {Workspace} from '../../definitions/workspace';
 import {kSystemSessionAgent} from '../../utils/agent';
 import {getTimestamp} from '../../utils/dateFns';
-import {endpointConstants} from '../constants';
+import {kEndpointConstants} from '../constants';
 
 export const usageRecordConstants = {
   defaultTotalThresholdInUSD: 30,
@@ -20,9 +20,9 @@ export const usageRecordConstants = {
   recordingMonthEndDate: 24,
   stripeReportingMonthEndDate: 26, // 27th of the month
   routes: {
-    getUsageCosts: `${endpointConstants.apiv1}/usageRecords/getUsageCosts`,
-    getWorkspaceSummedUsage: `${endpointConstants.apiv1}/usageRecords/getWorkspaceSummedUsage`,
-    countWorkspaceSummedUsage: `${endpointConstants.apiv1}/usageRecords/countWorkspaceSummedUsage`,
+    getUsageCosts: `${kEndpointConstants.apiv1}/usageRecords/getUsageCosts`,
+    getWorkspaceSummedUsage: `${kEndpointConstants.apiv1}/usageRecords/getWorkspaceSummedUsage`,
+    countWorkspaceSummedUsage: `${kEndpointConstants.apiv1}/usageRecords/countWorkspaceSummedUsage`,
   },
 };
 

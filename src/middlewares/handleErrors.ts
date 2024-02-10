@@ -1,6 +1,6 @@
 import {Response} from 'express';
 import {JsonWebTokenError, NotBeforeError, TokenExpiredError} from 'jsonwebtoken';
-import {endpointConstants} from '../endpoints/constants';
+import {kEndpointConstants} from '../endpoints/constants';
 import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
 import {
   CredentialsExpiredError,
@@ -46,7 +46,7 @@ function handleErrors(...args: unknown[]) {
   const res = getArg('res', args) as Response;
 
   if (!err) {
-    res.status(endpointConstants.httpStatusCode.serverError).send({
+    res.status(kEndpointConstants.httpStatusCode.serverError).send({
       errors: [new ServerError()],
     });
 
@@ -56,11 +56,11 @@ function handleErrors(...args: unknown[]) {
   kUtilsInjectables.logger().error(err);
   const JWTError = resolveJWTError(err);
   if (JWTError) {
-    res.status(endpointConstants.httpStatusCode.unauthorized).json({
+    res.status(kEndpointConstants.httpStatusCode.unauthorized).json({
       errors: getPublicErrors([JWTError]),
     });
   } else {
-    res.status(endpointConstants.httpStatusCode.serverError).json({
+    res.status(kEndpointConstants.httpStatusCode.serverError).json({
       errors: getPublicErrors([new ServerError()]),
     });
   }

@@ -9,7 +9,7 @@ import {ServerError} from '../utils/errors';
 import {isObjectEmpty, toCompactArray} from '../utils/fns';
 import {AnyObject} from '../utils/types';
 import RequestData from './RequestData';
-import {endpointConstants} from './constants';
+import {kEndpointConstants} from './constants';
 import {
   ResolvedTargetChildrenAccessCheck,
   kResolvedTargetChildrenAccess,
@@ -64,7 +64,7 @@ export function getPublicErrors(inputError: unknown) {
 
 export function prepareResponseError(error: unknown) {
   kUtilsInjectables.logger().error(error);
-  let statusCode = endpointConstants.httpStatusCode.serverError;
+  let statusCode = kEndpointConstants.httpStatusCode.serverError;
   const errors = Array.isArray(error) ? error : [error];
   const preppedErrors = getPublicErrors(errors);
 
@@ -95,7 +95,7 @@ export const wrapEndpointREST = <EndpointType extends Endpoint>(
         if (handleResponse) {
           await handleResponse(res, result);
         } else {
-          res.status(endpointConstants.httpStatusCode.ok).json(result ?? {});
+          res.status(kEndpointConstants.httpStatusCode.ok).json(result ?? {});
         }
       } catch (error: unknown) {
         const {statusCode, preppedErrors} = prepareResponseError(error);

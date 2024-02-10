@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
 import {kValidationSchemas} from '../../../utils/validationUtils';
-import {endpointConstants} from '../../constants';
+import {kEndpointConstants} from '../../constants';
 import workspaceValidationSchemas from '../../workspaces/validation';
 import {permissionItemConstants} from '../constants';
 import permissionItemValidationSchemas from '../validation';
@@ -21,7 +21,7 @@ const itemInput = Joi.object<DeletePermissionItemInput>().keys({
   entityId: permissionItemValidationSchemas.entityParts.entityId,
   target: Joi.alternatives().try(
     target,
-    Joi.array().items(target).max(endpointConstants.inputListMax)
+    Joi.array().items(target).max(kEndpointConstants.inputListMax)
   ),
   action: kValidationSchemas.crudActionOrList,
   access: Joi.boolean(),

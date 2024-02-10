@@ -1,4 +1,4 @@
-import {endpointConstants} from '../constants';
+import {kEndpointConstants} from '../constants';
 
 export const kFolderConstants = {
   minFolderNameLength: 1,
@@ -7,11 +7,11 @@ export const kFolderConstants = {
   separator: '/',
   volumeSeparator: ':',
   routes: {
-    addFolder: `${endpointConstants.apiv1}/folders/addFolder`,
-    deleteFolder: `${endpointConstants.apiv1}/folders/deleteFolder`,
-    getFolder: `${endpointConstants.apiv1}/folders/getFolder`,
-    listFolderContent: `${endpointConstants.apiv1}/folders/listFolderContent`,
-    countFolderContent: `${endpointConstants.apiv1}/folders/countFolderContent`,
-    updateFolder: `${endpointConstants.apiv1}/folders/updateFolder`,
+    addFolder: `${kEndpointConstants.apiv1}/folders/addFolder`,
+    deleteFolder: `${kEndpointConstants.apiv1}/folders/deleteFolder`,
+    getFolder: `${kEndpointConstants.apiv1}/folders/getFolder`,
+    listFolderContent: `${kEndpointConstants.apiv1}/folders/listFolderContent`,
+    countFolderContent: `${kEndpointConstants.apiv1}/folders/countFolderContent`,
+    updateFolder: `${kEndpointConstants.apiv1}/folders/updateFolder`,
   },
 };

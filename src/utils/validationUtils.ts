@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
 import {kPermissionsMap} from '../definitions/permissionItem';
 import {kAppResourceTypeList as systemAppResourceTypesList} from '../definitions/system';
-import {endpointConstants} from '../endpoints/constants';
+import {kEndpointConstants} from '../endpoints/constants';
 
 const password = /[A-Za-z0-9!()?_`~#$^&*+=]/;
 const str = /^[\w ]*$/;
@@ -33,10 +33,10 @@ const color = Joi.string().trim().lowercase().regex(kValidationRegExPatterns.hex
 const alphanum = Joi.string().regex(str);
 const URL = Joi.string().uri().trim().max(kValidationConstants.maxImageURLLength);
 const positiveNum = Joi.number().integer().positive();
-const name = Joi.string().trim().max(endpointConstants.maxNameLength);
+const name = Joi.string().trim().max(kEndpointConstants.maxNameLength);
 const description = Joi.string()
   .allow(null, '')
-  .max(endpointConstants.maxDescriptionLength)
+  .max(kEndpointConstants.maxDescriptionLength)
   .trim();
 const zipcode = Joi.string().regex(kValidationRegExPatterns.zipcode);
 const phone = Joi.string().regex(kValidationRegExPatterns.phone);
@@ -59,7 +59,7 @@ const crudActionList = Joi.array()
   .items(crudAction)
   .max(Object.values(kPermissionsMap).length);
 const providedResourceId = Joi.string().max(
-  endpointConstants.providedResourceIdMaxLength
+  kEndpointConstants.providedResourceIdMaxLength
 );
 const crudActionOrList = Joi.alternatives().try(crudAction, crudActionList);
 

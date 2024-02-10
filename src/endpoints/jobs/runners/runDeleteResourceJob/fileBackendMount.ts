@@ -1,62 +1,26 @@
 import {kAppResourceType} from '../../../../definitions/system';
 import {kSemanticModels} from '../../../contexts/injection/injectables';
+import {genericDeleteArtifacts, genericGetArtifacts} from './genericEntries';
 import {
   DeleteResourceCascadeEntry,
-  DeleteResourceDeleteSimpleArtifactsFns,
+  DeleteResourceDeleteArtifactsFns,
   DeleteResourceFn,
-  DeleteResourceGetComplexArtifactsFns,
+  DeleteResourceGetArtifactsFns,
 } from './types';
-import {
-  deleteResourceAssignedItemArtifacts,
-  getResourcePermissionItemArtifacts,
-} from './utils';
 
-const getComplexArtifacts: DeleteResourceGetComplexArtifactsFns = {
-  [kAppResourceType.All]: null,
-  [kAppResourceType.System]: null,
-  [kAppResourceType.Public]: null,
-  [kAppResourceType.User]: null,
-  [kAppResourceType.EndpointRequest]: null,
-  [kAppResourceType.App]: null,
-  [kAppResourceType.Workspace]: null,
-  [kAppResourceType.CollaborationRequest]: null,
-  [kAppResourceType.AgentToken]: null,
-  [kAppResourceType.PermissionGroup]: null,
-  [kAppResourceType.Folder]: null,
-  [kAppResourceType.File]: null,
-  [kAppResourceType.Tag]: null,
-  [kAppResourceType.UsageRecord]: null,
-  [kAppResourceType.FilePresignedPath]: null,
-  [kAppResourceType.FileBackendMount]: null,
-  [kAppResourceType.FileBackendConfig]: null,
-  [kAppResourceType.ResolvedMountEntry]: null,
-  [kAppResourceType.Job]: null,
-  [kAppResourceType.AssignedItem]: null,
-  [kAppResourceType.PermissionItem]: getResourcePermissionItemArtifacts,
+const getArtifacts: DeleteResourceGetArtifactsFns = {
+  ...genericGetArtifacts,
+  [kAppResourceType.ResolvedMountEntry]: ({args, helpers}) =>
+    helpers.withTxn(opts =>
+      kSemanticModels
+        .resolvedMountEntry()
+        .getManyByQuery({mountId: args.resourceId}, opts)
+    ),
+  // TODO: should we delete files from mount?
 };
 
-const deleteSimpleArtifacts: DeleteResourceDeleteSimpleArtifactsFns = {
-  [kAppResourceType.All]: null,
-  [kAppResourceType.System]: null,
-  [kAppResourceType.Public]: null,
-  [kAppResourceType.User]: null,
-  [kAppResourceType.EndpointRequest]: null,
-  [kAppResourceType.App]: null,
-  [kAppResourceType.Workspace]: null,
-  [kAppResourceType.CollaborationRequest]: null,
-  [kAppResourceType.AgentToken]: null,
-  [kAppResourceType.PermissionGroup]: null,
-  [kAppResourceType.Folder]: null,
-  [kAppResourceType.File]: null,
-  [kAppResourceType.Tag]: null,
-  [kAppResourceType.UsageRecord]: null,
-  [kAppResourceType.FilePresignedPath]: null,
-  [kAppResourceType.FileBackendMount]: null,
-  [kAppResourceType.FileBackendConfig]: null,
-  // TODO: should we delete the jobs too?
-  [kAppResourceType.Job]: null,
-  [kAppResourceType.PermissionItem]: null,
-  [kAppResourceType.AssignedItem]: deleteResourceAssignedItemArtifacts,
+const deleteArtifacts: DeleteResourceDeleteArtifactsFns = {
+  ...genericDeleteArtifacts,
   [kAppResourceType.ResolvedMountEntry]: ({args, helpers}) =>
     helpers.withTxn(opts =>
       kSemanticModels
@@ -72,6 +36,6 @@ const deleteResourceFn: DeleteResourceFn = ({args, helpers}) =>
 
 export const deleteFileBackendMountCascadeEntry: DeleteResourceCascadeEntry = {
   deleteResourceFn,
-  getComplexArtifacts,
-  deleteSimpleArtifacts,
+  getArtifacts: getArtifacts,
+  deleteArtifacts: deleteArtifacts,
 };

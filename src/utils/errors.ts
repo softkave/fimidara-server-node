@@ -1,4 +1,4 @@
-import {endpointConstants} from '../endpoints/constants';
+import {kEndpointConstants} from '../endpoints/constants';
 import OperationError, {
   getErrorMessageFromParams,
   OperationErrorParameters,
@@ -6,7 +6,7 @@ import OperationError, {
 
 export class ServerError extends OperationError {
   name = 'ServerError';
-  statusCode = endpointConstants.httpStatusCode.serverError;
+  statusCode = kEndpointConstants.httpStatusCode.serverError;
 
   constructor(props?: OperationErrorParameters | string) {
     super(props);
@@ -16,7 +16,7 @@ export class ServerError extends OperationError {
 
 export class TimeoutError extends OperationError {
   name = 'TimeoutError';
-  statusCode = endpointConstants.httpStatusCode.serverError;
+  statusCode = kEndpointConstants.httpStatusCode.serverError;
 
   constructor(props?: OperationErrorParameters | string) {
     super(props);
@@ -26,16 +26,16 @@ export class TimeoutError extends OperationError {
 
 export class ValidationError extends OperationError {
   name = 'ValidationError';
-  statusCode = endpointConstants.httpStatusCode.badRequest;
+  statusCode = kEndpointConstants.httpStatusCode.badRequest;
 }
 
 export class ServerStateConflictError extends OperationError {
   name = 'ServerStateConflictError';
-  statusCode = endpointConstants.httpStatusCode.conflict;
+  statusCode = kEndpointConstants.httpStatusCode.conflict;
 }
 
 export class InternalError extends OperationError {
   name = 'InternalError';
   isPublicError = false;
-  statusCode = endpointConstants.httpStatusCode.serverError;
+  statusCode = kEndpointConstants.httpStatusCode.serverError;
 }

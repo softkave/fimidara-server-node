@@ -105,7 +105,7 @@ describe('deleteConfig', () => {
       },
     });
     expect(job).toBeTruthy();
-    expect(job?.params.args).toMatchObject({
+    expect(job?.params).toMatchObject({
       resourceId: config.resourceId,
       workspaceId: workspace.resourceId,
     });

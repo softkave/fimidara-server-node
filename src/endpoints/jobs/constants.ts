@@ -1,7 +1,7 @@
-import {endpointConstants} from '../constants';
+import {kEndpointConstants} from '../constants';
 
 export const jobConstants = {
   routes: {
-    getJobStatus: `${endpointConstants.apiv1}/jobs/getJobStatus`,
+    getJobStatus: `${kEndpointConstants.apiv1}/jobs/getJobStatus`,
   },
 };

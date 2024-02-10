@@ -47,6 +47,10 @@ export function randomAction(actions = Object.values(kPermissionsMap)) {
   return faker.helpers.arrayElement(actions);
 }
 
+export function randomActionList(actions = Object.values(kPermissionsMap)) {
+  return faker.helpers.arrayElements(actions);
+}
+
 export function generateAgent(seed: Partial<Agent> = {}): Agent {
   const agentType = kAppResourceType.AgentToken;
   const agentTokenId = getNewIdForResource(agentType);

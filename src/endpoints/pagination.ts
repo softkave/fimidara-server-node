@@ -1,19 +1,19 @@
 import {defaultTo} from 'lodash';
-import {endpointConstants} from './constants';
+import {kEndpointConstants} from './constants';
 import {getPage} from './contexts/data/utils';
 import {PaginationQuery} from './types';
 
 export function applyDefaultEndpointPaginationOptions(data: PaginationQuery) {
   if (data.page === undefined) {
-    data.page = endpointConstants.minPage;
+    data.page = kEndpointConstants.minPage;
   } else {
-    data.page = Math.max(endpointConstants.minPage, data.page);
+    data.page = Math.max(kEndpointConstants.minPage, data.page);
   }
 
   if (data.pageSize === undefined) {
-    data.pageSize = endpointConstants.maxPageSize;
+    data.pageSize = kEndpointConstants.maxPageSize;
   } else {
-    data.pageSize = Math.max(endpointConstants.minPageSize, data.pageSize);
+    data.pageSize = Math.max(kEndpointConstants.minPageSize, data.pageSize);
   }
 
   return data;

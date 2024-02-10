@@ -39,7 +39,8 @@ const deleteFileBackendConfig: DeleteFileBackendConfigEndpoint = async instData 
 
   const job = await enqueueDeleteResourceJob({
     type: kAppResourceType.FileBackendConfig,
-    args: {workspaceId: config.workspaceId, resourceId: config.resourceId},
+    workspaceId: config.workspaceId,
+    resourceId: config.resourceId,
   });
 
   return {jobId: job.resourceId};

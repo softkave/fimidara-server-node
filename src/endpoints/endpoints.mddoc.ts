@@ -12,7 +12,7 @@ import {mddocConstruct} from '../mddoc/mddoc';
 import {FimidaraExternalError} from '../utils/OperationError';
 import {kIdSeparator, kResourceTypeShortNames} from '../utils/resource';
 import {AnyObject} from '../utils/types';
-import {endpointConstants} from './constants';
+import {kEndpointConstants} from './constants';
 import {LongRunningJobResult} from './jobs/types';
 import {permissionGroupConstants} from './permissionGroups/constants';
 import {
@@ -30,7 +30,7 @@ import {
 } from './types';
 
 export const mddocEndpointStatusCodes = {
-  success: `${endpointConstants.httpStatusCode.ok}`,
+  success: `${kEndpointConstants.httpStatusCode.ok}`,
   error: '4XX or 5XX',
 } as const;
 
@@ -315,7 +315,7 @@ const effectOnReferenced = mddocConstruct
 const providedResourceId = mddocConstruct
   .constructFieldString()
   .setDescription('Resource ID provided by you')
-  .setMax(endpointConstants.providedResourceIdMaxLength);
+  .setMax(kEndpointConstants.providedResourceIdMaxLength);
 const providedResourceIdOrNull = mddocConstruct
   .constructFieldOrCombination<string | null>()
   .setTypes([providedResourceId, nullValue]);
@@ -422,13 +422,13 @@ const page = mddocConstruct
     'Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ..'
   )
   .setExample(0)
-  .setMin(endpointConstants.minPage);
+  .setMin(kEndpointConstants.minPage);
 const pageSize = mddocConstruct
   .constructFieldNumber()
   .setDescription('Paginated list page size')
   .setExample(10)
-  .setMin(endpointConstants.minPageSize)
-  .setMax(endpointConstants.maxPageSize);
+  .setMin(kEndpointConstants.minPageSize)
+  .setMax(kEndpointConstants.maxPageSize);
 const resultNoteCode = mddocConstruct
   .constructFieldString()
   .setDescription('Endpoint result or error note code')

@@ -13,7 +13,8 @@ const deleteTag: DeleteTagEndpoint = async instData => {
 
   const job = await enqueueDeleteResourceJob({
     type: kAppResourceType.Tag,
-    args: {workspaceId: tag.workspaceId, resourceId: tag.resourceId},
+    workspaceId: tag.workspaceId,
+    resourceId: tag.resourceId,
   });
 
   return {jobId: job.resourceId};

@@ -2,12 +2,12 @@ import {kAppResourceType} from '../../../../definitions/system';
 import {kSemanticModels} from '../../../contexts/injection/injectables';
 import {
   DeleteResourceCascadeEntry,
-  DeleteResourceDeleteSimpleArtifactsFns,
+  DeleteResourceDeleteArtifactsFns,
   DeleteResourceFn,
-  DeleteResourceGetComplexArtifactsFns,
+  DeleteResourceGetArtifactsFns,
 } from './types';
 
-const getComplexArtifacts: DeleteResourceGetComplexArtifactsFns = {
+const getArtifacts: DeleteResourceGetArtifactsFns = {
   [kAppResourceType.All]: null,
   [kAppResourceType.System]: null,
   [kAppResourceType.Public]: null,
@@ -15,8 +15,11 @@ const getComplexArtifacts: DeleteResourceGetComplexArtifactsFns = {
   [kAppResourceType.EndpointRequest]: null,
   [kAppResourceType.App]: null,
   [kAppResourceType.Job]: null,
-  [kAppResourceType.Workspace]: ({args, opts}) =>
-    kSemanticModels.workspace().getManyByWorkspaceId(args.workspaceId, opts),
+  [kAppResourceType.Workspace]: null,
+  [kAppResourceType.AssignedItem]: null,
+  [kAppResourceType.UsageRecord]: null,
+  [kAppResourceType.ResolvedMountEntry]: null,
+  [kAppResourceType.FilePresignedPath]: null,
   [kAppResourceType.CollaborationRequest]: ({args, opts}) =>
     kSemanticModels.collaborationRequest().getManyByWorkspaceId(args.workspaceId, opts),
   [kAppResourceType.AgentToken]: ({args, opts}) =>
@@ -31,21 +34,13 @@ const getComplexArtifacts: DeleteResourceGetComplexArtifactsFns = {
     kSemanticModels.file().getManyByWorkspaceId(args.workspaceId, opts),
   [kAppResourceType.Tag]: ({args, opts}) =>
     kSemanticModels.tag().getManyByWorkspaceId(args.workspaceId, opts),
-  [kAppResourceType.AssignedItem]: ({args, opts}) =>
-    kSemanticModels.assignedItem().getManyByWorkspaceId(args.workspaceId, opts),
-  [kAppResourceType.UsageRecord]: ({args, opts}) =>
-    kSemanticModels.usageRecord().getManyByWorkspaceId(args.workspaceId, opts),
-  [kAppResourceType.FilePresignedPath]: ({args, opts}) =>
-    kSemanticModels.filePresignedPath().getManyByWorkspaceId(args.workspaceId, opts),
   [kAppResourceType.FileBackendMount]: ({args, opts}) =>
     kSemanticModels.fileBackendMount().getManyByWorkspaceId(args.workspaceId, opts),
   [kAppResourceType.FileBackendConfig]: ({args, opts}) =>
     kSemanticModels.fileBackendConfig().getManyByWorkspaceId(args.workspaceId, opts),
-  [kAppResourceType.ResolvedMountEntry]: ({args, opts}) =>
-    kSemanticModels.resolvedMountEntry().getManyByWorkspaceId(args.workspaceId, opts),
 };
 
-const deleteSimpleArtifacts: DeleteResourceDeleteSimpleArtifactsFns = {
+const deleteArtifacts: DeleteResourceDeleteArtifactsFns = {
   [kAppResourceType.All]: null,
   [kAppResourceType.System]: null,
   [kAppResourceType.Public]: null,
@@ -53,10 +48,7 @@ const deleteSimpleArtifacts: DeleteResourceDeleteSimpleArtifactsFns = {
   [kAppResourceType.EndpointRequest]: null,
   [kAppResourceType.App]: null,
   [kAppResourceType.Job]: null,
-  [kAppResourceType.Workspace]: ({args, helpers}) =>
-    helpers.withTxn(opts =>
-      kSemanticModels.workspace().deleteManyByWorkspaceId(args.workspaceId, opts)
-    ),
+  [kAppResourceType.Workspace]: null,
   [kAppResourceType.CollaborationRequest]: ({args, helpers}) =>
     helpers.withTxn(opts =>
       kSemanticModels
@@ -120,6 +112,6 @@ const deleteResourceFn: DeleteResourceFn = ({args, helpers}) =>
 
 export const deleteWorkspaceCascadeEntry: DeleteResourceCascadeEntry = {
   deleteResourceFn,
-  getComplexArtifacts,
-  deleteSimpleArtifacts,
+  getArtifacts: getArtifacts,
+  deleteArtifacts: deleteArtifacts,
 };

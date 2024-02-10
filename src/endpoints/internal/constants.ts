@@ -1,11 +1,11 @@
-import {endpointConstants} from '../constants';
+import {kEndpointConstants} from '../constants';
 
 export const internalConstants = {
   maxUpgradeWaitlistedUserItems: 1000,
   routes: {
-    getWaitlistedUsers: `${endpointConstants.apiv1}/internals/getWaitlistedUsers`,
-    upgradeWaitlistedUsers: `${endpointConstants.apiv1}/internals/upgradeWaitlistedUsers`,
-    getUsers: `${endpointConstants.apiv1}/internals/getUsers`,
-    getWorkspaces: `${endpointConstants.apiv1}/internals/getWorkspaces`,
+    getWaitlistedUsers: `${kEndpointConstants.apiv1}/internals/getWaitlistedUsers`,
+    upgradeWaitlistedUsers: `${kEndpointConstants.apiv1}/internals/upgradeWaitlistedUsers`,
+    getUsers: `${kEndpointConstants.apiv1}/internals/getUsers`,
+    getWorkspaces: `${kEndpointConstants.apiv1}/internals/getWorkspaces`,
   },
 };

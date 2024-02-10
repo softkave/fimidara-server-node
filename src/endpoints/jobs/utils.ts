@@ -1,4 +1,4 @@
-import {defaultTo, first, isNumber, isObject, keyBy, noop} from 'lodash';
+import {defaultTo, first, isArray, isNumber, isObject, keyBy, noop} from 'lodash';
 import {AnyObject} from 'mongoose';
 import {availableParallelism} from 'os';
 import {App, AppShard, kAppPresetShards, kAppType} from '../../definitions/app';
@@ -11,6 +11,7 @@ import {
   JobStatus,
   JobStatusHistory,
   JobType,
+  RunAfterJobItem,
   kJobPresetPriority,
   kJobRunnerV1,
   kJobStatus,
@@ -20,6 +21,7 @@ import {kAppResourceType} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {TimeoutError} from '../../utils/errors';
+import {toArray} from '../../utils/fns';
 import {newResource} from '../../utils/resource';
 import {
   kDataModels,
@@ -31,7 +33,11 @@ import {
   SemanticProviderRunOptions,
 } from '../contexts/semantic/types';
 import {runCleanupMountResolvedEntriesJob} from './runners/runCleanupMountResolvedEntriesJob';
-import {runDeleteResourceJob} from './runners/runDeleteResourceJob';
+import {
+  runDeleteResourceJob0,
+  runDeleteResourceJobArtifacts,
+  runDeleteResourceJobSelf,
+} from './runners/runDeleteResourceJob';
 import {runIngestFolderpathJob} from './runners/runIngestFolderpathJob';
 import {runIngestMountJob} from './runners/runIngestMountJob';
 import {
@@ -56,6 +62,7 @@ export interface JobInput<
   idempotencyToken?: string;
   priority?: number;
   shard?: AppShard;
+  runAfter?: RunAfterJobItem | RunAfterJobItem[];
 }
 
 export async function queueJobs<
@@ -64,12 +71,17 @@ export async function queueJobs<
 >(
   workspaceId: string | undefined,
   parentJobId: string | undefined,
-  jobsInput: JobInput<TParams, TMeta>[],
+  jobsInput: JobInput<TParams, TMeta> | Array<JobInput<TParams, TMeta>>,
   insertOptions: {
     jobsToReturn?: 'all' | 'new';
+    seed?: Partial<Job<TParams, TMeta>>;
   } = {}
 ): Promise<Array<Job<TParams, TMeta>>> {
   const {jobsToReturn = 'all'} = insertOptions;
+
+  if (!isArray(jobsInput)) {
+    jobsInput = toArray(jobsInput);
+  }
 
   if (jobsInput.length === 0) {
     return [];
@@ -89,7 +101,7 @@ export async function queueJobs<
     };
 
     idempotencyTokens.push(idempotencyToken);
-    return newResource<Job>(kAppResourceType.Job, {
+    return newResource<Job<TParams, TMeta>>(kAppResourceType.Job, {
       workspaceId,
       parentJobId,
       idempotencyToken,
@@ -101,7 +113,9 @@ export async function queueJobs<
       statusHistory: [status],
       priority: input.priority ?? kJobPresetPriority.p1,
       shard: input.shard ?? kAppPresetShards.fimidaraMain,
+      runAfter: input.runAfter ? toArray(input.runAfter) : undefined,
       ...status,
+      ...insertOptions.seed,
     });
   });
 
@@ -193,8 +207,8 @@ export async function completeJob(
 }
 
 export async function enqueueDeleteResourceJob(params: DeleteResourceJobParams) {
-  const [job] = await queueJobs(params.args.workspaceId, undefined, [
-    {params, type: kJobType.deleteResource},
+  const [job] = await queueJobs(params.workspaceId, undefined, [
+    {params, type: kJobType.deleteResource0},
   ]);
 
   return job;
@@ -202,8 +216,12 @@ export async function enqueueDeleteResourceJob(params: DeleteResourceJobParams) 
 
 export async function runJob(job: Job) {
   try {
-    if (job.type === kJobType.deleteResource) {
-      await runDeleteResourceJob(job);
+    if (job.type === kJobType.deleteResource0) {
+      await runDeleteResourceJob0(job);
+    } else if (job.type === kJobType.deleteResourceArtifacts) {
+      await runDeleteResourceJobArtifacts(job);
+    } else if (job.type === kJobType.deleteResourceSelf) {
+      await runDeleteResourceJobSelf(job);
     } else if (job.type === kJobType.ingestFolderpath) {
       await runIngestFolderpathJob(job as Job<IngestFolderpathJobParams>);
     } else if (job.type === kJobType.ingestMount) {

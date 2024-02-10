@@ -1,82 +1,31 @@
 import {kAppResourceType} from '../../../../definitions/system';
 import {kSemanticModels} from '../../../contexts/injection/injectables';
+import {genericDeleteArtifacts, genericGetArtifacts} from './genericEntries';
 import {
   DeleteResourceCascadeEntry,
-  DeleteResourceDeleteSimpleArtifactsFns,
+  DeleteResourceDeleteArtifactsFns,
   DeleteResourceFn,
-  DeleteResourceGetComplexArtifactsFns,
+  DeleteResourceGetArtifactsFns,
 } from './types';
-import {
-  deleteResourceAssignedItemArtifacts,
-  getResourcePermissionItemArtifacts,
-} from './utils';
 
-const getComplexArtifacts: DeleteResourceGetComplexArtifactsFns = {
-  [kAppResourceType.All]: null,
-  [kAppResourceType.System]: null,
-  [kAppResourceType.Public]: null,
-  [kAppResourceType.User]: null,
-  [kAppResourceType.EndpointRequest]: null,
-  [kAppResourceType.App]: null,
-  [kAppResourceType.Workspace]: null,
-  [kAppResourceType.CollaborationRequest]: null,
-  [kAppResourceType.AgentToken]: null,
-  [kAppResourceType.PermissionGroup]: null,
-  [kAppResourceType.Folder]: null,
-  [kAppResourceType.File]: null,
-  [kAppResourceType.Tag]: null,
-  [kAppResourceType.UsageRecord]: null,
-  [kAppResourceType.FileBackendMount]: null,
-  [kAppResourceType.FileBackendConfig]: null,
-  [kAppResourceType.Job]: null,
-  [kAppResourceType.AssignedItem]: null,
-  [kAppResourceType.ResolvedMountEntry]: null,
-  [kAppResourceType.PermissionItem]: getResourcePermissionItemArtifacts,
+const getArtifacts: DeleteResourceGetArtifactsFns = {
+  ...genericGetArtifacts,
   [kAppResourceType.FilePresignedPath]: async ({args, opts}) => {
-    const token = await kSemanticModels.agentToken().getOneById(args.resourceId);
-
-    if (token) {
-      return await kSemanticModels
-        .filePresignedPath()
-        .getManyByQuery({issuerAgentTokenId: token.resourceId}, opts);
-    }
-
-    return [];
+    return await kSemanticModels
+      .filePresignedPath()
+      .getManyByQuery({issuerAgentTokenId: args.resourceId}, opts);
   },
 };
 
-const deleteSimpleArtifacts: DeleteResourceDeleteSimpleArtifactsFns = {
-  [kAppResourceType.All]: null,
-  [kAppResourceType.System]: null,
-  [kAppResourceType.Public]: null,
-  [kAppResourceType.User]: null,
-  [kAppResourceType.EndpointRequest]: null,
-  [kAppResourceType.App]: null,
-  [kAppResourceType.Workspace]: null,
-  [kAppResourceType.CollaborationRequest]: null,
-  [kAppResourceType.AgentToken]: null,
-  [kAppResourceType.PermissionGroup]: null,
-  [kAppResourceType.Folder]: null,
-  [kAppResourceType.File]: null,
-  [kAppResourceType.Tag]: null,
-  [kAppResourceType.UsageRecord]: null,
-  [kAppResourceType.FileBackendMount]: null,
-  [kAppResourceType.FileBackendConfig]: null,
-  [kAppResourceType.Job]: null,
-  [kAppResourceType.PermissionItem]: null,
-  [kAppResourceType.ResolvedMountEntry]: null,
+const deleteArtifacts: DeleteResourceDeleteArtifactsFns = {
+  ...genericDeleteArtifacts,
   [kAppResourceType.FilePresignedPath]: async ({args, helpers}) => {
-    const token = await kSemanticModels.agentToken().getOneById(args.resourceId);
-
-    if (token) {
-      await helpers.withTxn(opts =>
-        kSemanticModels
-          .filePresignedPath()
-          .getManyByQuery({issuerAgentTokenId: token.resourceId}, opts)
-      );
-    }
+    await helpers.withTxn(opts =>
+      kSemanticModels
+        .filePresignedPath()
+        .deleteManyByQuery({issuerAgentTokenId: args.resourceId}, opts)
+    );
   },
-  [kAppResourceType.AssignedItem]: deleteResourceAssignedItemArtifacts,
 };
 
 const deleteResourceFn: DeleteResourceFn = ({args, helpers}) =>
@@ -86,6 +35,6 @@ const deleteResourceFn: DeleteResourceFn = ({args, helpers}) =>
 
 export const deleteAgentTokenCascadeEntry: DeleteResourceCascadeEntry = {
   deleteResourceFn,
-  getComplexArtifacts,
-  deleteSimpleArtifacts,
+  getArtifacts: getArtifacts,
+  deleteArtifacts: deleteArtifacts,
 };

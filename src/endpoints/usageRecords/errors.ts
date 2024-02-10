@@ -2,11 +2,11 @@ import OperationError, {
   getErrorMessageFromParams,
   OperationErrorParameters,
 } from '../../utils/OperationError';
-import {endpointConstants} from '../constants';
+import {kEndpointConstants} from '../constants';
 
 export class UsageLimitExceededError extends OperationError {
   name = 'UsageLimitExceededError';
-  statusCode = endpointConstants.httpStatusCode.forbidden;
+  statusCode = kEndpointConstants.httpStatusCode.forbidden;
 
   constructor(props?: OperationErrorParameters | string) {
     super(props);

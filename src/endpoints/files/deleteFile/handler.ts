@@ -24,7 +24,8 @@ const deleteFile: DeleteFileEndpoint = async instData => {
 
     return await enqueueDeleteResourceJob({
       type: kAppResourceType.File,
-      args: {workspaceId: file.workspaceId, resourceId: file.resourceId},
+      workspaceId: file.workspaceId,
+      resourceId: file.resourceId,
     });
   });
 

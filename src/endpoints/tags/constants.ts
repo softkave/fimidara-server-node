@@ -1,13 +1,13 @@
-import {endpointConstants} from '../constants';
+import {kEndpointConstants} from '../constants';
 
 export const tagConstants = {
   maxAssignedTags: 100,
   routes: {
-    addTag: `${endpointConstants.apiv1}/tags/addTag`,
-    deleteTag: `${endpointConstants.apiv1}/tags/deleteTag`,
-    getWorkspaceTags: `${endpointConstants.apiv1}/tags/getWorkspaceTags`,
-    countWorkspaceTags: `${endpointConstants.apiv1}/tags/countWorkspaceTags`,
-    getTag: `${endpointConstants.apiv1}/tags/getTag`,
-    updateTag: `${endpointConstants.apiv1}/tags/updateTag`,
+    addTag: `${kEndpointConstants.apiv1}/tags/addTag`,
+    deleteTag: `${kEndpointConstants.apiv1}/tags/deleteTag`,
+    getWorkspaceTags: `${kEndpointConstants.apiv1}/tags/getWorkspaceTags`,
+    countWorkspaceTags: `${kEndpointConstants.apiv1}/tags/countWorkspaceTags`,
+    getTag: `${kEndpointConstants.apiv1}/tags/getTag`,
+    updateTag: `${kEndpointConstants.apiv1}/tags/updateTag`,
   },
 };

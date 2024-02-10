@@ -2,11 +2,11 @@ import OperationError, {
   getErrorMessageFromParams,
   OperationErrorParameters,
 } from '../utils/OperationError';
-import {endpointConstants} from './constants';
+import {kEndpointConstants} from './constants';
 
 export class InvalidRequestError extends OperationError {
   name = 'InvalidRequestError';
-  statusCode = endpointConstants.httpStatusCode.badRequest;
+  statusCode = kEndpointConstants.httpStatusCode.badRequest;
 
   constructor(props?: OperationErrorParameters | string) {
     super(props);
@@ -16,7 +16,7 @@ export class InvalidRequestError extends OperationError {
 
 export class InvalidStateError extends OperationError {
   name = 'InvalidStateError';
-  statusCode = endpointConstants.httpStatusCode.conflict;
+  statusCode = kEndpointConstants.httpStatusCode.conflict;
 
   constructor(props?: OperationErrorParameters | string) {
     super(props);
@@ -29,7 +29,7 @@ export class InvalidStateError extends OperationError {
 
 export class RateLimitError extends OperationError {
   name = 'RateLimitError';
-  statusCode = endpointConstants.httpStatusCode.tooManyRequests;
+  statusCode = kEndpointConstants.httpStatusCode.tooManyRequests;
 
   constructor(props?: OperationErrorParameters | string) {
     super(props);
@@ -42,7 +42,7 @@ export class RateLimitError extends OperationError {
 
 export class ExpiredError extends OperationError {
   name = 'ExpiredError';
-  statusCode = endpointConstants.httpStatusCode.forbidden;
+  statusCode = kEndpointConstants.httpStatusCode.forbidden;
 
   constructor(props?: OperationErrorParameters | string) {
     super(props);
@@ -52,7 +52,7 @@ export class ExpiredError extends OperationError {
 
 export class NotFoundError extends OperationError {
   name = 'NotFoundError';
-  statusCode = endpointConstants.httpStatusCode.notFound;
+  statusCode = kEndpointConstants.httpStatusCode.notFound;
 
   constructor(props?: OperationErrorParameters | string) {
     super(props);
@@ -62,7 +62,7 @@ export class NotFoundError extends OperationError {
 
 export class ResourceExistsError extends OperationError {
   name = 'ResourceExistsError';
-  statusCode = endpointConstants.httpStatusCode.conflict;
+  statusCode = kEndpointConstants.httpStatusCode.conflict;
 
   constructor(props?: OperationErrorParameters | string) {
     super(props);

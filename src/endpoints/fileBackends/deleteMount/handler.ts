@@ -35,7 +35,8 @@ const deleteFileBackendMount: DeleteFileBackendMountEndpoint = async instData =>
 
   const job = await enqueueDeleteResourceJob({
     type: kAppResourceType.FileBackendMount,
-    args: {workspaceId: mount.workspaceId, resourceId: mount.resourceId},
+    workspaceId: mount.workspaceId,
+    resourceId: mount.resourceId,
   });
 
   return {jobId: job.resourceId};

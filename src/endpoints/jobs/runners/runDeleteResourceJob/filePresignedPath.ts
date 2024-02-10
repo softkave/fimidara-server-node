@@ -1,5 +1,5 @@
 import {kSemanticModels} from '../../../contexts/injection/injectables';
-import {noopDeleteSimpleArtifacts, noopGetComplexArtifacts} from './noop';
+import {genericDeleteArtifacts, genericGetArtifacts} from './genericEntries';
 import {DeleteResourceCascadeEntry, DeleteResourceFn} from './types';
 
 const deleteResourceFn: DeleteResourceFn = ({args, helpers}) =>
@@ -9,6 +9,6 @@ const deleteResourceFn: DeleteResourceFn = ({args, helpers}) =>
 
 export const deleteFilePresignedPathCascadeEntry: DeleteResourceCascadeEntry = {
   deleteResourceFn,
-  deleteSimpleArtifacts: noopDeleteSimpleArtifacts,
-  getComplexArtifacts: noopGetComplexArtifacts,
+  deleteArtifacts: genericDeleteArtifacts,
+  getArtifacts: genericGetArtifacts,
 };

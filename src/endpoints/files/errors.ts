@@ -2,11 +2,11 @@ import OperationError, {
   getErrorMessageFromParams,
   OperationErrorParameters,
 } from '../../utils/OperationError';
-import {endpointConstants} from '../constants';
+import {kEndpointConstants} from '../constants';
 
 export class FileExistsError extends OperationError {
   name = 'FileExistsError';
-  statusCode = endpointConstants.httpStatusCode.conflict;
+  statusCode = kEndpointConstants.httpStatusCode.conflict;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
     this.message = getErrorMessageFromParams(props, 'File exists');
@@ -15,7 +15,7 @@ export class FileExistsError extends OperationError {
 
 export class FileNotWritableError extends OperationError {
   name = 'FileNotWritableError';
-  statusCode = endpointConstants.httpStatusCode.conflict;
+  statusCode = kEndpointConstants.httpStatusCode.conflict;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
     this.message = getErrorMessageFromParams(

@@ -5,12 +5,12 @@ import OperationError, {
   getErrorMessageFromParams,
   OperationErrorParameters,
 } from '../../utils/OperationError';
-import {endpointConstants} from '../constants';
+import {kEndpointConstants} from '../constants';
 import {ServerRecommendedActionsMap} from '../types';
 
 export class EmailAddressNotAvailableError extends OperationError {
   name = 'EmailAddressNotAvailableError';
-  statusCode = endpointConstants.httpStatusCode.conflict;
+  statusCode = kEndpointConstants.httpStatusCode.conflict;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
     this.message = getErrorMessageFromParams(props, 'Email address is not available');
@@ -20,7 +20,7 @@ export class EmailAddressNotAvailableError extends OperationError {
 export class InvalidCredentialsError extends OperationError {
   name = 'InvalidCredentialsError';
   action = ServerRecommendedActionsMap.LoginAgain;
-  statusCode = endpointConstants.httpStatusCode.unauthorized;
+  statusCode = kEndpointConstants.httpStatusCode.unauthorized;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
     this.message = getErrorMessageFromParams(
@@ -33,7 +33,7 @@ export class InvalidCredentialsError extends OperationError {
 export class CredentialsExpiredError extends OperationError {
   name = 'CredentialsExpiredError';
   action = ServerRecommendedActionsMap.LoginAgain;
-  statusCode = endpointConstants.httpStatusCode.unauthorized;
+  statusCode = kEndpointConstants.httpStatusCode.unauthorized;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
     this.message = getErrorMessageFromParams(props, 'Credentials expired');
@@ -42,7 +42,7 @@ export class CredentialsExpiredError extends OperationError {
 
 export class InvalidEmailOrPasswordError extends OperationError {
   name = 'InvalidEmailOrPasswordError';
-  statusCode = endpointConstants.httpStatusCode.unauthorized;
+  statusCode = kEndpointConstants.httpStatusCode.unauthorized;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
     this.message = getErrorMessageFromParams(props, 'Invalid email or password');
@@ -55,7 +55,7 @@ export interface PermissionDeniedErrorParams extends OperationErrorParameters {
 
 export class PermissionDeniedError extends OperationError {
   name = 'PermissionDeniedError';
-  statusCode = endpointConstants.httpStatusCode.forbidden;
+  statusCode = kEndpointConstants.httpStatusCode.forbidden;
   item?: PermissionItem;
 
   constructor(props?: PermissionDeniedErrorParams | string) {
@@ -67,7 +67,7 @@ export class PermissionDeniedError extends OperationError {
 
 export class EmailAddressVerifiedError extends OperationError {
   name = 'EmailAddressVerifiedError';
-  statusCode = endpointConstants.httpStatusCode.conflict;
+  statusCode = kEndpointConstants.httpStatusCode.conflict;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
     this.message = getErrorMessageFromParams(props, 'Email address already verified');
@@ -76,7 +76,7 @@ export class EmailAddressVerifiedError extends OperationError {
 
 export class EmailAddressNotVerifiedError extends OperationError {
   name = 'EmailAddressNotVerifiedError';
-  statusCode = endpointConstants.httpStatusCode.forbidden;
+  statusCode = kEndpointConstants.httpStatusCode.forbidden;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
     this.message = getErrorMessageFromParams(
@@ -89,7 +89,7 @@ export class EmailAddressNotVerifiedError extends OperationError {
 
 export class IncorrectPasswordError extends OperationError {
   name = 'IncorrectPasswordError';
-  statusCode = endpointConstants.httpStatusCode.unauthorized;
+  statusCode = kEndpointConstants.httpStatusCode.unauthorized;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
     this.message = getErrorMessageFromParams(
@@ -101,7 +101,7 @@ export class IncorrectPasswordError extends OperationError {
 
 export class ChangePasswordError extends OperationError {
   name = 'ChangePasswordError';
-  statusCode = endpointConstants.httpStatusCode.unauthorized;
+  statusCode = kEndpointConstants.httpStatusCode.unauthorized;
   action = ServerRecommendedActionsMap.RequestChangePassword;
   constructor(props?: OperationErrorParameters | string) {
     super(props);

@@ -93,8 +93,8 @@ export function generateAssignedItemListForTest(
 }
 
 export async function generateAndInsertAssignedItemListForTest(
-  seed: Partial<AssignedItem> = {},
-  count = 1
+  count = 1,
+  seed: Partial<AssignedItem> = {}
 ) {
   const items = generateAssignedItemListForTest(seed, count);
   await kSemanticModels

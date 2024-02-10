@@ -1,4 +1,4 @@
-export const endpointConstants = {
+export const kEndpointConstants = {
   maxNameLength: 150,
   maxDescriptionLength: 700,
   httpStatusCode: {

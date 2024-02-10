@@ -6,38 +6,16 @@ import {
 import {resolveBackendsMountsAndConfigs} from '../../../fileBackends/mountUtils';
 import {FileQueries} from '../../../files/queries';
 import {stringifyFilenamepath} from '../../../files/utils';
+import {genericDeleteArtifacts, genericGetArtifacts} from './genericEntries';
 import {
   DeleteResourceCascadeEntry,
-  DeleteResourceDeleteSimpleArtifactsFns,
+  DeleteResourceDeleteArtifactsFns,
   DeleteResourceFn,
-  DeleteResourceGetComplexArtifactsFns,
+  DeleteResourceGetArtifactsFns,
 } from './types';
-import {
-  deleteResourceAssignedItemArtifacts,
-  getResourcePermissionItemArtifacts,
-} from './utils';
 
-const getComplexArtifacts: DeleteResourceGetComplexArtifactsFns = {
-  [kAppResourceType.All]: null,
-  [kAppResourceType.System]: null,
-  [kAppResourceType.Public]: null,
-  [kAppResourceType.User]: null,
-  [kAppResourceType.EndpointRequest]: null,
-  [kAppResourceType.App]: null,
-  [kAppResourceType.Workspace]: null,
-  [kAppResourceType.CollaborationRequest]: null,
-  [kAppResourceType.AgentToken]: null,
-  [kAppResourceType.PermissionGroup]: null,
-  [kAppResourceType.Folder]: null,
-  [kAppResourceType.File]: null,
-  [kAppResourceType.Tag]: null,
-  [kAppResourceType.UsageRecord]: null,
-  [kAppResourceType.FileBackendMount]: null,
-  [kAppResourceType.FileBackendConfig]: null,
-  [kAppResourceType.Job]: null,
-  [kAppResourceType.AssignedItem]: null,
-  [kAppResourceType.ResolvedMountEntry]: null,
-  [kAppResourceType.PermissionItem]: getResourcePermissionItemArtifacts,
+const getArtifacts: DeleteResourceGetArtifactsFns = {
+  ...genericGetArtifacts,
   [kAppResourceType.FilePresignedPath]: async ({args, opts}) => {
     const file = await kSemanticModels.file().getOneById(args.resourceId);
 
@@ -51,27 +29,8 @@ const getComplexArtifacts: DeleteResourceGetComplexArtifactsFns = {
   },
 };
 
-const deleteSimpleArtifacts: DeleteResourceDeleteSimpleArtifactsFns = {
-  [kAppResourceType.All]: null,
-  [kAppResourceType.System]: null,
-  [kAppResourceType.Public]: null,
-  [kAppResourceType.User]: null,
-  [kAppResourceType.EndpointRequest]: null,
-  [kAppResourceType.App]: null,
-  [kAppResourceType.Workspace]: null,
-  [kAppResourceType.CollaborationRequest]: null,
-  [kAppResourceType.AgentToken]: null,
-  [kAppResourceType.PermissionGroup]: null,
-  [kAppResourceType.Folder]: null,
-  [kAppResourceType.File]: null,
-  [kAppResourceType.Tag]: null,
-  [kAppResourceType.UsageRecord]: null,
-  [kAppResourceType.FilePresignedPath]: null,
-  [kAppResourceType.FileBackendMount]: null,
-  [kAppResourceType.FileBackendConfig]: null,
-  [kAppResourceType.Job]: null,
-  [kAppResourceType.PermissionItem]: null,
-  [kAppResourceType.AssignedItem]: deleteResourceAssignedItemArtifacts,
+const deleteArtifacts: DeleteResourceDeleteArtifactsFns = {
+  ...genericDeleteArtifacts,
   [kAppResourceType.ResolvedMountEntry]: async ({args, helpers}) =>
     helpers.withTxn(async opts => {
       const file = await kSemanticModels.file().getOneById(args.resourceId);
@@ -82,38 +41,42 @@ const deleteSimpleArtifacts: DeleteResourceDeleteSimpleArtifactsFns = {
           .deleteManyByQuery(FileQueries.getByNamepath(file), opts);
       }
     }),
-  other: async ({args}) => {
-    const file = await kSemanticModels.file().getOneById(args.resourceId);
-
-    if (file) {
-      const filepath = stringifyFilenamepath(file);
-      const {providersMap, mounts} = await resolveBackendsMountsAndConfigs(file);
-      await Promise.all(
-        mounts.map(async mount => {
-          try {
-            const provider = providersMap[mount.resourceId];
-            // TODO: if we're deleting the parent folder, for jobs created from a
-            // parent folder, do we still need to delete the file, for backends
-            // that support deleting folders?
-            await provider.deleteFiles({
-              mount,
-              filepaths: [filepath],
-              workspaceId: file.workspaceId,
-            });
-          } catch (error) {
-            kUtilsInjectables.logger().error(error);
-          }
-        })
-      );
-    }
-  },
 };
 
-const deleteResourceFn: DeleteResourceFn = ({args, helpers}) =>
-  helpers.withTxn(opts => kSemanticModels.file().deleteOneById(args.resourceId, opts));
+const deleteResourceFn: DeleteResourceFn = async ({args, helpers}) => {
+  const file = await kSemanticModels.file().getOneById(args.resourceId);
+
+  if (!file) {
+    return;
+  }
+
+  const filepath = stringifyFilenamepath(file);
+  const {providersMap, mounts} = await resolveBackendsMountsAndConfigs(file);
+  await Promise.all(
+    mounts.map(async mount => {
+      try {
+        const provider = providersMap[mount.resourceId];
+        // TODO: if we're deleting the parent folder, for jobs created from a
+        // parent folder, do we still need to delete the file, for backends
+        // that support deleting folders?
+        await provider.deleteFiles({
+          mount,
+          filepaths: [filepath],
+          workspaceId: file.workspaceId,
+        });
+      } catch (error) {
+        kUtilsInjectables.logger().error(error);
+      }
+    })
+  );
+
+  await helpers.withTxn(opts => {
+    kSemanticModels.file().deleteOneById(args.resourceId, opts);
+  });
+};
 
 export const deleteFileCascadeEntry: DeleteResourceCascadeEntry = {
   deleteResourceFn,
-  getComplexArtifacts,
-  deleteSimpleArtifacts,
+  getArtifacts: getArtifacts,
+  deleteArtifacts: deleteArtifacts,
 };

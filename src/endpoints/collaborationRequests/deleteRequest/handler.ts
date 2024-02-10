@@ -16,7 +16,8 @@ const deleteCollaborationRequest: DeleteCollaborationRequestEndpoint = async ins
   );
   const job = await enqueueDeleteResourceJob({
     type: kAppResourceType.CollaborationRequest,
-    args: {workspaceId: request.workspaceId, resourceId: request.resourceId},
+    workspaceId: request.workspaceId,
+    resourceId: request.resourceId,
   });
   return {jobId: job.resourceId};
 };

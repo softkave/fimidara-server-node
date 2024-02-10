@@ -20,7 +20,8 @@ const deleteFolder: DeleteFolderEndpoint = async instData => {
 
   const job = await enqueueDeleteResourceJob({
     type: kAppResourceType.Folder,
-    args: {workspaceId: folder.workspaceId, resourceId: folder.resourceId},
+    workspaceId: folder.workspaceId,
+    resourceId: folder.resourceId,
   });
 
   return {jobId: job.resourceId};

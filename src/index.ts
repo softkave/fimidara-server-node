@@ -1,5 +1,5 @@
 import {expressjwt} from 'express-jwt';
-import {endpointConstants} from './endpoints/constants';
+import {kEndpointConstants} from './endpoints/constants';
 import {globalSetup} from './endpoints/contexts/globalUtils';
 import {kUtilsInjectables} from './endpoints/contexts/injection/injectables';
 import {setupFimidaraHttpEndpoints} from './endpoints/endpoints';
@@ -24,7 +24,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 const corsOption: cors.CorsOptions = {
   origin: whiteListedCorsOrigins,
-  optionsSuccessStatus: endpointConstants.httpStatusCode.ok,
+  optionsSuccessStatus: kEndpointConstants.httpStatusCode.ok,
   credentials: true,
 };
 

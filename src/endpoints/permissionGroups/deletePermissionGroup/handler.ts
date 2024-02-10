@@ -24,7 +24,8 @@ const deletePermissionGroup: DeletePermissionGroupEndpoint = async instData => {
 
   const job = await enqueueDeleteResourceJob({
     type: kAppResourceType.PermissionGroup,
-    args: {workspaceId: workspace.resourceId, resourceId: permissionGroup.resourceId},
+    workspaceId: workspace.resourceId,
+    resourceId: permissionGroup.resourceId,
   });
 
   return {jobId: job.resourceId};

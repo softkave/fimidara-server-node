@@ -133,6 +133,22 @@ describe('utils', () => {
     expect(jobs02.length).toBe(1);
   });
 
+  test('queueJobs with seed', async () => {
+    const internalParamId = getNewId();
+    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const input01 = generateJobInput({params: {id: internalParamId}});
+    const jobId = getNewIdForResource(kAppResourceType.Job);
+
+    await queueJobs(workspaceId, undefined, [input01], {
+      seed: {resourceId: jobId},
+    });
+
+    const dbJob = await kSemanticModels.job().getOneByQuery({
+      resourceId: jobId,
+    });
+    expect(dbJob).toBeTruthy();
+  });
+
   test('completeJob', async () => {
     const [job] = await generateAndInsertJobListForTest(/** count */ 1, {
       shard,

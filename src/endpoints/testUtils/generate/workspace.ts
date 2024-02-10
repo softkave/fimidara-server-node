@@ -88,7 +88,10 @@ export function generateTestWorkspace(seed: PartialDeep<Workspace> = {}) {
   };
   const lastUpdatedBy: Agent = {...createdBy, ...seed.lastUpdatedBy};
   const name = faker.company.name();
-  const resourceId = getNewIdForResource(kAppResourceType.Workspace);
+  const resourceId =
+    seed.resourceId ||
+    seed.workspaceId ||
+    getNewIdForResource(kAppResourceType.Workspace);
 
   const workspace: Workspace = {
     createdAt,

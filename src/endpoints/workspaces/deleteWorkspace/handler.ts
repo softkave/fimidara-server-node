@@ -19,7 +19,8 @@ const deleteWorkspace: DeleteWorkspaceEndpoint = async instData => {
 
   const job = await enqueueDeleteResourceJob({
     type: kAppResourceType.Workspace,
-    args: {workspaceId: workspace.resourceId, resourceId: workspace.resourceId},
+    workspaceId: workspace.resourceId,
+    resourceId: workspace.resourceId,
   });
 
   return {jobId: job.resourceId};

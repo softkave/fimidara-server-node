@@ -1,9 +1,11 @@
-import {AnyObject, ObjectValues} from '../utils/types';
+import {AnyObject, ObjectValues, PartialRecord} from '../utils/types';
 import {AppShard} from './app';
 import {AppResourceType, Resource, kAppResourceType} from './system';
 
 export const kJobType = {
-  deleteResource: 'deleteResource',
+  deleteResource0: 'deleteResource0',
+  deleteResourceArtifacts: 'deleteResourceArtifacts',
+  deleteResourceSelf: 'deleteResourceSelf',
   ingestFolderpath: 'ingestFolderpath',
   ingestMount: 'ingestMount',
   cleanupMountResolvedEntries: 'cleanupMountResolvedEntries',
@@ -38,6 +40,12 @@ export interface JobStatusHistory {
   runnerId?: string;
 }
 
+export interface RunAfterJobItem {
+  jobId: string;
+  status: JobStatus[];
+  satisfied: boolean;
+}
+
 export interface Job<
   TParams extends AnyObject = AnyObject,
   TMeta extends AnyObject = AnyObject,
@@ -61,6 +69,7 @@ export interface Job<
   /** For selectively picking jobs so runners don't run jobs that do not apply
    * to them, for example during testing. */
   shard: AppShard;
+  runAfter?: RunAfterJobItem[];
 }
 
 export type DeleteResourceCascadeFnDefaultArgs = {
@@ -69,21 +78,18 @@ export type DeleteResourceCascadeFnDefaultArgs = {
 };
 
 export type DeleteResourceJobParams =
-  | {
+  | (DeleteResourceCascadeFnDefaultArgs & {
       type: Exclude<AppResourceType, typeof kAppResourceType.User>;
-      args: DeleteResourceCascadeFnDefaultArgs;
-    }
-  | {
+    })
+  | (DeleteResourceCascadeFnDefaultArgs & {
       type: typeof kAppResourceType.User;
-      args: DeleteResourceCascadeFnDefaultArgs;
       isRemoveCollaborator: true;
-    };
+    });
 
-// export interface DeleteResourceJobMeta {
-//   processedComplexArtifacts: Partial<
-//     Record<AppResourceType, {page?: number; pageSize?: number; done?: boolean}>
-//   >;
-// }
+export interface DeleteResourceJobMeta {
+  getArtifacts?: PartialRecord<string, {page: number; pageSize: number}>;
+  deleteArtifacts?: PartialRecord<string, {done: boolean}>;
+}
 
 export interface IngestFolderpathJobParams {
   mountId: string;

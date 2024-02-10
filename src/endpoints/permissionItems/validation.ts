@@ -1,7 +1,7 @@
 import Joi = require('joi');
 import {getWorkspaceResourceTypeList} from '../../definitions/system';
 import {kValidationSchemas} from '../../utils/validationUtils';
-import {endpointConstants} from '../constants';
+import {kEndpointConstants} from '../constants';
 import fileValidationSchemas from '../files/validation';
 import folderValidationSchemas from '../folders/validation';
 import workspaceValidationSchemas from '../workspaces/validation';
@@ -16,23 +16,23 @@ const entityId = kValidationSchemas.resourceId;
 const targetParts = {
   targetId: Joi.alternatives().try(
     targetId,
-    Joi.array().items(targetId).max(endpointConstants.inputListMax)
+    Joi.array().items(targetId).max(kEndpointConstants.inputListMax)
   ),
   targetType: Joi.alternatives().try(
     targetType,
-    Joi.array().items(targetType).max(endpointConstants.inputListMax)
+    Joi.array().items(targetType).max(kEndpointConstants.inputListMax)
   ),
   folderpath: Joi.alternatives().try(
     folderValidationSchemas.folderpath,
     Joi.array()
       .items(folderValidationSchemas.folderpath)
-      .max(endpointConstants.inputListMax)
+      .max(kEndpointConstants.inputListMax)
   ),
   filepath: Joi.alternatives().try(
     fileValidationSchemas.fileMatcherParts.filepath,
     Joi.array()
       .items(fileValidationSchemas.fileMatcherParts.filepath)
-      .max(endpointConstants.inputListMax)
+      .max(kEndpointConstants.inputListMax)
   ),
   workspaceRootname: workspaceValidationSchemas.rootname,
 };
@@ -44,12 +44,12 @@ const target = Joi.object<PermissionItemInputTarget>().keys({
 });
 const targetOrList = Joi.alternatives().try(
   target,
-  Joi.array().items(target).max(endpointConstants.inputListMax)
+  Joi.array().items(target).max(kEndpointConstants.inputListMax)
 );
 const entityParts = {
   entityId: Joi.alternatives().try(
     entityId,
-    Joi.array().items(entityId).max(endpointConstants.inputListMax)
+    Joi.array().items(entityId).max(kEndpointConstants.inputListMax)
   ),
 };
 const itemInput = Joi.object<PermissionItemInput>().keys({

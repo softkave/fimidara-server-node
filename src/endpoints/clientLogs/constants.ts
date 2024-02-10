@@ -1,4 +1,4 @@
-import {endpointConstants} from '../constants';
+import {kEndpointConstants} from '../constants';
 
 const clientLogsConstants = {
   maxMessageLength: 500,
@@ -7,7 +7,7 @@ const clientLogsConstants = {
   maxLevelLength: 20,
   maxServiceNameLength: 100,
   routes: {
-    ingestLogs: `${endpointConstants.apiv1}/clientLogs/ingestLogs`,
+    ingestLogs: `${kEndpointConstants.apiv1}/clientLogs/ingestLogs`,
   },
 };
 

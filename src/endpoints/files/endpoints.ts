@@ -5,7 +5,7 @@ import {kAppResourceType} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {toArray} from '../../utils/fns';
 import {tryGetResourceTypeFromId} from '../../utils/resource';
-import {endpointConstants} from '../constants';
+import {kEndpointConstants} from '../constants';
 import {InvalidRequestError} from '../errors';
 import {populateMountUnsupportedOpNoteInNotFoundError} from '../fileBackends/mountUtils';
 import {kFolderConstants} from '../folders/constants';
@@ -57,7 +57,7 @@ function handleReadFileResponse(
       'Content-Length': result.contentLength,
       'Content-Type': result.mimetype,
     })
-    .status(endpointConstants.httpStatusCode.ok);
+    .status(kEndpointConstants.httpStatusCode.ok);
 
   // TODO: set timeout for stream after which, we destroy it, to avoid leaving
   // a stream on indefinitely or waiting resources (memory)

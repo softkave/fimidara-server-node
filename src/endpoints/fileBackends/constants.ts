@@ -1,21 +1,21 @@
-import {endpointConstants} from '../constants';
+import {kEndpointConstants} from '../constants';
 
 export const kFileBackendConstants = {
   routes: {
-    addConfig: `${endpointConstants.apiv1}/fileBackends/addConfig`,
-    updateConfig: `${endpointConstants.apiv1}/fileBackends/updateConfig`,
-    deleteConfig: `${endpointConstants.apiv1}/fileBackends/deleteConfig`,
-    getConfigs: `${endpointConstants.apiv1}/fileBackends/getConfigs`,
-    getConfig: `${endpointConstants.apiv1}/fileBackends/getConfig`,
-    countConfigs: `${endpointConstants.apiv1}/fileBackends/countConfigs`,
+    addConfig: `${kEndpointConstants.apiv1}/fileBackends/addConfig`,
+    updateConfig: `${kEndpointConstants.apiv1}/fileBackends/updateConfig`,
+    deleteConfig: `${kEndpointConstants.apiv1}/fileBackends/deleteConfig`,
+    getConfigs: `${kEndpointConstants.apiv1}/fileBackends/getConfigs`,
+    getConfig: `${kEndpointConstants.apiv1}/fileBackends/getConfig`,
+    countConfigs: `${kEndpointConstants.apiv1}/fileBackends/countConfigs`,
 
-    addMount: `${endpointConstants.apiv1}/fileBackends/addMount`,
-    updateMount: `${endpointConstants.apiv1}/fileBackends/updateMount`,
-    deleteMount: `${endpointConstants.apiv1}/fileBackends/deleteMount`,
-    getMounts: `${endpointConstants.apiv1}/fileBackends/getMounts`,
-    getMount: `${endpointConstants.apiv1}/fileBackends/getMount`,
-    countMounts: `${endpointConstants.apiv1}/fileBackends/countMounts`,
-    resolveMounts: `${endpointConstants.apiv1}/fileBackends/resolveMounts`,
+    addMount: `${kEndpointConstants.apiv1}/fileBackends/addMount`,
+    updateMount: `${kEndpointConstants.apiv1}/fileBackends/updateMount`,
+    deleteMount: `${kEndpointConstants.apiv1}/fileBackends/deleteMount`,
+    getMounts: `${kEndpointConstants.apiv1}/fileBackends/getMounts`,
+    getMount: `${kEndpointConstants.apiv1}/fileBackends/getMount`,
+    countMounts: `${kEndpointConstants.apiv1}/fileBackends/countMounts`,
+    resolveMounts: `${kEndpointConstants.apiv1}/fileBackends/resolveMounts`,
   },
   awsRegions: [
     'us-east-2',

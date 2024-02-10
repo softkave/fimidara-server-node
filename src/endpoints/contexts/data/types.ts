@@ -44,10 +44,10 @@ export type DataProviderQueryParams<T> = Pick<
   'projection' | 'txn'
 >;
 
-export const INCLUDE_IN_PROJECTION = 1 as const;
-export const EXCLUDE_IN_PROJECTION = 0 as const;
+export const kIncludeInProjection = 1 as const;
+export const kExcludeFromProjection = 0 as const;
 
-export type DataProviderLiteralType = string | number | boolean | null | undefined | Date;
+export type DataProviderLiteralType = Primitive | Date;
 
 export interface ComparisonLiteralFieldQueryOps<T = DataProviderLiteralType> {
   $eq?: T | null;
@@ -58,9 +58,7 @@ export interface ComparisonLiteralFieldQueryOps<T = DataProviderLiteralType> {
   // TODO: implement $not and in which bracket should it go?
   // $not?: T;
   $exists?: boolean;
-
-  // TODO: allow only on strings
-  $regex?: RegExp;
+  $regex?: T extends string ? RegExp : never;
 }
 
 /**
@@ -80,36 +78,52 @@ export type LiteralFieldQueryOps<T = DataProviderLiteralType> =
   | null;
 
 export type LiteralDataQuery<T> = {
-  [P in keyof T]?: LiteralFieldQueryOps<T[P]>;
+  [P in keyof T]?: ExpandDataQuery<T[P]>;
 };
 
-export interface IRecordFieldQueryOps<T extends AnyObject> {
-  // TODO: support nested $objMatch
+export interface RecordFieldQueryOps<T extends AnyObject> {
   $objMatch: LiteralDataQuery<T>;
 }
 
-// TODO: support $objMatch in elemMatch
-type ElemMatchQueryOp<T> = T extends AnyObject
-  ? LiteralDataQuery<T>
-  : LiteralFieldQueryOps<T>;
-
-export interface ArrayFieldQueryOps<T> {
-  $size?: number;
-  // TODO: support $objMatch and $elemMatch in $all
-  $all?: T extends DataProviderLiteralType ? Array<LiteralFieldQueryOps<T>> : never;
-  $elemMatch?: ElemMatchQueryOp<T>;
-  $eq?: T[];
+export interface ElemMatchFieldQueryOps<T> {
+  $elemMatch?: T extends AnyObject ? LiteralDataQuery<T> : never;
 }
 
-export type DataQuery<T> = {
-  [P in keyof T]?:
-    | LiteralFieldQueryOps<T[P]>
-    | (NonNullable<T[P]> extends Array<infer U>
-        ? ArrayFieldQueryOps<U> | (U extends Primitive ? U : never)
-        : NonNullable<T[P]> extends AnyObject
-        ? IRecordFieldQueryOps<NonNullable<T[P]>>
-        : never);
-};
+export interface ArrayFieldQueryOps<T> extends ElemMatchFieldQueryOps<T> {
+  $size?: number;
+  $all?: T extends DataProviderLiteralType
+    ? T[]
+    : T extends AnyObject
+    ? ElemMatchFieldQueryOps<T>[]
+    : never;
+  $eq?: (T extends DataProviderLiteralType ? T | T[] : never) | null;
+}
+
+export interface FieldLogicalQueryOps<T> {
+  $not?: ExpandDataQuery<T, true>;
+}
+
+export interface LogicalQueryOps<T> {
+  $and?: LiteralDataQuery<T>[];
+  $nor?: LiteralDataQuery<T>[];
+  $or?: LiteralDataQuery<T>[];
+}
+
+type ExpandDataQuery<TValue, TExcludeFieldLogical extends boolean = false> =
+  | (Exclude<TValue, undefined> extends DataProviderLiteralType
+      ? TValue | LiteralFieldQueryOps<TValue>
+      : never)
+  | (TExcludeFieldLogical extends false ? FieldLogicalQueryOps<TValue> : never)
+  | (NonNullable<TValue> extends Array<infer TArrayItem>
+      ?
+          | ArrayFieldQueryOps<TArrayItem>
+          | (TArrayItem extends AnyObject ? RecordFieldQueryOps<TArrayItem> : never)
+          | (TArrayItem extends DataProviderLiteralType ? TArrayItem : never)
+      : NonNullable<TValue> extends AnyObject
+      ? RecordFieldQueryOps<NonNullable<TValue>>
+      : never);
+
+export type DataQuery<T> = LiteralDataQuery<T> | LogicalQueryOps<T>;
 
 export type KeyedComparisonOps<TData extends AnyObject> = keyof TData extends string
   ? `${keyof TData}.${keyof ComparisonLiteralFieldQueryOps}`

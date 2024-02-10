@@ -1,9 +1,9 @@
 import {flatten, noop} from 'lodash';
 import {overArgsAsync} from '../../../../utils/fns';
 import {kSemanticModels} from '../../../contexts/injection/injectables';
-import {DeleteSimpleArtifactsFn, GetComplexArtifactsFn} from './types';
+import {deleteArtifactsFn, getArtifactsFn} from './types';
 
-export const deleteResourceAssignedItems: DeleteSimpleArtifactsFn = ({args, helpers}) =>
+export const deleteResourceAssignedItems: deleteArtifactsFn = ({args, helpers}) =>
   helpers.withTxn(opts =>
     kSemanticModels
       .assignedItem()
@@ -15,14 +15,14 @@ export const deleteResourceAssignedItems: DeleteSimpleArtifactsFn = ({args, help
       )
   );
 
-export const deleteResourceAssigneeItems: DeleteSimpleArtifactsFn = ({args, helpers}) =>
+export const deleteResourceAssigneeItems: deleteArtifactsFn = ({args, helpers}) =>
   helpers.withTxn(opts =>
     kSemanticModels
       .assignedItem()
       .deleteResourceAssigneeItems(args.workspaceId, args.resourceId, opts)
   );
 
-export const deletePermissionItemsTargetingResource: DeleteSimpleArtifactsFn = ({
+export const deletePermissionItemsTargetingResource: deleteArtifactsFn = ({
   args,
   helpers,
 }) =>
@@ -30,7 +30,7 @@ export const deletePermissionItemsTargetingResource: DeleteSimpleArtifactsFn = (
     kSemanticModels.permissionItem().deleteManyByTargetId(args.resourceId, opts)
   );
 
-export const deleteEntityPermissionItems: DeleteSimpleArtifactsFn = ({args, helpers}) =>
+export const deleteEntityPermissionItems: deleteArtifactsFn = ({args, helpers}) =>
   helpers.withTxn(opts =>
     kSemanticModels.permissionItem().deleteManyByEntityId(args.resourceId, opts)
   );
@@ -47,7 +47,7 @@ export const deleteResourcePermissionItemArtifacts = overArgsAsync(
   noop
 );
 
-export const getResourceAssignedItems: GetComplexArtifactsFn = ({args, opts}) =>
+export const getResourceAssignedItems: getArtifactsFn = ({args, opts}) =>
   kSemanticModels
     .assignedItem()
     .getResourceAssignedItems(
@@ -57,17 +57,15 @@ export const getResourceAssignedItems: GetComplexArtifactsFn = ({args, opts}) =>
       opts
     );
 
-export const getResourceAssigneeItems: GetComplexArtifactsFn = ({args, opts}) =>
+export const getResourceAssigneeItems: getArtifactsFn = ({args, opts}) =>
   kSemanticModels
     .assignedItem()
     .getResourceAssigneeItems(args.workspaceId, args.resourceId, opts);
 
-export const getPermissionItemsTargetingResource: GetComplexArtifactsFn = ({
-  args,
-  opts,
-}) => kSemanticModels.permissionItem().getManyByTargetId(args.resourceId, opts);
+export const getPermissionItemsTargetingResource: getArtifactsFn = ({args, opts}) =>
+  kSemanticModels.permissionItem().getManyByTargetId(args.resourceId, opts);
 
-export const getEntityPermissionItems: GetComplexArtifactsFn = ({args, opts}) =>
+export const getEntityPermissionItems: getArtifactsFn = ({args, opts}) =>
   kSemanticModels.permissionItem().getManyByEntityId(args.resourceId, opts);
 
 export const getResourceAssignedItemArtifacts = overArgsAsync(

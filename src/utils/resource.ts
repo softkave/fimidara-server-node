@@ -8,7 +8,7 @@ import {
   SessionAgent,
   WorkspaceResource,
 } from '../definitions/system';
-import {endpointConstants} from '../endpoints/constants';
+import {kEndpointConstants} from '../endpoints/constants';
 import {getTimestamp} from './dateFns';
 import OperationError, {
   getErrorMessageFromParams,
@@ -61,7 +61,7 @@ export const kShortNameToResourceType = invert(kResourceTypeShortNames) as Inver
 
 export class InvalidResourceIdError extends OperationError {
   name = 'InvalidResourceIdError';
-  statusCode = endpointConstants.httpStatusCode.badRequest;
+  statusCode = kEndpointConstants.httpStatusCode.badRequest;
 
   constructor(props?: OperationErrorParameters | string) {
     super(props);

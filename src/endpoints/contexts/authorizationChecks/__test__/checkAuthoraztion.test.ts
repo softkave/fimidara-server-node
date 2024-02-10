@@ -130,13 +130,13 @@ describe('checkAuthorization', () => {
           {targetId: file04.resourceId, access: false}
         ),
         // Assign pg02 to pg01
-        generateAndInsertAssignedItemListForTest({
+        generateAndInsertAssignedItemListForTest(1, {
           workspaceId: rawWorkspace.resourceId,
           assignedItemId: pg02.resourceId,
           assigneeId: pg01.resourceId,
         }),
         // Assign pg01 to user02
-        generateAndInsertAssignedItemListForTest({
+        generateAndInsertAssignedItemListForTest(1, {
           workspaceId: rawWorkspace.resourceId,
           assignedItemId: pg01.resourceId,
           assigneeId: user02.resourceId,
@@ -313,13 +313,13 @@ describe('checkAuthorization', () => {
           {targetId: folder04.resourceId, access: false}
         ),
         // Assign pg02 to pg01
-        generateAndInsertAssignedItemListForTest({
+        generateAndInsertAssignedItemListForTest(1, {
           workspaceId: rawWorkspace.resourceId,
           assignedItemId: pg02.resourceId,
           assigneeId: pg01.resourceId,
         }),
         // Assign pg01 to user02
-        generateAndInsertAssignedItemListForTest({
+        generateAndInsertAssignedItemListForTest(1, {
           workspaceId: rawWorkspace.resourceId,
           assignedItemId: pg01.resourceId,
           assigneeId: user02.resourceId,
@@ -493,7 +493,7 @@ describe('checkAuthorization', () => {
         access: false,
       }),
       // Assign pg01 to user02
-      generateAndInsertAssignedItemListForTest({
+      generateAndInsertAssignedItemListForTest(1, {
         workspaceId: rawWorkspace.resourceId,
         assignedItemId: pg01.resourceId,
         assigneeId: user02.resourceId,
