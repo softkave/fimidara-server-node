@@ -43,7 +43,6 @@ export interface JobStatusHistory {
 export interface RunAfterJobItem {
   jobId: string;
   status: JobStatus[];
-  satisfied: boolean;
 }
 
 export interface Job<

@@ -18,18 +18,18 @@ import {
   RunnerWorkerMessage,
   kRunnerWorkerMessageType,
 } from './types';
+import {getNextJob} from './getNextJob';
+import {runJob} from './runJob';
 import {
-  getNextJob,
-  insertRunnerInDB,
-  isBaseWorkerMessage,
-  isChildRunnerWorkerData,
-  isRunnerWorkerMessage,
-  kDefaultActiveRunnerHeartbeatFactor,
   kDefaultHeartbeatInterval,
+  kDefaultActiveRunnerHeartbeatFactor,
   kDefaultRunnerCount,
+  isBaseWorkerMessage,
+  insertRunnerInDB,
+  isRunnerWorkerMessage,
   kEnsureRunnerCountPromiseName,
-  runJob,
-} from './utils';
+  isChildRunnerWorkerData,
+} from './runnerUtils';
 
 const workers: Record<string, Worker> = {};
 
