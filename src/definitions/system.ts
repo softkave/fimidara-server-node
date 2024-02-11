@@ -1,6 +1,19 @@
 import {AnyObject, ObjectValues} from '../utils/types';
 import {AgentToken} from './agentToken';
+import {App} from './app';
+import {AssignedItem} from './assignedItem';
+import {CollaborationRequest} from './collaborationRequest';
+import {File} from './file';
+import {FileBackendConfig, FileBackendMount, ResolvedMountEntry} from './fileBackend';
+import {Folder} from './folder';
+import {Job} from './job';
+import {PermissionGroup} from './permissionGroups';
+import {PermissionItem} from './permissionItem';
+import {PresignedPath} from './presignedPath';
+import {Tag} from './tag';
+import {UsageRecord} from './usageRecord';
 import {User} from './user';
+import {Workspace} from './workspace';
 
 export const kCurrentJWTTokenVersion = 1;
 
@@ -62,7 +75,7 @@ export const kAppResourceType = {
   AssignedItem: 'assignedItem',
   EndpointRequest: 'endpointRequest',
   Job: 'job',
-  FilePresignedPath: 'filePresignedPath',
+  PresignedPath: 'presignedPath',
   FileBackendConfig: 'fileBackendConfig',
   FileBackendMount: 'fileBackendMount',
   ResolvedMountEntry: 'resolvedMountEntry',
@@ -139,3 +152,103 @@ export interface WorkspaceResource extends Resource {
 
 export type PublicResource = ConvertAgentToPublicAgent<Resource>;
 export type PublicWorkspaceResource = ConvertAgentToPublicAgent<WorkspaceResource>;
+
+export const kResourceTypeToPossibleChildren: Record<AppResourceType, AppResourceType[]> =
+  {
+    [kAppResourceType.All]: [kAppResourceType.All],
+    [kAppResourceType.System]: [],
+    [kAppResourceType.Public]: [],
+    [kAppResourceType.Workspace]: [
+      kAppResourceType.AgentToken,
+      kAppResourceType.AssignedItem,
+      kAppResourceType.CollaborationRequest,
+      kAppResourceType.File,
+      kAppResourceType.FileBackendConfig,
+      kAppResourceType.FileBackendMount,
+      kAppResourceType.PresignedPath,
+      kAppResourceType.Folder,
+      kAppResourceType.PermissionGroup,
+      kAppResourceType.PermissionItem,
+      kAppResourceType.ResolvedMountEntry,
+      kAppResourceType.Tag,
+      kAppResourceType.UsageRecord,
+    ],
+    [kAppResourceType.CollaborationRequest]: [kAppResourceType.PermissionItem],
+    [kAppResourceType.AgentToken]: [
+      kAppResourceType.PermissionItem,
+      kAppResourceType.AssignedItem,
+    ],
+    [kAppResourceType.PermissionGroup]: [
+      kAppResourceType.PermissionItem,
+      kAppResourceType.AssignedItem,
+    ],
+    [kAppResourceType.PermissionItem]: [
+      kAppResourceType.PermissionItem,
+      kAppResourceType.AssignedItem,
+    ],
+    [kAppResourceType.Folder]: [
+      kAppResourceType.PermissionItem,
+      kAppResourceType.AssignedItem,
+      kAppResourceType.File,
+      kAppResourceType.Folder,
+    ],
+    [kAppResourceType.File]: [
+      kAppResourceType.PermissionItem,
+      kAppResourceType.AssignedItem,
+      kAppResourceType.PresignedPath,
+    ],
+    [kAppResourceType.User]: [
+      kAppResourceType.PermissionItem,
+      kAppResourceType.AssignedItem,
+    ],
+    [kAppResourceType.Tag]: [
+      kAppResourceType.PermissionItem,
+      kAppResourceType.AssignedItem,
+    ],
+    [kAppResourceType.AssignedItem]: [],
+    [kAppResourceType.UsageRecord]: [kAppResourceType.PermissionItem],
+    [kAppResourceType.EndpointRequest]: [],
+    [kAppResourceType.Job]: [],
+    [kAppResourceType.PresignedPath]: [],
+    [kAppResourceType.App]: [],
+    [kAppResourceType.FileBackendConfig]: [kAppResourceType.PermissionItem],
+    [kAppResourceType.FileBackendMount]: [kAppResourceType.PermissionItem],
+    [kAppResourceType.ResolvedMountEntry]: [],
+  };
+
+export type FimidaraTypeToTSType<T extends AppResourceType> =
+  T extends typeof kAppResourceType.Workspace
+    ? Workspace
+    : T extends typeof kAppResourceType.CollaborationRequest
+    ? CollaborationRequest
+    : T extends typeof kAppResourceType.AgentToken
+    ? AgentToken
+    : T extends typeof kAppResourceType.PermissionGroup
+    ? PermissionGroup
+    : T extends typeof kAppResourceType.PermissionItem
+    ? PermissionItem
+    : T extends typeof kAppResourceType.Folder
+    ? Folder
+    : T extends typeof kAppResourceType.File
+    ? File
+    : T extends typeof kAppResourceType.User
+    ? User
+    : T extends typeof kAppResourceType.Tag
+    ? Tag
+    : T extends typeof kAppResourceType.UsageRecord
+    ? UsageRecord
+    : T extends typeof kAppResourceType.AssignedItem
+    ? AssignedItem
+    : T extends typeof kAppResourceType.Job
+    ? Job
+    : T extends typeof kAppResourceType.PresignedPath
+    ? PresignedPath
+    : T extends typeof kAppResourceType.FileBackendConfig
+    ? FileBackendConfig
+    : T extends typeof kAppResourceType.FileBackendMount
+    ? FileBackendMount
+    : T extends typeof kAppResourceType.ResolvedMountEntry
+    ? ResolvedMountEntry
+    : T extends typeof kAppResourceType.App
+    ? App
+    : never;

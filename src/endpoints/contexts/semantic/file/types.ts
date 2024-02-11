@@ -1,4 +1,4 @@
-import {File, FilePresignedPath} from '../../../../definitions/file';
+import {File, PresignedPath} from '../../../../definitions/file';
 import {DataProviderQueryListParams} from '../../data/types';
 import {
   SemanticProviderRunOptions,
@@ -44,18 +44,18 @@ export interface SemanticFileProvider
   ): Promise<void>;
 }
 
-export interface SemanticFilePresignedPathProvider
-  extends SemanticWorkspaceResourceProviderType<FilePresignedPath> {
+export interface SemanticPresignedPathProvider
+  extends SemanticWorkspaceResourceProviderType<PresignedPath> {
   getOneByFileId(
     id: string,
-    options?: DataProviderQueryListParams<FilePresignedPath> & SemanticProviderRunOptions
-  ): Promise<FilePresignedPath | null>;
+    options?: DataProviderQueryListParams<PresignedPath> & SemanticProviderRunOptions
+  ): Promise<PresignedPath | null>;
   getOneByFilepath(
     query: {workspaceId: string; namepath: string[]; extension?: string},
-    options?: DataProviderQueryListParams<FilePresignedPath> & SemanticProviderRunOptions
-  ): Promise<FilePresignedPath | null>;
+    options?: DataProviderQueryListParams<PresignedPath> & SemanticProviderRunOptions
+  ): Promise<PresignedPath | null>;
   getManyByFileIds(
     ids: string[],
-    options?: DataProviderQueryListParams<FilePresignedPath> & SemanticProviderRunOptions
-  ): Promise<FilePresignedPath[]>;
+    options?: DataProviderQueryListParams<PresignedPath> & SemanticProviderRunOptions
+  ): Promise<PresignedPath[]>;
 }

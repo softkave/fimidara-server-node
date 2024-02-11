@@ -48,7 +48,7 @@ export const kResourceTypeShortNames: Record<AppResourceType, string> = {
   [kAppResourceType.UsageRecord]: padShortName('urecord'),
   [kAppResourceType.EndpointRequest]: padShortName('endrqst'),
   [kAppResourceType.Job]: padShortName('job'),
-  [kAppResourceType.FilePresignedPath]: padShortName('filepsp'),
+  [kAppResourceType.PresignedPath]: padShortName('presgnd'),
   [kAppResourceType.App]: padShortName('app'),
   [kAppResourceType.FileBackendConfig]: padShortName('bckconf'),
   [kAppResourceType.FileBackendMount]: padShortName('mount'),

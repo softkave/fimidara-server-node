@@ -2,7 +2,7 @@ import {AgentToken} from '../../../definitions/agentToken';
 import {App} from '../../../definitions/app';
 import {AssignedItem} from '../../../definitions/assignedItem';
 import {CollaborationRequest} from '../../../definitions/collaborationRequest';
-import {File, FilePresignedPath} from '../../../definitions/file';
+import {File} from '../../../definitions/file';
 import {
   FileBackendConfig,
   FileBackendMount,
@@ -12,6 +12,7 @@ import {Folder} from '../../../definitions/folder';
 import {Job} from '../../../definitions/job';
 import {PermissionGroup} from '../../../definitions/permissionGroups';
 import {PermissionItem} from '../../../definitions/permissionItem';
+import {PresignedPath} from '../../../definitions/presignedPath';
 import {AppRuntimeState, ResourceWrapper} from '../../../definitions/system';
 import {Tag} from '../../../definitions/tag';
 import {UsageRecord} from '../../../definitions/usageRecord';
@@ -20,7 +21,7 @@ import {Workspace} from '../../../definitions/workspace';
 import {throwAgentTokenNotFound} from '../../agentTokens/utils';
 import {throwAssignedItemNotFound} from '../../assignedItems/utils';
 import {throwCollaborationRequestNotFound} from '../../collaborationRequests/utils';
-import {throwFileNotFound, throwFilePresignedPathNotFound} from '../../files/utils';
+import {throwFileNotFound, throwPresignedPathNotFound} from '../../files/utils';
 import {throwFolderNotFound} from '../../folders/utils';
 import {throwPermissionGroupNotFound} from '../../permissionGroups/utils';
 import {throwPermissionItemNotFound} from '../../permissionItems/utils';
@@ -29,6 +30,7 @@ import {throwUsageRecordNotFound} from '../../usageRecords/utils';
 import {throwUserNotFound} from '../../users/utils';
 import {throwNotFound} from '../../utils';
 import {throwWorkspaceNotFound} from '../../workspaces/utils';
+import {BaseMongoDataProvider} from './BaseMongoDataProvider';
 import {
   AgentTokenDataProvider,
   AppDataProvider,
@@ -38,11 +40,11 @@ import {
   FileBackendConfigDataProvider,
   FileBackendMountDataProvider,
   FileDataProvider,
-  FilePresignedPathDataProvider,
   FolderDataProvider,
   JobDataProvider,
   PermissionGroupDataProvider,
   PermissionItemDataProvider,
+  PresignedPathDataProvider,
   ResolvedMountEntryDataProvider,
   ResourceDataProvider,
   TagDataProvider,
@@ -50,7 +52,6 @@ import {
   UserDataProvider,
   WorkspaceDataProvider,
 } from './types';
-import {BaseMongoDataProvider} from './utils';
 
 export class WorkspaceMongoDataProvider
   extends BaseMongoDataProvider<Workspace>
@@ -108,11 +109,11 @@ export class FileMongoDataProvider
   throwNotFound = throwFileNotFound;
 }
 
-export class FilePresignedPathMongoDataProvider
-  extends BaseMongoDataProvider<FilePresignedPath>
-  implements FilePresignedPathDataProvider
+export class PresignedPathMongoDataProvider
+  extends BaseMongoDataProvider<PresignedPath>
+  implements PresignedPathDataProvider
 {
-  throwNotFound = throwFilePresignedPathNotFound;
+  throwNotFound = throwPresignedPathNotFound;
 }
 
 export class CollaborationRequestMongoDataProvider

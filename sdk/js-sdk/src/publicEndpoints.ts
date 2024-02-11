@@ -65,8 +65,8 @@ import {
   GetWorkspacePermissionGroupsEndpointResult,
   GetWorkspaceSummedUsageEndpointParams,
   GetWorkspaceSummedUsageEndpointResult,
-  IssueFilePresignedPathEndpointParams,
-  IssueFilePresignedPathEndpointResult,
+  IssuePresignedPathEndpointParams,
+  IssuePresignedPathEndpointResult,
   ListFolderContentEndpointParams,
   ListFolderContentEndpointResult,
   LoginResult,
@@ -461,14 +461,14 @@ export class FilesEndpoints extends FimidaraEndpointsBase {
       props
     );
   };
-  issueFilePresignedPath = async (
-    props?: FimidaraEndpointParamsOptional<IssueFilePresignedPathEndpointParams>
-  ): Promise<FimidaraEndpointResult<IssueFilePresignedPathEndpointResult>> => {
+  issuePresignedPath = async (
+    props?: FimidaraEndpointParamsOptional<IssuePresignedPathEndpointParams>
+  ): Promise<FimidaraEndpointResult<IssuePresignedPathEndpointResult>> => {
     return this.executeJson(
       {
         ...props,
         data: props?.body,
-        path: '/v1/files/issueFilePresignedPath',
+        path: '/v1/files/issuePresignedPath',
         method: 'POST',
       },
       props

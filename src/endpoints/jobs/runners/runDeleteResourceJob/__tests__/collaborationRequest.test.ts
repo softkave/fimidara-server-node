@@ -1,18 +1,18 @@
-import {runDeleteResourceJob} from '..';
-import {DeleteResourceJobParams, Job, kJobType} from '../../../../../definitions/job';
+import {CollaborationRequest} from '../../../../../definitions/collaborationRequest';
 import {kAppResourceType} from '../../../../../definitions/system';
-import {extractResourceIdList} from '../../../../../utils/fns';
-import {getNewId, getNewIdForResource} from '../../../../../utils/resource';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables';
 import {generateAndInsertCollaborationRequestListForTest} from '../../../../testUtils/generate/collaborationRequest';
-import {generateAndInsertAssignedItemListForTest} from '../../../../testUtils/generate/permissionGroup';
-import {generateAndInsertPermissionItemListForTest} from '../../../../testUtils/generate/permissionItem';
 import {completeTests} from '../../../../testUtils/helpers/testFns';
 import {initTests} from '../../../../testUtils/testUtils';
-import {queueJobs} from '../../../utils';
+import {deleteCollaborationRequestCascadeEntry} from '../collaborationRequest';
+import {
+  GenerateResourceFn,
+  GenerateTypeChildrenDefinition,
+  generatePermissionItemsAsChildren,
+  noopGenerateTypeChildren,
+  testDeleteResourceArtifactsJob,
+  testDeleteResourceJob0,
+  testDeleteResourceSelfJob,
+} from './utils';
 
 beforeAll(async () => {
   await initTests();
@@ -22,84 +22,41 @@ afterAll(async () => {
   await completeTests();
 });
 
+const collaborationRequestGenerateTypeChildren: GenerateTypeChildrenDefinition<CollaborationRequest> =
+  {
+    ...noopGenerateTypeChildren,
+    [kAppResourceType.PermissionItem]: generatePermissionItemsAsChildren,
+  };
+
+const genResourceFn: GenerateResourceFn<CollaborationRequest> = async ({workspaceId}) => {
+  const [collaborationRequest] = await generateAndInsertCollaborationRequestListForTest(
+    1,
+    () => ({workspaceId})
+  );
+  return collaborationRequest;
+};
+
 describe('runDeleteResourceJob, collaboration request', () => {
-  test('deletes', async () => {
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
-    const shard = getNewId();
-    const [mainResource] = await generateAndInsertCollaborationRequestListForTest(
-      1,
-      () => ({workspaceId})
-    );
-    const [
-      pItemsAsEntityList,
-      pItemsAsTargetList,
-      aItemAsAssignedList,
-      aItemsAsAssigneeList,
-    ] = await Promise.all([
-      generateAndInsertPermissionItemListForTest(2, {
-        workspaceId,
-        entityId: mainResource.resourceId,
-      }),
-      generateAndInsertPermissionItemListForTest(2, {
-        workspaceId,
-        targetId: mainResource.resourceId,
-      }),
-      generateAndInsertAssignedItemListForTest(2, {
-        workspaceId,
-        assignedItemId: mainResource.resourceId,
-      }),
-      generateAndInsertAssignedItemListForTest(2, {
-        workspaceId,
-        assigneeId: mainResource.resourceId,
-      }),
-    ]);
-    const [job] = await queueJobs<DeleteResourceJobParams>(
-      workspaceId,
-      /** parent job ID */ undefined,
-      [
-        {
-          shard,
-          type: kJobType.deleteResource,
-          params: {
-            workspaceId,
-            type: kAppResourceType.CollaborationRequest,
-            resourceId: mainResource.resourceId,
-          },
-        },
-      ]
-    );
+  test('deleteResource0', async () => {
+    testDeleteResourceJob0({
+      genResourceFn,
+      type: kAppResourceType.CollaborationRequest,
+    });
+  });
 
-    await runDeleteResourceJob(job);
-    await kUtilsInjectables.promises().flush();
+  test('runDeleteResourceJobArtifacts', async () => {
+    await testDeleteResourceArtifactsJob({
+      genResourceFn,
+      genChildrenDef: collaborationRequestGenerateTypeChildren,
+      deleteCascadeDef: deleteCollaborationRequestCascadeEntry,
+      type: kAppResourceType.CollaborationRequest,
+    });
+  });
 
-    const [mainResourceExists, assignedItemsCount, childrenJobs] = await Promise.all([
-      kSemanticModels
-        .collaborationRequest()
-        .existsByQuery({resourceId: mainResource.resourceId}),
-      kSemanticModels.assignedItem().countByQuery({
-        resourceId: {
-          $in: extractResourceIdList(aItemAsAssignedList.concat(aItemsAsAssigneeList)),
-        },
-      }),
-      kSemanticModels.job().getManyByQuery<Job<DeleteResourceJobParams>>({
-        shard,
-        params: {
-          $objMatch: {
-            resourceId: {
-              $in: ([] as string[]).concat(
-                extractResourceIdList(pItemsAsEntityList),
-                extractResourceIdList(pItemsAsTargetList)
-              ),
-            },
-          },
-        },
-      }),
-    ]);
-
-    expect(mainResourceExists).toBeFalsy();
-    expect(assignedItemsCount).toBe(0);
-    expect(childrenJobs.length).toBe(
-      pItemsAsEntityList.length + pItemsAsTargetList.length
-    );
+  test('runDeleteResourceJobSelf', async () => {
+    await testDeleteResourceSelfJob({
+      genResourceFn,
+      type: kAppResourceType.CollaborationRequest,
+    });
   });
 });

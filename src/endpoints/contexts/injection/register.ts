@@ -15,11 +15,11 @@ import {
 import {getCollaborationRequestModel} from '../../../db/collaborationRequest';
 import {DbConnection, MongoDbConnection, isMongoConnection} from '../../../db/connection';
 import {getFileModel} from '../../../db/file';
-import {getFilePresignedPathMongoModel} from '../../../db/filePresignedPath';
 import {getFolderDatabaseModel} from '../../../db/folder';
 import {getJobModel} from '../../../db/job';
 import {getPermissionGroupModel} from '../../../db/permissionGroup';
 import {getPermissionItemModel} from '../../../db/permissionItem';
+import {getPresignedPathMongoModel} from '../../../db/presignedPath';
 import {getTagModel} from '../../../db/tag';
 import {getUsageRecordModel} from '../../../db/usageRecord';
 import {getUserModel} from '../../../db/user';
@@ -58,11 +58,11 @@ import {
   FileBackendConfigMongoDataProvider,
   FileBackendMountMongoDataProvider,
   FileMongoDataProvider,
-  FilePresignedPathMongoDataProvider,
   FolderMongoDataProvider,
   JobMongoDataProvider,
   PermissionGroupMongoDataProvider,
   PermissionItemMongoDataProvider,
+  PresignedPathMongoDataProvider,
   ResolvedMountEntryMongoDataProvider,
   TagMongoDataProvider,
   UsageRecordMongoDataProvider,
@@ -79,11 +79,11 @@ import {
   FileBackendConfigDataProvider,
   FileBackendMountDataProvider,
   FileDataProvider,
-  FilePresignedPathDataProvider,
   FolderDataProvider,
   JobDataProvider,
   PermissionGroupDataProvider,
   PermissionItemDataProvider,
+  PresignedPathDataProvider,
   ResolvedMountEntryDataProvider,
   TagDataProvider,
   UsageRecordDataProvider,
@@ -109,11 +109,11 @@ import {DataSemanticCollaborationRequest} from '../semantic/collaborationRequest
 import {SemanticCollaborationRequestProvider} from '../semantic/collaborationRequest/types';
 import {
   DataSemanticFile,
-  DataSemanticFilePresignedPathProvider,
+  DataSemanticPresignedPathProvider,
 } from '../semantic/file/models';
 import {
-  SemanticFilePresignedPathProvider,
   SemanticFileProvider,
+  SemanticPresignedPathProvider,
 } from '../semantic/file/types';
 import {DataSemanticFolder} from '../semantic/folder/models';
 import {SemanticFolderProvider} from '../semantic/folder/types';
@@ -179,8 +179,8 @@ export const kRegisterSemanticModels = {
     registerToken(kInjectionKeys.semantic.fileBackendConfig, item),
   fileBackendMount: (item: SemanticFileBackendMountProvider) =>
     registerToken(kInjectionKeys.semantic.fileBackendMount, item),
-  filePresignedPath: (item: SemanticFilePresignedPathProvider) =>
-    registerToken(kInjectionKeys.semantic.filePresignedPath, item),
+  presignedPath: (item: SemanticPresignedPathProvider) =>
+    registerToken(kInjectionKeys.semantic.presignedPath, item),
   permissions: (item: SemanticPermissionProviderType) =>
     registerToken(kInjectionKeys.semantic.permissions, item),
   permissionGroup: (item: SemanticPermissionGroupProviderType) =>
@@ -214,8 +214,8 @@ export const kRegisterDataModels = {
     registerToken(kInjectionKeys.data.fileBackendConfig, item),
   fileBackendMount: (item: FileBackendMountDataProvider) =>
     registerToken(kInjectionKeys.data.fileBackendMount, item),
-  filePresignedPath: (item: FilePresignedPathDataProvider) =>
-    registerToken(kInjectionKeys.data.filePresignedPath, item),
+  presignedPath: (item: PresignedPathDataProvider) =>
+    registerToken(kInjectionKeys.data.presignedPath, item),
   permissionGroup: (item: PermissionGroupDataProvider) =>
     registerToken(kInjectionKeys.data.permissionGroup, item),
   permissionItem: (item: PermissionItemDataProvider) =>
@@ -282,8 +282,8 @@ export function registerDataModelInjectables() {
   kRegisterDataModels.fileBackendMount(
     new FileBackendMountMongoDataProvider(getFileBackendMountModel(connection))
   );
-  kRegisterDataModels.filePresignedPath(
-    new FilePresignedPathMongoDataProvider(getFilePresignedPathMongoModel(connection))
+  kRegisterDataModels.presignedPath(
+    new PresignedPathMongoDataProvider(getPresignedPathMongoModel(connection))
   );
   kRegisterDataModels.permissionGroup(
     new PermissionGroupMongoDataProvider(getPermissionGroupModel(connection))
@@ -336,11 +336,8 @@ export function registerSemanticModelInjectables() {
   kRegisterSemanticModels.fileBackendMount(
     new DataSemanticFileBackendMount(kDataModels.fileBackendMount(), assertNotFound)
   );
-  kRegisterSemanticModels.filePresignedPath(
-    new DataSemanticFilePresignedPathProvider(
-      kDataModels.filePresignedPath(),
-      assertNotFound
-    )
+  kRegisterSemanticModels.presignedPath(
+    new DataSemanticPresignedPathProvider(kDataModels.presignedPath(), assertNotFound)
   );
   kRegisterSemanticModels.permissions(new DataSemanticPermission());
   kRegisterSemanticModels.permissionGroup(

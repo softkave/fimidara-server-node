@@ -15,7 +15,7 @@ import {
   fileBackendMountExtractor,
   resolvedEntryExtractor,
 } from '../fileBackends/utils';
-import {fileExtractor, filePresignedPathExtractor} from '../files/utils';
+import {fileExtractor, presignedPathExtractor} from '../files/utils';
 import {folderExtractor} from '../folders/utils';
 import {permissionGroupExtractor} from '../permissionGroups/utils';
 import {permissionItemExtractor} from '../permissionItems/utils';
@@ -35,7 +35,7 @@ const kResourceTypeToExtractorMap: Record<
   [kAppResourceType.AssignedItem]: resourceExtractor,
   [kAppResourceType.Job]: resourceExtractor,
   [kAppResourceType.App]: resourceExtractor,
-  [kAppResourceType.FilePresignedPath]: filePresignedPathExtractor,
+  [kAppResourceType.PresignedPath]: presignedPathExtractor,
   [kAppResourceType.Workspace]: workspaceExtractor,
   [kAppResourceType.CollaborationRequest]: collaborationRequestForWorkspaceExtractor,
   [kAppResourceType.AgentToken]: agentTokenExtractor,

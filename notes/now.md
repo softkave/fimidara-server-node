@@ -62,7 +62,7 @@
 - [ ] Include user agent and origin in presigned path as extra security checks
 - [ ] Mark item deleted in endpoint call, and disallow further mutation and query actions on the item
 - [ ] Support issueing mutliple file presigned paths at a time
-  - [ ] Issue paths at once in getFilePresignedPaths test
+  - [ ] Issue paths at once in getPresignedPaths test
 - [ ] Should we fold permission items under agent tokens? Meaning we'll now have a public agent token for public users. Pro is, it may make auth check faster.
 - [ ] Job to delete expired or spent file presigned paths
 - [ ] Stream and start processing uploaded files immediately to avoid files using too much ram

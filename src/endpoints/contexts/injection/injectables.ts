@@ -18,11 +18,11 @@ import {
   FileBackendConfigDataProvider,
   FileBackendMountDataProvider,
   FileDataProvider,
-  FilePresignedPathDataProvider,
   FolderDataProvider,
   JobDataProvider,
   PermissionGroupDataProvider,
   PermissionItemDataProvider,
+  PresignedPathDataProvider,
   ResolvedMountEntryDataProvider,
   TagDataProvider,
   UsageRecordDataProvider,
@@ -38,8 +38,8 @@ import {SemanticAgentTokenProvider} from '../semantic/agentToken/types';
 import {SemanticAssignedItemProvider} from '../semantic/assignedItem/types';
 import {SemanticCollaborationRequestProvider} from '../semantic/collaborationRequest/types';
 import {
-  SemanticFilePresignedPathProvider,
   SemanticFileProvider,
+  SemanticPresignedPathProvider,
 } from '../semantic/file/types';
 import {SemanticFolderProvider} from '../semantic/folder/types';
 import {SemanticPermissionProviderType} from '../semantic/permission/types';
@@ -79,9 +79,9 @@ export const kSemanticModels = {
     container.resolve<SemanticFileBackendMountProvider>(
       kInjectionKeys.semantic.fileBackendMount
     ),
-  filePresignedPath: () =>
-    container.resolve<SemanticFilePresignedPathProvider>(
-      kInjectionKeys.semantic.filePresignedPath
+  presignedPath: () =>
+    container.resolve<SemanticPresignedPathProvider>(
+      kInjectionKeys.semantic.presignedPath
     ),
   permissions: () =>
     container.resolve<SemanticPermissionProviderType>(
@@ -125,10 +125,8 @@ export const kDataModels = {
     ),
   fileBackendMount: () =>
     container.resolve<FileBackendMountDataProvider>(kInjectionKeys.data.fileBackendMount),
-  filePresignedPath: () =>
-    container.resolve<FilePresignedPathDataProvider>(
-      kInjectionKeys.data.filePresignedPath
-    ),
+  presignedPath: () =>
+    container.resolve<PresignedPathDataProvider>(kInjectionKeys.data.presignedPath),
   permissionGroup: () =>
     container.resolve<PermissionGroupDataProvider>(kInjectionKeys.data.permissionGroup),
   permissionItem: () =>

@@ -78,12 +78,12 @@ export interface SemanticBaseProviderType<TResource extends Resource> {
     opts: SemanticProviderMutationRunOptions
   ): Promise<void>;
   getOneByQuery<TFinal extends TResource = TResource>(
-    query: DataQuery<TFinal>,
+    query: DataQuery<TResource> | DataQuery<TFinal>,
     opts?: SemanticProviderRunOptions
   ): Promise<TFinal | null>;
   getManyByQuery<TFinal extends TResource = TResource>(
-    query: DataQuery<TFinal>,
-    options?: DataProviderQueryListParams<TFinal> & SemanticProviderRunOptions
+    query: DataQuery<TResource> | DataQuery<TFinal>,
+    options?: DataProviderQueryListParams<TResource> & SemanticProviderRunOptions
   ): Promise<TFinal[]>;
   getManyByQueryList(
     query: DataQuery<TResource>[],

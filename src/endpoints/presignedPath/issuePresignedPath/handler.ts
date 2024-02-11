@@ -1,5 +1,5 @@
-import {FilePresignedPath} from '../../../definitions/file';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
+import {PresignedPath} from '../../../definitions/presignedPath';
 import {
   Resource,
   kAppResourceType,
@@ -20,11 +20,11 @@ import {getClosestExistingFolder} from '../../folders/getFolderWithMatcher';
 import {assertRootname, assertWorkspace} from '../../workspaces/utils';
 import {getFileWithMatcher} from '../getFilesWithMatcher';
 import {getFilepathInfo} from '../utils';
-import {IssueFilePresignedPathEndpoint} from './types';
-import {issueFilePresignedPathJoiSchema} from './validation';
+import {IssuePresignedPathEndpoint} from './types';
+import {issuePresignedPathJoiSchema} from './validation';
 
-const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async instData => {
-  const data = validate(instData.data, issueFilePresignedPathJoiSchema);
+const issuePresignedPath: IssuePresignedPathEndpoint = async instData => {
+  const data = validate(instData.data, issuePresignedPathJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgent(instData, kPermissionAgentTypes);
@@ -104,9 +104,9 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async instData =>
       expiresAt = Date.now() + data.duration;
     }
 
-    const presignedPath = newWorkspaceResource<FilePresignedPath>(
+    const presignedPath = newWorkspaceResource<PresignedPath>(
       agent,
-      kAppResourceType.FilePresignedPath,
+      kAppResourceType.PresignedPath,
       workspaceId,
       {
         expiresAt,
@@ -119,11 +119,11 @@ const issueFilePresignedPath: IssueFilePresignedPathEndpoint = async instData =>
         spentUsageCount: 0,
       }
     );
-    await kSemanticModels.filePresignedPath().insertItem(presignedPath, opts);
+    await kSemanticModels.presignedPath().insertItem(presignedPath, opts);
     return presignedPath;
   });
 
   return {path: resource.resourceId};
 };
 
-export default issueFilePresignedPath;
+export default issuePresignedPath;

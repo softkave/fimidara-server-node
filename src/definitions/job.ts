@@ -1,6 +1,6 @@
 import {AnyObject, ObjectValues, PartialRecord} from '../utils/types';
 import {AppShard} from './app';
-import {AppResourceType, Resource, kAppResourceType} from './system';
+import {AppResourceType, Resource} from './system';
 
 export const kJobType = {
   deleteResource0: 'deleteResource0',
@@ -76,14 +76,11 @@ export type DeleteResourceCascadeFnDefaultArgs = {
   resourceId: string;
 };
 
-export type DeleteResourceJobParams =
-  | (DeleteResourceCascadeFnDefaultArgs & {
-      type: Exclude<AppResourceType, typeof kAppResourceType.User>;
-    })
-  | (DeleteResourceCascadeFnDefaultArgs & {
-      type: typeof kAppResourceType.User;
-      isRemoveCollaborator: true;
-    });
+export type DeleteResourceJobParams = DeleteResourceCascadeFnDefaultArgs & {
+  type: AppResourceType;
+  /** to separate from removing a user, which we don't support yet, but soon */
+  isRemoveCollaborator?: true;
+};
 
 export interface DeleteResourceJobMeta {
   getArtifacts?: PartialRecord<string, {page: number; pageSize: number}>;

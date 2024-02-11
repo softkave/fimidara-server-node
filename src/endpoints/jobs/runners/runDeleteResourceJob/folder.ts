@@ -6,7 +6,7 @@ import {
 import {resolveBackendsMountsAndConfigs} from '../../../fileBackends/mountUtils';
 import {FolderQueries} from '../../../folders/queries';
 import {stringifyFoldernamepath} from '../../../folders/utils';
-import {genericDeleteArtifacts, genericGetArtifacts} from './genericEntries';
+import {genericDeleteArtifacts, genericGetArtifacts} from './genericDefinitions';
 import {
   DeleteResourceCascadeEntry,
   DeleteResourceFn,

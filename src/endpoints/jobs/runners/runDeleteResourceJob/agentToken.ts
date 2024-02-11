@@ -1,6 +1,6 @@
 import {kAppResourceType} from '../../../../definitions/system';
 import {kSemanticModels} from '../../../contexts/injection/injectables';
-import {genericDeleteArtifacts, genericGetArtifacts} from './genericEntries';
+import {genericDeleteArtifacts, genericGetArtifacts} from './genericDefinitions';
 import {
   DeleteResourceCascadeEntry,
   DeleteResourceDeleteArtifactsFns,
@@ -10,19 +10,19 @@ import {
 
 const getArtifacts: DeleteResourceGetArtifactsFns = {
   ...genericGetArtifacts,
-  [kAppResourceType.FilePresignedPath]: async ({args, opts}) => {
+  [kAppResourceType.PresignedPath]: async ({args, opts}) => {
     return await kSemanticModels
-      .filePresignedPath()
+      .presignedPath()
       .getManyByQuery({issuerAgentTokenId: args.resourceId}, opts);
   },
 };
 
 const deleteArtifacts: DeleteResourceDeleteArtifactsFns = {
   ...genericDeleteArtifacts,
-  [kAppResourceType.FilePresignedPath]: async ({args, helpers}) => {
+  [kAppResourceType.PresignedPath]: async ({args, helpers}) => {
     await helpers.withTxn(opts =>
       kSemanticModels
-        .filePresignedPath()
+        .presignedPath()
         .deleteManyByQuery({issuerAgentTokenId: args.resourceId}, opts)
     );
   },

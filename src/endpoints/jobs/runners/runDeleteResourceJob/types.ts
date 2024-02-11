@@ -17,7 +17,7 @@ export type DeleteResourceCascadeFnHelpers = {
   withTxn(fn: AnyFn<[SemanticProviderMutationRunOptions]>): Promise<void>;
 };
 
-export type getArtifactsFn<TArgs extends AnyObject = DeleteResourceCascadeFnDefaultArgs> =
+export type GetArtifactsFn<TArgs extends AnyObject = DeleteResourceCascadeFnDefaultArgs> =
   (props: {
     args: TArgs;
     helpers: DeleteResourceCascadeFnHelpers;
@@ -27,7 +27,7 @@ export type getArtifactsFn<TArgs extends AnyObject = DeleteResourceCascadeFnDefa
     >;
   }) => Promise<Array<Resource> | void>;
 
-export type deleteArtifactsFn<
+export type DeleteArtifactsFn<
   TArgs extends AnyObject = DeleteResourceCascadeFnDefaultArgs,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 > = (props: {args: TArgs; helpers: DeleteResourceCascadeFnHelpers}) => Promise<any>;
@@ -38,11 +38,11 @@ export type DeleteResourceFn<
 
 export type DeleteResourceGetArtifactsFns<
   TArgs extends AnyObject = DeleteResourceCascadeFnDefaultArgs,
-> = Record<AppResourceType, getArtifactsFn<TArgs> | null>;
+> = Record<AppResourceType, GetArtifactsFn<TArgs> | null>;
 
 export type DeleteResourceDeleteArtifactsFns<
   TArgs extends AnyObject = DeleteResourceCascadeFnDefaultArgs,
-> = Record<AppResourceType, deleteArtifactsFn<TArgs> | null>;
+> = Record<AppResourceType, DeleteArtifactsFn<TArgs> | null>;
 
 export type DeleteResourceCascadeEntry<
   TArgs extends AnyObject = DeleteResourceCascadeFnDefaultArgs,

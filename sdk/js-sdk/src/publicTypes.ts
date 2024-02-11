@@ -298,14 +298,14 @@ export type UpdateFileDetailsEndpointParams = {
 export type UpdateFileDetailsEndpointResult = {
   file: File;
 };
-export type IssueFilePresignedPathEndpointParams = {
+export type IssuePresignedPathEndpointParams = {
   filepath?: string;
   fileId?: string;
   duration?: number;
   expires?: number;
   usageCount?: number;
 };
-export type IssueFilePresignedPathEndpointResult = {
+export type IssuePresignedPathEndpointResult = {
   path: string;
 };
 export type FileMatcher = {

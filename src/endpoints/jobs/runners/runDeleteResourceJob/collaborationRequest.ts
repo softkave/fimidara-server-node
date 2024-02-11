@@ -1,5 +1,5 @@
 import {kSemanticModels} from '../../../contexts/injection/injectables';
-import {genericDeleteArtifacts, genericGetArtifacts} from './genericEntries';
+import {genericDeleteArtifacts, genericGetArtifacts} from './genericDefinitions';
 import {DeleteResourceCascadeEntry, DeleteResourceFn} from './types';
 
 const deleteResourceFn: DeleteResourceFn = ({args, helpers}) =>

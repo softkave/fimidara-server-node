@@ -4,7 +4,6 @@ import {
   DeleteResourceJobMeta,
   DeleteResourceJobParams,
   Job,
-  kJobStatus,
   kJobType,
 } from '../../../../definitions/job';
 import {
@@ -12,66 +11,21 @@ import {
   Resource,
   kAppResourceType,
 } from '../../../../definitions/system';
-import {getNewIdForResource} from '../../../../utils/resource';
 import {AnyFn} from '../../../../utils/types';
 import {
   kSemanticModels,
   kUtilsInjectables,
 } from '../../../contexts/injection/injectables';
 import {SemanticProviderMutationRunOptions} from '../../../contexts/semantic/types';
-import {JobInput, queueJobs} from '../../utils';
+import {JobInput, queueJobs} from '../../queueJobs';
 import {setJobMeta} from '../utils';
-import {deleteAgentTokenCascadeEntry} from './agentToken';
-import {deleteCollaborationRequestCascadeEntry} from './collaborationRequest';
-import {deleteFileCascadeEntry} from './file';
-import {deleteFileBackendConfigCascadeEntry} from './fileBackendConfig';
-import {deleteFileBackendMountCascadeEntry} from './fileBackendMount';
-import {deleteFilePresignedPathCascadeEntry} from './filePresignedPath';
-import {deleteFolderCascadeEntry} from './folder';
-import {noopDeleteCascadeEntry} from './genericEntries';
-import {deletePermissionGroupCascadeEntry} from './permissionGroup';
-import {deletePermissionItemCascadeEntry} from './permissionItem';
-import {deleteTagCascadeEntry} from './tag';
+import {kCascadeDeleteDefinitions} from './compiledDefinitions';
 import {
-  DeleteResourceCascadeDefinitions,
   DeleteResourceCascadeFnHelpers,
   DeleteResourceDeleteArtifactsFns,
   DeleteResourceGetArtifactsFns,
-  getArtifactsFn,
+  GetArtifactsFn,
 } from './types';
-import {deleteWorkspaceCascadeEntry} from './workspace';
-
-/**
- * - Process is split into 3 steps:
- *    - fetch complex artifacts & create jobs. Complex artifacts are resources
- *      that themselves have artifacts defined in cascade defs.
- *    - delete simple artifact types not present in complex artifacts.
- *    - delete resource
- */
-
-const kDefinitions: DeleteResourceCascadeDefinitions = {
-  [kAppResourceType.All]: noopDeleteCascadeEntry,
-  [kAppResourceType.System]: noopDeleteCascadeEntry,
-  [kAppResourceType.Public]: noopDeleteCascadeEntry,
-  [kAppResourceType.User]: noopDeleteCascadeEntry,
-  [kAppResourceType.EndpointRequest]: noopDeleteCascadeEntry,
-  [kAppResourceType.App]: noopDeleteCascadeEntry,
-  [kAppResourceType.UsageRecord]: noopDeleteCascadeEntry,
-  [kAppResourceType.AssignedItem]: noopDeleteCascadeEntry,
-  [kAppResourceType.ResolvedMountEntry]: noopDeleteCascadeEntry,
-  [kAppResourceType.Job]: noopDeleteCascadeEntry,
-  [kAppResourceType.Workspace]: deleteWorkspaceCascadeEntry,
-  [kAppResourceType.CollaborationRequest]: deleteCollaborationRequestCascadeEntry,
-  [kAppResourceType.AgentToken]: deleteAgentTokenCascadeEntry,
-  [kAppResourceType.PermissionGroup]: deletePermissionGroupCascadeEntry,
-  [kAppResourceType.Folder]: deleteFolderCascadeEntry,
-  [kAppResourceType.File]: deleteFileCascadeEntry,
-  [kAppResourceType.Tag]: deleteTagCascadeEntry,
-  [kAppResourceType.FilePresignedPath]: deleteFilePresignedPathCascadeEntry,
-  [kAppResourceType.FileBackendMount]: deleteFileBackendMountCascadeEntry,
-  [kAppResourceType.FileBackendConfig]: deleteFileBackendConfigCascadeEntry,
-  [kAppResourceType.PermissionItem]: deletePermissionItemCascadeEntry,
-};
 
 async function setDeleteJobGetArtifactsMeta(
   job: Job,
@@ -109,7 +63,7 @@ async function setDeleteJobDeleteArtifactsMeta(
 async function getArtifactsAndQueueDeleteJobs(
   workspaceId: string,
   type: AppResourceType,
-  getFn: getArtifactsFn,
+  getFn: GetArtifactsFn,
   args: DeleteResourceCascadeFnDefaultArgs,
   helpers: DeleteResourceCascadeFnHelpers
 ) {
@@ -176,7 +130,7 @@ export async function processGetArtifactsFromDef(
   return processedTypes;
 }
 
-export async function processDeleteArtifactsFromDef(
+async function processDeleteArtifactsFromDef(
   deleteArtifactsDef: DeleteResourceDeleteArtifactsFns,
   skipTypes: AppResourceType[],
   args: DeleteResourceCascadeFnDefaultArgs,
@@ -203,7 +157,7 @@ export async function processDeleteArtifactsFromDef(
 
 export async function runDeleteResourceJobArtifacts(job: Job) {
   const params = job.params as DeleteResourceJobParams;
-  const {deleteArtifacts, getArtifacts} = kDefinitions[params.type];
+  const {deleteArtifacts, getArtifacts} = kCascadeDeleteDefinitions[params.type];
   const helperFns: DeleteResourceCascadeFnHelpers = {
     job: job as Job<DeleteResourceJobParams, DeleteResourceJobMeta>,
     async withTxn(fn: AnyFn<[SemanticProviderMutationRunOptions]>) {
@@ -224,49 +178,4 @@ export async function runDeleteResourceJobArtifacts(job: Job) {
     params,
     helperFns
   );
-}
-
-export async function runDeleteResourceJobSelf(job: Job) {
-  const params = job.params as DeleteResourceJobParams;
-  const {deleteResourceFn} = kDefinitions[params.type];
-  const helperFns: DeleteResourceCascadeFnHelpers = {
-    job: job as Job<DeleteResourceJobParams, DeleteResourceJobMeta>,
-    async withTxn(fn: AnyFn<[SemanticProviderMutationRunOptions]>) {
-      await kSemanticModels.utils().withTxn(opts => fn(opts));
-    },
-  };
-
-  await deleteResourceFn({args: params, helpers: helperFns});
-}
-
-export async function runDeleteResourceJob0(job: Job) {
-  const deleteArtifactsJobId = getNewIdForResource(kAppResourceType.Job);
-  await kSemanticModels.utils().withTxn(async () => {
-    // queueJobs should use current context's txn, so both should fail if one
-    // fails
-    await Promise.all([
-      queueJobs<DeleteResourceJobParams>(
-        job.workspaceId,
-        job.resourceId,
-        {
-          type: kJobType.deleteResourceArtifacts,
-          shard: job.shard,
-          priority: job.priority,
-          params: job.params as DeleteResourceJobParams,
-        },
-        {seed: {resourceId: deleteArtifactsJobId}}
-      ),
-      queueJobs<DeleteResourceJobParams>(job.workspaceId, job.resourceId, {
-        type: kJobType.deleteResourceSelf,
-        shard: job.shard,
-        priority: job.priority,
-        params: job.params as DeleteResourceJobParams,
-        runAfter: {
-          jobId: deleteArtifactsJobId,
-          status: [kJobStatus.completed],
-          satisfied: false,
-        },
-      }),
-    ]);
-  });
 }

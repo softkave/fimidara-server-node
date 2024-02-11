@@ -6,7 +6,7 @@ import {
 import {resolveBackendsMountsAndConfigs} from '../../../fileBackends/mountUtils';
 import {FileQueries} from '../../../files/queries';
 import {stringifyFilenamepath} from '../../../files/utils';
-import {genericDeleteArtifacts, genericGetArtifacts} from './genericEntries';
+import {genericDeleteArtifacts, genericGetArtifacts} from './genericDefinitions';
 import {
   DeleteResourceCascadeEntry,
   DeleteResourceDeleteArtifactsFns,
@@ -16,12 +16,12 @@ import {
 
 const getArtifacts: DeleteResourceGetArtifactsFns = {
   ...genericGetArtifacts,
-  [kAppResourceType.FilePresignedPath]: async ({args, opts}) => {
+  [kAppResourceType.PresignedPath]: async ({args, opts}) => {
     const file = await kSemanticModels.file().getOneById(args.resourceId);
 
     if (file) {
       return await kSemanticModels
-        .filePresignedPath()
+        .presignedPath()
         .getManyByQuery(FileQueries.getByNamepath(file), opts);
     }
 

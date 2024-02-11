@@ -15,8 +15,8 @@ import {
   mockExpressRequestForPublicAgent,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
-import issueFilePresignedPath from '../issueFilePresignedPath/handler';
-import {IssueFilePresignedPathEndpointParams} from '../issueFilePresignedPath/types';
+import issuePresignedPath from '../issuePresignedPath/handler';
+import {IssuePresignedPathEndpointParams} from '../issuePresignedPath/types';
 import readFile from '../readFile/handler';
 import {ReadFileEndpointParams} from '../readFile/types';
 import {stringifyFilenamepath} from '../utils';
@@ -253,11 +253,11 @@ describe('getPresignedPathsForFiles', () => {
 async function issuePaths(
   userToken: AgentToken,
   matchers: FileMatcher[],
-  input?: IssueFilePresignedPathEndpointParams
+  input?: IssuePresignedPathEndpointParams
 ) {
   const result = await Promise.all(
     matchers.map(async matcher => {
-      const result = await issueFilePresignedPath(
+      const result = await issuePresignedPath(
         RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
           ...input,
           ...matcher,

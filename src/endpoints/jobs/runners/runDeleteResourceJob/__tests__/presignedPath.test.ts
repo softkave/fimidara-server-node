@@ -1,13 +1,12 @@
+import {PresignedPath} from '../../../../../definitions/presignedPath';
 import {kAppResourceType} from '../../../../../definitions/system';
-import {Tag} from '../../../../../definitions/tag';
-import {generateAndInsertTagListForTest} from '../../../../testUtils/generate/tag';
+import {generateAndInsertTestPresignedPathList} from '../../../../testUtils/generate/file';
 import {completeTests} from '../../../../testUtils/helpers/testFns';
 import {initTests} from '../../../../testUtils/testUtils';
-import {deleteTagCascadeEntry} from '../tag';
+import {deletePresignedPathCascadeEntry} from '../presignedPath';
 import {
   GenerateResourceFn,
   GenerateTypeChildrenDefinition,
-  generateAssignedItemsAsChildren,
   generatePermissionItemsAsChildren,
   noopGenerateTypeChildren,
   testDeleteResourceArtifactsJob,
@@ -23,39 +22,39 @@ afterAll(async () => {
   await completeTests();
 });
 
-const tagGenerateTypeChildren: GenerateTypeChildrenDefinition<Tag> = {
+const presignedPathGenerateTypeChildren: GenerateTypeChildrenDefinition<PresignedPath> = {
   ...noopGenerateTypeChildren,
   [kAppResourceType.PermissionItem]: generatePermissionItemsAsChildren,
-  [kAppResourceType.AssignedItem]: generateAssignedItemsAsChildren,
-};
-const genResourceFn: GenerateResourceFn<Tag> = async ({workspaceId}) => {
-  const [tag] = await generateAndInsertTagListForTest(1, {
-    workspaceId,
-  });
-  return tag;
 };
 
-describe('runDeleteResourceJob, tag', () => {
+const genResourceFn: GenerateResourceFn<PresignedPath> = async ({workspaceId}) => {
+  const [presignedPath] = await generateAndInsertTestPresignedPathList(1, {
+    workspaceId,
+  });
+  return presignedPath;
+};
+
+describe('runDeleteResourceJob, presigned path', () => {
   test('deleteResource0', async () => {
     testDeleteResourceJob0({
       genResourceFn,
-      type: kAppResourceType.Tag,
+      type: kAppResourceType.PresignedPath,
     });
   });
 
   test('runDeleteResourceJobArtifacts', async () => {
     await testDeleteResourceArtifactsJob({
       genResourceFn,
-      genChildrenDef: tagGenerateTypeChildren,
-      deleteCascadeDef: deleteTagCascadeEntry,
-      type: kAppResourceType.Tag,
+      genChildrenDef: presignedPathGenerateTypeChildren,
+      deleteCascadeDef: deletePresignedPathCascadeEntry,
+      type: kAppResourceType.PresignedPath,
     });
   });
 
   test('runDeleteResourceJobSelf', async () => {
     await testDeleteResourceSelfJob({
       genResourceFn,
-      type: kAppResourceType.Tag,
+      type: kAppResourceType.PresignedPath,
     });
   });
 });

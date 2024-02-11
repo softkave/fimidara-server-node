@@ -2,7 +2,7 @@ import {FileMatcher} from '../../../definitions/file';
 import {PermissionAction} from '../../../definitions/permissionItem';
 import {Endpoint} from '../../types';
 
-export type IssueFilePresignedPathEndpointParams = FileMatcher & {
+export type IssuePresignedPathEndpointParams = FileMatcher & {
   expires?: number;
   duration?: number;
   usageCount?: number;
@@ -16,11 +16,11 @@ export type IssueFilePresignedPathEndpointParams = FileMatcher & {
   // reuseExisting?: boolean;
 };
 
-export interface IssueFilePresignedPathEndpointResult {
+export interface IssuePresignedPathEndpointResult {
   path: string;
 }
 
-export type IssueFilePresignedPathEndpoint = Endpoint<
-  IssueFilePresignedPathEndpointParams,
-  IssueFilePresignedPathEndpointResult
+export type IssuePresignedPathEndpoint = Endpoint<
+  IssuePresignedPathEndpointParams,
+  IssuePresignedPathEndpointResult
 >;

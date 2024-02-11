@@ -4,7 +4,7 @@ import {AgentToken} from '../../../definitions/agentToken';
 import {App} from '../../../definitions/app';
 import {AssignedItem} from '../../../definitions/assignedItem';
 import {CollaborationRequest} from '../../../definitions/collaborationRequest';
-import {File, FilePresignedPath} from '../../../definitions/file';
+import {File} from '../../../definitions/file';
 import {
   FileBackendConfig,
   FileBackendMount,
@@ -14,6 +14,7 @@ import {Folder} from '../../../definitions/folder';
 import {Job} from '../../../definitions/job';
 import {PermissionGroup} from '../../../definitions/permissionGroups';
 import {PermissionItem} from '../../../definitions/permissionItem';
+import {PresignedPath} from '../../../definitions/presignedPath';
 import {AppRuntimeState, Resource, ResourceWrapper} from '../../../definitions/system';
 import {Tag} from '../../../definitions/tag';
 import {UsageRecord} from '../../../definitions/usageRecord';
@@ -123,7 +124,7 @@ type ExpandDataQuery<TValue, TExcludeFieldLogical extends boolean = false> =
       ? RecordFieldQueryOps<NonNullable<TValue>>
       : never);
 
-export type DataQuery<T> = LiteralDataQuery<T> | LogicalQueryOps<T>;
+export type DataQuery<T> = LiteralDataQuery<T> & LogicalQueryOps<T>;
 
 export type KeyedComparisonOps<TData extends AnyObject> = keyof TData extends string
   ? `${keyof TData}.${keyof ComparisonLiteralFieldQueryOps}`
@@ -254,7 +255,7 @@ export type AssignedItemQuery<T extends AnyObject = AnyObject> = DataQuery<
 >;
 export type CollaborationRequestQuery = DataQuery<CollaborationRequest>;
 export type FileQuery = DataQuery<File>;
-export type FilePresignedPathQuery = DataQuery<FilePresignedPath>;
+export type PresignedPathQuery = DataQuery<PresignedPath>;
 export type FolderQuery = DataQuery<Folder>;
 export type PermissionGroupQuery = DataQuery<PermissionGroup>;
 export type PermissionItemQuery = DataQuery<PermissionItem>;
@@ -281,9 +282,9 @@ export type CollaborationRequestDataProvider = BaseDataProvider<
   DataQuery<CollaborationRequest>
 >;
 export type FileDataProvider = BaseDataProvider<File, DataQuery<File>>;
-export type FilePresignedPathDataProvider = BaseDataProvider<
-  FilePresignedPath,
-  DataQuery<FilePresignedPath>
+export type PresignedPathDataProvider = BaseDataProvider<
+  PresignedPath,
+  DataQuery<PresignedPath>
 >;
 export type FolderDataProvider = BaseDataProvider<Folder, DataQuery<Folder>>;
 export type PermissionGroupDataProvider = BaseDataProvider<

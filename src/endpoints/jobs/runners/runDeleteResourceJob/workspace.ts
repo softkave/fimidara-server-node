@@ -19,7 +19,7 @@ const getArtifacts: DeleteResourceGetArtifactsFns = {
   [kAppResourceType.AssignedItem]: null,
   [kAppResourceType.UsageRecord]: null,
   [kAppResourceType.ResolvedMountEntry]: null,
-  [kAppResourceType.FilePresignedPath]: null,
+  [kAppResourceType.PresignedPath]: null,
   [kAppResourceType.CollaborationRequest]: ({args, opts}) =>
     kSemanticModels.collaborationRequest().getManyByWorkspaceId(args.workspaceId, opts),
   [kAppResourceType.AgentToken]: ({args, opts}) =>
@@ -87,9 +87,9 @@ const deleteArtifacts: DeleteResourceDeleteArtifactsFns = {
     helpers.withTxn(opts =>
       kSemanticModels.usageRecord().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [kAppResourceType.FilePresignedPath]: ({args, helpers}) =>
+  [kAppResourceType.PresignedPath]: ({args, helpers}) =>
     helpers.withTxn(opts =>
-      kSemanticModels.filePresignedPath().deleteManyByWorkspaceId(args.workspaceId, opts)
+      kSemanticModels.presignedPath().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
   [kAppResourceType.FileBackendMount]: ({args, helpers}) =>
     helpers.withTxn(opts =>

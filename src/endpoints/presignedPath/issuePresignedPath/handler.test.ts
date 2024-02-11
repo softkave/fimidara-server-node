@@ -4,6 +4,8 @@ import {waitTimeout} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import RequestData from '../../RequestData';
 import {NotFoundError} from '../../errors';
+import readFile from '../../files/readFile/handler';
+import {ReadFileEndpointParams} from '../../files/readFile/types';
 import {addRootnameToPath} from '../../folders/utils';
 import {generateTestFileName} from '../../testUtils/generate/file';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
@@ -21,11 +23,9 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import {PermissionDeniedError} from '../../users/errors';
-import readFile from '../readFile/handler';
-import {ReadFileEndpointParams} from '../readFile/types';
 import {stringifyFilenamepath} from '../utils';
-import issueFilePresignedPath from './handler';
-import {IssueFilePresignedPathEndpointParams} from './types';
+import issuePresignedPath from './handler';
+import {IssuePresignedPathEndpointParams} from './types';
 
 beforeAll(async () => {
   await initTests();
@@ -35,17 +35,17 @@ afterAll(async () => {
   await completeTests();
 });
 
-describe('issueFilePresignedPath', () => {
+describe('issuePresignedPath', () => {
   softkaveTest.run('file presigned path issued', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
 
-    const instData = RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
+    const instData = RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {filepath: stringifyFilenamepath(file, workspace.rootname)}
     );
-    const result = await issueFilePresignedPath(instData);
+    const result = await issuePresignedPath(instData);
     assertEndpointResultOk(result);
 
     const readFileResult = await tryReadFile(result.path);
@@ -57,11 +57,11 @@ describe('issueFilePresignedPath', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
 
-    const instData = RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
+    const instData = RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {fileId: file.resourceId}
     );
-    const result = await issueFilePresignedPath(instData);
+    const result = await issuePresignedPath(instData);
     assertEndpointResultOk(result);
 
     const readFileResult = await tryReadFile(result.path);
@@ -74,14 +74,14 @@ describe('issueFilePresignedPath', () => {
     const {file} = await insertFileForTest(userToken, workspace);
 
     const duration = 1000; // 1 sec
-    const instData = RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
+    const instData = RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
         duration,
         filepath: stringifyFilenamepath(file, workspace.rootname),
       }
     );
-    const result = await issueFilePresignedPath(instData);
+    const result = await issuePresignedPath(instData);
     assertEndpointResultOk(result);
 
     await waitTimeout(duration);
@@ -95,14 +95,14 @@ describe('issueFilePresignedPath', () => {
 
     const duration = 1000; // 1 sec
     const expires = Date.now() + duration;
-    const instData = RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
+    const instData = RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
         expires,
         filepath: stringifyFilenamepath(file, workspace.rootname),
       }
     );
-    const result = await issueFilePresignedPath(instData);
+    const result = await issuePresignedPath(instData);
     assertEndpointResultOk(result);
 
     await waitTimeout(duration);
@@ -115,14 +115,14 @@ describe('issueFilePresignedPath', () => {
     const {file} = await insertFileForTest(userToken, workspace);
 
     const usageCount = 2;
-    const instData = RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
+    const instData = RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
         usageCount,
         filepath: stringifyFilenamepath(file, workspace.rootname),
       }
     );
-    const result = await issueFilePresignedPath(instData);
+    const result = await issuePresignedPath(instData);
     assertEndpointResultOk(result);
 
     // First 2 reads should succeed
@@ -141,15 +141,14 @@ describe('issueFilePresignedPath', () => {
 
     await expectErrorThrown(async () => {
       const usageCount = 2;
-      const instData =
-        RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
-          mockExpressRequestWithAgentToken(token),
-          {
-            usageCount,
-            filepath: stringifyFilenamepath(file, workspace.rootname),
-          }
-        );
-      await issueFilePresignedPath(instData);
+      const instData = RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
+        mockExpressRequestWithAgentToken(token),
+        {
+          usageCount,
+          filepath: stringifyFilenamepath(file, workspace.rootname),
+        }
+      );
+      await issuePresignedPath(instData);
     }, [PermissionDeniedError.name]);
   });
 
@@ -167,12 +166,11 @@ describe('issueFilePresignedPath', () => {
       );
 
       await expectErrorThrown(async () => {
-        const instData =
-          RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
-            mockExpressRequestWithAgentToken(token),
-            {filepath}
-          );
-        await issueFilePresignedPath(instData);
+        const instData = RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
+          mockExpressRequestWithAgentToken(token),
+          {filepath}
+        );
+        await issuePresignedPath(instData);
       }, [PermissionDeniedError.name]);
     }
   );
@@ -186,11 +184,11 @@ describe('issueFilePresignedPath', () => {
       folder.namepath.join('/') + `/${generateTestFileName({includeStraySlashes: true})}`,
       workspace.rootname
     );
-    const instData = RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
+    const instData = RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {filepath}
     );
-    const result = await issueFilePresignedPath(instData);
+    const result = await issuePresignedPath(instData);
     assertEndpointResultOk(result);
 
     // Read should fail seeing file does not exist
@@ -205,12 +203,11 @@ describe('issueFilePresignedPath', () => {
     const {userToken} = await insertUserForTest();
 
     await expectErrorThrown(async () => {
-      const instData =
-        RequestData.fromExpressRequest<IssueFilePresignedPathEndpointParams>(
-          mockExpressRequestWithAgentToken(userToken),
-          {fileId: getNewIdForResource(kAppResourceType.File)}
-        );
-      await issueFilePresignedPath(instData);
+      const instData = RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {fileId: getNewIdForResource(kAppResourceType.File)}
+      );
+      await issuePresignedPath(instData);
     }, [NotFoundError.name]);
   });
 });

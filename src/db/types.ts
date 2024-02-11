@@ -4,11 +4,11 @@ import {AssignedItemModel} from './assignedItem';
 import {FileBackendConfigModel} from './backend';
 import {CollaborationRequestModel} from './collaborationRequest';
 import {FileModel} from './file';
-import {FilePresignedPathMongoModel} from './filePresignedPath';
 import {FolderDatabaseModel} from './folder';
 import {JobModel} from './job';
 import {PermissionGroupMongoModel} from './permissionGroup';
 import {PermissionItemModel} from './permissionItem';
+import {PresignedPathMongoModel} from './presignedPath';
 import {ResourceModel} from './resource';
 import {TagModel} from './tag';
 import {UsageRecordModel} from './usageRecord';
@@ -30,6 +30,6 @@ export interface AppMongoModels {
   tag: TagModel;
   usageRecord: UsageRecordModel;
   user: UserModel;
-  filePresignedPath: FilePresignedPathMongoModel;
+  presignedPath: PresignedPathMongoModel;
   fileBackendConfig: FileBackendConfigModel;
 }
