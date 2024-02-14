@@ -20,6 +20,7 @@
     "prod": "tsc && env-cmd -f \".env.prod\" npm start",
     "dev": "tsc && env-cmd -f \".env.dev\" npm start",
     "test": "env-cmd -f \".env.unit-test\" jest --config=jest.config.ts --detectOpenHandles",
+    "fn-test": "env-cmd -f \".env.unit-test\" jest --config=jest.config.fn-test.ts --detectOpenHandles",
     "integration-test": "env-cmd -f \".env.integration-test\" jest --config=jest.config.integration-test.ts --detectOpenHandles",
     "dev-for-test": "tsc && env-cmd -f \".env.unit-test\" npm start",
     "check-circular-deps": "npx dpdm --no-warning --no-tree ./src/index.ts",

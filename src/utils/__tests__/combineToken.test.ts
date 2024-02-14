@@ -80,7 +80,7 @@ describe('combineTokens', () => {
     const token03: CombinationToken = {
       token: t03,
       filterFn(index, spent, generated) {
-        return last(generated) === t03;
+        return last(generated) === t02;
       },
     };
 

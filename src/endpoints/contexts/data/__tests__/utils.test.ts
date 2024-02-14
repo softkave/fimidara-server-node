@@ -1,5 +1,4 @@
 import {first} from 'lodash';
-import {describe} from 'node:test';
 import {CombinationToken, combineTokens} from '../../../../utils/combineTokens';
 import {DataQuery} from '../types';
 import {
@@ -74,7 +73,11 @@ describe('BaseMongoDataProvider, test utils', () => {
         {
           str: kBaseMongoTestConsts.str01,
           num: kBaseMongoTestConsts.num01,
-          arrPrimitive: [kBaseMongoTestConsts.str01, kBaseMongoTestConsts.str01],
+          obj: {
+            str: kBaseMongoTestConsts.str01,
+            num: kBaseMongoTestConsts.num01,
+            arrPrimitive: [kBaseMongoTestConsts.str01, kBaseMongoTestConsts.str01],
+          },
         },
         {
           str: kBaseMongoTestConsts.str01,
@@ -82,41 +85,36 @@ describe('BaseMongoDataProvider, test utils', () => {
         },
       ],
     };
-    const expectedData02: BaseMongoTestData = {
-      str: kBaseMongoTestConsts.str01,
-      num: kBaseMongoTestConsts.num01,
+    const exp02: BaseMongoTestData = {
+      str: 'str01',
+      num: 1,
       obj: {
-        str: kBaseMongoTestConsts.str01,
-        num: kBaseMongoTestConsts.num01,
+        str: 'str01',
+        num: 1,
         arrObj: [
           {
-            str: kBaseMongoTestConsts.str01,
-            num: kBaseMongoTestConsts.num01,
+            str: 'str01',
+            num: 1,
             obj: {
-              str: kBaseMongoTestConsts.str01,
-              num: kBaseMongoTestConsts.num01,
-              arrObj: [
-                {
-                  str: kBaseMongoTestConsts.str01,
-                  num: kBaseMongoTestConsts.num01,
-                },
-                {
-                  str: kBaseMongoTestConsts.str01,
-                  num: kBaseMongoTestConsts.num01,
-                },
-              ],
+              str: 'str01',
+              num: 1,
+              obj: {
+                str: 'str01',
+                num: 1,
+                arrObj: [
+                  {str: 'str01', num: 1, obj: {str: 'str01', num: 1}},
+                  {str: 'str01', num: 1},
+                ],
+              },
             },
           },
-          {
-            str: kBaseMongoTestConsts.str01,
-            num: kBaseMongoTestConsts.num01,
-          },
+          {str: 'str01', num: 1},
         ],
       },
     };
 
     expect(data01).toMatchObject(expectedData01);
-    expect(data02).toMatchObject(expectedData02);
+    expect(data02).toMatchObject(exp02);
   });
 
   test('generateTestQueryFromCombination', () => {
@@ -167,7 +165,13 @@ describe('BaseMongoDataProvider, test utils', () => {
         $elemMatch: {
           str: kBaseMongoTestConsts.str01,
           num: kBaseMongoTestConsts.num01,
-          arrPrimitive: kBaseMongoTestConsts.str01,
+          obj: {
+            $objMatch: {
+              str: kBaseMongoTestConsts.str01,
+              num: kBaseMongoTestConsts.num01,
+              arrPrimitive: kBaseMongoTestConsts.str01,
+            },
+          },
         },
       },
     };
@@ -178,7 +182,13 @@ describe('BaseMongoDataProvider, test utils', () => {
         $objMatch: {
           str: kBaseMongoTestConsts.str01,
           num: kBaseMongoTestConsts.num01,
-          arrPrimitive: kBaseMongoTestConsts.str01,
+          obj: {
+            $objMatch: {
+              str: kBaseMongoTestConsts.str01,
+              num: kBaseMongoTestConsts.num01,
+              arrPrimitive: kBaseMongoTestConsts.str01,
+            },
+          },
         },
       },
     };
@@ -191,7 +201,21 @@ describe('BaseMongoDataProvider, test utils', () => {
             $elemMatch: {
               str: kBaseMongoTestConsts.str01,
               num: kBaseMongoTestConsts.num01,
-              arrPrimitive: kBaseMongoTestConsts.str01,
+              obj: {
+                $objMatch: {
+                  str: kBaseMongoTestConsts.str01,
+                  num: kBaseMongoTestConsts.num01,
+                  arrPrimitive: {
+                    $all: [kBaseMongoTestConsts.str01, kBaseMongoTestConsts.str01],
+                  },
+                },
+              },
+            },
+          },
+          {
+            $elemMatch: {
+              str: kBaseMongoTestConsts.str01,
+              num: kBaseMongoTestConsts.num01,
             },
           },
         ],
@@ -212,10 +236,22 @@ describe('BaseMongoDataProvider, test utils', () => {
                 $objMatch: {
                   str: kBaseMongoTestConsts.str01,
                   num: kBaseMongoTestConsts.num01,
-                  arrObj: {
-                    $elemMatch: {
+                  obj: {
+                    $objMatch: {
                       str: kBaseMongoTestConsts.str01,
                       num: kBaseMongoTestConsts.num01,
+                      arrObj: {
+                        $elemMatch: {
+                          str: kBaseMongoTestConsts.str01,
+                          num: kBaseMongoTestConsts.num01,
+                          obj: {
+                            $objMatch: {
+                              str: kBaseMongoTestConsts.str01,
+                              num: kBaseMongoTestConsts.num01,
+                            },
+                          },
+                        },
+                      },
                     },
                   },
                 },
@@ -242,18 +278,42 @@ describe('BaseMongoDataProvider, test utils', () => {
                     $objMatch: {
                       str: kBaseMongoTestConsts.str01,
                       num: kBaseMongoTestConsts.num01,
-                      arrObj: {
-                        $all: [
-                          {
-                            $elemMatch: {
-                              str: kBaseMongoTestConsts.str01,
-                              num: kBaseMongoTestConsts.num01,
-                            },
+                      obj: {
+                        $objMatch: {
+                          str: kBaseMongoTestConsts.str01,
+                          num: kBaseMongoTestConsts.num01,
+                          arrObj: {
+                            $all: [
+                              {
+                                $elemMatch: {
+                                  str: kBaseMongoTestConsts.str01,
+                                  num: kBaseMongoTestConsts.num01,
+                                  obj: {
+                                    $objMatch: {
+                                      str: kBaseMongoTestConsts.str01,
+                                      num: kBaseMongoTestConsts.num01,
+                                    },
+                                  },
+                                },
+                              },
+                              {
+                                $elemMatch: {
+                                  str: kBaseMongoTestConsts.str01,
+                                  num: kBaseMongoTestConsts.num01,
+                                },
+                              },
+                            ],
                           },
-                        ],
+                        },
                       },
                     },
                   },
+                },
+              },
+              {
+                $elemMatch: {
+                  str: kBaseMongoTestConsts.str01,
+                  num: kBaseMongoTestConsts.num01,
                 },
               },
             ],

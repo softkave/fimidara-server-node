@@ -1,4 +1,4 @@
-import {first, isArray, isObject, isObjectLike, isUndefined, set} from 'lodash';
+import {first, isArray, isObject, isObjectLike, isUndefined, merge, set} from 'lodash';
 import {appAssert} from '../../../utils/assertion';
 import {AnyObject} from '../../../utils/types';
 import {DataQuery} from './types';
@@ -44,10 +44,14 @@ export function dataQueryToMongoQuery<TQuery extends DataQuery<AnyObject>>(
           const v0100 = first(v01);
 
           if (isObjectLike(v0100) && v0100.$elemMatch) {
-            const expQueryList = v01.map(v01Next => dataQueryToMongoQuery(v01Next));
-            mongoQuery[k00] = {$all: expQueryList};
+            const expQueryList = v01.map(v01Next => ({
+              $elemMatch: dataQueryToMongoQuery(v01Next.$elemMatch),
+            }));
+            const k02 = `${k00}.$all`;
+            set(mongoQuery, k02, expQueryList);
           } else {
-            mongoQuery[k00] = {$all: v01};
+            const k02 = `${k00}.$all`;
+            set(mongoQuery, k02, v01);
           }
 
           break;
@@ -56,7 +60,8 @@ export function dataQueryToMongoQuery<TQuery extends DataQuery<AnyObject>>(
         case '$elemMatch': {
           appAssert(isObject(v01));
           const q01 = dataQueryToMongoQuery(v01);
-          mongoQuery[k00] = {$elemMatch: q01};
+          const k02 = `${k00}.$elemMatch`;
+          set(mongoQuery, k02, q01);
           break;
         }
 
@@ -69,11 +74,12 @@ export function dataQueryToMongoQuery<TQuery extends DataQuery<AnyObject>>(
             const q01 = dataQueryToMongoQuery(objMatch);
             Object.entries(q01).forEach(([k02, v02]) => {
               const k03 = `${k00}.${k02}`;
-              mongoQuery[k03] = {$not: v02};
+              mongoQuery[k03] = merge(mongoQuery[k03] || {}, {$not: v02});
             });
           } else {
             const q01 = dataQueryToMongoQuery(v01);
-            mongoQuery[k00] = {$not: q01};
+            const k02 = `${k00}.$not`;
+            set(mongoQuery, k02, q01);
           }
 
           break;

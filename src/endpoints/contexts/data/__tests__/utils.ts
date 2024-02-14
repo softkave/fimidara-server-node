@@ -5,7 +5,7 @@ import {AnyObject} from '../../../../utils/types';
 import {DataQuery} from '../types';
 
 const kArrChar = 'A';
-const kObjChar = 'A';
+const kObjChar = 'O';
 const kMaxArrTokenCount01 = 1;
 const kMaxArrTokenCount02 = 2;
 const kMaxArrTokenCount03 = 3;
@@ -68,7 +68,7 @@ export function generateTestDataQuery(
   seed: Partial<DataQuery<BaseMongoTestData>> = {}
 ): DataQuery<BaseMongoTestData> {
   return {
-    str: {$eq: str01},
+    str: str01,
     num: num01,
     ...seed,
   };
@@ -96,6 +96,8 @@ export function generateBaseMongoTestDataFromCombination(
       } else {
         set(data, key, tData);
       }
+
+      prevPath = key;
     } else if (token === kArrToken.token) {
       if (index < 1) {
         return;
@@ -114,9 +116,8 @@ export function generateBaseMongoTestDataFromCombination(
         const arrItemData = isPrimitive ? str01 : generateTestData();
         set(data, arrItemKey, arrItemData);
       });
+      prevPath = key.concat(0);
     }
-
-    prevPath = key.concat(0);
   });
 
   return data;
@@ -152,6 +153,8 @@ export function generateBaseMongoTestQueryFromCombination(props: {
       } else {
         set(query, key, tData);
       }
+
+      prevPath = key;
     } else if (token === kArrToken.token) {
       if (index < 1) {
         return;
@@ -166,18 +169,23 @@ export function generateBaseMongoTestQueryFromCombination(props: {
         );
         tData =
           primitiveOp === '$eq' ? str01 : loopAndCollate(() => str01, arrItemsCount);
+        set(query, key, tData);
       } else {
-        key = prevPath.concat('arrObj', elemOp);
-        tData =
-          elemOp === '$all'
-            ? loopAndCollate(() => generateTestDataQuery(), arrItemsCount)
-            : generateTestDataQuery();
+        key = prevPath.concat(['arrObj', elemOp]);
+
+        if (elemOp === '$all') {
+          range(arrItemsCount).forEach(itemIndex => {
+            const arrItemKey = key.concat(itemIndex);
+            const arrItemData = isPrimitive ? str01 : generateTestDataQuery();
+            set(query, arrItemKey.concat('$elemMatch'), arrItemData);
+          });
+        } else {
+          set(query, key, generateTestDataQuery());
+        }
+
+        prevPath = key.concat(elemOp === '$all' ? [0, '$elemMatch'] : []);
       }
-
-      set(query, key, tData);
     }
-
-    prevPath = key;
   });
 
   return query;

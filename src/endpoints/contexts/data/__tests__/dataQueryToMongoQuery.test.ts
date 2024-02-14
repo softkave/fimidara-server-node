@@ -14,7 +14,7 @@ interface TestData {
   arrayPrimitive02: string[];
   arrayPrimitive03: string[];
   obj: TestData;
-  date: Date;
+  date: number;
 }
 
 describe('dataQueryToMongoQuery', () => {
@@ -24,7 +24,7 @@ describe('dataQueryToMongoQuery', () => {
     const two = 2;
     const numList = [one, two];
     const bool = true;
-    const date = new Date();
+    const date = Date.now();
     const dQuery: DataQuery<TestData> = {
       num: {$eq: two, $in: numList, $ne: one, $nin: numList, $exists: bool},
       str: {$regex: regex},
@@ -193,7 +193,7 @@ describe('dataQueryToMongoQuery', () => {
   test('ArrayFieldQueryOps object', () => {
     const size = 2;
     const str01 = 'str01';
-    const date = new Date();
+    const date = Date.now();
     const dQuery: DataQuery<TestData> = {
       arrayObj: {
         $size: size,
@@ -202,26 +202,8 @@ describe('dataQueryToMongoQuery', () => {
           {$elemMatch: {str: {$eq: str01}}},
           {$elemMatch: {num: {$gt: size}}},
           {$elemMatch: {date: {$eq: date}}},
-          {
-            $elemMatch: {
-              obj: {
-                $objMatch: {
-                  str: str01,
-                },
-              },
-            },
-          },
-          {
-            $elemMatch: {
-              obj: {
-                $not: {
-                  $objMatch: {
-                    str: str01,
-                  },
-                },
-              },
-            },
-          },
+          {$elemMatch: {obj: {$objMatch: {str: str01}}}},
+          {$elemMatch: {obj: {$not: {$objMatch: {str: str01}}}}},
         ],
         $elemMatch: {str: str01},
         $eq: null,
@@ -238,16 +220,8 @@ describe('dataQueryToMongoQuery', () => {
           {$elemMatch: {str: {$eq: str01}}},
           {$elemMatch: {num: {$gt: size}}},
           {$elemMatch: {date: {$eq: date}}},
-          {
-            $elemMatch: {
-              'obj.str': str01,
-            },
-          },
-          {
-            $elemMatch: {
-              'obj.str': {$not: str01},
-            },
-          },
+          {$elemMatch: {'obj.str': str01}},
+          {$elemMatch: {'obj.str': {$not: str01}}},
         ],
         $elemMatch: {str: str01},
         $eq: null,
@@ -260,14 +234,14 @@ describe('dataQueryToMongoQuery', () => {
     const one = 1;
     const str01 = 'str01';
     const dQuery: DataQuery<TestData> = {
-      str: {$not: str01},
+      str: {$not: {$eq: str01}},
       num: {$not: {$gt: one}},
     };
 
     const mongoQuery = dataQueryToMongoQuery(dQuery);
 
     const expectedQuery = {
-      str: {$not: str01},
+      str: {$not: {$eq: str01}},
       num: {$not: {$gt: one}},
     };
     expect(mongoQuery).toMatchObject(expectedQuery);

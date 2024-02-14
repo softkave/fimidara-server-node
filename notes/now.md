@@ -1,9 +1,8 @@
 ## Now
 
 - [ ] pathJoin and split should validate paths and remove volumes
-- Add invitedBy (createdBy), and deleted info to collaborators, createdAt instead of joinedAt, and lastUpdatedAt, and by
 - [ ] have job pick quotas so that lower priority jobs too can be picked and completed
-- [ ] Document what permissions are needed for what operations
+- [ ] Document what permissions are needed for what operations for external mounts
 - [ ] Fimidara logging, add every call and what permissions were missing for access denied
 - [ ] Should we fail other pending children jobs if parent job is marked failed?
 - [ ] Everything (resources, websites, platforms) a file, like Linux
