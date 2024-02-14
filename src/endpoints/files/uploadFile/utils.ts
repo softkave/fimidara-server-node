@@ -8,14 +8,14 @@ import {
   getFilePermissionContainers,
   getWorkspacePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {SemanticProviderRunOptions} from '../../contexts/semantic/types';
+import {SemanticProviderTxnOptions} from '../../contexts/semantic/types';
 
 export async function checkUploadFileAuth(
   agent: SessionAgent,
   workspace: Workspace,
   file: File | null,
   closestExistingFolder: Folder | null,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   // TODO: also have an update check if file exists The issue with implementing
   // it now is that it doesn't work with a scenario where we want a user to be

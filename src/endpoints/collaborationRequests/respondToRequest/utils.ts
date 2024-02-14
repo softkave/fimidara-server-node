@@ -17,7 +17,7 @@ import {ServerStateConflictError} from '../../../utils/errors';
 import {isStringEqual} from '../../../utils/fns';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
 import {PermissionDeniedError} from '../../users/errors';
 import {assertUser} from '../../users/utils';
 import {assertWorkspace} from '../../workspaces/utils';
@@ -55,7 +55,7 @@ async function sendCollaborationRequestResponseEmail(
 export const INTERNAL_RespondToCollaborationRequest = async (
   agent: SessionAgent,
   data: RespondToCollaborationRequestEndpointParams,
-  opts: SemanticProviderMutationRunOptions
+  opts: SemanticProviderMutationTxnOptions
 ) => {
   const request = await kSemanticModels
     .collaborationRequest()

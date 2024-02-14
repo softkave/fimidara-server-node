@@ -15,12 +15,12 @@ import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {areFolderpathsEqual, ensureFolders, getFolderpathInfo} from '../../folders/utils';
-import {queueJobs} from '../../jobs/utils';
 import {isResourceNameEqual} from '../../utils';
 import {assertRootname, getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {fileBackendMountExtractor, mountExists, mountNameExists} from '../utils';
 import {UpdateFileBackendMountEndpoint} from './types';
 import {updateFileBackendMountJoiSchema} from './validation';
+import {queueJobs} from '../../jobs/queueJobs';
 
 const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData => {
   const mountModel = kSemanticModels.fileBackendMount();

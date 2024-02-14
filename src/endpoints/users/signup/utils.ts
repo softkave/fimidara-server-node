@@ -5,14 +5,14 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource, newResource} from '../../../utils/resource';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
 import {assertEmailAddressAvailable} from '../utils';
 import {SignupEndpointParams} from './types';
 
 export const INTERNAL_signupUser = async (
   data: SignupEndpointParams,
   otherParams: Partial<User> = {},
-  opts: SemanticProviderMutationRunOptions
+  opts: SemanticProviderMutationTxnOptions
 ) => {
   await assertEmailAddressAvailable(data.email, opts);
 

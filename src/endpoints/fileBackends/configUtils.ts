@@ -1,12 +1,12 @@
 import {keyBy} from 'lodash';
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderRunOptions} from '../contexts/semantic/types';
+import {SemanticProviderTxnOptions} from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
 
 export async function getBackendConfigsWithIdList(
   configIdList: Array<string>,
   throwErrorIfConfigNotFound = true,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   if (configIdList.length === 0) {
     return [];

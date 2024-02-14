@@ -1,33 +1,24 @@
-import {PublicUser, User, UserWithWorkspace, UserWorkspace} from '../../definitions/user';
+import {PublicUser, User, UserWithWorkspace} from '../../definitions/user';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderRunOptions} from '../contexts/semantic/types';
+import {SemanticProviderTxnOptions} from '../contexts/semantic/types';
+import {resourceFields, workspaceResourceListExtractor} from '../extractors';
 import {EmailAddressNotAvailableError} from './errors';
 
-const publicUserWorkspaceFields = getFields<UserWorkspace>({
-  workspaceId: true,
-  joinedAt: true,
-});
-
-export const userWorkspaceExtractor = makeExtract(publicUserWorkspaceFields);
-export const userWorkspaceListExtractor = makeListExtract(publicUserWorkspaceFields);
-
 const publicUserFields = getFields<PublicUser>({
-  resourceId: true,
+  ...resourceFields,
   firstName: true,
   lastName: true,
   email: true,
-  createdAt: true,
-  lastUpdatedAt: true,
   isEmailVerified: true,
   emailVerifiedAt: true,
   emailVerificationEmailSentAt: true,
   passwordLastChangedAt: true,
   requiresPasswordChange: true,
-  workspaces: userWorkspaceListExtractor,
+  workspaces: workspaceResourceListExtractor,
   isOnWaitlist: true,
 });
 
@@ -48,7 +39,7 @@ export function assertUser(user?: User | null): asserts user {
 
 export async function getCompleteUserDataByEmail(
   email: string,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   const user = await kSemanticModels.user().getByEmail(email, opts);
   assertUser(user);
@@ -57,7 +48,7 @@ export async function getCompleteUserDataByEmail(
 
 export async function assertEmailAddressAvailable(
   email: string,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   const userExists = await kSemanticModels.user().existsByEmail(email, opts);
   if (userExists) {

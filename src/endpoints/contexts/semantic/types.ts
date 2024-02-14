@@ -1,109 +1,112 @@
 import {App} from '../../../definitions/app';
-import {
-  FileBackendConfig,
-  FileBackendMount,
-  ResolvedMountEntry,
-} from '../../../definitions/fileBackend';
-import {Job} from '../../../definitions/job';
+import {FileBackendConfig, FileBackendMount} from '../../../definitions/fileBackend';
 import {PermissionGroup} from '../../../definitions/permissionGroups';
-import {AppRuntimeState, Resource} from '../../../definitions/system';
+import {Agent, AppRuntimeState, Resource} from '../../../definitions/system';
 import {Tag} from '../../../definitions/tag';
 import {UsageRecord} from '../../../definitions/usageRecord';
-import {AnyFn} from '../../../utils/types';
+import {AnyFn, OmitProperties} from '../../../utils/types';
 import {
+  DataProviderOpParams,
   DataProviderQueryListParams,
   DataProviderQueryParams,
   DataQuery,
 } from '../data/types';
 
-export interface SemanticProviderRunOptions {
+export interface SemanticProviderTxnOptions {
   txn?: unknown;
 }
 
-export interface SemanticProviderMutationRunOptions {
+export interface SemanticProviderMutationTxnOptions {
   txn: unknown;
 }
 
+export interface SemanticProviderOpOptions
+  extends SemanticProviderTxnOptions,
+    DataProviderOpParams {
+  includeDeleted?: boolean;
+}
+
+export interface SemanticProviderMutationOpOptions
+  extends OmitProperties<SemanticProviderOpOptions, 'txn'>,
+    SemanticProviderMutationTxnOptions {}
+
 export interface SemanticProviderQueryRunOptions<TResource extends Partial<Resource>>
-  extends SemanticProviderRunOptions,
+  extends SemanticProviderOpOptions,
     DataProviderQueryParams<TResource> {}
 
 export interface SemanticProviderQueryListRunOptions<TResource extends Resource>
-  extends SemanticProviderRunOptions,
+  extends SemanticProviderOpOptions,
     DataProviderQueryListParams<TResource> {}
 
 export interface SemanticBaseProviderType<TResource extends Resource> {
   insertItem(
     item: TResource | TResource[],
-    opts: SemanticProviderMutationRunOptions
+    opts: SemanticProviderMutationTxnOptions
   ): Promise<void>;
-  getOneById<TFinal extends Partial<TResource> = TResource>(
+  getOneById(
     id: string,
-    opts?: SemanticProviderQueryRunOptions<TFinal>
-  ): Promise<TFinal | null>;
+    opts?: SemanticProviderQueryRunOptions<TResource>
+  ): Promise<TResource | null>;
   getManyByIdList(
     idList: string[],
-    options?: DataProviderQueryListParams<TResource> & SemanticProviderRunOptions
+    options?: SemanticProviderQueryListRunOptions<TResource>
   ): Promise<TResource[]>;
-  countManyByIdList(idList: string[], opts?: SemanticProviderRunOptions): Promise<number>;
-  existsById(id: string, opts?: SemanticProviderRunOptions): Promise<boolean>;
-  updateOneById<TFinal extends TResource>(
+  countManyByIdList(idList: string[], opts?: SemanticProviderOpOptions): Promise<number>;
+  existsById(id: string, opts?: SemanticProviderOpOptions): Promise<boolean>;
+  updateOneById(
     id: string,
-    update: Partial<TFinal>,
-    opts: SemanticProviderMutationRunOptions
+    update: Partial<TResource>,
+    opts: SemanticProviderMutationOpOptions
   ): Promise<void>;
   updateManyByQuery(
     query: DataQuery<TResource>,
     update: Partial<TResource>,
-    opts: SemanticProviderMutationRunOptions
-  ): Promise<void>;
-  updateManyByQueryList(
-    query: DataQuery<TResource>[],
-    update: Partial<TResource>,
-    opts: SemanticProviderMutationRunOptions
+    opts: SemanticProviderMutationOpOptions
   ): Promise<void>;
   getAndUpdateOneById(
     id: string,
     update: Partial<TResource>,
-    opts: SemanticProviderMutationRunOptions
+    opts: SemanticProviderMutationOpOptions & SemanticProviderQueryRunOptions<TResource>
   ): Promise<TResource | null>;
   getAndUpdateManyByQuery(
     query: DataQuery<TResource>,
     update: Partial<TResource>,
-    opts: SemanticProviderMutationRunOptions
+    opts: SemanticProviderMutationOpOptions &
+      SemanticProviderQueryListRunOptions<TResource>
   ): Promise<TResource[]>;
-  deleteOneById(id: string, opts: SemanticProviderMutationRunOptions): Promise<void>;
+  deleteOneById(id: string, opts: SemanticProviderMutationTxnOptions): Promise<void>;
   deleteManyByIdList(
     idList: string[],
-    opts: SemanticProviderMutationRunOptions
+    opts: SemanticProviderMutationTxnOptions
   ): Promise<void>;
-  getOneByQuery<TFinal extends TResource = TResource>(
-    query: DataQuery<TResource> | DataQuery<TFinal>,
-    opts?: SemanticProviderRunOptions
-  ): Promise<TFinal | null>;
-  getManyByQuery<TFinal extends TResource = TResource>(
-    query: DataQuery<TResource> | DataQuery<TFinal>,
-    options?: DataProviderQueryListParams<TResource> & SemanticProviderRunOptions
-  ): Promise<TFinal[]>;
-  getManyByQueryList(
-    query: DataQuery<TResource>[],
-    options?: DataProviderQueryListParams<TResource> & SemanticProviderRunOptions
+  softDeleteManyByIdList(
+    idList: string[],
+    agent: Agent,
+    opts: SemanticProviderMutationTxnOptions
+  ): Promise<void>;
+  getOneByQuery(
+    query: DataQuery<TResource>,
+    opts?: SemanticProviderQueryRunOptions<TResource>
+  ): Promise<TResource | null>;
+  getManyByQuery(
+    query: DataQuery<TResource>,
+    options?: SemanticProviderQueryListRunOptions<TResource>
   ): Promise<TResource[]>;
-  countByQuery<TFinal extends TResource = TResource>(
-    query: DataQuery<TFinal>,
-    opts?: SemanticProviderRunOptions
+  countByQuery(
+    query: DataQuery<TResource>,
+    opts?: SemanticProviderOpOptions
   ): Promise<number>;
   assertGetOneByQuery(
     query: DataQuery<TResource>,
-    opts?: SemanticProviderRunOptions
+    opts?: SemanticProviderQueryRunOptions<TResource>
   ): Promise<TResource>;
-  existsByQuery<TFinal extends TResource = TResource>(
-    query: DataQuery<TFinal>,
-    opts?: SemanticProviderRunOptions
+  existsByQuery(
+    query: DataQuery<TResource>,
+    opts?: SemanticProviderOpOptions
   ): Promise<boolean>;
   deleteManyByQuery(
     query: DataQuery<TResource>,
-    opts: SemanticProviderMutationRunOptions
+    opts: SemanticProviderMutationTxnOptions
   ): Promise<void>;
 }
 
@@ -114,35 +117,35 @@ export type SemanticWorkspaceResourceProviderBaseType = Resource & {
 };
 
 export interface SemanticWorkspaceResourceProviderType<
-  T extends SemanticWorkspaceResourceProviderBaseType,
-> extends SemanticBaseProviderType<T> {
+  TResource extends SemanticWorkspaceResourceProviderBaseType,
+> extends SemanticBaseProviderType<TResource> {
   getByName(
     workspaceId: string,
     name: string,
-    opts?: SemanticProviderRunOptions
-  ): Promise<T | null>;
+    opts?: SemanticProviderQueryRunOptions<TResource>
+  ): Promise<TResource | null>;
   existsByName(
     workspaceId: string,
     name: string,
-    opts?: SemanticProviderRunOptions
+    opts?: SemanticProviderOpOptions
   ): Promise<boolean>;
   getByProvidedId(
     workspaceId: string,
     providedId: string,
-    opts?: SemanticProviderRunOptions
-  ): Promise<T | null>;
+    opts?: SemanticProviderQueryRunOptions<TResource>
+  ): Promise<TResource | null>;
   existsByProvidedId(
     workspaceId: string,
     providedId: string,
-    opts?: SemanticProviderRunOptions
+    opts?: SemanticProviderOpOptions
   ): Promise<boolean>;
   getManyByWorkspaceId(
     workspaceId: string,
-    opts?: SemanticProviderQueryListRunOptions<T>
-  ): Promise<T[]>;
+    opts?: SemanticProviderQueryListRunOptions<TResource>
+  ): Promise<TResource[]>;
   deleteManyByWorkspaceId(
     workspaceId: string,
-    opts: SemanticProviderMutationRunOptions
+    opts: SemanticProviderMutationTxnOptions
   ): Promise<void>;
   getManyByWorkspaceAndIdList(
     query: {
@@ -150,21 +153,21 @@ export interface SemanticWorkspaceResourceProviderType<
       resourceIdList?: string[];
       excludeResourceIdList?: string[];
     },
-    options?: DataProviderQueryListParams<T> & SemanticProviderRunOptions
-  ): Promise<T[]>;
+    options?: SemanticProviderQueryListRunOptions<TResource>
+  ): Promise<TResource[]>;
   countManyByWorkspaceAndIdList(
     query: {
       workspaceId: string;
       resourceIdList?: string[];
       excludeResourceIdList?: string[];
     },
-    opts?: SemanticProviderRunOptions
+    opts?: SemanticProviderOpOptions
   ): Promise<number>;
 }
 
 export interface SemanticProviderUtils {
   withTxn<TResult>(
-    fn: AnyFn<[SemanticProviderMutationRunOptions], Promise<TResult>>,
+    fn: AnyFn<[SemanticProviderMutationTxnOptions], Promise<TResult>>,
     /** Whether or not to reuse an existing txn from async local storage. */
     reuseAsyncLocalTxn?: boolean
   ): Promise<TResult>;
@@ -174,25 +177,6 @@ export type SemanticFileBackendMountProvider =
   SemanticWorkspaceResourceProviderType<FileBackendMount>;
 
 export type SemanticAppProvider = SemanticWorkspaceResourceProviderType<App>;
-
-export type SemanticJobProvider = SemanticBaseProviderType<Job> & {
-  deleteManyByWorkspaceId(
-    workspaceId: string,
-    opts: SemanticProviderMutationRunOptions
-  ): Promise<void>;
-  getManyByWorkspaceId(
-    workspaceId: string,
-    opts?: SemanticProviderQueryListRunOptions<Job>
-  ): Promise<Job[]>;
-};
-
-export type SemanticResolvedMountEntryProvider =
-  SemanticWorkspaceResourceProviderType<ResolvedMountEntry> & {
-    getMountEntries: (
-      mountId: string,
-      opts?: SemanticProviderRunOptions
-    ) => Promise<ResolvedMountEntry[]>;
-  };
 
 export interface SemanticTagProviderType
   extends SemanticWorkspaceResourceProviderType<Tag> {}

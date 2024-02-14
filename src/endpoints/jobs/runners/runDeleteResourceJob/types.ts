@@ -8,13 +8,13 @@ import {
 import {AppResourceType, Resource} from '../../../../definitions/system';
 import {AnyFn} from '../../../../utils/types';
 import {
-  SemanticProviderMutationRunOptions,
+  SemanticProviderMutationTxnOptions,
   SemanticProviderQueryListRunOptions,
 } from '../../../contexts/semantic/types';
 
 export type DeleteResourceCascadeFnHelpers = {
   job: Job<DeleteResourceJobParams, DeleteResourceJobMeta>;
-  withTxn(fn: AnyFn<[SemanticProviderMutationRunOptions]>): Promise<void>;
+  withTxn(fn: AnyFn<[SemanticProviderMutationTxnOptions]>): Promise<void>;
 };
 
 export type GetArtifactsFn<TArgs extends AnyObject = DeleteResourceCascadeFnDefaultArgs> =

@@ -17,8 +17,8 @@ import {
   kUtilsInjectables,
 } from '../../endpoints/contexts/injection/injectables';
 import {
-  SemanticProviderMutationRunOptions,
-  SemanticProviderRunOptions,
+  SemanticProviderMutationTxnOptions,
+  SemanticProviderTxnOptions,
 } from '../../endpoints/contexts/semantic/types';
 import {fetchEntityAssignedPermissionGroupList} from '../../endpoints/permissionGroups/getEntityAssignedPermissionGroups/utils';
 import {assertPermissionGroup} from '../../endpoints/permissionGroups/utils';
@@ -103,7 +103,7 @@ export async function devUserSetupPromptUserPassword() {
 async function isUserAdmin(
   userId: string,
   adminPermissionGroupId: string,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   const {inheritanceMap} = await fetchEntityAssignedPermissionGroupList(
     userId,
@@ -118,7 +118,7 @@ async function makeUserAdmin(
   userId: string,
   workspace: Workspace,
   adminPermissionGroupId: string,
-  opts: SemanticProviderMutationRunOptions
+  opts: SemanticProviderMutationTxnOptions
 ) {
   const isAdmin = await isUserAdmin(userId, adminPermissionGroupId, opts);
 
@@ -139,7 +139,7 @@ async function makeUserAdmin(
 
 async function getUser(
   runtimeOptions: ISetupDevUserOptions,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   const {email} = await runtimeOptions.getUserEmail();
   const userExists = await kSemanticModels.user().existsByEmail(email, opts);

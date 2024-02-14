@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {isBoolean, isEqual, isString, isUndefined} from 'lodash';
-import {File, PresignedPath} from '../../../definitions/file';
+import {File} from '../../../definitions/file';
 import {kAppResourceType} from '../../../definitions/system';
 import {kSystemSessionAgent} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
@@ -11,6 +11,7 @@ import {getFilenameInfo} from '../../files/utils';
 import {addRootnameToPath} from '../../folders/utils';
 import {generateTestFolderName, generateTestFolderpath} from './folder';
 import {randomActionList} from './utils';
+import {PresignedPath} from '../../../definitions/presignedPath';
 
 function addExtenstion(name: string, ext: string | undefined) {
   return ext ? name + '.' + ext : name;

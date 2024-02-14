@@ -14,11 +14,13 @@ const getUserCollaborationRequest: GetUserCollaborationRequestEndpoint =
     const request = await kSemanticModels
       .collaborationRequest()
       .getOneById(data.requestId);
+
     assertCollaborationRequest(request);
     appAssert(
       isStringEqual(request.recipientEmail, agent.user?.email),
       kReuseableErrors.collaborationRequest.notFound()
     );
+
     return {request: collaborationRequestForUserExtractor(request)};
   };
 

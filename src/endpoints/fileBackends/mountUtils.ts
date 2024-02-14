@@ -16,7 +16,7 @@ import {ServerError} from '../../utils/errors';
 import {loopAndCollateAsync} from '../../utils/fns';
 import {getResourceTypeFromId, newWorkspaceResource} from '../../utils/resource';
 import {kReuseableErrors} from '../../utils/reusableErrors';
-import {Omit1, PartialRecord} from '../../utils/types';
+import {OmitProperties, PartialRecord} from '../../utils/types';
 import {kAsyncLocalStorageUtils} from '../contexts/asyncLocalStorage';
 import {DataQuery} from '../contexts/data/types';
 import {
@@ -26,7 +26,7 @@ import {
 } from '../contexts/file/types';
 import {isFilePersistenceProvider} from '../contexts/file/utils';
 import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
-import {SemanticProviderRunOptions} from '../contexts/semantic/types';
+import {SemanticProviderTxnOptions} from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
 import {FolderQueries} from '../folders/queries';
 import {kEndpointResultNoteCodeMap, kEndpointResultNotesToMessageMap} from '../types';
@@ -48,7 +48,7 @@ export function sortMounts(mounts: FileBackendMount[]) {
 
 export async function resolveMountsForFolder(
   folder: Pick<Folder, 'workspaceId' | 'namepath'>,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   const mountModel = kSemanticModels.fileBackendMount();
   const mountsList = await loopAndCollateAsync(
@@ -177,10 +177,11 @@ export async function areMountsCompletelyIngestedForFolder(
       };
 
       const [completedJob, incompleteJob] = await Promise.all([
-        kSemanticModels
-          .job()
-          .existsByQuery<Job<IngestMountJobParams>>({...query, status: 'completed'}),
-        kSemanticModels.job().existsByQuery<Job<IngestMountJobParams>>({
+        kSemanticModels.job().existsByQuery({
+          ...query,
+          status: kJobStatus.completed,
+        }),
+        kSemanticModels.job().existsByQuery({
           ...query,
           status: {$ne: kJobStatus.completed},
         }),
@@ -247,7 +248,7 @@ export function populateMountUnsupportedOpNoteInNotFoundError(
 export async function insertResolvedMountEntries(props: {
   agent: Agent;
   resource: Pick<File, 'resourceId' | 'workspaceId' | 'namepath' | 'extension'>;
-  mountFiles: Array<Omit1<PersistedFileDescription, 'filepath'>>;
+  mountFiles: Array<OmitProperties<PersistedFileDescription, 'filepath'>>;
 }) {
   const {resource, agent, mountFiles} = props;
   const mountFilesByMountId = keyBy(mountFiles, mountFile => mountFile.mountId);
@@ -320,7 +321,7 @@ export async function insertResolvedMountEntries(props: {
 
 export async function getResolvedMountEntries(
   id: string,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   return await kSemanticModels
     .resolvedMountEntry()

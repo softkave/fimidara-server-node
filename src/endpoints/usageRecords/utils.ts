@@ -18,7 +18,7 @@ import {kReuseableErrors} from '../../utils/reusableErrors';
 import {getActionAgentFromSessionAgent} from '../../utils/sessionUtils';
 import {kUtilsInjectables} from '../contexts/injection/injectables';
 import {UsageRecordInput} from '../contexts/logic/UsageRecordLogicProvider';
-import {SemanticProviderMutationRunOptions} from '../contexts/semantic/types';
+import {SemanticProviderMutationTxnOptions} from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
 import {workspaceResourceFields} from '../extractors';
 import {stringifyFilenamepath} from '../files/utils';
@@ -29,7 +29,7 @@ import {UsageLimitExceededError} from './errors';
 async function insertRecord(
   reqData: RequestData,
   input: UsageRecordInput,
-  opts: SemanticProviderMutationRunOptions,
+  opts: SemanticProviderMutationTxnOptions,
   nothrow = false
 ) {
   const agent = getActionAgentFromSessionAgent(
@@ -49,7 +49,7 @@ export async function insertStorageUsageRecordInput(
   file: File,
   action: PermissionAction,
   artifactMetaInput: Partial<FileUsageRecordArtifact> = {},
-  opts: SemanticProviderMutationRunOptions,
+  opts: SemanticProviderMutationTxnOptions,
   nothrow = false
 ) {
   const artifactMeta: FileUsageRecordArtifact = {
@@ -80,7 +80,7 @@ export async function insertBandwidthInUsageRecordInput(
   reqData: RequestData,
   file: File,
   action: PermissionAction,
-  opts: SemanticProviderMutationRunOptions,
+  opts: SemanticProviderMutationTxnOptions,
   nothrow = false
 ) {
   const artifactMeta: BandwidthUsageRecordArtifact = {
@@ -110,7 +110,7 @@ export async function insertBandwidthOutUsageRecordInput(
   reqData: RequestData,
   file: File,
   action: PermissionAction,
-  opts: SemanticProviderMutationRunOptions,
+  opts: SemanticProviderMutationTxnOptions,
   nothrow = false
 ) {
   const artifactMeta: BandwidthUsageRecordArtifact = {

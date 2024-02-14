@@ -4,14 +4,14 @@ import {getTimestamp} from '../../utils/dateFns';
 import {AnyFn} from '../../utils/types';
 import {kDataModels, kSemanticModels} from '../contexts/injection/injectables';
 import {
-  SemanticProviderMutationRunOptions,
-  SemanticProviderRunOptions,
+  SemanticProviderMutationTxnOptions,
+  SemanticProviderTxnOptions,
 } from '../contexts/semantic/types';
 
 export async function markJobStarted(
   job: Job,
   runnerId: string | undefined,
-  opts: SemanticProviderMutationRunOptions
+  opts: SemanticProviderMutationTxnOptions
 ) {
   const status: JobStatusHistory = {
     runnerId,
@@ -29,7 +29,7 @@ export async function markJobStarted(
 
 export async function areJobRunConditionsSatisfied(
   job: Job,
-  opts: SemanticProviderRunOptions
+  opts: SemanticProviderTxnOptions
 ) {
   if (!job.runAfter) {
     return true;
@@ -58,7 +58,7 @@ export async function areJobRunConditionsSatisfied(
 
 async function getJobUsingFn(
   fn: AnyFn<[], Promise<Job | undefined>>,
-  opts: SemanticProviderRunOptions
+  opts: SemanticProviderTxnOptions
 ) {
   let job: Job | undefined;
 
@@ -76,7 +76,7 @@ async function getJobUsingFn(
 export async function getNextUnfinishedJob(
   activeRunnerIds: string[],
   shards: Array<AppShard> | undefined,
-  opts: SemanticProviderRunOptions
+  opts: SemanticProviderTxnOptions
 ): Promise<Job | undefined> {
   return await getJobUsingFn(async () => {
     const [job] = await kDataModels.job().getManyByQuery(
@@ -103,7 +103,7 @@ export async function getNextUnfinishedJob(
 
 export async function getNextPendingJob(
   shards: Array<AppShard> | undefined,
-  opts: SemanticProviderRunOptions
+  opts: SemanticProviderTxnOptions
 ) {
   return await getJobUsingFn(async () => {
     const [job] = await kDataModels.job().getManyByQuery(

@@ -7,7 +7,7 @@ import {
 } from '../../../definitions/job';
 import {appAssert} from '../../../utils/assertion';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {JobInput, queueJobs} from '../utils';
+import {JobInput, queueJobs} from '../queueJobs';
 
 export async function runIngestMountJob(job: Job<IngestMountJobParams>) {
   appAssert(job.workspaceId);

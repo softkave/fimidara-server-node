@@ -18,8 +18,8 @@ import {assertGetWorkspaceIdFromAgent} from '../../utils/sessionUtils';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../contexts/injection/injectables';
 import {
-  SemanticProviderMutationRunOptions,
-  SemanticProviderRunOptions,
+  SemanticProviderMutationTxnOptions,
+  SemanticProviderTxnOptions,
 } from '../contexts/semantic/types';
 import {InvalidRequestError, NotFoundError} from '../errors';
 import {agentExtractor, workspaceResourceFields} from '../extractors';
@@ -53,7 +53,7 @@ export async function checkPermissionGroupAuthorization(
   agent: SessionAgent,
   permissionGroup: PermissionGroup,
   action: PermissionAction,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   const workspace = await checkWorkspaceExists(permissionGroup.workspaceId);
   await checkAuthorizationWithAgent({
@@ -80,7 +80,7 @@ export async function checkPermissionGroupAuthorization03(
   agent: SessionAgent,
   input: PermissionGroupMatcher,
   action: PermissionAction,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   let permissionGroup: PermissionGroup | null = null;
 
@@ -106,7 +106,7 @@ export async function checkPermissionGroupAuthorization03(
 export async function checkPermissionGroupsExist(
   workspaceId: string,
   permissionGroupInputs: AssignPermissionGroupInput[],
-  opts?: SemanticProviderMutationRunOptions
+  opts?: SemanticProviderMutationTxnOptions
 ) {
   const idList = permissionGroupInputs.map(item => item.permissionGroupId);
 

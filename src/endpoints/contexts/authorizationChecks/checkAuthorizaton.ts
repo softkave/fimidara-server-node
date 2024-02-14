@@ -14,11 +14,11 @@ import {toArray, toCompactArray, toUniqArray} from '../../../utils/fns';
 import {sortPermissionEntityInheritanceMap} from '../../../utils/permissionEntityUtils';
 import {getResourceTypeFromId} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {ObjectValues, Omit1} from '../../../utils/types';
+import {ObjectValues, OmitProperties} from '../../../utils/types';
 import {checkResourcesBelongsToWorkspace} from '../../resources/containerCheckFns';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../users/errors';
 import {kSemanticModels} from '../injection/injectables';
-import {SemanticProviderRunOptions} from '../semantic/types';
+import {SemanticProviderTxnOptions} from '../semantic/types';
 
 export interface AccessCheckTarget {
   entityId: string;
@@ -31,7 +31,7 @@ export interface CheckAuthorizationParams {
   workspaceId: string;
   workspace?: Pick<Workspace, 'publicPermissionGroupId'>;
   target: AccessCheckTarget;
-  opts?: SemanticProviderRunOptions;
+  opts?: SemanticProviderTxnOptions;
   nothrow?: boolean;
 }
 
@@ -243,7 +243,7 @@ function sortOutPermissionItems(
 }
 
 async function resolveTargetChildrenPartialAccessCheck(
-  params: Omit1<CheckAuthorizationParams, 'nothrow'>
+  params: OmitProperties<CheckAuthorizationParams, 'nothrow'>
 ) {
   const {workspaceId, target} = params;
   const action = toArray(target.action).concat(kPermissionsMap.wildcard),
@@ -287,7 +287,7 @@ async function resolveTargetChildrenPartialAccessCheck(
 }
 
 export async function resolveTargetChildrenAccessCheck(
-  params: Omit1<CheckAuthorizationParams, 'nothrow'>
+  params: OmitProperties<CheckAuthorizationParams, 'nothrow'>
 ): Promise<ResolvedTargetChildrenAccessCheck> {
   const {target} = params;
 
@@ -398,7 +398,7 @@ export async function checkAuthorizationWithAgent(
 }
 
 export async function resolveTargetChildrenAccessCheckWithAgent(
-  params: Omit1<CheckAuthorizationParams, 'target' | 'nothrow'> & {
+  params: OmitProperties<CheckAuthorizationParams, 'target' | 'nothrow'> & {
     agent: SessionAgent;
     target: Omit<CheckAuthorizationParams['target'], 'entityId'> & {entityId?: string};
   }

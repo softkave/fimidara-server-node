@@ -1,8 +1,8 @@
 import {AgentToken} from '../../../../definitions/agentToken';
 import {TokenAccessScope} from '../../../../definitions/system';
 import {
-  SemanticProviderMutationRunOptions,
-  SemanticProviderRunOptions,
+  SemanticProviderMutationTxnOptions,
+  SemanticProviderTxnOptions,
   SemanticWorkspaceResourceProviderType,
 } from '../types';
 
@@ -11,11 +11,11 @@ export interface SemanticAgentTokenProvider
   deleteAgentTokens(
     agentId: string,
     tokenScope: TokenAccessScope | TokenAccessScope[] | undefined,
-    opts: SemanticProviderMutationRunOptions
+    opts: SemanticProviderMutationTxnOptions
   ): Promise<void>;
   getOneAgentToken(
     agentId: string,
     tokenScope?: TokenAccessScope | TokenAccessScope[],
-    opts?: SemanticProviderRunOptions
+    opts?: SemanticProviderTxnOptions
   ): Promise<AgentToken | null>;
 }

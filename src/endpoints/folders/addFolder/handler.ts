@@ -13,7 +13,7 @@ import {
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {FolderQuery} from '../../contexts/data/types';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
 import {assertRootname, assertWorkspace} from '../../workspaces/utils';
 import {FolderExistsError} from '../errors';
 import {FolderQueries} from '../queries';
@@ -32,7 +32,7 @@ export async function createFolderListWithTransaction(
   input: NewFolderInput | NewFolderInput[],
   UNSAFE_skipAuthCheck = false,
   throwOnFolderExists = true,
-  opts: SemanticProviderMutationRunOptions
+  opts: SemanticProviderMutationTxnOptions
 ) {
   const folderModel = kSemanticModels.folder();
 
@@ -55,14 +55,16 @@ export async function createFolderListWithTransaction(
     namepathList.push(pathSplit(namepath));
   });
 
-  const existingFolders = await folderModel.getManyByQueryList(
-    namepathList.map(
-      (namepath): FolderQuery =>
-        FolderQueries.getByNamepath({
-          namepath,
-          workspaceId: workspace.resourceId,
-        })
-    ),
+  const existingFolders = await folderModel.getManyByQuery(
+    {
+      $or: namepathList.map(
+        (namepath): FolderQuery =>
+          FolderQueries.getByNamepath({
+            namepath,
+            workspaceId: workspace.resourceId,
+          })
+      ),
+    },
     opts
   );
   const foldersByNamepath = indexArray(existingFolders, {

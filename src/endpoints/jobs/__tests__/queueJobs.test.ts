@@ -34,16 +34,18 @@ describe('queueJobs', () => {
     });
 
     const jobs = await queueJobs(workspaceId, parentJobId, [input01, input02]);
-    const dbJobs = await kSemanticModels.job().getManyByQueryList([
-      {
-        params: {$objMatch: {id: internalParamId01}},
-        resourceId: {$in: extractResourceIdList(jobs)},
-      },
-      {
-        params: {$objMatch: {id: internalParamId02}},
-        resourceId: {$in: extractResourceIdList(jobs)},
-      },
-    ]);
+    const dbJobs = await kSemanticModels.job().getManyByQuery({
+      $or: [
+        {
+          params: {$objMatch: {id: internalParamId01}},
+          resourceId: {$in: extractResourceIdList(jobs)},
+        },
+        {
+          params: {$objMatch: {id: internalParamId02}},
+          resourceId: {$in: extractResourceIdList(jobs)},
+        },
+      ],
+    });
 
     expect(jobs.length).toBe(2);
     expect(dbJobs.length).toBe(2);

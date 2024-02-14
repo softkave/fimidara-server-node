@@ -27,12 +27,12 @@ import {
 } from '../runner';
 import {RunnerWorkerMessage, kRunnerWorkerMessageType} from '../types';
 import {
-  isRunnerWorkerMessage,
-  kDefaultActiveRunnerHeartbeatFactor,
   kDefaultHeartbeatInterval,
+  kDefaultActiveRunnerHeartbeatFactor,
   kDefaultRunnerCount,
-  waitForJob,
-} from '../utils';
+  isRunnerWorkerMessage,
+} from '../runnerUtils';
+import {waitForJob} from '../waitForJob';
 
 beforeEach(async () => {
   await initTests();

@@ -8,13 +8,13 @@ import {
   kSemanticModels,
   kUtilsInjectables,
 } from '../../endpoints/contexts/injection/injectables';
-import {SemanticProviderMutationRunOptions} from '../../endpoints/contexts/semantic/types';
+import {SemanticProviderMutationTxnOptions} from '../../endpoints/contexts/semantic/types';
 import INTERNAL_createWorkspace from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
 import {makeRootnameFromName} from '../../endpoints/workspaces/utils';
 import {kSystemSessionAgent} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 
-async function insertWorkspace(opts: SemanticProviderMutationRunOptions) {
+async function insertWorkspace(opts: SemanticProviderMutationTxnOptions) {
   const companyName = faker.company.name();
   return await INTERNAL_createWorkspace(
     {
@@ -30,7 +30,7 @@ async function insertWorkspace(opts: SemanticProviderMutationRunOptions) {
 
 async function createAgentToken(
   workspace: Workspace,
-  opts: SemanticProviderMutationRunOptions
+  opts: SemanticProviderMutationTxnOptions
 ) {
   const token = await INTERNAL_createAgentToken(
     kSystemSessionAgent,

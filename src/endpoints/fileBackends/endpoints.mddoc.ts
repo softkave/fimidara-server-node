@@ -151,12 +151,7 @@ const fileBackendMount = mddocConstruct
   .constructFieldObject<PublicFileBackendMount>()
   .setName('FileBackendMount')
   .setFields({
-    resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-    createdBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
-    createdAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
-    lastUpdatedBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
-    lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
-    workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),
+    ...fReusables.workspaceResourceParts,
     name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
     backend: mddocConstruct.constructFieldObjectField(true, backend),
@@ -193,12 +188,7 @@ const fileBackendConfig = mddocConstruct
   .constructFieldObject<PublicFileBackendConfig>()
   .setName('FileBackendConfig')
   .setFields({
-    resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-    createdBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
-    createdAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
-    lastUpdatedBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
-    lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
-    workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),
+    ...fReusables.workspaceResourceParts,
     name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
     backend: mddocConstruct.constructFieldObjectField(true, backend),

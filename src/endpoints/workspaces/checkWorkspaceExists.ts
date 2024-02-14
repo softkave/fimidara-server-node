@@ -1,10 +1,10 @@
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderRunOptions} from '../contexts/semantic/types';
+import {SemanticProviderTxnOptions} from '../contexts/semantic/types';
 import {WorkspaceExistsError, WorkspaceRootnameExistsError} from './errors';
 
 export async function checkWorkspaceNameExists(
   name: string,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   const workspaceExists = await kSemanticModels
     .workspace()
@@ -17,7 +17,7 @@ export async function checkWorkspaceNameExists(
 
 export async function checkWorkspaceRootnameExists(
   rootname: string,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   const workspaceExists = await kSemanticModels
     .workspace()

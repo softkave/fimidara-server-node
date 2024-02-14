@@ -84,12 +84,7 @@ const workspace = mddocConstruct
   .constructFieldObject<PublicWorkspace>()
   .setName('Workspace')
   .setFields({
-    resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-    workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-    createdBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
-    createdAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
-    lastUpdatedBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
-    lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+    ...fReusables.workspaceResourceParts,
     name: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceName),
     rootname: mddocConstruct.constructFieldObjectField(
       true,

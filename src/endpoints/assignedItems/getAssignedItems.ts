@@ -1,45 +1,41 @@
 import {defaultTo} from 'lodash';
 import {AssignedItem, ResourceWithTags} from '../../definitions/assignedItem';
-import {AppResourceType, Resource, kAppResourceType} from '../../definitions/system';
-import {User, UserWorkspace} from '../../definitions/user';
+import {
+  AppResourceType,
+  Resource,
+  WorkspaceResource,
+  kAppResourceType,
+} from '../../definitions/system';
+import {User} from '../../definitions/user';
 import {cast} from '../../utils/fns';
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderRunOptions} from '../contexts/semantic/types';
+import {SemanticProviderTxnOptions} from '../contexts/semantic/types';
 import {
   assignedItemsToAssignedTagList,
   assignedItemsToAssignedWorkspaceList,
 } from './utils';
 
-/**
- * @param context
- * @param workspaceId - Use `undefined` for fetching user workspaces
- * @param resourceId
- * @param assignedItemTypes
- */
 export async function getResourceAssignedItems(
+  /** Use `undefined` for fetching user workspaces */
   workspaceId: string | undefined,
   resourceId: string,
   assignedItemTypes?: Array<AppResourceType>,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   return await kSemanticModels
     .assignedItem()
     .getResourceAssignedItems(workspaceId, resourceId, assignedItemTypes, opts);
 }
 
-/**
- * @param context
- * @param workspaceId - Use `undefined` for fetching user workspaces
- * @param resourceId
- * @param assignedItemTypes - List of assigned item types to fetch. If not
- * specified, all assigned items will be fetched. If specified, result will
- * contain empty arrays if no assigned items of the specified type are found.
- */
 export async function getResourceAssignedItemsSortedByType(
+  /** Use `undefined` for fetching user workspaces */
   workspaceId: string | undefined,
   resourceId: string,
+  /** List of assigned item types to fetch. If not specified, all assigned items
+   * will be fetched. If specified, result will contain empty arrays if no
+   * assigned items of the specified type are found. */
   assignedItemTypes?: Array<AppResourceType>,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   const items = await getResourceAssignedItems(
     workspaceId,
@@ -74,8 +70,7 @@ export async function populateAssignedItems<
 >(
   workspaceId: string,
   resource: T,
-  // @ts-ignore
-  assignedItemTypes: TAssignedItemsType = [kAppResourceType.Tag]
+  assignedItemTypes: TAssignedItemsType = [kAppResourceType.Tag] as TAssignedItemsType
 ): Promise<
   typeof assignedItemTypes extends Array<typeof kAppResourceType.Tag>
     ? ResourceWithTags<T>
@@ -150,8 +145,8 @@ export async function populateResourceListWithAssignedTags<
 
 export async function getUserWorkspaces(
   userId: string,
-  opts?: SemanticProviderRunOptions
-): Promise<UserWorkspace[]> {
+  opts?: SemanticProviderTxnOptions
+): Promise<WorkspaceResource[]> {
   const sortedItems = await getResourceAssignedItemsSortedByType(
     /** workspaceId */ undefined,
     userId,
@@ -173,10 +168,10 @@ export async function getUserWorkspaces(
 
 export async function populateUserWorkspaces<T extends User>(
   resource: T,
-  opts?: SemanticProviderRunOptions
-): Promise<T & {workspaces: UserWorkspace[]}> {
-  const updatedResource: T & {workspaces: UserWorkspace[]} = resource as T & {
-    workspaces: UserWorkspace[];
+  opts?: SemanticProviderTxnOptions
+): Promise<T & {workspaces: WorkspaceResource[]}> {
+  const updatedResource = resource as T & {
+    workspaces: WorkspaceResource[];
   };
   updatedResource.workspaces = await getUserWorkspaces(resource.resourceId, opts);
   return updatedResource;

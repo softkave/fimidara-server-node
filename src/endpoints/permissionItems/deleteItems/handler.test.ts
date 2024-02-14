@@ -73,7 +73,7 @@ test('permission items deleted', async () => {
   const resultJobsById = keyBy(result.jobs, job => job.jobId);
   const jobIds = Object.keys(resultJobsById);
   const jobs = (await kSemanticModels.job().getManyByQuery({
-    type: kJobType.deleteResource,
+    type: kJobType.deleteResource0,
     resourceId: {$in: jobIds},
   })) as Job<DeleteResourceJobParams>[];
   const jobsById = keyBy(jobs, job => job.resourceId);
@@ -83,8 +83,14 @@ test('permission items deleted', async () => {
     expect(job).toBeTruthy();
     const params: DeleteResourceJobParams = {
       type: kAppResourceType.PermissionItem,
-      args: {resourceId: resultJob.resourceId, workspaceId: workspace.resourceId},
+      resourceId: resultJob.resourceId,
+      workspaceId: workspace.resourceId,
     };
     expect(job.params).toMatchObject(params);
   });
+
+  const dbItems = await kSemanticModels
+    .permissionItem()
+    .getOneByQuery({resourceId: {$in: itemIds}, isDeleted: true});
+  expect(dbItems).toHaveLength(itemIds.length);
 });

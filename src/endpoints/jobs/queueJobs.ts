@@ -2,7 +2,6 @@ import {defaultTo, isArray, keyBy} from 'lodash';
 import {AnyObject} from 'mongoose';
 import {AppShard, kAppPresetShards} from '../../definitions/app';
 import {
-  DeleteResourceJobParams,
   Job,
   JobStatusHistory,
   JobType,
@@ -10,7 +9,6 @@ import {
   kJobPresetPriority,
   kJobRunnerV1,
   kJobStatus,
-  kJobType,
 } from '../../definitions/job';
 import {kAppResourceType} from '../../definitions/system';
 import {getTimestamp} from '../../utils/dateFns';
@@ -110,12 +108,4 @@ export async function queueJobs<
     await kSemanticModels.job().insertItem(uniqueJobs, opts);
     return (jobsToReturn === 'all' ? jobs : uniqueJobs) as Array<Job<TParams, TMeta>>;
   });
-}
-
-export async function enqueueDeleteResourceJob(params: DeleteResourceJobParams) {
-  const [job] = await queueJobs(params.workspaceId, undefined, [
-    {params, type: kJobType.deleteResource0},
-  ]);
-
-  return job;
 }

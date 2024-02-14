@@ -1,6 +1,7 @@
 import {isNumber} from 'lodash';
-import {File, FileMatcher, PresignedPath} from '../../definitions/file';
+import {File, FileMatcher} from '../../definitions/file';
 import {PermissionAction, kPermissionsMap} from '../../definitions/permissionItem';
+import {PresignedPath} from '../../definitions/presignedPath';
 import {kAppResourceType} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {kSystemSessionAgent} from '../../utils/agent';
@@ -13,8 +14,8 @@ import {
 } from '../../utils/sessionUtils';
 import {kSemanticModels} from '../contexts/injection/injectables';
 import {
-  SemanticProviderMutationRunOptions,
-  SemanticProviderRunOptions,
+  SemanticProviderMutationTxnOptions,
+  SemanticProviderTxnOptions,
 } from '../contexts/semantic/types';
 import {kFolderConstants} from '../folders/constants';
 import {PermissionDeniedError} from '../users/errors';
@@ -65,7 +66,7 @@ export async function getFileByPresignedPath(props: {
   filepath: string;
   action: PermissionAction;
   incrementUsageCount: boolean;
-  opts?: SemanticProviderRunOptions;
+  opts?: SemanticProviderTxnOptions;
 }) {
   const {filepath, action, incrementUsageCount, opts} = props;
 
@@ -132,7 +133,7 @@ export async function getFileByPresignedPath(props: {
 export async function getFileByFilepath(props: {
   /** filepath with extension if present, and workspace rootname. */
   filepath: string;
-  opts: SemanticProviderMutationRunOptions;
+  opts: SemanticProviderMutationTxnOptions;
   workspaceId?: string;
 }) {
   const fileModel = kSemanticModels.file();
@@ -156,7 +157,7 @@ export async function getFileByFilepath(props: {
 
 export async function getFileWithMatcher(props: {
   matcher: FileMatcher;
-  opts: SemanticProviderMutationRunOptions;
+  opts: SemanticProviderMutationTxnOptions;
   /** Defaults to `readFile`. */
   presignedPathAction?: PermissionAction;
   workspaceId?: string;
@@ -164,6 +165,7 @@ export async function getFileWithMatcher(props: {
   supportPresignedPath?: boolean;
   /** Defaults to `true`. */
   incrementPresignedPathUsageCount?: boolean;
+  shouldIngestFile?: boolean;
 }): Promise<{file?: File | null; presignedPath?: PresignedPath}> {
   const {
     matcher,
@@ -171,6 +173,7 @@ export async function getFileWithMatcher(props: {
     workspaceId,
     supportPresignedPath = true,
     incrementPresignedPathUsageCount = true,
+    shouldIngestFile = true,
     presignedPathAction = kPermissionsMap.readFile,
   } = props;
 
@@ -203,19 +206,21 @@ export async function getFileWithMatcher(props: {
       return getByFilepathResult;
     }
 
-    // Try ingesting file if not in DB
-    await ingestFileByFilepath({
-      opts,
-      agent: kSystemSessionAgent,
-      filepath: matcher.filepath,
-    });
+    if (shouldIngestFile) {
+      // Try ingesting file if not in DB
+      await ingestFileByFilepath({
+        opts,
+        agent: kSystemSessionAgent,
+        filepath: matcher.filepath,
+      });
 
-    // Try again to get file from DB
-    getByFilepathResult = await getFileByFilepath({
-      opts,
-      workspaceId,
-      filepath: matcher.filepath,
-    });
+      // Try again to get file from DB
+      getByFilepathResult = await getFileByFilepath({
+        opts,
+        workspaceId,
+        filepath: matcher.filepath,
+      });
+    }
 
     return getByFilepathResult;
   }

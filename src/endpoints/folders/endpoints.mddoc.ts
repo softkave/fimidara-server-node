@@ -62,14 +62,9 @@ const folder = mddocConstruct
   .constructFieldObject<PublicFolder>()
   .setName('Folder')
   .setFields({
-    resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-    createdBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
-    createdAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
-    lastUpdatedBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
-    lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+    ...fReusables.workspaceResourceParts,
     name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
-    workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),
     idPath: mddocConstruct.constructFieldObjectField(true, fReusables.idPath),
     namepath: mddocConstruct.constructFieldObjectField(true, fReusables.foldernamepath),
     parentId: mddocConstruct.constructFieldObjectField(true, fReusables.folderIdOrNull),

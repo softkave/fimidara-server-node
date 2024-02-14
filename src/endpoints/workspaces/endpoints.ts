@@ -1,10 +1,8 @@
 import addWorkspace from './addWorkspace/handler';
 import countUserWorkspaces from './countUserWorkspaces/handler';
-import deleteWorkspace from './deleteWorkspace/handler';
 import {
   addWorkspaceEndpointDefinition,
   countUserWorkspacesEndpointDefinition,
-  deleteWorkspaceEndpointDefinition,
   getUserWorkspacesEndpointDefinition,
   getWorkspaceEndpointDefinition,
   updateWorkspaceEndpointDefinition,
@@ -20,10 +18,10 @@ export function getWorkspacesPublicHttpEndpoints() {
       fn: addWorkspace,
       mddocHttpDefinition: addWorkspaceEndpointDefinition,
     },
-    deleteWorkspace: {
-      fn: deleteWorkspace,
-      mddocHttpDefinition: deleteWorkspaceEndpointDefinition,
-    },
+    // deleteWorkspace: {
+    //   fn: deleteWorkspace,
+    //   mddocHttpDefinition: deleteWorkspaceEndpointDefinition,
+    // },
     getUserWorkspaces: {
       fn: getUserWorkspaces,
       mddocHttpDefinition: getUserWorkspacesEndpointDefinition,

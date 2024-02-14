@@ -17,8 +17,8 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../../testUtils/testUtils';
-import {queueJobs} from '../../utils';
 import {runIngestMountJob} from '../runIngestMountJob';
+import {queueJobs} from '../../queueJobs';
 
 beforeAll(async () => {
   await initTests();

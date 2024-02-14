@@ -1,5 +1,6 @@
 import {kAppResourceType} from '../../../../definitions/system';
 import {kSemanticModels} from '../../../contexts/injection/injectables';
+import {genericGetArtifacts} from './genericDefinitions';
 import {
   DeleteResourceCascadeEntry,
   DeleteResourceDeleteArtifactsFns,
@@ -8,34 +9,13 @@ import {
 } from './types';
 
 const getArtifacts: DeleteResourceGetArtifactsFns = {
-  [kAppResourceType.All]: null,
-  [kAppResourceType.System]: null,
-  [kAppResourceType.Public]: null,
-  [kAppResourceType.User]: null,
-  [kAppResourceType.EndpointRequest]: null,
-  [kAppResourceType.App]: null,
-  [kAppResourceType.Job]: null,
-  [kAppResourceType.Workspace]: null,
-  [kAppResourceType.AssignedItem]: null,
-  [kAppResourceType.UsageRecord]: null,
-  [kAppResourceType.ResolvedMountEntry]: null,
-  [kAppResourceType.PresignedPath]: null,
-  [kAppResourceType.CollaborationRequest]: ({args, opts}) =>
-    kSemanticModels.collaborationRequest().getManyByWorkspaceId(args.workspaceId, opts),
-  [kAppResourceType.AgentToken]: ({args, opts}) =>
-    kSemanticModels.agentToken().getManyByWorkspaceId(args.workspaceId, opts),
-  [kAppResourceType.PermissionGroup]: ({args, opts}) =>
-    kSemanticModels.permissionGroup().getManyByWorkspaceId(args.workspaceId, opts),
-  [kAppResourceType.PermissionItem]: ({args, opts}) =>
-    kSemanticModels.permissionItem().getManyByWorkspaceId(args.workspaceId, opts),
+  ...genericGetArtifacts,
+  // Delete file and folders in external storage
   [kAppResourceType.Folder]: ({args, opts}) =>
     kSemanticModels.folder().getManyByWorkspaceId(args.workspaceId, opts),
   [kAppResourceType.File]: ({args, opts}) =>
     kSemanticModels.file().getManyByWorkspaceId(args.workspaceId, opts),
-  [kAppResourceType.Tag]: ({args, opts}) =>
-    kSemanticModels.tag().getManyByWorkspaceId(args.workspaceId, opts),
-  [kAppResourceType.FileBackendMount]: ({args, opts}) =>
-    kSemanticModels.fileBackendMount().getManyByWorkspaceId(args.workspaceId, opts),
+  // Delete config secrets in secrets store
   [kAppResourceType.FileBackendConfig]: ({args, opts}) =>
     kSemanticModels.fileBackendConfig().getManyByWorkspaceId(args.workspaceId, opts),
 };

@@ -1,11 +1,11 @@
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderRunOptions} from '../contexts/semantic/types';
+import {SemanticProviderTxnOptions} from '../contexts/semantic/types';
 import {ResourceExistsError} from '../errors';
 
 export async function checkAgentTokenNameExists(
   workspaceId: string,
   name: string,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   const itemExists = await kSemanticModels
     .agentToken()

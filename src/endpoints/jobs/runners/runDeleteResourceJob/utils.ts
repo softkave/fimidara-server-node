@@ -27,12 +27,16 @@ export const deletePermissionItemsTargetingResource: DeleteArtifactsFn = ({
   helpers,
 }) =>
   helpers.withTxn(opts =>
-    kSemanticModels.permissionItem().deleteManyByTargetId(args.resourceId, opts)
+    kSemanticModels
+      .permissionItem()
+      .deleteManyByTargetId(args.workspaceId, args.resourceId, opts)
   );
 
 export const deleteEntityPermissionItems: DeleteArtifactsFn = ({args, helpers}) =>
   helpers.withTxn(opts =>
-    kSemanticModels.permissionItem().deleteManyByEntityId(args.resourceId, opts)
+    kSemanticModels
+      .permissionItem()
+      .deleteManyByEntityId(args.workspaceId, args.resourceId, opts)
   );
 
 export const deleteResourceAssignedItemArtifacts = overArgsAsync(
@@ -63,10 +67,14 @@ export const getResourceAssigneeItems: GetArtifactsFn = ({args, opts}) =>
     .getResourceAssigneeItems(args.workspaceId, args.resourceId, opts);
 
 export const getPermissionItemsTargetingResource: GetArtifactsFn = ({args, opts}) =>
-  kSemanticModels.permissionItem().getManyByTargetId(args.resourceId, opts);
+  kSemanticModels
+    .permissionItem()
+    .getManyByTargetId(args.workspaceId, args.resourceId, opts);
 
 export const getEntityPermissionItems: GetArtifactsFn = ({args, opts}) =>
-  kSemanticModels.permissionItem().getManyByEntityId(args.resourceId, opts);
+  kSemanticModels
+    .permissionItem()
+    .getManyByEntityId(args.workspaceId, args.resourceId, opts);
 
 export const getResourceAssignedItemArtifacts = overArgsAsync(
   [getResourceAssignedItems, getResourceAssigneeItems],

@@ -30,20 +30,18 @@ export interface DataProviderOpParams {
   txn?: unknown;
 }
 
-export interface DataProviderQueryListParams<T> extends DataProviderOpParams {
-  /** zero-based index */
-  page?: number;
-  pageSize?: number;
+export interface DataProviderQueryParams<T> extends DataProviderOpParams {
   // TODO: Pick projection fields and return only projection fields in data and
   // semantic APIs
   projection?: ProjectionType<T>;
-  sort?: DataQuerySort<T>;
 }
 
-export type DataProviderQueryParams<T> = Pick<
-  DataProviderQueryListParams<T>,
-  'projection' | 'txn'
->;
+export interface DataProviderQueryListParams<T> extends DataProviderQueryParams<T> {
+  /** zero-based index */
+  page?: number;
+  pageSize?: number;
+  sort?: DataQuerySort<T>;
+}
 
 export const kIncludeInProjection = 1 as const;
 export const kExcludeFromProjection = 0 as const;
@@ -79,7 +77,7 @@ export type LiteralFieldQueryOps<T = DataProviderLiteralType> =
   | null;
 
 export type LiteralDataQuery<T> = {
-  [P in keyof T]?: ExpandDataQuery<T[P]>;
+  [P in keyof T]?: ExpandDataQuery<Exclude<T[P], undefined>>;
 };
 
 export interface RecordFieldQueryOps<T extends AnyObject> {
@@ -170,10 +168,6 @@ export interface BaseDataProvider<
     query: TQuery,
     otherProps?: DataProviderQueryListParams<TData>
   ) => Promise<TData[]>;
-  getManyByQueryList: (
-    query: TQuery[],
-    otherProps?: DataProviderQueryListParams<TData>
-  ) => Promise<TData[]>;
   getOneByQuery: (
     query: TQuery,
     otherProps?: DataProviderQueryParams<TData>
@@ -191,17 +185,8 @@ export interface BaseDataProvider<
     query: ExtendedQueryType,
     otherProps?: DataProviderOpParams
   ) => Promise<number>;
-  countByQueryList: (
-    query: TQuery[],
-    otherProps?: DataProviderOpParams
-  ) => Promise<number>;
   updateManyByQuery: (
     query: TQuery,
-    data: Partial<TData>,
-    otherProps?: DataProviderOpParams
-  ) => Promise<void>;
-  updateManyByQueryList: (
-    query: TQuery[],
     data: Partial<TData>,
     otherProps?: DataProviderOpParams
   ) => Promise<void>;
@@ -222,10 +207,6 @@ export interface BaseDataProvider<
   ) => Promise<TData[]>;
   deleteManyByQuery: <TOpQuery extends TQuery = TQuery>(
     query: TOpQuery,
-    otherProps?: DataProviderOpParams
-  ) => Promise<void>;
-  deleteManyByQueryList: <ExtendedQueryType extends TQuery = TQuery>(
-    query: ExtendedQueryType[],
     otherProps?: DataProviderOpParams
   ) => Promise<void>;
   deleteOneByQuery: <ExtendedQueryType extends TQuery = TQuery>(

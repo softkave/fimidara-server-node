@@ -1,14 +1,13 @@
 import {kFileBackendType} from '../../../definitions/fileBackend';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {kAppResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {DeleteFileBackendMountEndpoint} from './types';
+import {beginDeleteFileBackendMount} from './utils';
 import {deleteFileBackendMountJoiSchema} from './validation';
 
 const deleteFileBackendMount: DeleteFileBackendMountEndpoint = async instData => {
@@ -33,12 +32,12 @@ const deleteFileBackendMount: DeleteFileBackendMountEndpoint = async instData =>
     throw kReuseableErrors.mount.cannotDeleteFimidaraMount();
   }
 
-  const job = await enqueueDeleteResourceJob({
-    type: kAppResourceType.FileBackendMount,
-    workspaceId: mount.workspaceId,
-    resourceId: mount.resourceId,
+  const [job] = await beginDeleteFileBackendMount({
+    agent,
+    workspaceId: workspace.resourceId,
+    resources: [mount],
   });
-
+  appAssert(job);
   return {jobId: job.resourceId};
 };
 

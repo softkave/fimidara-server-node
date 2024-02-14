@@ -135,6 +135,11 @@ export interface Resource {
   resourceId: string;
   createdAt: number;
   lastUpdatedAt: number;
+  lastUpdatedBy?: Agent;
+  createdBy?: Agent;
+  deletedBy?: Agent;
+  isDeleted?: boolean;
+  deletedAt?: number;
 }
 
 export interface ResourceWrapper<T extends Resource = Resource> {
@@ -145,12 +150,13 @@ export interface ResourceWrapper<T extends Resource = Resource> {
 
 export interface WorkspaceResource extends Resource {
   workspaceId: string;
-  // providedResourceId?: string | null;
   lastUpdatedBy: Agent;
   createdBy: Agent;
+  // providedResourceId?: string | null;
 }
 
 export type PublicResource = ConvertAgentToPublicAgent<Resource>;
+export type PublicResourceWrapper = ConvertAgentToPublicAgent<ResourceWrapper>;
 export type PublicWorkspaceResource = ConvertAgentToPublicAgent<WorkspaceResource>;
 
 export const kResourceTypeToPossibleChildren: Record<AppResourceType, AppResourceType[]> =

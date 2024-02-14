@@ -1,7 +1,7 @@
 import {CollaborationRequest} from '../../../../definitions/collaborationRequest';
 import {DataProviderQueryListParams} from '../../data/types';
 import {
-  SemanticProviderRunOptions,
+  SemanticProviderTxnOptions,
   SemanticWorkspaceResourceProviderType,
 } from '../types';
 
@@ -10,16 +10,16 @@ export interface SemanticCollaborationRequestProvider
   getManyByEmail(
     email: string,
     options?: DataProviderQueryListParams<CollaborationRequest> &
-      SemanticProviderRunOptions
+      SemanticProviderTxnOptions
   ): Promise<CollaborationRequest[]>;
   getOneByEmail(
     email: string,
-    opts?: SemanticProviderRunOptions
+    opts?: SemanticProviderTxnOptions
   ): Promise<CollaborationRequest | null>;
   getOneByWorkspaceIdEmail(
     workspaceId: string,
     email: string,
-    opts?: SemanticProviderRunOptions
+    opts?: SemanticProviderTxnOptions
   ): Promise<CollaborationRequest | null>;
-  countByEmail(email: string, opts?: SemanticProviderRunOptions): Promise<number>;
+  countByEmail(email: string, opts?: SemanticProviderTxnOptions): Promise<number>;
 }

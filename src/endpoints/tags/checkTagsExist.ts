@@ -3,7 +3,7 @@ import {PermissionAction} from '../../definitions/permissionItem';
 import {kAppResourceType, SessionAgent} from '../../definitions/system';
 import {AssignedTagInput} from '../../definitions/tag';
 import {Workspace} from '../../definitions/workspace';
-import {SemanticProviderRunOptions} from '../contexts/semantic/types';
+import {SemanticProviderTxnOptions} from '../contexts/semantic/types';
 import {checkResourcesBelongsToWorkspace} from '../resources/containerCheckFns';
 import {INTERNAL_getResources} from '../resources/getResources';
 
@@ -12,7 +12,7 @@ export default async function checkTagsExist(
   workspace: Workspace,
   items: Array<AssignedTagInput>,
   action: PermissionAction,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   const resources = await INTERNAL_getResources({
     agent,

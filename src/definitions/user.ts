@@ -1,9 +1,9 @@
-import {PublicResource, Resource} from './system';
-
-export interface UserWorkspace {
-  workspaceId: string;
-  joinedAt: number;
-}
+import {
+  PublicResource,
+  PublicWorkspaceResource,
+  Resource,
+  WorkspaceResource,
+} from './system';
 
 export interface User extends Resource {
   firstName: string;
@@ -20,7 +20,7 @@ export interface User extends Resource {
 }
 
 export interface UserWithWorkspace extends User {
-  workspaces: UserWorkspace[];
+  workspaces: WorkspaceResource[];
 }
 
 export type PublicUser = PublicResource &
@@ -35,8 +35,8 @@ export type PublicUser = PublicResource &
     | 'emailVerifiedAt'
     | 'emailVerificationEmailSentAt'
     | 'isOnWaitlist'
-  > & {workspaces: UserWorkspace[]};
+  > & {workspaces: PublicWorkspaceResource[]};
 
 export type PublicCollaborator = PublicResource &
-  UserWorkspace &
+  PublicWorkspaceResource &
   Pick<User, 'firstName' | 'lastName' | 'email' | 'resourceId'>;

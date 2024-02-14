@@ -16,15 +16,11 @@ import deleteFile from './deleteFile/handler';
 import {
   deleteFileEndpointDefinition,
   getFileDetailsEndpointDefinition,
-  getPresignedPathsForFilesEndpointDefinition,
-  issuePresignedPathEndpointDefinition,
   readFilePOSTEndpointDefinition,
   updateFileDetailsEndpointDefinition,
   uploadFileEndpointDefinition,
 } from './endpoints.mddoc';
 import getFileDetails from './getFileDetails/handler';
-import getPresignedPathsForFiles from './getPresignedPaths/handler';
-import issuePresignedPath from './issuePresignedPath/handler';
 import readFile from './readFile/handler';
 import {
   ReadFileEndpoint,
@@ -186,16 +182,6 @@ export function getFilesPublicHttpEndpoints() {
     updateFileDetails: {
       fn: updateFileDetails,
       mddocHttpDefinition: updateFileDetailsEndpointDefinition,
-      handleError: handleNotFoundError,
-    },
-    issuePresignedPath: {
-      fn: issuePresignedPath,
-      mddocHttpDefinition: issuePresignedPathEndpointDefinition,
-      handleError: handleNotFoundError,
-    },
-    getPresignedPathsForFiles: {
-      fn: getPresignedPathsForFiles,
-      mddocHttpDefinition: getPresignedPathsForFilesEndpointDefinition,
       handleError: handleNotFoundError,
     },
     uploadFile: {

@@ -20,7 +20,7 @@ const deletePermissionItems: DeletePermissionItemsEndpoint = async instData => {
     agent,
     workspaceId,
     workspace,
-    target: {targetId: workspaceId, action: kPermissionsMap.deletePermission},
+    target: {targetId: workspaceId, action: kPermissionsMap.updatePermission},
   });
 
   const jobs = await INTERNAL_deletePermissionItems(agent, workspace, data);

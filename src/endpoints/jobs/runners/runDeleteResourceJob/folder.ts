@@ -16,7 +16,9 @@ import {
 const getArtifacts: DeleteResourceGetArtifactsFns = {
   ...genericGetArtifacts,
   [kAppResourceType.Folder]: async ({args, opts}) => {
-    const folder = await kSemanticModels.folder().getOneById(args.resourceId);
+    const folder = await kSemanticModels
+      .folder()
+      .getOneById(args.resourceId, {includeDeleted: true});
 
     if (folder) {
       return await kSemanticModels
@@ -27,7 +29,9 @@ const getArtifacts: DeleteResourceGetArtifactsFns = {
     return [];
   },
   [kAppResourceType.File]: async ({args, opts}) => {
-    const folder = await kSemanticModels.folder().getOneById(args.resourceId);
+    const folder = await kSemanticModels
+      .folder()
+      .getOneById(args.resourceId, {includeDeleted: true});
 
     if (folder) {
       return await kSemanticModels
@@ -40,7 +44,9 @@ const getArtifacts: DeleteResourceGetArtifactsFns = {
 };
 
 const deleteResourceFn: DeleteResourceFn = async ({args, helpers}) => {
-  const folder = await kSemanticModels.folder().getOneById(args.resourceId);
+  const folder = await kSemanticModels
+    .folder()
+    .getOneById(args.resourceId, {includeDeleted: true});
 
   if (!folder) {
     return;

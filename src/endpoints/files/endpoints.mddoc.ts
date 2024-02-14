@@ -9,9 +9,7 @@ import {
   InferSdkParamsType,
   mddocConstruct,
 } from '../../mddoc/mddoc';
-import {multilineTextToParagraph} from '../../utils/fns';
 import {EmptyObject} from '../../utils/types';
-import {kEndpointConstants} from '../constants';
 import {
   fReusables,
   mddocEndpointHttpHeaderItems,
@@ -25,15 +23,6 @@ import {
   GetFileDetailsEndpointResult,
 } from './getFileDetails/types';
 import {
-  GetPresignedPathsForFilesEndpointParams,
-  GetPresignedPathsForFilesEndpointResult,
-  GetPresignedPathsForFilesItem,
-} from './getPresignedPaths/types';
-import {
-  IssuePresignedPathEndpointParams,
-  IssuePresignedPathEndpointResult,
-} from './issuePresignedPath/types';
-import {
   ImageFormatEnumMap,
   ImageResizeFitEnumMap,
   ImageResizeParams,
@@ -46,8 +35,6 @@ import {
   DeleteFileHttpEndpoint,
   FileMatcherPathParameters,
   GetFileDetailsHttpEndpoint,
-  GetPresignedPathsForFilesHttpEndpoint,
-  IssuePresignedPathHttpEndpoint,
   ReadFileGETHttpEndpoint,
   ReadFilePOSTHttpEndpoint,
   UpdateFileDetailsHttpEndpoint,
@@ -116,19 +103,14 @@ const file = mddocConstruct
   .constructFieldObject<PublicFile>()
   .setName('File')
   .setFields({
+    ...fReusables.workspaceResourceParts,
     size: mddocConstruct.constructFieldObjectField(true, size),
     extension: mddocConstruct.constructFieldObjectField(false, extension),
-    resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-    workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),
     parentId: mddocConstruct.constructFieldObjectField(true, fReusables.folderIdOrNull),
     idPath: mddocConstruct.constructFieldObjectField(true, fReusables.idPath),
     namepath: mddocConstruct.constructFieldObjectField(true, fReusables.foldernamepath),
     mimetype: mddocConstruct.constructFieldObjectField(false, mimetype),
     encoding: mddocConstruct.constructFieldObjectField(false, encoding),
-    createdBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
-    createdAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
-    lastUpdatedBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
-    lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
     name: mddocConstruct.constructFieldObjectField(true, fReusables.filename),
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
     version: mddocConstruct.constructFieldObjectField(true, version),
@@ -156,17 +138,6 @@ const fileMatcherPathParameters = mddocConstruct
     ),
   });
 
-const fileMatcher = mddocConstruct
-  .constructFieldObject<FileMatcher>()
-  .setName('FileMatcher')
-  .setFields({...fileMatcherParts});
-
-const presignedPath = mddocConstruct
-  .constructFieldString()
-  .setDescription(
-    'String path that only works with readFile endpoint. Can be used in place of filepath'
-  );
-
 const updateFileDetailsParams = mddocConstruct
   .constructFieldObject<UpdateFileDetailsEndpointParams>()
   .setName('UpdateFileDetailsEndpointParams')
@@ -178,59 +149,6 @@ const updateFileDetailsResponseBody = mddocConstruct
   .constructFieldObject<UpdateFileDetailsEndpointResult>()
   .setName('UpdateFileDetailsEndpointResult')
   .setFields({file: mddocConstruct.constructFieldObjectField(true, file)});
-
-const issuePresignedPathParams = mddocConstruct
-  .constructFieldObject<IssuePresignedPathEndpointParams>()
-  .setName('IssuePresignedPathEndpointParams')
-  .setFields({
-    ...fileMatcherParts,
-    action: mddocConstruct.constructFieldObjectField(false, fReusables.actionOrList),
-    duration: mddocConstruct.constructFieldObjectField(false, fReusables.duration),
-    expires: mddocConstruct.constructFieldObjectField(false, fReusables.expires),
-    usageCount: mddocConstruct.constructFieldObjectField(
-      false,
-      mddocConstruct
-        .constructFieldNumber()
-        .setDescription('How many uses the generated path is valid for')
-    ),
-  });
-const issuePresignedPathResponseBody = mddocConstruct
-  .constructFieldObject<IssuePresignedPathEndpointResult>()
-  .setName('IssuePresignedPathEndpointResult')
-  .setFields({
-    path: mddocConstruct.constructFieldObjectField(true, presignedPath),
-  });
-
-const getPresignedPathsForFilesParams = mddocConstruct
-  .constructFieldObject<GetPresignedPathsForFilesEndpointParams>()
-  .setName('GetPresignedPathsForFilesEndpointParams')
-  .setFields({
-    files: mddocConstruct.constructFieldObjectField(
-      false,
-      mddocConstruct
-        .constructFieldArray<FileMatcher>()
-        .setType(fileMatcher)
-        .setMax(kEndpointConstants.inputListMax)
-    ),
-    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceId),
-  });
-const getPresignedPathsForFilesResponseBody = mddocConstruct
-  .constructFieldObject<GetPresignedPathsForFilesEndpointResult>()
-  .setName('GetPresignedPathsForFilesEndpointResult')
-  .setFields({
-    paths: mddocConstruct.constructFieldObjectField(
-      true,
-      mddocConstruct.constructFieldArray<GetPresignedPathsForFilesItem>().setType(
-        mddocConstruct
-          .constructFieldObject<GetPresignedPathsForFilesItem>()
-          .setName('GetPresignedPathsForFilesItem')
-          .setFields({
-            path: mddocConstruct.constructFieldObjectField(true, presignedPath),
-            filepath: mddocConstruct.constructFieldObjectField(true, fReusables.filepath),
-          })
-      )
-    ),
-  });
 
 const getFileDetailsParams = mddocConstruct
   .constructFieldObject<GetFileDetailsEndpointParams>()
@@ -550,74 +468,5 @@ export const deleteFileEndpointDefinition = mddocConstruct
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
   .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
   .setName('DeleteFileEndpoint');
-
-export const issuePresignedPathEndpointDefinition = mddocConstruct
-  .constructHttpEndpointDefinition<
-    InferFieldObjectType<
-      IssuePresignedPathHttpEndpoint['mddocHttpDefinition']['requestHeaders']
-    >,
-    InferFieldObjectType<
-      IssuePresignedPathHttpEndpoint['mddocHttpDefinition']['pathParamaters']
-    >,
-    InferFieldObjectType<IssuePresignedPathHttpEndpoint['mddocHttpDefinition']['query']>,
-    InferFieldObjectOrMultipartType<
-      IssuePresignedPathHttpEndpoint['mddocHttpDefinition']['requestBody']
-    >,
-    InferFieldObjectType<
-      IssuePresignedPathHttpEndpoint['mddocHttpDefinition']['responseHeaders']
-    >,
-    InferFieldObjectType<
-      IssuePresignedPathHttpEndpoint['mddocHttpDefinition']['responseBody']
-    >
-  >()
-  .setBasePathname(kFileConstants.routes.issuePresignedPath)
-  .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(issuePresignedPathParams)
-  .setRequestHeaders(
-    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
-  )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
-  .setResponseBody(issuePresignedPathResponseBody)
-  .setName('IssuePresignedPathEndpoint')
-  .setDescription(
-    multilineTextToParagraph(
-      `Issues file presigned paths for reading private files without passing Authorization header, like in <img /> html tags.
-      It's only supports reading files at the moment. Eventually, we'll support uploading files`
-    )
-  );
-
-export const getPresignedPathsForFilesEndpointDefinition = mddocConstruct
-  .constructHttpEndpointDefinition<
-    InferFieldObjectType<
-      GetPresignedPathsForFilesHttpEndpoint['mddocHttpDefinition']['requestHeaders']
-    >,
-    InferFieldObjectType<
-      GetPresignedPathsForFilesHttpEndpoint['mddocHttpDefinition']['pathParamaters']
-    >,
-    InferFieldObjectType<
-      GetPresignedPathsForFilesHttpEndpoint['mddocHttpDefinition']['query']
-    >,
-    InferFieldObjectOrMultipartType<
-      GetPresignedPathsForFilesHttpEndpoint['mddocHttpDefinition']['requestBody']
-    >,
-    InferFieldObjectType<
-      GetPresignedPathsForFilesHttpEndpoint['mddocHttpDefinition']['responseHeaders']
-    >,
-    InferFieldObjectType<
-      GetPresignedPathsForFilesHttpEndpoint['mddocHttpDefinition']['responseBody']
-    >
-  >()
-  .setBasePathname(kFileConstants.routes.getPresignedPaths)
-  .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(getPresignedPathsForFilesParams)
-  .setRequestHeaders(
-    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
-  )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
-  .setResponseBody(getPresignedPathsForFilesResponseBody)
-  .setName('GetPresignedPathsForFilesEndpoint')
-  .setDescription(
-    'Retrieves file presigned paths for reading private files without passing Authorization header, like in <img /> html tags'
-  );
 
 export const fileEndpointsParts = {file};

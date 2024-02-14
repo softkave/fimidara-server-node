@@ -8,8 +8,8 @@ import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register
 import {initBackendProvidersForMounts} from '../../../../fileBackends/mountUtils';
 import {stringifyFilenamepath} from '../../../../files/utils';
 import {
+  generateAndInsertTestFiles,
   generateAndInsertTestPresignedPathList,
-  generateTestFiles,
 } from '../../../../testUtils/generate/file';
 import {completeTests} from '../../../../testUtils/helpers/testFns';
 import {
@@ -55,7 +55,7 @@ const fileGenerateTypeChildren: GenerateTypeChildrenDefinition<File> = {
 };
 
 const genResourceFn: GenerateResourceFn<File> = async ({workspaceId}) => {
-  const [file] = await generateTestFiles(1, {
+  const [file] = await generateAndInsertTestFiles(1, {
     workspaceId,
     parentId: null,
   });

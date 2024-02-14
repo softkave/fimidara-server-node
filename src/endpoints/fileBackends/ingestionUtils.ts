@@ -87,14 +87,16 @@ export async function ingestPersistedFiles(
   }
 
   await kSemanticModels.utils().withTxn(async opts => {
-    const existingFiles = await kSemanticModels.file().getManyByQueryList(
-      mountFileList.map(({pathinfo}): FileQuery => {
-        return FileQueries.getByNamepath({
-          workspaceId: workspace.resourceId,
-          extension: pathinfo.extension,
-          namepath: pathinfo.namepath,
-        });
-      }),
+    const existingFiles = await kSemanticModels.file().getManyByQuery(
+      {
+        $or: mountFileList.map(({pathinfo}): FileQuery => {
+          return FileQueries.getByNamepath({
+            workspaceId: workspace.resourceId,
+            extension: pathinfo.extension,
+            namepath: pathinfo.namepath,
+          });
+        }),
+      },
       opts
     );
 

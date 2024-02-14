@@ -1,12 +1,12 @@
-import {kAppResourceType} from '../../../definitions/system';
+import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {appAssert} from '../../../utils/assertion';
 import {tryGetAgentTokenId} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {tryGetWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {checkAgentTokenAuthorization02} from '../utils';
 import {DeleteAgentTokenEndpoint} from './types';
+import {beginDeleteAgentToken} from './utils';
 import {deleteAgentTokenJoiSchema} from './validation';
 
 const deleteAgentToken: DeleteAgentTokenEndpoint = async instData => {
@@ -19,16 +19,17 @@ const deleteAgentToken: DeleteAgentTokenEndpoint = async instData => {
     workspace?.resourceId,
     tokenId,
     data.providedResourceId,
-    'deleteAgentToken'
+    kPermissionsMap.deleteAgentToken
   );
   const workspaceId = token.workspaceId;
   appAssert(workspaceId);
 
-  const job = await enqueueDeleteResourceJob({
+  const [job] = await beginDeleteAgentToken({
+    agent,
     workspaceId,
-    type: kAppResourceType.AgentToken,
-    resourceId: token.resourceId,
+    resources: [token],
   });
+  appAssert(job);
 
   return {jobId: job.resourceId};
 };

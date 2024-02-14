@@ -17,7 +17,9 @@ import {
 const getArtifacts: DeleteResourceGetArtifactsFns = {
   ...genericGetArtifacts,
   [kAppResourceType.PresignedPath]: async ({args, opts}) => {
-    const file = await kSemanticModels.file().getOneById(args.resourceId);
+    const file = await kSemanticModels
+      .file()
+      .getOneById(args.resourceId, {includeDeleted: true});
 
     if (file) {
       return await kSemanticModels
@@ -33,7 +35,9 @@ const deleteArtifacts: DeleteResourceDeleteArtifactsFns = {
   ...genericDeleteArtifacts,
   [kAppResourceType.ResolvedMountEntry]: async ({args, helpers}) =>
     helpers.withTxn(async opts => {
-      const file = await kSemanticModels.file().getOneById(args.resourceId);
+      const file = await kSemanticModels
+        .file()
+        .getOneById(args.resourceId, {includeDeleted: true});
 
       if (file) {
         await kSemanticModels
@@ -44,7 +48,9 @@ const deleteArtifacts: DeleteResourceDeleteArtifactsFns = {
 };
 
 const deleteResourceFn: DeleteResourceFn = async ({args, helpers}) => {
-  const file = await kSemanticModels.file().getOneById(args.resourceId);
+  const file = await kSemanticModels
+    .file()
+    .getOneById(args.resourceId, {includeDeleted: true});
 
   if (!file) {
     return;

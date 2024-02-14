@@ -146,7 +146,7 @@ export type ToPrimitiveJsType<T> = T extends string
 export type StringKeysOnly<TData> = keyof TData extends string ? keyof TData : '';
 export type OrArray<TData> = TData | Array<TData>;
 export type OrPromise<TData> = TData | Promise<TData>;
-export type Omit1<T, K extends keyof T> = Omit<T, K>;
+export type OmitProperties<T, K extends keyof T> = Omit<T, K>;
 export type IsUnion<T> = UnionToIntersection<T> extends never
   ? true
   : IsNever<Exclude<keyof UnionToIntersection<T>, keyof T>> extends true

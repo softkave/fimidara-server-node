@@ -1,7 +1,7 @@
 import {Folder} from '../../../../definitions/folder';
 import {DataProviderQueryListParams} from '../../data/types';
 import {
-  SemanticProviderRunOptions,
+  SemanticProviderTxnOptions,
   SemanticWorkspaceResourceProviderType,
 } from '../types';
 
@@ -9,7 +9,7 @@ export interface SemanticFolderProvider
   extends SemanticWorkspaceResourceProviderType<Folder> {
   getOneByNamepath(
     query: {workspaceId: string; namepath: string[]},
-    opts?: SemanticProviderRunOptions
+    opts?: SemanticProviderTxnOptions
   ): Promise<Folder | null>;
   getManyByWorkspaceParentAndIdList(
     q: {
@@ -18,7 +18,7 @@ export interface SemanticFolderProvider
       resourceIdList?: string[];
       excludeResourceIdList?: string[];
     },
-    options?: DataProviderQueryListParams<Folder> & SemanticProviderRunOptions
+    options?: DataProviderQueryListParams<Folder> & SemanticProviderTxnOptions
   ): Promise<Folder[]>;
   countManyParentByIdList(
     q: {
@@ -27,6 +27,6 @@ export interface SemanticFolderProvider
       resourceIdList?: string[];
       excludeResourceIdList?: string[];
     },
-    opts?: SemanticProviderRunOptions
+    opts?: SemanticProviderTxnOptions
   ): Promise<number>;
 }

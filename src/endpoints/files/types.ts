@@ -8,8 +8,6 @@ import {
 } from '../types';
 import {DeleteFileEndpoint} from './deleteFile/types';
 import {GetFileDetailsEndpoint} from './getFileDetails/types';
-import {GetPresignedPathsForFilesEndpoint} from './getPresignedPaths/types';
-import {IssuePresignedPathEndpoint} from './issuePresignedPath/types';
 import {
   ReadFileEndpoint,
   ReadFileEndpointHttpQuery,
@@ -67,18 +65,12 @@ export type UploadFileHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<
   /** TResponseBody */ UploadFileEndpointResult,
   /** TSdkparams */ UploadFileEndpointSdkParams
 >;
-export type IssuePresignedPathHttpEndpoint =
-  ExportedHttpEndpointWithMddocDefinition<IssuePresignedPathEndpoint>;
-export type GetPresignedPathsForFilesHttpEndpoint =
-  ExportedHttpEndpointWithMddocDefinition<GetPresignedPathsForFilesEndpoint>;
 
 export type FilesExportedEndpoints = {
   readFile: [ReadFilePOSTHttpEndpoint, ReadFileGETHttpEndpoint];
   deleteFile: DeleteFileHttpEndpoint;
   getFileDetails: GetFileDetailsHttpEndpoint;
   updateFileDetails: UpdateFileDetailsHttpEndpoint;
-  issuePresignedPath: IssuePresignedPathHttpEndpoint;
-  getPresignedPathsForFiles: GetPresignedPathsForFilesHttpEndpoint;
   uploadFile: UploadFileHttpEndpoint;
 };
 

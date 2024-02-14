@@ -1,10 +1,11 @@
-import {kAppResourceType} from '../../../definitions/system';
+import {kPermissionsMap} from '../../../definitions/permissionItem';
+import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
 import {kUtilsInjectables} from '../../contexts/injection/injectables';
 import {InvalidRequestError} from '../../errors';
-import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {checkPermissionGroupAuthorization03} from '../utils';
 import {DeletePermissionGroupEndpoint} from './types';
+import {beginDeletePermissionGroup} from './utils';
 import {deletePermissionGroupJoiSchema} from './validation';
 
 const deletePermissionGroup: DeletePermissionGroupEndpoint = async instData => {
@@ -13,20 +14,19 @@ const deletePermissionGroup: DeletePermissionGroupEndpoint = async instData => {
   const {permissionGroup, workspace} = await checkPermissionGroupAuthorization03(
     agent,
     data,
-    'updatePermission'
+    kPermissionsMap.updatePermission
   );
 
   if (permissionGroup.resourceId === workspace.publicPermissionGroupId) {
-    throw new InvalidRequestError(
-      "Cannot delete the workspace's public public permission group"
-    );
+    throw new InvalidRequestError("Cannot delete a workspace's public permission group");
   }
 
-  const job = await enqueueDeleteResourceJob({
-    type: kAppResourceType.PermissionGroup,
+  const [job] = await beginDeletePermissionGroup({
+    agent,
     workspaceId: workspace.resourceId,
-    resourceId: permissionGroup.resourceId,
+    resources: [permissionGroup],
   });
+  appAssert(job);
 
   return {jobId: job.resourceId};
 };

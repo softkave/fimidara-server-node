@@ -21,7 +21,7 @@ import {
   ingestPersistedFolders,
 } from '../../fileBackends/ingestionUtils';
 import {initBackendProvidersForMounts} from '../../fileBackends/mountUtils';
-import {JobInput, queueJobs} from '../utils';
+import {JobInput, queueJobs} from '../queueJobs';
 
 async function setContinuationTokenInJob(
   job: Job,
@@ -35,17 +35,14 @@ async function setContinuationTokenInJob(
 
     if (latestJob) {
       latestJob.meta = {...latestJob.meta, ...continuationTokens};
+      const update: Partial<Job<AnyObject, IngestFolderpathJobMeta>> = {
+        meta: latestJob.meta,
+      };
 
       // TODO: implement a way to update specific fields without overwriting
       // existing data, and without needing to get data from DB like we're
       // doing here
-      await kSemanticModels
-        .job()
-        .updateOneById<Job<AnyObject, IngestFolderpathJobMeta>>(
-          job.resourceId,
-          {meta: latestJob.meta},
-          opts
-        );
+      await kSemanticModels.job().updateOneById(job.resourceId, update, opts);
     }
 
     return latestJob;

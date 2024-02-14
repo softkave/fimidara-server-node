@@ -23,8 +23,6 @@ export const kFileConstants = {
     getFileDetails: `${kEndpointConstants.apiv1}/files/getFileDetails`,
     updateFileDetails: `${kEndpointConstants.apiv1}/files/updateFileDetails`,
     uploadFile: `${kEndpointConstants.apiv1}/files/uploadFile`,
-    issuePresignedPath: `${kEndpointConstants.apiv1}/files/issuePresignedPath`,
-    getPresignedPaths: `${kEndpointConstants.apiv1}/files/getPresignedPaths`,
   },
   headers: {
     'x-fimidara-file-description': 'x-fimidara-file-description',

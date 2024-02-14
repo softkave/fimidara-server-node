@@ -1,11 +1,15 @@
 import {Connection, Document, Model, Schema, SchemaTypes} from 'mongoose';
-import {Job, JobStatusHistory} from '../definitions/job';
+import {Job, JobStatusHistory, RunAfterJobItem} from '../definitions/job';
 import {ensureMongoTypeFields, resourceSchema} from './utils';
 
 const statusItemSchema = ensureMongoTypeFields<JobStatusHistory>({
   status: {type: String, index: true},
   statusLastUpdatedAt: {type: Number, index: true},
   runnerId: {type: String, index: true},
+});
+const runAfterSchema = ensureMongoTypeFields<RunAfterJobItem>({
+  jobId: {type: String, index: true},
+  status: {type: [String], index: true},
 });
 const jobSchema = ensureMongoTypeFields<Job>({
   ...resourceSchema,
@@ -21,6 +25,7 @@ const jobSchema = ensureMongoTypeFields<Job>({
   parents: {type: [String], index: true},
   priority: {type: Number, index: true},
   shard: {type: String, index: true},
+  runAfter: {type: [runAfterSchema], index: true},
 });
 
 export type JobDocument = Document<Job>;

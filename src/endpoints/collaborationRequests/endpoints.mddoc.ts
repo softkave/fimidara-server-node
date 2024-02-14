@@ -105,16 +105,14 @@ const collaborationRequestForUser = mddocConstruct
   .constructFieldObject<PublicCollaborationRequestForUser>()
   .setName('CollaborationRequestForUser')
   .setFields({
+    ...fReusables.resourceParts,
     recipientEmail: mddocConstruct.constructFieldObjectField(true, recipientEmail),
     message: mddocConstruct.constructFieldObjectField(true, message),
-    resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-    createdAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
     expiresAt: mddocConstruct.constructFieldObjectField(false, fReusables.expires),
     workspaceName: mddocConstruct.constructFieldObjectField(
       true,
       fReusables.workspaceName
     ),
-    lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
     readAt: mddocConstruct.constructFieldObjectField(false, fReusables.date),
     status: mddocConstruct.constructFieldObjectField(true, statusType),
     statusDate: mddocConstruct.constructFieldObjectField(true, fReusables.date),
@@ -123,19 +121,14 @@ const collaborationRequestForWorkspace = mddocConstruct
   .constructFieldObject<PublicCollaborationRequestForWorkspace>()
   .setName('CollaborationRequestForWorkspace')
   .setFields({
+    ...fReusables.workspaceResourceParts,
     recipientEmail: mddocConstruct.constructFieldObjectField(true, recipientEmail),
     message: mddocConstruct.constructFieldObjectField(true, message),
-    resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-    createdBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
-    createdAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
     expiresAt: mddocConstruct.constructFieldObjectField(false, fReusables.expires),
     workspaceName: mddocConstruct.constructFieldObjectField(
       true,
       fReusables.workspaceName
     ),
-    workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),
-    lastUpdatedBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
-    lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
     readAt: mddocConstruct.constructFieldObjectField(false, fReusables.date),
     status: mddocConstruct.constructFieldObjectField(true, statusType),
     statusDate: mddocConstruct.constructFieldObjectField(true, fReusables.date),

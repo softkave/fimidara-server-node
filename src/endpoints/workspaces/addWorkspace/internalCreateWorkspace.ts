@@ -16,7 +16,7 @@ import {
   assignWorkspaceToUser,
 } from '../../assignedItems/addAssignedItems';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
 import {INTERNAL_addFileBackendMount} from '../../fileBackends/addMount/utils';
 import {getDefaultThresholds} from '../../usageRecords/constants';
 import {
@@ -48,7 +48,7 @@ const INTERNAL_createWorkspace = async (
   data: NewWorkspaceInput,
   agent: Agent,
   userId: string | undefined,
-  opts: SemanticProviderMutationRunOptions
+  opts: SemanticProviderMutationTxnOptions
 ) => {
   assertIsNotOnWaitlist(agent);
   await Promise.all([

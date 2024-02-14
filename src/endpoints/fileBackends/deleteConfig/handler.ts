@@ -1,13 +1,12 @@
 import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {kAppResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {DeleteFileBackendConfigEndpoint} from './types';
+import {beginDeleteFileBackendConfig} from './utils';
 import {deleteFileBackendConfigJoiSchema} from './validation';
 
 const deleteFileBackendConfig: DeleteFileBackendConfigEndpoint = async instData => {
@@ -37,11 +36,12 @@ const deleteFileBackendConfig: DeleteFileBackendConfigEndpoint = async instData 
     throw kReuseableErrors.config.configInUse(configMountsCount);
   }
 
-  const job = await enqueueDeleteResourceJob({
-    type: kAppResourceType.FileBackendConfig,
-    workspaceId: config.workspaceId,
-    resourceId: config.resourceId,
+  const [job] = await beginDeleteFileBackendConfig({
+    agent,
+    workspaceId: workspace.resourceId,
+    resources: [config],
   });
+  appAssert(job);
 
   return {jobId: job.resourceId};
 };

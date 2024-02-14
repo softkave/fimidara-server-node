@@ -16,10 +16,11 @@ import {
 } from '../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../contexts/injection/injectables';
 import {
-  SemanticProviderMutationRunOptions,
-  SemanticProviderRunOptions,
+  SemanticProviderMutationTxnOptions,
+  SemanticProviderTxnOptions,
 } from '../contexts/semantic/types';
 import {InvalidRequestError} from '../errors';
+import {workspaceResourceFields} from '../extractors';
 import {getBackendConfigsWithIdList} from '../fileBackends/configUtils';
 import {ingestPersistedFolders} from '../fileBackends/ingestionUtils';
 import {
@@ -32,7 +33,6 @@ import {createFolderListWithTransaction} from './addFolder/handler';
 import {kFolderConstants} from './constants';
 import {FolderNotFoundError} from './errors';
 import {assertGetFolderWithMatcher} from './getFolderWithMatcher';
-import {workspaceResourceFields} from '../extractors';
 
 const folderFields = getFields<PublicFolder>({
   ...workspaceResourceFields,
@@ -140,7 +140,7 @@ export async function checkFolderAuthorization<
   folder: T,
   action: PermissionAction,
   workspace?: Workspace,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   if (!workspace) {
     workspace = await checkWorkspaceExists(folder.workspaceId, opts);
@@ -165,7 +165,7 @@ export async function checkFolderAuthorization02(
   matcher: FolderMatcher,
   action: PermissionAction,
   workspace?: Workspace,
-  opts?: SemanticProviderMutationRunOptions
+  opts?: SemanticProviderMutationTxnOptions
 ) {
   const folder = await assertGetFolderWithMatcher(
     agent,
@@ -247,7 +247,7 @@ export async function ensureFolders(
   workspace: Workspace,
   /** folder path **without** workspace rootname */
   namepath: string | string[],
-  opts: SemanticProviderMutationRunOptions
+  opts: SemanticProviderMutationTxnOptions
 ): Promise<{folder: Folder | null; folders: Folder[]}> {
   if (isPathEmpty(namepath)) {
     return {folder: null, folders: []};
@@ -321,7 +321,7 @@ export async function createNewFolderAndEnsureParents(
   workspace: Workspace,
   pathinfo: FolderpathInfo,
   data: Pick<Folder, 'description'>,
-  opts: SemanticProviderMutationRunOptions,
+  opts: SemanticProviderMutationTxnOptions,
   seed: Partial<Folder> = {}
 ) {
   const {folder} = await ensureFolders(agent, workspace, pathinfo.parentStringPath, opts);
@@ -333,7 +333,7 @@ export async function createAndInsertNewFolder(
   workspace: Workspace,
   pathinfo: FolderpathInfo,
   data: Pick<Folder, 'description'>,
-  opts: SemanticProviderMutationRunOptions,
+  opts: SemanticProviderMutationTxnOptions,
   seed: Partial<Folder> = {}
 ) {
   const folder = await createNewFolderAndEnsureParents(
@@ -402,7 +402,7 @@ export async function readOrIngestFolderByFolderpath(
   agent: Agent,
   /** folderpath with workspace rootname */
   folderpath: string,
-  opts?: SemanticProviderRunOptions,
+  opts?: SemanticProviderTxnOptions,
   workspaceId?: string
 ) {
   const folderModel = kSemanticModels.folder();

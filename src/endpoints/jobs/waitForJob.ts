@@ -19,13 +19,15 @@ export async function waitForJob(
     await kSemanticModels.utils().withTxn(async opts => {
       const sampleJob = await kSemanticModels.job().getOneById(jobId, opts);
       appAssert(sampleJob);
-      await kSemanticModels.job().updateManyByQueryList(
-        [
-          // Bump children priority
-          {parents: jobId},
-          // Bump job priority
-          {resourceId: jobId},
-        ],
+      await kSemanticModels.job().updateManyByQuery(
+        {
+          $or: [
+            // Bump children priority
+            {parents: jobId},
+            // Bump job priority
+            {resourceId: jobId},
+          ],
+        },
         {
           priority: isNumber(bumpPriority)
             ? bumpPriority

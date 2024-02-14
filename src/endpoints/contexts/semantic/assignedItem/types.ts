@@ -1,7 +1,7 @@
 import {AssignedItem} from '../../../../definitions/assignedItem';
-import {AppResourceType} from '../../../../definitions/system';
+import {Agent, AppResourceType} from '../../../../definitions/system';
 import {
-  SemanticProviderMutationRunOptions,
+  SemanticProviderMutationTxnOptions,
   SemanticProviderQueryListRunOptions,
   SemanticWorkspaceResourceProviderType,
 } from '../types';
@@ -40,12 +40,18 @@ export interface SemanticAssignedItemProvider
     workspaceId: string,
     assigneeId: string | string[],
     assignedItemType: AppResourceType | AppResourceType[] | undefined,
-    opts: SemanticProviderMutationRunOptions
+    opts: SemanticProviderMutationTxnOptions
   ): Promise<void>;
   /** Deletes items resource is assigned to. */
   deleteResourceAssigneeItems(
     workspaceId: string,
     assignedItemId: string | string[],
-    opts: SemanticProviderMutationRunOptions
+    opts: SemanticProviderMutationTxnOptions
+  ): Promise<void>;
+  softDeleteWorkspaceCollaborators(
+    workspaceId: string,
+    assigneeId: string | string[],
+    agent: Agent,
+    opts: SemanticProviderMutationTxnOptions
   ): Promise<void>;
 }

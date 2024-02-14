@@ -2,23 +2,25 @@ import {forEach} from 'lodash';
 import {Promise} from 'mongoose';
 import {File} from '../../../definitions/file';
 import {Folder} from '../../../definitions/folder';
-import {DeleteResourceJobParams, kJobType} from '../../../definitions/job';
+import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
 import {PermissionItem} from '../../../definitions/permissionItem';
 import {
+  Agent,
   AppResourceType,
+  Resource,
   ResourceWrapper,
   SessionAgent,
   kAppResourceType,
 } from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
-import {isObjectEmpty, toArray} from '../../../utils/fns';
+import {extractResourceIdList, isObjectEmpty, toArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {DataQuery} from '../../contexts/data/types';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {getInAndNinQuery} from '../../contexts/semantic/utils';
 import {stringifyFilenamepath} from '../../files/utils';
 import {stringifyFoldernamepath} from '../../folders/utils';
-import {JobInput, queueJobs} from '../../jobs/utils';
+import {queueJobs} from '../../jobs/queueJobs';
 import {PermissionItemInputTarget} from '../types';
 import {getPermissionItemTargets} from '../utils';
 import {
@@ -155,24 +157,50 @@ export const INTERNAL_deletePermissionItems = async (
   });
 
   if (!queries.length) {
-    return [];
+    return [] as Job[];
   }
 
   // TODO: deleting one after the other may not be the best way to go here
-  const items = await kSemanticModels.permissionItem().getManyByQueryList(queries);
-  const jobs = await queueJobs(
-    workspace.resourceId,
-    /** parentjobId */ undefined,
-    items.map(
-      (item): JobInput<DeleteResourceJobParams> => ({
-        type: kJobType.deleteResource,
-        params: {
-          type: kAppResourceType.PermissionItem,
-          args: {workspaceId: workspace.resourceId, resourceId: item.resourceId},
-        },
-      })
-    )
-  );
+  const items = await kSemanticModels.permissionItem().getManyByQuery({$or: queries});
+  const jobs = await beginDeletePermissionItem({
+    agent,
+    workspaceId: workspace.resourceId,
+    resources: items,
+  });
 
   return jobs;
 };
+
+export async function beginDeletePermissionItem(props: {
+  workspaceId: string;
+  resources: Resource[];
+  agent: Agent;
+}) {
+  const {workspaceId, resources, agent} = props;
+  const jobs = await kSemanticModels.utils().withTxn(async opts => {
+    const softDeletePromise = queueJobs<DeleteResourceJobParams>(
+      workspaceId,
+      undefined,
+      resources.map(resource => {
+        return {
+          type: kJobType.deleteResource0,
+          params: {
+            workspaceId,
+            resourceId: resource.resourceId,
+            type: kAppResourceType.PermissionItem,
+          },
+        };
+      })
+    );
+    const [queuedJobs] = await Promise.all([
+      softDeletePromise,
+      kSemanticModels
+        .permissionItem()
+        .softDeleteManyByIdList(extractResourceIdList(resources), agent, opts),
+    ]);
+
+    return queuedJobs as Job[];
+  });
+
+  return jobs;
+}

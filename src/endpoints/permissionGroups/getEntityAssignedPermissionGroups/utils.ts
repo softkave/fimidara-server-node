@@ -2,13 +2,13 @@ import {SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {SemanticProviderRunOptions} from '../../contexts/semantic/types';
+import {SemanticProviderTxnOptions} from '../../contexts/semantic/types';
 
 export async function checkReadEntityAssignedPermissionGroups(
   agent: SessionAgent,
   workspace: Workspace,
   entityId: string,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   if (isFetchingOwnPermissionGroups(agent, entityId)) {
     return true;
@@ -31,7 +31,7 @@ export function isFetchingOwnPermissionGroups(agent: SessionAgent, entityId: str
 export async function fetchEntityAssignedPermissionGroupList(
   entityId: string,
   includeInheritedPermissionGroups = true,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   return await kSemanticModels.permissions().getEntityAssignedPermissionGroups(
     {

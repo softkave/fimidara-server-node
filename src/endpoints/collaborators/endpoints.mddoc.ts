@@ -37,20 +37,10 @@ const collaborator = mddocConstruct
   .constructFieldObject<PublicCollaborator>()
   .setName('Collaborator')
   .setFields({
-    resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
+    ...fReusables.workspaceResourceParts,
     firstName: mddocConstruct.constructFieldObjectField(true, fReusables.firstName),
     lastName: mddocConstruct.constructFieldObjectField(true, fReusables.lastName),
     email: mddocConstruct.constructFieldObjectField(true, fReusables.emailAddress),
-    workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),
-    joinedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
-    createdAt: mddocConstruct.constructFieldObjectField(
-      true,
-      fReusables.date.clone().setDescription('Always 0')
-    ),
-    lastUpdatedAt: mddocConstruct.constructFieldObjectField(
-      true,
-      fReusables.date.clone().setDescription('Always 0')
-    ),
   });
 
 const getWorkspaceCollaboratorsParams = mddocConstruct

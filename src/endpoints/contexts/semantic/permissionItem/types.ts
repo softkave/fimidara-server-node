@@ -1,6 +1,6 @@
 import {PermissionItem} from '../../../../definitions/permissionItem';
 import {
-  SemanticProviderMutationRunOptions,
+  SemanticProviderMutationTxnOptions,
   SemanticProviderQueryListRunOptions,
   SemanticWorkspaceResourceProviderType,
 } from '../types';
@@ -8,19 +8,23 @@ import {
 export interface SemanticPermissionItemProviderType
   extends SemanticWorkspaceResourceProviderType<PermissionItem> {
   getManyByTargetId(
+    workspaceId: string,
     id: string | string[],
     opts: SemanticProviderQueryListRunOptions<PermissionItem>
   ): Promise<PermissionItem[]>;
   getManyByEntityId(
+    workspaceId: string,
     id: string | string[],
     opts: SemanticProviderQueryListRunOptions<PermissionItem>
   ): Promise<PermissionItem[]>;
   deleteManyByTargetId(
+    workspaceId: string,
     id: string | string[],
-    opts: SemanticProviderMutationRunOptions
+    opts: SemanticProviderMutationTxnOptions
   ): Promise<void>;
   deleteManyByEntityId(
+    workspaceId: string,
     id: string | string[],
-    opts: SemanticProviderMutationRunOptions
+    opts: SemanticProviderMutationTxnOptions
   ): Promise<void>;
 }

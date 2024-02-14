@@ -89,19 +89,22 @@ describe('deleteMount', () => {
     assertEndpointResultOk(result);
 
     appAssert(result.jobId);
-    const job = await kSemanticModels.job().getOneByQuery<Job<DeleteResourceJobParams>>({
-      type: kJobType.deleteResource,
+    const job = (await kSemanticModels.job().getOneByQuery({
+      type: kJobType.deleteResource0,
       resourceId: result.jobId,
       params: {
-        $objMatch: {
-          type: kAppResourceType.FileBackendMount,
-        },
+        $objMatch: {type: kAppResourceType.FileBackendMount},
       },
-    });
+    })) as Job<DeleteResourceJobParams>;
     expect(job).toBeTruthy();
-    expect(job?.params.args).toMatchObject({
+    expect(job?.params).toMatchObject({
       resourceId: mount.resourceId,
       workspaceId: workspace.resourceId,
     });
+
+    const dbItem = await kSemanticModels
+      .fileBackendMount()
+      .getOneByQuery({resourceId: mount.resourceId, isDeleted: true});
+    expect(dbItem).toBeTruthy();
   });
 });

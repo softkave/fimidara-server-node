@@ -14,14 +14,14 @@ import {usageRecordConstants} from './constants';
 import {CountWorkspaceSummedUsageEndpointParams} from './countWorkspaceSummedUsage/types';
 import {GetUsageCostsEndpointResult} from './getUsageCosts/types';
 import {
-  WorkspaceSummedUsageQuery,
   GetWorkspaceSummedUsageEndpointParams,
   GetWorkspaceSummedUsageEndpointResult,
+  WorkspaceSummedUsageQuery,
 } from './getWorkspaceSummedUsage/types';
 import {
+  CountWorkspaceSummedUsageHttpEndpoint,
   GetUsageCostsHttpEndpoint,
   GetWorkspaceSummedUsageHttpEndpoint,
-  CountWorkspaceSummedUsageHttpEndpoint,
 } from './types';
 
 const cost = mddocConstruct.constructFieldNumber().setDescription('Usage cost in USD');
@@ -73,9 +73,7 @@ const usageRecord = mddocConstruct
   .constructFieldObject<PublicUsageRecord>()
   .setName('UsageRecord')
   .setFields({
-    resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-    createdBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
-    createdAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+    ...fReusables.workspaceResourceParts,
     category: mddocConstruct.constructFieldObjectField(true, fReusables.usageCategory),
     usage: mddocConstruct.constructFieldObjectField(true, usage),
     usageCost: mddocConstruct.constructFieldObjectField(true, cost),
@@ -85,9 +83,6 @@ const usageRecord = mddocConstruct
     ),
     month: mddocConstruct.constructFieldObjectField(true, month),
     year: mddocConstruct.constructFieldObjectField(true, year),
-    lastUpdatedBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
-    lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
-    workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),
   });
 
 const getWorkspaceSummedUsageParams = mddocConstruct

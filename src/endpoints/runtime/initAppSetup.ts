@@ -22,8 +22,8 @@ import {
 } from '../contexts/injection/injectables';
 import {kRegisterUtilsInjectables} from '../contexts/injection/register';
 import {
-  SemanticProviderMutationRunOptions,
-  SemanticProviderRunOptions,
+  SemanticProviderMutationTxnOptions,
+  SemanticProviderTxnOptions,
 } from '../contexts/semantic/types';
 import {createFolderListWithTransaction} from '../folders/addFolder/handler';
 import {addRootnameToPath} from '../folders/utils';
@@ -60,7 +60,7 @@ async function setupWorkspace(
   agent: SessionAgent,
   name: string,
   rootname: string,
-  opts: SemanticProviderMutationRunOptions
+  opts: SemanticProviderMutationTxnOptions
 ) {
   return await INTERNAL_createWorkspace(
     {
@@ -74,7 +74,7 @@ async function setupWorkspace(
   );
 }
 
-async function setupDefaultUser(opts: SemanticProviderMutationRunOptions) {
+async function setupDefaultUser(opts: SemanticProviderMutationTxnOptions) {
   const suppliedConfig = kUtilsInjectables.suppliedConfig();
   const nodeEnv = process.env.NODE_ENV;
   assert(suppliedConfig.rootUserEmail);
@@ -113,7 +113,7 @@ async function setupDefaultUser(opts: SemanticProviderMutationRunOptions) {
 
 async function setupFolders(
   workspace: Workspace,
-  opts: SemanticProviderMutationRunOptions
+  opts: SemanticProviderMutationTxnOptions
 ) {
   const [workspaceImagesFolders, userImagesFolders] = await Promise.all([
     createFolderListWithTransaction(
@@ -160,7 +160,7 @@ async function setupImageUploadPermissionGroup(
   name: string,
   description: string,
   folder: Folder,
-  opts: SemanticProviderMutationRunOptions
+  opts: SemanticProviderMutationTxnOptions
 ) {
   const imageUploadPermissionGroup = newWorkspaceResource<PermissionGroup>(
     kSystemSessionAgent,
@@ -200,7 +200,7 @@ async function setupImageUploadPermissionGroup(
   return imageUploadPermissionGroup;
 }
 
-export async function isRootWorkspaceSetup(opts: SemanticProviderRunOptions) {
+export async function isRootWorkspaceSetup(opts: SemanticProviderTxnOptions) {
   const appRuntimeState = await kDataModels
     .appRuntimeState()
     .getOneByQuery(EndpointReusableQueries.getByResourceId(kAppRuntimeStatsDocId), opts);
@@ -209,7 +209,7 @@ export async function isRootWorkspaceSetup(opts: SemanticProviderRunOptions) {
 
 async function getRootWorkspace(
   appRuntimeState: AppRuntimeState,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   const appRuntimeVars: Pick<
     FimidaraRuntimeConfig,
@@ -234,7 +234,7 @@ async function getRootWorkspace(
 
 async function setupAppArtifacts(
   agent: SessionAgent,
-  opts: SemanticProviderMutationRunOptions
+  opts: SemanticProviderMutationTxnOptions
 ) {
   const appRuntimeState = await isRootWorkspaceSetup(opts);
 

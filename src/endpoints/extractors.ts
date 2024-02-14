@@ -4,11 +4,11 @@ import {
   PublicWorkspaceResource,
 } from '../definitions/system';
 import {
+  ExtractFieldsFrom,
   getFields,
   makeExtract,
   makeExtractIfPresent,
   makeListExtract,
-  ExtractFieldsFrom,
 } from '../utils/extract';
 
 const agentPublicFields = getFields<PublicAgent>({
@@ -24,6 +24,11 @@ export const resourceFields: ExtractFieldsFrom<PublicResource> = {
   resourceId: true,
   createdAt: true,
   lastUpdatedAt: true,
+  isDeleted: true,
+  deletedAt: true,
+  createdBy: agentExtractorIfPresent,
+  lastUpdatedBy: agentExtractorIfPresent,
+  deletedBy: agentExtractorIfPresent,
 };
 export const workspaceResourceFields: ExtractFieldsFrom<PublicWorkspaceResource> = {
   ...resourceFields,

@@ -26,6 +26,8 @@ import {getPermissionGroupsPublicHttpEndpoints} from './permissionGroups/endpoin
 import {PermissionGroupsExportedEndpoints} from './permissionGroups/types';
 import {getPermissionItemsPublicHttpEndpoints} from './permissionItems/endpoints';
 import {PermissionItemsExportedEndpoints} from './permissionItems/types';
+import {getPresignedPathsPublicHttpEndpoints} from './presignedPaths/endpoints';
+import {PresignedPathsExportedEndpoints} from './presignedPaths/types';
 import {getResourcesPublicHttpEndpoints} from './resources/endpoints';
 import {ResourcesExportedEndpoints} from './resources/types';
 import {ExportedHttpEndpointWithMddocDefinition} from './types';
@@ -65,6 +67,7 @@ type FimidaraPublicExportedHttpEndpoints = {
   users: UsersPublicExportedEndpoints;
   workspaces: WorkspacesExportedEndpoints;
   fileBackends: FileBackendsExportedEndpoints;
+  presignedPaths: PresignedPathsExportedEndpoints;
 };
 
 type FimidaraPrivateExportedHttpEndpoints = {
@@ -88,6 +91,7 @@ function getFimidaraRawPublicHttpEndpoints() {
     users: getUsersPublicHttpEndpoints(),
     workspaces: getWorkspacesPublicHttpEndpoints(),
     fileBackends: getFileBackendsPublicHttpEndpoints(),
+    presignedPaths: getPresignedPathsPublicHttpEndpoints(),
   };
   return endpoints;
 }

@@ -37,12 +37,12 @@ describe('mount ingestion utils', () => {
 
     await ingestPersistedFolders(sessionAgent, workspace, pFolders);
 
-    const insertedFolders = await kSemanticModels.folder().getManyByQueryList(
-      pFolders.map((pFolder): FolderQuery => {
+    const insertedFolders = await kSemanticModels.folder().getManyByQuery({
+      $or: pFolders.map((pFolder): FolderQuery => {
         const namepath = pathSplit(pFolder.folderpath);
         return FolderQueries.getByNamepath({namepath, workspaceId: workspace.resourceId});
-      })
-    );
+      }),
+    });
     const pFolderNamepaths = pFolders.map(pFolder => pFolder.folderpath);
     const insertedFoldersNamepaths = insertedFolders.map(folder =>
       pathJoin(folder.namepath)
@@ -60,12 +60,12 @@ describe('mount ingestion utils', () => {
 
     await ingestPersistedFolders(sessionAgent, workspace, pFolders);
 
-    const insertedFolders = await kSemanticModels.folder().getManyByQueryList(
-      folderpath.map((name, index): FolderQuery => {
+    const insertedFolders = await kSemanticModels.folder().getManyByQuery({
+      $or: folderpath.map((name, index): FolderQuery => {
         const namepath = folderpath.slice(0, index + 1);
         return FolderQueries.getByNamepath({namepath, workspaceId: workspace.resourceId});
-      })
-    );
+      }),
+    });
     const pFolderNamepaths = folderpath.map((name, index) =>
       pathJoin(folderpath.slice(0, index + 1))
     );
@@ -111,8 +111,8 @@ describe('mount ingestion utils', () => {
       });
     });
     const [insertedFiles, insertMountEntries] = await Promise.all([
-      kSemanticModels.file().getManyByQueryList(queries),
-      kSemanticModels.resolvedMountEntry().getManyByQueryList(queries),
+      kSemanticModels.file().getManyByQuery({$or: queries}),
+      kSemanticModels.resolvedMountEntry().getManyByQuery({$or: queries}),
     ]);
     const pFileNamepathsAndExt = pFiles.map(pFile => pFile.filepath);
     const filesMap = indexArray(insertedFiles, {indexer: stringifyFilenamepath});
@@ -157,12 +157,12 @@ describe('mount ingestion utils', () => {
     await ingestPersistedFiles(sessionAgent, workspace, pFiles);
 
     const folderpath = filepath.slice(0, /** Last index is filename */ -1);
-    const insertedFolders = await kSemanticModels.folder().getManyByQueryList(
-      folderpath.map((name, index): FolderQuery => {
+    const insertedFolders = await kSemanticModels.folder().getManyByQuery({
+      $or: folderpath.map((name, index): FolderQuery => {
         const namepath = folderpath.slice(0, index + 1);
         return FolderQueries.getByNamepath({namepath, workspaceId: workspace.resourceId});
-      })
-    );
+      }),
+    });
     const pFolderNamepaths = folderpath.map((name, index) =>
       folderpath.slice(0, index + 1)
     );

@@ -1,4 +1,4 @@
-import {ObjectValues, Omit1} from '../utils/types';
+import {ObjectValues, OmitProperties} from '../utils/types';
 import {AppResourceType, ConvertAgentToPublicAgent, WorkspaceResource} from './system';
 
 export const kPermissionsMap = {
@@ -30,10 +30,10 @@ export const kPermissionsMap = {
   readCollaborationRequest: 'readCollaborationRequest',
   revokeCollaborationRequest: 'revokeCollaborationRequest',
   updateCollaborationRequest: 'updateCollaborationRequest',
+  deleteCollaborationRequest: 'deleteCollaborationRequest',
 
   updatePermission: 'updatePermission',
   readPermission: 'readPermission',
-  deletePermission: 'deletePermission',
 
   addAgentToken: 'addAgentToken',
   readAgentToken: 'readAgentToken',
@@ -72,5 +72,5 @@ export interface PermissionItem extends WorkspaceResource {
 }
 
 export type PublicPermissionItem = ConvertAgentToPublicAgent<
-  Omit1<PermissionItem, 'targetParentId'>
+  OmitProperties<PermissionItem, 'targetParentId'>
 >;

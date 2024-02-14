@@ -3,8 +3,8 @@ import {
   AssignedItemMainFieldsMatcher,
 } from '../../definitions/assignedItem';
 import {AssignedPermissionGroupMeta} from '../../definitions/permissionGroups';
+import {WorkspaceResource} from '../../definitions/system';
 import {AssignedTag} from '../../definitions/tag';
-import {UserWorkspace} from '../../definitions/user';
 import {makeKey} from '../../utils/fns';
 import {NotFoundError} from '../errors';
 
@@ -37,16 +37,23 @@ export function assignedItemsToAssignedTagList(items: AssignedItem[]): AssignedT
   return items.map(assignedItemToAssignedTag);
 }
 
-export function assignedItemToAssignedWorkspace(item: AssignedItem): UserWorkspace {
+export function assignedItemToAssignedWorkspace(item: AssignedItem): WorkspaceResource {
   return {
     workspaceId: item.assignedItemId,
-    joinedAt: item.createdAt,
+    resourceId: item.assigneeId,
+    createdAt: item.createdAt,
+    createdBy: item.createdBy,
+    lastUpdatedAt: item.lastUpdatedAt,
+    lastUpdatedBy: item.lastUpdatedBy,
+    deletedAt: item.deletedAt,
+    deletedBy: item.deletedBy,
+    isDeleted: item.isDeleted,
   };
 }
 
 export function assignedItemsToAssignedWorkspaceList(
   items: AssignedItem[]
-): UserWorkspace[] {
+): WorkspaceResource[] {
   return items.map(item => assignedItemToAssignedWorkspace(item));
 }
 

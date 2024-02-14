@@ -10,6 +10,7 @@ const getUsers: GetUsersEndpoint = async instData => {
     .getAgent(instData, [kAppResourceType.User]);
   await assertUserIsPartOfRootWorkspace(agent);
   const users = await kSemanticModels.user().getManyByQuery({});
+
   return {users: userListExtractor(users)};
 };
 

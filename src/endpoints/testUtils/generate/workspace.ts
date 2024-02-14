@@ -78,7 +78,7 @@ export function generateTestUsageThresholdInputMap(
   };
 }
 
-export function generateTestWorkspace(seed: PartialDeep<Workspace> = {}) {
+export function generateTestWorkspace(seed: Partial<Workspace> = {}) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
     agentId: getNewIdForResource(kAppResourceType.User),

@@ -11,21 +11,20 @@ import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderRunOptions} from '../contexts/semantic/types';
+import {SemanticProviderTxnOptions} from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
-import {workspaceResourceFields} from '../extractors';
+import {resourceFields, workspaceResourceFields} from '../extractors';
 
 import {checkWorkspaceExists} from '../workspaces/utils';
 
 const userCollaborationRequestForUserFields =
   getFields<PublicCollaborationRequestForUser>({
-    resourceId: true,
+    ...resourceFields,
     recipientEmail: true,
     message: true,
     createdAt: true,
     expiresAt: true,
     workspaceName: true,
-    lastUpdatedAt: true,
     readAt: true,
     status: true,
     statusDate: true,
@@ -50,7 +49,7 @@ export async function checkCollaborationRequestAuthorization(
   agent: SessionAgent,
   request: CollaborationRequest,
   action: PermissionAction,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   const workspace = await checkWorkspaceExists(request.workspaceId);
   await checkAuthorizationWithAgent({
@@ -67,7 +66,7 @@ export async function checkCollaborationRequestAuthorization02(
   agent: SessionAgent,
   requestId: string,
   action: PermissionAction,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   const request = await kSemanticModels
     .collaborationRequest()

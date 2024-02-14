@@ -20,7 +20,7 @@ import {
   getResourcePermissionContainers,
 } from '../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderRunOptions} from '../contexts/semantic/types';
+import {SemanticProviderTxnOptions} from '../contexts/semantic/types';
 import {getFilepathInfo, stringifyFilenamepath} from '../files/utils';
 import {getFolderpathInfo, stringifyFoldernamepath} from '../folders/utils';
 import {checkResourcesBelongsToWorkspace} from './containerCheckFns';
@@ -50,7 +50,7 @@ export interface GetResourcesOptions {
   agent: SessionAgent;
   workspaceId: string;
   nothrowOnCheckError?: boolean;
-  dataFetchRunOptions?: SemanticProviderRunOptions;
+  dataFetchRunOptions?: SemanticProviderTxnOptions;
 
   /** User workspaces are automatically filled-in if `checkAuth` is true. */
   fillAssignedItems?: boolean;
@@ -176,7 +176,7 @@ function groupItemsToFetch(
 
 async function fetchResourcesById(
   idsGroupedByType: InputsWithIdGroupedByType,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   if (isObjectEmpty(idsGroupedByType)) return [];
 

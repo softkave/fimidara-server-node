@@ -22,7 +22,7 @@ export function dataQueryToMongoQuery<TQuery extends DataQuery<AnyObject>>(
 
     if (k00 === '$and' || k00 === '$nor' || k00 === '$or') {
       appAssert(isArray(v00));
-      const qList = v00.map(v01 => dataQueryToMongoQuery(v01));
+      const qList = v00.map((v01: AnyObject) => dataQueryToMongoQuery(v01));
       mongoQuery[k00] = qList;
       continue;
     }

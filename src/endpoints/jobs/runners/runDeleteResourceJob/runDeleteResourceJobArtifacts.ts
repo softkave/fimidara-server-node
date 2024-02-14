@@ -16,7 +16,7 @@ import {
   kSemanticModels,
   kUtilsInjectables,
 } from '../../../contexts/injection/injectables';
-import {SemanticProviderMutationRunOptions} from '../../../contexts/semantic/types';
+import {SemanticProviderMutationTxnOptions} from '../../../contexts/semantic/types';
 import {JobInput, queueJobs} from '../../queueJobs';
 import {setJobMeta} from '../utils';
 import {kCascadeDeleteDefinitions} from './compiledDefinitions';
@@ -160,7 +160,7 @@ export async function runDeleteResourceJobArtifacts(job: Job) {
   const {deleteArtifacts, getArtifacts} = kCascadeDeleteDefinitions[params.type];
   const helperFns: DeleteResourceCascadeFnHelpers = {
     job: job as Job<DeleteResourceJobParams, DeleteResourceJobMeta>,
-    async withTxn(fn: AnyFn<[SemanticProviderMutationRunOptions]>) {
+    async withTxn(fn: AnyFn<[SemanticProviderMutationTxnOptions]>) {
       await kSemanticModels.utils().withTxn(opts => fn(opts));
     },
   };

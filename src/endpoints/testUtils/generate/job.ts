@@ -12,8 +12,8 @@ import {kAppResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {JobInput} from '../../jobs/utils';
 import {getRandomAppType} from './app';
+import {JobInput} from '../../jobs/queueJobs';
 
 export function getRandomJobType() {
   return faker.helpers.arrayElement(Object.values(kJobType));

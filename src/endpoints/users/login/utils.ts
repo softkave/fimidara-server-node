@@ -11,7 +11,7 @@ import {ServerError} from '../../../utils/errors';
 import {newResource} from '../../../utils/resource';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
 import {userExtractor} from '../utils';
 import {LoginResult} from './types';
 
@@ -31,7 +31,7 @@ export function toLoginResult(
 
 export async function getUserClientAssignedToken(
   userId: string,
-  opts: SemanticProviderMutationRunOptions
+  opts: SemanticProviderMutationTxnOptions
 ) {
   appAssert(
     kUtilsInjectables.runtimeConfig().appWorkspaceId,
@@ -93,7 +93,7 @@ export async function getUserClientAssignedToken(
 
 export async function getUserToken(
   userId: string,
-  opts: SemanticProviderMutationRunOptions
+  opts: SemanticProviderMutationTxnOptions
 ) {
   let userToken = await kSemanticModels
     .agentToken()

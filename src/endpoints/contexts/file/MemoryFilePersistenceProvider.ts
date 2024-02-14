@@ -3,7 +3,7 @@ import {Readable} from 'stream';
 import {FileBackendMount} from '../../../definitions/fileBackend';
 import {appAssert} from '../../../utils/assertion';
 import {streamToBuffer} from '../../../utils/fns';
-import {Omit1} from '../../../utils/types';
+import {OmitProperties} from '../../../utils/types';
 import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
@@ -26,7 +26,10 @@ import {
 } from './types';
 import {defaultToFimidaraPath, defaultToNativePath} from './utils';
 
-type MemoryFilePersistenceProviderFile = Omit1<PersistedFileDescription, 'filepath'> & {
+type MemoryFilePersistenceProviderFile = OmitProperties<
+  PersistedFileDescription,
+  'filepath'
+> & {
   body: Buffer;
   nativePath: string;
 };

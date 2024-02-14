@@ -1,9 +1,11 @@
 import {
   AppResourceType,
   kAppResourceType,
+  PublicResource,
   Resource,
   ResourceWrapper,
 } from '../../definitions/system';
+import {PublicCollaborator} from '../../definitions/user';
 import {ServerError} from '../../utils/errors';
 import {AnyFn} from '../../utils/types';
 import {agentTokenExtractor} from '../agentTokens/utils';
@@ -26,7 +28,7 @@ import {workspaceExtractor} from '../workspaces/utils';
 const kResourceTypeToExtractorMap: Record<
   AppResourceType,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  AnyFn<[any, string], Resource>
+  AnyFn<[any, string], PublicResource | PublicCollaborator>
 > = {
   [kAppResourceType.All]: resourceExtractor,
   [kAppResourceType.System]: resourceExtractor,

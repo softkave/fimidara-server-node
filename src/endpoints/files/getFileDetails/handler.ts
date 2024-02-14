@@ -2,7 +2,7 @@ import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {kPermissionAgentTypes} from '../../../definitions/system';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {fileExtractor, readAndCheckFileAuthorization} from '../utils';
+import {fileExtractor, getAndCheckFileAuthorization} from '../utils';
 import {GetFileDetailsEndpoint} from './types';
 import {getFileDetailsJoiSchema} from './validation';
 
@@ -13,7 +13,7 @@ const getFileDetails: GetFileDetailsEndpoint = async instData => {
     .getAgent(instData, kPermissionAgentTypes);
 
   const file = await kSemanticModels.utils().withTxn(opts =>
-    readAndCheckFileAuthorization({
+    getAndCheckFileAuthorization({
       agent,
       opts,
       matcher: data,

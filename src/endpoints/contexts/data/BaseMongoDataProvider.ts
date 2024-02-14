@@ -11,8 +11,8 @@ import {
 } from './types';
 // eslint-disable-next-line node/no-extraneous-import
 import {BulkWriteOptions} from 'mongodb';
-import {getPage, getPageSize} from './utils';
 import {dataQueryToMongoQuery} from './dataQueryToMongoQuery';
+import {getPage, getPageSize} from './utils';
 
 function getMongoQueryOptionsForOp(params?: DataProviderOpParams): QueryOptions {
   return {session: params?.txn as ClientSession, lean: true};
@@ -77,41 +77,6 @@ export abstract class BaseMongoDataProvider<
       .lean()
       .exec();
     return items as unknown as T[];
-  };
-
-  getManyByQueryList = async (
-    query: TQuery[],
-    otherProps?: DataProviderQueryListParams<T> | undefined
-  ) => {
-    if (query.length === 0) {
-      return [];
-    }
-
-    const mongoQuery = {
-      $or: query.map(next => dataQueryToMongoQuery(next)),
-    };
-    const items = await this.model
-      .find(mongoQuery, otherProps?.projection, getMongoQueryOptionsForMany(otherProps))
-      .lean()
-      .exec();
-    return items as unknown as T[];
-  };
-
-  updateManyByQueryList = async (
-    query: TQuery[],
-    data: Partial<T>,
-    otherProps?: DataProviderOpParams
-  ) => {
-    if (query.length === 0) {
-      return;
-    }
-
-    const mongoQuery = {
-      $or: query.map(next => dataQueryToMongoQuery(next)),
-    };
-    await this.model
-      .updateMany(mongoQuery, data, getMongoQueryOptionsForMany(otherProps))
-      .exec();
   };
 
   getOneByQuery = async (
@@ -218,23 +183,6 @@ export abstract class BaseMongoDataProvider<
       .exec();
   };
 
-  countByQueryList = async (
-    query: TQuery[],
-    otherProps?: DataProviderOpParams | undefined
-  ) => {
-    if (query.length === 0) {
-      return 0;
-    }
-
-    const mongoQuery = {
-      $or: query.map(next => dataQueryToMongoQuery(next)),
-    };
-    const count = await this.model
-      .countDocuments(mongoQuery, getMongoQueryOptionsForOp(otherProps))
-      .exec();
-    return count;
-  };
-
   deleteManyByQuery = async <ExtendedQueryType extends TQuery = TQuery>(
     query: ExtendedQueryType,
     otherProps?: DataProviderOpParams | undefined
@@ -242,20 +190,6 @@ export abstract class BaseMongoDataProvider<
     await this.model
       .deleteMany(dataQueryToMongoQuery(query), getMongoQueryOptionsForOp(otherProps))
       .exec();
-  };
-
-  deleteManyByQueryList = async <ExtendedQueryType extends TQuery = TQuery>(
-    query: ExtendedQueryType[],
-    otherProps?: DataProviderOpParams | undefined
-  ) => {
-    if (query.length === 0) {
-      return;
-    }
-
-    const mongoQuery = {
-      $or: query.map(next => dataQueryToMongoQuery(next)),
-    };
-    await this.model.deleteMany(mongoQuery, getMongoQueryOptionsForOp(otherProps)).exec();
   };
 
   deleteOneByQuery = async <ExtendedQueryType extends TQuery = TQuery>(

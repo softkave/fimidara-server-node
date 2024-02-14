@@ -1,12 +1,12 @@
 import {AppResourceType} from '../../definitions/system';
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderMutationRunOptions} from '../contexts/semantic/types';
+import {SemanticProviderMutationTxnOptions} from '../contexts/semantic/types';
 
 export async function deleteResourceAssignedItems(
   /** Use `undefined` for fetching user workspaces */ workspaceId: string,
   resourceId: string | string[],
   assignedItemTypes: AppResourceType[] | undefined,
-  opts: SemanticProviderMutationRunOptions
+  opts: SemanticProviderMutationTxnOptions
 ) {
   await kSemanticModels
     .assignedItem()
@@ -16,7 +16,7 @@ export async function deleteResourceAssignedItems(
 export async function deleteAssignableItemAssignedItems(
   workspaceId: string,
   assignedItemId: string,
-  opts: SemanticProviderMutationRunOptions
+  opts: SemanticProviderMutationTxnOptions
 ) {
   await kSemanticModels
     .assignedItem()

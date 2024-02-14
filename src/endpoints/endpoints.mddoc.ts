@@ -1,14 +1,20 @@
 import {customAlphabet} from 'nanoid';
 import {AssignPermissionGroupInput} from '../definitions/permissionGroups';
 import {PermissionAction, kPermissionsMap} from '../definitions/permissionItem';
-import {PublicAgent, kAppResourceType, kValidAgentTypes} from '../definitions/system';
+import {
+  PublicAgent,
+  PublicResource,
+  PublicWorkspaceResource,
+  kAppResourceType,
+  kValidAgentTypes,
+} from '../definitions/system';
 import {
   UsageRecordCategory,
   UsageRecordCategoryMap,
   UsageRecordFulfillmentStatus,
   UsageRecordFulfillmentStatusMap,
 } from '../definitions/usageRecord';
-import {mddocConstruct} from '../mddoc/mddoc';
+import {FieldObjectFieldsMap, mddocConstruct} from '../mddoc/mddoc';
 import {FimidaraExternalError} from '../utils/OperationError';
 import {kIdSeparator, kResourceTypeShortNames} from '../utils/resource';
 import {AnyObject} from '../utils/types';
@@ -451,6 +457,25 @@ const resultNote = mddocConstruct
 const resultNoteList = mddocConstruct
   .constructFieldArray<EndpointResultNote>()
   .setType(resultNote);
+const resourceParts: FieldObjectFieldsMap<PublicResource> = {
+  resourceId: mddocConstruct.constructFieldObjectField(true, id),
+  createdBy: mddocConstruct.constructFieldObjectField(false, agent),
+  createdAt: mddocConstruct.constructFieldObjectField(true, date),
+  lastUpdatedBy: mddocConstruct.constructFieldObjectField(false, agent),
+  lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, date),
+  isDeleted: mddocConstruct.constructFieldObjectField(
+    false,
+    mddocConstruct.constructFieldBoolean()
+  ),
+  deletedAt: mddocConstruct.constructFieldObjectField(false, date),
+  deletedBy: mddocConstruct.constructFieldObjectField(false, agent),
+};
+const workspaceResourceParts: FieldObjectFieldsMap<PublicWorkspaceResource> = {
+  ...resourceParts,
+  workspaceId: mddocConstruct.constructFieldObjectField(true, workspaceId),
+  createdBy: mddocConstruct.constructFieldObjectField(true, agent),
+  lastUpdatedBy: mddocConstruct.constructFieldObjectField(true, agent),
+};
 
 export const fReusables = {
   agent,
@@ -510,6 +535,8 @@ export const fReusables = {
   resultNote,
   resultNoteCode,
   resultNoteList,
+  resourceParts,
+  workspaceResourceParts,
 };
 
 const errorObject = mddocConstruct

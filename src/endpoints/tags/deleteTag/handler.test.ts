@@ -37,15 +37,20 @@ describe('deleteTag', () => {
     assertEndpointResultOk(result);
 
     appAssert(result.jobId);
-    const job = await kSemanticModels.job().getOneByQuery<Job<DeleteResourceJobParams>>({
-      type: kJobType.deleteResource,
+    const job = (await kSemanticModels.job().getOneByQuery({
+      type: kJobType.deleteResource0,
       resourceId: result.jobId,
       params: {$objMatch: {type: kAppResourceType.Tag}},
-    });
+    })) as Job<DeleteResourceJobParams>;
     expect(job).toBeTruthy();
-    expect(job?.params.args).toMatchObject({
+    expect(job?.params).toMatchObject({
       resourceId: tag.resourceId,
       workspaceId: workspace.resourceId,
     });
+
+    const dbItem = await kSemanticModels
+      .tag()
+      .getOneByQuery({resourceId: tag.resourceId, isDeleted: true});
+    expect(dbItem).toBeTruthy();
   });
 });

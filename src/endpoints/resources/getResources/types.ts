@@ -1,4 +1,4 @@
-import {ResourceWrapper} from '../../../definitions/system';
+import {PublicResourceWrapper} from '../../../definitions/system';
 import {Endpoint} from '../../types';
 import {FetchResourceItem} from '../types';
 
@@ -8,7 +8,7 @@ export interface GetResourcesEndpointParams {
 }
 
 export interface GetResourcesEndpointResult {
-  resources: ResourceWrapper[];
+  resources: PublicResourceWrapper[];
 }
 
 export type GetResourcesEndpoint = Endpoint<

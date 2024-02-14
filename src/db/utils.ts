@@ -21,12 +21,15 @@ export const resourceSchema = ensureMongoTypeFields<Resource>({
   resourceId: {type: String, unique: true, index: true},
   createdAt: {type: Number, default: getTimestamp},
   lastUpdatedAt: {type: Number, default: getTimestamp},
+  createdBy: {type: agentSchema},
+  lastUpdatedBy: {type: agentSchema},
+  isDeleted: {type: Boolean, index: true},
+  deletedBy: {type: agentSchema},
+  deletedAt: {type: Number},
 });
 
 export const workspaceResourceSchema = ensureMongoTypeFields<WorkspaceResource>({
   ...resourceSchema,
   workspaceId: {type: String, index: true},
   // providedResourceId: {type: String, index: true},
-  createdBy: {type: agentSchema},
-  lastUpdatedBy: {type: agentSchema},
 });

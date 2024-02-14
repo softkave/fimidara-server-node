@@ -1,10 +1,11 @@
 import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {kAppResourceType, kPermissionAgentTypes} from '../../../definitions/system';
+import {kPermissionAgentTypes} from '../../../definitions/system';
+import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {enqueueDeleteResourceJob} from '../../jobs/utils';
-import {readAndCheckFileAuthorization} from '../utils';
+import {getAndCheckFileAuthorization} from '../utils';
 import {DeleteFileEndpoint} from './types';
+import {beginDeleteFile} from './utils';
 import {deleteFileJoiSchema} from './validation';
 
 const deleteFile: DeleteFileEndpoint = async instData => {
@@ -13,21 +14,23 @@ const deleteFile: DeleteFileEndpoint = async instData => {
     .session()
     .getAgent(instData, kPermissionAgentTypes);
 
-  const job = await kSemanticModels.utils().withTxn(async opts => {
-    const file = await readAndCheckFileAuthorization({
+  const file = await kSemanticModels.utils().withTxn(async opts => {
+    return await getAndCheckFileAuthorization({
       agent,
       opts,
       matcher: data,
       action: kPermissionsMap.deleteFile,
       incrementPresignedPathUsageCount: true,
-    });
-
-    return await enqueueDeleteResourceJob({
-      type: kAppResourceType.File,
-      workspaceId: file.workspaceId,
-      resourceId: file.resourceId,
+      shouldIngestFile: false,
     });
   });
+
+  const [job] = await beginDeleteFile({
+    agent,
+    workspaceId: file.workspaceId,
+    resources: [file],
+  });
+  appAssert(job);
 
   return {jobId: job.resourceId};
 };

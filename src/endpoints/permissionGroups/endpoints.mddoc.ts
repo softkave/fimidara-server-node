@@ -68,12 +68,7 @@ const permissionGroup = mddocConstruct
   .constructFieldObject<PublicPermissionGroup>()
   .setName('PermissionGroup')
   .setFields({
-    resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-    createdBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
-    createdAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
-    lastUpdatedBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
-    lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
-    workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),
+    ...fReusables.workspaceResourceParts,
     name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
   });

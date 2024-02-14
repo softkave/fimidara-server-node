@@ -3,11 +3,11 @@ import {getIgnoreCaseRegExpForString, toArray} from '../../../utils/fns';
 import {AnyFn, AnyObject, OrArray, StringKeysOnly} from '../../../utils/types';
 import {DataQuery, KeyedComparisonOps} from '../data/types';
 import {kDataModels} from '../injection/injectables';
-import {SemanticProviderMutationRunOptions, SemanticProviderUtils} from './types';
+import {SemanticProviderMutationTxnOptions, SemanticProviderUtils} from './types';
 
 export class DataSemanticProviderUtils implements SemanticProviderUtils {
   async withTxn<TResult>(
-    fn: AnyFn<[SemanticProviderMutationRunOptions], Promise<TResult>>,
+    fn: AnyFn<[SemanticProviderMutationTxnOptions], Promise<TResult>>,
     reuseAsyncLocalTxn: boolean = true
   ): Promise<TResult> {
     return await kDataModels.utils().withTxn(async txn => {

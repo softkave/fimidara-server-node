@@ -1,11 +1,5 @@
 import {compact, first} from 'lodash';
-import {
-  File,
-  FileMatcher,
-  PresignedPath,
-  PublicFile,
-  PublicPresignedPath,
-} from '../../definitions/file';
+import {File, FileMatcher, PublicFile} from '../../definitions/file';
 import {FileBackendMount} from '../../definitions/fileBackend';
 import {Folder} from '../../definitions/folder';
 import {PermissionAction} from '../../definitions/permissionItem';
@@ -22,8 +16,8 @@ import {
 } from '../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../contexts/injection/injectables';
 import {
-  SemanticProviderMutationRunOptions,
-  SemanticProviderRunOptions,
+  SemanticProviderMutationTxnOptions,
+  SemanticProviderTxnOptions,
 } from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
 import {getBackendConfigsWithIdList} from '../fileBackends/configUtils';
@@ -40,6 +34,7 @@ import {
   getFolderpathInfo,
 } from '../folders/utils';
 
+import {PresignedPath, PublicPresignedPath} from '../../definitions/presignedPath';
 import {workspaceResourceFields} from '../extractors';
 import {assertRootname, assertWorkspace, checkWorkspaceExists} from '../workspaces/utils';
 import {kFileConstants} from './constants';
@@ -80,7 +75,7 @@ export async function checkFileAuthorization(
   agent: SessionAgent,
   file: Pick<File, 'idPath' | 'workspaceId'>,
   action: PermissionAction,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   const workspace = await checkWorkspaceExists(file.workspaceId, opts);
   await checkAuthorizationWithAgent({
@@ -97,17 +92,26 @@ export async function checkFileAuthorization(
   return {agent, file, workspace};
 }
 
-export async function readAndCheckFileAuthorization(props: {
+export async function getAndCheckFileAuthorization(props: {
   agent: SessionAgent;
   matcher: FileMatcher;
   action: PermissionAction;
-  opts: SemanticProviderMutationRunOptions;
+  opts: SemanticProviderMutationTxnOptions;
   incrementPresignedPathUsageCount: boolean;
+  shouldIngestFile?: boolean;
 }) {
-  const {agent, matcher, action, opts, incrementPresignedPathUsageCount} = props;
+  const {
+    agent,
+    matcher,
+    action,
+    opts,
+    incrementPresignedPathUsageCount,
+    shouldIngestFile = true,
+  } = props;
   const {file, presignedPath} = await getFileWithMatcher({
     matcher,
     opts,
+    shouldIngestFile,
     supportPresignedPath: true,
     presignedPathAction: action,
     incrementPresignedPathUsageCount: incrementPresignedPathUsageCount,
@@ -243,7 +247,7 @@ export async function createNewFileAndEnsureFolders(
   workspace: Workspace,
   pathinfo: FilepathInfo,
   data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
-  opts: SemanticProviderMutationRunOptions,
+  opts: SemanticProviderMutationTxnOptions,
   seed: Partial<File> = {},
   parentFolder?: Folder | null
 ) {
@@ -264,7 +268,7 @@ export async function createAndInsertNewFile(
   workspace: Workspace,
   pathinfo: FilepathInfo,
   data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
-  opts: SemanticProviderMutationRunOptions,
+  opts: SemanticProviderMutationTxnOptions,
   seed: Partial<File> = {}
 ) {
   const file = await createNewFileAndEnsureFolders(
@@ -285,7 +289,7 @@ export async function ingestFileByFilepath(props: {
   agent: Agent;
   /** filepath with extension and workspace rootname */
   filepath: string;
-  opts: SemanticProviderMutationRunOptions;
+  opts: SemanticProviderMutationTxnOptions;
   workspace?: Workspace;
   /** Reuse mounts and mountWeights */
   mounts?: FileBackendMount[];

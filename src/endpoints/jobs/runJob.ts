@@ -12,13 +12,11 @@ import {
 import {getTimestamp} from '../../utils/dateFns';
 import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
 import {runCleanupMountResolvedEntriesJob} from './runners/runCleanupMountResolvedEntriesJob';
-import {
-  runDeleteResourceJob0,
-  runDeleteResourceJobArtifacts,
-  runDeleteResourceJobSelf,
-} from './runners/runDeleteResourceJob';
 import {runIngestFolderpathJob} from './runners/runIngestFolderpathJob';
 import {runIngestMountJob} from './runners/runIngestMountJob';
+import {runDeleteResourceJob0} from './runners/runDeleteResourceJob/runDeleteResourceJob0';
+import {runDeleteResourceJobArtifacts} from './runners/runDeleteResourceJob/runDeleteResourceJobArtifacts';
+import {runDeleteResourceJobSelf} from './runners/runDeleteResourceJob/runDeleteResourceJobSelf';
 
 export async function completeJob(
   jobId: string,

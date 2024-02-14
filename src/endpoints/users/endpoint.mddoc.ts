@@ -1,4 +1,5 @@
-import {PublicUser, UserWorkspace} from '../../definitions/user';
+import {PublicWorkspaceResource} from '../../definitions/system';
+import {PublicUser} from '../../definitions/user';
 import {
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
@@ -30,21 +31,11 @@ import {UserExistsEndpointParams, UserExistsEndpointResult} from './userExists/t
 const currentPassword = fReusables.password.clone().setDescription('Current password');
 const newPassword = fReusables.password.clone().setDescription('New password');
 
-const userWorkspace = mddocConstruct
-  .constructFieldObject<UserWorkspace>()
-  .setName('UserWorkspace')
-  .setFields({
-    joinedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
-    workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),
-  });
-
 const user = mddocConstruct
   .constructFieldObject<PublicUser>()
   .setName('User')
   .setFields({
-    resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-    createdAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
-    lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+    ...fReusables.resourceParts,
     firstName: mddocConstruct.constructFieldObjectField(true, fReusables.firstName),
     lastName: mddocConstruct.constructFieldObjectField(true, fReusables.lastName),
     email: mddocConstruct.constructFieldObjectField(true, fReusables.emailAddress),
@@ -70,7 +61,13 @@ const user = mddocConstruct
     ),
     workspaces: mddocConstruct.constructFieldObjectField(
       true,
-      mddocConstruct.constructFieldArray<UserWorkspace>().setType(userWorkspace)
+      mddocConstruct
+        .constructFieldArray<PublicWorkspaceResource>()
+        .setType(
+          mddocConstruct
+            .constructFieldObject<PublicWorkspaceResource>()
+            .setFields(fReusables.workspaceResourceParts)
+        )
     ),
     isOnWaitlist: mddocConstruct.constructFieldObjectField(
       true,

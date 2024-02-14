@@ -1,10 +1,11 @@
-import {kAppResourceType} from '../../../definitions/system';
+import {kPermissionsMap} from '../../../definitions/permissionItem';
+import {appAssert} from '../../../utils/assertion';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {checkCollaboratorAuthorization02} from '../utils';
 import {RemoveCollaboratorEndpoint} from './types';
+import {beginDeleteCollaborator} from './utils';
 import {removeCollaboratorJoiSchema} from './validation';
 
 const removeCollaborator: RemoveCollaboratorEndpoint = async instData => {
@@ -15,14 +16,16 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async instData => {
     agent,
     workspaceId,
     data.collaboratorId,
-    'removeCollaborator'
+    kPermissionsMap.removeCollaborator
   );
-  const job = await enqueueDeleteResourceJob({
+
+  const [job] = await beginDeleteCollaborator({
+    agent,
     workspaceId,
-    type: kAppResourceType.User,
-    resourceId: collaborator.resourceId,
-    isRemoveCollaborator: true,
+    resources: [collaborator],
   });
+  appAssert(job);
+
   return {jobId: job.resourceId};
 };
 

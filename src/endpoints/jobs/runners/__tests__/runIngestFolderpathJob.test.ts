@@ -41,7 +41,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../../testUtils/testUtils';
-import {queueJobs} from '../../utils';
+import {queueJobs} from '../../queueJobs';
 import {runIngestFolderpathJob} from '../runIngestFolderpathJob';
 
 beforeEach(async () => {
@@ -159,19 +159,19 @@ describe('runIngestFolderpathJob', () => {
     const pathinfoList = pFiles.map(pFile =>
       getFilepathInfo(pFile.filepath, {containsRootname: false})
     );
-    const files = await kSemanticModels.file().getManyByQueryList(
-      pathinfoList.map(pathinfo => {
+    const files = await kSemanticModels.file().getManyByQuery({
+      $or: pathinfoList.map(pathinfo => {
         return FileQueries.getByNamepath({workspaceId: mount.workspaceId, ...pathinfo});
-      })
-    );
-    const resolvedEntries = await kSemanticModels.resolvedMountEntry().getManyByQueryList(
-      pathinfoList.map(pathinfo => {
+      }),
+    });
+    const resolvedEntries = await kSemanticModels.resolvedMountEntry().getManyByQuery({
+      $or: pathinfoList.map(pathinfo => {
         return {
           ...FileQueries.getByNamepath({workspaceId: mount.workspaceId, ...pathinfo}),
           mountId: mount.resourceId,
         };
-      })
-    );
+      }),
+    });
 
     expect(files.length).toBe(pFiles.length);
     expect(resolvedEntries.length).toBe(pFiles.length);
@@ -206,11 +206,11 @@ describe('runIngestFolderpathJob', () => {
     const pathInfoList = pFolders.map(pFolder =>
       getFolderpathInfo(pFolder.folderpath, {containsRootname: false})
     );
-    const folders = await kSemanticModels.folder().getManyByQueryList(
-      pathInfoList.map(pathinfo => {
+    const folders = await kSemanticModels.folder().getManyByQuery({
+      $or: pathInfoList.map(pathinfo => {
         return FolderQueries.getByNamepath({workspaceId: mount.workspaceId, ...pathinfo});
-      })
-    );
+      }),
+    });
 
     expect(folders.length).toBe(pFolders.length);
   });
@@ -244,16 +244,16 @@ describe('runIngestFolderpathJob', () => {
     const pathInfoList = pFolders.map(pFolder =>
       getFolderpathInfo(pFolder.folderpath, {containsRootname: false})
     );
-    const jobs = await kSemanticModels.job().getManyByQueryList(
-      pathInfoList.map(pathinfo => {
+    const jobs = await kSemanticModels.job().getManyByQuery({
+      $or: pathInfoList.map(pathinfo => {
         const params: IngestFolderpathJobParams = {
           agentId: userToken.resourceId,
           mountId: mount.resourceId,
           ingestFrom: pathinfo.namepath,
         };
         return {shard, workspaceId: mount.workspaceId, params: {$objMatch: params}};
-      })
-    );
+      }),
+    });
 
     expect(jobs.length).toBe(pFolders.length);
   });
@@ -289,11 +289,10 @@ describe('runIngestFolderpathJob', () => {
     await expectErrorThrown(() => runIngestFolderpathJob(job));
     await kUtilsInjectables.promises().flush();
 
-    const dbJob = await kSemanticModels
-      .job()
-      .getOneById<Job<IngestFolderpathJobParams, IngestFolderpathJobMeta>>(
-        job.resourceId
-      );
+    const dbJob = (await kSemanticModels.job().getOneById(job.resourceId)) as Job<
+      IngestFolderpathJobParams,
+      IngestFolderpathJobMeta
+    >;
     expect(dbJob?.meta?.getContentContinuationToken).toBe(mountContinuationToken);
   });
 
@@ -314,17 +313,12 @@ describe('runIngestFolderpathJob', () => {
     kRegisterUtilsInjectables.fileProviderResolver(() => backend);
 
     const {job} = await setup01();
+    const update: Partial<Job<IngestFolderpathJobParams, IngestFolderpathJobMeta>> = {
+      meta: {getContentContinuationToken: mountContinuationToken},
+    };
     await kSemanticModels
       .utils()
-      .withTxn(opts =>
-        kSemanticModels
-          .job()
-          .updateOneById<Job<IngestFolderpathJobParams, IngestFolderpathJobMeta>>(
-            job.resourceId,
-            {meta: {getContentContinuationToken: mountContinuationToken}},
-            opts
-          )
-      );
+      .withTxn(opts => kSemanticModels.job().updateOneById(job.resourceId, update, opts));
 
     await runIngestFolderpathJob(job);
     await kUtilsInjectables.promises().flush();

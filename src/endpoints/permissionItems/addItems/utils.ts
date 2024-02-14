@@ -23,7 +23,7 @@ import {
 import {indexArray} from '../../../utils/indexArray';
 import {getResourceTypeFromId, newWorkspaceResource} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
 import {InvalidRequestError} from '../../errors';
 import {stringifyFilenamepath} from '../../files/utils';
 import {stringifyFoldernamepath} from '../../folders/utils';
@@ -48,7 +48,7 @@ export const INTERNAL_addPermissionItems = async (
   agent: SessionAgent,
   workspace: Workspace,
   data: AddPermissionItemsEndpointParams,
-  opts: SemanticProviderMutationRunOptions
+  opts: SemanticProviderMutationTxnOptions
 ) => {
   let inputEntities: string[] = [];
   let inputTargets: PermissionItemInputTarget[] = [];

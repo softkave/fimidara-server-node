@@ -1,9 +1,10 @@
-import {kAppResourceType} from '../../../definitions/system';
+import {kPermissionsMap} from '../../../definitions/permissionItem';
+import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
 import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {enqueueDeleteResourceJob} from '../../jobs/utils';
 import {checkCollaborationRequestAuthorization02} from '../utils';
 import {DeleteCollaborationRequestEndpoint} from './types';
+import {beginDeleteCollaborationRequest} from './utils';
 import {deleteCollaborationRequestJoiSchema} from './validation';
 
 const deleteCollaborationRequest: DeleteCollaborationRequestEndpoint = async instData => {
@@ -12,13 +13,16 @@ const deleteCollaborationRequest: DeleteCollaborationRequestEndpoint = async ins
   const {request} = await checkCollaborationRequestAuthorization02(
     agent,
     data.requestId,
-    'deleteAgentToken'
+    kPermissionsMap.deleteCollaborationRequest
   );
-  const job = await enqueueDeleteResourceJob({
-    type: kAppResourceType.CollaborationRequest,
+
+  const [job] = await beginDeleteCollaborationRequest({
+    agent,
     workspaceId: request.workspaceId,
-    resourceId: request.resourceId,
+    resources: [request],
   });
+  appAssert(job);
+
   return {jobId: job.resourceId};
 };
 

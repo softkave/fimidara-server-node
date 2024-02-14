@@ -1,4 +1,4 @@
-import {Resource, ResourceWrapper} from '../../definitions/system';
+import {PublicResource, PublicResourceWrapper} from '../../definitions/system';
 import {
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
@@ -47,7 +47,7 @@ const getResourcesParams = mddocConstruct
   });
 
 const resourceWrapper = mddocConstruct
-  .constructFieldObject<ResourceWrapper>()
+  .constructFieldObject<PublicResourceWrapper>()
   .setName('ResourceWrapper')
   .setFields({
     resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
@@ -55,12 +55,10 @@ const resourceWrapper = mddocConstruct
     resource: mddocConstruct.constructFieldObjectField(
       true,
       mddocConstruct
-        .constructFieldObject<Resource>()
+        .constructFieldObject<PublicResource>()
         .setDescription('Resource shape depends on resource type')
         .setFields({
-          resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-          createdAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
-          lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+          ...fReusables.resourceParts,
         })
     ),
   });
@@ -71,7 +69,7 @@ const getResourcesResponseBody = mddocConstruct
   .setFields({
     resources: mddocConstruct.constructFieldObjectField(
       true,
-      mddocConstruct.constructFieldArray<ResourceWrapper>().setType(resourceWrapper)
+      mddocConstruct.constructFieldArray<PublicResourceWrapper>().setType(resourceWrapper)
     ),
   });
 export const getResourcesEndpointDefinition = mddocConstruct

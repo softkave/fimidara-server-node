@@ -7,7 +7,7 @@ import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {assertWorkspace} from '../../workspaces/utils';
-import {assertFile, fileExtractor, readAndCheckFileAuthorization} from '../utils';
+import {assertFile, fileExtractor, getAndCheckFileAuthorization} from '../utils';
 import {UpdateFileDetailsEndpoint} from './types';
 import {updateFileDetailsJoiSchema} from './validation';
 
@@ -22,7 +22,7 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async instData => {
     .session()
     .getAgent(instData, kPermissionAgentTypes);
   const file = await kSemanticModels.utils().withTxn(async opts => {
-    let file = await readAndCheckFileAuthorization({
+    let file = await getAndCheckFileAuthorization({
       agent,
       opts,
       matcher: data,

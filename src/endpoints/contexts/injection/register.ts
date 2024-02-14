@@ -49,6 +49,7 @@ import {assertUser} from '../../users/utils';
 import {assertWorkspace} from '../../workspaces/utils';
 import SessionContext, {SessionContextType} from '../SessionContext';
 import {AsyncLocalStorageUtils, kAsyncLocalStorageUtils} from '../asyncLocalStorage';
+import {MongoDataProviderUtils} from '../data/MongoDataProviderUtils';
 import {
   AgentTokenMongoDataProvider,
   AppMongoDataProvider,
@@ -90,7 +91,6 @@ import {
   UserDataProvider,
   WorkspaceDataProvider,
 } from '../data/types';
-import {MongoDataProviderUtils} from '../data/utils';
 import {SESEmailProviderContext} from '../email/SESEmailProviderContext';
 import {IEmailProviderContext} from '../email/types';
 import {AWSSecretsManagerProvider} from '../encryption/AWSSecretsManagerProvider';
@@ -101,51 +101,51 @@ import {defaultFileProviderResolver} from '../file/utils';
 import {Logger} from '../logger/types';
 import {getLogger} from '../logger/utils';
 import {UsageRecordLogicProvider} from '../logic/UsageRecordLogicProvider';
-import {DataSemanticAgentToken} from '../semantic/agentToken/models';
+import {DataSemanticAgentToken} from '../semantic/agentToken/model';
 import {SemanticAgentTokenProvider} from '../semantic/agentToken/types';
-import {DataSemanticAssignedItem} from '../semantic/assignedItem/models';
+import {DataSemanticAssignedItem} from '../semantic/assignedItem/model';
 import {SemanticAssignedItemProvider} from '../semantic/assignedItem/types';
-import {DataSemanticCollaborationRequest} from '../semantic/collaborationRequest/models';
+import {DataSemanticCollaborationRequest} from '../semantic/collaborationRequest/model';
 import {SemanticCollaborationRequestProvider} from '../semantic/collaborationRequest/types';
 import {
   DataSemanticFile,
   DataSemanticPresignedPathProvider,
-} from '../semantic/file/models';
+} from '../semantic/file/model';
 import {
   SemanticFileProvider,
   SemanticPresignedPathProvider,
 } from '../semantic/file/types';
-import {DataSemanticFolder} from '../semantic/folder/models';
+import {DataSemanticFolder} from '../semantic/folder/model';
 import {SemanticFolderProvider} from '../semantic/folder/types';
+import {DataSemanticJob} from '../semantic/job/model';
+import {SemanticJobProvider} from '../semantic/job/types';
 import {
   DataSemanticApp,
   DataSemanticFileBackendConfig,
   DataSemanticFileBackendMount,
-  DataSemanticJob,
   DataSemanticPermissionGroup,
-  DataSemanticResolvedMountEntry,
   DataSemanticTag,
   DataSemanticUsageRecord,
 } from '../semantic/models';
-import {DataSemanticPermission} from '../semantic/permission/models';
+import {DataSemanticPermission} from '../semantic/permission/model';
 import {SemanticPermissionProviderType} from '../semantic/permission/types';
-import {DataSemanticPermissionItem} from '../semantic/permissionItem/models';
+import {DataSemanticPermissionItem} from '../semantic/permissionItem/model';
 import {SemanticPermissionItemProviderType} from '../semantic/permissionItem/types';
+import {DataSemanticResolvedMountEntry} from '../semantic/resolvedMountEntry/model';
+import {SemanticResolvedMountEntryProvider} from '../semantic/resolvedMountEntry/types';
 import {
   SemanticAppProvider,
   SemanticFileBackendConfigProvider,
   SemanticFileBackendMountProvider,
-  SemanticJobProvider,
   SemanticPermissionGroupProviderType,
   SemanticProviderUtils,
-  SemanticResolvedMountEntryProvider,
   SemanticTagProviderType,
   SemanticUsageRecordProviderType,
 } from '../semantic/types';
-import {DataSemanticUser} from '../semantic/user/models';
+import {DataSemanticUser} from '../semantic/user/model';
 import {SemanticUserProviderType} from '../semantic/user/types';
 import {DataSemanticProviderUtils} from '../semantic/utils';
-import {DataSemanticWorkspace} from '../semantic/workspace/models';
+import {DataSemanticWorkspace} from '../semantic/workspace/model';
 import {SemanticWorkspaceProviderType} from '../semantic/workspace/types';
 import {kDataModels, kUtilsInjectables} from './injectables';
 import {kInjectionKeys} from './keys';

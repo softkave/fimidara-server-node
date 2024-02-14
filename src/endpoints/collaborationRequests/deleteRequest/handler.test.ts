@@ -37,14 +37,19 @@ test('collaboration request deleted', async () => {
   assertEndpointResultOk(result);
 
   assert(result.jobId);
-  const job = await kSemanticModels.job().getOneByQuery<Job<DeleteResourceJobParams>>({
-    type: kJobType.deleteResource,
+  const job = (await kSemanticModels.job().getOneByQuery({
+    type: kJobType.deleteResource0,
     resourceId: result.jobId,
     params: {$objMatch: {type: kAppResourceType.CollaborationRequest}},
-  });
+  })) as Job<DeleteResourceJobParams>;
   expect(job).toBeTruthy();
-  expect(job?.params.args).toMatchObject({
+  expect(job?.params).toMatchObject({
     resourceId: request.resourceId,
     workspaceId: workspace.resourceId,
   });
+
+  const dbItem = await kSemanticModels
+    .collaborationRequest()
+    .getOneByQuery({resourceId: request.resourceId, isDeleted: true});
+  expect(dbItem).toBeTruthy();
 });

@@ -10,7 +10,7 @@ import {AnyFn, AnyObject, OrArray, OrPromise} from '../../../utils/types';
 import RequestData from '../../RequestData';
 import {globalDispose, globalSetup} from '../../contexts/globalUtils';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
 import {IServerRequest} from '../../contexts/types';
 import {setupApp} from '../../runtime/initAppSetup';
 import {
@@ -24,7 +24,7 @@ import {assertEndpointResultOk} from '../testUtils';
 
 export function mutationTest(
   name: string,
-  fn: AnyFn<[SemanticProviderMutationRunOptions]>,
+  fn: AnyFn<[SemanticProviderMutationTxnOptions]>,
   timeout?: number
 ) {
   kSemanticModels.utils().withTxn(async options => {

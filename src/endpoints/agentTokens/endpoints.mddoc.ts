@@ -53,14 +53,9 @@ const agentToken = mddocConstruct
   .constructFieldObject<PublicAgentToken>()
   .setName('AgentToken')
   .setFields({
-    resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-    createdBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
-    createdAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
-    lastUpdatedBy: mddocConstruct.constructFieldObjectField(true, fReusables.agent),
-    lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, fReusables.date),
+    ...fReusables.workspaceResourceParts,
     name: mddocConstruct.constructFieldObjectField(false, fReusables.name),
     description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
-    workspaceId: mddocConstruct.constructFieldObjectField(true, fReusables.workspaceId),
     tokenStr: mddocConstruct.constructFieldObjectField(true, fReusables.tokenString),
     expiresAt: mddocConstruct.constructFieldObjectField(false, fReusables.expires),
     providedResourceId: mddocConstruct.constructFieldObjectField(

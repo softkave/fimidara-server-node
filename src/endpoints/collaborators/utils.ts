@@ -4,7 +4,7 @@ import {PublicCollaborator, UserWithWorkspace} from '../../definitions/user';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderRunOptions} from '../contexts/semantic/types';
+import {SemanticProviderTxnOptions} from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
 import {assertUser} from '../users/utils';
 import {checkWorkspaceExists} from '../workspaces/utils';
@@ -17,14 +17,11 @@ export const collaboratorExtractor = (item: UserWithWorkspace, workspaceId: stri
   }
 
   const collaborator: PublicCollaborator = {
-    resourceId: item.resourceId,
     firstName: item.firstName,
     lastName: item.lastName,
     email: item.email,
-    joinedAt: userWorkspace.joinedAt,
-    workspaceId: userWorkspace.workspaceId,
-    createdAt: 0,
-    lastUpdatedAt: 0,
+    ...userWorkspace,
+    resourceId: item.resourceId,
   };
   return collaborator;
 };
@@ -41,7 +38,7 @@ export async function checkCollaboratorAuthorization(
   workspaceId: string,
   collaborator: UserWithWorkspace,
   action: PermissionAction,
-  opts?: SemanticProviderRunOptions
+  opts?: SemanticProviderTxnOptions
 ) {
   const userWorkspace = getCollaboratorWorkspace(collaborator, workspaceId);
   if (!userWorkspace) {

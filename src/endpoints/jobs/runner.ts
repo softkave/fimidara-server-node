@@ -8,28 +8,28 @@ import {getTimestamp} from '../../utils/dateFns';
 import {TimeoutError} from '../../utils/errors';
 import {callAfterAsync, loopAsync} from '../../utils/fns';
 import {getNewId, getNewIdForResource} from '../../utils/resource';
-import {AnyFn, AnyObject, Omit1} from '../../utils/types';
+import {AnyFn, AnyObject, OmitProperties} from '../../utils/types';
 import {AppQuery} from '../contexts/data/types';
 import {globalDispose, globalSetup} from '../contexts/globalUtils';
 import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
+import {getNextJob} from './getNextJob';
+import {runJob} from './runJob';
+import {
+  insertRunnerInDB,
+  isBaseWorkerMessage,
+  isChildRunnerWorkerData,
+  isRunnerWorkerMessage,
+  kDefaultActiveRunnerHeartbeatFactor,
+  kDefaultHeartbeatInterval,
+  kDefaultRunnerCount,
+  kEnsureRunnerCountPromiseName,
+} from './runnerUtils';
 import {
   BaseRunnerMessage,
   ChildRunnerWorkerData,
   RunnerWorkerMessage,
   kRunnerWorkerMessageType,
 } from './types';
-import {getNextJob} from './getNextJob';
-import {runJob} from './runJob';
-import {
-  kDefaultHeartbeatInterval,
-  kDefaultActiveRunnerHeartbeatFactor,
-  kDefaultRunnerCount,
-  isBaseWorkerMessage,
-  insertRunnerInDB,
-  isRunnerWorkerMessage,
-  kEnsureRunnerCountPromiseName,
-  isChildRunnerWorkerData,
-} from './runnerUtils';
 
 const workers: Record<string, Worker> = {};
 
@@ -89,10 +89,10 @@ function tryGetRunnerId() {
 }
 
 export async function messageRunner<
-  TMessage extends Omit1<RunnerWorkerMessage, keyof BaseRunnerMessage> = Omit1<
+  TMessage extends OmitProperties<
     RunnerWorkerMessage,
     keyof BaseRunnerMessage
-  >,
+  > = OmitProperties<RunnerWorkerMessage, keyof BaseRunnerMessage>,
 >(
   port: Pick<Worker, 'postMessage'> | undefined | null,
   message: Omit<TMessage, keyof BaseRunnerMessage>,

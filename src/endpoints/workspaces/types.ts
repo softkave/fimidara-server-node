@@ -21,7 +21,7 @@ export type UpdateWorkspaceHttpEndpoint =
 
 export type WorkspacesExportedEndpoints = {
   addWorkspace: AddWorkspaceHttpEndpoint;
-  deleteWorkspace: DeleteWorkspaceHttpEndpoint;
+  // deleteWorkspace: DeleteWorkspaceHttpEndpoint;
   getUserWorkspaces: GetUserWorkspacesHttpEndpoint;
   countUserWorkspaces: CountUserWorkspacesHttpEndpoint;
   getWorkspace: GetWorkspaceHttpEndpoint;

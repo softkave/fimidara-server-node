@@ -48,16 +48,16 @@ import {
   SemanticAppProvider,
   SemanticFileBackendConfigProvider,
   SemanticFileBackendMountProvider,
-  SemanticJobProvider,
   SemanticPermissionGroupProviderType,
   SemanticProviderUtils,
-  SemanticResolvedMountEntryProvider,
   SemanticTagProviderType,
   SemanticUsageRecordProviderType,
 } from '../semantic/types';
 import {SemanticUserProviderType} from '../semantic/user/types';
 import {SemanticWorkspaceProviderType} from '../semantic/workspace/types';
 import {kInjectionKeys} from './keys';
+import {SemanticJobProvider} from '../semantic/job/types';
+import {SemanticResolvedMountEntryProvider} from '../semantic/resolvedMountEntry/types';
 
 export const kSemanticModels = {
   user: () => container.resolve<SemanticUserProviderType>(kInjectionKeys.semantic.user),

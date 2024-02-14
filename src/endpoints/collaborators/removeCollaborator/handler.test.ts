@@ -16,8 +16,7 @@ import {RemoveCollaboratorEndpointParams} from './types';
 
 /**
  * TODO:
- * - Check that artifacts are removed
- * -  Test that user agent token
+ * - test user does not have access to workspace when job is done
  */
 
 beforeAll(async () => {
@@ -41,17 +40,22 @@ describe('removeCollaborator', () => {
     assertEndpointResultOk(result);
 
     appAssert(result.jobId);
-    const job = await kSemanticModels.job().getOneByQuery<Job<DeleteResourceJobParams>>({
-      type: kJobType.deleteResource,
+    const job = (await kSemanticModels.job().getOneByQuery({
+      type: kJobType.deleteResource0,
       resourceId: result.jobId,
       params: {$objMatch: {type: kAppResourceType.User, isRemoveCollaborator: true}},
-    });
+    })) as Job<DeleteResourceJobParams>;
     expect(job).toBeTruthy();
-    expect(job?.params.args).toMatchObject({
+    expect(job?.params).toMatchObject({
       resourceId: user.resourceId,
       workspaceId: workspace.resourceId,
     });
 
-    // TODO: test user does not have access to workspace when job is done
+    const dbItem = await kSemanticModels.assignedItem().getOneByQuery({
+      assignedItemId: workspace.resourceId,
+      assigneeId: user.resourceId,
+      isDeleted: true,
+    });
+    expect(dbItem).toBeTruthy();
   });
 });

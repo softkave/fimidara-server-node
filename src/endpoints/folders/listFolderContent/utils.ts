@@ -9,7 +9,7 @@ import {
   resolveTargetChildrenAccessCheckWithAgent,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationRunOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
 import {EndpointOptionalWorkspaceIDParam} from '../../types';
 import {PermissionDeniedError} from '../../users/errors';
 import {assertWorkspace, getWorkspaceFromEndpointInput} from '../../workspaces/utils';
@@ -59,7 +59,7 @@ export async function listFolderContentQuery(
 export async function getWorkspaceAndParentFolder(
   agent: SessionAgent,
   data: FolderMatcher & EndpointOptionalWorkspaceIDParam,
-  opts?: SemanticProviderMutationRunOptions
+  opts?: SemanticProviderMutationTxnOptions
 ) {
   let workspace: Workspace | null | undefined = null,
     parentFolder: Folder | null | undefined = undefined;
