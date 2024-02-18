@@ -258,7 +258,6 @@ describe('DataSemanticPermission', () => {
       action,
       targetParentId,
       targetId,
-      targetType,
     });
 
     expect(items).toHaveLength(pItems.length);
@@ -292,7 +291,6 @@ describe('DataSemanticPermission', () => {
 
     const items = await model.getPermissionItems({
       targetParentId,
-      targetType,
       entityId: idList,
       action: actionList,
       targetId: idList,

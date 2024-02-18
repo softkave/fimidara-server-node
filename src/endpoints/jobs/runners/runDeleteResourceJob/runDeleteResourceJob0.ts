@@ -1,8 +1,8 @@
 import {
-  Job,
   DeleteResourceJobParams,
-  kJobType,
+  Job,
   kJobStatus,
+  kJobType,
 } from '../../../../definitions/job';
 import {kAppResourceType} from '../../../../definitions/system';
 import {getNewIdForResource} from '../../../../utils/resource';
@@ -19,6 +19,7 @@ export async function runDeleteResourceJob0(job: Job) {
         job.workspaceId,
         job.resourceId,
         {
+          createdBy: job.createdBy,
           type: kJobType.deleteResourceArtifacts,
           shard: job.shard,
           priority: job.priority,
@@ -27,6 +28,7 @@ export async function runDeleteResourceJob0(job: Job) {
         {seed: {resourceId: deleteArtifactsJobId}}
       ),
       queueJobs<DeleteResourceJobParams>(job.workspaceId, job.resourceId, {
+        createdBy: job.createdBy,
         type: kJobType.deleteResourceSelf,
         shard: job.shard,
         priority: job.priority,

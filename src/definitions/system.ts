@@ -138,7 +138,7 @@ export interface Resource {
   lastUpdatedBy?: Agent;
   createdBy?: Agent;
   deletedBy?: Agent;
-  isDeleted?: boolean;
+  isDeleted: boolean;
   deletedAt?: number;
 }
 
@@ -161,7 +161,7 @@ export type PublicWorkspaceResource = ConvertAgentToPublicAgent<WorkspaceResourc
 
 export const kResourceTypeToPossibleChildren: Record<AppResourceType, AppResourceType[]> =
   {
-    [kAppResourceType.All]: [kAppResourceType.All],
+    [kAppResourceType.All]: [],
     [kAppResourceType.System]: [],
     [kAppResourceType.Public]: [],
     [kAppResourceType.Workspace]: [

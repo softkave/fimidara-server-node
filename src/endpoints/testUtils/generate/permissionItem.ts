@@ -31,6 +31,7 @@ export function generatePermissionItemForTest(seed: Partial<PermissionItem> = {}
     targetType: seed.targetId ? getResourceTypeFromId(seed.targetId) : itemType,
     action: randomAction(),
     access: faker.datatype.boolean(),
+    isDeleted: false,
     ...seed,
   };
   return item;

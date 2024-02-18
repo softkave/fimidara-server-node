@@ -57,7 +57,8 @@ export interface ComparisonLiteralFieldQueryOps<T = DataProviderLiteralType> {
   // TODO: implement $not and in which bracket should it go?
   // $not?: T;
   $exists?: boolean;
-  $regex?: T extends string ? RegExp : never;
+  $regex?: T extends string ? string | RegExp : never;
+  $options?: T extends string ? string : never;
 }
 
 /**
@@ -200,11 +201,6 @@ export interface BaseDataProvider<
     data: Partial<TData>,
     otherProps?: DataProviderQueryParams<TData>
   ) => Promise<TData | null>;
-  getAndUpdateManyByQuery: (
-    query: TQuery,
-    data: Partial<TData>,
-    otherProps?: DataProviderOpParams
-  ) => Promise<TData[]>;
   deleteManyByQuery: <TOpQuery extends TQuery = TQuery>(
     query: TOpQuery,
     otherProps?: DataProviderOpParams

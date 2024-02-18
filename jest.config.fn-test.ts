@@ -3,7 +3,7 @@ import {InitialOptionsTsJest} from 'ts-jest/dist/types';
 const config: InitialOptionsTsJest = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  testPathIgnorePatterns: ['/jest/', '/build/'],
+  testPathIgnorePatterns: ['/jest/', '/build/', '/testUtils.ts'],
   testTimeout: 300000, // 300 seconds
 };
 

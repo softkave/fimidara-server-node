@@ -98,6 +98,7 @@ export function generateFileBackendMountForTest(seed: Partial<FileBackendMount> 
     mountedFrom: pathSplit(faker.system.directoryPath()),
     backend: faker.helpers.arrayElement(Object.values(kFileBackendType)),
     name: faker.lorem.words(),
+    isDeleted: false,
     ...seed,
   };
   return mount;
@@ -120,6 +121,7 @@ export function generateFileBackendConfigForTest(seed: Partial<FileBackendConfig
     name: faker.lorem.words(),
     backend: faker.helpers.arrayElement(Object.values(kFileBackendType)),
     secretId: faker.string.alphanumeric(),
+    isDeleted: false,
     ...seed,
   };
   return config;
@@ -148,6 +150,7 @@ export function generateResolvedMountEntryForTest(
     resolvedFor: getNewIdForResource(kAppResourceType.File),
     resolvedForType: kAppResourceType.File,
     other: null,
+    isDeleted: false,
   };
   return mergeData(config, seed, {arrayUpdateStrategy: 'replace'});
 }

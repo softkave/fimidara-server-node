@@ -1,7 +1,7 @@
 import {AssignedItem} from '../../../../definitions/assignedItem';
 import {Agent, AppResourceType, kAppResourceType} from '../../../../definitions/system';
 import {getTimestamp} from '../../../../utils/dateFns';
-import {toArray, toCompactArray} from '../../../../utils/fns';
+import {convertToArray, toCompactArray} from '../../../../utils/fns';
 import {AnyObject} from '../../../../utils/types';
 import {DataProviderQueryListParams, DataQuery} from '../../data/types';
 import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
@@ -36,7 +36,7 @@ export class DataSemanticAssignedItem
     );
   }
 
-  async getResourceAssignedItems(
+  async getByAssignee(
     workspaceId: string | undefined,
     assigneeId: string | string[],
     assignedItemType?: AppResourceType | AppResourceType[] | undefined,
@@ -55,7 +55,7 @@ export class DataSemanticAssignedItem
     );
   }
 
-  async getResourceAssigneeItems(
+  async getByAssigned(
     workspaceId: string | undefined,
     assignedItemId: string | string[],
     options?: SemanticProviderQueryListRunOptions<AssignedItem>
@@ -98,15 +98,15 @@ export class DataSemanticAssignedItem
     );
   }
 
-  async deleteResourceAssigneeItems(
+  async deleteByAssignee(
     workspaceId: string,
-    assignedItemId: string | string[],
+    assigneeItemId: string | string[],
     opts: SemanticProviderMutationTxnOptions
   ): Promise<void> {
     await this.data.deleteManyByQuery(
       {
         workspaceId,
-        assignedItemId: {$in: toCompactArray(assignedItemId)},
+        assigneeId: {$in: toCompactArray(assigneeItemId)},
       },
       opts
     );
@@ -120,7 +120,7 @@ export class DataSemanticAssignedItem
   ): Promise<void> {
     const query: DataQuery<AssignedItem> = {
       assignedItemId: workspaceId,
-      assigneeId: {$in: toArray(assigneeId)},
+      assigneeId: {$in: convertToArray(assigneeId)},
     };
     const update: Partial<AssignedItem> = {
       isDeleted: true,
@@ -130,16 +130,16 @@ export class DataSemanticAssignedItem
     await this.data.updateManyByQuery(query, update, opts);
   }
 
-  async deleteResourceAssignedItems(
+  async deleteByAssigned(
     workspaceId: string,
-    assigneeId: string | string[],
+    assignedId: string | string[],
     assignedItemType: AppResourceType | AppResourceType[] | undefined,
     opts: SemanticProviderMutationTxnOptions
   ): Promise<void> {
     await this.data.deleteManyByQuery(
       {
         workspaceId,
-        assigneeId: {$in: toCompactArray(assigneeId)},
+        assignedItemId: {$in: toCompactArray(assignedId)},
         ...getInAndNinQuery<AssignedItem>('assignedItemType', assignedItemType),
       },
       opts

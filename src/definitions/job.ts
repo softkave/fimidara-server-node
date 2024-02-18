@@ -1,11 +1,12 @@
 import {AnyObject, ObjectValues, PartialRecord} from '../utils/types';
 import {AppShard} from './app';
-import {AppResourceType, Resource} from './system';
+import {Agent, AppResourceType, Resource} from './system';
 
 export const kJobType = {
   deleteResource0: 'deleteResource0',
   deleteResourceArtifacts: 'deleteResourceArtifacts',
   deleteResourceSelf: 'deleteResourceSelf',
+  deletePermissionItem: 'deletePermissionItem',
   ingestFolderpath: 'ingestFolderpath',
   ingestMount: 'ingestMount',
   cleanupMountResolvedEntries: 'cleanupMountResolvedEntries',
@@ -49,6 +50,7 @@ export interface Job<
   TParams extends AnyObject = AnyObject,
   TMeta extends AnyObject = AnyObject,
 > extends Resource {
+  createdBy: Agent;
   type: JobType | (string & {});
   params: TParams;
   meta?: TMeta;
@@ -69,6 +71,10 @@ export interface Job<
    * to them, for example during testing. */
   shard: AppShard;
   runAfter?: RunAfterJobItem[];
+  /** ms timestamp to mark jobs already visited. Useful when the job is not
+   * ready, and to prevent previous evaluator & other runners from fetching
+   * until after a cooldown. */
+  cooldownTill?: number;
 }
 
 export type DeleteResourceCascadeFnDefaultArgs = {

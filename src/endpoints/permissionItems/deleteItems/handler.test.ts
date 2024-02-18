@@ -1,11 +1,10 @@
-import {keyBy} from 'lodash';
-import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
+import {Job, kJobType} from '../../../definitions/job';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {kAppResourceType} from '../../../definitions/system';
-import {extractResourceIdList} from '../../../utils/fns';
+import {sortObjectKeys} from '../../../utils/fns';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generate/permissionItem';
+import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion';
 import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
@@ -16,7 +15,7 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
 import deletePermissionItems from './handler';
-import {DeletePermissionItemsEndpointParams} from './types';
+import {DeletePermissionItemInput, DeletePermissionItemsEndpointParams} from './types';
 
 beforeAll(async () => {
   await initTests();
@@ -33,64 +32,51 @@ test('permission items deleted', async () => {
     insertPermissionGroupForTest(userToken, workspace.resourceId),
     insertPermissionGroupForTest(userToken, workspace.resourceId),
   ]);
-  const [items01, items02] = await Promise.all([
-    generateAndInsertPermissionItemListForTest(10, {
-      workspaceId: workspace.resourceId,
-      action: kPermissionsMap.addTag,
-      targetId: workspace.resourceId,
-      entityId: pg01.resourceId,
-    }),
-    generateAndInsertPermissionItemListForTest(10, {
-      workspaceId: workspace.resourceId,
-      action: kPermissionsMap.addTag,
-      targetId: workspace.resourceId,
-      entityId: pg02.resourceId,
-    }),
-  ]);
-  const items = items01.concat(items02);
 
+  const params: DeletePermissionItemsEndpointParams = {
+    workspaceId: workspace.resourceId,
+    items: [
+      {
+        action: kPermissionsMap.addTag,
+        target: {targetId: workspace.resourceId},
+        entityId: pg01.resourceId,
+      },
+      {entityId: pg02.resourceId},
+    ],
+  };
   const instData = RequestData.fromExpressRequest<DeletePermissionItemsEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
-    {
-      workspaceId: workspace.resourceId,
-      items: [
-        {
-          action: kPermissionsMap.addTag,
-          target: {targetId: workspace.resourceId},
-          entityId: pg01.resourceId,
-        },
-        {entityId: pg02.resourceId},
-      ],
-    }
+    params
   );
   const result = await deletePermissionItems(instData);
   assertEndpointResultOk(result);
 
-  const itemIds = extractResourceIdList(items);
-  const jobItemIds = result.jobs.map(job => job.resourceId);
-  expect(itemIds).toEqual(expect.arrayContaining(jobItemIds));
-
-  const resultJobsById = keyBy(result.jobs, job => job.jobId);
-  const jobIds = Object.keys(resultJobsById);
   const jobs = (await kSemanticModels.job().getManyByQuery({
-    type: kJobType.deleteResource0,
-    resourceId: {$in: jobIds},
-  })) as Job<DeleteResourceJobParams>[];
-  const jobsById = keyBy(jobs, job => job.resourceId);
-  jobIds.forEach(id => {
-    const resultJob = resultJobsById[id];
-    const job = jobsById[id];
-    expect(job).toBeTruthy();
-    const params: DeleteResourceJobParams = {
-      type: kAppResourceType.PermissionItem,
-      resourceId: resultJob.resourceId,
-      workspaceId: workspace.resourceId,
-    };
-    expect(job.params).toMatchObject(params);
-  });
+    type: kJobType.deletePermissionItem,
+    resourceId: {$in: result.jobIds},
+    workspaceId: workspace.resourceId,
+    createdBy: {
+      $objMatch: {
+        agentId: userToken.forEntityId,
+        agentType: kAppResourceType.User,
+        agentTokenId: userToken.resourceId,
+      },
+    },
+  })) as Job<DeletePermissionItemInput>[];
 
-  const dbItems = await kSemanticModels
-    .permissionItem()
-    .getOneByQuery({resourceId: {$in: itemIds}, isDeleted: true});
-  expect(dbItems).toHaveLength(itemIds.length);
+  expect(jobs).toHaveLength(params.items.length);
+  expectContainsEveryItemInForAnyType(
+    jobs,
+    params.items,
+    job => {
+      const item: DeletePermissionItemInput = {
+        access: job.params.access,
+        action: job.params.action,
+        entityId: job.params.entityId,
+        target: job.params.target,
+      };
+      return JSON.stringify(sortObjectKeys(item));
+    },
+    item => JSON.stringify(sortObjectKeys(item))
+  );
 });

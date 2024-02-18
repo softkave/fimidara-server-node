@@ -10,7 +10,7 @@ import {
 } from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {ServerError} from '../../utils/errors';
-import {isObjectEmpty, pathJoin, pathSplit, toArray} from '../../utils/fns';
+import {convertToArray, isObjectEmpty, pathJoin, pathSplit} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
 import {getResourceTypeFromId} from '../../utils/resource';
 import {PartialRecord} from '../../utils/types';
@@ -135,7 +135,7 @@ function groupItemsToFetch(
 
   inputResources.forEach(item => {
     if (item.resourceId) {
-      const idList = toArray(item.resourceId);
+      const idList = convertToArray(item.resourceId);
       idList.forEach(resourceId => {
         const type = getResourceTypeFromId(resourceId);
 
@@ -150,11 +150,11 @@ function groupItemsToFetch(
         }
       });
     } else if (item.filepath) {
-      toArray(item.filepath).forEach(filepath => {
+      convertToArray(item.filepath).forEach(filepath => {
         filepathsMap[pathJoin(pathSplit(filepath).slice(1))] = item.action;
       });
     } else if (item.folderpath) {
-      toArray(item.folderpath).forEach(folderpath => {
+      convertToArray(item.folderpath).forEach(folderpath => {
         folderpathsMap[pathJoin(pathSplit(folderpath).slice(1))] = item.action;
       });
     } else if (item.workspaceRootname) {

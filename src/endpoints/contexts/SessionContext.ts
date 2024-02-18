@@ -16,7 +16,7 @@ import {kPublicSessionAgent} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {dateToSeconds} from '../../utils/dateFns';
 import {ServerError} from '../../utils/errors';
-import {cast, toArray} from '../../utils/fns';
+import {cast, convertToArray} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
 import {getResourceTypeFromId} from '../../utils/resource';
 import {kReuseableErrors} from '../../utils/reusableErrors';
@@ -147,7 +147,7 @@ export default class SessionContext implements SessionContextType {
     expectedTokenScopes: TokenAccessScope | TokenAccessScope[]
   ) => {
     const tokenScopes = tokenData.scope ?? [];
-    const expectedTokenScopesMap = indexArray(toArray(expectedTokenScopes), {
+    const expectedTokenScopesMap = indexArray(convertToArray(expectedTokenScopes), {
       reducer: () => true,
     });
     const hasTokenAccessScope = !!tokenScopes.find(
@@ -180,7 +180,7 @@ export default class SessionContext implements SessionContextType {
     permittedAgentTypes?: AppResourceType | AppResourceType[]
   ) {
     if (permittedAgentTypes?.length) {
-      const permittedAgent = toArray(permittedAgentTypes).find(
+      const permittedAgent = convertToArray(permittedAgentTypes).find(
         type => type === agent.agentType
       );
 
@@ -213,7 +213,7 @@ export default class SessionContext implements SessionContextType {
     if (agent.agentType === kAppResourceType.User) {
       appAssert(agent.user);
       if (agent.user.requiresPasswordChange) {
-        const scopeList = toArray(tokenAccessScope);
+        const scopeList = convertToArray(tokenAccessScope);
         const agentToken = agent.agentToken;
         if (
           !agentToken ||

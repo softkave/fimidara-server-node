@@ -1,5 +1,5 @@
 import {AssignedItem} from '../../../definitions/assignedItem';
-import {toArray} from '../../../utils/fns';
+import {convertToArray} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {LiteralDataQuery} from '../../contexts/data/types';
@@ -20,8 +20,8 @@ const unassignPermissionGroups: UnassignPermissionGroupsEndpoint = async instDat
   });
 
   const queries: LiteralDataQuery<AssignedItem>[] = [];
-  toArray(data.entityId).forEach(entityId => {
-    toArray(data.permissionGroups).forEach(pId => {
+  convertToArray(data.entityId).forEach(entityId => {
+    convertToArray(data.permissionGroups).forEach(pId => {
       queries.push({assignedItemId: pId, assigneeId: entityId});
     });
   });

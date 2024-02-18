@@ -1,16 +1,9 @@
 import {first, forEach, isString} from 'lodash';
-import {File} from '../../../definitions/file';
-import {Folder} from '../../../definitions/folder';
-import {PermissionAction} from '../../../definitions/permissionItem';
-import {
-  Resource,
-  ResourceWrapper,
-  SessionAgent,
-  kAppResourceType,
-} from '../../../definitions/system';
+import {PermissionAction, kPermissionsMap} from '../../../definitions/permissionItem';
+import {Resource, ResourceWrapper, SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
-import {toArray} from '../../../utils/fns';
+import {convertToArray} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {
   checkAuthorizationWithAgent,
@@ -19,10 +12,9 @@ import {
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {SemanticProviderTxnOptions} from '../../contexts/semantic/types';
 import {InvalidRequestError} from '../../errors';
-import {stringifyFilenamepath} from '../../files/utils';
-import {stringifyFoldernamepath} from '../../folders/utils';
+import {getPermissionItemTargets} from '../getPermissionItemTargets';
 import {PermissionItemInputTarget} from '../types';
-import {getPermissionItemEntities, getPermissionItemTargets} from '../utils';
+import {getPermissionItemEntities} from '../utils';
 import {
   ResolveEntityPermissionItemInput,
   ResolveEntityPermissionsEndpointParams,
@@ -30,10 +22,7 @@ import {
   ResolvedEntityPermissionItemTarget,
 } from './types';
 
-type ResolvedTargetItem = {
-  resource: ResourceWrapper;
-  resolvedTarget: ResolvedEntityPermissionItemTarget;
-};
+type ResolvedTargetItem = ResourceWrapper & ResolvedEntityPermissionItemTarget;
 type ResolvedTargetsMap = Record<string, ResolvedTargetItem>;
 type FlattenedPermissionRequestItem = {
   entity: ResourceWrapper;
@@ -52,8 +41,9 @@ async function getArtifacts(
   let inputTargets: PermissionItemInputTarget[] = [];
 
   data.items.forEach(item => {
-    if (item.entityId) inputEntities = inputEntities.concat(toArray(item.entityId));
-    if (item.target) inputTargets = inputTargets.concat(toArray(item.target));
+    if (item.entityId)
+      inputEntities = inputEntities.concat(convertToArray(item.entityId));
+    if (item.target) inputTargets = inputTargets.concat(convertToArray(item.target));
   });
 
   appAssert(
@@ -62,92 +52,32 @@ async function getArtifacts(
   );
   const [entities, targets] = await Promise.all([
     getPermissionItemEntities(agent, workspace.resourceId, inputEntities),
-    getPermissionItemTargets(agent, workspace, inputTargets),
+    getPermissionItemTargets(
+      agent,
+      workspace,
+      inputTargets,
+      kPermissionsMap.readPermission
+    ),
   ]);
 
   return {entities, targets};
 }
 
 /** Index artifacts for quick retrieval. */
-function indexArtifacts(
-  workspace: Workspace,
-  entities: ResourceWrapper<Resource>[],
-  targets: ResourceWrapper<Resource>[]
-) {
-  const indexBynamepath = (item: ResourceWrapper) => {
-    if (item.resourceType === kAppResourceType.File) {
-      return stringifyFilenamepath(item.resource as unknown as File);
-    } else if (item.resourceType === kAppResourceType.Folder) {
-      return stringifyFoldernamepath(item.resource as unknown as Folder);
-    } else {
-      return '';
-    }
-  };
-
+function indexArtifacts(workspace: Workspace, entities: ResourceWrapper<Resource>[]) {
   const entitiesMapById = indexArray(entities, {path: 'resourceId'});
-
-  // TODO: merge into one loop or update indexArray to produce more than one
-  // index
-  const targetsMapById = indexArray(targets, {path: 'resourceId'});
-  const targetsMapBynamepath = indexArray(targets, {indexer: indexBynamepath});
-  const workspaceWrapper: ResourceWrapper = {
-    resource: workspace,
-    resourceId: workspace.resourceId,
-    resourceType: kAppResourceType.Workspace,
-  };
-
   const getEntities = (inputEntity: string | string[]) => {
     const eMap: Record<string, ResourceWrapper> = {};
 
     // TODO: should we throw error when some entities are not found?
-    toArray(inputEntity).forEach(entityId => {
+    convertToArray(inputEntity).forEach(entityId => {
       if (entitiesMapById[entityId]) eMap[entityId] = entitiesMapById[entityId];
     });
 
     return eMap;
   };
 
-  const getTargets = (inputTarget: PermissionItemInputTarget) => {
-    const tMap: ResolvedTargetsMap = {};
-
-    // TODO: should we throw error when some targets are not found?
-    if (inputTarget.targetId) {
-      toArray(inputTarget.targetId).forEach(targetId => {
-        if (targetsMapById[targetId]) {
-          tMap[targetId] = {
-            resource: targetsMapById[targetId],
-            resolvedTarget: {targetId},
-          };
-        }
-      });
-    }
-
-    if (inputTarget.folderpath) {
-      toArray(inputTarget.folderpath).forEach(folderpath => {
-        const folder = targetsMapBynamepath[folderpath];
-        if (folder)
-          tMap[folder.resourceId] = {resource: folder, resolvedTarget: {folderpath}};
-      });
-    }
-
-    if (inputTarget.filepath) {
-      toArray(inputTarget.filepath).forEach(filepath => {
-        const file = targetsMapBynamepath[filepath];
-        if (file) tMap[file.resourceId] = {resource: file, resolvedTarget: {filepath}};
-      });
-    }
-
-    if (inputTarget.workspaceRootname) {
-      tMap[workspace.resourceId] = {
-        resource: workspaceWrapper,
-        resolvedTarget: {workspaceRootname: inputTarget.workspaceRootname},
-      };
-    }
-
-    return tMap;
-  };
-
-  return {getTargets, getEntities};
+  return {getEntities};
 }
 
 export const INTERNAL_resolveEntityPermissions = async (
@@ -156,7 +86,7 @@ export const INTERNAL_resolveEntityPermissions = async (
   data: ResolveEntityPermissionsEndpointParams
 ) => {
   const {entities, targets} = await getArtifacts(agent, workspace, data);
-  const {getEntities, getTargets} = indexArtifacts(workspace, entities, targets);
+  const {getEntities} = indexArtifacts(workspace, entities);
 
   // Requested permissions flattened to individual items, for example, list of
   // entity IDs, target IDs, target type, appliesTo, etc. flattened into
@@ -174,29 +104,32 @@ export const INTERNAL_resolveEntityPermissions = async (
       itemsToResolve.push({
         entity,
         action,
-        target: tFromMap.resource,
-        resolvedTarget: tFromMap.resolvedTarget,
+        target: tFromMap,
+        resolvedTarget: tFromMap,
       });
     });
   }
+
   function fTarget(
     entity: ResourceWrapper<Resource>,
     action: PermissionAction,
     item: ResolveEntityPermissionItemInput
   ) {
-    toArray(item.target).forEach(target => {
-      const tMap = getTargets(target);
+    convertToArray(item.target).forEach(target => {
+      const {targets: tMap} = targets.getByTarget(target);
       fResolvedTargetItems(entity, action, tMap);
     });
   }
+
   function fActions(
     entity: ResourceWrapper<Resource>,
     item: ResolveEntityPermissionItemInput
   ) {
-    toArray(item.action).forEach(action => {
+    convertToArray(item.action).forEach(action => {
       fTarget(entity, action, item);
     });
   }
+
   function fEntities(item: ResolveEntityPermissionItemInput) {
     const itemEntitiesMap = getEntities(item.entityId);
 

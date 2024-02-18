@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {kFileBackendType} from '../../../../definitions/fileBackend';
 import {IngestFolderpathJobParams, kJobType} from '../../../../definitions/job';
+import {kSystemSessionAgent} from '../../../../utils/agent';
 import {getNewId} from '../../../../utils/resource';
 import {
   kSemanticModels,
@@ -17,8 +18,8 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../../testUtils/testUtils';
-import {runIngestMountJob} from '../runIngestMountJob';
 import {queueJobs} from '../../queueJobs';
+import {runIngestMountJob} from '../runIngestMountJob';
 
 beforeAll(async () => {
   await initTests();
@@ -55,6 +56,7 @@ describe('runIngestMountJob', () => {
       [
         {
           shard,
+          createdBy: kSystemSessionAgent,
           type: kJobType.ingestFolderpath,
           params: {
             ingestFrom: mountedFrom,

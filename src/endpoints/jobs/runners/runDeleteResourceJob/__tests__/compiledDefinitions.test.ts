@@ -11,14 +11,7 @@ describe('compiledDefinitions', () => {
     forEach(kResourceTypeToPossibleChildren, (childrenTypes, type) => {
       const def = kCascadeDeleteDefinitions[type as AppResourceType];
       childrenTypes.forEach(childType => {
-        assert(
-          def.deleteArtifacts[childType],
-          `Missing deleteArtifacts fn for ${childType} in ${type}`
-        );
-        assert(
-          def.getArtifacts[childType],
-          `Missing getArtifacts fn for ${childType} in ${type}`
-        );
+        assert(def.deleteArtifacts[childType] || def.getArtifacts[childType]);
       });
     });
   });

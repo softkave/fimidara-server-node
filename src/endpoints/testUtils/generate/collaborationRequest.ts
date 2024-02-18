@@ -34,6 +34,7 @@ export function generateCollaborationRequestForTest(
     message: '',
     status: CollaborationRequestStatusTypeMap.Pending,
     statusDate: getTimestamp(),
+    isDeleted: false,
     ...seed,
   };
   return item;

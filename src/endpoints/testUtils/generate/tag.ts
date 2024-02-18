@@ -21,6 +21,7 @@ export function generateTagForTest(seed: Partial<Tag> = {}) {
     workspaceId: getNewIdForResource(kAppResourceType.Workspace),
     name: faker.company.name(),
     description: faker.lorem.sentence(),
+    isDeleted: false,
     ...seed,
   };
   return tag;

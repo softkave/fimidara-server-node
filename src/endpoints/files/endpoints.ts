@@ -3,7 +3,7 @@ import {Request, Response} from 'express';
 import {first, last} from 'lodash';
 import {kAppResourceType} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
-import {toArray} from '../../utils/fns';
+import {convertToArray} from '../../utils/fns';
 import {tryGetResourceTypeFromId} from '../../utils/resource';
 import {kEndpointConstants} from '../constants';
 import {InvalidRequestError} from '../errors';
@@ -128,7 +128,7 @@ async function extractUploadFileParamsFromReq(
         data: stream,
         encoding: info.encoding ?? contentEncoding,
         mimetype: info.mimeType,
-        description: description ? first(toArray(description)) : undefined,
+        description: description ? first(convertToArray(description)) : undefined,
       });
     });
 

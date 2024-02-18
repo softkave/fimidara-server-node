@@ -24,6 +24,7 @@ export interface SemanticProviderOpOptions
   extends SemanticProviderTxnOptions,
     DataProviderOpParams {
   includeDeleted?: boolean;
+  isDeleted?: boolean;
 }
 
 export interface SemanticProviderMutationOpOptions
@@ -68,12 +69,6 @@ export interface SemanticBaseProviderType<TResource extends Resource> {
     update: Partial<TResource>,
     opts: SemanticProviderMutationOpOptions & SemanticProviderQueryRunOptions<TResource>
   ): Promise<TResource | null>;
-  getAndUpdateManyByQuery(
-    query: DataQuery<TResource>,
-    update: Partial<TResource>,
-    opts: SemanticProviderMutationOpOptions &
-      SemanticProviderQueryListRunOptions<TResource>
-  ): Promise<TResource[]>;
   deleteOneById(id: string, opts: SemanticProviderMutationTxnOptions): Promise<void>;
   deleteManyByIdList(
     idList: string[],

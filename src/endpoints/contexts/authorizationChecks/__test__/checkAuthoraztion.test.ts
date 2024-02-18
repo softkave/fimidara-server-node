@@ -5,7 +5,7 @@ import {
   kPermissionsMap,
 } from '../../../../definitions/permissionItem';
 import {kSystemSessionAgent} from '../../../../utils/agent';
-import {toArray} from '../../../../utils/fns';
+import {convertToArray} from '../../../../utils/fns';
 import RequestData from '../../../RequestData';
 import {assignWorkspaceToUser} from '../../../assignedItems/addAssignedItems';
 import {generateAndInsertTestFiles} from '../../../testUtils/generate/file';
@@ -879,7 +879,7 @@ async function addPermissions(
   permissions: PermissionAction | PermissionAction[],
   other?: Partial<PermissionItem>
 ) {
-  const items = toArray(permissions).map(action =>
+  const items = convertToArray(permissions).map(action =>
     generatePermissionItemForTest({
       action,
       access: true,

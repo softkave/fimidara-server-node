@@ -1,4 +1,4 @@
-import {first, flatten} from 'lodash';
+import {first, flatten, uniq} from 'lodash';
 import {
   DeleteResourceJobParams,
   Job,
@@ -11,6 +11,7 @@ import {
   Resource,
   kAppResourceType,
 } from '../../../../../definitions/system';
+import {kSystemSessionAgent} from '../../../../../utils/agent';
 import {extractResourceIdList} from '../../../../../utils/fns';
 import {
   getNewId,
@@ -65,9 +66,15 @@ type TypeToIdList = PartialRecord<AppResourceType, string[] | undefined>;
 export async function testDeleteResourceJob0<T extends Resource>(props: {
   type: AppResourceType;
   genResourceFn: GenerateResourceFn<T>;
+  genWorkspaceFn?: AnyFn<[], Promise<string>>;
 }) {
-  const {genResourceFn, type} = props;
-  const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+  const {
+    genResourceFn,
+    type,
+    genWorkspaceFn = () =>
+      Promise.resolve(getNewIdForResource(kAppResourceType.Workspace)),
+  } = props;
+  const workspaceId = await genWorkspaceFn();
   const shard = getNewId();
   const mainResource = await genResourceFn({workspaceId});
   const [job] = await queueJobs<DeleteResourceJobParams>(
@@ -76,6 +83,7 @@ export async function testDeleteResourceJob0<T extends Resource>(props: {
     [
       {
         shard,
+        createdBy: kSystemSessionAgent,
         type: kJobType.deleteResource0,
         params: {
           type,
@@ -111,7 +119,7 @@ export async function testDeleteResourceJob0<T extends Resource>(props: {
   });
   expect(deleteSelfJob).toMatchObject({
     workspaceId,
-    type: kJobType.deleteResourceArtifacts,
+    type: kJobType.deleteResourceSelf,
     shard: job.shard,
     priority: job.priority,
     params: job.params,
@@ -155,7 +163,8 @@ const kGetResourcesByIdDef: GetResourcesByIdDefinition = {
   [kAppResourceType.EndpointRequest]: () => Promise.resolve([]),
   [kAppResourceType.App]: () => Promise.resolve([]),
   [kAppResourceType.Job]: () => Promise.resolve([]),
-  [kAppResourceType.Workspace]: () => Promise.resolve([]),
+  [kAppResourceType.Workspace]: ({idList}) =>
+    kSemanticModels.workspace().getManyByIdList(idList),
   [kAppResourceType.CollaborationRequest]: ({idList}) =>
     kSemanticModels.collaborationRequest().getManyByIdList(idList),
   [kAppResourceType.AgentToken]: ({idList}) =>
@@ -220,21 +229,29 @@ export async function testDeleteResourceArtifactsJob<T extends Resource>(props: 
   genChildrenDef: GenerateTypeChildrenDefinition<T>;
   deleteCascadeDef: DeleteResourceCascadeEntry;
   genWorkspaceFn?: AnyFn<[], Promise<string>>;
+  skipCheckDbResource?: boolean;
 }) {
   const {
     type,
     genResourceFn,
     genChildrenDef,
     deleteCascadeDef,
+    skipCheckDbResource,
     genWorkspaceFn = () =>
       Promise.resolve(getNewIdForResource(kAppResourceType.Workspace)),
   } = props;
   const workspaceId = await genWorkspaceFn();
   const shard = getNewId();
   const mainResource = await genResourceFn({workspaceId, shard});
-  const artifactTypes = Object.keys(deleteCascadeDef.getArtifacts).filter(
+  const getArtifactTypes = Object.keys(deleteCascadeDef.getArtifacts).filter(
     type => !!deleteCascadeDef.getArtifacts[type as AppResourceType]
   );
+  const deleteArtifactTypes = Object.keys(deleteCascadeDef.deleteArtifacts).filter(
+    type =>
+      !!deleteCascadeDef.deleteArtifacts[type as AppResourceType] &&
+      !deleteCascadeDef.getArtifacts[type as AppResourceType]
+  );
+  const artifactTypes = uniq(getArtifactTypes.concat(deleteArtifactTypes));
   const childrenMap = await generateTypeChildrenWithDef({
     workspaceId,
     resource: mainResource,
@@ -248,12 +265,9 @@ export async function testDeleteResourceArtifactsJob<T extends Resource>(props: 
     [
       {
         shard,
+        createdBy: kSystemSessionAgent,
         type: kJobType.deleteResourceArtifacts,
-        params: {
-          type,
-          workspaceId,
-          resourceId: mainResource.resourceId,
-        },
+        params: {type, workspaceId, resourceId: mainResource.resourceId},
       },
     ]
   );
@@ -261,11 +275,22 @@ export async function testDeleteResourceArtifactsJob<T extends Resource>(props: 
   await runDeleteResourceJobArtifacts(job);
   await kUtilsInjectables.promises().flush();
 
+  const getArtifactsMap = getArtifactTypes.reduce(
+    (acc, type) => {
+      acc[type] = childrenMap[type as AppResourceType];
+      return acc;
+    },
+    {} as Record<string, AnyObject[] | undefined>
+  );
   const idMap = resourceMapToIdMap(childrenMap);
-  const idList = flattenIdMap(idMap);
+  const getArtifactsIdMap = resourceMapToIdMap(getArtifactsMap);
+  const getArtifactsIdList = flattenIdMap(getArtifactsIdMap);
 
   const [fetchedChildrenMap, dbResource, childrenJobs] = await Promise.all([
-    fetchTypeChildrenWithDef({idMap, forTypes: artifactTypes as AppResourceType[]}),
+    fetchTypeChildrenWithDef({
+      idMap,
+      forTypes: deleteArtifactTypes as AppResourceType[],
+    }),
     getResourceById(mainResource.resourceId),
     kSemanticModels.job().getManyByQuery({
       shard: job.shard,
@@ -274,14 +299,17 @@ export async function testDeleteResourceArtifactsJob<T extends Resource>(props: 
       params: {
         $objMatch: {
           workspaceId: job.params.workspaceId,
-          resourceId: {$in: idList},
+          resourceId: {$in: getArtifactsIdList},
         },
       },
     }),
   ]);
 
-  expect(dbResource).toBeTruthy();
-  expect(childrenJobs.length).toBe(idList.length);
+  if (!skipCheckDbResource) {
+    expect(dbResource).toBeTruthy();
+  }
+
+  expect(childrenJobs.length).toBe(getArtifactsIdList.length);
   Object.entries(fetchedChildrenMap).forEach(([, resources]) => {
     expect(resources?.length || 0).toBe(0);
   });
@@ -318,6 +346,7 @@ export async function testDeleteResourceSelfJob<
     [
       {
         shard,
+        createdBy: kSystemSessionAgent,
         type: kJobType.deleteResourceSelf,
         params: {
           type,

@@ -7,7 +7,7 @@ export const deleteResourceAssignedItems: DeleteArtifactsFn = ({args, helpers}) 
   helpers.withTxn(opts =>
     kSemanticModels
       .assignedItem()
-      .deleteResourceAssignedItems(
+      .deleteByAssigned(
         args.workspaceId,
         args.resourceId,
         /** assignedItemType */ undefined,
@@ -19,7 +19,7 @@ export const deleteResourceAssigneeItems: DeleteArtifactsFn = ({args, helpers}) 
   helpers.withTxn(opts =>
     kSemanticModels
       .assignedItem()
-      .deleteResourceAssigneeItems(args.workspaceId, args.resourceId, opts)
+      .deleteByAssignee(args.workspaceId, args.resourceId, opts)
   );
 
 export const deletePermissionItemsTargetingResource: DeleteArtifactsFn = ({
@@ -54,7 +54,7 @@ export const deleteResourcePermissionItemArtifacts = overArgsAsync(
 export const getResourceAssignedItems: GetArtifactsFn = ({args, opts}) =>
   kSemanticModels
     .assignedItem()
-    .getResourceAssignedItems(
+    .getByAssignee(
       args.workspaceId,
       args.resourceId,
       /** assignedItemType */ undefined,
@@ -62,9 +62,7 @@ export const getResourceAssignedItems: GetArtifactsFn = ({args, opts}) =>
     );
 
 export const getResourceAssigneeItems: GetArtifactsFn = ({args, opts}) =>
-  kSemanticModels
-    .assignedItem()
-    .getResourceAssigneeItems(args.workspaceId, args.resourceId, opts);
+  kSemanticModels.assignedItem().getByAssigned(args.workspaceId, args.resourceId, opts);
 
 export const getPermissionItemsTargetingResource: GetArtifactsFn = ({args, opts}) =>
   kSemanticModels

@@ -6,6 +6,10 @@ export interface LongRunningJobResult {
   jobId?: string;
 }
 
+export interface MultipleLongRunningJobResult {
+  jobIds: string[];
+}
+
 export type GetJobStatusHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<GetJobStatusEndpoint>;
 

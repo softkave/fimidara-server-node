@@ -1,6 +1,8 @@
 ## Now
 
 - [ ] pathJoin and split should validate paths and remove volumes
+- add permission items target should default to workspace, and access should default to true
+- combination testing for all places and endpoints we use combinations
 - [ ] have job pick quotas so that lower priority jobs too can be picked and completed
 - [ ] Document what permissions are needed for what operations for external mounts
 - [ ] Fimidara logging, add every call and what permissions were missing for access denied

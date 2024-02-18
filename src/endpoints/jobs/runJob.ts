@@ -11,12 +11,14 @@ import {
 } from '../../definitions/job';
 import {getTimestamp} from '../../utils/dateFns';
 import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
+import {DeletePermissionItemInput} from '../permissionItems/deleteItems/types';
 import {runCleanupMountResolvedEntriesJob} from './runners/runCleanupMountResolvedEntriesJob';
-import {runIngestFolderpathJob} from './runners/runIngestFolderpathJob';
-import {runIngestMountJob} from './runners/runIngestMountJob';
+import {runDeletePermissionItemsJob} from './runners/runDeletePermissionItemsJob';
 import {runDeleteResourceJob0} from './runners/runDeleteResourceJob/runDeleteResourceJob0';
 import {runDeleteResourceJobArtifacts} from './runners/runDeleteResourceJob/runDeleteResourceJobArtifacts';
 import {runDeleteResourceJobSelf} from './runners/runDeleteResourceJob/runDeleteResourceJobSelf';
+import {runIngestFolderpathJob} from './runners/runIngestFolderpathJob';
+import {runIngestMountJob} from './runners/runIngestMountJob';
 
 export async function completeJob(
   jobId: string,
@@ -77,27 +79,37 @@ export async function completeJob(
 
 export async function runJob(job: Job) {
   try {
-    if (job.type === kJobType.deleteResource0) {
-      await runDeleteResourceJob0(job);
-    } else if (job.type === kJobType.deleteResourceArtifacts) {
-      await runDeleteResourceJobArtifacts(job);
-    } else if (job.type === kJobType.deleteResourceSelf) {
-      await runDeleteResourceJobSelf(job);
-    } else if (job.type === kJobType.ingestFolderpath) {
-      await runIngestFolderpathJob(job as Job<IngestFolderpathJobParams>);
-    } else if (job.type === kJobType.ingestMount) {
-      await runIngestMountJob(job as Job<IngestMountJobParams>);
-    } else if (job.type === kJobType.noop) {
-      noop();
-    } else if (job.type === kJobType.cleanupMountResolvedEntries) {
-      await runCleanupMountResolvedEntriesJob(
-        job as Job<CleanupMountResolvedEntriesJobParams>
-      );
-    } else if (job.type === kJobType.fail) {
-      throw new Error('Fail job');
-    } else {
-      kUtilsInjectables.logger().log(`unknown job type ${job.type}`);
-      return undefined;
+    switch (job.type) {
+      case kJobType.deleteResource0:
+        await runDeleteResourceJob0(job);
+        break;
+      case kJobType.deleteResourceArtifacts:
+        await runDeleteResourceJobArtifacts(job);
+        break;
+      case kJobType.deleteResourceSelf:
+        await runDeleteResourceJobSelf(job);
+        break;
+      case kJobType.ingestFolderpath:
+        await runIngestFolderpathJob(job as Job<IngestFolderpathJobParams>);
+        break;
+      case kJobType.ingestMount:
+        await runIngestMountJob(job as Job<IngestMountJobParams>);
+        break;
+      case kJobType.noop:
+        noop();
+        break;
+      case kJobType.cleanupMountResolvedEntries:
+        await runCleanupMountResolvedEntriesJob(
+          job as Job<CleanupMountResolvedEntriesJobParams>
+        );
+        break;
+      case kJobType.fail:
+        throw new Error('Fail job');
+      case kJobType.deletePermissionItem:
+        await runDeletePermissionItemsJob(job as Job<DeletePermissionItemInput>);
+        break;
+      default:
+        throw new Error(`unknown job type ${job.type}`);
     }
 
     return await completeJob(job.resourceId);

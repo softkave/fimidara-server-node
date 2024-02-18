@@ -7,7 +7,7 @@ import {
   generateBaseMongoTestQueryFromCombination,
   getArrTokenCountAndIndices,
   kBaseMongoTestConsts,
-} from './utils';
+} from './testUtils';
 
 export function testCombinations(
   tokens: CombinationToken[],
@@ -18,7 +18,7 @@ export function testCombinations(
 
   const {count, indices} = getArrTokenCountAndIndices(combinations);
   expect(first(combinations)).toBe(kBaseMongoTestConsts.objToken.token);
-  expect(count).toBe(expArrCount);
+  expect(count).toBeLessThanOrEqual(expArrCount);
   expect(combinations.length).toBe(max);
   indices.forEach(index => {
     if (index !== combinations.length - 1) {

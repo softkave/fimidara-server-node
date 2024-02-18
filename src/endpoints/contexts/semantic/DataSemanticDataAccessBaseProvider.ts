@@ -1,7 +1,8 @@
-import {defaultTo} from 'lodash';
+import {isUndefined, merge} from 'lodash';
+import {AnyObject} from 'mongoose';
 import {Agent, Resource} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
-import {toArray} from '../../../utils/fns';
+import {convertToArray} from '../../../utils/fns';
 import {BaseDataProvider, DataQuery} from '../data/types';
 import {
   SemanticBaseProviderType,
@@ -11,6 +12,44 @@ import {
   SemanticProviderQueryListRunOptions,
   SemanticProviderQueryRunOptions,
 } from './types';
+
+function mergeIsDeletedIntoQuery<T extends DataQuery<AnyObject> = DataQuery<AnyObject>>(
+  q01: T,
+  includeDeleted?: boolean,
+  isDeleted?: boolean
+) {
+  return merge({}, q01, {
+    isDeleted:
+      q01.isDeleted ?? (isUndefined(includeDeleted) ? isDeleted ?? false : isDeleted),
+  });
+}
+
+function mergeIsDeletedIntoQueryList<
+  T extends DataQuery<AnyObject> = DataQuery<AnyObject>,
+>(qList?: T[], includeDeleted?: boolean, isDeleted?: boolean) {
+  return qList?.map(q02 => {
+    return mergeIsDeletedIntoQuery(q02, includeDeleted, isDeleted);
+  });
+}
+
+function addIsDeletedIntoQuery<T extends DataQuery<AnyObject> = DataQuery<AnyObject>>(
+  q01: T,
+  includeDeleted?: boolean,
+  isDeleted?: boolean
+) {
+  const hasLogicalOps = !!(q01.$and || q01.$nor || q01.$or);
+  let q00: T = {...q01};
+
+  if (hasLogicalOps) {
+    q00.$and = mergeIsDeletedIntoQueryList(q01.$and);
+    q00.$nor = mergeIsDeletedIntoQueryList(q01.$nor);
+    q00.$or = mergeIsDeletedIntoQueryList(q01.$or);
+  } else {
+    q00 = mergeIsDeletedIntoQuery(q00, includeDeleted, isDeleted);
+  }
+
+  return q00;
+}
 
 export class DataSemanticBaseProvider<T extends Resource>
   implements SemanticBaseProviderType<T>
@@ -24,17 +63,18 @@ export class DataSemanticBaseProvider<T extends Resource>
     item: T | T[],
     opts: SemanticProviderMutationTxnOptions
   ): Promise<void> {
-    await this.data.insertList(toArray(item), opts);
+    await this.data.insertList(convertToArray(item), opts);
   }
 
   async getOneById(
     id: string,
     opts?: SemanticProviderQueryRunOptions<T> | undefined
   ): Promise<T | null> {
-    const query: DataQuery<Resource> = {
-      resourceId: id,
-      isDeleted: defaultTo(opts?.includeDeleted, false),
-    };
+    const query = mergeIsDeletedIntoQuery<DataQuery<Resource>>(
+      {resourceId: id},
+      opts?.includeDeleted,
+      opts?.isDeleted
+    );
 
     return (await this.data.getOneByQuery(query as DataQuery<T>, opts)) as T | null;
   }
@@ -43,10 +83,11 @@ export class DataSemanticBaseProvider<T extends Resource>
     id: string,
     opts?: SemanticProviderOpOptions | undefined
   ): Promise<boolean> {
-    const query: DataQuery<Resource> = {
-      resourceId: id,
-      isDeleted: defaultTo(opts?.includeDeleted, false),
-    };
+    const query = mergeIsDeletedIntoQuery<DataQuery<Resource>>(
+      {resourceId: id},
+      opts?.includeDeleted,
+      opts?.isDeleted
+    );
 
     return await this.data.existsByQuery(query as DataQuery<T>, opts);
   }
@@ -56,10 +97,11 @@ export class DataSemanticBaseProvider<T extends Resource>
     update: Partial<T>,
     opts: SemanticProviderMutationOpOptions
   ): Promise<void> {
-    const query: DataQuery<Resource> = {
-      resourceId: id,
-      isDeleted: defaultTo(opts?.includeDeleted, false),
-    };
+    const query = mergeIsDeletedIntoQuery<DataQuery<Resource>>(
+      {resourceId: id},
+      opts?.includeDeleted,
+      opts?.isDeleted
+    );
 
     return await this.data.updateOneByQuery(query as DataQuery<T>, update, opts);
   }
@@ -69,11 +111,8 @@ export class DataSemanticBaseProvider<T extends Resource>
     update: Partial<T>,
     opts: SemanticProviderMutationOpOptions
   ): Promise<void> {
-    return await this.data.updateManyByQuery(
-      {isDeleted: defaultTo(opts?.includeDeleted, false), ...query},
-      update,
-      opts
-    );
+    query = addIsDeletedIntoQuery(query, opts?.includeDeleted, opts?.isDeleted);
+    return await this.data.updateManyByQuery(query, update, opts);
   }
 
   async getAndUpdateOneById(
@@ -81,10 +120,11 @@ export class DataSemanticBaseProvider<T extends Resource>
     update: Partial<T>,
     opts: SemanticProviderMutationOpOptions & SemanticProviderQueryRunOptions<T>
   ): Promise<T | null> {
-    const query: DataQuery<Resource> = {
-      resourceId: id,
-      isDeleted: defaultTo(opts?.includeDeleted, false),
-    };
+    const query = mergeIsDeletedIntoQuery<DataQuery<Resource>>(
+      {resourceId: id},
+      opts?.includeDeleted,
+      opts?.isDeleted
+    );
     const item = await this.data.getAndUpdateOneByQuery(
       query as DataQuery<T>,
       update,
@@ -93,18 +133,6 @@ export class DataSemanticBaseProvider<T extends Resource>
 
     this.assertFn(item);
     return item as T;
-  }
-
-  async getAndUpdateManyByQuery(
-    query: DataQuery<T & T>,
-    update: Partial<T & T>,
-    opts: SemanticProviderMutationOpOptions & SemanticProviderQueryListRunOptions<T & T>
-  ): Promise<(T & T)[]> {
-    return (await await this.data.getAndUpdateManyByQuery(
-      {isDeleted: defaultTo(opts?.includeDeleted, false), ...query},
-      update,
-      opts
-    )) as (T & T)[];
   }
 
   async deleteManyByIdList(
@@ -150,10 +178,11 @@ export class DataSemanticBaseProvider<T extends Resource>
     idList: string[],
     opts?: SemanticProviderOpOptions | undefined
   ): Promise<number> {
-    const query: DataQuery<Resource> = {
-      resourceId: {$in: idList},
-      isDeleted: defaultTo(opts?.includeDeleted, false),
-    };
+    const query = mergeIsDeletedIntoQuery<DataQuery<Resource>>(
+      {resourceId: {$in: idList}},
+      opts?.includeDeleted,
+      opts?.isDeleted
+    );
 
     return await this.data.countByQuery(query as DataQuery<T>, opts);
   }
@@ -162,10 +191,11 @@ export class DataSemanticBaseProvider<T extends Resource>
     idList: string[],
     opts?: SemanticProviderQueryListRunOptions<T> | undefined
   ): Promise<T[]> {
-    const query: DataQuery<Resource> = {
-      resourceId: {$in: idList},
-      isDeleted: defaultTo(opts?.includeDeleted, false),
-    };
+    const query = mergeIsDeletedIntoQuery<DataQuery<Resource>>(
+      {resourceId: {$in: idList}},
+      opts?.includeDeleted,
+      opts?.isDeleted
+    );
 
     return (await this.data.getManyByQuery(query as DataQuery<T>, opts)) as T[];
   }
@@ -174,31 +204,24 @@ export class DataSemanticBaseProvider<T extends Resource>
     query: DataQuery<T>,
     opts?: SemanticProviderOpOptions | undefined
   ): Promise<number> {
-    return await this.data.countByQuery(
-      {isDeleted: defaultTo(opts?.includeDeleted, false), ...query},
-      opts
-    );
+    query = addIsDeletedIntoQuery(query, opts?.includeDeleted, opts?.isDeleted);
+    return await this.data.countByQuery(query, opts);
   }
 
   async getManyByQuery(
     query: DataQuery<T>,
     opts?: SemanticProviderQueryListRunOptions<T> | undefined
   ): Promise<T[]> {
-    return (await this.data.getManyByQuery(
-      {isDeleted: defaultTo(opts?.includeDeleted, false), ...query},
-      opts
-    )) as T[];
+    query = addIsDeletedIntoQuery(query, opts?.includeDeleted, opts?.isDeleted);
+    return (await this.data.getManyByQuery(query, opts)) as T[];
   }
 
   async assertGetOneByQuery(
     query: DataQuery<T>,
     opts?: SemanticProviderQueryRunOptions<T> | undefined
   ): Promise<T> {
-    const item = await this.data.getOneByQuery(
-      {isDeleted: defaultTo(opts?.includeDeleted, false), ...query},
-      opts
-    );
-
+    query = addIsDeletedIntoQuery(query, opts?.includeDeleted, opts?.isDeleted);
+    const item = await this.data.getOneByQuery(query, opts);
     this.assertFn(item);
     return item as T;
   }
@@ -207,20 +230,16 @@ export class DataSemanticBaseProvider<T extends Resource>
     query: DataQuery<T>,
     opts?: SemanticProviderOpOptions | undefined
   ): Promise<boolean> {
-    return await this.data.existsByQuery(
-      {isDeleted: defaultTo(opts?.includeDeleted, false), ...query},
-      opts
-    );
+    query = addIsDeletedIntoQuery(query, opts?.includeDeleted, opts?.isDeleted);
+    return await this.data.existsByQuery(query, opts);
   }
 
   async getOneByQuery(
     query: DataQuery<T>,
     opts?: SemanticProviderQueryRunOptions<T> | undefined
   ): Promise<T | null> {
-    return (await this.data.getOneByQuery(
-      {isDeleted: defaultTo(opts?.includeDeleted, false), ...query},
-      opts
-    )) as T | null;
+    query = addIsDeletedIntoQuery(query, opts?.includeDeleted, opts?.isDeleted);
+    return (await this.data.getOneByQuery(query, opts)) as T | null;
   }
 
   async deleteManyByQuery(

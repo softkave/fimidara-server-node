@@ -11,6 +11,13 @@ export interface PermissionItemInputTarget {
   workspaceRootname?: string;
 }
 
+export interface ResolvedEntityPermissionItemTarget {
+  targetId?: string;
+  filepath?: string;
+  folderpath?: string;
+  workspaceRootname?: string;
+}
+
 export interface PermissionItemInput {
   target: PermissionItemInputTarget | PermissionItemInputTarget[];
   action: PermissionAction | PermissionAction[];

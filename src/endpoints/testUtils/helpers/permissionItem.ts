@@ -1,6 +1,6 @@
 import {PermissionAction, PermissionItem} from '../../../definitions/permissionItem';
 import {AppResourceType} from '../../../definitions/system';
-import {makeKey, toArray} from '../../../utils/fns';
+import {convertToArray, makeKey} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {getInAndNinQuery} from '../../contexts/semantic/utils';
@@ -29,9 +29,9 @@ export async function expectEntityHasPermissionsTargetingId(
 
   // Make checks using key structure defined above, expecting to match expected
   // result.
-  toArray(targetId).forEach(nextTargetId => {
-    toArray(entityId).forEach(nextEntityId => {
-      toArray(action).forEach(nextAction => {
+  convertToArray(targetId).forEach(nextTargetId => {
+    convertToArray(entityId).forEach(nextEntityId => {
+      convertToArray(action).forEach(nextAction => {
         const key = makeKey([nextEntityId, nextAction, nextTargetId]);
         expect(map[key].access).toBe(access);
       });
@@ -62,9 +62,9 @@ export async function expectEntityHasPermissionsTargetingType(
 
   // Make checks using key structure defined above, expecting to match expected
   // result.
-  toArray(targetType).forEach(nextTargetType => {
-    toArray(entityId).forEach(nextEntityId => {
-      toArray(action).forEach(nextAction => {
+  convertToArray(targetType).forEach(nextTargetType => {
+    convertToArray(entityId).forEach(nextEntityId => {
+      convertToArray(action).forEach(nextAction => {
         const key = makeKey([nextAction, nextTargetType, nextEntityId]);
         expect(!!map[key]).toBe(result);
       });

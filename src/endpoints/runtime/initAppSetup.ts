@@ -287,6 +287,7 @@ async function setupAppArtifacts(
       ...appRuntimeVars,
       createdAt: getTimestamp(),
       lastUpdatedAt: getTimestamp(),
+      isDeleted: false,
     },
     opts
   );
@@ -296,8 +297,10 @@ async function setupAppArtifacts(
 }
 
 export async function setupApp() {
-  return await kSemanticModels.utils().withTxn(async opts => {
-    const {agent} = await setupDefaultUser(opts);
-    return await setupAppArtifacts(agent, opts);
+  return await kUtilsInjectables.asyncLocalStorage().run(async () => {
+    return await kSemanticModels.utils().withTxn(async opts => {
+      const {agent} = await setupDefaultUser(opts);
+      return await setupAppArtifacts(agent, opts);
+    });
   });
 }

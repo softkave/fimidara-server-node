@@ -5,8 +5,10 @@ import {
   Job,
   kJobType,
 } from '../../../../definitions/job';
+import {kSystemSessionAgent} from '../../../../utils/agent';
 import {loopAndCollate, pathJoin} from '../../../../utils/fns';
 import {getNewId} from '../../../../utils/resource';
+import {DataQuery} from '../../../contexts/data/types';
 import {MemoryFilePersistenceProvider} from '../../../contexts/file/MemoryFilePersistenceProvider';
 import {
   FilePersistenceDescribeFolderContentParams,
@@ -246,12 +248,18 @@ describe('runIngestFolderpathJob', () => {
     );
     const jobs = await kSemanticModels.job().getManyByQuery({
       $or: pathInfoList.map(pathinfo => {
-        const params: IngestFolderpathJobParams = {
+        const params: DataQuery<IngestFolderpathJobParams> = {
           agentId: userToken.resourceId,
           mountId: mount.resourceId,
-          ingestFrom: pathinfo.namepath,
+          ingestFrom: {$all: pathinfo.namepath},
         };
-        return {shard, workspaceId: mount.workspaceId, params: {$objMatch: params}};
+        return {
+          shard,
+          parentJobId: job.resourceId,
+          workspaceId: mount.workspaceId,
+          type: kJobType.ingestFolderpath,
+          params: {$objMatch: params},
+        };
       }),
     });
 
@@ -349,6 +357,7 @@ async function setup01() {
     [
       {
         shard,
+        createdBy: kSystemSessionAgent,
         type: kJobType.ingestFolderpath,
         params: {
           ingestFrom: mountedFrom,

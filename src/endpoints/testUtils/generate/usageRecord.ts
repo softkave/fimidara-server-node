@@ -62,6 +62,7 @@ export function generateUsageRecordList(count = 10, extra: Partial<UsageRecord> 
       usage: 0,
       usageCost: 0,
       artifacts: [],
+      isDeleted: false,
       ...extra,
     });
   }

@@ -10,15 +10,5 @@ export async function deleteResourceAssignedItems(
 ) {
   await kSemanticModels
     .assignedItem()
-    .deleteResourceAssignedItems(workspaceId, resourceId, assignedItemTypes, opts);
-}
-
-export async function deleteAssignableItemAssignedItems(
-  workspaceId: string,
-  assignedItemId: string,
-  opts: SemanticProviderMutationTxnOptions
-) {
-  await kSemanticModels
-    .assignedItem()
-    .deleteResourceAssigneeItems(workspaceId, assignedItemId, opts);
+    .deleteByAssigned(workspaceId, resourceId, assignedItemTypes, opts);
 }

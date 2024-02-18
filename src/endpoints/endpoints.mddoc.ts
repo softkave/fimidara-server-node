@@ -19,7 +19,7 @@ import {FimidaraExternalError} from '../utils/OperationError';
 import {kIdSeparator, kResourceTypeShortNames} from '../utils/resource';
 import {AnyObject} from '../utils/types';
 import {kEndpointConstants} from './constants';
-import {LongRunningJobResult} from './jobs/types';
+import {LongRunningJobResult, MultipleLongRunningJobResult} from './jobs/types';
 import {permissionGroupConstants} from './permissionGroups/constants';
 import {
   BaseEndpointResult,
@@ -235,6 +235,10 @@ const jobId = mddocConstruct
       '0'
     )()}`
   );
+const jobIds = mddocConstruct
+  .constructFieldArray<string>()
+  .setDescription('Multiple long running job IDs')
+  .setType(jobId);
 const workspaceId = mddocConstruct
   .constructFieldString()
   .setDescription(
@@ -464,7 +468,7 @@ const resourceParts: FieldObjectFieldsMap<PublicResource> = {
   lastUpdatedBy: mddocConstruct.constructFieldObjectField(false, agent),
   lastUpdatedAt: mddocConstruct.constructFieldObjectField(true, date),
   isDeleted: mddocConstruct.constructFieldObjectField(
-    false,
+    true,
     mddocConstruct.constructFieldBoolean()
   ),
   deletedAt: mddocConstruct.constructFieldObjectField(false, date),
@@ -537,6 +541,7 @@ export const fReusables = {
   resultNoteList,
   resourceParts,
   workspaceResourceParts,
+  jobIds,
 };
 
 const errorObject = mddocConstruct
@@ -602,6 +607,14 @@ const longRunningJobResponseBody = mddocConstruct
   })
   .setDescription('Long running job endpoint success result');
 
+const multipleLongRunningJobResponseBody = mddocConstruct
+  .constructFieldObject<MultipleLongRunningJobResult>()
+  .setName('MultipleLongRunningJobResult')
+  .setFields({
+    jobIds: mddocConstruct.constructFieldObjectField(true, jobIds),
+  })
+  .setDescription('Long running job endpoint success result');
+
 const countResponseBody = mddocConstruct
   .constructFieldObject<CountItemsEndpointResult>()
   .setName('CountItemsResult')
@@ -618,4 +631,5 @@ export const mddocEndpointHttpResponseItems = {
   emptySuccessResponseBody,
   longRunningJobResponseBody,
   countResponseBody,
+  multipleLongRunningJobResponseBody,
 };

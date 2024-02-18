@@ -23,6 +23,7 @@ export function generateUserForTest(seed: Partial<User> = {}) {
     passwordLastChangedAt: getTimestamp(),
     isEmailVerified: false,
     isOnWaitlist: false,
+    isDeleted: false,
     ...seed,
   };
   return item;

@@ -1,4 +1,10 @@
 import {flatten} from 'lodash';
+import {FileBackendMount} from '../../../../../definitions/fileBackend';
+import {kAppResourceType} from '../../../../../definitions/system';
+import {
+  generateAndInsertFileBackendMountListForTest,
+  generateAndInsertResolvedMountEntryListForTest,
+} from '../../../../testUtils/generate/fileBackend';
 import {completeTests} from '../../../../testUtils/helpers/testFns';
 import {initTests} from '../../../../testUtils/testUtils';
 import {deleteFileBackendMountCascadeEntry} from '../fileBackendMount';
@@ -10,13 +16,7 @@ import {
   testDeleteResourceArtifactsJob,
   testDeleteResourceJob0,
   testDeleteResourceSelfJob,
-} from './utils';
-import {FileBackendMount} from '../../../../../definitions/fileBackend';
-import {kAppResourceType} from '../../../../../definitions/system';
-import {
-  generateAndInsertResolvedMountEntryListForTest,
-  generateAndInsertFileBackendMountListForTest,
-} from '../../../../testUtils/generate/fileBackend';
+} from './testUtils';
 
 beforeAll(async () => {
   await initTests();

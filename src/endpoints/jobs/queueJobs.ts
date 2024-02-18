@@ -10,9 +10,9 @@ import {
   kJobRunnerV1,
   kJobStatus,
 } from '../../definitions/job';
-import {kAppResourceType} from '../../definitions/system';
+import {Agent, kAppResourceType} from '../../definitions/system';
 import {getTimestamp} from '../../utils/dateFns';
-import {toArray} from '../../utils/fns';
+import {convertToArray} from '../../utils/fns';
 import {newResource} from '../../utils/resource';
 import {kSemanticModels} from '../contexts/injection/injectables';
 
@@ -27,6 +27,7 @@ export interface JobInput<
   priority?: number;
   shard?: AppShard;
   runAfter?: RunAfterJobItem | RunAfterJobItem[];
+  createdBy: Agent;
 }
 
 export async function queueJobs<
@@ -44,7 +45,7 @@ export async function queueJobs<
   const {jobsToReturn = 'all'} = insertOptions;
 
   if (!isArray(jobsInput)) {
-    jobsInput = toArray(jobsInput);
+    jobsInput = convertToArray(jobsInput);
   }
 
   if (jobsInput.length === 0) {
@@ -77,7 +78,8 @@ export async function queueJobs<
       statusHistory: [status],
       priority: input.priority ?? kJobPresetPriority.p1,
       shard: input.shard ?? kAppPresetShards.fimidaraMain,
-      runAfter: input.runAfter ? toArray(input.runAfter) : undefined,
+      runAfter: input.runAfter ? convertToArray(input.runAfter) : undefined,
+      createdBy: input.createdBy,
       ...status,
       ...insertOptions.seed,
     });

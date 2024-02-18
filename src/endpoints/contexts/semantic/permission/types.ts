@@ -3,7 +3,7 @@ import {
   PermissionGroup,
 } from '../../../../definitions/permissionGroups';
 import {PermissionAction, PermissionItem} from '../../../../definitions/permissionItem';
-import {AppResourceType, Resource} from '../../../../definitions/system';
+import {Resource} from '../../../../definitions/system';
 import {SemanticProviderTxnOptions} from '../types';
 
 export type SemanticPermissionProviderType_GetPermissionItemsProps = {
@@ -11,7 +11,6 @@ export type SemanticPermissionProviderType_GetPermissionItemsProps = {
   action?: PermissionAction | PermissionAction[];
   targetParentId?: string;
   targetId?: string | string[];
-  targetType?: AppResourceType | AppResourceType[];
   /** Sort the permission items by last updated date. */
   sortByDate?: boolean;
   /** Sort the permission items by target, i.e following the order of
@@ -26,7 +25,6 @@ export type SemanticPermissionProviderType_CountPermissionItemsProps = {
   entityId?: string | string[];
   action?: PermissionAction | PermissionAction[];
   targetId?: string | string[];
-  targetType?: AppResourceType | AppResourceType[];
 };
 
 export interface SemanticPermissionProviderType {

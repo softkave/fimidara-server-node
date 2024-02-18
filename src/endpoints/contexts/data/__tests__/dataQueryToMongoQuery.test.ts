@@ -308,4 +308,19 @@ describe('dataQueryToMongoQuery', () => {
     };
     expect(mongoQuery).toMatchObject(expectedQuery);
   });
+
+  test('preserves existing . separator', () => {
+    const one = 1;
+    const dQuery: DataQuery<TestData> = {
+      // @ts-ignore
+      'obj.num': {$eq: one},
+    };
+
+    const mongoQuery = dataQueryToMongoQuery(dQuery);
+
+    const expectedQuery = {
+      'obj.num': {$eq: one},
+    };
+    expect(mongoQuery).toMatchObject(expectedQuery);
+  });
 });

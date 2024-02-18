@@ -4,14 +4,15 @@ import {MongoDbConnection} from '../../../../db/connection';
 import {CombinationToken, combineTokens} from '../../../../utils/combineTokens';
 import {loopAndCollate} from '../../../../utils/fns';
 import {completeTests} from '../../../testUtils/helpers/testFns';
-import {initTests} from '../../../testUtils/testUtils';
+import {initFnTests} from '../../../testUtils/testUtils';
 import {kUtilsInjectables} from '../../injection/injectables';
+import {dataQueryToMongoQuery} from '../dataQueryToMongoQuery';
 import {
   BaseMongoTestData,
   generateBaseMongoTestDataFromCombination,
   generateBaseMongoTestQueryFromCombination,
   kBaseMongoTestConsts,
-} from './utils';
+} from './testUtils';
 
 const kModelName = 'BaseMongoDataProvider-' + faker.lorem.word();
 const kCollectionName = kModelName + '-' + 'collection';
@@ -33,7 +34,7 @@ function getModel() {
 }
 
 beforeAll(async () => {
-  initTests();
+  initFnTests();
 });
 
 afterEach(async () => {
@@ -53,12 +54,13 @@ async function testArrDepth(tokens: CombinationToken[]) {
     () => generateBaseMongoTestDataFromCombination(combinations),
     maxData
   );
-  const query = generateBaseMongoTestQueryFromCombination({
+  const dQuery = generateBaseMongoTestQueryFromCombination({
     combinations,
   });
   await model.insertMany(data);
 
-  const result = await model.find(query);
+  const mQuery = dataQueryToMongoQuery(dQuery);
+  const result = await model.find(mQuery);
 
   expect(result.length).toBe(maxData);
 }

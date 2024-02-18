@@ -6,7 +6,7 @@ import {
   UsageSummationTypeMap,
 } from '../../../definitions/usageRecord';
 import {getTimestamp} from '../../../utils/dateFns';
-import {toArray} from '../../../utils/fns';
+import {convertToArray} from '../../../utils/fns';
 import {LiteralDataQuery} from '../../contexts/data/types';
 import {checkWorkspaceAuthorization02} from '../../workspaces/utils';
 import {GetWorkspaceSummedUsageEndpointParams} from './types';
@@ -35,14 +35,14 @@ export async function getWorkspaceSummedUsageQuery(
 
   if (data.query?.category) {
     // @ts-ignore
-    query.category = {$in: toArray(data.query.category)};
+    query.category = {$in: convertToArray(data.query.category)};
   }
 
   // don't include the fulfillment status if it's undecided
   if (data.query?.fulfillmentStatus) {
     query.fulfillmentStatus = {
       // @ts-ignore
-      $in: toArray(data.query.fulfillmentStatus),
+      $in: convertToArray(data.query.fulfillmentStatus),
     };
   } else {
     query.fulfillmentStatus = {

@@ -146,8 +146,8 @@ describe('file backend mount utils', () => {
     expect(s3Provider).toBeTruthy();
     expect(fimidaraProvider).toBeInstanceOf(FimidaraFilePersistenceProvider);
     expect(s3Provider).toBeInstanceOf(S3FilePersistenceProvider);
-    expect(disposablesMap.has(fimidaraProvider)).toBeTruthy();
-    expect(disposablesMap.has(s3Provider)).toBeTruthy();
+    expect(disposablesMap.has(fimidaraProvider!)).toBeTruthy();
+    expect(disposablesMap.has(s3Provider!)).toBeTruthy();
   });
 
   softkaveTest.run(
@@ -195,10 +195,10 @@ describe('file backend mount utils', () => {
         }),
       ]);
 
-      const result = await resolveBackendsMountsAndConfigs({
-        namepath: fileNamepath,
-        workspaceId: workspace.resourceId,
-      });
+      const result = await resolveBackendsMountsAndConfigs(
+        {namepath: fileNamepath, workspaceId: workspace.resourceId},
+        /** init primary backend only */ true
+      );
 
       expect(result.primaryBackend).toBeInstanceOf(FimidaraFilePersistenceProvider);
       expect(result.primaryMount).toMatchObject(fimidaraMount);
@@ -241,7 +241,7 @@ describe('file backend mount utils', () => {
 
     const result = await resolveBackendsMountsAndConfigs(
       {namepath: fileNamepath, workspaceId: workspace.resourceId},
-      /** init all backends */ false
+      /** init primary backend only */ false
     );
 
     expect(result.primaryBackend).toBeInstanceOf(S3FilePersistenceProvider);

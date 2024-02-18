@@ -6,7 +6,7 @@ const deleteResourceFn: DeleteResourceFn = ({args, helpers}) =>
   helpers.withTxn(opts =>
     kSemanticModels
       .assignedItem()
-      .deleteResourceAssigneeItems(args.workspaceId, args.resourceId, opts)
+      .deleteByAssignee(args.workspaceId, args.resourceId, opts)
   );
 
 export const deleteCollaboratorCascadeEntry: DeleteResourceCascadeEntry = {

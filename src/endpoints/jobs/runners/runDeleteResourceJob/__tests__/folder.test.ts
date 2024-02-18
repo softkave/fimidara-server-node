@@ -1,6 +1,8 @@
 import {flatten} from 'lodash';
+import {AgentToken} from '../../../../../definitions/agentToken';
 import {Folder} from '../../../../../definitions/folder';
 import {kAppResourceType} from '../../../../../definitions/system';
+import {Workspace} from '../../../../../definitions/workspace';
 import {
   generateAndInsertTestFiles,
   generateTestFilepath,
@@ -10,17 +12,21 @@ import {
   generateTestFolderpath,
 } from '../../../../testUtils/generate/folder';
 import {completeTests} from '../../../../testUtils/helpers/testFns';
-import {initTests} from '../../../../testUtils/testUtils';
+import {
+  initTests,
+  insertFolderForTest,
+  insertUserForTest,
+  insertWorkspaceForTest,
+} from '../../../../testUtils/testUtils';
 import {deleteFolderCascadeEntry} from '../folder';
 import {
-  GenerateResourceFn,
   GenerateTypeChildrenDefinition,
   generatePermissionItemsAsChildren,
   noopGenerateTypeChildren,
   testDeleteResourceArtifactsJob,
   testDeleteResourceJob0,
   testDeleteResourceSelfJob,
-} from './utils';
+} from './testUtils';
 
 beforeAll(async () => {
   await initTests();
@@ -62,25 +68,33 @@ const folderGenerateTypeChildren: GenerateTypeChildrenDefinition<Folder> = {
     ),
 };
 
-const genResourceFn: GenerateResourceFn<Folder> = async ({workspaceId}) => {
-  const [folder] = await generateAndInsertTestFolders(2, {
-    workspaceId,
-    parentId: null,
-  });
-  return folder;
+const genWorkspaceFn = async () => {
+  const {userToken} = await insertUserForTest();
+  const {rawWorkspace} = await insertWorkspaceForTest(userToken);
+  return {userToken, workspace: rawWorkspace};
+};
+
+const genResourceFn = async (workspace: Workspace, userToken: AgentToken) => {
+  return await insertFolderForTest(userToken, workspace);
 };
 
 describe('runDeleteResourceJob, folder', () => {
   test('deleteResource0', async () => {
+    const {workspace, userToken} = await genWorkspaceFn();
+    const {rawFolder} = await genResourceFn(workspace, userToken);
     testDeleteResourceJob0({
-      genResourceFn,
+      genResourceFn: () => Promise.resolve(rawFolder),
+      genWorkspaceFn: () => Promise.resolve(workspace.resourceId),
       type: kAppResourceType.Folder,
     });
   });
 
   test('runDeleteResourceJobArtifacts', async () => {
+    const {workspace, userToken} = await genWorkspaceFn();
+    const {rawFolder} = await genResourceFn(workspace, userToken);
     await testDeleteResourceArtifactsJob({
-      genResourceFn,
+      genResourceFn: () => Promise.resolve(rawFolder),
+      genWorkspaceFn: () => Promise.resolve(workspace.resourceId),
       genChildrenDef: folderGenerateTypeChildren,
       deleteCascadeDef: deleteFolderCascadeEntry,
       type: kAppResourceType.Folder,
@@ -88,8 +102,11 @@ describe('runDeleteResourceJob, folder', () => {
   });
 
   test('runDeleteResourceJobSelf', async () => {
+    const {workspace, userToken} = await genWorkspaceFn();
+    const {rawFolder} = await genResourceFn(workspace, userToken);
     await testDeleteResourceSelfJob({
-      genResourceFn,
+      genResourceFn: () => Promise.resolve(rawFolder),
+      genWorkspaceFn: () => Promise.resolve(workspace.resourceId),
       type: kAppResourceType.Folder,
     });
   });

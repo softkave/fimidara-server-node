@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {isBoolean, isEqual, isString, isUndefined} from 'lodash';
 import {File} from '../../../definitions/file';
+import {PresignedPath} from '../../../definitions/presignedPath';
 import {kAppResourceType} from '../../../definitions/system';
 import {kSystemSessionAgent} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
@@ -11,7 +12,6 @@ import {getFilenameInfo} from '../../files/utils';
 import {addRootnameToPath} from '../../folders/utils';
 import {generateTestFolderName, generateTestFolderpath} from './folder';
 import {randomActionList} from './utils';
-import {PresignedPath} from '../../../definitions/presignedPath';
 
 function addExtenstion(name: string, ext: string | undefined) {
   return ext ? name + '.' + ext : name;
@@ -121,6 +121,7 @@ export function generateTestFile(extra: Partial<File> & {parentId?: string | nul
     version: 1,
     isReadAvailable: true,
     isWriteAvailable: true,
+    isDeleted: false,
     ...extra,
   };
 
@@ -167,7 +168,7 @@ export function generateTestPresignedPath(extra: Partial<PresignedPath> = {}) {
     lastUpdatedBy: kSystemSessionAgent,
     resourceId: id,
     workspaceId: getNewIdForResource(kAppResourceType.Workspace),
-
+    isDeleted: false,
     ...extra,
   };
 

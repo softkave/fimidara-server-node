@@ -1,6 +1,6 @@
 import {ReadonlyDeep} from 'type-fest';
 import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
-import {toArray} from './fns';
+import {convertToArray} from './fns';
 import {OrPromise} from './types';
 
 export interface DisposableResource {
@@ -16,7 +16,7 @@ export class DisposablesStore {
   protected disposablesMap = new Map<DisposableResource, DisposableResource>();
 
   add = (disposable: DisposableResource | DisposableResource[]) => {
-    toArray(disposable).forEach(next => this.disposablesMap.set(next, next));
+    convertToArray(disposable).forEach(next => this.disposablesMap.set(next, next));
   };
 
   getMap = (): ReadonlyDeep<Map<DisposableResource, DisposableResource>> => {

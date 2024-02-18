@@ -4,7 +4,7 @@ import {kPermissionAgentTypes, Resource, SessionAgent} from '../../../definition
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
-import {pathJoin, pathSplit, toArray} from '../../../utils/fns';
+import {convertToArray, pathJoin, pathSplit} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {validate} from '../../../utils/validate';
 import {
@@ -34,9 +34,12 @@ export async function createFolderListWithTransaction(
   throwOnFolderExists = true,
   opts: SemanticProviderMutationTxnOptions
 ) {
-  const folderModel = kSemanticModels.folder();
+  const inputList = convertToArray(input);
 
-  const inputList = toArray(input);
+  if (inputList.length === 0) {
+    return {newFolders: [], existingFolders: []};
+  }
+
   const pathinfoList: FolderpathInfo[] = inputList.map(nextInput =>
     getFolderpathInfo(nextInput.folderpath)
   );
@@ -55,7 +58,7 @@ export async function createFolderListWithTransaction(
     namepathList.push(pathSplit(namepath));
   });
 
-  const existingFolders = await folderModel.getManyByQuery(
+  const existingFolders = await kSemanticModels.folder().getManyByQuery(
     {
       $or: namepathList.map(
         (namepath): FolderQuery =>

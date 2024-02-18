@@ -89,6 +89,7 @@ async function getArtifactsAndQueueDeleteJobs(
 
         return {
           params,
+          createdBy: helpers.job.createdBy,
           type: kJobType.deleteResource0,
           shard: helpers.job.shard,
           priority: helpers.job.priority,
@@ -100,7 +101,7 @@ async function getArtifactsAndQueueDeleteJobs(
     kUtilsInjectables
       .promises()
       .forget(setDeleteJobGetArtifactsMeta(helpers.job, type, page, pageSize));
-  } while (artifacts.length);
+  } while (artifacts.length >= pageSize);
 }
 
 export async function processGetArtifactsFromDef(

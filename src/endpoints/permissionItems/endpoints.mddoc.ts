@@ -5,15 +5,17 @@ import {
   mddocConstruct,
 } from '../../mddoc/mddoc';
 import {multilineTextToParagraph} from '../../utils/fns';
-import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc';
+import {
+  fReusables,
+  mddocEndpointHttpHeaderItems,
+  mddocEndpointHttpResponseItems,
+} from '../endpoints.mddoc';
 import {AddPermissionItemsEndpointParams} from './addItems/types';
 import {permissionItemConstants} from './constants';
 import {
   DeletePermissionItemInput,
   DeletePermissionItemInputTarget,
   DeletePermissionItemsEndpointParams,
-  DeletePermissionItemsEndpointResult,
-  DeletePermissionItemsEndpointResultJobItem,
 } from './deleteItems/types';
 import {
   ResolveEntityPermissionItemInput,
@@ -278,25 +280,7 @@ const deletePermissionItemsParams = mddocConstruct
       false,
       fReusables.workspaceIdInput
     ),
-    items: mddocConstruct.constructFieldObjectField(false, deletePermissionItemInputList),
-  });
-const deletePermissionItemsResultJobItem = mddocConstruct
-  .constructFieldObject<DeletePermissionItemsEndpointResultJobItem>()
-  .setName('DeletePermissionItemsEndpointResultJobItem')
-  .setFields({
-    jobId: mddocConstruct.constructFieldObjectField(true, fReusables.jobId),
-    resourceId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-  });
-const deletePermissionItemsResult = mddocConstruct
-  .constructFieldObject<DeletePermissionItemsEndpointResult>()
-  .setName('DeletePermissionItemsEndpointResult')
-  .setFields({
-    jobs: mddocConstruct.constructFieldObjectField(
-      true,
-      mddocConstruct
-        .constructFieldArray<DeletePermissionItemsEndpointResultJobItem>()
-        .setType(deletePermissionItemsResultJobItem)
-    ),
+    items: mddocConstruct.constructFieldObjectField(true, deletePermissionItemInputList),
   });
 export const addPermissionItemsEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -353,7 +337,7 @@ export const deletePermissionItemsEndpointDefinition = mddocConstruct
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
   .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
-  .setResponseBody(deletePermissionItemsResult)
+  .setResponseBody(mddocEndpointHttpResponseItems.multipleLongRunningJobResponseBody)
   .setName('DeletePermissionItemsEndpoint');
 
 export const resolveEntityPermissionsEndpointDefinition = mddocConstruct

@@ -26,6 +26,7 @@ const jobSchema = ensureMongoTypeFields<Job>({
   priority: {type: Number, index: true},
   shard: {type: String, index: true},
   runAfter: {type: [runAfterSchema], index: true},
+  cooldownTill: {type: Number, index: true},
 });
 
 export type JobDocument = Document<Job>;

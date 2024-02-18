@@ -1,6 +1,5 @@
 import {forEach, get, has, set} from 'lodash';
 import {File} from '../../../definitions/file';
-import {Folder} from '../../../definitions/folder';
 import {
   PermissionAction,
   PermissionItem,
@@ -14,25 +13,15 @@ import {
 } from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
-import {
-  extractResourceIdList,
-  isObjectEmpty,
-  toArray,
-  toNonNullableArray,
-} from '../../../utils/fns';
+import {convertToArray, extractResourceIdList, isObjectEmpty} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {getResourceTypeFromId, newWorkspaceResource} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
 import {InvalidRequestError} from '../../errors';
-import {stringifyFilenamepath} from '../../files/utils';
-import {stringifyFoldernamepath} from '../../folders/utils';
+import {getPermissionItemTargets} from '../getPermissionItemTargets';
 import {PermissionItemInputTarget} from '../types';
-import {
-  getPermissionItemEntities,
-  getPermissionItemTargets,
-  getTargetType,
-} from '../utils';
+import {getPermissionItemEntities, getTargetType} from '../utils';
 import {AddPermissionItemsEndpointParams} from './types';
 
 /**
@@ -55,11 +44,11 @@ export const INTERNAL_addPermissionItems = async (
 
   data.items.forEach(item => {
     if (item.entityId) {
-      inputEntities = inputEntities.concat(toArray(item.entityId));
+      inputEntities = inputEntities.concat(convertToArray(item.entityId));
     }
 
     if (item.target) {
-      inputTargets = inputTargets.concat(toArray(item.target));
+      inputTargets = inputTargets.concat(convertToArray(item.target));
     }
   });
 
@@ -70,22 +59,15 @@ export const INTERNAL_addPermissionItems = async (
 
   const [entities, targets] = await Promise.all([
     getPermissionItemEntities(agent, workspace.resourceId, inputEntities),
-    getPermissionItemTargets(agent, workspace, inputTargets),
+    getPermissionItemTargets(
+      agent,
+      workspace,
+      inputTargets,
+      kPermissionsMap.updatePermission
+    ),
   ]);
 
-  const indexBynamepath = (item: ResourceWrapper) => {
-    if (item.resourceType === kAppResourceType.File) {
-      return stringifyFilenamepath(item.resource as unknown as File);
-    } else if (item.resourceType === kAppResourceType.Folder) {
-      return stringifyFoldernamepath(item.resource as unknown as Folder);
-    } else {
-      return '';
-    }
-  };
-
   const entitiesMapById = indexArray(entities, {path: 'resourceId'});
-  const targetsMapById = indexArray(targets, {path: 'resourceId'});
-  const targetsMapBynamepath = indexArray(targets, {indexer: indexBynamepath});
   const workspaceWrapper: ResourceWrapper = {
     resource: workspace,
     resourceId: workspace.resourceId,
@@ -96,7 +78,7 @@ export const INTERNAL_addPermissionItems = async (
     const resourceEntities: Record<string, ResourceWrapper> = {};
 
     // TODO: should we throw error when some entities are not found?
-    toArray(inputEntity).forEach(entityId => {
+    convertToArray(inputEntity).forEach(entityId => {
       const entity = entitiesMapById[entityId];
 
       if (entity) {
@@ -105,38 +87,6 @@ export const INTERNAL_addPermissionItems = async (
     });
 
     return resourceEntities;
-  };
-
-  const getTargets = (inputTarget: PermissionItemInputTarget) => {
-    const resourceTargets: Record<string, ResourceWrapper> = {};
-
-    // TODO: should we throw error when some targets are not found?
-    if (inputTarget.targetId) {
-      toNonNullableArray(inputTarget.targetId).forEach(targetId => {
-        if (targetsMapById[targetId])
-          resourceTargets[targetId] = targetsMapById[targetId];
-      });
-    }
-
-    if (inputTarget.folderpath) {
-      toNonNullableArray(inputTarget.folderpath).forEach(folderpath => {
-        const folder = targetsMapBynamepath[folderpath];
-        if (folder) resourceTargets[folder.resourceId] = folder;
-      });
-    }
-
-    if (inputTarget.filepath) {
-      toNonNullableArray(inputTarget.filepath).forEach(filepath => {
-        const file = targetsMapBynamepath[filepath];
-        if (file) resourceTargets[file.resourceId] = file;
-      });
-    }
-
-    if (inputTarget.workspaceRootname) {
-      resourceTargets[workspace.resourceId] = workspaceWrapper;
-    }
-
-    return resourceTargets;
   };
 
   type ProcessedPermissionItemInput = {
@@ -153,9 +103,9 @@ export const INTERNAL_addPermissionItems = async (
     const itemEntitiesMap = getEntities(item.entityId);
 
     forEach(itemEntitiesMap, entity => {
-      toNonNullableArray(item.action).forEach(action => {
-        toNonNullableArray(item.target).forEach(nextTarget => {
-          let nextTargetsMap = getTargets(nextTarget);
+      convertToArray(item.action).forEach(action => {
+        convertToArray(item.target).forEach(nextTarget => {
+          let {targets: nextTargetsMap} = targets.getByTarget(nextTarget);
 
           // Default to workspace if there's no target resource
           if (isObjectEmpty(nextTargetsMap)) {

@@ -33,6 +33,10 @@ const credentials = Joi.object().when('backend', {
   otherwise: Joi.forbidden(),
 });
 
-const fileBackendValidationSchemas = {backend, credentials, nonFimidaraBackend};
+const fileBackendValidationSchemas = {
+  backend,
+  credentials,
+  nonFimidaraBackend,
+};
 
 export default fileBackendValidationSchemas;

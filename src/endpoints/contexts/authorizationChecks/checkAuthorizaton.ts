@@ -10,7 +10,7 @@ import {UserWithWorkspace} from '../../../definitions/user';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
-import {toArray, toCompactArray, toUniqArray} from '../../../utils/fns';
+import {convertToArray, toCompactArray, toUniqArray} from '../../../utils/fns';
 import {sortPermissionEntityInheritanceMap} from '../../../utils/permissionEntityUtils';
 import {getResourceTypeFromId} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
@@ -115,10 +115,10 @@ class ResolvedPermissionsAccessChecker implements ResolvedPermissionsAccessCheck
 
   checkAuthParams(nothrow = this.authParams.nothrow) {
     const {target} = this.authParams;
-    const targetId = first(toArray(target.targetId));
+    const targetId = first(convertToArray(target.targetId));
 
     if (targetId) {
-      return toArray(this.authParams.target.action).map(nextAction =>
+      return convertToArray(this.authParams.target.action).map(nextAction =>
         this.checkForTargetId(target.entityId, targetId, nextAction, nothrow)
       );
     } else {
@@ -195,7 +195,7 @@ export async function fetchAgentPermissionItems(
   params: CheckAuthorizationParams & {fetchEntitiesDeep: boolean}
 ) {
   const {workspaceId, target} = params;
-  const action = toArray(target.action).concat(kPermissionsMap.wildcard),
+  const action = convertToArray(target.action).concat(kPermissionsMap.wildcard),
     targetId = toUniqArray(target.targetId, workspaceId);
   const {entityIdList} = await resolveEntityData(params);
 
@@ -217,7 +217,7 @@ export async function fetchAndSortAgentPermissionItems(params: CheckAuthorizatio
     ...params,
     fetchEntitiesDeep: true,
   });
-  const targetId = first(toArray(params.target.targetId));
+  const targetId = first(convertToArray(params.target.targetId));
   return sortOutPermissionItems(items, params.target.entityId, targetId);
 }
 
@@ -246,7 +246,7 @@ async function resolveTargetChildrenPartialAccessCheck(
   params: OmitProperties<CheckAuthorizationParams, 'nothrow'>
 ) {
   const {workspaceId, target} = params;
-  const action = toArray(target.action).concat(kPermissionsMap.wildcard),
+  const action = convertToArray(target.action).concat(kPermissionsMap.wildcard),
     targetParentId = defaultTo(first(toCompactArray(target.targetId)), workspaceId);
 
   // TODO: preferrably fetch once cause it's currently fetched twice, in
@@ -376,7 +376,7 @@ function checkActionRequiresUserVerification(
     agent &&
     agent.user &&
     !agent.user.isEmailVerified &&
-    !toArray(action).every(nextAction => nextAction.startsWith('read'))
+    !convertToArray(action).every(nextAction => nextAction.startsWith('read'))
   ) {
     // Only read actions are permitted for user's who aren't email verified.
     throw new EmailAddressNotVerifiedError();

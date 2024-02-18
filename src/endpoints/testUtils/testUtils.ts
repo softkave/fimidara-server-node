@@ -11,7 +11,7 @@ import {PublicUser, UserWithWorkspace} from '../../definitions/user';
 import {PublicWorkspace, Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
-import {mergeData, pathJoin, toArray} from '../../utils/fns';
+import {convertToArray, mergeData, pathJoin} from '../../utils/fns';
 import {makeUserSessionAgent} from '../../utils/sessionUtils';
 import addAgentTokenEndpoint from '../agentTokens/addToken/handler';
 import {
@@ -80,6 +80,10 @@ export function getTestEmailProvider() {
 export async function initTests() {
   await globalSetup();
   await setupApp();
+}
+
+export async function initFnTests() {
+  await globalSetup();
 }
 
 export function assertEndpointResultOk(result?: BaseEndpointResult | void) {
@@ -229,7 +233,7 @@ export async function insertPermissionItemsForTest(
 ) {
   const instData = RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
-    {workspaceId, items: toArray(input)}
+    {workspaceId, items: convertToArray(input)}
   );
   const result = await addPermissionItems(instData);
   assertEndpointResultOk(result);
@@ -366,7 +370,11 @@ export async function insertFolderForTest(
 
   const result = await addFolder(instData);
   assertEndpointResultOk(result);
-  return result;
+
+  const rawFolder = await kSemanticModels.folder().getOneById(result.folder.resourceId);
+  appAssert(rawFolder);
+
+  return {...result, rawFolder};
 }
 
 export interface IGenerateImageProps {

@@ -9,11 +9,12 @@ import {
   kJobType,
 } from '../../../definitions/job';
 import {kAppResourceType} from '../../../definitions/system';
+import {kSystemSessionAgent} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {getRandomAppType} from './app';
 import {JobInput} from '../../jobs/queueJobs';
+import {getRandomAppType} from './app';
 
 export function getRandomJobType() {
   return faker.helpers.arrayElement(Object.values(kJobType));
@@ -31,6 +32,7 @@ export function generateJobInput(seed: Partial<JobInput> = {}): JobInput {
   const params = seed.params || {};
   return {
     params,
+    createdBy: kSystemSessionAgent,
     type: getRandomJobType(),
     priority: getRandomJobPresetPriority(),
     shard: getRandomAppType(),
@@ -50,6 +52,7 @@ export function generateJobForTest(seed: Partial<Job> = {}) {
     createdAt,
     params,
     lastUpdatedAt: createdAt,
+    createdBy: kSystemSessionAgent,
     resourceId: getNewIdForResource(kAppResourceType.Job),
     type: getRandomJobType(),
     shard: kAppPresetShards.fimidaraMain,
@@ -60,6 +63,7 @@ export function generateJobForTest(seed: Partial<Job> = {}) {
     statusHistory: [status],
     workspaceId: getNewIdForResource(kAppResourceType.Workspace),
     parents: seed.parentJobId && !seed.parents ? [seed.parentJobId] : [],
+    isDeleted: false,
     ...status,
     ...seed,
   };

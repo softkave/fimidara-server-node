@@ -8,8 +8,9 @@ export async function beginDeletePermissionGroup(props: {
   workspaceId: string;
   resources: Resource[];
   agent: Agent;
+  parentJobId?: string;
 }) {
-  const {workspaceId, resources, agent} = props;
+  const {workspaceId, resources, agent, parentJobId} = props;
   const jobs = await kSemanticModels.utils().withTxn(async opts => {
     const [, jobs] = await Promise.all([
       kSemanticModels
@@ -17,9 +18,10 @@ export async function beginDeletePermissionGroup(props: {
         .softDeleteManyByIdList(extractResourceIdList(resources), agent, opts),
       queueJobs<DeleteResourceJobParams>(
         workspaceId,
-        undefined,
+        parentJobId,
         resources.map(resource => {
           return {
+            createdBy: agent,
             type: kJobType.deleteResource0,
             params: {
               workspaceId,

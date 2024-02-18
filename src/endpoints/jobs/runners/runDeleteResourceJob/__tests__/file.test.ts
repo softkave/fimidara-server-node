@@ -28,7 +28,7 @@ import {
   testDeleteResourceArtifactsJob,
   testDeleteResourceJob0,
   testDeleteResourceSelfJob,
-} from './utils';
+} from './testUtils';
 
 beforeAll(async () => {
   await initTests();
@@ -91,13 +91,17 @@ describe('runDeleteResourceJob, file', () => {
 
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const {dataBuffer, file: mainResource} = await insertFileForTest(
+    const {dataBuffer, rawFile: mainResource} = await insertFileForTest(
       userToken,
       workspace
     );
     const [mount01, mount02] = await Promise.all([
-      insertFileBackendMountForTest(userToken, workspace),
-      insertFileBackendMountForTest(userToken, workspace),
+      insertFileBackendMountForTest(userToken, workspace, {
+        folderpath: workspace.rootname,
+      }),
+      insertFileBackendMountForTest(userToken, workspace, {
+        folderpath: workspace.rootname,
+      }),
     ]);
     const providersMap = await initBackendProvidersForMounts(
       [mount01.rawMount, mount02.rawMount],
@@ -105,18 +109,18 @@ describe('runDeleteResourceJob, file', () => {
     );
 
     await testDeleteResourceSelfJob({
-      genResourceFn,
+      genResourceFn: () => Promise.resolve(mainResource),
       type: kAppResourceType.File,
       genWorkspaceFn: () => Promise.resolve(workspace.resourceId),
       genOtherFn: async () => {
         await Promise.all([
-          providersMap[mount01.rawMount.resourceId].uploadFile({
+          providersMap[mount01.rawMount.resourceId]?.uploadFile({
             workspaceId: workspace.resourceId,
             body: Readable.from(dataBuffer),
             filepath: stringifyFilenamepath(mainResource),
             mount: mount01.rawMount,
           }),
-          providersMap[mount02.rawMount.resourceId].uploadFile({
+          providersMap[mount02.rawMount.resourceId]?.uploadFile({
             workspaceId: workspace.resourceId,
             body: Readable.from(dataBuffer),
             filepath: stringifyFilenamepath(mainResource),
@@ -126,20 +130,20 @@ describe('runDeleteResourceJob, file', () => {
       },
       confirmOtherDeletedFn: async () => {
         const [mountFile01, mountFile02] = await Promise.all([
-          providersMap[mount01.rawMount.resourceId].readFile({
+          providersMap[mount01.rawMount.resourceId]?.readFile({
             workspaceId: workspace.resourceId,
             filepath: stringifyFilenamepath(mainResource),
             mount: mount01.rawMount,
           }),
-          providersMap[mount02.rawMount.resourceId].readFile({
+          providersMap[mount02.rawMount.resourceId]?.readFile({
             workspaceId: workspace.resourceId,
             filepath: stringifyFilenamepath(mainResource),
             mount: mount02.rawMount,
           }),
         ]);
 
-        expect(mountFile01.body).toBe(undefined);
-        expect(mountFile02.body).toBe(undefined);
+        expect(mountFile01?.body).toBe(undefined);
+        expect(mountFile02?.body).toBe(undefined);
       },
     });
   });

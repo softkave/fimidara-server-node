@@ -88,7 +88,7 @@ export function isOnlyMountFimidara(mounts: FileBackendMount[]): boolean {
   return mounts.length === 1 && isPrimaryMountFimidara(mounts);
 }
 
-export type FilePersistenceProvidersByMount = Record<
+export type FilePersistenceProvidersByMount = PartialRecord<
   /** mountId */ string,
   FilePersistenceProvider
 >;
@@ -126,13 +126,13 @@ export async function initBackendProvidersForMounts(
     providersMap[mount.resourceId] = provider;
   });
 
-  kAsyncLocalStorageUtils.disposables().add(Object.values(providersMap));
+  kAsyncLocalStorageUtils.disposables().add(compact(Object.values(providersMap)));
   return providersMap;
 }
 
 export async function resolveBackendsMountsAndConfigs(
   file: Pick<File, 'workspaceId' | 'namepath'>,
-  initPrimaryBackendOnly = true
+  initPrimaryBackendOnly: boolean
 ) {
   const {mounts} = await resolveMountsForFolder({
     workspaceId: file.workspaceId,

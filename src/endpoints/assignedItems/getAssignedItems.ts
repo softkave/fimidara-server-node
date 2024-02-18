@@ -24,7 +24,7 @@ export async function getResourceAssignedItems(
 ) {
   return await kSemanticModels
     .assignedItem()
-    .getResourceAssignedItems(workspaceId, resourceId, assignedItemTypes, opts);
+    .getByAssignee(workspaceId, resourceId, assignedItemTypes, opts);
 }
 
 export async function getResourceAssignedItemsSortedByType(

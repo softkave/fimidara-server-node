@@ -17,6 +17,7 @@ export function generateAppForTest(seed: Partial<App> = {}) {
     resourceId: getNewIdForResource(kAppResourceType.App),
     type: getRandomAppType(),
     shard: kAppPresetShards.fimidaraMain,
+    isDeleted: false,
     ...seed,
   };
   return app;

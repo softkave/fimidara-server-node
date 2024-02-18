@@ -75,6 +75,7 @@ const INTERNAL_createWorkspace = async (
     billStatusAssignedAt: createdAt,
     usageThresholdLocks: {},
     publicPermissionGroupId: '', // placeholder
+    isDeleted: false,
   };
 
   const {

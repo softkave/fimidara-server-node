@@ -11,7 +11,7 @@ export function cast<ToType>(resource: unknown): ToType {
   return resource as unknown as ToType;
 }
 
-export function isObjectEmpty(data: Record<string | number, unknown>) {
+export function isObjectEmpty(data: AnyObject) {
   return Object.keys(data).length === 0;
 }
 
@@ -165,7 +165,7 @@ export function extractResourceIdList(resources: Pick<Resource, 'resourceId'>[])
   return resources.map(getResourceId);
 }
 
-export function toArray<T>(...args: Array<T | T[]>) {
+export function convertToArray<T>(...args: Array<T | T[]>) {
   const arrays = args.map(item => {
     if (Array.isArray(item)) {
       return item;
@@ -178,7 +178,7 @@ export function toArray<T>(...args: Array<T | T[]>) {
 
 /** @deprecated cast instead */
 export function toNonNullableArray<T>(...args: Array<NonNullable<T | T[]>>) {
-  return toArray(...args);
+  return convertToArray(...args);
 }
 
 /**
@@ -186,12 +186,12 @@ export function toNonNullableArray<T>(...args: Array<NonNullable<T | T[]>>) {
  * `undefined`, and `NaN`
  */
 export function toCompactArray<T>(...args: Array<T | T[]>) {
-  const array = toArray(...args);
+  const array = convertToArray(...args);
   return compact(array as Array<NonNullable<T> | undefined>);
 }
 
 export function toUniqArray<T>(...args: Array<T | T[]>) {
-  const array = toArray(...args);
+  const array = convertToArray(...args);
   return uniq(array);
 }
 
@@ -512,4 +512,15 @@ export function pathBasename(input: string) {
   }
 
   return {basename, ext};
+}
+
+export function sortObjectKeys<T extends AnyObject>(obj: AnyObject) {
+  const sortedObj: AnyObject = {};
+  const keys = Object.keys(obj);
+  sortStringListLexographically(keys).forEach(key => {
+    const value = obj[key];
+    sortedObj[key] = value;
+  });
+
+  return sortedObj as T;
 }

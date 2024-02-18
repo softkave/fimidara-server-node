@@ -1,6 +1,5 @@
 import {defaultTo} from 'lodash';
 import {Resource, WorkspaceResource} from '../../../definitions/system';
-import {getIgnoreCaseRegExpForString} from '../../../utils/fns';
 import {DataQuery} from '../data/types';
 import {DataSemanticBaseProvider} from './DataSemanticDataAccessBaseProvider';
 import {
@@ -11,7 +10,7 @@ import {
   SemanticWorkspaceResourceProviderBaseType,
   SemanticWorkspaceResourceProviderType,
 } from './types';
-import {getInAndNinQuery} from './utils';
+import {getIgnoreCaseDataQueryRegExp, getInAndNinQuery} from './utils';
 
 export class DataSemanticWorkspaceResourceProvider<
     T extends SemanticWorkspaceResourceProviderBaseType,
@@ -26,7 +25,7 @@ export class DataSemanticWorkspaceResourceProvider<
   ): Promise<T | null> {
     const query: DataQuery<SemanticWorkspaceResourceProviderBaseType> = {
       workspaceId,
-      name: {$regex: getIgnoreCaseRegExpForString(name)},
+      name: getIgnoreCaseDataQueryRegExp(name),
       isDeleted: defaultTo(opts?.includeDeleted, false),
     };
 
@@ -40,7 +39,7 @@ export class DataSemanticWorkspaceResourceProvider<
   ): Promise<boolean> {
     const query: DataQuery<SemanticWorkspaceResourceProviderBaseType> = {
       workspaceId,
-      name: {$regex: getIgnoreCaseRegExpForString(name)},
+      name: getIgnoreCaseDataQueryRegExp(name),
       isDeleted: defaultTo(opts?.includeDeleted, false),
     };
 

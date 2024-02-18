@@ -1,4 +1,5 @@
 import assert from 'assert';
+import {flatten} from 'lodash';
 import {Resource, kAppResourceType} from '../../../../../definitions/system';
 import {User} from '../../../../../definitions/user';
 import {kSystemSessionAgent} from '../../../../../utils/agent';
@@ -8,6 +9,7 @@ import {assignWorkspaceToUser} from '../../../../assignedItems/addAssignedItems'
 import {kSemanticModels} from '../../../../contexts/injection/injectables';
 import {generateAndInsertCollaboratorListForTest} from '../../../../testUtils/generate/collaborator';
 import {generateAndInsertTestFiles} from '../../../../testUtils/generate/file';
+import {generateAndInsertAssignedItemListForTest} from '../../../../testUtils/generate/permissionGroup';
 import {generateAndInsertPermissionItemListForTest} from '../../../../testUtils/generate/permissionItem';
 import {completeTests} from '../../../../testUtils/helpers/testFns';
 import {initTests} from '../../../../testUtils/testUtils';
@@ -15,13 +17,12 @@ import {deleteCollaboratorCascadeEntry} from '../collaborator';
 import {
   GenerateResourceFn,
   GenerateTypeChildrenDefinition,
-  generateAssignedItemsAsChildren,
   generatePermissionItemsAsChildren,
   noopGenerateTypeChildren,
   testDeleteResourceArtifactsJob,
   testDeleteResourceJob0,
   testDeleteResourceSelfJob,
-} from './utils';
+} from './testUtils';
 
 beforeAll(async () => {
   await initTests();
@@ -34,7 +35,15 @@ afterAll(async () => {
 const collaboratorGenerateTypeChildren: GenerateTypeChildrenDefinition<User> = {
   ...noopGenerateTypeChildren,
   [kAppResourceType.PermissionItem]: generatePermissionItemsAsChildren,
-  [kAppResourceType.AssignedItem]: generateAssignedItemsAsChildren,
+  [kAppResourceType.AssignedItem]: async ({resource, workspaceId}) =>
+    flatten(
+      await Promise.all([
+        generateAndInsertAssignedItemListForTest(2, {
+          workspaceId,
+          assigneeId: resource.resourceId,
+        }),
+      ])
+    ),
 };
 
 const genResourceFn: GenerateResourceFn<User> = async ({workspaceId}) => {
@@ -107,6 +116,9 @@ describe('runDeleteResourceJob, agent token', () => {
       genChildrenDef: collaboratorGenerateTypeChildren,
       deleteCascadeDef: deleteCollaboratorCascadeEntry,
       type: kAppResourceType.User,
+      //  db assigned item resource would be deleted in delete artifacts so skip
+      //  check DB resource, cause that'd always fail
+      skipCheckDbResource: true,
     });
 
     await expectNonWorkspaceUserResourcesRemain(

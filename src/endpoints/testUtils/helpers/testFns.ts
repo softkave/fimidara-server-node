@@ -3,8 +3,8 @@ import {get, noop} from 'lodash';
 import {
   calculateMaxPages,
   calculatePageSize,
+  convertToArray,
   getRandomInt,
-  toArray,
 } from '../../../utils/fns';
 import {AnyFn, AnyObject, OrArray, OrPromise} from '../../../utils/types';
 import RequestData from '../../RequestData';
@@ -108,7 +108,7 @@ export async function performPaginationTest<T extends Endpoint<any, PaginatedRes
     const expectedPageSize =
       page < maxPages ? calculatePageSize(count, pageSize, page) : 0;
     expect(result.page).toBe(page);
-    toArray(fields).forEach(field => {
+    convertToArray(fields).forEach(field => {
       expect(get(result, field)).toHaveLength(expectedPageSize);
     });
     otherTestsFn(result as InferEndpointResult<T>);

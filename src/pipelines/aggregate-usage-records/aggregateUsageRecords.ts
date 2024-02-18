@@ -163,6 +163,7 @@ async function getUsageRecordsLevel2(
         usage: 0,
         usageCost: 0,
         artifacts: [],
+        isDeleted: false,
       });
     }
   });

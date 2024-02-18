@@ -2,10 +2,7 @@ import {PermissionAction} from '../../../definitions/permissionItem';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 import {PermissionItemInputTarget} from '../types';
 
-export type ResolveEntityPermissionItemInputTarget = Pick<
-  PermissionItemInputTarget,
-  'filepath' | 'folderpath' | 'targetId' | 'workspaceRootname'
->;
+export type ResolveEntityPermissionItemInputTarget = PermissionItemInputTarget;
 
 export interface ResolveEntityPermissionItemInput {
   target:

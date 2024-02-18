@@ -120,6 +120,7 @@ export function generateTestFolder(
     lastUpdatedBy: kSystemSessionAgent,
     resourceId: id,
     workspaceId: getNewIdForResource(kAppResourceType.Workspace),
+    isDeleted: false,
     ...extra,
   };
   return folder;

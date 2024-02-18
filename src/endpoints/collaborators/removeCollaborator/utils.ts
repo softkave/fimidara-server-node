@@ -8,8 +8,9 @@ export async function beginDeleteCollaborator(props: {
   workspaceId: string;
   resources: Resource[];
   agent: Agent;
+  parentJobId?: string;
 }) {
-  const {workspaceId, resources, agent} = props;
+  const {workspaceId, resources, agent, parentJobId} = props;
   const jobs = await kSemanticModels.utils().withTxn(async opts => {
     const [, jobs] = await Promise.all([
       kSemanticModels
@@ -22,9 +23,10 @@ export async function beginDeleteCollaborator(props: {
         ),
       queueJobs<DeleteResourceJobParams>(
         workspaceId,
-        undefined,
+        parentJobId,
         resources.map(resource => {
           return {
+            createdBy: agent,
             type: kJobType.deleteResource0,
             params: {
               workspaceId,

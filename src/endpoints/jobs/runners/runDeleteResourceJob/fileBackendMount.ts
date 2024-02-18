@@ -10,12 +10,8 @@ import {
 
 const getArtifacts: DeleteResourceGetArtifactsFns = {
   ...genericGetArtifacts,
-  [kAppResourceType.ResolvedMountEntry]: ({args, helpers}) =>
-    helpers.withTxn(opts =>
-      kSemanticModels
-        .resolvedMountEntry()
-        .getManyByQuery({mountId: args.resourceId}, opts)
-    ),
+  [kAppResourceType.ResolvedMountEntry]: ({args}) =>
+    kSemanticModels.resolvedMountEntry().getManyByQuery({mountId: args.resourceId}),
   // TODO: should we delete files from mount?
 };
 

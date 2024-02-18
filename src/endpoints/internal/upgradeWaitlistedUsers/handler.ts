@@ -1,4 +1,5 @@
 import {kAppResourceType} from '../../../definitions/system';
+import {User} from '../../../definitions/user';
 import {
   UpgradedFromWaitlistEmailProps,
   kUpgradeFromWaitlistEmailArtifacts,
@@ -23,14 +24,21 @@ const upgradeWaitlistedUsers: UpgradeWaitlistedUsersEndpoint = async reqData => 
     .session()
     .getAgent(reqData, [kAppResourceType.User]);
   await assertUserIsPartOfRootWorkspace(agent);
-  const users = await kSemanticModels.utils().withTxn(opts => {
-    return kSemanticModels
+  const users = await kSemanticModels.utils().withTxn(async opts => {
+    await kSemanticModels
       .user()
-      .getAndUpdateManyByQuery(
+      .updateManyByQuery(
         {resourceId: {$in: data.userIds}},
         {isOnWaitlist: false, removedFromWaitlistOn: getTimestamp()},
         opts
       );
+    const userList = await kSemanticModels
+      .user()
+      .getManyByQuery(
+        {resourceId: {$in: data.userIds}},
+        {...opts, projection: {email: true, firstName: true}}
+      );
+    return userList as Array<Pick<User, 'email' | 'firstName'>>;
   });
 
   // TODO: fire and forget or send in a job. Do the same for other email send

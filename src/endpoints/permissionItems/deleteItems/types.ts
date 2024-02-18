@@ -1,4 +1,5 @@
 import {PermissionAction} from '../../../definitions/permissionItem';
+import {MultipleLongRunningJobResult} from '../../jobs/types';
 import {Endpoint} from '../../types';
 import {PermissionItemInputTarget} from '../types';
 
@@ -12,21 +13,12 @@ export type DeletePermissionItemInput = {
 
 export interface DeletePermissionItemsEndpointParams {
   workspaceId?: string;
-  items?: DeletePermissionItemInput[];
-}
-
-export interface DeletePermissionItemsEndpointResultJobItem {
-  resourceId: string;
-  jobId: string;
-}
-
-export interface DeletePermissionItemsEndpointResult {
-  jobs: Array<DeletePermissionItemsEndpointResultJobItem>;
+  items: DeletePermissionItemInput[];
 }
 
 export type DeletePermissionItemsEndpoint = Endpoint<
   DeletePermissionItemsEndpointParams,
-  DeletePermissionItemsEndpointResult
+  MultipleLongRunningJobResult
 >;
 
 export type DeletePermissionItemsCascadeFnsArgs = {

@@ -26,7 +26,10 @@ export async function expectFileBodyEqualById(
   const file = await kSemanticModels.file().getOneById(id);
   assert(file);
 
-  const {primaryBackend, primaryMount} = await resolveBackendsMountsAndConfigs(file);
+  const {primaryBackend, primaryMount} = await resolveBackendsMountsAndConfigs(
+    file,
+    /** init primary backend only */ true
+  );
   const {body} = await primaryBackend.readFile({
     filepath: stringifyFilenamepath(file),
     mount: primaryMount,

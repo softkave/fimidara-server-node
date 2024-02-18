@@ -13,6 +13,7 @@ import {AnyObject} from '../../../utils/types';
 import {
   FilePersistenceDescribeFolderContentResult,
   FilePersistenceProvider,
+  PersistedFolderDescription,
 } from '../../contexts/file/types';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {getBackendConfigsWithIdList} from '../../fileBackends/configUtils';
@@ -49,6 +50,31 @@ async function setContinuationTokenInJob(
   }, /** reuse txn from async local store */ false);
 }
 
+async function queueIngestFolderJobFor(
+  parentJob: Job,
+  folders: PersistedFolderDescription[]
+) {
+  await queueJobs(
+    parentJob.workspaceId,
+    parentJob.resourceId,
+    folders.map((mountFolder): JobInput<IngestFolderpathJobParams> => {
+      const jobParams: IngestFolderpathJobParams = {
+        ingestFrom: pathSplit(mountFolder.folderpath),
+        mountId: mountFolder.mountId,
+        agentId: parentJob.params.agentId,
+      };
+
+      return {
+        createdBy: parentJob.createdBy,
+        type: kJobType.ingestFolderpath,
+        params: jobParams,
+        priority: parentJob.priority,
+        shard: parentJob.shard,
+      };
+    })
+  );
+}
+
 async function ingestFolderpathContents(
   agent: Agent,
   job: Job<IngestFolderpathJobParams, IngestFolderpathJobMeta>,
@@ -81,25 +107,7 @@ async function ingestFolderpathContents(
       ingestPersistedFolders(agent, workspace, result.folders),
       ingestPersistedFiles(agent, workspace, result.files),
     ]);
-    kUtilsInjectables.promises().forget(
-      queueJobs(
-        job.workspaceId,
-        job.resourceId,
-        result.folders.map((mountFolder): JobInput<IngestFolderpathJobParams> => {
-          const jobParams: IngestFolderpathJobParams = {
-            ingestFrom: pathSplit(mountFolder.folderpath),
-            mountId: mountFolder.mountId,
-            agentId: job.params.agentId,
-          };
-          return {
-            type: kJobType.ingestFolderpath,
-            params: jobParams,
-            priority: job.priority,
-            shard: job.shard,
-          };
-        })
-      )
-    );
+    kUtilsInjectables.promises().forget(queueIngestFolderJobFor(job, result.folders));
   } while (continuationToken && (result.folders.length || result.files.length));
 }
 
@@ -129,5 +137,8 @@ export async function runIngestFolderpathJob(
   );
   const providersMap = await initBackendProvidersForMounts([mount], configs);
   const provider = providersMap[mount.resourceId];
-  await ingestFolderpathContents(agent, job, mount, provider);
+
+  if (provider) {
+    await ingestFolderpathContents(agent, job, mount, provider);
+  }
 }

@@ -118,6 +118,7 @@ export function generateTestWorkspace(seed: Partial<Workspace> = {}) {
         seed.usageThresholds
       )
     ),
+    isDeleted: false,
   };
   return workspace;
 }

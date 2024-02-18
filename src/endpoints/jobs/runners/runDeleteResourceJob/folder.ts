@@ -53,7 +53,10 @@ const deleteResourceFn: DeleteResourceFn = async ({args, helpers}) => {
   }
 
   const folderpath = stringifyFoldernamepath(folder);
-  const {providersMap, mounts} = await resolveBackendsMountsAndConfigs(folder);
+  const {providersMap, mounts} = await resolveBackendsMountsAndConfigs(
+    folder,
+    /** init primary backend only */ false
+  );
   await Promise.all(
     mounts.map(async mount => {
       try {
@@ -62,7 +65,7 @@ const deleteResourceFn: DeleteResourceFn = async ({args, helpers}) => {
         // children folder and files too, or won't that be taken care of here?
         // A possible way to save on cost for backends that support deleting
         // folders
-        await provider.deleteFolders({
+        await provider?.deleteFolders({
           mount,
           folderpaths: [folderpath],
           workspaceId: folder.workspaceId,

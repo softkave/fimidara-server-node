@@ -1,9 +1,11 @@
 import {isString} from 'lodash';
 import {File} from '../../definitions/file';
 import {Folder} from '../../definitions/folder';
-import {getIgnoreCaseRegExpForString} from '../../utils/fns';
 import {FileQuery} from '../contexts/data/types';
-import {getStringListQuery} from '../contexts/semantic/utils';
+import {
+  getIgnoreCaseDataQueryRegExp,
+  getStringListQuery,
+} from '../contexts/semantic/utils';
 
 function getByNamepath(
   file: Pick<File, 'workspaceId' | 'namepath' | 'extension'>
@@ -11,9 +13,7 @@ function getByNamepath(
   const {extension, namepath, workspaceId} = file;
   return {
     workspaceId,
-    extension: isString(extension)
-      ? {$regex: getIgnoreCaseRegExpForString(extension)}
-      : undefined,
+    extension: isString(extension) ? getIgnoreCaseDataQueryRegExp(extension) : undefined,
     ...getStringListQuery<Folder>(
       namepath,
       /** prefix */ 'namepath',

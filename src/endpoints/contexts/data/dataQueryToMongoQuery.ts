@@ -47,10 +47,10 @@ export function dataQueryToMongoQuery<TQuery extends DataQuery<AnyObject>>(
             const expQueryList = v01.map(v01Next => ({
               $elemMatch: dataQueryToMongoQuery(v01Next.$elemMatch),
             }));
-            const k02 = `${k00}.$all`;
+            const k02 = [k00, '$all'];
             set(mongoQuery, k02, expQueryList);
           } else {
-            const k02 = `${k00}.$all`;
+            const k02 = [k00, '$all'];
             set(mongoQuery, k02, v01);
           }
 
@@ -60,7 +60,7 @@ export function dataQueryToMongoQuery<TQuery extends DataQuery<AnyObject>>(
         case '$elemMatch': {
           appAssert(isObject(v01));
           const q01 = dataQueryToMongoQuery(v01);
-          const k02 = `${k00}.$elemMatch`;
+          const k02 = [k00, '$elemMatch'];
           set(mongoQuery, k02, q01);
           break;
         }
@@ -78,7 +78,7 @@ export function dataQueryToMongoQuery<TQuery extends DataQuery<AnyObject>>(
             });
           } else {
             const q01 = dataQueryToMongoQuery(v01);
-            const k02 = `${k00}.$not`;
+            const k02 = [k00, '$not'];
             set(mongoQuery, k02, q01);
           }
 
@@ -86,7 +86,7 @@ export function dataQueryToMongoQuery<TQuery extends DataQuery<AnyObject>>(
         }
 
         default: {
-          const k02 = `${k00}.${k01}`;
+          const k02 = [k00, k01];
           set(mongoQuery, k02, v01);
         }
       }

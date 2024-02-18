@@ -22,6 +22,7 @@ export function generatePermissionGroupForTest(seed: Partial<PermissionGroup> = 
     workspaceId: getNewIdForResource(kAppResourceType.Workspace),
     name: faker.company.name(),
     description: faker.lorem.sentence(),
+    isDeleted: false,
     ...seed,
   };
   return token;
@@ -74,6 +75,7 @@ export function generateAssignedItemForTest(seed: Partial<AssignedItem> = {}) {
       ? getResourceTypeFromId(seed.assigneeId)
       : kAppResourceType.PermissionGroup,
     meta: {},
+    isDeleted: false,
     ...seed,
   };
   return item;

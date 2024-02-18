@@ -70,7 +70,10 @@ const uploadFile: UploadFileEndpoint = async instData => {
   });
 
   let {file} = createFileResult;
-  const {primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs(file);
+  const {primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs(
+    file,
+    /** init primary backend only */ true
+  );
 
   try {
     const bytesCounterStream = new ByteCounterPassThroughStream();

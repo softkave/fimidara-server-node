@@ -1,12 +1,27 @@
+import {first} from 'lodash';
 import {AppShard} from '../../definitions/app';
 import {Job, JobStatusHistory, RunAfterJobItem, kJobStatus} from '../../definitions/job';
+import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {AnyFn} from '../../utils/types';
+import {DataQuery} from '../contexts/data/types';
 import {kDataModels, kSemanticModels} from '../contexts/injection/injectables';
 import {
   SemanticProviderMutationTxnOptions,
   SemanticProviderTxnOptions,
 } from '../contexts/semantic/types';
+
+export const kJobDefaultCooldownDuration = 5 * 60 * 1_000; // 5 minutes
+let cooldownDuration = kJobDefaultCooldownDuration;
+
+export function getJobCooldownDuration() {
+  return cooldownDuration;
+}
+
+export function setJobCooldownDuration(duration: number) {
+  appAssert(duration > 0);
+  return (cooldownDuration = duration);
+}
 
 export async function markJobStarted(
   job: Job,
@@ -18,6 +33,7 @@ export async function markJobStarted(
     status: kJobStatus.inProgress,
     statusLastUpdatedAt: getTimestamp(),
   };
+
   return await kSemanticModels
     .job()
     .getAndUpdateOneById(
@@ -31,7 +47,7 @@ export async function areJobRunConditionsSatisfied(
   job: Job,
   opts: SemanticProviderTxnOptions
 ) {
-  if (!job.runAfter) {
+  if (!job.runAfter || job.runAfter.length === 0) {
     return true;
   }
 
@@ -50,22 +66,28 @@ export async function areJobRunConditionsSatisfied(
 
   const runAfterJobIds = Object.keys(runAfterByJobId);
   const runAfterJobs = await kSemanticModels.job().getManyByIdList(runAfterJobIds, opts);
-  return runAfterJobs.every(dependentJob => {
-    const conditions = runAfterByJobId[dependentJob.resourceId];
-    return conditions.every(condition => condition.status.includes(dependentJob.status));
-  });
+  return (
+    runAfterJobs.length > 0 &&
+    runAfterJobs.every(dependentJob => {
+      const conditions = runAfterByJobId[dependentJob.resourceId];
+      return conditions.every(condition =>
+        condition.status.includes(dependentJob.status)
+      );
+    })
+  );
 }
 
 async function getJobUsingFn(
-  fn: AnyFn<[], Promise<Job | undefined>>,
+  getJobFn: AnyFn<[], Promise<Job | undefined>>,
   opts: SemanticProviderTxnOptions
 ) {
   let job: Job | undefined;
 
   do {
-    job = await fn();
+    job = await getJobFn();
+    const isReady = job && (await areJobRunConditionsSatisfied(job, opts));
 
-    if (job && (await areJobRunConditionsSatisfied(job, opts))) {
+    if (isReady) {
       return job;
     }
   } while (job);
@@ -76,16 +98,23 @@ async function getJobUsingFn(
 export async function getNextUnfinishedJob(
   activeRunnerIds: string[],
   shards: Array<AppShard> | undefined,
-  opts: SemanticProviderTxnOptions
+  opts: SemanticProviderMutationTxnOptions
 ): Promise<Job | undefined> {
+  const startMs = getTimestamp();
   return await getJobUsingFn(async () => {
-    const [job] = await kDataModels.job().getManyByQuery(
+    const query: DataQuery<Job> = {
+      status: kJobStatus.inProgress,
+      // Avoid fetching in-progress jobs belonging to an active runner.
+      runnerId: {$nin: activeRunnerIds},
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      shard: shards ? {$in: shards as any} : undefined,
+    };
+    const jobs = await kDataModels.job().getManyByQuery(
       {
-        status: kJobStatus.inProgress,
-        // Avoid fetching in-progress jobs belonging to an active runner.
-        runnerId: {$nin: activeRunnerIds},
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        shard: shards ? {$in: shards as any} : undefined,
+        $or: [
+          {...query, cooldownTill: null},
+          {...query, cooldownTill: {$lt: startMs}},
+        ],
       },
       {
         ...opts,
@@ -96,6 +125,18 @@ export async function getNextUnfinishedJob(
         sort: {priority: 'desc'},
       }
     );
+    const job = first(jobs);
+
+    if (job) {
+      // TODO: consolidate cooldown checking
+      await kDataModels
+        .job()
+        .updateOneByQuery(
+          {resourceId: job.resourceId},
+          {cooldownTill: startMs + cooldownDuration},
+          opts
+        );
+    }
 
     return job;
   }, opts);
@@ -103,14 +144,21 @@ export async function getNextUnfinishedJob(
 
 export async function getNextPendingJob(
   shards: Array<AppShard> | undefined,
-  opts: SemanticProviderTxnOptions
+  opts: SemanticProviderMutationTxnOptions
 ) {
+  const startMs = getTimestamp();
   return await getJobUsingFn(async () => {
-    const [job] = await kDataModels.job().getManyByQuery(
+    const query: DataQuery<Job> = {
+      status: kJobStatus.pending,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      shard: shards ? {$in: shards as any} : undefined,
+    };
+    const jobs = await kDataModels.job().getManyByQuery(
       {
-        status: kJobStatus.pending,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        shard: shards ? {$in: shards as any} : undefined,
+        $or: [
+          {...query, cooldownTill: null},
+          {...query, cooldownTill: {$lt: startMs}},
+        ],
       },
       {
         ...opts,
@@ -121,6 +169,18 @@ export async function getNextPendingJob(
         sort: {priority: 'desc'},
       }
     );
+    const job = first(jobs);
+
+    if (job) {
+      // TODO: consolidate cooldown checking
+      await kDataModels
+        .job()
+        .updateOneByQuery(
+          {resourceId: job.resourceId},
+          {cooldownTill: startMs + cooldownDuration},
+          opts
+        );
+    }
 
     return job;
   }, opts);

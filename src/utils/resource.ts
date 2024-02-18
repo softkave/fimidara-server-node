@@ -52,7 +52,7 @@ export const kResourceTypeShortNames: Record<AppResourceType, string> = {
   [kAppResourceType.App]: padShortName('app'),
   [kAppResourceType.FileBackendConfig]: padShortName('bckconf'),
   [kAppResourceType.FileBackendMount]: padShortName('mount'),
-  [kAppResourceType.ResolvedMountEntry]: padShortName('mtentry'),
+  [kAppResourceType.ResolvedMountEntry]: padShortName('rmtentr'),
 };
 
 export const kShortNameToResourceType = invert(kResourceTypeShortNames) as InvertRecord<
@@ -129,12 +129,15 @@ export function newResource<T extends AnyObject>(
   seed?: Omit<T, keyof Resource> & Partial<Resource>
 ): Resource & T {
   const createdAt = getTimestamp();
-  return {
+  const resource: Resource = {
     createdAt,
     resourceId: getNewIdForResource(type),
     lastUpdatedAt: createdAt,
+    isDeleted: false,
     ...seed,
-  } as Resource & T;
+  };
+
+  return resource as T & Resource;
 }
 
 export function newWorkspaceResource<T extends AnyObject>(
@@ -152,6 +155,7 @@ export function newWorkspaceResource<T extends AnyObject>(
     resourceId: getNewIdForResource(type),
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
+    isDeleted: false,
     ...seed,
   };
   return item as T & WorkspaceResource;

@@ -18,6 +18,8 @@ const getArtifacts: DeleteResourceGetArtifactsFns = {
   // Delete config secrets in secrets store
   [kAppResourceType.FileBackendConfig]: ({args, opts}) =>
     kSemanticModels.fileBackendConfig().getManyByWorkspaceId(args.workspaceId, opts),
+  [kAppResourceType.PermissionItem]: ({args, opts}) =>
+    kSemanticModels.permissionItem().getManyByWorkspaceId(args.workspaceId, opts),
 };
 
 const deleteArtifacts: DeleteResourceDeleteArtifactsFns = {

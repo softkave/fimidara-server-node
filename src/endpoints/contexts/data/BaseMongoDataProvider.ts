@@ -1,5 +1,5 @@
 import {isNumber} from 'lodash';
-import {AnyObject, ClientSession, FilterQuery, Model, QueryOptions} from 'mongoose';
+import {AnyObject, ClientSession, Model, ProjectionType, QueryOptions} from 'mongoose';
 import {
   BaseDataProvider,
   BulkOpItem,
@@ -10,22 +10,26 @@ import {
   DataQuery,
 } from './types';
 // eslint-disable-next-line node/no-extraneous-import
-import {BulkWriteOptions} from 'mongodb';
 import {dataQueryToMongoQuery} from './dataQueryToMongoQuery';
 import {getPage, getPageSize} from './utils';
 
-function getMongoQueryOptionsForOp(params?: DataProviderOpParams): QueryOptions {
-  return {session: params?.txn as ClientSession, lean: true};
+function getMongoQueryOptionsForOp(params?: DataProviderOpParams): {
+  lean: true;
+  session?: ClientSession;
+} {
+  return {session: params?.txn as ClientSession | undefined, lean: true};
 }
 
-function getMongoBulkWriteOptions(params?: DataProviderOpParams): BulkWriteOptions {
-  return {session: params?.txn as ClientSession};
+function getMongoBulkWriteOptions(params?: DataProviderOpParams): {
+  session?: ClientSession;
+} {
+  return {session: params?.txn as ClientSession | undefined};
 }
 
 function getMongoQueryOptionsForOne(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params?: DataProviderQueryListParams<any>
-): QueryOptions {
+): {session?: ClientSession; projection?: ProjectionType<AnyObject>} {
   return {...getMongoQueryOptionsForOp(params), projection: params?.projection};
 }
 
@@ -142,21 +146,6 @@ export abstract class BaseMongoDataProvider<
     return item as unknown as T;
   };
 
-  getAndUpdateManyByQuery = async (
-    query: TQuery,
-    data: Partial<T>,
-    otherProps?: DataProviderOpParams | undefined
-  ) => {
-    await this.model
-      .updateMany(
-        dataQueryToMongoQuery(query),
-        data,
-        getMongoQueryOptionsForOne(otherProps)
-      )
-      .exec();
-    return this.getManyByQuery(query, otherProps);
-  };
-
   assertGetAndUpdateOneByQuery = async (
     query: TQuery,
     data: Partial<T>,
@@ -220,7 +209,7 @@ export abstract class BaseMongoDataProvider<
         case BulkOpType.UpdateOne:
           mongoOp = {
             updateOne: {
-              filter: dataQueryToMongoQuery(op.query) as FilterQuery<T>,
+              filter: dataQueryToMongoQuery(op.query),
               update: op.update,
               upsert: op.upsert,
             },
@@ -229,27 +218,16 @@ export abstract class BaseMongoDataProvider<
 
         case BulkOpType.UpdateMany:
           mongoOp = {
-            updateMany: {
-              filter: dataQueryToMongoQuery(op.query) as FilterQuery<T>,
-              update: op.update,
-            },
+            updateMany: {filter: dataQueryToMongoQuery(op.query), update: op.update},
           };
           break;
 
         case BulkOpType.DeleteOne:
-          mongoOp = {
-            deleteOne: {
-              filter: dataQueryToMongoQuery(op.query) as FilterQuery<T>,
-            },
-          };
+          mongoOp = {deleteOne: {filter: dataQueryToMongoQuery(op.query)}};
           break;
 
         case BulkOpType.DeleteMany:
-          mongoOp = {
-            deleteMany: {
-              filter: dataQueryToMongoQuery(op.query) as FilterQuery<T>,
-            },
-          };
+          mongoOp = {deleteMany: {filter: dataQueryToMongoQuery(op.query)}};
           break;
 
         default: // do nothing

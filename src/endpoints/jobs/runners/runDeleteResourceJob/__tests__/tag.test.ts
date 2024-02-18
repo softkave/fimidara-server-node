@@ -13,7 +13,7 @@ import {
   testDeleteResourceArtifactsJob,
   testDeleteResourceJob0,
   testDeleteResourceSelfJob,
-} from './utils';
+} from './testUtils';
 
 beforeAll(async () => {
   await initTests();

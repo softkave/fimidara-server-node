@@ -1,14 +1,8 @@
 import {PermissionItem, PublicPermissionItem} from '../../definitions/permissionItem';
-import {
-  AppResourceType,
-  SessionAgent,
-  getWorkspaceResourceTypeList,
-  kAppResourceType,
-} from '../../definitions/system';
-import {Workspace} from '../../definitions/workspace';
+import {AppResourceType, SessionAgent, kAppResourceType} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {toArray} from '../../utils/fns';
+import {convertToArray} from '../../utils/fns';
 import {getResourceTypeFromId} from '../../utils/resource';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {InvalidRequestError} from '../errors';
@@ -16,9 +10,6 @@ import {workspaceResourceFields} from '../extractors';
 import {checkResourcesBelongsToWorkspace} from '../resources/containerCheckFns';
 import {INTERNAL_getResources} from '../resources/getResources';
 import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems';
-import {FetchResourceItem} from '../resources/types';
-
-import {PermissionItemInputTarget} from './types';
 
 const permissionItemFields = getFields<PublicPermissionItem>({
   ...workspaceResourceFields,
@@ -67,7 +58,7 @@ export async function getPermissionItemEntities(
       kAppResourceType.AgentToken,
     ],
     workspaceId,
-    inputResources: toArray(entityIds).map(entityId => ({
+    inputResources: convertToArray(entityIds).map(entityId => ({
       resourceId: entityId,
       action: 'updatePermission',
     })),
@@ -79,27 +70,4 @@ export async function getPermissionItemEntities(
   ]);
   checkResourcesBelongsToWorkspace(workspaceId, resources);
   return resources;
-}
-
-export async function getPermissionItemTargets(
-  agent: SessionAgent,
-  workspace: Workspace,
-  target: Partial<PermissionItemInputTarget> | Partial<PermissionItemInputTarget>[]
-) {
-  return await INTERNAL_getResources({
-    agent,
-    workspaceId: workspace.resourceId,
-    allowedTypes: getWorkspaceResourceTypeList(),
-    inputResources: toArray(target).map((nextTarget): FetchResourceItem => {
-      return {
-        resourceId: nextTarget.targetId,
-        filepath: nextTarget.filepath,
-        folderpath: nextTarget.folderpath,
-        workspaceRootname: nextTarget.workspaceRootname,
-        action: 'updatePermission',
-      };
-    }),
-    checkAuth: true,
-    checkBelongsToWorkspace: true,
-  });
 }

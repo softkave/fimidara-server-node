@@ -4,11 +4,7 @@ import {
   PermissionGroup,
 } from '../../../../definitions/permissionGroups';
 import {PermissionAction, PermissionItem} from '../../../../definitions/permissionItem';
-import {
-  AppResourceType,
-  Resource,
-  kAppResourceType,
-} from '../../../../definitions/system';
+import {Resource, kAppResourceType} from '../../../../definitions/system';
 import {appAssert} from '../../../../utils/assertion';
 import {toCompactArray} from '../../../../utils/fns';
 import {indexArray} from '../../../../utils/indexArray';
@@ -187,7 +183,6 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
     entityId?: string | string[];
     action?: PermissionAction | PermissionAction[];
     targetId?: string | string[];
-    targetType?: AppResourceType | AppResourceType[];
     targetParentId?: string;
   }) {
     let targetItemsQuery: DataQuery<PermissionItem> | undefined = undefined;
@@ -195,13 +190,6 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
     if (props.targetId) {
       targetItemsQuery = {
         ...getInAndNinQuery<PermissionItem>('targetId', props.targetId),
-        ...getInAndNinQuery<PermissionItem>('entityId', props.entityId),
-        ...getInAndNinQuery<PermissionItem>('action', props.action),
-      };
-    } else if (props.targetType) {
-      targetItemsQuery = {
-        targetParentId: props.targetParentId,
-        ...getInAndNinQuery<PermissionItem>('targetType', props.targetType),
         ...getInAndNinQuery<PermissionItem>('entityId', props.entityId),
         ...getInAndNinQuery<PermissionItem>('action', props.action),
       };

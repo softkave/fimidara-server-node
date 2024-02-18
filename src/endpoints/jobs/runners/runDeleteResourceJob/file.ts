@@ -57,7 +57,10 @@ const deleteResourceFn: DeleteResourceFn = async ({args, helpers}) => {
   }
 
   const filepath = stringifyFilenamepath(file);
-  const {providersMap, mounts} = await resolveBackendsMountsAndConfigs(file);
+  const {providersMap, mounts} = await resolveBackendsMountsAndConfigs(
+    file,
+    /** init primary backend only */ false
+  );
   await Promise.all(
     mounts.map(async mount => {
       try {
@@ -65,7 +68,7 @@ const deleteResourceFn: DeleteResourceFn = async ({args, helpers}) => {
         // TODO: if we're deleting the parent folder, for jobs created from a
         // parent folder, do we still need to delete the file, for backends
         // that support deleting folders?
-        await provider.deleteFiles({
+        await provider?.deleteFiles({
           mount,
           filepaths: [filepath],
           workspaceId: file.workspaceId,
@@ -76,8 +79,8 @@ const deleteResourceFn: DeleteResourceFn = async ({args, helpers}) => {
     })
   );
 
-  await helpers.withTxn(opts => {
-    kSemanticModels.file().deleteOneById(args.resourceId, opts);
+  await helpers.withTxn(async opts => {
+    await kSemanticModels.file().deleteOneById(args.resourceId, opts);
   });
 };
 

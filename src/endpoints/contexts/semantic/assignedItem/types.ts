@@ -20,13 +20,13 @@ export interface SemanticAssignedItemProvider
     assigneeId: string | string[],
     options?: SemanticProviderQueryListRunOptions<AssignedItem>
   ): Promise<boolean>;
-  getResourceAssignedItems(
+  getByAssignee(
     workspaceId: string | undefined,
     assigneeId: string | string[],
     assignedItemType?: AppResourceType | AppResourceType[],
     options?: SemanticProviderQueryListRunOptions<AssignedItem>
   ): Promise<AssignedItem[]>;
-  getResourceAssigneeItems(
+  getByAssigned(
     workspaceId: string | undefined,
     assignedItemId: string | string[],
     options?: SemanticProviderQueryListRunOptions<AssignedItem>
@@ -35,17 +35,16 @@ export interface SemanticAssignedItemProvider
     assigneeId: string,
     options?: SemanticProviderQueryListRunOptions<AssignedItem>
   ): Promise<AssignedItem[]>;
-  /** Deletes items assigned to resource. */
-  deleteResourceAssignedItems(
+  deleteByAssigned(
     workspaceId: string,
-    assigneeId: string | string[],
+    assignedId: string | string[],
     assignedItemType: AppResourceType | AppResourceType[] | undefined,
     opts: SemanticProviderMutationTxnOptions
   ): Promise<void>;
   /** Deletes items resource is assigned to. */
-  deleteResourceAssigneeItems(
+  deleteByAssignee(
     workspaceId: string,
-    assignedItemId: string | string[],
+    assigneeItemId: string | string[],
     opts: SemanticProviderMutationTxnOptions
   ): Promise<void>;
   softDeleteWorkspaceCollaborators(
