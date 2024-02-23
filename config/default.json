@@ -1,0 +1,34 @@
+{
+  "clientDomain": "http://localhost:3000",
+  "mongoDbURI": "",
+  "mongoDbDatabaseName": "",
+  "jwtSecret": "",
+  "port": 5000,
+  "S3Bucket": "",
+  "rootUserEmail": "",
+  "rootUserFirstName": "",
+  "rootUserLastName": "",
+  "fileBackend": "fs",
+  "localFsDir": "./dev-local-fs",
+  "emailProvider": "noop",
+  "secretsManagerProvider": "memory",
+  "awsConfig": {
+    "accessKeyId": "",
+    "secretAccessKey": "",
+    "region": ""
+  },
+  "FLAG_waitlistNewSignups": true,
+  "appName": "fimidara",
+  "appDefaultEmailAddressFrom": "fimidara@softkave.com",
+  "awsEmailEncoding": "UTF-8",
+  "dateFormat": "MMM DD, YYYY",
+  "clientLoginLink": "http://localhost:3000/login",
+  "clientSignupLink": "http://localhost:3000/signup",
+  "changePasswordLink": "http://localhost:3000/change-password",
+  "verifyEmailLink": "http://localhost:3000/verify-email",
+  "test": {
+    "localFsDir": "./test-local-fs"
+  },
+  "loggerType": "console",
+  "runnerLocation": "./build/src/endpoints/jobs/runner.js"
+}

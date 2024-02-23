@@ -1,0 +1,7 @@
+{
+  "emailProvider": "noop",
+  "secretsManagerProvider": "memory",
+  "FLAG_waitlistNewSignups": false,
+  "fileBackend": "fs",
+  "localFsDir": "./test-local-fs"
+}

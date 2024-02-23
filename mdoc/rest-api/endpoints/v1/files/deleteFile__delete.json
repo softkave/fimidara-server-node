@@ -1,0 +1,213 @@
+{
+    "__id": "HttpEndpointDefinition",
+    "basePathname": "/v1/files/deleteFile",
+    "method": "delete",
+    "requestBody": {
+        "__id": "FieldObject",
+        "name": "DeleteFileEndpointParams",
+        "fields": {
+            "filepath": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "File path with workspace rootname, case insensitive",
+                    "example": "/workspace-rootname/my-outer-folder/my-image-file.png"
+                },
+                "__id": "FieldObjectField",
+                "required": false
+            },
+            "fileId": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "File ID",
+                    "example": "file000_000000000000000000000"
+                },
+                "__id": "FieldObjectField",
+                "required": false
+            }
+        }
+    },
+    "requestHeaders": {
+        "__id": "FieldObject",
+        "fields": {
+            "Authorization": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Access token",
+                    "example": "Bearer <token>"
+                },
+                "__id": "FieldObjectField",
+                "required": true
+            },
+            "Content-Type": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "HTTP JSON request content type",
+                    "example": "application/json"
+                },
+                "__id": "FieldObjectField",
+                "required": true
+            }
+        },
+        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType"
+    },
+    "responseHeaders": {
+        "__id": "FieldObject",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "HTTP JSON response content type",
+                    "example": "application/json"
+                },
+                "__id": "FieldObjectField",
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "HTTP response content length in bytes"
+                },
+                "__id": "FieldObjectField",
+                "required": true
+            }
+        },
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength"
+    },
+    "responseBody": {
+        "__id": "FieldObject",
+        "name": "LongRunningJobResult",
+        "fields": {
+            "jobId": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Long running job ID",
+                    "example": "job0000_000000000000000000000"
+                },
+                "__id": "FieldObjectField",
+                "required": false
+            }
+        },
+        "description": "Long running job endpoint success result"
+    },
+    "name": "DeleteFileEndpoint",
+    "errorResponseHeaders": {
+        "__id": "FieldObject",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "HTTP JSON response content type",
+                    "example": "application/json"
+                },
+                "__id": "FieldObjectField",
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "HTTP response content length in bytes"
+                },
+                "__id": "FieldObjectField",
+                "required": true
+            }
+        },
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength"
+    },
+    "errorResponseBody": {
+        "__id": "FieldObject",
+        "name": "EndpointErrorResult",
+        "fields": {
+            "errors": {
+                "data": {
+                    "__id": "FieldArray",
+                    "type": {
+                        "__id": "FieldObject",
+                        "name": "OperationError",
+                        "fields": {
+                            "name": {
+                                "data": {
+                                    "__id": "FieldString",
+                                    "description": "Error name",
+                                    "example": "ValidationError"
+                                },
+                                "__id": "FieldObjectField",
+                                "required": true
+                            },
+                            "message": {
+                                "data": {
+                                    "__id": "FieldString",
+                                    "description": "Error message",
+                                    "example": "Workspace name is invalid"
+                                },
+                                "__id": "FieldObjectField",
+                                "required": true
+                            },
+                            "action": {
+                                "data": {
+                                    "__id": "FieldString",
+                                    "description": "Recommended action",
+                                    "valid": {
+                                        "0": "loginAgain",
+                                        "1": "logout",
+                                        "2": "requestChangePassword"
+                                    }
+                                },
+                                "__id": "FieldObjectField",
+                                "required": false
+                            },
+                            "field": {
+                                "data": {
+                                    "__id": "FieldString",
+                                    "example": "workspace.innerField.secondInnerField",
+                                    "description": "Invalid field failing validation when error is ValidationError"
+                                },
+                                "__id": "FieldObjectField",
+                                "required": false
+                            },
+                            "notes": {
+                                "data": {
+                                    "__id": "FieldArray",
+                                    "type": {
+                                        "__id": "FieldObject",
+                                        "name": "EndpointResultNote",
+                                        "fields": {
+                                            "code": {
+                                                "data": {
+                                                    "__id": "FieldString",
+                                                    "description": "Endpoint result or error note code",
+                                                    "example": "unsupportedOperationInMountBackend",
+                                                    "valid": {
+                                                        "0": "unsupportedOperationInMountBackend",
+                                                        "1": "mountsNotCompletelyIngested"
+                                                    },
+                                                    "enumName": "EndpointResultNoteCode"
+                                                },
+                                                "__id": "FieldObjectField",
+                                                "required": true
+                                            },
+                                            "message": {
+                                                "data": {
+                                                    "__id": "FieldString",
+                                                    "description": "Endpoint result or error note message",
+                                                    "example": "Some mounts in the requested folder's mount chain do not support operation abc"
+                                                },
+                                                "__id": "FieldObjectField",
+                                                "required": true
+                                            }
+                                        }
+                                    }
+                                },
+                                "__id": "FieldObjectField",
+                                "required": false
+                            }
+                        }
+                    },
+                    "description": "Endpoint call response errors"
+                },
+                "__id": "FieldObjectField",
+                "required": false
+            }
+        },
+        "description": "Endpoint error result"
+    }
+}
