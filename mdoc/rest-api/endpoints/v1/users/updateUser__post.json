@@ -459,7 +459,8 @@
                                             "__id": "FieldObjectField",
                                             "required": true
                                         }
-                                    }
+                                    },
+                                    "name": "PublicWorkspaceResource"
                                 }
                             },
                             "__id": "FieldObjectField",

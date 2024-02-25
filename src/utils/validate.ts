@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
-import {ValidationError} from './errors';
 import OperationError from './OperationError';
+import {ValidationError} from './errors';
 
 export function validate<DataType>(
   data: DataType,

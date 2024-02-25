@@ -92,11 +92,11 @@
         "post"
     ],
     [
-        "/v1/files/readFile",
+        "/v1/files/readFile/:filepathOrId",
         "post"
     ],
     [
-        "/v1/files/readFile",
+        "/v1/files/readFile/:filepathOrId",
         "get"
     ],
     [
@@ -104,7 +104,7 @@
         "post"
     ],
     [
-        "/v1/files/uploadFile",
+        "/v1/files/uploadFile/:filepathOrId",
         "post"
     ],
     [

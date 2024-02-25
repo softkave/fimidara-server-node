@@ -1,6 +1,6 @@
 {
     "__id": "HttpEndpointDefinition",
-    "basePathname": "/v1/files/uploadFile",
+    "basePathname": "/v1/files/uploadFile/:filepathOrId",
     "pathParamaters": {
         "__id": "FieldObject",
         "fields": {
@@ -437,7 +437,8 @@
                 }
             },
             "name": "UploadFileEndpointParams"
-        }
+        },
+        "serializeAs": "formdata"
     },
     "name": "UploadFileEndpoint",
     "errorResponseHeaders": {

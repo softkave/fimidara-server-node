@@ -49,6 +49,7 @@
                             "data": {
                                 "__id": "FieldObject",
                                 "fields": {},
+                                "name": "FileBackendConfigCredentials",
                                 "description": "Exact shape depends on backend."
                             },
                             "__id": "FieldObjectField",

@@ -1,6 +1,6 @@
 {
     "__id": "HttpEndpointDefinition",
-    "basePathname": "/v1/files/readFile",
+    "basePathname": "/v1/files/readFile/:filepathOrId",
     "pathParamaters": {
         "__id": "FieldObject",
         "fields": {
@@ -310,6 +310,148 @@
     },
     "responseBody": {
         "__id": "FieldBinary"
+    },
+    "sdkParamsBody": {
+        "__id": "SdkParamsBody",
+        "def": {
+            "__id": "FieldObject",
+            "name": "ReadFileEndpointParams",
+            "fields": {
+                "filepath": {
+                    "data": {
+                        "__id": "FieldString",
+                        "description": "File path with workspace rootname, case insensitive",
+                        "example": "/workspace-rootname/my-outer-folder/my-image-file.png"
+                    },
+                    "__id": "FieldObjectField",
+                    "required": false
+                },
+                "fileId": {
+                    "data": {
+                        "__id": "FieldString",
+                        "description": "File ID",
+                        "example": "file000_000000000000000000000"
+                    },
+                    "__id": "FieldObjectField",
+                    "required": false
+                },
+                "imageResize": {
+                    "data": {
+                        "__id": "FieldObject",
+                        "fields": {
+                            "width": {
+                                "data": {
+                                    "__id": "FieldNumber",
+                                    "description": "Resize to width if file is an image"
+                                },
+                                "__id": "FieldObjectField",
+                                "required": false
+                            },
+                            "height": {
+                                "data": {
+                                    "__id": "FieldNumber",
+                                    "description": "Resize to height if file is an image"
+                                },
+                                "__id": "FieldObjectField",
+                                "required": false
+                            },
+                            "fit": {
+                                "data": {
+                                    "__id": "FieldString",
+                                    "description": "How the image should be resized to fit provided dimensions",
+                                    "enumName": "ImageResizeFitEnum",
+                                    "valid": {
+                                        "0": "contain",
+                                        "1": "cover",
+                                        "2": "fill",
+                                        "3": "inside",
+                                        "4": "outside"
+                                    }
+                                },
+                                "__id": "FieldObjectField",
+                                "required": false
+                            },
+                            "position": {
+                                "data": {
+                                    "__id": "FieldOrCombination",
+                                    "types": {
+                                        "0": {
+                                            "__id": "FieldString",
+                                            "description": "Gravity or strategy to use when fit is cover or contain",
+                                            "enumName": "ImageResizePositionEnum",
+                                            "valid": {
+                                                "0": "top",
+                                                "1": "right top",
+                                                "2": "right",
+                                                "3": "right bottom",
+                                                "4": "bottom",
+                                                "5": "left bottom",
+                                                "6": "left",
+                                                "7": "left top",
+                                                "8": "north",
+                                                "9": "northeast",
+                                                "10": "east",
+                                                "11": "southeast",
+                                                "12": "south",
+                                                "13": "southwest",
+                                                "14": "west",
+                                                "15": "northwest",
+                                                "16": "centre",
+                                                "17": "entropy",
+                                                "18": "attention"
+                                            }
+                                        },
+                                        "1": {
+                                            "__id": "FieldNumber",
+                                            "description": "Position to use when fit is cover or contain"
+                                        }
+                                    }
+                                },
+                                "__id": "FieldObjectField",
+                                "required": false
+                            },
+                            "background": {
+                                "data": {
+                                    "__id": "FieldString",
+                                    "description": "Hex background color to use when fit is contain",
+                                    "example": "#FFFFFF"
+                                },
+                                "__id": "FieldObjectField",
+                                "required": false
+                            },
+                            "withoutEnlargement": {
+                                "data": {
+                                    "__id": "FieldBoolean",
+                                    "description": "Do not enlarge if the width or height are already less than provided dimensions"
+                                },
+                                "__id": "FieldObjectField",
+                                "required": false
+                            }
+                        },
+                        "name": "ImageResizeParams"
+                    },
+                    "__id": "FieldObjectField",
+                    "required": false
+                },
+                "imageFormat": {
+                    "data": {
+                        "__id": "FieldString",
+                        "description": "Format to transform image to if file is an image",
+                        "enumName": "ImageFormatEnum",
+                        "valid": {
+                            "0": "jpeg",
+                            "1": "png",
+                            "2": "webp",
+                            "3": "tiff",
+                            "4": "raw"
+                        }
+                    },
+                    "__id": "FieldObjectField",
+                    "required": false
+                }
+            }
+        },
+        "serializeAs": "json"
     },
     "name": "ReadFileEndpoint",
     "errorResponseHeaders": {

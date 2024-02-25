@@ -284,6 +284,8 @@ export class FimidaraEndpointsBase extends FimidaraJsConfig {
       path: endpointPath,
       method: p01.method,
       responseType: p01.responseType,
+      onDownloadProgress: p01.onUploadProgress,
+      onUploadProgress: p01.onDownloadProgress,
     });
     return {
       status: response.status,
