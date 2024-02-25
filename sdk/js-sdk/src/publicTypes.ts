@@ -550,7 +550,7 @@ export type AppActionType =
   | 'deleteTag'
   | 'assignTag'
   | 'readUsageRecord'
-  | 'adFileBackendConfig'
+  | 'addFileBackendConfig'
   | 'deleteFileBackendConfig'
   | 'readFileBackendConfig'
   | 'updateFileBackendConfig'
@@ -617,7 +617,7 @@ export type ResolvedEntityPermissionItem = {
   target: ResolvedEntityPermissionItemTarget;
   entityId: string;
   action: AppActionType;
-  hasAccess: boolean;
+  access: boolean;
   permittingEntityId?: string;
   permittingTargetId?: string;
 };
@@ -631,9 +631,46 @@ export type FetchResourceItem = {
   folderpath?: string | Array<string>;
   workspaceRootname?: string;
 };
-export type ResourceWrapper = {
+export type GetResourcesEndpointParams = {
   workspaceId?: string;
   resources: Array<FetchResourceItem>;
+};
+export type AppResourceType =
+  | '*'
+  | 'system'
+  | 'public'
+  | 'workspace'
+  | 'collaborationRequest'
+  | 'agentToken'
+  | 'permissionGroup'
+  | 'permissionItem'
+  | 'folder'
+  | 'file'
+  | 'user'
+  | 'tag'
+  | 'usageRecord'
+  | 'assignedItem'
+  | 'endpointRequest'
+  | 'job'
+  | 'presignedPath'
+  | 'fileBackendConfig'
+  | 'fileBackendMount'
+  | 'resolvedMountEntry'
+  | 'app';
+export type Resource = {
+  resourceId: string;
+  createdBy?: Agent;
+  createdAt: number;
+  lastUpdatedBy?: Agent;
+  lastUpdatedAt: number;
+  isDeleted: boolean;
+  deletedAt?: number;
+  deletedBy?: Agent;
+};
+export type ResourceWrapper = {
+  resourceId: string;
+  resourceType: AppResourceType;
+  resource: Resource;
 };
 export type GetResourcesEndpointResult = {
   resources: Array<ResourceWrapper>;

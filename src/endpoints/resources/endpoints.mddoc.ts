@@ -32,7 +32,7 @@ const fetchResourceItemInput = mddocConstruct
 
 const getResourcesParams = mddocConstruct
   .constructFieldObject<GetResourcesEndpointParams>()
-  .setName('ResourceWrapper')
+  .setName('GetResourcesEndpointParams')
   .setFields({
     workspaceId: mddocConstruct.constructFieldObjectField(
       false,
@@ -56,6 +56,7 @@ const resourceWrapper = mddocConstruct
       true,
       mddocConstruct
         .constructFieldObject<PublicResource>()
+        .setName('Resource')
         .setDescription('Resource shape depends on resource type')
         .setFields({
           ...fReusables.resourceParts,

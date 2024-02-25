@@ -124,43 +124,43 @@ describe('resolveEntityPermissions', () => {
       indexResolvedPermissions({
         entityId: pg01.resourceId,
         action: 'readFile',
-        hasAccess: true,
+        access: true,
         target: {targetId: workspace.resourceId},
       }),
       indexResolvedPermissions({
         entityId: pg02.resourceId,
         action: 'readFile',
-        hasAccess: true,
+        access: true,
         target: {targetId: file01.resourceId},
       }),
       indexResolvedPermissions({
         entityId: pg03.resourceId,
         action: 'readFile',
-        hasAccess: false,
+        access: false,
         target: {targetId: workspace.resourceId},
       }),
       indexResolvedPermissions({
         entityId: pg02.resourceId,
         action: 'readFile',
-        hasAccess: false,
+        access: false,
         target: {targetId: workspace.resourceId},
       }),
       indexResolvedPermissions({
         entityId: pg04.resourceId,
         action: 'readFile',
-        hasAccess: true,
+        access: true,
         target: {targetId: workspace.resourceId},
       }),
       indexResolvedPermissions({
         entityId: pg05.resourceId,
         action: 'readFile',
-        hasAccess: false,
+        access: false,
         target: {targetId: workspace.resourceId},
       }),
       indexResolvedPermissions({
         entityId: pg04.resourceId,
         action: 'readFile',
-        hasAccess: true,
+        access: true,
         target: {targetId: file01.resourceId},
       }),
     ];
@@ -200,7 +200,7 @@ describe('resolveEntityPermissions', () => {
       indexResolvedPermissions({
         entityId: adminPg.resourceId,
         action: 'readFolder',
-        hasAccess: true,
+        access: true,
         target: {targetId: folder.resourceId},
       }),
     ];
@@ -214,7 +214,7 @@ function indexResolvedPermissions(item: ResolvedEntityPermissionItem) {
     item.entityId,
     indexResolvedPermissionItemTarget(item.target),
     item.action,
-    item.hasAccess,
+    item.access,
   ]);
 }
 

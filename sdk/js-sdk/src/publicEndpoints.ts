@@ -88,7 +88,7 @@ import {
   MultipleLongRunningJobResult,
   ResolveEntityPermissionsEndpointParams,
   ResolveEntityPermissionsEndpointResult,
-  ResourceWrapper,
+  GetResourcesEndpointParams,
   GetResourcesEndpointResult,
   GetUsageCostsEndpointResult,
   GetWorkspaceSummedUsageEndpointParams,
@@ -777,7 +777,7 @@ export class PermissionItemsEndpoints extends FimidaraEndpointsBase {
 }
 export class ResourcesEndpoints extends FimidaraEndpointsBase {
   getResources = async (
-    props: FimidaraEndpointParamsRequired<ResourceWrapper>
+    props: FimidaraEndpointParamsRequired<GetResourcesEndpointParams>
   ): Promise<FimidaraEndpointResult<GetResourcesEndpointResult>> => {
     return this.executeJson(
       {

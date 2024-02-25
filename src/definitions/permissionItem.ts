@@ -48,7 +48,7 @@ export const kPermissionsMap = {
 
   readUsageRecord: 'readUsageRecord',
 
-  adFileBackendConfig: 'adFileBackendConfig',
+  addFileBackendConfig: 'addFileBackendConfig',
   deleteFileBackendConfig: 'deleteFileBackendConfig',
   readFileBackendConfig: 'readFileBackendConfig',
   updateFileBackendConfig: 'updateFileBackendConfig',

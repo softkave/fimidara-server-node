@@ -170,7 +170,7 @@ export const INTERNAL_resolveEntityPermissions = async (
       );
 
       return {
-        hasAccess,
+        access: hasAccess,
         action: nextItem.action,
         entityId: nextItem.entity.resourceId,
         target: nextItem.resolvedTarget,

@@ -57,6 +57,7 @@ export type FimidaraSuppliedConfig = Partial<{
   port: string;
   S3Bucket: string;
   rootUserEmail: string;
+  rootUserPassword: string;
   rootUserFirstName: string;
   rootUserLastName: string;
   fileBackend: FimidaraConfigFilePersistenceProvider;

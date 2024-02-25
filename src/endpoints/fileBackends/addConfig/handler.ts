@@ -16,7 +16,10 @@ const addFileBackendConfig: AddFileBackendConfigEndpoint = async instData => {
     agent,
     workspace,
     workspaceId: workspace.resourceId,
-    target: {action: kPermissionsMap.adFileBackendConfig, targetId: workspace.resourceId},
+    target: {
+      action: kPermissionsMap.addFileBackendConfig,
+      targetId: workspace.resourceId,
+    },
   });
 
   const backend = await kSemanticModels.utils().withTxn(async opts => {

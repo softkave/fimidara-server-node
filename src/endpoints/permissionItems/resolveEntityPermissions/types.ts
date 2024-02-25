@@ -23,7 +23,7 @@ export interface ResolvedEntityPermissionItem {
   target: ResolvedEntityPermissionItemTarget;
   action: PermissionAction;
   entityId: string;
-  hasAccess: boolean;
+  access: boolean;
   permittingEntityId?: string;
   permittingTargetId?: string;
 }

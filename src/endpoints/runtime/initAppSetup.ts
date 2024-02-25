@@ -78,6 +78,7 @@ async function setupDefaultUser(opts: SemanticProviderMutationTxnOptions) {
   const suppliedConfig = kUtilsInjectables.suppliedConfig();
   const nodeEnv = process.env.NODE_ENV;
   assert(suppliedConfig.rootUserEmail);
+  assert(suppliedConfig.rootUserPassword);
   assert(suppliedConfig.rootUserFirstName);
   assert(suppliedConfig.rootUserLastName);
 
@@ -90,7 +91,7 @@ async function setupDefaultUser(opts: SemanticProviderMutationTxnOptions) {
         email: suppliedConfig.rootUserEmail,
         firstName: suppliedConfig.rootUserFirstName,
         lastName: suppliedConfig.rootUserLastName,
-        password: suppliedConfig.rootUserEmail,
+        password: suppliedConfig.rootUserPassword,
       },
       {
         requiresPasswordChange: isDeRelatedvEnv ? false : true,

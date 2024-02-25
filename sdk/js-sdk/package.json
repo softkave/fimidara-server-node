@@ -1,12 +1,12 @@
 {
   "name": "fimidara",
-  "version": "1.13.0",
+  "version": "1.15.0",
   "description": "Fimidara file storage service js sdk",
   "author": "Softkave",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/softkave/fimidara-server-node.git"
+    "url": "git+https://github.com/softkave/fimidara-server-node.git"
   },
   "bugs": {
     "url": "https://github.com/softkave/fimidara-server-node/issues"

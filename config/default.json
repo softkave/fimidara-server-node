@@ -6,6 +6,7 @@
   "port": 5000,
   "S3Bucket": "",
   "rootUserEmail": "",
+  "rootUserPassword": "",
   "rootUserFirstName": "",
   "rootUserLastName": "",
   "fileBackend": "fs",

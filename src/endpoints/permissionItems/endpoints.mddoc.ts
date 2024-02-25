@@ -201,7 +201,7 @@ const resolvedPermissionItem = mddocConstruct
     target: mddocConstruct.constructFieldObjectField(true, resolvedPermissionTarget),
     entityId: mddocConstruct.constructFieldObjectField(true, entityId),
     action: mddocConstruct.constructFieldObjectField(true, fReusables.action),
-    hasAccess: mddocConstruct.constructFieldObjectField(
+    access: mddocConstruct.constructFieldObjectField(
       true,
       mddocConstruct.constructFieldBoolean()
     ),
