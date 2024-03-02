@@ -65,7 +65,7 @@ const updateFileBackendConfig: UpdateFileBackendConfigEndpoint = async instData 
     }
 
     return await configModel.getAndUpdateOneById(config.resourceId, configUpdate, opts);
-  });
+  }, /** reuseTxn */ false);
 
   appAssert(updatedConfig);
   return {config: fileBackendConfigExtractor(updatedConfig)};

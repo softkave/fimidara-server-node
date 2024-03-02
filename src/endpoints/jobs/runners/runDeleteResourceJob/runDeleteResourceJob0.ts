@@ -36,5 +36,5 @@ export async function runDeleteResourceJob0(job: Job) {
         runAfter: {jobId: deleteArtifactsJobId, status: [kJobStatus.completed]},
       }),
     ]);
-  });
+  }, /** reuseTxn */ true);
 }

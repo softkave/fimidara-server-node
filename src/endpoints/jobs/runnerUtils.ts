@@ -17,15 +17,17 @@ export const kDefaultRunnerCount = availableParallelism();
 export const kEnsureRunnerCountPromiseName = 'runner_ensureRunnerCount';
 
 export async function insertRunnerInDB(seed: Pick<App, 'resourceId'> & Partial<App>) {
-  await kSemanticModels.utils().withTxn(opts =>
-    kSemanticModels.app().insertItem(
-      newResource<App>(kAppResourceType.App, {
-        type: kAppType.runner,
-        shard: kAppPresetShards.fimidaraMain,
-        ...seed,
-      }),
-      opts
-    )
+  await kSemanticModels.utils().withTxn(
+    opts =>
+      kSemanticModels.app().insertItem(
+        newResource<App>(kAppResourceType.App, {
+          type: kAppType.runner,
+          shard: kAppPresetShards.fimidaraMain,
+          ...seed,
+        }),
+        opts
+      ),
+    /** reuseTxn */ true
   );
 }
 

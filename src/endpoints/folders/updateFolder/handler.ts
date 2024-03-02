@@ -33,7 +33,8 @@ const updateFolder: UpdateFolderEndpoint = async instData => {
       .getAndUpdateOneById(folder.resourceId, update, opts);
     assertFolder(updatedFolder);
     return updatedFolder;
-  });
+  }, /** reuseTxn */ false);
+
   folder = await populateAssignedTags(folder.workspaceId, folder);
   return {folder: folderExtractor(folder!)};
 };

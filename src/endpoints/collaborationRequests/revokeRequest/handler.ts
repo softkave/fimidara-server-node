@@ -47,7 +47,7 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async ins
 
     assertCollaborationRequest(updatedRequest);
     return {workspace, request: updatedRequest};
-  });
+  }, /** reuseTxn */ false);
 
   // TODO: fire and forget
   await sendRevokeCollaborationRequestEmail(request, workspace.name);

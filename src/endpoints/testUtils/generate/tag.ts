@@ -42,6 +42,9 @@ export async function generateAndInsertTagListForTest(
   const items = generateTagListForTest(count, seed);
   await kSemanticModels
     .utils()
-    .withTxn(async opts => kSemanticModels.tag().insertItem(items, opts));
+    .withTxn(
+      async opts => kSemanticModels.tag().insertItem(items, opts),
+      /** reuseTxn */ true
+    );
   return items;
 }

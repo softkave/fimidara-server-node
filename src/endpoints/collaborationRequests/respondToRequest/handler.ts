@@ -18,7 +18,7 @@ const respondToCollaborationRequest: RespondToCollaborationRequestEndpoint =
 
     const request = await kSemanticModels.utils().withTxn(async opts => {
       return await INTERNAL_RespondToCollaborationRequest(agent, data, opts);
-    });
+    }, /** reuseTxn */ false);
 
     await notifyUserOnCollaborationRequestResponse(request, data.response);
     return {request: collaborationRequestForUserExtractor(request)};

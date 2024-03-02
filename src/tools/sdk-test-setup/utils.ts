@@ -63,7 +63,7 @@ export async function setupSDKTestReq() {
         opts
       );
       return {workspace, token, tokenStr};
-    });
+    }, /** reuseTxn */ false);
 
   try {
     const jsSdkTestEnvFilepath = './sdk/js-sdk/.env.test';

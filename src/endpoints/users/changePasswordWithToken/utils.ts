@@ -27,7 +27,7 @@ export async function INTERNAL_changePassword(
       .agentToken()
       .deleteAgentTokens(updatedUser.resourceId, undefined, opts);
     return updatedUser;
-  });
+  }, /** reuseTxn */ true);
 
   // Delete user token and incomingTokenData since they are no longer valid
   delete reqData.agent?.agentToken;
@@ -35,8 +35,14 @@ export async function INTERNAL_changePassword(
   const completeUserData = await populateUserWorkspaces(updatedUser);
   const [userToken, clientAssignedToken] = await kSemanticModels
     .utils()
-    .withTxn(opts =>
-      Promise.all([getUserToken(userId, opts), getUserClientAssignedToken(userId, opts)])
+    .withTxn(
+      opts =>
+        Promise.all([
+          getUserToken(userId, opts),
+          getUserClientAssignedToken(userId, opts),
+        ]),
+      /** reuseTxn */ false
     );
+
   return toLoginResult(completeUserData, userToken, clientAssignedToken);
 }

@@ -162,7 +162,7 @@ export async function runDeleteResourceJobArtifacts(job: Job) {
   const helperFns: DeleteResourceCascadeFnHelpers = {
     job: job as Job<DeleteResourceJobParams, DeleteResourceJobMeta>,
     async withTxn(fn: AnyFn<[SemanticProviderMutationTxnOptions]>) {
-      await kSemanticModels.utils().withTxn(opts => fn(opts));
+      await kSemanticModels.utils().withTxn(opts => fn(opts), /** reuseTxn */ true);
     },
   };
 

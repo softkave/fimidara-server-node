@@ -30,7 +30,7 @@ const addTag: AddTagEndpoint = async instData => {
   await kSemanticModels.utils().withTxn(async opts => {
     await checkTagNameExists(workspace.resourceId, data.tag.name, opts);
     await kSemanticModels.tag().insertItem(tag, opts);
-  });
+  }, /** reuseTxn */ true);
 
   return {tag: tagExtractor(tag)};
 };

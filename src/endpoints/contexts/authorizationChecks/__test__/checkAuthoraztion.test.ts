@@ -890,7 +890,10 @@ async function addPermissions(
   );
   await kSemanticModels
     .utils()
-    .withTxn(opts => kSemanticModels.permissionItem().insertItem(items, opts));
+    .withTxn(
+      opts => kSemanticModels.permissionItem().insertItem(items, opts),
+      /** reuseTxn */ true
+    );
   return items;
 }
 
@@ -918,8 +921,10 @@ async function generateUserAndAddToWorkspace(
   const {user, userToken} = usersResult;
   await kSemanticModels
     .utils()
-    .withTxn(opts =>
-      assignWorkspaceToUser(kSystemSessionAgent, workspaceId, user.resourceId, opts)
+    .withTxn(
+      opts =>
+        assignWorkspaceToUser(kSystemSessionAgent, workspaceId, user.resourceId, opts),
+      /** reuseTxn */ true
     );
   const sessionAgent = await kUtilsInjectables
     .session()

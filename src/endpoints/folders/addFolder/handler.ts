@@ -1,11 +1,13 @@
 import {last} from 'lodash';
 import {Folder} from '../../../definitions/folder';
+import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {kPermissionAgentTypes, Resource, SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {convertToArray, pathJoin, pathSplit} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
+import {SingleInstanceRunner} from '../../../utils/LockStore';
 import {validate} from '../../../utils/validate';
 import {
   checkAuthorizationWithAgent,
@@ -26,20 +28,12 @@ import {
 import {AddFolderEndpoint, NewFolderInput} from './types';
 import {addFolderJoiSchema} from './validation';
 
-export async function createFolderListWithTransaction(
-  agent: SessionAgent,
+export async function getExistingFoldersAndArtifacts(
   workspace: Workspace,
   input: NewFolderInput | NewFolderInput[],
-  UNSAFE_skipAuthCheck = false,
-  throwOnFolderExists = true,
   opts: SemanticProviderMutationTxnOptions
 ) {
   const inputList = convertToArray(input);
-
-  if (inputList.length === 0) {
-    return {newFolders: [], existingFolders: []};
-  }
-
   const pathinfoList: FolderpathInfo[] = inputList.map(nextInput =>
     getFolderpathInfo(nextInput.folderpath)
   );
@@ -58,28 +52,33 @@ export async function createFolderListWithTransaction(
     namepathList.push(pathSplit(namepath));
   });
 
-  const existingFolders = await kSemanticModels.folder().getManyByQuery(
-    {
-      $or: namepathList.map(
-        (namepath): FolderQuery =>
-          FolderQueries.getByNamepath({
-            namepath,
-            workspaceId: workspace.resourceId,
-          })
-      ),
-    },
-    opts
-  );
+  let existingFolders: Folder[] = [];
+
+  if (namepathList.length) {
+    existingFolders = await kSemanticModels.folder().getManyByQuery(
+      {
+        $or: namepathList.map(
+          (namepath): FolderQuery =>
+            FolderQueries.getByNamepath({
+              namepath,
+              workspaceId: workspace.resourceId,
+            })
+        ),
+      },
+      opts
+    );
+  }
+
   const foldersByNamepath = indexArray(existingFolders, {
-    indexer: folder => pathJoin(folder.namepath),
+    indexer: folder => pathJoin(folder.namepath).toLowerCase(),
   });
 
-  function getSelfOrParent(namepath: string[]) {
+  function getSelfOrClosestParent(namepath: string[]) {
     // Attempt to retrieve a folder that matches namepath or the closest
     // existing parent
     for (let i = namepath.length; i >= 0; i--) {
       const partNamepath = namepath.slice(0, i);
-      const key = pathJoin(partNamepath);
+      const key = pathJoin(partNamepath).toLowerCase();
       const folder = foldersByNamepath[key];
 
       if (folder) {
@@ -90,13 +89,38 @@ export async function createFolderListWithTransaction(
     return null;
   }
 
+  return {
+    foldersByNamepath,
+    pathinfoList,
+    inputList,
+    namepathList,
+    existingFolders,
+    getSelfOrClosestParent,
+  };
+}
+
+async function createFolderListWithTransaction_(
+  agent: SessionAgent,
+  workspace: Workspace,
+  input: NewFolderInput | NewFolderInput[],
+  UNSAFE_skipAuthCheck = false,
+  throwOnFolderExists = true,
+  opts: SemanticProviderMutationTxnOptions
+) {
+  const {
+    pathinfoList,
+    foldersByNamepath,
+    existingFolders,
+    inputList,
+    getSelfOrClosestParent,
+  } = await getExistingFoldersAndArtifacts(workspace, input, opts);
   const newFolders: Folder[] = [];
   // Use a set to avoid duplicating auth checks to the same target
   const checkAuthTargets: Set<Resource> = new Set();
 
-  pathinfoList.forEach((pathinfo, pathinfoIndex) => {
+  pathinfoList?.forEach((pathinfo, pathinfoIndex) => {
     const inputForIndex = inputList[pathinfoIndex];
-    let prevFolder = getSelfOrParent(pathinfo.namepath);
+    let prevFolder = getSelfOrClosestParent(pathinfo.namepath);
     const existingDepth = prevFolder?.namepath.length ?? 0;
 
     // If existingDepth matches namepath length, then the folder exists
@@ -146,7 +170,8 @@ export async function createFolderListWithTransaction(
       // Set prevFolder to current folder, so the next folder can use it as
       // parent, and set it also in foldersByNamepath so other inputs can use it
       // (not sure how much useful the last part is, but just in case)
-      foldersByNamepath[pathJoin(folder.namepath)] = prevFolder = folder;
+      foldersByNamepath[pathJoin(folder.namepath).toLowerCase()] = folder;
+      prevFolder = folder;
       newFolders.push(folder);
     });
   });
@@ -165,7 +190,7 @@ export async function createFolderListWithTransaction(
           opts,
           workspaceId: workspace.resourceId,
           target: {
-            action: 'addFolder',
+            action: kPermissionsMap.addFolder,
             targetId: getResourcePermissionContainers(
               workspace.resourceId,
               target,
@@ -181,6 +206,16 @@ export async function createFolderListWithTransaction(
 
   return {newFolders, existingFolders};
 }
+
+export const createFolderListWithTransaction = SingleInstanceRunner.make({
+  fn: createFolderListWithTransaction_,
+  instanceSpecifier(...args) {
+    const opts = args[5];
+    const txnId = kSemanticModels.utils().useTxnId(opts.txn);
+    const id = `createFolderListWithTransaction_${txnId}`;
+    return id;
+  },
+});
 
 const addFolder: AddFolderEndpoint = async instData => {
   const data = validate(instData.data, addFolderJoiSchema);
@@ -201,7 +236,7 @@ const addFolder: AddFolderEndpoint = async instData => {
       /** throw if folder exists */ true,
       opts
     );
-  });
+  }, /** reuseTxn */ false);
 
   // The last folder will be the folder represented by our input, seeing it
   // creates parent folders in order

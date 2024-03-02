@@ -302,6 +302,6 @@ export async function setupApp() {
     return await kSemanticModels.utils().withTxn(async opts => {
       const {agent} = await setupDefaultUser(opts);
       return await setupAppArtifacts(agent, opts);
-    });
+    }, /** reuseTxn */ false);
   });
 }

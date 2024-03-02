@@ -34,7 +34,7 @@ export async function beginDeleteTag(props: {
     ]);
 
     return jobs;
-  });
+  }, /** reuseTxn */ true);
 
   return jobs;
 }

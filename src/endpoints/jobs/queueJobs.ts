@@ -109,5 +109,5 @@ export async function queueJobs<
 
     await kSemanticModels.job().insertItem(uniqueJobs, opts);
     return (jobsToReturn === 'all' ? jobs : uniqueJobs) as Array<Job<TParams, TMeta>>;
-  });
+  }, /** reuseTxn */ true);
 }

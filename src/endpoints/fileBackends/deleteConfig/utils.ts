@@ -34,7 +34,7 @@ export async function beginDeleteFileBackendConfig(props: {
     ]);
 
     return jobs;
-  });
+  }, /** reuseTxn */ true);
 
   return jobs;
 }

@@ -31,7 +31,7 @@ const updateTag: UpdateTagEndpoint = async instData => {
       .getAndUpdateOneById(data.tagId, tagUpdate, opts);
     assertTag(updatedTag);
     return updatedTag;
-  });
+  }, /** reuseTxn */ false);
 
   return {tag: tagExtractor(tag)};
 };

@@ -67,8 +67,9 @@ async function generateNonWorkspaceResources(id: string) {
     generateAndInsertTestFiles(2, {workspaceId: otherWorkspaceId, parentId: null}),
     kSemanticModels
       .utils()
-      .withTxn(opts =>
-        assignWorkspaceToUser(kSystemSessionAgent, otherWorkspaceId, id, opts)
+      .withTxn(
+        opts => assignWorkspaceToUser(kSystemSessionAgent, otherWorkspaceId, id, opts),
+        /** reuseTxn */ true
       ),
   ]);
 

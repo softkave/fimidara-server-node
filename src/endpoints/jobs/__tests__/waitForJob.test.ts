@@ -38,14 +38,16 @@ describe('waitForJob', () => {
       pollIntervalMs
     );
 
-    await kSemanticModels.utils().withTxn(opts =>
-      kSemanticModels.job().updateOneById(
-        job.resourceId,
-        {
-          status: faker.helpers.arrayElement([kJobStatus.completed, kJobStatus.failed]),
-        },
-        opts
-      )
+    await kSemanticModels.utils().withTxn(
+      opts =>
+        kSemanticModels.job().updateOneById(
+          job.resourceId,
+          {
+            status: faker.helpers.arrayElement([kJobStatus.completed, kJobStatus.failed]),
+          },
+          opts
+        ),
+      /** reuseTxn */ true
     );
     await waitTimeout(pollIntervalMs);
 

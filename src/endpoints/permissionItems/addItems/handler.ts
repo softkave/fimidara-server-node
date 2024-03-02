@@ -21,7 +21,8 @@ const addPermissionItems: AddPermissionItemsEndpoint = async instData => {
   await kSemanticModels
     .utils()
     .withTxn(
-      async opts => await INTERNAL_addPermissionItems(agent, workspace, data, opts)
+      async opts => await INTERNAL_addPermissionItems(agent, workspace, data, opts),
+      /** reuseTxn */ false
     );
 };
 

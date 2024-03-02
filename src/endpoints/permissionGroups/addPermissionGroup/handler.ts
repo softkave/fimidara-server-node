@@ -38,7 +38,7 @@ const addPermissionGroup: AddPermissionGroupEndpoint = async instData => {
     );
     await kSemanticModels.permissionGroup().insertItem(permissionGroup, opts);
     return permissionGroup;
-  });
+  }, /** reuseTxn */ false);
 
   permissionGroup = await populateAssignedTags(
     permissionGroup.workspaceId,

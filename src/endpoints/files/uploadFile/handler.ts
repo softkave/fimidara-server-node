@@ -1,6 +1,8 @@
 import {pick} from 'lodash';
+import {File} from '../../../definitions/file';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {kPermissionAgentTypes} from '../../../definitions/system';
+import {Agent, kPermissionAgentTypes} from '../../../definitions/system';
+import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {ValidationError} from '../../../utils/errors';
@@ -9,6 +11,7 @@ import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {ByteCounterPassThroughStream} from '../../../utils/streams';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
+import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
 import {
   insertResolvedMountEntries,
   resolveBackendsMountsAndConfigs,
@@ -16,8 +19,9 @@ import {
 import {FileNotWritableError} from '../errors';
 import {getFileWithMatcher} from '../getFilesWithMatcher';
 import {
+  FilepathInfo,
   assertFile,
-  createAndInsertNewFile,
+  createNewFileAndEnsureFolders,
   fileExtractor,
   getFilepathInfo,
   getWorkspaceFromFileOrFilepath,
@@ -26,6 +30,27 @@ import {
 import {UploadFileEndpoint} from './types';
 import {checkUploadFileAuth} from './utils';
 import {uploadFileJoiSchema} from './validation';
+
+async function createAndInsertNewFile(
+  agent: Agent,
+  workspace: Workspace,
+  pathinfo: FilepathInfo,
+  data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
+  opts: SemanticProviderMutationTxnOptions,
+  seed: Partial<File> = {}
+) {
+  const file = await createNewFileAndEnsureFolders(
+    agent,
+    workspace,
+    pathinfo,
+    data,
+    opts,
+    seed
+  );
+
+  await kSemanticModels.file().insertItem(file, opts);
+  return file;
+}
 
 const uploadFile: UploadFileEndpoint = async instData => {
   const data = validate(instData.data, uploadFileJoiSchema);
@@ -67,7 +92,7 @@ const uploadFile: UploadFileEndpoint = async instData => {
 
     assertFile(file);
     return {file, workspace};
-  });
+  }, /** reuseTxn */ false);
 
   let {file} = createFileResult;
   const {primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs(
@@ -119,7 +144,7 @@ const uploadFile: UploadFileEndpoint = async instData => {
 
       assertFile(savedFile);
       return savedFile;
-    });
+    }, /** reuseTxn */ false);
 
     assertFile(file);
     return {file: fileExtractor(file)};
@@ -128,7 +153,7 @@ const uploadFile: UploadFileEndpoint = async instData => {
       await kSemanticModels
         .file()
         .getAndUpdateOneById(file.resourceId, {isWriteAvailable: true}, opts);
-    });
+    }, /** reuseTxn */ false);
 
     throw error;
   }

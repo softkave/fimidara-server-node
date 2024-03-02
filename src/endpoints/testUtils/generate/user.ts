@@ -43,6 +43,9 @@ export async function generateAndInsertUserListForTest(
   const items = generateUserListForTest(count, genPartial);
   await kSemanticModels
     .utils()
-    .withTxn(async opts => kSemanticModels.user().insertItem(items, opts));
+    .withTxn(
+      async opts => kSemanticModels.user().insertItem(items, opts),
+      /** reuseTxn */ true
+    );
   return items;
 }

@@ -86,7 +86,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async instDat
 
     await kSemanticModels.collaborationRequest().insertItem(request, opts);
     return {request, existingUser};
-  });
+  }, /** reuseTxn */ false);
 
   await sendCollaborationRequestEmail(request, existingUser);
   return {request: collaborationRequestForWorkspaceExtractor(request)};

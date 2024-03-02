@@ -31,7 +31,7 @@ const unassignPermissionGroups: UnassignPermissionGroupsEndpoint = async instDat
     await Promise.all(
       queries.map(q => kSemanticModels.assignedItem().deleteManyByQuery(q, opts))
     );
-  });
+  }, /** reuseTxn */ false);
 };
 
 export default unassignPermissionGroups;

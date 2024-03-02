@@ -55,6 +55,9 @@ export async function generateAndInsertPermissionItemListForTest(
   const items = generatePermissionItemListForTest(count, seed);
   await kSemanticModels
     .utils()
-    .withTxn(async opts => kSemanticModels.permissionItem().insertItem(items, opts));
+    .withTxn(
+      async opts => kSemanticModels.permissionItem().insertItem(items, opts),
+      /** reuseTxn */ true
+    );
   return items;
 }

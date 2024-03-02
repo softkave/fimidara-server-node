@@ -61,7 +61,10 @@ async function changePasswordWithTokenTest() {
   });
   await kSemanticModels
     .utils()
-    .withTxn(opts => kSemanticModels.agentToken().insertItem(token, opts));
+    .withTxn(
+      opts => kSemanticModels.agentToken().insertItem(token, opts),
+      /** reuseTxn */ true
+    );
   const result = await changePasswordWithToken(
     RequestData.fromExpressRequest<ChangePasswordWithTokenEndpointParams>(
       mockExpressRequestWithAgentToken(token),

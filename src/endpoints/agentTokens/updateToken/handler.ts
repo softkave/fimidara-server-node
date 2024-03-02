@@ -53,7 +53,7 @@ const updateAgentToken: UpdateAgentTokenEndpoint = async instData => {
 
     assertAgentToken(updatedToken);
     return updatedToken;
-  });
+  }, /** reuseTxn */ false);
 
   appAssert(updatedToken.workspaceId);
   const agentToken = await populateAssignedTags(updatedToken.workspaceId, updatedToken);

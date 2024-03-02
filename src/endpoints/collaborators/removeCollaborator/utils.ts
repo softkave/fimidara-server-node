@@ -40,7 +40,7 @@ export async function beginDeleteCollaborator(props: {
     ]);
 
     return jobs;
-  });
+  }, /** reuseTxn */ true);
 
   return jobs;
 }

@@ -48,7 +48,10 @@ export async function generateAndInsertPermissionGroupListForTest(
   const items = generatePermissionGroupListForTest(count, seed);
   await kSemanticModels
     .utils()
-    .withTxn(async opts => kSemanticModels.permissionGroup().insertItem(items, opts));
+    .withTxn(
+      async opts => kSemanticModels.permissionGroup().insertItem(items, opts),
+      /** reuseTxn */ true
+    );
   return items;
 }
 
@@ -101,6 +104,9 @@ export async function generateAndInsertAssignedItemListForTest(
   const items = generateAssignedItemListForTest(seed, count);
   await kSemanticModels
     .utils()
-    .withTxn(async opts => kSemanticModels.assignedItem().insertItem(items, opts));
+    .withTxn(
+      async opts => kSemanticModels.assignedItem().insertItem(items, opts),
+      /** reuseTxn */ true
+    );
   return items;
 }

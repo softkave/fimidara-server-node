@@ -26,5 +26,5 @@ export async function updateTestWorkspaceUsageLocks(
       .workspace()
       .getAndUpdateOneById(id, {usageThresholdLocks}, opts);
     return {workspace};
-  });
+  }, /** reuseTxn */ true);
 }

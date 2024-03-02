@@ -11,14 +11,16 @@ const signup: SignupEndpoint = async instData => {
   const data = validate(instData.data, signupJoiSchema);
   const user = await kSemanticModels
     .utils()
-    .withTxn(opts => INTERNAL_signupUser(data, {}, opts));
+    .withTxn(opts => INTERNAL_signupUser(data, {}, opts), /** reuseTxn */ false);
   const [userToken, clientAssignedToken] = await kSemanticModels
     .utils()
-    .withTxn(opts =>
-      Promise.all([
-        getUserToken(user.resourceId, opts),
-        getUserClientAssignedToken(user.resourceId, opts),
-      ])
+    .withTxn(
+      opts =>
+        Promise.all([
+          getUserToken(user.resourceId, opts),
+          getUserClientAssignedToken(user.resourceId, opts),
+        ]),
+      /** reuseTxn */ false
     );
   instData.agent = makeUserSessionAgent(user, userToken);
   await INTERNAL_sendEmailVerificationCode(user);

@@ -23,7 +23,7 @@ export class LockStore {
     await this.acquire(name);
 
     try {
-      await fn();
+      return await fn();
     } finally {
       this.release(name);
     }
@@ -107,5 +107,19 @@ export class LockableResource<T> {
         this.resource = newData;
       }
     });
+  }
+}
+
+interface SingleInstanceRunnerMakeOptions<TFn extends AnyFn> {
+  instanceSpecifier: (...args: Parameters<TFn>) => string;
+  fn: TFn;
+}
+
+export class SingleInstanceRunner {
+  static make<TFn extends AnyFn>(opts: SingleInstanceRunnerMakeOptions<TFn>) {
+    return async (...args: Parameters<TFn>): Promise<Awaited<ReturnType<TFn>>> => {
+      const id = opts.instanceSpecifier(...args);
+      return await kUtilsInjectables.locks().run(id, () => opts.fn(...args));
+    };
   }
 }

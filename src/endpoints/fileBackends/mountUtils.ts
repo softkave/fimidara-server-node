@@ -316,7 +316,7 @@ export async function insertResolvedMountEntries(props: {
     );
 
     await Promise.all([insertPromise, updatePromise]);
-  });
+  }, /** reuseTxn */ true);
 }
 
 export async function getResolvedMountEntries(

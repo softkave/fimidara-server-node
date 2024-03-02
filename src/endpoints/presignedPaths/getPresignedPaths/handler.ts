@@ -9,10 +9,10 @@ import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {SemanticProviderTxnOptions} from '../../contexts/semantic/types';
+import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils';
 import {assertRootname} from '../../workspaces/utils';
 import {GetPresignedPathsForFilesEndpoint, GetPresignedPathsForFilesItem} from './types';
 import {getPresignedPathsForFilesJoiSchema} from './validation';
-import {stringifyFilenamepath, getFilepathInfo} from '../../files/utils';
 
 // TODO: filter out expired or spent presigned paths and delete them
 
@@ -126,7 +126,7 @@ async function getPresignedPathsByFileMatchers(
     await checkAuthOnPresignedPaths(agent, pList, workspaceDict, opts);
 
     return {workspaceDict, pList};
-  });
+  }, /** reuseTxn */ false);
 }
 
 async function fetchAndMergeUnfetchedWorkspaces(

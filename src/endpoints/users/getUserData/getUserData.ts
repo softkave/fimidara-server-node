@@ -11,12 +11,15 @@ const getUserData: GetUserDataEndpoint = async instData => {
     .getAgent(instData, kAppResourceType.User);
   const [userToken, clientAssignedToken] = await kSemanticModels
     .utils()
-    .withTxn(opts =>
-      Promise.all([
-        getUserToken(agent.agentId, opts),
-        getUserClientAssignedToken(agent.agentId, opts),
-      ])
+    .withTxn(
+      opts =>
+        Promise.all([
+          getUserToken(agent.agentId, opts),
+          getUserClientAssignedToken(agent.agentId, opts),
+        ]),
+      /** reuseTxn */ false
     );
+
   const user = agent.user;
   assertUser(user);
   const userWithWorkspaces = await populateUserWorkspaces(user);

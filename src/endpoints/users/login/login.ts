@@ -23,12 +23,15 @@ const login: LoginEndpoint = async instData => {
 
   const [userToken, clientAssignedToken] = await kSemanticModels
     .utils()
-    .withTxn(opts =>
-      Promise.all([
-        getUserToken(user.resourceId, opts),
-        getUserClientAssignedToken(user.resourceId, opts),
-      ])
+    .withTxn(
+      opts =>
+        Promise.all([
+          getUserToken(user.resourceId, opts),
+          getUserClientAssignedToken(user.resourceId, opts),
+        ]),
+      /** reuseTxn */ false
     );
+
   const userWithWorkspaces = await populateUserWorkspaces(user);
   return toLoginResult(userWithWorkspaces, userToken, clientAssignedToken);
 };

@@ -34,7 +34,7 @@ export async function beginDeleteFolder(props: {
     ]);
 
     return jobs;
-  });
+  }, /** reuseTxn */ true);
 
   return jobs;
 }

@@ -46,7 +46,7 @@ export async function ingestPersistedFolders(
       /** do not throw if folder exists */ false,
       opts
     );
-  });
+  }, /** reuseTxn */ false);
 }
 
 /**
@@ -176,5 +176,5 @@ export async function ingestPersistedFiles(
     );
 
     await Promise.all([insertMountEntriesPromise, saveFilesPromise]);
-  });
+  }, /** reuseTxn */ false);
 }

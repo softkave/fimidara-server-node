@@ -75,7 +75,7 @@ export async function getForgotPasswordToken(user: User) {
 
   await kSemanticModels.utils().withTxn(async opts => {
     await kSemanticModels.agentToken().insertItem(forgotToken, opts);
-  });
+  }, /** reuseTxn */ false);
 
   return forgotToken;
 }

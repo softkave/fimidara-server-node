@@ -151,7 +151,10 @@ async function getUser(
     const userInfo = await runtimeOptions.getUserInfo();
     user = await kSemanticModels
       .utils()
-      .withTxn(opts => INTERNAL_signupUser({...userInfo, email}, {}, opts));
+      .withTxn(
+        opts => INTERNAL_signupUser({...userInfo, email}, {}, opts),
+        /** reuseTxn */ true
+      );
   }
 
   assert.ok(user);
@@ -177,14 +180,16 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
   if (user.isOnWaitlist) {
     await kSemanticModels
       .utils()
-      .withTxn(opts =>
-        kSemanticModels
-          .user()
-          .updateOneById(
-            user.resourceId,
-            {isOnWaitlist: false, removedFromWaitlistOn: getTimestamp()},
-            opts
-          )
+      .withTxn(
+        opts =>
+          kSemanticModels
+            .user()
+            .updateOneById(
+              user.resourceId,
+              {isOnWaitlist: false, removedFromWaitlistOn: getTimestamp()},
+              opts
+            ),
+        /** reuseTxn */ true
       );
   }
 
@@ -243,7 +248,7 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
     kUtilsInjectables
       .logger()
       .log(`User ${user.email} is now an admin of workspace ${workspace.name}`);
-  });
+  }, /** reuseTxn */ true);
 
   if (!user.isEmailVerified) {
     kUtilsInjectables.logger().log(`Verifying email address for user ${user.email}`);

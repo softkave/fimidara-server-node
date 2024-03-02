@@ -34,7 +34,7 @@ export async function beginDeleteAgentToken(props: {
     ]);
 
     return jobs;
-  });
+  }, /** reuseTxn */ true);
 
   return jobs;
 }

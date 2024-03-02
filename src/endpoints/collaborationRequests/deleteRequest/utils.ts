@@ -34,7 +34,7 @@ export async function beginDeleteCollaborationRequest(props: {
     ]);
 
     return jobs;
-  });
+  }, /** reuseTxn */ true);
 
   return jobs;
 }

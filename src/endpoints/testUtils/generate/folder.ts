@@ -146,6 +146,9 @@ export async function generateAndInsertTestFolders(
   const folderModel = kSemanticModels.folder();
   const semanticUtils = kSemanticModels.utils();
   const items = generateTestFolders(count, extra, other);
-  await semanticUtils.withTxn(async opts => folderModel.insertItem(items, opts));
+  await semanticUtils.withTxn(
+    async opts => folderModel.insertItem(items, opts),
+    /** reuseTxn */ true
+  );
   return items;
 }

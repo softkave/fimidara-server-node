@@ -36,7 +36,7 @@ describe('getWorkspaces', () => {
           user.resourceId,
           opts
         );
-      }),
+      }, /** reuseTxn */ true),
     ]);
 
     const result = await getWorkspaces(

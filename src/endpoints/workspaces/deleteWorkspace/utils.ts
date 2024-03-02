@@ -34,7 +34,7 @@ export async function beginDeleteWorkspace(props: {
     ]);
 
     return jobs;
-  });
+  }, /** reuseTxn */ true);
 
   return jobs;
 }

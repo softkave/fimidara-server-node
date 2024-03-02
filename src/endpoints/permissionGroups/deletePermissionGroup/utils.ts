@@ -34,7 +34,7 @@ export async function beginDeletePermissionGroup(props: {
     ]);
 
     return jobs;
-  });
+  }, /** reuseTxn */ true);
 
   return jobs;
 }

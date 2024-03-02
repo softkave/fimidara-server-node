@@ -51,18 +51,21 @@ describe('addAssignedItems', () => {
       pgListAssignedTo01Input
     );
 
-    const assignedItems = await kSemanticModels.utils().withTxn(opts =>
-      addAssignedPermissionGroupList(
-        agent,
-        workspace.resourceId,
-        pgListAssignedTo02Input,
-        pgList01IdList,
-        false, // do not delete existing items
-        true, // skip permission groups check
-        false, // skip auth check
-        opts
-      )
+    const assignedItems = await kSemanticModels.utils().withTxn(
+      opts =>
+        addAssignedPermissionGroupList(
+          agent,
+          workspace.resourceId,
+          pgListAssignedTo02Input,
+          pgList01IdList,
+          false, // do not delete existing items
+          true, // skip permission groups check
+          false, // skip auth check
+          opts
+        ),
+      /** reuseTxn */ true
     );
+
     expectContainsEveryItemInForAnyType(
       assignedItems,
       pgListAssignedTo02Input,

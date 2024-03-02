@@ -29,7 +29,7 @@ const updateUser: UpdateUserEndpoint = async instData => {
       .getAndUpdateOneById(user.resourceId, update, opts);
     assertUser(updatedUser);
     return updatedUser;
-  });
+  }, /** reuseTxn */ false);
 
   const userWithWorkspaces = await populateUserWorkspaces(user);
 

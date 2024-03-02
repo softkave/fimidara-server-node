@@ -39,7 +39,7 @@ const upgradeWaitlistedUsers: UpgradeWaitlistedUsersEndpoint = async reqData => 
         {...opts, projection: {email: true, firstName: true}}
       );
     return userList as Array<Pick<User, 'email' | 'firstName'>>;
-  });
+  }, /** reuseTxn */ false);
 
   // TODO: fire and forget or send in a job. Do the same for other email send
   // calls

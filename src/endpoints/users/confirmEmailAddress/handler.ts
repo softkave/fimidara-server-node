@@ -12,12 +12,15 @@ const confirmEmailAddress: ConfirmEmailAddressEndpoint = async instData => {
   const user = await INTERNAL_confirmEmailAddress(agent.agentId, agent.user ?? null);
   const [userToken, clientAssignedToken] = await kSemanticModels
     .utils()
-    .withTxn(opts =>
-      Promise.all([
-        getUserToken(agent.agentId, opts),
-        getUserClientAssignedToken(agent.agentId, opts),
-      ])
+    .withTxn(
+      opts =>
+        Promise.all([
+          getUserToken(agent.agentId, opts),
+          getUserClientAssignedToken(agent.agentId, opts),
+        ]),
+      /** reuseTxn */ false
     );
+
   const userWithWorkspaces = await populateUserWorkspaces(user);
   return toLoginResult(userWithWorkspaces, userToken, clientAssignedToken);
 };

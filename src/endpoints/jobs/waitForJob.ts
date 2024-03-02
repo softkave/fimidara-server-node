@@ -35,7 +35,7 @@ export async function waitForJob(
         },
         opts
       );
-    });
+    }, /** reuseTxn */ true);
   }
 
   return new Promise<void>((resolve, reject) => {

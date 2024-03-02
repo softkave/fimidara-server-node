@@ -44,5 +44,5 @@ export async function withConfirmEmailAddressToken(user: User, link: string) {
     }
 
     return link;
-  });
+  }, /** reuseTxn */ true);
 }

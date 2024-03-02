@@ -24,7 +24,7 @@ const addFileBackendConfig: AddFileBackendConfigEndpoint = async instData => {
 
   const backend = await kSemanticModels.utils().withTxn(async opts => {
     return await INTERNAL_addConfig(agent, workspace, data.config, opts);
-  });
+  }, /** reuseTxn */ false);
 
   return {config: fileBackendConfigExtractor(backend)};
 };

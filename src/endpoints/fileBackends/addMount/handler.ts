@@ -20,7 +20,7 @@ const addFileBackendMountEndpoint: AddFileBackendMountEndpoint = async instData 
 
   const mount = await kSemanticModels.utils().withTxn(async opts => {
     return await INTERNAL_addFileBackendMount(agent, workspace, data.mount, opts);
-  });
+  }, /** reuseTxn */ false);
 
   return {mount: fileBackendMountExtractor(mount)};
 };

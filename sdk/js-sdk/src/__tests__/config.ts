@@ -5,8 +5,8 @@ describe('config', () => {
     const oldAuthToken = Math.random().toString();
     const newAuthToken = Math.random().toString();
     const fimidara = new FimidaraEndpoints({authToken: oldAuthToken});
-    expect(fimidara.files.getConfig_().authToken).toBe(oldAuthToken);
-    fimidara.setConfig_({authToken: newAuthToken});
-    expect(fimidara.files.getConfig_().authToken).toBe(newAuthToken);
+    expect(fimidara.files.getSdkConfig().authToken).toBe(oldAuthToken);
+    fimidara.setSdkConfig({authToken: newAuthToken});
+    expect(fimidara.files.getSdkConfig().authToken).toBe(newAuthToken);
   });
 });

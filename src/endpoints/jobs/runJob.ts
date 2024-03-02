@@ -64,7 +64,7 @@ export async function completeJob(
       {...statusItem, statusHistory: job.statusHistory.concat(statusItem)},
       opts
     );
-  });
+  }, /** reuseTxn */ true);
 
   if (
     job &&

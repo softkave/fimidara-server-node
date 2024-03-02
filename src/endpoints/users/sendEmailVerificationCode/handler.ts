@@ -1,13 +1,13 @@
 import {addMinutes, isBefore} from 'date-fns';
 import {User} from '../../../definitions/user';
+import {appAssert} from '../../../utils/assertion';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {RateLimitError} from '../../errors';
 import {userConstants} from '../constants';
 import {EmailAddressVerifiedError} from '../errors';
-import {SendEmailVerificationCodeEndpoint} from './types';
-import {appAssert} from '../../../utils/assertion';
 import sendConfirmEmailAddressEmail from './sendConfirmEmailAddressEmail';
+import {SendEmailVerificationCodeEndpoint} from './types';
 import {withConfirmEmailAddressToken} from './withConfirmEmailAddressToken';
 
 const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async instData => {
@@ -60,7 +60,7 @@ export async function INTERNAL_sendEmailVerificationCode(user: User) {
           opts
         ),
     ]);
-  });
+  }, /** reuseTxn */ false);
 }
 
 export async function getConfirmEmailLink(user: User) {

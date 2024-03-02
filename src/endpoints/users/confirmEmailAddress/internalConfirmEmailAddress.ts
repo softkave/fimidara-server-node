@@ -27,5 +27,5 @@ export default async function INTERNAL_confirmEmailAddress(
 
     assertUser(user);
     return user;
-  });
+  }, /** reuseTxn */ true);
 }

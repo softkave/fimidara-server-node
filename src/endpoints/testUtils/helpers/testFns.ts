@@ -29,7 +29,7 @@ export function mutationTest(
 ) {
   kSemanticModels.utils().withTxn(async options => {
     await test(name, () => fn(options), timeout);
-  });
+  }, /** reuseTxn */ true);
 }
 
 export async function completeTests() {

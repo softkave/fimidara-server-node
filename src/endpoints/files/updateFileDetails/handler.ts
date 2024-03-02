@@ -48,7 +48,7 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async instData => {
     const workspace = await kSemanticModels.workspace().getOneById(file.workspaceId);
     assertWorkspace(workspace);
     return file;
-  });
+  }, /** reuseTxn */ false);
 
   return {file: fileExtractor(file)};
 };

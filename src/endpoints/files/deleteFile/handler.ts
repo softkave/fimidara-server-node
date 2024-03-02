@@ -23,7 +23,7 @@ const deleteFile: DeleteFileEndpoint = async instData => {
       incrementPresignedPathUsageCount: true,
       shouldIngestFile: false,
     });
-  });
+  }, /** reuseTxn */ false);
 
   const [job] = await beginDeleteFile({
     agent,

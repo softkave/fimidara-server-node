@@ -146,7 +146,10 @@ export async function generateAndInsertTestFiles(
   const items = generateTestFiles(count, extra);
   await kSemanticModels
     .utils()
-    .withTxn(async opts => kSemanticModels.file().insertItem(items, opts));
+    .withTxn(
+      async opts => kSemanticModels.file().insertItem(items, opts),
+      /** reuseTxn */ true
+    );
   return items;
 }
 
@@ -193,6 +196,9 @@ export async function generateAndInsertTestPresignedPathList(
   const items = generateTestPresignedPathList(count, extra);
   await kSemanticModels
     .utils()
-    .withTxn(async opts => kSemanticModels.presignedPath().insertItem(items, opts));
+    .withTxn(
+      async opts => kSemanticModels.presignedPath().insertItem(items, opts),
+      /** reuseTxn */ true
+    );
   return items;
 }

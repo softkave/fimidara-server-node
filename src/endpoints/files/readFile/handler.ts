@@ -59,7 +59,7 @@ const readFile: ReadFileEndpoint = async instData => {
     }
 
     return file;
-  });
+  }, /** reuseTxn */ false);
 
   assertFile(file);
   const persistedFile = await readPersistedFile(file);

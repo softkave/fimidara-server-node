@@ -121,7 +121,7 @@ const issuePresignedPath: IssuePresignedPathEndpoint = async instData => {
     );
     await kSemanticModels.presignedPath().insertItem(presignedPath, opts);
     return presignedPath;
-  });
+  }, /** reuseTxn */ false);
 
   return {path: resource.resourceId};
 };

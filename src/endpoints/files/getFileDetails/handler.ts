@@ -12,14 +12,16 @@ const getFileDetails: GetFileDetailsEndpoint = async instData => {
     .session()
     .getAgent(instData, kPermissionAgentTypes);
 
-  const file = await kSemanticModels.utils().withTxn(opts =>
-    getAndCheckFileAuthorization({
-      agent,
-      opts,
-      matcher: data,
-      action: kPermissionsMap.readFile,
-      incrementPresignedPathUsageCount: false,
-    })
+  const file = await kSemanticModels.utils().withTxn(
+    opts =>
+      getAndCheckFileAuthorization({
+        agent,
+        opts,
+        matcher: data,
+        action: kPermissionsMap.readFile,
+        incrementPresignedPathUsageCount: false,
+      }),
+    /** reuseTxn */ false
   );
 
   return {file: fileExtractor(file)};

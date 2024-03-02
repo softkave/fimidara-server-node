@@ -39,7 +39,7 @@ describe('getWaitlistedUsers', () => {
           user.resourceId,
           opts
         );
-      }),
+      }, /** reuseTxn */ true),
     ]);
 
     const result = await getWaitlistedUsers(

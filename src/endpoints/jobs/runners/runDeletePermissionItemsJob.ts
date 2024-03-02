@@ -93,7 +93,7 @@ const getPermissionItemsByQuery: PaginatedFetchGetFn<
       );
 
     return items;
-  });
+  }, /** reuseTxn */ true);
 };
 
 const processPermissionItems: PaginatedFetchProcessFn<

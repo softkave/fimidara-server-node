@@ -25,7 +25,7 @@ const addWorkspace: AddWorkspaceEndpoint = async instData => {
   const {workspace} = await kSemanticModels.utils().withTxn(async opts => {
     appAssert(agent.user);
     return await INTERNAL_createWorkspace(data, agent, agent.user.resourceId, opts);
-  });
+  }, /** reuseTxn */ false);
 
   return {workspace: workspaceExtractor(workspace)};
 };

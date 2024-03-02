@@ -8,5 +8,5 @@ export async function runCleanupMountResolvedEntriesJob(
     await kSemanticModels
       .resolvedMountEntry()
       .deleteManyByQuery({mountId: job.params.mountId}, opts);
-  });
+  }, /** reuseTxn */ true);
 }

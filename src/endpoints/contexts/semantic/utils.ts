@@ -1,5 +1,7 @@
 import {isNil, set} from 'lodash';
+import {appAssert} from '../../../utils/assertion';
 import {convertToArray} from '../../../utils/fns';
+import {getNewId} from '../../../utils/resource';
 import {AnyFn, AnyObject, OrArray, StringKeysOnly} from '../../../utils/types';
 import {
   ComparisonLiteralFieldQueryOps,
@@ -9,12 +11,26 @@ import {
 import {kDataModels} from '../injection/injectables';
 import {SemanticProviderMutationTxnOptions, SemanticProviderUtils} from './types';
 
+interface InternalTxnStructure {
+  __fimidaraTxnId?: string;
+}
+
 export class DataSemanticProviderUtils implements SemanticProviderUtils {
+  useTxnId(txn: unknown): string {
+    const id = (txn as InternalTxnStructure).__fimidaraTxnId;
+    appAssert(id);
+    return id;
+  }
+
   async withTxn<TResult>(
     fn: AnyFn<[SemanticProviderMutationTxnOptions], Promise<TResult>>,
     reuseAsyncLocalTxn: boolean = true
   ): Promise<TResult> {
     return await kDataModels.utils().withTxn(async txn => {
+      if (!(txn as InternalTxnStructure).__fimidaraTxnId) {
+        (txn as InternalTxnStructure).__fimidaraTxnId = 'txn_' + getNewId();
+      }
+
       return await fn({txn});
     }, reuseAsyncLocalTxn);
   }

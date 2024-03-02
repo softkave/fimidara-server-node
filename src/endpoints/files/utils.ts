@@ -263,27 +263,6 @@ export async function createNewFileAndEnsureFolders(
   return createNewFile(agent, workspace.resourceId, pathinfo, parentFolder, data, seed);
 }
 
-export async function createAndInsertNewFile(
-  agent: Agent,
-  workspace: Workspace,
-  pathinfo: FilepathInfo,
-  data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
-  opts: SemanticProviderMutationTxnOptions,
-  seed: Partial<File> = {}
-) {
-  const file = await createNewFileAndEnsureFolders(
-    agent,
-    workspace,
-    pathinfo,
-    data,
-    opts,
-    seed
-  );
-
-  await kSemanticModels.file().insertItem(file, opts);
-  return file;
-}
-
 export async function ingestFileByFilepath(props: {
   /** agent used for ingesting */
   agent: Agent;

@@ -161,10 +161,11 @@ export interface SemanticWorkspaceResourceProviderType<
 }
 
 export interface SemanticProviderUtils {
+  useTxnId(txn: unknown): string;
   withTxn<TResult>(
     fn: AnyFn<[SemanticProviderMutationTxnOptions], Promise<TResult>>,
     /** Whether or not to reuse an existing txn from async local storage. */
-    reuseAsyncLocalTxn?: boolean
+    reuseAsyncLocalTxn: boolean
   ): Promise<TResult>;
 }
 

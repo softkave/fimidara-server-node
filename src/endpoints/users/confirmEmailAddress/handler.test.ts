@@ -43,7 +43,11 @@ test('email address is confirmed', async () => {
   });
   await kSemanticModels
     .utils()
-    .withTxn(opts => kSemanticModels.agentToken().insertItem(token, opts));
+    .withTxn(
+      opts => kSemanticModels.agentToken().insertItem(token, opts),
+      /** reuseTxn */ true
+    );
+
   const result = await confirmEmailAddress(
     RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(token))
   );

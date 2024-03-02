@@ -69,7 +69,7 @@ const assignPermissionGroups: AssignPermissionGroupsEndpoint = async instData =>
         );
       })
     );
-  });
+  }, /** reuseTxn */ false);
 };
 
 export default assignPermissionGroups;

@@ -39,7 +39,7 @@ const updateCollaborationRequest: UpdateCollaborationRequestEndpoint = async ins
 
     assertCollaborationRequest(updatedRequest);
     return {workspace, request: updatedRequest};
-  });
+  }, /** reuseTxn */ false);
 
   // TODO: send email if request description changed
   return {request: collaborationRequestForWorkspaceExtractor(request)};

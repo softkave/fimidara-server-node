@@ -37,7 +37,7 @@ const updateWorkspace: UpdateWorkspaceEndpoint = async instData => {
       .getAndUpdateOneById(workspace.resourceId, update, opts);
     assertWorkspace(updatedWorkspace);
     return updatedWorkspace;
-  });
+  }, /** reuseTxn */ false);
 
   return {workspace: workspaceExtractor(workspace)};
 };

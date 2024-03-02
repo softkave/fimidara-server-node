@@ -163,7 +163,7 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData =>
     ]);
 
     return {job, updatedMount};
-  });
+  }, /** reuseTxn */ false);
 
   appAssert(updatedMount);
   return {mount: fileBackendMountExtractor(updatedMount), jobId: job?.resourceId};

@@ -204,5 +204,5 @@ export async function getNextJob(
     }
 
     return selectedJob;
-  });
+  }, /** reuseTxn */ false);
 }

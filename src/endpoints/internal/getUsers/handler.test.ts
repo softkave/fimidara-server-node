@@ -36,7 +36,7 @@ describe('getUsers', () => {
           user.resourceId,
           opts
         );
-      }),
+      }, /** reuseTxn */ true),
     ]);
 
     const result = await getUsers(

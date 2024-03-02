@@ -301,7 +301,7 @@ async function recordHeartbeat() {
     await kSemanticModels
       .app()
       .updateManyByQuery(q, {lastUpdatedAt: getTimestamp()}, opts);
-  });
+  }, /** reuseTxn */ true);
   await refreshActiveRunnerIds();
 }
 

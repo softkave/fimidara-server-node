@@ -32,7 +32,7 @@ test('email verification code sent', async () => {
     return kSemanticModels
       .user()
       .getAndUpdateOneById(user.resourceId, {emailVerificationEmailSentAt: null}, opts);
-  });
+  }, /** reuseTxn */ true);
   const result = await sendEmailVerificationCode(
     RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken))
   );

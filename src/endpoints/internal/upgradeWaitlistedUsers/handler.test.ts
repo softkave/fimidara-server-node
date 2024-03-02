@@ -50,7 +50,7 @@ describe('upgradeWaitlistedUsers', () => {
           user.resourceId,
           opts
         );
-      }),
+      }, /** reuseTxn */ true),
     ]);
 
     kRegisterUtilsInjectables.email(new MockTestEmailProviderContext());

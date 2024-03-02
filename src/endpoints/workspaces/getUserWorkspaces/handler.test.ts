@@ -50,18 +50,21 @@ describe('getUserWorkspaces', () => {
     const workspaces = await generateAndInsertWorkspaceListForTest(15);
     await kSemanticModels
       .utils()
-      .withTxn(opts =>
-        Promise.all(
-          workspaces.map(w =>
-            assignWorkspaceToUser(
-              kSystemSessionAgent,
-              w.resourceId,
-              rawUser.resourceId,
-              opts
+      .withTxn(
+        opts =>
+          Promise.all(
+            workspaces.map(w =>
+              assignWorkspaceToUser(
+                kSystemSessionAgent,
+                w.resourceId,
+                rawUser.resourceId,
+                opts
+              )
             )
-          )
-        )
+          ),
+        /** reuseTxn */ true
       );
+
     appAssert(userToken.forEntityId);
     const user = await populateUserWorkspaces(
       await kSemanticModels

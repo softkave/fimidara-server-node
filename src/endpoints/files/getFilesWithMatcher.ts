@@ -49,7 +49,7 @@ export async function checkAndIncrementPresignedPathUsageCount(
 
     assertFile(updatedPresignedPath);
     return updatedPresignedPath;
-  });
+  }, /** reuseTxn */ true);
 }
 
 export function extractPresignedPathIdFromFilepath(filepath: string) {

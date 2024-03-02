@@ -138,6 +138,10 @@ export async function generateAndInsertWorkspaceListForTest(
   const items = generateWorkspaceListForTest(count, extra);
   await kSemanticModels
     .utils()
-    .withTxn(async opts => kSemanticModels.workspace().insertItem(items, opts));
+    .withTxn(
+      async opts => kSemanticModels.workspace().insertItem(items, opts),
+      /** reuseTxn */ true
+    );
+
   return items;
 }

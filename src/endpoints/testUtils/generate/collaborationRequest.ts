@@ -54,8 +54,9 @@ export async function generateAndInsertCollaborationRequestListForTest(
   const items = generateCollaborationRequestListForTest(count, genPartial);
   await kSemanticModels
     .utils()
-    .withTxn(async opts =>
-      kSemanticModels.collaborationRequest().insertItem(items, opts)
+    .withTxn(
+      async opts => kSemanticModels.collaborationRequest().insertItem(items, opts),
+      /** reuseTxn */ true
     );
   return items;
 }
