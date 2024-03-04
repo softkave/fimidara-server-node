@@ -22,23 +22,29 @@ export async function awaitOrTimeout(promise: Promise<unknown>, timeoutMs: numbe
   }
 }
 
-export function getDeferredPromise<T = void>() {
-  let internalResolvePromise: AnyFn<[T | PromiseLike<T>]> | undefined;
-  let internalRejectPromise: AnyFn | undefined;
+export interface DeferredPromise<T = void> {
+  promise: Promise<T>;
+  resolve: AnyFn<[T]>;
+  reject: AnyFn<[unknown]>;
+}
+
+export function getDeferredPromise<T = void>(): DeferredPromise<T> {
+  let promiseResolveFn: AnyFn<[T | PromiseLike<T>]> | undefined;
+  let promiseRejectFn: AnyFn | undefined;
 
   const promise = new Promise<T>((resolve, reject) => {
-    internalResolvePromise = resolve;
-    internalRejectPromise = reject;
+    promiseResolveFn = resolve;
+    promiseRejectFn = reject;
   });
 
   const resolveFn = (value: T) => {
-    appAssert(internalResolvePromise);
-    internalResolvePromise(value);
+    appAssert(promiseResolveFn);
+    promiseResolveFn(value);
   };
 
   const rejectFn = (error?: unknown) => {
-    appAssert(internalRejectPromise);
-    internalRejectPromise(error);
+    appAssert(promiseRejectFn);
+    promiseRejectFn(error);
   };
 
   return {promise, resolve: resolveFn, reject: rejectFn};

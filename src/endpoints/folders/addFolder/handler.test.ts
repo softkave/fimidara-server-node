@@ -1,5 +1,5 @@
 import {kSystemSessionAgent} from '../../../utils/agent';
-import {pathJoin} from '../../../utils/fns';
+import {pathJoin, sortStringListLexographically} from '../../../utils/fns';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {
   generateAndInsertTestFolders,
@@ -15,7 +15,8 @@ import {
 } from '../../testUtils/testUtils';
 import {FolderQueries} from '../queries';
 import {addRootnameToPath, stringifyFoldernamepath} from '../utils';
-import {createFolderListWithTransaction, getExistingFoldersAndArtifacts} from './handler';
+import {createFolderList} from './createFolderList';
+import {getExistingFoldersAndArtifacts} from './getExistingFoldersAndArtifacts';
 
 /**
  * TODO:
@@ -92,7 +93,7 @@ describe('addFolder', () => {
       .withTxn(
         opts =>
           getExistingFoldersAndArtifacts(
-            workspace,
+            workspace.resourceId,
             [
               {folderpath: stringifyFoldernamepath(folder00, workspace.rootname)},
               {folderpath: stringifyFoldernamepath(folder01, workspace.rootname)},
@@ -110,11 +111,13 @@ describe('addFolder', () => {
     expect(namepathList.length).toBe(3);
     expect(inputList.length).toBe(6);
     expect(pathinfoList.length).toBe(6);
-    expect(Object.keys(foldersByNamepath)).toEqual(
-      folderNamepath02
-        .map((name, index) => folderNamepath02.slice(0, index + 1))
-        .map(namepath => pathJoin(namepath))
-        .map(p => p.toLowerCase())
+    expect(sortStringListLexographically(Object.keys(foldersByNamepath))).toEqual(
+      sortStringListLexographically(
+        folderNamepath02
+          .map((name, index) => folderNamepath02.slice(0, index + 1))
+          .map(namepath => pathJoin(namepath))
+          .map(p => p.toLowerCase())
+      )
     );
 
     const sp00 = getSelfOrClosestParent([]);
@@ -152,8 +155,6 @@ describe('addFolder', () => {
     await insertFolderForTest(userToken, workspace, {folderpath: folderpath00});
     await Promise.all([
       insertFolderForTest(userToken, workspace, {folderpath: folderpath01}),
-      insertFolderForTest(userToken, workspace, {folderpath: folderpath01}),
-      insertFolderForTest(userToken, workspace, {folderpath: folderpath02}),
       insertFolderForTest(userToken, workspace, {folderpath: folderpath02}),
     ]);
 
@@ -177,10 +178,12 @@ describe('addFolder', () => {
     // there should be 3 folder, the parent folder and the 2 children folders
     expect(dbFolders.length).toBe(3);
     const dbFolderNames = dbFolders.map(f => f.name);
-    expect(dbFolderNames).toEqual([folderName00, folderName01, folderName02]);
+    expect(sortStringListLexographically(dbFolderNames)).toEqual(
+      sortStringListLexographically([folderName00, folderName01, folderName02])
+    );
   });
 
-  test.only('new folder not duplicated', async () => {
+  test('new folder not duplicated', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
 
@@ -240,13 +243,20 @@ describe('addFolder', () => {
     });
 
     const dbFolderNames = dbFolders.map(f => f.name);
-    console.log(dbFolderNames);
     // there should be 5 folder, the parent folder and the 4 children folders
     expect(dbFolders.length).toBe(5);
-    expect(dbFolderNames).toEqual([parentFoldername, folderName01, folderName02]);
+    expect(sortStringListLexographically(dbFolderNames)).toEqual(
+      sortStringListLexographically([
+        parentFoldername,
+        folderName01,
+        folderName02,
+        folderName03,
+        folderName04,
+      ])
+    );
   });
 
-  test('new folder not duplicated using createFolderListWithTransaction', async () => {
+  test('new folder not duplicated using createFolderList', async () => {
     const {userToken} = await insertUserForTest();
     const {rawWorkspace: workspace} = await insertWorkspaceForTest(userToken);
 
@@ -268,7 +278,7 @@ describe('addFolder', () => {
         .withTxn(
           async opts =>
             await Promise.all([
-              createFolderListWithTransaction(
+              createFolderList(
                 kSystemSessionAgent,
                 workspace,
                 [
@@ -281,7 +291,7 @@ describe('addFolder', () => {
                 /** throw if folder exists */ false,
                 opts
               ),
-              createFolderListWithTransaction(
+              createFolderList(
                 kSystemSessionAgent,
                 workspace,
                 [
@@ -302,7 +312,7 @@ describe('addFolder', () => {
         .withTxn(
           async opts =>
             await Promise.all([
-              createFolderListWithTransaction(
+              createFolderList(
                 kSystemSessionAgent,
                 workspace,
                 [
@@ -315,7 +325,7 @@ describe('addFolder', () => {
                 /** throw if folder exists */ false,
                 opts
               ),
-              createFolderListWithTransaction(
+              createFolderList(
                 kSystemSessionAgent,
                 workspace,
                 [

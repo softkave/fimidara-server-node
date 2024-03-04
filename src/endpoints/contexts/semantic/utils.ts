@@ -24,15 +24,20 @@ export class DataSemanticProviderUtils implements SemanticProviderUtils {
 
   async withTxn<TResult>(
     fn: AnyFn<[SemanticProviderMutationTxnOptions], Promise<TResult>>,
-    reuseAsyncLocalTxn: boolean = true
+    reuseAsyncLocalTxn: boolean = true,
+    opts?: SemanticProviderMutationTxnOptions
   ): Promise<TResult> {
-    return await kDataModels.utils().withTxn(async txn => {
-      if (!(txn as InternalTxnStructure).__fimidaraTxnId) {
-        (txn as InternalTxnStructure).__fimidaraTxnId = 'txn_' + getNewId();
-      }
+    return await kDataModels.utils().withTxn(
+      async txn => {
+        if (!(txn as InternalTxnStructure).__fimidaraTxnId) {
+          (txn as InternalTxnStructure).__fimidaraTxnId = 'txn_' + getNewId();
+        }
 
-      return await fn({txn});
-    }, reuseAsyncLocalTxn);
+        return await fn({txn});
+      },
+      reuseAsyncLocalTxn,
+      opts?.txn
+    );
   }
 }
 

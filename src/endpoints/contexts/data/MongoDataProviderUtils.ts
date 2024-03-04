@@ -1,5 +1,5 @@
 import {ClientSession} from 'mongoose';
-import {isMongoConnection} from '../../../db/connection';
+import {isMongoClientSession, isMongoConnection} from '../../../db/connection';
 import {appAssert} from '../../../utils/assertion';
 import {AnyFn} from '../../../utils/types';
 import {kAsyncLocalStorageKeys} from '../asyncLocalStorage';
@@ -9,19 +9,23 @@ import {DataProviderUtils} from './types';
 export class MongoDataProviderUtils implements DataProviderUtils {
   async withTxn<TResult>(
     fn: AnyFn<[txn: ClientSession], Promise<TResult>>,
-    reuseAsyncLocalTxn: boolean = true
+    reuseAsyncLocalTxn: boolean = true,
+    existingSession?: unknown
   ): Promise<TResult> {
-    const connection = kUtilsInjectables.dbConnection().get();
-    appAssert(isMongoConnection(connection));
-    const existingSession = kUtilsInjectables
-      .asyncLocalStorage()
-      .get<ClientSession>(kAsyncLocalStorageKeys.txn);
     let result: TResult | undefined = undefined;
-    appAssert(connection);
 
-    if (reuseAsyncLocalTxn && existingSession && existingSession.transaction.isActive) {
+    if (!existingSession && reuseAsyncLocalTxn) {
+      existingSession = kUtilsInjectables
+        .asyncLocalStorage()
+        .get<ClientSession>(kAsyncLocalStorageKeys.txn);
+    }
+
+    if (existingSession) {
+      appAssert(isMongoClientSession(existingSession));
       result = await fn(existingSession);
     } else {
+      const connection = kUtilsInjectables.dbConnection().get();
+      appAssert(isMongoConnection(connection));
       const session = await connection.startSession();
       await session.withTransaction(async () =>
         kUtilsInjectables

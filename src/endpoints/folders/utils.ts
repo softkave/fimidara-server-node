@@ -29,7 +29,7 @@ import {
   resolveMountsForFolder,
 } from '../fileBackends/mountUtils';
 import {assertRootname, checkWorkspaceExists} from '../workspaces/utils';
-import {createFolderListWithTransaction} from './addFolder/handler';
+import {createFolderList} from './addFolder/createFolderList';
 import {kFolderConstants} from './constants';
 import {FolderNotFoundError} from './errors';
 import {assertGetFolderWithMatcher} from './getFolderWithMatcher';
@@ -253,7 +253,7 @@ export async function ensureFolders(
     return {folder: null, folders: []};
   }
 
-  const {newFolders, existingFolders} = await createFolderListWithTransaction(
+  const {newFolders, existingFolders} = await createFolderList(
     agent,
     workspace,
     {folderpath: addRootnameToPath(pathJoin(namepath), workspace.rootname)},

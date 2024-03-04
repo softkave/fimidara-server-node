@@ -29,8 +29,12 @@ export class LockStore {
     }
   }
 
+  has(name: string) {
+    return !!this.getLockQueue(name, false)?.length;
+  }
+
   protected acquire(name: string) {
-    const queue = this.getLockQueue(name);
+    const queue = this.getLockQueue(name, true);
     const item = new ListenableResource<LockQueueItem>({
       state: kLockQueueItemState.waitingOnResolve,
       resolveFn: noop,
@@ -49,13 +53,13 @@ export class LockStore {
   }
 
   protected release(name: string) {
-    const queue = this.getLockQueue(name);
+    const queue = this.getLockQueue(name, true);
     queue.shift();
     this.execNext(name);
   }
 
   protected execNext = (name: string) => {
-    const queue = this.getLockQueue(name);
+    const queue = this.getLockQueue(name, true);
     const next = first(queue);
     const item = next?.get();
 
@@ -79,14 +83,19 @@ export class LockStore {
     return false;
   };
 
-  protected getLockQueue(name: string) {
+  protected getLockQueue<
+    TInitQueue extends boolean = true,
+    TResult = TInitQueue extends true
+      ? ListenableResource<LockQueueItem>[]
+      : ListenableResource<LockQueueItem>[] | undefined,
+  >(name: string, init: TInitQueue): TResult {
     let queue = this.locks[name];
 
-    if (!queue) {
+    if (!queue && init) {
       queue = this.locks[name] = [];
     }
 
-    return queue;
+    return queue as TResult;
   }
 }
 

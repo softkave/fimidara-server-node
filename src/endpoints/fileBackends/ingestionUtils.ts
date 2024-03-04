@@ -17,7 +17,7 @@ import {
   getFilepathInfo,
   stringifyFilenamepath,
 } from '../files/utils';
-import {createFolderListWithTransaction} from '../folders/addFolder/handler';
+import {createFolderList} from '../folders/addFolder/createFolderList';
 import {NewFolderInput} from '../folders/addFolder/types';
 import {addRootnameToPath} from '../folders/utils';
 import {insertResolvedMountEntries} from './mountUtils';
@@ -32,13 +32,13 @@ export async function ingestPersistedFolders(
   folders: PersistedFolderDescription[]
 ) {
   await kSemanticModels.utils().withTxn(async opts => {
-    await createFolderListWithTransaction(
+    await createFolderList(
       agent,
       workspace,
       folders.map(
         (pFolder): NewFolderInput => ({
           // Add workspace rootname to folderpath, seeing mount folder paths do
-          // not have that and `createFolderListWithTransaction` expects it
+          // not have that and `createFolderList` expects it
           folderpath: addRootnameToPath(pFolder.folderpath, workspace.rootname),
         })
       ),
@@ -123,7 +123,7 @@ export async function ingestPersistedFiles(
     folderpathsToEnsure.forEach(folderpath => {
       folderInputs.push({folderpath});
     });
-    const {newFolders, existingFolders} = await createFolderListWithTransaction(
+    const {newFolders, existingFolders} = await createFolderList(
       agent,
       workspace,
       folderInputs,

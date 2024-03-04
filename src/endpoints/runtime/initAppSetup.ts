@@ -25,7 +25,7 @@ import {
   SemanticProviderMutationTxnOptions,
   SemanticProviderTxnOptions,
 } from '../contexts/semantic/types';
-import {createFolderListWithTransaction} from '../folders/addFolder/handler';
+import {createFolderList} from '../folders/addFolder/createFolderList';
 import {addRootnameToPath} from '../folders/utils';
 import EndpointReusableQueries from '../queries';
 import {INTERNAL_forgotPassword} from '../users/forgotPassword/forgotPassword';
@@ -117,7 +117,7 @@ async function setupFolders(
   opts: SemanticProviderMutationTxnOptions
 ) {
   const [workspaceImagesFolders, userImagesFolders] = await Promise.all([
-    createFolderListWithTransaction(
+    createFolderList(
       kSystemSessionAgent,
       workspace,
       {
@@ -130,7 +130,7 @@ async function setupFolders(
       /** throw on folder exists */ false,
       opts
     ),
-    createFolderListWithTransaction(
+    createFolderList(
       kSystemSessionAgent,
       workspace,
       {

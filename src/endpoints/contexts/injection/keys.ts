@@ -74,4 +74,5 @@ export const kInjectionKeys = {
   disposables: 'disposables',
   usageLogic: 'usageLogic',
   logger: 'logger',
+  shardedRunner: 'shardedRunner',
 };

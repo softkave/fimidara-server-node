@@ -165,7 +165,8 @@ export interface SemanticProviderUtils {
   withTxn<TResult>(
     fn: AnyFn<[SemanticProviderMutationTxnOptions], Promise<TResult>>,
     /** Whether or not to reuse an existing txn from async local storage. */
-    reuseAsyncLocalTxn: boolean
+    reuseAsyncLocalTxn: boolean,
+    opts?: SemanticProviderMutationTxnOptions
   ): Promise<TResult>;
 }
 

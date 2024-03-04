@@ -83,7 +83,7 @@ describe('LockableResource', () => {
 
 class TestLockStore extends LockStore {
   expectIsEmpty(name: string) {
-    const queue = this.getLockQueue(name);
+    const queue = this.getLockQueue(name, true);
     expect(queue.length).toBe(0);
   }
 }

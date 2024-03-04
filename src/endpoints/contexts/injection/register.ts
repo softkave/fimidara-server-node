@@ -41,10 +41,12 @@ import {LockStore} from '../../../utils/LockStore';
 import {PromiseStore} from '../../../utils/PromiseStore';
 import {appAssert, assertNotFound} from '../../../utils/assertion';
 import {DisposableResource, DisposablesStore} from '../../../utils/disposables';
+import {ShardRunner, ShardedRunner} from '../../../utils/shardedRunnerQueue';
 import {AnyFn} from '../../../utils/types';
 import {assertAgentToken} from '../../agentTokens/utils';
 import {assertCollaborationRequest} from '../../collaborationRequests/utils';
 import {assertFile} from '../../files/utils';
+import {addFolderShardRunner} from '../../folders/addFolder/addFolderShard';
 import {assertFolder} from '../../folders/utils';
 import {assertPermissionGroup} from '../../permissionGroups/utils';
 import {assertPermissionItem} from '../../permissionItems/utils';
@@ -264,6 +266,8 @@ export const kRegisterUtilsInjectables = {
   usageLogic: (item: UsageRecordLogicProvider) =>
     registerToken(kInjectionKeys.usageLogic, item),
   logger: (item: Logger) => registerToken(kInjectionKeys.logger, item),
+  shardedRunnder: (item: ShardedRunner) =>
+    registerToken(kInjectionKeys.shardedRunner, item),
 };
 
 export function registerDataModelInjectables() {
@@ -378,6 +382,10 @@ export function registerUtilsInjectables(overrideConfig: FimidaraSuppliedConfig 
   kRegisterUtilsInjectables.session(new SessionContext());
   kRegisterUtilsInjectables.usageLogic(new UsageRecordLogicProvider());
   kRegisterUtilsInjectables.logger(getLogger(suppliedConfig.loggerType));
+
+  const shardedRunner = new ShardedRunner();
+  shardedRunner.registerRunner(addFolderShardRunner as ShardRunner);
+  kRegisterUtilsInjectables.shardedRunnder(shardedRunner);
 
   if (!suppliedConfig.dbType || suppliedConfig.dbType === kFimidaraConfigDbType.mongoDb) {
     assert(suppliedConfig.mongoDbURI);

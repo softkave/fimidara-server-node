@@ -1,9 +1,5 @@
 {
   "clientDomain": "https://www.fimidara.com",
-  "port": 5000,
-  "rootUserEmail": "abayomi@softkave.com",
-  "rootUserFirstName": "Abayomi",
-  "rootUserLastName": "Akintomide",
   "fileBackend": "s3",
   "emailProvider": "ses",
   "secretsManagerProvider": "awsSecretsManager",

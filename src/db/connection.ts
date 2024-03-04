@@ -1,4 +1,4 @@
-import {Connection, createConnection} from 'mongoose';
+import {ClientSession, Connection, createConnection} from 'mongoose';
 import {noopAsync} from '../utils/fns';
 
 export function getMongoConnection(uri: string, dbName: string) {
@@ -39,6 +39,10 @@ export class MongoDbConnection implements DbConnection<Connection> {
 export function isMongoConnection(connection: unknown): connection is Connection {
   // Not an exhaustive check, but useful enough
   return !!(connection as Connection).collections;
+}
+
+export function isMongoClientSession(session: unknown): session is ClientSession {
+  return !!(session as ClientSession)?.toBSON;
 }
 
 export class NoopDbConnection implements DbConnection<undefined> {

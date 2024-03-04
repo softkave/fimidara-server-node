@@ -6,6 +6,7 @@ import {FimidaraRuntimeConfig, FimidaraSuppliedConfig} from '../../../resources/
 import {LockStore} from '../../../utils/LockStore';
 import {PromiseStore} from '../../../utils/PromiseStore';
 import {DisposablesStore} from '../../../utils/disposables';
+import {ShardedRunner} from '../../../utils/shardedRunnerQueue';
 import {SessionContextType} from '../SessionContext';
 import {AsyncLocalStorageUtils} from '../asyncLocalStorage';
 import {
@@ -42,8 +43,10 @@ import {
   SemanticPresignedPathProvider,
 } from '../semantic/file/types';
 import {SemanticFolderProvider} from '../semantic/folder/types';
+import {SemanticJobProvider} from '../semantic/job/types';
 import {SemanticPermissionProviderType} from '../semantic/permission/types';
 import {SemanticPermissionItemProviderType} from '../semantic/permissionItem/types';
+import {SemanticResolvedMountEntryProvider} from '../semantic/resolvedMountEntry/types';
 import {
   SemanticAppProvider,
   SemanticFileBackendConfigProvider,
@@ -56,8 +59,6 @@ import {
 import {SemanticUserProviderType} from '../semantic/user/types';
 import {SemanticWorkspaceProviderType} from '../semantic/workspace/types';
 import {kInjectionKeys} from './keys';
-import {SemanticJobProvider} from '../semantic/job/types';
-import {SemanticResolvedMountEntryProvider} from '../semantic/resolvedMountEntry/types';
 
 export const kSemanticModels = {
   user: () => container.resolve<SemanticUserProviderType>(kInjectionKeys.semantic.user),
@@ -172,4 +173,5 @@ export const kUtilsInjectables = {
   usageLogic: () =>
     container.resolve<UsageRecordLogicProvider>(kInjectionKeys.usageLogic),
   logger: () => container.resolve<Logger>(kInjectionKeys.logger),
+  shardedRunner: () => container.resolve<ShardedRunner>(kInjectionKeys.shardedRunner),
 };

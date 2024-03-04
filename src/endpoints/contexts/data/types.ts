@@ -221,7 +221,8 @@ export interface DataProviderUtils {
       [txn: unknown],
       Promise<TResult>
     > /** Whether or not to reuse an existing txn from async local storage. */,
-    reuseAsyncLocalTxn: boolean
+    reuseAsyncLocalTxn: boolean,
+    existingSession?: unknown
   ): Promise<TResult>;
 }
 
