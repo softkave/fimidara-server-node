@@ -7,5 +7,10 @@
   "clientLoginLink": "https://www.fimidara.com/login",
   "clientSignupLink": "https://www.fimidara.com/signup",
   "changePasswordLink": "https://www.fimidara.com/change-password",
-  "verifyEmailLink": "https://www.fimidara.com/verify-email"
+  "verifyEmailLink": "https://www.fimidara.com/verify-email",
+  "exposeHttpServer": false,
+  "exposeHttpsServer": true,
+  "httpsPort": "443",
+  "httpsPublicKeyFilepath": "./certs/public-key.pem",
+  "httpsPrivateKeyFilepath": "./certs/private-key.pem"
 }

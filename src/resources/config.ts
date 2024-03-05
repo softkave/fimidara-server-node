@@ -54,7 +54,12 @@ export type FimidaraSuppliedConfig = Partial<{
   mongoDbURI: string;
   mongoDbDatabaseName: string;
   jwtSecret: string;
-  port: string;
+  exposeHttpServer: boolean;
+  httpPort: string;
+  exposeHttpsServer: boolean;
+  httpsPort: string;
+  httpsPublicKeyFilepath: string;
+  httpsPrivateKeyFilepath: string;
   S3Bucket: string;
   rootUserEmail: string;
   rootUserPassword: string;

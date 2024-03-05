@@ -1,4 +1,5 @@
 import {expressjwt} from 'express-jwt';
+import fs from 'fs';
 import {kEndpointConstants} from './endpoints/constants';
 import {globalSetup} from './endpoints/contexts/globalUtils';
 import {kUtilsInjectables} from './endpoints/contexts/injection/injectables';
@@ -6,34 +7,75 @@ import {setupFimidaraHttpEndpoints} from './endpoints/endpoints';
 import {startRunner} from './endpoints/jobs/runner';
 import {setupApp} from './endpoints/runtime/initAppSetup';
 import handleErrors from './middlewares/handleErrors';
-import httpToHttps from './middlewares/httpToHttps';
+import redirectHttpToHttpsExpressMiddleware from './middlewares/redirectHttpToHttps';
 import {appAssert} from './utils/assertion';
 import cors = require('cors');
 import express = require('express');
 import http = require('http');
+import https = require('https');
 import process = require('process');
 
-const app = express();
-const httpServer = http.createServer(app);
-
-// Match all origins
-const whiteListedCorsOrigins = [/[\s\S]*/];
-if (process.env.NODE_ENV !== 'production') {
-  whiteListedCorsOrigins.push(/localhost/);
+interface RuntimeArtifacts {
+  httpServer?: http.Server;
+  httpsServer?: https.Server;
 }
 
+const app = express();
+const artifacts: RuntimeArtifacts = {};
+
+// Match all origins
+const whitelistedCorsOrigins = [/[\s\S]*/];
 const corsOption: cors.CorsOptions = {
-  origin: whiteListedCorsOrigins,
+  origin: whitelistedCorsOrigins,
   optionsSuccessStatus: kEndpointConstants.httpStatusCode.ok,
   credentials: true,
 };
 
-if (process.env.NODE_ENV === 'production') {
-  app.use(httpToHttps);
-}
-
 app.use(cors(corsOption));
 app.use(express.json() as express.RequestHandler);
+
+async function setupHttpServer() {
+  const conf = kUtilsInjectables.suppliedConfig();
+  let httpServerPromise: Promise<void> | undefined;
+  let httpsServerPromise: Promise<void> | undefined;
+
+  if (conf.exposeHttpServer) {
+    appAssert(conf.httpPort);
+
+    const httpServer = http.createServer(app);
+    artifacts.httpServer = httpServer;
+    httpServerPromise = new Promise(resolve => {
+      httpServer.listen(conf.httpPort, () => {
+        kUtilsInjectables.logger().log(`http port - ${conf.httpPort}`);
+        resolve();
+      });
+    });
+  }
+
+  if (conf.exposeHttpsServer) {
+    if (!conf.exposeHttpServer) {
+      app.use(redirectHttpToHttpsExpressMiddleware);
+    }
+
+    appAssert(conf.httpsPublicKeyFilepath);
+    appAssert(conf.httpsPrivateKeyFilepath);
+    appAssert(conf.httpsPort);
+
+    const privateKey = fs.readFileSync(conf.httpsPrivateKeyFilepath, 'utf8');
+    const certificate = fs.readFileSync(conf.httpsPublicKeyFilepath, 'utf8');
+    const credentials = {key: privateKey, cert: certificate};
+    const httpsServer = https.createServer(credentials, app);
+    artifacts.httpsServer = httpsServer;
+    httpsServerPromise = new Promise(resolve => {
+      httpsServer.listen(conf.httpsPort, () => {
+        kUtilsInjectables.logger().log(`https port - ${conf.httpsPort}`);
+        resolve();
+      });
+    });
+  }
+
+  await Promise.all([httpServerPromise, httpsServerPromise]);
+}
 
 function setupJWT() {
   const suppliedConfig = kUtilsInjectables.suppliedConfig();
@@ -57,24 +99,16 @@ async function setup() {
   // End of scripts
 
   const defaultWorkspace = await setupApp();
-  kUtilsInjectables.logger().log(`default workspace ID - ${defaultWorkspace.resourceId}`);
+  kUtilsInjectables.logger().log(`workspace ID - ${defaultWorkspace.resourceId}`);
 
   setupJWT();
   setupFimidaraHttpEndpoints(app);
   app.use(handleErrors);
 
-  const suppliedConfig = kUtilsInjectables.suppliedConfig();
-  appAssert(suppliedConfig.port);
-  appAssert(suppliedConfig.appName);
+  await setupHttpServer();
 
-  httpServer.listen(suppliedConfig.port, async () => {
-    kUtilsInjectables.logger().log(`app name - ${suppliedConfig.appName}`);
-    kUtilsInjectables.logger().log(`app env - ${process.env.NODE_ENV}`);
-    kUtilsInjectables.logger().log(`port - ${suppliedConfig.port}`);
-
-    // start job runner
-    kUtilsInjectables.promises().forget(startRunner());
-  });
+  // start job runner
+  kUtilsInjectables.promises().forget(startRunner());
 }
 
 // TODO: run global dispose on close/end server
