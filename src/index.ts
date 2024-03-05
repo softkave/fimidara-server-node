@@ -1,7 +1,8 @@
 import {expressjwt} from 'express-jwt';
 import fs from 'fs';
+import {format} from 'util';
 import {kEndpointConstants} from './endpoints/constants';
-import {globalSetup} from './endpoints/contexts/globalUtils';
+import {globalDispose, globalSetup} from './endpoints/contexts/globalUtils';
 import {kUtilsInjectables} from './endpoints/contexts/injection/injectables';
 import {setupFimidaraHttpEndpoints} from './endpoints/endpoints';
 import {startRunner} from './endpoints/jobs/runner';
@@ -114,15 +115,45 @@ async function setup() {
 // TODO: run global dispose on close/end server
 setup();
 
-// TODO: move these error logs to mongo
-process.on('uncaughtException', (exp, origin) => {
-  kUtilsInjectables.logger().log('uncaughtException');
-  kUtilsInjectables.logger().error(exp);
-  kUtilsInjectables.logger().log(origin);
-});
+async function closeHttpServer(server: http.Server): Promise<Error | undefined> {
+  const addr = server.address();
+  return new Promise(resolve => {
+    server.close(error => {
+      kUtilsInjectables.logger().log(`closed ${format(addr)}`);
+      resolve(error);
+    });
 
-process.on('unhandledRejection', (reason, promise) => {
-  kUtilsInjectables.logger().log('unhandledRejection');
-  kUtilsInjectables.logger().log(promise);
-  kUtilsInjectables.logger().log(reason);
-});
+    server.closeAllConnections();
+  });
+}
+
+async function endServer() {
+  kUtilsInjectables.logger().log('started graceful shutdown');
+  await Promise.allSettled([
+    artifacts.httpServer && closeHttpServer(artifacts.httpServer),
+    artifacts.httpsServer && closeHttpServer(artifacts.httpsServer),
+  ]);
+
+  kUtilsInjectables.logger().log('started app dispose');
+  await globalDispose();
+  console.log('server ended');
+
+  // eslint-disable-next-line no-process-exit
+  process.exit();
+}
+
+// TODO: move these error logs to mongo
+// process.on('uncaughtException', (exp, origin) => {
+//   kUtilsInjectables.logger().log('uncaughtException');
+//   kUtilsInjectables.logger().error(exp);
+//   kUtilsInjectables.logger().log(origin);
+// });
+
+// process.on('unhandledRejection', (reason, promise) => {
+//   kUtilsInjectables.logger().log('unhandledRejection');
+//   kUtilsInjectables.logger().log(promise);
+//   kUtilsInjectables.logger().log(reason);
+// });
+
+process.on('SIGINT', endServer);
+process.on('SIGTERM', endServer);

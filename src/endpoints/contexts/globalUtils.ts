@@ -4,7 +4,7 @@ import {registerInjectables} from './injection/register';
 
 export async function globalDispose() {
   kUtilsInjectables.disposables().disposeAll();
-  await Promise.all([kUtilsInjectables.dbConnection().close()]);
+  await Promise.allSettled([kUtilsInjectables.dbConnection().close()]);
   await kUtilsInjectables.promises().close().flush();
 }
 
