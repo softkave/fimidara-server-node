@@ -8,7 +8,7 @@ import {
 
 export interface SemanticAgentTokenProvider
   extends SemanticWorkspaceResourceProviderType<AgentToken> {
-  deleteAgentTokens(
+  softDeleteAgentTokens(
     agentId: string,
     tokenScope: TokenAccessScope | TokenAccessScope[] | undefined,
     opts: SemanticProviderMutationTxnOptions

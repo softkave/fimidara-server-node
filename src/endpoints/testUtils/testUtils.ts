@@ -53,7 +53,7 @@ import {AddPermissionItemsEndpointParams} from '../permissionItems/addItems/type
 import {PermissionItemInput} from '../permissionItems/types';
 import EndpointReusableQueries from '../queries';
 import RequestData from '../RequestData';
-import {setupApp} from '../runtime/initAppSetup';
+import {initFimidara} from '../runtime/initFimidara';
 import {BaseEndpointResult} from '../types';
 import INTERNAL_confirmEmailAddress from '../users/confirmEmailAddress/internalConfirmEmailAddress';
 import signup from '../users/signup/signup';
@@ -79,7 +79,7 @@ export function getTestEmailProvider() {
 
 export async function initTests() {
   await globalSetup();
-  await setupApp();
+  await initFimidara();
 }
 
 export async function initFnTests() {

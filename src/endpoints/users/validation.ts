@@ -1,17 +1,17 @@
 import * as Joi from 'joi';
 import {kValidationRegExPatterns} from '../../utils/validationUtils';
-import {userConstants} from './constants';
+import {kUserConstants} from './constants';
 
 const email = Joi.string().trim().email();
 const password = Joi.string()
   .trim()
-  .min(userConstants.minPasswordLength)
-  .max(userConstants.maxPasswordLength)
+  .min(kUserConstants.minPasswordLength)
+  .max(kUserConstants.maxPasswordLength)
   .regex(kValidationRegExPatterns.password);
 const name = Joi.string()
   .trim()
-  .min(userConstants.minNameLength)
-  .max(userConstants.maxNameLength);
+  .min(kUserConstants.minNameLength)
+  .max(kUserConstants.maxNameLength);
 
 const userValidationSchemas = {
   name,

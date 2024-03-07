@@ -1,16 +1,11 @@
+import {EmailJobParams, Job, kEmailJobType, kJobType} from '../../../definitions/job';
 import {kAppResourceType} from '../../../definitions/system';
-import {
-  kUpgradeFromWaitlistEmailArtifacts,
-  upgradedFromWaitlistEmailHTML,
-  UpgradedFromWaitlistEmailProps,
-  upgradedFromWaitlistEmailText,
-} from '../../../emailTemplates/upgradedFromWaitlist';
 import {kSystemSessionAgent} from '../../../utils/agent';
-import {appAssert} from '../../../utils/assertion';
 import {extractResourceIdList} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {getNewIdForResource} from '../../../utils/resource';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
+import {DataQuery} from '../../contexts/data/types';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {kRegisterUtilsInjectables} from '../../contexts/injection/register';
 import RequestData from '../../RequestData';
@@ -71,29 +66,25 @@ describe('upgradeWaitlistedUsers', () => {
     const usersMap = indexArray(users, {path: 'resourceId'});
     expect(users).toHaveLength(waitlistedUsers.length);
 
-    users.forEach(user => {
-      expect(usersMap[user.resourceId]).toBeTruthy();
+    await Promise.all(
+      users.map(async user => {
+        expect(usersMap[user.resourceId]).toBeTruthy();
 
-      // confirm email sent
-      const suppliedConfig = kUtilsInjectables.suppliedConfig();
-      appAssert(suppliedConfig.clientLoginLink);
-      appAssert(suppliedConfig.clientSignupLink);
-      appAssert(suppliedConfig.appDefaultEmailAddressFrom);
-
-      const upgradedFromWaitlistEmailProps: UpgradedFromWaitlistEmailProps = {
-        signupLink: suppliedConfig.clientSignupLink,
-        loginLink: suppliedConfig.clientLoginLink,
-        firstName: user.firstName,
-      };
-      const html = upgradedFromWaitlistEmailHTML(upgradedFromWaitlistEmailProps);
-      const text = upgradedFromWaitlistEmailText(upgradedFromWaitlistEmailProps);
-      expect(kUtilsInjectables.email().sendEmail).toHaveBeenCalledWith({
-        subject: kUpgradeFromWaitlistEmailArtifacts.title,
-        body: {html, text},
-        destination: [user.email],
-        source: suppliedConfig.appDefaultEmailAddressFrom,
-      });
-    });
+        await kUtilsInjectables.promises().flush();
+        const query: DataQuery<Job<EmailJobParams>> = {
+          type: kJobType.email,
+          params: {
+            $objMatch: {
+              type: kEmailJobType.upgradedFromWaitlist,
+              emailAddress: {$all: [user.email]},
+              userId: {$all: [user.resourceId]},
+            },
+          },
+        };
+        const dbJob = await kSemanticModels.job().getOneByQuery(query);
+        expect(dbJob).toBeTruthy();
+      })
+    );
   });
 
   test('fails if user not part of root workspace', async () => {

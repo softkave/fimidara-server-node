@@ -1,15 +1,11 @@
+import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job';
 import {kAppResourceType} from '../../../definitions/system';
 import {User} from '../../../definitions/user';
-import {
-  UpgradedFromWaitlistEmailProps,
-  kUpgradeFromWaitlistEmailArtifacts,
-  upgradedFromWaitlistEmailHTML,
-  upgradedFromWaitlistEmailText,
-} from '../../../emailTemplates/upgradedFromWaitlist';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
+import {queueJobs} from '../../jobs/queueJobs';
 import {assertUserIsPartOfRootWorkspace} from '../utils';
 import {UpgradeWaitlistedUsersEndpoint} from './types';
 import {upgradeWaitlistedUsersJoiSchema} from './validation';
@@ -36,39 +32,28 @@ const upgradeWaitlistedUsers: UpgradeWaitlistedUsersEndpoint = async reqData => 
       .user()
       .getManyByQuery(
         {resourceId: {$in: data.userIds}},
-        {...opts, projection: {email: true, firstName: true}}
+        {...opts, projection: {email: true, firstName: true, resourceId: true}}
       );
-    return userList as Array<Pick<User, 'email' | 'firstName'>>;
+    return userList as Array<Pick<User, 'email' | 'firstName' | 'resourceId'>>;
   }, /** reuseTxn */ false);
 
-  // TODO: fire and forget or send in a job. Do the same for other email send
-  // calls
-  await Promise.all(
-    users.map(user => {
-      return sendUserUpgradedFromWaitlistEmail(user.email, {
-        firstName: user.firstName,
-        signupLink: suppliedConfig.clientSignupLink!,
-        loginLink: suppliedConfig.clientLoginLink!,
-      });
-    })
-  );
+  users.map(user => {
+    kUtilsInjectables.promises().forget(
+      queueJobs<EmailJobParams>(
+        /** workspace ID */ undefined,
+        /** parent job ID */ undefined,
+        {
+          createdBy: agent,
+          type: kJobType.email,
+          params: {
+            type: kEmailJobType.upgradedFromWaitlist,
+            emailAddress: [user.email],
+            userId: [user.resourceId],
+          },
+        }
+      )
+    );
+  });
 };
 
 export default upgradeWaitlistedUsers;
-
-async function sendUserUpgradedFromWaitlistEmail(
-  emailAddress: string,
-  props: UpgradedFromWaitlistEmailProps
-) {
-  const suppliedConfig = kUtilsInjectables.suppliedConfig();
-  appAssert(suppliedConfig.appDefaultEmailAddressFrom);
-
-  const html = upgradedFromWaitlistEmailHTML(props);
-  const text = upgradedFromWaitlistEmailText(props);
-  await kUtilsInjectables.email().sendEmail({
-    subject: kUpgradeFromWaitlistEmailArtifacts.title,
-    body: {html, text},
-    destination: [emailAddress],
-    source: suppliedConfig.appDefaultEmailAddressFrom,
-  });
-}

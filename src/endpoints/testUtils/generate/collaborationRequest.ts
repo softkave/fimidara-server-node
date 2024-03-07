@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {
   CollaborationRequest,
-  CollaborationRequestStatusTypeMap,
+  kCollaborationRequestStatusTypeMap,
 } from '../../../definitions/collaborationRequest';
 import {Agent, kAppResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
@@ -32,7 +32,7 @@ export function generateCollaborationRequestForTest(
     workspaceId: getNewIdForResource(kAppResourceType.Workspace),
     recipientEmail: faker.internet.email(),
     message: '',
-    status: CollaborationRequestStatusTypeMap.Pending,
+    status: kCollaborationRequestStatusTypeMap.Pending,
     statusDate: getTimestamp(),
     isDeleted: false,
     ...seed,

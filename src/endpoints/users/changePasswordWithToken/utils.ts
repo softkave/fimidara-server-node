@@ -22,10 +22,10 @@ export async function INTERNAL_changePassword(
       );
     assertUser(updatedUser);
 
-    // Delete existing user tokens cause they're no longer valid
+    // soft delete existing user tokens cause they're no longer valid
     await kSemanticModels
       .agentToken()
-      .deleteAgentTokens(updatedUser.resourceId, undefined, opts);
+      .softDeleteAgentTokens(updatedUser.resourceId, undefined, opts);
     return updatedUser;
   }, /** reuseTxn */ true);
 

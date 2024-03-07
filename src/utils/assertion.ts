@@ -1,9 +1,9 @@
 import {isString} from 'lodash';
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
 import OperationError from './OperationError';
 import {ServerError} from './errors';
 import {kReuseableErrors} from './reusableErrors';
 import {AnyFn} from './types';
-import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
 
 export function appAssert(
   value: unknown,
@@ -11,6 +11,8 @@ export function appAssert(
   logMessage?: string
 ): asserts value {
   if (!value) {
+    console.trace();
+
     if (logMessage) {
       kUtilsInjectables.logger().error(logMessage);
     }

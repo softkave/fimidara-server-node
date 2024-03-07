@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {kSemanticModels} from '../../contexts/injection/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import EndpointReusableQueries from '../../queries';
 import {generateAndInsertUserListForTest} from '../../testUtils/generate/user';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
@@ -16,6 +16,8 @@ import {EmailAddressNotAvailableError} from '../errors';
 import {userExtractor} from '../utils';
 import updateUser from './handler';
 import {UpdateUserEndpointParams} from './types';
+import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job';
+import {DataQuery} from '../../contexts/data/types';
 
 /**
  * TODO:
@@ -55,6 +57,20 @@ describe('updateUser', () => {
     );
     expect(userExtractor(savedUser)).toMatchObject(result.user);
     expect(savedUser).toMatchObject(updateInput);
+
+    await kUtilsInjectables.promises().flush();
+    const query: DataQuery<Job<EmailJobParams>> = {
+      type: kJobType.email,
+      params: {
+        $objMatch: {
+          type: kEmailJobType.confirmEmailAddress,
+          emailAddress: {$all: [savedUser.email]},
+          userId: {$all: [savedUser.resourceId]},
+        },
+      },
+    };
+    const dbJob = await kSemanticModels.job().getOneByQuery(query);
+    expect(dbJob).toBeTruthy();
   });
 
   test('email verification revoked if email is changed', async () => {

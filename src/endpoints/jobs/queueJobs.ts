@@ -20,7 +20,7 @@ export interface JobInput<
   TParams extends AnyObject = AnyObject,
   TMeta extends AnyObject = AnyObject,
 > {
-  type: JobType | (string & {});
+  type: JobType;
   params: TParams;
   meta?: TMeta;
   idempotencyToken?: string;

@@ -289,7 +289,8 @@ describe('addFolder', () => {
                 ],
                 /** skip auth */ true,
                 /** throw if folder exists */ false,
-                opts
+                opts,
+                /** throw on error */ true
               ),
               createFolderList(
                 kSystemSessionAgent,
@@ -302,7 +303,8 @@ describe('addFolder', () => {
                 ],
                 /** skip auth */ true,
                 /** throw if folder exists */ false,
-                opts
+                opts,
+                /** throw on error */ true
               ),
             ]),
           /** reuseTxn */ true
@@ -323,7 +325,8 @@ describe('addFolder', () => {
                 ],
                 /** skip auth */ true,
                 /** throw if folder exists */ false,
-                opts
+                opts,
+                /** throw on error */ true
               ),
               createFolderList(
                 kSystemSessionAgent,
@@ -336,7 +339,8 @@ describe('addFolder', () => {
                 ],
                 /** skip auth */ true,
                 /** throw if folder exists */ false,
-                opts
+                opts,
+                /** throw on error */ true
               ),
             ]),
           /** reuseTxn */ true

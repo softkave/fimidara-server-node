@@ -1,15 +1,10 @@
 import {kFileBackendType} from '../../../definitions/fileBackend';
-import {
-  IngestFolderpathJobParams,
-  IngestMountJobParams,
-  Job,
-  kJobType,
-} from '../../../definitions/job';
+import {IngestFolderpathJobParams, Job, kJobType} from '../../../definitions/job';
 import {appAssert} from '../../../utils/assertion';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {JobInput, queueJobs} from '../queueJobs';
 
-export async function runIngestMountJob(job: Job<IngestMountJobParams>) {
+export async function runIngestMountJob(job: Job) {
   appAssert(job.workspaceId);
   const mount = await kSemanticModels.fileBackendMount().getOneById(job.params.mountId);
 

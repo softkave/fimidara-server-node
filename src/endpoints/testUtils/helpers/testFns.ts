@@ -12,7 +12,7 @@ import {globalDispose, globalSetup} from '../../contexts/globalUtils';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
 import {IServerRequest} from '../../contexts/types';
-import {setupApp} from '../../runtime/initAppSetup';
+import {initFimidara} from '../../runtime/initFimidara';
 import {
   Endpoint,
   InferEndpointParams,
@@ -39,7 +39,7 @@ export async function completeTests() {
 export function startTesting() {
   beforeAll(async () => {
     await globalSetup();
-    await setupApp();
+    await initFimidara();
   });
 
   afterAll(async () => {

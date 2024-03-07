@@ -41,7 +41,8 @@ export async function createFolderList(
   input: NewFolderInput | NewFolderInput[],
   UNSAFE_skipAuthCheck = false,
   throwOnFolderExists = true,
-  opts: SemanticProviderMutationTxnOptions | undefined
+  opts: SemanticProviderMutationTxnOptions | undefined,
+  throwOnError: boolean
 ) {
   const {success, failed} = await kUtilsInjectables
     .shardedRunner()
@@ -54,6 +55,15 @@ export async function createFolderList(
         opts,
       })
     );
+
+  if (throwOnError && failed.length) {
+    if (failed.length === 1) {
+      const error0 = failed[0];
+      throw error0.reason;
+    } else {
+      throw failed;
+    }
+  }
 
   let newFolders: Folder[] = [];
   let existingFolders: Folder[] = [];

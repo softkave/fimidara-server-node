@@ -20,7 +20,9 @@ export interface CollaborationRequestResponseEmailProps extends BaseEmailTemplat
 }
 
 export const kCollaborationRequestResponseArtifacts = {
-  title: (props: CollaborationRequestResponseEmailProps) => {
+  title: (
+    props: Pick<CollaborationRequestResponseEmailProps, 'workspaceName' | 'response'>
+  ) => {
     return `Collaboration request ${props.response} on ${props.workspaceName}`;
   },
   message: (props: CollaborationRequestResponseEmailProps) => {

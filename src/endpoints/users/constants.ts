@@ -1,6 +1,6 @@
 import {kEndpointConstants} from '../constants';
 
-export const userConstants = {
+export const kUserConstants = {
   minNameLength: 1,
   maxNameLength: 50,
   minPasswordLength: 7,

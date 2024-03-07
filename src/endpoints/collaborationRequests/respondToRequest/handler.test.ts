@@ -1,5 +1,7 @@
-import {CollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
-import {kSemanticModels} from '../../contexts/injection/injectables';
+import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
+import {EmailJobParams, Job, kEmailJobType, kJobType} from '../../../definitions/job';
+import {DataQuery} from '../../contexts/data/types';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import EndpointReusableQueries from '../../queries';
 import RequestData from '../../RequestData';
 import {completeTests} from '../../testUtils/helpers/testFns';
@@ -29,7 +31,7 @@ afterAll(async () => {
 });
 
 test('collaboration request declined', async () => {
-  const {userToken} = await insertUserForTest();
+  const {userToken, user} = await insertUserForTest();
   const {user: user02, userToken: user02Token} = await insertUserForTest();
   const {workspace} = await insertWorkspaceForTest(userToken);
   const {request: request01} = await insertRequestForTest(
@@ -43,7 +45,7 @@ test('collaboration request declined', async () => {
       mockExpressRequestWithAgentToken(user02Token),
       {
         requestId: request01.resourceId,
-        response: CollaborationRequestStatusTypeMap.Accepted,
+        response: kCollaborationRequestStatusTypeMap.Accepted,
       }
     );
   const result = await respondToCollaborationRequest(instData);
@@ -56,5 +58,20 @@ test('collaboration request declined', async () => {
   expect(result.request).toMatchObject(
     collaborationRequestForUserExtractor(updatedRequest)
   );
-  expect(updatedRequest.status).toBe(CollaborationRequestStatusTypeMap.Accepted);
+  expect(updatedRequest.status).toBe(kCollaborationRequestStatusTypeMap.Accepted);
+
+  await kUtilsInjectables.promises().flush();
+  const query: DataQuery<Job<EmailJobParams>> = {
+    type: kJobType.email,
+    params: {
+      $objMatch: {
+        type: kEmailJobType.collaborationRequestResponse,
+        emailAddress: {$all: [user.email]},
+        userId: {$all: [user.resourceId]},
+        params: {$objMatch: {requestId: request01.resourceId}},
+      },
+    },
+  };
+  const dbJob = await kSemanticModels.job().getOneByQuery(query);
+  expect(dbJob).toBeTruthy();
 });

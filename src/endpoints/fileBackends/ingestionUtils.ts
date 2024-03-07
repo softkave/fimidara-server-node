@@ -44,7 +44,8 @@ export async function ingestPersistedFolders(
       ),
       /** skip auth check */ true,
       /** do not throw if folder exists */ false,
-      opts
+      opts,
+      /** throw on error */ true
     );
   }, /** reuseTxn */ false);
 }
@@ -129,7 +130,8 @@ export async function ingestPersistedFiles(
       folderInputs,
       /** skip auth check */ true,
       /** do not throw error */ false,
-      opts
+      opts,
+      /** throw on error */ true
     );
     const foldersByPath = keyBy(newFolders.concat(existingFolders), folder =>
       pathJoin(folder.namepath)

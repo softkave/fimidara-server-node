@@ -88,10 +88,8 @@ export abstract class BaseMongoDataProvider<
     otherProps?: DataProviderQueryParams<T> | undefined
   ) => {
     const opts = getMongoQueryOptionsForOne(otherProps);
-    const item = await this.model
-      .findOne(dataQueryToMongoQuery(query), opts.projection, opts)
-      .lean()
-      .exec();
+    const mQuery = dataQueryToMongoQuery(query);
+    const item = await this.model.findOne(mQuery, opts.projection, opts).lean().exec();
     return item as unknown as T | null;
   };
 

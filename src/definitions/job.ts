@@ -1,15 +1,23 @@
-import {AnyObject, ObjectValues, PartialRecord} from '../utils/types';
+import {ValueOf} from 'type-fest';
+import {AnyObject, PartialRecord} from '../utils/types';
 import {AppShard} from './app';
 import {Agent, AppResourceType, Resource} from './system';
 
 export const kJobType = {
+  /** parent job split into deleteArtifacts and deleteSelf.  */
   deleteResource0: 'deleteResource0',
+  /** deletes a resource's artifacts */
   deleteResourceArtifacts: 'deleteResourceArtifacts',
+  /** deletes a resource. should be run after corresponding
+   * deleteResourceArtifacts, not before.  */
   deleteResourceSelf: 'deleteResourceSelf',
+  /** separated from deleteResource because it's a bit more complex and there's
+   * a job created for each input item */
   deletePermissionItem: 'deletePermissionItem',
   ingestFolderpath: 'ingestFolderpath',
   ingestMount: 'ingestMount',
   cleanupMountResolvedEntries: 'cleanupMountResolvedEntries',
+  email: 'email',
   /** Primarily used for testing. A job that does nothing. */
   noop: 'noop',
   /** Primarily used for testing. A job that will always fail! */
@@ -32,8 +40,8 @@ export const kJobPresetPriority = {
   p5: 5,
 };
 
-export type JobType = ObjectValues<typeof kJobType>;
-export type JobStatus = ObjectValues<typeof kJobStatus>;
+export type JobType = ValueOf<typeof kJobType>;
+export type JobStatus = ValueOf<typeof kJobStatus>;
 
 export interface JobStatusHistory {
   status: JobStatus;
@@ -51,7 +59,7 @@ export interface Job<
   TMeta extends AnyObject = AnyObject,
 > extends Resource {
   createdBy: Agent;
-  type: JobType | (string & {});
+  type: JobType;
   params: TParams;
   meta?: TMeta;
   workspaceId?: string;
@@ -115,5 +123,51 @@ export interface IngestMountJobParams {
 export interface CleanupMountResolvedEntriesJobParams {
   mountId: string;
 }
+
+export const kEmailJobType = {
+  collaborationRequest: 'collaborationRequest',
+  collaborationRequestExpired: 'collaborationRequestExpired',
+  collaborationRequestResponse: 'collaborationRequestResponse',
+  collaborationRequestRevoked: 'collaborationRequestRevoked',
+  confirmEmailAddress: 'confirmEmailAddress',
+  forgotPassword: 'forgotPassword',
+  upgradedFromWaitlist: 'upgradedFromWaitlist',
+  // usageExceeded: 'usageExceeded',
+} as const;
+
+export type EmailJobType = ValueOf<typeof kEmailJobType>;
+
+export interface CollaborationRequestEmailJobParams {
+  requestId: string;
+}
+
+export type EmailJobParams = {
+  emailAddress: string[];
+  userId: string[];
+} & (
+  | {
+      type: typeof kEmailJobType.collaborationRequest;
+      params: CollaborationRequestEmailJobParams;
+    }
+  | {
+      type: typeof kEmailJobType.collaborationRequestExpired;
+      params: CollaborationRequestEmailJobParams;
+    }
+  | {
+      type: typeof kEmailJobType.collaborationRequestResponse;
+      params: CollaborationRequestEmailJobParams;
+    }
+  | {
+      type: typeof kEmailJobType.collaborationRequestRevoked;
+      params: CollaborationRequestEmailJobParams;
+    }
+  | {type: typeof kEmailJobType.confirmEmailAddress}
+  | {type: typeof kEmailJobType.forgotPassword}
+  | {type: typeof kEmailJobType.upgradedFromWaitlist}
+);
+// | {
+//     type: typeof kEmailJobType.usageExceeded;
+//     params: UsageExceededEmailProps;
+//   }
 
 export const kJobRunnerV1 = 1;

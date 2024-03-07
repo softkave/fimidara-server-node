@@ -1,5 +1,7 @@
 import {faker} from '@faker-js/faker';
+import {EmailJobParams, Job, kEmailJobType, kJobType} from '../../../definitions/job';
 import {mergeData} from '../../../utils/fns';
+import {DataQuery} from '../../contexts/data/types';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {kRegisterUtilsInjectables} from '../../contexts/injection/register';
 import {generateAndInsertUserListForTest} from '../../testUtils/generate/user';
@@ -37,6 +39,20 @@ describe('signup', () => {
     expect(savedUser).toBeTruthy();
     expect(result.userToken).toBeTruthy();
     expect(result.userTokenStr).toBeTruthy();
+
+    await kUtilsInjectables.promises().flush();
+    const query: DataQuery<Job<EmailJobParams>> = {
+      type: kJobType.email,
+      params: {
+        $objMatch: {
+          type: kEmailJobType.confirmEmailAddress,
+          emailAddress: {$all: [savedUser.email]},
+          userId: {$all: [savedUser.resourceId]},
+        },
+      },
+    };
+    const dbJob = await kSemanticModels.job().getOneByQuery(query);
+    expect(dbJob).toBeTruthy();
   });
 
   test('new signups are waitlisted', async () => {

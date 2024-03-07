@@ -174,7 +174,7 @@ export class ShardedRunner {
   }
 
   protected stringifyShardId(id: ShardId) {
-    return id.join('.');
+    return id.join('.').toLowerCase();
   }
 
   protected getLockName(id: ShardId, key?: string) {

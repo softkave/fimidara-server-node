@@ -111,9 +111,7 @@ async function ingestFolderpathContents(
   } while (continuationToken && (result.folders.length || result.files.length));
 }
 
-export async function runIngestFolderpathJob(
-  job: Job<IngestFolderpathJobParams, IngestFolderpathJobMeta>
-) {
+export async function runIngestFolderpathJob(job: Job) {
   appAssert(job.workspaceId);
 
   const [mount, agent, job_] = await Promise.all([
@@ -139,6 +137,11 @@ export async function runIngestFolderpathJob(
   const provider = providersMap[mount.resourceId];
 
   if (provider) {
-    await ingestFolderpathContents(agent, job, mount, provider);
+    await ingestFolderpathContents(
+      agent,
+      job as Job<IngestFolderpathJobParams, IngestFolderpathJobMeta>,
+      mount,
+      provider
+    );
   }
 }

@@ -1,17 +1,11 @@
-import {
-  CollaborationRequest,
-  CollaborationRequestStatusTypeMap,
-} from '../../../definitions/collaborationRequest';
-import {
-  collaborationRequestRevokedEmailHTML,
-  collaborationRequestRevokedEmailText,
-  kCollaborationRequestRevokedEmail,
-} from '../../../emailTemplates/collaborationRequestRevoked';
+import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
+import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {InvalidRequestError} from '../../errors';
+import {queueJobs} from '../../jobs/queueJobs';
 import {
   assertCollaborationRequest,
   checkCollaborationRequestAuthorization02,
@@ -32,7 +26,7 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async ins
       opts
     );
 
-    const isRevoked = request.status === CollaborationRequestStatusTypeMap.Revoked;
+    const isRevoked = request.status === kCollaborationRequestStatusTypeMap.Revoked;
     appAssert(
       isRevoked === false,
       new InvalidRequestError('Collaboration request already revoked')
@@ -41,7 +35,7 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async ins
       .collaborationRequest()
       .getAndUpdateOneById(
         data.requestId,
-        {statusDate: getTimestamp(), status: CollaborationRequestStatusTypeMap.Revoked},
+        {statusDate: getTimestamp(), status: kCollaborationRequestStatusTypeMap.Revoked},
         opts
       );
 
@@ -49,41 +43,20 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async ins
     return {workspace, request: updatedRequest};
   }, /** reuseTxn */ false);
 
-  // TODO: fire and forget
-  await sendRevokeCollaborationRequestEmail(request, workspace.name);
+  kUtilsInjectables.promises().forget(
+    queueJobs<EmailJobParams>(workspace.resourceId, undefined, {
+      type: kJobType.email,
+      createdBy: agent,
+      params: {
+        type: kEmailJobType.collaborationRequestRevoked,
+        emailAddress: [request.recipientEmail],
+        userId: [],
+        params: {requestId: request.resourceId},
+      },
+    })
+  );
+
   return {request: collaborationRequestForWorkspaceExtractor(request)};
 };
-
-async function sendRevokeCollaborationRequestEmail(
-  request: CollaborationRequest,
-  workspaceName: string
-) {
-  const suppliedConfig = kUtilsInjectables.suppliedConfig();
-  appAssert(suppliedConfig.clientLoginLink);
-  appAssert(suppliedConfig.clientSignupLink);
-  appAssert(suppliedConfig.appDefaultEmailAddressFrom);
-
-  const recipient = await kSemanticModels.user().getByEmail(request.recipientEmail);
-  const signupLink = suppliedConfig.clientSignupLink;
-  const loginLink = suppliedConfig.clientLoginLink;
-  const html = collaborationRequestRevokedEmailHTML({
-    workspaceName,
-    signupLink,
-    loginLink,
-    firstName: recipient?.firstName,
-  });
-  const text = collaborationRequestRevokedEmailText({
-    workspaceName,
-    signupLink,
-    loginLink,
-    firstName: recipient?.firstName,
-  });
-  await kUtilsInjectables.email().sendEmail({
-    subject: kCollaborationRequestRevokedEmail.title(workspaceName),
-    body: {html, text},
-    destination: [request.recipientEmail],
-    source: suppliedConfig.appDefaultEmailAddressFrom,
-  });
-}
 
 export default revokeCollaborationRequest;

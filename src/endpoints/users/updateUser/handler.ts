@@ -4,6 +4,7 @@ import {isStringEqual} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
+import {INTERNAL_sendEmailVerificationCode} from '../sendEmailVerificationCode/handler';
 import {assertEmailAddressAvailable, assertUser, userExtractor} from '../utils';
 import {UpdateUserEndpoint} from './types';
 import {updateUserJoiSchema} from './validation';
@@ -11,12 +12,10 @@ import {updateUserJoiSchema} from './validation';
 const updateUser: UpdateUserEndpoint = async instData => {
   let user = await kUtilsInjectables.session().getUser(instData);
   const data = validate(instData.data, updateUserJoiSchema);
-  const update: Partial<User> = {
-    ...data,
-    lastUpdatedAt: getTimestamp(),
-  };
+  const update: Partial<User> = {...data, lastUpdatedAt: getTimestamp()};
+  const isEmailAddressUpdated = data.email && !isStringEqual(data.email, user.email);
 
-  if (data.email && !isStringEqual(data.email, user.email)) {
+  if (data.email && isEmailAddressUpdated) {
     await assertEmailAddressAvailable(data.email);
     update.isEmailVerified = false;
     update.emailVerifiedAt = null;
@@ -30,6 +29,10 @@ const updateUser: UpdateUserEndpoint = async instData => {
     assertUser(updatedUser);
     return updatedUser;
   }, /** reuseTxn */ false);
+
+  if (isEmailAddressUpdated) {
+    kUtilsInjectables.promises().forget(INTERNAL_sendEmailVerificationCode(user));
+  }
 
   const userWithWorkspaces = await populateUserWorkspaces(user);
 

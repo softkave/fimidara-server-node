@@ -139,10 +139,7 @@ export class DataSemanticBaseProvider<T extends Resource>
     idList: string[],
     opts: SemanticProviderMutationTxnOptions
   ): Promise<void> {
-    const query: DataQuery<Resource> = {
-      resourceId: {$in: idList},
-    };
-
+    const query: DataQuery<Resource> = {resourceId: {$in: idList}};
     await this.data.deleteManyByQuery(query as DataQuery<T>, opts);
   }
 
@@ -151,26 +148,15 @@ export class DataSemanticBaseProvider<T extends Resource>
     agent: Agent,
     opts: SemanticProviderMutationTxnOptions
   ): Promise<void> {
-    const query: DataQuery<Resource> = {
-      resourceId: {$in: idList},
-    };
-    const update: Partial<Resource> = {
-      isDeleted: true,
-      deletedAt: getTimestamp(),
-      deletedBy: agent,
-    };
-
-    await this.data.updateManyByQuery(query as DataQuery<T>, update as Partial<T>, opts);
+    const query: DataQuery<Resource> = {resourceId: {$in: idList}};
+    await this.softDeleteManyByQuery(query, agent, opts);
   }
 
   async deleteOneById(
     id: string,
     opts: SemanticProviderMutationTxnOptions
   ): Promise<void> {
-    const query: DataQuery<Resource> = {
-      resourceId: id,
-    };
-
+    const query: DataQuery<Resource> = {resourceId: id};
     await this.data.deleteOneByQuery(query as DataQuery<T>, opts);
   }
 
@@ -247,5 +233,19 @@ export class DataSemanticBaseProvider<T extends Resource>
     opts: SemanticProviderMutationTxnOptions
   ): Promise<void> {
     await this.data.deleteManyByQuery(query, opts);
+  }
+
+  protected async softDeleteManyByQuery(
+    query: DataQuery<AnyObject>,
+    agent: Agent,
+    opts: SemanticProviderMutationTxnOptions
+  ): Promise<void> {
+    const update: Partial<Resource> = {
+      isDeleted: true,
+      deletedAt: getTimestamp(),
+      deletedBy: agent,
+    };
+
+    await this.data.updateManyByQuery(query as DataQuery<T>, update as Partial<T>, opts);
   }
 }

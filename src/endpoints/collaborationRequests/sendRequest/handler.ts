@@ -1,15 +1,10 @@
+import {compact} from 'lodash';
 import {
   CollaborationRequest,
-  CollaborationRequestStatusTypeMap,
+  kCollaborationRequestStatusTypeMap,
 } from '../../../definitions/collaborationRequest';
+import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job';
 import {kAppResourceType} from '../../../definitions/system';
-import {User} from '../../../definitions/user';
-import {
-  CollaborationRequestEmailProps,
-  collaborationRequestEmailHTML,
-  collaborationRequestEmailText,
-  kCollaborationRequestEmailArtifacts,
-} from '../../../emailTemplates/collaborationRequest';
 import {appAssert} from '../../../utils/assertion';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
 import {newWorkspaceResource} from '../../../utils/resource';
@@ -17,6 +12,7 @@ import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {ResourceExistsError} from '../../errors';
+import {queueJobs} from '../../jobs/queueJobs';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {collaborationRequestForWorkspaceExtractor} from '../utils';
 import {SendCollaborationRequestEndpoint} from './types';
@@ -62,7 +58,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async instDat
       );
     }
 
-    if (existingRequest?.status === CollaborationRequestStatusTypeMap.Pending) {
+    if (existingRequest?.status === kCollaborationRequestStatusTypeMap.Pending) {
       throw new ResourceExistsError(
         `An existing collaboration request to this user was sent on ${formatDate(
           existingRequest?.createdAt
@@ -79,7 +75,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async instDat
         workspaceName: workspace.name,
         recipientEmail: data.request.recipientEmail,
         expiresAt: data.request.expires,
-        status: CollaborationRequestStatusTypeMap.Pending,
+        status: kCollaborationRequestStatusTypeMap.Pending,
         statusDate: getTimestamp(),
       }
     );
@@ -88,36 +84,20 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async instDat
     return {request, existingUser};
   }, /** reuseTxn */ false);
 
-  await sendCollaborationRequestEmail(request, existingUser);
+  kUtilsInjectables.promises().forget(
+    queueJobs<EmailJobParams>(workspace.resourceId, undefined, {
+      createdBy: agent,
+      type: kJobType.email,
+      params: {
+        type: kEmailJobType.collaborationRequest,
+        emailAddress: [request.recipientEmail],
+        userId: compact([existingUser?.resourceId]),
+        params: {requestId: request.resourceId},
+      },
+    })
+  );
+
   return {request: collaborationRequestForWorkspaceExtractor(request)};
 };
-
-async function sendCollaborationRequestEmail(
-  request: CollaborationRequest,
-  toUser: User | null
-) {
-  const suppliedConfig = kUtilsInjectables.suppliedConfig();
-  appAssert(suppliedConfig.clientLoginLink);
-  appAssert(suppliedConfig.clientSignupLink);
-  appAssert(suppliedConfig.appDefaultEmailAddressFrom);
-
-  const emailProps: CollaborationRequestEmailProps = {
-    workspaceName: request.workspaceName,
-    isRecipientAUser: !!toUser,
-    loginLink: suppliedConfig.clientLoginLink,
-    signupLink: suppliedConfig.clientSignupLink,
-    expires: request.expiresAt,
-    message: request.message,
-    firstName: toUser?.firstName,
-  };
-  const html = collaborationRequestEmailHTML(emailProps);
-  const text = collaborationRequestEmailText(emailProps);
-  await kUtilsInjectables.email().sendEmail({
-    subject: kCollaborationRequestEmailArtifacts.title(request.workspaceName),
-    body: {html, text},
-    destination: [request.recipientEmail],
-    source: suppliedConfig.appDefaultEmailAddressFrom,
-  });
-}
 
 export default sendCollaborationRequest;

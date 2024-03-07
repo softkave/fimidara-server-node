@@ -265,7 +265,8 @@ export async function ensureFolders(
      * anonymous user most likely won't have permission to create folders. */
     true,
     /** Throw on folder exists */ false,
-    opts
+    opts,
+    /** throw on error */ true
   );
 
   existingFolders.sort((folder01, folder02) => {

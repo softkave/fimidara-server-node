@@ -1,9 +1,9 @@
 import assert from 'assert';
-import {isUndefined, last} from 'lodash';
+import {compact, isUndefined, last} from 'lodash';
 import {kJobPresetPriority, kJobStatus, kJobType} from '../../../definitions/job';
 import {kAppResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
-import {omitDeep} from '../../../utils/fns';
+import {loopAndCollateAsync, omitDeep} from '../../../utils/fns';
 import {getNewId, getNewIdForResource} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {generateAndInsertJobListForTest} from '../../testUtils/generate/job';
@@ -511,5 +511,25 @@ describe('getNextJob', () => {
     expect(dbJob?.statusLastUpdatedAt).toBeGreaterThan(unfinishedJob.statusLastUpdatedAt);
     expect(dbJob?.status).toBe(kJobStatus.inProgress);
     expect(dbJob?.runnerId).toBe(runnerId);
+  });
+
+  test('getNextJob, txn usage prevents double picking', async () => {
+    const shard = getNewId();
+    const jobs = await generateAndInsertJobListForTest(/** count */ 3, {
+      shard,
+      status: kJobStatus.pending,
+      type: kJobType.noop,
+      priority: kJobPresetPriority.p1,
+    });
+
+    const runnerId = getNewIdForResource(kAppResourceType.App);
+    const returnedJobs = await loopAndCollateAsync(
+      () => getNextJob(/** active runners */ [], runnerId, [shard]),
+      jobs.length * 5,
+      /** settlement type */ 'all'
+    );
+
+    const returnedJobIds = compact(returnedJobs).map(job => job.resourceId);
+    expect(returnedJobIds).toHaveLength(jobs.length);
   });
 });

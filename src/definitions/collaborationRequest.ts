@@ -1,20 +1,20 @@
-import {ObjectValues} from '../utils/types';
+import {ValueOf} from 'type-fest';
 import {ConvertAgentToPublicAgent, PublicResource, WorkspaceResource} from './system';
 
-export const CollaborationRequestStatusTypeMap = {
+export const kCollaborationRequestStatusTypeMap = {
   Accepted: 'accepted',
   Declined: 'declined',
   Revoked: 'revoked',
   Pending: 'pending',
 } as const;
 
-export type CollaborationRequestStatusType = ObjectValues<
-  typeof CollaborationRequestStatusTypeMap
+export type CollaborationRequestStatusType = ValueOf<
+  typeof kCollaborationRequestStatusTypeMap
 >;
 
 export type CollaborationRequestResponse =
-  | typeof CollaborationRequestStatusTypeMap.Accepted
-  | typeof CollaborationRequestStatusTypeMap.Declined;
+  | typeof kCollaborationRequestStatusTypeMap.Accepted
+  | typeof kCollaborationRequestStatusTypeMap.Declined;
 
 export interface CollaborationRequest extends WorkspaceResource {
   recipientEmail: string;

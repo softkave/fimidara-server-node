@@ -1,5 +1,7 @@
+import {EmailJobParams, Job, kEmailJobType, kJobType} from '../../../definitions/job';
 import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
+import {DataQuery} from '../../contexts/data/types';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {completeTests} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
@@ -23,7 +25,7 @@ afterAll(async () => {
   await completeTests();
 });
 
-test('email verification code sent', async () => {
+test('sendEmailVerificationCode', async () => {
   const {user, userToken} = await insertUserForTest(
     /**userInput */ {},
     /**skipAutoVerifyEmail */ true
@@ -38,20 +40,17 @@ test('email verification code sent', async () => {
   );
   assertEndpointResultOk(result);
 
-  // TODO: confirm sendEmail was called with tokens. The code below has an issue
-  // with the token generating different strings and I don't have the time now
-  // to figure out why.
-
-  // const confirmEmailProps: ConfirmEmailAddressEmailProps = {
-  //   firstName: user.firstName,
-  //   link: await getConfirmEmailLink( rawUser),
-  // };
-  // const html = confirmEmailAddressEmailHTML(confirmEmailProps);
-  // const text = confirmEmailAddressEmailText(confirmEmailProps);
-  // expect(kUtilsInjectables.email().sendEmail).toHaveBeenCalledWith( {
-  //   subject: confirmEmailAddressEmailTitle,
-  //   body: {html, text},
-  //   destination: [user.email],
-  //   source: kUtilsInjectables.config().appDefaultEmailAddressFrom,
-  // });
+  await kUtilsInjectables.promises().flush();
+  const query: DataQuery<Job<EmailJobParams>> = {
+    type: kJobType.email,
+    params: {
+      $objMatch: {
+        type: kEmailJobType.confirmEmailAddress,
+        emailAddress: {$all: [user.email]},
+        userId: {$all: [user.resourceId]},
+      },
+    },
+  };
+  const dbJob = await kSemanticModels.job().getOneByQuery(query);
+  expect(dbJob).toBeTruthy();
 });

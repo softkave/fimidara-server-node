@@ -1,16 +1,10 @@
 import {
   CollaborationRequest,
-  CollaborationRequestResponse,
-  CollaborationRequestStatusTypeMap,
+  kCollaborationRequestStatusTypeMap,
 } from '../../../definitions/collaborationRequest';
+import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job';
 import {SessionAgent, kAppResourceType} from '../../../definitions/system';
-import {User} from '../../../definitions/user';
-import {
-  CollaborationRequestResponseEmailProps,
-  collaborationRequestResponseEmailHTML,
-  collaborationRequestResponseEmailText,
-  kCollaborationRequestResponseArtifacts,
-} from '../../../emailTemplates/collaborationRequestResponse';
+import {kSystemSessionAgent} from '../../../utils/agent';
 import {appAssert} from '../../../utils/assertion';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
 import {ServerStateConflictError} from '../../../utils/errors';
@@ -18,39 +12,12 @@ import {isStringEqual} from '../../../utils/fns';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
+import {queueJobs} from '../../jobs/queueJobs';
 import {PermissionDeniedError} from '../../users/errors';
 import {assertUser} from '../../users/utils';
 import {assertWorkspace} from '../../workspaces/utils';
 import {assertCollaborationRequest} from '../utils';
 import {RespondToCollaborationRequestEndpointParams} from './types';
-
-async function sendCollaborationRequestResponseEmail(
-  request: CollaborationRequest,
-  response: CollaborationRequestResponse,
-  toUser: User
-) {
-  const suppliedConfig = kUtilsInjectables.suppliedConfig();
-  appAssert(suppliedConfig.clientLoginLink);
-  appAssert(suppliedConfig.clientSignupLink);
-  appAssert(suppliedConfig.appDefaultEmailAddressFrom);
-
-  const emailProps: CollaborationRequestResponseEmailProps = {
-    response,
-    workspaceName: request.workspaceName,
-    loginLink: suppliedConfig.clientLoginLink,
-    signupLink: suppliedConfig.clientSignupLink,
-    recipientEmail: request.recipientEmail,
-    firstName: toUser?.firstName,
-  };
-  const html = collaborationRequestResponseEmailHTML(emailProps);
-  const text = collaborationRequestResponseEmailText(emailProps);
-  await kUtilsInjectables.email().sendEmail({
-    subject: kCollaborationRequestResponseArtifacts.title(emailProps),
-    body: {html, text},
-    destination: [toUser.email],
-    source: suppliedConfig.appDefaultEmailAddressFrom,
-  });
-}
 
 export const INTERNAL_RespondToCollaborationRequest = async (
   agent: SessionAgent,
@@ -70,7 +37,7 @@ export const INTERNAL_RespondToCollaborationRequest = async (
 
   const isExpired =
     request.expiresAt && new Date(request.expiresAt).valueOf() < Date.now();
-  const isAccepted = data.response === CollaborationRequestStatusTypeMap.Accepted;
+  const isAccepted = data.response === kCollaborationRequestStatusTypeMap.Accepted;
 
   if (isExpired) {
     throw new ServerStateConflictError(
@@ -100,8 +67,7 @@ export const INTERNAL_RespondToCollaborationRequest = async (
 };
 
 export async function notifyUserOnCollaborationRequestResponse(
-  request: CollaborationRequest,
-  response: CollaborationRequestResponse
+  request: CollaborationRequest
 ) {
   const workspace = await kSemanticModels.workspace().getOneById(request.workspaceId);
   assertWorkspace(workspace);
@@ -119,6 +85,17 @@ export async function notifyUserOnCollaborationRequestResponse(
       : null;
 
   if (notifyUser && notifyUser.isEmailVerified) {
-    await sendCollaborationRequestResponseEmail(request, response, notifyUser);
+    kUtilsInjectables.promises().forget(
+      queueJobs<EmailJobParams>(workspace.resourceId, undefined, {
+        createdBy: kSystemSessionAgent,
+        type: kJobType.email,
+        params: {
+          type: kEmailJobType.collaborationRequestResponse,
+          emailAddress: [notifyUser.email],
+          userId: [notifyUser.resourceId],
+          params: {requestId: request.resourceId},
+        },
+      })
+    );
   }
 }

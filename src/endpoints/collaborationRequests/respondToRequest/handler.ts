@@ -20,7 +20,7 @@ const respondToCollaborationRequest: RespondToCollaborationRequestEndpoint =
       return await INTERNAL_RespondToCollaborationRequest(agent, data, opts);
     }, /** reuseTxn */ false);
 
-    await notifyUserOnCollaborationRequestResponse(request, data.response);
+    await notifyUserOnCollaborationRequestResponse(request);
     return {request: collaborationRequestForUserExtractor(request)};
   };
 

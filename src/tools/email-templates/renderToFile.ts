@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import * as fs from 'fs';
 import * as fse from 'fs-extra';
-import {CollaborationRequestStatusTypeMap} from '../../definitions/collaborationRequest';
+import {kCollaborationRequestStatusTypeMap} from '../../definitions/collaborationRequest';
 import {kAppResourceType} from '../../definitions/system';
 import {UsageRecordCategoryMap} from '../../definitions/usageRecord';
 import {
@@ -119,7 +119,7 @@ export function renderCollaborationRequestResponseMedia() {
     signupLink: 'https://fimidara.com/accounts/signup',
     loginLink: 'https://fimidara.com/accounts/login',
     recipientEmail: faker.internet.email(),
-    response: CollaborationRequestStatusTypeMap.Accepted,
+    response: kCollaborationRequestStatusTypeMap.Accepted,
     firstName: 'Abayomi',
   };
 

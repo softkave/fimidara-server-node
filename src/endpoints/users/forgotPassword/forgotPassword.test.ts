@@ -1,7 +1,6 @@
-import assert from 'assert';
-import {kTokenAccessScope} from '../../../definitions/system';
-import {kForgotPasswordEmailArtifacts} from '../../../emailTemplates/forgotPassword';
+import {EmailJobParams, Job, kEmailJobType, kJobType} from '../../../definitions/job';
 import RequestData from '../../RequestData';
+import {DataQuery} from '../../contexts/data/types';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {kRegisterUtilsInjectables} from '../../contexts/injection/register';
 import MockTestEmailProviderContext from '../../testUtils/context/email/MockTestEmailProviderContext';
@@ -12,7 +11,7 @@ import {
   insertUserForTest,
   mockExpressRequest,
 } from '../../testUtils/testUtils';
-import forgotPassword, {getForgotPasswordLinkFromToken} from './forgotPassword';
+import forgotPassword from './forgotPassword';
 import {ForgotPasswordEndpointParams} from './types';
 
 /**
@@ -40,35 +39,19 @@ describe('forgotPassword', () => {
     );
     const result = await forgotPassword(instData);
     assertEndpointResultOk(result);
-    const forgotPasswordToken = await kSemanticModels.agentToken().assertGetOneByQuery({
-      forEntityId: user.resourceId,
-      scope: {$eq: [kTokenAccessScope.ChangePassword]},
-    });
 
-    const emailProvider = kUtilsInjectables.email();
-    assert(emailProvider instanceof MockTestEmailProviderContext);
-
-    // confirm forgot password email was sent
-    const link = getForgotPasswordLinkFromToken(forgotPasswordToken);
-    const lastCall = emailProvider.sendEmail.mock.lastCall;
-    expect(lastCall[0].body.html.includes(link)).toBeTruthy();
-    expect(lastCall[0].body.text.includes(link)).toBeTruthy();
-    expect(lastCall[0].destination).toContainEqual(user.email);
-    expect(lastCall[0].subject).toBe(kForgotPasswordEmailArtifacts.title);
-
-    // const forgotPasswordEmailProps: ForgotPasswordEmailProps = {
-    //   link,
-    //   expiration: getForgotPasswordExpiration(),
-    //   signupLink: kUtilsInjectables.config().clientSignupLink,
-    //   loginLink: kUtilsInjectables.config().clientLoginLink,
-    // };
-    // const html = forgotPasswordEmailHTML(forgotPasswordEmailProps);
-    // const text = forgotPasswordEmailText(forgotPasswordEmailProps);
-    // expect(emailProvider.sendEmail).toHaveBeenLastCalledWith(expect.anything(), {
-    //   subject: forgotPasswordEmailTitle,
-    //   body: {html, text},
-    //   destination: [user.email],
-    //   source: kUtilsInjectables.config().appDefaultEmailAddressFrom,
-    // });
+    await kUtilsInjectables.promises().flush();
+    const query: DataQuery<Job<EmailJobParams>> = {
+      type: kJobType.email,
+      params: {
+        $objMatch: {
+          type: kEmailJobType.forgotPassword,
+          emailAddress: {$all: [user.email]},
+          userId: {$all: [user.resourceId]},
+        },
+      },
+    };
+    const dbJob = await kSemanticModels.job().getOneByQuery(query);
+    expect(dbJob).toBeTruthy();
   });
 });

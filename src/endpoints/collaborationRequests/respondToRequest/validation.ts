@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import {CollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
+import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
 import {kValidationSchemas} from '../../../utils/validationUtils';
 
 export const respondToCollaborationRequestJoiSchema = Joi.object()
@@ -7,8 +7,8 @@ export const respondToCollaborationRequestJoiSchema = Joi.object()
     requestId: kValidationSchemas.resourceId.required(),
     response: Joi.string()
       .allow(
-        CollaborationRequestStatusTypeMap.Accepted,
-        CollaborationRequestStatusTypeMap.Declined
+        kCollaborationRequestStatusTypeMap.Accepted,
+        kCollaborationRequestStatusTypeMap.Declined
       )
       .required(),
   })

@@ -6,7 +6,7 @@ import {globalDispose, globalSetup} from './endpoints/contexts/globalUtils';
 import {kUtilsInjectables} from './endpoints/contexts/injection/injectables';
 import {setupFimidaraHttpEndpoints} from './endpoints/endpoints';
 import {startRunner} from './endpoints/jobs/runner';
-import {setupApp} from './endpoints/runtime/initAppSetup';
+import {initFimidara} from './endpoints/runtime/initFimidara';
 import handleErrors from './middlewares/handleErrors';
 import redirectHttpToHttpsExpressMiddleware from './middlewares/redirectHttpToHttps';
 import {appAssert} from './utils/assertion';
@@ -99,7 +99,7 @@ async function setup() {
   // Run scripts here
   // End of scripts
 
-  const defaultWorkspace = await setupApp();
+  const defaultWorkspace = await initFimidara();
   kUtilsInjectables.logger().log(`workspace ID - ${defaultWorkspace.resourceId}`);
 
   setupJWT();

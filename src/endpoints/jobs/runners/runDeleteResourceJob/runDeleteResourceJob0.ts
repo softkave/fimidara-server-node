@@ -11,7 +11,7 @@ import {queueJobs} from '../../queueJobs';
 
 export async function runDeleteResourceJob0(job: Job) {
   const deleteArtifactsJobId = getNewIdForResource(kAppResourceType.Job);
-  await kSemanticModels.utils().withTxn(async () => {
+  await kSemanticModels.utils().withTxn(async opts => {
     // queueJobs should use current context's txn, so both should fail if one
     // fails
     await Promise.all([

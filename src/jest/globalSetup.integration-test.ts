@@ -1,9 +1,9 @@
 import {globalSetup} from '../endpoints/contexts/globalUtils';
-import {setupApp} from '../endpoints/runtime/initAppSetup';
+import {initFimidara} from '../endpoints/runtime/initFimidara';
 
 async function integrationTestGlobalSetup() {
   await globalSetup();
-  await setupApp();
+  await initFimidara();
 }
 
 module.exports = integrationTestGlobalSetup;

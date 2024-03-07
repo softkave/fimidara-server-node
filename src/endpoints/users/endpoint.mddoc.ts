@@ -9,7 +9,7 @@ import {
 import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc';
 import {ChangePasswordWithCurrentPasswordEndpointParams} from './changePasswordWithCurrentPassword/types';
 import {ChangePasswordWithTokenEndpointParams} from './changePasswordWithToken/types';
-import {userConstants} from './constants';
+import {kUserConstants} from './constants';
 import {ForgotPasswordEndpointParams} from './forgotPassword/types';
 import {LoginEndpointParams, LoginResult} from './login/types';
 import {SignupEndpointParams} from './signup/types';
@@ -161,7 +161,7 @@ export const signupEndpointDefinition = mddocConstruct
     InferFieldObjectType<SignupHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
     InferFieldObjectType<SignupHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
-  .setBasePathname(userConstants.routes.signup)
+  .setBasePathname(kUserConstants.routes.signup)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(signupParams)
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_JsonContentType)
@@ -180,7 +180,7 @@ export const loginEndpointDefinition = mddocConstruct
     InferFieldObjectType<LoginHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
     InferFieldObjectType<LoginHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
-  .setBasePathname(userConstants.routes.login)
+  .setBasePathname(kUserConstants.routes.login)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(loginParams)
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_JsonContentType)
@@ -207,7 +207,7 @@ export const forgotPasswordEndpointDefinition = mddocConstruct
       ForgotPasswordHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(userConstants.routes.forgotPassword)
+  .setBasePathname(kUserConstants.routes.forgotPassword)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(forgotPasswordParams)
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_JsonContentType)
@@ -236,7 +236,7 @@ export const changePasswordWithTokenEndpointDefinition = mddocConstruct
       ChangePasswordWithTokenHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(userConstants.routes.changePasswordWithToken)
+  .setBasePathname(kUserConstants.routes.changePasswordWithToken)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
@@ -268,7 +268,7 @@ export const changePasswordWithCurrentPasswordEndpointDefinition = mddocConstruc
       ChangePasswordWithCurrentPasswordHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(userConstants.routes.changePasswordWithCurrentPassword)
+  .setBasePathname(kUserConstants.routes.changePasswordWithCurrentPassword)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(changePasswordWithCurrentPasswordParams)
   .setRequestHeaders(
@@ -297,7 +297,7 @@ export const confirmEmailAddressEndpointDefinition = mddocConstruct
       ConfirmEmailAddressHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(userConstants.routes.confirmEmailAddress)
+  .setBasePathname(kUserConstants.routes.confirmEmailAddress)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
@@ -326,7 +326,7 @@ export const getUserDataEndpointDefinition = mddocConstruct
     >,
     InferFieldObjectType<GetUserDataHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
-  .setBasePathname(userConstants.routes.getUserData)
+  .setBasePathname(kUserConstants.routes.getUserData)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
@@ -357,7 +357,7 @@ export const sendEmailVerificationCodeEndpointDefinition = mddocConstruct
       SendEmailVerificationCodeHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(userConstants.routes.sendEmailVerificationCode)
+  .setBasePathname(kUserConstants.routes.sendEmailVerificationCode)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
@@ -380,7 +380,7 @@ export const updateUserEndpointDefinition = mddocConstruct
     >,
     InferFieldObjectType<UpdateUserHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
-  .setBasePathname(userConstants.routes.updateUser)
+  .setBasePathname(kUserConstants.routes.updateUser)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(updateUserParams)
   .setRequestHeaders(
@@ -403,7 +403,7 @@ export const userExistsEndpointDefinition = mddocConstruct
     >,
     InferFieldObjectType<UserExistsHttpEndpoint['mddocHttpDefinition']['responseBody']>
   >()
-  .setBasePathname(userConstants.routes.userExists)
+  .setBasePathname(kUserConstants.routes.userExists)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(userExistsParams)
   .setRequestHeaders(mddocEndpointHttpHeaderItems.requestHeaders_JsonContentType)

@@ -1,5 +1,5 @@
 import {
-  CollaborationRequestStatusTypeMap,
+  kCollaborationRequestStatusTypeMap,
   PublicCollaborationRequestForUser,
   PublicCollaborationRequestForWorkspace,
 } from '../../definitions/collaborationRequest';
@@ -74,14 +74,14 @@ const message = mddocConstruct
 const statusType = mddocConstruct
   .constructFieldString()
   .setDescription('Collaboration request status')
-  .setValid(Object.values(CollaborationRequestStatusTypeMap))
+  .setValid(Object.values(kCollaborationRequestStatusTypeMap))
   .setEnumName('CollaborationRequestStatusType');
 const response = mddocConstruct
   .constructFieldString()
 
   .setValid([
-    CollaborationRequestStatusTypeMap.Accepted,
-    CollaborationRequestStatusTypeMap.Declined,
+    kCollaborationRequestStatusTypeMap.Accepted,
+    kCollaborationRequestStatusTypeMap.Declined,
   ])
   .setEnumName('CollaborationRequestResponseType');
 const newCollaborationRequestInput = mddocConstruct

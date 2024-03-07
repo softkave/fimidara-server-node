@@ -1,5 +1,6 @@
 import {AgentToken} from '../../../../definitions/agentToken';
 import {TokenAccessScope} from '../../../../definitions/system';
+import {kSystemSessionAgent} from '../../../../utils/agent';
 import {AgentTokenQueries} from '../../../agentTokens/queries';
 import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
 import {SemanticProviderMutationTxnOptions, SemanticProviderTxnOptions} from '../types';
@@ -9,13 +10,14 @@ export class DataSemanticAgentToken
   extends DataSemanticWorkspaceResourceProvider<AgentToken>
   implements SemanticAgentTokenProvider
 {
-  async deleteAgentTokens(
+  async softDeleteAgentTokens(
     agentId: string,
     tokenScope: TokenAccessScope | TokenAccessScope[] | undefined,
     opts: SemanticProviderMutationTxnOptions
   ): Promise<void> {
-    await this.data.deleteManyByQuery(
+    await this.softDeleteManyByQuery(
       AgentTokenQueries.getByEntityAndScope({forEntityId: agentId, scope: tokenScope}),
+      kSystemSessionAgent,
       opts
     );
   }

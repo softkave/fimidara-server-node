@@ -1,11 +1,10 @@
 import * as assert from 'assert';
 // eslint-disable-next-line node/no-unpublished-import
 import * as inquirer from 'inquirer';
-import {CollaborationRequestStatusTypeMap} from '../../definitions/collaborationRequest';
+import {kCollaborationRequestStatusTypeMap} from '../../definitions/collaborationRequest';
 import {kTokenAccessScope} from '../../definitions/system';
 import {UserWithWorkspace} from '../../definitions/user';
 import {Workspace} from '../../definitions/workspace';
-import RequestData from '../../endpoints/RequestData';
 import {assertAgentToken} from '../../endpoints/agentTokens/utils';
 import {
   addAssignedPermissionGroupList,
@@ -22,11 +21,8 @@ import {
 } from '../../endpoints/contexts/semantic/types';
 import {fetchEntityAssignedPermissionGroupList} from '../../endpoints/permissionGroups/getEntityAssignedPermissionGroups/utils';
 import {assertPermissionGroup} from '../../endpoints/permissionGroups/utils';
-import {setupApp} from '../../endpoints/runtime/initAppSetup';
-import changePasswordWithToken from '../../endpoints/users/changePasswordWithToken/handler';
-import {ChangePasswordWithTokenEndpointParams} from '../../endpoints/users/changePasswordWithToken/types';
+import {initFimidara} from '../../endpoints/runtime/initFimidara';
 import INTERNAL_confirmEmailAddress from '../../endpoints/users/confirmEmailAddress/internalConfirmEmailAddress';
-import {getForgotPasswordToken} from '../../endpoints/users/forgotPassword/forgotPassword';
 import {INTERNAL_signupUser} from '../../endpoints/users/signup/utils';
 import {getCompleteUserDataByEmail, isUserInWorkspace} from '../../endpoints/users/utils';
 import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME} from '../../endpoints/workspaces/addWorkspace/utils';
@@ -152,7 +148,12 @@ async function getUser(
     user = await kSemanticModels
       .utils()
       .withTxn(
-        opts => INTERNAL_signupUser({...userInfo, email}, {}, opts),
+        opts =>
+          INTERNAL_signupUser(
+            {...userInfo, email},
+            {requiresPasswordChange: false, isEmailVerified: true},
+            opts
+          ),
         /** reuseTxn */ true
       );
   }
@@ -162,20 +163,9 @@ async function getUser(
 }
 
 export async function setupDevUser(appOptions: ISetupDevUserOptions) {
-  const workspace = await setupApp();
+  const workspace = await initFimidara();
   const user = await getUser(appOptions);
   const isInWorkspace = isUserInWorkspace(user, workspace.resourceId);
-
-  if (user.requiresPasswordChange) {
-    const forgotToken = await getForgotPasswordToken(user);
-    const userPassword = await appOptions.getUserPassword();
-    await changePasswordWithToken(
-      new RequestData<ChangePasswordWithTokenEndpointParams>({
-        data: {password: userPassword.password},
-        agent: makeUserSessionAgent(user, forgotToken),
-      })
-    );
-  }
 
   if (user.isOnWaitlist) {
     await kSemanticModels
@@ -223,7 +213,7 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
           agent,
           {
             requestId: request.resourceId,
-            response: CollaborationRequestStatusTypeMap.Accepted,
+            response: kCollaborationRequestStatusTypeMap.Accepted,
           },
           opts
         );

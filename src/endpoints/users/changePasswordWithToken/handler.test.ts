@@ -19,7 +19,7 @@ import {
   mockExpressRequest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils';
-import {userConstants} from '../constants';
+import {kUserConstants} from '../constants';
 import login from '../login/login';
 import {LoginEndpointParams} from '../login/types';
 import {userExtractor} from '../utils';
@@ -50,7 +50,7 @@ async function changePasswordWithTokenTest() {
     version: kCurrentJWTTokenVersion,
     expiresAt: getTimestamp(
       add(new Date(), {
-        days: userConstants.changePasswordTokenExpDurationInDays,
+        days: kUserConstants.changePasswordTokenExpDurationInDays,
       })
     ),
     forEntityId: user.resourceId,
