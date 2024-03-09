@@ -2,7 +2,7 @@ import {DeleteObjectsCommand, S3Client} from '@aws-sdk/client-s3';
 import assert from 'assert';
 import {Readable} from 'stream';
 import {FileBackendMount, kFileBackendType} from '../../../../definitions/fileBackend';
-import {kAppResourceType} from '../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../definitions/system';
 import {loopAndCollate, pathJoin, pathSplit} from '../../../../utils/fns';
 import {getNewIdForResource} from '../../../../utils/resource';
 import {generateTestFilepathString} from '../../../testUtils/generate/file';
@@ -51,7 +51,7 @@ afterAll(async () => {
 
 describe('S3FilePersistenceProvider', () => {
   test('toNativePath', async () => {
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = await getNewMount({workspaceId});
     const filepath = generateTestFilepathString({length: 4});
 
@@ -66,7 +66,7 @@ describe('S3FilePersistenceProvider', () => {
   });
 
   test('toFimidaraPath', async () => {
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = await getNewMount({workspaceId});
     const filepath = generateTestFilepathString({length: 4});
     const nativePath = pathJoin(mount.mountedFrom.slice(1), filepath);
@@ -80,7 +80,7 @@ describe('S3FilePersistenceProvider', () => {
 
   test('uploadFile', async () => {
     const data = Readable.from(['Hello world!']);
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = await getNewMount({workspaceId});
     const filepath = generateTestFilepathString({
       parentNamepath: mount.namepath,
@@ -97,7 +97,7 @@ describe('S3FilePersistenceProvider', () => {
 
   test('readFile', async () => {
     const data = Readable.from(['Hello world!']);
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = await getNewMount({workspaceId});
     const filepath = generateTestFilepathString({
       length: mount.namepath.length + 2,
@@ -113,7 +113,7 @@ describe('S3FilePersistenceProvider', () => {
   });
 
   test('deleteFiles', async () => {
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = await getNewMount({workspaceId});
     const filepath01 = generateTestFilepathString({
       length: mount.namepath.length + 2,
@@ -150,7 +150,7 @@ describe('S3FilePersistenceProvider', () => {
   test('describeFile', async () => {
     const buffer = Buffer.from('Hello world!');
     const data = Readable.from(buffer);
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = await getNewMount({workspaceId});
     const filepath = generateTestFilepathString({
       length: mount.namepath.length + 2,
@@ -171,7 +171,7 @@ describe('S3FilePersistenceProvider', () => {
   test('describeFolder', async () => {
     const buffer = Buffer.from('Hello world!');
     const data = Readable.from(buffer);
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = await getNewMount({workspaceId});
     const filepath = generateTestFilepathString({
       length: mount.namepath.length + 2,
@@ -191,7 +191,7 @@ describe('S3FilePersistenceProvider', () => {
 
   test('describeFolderContent', async () => {
     const buffer = Buffer.from('Hello, world!');
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = await getNewMount({workspaceId});
     const folderpath = generateTestFolderpathString({
       length: mount.namepath.length + 2,

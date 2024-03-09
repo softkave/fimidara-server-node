@@ -38,7 +38,7 @@ export interface BaseTokenData<Sub extends TokenSubjectDefault = TokenSubjectDef
 
 export interface Agent {
   agentId: string;
-  agentType: AppResourceType;
+  agentType: FimidaraResourceType;
   agentTokenId: string;
 }
 
@@ -58,7 +58,7 @@ export interface SessionAgent extends Agent {
 
 // TODO: separate data resources from symbolic resources (resources that are not
 // saved in DB).
-export const kAppResourceType = {
+export const kFimidaraResourceType = {
   All: '*',
   System: 'system',
   Public: 'public',
@@ -82,46 +82,46 @@ export const kAppResourceType = {
   App: 'app',
 } as const;
 
-export type AppResourceType = ObjectValues<typeof kAppResourceType>;
+export type FimidaraResourceType = ObjectValues<typeof kFimidaraResourceType>;
 
-export const kPermissionAgentTypes: AppResourceType[] = [
-  kAppResourceType.AgentToken,
-  kAppResourceType.User,
-  kAppResourceType.Public,
+export const kPermissionAgentTypes: FimidaraResourceType[] = [
+  kFimidaraResourceType.AgentToken,
+  kFimidaraResourceType.User,
+  kFimidaraResourceType.Public,
 ];
 
-export const kPermissionEntityTypes: AppResourceType[] = [
-  kAppResourceType.User,
-  kAppResourceType.AgentToken,
-  kAppResourceType.PermissionGroup,
+export const kPermissionEntityTypes: FimidaraResourceType[] = [
+  kFimidaraResourceType.User,
+  kFimidaraResourceType.AgentToken,
+  kFimidaraResourceType.PermissionGroup,
 ];
 
-export const kPermissionContainerTypes: AppResourceType[] = [
-  kAppResourceType.Workspace,
-  kAppResourceType.Folder,
+export const kPermissionContainerTypes: FimidaraResourceType[] = [
+  kFimidaraResourceType.Workspace,
+  kFimidaraResourceType.Folder,
 ];
 
-export function getWorkspaceResourceTypeList(): AppResourceType[] {
+export function getWorkspaceResourceTypeList(): FimidaraResourceType[] {
   return [
-    kAppResourceType.All,
-    kAppResourceType.Workspace,
-    kAppResourceType.CollaborationRequest,
-    kAppResourceType.AgentToken,
-    kAppResourceType.PermissionGroup,
-    kAppResourceType.PermissionItem,
-    kAppResourceType.Folder,
-    kAppResourceType.File,
-    kAppResourceType.User,
-    kAppResourceType.Tag,
-    kAppResourceType.UsageRecord,
+    kFimidaraResourceType.All,
+    kFimidaraResourceType.Workspace,
+    kFimidaraResourceType.CollaborationRequest,
+    kFimidaraResourceType.AgentToken,
+    kFimidaraResourceType.PermissionGroup,
+    kFimidaraResourceType.PermissionItem,
+    kFimidaraResourceType.Folder,
+    kFimidaraResourceType.File,
+    kFimidaraResourceType.User,
+    kFimidaraResourceType.Tag,
+    kFimidaraResourceType.UsageRecord,
   ];
 }
 
-export const kValidAgentTypes: AppResourceType[] = [
-  kAppResourceType.User,
-  kAppResourceType.AgentToken,
+export const kValidAgentTypes: FimidaraResourceType[] = [
+  kFimidaraResourceType.User,
+  kFimidaraResourceType.AgentToken,
 ];
-export const kAppResourceTypeList = Object.values(kAppResourceType);
+export const kFimidaraResourceTypeList = Object.values(kFimidaraResourceType);
 
 export interface AppRuntimeState extends Resource {
   resourceId: string; // use kAppRuntimeStatsDocId
@@ -144,7 +144,7 @@ export interface Resource {
 
 export interface ResourceWrapper<T extends Resource = Resource> {
   resourceId: string;
-  resourceType: AppResourceType;
+  resourceType: FimidaraResourceType;
   resource: T;
 }
 
@@ -159,102 +159,104 @@ export type PublicResource = ConvertAgentToPublicAgent<Resource>;
 export type PublicResourceWrapper = ConvertAgentToPublicAgent<ResourceWrapper>;
 export type PublicWorkspaceResource = ConvertAgentToPublicAgent<WorkspaceResource>;
 
-export const kResourceTypeToPossibleChildren: Record<AppResourceType, AppResourceType[]> =
-  {
-    [kAppResourceType.All]: [],
-    [kAppResourceType.System]: [],
-    [kAppResourceType.Public]: [],
-    [kAppResourceType.Workspace]: [
-      kAppResourceType.AgentToken,
-      kAppResourceType.AssignedItem,
-      kAppResourceType.CollaborationRequest,
-      kAppResourceType.File,
-      kAppResourceType.FileBackendConfig,
-      kAppResourceType.FileBackendMount,
-      kAppResourceType.PresignedPath,
-      kAppResourceType.Folder,
-      kAppResourceType.PermissionGroup,
-      kAppResourceType.PermissionItem,
-      kAppResourceType.ResolvedMountEntry,
-      kAppResourceType.Tag,
-      kAppResourceType.UsageRecord,
-    ],
-    [kAppResourceType.CollaborationRequest]: [kAppResourceType.PermissionItem],
-    [kAppResourceType.AgentToken]: [
-      kAppResourceType.PermissionItem,
-      kAppResourceType.AssignedItem,
-    ],
-    [kAppResourceType.PermissionGroup]: [
-      kAppResourceType.PermissionItem,
-      kAppResourceType.AssignedItem,
-    ],
-    [kAppResourceType.PermissionItem]: [
-      kAppResourceType.PermissionItem,
-      kAppResourceType.AssignedItem,
-    ],
-    [kAppResourceType.Folder]: [
-      kAppResourceType.PermissionItem,
-      kAppResourceType.AssignedItem,
-      kAppResourceType.File,
-      kAppResourceType.Folder,
-    ],
-    [kAppResourceType.File]: [
-      kAppResourceType.PermissionItem,
-      kAppResourceType.AssignedItem,
-      kAppResourceType.PresignedPath,
-    ],
-    [kAppResourceType.User]: [
-      kAppResourceType.PermissionItem,
-      kAppResourceType.AssignedItem,
-    ],
-    [kAppResourceType.Tag]: [
-      kAppResourceType.PermissionItem,
-      kAppResourceType.AssignedItem,
-    ],
-    [kAppResourceType.AssignedItem]: [],
-    [kAppResourceType.UsageRecord]: [kAppResourceType.PermissionItem],
-    [kAppResourceType.EndpointRequest]: [],
-    [kAppResourceType.Job]: [],
-    [kAppResourceType.PresignedPath]: [],
-    [kAppResourceType.App]: [],
-    [kAppResourceType.FileBackendConfig]: [kAppResourceType.PermissionItem],
-    [kAppResourceType.FileBackendMount]: [kAppResourceType.PermissionItem],
-    [kAppResourceType.ResolvedMountEntry]: [],
-  };
+export const kResourceTypeToPossibleChildren: Record<
+  FimidaraResourceType,
+  FimidaraResourceType[]
+> = {
+  [kFimidaraResourceType.All]: [],
+  [kFimidaraResourceType.System]: [],
+  [kFimidaraResourceType.Public]: [],
+  [kFimidaraResourceType.Workspace]: [
+    kFimidaraResourceType.AgentToken,
+    kFimidaraResourceType.AssignedItem,
+    kFimidaraResourceType.CollaborationRequest,
+    kFimidaraResourceType.File,
+    kFimidaraResourceType.FileBackendConfig,
+    kFimidaraResourceType.FileBackendMount,
+    kFimidaraResourceType.PresignedPath,
+    kFimidaraResourceType.Folder,
+    kFimidaraResourceType.PermissionGroup,
+    kFimidaraResourceType.PermissionItem,
+    kFimidaraResourceType.ResolvedMountEntry,
+    kFimidaraResourceType.Tag,
+    kFimidaraResourceType.UsageRecord,
+  ],
+  [kFimidaraResourceType.CollaborationRequest]: [kFimidaraResourceType.PermissionItem],
+  [kFimidaraResourceType.AgentToken]: [
+    kFimidaraResourceType.PermissionItem,
+    kFimidaraResourceType.AssignedItem,
+  ],
+  [kFimidaraResourceType.PermissionGroup]: [
+    kFimidaraResourceType.PermissionItem,
+    kFimidaraResourceType.AssignedItem,
+  ],
+  [kFimidaraResourceType.PermissionItem]: [
+    kFimidaraResourceType.PermissionItem,
+    kFimidaraResourceType.AssignedItem,
+  ],
+  [kFimidaraResourceType.Folder]: [
+    kFimidaraResourceType.PermissionItem,
+    kFimidaraResourceType.AssignedItem,
+    kFimidaraResourceType.File,
+    kFimidaraResourceType.Folder,
+  ],
+  [kFimidaraResourceType.File]: [
+    kFimidaraResourceType.PermissionItem,
+    kFimidaraResourceType.AssignedItem,
+    kFimidaraResourceType.PresignedPath,
+  ],
+  [kFimidaraResourceType.User]: [
+    kFimidaraResourceType.PermissionItem,
+    kFimidaraResourceType.AssignedItem,
+  ],
+  [kFimidaraResourceType.Tag]: [
+    kFimidaraResourceType.PermissionItem,
+    kFimidaraResourceType.AssignedItem,
+  ],
+  [kFimidaraResourceType.AssignedItem]: [],
+  [kFimidaraResourceType.UsageRecord]: [kFimidaraResourceType.PermissionItem],
+  [kFimidaraResourceType.EndpointRequest]: [],
+  [kFimidaraResourceType.Job]: [],
+  [kFimidaraResourceType.PresignedPath]: [],
+  [kFimidaraResourceType.App]: [],
+  [kFimidaraResourceType.FileBackendConfig]: [kFimidaraResourceType.PermissionItem],
+  [kFimidaraResourceType.FileBackendMount]: [kFimidaraResourceType.PermissionItem],
+  [kFimidaraResourceType.ResolvedMountEntry]: [],
+};
 
-export type FimidaraTypeToTSType<T extends AppResourceType> =
-  T extends typeof kAppResourceType.Workspace
+export type FimidaraTypeToTSType<T extends FimidaraResourceType> =
+  T extends typeof kFimidaraResourceType.Workspace
     ? Workspace
-    : T extends typeof kAppResourceType.CollaborationRequest
+    : T extends typeof kFimidaraResourceType.CollaborationRequest
     ? CollaborationRequest
-    : T extends typeof kAppResourceType.AgentToken
+    : T extends typeof kFimidaraResourceType.AgentToken
     ? AgentToken
-    : T extends typeof kAppResourceType.PermissionGroup
+    : T extends typeof kFimidaraResourceType.PermissionGroup
     ? PermissionGroup
-    : T extends typeof kAppResourceType.PermissionItem
+    : T extends typeof kFimidaraResourceType.PermissionItem
     ? PermissionItem
-    : T extends typeof kAppResourceType.Folder
+    : T extends typeof kFimidaraResourceType.Folder
     ? Folder
-    : T extends typeof kAppResourceType.File
+    : T extends typeof kFimidaraResourceType.File
     ? File
-    : T extends typeof kAppResourceType.User
+    : T extends typeof kFimidaraResourceType.User
     ? User
-    : T extends typeof kAppResourceType.Tag
+    : T extends typeof kFimidaraResourceType.Tag
     ? Tag
-    : T extends typeof kAppResourceType.UsageRecord
+    : T extends typeof kFimidaraResourceType.UsageRecord
     ? UsageRecord
-    : T extends typeof kAppResourceType.AssignedItem
+    : T extends typeof kFimidaraResourceType.AssignedItem
     ? AssignedItem
-    : T extends typeof kAppResourceType.Job
+    : T extends typeof kFimidaraResourceType.Job
     ? Job
-    : T extends typeof kAppResourceType.PresignedPath
+    : T extends typeof kFimidaraResourceType.PresignedPath
     ? PresignedPath
-    : T extends typeof kAppResourceType.FileBackendConfig
+    : T extends typeof kFimidaraResourceType.FileBackendConfig
     ? FileBackendConfig
-    : T extends typeof kAppResourceType.FileBackendMount
+    : T extends typeof kFimidaraResourceType.FileBackendMount
     ? FileBackendMount
-    : T extends typeof kAppResourceType.ResolvedMountEntry
+    : T extends typeof kFimidaraResourceType.ResolvedMountEntry
     ? ResolvedMountEntry
-    : T extends typeof kAppResourceType.App
+    : T extends typeof kFimidaraResourceType.App
     ? App
     : never;

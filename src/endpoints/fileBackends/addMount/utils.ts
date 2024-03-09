@@ -1,5 +1,5 @@
 import {FileBackendMount, kFileBackendType} from '../../../definitions/fileBackend';
-import {Agent, kAppResourceType} from '../../../definitions/system';
+import {Agent, kFimidaraResourceType} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {pathSplit} from '../../../utils/fns';
@@ -76,7 +76,7 @@ export const INTERNAL_addFileBackendMount = async (
 
   const mount = newWorkspaceResource<FileBackendMount>(
     agent,
-    kAppResourceType.FileBackendMount,
+    kFimidaraResourceType.FileBackendMount,
     workspace.resourceId,
     {
       configId: data.configId,

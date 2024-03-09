@@ -1,4 +1,4 @@
-import {kAppResourceType, ResourceWrapper} from '../../../definitions/system';
+import {kFimidaraResourceType, ResourceWrapper} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
@@ -27,7 +27,9 @@ const getJobStatus: GetJobStatusEndpoint = async instData => {
   const resource: ResourceWrapper = {
     resourceId: agent.agentId,
     resource: (agent.user || agent.agentToken)!,
-    resourceType: agent.user ? kAppResourceType.User : kAppResourceType.AgentToken,
+    resourceType: agent.user
+      ? kFimidaraResourceType.User
+      : kFimidaraResourceType.AgentToken,
   };
   checkResourcesBelongsToWorkspace(job.workspaceId, [resource], () =>
     kReuseableErrors.job.notFound()

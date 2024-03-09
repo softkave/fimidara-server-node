@@ -1,7 +1,7 @@
 import assert from 'assert';
 import {compact, isUndefined, last} from 'lodash';
 import {kJobPresetPriority, kJobStatus, kJobType} from '../../../definitions/job';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {loopAndCollateAsync, omitDeep} from '../../../utils/fns';
 import {getNewId, getNewIdForResource} from '../../../utils/resource';
@@ -35,7 +35,7 @@ describe('getNextJob', () => {
       type: kJobType.noop,
     });
 
-    const runnerId = getNewIdForResource(kAppResourceType.App);
+    const runnerId = getNewIdForResource(kFimidaraResourceType.App);
     const inProgressJob = await kSemanticModels
       .utils()
       .withTxn(opts => markJobStarted(job, runnerId, opts), /** reuseTxn */ true);
@@ -89,7 +89,7 @@ describe('getNextJob', () => {
 
   test('getNextUnfinishedJob, does not return job with active runner', async () => {
     const shard = getNewId();
-    const runnerId = getNewIdForResource(kAppResourceType.App);
+    const runnerId = getNewIdForResource(kFimidaraResourceType.App);
     await generateAndInsertJobListForTest(/** count */ 1, {
       shard,
       runnerId,
@@ -109,7 +109,7 @@ describe('getNextJob', () => {
 
   test('getNextUnfinishedJob, does not return job with cooldown unsatisfied', async () => {
     const shard = getNewId();
-    const runnerId = getNewIdForResource(kAppResourceType.App);
+    const runnerId = getNewIdForResource(kFimidaraResourceType.App);
 
     await Promise.all([
       generateAndInsertJobListForTest(/** count */ 1, {
@@ -134,9 +134,9 @@ describe('getNextJob', () => {
 
   test('getNextUnfinishedJob, does not return job with unsatisfied runAfter condition', async () => {
     const shard = getNewId();
-    const runnerId = getNewIdForResource(kAppResourceType.App);
-    const otherJobId = getNewIdForResource(kAppResourceType.Job);
-    const job01Id = getNewIdForResource(kAppResourceType.Job);
+    const runnerId = getNewIdForResource(kFimidaraResourceType.App);
+    const otherJobId = getNewIdForResource(kFimidaraResourceType.Job);
+    const job01Id = getNewIdForResource(kFimidaraResourceType.Job);
     await Promise.all([
       generateAndInsertJobListForTest(/** count */ 1, {
         shard,
@@ -167,7 +167,7 @@ describe('getNextJob', () => {
 
   test('getNextUnfinishedJob, returns job with cooldown satisfied', async () => {
     const shard = getNewId();
-    const job01Id = getNewIdForResource(kAppResourceType.Job);
+    const job01Id = getNewIdForResource(kFimidaraResourceType.Job);
     const [[job01]] = await Promise.all([
       generateAndInsertJobListForTest(/** count */ 1, {
         shard,
@@ -191,7 +191,7 @@ describe('getNextJob', () => {
 
   test('getNextUnfinishedJob, updates cooldown', async () => {
     const shard = getNewId();
-    const job01Id = getNewIdForResource(kAppResourceType.Job);
+    const job01Id = getNewIdForResource(kFimidaraResourceType.Job);
     await Promise.all([
       generateAndInsertJobListForTest(/** count */ 1, {
         shard,
@@ -216,7 +216,7 @@ describe('getNextJob', () => {
 
   test('getNextUnfinishedJob, returns job with runAfter satisfied', async () => {
     const shard = getNewId();
-    const job01Id = getNewIdForResource(kAppResourceType.Job);
+    const job01Id = getNewIdForResource(kFimidaraResourceType.Job);
     const [[job01], [job02]] = await Promise.all([
       generateAndInsertJobListForTest(/** count */ 1, {
         shard,
@@ -325,7 +325,7 @@ describe('getNextJob', () => {
 
   test('getNextPendingJob, returns job with cooldown satisfied', async () => {
     const shard = getNewId();
-    const job01Id = getNewIdForResource(kAppResourceType.Job);
+    const job01Id = getNewIdForResource(kFimidaraResourceType.Job);
     const [[jobP1]] = await Promise.all([
       generateAndInsertJobListForTest(/** count */ 1, {
         shard,
@@ -346,7 +346,7 @@ describe('getNextJob', () => {
 
   test('getNextPendingJob, returns job with runAfter satisfied', async () => {
     const shard = getNewId();
-    const job01Id = getNewIdForResource(kAppResourceType.Job);
+    const job01Id = getNewIdForResource(kFimidaraResourceType.Job);
     const [[jobP1], [jobP2]] = await Promise.all([
       generateAndInsertJobListForTest(/** count */ 1, {
         shard,
@@ -374,7 +374,7 @@ describe('getNextJob', () => {
 
   test('getNextPendingJob, does not return job with cooldown unsatisfied', async () => {
     const shard = getNewId();
-    const runnerId = getNewIdForResource(kAppResourceType.App);
+    const runnerId = getNewIdForResource(kFimidaraResourceType.App);
 
     await Promise.all([
       generateAndInsertJobListForTest(/** count */ 1, {
@@ -396,7 +396,7 @@ describe('getNextJob', () => {
 
   test('getNextPendingJob, updates cooldown', async () => {
     const shard = getNewId();
-    const runnerId = getNewIdForResource(kAppResourceType.App);
+    const runnerId = getNewIdForResource(kFimidaraResourceType.App);
 
     await Promise.all([
       generateAndInsertJobListForTest(/** count */ 1, {
@@ -418,9 +418,9 @@ describe('getNextJob', () => {
 
   test('getNextPendingJob, does not return job with runAfter unsatisfied', async () => {
     const shard = getNewId();
-    const runnerId = getNewIdForResource(kAppResourceType.App);
-    const otherJobId = getNewIdForResource(kAppResourceType.Job);
-    const job01Id = getNewIdForResource(kAppResourceType.Job);
+    const runnerId = getNewIdForResource(kFimidaraResourceType.App);
+    const otherJobId = getNewIdForResource(kFimidaraResourceType.Job);
+    const job01Id = getNewIdForResource(kFimidaraResourceType.Job);
     await Promise.all([
       generateAndInsertJobListForTest(/** count */ 1, {
         shard,
@@ -463,7 +463,7 @@ describe('getNextJob', () => {
       }),
     ]);
 
-    const runnerId = getNewIdForResource(kAppResourceType.App);
+    const runnerId = getNewIdForResource(kFimidaraResourceType.App);
     const startedJob = await getNextJob(/** active runners */ [], runnerId, [shard]);
     const dbJob = await kSemanticModels
       .utils()
@@ -486,7 +486,7 @@ describe('getNextJob', () => {
         status: kJobStatus.inProgress,
         type: kJobType.noop,
         priority: kJobPresetPriority.p1,
-        runnerId: getNewIdForResource(kAppResourceType.App),
+        runnerId: getNewIdForResource(kFimidaraResourceType.App),
       }),
       generateAndInsertJobListForTest(/** count */ 1, {
         shard,
@@ -496,7 +496,7 @@ describe('getNextJob', () => {
       }),
     ]);
 
-    const runnerId = getNewIdForResource(kAppResourceType.App);
+    const runnerId = getNewIdForResource(kFimidaraResourceType.App);
     const startedJob = await getNextJob(/** active runners */ [], runnerId, [shard]);
     const dbJob = await kSemanticModels
       .utils()
@@ -522,7 +522,7 @@ describe('getNextJob', () => {
       priority: kJobPresetPriority.p1,
     });
 
-    const runnerId = getNewIdForResource(kAppResourceType.App);
+    const runnerId = getNewIdForResource(kFimidaraResourceType.App);
     const returnedJobs = await loopAndCollateAsync(
       () => getNextJob(/** active runners */ [], runnerId, [shard]),
       jobs.length * 5,

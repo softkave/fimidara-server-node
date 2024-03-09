@@ -1,5 +1,5 @@
 import {DeleteResourceJobParams, kJobType} from '../../../definitions/job';
-import {Agent, Resource, kAppResourceType} from '../../../definitions/system';
+import {Agent, Resource, kFimidaraResourceType} from '../../../definitions/system';
 import {extractResourceIdList} from '../../../utils/fns';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {queueJobs} from '../../jobs/queueJobs';
@@ -26,7 +26,7 @@ export async function beginDeleteFileBackendConfig(props: {
             params: {
               workspaceId,
               resourceId: resource.resourceId,
-              type: kAppResourceType.FileBackendConfig,
+              type: kFimidaraResourceType.FileBackendConfig,
             },
           };
         })

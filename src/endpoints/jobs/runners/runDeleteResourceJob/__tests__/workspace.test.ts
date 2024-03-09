@@ -1,5 +1,5 @@
 import {flatten} from 'lodash';
-import {kAppResourceType} from '../../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../../definitions/system';
 import {Workspace} from '../../../../../definitions/workspace';
 import {generateAndInsertAgentTokenListForTest} from '../../../../testUtils/generate/agentToken';
 import {generateAndInsertCollaborationRequestListForTest} from '../../../../testUtils/generate/collaborationRequest';
@@ -43,53 +43,53 @@ afterAll(async () => {
 
 const workspaceGenerateTypeChildren: GenerateTypeChildrenDefinition<Workspace> = {
   ...noopGenerateTypeChildren,
-  [kAppResourceType.CollaborationRequest]: async ({workspaceId}) =>
+  [kFimidaraResourceType.CollaborationRequest]: async ({workspaceId}) =>
     flatten(
       await Promise.all([
         generateAndInsertCollaborationRequestListForTest(2, () => ({workspaceId})),
       ])
     ),
-  [kAppResourceType.AgentToken]: async ({workspaceId}) =>
+  [kFimidaraResourceType.AgentToken]: async ({workspaceId}) =>
     flatten(
       await Promise.all([generateAndInsertAgentTokenListForTest(2, {workspaceId})])
     ),
-  [kAppResourceType.PermissionGroup]: async ({workspaceId}) =>
+  [kFimidaraResourceType.PermissionGroup]: async ({workspaceId}) =>
     flatten(
       await Promise.all([generateAndInsertPermissionGroupListForTest(2, {workspaceId})])
     ),
-  [kAppResourceType.PermissionItem]: async ({workspaceId}) =>
+  [kFimidaraResourceType.PermissionItem]: async ({workspaceId}) =>
     flatten(
       await Promise.all([generateAndInsertPermissionItemListForTest(2, {workspaceId})])
     ),
-  [kAppResourceType.Folder]: async ({workspaceId}) =>
+  [kFimidaraResourceType.Folder]: async ({workspaceId}) =>
     flatten(
       await Promise.all([generateAndInsertTestFolders(2, {workspaceId, parentId: null})])
     ),
-  [kAppResourceType.File]: async ({workspaceId}) =>
+  [kFimidaraResourceType.File]: async ({workspaceId}) =>
     flatten(
       await Promise.all([generateAndInsertTestFiles(2, {workspaceId, parentId: null})])
     ),
-  [kAppResourceType.Tag]: async ({workspaceId}) =>
+  [kFimidaraResourceType.Tag]: async ({workspaceId}) =>
     flatten(await Promise.all([generateAndInsertTagListForTest(2, {workspaceId})])),
-  [kAppResourceType.AssignedItem]: async ({workspaceId}) =>
+  [kFimidaraResourceType.AssignedItem]: async ({workspaceId}) =>
     flatten(
       await Promise.all([generateAndInsertAssignedItemListForTest(2, {workspaceId})])
     ),
-  [kAppResourceType.UsageRecord]: async ({workspaceId}) =>
+  [kFimidaraResourceType.UsageRecord]: async ({workspaceId}) =>
     flatten(await Promise.all([generateAndInsertUsageRecordList(2, {workspaceId})])),
-  [kAppResourceType.PresignedPath]: async ({workspaceId}) =>
+  [kFimidaraResourceType.PresignedPath]: async ({workspaceId}) =>
     flatten(
       await Promise.all([generateAndInsertTestPresignedPathList(2, {workspaceId})])
     ),
-  [kAppResourceType.FileBackendMount]: async ({workspaceId}) =>
+  [kFimidaraResourceType.FileBackendMount]: async ({workspaceId}) =>
     flatten(
       await Promise.all([generateAndInsertFileBackendMountListForTest(2, {workspaceId})])
     ),
-  [kAppResourceType.FileBackendConfig]: async ({workspaceId}) =>
+  [kFimidaraResourceType.FileBackendConfig]: async ({workspaceId}) =>
     flatten(
       await Promise.all([generateAndInsertFileBackendConfigListForTest(2, {workspaceId})])
     ),
-  [kAppResourceType.ResolvedMountEntry]: async ({workspaceId}) =>
+  [kFimidaraResourceType.ResolvedMountEntry]: async ({workspaceId}) =>
     flatten(
       await Promise.all([
         generateAndInsertResolvedMountEntryListForTest(2, {workspaceId}),
@@ -108,7 +108,7 @@ describe('runDeleteResourceJob, workspace', () => {
   test('deleteResource0', async () => {
     testDeleteResourceJob0({
       genResourceFn,
-      type: kAppResourceType.Workspace,
+      type: kFimidaraResourceType.Workspace,
     });
   });
 
@@ -117,14 +117,14 @@ describe('runDeleteResourceJob, workspace', () => {
       genResourceFn,
       genChildrenDef: workspaceGenerateTypeChildren,
       deleteCascadeDef: deleteWorkspaceCascadeEntry,
-      type: kAppResourceType.Workspace,
+      type: kFimidaraResourceType.Workspace,
     });
   });
 
   test('runDeleteResourceJobSelf', async () => {
     await testDeleteResourceSelfJob({
       genResourceFn,
-      type: kAppResourceType.Workspace,
+      type: kFimidaraResourceType.Workspace,
     });
   });
 });

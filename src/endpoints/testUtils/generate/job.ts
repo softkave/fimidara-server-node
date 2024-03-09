@@ -8,7 +8,7 @@ import {
   kJobStatus,
   kJobType,
 } from '../../../definitions/job';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {kSystemSessionAgent} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
@@ -53,7 +53,7 @@ export function generateJobForTest(seed: Partial<Job> = {}) {
     params,
     lastUpdatedAt: createdAt,
     createdBy: kSystemSessionAgent,
-    resourceId: getNewIdForResource(kAppResourceType.Job),
+    resourceId: getNewIdForResource(kFimidaraResourceType.Job),
     type: getRandomJobType(),
     shard: kAppPresetShards.fimidaraMain,
     idempotencyToken: JSON.stringify(params),
@@ -61,7 +61,7 @@ export function generateJobForTest(seed: Partial<Job> = {}) {
     parentJobId: undefined,
     priority: getRandomJobPresetPriority(),
     statusHistory: [status],
-    workspaceId: getNewIdForResource(kAppResourceType.Workspace),
+    workspaceId: getNewIdForResource(kFimidaraResourceType.Workspace),
     parents: seed.parentJobId && !seed.parents ? [seed.parentJobId] : [],
     isDeleted: false,
     ...status,

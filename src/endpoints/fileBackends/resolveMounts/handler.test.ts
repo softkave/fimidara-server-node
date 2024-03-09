@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {FileBackendMount} from '../../../definitions/fileBackend';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {pathSplit} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
@@ -200,7 +200,7 @@ describe('resolveMounts', () => {
       RequestData.fromExpressRequest<ResolveFileBackendMountsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
-          fileId: getNewIdForResource(kAppResourceType.File),
+          fileId: getNewIdForResource(kFimidaraResourceType.File),
           workspaceId: workspace.resourceId,
         }
       );
@@ -223,7 +223,7 @@ describe('resolveMounts', () => {
       RequestData.fromExpressRequest<ResolveFileBackendMountsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
-          folderId: getNewIdForResource(kAppResourceType.Folder),
+          folderId: getNewIdForResource(kFimidaraResourceType.Folder),
           workspaceId: workspace.resourceId,
         }
       );

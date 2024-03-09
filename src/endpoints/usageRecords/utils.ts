@@ -1,6 +1,6 @@
 import {File} from '../../definitions/file';
 import {PermissionAction} from '../../definitions/permissionItem';
-import {kAppResourceType, kPermissionAgentTypes} from '../../definitions/system';
+import {kFimidaraResourceType, kPermissionAgentTypes} from '../../definitions/system';
 import {
   BandwidthUsageRecordArtifact,
   FileUsageRecordArtifact,
@@ -68,7 +68,7 @@ export async function insertStorageUsageRecordInput(
         action,
         artifact: artifactMeta,
         type: UsageRecordArtifactTypeMap.File,
-        resourceType: kAppResourceType.File,
+        resourceType: kFimidaraResourceType.File,
       },
     ],
   };
@@ -98,7 +98,7 @@ export async function insertBandwidthInUsageRecordInput(
         action,
         artifact: artifactMeta,
         type: UsageRecordArtifactTypeMap.File,
-        resourceType: kAppResourceType.File,
+        resourceType: kFimidaraResourceType.File,
       },
     ],
   };
@@ -128,7 +128,7 @@ export async function insertBandwidthOutUsageRecordInput(
         action,
         artifact: artifactMeta,
         type: UsageRecordArtifactTypeMap.File,
-        resourceType: kAppResourceType.File,
+        resourceType: kFimidaraResourceType.File,
       },
     ],
   };
@@ -142,7 +142,7 @@ export async function insertBandwidthOutUsageRecordInput(
 //   workspaceId: string,
 //   resourceId: string,
 //   action: BasicCRUDActions,
-//   resourceType: AppResourceType,
+//   resourceType: FimidaraResourceType,
 //   nothrow: boolean = false
 // ) {
 //   const artifactMeta: DatabaseObjectUsageRecordArtifact = {

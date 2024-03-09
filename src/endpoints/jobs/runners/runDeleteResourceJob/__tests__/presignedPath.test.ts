@@ -1,5 +1,5 @@
 import {PresignedPath} from '../../../../../definitions/presignedPath';
-import {kAppResourceType} from '../../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../../definitions/system';
 import {generateAndInsertTestPresignedPathList} from '../../../../testUtils/generate/file';
 import {completeTests} from '../../../../testUtils/helpers/testFns';
 import {initTests} from '../../../../testUtils/testUtils';
@@ -24,7 +24,7 @@ afterAll(async () => {
 
 const presignedPathGenerateTypeChildren: GenerateTypeChildrenDefinition<PresignedPath> = {
   ...noopGenerateTypeChildren,
-  [kAppResourceType.PermissionItem]: generatePermissionItemsAsChildren,
+  [kFimidaraResourceType.PermissionItem]: generatePermissionItemsAsChildren,
 };
 
 const genResourceFn: GenerateResourceFn<PresignedPath> = async ({workspaceId}) => {
@@ -38,7 +38,7 @@ describe('runDeleteResourceJob, presigned path', () => {
   test('deleteResource0', async () => {
     testDeleteResourceJob0({
       genResourceFn,
-      type: kAppResourceType.PresignedPath,
+      type: kFimidaraResourceType.PresignedPath,
     });
   });
 
@@ -47,14 +47,14 @@ describe('runDeleteResourceJob, presigned path', () => {
       genResourceFn,
       genChildrenDef: presignedPathGenerateTypeChildren,
       deleteCascadeDef: deletePresignedPathCascadeEntry,
-      type: kAppResourceType.PresignedPath,
+      type: kFimidaraResourceType.PresignedPath,
     });
   });
 
   test('runDeleteResourceJobSelf', async () => {
     await testDeleteResourceSelfJob({
       genResourceFn,
-      type: kAppResourceType.PresignedPath,
+      type: kFimidaraResourceType.PresignedPath,
     });
   });
 });

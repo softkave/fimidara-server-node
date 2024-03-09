@@ -1,6 +1,6 @@
 import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
 import {PermissionGroupMatcher} from '../../../definitions/permissionGroups';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injection/injectables';
@@ -42,7 +42,7 @@ test('permissionGroup permission group deleted', async () => {
     type: kJobType.deleteResource0,
     resourceId: result.jobId,
     params: {
-      $objMatch: {type: kAppResourceType.PermissionGroup},
+      $objMatch: {type: kFimidaraResourceType.PermissionGroup},
     },
   })) as Job<DeleteResourceJobParams>;
   expect(job).toBeTruthy();

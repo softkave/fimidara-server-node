@@ -5,7 +5,7 @@ import {
   DeleteResourceJobParams,
   Job,
 } from '../../../../definitions/job';
-import {AppResourceType, Resource} from '../../../../definitions/system';
+import {FimidaraResourceType, Resource} from '../../../../definitions/system';
 import {AnyFn} from '../../../../utils/types';
 import {
   SemanticProviderMutationTxnOptions,
@@ -38,11 +38,11 @@ export type DeleteResourceFn<
 
 export type DeleteResourceGetArtifactsFns<
   TArgs extends AnyObject = DeleteResourceCascadeFnDefaultArgs,
-> = Record<AppResourceType, GetArtifactsFn<TArgs> | null>;
+> = Record<FimidaraResourceType, GetArtifactsFn<TArgs> | null>;
 
 export type DeleteResourceDeleteArtifactsFns<
   TArgs extends AnyObject = DeleteResourceCascadeFnDefaultArgs,
-> = Record<AppResourceType, DeleteArtifactsFn<TArgs> | null>;
+> = Record<FimidaraResourceType, DeleteArtifactsFn<TArgs> | null>;
 
 export type DeleteResourceCascadeEntry<
   TArgs extends AnyObject = DeleteResourceCascadeFnDefaultArgs,
@@ -53,6 +53,6 @@ export type DeleteResourceCascadeEntry<
 };
 
 export type DeleteResourceCascadeDefinitions = Record<
-  AppResourceType,
+  FimidaraResourceType,
   DeleteResourceCascadeEntry
 >;

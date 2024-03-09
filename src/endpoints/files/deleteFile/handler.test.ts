@@ -1,5 +1,5 @@
 import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injection/injectables';
@@ -41,7 +41,7 @@ describe('deleteFile', () => {
       type: kJobType.deleteResource0,
       resourceId: result.jobId,
       params: {
-        $objMatch: {type: kAppResourceType.File},
+        $objMatch: {type: kFimidaraResourceType.File},
       },
     })) as Job<DeleteResourceJobParams>;
     expect(job).toBeTruthy();

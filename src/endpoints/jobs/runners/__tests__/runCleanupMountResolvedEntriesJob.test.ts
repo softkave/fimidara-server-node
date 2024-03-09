@@ -1,4 +1,4 @@
-import {kAppResourceType} from '../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../definitions/system';
 import {extractResourceIdList} from '../../../../utils/fns';
 import {getNewIdForResource} from '../../../../utils/resource';
 import {kSemanticModels} from '../../../contexts/injection/injectables';
@@ -17,7 +17,7 @@ afterAll(async () => {
 
 describe('runCleanupMountResolvedEntriesJob', () => {
   test('mount entries deleted', async () => {
-    const mountId = getNewIdForResource(kAppResourceType.FileBackendMount);
+    const mountId = getNewIdForResource(kFimidaraResourceType.FileBackendMount);
     const entries = await generateAndInsertResolvedMountEntryListForTest(/** count */ 5, {
       mountId,
     });

@@ -8,7 +8,7 @@ import {
 } from '../../definitions/fileBackend';
 import {Folder} from '../../definitions/folder';
 import {IngestMountJobParams, Job, kJobStatus, kJobType} from '../../definitions/job';
-import {Agent, kAppResourceType} from '../../definitions/system';
+import {Agent, kFimidaraResourceType} from '../../definitions/system';
 import {FimidaraExternalError} from '../../utils/OperationError';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
@@ -287,7 +287,7 @@ export async function insertResolvedMountEntries(props: {
         newEntries.push(
           newWorkspaceResource(
             agent,
-            kAppResourceType.ResolvedMountEntry,
+            kFimidaraResourceType.ResolvedMountEntry,
             resource.workspaceId,
             {
               mountId,

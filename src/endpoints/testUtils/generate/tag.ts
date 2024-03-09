@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {Agent, kAppResourceType} from '../../../definitions/system';
+import {Agent, kFimidaraResourceType} from '../../../definitions/system';
 import {Tag} from '../../../definitions/tag';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
@@ -8,17 +8,17 @@ import {kSemanticModels} from '../../contexts/injection/injectables';
 export function generateTagForTest(seed: Partial<Tag> = {}) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
-    agentId: getNewIdForResource(kAppResourceType.User),
-    agentType: kAppResourceType.User,
-    agentTokenId: getNewIdForResource(kAppResourceType.AgentToken),
+    agentId: getNewIdForResource(kFimidaraResourceType.User),
+    agentType: kFimidaraResourceType.User,
+    agentTokenId: getNewIdForResource(kFimidaraResourceType.AgentToken),
   };
   const tag: Tag = {
     createdAt,
     createdBy,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
-    resourceId: getNewIdForResource(kAppResourceType.Tag),
-    workspaceId: getNewIdForResource(kAppResourceType.Workspace),
+    resourceId: getNewIdForResource(kFimidaraResourceType.Tag),
+    workspaceId: getNewIdForResource(kFimidaraResourceType.Workspace),
     name: faker.company.name(),
     description: faker.lorem.sentence(),
     isDeleted: false,

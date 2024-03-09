@@ -4,7 +4,11 @@ import {
   PermissionItem,
   kPermissionsMap,
 } from '../../../definitions/permissionItem';
-import {Agent, AppResourceType, kAppResourceType} from '../../../definitions/system';
+import {
+  Agent,
+  FimidaraResourceType,
+  kFimidaraResourceType,
+} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource, newWorkspaceResource} from '../../../utils/resource';
@@ -21,15 +25,15 @@ function generateAdminPermissions(
   const permissionItems: PermissionItem[] = Object.values(kPermissionsMap).map(action => {
     const item: PermissionItem = newWorkspaceResource(
       agent,
-      kAppResourceType.PermissionItem,
+      kFimidaraResourceType.PermissionItem,
       workspace.resourceId,
       {
         action,
         entityId: adminPermissionGroup.resourceId,
-        entityType: kAppResourceType.PermissionGroup,
+        entityType: kFimidaraResourceType.PermissionGroup,
         targetParentId: workspace.resourceId,
         targetId: workspace.resourceId,
-        targetType: kAppResourceType.All,
+        targetType: kFimidaraResourceType.All,
         access: true,
       }
     );
@@ -46,13 +50,13 @@ function generateCollaboratorPermissions(
 ) {
   function makePermission(
     actions: PermissionAction[],
-    targetType: AppResourceType,
+    targetType: FimidaraResourceType,
     targetId: string
   ) {
     return actions.map(action => {
       const item: PermissionItem = newWorkspaceResource(
         agent,
-        kAppResourceType.PermissionItem,
+        kFimidaraResourceType.PermissionItem,
         workspace.resourceId,
         {
           action,
@@ -60,7 +64,7 @@ function generateCollaboratorPermissions(
           targetParentId: workspace.resourceId,
           targetType: targetType,
           entityId: permissiongroup.resourceId,
-          entityType: kAppResourceType.PermissionGroup,
+          entityType: kFimidaraResourceType.PermissionGroup,
           access: true,
         }
       );
@@ -85,7 +89,7 @@ function generateCollaboratorPermissions(
 
   const permissionItems: PermissionItem[] = makePermission(
     actions,
-    kAppResourceType.Workspace,
+    kFimidaraResourceType.Workspace,
     workspace.resourceId
   );
 
@@ -101,7 +105,7 @@ export function generateDefaultWorkspacePermissionGroups(
     createdAt,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: agent,
-    resourceId: getNewIdForResource(kAppResourceType.PermissionGroup),
+    resourceId: getNewIdForResource(kFimidaraResourceType.PermissionGroup),
     workspaceId: workspace.resourceId,
     createdBy: agent,
     name: DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
@@ -113,7 +117,7 @@ export function generateDefaultWorkspacePermissionGroups(
     createdAt,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: agent,
-    resourceId: getNewIdForResource(kAppResourceType.PermissionGroup),
+    resourceId: getNewIdForResource(kFimidaraResourceType.PermissionGroup),
     workspaceId: workspace.resourceId,
     createdBy: agent,
     name: DEFAULT_PUBLIC_PERMISSION_GROUP_NAME,
@@ -126,7 +130,7 @@ export function generateDefaultWorkspacePermissionGroups(
     createdAt,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: agent,
-    resourceId: getNewIdForResource(kAppResourceType.PermissionGroup),
+    resourceId: getNewIdForResource(kFimidaraResourceType.PermissionGroup),
     workspaceId: workspace.resourceId,
     createdBy: agent,
     name: DEFAULT_COLLABORATOR_PERMISSION_GROUP_NAME,

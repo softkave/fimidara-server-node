@@ -1,6 +1,6 @@
 import assert = require('assert');
 import {kFileBackendType} from '../../../definitions/fileBackend';
-import {Agent, kAppResourceType} from '../../../definitions/system';
+import {Agent, kFimidaraResourceType} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {
   UsageThresholdsByCategory,
@@ -59,7 +59,7 @@ const INTERNAL_createWorkspace = async (
   // TODO: replace with user defined usage thresholds when we implement billing
   const usageThresholds = getDefaultThresholds();
   const createdAt = getTimestamp();
-  const id = getNewIdForResource(kAppResourceType.Workspace);
+  const id = getNewIdForResource(kFimidaraResourceType.Workspace);
   const workspace: Workspace = {
     createdAt,
     usageThresholds,

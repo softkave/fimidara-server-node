@@ -1,4 +1,4 @@
-import {kAppResourceType} from '../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../definitions/system';
 import {deleteAgentTokenCascadeEntry} from './agentToken';
 import {deleteCollaborationRequestCascadeEntry} from './collaborationRequest';
 import {deleteCollaboratorCascadeEntry} from './collaborator';
@@ -15,25 +15,25 @@ import {DeleteResourceCascadeDefinitions} from './types';
 import {deleteWorkspaceCascadeEntry} from './workspace';
 
 export const kCascadeDeleteDefinitions: DeleteResourceCascadeDefinitions = {
-  [kAppResourceType.All]: noopDeleteCascadeEntry,
-  [kAppResourceType.System]: noopDeleteCascadeEntry,
-  [kAppResourceType.Public]: noopDeleteCascadeEntry,
-  [kAppResourceType.EndpointRequest]: noopDeleteCascadeEntry,
-  [kAppResourceType.App]: noopDeleteCascadeEntry,
-  [kAppResourceType.UsageRecord]: noopDeleteCascadeEntry,
-  [kAppResourceType.AssignedItem]: noopDeleteCascadeEntry,
-  [kAppResourceType.ResolvedMountEntry]: noopDeleteCascadeEntry,
-  [kAppResourceType.Job]: noopDeleteCascadeEntry,
-  [kAppResourceType.Workspace]: deleteWorkspaceCascadeEntry,
-  [kAppResourceType.User]: deleteCollaboratorCascadeEntry,
-  [kAppResourceType.CollaborationRequest]: deleteCollaborationRequestCascadeEntry,
-  [kAppResourceType.AgentToken]: deleteAgentTokenCascadeEntry,
-  [kAppResourceType.PermissionGroup]: deletePermissionGroupCascadeEntry,
-  [kAppResourceType.Folder]: deleteFolderCascadeEntry,
-  [kAppResourceType.File]: deleteFileCascadeEntry,
-  [kAppResourceType.Tag]: deleteTagCascadeEntry,
-  [kAppResourceType.PresignedPath]: deletePresignedPathCascadeEntry,
-  [kAppResourceType.FileBackendMount]: deleteFileBackendMountCascadeEntry,
-  [kAppResourceType.FileBackendConfig]: deleteFileBackendConfigCascadeEntry,
-  [kAppResourceType.PermissionItem]: deletePermissionItemCascadeEntry,
+  [kFimidaraResourceType.All]: noopDeleteCascadeEntry,
+  [kFimidaraResourceType.System]: noopDeleteCascadeEntry,
+  [kFimidaraResourceType.Public]: noopDeleteCascadeEntry,
+  [kFimidaraResourceType.EndpointRequest]: noopDeleteCascadeEntry,
+  [kFimidaraResourceType.App]: noopDeleteCascadeEntry,
+  [kFimidaraResourceType.UsageRecord]: noopDeleteCascadeEntry,
+  [kFimidaraResourceType.AssignedItem]: noopDeleteCascadeEntry,
+  [kFimidaraResourceType.ResolvedMountEntry]: noopDeleteCascadeEntry,
+  [kFimidaraResourceType.Job]: noopDeleteCascadeEntry,
+  [kFimidaraResourceType.Workspace]: deleteWorkspaceCascadeEntry,
+  [kFimidaraResourceType.User]: deleteCollaboratorCascadeEntry,
+  [kFimidaraResourceType.CollaborationRequest]: deleteCollaborationRequestCascadeEntry,
+  [kFimidaraResourceType.AgentToken]: deleteAgentTokenCascadeEntry,
+  [kFimidaraResourceType.PermissionGroup]: deletePermissionGroupCascadeEntry,
+  [kFimidaraResourceType.Folder]: deleteFolderCascadeEntry,
+  [kFimidaraResourceType.File]: deleteFileCascadeEntry,
+  [kFimidaraResourceType.Tag]: deleteTagCascadeEntry,
+  [kFimidaraResourceType.PresignedPath]: deletePresignedPathCascadeEntry,
+  [kFimidaraResourceType.FileBackendMount]: deleteFileBackendMountCascadeEntry,
+  [kFimidaraResourceType.FileBackendConfig]: deleteFileBackendConfigCascadeEntry,
+  [kFimidaraResourceType.PermissionItem]: deletePermissionItemCascadeEntry,
 };

@@ -1,5 +1,5 @@
 import {PermissionAction, PermissionItem} from '../../../definitions/permissionItem';
-import {AppResourceType} from '../../../definitions/system';
+import {FimidaraResourceType} from '../../../definitions/system';
 import {convertToArray, makeKey} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {kSemanticModels} from '../../contexts/injection/injectables';
@@ -43,7 +43,7 @@ export async function expectEntityHasPermissionsTargetingType(
   entityId: string | string[],
   action: PermissionAction | PermissionAction[],
   targetId: string,
-  targetType: AppResourceType | AppResourceType[],
+  targetType: FimidaraResourceType | FimidaraResourceType[],
   result: boolean
 ) {
   // fetch permission items

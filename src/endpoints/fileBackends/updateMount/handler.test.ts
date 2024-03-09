@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {kJobType} from '../../../definitions/job';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {pathJoin} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
@@ -177,8 +177,8 @@ describe('updateMount', () => {
     const instData = RequestData.fromExpressRequest<UpdateFileBackendMountEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
-        mountId: getNewIdForResource(kAppResourceType.FileBackendMount),
-        mount: {configId: getNewIdForResource(kAppResourceType.FileBackendConfig)},
+        mountId: getNewIdForResource(kFimidaraResourceType.FileBackendMount),
+        mount: {configId: getNewIdForResource(kFimidaraResourceType.FileBackendConfig)},
         workspaceId: workspace.resourceId,
       }
     );
@@ -202,7 +202,7 @@ describe('updateMount', () => {
       mockExpressRequestWithAgentToken(userToken),
       {
         mountId: mount.resourceId,
-        mount: {configId: getNewIdForResource(kAppResourceType.FileBackendConfig)},
+        mount: {configId: getNewIdForResource(kFimidaraResourceType.FileBackendConfig)},
         workspaceId: workspace.resourceId,
       }
     );

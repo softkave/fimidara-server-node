@@ -3,8 +3,8 @@ import {URL} from 'url';
 import {AgentToken} from '../../../../../definitions/agentToken';
 import {kEmailJobType} from '../../../../../definitions/job';
 import {
-  kAppResourceType,
   kCurrentJWTTokenVersion,
+  kFimidaraResourceType,
   kTokenAccessScope,
 } from '../../../../../definitions/system';
 import {User} from '../../../../../definitions/user';
@@ -36,11 +36,11 @@ afterAll(async () => {
 });
 
 async function createTestEmailVerificationToken(userId: string) {
-  const token = newResource<AgentToken>(kAppResourceType.AgentToken, {
+  const token = newResource<AgentToken>(kFimidaraResourceType.AgentToken, {
     forEntityId: userId,
     scope: [kTokenAccessScope.ConfirmEmailAddress],
     version: kCurrentJWTTokenVersion,
-    entityType: kAppResourceType.User,
+    entityType: kFimidaraResourceType.User,
     workspaceId: null,
     createdBy: kSystemSessionAgent,
     lastUpdatedBy: kSystemSessionAgent,
@@ -79,7 +79,7 @@ describe('sendConfirmEmailAddressEmail', () => {
     const prevLink = 'http://localhost/?token=prevToken';
     const link = await getLinkWithConfirmEmailToken(
       {
-        resourceId: getNewIdForResource(kAppResourceType.User),
+        resourceId: getNewIdForResource(kFimidaraResourceType.User),
         isEmailVerified: false,
       } as User,
       prevLink
@@ -88,7 +88,7 @@ describe('sendConfirmEmailAddressEmail', () => {
   });
 
   test('email verification token reused', async () => {
-    const userId = getNewIdForResource(kAppResourceType.User);
+    const userId = getNewIdForResource(kFimidaraResourceType.User);
     const token = await createTestEmailVerificationToken(userId);
     const prevLink = 'http://localhost/?token=prevToken';
     const link = await getLinkWithConfirmEmailToken(

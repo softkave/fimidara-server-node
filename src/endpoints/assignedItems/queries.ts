@@ -3,7 +3,7 @@ import {
   AssignedItem,
   AssignedItemMainFieldsMatcher,
 } from '../../definitions/assignedItem';
-import {AppResourceType, kAppResourceType} from '../../definitions/system';
+import {FimidaraResourceType, kFimidaraResourceType} from '../../definitions/system';
 import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider';
 import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder';
 
@@ -27,13 +27,13 @@ function getWorkspaceCollaborators(
     .addItem('assignedItemId', workspaceId, DataProviderFilterValueOperator.Equal)
     .addItem(
       'assignedItemType',
-      kAppResourceType.Workspace,
+      kFimidaraResourceType.Workspace,
       DataProviderFilterValueOperator.Equal
     )
     .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
     .addItem(
       'assigneeType',
-      kAppResourceType.User,
+      kFimidaraResourceType.User,
       DataProviderFilterValueOperator.Equal
     );
   if (includedassigneeIdList?.length) {
@@ -59,7 +59,7 @@ function getWorkspaceCollaborators(
 function getByAssignedToResource(
   workspaceId: string | undefined,
   assigneeId: string | string[],
-  assignedItemTypeList?: ReadonlyArray<AppResourceType>
+  assignedItemTypeList?: ReadonlyArray<FimidaraResourceType>
 ) {
   const filter = newFilter();
 

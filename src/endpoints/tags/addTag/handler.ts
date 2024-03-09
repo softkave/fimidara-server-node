@@ -1,4 +1,4 @@
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {Tag} from '../../../definitions/tag';
 import {newWorkspaceResource} from '../../../utils/resource';
 import {validate} from '../../../utils/validate';
@@ -23,7 +23,7 @@ const addTag: AddTagEndpoint = async instData => {
 
   const tag = newWorkspaceResource<Tag>(
     agent,
-    kAppResourceType.Tag,
+    kFimidaraResourceType.Tag,
     workspace.resourceId,
     {...data.tag}
   );

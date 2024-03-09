@@ -4,7 +4,7 @@ import {
   FileBackendMount,
   kFileBackendType,
 } from '../../../definitions/fileBackend';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {kSystemSessionAgent} from '../../../utils/agent';
 import {extractResourceIdList} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
@@ -156,7 +156,7 @@ describe('file backend mount utils', () => {
       const [[s3Mount]] = await Promise.all([
         generateAndInsertFileBackendMountListForTest(/** count */ 1, {
           backend: kFileBackendType.s3,
-          configId: getNewIdForResource(kAppResourceType.FileBackendConfig),
+          configId: getNewIdForResource(kFimidaraResourceType.FileBackendConfig),
         }),
       ]);
 
@@ -265,7 +265,7 @@ describe('file backend mount utils', () => {
         extension: file.extension,
         workspaceId: file.workspaceId,
         resolvedFor: file.resourceId,
-        resolvedForType: kAppResourceType.File,
+        resolvedForType: kFimidaraResourceType.File,
       }
     );
     const existingEntryPFile = generatePersistedFileDescriptionForTest({
@@ -296,7 +296,7 @@ describe('file backend mount utils', () => {
     expect(dbExistingEntry).toMatchObject({
       mountId: existingEntry.mountId,
       workspaceId: file.workspaceId,
-      resolvedForType: kAppResourceType.File,
+      resolvedForType: kFimidaraResourceType.File,
       resolvedFor: file.resourceId,
       namepath: file.namepath,
       extension: file.extension || null,
@@ -310,7 +310,7 @@ describe('file backend mount utils', () => {
     expect(dbNewEntry).toMatchObject({
       mountId: newPFile.mountId,
       workspaceId: file.workspaceId,
-      resolvedForType: kAppResourceType.File,
+      resolvedForType: kFimidaraResourceType.File,
       resolvedFor: file.resourceId,
       namepath: file.namepath,
       extension: file.extension || null,

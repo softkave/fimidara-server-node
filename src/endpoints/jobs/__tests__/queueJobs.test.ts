@@ -1,5 +1,5 @@
 import {Job} from '../../../definitions/job';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {extractResourceIdList} from '../../../utils/fns';
 import {getNewId, getNewIdForResource} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injection/injectables';
@@ -25,8 +25,8 @@ describe('queueJobs', () => {
   test('queueJobs', async () => {
     const internalParamId01 = getNewId();
     const internalParamId02 = getNewId();
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
-    const parentJobId = getNewIdForResource(kAppResourceType.Job);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const parentJobId = getNewIdForResource(kFimidaraResourceType.Job);
     const input01 = generateJobInput({params: {id: internalParamId01}});
     const input02 = generateJobInput({
       params: {id: internalParamId02},
@@ -55,8 +55,8 @@ describe('queueJobs', () => {
 
   test('queueJobs does not add jobs with same idempotency token', async () => {
     const internalParamId = getNewId();
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
-    const parentJobId = getNewIdForResource(kAppResourceType.Job);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const parentJobId = getNewIdForResource(kFimidaraResourceType.Job);
     const input01 = generateJobInput({params: {id: internalParamId}});
 
     // First add should add job to DB
@@ -77,7 +77,7 @@ describe('queueJobs', () => {
 
   test('queueJobs sets job parents', async () => {
     const internalParamId = getNewId();
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const [parentJob] = await generateAndInsertJobListForTest(/** count */ 1, {
       workspaceId,
     });
@@ -99,7 +99,7 @@ describe('queueJobs', () => {
 
   test('queueJobs adds jobs with different parents but same params', async () => {
     const internalParamId = getNewId();
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const [parentJob] = await generateAndInsertJobListForTest(/** count */ 1, {
       workspaceId,
     });
@@ -123,9 +123,9 @@ describe('queueJobs', () => {
 
   test('queueJobs with seed', async () => {
     const internalParamId = getNewId();
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const input01 = generateJobInput({params: {id: internalParamId}});
-    const jobId = getNewIdForResource(kAppResourceType.Job);
+    const jobId = getNewIdForResource(kFimidaraResourceType.Job);
 
     await queueJobs(workspaceId, undefined, [input01], {
       seed: {resourceId: jobId},

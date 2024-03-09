@@ -1,4 +1,4 @@
-import {kAppResourceType} from '../../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../../definitions/system';
 import {Tag} from '../../../../../definitions/tag';
 import {generateAndInsertTagListForTest} from '../../../../testUtils/generate/tag';
 import {completeTests} from '../../../../testUtils/helpers/testFns';
@@ -25,8 +25,8 @@ afterAll(async () => {
 
 const tagGenerateTypeChildren: GenerateTypeChildrenDefinition<Tag> = {
   ...noopGenerateTypeChildren,
-  [kAppResourceType.PermissionItem]: generatePermissionItemsAsChildren,
-  [kAppResourceType.AssignedItem]: generateAssignedItemsAsChildren,
+  [kFimidaraResourceType.PermissionItem]: generatePermissionItemsAsChildren,
+  [kFimidaraResourceType.AssignedItem]: generateAssignedItemsAsChildren,
 };
 const genResourceFn: GenerateResourceFn<Tag> = async ({workspaceId}) => {
   const [tag] = await generateAndInsertTagListForTest(1, {
@@ -39,7 +39,7 @@ describe('runDeleteResourceJob, tag', () => {
   test('deleteResource0', async () => {
     testDeleteResourceJob0({
       genResourceFn,
-      type: kAppResourceType.Tag,
+      type: kFimidaraResourceType.Tag,
     });
   });
 
@@ -48,14 +48,14 @@ describe('runDeleteResourceJob, tag', () => {
       genResourceFn,
       genChildrenDef: tagGenerateTypeChildren,
       deleteCascadeDef: deleteTagCascadeEntry,
-      type: kAppResourceType.Tag,
+      type: kFimidaraResourceType.Tag,
     });
   });
 
   test('runDeleteResourceJobSelf', async () => {
     await testDeleteResourceSelfJob({
       genResourceFn,
-      type: kAppResourceType.Tag,
+      type: kFimidaraResourceType.Tag,
     });
   });
 });

@@ -1,5 +1,5 @@
 import {EmailJobParams, Job, kEmailJobType, kJobType} from '../../../definitions/job';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {kSystemSessionAgent} from '../../../utils/agent';
 import {extractResourceIdList} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
@@ -94,7 +94,7 @@ describe('upgradeWaitlistedUsers', () => {
       return upgradeWaitlistedUsers(
         RequestData.fromExpressRequest<UpgradeWaitlistedUsersEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
-          {userIds: [getNewIdForResource(kAppResourceType.User)]}
+          {userIds: [getNewIdForResource(kFimidaraResourceType.User)]}
         )
       );
     }, [PermissionDeniedError.name]);

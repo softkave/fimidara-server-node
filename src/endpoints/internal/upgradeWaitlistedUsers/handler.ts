@@ -1,5 +1,5 @@
 import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
@@ -18,7 +18,7 @@ const upgradeWaitlistedUsers: UpgradeWaitlistedUsersEndpoint = async reqData => 
   const data = validate(reqData.data, upgradeWaitlistedUsersJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(reqData, [kAppResourceType.User]);
+    .getAgent(reqData, [kFimidaraResourceType.User]);
   await assertUserIsPartOfRootWorkspace(agent);
   const users = await kSemanticModels.utils().withTxn(async opts => {
     await kSemanticModels

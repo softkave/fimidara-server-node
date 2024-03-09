@@ -1,7 +1,7 @@
 import {ValueOf} from 'type-fest';
 import {AnyObject, PartialRecord} from '../utils/types';
 import {AppShard} from './app';
-import {Agent, AppResourceType, Resource} from './system';
+import {Agent, FimidaraResourceType, Resource} from './system';
 
 export const kJobType = {
   /** parent job split into deleteArtifacts and deleteSelf.  */
@@ -91,7 +91,7 @@ export type DeleteResourceCascadeFnDefaultArgs = {
 };
 
 export type DeleteResourceJobParams = DeleteResourceCascadeFnDefaultArgs & {
-  type: AppResourceType;
+  type: FimidaraResourceType;
   /** to separate from removing a user, which we don't support yet, but soon */
   isRemoveCollaborator?: true;
 };

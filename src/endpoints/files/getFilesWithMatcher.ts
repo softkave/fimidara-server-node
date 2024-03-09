@@ -2,7 +2,7 @@ import {isNumber} from 'lodash';
 import {File, FileMatcher} from '../../definitions/file';
 import {PermissionAction, kPermissionsMap} from '../../definitions/permissionItem';
 import {PresignedPath} from '../../definitions/presignedPath';
-import {kAppResourceType} from '../../definitions/system';
+import {kFimidaraResourceType} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {kSystemSessionAgent} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
@@ -59,7 +59,7 @@ export function extractPresignedPathIdFromFilepath(filepath: string) {
 export function isPresignedPath(filepath: string) {
   const resourceId = extractPresignedPathIdFromFilepath(filepath);
   const type = tryGetResourceTypeFromId(resourceId);
-  return type === kAppResourceType.PresignedPath;
+  return type === kFimidaraResourceType.PresignedPath;
 }
 
 export async function getFileByPresignedPath(props: {

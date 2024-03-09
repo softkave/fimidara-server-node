@@ -1,7 +1,7 @@
 import {
   Agent,
-  AppResourceType,
   ConvertAgentToPublicAgent,
+  FimidaraResourceType,
   PublicWorkspaceResource,
   Resource,
   TokenAccessScope,
@@ -14,7 +14,7 @@ export interface AgentToken extends Resource {
   /** Entity agent token was created for, e.g a user. */
   forEntityId: string | null;
   /** Type of resource referenced by `forEntityId`. */
-  entityType: AppResourceType;
+  entityType: FimidaraResourceType;
   workspaceId: string | null;
   providedResourceId?: string | null;
   lastUpdatedBy: Agent;

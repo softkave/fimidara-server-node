@@ -1,6 +1,6 @@
 import {
-  AppResourceType,
-  kAppResourceType,
+  FimidaraResourceType,
+  kFimidaraResourceType,
   PublicResource,
   Resource,
   ResourceWrapper,
@@ -26,31 +26,31 @@ import {usageRecordExtractor} from '../usageRecords/utils';
 import {workspaceExtractor} from '../workspaces/utils';
 
 const kResourceTypeToExtractorMap: Record<
-  AppResourceType,
+  FimidaraResourceType,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   AnyFn<[any, string], PublicResource | PublicCollaborator>
 > = {
-  [kAppResourceType.All]: resourceExtractor,
-  [kAppResourceType.System]: resourceExtractor,
-  [kAppResourceType.Public]: resourceExtractor,
-  [kAppResourceType.EndpointRequest]: resourceExtractor,
-  [kAppResourceType.AssignedItem]: resourceExtractor,
-  [kAppResourceType.Job]: resourceExtractor,
-  [kAppResourceType.App]: resourceExtractor,
-  [kAppResourceType.PresignedPath]: presignedPathExtractor,
-  [kAppResourceType.Workspace]: workspaceExtractor,
-  [kAppResourceType.CollaborationRequest]: collaborationRequestForWorkspaceExtractor,
-  [kAppResourceType.AgentToken]: agentTokenExtractor,
-  [kAppResourceType.PermissionGroup]: permissionGroupExtractor,
-  [kAppResourceType.PermissionItem]: permissionItemExtractor,
-  [kAppResourceType.Folder]: folderExtractor,
-  [kAppResourceType.File]: fileExtractor,
-  [kAppResourceType.User]: collaboratorExtractor,
-  [kAppResourceType.Tag]: tagExtractor,
-  [kAppResourceType.UsageRecord]: usageRecordExtractor,
-  [kAppResourceType.FileBackendConfig]: fileBackendConfigExtractor,
-  [kAppResourceType.FileBackendMount]: fileBackendMountExtractor,
-  [kAppResourceType.ResolvedMountEntry]: resolvedEntryExtractor,
+  [kFimidaraResourceType.All]: resourceExtractor,
+  [kFimidaraResourceType.System]: resourceExtractor,
+  [kFimidaraResourceType.Public]: resourceExtractor,
+  [kFimidaraResourceType.EndpointRequest]: resourceExtractor,
+  [kFimidaraResourceType.AssignedItem]: resourceExtractor,
+  [kFimidaraResourceType.Job]: resourceExtractor,
+  [kFimidaraResourceType.App]: resourceExtractor,
+  [kFimidaraResourceType.PresignedPath]: presignedPathExtractor,
+  [kFimidaraResourceType.Workspace]: workspaceExtractor,
+  [kFimidaraResourceType.CollaborationRequest]: collaborationRequestForWorkspaceExtractor,
+  [kFimidaraResourceType.AgentToken]: agentTokenExtractor,
+  [kFimidaraResourceType.PermissionGroup]: permissionGroupExtractor,
+  [kFimidaraResourceType.PermissionItem]: permissionItemExtractor,
+  [kFimidaraResourceType.Folder]: folderExtractor,
+  [kFimidaraResourceType.File]: fileExtractor,
+  [kFimidaraResourceType.User]: collaboratorExtractor,
+  [kFimidaraResourceType.Tag]: tagExtractor,
+  [kFimidaraResourceType.UsageRecord]: usageRecordExtractor,
+  [kFimidaraResourceType.FileBackendConfig]: fileBackendConfigExtractor,
+  [kFimidaraResourceType.FileBackendMount]: fileBackendMountExtractor,
+  [kFimidaraResourceType.ResolvedMountEntry]: resolvedEntryExtractor,
 };
 
 export function getPublicResource(resource: ResourceWrapper, workspaceId: string) {

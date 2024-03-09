@@ -3,7 +3,7 @@ import {
   CollaborationRequest,
   kCollaborationRequestStatusTypeMap,
 } from '../../../definitions/collaborationRequest';
-import {Agent, kAppResourceType} from '../../../definitions/system';
+import {Agent, kFimidaraResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injection/injectables';
@@ -18,18 +18,18 @@ export function generateCollaborationRequestForTest(
 ) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
-    agentId: getNewIdForResource(kAppResourceType.User),
-    agentType: kAppResourceType.User,
-    agentTokenId: getNewIdForResource(kAppResourceType.AgentToken),
+    agentId: getNewIdForResource(kFimidaraResourceType.User),
+    agentType: kFimidaraResourceType.User,
+    agentTokenId: getNewIdForResource(kFimidaraResourceType.AgentToken),
   };
   const item: CollaborationRequest = {
     createdAt,
     createdBy,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
-    resourceId: getNewIdForResource(kAppResourceType.CollaborationRequest),
+    resourceId: getNewIdForResource(kFimidaraResourceType.CollaborationRequest),
     workspaceName: faker.company.name(),
-    workspaceId: getNewIdForResource(kAppResourceType.Workspace),
+    workspaceId: getNewIdForResource(kFimidaraResourceType.Workspace),
     recipientEmail: faker.internet.email(),
     message: '',
     status: kCollaborationRequestStatusTypeMap.Pending,

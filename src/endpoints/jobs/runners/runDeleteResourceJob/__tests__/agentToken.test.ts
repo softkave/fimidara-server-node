@@ -1,6 +1,6 @@
 import {flatten} from 'lodash';
 import {AgentToken} from '../../../../../definitions/agentToken';
-import {kAppResourceType} from '../../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../../definitions/system';
 import {generateAndInsertAgentTokenListForTest} from '../../../../testUtils/generate/agentToken';
 import {generateAndInsertTestPresignedPathList} from '../../../../testUtils/generate/file';
 import {generateAndInsertAssignedItemListForTest} from '../../../../testUtils/generate/permissionGroup';
@@ -27,8 +27,8 @@ afterAll(async () => {
 
 const agentTokenGenerateTypeChildren: GenerateTypeChildrenDefinition<AgentToken> = {
   ...noopGenerateTypeChildren,
-  [kAppResourceType.PermissionItem]: generatePermissionItemsAsChildren,
-  [kAppResourceType.AssignedItem]: async ({resource, workspaceId}) =>
+  [kFimidaraResourceType.PermissionItem]: generatePermissionItemsAsChildren,
+  [kFimidaraResourceType.AssignedItem]: async ({resource, workspaceId}) =>
     flatten(
       await Promise.all([
         generateAndInsertAssignedItemListForTest(2, {
@@ -37,7 +37,7 @@ const agentTokenGenerateTypeChildren: GenerateTypeChildrenDefinition<AgentToken>
         }),
       ])
     ),
-  [kAppResourceType.PresignedPath]: async ({resource, workspaceId}) =>
+  [kFimidaraResourceType.PresignedPath]: async ({resource, workspaceId}) =>
     flatten(
       await Promise.all([
         generateAndInsertTestPresignedPathList(2, {
@@ -59,7 +59,7 @@ describe('runDeleteResourceJob, agent token', () => {
   test('deleteResource0', async () => {
     testDeleteResourceJob0({
       genResourceFn,
-      type: kAppResourceType.AgentToken,
+      type: kFimidaraResourceType.AgentToken,
     });
   });
 
@@ -68,14 +68,14 @@ describe('runDeleteResourceJob, agent token', () => {
       genResourceFn,
       genChildrenDef: agentTokenGenerateTypeChildren,
       deleteCascadeDef: deleteAgentTokenCascadeEntry,
-      type: kAppResourceType.AgentToken,
+      type: kFimidaraResourceType.AgentToken,
     });
   });
 
   test('runDeleteResourceJobSelf', async () => {
     await testDeleteResourceSelfJob({
       genResourceFn,
-      type: kAppResourceType.AgentToken,
+      type: kFimidaraResourceType.AgentToken,
     });
   });
 });

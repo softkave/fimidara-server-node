@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {JoiSchemaParts} from '../../../utils/types';
 import {endpointValidationSchemas} from '../../validation';
 import folderValidationSchemas from '../validation';
@@ -8,7 +8,10 @@ import {
   ListFolderContentEndpointParamsBase,
 } from './types';
 
-const contentType = Joi.string().valid(kAppResourceType.File, kAppResourceType.Folder);
+const contentType = Joi.string().valid(
+  kFimidaraResourceType.File,
+  kFimidaraResourceType.Folder
+);
 export const listFolderContentBaseJoiSchemaParts: JoiSchemaParts<ListFolderContentEndpointParamsBase> =
   {
     ...folderValidationSchemas.folderMatcherParts,

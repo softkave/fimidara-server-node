@@ -1,7 +1,7 @@
 import {ReadonlyDeep} from 'type-fest';
 import {Worker, isMainThread, parentPort, workerData} from 'worker_threads';
 import {AppShard, kAppPresetShards, kAppType} from '../../definitions/app';
-import {kAppResourceType} from '../../definitions/system';
+import {kFimidaraResourceType} from '../../definitions/system';
 import {LockableResource} from '../../utils/LockStore';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
@@ -263,7 +263,7 @@ async function startNewRunner() {
     const runnerData: ChildRunnerWorkerData = {
       activeRunnerIds,
       pickFromShards,
-      runnerId: getNewIdForResource(kAppResourceType.App),
+      runnerId: getNewIdForResource(kFimidaraResourceType.App),
     };
     const runnerFilepath = kUtilsInjectables.suppliedConfig().runnerLocation;
     appAssert(runnerFilepath);

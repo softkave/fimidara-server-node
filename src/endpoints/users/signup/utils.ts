@@ -1,5 +1,5 @@
 import * as argon2 from 'argon2';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource, newResource} from '../../../utils/resource';
@@ -18,9 +18,9 @@ export const INTERNAL_signupUser = async (
 
   const hash = await argon2.hash(data.password);
   const now = getTimestamp();
-  const user: User = newResource(kAppResourceType.User, {
+  const user: User = newResource(kFimidaraResourceType.User, {
     hash,
-    resourceId: getNewIdForResource(kAppResourceType.User),
+    resourceId: getNewIdForResource(kFimidaraResourceType.User),
     email: data.email,
     firstName: data.firstName,
     lastName: data.lastName,

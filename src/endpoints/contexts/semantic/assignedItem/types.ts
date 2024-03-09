@@ -1,5 +1,5 @@
 import {AssignedItem} from '../../../../definitions/assignedItem';
-import {Agent, AppResourceType} from '../../../../definitions/system';
+import {Agent, FimidaraResourceType} from '../../../../definitions/system';
 import {
   SemanticProviderMutationTxnOptions,
   SemanticProviderQueryListRunOptions,
@@ -23,7 +23,7 @@ export interface SemanticAssignedItemProvider
   getByAssignee(
     workspaceId: string | undefined,
     assigneeId: string | string[],
-    assignedItemType?: AppResourceType | AppResourceType[],
+    assignedItemType?: FimidaraResourceType | FimidaraResourceType[],
     options?: SemanticProviderQueryListRunOptions<AssignedItem>
   ): Promise<AssignedItem[]>;
   getByAssigned(
@@ -38,7 +38,7 @@ export interface SemanticAssignedItemProvider
   deleteByAssigned(
     workspaceId: string,
     assignedId: string | string[],
-    assignedItemType: AppResourceType | AppResourceType[] | undefined,
+    assignedItemType: FimidaraResourceType | FimidaraResourceType[] | undefined,
     opts: SemanticProviderMutationTxnOptions
   ): Promise<void>;
   /** Deletes items resource is assigned to. */

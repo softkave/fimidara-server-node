@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {App, kAppPresetShards, kAppType} from '../../../definitions/app';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injection/injectables';
@@ -14,7 +14,7 @@ export function generateAppForTest(seed: Partial<App> = {}) {
   const app: App = {
     createdAt,
     lastUpdatedAt: createdAt,
-    resourceId: getNewIdForResource(kAppResourceType.App),
+    resourceId: getNewIdForResource(kFimidaraResourceType.App),
     type: getRandomAppType(),
     shard: kAppPresetShards.fimidaraMain,
     isDeleted: false,

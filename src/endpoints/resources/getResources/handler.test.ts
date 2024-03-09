@@ -3,7 +3,7 @@ import {flatten} from 'lodash';
 import {File} from '../../../definitions/file';
 import {Folder} from '../../../definitions/folder';
 import {PermissionAction, kPermissionsMap} from '../../../definitions/permissionItem';
-import {Resource, kAppResourceType} from '../../../definitions/system';
+import {Resource, kFimidaraResourceType} from '../../../definitions/system';
 import RequestData from '../../RequestData';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {collaboratorExtractor} from '../../collaborators/utils';
@@ -59,7 +59,7 @@ describe('getResources', () => {
           action,
           access: faker.datatype.boolean(),
           targetId: workspace.resourceId,
-          targetType: kAppResourceType.Workspace,
+          targetType: kFimidaraResourceType.Workspace,
           workspaceId: workspace.resourceId,
           entityId: permissionGroup.resourceId,
         })
@@ -111,7 +111,7 @@ describe('getResources', () => {
     result.resources.forEach(resource => {
       expect(resourcesMap[resource.resourceId]).toMatchObject(resource.resource);
 
-      if (resource.resourceType === kAppResourceType.File) {
+      if (resource.resourceType === kFimidaraResourceType.File) {
         const fileId =
           filepathsMap[
             stringifyFilenamepath(
@@ -120,7 +120,7 @@ describe('getResources', () => {
             )
           ];
         expect(resourcesMap[fileId]).toMatchObject(resource.resource);
-      } else if (resource.resourceType === kAppResourceType.Folder) {
+      } else if (resource.resourceType === kFimidaraResourceType.Folder) {
         const folderId =
           filepathsMap[
             stringifyFoldernamepath(

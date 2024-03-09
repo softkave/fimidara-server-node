@@ -1,6 +1,6 @@
 import {Job, kJobType} from '../../../definitions/job';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {sortObjectKeys} from '../../../utils/fns';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injection/injectables';
@@ -58,7 +58,7 @@ test('permission items deleted', async () => {
     createdBy: {
       $objMatch: {
         agentId: userToken.forEntityId,
-        agentType: kAppResourceType.User,
+        agentType: kFimidaraResourceType.User,
         agentTokenId: userToken.resourceId,
       },
     },

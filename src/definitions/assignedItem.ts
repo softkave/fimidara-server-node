@@ -1,13 +1,13 @@
 import {AnyObject} from '../utils/types';
-import {AppResourceType, WorkspaceResource} from './system';
+import {FimidaraResourceType, WorkspaceResource} from './system';
 import {AssignedTag} from './tag';
 
 export interface AssignedItem<Meta extends AnyObject = AnyObject>
   extends WorkspaceResource {
   assignedItemId: string;
-  assignedItemType: AppResourceType;
+  assignedItemType: FimidaraResourceType;
   assigneeId: string;
-  assigneeType: AppResourceType;
+  assigneeType: FimidaraResourceType;
   meta: Meta;
 }
 

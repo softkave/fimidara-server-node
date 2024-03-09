@@ -10,7 +10,7 @@ import {
   kJobRunnerV1,
   kJobStatus,
 } from '../../definitions/job';
-import {Agent, kAppResourceType} from '../../definitions/system';
+import {Agent, kFimidaraResourceType} from '../../definitions/system';
 import {getTimestamp} from '../../utils/dateFns';
 import {convertToArray} from '../../utils/fns';
 import {newResource} from '../../utils/resource';
@@ -66,7 +66,7 @@ export async function queueJobs<
     };
 
     idempotencyTokens.push(idempotencyToken);
-    return newResource<Job<TParams, TMeta>>(kAppResourceType.Job, {
+    return newResource<Job<TParams, TMeta>>(kFimidaraResourceType.Job, {
       workspaceId,
       parentJobId,
       idempotencyToken,

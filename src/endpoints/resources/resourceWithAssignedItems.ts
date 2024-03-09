@@ -1,6 +1,6 @@
 import {
-  AppResourceType,
-  kAppResourceType,
+  FimidaraResourceType,
+  kFimidaraResourceType,
   ResourceWrapper,
 } from '../../definitions/system';
 import {User} from '../../definitions/user';
@@ -15,18 +15,18 @@ export async function resourceWithAssignedItems<T extends ResourceWrapper>(
   resource: T
 ) {
   switch (resource.resourceType) {
-    case kAppResourceType.AgentToken:
-    case kAppResourceType.Folder:
-    case kAppResourceType.File:
-    case kAppResourceType.PermissionGroup:
+    case kFimidaraResourceType.AgentToken:
+    case kFimidaraResourceType.Folder:
+    case kFimidaraResourceType.File:
+    case kFimidaraResourceType.PermissionGroup:
       resource.resource = await populateAssignedTags(workspaceId, resource.resource);
       return resource;
-    case kAppResourceType.User:
+    case kFimidaraResourceType.User:
       resource.resource = await populateUserWorkspaces(resource.resource as User);
       return resource;
-    case kAppResourceType.Workspace:
-    case kAppResourceType.CollaborationRequest:
-    case kAppResourceType.PermissionItem:
+    case kFimidaraResourceType.Workspace:
+    case kFimidaraResourceType.CollaborationRequest:
+    case kFimidaraResourceType.PermissionItem:
     default:
       return resource;
   }
@@ -35,7 +35,7 @@ export async function resourceWithAssignedItems<T extends ResourceWrapper>(
 export async function resourceListWithAssignedItems<T extends ResourceWrapper>(
   workspaceId: string,
   resourceList: T[],
-  forTypes: AppResourceType[] = Object.values(kAppResourceType)
+  forTypes: FimidaraResourceType[] = Object.values(kFimidaraResourceType)
 ) {
   const forTypesMap = indexArray(forTypes);
 

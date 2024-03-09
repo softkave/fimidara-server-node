@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import {isBoolean, isEqual, isString, isUndefined} from 'lodash';
 import {File} from '../../../definitions/file';
 import {PresignedPath} from '../../../definitions/presignedPath';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {kSystemSessionAgent} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive, pathJoin} from '../../../utils/fns';
@@ -93,7 +93,7 @@ export function generateTestFilepathString(
 
 export function generateTestFile(extra: Partial<File> & {parentId?: string | null} = {}) {
   const {parentId = null} = extra;
-  const id = getNewIdForResource(kAppResourceType.File);
+  const id = getNewIdForResource(kFimidaraResourceType.File);
   const name = generateTestFileName();
   const nameinfo = getFilenameInfo(name);
   const createdAt = getTimestamp();
@@ -116,7 +116,7 @@ export function generateTestFile(extra: Partial<File> & {parentId?: string | nul
       : [nameinfo.filenameExcludingExt],
     resourceId: id,
     size: faker.number.int({min: 1}),
-    workspaceId: getNewIdForResource(kAppResourceType.Workspace),
+    workspaceId: getNewIdForResource(kFimidaraResourceType.Workspace),
     extension: nameinfo.extension,
     version: 1,
     isReadAvailable: true,
@@ -154,13 +154,13 @@ export async function generateAndInsertTestFiles(
 }
 
 export function generateTestPresignedPath(extra: Partial<PresignedPath> = {}) {
-  const id = getNewIdForResource(kAppResourceType.PresignedPath);
+  const id = getNewIdForResource(kFimidaraResourceType.PresignedPath);
   const createdAt = getTimestamp();
   const data: PresignedPath = {
     namepath: generateTestFilepath(),
-    fileId: getNewIdForResource(kAppResourceType.File),
+    fileId: getNewIdForResource(kFimidaraResourceType.File),
     extension: faker.system.fileExt(),
-    issuerAgentTokenId: getNewIdForResource(kAppResourceType.AgentToken),
+    issuerAgentTokenId: getNewIdForResource(kFimidaraResourceType.AgentToken),
     maxUsageCount: faker.number.int({min: 0}),
     spentUsageCount: faker.number.int({min: 0}),
     expiresAt: getTimestamp(),
@@ -170,7 +170,7 @@ export function generateTestPresignedPath(extra: Partial<PresignedPath> = {}) {
     lastUpdatedAt: createdAt,
     lastUpdatedBy: kSystemSessionAgent,
     resourceId: id,
-    workspaceId: getNewIdForResource(kAppResourceType.Workspace),
+    workspaceId: getNewIdForResource(kFimidaraResourceType.Workspace),
     isDeleted: false,
     ...extra,
   };

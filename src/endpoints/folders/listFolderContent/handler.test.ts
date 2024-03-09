@@ -1,5 +1,5 @@
 import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {calculatePageSize, getResourceId, pathJoin} from '../../../utils/fns';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import addPermissionItems from '../../permissionItems/addItems/handler';
@@ -131,7 +131,7 @@ describe('listFolderContent', () => {
         mockExpressRequestWithAgentToken(userToken),
         {
           folderpath: addRootnameToPath(folder01.name, workspace.rootname),
-          contentType: kAppResourceType.File,
+          contentType: kFimidaraResourceType.File,
         }
       );
     const fetchFilesResult = await listFolderContent(fetchFilesReqData);
@@ -143,7 +143,7 @@ describe('listFolderContent', () => {
         mockExpressRequestWithAgentToken(userToken),
         {
           folderpath: addRootnameToPath(folder01.name, workspace.rootname),
-          contentType: kAppResourceType.Folder,
+          contentType: kFimidaraResourceType.Folder,
         }
       );
     const fetchFoldersResult = await listFolderContent(fetchFoldersReqData);

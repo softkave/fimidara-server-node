@@ -1,8 +1,8 @@
 import {add} from 'date-fns';
 import {AgentToken} from '../../../definitions/agentToken';
 import {
-  kAppResourceType,
   kCurrentJWTTokenVersion,
+  kFimidaraResourceType,
   kTokenAccessScope,
 } from '../../../definitions/system';
 import {kSystemSessionAgent} from '../../../utils/agent';
@@ -45,7 +45,7 @@ async function changePasswordWithTokenTest() {
   const oldPassword = 'abd784_!';
   const {user} = await insertUserForTest({password: oldPassword});
   const newPassword = 'abd784_!new';
-  const token = newResource<AgentToken>(kAppResourceType.AgentToken, {
+  const token = newResource<AgentToken>(kFimidaraResourceType.AgentToken, {
     scope: [kTokenAccessScope.ChangePassword],
     version: kCurrentJWTTokenVersion,
     expiresAt: getTimestamp(
@@ -54,7 +54,7 @@ async function changePasswordWithTokenTest() {
       })
     ),
     forEntityId: user.resourceId,
-    entityType: kAppResourceType.User,
+    entityType: kFimidaraResourceType.User,
     workspaceId: null,
     createdBy: kSystemSessionAgent,
     lastUpdatedBy: kSystemSessionAgent,

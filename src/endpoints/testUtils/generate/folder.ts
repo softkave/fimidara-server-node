@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {Folder} from '../../../definitions/folder';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {kSystemSessionAgent} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getRandomIntInclusive, loopAndCollate, pathJoin} from '../../../utils/fns';
@@ -100,7 +100,7 @@ export function generateTestFolder(
   extra: Partial<Folder> & {parentId: string | null} = {parentId: null},
   other: {parentNamepath?: string[]; parentIdPath?: string[]} = {}
 ) {
-  const id = getNewIdForResource(kAppResourceType.Folder);
+  const id = getNewIdForResource(kFimidaraResourceType.Folder);
   const name = generateTestFolderName();
   const namepath = other.parentNamepath ? other.parentNamepath.concat(name) : [name];
   const idPath = other.parentIdPath
@@ -119,7 +119,7 @@ export function generateTestFolder(
     lastUpdatedAt: createdAt,
     lastUpdatedBy: kSystemSessionAgent,
     resourceId: id,
-    workspaceId: getNewIdForResource(kAppResourceType.Workspace),
+    workspaceId: getNewIdForResource(kFimidaraResourceType.Workspace),
     isDeleted: false,
     ...extra,
   };

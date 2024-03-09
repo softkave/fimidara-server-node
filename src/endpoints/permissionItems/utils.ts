@@ -1,5 +1,9 @@
 import {PermissionItem, PublicPermissionItem} from '../../definitions/permissionItem';
-import {AppResourceType, SessionAgent, kAppResourceType} from '../../definitions/system';
+import {
+  FimidaraResourceType,
+  SessionAgent,
+  kFimidaraResourceType,
+} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {convertToArray} from '../../utils/fns';
@@ -28,7 +32,10 @@ export function throwPermissionItemNotFound() {
   throw kReuseableErrors.permissionItem.notFound();
 }
 
-export function getTargetType(data: {targetId?: string; targetType?: AppResourceType}) {
+export function getTargetType(data: {
+  targetId?: string;
+  targetType?: FimidaraResourceType;
+}) {
   const targetType = data.targetType
     ? data.targetType
     : data.targetId
@@ -53,9 +60,9 @@ export async function getPermissionItemEntities(
   let resources = await INTERNAL_getResources({
     agent,
     allowedTypes: [
-      kAppResourceType.User,
-      kAppResourceType.PermissionGroup,
-      kAppResourceType.AgentToken,
+      kFimidaraResourceType.User,
+      kFimidaraResourceType.PermissionGroup,
+      kFimidaraResourceType.AgentToken,
     ],
     workspaceId,
     inputResources: convertToArray(entityIds).map(entityId => ({
@@ -66,7 +73,7 @@ export async function getPermissionItemEntities(
     checkBelongsToWorkspace: true,
   });
   resources = await resourceListWithAssignedItems(workspaceId, resources, [
-    kAppResourceType.User,
+    kFimidaraResourceType.User,
   ]);
   checkResourcesBelongsToWorkspace(workspaceId, resources);
   return resources;

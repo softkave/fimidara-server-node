@@ -1,4 +1,4 @@
-import {kAppResourceType} from '../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../definitions/system';
 import {noopAsync} from '../../../../utils/fns';
 import {
   DeleteResourceCascadeEntry,
@@ -13,14 +13,14 @@ import {
 } from './utils';
 
 export const noopGetArtifacts: DeleteResourceGetArtifactsFns = Object.values(
-  kAppResourceType
+  kFimidaraResourceType
 ).reduce((acc, type) => {
   acc[type] = null;
   return acc;
 }, {} as DeleteResourceGetArtifactsFns);
 
 export const noopDeleteArtifacts: DeleteResourceDeleteArtifactsFns = Object.values(
-  kAppResourceType
+  kFimidaraResourceType
 ).reduce((acc, type) => {
   acc[type] = null;
   return acc;
@@ -28,13 +28,13 @@ export const noopDeleteArtifacts: DeleteResourceDeleteArtifactsFns = Object.valu
 
 export const genericGetArtifacts: DeleteResourceGetArtifactsFns = {
   ...noopGetArtifacts,
-  [kAppResourceType.PermissionItem]: getResourcePermissionItemArtifacts,
+  [kFimidaraResourceType.PermissionItem]: getResourcePermissionItemArtifacts,
 };
 
 export const genericDeleteArtifacts: DeleteResourceDeleteArtifactsFns = {
   ...noopDeleteArtifacts,
-  [kAppResourceType.PermissionItem]: deleteResourcePermissionItemArtifacts,
-  [kAppResourceType.AssignedItem]: deleteResourceAssignedItemArtifacts,
+  [kFimidaraResourceType.PermissionItem]: deleteResourcePermissionItemArtifacts,
+  [kFimidaraResourceType.AssignedItem]: deleteResourceAssignedItemArtifacts,
 };
 
 export const noopDeleteResourceFn: DeleteResourceFn = noopAsync;

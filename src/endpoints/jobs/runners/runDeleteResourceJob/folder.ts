@@ -1,4 +1,4 @@
-import {kAppResourceType} from '../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../definitions/system';
 import {
   kSemanticModels,
   kUtilsInjectables,
@@ -15,7 +15,7 @@ import {
 
 const getArtifacts: DeleteResourceGetArtifactsFns = {
   ...genericGetArtifacts,
-  [kAppResourceType.Folder]: async ({args, opts}) => {
+  [kFimidaraResourceType.Folder]: async ({args, opts}) => {
     const folder = await kSemanticModels
       .folder()
       .getOneById(args.resourceId, {includeDeleted: true});
@@ -28,7 +28,7 @@ const getArtifacts: DeleteResourceGetArtifactsFns = {
 
     return [];
   },
-  [kAppResourceType.File]: async ({args, opts}) => {
+  [kFimidaraResourceType.File]: async ({args, opts}) => {
     const folder = await kSemanticModels
       .folder()
       .getOneById(args.resourceId, {includeDeleted: true});

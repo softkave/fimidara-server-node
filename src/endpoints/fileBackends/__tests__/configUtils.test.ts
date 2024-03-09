@@ -1,4 +1,4 @@
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {extractResourceIdList} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {NotFoundError} from '../../errors';
@@ -30,8 +30,8 @@ describe('file backend config utils', () => {
   test('getBackendConfigsWithIdList throws if config not found', async () => {
     const configs = await generateAndInsertFileBackendConfigListForTest(/** count */ 2);
     const idList = extractResourceIdList(configs).concat([
-      getNewIdForResource(kAppResourceType.FileBackendConfig),
-      getNewIdForResource(kAppResourceType.FileBackendConfig),
+      getNewIdForResource(kFimidaraResourceType.FileBackendConfig),
+      getNewIdForResource(kFimidaraResourceType.FileBackendConfig),
     ]);
 
     await expectErrorThrown(async () => {

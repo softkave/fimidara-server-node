@@ -1,7 +1,7 @@
 import {AgentToken} from '../../../definitions/agentToken';
 import {
-  kAppResourceType,
   kCurrentJWTTokenVersion,
+  kFimidaraResourceType,
   kTokenAccessScope,
 } from '../../../definitions/system';
 import {UserWithWorkspace} from '../../../definitions/user';
@@ -54,12 +54,12 @@ export async function getUserClientAssignedToken(
     .getByProvidedId(kUtilsInjectables.runtimeConfig().appWorkspaceId, userId, opts);
 
   if (!token) {
-    token = newResource<AgentToken>(kAppResourceType.AgentToken, {
+    token = newResource<AgentToken>(kFimidaraResourceType.AgentToken, {
       providedResourceId: userId,
       workspaceId: kUtilsInjectables.runtimeConfig().appWorkspaceId,
       version: kCurrentJWTTokenVersion,
       forEntityId: null,
-      entityType: kAppResourceType.AgentToken,
+      entityType: kFimidaraResourceType.AgentToken,
       createdBy: kSystemSessionAgent,
       lastUpdatedBy: kSystemSessionAgent,
     });
@@ -100,12 +100,12 @@ export async function getUserToken(
     .getOneAgentToken(userId, kTokenAccessScope.Login, opts);
 
   if (!userToken) {
-    userToken = newResource<AgentToken>(kAppResourceType.AgentToken, {
+    userToken = newResource<AgentToken>(kFimidaraResourceType.AgentToken, {
       scope: [kTokenAccessScope.Login],
       version: kCurrentJWTTokenVersion,
       forEntityId: userId,
       workspaceId: null,
-      entityType: kAppResourceType.User,
+      entityType: kFimidaraResourceType.User,
       createdBy: kSystemSessionAgent,
       lastUpdatedBy: kSystemSessionAgent,
     });

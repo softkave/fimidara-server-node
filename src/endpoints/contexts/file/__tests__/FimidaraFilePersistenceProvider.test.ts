@@ -1,7 +1,7 @@
 import {Readable} from 'stream';
 import {ResolvedMountEntry} from '../../../../definitions/fileBackend';
 import {Folder} from '../../../../definitions/folder';
-import {kAppResourceType} from '../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../definitions/system';
 import {kFimidaraConfigFilePersistenceProvider} from '../../../../resources/config';
 import {getTimestamp} from '../../../../utils/dateFns';
 import {loopAndCollate, loopAndCollateAsync, pathJoin} from '../../../../utils/fns';
@@ -56,7 +56,7 @@ describe('FimidaraFilePersistenceProvider', () => {
       createdAt: getTimestamp(),
       exclude: [],
       page: 0,
-      type: kAppResourceType.File,
+      type: kFimidaraResourceType.File,
     };
     const notPage = {hello: 'world!'};
 
@@ -113,7 +113,7 @@ describe('FimidaraFilePersistenceProvider', () => {
 
   test('uploadFile', async () => {
     const {backend, internalBackend} = getTestMemoryInstance();
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const params: FilePersistenceUploadFileParams = {
       workspaceId,
       body: Readable.from([]),
@@ -130,7 +130,7 @@ describe('FimidaraFilePersistenceProvider', () => {
 
   test('readFile', async () => {
     const {backend, internalBackend} = getTestMemoryInstance();
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const params: FilePersistenceGetFileParams = {
       workspaceId,
       filepath: generateTestFilepathString(),
@@ -150,7 +150,7 @@ describe('FimidaraFilePersistenceProvider', () => {
       fileBackend: kFimidaraConfigFilePersistenceProvider.memory,
     });
 
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = generateFileBackendMountForTest({workspaceId});
     const filepath = generateTestFilepathString();
     const pathinfo = getFilepathInfo(filepath, {containsRootname: false});
@@ -182,7 +182,7 @@ describe('FimidaraFilePersistenceProvider', () => {
       fileBackend: kFimidaraConfigFilePersistenceProvider.memory,
     });
 
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = generateFileBackendMountForTest({workspaceId});
     const folderpath = generateTestFolderpathString();
     const pathinfo = getFolderpathInfo(folderpath, {containsRootname: false});
@@ -209,7 +209,7 @@ describe('FimidaraFilePersistenceProvider', () => {
 
   test('deleteFiles', async () => {
     const {backend, internalBackend} = getTestMemoryInstance();
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const params: FilePersistenceDeleteFilesParams = {
       workspaceId,
       filepaths: loopAndCollate(() => generateTestFilepathString(), /** count */ 2),
@@ -232,7 +232,7 @@ describe('FimidaraFilePersistenceProvider', () => {
 
     const backend = new TestBackend();
     const params: FilePersistenceDeleteFoldersParams = {
-      workspaceId: getNewIdForResource(kAppResourceType.Workspace),
+      workspaceId: getNewIdForResource(kFimidaraResourceType.Workspace),
       folderpaths: loopAndCollate(() => generateTestFolderpathString(), /** count */ 2),
       mount: generateFileBackendMountForTest(),
     };
@@ -247,7 +247,7 @@ describe('FimidaraFilePersistenceProvider', () => {
       fileBackend: kFimidaraConfigFilePersistenceProvider.memory,
     });
 
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = generateFileBackendMountForTest({workspaceId});
     const folderpath = generateTestFolderpath({
       parentNamepath: mount.namepath,
@@ -320,7 +320,7 @@ describe('FimidaraFilePersistenceProvider', () => {
       fileBackend: kFimidaraConfigFilePersistenceProvider.memory,
     });
 
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = generateFileBackendMountForTest({workspaceId});
     const parentFolderpath = generateTestFolderpath();
     const createdAt = getTimestamp();
@@ -386,7 +386,7 @@ describe('FimidaraFilePersistenceProvider', () => {
       fileBackend: kFimidaraConfigFilePersistenceProvider.memory,
     });
 
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = generateFileBackendMountForTest({workspaceId});
     const folderpath = generateTestFolderpath({
       parentNamepath: mount.namepath,

@@ -4,13 +4,13 @@ import {
   kJobStatus,
   kJobType,
 } from '../../../../definitions/job';
-import {kAppResourceType} from '../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../definitions/system';
 import {getNewIdForResource} from '../../../../utils/resource';
 import {kSemanticModels} from '../../../contexts/injection/injectables';
 import {queueJobs} from '../../queueJobs';
 
 export async function runDeleteResourceJob0(job: Job) {
-  const deleteArtifactsJobId = getNewIdForResource(kAppResourceType.Job);
+  const deleteArtifactsJobId = getNewIdForResource(kFimidaraResourceType.Job);
   await kSemanticModels.utils().withTxn(async opts => {
     // queueJobs should use current context's txn, so both should fail if one
     // fails

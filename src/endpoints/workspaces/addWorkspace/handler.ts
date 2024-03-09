@@ -1,4 +1,4 @@
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
@@ -12,7 +12,7 @@ const addWorkspace: AddWorkspaceEndpoint = async instData => {
   const data = validate(instData.data, addWorkspaceJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, kAppResourceType.User);
+    .getAgent(instData, kFimidaraResourceType.User);
   appAssert(agent.user);
 
   // TODO: find other routes that do not use checkAuthorization and devise a way

@@ -1,10 +1,10 @@
 import {defaultTo} from 'lodash';
 import {AssignedItem, ResourceWithTags} from '../../definitions/assignedItem';
 import {
-  AppResourceType,
+  FimidaraResourceType,
   Resource,
   WorkspaceResource,
-  kAppResourceType,
+  kFimidaraResourceType,
 } from '../../definitions/system';
 import {User} from '../../definitions/user';
 import {cast} from '../../utils/fns';
@@ -19,7 +19,7 @@ export async function getResourceAssignedItems(
   /** Use `undefined` for fetching user workspaces */
   workspaceId: string | undefined,
   resourceId: string,
-  assignedItemTypes?: Array<AppResourceType>,
+  assignedItemTypes?: Array<FimidaraResourceType>,
   opts?: SemanticProviderTxnOptions
 ) {
   return await kSemanticModels
@@ -34,7 +34,7 @@ export async function getResourceAssignedItemsSortedByType(
   /** List of assigned item types to fetch. If not specified, all assigned items
    * will be fetched. If specified, result will contain empty arrays if no
    * assigned items of the specified type are found. */
-  assignedItemTypes?: Array<AppResourceType>,
+  assignedItemTypes?: Array<FimidaraResourceType>,
   opts?: SemanticProviderTxnOptions
 ) {
   const items = await getResourceAssignedItems(
@@ -66,13 +66,15 @@ export async function getResourceAssignedItemsSortedByType(
 
 export async function populateAssignedItems<
   T extends Resource,
-  TAssignedItemsType extends Array<typeof kAppResourceType.Tag>,
+  TAssignedItemsType extends Array<typeof kFimidaraResourceType.Tag>,
 >(
   workspaceId: string,
   resource: T,
-  assignedItemTypes: TAssignedItemsType = [kAppResourceType.Tag] as TAssignedItemsType
+  assignedItemTypes: TAssignedItemsType = [
+    kFimidaraResourceType.Tag,
+  ] as TAssignedItemsType
 ): Promise<
-  typeof assignedItemTypes extends Array<typeof kAppResourceType.Tag>
+  typeof assignedItemTypes extends Array<typeof kFimidaraResourceType.Tag>
     ? ResourceWithTags<T>
     : ResourceWithTags<T>
 > {
@@ -88,7 +90,7 @@ export async function populateAssignedItems<
   // prefill expected fields with empty arrays
   assignedItemTypes?.forEach(type => {
     switch (type) {
-      case kAppResourceType.Tag:
+      case kFimidaraResourceType.Tag:
         cast<ResourceWithTags<T>>(updatedResource).tags = [];
         break;
     }
@@ -96,7 +98,7 @@ export async function populateAssignedItems<
 
   for (const type in sortedItems) {
     switch (type) {
-      case kAppResourceType.Tag:
+      case kFimidaraResourceType.Tag:
         cast<ResourceWithTags<T>>(updatedResource).tags = assignedItemsToAssignedTagList(
           sortedItems[type]
         );
@@ -114,18 +116,18 @@ export async function populateAssignedTags<
 >(
   workspaceId: string,
   resource: NonNullable<T>,
-  labels: Partial<Record<AppResourceType, keyof Omit<R, keyof T>>> = {}
+  labels: Partial<Record<FimidaraResourceType, keyof Omit<R, keyof T>>> = {}
 ): Promise<NonNullable<Final>> {
   const sortedItems = await getResourceAssignedItemsSortedByType(
     workspaceId,
     resource.resourceId,
-    [kAppResourceType.Tag]
+    [kFimidaraResourceType.Tag]
   );
   const updatedResource = cast<NonNullable<Final>>(resource);
-  const tagsLabel = labels[kAppResourceType.Tag] ?? 'tags';
+  const tagsLabel = labels[kFimidaraResourceType.Tag] ?? 'tags';
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (updatedResource as any)[tagsLabel] = assignedItemsToAssignedTagList(
-    sortedItems[kAppResourceType.Tag]
+    sortedItems[kFimidaraResourceType.Tag]
   );
   return updatedResource;
 }
@@ -136,7 +138,7 @@ export async function populateResourceListWithAssignedTags<
 >(
   workspaceId: string,
   resources: T[],
-  labels: Partial<Record<AppResourceType, keyof Omit<R, keyof T>>> = {}
+  labels: Partial<Record<FimidaraResourceType, keyof Omit<R, keyof T>>> = {}
 ) {
   return await Promise.all(
     resources.map(resource => populateAssignedTags<T, R>(workspaceId, resource, labels))
@@ -157,7 +159,7 @@ export async function getUserWorkspaces(
 
   for (const type in sortedItems) {
     switch (type) {
-      case kAppResourceType.Workspace:
+      case kFimidaraResourceType.Workspace:
         assignedWorkspaceItems = sortedItems[type];
         break;
     }

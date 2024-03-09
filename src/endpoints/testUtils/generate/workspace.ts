@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {PartialDeep} from 'type-fest';
-import {Agent, kAppResourceType} from '../../../definitions/system';
+import {Agent, kFimidaraResourceType} from '../../../definitions/system';
 import {
   UsageRecordCategory,
   UsageRecordCategoryMap,
@@ -81,9 +81,9 @@ export function generateTestUsageThresholdInputMap(
 export function generateTestWorkspace(seed: Partial<Workspace> = {}) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
-    agentId: getNewIdForResource(kAppResourceType.User),
-    agentType: kAppResourceType.User,
-    agentTokenId: getNewIdForResource(kAppResourceType.AgentToken),
+    agentId: getNewIdForResource(kFimidaraResourceType.User),
+    agentType: kFimidaraResourceType.User,
+    agentTokenId: getNewIdForResource(kFimidaraResourceType.AgentToken),
     ...seed.createdBy,
   };
   const lastUpdatedBy: Agent = {...createdBy, ...seed.lastUpdatedBy};
@@ -91,7 +91,7 @@ export function generateTestWorkspace(seed: Partial<Workspace> = {}) {
   const resourceId =
     seed.resourceId ||
     seed.workspaceId ||
-    getNewIdForResource(kAppResourceType.Workspace);
+    getNewIdForResource(kFimidaraResourceType.Workspace);
 
   const workspace: Workspace = {
     createdAt,
@@ -103,7 +103,7 @@ export function generateTestWorkspace(seed: Partial<Workspace> = {}) {
     description: faker.lorem.sentence(),
     billStatus: WorkspaceBillStatusMap.Ok,
     billStatusAssignedAt: createdAt,
-    publicPermissionGroupId: getNewIdForResource(kAppResourceType.PermissionGroup),
+    publicPermissionGroupId: getNewIdForResource(kFimidaraResourceType.PermissionGroup),
     ...seed,
     createdBy,
     lastUpdatedBy,

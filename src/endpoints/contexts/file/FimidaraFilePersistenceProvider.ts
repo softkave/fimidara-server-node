@@ -1,7 +1,7 @@
 import {isArray, isNumber, isObject} from 'lodash';
 import path from 'path';
 import {File} from '../../../definitions/file';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {kFimidaraConfigFilePersistenceProvider} from '../../../resources/config';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
@@ -45,7 +45,7 @@ export interface FimidaraFilePersistenceProviderPage {
   page: number;
   createdAt: number;
   exclude: string[];
-  type: typeof kAppResourceType.File | typeof kAppResourceType.Folder;
+  type: typeof kFimidaraResourceType.File | typeof kFimidaraResourceType.Folder;
 }
 
 export class FimidaraFilePersistenceProvider implements FilePersistenceProvider {
@@ -145,10 +145,10 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
     let foldersResult: FilePersistenceDescribeFolderFoldersResult | undefined;
 
     if (FimidaraFilePersistenceProvider.isPage(continuationToken)) {
-      if (continuationToken.type === kAppResourceType.File) {
+      if (continuationToken.type === kFimidaraResourceType.File) {
         // Continue fetching files
         filesResult = await this.describeFolderFiles(params);
-      } else if (continuationToken.type === kAppResourceType.Folder) {
+      } else if (continuationToken.type === kFimidaraResourceType.Folder) {
         // Continue fetching folders
         foldersResult = await this.describeFolderFolders(params);
       }
@@ -187,7 +187,7 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
             page: 0,
             createdAt: Number.MAX_SAFE_INTEGER,
             exclude: [],
-            type: kAppResourceType.File,
+            type: kFimidaraResourceType.File,
           };
 
     const pathinfo = getFolderpathInfo(folderpath, {containsRootname: false});
@@ -225,7 +225,7 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
       exclude,
       page: currentPage.page++,
       createdAt: createdAtN,
-      type: kAppResourceType.File,
+      type: kFimidaraResourceType.File,
     };
 
     return {
@@ -245,7 +245,7 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
             page: 0,
             createdAt: Number.MAX_SAFE_INTEGER,
             exclude: [],
-            type: kAppResourceType.Folder,
+            type: kFimidaraResourceType.Folder,
           };
 
     const pathinfo = getFolderpathInfo(folderpath, {containsRootname: false});
@@ -275,7 +275,7 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
       exclude,
       page: currentPage.page++,
       createdAt: createdAtN,
-      type: kAppResourceType.Folder,
+      type: kFimidaraResourceType.Folder,
     };
 
     return {

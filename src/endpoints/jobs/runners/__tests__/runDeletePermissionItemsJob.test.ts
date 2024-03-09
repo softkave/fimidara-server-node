@@ -1,7 +1,7 @@
 import {flatten} from 'lodash';
 import {DeleteResourceJobParams, Job, kJobType} from '../../../../definitions/job';
 import {kPermissionsMap} from '../../../../definitions/permissionItem';
-import {kAppResourceType} from '../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../definitions/system';
 import {kSystemSessionAgent} from '../../../../utils/agent';
 import {extractResourceIdList} from '../../../../utils/fns';
 import {getNewId} from '../../../../utils/resource';
@@ -99,7 +99,7 @@ describe('runDeletePermissionItemsJob', () => {
       params: {
         $objMatch: {
           resourceId: {$in: itemIds},
-          type: kAppResourceType.PermissionItem,
+          type: kFimidaraResourceType.PermissionItem,
           workspaceId: workspace.resourceId,
         },
       },

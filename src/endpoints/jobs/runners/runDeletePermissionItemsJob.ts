@@ -2,7 +2,7 @@ import {isUndefined} from 'lodash';
 import {AppShard} from '../../../definitions/app';
 import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
 import {PermissionItem, kPermissionsMap} from '../../../definitions/permissionItem';
-import {Agent, kAppResourceType} from '../../../definitions/system';
+import {Agent, kFimidaraResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {
@@ -112,7 +112,7 @@ const processPermissionItems: PaginatedFetchProcessFn<
         params: {
           workspaceId: args.workspaceId,
           resourceId: item.resourceId,
-          type: kAppResourceType.PermissionItem,
+          type: kFimidaraResourceType.PermissionItem,
         },
       };
     })

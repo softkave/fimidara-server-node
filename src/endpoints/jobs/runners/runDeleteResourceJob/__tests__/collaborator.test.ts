@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {flatten} from 'lodash';
-import {Resource, kAppResourceType} from '../../../../../definitions/system';
+import {Resource, kFimidaraResourceType} from '../../../../../definitions/system';
 import {User} from '../../../../../definitions/user';
 import {kSystemSessionAgent} from '../../../../../utils/agent';
 import {extractResourceIdList} from '../../../../../utils/fns';
@@ -34,8 +34,8 @@ afterAll(async () => {
 
 const collaboratorGenerateTypeChildren: GenerateTypeChildrenDefinition<User> = {
   ...noopGenerateTypeChildren,
-  [kAppResourceType.PermissionItem]: generatePermissionItemsAsChildren,
-  [kAppResourceType.AssignedItem]: async ({resource, workspaceId}) =>
+  [kFimidaraResourceType.PermissionItem]: generatePermissionItemsAsChildren,
+  [kFimidaraResourceType.AssignedItem]: async ({resource, workspaceId}) =>
     flatten(
       await Promise.all([
         generateAndInsertAssignedItemListForTest(2, {
@@ -61,7 +61,7 @@ async function findWorkspaceCollaboratorAssignedItem(id: string, workspaceId: st
 }
 
 async function generateNonWorkspaceResources(id: string) {
-  const otherWorkspaceId = getNewIdForResource(kAppResourceType.Workspace);
+  const otherWorkspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
   const [pItems, files] = await Promise.all([
     generateAndInsertPermissionItemListForTest(2, {entityId: id}),
     generateAndInsertTestFiles(2, {workspaceId: otherWorkspaceId, parentId: null}),
@@ -100,12 +100,12 @@ describe('runDeleteResourceJob, agent token', () => {
   test('deleteResource0', async () => {
     testDeleteResourceJob0({
       genResourceFn,
-      type: kAppResourceType.User,
+      type: kFimidaraResourceType.User,
     });
   });
 
   test('runDeleteResourceJobArtifacts', async () => {
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const collaborator = await genResourceFn({workspaceId});
     const nonWorkspaceResources = await generateNonWorkspaceResources(
       collaborator.resourceId
@@ -116,7 +116,7 @@ describe('runDeleteResourceJob, agent token', () => {
       genWorkspaceFn: () => Promise.resolve(workspaceId),
       genChildrenDef: collaboratorGenerateTypeChildren,
       deleteCascadeDef: deleteCollaboratorCascadeEntry,
-      type: kAppResourceType.User,
+      type: kFimidaraResourceType.User,
       //  db assigned item resource would be deleted in delete artifacts so skip
       //  check DB resource, cause that'd always fail
       skipCheckDbResource: true,
@@ -129,14 +129,14 @@ describe('runDeleteResourceJob, agent token', () => {
   });
 
   test('runDeleteResourceJobSelf', async () => {
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const collaborator = await genResourceFn({workspaceId});
     const nonWorkspaceResources = await generateNonWorkspaceResources(
       collaborator.resourceId
     );
 
     await testDeleteResourceSelfJob<Resource>({
-      type: kAppResourceType.User,
+      type: kFimidaraResourceType.User,
       genResourceFn: () => Promise.resolve(collaborator),
       genWorkspaceFn: () => Promise.resolve(workspaceId),
       getResourceFn: async () => {

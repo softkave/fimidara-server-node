@@ -3,7 +3,7 @@ import {File, FileMatcher, PublicFile} from '../../definitions/file';
 import {FileBackendMount} from '../../definitions/fileBackend';
 import {Folder} from '../../definitions/folder';
 import {PermissionAction} from '../../definitions/permissionItem';
-import {Agent, SessionAgent, kAppResourceType} from '../../definitions/system';
+import {Agent, SessionAgent, kFimidaraResourceType} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
@@ -218,26 +218,31 @@ export function createNewFile(
   data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
   seed: Partial<File> = {}
 ) {
-  const fileId = getNewIdForResource(kAppResourceType.File);
-  const file = newWorkspaceResource<File>(agent, kAppResourceType.File, workspaceId, {
-    workspaceId: workspaceId,
-    resourceId: fileId,
-    extension: pathinfo.extension,
-    name: pathinfo.filenameExcludingExt,
-    idPath: parentFolder ? parentFolder.idPath.concat(fileId) : [fileId],
-    namepath: parentFolder
-      ? parentFolder.namepath.concat(pathinfo.filenameExcludingExt)
-      : [pathinfo.filenameExcludingExt],
-    parentId: parentFolder?.resourceId ?? null,
-    size: 0,
-    isWriteAvailable: false,
-    isReadAvailable: false,
-    version: 0,
-    description: data.description,
-    encoding: data.encoding,
-    mimetype: data.mimetype,
-    ...seed,
-  });
+  const fileId = getNewIdForResource(kFimidaraResourceType.File);
+  const file = newWorkspaceResource<File>(
+    agent,
+    kFimidaraResourceType.File,
+    workspaceId,
+    {
+      workspaceId: workspaceId,
+      resourceId: fileId,
+      extension: pathinfo.extension,
+      name: pathinfo.filenameExcludingExt,
+      idPath: parentFolder ? parentFolder.idPath.concat(fileId) : [fileId],
+      namepath: parentFolder
+        ? parentFolder.namepath.concat(pathinfo.filenameExcludingExt)
+        : [pathinfo.filenameExcludingExt],
+      parentId: parentFolder?.resourceId ?? null,
+      size: 0,
+      isWriteAvailable: false,
+      isReadAvailable: false,
+      version: 0,
+      description: data.description,
+      encoding: data.encoding,
+      mimetype: data.mimetype,
+      ...seed,
+    }
+  );
 
   return file;
 }

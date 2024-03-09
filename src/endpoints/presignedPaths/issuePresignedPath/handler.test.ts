@@ -1,11 +1,12 @@
 import {faker} from '@faker-js/faker';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {waitTimeout} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import RequestData from '../../RequestData';
 import {NotFoundError} from '../../errors';
 import readFile from '../../files/readFile/handler';
 import {ReadFileEndpointParams} from '../../files/readFile/types';
+import {stringifyFilenamepath} from '../../files/utils';
 import {addRootnameToPath} from '../../folders/utils';
 import {generateTestFileName} from '../../testUtils/generate/file';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
@@ -25,7 +26,6 @@ import {
 import {PermissionDeniedError} from '../../users/errors';
 import issuePresignedPath from './handler';
 import {IssuePresignedPathEndpointParams} from './types';
-import {stringifyFilenamepath} from '../../files/utils';
 
 beforeAll(async () => {
   await initTests();
@@ -205,7 +205,7 @@ describe('issuePresignedPath', () => {
     await expectErrorThrown(async () => {
       const instData = RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
-        {fileId: getNewIdForResource(kAppResourceType.File)}
+        {fileId: getNewIdForResource(kFimidaraResourceType.File)}
       );
       await issuePresignedPath(instData);
     }, [NotFoundError.name]);

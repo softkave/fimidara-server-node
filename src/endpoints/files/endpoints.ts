@@ -2,7 +2,7 @@ import busboy from 'connect-busboy';
 import {Request, Response} from 'express';
 import {first, isString, last} from 'lodash';
 import {Readable} from 'stream';
-import {kAppResourceType} from '../../definitions/system';
+import {kFimidaraResourceType} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {convertToArray} from '../../utils/fns';
 import {tryGetResourceTypeFromId} from '../../utils/resource';
@@ -75,7 +75,7 @@ function extractFilepathOrIdFromReqPath(req: Request, endpointPath: string) {
 
   if (
     maybeFileId &&
-    tryGetResourceTypeFromId(maybeFileId) === kAppResourceType.File &&
+    tryGetResourceTypeFromId(maybeFileId) === kFimidaraResourceType.File &&
     maybeFileId.includes(kFolderConstants.separator) === false
   ) {
     fileId = maybeFileId;

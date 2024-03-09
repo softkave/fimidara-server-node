@@ -1,5 +1,9 @@
 import {AssignedItem} from '../../../../definitions/assignedItem';
-import {Agent, AppResourceType, kAppResourceType} from '../../../../definitions/system';
+import {
+  Agent,
+  FimidaraResourceType,
+  kFimidaraResourceType,
+} from '../../../../definitions/system';
 import {getTimestamp} from '../../../../utils/dateFns';
 import {convertToArray, toCompactArray} from '../../../../utils/fns';
 import {AnyObject} from '../../../../utils/types';
@@ -39,7 +43,7 @@ export class DataSemanticAssignedItem
   async getByAssignee(
     workspaceId: string | undefined,
     assigneeId: string | string[],
-    assignedItemType?: AppResourceType | AppResourceType[] | undefined,
+    assignedItemType?: FimidaraResourceType | FimidaraResourceType[] | undefined,
     options?:
       | (DataProviderQueryListParams<AssignedItem<AnyObject>> &
           SemanticProviderTxnOptions)
@@ -74,7 +78,7 @@ export class DataSemanticAssignedItem
       | undefined
   ): Promise<AssignedItem<AnyObject>[]> {
     return await this.data.getManyByQuery(
-      {assigneeId, assignedItemType: kAppResourceType.Workspace},
+      {assigneeId, assignedItemType: kFimidaraResourceType.Workspace},
       options
     );
   }
@@ -133,7 +137,7 @@ export class DataSemanticAssignedItem
   async deleteByAssigned(
     workspaceId: string,
     assignedId: string | string[],
-    assignedItemType: AppResourceType | AppResourceType[] | undefined,
+    assignedItemType: FimidaraResourceType | FimidaraResourceType[] | undefined,
     opts: SemanticProviderMutationTxnOptions
   ): Promise<void> {
     await this.data.deleteManyByQuery(

@@ -635,7 +635,7 @@ export type GetResourcesEndpointParams = {
   workspaceId?: string;
   resources: Array<FetchResourceItem>;
 };
-export type AppResourceType =
+export type FimidaraResourceType =
   | '*'
   | 'system'
   | 'public'
@@ -669,7 +669,7 @@ export type Resource = {
 };
 export type ResourceWrapper = {
   resourceId: string;
-  resourceType: AppResourceType;
+  resourceType: FimidaraResourceType;
   resource: Resource;
 };
 export type GetResourcesEndpointResult = {

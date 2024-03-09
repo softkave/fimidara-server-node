@@ -1,5 +1,5 @@
 import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injection/injectables';
@@ -40,7 +40,7 @@ describe('deleteTag', () => {
     const job = (await kSemanticModels.job().getOneByQuery({
       type: kJobType.deleteResource0,
       resourceId: result.jobId,
-      params: {$objMatch: {type: kAppResourceType.Tag}},
+      params: {$objMatch: {type: kFimidaraResourceType.Tag}},
     })) as Job<DeleteResourceJobParams>;
     expect(job).toBeTruthy();
     expect(job?.params).toMatchObject({

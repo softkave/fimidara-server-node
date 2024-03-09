@@ -1,4 +1,4 @@
-import {kAppResourceType} from '../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../definitions/system';
 import {kSemanticModels} from '../../../contexts/injection/injectables';
 import {genericDeleteArtifacts, genericGetArtifacts} from './genericDefinitions';
 import {
@@ -10,14 +10,14 @@ import {
 
 const getArtifacts: DeleteResourceGetArtifactsFns = {
   ...genericGetArtifacts,
-  [kAppResourceType.ResolvedMountEntry]: ({args}) =>
+  [kFimidaraResourceType.ResolvedMountEntry]: ({args}) =>
     kSemanticModels.resolvedMountEntry().getManyByQuery({mountId: args.resourceId}),
   // TODO: should we delete files from mount?
 };
 
 const deleteArtifacts: DeleteResourceDeleteArtifactsFns = {
   ...genericDeleteArtifacts,
-  [kAppResourceType.ResolvedMountEntry]: ({args, helpers}) =>
+  [kFimidaraResourceType.ResolvedMountEntry]: ({args, helpers}) =>
     helpers.withTxn(opts =>
       kSemanticModels
         .resolvedMountEntry()

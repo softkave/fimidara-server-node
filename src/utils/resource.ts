@@ -2,8 +2,8 @@ import {invert} from 'lodash';
 import {nanoid} from 'nanoid';
 import {
   Agent,
-  AppResourceType,
-  kAppResourceType,
+  FimidaraResourceType,
+  kFimidaraResourceType,
   Resource,
   SessionAgent,
   WorkspaceResource,
@@ -31,28 +31,28 @@ function padShortName(shortName: string) {
     .toLowerCase();
 }
 
-export const kResourceTypeShortNames: Record<AppResourceType, string> = {
-  [kAppResourceType.All]: padShortName('*'),
-  [kAppResourceType.System]: padShortName('system'),
-  [kAppResourceType.Public]: padShortName('public'),
-  [kAppResourceType.Workspace]: padShortName('wrkspce'),
-  [kAppResourceType.CollaborationRequest]: padShortName('corqst'),
-  [kAppResourceType.AgentToken]: padShortName('agtoken'),
-  [kAppResourceType.PermissionGroup]: padShortName('pmgroup'),
-  [kAppResourceType.PermissionItem]: padShortName('prmitem'),
-  [kAppResourceType.Folder]: padShortName('folder'),
-  [kAppResourceType.File]: padShortName('file'),
-  [kAppResourceType.User]: padShortName('user'),
-  [kAppResourceType.Tag]: padShortName('tag'),
-  [kAppResourceType.AssignedItem]: padShortName('asgitem'),
-  [kAppResourceType.UsageRecord]: padShortName('urecord'),
-  [kAppResourceType.EndpointRequest]: padShortName('endrqst'),
-  [kAppResourceType.Job]: padShortName('job'),
-  [kAppResourceType.PresignedPath]: padShortName('presgnd'),
-  [kAppResourceType.App]: padShortName('app'),
-  [kAppResourceType.FileBackendConfig]: padShortName('bckconf'),
-  [kAppResourceType.FileBackendMount]: padShortName('mount'),
-  [kAppResourceType.ResolvedMountEntry]: padShortName('rmtentr'),
+export const kResourceTypeShortNames: Record<FimidaraResourceType, string> = {
+  [kFimidaraResourceType.All]: padShortName('*'),
+  [kFimidaraResourceType.System]: padShortName('system'),
+  [kFimidaraResourceType.Public]: padShortName('public'),
+  [kFimidaraResourceType.Workspace]: padShortName('wrkspce'),
+  [kFimidaraResourceType.CollaborationRequest]: padShortName('corqst'),
+  [kFimidaraResourceType.AgentToken]: padShortName('agtoken'),
+  [kFimidaraResourceType.PermissionGroup]: padShortName('pmgroup'),
+  [kFimidaraResourceType.PermissionItem]: padShortName('prmitem'),
+  [kFimidaraResourceType.Folder]: padShortName('folder'),
+  [kFimidaraResourceType.File]: padShortName('file'),
+  [kFimidaraResourceType.User]: padShortName('user'),
+  [kFimidaraResourceType.Tag]: padShortName('tag'),
+  [kFimidaraResourceType.AssignedItem]: padShortName('asgitem'),
+  [kFimidaraResourceType.UsageRecord]: padShortName('urecord'),
+  [kFimidaraResourceType.EndpointRequest]: padShortName('endrqst'),
+  [kFimidaraResourceType.Job]: padShortName('job'),
+  [kFimidaraResourceType.PresignedPath]: padShortName('presgnd'),
+  [kFimidaraResourceType.App]: padShortName('app'),
+  [kFimidaraResourceType.FileBackendConfig]: padShortName('bckconf'),
+  [kFimidaraResourceType.FileBackendMount]: padShortName('mount'),
+  [kFimidaraResourceType.ResolvedMountEntry]: padShortName('rmtentr'),
 };
 
 export const kShortNameToResourceType = invert(kResourceTypeShortNames) as InvertRecord<
@@ -86,10 +86,10 @@ export const kId0 = ''.padEnd(kIdSize, kResourceTypeShortNamePadding);
  * @returns
  */
 export function getNewIdForResource(
-  resourceType: AppResourceType,
+  resourceType: FimidaraResourceType,
   size = kIdSize,
-  id0 = resourceType === kAppResourceType.System ||
-    resourceType === kAppResourceType.Public
+  id0 = resourceType === kFimidaraResourceType.System ||
+    resourceType === kFimidaraResourceType.Public
 ) {
   let id = kId0;
   if (!id0) {
@@ -108,7 +108,7 @@ export function isAppResourceId(resourceId: string) {
   return true;
 }
 
-export function tryGetResourceTypeFromId(id: string): AppResourceType | undefined {
+export function tryGetResourceTypeFromId(id: string): FimidaraResourceType | undefined {
   const shortName = id.slice(0, kResourceTypeShortNameMaxLength);
   const type = kShortNameToResourceType[shortName];
   return type;
@@ -125,7 +125,7 @@ export function getResourceTypeFromId(id: string) {
 }
 
 export function newResource<T extends AnyObject>(
-  type: AppResourceType,
+  type: FimidaraResourceType,
   seed?: Omit<T, keyof Resource> & Partial<Resource>
 ): Resource & T {
   const createdAt = getTimestamp();
@@ -142,7 +142,7 @@ export function newResource<T extends AnyObject>(
 
 export function newWorkspaceResource<T extends AnyObject>(
   agent: Agent | SessionAgent,
-  type: AppResourceType,
+  type: FimidaraResourceType,
   workspaceId: string,
   seed?: Omit<T, keyof WorkspaceResource> & Partial<WorkspaceResource>
 ): WorkspaceResource & T {

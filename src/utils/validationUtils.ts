@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
 import {kPermissionsMap} from '../definitions/permissionItem';
-import {kAppResourceTypeList as systemAppResourceTypesList} from '../definitions/system';
+import {kFimidaraResourceTypeList as systemFimidaraResourceTypesList} from '../definitions/system';
 import {kEndpointConstants} from '../endpoints/constants';
 
 const password = /[A-Za-z0-9!()?_`~#$^&*+=]/;
@@ -53,7 +53,7 @@ const resourceIdList = Joi.array()
 const resourceIdOrResourceIdList = Joi.alternatives().try(resourceId, resourceIdList);
 const fromNowMs = Joi.number().integer().min(0);
 const fromNowSecs = Joi.number().integer().min(0);
-const resourceType = Joi.string().valid(...systemAppResourceTypesList);
+const resourceType = Joi.string().valid(...systemFimidaraResourceTypesList);
 const crudAction = Joi.string().valid(...Object.values(kPermissionsMap));
 const crudActionList = Joi.array()
   .items(crudAction)

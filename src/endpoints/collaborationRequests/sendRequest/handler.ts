@@ -4,7 +4,7 @@ import {
   kCollaborationRequestStatusTypeMap,
 } from '../../../definitions/collaborationRequest';
 import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
 import {newWorkspaceResource} from '../../../utils/resource';
@@ -68,7 +68,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async instDat
 
     const request: CollaborationRequest = newWorkspaceResource(
       agent,
-      kAppResourceType.CollaborationRequest,
+      kFimidaraResourceType.CollaborationRequest,
       workspace.resourceId,
       {
         message: data.request.message,

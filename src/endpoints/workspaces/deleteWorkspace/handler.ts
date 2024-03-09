@@ -1,5 +1,5 @@
 import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
 import {kUtilsInjectables} from '../../contexts/injection/injectables';
@@ -12,7 +12,7 @@ const deleteWorkspace: DeleteWorkspaceEndpoint = async instData => {
   const data = validate(instData.data, deleteWorkspaceJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, kAppResourceType.User);
+    .getAgent(instData, kFimidaraResourceType.User);
   const {workspace} = await checkWorkspaceAuthorization02(
     agent,
     kPermissionsMap.deleteWorkspace,

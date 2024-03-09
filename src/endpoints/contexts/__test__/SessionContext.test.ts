@@ -1,4 +1,4 @@
-import {kAppResourceType, kTokenAccessScope} from '../../../definitions/system';
+import {kFimidaraResourceType, kTokenAccessScope} from '../../../definitions/system';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import RequestData from '../../RequestData';
 import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generate/agentToken';
@@ -24,7 +24,7 @@ describe('SessionContext', () => {
       scope: [kTokenAccessScope.ChangePassword],
       workspaceId: null,
       forEntityId: user.resourceId,
-      entityType: kAppResourceType.User,
+      entityType: kFimidaraResourceType.User,
     });
     await expectErrorThrown(async () => {
       const reqData = new RequestData({
@@ -32,7 +32,7 @@ describe('SessionContext', () => {
       });
       await kUtilsInjectables
         .session()
-        .getAgent(reqData, [kAppResourceType.User], [kTokenAccessScope.Login]);
+        .getAgent(reqData, [kFimidaraResourceType.User], [kTokenAccessScope.Login]);
     }, [PermissionDeniedError.name]);
   });
 
@@ -44,7 +44,7 @@ describe('SessionContext', () => {
       scope: [kTokenAccessScope.Login],
       workspaceId: null,
       forEntityId: user.resourceId,
-      entityType: kAppResourceType.User,
+      entityType: kFimidaraResourceType.User,
     });
     await expectErrorThrown(async () => {
       const reqData = new RequestData({
@@ -52,7 +52,7 @@ describe('SessionContext', () => {
       });
       await kUtilsInjectables
         .session()
-        .getAgent(reqData, [kAppResourceType.User], [kTokenAccessScope.Login]);
+        .getAgent(reqData, [kFimidaraResourceType.User], [kTokenAccessScope.Login]);
     }, [ChangePasswordError.name]);
   });
 });

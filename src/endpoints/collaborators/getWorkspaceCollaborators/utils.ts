@@ -1,5 +1,5 @@
 import {AssignedItem} from '../../../definitions/assignedItem';
-import {kAppResourceType, SessionAgent} from '../../../definitions/system';
+import {kFimidaraResourceType, SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {
   kResolvedTargetChildrenAccess,
@@ -23,8 +23,8 @@ export async function getWorkspaceCollaboratorsQuery(
   if (permissionsSummaryReport.access === kResolvedTargetChildrenAccess.full) {
     return {
       workspaceId: workspace.resourceId,
-      assignedItemType: kAppResourceType.Workspace,
-      assigneeType: kAppResourceType.User,
+      assignedItemType: kFimidaraResourceType.Workspace,
+      assigneeType: kFimidaraResourceType.User,
       ...getInAndNinQuery<AssignedItem>(
         'assigneeId',
         /** inList */ undefined,
@@ -37,8 +37,8 @@ export async function getWorkspaceCollaboratorsQuery(
       assigneeId: permissionsSummaryReport.partialAllowIds && {
         $in: permissionsSummaryReport.partialAllowIds,
       },
-      assignedItemType: kAppResourceType.Workspace,
-      assigneeType: kAppResourceType.User,
+      assignedItemType: kFimidaraResourceType.Workspace,
+      assigneeType: kFimidaraResourceType.User,
     };
   }
 

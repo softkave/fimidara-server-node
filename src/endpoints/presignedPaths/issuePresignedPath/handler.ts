@@ -2,7 +2,7 @@ import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {PresignedPath} from '../../../definitions/presignedPath';
 import {
   Resource,
-  kAppResourceType,
+  kFimidaraResourceType,
   kPermissionAgentTypes,
 } from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
@@ -106,7 +106,7 @@ const issuePresignedPath: IssuePresignedPathEndpoint = async instData => {
 
     const presignedPath = newWorkspaceResource<PresignedPath>(
       agent,
-      kAppResourceType.PresignedPath,
+      kFimidaraResourceType.PresignedPath,
       workspaceId,
       {
         expiresAt,

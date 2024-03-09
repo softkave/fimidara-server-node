@@ -2,7 +2,11 @@ import {faker} from '@faker-js/faker';
 import {pick} from 'lodash';
 import {AnyObject} from 'mongoose';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {Agent, AppResourceType, kAppResourceType} from '../../../definitions/system';
+import {
+  Agent,
+  FimidaraResourceType,
+  kFimidaraResourceType,
+} from '../../../definitions/system';
 import {mergeData} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {AnyFn, OrPromise} from '../../../utils/types';
@@ -38,7 +42,7 @@ export function generateTestList<
 }
 
 export function randomResourceType(
-  types: AppResourceType[] = Object.values(kAppResourceType)
+  types: FimidaraResourceType[] = Object.values(kFimidaraResourceType)
 ) {
   return faker.helpers.arrayElement(types);
 }
@@ -52,7 +56,7 @@ export function randomActionList(actions = Object.values(kPermissionsMap)) {
 }
 
 export function generateAgent(seed: Partial<Agent> = {}): Agent {
-  const agentType = kAppResourceType.AgentToken;
+  const agentType = kFimidaraResourceType.AgentToken;
   const agentTokenId = getNewIdForResource(agentType);
   return {
     agentType,

@@ -6,10 +6,10 @@ import {
   kPermissionsMap,
 } from '../../../definitions/permissionItem';
 import {
-  AppResourceType,
+  FimidaraResourceType,
   ResourceWrapper,
   SessionAgent,
-  kAppResourceType,
+  kFimidaraResourceType,
 } from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
@@ -71,7 +71,7 @@ export const INTERNAL_addPermissionItems = async (
   const workspaceWrapper: ResourceWrapper = {
     resource: workspace,
     resourceId: workspace.resourceId,
-    resourceType: kAppResourceType.Workspace,
+    resourceType: kFimidaraResourceType.Workspace,
   };
 
   const getEntities = (inputEntity: string | string[]) => {
@@ -93,7 +93,7 @@ export const INTERNAL_addPermissionItems = async (
     entity: ResourceWrapper;
     action: PermissionAction;
     target: ResourceWrapper;
-    targetType: AppResourceType;
+    targetType: FimidaraResourceType;
     access: boolean;
   };
 
@@ -131,8 +131,8 @@ export const INTERNAL_addPermissionItems = async (
     let targetParentId: string;
 
     if (
-      item.target.resourceType === kAppResourceType.File ||
-      item.target.resourceType === kAppResourceType.Folder
+      item.target.resourceType === kFimidaraResourceType.File ||
+      item.target.resourceType === kFimidaraResourceType.Folder
     ) {
       const idPath = (item.target.resource as unknown as Pick<File, 'idPath'>).idPath;
       const containerId = idPath[idPath.length - 2] ?? workspace.resourceId;
@@ -144,7 +144,7 @@ export const INTERNAL_addPermissionItems = async (
 
     return newWorkspaceResource(
       agent,
-      kAppResourceType.PermissionItem,
+      kFimidaraResourceType.PermissionItem,
       workspace.resourceId,
       {
         targetType,

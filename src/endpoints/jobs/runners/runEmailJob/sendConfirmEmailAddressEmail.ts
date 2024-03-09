@@ -1,8 +1,8 @@
 import {AgentToken} from '../../../../definitions/agentToken';
 import {EmailJobParams, kEmailJobType} from '../../../../definitions/job';
 import {
-  kAppResourceType,
   kCurrentJWTTokenVersion,
+  kFimidaraResourceType,
   kTokenAccessScope,
 } from '../../../../definitions/system';
 import {User} from '../../../../definitions/user';
@@ -31,12 +31,12 @@ export async function getLinkWithConfirmEmailToken(user: User, urlPath: string) 
       .getOneAgentToken(user.resourceId, kTokenAccessScope.ConfirmEmailAddress, opts);
 
     if (!token) {
-      token = newResource<AgentToken>(kAppResourceType.AgentToken, {
+      token = newResource<AgentToken>(kFimidaraResourceType.AgentToken, {
         scope: [kTokenAccessScope.ConfirmEmailAddress],
         version: kCurrentJWTTokenVersion,
         forEntityId: user.resourceId,
         workspaceId: null,
-        entityType: kAppResourceType.User,
+        entityType: kFimidaraResourceType.User,
         createdBy: kSystemSessionAgent,
         lastUpdatedBy: kSystemSessionAgent,
       });

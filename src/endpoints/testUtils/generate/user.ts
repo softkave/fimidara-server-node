@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource} from '../../../utils/resource';
@@ -13,7 +13,7 @@ import {
 export function generateUserForTest(seed: Partial<User> = {}) {
   const createdAt = getTimestamp();
   const item: User = {
-    resourceId: getNewIdForResource(kAppResourceType.User),
+    resourceId: getNewIdForResource(kFimidaraResourceType.User),
     createdAt,
     lastUpdatedAt: createdAt,
     firstName: faker.person.firstName(),

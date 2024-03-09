@@ -1,7 +1,7 @@
 import {flatten} from 'lodash';
 import {AgentToken} from '../../../../../definitions/agentToken';
 import {Folder} from '../../../../../definitions/folder';
-import {kAppResourceType} from '../../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../../definitions/system';
 import {Workspace} from '../../../../../definitions/workspace';
 import {
   generateAndInsertTestFiles,
@@ -38,8 +38,8 @@ afterAll(async () => {
 
 const folderGenerateTypeChildren: GenerateTypeChildrenDefinition<Folder> = {
   ...noopGenerateTypeChildren,
-  [kAppResourceType.PermissionItem]: generatePermissionItemsAsChildren,
-  [kAppResourceType.Folder]: async ({resource, workspaceId}) =>
+  [kFimidaraResourceType.PermissionItem]: generatePermissionItemsAsChildren,
+  [kFimidaraResourceType.Folder]: async ({resource, workspaceId}) =>
     flatten(
       await Promise.all([
         generateAndInsertTestFolders(2, {
@@ -52,7 +52,7 @@ const folderGenerateTypeChildren: GenerateTypeChildrenDefinition<Folder> = {
         }),
       ])
     ),
-  [kAppResourceType.File]: async ({resource, workspaceId}) =>
+  [kFimidaraResourceType.File]: async ({resource, workspaceId}) =>
     flatten(
       await Promise.all([
         generateAndInsertTestFiles(2, {
@@ -85,7 +85,7 @@ describe('runDeleteResourceJob, folder', () => {
     testDeleteResourceJob0({
       genResourceFn: () => Promise.resolve(rawFolder),
       genWorkspaceFn: () => Promise.resolve(workspace.resourceId),
-      type: kAppResourceType.Folder,
+      type: kFimidaraResourceType.Folder,
     });
   });
 
@@ -97,7 +97,7 @@ describe('runDeleteResourceJob, folder', () => {
       genWorkspaceFn: () => Promise.resolve(workspace.resourceId),
       genChildrenDef: folderGenerateTypeChildren,
       deleteCascadeDef: deleteFolderCascadeEntry,
-      type: kAppResourceType.Folder,
+      type: kFimidaraResourceType.Folder,
     });
   });
 
@@ -107,7 +107,7 @@ describe('runDeleteResourceJob, folder', () => {
     await testDeleteResourceSelfJob({
       genResourceFn: () => Promise.resolve(rawFolder),
       genWorkspaceFn: () => Promise.resolve(workspace.resourceId),
-      type: kAppResourceType.Folder,
+      type: kFimidaraResourceType.Folder,
     });
   });
 });

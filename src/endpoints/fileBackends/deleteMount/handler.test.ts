@@ -1,6 +1,6 @@
 import {kFileBackendType} from '../../../definitions/fileBackend';
 import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
@@ -36,7 +36,7 @@ describe('deleteMount', () => {
     const instData = RequestData.fromExpressRequest<DeleteFileBackendMountEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
-        mountId: getNewIdForResource(kAppResourceType.FileBackendMount),
+        mountId: getNewIdForResource(kFimidaraResourceType.FileBackendMount),
         workspaceId: workspace.resourceId,
       }
     );
@@ -93,7 +93,7 @@ describe('deleteMount', () => {
       type: kJobType.deleteResource0,
       resourceId: result.jobId,
       params: {
-        $objMatch: {type: kAppResourceType.FileBackendMount},
+        $objMatch: {type: kFimidaraResourceType.FileBackendMount},
       },
     })) as Job<DeleteResourceJobParams>;
     expect(job).toBeTruthy();

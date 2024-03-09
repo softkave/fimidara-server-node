@@ -1,4 +1,4 @@
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import RequestData from '../../RequestData';
@@ -47,7 +47,7 @@ describe('getMount', () => {
     const instData = RequestData.fromExpressRequest<GetFileBackendMountEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
-        mountId: getNewIdForResource(kAppResourceType.FileBackendMount),
+        mountId: getNewIdForResource(kFimidaraResourceType.FileBackendMount),
         workspaceId: workspace.resourceId,
       }
     );

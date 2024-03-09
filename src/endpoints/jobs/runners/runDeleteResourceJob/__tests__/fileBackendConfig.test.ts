@@ -1,5 +1,5 @@
 import {FileBackendConfig} from '../../../../../definitions/fileBackend';
-import {kAppResourceType} from '../../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../../definitions/system';
 import {generateAndInsertFileBackendConfigListForTest} from '../../../../testUtils/generate/fileBackend';
 import {completeTests} from '../../../../testUtils/helpers/testFns';
 import {initTests} from '../../../../testUtils/testUtils';
@@ -25,7 +25,7 @@ afterAll(async () => {
 const fileBackendConfigGenerateTypeChildren: GenerateTypeChildrenDefinition<FileBackendConfig> =
   {
     ...noopGenerateTypeChildren,
-    [kAppResourceType.PermissionItem]: generatePermissionItemsAsChildren,
+    [kFimidaraResourceType.PermissionItem]: generatePermissionItemsAsChildren,
   };
 
 const genResourceFn: GenerateResourceFn<FileBackendConfig> = async ({workspaceId}) => {
@@ -39,7 +39,7 @@ describe('runDeleteResourceJob, file backend config', () => {
   test('deleteResource0', async () => {
     testDeleteResourceJob0({
       genResourceFn,
-      type: kAppResourceType.FileBackendConfig,
+      type: kFimidaraResourceType.FileBackendConfig,
     });
   });
 
@@ -48,14 +48,14 @@ describe('runDeleteResourceJob, file backend config', () => {
       genResourceFn,
       genChildrenDef: fileBackendConfigGenerateTypeChildren,
       deleteCascadeDef: deleteFileBackendConfigCascadeEntry,
-      type: kAppResourceType.FileBackendConfig,
+      type: kFimidaraResourceType.FileBackendConfig,
     });
   });
 
   test('runDeleteResourceJobSelf', async () => {
     await testDeleteResourceSelfJob({
       genResourceFn,
-      type: kAppResourceType.FileBackendConfig,
+      type: kFimidaraResourceType.FileBackendConfig,
     });
   });
 });

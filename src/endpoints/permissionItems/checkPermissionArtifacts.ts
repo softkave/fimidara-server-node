@@ -3,7 +3,7 @@ import {PermissionAction} from '../../definitions/permissionItem';
 import {
   SessionAgent,
   getWorkspaceResourceTypeList,
-  kAppResourceType,
+  kFimidaraResourceType,
   kPermissionContainerTypes,
   kPermissionEntityTypes,
 } from '../../definitions/system';
@@ -75,7 +75,7 @@ export async function checkPermissionContainersExist(
 }
 
 const targetTypes = getWorkspaceResourceTypeList().filter(
-  type => type !== kAppResourceType.All
+  type => type !== kFimidaraResourceType.All
 );
 
 export async function checkPermissionTargetsExist(
@@ -103,7 +103,7 @@ export async function checkPermissionTargetsExist(
     checkAuth: true,
   });
   resources = await resourceListWithAssignedItems(workspaceId, resources, [
-    kAppResourceType.User,
+    kFimidaraResourceType.User,
   ]);
 
   checkResourcesBelongsToWorkspace(workspaceId, resources);

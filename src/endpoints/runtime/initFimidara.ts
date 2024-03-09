@@ -7,7 +7,11 @@ import {
   PermissionItem,
   kPermissionsMap,
 } from '../../definitions/permissionItem';
-import {AppRuntimeState, SessionAgent, kAppResourceType} from '../../definitions/system';
+import {
+  AppRuntimeState,
+  SessionAgent,
+  kFimidaraResourceType,
+} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {FimidaraRuntimeConfig} from '../../resources/config';
 import {kSystemSessionAgent} from '../../utils/agent';
@@ -38,7 +42,7 @@ import {assertWorkspace} from '../workspaces/utils';
 // tests.
 
 export const kAppRuntimeStatsDocId = getNewIdForResource(
-  kAppResourceType.System,
+  kFimidaraResourceType.System,
   kIdSize,
   true
 );
@@ -184,7 +188,7 @@ async function setupImageUploadPermissionGroup(
 
     const imageUploadPermissionGroup = newWorkspaceResource<PermissionGroup>(
       kSystemSessionAgent,
-      kAppResourceType.PermissionGroup,
+      kFimidaraResourceType.PermissionGroup,
       workspaceId,
       {name, description}
     );
@@ -198,15 +202,15 @@ async function setupImageUploadPermissionGroup(
       appAssert(targetParentId);
       const item: PermissionItem = newWorkspaceResource<PermissionItem>(
         kSystemSessionAgent,
-        kAppResourceType.PermissionItem,
+        kFimidaraResourceType.PermissionItem,
         workspaceId,
         {
           action,
           targetParentId,
           entityId: imageUploadPermissionGroup.resourceId,
-          entityType: kAppResourceType.PermissionGroup,
+          entityType: kFimidaraResourceType.PermissionGroup,
           targetId: folder.resourceId,
-          targetType: kAppResourceType.File,
+          targetType: kFimidaraResourceType.File,
           access: true,
         }
       );

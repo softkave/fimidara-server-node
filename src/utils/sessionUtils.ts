@@ -1,5 +1,5 @@
 import {AgentToken} from '../definitions/agentToken';
-import {Agent, kAppResourceType, SessionAgent} from '../definitions/system';
+import {Agent, kFimidaraResourceType, SessionAgent} from '../definitions/system';
 import {User} from '../definitions/user';
 import {InvalidRequestError} from '../endpoints/errors';
 import {appAssert} from './assertion';
@@ -9,7 +9,7 @@ export function makeWorkspaceAgentTokenAgent(agentToken: AgentToken): SessionAge
   return {
     agentToken,
     agentId: agentToken.resourceId,
-    agentType: kAppResourceType.AgentToken,
+    agentType: kFimidaraResourceType.AgentToken,
     agentTokenId: agentToken.resourceId,
   };
 }
@@ -20,7 +20,7 @@ export function makeUserSessionAgent(user: User, agentToken: AgentToken): Sessio
     agentToken,
     user,
     agentId: user.resourceId,
-    agentType: kAppResourceType.User,
+    agentType: kFimidaraResourceType.User,
     agentTokenId: agentToken.resourceId,
   };
 }
@@ -83,8 +83,8 @@ export function isSessionAgent(agent: unknown): agent is SessionAgent {
   if (
     (agent as SessionAgent).agentToken ||
     (agent as SessionAgent).user ||
-    (agent as SessionAgent).agentType === kAppResourceType.System ||
-    (agent as SessionAgent).agentType === kAppResourceType.Public
+    (agent as SessionAgent).agentType === kFimidaraResourceType.System ||
+    (agent as SessionAgent).agentType === kFimidaraResourceType.Public
   )
     return true;
 

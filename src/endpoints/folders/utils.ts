@@ -5,7 +5,7 @@ import {isPathEmpty, pathJoin, pathSplit} from '../../utils/fns';
 
 import {FileBackendMount} from '../../definitions/fileBackend';
 import {PermissionAction} from '../../definitions/permissionItem';
-import {Agent, SessionAgent, kAppResourceType} from '../../definitions/system';
+import {Agent, SessionAgent, kFimidaraResourceType} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
 import {getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
@@ -302,8 +302,8 @@ export function createNewFolder(
   /** represents internal data */
   seed: Partial<Folder> = {}
 ) {
-  const folderId = getNewIdForResource(kAppResourceType.Folder);
-  return newWorkspaceResource<Folder>(agent, kAppResourceType.Folder, workspaceId, {
+  const folderId = getNewIdForResource(kFimidaraResourceType.Folder);
+  return newWorkspaceResource<Folder>(agent, kFimidaraResourceType.Folder, workspaceId, {
     workspaceId,
     resourceId: folderId,
     name: pathinfo.name,

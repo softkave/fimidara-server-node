@@ -2,7 +2,7 @@ import assert from 'assert';
 import fse from 'fs-extra';
 import path from 'path';
 import {Readable} from 'stream';
-import {kAppResourceType} from '../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../definitions/system';
 import {loopAndCollate, pathJoin, pathSplit} from '../../../../utils/fns';
 import {getNewIdForResource} from '../../../../utils/resource';
 import {
@@ -43,7 +43,7 @@ afterAll(async () => {
 describe('LocalFsFilePersistenceProvider', () => {
   test('toNativePath', () => {
     assert(testDir);
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = generateFileBackendMountForTest({workspaceId});
     const filepath = generateTestFilepathString({length: 4});
 
@@ -61,7 +61,7 @@ describe('LocalFsFilePersistenceProvider', () => {
 
   test('toFimidaraPath', () => {
     assert(testDir);
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = generateFileBackendMountForTest({workspaceId});
     const filepath = generateTestFilepathString({length: 4});
     const nativePath = pathJoin(testDir, mount.mountedFrom, filepath);
@@ -77,7 +77,7 @@ describe('LocalFsFilePersistenceProvider', () => {
     assert(testDir);
     const filepath = generateTestFilepathString({length: 3});
     const data = Readable.from(['Hello world!']);
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const [mount] = await generateAndInsertFileBackendMountListForTest(1, {workspaceId});
 
     const backend = new LocalFsFilePersistenceProvider({dir: testDir});
@@ -96,7 +96,7 @@ describe('LocalFsFilePersistenceProvider', () => {
   test('readFile', async () => {
     assert(testDir);
     const buffer = Buffer.from('Hello world!');
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const [mount] = await generateAndInsertFileBackendMountListForTest(1, {workspaceId});
     const filepath = generateTestFilepathString({
       length: mount.namepath.length + 2,
@@ -115,7 +115,7 @@ describe('LocalFsFilePersistenceProvider', () => {
   test('deleteFiles', async () => {
     assert(testDir);
     const buffer = Buffer.from('Hello, world!');
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const [mount] = await generateAndInsertFileBackendMountListForTest(1, {workspaceId});
     const filepath01 = generateTestFilepathString({
       length: mount.namepath.length + 2,
@@ -155,7 +155,7 @@ describe('LocalFsFilePersistenceProvider', () => {
 
   test('deleteFolders', async () => {
     assert(testDir);
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const [mount] = await generateAndInsertFileBackendMountListForTest(1, {workspaceId});
     const folderpath01 = generateTestFolderpathString({
       length: mount.namepath.length + 2,
@@ -197,7 +197,7 @@ describe('LocalFsFilePersistenceProvider', () => {
   test('describeFile', async () => {
     assert(testDir);
     const buffer = Buffer.from('Hello world!');
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const [mount] = await generateAndInsertFileBackendMountListForTest(1, {workspaceId});
     const filepath = generateTestFilepathString({
       length: mount.namepath.length + 2,
@@ -219,7 +219,7 @@ describe('LocalFsFilePersistenceProvider', () => {
 
   test('describeFolder', async () => {
     assert(testDir);
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const [mount] = await generateAndInsertFileBackendMountListForTest(1, {workspaceId});
     const folderpath = generateTestFolderpathString({
       length: mount.namepath.length + 2,
@@ -246,7 +246,7 @@ describe('LocalFsFilePersistenceProvider', () => {
   test('describeFolderContent', async () => {
     assert(testDir);
     const buffer = Buffer.from('Hello, world!');
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const [mount] = await generateAndInsertFileBackendMountListForTest(1, {workspaceId});
     const folderpath = generateTestFolderpathString({
       length: mount.namepath.length + 2,

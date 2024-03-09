@@ -1,5 +1,5 @@
 import {PermissionItem} from '../../../../../definitions/permissionItem';
-import {kAppResourceType} from '../../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../../definitions/system';
 import {generateAndInsertPermissionItemListForTest} from '../../../../testUtils/generate/permissionItem';
 import {completeTests} from '../../../../testUtils/helpers/testFns';
 import {initTests} from '../../../../testUtils/testUtils';
@@ -25,7 +25,7 @@ afterAll(async () => {
 const permissionItemGenerateTypeChildren: GenerateTypeChildrenDefinition<PermissionItem> =
   {
     ...noopGenerateTypeChildren,
-    [kAppResourceType.PermissionItem]: generatePermissionItemsAsChildren,
+    [kFimidaraResourceType.PermissionItem]: generatePermissionItemsAsChildren,
   };
 
 const genResourceFn: GenerateResourceFn<PermissionItem> = async ({workspaceId}) => {
@@ -39,7 +39,7 @@ describe('runDeleteResourceJob, permission item', () => {
   test('deleteResource0', async () => {
     testDeleteResourceJob0({
       genResourceFn,
-      type: kAppResourceType.PermissionItem,
+      type: kFimidaraResourceType.PermissionItem,
     });
   });
 
@@ -48,14 +48,14 @@ describe('runDeleteResourceJob, permission item', () => {
       genResourceFn,
       genChildrenDef: permissionItemGenerateTypeChildren,
       deleteCascadeDef: deletePermissionItemCascadeEntry,
-      type: kAppResourceType.PermissionItem,
+      type: kFimidaraResourceType.PermissionItem,
     });
   });
 
   test('runDeleteResourceJobSelf', async () => {
     await testDeleteResourceSelfJob({
       genResourceFn,
-      type: kAppResourceType.PermissionItem,
+      type: kFimidaraResourceType.PermissionItem,
     });
   });
 });

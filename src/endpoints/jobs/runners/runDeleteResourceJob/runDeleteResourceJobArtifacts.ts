@@ -7,9 +7,9 @@ import {
   kJobType,
 } from '../../../../definitions/job';
 import {
-  AppResourceType,
+  FimidaraResourceType,
   Resource,
-  kAppResourceType,
+  kFimidaraResourceType,
 } from '../../../../definitions/system';
 import {AnyFn} from '../../../../utils/types';
 import {
@@ -29,7 +29,7 @@ import {
 
 async function setDeleteJobGetArtifactsMeta(
   job: Job,
-  type: AppResourceType,
+  type: FimidaraResourceType,
   page: number,
   pageSize: number
 ) {
@@ -46,7 +46,7 @@ async function setDeleteJobGetArtifactsMeta(
 
 async function setDeleteJobDeleteArtifactsMeta(
   job: Job,
-  type: AppResourceType,
+  type: FimidaraResourceType,
   done = true
 ) {
   const updatedMeta = await setJobMeta<DeleteResourceJobMeta>(job.resourceId, meta => ({
@@ -62,7 +62,7 @@ async function setDeleteJobDeleteArtifactsMeta(
 
 async function getArtifactsAndQueueDeleteJobs(
   workspaceId: string,
-  type: AppResourceType,
+  type: FimidaraResourceType,
   getFn: GetArtifactsFn,
   args: DeleteResourceCascadeFnDefaultArgs,
   helpers: DeleteResourceCascadeFnHelpers
@@ -78,10 +78,10 @@ async function getArtifactsAndQueueDeleteJobs(
       helpers.job.resourceId,
       artifacts.map((artifact): JobInput => {
         const params: DeleteResourceJobParams =
-          type === kAppResourceType.User
+          type === kFimidaraResourceType.User
             ? {
                 workspaceId,
-                type: kAppResourceType.User,
+                type: kFimidaraResourceType.User,
                 resourceId: artifact.resourceId,
                 isRemoveCollaborator: true,
               }
@@ -111,16 +111,16 @@ export async function processGetArtifactsFromDef(
   helpers: DeleteResourceCascadeFnHelpers
 ) {
   const entries = Object.entries(getArtifactsDef);
-  const processedTypes: AppResourceType[] = [];
+  const processedTypes: FimidaraResourceType[] = [];
 
   for (const entry of entries) {
     const [type, getFn] = entry;
 
     if (getFn) {
-      processedTypes.push(type as AppResourceType);
+      processedTypes.push(type as FimidaraResourceType);
       await getArtifactsAndQueueDeleteJobs(
         workspaceId,
-        type as AppResourceType,
+        type as FimidaraResourceType,
         getFn,
         args,
         helpers
@@ -133,25 +133,27 @@ export async function processGetArtifactsFromDef(
 
 async function processDeleteArtifactsFromDef(
   deleteArtifactsDef: DeleteResourceDeleteArtifactsFns,
-  skipTypes: AppResourceType[],
+  skipTypes: FimidaraResourceType[],
   args: DeleteResourceCascadeFnDefaultArgs,
   helpers: DeleteResourceCascadeFnHelpers
 ) {
   const entries = Object.entries(deleteArtifactsDef);
   Object.entries(helpers.job.meta?.deleteArtifacts || {}).forEach(([type, status]) => {
     if (status?.done) {
-      skipTypes.push(type as AppResourceType);
+      skipTypes.push(type as FimidaraResourceType);
     }
   });
 
   for (const entry of entries) {
     const [type, deleteFn] = entry;
 
-    if (deleteFn && !skipTypes.includes(type as AppResourceType)) {
+    if (deleteFn && !skipTypes.includes(type as FimidaraResourceType)) {
       await deleteFn({args, helpers});
       kUtilsInjectables
         .promises()
-        .forget(setDeleteJobDeleteArtifactsMeta(helpers.job, type as AppResourceType));
+        .forget(
+          setDeleteJobDeleteArtifactsMeta(helpers.job, type as FimidaraResourceType)
+        );
     }
   }
 }

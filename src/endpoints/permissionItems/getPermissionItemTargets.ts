@@ -5,7 +5,7 @@ import {
   ResourceWrapper,
   SessionAgent,
   getWorkspaceResourceTypeList,
-  kAppResourceType,
+  kFimidaraResourceType,
 } from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {convertToArray} from '../../utils/fns';
@@ -91,9 +91,9 @@ export class PermissionItemTargets {
   }
 
   protected indexByNamepath = (item: ResourceWrapper) => {
-    if (item.resourceType === kAppResourceType.File) {
+    if (item.resourceType === kFimidaraResourceType.File) {
       return stringifyFilenamepath(item.resource as unknown as File).toLowerCase();
-    } else if (item.resourceType === kAppResourceType.Folder) {
+    } else if (item.resourceType === kFimidaraResourceType.Folder) {
       return stringifyFoldernamepath(item.resource as unknown as Folder).toLowerCase();
     } else {
       return '';
@@ -103,7 +103,7 @@ export class PermissionItemTargets {
   protected findWorkspaceByRootname(rootname: string) {
     const w = this.resources.find(
       resource =>
-        resource.resourceType === kAppResourceType.Workspace &&
+        resource.resourceType === kFimidaraResourceType.Workspace &&
         (resource.resource as Workspace).rootname.toLowerCase() === rootname.toLowerCase()
     );
     this.workspace = w;

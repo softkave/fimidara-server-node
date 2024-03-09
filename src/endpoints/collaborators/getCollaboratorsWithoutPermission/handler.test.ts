@@ -1,5 +1,5 @@
 import {identity} from 'lodash';
-import {kAppResourceType, Resource} from '../../../definitions/system';
+import {kFimidaraResourceType, Resource} from '../../../definitions/system';
 import {kSystemSessionAgent} from '../../../utils/agent';
 import {extractResourceIdList, getResourceId} from '../../../utils/fns';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
@@ -88,7 +88,7 @@ async function assertCollaboratorsDoNotHavePermissions(
 ) {
   let count = await kSemanticModels.assignedItem().countByQuery({
     assigneeId: {$in: collaboratorIdList},
-    assignedItemType: kAppResourceType.PermissionGroup,
+    assignedItemType: kFimidaraResourceType.PermissionGroup,
   });
   expect(count).toBe(0);
   count = await kSemanticModels.permissionItem().countByQuery({

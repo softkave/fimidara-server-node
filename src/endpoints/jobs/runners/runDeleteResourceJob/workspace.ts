@@ -1,4 +1,4 @@
-import {kAppResourceType} from '../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../definitions/system';
 import {kSemanticModels} from '../../../contexts/injection/injectables';
 import {genericGetArtifacts} from './genericDefinitions';
 import {
@@ -11,77 +11,77 @@ import {
 const getArtifacts: DeleteResourceGetArtifactsFns = {
   ...genericGetArtifacts,
   // Delete file and folders in external storage
-  [kAppResourceType.Folder]: ({args, opts}) =>
+  [kFimidaraResourceType.Folder]: ({args, opts}) =>
     kSemanticModels.folder().getManyByWorkspaceId(args.workspaceId, opts),
-  [kAppResourceType.File]: ({args, opts}) =>
+  [kFimidaraResourceType.File]: ({args, opts}) =>
     kSemanticModels.file().getManyByWorkspaceId(args.workspaceId, opts),
   // Delete config secrets in secrets store
-  [kAppResourceType.FileBackendConfig]: ({args, opts}) =>
+  [kFimidaraResourceType.FileBackendConfig]: ({args, opts}) =>
     kSemanticModels.fileBackendConfig().getManyByWorkspaceId(args.workspaceId, opts),
-  [kAppResourceType.PermissionItem]: ({args, opts}) =>
+  [kFimidaraResourceType.PermissionItem]: ({args, opts}) =>
     kSemanticModels.permissionItem().getManyByWorkspaceId(args.workspaceId, opts),
 };
 
 const deleteArtifacts: DeleteResourceDeleteArtifactsFns = {
-  [kAppResourceType.All]: null,
-  [kAppResourceType.System]: null,
-  [kAppResourceType.Public]: null,
-  [kAppResourceType.User]: null,
-  [kAppResourceType.EndpointRequest]: null,
-  [kAppResourceType.App]: null,
-  [kAppResourceType.Job]: null,
-  [kAppResourceType.Workspace]: null,
-  [kAppResourceType.CollaborationRequest]: ({args, helpers}) =>
+  [kFimidaraResourceType.All]: null,
+  [kFimidaraResourceType.System]: null,
+  [kFimidaraResourceType.Public]: null,
+  [kFimidaraResourceType.User]: null,
+  [kFimidaraResourceType.EndpointRequest]: null,
+  [kFimidaraResourceType.App]: null,
+  [kFimidaraResourceType.Job]: null,
+  [kFimidaraResourceType.Workspace]: null,
+  [kFimidaraResourceType.CollaborationRequest]: ({args, helpers}) =>
     helpers.withTxn(opts =>
       kSemanticModels
         .collaborationRequest()
         .deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [kAppResourceType.AgentToken]: ({args, helpers}) =>
+  [kFimidaraResourceType.AgentToken]: ({args, helpers}) =>
     helpers.withTxn(opts =>
       kSemanticModels.agentToken().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [kAppResourceType.PermissionGroup]: ({args, helpers}) =>
+  [kFimidaraResourceType.PermissionGroup]: ({args, helpers}) =>
     helpers.withTxn(opts =>
       kSemanticModels.permissionGroup().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [kAppResourceType.PermissionItem]: ({args, helpers}) =>
+  [kFimidaraResourceType.PermissionItem]: ({args, helpers}) =>
     helpers.withTxn(opts =>
       kSemanticModels.permissionItem().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [kAppResourceType.Folder]: ({args, helpers}) =>
+  [kFimidaraResourceType.Folder]: ({args, helpers}) =>
     helpers.withTxn(opts =>
       kSemanticModels.folder().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [kAppResourceType.File]: ({args, helpers}) =>
+  [kFimidaraResourceType.File]: ({args, helpers}) =>
     helpers.withTxn(opts =>
       kSemanticModels.file().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [kAppResourceType.Tag]: ({args, helpers}) =>
+  [kFimidaraResourceType.Tag]: ({args, helpers}) =>
     helpers.withTxn(opts =>
       kSemanticModels.tag().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [kAppResourceType.AssignedItem]: ({args, helpers}) =>
+  [kFimidaraResourceType.AssignedItem]: ({args, helpers}) =>
     helpers.withTxn(opts =>
       kSemanticModels.assignedItem().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [kAppResourceType.UsageRecord]: ({args, helpers}) =>
+  [kFimidaraResourceType.UsageRecord]: ({args, helpers}) =>
     helpers.withTxn(opts =>
       kSemanticModels.usageRecord().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [kAppResourceType.PresignedPath]: ({args, helpers}) =>
+  [kFimidaraResourceType.PresignedPath]: ({args, helpers}) =>
     helpers.withTxn(opts =>
       kSemanticModels.presignedPath().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [kAppResourceType.FileBackendMount]: ({args, helpers}) =>
+  [kFimidaraResourceType.FileBackendMount]: ({args, helpers}) =>
     helpers.withTxn(opts =>
       kSemanticModels.fileBackendMount().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [kAppResourceType.FileBackendConfig]: ({args, helpers}) =>
+  [kFimidaraResourceType.FileBackendConfig]: ({args, helpers}) =>
     helpers.withTxn(opts =>
       kSemanticModels.fileBackendConfig().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
-  [kAppResourceType.ResolvedMountEntry]: ({args, helpers}) =>
+  [kFimidaraResourceType.ResolvedMountEntry]: ({args, helpers}) =>
     helpers.withTxn(opts =>
       kSemanticModels.resolvedMountEntry().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),

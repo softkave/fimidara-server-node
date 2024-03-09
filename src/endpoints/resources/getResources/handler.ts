@@ -1,4 +1,4 @@
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {kUtilsInjectables} from '../../contexts/injection/injectables';
@@ -9,16 +9,16 @@ import {GetResourcesEndpoint} from './types';
 import {getResourcesJoiSchema} from './validation';
 
 const kAllowedTypes = [
-  kAppResourceType.Workspace,
-  kAppResourceType.CollaborationRequest,
-  kAppResourceType.AgentToken,
-  kAppResourceType.PermissionGroup,
-  kAppResourceType.PermissionItem,
-  kAppResourceType.Folder,
-  kAppResourceType.File,
-  kAppResourceType.User,
-  kAppResourceType.Tag,
-  kAppResourceType.UsageRecord,
+  kFimidaraResourceType.Workspace,
+  kFimidaraResourceType.CollaborationRequest,
+  kFimidaraResourceType.AgentToken,
+  kFimidaraResourceType.PermissionGroup,
+  kFimidaraResourceType.PermissionItem,
+  kFimidaraResourceType.Folder,
+  kFimidaraResourceType.File,
+  kFimidaraResourceType.User,
+  kFimidaraResourceType.Tag,
+  kFimidaraResourceType.UsageRecord,
 ];
 
 const getResources: GetResourcesEndpoint = async instData => {

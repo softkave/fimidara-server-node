@@ -1,5 +1,5 @@
 import {PermissionItem} from '../../definitions/permissionItem';
-import {AppResourceType, kAppResourceType} from '../../definitions/system';
+import {FimidaraResourceType, kFimidaraResourceType} from '../../definitions/system';
 import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider';
 import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder';
 
@@ -10,7 +10,7 @@ function newFilter() {
 function getByResource(
   workspaceId: string,
   resourceId: string | undefined,
-  resourceType: AppResourceType,
+  resourceType: FimidaraResourceType,
   includeWildcardTargetType = false
 ) {
   const filter = newFilter().addItem(
@@ -26,7 +26,7 @@ function getByResource(
   if (includeWildcardTargetType) {
     filter.addItem(
       'targetType',
-      [resourceType, kAppResourceType.All],
+      [resourceType, kFimidaraResourceType.All],
       DataProviderFilterValueOperator.In
     );
   } else {

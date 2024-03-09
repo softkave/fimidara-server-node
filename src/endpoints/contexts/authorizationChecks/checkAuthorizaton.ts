@@ -5,7 +5,7 @@ import {
   PermissionItem,
   kPermissionsMap,
 } from '../../../definitions/permissionItem';
-import {Resource, SessionAgent, kAppResourceType} from '../../../definitions/system';
+import {Resource, SessionAgent, kFimidaraResourceType} from '../../../definitions/system';
 import {UserWithWorkspace} from '../../../definitions/user';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
@@ -353,13 +353,13 @@ export function getResourcePermissionContainers(
     );
   } else if (
     resource &&
-    getResourceTypeFromId(resource.resourceId) === kAppResourceType.User
+    getResourceTypeFromId(resource.resourceId) === kFimidaraResourceType.User
   ) {
     const user = resource as unknown as UserWithWorkspace;
     checkResourcesBelongsToWorkspace(workspaceId, [
       {
         resourceId: user.resourceId,
-        resourceType: kAppResourceType.User,
+        resourceType: kFimidaraResourceType.User,
         resource: user,
       },
     ]);

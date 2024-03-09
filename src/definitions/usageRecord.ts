@@ -1,8 +1,8 @@
 import {ObjectValues} from '../utils/types';
 import {PermissionAction} from './permissionItem';
 import {
-  AppResourceType,
   ConvertAgentToPublicAgent,
+  FimidaraResourceType,
   PublicWorkspaceResource,
   WorkspaceResource,
 } from './system';
@@ -27,7 +27,7 @@ export type UsageRecordArtifactType = ObjectValues<typeof UsageRecordArtifactTyp
 
 export interface UsageRecordArtifact {
   type: UsageRecordArtifactType;
-  resourceType?: AppResourceType;
+  resourceType?: FimidaraResourceType;
   action?: PermissionAction;
   artifact: FileUsageRecordArtifact | BandwidthUsageRecordArtifact;
 }

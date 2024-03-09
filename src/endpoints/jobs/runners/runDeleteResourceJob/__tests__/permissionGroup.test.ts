@@ -1,5 +1,5 @@
 import {PermissionGroup} from '../../../../../definitions/permissionGroups';
-import {kAppResourceType} from '../../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../../definitions/system';
 import {generateAndInsertPermissionGroupListForTest} from '../../../../testUtils/generate/permissionGroup';
 import {completeTests} from '../../../../testUtils/helpers/testFns';
 import {initTests} from '../../../../testUtils/testUtils';
@@ -26,8 +26,8 @@ afterAll(async () => {
 const permissionGroupGenerateTypeChildren: GenerateTypeChildrenDefinition<PermissionGroup> =
   {
     ...noopGenerateTypeChildren,
-    [kAppResourceType.PermissionItem]: generatePermissionItemsAsChildren,
-    [kAppResourceType.AssignedItem]: generateAssignedItemsAsChildren,
+    [kFimidaraResourceType.PermissionItem]: generatePermissionItemsAsChildren,
+    [kFimidaraResourceType.AssignedItem]: generateAssignedItemsAsChildren,
   };
 
 const genResourceFn: GenerateResourceFn<PermissionGroup> = async ({workspaceId}) => {
@@ -41,7 +41,7 @@ describe('runDeleteResourceJob, permission group', () => {
   test('deleteResource0', async () => {
     testDeleteResourceJob0({
       genResourceFn,
-      type: kAppResourceType.PermissionGroup,
+      type: kFimidaraResourceType.PermissionGroup,
     });
   });
 
@@ -50,14 +50,14 @@ describe('runDeleteResourceJob, permission group', () => {
       genResourceFn,
       genChildrenDef: permissionGroupGenerateTypeChildren,
       deleteCascadeDef: deletePermissionGroupCascadeEntry,
-      type: kAppResourceType.PermissionGroup,
+      type: kFimidaraResourceType.PermissionGroup,
     });
   });
 
   test('runDeleteResourceJobSelf', async () => {
     await testDeleteResourceSelfJob({
       genResourceFn,
-      type: kAppResourceType.PermissionGroup,
+      type: kFimidaraResourceType.PermissionGroup,
     });
   });
 });

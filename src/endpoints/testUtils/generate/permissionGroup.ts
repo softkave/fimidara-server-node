@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {AssignedItem} from '../../../definitions/assignedItem';
 import {PermissionGroup} from '../../../definitions/permissionGroups';
-import {Agent, kAppResourceType} from '../../../definitions/system';
+import {Agent, kFimidaraResourceType} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getNewIdForResource, getResourceTypeFromId} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injection/injectables';
@@ -9,17 +9,17 @@ import {kSemanticModels} from '../../contexts/injection/injectables';
 export function generatePermissionGroupForTest(seed: Partial<PermissionGroup> = {}) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
-    agentId: getNewIdForResource(kAppResourceType.User),
-    agentType: kAppResourceType.User,
-    agentTokenId: getNewIdForResource(kAppResourceType.AgentToken),
+    agentId: getNewIdForResource(kFimidaraResourceType.User),
+    agentType: kFimidaraResourceType.User,
+    agentTokenId: getNewIdForResource(kFimidaraResourceType.AgentToken),
   };
   const token: PermissionGroup = {
     createdAt,
     createdBy,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
-    resourceId: getNewIdForResource(kAppResourceType.PermissionGroup),
-    workspaceId: getNewIdForResource(kAppResourceType.Workspace),
+    resourceId: getNewIdForResource(kFimidaraResourceType.PermissionGroup),
+    workspaceId: getNewIdForResource(kFimidaraResourceType.Workspace),
     name: faker.company.name(),
     description: faker.lorem.sentence(),
     isDeleted: false,
@@ -58,25 +58,25 @@ export async function generateAndInsertPermissionGroupListForTest(
 export function generateAssignedItemForTest(seed: Partial<AssignedItem> = {}) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
-    agentId: getNewIdForResource(kAppResourceType.User),
-    agentType: kAppResourceType.User,
-    agentTokenId: getNewIdForResource(kAppResourceType.AgentToken),
+    agentId: getNewIdForResource(kFimidaraResourceType.User),
+    agentType: kFimidaraResourceType.User,
+    agentTokenId: getNewIdForResource(kFimidaraResourceType.AgentToken),
   };
   const item: AssignedItem = {
     createdAt,
     createdBy,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
-    resourceId: getNewIdForResource(kAppResourceType.AssignedItem),
-    workspaceId: getNewIdForResource(kAppResourceType.Workspace),
-    assignedItemId: getNewIdForResource(kAppResourceType.PermissionGroup),
+    resourceId: getNewIdForResource(kFimidaraResourceType.AssignedItem),
+    workspaceId: getNewIdForResource(kFimidaraResourceType.Workspace),
+    assignedItemId: getNewIdForResource(kFimidaraResourceType.PermissionGroup),
     assignedItemType: seed.assignedItemId
       ? getResourceTypeFromId(seed.assignedItemId)
-      : kAppResourceType.PermissionGroup,
-    assigneeId: getNewIdForResource(kAppResourceType.PermissionGroup),
+      : kFimidaraResourceType.PermissionGroup,
+    assigneeId: getNewIdForResource(kFimidaraResourceType.PermissionGroup),
     assigneeType: seed.assigneeId
       ? getResourceTypeFromId(seed.assigneeId)
-      : kAppResourceType.PermissionGroup,
+      : kFimidaraResourceType.PermissionGroup,
     meta: {},
     isDeleted: false,
     ...seed,

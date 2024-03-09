@@ -1,6 +1,6 @@
 import {PublicFile} from '../../../definitions/file';
 import {FolderMatcher, PublicFolder} from '../../../definitions/folder';
-import {AppResourceType} from '../../../definitions/system';
+import {FimidaraResourceType} from '../../../definitions/system';
 import {
   Endpoint,
   EndpointResultNote,
@@ -9,7 +9,7 @@ import {
 } from '../../types';
 
 export interface ListFolderContentEndpointParamsBase extends FolderMatcher {
-  contentType?: AppResourceType;
+  contentType?: FimidaraResourceType;
 }
 
 export interface ListFolderContentEndpointParams

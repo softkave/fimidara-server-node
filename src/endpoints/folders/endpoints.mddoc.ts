@@ -1,6 +1,6 @@
 import {PublicFile} from '../../definitions/file';
 import {FolderMatcher, PublicFolder} from '../../definitions/folder';
-import {kAppResourceType} from '../../definitions/system';
+import {kFimidaraResourceType} from '../../definitions/system';
 import {
   FieldObjectFieldsMap,
   HttpEndpointMethod,
@@ -99,8 +99,8 @@ const listFolderContentParams = mddocConstruct
       mddocConstruct
         .constructFieldString()
         .setDescription('Fetch children files or folders. To fetch both, pass nothing')
-        .setExample(kAppResourceType.File)
-        .setValid([kAppResourceType.File, kAppResourceType.Folder])
+        .setExample(kFimidaraResourceType.File)
+        .setValid([kFimidaraResourceType.File, kFimidaraResourceType.Folder])
     ),
     page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
     pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
@@ -131,8 +131,8 @@ const countFolderContentParams = mddocConstruct
       mddocConstruct
         .constructFieldString()
         .setDescription('Count children files or folders. To count both, pass nothing')
-        .setExample(kAppResourceType.File)
-        .setValid([kAppResourceType.File, kAppResourceType.Folder])
+        .setExample(kFimidaraResourceType.File)
+        .setValid([kFimidaraResourceType.File, kFimidaraResourceType.Folder])
     ),
   });
 const countFolderContentResponseBody = mddocConstruct

@@ -1,5 +1,5 @@
 import {ResolvedMountEntry} from '../../../definitions/fileBackend';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {pathJoin, pathSplit} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {FileQuery, FolderQuery} from '../../contexts/data/types';
@@ -138,7 +138,7 @@ describe('mount ingestion utils', () => {
         extension,
         mountId: pFile.mountId,
         resolvedFor: insertedFile.resourceId,
-        resolvedForType: kAppResourceType.File,
+        resolvedForType: kFimidaraResourceType.File,
       };
 
       expect({

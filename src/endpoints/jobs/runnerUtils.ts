@@ -1,7 +1,7 @@
 import {isObject} from 'lodash';
 import {availableParallelism} from 'os';
 import {App, kAppPresetShards, kAppType} from '../../definitions/app';
-import {kAppResourceType} from '../../definitions/system';
+import {kFimidaraResourceType} from '../../definitions/system';
 import {newResource} from '../../utils/resource';
 import {kSemanticModels} from '../contexts/injection/injectables';
 import {
@@ -20,7 +20,7 @@ export async function insertRunnerInDB(seed: Pick<App, 'resourceId'> & Partial<A
   await kSemanticModels.utils().withTxn(
     opts =>
       kSemanticModels.app().insertItem(
-        newResource<App>(kAppResourceType.App, {
+        newResource<App>(kFimidaraResourceType.App, {
           type: kAppType.runner,
           shard: kAppPresetShards.fimidaraMain,
           ...seed,

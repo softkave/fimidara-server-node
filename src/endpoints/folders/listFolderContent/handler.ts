@@ -1,6 +1,6 @@
 import {Folder} from '../../../definitions/folder';
 import {
-  kAppResourceType,
+  kFimidaraResourceType,
   kPermissionAgentTypes,
   SessionAgent,
 } from '../../../definitions/system';
@@ -32,14 +32,14 @@ const listFolderContent: ListFolderContentEndpoint = async instData => {
 
   applyDefaultEndpointPaginationOptions(data);
   const contentType = data.contentType ?? [
-    kAppResourceType.File,
-    kAppResourceType.Folder,
+    kFimidaraResourceType.File,
+    kFimidaraResourceType.Folder,
   ];
   const [fetchedFolders, fetchedFiles] = await Promise.all([
-    contentType.includes(kAppResourceType.Folder)
+    contentType.includes(kFimidaraResourceType.Folder)
       ? fetchFolders(agent, workspace, parentFolder, data)
       : [],
-    contentType.includes(kAppResourceType.File)
+    contentType.includes(kFimidaraResourceType.File)
       ? fetchFiles(agent, workspace, parentFolder, data)
       : [],
   ]);
@@ -72,7 +72,7 @@ async function fetchFolders(
   const query = await listFolderContentQuery(
     agent,
     workspace,
-    kAppResourceType.Folder,
+    kFimidaraResourceType.Folder,
     parentFolder
   );
 
@@ -90,7 +90,7 @@ async function fetchFiles(
   const query = await listFolderContentQuery(
     agent,
     workspace,
-    kAppResourceType.File,
+    kFimidaraResourceType.File,
     parentFolder
   );
 

@@ -1,5 +1,9 @@
 import {ObjectValues, OmitProperties} from '../utils/types';
-import {AppResourceType, ConvertAgentToPublicAgent, WorkspaceResource} from './system';
+import {
+  ConvertAgentToPublicAgent,
+  FimidaraResourceType,
+  WorkspaceResource,
+} from './system';
 
 export const kPermissionsMap = {
   wildcard: '*',
@@ -63,10 +67,10 @@ export type PermissionAction = ObjectValues<typeof kPermissionsMap>;
 
 export interface PermissionItem extends WorkspaceResource {
   entityId: string;
-  entityType: AppResourceType;
+  entityType: FimidaraResourceType;
   targetParentId?: string;
   targetId: string;
-  targetType: AppResourceType;
+  targetType: FimidaraResourceType;
   access: boolean;
   action: PermissionAction;
 }

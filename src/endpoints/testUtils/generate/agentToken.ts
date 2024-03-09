@@ -2,8 +2,8 @@ import {faker} from '@faker-js/faker';
 import {AgentToken} from '../../../definitions/agentToken';
 import {
   Agent,
-  kAppResourceType,
   kCurrentJWTTokenVersion,
+  kFimidaraResourceType,
 } from '../../../definitions/system';
 import {getNewIdForResource, newResource} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injection/injectables';
@@ -11,14 +11,14 @@ import {kSemanticModels} from '../../contexts/injection/injectables';
 export function generateAgentTokenForTest(
   seed: Partial<AgentToken> & {workspaceId: string | null} = {workspaceId: null}
 ) {
-  const agentType = kAppResourceType.AgentToken;
+  const agentType = kFimidaraResourceType.AgentToken;
   const agentTokenId = getNewIdForResource(agentType);
   const createdBy: Agent = {
     agentType,
     agentTokenId,
     agentId: agentTokenId,
   };
-  const token = newResource<AgentToken>(kAppResourceType.AgentToken, {
+  const token = newResource<AgentToken>(kFimidaraResourceType.AgentToken, {
     createdBy,
     entityType: agentType,
     lastUpdatedBy: createdBy,

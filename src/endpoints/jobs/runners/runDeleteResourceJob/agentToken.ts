@@ -1,4 +1,4 @@
-import {kAppResourceType} from '../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../definitions/system';
 import {kSemanticModels} from '../../../contexts/injection/injectables';
 import {genericDeleteArtifacts, genericGetArtifacts} from './genericDefinitions';
 import {
@@ -10,7 +10,7 @@ import {
 
 const getArtifacts: DeleteResourceGetArtifactsFns = {
   ...genericGetArtifacts,
-  [kAppResourceType.PresignedPath]: async ({args, opts}) => {
+  [kFimidaraResourceType.PresignedPath]: async ({args, opts}) => {
     return await kSemanticModels
       .presignedPath()
       .getManyByQuery({issuerAgentTokenId: args.resourceId}, opts);
@@ -19,7 +19,7 @@ const getArtifacts: DeleteResourceGetArtifactsFns = {
 
 const deleteArtifacts: DeleteResourceDeleteArtifactsFns = {
   ...genericDeleteArtifacts,
-  [kAppResourceType.PresignedPath]: async ({args, helpers}) => {
+  [kFimidaraResourceType.PresignedPath]: async ({args, helpers}) => {
     await helpers.withTxn(opts =>
       kSemanticModels
         .presignedPath()

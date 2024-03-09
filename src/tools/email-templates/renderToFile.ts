@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import * as fs from 'fs';
 import * as fse from 'fs-extra';
 import {kCollaborationRequestStatusTypeMap} from '../../definitions/collaborationRequest';
-import {kAppResourceType} from '../../definitions/system';
+import {kFimidaraResourceType} from '../../definitions/system';
 import {UsageRecordCategoryMap} from '../../definitions/usageRecord';
 import {
   CollaborationRequestEmailProps,
@@ -142,7 +142,7 @@ export function renderUsageExceededMedia() {
       lastUpdatedBy: {
         agentId: '',
         agentTokenId: '',
-        agentType: kAppResourceType.User,
+        agentType: kFimidaraResourceType.User,
       },
     },
   };

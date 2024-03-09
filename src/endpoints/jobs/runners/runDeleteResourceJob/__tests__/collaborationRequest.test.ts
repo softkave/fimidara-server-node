@@ -1,5 +1,5 @@
 import {CollaborationRequest} from '../../../../../definitions/collaborationRequest';
-import {kAppResourceType} from '../../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../../definitions/system';
 import {generateAndInsertCollaborationRequestListForTest} from '../../../../testUtils/generate/collaborationRequest';
 import {completeTests} from '../../../../testUtils/helpers/testFns';
 import {initTests} from '../../../../testUtils/testUtils';
@@ -25,7 +25,7 @@ afterAll(async () => {
 const collaborationRequestGenerateTypeChildren: GenerateTypeChildrenDefinition<CollaborationRequest> =
   {
     ...noopGenerateTypeChildren,
-    [kAppResourceType.PermissionItem]: generatePermissionItemsAsChildren,
+    [kFimidaraResourceType.PermissionItem]: generatePermissionItemsAsChildren,
   };
 
 const genResourceFn: GenerateResourceFn<CollaborationRequest> = async ({workspaceId}) => {
@@ -40,7 +40,7 @@ describe('runDeleteResourceJob, collaboration request', () => {
   test('deleteResource0', async () => {
     testDeleteResourceJob0({
       genResourceFn,
-      type: kAppResourceType.CollaborationRequest,
+      type: kFimidaraResourceType.CollaborationRequest,
     });
   });
 
@@ -49,14 +49,14 @@ describe('runDeleteResourceJob, collaboration request', () => {
       genResourceFn,
       genChildrenDef: collaborationRequestGenerateTypeChildren,
       deleteCascadeDef: deleteCollaborationRequestCascadeEntry,
-      type: kAppResourceType.CollaborationRequest,
+      type: kFimidaraResourceType.CollaborationRequest,
     });
   });
 
   test('runDeleteResourceJobSelf', async () => {
     await testDeleteResourceSelfJob({
       genResourceFn,
-      type: kAppResourceType.CollaborationRequest,
+      type: kFimidaraResourceType.CollaborationRequest,
     });
   });
 });

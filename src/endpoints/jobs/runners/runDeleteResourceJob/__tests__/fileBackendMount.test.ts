@@ -1,6 +1,6 @@
 import {flatten} from 'lodash';
 import {FileBackendMount} from '../../../../../definitions/fileBackend';
-import {kAppResourceType} from '../../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../../definitions/system';
 import {
   generateAndInsertFileBackendMountListForTest,
   generateAndInsertResolvedMountEntryListForTest,
@@ -29,8 +29,8 @@ afterAll(async () => {
 const fileBackendMountGenerateTypeChildren: GenerateTypeChildrenDefinition<FileBackendMount> =
   {
     ...noopGenerateTypeChildren,
-    [kAppResourceType.PermissionItem]: generatePermissionItemsAsChildren,
-    [kAppResourceType.ResolvedMountEntry]: async ({resource, workspaceId}) =>
+    [kFimidaraResourceType.PermissionItem]: generatePermissionItemsAsChildren,
+    [kFimidaraResourceType.ResolvedMountEntry]: async ({resource, workspaceId}) =>
       flatten(
         await Promise.all([
           generateAndInsertResolvedMountEntryListForTest(2, {
@@ -52,7 +52,7 @@ describe('runDeleteResourceJob, file backend mount', () => {
   test('deleteResource0', async () => {
     testDeleteResourceJob0({
       genResourceFn,
-      type: kAppResourceType.FileBackendMount,
+      type: kFimidaraResourceType.FileBackendMount,
     });
   });
 
@@ -61,14 +61,14 @@ describe('runDeleteResourceJob, file backend mount', () => {
       genResourceFn,
       genChildrenDef: fileBackendMountGenerateTypeChildren,
       deleteCascadeDef: deleteFileBackendMountCascadeEntry,
-      type: kAppResourceType.FileBackendMount,
+      type: kFimidaraResourceType.FileBackendMount,
     });
   });
 
   test('runDeleteResourceJobSelf', async () => {
     await testDeleteResourceSelfJob({
       genResourceFn,
-      type: kAppResourceType.FileBackendMount,
+      type: kFimidaraResourceType.FileBackendMount,
     });
   });
 });

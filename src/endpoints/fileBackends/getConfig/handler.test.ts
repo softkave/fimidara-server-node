@@ -1,4 +1,4 @@
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {getNewIdForResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import RequestData from '../../RequestData';
@@ -50,7 +50,7 @@ describe('getConfig', () => {
     const instData = RequestData.fromExpressRequest<GetFileBackendConfigEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
-        configId: getNewIdForResource(kAppResourceType.FileBackendConfig),
+        configId: getNewIdForResource(kFimidaraResourceType.FileBackendConfig),
         workspaceId: workspace.resourceId,
       }
     );

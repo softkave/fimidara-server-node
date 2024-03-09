@@ -2,13 +2,13 @@ import * as jwt from 'jsonwebtoken';
 import {first} from 'lodash';
 import {AgentToken} from '../../definitions/agentToken';
 import {
-  AppResourceType,
   BaseTokenData,
+  FimidaraResourceType,
   SessionAgent,
   TokenAccessScope,
   TokenSubjectDefault,
-  kAppResourceType,
   kCurrentJWTTokenVersion,
+  kFimidaraResourceType,
   kTokenAccessScope,
 } from '../../definitions/system';
 import {User} from '../../definitions/user';
@@ -35,7 +35,7 @@ import {kSemanticModels, kUtilsInjectables} from './injection/injectables';
 export interface SessionContextType {
   getAgent: (
     data: RequestData,
-    permittedAgentTypes?: AppResourceType | AppResourceType[],
+    permittedAgentTypes?: FimidaraResourceType | FimidaraResourceType[],
     tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
   ) => Promise<SessionAgent>;
   getAgentById: (id: string) => Promise<SessionAgent>;
@@ -58,9 +58,9 @@ export interface SessionContextType {
 export default class SessionContext implements SessionContextType {
   getAgent = async (
     data: RequestData,
-    permittedAgentTypes: AppResourceType | AppResourceType[] = [
-      kAppResourceType.User,
-      kAppResourceType.AgentToken,
+    permittedAgentTypes: FimidaraResourceType | FimidaraResourceType[] = [
+      kFimidaraResourceType.User,
+      kFimidaraResourceType.AgentToken,
     ],
     tokenAccessScope: TokenAccessScope | TokenAccessScope[] = kTokenAccessScope.Login
   ) => {
@@ -74,7 +74,7 @@ export default class SessionContext implements SessionContextType {
           .getOneById(incomingTokenData.sub.id);
         appAssert(agentToken, new InvalidCredentialsError());
 
-        if (agentToken.entityType === kAppResourceType.User) {
+        if (agentToken.entityType === kFimidaraResourceType.User) {
           appAssert(agentToken.forEntityId);
           const user = await kSemanticModels.user().getOneById(agentToken.forEntityId);
           appAssert(user, kReuseableErrors.user.notFound());
@@ -98,7 +98,7 @@ export default class SessionContext implements SessionContextType {
     const type = getResourceTypeFromId(id);
 
     switch (type) {
-      case kAppResourceType.User: {
+      case kFimidaraResourceType.User: {
         const user = await kSemanticModels.user().getOneById(id);
         const token = await kSemanticModels.agentToken().getOneByQuery({forEntityId: id});
         appAssert(user);
@@ -106,7 +106,7 @@ export default class SessionContext implements SessionContextType {
         return makeUserSessionAgent(user, token);
       }
 
-      case kAppResourceType.AgentToken: {
+      case kFimidaraResourceType.AgentToken: {
         const token = await kSemanticModels.agentToken().getOneById(id);
         appAssert(token);
         return makeWorkspaceAgentTokenAgent(token);
@@ -122,7 +122,7 @@ export default class SessionContext implements SessionContextType {
   ) => {
     const agent = await kUtilsInjectables
       .session()
-      .getAgent(data, [kAppResourceType.User], tokenAccessScope);
+      .getAgent(data, [kFimidaraResourceType.User], tokenAccessScope);
     appAssert(agent.user, new ServerError());
     return agent.user;
   };
@@ -177,7 +177,7 @@ export default class SessionContext implements SessionContextType {
 
   private checkPermittedAgentTypes(
     agent: SessionAgent,
-    permittedAgentTypes?: AppResourceType | AppResourceType[]
+    permittedAgentTypes?: FimidaraResourceType | FimidaraResourceType[]
   ) {
     if (permittedAgentTypes?.length) {
       const permittedAgent = convertToArray(permittedAgentTypes).find(
@@ -194,7 +194,7 @@ export default class SessionContext implements SessionContextType {
   ) {
     if (
       tokenAccessScope &&
-      agent.agentType === kAppResourceType.User &&
+      agent.agentType === kFimidaraResourceType.User &&
       agent.agentToken
     ) {
       if (
@@ -210,7 +210,7 @@ export default class SessionContext implements SessionContextType {
     agent: SessionAgent,
     tokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) {
-    if (agent.agentType === kAppResourceType.User) {
+    if (agent.agentType === kFimidaraResourceType.User) {
       appAssert(agent.user);
       if (agent.user.requiresPasswordChange) {
         const scopeList = convertToArray(tokenAccessScope);

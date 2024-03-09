@@ -1,5 +1,5 @@
 import {defaultTo} from 'lodash';
-import {Agent, kAppResourceType} from '../../../definitions/system';
+import {Agent, kFimidaraResourceType} from '../../../definitions/system';
 import {
   UsageRecord,
   UsageRecordArtifact,
@@ -88,12 +88,13 @@ export class UsageRecordLogicProvider {
   private makeLevel01Record = (agent: Agent, input: UsageRecordInput) => {
     const record: UsageRecord = newWorkspaceResource(
       agent,
-      kAppResourceType.UsageRecord,
+      kFimidaraResourceType.UsageRecord,
       input.workspaceId,
       {
         ...getRecordingPeriod(),
         ...input,
-        resourceId: input.resourceId ?? getNewIdForResource(kAppResourceType.UsageRecord),
+        resourceId:
+          input.resourceId ?? getNewIdForResource(kFimidaraResourceType.UsageRecord),
         summationType: UsageSummationTypeMap.Instance,
         fulfillmentStatus: UsageRecordFulfillmentStatusMap.Undecided,
         artifacts: defaultTo(input.artifacts, []),
@@ -112,7 +113,7 @@ export class UsageRecordLogicProvider {
   ) => {
     return newWorkspaceResource<UsageRecord>(
       agent,
-      kAppResourceType.UsageRecord,
+      kFimidaraResourceType.UsageRecord,
       record.workspaceId,
       {
         category: record.category,

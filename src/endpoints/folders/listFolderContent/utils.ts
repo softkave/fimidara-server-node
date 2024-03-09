@@ -1,7 +1,7 @@
 import {first, isUndefined} from 'lodash';
 import {Folder, FolderMatcher} from '../../../definitions/folder';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {SessionAgent, kAppResourceType} from '../../../definitions/system';
+import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {
   getResourcePermissionContainers,
@@ -19,7 +19,7 @@ import {getWorkspaceRootnameFromPath} from '../utils';
 export async function listFolderContentQuery(
   agent: SessionAgent,
   workspace: Workspace,
-  contentType: typeof kAppResourceType.File | typeof kAppResourceType.Folder,
+  contentType: typeof kFimidaraResourceType.File | typeof kFimidaraResourceType.Folder,
   parentFolder?: Folder | null
 ) {
   const report = await resolveTargetChildrenAccessCheckWithAgent({
@@ -28,7 +28,7 @@ export async function listFolderContentQuery(
     workspaceId: workspace.resourceId,
     target: {
       action:
-        contentType === kAppResourceType.File
+        contentType === kFimidaraResourceType.File
           ? kPermissionsMap.readFile
           : kPermissionsMap.readFolder,
       targetId: getResourcePermissionContainers(workspace.resourceId, parentFolder, true),

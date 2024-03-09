@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {Readable} from 'stream';
-import {kAppResourceType} from '../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../definitions/system';
 import {loopAndCollate, pathJoin} from '../../../../utils/fns';
 import {getNewIdForResource} from '../../../../utils/resource';
 import {generateTestFilepathString} from '../../../testUtils/generate/file';
@@ -27,7 +27,7 @@ afterAll(async () => {
 
 describe('MemoryFilePersistenceProvider', () => {
   test('toNativePath', () => {
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = generateFileBackendMountForTest({workspaceId});
     const filepath = generateTestFilepathString({length: 4});
 
@@ -42,7 +42,7 @@ describe('MemoryFilePersistenceProvider', () => {
   });
 
   test('toFimidaraPath', () => {
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = generateFileBackendMountForTest({workspaceId});
     const filepath = generateTestFilepathString({length: 4});
     const nativePath = pathJoin(mount.mountedFrom, filepath);
@@ -56,7 +56,7 @@ describe('MemoryFilePersistenceProvider', () => {
 
   test('uploadFile', async () => {
     const data = Readable.from(['Hello world!']);
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const [mount] = await generateAndInsertFileBackendMountListForTest(1, {workspaceId});
     const filepath = generateTestFilepathString({
       length: mount.namepath.length + 2,
@@ -73,7 +73,7 @@ describe('MemoryFilePersistenceProvider', () => {
 
   test('readFile', async () => {
     const data = Readable.from(['Hello world!']);
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const [mount] = await generateAndInsertFileBackendMountListForTest(1, {workspaceId});
     const filepath = generateTestFilepathString({
       length: mount.namepath.length + 2,
@@ -90,7 +90,7 @@ describe('MemoryFilePersistenceProvider', () => {
 
   test('deleteFiles', async () => {
     const data = Readable.from(['Hello world!']);
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const [mount] = await generateAndInsertFileBackendMountListForTest(1, {workspaceId});
     const filepath01 = generateTestFilepathString({
       length: mount.namepath.length + 2,
@@ -119,7 +119,7 @@ describe('MemoryFilePersistenceProvider', () => {
   test('describeFile', async () => {
     const buffer = Buffer.from('Hello world!');
     const data = Readable.from(buffer);
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const [mount] = await generateAndInsertFileBackendMountListForTest(1, {workspaceId});
     const filepath = generateTestFilepathString({
       length: mount.namepath.length + 2,
@@ -140,7 +140,7 @@ describe('MemoryFilePersistenceProvider', () => {
   test('describeFolderContent', async () => {
     const buffer = Buffer.from('Hello, world!');
     const data = Readable.from(buffer);
-    const workspaceId = getNewIdForResource(kAppResourceType.Workspace);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const [mount] = await generateAndInsertFileBackendMountListForTest(1, {workspaceId});
     const folderpath = generateTestFolderpathString({
       length: mount.namepath.length + 2,

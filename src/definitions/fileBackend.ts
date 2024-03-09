@@ -1,8 +1,8 @@
 import {PersistedFileDescription} from '../endpoints/contexts/file/types';
 import {ObjectValues, OmitProperties} from '../utils/types';
 import {
-  AppResourceType,
   ConvertAgentToPublicAgent,
+  FimidaraResourceType,
   PublicWorkspaceResource,
   WorkspaceResource,
 } from './system';
@@ -43,7 +43,7 @@ export interface ResolvedMountEntry extends WorkspaceResource {
   namepath: string[];
   extension?: string;
   resolvedFor: string;
-  resolvedForType: AppResourceType;
+  resolvedForType: FimidaraResourceType;
   other: OmitProperties<PersistedFileDescription, 'filepath' | 'mountId'> | null;
 }
 

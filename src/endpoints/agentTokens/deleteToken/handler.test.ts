@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
-import {kAppResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {completeTests} from '../../testUtils/helpers/testFns';
@@ -44,7 +44,7 @@ test('Agent token deleted', async () => {
   const job = (await kSemanticModels.job().getOneByQuery({
     type: kJobType.deleteResource0,
     resourceId: result.jobId,
-    params: {$objMatch: {type: kAppResourceType.AgentToken}},
+    params: {$objMatch: {type: kFimidaraResourceType.AgentToken}},
   })) as Job<DeleteResourceJobParams>;
   expect(job).toBeTruthy();
   expect(job?.params).toMatchObject({

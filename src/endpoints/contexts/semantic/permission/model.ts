@@ -4,7 +4,7 @@ import {
   PermissionGroup,
 } from '../../../../definitions/permissionGroups';
 import {PermissionAction, PermissionItem} from '../../../../definitions/permissionItem';
-import {Resource, kAppResourceType} from '../../../../definitions/system';
+import {Resource, kFimidaraResourceType} from '../../../../definitions/system';
 import {appAssert} from '../../../../utils/assertion';
 import {toCompactArray} from '../../../../utils/fns';
 import {indexArray} from '../../../../utils/indexArray';
@@ -42,7 +42,7 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
         const assignedItems = await kSemanticModels.assignedItem().getManyByQuery(
           {
             assigneeId: {$in: nextIdList},
-            assignedItemType: kAppResourceType.PermissionGroup,
+            assignedItemType: kFimidaraResourceType.PermissionGroup,
           },
           options
         );
@@ -131,11 +131,11 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
   ): Promise<Resource | null> {
     const type = getResourceTypeFromId(props.entityId);
     const query: LiteralDataQuery<Resource> = {resourceId: props.entityId};
-    if (type === kAppResourceType.User)
+    if (type === kFimidaraResourceType.User)
       return await kSemanticModels.user().getOneByQuery(query, opts);
-    if (type === kAppResourceType.AgentToken)
+    if (type === kFimidaraResourceType.AgentToken)
       return await kSemanticModels.agentToken().getOneByQuery(query, opts);
-    if (type === kAppResourceType.PermissionGroup)
+    if (type === kFimidaraResourceType.PermissionGroup)
       return await kSemanticModels.permissionGroup().getOneByQuery(query, opts);
     return null;
   }

@@ -3,8 +3,8 @@ import stringify from 'safe-stable-stringify';
 import {AgentToken} from '../../../../definitions/agentToken';
 import {EmailJobParams, kEmailJobType} from '../../../../definitions/job';
 import {
-  kAppResourceType,
   kCurrentJWTTokenVersion,
+  kFimidaraResourceType,
   kTokenAccessScope,
 } from '../../../../definitions/system';
 import {User} from '../../../../definitions/user';
@@ -44,13 +44,13 @@ export function getForgotPasswordLinkFromToken(forgotToken: AgentToken) {
 
 export async function getForgotPasswordToken(user: User) {
   const expiration = getForgotPasswordExpiration();
-  const forgotToken = newResource<AgentToken>(kAppResourceType.AgentToken, {
+  const forgotToken = newResource<AgentToken>(kFimidaraResourceType.AgentToken, {
     scope: [kTokenAccessScope.ChangePassword],
     version: kCurrentJWTTokenVersion,
     expiresAt: expiration.valueOf(),
     forEntityId: user.resourceId,
     workspaceId: null,
-    entityType: kAppResourceType.User,
+    entityType: kFimidaraResourceType.User,
     createdBy: kSystemSessionAgent,
     lastUpdatedBy: kSystemSessionAgent,
   });

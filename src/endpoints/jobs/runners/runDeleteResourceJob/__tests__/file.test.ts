@@ -1,7 +1,7 @@
 import {flatten} from 'lodash';
 import {Readable} from 'stream';
 import {File} from '../../../../../definitions/file';
-import {kAppResourceType} from '../../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../../definitions/system';
 import {MemoryFilePersistenceProvider} from '../../../../contexts/file/MemoryFilePersistenceProvider';
 import {FilePersistenceProvider} from '../../../../contexts/file/types';
 import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register';
@@ -40,8 +40,8 @@ afterAll(async () => {
 
 const fileGenerateTypeChildren: GenerateTypeChildrenDefinition<File> = {
   ...noopGenerateTypeChildren,
-  [kAppResourceType.PermissionItem]: generatePermissionItemsAsChildren,
-  [kAppResourceType.PresignedPath]: async ({resource, workspaceId}) =>
+  [kFimidaraResourceType.PermissionItem]: generatePermissionItemsAsChildren,
+  [kFimidaraResourceType.PresignedPath]: async ({resource, workspaceId}) =>
     flatten(
       await Promise.all([
         generateAndInsertTestPresignedPathList(2, {
@@ -66,7 +66,7 @@ describe('runDeleteResourceJob, file', () => {
   test('deleteResource0', async () => {
     testDeleteResourceJob0({
       genResourceFn,
-      type: kAppResourceType.File,
+      type: kFimidaraResourceType.File,
     });
   });
 
@@ -75,7 +75,7 @@ describe('runDeleteResourceJob, file', () => {
       genResourceFn,
       genChildrenDef: fileGenerateTypeChildren,
       deleteCascadeDef: deleteFileCascadeEntry,
-      type: kAppResourceType.File,
+      type: kFimidaraResourceType.File,
     });
   });
 
@@ -110,7 +110,7 @@ describe('runDeleteResourceJob, file', () => {
 
     await testDeleteResourceSelfJob({
       genResourceFn: () => Promise.resolve(mainResource),
-      type: kAppResourceType.File,
+      type: kFimidaraResourceType.File,
       genWorkspaceFn: () => Promise.resolve(workspace.resourceId),
       genOtherFn: async () => {
         await Promise.all([
