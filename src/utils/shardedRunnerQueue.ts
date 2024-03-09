@@ -1,13 +1,37 @@
+import {compact, last, uniqWith} from 'lodash';
+import {ValueOf} from 'type-fest';
 import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
 import {DeferredPromise, getDeferredPromise} from './promiseFns';
 import {AnyFn} from './types';
 
+/** shard ID is case-sensitive, so `["shard-01"] !== ["SHARD-01"]` */
 export type ShardId = string[];
+
+export const kShardQueueStrategy = {
+  /** add new shards input to the last existing shard, if there're existing
+   * shards. otherwise creates a new shard */
+  appendToExisting: 'appendToExisting',
+  /** adds new shard, whether there're existing shards or not */
+  separateFromExisting: 'separateFromExisting',
+} as const;
+
+export const kShardMatchStrategy = {
+  /** shard ID is treated as a whole */
+  individual: 'individual',
+  /** match closest shard matching part of shard ID, or create one if none is
+   * found */
+  hierachichal: 'hierachichal',
+} as const;
+
+export type ShardQueueStrategy = ValueOf<typeof kShardQueueStrategy>;
+export type ShardMatchStrategy = ValueOf<typeof kShardMatchStrategy>;
 
 export interface ShardedInput<TInputItem = unknown, TMeta = unknown> {
   shardId: ShardId;
   input: TInputItem[];
   meta?: TMeta;
+  queueStrategy: ShardQueueStrategy;
+  matchStrategy: ShardMatchStrategy;
 }
 
 export interface ShardResult<TOutputItem = unknown> {
@@ -53,11 +77,6 @@ export interface ShardedRunnerIngestAndRunResult<
   failed: Array<ShardedRunnerIngestAndRunFailure<TInputItem>>;
 }
 
-type IngestAndRunIntermediateSortMap = Record<
-  string,
-  {input: unknown[]; id: ShardId; meta: unknown | undefined}
->;
-
 /**
  * ShardedRunner queues items in a shard, and starts a registered runner if
  * there isn't one running already. Runners acquire (meaning they remove it from
@@ -68,7 +87,7 @@ type IngestAndRunIntermediateSortMap = Record<
  * conditions.
  * */
 export class ShardedRunner {
-  protected shards: Record</** stringified shard ID */ string, Shard | undefined> = {};
+  protected shards: Record</** stringified shard ID */ string, Shard[] | undefined> = {};
   protected runners: Record</** shard runner name */ string, ShardRunner | undefined> =
     {};
 
@@ -79,66 +98,42 @@ export class ShardedRunner {
   async ingestAndRun<TInputItem = unknown, TOutputItem = unknown, TMeta = unknown>(
     input: Array<ShardedInput<TInputItem, TMeta>>
   ): Promise<ShardedRunnerIngestAndRunResult<TInputItem, TOutputItem>> {
-    const intermediateSortMap: Partial<IngestAndRunIntermediateSortMap> = {};
-    const touchedShards: Shard[] = [];
-
-    // sort and group shard items together
-    input.forEach(nextInput => {
+    const inputedShards = input.map(nextInput => {
       const key = this.stringifyShardId(nextInput.shardId);
-      let intermediateMap = intermediateSortMap[key];
-
-      if (!intermediateMap) {
-        intermediateMap = intermediateSortMap[key] = {
-          id: nextInput.shardId,
-          input: nextInput.input,
-          meta: nextInput.meta,
-        };
-      } else {
-        intermediateMap.input = intermediateMap.input.concat(nextInput.input);
-      }
-    });
-
-    for (const key in intermediateSortMap) {
-      const {
-        id,
-        meta,
-        input: items,
-      } = (intermediateSortMap as IngestAndRunIntermediateSortMap)[key];
-      let shard = this.shards[key];
-
-      // merge into existing shard or create a new one
-      if (shard) {
-        shard.input = shard.input.concat(items);
-      } else {
-        const promise = getDeferredPromise<ShardResult>();
-        shard = {id, promise, meta, input: items};
-        this.shards[key] = shard;
-      }
+      const queuedShard = this.queueShard(key, nextInput);
 
       // keep track of touched shards to wait for the results. we also don't
       // want to keep track of the entire shard seeing the caller may not own
       // every input in there, which would lead to data leaking
-      touchedShards.push(this.produceShardView(items, shard));
+      const shardView = this.produceShardView(nextInput.input, queuedShard);
+      return [key, shardView] as const;
+    });
 
-      // check if there's an existing runner
-      const lockName = this.getLockName(id, key);
-      const isRunning = kUtilsInjectables.locks().has(lockName);
+    // run unique shards
+    uniqWith(inputedShards, ([key01], [key02]) => key01 === key02).forEach(
+      ([key, {id}]) => {
+        // check if there's an existing runner
+        const lockName = this.getLockName(id, key);
+        const isRunning = kUtilsInjectables.locks().has(lockName);
 
-      // start a runner if there isn't one already. we don't need to wait for
-      // individual runners, seeing they don't handle just a single shard, but a
-      // sequence of shards until there's none left. we wait instead for the
-      // deferred promise of touched shards
-      if (!isRunning) {
-        kUtilsInjectables.promises().forget(
-          kUtilsInjectables.locks().run(lockName, async () => {
-            await this.runShard(id, key);
-          })
-        );
+        // start a runner if there isn't one already. we don't need to wait for
+        // individual runners, seeing they don't handle just a single shard, but a
+        // sequence of shards until there's none left. we wait instead for the
+        // deferred promise of touched shards
+        if (!isRunning) {
+          kUtilsInjectables.promises().forget(
+            kUtilsInjectables.locks().run(lockName, async () => {
+              await this.runShard(id, key);
+            })
+          );
+        }
       }
-    }
+    );
 
-    const settledResult = await this.waitAndProcessResult(touchedShards);
-    return settledResult as ShardedRunnerIngestAndRunResult<TInputItem, TOutputItem>;
+    const settled = await this.waitAndProcessResult(
+      inputedShards.map(([, shard]) => shard)
+    );
+    return settled as ShardedRunnerIngestAndRunResult<TInputItem, TOutputItem>;
   }
 
   protected async runShard(id: ShardId, key?: string) {
@@ -146,7 +141,7 @@ export class ShardedRunner {
       key = this.stringifyShardId(id);
     }
 
-    const shard = this.acquireShard(id, key);
+    const shard = this.dequeueShard(id, key);
     const runner = this.getRunner(id);
 
     if (!shard || !runner) {
@@ -163,18 +158,56 @@ export class ShardedRunner {
     this.runShard(id, key);
   }
 
-  protected acquireShard(id: ShardId, key?: string) {
+  protected dequeueShard(id: ShardId, key?: string) {
     if (!key) {
       key = this.stringifyShardId(id);
     }
 
-    const shard = this.shards[key];
-    delete this.shards[key];
+    const shards = this.shards[key] || [];
+    const shard = shards.shift();
+
+    if (shards.length === 0) {
+      delete this.shards[key];
+    }
+
+    return shard;
+  }
+
+  protected queueShard(key: string, input: ShardedInput) {
+    let shards: Shard[] | undefined;
+
+    if (input.matchStrategy === kShardMatchStrategy.individual) {
+      shards = this.shards[key];
+    } else if (input.matchStrategy === kShardMatchStrategy.hierachichal) {
+      shards = last(
+        compact(
+          input.shardId.map((idPart, index) => {
+            const key = this.stringifyShardId(input.shardId.slice(0, index + 1));
+            return this.shards[key];
+          })
+        )
+      );
+    }
+
+    if (!shards) {
+      shards = this.shards[key] = [];
+    }
+
+    let shard = last(shards);
+
+    if (input.queueStrategy === kShardQueueStrategy.appendToExisting && shard) {
+      shard.input = shard.input.concat(input.input);
+    } else {
+      const promise = getDeferredPromise<ShardResult>();
+      shard = {promise, id: input.shardId, meta: input.meta, input: input.input};
+      shards.push(shard);
+    }
+
     return shard;
   }
 
   protected stringifyShardId(id: ShardId) {
-    return id.join('.').toLowerCase();
+    return id.join('.');
   }
 
   protected getLockName(id: ShardId, key?: string) {

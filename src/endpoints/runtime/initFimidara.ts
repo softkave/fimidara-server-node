@@ -117,48 +117,54 @@ async function setupDefaultUser() {
 }
 
 async function setupFolders(workspace: Workspace) {
-  return await kSemanticModels.utils().withTxn(async opts => {
-    const [workspaceImagesFolders, userImagesFolders] = await Promise.all([
-      createFolderList(
-        kSystemSessionAgent,
-        workspace,
-        {
-          folderpath: addRootnameToPath(
-            appSetupVars.workspaceImagesfolderpath,
-            workspace.rootname
-          ),
-        },
-        /** skip auth check */ true,
-        /** throw on folder exists */ false,
-        opts,
-        /** throw on error */ true
-      ),
-      createFolderList(
-        kSystemSessionAgent,
-        workspace,
-        {
-          folderpath: addRootnameToPath(
-            appSetupVars.userImagesfolderpath,
-            workspace.rootname
-          ),
-        },
-        /** skip auth check */ true,
-        /** throw on folder exists */ false,
-        opts,
-        /** throw on error */ true
-      ),
-    ]);
+  const [workspaceImagesFolders, userImagesFolders] = await Promise.all([
+    kSemanticModels.utils().withTxn(
+      opts =>
+        createFolderList(
+          kSystemSessionAgent,
+          workspace,
+          {
+            folderpath: addRootnameToPath(
+              appSetupVars.workspaceImagesfolderpath,
+              workspace.rootname
+            ),
+          },
+          /** skip auth check */ true,
+          /** throw on folder exists */ false,
+          opts,
+          /** throw on error */ true
+        ),
+      /** reuse txn */ false
+    ),
+    kSemanticModels.utils().withTxn(
+      opts =>
+        createFolderList(
+          kSystemSessionAgent,
+          workspace,
+          {
+            folderpath: addRootnameToPath(
+              appSetupVars.userImagesfolderpath,
+              workspace.rootname
+            ),
+          },
+          /** skip auth check */ true,
+          /** throw on folder exists */ false,
+          opts,
+          /** throw on error */ true
+        ),
+      /** reuse txn */ false
+    ),
+  ]);
 
-    const workspaceImagesFolder =
-      last(workspaceImagesFolders.existingFolders) ||
-      last(workspaceImagesFolders.newFolders);
-    const userImagesFolder =
-      last(userImagesFolders.existingFolders) || last(userImagesFolders.newFolders);
+  const workspaceImagesFolder =
+    last(workspaceImagesFolders.existingFolders) ||
+    last(workspaceImagesFolders.newFolders);
+  const userImagesFolder =
+    last(userImagesFolders.existingFolders) || last(userImagesFolders.newFolders);
 
-    appAssert(workspaceImagesFolder);
-    appAssert(userImagesFolder);
-    return {workspaceImagesFolder, userImagesFolder};
-  }, false);
+  appAssert(workspaceImagesFolder);
+  appAssert(userImagesFolder);
+  return {workspaceImagesFolder, userImagesFolder};
 }
 
 async function setupImageUploadPermissionGroup(

@@ -58,7 +58,8 @@
     "type-fest": "^3.8.0",
     "validator": "^13.5.2",
     "winston": "^3.8.2",
-    "winston-daily-rotate-file": "^4.7.1"
+    "winston-daily-rotate-file": "^4.7.1",
+    "zx": "^7.2.3"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.3.1",

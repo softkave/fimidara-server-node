@@ -16,7 +16,11 @@ interface InternalTxnStructure {
 }
 
 export class DataSemanticProviderUtils implements SemanticProviderUtils {
-  useTxnId(txn: unknown): string {
+  useTxnId(txn: unknown): string | undefined {
+    if (!txn) {
+      return undefined;
+    }
+
     const id = (txn as InternalTxnStructure).__fimidaraTxnId;
     appAssert(id);
     return id;

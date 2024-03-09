@@ -1,6 +1,15 @@
+import {faker} from '@faker-js/faker';
+import {compact, last} from 'lodash';
 import {kSystemSessionAgent} from '../../../utils/agent';
-import {pathJoin, sortStringListLexographically} from '../../../utils/fns';
+import {
+  loopAndCollate,
+  loopAndCollateAsync,
+  pathJoin,
+  pathSplit,
+  sortStringListLexographically,
+} from '../../../utils/fns';
 import {kSemanticModels} from '../../contexts/injection/injectables';
+import {generateTestFilepathString} from '../../testUtils/generate/file';
 import {
   generateAndInsertTestFolders,
   generateTestFolderName,
@@ -260,113 +269,52 @@ describe('addFolder', () => {
     const {userToken} = await insertUserForTest();
     const {rawWorkspace: workspace} = await insertWorkspaceForTest(userToken);
 
-    const parentFoldername = generateTestFolderName();
-    const folderName01 = generateTestFolderName();
-    const folderName02 = generateTestFolderName();
-    const folderpath01 = addRootnameToPath(
-      pathJoin([parentFoldername, folderName01]),
-      workspace.rootname
-    );
-    const folderpath02 = addRootnameToPath(
-      pathJoin([parentFoldername, folderName02]),
-      workspace.rootname
+    const partsLength = faker.number.int({min: 3, max: 7});
+    const leafLength = faker.number.int({min: 5, max: 10});
+    const parentPath = generateTestFolderpath({length: partsLength - 1});
+    const leafFolderpaths = loopAndCollate(
+      () =>
+        generateTestFilepathString({
+          parentNamepath: parentPath,
+          length: partsLength,
+          rootname: workspace.rootname,
+        }),
+      leafLength
     );
 
-    await Promise.all([
-      kSemanticModels
-        .utils()
-        .withTxn(
-          async opts =>
-            await Promise.all([
-              createFolderList(
-                kSystemSessionAgent,
-                workspace,
-                [
-                  {folderpath: folderpath01},
-                  {folderpath: folderpath02},
-                  {folderpath: folderpath01},
-                  {folderpath: folderpath02},
-                ],
-                /** skip auth */ true,
-                /** throw if folder exists */ false,
-                opts,
-                /** throw on error */ true
-              ),
-              createFolderList(
-                kSystemSessionAgent,
-                workspace,
-                [
-                  {folderpath: folderpath01},
-                  {folderpath: folderpath02},
-                  {folderpath: folderpath01},
-                  {folderpath: folderpath02},
-                ],
-                /** skip auth */ true,
-                /** throw if folder exists */ false,
-                opts,
-                /** throw on error */ true
-              ),
-            ]),
-          /** reuseTxn */ true
+    const withinTxnCount = faker.number.int({min: 1, max: partsLength});
+    await loopAndCollateAsync(
+      txnIndex =>
+        kSemanticModels.utils().withTxn(
+          opts =>
+            createFolderList(
+              kSystemSessionAgent,
+              workspace,
+              leafFolderpaths
+                .slice(txnIndex, txnIndex + withinTxnCount)
+                .map(folderpath => ({folderpath})),
+              /** skip auth */ true,
+              /** throw if folder exists */ false,
+              opts,
+              /** throw on error */ true
+            ),
+          /** reuse txn */ false
         ),
-      kSemanticModels
-        .utils()
-        .withTxn(
-          async opts =>
-            await Promise.all([
-              createFolderList(
-                kSystemSessionAgent,
-                workspace,
-                [
-                  {folderpath: folderpath01},
-                  {folderpath: folderpath02},
-                  {folderpath: folderpath01},
-                  {folderpath: folderpath02},
-                ],
-                /** skip auth */ true,
-                /** throw if folder exists */ false,
-                opts,
-                /** throw on error */ true
-              ),
-              createFolderList(
-                kSystemSessionAgent,
-                workspace,
-                [
-                  {folderpath: folderpath01},
-                  {folderpath: folderpath02},
-                  {folderpath: folderpath01},
-                  {folderpath: folderpath02},
-                ],
-                /** skip auth */ true,
-                /** throw if folder exists */ false,
-                opts,
-                /** throw on error */ true
-              ),
-            ]),
-          /** reuseTxn */ true
-        ),
-    ]);
+      leafLength,
+      /** settlement type */ 'all'
+    );
 
     const dbFolders = await kSemanticModels.folder().getManyByQuery({
-      $or: [
-        FolderQueries.getByNamepath({
-          workspaceId: workspace.resourceId,
-          namepath: [parentFoldername],
-        }),
-        FolderQueries.getByNamepath({
-          workspaceId: workspace.resourceId,
-          namepath: [parentFoldername, folderName01],
-        }),
-        FolderQueries.getByNamepath({
-          workspaceId: workspace.resourceId,
-          namepath: [parentFoldername, folderName02],
-        }),
-      ],
+      workspaceId: workspace.resourceId,
     });
 
     // there should be 3 folder, the parent folder and the 2 children folders
-    expect(dbFolders.length).toBe(3);
+    expect(dbFolders.length).toBe(leafLength + (partsLength - 1));
     const dbFolderNames = dbFolders.map(f => f.name);
-    expect(dbFolderNames).toEqual([parentFoldername, folderName01, folderName02]);
+    expect(dbFolderNames).toEqual(
+      pathSplit(parentPath).concat(
+        compact(leafFolderpaths.map(folderpath => last(pathSplit(folderpath))))
+      )
+    );
   });
 });
