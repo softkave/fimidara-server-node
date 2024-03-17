@@ -100,7 +100,8 @@ async function setup() {
   // End of scripts
 
   const defaultWorkspace = await initFimidara();
-  kUtilsInjectables.logger().log(`workspace ID - ${defaultWorkspace.resourceId}`);
+  kUtilsInjectables.logger().log(`workspace ID: ${defaultWorkspace.resourceId}`);
+  kUtilsInjectables.logger().log(`process ID: ${process.pid}`);
 
   setupJWT();
   setupFimidaraHttpEndpoints(app);
@@ -115,12 +116,16 @@ async function setup() {
 // TODO: run global dispose on close/end server
 setup();
 
-async function closeHttpServer(server: http.Server): Promise<Error | undefined> {
+async function closeHttpServer(server: http.Server): Promise<void> {
   const addr = server.address();
   return new Promise(resolve => {
     server.close(error => {
+      if (error) {
+        kUtilsInjectables.logger().error(error);
+      }
+
       kUtilsInjectables.logger().log(`closed ${format(addr)}`);
-      resolve(error);
+      resolve();
     });
 
     server.closeAllConnections();

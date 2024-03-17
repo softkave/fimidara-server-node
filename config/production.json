@@ -10,7 +10,7 @@
   "verifyEmailLink": "https://www.fimidara.com/verify-email",
   "exposeHttpServer": false,
   "exposeHttpsServer": true,
-  "httpsPort": "443",
+  "httpsPort": "",
   "httpsPublicKeyFilepath": "./certs/public-key.pem",
   "httpsPrivateKeyFilepath": "./certs/private-key.pem"
 }

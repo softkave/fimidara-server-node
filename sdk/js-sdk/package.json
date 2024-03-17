@@ -1,9 +1,13 @@
 {
   "name": "fimidara",
   "version": "1.17.0",
-  "description": "Fimidara file storage service js sdk",
-  "author": "Softkave",
+  "description": "fimidara file storage service js sdk",
+  "author": {
+    "email": "ywordk@gmail.com",
+    "name": "softkave"
+  },
   "license": "MIT",
+  "homepage": "https://github.com/softkave/fimidara-server-node/tree/main/sdk/js-sdk",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/softkave/fimidara-server-node.git"
@@ -11,12 +15,17 @@
   "bugs": {
     "url": "https://github.com/softkave/fimidara-server-node/issues"
   },
+  "keywords": [
+    "file",
+    "folder",
+    "file storage",
+    "file bucket"
+  ],
   "main": "./build/index.js",
   "typings": "./build/index.d.ts",
   "files": [
     "build/!(__tests__|testutils|private)*(js|d.ts)"
   ],
-  "keywords": [],
   "scripts": {
     "lint": "gts lint",
     "clean": "gts clean",

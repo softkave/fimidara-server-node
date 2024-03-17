@@ -1,11 +1,15 @@
 {
   "name": "fimidara-server-node",
   "version": "0.1.0",
-  "description": "Fimidara file storage service server Node.js",
+  "description": "fimidara file storage service server Node.js",
+  "author": {
+    "email": "ywordk@gmail.com",
+    "name": "softkave"
+  },
+  "license": "MIT",
+  "keywords": [],
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
-  "license": "Apache-2.0",
-  "keywords": [],
   "engines": {
     "node": "21.x",
     "npm": "10.x"
