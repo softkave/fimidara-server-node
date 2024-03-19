@@ -24,10 +24,9 @@ interface RuntimeArtifacts {
 const app = express();
 const artifacts: RuntimeArtifacts = {};
 
-// Match all origins
-const whitelistedCorsOrigins = [/[\s\S]*/];
 const corsOption: cors.CorsOptions = {
-  origin: whitelistedCorsOrigins,
+  // match all origins
+  origin: true,
   optionsSuccessStatus: kEndpointConstants.httpStatusCode.ok,
   credentials: true,
 };
@@ -47,7 +46,7 @@ async function setupHttpServer() {
     artifacts.httpServer = httpServer;
     httpServerPromise = new Promise(resolve => {
       httpServer.listen(conf.httpPort, () => {
-        kUtilsInjectables.logger().log(`http port - ${conf.httpPort}`);
+        kUtilsInjectables.logger().log(`http port: ${conf.httpPort}`);
         resolve();
       });
     });
@@ -69,7 +68,7 @@ async function setupHttpServer() {
     artifacts.httpsServer = httpsServer;
     httpsServerPromise = new Promise(resolve => {
       httpsServer.listen(conf.httpsPort, () => {
-        kUtilsInjectables.logger().log(`https port - ${conf.httpsPort}`);
+        kUtilsInjectables.logger().log(`https port: ${conf.httpsPort}`);
         resolve();
       });
     });
