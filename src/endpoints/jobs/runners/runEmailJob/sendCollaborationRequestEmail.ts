@@ -45,7 +45,7 @@ export async function sendCollaborationRequestEmail(params: EmailJobParams) {
   };
   const html = collaborationRequestEmailHTML(emailProps);
   const text = collaborationRequestEmailText(emailProps);
-  await kUtilsInjectables.email().sendEmail({
+  return await kUtilsInjectables.email().sendEmail({
     source,
     subject: kCollaborationRequestEmailArtifacts.title(workspace.name),
     body: {html, text},

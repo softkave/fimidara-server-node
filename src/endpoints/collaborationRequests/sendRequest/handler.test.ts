@@ -1,7 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
 import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
-import {EmailJobParams, Job, kEmailJobType, kJobType} from '../../../definitions/job';
 import {getTimestamp} from '../../../utils/dateFns';
 import {DataQuery} from '../../contexts/data/types';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
@@ -13,6 +12,7 @@ import {
   insertWorkspaceForTest,
 } from '../../testUtils/testUtils';
 import {CollaborationRequestInput} from './types';
+import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job';
 
 beforeAll(async () => {
   await initTests();
@@ -45,6 +45,15 @@ describe('sendCollaborationRequest', () => {
     expect(savedRequest.status).toBe(kCollaborationRequestStatusTypeMap.Pending);
 
     await kUtilsInjectables.promises().flush();
+    // const query: DataQuery<EmailMessage<CollaborationRequestEmailMessageParams>> = {
+    //   type: kEmailMessageType.collaborationRequest,
+    //   emailAddress: {$all: [user02.email]},
+    //   userId: {$all: [user02.resourceId]},
+    //   params: {$objMatch: {requestId: request01.resourceId}},
+    // };
+    // const dbEmailMessage = await kSemanticModels.emailMessage().getOneByQuery(query);
+    // expect(dbEmailMessage).toBeTruthy();
+
     const query: DataQuery<Job<EmailJobParams>> = {
       type: kJobType.email,
       params: {

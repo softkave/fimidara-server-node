@@ -66,12 +66,12 @@ export const INTERNAL_RespondToCollaborationRequest = async (
   return updatedRequest;
 };
 
-export async function notifyUserOnCollaborationRequestResponse(
+export async function notifySenderOnCollaborationRequestResponse(
   request: CollaborationRequest
 ) {
   const workspace = await kSemanticModels.workspace().getOneById(request.workspaceId);
   assertWorkspace(workspace);
-  const notifyUser =
+  const sender =
     request.createdBy.agentType === kFimidaraResourceType.User ||
     workspace.createdBy.agentType === kFimidaraResourceType.User
       ? // TODO: check if agent is a user or associated type before fetching
@@ -84,15 +84,26 @@ export async function notifyUserOnCollaborationRequestResponse(
           )
       : null;
 
-  if (notifyUser && notifyUser.isEmailVerified) {
+  if (sender && sender.isEmailVerified) {
     kUtilsInjectables.promises().forget(
+      // queueEmailMessage(
+      //   sender.email,
+      //   {
+      //     type: kEmailMessageType.collaborationRequestResponse,
+      //     params: {requestId: request.resourceId},
+      //   },
+      //   workspace.resourceId,
+      //   sender.resourceId,
+      //   {reuseTxn: false}
+      // )
+
       queueJobs<EmailJobParams>(workspace.resourceId, undefined, {
         createdBy: kSystemSessionAgent,
         type: kJobType.email,
         params: {
           type: kEmailJobType.collaborationRequestResponse,
-          emailAddress: [notifyUser.email],
-          userId: [notifyUser.resourceId],
+          emailAddress: [sender.email],
+          userId: [sender.resourceId],
           params: {requestId: request.resourceId},
         },
       })

@@ -1,5 +1,5 @@
 import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
-import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job';
+import {EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
@@ -44,6 +44,17 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async ins
   }, /** reuseTxn */ false);
 
   kUtilsInjectables.promises().forget(
+    // queueEmailMessage(
+    //   request.recipientEmail,
+    //   {
+    //     type: kEmailMessageType.collaborationRequestRevoked,
+    //     params: {requestId: request.resourceId},
+    //   },
+    //   workspace.resourceId,
+    //   undefined,
+    //   {reuseTxn: false}
+    // )
+
     queueJobs<EmailJobParams>(workspace.resourceId, undefined, {
       type: kJobType.email,
       createdBy: agent,

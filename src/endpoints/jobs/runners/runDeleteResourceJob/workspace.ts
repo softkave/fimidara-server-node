@@ -31,6 +31,11 @@ const deleteArtifacts: DeleteResourceDeleteArtifactsFns = {
   [kFimidaraResourceType.App]: null,
   [kFimidaraResourceType.Job]: null,
   [kFimidaraResourceType.Workspace]: null,
+  [kFimidaraResourceType.emailBlocklist]: null,
+  [kFimidaraResourceType.emailMessage]: ({args, helpers}) =>
+    helpers.withTxn(opts =>
+      kSemanticModels.emailMessage().deleteManyByWorkspaceId(args.workspaceId, opts)
+    ),
   [kFimidaraResourceType.CollaborationRequest]: ({args, helpers}) =>
     helpers.withTxn(opts =>
       kSemanticModels

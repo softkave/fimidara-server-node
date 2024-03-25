@@ -146,14 +146,12 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData =>
       [job] = await queueJobs<CleanupMountResolvedEntriesJobParams>(
         workspace.resourceId,
         /** parent job ID */ undefined,
-        [
-          {
-            createdBy: agent,
-            type: kJobType.cleanupMountResolvedEntries,
-            params: {mountId: mount.resourceId},
-          },
-        ],
-        {jobsToReturn: 'all'}
+        {
+          createdBy: agent,
+          type: kJobType.cleanupMountResolvedEntries,
+          params: {mountId: mount.resourceId},
+        },
+        {jobsToReturn: 'all', reuseTxn: true}
       );
     }
 

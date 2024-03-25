@@ -38,7 +38,7 @@ export async function sendCollaborationRequestResponseEmail(params: EmailJobPara
   };
   const html = collaborationRequestResponseEmailHTML(emailProps);
   const text = collaborationRequestResponseEmailText(emailProps);
-  await kUtilsInjectables.email().sendEmail({
+  return await kUtilsInjectables.email().sendEmail({
     source,
     subject: kCollaborationRequestResponseArtifacts.title(emailProps),
     body: {html, text},

@@ -25,7 +25,7 @@ export async function runDeleteResourceJob0(job: Job) {
           priority: job.priority,
           params: job.params as DeleteResourceJobParams,
         },
-        {seed: {resourceId: deleteArtifactsJobId}}
+        {seed: {resourceId: deleteArtifactsJobId}, reuseTxn: true}
       ),
       queueJobs<DeleteResourceJobParams>(job.workspaceId, job.resourceId, {
         createdBy: job.createdBy,

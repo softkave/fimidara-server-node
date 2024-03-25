@@ -19,6 +19,7 @@ import {
   NoopDbConnection,
   isMongoConnection,
 } from '../../../db/connection';
+import {getEmailBlocklistModel, getEmailMessageModel} from '../../../db/email';
 import {getFileModel} from '../../../db/file';
 import {getFolderDatabaseModel} from '../../../db/folder';
 import {getJobModel} from '../../../db/job';
@@ -64,6 +65,8 @@ import {
   AppRuntimeStateMongoDataProvider,
   AssignedItemMongoDataProvider,
   CollaborationRequestMongoDataProvider,
+  EmailBlocklistMongoDataProvider,
+  EmailMessageMongoDataProvider,
   FileBackendConfigMongoDataProvider,
   FileBackendMountMongoDataProvider,
   FileMongoDataProvider,
@@ -85,6 +88,8 @@ import {
   AssignedItemDataProvider,
   CollaborationRequestDataProvider,
   DataProviderUtils,
+  EmailBlocklistDataProvider,
+  EmailMessageDataProvider,
   FileBackendConfigDataProvider,
   FileBackendMountDataProvider,
   FileDataProvider,
@@ -115,6 +120,12 @@ import {DataSemanticAssignedItem} from '../semantic/assignedItem/model';
 import {SemanticAssignedItemProvider} from '../semantic/assignedItem/types';
 import {DataSemanticCollaborationRequest} from '../semantic/collaborationRequest/model';
 import {SemanticCollaborationRequestProvider} from '../semantic/collaborationRequest/types';
+import {SemanticEmailBlocklistProviderImpl} from '../semantic/email/SemanticEmailBlocklistImpl';
+import {SemanticEmailMessageProviderImpl} from '../semantic/email/SemanticEmailMessageImpl';
+import {
+  SemanticEmailBlocklistProvider,
+  SemanticEmailMessageProvider,
+} from '../semantic/email/types';
 import {
   DataSemanticFile,
   DataSemanticPresignedPathProvider,
@@ -206,6 +217,10 @@ export const kRegisterSemanticModels = {
   resolvedMountEntry: (item: SemanticResolvedMountEntryProvider) =>
     registerToken(kInjectionKeys.semantic.resolvedMountEntry, item),
   app: (item: SemanticAppProvider) => registerToken(kInjectionKeys.semantic.app, item),
+  emailMessage: (item: SemanticEmailMessageProvider) =>
+    registerToken(kInjectionKeys.semantic.emailMessage, item),
+  emailBlocklist: (item: SemanticEmailBlocklistProvider) =>
+    registerToken(kInjectionKeys.semantic.emailBlocklist, item),
   utils: (item: SemanticProviderUtils) =>
     registerToken(kInjectionKeys.semantic.utils, item),
 };
@@ -241,6 +256,10 @@ export const kRegisterDataModels = {
   appRuntimeState: (item: AppRuntimeStateDataProvider) =>
     registerToken(kInjectionKeys.data.appRuntimeState, item),
   app: (item: AppDataProvider) => registerToken(kInjectionKeys.data.app, item),
+  emailMessage: (item: EmailMessageDataProvider) =>
+    registerToken(kInjectionKeys.data.emailMessage, item),
+  emailBlocklist: (item: EmailBlocklistDataProvider) =>
+    registerToken(kInjectionKeys.data.emailBlocklist, item),
   utils: (item: DataProviderUtils) => registerToken(kInjectionKeys.data.utils, item),
 };
 
@@ -266,7 +285,7 @@ export const kRegisterUtilsInjectables = {
   usageLogic: (item: UsageRecordLogicProvider) =>
     registerToken(kInjectionKeys.usageLogic, item),
   logger: (item: Logger) => registerToken(kInjectionKeys.logger, item),
-  shardedRunnder: (item: ShardedRunner) =>
+  shardedRunner: (item: ShardedRunner) =>
     registerToken(kInjectionKeys.shardedRunner, item),
 };
 
@@ -318,6 +337,12 @@ export function registerDataModelInjectables() {
     new UsageRecordMongoDataProvider(getUsageRecordModel(connection))
   );
   kRegisterDataModels.app(new AppMongoDataProvider(getAppModel(connection)));
+  kRegisterDataModels.emailMessage(
+    new EmailMessageMongoDataProvider(getEmailMessageModel(connection))
+  );
+  kRegisterDataModels.emailBlocklist(
+    new EmailBlocklistMongoDataProvider(getEmailBlocklistModel(connection))
+  );
   kRegisterDataModels.utils(new MongoDataProviderUtils());
 }
 
@@ -367,6 +392,12 @@ export function registerSemanticModelInjectables() {
     new DataSemanticResolvedMountEntry(kDataModels.resolvedMountEntry(), assertNotFound)
   );
   kRegisterSemanticModels.app(new DataSemanticApp(kDataModels.app(), assertNotFound));
+  kRegisterSemanticModels.emailMessage(
+    new SemanticEmailMessageProviderImpl(kDataModels.emailMessage(), assertNotFound)
+  );
+  kRegisterSemanticModels.emailBlocklist(
+    new SemanticEmailBlocklistProviderImpl(kDataModels.emailBlocklist(), assertNotFound)
+  );
   kRegisterSemanticModels.utils(new DataSemanticProviderUtils());
 }
 
@@ -385,7 +416,7 @@ export function registerUtilsInjectables(overrideConfig: FimidaraSuppliedConfig 
 
   const shardedRunner = new ShardedRunner();
   shardedRunner.registerRunner(addFolderShardRunner as ShardRunner);
-  kRegisterUtilsInjectables.shardedRunnder(shardedRunner);
+  kRegisterUtilsInjectables.shardedRunner(shardedRunner);
 
   if (!suppliedConfig.dbType || suppliedConfig.dbType === kFimidaraConfigDbType.mongoDb) {
     assert(suppliedConfig.mongoDbURI);

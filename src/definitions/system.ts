@@ -3,6 +3,7 @@ import {AgentToken} from './agentToken';
 import {App} from './app';
 import {AssignedItem} from './assignedItem';
 import {CollaborationRequest} from './collaborationRequest';
+import {EmailBlocklist, EmailMessage} from './email';
 import {File} from './file';
 import {FileBackendConfig, FileBackendMount, ResolvedMountEntry} from './fileBackend';
 import {Folder} from './folder';
@@ -80,6 +81,8 @@ export const kFimidaraResourceType = {
   FileBackendMount: 'fileBackendMount',
   ResolvedMountEntry: 'resolvedMountEntry',
   App: 'app',
+  emailMessage: 'emailMessage',
+  emailBlocklist: 'emailBlocklist',
 } as const;
 
 export type FimidaraResourceType = ObjectValues<typeof kFimidaraResourceType>;
@@ -222,6 +225,8 @@ export const kResourceTypeToPossibleChildren: Record<
   [kFimidaraResourceType.FileBackendConfig]: [kFimidaraResourceType.PermissionItem],
   [kFimidaraResourceType.FileBackendMount]: [kFimidaraResourceType.PermissionItem],
   [kFimidaraResourceType.ResolvedMountEntry]: [],
+  [kFimidaraResourceType.emailMessage]: [],
+  [kFimidaraResourceType.emailBlocklist]: [],
 };
 
 export type FimidaraTypeToTSType<T extends FimidaraResourceType> =
@@ -259,4 +264,8 @@ export type FimidaraTypeToTSType<T extends FimidaraResourceType> =
     ? ResolvedMountEntry
     : T extends typeof kFimidaraResourceType.App
     ? App
+    : T extends typeof kFimidaraResourceType.emailMessage
+    ? EmailMessage
+    : T extends typeof kFimidaraResourceType.emailBlocklist
+    ? EmailBlocklist
     : never;

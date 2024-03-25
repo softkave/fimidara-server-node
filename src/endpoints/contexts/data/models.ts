@@ -2,6 +2,7 @@ import {AgentToken} from '../../../definitions/agentToken';
 import {App} from '../../../definitions/app';
 import {AssignedItem} from '../../../definitions/assignedItem';
 import {CollaborationRequest} from '../../../definitions/collaborationRequest';
+import {EmailBlocklist, EmailMessage} from '../../../definitions/email';
 import {File} from '../../../definitions/file';
 import {
   FileBackendConfig,
@@ -37,6 +38,8 @@ import {
   AppRuntimeStateDataProvider,
   AssignedItemDataProvider,
   CollaborationRequestDataProvider,
+  EmailBlocklistDataProvider,
+  EmailMessageDataProvider,
   FileBackendConfigDataProvider,
   FileBackendMountDataProvider,
   FileDataProvider,
@@ -182,6 +185,20 @@ export class ResolvedMountEntryMongoDataProvider
 export class AppMongoDataProvider
   extends BaseMongoDataProvider<App>
   implements AppDataProvider
+{
+  throwNotFound = throwNotFound;
+}
+
+export class EmailMessageMongoDataProvider
+  extends BaseMongoDataProvider<EmailMessage>
+  implements EmailMessageDataProvider
+{
+  throwNotFound = throwNotFound;
+}
+
+export class EmailBlocklistMongoDataProvider
+  extends BaseMongoDataProvider<EmailBlocklist>
+  implements EmailBlocklistDataProvider
 {
   throwNotFound = throwNotFound;
 }

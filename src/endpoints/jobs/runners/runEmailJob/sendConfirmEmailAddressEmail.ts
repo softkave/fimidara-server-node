@@ -73,20 +73,24 @@ export async function sendConfirmEmailAddressEmail(params: EmailJobParams) {
   };
   const html = confirmEmailAddressEmailHTML(emailProps);
   const text = confirmEmailAddressEmailText(emailProps);
-  await kUtilsInjectables.email().sendEmail({
+  const result = await kUtilsInjectables.email().sendEmail({
     source,
     subject: kConfirmEmailAddressEmail.title,
     body: {html, text},
     destination: params.emailAddress,
   });
 
-  await kSemanticModels.utils().withTxn(async opts => {
-    await kSemanticModels
-      .user()
-      .updateOneById(
-        user.resourceId,
-        {emailVerificationEmailSentAt: getTimestamp()},
-        opts
-      );
-  }, false);
+  kUtilsInjectables.promises().forget(
+    kSemanticModels.utils().withTxn(async opts => {
+      await kSemanticModels
+        .user()
+        .updateOneById(
+          user.resourceId,
+          {emailVerificationEmailSentAt: getTimestamp()},
+          opts
+        );
+    }, /** reuseTxn */ false)
+  );
+
+  return result;
 }

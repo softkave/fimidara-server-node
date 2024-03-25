@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 import RequestData from '../../RequestData';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {DataQuery} from '../../contexts/data/types';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import EndpointReusableQueries from '../../queries';
 import {generateAndInsertUserListForTest} from '../../testUtils/generate/user';
@@ -17,7 +18,6 @@ import {userExtractor} from '../utils';
 import updateUser from './handler';
 import {UpdateUserEndpointParams} from './types';
 import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job';
-import {DataQuery} from '../../contexts/data/types';
 
 /**
  * TODO:
@@ -59,6 +59,14 @@ describe('updateUser', () => {
     expect(savedUser).toMatchObject(updateInput);
 
     await kUtilsInjectables.promises().flush();
+    // const query: DataQuery<EmailMessage> = {
+    //   type: kEmailMessageType.confirmEmailAddress,
+    //   emailAddress: {$all: [savedUser.email]},
+    //   userId: {$all: [savedUser.resourceId]},
+    // };
+    // const dbEmailMessage = await kSemanticModels.emailMessage().getOneByQuery(query);
+    // expect(dbEmailMessage).toBeTruthy();
+
     const query: DataQuery<Job<EmailJobParams>> = {
       type: kJobType.email,
       params: {

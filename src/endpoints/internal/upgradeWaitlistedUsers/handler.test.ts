@@ -66,11 +66,19 @@ describe('upgradeWaitlistedUsers', () => {
     const usersMap = indexArray(users, {path: 'resourceId'});
     expect(users).toHaveLength(waitlistedUsers.length);
 
+    await kUtilsInjectables.promises().flush();
     await Promise.all(
       users.map(async user => {
         expect(usersMap[user.resourceId]).toBeTruthy();
 
-        await kUtilsInjectables.promises().flush();
+        // const query: DataQuery<EmailMessage> = {
+        //   type: kEmailMessageType.upgradedFromWaitlist,
+        //   emailAddress: {$all: [user.email]},
+        //   userId: {$all: [user.resourceId]},
+        // };
+        // const dbEmailMessage = await kSemanticModels.emailMessage().getOneByQuery(query);
+        // expect(dbEmailMessage).toBeTruthy();
+
         const query: DataQuery<Job<EmailJobParams>> = {
           type: kJobType.email,
           params: {

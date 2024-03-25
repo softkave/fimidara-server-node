@@ -85,7 +85,7 @@ export async function sendForgotPasswordEmail(params: EmailJobParams) {
   const html = forgotPasswordEmailHTML(emailProps);
   const text = forgotPasswordEmailText(emailProps);
 
-  await kUtilsInjectables.email().sendEmail({
+  return await kUtilsInjectables.email().sendEmail({
     source,
     subject: kForgotPasswordEmailArtifacts.title,
     body: {html, text},

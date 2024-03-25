@@ -1,8 +1,19 @@
-import {SendEmailCommand, SESv2Client} from '@aws-sdk/client-sesv2';
+import {
+  GetMessageInsightsCommand,
+  SendEmailCommand,
+  SESv2Client,
+} from '@aws-sdk/client-sesv2';
+import {kEmailBlocklistReason} from '../../../definitions/email';
+import {kFimidaraConfigEmailProvider} from '../../../resources/config';
 import {appAssert} from '../../../utils/assertion';
 import {S3FilePersistenceProviderInitParams} from '../file/S3FilePersistenceProvider';
 import {kUtilsInjectables} from '../injection/injectables';
-import {IEmailProviderContext, SendEmailParams} from './types';
+import {
+  EmailProviderBlockEmailAddressItem,
+  EmailProviderSendEmailResult,
+  IEmailProviderContext,
+  SendEmailParams,
+} from './types';
 
 export class SESEmailProviderContext implements IEmailProviderContext {
   protected ses: SESv2Client;
@@ -17,7 +28,9 @@ export class SESEmailProviderContext implements IEmailProviderContext {
     });
   }
 
-  sendEmail = async (params: SendEmailParams) => {
+  sendEmail = async (
+    params: SendEmailParams
+  ): Promise<EmailProviderSendEmailResult | undefined> => {
     const suppliedConfig = kUtilsInjectables.suppliedConfig();
     appAssert(suppliedConfig.awsEmailEncoding);
 
@@ -26,28 +39,55 @@ export class SESEmailProviderContext implements IEmailProviderContext {
       FromEmailAddress: params.source,
       Content: {
         Simple: {
-          Subject: {
-            Charset: suppliedConfig.awsEmailEncoding,
-            Data: params.subject,
-          },
+          Subject: {Charset: suppliedConfig.awsEmailEncoding, Data: params.subject},
           Body: {
-            Html: {
-              Charset: suppliedConfig.awsEmailEncoding,
-              Data: params.body.html,
-            },
-            Text: {
-              Charset: suppliedConfig.awsEmailEncoding,
-              Data: params.body.text,
-            },
+            Html: {Charset: suppliedConfig.awsEmailEncoding, Data: params.body.html},
+            Text: {Charset: suppliedConfig.awsEmailEncoding, Data: params.body.text},
           },
         },
       },
     });
 
-    await this.ses.send(command);
+    const result = await this.ses.send(command);
+
+    if (result.MessageId) {
+      return await this.tryGetMessageInsights(result.MessageId);
+    }
+
+    return undefined;
   };
 
   dispose = async () => {
     await this.ses.destroy();
   };
+
+  protected async tryGetMessageInsights(
+    messageId: string
+  ): Promise<EmailProviderSendEmailResult> {
+    try {
+      const command = new GetMessageInsightsCommand({MessageId: messageId});
+      const insightsResult = await this.ses.send(command);
+
+      // TODO: also handle complaints (spam), and other insights
+      const blockEmailAddressList: EmailProviderBlockEmailAddressItem[] = [];
+      insightsResult.Insights?.forEach(insight => {
+        const emailBounced = insight.Events?.some(event => event.Type === 'BOUNCE');
+
+        if (emailBounced && insight.Destination) {
+          blockEmailAddressList.push({
+            emailAddress: insight.Destination,
+            reason: kEmailBlocklistReason.bounce,
+          });
+        }
+      });
+
+      return {
+        blockEmailAddressList,
+        meta: {emailProvider: kFimidaraConfigEmailProvider.ses, other: insightsResult},
+      };
+    } catch (error) {
+      kUtilsInjectables.logger().error(error);
+      return {};
+    }
+  }
 }

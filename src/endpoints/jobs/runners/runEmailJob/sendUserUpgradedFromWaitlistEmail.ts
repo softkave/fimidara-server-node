@@ -23,7 +23,7 @@ export async function sendUserUpgradedFromWaitlistEmail(params: EmailJobParams) 
   };
   const html = upgradedFromWaitlistEmailHTML(emailProps);
   const text = upgradedFromWaitlistEmailText(emailProps);
-  await kUtilsInjectables.email().sendEmail({
+  return await kUtilsInjectables.email().sendEmail({
     source,
     subject: kUpgradeFromWaitlistEmailArtifacts.title,
     body: {html, text},

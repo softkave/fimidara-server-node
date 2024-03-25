@@ -1,3 +1,5 @@
+import {EmailBlocklistReason} from '../../../definitions/email';
+import {EmailJobMeta} from '../../../definitions/job';
 import {DisposableResource} from '../../../utils/disposables';
 
 export interface SendEmailParams {
@@ -10,6 +12,18 @@ export interface SendEmailParams {
   };
 }
 
+export interface EmailProviderBlockEmailAddressItem {
+  emailAddress: string;
+  reason: EmailBlocklistReason;
+}
+
+export interface EmailProviderSendEmailResult {
+  blockEmailAddressList?: Array<EmailProviderBlockEmailAddressItem>;
+  meta?: EmailJobMeta;
+}
+
 export interface IEmailProviderContext extends DisposableResource {
-  sendEmail: (params: SendEmailParams) => Promise<void>;
+  sendEmail: (
+    params: SendEmailParams
+  ) => Promise<EmailProviderSendEmailResult | undefined>;
 }

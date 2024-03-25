@@ -4,6 +4,7 @@ import {AgentToken} from '../../../definitions/agentToken';
 import {App} from '../../../definitions/app';
 import {AssignedItem} from '../../../definitions/assignedItem';
 import {CollaborationRequest} from '../../../definitions/collaborationRequest';
+import {EmailBlocklist, EmailMessage} from '../../../definitions/email';
 import {File} from '../../../definitions/file';
 import {
   FileBackendConfig,
@@ -245,6 +246,8 @@ export type FileBackendConfigQuery = DataQuery<FileBackendConfig>;
 export type FileBackendMountQuery = DataQuery<FileBackendMount>;
 export type ResolvedMountEntryQuery = DataQuery<ResolvedMountEntry>;
 export type AppQuery = DataQuery<App>;
+export type EmailMessageQuery = DataQuery<EmailMessage>;
+export type EmailBlocklistQuery = DataQuery<EmailBlocklist>;
 
 export type AgentTokenDataProvider = BaseDataProvider<AgentToken, DataQuery<AgentToken>>;
 export type AppRuntimeStateDataProvider = BaseDataProvider<
@@ -295,3 +298,11 @@ export type ResolvedMountEntryDataProvider = BaseDataProvider<
   DataQuery<ResolvedMountEntry>
 >;
 export type AppDataProvider = BaseDataProvider<App, DataQuery<App>>;
+export type EmailMessageDataProvider = BaseDataProvider<
+  EmailMessage,
+  DataQuery<EmailMessage>
+>;
+export type EmailBlocklistDataProvider = BaseDataProvider<
+  EmailBlocklist,
+  DataQuery<EmailBlocklist>
+>;

@@ -153,4 +153,8 @@ export const kAppMessages = {
       `Mount exists from ${mountedFrom} to ${folderpath} with backend ${backend}`,
     mountsNotSetup: 'File backend mounts not setup',
   },
+  email: {
+    // TODO: add support email address they can reach out to
+    emailIsInBlocklist: 'Email address in blocklist',
+  },
 };

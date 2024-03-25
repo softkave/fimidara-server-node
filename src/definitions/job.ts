@@ -1,4 +1,5 @@
 import {ValueOf} from 'type-fest';
+import {FimidaraConfigEmailProvider} from '../resources/config';
 import {AnyObject, PartialRecord} from '../utils/types';
 import {AppShard} from './app';
 import {Agent, FimidaraResourceType, Resource} from './system';
@@ -169,5 +170,10 @@ export type EmailJobParams = {
 //     type: typeof kEmailJobType.usageExceeded;
 //     params: UsageExceededEmailProps;
 //   }
+
+export interface EmailJobMeta {
+  emailProvider: FimidaraConfigEmailProvider;
+  other?: AnyObject;
+}
 
 export const kJobRunnerV1 = 1;

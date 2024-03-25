@@ -17,6 +17,14 @@ export const forgotPassword: ForgotPasswordEndpoint = async instData => {
 
 export async function INTERNAL_forgotPassword(user: User) {
   kUtilsInjectables.promises().forget(
+    // queueEmailMessage(
+    //   user.email,
+    //   {type: kEmailMessageType.forgotPassword, params: {}},
+    //   undefined,
+    //   user.resourceId,
+    //   {reuseTxn: false}
+    // )
+
     queueJobs<EmailJobParams>(
       /** workspace ID */ undefined,
       /** parent job ID */ undefined,

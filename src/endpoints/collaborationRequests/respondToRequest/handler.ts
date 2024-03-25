@@ -5,7 +5,7 @@ import {collaborationRequestForUserExtractor} from '../utils';
 import {RespondToCollaborationRequestEndpoint} from './types';
 import {
   INTERNAL_RespondToCollaborationRequest,
-  notifyUserOnCollaborationRequestResponse,
+  notifySenderOnCollaborationRequestResponse,
 } from './utils';
 import {respondToCollaborationRequestJoiSchema} from './validation';
 
@@ -20,7 +20,7 @@ const respondToCollaborationRequest: RespondToCollaborationRequestEndpoint =
       return await INTERNAL_RespondToCollaborationRequest(agent, data, opts);
     }, /** reuseTxn */ false);
 
-    await notifyUserOnCollaborationRequestResponse(request);
+    await notifySenderOnCollaborationRequestResponse(request);
     return {request: collaborationRequestForUserExtractor(request)};
   };
 

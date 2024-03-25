@@ -126,6 +126,7 @@ describe('sendConfirmEmailAddressEmail', () => {
       kUtilsInjectables.suppliedConfig().appDefaultEmailAddressFrom
     );
 
+    await kUtilsInjectables.promises().flush();
     const dbUser = await kSemanticModels.user().getOneById(user.resourceId);
     expect(dbUser?.emailVerificationEmailSentAt).toBeGreaterThan(
       user.emailVerificationEmailSentAt || 0

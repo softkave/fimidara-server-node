@@ -1,4 +1,4 @@
-import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job';
+import {EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job';
 import {kFimidaraResourceType} from '../../../definitions/system';
 import {User} from '../../../definitions/user';
 import {appAssert} from '../../../utils/assertion';
@@ -39,6 +39,14 @@ const upgradeWaitlistedUsers: UpgradeWaitlistedUsersEndpoint = async reqData => 
 
   users.map(user => {
     kUtilsInjectables.promises().forget(
+      // queueEmailMessage(
+      //   user.email,
+      //   {type: kEmailMessageType.upgradedFromWaitlist, params: {}},
+      //   undefined,
+      //   user.resourceId,
+      //   {reuseTxn: false}
+      // )
+
       queueJobs<EmailJobParams>(
         /** workspace ID */ undefined,
         /** parent job ID */ undefined,

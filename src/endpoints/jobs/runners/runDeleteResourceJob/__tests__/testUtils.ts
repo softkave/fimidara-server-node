@@ -191,6 +191,10 @@ const kGetResourcesByIdDef: GetResourcesByIdDefinition = {
     kSemanticModels.fileBackendConfig().getManyByIdList(idList),
   [kFimidaraResourceType.ResolvedMountEntry]: ({idList}) =>
     kSemanticModels.resolvedMountEntry().getManyByIdList(idList),
+  [kFimidaraResourceType.emailMessage]: ({idList}) =>
+    kSemanticModels.emailMessage().getManyByIdList(idList),
+  [kFimidaraResourceType.emailBlocklist]: ({idList}) =>
+    kSemanticModels.emailBlocklist().getManyByIdList(idList),
 };
 
 async function fetchTypeChildrenWithDef(props: {

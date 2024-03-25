@@ -42,7 +42,7 @@ export async function sendCollaborationRequestRevokedEmail(params: EmailJobParam
   };
   const html = collaborationRequestRevokedEmailHTML(emailProps);
   const text = collaborationRequestRevokedEmailText(emailProps);
-  await kUtilsInjectables.email().sendEmail({
+  return await kUtilsInjectables.email().sendEmail({
     source,
     subject: kCollaborationRequestRevokedEmail.title(workspace.name),
     body: {html, text},

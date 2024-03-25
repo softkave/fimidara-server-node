@@ -11,8 +11,6 @@ export function appAssert(
   logMessage?: string
 ): asserts value {
   if (!value) {
-    console.trace();
-
     if (logMessage) {
       kUtilsInjectables.logger().error(logMessage);
     }

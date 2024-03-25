@@ -64,6 +64,7 @@ describe('queueJobs', () => {
     // Second add should not add anything to DB
     const jobs02 = await queueJobs(workspaceId, parentJobId, [input01], {
       jobsToReturn: 'new',
+      reuseTxn: true,
     });
     const dbJobs = await kSemanticModels.job().getManyByQuery({
       params: {$objMatch: {id: internalParamId}},
@@ -129,6 +130,7 @@ describe('queueJobs', () => {
 
     await queueJobs(workspaceId, undefined, [input01], {
       seed: {resourceId: jobId},
+      reuseTxn: true,
     });
 
     const dbJob = await kSemanticModels.job().getOneByQuery({

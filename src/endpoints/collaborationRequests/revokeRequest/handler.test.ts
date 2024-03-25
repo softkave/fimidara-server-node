@@ -1,5 +1,5 @@
 import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
-import {EmailJobParams, Job, kEmailJobType, kJobType} from '../../../definitions/job';
+import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job';
 import {DataQuery} from '../../contexts/data/types';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import RequestData from '../../RequestData';
@@ -51,6 +51,14 @@ test('collaboration request revoked', async () => {
   expect(updatedRequest.status).toBe(kCollaborationRequestStatusTypeMap.Revoked);
 
   await kUtilsInjectables.promises().flush();
+  // const query: DataQuery<EmailMessage<CollaborationRequestEmailMessageParams>> = {
+  //   type: kEmailMessageType.collaborationRequestRevoked,
+  //   emailAddress: {$all: [user02.email]},
+  //   params: {$objMatch: {requestId: request01.resourceId}},
+  // };
+  // const dbEmailMessage = await kSemanticModels.emailMessage().getOneByQuery(query);
+  // expect(dbEmailMessage).toBeTruthy();
+
   const query: DataQuery<Job<EmailJobParams>> = {
     type: kJobType.email,
     params: {

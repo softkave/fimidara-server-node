@@ -40,9 +40,10 @@ export async function queueJobs<
   insertOptions: {
     jobsToReturn?: 'all' | 'new';
     seed?: Partial<Job<TParams, TMeta>>;
-  } = {}
+    reuseTxn: boolean;
+  } = {reuseTxn: true}
 ): Promise<Array<Job<TParams, TMeta>>> {
-  const {jobsToReturn = 'all'} = insertOptions;
+  const {reuseTxn, jobsToReturn = 'all'} = insertOptions;
 
   if (!isArray(jobsInput)) {
     jobsInput = convertToArray(jobsInput);
@@ -109,5 +110,5 @@ export async function queueJobs<
 
     await kSemanticModels.job().insertItem(uniqueJobs, opts);
     return (jobsToReturn === 'all' ? jobs : uniqueJobs) as Array<Job<TParams, TMeta>>;
-  }, /** reuseTxn */ true);
+  }, reuseTxn);
 }

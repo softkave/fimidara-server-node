@@ -1,5 +1,4 @@
 import {faker} from '@faker-js/faker';
-import {EmailJobParams, Job, kEmailJobType, kJobType} from '../../../definitions/job';
 import {mergeData} from '../../../utils/fns';
 import {DataQuery} from '../../contexts/data/types';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
@@ -9,6 +8,7 @@ import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {completeTests} from '../../testUtils/helpers/testFns';
 import {initTests, insertUserForTest} from '../../testUtils/testUtils';
 import {EmailAddressNotAvailableError} from '../errors';
+import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job';
 
 /**
  * TODO:
@@ -41,6 +41,14 @@ describe('signup', () => {
     expect(result.userTokenStr).toBeTruthy();
 
     await kUtilsInjectables.promises().flush();
+    // const query: DataQuery<EmailMessage> = {
+    //   type: kEmailMessageType.confirmEmailAddress,
+    //   emailAddress: {$all: [savedUser.email]},
+    //   userId: {$all: [savedUser.resourceId]},
+    // };
+    // const dbEmailMessage = await kSemanticModels.emailMessage().getOneByQuery(query);
+    // expect(dbEmailMessage).toBeTruthy();
+
     const query: DataQuery<Job<EmailJobParams>> = {
       type: kJobType.email,
       params: {

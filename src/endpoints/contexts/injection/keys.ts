@@ -36,6 +36,8 @@ export const kInjectionKeys = {
     collaborationRequest: dataKey('collaborationRequest'),
     usageRecord: dataKey('usageRecord'),
     app: dataKey('app'),
+    emailMessage: dataKey('emailMessage'),
+    emailBlocklist: dataKey('emailBlocklist'),
     utils: dataKey('utils'),
   },
   semantic: {
@@ -57,6 +59,8 @@ export const kInjectionKeys = {
     usageRecord: semanticKey('usageRecord'),
     resolvedMountEntry: semanticKey('resolvedMountEntry'),
     app: semanticKey('app'),
+    emailMessage: semanticKey('app'),
+    emailBlocklist: semanticKey('emailBlocklist'),
     utils: semanticKey('utils'),
   },
   encryption: 'encryption',

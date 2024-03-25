@@ -1,4 +1,4 @@
-import {EmailJobParams, Job, kEmailJobType, kJobType} from '../../../definitions/job';
+import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job';
 import RequestData from '../../RequestData';
 import {DataQuery} from '../../contexts/data/types';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
@@ -41,6 +41,14 @@ test('sendEmailVerificationCode', async () => {
   assertEndpointResultOk(result);
 
   await kUtilsInjectables.promises().flush();
+  // const query: DataQuery<EmailMessage> = {
+  //   type: kEmailMessageType.confirmEmailAddress,
+  //   emailAddress: {$all: [user.email]},
+  //   userId: {$all: [user.resourceId]},
+  // };
+  // const dbEmailMessage = await kSemanticModels.emailMessage().getOneByQuery(query);
+  // expect(dbEmailMessage).toBeTruthy();
+
   const query: DataQuery<Job<EmailJobParams>> = {
     type: kJobType.email,
     params: {

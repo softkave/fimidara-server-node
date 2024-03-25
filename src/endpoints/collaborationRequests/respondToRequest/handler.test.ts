@@ -61,6 +61,15 @@ test('collaboration request declined', async () => {
   expect(updatedRequest.status).toBe(kCollaborationRequestStatusTypeMap.Accepted);
 
   await kUtilsInjectables.promises().flush();
+  // const query: DataQuery<EmailMessage<CollaborationRequestEmailMessageParams>> = {
+  //   type: kEmailJobType.collaborationRequestResponse,
+  //   emailAddress: {$all: [user.email]},
+  //   userId: {$all: [user.resourceId]},
+  //   params: {$objMatch: {requestId: request01.resourceId}},
+  // };
+  // const dbEmailMessage = await kSemanticModels.emailMessage().getOneByQuery(query);
+  // expect(dbEmailMessage).toBeTruthy();
+
   const query: DataQuery<Job<EmailJobParams>> = {
     type: kJobType.email,
     params: {

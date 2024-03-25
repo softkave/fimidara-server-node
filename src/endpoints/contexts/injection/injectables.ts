@@ -16,6 +16,8 @@ import {
   AssignedItemDataProvider,
   CollaborationRequestDataProvider,
   DataProviderUtils,
+  EmailBlocklistDataProvider,
+  EmailMessageDataProvider,
   FileBackendConfigDataProvider,
   FileBackendMountDataProvider,
   FileDataProvider,
@@ -38,6 +40,10 @@ import {UsageRecordLogicProvider} from '../logic/UsageRecordLogicProvider';
 import {SemanticAgentTokenProvider} from '../semantic/agentToken/types';
 import {SemanticAssignedItemProvider} from '../semantic/assignedItem/types';
 import {SemanticCollaborationRequestProvider} from '../semantic/collaborationRequest/types';
+import {
+  SemanticEmailBlocklistProvider,
+  SemanticEmailMessageProvider,
+} from '../semantic/email/types';
 import {
   SemanticFileProvider,
   SemanticPresignedPathProvider,
@@ -109,6 +115,12 @@ export const kSemanticModels = {
       kInjectionKeys.semantic.resolvedMountEntry
     ),
   app: () => container.resolve<SemanticAppProvider>(kInjectionKeys.semantic.app),
+  emailMessage: () =>
+    container.resolve<SemanticEmailMessageProvider>(kInjectionKeys.semantic.emailMessage),
+  emailBlocklist: () =>
+    container.resolve<SemanticEmailBlocklistProvider>(
+      kInjectionKeys.semantic.emailBlocklist
+    ),
   utils: () => container.resolve<SemanticProviderUtils>(kInjectionKeys.semantic.utils),
 };
 
@@ -149,6 +161,10 @@ export const kDataModels = {
   usageRecord: () =>
     container.resolve<UsageRecordDataProvider>(kInjectionKeys.data.usageRecord),
   app: () => container.resolve<AppDataProvider>(kInjectionKeys.data.app),
+  emailMessage: () =>
+    container.resolve<EmailMessageDataProvider>(kInjectionKeys.data.emailMessage),
+  emailBlocklist: () =>
+    container.resolve<EmailBlocklistDataProvider>(kInjectionKeys.data.emailBlocklist),
   utils: () => container.resolve<DataProviderUtils>(kInjectionKeys.data.utils),
 };
 

@@ -172,4 +172,9 @@ export const kReuseableErrors = {
       return new Error(kAppMessages.common.invalidState(state));
     },
   },
+  email: {
+    inBlocklist() {
+      return new InvalidStateError(kAppMessages.email.emailIsInBlocklist);
+    },
+  },
 };
