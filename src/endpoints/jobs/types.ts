@@ -1,4 +1,5 @@
-import {AppShard} from '../../definitions/app';
+import {MessagePort} from 'worker_threads';
+import {AppShardId} from '../../definitions/app';
 import {ExportedHttpEndpointWithMddocDefinition} from '../types';
 import {GetJobStatusEndpoint} from './getJobStatus/types';
 
@@ -39,7 +40,8 @@ export const kRunnerWorkerMessageTypeList = Object.values(kRunnerWorkerMessageTy
 export interface ChildRunnerWorkerData {
   runnerId: string;
   activeRunnerIds: string[];
-  pickFromShards: AppShard[];
+  pickFromShards: AppShardId[];
+  port: MessagePort;
 }
 
 export interface BaseRunnerMessage {
@@ -56,7 +58,7 @@ export type RunnerWorkerMessage = BaseRunnerMessage &
       }
     | {
         type: typeof kRunnerWorkerMessageType.setPickFromShards;
-        pickFromShards: AppShard[];
+        pickFromShards: AppShardId[];
       }
     | {
         type: typeof kRunnerWorkerMessageType.getActiveRunnerIds;

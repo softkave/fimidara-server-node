@@ -1,6 +1,6 @@
 import {AnyObject, ObjectValues} from '../utils/types';
 import {AgentToken} from './agentToken';
-import {App} from './app';
+import {App, AppShard} from './app';
 import {AssignedItem} from './assignedItem';
 import {CollaborationRequest} from './collaborationRequest';
 import {EmailBlocklist, EmailMessage} from './email';
@@ -83,6 +83,7 @@ export const kFimidaraResourceType = {
   App: 'app',
   emailMessage: 'emailMessage',
   emailBlocklist: 'emailBlocklist',
+  appShard: 'appShard',
 } as const;
 
 export type FimidaraResourceType = ObjectValues<typeof kFimidaraResourceType>;
@@ -227,7 +228,10 @@ export const kResourceTypeToPossibleChildren: Record<
   [kFimidaraResourceType.ResolvedMountEntry]: [],
   [kFimidaraResourceType.emailMessage]: [],
   [kFimidaraResourceType.emailBlocklist]: [],
+  [kFimidaraResourceType.appShard]: [],
 };
+
+export const kFimidaraTypeToTSTypeNotFound = 1_000 as const;
 
 export type FimidaraTypeToTSType<T extends FimidaraResourceType> =
   T extends typeof kFimidaraResourceType.Workspace
@@ -268,4 +272,6 @@ export type FimidaraTypeToTSType<T extends FimidaraResourceType> =
     ? EmailMessage
     : T extends typeof kFimidaraResourceType.emailBlocklist
     ? EmailBlocklist
-    : never;
+    : T extends typeof kFimidaraResourceType.appShard
+    ? AppShard
+    : typeof kFimidaraTypeToTSTypeNotFound;

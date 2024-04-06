@@ -7,12 +7,15 @@ import {LockStore} from '../../../utils/LockStore';
 import {PromiseStore} from '../../../utils/PromiseStore';
 import {DisposablesStore} from '../../../utils/disposables';
 import {ShardedRunner} from '../../../utils/shardedRunnerQueue';
+import {FimidaraApp} from '../../app/FimidaraApp';
+import {FimidaraWorkerPool} from '../../jobs/fimidaraWorker/FimidaraWorkerPool';
 import {SessionContextType} from '../SessionContext';
 import {AsyncLocalStorageUtils} from '../asyncLocalStorage';
 import {
   AgentTokenDataProvider,
   AppDataProvider,
   AppRuntimeStateDataProvider,
+  AppShardDataProvider,
   AssignedItemDataProvider,
   CollaborationRequestDataProvider,
   DataProviderUtils,
@@ -38,6 +41,7 @@ import {FileProviderResolver} from '../file/types';
 import {Logger} from '../logger/types';
 import {UsageRecordLogicProvider} from '../logic/UsageRecordLogicProvider';
 import {SemanticAgentTokenProvider} from '../semantic/agentToken/types';
+import {SemanticAppShardProvider} from '../semantic/app/types';
 import {SemanticAssignedItemProvider} from '../semantic/assignedItem/types';
 import {SemanticCollaborationRequestProvider} from '../semantic/collaborationRequest/types';
 import {
@@ -121,6 +125,8 @@ export const kSemanticModels = {
     container.resolve<SemanticEmailBlocklistProvider>(
       kInjectionKeys.semantic.emailBlocklist
     ),
+  appShard: () =>
+    container.resolve<SemanticAppShardProvider>(kInjectionKeys.semantic.appShard),
   utils: () => container.resolve<SemanticProviderUtils>(kInjectionKeys.semantic.utils),
 };
 
@@ -165,6 +171,7 @@ export const kDataModels = {
     container.resolve<EmailMessageDataProvider>(kInjectionKeys.data.emailMessage),
   emailBlocklist: () =>
     container.resolve<EmailBlocklistDataProvider>(kInjectionKeys.data.emailBlocklist),
+  appShard: () => container.resolve<AppShardDataProvider>(kInjectionKeys.data.appShard),
   utils: () => container.resolve<DataProviderUtils>(kInjectionKeys.data.utils),
 };
 
@@ -190,4 +197,6 @@ export const kUtilsInjectables = {
     container.resolve<UsageRecordLogicProvider>(kInjectionKeys.usageLogic),
   logger: () => container.resolve<Logger>(kInjectionKeys.logger),
   shardedRunner: () => container.resolve<ShardedRunner>(kInjectionKeys.shardedRunner),
+  serverApp: () => container.resolve<FimidaraApp>(kInjectionKeys.serverApp),
+  workerPool: () => container.resolve<FimidaraWorkerPool>(kInjectionKeys.workerPool),
 };

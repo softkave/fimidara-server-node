@@ -1,5 +1,5 @@
 import {first} from 'lodash';
-import {AppShard} from '../../definitions/app';
+import {AppShardId} from '../../definitions/app';
 import {Job, JobStatusHistory, RunAfterJobItem, kJobStatus} from '../../definitions/job';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
@@ -97,7 +97,7 @@ async function getJobUsingFn(
 
 export async function getNextUnfinishedJob(
   activeRunnerIds: string[],
-  shards: Array<AppShard> | undefined,
+  shards: Array<AppShardId> | undefined,
   opts: SemanticProviderMutationTxnOptions
 ): Promise<Job | undefined> {
   const startMs = getTimestamp();
@@ -143,7 +143,7 @@ export async function getNextUnfinishedJob(
 }
 
 export async function getNextPendingJob(
-  shards: Array<AppShard> | undefined,
+  shards: Array<AppShardId> | undefined,
   opts: SemanticProviderMutationTxnOptions
 ) {
   const startMs = getTimestamp();
@@ -189,7 +189,7 @@ export async function getNextPendingJob(
 export async function getNextJob(
   activeRunnerIds: string[],
   runnerId: string,
-  shards: Array<AppShard> | undefined
+  shards: Array<AppShardId> | undefined
 ) {
   return await kSemanticModels.utils().withTxn(async opts => {
     const [unfinishedJob, pendingJob] = await Promise.all([

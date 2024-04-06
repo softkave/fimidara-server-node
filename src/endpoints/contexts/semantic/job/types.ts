@@ -1,3 +1,4 @@
+import {AppShardId} from '../../../../definitions/app';
 import {Job} from '../../../../definitions/job';
 import {
   SemanticBaseProviderType,
@@ -14,4 +15,11 @@ export type SemanticJobProvider = SemanticBaseProviderType<Job> & {
     workspaceId: string,
     opts?: SemanticProviderQueryListRunOptions<Job>
   ): Promise<Job[]>;
+  /** Expects `fromShardId` to not contain any active runners, so it migrates
+   * "pending" and "in-progress" jobs */
+  migrateShard(
+    fromShardId: AppShardId,
+    toShardId: AppShardId,
+    opts: SemanticProviderMutationTxnOptions
+  ): Promise<void>;
 };

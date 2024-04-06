@@ -65,6 +65,7 @@ export class SESEmailProviderContext implements IEmailProviderContext {
     messageId: string
   ): Promise<EmailProviderSendEmailResult> {
     try {
+      // TODO: throttle GetMessageInsightsCommand, check SES doc
       const command = new GetMessageInsightsCommand({MessageId: messageId});
       const insightsResult = await this.ses.send(command);
 

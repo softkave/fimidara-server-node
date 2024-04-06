@@ -1,6 +1,6 @@
 import {defaultTo, isArray, keyBy} from 'lodash';
 import {AnyObject} from 'mongoose';
-import {AppShard, kAppPresetShards} from '../../definitions/app';
+import {AppShardId, kAppPresetShards} from '../../definitions/app';
 import {
   Job,
   JobStatusHistory,
@@ -25,7 +25,7 @@ export interface JobInput<
   meta?: TMeta;
   idempotencyToken?: string;
   priority?: number;
-  shard?: AppShard;
+  shard?: AppShardId;
   runAfter?: RunAfterJobItem | RunAfterJobItem[];
   createdBy: Agent;
 }

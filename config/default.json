@@ -1,11 +1,11 @@
 {
-  "clientDomain": "http://localhost:3000",
+  "clientDomain": "",
   "mongoDbURI": "",
   "mongoDbDatabaseName": "",
   "jwtSecret": "",
   "exposeHttpServer": true,
-  "httpPort": "5000",
   "exposeHttpsServer": false,
+  "httpPort": "",
   "httpsPort": "",
   "httpsPublicKeyFilepath": "",
   "httpsPrivateKeyFilepath": "",
@@ -25,16 +25,16 @@
   },
   "FLAG_waitlistNewSignups": true,
   "appName": "fimidara",
-  "appDefaultEmailAddressFrom": "fimidara@softkave.com",
+  "appDefaultEmailAddressFrom": "",
   "awsEmailEncoding": "UTF-8",
   "dateFormat": "MMM DD, YYYY",
-  "clientLoginLink": "http://localhost:3000/login",
-  "clientSignupLink": "http://localhost:3000/signup",
-  "changePasswordLink": "http://localhost:3000/change-password",
-  "verifyEmailLink": "http://localhost:3000/verify-email",
+  "clientLoginLink": "",
+  "clientSignupLink": "",
+  "changePasswordLink": "",
+  "verifyEmailLink": "",
   "test": {
     "localFsDir": "./test-local-fs"
   },
   "loggerType": "console",
-  "runnerLocation": "./build/src/endpoints/jobs/runner.js"
+  "runnerLocation": "./build/src/endpoints/jobs/fimidaraWorker/workerMain.js"
 }

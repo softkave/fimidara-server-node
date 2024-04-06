@@ -1,5 +1,5 @@
 import {isUndefined} from 'lodash';
-import {AppShard} from '../../../definitions/app';
+import {AppShardId} from '../../../definitions/app';
 import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
 import {PermissionItem, kPermissionsMap} from '../../../definitions/permissionItem';
 import {Agent, kFimidaraResourceType} from '../../../definitions/system';
@@ -30,7 +30,7 @@ type FetchArgs = {
   workspaceId: string;
   agent: Agent;
   jobId: string;
-  shard: AppShard;
+  shard: AppShardId;
 };
 type FetchResult = PartialPermissionItem[];
 

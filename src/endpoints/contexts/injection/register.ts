@@ -4,7 +4,7 @@ import assert from 'assert';
 import {isFunction} from 'lodash';
 import {container} from 'tsyringe';
 import {getAgentTokenModel} from '../../../db/agentToken';
-import {getAppModel} from '../../../db/app';
+import {getAppMongoModel, getAppShardMongoModel} from '../../../db/app';
 import {getAppRuntimeStateModel} from '../../../db/appRuntimeState';
 import {getAssignedItemModel} from '../../../db/assignedItem';
 import {
@@ -30,6 +30,8 @@ import {getTagModel} from '../../../db/tag';
 import {getUsageRecordModel} from '../../../db/usageRecord';
 import {getUserModel} from '../../../db/user';
 import {getWorkspaceModel} from '../../../db/workspace';
+import {kAppPresetShards, kAppType} from '../../../definitions/app';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {
   FimidaraRuntimeConfig,
   FimidaraSuppliedConfig,
@@ -42,13 +44,16 @@ import {LockStore} from '../../../utils/LockStore';
 import {PromiseStore} from '../../../utils/PromiseStore';
 import {appAssert, assertNotFound} from '../../../utils/assertion';
 import {DisposableResource, DisposablesStore} from '../../../utils/disposables';
+import {getNewIdForResource} from '../../../utils/resource';
 import {ShardRunner, ShardedRunner} from '../../../utils/shardedRunnerQueue';
 import {AnyFn} from '../../../utils/types';
 import {assertAgentToken} from '../../agentTokens/utils';
+import {FimidaraApp} from '../../app/FimidaraApp';
 import {assertCollaborationRequest} from '../../collaborationRequests/utils';
 import {assertFile} from '../../files/utils';
 import {addFolderShardRunner} from '../../folders/addFolder/addFolderShard';
 import {assertFolder} from '../../folders/utils';
+import {FimidaraWorkerPool} from '../../jobs/fimidaraWorker/FimidaraWorkerPool';
 import {assertPermissionGroup} from '../../permissionGroups/utils';
 import {assertPermissionItem} from '../../permissionItems/utils';
 import {assertTag} from '../../tags/utils';
@@ -63,6 +68,7 @@ import {
   AgentTokenMongoDataProvider,
   AppMongoDataProvider,
   AppRuntimeStateMongoDataProvider,
+  AppShardMongoDataProvider,
   AssignedItemMongoDataProvider,
   CollaborationRequestMongoDataProvider,
   EmailBlocklistMongoDataProvider,
@@ -85,6 +91,7 @@ import {
   AgentTokenDataProvider,
   AppDataProvider,
   AppRuntimeStateDataProvider,
+  AppShardDataProvider,
   AssignedItemDataProvider,
   CollaborationRequestDataProvider,
   DataProviderUtils,
@@ -116,6 +123,8 @@ import {getLogger} from '../logger/utils';
 import {UsageRecordLogicProvider} from '../logic/UsageRecordLogicProvider';
 import {DataSemanticAgentToken} from '../semantic/agentToken/model';
 import {SemanticAgentTokenProvider} from '../semantic/agentToken/types';
+import {SemanticAppShardProviderImpl} from '../semantic/app/SemanticAppShardProviderImpl';
+import {SemanticAppShardProvider} from '../semantic/app/types';
 import {DataSemanticAssignedItem} from '../semantic/assignedItem/model';
 import {SemanticAssignedItemProvider} from '../semantic/assignedItem/types';
 import {DataSemanticCollaborationRequest} from '../semantic/collaborationRequest/model';
@@ -221,6 +230,8 @@ export const kRegisterSemanticModels = {
     registerToken(kInjectionKeys.semantic.emailMessage, item),
   emailBlocklist: (item: SemanticEmailBlocklistProvider) =>
     registerToken(kInjectionKeys.semantic.emailBlocklist, item),
+  appShard: (item: SemanticAppShardProvider) =>
+    registerToken(kInjectionKeys.semantic.appShard, item),
   utils: (item: SemanticProviderUtils) =>
     registerToken(kInjectionKeys.semantic.utils, item),
 };
@@ -260,6 +271,8 @@ export const kRegisterDataModels = {
     registerToken(kInjectionKeys.data.emailMessage, item),
   emailBlocklist: (item: EmailBlocklistDataProvider) =>
     registerToken(kInjectionKeys.data.emailBlocklist, item),
+  appShard: (item: AppShardDataProvider) =>
+    registerToken(kInjectionKeys.data.appShard, item),
   utils: (item: DataProviderUtils) => registerToken(kInjectionKeys.data.utils, item),
 };
 
@@ -287,6 +300,9 @@ export const kRegisterUtilsInjectables = {
   logger: (item: Logger) => registerToken(kInjectionKeys.logger, item),
   shardedRunner: (item: ShardedRunner) =>
     registerToken(kInjectionKeys.shardedRunner, item),
+  serverApp: (item: FimidaraApp) => registerToken(kInjectionKeys.serverApp, item),
+  workerPool: (item: FimidaraWorkerPool) =>
+    registerToken(kInjectionKeys.workerPool, item),
 };
 
 export function registerDataModelInjectables() {
@@ -336,12 +352,15 @@ export function registerDataModelInjectables() {
   kRegisterDataModels.usageRecord(
     new UsageRecordMongoDataProvider(getUsageRecordModel(connection))
   );
-  kRegisterDataModels.app(new AppMongoDataProvider(getAppModel(connection)));
+  kRegisterDataModels.app(new AppMongoDataProvider(getAppMongoModel(connection)));
   kRegisterDataModels.emailMessage(
     new EmailMessageMongoDataProvider(getEmailMessageModel(connection))
   );
   kRegisterDataModels.emailBlocklist(
     new EmailBlocklistMongoDataProvider(getEmailBlocklistModel(connection))
+  );
+  kRegisterDataModels.appShard(
+    new AppShardMongoDataProvider(getAppShardMongoModel(connection))
   );
   kRegisterDataModels.utils(new MongoDataProviderUtils());
 }
@@ -398,6 +417,9 @@ export function registerSemanticModelInjectables() {
   kRegisterSemanticModels.emailBlocklist(
     new SemanticEmailBlocklistProviderImpl(kDataModels.emailBlocklist(), assertNotFound)
   );
+  kRegisterSemanticModels.appShard(
+    new SemanticAppShardProviderImpl(kDataModels.appShard(), assertNotFound)
+  );
   kRegisterSemanticModels.utils(new DataSemanticProviderUtils());
 }
 
@@ -417,6 +439,14 @@ export function registerUtilsInjectables(overrideConfig: FimidaraSuppliedConfig 
   const shardedRunner = new ShardedRunner();
   shardedRunner.registerRunner(addFolderShardRunner as ShardRunner);
   kRegisterUtilsInjectables.shardedRunner(shardedRunner);
+
+  const serverApp = new FimidaraApp({
+    appId: getNewIdForResource(kFimidaraResourceType.App),
+    shard: kAppPresetShards.fimidaraMain,
+    type: kAppType.server,
+  });
+  kRegisterUtilsInjectables.serverApp(serverApp);
+  // kRegisterUtilsInjectables.workerPool(new FimidaraWorkerPool({server: serverApp}));
 
   if (!suppliedConfig.dbType || suppliedConfig.dbType === kFimidaraConfigDbType.mongoDb) {
     assert(suppliedConfig.mongoDbURI);

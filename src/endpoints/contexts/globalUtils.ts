@@ -3,12 +3,14 @@ import {kUtilsInjectables} from './injection/injectables';
 import {registerInjectables} from './injection/register';
 
 export async function globalDispose() {
-  kUtilsInjectables.disposables().disposeAll();
-  await Promise.allSettled([kUtilsInjectables.dbConnection().close()]);
+  await kUtilsInjectables.disposables().awaitDisposeAll();
   await kUtilsInjectables.promises().close().flush();
+  await kUtilsInjectables.dbConnection().close();
 }
 
 export async function globalSetup(overrideConfig: FimidaraSuppliedConfig = {}) {
   registerInjectables(overrideConfig);
   await kUtilsInjectables.dbConnection().wait();
+  await kUtilsInjectables.serverApp().startApp();
+  // await kUtilsInjectables.workerPool().startPool();
 }

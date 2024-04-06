@@ -1,7 +1,7 @@
 import {ProjectionType, SortOrder} from 'mongoose';
 import {Primitive} from 'type-fest';
 import {AgentToken} from '../../../definitions/agentToken';
-import {App} from '../../../definitions/app';
+import {App, AppShard} from '../../../definitions/app';
 import {AssignedItem} from '../../../definitions/assignedItem';
 import {CollaborationRequest} from '../../../definitions/collaborationRequest';
 import {EmailBlocklist, EmailMessage} from '../../../definitions/email';
@@ -248,6 +248,7 @@ export type ResolvedMountEntryQuery = DataQuery<ResolvedMountEntry>;
 export type AppQuery = DataQuery<App>;
 export type EmailMessageQuery = DataQuery<EmailMessage>;
 export type EmailBlocklistQuery = DataQuery<EmailBlocklist>;
+export type AppShardQuery = DataQuery<AppShard>;
 
 export type AgentTokenDataProvider = BaseDataProvider<AgentToken, DataQuery<AgentToken>>;
 export type AppRuntimeStateDataProvider = BaseDataProvider<
@@ -306,3 +307,4 @@ export type EmailBlocklistDataProvider = BaseDataProvider<
   EmailBlocklist,
   DataQuery<EmailBlocklist>
 >;
+export type AppShardDataProvider = BaseDataProvider<AppShard, DataQuery<AppShard>>;

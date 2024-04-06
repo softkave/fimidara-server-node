@@ -148,7 +148,7 @@ async function generateTypeChildrenWithDef<T extends Resource>(props: {
 function resourceMapToIdMap(resourcesMap: TypeToResourceMap) {
   return Object.entries(resourcesMap).reduce((acc, [key, resources]) => {
     if (resources) {
-      acc[key as FimidaraResourceType] = extractResourceIdList(resources);
+      acc[key as FimidaraResourceType] = extractResourceIdList(resources as Resource[]);
     }
 
     return acc;
@@ -163,6 +163,7 @@ const kGetResourcesByIdDef: GetResourcesByIdDefinition = {
   [kFimidaraResourceType.EndpointRequest]: () => Promise.resolve([]),
   [kFimidaraResourceType.App]: () => Promise.resolve([]),
   [kFimidaraResourceType.Job]: () => Promise.resolve([]),
+  [kFimidaraResourceType.appShard]: () => Promise.resolve([]),
   [kFimidaraResourceType.Workspace]: ({idList}) =>
     kSemanticModels.workspace().getManyByIdList(idList),
   [kFimidaraResourceType.CollaborationRequest]: ({idList}) =>
@@ -283,7 +284,7 @@ export async function testDeleteResourceArtifactsJob<T extends Resource>(props: 
 
   const getArtifactsMap = getArtifactTypes.reduce(
     (acc, type) => {
-      acc[type] = childrenMap[type as FimidaraResourceType];
+      acc[type] = childrenMap[type as FimidaraResourceType] as Resource[];
       return acc;
     },
     {} as Record<string, AnyObject[] | undefined>

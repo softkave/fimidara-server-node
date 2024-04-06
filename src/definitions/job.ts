@@ -1,7 +1,7 @@
 import {ValueOf} from 'type-fest';
 import {FimidaraConfigEmailProvider} from '../resources/config';
 import {AnyObject, PartialRecord} from '../utils/types';
-import {AppShard} from './app';
+import {AppShardId} from './app';
 import {Agent, FimidaraResourceType, Resource} from './system';
 
 export const kJobType = {
@@ -78,7 +78,7 @@ export interface Job<
   priority: number;
   /** For selectively picking jobs so runners don't run jobs that do not apply
    * to them, for example during testing. */
-  shard: AppShard;
+  shard: AppShardId;
   runAfter?: RunAfterJobItem[];
   /** ms timestamp to mark jobs already visited. Useful when the job is not
    * ready, and to prevent previous evaluator & other runners from fetching

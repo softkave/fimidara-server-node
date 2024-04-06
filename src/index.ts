@@ -5,7 +5,6 @@ import {kEndpointConstants} from './endpoints/constants';
 import {globalDispose, globalSetup} from './endpoints/contexts/globalUtils';
 import {kUtilsInjectables} from './endpoints/contexts/injection/injectables';
 import {setupFimidaraHttpEndpoints} from './endpoints/endpoints';
-import {startRunner} from './endpoints/jobs/runner';
 import {initFimidara} from './endpoints/runtime/initFimidara';
 import handleErrors from './middlewares/handleErrors';
 import redirectHttpToHttpsExpressMiddleware from './middlewares/redirectHttpToHttps';
@@ -107,9 +106,6 @@ async function setup() {
   app.use(handleErrors);
 
   await setupHttpServer();
-
-  // start job runner
-  kUtilsInjectables.promises().forget(startRunner());
 }
 
 // TODO: run global dispose on close/end server
@@ -140,7 +136,6 @@ async function endServer() {
 
   kUtilsInjectables.logger().log('started app dispose');
   await globalDispose();
-  console.log('server ended');
 
   // eslint-disable-next-line no-process-exit
   process.exit();

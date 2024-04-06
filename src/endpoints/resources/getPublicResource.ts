@@ -39,6 +39,7 @@ const kResourceTypeToExtractorMap: Record<
   [kFimidaraResourceType.App]: resourceExtractor,
   [kFimidaraResourceType.emailMessage]: resourceExtractor,
   [kFimidaraResourceType.emailBlocklist]: resourceExtractor,
+  [kFimidaraResourceType.appShard]: resourceExtractor,
   [kFimidaraResourceType.PresignedPath]: presignedPathExtractor,
   [kFimidaraResourceType.Workspace]: workspaceExtractor,
   [kFimidaraResourceType.CollaborationRequest]: collaborationRequestForWorkspaceExtractor,

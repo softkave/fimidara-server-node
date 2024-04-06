@@ -38,6 +38,7 @@ export const kInjectionKeys = {
     app: dataKey('app'),
     emailMessage: dataKey('emailMessage'),
     emailBlocklist: dataKey('emailBlocklist'),
+    appShard: dataKey('appShard'),
     utils: dataKey('utils'),
   },
   semantic: {
@@ -59,8 +60,9 @@ export const kInjectionKeys = {
     usageRecord: semanticKey('usageRecord'),
     resolvedMountEntry: semanticKey('resolvedMountEntry'),
     app: semanticKey('app'),
-    emailMessage: semanticKey('app'),
+    emailMessage: semanticKey('emailMessage'),
     emailBlocklist: semanticKey('emailBlocklist'),
+    appShard: semanticKey('appShard'),
     utils: semanticKey('utils'),
   },
   encryption: 'encryption',
@@ -79,4 +81,6 @@ export const kInjectionKeys = {
   usageLogic: 'usageLogic',
   logger: 'logger',
   shardedRunner: 'shardedRunner',
+  serverApp: 'serverApp',
+  workerPool: 'workerPool',
 };

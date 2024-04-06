@@ -1,5 +1,5 @@
 import {AgentToken} from '../../../definitions/agentToken';
-import {App} from '../../../definitions/app';
+import {App, AppShard} from '../../../definitions/app';
 import {AssignedItem} from '../../../definitions/assignedItem';
 import {CollaborationRequest} from '../../../definitions/collaborationRequest';
 import {EmailBlocklist, EmailMessage} from '../../../definitions/email';
@@ -36,6 +36,7 @@ import {
   AgentTokenDataProvider,
   AppDataProvider,
   AppRuntimeStateDataProvider,
+  AppShardDataProvider,
   AssignedItemDataProvider,
   CollaborationRequestDataProvider,
   EmailBlocklistDataProvider,
@@ -199,6 +200,13 @@ export class EmailMessageMongoDataProvider
 export class EmailBlocklistMongoDataProvider
   extends BaseMongoDataProvider<EmailBlocklist>
   implements EmailBlocklistDataProvider
+{
+  throwNotFound = throwNotFound;
+}
+
+export class AppShardMongoDataProvider
+  extends BaseMongoDataProvider<AppShard>
+  implements AppShardDataProvider
 {
   throwNotFound = throwNotFound;
 }

@@ -107,7 +107,7 @@ export const kAsyncLocalStorageUtils: AsyncLocalStorageUtils = {
         return await cb();
       } finally {
         if (!isShadowStore(getAsyncLocalStore())) {
-          kAsyncLocalStorageUtils.disposables().disposeAll();
+          kAsyncLocalStorageUtils.disposables().forgetDisposeAll();
         }
       }
     });

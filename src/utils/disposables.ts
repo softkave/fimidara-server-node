@@ -27,11 +27,21 @@ export class DisposablesStore {
     return Array.from(this.disposablesMap.values());
   };
 
-  disposeAll = () => {
+  forgetDisposeAll = () => {
     this.disposablesMap.forEach(disposable => {
       if (disposable.dispose) {
         kUtilsInjectables.promises().forget(disposable.dispose());
       }
     });
+  };
+
+  awaitDisposeAll = async () => {
+    const promises: Array<unknown> = [];
+    this.disposablesMap.forEach(disposable => {
+      if (disposable.dispose) {
+        promises.push(disposable.dispose());
+      }
+    });
+    await Promise.all(promises);
   };
 }

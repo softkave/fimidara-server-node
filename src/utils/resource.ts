@@ -55,6 +55,7 @@ export const kResourceTypeShortNames: Record<FimidaraResourceType, string> = {
   [kFimidaraResourceType.ResolvedMountEntry]: padShortName('rmtentr'),
   [kFimidaraResourceType.emailMessage]: padShortName('email'),
   [kFimidaraResourceType.emailBlocklist]: padShortName('emailbl'),
+  [kFimidaraResourceType.appShard]: padShortName('appshrd'),
 };
 
 export const kShortNameToResourceType = invert(kResourceTypeShortNames) as InvertRecord<

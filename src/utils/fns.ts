@@ -1,6 +1,7 @@
 import {compact, flatten, isArray, isObject, mergeWith, uniq} from 'lodash';
 import path from 'path';
 import {Readable} from 'stream';
+import {ValueOf} from 'type-fest';
 import {Resource} from '../definitions/system';
 import {kFolderConstants} from '../endpoints/folders/constants';
 import {appAssert} from './assertion';
@@ -31,38 +32,6 @@ export function getFirstArg<T extends any[]>(...args: T): T[0] {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
 export async function noopAsync(...args: any) {}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function applyMixins(derivedConstructors: any, baseConstructors: any[]) {
-  baseConstructors.forEach(baseConstructor => {
-    Object.getOwnPropertyNames(baseConstructor.prototype).forEach(name => {
-      if (name !== 'constructor') {
-        derivedConstructors.prototype[name] = baseConstructor.prototype[name];
-      }
-    });
-  });
-}
-
-export function applyMixins02<C1, C2>(
-  derivedConstructors: C1,
-  baseConstructors: [C2]
-): C1 & C2 {
-  return cast(applyMixins(derivedConstructors, baseConstructors));
-}
-
-export function applyMixins03<C1, C2, C3>(
-  derivedConstructors: C1,
-  baseConstructors: [C2, C3]
-): C1 & C2 & C3 {
-  return cast(applyMixins(derivedConstructors, baseConstructors));
-}
-
-export function applyMixins04<C1, C2, C3, C4>(
-  derivedConstructors: C1,
-  baseConstructors: [C2, C3, C4]
-): C1 & C2 & C3 & C4 {
-  return cast(applyMixins(derivedConstructors, baseConstructors));
-}
 
 export function findItemWithField<T>(
   items: T[],
@@ -216,12 +185,18 @@ export function loop<
   }
 }
 
+export const kLoopAsyncSettlementType = {
+  all: 'all',
+  allSettled: 'allSettled',
+  oneByOne: 'oneByOne',
+} as const;
+
 /**
  * - `all` - uses `Promise.all()`
  * - `allSettled` - uses `Promise.allSettled()`
  * - `oneByOne` - invokes and waits for `fn` one at a time
  */
-export type LoopAsyncSettlementType = 'all' | 'allSettled' | 'oneByOne';
+export type LoopAsyncSettlementType = ValueOf<typeof kLoopAsyncSettlementType>;
 
 /** See {@link loop} */
 export async function loopAsync<
@@ -523,4 +498,18 @@ export function sortObjectKeys<T extends AnyObject>(obj: AnyObject) {
   });
 
   return sortedObj as T;
+}
+
+export async function tryFnAsync<TFn extends AnyFn>(
+  fn: TFn,
+  onCatch: AnyFn<[error: unknown]> = console.error.bind(console),
+  ...fnArgs: Parameters<TFn>
+): Promise<ReturnType<TFn> | undefined> {
+  try {
+    return await fn(...fnArgs);
+  } catch (error: unknown) {
+    onCatch(error);
+  }
+
+  return undefined;
 }
