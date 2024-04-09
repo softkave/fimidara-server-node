@@ -1,6 +1,5 @@
 import {faker} from '@faker-js/faker';
 import {pick} from 'lodash';
-import {AnyObject} from 'mongoose';
 import {kPermissionsMap} from '../../../definitions/permissionItem';
 import {
   Agent,
@@ -9,7 +8,7 @@ import {
 } from '../../../definitions/system';
 import {mergeData} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
-import {AnyFn, OrPromise} from '../../../utils/types';
+import {AnyFn, AnyObject, OrPromise} from '../../../utils/types';
 
 export type GeneratePartialTestDataFn<T> = (
   index: number,

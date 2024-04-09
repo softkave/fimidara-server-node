@@ -1,9 +1,8 @@
 import {map} from 'lodash';
-import {AppShardId, kAppPresetShards, kAppType} from '../../../definitions/app';
+import {kAppType} from '../../../definitions/app';
 import {kFimidaraResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {DisposableResource} from '../../../utils/disposables';
-import {tryFnAsync} from '../../../utils/fns';
 import {getNewIdForResource} from '../../../utils/resource';
 import {FimidaraApp} from '../../app/FimidaraApp';
 import {kAppConstants} from '../../app/constants';
@@ -17,10 +16,10 @@ import {isFimidaraWorkerMessage} from './utils';
 
 export interface FimidaraWorkerPoolParams {
   server: FimidaraApp;
+  workerCount?: number;
 }
 
 export class FimidaraWorkerPool implements DisposableResource {
-  pickFromShards: Array<AppShardId> = [kAppPresetShards.fimidaraMain];
   workerPool: FWorkerPool;
   workerApps: Record<string, FimidaraApp> = {};
   server: FimidaraApp;
@@ -32,7 +31,7 @@ export class FimidaraWorkerPool implements DisposableResource {
     appAssert(runnerLocation);
     this.workerPool = new FWorkerPool({
       promises: kUtilsInjectables.promises(),
-      workerCount: kAppConstants.defaultRunnerCount,
+      workerCount: params.workerCount || kAppConstants.defaultRunnerCount,
       filepath: runnerLocation,
       gracefulTerminateTimeoutMs: 5 * 60 * 1_000, // 5 minutes
       generateWorkerId: () => getNewIdForResource(kFimidaraResourceType.App),
@@ -43,7 +42,7 @@ export class FimidaraWorkerPool implements DisposableResource {
   async startPool() {
     await this.workerPool.ensureWorkerCount();
     const workers = this.workerPool.getWorkers();
-    const promises = map(workers, async worker => {
+    const startWorkerAppsPromiseList = map(workers, async worker => {
       appAssert(worker);
       worker.port.on('message', message =>
         kUtilsInjectables.promises().forget(this.handleMessage(worker, message))
@@ -63,7 +62,7 @@ export class FimidaraWorkerPool implements DisposableResource {
       });
     });
 
-    await Promise.all(promises);
+    await Promise.all(startWorkerAppsPromiseList);
   }
 
   async dispose() {
@@ -71,6 +70,7 @@ export class FimidaraWorkerPool implements DisposableResource {
       this.workerPool.dispose(),
       ...map(this.workerApps, app => app.dispose()),
     ]);
+    console.log('FimidaraWorkerPool dispose');
   }
 
   protected handleMessage = async (wEntry: FWorkerMainWorkerEntry, message: unknown) => {
@@ -85,21 +85,16 @@ export class FimidaraWorkerPool implements DisposableResource {
 
     switch (value.type) {
       case kFimidaraWorkerMessageType.getNextJobRequest: {
-        const job = await tryFnAsync(() =>
-          getNextJob(
-            this.server.getActiveAppIdList(),
-            wEntry.workerData.workerId,
-            this.pickFromShards
-          )
-        );
+        const job = await this.getNextJob(wEntry.workerData.workerId);
         const message: FimidaraWorkerMessage = {
           job: job || undefined,
           type: kFimidaraWorkerMessageType.getNextJobResponse,
         };
 
+        console.log('main thread', job);
+
         this.workerPool.postTrackedMessage({
           outgoingPort: wEntry.port,
-          incomingPort: wEntry.port,
           value: message,
         });
         break;
@@ -107,11 +102,23 @@ export class FimidaraWorkerPool implements DisposableResource {
     }
   };
 
+  protected async getNextJob(workerId: string) {
+    try {
+      return await getNextJob(
+        this.server.getActiveAppIdList(),
+        workerId,
+        /** pick from shards */ [this.server.getShard()]
+      );
+    } catch (error: unknown) {
+      console.error(error);
+      return undefined;
+    }
+  }
+
   protected gracefulTerminateWorker = async (wEntry: FWorkerMainWorkerEntry) => {
     const message: FimidaraWorkerMessage = {
       type: kFimidaraWorkerMessageType.stopWorker,
     };
-
     await this.workerPool.postTrackedMessage({
       outgoingPort: wEntry.port,
       incomingPort: wEntry.port,

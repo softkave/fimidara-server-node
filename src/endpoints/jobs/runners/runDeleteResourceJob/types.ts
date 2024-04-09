@@ -1,4 +1,3 @@
-import {AnyObject} from 'mongoose';
 import {
   DeleteResourceCascadeFnDefaultArgs,
   DeleteResourceJobMeta,
@@ -6,7 +5,7 @@ import {
   Job,
 } from '../../../../definitions/job';
 import {FimidaraResourceType, Resource} from '../../../../definitions/system';
-import {AnyFn} from '../../../../utils/types';
+import {AnyFn, AnyObject} from '../../../../utils/types';
 import {
   SemanticProviderMutationTxnOptions,
   SemanticProviderQueryListRunOptions,

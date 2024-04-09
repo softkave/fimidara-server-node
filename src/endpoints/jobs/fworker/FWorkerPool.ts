@@ -1,4 +1,5 @@
 import {ReadonlyDeep} from 'type-fest';
+import {appAssert} from '../../../utils/assertion';
 import {DisposableResource} from '../../../utils/disposables';
 import {kLoopAsyncSettlementType, loopAsync} from '../../../utils/fns';
 import {AnyFn} from '../../../utils/types';
@@ -21,6 +22,7 @@ export class FWorkerPool extends FWorkerMainBase implements DisposableResource {
 
   constructor(params: FWorkerPoolParams) {
     super(params);
+    appAssert(params.workerCount >= 0, 'workerCount should be >= 0');
     this.workerCount = params.workerCount;
     this.filepath = params.filepath;
     this.generateWorkerId = params.generateWorkerId;

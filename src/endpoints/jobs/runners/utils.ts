@@ -1,6 +1,5 @@
-import {AnyObject} from 'mongoose';
 import {Job} from '../../../definitions/job';
-import {AnyFn} from '../../../utils/types';
+import {AnyFn, AnyObject} from '../../../utils/types';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 
 export async function setJobMeta<TMeta extends AnyObject>(

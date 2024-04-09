@@ -1,8 +1,7 @@
 import assert = require('assert');
 import {cloneDeep, isFunction, isObject} from 'lodash';
-import {AnyObject} from 'mongoose';
 import {mergeData} from './fns';
-import {AnyFn} from './types';
+import {AnyFn, AnyObject} from './types';
 
 export function makeGetAccessor<T, K extends keyof T>(obj: T, k: K) {
   return () => {

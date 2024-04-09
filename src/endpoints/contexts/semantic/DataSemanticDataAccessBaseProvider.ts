@@ -1,5 +1,4 @@
 import {isUndefined, merge} from 'lodash';
-import {AnyObject} from 'mongoose';
 import {Agent, Resource} from '../../../definitions/system';
 import {getTimestamp} from '../../../utils/dateFns';
 import {convertToArray} from '../../../utils/fns';
@@ -12,6 +11,7 @@ import {
   SemanticProviderQueryListRunOptions,
   SemanticProviderQueryRunOptions,
 } from './types';
+import {AnyObject} from 'mongoose';
 
 function mergeIsDeletedIntoQuery<T extends DataQuery<AnyObject> = DataQuery<AnyObject>>(
   q01: T,

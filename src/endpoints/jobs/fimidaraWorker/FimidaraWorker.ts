@@ -1,5 +1,5 @@
 import {LockableResource} from '../../../utils/LockStore';
-import {globalDispose} from '../../contexts/globalUtils';
+import {globalDispose, globalSetup} from '../../contexts/globalUtils';
 import {kUtilsInjectables} from '../../contexts/injection/injectables';
 import {FWorker} from '../fworker/FWorker';
 import {FWorkerMessager} from '../fworker/FWorkerMessager';
@@ -14,6 +14,7 @@ export class FimidaraWorker extends FWorker {
   protected workerEndedLock = new LockableResource<boolean>(false);
 
   async start() {
+    await globalSetup();
     this.getPort().on('message', this.handleMessage);
     this.informMainThreadWorkerIsReady();
     kUtilsInjectables.promises().forget(this.run());
@@ -32,7 +33,7 @@ export class FimidaraWorker extends FWorker {
         await runJob(job);
       }
 
-      // Run again if there's a job, and wait a bit if there isn't
+      // Run again if there's a job or wait a bit if there isn't
       setTimeout(this.run, job ? 0 : kNoJobSleepForMs);
     });
   };
@@ -47,7 +48,10 @@ export class FimidaraWorker extends FWorker {
         incomingPort: this.port,
         value: getNextJobMessageReq,
         expectAck: true,
+        ackTimeoutMs: 10_000,
       });
+
+      console.log(response);
 
       if (
         FWorkerMessager.isWorkerTrackedMessage(response) &&
@@ -75,16 +79,30 @@ export class FimidaraWorker extends FWorker {
 
     switch (value.type) {
       case kFimidaraWorkerMessageType.stopWorker: {
-        await this.workerEndedLock.run(() => true);
+        // Wait for workerEndedLock to be available, it's unavailable when
+        // this.run() is running
+        await this.workerEndedLock.run(() => {
+          // set workerEndedLock to true to stop the next iteration of
+          // this.run()
+          return true;
+        });
+
+        console.log('globalDispose');
+
+        // Dispose environment
         await globalDispose();
 
+        // Inform main thread worker is ready to terminate
         const ack: FimidaraWorkerMessage = {type: kFimidaraWorkerMessageType.stopWorker};
         this.postTrackedMessage({
           outgoingPort: this.port,
           value: ack,
         });
 
-        setTimeout(() => this.dispose(), 0);
+        // setTimeout(() => {
+        //   console.log('dispose');
+        //   this.dispose();
+        // }, 0);
         break;
       }
     }

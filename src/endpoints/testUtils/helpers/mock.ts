@@ -1,6 +1,5 @@
 import {isFunction} from 'lodash';
 import {AnyObject} from '../../../utils/types';
-import {ITestFilePersistenceProviderContext} from '../context/types';
 
 export function mockWith(source: AnyObject, dest: AnyObject) {
   for (const key in source) {
@@ -10,6 +9,6 @@ export function mockWith(source: AnyObject, dest: AnyObject) {
       value = jest.fn(value).mockName(key);
     }
 
-    dest[key as keyof ITestFilePersistenceProviderContext] = value;
+    dest[key] = value;
   }
 }
