@@ -17,6 +17,7 @@ import {isFimidaraWorkerMessage} from './utils';
 export interface FimidaraWorkerPoolParams {
   server: FimidaraApp;
   workerCount?: number;
+  gracefulTerminateTimeoutMs?: number;
 }
 
 export class FimidaraWorkerPool implements DisposableResource {
@@ -33,7 +34,7 @@ export class FimidaraWorkerPool implements DisposableResource {
       promises: kUtilsInjectables.promises(),
       workerCount: params.workerCount || kAppConstants.defaultRunnerCount,
       filepath: runnerLocation,
-      gracefulTerminateTimeoutMs: 5 * 60 * 1_000, // 5 minutes
+      gracefulTerminateTimeoutMs: params.gracefulTerminateTimeoutMs || 5 * 60 * 1_000, // 5 minutes
       generateWorkerId: () => getNewIdForResource(kFimidaraResourceType.App),
       gracefulTerminateFn: this.gracefulTerminateWorker,
     });
@@ -70,7 +71,6 @@ export class FimidaraWorkerPool implements DisposableResource {
       this.workerPool.dispose(),
       ...map(this.workerApps, app => app.dispose()),
     ]);
-    console.log('FimidaraWorkerPool dispose');
   }
 
   protected handleMessage = async (wEntry: FWorkerMainWorkerEntry, message: unknown) => {
@@ -86,16 +86,15 @@ export class FimidaraWorkerPool implements DisposableResource {
     switch (value.type) {
       case kFimidaraWorkerMessageType.getNextJobRequest: {
         const job = await this.getNextJob(wEntry.workerData.workerId);
-        const message: FimidaraWorkerMessage = {
+        const ackMessage: FimidaraWorkerMessage = {
           job: job || undefined,
           type: kFimidaraWorkerMessageType.getNextJobResponse,
         };
 
-        console.log('main thread', job);
-
         this.workerPool.postTrackedMessage({
           outgoingPort: wEntry.port,
-          value: message,
+          value: ackMessage,
+          ackMessageFor: message,
         });
         break;
       }

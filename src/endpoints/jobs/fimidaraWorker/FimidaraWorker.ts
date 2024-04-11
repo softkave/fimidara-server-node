@@ -23,7 +23,6 @@ export class FimidaraWorker extends FWorker {
   protected run = async () => {
     await this.workerEndedLock.run(async isWorkerEnded => {
       if (isWorkerEnded) {
-        this.dispose();
         return;
       }
 
@@ -50,8 +49,6 @@ export class FimidaraWorker extends FWorker {
         expectAck: true,
         ackTimeoutMs: 10_000,
       });
-
-      console.log(response);
 
       if (
         FWorkerMessager.isWorkerTrackedMessage(response) &&
@@ -87,8 +84,6 @@ export class FimidaraWorker extends FWorker {
           return true;
         });
 
-        console.log('globalDispose');
-
         // Dispose environment
         await globalDispose();
 
@@ -97,12 +92,9 @@ export class FimidaraWorker extends FWorker {
         this.postTrackedMessage({
           outgoingPort: this.port,
           value: ack,
+          ackMessageFor: message,
         });
 
-        // setTimeout(() => {
-        //   console.log('dispose');
-        //   this.dispose();
-        // }, 0);
         break;
       }
     }

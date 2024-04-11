@@ -68,7 +68,7 @@ describe('FimidaraWorkerPool', () => {
     expect(dbJob?.runnerId).toBe(workerId);
   });
 
-  test.only('graceful terminate', async () => {
+  test('graceful terminate', async () => {
     const shard = getNewId();
     server = new FimidaraApp({
       shard,
@@ -76,7 +76,11 @@ describe('FimidaraWorkerPool', () => {
       type: kAppType.server,
     });
     await server.startApp();
-    const testPool = new TestFimidaraWorkerPool({server, workerCount: 1});
+    const testPool = new TestFimidaraWorkerPool({
+      server,
+      workerCount: 1,
+      gracefulTerminateTimeoutMs: 10_000, // 10 seconds
+    });
 
     await testPool.startPool();
 
@@ -108,7 +112,5 @@ describe('FimidaraWorkerPool', () => {
         )
       )
     );
-
-    console.log('complete');
   });
 });

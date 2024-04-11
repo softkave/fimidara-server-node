@@ -48,7 +48,6 @@ export class FWorker extends FWorkerMessager implements DisposableResource {
 
   dispose() {
     if (!isMainThread) {
-      console.log('terminate worker');
       // eslint-disable-next-line no-process-exit
       process.exit();
     }

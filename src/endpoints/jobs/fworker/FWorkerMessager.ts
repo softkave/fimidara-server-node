@@ -22,6 +22,7 @@ export interface FWorkerMessagerPostTrackedMessageParams {
   /** How long to wait for ack message. Always supply a timeout, if the
    * default does not work for you. */
   ackTimeoutMs?: number;
+  ackMessageFor?: FWorkerTrackedMessage;
 }
 
 export class FWorkerMessager {
@@ -38,6 +39,7 @@ export class FWorkerMessager {
       incomingPort,
       value,
       transferList,
+      ackMessageFor,
       expectAck = false,
       ackTimeoutMs = /** 5 seconds */ 5_000,
     } = params;
@@ -47,8 +49,9 @@ export class FWorkerMessager {
 
       if (FWorkerMessager.isWorkerTrackedMessage(value)) {
         message = value;
+        message.messageId = ackMessageFor?.messageId || message.messageId;
       } else {
-        const messageId = getNewId();
+        const messageId = ackMessageFor?.messageId || getNewId();
         message = {messageId, value};
       }
 

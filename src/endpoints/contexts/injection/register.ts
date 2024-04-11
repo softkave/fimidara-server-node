@@ -446,7 +446,7 @@ export function registerUtilsInjectables(overrideConfig: FimidaraSuppliedConfig 
     type: kAppType.server,
   });
   kRegisterUtilsInjectables.serverApp(serverApp);
-  // kRegisterUtilsInjectables.workerPool(new FimidaraWorkerPool({server: serverApp}));
+  kRegisterUtilsInjectables.workerPool(new FimidaraWorkerPool({server: serverApp}));
 
   if (!suppliedConfig.dbType || suppliedConfig.dbType === kFimidaraConfigDbType.mongoDb) {
     assert(suppliedConfig.mongoDbURI);

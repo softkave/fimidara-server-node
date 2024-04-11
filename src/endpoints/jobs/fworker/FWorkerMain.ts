@@ -120,7 +120,6 @@ export abstract class FWorkerMainBase extends FWorkerMessager {
 
     if (wEntry.gracefulTerminateFn) {
       const terminatePromise = wEntry.gracefulTerminateFn(wEntry);
-      console.log('__stopWorker ', timeoutMs);
 
       if (timeoutMs) {
         this.promises.forget(terminatePromise);
@@ -130,11 +129,9 @@ export abstract class FWorkerMainBase extends FWorkerMessager {
       }
     }
 
-    console.log('__stopWorker before');
     await wEntry.worker.terminate();
     wEntry.port.close();
     delete this.workers[id];
-    console.log('__stopWorker');
   }
 
   protected async __dispose(gracefulTerminateTimeoutMs?: number) {
@@ -143,7 +140,6 @@ export abstract class FWorkerMainBase extends FWorkerMessager {
         this.__stopWorker(id, gracefulTerminateTimeoutMs)
       )
     );
-    console.log('__dispose');
   }
 }
 
