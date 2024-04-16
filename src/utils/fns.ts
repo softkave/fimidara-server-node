@@ -3,6 +3,7 @@ import path from 'path';
 import {Readable} from 'stream';
 import {ValueOf} from 'type-fest';
 import {Resource} from '../definitions/system';
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
 import {kFolderConstants} from '../endpoints/folders/constants';
 import {appAssert} from './assertion';
 import {kReuseableErrors} from './reusableErrors';
@@ -502,13 +503,17 @@ export function sortObjectKeys<T extends AnyObject>(obj: AnyObject) {
 
 export async function tryFnAsync<TFn extends AnyFn>(
   fn: TFn,
-  onCatch: AnyFn<[error: unknown]> = console.error.bind(console),
+  onCatch?: AnyFn<[error: unknown]>,
   ...fnArgs: Parameters<TFn>
 ): Promise<ReturnType<TFn> | undefined> {
   try {
     return await fn(...fnArgs);
   } catch (error: unknown) {
-    onCatch(error);
+    if (onCatch) {
+      onCatch(error);
+    } else {
+      kUtilsInjectables.logger().error(error);
+    }
   }
 
   return undefined;

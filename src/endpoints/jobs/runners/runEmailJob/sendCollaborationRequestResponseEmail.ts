@@ -13,21 +13,28 @@ import {
 } from '../../../contexts/injection/injectables';
 import {getBaseEmailTemplateProps} from './utils';
 
-export async function sendCollaborationRequestResponseEmail(params: EmailJobParams) {
+export async function sendCollaborationRequestResponseEmail(
+  jobId: string,
+  params: EmailJobParams
+) {
   appAssert(params.type === kEmailJobType.collaborationRequestResponse);
   const [{user, base, source}, request] = await Promise.all([
     getBaseEmailTemplateProps(params),
     kSemanticModels.collaborationRequest().getOneById(params.params.requestId),
   ]);
 
-  if (!request || !user) {
-    return;
+  if (!request) {
+    throw new Error(`Collaboration request not found for job ${jobId}`);
+  }
+
+  if (!user) {
+    throw new Error(`User not found for job ${jobId}`);
   }
 
   const workspace = await kSemanticModels.workspace().getOneById(request.workspaceId);
 
   if (!workspace) {
-    return;
+    throw new Error(`Workspace not found for job ${jobId}`);
   }
 
   const emailProps: CollaborationRequestResponseEmailProps = {

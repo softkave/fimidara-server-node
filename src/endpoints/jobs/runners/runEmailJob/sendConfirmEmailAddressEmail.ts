@@ -51,12 +51,15 @@ export async function getLinkWithConfirmEmailToken(user: User, urlPath: string) 
   }, /** reuseTxn */ true);
 }
 
-export async function sendConfirmEmailAddressEmail(params: EmailJobParams) {
+export async function sendConfirmEmailAddressEmail(
+  jobId: string,
+  params: EmailJobParams
+) {
   appAssert(params.type === kEmailJobType.confirmEmailAddress);
   const {user, base, source} = await getBaseEmailTemplateProps(params);
 
   if (!user) {
-    return;
+    throw new Error(`Recipient user not found for job ${jobId}`);
   }
 
   const suppliedConfig = kUtilsInjectables.suppliedConfig();

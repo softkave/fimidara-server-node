@@ -9,12 +9,15 @@ import {appAssert} from '../../../../utils/assertion';
 import {kUtilsInjectables} from '../../../contexts/injection/injectables';
 import {getBaseEmailTemplateProps} from './utils';
 
-export async function sendUserUpgradedFromWaitlistEmail(params: EmailJobParams) {
+export async function sendUserUpgradedFromWaitlistEmail(
+  jobId: string,
+  params: EmailJobParams
+) {
   appAssert(params.type === kEmailJobType.upgradedFromWaitlist);
   const {user, base, source} = await getBaseEmailTemplateProps(params);
 
   if (!user) {
-    return;
+    throw new Error(`User not found for job ${jobId}`);
   }
 
   const emailProps: UpgradedFromWaitlistEmailProps = {

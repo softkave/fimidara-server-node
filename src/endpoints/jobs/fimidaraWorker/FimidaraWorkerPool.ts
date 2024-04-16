@@ -109,7 +109,7 @@ export class FimidaraWorkerPool implements DisposableResource {
         /** pick from shards */ [this.server.getShard()]
       );
     } catch (error: unknown) {
-      console.error(error);
+      kUtilsInjectables.logger().error(error);
       return undefined;
     }
   }

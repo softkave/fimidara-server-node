@@ -3,6 +3,7 @@ import {isObject} from 'lodash';
 import {ReadonlyDeep, ValueOf} from 'type-fest';
 import {MessagePort, isMainThread, workerData} from 'worker_threads';
 import {DisposableResource} from '../../../utils/disposables';
+import {kUtilsInjectables} from '../../contexts/injection/injectables';
 import {FWorkerMessager} from './FWorkerMessager';
 
 export interface FWorkerData {
@@ -34,7 +35,7 @@ export class FWorker extends FWorkerMessager implements DisposableResource {
   constructor() {
     super();
     this.port = this.getWorkerData().port;
-    this.port.on('messageerror', console.error.bind(console));
+    this.port.on('messageerror', (...args) => kUtilsInjectables.logger().error(...args));
   }
 
   getWorkerData(): ReadonlyDeep<FWorkerData> {

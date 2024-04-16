@@ -65,16 +65,19 @@ export async function getForgotPasswordToken(user: User) {
   return forgotToken;
 }
 
-export async function sendForgotPasswordEmail(params: EmailJobParams) {
+export async function sendForgotPasswordEmail(jobId: string, params: EmailJobParams) {
   appAssert(params.type === kEmailJobType.forgotPassword);
   const {user, base, source} = await getBaseEmailTemplateProps(params);
 
   if (!user) {
-    return;
+    throw new Error(`User not found for job ${jobId}`);
   }
 
   const forgotToken = await getForgotPasswordToken(user);
-  appAssert(forgotToken?.expiresAt);
+  appAssert(
+    forgotToken?.expiresAt,
+    `Forgot password token ${forgotToken.resourceId} does not have an expiration date set`
+  );
 
   const link = getForgotPasswordLinkFromToken(forgotToken);
   const emailProps: ForgotPasswordEmailProps = {

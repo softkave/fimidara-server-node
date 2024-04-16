@@ -1,4 +1,3 @@
-import console from 'console';
 import {noop} from 'lodash';
 import {ReadonlyDeep} from 'type-fest';
 import {MessageChannel, MessagePort, Worker} from 'worker_threads';
@@ -6,6 +5,7 @@ import {PromiseStore} from '../../../utils/PromiseStore';
 import {TimeoutError} from '../../../utils/errors';
 import {awaitOrTimeout} from '../../../utils/promiseFns';
 import {AnyFn} from '../../../utils/types';
+import {kUtilsInjectables} from '../../contexts/injection/injectables';
 import {FWorker, FWorkerData, kFWorkerMessageType} from './FWorker';
 import {FWorkerMessager} from './FWorkerMessager';
 
@@ -59,7 +59,9 @@ export abstract class FWorkerMainBase extends FWorkerMessager {
   ) {
     return new Promise<ReadonlyDeep<FWorkerMainWorkerEntry>>(resolve => {
       const {port1: parentPort, port2: workerPort} = new MessageChannel();
-      parentPort.on('messageerror', console.error.bind(console));
+      parentPort.on('messageerror', (...args) =>
+        kUtilsInjectables.logger().error(...args)
+      );
 
       const wData: FWorkerData = {workerId, port: workerPort};
       const worker = new Worker(filepath, {
@@ -98,7 +100,7 @@ export abstract class FWorkerMainBase extends FWorkerMessager {
         }
       });
       worker.on('error', (error: unknown) => {
-        console.error(error);
+        kUtilsInjectables.logger().error(error);
         delete this.workers[workerId];
       });
       worker.on('exit', () => {

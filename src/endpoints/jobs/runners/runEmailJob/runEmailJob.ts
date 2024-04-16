@@ -22,7 +22,10 @@ import {sendUserUpgradedFromWaitlistEmail} from './sendUserUpgradedFromWaitlistE
 
 const kEmailJobTypeToHandlerMap: Record<
   EmailJobType,
-  AnyFn<[EmailJobParams], Promise<EmailProviderSendEmailResult | undefined>>
+  AnyFn<
+    [/** jobId */ string, EmailJobParams],
+    Promise<EmailProviderSendEmailResult | undefined>
+  >
 > = {
   [kEmailJobType.collaborationRequest]: sendCollaborationRequestEmail,
   [kEmailJobType.collaborationRequestExpired]: sendCollaborationRequestResponseEmail,
@@ -36,7 +39,7 @@ const kEmailJobTypeToHandlerMap: Record<
 export async function runEmailJob(job: Pick<Job, 'params' | 'resourceId'>) {
   const params = job.params as EmailJobParams;
   const handler = kEmailJobTypeToHandlerMap[params.type];
-  const result = await handler(params);
+  const result = await handler(job.resourceId, params);
   const blockEmailAddressList = result?.blockEmailAddressList || [];
 
   if (blockEmailAddressList.length) {
