@@ -1,6 +1,5 @@
 import {isString} from 'lodash';
 import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
-import OperationError from './OperationError';
 import {ServerError} from './errors';
 import {kReuseableErrors} from './reusableErrors';
 import {AnyFn} from './types';
@@ -16,7 +15,7 @@ export function appAssert(
     }
 
     if (isString(response)) {
-      throw new OperationError(response);
+      throw new Error(response);
     } else if (response instanceof Error) {
       throw response;
     } else if (response) {

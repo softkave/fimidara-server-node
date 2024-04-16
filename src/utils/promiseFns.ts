@@ -43,12 +43,12 @@ export function getDeferredPromise<T = void>(): DeferredPromise<T> {
   });
 
   const resolveFn = (value: T) => {
-    appAssert(promiseResolveFn);
+    appAssert(promiseResolveFn, 'No promise resolve function');
     promiseResolveFn(value);
   };
 
   const rejectFn = (error?: unknown) => {
-    appAssert(promiseRejectFn);
+    appAssert(promiseRejectFn, 'No promise reject function');
     promiseRejectFn(error);
   };
 

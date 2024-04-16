@@ -3,6 +3,7 @@ import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
 import {kUtilsInjectables} from '../../contexts/injection/injectables';
+import {NotFoundError} from '../../errors';
 import INTERNAL_confirmEmailAddress from '../confirmEmailAddress/internalConfirmEmailAddress';
 import {CredentialsExpiredError, InvalidCredentialsError} from '../errors';
 import {assertUser, userExtractor} from '../utils';
@@ -26,7 +27,7 @@ const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async reqData =
   // Verify user email address since the only way to change password
   // with token is to use the link sent to the user email address
   user = await INTERNAL_confirmEmailAddress(result.user.resourceId, null);
-  appAssert(user);
+  appAssert(user, new NotFoundError('User not found'));
 
   const completeUserData = await populateUserWorkspaces(user);
   result.user = userExtractor(completeUserData);

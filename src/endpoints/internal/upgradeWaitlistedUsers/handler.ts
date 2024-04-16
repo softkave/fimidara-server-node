@@ -1,7 +1,6 @@
-import {EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job';
+import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job';
 import {kFimidaraResourceType} from '../../../definitions/system';
 import {User} from '../../../definitions/user';
-import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
@@ -11,10 +10,6 @@ import {UpgradeWaitlistedUsersEndpoint} from './types';
 import {upgradeWaitlistedUsersJoiSchema} from './validation';
 
 const upgradeWaitlistedUsers: UpgradeWaitlistedUsersEndpoint = async reqData => {
-  const suppliedConfig = kUtilsInjectables.suppliedConfig();
-  appAssert(suppliedConfig.clientLoginLink);
-  appAssert(suppliedConfig.clientSignupLink);
-
   const data = validate(reqData.data, upgradeWaitlistedUsersJoiSchema);
   const agent = await kUtilsInjectables
     .session()

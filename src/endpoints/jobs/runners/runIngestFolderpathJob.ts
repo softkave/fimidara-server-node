@@ -81,11 +81,11 @@ async function ingestFolderpathContents(
   mount: FileBackendMount,
   provider: FilePersistenceProvider
 ) {
-  appAssert(job.workspaceId);
+  appAssert(job.workspaceId, 'workspaceId not present in job');
   let result: FilePersistenceDescribeFolderContentResult | undefined;
   let continuationToken = job.meta?.getContentContinuationToken;
   const workspace = await kSemanticModels.workspace().getOneById(job.workspaceId);
-  appAssert(workspace);
+  appAssert(workspace, 'Workspace not found for job');
 
   const ingestFrom = job.params.ingestFrom;
 
@@ -112,7 +112,7 @@ async function ingestFolderpathContents(
 }
 
 export async function runIngestFolderpathJob(job: Job) {
-  appAssert(job.workspaceId);
+  appAssert(job.workspaceId, 'workspaceId not present in job');
 
   const [mount, agent, job_] = await Promise.all([
     kSemanticModels.fileBackendMount().getOneById(job.params.mountId),

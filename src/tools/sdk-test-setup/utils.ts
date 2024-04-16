@@ -41,7 +41,7 @@ async function createAgentToken(
     },
     opts
   );
-  appAssert(token.workspaceId);
+  appAssert(token.workspaceId, 'workspaceId not present in agent token');
   const tokenStr = getPublicAgentToken(token).tokenStr;
   return {tokenStr, token};
 }

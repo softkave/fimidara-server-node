@@ -13,7 +13,10 @@ export async function sendUserUpgradedFromWaitlistEmail(
   jobId: string,
   params: EmailJobParams
 ) {
-  appAssert(params.type === kEmailJobType.upgradedFromWaitlist);
+  appAssert(
+    params.type === kEmailJobType.upgradedFromWaitlist,
+    `Email job type is not ${kEmailJobType.upgradedFromWaitlist}`
+  );
   const {user, base, source} = await getBaseEmailTemplateProps(params);
 
   if (!user) {

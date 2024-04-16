@@ -182,7 +182,7 @@ async function fetchResourcesById(
 
   const promises: Array<ExtendedPromiseWithId<Resource[]>> = [];
   mapKeys(idsGroupedByType, (typeMap, type) => {
-    appAssert(typeMap);
+    appAssert(typeMap, 'typeMap is undefined');
     switch (type) {
       case kFimidaraResourceType.Workspace: {
         promises.push({

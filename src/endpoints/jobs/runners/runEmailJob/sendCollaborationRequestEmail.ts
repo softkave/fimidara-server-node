@@ -17,7 +17,10 @@ export async function sendCollaborationRequestEmail(
   jobId: string,
   params: EmailJobParams
 ) {
-  appAssert(params.type === kEmailJobType.collaborationRequest);
+  appAssert(
+    params.type === kEmailJobType.collaborationRequest,
+    `Email job type is not ${kEmailJobType.collaborationRequest}`
+  );
   const {user, base, source} = await getBaseEmailTemplateProps(params);
   const recipientEmail = user?.email || first(params.emailAddress);
 

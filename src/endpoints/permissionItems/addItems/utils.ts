@@ -136,7 +136,7 @@ export const INTERNAL_addPermissionItems = async (
     ) {
       const idPath = (item.target.resource as unknown as Pick<File, 'idPath'>).idPath;
       const containerId = idPath[idPath.length - 2] ?? workspace.resourceId;
-      appAssert(containerId);
+      appAssert(containerId, 'Could not determine containerId');
       targetParentId = containerId;
     } else {
       targetParentId = workspace.resourceId;

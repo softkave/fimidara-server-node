@@ -166,8 +166,14 @@ async function setupFolders(workspace: Workspace) {
   const userImagesFolder =
     last(userImagesFolders.existingFolders) || last(userImagesFolders.newFolders);
 
-  appAssert(workspaceImagesFolder);
-  appAssert(userImagesFolder);
+  appAssert(
+    workspaceImagesFolder,
+    `Could not create workspaceImagesFolder from ${appSetupVars.workspaceImagesfolderpath}`
+  );
+  appAssert(
+    userImagesFolder,
+    `Could not create userImagesFolder from ${appSetupVars.userImagesfolderpath}`
+  );
   return {workspaceImagesFolder, userImagesFolder};
 }
 
@@ -199,7 +205,7 @@ async function setupImageUploadPermissionGroup(
     const permissionItems: PermissionItem[] = actions.map(action => {
       const containerIds = folder.idPath.slice(0, -1);
       const targetParentId = containerIds.length ? last(containerIds) : workspaceId;
-      appAssert(targetParentId);
+      appAssert(targetParentId, 'Could not resolve targetParentId');
       const item: PermissionItem = newWorkspaceResource<PermissionItem>(
         kSystemSessionAgent,
         kFimidaraResourceType.PermissionItem,

@@ -39,7 +39,7 @@ async function setupHttpServer() {
   let httpsServerPromise: Promise<void> | undefined;
 
   if (conf.exposeHttpServer) {
-    appAssert(conf.httpPort);
+    appAssert(conf.httpPort, 'httpPort not present in config');
 
     const httpServer = http.createServer(app);
     artifacts.httpServer = httpServer;
@@ -56,9 +56,15 @@ async function setupHttpServer() {
       app.use(redirectHttpToHttpsExpressMiddleware);
     }
 
-    appAssert(conf.httpsPublicKeyFilepath);
-    appAssert(conf.httpsPrivateKeyFilepath);
-    appAssert(conf.httpsPort);
+    appAssert(
+      conf.httpsPublicKeyFilepath,
+      'httpsPublicKeyFilepath not present in config'
+    );
+    appAssert(
+      conf.httpsPrivateKeyFilepath,
+      'httpsPrivateKeyFilepath not present in config'
+    );
+    appAssert(conf.httpsPort, 'httpsPort not present in config');
 
     const privateKey = fs.readFileSync(conf.httpsPrivateKeyFilepath, 'utf8');
     const certificate = fs.readFileSync(conf.httpsPublicKeyFilepath, 'utf8');
@@ -78,7 +84,7 @@ async function setupHttpServer() {
 
 function setupJWT() {
   const suppliedConfig = kUtilsInjectables.suppliedConfig();
-  appAssert(suppliedConfig.jwtSecret);
+  appAssert(suppliedConfig.jwtSecret, 'jwtSecret not present in config');
 
   app.use(
     // TODO: do further research on JWT options, algorithms and best practices

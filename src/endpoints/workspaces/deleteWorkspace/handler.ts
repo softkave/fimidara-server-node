@@ -24,7 +24,7 @@ const deleteWorkspace: DeleteWorkspaceEndpoint = async instData => {
     workspaceId: workspace.resourceId,
     resources: [workspace],
   });
-  appAssert(job);
+  appAssert(job, 'Could not create delete workspace job');
 
   return {jobId: job.resourceId};
 };

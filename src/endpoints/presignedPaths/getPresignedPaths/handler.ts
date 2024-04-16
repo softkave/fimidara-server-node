@@ -9,6 +9,7 @@ import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {SemanticProviderTxnOptions} from '../../contexts/semantic/types';
+import {NotFoundError} from '../../errors';
 import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils';
 import {assertRootname} from '../../workspaces/utils';
 import {GetPresignedPathsForFilesEndpoint, GetPresignedPathsForFilesItem} from './types';
@@ -58,7 +59,10 @@ const getPresignedPathsForFiles: GetPresignedPathsForFilesEndpoint = async instD
 
   activePaths.forEach(nextPath => {
     const workspace = workspaceDict[nextPath.workspaceId];
-    appAssert(workspace);
+    appAssert(
+      workspace,
+      new NotFoundError(`Workspace not found for path ${stringifyFilenamepath(nextPath)}`)
+    );
     const filepath = stringifyFilenamepath(nextPath, workspace.rootname);
     activePathsMap[nextPath.resourceId] = filepath;
   });
@@ -102,7 +106,10 @@ async function getPresignedPathsByFileMatchers(
         if (!workspaceId) {
           assertRootname(pathinfo.rootname);
           workspace = await kSemanticModels.workspace().getByRootname(pathinfo.rootname);
-          appAssert(workspace);
+          appAssert(
+            workspace,
+            new NotFoundError(`Workspace with rootname ${pathinfo.rootname} not found`)
+          );
           workspaceDict[workspace.resourceId] = workspace;
           workspaceId = workspace.resourceId;
         }

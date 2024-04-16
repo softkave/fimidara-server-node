@@ -17,7 +17,10 @@ export async function sendCollaborationRequestRevokedEmail(
   jobId: string,
   params: EmailJobParams
 ) {
-  appAssert(params.type === kEmailJobType.collaborationRequestRevoked);
+  appAssert(
+    params.type === kEmailJobType.collaborationRequestRevoked,
+    `Email job type is not ${kEmailJobType.collaborationRequestRevoked}`
+  );
   const {user, base, source} = await getBaseEmailTemplateProps(params);
   const recipientEmail = user?.email || first(params.emailAddress);
 

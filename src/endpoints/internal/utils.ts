@@ -4,7 +4,7 @@ import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectab
 import {PermissionDeniedError} from '../users/errors';
 
 export async function assertUserIsPartOfRootWorkspace(agent: SessionAgent) {
-  appAssert(agent.user);
+  appAssert(agent.user, new PermissionDeniedError());
   const workspaceAssignedItem = await kSemanticModels.assignedItem().getOneByQuery({
     assignedItemId: kUtilsInjectables.runtimeConfig().appWorkspaceId,
     assigneeId: agent.user.resourceId,

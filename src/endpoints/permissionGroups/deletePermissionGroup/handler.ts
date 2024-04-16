@@ -26,7 +26,7 @@ const deletePermissionGroup: DeletePermissionGroupEndpoint = async instData => {
     workspaceId: workspace.resourceId,
     resources: [permissionGroup],
   });
-  appAssert(job);
+  appAssert(job, 'Could not create job');
 
   return {jobId: job.resourceId};
 };

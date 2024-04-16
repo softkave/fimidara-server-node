@@ -124,10 +124,10 @@ export async function runDeletePermissionItemsJob(job: Job<DeletePermissionItemI
   const agent = job.createdBy;
   const item: DeletePermissionItemInput = job.params;
 
-  appAssert(workspaceId);
-  appAssert(agent);
+  appAssert(workspaceId, 'workspaceId not present in job');
+  appAssert(agent, 'agent not present in job');
   const workspace = await kSemanticModels.workspace().getOneById(workspaceId);
-  appAssert(workspace);
+  appAssert(workspace, 'workspace not found');
 
   const targets = await getPermissionItemTargets(
     agent,

@@ -17,7 +17,10 @@ export async function sendCollaborationRequestResponseEmail(
   jobId: string,
   params: EmailJobParams
 ) {
-  appAssert(params.type === kEmailJobType.collaborationRequestResponse);
+  appAssert(
+    params.type === kEmailJobType.collaborationRequestResponse,
+    `Email job type is not ${kEmailJobType.collaborationRequestResponse}`
+  );
   const [{user, base, source}, request] = await Promise.all([
     getBaseEmailTemplateProps(params),
     kSemanticModels.collaborationRequest().getOneById(params.params.requestId),

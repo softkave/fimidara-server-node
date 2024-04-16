@@ -19,7 +19,7 @@ export function getJobCooldownDuration() {
 }
 
 export function setJobCooldownDuration(duration: number) {
-  appAssert(duration > 0);
+  appAssert(duration > 0, 'Job cooldown duration must be greater than or equal to 0');
   return (cooldownDuration = duration);
 }
 

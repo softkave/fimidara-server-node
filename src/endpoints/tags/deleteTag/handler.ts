@@ -21,7 +21,7 @@ const deleteTag: DeleteTagEndpoint = async instData => {
     workspaceId: tag.workspaceId,
     resources: [tag],
   });
-  appAssert(job);
+  appAssert(job, 'Could not create delete tag job');
 
   return {jobId: job.resourceId};
 };

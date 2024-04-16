@@ -15,7 +15,10 @@ export function makeWorkspaceAgentTokenAgent(agentToken: AgentToken): SessionAge
 }
 
 export function makeUserSessionAgent(user: User, agentToken: AgentToken): SessionAgent {
-  appAssert(user.resourceId === agentToken.forEntityId);
+  appAssert(
+    user.resourceId === agentToken.forEntityId,
+    'user resouceId and agent token owner entity ID are not equal'
+  );
   return {
     agentToken,
     user,

@@ -179,7 +179,7 @@ export function loop<
   max: number,
   ...otherParams: TOtherParams
 ) {
-  appAssert(max >= 0);
+  appAssert(max >= 0, 'loop max should be greater than or equal to 0');
 
   for (let i = 0; i < max; i++) {
     fn(i, ...otherParams);
@@ -209,7 +209,7 @@ export async function loopAsync<
   settlement: LoopAsyncSettlementType,
   ...otherParams: TOtherParams
 ) {
-  appAssert(max >= 0);
+  appAssert(max >= 0, 'loopAsync max should be greater than or equal to 0');
 
   if (settlement === 'oneByOne') {
     for (let i = 0; i < max; i++) {
@@ -240,7 +240,7 @@ export function loopAndCollate<
   TOtherParams extends unknown[],
   TFn extends AnyFn<[number, ...TOtherParams]>,
 >(fn: TFn, max: number, ...otherParams: TOtherParams): Array<ReturnType<TFn>> {
-  appAssert(max >= 0);
+  appAssert(max >= 0, 'loopAndCollate max should be greater than or equal to 0');
   const result: Array<ReturnType<TFn>> = Array(max);
 
   for (let i = 0; i < max; i++) {
@@ -267,7 +267,7 @@ export async function loopAndCollateAsync<
   settlement: TSettlementType,
   ...otherParams: TOtherParams
 ): Promise<TResult> {
-  appAssert(max >= 0);
+  appAssert(max >= 0, 'loopAndCollateAsync max should be greater than or equal to 0');
 
   if (settlement === 'oneByOne') {
     const result: unknown[] = Array(max);
@@ -429,7 +429,7 @@ export function identityArgs<TArgs extends unknown[]>(...args: TArgs) {
 export function omitDeep(data: AnyObject, byFn: AnyFn<[unknown], boolean>) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result: any = isArray(data) ? [] : isObject(data) ? {} : undefined;
-  appAssert(result);
+  appAssert(result, 'Could not resolve result, data was not an array or object');
 
   for (const key in data) {
     let value = data[key];

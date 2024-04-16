@@ -39,9 +39,12 @@ export async function getBaseEmailTemplateProps(params: EmailJobParams): Promise
 }> {
   const suppliedConfig = kUtilsInjectables.suppliedConfig();
 
-  appAssert(suppliedConfig.clientLoginLink);
-  appAssert(suppliedConfig.clientSignupLink);
-  appAssert(suppliedConfig.appDefaultEmailAddressFrom);
+  appAssert(suppliedConfig.clientLoginLink, 'clientLoginLink not present in config');
+  appAssert(suppliedConfig.clientSignupLink, 'clientSignupLink not present in config');
+  appAssert(
+    suppliedConfig.appDefaultEmailAddressFrom,
+    'appDefaultEmailAddressFrom not present in config'
+  );
 
   const {user} = await getUserFromEmailJobParams(params);
   return {

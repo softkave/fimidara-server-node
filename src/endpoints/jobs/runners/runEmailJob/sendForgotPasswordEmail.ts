@@ -66,7 +66,10 @@ export async function getForgotPasswordToken(user: User) {
 }
 
 export async function sendForgotPasswordEmail(jobId: string, params: EmailJobParams) {
-  appAssert(params.type === kEmailJobType.forgotPassword);
+  appAssert(
+    params.type === kEmailJobType.forgotPassword,
+    `Email job type is not ${kEmailJobType.forgotPassword}`
+  );
   const {user, base, source} = await getBaseEmailTemplateProps(params);
 
   if (!user) {

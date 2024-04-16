@@ -56,10 +56,7 @@ export class FWorkerMessager {
       }
 
       if (expectAck) {
-        appAssert(
-          incomingPort,
-          new Error('incomingPort must be provided if expectAck is true')
-        );
+        appAssert(incomingPort, 'incomingPort must be provided if expectAck is true');
         this.bindHandleAck(incomingPort);
         this.acks[message.messageId] = {resolveFn: resolve, rejectFn: reject};
 

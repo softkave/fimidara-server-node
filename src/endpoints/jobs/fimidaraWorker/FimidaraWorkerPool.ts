@@ -29,7 +29,7 @@ export class FimidaraWorkerPool implements DisposableResource {
     this.server = params.server;
 
     const runnerLocation = kUtilsInjectables.suppliedConfig().runnerLocation;
-    appAssert(runnerLocation);
+    appAssert(runnerLocation, 'runnerLocation not present in config');
     this.workerPool = new FWorkerPool({
       promises: kUtilsInjectables.promises(),
       workerCount: params.workerCount || kAppConstants.defaultRunnerCount,
@@ -44,7 +44,7 @@ export class FimidaraWorkerPool implements DisposableResource {
     await this.workerPool.ensureWorkerCount();
     const workers = this.workerPool.getWorkers();
     const startWorkerAppsPromiseList = map(workers, async worker => {
-      appAssert(worker);
+      appAssert(worker, 'worker is undefined');
       worker.port.on('message', message =>
         kUtilsInjectables.promises().forget(this.handleMessage(worker, message))
       );

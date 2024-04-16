@@ -55,7 +55,10 @@ export async function sendConfirmEmailAddressEmail(
   jobId: string,
   params: EmailJobParams
 ) {
-  appAssert(params.type === kEmailJobType.confirmEmailAddress);
+  appAssert(
+    params.type === kEmailJobType.confirmEmailAddress,
+    `Email job type is not ${kEmailJobType.confirmEmailAddress}`
+  );
   const {user, base, source} = await getBaseEmailTemplateProps(params);
 
   if (!user) {
@@ -63,7 +66,7 @@ export async function sendConfirmEmailAddressEmail(
   }
 
   const suppliedConfig = kUtilsInjectables.suppliedConfig();
-  appAssert(suppliedConfig.verifyEmailLink);
+  appAssert(suppliedConfig.verifyEmailLink, 'verifyEmailLink not present in config');
   const confirmEmailUrl = await getLinkWithConfirmEmailToken(
     user,
     suppliedConfig.verifyEmailLink

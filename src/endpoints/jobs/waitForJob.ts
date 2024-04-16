@@ -18,7 +18,7 @@ export async function waitForJob(
   if (bumpPriority) {
     await kSemanticModels.utils().withTxn(async opts => {
       const sampleJob = await kSemanticModels.job().getOneById(jobId, opts);
-      appAssert(sampleJob);
+      appAssert(sampleJob, `Job with ID ${jobId} not found`);
       await kSemanticModels.job().updateManyByQuery(
         {
           $or: [

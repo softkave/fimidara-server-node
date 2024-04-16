@@ -15,8 +15,8 @@ const aggregateUsageRecordsJob = new CronJob(
     try {
       kUtilsInjectables.logger().log('Aggregate usage records job started');
       const config = await getSuppliedConfig();
-      appAssert(config.mongoDbURI);
-      appAssert(config.mongoDbDatabaseName);
+      appAssert(config.mongoDbURI, 'mongoDbURI not present in config');
+      appAssert(config.mongoDbDatabaseName, 'mongoDbDatabaseName not present in config');
 
       const {connection} = await getMongoConnection(
         config.mongoDbURI,
@@ -43,8 +43,8 @@ const unlockWorkspaceLocksJob = new CronJob(
     try {
       kUtilsInjectables.logger().log('Unlocking workspace locks job started');
       const config = await getSuppliedConfig();
-      appAssert(config.mongoDbURI);
-      appAssert(config.mongoDbDatabaseName);
+      appAssert(config.mongoDbURI, 'mongoDbURI not present in config');
+      appAssert(config.mongoDbDatabaseName, 'mongoDbDatabaseName not present in config');
 
       const {connection} = await getMongoConnection(
         config.mongoDbURI,
