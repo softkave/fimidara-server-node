@@ -440,7 +440,7 @@ export function registerUtilsInjectables(overrideConfig: FimidaraSuppliedConfig 
   shardedRunner.registerRunner(addFolderShardRunner as ShardRunner);
   kRegisterUtilsInjectables.shardedRunner(shardedRunner);
 
-  if (suppliedConfig.startApp) {
+  if (suppliedConfig.useFimidaraApp) {
     const serverApp = new FimidaraApp({
       appId: getNewIdForResource(kFimidaraResourceType.App),
       shard: kAppPresetShards.fimidaraMain,
@@ -448,7 +448,7 @@ export function registerUtilsInjectables(overrideConfig: FimidaraSuppliedConfig 
     });
     kRegisterUtilsInjectables.serverApp(serverApp);
 
-    if (suppliedConfig.startPool) {
+    if (suppliedConfig.useFimidaraWorkerPool) {
       kRegisterUtilsInjectables.workerPool(new FimidaraWorkerPool({server: serverApp}));
     }
   }

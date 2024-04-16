@@ -2,7 +2,7 @@ import {globalSetup} from '../endpoints/contexts/globalUtils';
 import {initFimidara} from '../endpoints/runtime/initFimidara';
 
 async function integrationTestGlobalSetup() {
-  await globalSetup({startApp: false, startPool: false});
+  await globalSetup({useFimidaraApp: false, useFimidaraWorkerPool: false});
   await initFimidara();
 }
 

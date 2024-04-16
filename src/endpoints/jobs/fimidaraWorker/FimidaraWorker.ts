@@ -15,7 +15,7 @@ export class FimidaraWorker extends FWorker {
   protected workerEndedLock = new LockableResource<boolean>(false);
 
   async start() {
-    await globalSetup({startApp: false, startPool: false});
+    await globalSetup({useFimidaraApp: false, useFimidaraWorkerPool: false});
     this.getPort().on('message', this.handleMessage);
     this.informMainThreadWorkerIsReady();
     kUtilsInjectables.logger().log('Started worker ', this.getWorkerData().workerId);

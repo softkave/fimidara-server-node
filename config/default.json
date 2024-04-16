@@ -37,6 +37,6 @@
   },
   "loggerType": "console",
   "runnerLocation": "./build/src/endpoints/jobs/fimidaraWorker/workerMain.js",
-  "startApp": true,
-  "startWorker": true
+  "useFimidaraApp": true,
+  "useFimidaraWorkerPool": true
 }
