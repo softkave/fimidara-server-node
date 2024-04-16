@@ -440,13 +440,18 @@ export function registerUtilsInjectables(overrideConfig: FimidaraSuppliedConfig 
   shardedRunner.registerRunner(addFolderShardRunner as ShardRunner);
   kRegisterUtilsInjectables.shardedRunner(shardedRunner);
 
-  const serverApp = new FimidaraApp({
-    appId: getNewIdForResource(kFimidaraResourceType.App),
-    shard: kAppPresetShards.fimidaraMain,
-    type: kAppType.server,
-  });
-  kRegisterUtilsInjectables.serverApp(serverApp);
-  kRegisterUtilsInjectables.workerPool(new FimidaraWorkerPool({server: serverApp}));
+  if (suppliedConfig.startApp) {
+    const serverApp = new FimidaraApp({
+      appId: getNewIdForResource(kFimidaraResourceType.App),
+      shard: kAppPresetShards.fimidaraMain,
+      type: kAppType.server,
+    });
+    kRegisterUtilsInjectables.serverApp(serverApp);
+
+    if (suppliedConfig.startPool) {
+      kRegisterUtilsInjectables.workerPool(new FimidaraWorkerPool({server: serverApp}));
+    }
+  }
 
   if (!suppliedConfig.dbType || suppliedConfig.dbType === kFimidaraConfigDbType.mongoDb) {
     assert(suppliedConfig.mongoDbURI);

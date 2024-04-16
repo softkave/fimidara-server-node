@@ -36,5 +36,7 @@
     "localFsDir": "./test-local-fs"
   },
   "loggerType": "console",
-  "runnerLocation": "./build/src/endpoints/jobs/fimidaraWorker/workerMain.js"
+  "runnerLocation": "./build/src/endpoints/jobs/fimidaraWorker/workerMain.js",
+  "startApp": true,
+  "startWorker": true
 }

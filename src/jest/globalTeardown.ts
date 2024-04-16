@@ -25,7 +25,7 @@ async function jestGlobalTeardown() {
   await Promise.all([dropMongoPromise]);
 
   // {@link https://nodejs.org/docs/latest/api/process.html#processgetactiveresourcesinfo}
-  // kUtilsInjectables.logger().log('Active resources', getActiveResourcesInfo());
+  // kUtilsInjectables.logger().log('Active resources ', getActiveResourcesInfo());
 
   // TODO: there are open handles keeping the test from closing, find and fix
   // them, then remove this

@@ -47,9 +47,10 @@ export class FWorkerPool extends FWorkerMainBase implements DisposableResource {
   }
 
   protected startNewWorker = async () => {
+    const id = this.generateWorkerId();
     return await super.__startNewWorker(
       this.filepath,
-      this.generateWorkerId(),
+      id,
       this.gracefulTerminateFn,
       /** shouldWaitForWorkerReadyMessage */ true
     );

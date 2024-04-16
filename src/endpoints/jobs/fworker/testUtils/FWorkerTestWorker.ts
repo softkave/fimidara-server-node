@@ -7,7 +7,7 @@ import {FWorkerMessager} from '../FWorkerMessager';
 export const kFWorkerTestWorkerTerminateMessage = 12;
 
 async function main() {
-  await globalSetup();
+  await globalSetup({startApp: false, startPool: false});
   const fworker = new FWorker();
 
   fworker.getPort().on('message', message => {

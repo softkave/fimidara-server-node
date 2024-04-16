@@ -78,12 +78,12 @@ export function getTestEmailProvider() {
 }
 
 export async function initTests() {
-  await globalSetup();
+  await globalSetup({startApp: false, startPool: false});
   await initFimidara();
 }
 
 export async function initFnTests() {
-  await globalSetup();
+  await globalSetup({startApp: false, startPool: false});
 }
 
 export function assertEndpointResultOk(result?: BaseEndpointResult | void) {

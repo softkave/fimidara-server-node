@@ -90,6 +90,8 @@ export type FimidaraSuppliedConfig = Partial<{
   };
   loggerType: LoggerType;
   runnerLocation: string;
+  startApp: boolean;
+  startPool: boolean;
 }>;
 
 export type FimidaraConfig = FimidaraSuppliedConfig & FimidaraRuntimeConfig;

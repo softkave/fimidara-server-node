@@ -38,7 +38,7 @@ export async function completeTests() {
 
 export function startTesting() {
   beforeAll(async () => {
-    await globalSetup();
+    await globalSetup({startApp: false, startPool: false});
     await initFimidara();
   });
 

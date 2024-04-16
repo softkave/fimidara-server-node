@@ -14,7 +14,7 @@ const appOptions: ISetupDevUserOptions = {
 };
 
 async function main() {
-  await globalSetup();
+  await globalSetup({startApp: false, startPool: false});
   await setupDevUser(appOptions);
   await globalDispose();
 }
