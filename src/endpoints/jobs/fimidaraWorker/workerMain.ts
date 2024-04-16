@@ -3,9 +3,9 @@ import {FimidaraWorker} from './FimidaraWorker';
 
 async function main() {
   const fimidaraWorker = new FimidaraWorker();
-  fimidaraWorker.start();
+  await fimidaraWorker.start();
 }
 
 if (!isMainThread) {
-  main();
+  main().catch(console.error.bind(console));
 }

@@ -18,6 +18,7 @@ export class FimidaraWorker extends FWorker {
     await globalSetup({startApp: false, startPool: false});
     this.getPort().on('message', this.handleMessage);
     this.informMainThreadWorkerIsReady();
+    kUtilsInjectables.logger().log('Started worker ', this.getWorkerData().workerId);
     kUtilsInjectables.promises().forget(this.run());
   }
 
