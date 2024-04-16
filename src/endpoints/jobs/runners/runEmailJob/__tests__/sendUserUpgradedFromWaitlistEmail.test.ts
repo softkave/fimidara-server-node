@@ -1,5 +1,7 @@
 import {kEmailJobType} from '../../../../../definitions/job';
+import {kFimidaraResourceType} from '../../../../../definitions/system';
 import {kUpgradeFromWaitlistEmailArtifacts} from '../../../../../emailTemplates/upgradedFromWaitlist';
+import {getNewIdForResource} from '../../../../../utils/resource';
 import {IEmailProviderContext} from '../../../../contexts/email/types';
 import {kUtilsInjectables} from '../../../../contexts/injection/injectables';
 import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register';
@@ -23,11 +25,14 @@ describe('sendUserUpgradedFromWaitlistEmail', () => {
     const testEmailProvider = new MockTestEmailProviderContext();
     kRegisterUtilsInjectables.email(testEmailProvider);
 
-    await sendUserUpgradedFromWaitlistEmail({
-      emailAddress: [user.email],
-      userId: [user.resourceId],
-      type: kEmailJobType.upgradedFromWaitlist,
-    });
+    await sendUserUpgradedFromWaitlistEmail(
+      getNewIdForResource(kFimidaraResourceType.Job),
+      {
+        emailAddress: [user.email],
+        userId: [user.resourceId],
+        type: kEmailJobType.upgradedFromWaitlist,
+      }
+    );
 
     const call = testEmailProvider.sendEmail.mock.lastCall as Parameters<
       IEmailProviderContext['sendEmail']

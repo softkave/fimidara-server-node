@@ -1,5 +1,7 @@
 import {kEmailJobType} from '../../../../../definitions/job';
+import {kFimidaraResourceType} from '../../../../../definitions/system';
 import {kCollaborationRequestEmailArtifacts} from '../../../../../emailTemplates/collaborationRequest';
+import {getNewIdForResource} from '../../../../../utils/resource';
 import {IEmailProviderContext} from '../../../../contexts/email/types';
 import {kUtilsInjectables} from '../../../../contexts/injection/injectables';
 import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register';
@@ -33,7 +35,7 @@ describe('sendCollaborationRequestEmail', () => {
     const testEmailProvider = new MockTestEmailProviderContext();
     kRegisterUtilsInjectables.email(testEmailProvider);
 
-    await sendCollaborationRequestEmail({
+    await sendCollaborationRequestEmail(getNewIdForResource(kFimidaraResourceType.Job), {
       emailAddress: [user.email],
       userId: [user.resourceId],
       type: kEmailJobType.collaborationRequest,

@@ -1,6 +1,9 @@
 import {first} from 'lodash';
 import {kEmailJobType} from '../../../../../definitions/job';
-import {kTokenAccessScope} from '../../../../../definitions/system';
+import {
+  kFimidaraResourceType,
+  kTokenAccessScope,
+} from '../../../../../definitions/system';
 import {kForgotPasswordEmailArtifacts} from '../../../../../emailTemplates/forgotPassword';
 import {IEmailProviderContext} from '../../../../contexts/email/types';
 import {
@@ -17,6 +20,7 @@ import {
   getForgotPasswordLinkFromToken,
   sendForgotPasswordEmail,
 } from '../sendForgotPasswordEmail';
+import {getNewIdForResource} from '../../../../../utils/resource';
 
 beforeAll(async () => {
   await initTests();
@@ -39,7 +43,7 @@ describe('sendForgotPasswordEmail', () => {
     const testEmailProvider = new MockTestEmailProviderContext();
     kRegisterUtilsInjectables.email(testEmailProvider);
 
-    await sendForgotPasswordEmail({
+    await sendForgotPasswordEmail(getNewIdForResource(kFimidaraResourceType.Job), {
       emailAddress: [user.email],
       userId: [user.resourceId],
       type: kEmailJobType.forgotPassword,

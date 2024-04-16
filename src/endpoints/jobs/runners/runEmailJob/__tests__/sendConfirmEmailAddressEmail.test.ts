@@ -108,7 +108,7 @@ describe('sendConfirmEmailAddressEmail', () => {
     const testEmailProvider = new MockTestEmailProviderContext();
     kRegisterUtilsInjectables.email(testEmailProvider);
 
-    await sendConfirmEmailAddressEmail({
+    await sendConfirmEmailAddressEmail(getNewIdForResource(kFimidaraResourceType.Job), {
       emailAddress: [user.email],
       userId: [user.resourceId],
       type: kEmailJobType.confirmEmailAddress,
