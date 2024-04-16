@@ -1,4 +1,3 @@
-import {formatDuration} from 'date-fns';
 import {LockableResource} from '../../../utils/LockStore';
 import {globalDispose, globalSetup} from '../../contexts/globalUtils';
 import {kUtilsInjectables} from '../../contexts/injection/injectables';
@@ -28,30 +27,30 @@ export class FimidaraWorker extends FWorker {
         return;
       }
 
-      const wData = this.getWorkerData();
-      kUtilsInjectables
-        .logger()
-        .log(`FimidaraWorker ${wData.workerId} attempting to get next job`);
+      // const wData = this.getWorkerData();
+      // kUtilsInjectables
+      //   .logger()
+      //   .log(`FimidaraWorker ${wData.workerId} attempting to get next job`);
       const job = await this.getNextJob();
 
       if (job) {
-        kUtilsInjectables
-          .logger()
-          .log(`FimidaraWorker ${wData.workerId} running job ${job.resourceId}`);
+        // kUtilsInjectables
+        //   .logger()
+        //   .log(`FimidaraWorker ${wData.workerId} running job ${job.resourceId}`);
         await runJob(job);
-        kUtilsInjectables
-          .logger()
-          .log(`FimidaraWorker ${wData.workerId} ran job ${job.resourceId}`);
+        // kUtilsInjectables
+        //   .logger()
+        //   .log(`FimidaraWorker ${wData.workerId} ran job ${job.resourceId}`);
       }
 
       // Run again if there's a job or wait a bit if there isn't
       const runAgainTimeoutMs = job ? 0 : kNoJobSleepForMs;
       setTimeout(this.run, runAgainTimeoutMs);
-      kUtilsInjectables.logger().log(
-        `FimidaraWorker ${wData.workerId} running again after ${formatDuration({
-          seconds: runAgainTimeoutMs / 1_000,
-        })}`
-      );
+      // kUtilsInjectables.logger().log(
+      //   `FimidaraWorker ${wData.workerId} running again after ${formatDuration({
+      //     seconds: runAgainTimeoutMs / 1_000,
+      //   })}`
+      // );
     });
   };
 
