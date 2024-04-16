@@ -10,6 +10,7 @@ export async function globalDispose() {
 
 export async function globalSetup(overrideConfig: FimidaraSuppliedConfig = {}) {
   registerInjectables(overrideConfig);
+  kUtilsInjectables.logger().log(overrideConfig);
   await kUtilsInjectables.dbConnection().wait();
 
   if (overrideConfig.startApp) {

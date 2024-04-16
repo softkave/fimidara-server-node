@@ -92,14 +92,14 @@ function setupJWT() {
 
 async function setup() {
   await globalSetup();
-  kUtilsInjectables.logger().log('server initialization');
+  kUtilsInjectables.logger().log('Server initialization');
 
   // Run scripts here
   // End of scripts
 
   const defaultWorkspace = await initFimidara();
-  kUtilsInjectables.logger().log(`workspace ID: ${defaultWorkspace.resourceId}`);
-  kUtilsInjectables.logger().log(`process ID: ${process.pid}`);
+  kUtilsInjectables.logger().log(`Workspace ID: ${defaultWorkspace.resourceId}`);
+  kUtilsInjectables.logger().log(`Process ID: ${process.pid}`);
 
   setupJWT();
   setupFimidaraHttpEndpoints(app);
