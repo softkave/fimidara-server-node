@@ -45,7 +45,7 @@ async function setupHttpServer() {
     artifacts.httpServer = httpServer;
     httpServerPromise = new Promise(resolve => {
       httpServer.listen(conf.httpPort, () => {
-        kUtilsInjectables.logger().log(`http port: ${conf.httpPort}`);
+        kUtilsInjectables.logger().log(`HTTP port: ${conf.httpPort}`);
         resolve();
       });
     });
@@ -67,7 +67,7 @@ async function setupHttpServer() {
     artifacts.httpsServer = httpsServer;
     httpsServerPromise = new Promise(resolve => {
       httpsServer.listen(conf.httpsPort, () => {
-        kUtilsInjectables.logger().log(`https port: ${conf.httpsPort}`);
+        kUtilsInjectables.logger().log(`HTTPS port: ${conf.httpsPort}`);
         resolve();
       });
     });
@@ -119,7 +119,7 @@ async function closeHttpServer(server: http.Server): Promise<void> {
         kUtilsInjectables.logger().error(error);
       }
 
-      kUtilsInjectables.logger().log(`closed ${format(addr)}`);
+      kUtilsInjectables.logger().log(`Closed ${format(addr)}`);
       resolve();
     });
 
@@ -128,13 +128,13 @@ async function closeHttpServer(server: http.Server): Promise<void> {
 }
 
 async function endServer() {
-  kUtilsInjectables.logger().log('started graceful shutdown');
+  kUtilsInjectables.logger().log('Started graceful shutdown');
   await Promise.allSettled([
     artifacts.httpServer && closeHttpServer(artifacts.httpServer),
     artifacts.httpsServer && closeHttpServer(artifacts.httpsServer),
   ]);
 
-  kUtilsInjectables.logger().log('started app dispose');
+  kUtilsInjectables.logger().log('Started app dispose');
   await globalDispose();
 
   // eslint-disable-next-line no-process-exit

@@ -12,6 +12,7 @@ export async function globalSetup(overrideConfig: FimidaraSuppliedConfig = {}) {
   registerInjectables(overrideConfig);
   await kUtilsInjectables.dbConnection().wait();
   const suppliedConfig = kUtilsInjectables.suppliedConfig();
+  kUtilsInjectables.logger().log(suppliedConfig);
 
   if (suppliedConfig.startApp) {
     kUtilsInjectables.logger().log('Starting server app');
