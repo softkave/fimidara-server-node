@@ -122,9 +122,7 @@ describe('sendConfirmEmailAddressEmail', () => {
     expect(params.body.text).toBeTruthy();
     expect(params.destination).toEqual([user.email]);
     expect(params.subject).toBe(kConfirmEmailAddressEmail.title);
-    expect(params.source).toBe(
-      kUtilsInjectables.suppliedConfig().appDefaultEmailAddressFrom
-    );
+    expect(params.source).toBe(kUtilsInjectables.suppliedConfig().senderEmailAddress);
 
     await kUtilsInjectables.promises().flush();
     const dbUser = await kSemanticModels.user().getOneById(user.resourceId);

@@ -56,6 +56,7 @@ function deletePermissionItemInputToQuery(
 
   if (item.action) {
     const actions = convertToArray(item.action);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     query.action = {$in: actions};
   }
@@ -109,6 +110,7 @@ const processPermissionItems: PaginatedFetchProcessFn<
         shard: args.shard,
         createdBy: args.agent,
         type: kJobType.deleteResource0,
+        idempotencyToken: Date.now().toString(),
         params: {
           workspaceId: args.workspaceId,
           resourceId: item.resourceId,

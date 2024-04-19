@@ -56,6 +56,7 @@ describe('runEmailJob', () => {
             type: kEmailJobType.collaborationRequestResponse,
             params: {requestId: request.resourceId},
           },
+          idempotencyToken: Date.now().toString(),
         },
       ]
     );
@@ -96,6 +97,7 @@ describe('runEmailJob', () => {
             type: kEmailJobType.collaborationRequestResponse,
             params: {requestId: request.resourceId},
           },
+          idempotencyToken: Date.now().toString(),
         },
       ]
     );

@@ -36,6 +36,7 @@ export function generateJobInput(seed: Partial<JobInput> = {}): JobInput {
     type: getRandomJobType(),
     priority: getRandomJobPresetPriority(),
     shard: getRandomAppType(),
+    idempotencyToken: Date.now().toString(),
     ...seed,
   };
 }

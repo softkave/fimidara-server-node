@@ -5,6 +5,7 @@ import {
   kTokenAccessScope,
 } from '../../../../../definitions/system';
 import {kForgotPasswordEmailArtifacts} from '../../../../../emailTemplates/forgotPassword';
+import {getNewIdForResource} from '../../../../../utils/resource';
 import {IEmailProviderContext} from '../../../../contexts/email/types';
 import {
   kSemanticModels,
@@ -20,7 +21,6 @@ import {
   getForgotPasswordLinkFromToken,
   sendForgotPasswordEmail,
 } from '../sendForgotPasswordEmail';
-import {getNewIdForResource} from '../../../../../utils/resource';
 
 beforeAll(async () => {
   await initTests();
@@ -57,9 +57,7 @@ describe('sendForgotPasswordEmail', () => {
     expect(params.body.text).toBeTruthy();
     expect(params.destination).toEqual([user.email]);
     expect(params.subject).toBe(kForgotPasswordEmailArtifacts.title);
-    expect(params.source).toBe(
-      kUtilsInjectables.suppliedConfig().appDefaultEmailAddressFrom
-    );
+    expect(params.source).toBe(kUtilsInjectables.suppliedConfig().senderEmailAddress);
 
     const [dbExistingForgotTokens, dbNewForgotTokens] = await Promise.all([
       kSemanticModels.agentToken().getManyByQuery({

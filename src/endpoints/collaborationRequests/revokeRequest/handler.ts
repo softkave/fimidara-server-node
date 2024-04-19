@@ -1,5 +1,5 @@
 import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
-import {EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job';
+import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
@@ -58,6 +58,7 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async ins
     queueJobs<EmailJobParams>(workspace.resourceId, undefined, {
       type: kJobType.email,
       createdBy: agent,
+      idempotencyToken: Date.now().toString(),
       params: {
         type: kEmailJobType.collaborationRequestRevoked,
         emailAddress: [request.recipientEmail],

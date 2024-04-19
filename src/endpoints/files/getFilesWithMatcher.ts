@@ -14,8 +14,8 @@ import {
 } from '../../utils/sessionUtils';
 import {kSemanticModels} from '../contexts/injection/injectables';
 import {
-  SemanticProviderMutationTxnOptions,
-  SemanticProviderTxnOptions,
+  SemanticProviderMutationParams,
+  SemanticProviderQueryParams,
 } from '../contexts/semantic/types';
 import {kFolderConstants} from '../folders/constants';
 import {PermissionDeniedError} from '../users/errors';
@@ -66,7 +66,7 @@ export async function getFileByPresignedPath(props: {
   filepath: string;
   action: PermissionAction;
   incrementUsageCount: boolean;
-  opts?: SemanticProviderTxnOptions;
+  opts?: SemanticProviderQueryParams<File>;
 }) {
   const {filepath, action, incrementUsageCount, opts} = props;
 
@@ -133,7 +133,7 @@ export async function getFileByPresignedPath(props: {
 export async function getFileByFilepath(props: {
   /** filepath with extension if present, and workspace rootname. */
   filepath: string;
-  opts: SemanticProviderMutationTxnOptions;
+  opts: SemanticProviderMutationParams;
   workspaceId?: string;
 }) {
   const fileModel = kSemanticModels.file();
@@ -157,7 +157,7 @@ export async function getFileByFilepath(props: {
 
 export async function getFileWithMatcher(props: {
   matcher: FileMatcher;
-  opts: SemanticProviderMutationTxnOptions;
+  opts: SemanticProviderMutationParams;
   /** Defaults to `readFile`. */
   presignedPathAction?: PermissionAction;
   workspaceId?: string;

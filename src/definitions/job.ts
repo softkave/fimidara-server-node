@@ -1,6 +1,6 @@
 import {ValueOf} from 'type-fest';
 import {FimidaraConfigEmailProvider} from '../resources/config';
-import {AnyObject, PartialRecord} from '../utils/types';
+import {AnyFn, AnyObject, PartialRecord} from '../utils/types';
 import {AppShardId} from './app';
 import {Agent, FimidaraResourceType, Resource} from './system';
 
@@ -177,3 +177,14 @@ export interface EmailJobMeta {
 }
 
 export const kJobRunnerV1 = 1;
+
+export const kJobIdempotencyTokens: Record<
+  JobType,
+  AnyFn<string[], string>
+> = Object.keys(kJobType).reduce(
+  (acc, type) => {
+    acc[type as JobType] = (...args: string[]) => `${type}_${args.join('_')}`;
+    return acc;
+  },
+  {} as Record<JobType, AnyFn<string[], string>>
+);

@@ -8,7 +8,7 @@ import {
 import {ConvertAgentToPublicAgent} from '../../definitions/system';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderTxnOptions} from '../contexts/semantic/types';
+import {SemanticProviderOpParams} from '../contexts/semantic/types';
 import {workspaceResourceFields} from '../extractors';
 import {FolderQueries} from '../folders/queries';
 
@@ -54,7 +54,7 @@ export const fileBackendConfigListExtractor = makeListExtract(fileBackendConfigF
 
 export async function mountNameExists(
   mount: Pick<FileBackendMount, 'workspaceId' | 'name'>,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderOpParams
 ): Promise<boolean> {
   return await kSemanticModels
     .fileBackendMount()
@@ -63,7 +63,7 @@ export async function mountNameExists(
 
 export async function configNameExists(
   config: Pick<FileBackendConfig, 'workspaceId' | 'name'>,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderOpParams
 ): Promise<boolean> {
   return await kSemanticModels
     .fileBackendConfig()
@@ -72,7 +72,7 @@ export async function configNameExists(
 
 export async function mountExists(
   data: Pick<FileBackendMount, 'namepath' | 'mountedFrom' | 'backend' | 'workspaceId'>,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderOpParams
 ) {
   const mountModel = kSemanticModels.fileBackendMount();
   return await mountModel.existsByQuery(FileMountQueries.getBySignature(data), opts);
@@ -80,7 +80,7 @@ export async function mountExists(
 
 export async function countFolderAttachedMounts(
   folderpath: string[],
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderOpParams
 ) {
   return await kSemanticModels
     .fileBackendMount()

@@ -1,4 +1,4 @@
-import {isArray, isNumber, isObject} from 'lodash';
+import {isArray, isNumber, isObject, merge} from 'lodash';
 import path from 'path';
 import {File} from '../../../definitions/file';
 import {kFimidaraResourceType} from '../../../definitions/system';
@@ -312,11 +312,20 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
     const config = kUtilsInjectables.suppliedConfig();
 
     switch (config.fileBackend) {
-      case kFimidaraConfigFilePersistenceProvider.s3:
-        appAssert(config.awsConfig?.accessKeyId);
-        appAssert(config.awsConfig?.region);
-        appAssert(config.awsConfig?.secretAccessKey);
-        return new S3FilePersistenceProvider(config.awsConfig);
+      case kFimidaraConfigFilePersistenceProvider.s3: {
+        const awsConfig = merge(config.awsConfigs?.all, config.awsConfigs?.s3);
+        appAssert(awsConfig, 'No AWS config provided for AWS S3 provider');
+        appAssert(
+          awsConfig?.accessKeyId,
+          'No AWS accessKeyId provided for AWS S3 provider'
+        );
+        appAssert(awsConfig?.region, 'No AWS region provided for AWS S3 provider');
+        appAssert(
+          awsConfig?.secretAccessKey,
+          'No AWS secretAccessKey provided for AWS S3 provider'
+        );
+        return new S3FilePersistenceProvider(awsConfig);
+      }
       case kFimidaraConfigFilePersistenceProvider.fs: {
         appAssert(config.localFsDir);
         const pathResolved = path.resolve(config.localFsDir);

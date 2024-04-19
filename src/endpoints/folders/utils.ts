@@ -16,8 +16,8 @@ import {
 } from '../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../contexts/injection/injectables';
 import {
-  SemanticProviderMutationTxnOptions,
-  SemanticProviderTxnOptions,
+  SemanticProviderMutationParams,
+  SemanticProviderOpParams,
 } from '../contexts/semantic/types';
 import {InvalidRequestError} from '../errors';
 import {workspaceResourceFields} from '../extractors';
@@ -140,7 +140,7 @@ export async function checkFolderAuthorization<
   folder: T,
   action: PermissionAction,
   workspace?: Workspace,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderOpParams
 ) {
   if (!workspace) {
     workspace = await checkWorkspaceExists(folder.workspaceId, opts);
@@ -165,7 +165,7 @@ export async function checkFolderAuthorization02(
   matcher: FolderMatcher,
   action: PermissionAction,
   workspace?: Workspace,
-  opts?: SemanticProviderMutationTxnOptions
+  opts?: SemanticProviderMutationParams
 ) {
   const folder = await assertGetFolderWithMatcher(
     agent,
@@ -247,7 +247,7 @@ export async function ensureFolders(
   workspace: Workspace,
   /** folder path **without** workspace rootname */
   namepath: string | string[],
-  opts: SemanticProviderMutationTxnOptions
+  opts: SemanticProviderMutationParams
 ): Promise<{folder: Folder | null; folders: Folder[]}> {
   if (isPathEmpty(namepath)) {
     return {folder: null, folders: []};
@@ -322,7 +322,7 @@ export async function createNewFolderAndEnsureParents(
   workspace: Workspace,
   pathinfo: FolderpathInfo,
   data: Pick<Folder, 'description'>,
-  opts: SemanticProviderMutationTxnOptions,
+  opts: SemanticProviderMutationParams,
   seed: Partial<Folder> = {}
 ) {
   const {folder} = await ensureFolders(agent, workspace, pathinfo.parentStringPath, opts);
@@ -334,7 +334,7 @@ export async function createAndInsertNewFolder(
   workspace: Workspace,
   pathinfo: FolderpathInfo,
   data: Pick<Folder, 'description'>,
-  opts: SemanticProviderMutationTxnOptions,
+  opts: SemanticProviderMutationParams,
   seed: Partial<Folder> = {}
 ) {
   const folder = await createNewFolderAndEnsureParents(
@@ -403,7 +403,7 @@ export async function readOrIngestFolderByFolderpath(
   agent: Agent,
   /** folderpath with workspace rootname */
   folderpath: string,
-  opts?: SemanticProviderTxnOptions,
+  opts?: SemanticProviderOpParams,
   workspaceId?: string
 ) {
   const folderModel = kSemanticModels.folder();

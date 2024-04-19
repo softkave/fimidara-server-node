@@ -7,13 +7,13 @@ import {
 import {FimidaraResourceType, Resource} from '../../../../definitions/system';
 import {AnyFn, AnyObject} from '../../../../utils/types';
 import {
-  SemanticProviderMutationTxnOptions,
-  SemanticProviderQueryListRunOptions,
+  SemanticProviderMutationParams,
+  SemanticProviderQueryListParams,
 } from '../../../contexts/semantic/types';
 
 export type DeleteResourceCascadeFnHelpers = {
   job: Job<DeleteResourceJobParams, DeleteResourceJobMeta>;
-  withTxn(fn: AnyFn<[SemanticProviderMutationTxnOptions]>): Promise<void>;
+  withTxn(fn: AnyFn<[SemanticProviderMutationParams]>): Promise<void>;
 };
 
 export type GetArtifactsFn<TArgs extends AnyObject = DeleteResourceCascadeFnDefaultArgs> =
@@ -21,7 +21,7 @@ export type GetArtifactsFn<TArgs extends AnyObject = DeleteResourceCascadeFnDefa
     args: TArgs;
     helpers: DeleteResourceCascadeFnHelpers;
     opts: Pick<
-      SemanticProviderQueryListRunOptions<Resource>,
+      SemanticProviderQueryListParams<Resource>,
       'page' | 'pageSize' | 'projection'
     >;
   }) => Promise<Array<Resource> | void>;

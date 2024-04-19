@@ -9,7 +9,10 @@ import {
 import {User} from '../../definitions/user';
 import {cast} from '../../utils/fns';
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderTxnOptions} from '../contexts/semantic/types';
+import {
+  SemanticProviderOpParams,
+  SemanticProviderQueryListParams,
+} from '../contexts/semantic/types';
 import {
   assignedItemsToAssignedTagList,
   assignedItemsToAssignedWorkspaceList,
@@ -20,7 +23,7 @@ export async function getResourceAssignedItems(
   workspaceId: string | undefined,
   resourceId: string,
   assignedItemTypes?: Array<FimidaraResourceType>,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderQueryListParams<AssignedItem>
 ) {
   return await kSemanticModels
     .assignedItem()
@@ -35,7 +38,7 @@ export async function getResourceAssignedItemsSortedByType(
    * will be fetched. If specified, result will contain empty arrays if no
    * assigned items of the specified type are found. */
   assignedItemTypes?: Array<FimidaraResourceType>,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderQueryListParams<AssignedItem>
 ) {
   const items = await getResourceAssignedItems(
     workspaceId,
@@ -147,7 +150,7 @@ export async function populateResourceListWithAssignedTags<
 
 export async function getUserWorkspaces(
   userId: string,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderOpParams
 ): Promise<WorkspaceResource[]> {
   const sortedItems = await getResourceAssignedItemsSortedByType(
     /** workspaceId */ undefined,
@@ -170,7 +173,7 @@ export async function getUserWorkspaces(
 
 export async function populateUserWorkspaces<T extends User>(
   resource: T,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderOpParams
 ): Promise<T & {workspaces: WorkspaceResource[]}> {
   const updatedResource = resource as T & {
     workspaces: WorkspaceResource[];

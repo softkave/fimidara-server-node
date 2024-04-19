@@ -5,5 +5,5 @@ import {SemanticEmailMessageProvider} from './types';
 export class SemanticEmailMessageProviderImpl
   extends DataSemanticWorkspaceResourceProvider<EmailMessage>
   implements SemanticEmailMessageProvider {
-  // async getNextBatch(opts: SemanticProviderMutationTxnOptions): Promise<EmailMessage[]> {}
+  // async getNextBatch(opts: SemanticProviderMutationParams): Promise<EmailMessage[]> {}
 }

@@ -53,6 +53,7 @@ export async function INTERNAL_sendEmailVerificationCode(user: User) {
       {
         createdBy: kSystemSessionAgent,
         type: kJobType.email,
+        idempotencyToken: Date.now().toString(),
         params: {
           type: kEmailJobType.confirmEmailAddress,
           emailAddress: [user.email],

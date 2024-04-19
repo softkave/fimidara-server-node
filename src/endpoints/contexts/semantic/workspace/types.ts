@@ -1,6 +1,7 @@
 import {Workspace} from '../../../../definitions/workspace';
 import {
-  SemanticProviderTxnOptions,
+  SemanticProviderOpParams,
+  SemanticProviderQueryParams,
   SemanticWorkspaceResourceProviderType,
 } from '../types';
 
@@ -8,11 +9,8 @@ export interface SemanticWorkspaceProviderType
   extends SemanticWorkspaceResourceProviderType<Workspace> {
   getByRootname(
     name: string,
-    opts?: SemanticProviderTxnOptions
+    opts?: SemanticProviderQueryParams<Workspace>
   ): Promise<Workspace | null>;
-  existsByRootname(name: string, opts?: SemanticProviderTxnOptions): Promise<boolean>;
-  workspaceExistsByName(
-    name: string,
-    opts?: SemanticProviderTxnOptions
-  ): Promise<boolean>;
+  existsByRootname(name: string, opts?: SemanticProviderOpParams): Promise<boolean>;
+  workspaceExistsByName(name: string, opts?: SemanticProviderOpParams): Promise<boolean>;
 }

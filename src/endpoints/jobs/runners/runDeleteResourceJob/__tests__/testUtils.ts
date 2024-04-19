@@ -85,11 +85,8 @@ export async function testDeleteResourceJob0<T extends Resource>(props: {
         shard,
         createdBy: kSystemSessionAgent,
         type: kJobType.deleteResource0,
-        params: {
-          type,
-          workspaceId,
-          resourceId: mainResource.resourceId,
-        },
+        params: {type, workspaceId, resourceId: mainResource.resourceId},
+        idempotencyToken: Date.now().toString(),
       },
     ]
   );
@@ -275,6 +272,7 @@ export async function testDeleteResourceArtifactsJob<T extends Resource>(props: 
         createdBy: kSystemSessionAgent,
         type: kJobType.deleteResourceArtifacts,
         params: {type, workspaceId, resourceId: mainResource.resourceId},
+        idempotencyToken: Date.now().toString(),
       },
     ]
   );
@@ -355,11 +353,8 @@ export async function testDeleteResourceSelfJob<
         shard,
         createdBy: kSystemSessionAgent,
         type: kJobType.deleteResourceSelf,
-        params: {
-          type,
-          workspaceId,
-          resourceId: mainResource.resourceId,
-        },
+        params: {type, workspaceId, resourceId: mainResource.resourceId},
+        idempotencyToken: Date.now().toString(),
       },
     ]
   );

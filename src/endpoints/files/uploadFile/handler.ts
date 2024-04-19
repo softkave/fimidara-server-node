@@ -11,7 +11,7 @@ import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {ByteCounterPassThroughStream} from '../../../utils/streams';
 import {validate} from '../../../utils/validate';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
 import {
   insertResolvedMountEntries,
   resolveBackendsMountsAndConfigs,
@@ -36,7 +36,7 @@ async function createAndInsertNewFile(
   workspace: Workspace,
   pathinfo: FilepathInfo,
   data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
-  opts: SemanticProviderMutationTxnOptions,
+  opts: SemanticProviderMutationParams,
   seed: Partial<File> = {}
 ) {
   const file = await createNewFileAndEnsureFolders(

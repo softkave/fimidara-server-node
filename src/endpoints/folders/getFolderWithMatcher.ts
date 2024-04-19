@@ -4,8 +4,8 @@ import {Agent} from '../../definitions/system';
 import {FileQuery} from '../contexts/data/types';
 import {kSemanticModels} from '../contexts/injection/injectables';
 import {
-  SemanticProviderMutationTxnOptions,
-  SemanticProviderTxnOptions,
+  SemanticProviderMutationParams,
+  SemanticProviderOpParams,
 } from '../contexts/semantic/types';
 import {FolderQueries} from './queries';
 import {assertFolder, readOrIngestFolderByFolderpath} from './utils';
@@ -13,7 +13,7 @@ import {assertFolder, readOrIngestFolderByFolderpath} from './utils';
 export async function getClosestExistingFolder(
   workspaceId: string,
   namepath: string[],
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderOpParams
 ): Promise<{folders: Folder[]; closestFolder: Folder | undefined}> {
   const folderQueries = namepath
     .map((p, i) => namepath.slice(0, i + 1))
@@ -34,7 +34,7 @@ export async function getClosestExistingFolder(
 export async function getFolderWithMatcher(
   agent: Agent,
   matcher: FolderMatcher,
-  opts?: SemanticProviderMutationTxnOptions,
+  opts?: SemanticProviderMutationParams,
   workspaceId?: string
 ) {
   if (matcher.folderId) {
@@ -54,7 +54,7 @@ export async function getFolderWithMatcher(
 export async function assertGetFolderWithMatcher(
   agent: Agent,
   matcher: FolderMatcher,
-  opts?: SemanticProviderMutationTxnOptions,
+  opts?: SemanticProviderMutationParams,
   workspaceId?: string
 ) {
   const folder = await getFolderWithMatcher(agent, matcher, opts, workspaceId);

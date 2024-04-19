@@ -9,7 +9,7 @@ import {
   kShardQueueStrategy,
 } from '../../../utils/shardedRunnerQueue';
 import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
 import {
   AddFolderShardMeta,
   AddFolderShardOutputItem,
@@ -54,7 +54,7 @@ export async function createFolderList(
   input: NewFolderInput | NewFolderInput[],
   UNSAFE_skipAuthCheck = false,
   throwOnFolderExists = true,
-  opts: SemanticProviderMutationTxnOptions | undefined,
+  opts: SemanticProviderMutationParams | undefined,
   throwOnError: boolean
 ) {
   const {success, failed} = await kUtilsInjectables

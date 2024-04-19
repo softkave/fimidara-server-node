@@ -74,7 +74,9 @@ describe('FimidaraFilePersistenceProvider', () => {
     kRegisterUtilsInjectables.suppliedConfig({
       ...startConfig,
       fileBackend: kFimidaraConfigFilePersistenceProvider.s3,
-      awsConfig: generateAWSS3Credentials(),
+      awsConfigs: {
+        s3: generateAWSS3Credentials(),
+      },
     });
 
     let backend = new FimidaraFilePersistenceProvider();

@@ -5,7 +5,7 @@ import {appAssert} from '../../../utils/assertion';
 import {newWorkspaceResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
 import {configNameExists} from '../utils';
 import {NewFileBackendConfigInput} from './types';
 
@@ -13,7 +13,7 @@ export const INTERNAL_addConfig = async (
   agent: Agent,
   workspace: Workspace,
   data: NewFileBackendConfigInput,
-  opts: SemanticProviderMutationTxnOptions
+  opts: SemanticProviderMutationParams
 ) => {
   const configModel = kSemanticModels.fileBackendConfig();
   const secretsManager = kUtilsInjectables.secretsManager();

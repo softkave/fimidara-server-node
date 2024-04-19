@@ -1,8 +1,10 @@
 import {File} from '../../../../definitions/file';
 import {PresignedPath} from '../../../../definitions/presignedPath';
-import {DataProviderQueryListParams} from '../../data/types';
 import {
-  SemanticProviderTxnOptions,
+  SemanticProviderMutationParams,
+  SemanticProviderOpParams,
+  SemanticProviderQueryListParams,
+  SemanticProviderQueryParams,
   SemanticWorkspaceResourceProviderType,
 } from '../types';
 
@@ -10,16 +12,16 @@ export interface SemanticFileProvider
   extends SemanticWorkspaceResourceProviderType<File> {
   getOneByNamepath(
     query: {workspaceId: string; namepath: string[]; extension?: string},
-    opts?: SemanticProviderTxnOptions
+    opts?: SemanticProviderQueryParams<File>
   ): Promise<File | null>;
   getManyByNamepath(
     query: {workspaceId: string; namepath: string[]; extension?: string},
-    opts?: SemanticProviderTxnOptions & DataProviderQueryListParams<File>
+    opts?: SemanticProviderQueryListParams<File>
   ): Promise<File[]>;
   getAndUpdateOneBynamepath(
     query: {workspaceId: string; namepath: string[]; extension?: string},
     update: Partial<File>,
-    opts?: SemanticProviderTxnOptions
+    opts?: SemanticProviderMutationParams & SemanticProviderQueryParams<File>
   ): Promise<File | null>;
   getManyByWorkspaceParentAndIdList(
     q: {
@@ -28,7 +30,7 @@ export interface SemanticFileProvider
       resourceIdList?: string[];
       excludeResourceIdList?: string[];
     },
-    options?: DataProviderQueryListParams<File> & SemanticProviderTxnOptions
+    options?: SemanticProviderQueryListParams<File>
   ): Promise<File[]>;
   countManyParentByIdList(
     q: {
@@ -37,11 +39,11 @@ export interface SemanticFileProvider
       resourceIdList?: string[];
       excludeResourceIdList?: string[];
     },
-    opts?: SemanticProviderTxnOptions
+    opts?: SemanticProviderOpParams
   ): Promise<number>;
   deleteOneBynamepath(
     query: {workspaceId: string; namepath: string[]; extension?: string},
-    opts?: SemanticProviderTxnOptions
+    opts?: SemanticProviderMutationParams
   ): Promise<void>;
 }
 
@@ -49,14 +51,14 @@ export interface SemanticPresignedPathProvider
   extends SemanticWorkspaceResourceProviderType<PresignedPath> {
   getOneByFileId(
     id: string,
-    options?: DataProviderQueryListParams<PresignedPath> & SemanticProviderTxnOptions
+    opts?: SemanticProviderQueryParams<PresignedPath>
   ): Promise<PresignedPath | null>;
   getOneByFilepath(
     query: {workspaceId: string; namepath: string[]; extension?: string},
-    options?: DataProviderQueryListParams<PresignedPath> & SemanticProviderTxnOptions
+    opts?: SemanticProviderQueryParams<PresignedPath>
   ): Promise<PresignedPath | null>;
   getManyByFileIds(
     ids: string[],
-    options?: DataProviderQueryListParams<PresignedPath> & SemanticProviderTxnOptions
+    opts?: SemanticProviderQueryListParams<PresignedPath>
   ): Promise<PresignedPath[]>;
 }

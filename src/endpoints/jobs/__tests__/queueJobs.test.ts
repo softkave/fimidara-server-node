@@ -104,8 +104,14 @@ describe('queueJobs', () => {
     const [parentJob] = await generateAndInsertJobListForTest(/** count */ 1, {
       workspaceId,
     });
-    const input01 = generateJobInput({params: {id: internalParamId}});
-    const input02 = generateJobInput({params: {id: internalParamId}});
+    const input01 = generateJobInput({
+      params: {id: internalParamId},
+      idempotencyToken: undefined,
+    });
+    const input02 = generateJobInput({
+      params: {id: internalParamId},
+      idempotencyToken: undefined,
+    });
 
     // First add should add job to DB
     const jobs01 = await queueJobs(workspaceId, parentJob.resourceId, [input01]);

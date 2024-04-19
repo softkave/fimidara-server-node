@@ -9,7 +9,6 @@
   "httpsPort": "",
   "httpsPublicKeyFilepath": "",
   "httpsPrivateKeyFilepath": "",
-  "S3Bucket": "",
   "rootUserEmail": "",
   "rootUserPassword": "",
   "rootUserFirstName": "",
@@ -18,15 +17,9 @@
   "localFsDir": "./dev-local-fs",
   "emailProvider": "noop",
   "secretsManagerProvider": "memory",
-  "awsConfig": {
-    "accessKeyId": "",
-    "secretAccessKey": "",
-    "region": ""
-  },
   "FLAG_waitlistNewSignups": true,
   "appName": "fimidara",
-  "appDefaultEmailAddressFrom": "",
-  "awsEmailEncoding": "UTF-8",
+  "senderEmailAddress": "",
   "dateFormat": "MMM DD, YYYY",
   "clientLoginLink": "",
   "clientSignupLink": "",
@@ -38,5 +31,13 @@
   "loggerType": "console",
   "runnerLocation": "./build/src/endpoints/jobs/fimidaraWorker/workerMain.js",
   "useFimidaraApp": true,
-  "useFimidaraWorkerPool": true
+  "useFimidaraWorkerPool": true,
+  "awsConfigs": {
+    "all": {"accessKeyId": "", "secretAccessKey": "", "region": ""},
+    "s3": {},
+    "ses": {},
+    "secretsManager": {},
+    "s3Bucket": "",
+    "sesEmailEncoding": "UTF-8"
+  }
 }

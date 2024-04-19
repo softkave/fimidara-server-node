@@ -17,7 +17,7 @@ import {convertToArray, extractResourceIdList, isObjectEmpty} from '../../../uti
 import {indexArray} from '../../../utils/indexArray';
 import {getResourceTypeFromId, newWorkspaceResource} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
 import {InvalidRequestError} from '../../errors';
 import {getPermissionItemTargets} from '../getPermissionItemTargets';
 import {PermissionItemInputTarget} from '../types';
@@ -37,7 +37,7 @@ export const INTERNAL_addPermissionItems = async (
   agent: SessionAgent,
   workspace: Workspace,
   data: AddPermissionItemsEndpointParams,
-  opts: SemanticProviderMutationTxnOptions
+  opts: SemanticProviderMutationParams
 ) => {
   let inputEntities: string[] = [];
   let inputTargets: PermissionItemInputTarget[] = [];

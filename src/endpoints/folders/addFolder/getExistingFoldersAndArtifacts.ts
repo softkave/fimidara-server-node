@@ -3,7 +3,7 @@ import {convertToArray, pathJoin, pathSplit} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
 import {FolderQuery} from '../../contexts/data/types';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
 import {FolderQueries} from '../queries';
 import {FolderpathInfo, getFolderpathInfo} from '../utils';
 import {NewFolderInput} from './types';
@@ -11,7 +11,7 @@ import {NewFolderInput} from './types';
 export async function getExistingFoldersAndArtifacts(
   workspaceId: string,
   input: NewFolderInput | NewFolderInput[],
-  opts: SemanticProviderMutationTxnOptions
+  opts: SemanticProviderMutationParams
 ) {
   const inputList = convertToArray(input);
   const pathinfoList: FolderpathInfo[] = inputList.map(nextInput =>

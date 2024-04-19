@@ -2,9 +2,15 @@ import {File} from '../../../../definitions/file';
 import {PresignedPath} from '../../../../definitions/presignedPath';
 import {Resource} from '../../../../definitions/system';
 import {FileQueries} from '../../../files/queries';
-import {DataProviderQueryListParams} from '../../data/types';
+import {DataQuery} from '../../data/types';
+import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider';
 import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
-import {SemanticProviderTxnOptions} from '../types';
+import {
+  SemanticProviderMutationParams,
+  SemanticProviderOpParams,
+  SemanticProviderQueryListParams,
+  SemanticProviderQueryParams,
+} from '../types';
 import {getInAndNinQuery} from '../utils';
 import {SemanticFileProvider, SemanticPresignedPathProvider} from './types';
 
@@ -14,35 +20,47 @@ export class DataSemanticFile
 {
   async getOneByNamepath(
     query: {workspaceId: string; namepath: string[]; extension?: string},
-    opts?: SemanticProviderTxnOptions
+    opts?: SemanticProviderQueryParams<File>
   ): Promise<File | null> {
-    return await this.data.getOneByQuery(FileQueries.getByNamepath(query), opts);
+    const dataQuery = addIsDeletedIntoQuery<DataQuery<File>>(
+      FileQueries.getByNamepath(query),
+      opts?.includeDeleted || false
+    );
+    return await this.data.getOneByQuery(dataQuery, opts);
   }
 
   async deleteOneBynamepath(
     query: {workspaceId: string; namepath: string[]; extension?: string},
-    opts?: SemanticProviderTxnOptions
+    opts?: SemanticProviderMutationParams
   ) {
-    await this.data.deleteOneByQuery(FileQueries.getByNamepath(query), opts);
+    const dataQuery = addIsDeletedIntoQuery<DataQuery<File>>(
+      FileQueries.getByNamepath(query),
+      opts?.includeDeleted || true
+    );
+    await this.data.deleteOneByQuery(dataQuery, opts);
   }
 
   async getAndUpdateOneBynamepath(
     query: {workspaceId: string; namepath: string[]; extension?: string},
     update: Partial<File>,
-    opts?: SemanticProviderTxnOptions
+    opts?: SemanticProviderMutationParams & SemanticProviderQueryParams<File>
   ): Promise<File | null> {
-    return await this.data.getAndUpdateOneByQuery(
+    const dataQuery = addIsDeletedIntoQuery<DataQuery<File>>(
       FileQueries.getByNamepath(query),
-      update,
-      opts
+      opts?.includeDeleted || true
     );
+    return await this.data.getAndUpdateOneByQuery(dataQuery, update, opts);
   }
 
   async getManyByNamepath(
     query: {workspaceId: string; namepath: string[]; extension?: string},
-    opts?: SemanticProviderTxnOptions
+    opts?: SemanticProviderQueryListParams<File>
   ): Promise<File[]> {
-    return await this.data.getManyByQuery(FileQueries.getByNamepath(query), opts);
+    const dataQuery = addIsDeletedIntoQuery<DataQuery<File>>(
+      FileQueries.getByNamepath(query),
+      opts?.includeDeleted || false
+    );
+    return await this.data.getManyByQuery(dataQuery, opts);
   }
 
   async getManyByWorkspaceParentAndIdList(
@@ -52,9 +70,9 @@ export class DataSemanticFile
       resourceIdList?: string[] | undefined;
       excludeResourceIdList?: string[] | undefined;
     },
-    options?: (DataProviderQueryListParams<File> & SemanticProviderTxnOptions) | undefined
+    options?: SemanticProviderQueryListParams<File> | undefined
   ): Promise<File[]> {
-    return await this.data.getManyByQuery(
+    const dataQuery = addIsDeletedIntoQuery<DataQuery<File>>(
       {
         workspaceId: query.workspaceId,
         parentId: query.parentId,
@@ -64,8 +82,9 @@ export class DataSemanticFile
           query.excludeResourceIdList
         ),
       },
-      options
+      options?.includeDeleted || false
     );
+    return await this.data.getManyByQuery(dataQuery, options);
   }
 
   async countManyParentByIdList(
@@ -75,9 +94,9 @@ export class DataSemanticFile
       resourceIdList?: string[] | undefined;
       excludeResourceIdList?: string[] | undefined;
     },
-    opts?: SemanticProviderTxnOptions | undefined
+    opts?: SemanticProviderOpParams | undefined
   ): Promise<number> {
-    return await this.data.countByQuery(
+    const dataQuery = addIsDeletedIntoQuery<DataQuery<File>>(
       {
         workspaceId: query.workspaceId,
         parentId: query.parentId,
@@ -87,8 +106,9 @@ export class DataSemanticFile
           query.excludeResourceIdList
         ),
       },
-      opts
+      opts?.includeDeleted || false
     );
+    return await this.data.countByQuery(dataQuery, opts);
   }
 }
 
@@ -98,22 +118,34 @@ export class DataSemanticPresignedPathProvider
 {
   async getOneByFileId(
     id: string,
-    options?: DataProviderQueryListParams<PresignedPath> & SemanticProviderTxnOptions
+    options?: SemanticProviderQueryParams<PresignedPath>
   ): Promise<PresignedPath | null> {
-    return await this.data.getOneByQuery({fileId: id}, options);
+    const query = addIsDeletedIntoQuery<DataQuery<PresignedPath>>(
+      {fileId: id},
+      options?.includeDeleted || false
+    );
+    return await this.data.getOneByQuery(query, options);
   }
 
   async getManyByFileIds(
     ids: string[],
-    options?: DataProviderQueryListParams<PresignedPath> & SemanticProviderTxnOptions
+    options?: SemanticProviderQueryListParams<PresignedPath>
   ): Promise<PresignedPath[]> {
-    return await this.data.getManyByQuery({fileId: {$in: ids}}, options);
+    const query = addIsDeletedIntoQuery<DataQuery<PresignedPath>>(
+      {fileId: {$in: ids}},
+      options?.includeDeleted || false
+    );
+    return await this.data.getManyByQuery(query, options);
   }
 
   async getOneByFilepath(
     query: {workspaceId: string; namepath: string[]; extension?: string},
-    options?: DataProviderQueryListParams<PresignedPath> & SemanticProviderTxnOptions
+    options?: SemanticProviderQueryParams<PresignedPath>
   ): Promise<PresignedPath | null> {
-    return await this.data.getOneByQuery(FileQueries.getByNamepath(query), options);
+    const dataQuery = addIsDeletedIntoQuery<DataQuery<PresignedPath>>(
+      FileQueries.getByNamepath(query),
+      options?.includeDeleted || false
+    );
+    return await this.data.getOneByQuery(dataQuery, options);
   }
 }

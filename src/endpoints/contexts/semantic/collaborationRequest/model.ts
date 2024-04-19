@@ -1,7 +1,12 @@
 import {CollaborationRequest} from '../../../../definitions/collaborationRequest';
-import {DataProviderQueryListParams} from '../../data/types';
+import {DataQuery} from '../../data/types';
+import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider';
 import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
-import {SemanticProviderTxnOptions} from '../types';
+import {
+  SemanticProviderOpParams,
+  SemanticProviderQueryListParams,
+  SemanticProviderQueryParams,
+} from '../types';
 import {getIgnoreCaseDataQueryRegExp} from '../utils';
 import {SemanticCollaborationRequestProvider} from './types';
 
@@ -11,44 +16,46 @@ export class DataSemanticCollaborationRequest
 {
   async countByEmail(
     email: string,
-    opts?: SemanticProviderTxnOptions | undefined
+    opts?: SemanticProviderOpParams | undefined
   ): Promise<number> {
-    return await this.data.countByQuery(
+    const query = addIsDeletedIntoQuery<DataQuery<CollaborationRequest>>(
       {recipientEmail: getIgnoreCaseDataQueryRegExp(email)},
-      opts
+      opts?.includeDeleted || false
     );
+    return await this.data.countByQuery(query, opts);
   }
 
   async getOneByEmail(
     email: string,
-    opts?: SemanticProviderTxnOptions | undefined
+    opts?: SemanticProviderQueryParams<CollaborationRequest> | undefined
   ): Promise<CollaborationRequest | null> {
-    return await this.data.getOneByQuery(
+    const query = addIsDeletedIntoQuery<DataQuery<CollaborationRequest>>(
       {recipientEmail: getIgnoreCaseDataQueryRegExp(email)},
-      opts
+      opts?.includeDeleted || false
     );
+    return await this.data.getOneByQuery(query, opts);
   }
 
   async getOneByWorkspaceIdEmail(
     workspaceId: string,
     email: string,
-    opts?: SemanticProviderTxnOptions | undefined
+    opts?: SemanticProviderQueryParams<CollaborationRequest> | undefined
   ): Promise<CollaborationRequest | null> {
-    return await this.data.getOneByQuery(
+    const query = addIsDeletedIntoQuery<DataQuery<CollaborationRequest>>(
       {workspaceId, recipientEmail: getIgnoreCaseDataQueryRegExp(email)},
-      opts
+      opts?.includeDeleted || false
     );
+    return await this.data.getOneByQuery(query, opts);
   }
 
   async getManyByEmail(
     email: string,
-    options?:
-      | (DataProviderQueryListParams<CollaborationRequest> & SemanticProviderTxnOptions)
-      | undefined
+    options?: SemanticProviderQueryListParams<CollaborationRequest> | undefined
   ): Promise<CollaborationRequest[]> {
-    return await this.data.getManyByQuery(
+    const query = addIsDeletedIntoQuery<DataQuery<CollaborationRequest>>(
       {recipientEmail: getIgnoreCaseDataQueryRegExp(email)},
-      options
+      options?.includeDeleted || false
     );
+    return await this.data.getManyByQuery(query, options);
   }
 }

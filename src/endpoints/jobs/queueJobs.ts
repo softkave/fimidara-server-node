@@ -23,7 +23,7 @@ export interface JobInput<
   type: JobType;
   params: TParams;
   meta?: TMeta;
-  idempotencyToken?: string;
+  idempotencyToken: string | undefined;
   priority?: number;
   shard?: AppShardId;
   runAfter?: RunAfterJobItem | RunAfterJobItem[];

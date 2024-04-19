@@ -26,7 +26,7 @@ import {
 } from '../contexts/file/types';
 import {isFilePersistenceProvider} from '../contexts/file/utils';
 import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
-import {SemanticProviderTxnOptions} from '../contexts/semantic/types';
+import {SemanticProviderQueryListParams} from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
 import {FolderQueries} from '../folders/queries';
 import {kEndpointResultNoteCodeMap, kEndpointResultNotesToMessageMap} from '../types';
@@ -48,7 +48,7 @@ export function sortMounts(mounts: FileBackendMount[]) {
 
 export async function resolveMountsForFolder(
   folder: Pick<Folder, 'workspaceId' | 'namepath'>,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderQueryListParams<FileBackendMount>
 ) {
   const mountModel = kSemanticModels.fileBackendMount();
   const mountsList = await loopAndCollateAsync(
@@ -321,7 +321,7 @@ export async function insertResolvedMountEntries(props: {
 
 export async function getResolvedMountEntries(
   id: string,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderQueryListParams<FileBackendMount>
 ) {
   return await kSemanticModels
     .resolvedMountEntry()

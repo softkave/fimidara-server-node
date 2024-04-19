@@ -1,8 +1,8 @@
 import {AppShard, AppShardId} from '../../../../definitions/app';
 import {
   SemanticBaseProviderType,
-  SemanticProviderMutationTxnOptions,
-  SemanticProviderTxnOptions,
+  SemanticProviderMutationParams,
+  SemanticProviderQueryListParams,
 } from '../types';
 
 export interface SemanticAppShardProvider extends SemanticBaseProviderType<AppShard> {
@@ -11,15 +11,12 @@ export interface SemanticAppShardProvider extends SemanticBaseProviderType<AppSh
     maxOccupantCount: number,
     appId: string,
     retryGetAvailableShardTimeoutMs: number,
-    opts: SemanticProviderMutationTxnOptions
+    opts: SemanticProviderMutationParams
   ): Promise<string>;
-  dropShard(
-    shardId: AppShardId,
-    opts?: SemanticProviderMutationTxnOptions
-  ): Promise<void>;
+  dropShard(shardId: AppShardId, opts?: SemanticProviderMutationParams): Promise<void>;
   getEmptyShards(
     acceptanceKey: string,
     count: number,
-    opts?: SemanticProviderTxnOptions
+    opts?: SemanticProviderQueryListParams<AppShard>
   ): Promise<AppShard[]>;
 }

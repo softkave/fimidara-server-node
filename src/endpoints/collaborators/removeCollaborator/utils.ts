@@ -28,6 +28,7 @@ export async function beginDeleteCollaborator(props: {
           return {
             createdBy: agent,
             type: kJobType.deleteResource0,
+            idempotencyToken: Date.now().toString(),
             params: {
               workspaceId,
               resourceId: resource.resourceId,

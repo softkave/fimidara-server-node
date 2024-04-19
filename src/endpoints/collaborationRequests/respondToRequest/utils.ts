@@ -11,7 +11,7 @@ import {ServerStateConflictError} from '../../../utils/errors';
 import {isStringEqual} from '../../../utils/fns';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
 import {queueJobs} from '../../jobs/queueJobs';
 import {PermissionDeniedError} from '../../users/errors';
 import {assertUser} from '../../users/utils';
@@ -22,7 +22,7 @@ import {RespondToCollaborationRequestEndpointParams} from './types';
 export const INTERNAL_RespondToCollaborationRequest = async (
   agent: SessionAgent,
   data: RespondToCollaborationRequestEndpointParams,
-  opts: SemanticProviderMutationTxnOptions
+  opts: SemanticProviderMutationParams
 ) => {
   const request = await kSemanticModels
     .collaborationRequest()
@@ -100,6 +100,7 @@ export async function notifySenderOnCollaborationRequestResponse(
       queueJobs<EmailJobParams>(workspace.resourceId, undefined, {
         createdBy: kSystemSessionAgent,
         type: kJobType.email,
+        idempotencyToken: Date.now().toString(),
         params: {
           type: kEmailJobType.collaborationRequestResponse,
           emailAddress: [sender.email],

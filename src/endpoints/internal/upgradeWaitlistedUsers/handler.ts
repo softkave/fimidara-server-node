@@ -48,6 +48,7 @@ const upgradeWaitlistedUsers: UpgradeWaitlistedUsersEndpoint = async reqData => 
         {
           createdBy: agent,
           type: kJobType.email,
+          idempotencyToken: Date.now().toString(),
           params: {
             type: kEmailJobType.upgradedFromWaitlist,
             emailAddress: [user.email],

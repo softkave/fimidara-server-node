@@ -75,9 +75,8 @@ describe('runDeletePermissionItemsJob', () => {
           shard,
           createdBy: kSystemSessionAgent,
           type: kJobType.deletePermissionItem,
-          params: {
-            entityId: extractResourceIdList(pgL),
-          },
+          params: {entityId: extractResourceIdList(pgL)},
+          idempotencyToken: Date.now().toString(),
         },
       ]
     );

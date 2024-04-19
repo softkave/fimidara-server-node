@@ -70,6 +70,7 @@ async function queueIngestFolderJobFor(
         params: jobParams,
         priority: parentJob.priority,
         shard: parentJob.shard,
+        idempotencyToken: Date.now().toString(),
       };
     })
   );

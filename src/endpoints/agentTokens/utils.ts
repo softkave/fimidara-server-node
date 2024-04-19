@@ -7,7 +7,7 @@ import {cast} from '../../utils/fns';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
-import {SemanticProviderTxnOptions} from '../contexts/semantic/types';
+import {SemanticProviderOpParams} from '../contexts/semantic/types';
 import {InvalidRequestError} from '../errors';
 import {workspaceResourceFields} from '../extractors';
 
@@ -28,7 +28,7 @@ export async function checkAgentTokenAuthorization(
   agent: SessionAgent,
   token: AgentToken,
   action: PermissionAction,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderOpParams
 ) {
   appAssert(token.workspaceId);
   await checkAuthorizationWithAgent({

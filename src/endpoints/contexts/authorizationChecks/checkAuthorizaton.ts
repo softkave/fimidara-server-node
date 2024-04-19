@@ -18,7 +18,7 @@ import {ObjectValues, OmitProperties} from '../../../utils/types';
 import {checkResourcesBelongsToWorkspace} from '../../resources/containerCheckFns';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../users/errors';
 import {kSemanticModels} from '../injection/injectables';
-import {SemanticProviderTxnOptions} from '../semantic/types';
+import {SemanticProviderOpParams} from '../semantic/types';
 
 export interface AccessCheckTarget {
   entityId: string;
@@ -31,7 +31,7 @@ export interface CheckAuthorizationParams {
   workspaceId: string;
   workspace?: Pick<Workspace, 'publicPermissionGroupId'>;
   target: AccessCheckTarget;
-  opts?: SemanticProviderTxnOptions;
+  opts?: SemanticProviderOpParams;
   nothrow?: boolean;
 }
 

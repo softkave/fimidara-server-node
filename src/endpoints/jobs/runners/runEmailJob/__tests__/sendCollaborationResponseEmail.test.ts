@@ -63,8 +63,6 @@ describe('sendCollaborationRequestResponseEmail', () => {
         workspaceName: workspace.name,
       })
     );
-    expect(params.source).toBe(
-      kUtilsInjectables.suppliedConfig().appDefaultEmailAddressFrom
-    );
+    expect(params.source).toBe(kUtilsInjectables.suppliedConfig().senderEmailAddress);
   });
 });

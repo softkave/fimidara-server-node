@@ -11,7 +11,7 @@ import {
   getResourcePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
 import {FolderExistsError} from '../errors';
 import {createNewFolder} from '../utils';
 import {getExistingFoldersAndArtifacts} from './getExistingFoldersAndArtifacts';
@@ -28,7 +28,7 @@ async function createFolderListWithTransaction(
   input: NewFolderInput | NewFolderInput[],
   UNSAFE_skipAuthCheck = false,
   throwOnFolderExists = true,
-  opts: SemanticProviderMutationTxnOptions
+  opts: SemanticProviderMutationParams
 ) {
   const {
     pathinfoList,

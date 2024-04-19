@@ -1,6 +1,10 @@
 import {User} from '../../../../definitions/user';
-import {DataSemanticBaseProvider} from '../DataSemanticDataAccessBaseProvider';
-import {SemanticProviderTxnOptions} from '../types';
+import {DataQuery} from '../../data/types';
+import {
+  DataSemanticBaseProvider,
+  addIsDeletedIntoQuery,
+} from '../DataSemanticDataAccessBaseProvider';
+import {SemanticProviderOpParams, SemanticProviderQueryParams} from '../types';
 import {getIgnoreCaseDataQueryRegExp} from '../utils';
 import {SemanticUserProviderType} from './types';
 
@@ -10,21 +14,23 @@ export class DataSemanticUser
 {
   async getByEmail(
     email: string,
-    opts?: SemanticProviderTxnOptions | undefined
+    opts?: SemanticProviderQueryParams<User> | undefined
   ): Promise<User | null> {
-    return await this.data.getOneByQuery(
+    const query = addIsDeletedIntoQuery<DataQuery<User>>(
       {email: getIgnoreCaseDataQueryRegExp(email)},
-      opts
+      opts?.includeDeleted || false
     );
+    return await this.data.getOneByQuery(query, opts);
   }
 
   async existsByEmail(
     email: string,
-    opts?: SemanticProviderTxnOptions | undefined
+    opts?: SemanticProviderOpParams | undefined
   ): Promise<boolean> {
-    return await this.data.existsByQuery(
+    const query = addIsDeletedIntoQuery<DataQuery<User>>(
       {email: getIgnoreCaseDataQueryRegExp(email)},
-      opts
+      opts?.includeDeleted || false
     );
+    return await this.data.existsByQuery(query, opts);
   }
 }

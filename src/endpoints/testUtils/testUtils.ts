@@ -123,8 +123,10 @@ export function mockExpressRequestForPublicAgent() {
 export interface IInsertUserForTestResult {
   rawUser: UserWithWorkspace;
   userToken: AgentToken;
+  clientToken: AgentToken;
   user: PublicUser;
   userTokenStr: string;
+  clientTokenStr: string;
   reqData: RequestData<SignupEndpointParams>;
   sessionAgent: SessionAgent;
 }
@@ -158,18 +160,26 @@ export async function insertUserForTest(
     rawUser = await populateUserWorkspaces(user);
   }
 
-  const tokenData = kUtilsInjectables.session().decodeToken(result.token);
-  const userToken = await kSemanticModels.agentToken().getOneById(tokenData.sub.id);
+  const userTokenData = kUtilsInjectables.session().decodeToken(result.token);
+  const clientTokenData = kUtilsInjectables
+    .session()
+    .decodeToken(result.clientAssignedToken);
+  const [userToken, clientToken] = await Promise.all([
+    kSemanticModels.agentToken().getOneById(userTokenData.sub.id),
+    kSemanticModels.agentToken().getOneById(clientTokenData.sub.id),
+  ]);
   assertAgentToken(userToken);
+  assertAgentToken(clientToken);
 
   const sessionAgent = makeUserSessionAgent(rawUser, userToken);
-
   return {
     rawUser,
     userToken,
+    clientToken,
     sessionAgent,
     user: {...result.user, isEmailVerified: rawUser.isEmailVerified},
     userTokenStr: result.token,
+    clientTokenStr: result.clientAssignedToken,
     reqData: instData,
   };
 }

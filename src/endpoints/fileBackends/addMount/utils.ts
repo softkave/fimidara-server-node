@@ -6,7 +6,7 @@ import {pathSplit} from '../../../utils/fns';
 import {newWorkspaceResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
 import {ensureFolders, getFolderpathInfo} from '../../folders/utils';
 import {assertRootname} from '../../workspaces/utils';
 import {mountExists, mountNameExists} from '../utils';
@@ -16,7 +16,7 @@ export const INTERNAL_addFileBackendMount = async (
   agent: Agent,
   workspace: Workspace,
   data: NewFileBackendMountInput,
-  opts: SemanticProviderMutationTxnOptions
+  opts: SemanticProviderMutationParams
 ) => {
   const fileBackendMountModel = kSemanticModels.fileBackendMount();
   const fileBackendConfigModel = kSemanticModels.fileBackendConfig();

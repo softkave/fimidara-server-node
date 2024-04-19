@@ -16,8 +16,8 @@ import {
 } from '../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../contexts/injection/injectables';
 import {
-  SemanticProviderMutationTxnOptions,
-  SemanticProviderTxnOptions,
+  SemanticProviderMutationParams,
+  SemanticProviderOpParams,
 } from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
 import {getBackendConfigsWithIdList} from '../fileBackends/configUtils';
@@ -75,7 +75,7 @@ export async function checkFileAuthorization(
   agent: SessionAgent,
   file: Pick<File, 'idPath' | 'workspaceId'>,
   action: PermissionAction,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderOpParams
 ) {
   const workspace = await checkWorkspaceExists(file.workspaceId, opts);
   await checkAuthorizationWithAgent({
@@ -96,7 +96,7 @@ export async function getAndCheckFileAuthorization(props: {
   agent: SessionAgent;
   matcher: FileMatcher;
   action: PermissionAction;
-  opts: SemanticProviderMutationTxnOptions;
+  opts: SemanticProviderMutationParams;
   incrementPresignedPathUsageCount: boolean;
   shouldIngestFile?: boolean;
 }) {
@@ -252,7 +252,7 @@ export async function createNewFileAndEnsureFolders(
   workspace: Workspace,
   pathinfo: FilepathInfo,
   data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
-  opts: SemanticProviderMutationTxnOptions,
+  opts: SemanticProviderMutationParams,
   seed: Partial<File> = {},
   parentFolder?: Folder | null
 ) {
@@ -273,7 +273,7 @@ export async function ingestFileByFilepath(props: {
   agent: Agent;
   /** filepath with extension and workspace rootname */
   filepath: string;
-  opts: SemanticProviderMutationTxnOptions;
+  opts: SemanticProviderMutationParams;
   workspace?: Workspace;
   /** Reuse mounts and mountWeights */
   mounts?: FileBackendMount[];

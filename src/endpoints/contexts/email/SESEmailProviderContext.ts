@@ -19,6 +19,12 @@ export class SESEmailProviderContext implements IEmailProviderContext {
   protected ses: SESv2Client;
 
   constructor(params: S3FilePersistenceProviderInitParams) {
+    const suppliedConfig = kUtilsInjectables.suppliedConfig();
+    appAssert(
+      suppliedConfig.awsConfigs?.sesEmailEncoding,
+      'No sesEmailEncoding set in awsConfigs'
+    );
+
     this.ses = new SESv2Client({
       region: params.region,
       credentials: {
@@ -32,17 +38,18 @@ export class SESEmailProviderContext implements IEmailProviderContext {
     params: SendEmailParams
   ): Promise<EmailProviderSendEmailResult | undefined> => {
     const suppliedConfig = kUtilsInjectables.suppliedConfig();
-    appAssert(suppliedConfig.awsEmailEncoding);
+    const sesEmailEncoding = suppliedConfig.awsConfigs?.sesEmailEncoding;
+    appAssert(sesEmailEncoding, 'No sesEmailEncoding set in awsConfigs');
 
     const command = new SendEmailCommand({
       Destination: {ToAddresses: params.destination},
       FromEmailAddress: params.source,
       Content: {
         Simple: {
-          Subject: {Charset: suppliedConfig.awsEmailEncoding, Data: params.subject},
+          Subject: {Charset: sesEmailEncoding, Data: params.subject},
           Body: {
-            Html: {Charset: suppliedConfig.awsEmailEncoding, Data: params.body.html},
-            Text: {Charset: suppliedConfig.awsEmailEncoding, Data: params.body.text},
+            Html: {Charset: sesEmailEncoding, Data: params.body.html},
+            Text: {Charset: sesEmailEncoding, Data: params.body.text},
           },
         },
       },

@@ -8,7 +8,7 @@ import {mergeData} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {SemanticProviderTxnOptions} from '../../contexts/semantic/types';
+import {SemanticProviderOpParams} from '../../contexts/semantic/types';
 import {NotFoundError} from '../../errors';
 import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils';
 import {assertRootname} from '../../workspaces/utils';
@@ -157,7 +157,7 @@ async function checkAuthOnPresignedPaths(
   agent: SessionAgent,
   pList: PresignedPath[],
   workspaceDict: Record<string, Workspace>,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderOpParams
 ) {
   await Promise.all(
     pList.map(async nextPath => {

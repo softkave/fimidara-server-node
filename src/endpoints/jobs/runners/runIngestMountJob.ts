@@ -20,6 +20,7 @@ export async function runIngestMountJob(job: Job) {
       mountId: mount.resourceId,
       agentId: job.params.agentId,
     },
+    idempotencyToken: Date.now().toString(),
   };
 
   await queueJobs(job.workspaceId, job.resourceId, [input]);

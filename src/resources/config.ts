@@ -49,49 +49,81 @@ export interface AWSConfig {
 }
 
 export type FimidaraSuppliedConfig = Partial<{
-  clientDomain: string;
+  // DB
   dbType: FimidaraConfigDbType;
   mongoDbURI: string;
   mongoDbDatabaseName: string;
+
+  // Session
   jwtSecret: string;
+
+  // Transport
   exposeHttpServer: boolean;
   httpPort: string;
   exposeHttpsServer: boolean;
   httpsPort: string;
   httpsPublicKeyFilepath: string;
   httpsPrivateKeyFilepath: string;
-  S3Bucket: string;
+
+  // Management
   rootUserEmail: string;
   rootUserPassword: string;
   rootUserFirstName: string;
   rootUserLastName: string;
+
+  // File
   fileBackend: FimidaraConfigFilePersistenceProvider;
+  localFsDir?: string;
+
+  // Email
   emailProvider: FimidaraConfigEmailProvider;
+  senderEmailAddress: string;
+
+  // Secrets
   secretsManagerProvider: FimidaraConfigSecretsManagerProvider;
-  awsConfig: AWSConfig;
+
+  // Flags
   /** Users on waitlist cannot create workspaces but can be added to an existing
    * workspace. */
   FLAG_waitlistNewSignups: boolean;
   /** Where to persist files when `fileBackend` is
    * {@link kFimidaraConfigFilePersistenceProvider.fs} */
-  localFsDir?: string;
+
+  // Runtime, may rename later
   appName: string;
-  appDefaultEmailAddressFrom: string;
-  awsEmailEncoding: string;
   dateFormat: string;
+  useFimidaraApp: boolean;
+  useFimidaraWorkerPool: boolean;
+
+  // URLs
+  clientDomain: string;
   clientLoginLink: string;
   clientSignupLink: string;
   changePasswordLink: string;
   verifyEmailLink: string;
+
+  // Testing
   test: {
     awsConfig?: AWSConfig;
     bucket?: string;
     localFsDir?: string;
   };
+
+  // Logs
   loggerType: LoggerType;
+
+  // Worker
   runnerLocation: string;
-  useFimidaraApp: boolean;
-  useFimidaraWorkerPool: boolean;
+
+  // AWS configs
+  awsConfigs?: Partial<{
+    all: AWSConfig;
+    s3: AWSConfig;
+    ses: AWSConfig;
+    secretsManager: AWSConfig;
+    s3Bucket: string;
+    sesEmailEncoding: string;
+  }>;
 }>;
 
 export type FimidaraConfig = FimidaraSuppliedConfig & FimidaraRuntimeConfig;

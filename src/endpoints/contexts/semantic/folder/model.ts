@@ -1,8 +1,14 @@
 import {Folder} from '../../../../definitions/folder';
+import {Resource} from '../../../../definitions/system';
 import {FolderQueries} from '../../../folders/queries';
-import {DataProviderQueryListParams, FolderQuery} from '../../data/types';
+import {DataQuery} from '../../data/types';
+import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider';
 import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
-import {SemanticProviderTxnOptions} from '../types';
+import {
+  SemanticProviderOpParams,
+  SemanticProviderQueryListParams,
+  SemanticProviderQueryParams,
+} from '../types';
 import {getInAndNinQuery} from '../utils';
 import {SemanticFolderProvider} from './types';
 
@@ -12,9 +18,13 @@ export class DataSemanticFolder
 {
   async getOneByNamepath(
     query: {workspaceId: string; namepath: string[]},
-    opts?: SemanticProviderTxnOptions
+    opts?: SemanticProviderQueryParams<Folder>
   ): Promise<Folder | null> {
-    return await this.data.getOneByQuery(FolderQueries.getByNamepath(query), opts);
+    const dataQuery = addIsDeletedIntoQuery<DataQuery<Folder>>(
+      FolderQueries.getByNamepath(query),
+      opts?.includeDeleted || false
+    );
+    return await this.data.getOneByQuery(dataQuery, opts);
   }
 
   async getManyByWorkspaceParentAndIdList(
@@ -24,32 +34,9 @@ export class DataSemanticFolder
       resourceIdList?: string[] | undefined;
       excludeResourceIdList?: string[] | undefined;
     },
-    options?:
-      | (DataProviderQueryListParams<Folder> & SemanticProviderTxnOptions)
-      | undefined
+    options?: SemanticProviderQueryListParams<Folder> | undefined
   ): Promise<Folder[]> {
-    const folderQuery: FolderQuery = {
-      workspaceId: query.workspaceId,
-      parentId: query.parentId,
-      ...getInAndNinQuery<Folder>(
-        'resourceId',
-        query.resourceIdList,
-        query.excludeResourceIdList
-      ),
-    };
-    return await this.data.getManyByQuery(folderQuery, options);
-  }
-
-  async countManyParentByIdList(
-    query: {
-      workspaceId: string;
-      parentId: string | null;
-      resourceIdList?: string[] | undefined;
-      excludeResourceIdList?: string[] | undefined;
-    },
-    opts?: SemanticProviderTxnOptions | undefined
-  ): Promise<number> {
-    return await this.data.countByQuery(
+    const dataQuery = addIsDeletedIntoQuery<DataQuery<Resource>>(
       {
         workspaceId: query.workspaceId,
         parentId: query.parentId,
@@ -59,7 +46,32 @@ export class DataSemanticFolder
           query.excludeResourceIdList
         ),
       },
-      opts
+      options?.includeDeleted || false
     );
+    return await this.data.getManyByQuery(dataQuery, options);
+  }
+
+  async countManyParentByIdList(
+    query: {
+      workspaceId: string;
+      parentId: string | null;
+      resourceIdList?: string[] | undefined;
+      excludeResourceIdList?: string[] | undefined;
+    },
+    opts?: SemanticProviderOpParams | undefined
+  ): Promise<number> {
+    const dataQuery = addIsDeletedIntoQuery<DataQuery<Resource>>(
+      {
+        workspaceId: query.workspaceId,
+        parentId: query.parentId,
+        ...getInAndNinQuery<Folder>(
+          'resourceId',
+          query.resourceIdList,
+          query.excludeResourceIdList
+        ),
+      },
+      opts?.includeDeleted || false
+    );
+    return await this.data.countByQuery(dataQuery, opts);
   }
 }

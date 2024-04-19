@@ -367,6 +367,7 @@ async function setup01() {
           agentId: userToken.resourceId,
           mountId: mount.resourceId,
         },
+        idempotencyToken: Date.now().toString(),
       },
     ]
   );

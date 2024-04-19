@@ -1,7 +1,14 @@
 import {User} from '../../../../definitions/user';
-import {SemanticBaseProviderType, SemanticProviderTxnOptions} from '../types';
+import {
+  SemanticBaseProviderType,
+  SemanticProviderOpParams,
+  SemanticProviderQueryParams,
+} from '../types';
 
 export interface SemanticUserProviderType extends SemanticBaseProviderType<User> {
-  getByEmail(email: string, opts?: SemanticProviderTxnOptions): Promise<User | null>;
-  existsByEmail(email: string, opts?: SemanticProviderTxnOptions): Promise<boolean>;
+  getByEmail(
+    email: string,
+    opts?: SemanticProviderQueryParams<User>
+  ): Promise<User | null>;
+  existsByEmail(email: string, opts?: SemanticProviderOpParams): Promise<boolean>;
 }

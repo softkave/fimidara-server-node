@@ -11,7 +11,7 @@ import {ServerError} from '../../../utils/errors';
 import {newResource} from '../../../utils/resource';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
 import {userExtractor} from '../utils';
 import {LoginResult} from './types';
 
@@ -31,7 +31,7 @@ export function toLoginResult(
 
 export async function getUserClientAssignedToken(
   userId: string,
-  opts: SemanticProviderMutationTxnOptions
+  opts: SemanticProviderMutationParams
 ) {
   appAssert(
     kUtilsInjectables.runtimeConfig().appWorkspaceId,
@@ -64,20 +64,19 @@ export async function getUserClientAssignedToken(
       lastUpdatedBy: kSystemSessionAgent,
     });
 
+    const {
+      appWorkspaceId,
+      appUsersImageUploadPermissionGroupId,
+      appWorkspacesImageUploadPermissionGroupId,
+    } = kUtilsInjectables.runtimeConfig();
     await Promise.all([
       kSemanticModels.agentToken().insertItem(token, opts),
       addAssignedPermissionGroupList(
         kSystemSessionAgent,
-        kUtilsInjectables.runtimeConfig().appWorkspaceId,
+        appWorkspaceId,
         [
-          {
-            permissionGroupId:
-              kUtilsInjectables.runtimeConfig().appWorkspacesImageUploadPermissionGroupId,
-          },
-          {
-            permissionGroupId:
-              kUtilsInjectables.runtimeConfig().appUsersImageUploadPermissionGroupId,
-          },
+          {permissionGroupId: appWorkspacesImageUploadPermissionGroupId},
+          {permissionGroupId: appUsersImageUploadPermissionGroupId},
         ],
         token.resourceId,
         /** deleteExisting */ false,
@@ -91,10 +90,7 @@ export async function getUserClientAssignedToken(
   return token;
 }
 
-export async function getUserToken(
-  userId: string,
-  opts: SemanticProviderMutationTxnOptions
-) {
+export async function getUserToken(userId: string, opts: SemanticProviderMutationParams) {
   let userToken = await kSemanticModels
     .agentToken()
     .getOneAgentToken(userId, kTokenAccessScope.Login, opts);

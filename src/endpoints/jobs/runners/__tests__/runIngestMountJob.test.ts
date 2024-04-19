@@ -63,6 +63,7 @@ describe('runIngestMountJob', () => {
             agentId: userToken.resourceId,
             mountId: mount.resourceId,
           },
+          idempotencyToken: Date.now().toString(),
         },
       ]
     );

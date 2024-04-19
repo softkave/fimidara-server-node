@@ -14,8 +14,8 @@ import {
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../contexts/injection/injectables';
 import {
-  SemanticProviderMutationTxnOptions,
-  SemanticProviderTxnOptions,
+  SemanticProviderMutationParams,
+  SemanticProviderQueryListParams,
 } from '../contexts/semantic/types';
 import {checkPermissionGroupsExist} from '../permissionGroups/utils';
 import checkTagsExist from '../tags/checkTagsExist';
@@ -33,7 +33,7 @@ async function filterExistingItems<T extends AssignedItem>(
   workspaceId: string,
   items: T[],
   comparatorFn?: (item01: T, item02: AssignedItem) => boolean,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderQueryListParams<T>
 ) {
   const assigneeIdList: string[] = [];
   const assignedItemIdList: string[] = [];
@@ -75,7 +75,7 @@ export async function addAssignedItems<T extends AssignedItem>(
   items: T[],
   /** No need to delete existing items */ deletedExistingItems: boolean,
   comparatorFn: ((item01: T, item02: AssignedItem) => boolean) | undefined,
-  opts: SemanticProviderMutationTxnOptions
+  opts: SemanticProviderMutationParams
 ) {
   if (deletedExistingItems) {
     await kSemanticModels.assignedItem().insertItem(items, opts);
@@ -104,7 +104,7 @@ export async function addAssignedPermissionGroupList(
   deleteExisting: boolean,
   skipPermissionGroupsExistCheck = false,
   skipAuthCheck = false,
-  opts: SemanticProviderMutationTxnOptions
+  opts: SemanticProviderMutationParams
 ) {
   if (deleteExisting) {
     await deleteResourceAssignedItems(
@@ -168,7 +168,7 @@ export async function addAssignedTagList(
   tags: AssignedTagInput[],
   assigneeId: string,
   deleteExisting: boolean,
-  opts: SemanticProviderMutationTxnOptions
+  opts: SemanticProviderMutationParams
 ) {
   if (deleteExisting) {
     await deleteResourceAssignedItems(
@@ -222,7 +222,7 @@ export async function saveResourceAssignedItems(
   // TODO: deleteExisting should be false by default and add checks to avoid
   // duplication
   deleteExisting = true,
-  opts: SemanticProviderMutationTxnOptions
+  opts: SemanticProviderMutationParams
 ) {
   if (data.tags) {
     await addAssignedTagList(
@@ -240,7 +240,7 @@ export async function assignWorkspaceToUser(
   agent: Agent,
   workspaceId: string,
   userId: string,
-  opts: SemanticProviderMutationTxnOptions
+  opts: SemanticProviderMutationParams
 ) {
   const items: AssignedItem[] = [
     withAssignedAgent(

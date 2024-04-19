@@ -97,6 +97,7 @@ export async function runJob(job: Job) {
     await handler(job);
     return await completeJob(job.resourceId);
   } catch (error: unknown) {
+    kUtilsInjectables.logger().log(`Job ${job.resourceId} failed with error`);
     kUtilsInjectables.logger().error(error);
     return await completeJob(job.resourceId, kJobStatus.failed);
   }

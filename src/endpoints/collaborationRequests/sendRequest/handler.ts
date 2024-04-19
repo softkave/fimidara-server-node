@@ -99,6 +99,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint = async instDat
     queueJobs<EmailJobParams>(workspace.resourceId, undefined, {
       createdBy: agent,
       type: kJobType.email,
+      idempotencyToken: Date.now().toString(),
       params: {
         type: kEmailJobType.collaborationRequest,
         emailAddress: [request.recipientEmail],

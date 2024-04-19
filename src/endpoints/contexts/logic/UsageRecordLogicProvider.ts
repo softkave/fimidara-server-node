@@ -18,7 +18,7 @@ import {getCostForUsage} from '../../usageRecords/constants';
 import {getRecordingPeriod} from '../../usageRecords/utils';
 import {assertWorkspace} from '../../workspaces/utils';
 import {kSemanticModels} from '../injection/injectables';
-import {SemanticProviderMutationTxnOptions} from '../semantic/types';
+import {SemanticProviderMutationParams} from '../semantic/types';
 
 export interface UsageRecordInput {
   resourceId?: string;
@@ -42,7 +42,7 @@ export class UsageRecordLogicProvider {
   insert = async (
     agent: Agent,
     input: UsageRecordInput,
-    opts: SemanticProviderMutationTxnOptions
+    opts: SemanticProviderMutationParams
   ): Promise<UsageRecordInsertStatus> => {
     const record = this.makeLevel01Record(agent, input);
     const workspace = await kSemanticModels
@@ -131,7 +131,7 @@ export class UsageRecordLogicProvider {
     record: UsageRecord,
     category: UsageRecordCategory,
     status: UsageRecordFulfillmentStatus,
-    opts: SemanticProviderMutationTxnOptions
+    opts: SemanticProviderMutationParams
   ) {
     let usageL2 = await kSemanticModels.usageRecord().getOneByQuery(
       {
@@ -163,7 +163,7 @@ export class UsageRecordLogicProvider {
     agent: Agent,
     workspace: Workspace,
     record: UsageRecord,
-    opts: SemanticProviderMutationTxnOptions
+    opts: SemanticProviderMutationParams
   ) => {
     if (workspace.billStatus === WorkspaceBillStatusMap.BillOverdue) {
       await this.dropRecord(
@@ -182,7 +182,7 @@ export class UsageRecordLogicProvider {
     agent: Agent,
     workspace: Workspace,
     record: UsageRecord,
-    opts: SemanticProviderMutationTxnOptions
+    opts: SemanticProviderMutationParams
   ) => {
     const usageLocks = workspace.usageThresholdLocks ?? {};
 
@@ -218,7 +218,7 @@ export class UsageRecordLogicProvider {
     agent: Agent,
     workspace: Workspace,
     record: UsageRecord,
-    opts: SemanticProviderMutationTxnOptions
+    opts: SemanticProviderMutationParams
   ) => {
     const [usageFulfilledL2, usageTotalFulfilled, usageDroppedL2] = await Promise.all([
       this.getUsagel2(
@@ -287,7 +287,7 @@ export class UsageRecordLogicProvider {
     record: UsageRecord,
     usageFulfilledL2: UsageRecord | undefined,
     usageTotalFulfilled: UsageRecord | undefined,
-    opts: SemanticProviderMutationTxnOptions
+    opts: SemanticProviderMutationParams
   ) => {
     [usageFulfilledL2, usageTotalFulfilled] = await Promise.all([
       usageFulfilledL2 ??
@@ -334,7 +334,7 @@ export class UsageRecordLogicProvider {
     record: UsageRecord,
     dropReason: UsageRecordDropReason,
     usageDroppedL2: UsageRecord | undefined,
-    opts: SemanticProviderMutationTxnOptions
+    opts: SemanticProviderMutationParams
   ) => {
     if (!usageDroppedL2) {
       usageDroppedL2 = await this.getUsagel2(

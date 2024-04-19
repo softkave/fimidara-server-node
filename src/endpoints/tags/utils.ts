@@ -6,7 +6,7 @@ import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderTxnOptions} from '../contexts/semantic/types';
+import {SemanticProviderOpParams} from '../contexts/semantic/types';
 import {agentExtractor, workspaceResourceFields} from '../extractors';
 import {checkWorkspaceExists} from '../workspaces/utils';
 
@@ -32,7 +32,7 @@ export async function checkTagAuthorization(
   agent: SessionAgent,
   tag: Tag,
   action: PermissionAction,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderOpParams
 ) {
   const workspace = await checkWorkspaceExists(tag.workspaceId);
   await checkAuthorizationWithAgent({

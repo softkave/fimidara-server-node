@@ -2,7 +2,7 @@ import {Folder, PublicFolder} from '../../../definitions/folder';
 import {SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {Shard, ShardRunner} from '../../../utils/shardedRunnerQueue';
-import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
 import {Endpoint, EndpointResultNote} from '../../types';
 
 export interface NewFolderInput {
@@ -30,7 +30,7 @@ export interface AddFolderShardMeta {
   workspace: Workspace;
   UNSAFE_skipAuthCheck: boolean;
   throwOnFolderExists: boolean;
-  opts: SemanticProviderMutationTxnOptions | undefined;
+  opts: SemanticProviderMutationParams | undefined;
 }
 
 export type AddFolderShardOutputItem = {newFolders: Folder[]; existingFolders: Folder[]};

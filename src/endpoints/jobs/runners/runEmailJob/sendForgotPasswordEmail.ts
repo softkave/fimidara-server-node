@@ -1,5 +1,5 @@
 import {add} from 'date-fns';
-import stringify from 'safe-stable-stringify';
+import {stringify} from 'querystring';
 import {AgentToken} from '../../../../definitions/agentToken';
 import {EmailJobParams, kEmailJobType} from '../../../../definitions/job';
 import {

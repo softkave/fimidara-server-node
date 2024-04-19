@@ -9,7 +9,7 @@ import {
   KeyedComparisonOps,
 } from '../data/types';
 import {kDataModels} from '../injection/injectables';
-import {SemanticProviderMutationTxnOptions, SemanticProviderUtils} from './types';
+import {SemanticProviderMutationParams, SemanticProviderUtils} from './types';
 
 interface InternalTxnStructure {
   __fimidaraTxnId?: string;
@@ -27,9 +27,9 @@ export class DataSemanticProviderUtils implements SemanticProviderUtils {
   }
 
   async withTxn<TResult>(
-    fn: AnyFn<[SemanticProviderMutationTxnOptions], Promise<TResult>>,
+    fn: AnyFn<[SemanticProviderMutationParams], Promise<TResult>>,
     reuseAsyncLocalTxn: boolean = true,
-    opts?: SemanticProviderMutationTxnOptions
+    opts?: SemanticProviderMutationParams
   ): Promise<TResult> {
     return await kDataModels.utils().withTxn(
       async txn => {

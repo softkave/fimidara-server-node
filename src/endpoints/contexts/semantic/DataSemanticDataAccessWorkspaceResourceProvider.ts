@@ -1,12 +1,14 @@
-import {defaultTo} from 'lodash';
-import {Resource, WorkspaceResource} from '../../../definitions/system';
+import {Resource} from '../../../definitions/system';
 import {DataQuery} from '../data/types';
-import {DataSemanticBaseProvider} from './DataSemanticDataAccessBaseProvider';
 import {
-  SemanticProviderMutationTxnOptions,
-  SemanticProviderOpOptions,
-  SemanticProviderQueryListRunOptions,
-  SemanticProviderQueryRunOptions,
+  DataSemanticBaseProvider,
+  addIsDeletedIntoQuery,
+} from './DataSemanticDataAccessBaseProvider';
+import {
+  SemanticProviderMutationParams,
+  SemanticProviderOpParams,
+  SemanticProviderQueryListParams,
+  SemanticProviderQueryParams,
   SemanticWorkspaceResourceProviderBaseType,
   SemanticWorkspaceResourceProviderType,
 } from './types';
@@ -21,13 +23,14 @@ export class DataSemanticWorkspaceResourceProvider<
   async getByName(
     workspaceId: string,
     name: string,
-    opts?: SemanticProviderQueryRunOptions<T> | undefined
+    opts?: SemanticProviderQueryParams<T> | undefined
   ): Promise<T | null> {
-    const query: DataQuery<SemanticWorkspaceResourceProviderBaseType> = {
-      workspaceId,
-      name: getIgnoreCaseDataQueryRegExp(name),
-      isDeleted: defaultTo(opts?.includeDeleted, false),
-    };
+    const query = addIsDeletedIntoQuery<
+      DataQuery<SemanticWorkspaceResourceProviderBaseType>
+    >(
+      {workspaceId, name: getIgnoreCaseDataQueryRegExp(name)},
+      opts?.includeDeleted || false
+    );
 
     return (await this.data.getOneByQuery(query as DataQuery<T>, opts)) as T | null;
   }
@@ -35,13 +38,14 @@ export class DataSemanticWorkspaceResourceProvider<
   async existsByName(
     workspaceId: string,
     name: string,
-    opts?: SemanticProviderOpOptions | undefined
+    opts?: SemanticProviderOpParams | undefined
   ): Promise<boolean> {
-    const query: DataQuery<SemanticWorkspaceResourceProviderBaseType> = {
-      workspaceId,
-      name: getIgnoreCaseDataQueryRegExp(name),
-      isDeleted: defaultTo(opts?.includeDeleted, false),
-    };
+    const query = addIsDeletedIntoQuery<
+      DataQuery<SemanticWorkspaceResourceProviderBaseType>
+    >(
+      {workspaceId, name: getIgnoreCaseDataQueryRegExp(name)},
+      opts?.includeDeleted || false
+    );
 
     return await this.data.existsByQuery(query as DataQuery<T>, opts);
   }
@@ -49,13 +53,11 @@ export class DataSemanticWorkspaceResourceProvider<
   async getByProvidedId(
     workspaceId: string,
     providedId: string,
-    opts?: SemanticProviderQueryRunOptions<T> | undefined
+    opts?: SemanticProviderQueryParams<T> | undefined
   ): Promise<T | null> {
-    const query: DataQuery<SemanticWorkspaceResourceProviderBaseType> = {
-      workspaceId,
-      providedResourceId: providedId,
-      isDeleted: defaultTo(opts?.includeDeleted, false),
-    };
+    const query = addIsDeletedIntoQuery<
+      DataQuery<SemanticWorkspaceResourceProviderBaseType>
+    >({workspaceId, providedResourceId: providedId}, opts?.includeDeleted || false);
 
     return (await this.data.getOneByQuery(query as DataQuery<T>, opts)) as T | null;
   }
@@ -63,48 +65,44 @@ export class DataSemanticWorkspaceResourceProvider<
   async existsByProvidedId(
     workspaceId: string,
     providedId: string,
-    opts?: SemanticProviderOpOptions | undefined
+    opts?: SemanticProviderOpParams | undefined
   ): Promise<boolean> {
-    const query: DataQuery<SemanticWorkspaceResourceProviderBaseType> = {
-      workspaceId,
-      providedResourceId: providedId,
-      isDeleted: defaultTo(opts?.includeDeleted, false),
-    };
+    const query = addIsDeletedIntoQuery<
+      DataQuery<SemanticWorkspaceResourceProviderBaseType>
+    >({workspaceId, providedResourceId: providedId}, opts?.includeDeleted || false);
 
     return await this.data.existsByQuery(query as DataQuery<T>, opts);
   }
 
   async deleteManyByWorkspaceId(
     workspaceId: string,
-    opts: SemanticProviderMutationTxnOptions
+    opts: SemanticProviderMutationParams
   ): Promise<void> {
-    const query: DataQuery<WorkspaceResource> = {
-      workspaceId,
-    };
+    const query = addIsDeletedIntoQuery<
+      DataQuery<SemanticWorkspaceResourceProviderBaseType>
+    >({workspaceId}, opts?.includeDeleted || true);
 
     await this.data.deleteManyByQuery(query as DataQuery<T>, opts);
   }
 
   async getManyByWorkspaceId(
     workspaceId: string,
-    opts?: SemanticProviderQueryListRunOptions<T> | undefined
+    opts?: SemanticProviderQueryListParams<T> | undefined
   ): Promise<T[]> {
-    const query: DataQuery<WorkspaceResource> = {
-      workspaceId,
-      isDeleted: defaultTo(opts?.includeDeleted, false),
-    };
+    const query = addIsDeletedIntoQuery<
+      DataQuery<SemanticWorkspaceResourceProviderBaseType>
+    >({workspaceId}, opts?.includeDeleted || false);
 
     return (await this.data.getManyByQuery(query as DataQuery<T>, opts)) as T[];
   }
 
   async countManyByIdList(
     idList: string[],
-    opts?: SemanticProviderOpOptions | undefined
+    opts?: SemanticProviderOpParams | undefined
   ): Promise<number> {
-    const query: DataQuery<SemanticWorkspaceResourceProviderBaseType> = {
-      resourceId: {$in: idList},
-      isDeleted: defaultTo(opts?.includeDeleted, false),
-    };
+    const query = addIsDeletedIntoQuery<
+      DataQuery<SemanticWorkspaceResourceProviderBaseType>
+    >({resourceId: {$in: idList}}, opts?.includeDeleted || false);
 
     return await this.data.countByQuery(query as DataQuery<T>, opts);
   }
@@ -115,17 +113,20 @@ export class DataSemanticWorkspaceResourceProvider<
       resourceIdList?: string[] | undefined;
       excludeResourceIdList?: string[] | undefined;
     },
-    opts?: SemanticProviderOpOptions | undefined
+    opts?: SemanticProviderOpParams | undefined
   ): Promise<number> {
-    const countQuery: DataQuery<SemanticWorkspaceResourceProviderBaseType> = {
-      workspaceId: query.workspaceId,
-      isDeleted: defaultTo(opts?.includeDeleted, false),
-      ...getInAndNinQuery<Resource>(
-        'resourceId',
-        query.resourceIdList,
-        query.excludeResourceIdList
-      ),
-    };
+    const countQuery: DataQuery<SemanticWorkspaceResourceProviderBaseType> =
+      addIsDeletedIntoQuery(
+        {
+          workspaceId: query.workspaceId,
+          ...getInAndNinQuery<Resource>(
+            'resourceId',
+            query.resourceIdList,
+            query.excludeResourceIdList
+          ),
+        },
+        opts?.includeDeleted || false
+      );
 
     return await this.data.countByQuery(countQuery as DataQuery<T>, opts);
   }
@@ -136,17 +137,20 @@ export class DataSemanticWorkspaceResourceProvider<
       resourceIdList?: string[] | undefined;
       excludeResourceIdList?: string[] | undefined;
     },
-    opts?: SemanticProviderQueryListRunOptions<T> | undefined
+    opts?: SemanticProviderQueryListParams<T> | undefined
   ): Promise<T[]> {
-    const getQuery: DataQuery<SemanticWorkspaceResourceProviderBaseType> = {
-      workspaceId: query.workspaceId,
-      isDeleted: defaultTo(opts?.includeDeleted, false),
-      ...getInAndNinQuery<Resource>(
-        'resourceId',
-        query.resourceIdList,
-        query.excludeResourceIdList
-      ),
-    };
+    const getQuery: DataQuery<SemanticWorkspaceResourceProviderBaseType> =
+      addIsDeletedIntoQuery(
+        {
+          workspaceId: query.workspaceId,
+          ...getInAndNinQuery<Resource>(
+            'resourceId',
+            query.resourceIdList,
+            query.excludeResourceIdList
+          ),
+        },
+        opts?.includeDeleted || false
+      );
 
     return (await this.data.getManyByQuery(getQuery as DataQuery<T>, opts)) as T[];
   }

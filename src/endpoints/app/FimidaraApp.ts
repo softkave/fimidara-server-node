@@ -5,14 +5,14 @@ import {DisposableResource} from '../../utils/disposables';
 import {newResource} from '../../utils/resource';
 import {AppQuery} from '../contexts/data/types';
 import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
-import {SemanticProviderMutationTxnOptions} from '../contexts/semantic/types';
+import {SemanticProviderMutationParams} from '../contexts/semantic/types';
 import {kAppConstants} from './constants';
 
 // type ShardedDbResourceMigrationFn = AnyFn<
 //   [
 //     /** fromShardId */ AppShardId,
 //     /** toShardId */ AppShardId,
-//     SemanticProviderMutationTxnOptions,
+//     SemanticProviderMutationParams,
 //   ],
 //   Promise<void>
 // >;
@@ -126,7 +126,7 @@ export class FimidaraApp implements DisposableResource {
     }, /** reuseTxn */ false);
   };
 
-  protected async insertAppInDB(opts: SemanticProviderMutationTxnOptions) {
+  protected async insertAppInDB(opts: SemanticProviderMutationParams) {
     // const config = kUtilsInjectables.suppliedConfig();
     // const serverInfo = await getServerInfo({
     //   httpPort: config.httpPort,
@@ -142,7 +142,7 @@ export class FimidaraApp implements DisposableResource {
     await kSemanticModels.app().insertItem(app, opts);
   }
 
-  // protected async acquireShard(opts: SemanticProviderMutationTxnOptions) {
+  // protected async acquireShard(opts: SemanticProviderMutationParams) {
   //   this.shard = await kSemanticModels
   //     .appShard()
   //     .acquireShard(

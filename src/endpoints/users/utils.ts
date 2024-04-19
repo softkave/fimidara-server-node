@@ -4,7 +4,7 @@ import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderTxnOptions} from '../contexts/semantic/types';
+import {SemanticProviderOpParams} from '../contexts/semantic/types';
 import {resourceFields, workspaceResourceListExtractor} from '../extractors';
 import {EmailAddressNotAvailableError} from './errors';
 
@@ -39,7 +39,7 @@ export function assertUser(user?: User | null): asserts user {
 
 export async function getCompleteUserDataByEmail(
   email: string,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderOpParams
 ) {
   const user = await kSemanticModels.user().getByEmail(email, opts);
   assertUser(user);
@@ -48,7 +48,7 @@ export async function getCompleteUserDataByEmail(
 
 export async function assertEmailAddressAvailable(
   email: string,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderOpParams
 ) {
   const userExists = await kSemanticModels.user().existsByEmail(email, opts);
   if (userExists) {

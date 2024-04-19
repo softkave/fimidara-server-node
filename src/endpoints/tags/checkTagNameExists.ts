@@ -1,11 +1,11 @@
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderTxnOptions} from '../contexts/semantic/types';
+import {SemanticProviderOpParams} from '../contexts/semantic/types';
 import {ResourceExistsError} from '../errors';
 
 export async function checkTagNameExists(
   workspaceId: string,
   name: string,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderOpParams
 ) {
   const itemExists = await kSemanticModels.tag().existsByName(workspaceId, name, opts);
   if (itemExists) {

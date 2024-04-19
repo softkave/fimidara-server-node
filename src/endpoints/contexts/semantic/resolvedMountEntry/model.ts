@@ -1,6 +1,8 @@
 import {ResolvedMountEntry} from '../../../../definitions/fileBackend';
+import {DataQuery} from '../../data/types';
+import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider';
 import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
-import {SemanticProviderTxnOptions} from '../types';
+import {SemanticProviderQueryListParams} from '../types';
 import {SemanticResolvedMountEntryProvider} from './types';
 
 export class DataSemanticResolvedMountEntry
@@ -9,8 +11,12 @@ export class DataSemanticResolvedMountEntry
 {
   getMountEntries = (
     mountId: string,
-    opts?: SemanticProviderTxnOptions
+    opts?: SemanticProviderQueryListParams<ResolvedMountEntry>
   ): Promise<ResolvedMountEntry[]> => {
-    return this.data.getManyByQuery({mountId}, opts);
+    const query = addIsDeletedIntoQuery<DataQuery<ResolvedMountEntry>>(
+      {mountId},
+      opts?.includeDeleted || false
+    );
+    return this.data.getManyByQuery(query, opts);
   };
 }

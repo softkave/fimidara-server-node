@@ -31,6 +31,7 @@ export async function INTERNAL_forgotPassword(user: User) {
       {
         createdBy: kSystemSessionAgent,
         type: kJobType.email,
+        idempotencyToken: Date.now().toString(),
         params: {
           type: kEmailJobType.forgotPassword,
           emailAddress: [user.email],

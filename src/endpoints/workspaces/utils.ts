@@ -22,7 +22,7 @@ import {
 } from '../../utils/sessionUtils';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderTxnOptions} from '../contexts/semantic/types';
+import {SemanticProviderOpParams} from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
 import {agentExtractor, workspaceResourceFields} from '../extractors';
 import folderValidationSchemas from '../folders/validation';
@@ -91,7 +91,7 @@ export function assertWorkspace(
 
 export async function checkWorkspaceExists(
   workspaceId: string,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderOpParams
 ) {
   const w = await kSemanticModels.workspace().getOneById(workspaceId, opts);
   assertWorkspace(w);
@@ -113,7 +113,7 @@ export async function checkWorkspaceAuthorization(
   agent: SessionAgent,
   workspace: Workspace,
   action: PermissionAction,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderOpParams
 ) {
   await checkAuthorizationWithAgent({
     agent,
@@ -151,7 +151,7 @@ export function makeRootnameFromName(name: string): string {
 export async function getWorkspaceFromEndpointInput(
   agent: SessionAgent,
   data: EndpointOptionalWorkspaceIDParam,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderOpParams
 ) {
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(workspaceId, opts);

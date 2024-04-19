@@ -1,11 +1,11 @@
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderTxnOptions} from '../contexts/semantic/types';
+import {SemanticProviderOpParams} from '../contexts/semantic/types';
 import {ResourceExistsError} from '../errors';
 
 export async function checkPermissionGroupNameExists(
   workspaceId: string,
   name: string,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderOpParams
 ) {
   const itemExists = await kSemanticModels
     .permissionGroup()

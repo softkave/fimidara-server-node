@@ -14,7 +14,12 @@ export async function beginDeletePermissionItemByInput(props: {
     workspaceId,
     parentJobId,
     items.map(item => {
-      return {type: kJobType.deletePermissionItem, params: item, createdBy: agent};
+      return {
+        type: kJobType.deletePermissionItem,
+        params: item,
+        createdBy: agent,
+        idempotencyToken: Date.now().toString(),
+      };
     })
   );
 }

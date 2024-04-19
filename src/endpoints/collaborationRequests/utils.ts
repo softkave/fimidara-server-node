@@ -11,7 +11,7 @@ import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderTxnOptions} from '../contexts/semantic/types';
+import {SemanticProviderOpParams} from '../contexts/semantic/types';
 import {NotFoundError} from '../errors';
 import {resourceFields, workspaceResourceFields} from '../extractors';
 
@@ -49,7 +49,7 @@ export async function checkCollaborationRequestAuthorization(
   agent: SessionAgent,
   request: CollaborationRequest,
   action: PermissionAction,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderOpParams
 ) {
   const workspace = await checkWorkspaceExists(request.workspaceId);
   await checkAuthorizationWithAgent({
@@ -66,7 +66,7 @@ export async function checkCollaborationRequestAuthorization02(
   agent: SessionAgent,
   requestId: string,
   action: PermissionAction,
-  opts?: SemanticProviderTxnOptions
+  opts?: SemanticProviderOpParams
 ) {
   const request = await kSemanticModels
     .collaborationRequest()

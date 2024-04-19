@@ -1,13 +1,13 @@
 import {ResolvedMountEntry} from '../../../../definitions/fileBackend';
 import {
+  SemanticProviderQueryListParams,
   SemanticWorkspaceResourceProviderType,
-  SemanticProviderTxnOptions,
 } from '../types';
 
 export type SemanticResolvedMountEntryProvider =
   SemanticWorkspaceResourceProviderType<ResolvedMountEntry> & {
     getMountEntries: (
       mountId: string,
-      opts?: SemanticProviderTxnOptions
+      opts?: SemanticProviderQueryListParams<ResolvedMountEntry>
     ) => Promise<ResolvedMountEntry[]>;
   };

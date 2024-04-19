@@ -3,12 +3,6 @@
   "mongoDbDatabaseName": "MONGODB_DATABASE_NAME",
   "jwtSecret": "JWT_SECRET",
   "port": "PORT",
-  "S3Bucket": "S3_BUCKET",
-  "awsConfig": {
-    "accessKeyId": "AWS_ACCESS_KEY_ID",
-    "secretAccessKey": "AWS_SECRET_ACCESS_KEY",
-    "region": "AWS_REGION"
-  },
   "test": {
     "awsConfig": {
       "accessKeyId": "TEST_AWS_ACCESS_KEY_ID",
@@ -16,5 +10,28 @@
       "region": "TEST_AWS_REGION"
     },
     "bucket": "TEST_S3_BUCKET"
+  },
+  "awsConfigs": {
+    "s3Bucket": "S3_BUCKET",
+    "all": {
+      "accessKeyId": "AWS_ACCESS_KEY_ID",
+      "secretAccessKey": "AWS_SECRET_ACCESS_KEY",
+      "region": "AWS_REGION"
+    },
+    "ses": {
+      "accessKeyId": "SES_AWS_ACCESS_KEY_ID",
+      "secretAccessKey": "SES_AWS_SECRET_ACCESS_KEY",
+      "region": "SES_AWS_REGION"
+    },
+    "s3": {
+      "accessKeyId": "S3_AWS_ACCESS_KEY_ID",
+      "secretAccessKey": "S3_AWS_SECRET_ACCESS_KEY",
+      "region": "S3_AWS_REGION"
+    },
+    "secretsManager": {
+      "accessKeyId": "SECRETS_MANAGER_AWS_ACCESS_KEY_ID",
+      "secretAccessKey": "SECRETS_MANAGER_AWS_SECRET_ACCESS_KEY",
+      "region": "SECRETS_MANAGER_AWS_REGION"
+    }
   }
 }

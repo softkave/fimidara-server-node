@@ -4,7 +4,11 @@ import {
 } from '../../../../definitions/permissionGroups';
 import {PermissionAction, PermissionItem} from '../../../../definitions/permissionItem';
 import {Resource} from '../../../../definitions/system';
-import {SemanticProviderTxnOptions} from '../types';
+import {
+  SemanticProviderOpParams,
+  SemanticProviderQueryListParams,
+  SemanticProviderQueryParams,
+} from '../types';
 
 export type SemanticPermissionProviderType_GetPermissionItemsProps = {
   entityId?: string | string[];
@@ -29,33 +33,27 @@ export type SemanticPermissionProviderType_CountPermissionItemsProps = {
 
 export interface SemanticPermissionProviderType {
   getEntityAssignedPermissionGroups(
-    props: {
-      entityId: string;
-      fetchDeep?: boolean;
-    },
-    options?: SemanticProviderTxnOptions
+    props: {entityId: string; fetchDeep?: boolean},
+    options?: SemanticProviderQueryListParams<PermissionGroup>
   ): Promise<{
     permissionGroups: PermissionGroup[];
     inheritanceMap: PermissionEntityInheritanceMap;
   }>;
   getEntityInheritanceMap(
-    props: {
-      entityId: string;
-      fetchDeep?: boolean;
-    },
-    options?: SemanticProviderTxnOptions
+    props: {entityId: string; fetchDeep?: boolean},
+    options?: SemanticProviderOpParams
   ): Promise<PermissionEntityInheritanceMap>;
   getEntity(
     props: {entityId: string},
-    opts?: SemanticProviderTxnOptions
+    opts?: SemanticProviderQueryParams<Resource>
   ): Promise<Resource | null>;
   getPermissionItems(
     props: SemanticPermissionProviderType_GetPermissionItemsProps,
-    options?: SemanticProviderTxnOptions
+    options?: SemanticProviderQueryListParams<PermissionItem>
   ): Promise<PermissionItem[]>;
   countPermissionItems(
     props: SemanticPermissionProviderType_CountPermissionItemsProps,
-    options?: SemanticProviderTxnOptions
+    options?: SemanticProviderOpParams
   ): Promise<number>;
   sortItems(
     items: PermissionItem[],

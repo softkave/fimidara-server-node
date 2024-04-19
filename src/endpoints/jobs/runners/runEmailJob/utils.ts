@@ -42,14 +42,14 @@ export async function getBaseEmailTemplateProps(params: EmailJobParams): Promise
   appAssert(suppliedConfig.clientLoginLink, 'clientLoginLink not present in config');
   appAssert(suppliedConfig.clientSignupLink, 'clientSignupLink not present in config');
   appAssert(
-    suppliedConfig.appDefaultEmailAddressFrom,
-    'appDefaultEmailAddressFrom not present in config'
+    suppliedConfig.senderEmailAddress,
+    'senderEmailAddress not present in config'
   );
 
   const {user} = await getUserFromEmailJobParams(params);
   return {
     user,
-    source: suppliedConfig.appDefaultEmailAddressFrom,
+    source: suppliedConfig.senderEmailAddress,
     base: {
       loginLink: suppliedConfig.clientLoginLink,
       signupLink: suppliedConfig.clientSignupLink,

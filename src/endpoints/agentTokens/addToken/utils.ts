@@ -9,7 +9,7 @@ import {Workspace} from '../../../definitions/workspace';
 import {newWorkspaceResource} from '../../../utils/resource';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationTxnOptions} from '../../contexts/semantic/types';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
 import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists';
 import {NewAgentTokenInput} from './types';
 
@@ -17,7 +17,7 @@ export const INTERNAL_createAgentToken = async (
   agent: Agent,
   workspace: Workspace,
   data: NewAgentTokenInput,
-  opts: SemanticProviderMutationTxnOptions
+  opts: SemanticProviderMutationParams
 ) => {
   let token: AgentToken | null = null;
 

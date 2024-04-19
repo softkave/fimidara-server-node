@@ -1,3 +1,4 @@
+import {AssignedItem} from '../../../../definitions/assignedItem';
 import {
   AssignedPermissionGroupMeta,
   PermissionEntityInheritanceMap,
@@ -12,7 +13,12 @@ import {getResourceTypeFromId} from '../../../../utils/resource';
 import {kReuseableErrors} from '../../../../utils/reusableErrors';
 import {DataQuery, LiteralDataQuery} from '../../data/types';
 import {kSemanticModels} from '../../injection/injectables';
-import {SemanticProviderTxnOptions} from '../types';
+import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider';
+import {
+  SemanticProviderOpParams,
+  SemanticProviderQueryListParams,
+  SemanticProviderQueryParams,
+} from '../types';
 import {getInAndNinQuery} from '../utils';
 import {
   SemanticPermissionProviderType,
@@ -22,11 +28,8 @@ import {
 
 export class DataSemanticPermission implements SemanticPermissionProviderType {
   async getEntityInheritanceMap(
-    props: {
-      entityId: string;
-      fetchDeep?: boolean | undefined;
-    },
-    options?: SemanticProviderTxnOptions | undefined
+    props: {entityId: string; fetchDeep?: boolean | undefined},
+    options?: SemanticProviderOpParams | undefined
   ): Promise<PermissionEntityInheritanceMap> {
     {
       const entity = this.getEntity(props);
@@ -39,13 +42,16 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
       const maxDepth = props.fetchDeep ? 20 : 1;
 
       for (let depth = 0; nextIdList.length && depth < maxDepth; depth++) {
-        const assignedItems = await kSemanticModels.assignedItem().getManyByQuery(
+        const query = addIsDeletedIntoQuery<DataQuery<AssignedItem>>(
           {
             assigneeId: {$in: nextIdList},
             assignedItemType: kFimidaraResourceType.PermissionGroup,
           },
-          options
+          options?.includeDeleted || false
         );
+        const assignedItems = await kSemanticModels
+          .assignedItem()
+          .getManyByQuery(query, options);
         const nextIdMap: Record<string, string> = {};
         assignedItems.forEach(item => {
           nextIdMap[item.assignedItemId] = item.assignedItemId;
@@ -75,31 +81,34 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
   }
 
   async getEntityAssignedPermissionGroups(
-    props: {
-      entityId: string;
-      fetchDeep?: boolean | undefined;
-    },
-    options?: SemanticProviderTxnOptions | undefined
+    props: {entityId: string; fetchDeep?: boolean | undefined},
+    options?: SemanticProviderQueryListParams<PermissionGroup> | undefined
   ): Promise<{
     permissionGroups: PermissionGroup[];
     inheritanceMap: PermissionEntityInheritanceMap;
   }> {
     const map = await this.getEntityInheritanceMap(props, options);
     const idList = Object.keys(map).filter(id => id !== props.entityId);
+    const query = addIsDeletedIntoQuery<DataQuery<Resource>>(
+      {resourceId: {$in: idList}},
+      options?.includeDeleted || false
+    );
     const permissionGroups = await kSemanticModels
       .permissionGroup()
-      .getManyByQuery({resourceId: {$in: idList}}, options);
+      .getManyByQuery(query, options);
     return {permissionGroups, inheritanceMap: map};
   }
 
   async getPermissionItems(
     props: SemanticPermissionProviderType_GetPermissionItemsProps,
-    options?: SemanticProviderTxnOptions | undefined
+    options?: SemanticProviderQueryListParams<PermissionItem> | undefined
   ): Promise<PermissionItem[]> {
     const {targetItemsQuery} = this.getPermissionItemsQuery(props);
-    const items = await kSemanticModels
-      .permissionItem()
-      .getManyByQuery(targetItemsQuery, options);
+    const query = addIsDeletedIntoQuery<DataQuery<Resource>>(
+      targetItemsQuery,
+      options?.includeDeleted || false
+    );
+    const items = await kSemanticModels.permissionItem().getManyByQuery(query, options);
 
     if (props.sortByTarget || props.sortByDate || props.sortByEntity) {
       this.sortItems(
@@ -117,26 +126,39 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
 
   async countPermissionItems(
     props: SemanticPermissionProviderType_CountPermissionItemsProps,
-    options?: SemanticProviderTxnOptions | undefined
+    options?: SemanticProviderOpParams | undefined
   ): Promise<number> {
     const {targetItemsQuery} = this.getPermissionItemsQuery(props);
-    return await kSemanticModels.permissionItem().countByQuery(targetItemsQuery, options);
+    const query = addIsDeletedIntoQuery<DataQuery<Resource>>(
+      targetItemsQuery,
+      options?.includeDeleted || false
+    );
+    return await kSemanticModels.permissionItem().countByQuery(query, options);
   }
 
   async getEntity(
-    props: {
-      entityId: string;
-    },
-    opts?: SemanticProviderTxnOptions
+    props: {entityId: string},
+    opts?: SemanticProviderQueryParams<Resource>
   ): Promise<Resource | null> {
     const type = getResourceTypeFromId(props.entityId);
     const query: LiteralDataQuery<Resource> = {resourceId: props.entityId};
-    if (type === kFimidaraResourceType.User)
-      return await kSemanticModels.user().getOneByQuery(query, opts);
-    if (type === kFimidaraResourceType.AgentToken)
-      return await kSemanticModels.agentToken().getOneByQuery(query, opts);
-    if (type === kFimidaraResourceType.PermissionGroup)
-      return await kSemanticModels.permissionGroup().getOneByQuery(query, opts);
+    const dataQuery = addIsDeletedIntoQuery<DataQuery<Resource>>(
+      query,
+      opts?.includeDeleted || false
+    );
+
+    if (type === kFimidaraResourceType.User) {
+      return await kSemanticModels.user().getOneByQuery(dataQuery, opts);
+    }
+
+    if (type === kFimidaraResourceType.AgentToken) {
+      return await kSemanticModels.agentToken().getOneByQuery(dataQuery, opts);
+    }
+
+    if (type === kFimidaraResourceType.PermissionGroup) {
+      return await kSemanticModels.permissionGroup().getOneByQuery(dataQuery, opts);
+    }
+
     return null;
   }
 

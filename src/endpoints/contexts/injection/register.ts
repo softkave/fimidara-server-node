@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 
 import assert from 'assert';
-import {isFunction} from 'lodash';
+import {isFunction, merge} from 'lodash';
 import {container} from 'tsyringe';
 import {getAgentTokenModel} from '../../../db/agentToken';
 import {getAppMongoModel, getAppShardMongoModel} from '../../../db/app';
@@ -464,12 +464,21 @@ export function registerUtilsInjectables(overrideConfig: FimidaraSuppliedConfig 
   }
 
   if (suppliedConfig.emailProvider === kFimidaraConfigEmailProvider.ses) {
-    appAssert(suppliedConfig.awsConfig?.accessKeyId);
-    appAssert(suppliedConfig.awsConfig?.region);
-    appAssert(suppliedConfig.awsConfig?.secretAccessKey);
-    kRegisterUtilsInjectables.email(
-      new SESEmailProviderContext(suppliedConfig.awsConfig)
+    const awsConfig = merge(
+      suppliedConfig.awsConfigs?.all,
+      suppliedConfig.awsConfigs?.ses
     );
+    assert(awsConfig, 'No AWS config provided for AWS SES email provider');
+    assert(
+      awsConfig?.accessKeyId,
+      'No AWS accessKeyId provided for AWS SES email provider'
+    );
+    assert(awsConfig?.region, 'No AWS region provided for AWS SES email provider');
+    assert(
+      awsConfig?.secretAccessKey,
+      'No AWS secretAccessKey provided for AWS SES email provider'
+    );
+    kRegisterUtilsInjectables.email(new SESEmailProviderContext(awsConfig));
   } else {
     kRegisterUtilsInjectables.email(new NoopEmailProviderContext());
   }
@@ -478,12 +487,21 @@ export function registerUtilsInjectables(overrideConfig: FimidaraSuppliedConfig 
     suppliedConfig.secretsManagerProvider ===
     kFimidaraConfigSecretsManagerProvider.awsSecretsManager
   ) {
-    appAssert(suppliedConfig.awsConfig?.accessKeyId);
-    appAssert(suppliedConfig.awsConfig?.region);
-    appAssert(suppliedConfig.awsConfig?.secretAccessKey);
-    kRegisterUtilsInjectables.secretsManager(
-      new AWSSecretsManagerProvider(suppliedConfig.awsConfig)
+    const awsConfig = merge(
+      suppliedConfig.awsConfigs?.all,
+      suppliedConfig.awsConfigs?.secretsManager
     );
+    assert(awsConfig, 'No AWS config provided for AWS SecretsManager provider');
+    assert(
+      awsConfig?.accessKeyId,
+      'No AWS accessKeyId provided for AWS SecretsManager provider'
+    );
+    assert(awsConfig?.region, 'No AWS region provided for AWS SecretsManager provider');
+    assert(
+      awsConfig?.secretAccessKey,
+      'No AWS secretAccessKey provided for AWS SecretsManager provider'
+    );
+    kRegisterUtilsInjectables.secretsManager(new AWSSecretsManagerProvider(awsConfig));
   } else {
     kRegisterUtilsInjectables.secretsManager(new MemorySecretsManagerProvider());
   }

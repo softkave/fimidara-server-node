@@ -150,6 +150,7 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData =>
           createdBy: agent,
           type: kJobType.cleanupMountResolvedEntries,
           params: {mountId: mount.resourceId},
+          idempotencyToken: Date.now().toString(),
         },
         {jobsToReturn: 'all', reuseTxn: true}
       );
