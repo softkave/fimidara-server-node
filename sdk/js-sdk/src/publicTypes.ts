@@ -302,6 +302,7 @@ export type ReadFileEndpointParams = {
   fileId?: string;
   imageResize?: ImageResizeParams;
   imageFormat?: ImageFormatEnum;
+  download?: boolean;
 };
 export type UpdateFileDetailsInput = {
   description?: string;
@@ -656,7 +657,10 @@ export type FimidaraResourceType =
   | 'fileBackendConfig'
   | 'fileBackendMount'
   | 'resolvedMountEntry'
-  | 'app';
+  | 'app'
+  | 'emailMessage'
+  | 'emailBlocklist'
+  | 'appShard';
 export type Resource = {
   resourceId: string;
   createdBy?: Agent;

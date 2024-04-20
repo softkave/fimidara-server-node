@@ -74,6 +74,8 @@ export type ImageFormatEnum = ObjectValues<typeof ImageFormatEnumMap>;
 export type ReadFileEndpointParams = {
   imageResize?: ImageResizeParams;
   imageFormat?: ImageFormatEnum;
+  /** Used by HTTP layer to add `"Content-Disposition: attachment"` if `true` */
+  download?: boolean;
 } & FileMatcher;
 
 export interface ReadFileEndpointResult {
@@ -92,4 +94,5 @@ export type ReadFileEndpointHttpQuery = {
   bg?: string;
   withoutEnlargement?: boolean;
   format?: ImageFormatEnum;
+  download?: boolean;
 };

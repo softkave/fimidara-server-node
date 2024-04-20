@@ -15,10 +15,7 @@ import {
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc';
-import {
-  HttpEndpointRequestHeaders_AuthOptional,
-  HttpEndpointResponseHeaders_ContentType_ContentLength,
-} from '../types';
+import {HttpEndpointRequestHeaders_AuthOptional} from '../types';
 import {kFileConstants} from './constants';
 import {DeleteFileEndpointParams} from './deleteFile/types';
 import {
@@ -38,6 +35,7 @@ import {
   DeleteFileHttpEndpoint,
   FileMatcherPathParameters,
   GetFileDetailsHttpEndpoint,
+  ReadFileEndpointHTTPHeaders,
   ReadFileGETHttpEndpoint,
   ReadFilePOSTHttpEndpoint,
   UpdateFileDetailsHttpEndpoint,
@@ -97,10 +95,16 @@ const format = mddocConstruct
   .setDescription('Format to transform image to if file is an image')
   .setEnumName('ImageFormatEnum')
   .setValid(Object.values(ImageFormatEnumMap));
-
 const version = mddocConstruct
   .constructFieldNumber()
   .setDescription('File version, representing how many times a file has been uploaded');
+const downloadQueryParam = mddocConstruct
+  .constructFieldBoolean()
+  .setDescription(
+    'Whether the server should add "Content-Disposition: attachment" header ' +
+      'which forces browsers to download files like HTML, JPEG, etc. which ' +
+      "it'll otherwise open in the browser"
+  );
 
 const file = mddocConstruct
   .constructFieldObject<PublicFile>()
@@ -190,6 +194,7 @@ const readFileParams = mddocConstruct
         .setName('ImageResizeParams')
     ),
     imageFormat: mddocConstruct.constructFieldObjectField(false, format),
+    download: mddocConstruct.constructFieldObjectField(false, downloadQueryParam),
   });
 const readFileQuery = mddocConstruct
   .constructFieldObject<ReadFileEndpointHttpQuery>()
@@ -204,9 +209,10 @@ const readFileQuery = mddocConstruct
       withoutEnlargement
     ),
     format: mddocConstruct.constructFieldObjectField(false, format),
+    download: mddocConstruct.constructFieldObjectField(false, downloadQueryParam),
   });
 const readFileResponseHeaders = mddocConstruct
-  .constructFieldObject<HttpEndpointResponseHeaders_ContentType_ContentLength>()
+  .constructFieldObject<ReadFileEndpointHTTPHeaders>()
   .setFields({
     'Content-Type': mddocConstruct.constructFieldObjectField(
       true,
@@ -222,6 +228,10 @@ const readFileResponseHeaders = mddocConstruct
     'Content-Length': mddocConstruct.constructFieldObjectField(
       true,
       mddocEndpointHttpHeaderItems.responseHeaderItem_ContentLength
+    ),
+    'Content-Disposition': mddocConstruct.constructFieldObjectField(
+      false,
+      mddocEndpointHttpHeaderItems.responseHeaderItem_ContentDisposition
     ),
   });
 const readFileResponseBody = mddocConstruct.constructFieldBinary();

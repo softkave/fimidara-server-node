@@ -122,6 +122,14 @@
                 },
                 "__id": "FieldObjectField",
                 "required": false
+            },
+            "download": {
+                "data": {
+                    "__id": "FieldBoolean",
+                    "description": "Whether the server should add \"Content-Disposition: attachment\" header which forces browsers to download files like HTML, JPEG, etc. which it'll otherwise open in the browser"
+                },
+                "__id": "FieldObjectField",
+                "required": false
             }
         }
     },
@@ -158,6 +166,14 @@
                 },
                 "__id": "FieldObjectField",
                 "required": true
+            },
+            "Content-Disposition": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "HTTP response content disposition"
+                },
+                "__id": "FieldObjectField",
+                "required": false
             }
         }
     },
@@ -298,6 +314,14 @@
                             "3": "tiff",
                             "4": "raw"
                         }
+                    },
+                    "__id": "FieldObjectField",
+                    "required": false
+                },
+                "download": {
+                    "data": {
+                        "__id": "FieldBoolean",
+                        "description": "Whether the server should add \"Content-Disposition: attachment\" header which forces browsers to download files like HTML, JPEG, etc. which it'll otherwise open in the browser"
                     },
                     "__id": "FieldObjectField",
                     "required": false

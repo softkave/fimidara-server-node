@@ -32,5 +32,6 @@ export const readFileJoiSchema = Joi.object<ReadFileEndpointParams>()
     imageFormat: Joi.string()
       .valid(...Object.values(ImageFormatEnumMap))
       .allow(null),
+    download: Joi.boolean(),
   })
   .required();

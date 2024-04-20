@@ -1,6 +1,10 @@
 import assert from 'assert';
+import {merge} from 'lodash';
 import {Readable} from 'stream';
+import {PartialDeep} from 'type-fest';
 import {FimidaraEndpoints} from '../../publicEndpoints';
+import {ReadFileEndpointParams} from '../../publicTypes';
+import {FimidaraEndpointWithBinaryResponseParamsOptional} from '../../utils';
 import {
   deleteFileTestExecFn,
   getFileDetailsTestExecFn,
@@ -16,64 +20,82 @@ import {
   streamToString,
 } from '../utils';
 
-const vars: ITestVars = getTestVars();
-const fimidara = new FimidaraEndpoints({
-  authToken: vars.authToken,
-  serverURL: vars.serverURL,
+export const fimidaraTestVars: ITestVars = getTestVars();
+export const fimidaraTestInstance = new FimidaraEndpoints({
+  authToken: fimidaraTestVars.authToken,
+  serverURL: fimidaraTestVars.serverURL,
 });
 
 export const test_deleteFile = async () => {
-  await deleteFileTestExecFn(fimidara, vars);
+  await deleteFileTestExecFn(fimidaraTestInstance, fimidaraTestVars);
 };
 
 export const test_getFileDetails = async () => {
-  await getFileDetailsTestExecFn(fimidara, vars);
+  await getFileDetailsTestExecFn(fimidaraTestInstance, fimidaraTestVars);
 };
 
-export const test_readFile_blob = async () => {
+export const test_readFile_blob = async (
+  props: PartialDeep<
+    FimidaraEndpointWithBinaryResponseParamsOptional<ReadFileEndpointParams>
+  > = {}
+) => {
   const result = await readFileTestExecFn(
-    fimidara,
-    vars,
-    {responseType: 'blob'},
-    {data: getTestFileReadStream(vars)}
+    fimidaraTestInstance,
+    fimidaraTestVars,
+    merge({}, props, {responseType: 'blob'}),
+    {data: getTestFileReadStream(fimidaraTestVars)}
   );
-  const expectedString = await getTestFileString(vars);
+
+  const expectedString = await getTestFileString(fimidaraTestVars);
   const body = result.body as Blob;
   const actualString = await body.text();
   assert.strictEqual(expectedString, actualString);
+
+  return {result, bodyStr: actualString};
 };
 
-export const test_readFile_nodeReadable = async () => {
+export const test_readFile_nodeReadable = async (
+  props: PartialDeep<
+    FimidaraEndpointWithBinaryResponseParamsOptional<ReadFileEndpointParams>
+  > = {}
+) => {
   const result = await readFileTestExecFn(
-    fimidara,
-    vars,
-    {responseType: 'stream'},
-    {data: getTestFileReadStream(vars)}
+    fimidaraTestInstance,
+    fimidaraTestVars,
+    merge({}, props, {responseType: 'stream'}),
+    {data: getTestFileReadStream(fimidaraTestVars)}
   );
-  const expectedString = await getTestFileString(vars);
+
+  const expectedString = await getTestFileString(fimidaraTestVars);
   const body = result.body as Readable;
   const actualString = await streamToString(body);
   assert.strictEqual(expectedString, actualString);
+
+  return {result, bodyStr: actualString};
 };
 
 export const test_updateFileDetails = async () => {
-  await updateFileDetailsTestExecFn(fimidara, vars);
+  await updateFileDetailsTestExecFn(fimidaraTestInstance, fimidaraTestVars);
 };
 
 export const test_uploadFile_nodeReadable = async () => {
-  await uploadFileTestExecFn(fimidara, vars);
+  await uploadFileTestExecFn(fimidaraTestInstance, fimidaraTestVars);
 };
 
 export const test_uploadFile_string = async () => {
   const text = 'Hello World!';
-  await uploadFileTestExecFn(fimidara, vars, {data: text});
+  await uploadFileTestExecFn(fimidaraTestInstance, fimidaraTestVars, {
+    data: text,
+  });
 };
 
 export const test_uploadFile_nodeReadableNotFromFile = async () => {
   const stringStream = Readable.from([
     'Hello world! Node Readable stream not from file test',
   ]);
-  await uploadFileTestExecFn(fimidara, vars, {data: stringStream});
+  await uploadFileTestExecFn(fimidaraTestInstance, fimidaraTestVars, {
+    data: stringStream,
+  });
 };
 
 // export const test_uploadFile_readableStream = async () => {

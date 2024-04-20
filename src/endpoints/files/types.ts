@@ -28,13 +28,18 @@ export type UploadFileEndpointHTTPHeaders =
     'content-length': number;
   };
 
+export type ReadFileEndpointHTTPHeaders =
+  HttpEndpointResponseHeaders_ContentType_ContentLength & {
+    'Content-Disposition'?: 'attachment';
+  };
+
 export type ReadFilePOSTHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<
   /** TEndpoint */ ReadFileEndpoint,
   /** TRequestHeaders */ HttpEndpointRequestHeaders_AuthOptional_ContentType,
   /** TPathParameters */ FileMatcherPathParameters,
   /** TQuery */ ReadFileEndpointHttpQuery,
   /** TRequestBody */ ReadFileEndpointParams,
-  /** TResponseHeaders */ HttpEndpointResponseHeaders_ContentType_ContentLength,
+  /** TResponseHeaders */ ReadFileEndpointHTTPHeaders,
   /** TResponseBody */ FieldBinaryType,
   /** TSdkparams */ ReadFileEndpointParams
 >;
@@ -44,7 +49,7 @@ export type ReadFileGETHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<
   /** TPathParameters */ FileMatcherPathParameters,
   /** TQuery */ ReadFileEndpointHttpQuery,
   /** TRequestBody */ {},
-  /** TResponseHeaders */ HttpEndpointResponseHeaders_ContentType_ContentLength,
+  /** TResponseHeaders */ ReadFileEndpointHTTPHeaders,
   /** TResponseBody */ FieldBinaryType,
   /** TSdkparams */ ReadFileEndpointParams
 >;

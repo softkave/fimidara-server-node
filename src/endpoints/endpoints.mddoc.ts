@@ -56,6 +56,9 @@ const responseHeaderItem_JsonContentType = mddocConstruct
 const responseHeaderItem_ContentLength = mddocConstruct
   .constructFieldString()
   .setDescription('HTTP response content length in bytes');
+const responseHeaderItem_ContentDisposition = mddocConstruct
+  .constructFieldString()
+  .setDescription('HTTP response content disposition');
 const requestHeaderItem_Authorization = mddocConstruct
   .constructFieldString()
   .setDescription('Access token')
@@ -183,6 +186,7 @@ export const mddocEndpointHttpHeaderItems = {
   requestHeaders_AuthOptional_JsonContentType,
   responseHeaderItem_ContentLength,
   responseHeaders_JsonContentType,
+  responseHeaderItem_ContentDisposition,
 };
 
 const nullValue = mddocConstruct.constructFieldNull();

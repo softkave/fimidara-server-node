@@ -100,7 +100,10 @@ export type ExportedHttpEndpoint_GetDataFromReqFn = (req: Request) => OrPromise<
 export type ExportedHttpEndpoint_HandleResponse = (
   res: Response,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any
+  data: any,
+  req: Request,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  input: any
 ) => OrPromise<void>;
 
 /** return `true` to defer error handling to server, allowing the function to
@@ -141,7 +144,9 @@ export type ExportedHttpEndpointWithMddocDefinition<
   getDataFromReq?: (req: Request) => OrPromise<InferEndpointParams<TEndpoint>>;
   handleResponse?: (
     res: Response,
-    data: InferEndpointResult<TEndpoint>
+    result: InferEndpointResult<TEndpoint>,
+    req: Request,
+    input: InferEndpointParams<TEndpoint>
   ) => OrPromise<void>;
   handleError?: ExportedHttpEndpoint_HandleErrorFn;
   cleanup?: ExportedHttpEndpoint_Cleanup | Array<ExportedHttpEndpoint_Cleanup>;

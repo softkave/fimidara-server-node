@@ -58,8 +58,8 @@ export async function getUserClientAssignedToken(
       providedResourceId: userId,
       workspaceId: kUtilsInjectables.runtimeConfig().appWorkspaceId,
       version: kCurrentJWTTokenVersion,
-      forEntityId: null,
-      entityType: kFimidaraResourceType.AgentToken,
+      forEntityId: userId,
+      entityType: kFimidaraResourceType.User,
       createdBy: kSystemSessionAgent,
       lastUpdatedBy: kSystemSessionAgent,
     });

@@ -6,6 +6,7 @@ import {kFimidaraResourceType} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {convertToArray} from '../../utils/fns';
 import {tryGetResourceTypeFromId} from '../../utils/resource';
+import {AnyObject} from '../../utils/types';
 import {kEndpointConstants} from '../constants';
 import {InvalidRequestError} from '../errors';
 import {populateMountUnsupportedOpNoteInNotFoundError} from '../fileBackends/mountUtils';
@@ -48,14 +49,20 @@ const handleNotFoundError: ExportedHttpEndpoint_HandleErrorFn = (
 
 function handleReadFileResponse(
   res: Response,
-  result: Awaited<ReturnType<ReadFileEndpoint>>
+  result: Awaited<ReturnType<ReadFileEndpoint>>,
+  req: Request,
+  input: ReadFileEndpointParams
 ) {
-  res
-    .set({
-      'Content-Length': result.contentLength,
-      'Content-Type': result.mimetype,
-    })
-    .status(kEndpointConstants.httpStatusCode.ok);
+  const responseHeaders: AnyObject = {
+    'Content-Length': result.contentLength,
+    'Content-Type': result.mimetype,
+  };
+
+  if (input.download) {
+    responseHeaders['Content-Disposition'] = 'attachment';
+  }
+
+  res.set(responseHeaders).status(kEndpointConstants.httpStatusCode.ok);
 
   // TODO: set timeout for stream after which, we destroy it, to avoid leaving
   // a stream on indefinitely or waiting resources (memory)
@@ -98,6 +105,7 @@ function extractReadFileParamsFromReq(req: Request): ReadFileEndpointParams {
       withoutEnlargement: endpointDecodeURIComponent(query.withoutEnlargement),
     },
     imageFormat: endpointDecodeURIComponent(query.format),
+    download: query.download,
     ...req.body,
   };
 }

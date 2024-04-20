@@ -93,7 +93,7 @@ export const wrapEndpointREST = <EndpointType extends Endpoint>(
         const result = await endpoint(instData);
 
         if (handleResponse) {
-          await handleResponse(res, result);
+          await handleResponse(res, result, req, data);
         } else {
           res.status(kEndpointConstants.httpStatusCode.ok).json(result ?? {});
         }
