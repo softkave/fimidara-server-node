@@ -42,7 +42,7 @@ test('Agent token deleted', async () => {
 
   assert(result.jobId);
   const job = (await kSemanticModels.job().getOneByQuery({
-    type: kJobType.deleteResource0,
+    type: kJobType.deleteResource,
     resourceId: result.jobId,
     params: {$objMatch: {type: kFimidaraResourceType.AgentToken}},
   })) as Job<DeleteResourceJobParams>;

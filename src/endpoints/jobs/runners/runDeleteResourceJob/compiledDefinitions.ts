@@ -11,7 +11,7 @@ import {deletePermissionGroupCascadeEntry} from './permissionGroup';
 import {deletePermissionItemCascadeEntry} from './permissionItem';
 import {deletePresignedPathCascadeEntry} from './presignedPath';
 import {deleteTagCascadeEntry} from './tag';
-import {DeleteResourceCascadeDefinitions} from './types';
+import {DeleteResourceCascadeDefinitions, DeleteResourceCascadeEntry} from './types';
 import {deleteWorkspaceCascadeEntry} from './workspace';
 
 export const kCascadeDeleteDefinitions: DeleteResourceCascadeDefinitions = {
@@ -32,8 +32,10 @@ export const kCascadeDeleteDefinitions: DeleteResourceCascadeDefinitions = {
   [kFimidaraResourceType.CollaborationRequest]: deleteCollaborationRequestCascadeEntry,
   [kFimidaraResourceType.AgentToken]: deleteAgentTokenCascadeEntry,
   [kFimidaraResourceType.PermissionGroup]: deletePermissionGroupCascadeEntry,
-  [kFimidaraResourceType.Folder]: deleteFolderCascadeEntry,
-  [kFimidaraResourceType.File]: deleteFileCascadeEntry,
+  [kFimidaraResourceType.Folder]:
+    deleteFolderCascadeEntry as unknown as DeleteResourceCascadeEntry,
+  [kFimidaraResourceType.File]:
+    deleteFileCascadeEntry as unknown as DeleteResourceCascadeEntry,
   [kFimidaraResourceType.Tag]: deleteTagCascadeEntry,
   [kFimidaraResourceType.PresignedPath]: deletePresignedPathCascadeEntry,
   [kFimidaraResourceType.FileBackendMount]: deleteFileBackendMountCascadeEntry,

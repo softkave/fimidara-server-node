@@ -3,7 +3,7 @@ import RequestData from '../../RequestData';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import EndpointReusableQueries from '../../queries';
-import {completeTests, softkaveTest} from '../../testUtils/helpers/testFns';
+import {completeTests, skTest} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,
@@ -25,7 +25,7 @@ afterAll(async () => {
 });
 
 describe('updateFileDetails', () => {
-  softkaveTest.run('file updated', async () => {
+  skTest.run('file updated', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);

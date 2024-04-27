@@ -56,9 +56,9 @@ const size = mddocConstruct
   .constructFieldNumber()
   .setDescription('File size in bytes')
   .setMax(kFileConstants.maxFileSizeInBytes);
-const extension = mddocConstruct
+const ext = mddocConstruct
   .constructFieldString()
-  .setDescription('File extension, case insensitive');
+  .setDescription('File ext, case insensitive');
 const height = mddocConstruct
   .constructFieldNumber()
   .setDescription('Resize to height if file is an image');
@@ -112,7 +112,7 @@ const file = mddocConstruct
   .setFields({
     ...fReusables.workspaceResourceParts,
     size: mddocConstruct.constructFieldObjectField(true, size),
-    extension: mddocConstruct.constructFieldObjectField(false, extension),
+    ext: mddocConstruct.constructFieldObjectField(false, ext),
     parentId: mddocConstruct.constructFieldObjectField(true, fReusables.folderIdOrNull),
     idPath: mddocConstruct.constructFieldObjectField(true, fReusables.idPath),
     namepath: mddocConstruct.constructFieldObjectField(true, fReusables.foldernamepath),

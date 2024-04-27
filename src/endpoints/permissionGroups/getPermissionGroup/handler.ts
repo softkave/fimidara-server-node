@@ -1,5 +1,6 @@
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kUtilsInjectables} from '../../contexts/injection/injectables';
 import {checkPermissionGroupAuthorization03, permissionGroupExtractor} from '../utils';
 import {GetPermissionGroupEndpoint} from './types';
@@ -7,7 +8,13 @@ import {getPermissionGroupJoiSchema} from './validation';
 
 const getPermissionGroup: GetPermissionGroupEndpoint = async instData => {
   const data = validate(instData.data, getPermissionGroupJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   let {permissionGroup} = await checkPermissionGroupAuthorization03(
     agent,
     data,

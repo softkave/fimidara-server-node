@@ -1,5 +1,6 @@
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {checkWorkspaceExists} from '../../workspaces/utils';
@@ -9,7 +10,13 @@ import {addPermissionItemsJoiSchema} from './validation';
 
 const addPermissionItems: AddPermissionItemsEndpoint = async instData => {
   const data = validate(instData.data, addPermissionItemsJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const workspaceId = await getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(workspaceId);
   await checkAuthorizationWithAgent({

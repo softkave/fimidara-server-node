@@ -1,7 +1,7 @@
 import {isArray} from 'lodash';
 import {AssignedItem} from '../../definitions/assignedItem';
 import {AssignPermissionGroupInput} from '../../definitions/permissionGroups';
-import {Agent, kFimidaraResourceType} from '../../definitions/system';
+import {Agent, SessionAgent, kFimidaraResourceType} from '../../definitions/system';
 import {AssignedTagInput} from '../../definitions/tag';
 import {Workspace} from '../../definitions/workspace';
 import {makeKey} from '../../utils/fns';
@@ -97,7 +97,7 @@ export async function addAssignedItems<T extends AssignedItem>(
 }
 
 export async function addAssignedPermissionGroupList(
-  agent: Agent,
+  agent: SessionAgent,
   workspaceId: string,
   permissionGroupsInput: AssignPermissionGroupInput[],
   assigneeId: string | string[],
@@ -163,7 +163,7 @@ export async function addAssignedPermissionGroupList(
 }
 
 export async function addAssignedTagList(
-  agent: Agent,
+  agent: SessionAgent,
   workspace: Workspace,
   tags: AssignedTagInput[],
   assigneeId: string,
@@ -212,7 +212,7 @@ export interface ISaveResourceAssignedItemsOptions {
 }
 
 export async function saveResourceAssignedItems(
-  agent: Agent,
+  agent: SessionAgent,
   workspace: Workspace,
 
   // TODO: support ID list

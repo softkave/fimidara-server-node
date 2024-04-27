@@ -8,6 +8,7 @@ import {
 } from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {tryGetWorkspaceFromEndpointInput} from '../../workspaces/utils';
 import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists';
@@ -21,7 +22,13 @@ import {updateAgentTokenJoiSchema} from './validation';
 
 const updateAgentToken: UpdateAgentTokenEndpoint = async instData => {
   const data = validate(instData.data, updateAgentTokenJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const {workspace} = await tryGetWorkspaceFromEndpointInput(agent, data);
   const tokenId = tryGetAgentTokenId(agent, data.tokenId, data.onReferenced);
   const {token} = await checkAgentTokenAuthorization02(

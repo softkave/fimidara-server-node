@@ -1,8 +1,4 @@
-import {
-  ConvertAgentToPublicAgent,
-  PublicWorkspaceResource,
-  WorkspaceResource,
-} from './system';
+import {PublicWorkspaceResource, ToPublicDefinitions, WorkspaceResource} from './system';
 
 export interface File extends WorkspaceResource {
   parentId: string | null;
@@ -12,7 +8,7 @@ export interface File extends WorkspaceResource {
   encoding?: string;
   size: number;
   name: string;
-  extension?: string;
+  ext?: string;
   description?: string;
   isWriteAvailable?: boolean;
   isReadAvailable?: boolean;
@@ -20,7 +16,7 @@ export interface File extends WorkspaceResource {
 }
 
 export type PublicFile = PublicWorkspaceResource &
-  ConvertAgentToPublicAgent<
+  ToPublicDefinitions<
     Pick<
       File,
       | 'parentId'
@@ -30,7 +26,7 @@ export type PublicFile = PublicWorkspaceResource &
       | 'encoding'
       | 'size'
       | 'name'
-      | 'extension'
+      | 'ext'
       | 'description'
       | 'version'
     >

@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {PermissionEntityInheritanceMapItem} from '../../../../definitions/permissionGroups';
-import {kPermissionsMap} from '../../../../definitions/permissionItem';
+import {kFimidaraPermissionActionsMap} from '../../../../definitions/permissionItem';
 import {kFimidaraResourceType} from '../../../../definitions/system';
 import {getTimestamp} from '../../../../utils/dateFns';
 import {getNewIdForResource} from '../../../../utils/resource';
@@ -241,7 +241,9 @@ describe('DataSemanticPermission', () => {
 
   test('getPermissionItems, every query', async () => {
     const entityId = getNewIdForResource(kFimidaraResourceType.PermissionGroup);
-    const action = faker.helpers.arrayElement(Object.values(kPermissionsMap));
+    const action = faker.helpers.arrayElement(
+      Object.values(kFimidaraPermissionActionsMap)
+    );
     const targetParentId = getNewIdForResource(kFimidaraResourceType.Folder);
     const targetId = getNewIdForResource(kFimidaraResourceType.File);
     const targetType = faker.helpers.arrayElement(Object.values(kFimidaraResourceType));
@@ -271,7 +273,10 @@ describe('DataSemanticPermission', () => {
       () => getNewIdForResource(faker.helpers.arrayElement(resourceTypes)),
       count
     );
-    const actionList = faker.helpers.arrayElements(Object.values(kPermissionsMap), count);
+    const actionList = faker.helpers.arrayElements(
+      Object.values(kFimidaraPermissionActionsMap),
+      count
+    );
     const targetParentId = getNewIdForResource(kFimidaraResourceType.Folder);
     const targetType = faker.helpers.arrayElements(resourceTypes, count);
     const rawItems = generateTestList(

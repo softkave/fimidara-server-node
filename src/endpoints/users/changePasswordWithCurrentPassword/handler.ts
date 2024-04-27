@@ -5,11 +5,14 @@ import {INTERNAL_changePassword} from '../changePasswordWithToken/utils';
 import {IncorrectPasswordError} from '../errors';
 import {ChangePasswordWithCurrentPasswordEndpoint} from './types';
 import {changePasswordWithPasswordJoiSchema} from './validation';
+import {kSessionUtils} from '../../contexts/SessionContext';
 
 const changePasswordWithCurrentPassword: ChangePasswordWithCurrentPasswordEndpoint =
   async instData => {
     const data = validate(instData.data, changePasswordWithPasswordJoiSchema);
-    const user = await kUtilsInjectables.session().getUser(instData);
+    const user = await kUtilsInjectables
+      .session()
+      .getUser(instData, kSessionUtils.accessScopes.user);
     const passwordMatch = await argon2.verify(user.hash, data.currentPassword);
 
     if (!passwordMatch) {

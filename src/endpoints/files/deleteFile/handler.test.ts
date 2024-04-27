@@ -3,7 +3,7 @@ import {kFimidaraResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import RequestData from '../../RequestData';
 import {kSemanticModels} from '../../contexts/injection/injectables';
-import {completeTests, softkaveTest} from '../../testUtils/helpers/testFns';
+import {completeTests, skTest} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,
@@ -25,7 +25,7 @@ afterAll(async () => {
 });
 
 describe('deleteFile', () => {
-  softkaveTest.run('file deleted', async () => {
+  skTest.run('file deleted', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
@@ -38,7 +38,7 @@ describe('deleteFile', () => {
 
     appAssert(result.jobId);
     const job = (await kSemanticModels.job().getOneByQuery({
-      type: kJobType.deleteResource0,
+      type: kJobType.deleteResource,
       resourceId: result.jobId,
       params: {
         $objMatch: {type: kFimidaraResourceType.File},

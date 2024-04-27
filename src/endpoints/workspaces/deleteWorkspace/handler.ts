@@ -1,7 +1,7 @@
-import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {kFimidaraResourceType} from '../../../definitions/system';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
 import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kUtilsInjectables} from '../../contexts/injection/injectables';
 import {checkWorkspaceAuthorization02} from '../utils';
 import {DeleteWorkspaceEndpoint} from './types';
@@ -12,10 +12,14 @@ const deleteWorkspace: DeleteWorkspaceEndpoint = async instData => {
   const data = validate(instData.data, deleteWorkspaceJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, kFimidaraResourceType.User);
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.user,
+      kSessionUtils.accessScopes.user
+    );
   const {workspace} = await checkWorkspaceAuthorization02(
     agent,
-    kPermissionsMap.deleteWorkspace,
+    kFimidaraPermissionActionsMap.deleteWorkspace,
     data.workspaceId
   );
 

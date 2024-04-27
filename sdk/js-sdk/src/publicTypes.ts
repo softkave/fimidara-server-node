@@ -249,7 +249,7 @@ export type File = {
   deletedBy?: Agent;
   workspaceId: string;
   size: number;
-  extension?: string;
+  ext?: string;
   parentId: string | null;
   idPath: Array<string>;
   namepath: Array<string>;
@@ -650,17 +650,10 @@ export type FimidaraResourceType =
   | 'user'
   | 'tag'
   | 'usageRecord'
-  | 'assignedItem'
-  | 'endpointRequest'
-  | 'job'
   | 'presignedPath'
   | 'fileBackendConfig'
   | 'fileBackendMount'
-  | 'resolvedMountEntry'
-  | 'app'
-  | 'emailMessage'
-  | 'emailBlocklist'
-  | 'appShard';
+  | 'job';
 export type Resource = {
   resourceId: string;
   createdBy?: Agent;

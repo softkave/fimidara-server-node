@@ -12,9 +12,7 @@ import {AnyFn} from '../../utils/types';
 import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
 import {runCleanupMountResolvedEntriesJob} from './runners/runCleanupMountResolvedEntriesJob';
 import {runDeletePermissionItemsJob} from './runners/runDeletePermissionItemsJob';
-import {runDeleteResourceJob0} from './runners/runDeleteResourceJob/runDeleteResourceJob0';
-import {runDeleteResourceJobArtifacts} from './runners/runDeleteResourceJob/runDeleteResourceJobArtifacts';
-import {runDeleteResourceJobSelf} from './runners/runDeleteResourceJob/runDeleteResourceJobSelf';
+import {runDeleteResourceJob} from './runners/runDeleteResourceJob/runDeleteResourceJob';
 import {runEmailJob} from './runners/runEmailJob/runEmailJob';
 import {runIngestFolderpathJob} from './runners/runIngestFolderpathJob';
 import {runIngestMountJob} from './runners/runIngestMountJob';
@@ -77,9 +75,7 @@ export async function completeJob(
 }
 
 const kJobTypeToHandlerMap: Record<JobType, AnyFn<[Job], Promise<void>>> = {
-  [kJobType.deleteResource0]: runDeleteResourceJob0,
-  [kJobType.deleteResourceArtifacts]: runDeleteResourceJobArtifacts,
-  [kJobType.deleteResourceSelf]: runDeleteResourceJobSelf,
+  [kJobType.deleteResource]: runDeleteResourceJob,
   [kJobType.deletePermissionItem]: runDeletePermissionItemsJob,
   [kJobType.ingestFolderpath]: runIngestFolderpathJob,
   [kJobType.ingestMount]: runIngestMountJob,

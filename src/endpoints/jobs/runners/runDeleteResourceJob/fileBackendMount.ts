@@ -1,14 +1,18 @@
 import {kFimidaraResourceType} from '../../../../definitions/system';
 import {kSemanticModels} from '../../../contexts/injection/injectables';
-import {genericDeleteArtifacts, genericGetArtifacts} from './genericDefinitions';
+import {
+  genericDeleteArtifacts,
+  genericGetArtifacts,
+  noopGetPreRunMetaFn,
+} from './genericDefinitions';
 import {
   DeleteResourceCascadeEntry,
   DeleteResourceDeleteArtifactsFns,
   DeleteResourceFn,
-  DeleteResourceGetArtifactsFns,
+  DeleteResourceGetArtifactsToDeleteFns,
 } from './types';
 
-const getArtifacts: DeleteResourceGetArtifactsFns = {
+const getArtifacts: DeleteResourceGetArtifactsToDeleteFns = {
   ...genericGetArtifacts,
   [kFimidaraResourceType.ResolvedMountEntry]: ({args}) =>
     kSemanticModels.resolvedMountEntry().getManyByQuery({mountId: args.resourceId}),
@@ -32,6 +36,7 @@ const deleteResourceFn: DeleteResourceFn = ({args, helpers}) =>
 
 export const deleteFileBackendMountCascadeEntry: DeleteResourceCascadeEntry = {
   deleteResourceFn,
-  getArtifacts: getArtifacts,
+  getArtifactsToDelete: getArtifacts,
   deleteArtifacts: deleteArtifacts,
+  getPreRunMetaFn: noopGetPreRunMetaFn,
 };

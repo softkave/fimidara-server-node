@@ -1,6 +1,6 @@
-import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {kPermissionAgentTypes} from '../../../definitions/system';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {fileExtractor, getAndCheckFileAuthorization} from '../utils';
 import {GetFileDetailsEndpoint} from './types';
@@ -10,7 +10,11 @@ const getFileDetails: GetFileDetailsEndpoint = async instData => {
   const data = validate(instData.data, getFileDetailsJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, kPermissionAgentTypes);
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
 
   const file = await kSemanticModels.utils().withTxn(
     opts =>
@@ -18,7 +22,7 @@ const getFileDetails: GetFileDetailsEndpoint = async instData => {
         agent,
         opts,
         matcher: data,
-        action: kPermissionsMap.readFile,
+        action: kFimidaraPermissionActionsMap.readFile,
         incrementPresignedPathUsageCount: false,
       }),
     /** reuseTxn */ false

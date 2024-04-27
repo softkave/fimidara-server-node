@@ -30,8 +30,8 @@ export async function INTERNAL_changePassword(
   }, /** reuseTxn */ true);
 
   // Delete user token and incomingTokenData since they are no longer valid
-  delete reqData.agent?.agentToken;
-  delete reqData.incomingTokenData;
+  reqData.agent = null;
+  reqData.incomingTokenData = null;
   const completeUserData = await populateUserWorkspaces(updatedUser);
   const [userToken, clientAssignedToken] = await kSemanticModels
     .utils()

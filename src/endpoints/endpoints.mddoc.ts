@@ -1,11 +1,14 @@
 import {customAlphabet} from 'nanoid';
 import {AssignPermissionGroupInput} from '../definitions/permissionGroups';
-import {PermissionAction, kPermissionsMap} from '../definitions/permissionItem';
+import {
+  FimidaraPermissionAction,
+  kFimidaraPermissionActionsMap,
+} from '../definitions/permissionItem';
 import {
   PublicAgent,
   PublicResource,
   PublicWorkspaceResource,
-  kFimidaraResourceType,
+  kFimidaraPublicResourceType,
   kValidAgentTypes,
 } from '../definitions/system';
 import {
@@ -205,7 +208,7 @@ const agent = mddocConstruct
       mddocConstruct
         .constructFieldString()
         .setDescription('Agent type')
-        .setExample(kFimidaraResourceType.AgentToken)
+        .setExample(kFimidaraPublicResourceType.AgentToken)
         .setValid(kValidAgentTypes)
         .setEnumName('AgentType')
     ),
@@ -221,7 +224,7 @@ const id = mddocConstruct
   .setDescription('Resource ID')
   .setExample(
     `${
-      kResourceTypeShortNames[kFimidaraResourceType.Workspace]
+      kResourceTypeShortNames[kFimidaraPublicResourceType.Workspace]
     }${kIdSeparator}${customAlphabet('0')()}`
   );
 const idList = mddocConstruct
@@ -235,9 +238,9 @@ const jobId = mddocConstruct
   .constructFieldString()
   .setDescription('Long running job ID')
   .setExample(
-    `${kResourceTypeShortNames[kFimidaraResourceType.Job]}${kIdSeparator}${customAlphabet(
-      '0'
-    )()}`
+    `${
+      kResourceTypeShortNames[kFimidaraPublicResourceType.Job]
+    }${kIdSeparator}${customAlphabet('0')()}`
   );
 const jobIds = mddocConstruct
   .constructFieldArray<string>()
@@ -250,7 +253,7 @@ const workspaceId = mddocConstruct
   )
   .setExample(
     `${
-      kResourceTypeShortNames[kFimidaraResourceType.Workspace]
+      kResourceTypeShortNames[kFimidaraPublicResourceType.Workspace]
     }${kIdSeparator}${customAlphabet('0')()}`
   );
 const workspaceIdInput = workspaceId
@@ -264,7 +267,7 @@ const folderId = mddocConstruct
   .setDescription('Folder ID')
   .setExample(
     `${
-      kResourceTypeShortNames[kFimidaraResourceType.Folder]
+      kResourceTypeShortNames[kFimidaraPublicResourceType.Folder]
     }${kIdSeparator}${customAlphabet('0')()}`
   );
 const folderIdOrNull = mddocConstruct
@@ -275,7 +278,7 @@ const fileId = mddocConstruct
   .setDescription('File ID')
   .setExample(
     `${
-      kResourceTypeShortNames[kFimidaraResourceType.File]
+      kResourceTypeShortNames[kFimidaraPublicResourceType.File]
     }${kIdSeparator}${customAlphabet('0')()}`
   );
 const permissionGroupId = mddocConstruct
@@ -283,7 +286,7 @@ const permissionGroupId = mddocConstruct
   .setDescription('Permission group ID')
   .setExample(
     `${
-      kResourceTypeShortNames[kFimidaraResourceType.PermissionGroup]
+      kResourceTypeShortNames[kFimidaraPublicResourceType.PermissionGroup]
     }${kIdSeparator}${customAlphabet('0')()}`
   );
 const permissionItemId = mddocConstruct
@@ -291,7 +294,7 @@ const permissionItemId = mddocConstruct
   .setDescription('Permission item ID')
   .setExample(
     `${
-      kResourceTypeShortNames[kFimidaraResourceType.PermissionItem]
+      kResourceTypeShortNames[kFimidaraPublicResourceType.PermissionItem]
     }${kIdSeparator}${customAlphabet('0')()}`
   );
 const idPath = mddocConstruct
@@ -379,7 +382,7 @@ const filepath = mddocConstruct
 const filepathOrId = mddocConstruct
   .constructFieldString()
   .setDescription('File path with workspace rootname (case insensitive) or file ID')
-  .setExample('/workspace-rootname/folder/file.extension or file000-remaining-file-id');
+  .setExample('/workspace-rootname/folder/file.ext or file000-remaining-file-id');
 const filepathList = mddocConstruct.constructFieldArray<string>().setType(filepath);
 const filepathOrList = mddocConstruct
   .constructFieldOrCombination<string | string[]>()
@@ -391,18 +394,20 @@ const foldernamepath = mddocConstruct
 const action = mddocConstruct
   .constructFieldString()
   .setDescription('Action')
-  .setExample(kPermissionsMap.uploadFile)
-  .setValid(Object.values(kPermissionsMap))
-  .setEnumName('AppActionType');
-const actionList = mddocConstruct.constructFieldArray<PermissionAction>().setType(action);
+  .setExample(kFimidaraPermissionActionsMap.uploadFile)
+  .setValid(Object.values(kFimidaraPermissionActionsMap))
+  .setEnumName('FimidaraPermissionAction');
+const actionList = mddocConstruct
+  .constructFieldArray<FimidaraPermissionAction>()
+  .setType(action);
 const actionOrList = mddocConstruct
-  .constructFieldOrCombination<PermissionAction | PermissionAction[]>()
+  .constructFieldOrCombination<FimidaraPermissionAction | FimidaraPermissionAction[]>()
   .setTypes([action, actionList]);
 const resourceType = mddocConstruct
   .constructFieldString()
   .setDescription('Resource type')
-  .setExample(kFimidaraResourceType.File)
-  .setValid(Object.values(kFimidaraResourceType))
+  .setExample(kFimidaraPublicResourceType.File)
+  .setValid(Object.values(kFimidaraPublicResourceType))
   .setEnumName('FimidaraResourceType');
 const usageCategory = mddocConstruct
   .constructFieldString()

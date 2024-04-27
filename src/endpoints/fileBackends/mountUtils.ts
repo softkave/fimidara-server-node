@@ -1,28 +1,23 @@
-import {compact, first, keyBy} from 'lodash';
+import {compact, first} from 'lodash';
 import {File} from '../../definitions/file';
 import {
   FileBackendConfig,
   FileBackendMount,
-  ResolvedMountEntry,
   kFileBackendType,
 } from '../../definitions/fileBackend';
 import {Folder} from '../../definitions/folder';
 import {IngestMountJobParams, Job, kJobStatus, kJobType} from '../../definitions/job';
-import {Agent, kFimidaraResourceType} from '../../definitions/system';
 import {FimidaraExternalError} from '../../utils/OperationError';
 import {appAssert} from '../../utils/assertion';
-import {getTimestamp} from '../../utils/dateFns';
 import {ServerError} from '../../utils/errors';
 import {loopAndCollateAsync} from '../../utils/fns';
-import {getResourceTypeFromId, newWorkspaceResource} from '../../utils/resource';
 import {kReuseableErrors} from '../../utils/reusableErrors';
-import {OmitProperties, PartialRecord} from '../../utils/types';
+import {PartialRecord} from '../../utils/types';
 import {kAsyncLocalStorageUtils} from '../contexts/asyncLocalStorage';
 import {DataQuery} from '../contexts/data/types';
 import {
   FilePersistenceProvider,
   FilePersistenceProviderFeature,
-  PersistedFileDescription,
 } from '../contexts/file/types';
 import {isFilePersistenceProvider} from '../contexts/file/utils';
 import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
@@ -245,85 +240,9 @@ export function populateMountUnsupportedOpNoteInNotFoundError(
   }
 }
 
-export async function insertResolvedMountEntries(props: {
-  agent: Agent;
-  resource: Pick<File, 'resourceId' | 'workspaceId' | 'namepath' | 'extension'>;
-  mountFiles: Array<OmitProperties<PersistedFileDescription, 'filepath'>>;
-}) {
-  const {resource, agent, mountFiles} = props;
-  const mountFilesByMountId = keyBy(mountFiles, mountFile => mountFile.mountId);
-  const mountIds = Object.keys(mountFilesByMountId);
-
-  await kSemanticModels.utils().withTxn(async opts => {
-    // TODO: do this incrementally to avoid overwhelming the server
-    const existingEntries = await kSemanticModels.resolvedMountEntry().getManyByQuery({
-      workspaceId: resource.workspaceId,
-      resolvedFor: resource.resourceId,
-      mountId: {$in: mountIds},
-    });
-    const existingEntriesMap = keyBy(existingEntries, entry => entry.mountId);
-
-    const resolvedForType = getResourceTypeFromId(resource.resourceId);
-    const newEntries: ResolvedMountEntry[] = [];
-    const updateEntries: Array<[string, Partial<ResolvedMountEntry>]> = [];
-    mountIds.forEach(mountId => {
-      const existingEntry = existingEntriesMap[mountId];
-      const mountFile = mountFilesByMountId[mountId];
-
-      if (existingEntry) {
-        updateEntries.push([
-          existingEntry.resourceId,
-          {
-            resolvedAt: getTimestamp(),
-            other: {
-              encoding: mountFile.encoding,
-              mimetype: mountFile.mimetype,
-              size: mountFile.size,
-              lastUpdatedAt: mountFile.lastUpdatedAt,
-            },
-          },
-        ]);
-      } else {
-        newEntries.push(
-          newWorkspaceResource(
-            agent,
-            kFimidaraResourceType.ResolvedMountEntry,
-            resource.workspaceId,
-            {
-              mountId,
-              resolvedForType,
-              resolvedFor: resource.resourceId,
-              resolvedAt: getTimestamp(),
-              namepath: resource.namepath,
-              extension: resource.extension,
-              other: {
-                encoding: mountFile.encoding,
-                mimetype: mountFile.mimetype,
-                size: mountFile.size,
-                lastUpdatedAt: mountFile.lastUpdatedAt,
-              },
-            }
-          )
-        );
-      }
-    });
-
-    const insertPromise = kSemanticModels
-      .resolvedMountEntry()
-      .insertItem(newEntries, opts);
-    const updatePromise = updateEntries.map(([id, update]) =>
-      kSemanticModels.resolvedMountEntry().updateOneById(id, update, opts)
-    );
-
-    await Promise.all([insertPromise, updatePromise]);
-  }, /** reuseTxn */ true);
-}
-
 export async function getResolvedMountEntries(
   id: string,
   opts?: SemanticProviderQueryListParams<FileBackendMount>
 ) {
-  return await kSemanticModels
-    .resolvedMountEntry()
-    .getManyByQuery({resolvedFor: id}, opts);
+  return await kSemanticModels.resolvedMountEntry().getManyByQuery({forId: id}, opts);
 }

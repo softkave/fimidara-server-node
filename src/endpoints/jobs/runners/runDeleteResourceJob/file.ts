@@ -1,3 +1,5 @@
+import {ResolvedMountEntry} from '../../../../definitions/fileBackend';
+import {DeleteResourceCascadeFnDefaultArgs} from '../../../../definitions/job';
 import {kFimidaraResourceType} from '../../../../definitions/system';
 import {
   kSemanticModels,
@@ -11,54 +13,67 @@ import {
   DeleteResourceCascadeEntry,
   DeleteResourceDeleteArtifactsFns,
   DeleteResourceFn,
-  DeleteResourceGetArtifactsFns,
+  DeleteResourceGetArtifactsToDeleteFns,
+  DeleteResourceGetPreRunMetaFn,
 } from './types';
 
-const getArtifacts: DeleteResourceGetArtifactsFns = {
-  ...genericGetArtifacts,
-  [kFimidaraResourceType.PresignedPath]: async ({args, opts}) => {
-    const file = await kSemanticModels
-      .file()
-      .getOneById(args.resourceId, {includeDeleted: true});
+interface DeleteFilePreRunMeta {
+  partialMountEntries: Array<Pick<ResolvedMountEntry, 'backendNamepath' | 'backendExt'>>;
+  namepath?: string[];
+  ext?: string;
+}
 
-    if (file) {
-      return await kSemanticModels
-        .presignedPath()
-        .getManyByQuery(FileQueries.getByNamepath(file), opts);
+const getArtifacts: DeleteResourceGetArtifactsToDeleteFns<
+  DeleteResourceCascadeFnDefaultArgs,
+  DeleteFilePreRunMeta
+> = {
+  ...genericGetArtifacts,
+  [kFimidaraResourceType.PresignedPath]: async ({args, opts, preRunMeta}) => {
+    if (preRunMeta.namepath) {
+      return await kSemanticModels.presignedPath().getManyByQuery(
+        FileQueries.getByNamepath({
+          workspaceId: args.workspaceId,
+          namepath: preRunMeta.namepath,
+          ext: preRunMeta.ext,
+        }),
+        opts
+      );
     }
 
     return [];
   },
 };
 
-const deleteArtifacts: DeleteResourceDeleteArtifactsFns = {
+const deleteArtifacts: DeleteResourceDeleteArtifactsFns<
+  DeleteResourceCascadeFnDefaultArgs,
+  DeleteFilePreRunMeta
+> = {
   ...genericDeleteArtifacts,
-  [kFimidaraResourceType.ResolvedMountEntry]: async ({args, helpers}) =>
+  [kFimidaraResourceType.ResolvedMountEntry]: async ({args, helpers, preRunMeta}) =>
     helpers.withTxn(async opts => {
-      const file = await kSemanticModels
-        .file()
-        .getOneById(args.resourceId, {includeDeleted: true});
-
-      if (file) {
-        await kSemanticModels
-          .resolvedMountEntry()
-          .deleteManyByQuery(FileQueries.getByNamepath(file), opts);
+      if (preRunMeta.namepath) {
+        await kSemanticModels.resolvedMountEntry().deleteManyByQuery(
+          FileQueries.getByNamepath({
+            workspaceId: args.workspaceId,
+            namepath: preRunMeta.namepath,
+            ext: preRunMeta.ext,
+          }),
+          opts
+        );
       }
     }),
 };
 
-const deleteResourceFn: DeleteResourceFn = async ({args, helpers}) => {
-  const file = await kSemanticModels
-    .file()
-    .getOneById(args.resourceId, {includeDeleted: true});
-
-  if (!file) {
+const deleteResourceFn: DeleteResourceFn<
+  DeleteResourceCascadeFnDefaultArgs,
+  DeleteFilePreRunMeta
+> = async ({args, helpers, preRunMeta}) => {
+  if (!preRunMeta.namepath) {
     return;
   }
 
-  const filepath = stringifyFilenamepath(file);
   const {providersMap, mounts} = await resolveBackendsMountsAndConfigs(
-    file,
+    /** file */ {workspaceId: args.workspaceId, namepath: preRunMeta.namepath},
     /** init primary backend only */ false
   );
   await Promise.all(
@@ -70,8 +85,14 @@ const deleteResourceFn: DeleteResourceFn = async ({args, helpers}) => {
         // that support deleting folders?
         await provider?.deleteFiles({
           mount,
-          filepaths: [filepath],
-          workspaceId: file.workspaceId,
+          workspaceId: args.workspaceId,
+          files: preRunMeta.partialMountEntries.map(partialMountEntry => ({
+            fileId: args.resourceId,
+            filepath: stringifyFilenamepath({
+              namepath: partialMountEntry.backendNamepath,
+              ext: partialMountEntry.backendExt,
+            }),
+          })),
         });
       } catch (error) {
         kUtilsInjectables.logger().error(error);
@@ -84,8 +105,30 @@ const deleteResourceFn: DeleteResourceFn = async ({args, helpers}) => {
   });
 };
 
-export const deleteFileCascadeEntry: DeleteResourceCascadeEntry = {
+const getPreRunMetaFn: DeleteResourceGetPreRunMetaFn<
+  DeleteResourceCascadeFnDefaultArgs,
+  DeleteFilePreRunMeta
+> = async ({args}) => {
+  const keys: Array<keyof DeleteFilePreRunMeta['partialMountEntries'][number]> = [
+    'backendExt',
+    'backendNamepath',
+  ];
+  const [partialMountEntries, file] = await Promise.all([
+    kSemanticModels.resolvedMountEntry().getLatestByForId(args.resourceId, {
+      projection: keys.reduce((acc, key) => ({...acc, [key]: true}), {}),
+    }),
+    kSemanticModels.file().getOneById(args.resourceId, {includeDeleted: true}),
+  ]);
+
+  return {partialMountEntries, namepath: file?.namepath, ext: file?.ext};
+};
+
+export const deleteFileCascadeEntry: DeleteResourceCascadeEntry<
+  DeleteResourceCascadeFnDefaultArgs,
+  DeleteFilePreRunMeta
+> = {
   deleteResourceFn,
-  getArtifacts: getArtifacts,
+  getPreRunMetaFn,
+  getArtifactsToDelete: getArtifacts,
   deleteArtifacts: deleteArtifacts,
 };

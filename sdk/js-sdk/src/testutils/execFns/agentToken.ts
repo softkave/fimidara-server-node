@@ -1,5 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {merge} from 'lodash';
+import {loopAndCollateAsync} from 'softkave-js-utils';
 import {PartialDeep} from 'type-fest';
 import {FimidaraEndpoints} from '../../publicEndpoints';
 import {
@@ -9,7 +10,7 @@ import {
   GetWorkspaceAgentTokensEndpointParams,
   UpdateAgentTokenEndpointParams,
 } from '../../publicTypes';
-import {ITestVars, loopAndCollate} from '../utils';
+import {ITestVars} from '../utils';
 import assert = require('assert');
 
 function getTokenExpiryDate(
@@ -39,8 +40,10 @@ export async function setupWorkspaceAgentTokensTestExecFn(
   vars: ITestVars,
   tokenCount = 2
 ) {
-  const tokens = await Promise.all(
-    loopAndCollate(tokenCount, () => addAgentTokenTestExecFn(endpoint, vars))
+  const tokens = await loopAndCollateAsync(
+    async () => await addAgentTokenTestExecFn(endpoint, vars),
+    tokenCount,
+    /** settlement type */ 'all'
   );
   return {tokens};
 }

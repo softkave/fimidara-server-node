@@ -1,5 +1,5 @@
-import {kFimidaraResourceType} from '../../../definitions/system';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils';
 import {assertUser} from '../utils';
@@ -8,7 +8,11 @@ import {GetUserDataEndpoint} from './types';
 const getUserData: GetUserDataEndpoint = async instData => {
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, kFimidaraResourceType.User);
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.user,
+      kSessionUtils.accessScopes.user
+    );
   const [userToken, clientAssignedToken] = await kSemanticModels
     .utils()
     .withTxn(

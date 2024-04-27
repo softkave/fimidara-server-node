@@ -1,9 +1,9 @@
 import {first, last} from 'lodash';
 import {format, formatWithOptions} from 'util';
-import {kPermissionAgentTypes} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {ServerError} from '../../../utils/errors';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {assertRootname, assertWorkspace} from '../../workspaces/utils';
 import {folderExtractor, getFolderpathInfo} from '../utils';
@@ -15,8 +15,15 @@ const addFolder: AddFolderEndpoint = async instData => {
   const data = validate(instData.data, addFolderJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, kPermissionAgentTypes);
-  const pathinfo = getFolderpathInfo(data.folder.folderpath);
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
+  const pathinfo = getFolderpathInfo(data.folder.folderpath, {
+    containsRootname: true,
+    allowRootFolder: false,
+  });
   assertRootname(pathinfo.rootname);
   const workspace = await kSemanticModels.workspace().getByRootname(pathinfo.rootname);
   assertWorkspace(workspace);

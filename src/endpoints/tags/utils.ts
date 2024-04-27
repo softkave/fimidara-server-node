@@ -1,4 +1,4 @@
-import {PermissionAction} from '../../definitions/permissionItem';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem';
 import {SessionAgent} from '../../definitions/system';
 import {PublicAssignedTag, PublicTag, Tag} from '../../definitions/tag';
 import {appAssert} from '../../utils/assertion';
@@ -31,7 +31,7 @@ export const tagListExtractor = makeListExtract(tagFields);
 export async function checkTagAuthorization(
   agent: SessionAgent,
   tag: Tag,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   opts?: SemanticProviderOpParams
 ) {
   const workspace = await checkWorkspaceExists(tag.workspaceId);
@@ -48,7 +48,7 @@ export async function checkTagAuthorization(
 export async function checkTagAuthorization02(
   agent: SessionAgent,
   id: string,
-  action: PermissionAction
+  action: FimidaraPermissionAction
 ) {
   const tag = await kSemanticModels.tag().getOneById(id);
   assertTag(tag);

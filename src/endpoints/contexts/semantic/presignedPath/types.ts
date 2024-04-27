@@ -12,7 +12,7 @@ export interface SemanticPresignedPathProvider
     options?: SemanticProviderQueryParams<PresignedPath>
   ): Promise<PresignedPath | null>;
   getOneByFilepath(
-    query: {workspaceId: string; namepath: string[]; extension?: string},
+    query: {workspaceId: string; namepath: string[]; ext?: string},
     options?: SemanticProviderQueryParams<PresignedPath>
   ): Promise<PresignedPath | null>;
   getManyByFileIds(

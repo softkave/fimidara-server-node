@@ -1,18 +1,23 @@
 import {Readable} from 'stream';
+import {ResolvedMountEntry} from '../../../definitions/fileBackend';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
+import {kFimidaraResourceType} from '../../../definitions/system';
 import {pathJoin, streamToBuffer} from '../../../utils/fns';
+import {newWorkspaceResource} from '../../../utils/resource';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils';
 import RequestData from '../../RequestData';
 import {FilePersistenceProvider, PersistedFile} from '../../contexts/file/types';
+import {kSemanticModels} from '../../contexts/injection/injectables';
 import {kRegisterUtilsInjectables} from '../../contexts/injection/register';
-import {insertResolvedMountEntries} from '../../fileBackends/mountUtils';
 import {addRootnameToPath, stringifyFoldernamepath} from '../../folders/utils';
 import NoopFilePersistenceProviderContext from '../../testUtils/context/file/NoopFilePersistenceProviderContext';
 import {
   generateTestFileName,
   generateTestFilepathString,
 } from '../../testUtils/generate/file';
+import {getTestSessionAgent, kTestSessionAgentTypes} from '../../testUtils/helpers/agent';
 import {expectFileBodyEqual, expectFileBodyEqualById} from '../../testUtils/helpers/file';
-import {completeTests, softkaveTest} from '../../testUtils/helpers/testFns';
+import {completeTests, skTest} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,
@@ -42,14 +47,21 @@ afterAll(async () => {
 });
 
 describe('readFile', () => {
-  softkaveTest.run('file returned', async () => {
-    const {userToken} = await insertUserForTest();
-    const {workspace} = await insertWorkspaceForTest(userToken);
+  skTest.each(kTestSessionAgentTypes)('file returned using %s', async agentType => {
+    const {
+      sessionAgent,
+      workspace,
+      adminUserToken: userToken,
+    } = await getTestSessionAgent(agentType, {
+      permissions: {
+        actions: [kFimidaraPermissionActionsMap.readFile],
+      },
+    });
     const {file} = await insertFileForTest(userToken, workspace);
 
     const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {filepath: stringifyFilenamepath(file, workspace.rootname)}
+      mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+      /** data */ {filepath: stringifyFilenamepath(file, workspace.rootname)}
     );
     const result = await readFile(instData);
     assertEndpointResultOk(result);
@@ -57,26 +69,31 @@ describe('readFile', () => {
     await expectFileBodyEqualById(file.resourceId, result.stream);
   });
 
-  softkaveTest.run('file resized', async () => {
-    const {userToken} = await insertUserForTest();
-    const {workspace} = await insertWorkspaceForTest(userToken);
+  skTest.run('file resized', async () => {
+    const {
+      sessionAgent,
+      workspace,
+      adminUserToken: userToken,
+    } = await getTestSessionAgent(kFimidaraResourceType.User, {
+      permissions: {actions: [kFimidaraPermissionActionsMap.readFile]},
+    });
     const startWidth = 500;
     const startHeight = 500;
-    const {file} = await insertFileForTest(userToken, workspace, {}, 'png', {
-      width: startWidth,
-      height: startHeight,
-    });
+    const {file} = await insertFileForTest(
+      userToken,
+      workspace,
+      /** file input */ {},
+      /** file type */ 'png',
+      /** image props */ {width: startWidth, height: startHeight}
+    );
 
     const expectedWidth = 300;
     const expectedHeight = 300;
     const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {
+      mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+      /** data */ {
         filepath: stringifyFilenamepath(file, workspace.rootname),
-        imageResize: {
-          width: expectedWidth,
-          height: expectedHeight,
-        },
+        imageResize: {width: expectedWidth, height: expectedHeight},
       }
     );
     const result = await readFile(instData);
@@ -89,26 +106,46 @@ describe('readFile', () => {
     expect(fileMetadata.height).toEqual(expectedHeight);
   });
 
-  softkaveTest.run('can read file from public folder', async () => {
-    const {userToken} = await insertUserForTest();
-    const {workspace} = await insertWorkspaceForTest(userToken);
+  skTest.each(kTestSessionAgentTypes)(
+    '%s can read file from public folder',
+    async agentType => {
+      const {workspace, adminUserToken: userToken} = await getTestSessionAgent(agentType);
+      const {folder} = await insertFolderForTest(userToken, workspace);
+      await insertPermissionItemsForTest(userToken, workspace.resourceId, {
+        target: {targetId: folder.resourceId},
+        action: kFimidaraPermissionActionsMap.readFile,
+        access: true,
+        entityId: workspace.publicPermissionGroupId,
+      });
 
-    // Make public folder
-    const {folder} = await insertFolderForTest(userToken, workspace);
-    await insertPermissionItemsForTest(userToken, workspace.resourceId, {
-      target: {targetId: folder.resourceId},
-      action: 'readFile',
+      const {file} = await insertFileForTest(userToken, workspace, {
+        filepath: addRootnameToPath(
+          pathJoin(
+            folder.namepath.concat([generateTestFileName({includeStraySlashes: true})])
+          ),
+          workspace.rootname
+        ),
+      });
+
+      const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+        mockExpressRequestForPublicAgent(),
+        {filepath: stringifyFilenamepath(file, workspace.rootname)}
+      );
+      const result = await readFile(instData);
+      assertEndpointResultOk(result);
+    }
+  );
+
+  skTest.each(kTestSessionAgentTypes)('%s can read public file', async agentType => {
+    const {workspace, adminUserToken} = await getTestSessionAgent(agentType);
+    const {file} = await insertFileForTest(adminUserToken, workspace);
+    await insertPermissionItemsForTest(adminUserToken, workspace.resourceId, {
+      target: {targetId: file.resourceId},
+      action: kFimidaraPermissionActionsMap.readFile,
       access: true,
       entityId: workspace.publicPermissionGroupId,
     });
-    const {file} = await insertFileForTest(userToken, workspace, {
-      filepath: addRootnameToPath(
-        pathJoin(
-          folder.namepath.concat([generateTestFileName({includeStraySlashes: true})])
-        ),
-        workspace.rootname
-      ),
-    });
+
     const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestForPublicAgent(),
       {filepath: stringifyFilenamepath(file, workspace.rootname)}
@@ -117,31 +154,26 @@ describe('readFile', () => {
     assertEndpointResultOk(result);
   });
 
-  softkaveTest.run('can read public file', async () => {
-    const {userToken} = await insertUserForTest();
-    const {workspace} = await insertWorkspaceForTest(userToken);
+  skTest.each(kTestSessionAgentTypes)('%s cannot read private file', async agentType => {
+    const {
+      sessionAgent,
+      workspace,
+      adminUserToken: userToken,
+    } = await getTestSessionAgent(agentType);
+
     const {file} = await insertFileForTest(userToken, workspace);
     await insertPermissionItemsForTest(userToken, workspace.resourceId, {
       target: {targetId: file.resourceId},
-      action: 'readFile',
-      access: true,
-      entityId: workspace.publicPermissionGroupId,
+      action: kFimidaraPermissionActionsMap.readFile,
+      access: false,
+      entityId:
+        agentType === kFimidaraResourceType.Public
+          ? workspace.publicPermissionGroupId
+          : sessionAgent.agentId,
     });
-    const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
-      mockExpressRequestForPublicAgent(),
-      {filepath: stringifyFilenamepath(file, workspace.rootname)}
-    );
-    const result = await readFile(instData);
-    assertEndpointResultOk(result);
-  });
 
-  softkaveTest.run('cannot read private file', async () => {
-    const {userToken} = await insertUserForTest();
-    const {workspace} = await insertWorkspaceForTest(userToken);
-    const {file} = await insertFileForTest(userToken, workspace);
-    let instData: RequestData | null = null;
     try {
-      instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+      const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
         mockExpressRequestForPublicAgent(),
         {filepath: stringifyFilenamepath(file, workspace.rootname)}
       );
@@ -151,7 +183,7 @@ describe('readFile', () => {
     }
   });
 
-  softkaveTest.run(
+  skTest.run(
     'reads file from other entries if primary entry is not present',
     async () => {
       const {userToken, rawUser} = await insertUserForTest();
@@ -165,19 +197,34 @@ describe('readFile', () => {
           workspace.rootname
         ),
       });
-      await insertResolvedMountEntries({
-        agent: makeUserSessionAgent(rawUser, userToken),
-        resource: file,
-        mountFiles: [
-          {
+
+      await kSemanticModels.utils().withTxn(async opts => {
+        const entry = newWorkspaceResource<ResolvedMountEntry>(
+          makeUserSessionAgent(rawUser, userToken),
+          kFimidaraResourceType.ResolvedMountEntry,
+          workspace.resourceId,
+          /** seed */ {
             mountId: mount.resourceId,
-            encoding: file.encoding,
-            mimetype: file.mimetype,
-            size: file.size,
-            lastUpdatedAt: file.lastUpdatedAt,
-          },
-        ],
-      });
+            forType: kFimidaraResourceType.Folder,
+            forId: file.resourceId,
+            backendNamepath: file.namepath,
+            backendExt: file.ext,
+            fimidaraNamepath: file.namepath,
+            fimidaraExt: file.ext,
+            persisted: {
+              mountId: mount.resourceId,
+              encoding: file.encoding,
+              mimetype: file.mimetype,
+              size: file.size,
+              lastUpdatedAt: file.lastUpdatedAt,
+              filepath: stringifyFilenamepath(file),
+              raw: undefined,
+            },
+          }
+        );
+
+        await kSemanticModels.resolvedMountEntry().insertItem(entry, opts);
+      }, /** reuse async local txn */ false);
 
       const testBuffer = Buffer.from('Reading from secondary mount source');
       const testStream = Readable.from([testBuffer]);
@@ -210,7 +257,7 @@ describe('readFile', () => {
     }
   );
 
-  softkaveTest.run(
+  skTest.run(
     'returns an empty stream if file exists and backends do not have file',
     async () => {
       const {userToken} = await insertUserForTest();

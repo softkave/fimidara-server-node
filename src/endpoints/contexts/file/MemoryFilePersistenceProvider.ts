@@ -7,6 +7,7 @@ import {OmitProperties} from '../../../utils/types';
 import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
+  FilePersistenceDescribeFileParams,
   FilePersistenceDescribeFolderContentParams,
   FilePersistenceDescribeFolderContentResult,
   FilePersistenceDescribeFolderFoldersParams,
@@ -28,7 +29,7 @@ import {defaultToFimidaraPath, defaultToNativePath} from './utils';
 
 type MemoryFilePersistenceProviderFile = OmitProperties<
   PersistedFileDescription,
-  'filepath'
+  'filepath' | 'raw'
 > & {
   body: Buffer;
   nativePath: string;
@@ -69,7 +70,7 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
       encoding: params.encoding,
     });
 
-    return {};
+    return {filepath, raw: undefined};
   }
 
   readFile = async (params: FilePersistenceGetFileParams): Promise<PersistedFile> => {
@@ -88,7 +89,7 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
   deleteFiles = async (params: FilePersistenceDeleteFilesParams) => {
     const {mount} = params;
     const workspaceFilesMap = this.getWorkspaceFiles(params);
-    params.filepaths.forEach(key => {
+    params.files.forEach(({filepath: key}) => {
       const {nativePath} = this.toNativePath({mount, fimidaraPath: key});
       delete workspaceFilesMap[nativePath];
     });
@@ -104,8 +105,8 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
   };
 
   describeFile = async (
-    params: FilePersistenceGetFileParams
-  ): Promise<PersistedFileDescription | undefined> => {
+    params: FilePersistenceDescribeFileParams
+  ): Promise<PersistedFileDescription<undefined> | undefined> => {
     const file = this.getMemoryFile(params);
 
     if (file) {
@@ -117,6 +118,7 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
         mimetype: file.mimetype,
         encoding: file.encoding,
         mountId: params.mount.resourceId,
+        raw: undefined,
       };
     }
 
@@ -126,18 +128,18 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
   describeFolder = async (
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     params: FilePersistenceDescribeFolderParams
-  ): Promise<PersistedFolderDescription | undefined> => {
+  ): Promise<PersistedFolderDescription<undefined> | undefined> => {
     // not supported
     return undefined;
   };
 
   describeFolderContent = async (
     params: FilePersistenceDescribeFolderContentParams
-  ): Promise<FilePersistenceDescribeFolderContentResult> => {
+  ): Promise<FilePersistenceDescribeFolderContentResult<undefined, undefined>> => {
     const {mount, folderpath, max, continuationToken} = params;
     const workspaceFilesMap = this.getWorkspaceFiles(params);
     const workspaceFiles = Object.values(workspaceFilesMap);
-    const files: PersistedFileDescription[] = [];
+    const files: PersistedFileDescription<undefined>[] = [];
 
     if (continuationToken) {
       appAssert(isNumber(continuationToken));
@@ -157,6 +159,7 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
           nativePath: file.nativePath,
           mount: mount,
         });
+
         files.push({
           filepath: fimidaraPath,
           lastUpdatedAt: file.lastUpdatedAt,
@@ -164,6 +167,7 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
           mimetype: file.mimetype,
           encoding: file.encoding,
           mountId: mount.resourceId,
+          raw: undefined,
         });
       }
     }
@@ -175,7 +179,7 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
   describeFolderFolders = async (
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     params: FilePersistenceDescribeFolderFoldersParams
-  ): Promise<FilePersistenceDescribeFolderFoldersResult> => {
+  ): Promise<FilePersistenceDescribeFolderFoldersResult<undefined>> => {
     // not supported
     return {folders: []};
   };

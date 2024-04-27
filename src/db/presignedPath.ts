@@ -7,7 +7,7 @@ const presignedPathSchema = ensureMongoTypeFields<PresignedPath>({
   fileId: {type: String, index: true},
   namepath: {type: [String], index: true},
   actions: {type: [String], index: true},
-  extension: {type: String, index: true},
+  ext: {type: String, index: true},
   maxUsageCount: {type: Number},
   expiresAt: {type: Date},
   spentUsageCount: {type: Number},

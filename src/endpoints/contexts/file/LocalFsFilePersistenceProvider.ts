@@ -7,6 +7,7 @@ import {kUtilsInjectables} from '../injection/injectables';
 import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
+  FilePersistenceDescribeFileParams,
   FilePersistenceDescribeFolderContentParams,
   FilePersistenceDescribeFolderContentResult,
   FilePersistenceDescribeFolderFoldersParams,
@@ -17,6 +18,7 @@ import {
   FilePersistenceToFimidaraPathParams,
   FilePersistenceToFimidaraPathResult,
   FilePersistenceUploadFileParams,
+  FilePersistenceUploadFileResult,
   FimidaraToFilePersistencePathParams,
   FimidaraToFilePersistencePathResult,
   PersistedFile,
@@ -59,12 +61,14 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
     const {nativePath} = this.toNativePath({fimidaraPath: filepath, mount: mount});
     await fse.ensureFile(nativePath);
 
-    return new Promise<{}>((resolve, reject) => {
+    return new Promise<FilePersistenceUploadFileResult>((resolve, reject) => {
       const writeStream = fse.createWriteStream(nativePath, {
         autoClose: true,
         emitClose: true,
       });
-      writeStream.on('close', () => resolve({}));
+      writeStream.on('close', () => {
+        resolve({filepath, raw: undefined});
+      });
       writeStream.on('error', reject);
       params.body.pipe(writeStream);
     });
@@ -84,12 +88,12 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
   };
 
   deleteFiles = async (params: FilePersistenceDeleteFilesParams) => {
-    if (params.filepaths.length === 0) {
+    if (params.files.length === 0) {
       // Short-circuit, no files to delete
       return;
     }
 
-    const rmPromises = params.filepaths.map(async key => {
+    const rmPromises = params.files.map(async ({filepath: key}) => {
       const {nativePath} = this.toNativePath({fimidaraPath: key, mount: params.mount});
       await fse.promises.rm(nativePath, {force: true});
     });
@@ -98,12 +102,12 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
   };
 
   deleteFolders = async (params: FilePersistenceDeleteFoldersParams) => {
-    if (params.folderpaths.length === 0) {
+    if (params.folders.length === 0) {
       // Short-circuit, no files to delete
       return;
     }
 
-    const rmPromises = params.folderpaths.map(async key => {
+    const rmPromises = params.folders.map(async ({folderpath: key}) => {
       const {nativePath} = this.toNativePath({fimidaraPath: key, mount: params.mount});
       await fse.promises.rm(nativePath, {recursive: true, force: true});
     });
@@ -112,20 +116,21 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
   };
 
   describeFile = async (
-    params: FilePersistenceGetFileParams
-  ): Promise<PersistedFileDescription | undefined> => {
+    params: FilePersistenceDescribeFileParams
+  ): Promise<PersistedFileDescription<undefined> | undefined> => {
     const {mount, filepath} = params;
     const {nativePath} = this.toNativePath({fimidaraPath: filepath, mount: mount});
     return first(
       await this.getLocalStats(
         [nativePath],
-        (stat): PersistedFileDescription | undefined => {
+        (stat): PersistedFileDescription<undefined> | undefined => {
           if (stat.isFile()) {
             return {
               filepath,
               size: stat.size,
               lastUpdatedAt: stat.mtimeMs,
               mountId: mount.resourceId,
+              raw: undefined,
             };
           }
 
@@ -137,17 +142,18 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
 
   describeFolder = async (
     params: FilePersistenceDescribeFolderParams
-  ): Promise<PersistedFolderDescription | undefined> => {
+  ): Promise<PersistedFolderDescription<undefined> | undefined> => {
     const {mount, folderpath} = params;
     const {nativePath} = this.toNativePath({fimidaraPath: folderpath, mount: mount});
     return first(
       await this.getLocalStats(
         [nativePath],
-        (stat): PersistedFolderDescription | undefined => {
+        (stat): PersistedFolderDescription<undefined> | undefined => {
           if (stat.isDirectory()) {
             return {
               folderpath: params.folderpath,
               mountId: params.mount.resourceId,
+              raw: undefined,
             };
           }
 
@@ -159,10 +165,10 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
 
   describeFolderContent = async (
     params: FilePersistenceDescribeFolderContentParams
-  ): Promise<FilePersistenceDescribeFolderContentResult> => {
+  ): Promise<FilePersistenceDescribeFolderContentResult<undefined, undefined>> => {
     const {mount, max} = params;
-    const files: PersistedFileDescription[] = [];
-    const folders: PersistedFolderDescription[] = [];
+    const files: PersistedFileDescription<undefined>[] = [];
+    const folders: PersistedFolderDescription<undefined>[] = [];
     const {continuationToken} = await this.produceFromChildren(
       params,
       (stat, nativePath) => {
@@ -172,11 +178,13 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
             size: stat.size,
             lastUpdatedAt: stat.mtimeMs,
             mountId: mount.resourceId,
+            raw: undefined,
           });
         } else if (stat.isDirectory()) {
           folders.push({
             folderpath: this.toFimidaraPath({nativePath, mount}).fimidaraPath,
             mountId: mount.resourceId,
+            raw: undefined,
           });
         }
 

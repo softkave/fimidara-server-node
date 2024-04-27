@@ -2,6 +2,7 @@ import {Tag} from '../../../definitions/tag';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {checkTagNameExists} from '../checkTagNameExists';
 import {assertTag, checkTagAuthorization02, tagExtractor} from '../utils';
@@ -10,7 +11,13 @@ import {updateTagJoiSchema} from './validation';
 
 const updateTag: UpdateTagEndpoint = async instData => {
   const data = validate(instData.data, updateTagJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const {workspace, tag: tag_} = await checkTagAuthorization02(
     agent,
     data.tagId,

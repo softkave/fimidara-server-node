@@ -39,7 +39,7 @@ test('workspace deleted', async () => {
 
   appAssert(result.jobId);
   const job = (await kSemanticModels.job().getOneByQuery({
-    type: kJobType.deleteResource0,
+    type: kJobType.deleteResource,
     resourceId: result.jobId,
     params: {$objMatch: {type: kFimidaraResourceType.Workspace}},
   })) as Job<DeleteResourceJobParams>;

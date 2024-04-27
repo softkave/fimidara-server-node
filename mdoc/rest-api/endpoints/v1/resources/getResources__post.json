@@ -246,17 +246,10 @@
                                         "10": "user",
                                         "11": "tag",
                                         "12": "usageRecord",
-                                        "13": "assignedItem",
-                                        "14": "endpointRequest",
-                                        "15": "job",
-                                        "16": "presignedPath",
-                                        "17": "fileBackendConfig",
-                                        "18": "fileBackendMount",
-                                        "19": "resolvedMountEntry",
-                                        "20": "app",
-                                        "21": "emailMessage",
-                                        "22": "emailBlocklist",
-                                        "23": "appShard"
+                                        "13": "presignedPath",
+                                        "14": "fileBackendConfig",
+                                        "15": "fileBackendMount",
+                                        "16": "job"
                                     },
                                     "enumName": "FimidaraResourceType"
                                 },

@@ -3,6 +3,7 @@ import {kFimidaraResourceType} from '../../../definitions/system';
 import {indexArray} from '../../../utils/indexArray';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {DataQuery} from '../../contexts/data/types';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {PaginationQuery} from '../../types';
@@ -14,7 +15,13 @@ import {getCollaboratorsWithoutPermissionJoiSchema} from './validation';
 const getCollaboratorsWithoutPermission: GetCollaboratorsWithoutPermissionEndpoint =
   async instData => {
     const data = validate(instData.data, getCollaboratorsWithoutPermissionJoiSchema);
-    const agent = await kUtilsInjectables.session().getAgent(instData);
+    const agent = await kUtilsInjectables
+      .session()
+      .getAgentFromReq(
+        instData,
+        kSessionUtils.permittedAgentTypes.api,
+        kSessionUtils.accessScopes.api
+      );
     const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
     const workspace = await checkWorkspaceExists(workspaceId);
     const assignedItemsQuery = await getWorkspaceCollaboratorsQuery(agent, workspace);

@@ -1,9 +1,9 @@
 import {
   Agent,
-  ConvertAgentToPublicAgent,
   FimidaraResourceType,
   PublicWorkspaceResource,
   Resource,
+  ToPublicDefinitions,
   TokenAccessScope,
 } from './system';
 
@@ -28,7 +28,7 @@ export interface AgentToken extends Resource {
 
 export type PublicAgentToken = PublicWorkspaceResource &
   Pick<
-    ConvertAgentToPublicAgent<AgentToken>,
+    ToPublicDefinitions<AgentToken>,
     | 'name'
     | 'description'
     | 'expiresAt'

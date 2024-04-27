@@ -1,29 +1,25 @@
-import {PermissionAction} from './permissionItem';
-import {
-  ConvertAgentToPublicAgent,
-  PublicWorkspaceResource,
-  WorkspaceResource,
-} from './system';
+import {FimidaraPermissionAction} from './permissionItem';
+import {PublicWorkspaceResource, ToPublicDefinitions, WorkspaceResource} from './system';
 
 export interface PresignedPath extends WorkspaceResource {
-  /** File name path (without extension) instead of ID because at the time of
+  /** File name path (without ext) instead of ID because at the time of
    * creation, the file may not exist yet. */
   namepath: string[];
   /** File ID if the file exists. */
   fileId?: string;
-  extension?: string;
+  ext?: string;
   issuerAgentTokenId: string;
   maxUsageCount?: number;
   spentUsageCount: number;
   expiresAt?: number;
-  actions: PermissionAction[];
+  actions: FimidaraPermissionAction[];
 
   // TODO: should we add description?
   // description?: string
 }
 
 export type PublicPresignedPath = PublicWorkspaceResource &
-  ConvertAgentToPublicAgent<
+  ToPublicDefinitions<
     Pick<
       PresignedPath,
       | 'namepath'
@@ -32,6 +28,6 @@ export type PublicPresignedPath = PublicWorkspaceResource &
       | 'maxUsageCount'
       | 'spentUsageCount'
       | 'actions'
-      | 'extension'
+      | 'ext'
     >
   >;

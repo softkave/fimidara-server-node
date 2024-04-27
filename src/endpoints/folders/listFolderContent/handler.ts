@@ -1,11 +1,8 @@
 import {Folder} from '../../../definitions/folder';
-import {
-  kFimidaraResourceType,
-  kPermissionAgentTypes,
-  SessionAgent,
-} from '../../../definitions/system';
+import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {areMountsCompletelyIngestedForFolder} from '../../fileBackends/mountUtils';
 import {fileListExtractor} from '../../files/utils';
@@ -14,9 +11,9 @@ import {
   getEndpointPageFromInput,
 } from '../../pagination';
 import {
+  PaginationQuery,
   kEndpointResultNoteCodeMap,
   kEndpointResultNotesToMessageMap,
-  PaginationQuery,
 } from '../../types';
 import {folderListExtractor} from '../utils';
 import {ListFolderContentEndpoint} from './types';
@@ -27,7 +24,11 @@ const listFolderContent: ListFolderContentEndpoint = async instData => {
   const data = validate(instData.data, listFolderContentJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, kPermissionAgentTypes);
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const {workspace, parentFolder} = await getWorkspaceAndParentFolder(agent, data);
 
   applyDefaultEndpointPaginationOptions(data);

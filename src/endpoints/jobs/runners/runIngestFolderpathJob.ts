@@ -6,7 +6,7 @@ import {
   Job,
   kJobType,
 } from '../../../definitions/job';
-import {Agent} from '../../../definitions/system';
+import {SessionAgent} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {pathJoin, pathSplit} from '../../../utils/fns';
 import {AnyObject} from '../../../utils/types';
@@ -61,7 +61,6 @@ async function queueIngestFolderJobFor(
       const jobParams: IngestFolderpathJobParams = {
         ingestFrom: pathSplit(mountFolder.folderpath),
         mountId: mountFolder.mountId,
-        agentId: parentJob.params.agentId,
       };
 
       return {
@@ -77,12 +76,13 @@ async function queueIngestFolderJobFor(
 }
 
 async function ingestFolderpathContents(
-  agent: Agent,
+  agent: SessionAgent,
   job: Job<IngestFolderpathJobParams, IngestFolderpathJobMeta>,
   mount: FileBackendMount,
   provider: FilePersistenceProvider
 ) {
   appAssert(job.workspaceId, 'workspaceId not present in job');
+
   let result: FilePersistenceDescribeFolderContentResult | undefined;
   let continuationToken = job.meta?.getContentContinuationToken;
   const workspace = await kSemanticModels.workspace().getOneById(job.workspaceId);
@@ -114,10 +114,11 @@ async function ingestFolderpathContents(
 
 export async function runIngestFolderpathJob(job: Job) {
   appAssert(job.workspaceId, 'workspaceId not present in job');
+  appAssert(job.createdBy, 'agent not present in job');
 
   const [mount, agent, job_] = await Promise.all([
     kSemanticModels.fileBackendMount().getOneById(job.params.mountId),
-    kUtilsInjectables.session().getAgentById(job.params.agentId),
+    kUtilsInjectables.session().getAgentByAgentTokenId(job.createdBy.agentTokenId),
     // Refetch job so as to use latest continuation token set in meta
     kSemanticModels.job().getOneById(job.resourceId),
   ]);

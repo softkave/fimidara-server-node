@@ -1,7 +1,8 @@
-import {kPermissionsMap} from '../../../definitions/permissionItem';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
@@ -11,16 +12,21 @@ import {getFileBackendConfigJoiSchema} from './validation';
 
 const getFileBackendConfig: GetFileBackendConfigEndpoint = async instData => {
   const configModel = kSemanticModels.fileBackendConfig();
-
   const data = validate(instData.data, getFileBackendConfigJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   await checkAuthorizationWithAgent({
     agent,
     workspace,
     workspaceId: workspace.resourceId,
     target: {
-      action: kPermissionsMap.readFileBackendConfig,
+      action: kFimidaraPermissionActionsMap.readFileBackendConfig,
       targetId: workspace.resourceId,
     },
   });

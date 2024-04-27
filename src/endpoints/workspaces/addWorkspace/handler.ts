@@ -1,6 +1,6 @@
-import {kFimidaraResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../users/errors';
 import {workspaceExtractor} from '../utils';
@@ -12,7 +12,11 @@ const addWorkspace: AddWorkspaceEndpoint = async instData => {
   const data = validate(instData.data, addWorkspaceJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, kFimidaraResourceType.User);
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.user,
+      kSessionUtils.accessScopes.user
+    );
   appAssert(agent.user, new PermissionDeniedError());
 
   // TODO: find other routes that do not use checkAuthorization and devise a way

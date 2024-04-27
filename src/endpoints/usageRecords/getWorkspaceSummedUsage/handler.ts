@@ -1,5 +1,6 @@
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {
   applyDefaultEndpointPaginationOptions,
@@ -12,7 +13,13 @@ import {getWorkspaceSummedUsageJoiSchema} from './validation';
 
 const getWorkspaceSummedUsage: GetWorkspaceSummedUsageEndpoint = async instData => {
   const data = validate(instData.data, getWorkspaceSummedUsageJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   applyDefaultEndpointPaginationOptions(data);
   const {query} = await getWorkspaceSummedUsageQuery(agent, workspaceId, data);

@@ -1,6 +1,7 @@
 import {kFimidaraResourceType} from '../../../definitions/system';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kUtilsInjectables} from '../../contexts/injection/injectables';
 import {checkWorkspaceExists} from '../../workspaces/utils';
 import {getPublicResourceList} from '../getPublicResource';
@@ -23,7 +24,13 @@ const kAllowedTypes = [
 
 const getResources: GetResourcesEndpoint = async instData => {
   const data = validate(instData.data, getResourcesJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(workspaceId);
   const resources = await INTERNAL_getResources({

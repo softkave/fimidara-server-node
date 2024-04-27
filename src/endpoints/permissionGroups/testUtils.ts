@@ -2,7 +2,7 @@ import {
   AssignPermissionGroupInput,
   PermissionGroup,
 } from '../../definitions/permissionGroups';
-import {PermissionAction} from '../../definitions/permissionItem';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem';
 import {SessionAgent} from '../../definitions/system';
 import {makeKey} from '../../utils/fns';
 import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
@@ -58,7 +58,7 @@ export async function grantPermission(
   workspaceId: string,
   agentId: string,
   targetIdList: string[],
-  action: PermissionAction
+  action: FimidaraPermissionAction
 ) {
   await addPermissionItems(
     RequestData.fromExpressRequest(req, {

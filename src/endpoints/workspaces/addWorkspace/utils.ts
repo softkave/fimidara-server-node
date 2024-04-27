@@ -1,8 +1,8 @@
 import {PermissionGroup} from '../../../definitions/permissionGroups';
 import {
-  PermissionAction,
+  FimidaraPermissionAction,
   PermissionItem,
-  kPermissionsMap,
+  kFimidaraPermissionActionsMap,
 } from '../../../definitions/permissionItem';
 import {
   Agent,
@@ -22,7 +22,9 @@ function generateAdminPermissions(
   workspace: Workspace,
   adminPermissionGroup: PermissionGroup
 ) {
-  const permissionItems: PermissionItem[] = Object.values(kPermissionsMap).map(action => {
+  const permissionItems: PermissionItem[] = Object.values(
+    kFimidaraPermissionActionsMap
+  ).map(action => {
     const item: PermissionItem = newWorkspaceResource(
       agent,
       kFimidaraResourceType.PermissionItem,
@@ -49,7 +51,7 @@ function generateCollaboratorPermissions(
   permissiongroup: PermissionGroup
 ) {
   function makePermission(
-    actions: PermissionAction[],
+    actions: FimidaraPermissionAction[],
     targetType: FimidaraResourceType,
     targetId: string
   ) {
@@ -72,19 +74,19 @@ function generateCollaboratorPermissions(
     });
   }
 
-  const actions: PermissionAction[] = [
-    kPermissionsMap.updateWorkspace,
-    kPermissionsMap.readWorkspace,
-    kPermissionsMap.addFolder,
-    kPermissionsMap.readFolder,
-    kPermissionsMap.updateFolder,
-    kPermissionsMap.transferFolder,
-    kPermissionsMap.uploadFile,
-    kPermissionsMap.readFile,
-    kPermissionsMap.transferFile,
-    kPermissionsMap.addAgentToken,
-    kPermissionsMap.readAgentToken,
-    kPermissionsMap.updateAgentToken,
+  const actions: FimidaraPermissionAction[] = [
+    kFimidaraPermissionActionsMap.updateWorkspace,
+    kFimidaraPermissionActionsMap.readWorkspace,
+    kFimidaraPermissionActionsMap.addFolder,
+    kFimidaraPermissionActionsMap.readFolder,
+    kFimidaraPermissionActionsMap.updateFolder,
+    kFimidaraPermissionActionsMap.transferFolder,
+    kFimidaraPermissionActionsMap.uploadFile,
+    kFimidaraPermissionActionsMap.readFile,
+    kFimidaraPermissionActionsMap.transferFile,
+    kFimidaraPermissionActionsMap.addAgentToken,
+    kFimidaraPermissionActionsMap.readAgentToken,
+    kFimidaraPermissionActionsMap.updateAgentToken,
   ];
 
   const permissionItems: PermissionItem[] = makePermission(

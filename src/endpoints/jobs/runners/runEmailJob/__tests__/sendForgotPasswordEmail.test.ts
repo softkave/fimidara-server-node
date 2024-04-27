@@ -35,7 +35,7 @@ describe('sendForgotPasswordEmail', () => {
     const [user] = await generateAndInsertUserListForTest(1);
     const [existingForgotToken] = await generateAndInsertAgentTokenListForTest(1, {
       forEntityId: user.resourceId,
-      scope: [kTokenAccessScope.ChangePassword],
+      scope: [kTokenAccessScope.changePassword],
       isDeleted: false,
       workspaceId: null,
     });
@@ -63,12 +63,12 @@ describe('sendForgotPasswordEmail', () => {
       kSemanticModels.agentToken().getManyByQuery({
         forEntityId: user.resourceId,
         isDeleted: true,
-        scope: kTokenAccessScope.ChangePassword,
+        scope: kTokenAccessScope.changePassword,
       }),
       kSemanticModels.agentToken().getManyByQuery({
         forEntityId: user.resourceId,
         isDeleted: false,
-        scope: kTokenAccessScope.ChangePassword,
+        scope: kTokenAccessScope.changePassword,
       }),
     ]);
 

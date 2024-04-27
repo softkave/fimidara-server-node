@@ -39,7 +39,7 @@ describe('file', () => {
     expect(headers['content-disposition']).toBe('attachment');
   });
 
-  test.only('download file URL', async () => {
+  test('download file URL', async () => {
     const uploadedFile = await getTestFilepath(
       fimidaraTestInstance,
       fimidaraTestVars,

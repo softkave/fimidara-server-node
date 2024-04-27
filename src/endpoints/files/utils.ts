@@ -1,8 +1,8 @@
-import {compact, first} from 'lodash';
+import {compact, first, keyBy} from 'lodash';
 import {File, FileMatcher, PublicFile} from '../../definitions/file';
-import {FileBackendMount} from '../../definitions/fileBackend';
+import {FileBackendMount, ResolvedMountEntry} from '../../definitions/fileBackend';
 import {Folder} from '../../definitions/folder';
-import {PermissionAction} from '../../definitions/permissionItem';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem';
 import {Agent, SessionAgent, kFimidaraResourceType} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
@@ -29,6 +29,7 @@ import {
 } from '../fileBackends/mountUtils';
 import {
   FolderpathInfo,
+  GetFolderpathInfoOptions,
   addRootnameToPath,
   ensureFolders,
   getFolderpathInfo,
@@ -46,7 +47,7 @@ const presignedPathFields = getFields<PublicPresignedPath>({
   fileId: true,
   issuerAgentTokenId: true,
   maxUsageCount: true,
-  extension: true,
+  ext: true,
   spentUsageCount: true,
   actions: true,
 });
@@ -62,7 +63,7 @@ const fileFields = getFields<PublicFile>({
   mimetype: true,
   size: true,
   encoding: true,
-  extension: true,
+  ext: true,
   idPath: true,
   namepath: true,
   version: true,
@@ -74,7 +75,7 @@ export const fileListExtractor = makeListExtract(fileFields);
 export async function checkFileAuthorization(
   agent: SessionAgent,
   file: Pick<File, 'idPath' | 'workspaceId'>,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   opts?: SemanticProviderOpParams
 ) {
   const workspace = await checkWorkspaceExists(file.workspaceId, opts);
@@ -95,7 +96,7 @@ export async function checkFileAuthorization(
 export async function getAndCheckFileAuthorization(props: {
   agent: SessionAgent;
   matcher: FileMatcher;
-  action: PermissionAction;
+  action: FimidaraPermissionAction;
   opts: SemanticProviderMutationParams;
   incrementPresignedPathUsageCount: boolean;
   shouldIngestFile?: boolean;
@@ -128,17 +129,17 @@ export async function getAndCheckFileAuthorization(props: {
 
 export interface FilenameInfo {
   filenameExcludingExt: string;
-  extension?: string;
+  ext?: string;
   providedName: string;
 }
 
 export function getFilenameInfo(providedName: string): FilenameInfo {
   providedName = providedName.startsWith('/') ? providedName.slice(1) : providedName;
-  const {basename, ext: extension} = pathBasename(providedName);
+  const {basename, ext} = pathBasename(providedName);
 
   return {
     providedName,
-    extension,
+    ext,
     filenameExcludingExt: basename,
   };
 }
@@ -147,7 +148,7 @@ export interface FilepathInfo extends FilenameInfo, FolderpathInfo {}
 
 export function getFilepathInfo(
   path: string | string[],
-  options: {/** Defaults to `true` */ containsRootname?: boolean} = {}
+  options: GetFolderpathInfoOptions
 ): FilepathInfo {
   const folderpathInfo = getFolderpathInfo(path, options);
   const filenameInfo = getFilenameInfo(folderpathInfo.name);
@@ -170,7 +171,10 @@ export function throwPresignedPathNotFound() {
 
 export async function getWorkspaceFromFilepath(filepath: string): Promise<Workspace> {
   const workspaceModel = kSemanticModels.workspace();
-  const pathinfo = getFilepathInfo(filepath);
+  const pathinfo = getFilepathInfo(filepath, {
+    allowRootFolder: false,
+    containsRootname: true,
+  });
   assertRootname(pathinfo.rootname);
   const workspace = await workspaceModel.getByRootname(pathinfo.rootname);
   appAssert(
@@ -201,12 +205,12 @@ export function assertFile(file: File | PresignedPath | null | undefined): asser
 }
 
 export function stringifyFilenamepath(
-  file: Pick<File, 'namepath' | 'extension'>,
+  file: Pick<File, 'namepath' | 'ext'>,
   rootname?: string
 ) {
   const name =
     pathJoin(file.namepath) +
-    (file.extension ? `${kFileConstants.nameExtensionSeparator}${file.extension}` : '');
+    (file.ext ? `${kFileConstants.nameextSeparator}${file.ext}` : '');
   return rootname ? addRootnameToPath(name, rootname) : name;
 }
 
@@ -226,7 +230,7 @@ export function createNewFile(
     {
       workspaceId: workspaceId,
       resourceId: fileId,
-      extension: pathinfo.extension,
+      ext: pathinfo.ext,
       name: pathinfo.filenameExcludingExt,
       idPath: parentFolder ? parentFolder.idPath.concat(fileId) : [fileId],
       namepath: parentFolder
@@ -248,7 +252,7 @@ export function createNewFile(
 }
 
 export async function createNewFileAndEnsureFolders(
-  agent: Agent,
+  agent: SessionAgent,
   workspace: Workspace,
   pathinfo: FilepathInfo,
   data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
@@ -270,21 +274,24 @@ export async function createNewFileAndEnsureFolders(
 
 export async function ingestFileByFilepath(props: {
   /** agent used for ingesting */
-  agent: Agent;
-  /** filepath with extension and workspace rootname */
-  filepath: string;
+  agent: SessionAgent;
+  /** filepath with ext and workspace rootname */
+  fimidaraFilepath: string;
   opts: SemanticProviderMutationParams;
   workspace?: Workspace;
   /** Reuse mounts and mountWeights */
   mounts?: FileBackendMount[];
   mountWeights?: FileBackendMountWeights;
 }) {
-  const {agent, filepath, opts} = props;
+  const {agent, fimidaraFilepath, opts} = props;
   let {workspace, mounts, mountWeights} = props;
-  const pathinfo = getFilepathInfo(filepath);
+  const pathinfo = getFilepathInfo(fimidaraFilepath, {
+    allowRootFolder: false,
+    containsRootname: true,
+  });
 
   if (!workspace) {
-    workspace = await getWorkspaceFromFilepath(filepath);
+    workspace = await getWorkspaceFromFilepath(fimidaraFilepath);
   }
 
   if (mounts) {
@@ -296,28 +303,52 @@ export async function ingestFileByFilepath(props: {
     ));
   }
 
-  const configs = await getBackendConfigsWithIdList(
-    compact(mounts.map(mount => mount.configId)),
-    /** throw error is config is not found */ true,
-    opts
-  );
+  const [configs, mountEntries] = await Promise.all([
+    getBackendConfigsWithIdList(
+      compact(mounts.map(mount => mount.configId)),
+      /** throw error is config is not found */ true,
+      opts
+    ),
+    kSemanticModels
+      .resolvedMountEntry()
+      .getLatestByFimidaraNamepathAndExt(
+        workspace.resourceId,
+        pathinfo.namepath,
+        pathinfo.ext,
+        opts
+      ),
+  ]);
+
   const providersMap = await initBackendProvidersForMounts(mounts, configs);
-  const fileEntries = await Promise.all(
+  const mountEntriesMapByMountId: Record<string, ResolvedMountEntry | undefined> = keyBy(
+    mountEntries,
+    mountEntry => mountEntry.mountId
+  );
+
+  const persistedFileList = await Promise.all(
     mounts.map(async mount => {
       const provider = providersMap[mount.resourceId];
+      const mountEntry = mountEntriesMapByMountId[mount.resourceId];
       appAssert(provider);
+      appAssert(workspace);
 
       return await provider.describeFile({
         mount,
-        workspaceId: workspace!.resourceId,
-        filepath: pathJoin(pathinfo.namepath),
+        workspaceId: workspace.resourceId,
+        filepath: mountEntry
+          ? stringifyFilenamepath({
+              namepath: mountEntry.backendNamepath,
+              ext: mountEntry.backendExt,
+            })
+          : stringifyFilenamepath(pathinfo),
+        fileId: mountEntry?.forId,
       });
     })
   );
 
-  const fileEntry0 = first(fileEntries);
+  const fileEntry0 = first(persistedFileList);
 
   if (fileEntry0) {
-    await ingestPersistedFiles(agent, workspace, compact(fileEntries));
+    await ingestPersistedFiles(agent, workspace, compact(persistedFileList));
   }
 }

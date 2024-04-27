@@ -1,22 +1,75 @@
 import {ResolvedMountEntry} from '../../../../definitions/fileBackend';
-import {DataQuery} from '../../data/types';
+import {appAssert} from '../../../../utils/assertion';
+import {FileBackendQueries} from '../../../fileBackends/queries';
+import {DataQuery, ResolvedMountEntryQuery} from '../../data/types';
 import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider';
 import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
-import {SemanticProviderQueryListParams} from '../types';
+import {SemanticProviderQueryParams} from '../types';
 import {SemanticResolvedMountEntryProvider} from './types';
 
 export class DataSemanticResolvedMountEntry
   extends DataSemanticWorkspaceResourceProvider<ResolvedMountEntry>
   implements SemanticResolvedMountEntryProvider
 {
-  getMountEntries = (
+  getOneByMountIdAndFileId = async (
     mountId: string,
-    opts?: SemanticProviderQueryListParams<ResolvedMountEntry>
-  ): Promise<ResolvedMountEntry[]> => {
+    fileId: string,
+    opts?: SemanticProviderQueryParams<ResolvedMountEntry> | undefined
+  ) => {
     const query = addIsDeletedIntoQuery<DataQuery<ResolvedMountEntry>>(
-      {mountId},
+      {mountId, forId: fileId},
       opts?.includeDeleted || false
     );
-    return this.data.getManyByQuery(query, opts);
+
+    return await this.data.getOneByQuery(query, opts);
+  };
+
+  getLatestByFimidaraNamepathAndExt = async (
+    workspaceId: string,
+    fimidaraNamepath: string[],
+    fimidaraExt: string | undefined,
+    opts?: SemanticProviderQueryParams<ResolvedMountEntry> | undefined
+  ) => {
+    const query = addIsDeletedIntoQuery<DataQuery<ResolvedMountEntry>>(
+      FileBackendQueries.getByFimidaraNamepath({
+        workspaceId,
+        fimidaraNamepath,
+        fimidaraExt,
+      }),
+      opts?.includeDeleted || false
+    );
+
+    return await this.data.getManyByQuery(query, opts);
+  };
+
+  getLatestByForId = async (
+    forId: string,
+    opts?: SemanticProviderQueryParams<ResolvedMountEntry> | undefined
+  ) => {
+    const query = addIsDeletedIntoQuery<DataQuery<ResolvedMountEntry>>(
+      {forId},
+      opts?.includeDeleted || false
+    );
+
+    return await this.data.getManyByQuery(query, opts);
+  };
+
+  getLatestForManyFimidaraNamepathAndExt = async (
+    workspaceId: string,
+    entries: {fimidaraNamepath: string[]; fimidaraExt?: string | undefined}[],
+    opts?: SemanticProviderQueryParams<ResolvedMountEntry> | undefined
+  ) => {
+    const queries = entries.map(entry =>
+      addIsDeletedIntoQuery<DataQuery<ResolvedMountEntry>>(
+        FileBackendQueries.getByFimidaraNamepath({workspaceId, ...entry}),
+        opts?.includeDeleted || false
+      )
+    );
+    const query: ResolvedMountEntryQuery = {
+      $or: queries,
+    };
+
+    appAssert(queries.length);
+    return await this.data.getManyByQuery(query, opts);
   };
 }

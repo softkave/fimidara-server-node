@@ -6,7 +6,7 @@ const fileSchema = ensureMongoTypeFields<File>({
   ...workspaceResourceSchema,
   idPath: {type: [String], index: true},
   namepath: {type: [String], index: true},
-  extension: {type: String, index: true},
+  ext: {type: String, index: true},
   parentId: {type: String, index: true},
   name: {type: String, index: true},
   size: {type: Number},

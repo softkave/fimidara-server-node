@@ -1,6 +1,7 @@
 import assert from 'assert';
 import {kFileBackendType} from '../../../definitions/fileBackend';
 import RequestData from '../../RequestData';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {MemoryFilePersistenceProvider} from '../../contexts/file/MemoryFilePersistenceProvider';
 import {
   FilePersistenceProvider,
@@ -16,7 +17,7 @@ import {
 } from '../../testUtils/generate/file';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {expectFileBodyEqual} from '../../testUtils/helpers/file';
-import {completeTests, softkaveTest} from '../../testUtils/helpers/testFns';
+import {completeTests, skTest} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,
@@ -50,7 +51,7 @@ afterEach(async () => {
 });
 
 describe('uploadFile', () => {
-  softkaveTest.run('file uploaded to closest parent backend', async () => {
+  skTest.run('file uploaded to closest parent backend', async () => {
     const insertUserResult = await insertUserForTest();
     const {userToken} = insertUserResult;
     const insertWorkspaceResult = await insertWorkspaceForTest(userToken);
@@ -106,7 +107,7 @@ describe('uploadFile', () => {
     expect(dbFile?.isWriteAvailable).toBeTruthy();
   });
 
-  softkaveTest.run(
+  skTest.run(
     'file uploaded to primary backend when parent has multiple mounts',
     async () => {
       const insertUserResult = await insertUserForTest();
@@ -164,7 +165,7 @@ describe('uploadFile', () => {
     }
   );
 
-  softkaveTest.run('file updated when new data uploaded', async () => {
+  skTest.run('file updated when new data uploaded', async () => {
     const backend = new MemoryFilePersistenceProvider();
     kRegisterUtilsInjectables.fileProviderResolver(() => {
       return backend;
@@ -190,14 +191,16 @@ describe('uploadFile', () => {
 
     const agent = await kUtilsInjectables
       .session()
-      .getAgent(
+      .getAgentFromReq(
         RequestData.fromExpressRequest(
           mockExpressRequestWithAgentToken(insertUserResult.userToken)
-        )
+        ),
+        kSessionUtils.permittedAgentTypes.api,
+        kSessionUtils.accessScopes.api
       );
     expect(savedFile.resourceId).toBe(updatedFile.resourceId);
     expect(savedFile.name).toBe(updatedFile.name);
-    expect(savedFile.extension).toBe(updatedFile.extension);
+    expect(savedFile.ext).toBe(updatedFile.ext);
     expect(savedFile.idPath).toEqual(expect.arrayContaining(updatedFile.idPath));
     expect(savedFile.namepath).toEqual(expect.arrayContaining(updatedFile.namepath));
     expect(savedFile.description).not.toBe(updatedFile.description);
@@ -225,7 +228,7 @@ describe('uploadFile', () => {
     expectFileBodyEqual(dataBuffer, persistedFile.body);
   });
 
-  softkaveTest.run('file not duplicated', async () => {
+  skTest.run('file not duplicated', async () => {
     const {savedFile, insertUserResult, insertWorkspaceResult} =
       await uploadFileBaseTest();
     const update: Partial<UploadFileEndpointParams> = {
@@ -247,14 +250,14 @@ describe('uploadFile', () => {
     expect(files.length).toBe(1);
   });
 
-  softkaveTest.run('file sized correctly', async () => {
+  skTest.run('file sized correctly', async () => {
     const {dataBuffer, savedFile} = await uploadFileBaseTest(/** seed */ {}, 'png');
 
     expect(dataBuffer.byteLength).toBeGreaterThan(0);
     expect(savedFile.size).toBe(dataBuffer.byteLength);
   });
 
-  softkaveTest.run('file versioned correctly', async () => {
+  skTest.run('file versioned correctly', async () => {
     const result01 = await uploadFileBaseTest(/** seeed */ {}, 'png');
     const {insertUserResult, insertWorkspaceResult} = result01;
     let {savedFile} = result01;
@@ -279,20 +282,20 @@ describe('uploadFile', () => {
     expect(dbFile?.version).toBe(2);
   });
 
-  softkaveTest.run('files with same name but diff ext are separate', async () => {
+  skTest.run('files with same name but diff ext are separate', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const filepath01 = generateTestFileName({
       rootname: workspace.rootname,
-      extension: 'txt01',
+      ext: 'txt01',
     });
     const filepath02 = generateTestFileName({
       rootname: workspace.rootname,
-      extension: 'txt02',
+      ext: 'txt02',
     });
     const filepath03 = generateTestFileName({
       rootname: workspace.rootname,
-      extension: 'txt03',
+      ext: 'txt03',
     });
 
     await Promise.all([
@@ -301,24 +304,33 @@ describe('uploadFile', () => {
       insertFileForTest(userToken, workspace, {filepath: filepath03}, 'txt'),
     ]);
 
-    const pathinfo01 = getFilepathInfo(filepath01);
-    const pathinfo02 = getFilepathInfo(filepath02);
-    const pathinfo03 = getFilepathInfo(filepath03);
+    const pathinfo01 = getFilepathInfo(filepath01, {
+      containsRootname: true,
+      allowRootFolder: false,
+    });
+    const pathinfo02 = getFilepathInfo(filepath02, {
+      containsRootname: true,
+      allowRootFolder: false,
+    });
+    const pathinfo03 = getFilepathInfo(filepath03, {
+      containsRootname: true,
+      allowRootFolder: false,
+    });
     const [dbFile01, dbFile02, dbFile03] = await Promise.all([
       kSemanticModels.file().getOneByNamepath({
         workspaceId: workspace.resourceId,
         namepath: pathinfo01.namepath,
-        extension: pathinfo01.extension,
+        ext: pathinfo01.ext,
       }),
       kSemanticModels.file().getOneByNamepath({
         workspaceId: workspace.resourceId,
         namepath: pathinfo02.namepath,
-        extension: pathinfo02.extension,
+        ext: pathinfo02.ext,
       }),
       kSemanticModels.file().getOneByNamepath({
         workspaceId: workspace.resourceId,
         namepath: pathinfo03.namepath,
-        extension: pathinfo03.extension,
+        ext: pathinfo03.ext,
       }),
     ]);
 
@@ -329,24 +341,24 @@ describe('uploadFile', () => {
     expect(dbFile01?.resourceId).not.toBe(dbFile03?.resourceId);
     expect(dbFile02?.resourceId).not.toBe(dbFile03?.resourceId);
 
-    // Replace file to confirm only the file with that extension is updated
+    // Replace file to confirm only the file with that ext is updated
     await insertFileForTest(userToken, workspace, {filepath: filepath01}, 'txt');
 
     const [latestDbFile01, latestDbFile02, latestDbFile03] = await Promise.all([
       kSemanticModels.file().getOneByNamepath({
         workspaceId: workspace.resourceId,
         namepath: pathinfo01.namepath,
-        extension: pathinfo01.extension,
+        ext: pathinfo01.ext,
       }),
       kSemanticModels.file().getOneByNamepath({
         workspaceId: workspace.resourceId,
         namepath: pathinfo02.namepath,
-        extension: pathinfo02.extension,
+        ext: pathinfo02.ext,
       }),
       kSemanticModels.file().getOneByNamepath({
         workspaceId: workspace.resourceId,
         namepath: pathinfo03.namepath,
-        extension: pathinfo03.extension,
+        ext: pathinfo03.ext,
       }),
     ]);
 
@@ -355,55 +367,50 @@ describe('uploadFile', () => {
     expect(latestDbFile03?.lastUpdatedAt).toBe(dbFile03?.lastUpdatedAt);
   });
 
-  softkaveTest.run(
-    'file not read available if is new until upload is complete',
-    async () => {
-      const insertUserResult = await insertUserForTest();
-      const insertWorkspaceResult = await insertWorkspaceForTest(
-        insertUserResult.userToken
-      );
+  skTest.run('file not read available if is new until upload is complete', async () => {
+    const insertUserResult = await insertUserForTest();
+    const insertWorkspaceResult = await insertWorkspaceForTest(
+      insertUserResult.userToken
+    );
 
-      const {workspace} = insertWorkspaceResult;
-      const filepath = generateTestFilepathString({rootname: workspace.rootname});
+    const {workspace} = insertWorkspaceResult;
+    const filepath = generateTestFilepathString({rootname: workspace.rootname});
 
-      async function expectReadFileFails() {
-        try {
-          const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
-            mockExpressRequestWithAgentToken(insertUserResult.userToken),
-            {filepath}
-          );
-          await readFile(instData);
-        } catch (error) {
-          expect((error as Error)?.name).toBe(FileNotWritableError.name);
-        }
+    async function expectReadFileFails() {
+      try {
+        const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+          mockExpressRequestWithAgentToken(insertUserResult.userToken),
+          {filepath}
+        );
+        await readFile(instData);
+      } catch (error) {
+        expect((error as Error)?.name).toBe(FileNotWritableError.name);
       }
-
-      class TestFileProvider
-        extends MemoryFilePersistenceProvider
-        implements FilePersistenceProvider
-      {
-        uploadFile = async (
-          params: FilePersistenceUploadFileParams
-        ): Promise<Partial<File>> => {
-          await expectReadFileFails();
-          return super.uploadFile(params);
-        };
-      }
-
-      kRegisterUtilsInjectables.fileProviderResolver(() => {
-        return new TestFileProvider();
-      });
-
-      await uploadFileBaseTest(
-        /** input */ {filepath},
-        'png',
-        insertUserResult,
-        insertWorkspaceResult
-      );
     }
-  );
 
-  softkaveTest.run('file read available if file is existing', async () => {
+    class TestFileProvider
+      extends MemoryFilePersistenceProvider
+      implements FilePersistenceProvider
+    {
+      uploadFile = async (params: FilePersistenceUploadFileParams) => {
+        await expectReadFileFails();
+        return super.uploadFile(params);
+      };
+    }
+
+    kRegisterUtilsInjectables.fileProviderResolver(() => {
+      return new TestFileProvider();
+    });
+
+    await uploadFileBaseTest(
+      /** input */ {filepath},
+      'png',
+      insertUserResult,
+      insertWorkspaceResult
+    );
+  });
+
+  skTest.run('file read available if file is existing', async () => {
     const mem = new MemoryFilePersistenceProvider();
     kRegisterUtilsInjectables.fileProviderResolver(() => {
       return mem;
@@ -433,9 +440,7 @@ describe('uploadFile', () => {
     }
 
     const memUploadFile = mem.uploadFile.bind(mem);
-    mem.uploadFile = async (
-      params: FilePersistenceUploadFileParams
-    ): Promise<Partial<File>> => {
+    mem.uploadFile = async (params: FilePersistenceUploadFileParams) => {
       await expectReadFileSucceeds();
       return memUploadFile(params);
     };
@@ -448,7 +453,7 @@ describe('uploadFile', () => {
     );
   });
 
-  softkaveTest.run('file marked write available on error', async () => {
+  skTest.run('file marked write available on error', async () => {
     const insertUserResult = await insertUserForTest();
     const insertWorkspaceResult = await insertWorkspaceForTest(
       insertUserResult.userToken
@@ -462,7 +467,7 @@ describe('uploadFile', () => {
       extends MemoryFilePersistenceProvider
       implements FilePersistenceProvider
     {
-      uploadFile = async (): Promise<Partial<File>> => {
+      uploadFile = async () => {
         throw new Error();
       };
     }
@@ -486,7 +491,7 @@ describe('uploadFile', () => {
     expect(dbFile?.isWriteAvailable).toBeTruthy();
   });
 
-  softkaveTest.run('cannot double write file', async () => {
+  skTest.run('cannot double write file', async () => {
     const insertUserResult = await insertUserForTest();
     const insertWorkspaceResult = await insertWorkspaceForTest(
       insertUserResult.userToken
@@ -511,9 +516,7 @@ describe('uploadFile', () => {
       extends MemoryFilePersistenceProvider
       implements FilePersistenceProvider
     {
-      uploadFile = async (
-        params: FilePersistenceUploadFileParams
-      ): Promise<Partial<File>> => {
+      uploadFile = async (params: FilePersistenceUploadFileParams) => {
         await expectWriteFileFails();
         return super.uploadFile(params);
       };

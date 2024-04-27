@@ -1,6 +1,6 @@
 import {File} from '../../../definitions/file';
 import {Folder} from '../../../definitions/folder';
-import {kPermissionsMap} from '../../../definitions/permissionItem';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
 import {SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {
@@ -34,7 +34,7 @@ export async function checkUploadFileAuth(
         : closestExistingFolder
         ? getFilePermissionContainers(workspace.resourceId, closestExistingFolder, true)
         : getWorkspacePermissionContainers(workspace.resourceId),
-      action: kPermissionsMap.uploadFile,
+      action: kFimidaraPermissionActionsMap.uploadFile,
     },
   });
 }

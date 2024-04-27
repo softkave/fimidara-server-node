@@ -2,7 +2,10 @@ import {
   PermissionEntityInheritanceMap,
   PermissionGroup,
 } from '../../../../definitions/permissionGroups';
-import {PermissionAction, PermissionItem} from '../../../../definitions/permissionItem';
+import {
+  FimidaraPermissionAction,
+  PermissionItem,
+} from '../../../../definitions/permissionItem';
 import {Resource} from '../../../../definitions/system';
 import {
   SemanticProviderOpParams,
@@ -12,7 +15,7 @@ import {
 
 export type SemanticPermissionProviderType_GetPermissionItemsProps = {
   entityId?: string | string[];
-  action?: PermissionAction | PermissionAction[];
+  action?: FimidaraPermissionAction | FimidaraPermissionAction[];
   targetParentId?: string;
   targetId?: string | string[];
   /** Sort the permission items by last updated date. */
@@ -27,7 +30,7 @@ export type SemanticPermissionProviderType_GetPermissionItemsProps = {
 
 export type SemanticPermissionProviderType_CountPermissionItemsProps = {
   entityId?: string | string[];
-  action?: PermissionAction | PermissionAction[];
+  action?: FimidaraPermissionAction | FimidaraPermissionAction[];
   targetId?: string | string[];
 };
 

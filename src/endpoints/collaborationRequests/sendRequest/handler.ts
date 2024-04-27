@@ -9,6 +9,7 @@ import {appAssert} from '../../../utils/assertion';
 import {formatDate, getTimestamp} from '../../../utils/dateFns';
 import {newWorkspaceResource} from '../../../utils/resource';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {ResourceExistsError} from '../../errors';
@@ -20,7 +21,13 @@ import {sendCollaborationRequestJoiSchema} from './validation';
 
 const sendCollaborationRequest: SendCollaborationRequestEndpoint = async instData => {
   const data = validate(instData.data, sendCollaborationRequestJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   await checkAuthorizationWithAgent({
     agent,

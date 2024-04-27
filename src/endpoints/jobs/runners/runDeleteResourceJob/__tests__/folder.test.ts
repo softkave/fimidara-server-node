@@ -27,6 +27,7 @@ import {
   testDeleteResourceJob0,
   testDeleteResourceSelfJob,
 } from './testUtils';
+import {DeleteResourceCascadeEntry} from '../types';
 
 beforeAll(async () => {
   await initTests();
@@ -61,7 +62,7 @@ const folderGenerateTypeChildren: GenerateTypeChildrenDefinition<Folder> = {
           namepath: generateTestFilepath({
             parentNamepath: resource.namepath,
             length: resource.namepath.length + 1,
-            extension: false,
+            ext: false,
           }),
         }),
       ])
@@ -96,7 +97,7 @@ describe('runDeleteResourceJob, folder', () => {
       genResourceFn: () => Promise.resolve(rawFolder),
       genWorkspaceFn: () => Promise.resolve(workspace.resourceId),
       genChildrenDef: folderGenerateTypeChildren,
-      deleteCascadeDef: deleteFolderCascadeEntry,
+      deleteCascadeDef: deleteFolderCascadeEntry as unknown as DeleteResourceCascadeEntry,
       type: kFimidaraResourceType.Folder,
     });
   });

@@ -1,4 +1,4 @@
-import {PermissionAction} from '../../definitions/permissionItem';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem';
 import {ExportedHttpEndpointWithMddocDefinition} from '../types';
 import {GetResourcesEndpoint} from './getResources/types';
 
@@ -8,7 +8,7 @@ export interface FetchResourceItem {
   folderpath?: string | string[];
   workspaceRootname?: string;
   // TODO: make action optional and default read action for resource
-  action: PermissionAction;
+  action: FimidaraPermissionAction;
 }
 
 export type GetResourcesHttpEndpoint =

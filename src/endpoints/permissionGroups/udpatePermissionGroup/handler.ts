@@ -4,6 +4,7 @@ import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {checkPermissionGroupNameExists} from '../checkPermissionGroupNameExists';
 import {
@@ -16,7 +17,13 @@ import {updatePermissionGroupJoiSchema} from './validation';
 
 const updatePermissionGroup: UpdatePermissionGroupEndpoint = async instData => {
   const data = validate(instData.data, updatePermissionGroupJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   let permissionGroup = await kSemanticModels.utils().withTxn(async opts => {
     const {workspace, permissionGroup} = await checkPermissionGroupAuthorization03(
       agent,

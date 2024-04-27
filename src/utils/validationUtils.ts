@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import {kPermissionsMap} from '../definitions/permissionItem';
+import {kFimidaraPermissionActionsMap} from '../definitions/permissionItem';
 import {kFimidaraResourceTypeList as systemFimidaraResourceTypesList} from '../definitions/system';
 import {kEndpointConstants} from '../endpoints/constants';
 
@@ -54,10 +54,10 @@ const resourceIdOrResourceIdList = Joi.alternatives().try(resourceId, resourceId
 const fromNowMs = Joi.number().integer().min(0);
 const fromNowSecs = Joi.number().integer().min(0);
 const resourceType = Joi.string().valid(...systemFimidaraResourceTypesList);
-const crudAction = Joi.string().valid(...Object.values(kPermissionsMap));
+const crudAction = Joi.string().valid(...Object.values(kFimidaraPermissionActionsMap));
 const crudActionList = Joi.array()
   .items(crudAction)
-  .max(Object.values(kPermissionsMap).length);
+  .max(Object.values(kFimidaraPermissionActionsMap).length);
 const providedResourceId = Joi.string().max(
   kEndpointConstants.providedResourceIdMaxLength
 );

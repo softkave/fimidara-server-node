@@ -1,7 +1,10 @@
 import {isUndefined} from 'lodash';
 import {AppShardId} from '../../../definitions/app';
 import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
-import {PermissionItem, kPermissionsMap} from '../../../definitions/permissionItem';
+import {
+  PermissionItem,
+  kFimidaraPermissionActionsMap,
+} from '../../../definitions/permissionItem';
 import {Agent, kFimidaraResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
@@ -16,7 +19,7 @@ import {
   paginatedFetch,
 } from '../../../utils/paginatedFetch';
 import {DataQuery, kIncludeInProjection} from '../../contexts/data/types';
-import {kSemanticModels} from '../../contexts/injection/injectables';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {DeletePermissionItemInput} from '../../permissionItems/deleteItems/types';
 import {
   PermissionItemTargets,
@@ -109,7 +112,7 @@ const processPermissionItems: PaginatedFetchProcessFn<
       return {
         shard: args.shard,
         createdBy: args.agent,
-        type: kJobType.deleteResource0,
+        type: kJobType.deleteResource,
         idempotencyToken: Date.now().toString(),
         params: {
           workspaceId: args.workspaceId,
@@ -123,19 +126,22 @@ const processPermissionItems: PaginatedFetchProcessFn<
 
 export async function runDeletePermissionItemsJob(job: Job<DeletePermissionItemInput>) {
   const workspaceId = job.workspaceId;
-  const agent = job.createdBy;
   const item: DeletePermissionItemInput = job.params;
 
   appAssert(workspaceId, 'workspaceId not present in job');
-  appAssert(agent, 'agent not present in job');
-  const workspace = await kSemanticModels.workspace().getOneById(workspaceId);
+  appAssert(job.createdBy, 'agent not present in job');
+
+  const [workspace, agent] = await Promise.all([
+    kSemanticModels.workspace().getOneById(workspaceId),
+    kUtilsInjectables.session().getAgentByAgentTokenId(job.createdBy.agentTokenId),
+  ]);
   appAssert(workspace, 'workspace not found');
 
   const targets = await getPermissionItemTargets(
     agent,
     workspace,
     item.target || [],
-    kPermissionsMap.updatePermission
+    kFimidaraPermissionActionsMap.updatePermission
   );
 
   const query = deletePermissionItemInputToQuery(workspaceId, item, targets);

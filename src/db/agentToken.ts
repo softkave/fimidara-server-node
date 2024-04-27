@@ -1,6 +1,6 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {AgentToken} from '../definitions/agentToken';
-import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
+import {AgentToken} from '../definitions/agentToken.js';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils.js';
 
 const agentTokenSchema = ensureMongoTypeFields<AgentToken>({
   ...workspaceResourceSchema,

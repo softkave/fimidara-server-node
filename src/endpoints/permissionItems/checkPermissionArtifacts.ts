@@ -1,5 +1,5 @@
 import {format} from 'util';
-import {PermissionAction} from '../../definitions/permissionItem';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem';
 import {
   SessionAgent,
   getWorkspaceResourceTypeList,
@@ -20,7 +20,7 @@ export async function checkPermissionEntitiesExist(
   agent: SessionAgent,
   workspaceId: string,
   entities: Array<string>,
-  action: PermissionAction
+  action: FimidaraPermissionAction
 ) {
   if (entities.length === 0) {
     return;
@@ -49,7 +49,7 @@ export async function checkPermissionContainersExist(
   agent: SessionAgent,
   workspaceId: string,
   items: Array<string>,
-  action: PermissionAction
+  action: FimidaraPermissionAction
 ) {
   items.forEach(id => {
     const containerType = getResourceTypeFromId(id);
@@ -82,7 +82,7 @@ export async function checkPermissionTargetsExist(
   agent: SessionAgent,
   workspaceId: string,
   items: Array<string>,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   containerId?: string
 ) {
   /**

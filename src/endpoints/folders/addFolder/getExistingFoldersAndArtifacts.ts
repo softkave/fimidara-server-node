@@ -15,7 +15,10 @@ export async function getExistingFoldersAndArtifacts(
 ) {
   const inputList = convertToArray(input);
   const pathinfoList: FolderpathInfo[] = inputList.map(nextInput =>
-    getFolderpathInfo(nextInput.folderpath)
+    getFolderpathInfo(nextInput.folderpath, {
+      containsRootname: true,
+      allowRootFolder: false,
+    })
   );
 
   // Make a set of individual folders, so "/parent/folder" will become

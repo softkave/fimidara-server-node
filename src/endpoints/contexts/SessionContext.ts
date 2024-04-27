@@ -12,13 +12,12 @@ import {
   kTokenAccessScope,
 } from '../../definitions/system';
 import {User} from '../../definitions/user';
-import {kPublicSessionAgent} from '../../utils/agent';
+import {kPublicSessionAgent, kSystemSessionAgent} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {dateToSeconds} from '../../utils/dateFns';
 import {ServerError} from '../../utils/errors';
 import {cast, convertToArray} from '../../utils/fns';
 import {indexArray} from '../../utils/indexArray';
-import {getResourceTypeFromId} from '../../utils/resource';
 import {kReuseableErrors} from '../../utils/reusableErrors';
 import {
   makeUserSessionAgent,
@@ -32,16 +31,33 @@ import {
 } from '../users/errors';
 import {kSemanticModels, kUtilsInjectables} from './injection/injectables';
 
+export const kSessionUtils = {
+  permittedAgentTypes: {
+    user: [kFimidaraResourceType.User],
+    api: [
+      kFimidaraResourceType.User,
+      kFimidaraResourceType.AgentToken,
+      kFimidaraResourceType.Public,
+    ],
+  },
+  accessScopes: {
+    user: [kTokenAccessScope.login],
+    changePassword: [kTokenAccessScope.changePassword],
+    confirmEmailAddress: [kTokenAccessScope.confirmEmailAddress],
+    api: [kTokenAccessScope.login, kTokenAccessScope.access],
+  },
+};
+
 export interface SessionContextType {
-  getAgent: (
+  getAgentFromReq: (
     data: RequestData,
-    permittedAgentTypes?: FimidaraResourceType | FimidaraResourceType[],
-    tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
+    permittedAgentTypes: FimidaraResourceType | FimidaraResourceType[],
+    tokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) => Promise<SessionAgent>;
-  getAgentById: (id: string) => Promise<SessionAgent>;
+  getAgentByAgentTokenId: (agentTokenId: string) => Promise<SessionAgent>;
   getUser: (
     data: RequestData,
-    tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
+    tokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) => Promise<User>;
   decodeToken: (token: string) => BaseTokenData<TokenSubjectDefault>;
   tokenContainsScope: (
@@ -56,13 +72,10 @@ export interface SessionContextType {
 }
 
 export default class SessionContext implements SessionContextType {
-  getAgent = async (
+  getAgentFromReq = async (
     data: RequestData,
-    permittedAgentTypes: FimidaraResourceType | FimidaraResourceType[] = [
-      kFimidaraResourceType.User,
-      kFimidaraResourceType.AgentToken,
-    ],
-    tokenAccessScope: TokenAccessScope | TokenAccessScope[] = kTokenAccessScope.Login
+    permittedAgentTypes: FimidaraResourceType | FimidaraResourceType[],
+    tokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) => {
     const incomingTokenData = data.incomingTokenData;
     let agent: SessionAgent | null | undefined = data.agent;
@@ -94,35 +107,33 @@ export default class SessionContext implements SessionContextType {
     return agent;
   };
 
-  getAgentById = async (id: string): Promise<SessionAgent> => {
-    const type = getResourceTypeFromId(id);
-
-    switch (type) {
-      case kFimidaraResourceType.User: {
-        const user = await kSemanticModels.user().getOneById(id);
-        const token = await kSemanticModels.agentToken().getOneByQuery({forEntityId: id});
-        appAssert(user);
-        appAssert(token);
-        return makeUserSessionAgent(user, token);
-      }
-
-      case kFimidaraResourceType.AgentToken: {
-        const token = await kSemanticModels.agentToken().getOneById(id);
-        appAssert(token);
-        return makeWorkspaceAgentTokenAgent(token);
-      }
+  getAgentByAgentTokenId = async (agentTokenId: string): Promise<SessionAgent> => {
+    if (agentTokenId === kSystemSessionAgent.agentTokenId) {
+      return kSystemSessionAgent;
+    } else if (agentTokenId === kPublicSessionAgent.agentTokenId) {
+      return kPublicSessionAgent;
     }
 
-    throw new Error(`Unsupported agent type ${type} from ID ${id}`);
+    const agentToken = await kSemanticModels.agentToken().getOneById(agentTokenId);
+    appAssert(agentToken, new InvalidCredentialsError());
+
+    if (agentToken.entityType === kFimidaraResourceType.User) {
+      appAssert(agentToken.forEntityId);
+      const user = await kSemanticModels.user().getOneById(agentToken.forEntityId);
+      appAssert(user, kReuseableErrors.user.notFound());
+      return makeUserSessionAgent(user, agentToken);
+    } else {
+      return makeWorkspaceAgentTokenAgent(agentToken);
+    }
   };
 
   getUser = async (
     data: RequestData,
-    tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
+    tokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) => {
     const agent = await kUtilsInjectables
       .session()
-      .getAgent(data, [kFimidaraResourceType.User], tokenAccessScope);
+      .getAgentFromReq(data, [kFimidaraResourceType.User], tokenAccessScope);
     appAssert(agent.user, new ServerError());
     return agent.user;
   };
@@ -190,20 +201,16 @@ export default class SessionContext implements SessionContextType {
 
   private checkAgentTokenAccessScope(
     agent: SessionAgent,
-    tokenAccessScope?: TokenAccessScope | TokenAccessScope[]
+    tokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) {
-    if (
-      tokenAccessScope &&
-      agent.agentType === kFimidaraResourceType.User &&
-      agent.agentToken
-    ) {
-      if (
-        !kUtilsInjectables
-          .session()
-          .tokenContainsScope(agent.agentToken, tokenAccessScope)
-      )
-        throw new PermissionDeniedError();
-    }
+    const containsScope = kUtilsInjectables
+      .session()
+      .tokenContainsScope(agent.agentToken, tokenAccessScope);
+    appAssert(
+      containsScope,
+      new PermissionDeniedError(),
+      `${agent.agentType} with scopes [${agent.agentToken.scope}] does not contain [${tokenAccessScope}]`
+    );
   }
 
   private checkRequiresPasswordChange(
@@ -217,9 +224,9 @@ export default class SessionContext implements SessionContextType {
         const agentToken = agent.agentToken;
         if (
           !agentToken ||
-          !this.tokenContainsScope(agentToken, kTokenAccessScope.ChangePassword) ||
+          !this.tokenContainsScope(agentToken, kTokenAccessScope.changePassword) ||
           // Action must be strictly change password
-          first(scopeList) !== kTokenAccessScope.ChangePassword ||
+          first(scopeList) !== kTokenAccessScope.changePassword ||
           scopeList.length > 1
         )
           throw kReuseableErrors.user.changePassword();

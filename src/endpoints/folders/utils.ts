@@ -1,10 +1,10 @@
-import {compact, defaultTo, first, isArray, last} from 'lodash';
+import {compact, defaultTo, first, isArray, keyBy, last} from 'lodash';
 import {Folder, FolderMatcher, PublicFolder} from '../../definitions/folder';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
 import {isPathEmpty, pathJoin, pathSplit} from '../../utils/fns';
 
-import {FileBackendMount} from '../../definitions/fileBackend';
-import {PermissionAction} from '../../definitions/permissionItem';
+import {FileBackendMount, ResolvedMountEntry} from '../../definitions/fileBackend';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem';
 import {Agent, SessionAgent, kFimidaraResourceType} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
@@ -88,17 +88,18 @@ export interface FolderpathInfo {
   rootname?: string;
 }
 
+export interface GetFolderpathInfoOptions {
+  /** Whether `input` contains workspace rootname or not */
+  containsRootname: boolean;
+  /** Whether to allow an empty folder name representing root folder or not */
+  allowRootFolder: boolean;
+}
+
 export function getFolderpathInfo(
   input: string | string[],
-  options: {
-    /** Whether `input` contains workspace rootname or not. Defaults to `true`. */
-    containsRootname?: boolean;
-    /** Whether to allow an empty folder name representing root folder or not.
-     * Defaults to `false`. */
-    allowRootFolder?: boolean;
-  } = {}
+  options: GetFolderpathInfoOptions
 ): FolderpathInfo {
-  const {containsRootname = true, allowRootFolder = false} = options;
+  const {containsRootname, allowRootFolder} = options;
   const splitPath = splitFolderpath(input);
   const rootname = containsRootname ? splitPath.shift() : undefined;
   const name = defaultTo(last(splitPath), '');
@@ -138,7 +139,7 @@ export async function checkFolderAuthorization<
 >(
   agent: SessionAgent,
   folder: T,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   workspace?: Workspace,
   opts?: SemanticProviderOpParams
 ) {
@@ -163,7 +164,7 @@ export async function checkFolderAuthorization<
 export async function checkFolderAuthorization02(
   agent: SessionAgent,
   matcher: FolderMatcher,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   workspace?: Workspace,
   opts?: SemanticProviderMutationParams
 ) {
@@ -281,7 +282,10 @@ export async function ensureFolders(
 
 export async function getWorkspaceFromFolderpath(folderpath: string): Promise<Workspace> {
   const workspaceModel = kSemanticModels.workspace();
-  const pathinfo = getFolderpathInfo(folderpath);
+  const pathinfo = getFolderpathInfo(folderpath, {
+    allowRootFolder: false,
+    containsRootname: true,
+  });
   assertRootname(pathinfo.rootname);
   const workspace = await workspaceModel.getByRootname(pathinfo.rootname);
 
@@ -318,7 +322,7 @@ export function createNewFolder(
 }
 
 export async function createNewFolderAndEnsureParents(
-  agent: Agent,
+  agent: SessionAgent,
   workspace: Workspace,
   pathinfo: FolderpathInfo,
   data: Pick<Folder, 'description'>,
@@ -330,7 +334,7 @@ export async function createNewFolderAndEnsureParents(
 }
 
 export async function createAndInsertNewFolder(
-  agent: Agent,
+  agent: SessionAgent,
   workspace: Workspace,
   pathinfo: FolderpathInfo,
   data: Pick<Folder, 'description'>,
@@ -351,18 +355,21 @@ export async function createAndInsertNewFolder(
 }
 
 export async function ingestFolderByFolderpath(
-  agent: Agent,
+  agent: SessionAgent,
   /** folderpath with workspace rootname */
-  folderpath: string,
+  fimidaraFolderpath: string,
   workspaceId: string,
   workspace?: Workspace,
   mounts?: FileBackendMount[],
   mountWeights?: FileBackendMountWeights
 ) {
-  const pathinfo = getFolderpathInfo(folderpath);
+  const pathinfo = getFolderpathInfo(fimidaraFolderpath, {
+    allowRootFolder: false,
+    containsRootname: true,
+  });
 
   if (!workspace) {
-    workspace = await getWorkspaceFromFolderpath(folderpath);
+    workspace = await getWorkspaceFromFolderpath(fimidaraFolderpath);
   }
 
   if (mounts) {
@@ -374,33 +381,51 @@ export async function ingestFolderByFolderpath(
     }));
   }
 
-  const configs = await getBackendConfigsWithIdList(
-    compact(mounts.map(mount => mount.configId)),
-    /** throw error is config is not found */ true
-  );
+  const [configs, mountEntries] = await Promise.all([
+    getBackendConfigsWithIdList(
+      compact(mounts.map(mount => mount.configId)),
+      /** throw error is config is not found */ true
+    ),
+    kSemanticModels
+      .resolvedMountEntry()
+      .getLatestByFimidaraNamepathAndExt(
+        workspace.resourceId,
+        pathinfo.namepath,
+        /** ext */ undefined
+      ),
+  ]);
+
   const providersMap = await initBackendProvidersForMounts(mounts, configs);
-  const folderEntries = await Promise.all(
+  const mountEntriesMapByMountId: Record<string, ResolvedMountEntry | undefined> = keyBy(
+    mountEntries,
+    mountEntry => mountEntry.mountId
+  );
+
+  const persistedFolderList = await Promise.all(
     mounts.map(async mount => {
       const provider = providersMap[mount.resourceId];
+      const mountEntry = mountEntriesMapByMountId[mount.resourceId];
       appAssert(provider);
 
       return await provider.describeFolder({
-        workspaceId,
         mount,
-        folderpath: pathJoin(pathinfo.namepath),
+        workspaceId,
+        folderpath: mountEntry
+          ? pathJoin(mountEntry.backendNamepath)
+          : pathJoin(pathinfo.namepath),
       });
     })
   );
 
-  const folderEntry0 = first(folderEntries);
+  const folderEntry0 = first(persistedFolderList);
 
   if (folderEntry0) {
-    await ingestPersistedFolders(agent, workspace, compact(folderEntries));
+    await ingestPersistedFolders(agent, workspace, compact(persistedFolderList));
   }
 }
 
 export async function readOrIngestFolderByFolderpath(
-  agent: Agent,
+  agent: SessionAgent,
   /** folderpath with workspace rootname */
   folderpath: string,
   opts?: SemanticProviderOpParams,
@@ -414,7 +439,10 @@ export async function readOrIngestFolderByFolderpath(
     workspaceId = workspace.resourceId;
   }
 
-  const pathinfo = getFolderpathInfo(folderpath);
+  const pathinfo = getFolderpathInfo(folderpath, {
+    allowRootFolder: false,
+    containsRootname: true,
+  });
   let folder = await folderModel.getOneByNamepath(
     {workspaceId, namepath: pathinfo.namepath},
     opts

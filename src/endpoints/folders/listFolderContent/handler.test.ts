@@ -1,4 +1,4 @@
-import {kPermissionsMap} from '../../../definitions/permissionItem';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
 import {kFimidaraResourceType} from '../../../definitions/system';
 import {calculatePageSize, getResourceId, pathJoin} from '../../../utils/fns';
 import {kSemanticModels} from '../../contexts/injection/injectables';
@@ -258,13 +258,13 @@ describe('listFolderContent', () => {
         items: [
           {
             target: {targetId: folder02.resourceId},
-            action: kPermissionsMap.readFolder,
+            action: kFimidaraPermissionActionsMap.readFolder,
             access: true,
             entityId: [agToken.resourceId],
           },
           {
             target: {targetId: file01.resourceId},
-            action: kPermissionsMap.readFile,
+            action: kFimidaraPermissionActionsMap.readFile,
             access: true,
             entityId: [agToken.resourceId],
           },

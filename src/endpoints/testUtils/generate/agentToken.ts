@@ -4,6 +4,7 @@ import {
   Agent,
   kCurrentJWTTokenVersion,
   kFimidaraResourceType,
+  kTokenAccessScope,
 } from '../../../definitions/system';
 import {getNewIdForResource, newResource} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injection/injectables';
@@ -26,6 +27,7 @@ export function generateAgentTokenForTest(
     description: faker.lorem.sentence(),
     version: kCurrentJWTTokenVersion,
     forEntityId: null,
+    scope: seed.workspaceId && !seed.forEntityId ? [kTokenAccessScope.access] : [],
     ...seed,
   });
   return token;

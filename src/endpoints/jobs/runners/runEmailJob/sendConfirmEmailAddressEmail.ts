@@ -28,11 +28,11 @@ export async function getLinkWithConfirmEmailToken(user: User, urlPath: string) 
     const url = new URL(urlPath);
     let token = await kSemanticModels
       .agentToken()
-      .getOneAgentToken(user.resourceId, kTokenAccessScope.ConfirmEmailAddress, opts);
+      .getOneAgentToken(user.resourceId, kTokenAccessScope.confirmEmailAddress, opts);
 
     if (!token) {
       token = newResource<AgentToken>(kFimidaraResourceType.AgentToken, {
-        scope: [kTokenAccessScope.ConfirmEmailAddress],
+        scope: [kTokenAccessScope.confirmEmailAddress],
         version: kCurrentJWTTokenVersion,
         forEntityId: user.resourceId,
         workspaceId: null,

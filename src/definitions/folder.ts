@@ -1,8 +1,4 @@
-import {
-  ConvertAgentToPublicAgent,
-  PublicWorkspaceResource,
-  WorkspaceResource,
-} from './system';
+import {PublicWorkspaceResource, ToPublicDefinitions, WorkspaceResource} from './system';
 
 export interface Folder extends WorkspaceResource {
   idPath: string[];
@@ -14,7 +10,7 @@ export interface Folder extends WorkspaceResource {
 }
 
 export type PublicFolder = PublicWorkspaceResource &
-  ConvertAgentToPublicAgent<
+  ToPublicDefinitions<
     Pick<Folder, 'parentId' | 'idPath' | 'namepath' | 'name' | 'description'>
   >;
 

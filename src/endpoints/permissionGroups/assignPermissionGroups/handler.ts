@@ -1,6 +1,7 @@
 import {toNonNullableArray} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {checkPermissionEntitiesExist} from '../../permissionItems/checkPermissionArtifacts';
@@ -11,7 +12,13 @@ import {assignPermissionGroupsJoiSchema} from './validation';
 
 const assignPermissionGroups: AssignPermissionGroupsEndpoint = async instData => {
   const data = validate(instData.data, assignPermissionGroupsJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   await checkAuthorizationWithAgent({
     agent,

@@ -1,6 +1,6 @@
 import {File} from '../../definitions/file';
-import {PermissionAction} from '../../definitions/permissionItem';
-import {kFimidaraResourceType, kPermissionAgentTypes} from '../../definitions/system';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem';
+import {kFimidaraResourceType} from '../../definitions/system';
 import {
   BandwidthUsageRecordArtifact,
   FileUsageRecordArtifact,
@@ -19,6 +19,7 @@ import {getActionAgentFromSessionAgent} from '../../utils/sessionUtils';
 import {kUtilsInjectables} from '../contexts/injection/injectables';
 import {UsageRecordInput} from '../contexts/logic/UsageRecordLogicProvider';
 import {SemanticProviderMutationParams} from '../contexts/semantic/types';
+import {kSessionUtils} from '../contexts/SessionContext';
 import {NotFoundError} from '../errors';
 import {workspaceResourceFields} from '../extractors';
 import {stringifyFilenamepath} from '../files/utils';
@@ -33,7 +34,13 @@ async function insertRecord(
   nothrow = false
 ) {
   const agent = getActionAgentFromSessionAgent(
-    await kUtilsInjectables.session().getAgent(reqData, kPermissionAgentTypes)
+    await kUtilsInjectables
+      .session()
+      .getAgentFromReq(
+        reqData,
+        kSessionUtils.permittedAgentTypes.api,
+        kSessionUtils.accessScopes.api
+      )
   );
   const {permitted} = await kUtilsInjectables.usageLogic().insert(agent, input, opts);
 
@@ -47,7 +54,7 @@ async function insertRecord(
 export async function insertStorageUsageRecordInput(
   reqData: RequestData,
   file: File,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   artifactMetaInput: Partial<FileUsageRecordArtifact> = {},
   opts: SemanticProviderMutationParams,
   nothrow = false
@@ -79,7 +86,7 @@ export async function insertStorageUsageRecordInput(
 export async function insertBandwidthInUsageRecordInput(
   reqData: RequestData,
   file: File,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   opts: SemanticProviderMutationParams,
   nothrow = false
 ) {
@@ -109,7 +116,7 @@ export async function insertBandwidthInUsageRecordInput(
 export async function insertBandwidthOutUsageRecordInput(
   reqData: RequestData,
   file: File,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   opts: SemanticProviderMutationParams,
   nothrow = false
 ) {

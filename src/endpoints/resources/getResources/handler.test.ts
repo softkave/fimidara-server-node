@@ -2,7 +2,10 @@ import {faker} from '@faker-js/faker';
 import {flatten} from 'lodash';
 import {File} from '../../../definitions/file';
 import {Folder} from '../../../definitions/folder';
-import {PermissionAction, kPermissionsMap} from '../../../definitions/permissionItem';
+import {
+  FimidaraPermissionAction,
+  kFimidaraPermissionActionsMap,
+} from '../../../definitions/permissionItem';
 import {Resource, kFimidaraResourceType} from '../../../definitions/system';
 import RequestData from '../../RequestData';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
@@ -54,7 +57,7 @@ describe('getResources', () => {
       }),
     ]);
     const itemsList = await Promise.all(
-      Object.values(kPermissionsMap).map(action =>
+      Object.values(kFimidaraPermissionActionsMap).map(action =>
         generateAndInsertPermissionItemListForTest(1, {
           action,
           access: faker.datatype.boolean(),
@@ -72,31 +75,34 @@ describe('getResources', () => {
 
     const addToExpectedResourcesById = (
       item: Pick<Resource, 'resourceId'>,
-      action: PermissionAction
+      action: FimidaraPermissionAction
     ) => {
       resourcesInput.push({action, resourceId: item.resourceId});
       resourcesMap[item.resourceId] = item;
     };
 
-    addToExpectedResourcesById(workspace, kPermissionsMap.readWorkspace);
-    addToExpectedResourcesById(permissionGroup, kPermissionsMap.updatePermission);
+    addToExpectedResourcesById(workspace, kFimidaraPermissionActionsMap.readWorkspace);
+    addToExpectedResourcesById(
+      permissionGroup,
+      kFimidaraPermissionActionsMap.updatePermission
+    );
     addToExpectedResourcesById(
       collaboratorExtractor(await populateUserWorkspaces(rawUser), workspace.resourceId),
-      kPermissionsMap.readCollaborator
+      kFimidaraPermissionActionsMap.readCollaborator
     );
     items.forEach(item =>
-      addToExpectedResourcesById(item, kPermissionsMap.updatePermission)
+      addToExpectedResourcesById(item, kFimidaraPermissionActionsMap.updatePermission)
     );
     folders.forEach(folder => {
       const folderpath = stringifyFoldernamepath(folder, workspace.rootname);
       filepathsMap[folderpath] = folder.resourceId;
-      resourcesInput.push({folderpath, action: kPermissionsMap.readFolder});
+      resourcesInput.push({folderpath, action: kFimidaraPermissionActionsMap.readFolder});
       resourcesMap[folder.resourceId] = folder;
     });
     files.forEach(file => {
       const filepath = stringifyFilenamepath(file, workspace.rootname);
       filepathsMap[filepath] = file.resourceId;
-      resourcesInput.push({filepath, action: kPermissionsMap.readFolder});
+      resourcesInput.push({filepath, action: kFimidaraPermissionActionsMap.readFolder});
       resourcesMap[file.resourceId] = file;
     });
 

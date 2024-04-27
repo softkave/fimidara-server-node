@@ -1,3 +1,6 @@
+import {pathJoin} from 'softkave-js-utils';
+import {ResolvedMountEntry} from '../../../../definitions/fileBackend';
+import {DeleteResourceCascadeFnDefaultArgs} from '../../../../definitions/job';
 import {kFimidaraResourceType} from '../../../../definitions/system';
 import {
   kSemanticModels,
@@ -5,56 +8,51 @@ import {
 } from '../../../contexts/injection/injectables';
 import {resolveBackendsMountsAndConfigs} from '../../../fileBackends/mountUtils';
 import {FolderQueries} from '../../../folders/queries';
-import {stringifyFoldernamepath} from '../../../folders/utils';
 import {genericDeleteArtifacts, genericGetArtifacts} from './genericDefinitions';
 import {
   DeleteResourceCascadeEntry,
   DeleteResourceFn,
-  DeleteResourceGetArtifactsFns,
+  DeleteResourceGetArtifactsToDeleteFns,
+  DeleteResourceGetPreRunMetaFn,
 } from './types';
 
-const getArtifacts: DeleteResourceGetArtifactsFns = {
+interface DeleteFolderPreRunMeta {
+  partialMountEntries: Array<Pick<ResolvedMountEntry, 'backendNamepath'>>;
+  namepath?: string[];
+}
+
+const getArtifacts: DeleteResourceGetArtifactsToDeleteFns = {
   ...genericGetArtifacts,
   [kFimidaraResourceType.Folder]: async ({args, opts}) => {
-    const folder = await kSemanticModels
-      .folder()
-      .getOneById(args.resourceId, {includeDeleted: true});
-
-    if (folder) {
-      return await kSemanticModels
-        .folder()
-        .getManyByQuery(FolderQueries.getByParentId(folder), opts);
-    }
-
-    return [];
+    return await kSemanticModels.folder().getManyByQuery(
+      FolderQueries.getByParentId({
+        workspaceId: args.workspaceId,
+        resourceId: args.resourceId,
+      }),
+      opts
+    );
   },
   [kFimidaraResourceType.File]: async ({args, opts}) => {
-    const folder = await kSemanticModels
-      .folder()
-      .getOneById(args.resourceId, {includeDeleted: true});
-
-    if (folder) {
-      return await kSemanticModels
-        .file()
-        .getManyByQuery(FolderQueries.getByParentId(folder), opts);
-    }
-
-    return [];
+    return await kSemanticModels.file().getManyByQuery(
+      FolderQueries.getByParentId({
+        workspaceId: args.workspaceId,
+        resourceId: args.resourceId,
+      }),
+      opts
+    );
   },
 };
 
-const deleteResourceFn: DeleteResourceFn = async ({args, helpers}) => {
-  const folder = await kSemanticModels
-    .folder()
-    .getOneById(args.resourceId, {includeDeleted: true});
-
-  if (!folder) {
+const deleteResourceFn: DeleteResourceFn<
+  DeleteResourceCascadeFnDefaultArgs,
+  DeleteFolderPreRunMeta
+> = async ({args, helpers, preRunMeta}) => {
+  if (!preRunMeta.namepath) {
     return;
   }
 
-  const folderpath = stringifyFoldernamepath(folder);
   const {providersMap, mounts} = await resolveBackendsMountsAndConfigs(
-    folder,
+    /** folder */ {workspaceId: args.workspaceId, namepath: preRunMeta.namepath},
     /** init primary backend only */ false
   );
   await Promise.all(
@@ -67,8 +65,10 @@ const deleteResourceFn: DeleteResourceFn = async ({args, helpers}) => {
         // folders
         await provider?.deleteFolders({
           mount,
-          folderpaths: [folderpath],
-          workspaceId: folder.workspaceId,
+          workspaceId: args.workspaceId,
+          folders: preRunMeta.partialMountEntries.map(partialMountEntry => ({
+            folderpath: pathJoin({input: partialMountEntry.backendNamepath}),
+          })),
         });
       } catch (error) {
         kUtilsInjectables.logger().error(error);
@@ -81,8 +81,29 @@ const deleteResourceFn: DeleteResourceFn = async ({args, helpers}) => {
   );
 };
 
-export const deleteFolderCascadeEntry: DeleteResourceCascadeEntry = {
+const getPreRunMetaFn: DeleteResourceGetPreRunMetaFn<
+  DeleteResourceCascadeFnDefaultArgs,
+  DeleteFolderPreRunMeta
+> = async ({args}) => {
+  const keys: Array<keyof DeleteFolderPreRunMeta['partialMountEntries'][number]> = [
+    'backendNamepath',
+  ];
+  const [partialMountEntries, folder] = await Promise.all([
+    kSemanticModels.resolvedMountEntry().getLatestByForId(args.resourceId, {
+      projection: keys.reduce((acc, key) => ({...acc, [key]: true}), {}),
+    }),
+    kSemanticModels.folder().getOneById(args.resourceId, {includeDeleted: true}),
+  ]);
+
+  return {partialMountEntries, namepath: folder?.namepath};
+};
+
+export const deleteFolderCascadeEntry: DeleteResourceCascadeEntry<
+  DeleteResourceCascadeFnDefaultArgs,
+  DeleteFolderPreRunMeta
+> = {
   deleteResourceFn,
-  getArtifacts: getArtifacts,
+  getPreRunMetaFn,
+  getArtifactsToDelete: getArtifacts,
   deleteArtifacts: genericDeleteArtifacts,
 };

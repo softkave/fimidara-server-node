@@ -32,6 +32,7 @@ export async function expectFileBodyEqualById(
   );
   const {body} = await primaryBackend.readFile({
     filepath: stringifyFilenamepath(file),
+    fileId: file.resourceId,
     mount: primaryMount,
     workspaceId: file.workspaceId,
   });

@@ -16,6 +16,7 @@ import {kFolderConstants} from '../../folders/constants';
 import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
+  FilePersistenceDescribeFileParams,
   FilePersistenceDescribeFolderContentParams,
   FilePersistenceDescribeFolderContentResult,
   FilePersistenceDescribeFolderFoldersParams,
@@ -98,8 +99,8 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       leavePartsOnError: false,
     });
 
-    await parallelUploads3.done();
-    return {};
+    const response = await parallelUploads3.done();
+    return {filepath: params.filepath, raw: response};
   }
 
   readFile = async (params: FilePersistenceGetFileParams): Promise<PersistedFile> => {
@@ -120,13 +121,13 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
   };
 
   deleteFiles = async (params: FilePersistenceDeleteFilesParams) => {
-    if (params.filepaths.length === 0) {
+    if (params.files.length === 0) {
       // Short-circuit, no files to delete
       return;
     }
 
     let bucket: string | undefined;
-    const ids: ObjectIdentifier[] = params.filepaths.map(filepath => {
+    const ids: ObjectIdentifier[] = params.files.map(({filepath}) => {
       const nativeInfo = this.toNativePath({
         fimidaraPath: filepath,
         mount: params.mount,
@@ -159,7 +160,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
   };
 
   describeFile = async (
-    params: FilePersistenceGetFileParams
+    params: FilePersistenceDescribeFileParams
   ): Promise<PersistedFileDescription | undefined> => {
     const {bucket, nativePath} = this.toNativePath({
       fimidaraPath: params.filepath,
@@ -178,6 +179,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       mountId: params.mount.resourceId,
       encoding: response.ContentEncoding,
       mimetype: response.ContentType,
+      raw: response,
     };
   };
 
@@ -198,13 +200,13 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       Prefix: prefix,
       Delimiter: kFolderConstants.separator,
     });
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const response = await this.s3.send(command);
 
     // As long as it doesn't throw a NoSuchKey error, then it exists
     return {
       folderpath: params.folderpath,
       mountId: params.mount.resourceId,
+      raw: response,
     };
   };
 
@@ -242,6 +244,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
         size: content.Size,
         lastUpdatedAt: content.LastModified ? content.LastModified.valueOf() : undefined,
         mountId: params.mount.resourceId,
+        raw: response,
       });
     });
 
@@ -254,6 +257,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
         folderpath: this.toFimidaraPath({nativePath: content.Prefix, mount: params.mount})
           .fimidaraPath,
         mountId: params.mount.resourceId,
+        raw: response,
       });
     });
 

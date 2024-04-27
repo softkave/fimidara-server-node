@@ -1,14 +1,14 @@
 import {kFimidaraResourceType} from '../../../../definitions/system';
 import {kSemanticModels} from '../../../contexts/injection/injectables';
-import {genericGetArtifacts} from './genericDefinitions';
+import {genericGetArtifacts, noopGetPreRunMetaFn} from './genericDefinitions';
 import {
   DeleteResourceCascadeEntry,
   DeleteResourceDeleteArtifactsFns,
   DeleteResourceFn,
-  DeleteResourceGetArtifactsFns,
+  DeleteResourceGetArtifactsToDeleteFns,
 } from './types';
 
-const getArtifacts: DeleteResourceGetArtifactsFns = {
+const getArtifacts: DeleteResourceGetArtifactsToDeleteFns = {
   ...genericGetArtifacts,
   // Delete file and folders in external storage
   [kFimidaraResourceType.Folder]: ({args, opts}) =>
@@ -100,6 +100,7 @@ const deleteResourceFn: DeleteResourceFn = ({args, helpers}) =>
 
 export const deleteWorkspaceCascadeEntry: DeleteResourceCascadeEntry = {
   deleteResourceFn,
-  getArtifacts: getArtifacts,
+  getArtifactsToDelete: getArtifacts,
   deleteArtifacts: deleteArtifacts,
+  getPreRunMetaFn: noopGetPreRunMetaFn,
 };

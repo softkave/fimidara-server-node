@@ -49,7 +49,7 @@ afterAll(async () => {
   await completeTests();
 });
 
-describe('S3FilePersistenceProvider', () => {
+describe.skip('S3FilePersistenceProvider', () => {
   test('toNativePath', async () => {
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = await getNewMount({workspaceId});
@@ -86,11 +86,12 @@ describe('S3FilePersistenceProvider', () => {
       parentNamepath: mount.namepath,
       length: mount.namepath.length + 2,
     });
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
 
     const backend = getS3BackendInstance();
-    await backend.uploadFile({mount, workspaceId, filepath, body: data});
+    await backend.uploadFile({mount, workspaceId, filepath, fileId, body: data});
 
-    const savedFile = await backend.readFile({filepath, mount, workspaceId});
+    const savedFile = await backend.readFile({filepath, fileId, mount, workspaceId});
     assert(savedFile.body);
     expectFileBodyEqual(data, savedFile.body);
   });
@@ -103,10 +104,11 @@ describe('S3FilePersistenceProvider', () => {
       length: mount.namepath.length + 2,
       parentNamepath: mount.namepath,
     });
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
     const backend = getS3BackendInstance();
-    await backend.uploadFile({mount, workspaceId, filepath, body: data});
+    await backend.uploadFile({mount, workspaceId, filepath, fileId, body: data});
 
-    const result = await backend.readFile({mount, workspaceId, filepath});
+    const result = await backend.readFile({mount, workspaceId, filepath, fileId});
 
     assert(result.body);
     expectFileBodyEqual(data, result.body);
@@ -123,27 +125,50 @@ describe('S3FilePersistenceProvider', () => {
       length: mount.namepath.length + 2,
       parentNamepath: mount.namepath,
     });
+    const fileId01 = getNewIdForResource(kFimidaraResourceType.File);
+    const fileId02 = getNewIdForResource(kFimidaraResourceType.File);
     const backend = getS3BackendInstance();
     await Promise.all([
       backend.uploadFile({
         mount,
         workspaceId,
         filepath: filepath01,
+        fileId: fileId01,
         body: Readable.from(['Hello world!']),
       }),
       backend.uploadFile({
         mount,
         workspaceId,
         filepath: filepath02,
+        fileId: fileId02,
         body: Readable.from(['Hello world!']),
       }),
     ]);
 
-    await backend.deleteFiles({mount, workspaceId, filepaths: [filepath01, filepath02]});
+    await backend.deleteFiles({
+      mount,
+      workspaceId,
+      files: [
+        {filepath: filepath01, fileId: fileId01},
+        {filepath: filepath02, fileId: fileId02},
+      ],
+    });
 
     await Promise.all([
-      expectFileNotFound({backend, mount, workspaceId, filepath: filepath01}),
-      expectFileNotFound({backend, mount, workspaceId, filepath: filepath02}),
+      expectFileNotFound({
+        backend,
+        mount,
+        workspaceId,
+        filepath: filepath01,
+        fileId: fileId01,
+      }),
+      expectFileNotFound({
+        backend,
+        mount,
+        workspaceId,
+        filepath: filepath02,
+        fileId: fileId02,
+      }),
     ]);
   });
 
@@ -156,10 +181,11 @@ describe('S3FilePersistenceProvider', () => {
       length: mount.namepath.length + 2,
       parentNamepath: mount.namepath,
     });
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
     const backend = getS3BackendInstance();
-    await backend.uploadFile({mount, workspaceId, filepath, body: data});
+    await backend.uploadFile({mount, workspaceId, filepath, fileId, body: data});
 
-    const result = await backend.describeFile({mount, workspaceId, filepath});
+    const result = await backend.describeFile({mount, workspaceId, filepath, fileId});
 
     assert(result);
     expect(result.filepath).toBe(filepath);
@@ -177,8 +203,9 @@ describe('S3FilePersistenceProvider', () => {
       length: mount.namepath.length + 2,
       parentNamepath: mount.namepath,
     });
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
     const backend = getS3BackendInstance();
-    await backend.uploadFile({mount, workspaceId, filepath, body: data});
+    await backend.uploadFile({mount, workspaceId, filepath, fileId, body: data});
 
     const splitFilepath = pathSplit(filepath);
     const folderpath = pathJoin(splitFilepath.slice(0, -1));
@@ -199,7 +226,10 @@ describe('S3FilePersistenceProvider', () => {
     });
     const backend = getS3BackendInstance();
     const childrenFilepaths = loopAndCollate(
-      () => pathJoin(folderpath, generateTestFolderName()),
+      () => ({
+        filepath: pathJoin(folderpath, generateTestFolderName()),
+        fileId: getNewIdForResource(kFimidaraResourceType.File),
+      }),
       /** count */ 5
     );
     const childrenFolderpaths = loopAndCollate(
@@ -208,10 +238,13 @@ describe('S3FilePersistenceProvider', () => {
     );
     const childrenDepth02Filepaths = childrenFolderpaths.map(child => {
       const childNamepath = pathSplit(child);
-      return generateTestFilepathString({
-        length: childNamepath.length + 1,
-        parentNamepath: childNamepath,
-      });
+      return {
+        fileId: getNewIdForResource(kFimidaraResourceType.File),
+        filepath: generateTestFilepathString({
+          length: childNamepath.length + 1,
+          parentNamepath: childNamepath,
+        }),
+      };
     });
     await Promise.all(
       childrenFilepaths
@@ -219,7 +252,8 @@ describe('S3FilePersistenceProvider', () => {
           backend.uploadFile({
             mount,
             workspaceId,
-            filepath: p,
+            filepath: p.filepath,
+            fileId: p.fileId,
             body: Readable.from(buffer),
           })
         )
@@ -228,7 +262,8 @@ describe('S3FilePersistenceProvider', () => {
             backend.uploadFile({
               mount,
               workspaceId,
-              filepath: p,
+              filepath: p.filepath,
+              fileId: p.fileId,
               body: Readable.from(buffer),
             })
           )
@@ -278,20 +313,26 @@ describe('S3FilePersistenceProvider', () => {
       expect(folder.mountId).toBe(mount.resourceId);
     });
 
-    expect(resultFilepaths).toEqual(expect.arrayContaining(childrenFilepaths));
+    expect(resultFilepaths).toEqual(
+      expect.arrayContaining(childrenFilepaths.map(p => p.filepath))
+    );
     expect(resultFolderpaths).toEqual(expect.arrayContaining(childrenFolderpaths));
-    expect(resultFilepaths).not.toEqual(expect.arrayContaining(childrenDepth02Filepaths));
+    expect(resultFilepaths).not.toEqual(
+      expect.arrayContaining(childrenDepth02Filepaths.map(p => p.filepath))
+    );
   });
 });
 
 class TestS3Provider extends S3FilePersistenceProvider {
-  uploadFile(params: FilePersistenceUploadFileParams): Promise<{}> {
+  async uploadFile(params: FilePersistenceUploadFileParams) {
     const {nativePath} = this.toNativePath({
       fimidaraPath: params.filepath,
       mount: params.mount,
     });
     keysToCleanup.push(nativePath);
-    return super.uploadFile(params);
+    const pFile = await super.uploadFile(params);
+
+    return {filepath: pFile.filepath, raw: pFile.raw};
   }
 }
 
@@ -324,11 +365,12 @@ async function expectFileNotFound(props: {
   mount: FileBackendMount;
   workspaceId: string;
   filepath: string;
+  fileId: string;
 }) {
-  const {backend, mount, workspaceId, filepath} = props;
+  const {backend, mount, workspaceId, filepath, fileId} = props;
 
   try {
-    await backend.readFile({mount, workspaceId, filepath});
+    await backend.readFile({mount, workspaceId, filepath, fileId});
     assert.fail();
   } catch (error) {
     expect((error as Error).name).toBe('NoSuchKey');

@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {compact, get, map, mapKeys} from 'lodash';
-import {PermissionAction} from '../../definitions/permissionItem';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem';
 import {
   FimidaraResourceType,
   Resource,
@@ -33,14 +33,17 @@ interface ExtendedPromiseWithId<T> extends PromiseWithId<T> {
 
 type InputsWithIdGroupedByType = PartialRecord<
   FimidaraResourceType,
-  Record</** resource ID */ string, PermissionAction>
+  Record</** resource ID */ string, FimidaraPermissionAction>
 >;
 
-type FilePathsMap = PartialRecord</** filepath or folderpath */ string, PermissionAction>;
+type FilePathsMap = PartialRecord<
+  /** filepath or folderpath */ string,
+  FimidaraPermissionAction
+>;
 
 interface WorkspaceRootnameWithAction {
   workspaceRootname: string;
-  action: PermissionAction;
+  action: FimidaraPermissionAction;
 }
 
 export interface GetResourcesOptions {
@@ -60,7 +63,7 @@ export interface GetResourcesOptions {
   checkBelongsToWorkspace?: boolean;
 }
 
-type GetResourcesResourceWrapper = ResourceWrapper & {action: PermissionAction};
+type GetResourcesResourceWrapper = ResourceWrapper & {action: FimidaraPermissionAction};
 
 export async function INTERNAL_getResources(options: GetResourcesOptions) {
   const {
@@ -293,7 +296,7 @@ const fetchFiles = async (workspaceId: string, filepathsMap: FilePathsMap) => {
     map(filepathsMap, (action, filepath) =>
       kSemanticModels.file().getOneByNamepath({
         workspaceId,
-        ...getFilepathInfo(filepath, {containsRootname: false}),
+        ...getFilepathInfo(filepath, {containsRootname: false, allowRootFolder: false}),
       })
     )
   );
@@ -318,7 +321,10 @@ const fetchFolders = async (workspaceId: string, folderpathsMap: FilePathsMap) =
     map(folderpathsMap, (action, folderpath) =>
       kSemanticModels.folder().getOneByNamepath({
         workspaceId,
-        ...getFolderpathInfo(folderpath, {containsRootname: false}),
+        ...getFolderpathInfo(folderpath, {
+          containsRootname: false,
+          allowRootFolder: false,
+        }),
       })
     )
   );

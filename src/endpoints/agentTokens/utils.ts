@@ -1,5 +1,5 @@
 import {AgentToken, PublicAgentToken} from '../../definitions/agentToken';
-import {PermissionAction} from '../../definitions/permissionItem';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem';
 import {SessionAgent} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
@@ -27,7 +27,7 @@ export const agentTokenListExtractor = makeListExtract(agentTokenFields);
 export async function checkAgentTokenAuthorization(
   agent: SessionAgent,
   token: AgentToken,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   opts?: SemanticProviderOpParams
 ) {
   appAssert(token.workspaceId);
@@ -45,7 +45,7 @@ export async function checkAgentTokenAuthorization02(
   workspaceId: string | undefined,
   tokenId: string | undefined | null,
   providedResourceId: string | undefined | null,
-  action: PermissionAction
+  action: FimidaraPermissionAction
 ) {
   let token: AgentToken | null = null;
 

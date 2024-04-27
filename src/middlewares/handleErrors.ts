@@ -47,7 +47,7 @@ function handleErrors(...args: unknown[]) {
 
   if (!err) {
     res.status(kEndpointConstants.httpStatusCode.serverError).send({
-      errors: [new ServerError()],
+      errors: getPublicErrors([new ServerError()]),
     });
 
     return;

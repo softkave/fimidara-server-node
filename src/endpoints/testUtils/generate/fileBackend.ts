@@ -19,6 +19,7 @@ import {kSemanticModels} from '../../contexts/injection/injectables';
 import {NewFileBackendConfigInput} from '../../fileBackends/addConfig/types';
 import {NewFileBackendMountInput} from '../../fileBackends/addMount/types';
 import {kFileBackendConstants} from '../../fileBackends/constants';
+import {stringifyFilenamepath} from '../../files/utils';
 import {generateTestFilepath, generateTestFilepathString} from './file';
 import {generateTestFolderpathString} from './folder';
 
@@ -136,38 +137,47 @@ export function generateResolvedMountEntryForTest(
     agentType: kFimidaraResourceType.User,
     agentTokenId: getNewIdForResource(kFimidaraResourceType.AgentToken),
   };
+  const backendNamepath = generateTestFilepath();
+  const backendExt = faker.system.fileExt();
+  const mountId = getNewIdForResource(kFimidaraResourceType.FileBackendMount);
   const config: ResolvedMountEntry = {
     createdAt,
     createdBy,
+    backendNamepath,
+    backendExt,
+    mountId,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
     resourceId: getNewIdForResource(kFimidaraResourceType.ResolvedMountEntry),
     workspaceId: getNewIdForResource(kFimidaraResourceType.Workspace),
-    mountId: getNewIdForResource(kFimidaraResourceType.FileBackendMount),
-    resolvedAt: getTimestamp(),
-    namepath: generateTestFilepath(),
-    extension: faker.system.fileExt(),
-    resolvedFor: getNewIdForResource(kFimidaraResourceType.File),
-    resolvedForType: kFimidaraResourceType.File,
-    other: null,
+    fimidaraNamepath: generateTestFilepath(),
+    fimidaraExt: faker.system.fileExt(),
+    forId: getNewIdForResource(kFimidaraResourceType.File),
+    forType: kFimidaraResourceType.File,
+    persisted: {
+      mountId,
+      filepath: stringifyFilenamepath({namepath: backendNamepath, ext: backendExt}),
+      raw: undefined,
+    },
     isDeleted: false,
   };
   return mergeData(config, seed, {arrayUpdateStrategy: 'replace'});
 }
 
-export function generatePersistedFolderDescriptionForTest(
-  seed: Partial<PersistedFolderDescription> = {}
-): PersistedFolderDescription {
+export function generatePersistedFolderDescriptionForTest<T = undefined>(
+  seed: Partial<PersistedFolderDescription<T>> = {}
+): PersistedFolderDescription<T> {
   return {
     folderpath: generateTestFolderpathString(),
     mountId: getNewIdForResource(kFimidaraResourceType.FileBackendMount),
+    raw: undefined as T,
     ...seed,
   };
 }
 
-export function generatePersistedFileDescriptionForTest(
-  seed: Partial<PersistedFileDescription> = {}
-): PersistedFileDescription {
+export function generatePersistedFileDescriptionForTest<T = undefined>(
+  seed: Partial<PersistedFileDescription<T>> = {}
+): PersistedFileDescription<T> {
   return {
     filepath: generateTestFilepathString(),
     mountId: getNewIdForResource(kFimidaraResourceType.FileBackendMount),
@@ -175,6 +185,7 @@ export function generatePersistedFileDescriptionForTest(
     mimetype: faker.system.mimeType(),
     encoding: 'utf-8',
     size: faker.number.int(),
+    raw: undefined as T,
     ...seed,
   };
 }

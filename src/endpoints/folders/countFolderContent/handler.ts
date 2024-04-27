@@ -1,11 +1,8 @@
 import {Folder} from '../../../definitions/folder';
-import {
-  kFimidaraResourceType,
-  kPermissionAgentTypes,
-  SessionAgent,
-} from '../../../definitions/system';
+import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {areMountsCompletelyIngestedForFolder} from '../../fileBackends/mountUtils';
 import {kEndpointResultNoteCodeMap, kEndpointResultNotesToMessageMap} from '../../types';
@@ -20,7 +17,11 @@ const countFolderContent: CountFolderContentEndpoint = async instData => {
   const data = validate(instData.data, countFolderContentJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, kPermissionAgentTypes);
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const {workspace, parentFolder} = await getWorkspaceAndParentFolder(agent, data);
 
   const contentType = data.contentType ?? [

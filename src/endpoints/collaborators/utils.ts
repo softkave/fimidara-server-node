@@ -1,4 +1,4 @@
-import {PermissionAction} from '../../definitions/permissionItem';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem';
 import {SessionAgent} from '../../definitions/system';
 import {PublicCollaborator, UserWithWorkspace} from '../../definitions/user';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
@@ -37,7 +37,7 @@ export async function checkCollaboratorAuthorization(
   agent: SessionAgent,
   workspaceId: string,
   collaborator: UserWithWorkspace,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   opts?: SemanticProviderOpParams
 ) {
   const userWorkspace = getCollaboratorWorkspace(collaborator, workspaceId);
@@ -60,7 +60,7 @@ export async function checkCollaboratorAuthorization02(
   agent: SessionAgent,
   workspaceId: string,
   collaboratorId: string,
-  action: PermissionAction
+  action: FimidaraPermissionAction
 ) {
   const user = await kSemanticModels.user().getOneById(collaboratorId);
   assertUser(user);

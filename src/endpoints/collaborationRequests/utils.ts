@@ -4,7 +4,7 @@ import {
   PublicCollaborationRequestForWorkspace,
 } from '../../definitions/collaborationRequest';
 import {AssignedPermissionGroupMeta} from '../../definitions/permissionGroups';
-import {PermissionAction} from '../../definitions/permissionItem';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem';
 import {SessionAgent} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
@@ -48,7 +48,7 @@ const userCollaborationRequestForWorkspaceFields =
 export async function checkCollaborationRequestAuthorization(
   agent: SessionAgent,
   request: CollaborationRequest,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   opts?: SemanticProviderOpParams
 ) {
   const workspace = await checkWorkspaceExists(request.workspaceId);
@@ -65,7 +65,7 @@ export async function checkCollaborationRequestAuthorization(
 export async function checkCollaborationRequestAuthorization02(
   agent: SessionAgent,
   requestId: string,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   opts?: SemanticProviderOpParams
 ) {
   const request = await kSemanticModels

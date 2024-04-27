@@ -1,4 +1,7 @@
-import {PermissionAction, PermissionItem} from '../../../definitions/permissionItem';
+import {
+  FimidaraPermissionAction,
+  PermissionItem,
+} from '../../../definitions/permissionItem';
 import {FimidaraResourceType} from '../../../definitions/system';
 import {convertToArray, makeKey} from '../../../utils/fns';
 import {indexArray} from '../../../utils/indexArray';
@@ -7,7 +10,7 @@ import {getInAndNinQuery} from '../../contexts/semantic/utils';
 
 export async function expectEntityHasPermissionsTargetingId(
   entityId: string | string[],
-  action: PermissionAction | PermissionAction[],
+  action: FimidaraPermissionAction | FimidaraPermissionAction[],
   targetId: string | string[],
   access: boolean
 ) {
@@ -41,7 +44,7 @@ export async function expectEntityHasPermissionsTargetingId(
 
 export async function expectEntityHasPermissionsTargetingType(
   entityId: string | string[],
-  action: PermissionAction | PermissionAction[],
+  action: FimidaraPermissionAction | FimidaraPermissionAction[],
   targetId: string,
   targetType: FimidaraResourceType | FimidaraResourceType[],
   result: boolean

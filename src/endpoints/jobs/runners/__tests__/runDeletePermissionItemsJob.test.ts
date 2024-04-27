@@ -1,6 +1,6 @@
 import {flatten} from 'lodash';
 import {DeleteResourceJobParams, Job, kJobType} from '../../../../definitions/job';
-import {kPermissionsMap} from '../../../../definitions/permissionItem';
+import {kFimidaraPermissionActionsMap} from '../../../../definitions/permissionItem';
 import {kFimidaraResourceType} from '../../../../definitions/system';
 import {kSystemSessionAgent} from '../../../../utils/agent';
 import {extractResourceIdList} from '../../../../utils/fns';
@@ -32,7 +32,7 @@ afterAll(async () => {
 describe('runDeletePermissionItemsJob', () => {
   test('creates delete resource jobs', async () => {
     const access = true;
-    const action = kPermissionsMap.wildcard;
+    const action = kFimidaraPermissionActionsMap.wildcard;
     const [workspace] = await generateAndInsertWorkspaceListForTest(1);
     const [pgL, [f01], [folder01]] = await Promise.all([
       generateAndInsertPermissionGroupListForTest(2, {workspaceId: workspace.resourceId}),
@@ -88,7 +88,7 @@ describe('runDeletePermissionItemsJob', () => {
     const query: DataQuery<Job<DeleteResourceJobParams>> = {
       shard,
       workspaceId: workspace.resourceId,
-      type: kJobType.deleteResource0,
+      type: kJobType.deleteResource,
       createdBy: {
         $objMatch: {
           agentId: kSystemSessionAgent.agentId,

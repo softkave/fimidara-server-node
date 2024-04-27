@@ -1,4 +1,5 @@
 import assert from 'assert';
+import {AnyObject} from 'softkave-js-utils';
 import {
   DeleteResourceCascadeFnDefaultArgs,
   DeleteResourceJobMeta,
@@ -18,12 +19,12 @@ import {
 } from '../../../contexts/injection/injectables';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types';
 import {JobInput, queueJobs} from '../../queueJobs';
-import {setJobMeta} from '../utils';
+import {setDeleteJobPreRunMeta, setJobMeta} from '../utils';
 import {kCascadeDeleteDefinitions} from './compiledDefinitions';
 import {
   DeleteResourceCascadeFnHelpers,
   DeleteResourceDeleteArtifactsFns,
-  DeleteResourceGetArtifactsFns,
+  DeleteResourceGetArtifactsToDeleteFns,
   GetArtifactsFn,
 } from './types';
 
@@ -33,15 +34,13 @@ async function setDeleteJobGetArtifactsMeta(
   page: number,
   pageSize: number
 ) {
-  const updatedMeta = await setJobMeta<DeleteResourceJobMeta>(job.resourceId, meta => ({
+  await setJobMeta<DeleteResourceJobMeta>(job.resourceId, meta => ({
     ...meta,
     getArtifacts: {
       ...meta?.getArtifacts,
       [type]: {page, pageSize},
     },
   }));
-  job.meta = updatedMeta;
-  return job;
 }
 
 async function setDeleteJobDeleteArtifactsMeta(
@@ -49,15 +48,13 @@ async function setDeleteJobDeleteArtifactsMeta(
   type: FimidaraResourceType,
   done = true
 ) {
-  const updatedMeta = await setJobMeta<DeleteResourceJobMeta>(job.resourceId, meta => ({
+  await setJobMeta<DeleteResourceJobMeta>(job.resourceId, meta => ({
     ...meta,
     deleteArtifacts: {
       ...meta?.deleteArtifacts,
       [type]: {done},
     },
   }));
-  job.meta = updatedMeta;
-  return job;
 }
 
 async function getArtifactsAndQueueDeleteJobs(
@@ -65,14 +62,15 @@ async function getArtifactsAndQueueDeleteJobs(
   type: FimidaraResourceType,
   getFn: GetArtifactsFn,
   args: DeleteResourceCascadeFnDefaultArgs,
-  helpers: DeleteResourceCascadeFnHelpers
+  helpers: DeleteResourceCascadeFnHelpers,
+  preRunMeta: AnyObject
 ) {
   let page = helpers.job.meta?.getArtifacts?.[type]?.page || 0;
   let artifacts: Resource[] = [];
   const pageSize = helpers.job.meta?.getArtifacts?.[type]?.pageSize || 1000;
 
   do {
-    artifacts = (await getFn({args, helpers, opts: {page, pageSize}})) || [];
+    artifacts = (await getFn({args, helpers, preRunMeta, opts: {page, pageSize}})) || [];
     await queueJobs(
       workspaceId,
       helpers.job.resourceId,
@@ -90,7 +88,7 @@ async function getArtifactsAndQueueDeleteJobs(
         return {
           params,
           createdBy: helpers.job.createdBy,
-          type: kJobType.deleteResource0,
+          type: kJobType.deleteResource,
           shard: helpers.job.shard,
           priority: helpers.job.priority,
           idempotencyToken: Date.now().toString(),
@@ -107,9 +105,10 @@ async function getArtifactsAndQueueDeleteJobs(
 
 export async function processGetArtifactsFromDef(
   workspaceId: string,
-  getArtifactsDef: DeleteResourceGetArtifactsFns,
+  getArtifactsDef: DeleteResourceGetArtifactsToDeleteFns,
   args: DeleteResourceCascadeFnDefaultArgs,
-  helpers: DeleteResourceCascadeFnHelpers
+  helpers: DeleteResourceCascadeFnHelpers,
+  preRunMeta: AnyObject
 ) {
   const entries = Object.entries(getArtifactsDef);
   const processedTypes: FimidaraResourceType[] = [];
@@ -124,7 +123,8 @@ export async function processGetArtifactsFromDef(
         type as FimidaraResourceType,
         getFn,
         args,
-        helpers
+        helpers,
+        preRunMeta
       );
     }
   }
@@ -136,7 +136,8 @@ async function processDeleteArtifactsFromDef(
   deleteArtifactsDef: DeleteResourceDeleteArtifactsFns,
   skipTypes: FimidaraResourceType[],
   args: DeleteResourceCascadeFnDefaultArgs,
-  helpers: DeleteResourceCascadeFnHelpers
+  helpers: DeleteResourceCascadeFnHelpers,
+  preRunMeta: AnyObject
 ) {
   const entries = Object.entries(deleteArtifactsDef);
   Object.entries(helpers.job.meta?.deleteArtifacts || {}).forEach(([type, status]) => {
@@ -149,7 +150,7 @@ async function processDeleteArtifactsFromDef(
     const [type, deleteFn] = entry;
 
     if (deleteFn && !skipTypes.includes(type as FimidaraResourceType)) {
-      await deleteFn({args, helpers});
+      await deleteFn({args, helpers, preRunMeta});
       kUtilsInjectables
         .promises()
         .forget(
@@ -159,9 +160,14 @@ async function processDeleteArtifactsFromDef(
   }
 }
 
-export async function runDeleteResourceJobArtifacts(job: Job) {
+export async function runDeleteResourceJob(job: Job) {
   const params = job.params as DeleteResourceJobParams;
-  const {deleteArtifacts, getArtifacts} = kCascadeDeleteDefinitions[params.type];
+  const {
+    deleteArtifacts,
+    getPreRunMetaFn,
+    deleteResourceFn,
+    getArtifactsToDelete: getArtifacts,
+  } = kCascadeDeleteDefinitions[params.type];
   const helperFns: DeleteResourceCascadeFnHelpers = {
     job: job as Job<DeleteResourceJobParams, DeleteResourceJobMeta>,
     async withTxn(fn: AnyFn<[SemanticProviderMutationParams]>) {
@@ -170,16 +176,21 @@ export async function runDeleteResourceJobArtifacts(job: Job) {
   };
 
   assert(job.workspaceId);
+  const preRunMeta = await getPreRunMetaFn({args: params, helpers: helperFns});
+  await setDeleteJobPreRunMeta(job, preRunMeta);
   const proccessedTypes = await processGetArtifactsFromDef(
     job.workspaceId,
     getArtifacts,
     params,
-    helperFns
+    helperFns,
+    preRunMeta
   );
   await processDeleteArtifactsFromDef(
     deleteArtifacts,
     proccessedTypes,
     params,
-    helperFns
+    helperFns,
+    preRunMeta
   );
+  await deleteResourceFn({args: params, preRunMeta, helpers: helperFns});
 }

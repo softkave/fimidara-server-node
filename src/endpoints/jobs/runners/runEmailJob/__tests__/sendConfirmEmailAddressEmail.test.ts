@@ -38,7 +38,7 @@ afterAll(async () => {
 async function createTestEmailVerificationToken(userId: string) {
   const token = newResource<AgentToken>(kFimidaraResourceType.AgentToken, {
     forEntityId: userId,
-    scope: [kTokenAccessScope.ConfirmEmailAddress],
+    scope: [kTokenAccessScope.confirmEmailAddress],
     version: kCurrentJWTTokenVersion,
     entityType: kFimidaraResourceType.User,
     workspaceId: null,

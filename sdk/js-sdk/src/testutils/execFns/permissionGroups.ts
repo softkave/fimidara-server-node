@@ -1,5 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {merge} from 'lodash';
+import {loopAndCollateAsync} from 'softkave-js-utils';
 import {PartialDeep} from 'type-fest';
 import {FimidaraEndpoints} from '../../publicEndpoints';
 import {
@@ -9,7 +10,7 @@ import {
   GetWorkspacePermissionGroupsEndpointParams,
   UpdatePermissionGroupEndpointParams,
 } from '../../publicTypes';
-import {ITestVars, loopAndCollate} from '../utils';
+import {ITestVars} from '../utils';
 import assert = require('assert');
 
 export async function addPermissionGroupTestExecFn(
@@ -35,8 +36,10 @@ export async function setupWorkspacePermissionGroupsTestExecFn(
   vars: ITestVars,
   count = 2
 ) {
-  const permissionGroups = await Promise.all(
-    loopAndCollate(count, () => addPermissionGroupTestExecFn(endpoint, vars))
+  const permissionGroups = await loopAndCollateAsync(
+    () => addPermissionGroupTestExecFn(endpoint, vars),
+    count,
+    /** settlement */ 'all'
   );
   return {permissionGroups};
 }

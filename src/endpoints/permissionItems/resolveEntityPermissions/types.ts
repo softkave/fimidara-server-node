@@ -1,4 +1,4 @@
-import {PermissionAction} from '../../../definitions/permissionItem';
+import {FimidaraPermissionAction} from '../../../definitions/permissionItem';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
 import {PermissionItemInputTarget} from '../types';
 
@@ -8,7 +8,7 @@ export interface ResolveEntityPermissionItemInput {
   target:
     | ResolveEntityPermissionItemInputTarget
     | ResolveEntityPermissionItemInputTarget[];
-  action: PermissionAction | PermissionAction[];
+  action: FimidaraPermissionAction | FimidaraPermissionAction[];
   entityId: string | string[];
 }
 
@@ -21,7 +21,7 @@ export interface ResolvedEntityPermissionItemTarget {
 
 export interface ResolvedEntityPermissionItem {
   target: ResolvedEntityPermissionItemTarget;
-  action: PermissionAction;
+  action: FimidaraPermissionAction;
   entityId: string;
   access: boolean;
   permittingEntityId?: string;

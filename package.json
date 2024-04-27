@@ -8,6 +8,7 @@
   },
   "license": "MIT",
   "keywords": [],
+  "type": "module",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
   "engines": {
@@ -30,7 +31,7 @@
     "check-circular-deps": "npx dpdm --no-warning --no-tree ./src/index.ts",
     "gen-rest-api": "env-cmd -f \".env.dev\" ts-node src/mddoc/restApiGen.ts",
     "gen-js-sdk": "env-cmd -f \".env.dev\" ts-node src/mddoc/jsSdkCodeGen.ts",
-    "dev-mongo-rs": "npx run-rs --host localhost --portStart 27000 --dbpath dev-mongo-rs-data",
+    "dev-mongo-rs": "npx run-rs --host localhost --portStart 27000 --dbpath dev-mongo-rs-data --keep",
     "test-mongo-rs": "npx run-rs --host localhost --portStart 27000 --dbpath test-mongo-rs-data",
     "render-email-templates": "env-cmd -f \".env.dev\" ts-node src/tools/email-templates/index.ts"
   },
@@ -53,13 +54,14 @@
     "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.20",
     "mongoose": "^8.1.2",
-    "nanoid": "^3.1.20",
+    "nanoid": "^5.0.7",
     "reflect-metadata": "^0.2.1",
     "safe-stable-stringify": "^2.3.1",
     "sharp": "^0.32.6",
+    "softkave-js-utils": "^0.3.2",
     "stripe": "^8.222.0",
     "tsyringe": "^4.8.0",
-    "type-fest": "^3.8.0",
+    "type-fest": "^4.17.0",
     "validator": "^13.5.2",
     "winston": "^3.8.2",
     "winston-daily-rotate-file": "^4.7.1",
@@ -87,11 +89,11 @@
     "expect-type": "^0.19.0",
     "gts": "^5.2.0",
     "inquirer": "^9.2.15",
-    "jest": "^28.1.3",
+    "jest": "^29.7.0",
     "kerberos": "^2.1.0",
     "run-rs": "^0.7.7",
-    "ts-jest": "^28.0.7",
-    "ts-node": "^10.9.1",
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   }
 }

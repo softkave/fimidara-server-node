@@ -20,7 +20,7 @@ import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {
   completeTests,
   matchExpects,
-  softkaveTest,
+  skTest,
   testCombinations,
 } from '../../testUtils/helpers/testFns';
 import {
@@ -47,7 +47,7 @@ afterAll(async () => {
 });
 
 describe('updateMount', () => {
-  softkaveTest.run('updates', async () => {
+  skTest.run('updates', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {mount} = await insertFileBackendMountForTest(userToken, workspace);
@@ -104,7 +104,10 @@ describe('updateMount', () => {
             matcher: input => !!input.folderpath,
             expect: async (input, result) => {
               assert(input.folderpath);
-              const {namepath} = getFolderpathInfo(input.folderpath);
+              const {namepath} = getFolderpathInfo(input.folderpath, {
+                containsRootname: true,
+                allowRootFolder: false,
+              });
               expect(updatedMount.namepath).toEqual(namepath);
               expect(result.mount.namepath).toEqual(namepath);
 
@@ -171,7 +174,7 @@ describe('updateMount', () => {
     });
   });
 
-  softkaveTest.run('fails if mount does not exist', async () => {
+  skTest.run('fails if mount does not exist', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const instData = RequestData.fromExpressRequest<UpdateFileBackendMountEndpointParams>(
@@ -194,7 +197,7 @@ describe('updateMount', () => {
     );
   });
 
-  softkaveTest.run('fails if config does not exist', async () => {
+  skTest.run('fails if config does not exist', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {mount} = await insertFileBackendMountForTest(userToken, workspace);
@@ -218,7 +221,7 @@ describe('updateMount', () => {
     );
   });
 
-  softkaveTest.run('fails if mount with name exists', async () => {
+  skTest.run('fails if mount with name exists', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const [{mount: mount01}, {mount: mount02}] = await Promise.all([

@@ -1,9 +1,12 @@
-import {PersistedFileDescription} from '../endpoints/contexts/file/types';
-import {ObjectValues, OmitProperties} from '../utils/types';
+import {ValueOf} from 'type-fest';
 import {
-  ConvertAgentToPublicAgent,
+  PersistedFileDescription,
+  PersistedFolderDescription,
+} from '../endpoints/contexts/file/types';
+import {
   FimidaraResourceType,
   PublicWorkspaceResource,
+  ToPublicDefinitions,
   WorkspaceResource,
 } from './system';
 
@@ -12,7 +15,7 @@ export const kFileBackendType = {
   s3: 'aws-s3',
 } as const;
 
-export type FileBackendType = ObjectValues<typeof kFileBackendType>;
+export type FileBackendType = ValueOf<typeof kFileBackendType>;
 
 export interface FileBackendMount extends WorkspaceResource {
   // TODO: is there any advantage to having folderpath and mountedFrom as string
@@ -39,16 +42,19 @@ export interface FileBackendConfig extends WorkspaceResource {
 
 export interface ResolvedMountEntry extends WorkspaceResource {
   mountId: string;
-  resolvedAt: number;
-  namepath: string[];
-  extension?: string;
-  resolvedFor: string;
-  resolvedForType: FimidaraResourceType;
-  other: OmitProperties<PersistedFileDescription, 'filepath' | 'mountId'> | null;
+  backendNamepath: string[];
+  backendExt?: string;
+  fimidaraNamepath: string[];
+  fimidaraExt?: string;
+  /** Resource ID */
+  forId: string;
+  /** Resource type */
+  forType: FimidaraResourceType;
+  persisted: PersistedFileDescription | PersistedFolderDescription;
 }
 
 export type PublicFileBackendMount = PublicWorkspaceResource &
-  ConvertAgentToPublicAgent<
+  ToPublicDefinitions<
     Pick<
       FileBackendMount,
       | 'namepath'
@@ -62,12 +68,18 @@ export type PublicFileBackendMount = PublicWorkspaceResource &
   >;
 
 export type PublicFileBackendConfig = PublicWorkspaceResource &
-  ConvertAgentToPublicAgent<Pick<FileBackendConfig, 'backend' | 'name' | 'description'>>;
+  ToPublicDefinitions<Pick<FileBackendConfig, 'backend' | 'name' | 'description'>>;
 
 export type PublicResolvedMountEntry = PublicWorkspaceResource &
-  ConvertAgentToPublicAgent<
+  ToPublicDefinitions<
     Pick<
       ResolvedMountEntry,
-      'mountId' | 'resolvedAt' | 'namepath' | 'extension' | 'resolvedForType'
+      | 'mountId'
+      | 'backendNamepath'
+      | 'backendExt'
+      | 'fimidaraNamepath'
+      | 'fimidaraExt'
+      | 'forType'
+      | 'forId'
     >
   >;

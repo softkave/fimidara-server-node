@@ -1,6 +1,7 @@
-import {kPermissionsMap} from '../../../definitions/permissionItem';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
 import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kUtilsInjectables} from '../../contexts/injection/injectables';
 import {InvalidRequestError} from '../../errors';
 import {checkPermissionGroupAuthorization03} from '../utils';
@@ -10,11 +11,17 @@ import {deletePermissionGroupJoiSchema} from './validation';
 
 const deletePermissionGroup: DeletePermissionGroupEndpoint = async instData => {
   const data = validate(instData.data, deletePermissionGroupJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const {permissionGroup, workspace} = await checkPermissionGroupAuthorization03(
     agent,
     data,
-    kPermissionsMap.updatePermission
+    kFimidaraPermissionActionsMap.updatePermission
   );
 
   if (permissionGroup.resourceId === workspace.publicPermissionGroupId) {

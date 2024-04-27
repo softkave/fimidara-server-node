@@ -2,6 +2,7 @@ import {Workspace} from '../../../definitions/workspace';
 import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {checkWorkspaceNameExists} from '../checkWorkspaceExists';
 import {
@@ -14,7 +15,13 @@ import {updateWorkspaceJoiSchema} from './validation';
 
 const updateWorkspace: UpdateWorkspaceEndpoint = async instData => {
   const data = validate(instData.data, updateWorkspaceJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   let {workspace} = await checkWorkspaceAuthorization02(
     agent,
     'updateWorkspace',

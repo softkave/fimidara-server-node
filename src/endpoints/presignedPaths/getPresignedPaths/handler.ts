@@ -1,11 +1,12 @@
 import {compact, keyBy, map, uniqBy} from 'lodash';
 import {FileMatcher} from '../../../definitions/file';
 import {PresignedPath} from '../../../definitions/presignedPath';
-import {SessionAgent, kPermissionAgentTypes} from '../../../definitions/system';
+import {SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {mergeData} from '../../../utils/fns';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {SemanticProviderOpParams} from '../../contexts/semantic/types';
@@ -21,7 +22,11 @@ const getPresignedPathsForFiles: GetPresignedPathsForFilesEndpoint = async instD
   const data = validate(instData.data, getPresignedPathsForFilesJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, kPermissionAgentTypes);
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   let pList: Array<PresignedPath> = [],
     workspaceDict: Record<string, Workspace> = {};
 
@@ -100,7 +105,10 @@ async function getPresignedPathsByFileMatchers(
           return;
         }
 
-        const pathinfo = getFilepathInfo(matcher.filepath);
+        const pathinfo = getFilepathInfo(matcher.filepath, {
+          containsRootname: true,
+          allowRootFolder: false,
+        });
         let workspace: Workspace | null;
 
         if (!workspaceId) {
@@ -118,7 +126,7 @@ async function getPresignedPathsByFileMatchers(
           {
             workspaceId,
             namepath: pathinfo.namepath,
-            extension: pathinfo.extension,
+            ext: pathinfo.ext,
           },
           opts
         );

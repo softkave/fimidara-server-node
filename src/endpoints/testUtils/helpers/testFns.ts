@@ -52,9 +52,10 @@ type TestFn = (name: string, fn: AnyFn, timeout?: number) => void;
 export interface SoftkaveTest {
   run: TestFn;
   only: TestFn;
+  each: jest.Each;
 }
 
-export const softkaveTest: SoftkaveTest = {
+export const skTest: SoftkaveTest = {
   run: (name: string, fn: AnyFn, timeout?: number) => {
     test(
       name,
@@ -72,6 +73,18 @@ export const softkaveTest: SoftkaveTest = {
       },
       timeout
     );
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  each: (cases: any) => {
+    return (name: string, fn: AnyFn, timeout?: number) => {
+      test.each(cases)(
+        name,
+        async (...args: unknown[]) => {
+          await kUtilsInjectables.asyncLocalStorage().run(() => fn(...args));
+        },
+        timeout
+      );
+    };
   },
 };
 

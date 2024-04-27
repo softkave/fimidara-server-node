@@ -39,8 +39,6 @@ afterAll(async () => {
 
 describe('resolveEntityPermissions', () => {
   test('correct results returned', async () => {
-    // TODO: add more tests for target and appliesTo
-
     const {userToken, rawUser} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const [[pg01, pg02, pg03, pg04, pg05], [file01]] = await Promise.all([

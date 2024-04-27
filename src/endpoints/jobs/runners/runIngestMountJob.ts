@@ -15,11 +15,7 @@ export async function runIngestMountJob(job: Job) {
   const input: JobInput<IngestFolderpathJobParams> = {
     createdBy: job.createdBy,
     type: kJobType.ingestFolderpath,
-    params: {
-      ingestFrom: mount.mountedFrom,
-      mountId: mount.resourceId,
-      agentId: job.params.agentId,
-    },
+    params: {ingestFrom: mount.mountedFrom, mountId: mount.resourceId},
     idempotencyToken: Date.now().toString(),
   };
 

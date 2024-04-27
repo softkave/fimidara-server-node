@@ -1,4 +1,4 @@
-import {PermissionAction} from '../../../definitions/permissionItem';
+import {FimidaraPermissionAction} from '../../../definitions/permissionItem';
 import {MultipleLongRunningJobResult} from '../../jobs/types';
 import {Endpoint} from '../../types';
 import {PermissionItemInputTarget} from '../types';
@@ -6,7 +6,7 @@ import {PermissionItemInputTarget} from '../types';
 export type DeletePermissionItemInputTarget = Partial<PermissionItemInputTarget>;
 export type DeletePermissionItemInput = {
   target?: DeletePermissionItemInputTarget | DeletePermissionItemInputTarget[];
-  action?: PermissionAction | PermissionAction[];
+  action?: FimidaraPermissionAction | FimidaraPermissionAction[];
   access?: boolean;
   entityId?: string | string[];
 };

@@ -8,12 +8,12 @@ import {
 } from '../contexts/semantic/utils';
 
 function getByNamepath(
-  file: Pick<File, 'workspaceId' | 'namepath' | 'extension'>
-): Pick<FileQuery, 'extension' | 'workspaceId' | 'namepath'> {
-  const {extension, namepath, workspaceId} = file;
+  file: Pick<File, 'workspaceId' | 'namepath' | 'ext'>
+): Pick<FileQuery, 'ext' | 'workspaceId' | 'namepath'> {
+  const {ext, namepath, workspaceId} = file;
   return {
     workspaceId,
-    extension: isString(extension) ? getIgnoreCaseDataQueryRegExp(extension) : undefined,
+    ext: isString(ext) ? getIgnoreCaseDataQueryRegExp(ext) : undefined,
     ...getStringListQuery<Folder>(
       namepath,
       /** prefix */ 'namepath',

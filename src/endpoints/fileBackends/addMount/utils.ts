@@ -1,5 +1,5 @@
 import {FileBackendMount, kFileBackendType} from '../../../definitions/fileBackend';
-import {Agent, kFimidaraResourceType} from '../../../definitions/system';
+import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {pathSplit} from '../../../utils/fns';
@@ -13,7 +13,7 @@ import {mountExists, mountNameExists} from '../utils';
 import {NewFileBackendMountInput} from './types';
 
 export const INTERNAL_addFileBackendMount = async (
-  agent: Agent,
+  agent: SessionAgent,
   workspace: Workspace,
   data: NewFileBackendMountInput,
   opts: SemanticProviderMutationParams
@@ -21,7 +21,10 @@ export const INTERNAL_addFileBackendMount = async (
   const fileBackendMountModel = kSemanticModels.fileBackendMount();
   const fileBackendConfigModel = kSemanticModels.fileBackendConfig();
 
-  const folderpathinfo = getFolderpathInfo(data.folderpath, {allowRootFolder: true});
+  const folderpathinfo = getFolderpathInfo(data.folderpath, {
+    allowRootFolder: true,
+    containsRootname: true,
+  });
   assertRootname(folderpathinfo.rootname);
   appAssert(
     workspace.rootname === folderpathinfo.rootname,

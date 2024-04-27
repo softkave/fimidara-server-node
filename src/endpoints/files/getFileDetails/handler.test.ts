@@ -1,5 +1,5 @@
 import RequestData from '../../RequestData';
-import {completeTests, softkaveTest} from '../../testUtils/helpers/testFns';
+import {completeTests, skTest} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,
@@ -21,7 +21,7 @@ afterAll(async () => {
 });
 
 describe('getFileDetails', () => {
-  softkaveTest.run('file details returned', async () => {
+  skTest.run('file details returned', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);

@@ -1,6 +1,6 @@
 import {last} from 'lodash';
 import {Folder, FolderMatcher} from '../../definitions/folder';
-import {Agent} from '../../definitions/system';
+import {SessionAgent} from '../../definitions/system';
 import {FileQuery} from '../contexts/data/types';
 import {kSemanticModels} from '../contexts/injection/injectables';
 import {
@@ -32,7 +32,7 @@ export async function getClosestExistingFolder(
 }
 
 export async function getFolderWithMatcher(
-  agent: Agent,
+  agent: SessionAgent,
   matcher: FolderMatcher,
   opts?: SemanticProviderMutationParams,
   workspaceId?: string
@@ -52,7 +52,7 @@ export async function getFolderWithMatcher(
 }
 
 export async function assertGetFolderWithMatcher(
-  agent: Agent,
+  agent: SessionAgent,
   matcher: FolderMatcher,
   opts?: SemanticProviderMutationParams,
   workspaceId?: string

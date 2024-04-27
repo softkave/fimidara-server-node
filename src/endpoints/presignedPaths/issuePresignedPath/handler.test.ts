@@ -11,7 +11,7 @@ import {addRootnameToPath} from '../../folders/utils';
 import {generateTestFileName} from '../../testUtils/generate/file';
 import {expectErrorThrown} from '../../testUtils/helpers/error';
 import {expectFileBodyEqualById} from '../../testUtils/helpers/file';
-import {completeTests, softkaveTest} from '../../testUtils/helpers/testFns';
+import {completeTests, skTest} from '../../testUtils/helpers/testFns';
 import {
   assertEndpointResultOk,
   initTests,
@@ -36,7 +36,7 @@ afterAll(async () => {
 });
 
 describe('issuePresignedPath', () => {
-  softkaveTest.run('file presigned path issued', async () => {
+  skTest.run('file presigned path issued', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
@@ -52,7 +52,7 @@ describe('issuePresignedPath', () => {
     await expectFileBodyEqualById(file.resourceId, readFileResult.stream);
   });
 
-  softkaveTest.run('issued with fileId', async () => {
+  skTest.run('issued with fileId', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
@@ -68,7 +68,7 @@ describe('issuePresignedPath', () => {
     await expectFileBodyEqualById(file.resourceId, readFileResult.stream);
   });
 
-  softkaveTest.run('file presigned path issued with duration', async () => {
+  skTest.run('file presigned path issued with duration', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
@@ -88,7 +88,7 @@ describe('issuePresignedPath', () => {
     await expectReadFileFails(result.path, NotFoundError.name);
   });
 
-  softkaveTest.run('file presigned path issued with expiration timestamp', async () => {
+  skTest.run('file presigned path issued with expiration timestamp', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
@@ -109,7 +109,7 @@ describe('issuePresignedPath', () => {
     await expectReadFileFails(result.path, NotFoundError.name);
   });
 
-  softkaveTest.run('file presigned path issued with usage count', async () => {
+  skTest.run('file presigned path issued with usage count', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
@@ -133,7 +133,7 @@ describe('issuePresignedPath', () => {
     await expectReadFileFails(result.path, NotFoundError.name);
   });
 
-  softkaveTest.run('fails if agent does not have permission', async () => {
+  skTest.run('fails if agent does not have permission', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
@@ -152,7 +152,7 @@ describe('issuePresignedPath', () => {
     }, [PermissionDeniedError.name]);
   });
 
-  softkaveTest.run(
+  skTest.run(
     'fails if agent does not have permission and file does not exist',
     async () => {
       const {userToken} = await insertUserForTest();
@@ -175,7 +175,7 @@ describe('issuePresignedPath', () => {
     }
   );
 
-  softkaveTest.run('passes if file does not exist yet', async () => {
+  skTest.run('passes if file does not exist yet', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {folder} = await insertFolderForTest(userToken, workspace);
@@ -199,7 +199,7 @@ describe('issuePresignedPath', () => {
     await tryReadFile(result.path);
   });
 
-  softkaveTest.run('fails if file does not exist and filepath not provided', async () => {
+  skTest.run('fails if file does not exist and filepath not provided', async () => {
     const {userToken} = await insertUserForTest();
 
     await expectErrorThrown(async () => {

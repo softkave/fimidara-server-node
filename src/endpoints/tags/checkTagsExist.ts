@@ -1,5 +1,5 @@
 import {uniqBy} from 'lodash';
-import {PermissionAction} from '../../definitions/permissionItem';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem';
 import {kFimidaraResourceType, SessionAgent} from '../../definitions/system';
 import {AssignedTagInput} from '../../definitions/tag';
 import {Workspace} from '../../definitions/workspace';
@@ -11,7 +11,7 @@ export default async function checkTagsExist(
   agent: SessionAgent,
   workspace: Workspace,
   items: Array<AssignedTagInput>,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   opts?: SemanticProviderOpParams
 ) {
   const resources = await INTERNAL_getResources({

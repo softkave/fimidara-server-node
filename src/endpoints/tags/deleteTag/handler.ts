@@ -1,6 +1,7 @@
-import {kPermissionsMap} from '../../../definitions/permissionItem';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
 import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kUtilsInjectables} from '../../contexts/injection/injectables';
 import {checkTagAuthorization02} from '../utils';
 import {DeleteTagEndpoint} from './types';
@@ -9,11 +10,17 @@ import {deleteTagJoiSchema} from './validation';
 
 const deleteTag: DeleteTagEndpoint = async instData => {
   const data = validate(instData.data, deleteTagJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const {tag} = await checkTagAuthorization02(
     agent,
     data.tagId,
-    kPermissionsMap.deleteTag
+    kFimidaraPermissionActionsMap.deleteTag
   );
 
   const [job] = await beginDeleteTag({

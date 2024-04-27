@@ -22,7 +22,7 @@ export async function beginDeleteCollaborationRequest(props: {
         resources.map(resource => {
           return {
             createdBy: agent,
-            type: kJobType.deleteResource0,
+            type: kJobType.deleteResource,
             idempotencyToken: Date.now().toString(),
             params: {
               workspaceId,

@@ -1,6 +1,7 @@
 import {getTimestamp} from '../../../utils/dateFns';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {assertUpdateNotEmpty} from '../../utils';
 import {
@@ -14,7 +15,13 @@ import {updateCollaborationRequestJoiSchema} from './validation';
 const updateCollaborationRequest: UpdateCollaborationRequestEndpoint = async instData => {
   const data = validate(instData.data, updateCollaborationRequestJoiSchema);
   assertUpdateNotEmpty(data.request);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
 
   const {request} = await kSemanticModels.utils().withTxn(async opts => {
     const {request, workspace} = await checkCollaborationRequestAuthorization02(

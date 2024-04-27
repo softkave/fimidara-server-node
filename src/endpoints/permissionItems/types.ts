@@ -1,4 +1,4 @@
-import {PermissionAction} from '../../definitions/permissionItem';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem';
 import {ExportedHttpEndpointWithMddocDefinition} from '../types';
 import {AddPermissionItemsEndpoint} from './addItems/types';
 import {DeletePermissionItemsEndpoint} from './deleteItems/types';
@@ -20,7 +20,7 @@ export interface ResolvedEntityPermissionItemTarget {
 
 export interface PermissionItemInput {
   target: PermissionItemInputTarget | PermissionItemInputTarget[];
-  action: PermissionAction | PermissionAction[];
+  action: FimidaraPermissionAction | FimidaraPermissionAction[];
   access: boolean;
   entityId: string | string[];
 }

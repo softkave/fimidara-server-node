@@ -3,6 +3,7 @@ import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job'
 import {User} from '../../../definitions/user';
 import {kSystemSessionAgent} from '../../../utils/agent';
 import {formatDate} from '../../../utils/dateFns';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kUtilsInjectables} from '../../contexts/injection/injectables';
 import {RateLimitError} from '../../errors';
 import {queueJobs} from '../../jobs/queueJobs';
@@ -11,7 +12,9 @@ import {EmailAddressVerifiedError} from '../errors';
 import {SendEmailVerificationCodeEndpoint} from './types';
 
 const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async instData => {
-  const user = await kUtilsInjectables.session().getUser(instData);
+  const user = await kUtilsInjectables
+    .session()
+    .getUser(instData, kSessionUtils.accessScopes.user);
   await INTERNAL_sendEmailVerificationCode(user);
 };
 

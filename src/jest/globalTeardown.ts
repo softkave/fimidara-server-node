@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
-import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
-import {dropMongoDBAndEndConnection} from '../endpoints/testUtils/helpers/mongo';
-import {FimidaraSuppliedConfig, getSuppliedConfig} from '../resources/config';
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
+import {dropMongoDBAndEndConnection} from '../endpoints/testUtils/helpers/mongo.js';
+import {FimidaraSuppliedConfig, getSuppliedConfig} from '../resources/config.js';
 
 async function dropMongoCollections(config: FimidaraSuppliedConfig) {
   const mongoURI = config.mongoDbURI;

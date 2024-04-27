@@ -8,6 +8,7 @@ import {convertToArray} from '../../utils/fns';
 import {tryGetResourceTypeFromId} from '../../utils/resource';
 import {AnyObject} from '../../utils/types';
 import {kEndpointConstants} from '../constants';
+import {kUtilsInjectables} from '../contexts/injection/injectables';
 import {InvalidRequestError} from '../errors';
 import {populateMountUnsupportedOpNoteInNotFoundError} from '../fileBackends/mountUtils';
 import {kFolderConstants} from '../folders/constants';
@@ -126,6 +127,10 @@ async function extractUploadFileParamsFromReq(
       reject(new Error(`Upload file wait timeout ${kFileStreamWaitTimeoutMS} exceeded`));
     }, kFileStreamWaitTimeoutMS);
 
+    req.busboy.on('error', (error): void => {
+      kUtilsInjectables.logger().error('uploadFile req busboy error', error);
+    });
+
     req.busboy.on('file', (filename, stream, info) => {
       // Clear wait timeout, we have file stream, otherwise the request will
       // fail
@@ -173,6 +178,23 @@ function cleanupUploadFileReq(req: Request) {
     // We are done processing request, either because of an error, file stream
     // wait timeout exceeded, or file has been persisted. Either way,
     // immediately destroy the stream to avoid memory leakage.
+
+    interface ActiveBusboy {
+      _fileStream?: Readable;
+    }
+
+    // Handle busboy's _fileStream on error, called on destroy() which'd crash
+    // the app otherwise
+    if ((req.busboy as ActiveBusboy)?._fileStream) {
+      (req.busboy as ActiveBusboy)?._fileStream?.on('error', error => {
+        kUtilsInjectables
+          .logger()
+          .error('uploadFile req busboy _fileStream error', error);
+      });
+    }
+
+    req.unpipe(req.busboy);
+    req.destroy();
     req.busboy.destroy();
   }
 }

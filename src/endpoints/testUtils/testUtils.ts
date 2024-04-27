@@ -9,6 +9,7 @@ import {
 } from '../../definitions/system';
 import {PublicUser, UserWithWorkspace} from '../../definitions/user';
 import {PublicWorkspace, Workspace} from '../../definitions/workspace';
+import {kPublicSessionAgent, kSystemSessionAgent} from '../../utils/agent';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
 import {convertToArray, mergeData, pathJoin} from '../../utils/fns';
@@ -103,13 +104,18 @@ export function mockExpressRequestWithAgentToken(
   token: Pick<AgentToken, 'resourceId' | 'createdAt' | 'expiresAt'>
 ) {
   const req: IServerRequest = {
-    auth: {
-      version: kCurrentJWTTokenVersion,
-      sub: {id: token.resourceId},
-      iat: token.createdAt,
-      exp: token.expiresAt,
-    },
+    auth:
+      token.resourceId === kSystemSessionAgent.agentTokenId ||
+      token.resourceId === kPublicSessionAgent.agentTokenId
+        ? undefined
+        : {
+            version: kCurrentJWTTokenVersion,
+            sub: {id: token.resourceId},
+            iat: token.createdAt,
+            exp: token.expiresAt,
+          },
   } as unknown as IServerRequest;
+
   return req;
 }
 
@@ -293,7 +299,11 @@ export async function insertAgentTokenForTest(
 
   const result = await addAgentTokenEndpoint(instData);
   assertEndpointResultOk(result);
-  return result;
+
+  const rawToken = await kSemanticModels.agentToken().getOneById(result.token.resourceId);
+  assert(rawToken);
+
+  return {...result, rawToken};
 }
 
 export async function insertFileBackendConfigForTest(

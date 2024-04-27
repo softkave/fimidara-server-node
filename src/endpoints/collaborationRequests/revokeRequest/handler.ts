@@ -3,6 +3,7 @@ import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job'
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {InvalidRequestError} from '../../errors';
 import {queueJobs} from '../../jobs/queueJobs';
@@ -16,7 +17,13 @@ import {revokeCollaborationRequestJoiSchema} from './validation';
 
 const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async instData => {
   const data = validate(instData.data, revokeCollaborationRequestJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
 
   const {request, workspace} = await kSemanticModels.utils().withTxn(async opts => {
     const {request, workspace} = await checkCollaborationRequestAuthorization02(

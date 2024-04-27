@@ -475,12 +475,12 @@ export function isPathEmpty(input: string | string[]) {
   return pJoined === '/E';
 }
 
-export function pathExtension(input: string) {
+export function pathExt(input: string) {
   return path.posix.extname(input).replace('.', '');
 }
 
 export function pathBasename(input: string) {
-  const ext = pathExtension(input);
+  const ext = pathExt(input);
   let basename = path.posix.basename(input, `.${ext}`);
 
   if (basename.match(/^[.]*$/)) {
@@ -488,6 +488,16 @@ export function pathBasename(input: string) {
   }
 
   return {basename, ext};
+}
+
+export function pathExtract(input: string) {
+  const namepath = pathSplit(input);
+  const filenameAndExt = namepath[namepath.length - 1];
+  appAssert(filenameAndExt);
+  const {basename, ext} = pathBasename(filenameAndExt);
+  namepath[namepath.length - 1] = basename;
+
+  return {namepath, ext, basename};
 }
 
 export function sortObjectKeys<T extends AnyObject>(obj: AnyObject) {

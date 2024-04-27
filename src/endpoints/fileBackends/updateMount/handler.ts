@@ -5,13 +5,14 @@ import {
   Job,
   kJobType,
 } from '../../../definitions/job';
-import {kPermissionsMap} from '../../../definitions/permissionItem';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {pathSplit} from '../../../utils/fns';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {areFolderpathsEqual, ensureFolders, getFolderpathInfo} from '../../folders/utils';
@@ -27,14 +28,20 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData =>
   const semanticUtils = kSemanticModels.utils();
 
   const data = validate(instData.data, updateFileBackendMountJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   await checkAuthorizationWithAgent({
     agent,
     workspace,
     workspaceId: workspace.resourceId,
     target: {
-      action: kPermissionsMap.updateFileBackendMount,
+      action: kFimidaraPermissionActionsMap.updateFileBackendMount,
       targetId: workspace.resourceId,
     },
   });
@@ -74,7 +81,10 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData =>
     };
 
     if (data.mount.folderpath) {
-      const folderpathinfo = getFolderpathInfo(data.mount.folderpath);
+      const folderpathinfo = getFolderpathInfo(data.mount.folderpath, {
+        allowRootFolder: false,
+        containsRootname: true,
+      });
       assertRootname(folderpathinfo.rootname);
       appAssert(
         workspace.rootname === folderpathinfo.rootname,
@@ -115,7 +125,10 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData =>
           workspaceId: workspace.resourceId,
           backend: mount.backend,
           namepath: data.mount.folderpath
-            ? getFolderpathInfo(data.mount.folderpath).namepath
+            ? getFolderpathInfo(data.mount.folderpath, {
+                allowRootFolder: false,
+                containsRootname: true,
+              }).namepath
             : mount.namepath,
           mountedFrom: data.mount.mountedFrom
             ? pathSplit(data.mount.mountedFrom)

@@ -1,4 +1,4 @@
-import {Job} from '../../../definitions/job';
+import {DeleteResourceJobMeta, Job} from '../../../definitions/job';
 import {AnyFn, AnyObject} from '../../../utils/types';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 
@@ -19,9 +19,17 @@ export async function setJobMeta<TMeta extends AnyObject>(
       // existing data, and without needing to get data from DB like we're
       // doing here
       await kSemanticModels.job().updateOneById(jobId, {meta: newMeta}, opts);
+      job.meta = newMeta;
       return newMeta;
     }
 
     return undefined;
   }, /** reuse txn from async local store */ false);
+}
+
+export async function setDeleteJobPreRunMeta(job: Job, preRunMeta: AnyObject) {
+  await setJobMeta<DeleteResourceJobMeta>(job.resourceId, meta => ({
+    ...meta,
+    preRunMeta,
+  }));
 }

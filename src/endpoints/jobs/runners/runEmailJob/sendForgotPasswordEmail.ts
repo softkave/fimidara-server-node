@@ -45,7 +45,7 @@ export function getForgotPasswordLinkFromToken(forgotToken: AgentToken) {
 export async function getForgotPasswordToken(user: User) {
   const expiration = getForgotPasswordExpiration();
   const forgotToken = newResource<AgentToken>(kFimidaraResourceType.AgentToken, {
-    scope: [kTokenAccessScope.ChangePassword],
+    scope: [kTokenAccessScope.changePassword],
     version: kCurrentJWTTokenVersion,
     expiresAt: expiration.valueOf(),
     forEntityId: user.resourceId,
@@ -58,7 +58,7 @@ export async function getForgotPasswordToken(user: User) {
   await kSemanticModels.utils().withTxn(async opts => {
     await kSemanticModels
       .agentToken()
-      .softDeleteAgentTokens(user.resourceId, kTokenAccessScope.ChangePassword, opts);
+      .softDeleteAgentTokens(user.resourceId, kTokenAccessScope.changePassword, opts);
     await kSemanticModels.agentToken().insertItem(forgotToken, opts);
   }, /** reuseTxn */ false);
 

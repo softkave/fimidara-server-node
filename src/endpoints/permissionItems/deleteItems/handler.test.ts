@@ -1,5 +1,5 @@
 import {Job, kJobType} from '../../../definitions/job';
-import {kPermissionsMap} from '../../../definitions/permissionItem';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
 import {kFimidaraResourceType} from '../../../definitions/system';
 import {sortObjectKeys} from '../../../utils/fns';
 import RequestData from '../../RequestData';
@@ -10,6 +10,7 @@ import {
   assertEndpointResultOk,
   initTests,
   insertPermissionGroupForTest,
+  insertPermissionItemsForTest,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
@@ -32,12 +33,26 @@ test('permission items deleted', async () => {
     insertPermissionGroupForTest(userToken, workspace.resourceId),
     insertPermissionGroupForTest(userToken, workspace.resourceId),
   ]);
+  await Promise.all([
+    insertPermissionItemsForTest(userToken, workspace.resourceId, {
+      entityId: pg01.resourceId,
+      target: {targetId: workspace.resourceId},
+      access: true,
+      action: kFimidaraPermissionActionsMap.addTag,
+    }),
+    insertPermissionItemsForTest(userToken, workspace.resourceId, {
+      entityId: pg02.resourceId,
+      target: {targetId: workspace.resourceId},
+      access: true,
+      action: kFimidaraPermissionActionsMap.addTag,
+    }),
+  ]);
 
   const params: DeletePermissionItemsEndpointParams = {
     workspaceId: workspace.resourceId,
     items: [
       {
-        action: kPermissionsMap.addTag,
+        action: kFimidaraPermissionActionsMap.addTag,
         target: {targetId: workspace.resourceId},
         entityId: pg01.resourceId,
       },

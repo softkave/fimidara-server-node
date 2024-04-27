@@ -1,6 +1,6 @@
 import {File} from '../../definitions/file';
 import {Folder} from '../../definitions/folder';
-import {PermissionAction} from '../../definitions/permissionItem';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem';
 import {
   ResourceWrapper,
   SessionAgent,
@@ -115,7 +115,7 @@ export async function getPermissionItemTargets(
   agent: SessionAgent,
   workspace: Workspace,
   target: Partial<PermissionItemInputTarget> | Partial<PermissionItemInputTarget>[],
-  action: PermissionAction
+  action: FimidaraPermissionAction
 ) {
   const resources = await INTERNAL_getResources({
     agent,

@@ -4,7 +4,10 @@ import {
   PermissionEntityInheritanceMap,
   PermissionGroup,
 } from '../../../../definitions/permissionGroups';
-import {PermissionAction, PermissionItem} from '../../../../definitions/permissionItem';
+import {
+  FimidaraPermissionAction,
+  PermissionItem,
+} from '../../../../definitions/permissionItem';
 import {Resource, kFimidaraResourceType} from '../../../../definitions/system';
 import {appAssert} from '../../../../utils/assertion';
 import {toCompactArray} from '../../../../utils/fns';
@@ -203,7 +206,7 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
 
   protected getPermissionItemsQuery(props: {
     entityId?: string | string[];
-    action?: PermissionAction | PermissionAction[];
+    action?: FimidaraPermissionAction | FimidaraPermissionAction[];
     targetId?: string | string[];
     targetParentId?: string;
   }) {

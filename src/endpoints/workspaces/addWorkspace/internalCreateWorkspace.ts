@@ -1,6 +1,6 @@
 import assert = require('assert');
 import {kFileBackendType} from '../../../definitions/fileBackend';
-import {Agent, kFimidaraResourceType} from '../../../definitions/system';
+import {Agent, SessionAgent, kFimidaraResourceType} from '../../../definitions/system';
 import {UsageRecordCategory} from '../../../definitions/usageRecord';
 import {
   UsageThresholdsByCategory,
@@ -46,7 +46,7 @@ export function transformUsageThresholInput(
 
 const INTERNAL_createWorkspace = async (
   data: NewWorkspaceInput,
-  agent: Agent,
+  agent: SessionAgent,
   userId: string | undefined,
   opts: SemanticProviderMutationParams
 ) => {

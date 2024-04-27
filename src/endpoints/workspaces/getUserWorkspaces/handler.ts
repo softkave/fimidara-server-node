@@ -1,4 +1,5 @@
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {
   applyDefaultEndpointPaginationOptions,
@@ -8,9 +9,11 @@ import {workspaceListExtractor} from '../utils';
 import {GetUserWorkspacesEndpoint} from './types';
 import {getUserWorkspacesJoiSchema} from './validation';
 
-const getUserWorkspaces: GetUserWorkspacesEndpoint = async d => {
-  const data = validate(d.data, getUserWorkspacesJoiSchema);
-  const user = await kUtilsInjectables.session().getUser(d);
+const getUserWorkspaces: GetUserWorkspacesEndpoint = async reqData => {
+  const data = validate(reqData.data, getUserWorkspacesJoiSchema);
+  const user = await kUtilsInjectables
+    .session()
+    .getUser(reqData, kSessionUtils.accessScopes.user);
   applyDefaultEndpointPaginationOptions(data);
   const assignedItems = await kSemanticModels
     .assignedItem()

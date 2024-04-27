@@ -4,6 +4,7 @@ import {
   Agent,
   kCurrentJWTTokenVersion,
   kFimidaraResourceType,
+  kTokenAccessScope,
 } from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {newWorkspaceResource} from '../../../utils/resource';
@@ -41,6 +42,7 @@ export const INTERNAL_createAgentToken = async (
       version: kCurrentJWTTokenVersion,
       forEntityId: null,
       entityType: kFimidaraResourceType.AgentToken,
+      scope: [kTokenAccessScope.access],
     }
   );
   await Promise.all([

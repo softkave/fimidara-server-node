@@ -1,6 +1,9 @@
 import {isNumber} from 'lodash';
 import {File, FileMatcher} from '../../definitions/file';
-import {PermissionAction, kPermissionsMap} from '../../definitions/permissionItem';
+import {
+  FimidaraPermissionAction,
+  kFimidaraPermissionActionsMap,
+} from '../../definitions/permissionItem';
 import {PresignedPath} from '../../definitions/presignedPath';
 import {kFimidaraResourceType} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
@@ -64,7 +67,7 @@ export function isPresignedPath(filepath: string) {
 
 export async function getFileByPresignedPath(props: {
   filepath: string;
-  action: PermissionAction;
+  action: FimidaraPermissionAction;
   incrementUsageCount: boolean;
   opts?: SemanticProviderQueryParams<File>;
 }) {
@@ -95,7 +98,7 @@ export async function getFileByPresignedPath(props: {
     {
       workspaceId: presignedPath.workspaceId,
       namepath: presignedPath.namepath,
-      extension: presignedPath.extension,
+      ext: presignedPath.ext,
     },
     opts
   );
@@ -113,7 +116,7 @@ export async function getFileByPresignedPath(props: {
     .assertGetOneByQuery({resourceId: presignedPath.issuerAgentTokenId}, opts);
 
   await checkFileAuthorization(
-    agentToken
+    agentToken.entityType === kFimidaraResourceType.User
       ? makeUserSessionAgent(
           // TODO: how can we reduce all the db fetches in this function
           await kSemanticModels.user().assertGetOneByQuery({
@@ -131,7 +134,7 @@ export async function getFileByPresignedPath(props: {
 }
 
 export async function getFileByFilepath(props: {
-  /** filepath with extension if present, and workspace rootname. */
+  /** filepath with ext if present, and workspace rootname. */
   filepath: string;
   opts: SemanticProviderMutationParams;
   workspaceId?: string;
@@ -146,7 +149,10 @@ export async function getFileByFilepath(props: {
     workspaceId = workspace.resourceId;
   }
 
-  const pathinfo = getFilepathInfo(filepath);
+  const pathinfo = getFilepathInfo(filepath, {
+    allowRootFolder: false,
+    containsRootname: true,
+  });
   const file = await fileModel.getOneByNamepath(
     {workspaceId, namepath: pathinfo.namepath},
     opts
@@ -159,7 +165,7 @@ export async function getFileWithMatcher(props: {
   matcher: FileMatcher;
   opts: SemanticProviderMutationParams;
   /** Defaults to `readFile`. */
-  presignedPathAction?: PermissionAction;
+  presignedPathAction?: FimidaraPermissionAction;
   workspaceId?: string;
   /** Defaults to `true`. */
   supportPresignedPath?: boolean;
@@ -174,7 +180,7 @@ export async function getFileWithMatcher(props: {
     supportPresignedPath = true,
     incrementPresignedPathUsageCount = true,
     shouldIngestFile = true,
-    presignedPathAction = kPermissionsMap.readFile,
+    presignedPathAction = kFimidaraPermissionActionsMap.readFile,
   } = props;
 
   if (matcher.fileId) {
@@ -211,7 +217,7 @@ export async function getFileWithMatcher(props: {
       await ingestFileByFilepath({
         opts,
         agent: kSystemSessionAgent,
-        filepath: matcher.filepath,
+        fimidaraFilepath: matcher.filepath,
       });
 
       // Try again to get file from DB

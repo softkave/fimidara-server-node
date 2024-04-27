@@ -23,35 +23,35 @@ export function generateTestFileName(
   props: {
     separatorChars?: string[];
     includeStraySlashes?: boolean;
-    extension?: string | boolean;
+    ext?: string | boolean;
     rootname?: string;
   } = {}
 ) {
   const {
-    extension,
+    ext,
     includeStraySlashes = false,
     separatorChars = kTestFileNameSeparatorChars,
   } = props;
   let filename = '';
 
   if (
-    isUndefined(extension) &&
+    isUndefined(ext) &&
     isUndefined(includeStraySlashes) &&
     isUndefined(separatorChars)
   ) {
-    const extCount = getRandomIntInclusive(0, 5);
-    filename = faker.system.fileName({extensionCount: extCount});
-  } else if (isEqual(extension, false)) {
+    const extensionCount = getRandomIntInclusive(0, 5);
+    filename = faker.system.fileName({extensionCount});
+  } else if (isEqual(ext, false)) {
     filename = generateTestFolderName(props);
   } else {
     const name = generateTestFolderName(props);
     filename = addExtenstion(
       name,
-      isBoolean(extension)
-        ? extension === true
+      isBoolean(ext)
+        ? ext === true
           ? faker.system.fileExt()
-          : isString(extension)
-          ? extension
+          : isString(ext)
+          ? ext
           : undefined
         : undefined
     );
@@ -117,7 +117,7 @@ export function generateTestFile(extra: Partial<File> & {parentId?: string | nul
     resourceId: id,
     size: faker.number.int({min: 1}),
     workspaceId: getNewIdForResource(kFimidaraResourceType.Workspace),
-    extension: nameinfo.extension,
+    ext: nameinfo.ext,
     version: 1,
     isReadAvailable: true,
     isWriteAvailable: true,
@@ -159,7 +159,7 @@ export function generateTestPresignedPath(extra: Partial<PresignedPath> = {}) {
   const data: PresignedPath = {
     namepath: generateTestFilepath(),
     fileId: getNewIdForResource(kFimidaraResourceType.File),
-    extension: faker.system.fileExt(),
+    ext: faker.system.fileExt(),
     issuerAgentTokenId: getNewIdForResource(kFimidaraResourceType.AgentToken),
     maxUsageCount: faker.number.int({min: 0}),
     spentUsageCount: faker.number.int({min: 0}),

@@ -1,5 +1,5 @@
 import {ValueOf} from 'type-fest';
-import {ConvertAgentToPublicAgent, PublicResource, WorkspaceResource} from './system';
+import {PublicResource, ToPublicDefinitions, WorkspaceResource} from './system';
 
 export const kCollaborationRequestStatusTypeMap = {
   Accepted: 'accepted',
@@ -39,4 +39,4 @@ export type PublicCollaborationRequestForUser = PublicResource &
   >;
 
 export type PublicCollaborationRequestForWorkspace =
-  ConvertAgentToPublicAgent<CollaborationRequest>;
+  ToPublicDefinitions<CollaborationRequest>;

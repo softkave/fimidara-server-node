@@ -33,7 +33,7 @@ export class DataSemanticPresignedPathProvider
   }
 
   async getOneByFilepath(
-    query: {workspaceId: string; namepath: string[]; extension?: string},
+    query: {workspaceId: string; namepath: string[]; ext?: string},
     options?: SemanticProviderQueryParams<PresignedPath>
   ): Promise<PresignedPath | null> {
     const dataQuery = addIsDeletedIntoQuery<DataQuery<PresignedPath>>(

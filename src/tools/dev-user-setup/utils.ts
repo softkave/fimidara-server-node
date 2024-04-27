@@ -206,7 +206,7 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
         kUtilsInjectables.logger().log(`Accepting request ${request.resourceId}`);
         const agentToken = await kSemanticModels
           .agentToken()
-          .getOneAgentToken(user.resourceId, kTokenAccessScope.Login, opts);
+          .getOneAgentToken(user.resourceId, kTokenAccessScope.login, opts);
         assertAgentToken(agentToken);
         const agent = makeUserSessionAgent(user, agentToken);
         await INTERNAL_RespondToCollaborationRequest(

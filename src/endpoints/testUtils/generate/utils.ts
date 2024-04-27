@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {pick} from 'lodash';
-import {kPermissionsMap} from '../../../definitions/permissionItem';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
 import {
   Agent,
   FimidaraResourceType,
@@ -46,11 +46,11 @@ export function randomResourceType(
   return faker.helpers.arrayElement(types);
 }
 
-export function randomAction(actions = Object.values(kPermissionsMap)) {
+export function randomAction(actions = Object.values(kFimidaraPermissionActionsMap)) {
   return faker.helpers.arrayElement(actions);
 }
 
-export function randomActionList(actions = Object.values(kPermissionsMap)) {
+export function randomActionList(actions = Object.values(kFimidaraPermissionActionsMap)) {
   return faker.helpers.arrayElements(actions);
 }
 

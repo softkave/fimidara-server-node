@@ -21,6 +21,7 @@ import {
   kUtilsInjectables,
 } from '../../../contexts/injection/injectables';
 import {kRegisterUtilsInjectables} from '../../../contexts/injection/register';
+import {FileBackendQueries} from '../../../fileBackends/queries';
 import {FileQueries} from '../../../files/queries';
 import {getFilepathInfo} from '../../../files/utils';
 import {FolderQueries} from '../../../folders/queries';
@@ -74,11 +75,11 @@ describe('runIngestFolderpathJob', () => {
     class TestBackend extends MemoryFilePersistenceProvider {
       describeFolderContent = async (
         params: FilePersistenceDescribeFolderContentParams
-      ): Promise<FilePersistenceDescribeFolderContentResult> => {
+      ): Promise<FilePersistenceDescribeFolderContentResult<undefined, undefined>> => {
         expect(numCalls).toBeLessThan(2);
 
         let {continuationToken} = params;
-        const pFiles: PersistedFileDescription[] = loopAndCollate(
+        const pFiles: PersistedFileDescription<undefined>[] = loopAndCollate(
           () => generatePersistedFileDescriptionForTest(),
           /** count */ 2
         );
@@ -116,7 +117,7 @@ describe('runIngestFolderpathJob', () => {
       describeFolderContent = async (
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         params: FilePersistenceDescribeFolderContentParams
-      ): Promise<FilePersistenceDescribeFolderContentResult> => {
+      ): Promise<FilePersistenceDescribeFolderContentResult<undefined, undefined>> => {
         numCalls += 1;
         return {continuationToken: Math.random(), files: [], folders: []};
       };
@@ -134,7 +135,7 @@ describe('runIngestFolderpathJob', () => {
 
   test('files ingested', async () => {
     const {job, mount} = await setup01();
-    const pFiles: PersistedFileDescription[] = loopAndCollate(
+    const pFiles: PersistedFileDescription<undefined>[] = loopAndCollate(
       () =>
         generatePersistedFileDescriptionForTest({
           mountId: mount.resourceId,
@@ -147,7 +148,7 @@ describe('runIngestFolderpathJob', () => {
       describeFolderContent = async (
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         params: FilePersistenceDescribeFolderContentParams
-      ): Promise<FilePersistenceDescribeFolderContentResult> => {
+      ): Promise<FilePersistenceDescribeFolderContentResult<undefined, undefined>> => {
         return {continuationToken: null, files: pFiles, folders: []};
       };
     }
@@ -158,18 +159,22 @@ describe('runIngestFolderpathJob', () => {
     await runIngestFolderpathJob(job);
     await kUtilsInjectables.promises().flush();
 
-    const pathinfoList = pFiles.map(pFile =>
-      getFilepathInfo(pFile.filepath, {containsRootname: false})
+    const backendPathInfoList = pFiles.map(pFile =>
+      getFilepathInfo(pFile.filepath, {containsRootname: false, allowRootFolder: true})
     );
     const files = await kSemanticModels.file().getManyByQuery({
-      $or: pathinfoList.map(pathinfo => {
+      $or: backendPathInfoList.map(pathinfo => {
         return FileQueries.getByNamepath({workspaceId: mount.workspaceId, ...pathinfo});
       }),
     });
     const resolvedEntries = await kSemanticModels.resolvedMountEntry().getManyByQuery({
-      $or: pathinfoList.map(pathinfo => {
+      $or: backendPathInfoList.map(pathinfo => {
         return {
-          ...FileQueries.getByNamepath({workspaceId: mount.workspaceId, ...pathinfo}),
+          ...FileBackendQueries.getByBackendNamepath({
+            workspaceId: mount.workspaceId,
+            backendNamepath: pathinfo.namepath,
+            backendExt: pathinfo.ext,
+          }),
           mountId: mount.resourceId,
         };
       }),
@@ -181,7 +186,7 @@ describe('runIngestFolderpathJob', () => {
 
   test('folders ingested', async () => {
     const {job, mount} = await setup01();
-    const pFolders: PersistedFolderDescription[] = loopAndCollate(
+    const pFolders: PersistedFolderDescription<undefined>[] = loopAndCollate(
       () =>
         generatePersistedFolderDescriptionForTest({
           mountId: mount.resourceId,
@@ -194,7 +199,7 @@ describe('runIngestFolderpathJob', () => {
       describeFolderContent = async (
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         params: FilePersistenceDescribeFolderContentParams
-      ): Promise<FilePersistenceDescribeFolderContentResult> => {
+      ): Promise<FilePersistenceDescribeFolderContentResult<undefined, undefined>> => {
         return {continuationToken: null, folders: pFolders, files: []};
       };
     }
@@ -206,7 +211,10 @@ describe('runIngestFolderpathJob', () => {
     await kUtilsInjectables.promises().flush();
 
     const pathInfoList = pFolders.map(pFolder =>
-      getFolderpathInfo(pFolder.folderpath, {containsRootname: false})
+      getFolderpathInfo(pFolder.folderpath, {
+        containsRootname: false,
+        allowRootFolder: false,
+      })
     );
     const folders = await kSemanticModels.folder().getManyByQuery({
       $or: pathInfoList.map(pathinfo => {
@@ -218,8 +226,8 @@ describe('runIngestFolderpathJob', () => {
   });
 
   test('jobs added for children folders', async () => {
-    const {job, mount, shard, userToken} = await setup01();
-    const pFolders: PersistedFolderDescription[] = loopAndCollate(
+    const {job, mount, shard} = await setup01();
+    const pFolders: PersistedFolderDescription<undefined>[] = loopAndCollate(
       () =>
         generatePersistedFolderDescriptionForTest({
           mountId: mount.resourceId,
@@ -232,7 +240,7 @@ describe('runIngestFolderpathJob', () => {
       describeFolderContent = async (
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         params: FilePersistenceDescribeFolderContentParams
-      ): Promise<FilePersistenceDescribeFolderContentResult> => {
+      ): Promise<FilePersistenceDescribeFolderContentResult<undefined, undefined>> => {
         return {continuationToken: null, folders: pFolders, files: []};
       };
     }
@@ -244,12 +252,14 @@ describe('runIngestFolderpathJob', () => {
     await kUtilsInjectables.promises().flush();
 
     const pathInfoList = pFolders.map(pFolder =>
-      getFolderpathInfo(pFolder.folderpath, {containsRootname: false})
+      getFolderpathInfo(pFolder.folderpath, {
+        containsRootname: false,
+        allowRootFolder: false,
+      })
     );
     const jobs = await kSemanticModels.job().getManyByQuery({
       $or: pathInfoList.map(pathinfo => {
         const params: DataQuery<IngestFolderpathJobParams> = {
-          agentId: userToken.resourceId,
           mountId: mount.resourceId,
           ingestFrom: {$all: pathinfo.namepath},
         };
@@ -272,9 +282,9 @@ describe('runIngestFolderpathJob', () => {
     class TestBackend extends MemoryFilePersistenceProvider {
       describeFolderContent = async (
         params: FilePersistenceDescribeFolderContentParams
-      ): Promise<FilePersistenceDescribeFolderContentResult> => {
+      ): Promise<FilePersistenceDescribeFolderContentResult<undefined, undefined>> => {
         let {continuationToken} = params;
-        const pFiles: PersistedFileDescription[] = loopAndCollate(
+        const pFiles: PersistedFileDescription<undefined>[] = loopAndCollate(
           () => generatePersistedFileDescriptionForTest(),
           /** count */ 2
         );
@@ -310,7 +320,7 @@ describe('runIngestFolderpathJob', () => {
     class TestBackend extends MemoryFilePersistenceProvider {
       describeFolderContent = async (
         params: FilePersistenceDescribeFolderContentParams
-      ): Promise<FilePersistenceDescribeFolderContentResult> => {
+      ): Promise<FilePersistenceDescribeFolderContentResult<undefined, undefined>> => {
         const {continuationToken} = params;
         expect(continuationToken).toBe(mountContinuationToken);
         return {continuationToken: null, files: [], folders: []};
@@ -362,11 +372,7 @@ async function setup01() {
         shard,
         createdBy: kSystemSessionAgent,
         type: kJobType.ingestFolderpath,
-        params: {
-          ingestFrom: mountedFrom,
-          agentId: userToken.resourceId,
-          mountId: mount.resourceId,
-        },
+        params: {ingestFrom: mountedFrom, mountId: mount.resourceId},
         idempotencyToken: Date.now().toString(),
       },
     ]

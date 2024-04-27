@@ -1,9 +1,12 @@
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {CountUserCollaborationRequestsEndpoint} from './types';
 
 const countUserCollaborationRequests: CountUserCollaborationRequestsEndpoint =
-  async d => {
-    const user = await kUtilsInjectables.session().getUser(d);
+  async reqData => {
+    const user = await kUtilsInjectables
+      .session()
+      .getUser(reqData, kSessionUtils.accessScopes.user);
     const count = await kSemanticModels.collaborationRequest().countByEmail(user.email);
     return {count};
   };

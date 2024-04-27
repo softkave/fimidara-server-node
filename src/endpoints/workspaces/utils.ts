@@ -1,4 +1,4 @@
-import {PermissionAction} from '../../definitions/permissionItem';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem';
 import {SessionAgent} from '../../definitions/system';
 import {UsageRecordCategoryMap} from '../../definitions/usageRecord';
 import {
@@ -112,7 +112,7 @@ export async function checkWorkspaceExistsWithAgent(
 export async function checkWorkspaceAuthorization(
   agent: SessionAgent,
   workspace: Workspace,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   opts?: SemanticProviderOpParams
 ) {
   await checkAuthorizationWithAgent({
@@ -127,7 +127,7 @@ export async function checkWorkspaceAuthorization(
 
 export async function checkWorkspaceAuthorization02(
   agent: SessionAgent,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   id?: string
 ) {
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, id);

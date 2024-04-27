@@ -525,9 +525,10 @@ export function getFimidaraReadFileURL(props: GetFimidaraReadFileURLProps) {
 
   return (
     (props.serverURL || kDefaultServerURL) +
-    '/v1/files/readFile' +
-    (filepath.startsWith('/') ? '' : '/') +
-    encodeURIComponent(filepath) +
+    '/v1/files/readFile/' +
+    encodeURIComponent(
+      filepath.startsWith('/') ? filepath.slice(1) : filepath
+    ) +
     query
   );
 }
@@ -535,32 +536,36 @@ export function getFimidaraReadFileURL(props: GetFimidaraReadFileURLProps) {
 export function getFimidaraUploadFileURL(props: {
   /** Filepath including workspace rootname OR file presigned path. */
   filepath?: string;
+
+  /** Filepath without workspace rootname. Does not accept file presigned paths.
+   * You must also provide `workspaceRootname` */
+  filepathWithoutRootname?: string;
+
+  /** Workspace rootname, required if you're using `filepathWithoutRootname` */
   workspaceRootname?: string;
 
-  /** Filepath without workspace rootname. Does not accept file presigned paths. */
-  filepathWithoutRootname?: string;
+  /** Server URL, for if you're hosting you're own fimidara, or prefer a certain
+   * host */
   serverURL?: string;
 }) {
   const filepath = getFilepath(props);
   return (
     (props.serverURL || kDefaultServerURL) +
-    '/v1/files/uploadFile' +
-    (filepath.startsWith('/') ? '' : '/') +
-    encodeURIComponent(filepath)
+    '/v1/files/uploadFile/' +
+    encodeURIComponent(filepath.startsWith('/') ? filepath.slice(1) : filepath)
   );
 }
 
 export function stringifyFimidaraFilenamepath(
-  file: {namepath: string[]; extension?: string},
+  file: {namepath: string[]; ext?: string},
   rootname?: string
 ) {
-  const name =
-    file.namepath.join('/') + (file.extension ? `.${file.extension}` : '');
+  const name = file.namepath.join('/') + (file.ext ? `.${file.ext}` : '');
   return rootname ? fimidaraAddRootnameToPath(name, rootname) : name;
 }
 
 export function stringifyFimidaraFoldernamepath(
-  file: {namepath: string[]; extension?: string},
+  file: {namepath: string[]; ext?: string},
   rootname?: string
 ) {
   const name = file.namepath.join('/');

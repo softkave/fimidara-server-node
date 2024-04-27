@@ -62,6 +62,7 @@ export async function getUserClientAssignedToken(
       entityType: kFimidaraResourceType.User,
       createdBy: kSystemSessionAgent,
       lastUpdatedBy: kSystemSessionAgent,
+      scope: [kTokenAccessScope.access],
     });
 
     const {
@@ -93,11 +94,11 @@ export async function getUserClientAssignedToken(
 export async function getUserToken(userId: string, opts: SemanticProviderMutationParams) {
   let userToken = await kSemanticModels
     .agentToken()
-    .getOneAgentToken(userId, kTokenAccessScope.Login, opts);
+    .getOneAgentToken(userId, kTokenAccessScope.login, opts);
 
   if (!userToken) {
     userToken = newResource<AgentToken>(kFimidaraResourceType.AgentToken, {
-      scope: [kTokenAccessScope.Login],
+      scope: [kTokenAccessScope.login],
       version: kCurrentJWTTokenVersion,
       forEntityId: userId,
       workspaceId: null,

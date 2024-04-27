@@ -1,9 +1,9 @@
 import {defaultTo, first, get, isString, set} from 'lodash';
 import {File} from '../../../definitions/file';
 import {
-  PermissionAction,
+  FimidaraPermissionAction,
   PermissionItem,
-  kPermissionsMap,
+  kFimidaraPermissionActionsMap,
 } from '../../../definitions/permissionItem';
 import {Resource, SessionAgent, kFimidaraResourceType} from '../../../definitions/system';
 import {UserWithWorkspace} from '../../../definitions/user';
@@ -22,7 +22,7 @@ import {SemanticProviderOpParams} from '../semantic/types';
 
 export interface AccessCheckTarget {
   entityId: string;
-  action: PermissionAction | PermissionAction[];
+  action: FimidaraPermissionAction | FimidaraPermissionAction[];
   /** single target, or target + containers, e.g file + parent folder IDs */
   targetId: string | string[];
 }
@@ -49,7 +49,7 @@ type AccessCheckGroupedPermissions = Record<
   /** entityId */ string,
   Record<
     /** targetId */ string,
-    Partial<Record</** action */ PermissionAction, PermissionItem[]>>
+    Partial<Record</** action */ FimidaraPermissionAction, PermissionItem[]>>
   >
 >;
 
@@ -57,7 +57,7 @@ export interface ResolvedPermissionsAccessCheckerType {
   checkForTargetId: (
     entityId: string,
     targetId: string,
-    action: PermissionAction,
+    action: FimidaraPermissionAction,
     nothrow?: boolean
   ) => ResolvedPermissionCheck;
   checkAuthParams: (nothrow?: boolean) => ResolvedPermissionCheck[];
@@ -100,11 +100,11 @@ class ResolvedPermissionsAccessChecker implements ResolvedPermissionsAccessCheck
   checkForTargetId(
     entityId: string,
     targetId: string,
-    action: PermissionAction,
+    action: FimidaraPermissionAction,
     nothrow?: boolean
   ) {
     const key = `${entityId}.${targetId}.${action}`;
-    const wildcardKey = `${entityId}.${targetId}.${kPermissionsMap.wildcard}`;
+    const wildcardKey = `${entityId}.${targetId}.${kFimidaraPermissionActionsMap.wildcard}`;
     const items = get(
       this.permissions,
       key,
@@ -195,7 +195,9 @@ export async function fetchAgentPermissionItems(
   params: CheckAuthorizationParams & {fetchEntitiesDeep: boolean}
 ) {
   const {workspaceId, target} = params;
-  const action = convertToArray(target.action).concat(kPermissionsMap.wildcard),
+  const action = convertToArray(target.action).concat(
+      kFimidaraPermissionActionsMap.wildcard
+    ),
     targetId = toUniqArray(target.targetId, workspaceId);
   const {entityIdList} = await resolveEntityData(params);
 
@@ -246,7 +248,9 @@ async function resolveTargetChildrenPartialAccessCheck(
   params: OmitProperties<CheckAuthorizationParams, 'nothrow'>
 ) {
   const {workspaceId, target} = params;
-  const action = convertToArray(target.action).concat(kPermissionsMap.wildcard),
+  const action = convertToArray(target.action).concat(
+      kFimidaraPermissionActionsMap.wildcard
+    ),
     targetParentId = defaultTo(first(toCompactArray(target.targetId)), workspaceId);
 
   // TODO: preferrably fetch once cause it's currently fetched twice, in
@@ -370,7 +374,7 @@ export function getResourcePermissionContainers(
 
 function checkActionRequiresUserVerification(
   agent: SessionAgent,
-  action: PermissionAction | PermissionAction[]
+  action: FimidaraPermissionAction | FimidaraPermissionAction[]
 ) {
   if (
     agent &&

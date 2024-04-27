@@ -1,5 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {merge} from 'lodash';
+import {loopAndCollateAsync} from 'softkave-js-utils';
 import {PartialDeep} from 'type-fest';
 import {FimidaraEndpoints} from '../../publicEndpoints';
 import {
@@ -13,7 +14,7 @@ import {
   fimidaraAddRootnameToPath,
   stringifyFimidaraFoldernamepath,
 } from '../../utils';
-import {ITestVars, loopAndCollate} from '../utils';
+import {ITestVars} from '../utils';
 import {uploadFileTestExecFn} from './file';
 import assert = require('assert');
 import path = require('path');
@@ -100,17 +101,23 @@ export async function setupFolderContentTestExecFn(
 
   assert.ok(folderpath);
   const [childrenFolders, childrenFiles] = await Promise.all([
-    ...loopAndCollate(count, index =>
-      addFolderTestExecFn(endpoint, vars, {
-        folder: {
-          folderpath: path.posix.normalize(`${folderpath}/folder${index}`),
-        },
-      })
+    loopAndCollateAsync(
+      index =>
+        addFolderTestExecFn(endpoint, vars, {
+          folder: {
+            folderpath: path.posix.normalize(`${folderpath}/folder${index}`),
+          },
+        }),
+      count,
+      /** settlement type */ 'all'
     ),
-    ...loopAndCollate(count, index =>
-      uploadFileTestExecFn(endpoint, vars, {
-        filepath: path.posix.normalize(`${folderpath}/file${index}`),
-      })
+    loopAndCollateAsync(
+      index =>
+        uploadFileTestExecFn(endpoint, vars, {
+          filepath: path.posix.normalize(`${folderpath}/file${index}`),
+        }),
+      count,
+      /** settlement type */ 'all'
     ),
   ]);
 

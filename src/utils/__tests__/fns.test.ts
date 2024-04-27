@@ -12,7 +12,8 @@ import {
   multilineTextToParagraph,
   omitDeep,
   pathBasename,
-  pathExtension,
+  pathExt,
+  pathExtract,
   pathJoin,
   pathSplit,
   waitTimeout,
@@ -424,23 +425,23 @@ describe('fns', () => {
     expect(isNotEmptyP03).toBeFalsy();
   });
 
-  test('pathExtension', () => {
-    const input01 = './name.extension';
-    const input02 = './name.second-name.EXTENSION';
+  test('pathext', () => {
+    const input01 = './name.ext';
+    const input02 = './name.second-name.ext';
     const input03 = './.gitignore';
 
-    const ext01 = pathExtension(input01);
-    const ext02 = pathExtension(input02);
-    const ext03 = pathExtension(input03);
+    const ext01 = pathExt(input01);
+    const ext02 = pathExt(input02);
+    const ext03 = pathExt(input03);
 
-    expect(ext01).toBe('extension');
-    expect(ext02).toBe('EXTENSION');
+    expect(ext01).toBe('ext');
+    expect(ext02).toBe('ext');
     expect(ext03).toBe('');
   });
 
   test('pathBasename', () => {
-    const input01 = './name.extension';
-    const input02 = './name.second-name.EXTENSION';
+    const input01 = './name.ext';
+    const input02 = './name.second-name.ext';
     const input03 = './.gitignore';
     const input04 = './.gitignore...ext';
     const input05 = '';
@@ -456,9 +457,9 @@ describe('fns', () => {
     const b07 = pathBasename(input07);
 
     expect(b01.basename).toBe('name');
-    expect(b01.ext).toBe('extension');
+    expect(b01.ext).toBe('ext');
     expect(b02.basename).toBe('name.second-name');
-    expect(b02.ext).toBe('EXTENSION');
+    expect(b02.ext).toBe('ext');
     expect(b03.basename).toBe('.gitignore');
     expect(b03.ext).toBe('');
     expect(b04.basename).toBe('.gitignore..');
@@ -469,5 +470,15 @@ describe('fns', () => {
     expect(b06.ext).toBe('');
     expect(b07.basename).toBe('');
     expect(b07.ext).toBe('');
+  });
+
+  test('pathExtract', () => {
+    const input01 = './folder/name.ext';
+
+    const b01 = pathExtract(input01);
+
+    expect(b01.basename).toBe('name');
+    expect(b01.namepath).toEqual(['folder', 'name']);
+    expect(b01.ext).toBe('ext');
   });
 });

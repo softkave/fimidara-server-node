@@ -1,6 +1,6 @@
 import {first} from 'lodash';
 import {Folder} from '../../../definitions/folder';
-import {kPermissionsMap} from '../../../definitions/permissionItem';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
 import {Resource, SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
@@ -113,7 +113,7 @@ async function createFolderListWithTransaction(
           opts,
           workspaceId: workspace.resourceId,
           target: {
-            action: kPermissionsMap.addFolder,
+            action: kFimidaraPermissionActionsMap.addFolder,
             targetId: getResourcePermissionContainers(
               workspace.resourceId,
               target,

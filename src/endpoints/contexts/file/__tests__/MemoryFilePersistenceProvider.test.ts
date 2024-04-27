@@ -64,9 +64,16 @@ describe('MemoryFilePersistenceProvider', () => {
     });
 
     const backend = new MemoryFilePersistenceProvider();
-    await backend.uploadFile({mount, workspaceId, filepath, body: data});
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+    await backend.uploadFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      body: data,
+    });
 
-    const savedFile = await backend.readFile({filepath, mount, workspaceId});
+    const savedFile = await backend.readFile({filepath, mount, workspaceId, fileId});
     assert(savedFile.body);
     expectFileBodyEqual(data, savedFile.body);
   });
@@ -80,9 +87,10 @@ describe('MemoryFilePersistenceProvider', () => {
       parentNamepath: mount.namepath,
     });
     const backend = new MemoryFilePersistenceProvider();
-    await backend.uploadFile({mount, workspaceId, filepath, body: data});
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+    await backend.uploadFile({mount, workspaceId, filepath, fileId, body: data});
 
-    const result = await backend.readFile({mount, workspaceId, filepath});
+    const result = await backend.readFile({mount, workspaceId, filepath, fileId});
 
     assert(result.body);
     expectFileBodyEqual(data, result.body);
@@ -100,17 +108,38 @@ describe('MemoryFilePersistenceProvider', () => {
       length: mount.namepath.length + 2,
       parentNamepath: mount.namepath,
     });
+    const fileId01 = getNewIdForResource(kFimidaraResourceType.File);
+    const fileId02 = getNewIdForResource(kFimidaraResourceType.File);
     const backend = new MemoryFilePersistenceProvider();
     await Promise.all([
-      backend.uploadFile({mount, workspaceId, filepath: filepath01, body: data}),
-      backend.uploadFile({mount, workspaceId, filepath: filepath02, body: data}),
+      backend.uploadFile({
+        mount,
+        workspaceId,
+        filepath: filepath01,
+        fileId: fileId01,
+        body: data,
+      }),
+      backend.uploadFile({
+        mount,
+        workspaceId,
+        filepath: filepath02,
+        fileId: fileId02,
+        body: data,
+      }),
     ]);
 
-    await backend.deleteFiles({mount, workspaceId, filepaths: [filepath01, filepath02]});
+    await backend.deleteFiles({
+      mount,
+      workspaceId,
+      files: [
+        {filepath: filepath01, fileId: fileId01},
+        {filepath: filepath02, fileId: fileId02},
+      ],
+    });
 
     const [file01Exists, file02Exists] = await Promise.all([
-      backend.readFile({mount, workspaceId, filepath: filepath01}),
-      backend.readFile({mount, workspaceId, filepath: filepath02}),
+      backend.readFile({mount, workspaceId, filepath: filepath01, fileId: fileId01}),
+      backend.readFile({mount, workspaceId, filepath: filepath02, fileId: fileId02}),
     ]);
     expect(file01Exists.body).toBeFalsy();
     expect(file02Exists.body).toBeFalsy();
@@ -126,9 +155,10 @@ describe('MemoryFilePersistenceProvider', () => {
       parentNamepath: mount.namepath,
     });
     const backend = new MemoryFilePersistenceProvider();
-    await backend.uploadFile({mount, workspaceId, filepath, body: data});
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+    await backend.uploadFile({mount, workspaceId, filepath, fileId, body: data});
 
-    const result = await backend.describeFile({mount, workspaceId, filepath});
+    const result = await backend.describeFile({mount, workspaceId, filepath, fileId});
 
     assert(result);
     expect(result.filepath).toBe(filepath);
@@ -148,19 +178,39 @@ describe('MemoryFilePersistenceProvider', () => {
     });
     const backend = new MemoryFilePersistenceProvider();
     const childrenFilepaths = loopAndCollate(
-      () => pathJoin(folderpath, generateTestFolderName()),
+      () => ({
+        filepath: pathJoin(folderpath, generateTestFolderName()),
+        fileId: getNewIdForResource(kFimidaraResourceType.File),
+      }),
       /** count */ 10
     );
     const childrenDepth02Filepaths = loopAndCollate(
-      () => pathJoin(folderpath, generateTestFilepathString({length: 2})),
+      () => ({
+        filepath: pathJoin(folderpath, generateTestFilepathString({length: 2})),
+        fileId: getNewIdForResource(kFimidaraResourceType.File),
+      }),
       /** count */ 10
     );
     await Promise.all(
       childrenFilepaths
-        .map(p => backend.uploadFile({mount, workspaceId, filepath: p, body: data}))
+        .map(p =>
+          backend.uploadFile({
+            mount,
+            workspaceId,
+            filepath: p.filepath,
+            fileId: p.fileId,
+            body: data,
+          })
+        )
         .concat(
           childrenDepth02Filepaths.map(p =>
-            backend.uploadFile({mount, workspaceId, filepath: p, body: data})
+            backend.uploadFile({
+              mount,
+              workspaceId,
+              filepath: p.filepath,
+              fileId: p.fileId,
+              body: data,
+            })
           )
         )
     );
@@ -200,7 +250,9 @@ describe('MemoryFilePersistenceProvider', () => {
     });
 
     expect(resultFilepaths).toEqual(
-      expect.arrayContaining(childrenFilepaths.concat(childrenDepth02Filepaths))
+      expect.arrayContaining(
+        childrenFilepaths.concat(childrenDepth02Filepaths).map(p => p.filepath)
+      )
     );
   });
 });

@@ -11,10 +11,10 @@ const multipartLimits: ConnectBusboyOptions['limits'] = {
 export const kFileConstants = {
   maxFileSizeInBytes,
   multipartLimits,
-  nameExtensionSeparator: '.',
+  nameextSeparator: '.',
   maxMimeTypeCharLength: 100,
   maxEncodingCharLength: 100,
-  maxExtensionCharLength: 100,
+  maxextCharLength: 100,
   maxFileWidth: 5000, // px
   maxFileHeight: 5000, // px
   uploadedFileFieldName: 'data',

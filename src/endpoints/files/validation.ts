@@ -8,14 +8,14 @@ import {kFileConstants} from './constants';
 const fileSizeInBytes = Joi.number().min(0).max(kFileConstants.maxFileSizeInBytes);
 const mimetype = Joi.string().max(kFileConstants.maxMimeTypeCharLength);
 const encoding = Joi.string().max(kFileConstants.maxEncodingCharLength);
-const extension = Joi.string().max(kFileConstants.maxExtensionCharLength);
+const ext = Joi.string().max(kFileConstants.maxextCharLength);
 const buffer = Joi.binary().max(kFileConstants.maxFileSizeInBytes);
 const filepath = Joi.string()
   .regex(folderValidationSchemas.pathRegex)
   .min(kFolderConstants.minFolderNameLength)
   .max(
     kFolderConstants.maxFolderNameLength * (kFolderConstants.maxFolderDepth + 1) +
-      kFileConstants.maxExtensionCharLength
+      kFileConstants.maxextCharLength
   );
 const readable = Joi.any().custom((value, helpers) => {
   if (value instanceof Readable) {
@@ -34,7 +34,7 @@ const fileValidationSchemas = {
   mimetype,
   encoding,
   buffer,
-  extension,
+  ext,
   readable,
   fileMatcherParts,
 };

@@ -86,6 +86,7 @@ describe('LocalFsFilePersistenceProvider', () => {
       workspaceId,
       filepath,
       body: data,
+      fileId: getNewIdForResource(kFimidaraResourceType.File),
     });
 
     const {nativePath} = backend.toNativePath({mount, fimidaraPath: filepath});
@@ -106,7 +107,12 @@ describe('LocalFsFilePersistenceProvider', () => {
     const {nativePath} = backend.toNativePath({mount, fimidaraPath: filepath});
     await fse.outputFile(nativePath, buffer);
 
-    const result = await backend.readFile({mount, workspaceId, filepath});
+    const result = await backend.readFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId: getNewIdForResource(kFimidaraResourceType.File),
+    });
 
     assert(result.body);
     expectFileBodyEqual(buffer, result.body);
@@ -142,7 +148,10 @@ describe('LocalFsFilePersistenceProvider', () => {
     await backend.deleteFiles({
       mount,
       workspaceId,
-      filepaths: [filepath01, filepath02],
+      files: [
+        {filepath: filepath01, fileId: getNewIdForResource(kFimidaraResourceType.File)},
+        {filepath: filepath02, fileId: getNewIdForResource(kFimidaraResourceType.File)},
+      ],
     });
 
     const [file01Exists, file02Exists] = await Promise.all([
@@ -183,7 +192,7 @@ describe('LocalFsFilePersistenceProvider', () => {
     await backend.deleteFolders({
       mount,
       workspaceId,
-      folderpaths: [folderpath01, folderpath02],
+      folders: [{folderpath: folderpath01}, {folderpath: folderpath02}],
     });
 
     const [folder01Exists, folder02Exists] = await Promise.all([
@@ -208,7 +217,12 @@ describe('LocalFsFilePersistenceProvider', () => {
     await fse.ensureFile(nativePath);
     await fse.outputFile(nativePath, buffer);
 
-    const result = await backend.describeFile({mount, workspaceId, filepath});
+    const result = await backend.describeFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId: getNewIdForResource(kFimidaraResourceType.File),
+    });
 
     assert(result);
     expect(result.filepath).toBe(filepath);

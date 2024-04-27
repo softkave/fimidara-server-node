@@ -1,8 +1,9 @@
-import {kFimidaraResourceType, ResourceWrapper} from '../../../definitions/system';
+import {ResourceWrapper, kFimidaraResourceType} from '../../../definitions/system';
 import {appAssert} from '../../../utils/assertion';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {validate} from '../../../utils/validate';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {checkResourcesBelongsToWorkspace} from '../../resources/containerCheckFns';
 import {GetJobStatusEndpoint} from './types';
@@ -10,7 +11,13 @@ import {getJobStatusJoiSchema} from './validation';
 
 const getJobStatus: GetJobStatusEndpoint = async instData => {
   const data = validate(instData.data, getJobStatusJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
 
   if (agent.user) {
     agent.user = await populateUserWorkspaces(agent.user);

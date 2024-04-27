@@ -2,6 +2,7 @@ import {UserWithWorkspace} from '../../../definitions/user';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
 import {populateUserListWithWorkspaces} from '../../assignedItems/getAssignedItems';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {
   applyDefaultEndpointPaginationOptions,
@@ -15,7 +16,13 @@ import {getWorkspaceCollaboratorsJoiSchema} from './validation';
 
 const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint = async instData => {
   const data = validate(instData.data, getWorkspaceCollaboratorsJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const workspace = await checkWorkspaceExists(workspaceId);
   const assignedItemsQuery = await getWorkspaceCollaboratorsQuery(agent, workspace);

@@ -1,5 +1,8 @@
 import {first, forEach, isString} from 'lodash';
-import {PermissionAction, kPermissionsMap} from '../../../definitions/permissionItem';
+import {
+  FimidaraPermissionAction,
+  kFimidaraPermissionActionsMap,
+} from '../../../definitions/permissionItem';
 import {Resource, ResourceWrapper, SessionAgent} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
@@ -26,7 +29,7 @@ type ResolvedTargetItem = ResourceWrapper & ResolvedEntityPermissionItemTarget;
 type ResolvedTargetsMap = Record<string, ResolvedTargetItem>;
 type FlattenedPermissionRequestItem = {
   entity: ResourceWrapper;
-  action: PermissionAction;
+  action: FimidaraPermissionAction;
   target: ResourceWrapper;
   resolvedTarget: ResolvedEntityPermissionItemTarget;
 };
@@ -56,7 +59,7 @@ async function getArtifacts(
       agent,
       workspace,
       inputTargets,
-      kPermissionsMap.readPermission
+      kFimidaraPermissionActionsMap.readPermission
     ),
   ]);
 
@@ -97,7 +100,7 @@ export const INTERNAL_resolveEntityPermissions = async (
 
   function fResolvedTargetItems(
     entity: ResourceWrapper<Resource>,
-    action: PermissionAction,
+    action: FimidaraPermissionAction,
     tMap: ResolvedTargetsMap
   ) {
     forEach(tMap, tFromMap => {
@@ -112,7 +115,7 @@ export const INTERNAL_resolveEntityPermissions = async (
 
   function fTarget(
     entity: ResourceWrapper<Resource>,
-    action: PermissionAction,
+    action: FimidaraPermissionAction,
     item: ResolveEntityPermissionItemInput
   ) {
     convertToArray(item.target).forEach(target => {

@@ -100,13 +100,14 @@ describe('mount ingestion utils', () => {
     await ingestPersistedFiles(sessionAgent, workspace, pFiles);
 
     const queries = pFiles.map((pFile): FileQuery => {
-      const {namepath, extension} = getFilepathInfo(pFile.filepath, {
+      const {namepath, ext} = getFilepathInfo(pFile.filepath, {
         containsRootname: false,
+        allowRootFolder: false,
       });
 
       return FileQueries.getByNamepath({
         namepath,
-        extension,
+        ext,
         workspaceId: workspace.resourceId,
       });
     });
@@ -117,7 +118,8 @@ describe('mount ingestion utils', () => {
     const pFileNamepathsAndExt = pFiles.map(pFile => pFile.filepath);
     const filesMap = indexArray(insertedFiles, {indexer: stringifyFilenamepath});
     const mountEntriesMap = indexArray(insertMountEntries, {
-      indexer: stringifyFilenamepath,
+      indexer: entry =>
+        stringifyFilenamepath({namepath: entry.backendNamepath, ext: entry.backendExt}),
     });
     const insertedFilesNamepathsAndExt = Object.keys(filesMap);
 
@@ -126,24 +128,25 @@ describe('mount ingestion utils', () => {
     );
 
     pFiles.forEach(pFile => {
-      const {namepath, extension} = getFilepathInfo(pFile.filepath, {
+      const {namepath, ext} = getFilepathInfo(pFile.filepath, {
         containsRootname: false,
+        allowRootFolder: false,
       });
       const insertedFile = filesMap[pFile.filepath];
       const insertedMountEntry = mountEntriesMap[pFile.filepath];
 
       expect(insertedFile).toBeTruthy();
       const expectedMountEntry: Partial<ResolvedMountEntry> = {
-        namepath,
-        extension,
+        backendExt: ext,
+        backendNamepath: namepath,
         mountId: pFile.mountId,
-        resolvedFor: insertedFile.resourceId,
-        resolvedForType: kFimidaraResourceType.File,
+        forId: insertedFile.resourceId,
+        forType: kFimidaraResourceType.File,
       };
 
       expect({
         ...insertedMountEntry,
-        extension: insertedMountEntry.extension || '',
+        backendExt: insertedMountEntry.backendExt || '',
       }).toMatchObject(expectedMountEntry);
     });
   });

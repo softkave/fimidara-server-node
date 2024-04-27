@@ -1,8 +1,9 @@
 import {
+  FimidaraPublicResourceType,
   FimidaraResourceType,
   kFimidaraResourceType,
   PublicResource,
-  Resource,
+  PublicResourceWrapper,
   ResourceWrapper,
 } from '../../definitions/system';
 import {PublicCollaborator} from '../../definitions/user';
@@ -67,8 +68,11 @@ export function getPublicResource(resource: ResourceWrapper, workspaceId: string
 }
 
 export function getPublicResourceList(resources: ResourceWrapper[], workspaceId: string) {
-  return resources.map(item => {
-    item.resource = getPublicResource(item, workspaceId) as Resource;
-    return item;
+  return resources.map((item): PublicResourceWrapper => {
+    return {
+      resource: getPublicResource(item, workspaceId),
+      resourceId: item.resourceId,
+      resourceType: item.resourceType as FimidaraPublicResourceType,
+    };
   });
 }

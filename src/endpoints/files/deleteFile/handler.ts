@@ -1,7 +1,7 @@
-import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {kPermissionAgentTypes} from '../../../definitions/system';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
 import {appAssert} from '../../../utils/assertion';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {getAndCheckFileAuthorization} from '../utils';
 import {DeleteFileEndpoint} from './types';
@@ -12,14 +12,18 @@ const deleteFile: DeleteFileEndpoint = async instData => {
   const data = validate(instData.data, deleteFileJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, kPermissionAgentTypes);
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
 
   const file = await kSemanticModels.utils().withTxn(async opts => {
     return await getAndCheckFileAuthorization({
       agent,
       opts,
       matcher: data,
-      action: kPermissionsMap.deleteFile,
+      action: kFimidaraPermissionActionsMap.deleteFile,
       incrementPresignedPathUsageCount: true,
       shouldIngestFile: false,
     });

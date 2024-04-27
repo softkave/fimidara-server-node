@@ -1,9 +1,9 @@
 import {forEach, get, has, set} from 'lodash';
 import {File} from '../../../definitions/file';
 import {
-  PermissionAction,
+  FimidaraPermissionAction,
   PermissionItem,
-  kPermissionsMap,
+  kFimidaraPermissionActionsMap,
 } from '../../../definitions/permissionItem';
 import {
   FimidaraResourceType,
@@ -63,7 +63,7 @@ export const INTERNAL_addPermissionItems = async (
       agent,
       workspace,
       inputTargets,
-      kPermissionsMap.updatePermission
+      kFimidaraPermissionActionsMap.updatePermission
     ),
   ]);
 
@@ -91,7 +91,7 @@ export const INTERNAL_addPermissionItems = async (
 
   type ProcessedPermissionItemInput = {
     entity: ResourceWrapper;
-    action: PermissionAction;
+    action: FimidaraPermissionAction;
     target: ResourceWrapper;
     targetType: FimidaraResourceType;
     access: boolean;
@@ -180,7 +180,7 @@ export const INTERNAL_addPermissionItems = async (
     const wildcardKey = [
       item.entityId,
       item.targetId,
-      kPermissionsMap.wildcard,
+      kFimidaraPermissionActionsMap.wildcard,
       String(item.access),
     ];
     const existingItem = get(map, key);

@@ -34,7 +34,7 @@ test('email address is confirmed', async () => {
   });
   const token = newResource<AgentToken>(kFimidaraResourceType.All, {
     forEntityId: user.resourceId,
-    scope: [kTokenAccessScope.ConfirmEmailAddress],
+    scope: [kTokenAccessScope.confirmEmailAddress],
     version: kCurrentJWTTokenVersion,
     workspaceId: null,
     entityType: kFimidaraResourceType.User,

@@ -20,6 +20,7 @@ import {
   insertWorkspaceForTest,
 } from '../../../../testUtils/testUtils';
 import {deleteFileCascadeEntry} from '../file';
+import {DeleteResourceCascadeEntry} from '../types';
 import {
   GenerateResourceFn,
   GenerateTypeChildrenDefinition,
@@ -47,7 +48,7 @@ const fileGenerateTypeChildren: GenerateTypeChildrenDefinition<File> = {
         generateAndInsertTestPresignedPathList(2, {
           workspaceId,
           namepath: resource.namepath,
-          extension: resource.extension,
+          ext: resource.ext,
           fileId: resource.resourceId,
         }),
       ])
@@ -74,7 +75,7 @@ describe('runDeleteResourceJob, file', () => {
     await testDeleteResourceArtifactsJob({
       genResourceFn,
       genChildrenDef: fileGenerateTypeChildren,
-      deleteCascadeDef: deleteFileCascadeEntry,
+      deleteCascadeDef: deleteFileCascadeEntry as unknown as DeleteResourceCascadeEntry,
       type: kFimidaraResourceType.File,
     });
   });
@@ -119,12 +120,14 @@ describe('runDeleteResourceJob, file', () => {
             body: Readable.from(dataBuffer),
             filepath: stringifyFilenamepath(mainResource),
             mount: mount01.rawMount,
+            fileId: mainResource.resourceId,
           }),
           providersMap[mount02.rawMount.resourceId]?.uploadFile({
             workspaceId: workspace.resourceId,
             body: Readable.from(dataBuffer),
             filepath: stringifyFilenamepath(mainResource),
             mount: mount02.rawMount,
+            fileId: mainResource.resourceId,
           }),
         ]);
       },
@@ -134,11 +137,13 @@ describe('runDeleteResourceJob, file', () => {
             workspaceId: workspace.resourceId,
             filepath: stringifyFilenamepath(mainResource),
             mount: mount01.rawMount,
+            fileId: mainResource.resourceId,
           }),
           providersMap[mount02.rawMount.resourceId]?.readFile({
             workspaceId: workspace.resourceId,
             filepath: stringifyFilenamepath(mainResource),
             mount: mount02.rawMount,
+            fileId: mainResource.resourceId,
           }),
         ]);
 

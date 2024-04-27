@@ -46,7 +46,7 @@ async function changePasswordWithTokenTest() {
   const {user} = await insertUserForTest({password: oldPassword});
   const newPassword = 'abd784_!new';
   const token = newResource<AgentToken>(kFimidaraResourceType.AgentToken, {
-    scope: [kTokenAccessScope.ChangePassword],
+    scope: [kTokenAccessScope.changePassword],
     version: kCurrentJWTTokenVersion,
     expiresAt: getTimestamp(
       add(new Date(), {

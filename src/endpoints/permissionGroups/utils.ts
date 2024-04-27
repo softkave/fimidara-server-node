@@ -6,7 +6,7 @@ import {
   PublicAssignedPermissionGroupMeta,
   PublicPermissionGroup,
 } from '../../definitions/permissionGroups';
-import {PermissionAction} from '../../definitions/permissionItem';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem';
 import {Agent, SessionAgent} from '../../definitions/system';
 import {appAssert} from '../../utils/assertion';
 import {getTimestamp} from '../../utils/dateFns';
@@ -52,7 +52,7 @@ export const permissionGroupListExtractor = makeListExtract(permissionGroupField
 export async function checkPermissionGroupAuthorization(
   agent: SessionAgent,
   permissionGroup: PermissionGroup,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   opts?: SemanticProviderOpParams
 ) {
   const workspace = await checkWorkspaceExists(permissionGroup.workspaceId);
@@ -69,7 +69,7 @@ export async function checkPermissionGroupAuthorization(
 export async function checkPermissionGroupAuthorization02(
   agent: SessionAgent,
   id: string,
-  action: PermissionAction
+  action: FimidaraPermissionAction
 ) {
   const permissionGroup = await kSemanticModels.permissionGroup().getOneById(id);
   assertPermissionGroup(permissionGroup);
@@ -79,7 +79,7 @@ export async function checkPermissionGroupAuthorization02(
 export async function checkPermissionGroupAuthorization03(
   agent: SessionAgent,
   input: PermissionGroupMatcher,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   opts?: SemanticProviderOpParams
 ) {
   let permissionGroup: PermissionGroup | null = null;

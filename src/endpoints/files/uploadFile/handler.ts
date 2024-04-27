@@ -1,21 +1,21 @@
 import {pick} from 'lodash';
 import {File} from '../../../definitions/file';
-import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {Agent, kPermissionAgentTypes} from '../../../definitions/system';
+import {ResolvedMountEntry} from '../../../definitions/fileBackend';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
+import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system';
 import {Workspace} from '../../../definitions/workspace';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {ValidationError} from '../../../utils/errors';
-import {mergeData} from '../../../utils/fns';
+import {mergeData, pathExtract} from '../../../utils/fns';
+import {newWorkspaceResource} from '../../../utils/resource';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {ByteCounterPassThroughStream} from '../../../utils/streams';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
-import {
-  insertResolvedMountEntries,
-  resolveBackendsMountsAndConfigs,
-} from '../../fileBackends/mountUtils';
+import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils';
 import {FileNotWritableError} from '../errors';
 import {getFileWithMatcher} from '../getFilesWithMatcher';
 import {
@@ -32,7 +32,7 @@ import {checkUploadFileAuth} from './utils';
 import {uploadFileJoiSchema} from './validation';
 
 async function createAndInsertNewFile(
-  agent: Agent,
+  agent: SessionAgent,
   workspace: Workspace,
   pathinfo: FilepathInfo,
   data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
@@ -56,17 +56,24 @@ const uploadFile: UploadFileEndpoint = async instData => {
   const data = validate(instData.data, uploadFileJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, kPermissionAgentTypes);
-  const createFileResult = await kSemanticModels.utils().withTxn(async opts => {
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
+
+  // eslint-disable-next-line prefer-const
+  let {file, isNewFile} = await kSemanticModels.utils().withTxn(async opts => {
     // eslint-disable-next-line prefer-const
     let {file, presignedPath} = await getFileWithMatcher({
       opts,
       matcher: data,
       incrementPresignedPathUsageCount: true,
-      presignedPathAction: kPermissionsMap.uploadFile,
+      presignedPathAction: kFimidaraPermissionActionsMap.uploadFile,
       supportPresignedPath: true,
     });
     const workspace = await getWorkspaceFromFileOrFilepath(file, data.filepath);
+    let isNewFile: boolean;
 
     if (file && !presignedPath) {
       // Permission is already checked if there's a `presignedPath`
@@ -82,37 +89,52 @@ const uploadFile: UploadFileEndpoint = async instData => {
       file = await kSemanticModels
         .file()
         .getAndUpdateOneById(file.resourceId, {isWriteAvailable: false}, opts);
+      isNewFile = false;
     } else {
       appAssert(data.filepath, new ValidationError('Provide a filepath for new files'));
-      const pathinfo = getFilepathInfo(data.filepath);
+      const pathinfo = getFilepathInfo(data.filepath, {
+        containsRootname: true,
+        allowRootFolder: false,
+      });
       const file = await createAndInsertNewFile(agent, workspace, pathinfo, data, opts);
       await checkUploadFileAuth(agent, workspace, file, null, opts);
-      return {file};
+      isNewFile = true;
     }
 
     assertFile(file);
-    return {file, workspace};
+    return {file, workspace, isNewFile};
   }, /** reuseTxn */ false);
 
-  let {file} = createFileResult;
   const {primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs(
     file,
     /** init primary backend only */ true
   );
 
   try {
+    let mountEntry: ResolvedMountEntry | undefined | null;
+
+    if (!isNewFile) {
+      mountEntry = await kSemanticModels
+        .resolvedMountEntry()
+        .getOneByMountIdAndFileId(primaryMount.resourceId, file.resourceId);
+    }
+
     const bytesCounterStream = new ByteCounterPassThroughStream();
     data.data.pipe(bytesCounterStream);
 
     // TODO: should we wait here, cause it may take a while
-    let update = await primaryBackend.uploadFile({
+    const persistedMountData = await primaryBackend.uploadFile({
       mount: primaryMount,
       workspaceId: file.workspaceId,
-      filepath: stringifyFilenamepath(file),
+      filepath: stringifyFilenamepath(
+        mountEntry
+          ? {namepath: mountEntry?.backendNamepath, ext: mountEntry?.backendExt}
+          : file
+      ),
+      fileId: file.resourceId,
       body: bytesCounterStream,
     });
-    update = {
-      ...update,
+    const update: Partial<File> = {
       lastUpdatedBy: getActionAgentFromSessionAgent(agent),
       lastUpdatedAt: getTimestamp(),
       size: bytesCounterStream.contentLength,
@@ -125,21 +147,34 @@ const uploadFile: UploadFileEndpoint = async instData => {
     });
 
     file = await kSemanticModels.utils().withTxn(async opts => {
+      const {namepath, ext} = pathExtract(persistedMountData.filepath);
+      const newMountEntry = newWorkspaceResource<ResolvedMountEntry>(
+        agent,
+        kFimidaraResourceType.ResolvedMountEntry,
+        file.workspaceId,
+        /** seed */ {
+          mountId: primaryMount.resourceId,
+          forType: kFimidaraResourceType.File,
+          forId: file.resourceId,
+          backendNamepath: namepath,
+          backendExt: ext,
+          fimidaraNamepath: file.namepath,
+          fimidaraExt: file.ext,
+          persisted: {
+            mountId: primaryMount.resourceId,
+            encoding: file.encoding,
+            mimetype: file.mimetype,
+            size: file.size,
+            lastUpdatedAt: file.lastUpdatedAt,
+            raw: persistedMountData.raw,
+            filepath: persistedMountData.filepath,
+          },
+        }
+      );
+
       const [savedFile] = await Promise.all([
         kSemanticModels.file().getAndUpdateOneById(file.resourceId, update, opts),
-        insertResolvedMountEntries({
-          agent,
-          resource: file,
-          mountFiles: [
-            {
-              mountId: primaryMount.resourceId,
-              encoding: file.encoding,
-              mimetype: file.mimetype,
-              size: file.size,
-              lastUpdatedAt: file.lastUpdatedAt,
-            },
-          ],
-        }),
+        kSemanticModels.resolvedMountEntry().insertItem(newMountEntry, opts),
       ]);
 
       assertFile(savedFile);

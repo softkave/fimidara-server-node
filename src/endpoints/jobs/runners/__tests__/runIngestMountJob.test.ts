@@ -58,11 +58,7 @@ describe('runIngestMountJob', () => {
           shard,
           createdBy: kSystemSessionAgent,
           type: kJobType.ingestFolderpath,
-          params: {
-            ingestFrom: mountedFrom,
-            agentId: userToken.resourceId,
-            mountId: mount.resourceId,
-          },
+          params: {ingestFrom: mountedFrom, mountId: mount.resourceId},
           idempotencyToken: Date.now().toString(),
         },
       ]
@@ -71,15 +67,15 @@ describe('runIngestMountJob', () => {
     await runIngestMountJob(job);
     await kUtilsInjectables.promises().flush();
 
+    const injestFolderpathJobParams: IngestFolderpathJobParams = {
+      ingestFrom: mountedFrom,
+      mountId: mount.resourceId,
+    };
     const injestFolderpathJobs = await kSemanticModels.job().getManyByQuery({
       shard,
       type: kJobType.ingestFolderpath,
       params: {
-        $objMatch: {
-          ingestFrom: mountedFrom,
-          mountId: mount.resourceId,
-          agentId: userToken.resourceId,
-        },
+        $objMatch: injestFolderpathJobParams,
       },
     });
 

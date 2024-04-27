@@ -1,5 +1,5 @@
 import {Dictionary, isArray} from 'lodash';
-import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
 
 export interface PromiseWithId<T = unknown> {
   promise: Promise<T>;

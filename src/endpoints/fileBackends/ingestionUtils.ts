@@ -1,182 +1,248 @@
-import {first, keyBy} from 'lodash';
+import {keyBy} from 'lodash';
+import {File} from '../../definitions/file';
+import {ResolvedMountEntry} from '../../definitions/fileBackend';
 import {Folder} from '../../definitions/folder';
-import {Agent} from '../../definitions/system';
+import {SessionAgent, kFimidaraResourceType} from '../../definitions/system';
 import {Workspace} from '../../definitions/workspace';
 import {appAssert} from '../../utils/assertion';
-import {pathJoin} from '../../utils/fns';
-import {FileQuery} from '../contexts/data/types';
+import {pathExtract, pathJoin, pathSplit} from '../../utils/fns';
+import {newWorkspaceResource} from '../../utils/resource';
 import {
   PersistedFileDescription,
   PersistedFolderDescription,
 } from '../contexts/file/types';
 import {kSemanticModels} from '../contexts/injection/injectables';
-import {FileQueries} from '../files/queries';
-import {
-  FilepathInfo,
-  createNewFile,
-  getFilepathInfo,
-  stringifyFilenamepath,
-} from '../files/utils';
+import {createNewFile, getFilepathInfo, stringifyFilenamepath} from '../files/utils';
 import {createFolderList} from '../folders/addFolder/createFolderList';
 import {NewFolderInput} from '../folders/addFolder/types';
 import {addRootnameToPath} from '../folders/utils';
-import {insertResolvedMountEntries} from './mountUtils';
 
 /**
- * Caller must check agent has permission to either create folders or ingest
- * mounts
+ * Caller must check agent has permission to either create folders
  */
 export async function ingestPersistedFolders(
-  agent: Agent,
+  agent: SessionAgent,
   workspace: Workspace,
-  folders: PersistedFolderDescription[]
+  pFolders: PersistedFolderDescription[]
 ) {
-  await kSemanticModels.utils().withTxn(async opts => {
-    await createFolderList(
-      agent,
-      workspace,
-      folders.map(
-        (pFolder): NewFolderInput => ({
-          // Add workspace rootname to folderpath, seeing mount folder paths do
-          // not have that and `createFolderList` expects it
-          folderpath: addRootnameToPath(pFolder.folderpath, workspace.rootname),
-        })
-      ),
-      /** skip auth check */ true,
-      /** do not throw if folder exists */ false,
-      opts,
-      /** throw on error */ true
-    );
-  }, /** reuseTxn */ false);
-}
-
-/**
- * Caller must check agent has permission to either create folders/files or
- * ingest mounts
- */
-export async function ingestPersistedFiles(
-  agent: Agent,
-  workspace: Workspace,
-  files: PersistedFileDescription[]
-) {
-  const persistedFilesByFilepath: Record<
-    /** filepath */ string,
-    {
-      pathinfo: FilepathInfo;
-      /** there is the possiblity of  */
-      mountFiles: PersistedFileDescription[];
-    }
-  > = {};
-
-  files.forEach(nextMountFile => {
-    let map = persistedFilesByFilepath[nextMountFile.filepath];
-
-    if (!map) {
-      map = persistedFilesByFilepath[nextMountFile.filepath] = {
-        pathinfo: getFilepathInfo(nextMountFile.filepath, {containsRootname: false}),
-        mountFiles: [],
-      };
-    }
-
-    map.mountFiles.push(nextMountFile);
-  });
-
-  const mountFileList = Object.values(persistedFilesByFilepath);
-
-  if (mountFileList.length === 0) {
+  if (!pFolders.length) {
     return;
   }
 
   await kSemanticModels.utils().withTxn(async opts => {
-    const existingFiles = await kSemanticModels.file().getManyByQuery(
-      {
-        $or: mountFileList.map(({pathinfo}): FileQuery => {
-          return FileQueries.getByNamepath({
-            workspaceId: workspace.resourceId,
-            extension: pathinfo.extension,
-            namepath: pathinfo.namepath,
-          });
-        }),
-      },
-      opts
-    );
+    // Fetch existing mount entries to determine new folders. Although
+    // createFolderList checks for existing folders, a folder's namepath may
+    // differ from a backend/persisted folder's namepath.
+    const mountEntries = await kSemanticModels
+      .resolvedMountEntry()
+      .getLatestForManyFimidaraNamepathAndExt(
+        workspace.resourceId,
+        pFolders.map(pFolder => ({fimidaraNamepath: pathSplit(pFolder.folderpath)})),
+        opts
+      );
+    const mountEntriesMapByBackendNamepath: Record<
+      string,
+      ResolvedMountEntry | undefined
+    > = keyBy(mountEntries, entry => pathJoin(entry.backendNamepath));
 
-    const folderpathsToEnsure: Set</** folderpath */ string> = new Set();
-    const existingFilesMap = keyBy(existingFiles, file => stringifyFilenamepath(file));
-    const newMountFileList = mountFileList.filter(({pathinfo, mountFiles}) => {
-      const mountFile0 = first(mountFiles);
-      appAssert(mountFile0);
+    const newFolderInputList: NewFolderInput[] = [];
+    pFolders.forEach(pFolder => {
+      const mountEntry = mountEntriesMapByBackendNamepath[pFolder.folderpath];
 
-      if (!existingFilesMap[mountFile0.filepath]) {
-        if (pathinfo.parentStringPath) {
-          folderpathsToEnsure.add(
-            addRootnameToPath(pathinfo.parentStringPath, workspace.rootname)
-          );
-        }
-
-        return true;
+      if (!mountEntry) {
+        newFolderInputList.push({
+          // Add workspace rootname to folderpath. Mount folderpaths do not have
+          // it and createFolderList expects it
+          folderpath: addRootnameToPath(pFolder.folderpath, workspace.rootname),
+        });
       }
-
-      return false;
     });
 
-    const folderInputs: NewFolderInput[] = [];
-    folderpathsToEnsure.forEach(folderpath => {
-      folderInputs.push({folderpath});
-    });
-    const {newFolders, existingFolders} = await createFolderList(
+    const {existingFolders, newFolders} = await createFolderList(
       agent,
       workspace,
-      folderInputs,
+      newFolderInputList,
       /** skip auth check */ true,
-      /** do not throw error */ false,
+      /** do not throw if folders exists */ false,
       opts,
       /** throw on error */ true
     );
-    const foldersByPath = keyBy(newFolders.concat(existingFolders), folder =>
-      pathJoin(folder.namepath)
+
+    const foldersMapByNamepath: Record<string, Folder | undefined> = keyBy(
+      existingFolders.concat(newFolders),
+      folder => pathJoin(folder.namepath)
     );
 
-    const newFiles = newMountFileList.map(({pathinfo, mountFiles}) => {
-      const mountFile0 = first(mountFiles);
-      appAssert(mountFile0);
-      let parent: Folder | null = null;
+    // Insert new mount entries for both new and existing folders
+    const newMountEntries: ResolvedMountEntry[] = [];
+    pFolders.forEach(pFolder => {
+      const mountEntry = mountEntriesMapByBackendNamepath[pFolder.folderpath];
+      // A mount's backend namepath may not be the same as a folder's, so try an
+      // existing entry's folder namepath then default to persisted/backend
+      // folder's
+      const fimidaraNamepath = mountEntry
+        ? pathJoin(mountEntry.fimidaraNamepath)
+        : pFolder.folderpath;
+      const folder = foldersMapByNamepath[fimidaraNamepath];
 
-      if (pathinfo.parentStringPath.length) {
-        parent = foldersByPath[pathinfo.parentStringPath];
+      if (folder) {
+        const newMountEntry = newWorkspaceResource<ResolvedMountEntry>(
+          agent,
+          kFimidaraResourceType.ResolvedMountEntry,
+          workspace.resourceId,
+          /** seed */ {
+            mountId: pFolder.mountId,
+            forType: kFimidaraResourceType.Folder,
+            forId: folder.resourceId,
+            backendNamepath: pathSplit(pFolder.folderpath),
+            backendExt: undefined,
+            fimidaraNamepath: folder.namepath,
+            fimidaraExt: undefined,
+            persisted: pFolder,
+          }
+        );
+
+        newMountEntries.push(newMountEntry);
       }
-
-      return createNewFile(
-        agent,
-        workspace.resourceId,
-        pathinfo,
-        parent,
-        /** new file input */ {},
-        {
-          isReadAvailable: true,
-          isWriteAvailable: true,
-          size: mountFile0.size,
-          lastUpdatedAt: mountFile0.lastUpdatedAt,
-          mimetype: mountFile0.mimetype,
-          encoding: mountFile0.encoding,
-        }
-      );
     });
 
-    const saveFilesPromise = kSemanticModels.file().insertItem(newFiles, opts);
-    const everyFile = newFiles.concat(existingFiles);
-    const insertMountEntriesPromise = Promise.all(
-      everyFile.map(file => {
-        const entry = persistedFilesByFilepath[stringifyFilenamepath(file)];
-        appAssert(entry);
-        return insertResolvedMountEntries({
-          agent,
-          resource: file,
-          mountFiles: entry.mountFiles,
-        });
-      })
+    await kSemanticModels.resolvedMountEntry().insertItem(newMountEntries, opts);
+  }, /** reuseTxn */ false);
+}
+
+/**
+ * Caller must check agent has permission to either create folders/files
+ */
+export async function ingestPersistedFiles(
+  agent: SessionAgent,
+  workspace: Workspace,
+  pFiles: PersistedFileDescription[]
+) {
+  if (!pFiles.length) {
+    return;
+  }
+
+  await kSemanticModels.utils().withTxn(async opts => {
+    // Fetch existing mount entries to determine new files
+    const mountEntries = await kSemanticModels
+      .resolvedMountEntry()
+      .getLatestForManyFimidaraNamepathAndExt(
+        workspace.resourceId,
+        pFiles.map(pFile => {
+          const {namepath, ext} = getFilepathInfo(pFile.filepath, {
+            containsRootname: false,
+            allowRootFolder: false,
+          });
+          return {fimidaraNamepath: namepath, fimidaraExt: ext};
+        }),
+        opts
+      );
+    const mountEntriesMapByBackendNamepath: Record<
+      string,
+      ResolvedMountEntry | undefined
+    > = keyBy(mountEntries, entry =>
+      stringifyFilenamepath({namepath: entry.backendNamepath, ext: entry.backendExt})
     );
 
-    await Promise.all([insertMountEntriesPromise, saveFilesPromise]);
+    // Ensure parent folders for new new files
+    const folderpathsToEnsure: NewFolderInput[] = [];
+    pFiles.forEach(pFile => {
+      const mountEntry = mountEntriesMapByBackendNamepath[pFile.filepath];
+
+      if (!mountEntry) {
+        const {parentStringPath} = getFilepathInfo(pFile.filepath, {
+          containsRootname: false,
+          allowRootFolder: false,
+        });
+        folderpathsToEnsure.push({
+          folderpath: addRootnameToPath(parentStringPath, workspace.rootname),
+        });
+      }
+    });
+
+    const {newFolders, existingFolders} = await createFolderList(
+      agent,
+      workspace,
+      folderpathsToEnsure,
+      /** skip auth check */ true,
+      /** do not throw if folders exist */ false,
+      opts,
+      /** throw on error */ true
+    );
+
+    const foldersMapByNamepath: Record<string, Folder | undefined> = keyBy(
+      existingFolders.concat(newFolders),
+      folder => pathJoin(folder.namepath)
+    );
+
+    const newFiles: File[] = [];
+    const newMountEntries: ResolvedMountEntry[] = [];
+    pFiles.map(pFile => {
+      const mountEntry = mountEntriesMapByBackendNamepath[pFile.filepath];
+      let newFile: File | undefined;
+
+      if (!mountEntry) {
+        let parent: Folder | null = null;
+        const pathinfo = getFilepathInfo(pFile.filepath, {
+          allowRootFolder: false,
+          containsRootname: false,
+        });
+
+        // New files will only include those without mount entries, so backend's
+        // namepath should be the same as fimidara's namepath
+        if (pathinfo.parentStringPath) {
+          parent = foldersMapByNamepath[pathinfo.parentStringPath] || null;
+        }
+
+        newFile = createNewFile(
+          agent,
+          workspace.resourceId,
+          pathinfo,
+          parent,
+          /** new file input */ {},
+          /** seed */ {
+            isReadAvailable: true,
+            isWriteAvailable: true,
+            size: pFile.size,
+            lastUpdatedAt: pFile.lastUpdatedAt,
+            mimetype: pFile.mimetype,
+            encoding: pFile.encoding,
+          }
+        );
+
+        newFiles.push(newFile);
+      }
+
+      const forId = mountEntry?.forId || newFile?.resourceId;
+      const fimidaraNamepath = mountEntry?.fimidaraNamepath || newFile?.namepath;
+      const fimidaraExt = mountEntry?.fimidaraExt || newFile?.ext;
+      const {namepath, ext} = pathExtract(pFile.filepath);
+
+      appAssert(forId, 'No mount entry or new file for forId');
+      appAssert(fimidaraNamepath, 'No mount entry or new file for fimidaraNamepath');
+
+      const newMountEntry = newWorkspaceResource<ResolvedMountEntry>(
+        agent,
+        kFimidaraResourceType.ResolvedMountEntry,
+        workspace.resourceId,
+        /** seed */ {
+          forId,
+          fimidaraExt,
+          fimidaraNamepath,
+          mountId: pFile.mountId,
+          forType: kFimidaraResourceType.File,
+          backendNamepath: namepath,
+          backendExt: ext,
+          persisted: pFile,
+        }
+      );
+
+      newMountEntries.push(newMountEntry);
+    });
+
+    await Promise.all([
+      kSemanticModels.resolvedMountEntry().insertItem(newMountEntries, opts),
+      kSemanticModels.file().insertItem(newFiles, opts),
+    ]);
   }, /** reuseTxn */ false);
 }

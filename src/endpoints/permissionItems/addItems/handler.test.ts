@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {kPermissionsMap} from '../../../definitions/permissionItem';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
 import RequestData from '../../RequestData';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels} from '../../contexts/injection/injectables';
@@ -46,8 +46,8 @@ describe('addItems', () => {
     ]);
 
     const grantAccess = faker.datatype.boolean();
-    const actionsWithoutWildcard = Object.values(kPermissionsMap).filter(
-      action => action !== kPermissionsMap.wildcard
+    const actionsWithoutWildcard = Object.values(kFimidaraPermissionActionsMap).filter(
+      action => action !== kFimidaraPermissionActionsMap.wildcard
     );
     const subsetWorkspaceActions = faker.helpers.arrayElements(actionsWithoutWildcard);
     const completeWorkspaceActionsInputItems = actionsWithoutWildcard.map(
@@ -141,9 +141,9 @@ describe('addItems', () => {
       workspace.resourceId
     );
     const grantAccess = faker.datatype.boolean();
-    const actions = Object.values(kPermissionsMap);
+    const actions = Object.values(kFimidaraPermissionActionsMap);
     const actionsWithoutWildcard = actions.filter(
-      action => action !== kPermissionsMap.wildcard
+      action => action !== kFimidaraPermissionActionsMap.wildcard
     );
     const itemsUniq = actionsWithoutWildcard.map(
       (action): PermissionItemInput => ({
@@ -189,7 +189,7 @@ describe('addItems', () => {
       workspace.resourceId
     );
     const grantAccess = faker.datatype.boolean();
-    const actions = Object.values(kPermissionsMap);
+    const actions = Object.values(kFimidaraPermissionActionsMap);
     const itemsUniq = actions.map(
       (action): PermissionItemInput => ({
         action,
@@ -239,13 +239,13 @@ describe('addItems', () => {
     const itemsInput: PermissionItemInput[] = [
       {
         access: true,
-        action: kPermissionsMap.readFile,
+        action: kFimidaraPermissionActionsMap.readFile,
         entityId: user.resourceId,
         target: {targetId: folder01.resourceId},
       },
       {
         access: true,
-        action: kPermissionsMap.readFile,
+        action: kFimidaraPermissionActionsMap.readFile,
         entityId: user.resourceId,
         target: {targetId: folder02.resourceId},
       },

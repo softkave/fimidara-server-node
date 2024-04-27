@@ -43,12 +43,12 @@ export class FWorkerPool extends FWorkerMainBase implements DisposableResource {
   }
 
   async dispose() {
-    await super.__dispose(this.gracefulTerminateTimeoutMs);
+    await this.__dispose(this.gracefulTerminateTimeoutMs);
   }
 
   protected startNewWorker = async () => {
     const id = this.generateWorkerId();
-    return await super.__startNewWorker(
+    return await this.__startNewWorker(
       this.filepath,
       id,
       this.gracefulTerminateFn,
@@ -57,7 +57,7 @@ export class FWorkerPool extends FWorkerMainBase implements DisposableResource {
   };
 
   protected stopWorker = async (id: string) => {
-    await super.__stopWorker(id, this.gracefulTerminateTimeoutMs);
+    await this.__stopWorker(id, this.gracefulTerminateTimeoutMs);
   };
 
   getWorkers(): ReadonlyDeep<typeof this.workers> {

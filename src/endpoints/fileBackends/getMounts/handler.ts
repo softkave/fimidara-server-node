@@ -1,4 +1,5 @@
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {
   applyDefaultEndpointPaginationOptions,
@@ -13,7 +14,13 @@ import {getFileBackendMountsJoiSchema} from './validation';
 const getFileBackendMounts: GetFileBackendMountsEndpoint = async instData => {
   const mountModel = kSemanticModels.fileBackendMount();
   const data = validate(instData.data, getFileBackendMountsJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   const query = await getFileBackendMountsQuery(agent, workspace, data);
   applyDefaultEndpointPaginationOptions(data);

@@ -1,4 +1,5 @@
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {
   applyDefaultEndpointPaginationOptions,
@@ -13,7 +14,13 @@ import {getWorkspaceCollaborationRequestsJoiSchema} from './validation';
 const getWorkspaceCollaborationRequests: GetWorkspaceCollaborationRequestsEndpoint =
   async instData => {
     const data = validate(instData.data, getWorkspaceCollaborationRequestsJoiSchema);
-    const agent = await kUtilsInjectables.session().getAgent(instData);
+    const agent = await kUtilsInjectables
+      .session()
+      .getAgentFromReq(
+        instData,
+        kSessionUtils.permittedAgentTypes.api,
+        kSessionUtils.accessScopes.api
+      );
     const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
     const q = await getWorkspaceCollaborationRequestsQuery(agent, workspace);
     applyDefaultEndpointPaginationOptions(data);

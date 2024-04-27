@@ -1,5 +1,5 @@
 import {FileMatcher} from '../../../definitions/file';
-import {PermissionAction} from '../../../definitions/permissionItem';
+import {FimidaraPermissionAction} from '../../../definitions/permissionItem';
 import {Endpoint} from '../../types';
 
 export type IssuePresignedPathEndpointParams = FileMatcher & {
@@ -7,7 +7,7 @@ export type IssuePresignedPathEndpointParams = FileMatcher & {
   duration?: number;
   usageCount?: number;
   /** Permissions allowed on the generated presigned path. */
-  action?: PermissionAction | PermissionAction[];
+  action?: FimidaraPermissionAction | FimidaraPermissionAction[];
   // downloadUsageCount?: number;
   // uploadUsageCount?: number;
   // origin?: string | string[];

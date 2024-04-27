@@ -1,11 +1,12 @@
 import {pick} from 'lodash';
 import {FileBackendConfig} from '../../../definitions/fileBackend';
-import {kPermissionsMap} from '../../../definitions/permissionItem';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
 import {appAssert} from '../../../utils/assertion';
 import {getTimestamp} from '../../../utils/dateFns';
 import {kReuseableErrors} from '../../../utils/reusableErrors';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
 import {validate} from '../../../utils/validate';
+import {kSessionUtils} from '../../contexts/SessionContext';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
@@ -18,14 +19,20 @@ const updateFileBackendConfig: UpdateFileBackendConfigEndpoint = async instData 
   const secretsManager = kUtilsInjectables.secretsManager();
 
   const data = validate(instData.data, updateFileBackendConfigJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   await checkAuthorizationWithAgent({
     agent,
     workspace,
     workspaceId: workspace.resourceId,
     target: {
-      action: kPermissionsMap.updateFileBackendConfig,
+      action: kFimidaraPermissionActionsMap.updateFileBackendConfig,
       targetId: workspace.resourceId,
     },
   });

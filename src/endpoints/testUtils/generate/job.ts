@@ -11,7 +11,7 @@ import {
 import {kFimidaraResourceType} from '../../../definitions/system';
 import {kSystemSessionAgent} from '../../../utils/agent';
 import {getTimestamp} from '../../../utils/dateFns';
-import {getNewIdForResource} from '../../../utils/resource';
+import {getNewIdForResource, newResource} from '../../../utils/resource';
 import {kSemanticModels} from '../../contexts/injection/injectables';
 import {JobInput} from '../../jobs/queueJobs';
 import {getRandomAppType} from './app';
@@ -42,19 +42,14 @@ export function generateJobInput(seed: Partial<JobInput> = {}): JobInput {
 }
 
 export function generateJobForTest(seed: Partial<Job> = {}) {
-  const createdAt = getTimestamp();
   const params = seed.params || {};
   const status: JobStatusHistory = {
     status: seed.status || getRandomJobStatus(),
     statusLastUpdatedAt: seed.statusLastUpdatedAt || getTimestamp(),
     runnerId: seed.runnerId,
   };
-  const job: Job = {
-    createdAt,
+  const job: Job = newResource<Job>(kFimidaraResourceType.Job, {
     params,
-    lastUpdatedAt: createdAt,
-    createdBy: kSystemSessionAgent,
-    resourceId: getNewIdForResource(kFimidaraResourceType.Job),
     type: getRandomJobType(),
     shard: kAppPresetShards.fimidaraMain,
     idempotencyToken: JSON.stringify(params),
@@ -64,10 +59,9 @@ export function generateJobForTest(seed: Partial<Job> = {}) {
     statusHistory: [status],
     workspaceId: getNewIdForResource(kFimidaraResourceType.Workspace),
     parents: seed.parentJobId && !seed.parents ? [seed.parentJobId] : [],
-    isDeleted: false,
     ...status,
     ...seed,
-  };
+  });
   return job;
 }
 

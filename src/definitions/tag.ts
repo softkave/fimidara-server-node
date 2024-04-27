@@ -1,4 +1,4 @@
-import {Agent, ConvertAgentToPublicAgent, WorkspaceResource} from './system';
+import {Agent, ToPublicDefinitions, WorkspaceResource} from './system';
 
 export interface Tag extends WorkspaceResource {
   name: string;
@@ -16,5 +16,5 @@ export interface AssignedTag {
   assignedBy: Agent;
 }
 
-export type PublicTag = ConvertAgentToPublicAgent<Tag>;
-export type PublicAssignedTag = ConvertAgentToPublicAgent<AssignedTag>;
+export type PublicTag = ToPublicDefinitions<Tag>;
+export type PublicAssignedTag = ToPublicDefinitions<AssignedTag>;

@@ -8,6 +8,7 @@ import {
   FilePersistenceProviderFeature,
   FilePersistenceToFimidaraPathParams,
   FilePersistenceToFimidaraPathResult,
+  FilePersistenceUploadFileParams,
   FimidaraToFilePersistencePathParams,
   FimidaraToFilePersistencePathResult,
   PersistedFile,
@@ -47,7 +48,11 @@ export default class NoopFilePersistenceProviderContext
     return undefined;
   };
 
-  uploadFile = async () => ({});
+  uploadFile = async (params: FilePersistenceUploadFileParams) => ({
+    filepath: params.filepath,
+    raw: undefined,
+  });
+
   describeFolderContent = async (
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     params: FilePersistenceDescribeFolderContentParams

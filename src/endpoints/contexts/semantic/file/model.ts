@@ -19,7 +19,7 @@ export class DataSemanticFile
   implements SemanticFileProvider
 {
   async getOneByNamepath(
-    query: {workspaceId: string; namepath: string[]; extension?: string},
+    query: {workspaceId: string; namepath: string[]; ext?: string},
     opts?: SemanticProviderQueryParams<File>
   ): Promise<File | null> {
     const dataQuery = addIsDeletedIntoQuery<DataQuery<File>>(
@@ -30,7 +30,7 @@ export class DataSemanticFile
   }
 
   async deleteOneBynamepath(
-    query: {workspaceId: string; namepath: string[]; extension?: string},
+    query: {workspaceId: string; namepath: string[]; ext?: string},
     opts?: SemanticProviderMutationParams
   ) {
     const dataQuery = addIsDeletedIntoQuery<DataQuery<File>>(
@@ -41,7 +41,7 @@ export class DataSemanticFile
   }
 
   async getAndUpdateOneBynamepath(
-    query: {workspaceId: string; namepath: string[]; extension?: string},
+    query: {workspaceId: string; namepath: string[]; ext?: string},
     update: Partial<File>,
     opts?: SemanticProviderMutationParams & SemanticProviderQueryParams<File>
   ): Promise<File | null> {
@@ -53,7 +53,7 @@ export class DataSemanticFile
   }
 
   async getManyByNamepath(
-    query: {workspaceId: string; namepath: string[]; extension?: string},
+    query: {workspaceId: string; namepath: string[]; ext?: string},
     opts?: SemanticProviderQueryListParams<File>
   ): Promise<File[]> {
     const dataQuery = addIsDeletedIntoQuery<DataQuery<File>>(
@@ -139,7 +139,7 @@ export class DataSemanticPresignedPathProvider
   }
 
   async getOneByFilepath(
-    query: {workspaceId: string; namepath: string[]; extension?: string},
+    query: {workspaceId: string; namepath: string[]; ext?: string},
     options?: SemanticProviderQueryParams<PresignedPath>
   ): Promise<PresignedPath | null> {
     const dataQuery = addIsDeletedIntoQuery<DataQuery<PresignedPath>>(
