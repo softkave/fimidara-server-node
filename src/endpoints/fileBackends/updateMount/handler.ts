@@ -1,27 +1,27 @@
 import {pick} from 'lodash';
-import {FileBackendMount, kFileBackendType} from '../../../definitions/fileBackend';
+import {FileBackendMount, kFileBackendType} from '../../../definitions/fileBackend.js';
 import {
   CleanupMountResolvedEntriesJobParams,
   Job,
   kJobType,
-} from '../../../definitions/job';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
-import {appAssert} from '../../../utils/assertion';
-import {getTimestamp} from '../../../utils/dateFns';
-import {pathSplit} from '../../../utils/fns';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {areFolderpathsEqual, ensureFolders, getFolderpathInfo} from '../../folders/utils';
-import {queueJobs} from '../../jobs/queueJobs';
-import {isResourceNameEqual} from '../../utils';
-import {assertRootname, getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {fileBackendMountExtractor, mountExists, mountNameExists} from '../utils';
-import {UpdateFileBackendMountEndpoint} from './types';
-import {updateFileBackendMountJoiSchema} from './validation';
+} from '../../../definitions/job.js';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {pathSplit} from '../../../utils/fns.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {areFolderpathsEqual, ensureFolders, getFolderpathInfo} from '../../folders/utils.js';
+import {queueJobs} from '../../jobs/queueJobs.js';
+import {isResourceNameEqual} from '../../utils.js';
+import {assertRootname, getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {fileBackendMountExtractor, mountExists, mountNameExists} from '../utils.js';
+import {UpdateFileBackendMountEndpoint} from './types.js';
+import {updateFileBackendMountJoiSchema} from './validation.js';
 
 const updateFileBackendMount: UpdateFileBackendMountEndpoint = async instData => {
   const mountModel = kSemanticModels.fileBackendMount();

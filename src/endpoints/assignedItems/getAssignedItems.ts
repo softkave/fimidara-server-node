@@ -1,22 +1,22 @@
 import {defaultTo} from 'lodash';
-import {AssignedItem, ResourceWithTags} from '../../definitions/assignedItem';
+import {AssignedItem, ResourceWithTags} from '../../definitions/assignedItem.js';
 import {
   FimidaraResourceType,
   Resource,
   WorkspaceResource,
   kFimidaraResourceType,
-} from '../../definitions/system';
-import {User} from '../../definitions/user';
-import {cast} from '../../utils/fns';
-import {kSemanticModels} from '../contexts/injection/injectables';
+} from '../../definitions/system.js';
+import {User} from '../../definitions/user.js';
+import {cast} from '../../utils/fns.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
 import {
   SemanticProviderOpParams,
   SemanticProviderQueryListParams,
-} from '../contexts/semantic/types';
+} from '../contexts/semantic/types.js';
 import {
   assignedItemsToAssignedTagList,
   assignedItemsToAssignedWorkspaceList,
-} from './utils';
+} from './utils.js';
 
 export async function getResourceAssignedItems(
   /** Use `undefined` for fetching user workspaces */

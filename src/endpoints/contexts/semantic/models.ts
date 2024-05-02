@@ -1,11 +1,11 @@
-import {App} from '../../../definitions/app';
-import {FileBackendConfig, FileBackendMount} from '../../../definitions/fileBackend';
-import {PermissionGroup} from '../../../definitions/permissionGroups';
-import {AppRuntimeState} from '../../../definitions/system';
-import {Tag} from '../../../definitions/tag';
-import {UsageRecord} from '../../../definitions/usageRecord';
-import {DataSemanticBaseProvider} from './DataSemanticDataAccessBaseProvider';
-import {DataSemanticWorkspaceResourceProvider} from './DataSemanticDataAccessWorkspaceResourceProvider';
+import {App} from '../../../definitions/app.js';
+import {FileBackendConfig, FileBackendMount} from '../../../definitions/fileBackend.js';
+import {PermissionGroup} from '../../../definitions/permissionGroups.js';
+import {AppRuntimeState} from '../../../definitions/system.js';
+import {Tag} from '../../../definitions/tag.js';
+import {UsageRecord} from '../../../definitions/usageRecord.js';
+import {DataSemanticBaseProvider} from './DataSemanticDataAccessBaseProvider.js';
+import {DataSemanticWorkspaceResourceProvider} from './DataSemanticDataAccessWorkspaceResourceProvider.js';
 import {
   SemanticAppProvider,
   SemanticAppRuntimeStateProvider,
@@ -14,7 +14,7 @@ import {
   SemanticPermissionGroupProviderType,
   SemanticTagProviderType,
   SemanticUsageRecordProviderType,
-} from './types';
+} from './types.js';
 
 export class DataSemanticFileBackendMount
   extends DataSemanticWorkspaceResourceProvider<FileBackendMount>

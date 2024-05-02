@@ -1,9 +1,9 @@
 import {isObject} from 'lodash';
 import {MessagePort, TransferListItem} from 'worker_threads';
-import {appAssert} from '../../../utils/assertion';
-import {TimeoutError} from '../../../utils/errors';
-import {getNewId} from '../../../utils/resource';
-import {AnyFn, AnyObject} from '../../../utils/types';
+import {appAssert} from '../../../utils/assertion.js';
+import {TimeoutError} from '../../../utils/errors.js';
+import {getNewId} from '../../../utils/resource.js';
+import {AnyFn, AnyObject} from '../../../utils/types.js';
 
 export interface FWorkerTrackedMessage {
   messageId: string;

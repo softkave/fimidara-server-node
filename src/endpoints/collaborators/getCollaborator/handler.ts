@@ -1,14 +1,14 @@
-import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
+import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {
   checkCollaboratorAuthorization02,
   collaboratorExtractor,
   removeOtherUserWorkspaces,
-} from '../utils';
-import {GetCollaboratorEndpoint} from './types';
-import {getCollaboratorJoiSchema} from './validation';
+} from '../utils.js';
+import {GetCollaboratorEndpoint} from './types.js';
+import {getCollaboratorJoiSchema} from './validation.js';
 
 const getCollaborator: GetCollaboratorEndpoint = async instData => {
   const data = validate(instData.data, getCollaboratorJoiSchema);

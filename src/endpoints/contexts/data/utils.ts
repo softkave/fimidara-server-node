@@ -1,5 +1,5 @@
 import {isNumber} from 'lodash';
-import {kEndpointConstants} from '../../constants';
+import {kEndpointConstants} from '../../constants.js';
 
 export function getPage(inputPage?: number, minPage = kEndpointConstants.minPage) {
   return isNumber(inputPage)

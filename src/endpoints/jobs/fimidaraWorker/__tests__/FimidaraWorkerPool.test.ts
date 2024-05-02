@@ -1,18 +1,18 @@
-import {kAppType} from '../../../../definitions/app';
-import {Job, kJobStatus, kJobType} from '../../../../definitions/job';
-import {kFimidaraResourceType} from '../../../../definitions/system';
-import {getNewId, getNewIdForResource} from '../../../../utils/resource';
-import {FimidaraApp} from '../../../app/FimidaraApp';
+import {kAppType} from '../../../../definitions/app.js';
+import {Job, kJobStatus, kJobType} from '../../../../definitions/job.js';
+import {kFimidaraResourceType} from '../../../../definitions/system.js';
+import {getNewId, getNewIdForResource} from '../../../../utils/resource.js';
+import {FimidaraApp} from '../../../app/FimidaraApp.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../contexts/injection/injectables';
-import {kRegisterUtilsInjectables} from '../../../contexts/injection/register';
-import {generateAndInsertJobListForTest} from '../../../testUtils/generate/job';
-import {completeTests} from '../../../testUtils/helpers/testFns';
-import {initTests} from '../../../testUtils/testUtils';
-import {waitForJob} from '../../waitForJob';
-import {FimidaraWorkerPool} from '../FimidaraWorkerPool';
+} from '../../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../../contexts/injection/register.js';
+import {generateAndInsertJobListForTest} from '../../../testUtils/generate/job.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../testUtils/testUtils.js';
+import {waitForJob} from '../../waitForJob.js';
+import {FimidaraWorkerPool} from '../FimidaraWorkerPool.js';
 
 const kWorkerTestFilepath =
   './build/src/endpoints/jobs/fimidaraWorker/testUtils/FimidaraWorkerTestWorker.js';

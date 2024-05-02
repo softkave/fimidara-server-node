@@ -1,29 +1,29 @@
 import {flatten} from 'lodash';
-import {kFimidaraResourceType} from '../../../../../definitions/system';
-import {Workspace} from '../../../../../definitions/workspace';
-import {generateAndInsertAgentTokenListForTest} from '../../../../testUtils/generate/agentToken';
-import {generateAndInsertCollaborationRequestListForTest} from '../../../../testUtils/generate/collaborationRequest';
+import {kFimidaraResourceType} from '../../../../../definitions/system.js';
+import {Workspace} from '../../../../../definitions/workspace.js';
+import {generateAndInsertAgentTokenListForTest} from '../../../../testUtils/generate/agentToken.js';
+import {generateAndInsertCollaborationRequestListForTest} from '../../../../testUtils/generate/collaborationRequest.js';
 import {
   generateAndInsertTestFiles,
   generateAndInsertTestPresignedPathList,
-} from '../../../../testUtils/generate/file';
+} from '../../../../testUtils/generate/file.js';
 import {
   generateAndInsertFileBackendConfigListForTest,
   generateAndInsertFileBackendMountListForTest,
   generateAndInsertResolvedMountEntryListForTest,
-} from '../../../../testUtils/generate/fileBackend';
-import {generateAndInsertTestFolders} from '../../../../testUtils/generate/folder';
+} from '../../../../testUtils/generate/fileBackend.js';
+import {generateAndInsertTestFolders} from '../../../../testUtils/generate/folder.js';
 import {
   generateAndInsertAssignedItemListForTest,
   generateAndInsertPermissionGroupListForTest,
-} from '../../../../testUtils/generate/permissionGroup';
-import {generateAndInsertPermissionItemListForTest} from '../../../../testUtils/generate/permissionItem';
-import {generateAndInsertTagListForTest} from '../../../../testUtils/generate/tag';
-import {generateAndInsertUsageRecordList} from '../../../../testUtils/generate/usageRecord';
-import {generateAndInsertWorkspaceListForTest} from '../../../../testUtils/generate/workspace';
-import {completeTests} from '../../../../testUtils/helpers/testFns';
-import {initTests} from '../../../../testUtils/testUtils';
-import {deleteWorkspaceCascadeEntry} from '../workspace';
+} from '../../../../testUtils/generate/permissionGroup.js';
+import {generateAndInsertPermissionItemListForTest} from '../../../../testUtils/generate/permissionItem.js';
+import {generateAndInsertTagListForTest} from '../../../../testUtils/generate/tag.js';
+import {generateAndInsertUsageRecordList} from '../../../../testUtils/generate/usageRecord.js';
+import {generateAndInsertWorkspaceListForTest} from '../../../../testUtils/generate/workspace.js';
+import {completeTests} from '../../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../../testUtils/testUtils.js';
+import {deleteWorkspaceCascadeEntry} from '../workspace.js';
 import {
   GenerateResourceFn,
   GenerateTypeChildrenDefinition,
@@ -31,7 +31,7 @@ import {
   testDeleteResourceArtifactsJob,
   testDeleteResourceJob0,
   testDeleteResourceSelfJob,
-} from './testUtils';
+} from './testUtils.js';
 
 beforeAll(async () => {
   await initTests();

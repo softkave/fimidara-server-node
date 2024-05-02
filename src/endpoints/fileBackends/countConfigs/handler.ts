@@ -1,10 +1,10 @@
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {getFileBackendConfigsQuery} from '../getConfigs/utils';
-import {CountFileBackendConfigsEndpoint} from './types';
-import {countWorkspaceAgentTokenJoiSchema} from './validation';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {getFileBackendConfigsQuery} from '../getConfigs/utils.js';
+import {CountFileBackendConfigsEndpoint} from './types.js';
+import {countWorkspaceAgentTokenJoiSchema} from './validation.js';
 
 const countFileBackendConfigs: CountFileBackendConfigsEndpoint = async instData => {
   const configModel = kSemanticModels.fileBackendConfig();

@@ -1,16 +1,16 @@
-import {App} from '../../../definitions/app';
-import {FileBackendConfig, FileBackendMount} from '../../../definitions/fileBackend';
-import {PermissionGroup} from '../../../definitions/permissionGroups';
-import {Agent, AppRuntimeState, Resource} from '../../../definitions/system';
-import {Tag} from '../../../definitions/tag';
-import {UsageRecord} from '../../../definitions/usageRecord';
-import {AnyFn} from '../../../utils/types';
+import {App} from '../../../definitions/app.js';
+import {FileBackendConfig, FileBackendMount} from '../../../definitions/fileBackend.js';
+import {PermissionGroup} from '../../../definitions/permissionGroups.js';
+import {Agent, AppRuntimeState, Resource} from '../../../definitions/system.js';
+import {Tag} from '../../../definitions/tag.js';
+import {UsageRecord} from '../../../definitions/usageRecord.js';
+import {AnyFn} from '../../../utils/types.js';
 import {
   DataProviderOpParams,
   DataProviderQueryListParams,
   DataProviderQueryParams,
   DataQuery,
-} from '../data/types';
+} from '../data/types.js';
 
 export interface SemanticProviderOpParams extends DataProviderOpParams {
   /** Defaults to `false` for query ops, `undefined` for mutation ops (affecting

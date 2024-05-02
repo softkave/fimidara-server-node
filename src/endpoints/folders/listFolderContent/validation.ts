@@ -1,12 +1,12 @@
 import * as Joi from 'joi';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {JoiSchemaParts} from '../../../utils/types';
-import {endpointValidationSchemas} from '../../validation';
-import folderValidationSchemas from '../validation';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {JoiSchemaParts} from '../../../utils/types.js';
+import {endpointValidationSchemas} from '../../validation.js';
+import folderValidationSchemas from '../validation.js';
 import {
   ListFolderContentEndpointParams,
   ListFolderContentEndpointParamsBase,
-} from './types';
+} from './types.js';
 
 const contentType = Joi.string().valid(
   kFimidaraResourceType.File,

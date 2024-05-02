@@ -1,18 +1,18 @@
-import {pathJoin} from '../../../utils/fns';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {ResourceExistsError} from '../../errors';
-import {stringifyFoldernamepath} from '../../folders/utils';
-import {generateUniqueFolderpath} from '../../testUtils/generate/folder';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {pathJoin} from '../../../utils/fns.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {ResourceExistsError} from '../../errors.js';
+import {stringifyFoldernamepath} from '../../folders/utils.js';
+import {generateUniqueFolderpath} from '../../testUtils/generate/folder.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   initTests,
   insertFileBackendMountForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../testUtils/testUtils';
-import {fileBackendMountExtractor} from '../utils';
+} from '../../testUtils/testUtils.js';
+import {fileBackendMountExtractor} from '../utils.js';
 
 beforeAll(async () => {
   await initTests();

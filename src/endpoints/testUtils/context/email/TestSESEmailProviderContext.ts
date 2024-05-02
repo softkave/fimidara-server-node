@@ -1,7 +1,7 @@
-import {SESEmailProviderContext} from '../../../contexts/email/SESEmailProviderContext';
-import {S3FilePersistenceProviderInitParams} from '../../../contexts/file/S3FilePersistenceProvider';
-import {mockWith} from '../../helpers/mock';
-import {ITestEmailProviderContext} from '../types';
+import {SESEmailProviderContext} from '../../../contexts/email/SESEmailProviderContext.js';
+import {S3FilePersistenceProviderInitParams} from '../../../contexts/file/S3FilePersistenceProvider.js';
+import {mockWith} from '../../helpers/mock.js';
+import {ITestEmailProviderContext} from '../types.js';
 
 export default class TestSESEmailProviderContext implements ITestEmailProviderContext {
   private client: SESEmailProviderContext;

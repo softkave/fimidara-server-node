@@ -1,5 +1,5 @@
-import {getLocalIp} from '../../utils/net';
-import {memoizedGetPackageJson} from '../../utils/package';
+import {getLocalIp} from '../../utils/net.js';
+import {memoizedGetPackageJson} from '../../utils/package.js';
 
 export interface ServerInfo {
   ipv4: string | undefined;

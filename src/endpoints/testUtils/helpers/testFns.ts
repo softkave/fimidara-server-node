@@ -5,22 +5,22 @@ import {
   calculatePageSize,
   convertToArray,
   getRandomInt,
-} from '../../../utils/fns';
-import {AnyFn, AnyObject, OrArray, OrPromise} from '../../../utils/types';
-import RequestData from '../../RequestData';
-import {globalDispose, globalSetup} from '../../contexts/globalUtils';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
-import {IServerRequest} from '../../contexts/types';
-import {initFimidara} from '../../runtime/initFimidara';
+} from '../../../utils/fns.js';
+import {AnyFn, AnyObject, OrArray, OrPromise} from '../../../utils/types.js';
+import RequestData from '../../RequestData.js';
+import {globalDispose, globalSetup} from '../../contexts/globalUtils.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
+import {IServerRequest} from '../../contexts/types.js';
+import {initFimidara} from '../../runtime/initFimidara.js';
 import {
   Endpoint,
   InferEndpointParams,
   InferEndpointResult,
   PaginatedResult,
   PaginationQuery,
-} from '../../types';
-import {assertEndpointResultOk} from '../testUtils';
+} from '../../types.js';
+import {assertEndpointResultOk} from '../testUtils.js';
 
 export function mutationTest(
   name: string,

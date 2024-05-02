@@ -1,13 +1,13 @@
-import {kFimidaraResourceType, kTokenAccessScope} from '../../../definitions/system';
-import {makeUserSessionAgent} from '../../../utils/sessionUtils';
-import RequestData from '../../RequestData';
-import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generate/agentToken';
-import {generateAndInsertUserListForTest} from '../../testUtils/generate/user';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/testFns';
-import {initTests} from '../../testUtils/testUtils';
-import {ChangePasswordError, PermissionDeniedError} from '../../users/errors';
-import {kUtilsInjectables} from '../injection/injectables';
+import {kFimidaraResourceType, kTokenAccessScope} from '../../../definitions/system.js';
+import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
+import RequestData from '../../RequestData.js';
+import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generate/agentToken.js';
+import {generateAndInsertUserListForTest} from '../../testUtils/generate/user.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {initTests} from '../../testUtils/testUtils.js';
+import {ChangePasswordError, PermissionDeniedError} from '../../users/errors.js';
+import {kUtilsInjectables} from '../injection/injectables.js';
 
 beforeAll(async () => {
   await initTests();

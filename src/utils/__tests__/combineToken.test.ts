@@ -1,5 +1,5 @@
 import {last} from 'lodash';
-import {CombinationToken, combineTokens} from '../combineTokens';
+import {CombinationToken, combineTokens} from '../combineTokens.js';
 
 describe('combineTokens', () => {
   test('generates within tokens', () => {

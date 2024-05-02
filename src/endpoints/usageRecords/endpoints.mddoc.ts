@@ -1,28 +1,28 @@
-import {PublicUsageRecord, UsageRecordCategoryMap} from '../../definitions/usageRecord';
+import {PublicUsageRecord, UsageRecordCategoryMap} from '../../definitions/usageRecord.js';
 import {
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
   mddocConstruct,
-} from '../../mddoc/mddoc';
+} from '../../mddoc/mddoc.js';
 import {
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
-} from '../endpoints.mddoc';
-import {usageRecordConstants} from './constants';
-import {CountWorkspaceSummedUsageEndpointParams} from './countWorkspaceSummedUsage/types';
-import {GetUsageCostsEndpointResult} from './getUsageCosts/types';
+} from '../endpoints.mddoc.js';
+import {usageRecordConstants} from './constants.js';
+import {CountWorkspaceSummedUsageEndpointParams} from './countWorkspaceSummedUsage/types.js';
+import {GetUsageCostsEndpointResult} from './getUsageCosts/types.js';
 import {
   GetWorkspaceSummedUsageEndpointParams,
   GetWorkspaceSummedUsageEndpointResult,
   WorkspaceSummedUsageQuery,
-} from './getWorkspaceSummedUsage/types';
+} from './getWorkspaceSummedUsage/types.js';
 import {
   CountWorkspaceSummedUsageHttpEndpoint,
   GetUsageCostsHttpEndpoint,
   GetWorkspaceSummedUsageHttpEndpoint,
-} from './types';
+} from './types.js';
 
 const cost = mddocConstruct.constructFieldNumber().setDescription('Usage cost in USD');
 const month = mddocConstruct

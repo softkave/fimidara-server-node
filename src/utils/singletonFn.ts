@@ -1,5 +1,5 @@
 import {isUndefined, noop} from 'lodash';
-import {cast} from './fns';
+import {cast} from './fns.js';
 
 export type SingletonFnInitFn<Data> = () => Data;
 export type SingletonFnDisposeFn<Data> = (data: Data) => void | Promise<void>;

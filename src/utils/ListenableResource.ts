@@ -1,4 +1,4 @@
-import {AnyFn} from './types';
+import {AnyFn} from './types.js';
 
 export type ListenableResourceListener<T> = AnyFn<[T | undefined]>;
 

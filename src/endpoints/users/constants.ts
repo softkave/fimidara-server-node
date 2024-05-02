@@ -1,4 +1,4 @@
-import {kEndpointConstants} from '../constants';
+import {kEndpointConstants} from '../constants.js';
 
 export const kUserConstants = {
   minNameLength: 1,

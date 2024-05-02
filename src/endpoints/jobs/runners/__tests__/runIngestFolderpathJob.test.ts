@@ -4,48 +4,48 @@ import {
   IngestFolderpathJobParams,
   Job,
   kJobType,
-} from '../../../../definitions/job';
-import {kSystemSessionAgent} from '../../../../utils/agent';
-import {loopAndCollate, pathJoin} from '../../../../utils/fns';
-import {getNewId} from '../../../../utils/resource';
-import {DataQuery} from '../../../contexts/data/types';
-import {MemoryFilePersistenceProvider} from '../../../contexts/file/MemoryFilePersistenceProvider';
+} from '../../../../definitions/job.js';
+import {kSystemSessionAgent} from '../../../../utils/agent.js';
+import {loopAndCollate, pathJoin} from '../../../../utils/fns.js';
+import {getNewId} from '../../../../utils/resource.js';
+import {DataQuery} from '../../../contexts/data/types.js';
+import {MemoryFilePersistenceProvider} from '../../../contexts/file/MemoryFilePersistenceProvider.js';
 import {
   FilePersistenceDescribeFolderContentParams,
   FilePersistenceDescribeFolderContentResult,
   PersistedFileDescription,
   PersistedFolderDescription,
-} from '../../../contexts/file/types';
+} from '../../../contexts/file/types.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../contexts/injection/injectables';
-import {kRegisterUtilsInjectables} from '../../../contexts/injection/register';
-import {FileBackendQueries} from '../../../fileBackends/queries';
-import {FileQueries} from '../../../files/queries';
-import {getFilepathInfo} from '../../../files/utils';
-import {FolderQueries} from '../../../folders/queries';
-import {getFolderpathInfo, stringifyFoldernamepath} from '../../../folders/utils';
-import TestMemoryFilePersistenceProviderContext from '../../../testUtils/context/file/TestMemoryFilePersistenceProviderContext';
-import {generateTestFileName} from '../../../testUtils/generate/file';
+} from '../../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../../contexts/injection/register.js';
+import {FileBackendQueries} from '../../../fileBackends/queries.js';
+import {FileQueries} from '../../../files/queries.js';
+import {getFilepathInfo} from '../../../files/utils.js';
+import {FolderQueries} from '../../../folders/queries.js';
+import {getFolderpathInfo, stringifyFoldernamepath} from '../../../folders/utils.js';
+import TestMemoryFilePersistenceProviderContext from '../../../testUtils/context/file/TestMemoryFilePersistenceProviderContext.js';
+import {generateTestFileName} from '../../../testUtils/generate/file.js';
 import {
   generatePersistedFileDescriptionForTest,
   generatePersistedFolderDescriptionForTest,
-} from '../../../testUtils/generate/fileBackend';
+} from '../../../testUtils/generate/fileBackend.js';
 import {
   generateTestFolderName,
   generateTestFolderpath,
-} from '../../../testUtils/generate/folder';
-import {expectErrorThrown} from '../../../testUtils/helpers/error';
-import {completeTests} from '../../../testUtils/helpers/testFns';
+} from '../../../testUtils/generate/folder.js';
+import {expectErrorThrown} from '../../../testUtils/helpers/error.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
 import {
   initTests,
   insertFileBackendMountForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../../testUtils/testUtils';
-import {queueJobs} from '../../queueJobs';
-import {runIngestFolderpathJob} from '../runIngestFolderpathJob';
+} from '../../../testUtils/testUtils.js';
+import {queueJobs} from '../../queueJobs.js';
+import {runIngestFolderpathJob} from '../runIngestFolderpathJob.js';
 
 beforeEach(async () => {
   await initTests();

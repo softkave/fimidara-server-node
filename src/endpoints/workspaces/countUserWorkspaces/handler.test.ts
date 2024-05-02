@@ -1,19 +1,19 @@
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {appAssert} from '../../../utils/assertion';
-import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import EndpointReusableQueries from '../../queries';
-import RequestData from '../../RequestData';
-import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generate/workspace';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import EndpointReusableQueries from '../../queries.js';
+import RequestData from '../../RequestData.js';
+import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generate/workspace.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import countUserWorkspaces from './handler';
+} from '../../testUtils/testUtils.js';
+import countUserWorkspaces from './handler.js';
 
 beforeAll(async () => {
   await initTests();

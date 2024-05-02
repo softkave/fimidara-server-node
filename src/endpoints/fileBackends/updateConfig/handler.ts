@@ -1,18 +1,18 @@
 import {pick} from 'lodash';
-import {FileBackendConfig} from '../../../definitions/fileBackend';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
-import {appAssert} from '../../../utils/assertion';
-import {getTimestamp} from '../../../utils/dateFns';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {configNameExists, fileBackendConfigExtractor} from '../utils';
-import {UpdateFileBackendConfigEndpoint} from './types';
-import {updateFileBackendConfigJoiSchema} from './validation';
+import {FileBackendConfig} from '../../../definitions/fileBackend.js';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {configNameExists, fileBackendConfigExtractor} from '../utils.js';
+import {UpdateFileBackendConfigEndpoint} from './types.js';
+import {updateFileBackendConfigJoiSchema} from './validation.js';
 
 const updateFileBackendConfig: UpdateFileBackendConfigEndpoint = async instData => {
   const configModel = kSemanticModels.fileBackendConfig();

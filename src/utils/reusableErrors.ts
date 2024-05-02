@@ -3,10 +3,10 @@ import {
   InvalidStateError,
   NotFoundError,
   ResourceExistsError,
-} from '../endpoints/errors';
-import {MountSourceMissingBucketError} from '../endpoints/fileBackends/errors';
-import {ChangePasswordError, InvalidCredentialsError} from '../endpoints/users/errors';
-import {kAppMessages} from './messages';
+} from '../endpoints/errors.js';
+import {MountSourceMissingBucketError} from '../endpoints/fileBackends/errors.js';
+import {ChangePasswordError, InvalidCredentialsError} from '../endpoints/users/errors.js';
+import {kAppMessages} from './messages.js';
 
 export const kReuseableErrors = {
   workspace: {

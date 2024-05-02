@@ -1,6 +1,6 @@
-import {DeleteResourceJobMeta, Job} from '../../../definitions/job';
-import {AnyFn, AnyObject} from '../../../utils/types';
-import {kSemanticModels} from '../../contexts/injection/injectables';
+import {DeleteResourceJobMeta, Job} from '../../../definitions/job.js';
+import {AnyFn, AnyObject} from '../../../utils/types.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
 
 export async function setJobMeta<TMeta extends AnyObject>(
   jobId: string,

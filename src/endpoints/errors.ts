@@ -1,8 +1,8 @@
 import OperationError, {
   getErrorMessageFromParams,
   OperationErrorParameters,
-} from '../utils/OperationError';
-import {kEndpointConstants} from './constants';
+} from '../utils/OperationError.js';
+import {kEndpointConstants} from './constants.js';
 
 export class InvalidRequestError extends OperationError {
   name = 'InvalidRequestError';

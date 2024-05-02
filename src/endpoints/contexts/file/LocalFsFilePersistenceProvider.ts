@@ -1,9 +1,9 @@
 import fse from 'fs-extra';
 import {compact, first, isNumber} from 'lodash';
-import {appAssert} from '../../../utils/assertion';
-import {noopAsync, pathJoin} from '../../../utils/fns';
-import {AnyFn} from '../../../utils/types';
-import {kUtilsInjectables} from '../injection/injectables';
+import {appAssert} from '../../../utils/assertion.js';
+import {noopAsync, pathJoin} from '../../../utils/fns.js';
+import {AnyFn} from '../../../utils/types.js';
+import {kUtilsInjectables} from '../injection/injectables.js';
 import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
@@ -24,8 +24,8 @@ import {
   PersistedFile,
   PersistedFileDescription,
   PersistedFolderDescription,
-} from './types';
-import {defaultToFimidaraPath, defaultToNativePath} from './utils';
+} from './types.js';
+import {defaultToFimidaraPath, defaultToNativePath} from './utils.js';
 
 export interface LocalFsFilePersistenceProviderParams {
   dir: string;

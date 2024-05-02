@@ -1,15 +1,15 @@
 import {omit} from 'lodash';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
-import {getTimestamp} from '../../../utils/dateFns';
-import {objectHasData} from '../../../utils/fns';
-import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {assertWorkspace} from '../../workspaces/utils';
-import {assertFile, fileExtractor, getAndCheckFileAuthorization} from '../utils';
-import {UpdateFileDetailsEndpoint} from './types';
-import {updateFileDetailsJoiSchema} from './validation';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {objectHasData} from '../../../utils/fns.js';
+import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {assertWorkspace} from '../../workspaces/utils.js';
+import {assertFile, fileExtractor, getAndCheckFileAuthorization} from '../utils.js';
+import {UpdateFileDetailsEndpoint} from './types.js';
+import {updateFileDetailsJoiSchema} from './validation.js';
 
 /**
  * TODO:

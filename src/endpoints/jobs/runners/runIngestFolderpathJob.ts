@@ -1,28 +1,28 @@
 import {compact} from 'lodash';
-import {FileBackendMount} from '../../../definitions/fileBackend';
+import {FileBackendMount} from '../../../definitions/fileBackend.js';
 import {
   IngestFolderpathJobMeta,
   IngestFolderpathJobParams,
   Job,
   kJobType,
-} from '../../../definitions/job';
-import {SessionAgent} from '../../../definitions/system';
-import {appAssert} from '../../../utils/assertion';
-import {pathJoin, pathSplit} from '../../../utils/fns';
-import {AnyObject} from '../../../utils/types';
+} from '../../../definitions/job.js';
+import {SessionAgent} from '../../../definitions/system.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {pathJoin, pathSplit} from '../../../utils/fns.js';
+import {AnyObject} from '../../../utils/types.js';
 import {
   FilePersistenceDescribeFolderContentResult,
   FilePersistenceProvider,
   PersistedFolderDescription,
-} from '../../contexts/file/types';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {getBackendConfigsWithIdList} from '../../fileBackends/configUtils';
+} from '../../contexts/file/types.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {getBackendConfigsWithIdList} from '../../fileBackends/configUtils.js';
 import {
   ingestPersistedFiles,
   ingestPersistedFolders,
-} from '../../fileBackends/ingestionUtils';
-import {initBackendProvidersForMounts} from '../../fileBackends/mountUtils';
-import {JobInput, queueJobs} from '../queueJobs';
+} from '../../fileBackends/ingestionUtils.js';
+import {initBackendProvidersForMounts} from '../../fileBackends/mountUtils.js';
+import {JobInput, queueJobs} from '../queueJobs.js';
 
 async function setContinuationTokenInJob(
   job: Job,

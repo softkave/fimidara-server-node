@@ -1,27 +1,27 @@
-import {EmailJobParams, Job, kEmailJobType, kJobType} from '../../../definitions/job';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {extractResourceIdList} from '../../../utils/fns';
-import {indexArray} from '../../../utils/indexArray';
-import {getNewIdForResource} from '../../../utils/resource';
-import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
-import {DataQuery} from '../../contexts/data/types';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {kRegisterUtilsInjectables} from '../../contexts/injection/register';
-import RequestData from '../../RequestData';
-import MockTestEmailProviderContext from '../../testUtils/context/email/MockTestEmailProviderContext';
-import {generateAndInsertUserListForTest} from '../../testUtils/generate/user';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {EmailJobParams, Job, kEmailJobType, kJobType} from '../../../definitions/job.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {extractResourceIdList} from '../../../utils/fns.js';
+import {indexArray} from '../../../utils/indexArray.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
+import {DataQuery} from '../../contexts/data/types.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../contexts/injection/register.js';
+import RequestData from '../../RequestData.js';
+import MockTestEmailProviderContext from '../../testUtils/context/email/MockTestEmailProviderContext.js';
+import {generateAndInsertUserListForTest} from '../../testUtils/generate/user.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {PermissionDeniedError} from '../../users/errors';
-import upgradeWaitlistedUsers from './handler';
-import {UpgradeWaitlistedUsersEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import {PermissionDeniedError} from '../../users/errors.js';
+import upgradeWaitlistedUsers from './handler.js';
+import {UpgradeWaitlistedUsersEndpointParams} from './types.js';
 
 beforeEach(async () => {
   await initTests();

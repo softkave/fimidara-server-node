@@ -1,16 +1,16 @@
 import {first} from 'lodash';
-import {AppShard} from '../../../../definitions/app';
-import {kFimidaraResourceType} from '../../../../definitions/system';
-import {waitTimeout} from '../../../../utils/fns';
-import {newResource} from '../../../../utils/resource';
-import {DataQuery} from '../../data/types';
-import {kSemanticModels} from '../../injection/injectables';
+import {AppShard} from '../../../../definitions/app.js';
+import {kFimidaraResourceType} from '../../../../definitions/system.js';
+import {waitTimeout} from '../../../../utils/fns.js';
+import {newResource} from '../../../../utils/resource.js';
+import {DataQuery} from '../../data/types.js';
+import {kSemanticModels} from '../../injection/injectables.js';
 import {
   DataSemanticBaseProvider,
   addIsDeletedIntoQuery,
-} from '../DataSemanticDataAccessBaseProvider';
-import {SemanticProviderMutationParams, SemanticProviderQueryListParams} from '../types';
-import {SemanticAppShardProvider} from './types';
+} from '../DataSemanticDataAccessBaseProvider.js';
+import {SemanticProviderMutationParams, SemanticProviderQueryListParams} from '../types.js';
+import {SemanticAppShardProvider} from './types.js';
 
 export class SemanticAppShardProviderImpl
   extends DataSemanticBaseProvider<AppShard>

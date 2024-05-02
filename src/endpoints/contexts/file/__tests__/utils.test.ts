@@ -1,25 +1,25 @@
 import {tmpdir} from 'os';
-import {kFileBackendType} from '../../../../definitions/fileBackend';
-import {pathJoin} from '../../../../utils/fns';
-import {generateTestFilepath} from '../../../testUtils/generate/file';
+import {kFileBackendType} from '../../../../definitions/fileBackend.js';
+import {pathJoin} from '../../../../utils/fns.js';
+import {generateTestFilepath} from '../../../testUtils/generate/file.js';
 import {
   generateAWSS3Credentials,
   generateFileBackendConfigForTest,
   generateFileBackendMountForTest,
-} from '../../../testUtils/generate/fileBackend';
-import {generateTestFolderpath} from '../../../testUtils/generate/folder';
-import {completeTests} from '../../../testUtils/helpers/testFns';
-import {initTests} from '../../../testUtils/testUtils';
-import {FimidaraFilePersistenceProvider} from '../FimidaraFilePersistenceProvider';
-import {LocalFsFilePersistenceProvider} from '../LocalFsFilePersistenceProvider';
-import {MemoryFilePersistenceProvider} from '../MemoryFilePersistenceProvider';
-import {S3FilePersistenceProvider} from '../S3FilePersistenceProvider';
+} from '../../../testUtils/generate/fileBackend.js';
+import {generateTestFolderpath} from '../../../testUtils/generate/folder.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../testUtils/testUtils.js';
+import {FimidaraFilePersistenceProvider} from '../FimidaraFilePersistenceProvider.js';
+import {LocalFsFilePersistenceProvider} from '../LocalFsFilePersistenceProvider.js';
+import {MemoryFilePersistenceProvider} from '../MemoryFilePersistenceProvider.js';
+import {S3FilePersistenceProvider} from '../S3FilePersistenceProvider.js';
 import {
   defaultFileProviderResolver,
   defaultToFimidaraPath,
   defaultToNativePath,
   isFilePersistenceProvider,
-} from '../utils';
+} from '../utils.js';
 
 beforeEach(async () => {
   await initTests();

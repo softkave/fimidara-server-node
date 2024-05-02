@@ -1,27 +1,27 @@
 import {ProjectionType, SortOrder} from 'mongoose';
 import {Primitive} from 'type-fest';
-import {AgentToken} from '../../../definitions/agentToken';
-import {App, AppShard} from '../../../definitions/app';
-import {AssignedItem} from '../../../definitions/assignedItem';
-import {CollaborationRequest} from '../../../definitions/collaborationRequest';
-import {EmailBlocklist, EmailMessage} from '../../../definitions/email';
-import {File} from '../../../definitions/file';
+import {AgentToken} from '../../../definitions/agentToken.js';
+import {App, AppShard} from '../../../definitions/app.js';
+import {AssignedItem} from '../../../definitions/assignedItem.js';
+import {CollaborationRequest} from '../../../definitions/collaborationRequest.js';
+import {EmailBlocklist, EmailMessage} from '../../../definitions/email.js';
+import {File} from '../../../definitions/file.js';
 import {
   FileBackendConfig,
   FileBackendMount,
   ResolvedMountEntry,
-} from '../../../definitions/fileBackend';
-import {Folder} from '../../../definitions/folder';
-import {Job} from '../../../definitions/job';
-import {PermissionGroup} from '../../../definitions/permissionGroups';
-import {PermissionItem} from '../../../definitions/permissionItem';
-import {PresignedPath} from '../../../definitions/presignedPath';
-import {AppRuntimeState, Resource, ResourceWrapper} from '../../../definitions/system';
-import {Tag} from '../../../definitions/tag';
-import {UsageRecord} from '../../../definitions/usageRecord';
-import {User} from '../../../definitions/user';
-import {Workspace} from '../../../definitions/workspace';
-import {AnyFn, AnyObject} from '../../../utils/types';
+} from '../../../definitions/fileBackend.js';
+import {Folder} from '../../../definitions/folder.js';
+import {Job} from '../../../definitions/job.js';
+import {PermissionGroup} from '../../../definitions/permissionGroups.js';
+import {PermissionItem} from '../../../definitions/permissionItem.js';
+import {PresignedPath} from '../../../definitions/presignedPath.js';
+import {AppRuntimeState, Resource, ResourceWrapper} from '../../../definitions/system.js';
+import {Tag} from '../../../definitions/tag.js';
+import {UsageRecord} from '../../../definitions/usageRecord.js';
+import {User} from '../../../definitions/user.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {AnyFn, AnyObject} from '../../../utils/types.js';
 
 export type DataQuerySort<T, K extends keyof T = keyof T> = {
   [P in K]?: SortOrder;

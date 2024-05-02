@@ -1,17 +1,17 @@
 import {defaultTo, random} from 'lodash';
-import {kFimidaraResourceType} from '../../../definitions/system';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {
   UsageRecord,
   UsageRecordCategory,
   UsageRecordCategoryMap,
   UsageRecordFulfillmentStatusMap,
   UsageSummationTypeMap,
-} from '../../../definitions/usageRecord';
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {getTimestamp} from '../../../utils/dateFns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {generateTestWorkspace} from './workspace';
+} from '../../../definitions/usageRecord.js';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {generateTestWorkspace} from './workspace.js';
 
 export function generateWorkspaceWithCategoryUsageExceeded(
   categories: UsageRecordCategory[]

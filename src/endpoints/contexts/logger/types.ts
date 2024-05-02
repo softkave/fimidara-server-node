@@ -1,5 +1,5 @@
-import {DisposableResource} from '../../../utils/disposables';
-import {ObjectValues} from '../../../utils/types';
+import {DisposableResource} from '../../../utils/disposables.js';
+import {ObjectValues} from '../../../utils/types.js';
 
 export interface Logger extends DisposableResource {
   log: (...args: unknown[]) => void;

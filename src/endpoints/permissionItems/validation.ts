@@ -1,12 +1,12 @@
 import Joi = require('joi');
-import {getWorkspaceResourceTypeList} from '../../definitions/system';
-import {kValidationSchemas} from '../../utils/validationUtils';
-import {kEndpointConstants} from '../constants';
-import fileValidationSchemas from '../files/validation';
-import folderValidationSchemas from '../folders/validation';
-import workspaceValidationSchemas from '../workspaces/validation';
-import {permissionItemConstants} from './constants';
-import {PermissionItemInput, PermissionItemInputTarget} from './types';
+import {getWorkspaceResourceTypeList} from '../../definitions/system.js';
+import {kValidationSchemas} from '../../utils/validationUtils.js';
+import {kEndpointConstants} from '../constants.js';
+import fileValidationSchemas from '../files/validation.js';
+import folderValidationSchemas from '../folders/validation.js';
+import workspaceValidationSchemas from '../workspaces/validation.js';
+import {permissionItemConstants} from './constants.js';
+import {PermissionItemInput, PermissionItemInputTarget} from './types.js';
 
 const targetId = kValidationSchemas.resourceId;
 const targetType = Joi.string().valid(...getWorkspaceResourceTypeList());

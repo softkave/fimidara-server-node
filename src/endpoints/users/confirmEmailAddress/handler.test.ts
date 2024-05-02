@@ -1,23 +1,23 @@
 import {faker} from '@faker-js/faker';
-import {AgentToken} from '../../../definitions/agentToken';
+import {AgentToken} from '../../../definitions/agentToken.js';
 import {
   kCurrentJWTTokenVersion,
   kFimidaraResourceType,
   kTokenAccessScope,
-} from '../../../definitions/system';
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {newResource} from '../../../utils/resource';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {completeTests} from '../../testUtils/helpers/testFns';
-import {assertUserTokenIsSame} from '../../testUtils/helpers/user';
+} from '../../../definitions/system.js';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {newResource} from '../../../utils/resource.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {assertUserTokenIsSame} from '../../testUtils/helpers/user.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import confirmEmailAddress from './handler';
+} from '../../testUtils/testUtils.js';
+import confirmEmailAddress from './handler.js';
 
 beforeAll(async () => {
   await initTests();

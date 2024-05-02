@@ -1,5 +1,5 @@
-import {Endpoint} from '../../types';
-import {LoginResult} from '../login/types';
+import {Endpoint} from '../../types.js';
+import {LoginResult} from '../login/types.js';
 
 export type ChangePasswordWithTokenEndpointParams = {password: string};
 export type ChangePasswordWithTokenEndpoint = Endpoint<

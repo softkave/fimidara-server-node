@@ -1,19 +1,19 @@
-import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
-import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job';
-import {appAssert} from '../../../utils/assertion';
-import {getTimestamp} from '../../../utils/dateFns';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {InvalidRequestError} from '../../errors';
-import {queueJobs} from '../../jobs/queueJobs';
+import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest.js';
+import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {InvalidRequestError} from '../../errors.js';
+import {queueJobs} from '../../jobs/queueJobs.js';
 import {
   assertCollaborationRequest,
   checkCollaborationRequestAuthorization02,
   collaborationRequestForWorkspaceExtractor,
-} from '../utils';
-import {RevokeCollaborationRequestEndpoint} from './types';
-import {revokeCollaborationRequestJoiSchema} from './validation';
+} from '../utils.js';
+import {RevokeCollaborationRequestEndpoint} from './types.js';
+import {revokeCollaborationRequestJoiSchema} from './validation.js';
 
 const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint = async instData => {
   const data = validate(instData.data, revokeCollaborationRequestJoiSchema);

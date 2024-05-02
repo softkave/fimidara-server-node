@@ -1,6 +1,6 @@
 import {Readable} from 'stream';
-import {FileBackendConfig, FileBackendMount} from '../../../definitions/fileBackend';
-import {DisposableResource} from '../../../utils/disposables';
+import {FileBackendConfig, FileBackendMount} from '../../../definitions/fileBackend.js';
+import {DisposableResource} from '../../../utils/disposables.js';
 
 export type FilePersistenceProviderFeature =
   | 'describeFile'

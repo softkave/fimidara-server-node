@@ -1,6 +1,6 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {PermissionGroup} from '../definitions/permissionGroups';
-import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
+import {PermissionGroup} from '../definitions/permissionGroups.js';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils.js';
 
 const permissionGroupsSchema = ensureMongoTypeFields<PermissionGroup>({
   ...workspaceResourceSchema,

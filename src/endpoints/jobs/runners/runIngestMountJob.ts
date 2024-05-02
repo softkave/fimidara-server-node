@@ -1,8 +1,8 @@
-import {kFileBackendType} from '../../../definitions/fileBackend';
-import {IngestFolderpathJobParams, Job, kJobType} from '../../../definitions/job';
-import {appAssert} from '../../../utils/assertion';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {JobInput, queueJobs} from '../queueJobs';
+import {kFileBackendType} from '../../../definitions/fileBackend.js';
+import {IngestFolderpathJobParams, Job, kJobType} from '../../../definitions/job.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {JobInput, queueJobs} from '../queueJobs.js';
 
 export async function runIngestMountJob(job: Job) {
   appAssert(job.workspaceId, 'workspaceId not present in job');

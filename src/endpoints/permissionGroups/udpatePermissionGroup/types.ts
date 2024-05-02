@@ -1,9 +1,9 @@
 import {
   PermissionGroupMatcher,
   PublicPermissionGroup,
-} from '../../../definitions/permissionGroups';
-import {Endpoint} from '../../types';
-import {NewPermissionGroupInput} from '../addPermissionGroup/types';
+} from '../../../definitions/permissionGroups.js';
+import {Endpoint} from '../../types.js';
+import {NewPermissionGroupInput} from '../addPermissionGroup/types.js';
 
 export type UpdatePermissionGroupInput = Partial<NewPermissionGroupInput>;
 

@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
-import {kValidationSchemas} from '../../../utils/validationUtils';
-import {IssuePresignedPathEndpointParams} from './types';
-import fileValidationSchemas from '../../files/validation';
+import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import {IssuePresignedPathEndpointParams} from './types.js';
+import fileValidationSchemas from '../../files/validation.js';
 
 export const issuePresignedPathJoiSchema = Joi.object<IssuePresignedPathEndpointParams>()
   .keys({

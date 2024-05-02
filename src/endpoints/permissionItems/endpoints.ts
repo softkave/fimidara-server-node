@@ -1,12 +1,12 @@
-import addPermissionItems from './addItems/handler';
-import deletePermissionItems from './deleteItems/handler';
+import addPermissionItems from './addItems/handler.js';
+import deletePermissionItems from './deleteItems/handler.js';
 import {
   addPermissionItemsEndpointDefinition,
   deletePermissionItemsEndpointDefinition,
   resolveEntityPermissionsEndpointDefinition,
-} from './endpoints.mddoc';
-import resolveEntityPermissions from './resolveEntityPermissions/handler';
-import {PermissionItemsExportedEndpoints} from './types';
+} from './endpoints.mddoc.js';
+import resolveEntityPermissions from './resolveEntityPermissions/handler.js';
+import {PermissionItemsExportedEndpoints} from './types.js';
 
 export function getPermissionItemsPublicHttpEndpoints() {
   const permissionItemsExportedEndpoints: PermissionItemsExportedEndpoints = {

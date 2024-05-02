@@ -8,10 +8,10 @@ import {
   DataProviderQueryListParams,
   DataProviderQueryParams,
   DataQuery,
-} from './types';
+} from './types.js';
 // eslint-disable-next-line node/no-extraneous-import
-import {dataQueryToMongoQuery} from './dataQueryToMongoQuery';
-import {getPage, getPageSize} from './utils';
+import {dataQueryToMongoQuery} from './dataQueryToMongoQuery.js';
+import {getPage, getPageSize} from './utils.js';
 
 function getMongoQueryOptionsForOp(params?: DataProviderOpParams): {
   lean: true;

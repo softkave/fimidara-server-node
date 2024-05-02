@@ -1,18 +1,18 @@
 import {faker} from '@faker-js/faker';
 import {Schema, SchemaDefinition, SchemaTypes} from 'mongoose';
-import {MongoDbConnection} from '../../../../db/connection';
-import {CombinationToken, combineTokens} from '../../../../utils/combineTokens';
-import {loopAndCollate} from '../../../../utils/fns';
-import {completeTests} from '../../../testUtils/helpers/testFns';
-import {initFnTests} from '../../../testUtils/testUtils';
-import {kUtilsInjectables} from '../../injection/injectables';
-import {dataQueryToMongoQuery} from '../dataQueryToMongoQuery';
+import {MongoDbConnection} from '../../../../db/connection.js';
+import {CombinationToken, combineTokens} from '../../../../utils/combineTokens.js';
+import {loopAndCollate} from '../../../../utils/fns.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {initFnTests} from '../../../testUtils/testUtils.js';
+import {kUtilsInjectables} from '../../injection/injectables.js';
+import {dataQueryToMongoQuery} from '../dataQueryToMongoQuery.js';
 import {
   BaseMongoTestData,
   generateBaseMongoTestDataFromCombination,
   generateBaseMongoTestQueryFromCombination,
   kBaseMongoTestConsts,
-} from './testUtils';
+} from './testUtils.js';
 
 const kModelName = 'BaseMongoDataProvider-' + faker.lorem.word();
 const kCollectionName = kModelName + '-' + 'collection';

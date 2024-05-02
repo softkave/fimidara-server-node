@@ -1,5 +1,5 @@
-import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
-import {PartialRecord} from './types';
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
+import {PartialRecord} from './types.js';
 
 function generateId() {
   return `${Date.now()}-${Math.random()}`;

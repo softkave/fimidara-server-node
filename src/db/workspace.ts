@@ -1,8 +1,8 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {UsageRecordCategory, UsageRecordCategoryMap} from '../definitions/usageRecord';
-import {UsageThreshold, UsageThresholdLock, Workspace} from '../definitions/workspace';
-import {getTimestamp} from '../utils/dateFns';
-import {agentSchema, ensureMongoTypeFields, workspaceResourceSchema} from './utils';
+import {UsageRecordCategory, UsageRecordCategoryMap} from '../definitions/usageRecord.js';
+import {UsageThreshold, UsageThresholdLock, Workspace} from '../definitions/workspace.js';
+import {getTimestamp} from '../utils/dateFns.js';
+import {agentSchema, ensureMongoTypeFields, workspaceResourceSchema} from './utils.js';
 
 const usageThresholdSchema = ensureMongoTypeFields<UsageThreshold>({
   lastUpdatedBy: {type: agentSchema},

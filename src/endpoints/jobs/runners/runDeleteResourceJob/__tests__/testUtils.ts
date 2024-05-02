@@ -1,28 +1,28 @@
 import {first, flatten, uniq} from 'lodash';
-import {DeleteResourceJobParams, kJobType} from '../../../../../definitions/job';
+import {DeleteResourceJobParams, kJobType} from '../../../../../definitions/job.js';
 import {
   FimidaraResourceType,
   FimidaraTypeToTSType,
   Resource,
   kFimidaraResourceType,
-} from '../../../../../definitions/system';
-import {kSystemSessionAgent} from '../../../../../utils/agent';
-import {extractResourceIdList} from '../../../../../utils/fns';
+} from '../../../../../definitions/system.js';
+import {kSystemSessionAgent} from '../../../../../utils/agent.js';
+import {extractResourceIdList} from '../../../../../utils/fns.js';
 import {
   getNewId,
   getNewIdForResource,
   getResourceTypeFromId,
-} from '../../../../../utils/resource';
-import {AnyFn, AnyObject, PartialRecord} from '../../../../../utils/types';
+} from '../../../../../utils/resource.js';
+import {AnyFn, AnyObject, PartialRecord} from '../../../../../utils/types.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../../contexts/injection/injectables';
-import {generateAndInsertAssignedItemListForTest} from '../../../../testUtils/generate/permissionGroup';
-import {generateAndInsertPermissionItemListForTest} from '../../../../testUtils/generate/permissionItem';
-import {queueJobs} from '../../../queueJobs';
-import {runDeleteResourceJob} from '../runDeleteResourceJob';
-import {DeleteResourceCascadeEntry} from '../types';
+} from '../../../../contexts/injection/injectables.js';
+import {generateAndInsertAssignedItemListForTest} from '../../../../testUtils/generate/permissionGroup.js';
+import {generateAndInsertPermissionItemListForTest} from '../../../../testUtils/generate/permissionItem.js';
+import {queueJobs} from '../../../queueJobs.js';
+import {runDeleteResourceJob} from '../runDeleteResourceJob.js';
+import {DeleteResourceCascadeEntry} from '../types.js';
 
 export type GenerateResourceFn<T extends Resource> = AnyFn<
   [{workspaceId: string}],

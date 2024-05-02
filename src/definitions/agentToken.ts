@@ -5,7 +5,7 @@ import {
   Resource,
   ToPublicDefinitions,
   TokenAccessScope,
-} from './system';
+} from './system.js';
 
 export interface AgentToken extends Resource {
   name?: string;

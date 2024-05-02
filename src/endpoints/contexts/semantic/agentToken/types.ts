@@ -1,10 +1,10 @@
-import {AgentToken} from '../../../../definitions/agentToken';
-import {TokenAccessScope} from '../../../../definitions/system';
+import {AgentToken} from '../../../../definitions/agentToken.js';
+import {TokenAccessScope} from '../../../../definitions/system.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderQueryParams,
   SemanticWorkspaceResourceProviderType,
-} from '../types';
+} from '../types.js';
 
 export interface SemanticAgentTokenProvider
   extends SemanticWorkspaceResourceProviderType<AgentToken> {

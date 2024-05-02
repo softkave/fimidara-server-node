@@ -1,9 +1,9 @@
-import {PresignedPath} from '../../../../definitions/presignedPath';
+import {PresignedPath} from '../../../../definitions/presignedPath.js';
 import {
   SemanticProviderQueryListParams,
   SemanticProviderQueryParams,
   SemanticWorkspaceResourceProviderType,
-} from '../types';
+} from '../types.js';
 
 export interface SemanticPresignedPathProvider
   extends SemanticWorkspaceResourceProviderType<PresignedPath> {

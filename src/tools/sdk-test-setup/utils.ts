@@ -1,18 +1,18 @@
 import {faker} from '@faker-js/faker';
 import {promises as fspromises} from 'fs';
-import {Workspace} from '../../definitions/workspace';
-import {INTERNAL_createAgentToken} from '../../endpoints/agentTokens/addToken/utils';
-import {getPublicAgentToken} from '../../endpoints/agentTokens/utils';
-import {addAssignedPermissionGroupList} from '../../endpoints/assignedItems/addAssignedItems';
+import {Workspace} from '../../definitions/workspace.js';
+import {INTERNAL_createAgentToken} from '../../endpoints/agentTokens/addToken/utils.js';
+import {getPublicAgentToken} from '../../endpoints/agentTokens/utils.js';
+import {addAssignedPermissionGroupList} from '../../endpoints/assignedItems/addAssignedItems.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../endpoints/contexts/injection/injectables';
-import {SemanticProviderMutationParams} from '../../endpoints/contexts/semantic/types';
-import INTERNAL_createWorkspace from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace';
-import {makeRootnameFromName} from '../../endpoints/workspaces/utils';
-import {kSystemSessionAgent} from '../../utils/agent';
-import {appAssert} from '../../utils/assertion';
+} from '../../endpoints/contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../endpoints/contexts/semantic/types.js';
+import INTERNAL_createWorkspace from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace.js';
+import {makeRootnameFromName} from '../../endpoints/workspaces/utils.js';
+import {kSystemSessionAgent} from '../../utils/agent.js';
+import {appAssert} from '../../utils/assertion.js';
 
 async function insertWorkspace(opts: SemanticProviderMutationParams) {
   const companyName = faker.company.name();

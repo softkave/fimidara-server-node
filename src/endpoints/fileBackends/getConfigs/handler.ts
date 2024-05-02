@@ -1,15 +1,15 @@
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
-} from '../../pagination';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {fileBackendConfigListExtractor} from '../utils';
-import {GetFileBackendConfigsEndpoint} from './types';
-import {getFileBackendConfigsQuery} from './utils';
-import {getFileBackendConfigsJoiSchema} from './validation';
+} from '../../pagination.js';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {fileBackendConfigListExtractor} from '../utils.js';
+import {GetFileBackendConfigsEndpoint} from './types.js';
+import {getFileBackendConfigsQuery} from './utils.js';
+import {getFileBackendConfigsJoiSchema} from './validation.js';
 
 const getFileBackendConfigs: GetFileBackendConfigsEndpoint = async instData => {
   const configModel = kSemanticModels.fileBackendConfig();

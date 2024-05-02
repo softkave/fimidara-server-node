@@ -3,7 +3,7 @@ import {
   PublicWorkspaceResource,
   Resource,
   WorkspaceResource,
-} from './system';
+} from './system.js';
 
 export interface User extends Resource {
   firstName: string;

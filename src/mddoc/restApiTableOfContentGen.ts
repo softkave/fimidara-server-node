@@ -1,7 +1,7 @@
 import * as fse from 'fs-extra';
 import {forEach} from 'lodash';
 import path from 'path';
-import {getFimidaraPublicHttpEndpoints} from '../endpoints/endpoints';
+import {getFimidaraPublicHttpEndpoints} from '../endpoints/endpoints.js';
 
 function generateTableOfContentFromFimidaraPublicEndpoints() {
   const tableOfContent: Array<[string, string]> = [];

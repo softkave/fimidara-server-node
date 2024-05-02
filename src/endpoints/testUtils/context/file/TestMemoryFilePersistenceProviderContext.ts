@@ -1,6 +1,6 @@
-import {MemoryFilePersistenceProvider} from '../../../contexts/file/MemoryFilePersistenceProvider';
-import {mockWith} from '../../helpers/mock';
-import {ITestFilePersistenceProviderContext} from '../types';
+import {MemoryFilePersistenceProvider} from '../../../contexts/file/MemoryFilePersistenceProvider.js';
+import {mockWith} from '../../helpers/mock.js';
+import {ITestFilePersistenceProviderContext} from '../types.js';
 
 export default class TestMemoryFilePersistenceProviderContext
   implements ITestFilePersistenceProviderContext

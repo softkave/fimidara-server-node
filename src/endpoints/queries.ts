@@ -1,9 +1,9 @@
 import {UnionToIntersection} from 'type-fest';
-import {mergeData} from '../utils/fns';
-import {AnyObject} from '../utils/types';
-import {DataProviderFilterValueOperator} from './contexts/data/DataProvider';
-import DataProviderFilterBuilder from './contexts/data/DataProviderFilterBuilder';
-import {DataQuery} from './contexts/data/types';
+import {mergeData} from '../utils/fns.js';
+import {AnyObject} from '../utils/types.js';
+import {DataProviderFilterValueOperator} from './contexts/data/DataProvider.js';
+import DataProviderFilterBuilder from './contexts/data/DataProviderFilterBuilder.js';
+import {DataQuery} from './contexts/data/types.js';
 
 function getByWorkspaceId(id: string) {
   return new DataProviderFilterBuilder<{workspaceId: string}>()

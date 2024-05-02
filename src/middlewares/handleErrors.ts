@@ -1,13 +1,13 @@
 import {Response} from 'express';
 import {JsonWebTokenError, NotBeforeError, TokenExpiredError} from 'jsonwebtoken';
-import {kEndpointConstants} from '../endpoints/constants';
-import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
+import {kEndpointConstants} from '../endpoints/constants.js';
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
 import {
   CredentialsExpiredError,
   InvalidCredentialsError,
-} from '../endpoints/users/errors';
-import {getPublicErrors} from '../endpoints/utils';
-import {ServerError} from '../utils/errors';
+} from '../endpoints/users/errors.js';
+import {getPublicErrors} from '../endpoints/utils.js';
+import {ServerError} from '../utils/errors.js';
 
 export function resolveJWTError(err: Error) {
   switch (err.name) {

@@ -1,10 +1,10 @@
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {getFileBackendMountsQuery} from '../getMounts/utils';
-import {CountFileBackendMountsEndpoint} from './types';
-import {countFileBackendMountsJoiSchema} from './validation';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {getFileBackendMountsQuery} from '../getMounts/utils.js';
+import {CountFileBackendMountsEndpoint} from './types.js';
+import {countFileBackendMountsJoiSchema} from './validation.js';
 
 const countFileBackendMounts: CountFileBackendMountsEndpoint = async instData => {
   const mountModel = kSemanticModels.fileBackendMount();

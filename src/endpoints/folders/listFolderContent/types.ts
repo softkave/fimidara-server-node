@@ -1,12 +1,12 @@
-import {PublicFile} from '../../../definitions/file';
-import {FolderMatcher, PublicFolder} from '../../../definitions/folder';
-import {FimidaraResourceType} from '../../../definitions/system';
+import {PublicFile} from '../../../definitions/file.js';
+import {FolderMatcher, PublicFolder} from '../../../definitions/folder.js';
+import {FimidaraResourceType} from '../../../definitions/system.js';
 import {
   Endpoint,
   EndpointResultNote,
   PaginatedResult,
   PaginationQuery,
-} from '../../types';
+} from '../../types.js';
 
 export interface ListFolderContentEndpointParamsBase extends FolderMatcher {
   contentType?: FimidaraResourceType;

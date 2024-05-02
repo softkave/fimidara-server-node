@@ -1,9 +1,9 @@
 import {
   S3FilePersistenceProvider,
   S3FilePersistenceProviderInitParams,
-} from '../../../contexts/file/S3FilePersistenceProvider';
-import {mockWith} from '../../helpers/mock';
-import {ITestFilePersistenceProviderContext} from '../types';
+} from '../../../contexts/file/S3FilePersistenceProvider.js';
+import {mockWith} from '../../helpers/mock.js';
+import {ITestFilePersistenceProviderContext} from '../types.js';
 
 export default class TestS3FilePersistenceProviderContext
   implements ITestFilePersistenceProviderContext

@@ -1,11 +1,11 @@
-import {kFimidaraResourceType} from '../../../../definitions/system';
-import {extractResourceIdList} from '../../../../utils/fns';
-import {getNewIdForResource} from '../../../../utils/resource';
-import {kSemanticModels} from '../../../contexts/injection/injectables';
-import {generateAndInsertResolvedMountEntryListForTest} from '../../../testUtils/generate/fileBackend';
-import {completeTests} from '../../../testUtils/helpers/testFns';
-import {initTests} from '../../../testUtils/testUtils';
-import {runCleanupMountResolvedEntriesJob} from '../runCleanupMountResolvedEntriesJob';
+import {kFimidaraResourceType} from '../../../../definitions/system.js';
+import {extractResourceIdList} from '../../../../utils/fns.js';
+import {getNewIdForResource} from '../../../../utils/resource.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {generateAndInsertResolvedMountEntryListForTest} from '../../../testUtils/generate/fileBackend.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../testUtils/testUtils.js';
+import {runCleanupMountResolvedEntriesJob} from '../runCleanupMountResolvedEntriesJob.js';
 
 beforeAll(async () => {
   await initTests();

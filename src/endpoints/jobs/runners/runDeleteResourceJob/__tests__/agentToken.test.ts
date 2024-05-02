@@ -1,12 +1,12 @@
 import {flatten} from 'lodash';
-import {AgentToken} from '../../../../../definitions/agentToken';
-import {kFimidaraResourceType} from '../../../../../definitions/system';
-import {generateAndInsertAgentTokenListForTest} from '../../../../testUtils/generate/agentToken';
-import {generateAndInsertTestPresignedPathList} from '../../../../testUtils/generate/file';
-import {generateAndInsertAssignedItemListForTest} from '../../../../testUtils/generate/permissionGroup';
-import {completeTests} from '../../../../testUtils/helpers/testFns';
-import {initTests} from '../../../../testUtils/testUtils';
-import {deleteAgentTokenCascadeEntry} from '../agentToken';
+import {AgentToken} from '../../../../../definitions/agentToken.js';
+import {kFimidaraResourceType} from '../../../../../definitions/system.js';
+import {generateAndInsertAgentTokenListForTest} from '../../../../testUtils/generate/agentToken.js';
+import {generateAndInsertTestPresignedPathList} from '../../../../testUtils/generate/file.js';
+import {generateAndInsertAssignedItemListForTest} from '../../../../testUtils/generate/permissionGroup.js';
+import {completeTests} from '../../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../../testUtils/testUtils.js';
+import {deleteAgentTokenCascadeEntry} from '../agentToken.js';
 import {
   GenerateResourceFn,
   GenerateTypeChildrenDefinition,
@@ -15,7 +15,7 @@ import {
   testDeleteResourceArtifactsJob,
   testDeleteResourceJob0,
   testDeleteResourceSelfJob,
-} from './testUtils';
+} from './testUtils.js';
 
 beforeAll(async () => {
   await initTests();

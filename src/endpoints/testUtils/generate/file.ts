@@ -1,17 +1,17 @@
 import {faker} from '@faker-js/faker';
 import {isBoolean, isEqual, isString, isUndefined} from 'lodash';
-import {File} from '../../../definitions/file';
-import {PresignedPath} from '../../../definitions/presignedPath';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {getTimestamp} from '../../../utils/dateFns';
-import {getRandomIntInclusive, pathJoin} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {getFilenameInfo} from '../../files/utils';
-import {addRootnameToPath} from '../../folders/utils';
-import {generateTestFolderName, generateTestFolderpath} from './folder';
-import {randomActionList} from './utils';
+import {File} from '../../../definitions/file.js';
+import {PresignedPath} from '../../../definitions/presignedPath.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {getRandomIntInclusive, pathJoin} from '../../../utils/fns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {getFilenameInfo} from '../../files/utils.js';
+import {addRootnameToPath} from '../../folders/utils.js';
+import {generateTestFolderName, generateTestFolderpath} from './folder.js';
+import {randomActionList} from './utils.js';
 
 function addExtenstion(name: string, ext: string | undefined) {
   return ext ? name + '.' + ext : name;

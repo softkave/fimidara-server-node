@@ -1,12 +1,12 @@
-import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {checkWorkspaceExists} from '../../workspaces/utils';
-import {AddPermissionItemsEndpoint} from './types';
-import {INTERNAL_addPermissionItems} from './utils';
-import {addPermissionItemsJoiSchema} from './validation';
+import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {checkWorkspaceExists} from '../../workspaces/utils.js';
+import {AddPermissionItemsEndpoint} from './types.js';
+import {INTERNAL_addPermissionItems} from './utils.js';
+import {addPermissionItemsJoiSchema} from './validation.js';
 
 const addPermissionItems: AddPermissionItemsEndpoint = async instData => {
   const data = validate(instData.data, addPermissionItemsJoiSchema);

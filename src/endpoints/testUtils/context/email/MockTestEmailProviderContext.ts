@@ -1,4 +1,4 @@
-import {ITestEmailProviderContext} from '../types';
+import {ITestEmailProviderContext} from '../types.js';
 
 export default class MockTestEmailProviderContext implements ITestEmailProviderContext {
   sendEmail = jest.fn().mockName('sendEmail');

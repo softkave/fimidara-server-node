@@ -1,10 +1,10 @@
 import {isString} from 'lodash';
-import {ResolvedMountEntry} from '../../definitions/fileBackend';
-import {ResolvedMountEntryQuery} from '../contexts/data/types';
+import {ResolvedMountEntry} from '../../definitions/fileBackend.js';
+import {ResolvedMountEntryQuery} from '../contexts/data/types.js';
 import {
   getIgnoreCaseDataQueryRegExp,
   getStringListQuery,
-} from '../contexts/semantic/utils';
+} from '../contexts/semantic/utils.js';
 
 function getByFimidaraNamepath(
   entry: Pick<ResolvedMountEntry, 'workspaceId' | 'fimidaraNamepath' | 'fimidaraExt'>

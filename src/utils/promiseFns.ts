@@ -1,6 +1,6 @@
-import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
-import {appAssert} from './assertion';
-import {AnyFn} from './types';
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
+import {appAssert} from './assertion.js';
+import {AnyFn} from './types.js';
 
 export async function waitOnPromisesAndLogErrors(promises: Promise<unknown>[]) {
   (await Promise.allSettled(promises)).forEach(

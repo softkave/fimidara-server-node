@@ -1,26 +1,26 @@
 import {flatten} from 'lodash';
 import {Readable} from 'stream';
-import {File} from '../../../../../definitions/file';
-import {kFimidaraResourceType} from '../../../../../definitions/system';
-import {MemoryFilePersistenceProvider} from '../../../../contexts/file/MemoryFilePersistenceProvider';
-import {FilePersistenceProvider} from '../../../../contexts/file/types';
-import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register';
-import {initBackendProvidersForMounts} from '../../../../fileBackends/mountUtils';
-import {stringifyFilenamepath} from '../../../../files/utils';
+import {File} from '../../../../../definitions/file.js';
+import {kFimidaraResourceType} from '../../../../../definitions/system.js';
+import {MemoryFilePersistenceProvider} from '../../../../contexts/file/MemoryFilePersistenceProvider.js';
+import {FilePersistenceProvider} from '../../../../contexts/file/types.js';
+import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
+import {initBackendProvidersForMounts} from '../../../../fileBackends/mountUtils.js';
+import {stringifyFilenamepath} from '../../../../files/utils.js';
 import {
   generateAndInsertTestFiles,
   generateAndInsertTestPresignedPathList,
-} from '../../../../testUtils/generate/file';
-import {completeTests} from '../../../../testUtils/helpers/testFns';
+} from '../../../../testUtils/generate/file.js';
+import {completeTests} from '../../../../testUtils/helpers/testFns.js';
 import {
   initTests,
   insertFileBackendMountForTest,
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../../../testUtils/testUtils';
-import {deleteFileCascadeEntry} from '../file';
-import {DeleteResourceCascadeEntry} from '../types';
+} from '../../../../testUtils/testUtils.js';
+import {deleteFileCascadeEntry} from '../file.js';
+import {DeleteResourceCascadeEntry} from '../types.js';
 import {
   GenerateResourceFn,
   GenerateTypeChildrenDefinition,
@@ -29,7 +29,7 @@ import {
   testDeleteResourceArtifactsJob,
   testDeleteResourceJob0,
   testDeleteResourceSelfJob,
-} from './testUtils';
+} from './testUtils.js';
 
 beforeAll(async () => {
   await initTests();

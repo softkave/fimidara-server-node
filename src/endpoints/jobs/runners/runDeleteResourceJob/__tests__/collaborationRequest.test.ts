@@ -1,9 +1,9 @@
-import {CollaborationRequest} from '../../../../../definitions/collaborationRequest';
-import {kFimidaraResourceType} from '../../../../../definitions/system';
-import {generateAndInsertCollaborationRequestListForTest} from '../../../../testUtils/generate/collaborationRequest';
-import {completeTests} from '../../../../testUtils/helpers/testFns';
-import {initTests} from '../../../../testUtils/testUtils';
-import {deleteCollaborationRequestCascadeEntry} from '../collaborationRequest';
+import {CollaborationRequest} from '../../../../../definitions/collaborationRequest.js';
+import {kFimidaraResourceType} from '../../../../../definitions/system.js';
+import {generateAndInsertCollaborationRequestListForTest} from '../../../../testUtils/generate/collaborationRequest.js';
+import {completeTests} from '../../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../../testUtils/testUtils.js';
+import {deleteCollaborationRequestCascadeEntry} from '../collaborationRequest.js';
 import {
   GenerateResourceFn,
   GenerateTypeChildrenDefinition,
@@ -12,7 +12,7 @@ import {
   testDeleteResourceArtifactsJob,
   testDeleteResourceJob0,
   testDeleteResourceSelfJob,
-} from './testUtils';
+} from './testUtils.js';
 
 beforeAll(async () => {
   await initTests();

@@ -1,6 +1,6 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {PresignedPath} from '../definitions/presignedPath';
-import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
+import {PresignedPath} from '../definitions/presignedPath.js';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils.js';
 
 const presignedPathSchema = ensureMongoTypeFields<PresignedPath>({
   ...workspaceResourceSchema,

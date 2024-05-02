@@ -1,28 +1,28 @@
 import {forEach, get, has, set} from 'lodash';
-import {File} from '../../../definitions/file';
+import {File} from '../../../definitions/file.js';
 import {
   FimidaraPermissionAction,
   PermissionItem,
   kFimidaraPermissionActionsMap,
-} from '../../../definitions/permissionItem';
+} from '../../../definitions/permissionItem.js';
 import {
   FimidaraResourceType,
   ResourceWrapper,
   SessionAgent,
   kFimidaraResourceType,
-} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
-import {appAssert} from '../../../utils/assertion';
-import {convertToArray, extractResourceIdList, isObjectEmpty} from '../../../utils/fns';
-import {indexArray} from '../../../utils/indexArray';
-import {getResourceTypeFromId, newWorkspaceResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
-import {InvalidRequestError} from '../../errors';
-import {getPermissionItemTargets} from '../getPermissionItemTargets';
-import {PermissionItemInputTarget} from '../types';
-import {getPermissionItemEntities, getTargetType} from '../utils';
-import {AddPermissionItemsEndpointParams} from './types';
+} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {convertToArray, extractResourceIdList, isObjectEmpty} from '../../../utils/fns.js';
+import {indexArray} from '../../../utils/indexArray.js';
+import {getResourceTypeFromId, newWorkspaceResource} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
+import {InvalidRequestError} from '../../errors.js';
+import {getPermissionItemTargets} from '../getPermissionItemTargets.js';
+import {PermissionItemInputTarget} from '../types.js';
+import {getPermissionItemEntities, getTargetType} from '../utils.js';
+import {AddPermissionItemsEndpointParams} from './types.js';
 
 /**
  * - separate entities, separate targets

@@ -1,17 +1,17 @@
-import {kJobStatus} from '../../definitions/job';
+import {kJobStatus} from '../../definitions/job.js';
 import {
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
   mddocConstruct,
-} from '../../mddoc/mddoc';
-import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc';
-import {jobConstants} from './constants';
+} from '../../mddoc/mddoc.js';
+import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc.js';
+import {jobConstants} from './constants.js';
 import {
   GetJobStatusEndpointParams,
   GetJobStatusEndpointResult,
-} from './getJobStatus/types';
-import {GetJobStatusHttpEndpoint} from './types';
+} from './getJobStatus/types.js';
+import {GetJobStatusHttpEndpoint} from './types.js';
 
 const jobStatus = mddocConstruct
   .constructFieldString()

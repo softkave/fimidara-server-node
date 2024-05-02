@@ -1,13 +1,13 @@
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {collaborationRequestForUserExtractor} from '../utils';
-import {RespondToCollaborationRequestEndpoint} from './types';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {collaborationRequestForUserExtractor} from '../utils.js';
+import {RespondToCollaborationRequestEndpoint} from './types.js';
 import {
   INTERNAL_RespondToCollaborationRequest,
   notifySenderOnCollaborationRequestResponse,
-} from './utils';
-import {respondToCollaborationRequestJoiSchema} from './validation';
+} from './utils.js';
+import {respondToCollaborationRequestJoiSchema} from './validation.js';
 
 const respondToCollaborationRequest: RespondToCollaborationRequestEndpoint =
   async instData => {

@@ -1,15 +1,15 @@
 import {addMinutes, isBefore} from 'date-fns';
-import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job';
-import {User} from '../../../definitions/user';
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {formatDate} from '../../../utils/dateFns';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {RateLimitError} from '../../errors';
-import {queueJobs} from '../../jobs/queueJobs';
-import {kUserConstants} from '../constants';
-import {EmailAddressVerifiedError} from '../errors';
-import {SendEmailVerificationCodeEndpoint} from './types';
+import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job.js';
+import {User} from '../../../definitions/user.js';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {formatDate} from '../../../utils/dateFns.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {RateLimitError} from '../../errors.js';
+import {queueJobs} from '../../jobs/queueJobs.js';
+import {kUserConstants} from '../constants.js';
+import {EmailAddressVerifiedError} from '../errors.js';
+import {SendEmailVerificationCodeEndpoint} from './types.js';
 
 const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async instData => {
   const user = await kUtilsInjectables

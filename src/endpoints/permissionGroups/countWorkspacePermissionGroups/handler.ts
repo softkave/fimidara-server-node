@@ -1,10 +1,10 @@
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {getWorkspacePermissionGroupsQuery} from '../getWorkspacePermissionGroups/utils';
-import {CountWorkspacePermissionGroupsEndpoint} from './types';
-import {countWorkspacePermissionGroupsJoiSchema} from './validation';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {getWorkspacePermissionGroupsQuery} from '../getWorkspacePermissionGroups/utils.js';
+import {CountWorkspacePermissionGroupsEndpoint} from './types.js';
+import {countWorkspacePermissionGroupsJoiSchema} from './validation.js';
 
 const countWorkspacePermissionGroups: CountWorkspacePermissionGroupsEndpoint =
   async instData => {

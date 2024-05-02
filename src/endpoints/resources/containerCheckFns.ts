@@ -1,16 +1,16 @@
 import {format} from 'util';
-import {File} from '../../definitions/file';
-import {Folder} from '../../definitions/folder';
+import {File} from '../../definitions/file.js';
+import {Folder} from '../../definitions/folder.js';
 import {
   kFimidaraResourceType,
   ResourceWrapper,
   WorkspaceResource,
-} from '../../definitions/system';
-import {UserWithWorkspace} from '../../definitions/user';
-import {appAssert} from '../../utils/assertion';
-import {ServerError} from '../../utils/errors';
-import {getCollaboratorWorkspace} from '../collaborators/utils';
-import {NotFoundError} from '../errors';
+} from '../../definitions/system.js';
+import {UserWithWorkspace} from '../../definitions/user.js';
+import {appAssert} from '../../utils/assertion.js';
+import {ServerError} from '../../utils/errors.js';
+import {getCollaboratorWorkspace} from '../collaborators/utils.js';
+import {NotFoundError} from '../errors.js';
 
 export function isResourcePartOfWorkspace(
   workspaceId: string,

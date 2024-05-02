@@ -1,15 +1,15 @@
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
-} from '../../pagination';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {collaborationRequestForWorkspaceListExtractor} from '../utils';
-import {GetWorkspaceCollaborationRequestsEndpoint} from './types';
-import {getWorkspaceCollaborationRequestsQuery} from './utils';
-import {getWorkspaceCollaborationRequestsJoiSchema} from './validation';
+} from '../../pagination.js';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {collaborationRequestForWorkspaceListExtractor} from '../utils.js';
+import {GetWorkspaceCollaborationRequestsEndpoint} from './types.js';
+import {getWorkspaceCollaborationRequestsQuery} from './utils.js';
+import {getWorkspaceCollaborationRequestsJoiSchema} from './validation.js';
 
 const getWorkspaceCollaborationRequests: GetWorkspaceCollaborationRequestsEndpoint =
   async instData => {

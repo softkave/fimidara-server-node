@@ -5,26 +5,26 @@ import {
   PermissionGroupMatcher,
   PublicAssignedPermissionGroupMeta,
   PublicPermissionGroup,
-} from '../../definitions/permissionGroups';
-import {FimidaraPermissionAction} from '../../definitions/permissionItem';
-import {Agent, SessionAgent} from '../../definitions/system';
-import {appAssert} from '../../utils/assertion';
-import {getTimestamp} from '../../utils/dateFns';
-import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {getResourceId} from '../../utils/fns';
-import {indexArray} from '../../utils/indexArray';
-import {kReuseableErrors} from '../../utils/reusableErrors';
-import {assertGetWorkspaceIdFromAgent} from '../../utils/sessionUtils';
-import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels} from '../contexts/injection/injectables';
+} from '../../definitions/permissionGroups.js';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
+import {Agent, SessionAgent} from '../../definitions/system.js';
+import {appAssert} from '../../utils/assertion.js';
+import {getTimestamp} from '../../utils/dateFns.js';
+import {getFields, makeExtract, makeListExtract} from '../../utils/extract.js';
+import {getResourceId} from '../../utils/fns.js';
+import {indexArray} from '../../utils/indexArray.js';
+import {kReuseableErrors} from '../../utils/reusableErrors.js';
+import {assertGetWorkspaceIdFromAgent} from '../../utils/sessionUtils.js';
+import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
-} from '../contexts/semantic/types';
-import {InvalidRequestError, NotFoundError} from '../errors';
-import {agentExtractor, workspaceResourceFields} from '../extractors';
-import {checkWorkspaceExists} from '../workspaces/utils';
-import {PermissionGroupDoesNotExistError} from './errors';
+} from '../contexts/semantic/types.js';
+import {InvalidRequestError, NotFoundError} from '../errors.js';
+import {agentExtractor, workspaceResourceFields} from '../extractors.js';
+import {checkWorkspaceExists} from '../workspaces/utils.js';
+import {PermissionGroupDoesNotExistError} from './errors.js';
 
 const assignedPermissionGroupsFields = getFields<PublicAssignedPermissionGroupMeta>({
   permissionGroupId: true,

@@ -1,29 +1,29 @@
 import {customAlphabet} from 'nanoid';
-import {AssignPermissionGroupInput} from '../definitions/permissionGroups';
+import {AssignPermissionGroupInput} from '../definitions/permissionGroups.js';
 import {
   FimidaraPermissionAction,
   kFimidaraPermissionActionsMap,
-} from '../definitions/permissionItem';
+} from '../definitions/permissionItem.js';
 import {
   PublicAgent,
   PublicResource,
   PublicWorkspaceResource,
   kFimidaraPublicResourceType,
   kValidAgentTypes,
-} from '../definitions/system';
+} from '../definitions/system.js';
 import {
   UsageRecordCategory,
   UsageRecordCategoryMap,
   UsageRecordFulfillmentStatus,
   UsageRecordFulfillmentStatusMap,
-} from '../definitions/usageRecord';
-import {FieldObjectFieldsMap, mddocConstruct} from '../mddoc/mddoc';
-import {FimidaraExternalError} from '../utils/OperationError';
-import {kIdSeparator, kResourceTypeShortNames} from '../utils/resource';
-import {AnyObject} from '../utils/types';
-import {kEndpointConstants} from './constants';
-import {LongRunningJobResult, MultipleLongRunningJobResult} from './jobs/types';
-import {permissionGroupConstants} from './permissionGroups/constants';
+} from '../definitions/usageRecord.js';
+import {FieldObjectFieldsMap, mddocConstruct} from '../mddoc/mddoc.js';
+import {FimidaraExternalError} from '../utils/OperationError.js';
+import {kIdSeparator, kResourceTypeShortNames} from '../utils/resource.js';
+import {AnyObject} from '../utils/types.js';
+import {kEndpointConstants} from './constants.js';
+import {LongRunningJobResult, MultipleLongRunningJobResult} from './jobs/types.js';
+import {permissionGroupConstants} from './permissionGroups/constants.js';
 import {
   BaseEndpointResult,
   CountItemsEndpointResult,
@@ -36,7 +36,7 @@ import {
   HttpEndpointResponseHeaders_ContentType_ContentLength,
   ServerRecommendedActionsMap,
   kEndpointResultNoteCodeMap,
-} from './types';
+} from './types.js';
 
 export const mddocEndpointStatusCodes = {
   success: `${kEndpointConstants.httpStatusCode.ok}`,

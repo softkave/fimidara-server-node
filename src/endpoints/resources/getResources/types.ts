@@ -1,6 +1,6 @@
-import {PublicResourceWrapper} from '../../../definitions/system';
-import {Endpoint} from '../../types';
-import {FetchResourceItem} from '../types';
+import {PublicResourceWrapper} from '../../../definitions/system.js';
+import {Endpoint} from '../../types.js';
+import {FetchResourceItem} from '../types.js';
 
 export interface GetResourcesEndpointParams {
   workspaceId?: string;

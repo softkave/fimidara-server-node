@@ -1,10 +1,10 @@
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {getWorkspaceAgentTokensQuery} from '../getWorkspaceTokens/utils';
-import {CountWorkspaceAgentTokensEndpoint} from './types';
-import {countWorkspaceAgentTokenJoiSchema} from './validation';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {getWorkspaceAgentTokensQuery} from '../getWorkspaceTokens/utils.js';
+import {CountWorkspaceAgentTokensEndpoint} from './types.js';
+import {countWorkspaceAgentTokenJoiSchema} from './validation.js';
 
 const countWorkspaceAgentTokens: CountWorkspaceAgentTokensEndpoint = async instData => {
   const data = validate(instData.data, countWorkspaceAgentTokenJoiSchema);

@@ -1,9 +1,9 @@
 import assert from 'assert';
 import {Readable} from 'stream';
-import {streamToBuffer} from '../../../utils/fns';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils';
-import {stringifyFilenamepath} from '../../files/utils';
+import {streamToBuffer} from '../../../utils/fns.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils.js';
+import {stringifyFilenamepath} from '../../files/utils.js';
 
 export async function expectFileBodyEqual(
   body: Buffer | Readable,

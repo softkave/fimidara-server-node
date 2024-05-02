@@ -1,12 +1,12 @@
-import {appAssert} from '../../../utils/assertion';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../users/errors';
-import {workspaceExtractor} from '../utils';
-import INTERNAL_createWorkspace from './internalCreateWorkspace';
-import {AddWorkspaceEndpoint} from './types';
-import {addWorkspaceJoiSchema} from './validation';
+import {appAssert} from '../../../utils/assertion.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../users/errors.js';
+import {workspaceExtractor} from '../utils.js';
+import INTERNAL_createWorkspace from './internalCreateWorkspace.js';
+import {AddWorkspaceEndpoint} from './types.js';
+import {addWorkspaceJoiSchema} from './validation.js';
 
 const addWorkspace: AddWorkspaceEndpoint = async instData => {
   const data = validate(instData.data, addWorkspaceJoiSchema);

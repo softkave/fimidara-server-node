@@ -1,6 +1,6 @@
-import {PermissionGroupMatcher} from '../../../definitions/permissionGroups';
-import RequestData from '../../RequestData';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {PermissionGroupMatcher} from '../../../definitions/permissionGroups.js';
+import RequestData from '../../RequestData.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -8,8 +8,8 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import getPermissionGroup from './handler';
+} from '../../testUtils/testUtils.js';
+import getPermissionGroup from './handler.js';
 
 beforeAll(async () => {
   await initTests();

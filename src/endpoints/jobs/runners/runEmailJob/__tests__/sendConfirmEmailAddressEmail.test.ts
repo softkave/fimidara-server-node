@@ -1,31 +1,31 @@
 import assert from 'assert';
 import {URL} from 'url';
-import {AgentToken} from '../../../../../definitions/agentToken';
-import {kEmailJobType} from '../../../../../definitions/job';
+import {AgentToken} from '../../../../../definitions/agentToken.js';
+import {kEmailJobType} from '../../../../../definitions/job.js';
 import {
   kCurrentJWTTokenVersion,
   kFimidaraResourceType,
   kTokenAccessScope,
-} from '../../../../../definitions/system';
-import {User} from '../../../../../definitions/user';
-import {kConfirmEmailAddressEmail} from '../../../../../emailTemplates/confirmEmailAddress';
-import {kSystemSessionAgent} from '../../../../../utils/agent';
-import {getNewIdForResource, newResource} from '../../../../../utils/resource';
-import {IEmailProviderContext} from '../../../../contexts/email/types';
+} from '../../../../../definitions/system.js';
+import {User} from '../../../../../definitions/user.js';
+import {kConfirmEmailAddressEmail} from '../../../../../emailTemplates/confirmEmailAddress.js';
+import {kSystemSessionAgent} from '../../../../../utils/agent.js';
+import {getNewIdForResource, newResource} from '../../../../../utils/resource.js';
+import {IEmailProviderContext} from '../../../../contexts/email/types.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../../contexts/injection/injectables';
-import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register';
-import MockTestEmailProviderContext from '../../../../testUtils/context/email/MockTestEmailProviderContext';
-import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/user';
-import {completeTests} from '../../../../testUtils/helpers/testFns';
-import {initTests} from '../../../../testUtils/testUtils';
-import {kUserConstants} from '../../../../users/constants';
+} from '../../../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
+import MockTestEmailProviderContext from '../../../../testUtils/context/email/MockTestEmailProviderContext.js';
+import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/user.js';
+import {completeTests} from '../../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../../testUtils/testUtils.js';
+import {kUserConstants} from '../../../../users/constants.js';
 import {
   getLinkWithConfirmEmailToken,
   sendConfirmEmailAddressEmail,
-} from '../sendConfirmEmailAddressEmail';
+} from '../sendConfirmEmailAddressEmail.js';
 
 beforeAll(async () => {
   await initTests();

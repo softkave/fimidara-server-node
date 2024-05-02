@@ -1,15 +1,15 @@
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
-} from '../../pagination';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {permissionGroupListExtractor} from '../utils';
-import {GetWorkspacePermissionGroupsEndpoint} from './types';
-import {getWorkspacePermissionGroupsQuery} from './utils';
-import {getWorkspacePermissionGroupsJoiSchema} from './validation';
+} from '../../pagination.js';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {permissionGroupListExtractor} from '../utils.js';
+import {GetWorkspacePermissionGroupsEndpoint} from './types.js';
+import {getWorkspacePermissionGroupsQuery} from './utils.js';
+import {getWorkspacePermissionGroupsJoiSchema} from './validation.js';
 
 const getWorkspacePermissionGroups: GetWorkspacePermissionGroupsEndpoint =
   async instData => {

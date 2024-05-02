@@ -1,12 +1,12 @@
-import {AgentToken} from '../../../../definitions/agentToken';
-import {TokenAccessScope} from '../../../../definitions/system';
-import {kSystemSessionAgent} from '../../../../utils/agent';
-import {AgentTokenQueries} from '../../../agentTokens/queries';
-import {DataQuery} from '../../data/types';
-import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
-import {SemanticProviderMutationParams, SemanticProviderQueryParams} from '../types';
-import {SemanticAgentTokenProvider} from './types';
+import {AgentToken} from '../../../../definitions/agentToken.js';
+import {TokenAccessScope} from '../../../../definitions/system.js';
+import {kSystemSessionAgent} from '../../../../utils/agent.js';
+import {AgentTokenQueries} from '../../../agentTokens/queries.js';
+import {DataQuery} from '../../data/types.js';
+import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider.js';
+import {SemanticProviderMutationParams, SemanticProviderQueryParams} from '../types.js';
+import {SemanticAgentTokenProvider} from './types.js';
 
 export class DataSemanticAgentToken
   extends DataSemanticWorkspaceResourceProvider<AgentToken>

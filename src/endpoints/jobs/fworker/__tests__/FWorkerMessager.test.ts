@@ -1,12 +1,12 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {MessageChannel} from 'worker_threads';
-import {TimeoutError} from '../../../../utils/errors';
-import {waitTimeout} from '../../../../utils/fns';
-import {expectErrorThrown} from '../../../testUtils/helpers/error';
-import {completeTests} from '../../../testUtils/helpers/testFns';
-import {initTests} from '../../../testUtils/testUtils';
-import {FWorkerMessager} from '../FWorkerMessager';
+import {TimeoutError} from '../../../../utils/errors.js';
+import {waitTimeout} from '../../../../utils/fns.js';
+import {expectErrorThrown} from '../../../testUtils/helpers/error.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../testUtils/testUtils.js';
+import {FWorkerMessager} from '../FWorkerMessager.js';
 
 beforeAll(async () => {
   await initTests();

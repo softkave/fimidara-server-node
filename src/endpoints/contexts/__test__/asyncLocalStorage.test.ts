@@ -1,9 +1,9 @@
 import {noop} from 'lodash';
-import {DisposableResource} from '../../../utils/disposables';
-import {waitTimeout} from '../../../utils/fns';
-import {completeTests} from '../../testUtils/helpers/testFns';
-import {initTests} from '../../testUtils/testUtils';
-import {kAsyncLocalStorageUtils} from '../asyncLocalStorage';
+import {DisposableResource} from '../../../utils/disposables.js';
+import {waitTimeout} from '../../../utils/fns.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {initTests} from '../../testUtils/testUtils.js';
+import {kAsyncLocalStorageUtils} from '../asyncLocalStorage.js';
 
 beforeAll(async () => {
   await initTests();

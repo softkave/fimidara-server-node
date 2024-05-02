@@ -1,11 +1,11 @@
 import assert from 'assert';
 import {map} from 'lodash';
-import {waitTimeout} from '../../../../utils/fns';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables';
-import {completeTests} from '../../../testUtils/helpers/testFns';
-import {initTests} from '../../../testUtils/testUtils';
-import {FWorkerMain} from '../FWorkerMain';
-import {FWorkerMessager} from '../FWorkerMessager';
+import {waitTimeout} from '../../../../utils/fns.js';
+import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../testUtils/testUtils.js';
+import {FWorkerMain} from '../FWorkerMain.js';
+import {FWorkerMessager} from '../FWorkerMessager.js';
 
 const kWorkerTestFilepath =
   './build/src/endpoints/jobs/fworker/testUtils/FWorkerTestWorker.js';

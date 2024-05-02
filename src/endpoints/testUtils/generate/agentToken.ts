@@ -1,13 +1,13 @@
 import {faker} from '@faker-js/faker';
-import {AgentToken} from '../../../definitions/agentToken';
+import {AgentToken} from '../../../definitions/agentToken.js';
 import {
   Agent,
   kCurrentJWTTokenVersion,
   kFimidaraResourceType,
   kTokenAccessScope,
-} from '../../../definitions/system';
-import {getNewIdForResource, newResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
+} from '../../../definitions/system.js';
+import {getNewIdForResource, newResource} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
 
 export function generateAgentTokenForTest(
   seed: Partial<AgentToken> & {workspaceId: string | null} = {workspaceId: null}

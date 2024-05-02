@@ -1,20 +1,20 @@
 import {compact, keyBy, map, uniqBy} from 'lodash';
-import {FileMatcher} from '../../../definitions/file';
-import {PresignedPath} from '../../../definitions/presignedPath';
-import {SessionAgent} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
-import {appAssert} from '../../../utils/assertion';
-import {mergeData} from '../../../utils/fns';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {SemanticProviderOpParams} from '../../contexts/semantic/types';
-import {NotFoundError} from '../../errors';
-import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils';
-import {assertRootname} from '../../workspaces/utils';
-import {GetPresignedPathsForFilesEndpoint, GetPresignedPathsForFilesItem} from './types';
-import {getPresignedPathsForFilesJoiSchema} from './validation';
+import {FileMatcher} from '../../../definitions/file.js';
+import {PresignedPath} from '../../../definitions/presignedPath.js';
+import {SessionAgent} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {mergeData} from '../../../utils/fns.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
+import {NotFoundError} from '../../errors.js';
+import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils.js';
+import {assertRootname} from '../../workspaces/utils.js';
+import {GetPresignedPathsForFilesEndpoint, GetPresignedPathsForFilesItem} from './types.js';
+import {getPresignedPathsForFilesJoiSchema} from './validation.js';
 
 // TODO: filter out expired or spent presigned paths and delete them
 

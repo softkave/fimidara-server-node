@@ -2,11 +2,11 @@ import {
   kDataModels,
   kSemanticModels,
   kUtilsInjectables,
-} from '../contexts/injection/injectables';
-import EndpointReusableQueries from '../queries';
-import {completeTests} from '../testUtils/helpers/testFns';
-import {initTests} from '../testUtils/testUtils';
-import {initFimidara, kAppRuntimeStatsDocId} from './initFimidara';
+} from '../contexts/injection/injectables.js';
+import EndpointReusableQueries from '../queries.js';
+import {completeTests} from '../testUtils/helpers/testFns.js';
+import {initTests} from '../testUtils/testUtils.js';
+import {initFimidara, kAppRuntimeStatsDocId} from './initFimidara.js';
 
 beforeAll(async () => {
   await initTests();

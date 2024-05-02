@@ -1,5 +1,5 @@
-import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
-import {getTimestamp} from '../utils/dateFns';
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
+import {getTimestamp} from '../utils/dateFns.js';
 
 export enum FimidaraScriptNames {
   AddThresholdToExistingWorkspaces = 'script_AddThresholdToExistingWorkspaces',

@@ -1,25 +1,25 @@
-import {ResolvedMountEntry} from '../../../definitions/fileBackend';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {pathJoin, pathSplit} from '../../../utils/fns';
-import {indexArray} from '../../../utils/indexArray';
-import {FileQuery, FolderQuery} from '../../contexts/data/types';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {FileQueries} from '../../files/queries';
-import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils';
-import {FolderQueries} from '../../folders/queries';
-import {generateTestFilepath} from '../../testUtils/generate/file';
+import {ResolvedMountEntry} from '../../../definitions/fileBackend.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {pathJoin, pathSplit} from '../../../utils/fns.js';
+import {indexArray} from '../../../utils/indexArray.js';
+import {FileQuery, FolderQuery} from '../../contexts/data/types.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {FileQueries} from '../../files/queries.js';
+import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils.js';
+import {FolderQueries} from '../../folders/queries.js';
+import {generateTestFilepath} from '../../testUtils/generate/file.js';
 import {
   generatePersistedFileDescriptionListForTest,
   generatePersistedFolderDescriptionListForTest,
-} from '../../testUtils/generate/fileBackend';
+} from '../../testUtils/generate/fileBackend.js';
 import {
   generateAndInsertTestFolders,
   generateTestFolderpath,
-} from '../../testUtils/generate/folder';
-import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generate/workspace';
-import {completeTests} from '../../testUtils/helpers/testFns';
-import {initTests, insertUserForTest} from '../../testUtils/testUtils';
-import {ingestPersistedFiles, ingestPersistedFolders} from '../ingestionUtils';
+} from '../../testUtils/generate/folder.js';
+import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generate/workspace.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {initTests, insertUserForTest} from '../../testUtils/testUtils.js';
+import {ingestPersistedFiles, ingestPersistedFolders} from '../ingestionUtils.js';
 
 beforeAll(async () => {
   await initTests();

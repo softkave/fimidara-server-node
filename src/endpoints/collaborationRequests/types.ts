@@ -1,15 +1,15 @@
-import {ExportedHttpEndpointWithMddocDefinition} from '../types';
-import {CountUserCollaborationRequestsEndpoint} from './countUserRequests/types';
-import {CountWorkspaceCollaborationRequestsEndpoint} from './countWorkspaceRequests/types';
-import {DeleteCollaborationRequestEndpoint} from './deleteRequest/types';
-import {GetUserCollaborationRequestEndpoint} from './getUserRequest/types';
-import {GetUserCollaborationRequestsEndpoint} from './getUserRequests/types';
-import {GetWorkspaceCollaborationRequestEndpoint} from './getWorkspaceRequest/types';
-import {GetWorkspaceCollaborationRequestsEndpoint} from './getWorkspaceRequests/types';
-import {RespondToCollaborationRequestEndpoint} from './respondToRequest/types';
-import {RevokeCollaborationRequestEndpoint} from './revokeRequest/types';
-import {SendCollaborationRequestEndpoint} from './sendRequest/types';
-import {UpdateCollaborationRequestEndpoint} from './updateRequest/types';
+import {ExportedHttpEndpointWithMddocDefinition} from '../types.js';
+import {CountUserCollaborationRequestsEndpoint} from './countUserRequests/types.js';
+import {CountWorkspaceCollaborationRequestsEndpoint} from './countWorkspaceRequests/types.js';
+import {DeleteCollaborationRequestEndpoint} from './deleteRequest/types.js';
+import {GetUserCollaborationRequestEndpoint} from './getUserRequest/types.js';
+import {GetUserCollaborationRequestsEndpoint} from './getUserRequests/types.js';
+import {GetWorkspaceCollaborationRequestEndpoint} from './getWorkspaceRequest/types.js';
+import {GetWorkspaceCollaborationRequestsEndpoint} from './getWorkspaceRequests/types.js';
+import {RespondToCollaborationRequestEndpoint} from './respondToRequest/types.js';
+import {RevokeCollaborationRequestEndpoint} from './revokeRequest/types.js';
+import {SendCollaborationRequestEndpoint} from './sendRequest/types.js';
+import {UpdateCollaborationRequestEndpoint} from './updateRequest/types.js';
 
 export type SendCollaborationRequestHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<SendCollaborationRequestEndpoint>;

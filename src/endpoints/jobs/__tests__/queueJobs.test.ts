@@ -1,15 +1,15 @@
-import {Job} from '../../../definitions/job';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {extractResourceIdList} from '../../../utils/fns';
-import {getNewId, getNewIdForResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
+import {Job} from '../../../definitions/job.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {extractResourceIdList} from '../../../utils/fns.js';
+import {getNewId, getNewIdForResource} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {
   generateAndInsertJobListForTest,
   generateJobInput,
-} from '../../testUtils/generate/job';
-import {completeTests} from '../../testUtils/helpers/testFns';
-import {initTests} from '../../testUtils/testUtils';
-import {queueJobs} from '../queueJobs';
+} from '../../testUtils/generate/job.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {initTests} from '../../testUtils/testUtils.js';
+import {queueJobs} from '../queueJobs.js';
 
 beforeAll(async () => {
   await initTests();

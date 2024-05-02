@@ -1,11 +1,11 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
-import {expectErrorThrown} from '../../../testUtils/helpers/error';
-import {completeTests} from '../../../testUtils/helpers/testFns';
-import {initTests} from '../../../testUtils/testUtils';
-import {kUtilsInjectables} from '../../injection/injectables';
-import {AWSSecretsManagerProvider} from '../AWSSecretsManagerProvider';
-import {SecretsManagerProvider} from '../types';
+import {expectErrorThrown} from '../../../testUtils/helpers/error.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../testUtils/testUtils.js';
+import {kUtilsInjectables} from '../../injection/injectables.js';
+import {AWSSecretsManagerProvider} from '../AWSSecretsManagerProvider.js';
+import {SecretsManagerProvider} from '../types.js';
 
 const secretIds: string[] = [];
 let manager: SecretsManagerProvider | undefined;

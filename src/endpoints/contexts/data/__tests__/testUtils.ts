@@ -1,8 +1,8 @@
 import {compact, last, range, set} from 'lodash';
-import {CombinationToken} from '../../../../utils/combineTokens';
-import {loopAndCollate} from '../../../../utils/fns';
-import {AnyObject} from '../../../../utils/types';
-import {DataQuery} from '../types';
+import {CombinationToken} from '../../../../utils/combineTokens.js';
+import {loopAndCollate} from '../../../../utils/fns.js';
+import {AnyObject} from '../../../../utils/types.js';
+import {DataQuery} from '../types.js';
 
 const kArrChar = 'A';
 const kObjChar = 'O';

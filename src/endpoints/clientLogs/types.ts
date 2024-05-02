@@ -1,5 +1,5 @@
-import {ExportedHttpEndpointWithMddocDefinition} from '../types';
-import {IngestLogsEndpoint} from './ingestLogs/types';
+import {ExportedHttpEndpointWithMddocDefinition} from '../types.js';
+import {IngestLogsEndpoint} from './ingestLogs/types.js';
 
 export type IngestLogsHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<IngestLogsEndpoint>;

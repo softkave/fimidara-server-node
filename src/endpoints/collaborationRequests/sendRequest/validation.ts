@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
-import {kValidationSchemas} from '../../../utils/validationUtils';
-import userValidationSchemas from '../../users/validation';
-import {CollaborationRequestInput, SendCollaborationRequestEndpointParams} from './types';
+import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import userValidationSchemas from '../../users/validation.js';
+import {CollaborationRequestInput, SendCollaborationRequestEndpointParams} from './types.js';
 
 export const requestJoiSchema = Joi.object<CollaborationRequestInput>().keys({
   recipientEmail: userValidationSchemas.email.required(),

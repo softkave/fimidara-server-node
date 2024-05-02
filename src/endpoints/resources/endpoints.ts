@@ -1,6 +1,6 @@
-import {getResourcesEndpointDefinition} from './endpoints.mddoc';
-import getResources from './getResources/handler';
-import {ResourcesExportedEndpoints} from './types';
+import {getResourcesEndpointDefinition} from './endpoints.mddoc.js';
+import getResources from './getResources/handler.js';
+import {ResourcesExportedEndpoints} from './types.js';
 
 export function getResourcesPublicHttpEndpoints() {
   const resourcesExportedEndpoints: ResourcesExportedEndpoints = {

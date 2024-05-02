@@ -1,10 +1,10 @@
-import {EmailBlocklist} from '../../../../definitions/email';
-import {DataQuery} from '../../data/types';
-import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
-import {SemanticProviderOpParams} from '../types';
-import {getIgnoreCaseDataQueryRegExp} from '../utils';
-import {SemanticEmailBlocklistProvider} from './types';
+import {EmailBlocklist} from '../../../../definitions/email.js';
+import {DataQuery} from '../../data/types.js';
+import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider.js';
+import {SemanticProviderOpParams} from '../types.js';
+import {getIgnoreCaseDataQueryRegExp} from '../utils.js';
+import {SemanticEmailBlocklistProvider} from './types.js';
 
 export class SemanticEmailBlocklistProviderImpl
   extends DataSemanticWorkspaceResourceProvider<EmailBlocklist>

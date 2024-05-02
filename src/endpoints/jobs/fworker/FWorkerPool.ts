@@ -1,9 +1,9 @@
 import {ReadonlyDeep} from 'type-fest';
-import {appAssert} from '../../../utils/assertion';
-import {DisposableResource} from '../../../utils/disposables';
-import {kLoopAsyncSettlementType, loopAsync} from '../../../utils/fns';
-import {AnyFn} from '../../../utils/types';
-import {FWorkerMainBase, FWorkerMainParams} from './FWorkerMain';
+import {appAssert} from '../../../utils/assertion.js';
+import {DisposableResource} from '../../../utils/disposables.js';
+import {kLoopAsyncSettlementType, loopAsync} from '../../../utils/fns.js';
+import {AnyFn} from '../../../utils/types.js';
+import {FWorkerMainBase, FWorkerMainParams} from './FWorkerMain.js';
 
 export interface FWorkerPoolParams extends FWorkerMainParams {
   workerCount: number;

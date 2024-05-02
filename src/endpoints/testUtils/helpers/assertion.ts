@@ -1,4 +1,4 @@
-import {indexArray} from '../../../utils/indexArray';
+import {indexArray} from '../../../utils/indexArray.js';
 
 export function expectContainsEveryItemInForAnyType<T2, T1>(
   received: T1[],

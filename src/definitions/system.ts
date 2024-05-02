@@ -1,20 +1,20 @@
-import {AnyObject, ObjectValues} from '../utils/types';
-import {AgentToken} from './agentToken';
-import {App, AppShard} from './app';
-import {AssignedItem} from './assignedItem';
-import {CollaborationRequest} from './collaborationRequest';
-import {EmailBlocklist, EmailMessage} from './email';
-import {File} from './file';
-import {FileBackendConfig, FileBackendMount, ResolvedMountEntry} from './fileBackend';
-import {Folder} from './folder';
-import {Job} from './job';
-import {PermissionGroup} from './permissionGroups';
-import {PermissionItem} from './permissionItem';
-import {PresignedPath} from './presignedPath';
-import {Tag} from './tag';
-import {UsageRecord} from './usageRecord';
-import {User} from './user';
-import {Workspace} from './workspace';
+import {AnyObject, ObjectValues} from '../utils/types.js';
+import {AgentToken} from './agentToken.js';
+import {App, AppShard} from './app.js';
+import {AssignedItem} from './assignedItem.js';
+import {CollaborationRequest} from './collaborationRequest.js';
+import {EmailBlocklist, EmailMessage} from './email.js';
+import {File} from './file.js';
+import {FileBackendConfig, FileBackendMount, ResolvedMountEntry} from './fileBackend.js';
+import {Folder} from './folder.js';
+import {Job} from './job.js';
+import {PermissionGroup} from './permissionGroups.js';
+import {PermissionItem} from './permissionItem.js';
+import {PresignedPath} from './presignedPath.js';
+import {Tag} from './tag.js';
+import {UsageRecord} from './usageRecord.js';
+import {User} from './user.js';
+import {Workspace} from './workspace.js';
 
 export const kCurrentJWTTokenVersion = 1;
 

@@ -1,25 +1,25 @@
 import {faker} from '@faker-js/faker';
-import {kFileBackendType} from '../../../../definitions/fileBackend';
-import {IngestFolderpathJobParams, kJobType} from '../../../../definitions/job';
-import {kSystemSessionAgent} from '../../../../utils/agent';
-import {getNewId} from '../../../../utils/resource';
+import {kFileBackendType} from '../../../../definitions/fileBackend.js';
+import {IngestFolderpathJobParams, kJobType} from '../../../../definitions/job.js';
+import {kSystemSessionAgent} from '../../../../utils/agent.js';
+import {getNewId} from '../../../../utils/resource.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../contexts/injection/injectables';
+} from '../../../contexts/injection/injectables.js';
 import {
   generateAndInsertFileBackendConfigListForTest,
   generateAndInsertFileBackendMountListForTest,
-} from '../../../testUtils/generate/fileBackend';
-import {generateTestFolderpath} from '../../../testUtils/generate/folder';
-import {completeTests} from '../../../testUtils/helpers/testFns';
+} from '../../../testUtils/generate/fileBackend.js';
+import {generateTestFolderpath} from '../../../testUtils/generate/folder.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
 import {
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../../testUtils/testUtils';
-import {queueJobs} from '../../queueJobs';
-import {runIngestMountJob} from '../runIngestMountJob';
+} from '../../../testUtils/testUtils.js';
+import {queueJobs} from '../../queueJobs.js';
+import {runIngestMountJob} from '../runIngestMountJob.js';
 
 beforeAll(async () => {
   await initTests();

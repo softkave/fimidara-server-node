@@ -1,17 +1,17 @@
 import {first} from 'lodash';
-import {EmailJobParams, kEmailJobType} from '../../../../definitions/job';
+import {EmailJobParams, kEmailJobType} from '../../../../definitions/job.js';
 import {
   CollaborationRequestRevokedEmailProps,
   collaborationRequestRevokedEmailHTML,
   collaborationRequestRevokedEmailText,
   kCollaborationRequestRevokedEmail,
-} from '../../../../emailTemplates/collaborationRequestRevoked';
-import {appAssert} from '../../../../utils/assertion';
+} from '../../../../emailTemplates/collaborationRequestRevoked.js';
+import {appAssert} from '../../../../utils/assertion.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../contexts/injection/injectables';
-import {getBaseEmailTemplateProps} from './utils';
+} from '../../../contexts/injection/injectables.js';
+import {getBaseEmailTemplateProps} from './utils.js';
 
 export async function sendCollaborationRequestRevokedEmail(
   jobId: string,

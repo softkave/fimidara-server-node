@@ -1,4 +1,4 @@
-import {getDeferredPromise} from '../promiseFns';
+import {getDeferredPromise} from '../promiseFns.js';
 
 describe('promiseFns', () => {
   test('getDeferredPromise, resolve', () => {

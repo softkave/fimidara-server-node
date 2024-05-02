@@ -1,10 +1,10 @@
-import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {getWorkspaceSummedUsageQuery} from '../getWorkspaceSummedUsage/utils';
-import {CountWorkspaceSummedUsageEndpoint} from './types';
-import {countWorkspaceSummedUsageJoiSchema} from './validation';
+import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {getWorkspaceSummedUsageQuery} from '../getWorkspaceSummedUsage/utils.js';
+import {CountWorkspaceSummedUsageEndpoint} from './types.js';
+import {countWorkspaceSummedUsageJoiSchema} from './validation.js';
 
 const countWorkspaceSummedUsage: CountWorkspaceSummedUsageEndpoint = async instData => {
   const data = validate(instData.data, countWorkspaceSummedUsageJoiSchema);

@@ -1,12 +1,12 @@
-import {File} from '../../../../definitions/file';
-import {PresignedPath} from '../../../../definitions/presignedPath';
+import {File} from '../../../../definitions/file.js';
+import {PresignedPath} from '../../../../definitions/presignedPath.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
   SemanticProviderQueryListParams,
   SemanticProviderQueryParams,
   SemanticWorkspaceResourceProviderType,
-} from '../types';
+} from '../types.js';
 
 export interface SemanticFileProvider
   extends SemanticWorkspaceResourceProviderType<File> {

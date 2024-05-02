@@ -1,6 +1,6 @@
-import {getJobStatusEndpointDefinition} from './endpoints.mddoc';
-import getJobStatus from './getJobStatus/handler';
-import {JobsExportedEndpoints} from './types';
+import {getJobStatusEndpointDefinition} from './endpoints.mddoc.js';
+import getJobStatus from './getJobStatus/handler.js';
+import {JobsExportedEndpoints} from './types.js';
 
 export function getJobsPublicHttpEndpoints() {
   const jobsExportedEndpoints: JobsExportedEndpoints = {

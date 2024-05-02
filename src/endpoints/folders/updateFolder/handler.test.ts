@@ -1,9 +1,9 @@
 import {faker} from '@faker-js/faker';
-import {Folder} from '../../../definitions/folder';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import EndpointReusableQueries from '../../queries';
-import RequestData from '../../RequestData';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {Folder} from '../../../definitions/folder.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import EndpointReusableQueries from '../../queries.js';
+import RequestData from '../../RequestData.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   IInsertUserForTestResult,
@@ -13,10 +13,10 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {folderExtractor, stringifyFoldernamepath} from '../utils';
-import updateFolder from './handler';
-import {UpdateFolderEndpointParams, UpdateFolderInput} from './types';
+} from '../../testUtils/testUtils.js';
+import {folderExtractor, stringifyFoldernamepath} from '../utils.js';
+import updateFolder from './handler.js';
+import {UpdateFolderEndpointParams, UpdateFolderInput} from './types.js';
 
 beforeAll(async () => {
   await initTests();

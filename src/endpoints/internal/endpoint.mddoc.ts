@@ -1,31 +1,31 @@
-import {PublicUser} from '../../definitions/user';
-import {PublicWorkspace} from '../../definitions/workspace';
+import {PublicUser} from '../../definitions/user.js';
+import {PublicWorkspace} from '../../definitions/workspace.js';
 import {
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
   mddocConstruct,
-} from '../../mddoc/mddoc';
-import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc';
-import {userEndpointsMddocParts} from '../users/endpoint.mddoc';
-import {workspaceEndpointsMddocParts} from '../workspaces/endpoints.mddoc';
-import {internalConstants} from './constants';
-import {GetUsersEndpointParams, GetUsersEndpointResult} from './getUsers/types';
+} from '../../mddoc/mddoc.js';
+import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc.js';
+import {userEndpointsMddocParts} from '../users/endpoint.mddoc.js';
+import {workspaceEndpointsMddocParts} from '../workspaces/endpoints.mddoc.js';
+import {internalConstants} from './constants.js';
+import {GetUsersEndpointParams, GetUsersEndpointResult} from './getUsers/types.js';
 import {
   GetWaitlistedUsersEndpointParams,
   GetWaitlistedUsersEndpointResult,
-} from './getWaitlistedUsers/types';
+} from './getWaitlistedUsers/types.js';
 import {
   GetWorkspacesEndpointParams,
   GetWorkspacesEndpointResult,
-} from './getWorkspaces/types';
+} from './getWorkspaces/types.js';
 import {
   GetUsersHttpEndpoint,
   GetWaitlistedUsersHttpEndpoint,
   GetWorkspacesHttpEndpoint,
   UpgradeWaitlistedUsersHttpEndpoint,
-} from './types';
-import {UpgradeWaitlistedUsersEndpointParams} from './upgradeWaitlistedUsers/types';
+} from './types.js';
+import {UpgradeWaitlistedUsersEndpointParams} from './upgradeWaitlistedUsers/types.js';
 
 const getWaitlistedUsersParams = mddocConstruct
   .constructFieldObject<GetWaitlistedUsersEndpointParams>()

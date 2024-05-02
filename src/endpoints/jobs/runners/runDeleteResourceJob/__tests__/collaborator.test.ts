@@ -1,19 +1,19 @@
 import assert from 'assert';
 import {flatten} from 'lodash';
-import {Resource, kFimidaraResourceType} from '../../../../../definitions/system';
-import {User} from '../../../../../definitions/user';
-import {kSystemSessionAgent} from '../../../../../utils/agent';
-import {extractResourceIdList} from '../../../../../utils/fns';
-import {getNewIdForResource} from '../../../../../utils/resource';
-import {assignWorkspaceToUser} from '../../../../assignedItems/addAssignedItems';
-import {kSemanticModels} from '../../../../contexts/injection/injectables';
-import {generateAndInsertCollaboratorListForTest} from '../../../../testUtils/generate/collaborator';
-import {generateAndInsertTestFiles} from '../../../../testUtils/generate/file';
-import {generateAndInsertAssignedItemListForTest} from '../../../../testUtils/generate/permissionGroup';
-import {generateAndInsertPermissionItemListForTest} from '../../../../testUtils/generate/permissionItem';
-import {completeTests} from '../../../../testUtils/helpers/testFns';
-import {initTests} from '../../../../testUtils/testUtils';
-import {deleteCollaboratorCascadeEntry} from '../collaborator';
+import {Resource, kFimidaraResourceType} from '../../../../../definitions/system.js';
+import {User} from '../../../../../definitions/user.js';
+import {kSystemSessionAgent} from '../../../../../utils/agent.js';
+import {extractResourceIdList} from '../../../../../utils/fns.js';
+import {getNewIdForResource} from '../../../../../utils/resource.js';
+import {assignWorkspaceToUser} from '../../../../assignedItems/addAssignedItems.js';
+import {kSemanticModels} from '../../../../contexts/injection/injectables.js';
+import {generateAndInsertCollaboratorListForTest} from '../../../../testUtils/generate/collaborator.js';
+import {generateAndInsertTestFiles} from '../../../../testUtils/generate/file.js';
+import {generateAndInsertAssignedItemListForTest} from '../../../../testUtils/generate/permissionGroup.js';
+import {generateAndInsertPermissionItemListForTest} from '../../../../testUtils/generate/permissionItem.js';
+import {completeTests} from '../../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../../testUtils/testUtils.js';
+import {deleteCollaboratorCascadeEntry} from '../collaborator.js';
 import {
   GenerateResourceFn,
   GenerateTypeChildrenDefinition,
@@ -22,7 +22,7 @@ import {
   testDeleteResourceArtifactsJob,
   testDeleteResourceJob0,
   testDeleteResourceSelfJob,
-} from './testUtils';
+} from './testUtils.js';
 
 beforeAll(async () => {
   await initTests();

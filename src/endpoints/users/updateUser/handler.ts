@@ -1,14 +1,14 @@
-import {User} from '../../../definitions/user';
-import {getTimestamp} from '../../../utils/dateFns';
-import {isStringEqual} from '../../../utils/fns';
-import {validate} from '../../../utils/validate';
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {INTERNAL_sendEmailVerificationCode} from '../sendEmailVerificationCode/handler';
-import {assertEmailAddressAvailable, assertUser, userExtractor} from '../utils';
-import {UpdateUserEndpoint} from './types';
-import {updateUserJoiSchema} from './validation';
+import {User} from '../../../definitions/user.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {isStringEqual} from '../../../utils/fns.js';
+import {validate} from '../../../utils/validate.js';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {INTERNAL_sendEmailVerificationCode} from '../sendEmailVerificationCode/handler.js';
+import {assertEmailAddressAvailable, assertUser, userExtractor} from '../utils.js';
+import {UpdateUserEndpoint} from './types.js';
+import {updateUserJoiSchema} from './validation.js';
 
 const updateUser: UpdateUserEndpoint = async instData => {
   let user = await kUtilsInjectables

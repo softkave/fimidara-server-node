@@ -1,5 +1,5 @@
 import {get} from 'lodash';
-import {toNonNullableArray} from './fns';
+import {toNonNullableArray} from './fns.js';
 
 function defaultIndexer(data: any, path: any) {
   if (path) {

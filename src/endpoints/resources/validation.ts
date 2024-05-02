@@ -1,9 +1,9 @@
 import * as Joi from 'joi';
-import {kValidationSchemas} from '../../utils/validationUtils';
-import permissionItemValidationSchemas from '../permissionItems/validation';
-import workspaceValidationSchemas from '../workspaces/validation';
-import resourcesConstants from './constants';
-import {FetchResourceItem} from './types';
+import {kValidationSchemas} from '../../utils/validationUtils.js';
+import permissionItemValidationSchemas from '../permissionItems/validation.js';
+import workspaceValidationSchemas from '../workspaces/validation.js';
+import resourcesConstants from './constants.js';
+import {FetchResourceItem} from './types.js';
 
 const fetchResourceItem = Joi.object<FetchResourceItem>().keys({
   resourceId: kValidationSchemas.resourceId,

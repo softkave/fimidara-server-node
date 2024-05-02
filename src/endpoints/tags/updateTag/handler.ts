@@ -1,13 +1,13 @@
-import {Tag} from '../../../definitions/tag';
-import {getTimestamp} from '../../../utils/dateFns';
-import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {checkTagNameExists} from '../checkTagNameExists';
-import {assertTag, checkTagAuthorization02, tagExtractor} from '../utils';
-import {UpdateTagEndpoint} from './types';
-import {updateTagJoiSchema} from './validation';
+import {Tag} from '../../../definitions/tag.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {checkTagNameExists} from '../checkTagNameExists.js';
+import {assertTag, checkTagAuthorization02, tagExtractor} from '../utils.js';
+import {UpdateTagEndpoint} from './types.js';
+import {updateTagJoiSchema} from './validation.js';
 
 const updateTag: UpdateTagEndpoint = async instData => {
   const data = validate(instData.data, updateTagJoiSchema);

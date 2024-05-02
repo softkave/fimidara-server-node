@@ -1,25 +1,25 @@
 import {DeleteObjectsCommand, S3Client} from '@aws-sdk/client-s3';
 import assert from 'assert';
 import {Readable} from 'stream';
-import {FileBackendMount, kFileBackendType} from '../../../../definitions/fileBackend';
-import {kFimidaraResourceType} from '../../../../definitions/system';
-import {loopAndCollate, pathJoin, pathSplit} from '../../../../utils/fns';
-import {getNewIdForResource} from '../../../../utils/resource';
-import {generateTestFilepathString} from '../../../testUtils/generate/file';
+import {FileBackendMount, kFileBackendType} from '../../../../definitions/fileBackend.js';
+import {kFimidaraResourceType} from '../../../../definitions/system.js';
+import {loopAndCollate, pathJoin, pathSplit} from '../../../../utils/fns.js';
+import {getNewIdForResource} from '../../../../utils/resource.js';
+import {generateTestFilepathString} from '../../../testUtils/generate/file.js';
 import {
   generateAndInsertFileBackendMountListForTest,
   generateFileBackendMountForTest,
-} from '../../../testUtils/generate/fileBackend';
+} from '../../../testUtils/generate/fileBackend.js';
 import {
   generateTestFolderName,
   generateTestFolderpathString,
-} from '../../../testUtils/generate/folder';
-import {expectFileBodyEqual} from '../../../testUtils/helpers/file';
-import {completeTests} from '../../../testUtils/helpers/testFns';
-import {initTests} from '../../../testUtils/testUtils';
-import {kUtilsInjectables} from '../../injection/injectables';
-import {S3FilePersistenceProvider} from '../S3FilePersistenceProvider';
-import {FilePersistenceUploadFileParams} from '../types';
+} from '../../../testUtils/generate/folder.js';
+import {expectFileBodyEqual} from '../../../testUtils/helpers/file.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../testUtils/testUtils.js';
+import {kUtilsInjectables} from '../../injection/injectables.js';
+import {S3FilePersistenceProvider} from '../S3FilePersistenceProvider.js';
+import {FilePersistenceUploadFileParams} from '../types.js';
 
 // TODO: delete keys when done
 

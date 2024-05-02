@@ -1,6 +1,6 @@
 import {Connection, Document, Model, Schema, SchemaTypes} from 'mongoose';
-import {Job, JobStatusHistory, RunAfterJobItem} from '../definitions/job';
-import {ensureMongoTypeFields, resourceSchema} from './utils';
+import {Job, JobStatusHistory, RunAfterJobItem} from '../definitions/job.js';
+import {ensureMongoTypeFields, resourceSchema} from './utils.js';
 
 const statusItemSchema = ensureMongoTypeFields<JobStatusHistory>({
   status: {type: String, index: true},

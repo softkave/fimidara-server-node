@@ -1,31 +1,31 @@
 import assert from 'assert';
 import {compact, get, map, mapKeys} from 'lodash';
-import {FimidaraPermissionAction} from '../../definitions/permissionItem';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {
   FimidaraResourceType,
   Resource,
   ResourceWrapper,
   SessionAgent,
   kFimidaraResourceType,
-} from '../../definitions/system';
-import {appAssert} from '../../utils/assertion';
-import {ServerError} from '../../utils/errors';
-import {convertToArray, isObjectEmpty, pathJoin, pathSplit} from '../../utils/fns';
-import {indexArray} from '../../utils/indexArray';
-import {getResourceTypeFromId} from '../../utils/resource';
-import {PartialRecord} from '../../utils/types';
-import {PromiseWithId, waitOnPromisesWithId} from '../../utils/waitOnPromises';
+} from '../../definitions/system.js';
+import {appAssert} from '../../utils/assertion.js';
+import {ServerError} from '../../utils/errors.js';
+import {convertToArray, isObjectEmpty, pathJoin, pathSplit} from '../../utils/fns.js';
+import {indexArray} from '../../utils/indexArray.js';
+import {getResourceTypeFromId} from '../../utils/resource.js';
+import {PartialRecord} from '../../utils/types.js';
+import {PromiseWithId, waitOnPromisesWithId} from '../../utils/waitOnPromises.js';
 import {
   checkAuthorizationWithAgent,
   getResourcePermissionContainers,
-} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderOpParams} from '../contexts/semantic/types';
-import {getFilepathInfo, stringifyFilenamepath} from '../files/utils';
-import {getFolderpathInfo, stringifyFoldernamepath} from '../folders/utils';
-import {checkResourcesBelongsToWorkspace} from './containerCheckFns';
-import {resourceListWithAssignedItems} from './resourceWithAssignedItems';
-import {FetchResourceItem} from './types';
+} from '../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
+import {SemanticProviderOpParams} from '../contexts/semantic/types.js';
+import {getFilepathInfo, stringifyFilenamepath} from '../files/utils.js';
+import {getFolderpathInfo, stringifyFoldernamepath} from '../folders/utils.js';
+import {checkResourcesBelongsToWorkspace} from './containerCheckFns.js';
+import {resourceListWithAssignedItems} from './resourceWithAssignedItems.js';
+import {FetchResourceItem} from './types.js';
 
 interface ExtendedPromiseWithId<T> extends PromiseWithId<T> {
   resourceType: FimidaraResourceType;

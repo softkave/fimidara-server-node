@@ -1,6 +1,6 @@
-import {ObjectValues} from '../utils/types';
-import {Agent, ToPublicDefinitions, WorkspaceResource} from './system';
-import {UsageRecordCategory} from './usageRecord';
+import {ObjectValues} from '../utils/types.js';
+import {Agent, ToPublicDefinitions, WorkspaceResource} from './system.js';
+import {UsageRecordCategory} from './usageRecord.js';
 
 export interface UsageThreshold {
   lastUpdatedBy: Agent;

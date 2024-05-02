@@ -1,8 +1,8 @@
 import {Request, RequestHandler, Response} from 'express';
-import {HttpEndpointDefinitionType} from '../mddoc/mddoc';
-import {FimidaraExternalError} from '../utils/OperationError';
-import {AnyObject, ObjectValues, OrPromise} from '../utils/types';
-import RequestData from './RequestData';
+import {HttpEndpointDefinitionType} from '../mddoc/mddoc.js';
+import {FimidaraExternalError} from '../utils/OperationError.js';
+import {AnyObject, ObjectValues, OrPromise} from '../utils/types.js';
+import RequestData from './RequestData.js';
 
 export interface BaseEndpointResult {
   errors?: FimidaraExternalError[];

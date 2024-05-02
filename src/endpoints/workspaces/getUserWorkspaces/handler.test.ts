@@ -1,23 +1,23 @@
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {appAssert} from '../../../utils/assertion';
-import {calculatePageSize, getResourceId} from '../../../utils/fns';
-import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import EndpointReusableQueries from '../../queries';
-import RequestData from '../../RequestData';
-import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generate/workspace';
-import {expectContainsNoneIn} from '../../testUtils/helpers/assertion';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {calculatePageSize, getResourceId} from '../../../utils/fns.js';
+import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import EndpointReusableQueries from '../../queries.js';
+import RequestData from '../../RequestData.js';
+import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generate/workspace.js';
+import {expectContainsNoneIn} from '../../testUtils/helpers/assertion.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import getUserWorkspaces from './handler';
-import {GetUserWorkspacesEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import getUserWorkspaces from './handler.js';
+import {GetUserWorkspacesEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

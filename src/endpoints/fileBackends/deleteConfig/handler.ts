@@ -1,14 +1,14 @@
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
-import {appAssert} from '../../../utils/assertion';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {DeleteFileBackendConfigEndpoint} from './types';
-import {beginDeleteFileBackendConfig} from './utils';
-import {deleteFileBackendConfigJoiSchema} from './validation';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {DeleteFileBackendConfigEndpoint} from './types.js';
+import {beginDeleteFileBackendConfig} from './utils.js';
+import {deleteFileBackendConfigJoiSchema} from './validation.js';
 
 const deleteFileBackendConfig: DeleteFileBackendConfigEndpoint = async instData => {
   const configModel = kSemanticModels.fileBackendConfig();

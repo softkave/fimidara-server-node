@@ -1,4 +1,4 @@
-import {CollaborationRequestResponse} from '../definitions/collaborationRequest';
+import {CollaborationRequestResponse} from '../definitions/collaborationRequest.js';
 import {
   emailHelperChars,
   emailTemplateStyles,
@@ -10,8 +10,8 @@ import {
   getHeaderText,
   getLoginSectionHTML,
   getLoginSectionText,
-} from './helpers';
-import {BaseEmailTemplateProps} from './types';
+} from './helpers.js';
+import {BaseEmailTemplateProps} from './types.js';
 
 export interface CollaborationRequestResponseEmailProps extends BaseEmailTemplateProps {
   workspaceName: string;

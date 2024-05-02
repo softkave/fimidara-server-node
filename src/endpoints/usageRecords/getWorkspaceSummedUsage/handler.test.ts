@@ -6,22 +6,22 @@ import {
   UsageRecordFulfillmentStatus,
   UsageRecordFulfillmentStatusMap,
   UsageSummationTypeMap,
-} from '../../../definitions/usageRecord';
-import {getTimestamp} from '../../../utils/dateFns';
-import {calculatePageSize} from '../../../utils/fns';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {generateAndInsertUsageRecordList} from '../../testUtils/generate/usageRecord';
-import {completeTests} from '../../testUtils/helpers/testFns';
+} from '../../../definitions/usageRecord.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {calculatePageSize} from '../../../utils/fns.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {generateAndInsertUsageRecordList} from '../../testUtils/generate/usageRecord.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import getWorkspaceSummedUsage from './handler';
-import {GetWorkspaceSummedUsageEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import getWorkspaceSummedUsage from './handler.js';
+import {GetWorkspaceSummedUsageEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

@@ -1,11 +1,11 @@
 import {faker} from '@faker-js/faker';
-import {Folder} from '../../../definitions/folder';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {getRandomIntInclusive, loopAndCollate, pathJoin} from '../../../utils/fns';
-import {getNewIdForResource, newWorkspaceResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {addRootnameToPath} from '../../folders/utils';
+import {Folder} from '../../../definitions/folder.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {getRandomIntInclusive, loopAndCollate, pathJoin} from '../../../utils/fns.js';
+import {getNewIdForResource, newWorkspaceResource} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {addRootnameToPath} from '../../folders/utils.js';
 
 export const kTestFolderNameSeparatorChars = ['-', '_', ' ', '.'];
 

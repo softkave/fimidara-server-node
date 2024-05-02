@@ -1,6 +1,6 @@
-import {EmailBlocklistReason} from '../../../definitions/email';
-import {EmailJobMeta} from '../../../definitions/job';
-import {DisposableResource} from '../../../utils/disposables';
+import {EmailBlocklistReason} from '../../../definitions/email.js';
+import {EmailJobMeta} from '../../../definitions/job.js';
+import {DisposableResource} from '../../../utils/disposables.js';
 
 export interface SendEmailParams {
   destination: string[];

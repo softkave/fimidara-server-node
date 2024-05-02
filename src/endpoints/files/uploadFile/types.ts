@@ -1,6 +1,6 @@
 import {Readable} from 'stream';
-import {FileMatcher, PublicFile} from '../../../definitions/file';
-import {Endpoint} from '../../types';
+import {FileMatcher, PublicFile} from '../../../definitions/file.js';
+import {Endpoint} from '../../types.js';
 
 export interface UploadFileEndpointParams extends FileMatcher {
   data: Readable;

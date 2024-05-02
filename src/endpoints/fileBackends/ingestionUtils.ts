@@ -1,21 +1,21 @@
 import {keyBy} from 'lodash';
-import {File} from '../../definitions/file';
-import {ResolvedMountEntry} from '../../definitions/fileBackend';
-import {Folder} from '../../definitions/folder';
-import {SessionAgent, kFimidaraResourceType} from '../../definitions/system';
-import {Workspace} from '../../definitions/workspace';
-import {appAssert} from '../../utils/assertion';
-import {pathExtract, pathJoin, pathSplit} from '../../utils/fns';
-import {newWorkspaceResource} from '../../utils/resource';
+import {File} from '../../definitions/file.js';
+import {ResolvedMountEntry} from '../../definitions/fileBackend.js';
+import {Folder} from '../../definitions/folder.js';
+import {SessionAgent, kFimidaraResourceType} from '../../definitions/system.js';
+import {Workspace} from '../../definitions/workspace.js';
+import {appAssert} from '../../utils/assertion.js';
+import {pathExtract, pathJoin, pathSplit} from '../../utils/fns.js';
+import {newWorkspaceResource} from '../../utils/resource.js';
 import {
   PersistedFileDescription,
   PersistedFolderDescription,
-} from '../contexts/file/types';
-import {kSemanticModels} from '../contexts/injection/injectables';
-import {createNewFile, getFilepathInfo, stringifyFilenamepath} from '../files/utils';
-import {createFolderList} from '../folders/addFolder/createFolderList';
-import {NewFolderInput} from '../folders/addFolder/types';
-import {addRootnameToPath} from '../folders/utils';
+} from '../contexts/file/types.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
+import {createNewFile, getFilepathInfo, stringifyFilenamepath} from '../files/utils.js';
+import {createFolderList} from '../folders/addFolder/createFolderList.js';
+import {NewFolderInput} from '../folders/addFolder/types.js';
+import {addRootnameToPath} from '../folders/utils.js';
 
 /**
  * Caller must check agent has permission to either create folders

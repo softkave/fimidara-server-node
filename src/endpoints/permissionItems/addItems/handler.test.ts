@@ -1,12 +1,12 @@
 import {faker} from '@faker-js/faker';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
-import RequestData from '../../RequestData';
-import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {generateAndInsertTestFolders} from '../../testUtils/generate/folder';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {expectEntityHasPermissionsTargetingId} from '../../testUtils/helpers/permissionItem';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import RequestData from '../../RequestData.js';
+import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {generateAndInsertTestFolders} from '../../testUtils/generate/folder.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {expectEntityHasPermissionsTargetingId} from '../../testUtils/helpers/permissionItem.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -14,11 +14,11 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import PermissionItemQueries from '../queries';
-import {PermissionItemInput} from '../types';
-import addPermissionItems from './handler';
-import {AddPermissionItemsEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import PermissionItemQueries from '../queries.js';
+import {PermissionItemInput} from '../types.js';
+import addPermissionItems from './handler.js';
+import {AddPermissionItemsEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

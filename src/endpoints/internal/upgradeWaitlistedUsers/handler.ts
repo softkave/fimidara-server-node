@@ -1,13 +1,13 @@
-import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job';
-import {User} from '../../../definitions/user';
-import {getTimestamp} from '../../../utils/dateFns';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {queueJobs} from '../../jobs/queueJobs';
-import {assertUserIsPartOfRootWorkspace} from '../utils';
-import {UpgradeWaitlistedUsersEndpoint} from './types';
-import {upgradeWaitlistedUsersJoiSchema} from './validation';
+import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job.js';
+import {User} from '../../../definitions/user.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {queueJobs} from '../../jobs/queueJobs.js';
+import {assertUserIsPartOfRootWorkspace} from '../utils.js';
+import {UpgradeWaitlistedUsersEndpoint} from './types.js';
+import {upgradeWaitlistedUsersJoiSchema} from './validation.js';
 
 const upgradeWaitlistedUsers: UpgradeWaitlistedUsersEndpoint = async reqData => {
   const data = validate(reqData.data, upgradeWaitlistedUsersJoiSchema);

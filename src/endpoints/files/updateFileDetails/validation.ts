@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
-import {kValidationSchemas} from '../../../utils/validationUtils';
-import fileValidationSchemas from '../validation';
-import {UpdateFileDetailsEndpointParams} from './types';
+import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import fileValidationSchemas from '../validation.js';
+import {UpdateFileDetailsEndpointParams} from './types.js';
 
 export const updateFileDetailsJoiSchema = Joi.object<UpdateFileDetailsEndpointParams>()
   .keys({

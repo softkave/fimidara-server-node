@@ -1,5 +1,5 @@
 import 'zx/globals';
-import {getSuppliedConfig} from '../../resources/config';
+import {getSuppliedConfig} from '../../resources/config.js';
 
 async function getPIDFromPort(port: string | number): Promise<string> {
   const lsofResult = await $`sudo lsof -n -i :5000`;

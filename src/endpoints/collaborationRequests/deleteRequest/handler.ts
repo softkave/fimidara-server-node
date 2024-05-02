@@ -1,12 +1,12 @@
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
-import {appAssert} from '../../../utils/assertion';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {checkCollaborationRequestAuthorization02} from '../utils';
-import {DeleteCollaborationRequestEndpoint} from './types';
-import {beginDeleteCollaborationRequest} from './utils';
-import {deleteCollaborationRequestJoiSchema} from './validation';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {checkCollaborationRequestAuthorization02} from '../utils.js';
+import {DeleteCollaborationRequestEndpoint} from './types.js';
+import {beginDeleteCollaborationRequest} from './utils.js';
+import {deleteCollaborationRequestJoiSchema} from './validation.js';
 
 const deleteCollaborationRequest: DeleteCollaborationRequestEndpoint = async instData => {
   const data = validate(instData.data, deleteCollaborationRequestJoiSchema);

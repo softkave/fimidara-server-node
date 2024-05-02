@@ -4,24 +4,24 @@ import {
   FileBackendMount,
   kFileBackendType,
   ResolvedMountEntry,
-} from '../../../definitions/fileBackend';
-import {Agent, kFimidaraResourceType} from '../../../definitions/system';
-import {getTimestamp} from '../../../utils/dateFns';
-import {mergeData, pathSplit} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {kValidationConstants} from '../../../utils/validationUtils';
-import {S3FilePersistenceProviderInitParams} from '../../contexts/file/S3FilePersistenceProvider';
+} from '../../../definitions/fileBackend.js';
+import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {mergeData, pathSplit} from '../../../utils/fns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {kValidationConstants} from '../../../utils/validationUtils.js';
+import {S3FilePersistenceProviderInitParams} from '../../contexts/file/S3FilePersistenceProvider.js';
 import {
   PersistedFileDescription,
   PersistedFolderDescription,
-} from '../../contexts/file/types';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {NewFileBackendConfigInput} from '../../fileBackends/addConfig/types';
-import {NewFileBackendMountInput} from '../../fileBackends/addMount/types';
-import {kFileBackendConstants} from '../../fileBackends/constants';
-import {stringifyFilenamepath} from '../../files/utils';
-import {generateTestFilepath, generateTestFilepathString} from './file';
-import {generateTestFolderpathString} from './folder';
+} from '../../contexts/file/types.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {NewFileBackendConfigInput} from '../../fileBackends/addConfig/types.js';
+import {NewFileBackendMountInput} from '../../fileBackends/addMount/types.js';
+import {kFileBackendConstants} from '../../fileBackends/constants.js';
+import {stringifyFilenamepath} from '../../files/utils.js';
+import {generateTestFilepath, generateTestFilepathString} from './file.js';
+import {generateTestFolderpathString} from './folder.js';
 
 export function generateAWSS3Credentials(
   seed: Partial<S3FilePersistenceProviderInitParams> = {}

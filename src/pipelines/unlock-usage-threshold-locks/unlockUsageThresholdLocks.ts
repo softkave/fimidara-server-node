@@ -1,7 +1,7 @@
 import {Connection} from 'mongoose';
-import {getWorkspaceModel} from '../../db/workspace';
-import {kSystemSessionAgent} from '../../utils/agent';
-import {getTimestamp} from '../../utils/dateFns';
+import {getWorkspaceModel} from '../../db/workspace.js';
+import {kSystemSessionAgent} from '../../utils/agent.js';
+import {getTimestamp} from '../../utils/dateFns.js';
 
 /**
  * For all workspaces,

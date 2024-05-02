@@ -1,11 +1,11 @@
 import {isString} from 'lodash';
-import {File} from '../../definitions/file';
-import {Folder} from '../../definitions/folder';
-import {FileQuery} from '../contexts/data/types';
+import {File} from '../../definitions/file.js';
+import {Folder} from '../../definitions/folder.js';
+import {FileQuery} from '../contexts/data/types.js';
 import {
   getIgnoreCaseDataQueryRegExp,
   getStringListQuery,
-} from '../contexts/semantic/utils';
+} from '../contexts/semantic/utils.js';
 
 function getByNamepath(
   file: Pick<File, 'workspaceId' | 'namepath' | 'ext'>

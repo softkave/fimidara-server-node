@@ -1,74 +1,74 @@
 import 'reflect-metadata';
+import {PromiseStore, LockStore, DisposablesStore, Logger} from 'softkave-js-utils';
 
 import {container} from 'tsyringe';
-import {DbConnection} from '../../../db/connection';
-import {FimidaraRuntimeConfig, FimidaraSuppliedConfig} from '../../../resources/config';
-import {LockStore} from '../../../utils/LockStore';
-import {PromiseStore} from '../../../utils/PromiseStore';
-import {DisposablesStore} from '../../../utils/disposables';
-import {ShardedRunner} from '../../../utils/shardedRunnerQueue';
-import {FimidaraApp} from '../../app/FimidaraApp';
-import {FimidaraWorkerPool} from '../../jobs/fimidaraWorker/FimidaraWorkerPool';
-import {SessionContextType} from '../SessionContext';
-import {AsyncLocalStorageUtils} from '../asyncLocalStorage';
+import {DbConnection} from '../../../db/connection.js';
 import {
+  FimidaraSuppliedConfig,
+  FimidaraRuntimeConfig,
+} from '../../../resources/config.js';
+import {ShardedRunner} from '../../../utils/shardedRunnerQueue.js';
+import {FimidaraApp} from '../../app/FimidaraApp.js';
+import {FimidaraWorkerPool} from '../../jobs/fimidaraWorker/FimidaraWorkerPool.js';
+import {SessionContextType} from '../SessionContext.js';
+import {AsyncLocalStorageUtils} from '../asyncLocalStorage.js';
+import {
+  UserDataProvider,
+  FileDataProvider,
   AgentTokenDataProvider,
-  AppDataProvider,
-  AppRuntimeStateDataProvider,
-  AppShardDataProvider,
-  AssignedItemDataProvider,
-  CollaborationRequestDataProvider,
-  DataProviderUtils,
-  EmailBlocklistDataProvider,
-  EmailMessageDataProvider,
+  FolderDataProvider,
+  WorkspaceDataProvider,
   FileBackendConfigDataProvider,
   FileBackendMountDataProvider,
-  FileDataProvider,
-  FolderDataProvider,
-  JobDataProvider,
+  PresignedPathDataProvider,
   PermissionGroupDataProvider,
   PermissionItemDataProvider,
-  PresignedPathDataProvider,
-  ResolvedMountEntryDataProvider,
   TagDataProvider,
+  AssignedItemDataProvider,
+  JobDataProvider,
+  ResolvedMountEntryDataProvider,
+  AppRuntimeStateDataProvider,
+  CollaborationRequestDataProvider,
   UsageRecordDataProvider,
-  UserDataProvider,
-  WorkspaceDataProvider,
-} from '../data/types';
-import {IEmailProviderContext} from '../email/types';
-import {SecretsManagerProvider} from '../encryption/types';
-import {FileProviderResolver} from '../file/types';
-import {Logger} from '../logger/types';
-import {UsageRecordLogicProvider} from '../logic/UsageRecordLogicProvider';
-import {SemanticAgentTokenProvider} from '../semantic/agentToken/types';
-import {SemanticAppShardProvider} from '../semantic/app/types';
-import {SemanticAssignedItemProvider} from '../semantic/assignedItem/types';
-import {SemanticCollaborationRequestProvider} from '../semantic/collaborationRequest/types';
+  AppDataProvider,
+  EmailMessageDataProvider,
+  EmailBlocklistDataProvider,
+  AppShardDataProvider,
+  DataProviderUtils,
+} from '../data/types.js';
+import {IEmailProviderContext} from '../email/types.js';
+import {SecretsManagerProvider} from '../encryption/types.js';
+import {FileProviderResolver} from '../file/types.js';
+import {UsageRecordLogicProvider} from '../logic/UsageRecordLogicProvider.js';
+import {SemanticAgentTokenProvider} from '../semantic/agentToken/types.js';
+import {SemanticAppShardProvider} from '../semantic/app/types.js';
+import {SemanticAssignedItemProvider} from '../semantic/assignedItem/types.js';
+import {SemanticCollaborationRequestProvider} from '../semantic/collaborationRequest/types.js';
 import {
-  SemanticEmailBlocklistProvider,
   SemanticEmailMessageProvider,
-} from '../semantic/email/types';
+  SemanticEmailBlocklistProvider,
+} from '../semantic/email/types.js';
 import {
   SemanticFileProvider,
   SemanticPresignedPathProvider,
-} from '../semantic/file/types';
-import {SemanticFolderProvider} from '../semantic/folder/types';
-import {SemanticJobProvider} from '../semantic/job/types';
-import {SemanticPermissionProviderType} from '../semantic/permission/types';
-import {SemanticPermissionItemProviderType} from '../semantic/permissionItem/types';
-import {SemanticResolvedMountEntryProvider} from '../semantic/resolvedMountEntry/types';
+} from '../semantic/file/types.js';
+import {SemanticFolderProvider} from '../semantic/folder/types.js';
+import {SemanticJobProvider} from '../semantic/job/types.js';
+import {SemanticPermissionProviderType} from '../semantic/permission/types.js';
+import {SemanticPermissionItemProviderType} from '../semantic/permissionItem/types.js';
+import {SemanticResolvedMountEntryProvider} from '../semantic/resolvedMountEntry/types.js';
 import {
-  SemanticAppProvider,
   SemanticFileBackendConfigProvider,
   SemanticFileBackendMountProvider,
   SemanticPermissionGroupProviderType,
-  SemanticProviderUtils,
   SemanticTagProviderType,
   SemanticUsageRecordProviderType,
-} from '../semantic/types';
-import {SemanticUserProviderType} from '../semantic/user/types';
-import {SemanticWorkspaceProviderType} from '../semantic/workspace/types';
-import {kInjectionKeys} from './keys';
+  SemanticAppProvider,
+  SemanticProviderUtils,
+} from '../semantic/types.js';
+import {SemanticUserProviderType} from '../semantic/user/types.js';
+import {SemanticWorkspaceProviderType} from '../semantic/workspace/types.js';
+import {kInjectionKeys} from './keys.js';
 
 export const kSemanticModels = {
   user: () => container.resolve<SemanticUserProviderType>(kInjectionKeys.semantic.user),

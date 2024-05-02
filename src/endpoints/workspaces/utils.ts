@@ -1,32 +1,32 @@
-import {FimidaraPermissionAction} from '../../definitions/permissionItem';
-import {SessionAgent} from '../../definitions/system';
-import {UsageRecordCategoryMap} from '../../definitions/usageRecord';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
+import {SessionAgent} from '../../definitions/system.js';
+import {UsageRecordCategoryMap} from '../../definitions/usageRecord.js';
 import {
   PublicUsageThreshold,
   PublicUsageThresholdLock,
   PublicWorkspace,
   Workspace,
-} from '../../definitions/workspace';
-import {appAssert} from '../../utils/assertion';
+} from '../../definitions/workspace.js';
+import {appAssert} from '../../utils/assertion.js';
 import {
   ExtractFieldsFrom,
   getFields,
   makeExtract,
   makeExtractIfPresent,
   makeListExtract,
-} from '../../utils/extract';
-import {kReuseableErrors} from '../../utils/reusableErrors';
+} from '../../utils/extract.js';
+import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {
   getWorkspaceIdFromSessionAgent,
   getWorkspaceIdNoThrow,
-} from '../../utils/sessionUtils';
-import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderOpParams} from '../contexts/semantic/types';
-import {NotFoundError} from '../errors';
-import {agentExtractor, workspaceResourceFields} from '../extractors';
-import folderValidationSchemas from '../folders/validation';
-import {EndpointOptionalWorkspaceIDParam} from '../types';
+} from '../../utils/sessionUtils.js';
+import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
+import {SemanticProviderOpParams} from '../contexts/semantic/types.js';
+import {NotFoundError} from '../errors.js';
+import {agentExtractor, workspaceResourceFields} from '../extractors.js';
+import folderValidationSchemas from '../folders/validation.js';
+import {EndpointOptionalWorkspaceIDParam} from '../types.js';
 
 const usageThresholdItemPublicFields = getFields<PublicUsageThreshold>({
   lastUpdatedBy: agentExtractor,

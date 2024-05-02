@@ -1,23 +1,21 @@
 import {Readable} from 'stream';
-import {ResolvedMountEntry} from '../../../definitions/fileBackend';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {pathJoin, streamToBuffer} from '../../../utils/fns';
-import {newWorkspaceResource} from '../../../utils/resource';
-import {makeUserSessionAgent} from '../../../utils/sessionUtils';
-import RequestData from '../../RequestData';
-import {FilePersistenceProvider, PersistedFile} from '../../contexts/file/types';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {kRegisterUtilsInjectables} from '../../contexts/injection/register';
-import {addRootnameToPath, stringifyFoldernamepath} from '../../folders/utils';
-import NoopFilePersistenceProviderContext from '../../testUtils/context/file/NoopFilePersistenceProviderContext';
+import {ResolvedMountEntry} from '../../../definitions/fileBackend.js';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {pathJoin, streamToBuffer} from '../../../utils/fns.js';
+import {newWorkspaceResource} from '../../../utils/resource.js';
+import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
+import RequestData from '../../RequestData.js';
+import {FilePersistenceProvider, PersistedFile} from '../../contexts/file/types.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../contexts/injection/register.js';
+import {addRootnameToPath, stringifyFoldernamepath} from '../../folders/utils.js';
+import NoopFilePersistenceProviderContext from '../../testUtils/context/file/NoopFilePersistenceProviderContext.js';
 import {
   generateTestFileName,
   generateTestFilepathString,
-} from '../../testUtils/generate/file';
-import {getTestSessionAgent, kTestSessionAgentTypes} from '../../testUtils/helpers/agent';
-import {expectFileBodyEqual, expectFileBodyEqualById} from '../../testUtils/helpers/file';
-import {completeTests, skTest} from '../../testUtils/helpers/testFns';
+} from '../../testUtils/generate/file.js';
+import {completeTests, skTest} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -29,13 +27,21 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestForPublicAgent,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {PermissionDeniedError} from '../../users/errors';
-import {stringifyFilenamepath} from '../utils';
-import readFile from './handler';
-import {ReadFileEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import {PermissionDeniedError} from '../../users/errors.js';
+import {stringifyFilenamepath} from '../utils.js';
+import readFile from './handler.js';
+import {ReadFileEndpointParams} from './types.js';
 import sharp = require('sharp');
 import assert = require('assert');
+import {
+  kTestSessionAgentTypes,
+  getTestSessionAgent,
+} from '../../testUtils/helpers/agent.js';
+import {
+  expectFileBodyEqualById,
+  expectFileBodyEqual,
+} from '../../testUtils/helpers/file.js';
 
 jest.setTimeout(300000); // 5 minutes
 beforeAll(async () => {

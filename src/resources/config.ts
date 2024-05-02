@@ -1,6 +1,6 @@
 import config from 'config';
 import {ValueOf} from 'type-fest';
-import {LoggerType} from '../endpoints/contexts/logger/types';
+import {LoggerType} from '../endpoints/contexts/logger/types.js';
 
 /** Added after the app initialization phase. */
 export interface FimidaraRuntimeConfig {

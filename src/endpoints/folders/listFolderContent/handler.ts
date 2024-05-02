@@ -1,24 +1,27 @@
-import {Folder} from '../../../definitions/folder';
-import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {areMountsCompletelyIngestedForFolder} from '../../fileBackends/mountUtils';
-import {fileListExtractor} from '../../files/utils';
+import {Folder} from '../../../definitions/folder.js';
+import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {areMountsCompletelyIngestedForFolder} from '../../fileBackends/mountUtils.js';
+import {fileListExtractor} from '../../files/utils.js';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
-} from '../../pagination';
+} from '../../pagination.js';
 import {
   PaginationQuery,
   kEndpointResultNoteCodeMap,
   kEndpointResultNotesToMessageMap,
-} from '../../types';
-import {folderListExtractor} from '../utils';
-import {ListFolderContentEndpoint} from './types';
-import {getWorkspaceAndParentFolder, listFolderContentQuery} from './utils';
-import {listFolderContentJoiSchema} from './validation';
+} from '../../types.js';
+import {folderListExtractor} from '../utils.js';
+import {ListFolderContentEndpoint} from './types.js';
+import {getWorkspaceAndParentFolder, listFolderContentQuery} from './utils.js';
+import {listFolderContentJoiSchema} from './validation.js';
 
 const listFolderContent: ListFolderContentEndpoint = async instData => {
   const data = validate(instData.data, listFolderContentJoiSchema);

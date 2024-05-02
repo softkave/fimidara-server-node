@@ -1,12 +1,12 @@
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   initTests,
   insertAgentTokenForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../testUtils/testUtils';
-import {agentTokenExtractor, getPublicAgentToken} from '../utils';
+} from '../../testUtils/testUtils.js';
+import {agentTokenExtractor, getPublicAgentToken} from '../utils.js';
 
 /**
  * TODO:

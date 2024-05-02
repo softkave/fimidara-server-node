@@ -7,8 +7,8 @@ import {
   getGreetingText,
   getHeaderHTML,
   getHeaderText,
-} from './helpers';
-import {BaseEmailTemplateProps} from './types';
+} from './helpers.js';
+import {BaseEmailTemplateProps} from './types.js';
 
 export const kConfirmEmailAddressEmail = {
   title: 'Confirm your email address',

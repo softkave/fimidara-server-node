@@ -1,9 +1,9 @@
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils';
-import {assertUser} from '../utils';
-import {GetUserDataEndpoint} from './types';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils.js';
+import {assertUser} from '../utils.js';
+import {GetUserDataEndpoint} from './types.js';
 
 const getUserData: GetUserDataEndpoint = async instData => {
   const agent = await kUtilsInjectables

@@ -1,10 +1,10 @@
-import {ExportedHttpEndpointWithMddocDefinition} from '../types';
-import {AddFolderEndpoint} from './addFolder/types';
-import {CountFolderContentEndpoint} from './countFolderContent/types';
-import {DeleteFolderEndpoint} from './deleteFolder/types';
-import {GetFolderEndpoint} from './getFolder/types';
-import {ListFolderContentEndpoint} from './listFolderContent/types';
-import {UpdateFolderEndpoint} from './updateFolder/types';
+import {ExportedHttpEndpointWithMddocDefinition} from '../types.js';
+import {AddFolderEndpoint} from './addFolder/types.js';
+import {CountFolderContentEndpoint} from './countFolderContent/types.js';
+import {DeleteFolderEndpoint} from './deleteFolder/types.js';
+import {GetFolderEndpoint} from './getFolder/types.js';
+import {ListFolderContentEndpoint} from './listFolderContent/types.js';
+import {UpdateFolderEndpoint} from './updateFolder/types.js';
 
 export type AddFolderHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<AddFolderEndpoint>;

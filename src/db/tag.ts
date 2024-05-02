@@ -1,6 +1,6 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {Tag} from '../definitions/tag';
-import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
+import {Tag} from '../definitions/tag.js';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils.js';
 
 const tagSchema = ensureMongoTypeFields<Tag>({
   ...workspaceResourceSchema,

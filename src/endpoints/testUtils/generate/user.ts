@@ -1,14 +1,14 @@
 import {faker} from '@faker-js/faker';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {User} from '../../../definitions/user';
-import {getTimestamp} from '../../../utils/dateFns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {User} from '../../../definitions/user.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {
   defaultGeneratePartialTestDataFn,
   GeneratePartialTestDataFn,
   generateTestList,
-} from './utils';
+} from './utils.js';
 
 export function generateUserForTest(seed: Partial<User> = {}) {
   const createdAt = getTimestamp();

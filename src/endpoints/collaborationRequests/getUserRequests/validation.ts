@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
-import {endpointValidationSchemas} from '../../validation';
-import {GetUserCollaborationRequestsEndpointParams} from './types';
+import {endpointValidationSchemas} from '../../validation.js';
+import {GetUserCollaborationRequestsEndpointParams} from './types.js';
 
 export const getUserRequestsJoiSchema =
   Joi.object<GetUserCollaborationRequestsEndpointParams>()

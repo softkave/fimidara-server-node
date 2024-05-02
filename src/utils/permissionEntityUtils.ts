@@ -1,4 +1,4 @@
-import {PermissionEntityInheritanceMap} from '../definitions/permissionGroups';
+import {PermissionEntityInheritanceMap} from '../definitions/permissionGroups.js';
 
 export function sortPermissionEntityInheritanceMap(props: {
   map: PermissionEntityInheritanceMap;

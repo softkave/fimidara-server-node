@@ -1,17 +1,17 @@
-import {PermissionGroup} from '../../../definitions/permissionGroups';
+import {PermissionGroup} from '../../../definitions/permissionGroups.js';
 import {
   FimidaraPermissionAction,
   PermissionItem,
   kFimidaraPermissionActionsMap,
-} from '../../../definitions/permissionItem';
+} from '../../../definitions/permissionItem.js';
 import {
   Agent,
   FimidaraResourceType,
   kFimidaraResourceType,
-} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
-import {getTimestamp} from '../../../utils/dateFns';
-import {getNewIdForResource, newWorkspaceResource} from '../../../utils/resource';
+} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {getNewIdForResource, newWorkspaceResource} from '../../../utils/resource.js';
 
 export const DEFAULT_ADMIN_PERMISSION_GROUP_NAME = 'Admin';
 export const DEFAULT_PUBLIC_PERMISSION_GROUP_NAME = 'Public';

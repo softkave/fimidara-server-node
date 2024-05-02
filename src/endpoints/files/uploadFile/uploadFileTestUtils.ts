@@ -1,9 +1,9 @@
 import {faker} from '@faker-js/faker';
-import {PublicWorkspace, Workspace} from '../../../definitions/workspace';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {addRootnameToPath} from '../../folders/utils';
-import EndpointReusableQueries from '../../queries';
+import {PublicWorkspace, Workspace} from '../../../definitions/workspace.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {addRootnameToPath} from '../../folders/utils.js';
+import EndpointReusableQueries from '../../queries.js';
 import {
   IInsertUserForTestResult,
   IInsertWorkspaceForTestResult,
@@ -12,18 +12,18 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestForPublicAgent,
-} from '../../testUtils/testUtils';
-import deleteFile from '../deleteFile/handler';
-import {DeleteFileEndpointParams} from '../deleteFile/types';
-import getFile from '../readFile/handler';
-import {ReadFileEndpointParams} from '../readFile/types';
-import updateFileDetails from '../updateFileDetails/handler';
+} from '../../testUtils/testUtils.js';
+import deleteFile from '../deleteFile/handler.js';
+import {DeleteFileEndpointParams} from '../deleteFile/types.js';
+import getFile from '../readFile/handler.js';
+import {ReadFileEndpointParams} from '../readFile/types.js';
+import updateFileDetails from '../updateFileDetails/handler.js';
 import {
   UpdateFileDetailsEndpointParams,
   UpdateFileDetailsInput,
-} from '../updateFileDetails/types';
-import {fileExtractor} from '../utils';
-import {UploadFileEndpointParams} from './types';
+} from '../updateFileDetails/types.js';
+import {fileExtractor} from '../utils.js';
+import {UploadFileEndpointParams} from './types.js';
 
 export const uploadFileBaseTest = async (
   input: Partial<UploadFileEndpointParams> = {},

@@ -1,15 +1,15 @@
 import {isNil, set} from 'lodash';
-import {appAssert} from '../../../utils/assertion';
-import {convertToArray} from '../../../utils/fns';
-import {getNewId} from '../../../utils/resource';
-import {AnyFn, AnyObject, OrArray, StringKeysOnly} from '../../../utils/types';
+import {appAssert} from '../../../utils/assertion.js';
+import {convertToArray} from '../../../utils/fns.js';
+import {getNewId} from '../../../utils/resource.js';
+import {AnyFn, AnyObject, OrArray, StringKeysOnly} from '../../../utils/types.js';
 import {
   ComparisonLiteralFieldQueryOps,
   DataQuery,
   KeyedComparisonOps,
-} from '../data/types';
-import {kDataModels} from '../injection/injectables';
-import {SemanticProviderMutationParams, SemanticProviderUtils} from './types';
+} from '../data/types.js';
+import {kDataModels} from '../injection/injectables.js';
+import {SemanticProviderMutationParams, SemanticProviderUtils} from './types.js';
 
 interface InternalTxnStructure {
   __fimidaraTxnId?: string;

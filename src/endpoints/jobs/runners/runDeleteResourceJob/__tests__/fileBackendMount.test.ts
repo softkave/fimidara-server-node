@@ -1,13 +1,13 @@
 import {flatten} from 'lodash';
-import {FileBackendMount} from '../../../../../definitions/fileBackend';
-import {kFimidaraResourceType} from '../../../../../definitions/system';
+import {FileBackendMount} from '../../../../../definitions/fileBackend.js';
+import {kFimidaraResourceType} from '../../../../../definitions/system.js';
 import {
   generateAndInsertFileBackendMountListForTest,
   generateAndInsertResolvedMountEntryListForTest,
-} from '../../../../testUtils/generate/fileBackend';
-import {completeTests} from '../../../../testUtils/helpers/testFns';
-import {initTests} from '../../../../testUtils/testUtils';
-import {deleteFileBackendMountCascadeEntry} from '../fileBackendMount';
+} from '../../../../testUtils/generate/fileBackend.js';
+import {completeTests} from '../../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../../testUtils/testUtils.js';
+import {deleteFileBackendMountCascadeEntry} from '../fileBackendMount.js';
 import {
   GenerateResourceFn,
   GenerateTypeChildrenDefinition,
@@ -16,7 +16,7 @@ import {
   testDeleteResourceArtifactsJob,
   testDeleteResourceJob0,
   testDeleteResourceSelfJob,
-} from './testUtils';
+} from './testUtils.js';
 
 beforeAll(async () => {
   await initTests();

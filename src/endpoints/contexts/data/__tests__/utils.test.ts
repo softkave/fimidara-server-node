@@ -1,13 +1,13 @@
 import {first} from 'lodash';
-import {CombinationToken, combineTokens} from '../../../../utils/combineTokens';
-import {DataQuery} from '../types';
+import {CombinationToken, combineTokens} from '../../../../utils/combineTokens.js';
+import {DataQuery} from '../types.js';
 import {
   BaseMongoTestData,
   generateBaseMongoTestDataFromCombination,
   generateBaseMongoTestQueryFromCombination,
   getArrTokenCountAndIndices,
   kBaseMongoTestConsts,
-} from './testUtils';
+} from './testUtils.js';
 
 export function testCombinations(
   tokens: CombinationToken[],

@@ -1,14 +1,14 @@
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
-import {extractResourceIdList} from '../../../utils/fns';
-import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {checkWorkspaceExists} from '../../workspaces/utils';
-import {DeletePermissionItemsEndpoint} from './types';
-import {beginDeletePermissionItemByInput} from './utils';
-import {deletePermissionItemsJoiSchema} from './validation';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {extractResourceIdList} from '../../../utils/fns.js';
+import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {checkWorkspaceExists} from '../../workspaces/utils.js';
+import {DeletePermissionItemsEndpoint} from './types.js';
+import {beginDeletePermissionItemByInput} from './utils.js';
+import {deletePermissionItemsJoiSchema} from './validation.js';
 
 const deletePermissionItems: DeletePermissionItemsEndpoint = async instData => {
   const data = validate(instData.data, deletePermissionItemsJoiSchema);

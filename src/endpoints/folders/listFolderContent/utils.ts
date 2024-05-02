@@ -1,20 +1,20 @@
 import {first, isUndefined} from 'lodash';
-import {Folder, FolderMatcher} from '../../../definitions/folder';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
-import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
+import {Folder, FolderMatcher} from '../../../definitions/folder.js';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
 import {
   getResourcePermissionContainers,
   kResolvedTargetChildrenAccess,
   resolveTargetChildrenAccessCheckWithAgent,
-} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
-import {EndpointOptionalWorkspaceIDParam} from '../../types';
-import {PermissionDeniedError} from '../../users/errors';
-import {assertWorkspace, getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {getFolderWithMatcher} from '../getFolderWithMatcher';
-import {getWorkspaceRootnameFromPath} from '../utils';
+} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
+import {EndpointOptionalWorkspaceIDParam} from '../../types.js';
+import {PermissionDeniedError} from '../../users/errors.js';
+import {assertWorkspace, getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {getFolderWithMatcher} from '../getFolderWithMatcher.js';
+import {getWorkspaceRootnameFromPath} from '../utils.js';
 
 export async function listFolderContentQuery(
   agent: SessionAgent,
@@ -62,7 +62,7 @@ export async function getWorkspaceAndParentFolder(
   opts?: SemanticProviderMutationParams
 ) {
   let workspace: Workspace | null | undefined = null,
-    parentFolder: Folder | null | undefined = undefined;
+    parentFolder: Folder | null = null;
 
   // Check if folderpath contains only the workspace rootname and fetch
   // root-level folders and files

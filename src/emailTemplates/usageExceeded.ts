@@ -1,6 +1,6 @@
-import {UsageRecordCategoryMap} from '../definitions/usageRecord';
-import {UsageThreshold} from '../definitions/workspace';
-import {multilineTextToParagraph} from '../utils/fns';
+import {UsageRecordCategoryMap} from '../definitions/usageRecord.js';
+import {UsageThreshold} from '../definitions/workspace.js';
+import {multilineTextToParagraph} from '../utils/fns.js';
 import {
   emailHelperChars,
   emailTemplateStyles,
@@ -12,8 +12,8 @@ import {
   getHeaderText,
   getLoginSectionHTML,
   getLoginSectionText,
-} from './helpers';
-import {BaseEmailTemplateProps} from './types';
+} from './helpers.js';
+import {BaseEmailTemplateProps} from './types.js';
 
 export interface UsageExceededEmailProps extends BaseEmailTemplateProps {
   workspaceName: string;

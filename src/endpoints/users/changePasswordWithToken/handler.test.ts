@@ -1,30 +1,30 @@
 import {add} from 'date-fns';
-import {AgentToken} from '../../../definitions/agentToken';
+import {AgentToken} from '../../../definitions/agentToken.js';
 import {
   kCurrentJWTTokenVersion,
   kFimidaraResourceType,
   kTokenAccessScope,
-} from '../../../definitions/system';
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {getTimestamp} from '../../../utils/dateFns';
-import {newResource} from '../../../utils/resource';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import EndpointReusableQueries from '../../queries';
-import {completeTests} from '../../testUtils/helpers/testFns';
+} from '../../../definitions/system.js';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {newResource} from '../../../utils/resource.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import EndpointReusableQueries from '../../queries.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {kUserConstants} from '../constants';
-import login from '../login/login';
-import {LoginEndpointParams} from '../login/types';
-import {userExtractor} from '../utils';
-import changePasswordWithToken from './handler';
-import {ChangePasswordWithTokenEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import {kUserConstants} from '../constants.js';
+import login from '../login/login.js';
+import {LoginEndpointParams} from '../login/types.js';
+import {userExtractor} from '../utils.js';
+import changePasswordWithToken from './handler.js';
+import {ChangePasswordWithTokenEndpointParams} from './types.js';
 
 /**
  * TODO:

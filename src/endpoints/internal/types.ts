@@ -1,8 +1,8 @@
-import {ExportedHttpEndpointWithMddocDefinition} from '../types';
-import {GetUsersEndpoint} from './getUsers/types';
-import {GetWaitlistedUsersEndpoint} from './getWaitlistedUsers/types';
-import {GetWorkspacesEndpoint} from './getWorkspaces/types';
-import {UpgradeWaitlistedUsersEndpoint} from './upgradeWaitlistedUsers/types';
+import {ExportedHttpEndpointWithMddocDefinition} from '../types.js';
+import {GetUsersEndpoint} from './getUsers/types.js';
+import {GetWaitlistedUsersEndpoint} from './getWaitlistedUsers/types.js';
+import {GetWorkspacesEndpoint} from './getWorkspaces/types.js';
+import {UpgradeWaitlistedUsersEndpoint} from './upgradeWaitlistedUsers/types.js';
 
 export type GetWaitlistedUsersHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<GetWaitlistedUsersEndpoint>;

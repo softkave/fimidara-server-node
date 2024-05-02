@@ -1,8 +1,8 @@
-import {kEndpointConstants} from '../endpoints/constants';
+import {kEndpointConstants} from '../endpoints/constants.js';
 import OperationError, {
   getErrorMessageFromParams,
   OperationErrorParameters,
-} from './OperationError';
+} from './OperationError.js';
 
 export class ServerError extends OperationError {
   name = 'ServerError';

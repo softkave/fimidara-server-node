@@ -1,13 +1,13 @@
 import {faker} from '@faker-js/faker';
-import RequestData from '../../RequestData';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import RequestData from '../../RequestData.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import getUserData from './getUserData';
+} from '../../testUtils/testUtils.js';
+import getUserData from './getUserData.js';
 
 /**
  * TODO:

@@ -2,7 +2,7 @@ import {
   FimdaraDeployOpLogEvent,
   FimidaraDeployOpLogItem,
   FimidaraDeployOpLogItemInput,
-} from './types';
+} from './types.js';
 
 class FimidaraDeployOpLog {
   static symbols = {

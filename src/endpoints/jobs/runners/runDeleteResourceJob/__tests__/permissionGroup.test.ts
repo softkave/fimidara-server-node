@@ -1,9 +1,9 @@
-import {PermissionGroup} from '../../../../../definitions/permissionGroups';
-import {kFimidaraResourceType} from '../../../../../definitions/system';
-import {generateAndInsertPermissionGroupListForTest} from '../../../../testUtils/generate/permissionGroup';
-import {completeTests} from '../../../../testUtils/helpers/testFns';
-import {initTests} from '../../../../testUtils/testUtils';
-import {deletePermissionGroupCascadeEntry} from '../permissionGroup';
+import {PermissionGroup} from '../../../../../definitions/permissionGroups.js';
+import {kFimidaraResourceType} from '../../../../../definitions/system.js';
+import {generateAndInsertPermissionGroupListForTest} from '../../../../testUtils/generate/permissionGroup.js';
+import {completeTests} from '../../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../../testUtils/testUtils.js';
+import {deletePermissionGroupCascadeEntry} from '../permissionGroup.js';
 import {
   GenerateResourceFn,
   GenerateTypeChildrenDefinition,
@@ -13,7 +13,7 @@ import {
   testDeleteResourceArtifactsJob,
   testDeleteResourceJob0,
   testDeleteResourceSelfJob,
-} from './testUtils';
+} from './testUtils.js';
 
 beforeAll(async () => {
   await initTests();

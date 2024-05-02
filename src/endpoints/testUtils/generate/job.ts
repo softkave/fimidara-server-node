@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {kAppPresetShards} from '../../../definitions/app';
+import {kAppPresetShards} from '../../../definitions/app.js';
 import {
   Job,
   JobStatusHistory,
@@ -7,14 +7,14 @@ import {
   kJobRunnerV1,
   kJobStatus,
   kJobType,
-} from '../../../definitions/job';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {getTimestamp} from '../../../utils/dateFns';
-import {getNewIdForResource, newResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {JobInput} from '../../jobs/queueJobs';
-import {getRandomAppType} from './app';
+} from '../../../definitions/job.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {getNewIdForResource, newResource} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {JobInput} from '../../jobs/queueJobs.js';
+import {getRandomAppType} from './app.js';
 
 export function getRandomJobType() {
   return faker.helpers.arrayElement(Object.values(kJobType));

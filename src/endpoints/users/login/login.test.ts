@@ -1,17 +1,17 @@
 import {faker} from '@faker-js/faker';
-import {kSystemSessionAgent} from '../../../utils/agent';
-import RequestData from '../../RequestData';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequest,
-} from '../../testUtils/testUtils';
-import login from './login';
-import {LoginEndpointParams} from './types';
-import {getUserClientAssignedToken, getUserToken} from './utils';
+} from '../../testUtils/testUtils.js';
+import login from './login.js';
+import {LoginEndpointParams} from './types.js';
+import {getUserClientAssignedToken, getUserToken} from './utils.js';
 
 /**
  * TODO:

@@ -1,13 +1,13 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {MessageChannel, Worker} from 'worker_threads';
-import {awaitOrTimeout} from '../../../../utils/promiseFns';
-import {completeTests} from '../../../testUtils/helpers/testFns';
-import {initTests} from '../../../testUtils/testUtils';
-import {FWorker, FWorkerData, kFWorkerMessageType} from '../FWorker';
-import {FWorkerMain} from '../FWorkerMain';
-import {FWorkerMessager} from '../FWorkerMessager';
-import {kFWorkerTestWorkerTerminateMessage} from '../testUtils/FWorkerTestWorker';
+import {awaitOrTimeout} from '../../../../utils/promiseFns.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../testUtils/testUtils.js';
+import {FWorker, FWorkerData, kFWorkerMessageType} from '../FWorker.js';
+import {FWorkerMain} from '../FWorkerMain.js';
+import {FWorkerMessager} from '../FWorkerMessager.js';
+import {kFWorkerTestWorkerTerminateMessage} from '../testUtils/FWorkerTestWorker.js';
 
 const kWorkerTestFilepath =
   './build/src/endpoints/jobs/fworker/testUtils/FWorkerTestWorker.js';

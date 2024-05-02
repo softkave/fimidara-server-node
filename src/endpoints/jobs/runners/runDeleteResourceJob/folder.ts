@@ -1,20 +1,20 @@
 import {pathJoin} from 'softkave-js-utils';
-import {ResolvedMountEntry} from '../../../../definitions/fileBackend';
-import {DeleteResourceCascadeFnDefaultArgs} from '../../../../definitions/job';
-import {kFimidaraResourceType} from '../../../../definitions/system';
+import {ResolvedMountEntry} from '../../../../definitions/fileBackend.js';
+import {DeleteResourceCascadeFnDefaultArgs} from '../../../../definitions/job.js';
+import {kFimidaraResourceType} from '../../../../definitions/system.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../contexts/injection/injectables';
-import {resolveBackendsMountsAndConfigs} from '../../../fileBackends/mountUtils';
-import {FolderQueries} from '../../../folders/queries';
-import {genericDeleteArtifacts, genericGetArtifacts} from './genericDefinitions';
+} from '../../../contexts/injection/injectables.js';
+import {resolveBackendsMountsAndConfigs} from '../../../fileBackends/mountUtils.js';
+import {FolderQueries} from '../../../folders/queries.js';
+import {genericDeleteArtifacts, genericGetArtifacts} from './genericDefinitions.js';
 import {
   DeleteResourceCascadeEntry,
   DeleteResourceFn,
   DeleteResourceGetArtifactsToDeleteFns,
   DeleteResourceGetPreRunMetaFn,
-} from './types';
+} from './types.js';
 
 interface DeleteFolderPreRunMeta {
   partialMountEntries: Array<Pick<ResolvedMountEntry, 'backendNamepath'>>;

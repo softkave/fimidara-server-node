@@ -1,28 +1,28 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
-import {kJobType} from '../../../definitions/job';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {pathJoin} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {NotFoundError} from '../../errors';
-import {getFolderpathInfo} from '../../folders/utils';
-import {generateAndInsertFileBackendConfigListForTest} from '../../testUtils/generate/fileBackend';
-import {generateTestFolderpathString} from '../../testUtils/generate/folder';
+import {kJobType} from '../../../definitions/job.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {pathJoin} from '../../../utils/fns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {NotFoundError} from '../../errors.js';
+import {getFolderpathInfo} from '../../folders/utils.js';
+import {generateAndInsertFileBackendConfigListForTest} from '../../testUtils/generate/fileBackend.js';
+import {generateTestFolderpathString} from '../../testUtils/generate/folder.js';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,
   generateTestFieldsCombinations,
-} from '../../testUtils/generate/utils';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
+} from '../../testUtils/generate/utils.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {
   completeTests,
   matchExpects,
   skTest,
   testCombinations,
-} from '../../testUtils/helpers/testFns';
+} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -30,13 +30,13 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import updateFileBackendMount from './handler';
+} from '../../testUtils/testUtils.js';
+import updateFileBackendMount from './handler.js';
 import {
   UpdateFileBackendMountEndpointParams,
   UpdateFileBackendMountEndpointResult,
   UpdateFileBackendMountInput,
-} from './types';
+} from './types.js';
 
 beforeAll(async () => {
   await initTests();

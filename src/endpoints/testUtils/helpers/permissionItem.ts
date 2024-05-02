@@ -1,12 +1,12 @@
 import {
   FimidaraPermissionAction,
   PermissionItem,
-} from '../../../definitions/permissionItem';
-import {FimidaraResourceType} from '../../../definitions/system';
-import {convertToArray, makeKey} from '../../../utils/fns';
-import {indexArray} from '../../../utils/indexArray';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {getInAndNinQuery} from '../../contexts/semantic/utils';
+} from '../../../definitions/permissionItem.js';
+import {FimidaraResourceType} from '../../../definitions/system.js';
+import {convertToArray, makeKey} from '../../../utils/fns.js';
+import {indexArray} from '../../../utils/indexArray.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {getInAndNinQuery} from '../../contexts/semantic/utils.js';
 
 export async function expectEntityHasPermissionsTargetingId(
   entityId: string | string[],

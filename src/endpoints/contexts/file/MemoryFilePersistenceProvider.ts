@@ -1,9 +1,9 @@
 import {isNumber} from 'lodash';
 import {Readable} from 'stream';
-import {FileBackendMount} from '../../../definitions/fileBackend';
-import {appAssert} from '../../../utils/assertion';
-import {streamToBuffer} from '../../../utils/fns';
-import {OmitProperties} from '../../../utils/types';
+import {FileBackendMount} from '../../../definitions/fileBackend.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {streamToBuffer} from '../../../utils/fns.js';
+import {OmitProperties} from '../../../utils/types.js';
 import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
@@ -24,8 +24,8 @@ import {
   PersistedFile,
   PersistedFileDescription,
   PersistedFolderDescription,
-} from './types';
-import {defaultToFimidaraPath, defaultToNativePath} from './utils';
+} from './types.js';
+import {defaultToFimidaraPath, defaultToNativePath} from './utils.js';
 
 type MemoryFilePersistenceProviderFile = OmitProperties<
   PersistedFileDescription,

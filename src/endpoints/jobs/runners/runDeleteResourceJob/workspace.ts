@@ -1,12 +1,12 @@
-import {kFimidaraResourceType} from '../../../../definitions/system';
-import {kSemanticModels} from '../../../contexts/injection/injectables';
-import {genericGetArtifacts, noopGetPreRunMetaFn} from './genericDefinitions';
+import {kFimidaraResourceType} from '../../../../definitions/system.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {genericGetArtifacts, noopGetPreRunMetaFn} from './genericDefinitions.js';
 import {
   DeleteResourceCascadeEntry,
   DeleteResourceDeleteArtifactsFns,
   DeleteResourceFn,
   DeleteResourceGetArtifactsToDeleteFns,
-} from './types';
+} from './types.js';
 
 const getArtifacts: DeleteResourceGetArtifactsToDeleteFns = {
   ...genericGetArtifacts,

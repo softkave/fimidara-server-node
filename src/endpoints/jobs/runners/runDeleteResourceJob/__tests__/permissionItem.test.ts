@@ -1,9 +1,9 @@
-import {PermissionItem} from '../../../../../definitions/permissionItem';
-import {kFimidaraResourceType} from '../../../../../definitions/system';
-import {generateAndInsertPermissionItemListForTest} from '../../../../testUtils/generate/permissionItem';
-import {completeTests} from '../../../../testUtils/helpers/testFns';
-import {initTests} from '../../../../testUtils/testUtils';
-import {deletePermissionItemCascadeEntry} from '../permissionItem';
+import {PermissionItem} from '../../../../../definitions/permissionItem.js';
+import {kFimidaraResourceType} from '../../../../../definitions/system.js';
+import {generateAndInsertPermissionItemListForTest} from '../../../../testUtils/generate/permissionItem.js';
+import {completeTests} from '../../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../../testUtils/testUtils.js';
+import {deletePermissionItemCascadeEntry} from '../permissionItem.js';
 import {
   GenerateResourceFn,
   GenerateTypeChildrenDefinition,
@@ -12,7 +12,7 @@ import {
   testDeleteResourceArtifactsJob,
   testDeleteResourceJob0,
   testDeleteResourceSelfJob,
-} from './testUtils';
+} from './testUtils.js';
 
 beforeAll(async () => {
   await initTests();

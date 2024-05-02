@@ -1,15 +1,15 @@
-import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
+import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
-} from '../../pagination';
-import {usageRecordListExtractor} from '../utils';
-import {GetWorkspaceSummedUsageEndpoint} from './types';
-import {getWorkspaceSummedUsageQuery} from './utils';
-import {getWorkspaceSummedUsageJoiSchema} from './validation';
+} from '../../pagination.js';
+import {usageRecordListExtractor} from '../utils.js';
+import {GetWorkspaceSummedUsageEndpoint} from './types.js';
+import {getWorkspaceSummedUsageQuery} from './utils.js';
+import {getWorkspaceSummedUsageJoiSchema} from './validation.js';
 
 const getWorkspaceSummedUsage: GetWorkspaceSummedUsageEndpoint = async instData => {
   const data = validate(instData.data, getWorkspaceSummedUsageJoiSchema);

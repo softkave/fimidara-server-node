@@ -1,15 +1,15 @@
-import {ValidationError} from '../../../utils/errors';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {ResourceExistsError} from '../../errors';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {ValidationError} from '../../../utils/errors.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {ResourceExistsError} from '../../errors.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   initTests,
   insertFileBackendConfigForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../testUtils/testUtils';
-import {fileBackendConfigExtractor} from '../utils';
+} from '../../testUtils/testUtils.js';
+import {fileBackendConfigExtractor} from '../utils.js';
 
 beforeAll(async () => {
   await initTests();

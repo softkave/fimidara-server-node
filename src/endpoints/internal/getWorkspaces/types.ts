@@ -1,5 +1,5 @@
-import {PublicWorkspace} from '../../../definitions/workspace';
-import {Endpoint} from '../../types';
+import {PublicWorkspace} from '../../../definitions/workspace.js';
+import {Endpoint} from '../../types.js';
 
 export interface GetWorkspacesEndpointParams {}
 

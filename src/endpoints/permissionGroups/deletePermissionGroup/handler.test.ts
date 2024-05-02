@@ -1,10 +1,10 @@
-import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
-import {PermissionGroupMatcher} from '../../../definitions/permissionGroups';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {appAssert} from '../../../utils/assertion';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job.js';
+import {PermissionGroupMatcher} from '../../../definitions/permissionGroups.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {appAssert} from '../../../utils/assertion.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -12,8 +12,8 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import deletePermissionGroup from './handler';
+} from '../../testUtils/testUtils.js';
+import deletePermissionGroup from './handler.js';
 
 beforeAll(async () => {
   await initTests();

@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import userValidationSchemas from '../validation';
+import userValidationSchemas from '../validation.js';
 
 export const forgotPasswordJoiSchema = Joi.object()
   .keys({

@@ -1,14 +1,14 @@
-import {CollaborationRequest} from '../../../../definitions/collaborationRequest';
-import {DataQuery} from '../../data/types';
-import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
+import {CollaborationRequest} from '../../../../definitions/collaborationRequest.js';
+import {DataQuery} from '../../data/types.js';
+import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider.js';
 import {
   SemanticProviderOpParams,
   SemanticProviderQueryListParams,
   SemanticProviderQueryParams,
-} from '../types';
-import {getIgnoreCaseDataQueryRegExp} from '../utils';
-import {SemanticCollaborationRequestProvider} from './types';
+} from '../types.js';
+import {getIgnoreCaseDataQueryRegExp} from '../utils.js';
+import {SemanticCollaborationRequestProvider} from './types.js';
 
 export class DataSemanticCollaborationRequest
   extends DataSemanticWorkspaceResourceProvider<CollaborationRequest>

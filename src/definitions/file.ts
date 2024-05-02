@@ -1,4 +1,4 @@
-import {PublicWorkspaceResource, ToPublicDefinitions, WorkspaceResource} from './system';
+import {PublicWorkspaceResource, ToPublicDefinitions, WorkspaceResource} from './system.js';
 
 export interface File extends WorkspaceResource {
   parentId: string | null;

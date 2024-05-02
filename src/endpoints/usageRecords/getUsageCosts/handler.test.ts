@@ -1,9 +1,9 @@
-import RequestData from '../../RequestData';
-import {completeTests} from '../../testUtils/helpers/testFns';
-import {initTests, mockExpressRequestForPublicAgent} from '../../testUtils/testUtils';
-import {usageCosts} from '../constants';
-import getUsageCosts from './handler';
-import {GetUsageCostsEndpointParams} from './types';
+import RequestData from '../../RequestData.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {initTests, mockExpressRequestForPublicAgent} from '../../testUtils/testUtils.js';
+import {usageCosts} from '../constants.js';
+import getUsageCosts from './handler.js';
+import {GetUsageCostsEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

@@ -1,18 +1,18 @@
-import {File} from '../../../../definitions/file';
-import {PresignedPath} from '../../../../definitions/presignedPath';
-import {Resource} from '../../../../definitions/system';
-import {FileQueries} from '../../../files/queries';
-import {DataQuery} from '../../data/types';
-import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
+import {File} from '../../../../definitions/file.js';
+import {PresignedPath} from '../../../../definitions/presignedPath.js';
+import {Resource} from '../../../../definitions/system.js';
+import {FileQueries} from '../../../files/queries.js';
+import {DataQuery} from '../../data/types.js';
+import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
   SemanticProviderQueryListParams,
   SemanticProviderQueryParams,
-} from '../types';
-import {getInAndNinQuery} from '../utils';
-import {SemanticFileProvider, SemanticPresignedPathProvider} from './types';
+} from '../types.js';
+import {getInAndNinQuery} from '../utils.js';
+import {SemanticFileProvider, SemanticPresignedPathProvider} from './types.js';
 
 export class DataSemanticFile
   extends DataSemanticWorkspaceResourceProvider<File>

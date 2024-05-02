@@ -1,6 +1,6 @@
-import addTag from './addTag/handler';
-import countWorkspaceTags from './countWorkspaceTags/handler';
-import deleteTag from './deleteTag/handler';
+import addTag from './addTag/handler.js';
+import countWorkspaceTags from './countWorkspaceTags/handler.js';
+import deleteTag from './deleteTag/handler.js';
 import {
   addTagEndpointDefinition,
   countWorkspaceTagsEndpointDefinition,
@@ -8,11 +8,11 @@ import {
   getTagEndpointDefinition,
   getWorkspaceTagsEndpointDefinition,
   updateTagEndpointDefinition,
-} from './endpoints.mddoc';
-import getTag from './getTag/handler';
-import getWorkspaceTags from './getWorkspaceTags/handler';
-import {TagsExportedEndpoints} from './types';
-import updateTag from './updateTag/handler';
+} from './endpoints.mddoc.js';
+import getTag from './getTag/handler.js';
+import getWorkspaceTags from './getWorkspaceTags/handler.js';
+import {TagsExportedEndpoints} from './types.js';
+import updateTag from './updateTag/handler.js';
 
 export function getTagsPublicHttpEndpoints() {
   const tagsExportedEndpoints: TagsExportedEndpoints = {

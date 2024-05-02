@@ -1,14 +1,14 @@
-import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import EndpointReusableQueries from '../../queries';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import EndpointReusableQueries from '../../queries.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   initTests,
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../testUtils/testUtils';
-import {permissionGroupExtractor} from '../utils';
+} from '../../testUtils/testUtils.js';
+import {permissionGroupExtractor} from '../utils.js';
 
 /**
  * TODO:

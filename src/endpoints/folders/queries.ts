@@ -1,7 +1,7 @@
-import {Folder} from '../../definitions/folder';
-import {FolderQuery} from '../contexts/data/types';
-import {getStringListQuery} from '../contexts/semantic/utils';
-import EndpointReusableQueries from '../queries';
+import {Folder} from '../../definitions/folder.js';
+import {FolderQuery} from '../contexts/data/types.js';
+import {getStringListQuery} from '../contexts/semantic/utils.js';
+import EndpointReusableQueries from '../queries.js';
 
 function getByNamepathOnly(folder: Pick<Folder, 'namepath'>): FolderQuery {
   const {namepath} = folder;

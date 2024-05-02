@@ -1,17 +1,17 @@
 import {AnyObject, noopAsync} from 'softkave-js-utils';
-import {kFimidaraResourceType} from '../../../../definitions/system';
+import {kFimidaraResourceType} from '../../../../definitions/system.js';
 import {
   DeleteResourceCascadeEntry,
   DeleteResourceDeleteArtifactsFns,
   DeleteResourceFn,
   DeleteResourceGetArtifactsToDeleteFns,
   DeleteResourceGetPreRunMetaFn,
-} from './types';
+} from './types.js';
 import {
   deleteResourceAssignedItemArtifacts,
   deleteResourcePermissionItemArtifacts,
   getResourcePermissionItemArtifacts,
-} from './utils';
+} from './utils.js';
 
 export const noopGetArtifacts: DeleteResourceGetArtifactsToDeleteFns = Object.values(
   kFimidaraResourceType

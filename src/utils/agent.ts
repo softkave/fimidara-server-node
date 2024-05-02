@@ -1,17 +1,17 @@
-import {AgentToken} from '../definitions/agentToken';
+import {AgentToken} from '../definitions/agentToken.js';
 import {
   kCurrentJWTTokenVersion,
   kFimidaraResourceType,
   kTokenAccessScope,
   SessionAgent,
-} from '../definitions/system';
+} from '../definitions/system.js';
 import {
   getNewIdForResource,
   kIdSeparator,
   kIdSize,
   kResourceTypeShortNames,
   newResource,
-} from './resource';
+} from './resource.js';
 
 const kId01 = new Array(kIdSize - 1).fill(0).concat([1]).join('');
 const kId02 = new Array(kIdSize - 1).fill(0).concat([2]).join('');

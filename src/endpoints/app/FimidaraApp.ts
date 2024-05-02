@@ -1,12 +1,12 @@
-import {App, AppShardId, AppType} from '../../definitions/app';
-import {kFimidaraResourceType} from '../../definitions/system';
-import {getTimestamp} from '../../utils/dateFns';
-import {DisposableResource} from '../../utils/disposables';
-import {newResource} from '../../utils/resource';
-import {AppQuery} from '../contexts/data/types';
-import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
-import {SemanticProviderMutationParams} from '../contexts/semantic/types';
-import {kAppConstants} from './constants';
+import {App, AppShardId, AppType} from '../../definitions/app.js';
+import {kFimidaraResourceType} from '../../definitions/system.js';
+import {getTimestamp} from '../../utils/dateFns.js';
+import {DisposableResource} from '../../utils/disposables.js';
+import {newResource} from '../../utils/resource.js';
+import {AppQuery} from '../contexts/data/types.js';
+import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../contexts/semantic/types.js';
+import {kAppConstants} from './constants.js';
 
 // type ShardedDbResourceMigrationFn = AnyFn<
 //   [

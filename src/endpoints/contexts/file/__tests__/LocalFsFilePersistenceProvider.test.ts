@@ -2,26 +2,26 @@ import assert from 'assert';
 import fse from 'fs-extra';
 import path from 'path';
 import {Readable} from 'stream';
-import {kFimidaraResourceType} from '../../../../definitions/system';
-import {loopAndCollate, pathJoin, pathSplit} from '../../../../utils/fns';
-import {getNewIdForResource} from '../../../../utils/resource';
+import {kFimidaraResourceType} from '../../../../definitions/system.js';
+import {loopAndCollate, pathJoin, pathSplit} from '../../../../utils/fns.js';
+import {getNewIdForResource} from '../../../../utils/resource.js';
 import {
   generateTestFileName,
   generateTestFilepathString,
-} from '../../../testUtils/generate/file';
+} from '../../../testUtils/generate/file.js';
 import {
   generateAndInsertFileBackendMountListForTest,
   generateFileBackendMountForTest,
-} from '../../../testUtils/generate/fileBackend';
+} from '../../../testUtils/generate/fileBackend.js';
 import {
   generateTestFolderName,
   generateTestFolderpathString,
-} from '../../../testUtils/generate/folder';
-import {expectFileBodyEqual} from '../../../testUtils/helpers/file';
-import {completeTests} from '../../../testUtils/helpers/testFns';
-import {initTests} from '../../../testUtils/testUtils';
-import {kUtilsInjectables} from '../../injection/injectables';
-import {LocalFsFilePersistenceProvider} from '../LocalFsFilePersistenceProvider';
+} from '../../../testUtils/generate/folder.js';
+import {expectFileBodyEqual} from '../../../testUtils/helpers/file.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../testUtils/testUtils.js';
+import {kUtilsInjectables} from '../../injection/injectables.js';
+import {LocalFsFilePersistenceProvider} from '../LocalFsFilePersistenceProvider.js';
 
 const testDirName = `${Date.now()}`;
 let testDir: string | undefined;

@@ -3,40 +3,40 @@ import {
   FileBackendConfig,
   FileBackendMount,
   kFileBackendType,
-} from '../../../definitions/fileBackend';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {extractResourceIdList} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {AnyObject} from '../../../utils/types';
-import {FimidaraFilePersistenceProvider} from '../../contexts/file/FimidaraFilePersistenceProvider';
-import {S3FilePersistenceProvider} from '../../contexts/file/S3FilePersistenceProvider';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {kRegisterUtilsInjectables} from '../../contexts/injection/register';
-import NoopFilePersistenceProviderContext from '../../testUtils/context/file/NoopFilePersistenceProviderContext';
-import {generateTestFileName} from '../../testUtils/generate/file';
+} from '../../../definitions/fileBackend.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {extractResourceIdList} from '../../../utils/fns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {AnyObject} from '../../../utils/types.js';
+import {FimidaraFilePersistenceProvider} from '../../contexts/file/FimidaraFilePersistenceProvider.js';
+import {S3FilePersistenceProvider} from '../../contexts/file/S3FilePersistenceProvider.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../contexts/injection/register.js';
+import NoopFilePersistenceProviderContext from '../../testUtils/context/file/NoopFilePersistenceProviderContext.js';
+import {generateTestFileName} from '../../testUtils/generate/file.js';
 import {
   generateAWSS3Credentials,
   generateAndInsertFileBackendMountListForTest,
   generateFileBackendMountForTest,
-} from '../../testUtils/generate/fileBackend';
+} from '../../testUtils/generate/fileBackend.js';
 import {
   generateAndInsertTestFolders,
   generateTestFolderpath,
-} from '../../testUtils/generate/folder';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests, skTest} from '../../testUtils/helpers/testFns';
+} from '../../testUtils/generate/folder.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {completeTests, skTest} from '../../testUtils/helpers/testFns.js';
 import {
   initTests,
   insertFileBackendConfigForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../testUtils/testUtils';
+} from '../../testUtils/testUtils.js';
 import {
   initBackendProvidersForMounts,
   resolveBackendsMountsAndConfigs,
   resolveMountsForFolder,
   sortMounts,
-} from '../mountUtils';
+} from '../mountUtils.js';
 
 describe('file backend mount utils', () => {
   beforeAll(async () => {

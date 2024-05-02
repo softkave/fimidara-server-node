@@ -1,14 +1,14 @@
 import * as Joi from 'joi';
-import {kValidationSchemas} from '../../../utils/validationUtils';
-import {kEndpointConstants} from '../../constants';
-import workspaceValidationSchemas from '../../workspaces/validation';
-import {permissionItemConstants} from '../constants';
-import permissionItemValidationSchemas from '../validation';
+import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import {kEndpointConstants} from '../../constants.js';
+import workspaceValidationSchemas from '../../workspaces/validation.js';
+import {permissionItemConstants} from '../constants.js';
+import permissionItemValidationSchemas from '../validation.js';
 import {
   ResolveEntityPermissionItemInput,
   ResolveEntityPermissionItemInputTarget,
   ResolveEntityPermissionsEndpointParams,
-} from './types';
+} from './types.js';
 
 const target = Joi.object<ResolveEntityPermissionItemInputTarget>().keys({
   targetId: permissionItemValidationSchemas.targetParts.targetId,

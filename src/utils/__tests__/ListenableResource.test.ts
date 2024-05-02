@@ -1,4 +1,4 @@
-import {ListenableResource} from '../ListenableResource';
+import {ListenableResource} from '../ListenableResource.js';
 
 describe('ListenableResource', () => {
   test('run', async () => {

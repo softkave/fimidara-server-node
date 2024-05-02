@@ -1,15 +1,15 @@
-import RequestData from '../../RequestData';
-import {insertTagForTest} from '../../testUtils/helpers/tag';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import RequestData from '../../RequestData.js';
+import {insertTagForTest} from '../../testUtils/helpers/tag.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import getTag from './handler';
-import {GetTagEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import getTag from './handler.js';
+import {GetTagEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

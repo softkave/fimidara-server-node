@@ -1,13 +1,13 @@
 import assert from 'assert';
-import {kAppType} from '../../../definitions/app';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {waitTimeout} from '../../../utils/fns';
-import {getNewId, getNewIdForResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {generateAndInsertAppListForTest} from '../../testUtils/generate/app';
-import {completeTests} from '../../testUtils/helpers/testFns';
-import {initTests} from '../../testUtils/testUtils';
-import {FimidaraApp} from '../FimidaraApp';
+import {kAppType} from '../../../definitions/app.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {waitTimeout} from '../../../utils/fns.js';
+import {getNewId, getNewIdForResource} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {generateAndInsertAppListForTest} from '../../testUtils/generate/app.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {initTests} from '../../testUtils/testUtils.js';
+import {FimidaraApp} from '../FimidaraApp.js';
 
 beforeAll(async () => {
   await initTests();

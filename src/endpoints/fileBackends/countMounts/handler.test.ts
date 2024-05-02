@@ -1,16 +1,16 @@
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import countFileBackendMounts from './handler';
-import {CountFileBackendMountsEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import countFileBackendMounts from './handler.js';
+import {CountFileBackendMountsEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

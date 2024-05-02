@@ -2,22 +2,22 @@ import {compact} from 'lodash';
 import {
   CollaborationRequest,
   kCollaborationRequestStatusTypeMap,
-} from '../../../definitions/collaborationRequest';
-import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {appAssert} from '../../../utils/assertion';
-import {formatDate, getTimestamp} from '../../../utils/dateFns';
-import {newWorkspaceResource} from '../../../utils/resource';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {ResourceExistsError} from '../../errors';
-import {queueJobs} from '../../jobs/queueJobs';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {collaborationRequestForWorkspaceExtractor} from '../utils';
-import {SendCollaborationRequestEndpoint} from './types';
-import {sendCollaborationRequestJoiSchema} from './validation';
+} from '../../../definitions/collaborationRequest.js';
+import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {formatDate, getTimestamp} from '../../../utils/dateFns.js';
+import {newWorkspaceResource} from '../../../utils/resource.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {ResourceExistsError} from '../../errors.js';
+import {queueJobs} from '../../jobs/queueJobs.js';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {collaborationRequestForWorkspaceExtractor} from '../utils.js';
+import {SendCollaborationRequestEndpoint} from './types.js';
+import {sendCollaborationRequestJoiSchema} from './validation.js';
 
 const sendCollaborationRequest: SendCollaborationRequestEndpoint = async instData => {
   const data = validate(instData.data, sendCollaborationRequestJoiSchema);

@@ -2,22 +2,22 @@ import assert = require('assert');
 import {add} from 'date-fns';
 import {defaultTo} from 'lodash';
 import {Connection} from 'mongoose';
-import {getUsageRecordModel} from '../../db/usageRecord';
-import {getWorkspaceModel} from '../../db/workspace';
-import {kFimidaraResourceType} from '../../definitions/system';
+import {getUsageRecordModel} from '../../db/usageRecord.js';
+import {getWorkspaceModel} from '../../db/workspace.js';
+import {kFimidaraResourceType} from '../../definitions/system.js';
 import {
   UsageRecord,
   UsageRecordCategoryMap,
   UsageRecordFulfillmentStatus,
   UsageRecordFulfillmentStatusMap,
   UsageSummationTypeMap,
-} from '../../definitions/usageRecord';
-import {UsageThresholdLock, Workspace} from '../../definitions/workspace';
-import {kUtilsInjectables} from '../../endpoints/contexts/injection/injectables';
-import {usageRecordConstants} from '../../endpoints/usageRecords/constants';
-import {kSystemSessionAgent} from '../../utils/agent';
-import {getTimestamp} from '../../utils/dateFns';
-import {getNewIdForResource} from '../../utils/resource';
+} from '../../definitions/usageRecord.js';
+import {UsageThresholdLock, Workspace} from '../../definitions/workspace.js';
+import {kUtilsInjectables} from '../../endpoints/contexts/injection/injectables.js';
+import {usageRecordConstants} from '../../endpoints/usageRecords/constants.js';
+import {kSystemSessionAgent} from '../../utils/agent.js';
+import {getTimestamp} from '../../utils/dateFns.js';
+import {getNewIdForResource} from '../../utils/resource.js';
 
 /**
  * Aggregates usage records by month by category and total.

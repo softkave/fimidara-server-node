@@ -1,12 +1,12 @@
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {
   checkCollaborationRequestAuthorization02,
   collaborationRequestForWorkspaceExtractor,
-} from '../utils';
-import {GetWorkspaceCollaborationRequestEndpoint} from './types';
-import {getWorkspaceCollaborationRequestJoiSchema} from './validation';
+} from '../utils.js';
+import {GetWorkspaceCollaborationRequestEndpoint} from './types.js';
+import {getWorkspaceCollaborationRequestJoiSchema} from './validation.js';
 
 const getWorkspaceCollaborationRequest: GetWorkspaceCollaborationRequestEndpoint =
   async instData => {

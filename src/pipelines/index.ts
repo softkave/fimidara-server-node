@@ -1,10 +1,10 @@
 import {CronJob} from 'cron';
-import {getMongoConnection} from '../db/connection';
-import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
-import {getSuppliedConfig} from '../resources/config';
-import {appAssert} from '../utils/assertion';
-import {aggregateRecords} from './aggregate-usage-records/aggregateUsageRecords';
-import {unlockUsageThresholdLocks} from './unlock-usage-threshold-locks/unlockUsageThresholdLocks';
+import {getMongoConnection} from '../db/connection.js';
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
+import {getSuppliedConfig} from '../resources/config.js';
+import {appAssert} from '../utils/assertion.js';
+import {aggregateRecords} from './aggregate-usage-records/aggregateUsageRecords.js';
+import {unlockUsageThresholdLocks} from './unlock-usage-threshold-locks/unlockUsageThresholdLocks.js';
 
 // TODO: move to worker thread
 // TODO: have a mechanism to preven the start of another until the previous is

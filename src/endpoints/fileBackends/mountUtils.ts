@@ -1,31 +1,31 @@
 import {compact, first} from 'lodash';
-import {File} from '../../definitions/file';
+import {File} from '../../definitions/file.js';
 import {
   FileBackendConfig,
   FileBackendMount,
   kFileBackendType,
-} from '../../definitions/fileBackend';
-import {Folder} from '../../definitions/folder';
-import {IngestMountJobParams, Job, kJobStatus, kJobType} from '../../definitions/job';
-import {FimidaraExternalError} from '../../utils/OperationError';
-import {appAssert} from '../../utils/assertion';
-import {ServerError} from '../../utils/errors';
-import {loopAndCollateAsync} from '../../utils/fns';
-import {kReuseableErrors} from '../../utils/reusableErrors';
-import {PartialRecord} from '../../utils/types';
-import {kAsyncLocalStorageUtils} from '../contexts/asyncLocalStorage';
-import {DataQuery} from '../contexts/data/types';
+} from '../../definitions/fileBackend.js';
+import {Folder} from '../../definitions/folder.js';
+import {IngestMountJobParams, Job, kJobStatus, kJobType} from '../../definitions/job.js';
+import {FimidaraExternalError} from '../../utils/OperationError.js';
+import {appAssert} from '../../utils/assertion.js';
+import {ServerError} from '../../utils/errors.js';
+import {loopAndCollateAsync} from '../../utils/fns.js';
+import {kReuseableErrors} from '../../utils/reusableErrors.js';
+import {PartialRecord} from '../../utils/types.js';
+import {kAsyncLocalStorageUtils} from '../contexts/asyncLocalStorage.js';
+import {DataQuery} from '../contexts/data/types.js';
 import {
   FilePersistenceProvider,
   FilePersistenceProviderFeature,
-} from '../contexts/file/types';
-import {isFilePersistenceProvider} from '../contexts/file/utils';
-import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
-import {SemanticProviderQueryListParams} from '../contexts/semantic/types';
-import {NotFoundError} from '../errors';
-import {FolderQueries} from '../folders/queries';
-import {kEndpointResultNoteCodeMap, kEndpointResultNotesToMessageMap} from '../types';
-import {getBackendConfigsWithIdList} from './configUtils';
+} from '../contexts/file/types.js';
+import {isFilePersistenceProvider} from '../contexts/file/utils.js';
+import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables.js';
+import {SemanticProviderQueryListParams} from '../contexts/semantic/types.js';
+import {NotFoundError} from '../errors.js';
+import {FolderQueries} from '../folders/queries.js';
+import {kEndpointResultNoteCodeMap, kEndpointResultNotesToMessageMap} from '../types.js';
+import {getBackendConfigsWithIdList} from './configUtils.js';
 
 export type FileBackendMountWeights = Record<string, number>;
 

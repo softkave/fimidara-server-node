@@ -1,21 +1,21 @@
-import {ResolvedMountEntry} from '../../../../definitions/fileBackend';
-import {DeleteResourceCascadeFnDefaultArgs} from '../../../../definitions/job';
-import {kFimidaraResourceType} from '../../../../definitions/system';
+import {ResolvedMountEntry} from '../../../../definitions/fileBackend.js';
+import {DeleteResourceCascadeFnDefaultArgs} from '../../../../definitions/job.js';
+import {kFimidaraResourceType} from '../../../../definitions/system.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../contexts/injection/injectables';
-import {resolveBackendsMountsAndConfigs} from '../../../fileBackends/mountUtils';
-import {FileQueries} from '../../../files/queries';
-import {stringifyFilenamepath} from '../../../files/utils';
-import {genericDeleteArtifacts, genericGetArtifacts} from './genericDefinitions';
+} from '../../../contexts/injection/injectables.js';
+import {resolveBackendsMountsAndConfigs} from '../../../fileBackends/mountUtils.js';
+import {FileQueries} from '../../../files/queries.js';
+import {stringifyFilenamepath} from '../../../files/utils.js';
+import {genericDeleteArtifacts, genericGetArtifacts} from './genericDefinitions.js';
 import {
   DeleteResourceCascadeEntry,
   DeleteResourceDeleteArtifactsFns,
   DeleteResourceFn,
   DeleteResourceGetArtifactsToDeleteFns,
   DeleteResourceGetPreRunMetaFn,
-} from './types';
+} from './types.js';
 
 interface DeleteFilePreRunMeta {
   partialMountEntries: Array<Pick<ResolvedMountEntry, 'backendNamepath' | 'backendExt'>>;

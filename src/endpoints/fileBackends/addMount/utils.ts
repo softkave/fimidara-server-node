@@ -1,16 +1,16 @@
-import {FileBackendMount, kFileBackendType} from '../../../definitions/fileBackend';
-import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
-import {appAssert} from '../../../utils/assertion';
-import {pathSplit} from '../../../utils/fns';
-import {newWorkspaceResource} from '../../../utils/resource';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
-import {ensureFolders, getFolderpathInfo} from '../../folders/utils';
-import {assertRootname} from '../../workspaces/utils';
-import {mountExists, mountNameExists} from '../utils';
-import {NewFileBackendMountInput} from './types';
+import {FileBackendMount, kFileBackendType} from '../../../definitions/fileBackend.js';
+import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {pathSplit} from '../../../utils/fns.js';
+import {newWorkspaceResource} from '../../../utils/resource.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
+import {ensureFolders, getFolderpathInfo} from '../../folders/utils.js';
+import {assertRootname} from '../../workspaces/utils.js';
+import {mountExists, mountNameExists} from '../utils.js';
+import {NewFileBackendMountInput} from './types.js';
 
 export const INTERNAL_addFileBackendMount = async (
   agent: SessionAgent,

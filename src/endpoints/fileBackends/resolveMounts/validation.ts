@@ -1,9 +1,9 @@
 import * as Joi from 'joi';
-import {kValidationSchemas} from '../../../utils/validationUtils';
-import fileValidationSchemas from '../../files/validation';
-import folderValidationSchemas from '../../folders/validation';
-import {endpointValidationSchemas} from '../../validation';
-import {ResolveFileBackendMountsEndpointParams} from './types';
+import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import fileValidationSchemas from '../../files/validation.js';
+import folderValidationSchemas from '../../folders/validation.js';
+import {endpointValidationSchemas} from '../../validation.js';
+import {ResolveFileBackendMountsEndpointParams} from './types.js';
 
 export const resolveWorkspaceFileBackendMountJoiSchema =
   Joi.object<ResolveFileBackendMountsEndpointParams>()

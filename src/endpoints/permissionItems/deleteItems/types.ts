@@ -1,7 +1,7 @@
-import {FimidaraPermissionAction} from '../../../definitions/permissionItem';
-import {MultipleLongRunningJobResult} from '../../jobs/types';
-import {Endpoint} from '../../types';
-import {PermissionItemInputTarget} from '../types';
+import {FimidaraPermissionAction} from '../../../definitions/permissionItem.js';
+import {MultipleLongRunningJobResult} from '../../jobs/types.js';
+import {Endpoint} from '../../types.js';
+import {PermissionItemInputTarget} from '../types.js';
 
 export type DeletePermissionItemInputTarget = Partial<PermissionItemInputTarget>;
 export type DeletePermissionItemInput = {

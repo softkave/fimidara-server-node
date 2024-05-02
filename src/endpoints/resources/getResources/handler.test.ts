@@ -1,21 +1,21 @@
 import {faker} from '@faker-js/faker';
 import {flatten} from 'lodash';
-import {File} from '../../../definitions/file';
-import {Folder} from '../../../definitions/folder';
+import {File} from '../../../definitions/file.js';
+import {Folder} from '../../../definitions/folder.js';
 import {
   FimidaraPermissionAction,
   kFimidaraPermissionActionsMap,
-} from '../../../definitions/permissionItem';
-import {Resource, kFimidaraResourceType} from '../../../definitions/system';
-import RequestData from '../../RequestData';
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {collaboratorExtractor} from '../../collaborators/utils';
-import {stringifyFilenamepath} from '../../files/utils';
-import {stringifyFoldernamepath} from '../../folders/utils';
-import {generateAndInsertTestFiles} from '../../testUtils/generate/file';
-import {generateAndInsertTestFolders} from '../../testUtils/generate/folder';
-import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generate/permissionItem';
-import {completeTests} from '../../testUtils/helpers/testFns';
+} from '../../../definitions/permissionItem.js';
+import {Resource, kFimidaraResourceType} from '../../../definitions/system.js';
+import RequestData from '../../RequestData.js';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
+import {collaboratorExtractor} from '../../collaborators/utils.js';
+import {stringifyFilenamepath} from '../../files/utils.js';
+import {stringifyFoldernamepath} from '../../folders/utils.js';
+import {generateAndInsertTestFiles} from '../../testUtils/generate/file.js';
+import {generateAndInsertTestFolders} from '../../testUtils/generate/folder.js';
+import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generate/permissionItem.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -23,10 +23,10 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {FetchResourceItem} from '../types';
-import getResources from './handler';
-import {GetResourcesEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import {FetchResourceItem} from '../types.js';
+import getResources from './handler.js';
+import {GetResourcesEndpointParams} from './types.js';
 
 /**
  * TODO:

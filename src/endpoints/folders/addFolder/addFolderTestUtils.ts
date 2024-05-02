@@ -1,30 +1,30 @@
 import {faker} from '@faker-js/faker';
-import {Folder} from '../../../definitions/folder';
-import {PublicWorkspace, Workspace} from '../../../definitions/workspace';
-import {pathJoin} from '../../../utils/fns';
-import RequestData from '../../RequestData';
+import {Folder} from '../../../definitions/folder.js';
+import {PublicWorkspace, Workspace} from '../../../definitions/workspace.js';
+import {pathJoin} from '../../../utils/fns.js';
+import RequestData from '../../RequestData.js';
 import {
   assertCanReadPublicFile,
   assertCanUpdatePublicFile,
   assertCanUploadToPublicFile,
-} from '../../files/uploadFile/uploadFileTestUtils';
-import {stringifyFilenamepath} from '../../files/utils';
-import {generateTestFileName} from '../../testUtils/generate/file';
+} from '../../files/uploadFile/uploadFileTestUtils.js';
+import {stringifyFilenamepath} from '../../files/utils.js';
+import {generateTestFileName} from '../../testUtils/generate/file.js';
 import {
   IInsertWorkspaceForTestResult,
   assertEndpointResultOk,
   insertFolderForTest,
   mockExpressRequestForPublicAgent,
-} from '../../testUtils/testUtils';
-import deleteFolder from '../deleteFolder/handler';
-import {DeleteFolderEndpointParams} from '../deleteFolder/types';
-import getFolder from '../getFolder/handler';
-import {GetFolderEndpointParams} from '../getFolder/types';
-import listFolderContent from '../listFolderContent/handler';
-import {ListFolderContentEndpointParams} from '../listFolderContent/types';
-import updateFolder from '../updateFolder/handler';
-import {UpdateFolderEndpointParams, UpdateFolderInput} from '../updateFolder/types';
-import {addRootnameToPath, stringifyFoldernamepath} from '../utils';
+} from '../../testUtils/testUtils.js';
+import deleteFolder from '../deleteFolder/handler.js';
+import {DeleteFolderEndpointParams} from '../deleteFolder/types.js';
+import getFolder from '../getFolder/handler.js';
+import {GetFolderEndpointParams} from '../getFolder/types.js';
+import listFolderContent from '../listFolderContent/handler.js';
+import {ListFolderContentEndpointParams} from '../listFolderContent/types.js';
+import updateFolder from '../updateFolder/handler.js';
+import {UpdateFolderEndpointParams, UpdateFolderInput} from '../updateFolder/types.js';
+import {addRootnameToPath, stringifyFoldernamepath} from '../utils.js';
 
 export async function assertCanCreateFolderInPublicFolder(
   workspace: PublicWorkspace,

@@ -1,7 +1,7 @@
 import {defaultTo} from 'lodash';
-import {kEndpointConstants} from './constants';
-import {getPage} from './contexts/data/utils';
-import {PaginationQuery} from './types';
+import {kEndpointConstants} from './constants.js';
+import {getPage} from './contexts/data/utils.js';
+import {PaginationQuery} from './types.js';
 
 export function applyDefaultEndpointPaginationOptions(data: PaginationQuery) {
   if (data.page === undefined) {

@@ -1,7 +1,7 @@
 import {MessagePort} from 'worker_threads';
-import {AppShardId} from '../../definitions/app';
-import {ExportedHttpEndpointWithMddocDefinition} from '../types';
-import {GetJobStatusEndpoint} from './getJobStatus/types';
+import {AppShardId} from '../../definitions/app.js';
+import {ExportedHttpEndpointWithMddocDefinition} from '../types.js';
+import {GetJobStatusEndpoint} from './getJobStatus/types.js';
 
 export interface LongRunningJobResult {
   jobId?: string;

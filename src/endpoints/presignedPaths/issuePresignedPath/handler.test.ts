@@ -1,17 +1,17 @@
 import {faker} from '@faker-js/faker';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {waitTimeout} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resource';
-import RequestData from '../../RequestData';
-import {NotFoundError} from '../../errors';
-import readFile from '../../files/readFile/handler';
-import {ReadFileEndpointParams} from '../../files/readFile/types';
-import {stringifyFilenamepath} from '../../files/utils';
-import {addRootnameToPath} from '../../folders/utils';
-import {generateTestFileName} from '../../testUtils/generate/file';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {expectFileBodyEqualById} from '../../testUtils/helpers/file';
-import {completeTests, skTest} from '../../testUtils/helpers/testFns';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {waitTimeout} from '../../../utils/fns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import RequestData from '../../RequestData.js';
+import {NotFoundError} from '../../errors.js';
+import readFile from '../../files/readFile/handler.js';
+import {ReadFileEndpointParams} from '../../files/readFile/types.js';
+import {stringifyFilenamepath} from '../../files/utils.js';
+import {addRootnameToPath} from '../../folders/utils.js';
+import {generateTestFileName} from '../../testUtils/generate/file.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {expectFileBodyEqualById} from '../../testUtils/helpers/file.js';
+import {completeTests, skTest} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -22,10 +22,10 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestForPublicAgent,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {PermissionDeniedError} from '../../users/errors';
-import issuePresignedPath from './handler';
-import {IssuePresignedPathEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import {PermissionDeniedError} from '../../users/errors.js';
+import issuePresignedPath from './handler.js';
+import {IssuePresignedPathEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

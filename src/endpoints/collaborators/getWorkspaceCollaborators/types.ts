@@ -1,10 +1,10 @@
-import {PublicCollaborator} from '../../../definitions/user';
+import {PublicCollaborator} from '../../../definitions/user.js';
 import {
   Endpoint,
   EndpointOptionalWorkspaceIDParam,
   PaginatedResult,
   PaginationQuery,
-} from '../../types';
+} from '../../types.js';
 
 export interface GetWorkspaceCollaboratorsEndpointParamsBase
   extends EndpointOptionalWorkspaceIDParam {}

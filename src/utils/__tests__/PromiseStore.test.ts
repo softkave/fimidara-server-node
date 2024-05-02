@@ -1,10 +1,10 @@
 import assert from 'assert';
-import {expectErrorThrown} from '../../endpoints/testUtils/helpers/error';
-import {completeTests} from '../../endpoints/testUtils/helpers/testFns';
-import {initTests} from '../../endpoints/testUtils/testUtils';
-import {PromiseStore} from '../PromiseStore';
-import {waitTimeout} from '../fns';
-import {getDeferredPromise} from '../promiseFns';
+import {expectErrorThrown} from '../../endpoints/testUtils/helpers/error.js';
+import {completeTests} from '../../endpoints/testUtils/helpers/testFns.js';
+import {initTests} from '../../endpoints/testUtils/testUtils.js';
+import {PromiseStore} from '../PromiseStore.js';
+import {waitTimeout} from '../fns.js';
+import {getDeferredPromise} from '../promiseFns.js';
 
 beforeAll(async () => {
   await initTests();

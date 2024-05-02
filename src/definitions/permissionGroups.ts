@@ -1,4 +1,4 @@
-import {Agent, ToPublicDefinitions, WorkspaceResource} from './system';
+import {Agent, ToPublicDefinitions, WorkspaceResource} from './system.js';
 
 export interface PermissionGroup extends WorkspaceResource {
   name: string;

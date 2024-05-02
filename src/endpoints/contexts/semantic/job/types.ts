@@ -1,10 +1,10 @@
-import {AppShardId} from '../../../../definitions/app';
-import {Job} from '../../../../definitions/job';
+import {AppShardId} from '../../../../definitions/app.js';
+import {Job} from '../../../../definitions/job.js';
 import {
   SemanticBaseProviderType,
   SemanticProviderMutationParams,
   SemanticProviderQueryListParams,
-} from '../types';
+} from '../types.js';
 
 export type SemanticJobProvider = SemanticBaseProviderType<Job> & {
   deleteManyByWorkspaceId(

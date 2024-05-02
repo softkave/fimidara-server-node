@@ -1,4 +1,4 @@
-import {kEndpointConstants} from '../constants';
+import {kEndpointConstants} from '../constants.js';
 
 export const collabRequestConstants = {
   maxNewRequests: 20,

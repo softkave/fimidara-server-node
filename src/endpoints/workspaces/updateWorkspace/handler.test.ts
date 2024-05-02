@@ -1,19 +1,19 @@
 import {faker} from '@faker-js/faker';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import EndpointReusableQueries from '../../queries';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import EndpointReusableQueries from '../../queries.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {WorkspaceExistsError} from '../errors';
-import updateWorkspace from './handler';
-import {UpdateWorkspaceEndpointParams, UpdateWorkspaceInput} from './types';
+} from '../../testUtils/testUtils.js';
+import {WorkspaceExistsError} from '../errors.js';
+import updateWorkspace from './handler.js';
+import {UpdateWorkspaceEndpointParams, UpdateWorkspaceInput} from './types.js';
 
 beforeAll(async () => {
   await initTests();

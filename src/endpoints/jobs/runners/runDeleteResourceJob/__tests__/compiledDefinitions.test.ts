@@ -3,8 +3,8 @@ import {forEach} from 'lodash';
 import {
   FimidaraResourceType,
   kResourceTypeToPossibleChildren,
-} from '../../../../../definitions/system';
-import {kCascadeDeleteDefinitions} from '../compiledDefinitions';
+} from '../../../../../definitions/system.js';
+import {kCascadeDeleteDefinitions} from '../compiledDefinitions.js';
 
 describe('compiledDefinitions', () => {
   test('cascade defs contains every child type', () => {

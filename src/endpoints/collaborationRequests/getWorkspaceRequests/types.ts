@@ -1,10 +1,10 @@
-import {PublicCollaborationRequestForWorkspace} from '../../../definitions/collaborationRequest';
+import {PublicCollaborationRequestForWorkspace} from '../../../definitions/collaborationRequest.js';
 import {
   Endpoint,
   EndpointOptionalWorkspaceIDParam,
   PaginatedResult,
   PaginationQuery,
-} from '../../types';
+} from '../../types.js';
 
 export interface GetWorkspaceCollaborationRequestsEndpointParamsBase
   extends EndpointOptionalWorkspaceIDParam {}

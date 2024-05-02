@@ -1,39 +1,39 @@
 import assert from 'assert';
 import {last} from 'lodash';
-import {Folder} from '../../definitions/folder';
-import {PermissionGroup} from '../../definitions/permissionGroups';
+import {Folder} from '../../definitions/folder.js';
+import {PermissionGroup} from '../../definitions/permissionGroups.js';
 import {
   FimidaraPermissionAction,
   PermissionItem,
   kFimidaraPermissionActionsMap,
-} from '../../definitions/permissionItem';
+} from '../../definitions/permissionItem.js';
 import {
   AppRuntimeState,
   SessionAgent,
   kFimidaraResourceType,
-} from '../../definitions/system';
-import {Workspace} from '../../definitions/workspace';
-import {FimidaraRuntimeConfig} from '../../resources/config';
-import {kSystemSessionAgent} from '../../utils/agent';
-import {appAssert} from '../../utils/assertion';
-import {getTimestamp} from '../../utils/dateFns';
-import {getNewIdForResource, kIdSize, newWorkspaceResource} from '../../utils/resource';
-import {makeUserSessionAgent} from '../../utils/sessionUtils';
+} from '../../definitions/system.js';
+import {Workspace} from '../../definitions/workspace.js';
+import {FimidaraRuntimeConfig} from '../../resources/config.js';
+import {kSystemSessionAgent} from '../../utils/agent.js';
+import {appAssert} from '../../utils/assertion.js';
+import {getTimestamp} from '../../utils/dateFns.js';
+import {getNewIdForResource, kIdSize, newWorkspaceResource} from '../../utils/resource.js';
+import {makeUserSessionAgent} from '../../utils/sessionUtils.js';
 import {
   kDataModels,
   kSemanticModels,
   kUtilsInjectables,
-} from '../contexts/injection/injectables';
-import {kRegisterUtilsInjectables} from '../contexts/injection/register';
-import {createFolderList} from '../folders/addFolder/createFolderList';
-import {addRootnameToPath} from '../folders/utils';
-import EndpointReusableQueries from '../queries';
-import {INTERNAL_forgotPassword} from '../users/forgotPassword/forgotPassword';
-import {getUserToken} from '../users/login/utils';
-import {INTERNAL_sendEmailVerificationCode} from '../users/sendEmailVerificationCode/handler';
-import {INTERNAL_signupUser} from '../users/signup/utils';
-import INTERNAL_createWorkspace from '../workspaces/addWorkspace/internalCreateWorkspace';
-import {assertWorkspace} from '../workspaces/utils';
+} from '../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../contexts/injection/register.js';
+import {createFolderList} from '../folders/addFolder/createFolderList.js';
+import {addRootnameToPath} from '../folders/utils.js';
+import EndpointReusableQueries from '../queries.js';
+import {INTERNAL_forgotPassword} from '../users/forgotPassword/forgotPassword.js';
+import {getUserToken} from '../users/login/utils.js';
+import {INTERNAL_sendEmailVerificationCode} from '../users/sendEmailVerificationCode/handler.js';
+import {INTERNAL_signupUser} from '../users/signup/utils.js';
+import INTERNAL_createWorkspace from '../workspaces/addWorkspace/internalCreateWorkspace.js';
+import {assertWorkspace} from '../workspaces/utils.js';
 
 // TODO: there's currently a backwards way of doing things, where we first
 // initialize app before we run unit tests, meaning, the same things we're

@@ -1,15 +1,15 @@
-import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job';
-import RequestData from '../../RequestData';
-import {DataQuery} from '../../contexts/data/types';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job.js';
+import RequestData from '../../RequestData.js';
+import {DataQuery} from '../../contexts/data/types.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import sendEmailVerificationCode from './handler';
+} from '../../testUtils/testUtils.js';
+import sendEmailVerificationCode from './handler.js';
 
 /**
  * TODO:

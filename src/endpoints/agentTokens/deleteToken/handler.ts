@@ -1,14 +1,14 @@
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
-import {appAssert} from '../../../utils/assertion';
-import {tryGetAgentTokenId} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {tryGetWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {checkAgentTokenAuthorization02} from '../utils';
-import {DeleteAgentTokenEndpoint} from './types';
-import {beginDeleteAgentToken} from './utils';
-import {deleteAgentTokenJoiSchema} from './validation';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {tryGetAgentTokenId} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {tryGetWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {checkAgentTokenAuthorization02} from '../utils.js';
+import {DeleteAgentTokenEndpoint} from './types.js';
+import {beginDeleteAgentToken} from './utils.js';
+import {deleteAgentTokenJoiSchema} from './validation.js';
 
 const deleteAgentToken: DeleteAgentTokenEndpoint = async instData => {
   const data = validate(instData.data, deleteAgentTokenJoiSchema);

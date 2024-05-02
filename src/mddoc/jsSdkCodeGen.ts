@@ -1,16 +1,16 @@
 import {execSync} from 'child_process';
 import * as fse from 'fs-extra';
 import {compact, forEach, last, nth, set, uniq, upperFirst} from 'lodash';
-import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
-import {registerUtilsInjectables} from '../endpoints/contexts/injection/register';
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
+import {registerUtilsInjectables} from '../endpoints/contexts/injection/register.js';
 import {
   AppExportedHttpEndpoints,
   getFimidaraPrivateHttpEndpoints,
   getFimidaraPublicHttpEndpoints,
-} from '../endpoints/endpoints';
-import {kFimidaraConfigDbType} from '../resources/config';
-import {isObjectEmpty, pathSplit} from '../utils/fns';
-import {AnyObject} from '../utils/types';
+} from '../endpoints/endpoints.js';
+import {kFimidaraConfigDbType} from '../resources/config.js';
+import {isObjectEmpty, pathSplit} from '../utils/fns.js';
+import {AnyObject} from '../utils/types.js';
 import {
   FieldArrayType,
   FieldBinaryType,
@@ -37,7 +37,7 @@ import {
   isMddocSdkParamsBody,
   mddocConstruct,
   objectHasRequiredFields,
-} from './mddoc';
+} from './mddoc.js';
 import path = require('path');
 import assert = require('assert');
 

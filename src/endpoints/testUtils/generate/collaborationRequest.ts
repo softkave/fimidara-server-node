@@ -2,16 +2,16 @@ import {faker} from '@faker-js/faker';
 import {
   CollaborationRequest,
   kCollaborationRequestStatusTypeMap,
-} from '../../../definitions/collaborationRequest';
-import {Agent, kFimidaraResourceType} from '../../../definitions/system';
-import {getTimestamp} from '../../../utils/dateFns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
+} from '../../../definitions/collaborationRequest.js';
+import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {
   GeneratePartialTestDataFn,
   defaultGeneratePartialTestDataFn,
   generateTestList,
-} from './utils';
+} from './utils.js';
 
 export function generateCollaborationRequestForTest(
   seed: Partial<CollaborationRequest> = {}

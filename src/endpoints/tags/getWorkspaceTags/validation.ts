@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
-import {JoiSchemaParts} from '../../../utils/types';
-import {endpointValidationSchemas} from '../../validation';
-import {GetWorkspaceTagsEndpointParams, GetWorkspaceTagsEndpointParamsBase} from './types';
+import {JoiSchemaParts} from '../../../utils/types.js';
+import {endpointValidationSchemas} from '../../validation.js';
+import {GetWorkspaceTagsEndpointParams, GetWorkspaceTagsEndpointParamsBase} from './types.js';
 
 export const getWorkspaceTagBaseJoiSchemaParts: JoiSchemaParts<GetWorkspaceTagsEndpointParamsBase> =
   endpointValidationSchemas.optionalWorkspaceIdParts;

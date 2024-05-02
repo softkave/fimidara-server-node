@@ -1,5 +1,5 @@
 import {isArray, isNil} from 'lodash';
-import {AnyFn, OrPromise} from './types';
+import {AnyFn, OrPromise} from './types.js';
 
 export type PaginatedFetchGetFn<TArgs, TData = unknown> = AnyFn<
   [{prevData?: TData; args: TArgs; page: number; pageSize: number}],

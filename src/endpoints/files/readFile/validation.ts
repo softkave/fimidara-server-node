@@ -1,13 +1,13 @@
 import * as Joi from 'joi';
-import {kValidationSchemas} from '../../../utils/validationUtils';
-import {kFileConstants} from '../constants';
-import fileValidationSchemas from '../validation';
+import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import {kFileConstants} from '../constants.js';
+import fileValidationSchemas from '../validation.js';
 import {
   ImageFormatEnumMap,
   ImageResizeFitEnumMap,
   ImageResizePositionEnumMap,
   ReadFileEndpointParams,
-} from './types';
+} from './types.js';
 
 export const readFileJoiSchema = Joi.object<ReadFileEndpointParams>()
   .keys({

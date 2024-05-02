@@ -9,10 +9,10 @@ import {
 import {Upload} from '@aws-sdk/lib-storage';
 import {first} from 'lodash';
 import {Readable} from 'stream';
-import {FileBackendMount} from '../../../definitions/fileBackend';
-import {appAssert} from '../../../utils/assertion';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {kFolderConstants} from '../../folders/constants';
+import {FileBackendMount} from '../../../definitions/fileBackend.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import {kFolderConstants} from '../../folders/constants.js';
 import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
@@ -31,8 +31,8 @@ import {
   PersistedFile,
   PersistedFileDescription,
   PersistedFolderDescription,
-} from './types';
-import {defaultToFimidaraPath, defaultToNativePath} from './utils';
+} from './types.js';
+import {defaultToFimidaraPath, defaultToNativePath} from './utils.js';
 
 export interface S3FilePersistenceProviderInitParams {
   accessKeyId: string;

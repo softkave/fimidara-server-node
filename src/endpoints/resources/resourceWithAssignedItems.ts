@@ -2,13 +2,13 @@ import {
   FimidaraResourceType,
   kFimidaraResourceType,
   ResourceWrapper,
-} from '../../definitions/system';
-import {User} from '../../definitions/user';
-import {indexArray} from '../../utils/indexArray';
+} from '../../definitions/system.js';
+import {User} from '../../definitions/user.js';
+import {indexArray} from '../../utils/indexArray.js';
 import {
   populateAssignedTags,
   populateUserWorkspaces,
-} from '../assignedItems/getAssignedItems';
+} from '../assignedItems/getAssignedItems.js';
 
 export async function resourceWithAssignedItems<T extends ResourceWrapper>(
   workspaceId: string,

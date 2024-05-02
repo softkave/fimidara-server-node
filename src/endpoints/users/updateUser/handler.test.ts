@@ -1,23 +1,23 @@
 import {faker} from '@faker-js/faker';
-import RequestData from '../../RequestData';
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {DataQuery} from '../../contexts/data/types';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import EndpointReusableQueries from '../../queries';
-import {generateAndInsertUserListForTest} from '../../testUtils/generate/user';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import RequestData from '../../RequestData.js';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
+import {DataQuery} from '../../contexts/data/types.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import EndpointReusableQueries from '../../queries.js';
+import {generateAndInsertUserListForTest} from '../../testUtils/generate/user.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {EmailAddressNotAvailableError} from '../errors';
-import {userExtractor} from '../utils';
-import updateUser from './handler';
-import {UpdateUserEndpointParams} from './types';
-import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job';
+} from '../../testUtils/testUtils.js';
+import {EmailAddressNotAvailableError} from '../errors.js';
+import {userExtractor} from '../utils.js';
+import updateUser from './handler.js';
+import {UpdateUserEndpointParams} from './types.js';
+import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job.js';
 
 /**
  * TODO:

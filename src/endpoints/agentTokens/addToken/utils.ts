@@ -1,18 +1,18 @@
 import {defaultTo, omit} from 'lodash';
-import {AgentToken} from '../../../definitions/agentToken';
+import {AgentToken} from '../../../definitions/agentToken.js';
 import {
   Agent,
   kCurrentJWTTokenVersion,
   kFimidaraResourceType,
   kTokenAccessScope,
-} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
-import {newWorkspaceResource} from '../../../utils/resource';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
-import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists';
-import {NewAgentTokenInput} from './types';
+} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {newWorkspaceResource} from '../../../utils/resource.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
+import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists.js';
+import {NewAgentTokenInput} from './types.js';
 
 export const INTERNAL_createAgentToken = async (
   agent: Agent,

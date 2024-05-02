@@ -1,12 +1,12 @@
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
-import {appAssert} from '../../../utils/assertion';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {getAndCheckFileAuthorization} from '../utils';
-import {DeleteFileEndpoint} from './types';
-import {beginDeleteFile} from './utils';
-import {deleteFileJoiSchema} from './validation';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {getAndCheckFileAuthorization} from '../utils.js';
+import {DeleteFileEndpoint} from './types.js';
+import {beginDeleteFile} from './utils.js';
+import {deleteFileJoiSchema} from './validation.js';
 
 const deleteFile: DeleteFileEndpoint = async instData => {
   const data = validate(instData.data, deleteFileJoiSchema);

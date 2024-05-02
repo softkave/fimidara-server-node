@@ -1,12 +1,12 @@
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {fileBackendMountExtractor} from '../utils';
-import {AddFileBackendMountEndpoint} from './types';
-import {INTERNAL_addFileBackendMount} from './utils';
-import {addFileBackendMountJoiSchema} from './validation';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {fileBackendMountExtractor} from '../utils.js';
+import {AddFileBackendMountEndpoint} from './types.js';
+import {INTERNAL_addFileBackendMount} from './utils.js';
+import {addFileBackendMountJoiSchema} from './validation.js';
 
 const addFileBackendMountEndpoint: AddFileBackendMountEndpoint = async instData => {
   const data = validate(instData.data, addFileBackendMountJoiSchema);

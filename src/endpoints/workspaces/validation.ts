@@ -1,6 +1,6 @@
 import Joi = require('joi');
-import usageRecordValidationSchemas from '../usageRecords/validation';
-import {UsageRecordCategoryMap} from '../../definitions/usageRecord';
+import usageRecordValidationSchemas from '../usageRecords/validation.js';
+import {UsageRecordCategoryMap} from '../../definitions/usageRecord.js';
 
 const price = Joi.number().min(0).precision(5);
 const usageThreshold = Joi.object().keys({

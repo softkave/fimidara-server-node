@@ -1,6 +1,6 @@
-import {PublicTag} from '../../../definitions/tag';
-import {Endpoint} from '../../types';
-import {NewTagInput} from '../addTag/types';
+import {PublicTag} from '../../../definitions/tag.js';
+import {Endpoint} from '../../types.js';
+import {NewTagInput} from '../addTag/types.js';
 
 export type UpdateTagInput = Partial<NewTagInput>;
 

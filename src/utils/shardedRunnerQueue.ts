@@ -1,8 +1,8 @@
 import {compact, last, uniqWith} from 'lodash';
 import {ValueOf} from 'type-fest';
-import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
-import {DeferredPromise, getDeferredPromise} from './promiseFns';
-import {AnyFn} from './types';
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
+import {DeferredPromise, getDeferredPromise} from './promiseFns.js';
+import {AnyFn} from './types.js';
 
 /** shard ID is case-sensitive, so `["shard-01"] !== ["SHARD-01"]` */
 export type ShardId = string[];
@@ -114,6 +114,7 @@ export class ShardedRunner {
       ([key, {id}]) => {
         // check if there's an existing runner
         const lockName = this.getLockName(id, key);
+
         const isRunning = kUtilsInjectables.locks().has(lockName);
 
         // start a runner if there isn't one already. we don't need to wait for

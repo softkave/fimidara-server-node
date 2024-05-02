@@ -1,14 +1,14 @@
 import {compact, first} from 'lodash';
-import {EmailJobParams} from '../../../../definitions/job';
-import {User} from '../../../../definitions/user';
-import {BaseEmailTemplateProps} from '../../../../emailTemplates/types';
-import {appAssert} from '../../../../utils/assertion';
-import {DataQuery} from '../../../contexts/data/types';
+import {EmailJobParams} from '../../../../definitions/job.js';
+import {User} from '../../../../definitions/user.js';
+import {BaseEmailTemplateProps} from '../../../../emailTemplates/types.js';
+import {appAssert} from '../../../../utils/assertion.js';
+import {DataQuery} from '../../../contexts/data/types.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../contexts/injection/injectables';
-import {getIgnoreCaseDataQueryRegExp} from '../../../contexts/semantic/utils';
+} from '../../../contexts/injection/injectables.js';
+import {getIgnoreCaseDataQueryRegExp} from '../../../contexts/semantic/utils.js';
 
 export async function getUserFromEmailJobParams(
   params: Pick<EmailJobParams, 'emailAddress' | 'userId'>

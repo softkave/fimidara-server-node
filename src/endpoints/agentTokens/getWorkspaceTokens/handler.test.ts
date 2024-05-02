@@ -1,8 +1,8 @@
-import {calculatePageSize} from '../../../utils/fns';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generate/agentToken';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {calculatePageSize} from '../../../utils/fns.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generate/agentToken.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -10,9 +10,9 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import getWorkspaceAgentTokens from './handler';
-import {GetWorkspaceAgentTokensEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import getWorkspaceAgentTokens from './handler.js';
+import {GetWorkspaceAgentTokensEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

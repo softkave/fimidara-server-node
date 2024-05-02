@@ -1,19 +1,19 @@
-import {PermissionItem, PublicPermissionItem} from '../../definitions/permissionItem';
+import {PermissionItem, PublicPermissionItem} from '../../definitions/permissionItem.js';
 import {
   FimidaraResourceType,
   SessionAgent,
   kFimidaraResourceType,
-} from '../../definitions/system';
-import {appAssert} from '../../utils/assertion';
-import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {convertToArray} from '../../utils/fns';
-import {getResourceTypeFromId} from '../../utils/resource';
-import {kReuseableErrors} from '../../utils/reusableErrors';
-import {InvalidRequestError} from '../errors';
-import {workspaceResourceFields} from '../extractors';
-import {checkResourcesBelongsToWorkspace} from '../resources/containerCheckFns';
-import {INTERNAL_getResources} from '../resources/getResources';
-import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems';
+} from '../../definitions/system.js';
+import {appAssert} from '../../utils/assertion.js';
+import {getFields, makeExtract, makeListExtract} from '../../utils/extract.js';
+import {convertToArray} from '../../utils/fns.js';
+import {getResourceTypeFromId} from '../../utils/resource.js';
+import {kReuseableErrors} from '../../utils/reusableErrors.js';
+import {InvalidRequestError} from '../errors.js';
+import {workspaceResourceFields} from '../extractors.js';
+import {checkResourcesBelongsToWorkspace} from '../resources/containerCheckFns.js';
+import {INTERNAL_getResources} from '../resources/getResources.js';
+import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems.js';
 
 const permissionItemFields = getFields<PublicPermissionItem>({
   ...workspaceResourceFields,

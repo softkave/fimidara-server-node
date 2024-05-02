@@ -4,12 +4,12 @@ import {
   DeleteResourceJobMeta,
   DeleteResourceJobParams,
   Job,
-} from '../../../../definitions/job';
-import {FimidaraResourceType, Resource} from '../../../../definitions/system';
+} from '../../../../definitions/job.js';
+import {FimidaraResourceType, Resource} from '../../../../definitions/system.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderQueryListParams,
-} from '../../../contexts/semantic/types';
+} from '../../../contexts/semantic/types.js';
 
 export type DeleteResourceCascadeFnHelpers = {
   job: Job<DeleteResourceJobParams, DeleteResourceJobMeta>;

@@ -1,13 +1,13 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {last} from 'lodash';
-import {kJobStatus, kJobType} from '../../../definitions/job';
-import {getNewId} from '../../../utils/resource';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {generateAndInsertJobListForTest} from '../../testUtils/generate/job';
-import {completeTests} from '../../testUtils/helpers/testFns';
-import {initTests} from '../../testUtils/testUtils';
-import {completeJob, runJob} from '../runJob';
+import {kJobStatus, kJobType} from '../../../definitions/job.js';
+import {getNewId} from '../../../utils/resource.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {generateAndInsertJobListForTest} from '../../testUtils/generate/job.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {initTests} from '../../testUtils/testUtils.js';
+import {completeJob, runJob} from '../runJob.js';
 
 const shard = getNewId();
 

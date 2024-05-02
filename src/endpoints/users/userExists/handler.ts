@@ -1,7 +1,7 @@
-import {validate} from '../../../utils/validate';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {UserExistsEndpoint} from './types';
-import {userExistsJoiSchema} from './validation';
+import {validate} from '../../../utils/validate.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {UserExistsEndpoint} from './types.js';
+import {userExistsJoiSchema} from './validation.js';
 
 const userExists: UserExistsEndpoint = async instData => {
   const data = validate(instData.data, userExistsJoiSchema);

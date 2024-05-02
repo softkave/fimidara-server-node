@@ -1,9 +1,9 @@
 import {faker} from '@faker-js/faker';
-import RequestData from '../../RequestData';
-import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import EndpointReusableQueries from '../../queries';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import RequestData from '../../RequestData.js';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import EndpointReusableQueries from '../../queries.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -11,10 +11,10 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {agentTokenExtractor, getPublicAgentToken} from '../utils';
-import updateAgentToken from './handler';
-import {UpdateAgentTokenEndpointParams, UpdateAgentTokenInput} from './types';
+} from '../../testUtils/testUtils.js';
+import {agentTokenExtractor, getPublicAgentToken} from '../utils.js';
+import updateAgentToken from './handler.js';
+import {UpdateAgentTokenEndpointParams, UpdateAgentTokenInput} from './types.js';
 
 /**
  * TODO:

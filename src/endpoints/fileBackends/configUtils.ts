@@ -1,8 +1,8 @@
 import {keyBy} from 'lodash';
-import {FileBackendConfig} from '../../definitions/fileBackend';
-import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderQueryListParams} from '../contexts/semantic/types';
-import {NotFoundError} from '../errors';
+import {FileBackendConfig} from '../../definitions/fileBackend.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
+import {SemanticProviderQueryListParams} from '../contexts/semantic/types.js';
+import {NotFoundError} from '../errors.js';
 
 export async function getBackendConfigsWithIdList(
   configIdList: Array<string>,

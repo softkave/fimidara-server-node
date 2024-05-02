@@ -1,6 +1,6 @@
-import {UsageRecordCategory} from '../../../definitions/usageRecord';
-import {PublicWorkspace, UsageThreshold} from '../../../definitions/workspace';
-import {Endpoint} from '../../types';
+import {UsageRecordCategory} from '../../../definitions/usageRecord.js';
+import {PublicWorkspace, UsageThreshold} from '../../../definitions/workspace.js';
+import {Endpoint} from '../../types.js';
 
 export type UsageThresholdInput = Pick<UsageThreshold, 'category' | 'budget'>;
 

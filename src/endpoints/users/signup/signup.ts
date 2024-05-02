@@ -1,11 +1,11 @@
-import {makeUserSessionAgent} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils';
-import {INTERNAL_sendEmailVerificationCode} from '../sendEmailVerificationCode/handler';
-import {SignupEndpoint} from './types';
-import {INTERNAL_signupUser} from './utils';
-import {signupJoiSchema} from './validation';
+import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils.js';
+import {INTERNAL_sendEmailVerificationCode} from '../sendEmailVerificationCode/handler.js';
+import {SignupEndpoint} from './types.js';
+import {INTERNAL_signupUser} from './utils.js';
+import {signupJoiSchema} from './validation.js';
 
 const signup: SignupEndpoint = async instData => {
   const data = validate(instData.data, signupJoiSchema);

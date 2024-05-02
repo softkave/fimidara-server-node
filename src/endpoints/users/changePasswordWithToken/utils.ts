@@ -1,10 +1,10 @@
 import * as argon2 from 'argon2';
-import {getTimestamp} from '../../../utils/dateFns';
-import RequestData from '../../RequestData';
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils';
-import {assertUser} from '../utils';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import RequestData from '../../RequestData.js';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils.js';
+import {assertUser} from '../utils.js';
 
 export async function INTERNAL_changePassword(
   reqData: RequestData,

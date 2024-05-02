@@ -1,24 +1,24 @@
 import {faker} from '@faker-js/faker';
 import {PartialDeep} from 'type-fest';
-import {Agent, kFimidaraResourceType} from '../../../definitions/system';
+import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
 import {
   UsageRecordCategory,
   UsageRecordCategoryMap,
-} from '../../../definitions/usageRecord';
+} from '../../../definitions/usageRecord.js';
 import {
   UsageThresholdLocksByCategory,
   UsageThresholdsByCategory,
   Workspace,
   WorkspaceBillStatusMap,
-} from '../../../definitions/workspace';
-import {getTimestamp} from '../../../utils/dateFns';
-import {cast, isObjectEmpty} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {usageRecordConstants} from '../../usageRecords/constants';
-import {transformUsageThresholInput} from '../../workspaces/addWorkspace/internalCreateWorkspace';
-import {NewWorkspaceInput} from '../../workspaces/addWorkspace/types';
-import {makeRootnameFromName} from '../../workspaces/utils';
+} from '../../../definitions/workspace.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {cast, isObjectEmpty} from '../../../utils/fns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {usageRecordConstants} from '../../usageRecords/constants.js';
+import {transformUsageThresholInput} from '../../workspaces/addWorkspace/internalCreateWorkspace.js';
+import {NewWorkspaceInput} from '../../workspaces/addWorkspace/types.js';
+import {makeRootnameFromName} from '../../workspaces/utils.js';
 
 function transformUsageThresholLocks(
   agent: Agent,

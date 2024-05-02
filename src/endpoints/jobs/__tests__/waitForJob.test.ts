@@ -1,15 +1,15 @@
 import {faker} from '@faker-js/faker';
 import {flattenDeep} from 'lodash';
-import {kJobPresetPriority, kJobStatus, kJobType} from '../../../definitions/job';
-import {TimeoutError} from '../../../utils/errors';
-import {extractResourceIdList, waitTimeout} from '../../../utils/fns';
-import {getNewId} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {generateAndInsertJobListForTest} from '../../testUtils/generate/job';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/testFns';
-import {initTests} from '../../testUtils/testUtils';
-import {waitForJob} from '../waitForJob';
+import {kJobPresetPriority, kJobStatus, kJobType} from '../../../definitions/job.js';
+import {TimeoutError} from '../../../utils/errors.js';
+import {extractResourceIdList, waitTimeout} from '../../../utils/fns.js';
+import {getNewId} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {generateAndInsertJobListForTest} from '../../testUtils/generate/job.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {initTests} from '../../testUtils/testUtils.js';
+import {waitForJob} from '../waitForJob.js';
 
 const shard = getNewId();
 

@@ -1,24 +1,24 @@
 import {omit} from 'lodash';
-import {AgentToken} from '../../../definitions/agentToken';
-import {appAssert} from '../../../utils/assertion';
-import {getTimestamp} from '../../../utils/dateFns';
+import {AgentToken} from '../../../definitions/agentToken.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
 import {
   getActionAgentFromSessionAgent,
   tryGetAgentTokenId,
-} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {tryGetWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists';
+} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {tryGetWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists.js';
 import {
   assertAgentToken,
   checkAgentTokenAuthorization02,
   getPublicAgentToken,
-} from '../utils';
-import {UpdateAgentTokenEndpoint} from './types';
-import {updateAgentTokenJoiSchema} from './validation';
+} from '../utils.js';
+import {UpdateAgentTokenEndpoint} from './types.js';
+import {updateAgentTokenJoiSchema} from './validation.js';
 
 const updateAgentToken: UpdateAgentTokenEndpoint = async instData => {
   const data = validate(instData.data, updateAgentTokenJoiSchema);

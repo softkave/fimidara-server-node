@@ -1,5 +1,5 @@
-import {Endpoint} from '../../types';
-import {LoginResult} from '../login/types';
+import {Endpoint} from '../../types.js';
+import {LoginResult} from '../login/types.js';
 
 export interface SignupEndpointParams {
   firstName: string;

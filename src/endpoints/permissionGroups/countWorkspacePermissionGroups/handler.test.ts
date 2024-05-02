@@ -1,16 +1,16 @@
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import countWorkspacePermissionGroups from './handler';
-import {CountWorkspacePermissionGroupsEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import countWorkspacePermissionGroups from './handler.js';
+import {CountWorkspacePermissionGroupsEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

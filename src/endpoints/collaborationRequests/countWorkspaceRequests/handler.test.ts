@@ -1,16 +1,16 @@
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generate/collaborationRequest';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generate/collaborationRequest.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import countWorkspaceCollaborationRequests from './handler';
-import {CountWorkspaceCollaborationRequestsEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import countWorkspaceCollaborationRequests from './handler.js';
+import {CountWorkspaceCollaborationRequestsEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

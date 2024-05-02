@@ -1,17 +1,17 @@
 import {
   ExportedHttpEndpointWithMddocDefinition,
   HttpEndpointRequestHeaders_ContentType,
-} from '../types';
-import {ChangePasswordWithCurrentPasswordEndpoint} from './changePasswordWithCurrentPassword/types';
-import {ChangePasswordWithTokenEndpoint} from './changePasswordWithToken/types';
-import {ConfirmEmailAddressEndpoint} from './confirmEmailAddress/types';
-import {ForgotPasswordEndpoint} from './forgotPassword/types';
-import {GetUserDataEndpoint} from './getUserData/types';
-import {LoginEndpoint} from './login/types';
-import {SendEmailVerificationCodeEndpoint} from './sendEmailVerificationCode/types';
-import {SignupEndpoint} from './signup/types';
-import {UpdateUserEndpoint} from './updateUser/types';
-import {UserExistsEndpoint} from './userExists/types';
+} from '../types.js';
+import {ChangePasswordWithCurrentPasswordEndpoint} from './changePasswordWithCurrentPassword/types.js';
+import {ChangePasswordWithTokenEndpoint} from './changePasswordWithToken/types.js';
+import {ConfirmEmailAddressEndpoint} from './confirmEmailAddress/types.js';
+import {ForgotPasswordEndpoint} from './forgotPassword/types.js';
+import {GetUserDataEndpoint} from './getUserData/types.js';
+import {LoginEndpoint} from './login/types.js';
+import {SendEmailVerificationCodeEndpoint} from './sendEmailVerificationCode/types.js';
+import {SignupEndpoint} from './signup/types.js';
+import {UpdateUserEndpoint} from './updateUser/types.js';
+import {UserExistsEndpoint} from './userExists/types.js';
 
 export type SignupHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<
   SignupEndpoint,

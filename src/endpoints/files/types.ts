@@ -1,24 +1,24 @@
-import {FieldBinaryType} from '../../mddoc/mddoc';
-import {EmptyObject} from '../../utils/types';
+import {FieldBinaryType} from '../../mddoc/mddoc.js';
+import {EmptyObject} from '../../utils/types.js';
 import {
   ExportedHttpEndpointWithMddocDefinition,
   HttpEndpointRequestHeaders_AuthOptional,
   HttpEndpointRequestHeaders_AuthOptional_ContentType,
   HttpEndpointResponseHeaders_ContentType_ContentLength,
-} from '../types';
-import {DeleteFileEndpoint} from './deleteFile/types';
-import {GetFileDetailsEndpoint} from './getFileDetails/types';
+} from '../types.js';
+import {DeleteFileEndpoint} from './deleteFile/types.js';
+import {GetFileDetailsEndpoint} from './getFileDetails/types.js';
 import {
   ReadFileEndpoint,
   ReadFileEndpointHttpQuery,
   ReadFileEndpointParams,
-} from './readFile/types';
-import {UpdateFileDetailsEndpoint} from './updateFileDetails/types';
+} from './readFile/types.js';
+import {UpdateFileDetailsEndpoint} from './updateFileDetails/types.js';
 import {
   UploadFileEndpoint,
   UploadFileEndpointParams,
   UploadFileEndpointResult,
-} from './uploadFile/types';
+} from './uploadFile/types.js';
 
 export type UploadFileEndpointHTTPHeaders =
   HttpEndpointRequestHeaders_AuthOptional_ContentType & {

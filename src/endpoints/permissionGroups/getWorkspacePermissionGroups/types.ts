@@ -1,10 +1,10 @@
-import {PublicPermissionGroup} from '../../../definitions/permissionGroups';
+import {PublicPermissionGroup} from '../../../definitions/permissionGroups.js';
 import {
   Endpoint,
   EndpointOptionalWorkspaceIDParam,
   PaginatedResult,
   PaginationQuery,
-} from '../../types';
+} from '../../types.js';
 
 export interface GetWorkspacePermissionGroupsEndpointParamsBase
   extends EndpointOptionalWorkspaceIDParam {}

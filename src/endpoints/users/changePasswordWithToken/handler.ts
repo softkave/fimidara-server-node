@@ -1,15 +1,15 @@
-import {appAssert} from '../../../utils/assertion';
-import {validate} from '../../../utils/validate';
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {NotFoundError} from '../../errors';
-import INTERNAL_confirmEmailAddress from '../confirmEmailAddress/internalConfirmEmailAddress';
-import {CredentialsExpiredError, InvalidCredentialsError} from '../errors';
-import {assertUser, userExtractor} from '../utils';
-import {ChangePasswordWithTokenEndpoint} from './types';
-import {INTERNAL_changePassword} from './utils';
-import {changePasswordWithTokenJoiSchema} from './validation';
+import {appAssert} from '../../../utils/assertion.js';
+import {validate} from '../../../utils/validate.js';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {NotFoundError} from '../../errors.js';
+import INTERNAL_confirmEmailAddress from '../confirmEmailAddress/internalConfirmEmailAddress.js';
+import {CredentialsExpiredError, InvalidCredentialsError} from '../errors.js';
+import {assertUser, userExtractor} from '../utils.js';
+import {ChangePasswordWithTokenEndpoint} from './types.js';
+import {INTERNAL_changePassword} from './utils.js';
+import {changePasswordWithTokenJoiSchema} from './validation.js';
 
 const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async reqData => {
   const data = validate(reqData.data, changePasswordWithTokenJoiSchema);

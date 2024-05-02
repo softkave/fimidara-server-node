@@ -1,16 +1,16 @@
-import addWorkspace from './addWorkspace/handler';
-import countUserWorkspaces from './countUserWorkspaces/handler';
+import addWorkspace from './addWorkspace/handler.js';
+import countUserWorkspaces from './countUserWorkspaces/handler.js';
 import {
   addWorkspaceEndpointDefinition,
   countUserWorkspacesEndpointDefinition,
   getUserWorkspacesEndpointDefinition,
   getWorkspaceEndpointDefinition,
   updateWorkspaceEndpointDefinition,
-} from './endpoints.mddoc';
-import getUserWorkspaces from './getUserWorkspaces/handler';
-import getWorkspace from './getWorkspace/handler';
-import {WorkspacesExportedEndpoints} from './types';
-import updateWorkspace from './updateWorkspace/handler';
+} from './endpoints.mddoc.js';
+import getUserWorkspaces from './getUserWorkspaces/handler.js';
+import getWorkspace from './getWorkspace/handler.js';
+import {WorkspacesExportedEndpoints} from './types.js';
+import updateWorkspace from './updateWorkspace/handler.js';
 
 export function getWorkspacesPublicHttpEndpoints() {
   const workspacesExportedEndpoints: WorkspacesExportedEndpoints = {

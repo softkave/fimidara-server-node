@@ -1,7 +1,7 @@
 import {flatten, noop} from 'lodash';
-import {overArgsAsync} from '../../../../utils/fns';
-import {kSemanticModels} from '../../../contexts/injection/injectables';
-import {DeleteArtifactsFn, GetArtifactsFn} from './types';
+import {overArgsAsync} from '../../../../utils/fns.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {DeleteArtifactsFn, GetArtifactsFn} from './types.js';
 
 export const deleteResourceAssignedItems: DeleteArtifactsFn = ({args, helpers}) =>
   helpers.withTxn(opts =>

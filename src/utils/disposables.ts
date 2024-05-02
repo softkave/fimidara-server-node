@@ -1,7 +1,7 @@
 import {ReadonlyDeep} from 'type-fest';
-import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
-import {convertToArray} from './fns';
-import {OrPromise} from './types';
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
+import {convertToArray} from './fns.js';
+import {OrPromise} from './types.js';
 
 export interface DisposableResource {
   /** Dispose of resource in /src/endpoints/contexts/globalUtils.ts */

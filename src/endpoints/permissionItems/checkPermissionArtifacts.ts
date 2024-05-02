@@ -1,20 +1,20 @@
 import {format} from 'util';
-import {FimidaraPermissionAction} from '../../definitions/permissionItem';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {
   SessionAgent,
   getWorkspaceResourceTypeList,
   kFimidaraResourceType,
   kPermissionContainerTypes,
   kPermissionEntityTypes,
-} from '../../definitions/system';
-import {getResourceTypeFromId} from '../../utils/resource';
-import {InvalidRequestError} from '../errors';
+} from '../../definitions/system.js';
+import {getResourceTypeFromId} from '../../utils/resource.js';
+import {InvalidRequestError} from '../errors.js';
 import {
   checkResourcesBelongToContainer,
   checkResourcesBelongsToWorkspace,
-} from '../resources/containerCheckFns';
-import {INTERNAL_getResources} from '../resources/getResources';
-import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems';
+} from '../resources/containerCheckFns.js';
+import {INTERNAL_getResources} from '../resources/getResources.js';
+import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems.js';
 
 export async function checkPermissionEntitiesExist(
   agent: SessionAgent,

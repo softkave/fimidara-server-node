@@ -1,24 +1,24 @@
 import {defaultTo, first, get, isString, set} from 'lodash';
-import {File} from '../../../definitions/file';
+import {File} from '../../../definitions/file.js';
 import {
   FimidaraPermissionAction,
   PermissionItem,
   kFimidaraPermissionActionsMap,
-} from '../../../definitions/permissionItem';
-import {Resource, SessionAgent, kFimidaraResourceType} from '../../../definitions/system';
-import {UserWithWorkspace} from '../../../definitions/user';
-import {Workspace} from '../../../definitions/workspace';
-import {appAssert} from '../../../utils/assertion';
-import {ServerError} from '../../../utils/errors';
-import {convertToArray, toCompactArray, toUniqArray} from '../../../utils/fns';
-import {sortPermissionEntityInheritanceMap} from '../../../utils/permissionEntityUtils';
-import {getResourceTypeFromId} from '../../../utils/resource';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {ObjectValues, OmitProperties} from '../../../utils/types';
-import {checkResourcesBelongsToWorkspace} from '../../resources/containerCheckFns';
-import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../users/errors';
-import {kSemanticModels} from '../injection/injectables';
-import {SemanticProviderOpParams} from '../semantic/types';
+} from '../../../definitions/permissionItem.js';
+import {Resource, SessionAgent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {UserWithWorkspace} from '../../../definitions/user.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {ServerError} from '../../../utils/errors.js';
+import {convertToArray, toCompactArray, toUniqArray} from '../../../utils/fns.js';
+import {sortPermissionEntityInheritanceMap} from '../../../utils/permissionEntityUtils.js';
+import {getResourceTypeFromId} from '../../../utils/resource.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import {ObjectValues, OmitProperties} from '../../../utils/types.js';
+import {checkResourcesBelongsToWorkspace} from '../../resources/containerCheckFns.js';
+import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../users/errors.js';
+import {kSemanticModels} from '../injection/injectables.js';
+import {SemanticProviderOpParams} from '../semantic/types.js';
 
 export interface AccessCheckTarget {
   entityId: string;

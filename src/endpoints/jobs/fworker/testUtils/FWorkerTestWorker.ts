@@ -1,8 +1,8 @@
 import {isNumber} from 'lodash';
 import {isMainThread} from 'worker_threads';
-import {globalSetup} from '../../../contexts/globalUtils';
-import {FWorker} from '../FWorker';
-import {FWorkerMessager} from '../FWorkerMessager';
+import {globalSetup} from '../../../contexts/globalUtils.js';
+import {FWorker} from '../FWorker.js';
+import {FWorkerMessager} from '../FWorkerMessager.js';
 
 export const kFWorkerTestWorkerTerminateMessage = 12;
 

@@ -2,9 +2,9 @@ import assert from 'assert';
 import {isObject} from 'lodash';
 import {ReadonlyDeep, ValueOf} from 'type-fest';
 import {MessagePort, isMainThread, workerData} from 'worker_threads';
-import {DisposableResource} from '../../../utils/disposables';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {FWorkerMessager} from './FWorkerMessager';
+import {DisposableResource} from '../../../utils/disposables.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {FWorkerMessager} from './FWorkerMessager.js';
 
 export interface FWorkerData {
   workerId: string;

@@ -1,14 +1,14 @@
-import {toNonNullableArray} from '../../../utils/fns';
-import {validate} from '../../../utils/validate';
-import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {checkPermissionEntitiesExist} from '../../permissionItems/checkPermissionArtifacts';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {checkPermissionGroupsExist} from '../utils';
-import {AssignPermissionGroupsEndpoint} from './types';
-import {assignPermissionGroupsJoiSchema} from './validation';
+import {toNonNullableArray} from '../../../utils/fns.js';
+import {validate} from '../../../utils/validate.js';
+import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {checkPermissionEntitiesExist} from '../../permissionItems/checkPermissionArtifacts.js';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {checkPermissionGroupsExist} from '../utils.js';
+import {AssignPermissionGroupsEndpoint} from './types.js';
+import {assignPermissionGroupsJoiSchema} from './validation.js';
 
 const assignPermissionGroups: AssignPermissionGroupsEndpoint = async instData => {
   const data = validate(instData.data, assignPermissionGroupsJoiSchema);

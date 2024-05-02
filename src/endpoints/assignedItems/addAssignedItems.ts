@@ -1,26 +1,26 @@
 import {isArray} from 'lodash';
-import {AssignedItem} from '../../definitions/assignedItem';
-import {AssignPermissionGroupInput} from '../../definitions/permissionGroups';
-import {Agent, SessionAgent, kFimidaraResourceType} from '../../definitions/system';
-import {AssignedTagInput} from '../../definitions/tag';
-import {Workspace} from '../../definitions/workspace';
-import {makeKey} from '../../utils/fns';
-import {indexArray} from '../../utils/indexArray';
+import {AssignedItem} from '../../definitions/assignedItem.js';
+import {AssignPermissionGroupInput} from '../../definitions/permissionGroups.js';
+import {Agent, SessionAgent, kFimidaraResourceType} from '../../definitions/system.js';
+import {AssignedTagInput} from '../../definitions/tag.js';
+import {Workspace} from '../../definitions/workspace.js';
+import {makeKey} from '../../utils/fns.js';
+import {indexArray} from '../../utils/indexArray.js';
 import {
   getNewIdForResource,
   getResourceTypeFromId,
   newWorkspaceResource,
-} from '../../utils/resource';
-import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels} from '../contexts/injection/injectables';
+} from '../../utils/resource.js';
+import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderQueryListParams,
-} from '../contexts/semantic/types';
-import {checkPermissionGroupsExist} from '../permissionGroups/utils';
-import checkTagsExist from '../tags/checkTagsExist';
-import {withAssignedAgent} from '../utils';
-import {deleteResourceAssignedItems} from './deleteAssignedItems';
+} from '../contexts/semantic/types.js';
+import {checkPermissionGroupsExist} from '../permissionGroups/utils.js';
+import checkTagsExist from '../tags/checkTagsExist.js';
+import {withAssignedAgent} from '../utils.js';
+import {deleteResourceAssignedItems} from './deleteAssignedItems.js';
 
 /**
  * @param context

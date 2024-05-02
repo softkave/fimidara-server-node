@@ -1,17 +1,20 @@
-import {LockableResource} from '../../../utils/LockStore';
-import {globalDispose, globalSetup} from '../../contexts/globalUtils';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {FWorker} from '../fworker/FWorker';
-import {FWorkerMessager} from '../fworker/FWorkerMessager';
-import {runJob} from '../runJob';
-import {FimidaraWorkerMessage, kFimidaraWorkerMessageType} from './types';
-import {isFimidaraWorkerMessage} from './utils';
+import {LockableResource} from 'softkave-js-utils';
+import {globalDispose, globalSetup} from '../../contexts/globalUtils.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {FWorker} from '../fworker/FWorker.js';
+import {FWorkerMessager} from '../fworker/FWorkerMessager.js';
+import {runJob} from '../runJob.js';
+import {FimidaraWorkerMessage, kFimidaraWorkerMessageType} from './types.js';
+import {isFimidaraWorkerMessage} from './utils.js';
 
 const kNoJobSleepForMs = 2 * 60_000; // 2 minutes
 
 export class FimidaraWorker extends FWorker {
   /** Whether this runner thread is scheduled to terminate or not. */
-  protected workerEndedLock = new LockableResource<boolean>(false);
+  protected workerEndedLock = new LockableResource<boolean>(
+    kUtilsInjectables.locks(),
+    false
+  );
 
   async start() {
     await globalSetup({useFimidaraApp: false, useFimidaraWorkerPool: false});

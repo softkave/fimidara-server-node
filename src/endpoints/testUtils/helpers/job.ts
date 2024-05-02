@@ -1,6 +1,6 @@
-import {Job, kJobStatus} from '../../../definitions/job';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {runJob} from '../../jobs/runJob';
+import {Job, kJobStatus} from '../../../definitions/job.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {runJob} from '../../jobs/runJob.js';
 
 /** Expects there isn't any other runner running jobs in provided shard, and
  * only runs pending jobs. Also a tad inefficient. */

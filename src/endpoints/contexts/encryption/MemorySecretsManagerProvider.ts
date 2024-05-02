@@ -1,6 +1,6 @@
 import {noop} from 'lodash';
-import {appAssert} from '../../../utils/assertion';
-import {getNewId} from '../../../utils/resource';
+import {appAssert} from '../../../utils/assertion.js';
+import {getNewId} from '../../../utils/resource.js';
 import {
   SecretsManagerProvider,
   SecretsManagerProviderAddSecretParams,
@@ -9,7 +9,7 @@ import {
   SecretsManagerProviderGetSecretParams,
   SecretsManagerProviderGetSecretResult,
   SecretsManagerProviderUpdateSecretParams,
-} from './types';
+} from './types.js';
 
 export class MemorySecretsManagerProvider implements SecretsManagerProvider {
   protected secrets: Record<string, {name: string; secret: string}> = {};

@@ -1,6 +1,6 @@
-import {PublicAgentToken} from '../../../definitions/agentToken';
-import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
-import {NewAgentTokenInput} from '../addToken/types';
+import {PublicAgentToken} from '../../../definitions/agentToken.js';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types.js';
+import {NewAgentTokenInput} from '../addToken/types.js';
 
 export type UpdateAgentTokenInput = Partial<NewAgentTokenInput>;
 

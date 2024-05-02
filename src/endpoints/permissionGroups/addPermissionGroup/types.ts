@@ -1,5 +1,5 @@
-import {PublicPermissionGroup} from '../../../definitions/permissionGroups';
-import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
+import {PublicPermissionGroup} from '../../../definitions/permissionGroups.js';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types.js';
 
 export interface NewPermissionGroupInput {
   name: string;

@@ -1,18 +1,18 @@
-import {UserWithWorkspace} from '../../../definitions/user';
-import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {populateUserListWithWorkspaces} from '../../assignedItems/getAssignedItems';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
+import {UserWithWorkspace} from '../../../definitions/user.js';
+import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {populateUserListWithWorkspaces} from '../../assignedItems/getAssignedItems.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
-} from '../../pagination';
-import {checkWorkspaceExists} from '../../workspaces/utils';
-import {collaboratorListExtractor} from '../utils';
-import {GetWorkspaceCollaboratorsEndpoint} from './types';
-import {getWorkspaceCollaboratorsQuery} from './utils';
-import {getWorkspaceCollaboratorsJoiSchema} from './validation';
+} from '../../pagination.js';
+import {checkWorkspaceExists} from '../../workspaces/utils.js';
+import {collaboratorListExtractor} from '../utils.js';
+import {GetWorkspaceCollaboratorsEndpoint} from './types.js';
+import {getWorkspaceCollaboratorsQuery} from './utils.js';
+import {getWorkspaceCollaboratorsJoiSchema} from './validation.js';
 
 const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint = async instData => {
   const data = validate(instData.data, getWorkspaceCollaboratorsJoiSchema);

@@ -24,9 +24,9 @@
     "pretest": "npm run compile",
     "prod": "tsc && env-cmd -f \".env.prod\" npm start",
     "dev": "tsc && env-cmd -f \".env.dev\" npm start",
-    "test": "env-cmd -f \".env.unit-test\" jest --config=jest.config.ts --detectOpenHandles",
-    "fn-test": "env-cmd -f \".env.unit-test\" jest --config=jest.config.fn-test.ts --detectOpenHandles",
-    "integration-test": "env-cmd -f \".env.integration-test\" jest --config=jest.config.integration-test.ts --detectOpenHandles",
+    "test": "env-cmd -f \".env.unit-test\" vitest --config ./vitest.config.ts",
+    "fn-test": "env-cmd -f \".env.unit-test\" vitest --config ./vitest.fn.config.ts",
+    "integration-test": "env-cmd -f \".env.integration-test\" vitest --config ./vitest.config.ts",
     "dev-for-test": "tsc && env-cmd -f \".env.unit-test\" npm start",
     "check-circular-deps": "npx dpdm --no-warning --no-tree ./src/index.ts",
     "gen-rest-api": "env-cmd -f \".env.dev\" ts-node src/mddoc/restApiGen.ts",
@@ -58,7 +58,7 @@
     "reflect-metadata": "^0.2.1",
     "safe-stable-stringify": "^2.3.1",
     "sharp": "^0.32.6",
-    "softkave-js-utils": "^0.3.2",
+    "softkave-js-utils": "^0.4.2",
     "stripe": "^8.222.0",
     "tsyringe": "^4.8.0",
     "type-fest": "^4.17.0",
@@ -77,7 +77,6 @@
     "@types/faker": "^5.5.9",
     "@types/fs-extra": "^9.0.13",
     "@types/inquirer": "^8.2.1",
-    "@types/jest": "^28.1.6",
     "@types/lodash": "^4.14.165",
     "@types/multer": "^1.4.5",
     "@types/node": "^20.10.7",
@@ -89,11 +88,10 @@
     "expect-type": "^0.19.0",
     "gts": "^5.2.0",
     "inquirer": "^9.2.15",
-    "jest": "^29.7.0",
     "kerberos": "^2.1.0",
     "run-rs": "^0.7.7",
-    "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^1.5.3"
   }
 }

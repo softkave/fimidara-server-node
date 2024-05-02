@@ -1,14 +1,14 @@
-import {DeleteResourceCascadeFnDefaultArgs} from '../../../../definitions/job';
+import {DeleteResourceCascadeFnDefaultArgs} from '../../../../definitions/job.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../contexts/injection/injectables';
-import {genericDeleteArtifacts, genericGetArtifacts} from './genericDefinitions';
+} from '../../../contexts/injection/injectables.js';
+import {genericDeleteArtifacts, genericGetArtifacts} from './genericDefinitions.js';
 import {
   DeleteResourceCascadeEntry,
   DeleteResourceFn,
   DeleteResourceGetPreRunMetaFn,
-} from './types';
+} from './types.js';
 
 interface DeleteFileBackendConfigPreRunMeta {
   secretId?: string;

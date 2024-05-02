@@ -3,35 +3,35 @@ import {
   FimidaraPermissionAction,
   PermissionItem,
   kFimidaraPermissionActionsMap,
-} from '../../../../definitions/permissionItem';
-import {kSystemSessionAgent} from '../../../../utils/agent';
-import {convertToArray} from '../../../../utils/fns';
-import RequestData from '../../../RequestData';
-import {assignWorkspaceToUser} from '../../../assignedItems/addAssignedItems';
-import {generateAndInsertTestFiles} from '../../../testUtils/generate/file';
-import {generateAndInsertTestFolders} from '../../../testUtils/generate/folder';
+} from '../../../../definitions/permissionItem.js';
+import {kSystemSessionAgent} from '../../../../utils/agent.js';
+import {convertToArray} from '../../../../utils/fns.js';
+import RequestData from '../../../RequestData.js';
+import {assignWorkspaceToUser} from '../../../assignedItems/addAssignedItems.js';
+import {generateAndInsertTestFiles} from '../../../testUtils/generate/file.js';
+import {generateAndInsertTestFolders} from '../../../testUtils/generate/folder.js';
 import {
   generateAndInsertAssignedItemListForTest,
   generateAndInsertPermissionGroupListForTest,
-} from '../../../testUtils/generate/permissionGroup';
-import {generatePermissionItemForTest} from '../../../testUtils/generate/permissionItem';
-import {expectErrorThrown} from '../../../testUtils/helpers/error';
-import {skTest, startTesting} from '../../../testUtils/helpers/testFns';
+} from '../../../testUtils/generate/permissionGroup.js';
+import {generatePermissionItemForTest} from '../../../testUtils/generate/permissionItem.js';
+import {expectErrorThrown} from '../../../testUtils/helpers/error.js';
+import {skTest, startTesting} from '../../../testUtils/helpers/testFns.js';
 import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../../testUtils/testUtils';
-import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../../users/errors';
-import {SignupEndpointParams} from '../../../users/signup/types';
-import {kSessionUtils} from '../../SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../injection/injectables';
+} from '../../../testUtils/testUtils.js';
+import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../../users/errors.js';
+import {SignupEndpointParams} from '../../../users/signup/types.js';
+import {kSessionUtils} from '../../SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../injection/injectables.js';
 import {
   checkAuthorizationWithAgent,
   getFilePermissionContainers,
   kResolvedTargetChildrenAccess,
   resolveTargetChildrenAccessCheckWithAgent,
-} from '../checkAuthorizaton';
+} from '../checkAuthorizaton.js';
 
 startTesting();
 

@@ -1,10 +1,10 @@
 import {faker} from '@faker-js/faker';
-import {AssignedItem} from '../../../definitions/assignedItem';
-import {PermissionGroup} from '../../../definitions/permissionGroups';
-import {Agent, kFimidaraResourceType} from '../../../definitions/system';
-import {getTimestamp} from '../../../utils/dateFns';
-import {getNewIdForResource, getResourceTypeFromId} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
+import {AssignedItem} from '../../../definitions/assignedItem.js';
+import {PermissionGroup} from '../../../definitions/permissionGroups.js';
+import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {getNewIdForResource, getResourceTypeFromId} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
 
 export function generatePermissionGroupForTest(seed: Partial<PermissionGroup> = {}) {
   const createdAt = getTimestamp();

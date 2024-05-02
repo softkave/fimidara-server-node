@@ -1,5 +1,5 @@
-import RequestData from '../../RequestData';
-import {completeTests, skTest} from '../../testUtils/helpers/testFns';
+import RequestData from '../../RequestData.js';
+import {completeTests, skTest} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -7,10 +7,10 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {stringifyFilenamepath} from '../utils';
-import getFileDetails from './handler';
-import {GetFileDetailsEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import {stringifyFilenamepath} from '../utils.js';
+import getFileDetails from './handler.js';
+import {GetFileDetailsEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

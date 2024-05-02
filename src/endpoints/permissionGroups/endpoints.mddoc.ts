@@ -3,41 +3,41 @@ import {
   PermissionGroupMatcher,
   PublicAssignedPermissionGroupMeta,
   PublicPermissionGroup,
-} from '../../definitions/permissionGroups';
+} from '../../definitions/permissionGroups.js';
 import {
   FieldObjectFieldsMap,
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
   mddocConstruct,
-} from '../../mddoc/mddoc';
+} from '../../mddoc/mddoc.js';
 import {
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
-} from '../endpoints.mddoc';
-import {permissionItemMddocParts} from '../permissionItems/endpoints.mddoc';
+} from '../endpoints.mddoc.js';
+import {permissionItemMddocParts} from '../permissionItems/endpoints.mddoc.js';
 import {
   AddPermissionGroupEndpointParams,
   AddPermissionGroupEndpointResult,
   NewPermissionGroupInput,
-} from './addPermissionGroup/types';
-import {AssignPermissionGroupsEndpointParams} from './assignPermissionGroups/types';
-import {permissionGroupConstants} from './constants';
-import {CountWorkspacePermissionGroupsEndpointParams} from './countWorkspacePermissionGroups/types';
-import {DeletePermissionGroupEndpointParams} from './deletePermissionGroup/types';
+} from './addPermissionGroup/types.js';
+import {AssignPermissionGroupsEndpointParams} from './assignPermissionGroups/types.js';
+import {permissionGroupConstants} from './constants.js';
+import {CountWorkspacePermissionGroupsEndpointParams} from './countWorkspacePermissionGroups/types.js';
+import {DeletePermissionGroupEndpointParams} from './deletePermissionGroup/types.js';
 import {
   GetEntityAssignedPermissionGroupsEndpointParams,
   GetEntityAssignedPermissionGroupsEndpointResult,
-} from './getEntityAssignedPermissionGroups/types';
+} from './getEntityAssignedPermissionGroups/types.js';
 import {
   GetPermissionGroupEndpointParams,
   GetPermissionGroupEndpointResult,
-} from './getPermissionGroup/types';
+} from './getPermissionGroup/types.js';
 import {
   GetWorkspacePermissionGroupsEndpointParams,
   GetWorkspacePermissionGroupsEndpointResult,
-} from './getWorkspacePermissionGroups/types';
+} from './getWorkspacePermissionGroups/types.js';
 import {
   AddPermissionGroupHttpEndpoint,
   AssignPermissionGroupsHttpEndpoint,
@@ -48,13 +48,13 @@ import {
   GetWorkspacePermissionGroupsHttpEndpoint,
   UnassignPermissionGroupsHttpEndpoint,
   UpdatePermissionGroupHttpEndpoint,
-} from './types';
+} from './types.js';
 import {
   UpdatePermissionGroupEndpointParams,
   UpdatePermissionGroupEndpointResult,
   UpdatePermissionGroupInput,
-} from './udpatePermissionGroup/types';
-import {UnassignPermissionGroupsEndpointParams} from './unassignPermissionGroups/types';
+} from './udpatePermissionGroup/types.js';
+import {UnassignPermissionGroupsEndpointParams} from './unassignPermissionGroups/types.js';
 
 const newPermissionGroupInput = mddocConstruct
   .constructFieldObject<NewPermissionGroupInput>()

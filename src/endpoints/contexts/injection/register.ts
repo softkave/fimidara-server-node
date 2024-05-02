@@ -2,36 +2,45 @@ import 'reflect-metadata';
 
 import assert from 'assert';
 import {isFunction, merge} from 'lodash';
+import {
+  AnyFn,
+  DisposableResource,
+  DisposablesStore,
+  LockStore,
+  Logger,
+  PromiseStore,
+  getLogger,
+} from 'softkave-js-utils';
 import {container} from 'tsyringe';
-import {getAgentTokenModel} from '../../../db/agentToken';
-import {getAppMongoModel, getAppShardMongoModel} from '../../../db/app';
-import {getAppRuntimeStateModel} from '../../../db/appRuntimeState';
-import {getAssignedItemModel} from '../../../db/assignedItem';
+import {getAgentTokenModel} from '../../../db/agentToken.js';
+import {getAppMongoModel, getAppShardMongoModel} from '../../../db/app.js';
+import {getAppRuntimeStateModel} from '../../../db/appRuntimeState.js';
+import {getAssignedItemModel} from '../../../db/assignedItem.js';
 import {
   getFileBackendConfigModel,
   getFileBackendMountModel,
   getResolvedMountEntryModel,
-} from '../../../db/backend';
-import {getCollaborationRequestModel} from '../../../db/collaborationRequest';
+} from '../../../db/backend.js';
+import {getCollaborationRequestModel} from '../../../db/collaborationRequest.js';
 import {
   DbConnection,
   MongoDbConnection,
   NoopDbConnection,
   isMongoConnection,
-} from '../../../db/connection';
-import {getEmailBlocklistModel, getEmailMessageModel} from '../../../db/email';
-import {getFileModel} from '../../../db/file';
-import {getFolderDatabaseModel} from '../../../db/folder';
-import {getJobModel} from '../../../db/job';
-import {getPermissionGroupModel} from '../../../db/permissionGroup';
-import {getPermissionItemModel} from '../../../db/permissionItem';
-import {getPresignedPathMongoModel} from '../../../db/presignedPath';
-import {getTagModel} from '../../../db/tag';
-import {getUsageRecordModel} from '../../../db/usageRecord';
-import {getUserModel} from '../../../db/user';
-import {getWorkspaceModel} from '../../../db/workspace';
-import {kAppPresetShards, kAppType} from '../../../definitions/app';
-import {kFimidaraResourceType} from '../../../definitions/system';
+} from '../../../db/connection.js';
+import {getEmailBlocklistModel, getEmailMessageModel} from '../../../db/email.js';
+import {getFileModel} from '../../../db/file.js';
+import {getFolderDatabaseModel} from '../../../db/folder.js';
+import {getJobModel} from '../../../db/job.js';
+import {getPermissionGroupModel} from '../../../db/permissionGroup.js';
+import {getPermissionItemModel} from '../../../db/permissionItem.js';
+import {getPresignedPathMongoModel} from '../../../db/presignedPath.js';
+import {getTagModel} from '../../../db/tag.js';
+import {getUsageRecordModel} from '../../../db/usageRecord.js';
+import {getUserModel} from '../../../db/user.js';
+import {getWorkspaceModel} from '../../../db/workspace.js';
+import {kAppPresetShards, kAppType} from '../../../definitions/app.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {
   FimidaraRuntimeConfig,
   FimidaraSuppliedConfig,
@@ -39,31 +48,27 @@ import {
   kFimidaraConfigDbType,
   kFimidaraConfigEmailProvider,
   kFimidaraConfigSecretsManagerProvider,
-} from '../../../resources/config';
-import {LockStore} from '../../../utils/LockStore';
-import {PromiseStore} from '../../../utils/PromiseStore';
-import {appAssert, assertNotFound} from '../../../utils/assertion';
-import {DisposableResource, DisposablesStore} from '../../../utils/disposables';
-import {getNewIdForResource} from '../../../utils/resource';
-import {ShardRunner, ShardedRunner} from '../../../utils/shardedRunnerQueue';
-import {AnyFn} from '../../../utils/types';
-import {assertAgentToken} from '../../agentTokens/utils';
-import {FimidaraApp} from '../../app/FimidaraApp';
-import {assertCollaborationRequest} from '../../collaborationRequests/utils';
-import {assertFile} from '../../files/utils';
-import {addFolderShardRunner} from '../../folders/addFolder/addFolderShard';
-import {assertFolder} from '../../folders/utils';
-import {FimidaraWorkerPool} from '../../jobs/fimidaraWorker/FimidaraWorkerPool';
-import {assertPermissionGroup} from '../../permissionGroups/utils';
-import {assertPermissionItem} from '../../permissionItems/utils';
-import {assertTag} from '../../tags/utils';
-import NoopEmailProviderContext from '../../testUtils/context/email/NoopEmailProviderContext';
-import {assertUsageRecord} from '../../usageRecords/utils';
-import {assertUser} from '../../users/utils';
-import {assertWorkspace} from '../../workspaces/utils';
-import SessionContext, {SessionContextType} from '../SessionContext';
-import {AsyncLocalStorageUtils, kAsyncLocalStorageUtils} from '../asyncLocalStorage';
-import {MongoDataProviderUtils} from '../data/MongoDataProviderUtils';
+} from '../../../resources/config.js';
+import {appAssert, assertNotFound} from '../../../utils/assertion.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {ShardRunner, ShardedRunner} from '../../../utils/shardedRunnerQueue.js';
+import {assertAgentToken} from '../../agentTokens/utils.js';
+import {FimidaraApp} from '../../app/FimidaraApp.js';
+import {assertCollaborationRequest} from '../../collaborationRequests/utils.js';
+import {assertFile} from '../../files/utils.js';
+import {addFolderShardRunner} from '../../folders/addFolder/addFolderShard.js';
+import {assertFolder} from '../../folders/utils.js';
+import {FimidaraWorkerPool} from '../../jobs/fimidaraWorker/FimidaraWorkerPool.js';
+import {assertPermissionGroup} from '../../permissionGroups/utils.js';
+import {assertPermissionItem} from '../../permissionItems/utils.js';
+import {assertTag} from '../../tags/utils.js';
+import NoopEmailProviderContext from '../../testUtils/context/email/NoopEmailProviderContext.js';
+import {assertUsageRecord} from '../../usageRecords/utils.js';
+import {assertUser} from '../../users/utils.js';
+import {assertWorkspace} from '../../workspaces/utils.js';
+import SessionContext, {SessionContextType} from '../SessionContext.js';
+import {AsyncLocalStorageUtils, kAsyncLocalStorageUtils} from '../asyncLocalStorage.js';
+import {MongoDataProviderUtils} from '../data/MongoDataProviderUtils.js';
 import {
   AgentTokenMongoDataProvider,
   AppMongoDataProvider,
@@ -86,7 +91,7 @@ import {
   UsageRecordMongoDataProvider,
   UserMongoDataProvider,
   WorkspaceMongoDataProvider,
-} from '../data/models';
+} from '../data/models.js';
 import {
   AgentTokenDataProvider,
   AppDataProvider,
@@ -110,43 +115,41 @@ import {
   UsageRecordDataProvider,
   UserDataProvider,
   WorkspaceDataProvider,
-} from '../data/types';
-import {SESEmailProviderContext} from '../email/SESEmailProviderContext';
-import {IEmailProviderContext} from '../email/types';
-import {AWSSecretsManagerProvider} from '../encryption/AWSSecretsManagerProvider';
-import {MemorySecretsManagerProvider} from '../encryption/MemorySecretsManagerProvider';
-import {SecretsManagerProvider} from '../encryption/types';
-import {FileProviderResolver} from '../file/types';
-import {defaultFileProviderResolver} from '../file/utils';
-import {Logger} from '../logger/types';
-import {getLogger} from '../logger/utils';
-import {UsageRecordLogicProvider} from '../logic/UsageRecordLogicProvider';
-import {DataSemanticAgentToken} from '../semantic/agentToken/model';
-import {SemanticAgentTokenProvider} from '../semantic/agentToken/types';
-import {SemanticAppShardProviderImpl} from '../semantic/app/SemanticAppShardProviderImpl';
-import {SemanticAppShardProvider} from '../semantic/app/types';
-import {DataSemanticAssignedItem} from '../semantic/assignedItem/model';
-import {SemanticAssignedItemProvider} from '../semantic/assignedItem/types';
-import {DataSemanticCollaborationRequest} from '../semantic/collaborationRequest/model';
-import {SemanticCollaborationRequestProvider} from '../semantic/collaborationRequest/types';
-import {SemanticEmailBlocklistProviderImpl} from '../semantic/email/SemanticEmailBlocklistImpl';
-import {SemanticEmailMessageProviderImpl} from '../semantic/email/SemanticEmailMessageImpl';
+} from '../data/types.js';
+import {SESEmailProviderContext} from '../email/SESEmailProviderContext.js';
+import {IEmailProviderContext} from '../email/types.js';
+import {AWSSecretsManagerProvider} from '../encryption/AWSSecretsManagerProvider.js';
+import {MemorySecretsManagerProvider} from '../encryption/MemorySecretsManagerProvider.js';
+import {SecretsManagerProvider} from '../encryption/types.js';
+import {FileProviderResolver} from '../file/types.js';
+import {defaultFileProviderResolver} from '../file/utils.js';
+import {UsageRecordLogicProvider} from '../logic/UsageRecordLogicProvider.js';
+import {DataSemanticAgentToken} from '../semantic/agentToken/model.js';
+import {SemanticAgentTokenProvider} from '../semantic/agentToken/types.js';
+import {SemanticAppShardProviderImpl} from '../semantic/app/SemanticAppShardProviderImpl.js';
+import {SemanticAppShardProvider} from '../semantic/app/types.js';
+import {DataSemanticAssignedItem} from '../semantic/assignedItem/model.js';
+import {SemanticAssignedItemProvider} from '../semantic/assignedItem/types.js';
+import {DataSemanticCollaborationRequest} from '../semantic/collaborationRequest/model.js';
+import {SemanticCollaborationRequestProvider} from '../semantic/collaborationRequest/types.js';
+import {SemanticEmailBlocklistProviderImpl} from '../semantic/email/SemanticEmailBlocklistImpl.js';
+import {SemanticEmailMessageProviderImpl} from '../semantic/email/SemanticEmailMessageImpl.js';
 import {
   SemanticEmailBlocklistProvider,
   SemanticEmailMessageProvider,
-} from '../semantic/email/types';
+} from '../semantic/email/types.js';
 import {
   DataSemanticFile,
   DataSemanticPresignedPathProvider,
-} from '../semantic/file/model';
+} from '../semantic/file/model.js';
 import {
   SemanticFileProvider,
   SemanticPresignedPathProvider,
-} from '../semantic/file/types';
-import {DataSemanticFolder} from '../semantic/folder/model';
-import {SemanticFolderProvider} from '../semantic/folder/types';
-import {DataSemanticJob} from '../semantic/job/model';
-import {SemanticJobProvider} from '../semantic/job/types';
+} from '../semantic/file/types.js';
+import {DataSemanticFolder} from '../semantic/folder/model.js';
+import {SemanticFolderProvider} from '../semantic/folder/types.js';
+import {DataSemanticJob} from '../semantic/job/model.js';
+import {SemanticJobProvider} from '../semantic/job/types.js';
 import {
   DataSemanticApp,
   DataSemanticFileBackendConfig,
@@ -154,13 +157,13 @@ import {
   DataSemanticPermissionGroup,
   DataSemanticTag,
   DataSemanticUsageRecord,
-} from '../semantic/models';
-import {DataSemanticPermission} from '../semantic/permission/model';
-import {SemanticPermissionProviderType} from '../semantic/permission/types';
-import {DataSemanticPermissionItem} from '../semantic/permissionItem/model';
-import {SemanticPermissionItemProviderType} from '../semantic/permissionItem/types';
-import {DataSemanticResolvedMountEntry} from '../semantic/resolvedMountEntry/model';
-import {SemanticResolvedMountEntryProvider} from '../semantic/resolvedMountEntry/types';
+} from '../semantic/models.js';
+import {DataSemanticPermission} from '../semantic/permission/model.js';
+import {SemanticPermissionProviderType} from '../semantic/permission/types.js';
+import {DataSemanticPermissionItem} from '../semantic/permissionItem/model.js';
+import {SemanticPermissionItemProviderType} from '../semantic/permissionItem/types.js';
+import {DataSemanticResolvedMountEntry} from '../semantic/resolvedMountEntry/model.js';
+import {SemanticResolvedMountEntryProvider} from '../semantic/resolvedMountEntry/types.js';
 import {
   SemanticAppProvider,
   SemanticFileBackendConfigProvider,
@@ -169,14 +172,14 @@ import {
   SemanticProviderUtils,
   SemanticTagProviderType,
   SemanticUsageRecordProviderType,
-} from '../semantic/types';
-import {DataSemanticUser} from '../semantic/user/model';
-import {SemanticUserProviderType} from '../semantic/user/types';
-import {DataSemanticProviderUtils} from '../semantic/utils';
-import {DataSemanticWorkspace} from '../semantic/workspace/model';
-import {SemanticWorkspaceProviderType} from '../semantic/workspace/types';
-import {kDataModels, kUtilsInjectables} from './injectables';
-import {kInjectionKeys} from './keys';
+} from '../semantic/types.js';
+import {DataSemanticUser} from '../semantic/user/model.js';
+import {SemanticUserProviderType} from '../semantic/user/types.js';
+import {DataSemanticProviderUtils} from '../semantic/utils.js';
+import {DataSemanticWorkspace} from '../semantic/workspace/model.js';
+import {SemanticWorkspaceProviderType} from '../semantic/workspace/types.js';
+import {kDataModels, kUtilsInjectables} from './injectables.js';
+import {kInjectionKeys} from './keys.js';
 
 function registerToken(token: string, item: unknown, use: 'value' | 'factory' = 'value') {
   if (use === 'factory') {
@@ -425,11 +428,13 @@ export function registerSemanticModelInjectables() {
 
 export function registerUtilsInjectables(overrideConfig: FimidaraSuppliedConfig = {}) {
   const suppliedConfig = {...getSuppliedConfig(), ...overrideConfig};
+  const promiseStore = new PromiseStore();
 
   kRegisterUtilsInjectables.suppliedConfig(suppliedConfig);
-  kRegisterUtilsInjectables.disposables(new DisposablesStore());
+
+  kRegisterUtilsInjectables.promises(promiseStore);
+  kRegisterUtilsInjectables.disposables(new DisposablesStore(promiseStore));
   kRegisterUtilsInjectables.asyncLocalStorage(kAsyncLocalStorageUtils);
-  kRegisterUtilsInjectables.promises(new PromiseStore());
   kRegisterUtilsInjectables.locks(new LockStore());
   kRegisterUtilsInjectables.fileProviderResolver(defaultFileProviderResolver);
   kRegisterUtilsInjectables.session(new SessionContext());

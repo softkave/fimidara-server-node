@@ -1,6 +1,6 @@
 import * as jwt from 'jsonwebtoken';
 import {first} from 'lodash';
-import {AgentToken} from '../../definitions/agentToken';
+import {AgentToken} from '../../definitions/agentToken.js';
 import {
   BaseTokenData,
   FimidaraResourceType,
@@ -10,26 +10,26 @@ import {
   kCurrentJWTTokenVersion,
   kFimidaraResourceType,
   kTokenAccessScope,
-} from '../../definitions/system';
-import {User} from '../../definitions/user';
-import {kPublicSessionAgent, kSystemSessionAgent} from '../../utils/agent';
-import {appAssert} from '../../utils/assertion';
-import {dateToSeconds} from '../../utils/dateFns';
-import {ServerError} from '../../utils/errors';
-import {cast, convertToArray} from '../../utils/fns';
-import {indexArray} from '../../utils/indexArray';
-import {kReuseableErrors} from '../../utils/reusableErrors';
+} from '../../definitions/system.js';
+import {User} from '../../definitions/user.js';
+import {kPublicSessionAgent, kSystemSessionAgent} from '../../utils/agent.js';
+import {appAssert} from '../../utils/assertion.js';
+import {dateToSeconds} from '../../utils/dateFns.js';
+import {ServerError} from '../../utils/errors.js';
+import {cast, convertToArray} from '../../utils/fns.js';
+import {indexArray} from '../../utils/indexArray.js';
+import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {
   makeUserSessionAgent,
   makeWorkspaceAgentTokenAgent,
-} from '../../utils/sessionUtils';
-import RequestData from '../RequestData';
+} from '../../utils/sessionUtils.js';
+import RequestData from '../RequestData.js';
 import {
   CredentialsExpiredError,
   InvalidCredentialsError,
   PermissionDeniedError,
-} from '../users/errors';
-import {kSemanticModels, kUtilsInjectables} from './injection/injectables';
+} from '../users/errors.js';
+import {kSemanticModels, kUtilsInjectables} from './injection/injectables.js';
 
 export const kSessionUtils = {
   permittedAgentTypes: {

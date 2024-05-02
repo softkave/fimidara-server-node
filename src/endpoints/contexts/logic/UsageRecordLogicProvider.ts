@@ -1,5 +1,5 @@
 import {defaultTo} from 'lodash';
-import {Agent, kFimidaraResourceType} from '../../../definitions/system';
+import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
 import {
   UsageRecord,
   UsageRecordArtifact,
@@ -10,15 +10,15 @@ import {
   UsageRecordFulfillmentStatus,
   UsageRecordFulfillmentStatusMap,
   UsageSummationTypeMap,
-} from '../../../definitions/usageRecord';
-import {Workspace, WorkspaceBillStatusMap} from '../../../definitions/workspace';
-import {appAssert} from '../../../utils/assertion';
-import {getNewIdForResource, newWorkspaceResource} from '../../../utils/resource';
-import {getCostForUsage} from '../../usageRecords/constants';
-import {getRecordingPeriod} from '../../usageRecords/utils';
-import {assertWorkspace} from '../../workspaces/utils';
-import {kSemanticModels} from '../injection/injectables';
-import {SemanticProviderMutationParams} from '../semantic/types';
+} from '../../../definitions/usageRecord.js';
+import {Workspace, WorkspaceBillStatusMap} from '../../../definitions/workspace.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {getNewIdForResource, newWorkspaceResource} from '../../../utils/resource.js';
+import {getCostForUsage} from '../../usageRecords/constants.js';
+import {getRecordingPeriod} from '../../usageRecords/utils.js';
+import {assertWorkspace} from '../../workspaces/utils.js';
+import {kSemanticModels} from '../injection/injectables.js';
+import {SemanticProviderMutationParams} from '../semantic/types.js';
 
 export interface UsageRecordInput {
   resourceId?: string;

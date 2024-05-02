@@ -1,11 +1,11 @@
-import {AssignedItem} from '../../../../definitions/assignedItem';
-import {Agent, FimidaraResourceType} from '../../../../definitions/system';
+import {AssignedItem} from '../../../../definitions/assignedItem.js';
+import {Agent, FimidaraResourceType} from '../../../../definitions/system.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
   SemanticProviderQueryListParams,
   SemanticWorkspaceResourceProviderType,
-} from '../types';
+} from '../types.js';
 
 export interface SemanticAssignedItemProvider
   extends SemanticWorkspaceResourceProviderType<AssignedItem> {

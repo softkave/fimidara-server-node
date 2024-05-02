@@ -1,17 +1,17 @@
 import {isArray, isNumber, isObject, merge} from 'lodash';
 import path from 'path';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {kFimidaraConfigFilePersistenceProvider} from '../../../resources/config';
-import {appAssert} from '../../../utils/assertion';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {FileBackendQueries} from '../../fileBackends/queries';
-import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils';
-import {FolderQueries} from '../../folders/queries';
-import {getFolderpathInfo, stringifyFoldernamepath} from '../../folders/utils';
-import {kSemanticModels, kUtilsInjectables} from '../injection/injectables';
-import {LocalFsFilePersistenceProvider} from './LocalFsFilePersistenceProvider';
-import {MemoryFilePersistenceProvider} from './MemoryFilePersistenceProvider';
-import {S3FilePersistenceProvider} from './S3FilePersistenceProvider';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {kFimidaraConfigFilePersistenceProvider} from '../../../resources/config.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import {FileBackendQueries} from '../../fileBackends/queries.js';
+import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils.js';
+import {FolderQueries} from '../../folders/queries.js';
+import {getFolderpathInfo, stringifyFoldernamepath} from '../../folders/utils.js';
+import {kSemanticModels, kUtilsInjectables} from '../injection/injectables.js';
+import {LocalFsFilePersistenceProvider} from './LocalFsFilePersistenceProvider.js';
+import {MemoryFilePersistenceProvider} from './MemoryFilePersistenceProvider.js';
+import {S3FilePersistenceProvider} from './S3FilePersistenceProvider.js';
 import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
@@ -35,7 +35,7 @@ import {
   PersistedFile,
   PersistedFileDescription,
   PersistedFolderDescription,
-} from './types';
+} from './types.js';
 
 /** Seeing the root folder is mounted on fimidara, when we ingest new files or
  * folders from other mounts, there's a possiblity they'll be re-fetched in

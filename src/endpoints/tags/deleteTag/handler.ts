@@ -1,12 +1,12 @@
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
-import {appAssert} from '../../../utils/assertion';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {checkTagAuthorization02} from '../utils';
-import {DeleteTagEndpoint} from './types';
-import {beginDeleteTag} from './utils';
-import {deleteTagJoiSchema} from './validation';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {checkTagAuthorization02} from '../utils.js';
+import {DeleteTagEndpoint} from './types.js';
+import {beginDeleteTag} from './utils.js';
+import {deleteTagJoiSchema} from './validation.js';
 
 const deleteTag: DeleteTagEndpoint = async instData => {
   const data = validate(instData.data, deleteTagJoiSchema);

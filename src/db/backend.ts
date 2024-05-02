@@ -3,8 +3,8 @@ import {
   FileBackendConfig,
   FileBackendMount,
   ResolvedMountEntry,
-} from '../definitions/fileBackend';
-import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
+} from '../definitions/fileBackend.js';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils.js';
 
 const fileBackendConfigSchema = ensureMongoTypeFields<FileBackendConfig>({
   ...workspaceResourceSchema,

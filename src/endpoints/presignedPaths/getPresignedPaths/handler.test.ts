@@ -1,15 +1,15 @@
 import assert from 'assert';
 import {first} from 'lodash';
-import {AgentToken} from '../../../definitions/agentToken';
-import {File, FileMatcher} from '../../../definitions/file';
-import {waitTimeout} from '../../../utils/fns';
-import RequestData from '../../RequestData';
-import readFile from '../../files/readFile/handler';
-import {ReadFileEndpointParams} from '../../files/readFile/types';
-import {stringifyFilenamepath} from '../../files/utils';
-import {generateAndInsertTestFiles} from '../../testUtils/generate/file';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests, skTest} from '../../testUtils/helpers/testFns';
+import {AgentToken} from '../../../definitions/agentToken.js';
+import {File, FileMatcher} from '../../../definitions/file.js';
+import {waitTimeout} from '../../../utils/fns.js';
+import RequestData from '../../RequestData.js';
+import readFile from '../../files/readFile/handler.js';
+import {ReadFileEndpointParams} from '../../files/readFile/types.js';
+import {stringifyFilenamepath} from '../../files/utils.js';
+import {generateAndInsertTestFiles} from '../../testUtils/generate/file.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {completeTests, skTest} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -17,11 +17,11 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestForPublicAgent,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import issuePresignedPath from '../issuePresignedPath/handler';
-import {IssuePresignedPathEndpointParams} from '../issuePresignedPath/types';
-import getPresignedPathsForFiles from './handler';
-import {GetPresignedPathsForFilesEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import issuePresignedPath from '../issuePresignedPath/handler.js';
+import {IssuePresignedPathEndpointParams} from '../issuePresignedPath/types.js';
+import getPresignedPathsForFiles from './handler.js';
+import {GetPresignedPathsForFilesEndpointParams} from './types.js';
 
 /**
  * - expired and spent

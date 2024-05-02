@@ -2,13 +2,13 @@ import {ValueOf} from 'type-fest';
 import {
   PersistedFileDescription,
   PersistedFolderDescription,
-} from '../endpoints/contexts/file/types';
+} from '../endpoints/contexts/file/types.js';
 import {
   FimidaraResourceType,
   PublicWorkspaceResource,
   ToPublicDefinitions,
   WorkspaceResource,
-} from './system';
+} from './system.js';
 
 export const kFileBackendType = {
   fimidara: 'fimidara',

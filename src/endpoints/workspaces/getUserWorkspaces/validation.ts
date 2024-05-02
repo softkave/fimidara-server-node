@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
-import {endpointValidationSchemas} from '../../validation';
-import {GetUserWorkspacesEndpointParams} from './types';
+import {endpointValidationSchemas} from '../../validation.js';
+import {GetUserWorkspacesEndpointParams} from './types.js';
 
 export const getUserWorkspacesJoiSchema = Joi.object<GetUserWorkspacesEndpointParams>()
   .keys(endpointValidationSchemas.paginationParts)

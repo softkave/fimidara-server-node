@@ -1,42 +1,42 @@
 import assert from 'assert';
-import {FileBackendMount} from '../../../definitions/fileBackend';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {pathSplit} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {NotFoundError} from '../../errors';
-import {stringifyFilenamepath} from '../../files/utils';
-import {stringifyFoldernamepath} from '../../folders/utils';
-import {generateAndInsertTestFiles} from '../../testUtils/generate/file';
-import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend';
-import {generateAndInsertTestFolders} from '../../testUtils/generate/folder';
+import {FileBackendMount} from '../../../definitions/fileBackend.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {pathSplit} from '../../../utils/fns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {NotFoundError} from '../../errors.js';
+import {stringifyFilenamepath} from '../../files/utils.js';
+import {stringifyFoldernamepath} from '../../folders/utils.js';
+import {generateAndInsertTestFiles} from '../../testUtils/generate/file.js';
+import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend.js';
+import {generateAndInsertTestFolders} from '../../testUtils/generate/folder.js';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,
   generateTestFieldsCombinations,
   matchGenerators,
-} from '../../testUtils/generate/utils';
-import {expectListSubsetMatch} from '../../testUtils/helpers/assertion';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
+} from '../../testUtils/generate/utils.js';
+import {expectListSubsetMatch} from '../../testUtils/helpers/assertion.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {
   completeTests,
   matchExpects,
   testCombinations,
-} from '../../testUtils/helpers/testFns';
+} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import resolveFileBackendMounts from './handler';
+} from '../../testUtils/testUtils.js';
+import resolveFileBackendMounts from './handler.js';
 import {
   ResolveFileBackendMountsEndpointParams,
   ResolveFileBackendMountsEndpointResult,
-} from './types';
+} from './types.js';
 
 beforeAll(async () => {
   await initTests();

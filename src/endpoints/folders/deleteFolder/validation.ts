@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import folderValidationSchemas from '../validation';
+import folderValidationSchemas from '../validation.js';
 
 export const deleteFolderJoiSchema = Joi.object()
   .keys(folderValidationSchemas.folderMatcherParts)

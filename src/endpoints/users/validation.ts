@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
-import {kValidationRegExPatterns} from '../../utils/validationUtils';
-import {kUserConstants} from './constants';
+import {kValidationRegExPatterns} from '../../utils/validationUtils.js';
+import {kUserConstants} from './constants.js';
 
 const email = Joi.string().trim().email();
 const password = Joi.string()

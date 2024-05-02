@@ -1,10 +1,10 @@
 import * as Joi from 'joi';
-import {JoiSchemaParts} from '../../../utils/types';
-import {endpointValidationSchemas} from '../../validation';
+import {JoiSchemaParts} from '../../../utils/types.js';
+import {endpointValidationSchemas} from '../../validation.js';
 import {
   GetWorkspaceCollaborationRequestsEndpointParams,
   GetWorkspaceCollaborationRequestsEndpointParamsBase,
-} from './types';
+} from './types.js';
 
 export const getWorkspaceCollaborationRequestsBaseJoiSchemaParts: JoiSchemaParts<GetWorkspaceCollaborationRequestsEndpointParamsBase> =
   endpointValidationSchemas.optionalWorkspaceIdParts;

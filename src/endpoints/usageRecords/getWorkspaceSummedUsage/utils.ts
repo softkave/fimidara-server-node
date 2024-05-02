@@ -1,15 +1,15 @@
 import {endOfMonth, startOfMonth} from 'date-fns';
-import {SessionAgent} from '../../../definitions/system';
+import {SessionAgent} from '../../../definitions/system.js';
 import {
   UsageRecord,
   UsageRecordFulfillmentStatusMap,
   UsageSummationTypeMap,
-} from '../../../definitions/usageRecord';
-import {getTimestamp} from '../../../utils/dateFns';
-import {convertToArray} from '../../../utils/fns';
-import {LiteralDataQuery} from '../../contexts/data/types';
-import {checkWorkspaceAuthorization02} from '../../workspaces/utils';
-import {GetWorkspaceSummedUsageEndpointParams} from './types';
+} from '../../../definitions/usageRecord.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {convertToArray} from '../../../utils/fns.js';
+import {LiteralDataQuery} from '../../contexts/data/types.js';
+import {checkWorkspaceAuthorization02} from '../../workspaces/utils.js';
+import {GetWorkspaceSummedUsageEndpointParams} from './types.js';
 
 export async function getWorkspaceSummedUsageQuery(
   agent: SessionAgent,

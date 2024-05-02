@@ -1,10 +1,10 @@
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {getWorkspaceCollaboratorsQuery} from '../getWorkspaceCollaborators/utils';
-import {CountWorkspaceCollaboratorsEndpoint} from './types';
-import {countWorkspaceCollaboratorsJoiSchema} from './validation';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {getWorkspaceCollaboratorsQuery} from '../getWorkspaceCollaborators/utils.js';
+import {CountWorkspaceCollaboratorsEndpoint} from './types.js';
+import {countWorkspaceCollaboratorsJoiSchema} from './validation.js';
 
 const countWorkspaceCollaborators: CountWorkspaceCollaboratorsEndpoint =
   async instData => {

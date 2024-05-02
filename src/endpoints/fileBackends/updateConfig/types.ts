@@ -1,5 +1,5 @@
-import {PublicFileBackendConfig} from '../../../definitions/fileBackend';
-import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
+import {PublicFileBackendConfig} from '../../../definitions/fileBackend.js';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types.js';
 
 export type UpdateFileBackendConfigInput = {
   credentials?: Record<string, unknown>;

@@ -1,15 +1,15 @@
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
-} from '../../pagination';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {fileBackendMountListExtractor} from '../utils';
-import {GetFileBackendMountsEndpoint} from './types';
-import {getFileBackendMountsQuery} from './utils';
-import {getFileBackendMountsJoiSchema} from './validation';
+} from '../../pagination.js';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {fileBackendMountListExtractor} from '../utils.js';
+import {GetFileBackendMountsEndpoint} from './types.js';
+import {getFileBackendMountsQuery} from './utils.js';
+import {getFileBackendMountsJoiSchema} from './validation.js';
 
 const getFileBackendMounts: GetFileBackendMountsEndpoint = async instData => {
   const mountModel = kSemanticModels.fileBackendMount();

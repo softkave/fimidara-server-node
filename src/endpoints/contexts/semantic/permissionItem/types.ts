@@ -1,9 +1,9 @@
-import {PermissionItem} from '../../../../definitions/permissionItem';
+import {PermissionItem} from '../../../../definitions/permissionItem.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderQueryListParams,
   SemanticWorkspaceResourceProviderType,
-} from '../types';
+} from '../types.js';
 
 export interface SemanticPermissionItemProviderType
   extends SemanticWorkspaceResourceProviderType<PermissionItem> {

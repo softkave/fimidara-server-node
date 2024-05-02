@@ -1,9 +1,9 @@
 import {faker} from '@faker-js/faker';
-import {kSemanticModels} from '../../endpoints/contexts/injection/injectables';
-import {generateAndInsertUserListForTest} from '../../endpoints/testUtils/generate/user';
-import {completeTests} from '../../endpoints/testUtils/helpers/testFns';
-import {initTests} from '../../endpoints/testUtils/testUtils';
-import {ISetupDevUserOptions, setupDevUser} from './utils';
+import {kSemanticModels} from '../../endpoints/contexts/injection/injectables.js';
+import {generateAndInsertUserListForTest} from '../../endpoints/testUtils/generate/user.js';
+import {completeTests} from '../../endpoints/testUtils/helpers/testFns.js';
+import {initTests} from '../../endpoints/testUtils/testUtils.js';
+import {ISetupDevUserOptions, setupDevUser} from './utils.js';
 
 beforeAll(async () => {
   initTests();

@@ -1,10 +1,10 @@
 import {ClientSession} from 'mongoose';
-import {isMongoClientSession, isMongoConnection} from '../../../db/connection';
-import {appAssert} from '../../../utils/assertion';
-import {AnyFn} from '../../../utils/types';
-import {kAsyncLocalStorageKeys} from '../asyncLocalStorage';
-import {kUtilsInjectables} from '../injection/injectables';
-import {DataProviderUtils} from './types';
+import {isMongoClientSession, isMongoConnection} from '../../../db/connection.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {AnyFn} from '../../../utils/types.js';
+import {kAsyncLocalStorageKeys} from '../asyncLocalStorage.js';
+import {kUtilsInjectables} from '../injection/injectables.js';
+import {DataProviderUtils} from './types.js';
 
 export class MongoDataProviderUtils implements DataProviderUtils {
   async withTxn<TResult>(

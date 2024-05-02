@@ -1,4 +1,4 @@
-import {noopAsync} from '../../../../utils/fns';
+import {noopAsync} from '../../../../utils/fns.js';
 import {
   FilePersistenceDescribeFolderContentParams,
   FilePersistenceDescribeFolderContentResult,
@@ -14,7 +14,7 @@ import {
   PersistedFile,
   PersistedFileDescription,
   PersistedFolderDescription,
-} from '../../../contexts/file/types';
+} from '../../../contexts/file/types.js';
 
 export default class NoopFilePersistenceProviderContext
   implements FilePersistenceProvider

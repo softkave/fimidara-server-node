@@ -1,5 +1,5 @@
-import {FileBackendMount} from '../../definitions/fileBackend';
-import {FileBackendMountQuery} from '../contexts/data/types';
+import {FileBackendMount} from '../../definitions/fileBackend.js';
+import {FileBackendMountQuery} from '../contexts/data/types.js';
 
 function getBySignature(
   data: Pick<FileBackendMount, 'namepath' | 'mountedFrom' | 'backend' | 'workspaceId'>

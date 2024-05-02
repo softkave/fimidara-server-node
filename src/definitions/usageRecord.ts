@@ -1,11 +1,11 @@
-import {ObjectValues} from '../utils/types';
-import {FimidaraPermissionAction} from './permissionItem';
+import {ObjectValues} from '../utils/types.js';
+import {FimidaraPermissionAction} from './permissionItem.js';
 import {
   FimidaraResourceType,
   PublicWorkspaceResource,
   ToPublicDefinitions,
   WorkspaceResource,
-} from './system';
+} from './system.js';
 
 export const UsageRecordCategoryMap = {
   Total: 'total',

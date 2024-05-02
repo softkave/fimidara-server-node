@@ -1,5 +1,5 @@
-import {PublicFileBackendMount} from '../../../definitions/fileBackend';
-import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
+import {PublicFileBackendMount} from '../../../definitions/fileBackend.js';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types.js';
 
 export interface ResolveFileBackendMountsEndpointParams
   extends EndpointOptionalWorkspaceIDParam {

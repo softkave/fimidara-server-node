@@ -1,46 +1,46 @@
 import {Readable} from 'stream';
-import {ResolvedMountEntry} from '../../../../definitions/fileBackend';
-import {Folder} from '../../../../definitions/folder';
-import {kFimidaraResourceType} from '../../../../definitions/system';
-import {kFimidaraConfigFilePersistenceProvider} from '../../../../resources/config';
-import {getTimestamp} from '../../../../utils/dateFns';
-import {loopAndCollate, loopAndCollateAsync, pathJoin} from '../../../../utils/fns';
-import {getNewIdForResource} from '../../../../utils/resource';
-import {getFilepathInfo, stringifyFilenamepath} from '../../../files/utils';
-import {getFolderpathInfo, stringifyFoldernamepath} from '../../../folders/utils';
-import TestMemoryFilePersistenceProviderContext from '../../../testUtils/context/file/TestMemoryFilePersistenceProviderContext';
+import {ResolvedMountEntry} from '../../../../definitions/fileBackend.js';
+import {Folder} from '../../../../definitions/folder.js';
+import {kFimidaraResourceType} from '../../../../definitions/system.js';
+import {kFimidaraConfigFilePersistenceProvider} from '../../../../resources/config.js';
+import {getTimestamp} from '../../../../utils/dateFns.js';
+import {loopAndCollate, loopAndCollateAsync, pathJoin} from '../../../../utils/fns.js';
+import {getNewIdForResource} from '../../../../utils/resource.js';
+import {getFilepathInfo, stringifyFilenamepath} from '../../../files/utils.js';
+import {getFolderpathInfo, stringifyFoldernamepath} from '../../../folders/utils.js';
+import TestMemoryFilePersistenceProviderContext from '../../../testUtils/context/file/TestMemoryFilePersistenceProviderContext.js';
 import {
   generateTestFilepath,
   generateTestFilepathString,
-} from '../../../testUtils/generate/file';
+} from '../../../testUtils/generate/file.js';
 import {
   generateAWSS3Credentials,
   generateAndInsertResolvedMountEntryListForTest,
   generateFileBackendMountForTest,
-} from '../../../testUtils/generate/fileBackend';
+} from '../../../testUtils/generate/fileBackend.js';
 import {
   generateAndInsertTestFolders,
   generateTestFolderpath,
   generateTestFolderpathString,
-} from '../../../testUtils/generate/folder';
-import {expectErrorThrown} from '../../../testUtils/helpers/error';
-import {completeTests} from '../../../testUtils/helpers/testFns';
-import {initTests} from '../../../testUtils/testUtils';
-import {kUtilsInjectables} from '../../injection/injectables';
-import {kRegisterUtilsInjectables} from '../../injection/register';
+} from '../../../testUtils/generate/folder.js';
+import {expectErrorThrown} from '../../../testUtils/helpers/error.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../testUtils/testUtils.js';
+import {kUtilsInjectables} from '../../injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../injection/register.js';
 import {
   FimidaraFilePersistenceProvider,
   FimidaraFilePersistenceProviderPage,
-} from '../FimidaraFilePersistenceProvider';
-import {LocalFsFilePersistenceProvider} from '../LocalFsFilePersistenceProvider';
-import {MemoryFilePersistenceProvider} from '../MemoryFilePersistenceProvider';
-import {S3FilePersistenceProvider} from '../S3FilePersistenceProvider';
+} from '../FimidaraFilePersistenceProvider.js';
+import {LocalFsFilePersistenceProvider} from '../LocalFsFilePersistenceProvider.js';
+import {MemoryFilePersistenceProvider} from '../MemoryFilePersistenceProvider.js';
+import {S3FilePersistenceProvider} from '../S3FilePersistenceProvider.js';
 import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
   FilePersistenceGetFileParams,
   FilePersistenceUploadFileParams,
-} from '../types';
+} from '../types.js';
 
 beforeEach(async () => {
   await initTests();

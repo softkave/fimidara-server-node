@@ -1,6 +1,6 @@
-import {AnyFn} from '../../../utils/types';
-import {IEmailProviderContext} from '../../contexts/email/types';
-import {FilePersistenceProvider} from '../../contexts/file/types';
+import {AnyFn} from '../../../utils/types.js';
+import {IEmailProviderContext} from '../../contexts/email/types.js';
+import {FilePersistenceProvider} from '../../contexts/file/types.js';
 
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 export type LayerJestMock<T extends {[key: string]: any}> = {

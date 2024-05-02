@@ -2,50 +2,50 @@ import {
   kCollaborationRequestStatusTypeMap,
   PublicCollaborationRequestForUser,
   PublicCollaborationRequestForWorkspace,
-} from '../../definitions/collaborationRequest';
+} from '../../definitions/collaborationRequest.js';
 import {
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
   mddocConstruct,
-} from '../../mddoc/mddoc';
+} from '../../mddoc/mddoc.js';
 import {
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
-} from '../endpoints.mddoc';
-import {collabRequestConstants} from './constants';
-import {CountWorkspaceCollaborationRequestsEndpointParams} from './countWorkspaceRequests/types';
-import {DeleteCollaborationRequestEndpointParams} from './deleteRequest/types';
+} from '../endpoints.mddoc.js';
+import {collabRequestConstants} from './constants.js';
+import {CountWorkspaceCollaborationRequestsEndpointParams} from './countWorkspaceRequests/types.js';
+import {DeleteCollaborationRequestEndpointParams} from './deleteRequest/types.js';
 import {
   GetUserCollaborationRequestEndpointParams,
   GetUserCollaborationRequestEndpointResult,
-} from './getUserRequest/types';
+} from './getUserRequest/types.js';
 import {
   GetUserCollaborationRequestsEndpointParams,
   GetUserCollaborationRequestsEndpointResult,
-} from './getUserRequests/types';
+} from './getUserRequests/types.js';
 import {
   GetWorkspaceCollaborationRequestEndpointParams,
   GetWorkspaceCollaborationRequestEndpointResult,
-} from './getWorkspaceRequest/types';
+} from './getWorkspaceRequest/types.js';
 import {
   GetWorkspaceCollaborationRequestsEndpointParams,
   GetWorkspaceCollaborationRequestsEndpointResult,
-} from './getWorkspaceRequests/types';
+} from './getWorkspaceRequests/types.js';
 import {
   RespondToCollaborationRequestEndpointParams,
   RespondToCollaborationRequestEndpointResult,
-} from './respondToRequest/types';
+} from './respondToRequest/types.js';
 import {
   RevokeCollaborationRequestEndpointParams,
   RevokeCollaborationRequestEndpointResult,
-} from './revokeRequest/types';
+} from './revokeRequest/types.js';
 import {
   CollaborationRequestInput,
   SendCollaborationRequestEndpointParams,
   SendCollaborationRequestEndpointResult,
-} from './sendRequest/types';
+} from './sendRequest/types.js';
 import {
   CountUserCollaborationRequestsHttpEndpoint,
   CountWorkspaceCollaborationRequestsHttpEndpoint,
@@ -58,12 +58,12 @@ import {
   RevokeCollaborationRequestHttpEndpoint,
   SendCollaborationRequestHttpEndpoint,
   UpdateCollaborationRequestHttpEndpoint,
-} from './types';
+} from './types.js';
 import {
   UpdateCollaborationRequestEndpointParams,
   UpdateCollaborationRequestEndpointResult,
   UpdateCollaborationRequestInput,
-} from './updateRequest/types';
+} from './updateRequest/types.js';
 
 const recipientEmail = mddocConstruct
   .constructFieldString()

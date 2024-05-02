@@ -1,6 +1,6 @@
-import countUserCollaborationRequests from './countUserRequests/handler';
-import countWorkspaceCollaborationRequests from './countWorkspaceRequests/handler';
-import deleteCollaborationRequest from './deleteRequest/handler';
+import countUserCollaborationRequests from './countUserRequests/handler.js';
+import countWorkspaceCollaborationRequests from './countWorkspaceRequests/handler.js';
+import deleteCollaborationRequest from './deleteRequest/handler.js';
 import {
   countUserCollaborationRequestsEndpointDefinition,
   countWorkspaceCollaborationRequestsEndpointDefinition,
@@ -13,16 +13,16 @@ import {
   revokeCollaborationRequestEndpointDefinition,
   sendCollaborationRequestEndpointDefinition,
   updateCollaborationRequestEndpointDefinition,
-} from './endpoints.mddoc';
-import getUserCollaborationRequest from './getUserRequest/handler';
-import getUserCollaborationRequests from './getUserRequests/handler';
-import getWorkspaceCollaborationRequest from './getWorkspaceRequest/handler';
-import getWorkspaceCollaborationRequests from './getWorkspaceRequests/handler';
-import respondToCollaborationRequest from './respondToRequest/handler';
-import revokeCollaborationRequest from './revokeRequest/handler';
-import sendCollaborationRequest from './sendRequest/handler';
-import {CollaborationRequestsExportedEndpoints} from './types';
-import updateCollaborationRequest from './updateRequest/handler';
+} from './endpoints.mddoc.js';
+import getUserCollaborationRequest from './getUserRequest/handler.js';
+import getUserCollaborationRequests from './getUserRequests/handler.js';
+import getWorkspaceCollaborationRequest from './getWorkspaceRequest/handler.js';
+import getWorkspaceCollaborationRequests from './getWorkspaceRequests/handler.js';
+import respondToCollaborationRequest from './respondToRequest/handler.js';
+import revokeCollaborationRequest from './revokeRequest/handler.js';
+import sendCollaborationRequest from './sendRequest/handler.js';
+import {CollaborationRequestsExportedEndpoints} from './types.js';
+import updateCollaborationRequest from './updateRequest/handler.js';
 
 export function getCollaborationRequestsPublicHttpEndpoints() {
   const collaborationRequestsExportedEndpoints: CollaborationRequestsExportedEndpoints = {

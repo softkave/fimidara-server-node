@@ -1,34 +1,34 @@
 import {isNumber} from 'lodash';
-import {File, FileMatcher} from '../../definitions/file';
+import {File, FileMatcher} from '../../definitions/file.js';
 import {
   FimidaraPermissionAction,
   kFimidaraPermissionActionsMap,
-} from '../../definitions/permissionItem';
-import {PresignedPath} from '../../definitions/presignedPath';
-import {kFimidaraResourceType} from '../../definitions/system';
-import {Workspace} from '../../definitions/workspace';
-import {kSystemSessionAgent} from '../../utils/agent';
-import {appAssert} from '../../utils/assertion';
-import {tryGetResourceTypeFromId} from '../../utils/resource';
-import {kReuseableErrors} from '../../utils/reusableErrors';
+} from '../../definitions/permissionItem.js';
+import {PresignedPath} from '../../definitions/presignedPath.js';
+import {kFimidaraResourceType} from '../../definitions/system.js';
+import {Workspace} from '../../definitions/workspace.js';
+import {kSystemSessionAgent} from '../../utils/agent.js';
+import {appAssert} from '../../utils/assertion.js';
+import {tryGetResourceTypeFromId} from '../../utils/resource.js';
+import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {
   makeUserSessionAgent,
   makeWorkspaceAgentTokenAgent,
-} from '../../utils/sessionUtils';
-import {kSemanticModels} from '../contexts/injection/injectables';
+} from '../../utils/sessionUtils.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderQueryParams,
-} from '../contexts/semantic/types';
-import {kFolderConstants} from '../folders/constants';
-import {PermissionDeniedError} from '../users/errors';
+} from '../contexts/semantic/types.js';
+import {kFolderConstants} from '../folders/constants.js';
+import {PermissionDeniedError} from '../users/errors.js';
 import {
   assertFile,
   checkFileAuthorization,
   getFilepathInfo,
   getWorkspaceFromFilepath,
   ingestFileByFilepath,
-} from './utils';
+} from './utils.js';
 
 export async function checkAndIncrementPresignedPathUsageCount(
   presignedPath: PresignedPath

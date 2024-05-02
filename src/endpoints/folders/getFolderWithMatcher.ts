@@ -1,14 +1,14 @@
 import {last} from 'lodash';
-import {Folder, FolderMatcher} from '../../definitions/folder';
-import {SessionAgent} from '../../definitions/system';
-import {FileQuery} from '../contexts/data/types';
-import {kSemanticModels} from '../contexts/injection/injectables';
+import {Folder, FolderMatcher} from '../../definitions/folder.js';
+import {SessionAgent} from '../../definitions/system.js';
+import {FileQuery} from '../contexts/data/types.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
-} from '../contexts/semantic/types';
-import {FolderQueries} from './queries';
-import {assertFolder, readOrIngestFolderByFolderpath} from './utils';
+} from '../contexts/semantic/types.js';
+import {FolderQueries} from './queries.js';
+import {assertFolder, readOrIngestFolderByFolderpath} from './utils.js';
 
 export async function getClosestExistingFolder(
   workspaceId: string,

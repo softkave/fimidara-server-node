@@ -1,17 +1,23 @@
-import {Folder} from '../../../definitions/folder';
-import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {areMountsCompletelyIngestedForFolder} from '../../fileBackends/mountUtils';
-import {kEndpointResultNoteCodeMap, kEndpointResultNotesToMessageMap} from '../../types';
+import {Folder} from '../../../definitions/folder.js';
+import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {areMountsCompletelyIngestedForFolder} from '../../fileBackends/mountUtils.js';
+import {
+  kEndpointResultNoteCodeMap,
+  kEndpointResultNotesToMessageMap,
+} from '../../types.js';
 import {
   getWorkspaceAndParentFolder,
   listFolderContentQuery,
-} from '../listFolderContent/utils';
-import {CountFolderContentEndpoint} from './types';
-import {countFolderContentJoiSchema} from './validation';
+} from '../listFolderContent/utils.js';
+import {CountFolderContentEndpoint} from './types.js';
+import {countFolderContentJoiSchema} from './validation.js';
 
 const countFolderContent: CountFolderContentEndpoint = async instData => {
   const data = validate(instData.data, countFolderContentJoiSchema);

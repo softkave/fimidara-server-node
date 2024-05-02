@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
-import {kFimidaraPermissionActionsMap} from '../definitions/permissionItem';
-import {kFimidaraResourceTypeList as systemFimidaraResourceTypesList} from '../definitions/system';
-import {kEndpointConstants} from '../endpoints/constants';
+import {kFimidaraPermissionActionsMap} from '../definitions/permissionItem.js';
+import {kFimidaraResourceTypeList as systemFimidaraResourceTypesList} from '../definitions/system.js';
+import {kEndpointConstants} from '../endpoints/constants.js';
 
 const password = /[A-Za-z0-9!()?_`~#$^&*+=]/;
 const str = /^[\w ]*$/;

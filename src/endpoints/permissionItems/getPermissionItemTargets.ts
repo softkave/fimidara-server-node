@@ -1,21 +1,21 @@
-import {File} from '../../definitions/file';
-import {Folder} from '../../definitions/folder';
-import {FimidaraPermissionAction} from '../../definitions/permissionItem';
+import {File} from '../../definitions/file.js';
+import {Folder} from '../../definitions/folder.js';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {
   ResourceWrapper,
   SessionAgent,
   getWorkspaceResourceTypeList,
   kFimidaraResourceType,
-} from '../../definitions/system';
-import {Workspace} from '../../definitions/workspace';
-import {convertToArray} from '../../utils/fns';
-import {indexArray} from '../../utils/indexArray';
-import {PartialRecord} from '../../utils/types';
-import {stringifyFilenamepath} from '../files/utils';
-import {stringifyFoldernamepath} from '../folders/utils';
-import {INTERNAL_getResources} from '../resources/getResources';
-import {FetchResourceItem} from '../resources/types';
-import {PermissionItemInputTarget, ResolvedEntityPermissionItemTarget} from './types';
+} from '../../definitions/system.js';
+import {Workspace} from '../../definitions/workspace.js';
+import {convertToArray} from '../../utils/fns.js';
+import {indexArray} from '../../utils/indexArray.js';
+import {PartialRecord} from '../../utils/types.js';
+import {stringifyFilenamepath} from '../files/utils.js';
+import {stringifyFoldernamepath} from '../folders/utils.js';
+import {INTERNAL_getResources} from '../resources/getResources.js';
+import {FetchResourceItem} from '../resources/types.js';
+import {PermissionItemInputTarget, ResolvedEntityPermissionItemTarget} from './types.js';
 
 export class PermissionItemTargets {
   protected targetsMapById: PartialRecord<string, ResourceWrapper>;

@@ -1,12 +1,12 @@
 import {
   AssignedItem,
   AssignedItemMainFieldsMatcher,
-} from '../../definitions/assignedItem';
-import {AssignedPermissionGroupMeta} from '../../definitions/permissionGroups';
-import {WorkspaceResource} from '../../definitions/system';
-import {AssignedTag} from '../../definitions/tag';
-import {makeKey} from '../../utils/fns';
-import {NotFoundError} from '../errors';
+} from '../../definitions/assignedItem.js';
+import {AssignedPermissionGroupMeta} from '../../definitions/permissionGroups.js';
+import {WorkspaceResource} from '../../definitions/system.js';
+import {AssignedTag} from '../../definitions/tag.js';
+import {makeKey} from '../../utils/fns.js';
+import {NotFoundError} from '../errors.js';
 
 export function assignedItemToAssignedPermissionGroup(
   item: AssignedItem

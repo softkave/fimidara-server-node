@@ -1,5 +1,5 @@
 import {ValueOf} from 'type-fest';
-import {PublicResource, ToPublicDefinitions, WorkspaceResource} from './system';
+import {PublicResource, ToPublicDefinitions, WorkspaceResource} from './system.js';
 
 export const kCollaborationRequestStatusTypeMap = {
   Accepted: 'accepted',

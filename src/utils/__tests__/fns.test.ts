@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {isArray, isNumber, isObject} from 'lodash';
-import {expectErrorThrown} from '../../endpoints/testUtils/helpers/error';
+import {expectErrorThrown} from '../../endpoints/testUtils/helpers/error.js';
 import {
   identityArgs,
   isPathEmpty,
@@ -17,7 +17,7 @@ import {
   pathJoin,
   pathSplit,
   waitTimeout,
-} from '../fns';
+} from '../fns.js';
 
 describe('fns', () => {
   test('multilineTextToParagraph', () => {

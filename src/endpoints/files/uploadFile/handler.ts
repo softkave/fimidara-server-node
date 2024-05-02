@@ -1,23 +1,26 @@
 import {pick} from 'lodash';
-import {File} from '../../../definitions/file';
-import {ResolvedMountEntry} from '../../../definitions/fileBackend';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
-import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
-import {appAssert} from '../../../utils/assertion';
-import {getTimestamp} from '../../../utils/dateFns';
-import {ValidationError} from '../../../utils/errors';
-import {mergeData, pathExtract} from '../../../utils/fns';
-import {newWorkspaceResource} from '../../../utils/resource';
-import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
-import {ByteCounterPassThroughStream} from '../../../utils/streams';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
-import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils';
-import {FileNotWritableError} from '../errors';
-import {getFileWithMatcher} from '../getFilesWithMatcher';
+import {File} from '../../../definitions/file.js';
+import {ResolvedMountEntry} from '../../../definitions/fileBackend.js';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {ValidationError} from '../../../utils/errors.js';
+import {mergeData, pathExtract} from '../../../utils/fns.js';
+import {newWorkspaceResource} from '../../../utils/resource.js';
+import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {ByteCounterPassThroughStream} from '../../../utils/streams.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
+import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils.js';
+import {FileNotWritableError} from '../errors.js';
+import {getFileWithMatcher} from '../getFilesWithMatcher.js';
 import {
   FilepathInfo,
   assertFile,
@@ -26,10 +29,10 @@ import {
   getFilepathInfo,
   getWorkspaceFromFileOrFilepath,
   stringifyFilenamepath,
-} from '../utils';
-import {UploadFileEndpoint} from './types';
-import {checkUploadFileAuth} from './utils';
-import {uploadFileJoiSchema} from './validation';
+} from '../utils.js';
+import {UploadFileEndpoint} from './types.js';
+import {checkUploadFileAuth} from './utils.js';
+import {uploadFileJoiSchema} from './validation.js';
 
 async function createAndInsertNewFile(
   agent: SessionAgent,

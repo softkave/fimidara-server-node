@@ -1,5 +1,5 @@
-import {dataQueryToMongoQuery} from '../dataQueryToMongoQuery';
-import {DataQuery} from '../types';
+import {dataQueryToMongoQuery} from '../dataQueryToMongoQuery.js';
+import {DataQuery} from '../types.js';
 
 interface TestData {
   num: number;

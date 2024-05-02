@@ -1,15 +1,15 @@
 import {first, last} from 'lodash';
 import {format, formatWithOptions} from 'util';
-import {appAssert} from '../../../utils/assertion';
-import {ServerError} from '../../../utils/errors';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {assertRootname, assertWorkspace} from '../../workspaces/utils';
-import {folderExtractor, getFolderpathInfo} from '../utils';
-import {createFolderList} from './createFolderList';
-import {AddFolderEndpoint} from './types';
-import {addFolderJoiSchema} from './validation';
+import {appAssert} from '../../../utils/assertion.js';
+import {ServerError} from '../../../utils/errors.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {assertRootname, assertWorkspace} from '../../workspaces/utils.js';
+import {folderExtractor, getFolderpathInfo} from '../utils.js';
+import {createFolderList} from './createFolderList.js';
+import {AddFolderEndpoint} from './types.js';
+import {addFolderJoiSchema} from './validation.js';
 
 const addFolder: AddFolderEndpoint = async instData => {
   const data = validate(instData.data, addFolderJoiSchema);

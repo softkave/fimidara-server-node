@@ -1,8 +1,8 @@
 import assert from 'assert';
-import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/user';
-import {completeTests} from '../../../../testUtils/helpers/testFns';
-import {initTests} from '../../../../testUtils/testUtils';
-import {getUserFromEmailJobParams} from '../utils';
+import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/user.js';
+import {completeTests} from '../../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../../testUtils/testUtils.js';
+import {getUserFromEmailJobParams} from '../utils.js';
 
 beforeAll(async () => {
   await initTests();

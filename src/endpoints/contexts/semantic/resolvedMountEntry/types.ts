@@ -1,8 +1,8 @@
-import {ResolvedMountEntry} from '../../../../definitions/fileBackend';
+import {ResolvedMountEntry} from '../../../../definitions/fileBackend.js';
 import {
   SemanticProviderQueryParams,
   SemanticWorkspaceResourceProviderType,
-} from '../types';
+} from '../types.js';
 
 export type SemanticResolvedMountEntryProvider =
   SemanticWorkspaceResourceProviderType<ResolvedMountEntry> & {

@@ -1,24 +1,24 @@
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
-import {PresignedPath} from '../../../definitions/presignedPath';
-import {Resource, kFimidaraResourceType} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
-import {appAssert} from '../../../utils/assertion';
-import {convertToArray} from '../../../utils/fns';
-import {newWorkspaceResource} from '../../../utils/resource';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {PresignedPath} from '../../../definitions/presignedPath.js';
+import {Resource, kFimidaraResourceType} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {convertToArray} from '../../../utils/fns.js';
+import {newWorkspaceResource} from '../../../utils/resource.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
 import {
   checkAuthorizationWithAgent,
   getResourcePermissionContainers,
-} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {getFileWithMatcher} from '../../files/getFilesWithMatcher';
-import {getFilepathInfo} from '../../files/utils';
-import {getClosestExistingFolder} from '../../folders/getFolderWithMatcher';
-import {assertRootname, assertWorkspace} from '../../workspaces/utils';
-import {IssuePresignedPathEndpoint} from './types';
-import {issuePresignedPathJoiSchema} from './validation';
+} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {getFileWithMatcher} from '../../files/getFilesWithMatcher.js';
+import {getFilepathInfo} from '../../files/utils.js';
+import {getClosestExistingFolder} from '../../folders/getFolderWithMatcher.js';
+import {assertRootname, assertWorkspace} from '../../workspaces/utils.js';
+import {IssuePresignedPathEndpoint} from './types.js';
+import {issuePresignedPathJoiSchema} from './validation.js';
 
 const issuePresignedPath: IssuePresignedPathEndpoint = async instData => {
   const data = validate(instData.data, issuePresignedPathJoiSchema);

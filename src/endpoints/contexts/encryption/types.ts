@@ -1,4 +1,4 @@
-import {DisposableResource} from '../../../utils/disposables';
+import {DisposableResource} from '../../../utils/disposables.js';
 
 export interface SecretsManagerProviderAddSecretParams {
   text: string;

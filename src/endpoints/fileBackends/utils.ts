@@ -4,14 +4,13 @@ import {
   PublicFileBackendConfig,
   PublicFileBackendMount,
   PublicResolvedMountEntry,
-} from '../../definitions/fileBackend';
-import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderOpParams} from '../contexts/semantic/types';
-import {workspaceResourceFields} from '../extractors';
-import {FolderQueries} from '../folders/queries';
-
-import {FileMountQueries} from './mountQueries';
+} from '../../definitions/fileBackend.js';
+import {getFields, makeExtract, makeListExtract} from '../../utils/extract.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
+import {SemanticProviderOpParams} from '../contexts/semantic/types.js';
+import {workspaceResourceFields} from '../extractors.js';
+import {FolderQueries} from '../folders/queries.js';
+import {FileMountQueries} from './mountQueries.js';
 
 const resolvedEntryFields = getFields<PublicResolvedMountEntry>({
   ...workspaceResourceFields,

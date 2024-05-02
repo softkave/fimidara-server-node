@@ -1,14 +1,14 @@
 import {expressjwt} from 'express-jwt';
 import fs from 'fs';
 import {format} from 'util';
-import {kEndpointConstants} from './endpoints/constants';
-import {globalDispose, globalSetup} from './endpoints/contexts/globalUtils';
-import {kUtilsInjectables} from './endpoints/contexts/injection/injectables';
-import {setupFimidaraHttpEndpoints} from './endpoints/endpoints';
-import {initFimidara} from './endpoints/runtime/initFimidara';
-import handleErrors from './middlewares/handleErrors';
-import redirectHttpToHttpsExpressMiddleware from './middlewares/redirectHttpToHttps';
-import {appAssert} from './utils/assertion';
+import {kEndpointConstants} from './endpoints/constants.js';
+import {globalDispose, globalSetup} from './endpoints/contexts/globalUtils.js';
+import {kUtilsInjectables} from './endpoints/contexts/injection/injectables.js';
+import {setupFimidaraHttpEndpoints} from './endpoints/endpoints.js';
+import {initFimidara} from './endpoints/runtime/initFimidara.js';
+import handleErrors from './middlewares/handleErrors.js';
+import redirectHttpToHttpsExpressMiddleware from './middlewares/redirectHttpToHttps.js';
+import {appAssert} from './utils/assertion.js';
 import cors = require('cors');
 import express = require('express');
 import http = require('http');
@@ -104,7 +104,9 @@ async function setup() {
   // End of scripts
 
   const defaultWorkspace = await initFimidara();
-  kUtilsInjectables.logger().log(`Workspace ID: ${defaultWorkspace.resourceId}`);
+  kUtilsInjectables
+    .logger()
+    .log(`Workspace ID: ${defaultWorkspace.resourceId}`);
   kUtilsInjectables.logger().log(`Process ID: ${process.pid}`);
 
   setupJWT();

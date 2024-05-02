@@ -1,5 +1,5 @@
 import {ClientSession, Connection, createConnection} from 'mongoose';
-import {noopAsync} from '../utils/fns';
+import {noopAsync} from '../utils/fns.js';
 
 export function getMongoConnection(uri: string, dbName: string) {
   const connection = createConnection(uri, {dbName});

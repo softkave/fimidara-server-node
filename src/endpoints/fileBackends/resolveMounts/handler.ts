@@ -1,18 +1,18 @@
-import {File} from '../../../definitions/file';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
-import {appAssert} from '../../../utils/assertion';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {InvalidRequestError} from '../../errors';
-import {checkFileAuthorization, getFilepathInfo} from '../../files/utils';
-import {checkFolderAuthorization, getFolderpathInfo} from '../../folders/utils';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {resolveMountsForFolder} from '../mountUtils';
-import {fileBackendMountListExtractor} from '../utils';
-import {ResolveFileBackendMountsEndpoint} from './types';
-import {resolveWorkspaceFileBackendMountJoiSchema} from './validation';
+import {File} from '../../../definitions/file.js';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {InvalidRequestError} from '../../errors.js';
+import {checkFileAuthorization, getFilepathInfo} from '../../files/utils.js';
+import {checkFolderAuthorization, getFolderpathInfo} from '../../folders/utils.js';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {resolveMountsForFolder} from '../mountUtils.js';
+import {fileBackendMountListExtractor} from '../utils.js';
+import {ResolveFileBackendMountsEndpoint} from './types.js';
+import {resolveWorkspaceFileBackendMountJoiSchema} from './validation.js';
 
 const resolveFileBackendMounts: ResolveFileBackendMountsEndpoint = async instData => {
   const fileModel = kSemanticModels.file();

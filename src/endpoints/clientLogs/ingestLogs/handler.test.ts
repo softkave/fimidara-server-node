@@ -1,14 +1,14 @@
-import {getTimestamp} from '../../../utils/dateFns';
-import {waitTimeout} from '../../../utils/fns';
-import RequestData from '../../RequestData';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {waitTimeout} from '../../../utils/fns.js';
+import RequestData from '../../RequestData.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   mockExpressRequestForPublicAgent,
-} from '../../testUtils/testUtils';
-import ingestLogs from './handler';
-import {ClientLog, IngestLogsEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import ingestLogs from './handler.js';
+import {ClientLog, IngestLogsEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

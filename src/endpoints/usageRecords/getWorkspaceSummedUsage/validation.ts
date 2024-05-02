@@ -2,15 +2,15 @@ import * as Joi from 'joi';
 import {
   UsageRecordCategoryMap,
   UsageRecordFulfillmentStatusMap,
-} from '../../../definitions/usageRecord';
-import {JoiSchemaParts} from '../../../utils/types';
-import {kValidationSchemas} from '../../../utils/validationUtils';
-import {endpointValidationSchemas} from '../../validation';
+} from '../../../definitions/usageRecord.js';
+import {JoiSchemaParts} from '../../../utils/types.js';
+import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import {endpointValidationSchemas} from '../../validation.js';
 import {
   GetWorkspaceSummedUsageEndpointParams,
   GetWorkspaceSummedUsageEndpointParamsBase,
   WorkspaceSummedUsageQuery,
-} from './types';
+} from './types.js';
 
 const category = Joi.string().valid(...Object.values(UsageRecordCategoryMap));
 const fulfillmentStatus = Joi.string().valid(

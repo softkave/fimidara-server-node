@@ -1,17 +1,17 @@
 import {
   PermissionEntityInheritanceMap,
   PermissionGroup,
-} from '../../../../definitions/permissionGroups';
+} from '../../../../definitions/permissionGroups.js';
 import {
   FimidaraPermissionAction,
   PermissionItem,
-} from '../../../../definitions/permissionItem';
-import {Resource} from '../../../../definitions/system';
+} from '../../../../definitions/permissionItem.js';
+import {Resource} from '../../../../definitions/system.js';
 import {
   SemanticProviderOpParams,
   SemanticProviderQueryListParams,
   SemanticProviderQueryParams,
-} from '../types';
+} from '../types.js';
 
 export type SemanticPermissionProviderType_GetPermissionItemsProps = {
   entityId?: string | string[];

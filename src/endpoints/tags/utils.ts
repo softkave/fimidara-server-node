@@ -1,14 +1,14 @@
-import {FimidaraPermissionAction} from '../../definitions/permissionItem';
-import {SessionAgent} from '../../definitions/system';
-import {PublicAssignedTag, PublicTag, Tag} from '../../definitions/tag';
-import {appAssert} from '../../utils/assertion';
-import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {kReuseableErrors} from '../../utils/reusableErrors';
-import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderOpParams} from '../contexts/semantic/types';
-import {agentExtractor, workspaceResourceFields} from '../extractors';
-import {checkWorkspaceExists} from '../workspaces/utils';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
+import {SessionAgent} from '../../definitions/system.js';
+import {PublicAssignedTag, PublicTag, Tag} from '../../definitions/tag.js';
+import {appAssert} from '../../utils/assertion.js';
+import {getFields, makeExtract, makeListExtract} from '../../utils/extract.js';
+import {kReuseableErrors} from '../../utils/reusableErrors.js';
+import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
+import {SemanticProviderOpParams} from '../contexts/semantic/types.js';
+import {agentExtractor, workspaceResourceFields} from '../extractors.js';
+import {checkWorkspaceExists} from '../workspaces/utils.js';
 
 const assignedTagFields = getFields<PublicAssignedTag>({
   tagId: true,

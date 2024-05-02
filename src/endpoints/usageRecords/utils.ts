@@ -1,6 +1,6 @@
-import {File} from '../../definitions/file';
-import {FimidaraPermissionAction} from '../../definitions/permissionItem';
-import {kFimidaraResourceType} from '../../definitions/system';
+import {File} from '../../definitions/file.js';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
+import {kFimidaraResourceType} from '../../definitions/system.js';
 import {
   BandwidthUsageRecordArtifact,
   FileUsageRecordArtifact,
@@ -9,23 +9,22 @@ import {
   UsageRecordArtifactTypeMap,
   UsageRecordCategory,
   UsageRecordCategoryMap,
-} from '../../definitions/usageRecord';
-import {Workspace} from '../../definitions/workspace';
-import {appAssert} from '../../utils/assertion';
-import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {kAppMessages} from '../../utils/messages';
-import {kReuseableErrors} from '../../utils/reusableErrors';
-import {getActionAgentFromSessionAgent} from '../../utils/sessionUtils';
-import {kUtilsInjectables} from '../contexts/injection/injectables';
-import {UsageRecordInput} from '../contexts/logic/UsageRecordLogicProvider';
-import {SemanticProviderMutationParams} from '../contexts/semantic/types';
-import {kSessionUtils} from '../contexts/SessionContext';
-import {NotFoundError} from '../errors';
-import {workspaceResourceFields} from '../extractors';
-import {stringifyFilenamepath} from '../files/utils';
-import RequestData from '../RequestData';
-
-import {UsageLimitExceededError} from './errors';
+} from '../../definitions/usageRecord.js';
+import {Workspace} from '../../definitions/workspace.js';
+import {appAssert} from '../../utils/assertion.js';
+import {getFields, makeExtract, makeListExtract} from '../../utils/extract.js';
+import {kAppMessages} from '../../utils/messages.js';
+import {kReuseableErrors} from '../../utils/reusableErrors.js';
+import {getActionAgentFromSessionAgent} from '../../utils/sessionUtils.js';
+import {kUtilsInjectables} from '../contexts/injection/injectables.js';
+import {UsageRecordInput} from '../contexts/logic/UsageRecordLogicProvider.js';
+import {SemanticProviderMutationParams} from '../contexts/semantic/types.js';
+import {kSessionUtils} from '../contexts/SessionContext.js';
+import {NotFoundError} from '../errors.js';
+import {workspaceResourceFields} from '../extractors.js';
+import {stringifyFilenamepath} from '../files/utils.js';
+import RequestData from '../RequestData.js';
+import {UsageLimitExceededError} from './errors.js';
 
 async function insertRecord(
   reqData: RequestData,

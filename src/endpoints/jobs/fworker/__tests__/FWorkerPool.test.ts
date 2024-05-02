@@ -1,11 +1,11 @@
 import assert from 'assert';
 import {map} from 'lodash';
-import {waitTimeout} from '../../../../utils/fns';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables';
-import {completeTests} from '../../../testUtils/helpers/testFns';
-import {initTests} from '../../../testUtils/testUtils';
-import {FWorkerMessager} from '../FWorkerMessager';
-import {FWorkerPool} from '../FWorkerPool';
+import {waitTimeout} from '../../../../utils/fns.js';
+import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../testUtils/testUtils.js';
+import {FWorkerMessager} from '../FWorkerMessager.js';
+import {FWorkerPool} from '../FWorkerPool.js';
 
 beforeAll(async () => {
   await initTests();

@@ -1,9 +1,9 @@
-import {kFimidaraResourceType} from '../../../../../definitions/system';
-import {Tag} from '../../../../../definitions/tag';
-import {generateAndInsertTagListForTest} from '../../../../testUtils/generate/tag';
-import {completeTests} from '../../../../testUtils/helpers/testFns';
-import {initTests} from '../../../../testUtils/testUtils';
-import {deleteTagCascadeEntry} from '../tag';
+import {kFimidaraResourceType} from '../../../../../definitions/system.js';
+import {Tag} from '../../../../../definitions/tag.js';
+import {generateAndInsertTagListForTest} from '../../../../testUtils/generate/tag.js';
+import {completeTests} from '../../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../../testUtils/testUtils.js';
+import {deleteTagCascadeEntry} from '../tag.js';
 import {
   GenerateResourceFn,
   GenerateTypeChildrenDefinition,
@@ -13,7 +13,7 @@ import {
   testDeleteResourceArtifactsJob,
   testDeleteResourceJob0,
   testDeleteResourceSelfJob,
-} from './testUtils';
+} from './testUtils.js';
 
 beforeAll(async () => {
   await initTests();

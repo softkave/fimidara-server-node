@@ -1,0 +1,10 @@
+{
+  "version": "v1",
+  "packages": {
+    "softkave-js-utils": {
+      "signature": "4edcc6db4cbda98f346fac0a0fc63529",
+      "file": true,
+      "replaced": "^0.4.1"
+    }
+  }
+}

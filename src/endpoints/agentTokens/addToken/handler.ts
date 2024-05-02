@@ -1,14 +1,17 @@
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
-import {appAssert} from '../../../utils/assertion';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {getPublicAgentToken} from '../utils';
-import {AddAgentTokenEndpoint} from './types';
-import {INTERNAL_createAgentToken} from './utils';
-import {addAgentTokenJoiSchema} from './validation';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {getPublicAgentToken} from '../utils.js';
+import {AddAgentTokenEndpoint} from './types.js';
+import {INTERNAL_createAgentToken} from './utils.js';
+import {addAgentTokenJoiSchema} from './validation.js';
 
 const addAgentTokenEndpoint: AddAgentTokenEndpoint = async instData => {
   const data = validate(instData.data, addAgentTokenJoiSchema);

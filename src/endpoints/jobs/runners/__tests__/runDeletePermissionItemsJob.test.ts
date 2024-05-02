@@ -1,25 +1,25 @@
 import {flatten} from 'lodash';
-import {DeleteResourceJobParams, Job, kJobType} from '../../../../definitions/job';
-import {kFimidaraPermissionActionsMap} from '../../../../definitions/permissionItem';
-import {kFimidaraResourceType} from '../../../../definitions/system';
-import {kSystemSessionAgent} from '../../../../utils/agent';
-import {extractResourceIdList} from '../../../../utils/fns';
-import {getNewId} from '../../../../utils/resource';
-import {DataQuery} from '../../../contexts/data/types';
+import {DeleteResourceJobParams, Job, kJobType} from '../../../../definitions/job.js';
+import {kFimidaraPermissionActionsMap} from '../../../../definitions/permissionItem.js';
+import {kFimidaraResourceType} from '../../../../definitions/system.js';
+import {kSystemSessionAgent} from '../../../../utils/agent.js';
+import {extractResourceIdList} from '../../../../utils/fns.js';
+import {getNewId} from '../../../../utils/resource.js';
+import {DataQuery} from '../../../contexts/data/types.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../contexts/injection/injectables';
-import {DeletePermissionItemInput} from '../../../permissionItems/deleteItems/types';
-import {generateAndInsertTestFiles} from '../../../testUtils/generate/file';
-import {generateAndInsertTestFolders} from '../../../testUtils/generate/folder';
-import {generateAndInsertPermissionGroupListForTest} from '../../../testUtils/generate/permissionGroup';
-import {generateAndInsertPermissionItemListForTest} from '../../../testUtils/generate/permissionItem';
-import {generateAndInsertWorkspaceListForTest} from '../../../testUtils/generate/workspace';
-import {completeTests} from '../../../testUtils/helpers/testFns';
-import {initTests} from '../../../testUtils/testUtils';
-import {queueJobs} from '../../queueJobs';
-import {runDeletePermissionItemsJob} from '../runDeletePermissionItemsJob';
+} from '../../../contexts/injection/injectables.js';
+import {DeletePermissionItemInput} from '../../../permissionItems/deleteItems/types.js';
+import {generateAndInsertTestFiles} from '../../../testUtils/generate/file.js';
+import {generateAndInsertTestFolders} from '../../../testUtils/generate/folder.js';
+import {generateAndInsertPermissionGroupListForTest} from '../../../testUtils/generate/permissionGroup.js';
+import {generateAndInsertPermissionItemListForTest} from '../../../testUtils/generate/permissionItem.js';
+import {generateAndInsertWorkspaceListForTest} from '../../../testUtils/generate/workspace.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../testUtils/testUtils.js';
+import {queueJobs} from '../../queueJobs.js';
+import {runDeletePermissionItemsJob} from '../runDeletePermissionItemsJob.js';
 
 beforeAll(async () => {
   await initTests();

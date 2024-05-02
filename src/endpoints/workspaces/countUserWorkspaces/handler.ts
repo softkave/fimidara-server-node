@@ -1,6 +1,6 @@
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {CountUserWorkspacesEndpoint} from './types';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {CountUserWorkspacesEndpoint} from './types.js';
 
 const countUserWorkspaces: CountUserWorkspacesEndpoint = async reqData => {
   const user = await kUtilsInjectables

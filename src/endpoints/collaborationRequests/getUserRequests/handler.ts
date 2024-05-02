@@ -1,13 +1,13 @@
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
-} from '../../pagination';
-import {collaborationRequestForUserListExtractor} from '../utils';
-import {GetUserCollaborationRequestsEndpoint} from './types';
-import {getUserRequestsJoiSchema} from './validation';
+} from '../../pagination.js';
+import {collaborationRequestForUserListExtractor} from '../utils.js';
+import {GetUserCollaborationRequestsEndpoint} from './types.js';
+import {getUserRequestsJoiSchema} from './validation.js';
 
 const getUserCollaborationRequests: GetUserCollaborationRequestsEndpoint =
   async reqData => {

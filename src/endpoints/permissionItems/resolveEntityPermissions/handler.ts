@@ -1,13 +1,13 @@
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {ResolveEntityPermissionsEndpoint} from './types';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {ResolveEntityPermissionsEndpoint} from './types.js';
 import {
   INTERNAL_resolveEntityPermissions,
   checkResolveEntityPermissionsAuth,
-} from './utils';
-import {resolveEntityPermissionsJoiSchema} from './validation';
+} from './utils.js';
+import {resolveEntityPermissionsJoiSchema} from './validation.js';
 
 const resolveEntityPermissions: ResolveEntityPermissionsEndpoint = async instData => {
   const data = validate(instData.data, resolveEntityPermissionsJoiSchema);

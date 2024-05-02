@@ -1,8 +1,8 @@
 import {isString} from 'lodash';
-import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
-import {ServerError} from './errors';
-import {kReuseableErrors} from './reusableErrors';
-import {AnyFn} from './types';
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
+import {ServerError} from './errors.js';
+import {kReuseableErrors} from './reusableErrors.js';
+import {AnyFn} from './types.js';
 
 export function appAssert(
   value: unknown,

@@ -1,9 +1,9 @@
-import {AgentToken} from '../definitions/agentToken';
-import {Agent, kFimidaraResourceType, SessionAgent} from '../definitions/system';
-import {User} from '../definitions/user';
-import {InvalidRequestError} from '../endpoints/errors';
-import {appAssert} from './assertion';
-import {kReuseableErrors} from './reusableErrors';
+import {AgentToken} from '../definitions/agentToken.js';
+import {Agent, kFimidaraResourceType, SessionAgent} from '../definitions/system.js';
+import {User} from '../definitions/user.js';
+import {InvalidRequestError} from '../endpoints/errors.js';
+import {appAssert} from './assertion.js';
+import {kReuseableErrors} from './reusableErrors.js';
 
 export function makeWorkspaceAgentTokenAgent(agentToken: AgentToken): SessionAgent {
   return {

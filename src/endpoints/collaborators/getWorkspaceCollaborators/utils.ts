@@ -1,13 +1,13 @@
-import {AssignedItem} from '../../../definitions/assignedItem';
-import {kFimidaraResourceType, SessionAgent} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
+import {AssignedItem} from '../../../definitions/assignedItem.js';
+import {kFimidaraResourceType, SessionAgent} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
 import {
   kResolvedTargetChildrenAccess,
   resolveTargetChildrenAccessCheckWithAgent,
-} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {DataQuery} from '../../contexts/data/types';
-import {getInAndNinQuery} from '../../contexts/semantic/utils';
-import {PermissionDeniedError} from '../../users/errors';
+} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {DataQuery} from '../../contexts/data/types.js';
+import {getInAndNinQuery} from '../../contexts/semantic/utils.js';
+import {PermissionDeniedError} from '../../users/errors.js';
 
 export async function getWorkspaceCollaboratorsQuery(
   agent: SessionAgent,

@@ -1,11 +1,11 @@
-import {ResolvedMountEntry} from '../../../../definitions/fileBackend';
-import {appAssert} from '../../../../utils/assertion';
-import {FileBackendQueries} from '../../../fileBackends/queries';
-import {DataQuery, ResolvedMountEntryQuery} from '../../data/types';
-import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
-import {SemanticProviderQueryParams} from '../types';
-import {SemanticResolvedMountEntryProvider} from './types';
+import {ResolvedMountEntry} from '../../../../definitions/fileBackend.js';
+import {appAssert} from '../../../../utils/assertion.js';
+import {FileBackendQueries} from '../../../fileBackends/queries.js';
+import {DataQuery, ResolvedMountEntryQuery} from '../../data/types.js';
+import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider.js';
+import {SemanticProviderQueryParams} from '../types.js';
+import {SemanticResolvedMountEntryProvider} from './types.js';
 
 export class DataSemanticResolvedMountEntry
   extends DataSemanticWorkspaceResourceProvider<ResolvedMountEntry>

@@ -1,5 +1,5 @@
-import {ObjectValues, OmitProperties} from '../utils/types';
-import {FimidaraResourceType, ToPublicDefinitions, WorkspaceResource} from './system';
+import {ObjectValues, OmitProperties} from '../utils/types.js';
+import {FimidaraResourceType, ToPublicDefinitions, WorkspaceResource} from './system.js';
 
 export const kFimidaraPermissionActionsMap = {
   wildcard: '*',

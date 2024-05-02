@@ -5,17 +5,17 @@ import {
   JobType,
   kJobStatus,
   kJobType,
-} from '../../definitions/job';
-import {getTimestamp} from '../../utils/dateFns';
-import {noopAsync} from '../../utils/fns';
-import {AnyFn} from '../../utils/types';
-import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
-import {runCleanupMountResolvedEntriesJob} from './runners/runCleanupMountResolvedEntriesJob';
-import {runDeletePermissionItemsJob} from './runners/runDeletePermissionItemsJob';
-import {runDeleteResourceJob} from './runners/runDeleteResourceJob/runDeleteResourceJob';
-import {runEmailJob} from './runners/runEmailJob/runEmailJob';
-import {runIngestFolderpathJob} from './runners/runIngestFolderpathJob';
-import {runIngestMountJob} from './runners/runIngestMountJob';
+} from '../../definitions/job.js';
+import {getTimestamp} from '../../utils/dateFns.js';
+import {noopAsync} from '../../utils/fns.js';
+import {AnyFn} from '../../utils/types.js';
+import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables.js';
+import {runCleanupMountResolvedEntriesJob} from './runners/runCleanupMountResolvedEntriesJob.js';
+import {runDeletePermissionItemsJob} from './runners/runDeletePermissionItemsJob.js';
+import {runDeleteResourceJob} from './runners/runDeleteResourceJob/runDeleteResourceJob.js';
+import {runEmailJob} from './runners/runEmailJob/runEmailJob.js';
+import {runIngestFolderpathJob} from './runners/runIngestFolderpathJob.js';
+import {runIngestMountJob} from './runners/runIngestMountJob.js';
 
 export async function completeJob(
   jobId: string,

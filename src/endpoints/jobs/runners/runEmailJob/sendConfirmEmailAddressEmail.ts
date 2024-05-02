@@ -1,27 +1,27 @@
-import {AgentToken} from '../../../../definitions/agentToken';
-import {EmailJobParams, kEmailJobType} from '../../../../definitions/job';
+import {AgentToken} from '../../../../definitions/agentToken.js';
+import {EmailJobParams, kEmailJobType} from '../../../../definitions/job.js';
 import {
   kCurrentJWTTokenVersion,
   kFimidaraResourceType,
   kTokenAccessScope,
-} from '../../../../definitions/system';
-import {User} from '../../../../definitions/user';
+} from '../../../../definitions/system.js';
+import {User} from '../../../../definitions/user.js';
 import {
   ConfirmEmailAddressEmailProps,
   confirmEmailAddressEmailHTML,
   confirmEmailAddressEmailText,
   kConfirmEmailAddressEmail,
-} from '../../../../emailTemplates/confirmEmailAddress';
-import {kSystemSessionAgent} from '../../../../utils/agent';
-import {appAssert} from '../../../../utils/assertion';
-import {getTimestamp} from '../../../../utils/dateFns';
-import {newResource} from '../../../../utils/resource';
+} from '../../../../emailTemplates/confirmEmailAddress.js';
+import {kSystemSessionAgent} from '../../../../utils/agent.js';
+import {appAssert} from '../../../../utils/assertion.js';
+import {getTimestamp} from '../../../../utils/dateFns.js';
+import {newResource} from '../../../../utils/resource.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../contexts/injection/injectables';
-import {kUserConstants} from '../../../users/constants';
-import {getBaseEmailTemplateProps} from './utils';
+} from '../../../contexts/injection/injectables.js';
+import {kUserConstants} from '../../../users/constants.js';
+import {getBaseEmailTemplateProps} from './utils.js';
 
 export async function getLinkWithConfirmEmailToken(user: User, urlPath: string) {
   return kSemanticModels.utils().withTxn(async opts => {

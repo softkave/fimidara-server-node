@@ -1,7 +1,7 @@
-import {globalDispose} from '../../endpoints/contexts/globalUtils';
-import {kUtilsInjectables} from '../../endpoints/contexts/injection/injectables';
-import {registerUtilsInjectables} from '../../endpoints/contexts/injection/register';
-import {kFimidaraConfigDbType} from '../../resources/config';
+import {globalDispose} from '../../endpoints/contexts/globalUtils.js';
+import {kUtilsInjectables} from '../../endpoints/contexts/injection/injectables.js';
+import {registerUtilsInjectables} from '../../endpoints/contexts/injection/register.js';
+import {kFimidaraConfigDbType} from '../../resources/config.js';
 import {
   renderCollaborationRequestMedia,
   renderCollaborationRequestResponseMedia,
@@ -10,7 +10,7 @@ import {
   renderForgotPasswordMedia,
   renderUpgradedFromWaitlistMedia,
   renderUsageExceededMedia,
-} from './renderToFile';
+} from './renderToFile.js';
 
 async function main() {
   await registerUtilsInjectables({dbType: kFimidaraConfigDbType.noop});

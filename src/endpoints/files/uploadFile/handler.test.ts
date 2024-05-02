@@ -1,23 +1,26 @@
 import assert from 'assert';
-import {kFileBackendType} from '../../../definitions/fileBackend';
-import RequestData from '../../RequestData';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {MemoryFilePersistenceProvider} from '../../contexts/file/MemoryFilePersistenceProvider';
+import {kFileBackendType} from '../../../definitions/fileBackend.js';
+import RequestData from '../../RequestData.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {MemoryFilePersistenceProvider} from '../../contexts/file/MemoryFilePersistenceProvider.js';
 import {
   FilePersistenceProvider,
   FilePersistenceUploadFileParams,
-} from '../../contexts/file/types';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {kRegisterUtilsInjectables} from '../../contexts/injection/register';
-import {stringifyFoldernamepath} from '../../folders/utils';
+} from '../../contexts/file/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../contexts/injection/register.js';
+import {stringifyFoldernamepath} from '../../folders/utils.js';
 import {
   generateTestFileName,
   generateTestFilepath,
   generateTestFilepathString,
-} from '../../testUtils/generate/file';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {expectFileBodyEqual} from '../../testUtils/helpers/file';
-import {completeTests, skTest} from '../../testUtils/helpers/testFns';
+} from '../../testUtils/generate/file.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {expectFileBodyEqual} from '../../testUtils/helpers/file.js';
+import {completeTests, skTest} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -26,14 +29,14 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {FileNotWritableError} from '../errors';
-import {FileQueries} from '../queries';
-import readFile from '../readFile/handler';
-import {ReadFileEndpointParams} from '../readFile/types';
-import {getFilepathInfo, stringifyFilenamepath} from '../utils';
-import {UploadFileEndpointParams} from './types';
-import {uploadFileBaseTest} from './uploadFileTestUtils';
+} from '../../testUtils/testUtils.js';
+import {FileNotWritableError} from '../errors.js';
+import {FileQueries} from '../queries.js';
+import readFile from '../readFile/handler.js';
+import {ReadFileEndpointParams} from '../readFile/types.js';
+import {getFilepathInfo, stringifyFilenamepath} from '../utils.js';
+import {UploadFileEndpointParams} from './types.js';
+import {uploadFileBaseTest} from './uploadFileTestUtils.js';
 
 /**
  * TODO:

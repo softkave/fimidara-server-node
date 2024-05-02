@@ -1,9 +1,9 @@
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils';
-import INTERNAL_confirmEmailAddress from './internalConfirmEmailAddress';
-import {ConfirmEmailAddressEndpoint} from './types';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {getUserClientAssignedToken, getUserToken, toLoginResult} from '../login/utils.js';
+import INTERNAL_confirmEmailAddress from './internalConfirmEmailAddress.js';
+import {ConfirmEmailAddressEndpoint} from './types.js';
 
 const confirmEmailAddress: ConfirmEmailAddressEndpoint = async instData => {
   const agent = await kUtilsInjectables

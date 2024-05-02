@@ -1,6 +1,6 @@
-import {LocalFsFilePersistenceProvider} from '../../../contexts/file/LocalFsFilePersistenceProvider';
-import {mockWith} from '../../helpers/mock';
-import {ITestFilePersistenceProviderContext} from '../types';
+import {LocalFsFilePersistenceProvider} from '../../../contexts/file/LocalFsFilePersistenceProvider.js';
+import {mockWith} from '../../helpers/mock.js';
+import {ITestFilePersistenceProviderContext} from '../types.js';
 
 export default class TestLocalFsFilePersistenceProviderContext
   implements ITestFilePersistenceProviderContext

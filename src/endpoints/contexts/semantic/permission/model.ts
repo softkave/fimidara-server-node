@@ -1,33 +1,33 @@
-import {AssignedItem} from '../../../../definitions/assignedItem';
+import {AssignedItem} from '../../../../definitions/assignedItem.js';
 import {
   AssignedPermissionGroupMeta,
   PermissionEntityInheritanceMap,
   PermissionGroup,
-} from '../../../../definitions/permissionGroups';
+} from '../../../../definitions/permissionGroups.js';
 import {
   FimidaraPermissionAction,
   PermissionItem,
-} from '../../../../definitions/permissionItem';
-import {Resource, kFimidaraResourceType} from '../../../../definitions/system';
-import {appAssert} from '../../../../utils/assertion';
-import {toCompactArray} from '../../../../utils/fns';
-import {indexArray} from '../../../../utils/indexArray';
-import {getResourceTypeFromId} from '../../../../utils/resource';
-import {kReuseableErrors} from '../../../../utils/reusableErrors';
-import {DataQuery, LiteralDataQuery} from '../../data/types';
-import {kSemanticModels} from '../../injection/injectables';
-import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider';
+} from '../../../../definitions/permissionItem.js';
+import {Resource, kFimidaraResourceType} from '../../../../definitions/system.js';
+import {appAssert} from '../../../../utils/assertion.js';
+import {toCompactArray} from '../../../../utils/fns.js';
+import {indexArray} from '../../../../utils/indexArray.js';
+import {getResourceTypeFromId} from '../../../../utils/resource.js';
+import {kReuseableErrors} from '../../../../utils/reusableErrors.js';
+import {DataQuery, LiteralDataQuery} from '../../data/types.js';
+import {kSemanticModels} from '../../injection/injectables.js';
+import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
 import {
   SemanticProviderOpParams,
   SemanticProviderQueryListParams,
   SemanticProviderQueryParams,
-} from '../types';
-import {getInAndNinQuery} from '../utils';
+} from '../types.js';
+import {getInAndNinQuery} from '../utils.js';
 import {
   SemanticPermissionProviderType,
   SemanticPermissionProviderType_CountPermissionItemsProps,
   SemanticPermissionProviderType_GetPermissionItemsProps,
-} from './types';
+} from './types.js';
 
 export class DataSemanticPermission implements SemanticPermissionProviderType {
   async getEntityInheritanceMap(

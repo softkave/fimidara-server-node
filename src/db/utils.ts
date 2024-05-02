@@ -1,6 +1,6 @@
 import {SchemaDefinitionProperty} from 'mongoose';
-import {Agent, Resource, WorkspaceResource} from '../definitions/system';
-import {getTimestamp} from '../utils/dateFns';
+import {Agent, Resource, WorkspaceResource} from '../definitions/system.js';
+import {getTimestamp} from '../utils/dateFns.js';
 
 // ensures all the fields defined in the type are added to the schema
 // TODO: do deep check to make sure that internal schemas are checked too

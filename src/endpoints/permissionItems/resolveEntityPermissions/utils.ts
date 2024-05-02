@@ -2,28 +2,28 @@ import {first, forEach, isString} from 'lodash';
 import {
   FimidaraPermissionAction,
   kFimidaraPermissionActionsMap,
-} from '../../../definitions/permissionItem';
-import {Resource, ResourceWrapper, SessionAgent} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
-import {appAssert} from '../../../utils/assertion';
-import {convertToArray} from '../../../utils/fns';
-import {indexArray} from '../../../utils/indexArray';
+} from '../../../definitions/permissionItem.js';
+import {Resource, ResourceWrapper, SessionAgent} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {convertToArray} from '../../../utils/fns.js';
+import {indexArray} from '../../../utils/indexArray.js';
 import {
   checkAuthorizationWithAgent,
   getAuthorizationAccessChecker,
   getResourcePermissionContainers,
-} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {SemanticProviderOpParams} from '../../contexts/semantic/types';
-import {InvalidRequestError} from '../../errors';
-import {getPermissionItemTargets} from '../getPermissionItemTargets';
-import {PermissionItemInputTarget} from '../types';
-import {getPermissionItemEntities} from '../utils';
+} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
+import {InvalidRequestError} from '../../errors.js';
+import {getPermissionItemTargets} from '../getPermissionItemTargets.js';
+import {PermissionItemInputTarget} from '../types.js';
+import {getPermissionItemEntities} from '../utils.js';
 import {
   ResolveEntityPermissionItemInput,
   ResolveEntityPermissionsEndpointParams,
   ResolvedEntityPermissionItem,
   ResolvedEntityPermissionItemTarget,
-} from './types';
+} from './types.js';
 
 type ResolvedTargetItem = ResourceWrapper & ResolvedEntityPermissionItemTarget;
 type ResolvedTargetsMap = Record<string, ResolvedTargetItem>;

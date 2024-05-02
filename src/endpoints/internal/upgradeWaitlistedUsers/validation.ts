@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
-import {kValidationSchemas} from '../../../utils/validationUtils';
-import {internalConstants} from '../constants';
-import {UpgradeWaitlistedUsersEndpointParams} from './types';
+import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import {internalConstants} from '../constants.js';
+import {UpgradeWaitlistedUsersEndpointParams} from './types.js';
 
 export const upgradeWaitlistedUsersJoiSchema =
   Joi.object<UpgradeWaitlistedUsersEndpointParams>().keys({

@@ -1,26 +1,26 @@
 import {first} from 'lodash';
-import {kEmailJobType} from '../../../../../definitions/job';
+import {kEmailJobType} from '../../../../../definitions/job.js';
 import {
   kFimidaraResourceType,
   kTokenAccessScope,
-} from '../../../../../definitions/system';
-import {kForgotPasswordEmailArtifacts} from '../../../../../emailTemplates/forgotPassword';
-import {getNewIdForResource} from '../../../../../utils/resource';
-import {IEmailProviderContext} from '../../../../contexts/email/types';
+} from '../../../../../definitions/system.js';
+import {kForgotPasswordEmailArtifacts} from '../../../../../emailTemplates/forgotPassword.js';
+import {getNewIdForResource} from '../../../../../utils/resource.js';
+import {IEmailProviderContext} from '../../../../contexts/email/types.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../../contexts/injection/injectables';
-import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register';
-import MockTestEmailProviderContext from '../../../../testUtils/context/email/MockTestEmailProviderContext';
-import {generateAndInsertAgentTokenListForTest} from '../../../../testUtils/generate/agentToken';
-import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/user';
-import {completeTests} from '../../../../testUtils/helpers/testFns';
-import {initTests} from '../../../../testUtils/testUtils';
+} from '../../../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
+import MockTestEmailProviderContext from '../../../../testUtils/context/email/MockTestEmailProviderContext.js';
+import {generateAndInsertAgentTokenListForTest} from '../../../../testUtils/generate/agentToken.js';
+import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/user.js';
+import {completeTests} from '../../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../../testUtils/testUtils.js';
 import {
   getForgotPasswordLinkFromToken,
   sendForgotPasswordEmail,
-} from '../sendForgotPasswordEmail';
+} from '../sendForgotPasswordEmail.js';
 
 beforeAll(async () => {
   await initTests();

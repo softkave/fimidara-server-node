@@ -1,38 +1,43 @@
 import {compact, defaultTo, first, isArray, keyBy, last} from 'lodash';
-import {Folder, FolderMatcher, PublicFolder} from '../../definitions/folder';
-import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {isPathEmpty, pathJoin, pathSplit} from '../../utils/fns';
-
-import {FileBackendMount, ResolvedMountEntry} from '../../definitions/fileBackend';
-import {FimidaraPermissionAction} from '../../definitions/permissionItem';
-import {Agent, SessionAgent, kFimidaraResourceType} from '../../definitions/system';
-import {Workspace} from '../../definitions/workspace';
-import {appAssert} from '../../utils/assertion';
-import {getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
-import {kReuseableErrors} from '../../utils/reusableErrors';
+import {
+  isPathEmpty,
+  makeExtract,
+  makeListExtract,
+  pathJoin,
+  pathSplit,
+} from 'softkave-js-utils';
+import {FileBackendMount, ResolvedMountEntry} from '../../definitions/fileBackend.js';
+import {Folder, FolderMatcher, PublicFolder} from '../../definitions/folder.js';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
+import {Agent, SessionAgent, kFimidaraResourceType} from '../../definitions/system.js';
+import {Workspace} from '../../definitions/workspace.js';
+import {appAssert} from '../../utils/assertion.js';
+import {getFields} from '../../utils/extract.js';
+import {getNewIdForResource, newWorkspaceResource} from '../../utils/resource.js';
+import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {
   checkAuthorizationWithAgent,
   getFilePermissionContainers,
-} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels} from '../contexts/injection/injectables';
+} from '../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
-} from '../contexts/semantic/types';
-import {InvalidRequestError} from '../errors';
-import {workspaceResourceFields} from '../extractors';
-import {getBackendConfigsWithIdList} from '../fileBackends/configUtils';
-import {ingestPersistedFolders} from '../fileBackends/ingestionUtils';
+} from '../contexts/semantic/types.js';
+import {InvalidRequestError} from '../errors.js';
+import {workspaceResourceFields} from '../extractors.js';
+import {getBackendConfigsWithIdList} from '../fileBackends/configUtils.js';
+import {ingestPersistedFolders} from '../fileBackends/ingestionUtils.js';
 import {
   FileBackendMountWeights,
   initBackendProvidersForMounts,
   resolveMountsForFolder,
-} from '../fileBackends/mountUtils';
-import {assertRootname, checkWorkspaceExists} from '../workspaces/utils';
-import {createFolderList} from './addFolder/createFolderList';
-import {kFolderConstants} from './constants';
-import {FolderNotFoundError} from './errors';
-import {assertGetFolderWithMatcher} from './getFolderWithMatcher';
+} from '../fileBackends/mountUtils.js';
+import {assertRootname, checkWorkspaceExists} from '../workspaces/utils.js';
+import {createFolderList} from './addFolder/createFolderList.js';
+import {kFolderConstants} from './constants.js';
+import {FolderNotFoundError} from './errors.js';
+import {assertGetFolderWithMatcher} from './getFolderWithMatcher.js';
 
 const folderFields = getFields<PublicFolder>({
   ...workspaceResourceFields,
@@ -55,7 +60,7 @@ export function splitFolderpath(path: string | string[]) {
     return path;
   }
 
-  const nameList = pathSplit(path);
+  const nameList = pathSplit({input: path});
 
   if (nameList.length > kFolderConstants.maxFolderDepth) {
     throw new Error(
@@ -113,7 +118,7 @@ export function getFolderpathInfo(
   }
 
   const parentNamepath = splitPath.slice(0, /** file or folder name is last item */ -1);
-  const parentStringPath = pathJoin(parentNamepath);
+  const parentStringPath = pathJoin({input: parentNamepath});
   const hasParent = parentNamepath.length > 0;
 
   return {
@@ -201,7 +206,7 @@ export function addRootnameToPath<T extends string | string[] = string | string[
     ? last(workspaceRootname)
     : workspaceRootname;
   appAssert(rootname);
-  const pJoined = pathJoin(rootname, path);
+  const pJoined = pathJoin({input: [rootname, path]});
 
   if (isArray(path)) {
     return <T>pJoined.split(kFolderConstants.separator);
@@ -220,7 +225,7 @@ export function stringifyFoldernamepath(
   folder: Pick<Folder, 'namepath'>,
   rootname?: string
 ) {
-  const name = pathJoin(folder.namepath);
+  const name = pathJoin({input: folder.namepath});
   return rootname ? addRootnameToPath(name, rootname) : name;
 }
 
@@ -229,8 +234,12 @@ export function areFolderpathsEqual(
   folderpath02: string | string[],
   isCaseSensitive: boolean
 ) {
-  const folderpath01List = isArray(folderpath01) ? folderpath01 : pathSplit(folderpath01);
-  const folderpath02List = isArray(folderpath02) ? folderpath02 : pathSplit(folderpath02);
+  const folderpath01List = isArray(folderpath01)
+    ? folderpath01
+    : pathSplit({input: folderpath01});
+  const folderpath02List = isArray(folderpath02)
+    ? folderpath02
+    : pathSplit({input: folderpath02});
   return (
     folderpath01List.length === folderpath02List.length &&
     folderpath01List.every((path, index) => {
@@ -250,14 +259,14 @@ export async function ensureFolders(
   namepath: string | string[],
   opts: SemanticProviderMutationParams
 ): Promise<{folder: Folder | null; folders: Folder[]}> {
-  if (isPathEmpty(namepath)) {
+  if (isPathEmpty({input: namepath})) {
     return {folder: null, folders: []};
   }
 
   const {newFolders, existingFolders} = await createFolderList(
     agent,
     workspace,
-    {folderpath: addRootnameToPath(pathJoin(namepath), workspace.rootname)},
+    {folderpath: addRootnameToPath(pathJoin({input: namepath}), workspace.rootname)},
     /** Skip auth check. Since what we really care about is file creation, and
      * a separate permission check is done for that. All of it is also done
      * with transaction so should upload file permission check fail, it'll get
@@ -411,8 +420,8 @@ export async function ingestFolderByFolderpath(
         mount,
         workspaceId,
         folderpath: mountEntry
-          ? pathJoin(mountEntry.backendNamepath)
-          : pathJoin(pathinfo.namepath),
+          ? pathJoin({input: mountEntry.backendNamepath})
+          : pathJoin({input: pathinfo.namepath}),
       });
     })
   );

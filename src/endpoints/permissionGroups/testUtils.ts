@@ -1,15 +1,15 @@
 import {
   AssignPermissionGroupInput,
   PermissionGroup,
-} from '../../definitions/permissionGroups';
-import {FimidaraPermissionAction} from '../../definitions/permissionItem';
-import {SessionAgent} from '../../definitions/system';
-import {makeKey} from '../../utils/fns';
-import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
-import {kSemanticModels} from '../contexts/injection/injectables';
-import {IServerRequest} from '../contexts/types';
-import addPermissionItems from '../permissionItems/addItems/handler';
-import RequestData from '../RequestData';
+} from '../../definitions/permissionGroups.js';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
+import {SessionAgent} from '../../definitions/system.js';
+import {makeKey} from '../../utils/fns.js';
+import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
+import {IServerRequest} from '../contexts/types.js';
+import addPermissionItems from '../permissionItems/addItems/handler.js';
+import RequestData from '../RequestData.js';
 
 export function includesPermissionGroupById(pgList: PermissionGroup[], id: string) {
   return !!pgList.find(pg => pg.resourceId === id);

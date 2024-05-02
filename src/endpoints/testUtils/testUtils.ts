@@ -1,76 +1,76 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
 import {Readable} from 'stream';
-import {AgentToken} from '../../definitions/agentToken';
+import {AgentToken} from '../../definitions/agentToken.js';
 import {
   BaseTokenData,
   kCurrentJWTTokenVersion,
   SessionAgent,
-} from '../../definitions/system';
-import {PublicUser, UserWithWorkspace} from '../../definitions/user';
-import {PublicWorkspace, Workspace} from '../../definitions/workspace';
-import {kPublicSessionAgent, kSystemSessionAgent} from '../../utils/agent';
-import {appAssert} from '../../utils/assertion';
-import {getTimestamp} from '../../utils/dateFns';
-import {convertToArray, mergeData, pathJoin} from '../../utils/fns';
-import {makeUserSessionAgent} from '../../utils/sessionUtils';
-import addAgentTokenEndpoint from '../agentTokens/addToken/handler';
+} from '../../definitions/system.js';
+import {PublicUser, UserWithWorkspace} from '../../definitions/user.js';
+import {PublicWorkspace, Workspace} from '../../definitions/workspace.js';
+import {kPublicSessionAgent, kSystemSessionAgent} from '../../utils/agent.js';
+import {appAssert} from '../../utils/assertion.js';
+import {getTimestamp} from '../../utils/dateFns.js';
+import {convertToArray, mergeData, pathJoin} from '../../utils/fns.js';
+import {makeUserSessionAgent} from '../../utils/sessionUtils.js';
+import addAgentTokenEndpoint from '../agentTokens/addToken/handler.js';
 import {
   AddAgentTokenEndpointParams,
   NewAgentTokenInput,
-} from '../agentTokens/addToken/types';
-import {assertAgentToken} from '../agentTokens/utils';
-import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
-import sendRequest from '../collaborationRequests/sendRequest/handler';
+} from '../agentTokens/addToken/types.js';
+import {assertAgentToken} from '../agentTokens/utils.js';
+import {populateUserWorkspaces} from '../assignedItems/getAssignedItems.js';
+import sendRequest from '../collaborationRequests/sendRequest/handler.js';
 import {
   CollaborationRequestInput,
   SendCollaborationRequestEndpointParams,
-} from '../collaborationRequests/sendRequest/types';
-import {globalSetup} from '../contexts/globalUtils';
-import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
-import {IServerRequest} from '../contexts/types';
-import addFileBackendConfig from '../fileBackends/addConfig/handler';
+} from '../collaborationRequests/sendRequest/types.js';
+import {globalSetup} from '../contexts/globalUtils.js';
+import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables.js';
+import {IServerRequest} from '../contexts/types.js';
+import addFileBackendConfig from '../fileBackends/addConfig/handler.js';
 import {
   AddFileBackendConfigEndpointParams,
   NewFileBackendConfigInput,
-} from '../fileBackends/addConfig/types';
-import addFileBackendMountEndpoint from '../fileBackends/addMount/handler';
+} from '../fileBackends/addConfig/types.js';
+import addFileBackendMountEndpoint from '../fileBackends/addMount/handler.js';
 import {
   AddFileBackendMountEndpointParams,
   NewFileBackendMountInput,
-} from '../fileBackends/addMount/types';
-import uploadFile from '../files/uploadFile/handler';
-import {UploadFileEndpointParams} from '../files/uploadFile/types';
-import addFolder from '../folders/addFolder/handler';
-import {AddFolderEndpointParams, NewFolderInput} from '../folders/addFolder/types';
-import {addRootnameToPath} from '../folders/utils';
-import addPermissionGroup from '../permissionGroups/addPermissionGroup/handler';
+} from '../fileBackends/addMount/types.js';
+import uploadFile from '../files/uploadFile/handler.js';
+import {UploadFileEndpointParams} from '../files/uploadFile/types.js';
+import addFolder from '../folders/addFolder/handler.js';
+import {AddFolderEndpointParams, NewFolderInput} from '../folders/addFolder/types.js';
+import {addRootnameToPath} from '../folders/utils.js';
+import addPermissionGroup from '../permissionGroups/addPermissionGroup/handler.js';
 import {
   AddPermissionGroupEndpointParams,
   NewPermissionGroupInput,
-} from '../permissionGroups/addPermissionGroup/types';
-import addPermissionItems from '../permissionItems/addItems/handler';
-import {AddPermissionItemsEndpointParams} from '../permissionItems/addItems/types';
-import {PermissionItemInput} from '../permissionItems/types';
-import EndpointReusableQueries from '../queries';
-import RequestData from '../RequestData';
-import {initFimidara} from '../runtime/initFimidara';
-import {BaseEndpointResult} from '../types';
-import INTERNAL_confirmEmailAddress from '../users/confirmEmailAddress/internalConfirmEmailAddress';
-import signup from '../users/signup/signup';
-import {SignupEndpointParams} from '../users/signup/types';
-import {assertUser} from '../users/utils';
-import addWorkspace from '../workspaces/addWorkspace/handler';
-import {AddWorkspaceEndpointParams} from '../workspaces/addWorkspace/types';
-import {makeRootnameFromName} from '../workspaces/utils';
-import MockTestEmailProviderContext from './context/email/MockTestEmailProviderContext';
-import {generateTestFileName, generateTestFilepathString} from './generate/file';
+} from '../permissionGroups/addPermissionGroup/types.js';
+import addPermissionItems from '../permissionItems/addItems/handler.js';
+import {AddPermissionItemsEndpointParams} from '../permissionItems/addItems/types.js';
+import {PermissionItemInput} from '../permissionItems/types.js';
+import EndpointReusableQueries from '../queries.js';
+import RequestData from '../RequestData.js';
+import {initFimidara} from '../runtime/initFimidara.js';
+import {BaseEndpointResult} from '../types.js';
+import INTERNAL_confirmEmailAddress from '../users/confirmEmailAddress/internalConfirmEmailAddress.js';
+import signup from '../users/signup/signup.js';
+import {SignupEndpointParams} from '../users/signup/types.js';
+import {assertUser} from '../users/utils.js';
+import addWorkspace from '../workspaces/addWorkspace/handler.js';
+import {AddWorkspaceEndpointParams} from '../workspaces/addWorkspace/types.js';
+import {makeRootnameFromName} from '../workspaces/utils.js';
+import MockTestEmailProviderContext from './context/email/MockTestEmailProviderContext.js';
+import {generateTestFileName, generateTestFilepathString} from './generate/file.js';
 import {
   generateFileBackendConfigInput,
   generateFileBackendMountInput,
   generateFileBackendTypeForInput,
-} from './generate/fileBackend';
-import {generateTestFolderName} from './generate/folder';
+} from './generate/fileBackend.js';
+import {generateTestFolderName} from './generate/folder.js';
 import sharp = require('sharp');
 import assert = require('assert');
 

@@ -2,20 +2,20 @@ import busboy from 'connect-busboy';
 import {Request, Response} from 'express';
 import {first, isString, last} from 'lodash';
 import {Readable} from 'stream';
-import {kFimidaraResourceType} from '../../definitions/system';
-import {appAssert} from '../../utils/assertion';
-import {convertToArray} from '../../utils/fns';
-import {tryGetResourceTypeFromId} from '../../utils/resource';
-import {AnyObject} from '../../utils/types';
-import {kEndpointConstants} from '../constants';
-import {kUtilsInjectables} from '../contexts/injection/injectables';
-import {InvalidRequestError} from '../errors';
-import {populateMountUnsupportedOpNoteInNotFoundError} from '../fileBackends/mountUtils';
-import {kFolderConstants} from '../folders/constants';
-import {ExportedHttpEndpoint_HandleErrorFn} from '../types';
-import {endpointDecodeURIComponent} from '../utils';
-import {kFileConstants} from './constants';
-import deleteFile from './deleteFile/handler';
+import {kFimidaraResourceType} from '../../definitions/system.js';
+import {appAssert} from '../../utils/assertion.js';
+import {convertToArray} from '../../utils/fns.js';
+import {tryGetResourceTypeFromId} from '../../utils/resource.js';
+import {AnyObject} from '../../utils/types.js';
+import {kEndpointConstants} from '../constants.js';
+import {kUtilsInjectables} from '../contexts/injection/injectables.js';
+import {InvalidRequestError} from '../errors.js';
+import {populateMountUnsupportedOpNoteInNotFoundError} from '../fileBackends/mountUtils.js';
+import {kFolderConstants} from '../folders/constants.js';
+import {ExportedHttpEndpoint_HandleErrorFn} from '../types.js';
+import {endpointDecodeURIComponent} from '../utils.js';
+import {kFileConstants} from './constants.js';
+import deleteFile from './deleteFile/handler.js';
 import {
   deleteFileEndpointDefinition,
   getFileDetailsEndpointDefinition,
@@ -23,18 +23,18 @@ import {
   readFilePOSTEndpointDefinition,
   updateFileDetailsEndpointDefinition,
   uploadFileEndpointDefinition,
-} from './endpoints.mddoc';
-import getFileDetails from './getFileDetails/handler';
-import readFile from './readFile/handler';
+} from './endpoints.mddoc.js';
+import getFileDetails from './getFileDetails/handler.js';
+import readFile from './readFile/handler.js';
 import {
   ReadFileEndpoint,
   ReadFileEndpointHttpQuery,
   ReadFileEndpointParams,
-} from './readFile/types';
-import {FilesExportedEndpoints} from './types';
-import updateFileDetails from './updateFileDetails/handler';
-import uploadFile from './uploadFile/handler';
-import {UploadFileEndpointParams} from './uploadFile/types';
+} from './readFile/types.js';
+import {FilesExportedEndpoints} from './types.js';
+import updateFileDetails from './updateFileDetails/handler.js';
+import uploadFile from './uploadFile/handler.js';
+import {UploadFileEndpointParams} from './uploadFile/types.js';
 
 const kFileStreamWaitTimeoutMS = 10000; // 10 seconds
 

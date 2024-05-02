@@ -2,7 +2,7 @@ import {memoize} from 'lodash';
 import jsonStringify from 'safe-stable-stringify';
 import {createLogger, format, transports} from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
-import {AnyObject} from '../types';
+import {AnyObject} from '../types.js';
 
 const consoleTransport = new transports.Console({
   format: format.printf(info => {

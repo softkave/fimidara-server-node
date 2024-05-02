@@ -1,6 +1,6 @@
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {CountUserCollaborationRequestsEndpoint} from './types';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {CountUserCollaborationRequestsEndpoint} from './types.js';
 
 const countUserCollaborationRequests: CountUserCollaborationRequestsEndpoint =
   async reqData => {

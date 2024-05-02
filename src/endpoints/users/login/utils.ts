@@ -1,19 +1,19 @@
-import {AgentToken} from '../../../definitions/agentToken';
+import {AgentToken} from '../../../definitions/agentToken.js';
 import {
   kCurrentJWTTokenVersion,
   kFimidaraResourceType,
   kTokenAccessScope,
-} from '../../../definitions/system';
-import {UserWithWorkspace} from '../../../definitions/user';
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {appAssert} from '../../../utils/assertion';
-import {ServerError} from '../../../utils/errors';
-import {newResource} from '../../../utils/resource';
-import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
-import {userExtractor} from '../utils';
-import {LoginResult} from './types';
+} from '../../../definitions/system.js';
+import {UserWithWorkspace} from '../../../definitions/user.js';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {ServerError} from '../../../utils/errors.js';
+import {newResource} from '../../../utils/resource.js';
+import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
+import {userExtractor} from '../utils.js';
+import {LoginResult} from './types.js';
 
 export function toLoginResult(
   user: UserWithWorkspace,

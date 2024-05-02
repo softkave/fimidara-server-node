@@ -1,45 +1,48 @@
 import {compact, first, keyBy} from 'lodash';
-import {File, FileMatcher, PublicFile} from '../../definitions/file';
-import {FileBackendMount, ResolvedMountEntry} from '../../definitions/fileBackend';
-import {Folder} from '../../definitions/folder';
-import {FimidaraPermissionAction} from '../../definitions/permissionItem';
-import {Agent, SessionAgent, kFimidaraResourceType} from '../../definitions/system';
-import {Workspace} from '../../definitions/workspace';
-import {appAssert} from '../../utils/assertion';
-import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {pathBasename, pathJoin} from '../../utils/fns';
-import {getNewIdForResource, newWorkspaceResource} from '../../utils/resource';
-import {kReuseableErrors} from '../../utils/reusableErrors';
+import {File, FileMatcher, PublicFile} from '../../definitions/file.js';
+import {FileBackendMount, ResolvedMountEntry} from '../../definitions/fileBackend.js';
+import {Folder} from '../../definitions/folder.js';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
+import {PresignedPath, PublicPresignedPath} from '../../definitions/presignedPath.js';
+import {Agent, SessionAgent, kFimidaraResourceType} from '../../definitions/system.js';
+import {Workspace} from '../../definitions/workspace.js';
+import {appAssert} from '../../utils/assertion.js';
+import {getFields, makeExtract, makeListExtract} from '../../utils/extract.js';
+import {pathBasename, pathJoin} from '../../utils/fns.js';
+import {getNewIdForResource, newWorkspaceResource} from '../../utils/resource.js';
+import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {
   checkAuthorizationWithAgent,
   getFilePermissionContainers,
-} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels} from '../contexts/injection/injectables';
+} from '../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
-} from '../contexts/semantic/types';
-import {NotFoundError} from '../errors';
-import {getBackendConfigsWithIdList} from '../fileBackends/configUtils';
-import {ingestPersistedFiles} from '../fileBackends/ingestionUtils';
+} from '../contexts/semantic/types.js';
+import {NotFoundError} from '../errors.js';
+import {workspaceResourceFields} from '../extractors.js';
+import {getBackendConfigsWithIdList} from '../fileBackends/configUtils.js';
+import {ingestPersistedFiles} from '../fileBackends/ingestionUtils.js';
 import {
   FileBackendMountWeights,
   initBackendProvidersForMounts,
   resolveMountsForFolder,
-} from '../fileBackends/mountUtils';
+} from '../fileBackends/mountUtils.js';
 import {
   FolderpathInfo,
   GetFolderpathInfoOptions,
   addRootnameToPath,
   ensureFolders,
   getFolderpathInfo,
-} from '../folders/utils';
-
-import {PresignedPath, PublicPresignedPath} from '../../definitions/presignedPath';
-import {workspaceResourceFields} from '../extractors';
-import {assertRootname, assertWorkspace, checkWorkspaceExists} from '../workspaces/utils';
-import {kFileConstants} from './constants';
-import {getFileWithMatcher} from './getFilesWithMatcher';
+} from '../folders/utils.js';
+import {
+  assertRootname,
+  assertWorkspace,
+  checkWorkspaceExists,
+} from '../workspaces/utils.js';
+import {kFileConstants} from './constants.js';
+import {getFileWithMatcher} from './getFilesWithMatcher.js';
 
 const presignedPathFields = getFields<PublicPresignedPath>({
   ...workspaceResourceFields,

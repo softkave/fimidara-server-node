@@ -1,20 +1,20 @@
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {extractResourceIdList} from '../../../utils/fns';
-import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import RequestData from '../../RequestData';
-import {generateAndInsertUserListForTest} from '../../testUtils/generate/user';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {extractResourceIdList} from '../../../utils/fns.js';
+import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import RequestData from '../../RequestData.js';
+import {generateAndInsertUserListForTest} from '../../testUtils/generate/user.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {PermissionDeniedError} from '../../users/errors';
-import getUsers from './handler';
-import {GetUsersEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import {PermissionDeniedError} from '../../users/errors.js';
+import getUsers from './handler.js';
+import {GetUsersEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

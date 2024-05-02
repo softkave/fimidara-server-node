@@ -1,6 +1,6 @@
-import {ingestLogsEndpointDefinition} from './endpoints.mddoc';
-import ingestLogs from './ingestLogs/handler';
-import {ClientLogsExportedPrivateEndpoints} from './types';
+import {ingestLogsEndpointDefinition} from './endpoints.mddoc.js';
+import ingestLogs from './ingestLogs/handler.js';
+import {ClientLogsExportedPrivateEndpoints} from './types.js';
 
 export function getClientLogsPrivateHttpEndpoints() {
   const clientLogsExportedEndpoints: ClientLogsExportedPrivateEndpoints = {

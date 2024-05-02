@@ -1,5 +1,5 @@
-import {CountItemsEndpointResult, Endpoint} from '../../types';
-import {GetWorkspaceCollaboratorsEndpointParamsBase} from '../getWorkspaceCollaborators/types';
+import {CountItemsEndpointResult, Endpoint} from '../../types.js';
+import {GetWorkspaceCollaboratorsEndpointParamsBase} from '../getWorkspaceCollaborators/types.js';
 
 export type CountCollaboratorsWithoutPermissionEndpointParams =
   GetWorkspaceCollaboratorsEndpointParamsBase;

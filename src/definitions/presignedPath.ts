@@ -1,5 +1,5 @@
-import {FimidaraPermissionAction} from './permissionItem';
-import {PublicWorkspaceResource, ToPublicDefinitions, WorkspaceResource} from './system';
+import {FimidaraPermissionAction} from './permissionItem.js';
+import {PublicWorkspaceResource, ToPublicDefinitions, WorkspaceResource} from './system.js';
 
 export interface PresignedPath extends WorkspaceResource {
   /** File name path (without ext) instead of ID because at the time of

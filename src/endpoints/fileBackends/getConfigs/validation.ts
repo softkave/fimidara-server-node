@@ -1,11 +1,11 @@
 import * as Joi from 'joi';
-import {JoiSchemaParts} from '../../../utils/types';
-import {endpointValidationSchemas} from '../../validation';
-import fileBackendValidationSchemas from '../validation';
+import {JoiSchemaParts} from '../../../utils/types.js';
+import {endpointValidationSchemas} from '../../validation.js';
+import fileBackendValidationSchemas from '../validation.js';
 import {
   GetFileBackendConfigsEndpointParams,
   GetFileBackendConfigsEndpointParamsBase,
-} from './types';
+} from './types.js';
 
 export const getFileBackendConfigsBaseJoiSchemaParts: JoiSchemaParts<GetFileBackendConfigsEndpointParamsBase> =
   {

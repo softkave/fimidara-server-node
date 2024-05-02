@@ -1,14 +1,14 @@
-import {File} from '../../../definitions/file';
-import {Folder} from '../../../definitions/folder';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
-import {SessionAgent} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
+import {File} from '../../../definitions/file.js';
+import {Folder} from '../../../definitions/folder.js';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {SessionAgent} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
 import {
   checkAuthorizationWithAgent,
   getFilePermissionContainers,
   getWorkspacePermissionContainers,
-} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {SemanticProviderOpParams} from '../../contexts/semantic/types';
+} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 
 export async function checkUploadFileAuth(
   agent: SessionAgent,

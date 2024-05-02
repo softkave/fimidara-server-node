@@ -1,6 +1,6 @@
 import {isBoolean, isNull} from 'lodash';
-import {mergeData} from './fns';
-import {AnyFn} from './types';
+import {mergeData} from './fns.js';
+import {AnyFn} from './types.js';
 
 /** Return `-1` to move from node, `0` to enter node, `1` to select node, `2` to
  * add an entry to root when adding nodes. */

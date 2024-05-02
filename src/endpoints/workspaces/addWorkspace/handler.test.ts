@@ -1,26 +1,26 @@
 import {faker} from '@faker-js/faker';
-import {appAssert} from '../../../utils/assertion';
-import {mergeData} from '../../../utils/fns';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {kRegisterUtilsInjectables} from '../../contexts/injection/register';
-import {fetchEntityAssignedPermissionGroupList} from '../../permissionGroups/getEntityAssignedPermissionGroups/utils';
-import EndpointReusableQueries from '../../queries';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {appAssert} from '../../../utils/assertion.js';
+import {mergeData} from '../../../utils/fns.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../contexts/injection/register.js';
+import {fetchEntityAssignedPermissionGroupList} from '../../permissionGroups/getEntityAssignedPermissionGroups/utils.js';
+import EndpointReusableQueries from '../../queries.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../testUtils/testUtils';
-import {WorkspaceExistsError, WorkspaceRootnameExistsError} from '../errors';
-import {assertWorkspace, makeRootnameFromName, workspaceExtractor} from '../utils';
-import {AddWorkspaceEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import {WorkspaceExistsError, WorkspaceRootnameExistsError} from '../errors.js';
+import {assertWorkspace, makeRootnameFromName, workspaceExtractor} from '../utils.js';
+import {AddWorkspaceEndpointParams} from './types.js';
 import {
   DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
   DEFAULT_PUBLIC_PERMISSION_GROUP_NAME,
-} from './utils';
+} from './utils.js';
 
 beforeAll(async () => {
   await initTests();

@@ -1,21 +1,21 @@
 import assert from 'assert';
 import {compact, isUndefined, last} from 'lodash';
-import {kJobPresetPriority, kJobStatus, kJobType} from '../../../definitions/job';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {getTimestamp} from '../../../utils/dateFns';
-import {loopAndCollateAsync, omitDeep} from '../../../utils/fns';
-import {getNewId, getNewIdForResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {generateAndInsertJobListForTest} from '../../testUtils/generate/job';
-import {completeTests} from '../../testUtils/helpers/testFns';
-import {initTests} from '../../testUtils/testUtils';
+import {kJobPresetPriority, kJobStatus, kJobType} from '../../../definitions/job.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {loopAndCollateAsync, omitDeep} from '../../../utils/fns.js';
+import {getNewId, getNewIdForResource} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {generateAndInsertJobListForTest} from '../../testUtils/generate/job.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {initTests} from '../../testUtils/testUtils.js';
 import {
   getJobCooldownDuration,
   getNextJob,
   getNextPendingJob,
   getNextUnfinishedJob,
   markJobStarted,
-} from '../getNextJob';
+} from '../getNextJob.js';
 
 const shard = getNewId();
 

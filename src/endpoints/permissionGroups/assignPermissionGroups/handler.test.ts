@@ -1,25 +1,25 @@
 import assert from 'assert';
 import {first} from 'lodash';
-import {extractResourceIdList, getResourceId} from '../../../utils/fns';
-import {makeUserSessionAgent} from '../../../utils/sessionUtils';
-import RequestData from '../../RequestData';
-import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator';
-import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup';
-import {expectContainsExactlyForAnyType} from '../../testUtils/helpers/assertion';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {extractResourceIdList, getResourceId} from '../../../utils/fns.js';
+import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
+import RequestData from '../../RequestData.js';
+import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator.js';
+import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup.js';
+import {expectContainsExactlyForAnyType} from '../../testUtils/helpers/assertion.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {fetchEntityAssignedPermissionGroupList} from '../getEntityAssignedPermissionGroups/utils';
+} from '../../testUtils/testUtils.js';
+import {fetchEntityAssignedPermissionGroupList} from '../getEntityAssignedPermissionGroups/utils.js';
 import {
   makeKeyFromAssignedPermissionGroupMetaOrInput,
   toAssignedPgListInput,
-} from '../testUtils';
-import assignPermissionGroups from './handler';
+} from '../testUtils.js';
+import assignPermissionGroups from './handler.js';
 
 beforeAll(async () => {
   await initTests();

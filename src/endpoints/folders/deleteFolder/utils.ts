@@ -1,8 +1,8 @@
-import {DeleteResourceJobParams, kJobType} from '../../../definitions/job';
-import {Agent, Resource, kFimidaraResourceType} from '../../../definitions/system';
-import {extractResourceIdList} from '../../../utils/fns';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {queueJobs} from '../../jobs/queueJobs';
+import {DeleteResourceJobParams, kJobType} from '../../../definitions/job.js';
+import {Agent, Resource, kFimidaraResourceType} from '../../../definitions/system.js';
+import {extractResourceIdList} from '../../../utils/fns.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {queueJobs} from '../../jobs/queueJobs.js';
 
 export async function beginDeleteFolder(props: {
   workspaceId: string;

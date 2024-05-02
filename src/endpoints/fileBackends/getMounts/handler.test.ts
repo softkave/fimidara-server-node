@@ -1,33 +1,33 @@
 import {omit} from 'lodash';
-import {pathSplit} from '../../../utils/fns';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {FolderQueries} from '../../folders/queries';
-import EndpointReusableQueries from '../../queries';
+import {pathSplit} from '../../../utils/fns.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {FolderQueries} from '../../folders/queries.js';
+import EndpointReusableQueries from '../../queries.js';
 import {
   generateAndInsertFileBackendConfigListForTest,
   generateAndInsertFileBackendMountListForTest,
   generateFileBackendType,
-} from '../../testUtils/generate/fileBackend';
-import {generateTestFolderpathString} from '../../testUtils/generate/folder';
+} from '../../testUtils/generate/fileBackend.js';
+import {generateTestFolderpathString} from '../../testUtils/generate/folder.js';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,
   generateTestFieldsCombinations,
-} from '../../testUtils/generate/utils';
+} from '../../testUtils/generate/utils.js';
 import {
   completeTests,
   expectFields,
   performPaginationTest,
   testCombinations,
-} from '../../testUtils/helpers/testFns';
+} from '../../testUtils/helpers/testFns.js';
 import {
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import getFileBackendMounts from './handler';
-import {GetFileBackendMountsEndpointParamsBase} from './types';
+} from '../../testUtils/testUtils.js';
+import getFileBackendMounts from './handler.js';
+import {GetFileBackendMountsEndpointParamsBase} from './types.js';
 
 beforeAll(async () => {
   await initTests();

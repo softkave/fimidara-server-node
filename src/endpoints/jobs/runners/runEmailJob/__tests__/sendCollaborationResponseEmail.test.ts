@@ -1,21 +1,21 @@
 import {
   CollaborationRequestResponse,
   kCollaborationRequestStatusTypeMap,
-} from '../../../../../definitions/collaborationRequest';
-import {kEmailJobType} from '../../../../../definitions/job';
-import {kFimidaraResourceType} from '../../../../../definitions/system';
-import {kCollaborationRequestResponseArtifacts} from '../../../../../emailTemplates/collaborationRequestResponse';
-import {getNewIdForResource} from '../../../../../utils/resource';
-import {IEmailProviderContext} from '../../../../contexts/email/types';
-import {kUtilsInjectables} from '../../../../contexts/injection/injectables';
-import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register';
-import MockTestEmailProviderContext from '../../../../testUtils/context/email/MockTestEmailProviderContext';
-import {generateAndInsertCollaborationRequestListForTest} from '../../../../testUtils/generate/collaborationRequest';
-import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/user';
-import {generateAndInsertWorkspaceListForTest} from '../../../../testUtils/generate/workspace';
-import {completeTests} from '../../../../testUtils/helpers/testFns';
-import {initTests} from '../../../../testUtils/testUtils';
-import {sendCollaborationRequestResponseEmail} from '../sendCollaborationRequestResponseEmail';
+} from '../../../../../definitions/collaborationRequest.js';
+import {kEmailJobType} from '../../../../../definitions/job.js';
+import {kFimidaraResourceType} from '../../../../../definitions/system.js';
+import {kCollaborationRequestResponseArtifacts} from '../../../../../emailTemplates/collaborationRequestResponse.js';
+import {getNewIdForResource} from '../../../../../utils/resource.js';
+import {IEmailProviderContext} from '../../../../contexts/email/types.js';
+import {kUtilsInjectables} from '../../../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
+import MockTestEmailProviderContext from '../../../../testUtils/context/email/MockTestEmailProviderContext.js';
+import {generateAndInsertCollaborationRequestListForTest} from '../../../../testUtils/generate/collaborationRequest.js';
+import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/user.js';
+import {generateAndInsertWorkspaceListForTest} from '../../../../testUtils/generate/workspace.js';
+import {completeTests} from '../../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../../testUtils/testUtils.js';
+import {sendCollaborationRequestResponseEmail} from '../sendCollaborationRequestResponseEmail.js';
 
 beforeAll(async () => {
   await initTests();

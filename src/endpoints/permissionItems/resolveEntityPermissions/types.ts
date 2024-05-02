@@ -1,6 +1,6 @@
-import {FimidaraPermissionAction} from '../../../definitions/permissionItem';
-import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
-import {PermissionItemInputTarget} from '../types';
+import {FimidaraPermissionAction} from '../../../definitions/permissionItem.js';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types.js';
+import {PermissionItemInputTarget} from '../types.js';
 
 export type ResolveEntityPermissionItemInputTarget = PermissionItemInputTarget;
 

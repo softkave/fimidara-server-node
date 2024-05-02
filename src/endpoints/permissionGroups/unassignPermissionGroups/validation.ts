@@ -1,8 +1,8 @@
 import * as Joi from 'joi';
-import {kValidationSchemas} from '../../../utils/validationUtils';
-import permissionItemValidationSchemas from '../../permissionItems/validation';
-import {endpointValidationSchemas} from '../../validation';
-import {UnassignPermissionGroupsEndpointParams} from './types';
+import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import permissionItemValidationSchemas from '../../permissionItems/validation.js';
+import {endpointValidationSchemas} from '../../validation.js';
+import {UnassignPermissionGroupsEndpointParams} from './types.js';
 
 export const unassignPermissionGroupsJoiSchema =
   Joi.object<UnassignPermissionGroupsEndpointParams>()

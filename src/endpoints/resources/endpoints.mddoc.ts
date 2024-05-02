@@ -1,17 +1,17 @@
-import {PublicResource, PublicResourceWrapper} from '../../definitions/system';
+import {PublicResource, PublicResourceWrapper} from '../../definitions/system.js';
 import {
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
   mddocConstruct,
-} from '../../mddoc/mddoc';
-import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc';
-import resourcesConstants from './constants';
+} from '../../mddoc/mddoc.js';
+import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc.js';
+import resourcesConstants from './constants.js';
 import {
   GetResourcesEndpointParams,
   GetResourcesEndpointResult,
-} from './getResources/types';
-import {FetchResourceItem, GetResourcesHttpEndpoint} from './types';
+} from './getResources/types.js';
+import {FetchResourceItem, GetResourcesHttpEndpoint} from './types.js';
 
 const fetchResourceItemInput = mddocConstruct
   .constructFieldObject<FetchResourceItem>()

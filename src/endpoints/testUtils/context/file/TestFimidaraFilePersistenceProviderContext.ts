@@ -1,6 +1,6 @@
-import {FimidaraFilePersistenceProvider} from '../../../contexts/file/FimidaraFilePersistenceProvider';
-import {mockWith} from '../../helpers/mock';
-import {ITestFilePersistenceProviderContext} from '../types';
+import {FimidaraFilePersistenceProvider} from '../../../contexts/file/FimidaraFilePersistenceProvider.js';
+import {mockWith} from '../../helpers/mock.js';
+import {ITestFilePersistenceProviderContext} from '../types.js';
 
 export default class TestFimidaraFilePersistenceProviderContext
   implements ITestFilePersistenceProviderContext

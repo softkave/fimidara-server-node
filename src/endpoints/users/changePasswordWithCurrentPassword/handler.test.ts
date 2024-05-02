@@ -1,20 +1,20 @@
 import {faker} from '@faker-js/faker';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import EndpointReusableQueries from '../../queries';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import EndpointReusableQueries from '../../queries.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import login from '../login/login';
-import {LoginEndpointParams} from '../login/types';
-import {userExtractor} from '../utils';
-import changePasswordWithCurrentPassword from './handler';
-import {ChangePasswordWithCurrentPasswordEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import login from '../login/login.js';
+import {LoginEndpointParams} from '../login/types.js';
+import {userExtractor} from '../utils.js';
+import changePasswordWithCurrentPassword from './handler.js';
+import {ChangePasswordWithCurrentPasswordEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

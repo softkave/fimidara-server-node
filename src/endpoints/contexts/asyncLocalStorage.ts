@@ -1,9 +1,9 @@
 import {AsyncLocalStorage} from 'async_hooks';
 import {get, set} from 'lodash';
 import {ReadonlyDeep} from 'type-fest';
-import {DisposablesStore} from '../../utils/disposables';
-import {mergeData} from '../../utils/fns';
-import {AnyFn, AnyObject} from '../../utils/types';
+import {DisposablesStore} from '../../utils/disposables.js';
+import {mergeData} from '../../utils/fns.js';
+import {AnyFn, AnyObject} from '../../utils/types.js';
 
 export type FimidaraAsyncLocalStorageStore = Record<string, unknown>;
 export type FimidaraAsyncLocalStorage = AsyncLocalStorage<FimidaraAsyncLocalStorageStore>;

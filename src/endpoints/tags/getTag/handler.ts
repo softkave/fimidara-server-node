@@ -1,9 +1,9 @@
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {checkTagAuthorization02, tagExtractor} from '../utils';
-import {GetTagEndpoint} from './types';
-import {getTagJoiSchema} from './validation';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {checkTagAuthorization02, tagExtractor} from '../utils.js';
+import {GetTagEndpoint} from './types.js';
+import {getTagJoiSchema} from './validation.js';
 
 const getTag: GetTagEndpoint = async instData => {
   const data = validate(instData.data, getTagJoiSchema);

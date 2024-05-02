@@ -2,10 +2,10 @@ import {isArray, isUndefined} from 'lodash';
 import {
   AssignedItem,
   AssignedItemMainFieldsMatcher,
-} from '../../definitions/assignedItem';
-import {FimidaraResourceType, kFimidaraResourceType} from '../../definitions/system';
-import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider';
-import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder';
+} from '../../definitions/assignedItem.js';
+import {FimidaraResourceType, kFimidaraResourceType} from '../../definitions/system.js';
+import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider.js';
+import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder.js';
 
 function newFilter() {
   return new DataProviderFilterBuilder<AssignedItem>();

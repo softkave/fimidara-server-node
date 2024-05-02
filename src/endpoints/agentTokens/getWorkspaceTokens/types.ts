@@ -1,10 +1,10 @@
-import {PublicAgentToken} from '../../../definitions/agentToken';
+import {PublicAgentToken} from '../../../definitions/agentToken.js';
 import {
   Endpoint,
   EndpointOptionalWorkspaceIDParam,
   PaginatedResult,
   PaginationQuery,
-} from '../../types';
+} from '../../types.js';
 
 export interface GetWorkspaceAgentTokensEndpointParamsBase
   extends EndpointOptionalWorkspaceIDParam {}

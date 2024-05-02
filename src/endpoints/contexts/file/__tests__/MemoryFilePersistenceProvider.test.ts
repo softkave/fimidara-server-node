@@ -1,21 +1,21 @@
 import assert from 'assert';
 import {Readable} from 'stream';
-import {kFimidaraResourceType} from '../../../../definitions/system';
-import {loopAndCollate, pathJoin} from '../../../../utils/fns';
-import {getNewIdForResource} from '../../../../utils/resource';
-import {generateTestFilepathString} from '../../../testUtils/generate/file';
+import {kFimidaraResourceType} from '../../../../definitions/system.js';
+import {loopAndCollate, pathJoin} from '../../../../utils/fns.js';
+import {getNewIdForResource} from '../../../../utils/resource.js';
+import {generateTestFilepathString} from '../../../testUtils/generate/file.js';
 import {
   generateAndInsertFileBackendMountListForTest,
   generateFileBackendMountForTest,
-} from '../../../testUtils/generate/fileBackend';
+} from '../../../testUtils/generate/fileBackend.js';
 import {
   generateTestFolderName,
   generateTestFolderpathString,
-} from '../../../testUtils/generate/folder';
-import {expectFileBodyEqual} from '../../../testUtils/helpers/file';
-import {completeTests} from '../../../testUtils/helpers/testFns';
-import {initTests} from '../../../testUtils/testUtils';
-import {MemoryFilePersistenceProvider} from '../MemoryFilePersistenceProvider';
+} from '../../../testUtils/generate/folder.js';
+import {expectFileBodyEqual} from '../../../testUtils/helpers/file.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../testUtils/testUtils.js';
+import {MemoryFilePersistenceProvider} from '../MemoryFilePersistenceProvider.js';
 
 beforeAll(async () => {
   await initTests();

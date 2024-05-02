@@ -6,27 +6,27 @@ import {
   DeleteResourceJobParams,
   Job,
   kJobType,
-} from '../../../../definitions/job';
+} from '../../../../definitions/job.js';
 import {
   FimidaraResourceType,
   Resource,
   kFimidaraResourceType,
-} from '../../../../definitions/system';
-import {AnyFn} from '../../../../utils/types';
+} from '../../../../definitions/system.js';
+import {AnyFn} from '../../../../utils/types.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../contexts/injection/injectables';
-import {SemanticProviderMutationParams} from '../../../contexts/semantic/types';
-import {JobInput, queueJobs} from '../../queueJobs';
-import {setDeleteJobPreRunMeta, setJobMeta} from '../utils';
-import {kCascadeDeleteDefinitions} from './compiledDefinitions';
+} from '../../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
+import {JobInput, queueJobs} from '../../queueJobs.js';
+import {setDeleteJobPreRunMeta, setJobMeta} from '../utils.js';
+import {kCascadeDeleteDefinitions} from './compiledDefinitions.js';
 import {
   DeleteResourceCascadeFnHelpers,
   DeleteResourceDeleteArtifactsFns,
   DeleteResourceGetArtifactsToDeleteFns,
   GetArtifactsFn,
-} from './types';
+} from './types.js';
 
 async function setDeleteJobGetArtifactsMeta(
   job: Job,

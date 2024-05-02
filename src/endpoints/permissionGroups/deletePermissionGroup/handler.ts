@@ -1,13 +1,13 @@
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
-import {appAssert} from '../../../utils/assertion';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {InvalidRequestError} from '../../errors';
-import {checkPermissionGroupAuthorization03} from '../utils';
-import {DeletePermissionGroupEndpoint} from './types';
-import {beginDeletePermissionGroup} from './utils';
-import {deletePermissionGroupJoiSchema} from './validation';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {InvalidRequestError} from '../../errors.js';
+import {checkPermissionGroupAuthorization03} from '../utils.js';
+import {DeletePermissionGroupEndpoint} from './types.js';
+import {beginDeletePermissionGroup} from './utils.js';
+import {deletePermissionGroupJoiSchema} from './validation.js';
 
 const deletePermissionGroup: DeletePermissionGroupEndpoint = async instData => {
   const data = validate(instData.data, deletePermissionGroupJoiSchema);

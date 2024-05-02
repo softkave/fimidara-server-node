@@ -1,15 +1,15 @@
-import {AgentToken, PublicAgentToken} from '../../definitions/agentToken';
-import {FimidaraPermissionAction} from '../../definitions/permissionItem';
-import {SessionAgent} from '../../definitions/system';
-import {appAssert} from '../../utils/assertion';
-import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {cast} from '../../utils/fns';
-import {kReuseableErrors} from '../../utils/reusableErrors';
-import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
-import {SemanticProviderOpParams} from '../contexts/semantic/types';
-import {InvalidRequestError} from '../errors';
-import {workspaceResourceFields} from '../extractors';
+import {AgentToken, PublicAgentToken} from '../../definitions/agentToken.js';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
+import {SessionAgent} from '../../definitions/system.js';
+import {appAssert} from '../../utils/assertion.js';
+import {getFields, makeExtract, makeListExtract} from '../../utils/extract.js';
+import {cast} from '../../utils/fns.js';
+import {kReuseableErrors} from '../../utils/reusableErrors.js';
+import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables.js';
+import {SemanticProviderOpParams} from '../contexts/semantic/types.js';
+import {InvalidRequestError} from '../errors.js';
+import {workspaceResourceFields} from '../extractors.js';
 
 const agentTokenFields = getFields<PublicAgentToken>({
   ...workspaceResourceFields,

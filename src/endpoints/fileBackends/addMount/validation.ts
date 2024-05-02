@@ -1,9 +1,9 @@
 import * as Joi from 'joi';
-import {kValidationSchemas} from '../../../utils/validationUtils';
-import folderValidationSchemas from '../../folders/validation';
-import {endpointValidationSchemas} from '../../validation';
-import fileBackendValidationSchemas from '../validation';
-import {AddFileBackendMountEndpointParams} from './types';
+import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import folderValidationSchemas from '../../folders/validation.js';
+import {endpointValidationSchemas} from '../../validation.js';
+import fileBackendValidationSchemas from '../validation.js';
+import {AddFileBackendMountEndpointParams} from './types.js';
 
 export const addFileBackendMountJoiSchema =
   Joi.object<AddFileBackendMountEndpointParams>()

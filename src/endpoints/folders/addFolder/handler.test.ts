@@ -1,31 +1,31 @@
 import {faker} from '@faker-js/faker';
 import {compact, last} from 'lodash';
-import {kSystemSessionAgent} from '../../../utils/agent';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {
   loopAndCollate,
   loopAndCollateAsync,
   pathJoin,
   pathSplit,
   sortStringListLexographically,
-} from '../../../utils/fns';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {generateTestFilepathString} from '../../testUtils/generate/file';
+} from '../../../utils/fns.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {generateTestFilepathString} from '../../testUtils/generate/file.js';
 import {
   generateAndInsertTestFolders,
   generateTestFolderName,
   generateTestFolderpath,
-} from '../../testUtils/generate/folder';
-import {completeTests} from '../../testUtils/helpers/testFns';
+} from '../../testUtils/generate/folder.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   initTests,
   insertFolderForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../testUtils/testUtils';
-import {FolderQueries} from '../queries';
-import {addRootnameToPath, stringifyFoldernamepath} from '../utils';
-import {createFolderList} from './createFolderList';
-import {getExistingFoldersAndArtifacts} from './getExistingFoldersAndArtifacts';
+} from '../../testUtils/testUtils.js';
+import {FolderQueries} from '../queries.js';
+import {addRootnameToPath, stringifyFoldernamepath} from '../utils.js';
+import {createFolderList} from './createFolderList.js';
+import {getExistingFoldersAndArtifacts} from './getExistingFoldersAndArtifacts.js';
 
 /**
  * TODO:

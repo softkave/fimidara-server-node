@@ -1,27 +1,27 @@
 import {faker} from '@faker-js/faker';
-import {PermissionEntityInheritanceMapItem} from '../../../../definitions/permissionGroups';
-import {kFimidaraPermissionActionsMap} from '../../../../definitions/permissionItem';
-import {kFimidaraResourceType} from '../../../../definitions/system';
-import {getTimestamp} from '../../../../utils/dateFns';
-import {getNewIdForResource} from '../../../../utils/resource';
-import {generateAndInsertAgentTokenListForTest} from '../../../testUtils/generate/agentToken';
+import {PermissionEntityInheritanceMapItem} from '../../../../definitions/permissionGroups.js';
+import {kFimidaraPermissionActionsMap} from '../../../../definitions/permissionItem.js';
+import {kFimidaraResourceType} from '../../../../definitions/system.js';
+import {getTimestamp} from '../../../../utils/dateFns.js';
+import {getNewIdForResource} from '../../../../utils/resource.js';
+import {generateAndInsertAgentTokenListForTest} from '../../../testUtils/generate/agentToken.js';
 import {
   generateAndInsertAssignedItemListForTest,
   generateAndInsertPermissionGroupListForTest,
-} from '../../../testUtils/generate/permissionGroup';
+} from '../../../testUtils/generate/permissionGroup.js';
 import {
   generateAndInsertPermissionItemListForTest,
   generatePermissionItemForTest,
   generatePermissionItemListForTest,
-} from '../../../testUtils/generate/permissionItem';
-import {generateAndInsertUserListForTest} from '../../../testUtils/generate/user';
-import {generateAgent, generateTestList} from '../../../testUtils/generate/utils';
-import {expectContainsExactly} from '../../../testUtils/helpers/assertion';
-import {expectErrorThrown} from '../../../testUtils/helpers/error';
-import {completeTests} from '../../../testUtils/helpers/testFns';
-import {initTests} from '../../../testUtils/testUtils';
-import {kSemanticModels} from '../../injection/injectables';
-import {DataSemanticPermission} from './model';
+} from '../../../testUtils/generate/permissionItem.js';
+import {generateAndInsertUserListForTest} from '../../../testUtils/generate/user.js';
+import {generateAgent, generateTestList} from '../../../testUtils/generate/utils.js';
+import {expectContainsExactly} from '../../../testUtils/helpers/assertion.js';
+import {expectErrorThrown} from '../../../testUtils/helpers/error.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../testUtils/testUtils.js';
+import {kSemanticModels} from '../../injection/injectables.js';
+import {DataSemanticPermission} from './model.js';
 
 const model = new DataSemanticPermission();
 

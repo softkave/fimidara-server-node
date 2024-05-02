@@ -1,8 +1,8 @@
 import {AnyFn, AnyObject, PartialRecord} from 'softkave-js-utils';
 import {ValueOf} from 'type-fest';
-import {FimidaraConfigEmailProvider} from '../resources/config';
-import {AppShardId} from './app';
-import {Agent, FimidaraResourceType, Resource} from './system';
+import {FimidaraConfigEmailProvider} from '../resources/config.js';
+import {AppShardId} from './app.js';
+import {Agent, FimidaraResourceType, Resource} from './system.js';
 
 export const kJobType = {
   deleteResource: 'deleteResource',

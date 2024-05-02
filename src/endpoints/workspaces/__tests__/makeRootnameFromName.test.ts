@@ -1,4 +1,4 @@
-import {makeRootnameFromName} from '../utils';
+import {makeRootnameFromName} from '../utils.js';
 
 test('makeRootnameFromName', () => {
   const name = 'test-&$#@$%workspace&$#@$% name&$#@$%^&*() -=+ end_ropename';

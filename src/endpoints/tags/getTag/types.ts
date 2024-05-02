@@ -1,5 +1,5 @@
-import {PublicTag} from '../../../definitions/tag';
-import {Endpoint} from '../../types';
+import {PublicTag} from '../../../definitions/tag.js';
+import {Endpoint} from '../../types.js';
 
 export interface GetTagEndpointParams {
   tagId: string;

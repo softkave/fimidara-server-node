@@ -1,27 +1,27 @@
-import {kSemanticModels} from '../../contexts/injection/injectables';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {
   generateAndInsertFileBackendConfigListForTest,
   generateFileBackendType,
-} from '../../testUtils/generate/fileBackend';
+} from '../../testUtils/generate/fileBackend.js';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,
   generateTestFieldsCombinations,
-} from '../../testUtils/generate/utils';
+} from '../../testUtils/generate/utils.js';
 import {
   completeTests,
   expectFields,
   performPaginationTest,
   testCombinations,
-} from '../../testUtils/helpers/testFns';
+} from '../../testUtils/helpers/testFns.js';
 import {
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import getFileBackendConfigs from './handler';
-import {GetFileBackendConfigsEndpointParamsBase} from './types';
+} from '../../testUtils/testUtils.js';
+import getFileBackendConfigs from './handler.js';
+import {GetFileBackendConfigsEndpointParamsBase} from './types.js';
 
 beforeAll(async () => {
   await initTests();

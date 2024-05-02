@@ -1,21 +1,21 @@
-import {AssignedItem} from '../../../definitions/assignedItem';
-import {AssignPermissionGroupInput} from '../../../definitions/permissionGroups';
-import {extractResourceIdList, makeKey} from '../../../utils/fns';
-import {makeUserSessionAgent} from '../../../utils/sessionUtils';
-import {kSemanticModels} from '../../contexts/injection/injectables';
+import {AssignedItem} from '../../../definitions/assignedItem.js';
+import {AssignPermissionGroupInput} from '../../../definitions/permissionGroups.js';
+import {extractResourceIdList, makeKey} from '../../../utils/fns.js';
+import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {
   assignPgListToIdList,
   toAssignedPgListInput,
-} from '../../permissionGroups/testUtils';
-import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup';
-import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion';
-import {completeTests} from '../../testUtils/helpers/testFns';
+} from '../../permissionGroups/testUtils.js';
+import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup.js';
+import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../testUtils/testUtils';
-import {addAssignedPermissionGroupList} from '../addAssignedItems';
+} from '../../testUtils/testUtils.js';
+import {addAssignedPermissionGroupList} from '../addAssignedItems.js';
 
 beforeAll(async () => {
   await initTests();

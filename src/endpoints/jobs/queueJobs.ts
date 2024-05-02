@@ -1,5 +1,5 @@
 import {defaultTo, isArray, keyBy} from 'lodash';
-import {AppShardId, kAppPresetShards} from '../../definitions/app';
+import {AppShardId, kAppPresetShards} from '../../definitions/app.js';
 import {
   Job,
   JobStatusHistory,
@@ -8,13 +8,13 @@ import {
   kJobPresetPriority,
   kJobRunnerV1,
   kJobStatus,
-} from '../../definitions/job';
-import {Agent, kFimidaraResourceType} from '../../definitions/system';
-import {getTimestamp} from '../../utils/dateFns';
-import {convertToArray} from '../../utils/fns';
-import {newResource} from '../../utils/resource';
-import {AnyObject} from '../../utils/types';
-import {kSemanticModels} from '../contexts/injection/injectables';
+} from '../../definitions/job.js';
+import {Agent, kFimidaraResourceType} from '../../definitions/system.js';
+import {getTimestamp} from '../../utils/dateFns.js';
+import {convertToArray} from '../../utils/fns.js';
+import {newResource} from '../../utils/resource.js';
+import {AnyObject} from '../../utils/types.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
 
 export interface JobInput<
   TParams extends AnyObject = AnyObject,

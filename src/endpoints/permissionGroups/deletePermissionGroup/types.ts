@@ -1,6 +1,6 @@
-import {PermissionGroupMatcher} from '../../../definitions/permissionGroups';
-import {LongRunningJobResult} from '../../jobs/types';
-import {Endpoint} from '../../types';
+import {PermissionGroupMatcher} from '../../../definitions/permissionGroups.js';
+import {LongRunningJobResult} from '../../jobs/types.js';
+import {Endpoint} from '../../types.js';
 
 export type DeletePermissionGroupEndpointParams = PermissionGroupMatcher;
 

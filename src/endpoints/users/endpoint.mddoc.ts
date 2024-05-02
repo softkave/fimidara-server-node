@@ -1,18 +1,18 @@
-import {PublicWorkspaceResource} from '../../definitions/system';
-import {PublicUser} from '../../definitions/user';
+import {PublicWorkspaceResource} from '../../definitions/system.js';
+import {PublicUser} from '../../definitions/user.js';
 import {
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
   mddocConstruct,
-} from '../../mddoc/mddoc';
-import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc';
-import {ChangePasswordWithCurrentPasswordEndpointParams} from './changePasswordWithCurrentPassword/types';
-import {ChangePasswordWithTokenEndpointParams} from './changePasswordWithToken/types';
-import {kUserConstants} from './constants';
-import {ForgotPasswordEndpointParams} from './forgotPassword/types';
-import {LoginEndpointParams, LoginResult} from './login/types';
-import {SignupEndpointParams} from './signup/types';
+} from '../../mddoc/mddoc.js';
+import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc.js';
+import {ChangePasswordWithCurrentPasswordEndpointParams} from './changePasswordWithCurrentPassword/types.js';
+import {ChangePasswordWithTokenEndpointParams} from './changePasswordWithToken/types.js';
+import {kUserConstants} from './constants.js';
+import {ForgotPasswordEndpointParams} from './forgotPassword/types.js';
+import {LoginEndpointParams, LoginResult} from './login/types.js';
+import {SignupEndpointParams} from './signup/types.js';
 import {
   ChangePasswordWithCurrentPasswordHttpEndpoint,
   ChangePasswordWithTokenHttpEndpoint,
@@ -24,9 +24,9 @@ import {
   SignupHttpEndpoint,
   UpdateUserHttpEndpoint,
   UserExistsHttpEndpoint,
-} from './types';
-import {UpdateUserEndpointParams, UpdateUserEndpointResult} from './updateUser/types';
-import {UserExistsEndpointParams, UserExistsEndpointResult} from './userExists/types';
+} from './types.js';
+import {UpdateUserEndpointParams, UpdateUserEndpointResult} from './updateUser/types.js';
+import {UserExistsEndpointParams, UserExistsEndpointResult} from './userExists/types.js';
 
 const currentPassword = fReusables.password.clone().setDescription('Current password');
 const newPassword = fReusables.password.clone().setDescription('New password');

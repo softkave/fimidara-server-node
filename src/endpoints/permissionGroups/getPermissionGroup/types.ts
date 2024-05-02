@@ -1,8 +1,8 @@
 import {
   PermissionGroupMatcher,
   PublicPermissionGroup,
-} from '../../../definitions/permissionGroups';
-import {Endpoint} from '../../types';
+} from '../../../definitions/permissionGroups.js';
+import {Endpoint} from '../../types.js';
 
 export type GetPermissionGroupEndpointParams = PermissionGroupMatcher;
 

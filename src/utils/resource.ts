@@ -7,15 +7,15 @@ import {
   Resource,
   SessionAgent,
   WorkspaceResource,
-} from '../definitions/system';
-import {kEndpointConstants} from '../endpoints/constants';
-import {getTimestamp} from './dateFns';
+} from '../definitions/system.js';
+import {kEndpointConstants} from '../endpoints/constants.js';
+import {getTimestamp} from './dateFns.js';
 import OperationError, {
   getErrorMessageFromParams,
   OperationErrorParameters,
-} from './OperationError';
-import {getActionAgentFromSessionAgent, isSessionAgent} from './sessionUtils';
-import {AnyObject, InvertRecord} from './types';
+} from './OperationError.js';
+import {getActionAgentFromSessionAgent, isSessionAgent} from './sessionUtils.js';
+import {AnyObject, InvertRecord} from './types.js';
 
 export const kResourceTypeShortNameMaxLength = 7;
 export const kResourceTypeShortNamePadding = '0';

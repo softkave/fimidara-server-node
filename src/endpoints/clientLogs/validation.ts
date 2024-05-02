@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
-import {kValidationSchemas} from '../../utils/validationUtils';
-import clientLogsConstants from './constants';
+import {kValidationSchemas} from '../../utils/validationUtils.js';
+import clientLogsConstants from './constants.js';
 
 const log = Joi.object().keys({
   timestamp: kValidationSchemas.time.required(),

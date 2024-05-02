@@ -1,9 +1,9 @@
-import {EmailBlocklist, EmailMessage} from '../../../../definitions/email';
+import {EmailBlocklist, EmailMessage} from '../../../../definitions/email.js';
 import {
   SemanticBaseProviderType,
   SemanticProviderOpParams,
   SemanticWorkspaceResourceProviderType,
-} from '../types';
+} from '../types.js';
 
 export interface SemanticEmailMessageProvider
   extends SemanticBaseProviderType<EmailMessage>,

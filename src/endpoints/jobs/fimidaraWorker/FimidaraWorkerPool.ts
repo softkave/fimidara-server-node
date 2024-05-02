@@ -1,18 +1,18 @@
 import {map} from 'lodash';
-import {kAppType} from '../../../definitions/app';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {appAssert} from '../../../utils/assertion';
-import {DisposableResource} from '../../../utils/disposables';
-import {getNewIdForResource} from '../../../utils/resource';
-import {FimidaraApp} from '../../app/FimidaraApp';
-import {kAppConstants} from '../../app/constants';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {FWorkerMainWorkerEntry} from '../fworker/FWorkerMain';
-import {FWorkerMessager} from '../fworker/FWorkerMessager';
-import {FWorkerPool} from '../fworker/FWorkerPool';
-import {getNextJob} from '../getNextJob';
-import {FimidaraWorkerMessage, kFimidaraWorkerMessageType} from './types';
-import {isFimidaraWorkerMessage} from './utils';
+import {kAppType} from '../../../definitions/app.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {DisposableResource} from '../../../utils/disposables.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {FimidaraApp} from '../../app/FimidaraApp.js';
+import {kAppConstants} from '../../app/constants.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {FWorkerMainWorkerEntry} from '../fworker/FWorkerMain.js';
+import {FWorkerMessager} from '../fworker/FWorkerMessager.js';
+import {FWorkerPool} from '../fworker/FWorkerPool.js';
+import {getNextJob} from '../getNextJob.js';
+import {FimidaraWorkerMessage, kFimidaraWorkerMessageType} from './types.js';
+import {isFimidaraWorkerMessage} from './utils.js';
 
 export interface FimidaraWorkerPoolParams {
   server: FimidaraApp;

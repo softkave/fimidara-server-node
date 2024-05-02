@@ -1,6 +1,6 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {File} from '../definitions/file';
-import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
+import {File} from '../definitions/file.js';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils.js';
 
 const fileSchema = ensureMongoTypeFields<File>({
   ...workspaceResourceSchema,

@@ -1,24 +1,24 @@
-import {EmailBlocklist, kEmailBlocklistTrailType} from '../../../../definitions/email';
+import {EmailBlocklist, kEmailBlocklistTrailType} from '../../../../definitions/email.js';
 import {
   EmailJobParams,
   EmailJobType,
   Job,
   kEmailJobType,
-} from '../../../../definitions/job';
-import {kFimidaraResourceType} from '../../../../definitions/system';
-import {newResource} from '../../../../utils/resource';
-import {AnyFn} from '../../../../utils/types';
-import {EmailProviderSendEmailResult} from '../../../contexts/email/types';
+} from '../../../../definitions/job.js';
+import {kFimidaraResourceType} from '../../../../definitions/system.js';
+import {newResource} from '../../../../utils/resource.js';
+import {AnyFn} from '../../../../utils/types.js';
+import {EmailProviderSendEmailResult} from '../../../contexts/email/types.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../contexts/injection/injectables';
-import {sendCollaborationRequestEmail} from './sendCollaborationRequestEmail';
-import {sendCollaborationRequestResponseEmail} from './sendCollaborationRequestResponseEmail';
-import {sendCollaborationRequestRevokedEmail} from './sendCollaborationRequestRevokedEmail';
-import {sendConfirmEmailAddressEmail} from './sendConfirmEmailAddressEmail';
-import {sendForgotPasswordEmail} from './sendForgotPasswordEmail';
-import {sendUserUpgradedFromWaitlistEmail} from './sendUserUpgradedFromWaitlistEmail';
+} from '../../../contexts/injection/injectables.js';
+import {sendCollaborationRequestEmail} from './sendCollaborationRequestEmail.js';
+import {sendCollaborationRequestResponseEmail} from './sendCollaborationRequestResponseEmail.js';
+import {sendCollaborationRequestRevokedEmail} from './sendCollaborationRequestRevokedEmail.js';
+import {sendConfirmEmailAddressEmail} from './sendConfirmEmailAddressEmail.js';
+import {sendForgotPasswordEmail} from './sendForgotPasswordEmail.js';
+import {sendUserUpgradedFromWaitlistEmail} from './sendUserUpgradedFromWaitlistEmail.js';
 
 const kEmailJobTypeToHandlerMap: Record<
   EmailJobType,

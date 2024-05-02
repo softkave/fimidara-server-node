@@ -1,9 +1,9 @@
 import {faker} from '@faker-js/faker';
-import RequestData from '../../RequestData';
-import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import EndpointReusableQueries from '../../queries';
-import {completeTests, skTest} from '../../testUtils/helpers/testFns';
+import RequestData from '../../RequestData.js';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import EndpointReusableQueries from '../../queries.js';
+import {completeTests, skTest} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -11,10 +11,10 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {fileExtractor, stringifyFilenamepath} from '../utils';
-import updateFileDetails from './handler';
-import {UpdateFileDetailsEndpointParams, UpdateFileDetailsInput} from './types';
+} from '../../testUtils/testUtils.js';
+import {fileExtractor, stringifyFilenamepath} from '../utils.js';
+import updateFileDetails from './handler.js';
+import {UpdateFileDetailsEndpointParams, UpdateFileDetailsInput} from './types.js';
 
 beforeAll(async () => {
   await initTests();

@@ -1,14 +1,14 @@
 import {faker} from '@faker-js/faker';
 import {pick} from 'lodash';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
 import {
   Agent,
   FimidaraResourceType,
   kFimidaraResourceType,
-} from '../../../definitions/system';
-import {mergeData} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {AnyFn, AnyObject, OrPromise} from '../../../utils/types';
+} from '../../../definitions/system.js';
+import {mergeData} from '../../../utils/fns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {AnyFn, AnyObject, OrPromise} from '../../../utils/types.js';
 
 export type GeneratePartialTestDataFn<T> = (
   index: number,

@@ -1,30 +1,30 @@
-import {AgentToken} from '../../../definitions/agentToken';
-import {FimidaraPermissionAction} from '../../../definitions/permissionItem';
+import {AgentToken} from '../../../definitions/agentToken.js';
+import {FimidaraPermissionAction} from '../../../definitions/permissionItem.js';
 import {
   FimidaraResourceType,
   SessionAgent,
   kFimidaraResourceType,
-} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
-import {kPublicSessionAgent} from '../../../utils/agent';
+} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {kPublicSessionAgent} from '../../../utils/agent.js';
 import {
   makeUserSessionAgent,
   makeWorkspaceAgentTokenAgent,
-} from '../../../utils/sessionUtils';
-import {AnyFn, OrPromise} from '../../../utils/types';
-import {NewAgentTokenInput} from '../../agentTokens/addToken/types';
-import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {PermissionItemInputTarget} from '../../permissionItems/types';
-import {BaseEndpointResult} from '../../types';
-import {SignupEndpointParams} from '../../users/signup/types';
-import {AddWorkspaceEndpointParams} from '../../workspaces/addWorkspace/types';
+} from '../../../utils/sessionUtils.js';
+import {AnyFn, OrPromise} from '../../../utils/types.js';
+import {NewAgentTokenInput} from '../../agentTokens/addToken/types.js';
+import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {PermissionItemInputTarget} from '../../permissionItems/types.js';
+import {BaseEndpointResult} from '../../types.js';
+import {SignupEndpointParams} from '../../users/signup/types.js';
+import {AddWorkspaceEndpointParams} from '../../workspaces/addWorkspace/types.js';
 import {
   insertAgentTokenForTest,
   insertPermissionItemsForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../testUtils';
+} from '../testUtils.js';
 
 export const kTestSessionAgentTypes = [
   kFimidaraResourceType.User,

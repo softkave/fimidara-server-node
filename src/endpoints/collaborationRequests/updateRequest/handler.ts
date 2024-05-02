@@ -1,16 +1,16 @@
-import {getTimestamp} from '../../../utils/dateFns';
-import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {assertUpdateNotEmpty} from '../../utils';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {assertUpdateNotEmpty} from '../../utils.js';
 import {
   assertCollaborationRequest,
   checkCollaborationRequestAuthorization02,
   collaborationRequestForWorkspaceExtractor,
-} from '../utils';
-import {UpdateCollaborationRequestEndpoint} from './types';
-import {updateCollaborationRequestJoiSchema} from './validation';
+} from '../utils.js';
+import {UpdateCollaborationRequestEndpoint} from './types.js';
+import {updateCollaborationRequestJoiSchema} from './validation.js';
 
 const updateCollaborationRequest: UpdateCollaborationRequestEndpoint = async instData => {
   const data = validate(instData.data, updateCollaborationRequestJoiSchema);

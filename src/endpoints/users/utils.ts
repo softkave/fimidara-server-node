@@ -1,12 +1,12 @@
-import {PublicUser, User, UserWithWorkspace} from '../../definitions/user';
-import {appAssert} from '../../utils/assertion';
-import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {kReuseableErrors} from '../../utils/reusableErrors';
-import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
-import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderOpParams} from '../contexts/semantic/types';
-import {resourceFields, workspaceResourceListExtractor} from '../extractors';
-import {EmailAddressNotAvailableError} from './errors';
+import {PublicUser, User, UserWithWorkspace} from '../../definitions/user.js';
+import {appAssert} from '../../utils/assertion.js';
+import {getFields, makeExtract, makeListExtract} from '../../utils/extract.js';
+import {kReuseableErrors} from '../../utils/reusableErrors.js';
+import {populateUserWorkspaces} from '../assignedItems/getAssignedItems.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
+import {SemanticProviderOpParams} from '../contexts/semantic/types.js';
+import {resourceFields, workspaceResourceListExtractor} from '../extractors.js';
+import {EmailAddressNotAvailableError} from './errors.js';
 
 const publicUserFields = getFields<PublicUser>({
   ...resourceFields,

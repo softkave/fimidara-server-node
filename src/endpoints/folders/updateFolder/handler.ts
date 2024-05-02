@@ -1,14 +1,14 @@
 import {omit} from 'lodash';
-import {Folder} from '../../../definitions/folder';
-import {getTimestamp} from '../../../utils/dateFns';
-import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {assertFolder, checkFolderAuthorization02, folderExtractor} from '../utils';
-import {UpdateFolderEndpoint} from './types';
-import {updateFolderJoiSchema} from './validation';
+import {Folder} from '../../../definitions/folder.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {assertFolder, checkFolderAuthorization02, folderExtractor} from '../utils.js';
+import {UpdateFolderEndpoint} from './types.js';
+import {updateFolderJoiSchema} from './validation.js';
 
 const updateFolder: UpdateFolderEndpoint = async instData => {
   const data = validate(instData.data, updateFolderJoiSchema);

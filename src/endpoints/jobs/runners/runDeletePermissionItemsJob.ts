@@ -1,31 +1,31 @@
 import {isUndefined} from 'lodash';
-import {AppShardId} from '../../../definitions/app';
-import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
+import {AppShardId} from '../../../definitions/app.js';
+import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job.js';
 import {
   PermissionItem,
   kFimidaraPermissionActionsMap,
-} from '../../../definitions/permissionItem';
-import {Agent, kFimidaraResourceType} from '../../../definitions/system';
-import {appAssert} from '../../../utils/assertion';
-import {getTimestamp} from '../../../utils/dateFns';
+} from '../../../definitions/permissionItem.js';
+import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
 import {
   convertToArray,
   extractResourceIdList,
   isObjectFieldsEmpty,
-} from '../../../utils/fns';
+} from '../../../utils/fns.js';
 import {
   PaginatedFetchGetFn,
   PaginatedFetchProcessFn,
   paginatedFetch,
-} from '../../../utils/paginatedFetch';
-import {DataQuery, kIncludeInProjection} from '../../contexts/data/types';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {DeletePermissionItemInput} from '../../permissionItems/deleteItems/types';
+} from '../../../utils/paginatedFetch.js';
+import {DataQuery, kIncludeInProjection} from '../../contexts/data/types.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {DeletePermissionItemInput} from '../../permissionItems/deleteItems/types.js';
 import {
   PermissionItemTargets,
   getPermissionItemTargets,
-} from '../../permissionItems/getPermissionItemTargets';
-import {queueJobs} from '../queueJobs';
+} from '../../permissionItems/getPermissionItemTargets.js';
+import {queueJobs} from '../queueJobs.js';
 
 type PartialPermissionItem = Pick<PermissionItem, 'resourceId'>;
 type FetchArgs = {

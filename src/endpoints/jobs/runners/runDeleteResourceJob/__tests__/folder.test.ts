@@ -1,24 +1,24 @@
 import {flatten} from 'lodash';
-import {AgentToken} from '../../../../../definitions/agentToken';
-import {Folder} from '../../../../../definitions/folder';
-import {kFimidaraResourceType} from '../../../../../definitions/system';
-import {Workspace} from '../../../../../definitions/workspace';
+import {AgentToken} from '../../../../../definitions/agentToken.js';
+import {Folder} from '../../../../../definitions/folder.js';
+import {kFimidaraResourceType} from '../../../../../definitions/system.js';
+import {Workspace} from '../../../../../definitions/workspace.js';
 import {
   generateAndInsertTestFiles,
   generateTestFilepath,
-} from '../../../../testUtils/generate/file';
+} from '../../../../testUtils/generate/file.js';
 import {
   generateAndInsertTestFolders,
   generateTestFolderpath,
-} from '../../../../testUtils/generate/folder';
-import {completeTests} from '../../../../testUtils/helpers/testFns';
+} from '../../../../testUtils/generate/folder.js';
+import {completeTests} from '../../../../testUtils/helpers/testFns.js';
 import {
   initTests,
   insertFolderForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../../../testUtils/testUtils';
-import {deleteFolderCascadeEntry} from '../folder';
+} from '../../../../testUtils/testUtils.js';
+import {deleteFolderCascadeEntry} from '../folder.js';
 import {
   GenerateTypeChildrenDefinition,
   generatePermissionItemsAsChildren,
@@ -26,8 +26,8 @@ import {
   testDeleteResourceArtifactsJob,
   testDeleteResourceJob0,
   testDeleteResourceSelfJob,
-} from './testUtils';
-import {DeleteResourceCascadeEntry} from '../types';
+} from './testUtils.js';
+import {DeleteResourceCascadeEntry} from '../types.js';
 
 beforeAll(async () => {
   await initTests();

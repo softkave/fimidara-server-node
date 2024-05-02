@@ -1,12 +1,12 @@
 import {isObject} from 'lodash';
-import {PermissionItem} from '../../definitions/permissionItem';
-import {kAppMessages} from '../../utils/messages';
+import {PermissionItem} from '../../definitions/permissionItem.js';
+import {kAppMessages} from '../../utils/messages.js';
 import OperationError, {
   getErrorMessageFromParams,
   OperationErrorParameters,
-} from '../../utils/OperationError';
-import {kEndpointConstants} from '../constants';
-import {ServerRecommendedActionsMap} from '../types';
+} from '../../utils/OperationError.js';
+import {kEndpointConstants} from '../constants.js';
+import {ServerRecommendedActionsMap} from '../types.js';
 
 export class EmailAddressNotAvailableError extends OperationError {
   name = 'EmailAddressNotAvailableError';

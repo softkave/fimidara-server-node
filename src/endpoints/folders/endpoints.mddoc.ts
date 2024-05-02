@@ -1,34 +1,34 @@
-import {PublicFile} from '../../definitions/file';
-import {FolderMatcher, PublicFolder} from '../../definitions/folder';
-import {kFimidaraPublicResourceType} from '../../definitions/system';
+import {PublicFile} from '../../definitions/file.js';
+import {FolderMatcher, PublicFolder} from '../../definitions/folder.js';
+import {kFimidaraPublicResourceType} from '../../definitions/system.js';
 import {
   FieldObjectFieldsMap,
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
   mddocConstruct,
-} from '../../mddoc/mddoc';
-import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc';
-import {fileEndpointsParts} from '../files/endpoints.mddoc';
+} from '../../mddoc/mddoc.js';
+import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc.js';
+import {fileEndpointsParts} from '../files/endpoints.mddoc.js';
 import {
   AddFolderEndpointParams,
   AddFolderEndpointResult,
   NewFolderInput,
-} from './addFolder/types';
-import {kFolderConstants} from './constants';
+} from './addFolder/types.js';
+import {kFolderConstants} from './constants.js';
 import {
   CountFolderContentEndpointParams,
   CountFolderContentEndpointResult,
-} from './countFolderContent/types';
+} from './countFolderContent/types.js';
 import {
   DeleteFolderEndpointParams,
   DeleteFolderEndpointResult,
-} from './deleteFolder/types';
-import {GetFolderEndpointParams, GetFolderEndpointResult} from './getFolder/types';
+} from './deleteFolder/types.js';
+import {GetFolderEndpointParams, GetFolderEndpointResult} from './getFolder/types.js';
 import {
   ListFolderContentEndpointParams,
   ListFolderContentEndpointResult,
-} from './listFolderContent/types';
+} from './listFolderContent/types.js';
 import {
   AddFolderHttpEndpoint,
   CountFolderContentHttpEndpoint,
@@ -36,12 +36,12 @@ import {
   GetFolderHttpEndpoint,
   ListFolderContentHttpEndpoint,
   UpdateFolderHttpEndpoint,
-} from './types';
+} from './types.js';
 import {
   UpdateFolderEndpointParams,
   UpdateFolderEndpointResult,
   UpdateFolderInput,
-} from './updateFolder/types';
+} from './updateFolder/types.js';
 
 const newFolderInput = mddocConstruct
   .constructFieldObject<NewFolderInput>()

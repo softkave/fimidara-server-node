@@ -1,9 +1,9 @@
-import {User} from '../../../../definitions/user';
+import {User} from '../../../../definitions/user.js';
 import {
   SemanticBaseProviderType,
   SemanticProviderOpParams,
   SemanticProviderQueryParams,
-} from '../types';
+} from '../types.js';
 
 export interface SemanticUserProviderType extends SemanticBaseProviderType<User> {
   getByEmail(

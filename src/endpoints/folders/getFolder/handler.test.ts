@@ -1,5 +1,5 @@
-import RequestData from '../../RequestData';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import RequestData from '../../RequestData.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -7,10 +7,10 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {addRootnameToPath} from '../utils';
-import getFolder from './handler';
-import {GetFolderEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import {addRootnameToPath} from '../utils.js';
+import getFolder from './handler.js';
+import {GetFolderEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

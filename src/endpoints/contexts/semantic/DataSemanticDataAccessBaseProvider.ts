@@ -1,16 +1,16 @@
 import {merge} from 'lodash';
 import {AnyObject} from 'mongoose';
-import {Agent, Resource} from '../../../definitions/system';
-import {getTimestamp} from '../../../utils/dateFns';
-import {convertToArray} from '../../../utils/fns';
-import {BaseDataProvider, DataQuery} from '../data/types';
+import {Agent, Resource} from '../../../definitions/system.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {convertToArray} from '../../../utils/fns.js';
+import {BaseDataProvider, DataQuery} from '../data/types.js';
 import {
   SemanticBaseProviderType,
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
   SemanticProviderQueryListParams,
   SemanticProviderQueryParams,
-} from './types';
+} from './types.js';
 
 function mergeIsDeletedIntoQuery<T extends DataQuery<AnyObject> = DataQuery<AnyObject>>(
   q01: T,

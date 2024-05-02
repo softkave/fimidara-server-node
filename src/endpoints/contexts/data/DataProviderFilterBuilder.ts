@@ -5,8 +5,8 @@ import {
   DataProviderValueExpander,
   IDataProviderFilterBuilder,
   IDataProviderFilterValue,
-} from './DataProvider';
-import {LiteralDataQuery} from './types';
+} from './DataProvider.js';
+import {LiteralDataQuery} from './types.js';
 
 export default class DataProviderFilterBuilder<T extends {[key: string]: any}>
   implements IDataProviderFilterBuilder<T>

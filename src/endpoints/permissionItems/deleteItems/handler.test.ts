@@ -1,11 +1,11 @@
-import {Job, kJobType} from '../../../definitions/job';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {sortObjectKeys} from '../../../utils/fns';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {Job, kJobType} from '../../../definitions/job.js';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {sortObjectKeys} from '../../../utils/fns.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -14,9 +14,9 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import deletePermissionItems from './handler';
-import {DeletePermissionItemInput, DeletePermissionItemsEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import deletePermissionItems from './handler.js';
+import {DeletePermissionItemInput, DeletePermissionItemsEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

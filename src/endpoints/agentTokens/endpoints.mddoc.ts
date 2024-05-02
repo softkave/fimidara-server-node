@@ -1,28 +1,28 @@
-import {PublicAgentToken} from '../../definitions/agentToken';
+import {PublicAgentToken} from '../../definitions/agentToken.js';
 import {
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
   mddocConstruct,
-} from '../../mddoc/mddoc';
+} from '../../mddoc/mddoc.js';
 import {
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
-} from '../endpoints.mddoc';
+} from '../endpoints.mddoc.js';
 import {
   AddAgentTokenEndpointParams,
   AddAgentTokenEndpointResult,
   NewAgentTokenInput,
-} from './addToken/types';
-import {agentTokenConstants} from './constants';
-import {CountWorkspaceAgentTokensEndpointParams} from './countWorkspaceTokens/types';
-import {DeleteAgentTokenEndpointParams} from './deleteToken/types';
-import {GetAgentTokenEndpointParams, GetAgentTokenEndpointResult} from './getToken/types';
+} from './addToken/types.js';
+import {agentTokenConstants} from './constants.js';
+import {CountWorkspaceAgentTokensEndpointParams} from './countWorkspaceTokens/types.js';
+import {DeleteAgentTokenEndpointParams} from './deleteToken/types.js';
+import {GetAgentTokenEndpointParams, GetAgentTokenEndpointResult} from './getToken/types.js';
 import {
   GetWorkspaceAgentTokensEndpointParams,
   GetWorkspaceAgentTokensEndpointResult,
-} from './getWorkspaceTokens/types';
+} from './getWorkspaceTokens/types.js';
 import {
   AddAgentTokenHttpEndpoint,
   CountWorkspaceAgentTokensHttpEndpoint,
@@ -30,11 +30,11 @@ import {
   GetAgentTokenHttpEndpoint,
   GetWorkspaceAgentTokensHttpEndpoint,
   UpdateAgentTokenHttpEndpoint,
-} from './types';
+} from './types.js';
 import {
   UpdateAgentTokenEndpointParams,
   UpdateAgentTokenEndpointResult,
-} from './updateToken/types';
+} from './updateToken/types.js';
 
 const newAgentTokenInput = mddocConstruct
   .constructFieldObject<NewAgentTokenInput>()

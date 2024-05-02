@@ -1,7 +1,7 @@
 import assert = require('assert');
 import {isArray, isFunction, isString, isUndefined} from 'lodash';
 import {format} from 'util';
-import {AnyFn} from '../../../utils/types';
+import {AnyFn} from '../../../utils/types.js';
 
 export function assertErrorHasName(error: unknown, expectedErrorNames: string[]) {
   const errorList = isArray(error) ? error : [error];

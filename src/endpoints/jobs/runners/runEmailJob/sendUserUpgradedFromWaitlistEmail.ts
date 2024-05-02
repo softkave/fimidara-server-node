@@ -1,13 +1,13 @@
-import {EmailJobParams, kEmailJobType} from '../../../../definitions/job';
+import {EmailJobParams, kEmailJobType} from '../../../../definitions/job.js';
 import {
   UpgradedFromWaitlistEmailProps,
   kUpgradeFromWaitlistEmailArtifacts,
   upgradedFromWaitlistEmailHTML,
   upgradedFromWaitlistEmailText,
-} from '../../../../emailTemplates/upgradedFromWaitlist';
-import {appAssert} from '../../../../utils/assertion';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables';
-import {getBaseEmailTemplateProps} from './utils';
+} from '../../../../emailTemplates/upgradedFromWaitlist.js';
+import {appAssert} from '../../../../utils/assertion.js';
+import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {getBaseEmailTemplateProps} from './utils.js';
 
 export async function sendUserUpgradedFromWaitlistEmail(
   jobId: string,

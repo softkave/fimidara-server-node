@@ -1,11 +1,11 @@
 import * as argon2 from 'argon2';
-import {validate} from '../../../utils/validate';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {INTERNAL_changePassword} from '../changePasswordWithToken/utils';
-import {IncorrectPasswordError} from '../errors';
-import {ChangePasswordWithCurrentPasswordEndpoint} from './types';
-import {changePasswordWithPasswordJoiSchema} from './validation';
-import {kSessionUtils} from '../../contexts/SessionContext';
+import {validate} from '../../../utils/validate.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {INTERNAL_changePassword} from '../changePasswordWithToken/utils.js';
+import {IncorrectPasswordError} from '../errors.js';
+import {ChangePasswordWithCurrentPasswordEndpoint} from './types.js';
+import {changePasswordWithPasswordJoiSchema} from './validation.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
 
 const changePasswordWithCurrentPassword: ChangePasswordWithCurrentPasswordEndpoint =
   async instData => {

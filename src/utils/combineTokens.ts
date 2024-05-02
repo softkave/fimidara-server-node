@@ -1,4 +1,4 @@
-import {getRandomInt} from './fns';
+import {getRandomInt} from './fns.js';
 
 export interface CombinationToken {
   token: string;

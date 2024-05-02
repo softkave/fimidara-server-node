@@ -1,11 +1,11 @@
-import {globalDispose, globalSetup} from '../../endpoints/contexts/globalUtils';
+import {globalDispose, globalSetup} from '../../endpoints/contexts/globalUtils.js';
 import {
   ISetupDevUserOptions,
   devUserSetupPromptEmail,
   devUserSetupPromptUserInfo,
   devUserSetupPromptUserPassword,
   setupDevUser,
-} from './utils';
+} from './utils.js';
 
 const appOptions: ISetupDevUserOptions = {
   getUserEmail: devUserSetupPromptEmail,

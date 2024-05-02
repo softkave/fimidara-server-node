@@ -1,16 +1,16 @@
-import {kFimidaraResourceType} from '../../../../definitions/system';
-import {kSemanticModels} from '../../../contexts/injection/injectables';
+import {kFimidaraResourceType} from '../../../../definitions/system.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {
   genericDeleteArtifacts,
   genericGetArtifacts,
   noopGetPreRunMetaFn,
-} from './genericDefinitions';
+} from './genericDefinitions.js';
 import {
   DeleteResourceCascadeEntry,
   DeleteResourceDeleteArtifactsFns,
   DeleteResourceFn,
   DeleteResourceGetArtifactsToDeleteFns,
-} from './types';
+} from './types.js';
 
 const getArtifacts: DeleteResourceGetArtifactsToDeleteFns = {
   ...genericGetArtifacts,

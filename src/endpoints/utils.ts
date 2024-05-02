@@ -1,24 +1,24 @@
 import {Express, Request, Response} from 'express';
 import {compact, isString} from 'lodash';
-import {Agent, WorkspaceResource} from '../definitions/system';
-import {Workspace} from '../definitions/workspace';
-import OperationError, {FimidaraExternalError} from '../utils/OperationError';
-import {appAssert} from '../utils/assertion';
-import {getTimestamp} from '../utils/dateFns';
-import {ServerError} from '../utils/errors';
-import {isObjectEmpty, toCompactArray} from '../utils/fns';
-import {AnyObject} from '../utils/types';
-import RequestData from './RequestData';
-import {kEndpointConstants} from './constants';
+import {Agent, WorkspaceResource} from '../definitions/system.js';
+import {Workspace} from '../definitions/workspace.js';
+import OperationError, {FimidaraExternalError} from '../utils/OperationError.js';
+import {appAssert} from '../utils/assertion.js';
+import {getTimestamp} from '../utils/dateFns.js';
+import {ServerError} from '../utils/errors.js';
+import {isObjectEmpty, toCompactArray} from '../utils/fns.js';
+import {AnyObject} from '../utils/types.js';
+import RequestData from './RequestData.js';
+import {kEndpointConstants} from './constants.js';
 import {
   ResolvedTargetChildrenAccessCheck,
   kResolvedTargetChildrenAccess,
-} from './contexts/authorizationChecks/checkAuthorizaton';
-import {DataQuery} from './contexts/data/types';
-import {kUtilsInjectables} from './contexts/injection/injectables';
-import {getInAndNinQuery} from './contexts/semantic/utils';
-import {IServerRequest} from './contexts/types';
-import {InvalidRequestError, NotFoundError} from './errors';
+} from './contexts/authorizationChecks/checkAuthorizaton.js';
+import {DataQuery} from './contexts/data/types.js';
+import {kUtilsInjectables} from './contexts/injection/injectables.js';
+import {getInAndNinQuery} from './contexts/semantic/utils.js';
+import {IServerRequest} from './contexts/types.js';
+import {InvalidRequestError, NotFoundError} from './errors.js';
 import {
   Endpoint,
   ExportedHttpEndpointWithMddocDefinition,
@@ -26,8 +26,8 @@ import {
   ExportedHttpEndpoint_GetDataFromReqFn,
   ExportedHttpEndpoint_HandleErrorFn,
   ExportedHttpEndpoint_HandleResponse,
-} from './types';
-import {PermissionDeniedError} from './users/errors';
+} from './types.js';
+import {PermissionDeniedError} from './users/errors.js';
 
 export function extractExternalEndpointError(
   errorItem: OperationError

@@ -1,9 +1,9 @@
-import {validate} from '../../../utils/validate';
-import {kSessionUtils} from '../../contexts/SessionContext';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {checkFolderAuthorization02, folderExtractor} from '../utils';
-import {GetFolderEndpoint} from './types';
-import {getFolderJoiSchema} from './validation';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {checkFolderAuthorization02, folderExtractor} from '../utils.js';
+import {GetFolderEndpoint} from './types.js';
+import {getFolderJoiSchema} from './validation.js';
 
 const getFolder: GetFolderEndpoint = async instData => {
   const data = validate(instData.data, getFolderJoiSchema);
