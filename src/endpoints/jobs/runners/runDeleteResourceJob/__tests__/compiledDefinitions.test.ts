@@ -1,5 +1,6 @@
 import assert from 'assert';
-import {forEach} from 'lodash';
+import {forEach} from 'lodash-es';
+import {describe, test} from 'vitest';
 import {
   FimidaraResourceType,
   kResourceTypeToPossibleChildren,
@@ -11,7 +12,9 @@ describe('compiledDefinitions', () => {
     forEach(kResourceTypeToPossibleChildren, (childrenTypes, type) => {
       const def = kCascadeDeleteDefinitions[type as FimidaraResourceType];
       childrenTypes.forEach(childType => {
-        assert(def.deleteArtifacts[childType] || def.getArtifactsToDelete[childType]);
+        assert(
+          def.deleteArtifacts[childType] || def.getArtifactsToDelete[childType]
+        );
       });
     });
   });

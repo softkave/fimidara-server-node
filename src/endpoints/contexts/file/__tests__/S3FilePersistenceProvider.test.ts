@@ -1,7 +1,11 @@
 import {DeleteObjectsCommand, S3Client} from '@aws-sdk/client-s3';
 import assert from 'assert';
 import {Readable} from 'stream';
-import {FileBackendMount, kFileBackendType} from '../../../../definitions/fileBackend.js';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {
+  FileBackendMount,
+  kFileBackendType,
+} from '../../../../definitions/fileBackend.js';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
 import {loopAndCollate, pathJoin, pathSplit} from '../../../../utils/fns.js';
 import {getNewIdForResource} from '../../../../utils/resource.js';
@@ -89,9 +93,20 @@ describe.skip('S3FilePersistenceProvider', () => {
     const fileId = getNewIdForResource(kFimidaraResourceType.File);
 
     const backend = getS3BackendInstance();
-    await backend.uploadFile({mount, workspaceId, filepath, fileId, body: data});
+    await backend.uploadFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      body: data,
+    });
 
-    const savedFile = await backend.readFile({filepath, fileId, mount, workspaceId});
+    const savedFile = await backend.readFile({
+      filepath,
+      fileId,
+      mount,
+      workspaceId,
+    });
     assert(savedFile.body);
     expectFileBodyEqual(data, savedFile.body);
   });
@@ -106,9 +121,20 @@ describe.skip('S3FilePersistenceProvider', () => {
     });
     const fileId = getNewIdForResource(kFimidaraResourceType.File);
     const backend = getS3BackendInstance();
-    await backend.uploadFile({mount, workspaceId, filepath, fileId, body: data});
+    await backend.uploadFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      body: data,
+    });
 
-    const result = await backend.readFile({mount, workspaceId, filepath, fileId});
+    const result = await backend.readFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+    });
 
     assert(result.body);
     expectFileBodyEqual(data, result.body);
@@ -183,9 +209,20 @@ describe.skip('S3FilePersistenceProvider', () => {
     });
     const fileId = getNewIdForResource(kFimidaraResourceType.File);
     const backend = getS3BackendInstance();
-    await backend.uploadFile({mount, workspaceId, filepath, fileId, body: data});
+    await backend.uploadFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      body: data,
+    });
 
-    const result = await backend.describeFile({mount, workspaceId, filepath, fileId});
+    const result = await backend.describeFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+    });
 
     assert(result);
     expect(result.filepath).toBe(filepath);
@@ -205,11 +242,21 @@ describe.skip('S3FilePersistenceProvider', () => {
     });
     const fileId = getNewIdForResource(kFimidaraResourceType.File);
     const backend = getS3BackendInstance();
-    await backend.uploadFile({mount, workspaceId, filepath, fileId, body: data});
+    await backend.uploadFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      body: data,
+    });
 
     const splitFilepath = pathSplit(filepath);
     const folderpath = pathJoin(splitFilepath.slice(0, -1));
-    const result = await backend.describeFolder({mount, workspaceId, folderpath});
+    const result = await backend.describeFolder({
+      mount,
+      workspaceId,
+      folderpath,
+    });
 
     assert(result);
     expect(result.folderpath).toBe(folderpath);
@@ -316,7 +363,9 @@ describe.skip('S3FilePersistenceProvider', () => {
     expect(resultFilepaths).toEqual(
       expect.arrayContaining(childrenFilepaths.map(p => p.filepath))
     );
-    expect(resultFolderpaths).toEqual(expect.arrayContaining(childrenFolderpaths));
+    expect(resultFolderpaths).toEqual(
+      expect.arrayContaining(childrenFolderpaths)
+    );
     expect(resultFilepaths).not.toEqual(
       expect.arrayContaining(childrenDepth02Filepaths.map(p => p.filepath))
     );
@@ -356,7 +405,10 @@ async function getNewMount(seed: Partial<FileBackendMount>) {
     backend: kFileBackendType.s3,
     mountedFrom: [bucket].concat(prefix),
   });
-  const [mount] = await generateAndInsertFileBackendMountListForTest(1, mountSeed);
+  const [mount] = await generateAndInsertFileBackendMountListForTest(
+    1,
+    mountSeed
+  );
   return mount;
 }
 

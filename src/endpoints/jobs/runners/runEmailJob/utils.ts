@@ -1,4 +1,4 @@
-import {compact, first} from 'lodash';
+import {compact, first} from 'lodash-es';
 import {EmailJobParams} from '../../../../definitions/job.js';
 import {User} from '../../../../definitions/user.js';
 import {BaseEmailTemplateProps} from '../../../../emailTemplates/types.js';
@@ -32,15 +32,23 @@ export async function getUserFromEmailJobParams(
   return {user};
 }
 
-export async function getBaseEmailTemplateProps(params: EmailJobParams): Promise<{
+export async function getBaseEmailTemplateProps(
+  params: EmailJobParams
+): Promise<{
   user?: User | null;
   base: BaseEmailTemplateProps;
   source: string;
 }> {
   const suppliedConfig = kUtilsInjectables.suppliedConfig();
 
-  appAssert(suppliedConfig.clientLoginLink, 'clientLoginLink not present in config');
-  appAssert(suppliedConfig.clientSignupLink, 'clientSignupLink not present in config');
+  appAssert(
+    suppliedConfig.clientLoginLink,
+    'clientLoginLink not present in config'
+  );
+  appAssert(
+    suppliedConfig.clientSignupLink,
+    'clientSignupLink not present in config'
+  );
   appAssert(
     suppliedConfig.senderEmailAddress,
     'senderEmailAddress not present in config'

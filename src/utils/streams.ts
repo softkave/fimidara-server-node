@@ -1,4 +1,4 @@
-import {isString} from 'lodash';
+import {isString} from 'lodash-es';
 import {Transform, TransformCallback} from 'stream';
 
 /**
@@ -17,7 +17,11 @@ import {Transform, TransformCallback} from 'stream';
 export class ByteCounterPassThroughStream extends Transform {
   contentLength = 0;
 
-  _transform(chunk: any, encoding: BufferEncoding, callback: TransformCallback): void {
+  _transform(
+    chunk: any,
+    encoding: BufferEncoding,
+    callback: TransformCallback
+  ): void {
     if (isString(chunk)) {
       // TODO: preferrable unsupport string, because of the extra compute requirement, most prolly Buffer.
       this.contentLength += Buffer.byteLength(chunk, encoding);

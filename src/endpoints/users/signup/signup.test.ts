@@ -9,6 +9,7 @@ import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {initTests, insertUserForTest} from '../../testUtils/testUtils.js';
 import {EmailAddressNotAvailableError} from '../errors.js';
 import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job.js';
+import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 
 /**
  * TODO:

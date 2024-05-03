@@ -2,6 +2,7 @@ import assert from 'assert';
 import {URL} from 'url';
 import {AgentToken} from '../../../../../definitions/agentToken.js';
 import {kEmailJobType} from '../../../../../definitions/job.js';
+import {test, beforeAll, afterAll, expect, describe} from 'vitest';
 import {
   kCurrentJWTTokenVersion,
   kFimidaraResourceType,

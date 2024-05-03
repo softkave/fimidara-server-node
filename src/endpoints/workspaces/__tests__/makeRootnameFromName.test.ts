@@ -1,4 +1,5 @@
 import {makeRootnameFromName} from '../utils.js';
+import {test, expect} from 'vitest';
 
 test('makeRootnameFromName', () => {
   const name = 'test-&$#@$%workspace&$#@$% name&$#@$%^&*() -=+ end_ropename';

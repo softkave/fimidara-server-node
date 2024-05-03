@@ -1,4 +1,4 @@
-import {keyBy} from 'lodash';
+import {keyBy} from 'lodash-es';
 import {FileBackendConfig} from '../../definitions/fileBackend.js';
 import {kSemanticModels} from '../contexts/injection/injectables.js';
 import {SemanticProviderQueryListParams} from '../contexts/semantic/types.js';

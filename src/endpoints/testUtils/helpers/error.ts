@@ -1,9 +1,12 @@
 import assert = require('assert');
-import {isArray, isFunction, isString, isUndefined} from 'lodash';
+import {isArray, isFunction, isString, isUndefined} from 'lodash-es';
 import {format} from 'util';
 import {AnyFn} from '../../../utils/types.js';
 
-export function assertErrorHasName(error: unknown, expectedErrorNames: string[]) {
+export function assertErrorHasName(
+  error: unknown,
+  expectedErrorNames: string[]
+) {
   const errorList = isArray(error) ? error : [error];
   const matchedTypes = expectedErrorNames.map(name =>
     errorList.find(item => item?.name === name)

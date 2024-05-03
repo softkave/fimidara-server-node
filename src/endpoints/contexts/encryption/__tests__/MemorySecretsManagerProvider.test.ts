@@ -3,6 +3,7 @@ import {expectErrorThrown} from '../../../testUtils/helpers/error.js';
 import {completeTests} from '../../../testUtils/helpers/testFns.js';
 import {initTests} from '../../../testUtils/testUtils.js';
 import {MemorySecretsManagerProvider} from '../MemorySecretsManagerProvider.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 
 beforeAll(async () => {
   await initTests();

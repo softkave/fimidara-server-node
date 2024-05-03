@@ -4,6 +4,7 @@ import {kFimidaraResourceType} from '../../../definitions/system.js';
 import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,

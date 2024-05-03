@@ -1,5 +1,6 @@
 import {faker} from '@faker-js/faker';
-import {compact, last} from 'lodash';
+import {compact, last} from 'lodash-es';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {
   loopAndCollate,
@@ -104,12 +105,42 @@ describe('addFolder', () => {
           getExistingFoldersAndArtifacts(
             workspace.resourceId,
             [
-              {folderpath: stringifyFoldernamepath(folder00, workspace.rootname)},
-              {folderpath: stringifyFoldernamepath(folder01, workspace.rootname)},
-              {folderpath: stringifyFoldernamepath(folder02, workspace.rootname)},
-              {folderpath: stringifyFoldernamepath(folder00, workspace.rootname)},
-              {folderpath: stringifyFoldernamepath(folder01, workspace.rootname)},
-              {folderpath: stringifyFoldernamepath(folder02, workspace.rootname)},
+              {
+                folderpath: stringifyFoldernamepath(
+                  folder00,
+                  workspace.rootname
+                ),
+              },
+              {
+                folderpath: stringifyFoldernamepath(
+                  folder01,
+                  workspace.rootname
+                ),
+              },
+              {
+                folderpath: stringifyFoldernamepath(
+                  folder02,
+                  workspace.rootname
+                ),
+              },
+              {
+                folderpath: stringifyFoldernamepath(
+                  folder00,
+                  workspace.rootname
+                ),
+              },
+              {
+                folderpath: stringifyFoldernamepath(
+                  folder01,
+                  workspace.rootname
+                ),
+              },
+              {
+                folderpath: stringifyFoldernamepath(
+                  folder02,
+                  workspace.rootname
+                ),
+              },
             ],
             opts
           ),
@@ -120,7 +151,9 @@ describe('addFolder', () => {
     expect(namepathList.length).toBe(3);
     expect(inputList.length).toBe(6);
     expect(pathinfoList.length).toBe(6);
-    expect(sortStringListLexographically(Object.keys(foldersByNamepath))).toEqual(
+    expect(
+      sortStringListLexographically(Object.keys(foldersByNamepath))
+    ).toEqual(
       sortStringListLexographically(
         folderNamepath02
           .map((name, index) => folderNamepath02.slice(0, index + 1))
@@ -151,7 +184,10 @@ describe('addFolder', () => {
     const folderName01 = generateTestFolderName();
     const folderName02 = generateTestFolderName();
 
-    const folderpath00 = addRootnameToPath(pathJoin([folderName00]), workspace.rootname);
+    const folderpath00 = addRootnameToPath(
+      pathJoin([folderName00]),
+      workspace.rootname
+    );
     const folderpath01 = addRootnameToPath(
       pathJoin([folderName00, folderName01]),
       workspace.rootname

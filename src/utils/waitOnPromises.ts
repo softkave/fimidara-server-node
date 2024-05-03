@@ -1,4 +1,4 @@
-import {Dictionary, isArray} from 'lodash';
+import {isArray} from 'lodash-es';
 import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
 
 export interface PromiseWithId<T = unknown> {
@@ -10,39 +10,43 @@ export type SettledPromise<Value = unknown, Reason = unknown> =
   | {resolved: true; value: Value}
   | {resolved: false; reason?: Reason};
 
-export type SettledPromiseWithId<Value = unknown, Reason = unknown> = SettledPromise<
-  Value,
-  Reason
-> & {
+export type SettledPromiseWithId<
+  Value = unknown,
+  Reason = unknown,
+> = SettledPromise<Value, Reason> & {
   id: string | number;
 };
 
-export type InferPromiseWithIdData<T extends PromiseWithId> = T extends PromiseWithId<
-  infer TData01
->
-  ? TData01
-  : unknown;
+export type InferPromiseWithIdData<T extends PromiseWithId> =
+  T extends PromiseWithId<infer TData01> ? TData01 : unknown;
 
 export type GetSettledPromise<
   T extends PromiseWithId,
   TData = InferPromiseWithIdData<T>,
-> = SettledPromiseWithId<TData> & Pick<T, Exclude<keyof T, keyof SettledPromiseWithId>>;
+> = SettledPromiseWithId<TData> &
+  Pick<T, Exclude<keyof T, keyof SettledPromiseWithId>>;
 
 function wrapPromiseWithId<T extends PromiseWithId>(p: T) {
   return new Promise<GetSettledPromise<T>>(resolve => {
     p.promise
       .then(result =>
-        resolve({...p, resolved: true, value: result as InferPromiseWithIdData<T>})
+        resolve({
+          ...p,
+          resolved: true,
+          value: result as InferPromiseWithIdData<T>,
+        })
       )
       .catch(error => resolve({...p, resolved: false, reason: error}));
   });
 }
 
 export const waitOnPromisesWithId = async <T extends PromiseWithId>(
-  promises: T[] | Dictionary<T>
+  promises: T[] | Record<string, T>
 ) => {
   const mappedPromises: Array<Promise<GetSettledPromise<T>>> = [];
-  const entries = isArray(promises) ? promises.entries() : Object.entries(promises);
+  const entries = isArray(promises)
+    ? promises.entries()
+    : Object.entries(promises);
 
   for (const [, promise] of entries) {
     mappedPromises.push(wrapPromiseWithId(promise));
@@ -71,7 +75,9 @@ export const waitOnPromises = <ProvidedPromise extends Promise<unknown>[]>(
   return Promise.all(mappedPromises);
 };
 
-export function logRejectedPromisesAndThrow(p: PromiseSettledResult<unknown>[]) {
+export function logRejectedPromisesAndThrow(
+  p: PromiseSettledResult<unknown>[]
+) {
   const rejected: PromiseRejectedResult[] = p.filter(
     p => p.status === 'rejected'
   ) as unknown as PromiseRejectedResult[];

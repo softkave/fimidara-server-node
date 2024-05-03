@@ -1,4 +1,4 @@
-import {defaultTo, random} from 'lodash';
+import {defaultTo, random} from 'lodash-es';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {
   UsageRecord,
@@ -44,7 +44,10 @@ function randomFulfillmentStatus() {
   return items[random(0, items.length - 1)];
 }
 
-export function generateUsageRecordList(count = 10, extra: Partial<UsageRecord> = {}) {
+export function generateUsageRecordList(
+  count = 10,
+  extra: Partial<UsageRecord> = {}
+) {
   const records: UsageRecord[] = [];
   for (let i = 0; i < count; i++) {
     records.push({

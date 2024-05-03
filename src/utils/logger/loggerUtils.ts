@@ -1,4 +1,4 @@
-import {memoize} from 'lodash';
+import {memoize} from 'lodash-es';
 import jsonStringify from 'safe-stable-stringify';
 import {createLogger, format, transports} from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';

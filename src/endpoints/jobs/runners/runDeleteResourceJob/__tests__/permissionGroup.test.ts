@@ -4,6 +4,7 @@ import {generateAndInsertPermissionGroupListForTest} from '../../../../testUtils
 import {completeTests} from '../../../../testUtils/helpers/testFns.js';
 import {initTests} from '../../../../testUtils/testUtils.js';
 import {deletePermissionGroupCascadeEntry} from '../permissionGroup.js';
+import {test, beforeAll, afterAll, describe} from 'vitest';
 import {
   GenerateResourceFn,
   GenerateTypeChildrenDefinition,

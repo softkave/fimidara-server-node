@@ -1,5 +1,6 @@
 import assert from 'assert';
-import {first} from 'lodash';
+import {first} from 'lodash-es';
+import {afterAll, beforeAll, describe, test} from 'vitest';
 import {extractResourceIdList, getResourceId} from '../../../utils/fns.js';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
 import RequestData from '../../RequestData.js';
@@ -35,17 +36,22 @@ describe('assignPermissionGroups', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     const agent = makeUserSessionAgent(rawUser, userToken);
     const [pgList01, collaboratorList] = await Promise.all([
-      generateAndInsertPermissionGroupListForTest(2, {workspaceId: workspace.resourceId}),
+      generateAndInsertPermissionGroupListForTest(2, {
+        workspaceId: workspace.resourceId,
+      }),
       generateAndInsertCollaboratorListForTest(agent, workspace.resourceId, 2),
     ]);
     const pgList01Input = toAssignedPgListInput(pgList01);
 
     const result01 = await assignPermissionGroups(
-      RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
-        workspaceId: workspace.resourceId,
-        permissionGroups: pgList01Input,
-        entityId: extractResourceIdList(collaboratorList),
-      })
+      RequestData.fromExpressRequest(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          workspaceId: workspace.resourceId,
+          permissionGroups: pgList01Input,
+          entityId: extractResourceIdList(collaboratorList),
+        }
+      )
     );
     assertEndpointResultOk(result01);
 
@@ -69,7 +75,9 @@ describe('assignPermissionGroups', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     const agent = makeUserSessionAgent(rawUser, userToken);
     const [pgList01, collaboratorList] = await Promise.all([
-      generateAndInsertPermissionGroupListForTest(2, {workspaceId: workspace.resourceId}),
+      generateAndInsertPermissionGroupListForTest(2, {
+        workspaceId: workspace.resourceId,
+      }),
       generateAndInsertCollaboratorListForTest(agent, workspace.resourceId, 1),
     ]);
     const pgList01Input = toAssignedPgListInput(pgList01);
@@ -77,11 +85,14 @@ describe('assignPermissionGroups', () => {
     assert(collaborator);
 
     const result01 = await assignPermissionGroups(
-      RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
-        workspaceId: workspace.resourceId,
-        permissionGroups: pgList01Input,
-        entityId: collaborator.resourceId,
-      })
+      RequestData.fromExpressRequest(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          workspaceId: workspace.resourceId,
+          permissionGroups: pgList01Input,
+          entityId: collaborator.resourceId,
+        }
+      )
     );
     assertEndpointResultOk(result01);
 

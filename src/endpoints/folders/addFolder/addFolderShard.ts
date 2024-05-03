@@ -1,4 +1,4 @@
-import {first} from 'lodash';
+import {first} from 'lodash-es';
 import {Folder} from '../../../definitions/folder.js';
 import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
 import {Resource, SessionAgent} from '../../../definitions/system.js';
@@ -101,7 +101,9 @@ async function createFolderListWithTransaction(
 
   if (newFolders.length) {
     const checkAuthPromises: Array<Promise<unknown>> = [];
-    const saveFilesPromise = kSemanticModels.folder().insertItem(newFolders, opts);
+    const saveFilesPromise = kSemanticModels
+      .folder()
+      .insertItem(newFolders, opts);
 
     // No need to check auth if there are no new folders, so only check if we
     // have newFolders

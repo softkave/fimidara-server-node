@@ -27,7 +27,9 @@ export function generateAWSS3Credentials(
   seed: Partial<S3FilePersistenceProviderInitParams> = {}
 ): S3FilePersistenceProviderInitParams {
   return {
-    accessKeyId: faker.string.alphanumeric(kValidationConstants.awsAccessKeyIdLength),
+    accessKeyId: faker.string.alphanumeric(
+      kValidationConstants.awsAccessKeyIdLength
+    ),
     secretAccessKey: faker.string.alphanumeric(
       kValidationConstants.awsSecretAccessKeyLength
     ),
@@ -79,7 +81,9 @@ export function generateFileBackendMountInput(
   };
 }
 
-export function generateFileBackendMountForTest(seed: Partial<FileBackendMount> = {}) {
+export function generateFileBackendMountForTest(
+  seed: Partial<FileBackendMount> = {}
+) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
     agentId: getNewIdForResource(kFimidaraResourceType.User),
@@ -105,7 +109,9 @@ export function generateFileBackendMountForTest(seed: Partial<FileBackendMount> 
   return mount;
 }
 
-export function generateFileBackendConfigForTest(seed: Partial<FileBackendConfig> = {}) {
+export function generateFileBackendConfigForTest(
+  seed: Partial<FileBackendConfig> = {}
+) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
     agentId: getNewIdForResource(kFimidaraResourceType.User),
@@ -156,7 +162,10 @@ export function generateResolvedMountEntryForTest(
     forType: kFimidaraResourceType.File,
     persisted: {
       mountId,
-      filepath: stringifyFilenamepath({namepath: backendNamepath, ext: backendExt}),
+      filepath: stringifyFilenamepath({
+        namepath: backendNamepath,
+        ext: backendExt,
+      }),
       raw: undefined,
     },
     isDeleted: false,

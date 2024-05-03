@@ -2,6 +2,7 @@ import {makeKey} from '../../../utils/fns.js';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
 import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assignPgListToIdList,
   toAssignedPgListInput,

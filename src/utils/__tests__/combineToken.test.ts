@@ -1,4 +1,5 @@
-import {last} from 'lodash';
+import {last} from 'lodash-es';
+import {describe, expect, test} from 'vitest';
 import {CombinationToken, combineTokens} from '../combineTokens.js';
 
 describe('combineTokens', () => {

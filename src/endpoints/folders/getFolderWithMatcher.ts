@@ -1,4 +1,4 @@
-import {last} from 'lodash';
+import {last} from 'lodash-es';
 import {Folder, FolderMatcher} from '../../definitions/folder.js';
 import {SessionAgent} from '../../definitions/system.js';
 import {FileQuery} from '../contexts/data/types.js';

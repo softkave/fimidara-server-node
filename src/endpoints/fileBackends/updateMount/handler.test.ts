@@ -11,6 +11,7 @@ import {NotFoundError} from '../../errors.js';
 import {getFolderpathInfo} from '../../folders/utils.js';
 import {generateAndInsertFileBackendConfigListForTest} from '../../testUtils/generate/fileBackend.js';
 import {generateTestFolderpathString} from '../../testUtils/generate/folder.js';
+import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,

@@ -9,7 +9,10 @@ import {countCollaboratorsWithoutPermissionJoiSchema} from './validation.js';
 
 const countCollaboratorsWithoutPermission: CountCollaboratorsWithoutPermissionEndpoint =
   async instData => {
-    const data = validate(instData.data, countCollaboratorsWithoutPermissionJoiSchema);
+    const data = validate(
+      instData.data,
+      countCollaboratorsWithoutPermissionJoiSchema
+    );
     const agent = await kUtilsInjectables
       .session()
       .getAgentFromReq(
@@ -18,7 +21,10 @@ const countCollaboratorsWithoutPermission: CountCollaboratorsWithoutPermissionEn
         kSessionUtils.accessScopes.api
       );
     const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
-    const assignedItemsQuery = await getWorkspaceCollaboratorsQuery(agent, workspace);
+    const assignedItemsQuery = await getWorkspaceCollaboratorsQuery(
+      agent,
+      workspace
+    );
     const collaboratorIdList =
       await getPagedCollaboratorsWithoutPermission(assignedItemsQuery);
     const count = collaboratorIdList.length;

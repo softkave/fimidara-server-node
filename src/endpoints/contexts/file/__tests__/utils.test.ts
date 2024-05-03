@@ -2,6 +2,7 @@ import {tmpdir} from 'os';
 import {kFileBackendType} from '../../../../definitions/fileBackend.js';
 import {pathJoin} from '../../../../utils/fns.js';
 import {generateTestFilepath} from '../../../testUtils/generate/file.js';
+import {test, beforeEach, afterEach, describe, expect} from 'vitest';
 import {
   generateAWSS3Credentials,
   generateFileBackendConfigForTest,

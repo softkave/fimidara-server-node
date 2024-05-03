@@ -6,6 +6,7 @@ import {stringifyFoldernamepath} from '../../folders/utils.js';
 import {generateUniqueFolderpath} from '../../testUtils/generate/folder.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   initTests,
   insertFileBackendMountForTest,

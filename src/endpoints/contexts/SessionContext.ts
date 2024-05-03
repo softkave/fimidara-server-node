@@ -1,5 +1,5 @@
 import * as jwt from 'jsonwebtoken';
-import {first} from 'lodash';
+import {first} from 'lodash-es';
 import {AgentToken} from '../../definitions/agentToken.js';
 import {
   BaseTokenData,
@@ -89,7 +89,9 @@ export default class SessionContext implements SessionContextType {
 
         if (agentToken.entityType === kFimidaraResourceType.User) {
           appAssert(agentToken.forEntityId);
-          const user = await kSemanticModels.user().getOneById(agentToken.forEntityId);
+          const user = await kSemanticModels
+            .user()
+            .getOneById(agentToken.forEntityId);
           appAssert(user, kReuseableErrors.user.notFound());
           agent = makeUserSessionAgent(user, agentToken);
         } else {
@@ -107,19 +109,25 @@ export default class SessionContext implements SessionContextType {
     return agent;
   };
 
-  getAgentByAgentTokenId = async (agentTokenId: string): Promise<SessionAgent> => {
+  getAgentByAgentTokenId = async (
+    agentTokenId: string
+  ): Promise<SessionAgent> => {
     if (agentTokenId === kSystemSessionAgent.agentTokenId) {
       return kSystemSessionAgent;
     } else if (agentTokenId === kPublicSessionAgent.agentTokenId) {
       return kPublicSessionAgent;
     }
 
-    const agentToken = await kSemanticModels.agentToken().getOneById(agentTokenId);
+    const agentToken = await kSemanticModels
+      .agentToken()
+      .getOneById(agentTokenId);
     appAssert(agentToken, new InvalidCredentialsError());
 
     if (agentToken.entityType === kFimidaraResourceType.User) {
       appAssert(agentToken.forEntityId);
-      const user = await kSemanticModels.user().getOneById(agentToken.forEntityId);
+      const user = await kSemanticModels
+        .user()
+        .getOneById(agentToken.forEntityId);
       appAssert(user, kReuseableErrors.user.notFound());
       return makeUserSessionAgent(user, agentToken);
     } else {
@@ -158,9 +166,12 @@ export default class SessionContext implements SessionContextType {
     expectedTokenScopes: TokenAccessScope | TokenAccessScope[]
   ) => {
     const tokenScopes = tokenData.scope ?? [];
-    const expectedTokenScopesMap = indexArray(convertToArray(expectedTokenScopes), {
-      reducer: () => true,
-    });
+    const expectedTokenScopesMap = indexArray(
+      convertToArray(expectedTokenScopes),
+      {
+        reducer: () => true,
+      }
+    );
     const hasTokenAccessScope = !!tokenScopes.find(
       nextScope => expectedTokenScopesMap[nextScope]
     );
@@ -224,7 +235,10 @@ export default class SessionContext implements SessionContextType {
         const agentToken = agent.agentToken;
         if (
           !agentToken ||
-          !this.tokenContainsScope(agentToken, kTokenAccessScope.changePassword) ||
+          !this.tokenContainsScope(
+            agentToken,
+            kTokenAccessScope.changePassword
+          ) ||
           // Action must be strictly change password
           first(scopeList) !== kTokenAccessScope.changePassword ||
           scopeList.length > 1

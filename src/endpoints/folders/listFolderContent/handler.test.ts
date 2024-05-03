@@ -4,6 +4,7 @@ import {calculatePageSize, getResourceId, pathJoin} from '../../../utils/fns.js'
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import addPermissionItems from '../../permissionItems/addItems/handler.js';
 import RequestData from '../../RequestData.js';
+import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   generateAndInsertTestFiles,
   generateTestFileName,

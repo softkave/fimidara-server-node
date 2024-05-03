@@ -3,6 +3,7 @@ import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {generateAndInsertTestFiles} from '../../testUtils/generate/file.js';
 import {generateAndInsertTestFolders} from '../../testUtils/generate/folder.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,

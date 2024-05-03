@@ -1,5 +1,9 @@
-import {first, flatten, uniq} from 'lodash';
-import {DeleteResourceJobParams, kJobType} from '../../../../../definitions/job.js';
+import {first, flatten, uniq} from 'lodash-es';
+import {expect} from 'vitest';
+import {
+  DeleteResourceJobParams,
+  kJobType,
+} from '../../../../../definitions/job.js';
 import {
   FimidaraResourceType,
   FimidaraTypeToTSType,
@@ -38,7 +42,10 @@ export type GenerateTypeChildrenFn<
 >;
 
 export type GenerateTypeChildrenDefinition<TResource extends Resource> = {
-  [TKey in FimidaraResourceType]: GenerateTypeChildrenFn<TResource, TKey> | null;
+  [TKey in FimidaraResourceType]: GenerateTypeChildrenFn<
+    TResource,
+    TKey
+  > | null;
 };
 
 export type GetResourcesByIdFn<TKey extends FimidaraResourceType> = AnyFn<
@@ -50,7 +57,9 @@ export type GetResourcesByIdDefinition = {
   [TKey in FimidaraResourceType]: GetResourcesByIdFn<TKey> | null;
 };
 
-type TypeToResourceMap<TTypes extends FimidaraResourceType = FimidaraResourceType> = {
+type TypeToResourceMap<
+  TTypes extends FimidaraResourceType = FimidaraResourceType,
+> = {
   [TKey in TTypes]?: FimidaraTypeToTSType<TKey>[];
 };
 
@@ -98,7 +107,10 @@ async function generateTypeChildrenWithDef<T extends Resource>(props: {
   const result: AnyObject = {};
   await Promise.all(
     forTypes.map(async type => {
-      const children = await def[type as FimidaraResourceType]?.({resource, workspaceId});
+      const children = await def[type as FimidaraResourceType]?.({
+        resource,
+        workspaceId,
+      });
       result[type] = children;
     })
   );
@@ -109,7 +121,9 @@ async function generateTypeChildrenWithDef<T extends Resource>(props: {
 function resourceMapToIdMap(resourcesMap: TypeToResourceMap) {
   return Object.entries(resourcesMap).reduce((acc, [key, resources]) => {
     if (resources) {
-      acc[key as FimidaraResourceType] = extractResourceIdList(resources as Resource[]);
+      acc[key as FimidaraResourceType] = extractResourceIdList(
+        resources as Resource[]
+      );
     }
 
     return acc;
@@ -167,7 +181,9 @@ async function fetchTypeChildrenWithDef(props: {
   const result: AnyObject = {};
   await Promise.all(
     forTypes.map(async type => {
-      const children = await kGetResourcesByIdDef[type as FimidaraResourceType]?.({
+      const children = await kGetResourcesByIdDef[
+        type as FimidaraResourceType
+      ]?.({
         idList: idMap[type as FimidaraResourceType] || [],
       });
       result[type] = children;
@@ -191,7 +207,9 @@ function flattenIdMap(idMap: TypeToIdList) {
   return flatten(Object.values(idMap));
 }
 
-export async function testDeleteResourceArtifactsJob<T extends Resource>(props: {
+export async function testDeleteResourceArtifactsJob<
+  T extends Resource,
+>(props: {
   type: FimidaraResourceType;
   genResourceFn: AnyFn<[{workspaceId: string; shard: string}], Promise<T>>;
   genChildrenDef: GenerateTypeChildrenDefinition<T>;
@@ -211,10 +229,15 @@ export async function testDeleteResourceArtifactsJob<T extends Resource>(props: 
   const workspaceId = await genWorkspaceFn();
   const shard = getNewId();
   const mainResource = await genResourceFn({workspaceId, shard});
-  const getArtifactTypes = Object.keys(deleteCascadeDef.getArtifactsToDelete).filter(
-    type => !!deleteCascadeDef.getArtifactsToDelete[type as FimidaraResourceType]
+  const getArtifactTypes = Object.keys(
+    deleteCascadeDef.getArtifactsToDelete
+  ).filter(
+    type =>
+      !!deleteCascadeDef.getArtifactsToDelete[type as FimidaraResourceType]
   );
-  const deleteArtifactTypes = Object.keys(deleteCascadeDef.deleteArtifacts).filter(
+  const deleteArtifactTypes = Object.keys(
+    deleteCascadeDef.deleteArtifacts
+  ).filter(
     type =>
       !!deleteCascadeDef.deleteArtifacts[type as FimidaraResourceType] &&
       !deleteCascadeDef.getArtifactsToDelete[type as FimidaraResourceType]

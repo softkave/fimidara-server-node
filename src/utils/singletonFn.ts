@@ -1,4 +1,4 @@
-import {isUndefined, noop} from 'lodash';
+import {isUndefined, noop} from 'lodash-es';
 import {cast} from './fns.js';
 
 export type SingletonFnInitFn<Data> = () => Data;

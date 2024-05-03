@@ -2,6 +2,7 @@ import {getTimestamp} from '../../../utils/dateFns.js';
 import {waitTimeout} from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, describe} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,

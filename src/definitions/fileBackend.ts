@@ -68,7 +68,9 @@ export type PublicFileBackendMount = PublicWorkspaceResource &
   >;
 
 export type PublicFileBackendConfig = PublicWorkspaceResource &
-  ToPublicDefinitions<Pick<FileBackendConfig, 'backend' | 'name' | 'description'>>;
+  ToPublicDefinitions<
+    Pick<FileBackendConfig, 'backend' | 'name' | 'description'>
+  >;
 
 export type PublicResolvedMountEntry = PublicWorkspaceResource &
   ToPublicDefinitions<

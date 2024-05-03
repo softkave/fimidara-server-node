@@ -5,7 +5,7 @@ import axios, {
   Method,
   toFormData,
 } from 'axios';
-import {compact, isArray, isObject, isString, last, map} from 'lodash';
+import {compact, isArray, isObject, isString, last, map} from 'lodash-es';
 import path from 'path-browserify';
 
 const kDefaultServerURL = 'https://api.fimidara.com';
@@ -16,8 +16,8 @@ export type EndpointHeaders = {
 
 type FimidaraEndpointErrorItem = {
   name: string;
-  message: string;
   field?: string;
+  message: string;
 
   // TODO: find a way to include in generated doc for when we add new
   // recommended actions

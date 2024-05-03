@@ -1,4 +1,4 @@
-import {isString} from 'lodash';
+import {isString} from 'lodash-es';
 import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
 import {ServerError} from './errors.js';
 import {kReuseableErrors} from './reusableErrors.js';

@@ -1,4 +1,4 @@
-import {first} from 'lodash';
+import {first} from 'lodash-es';
 import {AppShard} from '../../../../definitions/app.js';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
 import {waitTimeout} from '../../../../utils/fns.js';
@@ -9,7 +9,10 @@ import {
   DataSemanticBaseProvider,
   addIsDeletedIntoQuery,
 } from '../DataSemanticDataAccessBaseProvider.js';
-import {SemanticProviderMutationParams, SemanticProviderQueryListParams} from '../types.js';
+import {
+  SemanticProviderMutationParams,
+  SemanticProviderQueryListParams,
+} from '../types.js';
 import {SemanticAppShardProvider} from './types.js';
 
 export class SemanticAppShardProviderImpl
@@ -54,7 +57,10 @@ export class SemanticAppShardProviderImpl
     return shard.resourceId;
   }
 
-  async dropShard(shardId: string, opts?: SemanticProviderMutationParams): Promise<void> {
+  async dropShard(
+    shardId: string,
+    opts?: SemanticProviderMutationParams
+  ): Promise<void> {
     await kSemanticModels.utils().withTxn(
       async opts => {
         const shard = (await this.getOneById(shardId, {
@@ -66,7 +72,11 @@ export class SemanticAppShardProviderImpl
           return;
         }
 
-        await this.updateOneById(shardId, {occupantCount: shard.occupantCount - 1}, opts);
+        await this.updateOneById(
+          shardId,
+          {occupantCount: shard.occupantCount - 1},
+          opts
+        );
       },
       /** reuseAsyncLocalTxn */ false,
       opts

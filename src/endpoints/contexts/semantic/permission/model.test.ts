@@ -1,4 +1,5 @@
 import {faker} from '@faker-js/faker';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {PermissionEntityInheritanceMapItem} from '../../../../definitions/permissionGroups.js';
 import {kFimidaraPermissionActionsMap} from '../../../../definitions/permissionItem.js';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
@@ -15,7 +16,10 @@ import {
   generatePermissionItemListForTest,
 } from '../../../testUtils/generate/permissionItem.js';
 import {generateAndInsertUserListForTest} from '../../../testUtils/generate/user.js';
-import {generateAgent, generateTestList} from '../../../testUtils/generate/utils.js';
+import {
+  generateAgent,
+  generateTestList,
+} from '../../../testUtils/generate/utils.js';
 import {expectContainsExactly} from '../../../testUtils/helpers/assertion.js';
 import {expectErrorThrown} from '../../../testUtils/helpers/error.js';
 import {completeTests} from '../../../testUtils/helpers/testFns.js';
@@ -154,7 +158,9 @@ describe('DataSemanticPermission', () => {
       p03.resourceId,
       p04.resourceId,
     ]);
-    expect(sortedPList.slice(3).map(item => item.resourceId)).toEqual([p02.resourceId]);
+    expect(sortedPList.slice(3).map(item => item.resourceId)).toEqual([
+      p02.resourceId,
+    ]);
   });
 
   test('sortItems, all options', () => {
@@ -246,7 +252,9 @@ describe('DataSemanticPermission', () => {
     );
     const targetParentId = getNewIdForResource(kFimidaraResourceType.Folder);
     const targetId = getNewIdForResource(kFimidaraResourceType.File);
-    const targetType = faker.helpers.arrayElement(Object.values(kFimidaraResourceType));
+    const targetType = faker.helpers.arrayElement(
+      Object.values(kFimidaraResourceType)
+    );
     const pItems = await generateAndInsertPermissionItemListForTest(5, {
       entityId,
       action,
@@ -293,7 +301,8 @@ describe('DataSemanticPermission', () => {
     await kSemanticModels
       .utils()
       .withTxn(
-        async opts => kSemanticModels.permissionItem().insertItem(rawItems, opts),
+        async opts =>
+          kSemanticModels.permissionItem().insertItem(rawItems, opts),
         /** reuseTxn */ true
       );
 
@@ -439,21 +448,35 @@ describe('DataSemanticPermission', () => {
         pg05.resourceId,
       ])
     );
-    expect(map[pg.resourceId]).toMatchObject({
+    expect({
+      ...map[pg.resourceId],
+      items: map[pg.resourceId].items.sort((item01, item02) =>
+        item01.permissionGroupId > item02.permissionGroupId ? 1 : -1
+      ),
+    }).toMatchObject({
       id: pg.resourceId,
       resolvedOrder: 0,
       items: [
         {permissionGroupId: pg02.resourceId, assigneeEntityId: pg.resourceId},
         {permissionGroupId: pg03.resourceId, assigneeEntityId: pg.resourceId},
-      ],
+      ].sort((item01, item02) =>
+        item01.permissionGroupId > item02.permissionGroupId ? 1 : -1
+      ),
     });
-    expect(map[pg02.resourceId]).toMatchObject({
+    expect({
+      ...map[pg02.resourceId],
+      items: map[pg02.resourceId].items.sort((item01, item02) =>
+        item01.permissionGroupId > item02.permissionGroupId ? 1 : -1
+      ),
+    }).toMatchObject({
       id: pg02.resourceId,
       resolvedOrder: 1,
       items: [
         {permissionGroupId: pg04.resourceId, assigneeEntityId: pg02.resourceId},
         {permissionGroupId: pg05.resourceId, assigneeEntityId: pg02.resourceId},
-      ],
+      ].sort((item01, item02) =>
+        item01.permissionGroupId > item02.permissionGroupId ? 1 : -1
+      ),
     });
     expect(map[pg04.resourceId]).toMatchObject({
       id: pg04.resourceId,
@@ -504,7 +527,11 @@ describe('DataSemanticPermission', () => {
   });
 });
 
-function sortAssignedPermissionGroupMetas(item: PermissionEntityInheritanceMapItem) {
-  item.items.sort((a, b) => a.permissionGroupId.localeCompare(b.permissionGroupId));
+function sortAssignedPermissionGroupMetas(
+  item: PermissionEntityInheritanceMapItem
+) {
+  item.items.sort((a, b) =>
+    a.permissionGroupId.localeCompare(b.permissionGroupId)
+  );
   return item;
 }

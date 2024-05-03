@@ -1,4 +1,5 @@
 import {Readable} from 'stream';
+import {afterAll, beforeAll, describe, expect} from 'vitest';
 import {ResolvedMountEntry} from '../../../definitions/fileBackend.js';
 import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
@@ -6,15 +7,29 @@ import {pathJoin, streamToBuffer} from '../../../utils/fns.js';
 import {newWorkspaceResource} from '../../../utils/resource.js';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
 import RequestData from '../../RequestData.js';
-import {FilePersistenceProvider, PersistedFile} from '../../contexts/file/types.js';
+import {
+  FilePersistenceProvider,
+  PersistedFile,
+} from '../../contexts/file/types.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {kRegisterUtilsInjectables} from '../../contexts/injection/register.js';
-import {addRootnameToPath, stringifyFoldernamepath} from '../../folders/utils.js';
+import {
+  addRootnameToPath,
+  stringifyFoldernamepath,
+} from '../../folders/utils.js';
 import NoopFilePersistenceProviderContext from '../../testUtils/context/file/NoopFilePersistenceProviderContext.js';
 import {
   generateTestFileName,
   generateTestFilepathString,
 } from '../../testUtils/generate/file.js';
+import {
+  getTestSessionAgent,
+  kTestSessionAgentTypes,
+} from '../../testUtils/helpers/agent.js';
+import {
+  expectFileBodyEqual,
+  expectFileBodyEqualById,
+} from '../../testUtils/helpers/file.js';
 import {completeTests, skTest} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
@@ -34,16 +49,7 @@ import readFile from './handler.js';
 import {ReadFileEndpointParams} from './types.js';
 import sharp = require('sharp');
 import assert = require('assert');
-import {
-  kTestSessionAgentTypes,
-  getTestSessionAgent,
-} from '../../testUtils/helpers/agent.js';
-import {
-  expectFileBodyEqualById,
-  expectFileBodyEqual,
-} from '../../testUtils/helpers/file.js';
 
-jest.setTimeout(300000); // 5 minutes
 beforeAll(async () => {
   await initTests();
 });
@@ -53,27 +59,30 @@ afterAll(async () => {
 });
 
 describe('readFile', () => {
-  skTest.each(kTestSessionAgentTypes)('file returned using %s', async agentType => {
-    const {
-      sessionAgent,
-      workspace,
-      adminUserToken: userToken,
-    } = await getTestSessionAgent(agentType, {
-      permissions: {
-        actions: [kFimidaraPermissionActionsMap.readFile],
-      },
-    });
-    const {file} = await insertFileForTest(userToken, workspace);
+  skTest.each(kTestSessionAgentTypes)(
+    'file returned using %s',
+    async agentType => {
+      const {
+        sessionAgent,
+        workspace,
+        adminUserToken: userToken,
+      } = await getTestSessionAgent(agentType, {
+        permissions: {
+          actions: [kFimidaraPermissionActionsMap.readFile],
+        },
+      });
+      const {file} = await insertFileForTest(userToken, workspace);
 
-    const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
-      mockExpressRequestWithAgentToken(sessionAgent.agentToken),
-      /** data */ {filepath: stringifyFilenamepath(file, workspace.rootname)}
-    );
-    const result = await readFile(instData);
-    assertEndpointResultOk(result);
+      const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+        mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+        /** data */ {filepath: stringifyFilenamepath(file, workspace.rootname)}
+      );
+      const result = await readFile(instData);
+      assertEndpointResultOk(result);
 
-    await expectFileBodyEqualById(file.resourceId, result.stream);
-  });
+      await expectFileBodyEqualById(file.resourceId, result.stream);
+    }
+  );
 
   skTest.run('file resized', async () => {
     const {
@@ -115,7 +124,8 @@ describe('readFile', () => {
   skTest.each(kTestSessionAgentTypes)(
     '%s can read file from public folder',
     async agentType => {
-      const {workspace, adminUserToken: userToken} = await getTestSessionAgent(agentType);
+      const {workspace, adminUserToken: userToken} =
+        await getTestSessionAgent(agentType);
       const {folder} = await insertFolderForTest(userToken, workspace);
       await insertPermissionItemsForTest(userToken, workspace.resourceId, {
         target: {targetId: folder.resourceId},
@@ -127,7 +137,9 @@ describe('readFile', () => {
       const {file} = await insertFileForTest(userToken, workspace, {
         filepath: addRootnameToPath(
           pathJoin(
-            folder.namepath.concat([generateTestFileName({includeStraySlashes: true})])
+            folder.namepath.concat([
+              generateTestFileName({includeStraySlashes: true}),
+            ])
           ),
           workspace.rootname
         ),
@@ -142,52 +154,58 @@ describe('readFile', () => {
     }
   );
 
-  skTest.each(kTestSessionAgentTypes)('%s can read public file', async agentType => {
-    const {workspace, adminUserToken} = await getTestSessionAgent(agentType);
-    const {file} = await insertFileForTest(adminUserToken, workspace);
-    await insertPermissionItemsForTest(adminUserToken, workspace.resourceId, {
-      target: {targetId: file.resourceId},
-      action: kFimidaraPermissionActionsMap.readFile,
-      access: true,
-      entityId: workspace.publicPermissionGroupId,
-    });
+  skTest.each(kTestSessionAgentTypes)(
+    '%s can read public file',
+    async agentType => {
+      const {workspace, adminUserToken} = await getTestSessionAgent(agentType);
+      const {file} = await insertFileForTest(adminUserToken, workspace);
+      await insertPermissionItemsForTest(adminUserToken, workspace.resourceId, {
+        target: {targetId: file.resourceId},
+        action: kFimidaraPermissionActionsMap.readFile,
+        access: true,
+        entityId: workspace.publicPermissionGroupId,
+      });
 
-    const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
-      mockExpressRequestForPublicAgent(),
-      {filepath: stringifyFilenamepath(file, workspace.rootname)}
-    );
-    const result = await readFile(instData);
-    assertEndpointResultOk(result);
-  });
-
-  skTest.each(kTestSessionAgentTypes)('%s cannot read private file', async agentType => {
-    const {
-      sessionAgent,
-      workspace,
-      adminUserToken: userToken,
-    } = await getTestSessionAgent(agentType);
-
-    const {file} = await insertFileForTest(userToken, workspace);
-    await insertPermissionItemsForTest(userToken, workspace.resourceId, {
-      target: {targetId: file.resourceId},
-      action: kFimidaraPermissionActionsMap.readFile,
-      access: false,
-      entityId:
-        agentType === kFimidaraResourceType.Public
-          ? workspace.publicPermissionGroupId
-          : sessionAgent.agentId,
-    });
-
-    try {
       const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
         mockExpressRequestForPublicAgent(),
         {filepath: stringifyFilenamepath(file, workspace.rootname)}
       );
-      await readFile(instData);
-    } catch (error) {
-      expect((error as Error)?.name).toBe(PermissionDeniedError.name);
+      const result = await readFile(instData);
+      assertEndpointResultOk(result);
     }
-  });
+  );
+
+  skTest.each(kTestSessionAgentTypes)(
+    '%s cannot read private file',
+    async agentType => {
+      const {
+        sessionAgent,
+        workspace,
+        adminUserToken: userToken,
+      } = await getTestSessionAgent(agentType);
+
+      const {file} = await insertFileForTest(userToken, workspace);
+      await insertPermissionItemsForTest(userToken, workspace.resourceId, {
+        target: {targetId: file.resourceId},
+        action: kFimidaraPermissionActionsMap.readFile,
+        access: false,
+        entityId:
+          agentType === kFimidaraResourceType.Public
+            ? workspace.publicPermissionGroupId
+            : sessionAgent.agentId,
+      });
+
+      try {
+        const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+          mockExpressRequestForPublicAgent(),
+          {filepath: stringifyFilenamepath(file, workspace.rootname)}
+        );
+        await readFile(instData);
+      } catch (error) {
+        expect((error as Error)?.name).toBe(PermissionDeniedError.name);
+      }
+    }
+  );
 
   skTest.run(
     'reads file from other entries if primary entry is not present',
@@ -197,12 +215,16 @@ describe('readFile', () => {
       const {file} = await insertFileForTest(userToken, workspace, {
         filepath: generateTestFilepathString({rootname: workspace.rootname}),
       });
-      const {mount} = await insertFileBackendMountForTest(userToken, workspace, {
-        folderpath: stringifyFoldernamepath(
-          {namepath: file.namepath.slice(0, -1)},
-          workspace.rootname
-        ),
-      });
+      const {mount} = await insertFileBackendMountForTest(
+        userToken,
+        workspace,
+        {
+          folderpath: stringifyFoldernamepath(
+            {namepath: file.namepath.slice(0, -1)},
+            workspace.rootname
+          ),
+        }
+      );
 
       await kSemanticModels.utils().withTxn(async opts => {
         const entry = newWorkspaceResource<ResolvedMountEntry>(

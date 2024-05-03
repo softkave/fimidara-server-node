@@ -4,6 +4,7 @@ import {generateAndInsertCollaborationRequestListForTest} from '../../../../test
 import {completeTests} from '../../../../testUtils/helpers/testFns.js';
 import {initTests} from '../../../../testUtils/testUtils.js';
 import {deleteCollaborationRequestCascadeEntry} from '../collaborationRequest.js';
+import {test, beforeAll, afterAll, describe} from 'vitest';
 import {
   GenerateResourceFn,
   GenerateTypeChildrenDefinition,

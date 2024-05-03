@@ -1,5 +1,6 @@
 import {add} from 'date-fns';
 import {AgentToken} from '../../../definitions/agentToken.js';
+import {test, beforeAll, afterAll, expect, describe} from 'vitest';
 import {
   kCurrentJWTTokenVersion,
   kFimidaraResourceType,

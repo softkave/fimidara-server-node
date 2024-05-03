@@ -1,4 +1,4 @@
-import {isBoolean, isNull} from 'lodash';
+import {isBoolean, isNull} from 'lodash-es';
 import {mergeData} from './fns.js';
 import {AnyFn} from './types.js';
 

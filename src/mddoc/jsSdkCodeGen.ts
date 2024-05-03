@@ -1,6 +1,6 @@
 import {execSync} from 'child_process';
 import * as fse from 'fs-extra';
-import {compact, forEach, last, nth, set, uniq, upperFirst} from 'lodash';
+import {compact, forEach, last, nth, set, uniq, upperFirst} from 'lodash-es';
 import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
 import {registerUtilsInjectables} from '../endpoints/contexts/injection/register.js';
 import {
@@ -47,8 +47,12 @@ class Doc {
     '// Reach out to @abayomi to suggest changes.\n';
   protected endpointsText = '';
   protected typesText = '';
-  protected docImports: Record<string, {importing: string[]; from: string}> = {};
-  protected docTypeImports: Record<string, {importing: string[]; from: string}> = {};
+  protected docImports: Record<string, {importing: string[]; from: string}> =
+    {};
+  protected docTypeImports: Record<
+    string,
+    {importing: string[]; from: string}
+  > = {};
   protected classes: Record<
     string,
     {entries: string[]; name: string; extendsName?: string}
@@ -208,7 +212,11 @@ function getDateType(item: FieldDateType) {
 }
 function getArrayType(doc: Doc, item: FieldArrayType<any>) {
   const ofType = item.assertGetType();
-  const typeString = getType(doc, ofType, /** asFetchResponseIfFieldBinary */ false);
+  const typeString = getType(
+    doc,
+    ofType,
+    /** asFetchResponseIfFieldBinary */ false
+  );
   return `Array<${typeString}>`;
 }
 function getOrCombinationType(doc: Doc, item: FieldOrCombinationType) {
@@ -217,7 +225,11 @@ function getOrCombinationType(doc: Doc, item: FieldOrCombinationType) {
     .map(next => getType(doc, next, /** asFetchResponseIfFieldBinary */ false))
     .join(' | ');
 }
-function getBinaryType(doc: Doc, item: FieldBinaryType, asFetchResponse: boolean) {
+function getBinaryType(
+  doc: Doc,
+  item: FieldBinaryType,
+  asFetchResponse: boolean
+) {
   if (asFetchResponse) {
     doc.appendTypeImport(['Readable'], 'stream');
     return 'Blob | Readable';
@@ -227,7 +239,11 @@ function getBinaryType(doc: Doc, item: FieldBinaryType, asFetchResponse: boolean
   }
 }
 
-function getType(doc: Doc, item: any, asFetchResponseIfFieldBinary: boolean): string {
+function getType(
+  doc: Doc,
+  item: any,
+  asFetchResponseIfFieldBinary: boolean
+): string {
   if (isMddocFieldString(item)) {
     return getStringType(doc, item);
   } else if (isMddocFieldNumber(item)) {
@@ -302,14 +318,15 @@ function generateObjectDefinition(
 
 function getTypesFromEndpoint(endpoint: HttpEndpointDefinitionType) {
   // Request body
-  const sdkRequestBodyRaw = endpoint.getSdkParamsBody() ?? endpoint.getRequestBody();
+  const sdkRequestBodyRaw =
+    endpoint.getSdkParamsBody() ?? endpoint.getRequestBody();
   const sdkRequestObject = isMddocFieldObject(sdkRequestBodyRaw)
     ? sdkRequestBodyRaw
     : isMddocMultipartFormdata(sdkRequestBodyRaw)
-    ? sdkRequestBodyRaw.assertGetItems()
-    : isMddocSdkParamsBody(sdkRequestBodyRaw)
-    ? sdkRequestBodyRaw.assertGetDef()
-    : undefined;
+      ? sdkRequestBodyRaw.assertGetItems()
+      : isMddocSdkParamsBody(sdkRequestBodyRaw)
+        ? sdkRequestBodyRaw.assertGetDef()
+        : undefined;
 
   // Success response body
   const successResponseBodyRaw = endpoint.getResponseBody();
@@ -356,7 +373,10 @@ function getTypesFromEndpoint(endpoint: HttpEndpointDefinitionType) {
   };
 }
 
-function generateTypesFromEndpoint(doc: Doc, endpoint: HttpEndpointDefinitionType) {
+function generateTypesFromEndpoint(
+  doc: Doc,
+  endpoint: HttpEndpointDefinitionType
+) {
   const {sdkRequestObject: requestBodyObject, successResponseBodyObject} =
     getTypesFromEndpoint(endpoint);
 
@@ -367,11 +387,18 @@ function generateTypesFromEndpoint(doc: Doc, endpoint: HttpEndpointDefinitionTyp
 
   // Success response body
   if (successResponseBodyObject) {
-    generateObjectDefinition(doc, successResponseBodyObject, /** asFetchResponse */ true);
+    generateObjectDefinition(
+      doc,
+      successResponseBodyObject,
+      /** asFetchResponse */ true
+    );
   }
 }
 
-function documentTypesFromEndpoint(doc: Doc, endpoint: HttpEndpointDefinitionType) {
+function documentTypesFromEndpoint(
+  doc: Doc,
+  endpoint: HttpEndpointDefinitionType
+) {
   generateTypesFromEndpoint(doc, endpoint);
 }
 
@@ -540,7 +567,11 @@ function generateEveryEndpointCode(
     }
   }
 
-  function docBranch(parentName: string, ownName: string, branch: Record<string, any>) {
+  function docBranch(
+    parentName: string,
+    ownName: string,
+    branch: Record<string, any>
+  ) {
     if (!isObjectEmpty(branch)) {
       forEach(branch, (b1, bName) => {
         docBranch(ownName, bName, b1);
@@ -586,11 +617,18 @@ function uniqEnpoints(endpoints: Array<HttpEndpointDefinitionType>) {
   });
 }
 
-async function jsSdkCodeGen(endpoints: AppExportedHttpEndpoints, filenamePrefix = '') {
+async function jsSdkCodeGen(
+  endpoints: AppExportedHttpEndpoints,
+  filenamePrefix = ''
+) {
   const endpointsDir = './sdk/js-sdk/src';
   const typesFilename = `${filenamePrefix}Types`;
-  const typesFilepath = path.normalize(endpointsDir + '/' + typesFilename + '.ts');
-  const codesFilepath = path.normalize(endpointsDir + `/${filenamePrefix}Endpoints.ts`);
+  const typesFilepath = path.normalize(
+    endpointsDir + '/' + typesFilename + '.ts'
+  );
+  const codesFilepath = path.normalize(
+    endpointsDir + `/${filenamePrefix}Endpoints.ts`
+  );
   const typesDoc = new Doc('./' + typesFilename);
   const codesDoc = new Doc('./' + typesFilename);
 

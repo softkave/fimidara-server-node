@@ -8,6 +8,7 @@ import {generateAndInsertAppListForTest} from '../../testUtils/generate/app.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {initTests} from '../../testUtils/testUtils.js';
 import {FimidaraApp} from '../FimidaraApp.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 
 beforeAll(async () => {
   await initTests();

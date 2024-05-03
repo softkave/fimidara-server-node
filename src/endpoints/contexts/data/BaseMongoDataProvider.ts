@@ -1,5 +1,11 @@
-import {isNumber} from 'lodash';
-import {AnyObject, ClientSession, Model, ProjectionType, QueryOptions} from 'mongoose';
+import {isNumber} from 'lodash-es';
+import {
+  AnyObject,
+  ClientSession,
+  Model,
+  ProjectionType,
+  QueryOptions,
+} from 'mongoose';
 import {
   BaseDataProvider,
   BulkOpItem,
@@ -40,7 +46,9 @@ function getMongoQueryOptionsForMany(
   const page = getPage(params?.page);
   const pageSize = getPageSize(params?.pageSize, page);
   const skip =
-    isNumber(page) && isNumber(pageSize) ? Math.max(page, 0) * pageSize : undefined;
+    isNumber(page) && isNumber(pageSize)
+      ? Math.max(page, 0) * pageSize
+      : undefined;
   return {
     ...getMongoQueryOptionsForOp(params),
     skip,
@@ -62,12 +70,18 @@ export abstract class BaseMongoDataProvider<
     this.model = model;
   }
 
-  insertItem = async (item: T, otherProps?: DataProviderOpParams | undefined) => {
+  insertItem = async (
+    item: T,
+    otherProps?: DataProviderOpParams | undefined
+  ) => {
     await this.insertList([item], otherProps);
     return item;
   };
 
-  insertList = async (items: T[], otherProps?: DataProviderOpParams | undefined) => {
+  insertList = async (
+    items: T[],
+    otherProps?: DataProviderOpParams | undefined
+  ) => {
     await this.model.insertMany(items, getMongoQueryOptionsForOp(otherProps));
   };
 
@@ -77,7 +91,11 @@ export abstract class BaseMongoDataProvider<
   ) => {
     const mongoQuery = dataQueryToMongoQuery(query);
     const items = await this.model
-      .find(mongoQuery, otherProps?.projection, getMongoQueryOptionsForMany(otherProps))
+      .find(
+        mongoQuery,
+        otherProps?.projection,
+        getMongoQueryOptionsForMany(otherProps)
+      )
       .lean()
       .exec();
     return items as unknown as T[];
@@ -89,7 +107,10 @@ export abstract class BaseMongoDataProvider<
   ) => {
     const opts = getMongoQueryOptionsForOne(otherProps);
     const mQuery = dataQueryToMongoQuery(query);
-    const item = await this.model.findOne(mQuery, opts.projection, opts).lean().exec();
+    const item = await this.model
+      .findOne(mQuery, opts.projection, opts)
+      .lean()
+      .exec();
     return item as unknown as T | null;
   };
 
@@ -158,7 +179,10 @@ export abstract class BaseMongoDataProvider<
     query: ExtendedQueryType,
     otherProps?: DataProviderOpParams | undefined
   ) => {
-    return !!(await this.getOneByQuery(query, {...otherProps, projection: '_id'}));
+    return !!(await this.getOneByQuery(query, {
+      ...otherProps,
+      projection: '_id',
+    }));
   };
 
   countByQuery = async <ExtendedQueryType extends TQuery = TQuery>(
@@ -166,7 +190,10 @@ export abstract class BaseMongoDataProvider<
     otherProps?: DataProviderOpParams | undefined
   ) => {
     return await this.model
-      .countDocuments(dataQueryToMongoQuery(query), getMongoQueryOptionsForOp(otherProps))
+      .countDocuments(
+        dataQueryToMongoQuery(query),
+        getMongoQueryOptionsForOp(otherProps)
+      )
       .exec();
   };
 
@@ -175,7 +202,10 @@ export abstract class BaseMongoDataProvider<
     otherProps?: DataProviderOpParams | undefined
   ) => {
     await this.model
-      .deleteMany(dataQueryToMongoQuery(query), getMongoQueryOptionsForOp(otherProps))
+      .deleteMany(
+        dataQueryToMongoQuery(query),
+        getMongoQueryOptionsForOp(otherProps)
+      )
       .exec();
   };
 
@@ -184,7 +214,10 @@ export abstract class BaseMongoDataProvider<
     otherProps?: DataProviderOpParams | undefined
   ) => {
     await this.model
-      .deleteOne(dataQueryToMongoQuery(query), getMongoQueryOptionsForOp(otherProps))
+      .deleteOne(
+        dataQueryToMongoQuery(query),
+        getMongoQueryOptionsForOp(otherProps)
+      )
       .exec();
   };
 
@@ -216,7 +249,10 @@ export abstract class BaseMongoDataProvider<
 
         case BulkOpType.UpdateMany:
           mongoOp = {
-            updateMany: {filter: dataQueryToMongoQuery(op.query), update: op.update},
+            updateMany: {
+              filter: dataQueryToMongoQuery(op.query),
+              update: op.update,
+            },
           };
           break;
 

@@ -1,5 +1,9 @@
-import {first} from 'lodash';
-import {CombinationToken, combineTokens} from '../../../../utils/combineTokens.js';
+import {first} from 'lodash-es';
+import {describe, expect, test} from 'vitest';
+import {
+  CombinationToken,
+  combineTokens,
+} from '../../../../utils/combineTokens.js';
 import {DataQuery} from '../types.js';
 import {
   BaseMongoTestData,
@@ -76,7 +80,10 @@ describe('BaseMongoDataProvider, test utils', () => {
           obj: {
             str: kBaseMongoTestConsts.str01,
             num: kBaseMongoTestConsts.num01,
-            arrPrimitive: [kBaseMongoTestConsts.str01, kBaseMongoTestConsts.str01],
+            arrPrimitive: [
+              kBaseMongoTestConsts.str01,
+              kBaseMongoTestConsts.str01,
+            ],
           },
         },
         {
@@ -206,7 +213,10 @@ describe('BaseMongoDataProvider, test utils', () => {
                   str: kBaseMongoTestConsts.str01,
                   num: kBaseMongoTestConsts.num01,
                   arrPrimitive: {
-                    $all: [kBaseMongoTestConsts.str01, kBaseMongoTestConsts.str01],
+                    $all: [
+                      kBaseMongoTestConsts.str01,
+                      kBaseMongoTestConsts.str01,
+                    ],
                   },
                 },
               },

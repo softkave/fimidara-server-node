@@ -1,4 +1,4 @@
-import {isObject} from 'lodash';
+import {isObject} from 'lodash-es';
 import {PermissionItem} from '../../definitions/permissionItem.js';
 import {kAppMessages} from '../../utils/messages.js';
 import OperationError, {
@@ -13,7 +13,10 @@ export class EmailAddressNotAvailableError extends OperationError {
   statusCode = kEndpointConstants.httpStatusCode.conflict;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Email address is not available');
+    this.message = getErrorMessageFromParams(
+      props,
+      'Email address is not available'
+    );
   }
 }
 
@@ -45,7 +48,10 @@ export class InvalidEmailOrPasswordError extends OperationError {
   statusCode = kEndpointConstants.httpStatusCode.unauthorized;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Invalid email or password');
+    this.message = getErrorMessageFromParams(
+      props,
+      'Invalid email or password'
+    );
   }
 }
 
@@ -70,7 +76,10 @@ export class EmailAddressVerifiedError extends OperationError {
   statusCode = kEndpointConstants.httpStatusCode.conflict;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Email address already verified');
+    this.message = getErrorMessageFromParams(
+      props,
+      'Email address already verified'
+    );
   }
 }
 
@@ -105,6 +114,9 @@ export class ChangePasswordError extends OperationError {
   action = ServerRecommendedActionsMap.RequestChangePassword;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, kAppMessages.user.changePassword());
+    this.message = getErrorMessageFromParams(
+      props,
+      kAppMessages.user.changePassword()
+    );
   }
 }

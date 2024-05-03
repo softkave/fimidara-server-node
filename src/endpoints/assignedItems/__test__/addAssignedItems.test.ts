@@ -3,6 +3,7 @@ import {AssignPermissionGroupInput} from '../../../definitions/permissionGroups.
 import {extractResourceIdList, makeKey} from '../../../utils/fns.js';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   assignPgListToIdList,
   toAssignedPgListInput,

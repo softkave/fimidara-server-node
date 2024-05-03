@@ -3,6 +3,7 @@ import {Job, kJobStatus, kJobType} from '../../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
 import {getNewId, getNewIdForResource} from '../../../../utils/resource.js';
 import {FimidaraApp} from '../../../app/FimidaraApp.js';
+import {test, beforeAll, afterEach, afterAll, expect, describe} from 'vitest';
 import {
   kSemanticModels,
   kUtilsInjectables,

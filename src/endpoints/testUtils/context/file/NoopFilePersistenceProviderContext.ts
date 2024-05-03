@@ -44,7 +44,9 @@ export default class NoopFilePersistenceProviderContext
     return undefined;
   };
 
-  describeFolder = async (): Promise<PersistedFolderDescription | undefined> => {
+  describeFolder = async (): Promise<
+    PersistedFolderDescription | undefined
+  > => {
     return undefined;
   };
 

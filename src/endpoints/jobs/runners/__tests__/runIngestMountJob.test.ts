@@ -3,6 +3,7 @@ import {kFileBackendType} from '../../../../definitions/fileBackend.js';
 import {IngestFolderpathJobParams, kJobType} from '../../../../definitions/job.js';
 import {kSystemSessionAgent} from '../../../../utils/agent.js';
 import {getNewId} from '../../../../utils/resource.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   kSemanticModels,
   kUtilsInjectables,

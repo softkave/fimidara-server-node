@@ -1,6 +1,10 @@
-import {isUndefined} from 'lodash';
+import {isUndefined} from 'lodash-es';
 import {AppShardId} from '../../../definitions/app.js';
-import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job.js';
+import {
+  DeleteResourceJobParams,
+  Job,
+  kJobType,
+} from '../../../definitions/job.js';
 import {
   PermissionItem,
   kFimidaraPermissionActionsMap,
@@ -19,7 +23,10 @@ import {
   paginatedFetch,
 } from '../../../utils/paginatedFetch.js';
 import {DataQuery, kIncludeInProjection} from '../../contexts/data/types.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {DeletePermissionItemInput} from '../../permissionItems/deleteItems/types.js';
 import {
   PermissionItemTargets,
@@ -82,12 +89,14 @@ const getPermissionItemsByQuery: PaginatedFetchGetFn<
 > = async props => {
   const {args, page, pageSize} = props;
   return await kSemanticModels.utils().withTxn(async opts => {
-    const items = await kSemanticModels.permissionItem().getManyByQuery(args.query, {
-      page,
-      pageSize,
-      projection: {resourceId: kIncludeInProjection},
-      ...opts,
-    });
+    const items = await kSemanticModels
+      .permissionItem()
+      .getManyByQuery(args.query, {
+        page,
+        pageSize,
+        projection: {resourceId: kIncludeInProjection},
+        ...opts,
+      });
     await kSemanticModels
       .permissionItem()
       .updateManyByQuery(
@@ -124,7 +133,9 @@ const processPermissionItems: PaginatedFetchProcessFn<
   );
 };
 
-export async function runDeletePermissionItemsJob(job: Job<DeletePermissionItemInput>) {
+export async function runDeletePermissionItemsJob(
+  job: Job<DeletePermissionItemInput>
+) {
   const workspaceId = job.workspaceId;
   const item: DeletePermissionItemInput = job.params;
 
@@ -133,7 +144,9 @@ export async function runDeletePermissionItemsJob(job: Job<DeletePermissionItemI
 
   const [workspace, agent] = await Promise.all([
     kSemanticModels.workspace().getOneById(workspaceId),
-    kUtilsInjectables.session().getAgentByAgentTokenId(job.createdBy.agentTokenId),
+    kUtilsInjectables
+      .session()
+      .getAgentByAgentTokenId(job.createdBy.agentTokenId),
   ]);
   appAssert(workspace, 'workspace not found');
 
@@ -148,7 +161,13 @@ export async function runDeletePermissionItemsJob(job: Job<DeletePermissionItemI
 
   if (query) {
     await paginatedFetch<FetchArgs, FetchResult>({
-      args: {workspaceId, query, agent, jobId: job.resourceId, shard: job.shard},
+      args: {
+        workspaceId,
+        query,
+        agent,
+        jobId: job.resourceId,
+        shard: job.shard,
+      },
       getFn: getPermissionItemsByQuery,
       processFn: processPermissionItems,
     });

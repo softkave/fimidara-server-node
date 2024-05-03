@@ -1,6 +1,11 @@
 import {faker} from '@faker-js/faker';
-import {flattenDeep} from 'lodash';
-import {kJobPresetPriority, kJobStatus, kJobType} from '../../../definitions/job.js';
+import {flattenDeep} from 'lodash-es';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {
+  kJobPresetPriority,
+  kJobStatus,
+  kJobType,
+} from '../../../definitions/job.js';
 import {TimeoutError} from '../../../utils/errors.js';
 import {extractResourceIdList, waitTimeout} from '../../../utils/fns.js';
 import {getNewId} from '../../../utils/resource.js';
@@ -43,7 +48,10 @@ describe('waitForJob', () => {
         kSemanticModels.job().updateOneById(
           job.resourceId,
           {
-            status: faker.helpers.arrayElement([kJobStatus.completed, kJobStatus.failed]),
+            status: faker.helpers.arrayElement([
+              kJobStatus.completed,
+              kJobStatus.failed,
+            ]),
           },
           opts
         ),
@@ -138,7 +146,11 @@ describe('waitForJob', () => {
 
     await expectErrorThrown(
       () =>
-        waitForJob(job.resourceId, /** bump priority */ false, /** timeout, 10 ms */ 10),
+        waitForJob(
+          job.resourceId,
+          /** bump priority */ false,
+          /** timeout, 10 ms */ 10
+        ),
       [TimeoutError.name]
     );
   });

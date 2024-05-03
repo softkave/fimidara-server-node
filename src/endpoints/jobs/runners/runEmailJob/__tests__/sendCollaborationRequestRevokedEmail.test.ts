@@ -12,6 +12,7 @@ import {generateAndInsertWorkspaceListForTest} from '../../../../testUtils/gener
 import {completeTests} from '../../../../testUtils/helpers/testFns.js';
 import {initTests} from '../../../../testUtils/testUtils.js';
 import {sendCollaborationRequestRevokedEmail} from '../sendCollaborationRequestRevokedEmail.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 
 beforeAll(async () => {
   await initTests();

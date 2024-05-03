@@ -1,5 +1,6 @@
 import assert from 'assert';
-import {first} from 'lodash';
+import {first} from 'lodash-es';
+import {afterAll, beforeAll, describe, expect} from 'vitest';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {File, FileMatcher} from '../../../definitions/file.js';
 import {waitTimeout} from '../../../utils/fns.js';
@@ -57,9 +58,10 @@ describe('getPresignedPathsForFiles', () => {
       files01.concat(files02).map(f => ({fileId: f.resourceId}))
     );
 
-    const matchers: FileMatcher[] = toInterspersedMatchers(files01, w1.rootname).concat(
-      toInterspersedMatchers(files02, w2.rootname)
-    );
+    const matchers: FileMatcher[] = toInterspersedMatchers(
+      files01,
+      w1.rootname
+    ).concat(toInterspersedMatchers(files02, w2.rootname));
     const instData =
       RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
@@ -99,9 +101,10 @@ describe('getPresignedPathsForFiles', () => {
       ),
     ]);
 
-    const matchers: FileMatcher[] = toInterspersedMatchers(files01, w1.rootname).concat(
-      toInterspersedMatchers(files02, w2.rootname)
-    );
+    const matchers: FileMatcher[] = toInterspersedMatchers(
+      files01,
+      w1.rootname
+    ).concat(toInterspersedMatchers(files02, w2.rootname));
     const instData =
       RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
@@ -207,22 +210,24 @@ describe('getPresignedPathsForFiles', () => {
         parentId: null,
       }),
     ]);
-    const [paths01, pathsWithDuration, pathsWithUsageCount] = await Promise.all([
-      issuePaths(
-        userToken,
-        files01.map(f => ({fileId: f.resourceId}))
-      ),
-      issuePaths(
-        userToken,
-        files02.map(f => ({fileId: f.resourceId})),
-        {duration: 1}
-      ),
-      issuePaths(
-        userToken,
-        files03.map(f => ({fileId: f.resourceId})),
-        {usageCount: 1}
-      ),
-    ]);
+    const [paths01, pathsWithDuration, pathsWithUsageCount] = await Promise.all(
+      [
+        issuePaths(
+          userToken,
+          files01.map(f => ({fileId: f.resourceId}))
+        ),
+        issuePaths(
+          userToken,
+          files02.map(f => ({fileId: f.resourceId})),
+          {duration: 1}
+        ),
+        issuePaths(
+          userToken,
+          files03.map(f => ({fileId: f.resourceId})),
+          {usageCount: 1}
+        ),
+      ]
+    );
 
     // Spend the usage count. Wrapped, expected to throw because the file does
     // not exist yet
@@ -245,8 +250,12 @@ describe('getPresignedPathsForFiles', () => {
 
     const returnedPaths = result.paths.map(p => p.path);
     expect(returnedPaths).toEqual(expect.arrayContaining(paths01));
-    expect(returnedPaths).toEqual(expect.not.arrayContaining(pathsWithDuration));
-    expect(returnedPaths).toEqual(expect.not.arrayContaining(pathsWithUsageCount));
+    expect(returnedPaths).toEqual(
+      expect.not.arrayContaining(pathsWithDuration)
+    );
+    expect(returnedPaths).toEqual(
+      expect.not.arrayContaining(pathsWithUsageCount)
+    );
   });
 });
 
@@ -258,10 +267,13 @@ async function issuePaths(
   const result = await Promise.all(
     matchers.map(async matcher => {
       const result = await issuePresignedPath(
-        RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
-          ...input,
-          ...matcher,
-        })
+        RequestData.fromExpressRequest(
+          mockExpressRequestWithAgentToken(userToken),
+          {
+            ...input,
+            ...matcher,
+          }
+        )
       );
       assertEndpointResultOk(result);
       return result;
@@ -272,7 +284,9 @@ async function issuePaths(
 
 function toInterspersedMatchers(files: File[], rootname: string) {
   return files.map((f, i) =>
-    i % 2 === 0 ? {fileId: f.resourceId} : {filepath: stringifyFilenamepath(f, rootname)}
+    i % 2 === 0
+      ? {fileId: f.resourceId}
+      : {filepath: stringifyFilenamepath(f, rootname)}
   );
 }
 

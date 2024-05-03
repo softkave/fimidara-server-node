@@ -1,4 +1,4 @@
-import {isObject} from 'lodash';
+import {isObject} from 'lodash-es';
 import {FimidaraWorkerMessage} from './types.js';
 
 export function isFimidaraWorkerMessage(

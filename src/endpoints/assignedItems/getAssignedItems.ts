@@ -1,5 +1,8 @@
-import {defaultTo} from 'lodash';
-import {AssignedItem, ResourceWithTags} from '../../definitions/assignedItem.js';
+import {defaultTo} from 'lodash-es';
+import {
+  AssignedItem,
+  ResourceWithTags,
+} from '../../definitions/assignedItem.js';
 import {
   FimidaraResourceType,
   Resource,
@@ -102,9 +105,8 @@ export async function populateAssignedItems<
   for (const type in sortedItems) {
     switch (type) {
       case kFimidaraResourceType.Tag:
-        cast<ResourceWithTags<T>>(updatedResource).tags = assignedItemsToAssignedTagList(
-          sortedItems[type]
-        );
+        cast<ResourceWithTags<T>>(updatedResource).tags =
+          assignedItemsToAssignedTagList(sortedItems[type]);
         break;
     }
   }
@@ -144,7 +146,9 @@ export async function populateResourceListWithAssignedTags<
   labels: Partial<Record<FimidaraResourceType, keyof Omit<R, keyof T>>> = {}
 ) {
   return await Promise.all(
-    resources.map(resource => populateAssignedTags<T, R>(workspaceId, resource, labels))
+    resources.map(resource =>
+      populateAssignedTags<T, R>(workspaceId, resource, labels)
+    )
   );
 }
 
@@ -178,10 +182,17 @@ export async function populateUserWorkspaces<T extends User>(
   const updatedResource = resource as T & {
     workspaces: WorkspaceResource[];
   };
-  updatedResource.workspaces = await getUserWorkspaces(resource.resourceId, opts);
+  updatedResource.workspaces = await getUserWorkspaces(
+    resource.resourceId,
+    opts
+  );
   return updatedResource;
 }
 
-export async function populateUserListWithWorkspaces<T extends User>(resources: T[]) {
-  return await Promise.all(resources.map(resource => populateUserWorkspaces(resource)));
+export async function populateUserListWithWorkspaces<T extends User>(
+  resources: T[]
+) {
+  return await Promise.all(
+    resources.map(resource => populateUserWorkspaces(resource))
+  );
 }

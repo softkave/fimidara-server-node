@@ -1,4 +1,4 @@
-import {defaultTo, omit} from 'lodash';
+import {defaultTo, omit} from 'lodash-es';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {
   Agent,
@@ -29,7 +29,9 @@ export const INTERNAL_createAgentToken = async (
   }
 
   if (token) {
-    throw kReuseableErrors.agentToken.withProvidedIdExists(data.providedResourceId);
+    throw kReuseableErrors.agentToken.withProvidedIdExists(
+      data.providedResourceId
+    );
   }
 
   token = newWorkspaceResource<AgentToken>(
@@ -46,7 +48,8 @@ export const INTERNAL_createAgentToken = async (
     }
   );
   await Promise.all([
-    data.name && checkAgentTokenNameExists(workspace.resourceId, data.name, opts),
+    data.name &&
+      checkAgentTokenNameExists(workspace.resourceId, data.name, opts),
   ]);
   await kSemanticModels.agentToken().insertItem(token, opts);
   return token;

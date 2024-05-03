@@ -1,9 +1,13 @@
-import {first, forEach, isString} from 'lodash';
+import {first, forEach, isString} from 'lodash-es';
 import {
   FimidaraPermissionAction,
   kFimidaraPermissionActionsMap,
 } from '../../../definitions/permissionItem.js';
-import {Resource, ResourceWrapper, SessionAgent} from '../../../definitions/system.js';
+import {
+  Resource,
+  ResourceWrapper,
+  SessionAgent,
+} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {convertToArray} from '../../../utils/fns.js';
@@ -46,7 +50,8 @@ async function getArtifacts(
   data.items.forEach(item => {
     if (item.entityId)
       inputEntities = inputEntities.concat(convertToArray(item.entityId));
-    if (item.target) inputTargets = inputTargets.concat(convertToArray(item.target));
+    if (item.target)
+      inputTargets = inputTargets.concat(convertToArray(item.target));
   });
 
   appAssert(
@@ -67,7 +72,10 @@ async function getArtifacts(
 }
 
 /** Index artifacts for quick retrieval. */
-function indexArtifacts(workspace: Workspace, entities: ResourceWrapper<Resource>[]) {
+function indexArtifacts(
+  workspace: Workspace,
+  entities: ResourceWrapper<Resource>[]
+) {
   const entitiesMapById = indexArray(entities, {path: 'resourceId'});
   const getEntities = (inputEntity: string | string[]) => {
     const eMap: Record<string, ResourceWrapper> = {};

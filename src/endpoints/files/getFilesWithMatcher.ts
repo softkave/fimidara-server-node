@@ -1,4 +1,4 @@
-import {isNumber} from 'lodash';
+import {isNumber} from 'lodash-es';
 import {File, FileMatcher} from '../../definitions/file.js';
 import {
   FimidaraPermissionAction,
@@ -56,7 +56,9 @@ export async function checkAndIncrementPresignedPathUsageCount(
 }
 
 export function extractPresignedPathIdFromFilepath(filepath: string) {
-  return filepath.startsWith(kFolderConstants.separator) ? filepath.slice(1) : filepath;
+  return filepath.startsWith(kFolderConstants.separator)
+    ? filepath.slice(1)
+    : filepath;
 }
 
 export function isPresignedPath(filepath: string) {
@@ -88,10 +90,14 @@ export async function getFileByPresignedPath(props: {
     throw kReuseableErrors.file.notFound();
   }
 
-  appAssert(presignedPath.actions.includes(action), new PermissionDeniedError());
+  appAssert(
+    presignedPath.actions.includes(action),
+    new PermissionDeniedError()
+  );
 
   if (incrementUsageCount) {
-    presignedPath = await checkAndIncrementPresignedPathUsageCount(presignedPath);
+    presignedPath =
+      await checkAndIncrementPresignedPathUsageCount(presignedPath);
   }
 
   const file = await kSemanticModels.file().getOneByNamepath(

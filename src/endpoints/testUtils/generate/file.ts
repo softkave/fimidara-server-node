@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {isBoolean, isEqual, isString, isUndefined} from 'lodash';
+import {isBoolean, isEqual, isString, isUndefined} from 'lodash-es';
 import {File} from '../../../definitions/file.js';
 import {PresignedPath} from '../../../definitions/presignedPath.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
@@ -51,8 +51,8 @@ export function generateTestFileName(
         ? ext === true
           ? faker.system.fileExt()
           : isString(ext)
-          ? ext
-          : undefined
+            ? ext
+            : undefined
         : undefined
     );
   }
@@ -74,7 +74,9 @@ export function generateTestFilepath(
     length: length - 1,
     rootname: undefined,
   }).concat(
-    length - (length - 1) > 0 ? generateTestFileName({...props, rootname: undefined}) : []
+    length - (length - 1) > 0
+      ? generateTestFileName({...props, rootname: undefined})
+      : []
   );
 
   if (props.rootname) {
@@ -91,7 +93,9 @@ export function generateTestFilepathString(
   return pathJoin(generateTestFilepath(props));
 }
 
-export function generateTestFile(extra: Partial<File> & {parentId?: string | null} = {}) {
+export function generateTestFile(
+  extra: Partial<File> & {parentId?: string | null} = {}
+) {
   const {parentId = null} = extra;
   const id = getNewIdForResource(kFimidaraResourceType.File);
   const name = generateTestFileName();
@@ -109,8 +113,8 @@ export function generateTestFile(extra: Partial<File> & {parentId?: string | nul
     idPath: extra.idPath
       ? extra.idPath.concat(id)
       : extra.parentId
-      ? [extra.parentId, id]
-      : [id],
+        ? [extra.parentId, id]
+        : [id],
     namepath: extra.namepath
       ? extra.namepath.concat(nameinfo.filenameExcludingExt)
       : [nameinfo.filenameExcludingExt],

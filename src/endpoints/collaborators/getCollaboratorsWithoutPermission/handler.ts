@@ -5,7 +5,10 @@ import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
 import {DataQuery} from '../../contexts/data/types.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {PaginationQuery} from '../../types.js';
 import {checkWorkspaceExists} from '../../workspaces/utils.js';
 import {getWorkspaceCollaboratorsQuery} from '../getWorkspaceCollaborators/utils.js';
@@ -14,7 +17,10 @@ import {getCollaboratorsWithoutPermissionJoiSchema} from './validation.js';
 
 const getCollaboratorsWithoutPermission: GetCollaboratorsWithoutPermissionEndpoint =
   async instData => {
-    const data = validate(instData.data, getCollaboratorsWithoutPermissionJoiSchema);
+    const data = validate(
+      instData.data,
+      getCollaboratorsWithoutPermissionJoiSchema
+    );
     const agent = await kUtilsInjectables
       .session()
       .getAgentFromReq(
@@ -24,7 +30,10 @@ const getCollaboratorsWithoutPermission: GetCollaboratorsWithoutPermissionEndpoi
       );
     const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
     const workspace = await checkWorkspaceExists(workspaceId);
-    const assignedItemsQuery = await getWorkspaceCollaboratorsQuery(agent, workspace);
+    const assignedItemsQuery = await getWorkspaceCollaboratorsQuery(
+      agent,
+      workspace
+    );
     const collaboratorIdList =
       await getPagedCollaboratorsWithoutPermission(assignedItemsQuery);
 
@@ -56,9 +65,12 @@ export async function getPagedCollaboratorsWithoutPermission(
       },
       page
     );
-  const assignedItems_permissionGroupsMap = indexArray(assignedItems_permissionGroups, {
-    path: 'assigneeId',
-  });
+  const assignedItems_permissionGroupsMap = indexArray(
+    assignedItems_permissionGroups,
+    {
+      path: 'assigneeId',
+    }
+  );
   collaboratorIdList = collaboratorIdList.filter(
     nextId => !assignedItems_permissionGroupsMap[nextId]
   );
@@ -66,11 +78,15 @@ export async function getPagedCollaboratorsWithoutPermission(
   // TODO: that they have permission groups do not mean they have permission
 
   // Check that collaborators do not have permission items assigned
-  const permissionItems = await kSemanticModels.permissionItem().getManyByQuery({
-    entityId: {$in: collaboratorIdList},
-  });
+  const permissionItems = await kSemanticModels
+    .permissionItem()
+    .getManyByQuery({
+      entityId: {$in: collaboratorIdList},
+    });
   const permissionItemsMap = indexArray(permissionItems, {path: 'entityId'});
-  collaboratorIdList = collaboratorIdList.filter(nextId => !permissionItemsMap[nextId]);
+  collaboratorIdList = collaboratorIdList.filter(
+    nextId => !permissionItemsMap[nextId]
+  );
 
   return collaboratorIdList;
 }

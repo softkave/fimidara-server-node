@@ -1,4 +1,4 @@
-import {defaultTo, isArray, keyBy} from 'lodash';
+import {defaultTo, isArray, keyBy} from 'lodash-es';
 import {AppShardId, kAppPresetShards} from '../../definitions/app.js';
 import {
   Job,
@@ -60,7 +60,8 @@ export async function queueJobs<
   const idempotencyTokens: string[] = [];
   const newJobs = jobsInput.map(input => {
     const idempotencyToken =
-      input.idempotencyToken || JSON.stringify(input.params) + (parentJobId || '');
+      input.idempotencyToken ||
+      JSON.stringify(input.params) + (parentJobId || '');
     const status: JobStatusHistory = {
       status: kJobStatus.pending,
       statusLastUpdatedAt: getTimestamp(),
@@ -109,6 +110,8 @@ export async function queueJobs<
     });
 
     await kSemanticModels.job().insertItem(uniqueJobs, opts);
-    return (jobsToReturn === 'all' ? jobs : uniqueJobs) as Array<Job<TParams, TMeta>>;
+    return (jobsToReturn === 'all' ? jobs : uniqueJobs) as Array<
+      Job<TParams, TMeta>
+    >;
   }, reuseTxn);
 }

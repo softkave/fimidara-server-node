@@ -5,6 +5,7 @@ import {initTests} from '../../endpoints/testUtils/testUtils.js';
 import {PromiseStore} from '../PromiseStore.js';
 import {waitTimeout} from '../fns.js';
 import {getDeferredPromise} from '../promiseFns.js';
+import {test, beforeAll, afterAll, describe, expect, vi} from 'vitest';
 
 beforeAll(async () => {
   await initTests();
@@ -38,7 +39,7 @@ describe('PromiseStore', () => {
     const dPromise01 = getDeferredPromise();
     const dPromise02 = getDeferredPromise();
     const dPromise03 = getDeferredPromise();
-    const thenFn = jest.fn();
+    const thenFn = vi.fn();
     dPromise01.promise.then(thenFn);
     dPromise02.promise.then(thenFn);
     dPromise03.promise.then(thenFn);

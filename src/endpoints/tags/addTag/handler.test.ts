@@ -1,5 +1,6 @@
 import {insertTagForTest} from '../../testUtils/helpers/tag.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, describe} from 'vitest';
 import {
   initTests,
   insertUserForTest,

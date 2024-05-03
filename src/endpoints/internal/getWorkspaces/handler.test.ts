@@ -6,6 +6,7 @@ import RequestData from '../../RequestData.js';
 import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generate/workspace.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,

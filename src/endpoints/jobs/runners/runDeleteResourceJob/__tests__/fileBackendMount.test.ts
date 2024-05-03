@@ -1,4 +1,5 @@
-import {flatten} from 'lodash';
+import {flatten} from 'lodash-es';
+import {afterAll, beforeAll, describe, test} from 'vitest';
 import {FileBackendMount} from '../../../../../definitions/fileBackend.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
 import {
@@ -30,7 +31,10 @@ const fileBackendMountGenerateTypeChildren: GenerateTypeChildrenDefinition<FileB
   {
     ...noopGenerateTypeChildren,
     [kFimidaraResourceType.PermissionItem]: generatePermissionItemsAsChildren,
-    [kFimidaraResourceType.ResolvedMountEntry]: async ({resource, workspaceId}) =>
+    [kFimidaraResourceType.ResolvedMountEntry]: async ({
+      resource,
+      workspaceId,
+    }) =>
       flatten(
         await Promise.all([
           generateAndInsertResolvedMountEntryListForTest(2, {
@@ -41,10 +45,15 @@ const fileBackendMountGenerateTypeChildren: GenerateTypeChildrenDefinition<FileB
       ),
   };
 
-const genResourceFn: GenerateResourceFn<FileBackendMount> = async ({workspaceId}) => {
-  const [fileBackendMount] = await generateAndInsertFileBackendMountListForTest(1, {
-    workspaceId,
-  });
+const genResourceFn: GenerateResourceFn<FileBackendMount> = async ({
+  workspaceId,
+}) => {
+  const [fileBackendMount] = await generateAndInsertFileBackendMountListForTest(
+    1,
+    {
+      workspaceId,
+    }
+  );
   return fileBackendMount;
 };
 

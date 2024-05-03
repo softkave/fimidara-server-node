@@ -4,6 +4,7 @@ import {streamToBuffer} from '../../../utils/fns.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils.js';
 import {stringifyFilenamepath} from '../../files/utils.js';
+import {expect} from 'vitest';
 
 export async function expectFileBodyEqual(
   body: Buffer | Readable,

@@ -1,6 +1,6 @@
 import busboy from 'connect-busboy';
 import {Request, Response} from 'express';
-import {first, isString, last} from 'lodash';
+import {first, isString, last} from 'lodash-es';
 import {Readable} from 'stream';
 import {kFimidaraResourceType} from '../../definitions/system.js';
 import {appAssert} from '../../utils/assertion.js';
@@ -116,15 +116,24 @@ async function extractUploadFileParamsFromReq(
 ): Promise<UploadFileEndpointParams> {
   let waitTimeoutHandle: NodeJS.Timeout | undefined = undefined;
   const contentEncoding = req.headers['content-encoding'];
-  const description = req.headers[kFileConstants.headers['x-fimidara-file-description']];
-  const mimeType = req.headers[kFileConstants.headers['x-fimidara-file-mimetype']];
-  appAssert(req.busboy, new InvalidRequestError('Invalid multipart/formdata request'));
+  const description =
+    req.headers[kFileConstants.headers['x-fimidara-file-description']];
+  const mimeType =
+    req.headers[kFileConstants.headers['x-fimidara-file-mimetype']];
+  appAssert(
+    req.busboy,
+    new InvalidRequestError('Invalid multipart/formdata request')
+  );
 
   return new Promise((resolve, reject) => {
     // Wait for data stream or end if timeout exceeded. This is to prevent
     // waiting forever, for whatever reason if stream event is not fired.
     waitTimeoutHandle = setTimeout(() => {
-      reject(new Error(`Upload file wait timeout ${kFileStreamWaitTimeoutMS} exceeded`));
+      reject(
+        new Error(
+          `Upload file wait timeout ${kFileStreamWaitTimeoutMS} exceeded`
+        )
+      );
     }, kFileStreamWaitTimeoutMS);
 
     req.busboy.on('error', (error): void => {
@@ -144,7 +153,9 @@ async function extractUploadFileParamsFromReq(
         data: stream,
         encoding: info.encoding ?? contentEncoding,
         mimetype: isString(mimeType) && mimeType ? mimeType : info.mimeType,
-        description: description ? first(convertToArray(description)) : undefined,
+        description: description
+          ? first(convertToArray(description))
+          : undefined,
       });
     });
 
@@ -165,7 +176,9 @@ async function extractUploadFileParamsFromReq(
         data: Readable.from(value),
         encoding: info.encoding ?? contentEncoding,
         mimetype: isString(mimeType) && mimeType ? mimeType : info.mimeType,
-        description: description ? first(convertToArray(description)) : undefined,
+        description: description
+          ? first(convertToArray(description))
+          : undefined,
       });
     });
 

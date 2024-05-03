@@ -12,6 +12,7 @@ import {stringifyFoldernamepath} from '../../folders/utils.js';
 import {generateAndInsertTestFiles} from '../../testUtils/generate/file.js';
 import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend.js';
 import {generateAndInsertTestFolders} from '../../testUtils/generate/folder.js';
+import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,

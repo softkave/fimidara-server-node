@@ -1,4 +1,5 @@
 import {faker} from '@faker-js/faker';
+import {afterEach, beforeEach, describe, expect, test} from 'vitest';
 import {
   IngestFolderpathJobMeta,
   IngestFolderpathJobParams,
@@ -25,7 +26,10 @@ import {FileBackendQueries} from '../../../fileBackends/queries.js';
 import {FileQueries} from '../../../files/queries.js';
 import {getFilepathInfo} from '../../../files/utils.js';
 import {FolderQueries} from '../../../folders/queries.js';
-import {getFolderpathInfo, stringifyFoldernamepath} from '../../../folders/utils.js';
+import {
+  getFolderpathInfo,
+  stringifyFoldernamepath,
+} from '../../../folders/utils.js';
 import TestMemoryFilePersistenceProviderContext from '../../../testUtils/context/file/TestMemoryFilePersistenceProviderContext.js';
 import {generateTestFileName} from '../../../testUtils/generate/file.js';
 import {
@@ -75,7 +79,9 @@ describe('runIngestFolderpathJob', () => {
     class TestBackend extends MemoryFilePersistenceProvider {
       describeFolderContent = async (
         params: FilePersistenceDescribeFolderContentParams
-      ): Promise<FilePersistenceDescribeFolderContentResult<undefined, undefined>> => {
+      ): Promise<
+        FilePersistenceDescribeFolderContentResult<undefined, undefined>
+      > => {
         expect(numCalls).toBeLessThan(2);
 
         let {continuationToken} = params;
@@ -117,7 +123,9 @@ describe('runIngestFolderpathJob', () => {
       describeFolderContent = async (
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         params: FilePersistenceDescribeFolderContentParams
-      ): Promise<FilePersistenceDescribeFolderContentResult<undefined, undefined>> => {
+      ): Promise<
+        FilePersistenceDescribeFolderContentResult<undefined, undefined>
+      > => {
         numCalls += 1;
         return {continuationToken: Math.random(), files: [], folders: []};
       };
@@ -148,7 +156,9 @@ describe('runIngestFolderpathJob', () => {
       describeFolderContent = async (
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         params: FilePersistenceDescribeFolderContentParams
-      ): Promise<FilePersistenceDescribeFolderContentResult<undefined, undefined>> => {
+      ): Promise<
+        FilePersistenceDescribeFolderContentResult<undefined, undefined>
+      > => {
         return {continuationToken: null, files: pFiles, folders: []};
       };
     }
@@ -160,25 +170,33 @@ describe('runIngestFolderpathJob', () => {
     await kUtilsInjectables.promises().flush();
 
     const backendPathInfoList = pFiles.map(pFile =>
-      getFilepathInfo(pFile.filepath, {containsRootname: false, allowRootFolder: true})
+      getFilepathInfo(pFile.filepath, {
+        containsRootname: false,
+        allowRootFolder: true,
+      })
     );
     const files = await kSemanticModels.file().getManyByQuery({
       $or: backendPathInfoList.map(pathinfo => {
-        return FileQueries.getByNamepath({workspaceId: mount.workspaceId, ...pathinfo});
+        return FileQueries.getByNamepath({
+          workspaceId: mount.workspaceId,
+          ...pathinfo,
+        });
       }),
     });
-    const resolvedEntries = await kSemanticModels.resolvedMountEntry().getManyByQuery({
-      $or: backendPathInfoList.map(pathinfo => {
-        return {
-          ...FileBackendQueries.getByBackendNamepath({
-            workspaceId: mount.workspaceId,
-            backendNamepath: pathinfo.namepath,
-            backendExt: pathinfo.ext,
-          }),
-          mountId: mount.resourceId,
-        };
-      }),
-    });
+    const resolvedEntries = await kSemanticModels
+      .resolvedMountEntry()
+      .getManyByQuery({
+        $or: backendPathInfoList.map(pathinfo => {
+          return {
+            ...FileBackendQueries.getByBackendNamepath({
+              workspaceId: mount.workspaceId,
+              backendNamepath: pathinfo.namepath,
+              backendExt: pathinfo.ext,
+            }),
+            mountId: mount.resourceId,
+          };
+        }),
+      });
 
     expect(files.length).toBe(pFiles.length);
     expect(resolvedEntries.length).toBe(pFiles.length);
@@ -199,7 +217,9 @@ describe('runIngestFolderpathJob', () => {
       describeFolderContent = async (
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         params: FilePersistenceDescribeFolderContentParams
-      ): Promise<FilePersistenceDescribeFolderContentResult<undefined, undefined>> => {
+      ): Promise<
+        FilePersistenceDescribeFolderContentResult<undefined, undefined>
+      > => {
         return {continuationToken: null, folders: pFolders, files: []};
       };
     }
@@ -218,7 +238,10 @@ describe('runIngestFolderpathJob', () => {
     );
     const folders = await kSemanticModels.folder().getManyByQuery({
       $or: pathInfoList.map(pathinfo => {
-        return FolderQueries.getByNamepath({workspaceId: mount.workspaceId, ...pathinfo});
+        return FolderQueries.getByNamepath({
+          workspaceId: mount.workspaceId,
+          ...pathinfo,
+        });
       }),
     });
 
@@ -240,7 +263,9 @@ describe('runIngestFolderpathJob', () => {
       describeFolderContent = async (
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         params: FilePersistenceDescribeFolderContentParams
-      ): Promise<FilePersistenceDescribeFolderContentResult<undefined, undefined>> => {
+      ): Promise<
+        FilePersistenceDescribeFolderContentResult<undefined, undefined>
+      > => {
         return {continuationToken: null, folders: pFolders, files: []};
       };
     }
@@ -282,7 +307,9 @@ describe('runIngestFolderpathJob', () => {
     class TestBackend extends MemoryFilePersistenceProvider {
       describeFolderContent = async (
         params: FilePersistenceDescribeFolderContentParams
-      ): Promise<FilePersistenceDescribeFolderContentResult<undefined, undefined>> => {
+      ): Promise<
+        FilePersistenceDescribeFolderContentResult<undefined, undefined>
+      > => {
         let {continuationToken} = params;
         const pFiles: PersistedFileDescription<undefined>[] = loopAndCollate(
           () => generatePersistedFileDescriptionForTest(),
@@ -307,11 +334,15 @@ describe('runIngestFolderpathJob', () => {
     await expectErrorThrown(() => runIngestFolderpathJob(job));
     await kUtilsInjectables.promises().flush();
 
-    const dbJob = (await kSemanticModels.job().getOneById(job.resourceId)) as Job<
+    const dbJob = (await kSemanticModels
+      .job()
+      .getOneById(job.resourceId)) as Job<
       IngestFolderpathJobParams,
       IngestFolderpathJobMeta
     >;
-    expect(dbJob?.meta?.getContentContinuationToken).toBe(mountContinuationToken);
+    expect(dbJob?.meta?.getContentContinuationToken).toBe(
+      mountContinuationToken
+    );
   });
 
   test('uses continuation token', async () => {
@@ -320,7 +351,9 @@ describe('runIngestFolderpathJob', () => {
     class TestBackend extends MemoryFilePersistenceProvider {
       describeFolderContent = async (
         params: FilePersistenceDescribeFolderContentParams
-      ): Promise<FilePersistenceDescribeFolderContentResult<undefined, undefined>> => {
+      ): Promise<
+        FilePersistenceDescribeFolderContentResult<undefined, undefined>
+      > => {
         const {continuationToken} = params;
         expect(continuationToken).toBe(mountContinuationToken);
         return {continuationToken: null, files: [], folders: []};
@@ -331,13 +364,16 @@ describe('runIngestFolderpathJob', () => {
     kRegisterUtilsInjectables.fileProviderResolver(() => backend);
 
     const {job} = await setup01();
-    const update: Partial<Job<IngestFolderpathJobParams, IngestFolderpathJobMeta>> = {
+    const update: Partial<
+      Job<IngestFolderpathJobParams, IngestFolderpathJobMeta>
+    > = {
       meta: {getContentContinuationToken: mountContinuationToken},
     };
     await kSemanticModels
       .utils()
       .withTxn(
-        opts => kSemanticModels.job().updateOneById(job.resourceId, update, opts),
+        opts =>
+          kSemanticModels.job().updateOneById(job.resourceId, update, opts),
         /** reuseTxn */ true
       );
 

@@ -1,11 +1,19 @@
-import {first} from 'lodash';
+import {first} from 'lodash-es';
 import {AppShardId} from '../../definitions/app.js';
-import {Job, JobStatusHistory, RunAfterJobItem, kJobStatus} from '../../definitions/job.js';
+import {
+  Job,
+  JobStatusHistory,
+  RunAfterJobItem,
+  kJobStatus,
+} from '../../definitions/job.js';
 import {appAssert} from '../../utils/assertion.js';
 import {getTimestamp} from '../../utils/dateFns.js';
 import {AnyFn} from '../../utils/types.js';
 import {DataQuery} from '../contexts/data/types.js';
-import {kDataModels, kSemanticModels} from '../contexts/injection/injectables.js';
+import {
+  kDataModels,
+  kSemanticModels,
+} from '../contexts/injection/injectables.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
@@ -19,7 +27,10 @@ export function getJobCooldownDuration() {
 }
 
 export function setJobCooldownDuration(duration: number) {
-  appAssert(duration > 0, 'Job cooldown duration must be greater than or equal to 0');
+  appAssert(
+    duration > 0,
+    'Job cooldown duration must be greater than or equal to 0'
+  );
   return (cooldownDuration = duration);
 }
 
@@ -65,7 +76,9 @@ export async function areJobRunConditionsSatisfied(
   );
 
   const runAfterJobIds = Object.keys(runAfterByJobId);
-  const runAfterJobs = await kSemanticModels.job().getManyByIdList(runAfterJobIds, opts);
+  const runAfterJobs = await kSemanticModels
+    .job()
+    .getManyByIdList(runAfterJobIds, opts);
   return (
     runAfterJobs.length > 0 &&
     runAfterJobs.every(dependentJob => {

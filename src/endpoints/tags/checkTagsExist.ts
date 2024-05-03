@@ -1,4 +1,4 @@
-import {uniqBy} from 'lodash';
+import {uniqBy} from 'lodash-es';
 import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {kFimidaraResourceType, SessionAgent} from '../../definitions/system.js';
 import {AssignedTagInput} from '../../definitions/tag.js';

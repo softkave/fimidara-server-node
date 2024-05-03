@@ -5,6 +5,7 @@ import {getTimestamp} from '../../../utils/dateFns.js';
 import {DataQuery} from '../../contexts/data/types.js';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   initTests,
   insertRequestForTest,

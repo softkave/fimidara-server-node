@@ -1,4 +1,5 @@
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   generateAndInsertFileBackendConfigListForTest,
   generateFileBackendType,

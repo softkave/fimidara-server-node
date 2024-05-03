@@ -7,6 +7,7 @@ import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {initTests} from '../../testUtils/testUtils.js';
 import {getBackendConfigsWithIdList} from '../configUtils.js';
+import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 
 beforeAll(async () => {
   await initTests();

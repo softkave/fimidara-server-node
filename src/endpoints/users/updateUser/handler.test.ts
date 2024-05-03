@@ -7,6 +7,7 @@ import EndpointReusableQueries from '../../queries.js';
 import {generateAndInsertUserListForTest} from '../../testUtils/generate/user.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,

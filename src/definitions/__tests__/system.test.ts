@@ -1,4 +1,5 @@
 import {expectTypeOf} from 'expect-type';
+import {expect, describe, test} from 'vitest';
 import {
   FimidaraResourceType,
   FimidaraTypeToTSType,

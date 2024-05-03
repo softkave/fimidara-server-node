@@ -1,4 +1,4 @@
-import {isNumber} from 'lodash';
+import {isNumber} from 'lodash-es';
 import {kJobStatus} from '../../definitions/job.js';
 import {appAssert} from '../../utils/assertion.js';
 import {getTimestamp} from '../../utils/dateFns.js';
@@ -40,7 +40,9 @@ export async function waitForJob(
 
   return new Promise<void>((resolve, reject) => {
     const waitFn = async () => {
-      const job = await kSemanticModels.job().getOneByQuery({resourceId: jobId});
+      const job = await kSemanticModels
+        .job()
+        .getOneByQuery({resourceId: jobId});
 
       if (
         !job ||

@@ -6,6 +6,7 @@ import {initTests} from '../../../testUtils/testUtils.js';
 import {kUtilsInjectables} from '../../injection/injectables.js';
 import {AWSSecretsManagerProvider} from '../AWSSecretsManagerProvider.js';
 import {SecretsManagerProvider} from '../types.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 
 const secretIds: string[] = [];
 let manager: SecretsManagerProvider | undefined;

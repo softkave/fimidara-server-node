@@ -4,6 +4,7 @@ import {generateAndInsertPermissionItemListForTest} from '../../../../testUtils/
 import {completeTests} from '../../../../testUtils/helpers/testFns.js';
 import {initTests} from '../../../../testUtils/testUtils.js';
 import {deletePermissionItemCascadeEntry} from '../permissionItem.js';
+import {test, beforeAll, afterAll, describe} from 'vitest';
 import {
   GenerateResourceFn,
   GenerateTypeChildrenDefinition,

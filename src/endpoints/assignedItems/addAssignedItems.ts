@@ -1,7 +1,11 @@
-import {isArray} from 'lodash';
+import {isArray} from 'lodash-es';
 import {AssignedItem} from '../../definitions/assignedItem.js';
 import {AssignPermissionGroupInput} from '../../definitions/permissionGroups.js';
-import {Agent, SessionAgent, kFimidaraResourceType} from '../../definitions/system.js';
+import {
+  Agent,
+  SessionAgent,
+  kFimidaraResourceType,
+} from '../../definitions/system.js';
 import {AssignedTagInput} from '../../definitions/tag.js';
 import {Workspace} from '../../definitions/workspace.js';
 import {makeKey} from '../../utils/fns.js';
@@ -90,7 +94,9 @@ export async function addAssignedItems<T extends AssignedItem>(
     await Promise.all([
       kSemanticModels.assignedItem().insertItem(resolvedItems, opts),
       itemIdListToDelete &&
-        kSemanticModels.assignedItem().deleteManyByIdList(itemIdListToDelete, opts),
+        kSemanticModels
+          .assignedItem()
+          .deleteManyByIdList(itemIdListToDelete, opts),
     ]);
     return resolvedItems;
   }
@@ -159,7 +165,13 @@ export async function addAssignedPermissionGroupList(
     return item01.meta.order !== (item02 as AssignedItem).meta.order;
   };
 
-  return await addAssignedItems(workspaceId, items, deleteExisting, comparatorFn, opts);
+  return await addAssignedItems(
+    workspaceId,
+    items,
+    deleteExisting,
+    comparatorFn,
+    opts
+  );
 }
 
 export async function addAssignedTagList(
@@ -201,7 +213,13 @@ export async function addAssignedTagList(
   });
   await Promise.all([
     checkTagsExist(agent, workspace, tags, 'readTag'),
-    addAssignedItems(workspace.resourceId, items, deleteExisting, undefined, opts),
+    addAssignedItems(
+      workspace.resourceId,
+      items,
+      deleteExisting,
+      undefined,
+      opts
+    ),
   ]);
 
   return items;
@@ -245,14 +263,19 @@ export async function assignWorkspaceToUser(
   const items: AssignedItem[] = [
     withAssignedAgent(
       agent,
-      newWorkspaceResource(agent, kFimidaraResourceType.AssignedItem, workspaceId, {
-        assigneeId: userId,
-        assigneeType: kFimidaraResourceType.User,
-        meta: {},
-        resourceId: getNewIdForResource(kFimidaraResourceType.AssignedItem),
-        assignedItemId: workspaceId,
-        assignedItemType: kFimidaraResourceType.Workspace,
-      })
+      newWorkspaceResource(
+        agent,
+        kFimidaraResourceType.AssignedItem,
+        workspaceId,
+        {
+          assigneeId: userId,
+          assigneeType: kFimidaraResourceType.User,
+          meta: {},
+          resourceId: getNewIdForResource(kFimidaraResourceType.AssignedItem),
+          assignedItemId: workspaceId,
+          assignedItemType: kFimidaraResourceType.Workspace,
+        }
+      )
     ),
   ];
 

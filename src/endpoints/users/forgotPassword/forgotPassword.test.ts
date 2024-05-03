@@ -5,6 +5,7 @@ import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injec
 import {kRegisterUtilsInjectables} from '../../contexts/injection/register.js';
 import MockTestEmailProviderContext from '../../testUtils/context/email/MockTestEmailProviderContext.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeEach, afterEach, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,

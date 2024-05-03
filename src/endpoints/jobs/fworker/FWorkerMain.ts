@@ -1,10 +1,15 @@
-import {noop} from 'lodash';
+import {noop} from 'lodash-es';
+import {
+  AnyFn,
+  PromiseStore,
+  TimeoutError,
+  awaitOrTimeout,
+} from 'softkave-js-utils';
 import {ReadonlyDeep} from 'type-fest';
 import {MessageChannel, MessagePort, Worker} from 'worker_threads';
 import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {FWorker, FWorkerData, kFWorkerMessageType} from './FWorker.js';
 import {FWorkerMessager} from './FWorkerMessager.js';
-import {AnyFn, PromiseStore, TimeoutError, awaitOrTimeout} from 'softkave-js-utils';
 
 export interface FWorkerMainWorkerEntry {
   id: string;

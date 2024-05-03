@@ -1,10 +1,13 @@
-import {first, last} from 'lodash';
+import {first, last} from 'lodash-es';
 import {format, formatWithOptions} from 'util';
 import {appAssert} from '../../../utils/assertion.js';
 import {ServerError} from '../../../utils/errors.js';
 import {validate} from '../../../utils/validate.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {assertRootname, assertWorkspace} from '../../workspaces/utils.js';
 import {folderExtractor, getFolderpathInfo} from '../utils.js';
 import {createFolderList} from './createFolderList.js';
@@ -25,7 +28,9 @@ const addFolder: AddFolderEndpoint = async instData => {
     allowRootFolder: false,
   });
   assertRootname(pathinfo.rootname);
-  const workspace = await kSemanticModels.workspace().getByRootname(pathinfo.rootname);
+  const workspace = await kSemanticModels
+    .workspace()
+    .getByRootname(pathinfo.rootname);
   assertWorkspace(workspace);
 
   const {newFolders, failedInput} = await createFolderList(
@@ -53,7 +58,10 @@ const addFolder: AddFolderEndpoint = async instData => {
   // creates parent folders in order
   const folder = last(newFolders);
   const error0 = first(failedInput)?.reason;
-  appAssert(folder, (error0 as Error) || new ServerError('Error creating folder'));
+  appAssert(
+    folder,
+    (error0 as Error) || new ServerError('Error creating folder')
+  );
 
   return {folder: folderExtractor(folder)};
 };

@@ -1,8 +1,10 @@
 import {Express, Request, Response} from 'express';
-import {compact, isString} from 'lodash';
+import {compact, isString} from 'lodash-es';
 import {Agent, WorkspaceResource} from '../definitions/system.js';
 import {Workspace} from '../definitions/workspace.js';
-import OperationError, {FimidaraExternalError} from '../utils/OperationError.js';
+import OperationError, {
+  FimidaraExternalError,
+} from '../utils/OperationError.js';
 import {appAssert} from '../utils/assertion.js';
 import {getTimestamp} from '../utils/dateFns.js';
 import {ServerError} from '../utils/errors.js';
@@ -42,7 +44,9 @@ export function extractExternalEndpointError(
 }
 
 export function getPublicErrors(inputError: unknown) {
-  const errors: OperationError[] = Array.isArray(inputError) ? inputError : [inputError];
+  const errors: OperationError[] = Array.isArray(inputError)
+    ? inputError
+    : [inputError];
 
   // We are mapping errors cause some values don't show if we don't
   // or was it errors, not sure anymore, this is old code.
@@ -123,7 +127,10 @@ export function throwNotFound() {
   throw new NotFoundError();
 }
 
-export type ResourceWithoutAssignedAgent<T> = Omit<T, 'assignedAt' | 'assignedBy'>;
+export type ResourceWithoutAssignedAgent<T> = Omit<
+  T,
+  'assignedAt' | 'assignedBy'
+>;
 type AssignedAgent = {
   assignedBy: Agent;
   assignedAt: number;
@@ -160,7 +167,9 @@ export function withAssignedAgentList<T extends AnyObject>(
 }
 
 export function endpointDecodeURIComponent(component?: unknown) {
-  return component && isString(component) ? decodeURIComponent(component) : undefined;
+  return component && isString(component)
+    ? decodeURIComponent(component)
+    : undefined;
 }
 
 export function getWorkspaceResourceListQuery00(
@@ -212,7 +221,9 @@ export function registerExpressRouteFromEndpoint(
   app: Express
 ) {
   const p = endpoint.mddocHttpDefinition.assertGetBasePathname();
-  const expressPath = endpoint.mddocHttpDefinition.getPathParamaters() ? `${p}*` : p;
+  const expressPath = endpoint.mddocHttpDefinition.getPathParamaters()
+    ? `${p}*`
+    : p;
   app[endpoint.mddocHttpDefinition.assertGetMethod()](
     expressPath,
     ...compact([

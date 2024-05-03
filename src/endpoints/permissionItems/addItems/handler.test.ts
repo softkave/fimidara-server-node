@@ -7,6 +7,7 @@ import {generateAndInsertTestFolders} from '../../testUtils/generate/folder.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {expectEntityHasPermissionsTargetingId} from '../../testUtils/helpers/permissionItem.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,

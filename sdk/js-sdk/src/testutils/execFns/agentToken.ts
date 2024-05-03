@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {merge} from 'lodash';
+import {merge} from 'lodash-es';
 import {loopAndCollateAsync} from 'softkave-js-utils';
 import {PartialDeep} from 'type-fest';
 import {FimidaraEndpoints} from '../../publicEndpoints';

@@ -8,6 +8,7 @@ import {FileQueries} from '../../files/queries.js';
 import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils.js';
 import {FolderQueries} from '../../folders/queries.js';
 import {generateTestFilepath} from '../../testUtils/generate/file.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   generatePersistedFileDescriptionListForTest,
   generatePersistedFolderDescriptionListForTest,

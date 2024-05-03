@@ -1,4 +1,4 @@
-import {omit} from 'lodash';
+import {omit} from 'lodash-es';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
@@ -9,7 +9,10 @@ import {
 import {validate} from '../../../utils/validate.js';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {tryGetWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
 import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists.js';
 import {
@@ -46,7 +49,8 @@ const updateAgentToken: UpdateAgentTokenEndpoint = async instData => {
       lastUpdatedBy: getActionAgentFromSessionAgent(agent),
     };
     const isNameChanged =
-      tokenUpdate.name && tokenUpdate.name.toLowerCase() !== token.name?.toLowerCase();
+      tokenUpdate.name &&
+      tokenUpdate.name.toLowerCase() !== token.name?.toLowerCase();
 
     appAssert(token.workspaceId);
     await Promise.all([
@@ -63,7 +67,10 @@ const updateAgentToken: UpdateAgentTokenEndpoint = async instData => {
   }, /** reuseTxn */ false);
 
   appAssert(updatedToken.workspaceId);
-  const agentToken = await populateAssignedTags(updatedToken.workspaceId, updatedToken);
+  const agentToken = await populateAssignedTags(
+    updatedToken.workspaceId,
+    updatedToken
+  );
   return {token: getPublicAgentToken(agentToken)};
 };
 

@@ -1,12 +1,19 @@
-import {omit} from 'lodash';
+import {omit} from 'lodash-es';
 import {Folder} from '../../../definitions/folder.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
-import {assertFolder, checkFolderAuthorization02, folderExtractor} from '../utils.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {
+  assertFolder,
+  checkFolderAuthorization02,
+  folderExtractor,
+} from '../utils.js';
 import {UpdateFolderEndpoint} from './types.js';
 import {updateFolderJoiSchema} from './validation.js';
 

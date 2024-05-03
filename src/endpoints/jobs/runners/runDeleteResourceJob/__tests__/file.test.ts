@@ -1,5 +1,6 @@
-import {flatten} from 'lodash';
+import {flatten} from 'lodash-es';
 import {Readable} from 'stream';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {File} from '../../../../../definitions/file.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
 import {MemoryFilePersistenceProvider} from '../../../../contexts/file/MemoryFilePersistenceProvider.js';
@@ -75,7 +76,8 @@ describe('runDeleteResourceJob, file', () => {
     await testDeleteResourceArtifactsJob({
       genResourceFn,
       genChildrenDef: fileGenerateTypeChildren,
-      deleteCascadeDef: deleteFileCascadeEntry as unknown as DeleteResourceCascadeEntry,
+      deleteCascadeDef:
+        deleteFileCascadeEntry as unknown as DeleteResourceCascadeEntry,
       type: kFimidaraResourceType.File,
     });
   });
@@ -87,7 +89,8 @@ describe('runDeleteResourceJob, file', () => {
         return mountToProviderMap[mount.resourceId];
       }
 
-      return (mountToProviderMap[mount.resourceId] = new MemoryFilePersistenceProvider());
+      return (mountToProviderMap[mount.resourceId] =
+        new MemoryFilePersistenceProvider());
     });
 
     const {userToken} = await insertUserForTest();

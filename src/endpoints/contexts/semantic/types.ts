@@ -1,5 +1,8 @@
 import {App} from '../../../definitions/app.js';
-import {FileBackendConfig, FileBackendMount} from '../../../definitions/fileBackend.js';
+import {
+  FileBackendConfig,
+  FileBackendMount,
+} from '../../../definitions/fileBackend.js';
 import {PermissionGroup} from '../../../definitions/permissionGroups.js';
 import {Agent, AppRuntimeState, Resource} from '../../../definitions/system.js';
 import {Tag} from '../../../definitions/tag.js';
@@ -18,12 +21,14 @@ export interface SemanticProviderOpParams extends DataProviderOpParams {
   includeDeleted?: boolean;
 }
 
-export interface SemanticProviderMutationParams extends SemanticProviderOpParams {
+export interface SemanticProviderMutationParams
+  extends SemanticProviderOpParams {
   txn: unknown;
 }
 
-export interface SemanticProviderQueryParams<TResource extends Partial<Resource>>
-  extends SemanticProviderOpParams,
+export interface SemanticProviderQueryParams<
+  TResource extends Partial<Resource>,
+> extends SemanticProviderOpParams,
     DataProviderQueryParams<TResource> {}
 
 export interface SemanticProviderQueryListParams<TResource extends Resource>
@@ -43,7 +48,10 @@ export interface SemanticBaseProviderType<TResource extends Resource> {
     idList: string[],
     options?: SemanticProviderQueryListParams<TResource>
   ): Promise<TResource[]>;
-  countManyByIdList(idList: string[], opts?: SemanticProviderOpParams): Promise<number>;
+  countManyByIdList(
+    idList: string[],
+    opts?: SemanticProviderOpParams
+  ): Promise<number>;
   existsById(id: string, opts?: SemanticProviderOpParams): Promise<boolean>;
   updateOneById(
     id: string,
@@ -58,9 +66,13 @@ export interface SemanticBaseProviderType<TResource extends Resource> {
   getAndUpdateOneById(
     id: string,
     update: Partial<TResource>,
-    opts: SemanticProviderMutationParams & SemanticProviderQueryParams<TResource>
+    opts: SemanticProviderMutationParams &
+      SemanticProviderQueryParams<TResource>
   ): Promise<TResource | null>;
-  deleteOneById(id: string, opts: SemanticProviderMutationParams): Promise<void>;
+  deleteOneById(
+    id: string,
+    opts: SemanticProviderMutationParams
+  ): Promise<void>;
   deleteManyByIdList(
     idList: string[],
     opts: SemanticProviderMutationParams

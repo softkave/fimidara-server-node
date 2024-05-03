@@ -1,4 +1,12 @@
-import {first, isArray, isObject, isObjectLike, isUndefined, merge, set} from 'lodash';
+import {
+  first,
+  isArray,
+  isObject,
+  isObjectLike,
+  isUndefined,
+  merge,
+  set,
+} from 'lodash-es';
 import {appAssert} from '../../../utils/assertion.js';
 import {AnyObject} from '../../../utils/types.js';
 import {DataQuery} from './types.js';

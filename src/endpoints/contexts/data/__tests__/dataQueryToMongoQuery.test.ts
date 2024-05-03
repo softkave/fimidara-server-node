@@ -1,5 +1,6 @@
 import {dataQueryToMongoQuery} from '../dataQueryToMongoQuery.js';
 import {DataQuery} from '../types.js';
+import {describe, test, expect} from 'vitest';
 
 interface TestData {
   num: number;

@@ -4,6 +4,7 @@ import {generateAndInsertFileBackendConfigListForTest} from '../../../../testUti
 import {completeTests} from '../../../../testUtils/helpers/testFns.js';
 import {initTests} from '../../../../testUtils/testUtils.js';
 import {deleteFileBackendConfigCascadeEntry} from '../fileBackendConfig.js';
+import {test, beforeAll, afterAll, describe} from 'vitest';
 import {
   GenerateResourceFn,
   GenerateTypeChildrenDefinition,

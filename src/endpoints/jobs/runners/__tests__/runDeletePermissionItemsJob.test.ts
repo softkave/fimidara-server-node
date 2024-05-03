@@ -1,5 +1,10 @@
-import {flatten} from 'lodash';
-import {DeleteResourceJobParams, Job, kJobType} from '../../../../definitions/job.js';
+import {flatten} from 'lodash-es';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {
+  DeleteResourceJobParams,
+  Job,
+  kJobType,
+} from '../../../../definitions/job.js';
 import {kFimidaraPermissionActionsMap} from '../../../../definitions/permissionItem.js';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
 import {kSystemSessionAgent} from '../../../../utils/agent.js';
@@ -35,8 +40,13 @@ describe('runDeletePermissionItemsJob', () => {
     const action = kFimidaraPermissionActionsMap.wildcard;
     const [workspace] = await generateAndInsertWorkspaceListForTest(1);
     const [pgL, [f01], [folder01]] = await Promise.all([
-      generateAndInsertPermissionGroupListForTest(2, {workspaceId: workspace.resourceId}),
-      generateAndInsertTestFiles(1, {workspaceId: workspace.resourceId, parentId: null}),
+      generateAndInsertPermissionGroupListForTest(2, {
+        workspaceId: workspace.resourceId,
+      }),
+      generateAndInsertTestFiles(1, {
+        workspaceId: workspace.resourceId,
+        parentId: null,
+      }),
       generateAndInsertTestFolders(1, {
         workspaceId: workspace.resourceId,
         parentId: null,

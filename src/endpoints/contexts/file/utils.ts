@@ -1,5 +1,8 @@
-import {isObject} from 'lodash';
-import {FileBackendMount, kFileBackendType} from '../../../definitions/fileBackend.js';
+import {isObject} from 'lodash-es';
+import {
+  FileBackendMount,
+  kFileBackendType,
+} from '../../../definitions/fileBackend.js';
 import {pathJoin, pathSplit} from '../../../utils/fns.js';
 import {FimidaraFilePersistenceProvider} from './FimidaraFilePersistenceProvider.js';
 import {

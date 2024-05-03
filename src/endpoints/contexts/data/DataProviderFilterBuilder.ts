@@ -1,4 +1,4 @@
-import {isUndefined} from 'lodash';
+import {isUndefined} from 'lodash-es';
 import {
   DataProviderFilterValueOperator,
   DataProviderGetValueType,
@@ -11,7 +11,10 @@ import {LiteralDataQuery} from './types.js';
 export default class DataProviderFilterBuilder<T extends {[key: string]: any}>
   implements IDataProviderFilterBuilder<T>
 {
-  static FILTER_OP_TO_DATA_QUERY_OP: Record<DataProviderFilterValueOperator, string> = {
+  static FILTER_OP_TO_DATA_QUERY_OP: Record<
+    DataProviderFilterValueOperator,
+    string
+  > = {
     [DataProviderFilterValueOperator.Equal]: '$eq',
     [DataProviderFilterValueOperator.GreaterThan]: '$gt',
     [DataProviderFilterValueOperator.GreaterThanOrEqual]: '$gte',
@@ -44,7 +47,10 @@ export default class DataProviderFilterBuilder<T extends {[key: string]: any}>
     return this;
   }
 
-  addItemValue<K extends keyof T>(key: K, value: IDataProviderFilterValue<T[K]>) {
+  addItemValue<K extends keyof T>(
+    key: K,
+    value: IDataProviderFilterValue<T[K]>
+  ) {
     this.data[key] = value;
     return this;
   }

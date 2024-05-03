@@ -1,15 +1,19 @@
 import {AsyncLocalStorage} from 'async_hooks';
-import {get, set} from 'lodash';
+import {get, set} from 'lodash-es';
 import {ReadonlyDeep} from 'type-fest';
 import {DisposablesStore} from '../../utils/disposables.js';
 import {mergeData} from '../../utils/fns.js';
 import {AnyFn, AnyObject} from '../../utils/types.js';
 
 export type FimidaraAsyncLocalStorageStore = Record<string, unknown>;
-export type FimidaraAsyncLocalStorage = AsyncLocalStorage<FimidaraAsyncLocalStorageStore>;
+export type FimidaraAsyncLocalStorage =
+  AsyncLocalStorage<FimidaraAsyncLocalStorageStore>;
 
 export interface AsyncLocalStorageUtils {
-  run: <TFn extends AnyFn>(cb: TFn, store?: AnyObject) => Promise<ReturnType<TFn>>;
+  run: <TFn extends AnyFn>(
+    cb: TFn,
+    store?: AnyObject
+  ) => Promise<ReturnType<TFn>>;
   inheritAndRun: <TFn extends AnyFn>(
     cb: TFn,
     store?: AnyObject
@@ -36,7 +40,8 @@ export interface AsyncLocalStorageUtils {
   disposables: () => DisposablesStore;
 }
 
-const asyncLocalStorage = new AsyncLocalStorage<FimidaraAsyncLocalStorageStore>();
+const asyncLocalStorage =
+  new AsyncLocalStorage<FimidaraAsyncLocalStorageStore>();
 
 const kInternalKeys = {
   realStore: Symbol.for('realStore'),
@@ -155,7 +160,11 @@ export const kAsyncLocalStorageUtils: AsyncLocalStorageUtils = {
     }
   },
 
-  shadowSetForce: async <TFn extends AnyFn>(key: string, value: unknown, cb: TFn) => {
+  shadowSetForce: async <TFn extends AnyFn>(
+    key: string,
+    value: unknown,
+    cb: TFn
+  ) => {
     const shadowStore = startShadowStore(getAsyncLocalStore());
     set(shadowStore, key, value);
     return await kAsyncLocalStorageUtils.run(cb, shadowStore);

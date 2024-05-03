@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
-import {isArray, isNumber, isObject} from 'lodash';
+import {isArray, isNumber, isObject} from 'lodash-es';
+import {describe, expect, test, vi} from 'vitest';
 import {expectErrorThrown} from '../../endpoints/testUtils/helpers/error.js';
 import {
   identityArgs,
@@ -33,7 +34,7 @@ describe('fns', () => {
   });
 
   test('loop', () => {
-    const fn = jest.fn();
+    const fn = vi.fn();
     const max = 10;
     const extraArgs = [0, 1, 2];
 
@@ -50,7 +51,7 @@ describe('fns', () => {
   });
 
   test('loopAndCollate', () => {
-    const fn = jest.fn().mockImplementation(identityArgs);
+    const fn = vi.fn().mockImplementation(identityArgs);
     const max = 10;
     const extraArgs = [0, 1, 2];
 
@@ -69,7 +70,7 @@ describe('fns', () => {
 
   test('loopAsync, oneByOne', async () => {
     const max = 10;
-    const fn = jest.fn();
+    const fn = vi.fn();
     const extraArgs = [0, 1, 2];
 
     await loopAsync(fn, max, 'oneByOne', ...extraArgs);
@@ -84,7 +85,7 @@ describe('fns', () => {
       });
 
     // There should be only 1 invocation if error is thrown
-    const fnThrows = jest.fn().mockImplementation(() => {
+    const fnThrows = vi.fn().mockImplementation(() => {
       throw new Error();
     });
 
@@ -97,7 +98,7 @@ describe('fns', () => {
 
   test('loopAsync, all', async () => {
     const max = 10;
-    const fn = jest.fn();
+    const fn = vi.fn();
     const extraArgs = [0, 1, 2];
 
     await loopAsync(fn, max, 'all', ...extraArgs);
@@ -112,7 +113,7 @@ describe('fns', () => {
       });
 
     // There should be only `max` invocations even if error is thrown
-    const fnThrows = jest.fn().mockImplementation(async () => {
+    const fnThrows = vi.fn().mockImplementation(async () => {
       await waitTimeout(0);
       throw new Error();
     });
@@ -126,7 +127,7 @@ describe('fns', () => {
 
   test('loopAsync, allSettled', async () => {
     const max = 10;
-    const fn = jest.fn();
+    const fn = vi.fn();
     const extraArgs = [0, 1, 2];
 
     await loopAsync(fn, max, 'allSettled', ...extraArgs);
@@ -141,7 +142,7 @@ describe('fns', () => {
       });
 
     // There should be only `max` invocations even if error is thrown
-    const fnThrows = jest.fn().mockImplementation(async () => {
+    const fnThrows = vi.fn().mockImplementation(async () => {
       await waitTimeout(0);
       throw new Error();
     });
@@ -154,7 +155,7 @@ describe('fns', () => {
 
   test('loopAndCollateAsync, oneByOne', async () => {
     const max = 10;
-    const fn = jest.fn().mockImplementation(identityArgs);
+    const fn = vi.fn().mockImplementation(identityArgs);
     const extraArgs = [0, 1, 2];
 
     const result = await loopAndCollateAsync(fn, max, 'oneByOne', ...extraArgs);
@@ -170,7 +171,7 @@ describe('fns', () => {
       });
 
     // There should be only 1 invocation if error is thrown
-    const fnThrows = jest.fn().mockImplementation(() => {
+    const fnThrows = vi.fn().mockImplementation(() => {
       throw new Error();
     });
 
@@ -183,7 +184,7 @@ describe('fns', () => {
 
   test('loopAndCollateAsync, all', async () => {
     const max = 10;
-    const fn = jest.fn().mockImplementation(identityArgs);
+    const fn = vi.fn().mockImplementation(identityArgs);
     const extraArgs = [0, 1, 2];
 
     const result = await loopAndCollateAsync(fn, max, 'all', ...extraArgs);
@@ -199,7 +200,7 @@ describe('fns', () => {
       });
 
     // There should be only `max` invocations even if error is thrown
-    const fnThrows = jest.fn().mockImplementation(async () => {
+    const fnThrows = vi.fn().mockImplementation(async () => {
       await waitTimeout(0);
       throw new Error();
     });
@@ -213,10 +214,15 @@ describe('fns', () => {
 
   test('loopAndCollateAsync, allSettled', async () => {
     const max = 10;
-    const fn = jest.fn().mockImplementation(identityArgs);
+    const fn = vi.fn().mockImplementation(identityArgs);
     const extraArgs = [0, 1, 2];
 
-    const result = await loopAndCollateAsync(fn, max, 'allSettled', ...extraArgs);
+    const result = await loopAndCollateAsync(
+      fn,
+      max,
+      'allSettled',
+      ...extraArgs
+    );
 
     expect(fn).toHaveBeenCalledTimes(max);
     Array(max)
@@ -231,7 +237,7 @@ describe('fns', () => {
       });
 
     // There should be only `max` invocations even if error is thrown
-    const fnThrows = jest.fn().mockImplementation(async () => {
+    const fnThrows = vi.fn().mockImplementation(async () => {
       await waitTimeout(0);
       throw new Error();
     });

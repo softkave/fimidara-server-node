@@ -4,6 +4,7 @@ import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import EndpointReusableQueries from '../../queries.js';
 import RequestData from '../../RequestData.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, expect, describe} from 'vitest';
 import {
   assertEndpointResultOk,
   IInsertUserForTestResult,

@@ -1,13 +1,20 @@
-import {omit} from 'lodash';
+import {omit} from 'lodash-es';
 import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {objectHasData} from '../../../utils/fns.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {assertWorkspace} from '../../workspaces/utils.js';
-import {assertFile, fileExtractor, getAndCheckFileAuthorization} from '../utils.js';
+import {
+  assertFile,
+  fileExtractor,
+  getAndCheckFileAuthorization,
+} from '../utils.js';
 import {UpdateFileDetailsEndpoint} from './types.js';
 import {updateFileDetailsJoiSchema} from './validation.js';
 
@@ -49,7 +56,9 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async instData => {
       file = updatedFile;
     }
 
-    const workspace = await kSemanticModels.workspace().getOneById(file.workspaceId);
+    const workspace = await kSemanticModels
+      .workspace()
+      .getOneById(file.workspaceId);
     assertWorkspace(workspace);
     return file;
   }, /** reuseTxn */ false);

@@ -1,9 +1,12 @@
-import {isArray, isUndefined} from 'lodash';
+import {isArray, isUndefined} from 'lodash-es';
 import {
   AssignedItem,
   AssignedItemMainFieldsMatcher,
 } from '../../definitions/assignedItem.js';
-import {FimidaraResourceType, kFimidaraResourceType} from '../../definitions/system.js';
+import {
+  FimidaraResourceType,
+  kFimidaraResourceType,
+} from '../../definitions/system.js';
 import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider.js';
 import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder.js';
 
@@ -13,7 +16,11 @@ function newFilter() {
 
 function getByAssignedItem(workspaceId: string, assignedItemId: string) {
   const filter = newFilter()
-    .addItem('assignedItemId', assignedItemId, DataProviderFilterValueOperator.Equal)
+    .addItem(
+      'assignedItemId',
+      assignedItemId,
+      DataProviderFilterValueOperator.Equal
+    )
     .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal);
   return filter.build();
 }
@@ -24,7 +31,11 @@ function getWorkspaceCollaborators(
   excludedAssgignedToItemIdList?: string[]
 ) {
   const filter = newFilter()
-    .addItem('assignedItemId', workspaceId, DataProviderFilterValueOperator.Equal)
+    .addItem(
+      'assignedItemId',
+      workspaceId,
+      DataProviderFilterValueOperator.Equal
+    )
     .addItem(
       'assignedItemType',
       kFimidaraResourceType.Workspace,
@@ -64,9 +75,17 @@ function getByAssignedToResource(
   const filter = newFilter();
 
   if (isArray(assigneeId)) {
-    filter.addItem('assigneeId', assigneeId, DataProviderFilterValueOperator.In);
+    filter.addItem(
+      'assigneeId',
+      assigneeId,
+      DataProviderFilterValueOperator.In
+    );
   } else {
-    filter.addItem('assigneeId', assigneeId, DataProviderFilterValueOperator.Equal);
+    filter.addItem(
+      'assigneeId',
+      assigneeId,
+      DataProviderFilterValueOperator.Equal
+    );
   }
 
   if (assignedItemTypeList) {
@@ -77,7 +96,11 @@ function getByAssignedToResource(
     );
   }
   if (!isUndefined(workspaceId)) {
-    filter.addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal);
+    filter.addItem(
+      'workspaceId',
+      workspaceId,
+      DataProviderFilterValueOperator.Equal
+    );
   }
 
   return filter.build();
@@ -90,8 +113,16 @@ function getByMainFields(matcher: AssignedItemMainFieldsMatcher) {
       matcher.assignedItemId,
       DataProviderFilterValueOperator.Equal
     )
-    .addItem('assigneeId', matcher.assigneeId, DataProviderFilterValueOperator.Equal)
-    .addItem('workspaceId', matcher.workspaceId, DataProviderFilterValueOperator.Equal);
+    .addItem(
+      'assigneeId',
+      matcher.assigneeId,
+      DataProviderFilterValueOperator.Equal
+    )
+    .addItem(
+      'workspaceId',
+      matcher.workspaceId,
+      DataProviderFilterValueOperator.Equal
+    );
   return filter.build();
 }
 

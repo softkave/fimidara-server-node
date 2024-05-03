@@ -1,5 +1,5 @@
 import sharp = require('sharp');
-import {compact} from 'lodash';
+import {compact} from 'lodash-es';
 import {PassThrough, Readable} from 'stream';
 import {File} from '../../../definitions/file.js';
 import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
@@ -11,7 +11,10 @@ import {
   getFilePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton.js';
 import {PersistedFile} from '../../contexts/file/types.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {getBackendConfigsWithIdList} from '../../fileBackends/configUtils.js';
 import {
   getResolvedMountEntries,

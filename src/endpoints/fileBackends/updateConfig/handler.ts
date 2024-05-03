@@ -1,4 +1,4 @@
-import {pick} from 'lodash';
+import {pick} from 'lodash-es';
 import {FileBackendConfig} from '../../../definitions/fileBackend.js';
 import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
@@ -8,74 +8,82 @@ import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
 import {configNameExists, fileBackendConfigExtractor} from '../utils.js';
 import {UpdateFileBackendConfigEndpoint} from './types.js';
 import {updateFileBackendConfigJoiSchema} from './validation.js';
 
-const updateFileBackendConfig: UpdateFileBackendConfigEndpoint = async instData => {
-  const configModel = kSemanticModels.fileBackendConfig();
-  const secretsManager = kUtilsInjectables.secretsManager();
+const updateFileBackendConfig: UpdateFileBackendConfigEndpoint =
+  async instData => {
+    const configModel = kSemanticModels.fileBackendConfig();
+    const secretsManager = kUtilsInjectables.secretsManager();
 
-  const data = validate(instData.data, updateFileBackendConfigJoiSchema);
-  const agent = await kUtilsInjectables
-    .session()
-    .getAgentFromReq(
-      instData,
-      kSessionUtils.permittedAgentTypes.api,
-      kSessionUtils.accessScopes.api
-    );
-  const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
-  await checkAuthorizationWithAgent({
-    agent,
-    workspace,
-    workspaceId: workspace.resourceId,
-    target: {
-      action: kFimidaraPermissionActionsMap.updateFileBackendConfig,
-      targetId: workspace.resourceId,
-    },
-  });
+    const data = validate(instData.data, updateFileBackendConfigJoiSchema);
+    const agent = await kUtilsInjectables
+      .session()
+      .getAgentFromReq(
+        instData,
+        kSessionUtils.permittedAgentTypes.api,
+        kSessionUtils.accessScopes.api
+      );
+    const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
+    await checkAuthorizationWithAgent({
+      agent,
+      workspace,
+      workspaceId: workspace.resourceId,
+      target: {
+        action: kFimidaraPermissionActionsMap.updateFileBackendConfig,
+        targetId: workspace.resourceId,
+      },
+    });
 
-  const updatedConfig = await kSemanticModels.utils().withTxn(async opts => {
-    const config = await configModel.getOneById(data.configId, opts);
-    appAssert(config, kReuseableErrors.config.notFound());
+    const updatedConfig = await kSemanticModels.utils().withTxn(async opts => {
+      const config = await configModel.getOneById(data.configId, opts);
+      appAssert(config, kReuseableErrors.config.notFound());
 
-    const configUpdate: Partial<FileBackendConfig> = {
-      ...pick(data.config, ['name', 'description']),
-      lastUpdatedAt: getTimestamp(),
-      lastUpdatedBy: getActionAgentFromSessionAgent(agent),
-    };
+      const configUpdate: Partial<FileBackendConfig> = {
+        ...pick(data.config, ['name', 'description']),
+        lastUpdatedAt: getTimestamp(),
+        lastUpdatedBy: getActionAgentFromSessionAgent(agent),
+      };
 
-    if (
-      data.config.name &&
-      data.config.name.toLowerCase() !== config.name.toLowerCase()
-    ) {
-      const configExists = await configNameExists({
-        name: data.config.name,
-        workspaceId: workspace.resourceId,
-      });
+      if (
+        data.config.name &&
+        data.config.name.toLowerCase() !== config.name.toLowerCase()
+      ) {
+        const configExists = await configNameExists({
+          name: data.config.name,
+          workspaceId: workspace.resourceId,
+        });
 
-      if (configExists) {
-        throw kReuseableErrors.config.configExists();
+        if (configExists) {
+          throw kReuseableErrors.config.configExists();
+        }
       }
-    }
 
-    if (data.config.credentials) {
-      const unencryptedCredentials = JSON.stringify(data.config.credentials);
-      const {secretId} = await secretsManager.updateSecret({
-        name: config.resourceId,
-        text: unencryptedCredentials,
-        secretId: config.secretId,
-      });
-      configUpdate.secretId = secretId;
-    }
+      if (data.config.credentials) {
+        const unencryptedCredentials = JSON.stringify(data.config.credentials);
+        const {secretId} = await secretsManager.updateSecret({
+          name: config.resourceId,
+          text: unencryptedCredentials,
+          secretId: config.secretId,
+        });
+        configUpdate.secretId = secretId;
+      }
 
-    return await configModel.getAndUpdateOneById(config.resourceId, configUpdate, opts);
-  }, /** reuseTxn */ false);
+      return await configModel.getAndUpdateOneById(
+        config.resourceId,
+        configUpdate,
+        opts
+      );
+    }, /** reuseTxn */ false);
 
-  appAssert(updatedConfig);
-  return {config: fileBackendConfigExtractor(updatedConfig)};
-};
+    appAssert(updatedConfig);
+    return {config: fileBackendConfigExtractor(updatedConfig)};
+  };
 
 export default updateFileBackendConfig;

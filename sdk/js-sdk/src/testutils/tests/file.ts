@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {merge} from 'lodash';
+import {merge} from 'lodash-es';
 import {Readable} from 'stream';
 import {PartialDeep} from 'type-fest';
 import {FimidaraEndpoints} from '../../publicEndpoints';

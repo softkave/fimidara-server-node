@@ -1,4 +1,4 @@
-import {compact, last, range, set} from 'lodash';
+import {compact, last, range, set} from 'lodash-es';
 import {CombinationToken} from '../../../../utils/combineTokens.js';
 import {loopAndCollate} from '../../../../utils/fns.js';
 import {AnyObject} from '../../../../utils/types.js';
@@ -168,7 +168,9 @@ export function generateBaseMongoTestQueryFromCombination(props: {
           compact(['arrPrimitive', primitiveOp === '$all' ? '$all' : undefined])
         );
         tData =
-          primitiveOp === '$eq' ? str01 : loopAndCollate(() => str01, arrItemsCount);
+          primitiveOp === '$eq'
+            ? str01
+            : loopAndCollate(() => str01, arrItemsCount);
         set(query, key, tData);
       } else {
         key = prevPath.concat(['arrObj', elemOp]);

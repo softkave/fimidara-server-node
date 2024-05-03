@@ -2,6 +2,7 @@ import {Folder} from '../../definitions/folder.js';
 import {getRandomIntInclusive} from '../../utils/fns.js';
 import {kSemanticModels} from '../contexts/injection/injectables.js';
 import {getStringListQuery} from '../contexts/semantic/utils.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   generateAndInsertTestFolders,
   generateTestFolderpath,

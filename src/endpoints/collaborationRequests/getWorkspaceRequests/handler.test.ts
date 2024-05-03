@@ -4,6 +4,7 @@ import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generate/collaborationRequest.js';
 import {expectContainsEveryItemIn} from '../../testUtils/helpers/assertion.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,

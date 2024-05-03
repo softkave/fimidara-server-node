@@ -1,5 +1,6 @@
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   initTests,
   insertAgentTokenForTest,

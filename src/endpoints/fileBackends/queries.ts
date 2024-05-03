@@ -1,4 +1,4 @@
-import {isString} from 'lodash';
+import {isString} from 'lodash-es';
 import {ResolvedMountEntry} from '../../definitions/fileBackend.js';
 import {ResolvedMountEntryQuery} from '../contexts/data/types.js';
 import {
@@ -7,8 +7,14 @@ import {
 } from '../contexts/semantic/utils.js';
 
 function getByFimidaraNamepath(
-  entry: Pick<ResolvedMountEntry, 'workspaceId' | 'fimidaraNamepath' | 'fimidaraExt'>
-): Pick<ResolvedMountEntryQuery, 'fimidaraExt' | 'workspaceId' | 'fimidaraNamepath'> {
+  entry: Pick<
+    ResolvedMountEntry,
+    'workspaceId' | 'fimidaraNamepath' | 'fimidaraExt'
+  >
+): Pick<
+  ResolvedMountEntryQuery,
+  'fimidaraExt' | 'workspaceId' | 'fimidaraNamepath'
+> {
   const {fimidaraExt, fimidaraNamepath, workspaceId} = entry;
   return {
     workspaceId,
@@ -25,8 +31,14 @@ function getByFimidaraNamepath(
 }
 
 function getByBackendNamepath(
-  entry: Pick<ResolvedMountEntry, 'workspaceId' | 'backendNamepath' | 'backendExt'>
-): Pick<ResolvedMountEntryQuery, 'backendExt' | 'workspaceId' | 'backendNamepath'> {
+  entry: Pick<
+    ResolvedMountEntry,
+    'workspaceId' | 'backendNamepath' | 'backendExt'
+  >
+): Pick<
+  ResolvedMountEntryQuery,
+  'backendExt' | 'workspaceId' | 'backendNamepath'
+> {
   const {backendExt, backendNamepath, workspaceId} = entry;
   return {
     workspaceId,

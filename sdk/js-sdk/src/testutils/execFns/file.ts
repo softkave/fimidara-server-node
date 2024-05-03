@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
-import {merge} from 'lodash';
+import {merge} from 'lodash-es';
 import {PartialDeep} from 'type-fest';
 import {FimidaraEndpoints} from '../../publicEndpoints';
 import {

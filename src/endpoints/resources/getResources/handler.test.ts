@@ -1,5 +1,6 @@
 import {faker} from '@faker-js/faker';
-import {flatten} from 'lodash';
+import {flatten} from 'lodash-es';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {File} from '../../../definitions/file.js';
 import {Folder} from '../../../definitions/folder.js';
 import {
@@ -81,28 +82,43 @@ describe('getResources', () => {
       resourcesMap[item.resourceId] = item;
     };
 
-    addToExpectedResourcesById(workspace, kFimidaraPermissionActionsMap.readWorkspace);
+    addToExpectedResourcesById(
+      workspace,
+      kFimidaraPermissionActionsMap.readWorkspace
+    );
     addToExpectedResourcesById(
       permissionGroup,
       kFimidaraPermissionActionsMap.updatePermission
     );
     addToExpectedResourcesById(
-      collaboratorExtractor(await populateUserWorkspaces(rawUser), workspace.resourceId),
+      collaboratorExtractor(
+        await populateUserWorkspaces(rawUser),
+        workspace.resourceId
+      ),
       kFimidaraPermissionActionsMap.readCollaborator
     );
     items.forEach(item =>
-      addToExpectedResourcesById(item, kFimidaraPermissionActionsMap.updatePermission)
+      addToExpectedResourcesById(
+        item,
+        kFimidaraPermissionActionsMap.updatePermission
+      )
     );
     folders.forEach(folder => {
       const folderpath = stringifyFoldernamepath(folder, workspace.rootname);
       filepathsMap[folderpath] = folder.resourceId;
-      resourcesInput.push({folderpath, action: kFimidaraPermissionActionsMap.readFolder});
+      resourcesInput.push({
+        folderpath,
+        action: kFimidaraPermissionActionsMap.readFolder,
+      });
       resourcesMap[folder.resourceId] = folder;
     });
     files.forEach(file => {
       const filepath = stringifyFilenamepath(file, workspace.rootname);
       filepathsMap[filepath] = file.resourceId;
-      resourcesInput.push({filepath, action: kFimidaraPermissionActionsMap.readFolder});
+      resourcesInput.push({
+        filepath,
+        action: kFimidaraPermissionActionsMap.readFolder,
+      });
       resourcesMap[file.resourceId] = file;
     });
 
@@ -115,7 +131,9 @@ describe('getResources', () => {
     assertEndpointResultOk(result);
     expect(result.resources).toHaveLength(resourcesInput.length);
     result.resources.forEach(resource => {
-      expect(resourcesMap[resource.resourceId]).toMatchObject(resource.resource);
+      expect(resourcesMap[resource.resourceId]).toMatchObject(
+        resource.resource
+      );
 
       if (resource.resourceType === kFimidaraResourceType.File) {
         const fileId =

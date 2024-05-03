@@ -1,4 +1,4 @@
-import {isObject} from 'lodash';
+import {isObject} from 'lodash-es';
 import {MessagePort, TransferListItem} from 'worker_threads';
 import {appAssert} from '../../../utils/assertion.js';
 import {TimeoutError} from '../../../utils/errors.js';
@@ -26,11 +26,16 @@ export interface FWorkerMessagerPostTrackedMessageParams {
 }
 
 export class FWorkerMessager {
-  static isWorkerTrackedMessage(message: unknown): message is FWorkerTrackedMessage {
+  static isWorkerTrackedMessage(
+    message: unknown
+  ): message is FWorkerTrackedMessage {
     return isObject(message) && !!(message as FWorkerTrackedMessage).messageId;
   }
 
-  protected acks: Record<string, {resolveFn: AnyFn; rejectFn: AnyFn} | undefined> = {};
+  protected acks: Record<
+    string,
+    {resolveFn: AnyFn; rejectFn: AnyFn} | undefined
+  > = {};
   protected messagePortSignature = `fworkerMessager_${Math.random()}`;
 
   async postTrackedMessage(params: FWorkerMessagerPostTrackedMessageParams) {
@@ -56,7 +61,10 @@ export class FWorkerMessager {
       }
 
       if (expectAck) {
-        appAssert(incomingPort, 'incomingPort must be provided if expectAck is true');
+        appAssert(
+          incomingPort,
+          'incomingPort must be provided if expectAck is true'
+        );
         this.bindHandleAck(incomingPort);
         this.acks[message.messageId] = {resolveFn: resolve, rejectFn: reject};
 

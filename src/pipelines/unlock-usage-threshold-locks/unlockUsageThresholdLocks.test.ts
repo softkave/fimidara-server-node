@@ -13,6 +13,7 @@ import {initTests} from '../../endpoints/testUtils/testUtils.js';
 import {kSystemSessionAgent} from '../../utils/agent.js';
 import {getTimestamp} from '../../utils/dateFns.js';
 import {unlockUsageThresholdLocks} from './unlockUsageThresholdLocks.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 
 let connection: Connection | null = null;
 let dbName: string | null = null;

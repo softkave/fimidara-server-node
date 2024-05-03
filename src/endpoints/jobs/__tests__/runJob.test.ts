@@ -1,9 +1,13 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
-import {last} from 'lodash';
+import {last} from 'lodash-es';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kJobStatus, kJobType} from '../../../definitions/job.js';
 import {getNewId} from '../../../utils/resource.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {generateAndInsertJobListForTest} from '../../testUtils/generate/job.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {initTests} from '../../testUtils/testUtils.js';
@@ -35,7 +39,9 @@ describe('runJob', () => {
     expect(completedJob).toEqual(dbJob);
     expect(dbJob.status).toBe(kJobStatus.completed);
     expect(dbJob.statusLastUpdatedAt).toBeGreaterThan(job.statusLastUpdatedAt);
-    expect(last(dbJob.statusHistory)).toMatchObject({status: kJobStatus.completed});
+    expect(last(dbJob.statusHistory)).toMatchObject({
+      status: kJobStatus.completed,
+    });
   });
 
   test('completeJob with status', async () => {
@@ -45,7 +51,10 @@ describe('runJob', () => {
       type: kJobType.noop,
     });
 
-    const status = faker.helpers.arrayElement([kJobStatus.completed, kJobStatus.failed]);
+    const status = faker.helpers.arrayElement([
+      kJobStatus.completed,
+      kJobStatus.failed,
+    ]);
     const completedJob = await completeJob(job.resourceId, status);
     const dbJob = await kSemanticModels.job().getOneById(job.resourceId);
 
@@ -70,16 +79,23 @@ describe('runJob', () => {
       type: kJobType.noop,
     });
 
-    const status = faker.helpers.arrayElement([kJobStatus.completed, kJobStatus.failed]);
+    const status = faker.helpers.arrayElement([
+      kJobStatus.completed,
+      kJobStatus.failed,
+    ]);
     await completeJob(job.resourceId, status);
     // Wait for existing promises to resolve. completeJob updates parent jobs,
     // but adds them to the promise store, so we wait.
     await kUtilsInjectables.promises().flush();
-    const dbParentJob = await kSemanticModels.job().getOneById(parentJob.resourceId);
+    const dbParentJob = await kSemanticModels
+      .job()
+      .getOneById(parentJob.resourceId);
 
     assert(dbParentJob);
     expect(dbParentJob.status).toBe(status);
-    expect(dbParentJob.statusLastUpdatedAt).toBeGreaterThan(job.statusLastUpdatedAt);
+    expect(dbParentJob.statusLastUpdatedAt).toBeGreaterThan(
+      job.statusLastUpdatedAt
+    );
     expect(last(dbParentJob.statusHistory)).toMatchObject({status: status});
   });
 
@@ -100,11 +116,15 @@ describe('runJob', () => {
     // Wait for existing promises to resolve. completeJob updates parent jobs,
     // but adds them to the promise store, so we wait.
     await kUtilsInjectables.promises().flush();
-    const dbParentJob = await kSemanticModels.job().getOneById(parentJob.resourceId);
+    const dbParentJob = await kSemanticModels
+      .job()
+      .getOneById(parentJob.resourceId);
 
     assert(dbParentJob);
     expect(dbParentJob.status).toBe(kJobStatus.waitingForChildren);
-    expect(dbParentJob.statusLastUpdatedAt).toBeGreaterThan(job01.statusLastUpdatedAt);
+    expect(dbParentJob.statusLastUpdatedAt).toBeGreaterThan(
+      job01.statusLastUpdatedAt
+    );
     expect(last(dbParentJob.statusHistory)).toMatchObject({
       status: kJobStatus.waitingForChildren,
     });
@@ -134,11 +154,15 @@ describe('runJob', () => {
     // Wait for existing promises to resolve. completeJob updates parent jobs,
     // but adds them to the promise store, so we wait.
     await kUtilsInjectables.promises().flush();
-    const dbParentJob = await kSemanticModels.job().getOneById(parentJob.resourceId);
+    const dbParentJob = await kSemanticModels
+      .job()
+      .getOneById(parentJob.resourceId);
 
     assert(dbParentJob);
     expect(dbParentJob.status).toBe(kJobStatus.failed);
-    expect(dbParentJob.statusLastUpdatedAt).toBeGreaterThan(job01.statusLastUpdatedAt);
+    expect(dbParentJob.statusLastUpdatedAt).toBeGreaterThan(
+      job01.statusLastUpdatedAt
+    );
     expect(last(dbParentJob.statusHistory)).toMatchObject({
       status: kJobStatus.failed,
     });
@@ -162,13 +186,17 @@ describe('runJob', () => {
     });
 
     const completedParentJob = await completeJob(parentJob.resourceId);
-    const dbParentJob = await kSemanticModels.job().getOneById(parentJob.resourceId);
+    const dbParentJob = await kSemanticModels
+      .job()
+      .getOneById(parentJob.resourceId);
 
     assert(dbParentJob);
     assert(completedParentJob);
     expect(dbParentJob).toEqual(completedParentJob);
     expect(dbParentJob.status).toBe(kJobStatus.waitingForChildren);
-    expect(dbParentJob.statusLastUpdatedAt).toBeGreaterThan(job.statusLastUpdatedAt);
+    expect(dbParentJob.statusLastUpdatedAt).toBeGreaterThan(
+      job.statusLastUpdatedAt
+    );
     expect(last(dbParentJob.statusHistory)).toMatchObject({
       status: kJobStatus.waitingForChildren,
     });
@@ -188,13 +216,17 @@ describe('runJob', () => {
     });
 
     const completedParentJob = await completeJob(parentJob.resourceId);
-    const dbParentJob = await kSemanticModels.job().getOneById(parentJob.resourceId);
+    const dbParentJob = await kSemanticModels
+      .job()
+      .getOneById(parentJob.resourceId);
 
     assert(dbParentJob);
     assert(completedParentJob);
     expect(dbParentJob).toEqual(completedParentJob);
     expect(dbParentJob.status).toBe(kJobStatus.completed);
-    expect(dbParentJob.statusLastUpdatedAt).toBeGreaterThan(job.statusLastUpdatedAt);
+    expect(dbParentJob.statusLastUpdatedAt).toBeGreaterThan(
+      job.statusLastUpdatedAt
+    );
     expect(last(dbParentJob.statusHistory)).toMatchObject({
       status: kJobStatus.completed,
     });

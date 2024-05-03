@@ -1,4 +1,4 @@
-import {noop} from 'lodash';
+import {noop} from 'lodash-es';
 import {Logger} from './types.js';
 
 export class NoopLogger implements Logger {

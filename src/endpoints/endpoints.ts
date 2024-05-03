@@ -1,5 +1,5 @@
 import {Express} from 'express';
-import {forEach, isArray, isObject} from 'lodash';
+import {forEach, isArray, isObject} from 'lodash-es';
 import {getAgentTokenPublicHttpEndpoints} from './agentTokens/endpoints.js';
 import {AgentTokensExportedEndpoints} from './agentTokens/types.js';
 import {getCollaborationRequestsPublicHttpEndpoints} from './collaborationRequests/endpoints.js';
@@ -37,7 +37,10 @@ import {
   getUsersPrivateHttpEndpoints,
   getUsersPublicHttpEndpoints,
 } from './users/endpoints.js';
-import {UsersPrivateExportedEndpoints, UsersPublicExportedEndpoints} from './users/types.js';
+import {
+  UsersPrivateExportedEndpoints,
+  UsersPublicExportedEndpoints,
+} from './users/types.js';
 import {registerExpressRouteFromEndpoint} from './utils.js';
 import {getWorkspacesPublicHttpEndpoints} from './workspaces/endpoints.js';
 import {WorkspacesExportedEndpoints} from './workspaces/types.js';
@@ -137,7 +140,10 @@ export function getFimidaraPrivateHttpEndpoints() {
   return compileEndpoints(getFimidaraRawPrivateHttpEndpoints());
 }
 
-function setupAppHttpEndpoints(app: Express, endpoints: AppExportedHttpEndpoints) {
+function setupAppHttpEndpoints(
+  app: Express,
+  endpoints: AppExportedHttpEndpoints
+) {
   forEach(endpoints, e1 => {
     registerExpressRouteFromEndpoint(e1, app);
   });

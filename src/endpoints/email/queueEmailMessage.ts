@@ -1,4 +1,4 @@
-import {compact} from 'lodash';
+import {compact} from 'lodash-es';
 import {EmailMessage, EmailMessageParams} from '../../definitions/email.js';
 import {kFimidaraResourceType} from '../../definitions/system.js';
 import {newResource} from '../../utils/resource.js';
@@ -22,13 +22,16 @@ export async function queueEmailMessage(
       throw kReuseableErrors.email.inBlocklist();
     }
 
-    const emailMessage = newResource<EmailMessage>(kFimidaraResourceType.emailMessage, {
-      workspaceId,
-      userId: compact(userId),
-      emailAddress: [emailAddress],
-      type: params.type,
-      params: params.params,
-    });
+    const emailMessage = newResource<EmailMessage>(
+      kFimidaraResourceType.emailMessage,
+      {
+        workspaceId,
+        userId: compact(userId),
+        emailAddress: [emailAddress],
+        type: params.type,
+        params: params.params,
+      }
+    );
     return kSemanticModels.emailMessage().insertItem(emailMessage, opts);
   }, reuseTxn);
 }

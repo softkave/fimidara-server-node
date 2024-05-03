@@ -1,3 +1,4 @@
+import {afterAll, beforeAll, describe, test} from 'vitest';
 import {PresignedPath} from '../../../../../definitions/presignedPath.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
 import {generateAndInsertTestPresignedPathList} from '../../../../testUtils/generate/file.js';
@@ -22,12 +23,15 @@ afterAll(async () => {
   await completeTests();
 });
 
-const presignedPathGenerateTypeChildren: GenerateTypeChildrenDefinition<PresignedPath> = {
-  ...noopGenerateTypeChildren,
-  [kFimidaraResourceType.PermissionItem]: generatePermissionItemsAsChildren,
-};
+const presignedPathGenerateTypeChildren: GenerateTypeChildrenDefinition<PresignedPath> =
+  {
+    ...noopGenerateTypeChildren,
+    [kFimidaraResourceType.PermissionItem]: generatePermissionItemsAsChildren,
+  };
 
-const genResourceFn: GenerateResourceFn<PresignedPath> = async ({workspaceId}) => {
+const genResourceFn: GenerateResourceFn<PresignedPath> = async ({
+  workspaceId,
+}) => {
   const [presignedPath] = await generateAndInsertTestPresignedPathList(1, {
     workspaceId,
   });

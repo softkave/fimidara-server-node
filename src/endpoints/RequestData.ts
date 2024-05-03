@@ -1,4 +1,8 @@
-import {BaseTokenData, SessionAgent, kFimidaraResourceType} from '../definitions/system.js';
+import {
+  BaseTokenData,
+  SessionAgent,
+  kFimidaraResourceType,
+} from '../definitions/system.js';
 import {User} from '../definitions/user.js';
 import {getNewIdForResource} from '../utils/resource.js';
 import {IServerRequest} from './contexts/types.js';

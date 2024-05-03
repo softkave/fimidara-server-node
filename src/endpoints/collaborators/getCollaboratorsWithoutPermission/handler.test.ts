@@ -1,4 +1,5 @@
-import {identity} from 'lodash';
+import {identity} from 'lodash-es';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kFimidaraResourceType, Resource} from '../../../definitions/system.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {extractResourceIdList, getResourceId} from '../../../utils/fns.js';
@@ -47,9 +48,12 @@ describe('getCollaboratorsWithoutPermission', () => {
     const seedUserWithoutPermissions = seedUsers.slice(6);
 
     // assign permissionn group to a subset of users
-    const permissionGroups = await generateAndInsertPermissionGroupListForTest(1, {
-      workspaceId: workspace.resourceId,
-    });
+    const permissionGroups = await generateAndInsertPermissionGroupListForTest(
+      1,
+      {
+        workspaceId: workspace.resourceId,
+      }
+    );
     const sessionAgent = makeUserSessionAgent(rawUser, userToken);
     await assignPgListToIdList(
       sessionAgent,
@@ -74,7 +78,9 @@ describe('getCollaboratorsWithoutPermission', () => {
       );
     const result = await getCollaboratorsWithoutPermission(instData);
     assertEndpointResultOk(result);
-    expect(result.collaboratorIds).toHaveLength(seedUserWithoutPermissions.length);
+    expect(result.collaboratorIds).toHaveLength(
+      seedUserWithoutPermissions.length
+    );
     await assertCollaboratorsDoNotHavePermissions(
       result.collaboratorIds,
       seedUserWithPermissionGroups.concat(seedUserWithPermissionItems)

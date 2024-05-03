@@ -1,7 +1,9 @@
 import assert from 'assert';
 import fse from 'fs-extra';
 import path from 'path';
+import {sortStringListLexicographically} from 'softkave-js-utils';
 import {Readable} from 'stream';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
 import {loopAndCollate, pathJoin, pathSplit} from '../../../../utils/fns.js';
 import {getNewIdForResource} from '../../../../utils/resource.js';
@@ -78,7 +80,9 @@ describe('LocalFsFilePersistenceProvider', () => {
     const filepath = generateTestFilepathString({length: 3});
     const data = Readable.from(['Hello world!']);
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
-    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {workspaceId});
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
 
     const backend = new LocalFsFilePersistenceProvider({dir: testDir});
     await backend.uploadFile({
@@ -98,7 +102,9 @@ describe('LocalFsFilePersistenceProvider', () => {
     assert(testDir);
     const buffer = Buffer.from('Hello world!');
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
-    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {workspaceId});
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
     const filepath = generateTestFilepathString({
       length: mount.namepath.length + 2,
       parentNamepath: mount.namepath,
@@ -122,7 +128,9 @@ describe('LocalFsFilePersistenceProvider', () => {
     assert(testDir);
     const buffer = Buffer.from('Hello, world!');
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
-    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {workspaceId});
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
     const filepath01 = generateTestFilepathString({
       length: mount.namepath.length + 2,
       parentNamepath: mount.namepath,
@@ -149,8 +157,14 @@ describe('LocalFsFilePersistenceProvider', () => {
       mount,
       workspaceId,
       files: [
-        {filepath: filepath01, fileId: getNewIdForResource(kFimidaraResourceType.File)},
-        {filepath: filepath02, fileId: getNewIdForResource(kFimidaraResourceType.File)},
+        {
+          filepath: filepath01,
+          fileId: getNewIdForResource(kFimidaraResourceType.File),
+        },
+        {
+          filepath: filepath02,
+          fileId: getNewIdForResource(kFimidaraResourceType.File),
+        },
       ],
     });
 
@@ -165,7 +179,9 @@ describe('LocalFsFilePersistenceProvider', () => {
   test('deleteFolders', async () => {
     assert(testDir);
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
-    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {workspaceId});
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
     const folderpath01 = generateTestFolderpathString({
       length: mount.namepath.length + 2,
       parentNamepath: mount.namepath,
@@ -183,10 +199,16 @@ describe('LocalFsFilePersistenceProvider', () => {
       mount,
       fimidaraPath: folderpath02,
     });
-    await Promise.all([fse.ensureDir(nativePath01), fse.ensureDir(nativePath02)]);
+    await Promise.all([
+      fse.ensureDir(nativePath01),
+      fse.ensureDir(nativePath02),
+    ]);
     await Promise.all([
       fse.ensureDir(nativePath01 + '/' + generateTestFolderName()),
-      fse.outputFile(nativePath02 + '/' + generateTestFileName(), 'Hello, world!'),
+      fse.outputFile(
+        nativePath02 + '/' + generateTestFileName(),
+        'Hello, world!'
+      ),
     ]);
 
     await backend.deleteFolders({
@@ -207,7 +229,9 @@ describe('LocalFsFilePersistenceProvider', () => {
     assert(testDir);
     const buffer = Buffer.from('Hello world!');
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
-    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {workspaceId});
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
     const filepath = generateTestFilepathString({
       length: mount.namepath.length + 2,
       parentNamepath: mount.namepath,
@@ -234,7 +258,9 @@ describe('LocalFsFilePersistenceProvider', () => {
   test('describeFolder', async () => {
     assert(testDir);
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
-    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {workspaceId});
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
     const folderpath = generateTestFolderpathString({
       length: mount.namepath.length + 2,
       parentNamepath: mount.namepath,
@@ -261,7 +287,9 @@ describe('LocalFsFilePersistenceProvider', () => {
     assert(testDir);
     const buffer = Buffer.from('Hello, world!');
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
-    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {workspaceId});
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
     const folderpath = generateTestFolderpathString({
       length: mount.namepath.length + 2,
       parentNamepath: mount.namepath,
@@ -337,8 +365,14 @@ describe('LocalFsFilePersistenceProvider', () => {
       expect(folder.mountId).toBe(mount.resourceId);
     });
 
-    expect(resultFilepaths).toEqual(expect.arrayContaining(childrenFilepaths));
-    expect(resultFolderpaths).toEqual(expect.arrayContaining(childrenFolderpaths));
-    expect(resultFilepaths).not.toEqual(expect.arrayContaining(childrenDepth02Filepaths));
+    expect(sortStringListLexicographically(resultFilepaths)).toEqual(
+      expect.arrayContaining(sortStringListLexicographically(childrenFilepaths))
+    );
+    expect(resultFolderpaths).toEqual(
+      expect.arrayContaining(childrenFolderpaths)
+    );
+    expect(resultFilepaths).not.toEqual(
+      expect.arrayContaining(childrenDepth02Filepaths)
+    );
   });
 });

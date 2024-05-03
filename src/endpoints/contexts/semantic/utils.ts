@@ -1,15 +1,23 @@
-import {isNil, set} from 'lodash';
+import {isNil, set} from 'lodash-es';
 import {appAssert} from '../../../utils/assertion.js';
 import {convertToArray} from '../../../utils/fns.js';
 import {getNewId} from '../../../utils/resource.js';
-import {AnyFn, AnyObject, OrArray, StringKeysOnly} from '../../../utils/types.js';
+import {
+  AnyFn,
+  AnyObject,
+  OrArray,
+  StringKeysOnly,
+} from '../../../utils/types.js';
 import {
   ComparisonLiteralFieldQueryOps,
   DataQuery,
   KeyedComparisonOps,
 } from '../data/types.js';
 import {kDataModels} from '../injection/injectables.js';
-import {SemanticProviderMutationParams, SemanticProviderUtils} from './types.js';
+import {
+  SemanticProviderMutationParams,
+  SemanticProviderUtils,
+} from './types.js';
 
 interface InternalTxnStructure {
   __fimidaraTxnId?: string;
@@ -88,8 +96,10 @@ export function getInAndNinQuery<
    * pass `[null]` or `[undefined]` */
   ninList?: OrArray<TData[TKey]> | undefined
 ) {
-  const inKey: KeyedComparisonOps<Record<string, unknown>> = `${prefix}.$in` as const;
-  const ninKey: KeyedComparisonOps<Record<string, unknown>> = `${prefix}.$nin` as const;
+  const inKey: KeyedComparisonOps<Record<string, unknown>> =
+    `${prefix}.$in` as const;
+  const ninKey: KeyedComparisonOps<Record<string, unknown>> =
+    `${prefix}.$nin` as const;
   const query: DataQuery<TData> = {};
 
   if (!isNil(inList)) set(query, inKey, convertToArray(inList));

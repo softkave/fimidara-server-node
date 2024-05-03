@@ -12,6 +12,7 @@ import {generateTestFileName} from '../../testUtils/generate/file.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {expectFileBodyEqualById} from '../../testUtils/helpers/file.js';
 import {completeTests, skTest} from '../../testUtils/helpers/testFns.js';
+import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,

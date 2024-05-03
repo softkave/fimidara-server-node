@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 
 import assert from 'assert';
-import {isFunction, merge} from 'lodash';
+import {isFunction, merge} from 'lodash-es';
 import {
   AnyFn,
   DisposableResource,
@@ -28,7 +28,10 @@ import {
   NoopDbConnection,
   isMongoConnection,
 } from '../../../db/connection.js';
-import {getEmailBlocklistModel, getEmailMessageModel} from '../../../db/email.js';
+import {
+  getEmailBlocklistModel,
+  getEmailMessageModel,
+} from '../../../db/email.js';
 import {getFileModel} from '../../../db/file.js';
 import {getFolderDatabaseModel} from '../../../db/folder.js';
 import {getJobModel} from '../../../db/job.js';
@@ -67,7 +70,10 @@ import {assertUsageRecord} from '../../usageRecords/utils.js';
 import {assertUser} from '../../users/utils.js';
 import {assertWorkspace} from '../../workspaces/utils.js';
 import SessionContext, {SessionContextType} from '../SessionContext.js';
-import {AsyncLocalStorageUtils, kAsyncLocalStorageUtils} from '../asyncLocalStorage.js';
+import {
+  AsyncLocalStorageUtils,
+  kAsyncLocalStorageUtils,
+} from '../asyncLocalStorage.js';
 import {MongoDataProviderUtils} from '../data/MongoDataProviderUtils.js';
 import {
   AgentTokenMongoDataProvider,
@@ -181,7 +187,11 @@ import {SemanticWorkspaceProviderType} from '../semantic/workspace/types.js';
 import {kDataModels, kUtilsInjectables} from './injectables.js';
 import {kInjectionKeys} from './keys.js';
 
-function registerToken(token: string, item: unknown, use: 'value' | 'factory' = 'value') {
+function registerToken(
+  token: string,
+  item: unknown,
+  use: 'value' | 'factory' = 'value'
+) {
   if (use === 'factory') {
     assert(isFunction(item));
     container.register(token, {useFactory: item as AnyFn});
@@ -197,7 +207,8 @@ function registerToken(token: string, item: unknown, use: 'value' | 'factory' = 
 export const kRegisterSemanticModels = {
   user: (item: SemanticUserProviderType) =>
     registerToken(kInjectionKeys.semantic.user, item),
-  file: (item: SemanticFileProvider) => registerToken(kInjectionKeys.semantic.file, item),
+  file: (item: SemanticFileProvider) =>
+    registerToken(kInjectionKeys.semantic.file, item),
   agentToken: (item: SemanticAgentTokenProvider) =>
     registerToken(kInjectionKeys.semantic.agentToken, item),
   folder: (item: SemanticFolderProvider) =>
@@ -228,7 +239,8 @@ export const kRegisterSemanticModels = {
     registerToken(kInjectionKeys.semantic.usageRecord, item),
   resolvedMountEntry: (item: SemanticResolvedMountEntryProvider) =>
     registerToken(kInjectionKeys.semantic.resolvedMountEntry, item),
-  app: (item: SemanticAppProvider) => registerToken(kInjectionKeys.semantic.app, item),
+  app: (item: SemanticAppProvider) =>
+    registerToken(kInjectionKeys.semantic.app, item),
   emailMessage: (item: SemanticEmailMessageProvider) =>
     registerToken(kInjectionKeys.semantic.emailMessage, item),
   emailBlocklist: (item: SemanticEmailBlocklistProvider) =>
@@ -240,11 +252,14 @@ export const kRegisterSemanticModels = {
 };
 
 export const kRegisterDataModels = {
-  user: (item: UserDataProvider) => registerToken(kInjectionKeys.data.user, item),
-  file: (item: FileDataProvider) => registerToken(kInjectionKeys.data.file, item),
+  user: (item: UserDataProvider) =>
+    registerToken(kInjectionKeys.data.user, item),
+  file: (item: FileDataProvider) =>
+    registerToken(kInjectionKeys.data.file, item),
   agentToken: (item: AgentTokenDataProvider) =>
     registerToken(kInjectionKeys.data.agentToken, item),
-  folder: (item: FolderDataProvider) => registerToken(kInjectionKeys.data.folder, item),
+  folder: (item: FolderDataProvider) =>
+    registerToken(kInjectionKeys.data.folder, item),
   workspace: (item: WorkspaceDataProvider) =>
     registerToken(kInjectionKeys.data.workspace, item),
   fileBackendConfig: (item: FileBackendConfigDataProvider) =>
@@ -276,7 +291,8 @@ export const kRegisterDataModels = {
     registerToken(kInjectionKeys.data.emailBlocklist, item),
   appShard: (item: AppShardDataProvider) =>
     registerToken(kInjectionKeys.data.appShard, item),
-  utils: (item: DataProviderUtils) => registerToken(kInjectionKeys.data.utils, item),
+  utils: (item: DataProviderUtils) =>
+    registerToken(kInjectionKeys.data.utils, item),
 };
 
 export const kRegisterUtilsInjectables = {
@@ -291,10 +307,14 @@ export const kRegisterUtilsInjectables = {
     registerToken(kInjectionKeys.fileProviderResolver, item),
   asyncLocalStorage: (item: AsyncLocalStorageUtils) =>
     registerToken(kInjectionKeys.asyncLocalStorage, item),
-  session: (item: SessionContextType) => registerToken(kInjectionKeys.session, item),
-  dbConnection: (item: DbConnection) => registerToken(kInjectionKeys.dbConnection, item),
-  email: (item: IEmailProviderContext) => registerToken(kInjectionKeys.email, item),
-  promises: (item: PromiseStore) => registerToken(kInjectionKeys.promises, item),
+  session: (item: SessionContextType) =>
+    registerToken(kInjectionKeys.session, item),
+  dbConnection: (item: DbConnection) =>
+    registerToken(kInjectionKeys.dbConnection, item),
+  email: (item: IEmailProviderContext) =>
+    registerToken(kInjectionKeys.email, item),
+  promises: (item: PromiseStore) =>
+    registerToken(kInjectionKeys.promises, item),
   locks: (item: LockStore) => registerToken(kInjectionKeys.locks, item),
   disposables: (item: DisposablesStore) =>
     registerToken(kInjectionKeys.disposables, item),
@@ -303,7 +323,8 @@ export const kRegisterUtilsInjectables = {
   logger: (item: Logger) => registerToken(kInjectionKeys.logger, item),
   shardedRunner: (item: ShardedRunner) =>
     registerToken(kInjectionKeys.shardedRunner, item),
-  serverApp: (item: FimidaraApp) => registerToken(kInjectionKeys.serverApp, item),
+  serverApp: (item: FimidaraApp) =>
+    registerToken(kInjectionKeys.serverApp, item),
   workerPool: (item: FimidaraWorkerPool) =>
     registerToken(kInjectionKeys.workerPool, item),
 };
@@ -324,7 +345,9 @@ export function registerDataModelInjectables() {
     new WorkspaceMongoDataProvider(getWorkspaceModel(connection))
   );
   kRegisterDataModels.fileBackendConfig(
-    new FileBackendConfigMongoDataProvider(getFileBackendConfigModel(connection))
+    new FileBackendConfigMongoDataProvider(
+      getFileBackendConfigModel(connection)
+    )
   );
   kRegisterDataModels.fileBackendMount(
     new FileBackendMountMongoDataProvider(getFileBackendMountModel(connection))
@@ -344,18 +367,24 @@ export function registerDataModelInjectables() {
   );
   kRegisterDataModels.job(new JobMongoDataProvider(getJobModel(connection)));
   kRegisterDataModels.resolvedMountEntry(
-    new ResolvedMountEntryMongoDataProvider(getResolvedMountEntryModel(connection))
+    new ResolvedMountEntryMongoDataProvider(
+      getResolvedMountEntryModel(connection)
+    )
   );
   kRegisterDataModels.appRuntimeState(
     new AppRuntimeStateMongoDataProvider(getAppRuntimeStateModel(connection))
   );
   kRegisterDataModels.collaborationRequest(
-    new CollaborationRequestMongoDataProvider(getCollaborationRequestModel(connection))
+    new CollaborationRequestMongoDataProvider(
+      getCollaborationRequestModel(connection)
+    )
   );
   kRegisterDataModels.usageRecord(
     new UsageRecordMongoDataProvider(getUsageRecordModel(connection))
   );
-  kRegisterDataModels.app(new AppMongoDataProvider(getAppMongoModel(connection)));
+  kRegisterDataModels.app(
+    new AppMongoDataProvider(getAppMongoModel(connection))
+  );
   kRegisterDataModels.emailMessage(
     new EmailMessageMongoDataProvider(getEmailMessageModel(connection))
   );
@@ -369,8 +398,12 @@ export function registerDataModelInjectables() {
 }
 
 export function registerSemanticModelInjectables() {
-  kRegisterSemanticModels.user(new DataSemanticUser(kDataModels.user(), assertUser));
-  kRegisterSemanticModels.file(new DataSemanticFile(kDataModels.file(), assertFile));
+  kRegisterSemanticModels.user(
+    new DataSemanticUser(kDataModels.user(), assertUser)
+  );
+  kRegisterSemanticModels.file(
+    new DataSemanticFile(kDataModels.file(), assertFile)
+  );
   kRegisterSemanticModels.agentToken(
     new DataSemanticAgentToken(kDataModels.agentToken(), assertAgentToken)
   );
@@ -387,38 +420,68 @@ export function registerSemanticModelInjectables() {
     )
   );
   kRegisterSemanticModels.fileBackendConfig(
-    new DataSemanticFileBackendConfig(kDataModels.fileBackendConfig(), assertNotFound)
+    new DataSemanticFileBackendConfig(
+      kDataModels.fileBackendConfig(),
+      assertNotFound
+    )
   );
   kRegisterSemanticModels.fileBackendMount(
-    new DataSemanticFileBackendMount(kDataModels.fileBackendMount(), assertNotFound)
+    new DataSemanticFileBackendMount(
+      kDataModels.fileBackendMount(),
+      assertNotFound
+    )
   );
   kRegisterSemanticModels.presignedPath(
-    new DataSemanticPresignedPathProvider(kDataModels.presignedPath(), assertNotFound)
+    new DataSemanticPresignedPathProvider(
+      kDataModels.presignedPath(),
+      assertNotFound
+    )
   );
   kRegisterSemanticModels.permissions(new DataSemanticPermission());
   kRegisterSemanticModels.permissionGroup(
-    new DataSemanticPermissionGroup(kDataModels.permissionGroup(), assertPermissionGroup)
+    new DataSemanticPermissionGroup(
+      kDataModels.permissionGroup(),
+      assertPermissionGroup
+    )
   );
   kRegisterSemanticModels.permissionItem(
-    new DataSemanticPermissionItem(kDataModels.permissionItem(), assertPermissionItem)
+    new DataSemanticPermissionItem(
+      kDataModels.permissionItem(),
+      assertPermissionItem
+    )
   );
-  kRegisterSemanticModels.tag(new DataSemanticTag(kDataModels.tag(), assertTag));
+  kRegisterSemanticModels.tag(
+    new DataSemanticTag(kDataModels.tag(), assertTag)
+  );
   kRegisterSemanticModels.assignedItem(
     new DataSemanticAssignedItem(kDataModels.assignedItem(), assertNotFound)
   );
-  kRegisterSemanticModels.job(new DataSemanticJob(kDataModels.job(), assertNotFound));
+  kRegisterSemanticModels.job(
+    new DataSemanticJob(kDataModels.job(), assertNotFound)
+  );
   kRegisterSemanticModels.usageRecord(
     new DataSemanticUsageRecord(kDataModels.usageRecord(), assertUsageRecord)
   );
   kRegisterSemanticModels.resolvedMountEntry(
-    new DataSemanticResolvedMountEntry(kDataModels.resolvedMountEntry(), assertNotFound)
+    new DataSemanticResolvedMountEntry(
+      kDataModels.resolvedMountEntry(),
+      assertNotFound
+    )
   );
-  kRegisterSemanticModels.app(new DataSemanticApp(kDataModels.app(), assertNotFound));
+  kRegisterSemanticModels.app(
+    new DataSemanticApp(kDataModels.app(), assertNotFound)
+  );
   kRegisterSemanticModels.emailMessage(
-    new SemanticEmailMessageProviderImpl(kDataModels.emailMessage(), assertNotFound)
+    new SemanticEmailMessageProviderImpl(
+      kDataModels.emailMessage(),
+      assertNotFound
+    )
   );
   kRegisterSemanticModels.emailBlocklist(
-    new SemanticEmailBlocklistProviderImpl(kDataModels.emailBlocklist(), assertNotFound)
+    new SemanticEmailBlocklistProviderImpl(
+      kDataModels.emailBlocklist(),
+      assertNotFound
+    )
   );
   kRegisterSemanticModels.appShard(
     new SemanticAppShardProviderImpl(kDataModels.appShard(), assertNotFound)
@@ -426,7 +489,9 @@ export function registerSemanticModelInjectables() {
   kRegisterSemanticModels.utils(new DataSemanticProviderUtils());
 }
 
-export function registerUtilsInjectables(overrideConfig: FimidaraSuppliedConfig = {}) {
+export function registerUtilsInjectables(
+  overrideConfig: FimidaraSuppliedConfig = {}
+) {
   const suppliedConfig = {...getSuppliedConfig(), ...overrideConfig};
   const promiseStore = new PromiseStore();
 
@@ -454,15 +519,23 @@ export function registerUtilsInjectables(overrideConfig: FimidaraSuppliedConfig 
     kRegisterUtilsInjectables.serverApp(serverApp);
 
     if (suppliedConfig.useFimidaraWorkerPool) {
-      kRegisterUtilsInjectables.workerPool(new FimidaraWorkerPool({server: serverApp}));
+      kRegisterUtilsInjectables.workerPool(
+        new FimidaraWorkerPool({server: serverApp})
+      );
     }
   }
 
-  if (!suppliedConfig.dbType || suppliedConfig.dbType === kFimidaraConfigDbType.mongoDb) {
+  if (
+    !suppliedConfig.dbType ||
+    suppliedConfig.dbType === kFimidaraConfigDbType.mongoDb
+  ) {
     assert(suppliedConfig.mongoDbURI);
     assert(suppliedConfig.mongoDbDatabaseName);
     kRegisterUtilsInjectables.dbConnection(
-      new MongoDbConnection(suppliedConfig.mongoDbURI, suppliedConfig.mongoDbDatabaseName)
+      new MongoDbConnection(
+        suppliedConfig.mongoDbURI,
+        suppliedConfig.mongoDbDatabaseName
+      )
     );
   } else {
     kRegisterUtilsInjectables.dbConnection(new NoopDbConnection());
@@ -478,7 +551,10 @@ export function registerUtilsInjectables(overrideConfig: FimidaraSuppliedConfig 
       awsConfig?.accessKeyId,
       'No AWS accessKeyId provided for AWS SES email provider'
     );
-    assert(awsConfig?.region, 'No AWS region provided for AWS SES email provider');
+    assert(
+      awsConfig?.region,
+      'No AWS region provided for AWS SES email provider'
+    );
     assert(
       awsConfig?.secretAccessKey,
       'No AWS secretAccessKey provided for AWS SES email provider'
@@ -501,18 +577,27 @@ export function registerUtilsInjectables(overrideConfig: FimidaraSuppliedConfig 
       awsConfig?.accessKeyId,
       'No AWS accessKeyId provided for AWS SecretsManager provider'
     );
-    assert(awsConfig?.region, 'No AWS region provided for AWS SecretsManager provider');
+    assert(
+      awsConfig?.region,
+      'No AWS region provided for AWS SecretsManager provider'
+    );
     assert(
       awsConfig?.secretAccessKey,
       'No AWS secretAccessKey provided for AWS SecretsManager provider'
     );
-    kRegisterUtilsInjectables.secretsManager(new AWSSecretsManagerProvider(awsConfig));
+    kRegisterUtilsInjectables.secretsManager(
+      new AWSSecretsManagerProvider(awsConfig)
+    );
   } else {
-    kRegisterUtilsInjectables.secretsManager(new MemorySecretsManagerProvider());
+    kRegisterUtilsInjectables.secretsManager(
+      new MemorySecretsManagerProvider()
+    );
   }
 }
 
-export function registerInjectables(overrideConfig: FimidaraSuppliedConfig = {}) {
+export function registerInjectables(
+  overrideConfig: FimidaraSuppliedConfig = {}
+) {
   registerUtilsInjectables(overrideConfig);
   registerDataModelInjectables();
   registerSemanticModelInjectables();

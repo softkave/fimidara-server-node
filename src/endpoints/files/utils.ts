@@ -1,15 +1,28 @@
-import {compact, first, keyBy} from 'lodash';
+import {compact, first, keyBy} from 'lodash-es';
 import {File, FileMatcher, PublicFile} from '../../definitions/file.js';
-import {FileBackendMount, ResolvedMountEntry} from '../../definitions/fileBackend.js';
+import {
+  FileBackendMount,
+  ResolvedMountEntry,
+} from '../../definitions/fileBackend.js';
 import {Folder} from '../../definitions/folder.js';
 import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
-import {PresignedPath, PublicPresignedPath} from '../../definitions/presignedPath.js';
-import {Agent, SessionAgent, kFimidaraResourceType} from '../../definitions/system.js';
+import {
+  PresignedPath,
+  PublicPresignedPath,
+} from '../../definitions/presignedPath.js';
+import {
+  Agent,
+  SessionAgent,
+  kFimidaraResourceType,
+} from '../../definitions/system.js';
 import {Workspace} from '../../definitions/workspace.js';
 import {appAssert} from '../../utils/assertion.js';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract.js';
 import {pathBasename, pathJoin} from '../../utils/fns.js';
-import {getNewIdForResource, newWorkspaceResource} from '../../utils/resource.js';
+import {
+  getNewIdForResource,
+  newWorkspaceResource,
+} from '../../utils/resource.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {
   checkAuthorizationWithAgent,
@@ -137,7 +150,9 @@ export interface FilenameInfo {
 }
 
 export function getFilenameInfo(providedName: string): FilenameInfo {
-  providedName = providedName.startsWith('/') ? providedName.slice(1) : providedName;
+  providedName = providedName.startsWith('/')
+    ? providedName.slice(1)
+    : providedName;
   const {basename, ext} = pathBasename(providedName);
 
   return {
@@ -172,7 +187,9 @@ export function throwPresignedPathNotFound() {
   throw new NotFoundError('File presigned path not found');
 }
 
-export async function getWorkspaceFromFilepath(filepath: string): Promise<Workspace> {
+export async function getWorkspaceFromFilepath(
+  filepath: string
+): Promise<Workspace> {
   const workspaceModel = kSemanticModels.workspace();
   const pathinfo = getFilepathInfo(filepath, {
     allowRootFolder: false,
@@ -203,7 +220,9 @@ export async function getWorkspaceFromFileOrFilepath(
   return workspace;
 }
 
-export function assertFile(file: File | PresignedPath | null | undefined): asserts file {
+export function assertFile(
+  file: File | PresignedPath | null | undefined
+): asserts file {
   if (!file) throwFileNotFound();
 }
 
@@ -272,7 +291,14 @@ export async function createNewFileAndEnsureFolders(
     ));
   }
 
-  return createNewFile(agent, workspace.resourceId, pathinfo, parentFolder, data, seed);
+  return createNewFile(
+    agent,
+    workspace.resourceId,
+    pathinfo,
+    parentFolder,
+    data,
+    seed
+  );
 }
 
 export async function ingestFileByFilepath(props: {
@@ -323,10 +349,10 @@ export async function ingestFileByFilepath(props: {
   ]);
 
   const providersMap = await initBackendProvidersForMounts(mounts, configs);
-  const mountEntriesMapByMountId: Record<string, ResolvedMountEntry | undefined> = keyBy(
-    mountEntries,
-    mountEntry => mountEntry.mountId
-  );
+  const mountEntriesMapByMountId: Record<
+    string,
+    ResolvedMountEntry | undefined
+  > = keyBy(mountEntries, mountEntry => mountEntry.mountId);
 
   const persistedFileList = await Promise.all(
     mounts.map(async mount => {

@@ -1,5 +1,5 @@
 import * as fse from 'fs-extra';
-import {forEach} from 'lodash';
+import {forEach} from 'lodash-es';
 import {posix} from 'path';
 import {getFimidaraPublicHttpEndpoints} from '../endpoints/endpoints.js';
 import {

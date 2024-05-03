@@ -1,4 +1,4 @@
-import {keyBy} from 'lodash';
+import {keyBy} from 'lodash-es';
 import {File} from '../../definitions/file.js';
 import {ResolvedMountEntry} from '../../definitions/fileBackend.js';
 import {Folder} from '../../definitions/folder.js';
@@ -12,7 +12,11 @@ import {
   PersistedFolderDescription,
 } from '../contexts/file/types.js';
 import {kSemanticModels} from '../contexts/injection/injectables.js';
-import {createNewFile, getFilepathInfo, stringifyFilenamepath} from '../files/utils.js';
+import {
+  createNewFile,
+  getFilepathInfo,
+  stringifyFilenamepath,
+} from '../files/utils.js';
 import {createFolderList} from '../folders/addFolder/createFolderList.js';
 import {NewFolderInput} from '../folders/addFolder/types.js';
 import {addRootnameToPath} from '../folders/utils.js';
@@ -37,7 +41,9 @@ export async function ingestPersistedFolders(
       .resolvedMountEntry()
       .getLatestForManyFimidaraNamepathAndExt(
         workspace.resourceId,
-        pFolders.map(pFolder => ({fimidaraNamepath: pathSplit(pFolder.folderpath)})),
+        pFolders.map(pFolder => ({
+          fimidaraNamepath: pathSplit(pFolder.folderpath),
+        })),
         opts
       );
     const mountEntriesMapByBackendNamepath: Record<
@@ -106,7 +112,9 @@ export async function ingestPersistedFolders(
       }
     });
 
-    await kSemanticModels.resolvedMountEntry().insertItem(newMountEntries, opts);
+    await kSemanticModels
+      .resolvedMountEntry()
+      .insertItem(newMountEntries, opts);
   }, /** reuseTxn */ false);
 }
 
@@ -141,7 +149,10 @@ export async function ingestPersistedFiles(
       string,
       ResolvedMountEntry | undefined
     > = keyBy(mountEntries, entry =>
-      stringifyFilenamepath({namepath: entry.backendNamepath, ext: entry.backendExt})
+      stringifyFilenamepath({
+        namepath: entry.backendNamepath,
+        ext: entry.backendExt,
+      })
     );
 
     // Ensure parent folders for new new files
@@ -214,12 +225,16 @@ export async function ingestPersistedFiles(
       }
 
       const forId = mountEntry?.forId || newFile?.resourceId;
-      const fimidaraNamepath = mountEntry?.fimidaraNamepath || newFile?.namepath;
+      const fimidaraNamepath =
+        mountEntry?.fimidaraNamepath || newFile?.namepath;
       const fimidaraExt = mountEntry?.fimidaraExt || newFile?.ext;
       const {namepath, ext} = pathExtract(pFile.filepath);
 
       appAssert(forId, 'No mount entry or new file for forId');
-      appAssert(fimidaraNamepath, 'No mount entry or new file for fimidaraNamepath');
+      appAssert(
+        fimidaraNamepath,
+        'No mount entry or new file for fimidaraNamepath'
+      );
 
       const newMountEntry = newWorkspaceResource<ResolvedMountEntry>(
         agent,

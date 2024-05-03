@@ -1,4 +1,4 @@
-import {first} from 'lodash';
+import {first} from 'lodash-es';
 import {EmailJobParams, kEmailJobType} from '../../../../definitions/job.js';
 import {
   CollaborationRequestRevokedEmailProps,
@@ -36,7 +36,9 @@ export async function sendCollaborationRequestRevokedEmail(
     throw new Error(`Collaboration request not found for job ${jobId}`);
   }
 
-  const workspace = await kSemanticModels.workspace().getOneById(request.workspaceId);
+  const workspace = await kSemanticModels
+    .workspace()
+    .getOneById(request.workspaceId);
 
   if (!workspace) {
     throw new Error(`Workspace not found for job ${jobId}`);

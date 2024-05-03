@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {last} from 'lodash';
+import {last} from 'lodash-es';
 import {Folder} from '../../definitions/folder.js';
 import {PermissionGroup} from '../../definitions/permissionGroups.js';
 import {
@@ -17,7 +17,11 @@ import {FimidaraRuntimeConfig} from '../../resources/config.js';
 import {kSystemSessionAgent} from '../../utils/agent.js';
 import {appAssert} from '../../utils/assertion.js';
 import {getTimestamp} from '../../utils/dateFns.js';
-import {getNewIdForResource, kIdSize, newWorkspaceResource} from '../../utils/resource.js';
+import {
+  getNewIdForResource,
+  kIdSize,
+  newWorkspaceResource,
+} from '../../utils/resource.js';
 import {makeUserSessionAgent} from '../../utils/sessionUtils.js';
 import {
   kDataModels,
@@ -56,9 +60,15 @@ const appSetupVars = {
   usersImageUploadPermissionGroupName: 'Fimidara users image upload',
 };
 
-async function setupWorkspace(agent: SessionAgent, name: string, rootname: string) {
+async function setupWorkspace(
+  agent: SessionAgent,
+  name: string,
+  rootname: string
+) {
   return await kSemanticModels.utils().withTxn(async opts => {
-    const existingWorkspace = await kSemanticModels.workspace().getByRootname(rootname);
+    const existingWorkspace = await kSemanticModels
+      .workspace()
+      .getByRootname(rootname);
 
     if (existingWorkspace) {
       return {workspace: existingWorkspace};
@@ -78,43 +88,46 @@ async function setupWorkspace(agent: SessionAgent, name: string, rootname: strin
 }
 
 async function setupDefaultUser() {
-  const {user, userToken} = await kSemanticModels.utils().withTxn(async opts => {
-    const suppliedConfig = kUtilsInjectables.suppliedConfig();
-    const nodeEnv = process.env.NODE_ENV;
-    assert(suppliedConfig.rootUserEmail);
-    assert(suppliedConfig.rootUserPassword);
-    assert(suppliedConfig.rootUserFirstName);
-    assert(suppliedConfig.rootUserLastName);
-    let user = await kSemanticModels
-      .user()
-      .getByEmail(suppliedConfig.rootUserEmail, opts);
+  const {user, userToken} = await kSemanticModels
+    .utils()
+    .withTxn(async opts => {
+      const suppliedConfig = kUtilsInjectables.suppliedConfig();
+      const nodeEnv = process.env.NODE_ENV;
+      assert(suppliedConfig.rootUserEmail);
+      assert(suppliedConfig.rootUserPassword);
+      assert(suppliedConfig.rootUserFirstName);
+      assert(suppliedConfig.rootUserLastName);
+      let user = await kSemanticModels
+        .user()
+        .getByEmail(suppliedConfig.rootUserEmail, opts);
 
-    if (!user) {
-      const isDevRelatedvEnv = nodeEnv === 'development' || nodeEnv === 'test';
-      user = await INTERNAL_signupUser(
-        {
-          email: suppliedConfig.rootUserEmail,
-          firstName: suppliedConfig.rootUserFirstName,
-          lastName: suppliedConfig.rootUserLastName,
-          password: suppliedConfig.rootUserPassword,
-        },
-        {
-          requiresPasswordChange: isDevRelatedvEnv ? false : true,
-          isEmailVerified: isDevRelatedvEnv ? true : false,
-          isOnWaitlist: false,
-        },
-        opts
-      );
+      if (!user) {
+        const isDevRelatedvEnv =
+          nodeEnv === 'development' || nodeEnv === 'test';
+        user = await INTERNAL_signupUser(
+          {
+            email: suppliedConfig.rootUserEmail,
+            firstName: suppliedConfig.rootUserFirstName,
+            lastName: suppliedConfig.rootUserLastName,
+            password: suppliedConfig.rootUserPassword,
+          },
+          {
+            requiresPasswordChange: isDevRelatedvEnv ? false : true,
+            isEmailVerified: isDevRelatedvEnv ? true : false,
+            isOnWaitlist: false,
+          },
+          opts
+        );
 
-      if (!isDevRelatedvEnv) {
-        await INTERNAL_forgotPassword(user);
-        await INTERNAL_sendEmailVerificationCode(user);
+        if (!isDevRelatedvEnv) {
+          await INTERNAL_forgotPassword(user);
+          await INTERNAL_sendEmailVerificationCode(user);
+        }
       }
-    }
 
-    const userToken = await getUserToken(user.resourceId, opts);
-    return {user, userToken};
-  }, false);
+      const userToken = await getUserToken(user.resourceId, opts);
+      return {user, userToken};
+    }, false);
 
   const agent = makeUserSessionAgent(user, userToken);
   return {user, userToken, agent};
@@ -164,7 +177,8 @@ async function setupFolders(workspace: Workspace) {
     last(workspaceImagesFolders.existingFolders) ||
     last(workspaceImagesFolders.newFolders);
   const userImagesFolder =
-    last(userImagesFolders.existingFolders) || last(userImagesFolders.newFolders);
+    last(userImagesFolders.existingFolders) ||
+    last(userImagesFolders.newFolders);
 
   appAssert(
     workspaceImagesFolder,
@@ -204,7 +218,9 @@ async function setupImageUploadPermissionGroup(
     ];
     const permissionItems: PermissionItem[] = actions.map(action => {
       const containerIds = folder.idPath.slice(0, -1);
-      const targetParentId = containerIds.length ? last(containerIds) : workspaceId;
+      const targetParentId = containerIds.length
+        ? last(containerIds)
+        : workspaceId;
       appAssert(targetParentId, 'Could not resolve targetParentId');
       const item: PermissionItem = newWorkspaceResource<PermissionItem>(
         kSystemSessionAgent,
@@ -238,29 +254,36 @@ async function setupRootWorkspacePermissionGroups(
   workspaceImagesFolder: Folder,
   userImagesFolder: Folder
 ) {
-  const [appWorkspacesImageUploadPermissionGroup, appUsersImageUploadPermissionGroup] =
-    await Promise.all([
-      setupImageUploadPermissionGroup(
-        workspace.resourceId,
-        appSetupVars.workspacesImageUploadPermissionGroupName,
-        'Auto-generated permission group for uploading images to the workspace images folder',
-        workspaceImagesFolder
-      ),
-      setupImageUploadPermissionGroup(
-        workspace.resourceId,
-        appSetupVars.usersImageUploadPermissionGroupName,
-        'Auto-generated permission group for uploading images to the user images folder',
-        userImagesFolder
-      ),
-    ]);
+  const [
+    appWorkspacesImageUploadPermissionGroup,
+    appUsersImageUploadPermissionGroup,
+  ] = await Promise.all([
+    setupImageUploadPermissionGroup(
+      workspace.resourceId,
+      appSetupVars.workspacesImageUploadPermissionGroupName,
+      'Auto-generated permission group for uploading images to the workspace images folder',
+      workspaceImagesFolder
+    ),
+    setupImageUploadPermissionGroup(
+      workspace.resourceId,
+      appSetupVars.usersImageUploadPermissionGroupName,
+      'Auto-generated permission group for uploading images to the user images folder',
+      userImagesFolder
+    ),
+  ]);
 
-  return {appWorkspacesImageUploadPermissionGroup, appUsersImageUploadPermissionGroup};
+  return {
+    appWorkspacesImageUploadPermissionGroup,
+    appUsersImageUploadPermissionGroup,
+  };
 }
 
 export async function isRootWorkspaceSetup() {
   const appRuntimeState = await kDataModels
     .appRuntimeState()
-    .getOneByQuery(EndpointReusableQueries.getByResourceId(kAppRuntimeStatsDocId));
+    .getOneByQuery(
+      EndpointReusableQueries.getByResourceId(kAppRuntimeStatsDocId)
+    );
   return appRuntimeState;
 }
 
@@ -301,7 +324,8 @@ async function insertRuntimeVars(
       appWorkspaceId: workspace.resourceId,
       appWorkspacesImageUploadPermissionGroupId:
         appWorkspacesImageUploadPermissionGroup.resourceId,
-      appUsersImageUploadPermissionGroupId: appUsersImageUploadPermissionGroup.resourceId,
+      appUsersImageUploadPermissionGroupId:
+        appUsersImageUploadPermissionGroup.resourceId,
     };
 
     await kDataModels.appRuntimeState().insertItem(
@@ -326,13 +350,16 @@ async function setupAppArtifacts(agent: SessionAgent) {
     appSetupVars.workspaceName,
     appSetupVars.rootname
   );
-  const {workspaceImagesFolder, userImagesFolder} = await setupFolders(workspace);
-  const {appWorkspacesImageUploadPermissionGroup, appUsersImageUploadPermissionGroup} =
-    await setupRootWorkspacePermissionGroups(
-      workspace,
-      workspaceImagesFolder,
-      userImagesFolder
-    );
+  const {workspaceImagesFolder, userImagesFolder} =
+    await setupFolders(workspace);
+  const {
+    appWorkspacesImageUploadPermissionGroup,
+    appUsersImageUploadPermissionGroup,
+  } = await setupRootWorkspacePermissionGroups(
+    workspace,
+    workspaceImagesFolder,
+    userImagesFolder
+  );
   const {appRuntimeVars} = await insertRuntimeVars(
     workspace,
     appWorkspacesImageUploadPermissionGroup,

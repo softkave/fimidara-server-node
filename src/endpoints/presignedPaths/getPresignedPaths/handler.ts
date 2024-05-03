@@ -1,4 +1,4 @@
-import {compact, keyBy, map, uniqBy} from 'lodash';
+import {compact, keyBy, map, uniqBy} from 'lodash-es';
 import {FileMatcher} from '../../../definitions/file.js';
 import {PresignedPath} from '../../../definitions/presignedPath.js';
 import {SessionAgent} from '../../../definitions/system.js';
@@ -8,80 +8,89 @@ import {mergeData} from '../../../utils/fns.js';
 import {validate} from '../../../utils/validate.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {NotFoundError} from '../../errors.js';
 import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils.js';
 import {assertRootname} from '../../workspaces/utils.js';
-import {GetPresignedPathsForFilesEndpoint, GetPresignedPathsForFilesItem} from './types.js';
+import {
+  GetPresignedPathsForFilesEndpoint,
+  GetPresignedPathsForFilesItem,
+} from './types.js';
 import {getPresignedPathsForFilesJoiSchema} from './validation.js';
 
 // TODO: filter out expired or spent presigned paths and delete them
 
-const getPresignedPathsForFiles: GetPresignedPathsForFilesEndpoint = async instData => {
-  const data = validate(instData.data, getPresignedPathsForFilesJoiSchema);
-  const agent = await kUtilsInjectables
-    .session()
-    .getAgentFromReq(
-      instData,
-      kSessionUtils.permittedAgentTypes.api,
-      kSessionUtils.accessScopes.api
-    );
-  let pList: Array<PresignedPath> = [],
-    workspaceDict: Record<string, Workspace> = {};
+const getPresignedPathsForFiles: GetPresignedPathsForFilesEndpoint =
+  async instData => {
+    const data = validate(instData.data, getPresignedPathsForFilesJoiSchema);
+    const agent = await kUtilsInjectables
+      .session()
+      .getAgentFromReq(
+        instData,
+        kSessionUtils.permittedAgentTypes.api,
+        kSessionUtils.accessScopes.api
+      );
+    let pList: Array<PresignedPath> = [],
+      workspaceDict: Record<string, Workspace> = {};
 
-  if (data.files) {
-    const uniqFileMatcherList = uniqBy(
-      data.files,
-      matcher => matcher.fileId || matcher.filepath
-    );
+    if (data.files) {
+      const uniqFileMatcherList = uniqBy(
+        data.files,
+        matcher => matcher.fileId || matcher.filepath
+      );
 
-    // Fetch presigned paths generated for files with matcher and optional
-    // workspaceId.
-    ({pList, workspaceDict} = await getPresignedPathsByFileMatchers(
-      agent,
-      uniqFileMatcherList,
-      data.workspaceId
-    ));
-  } else {
-    // Fetch agent's presigned paths with optional workspaceId.
-    pList = await kSemanticModels.presignedPath().getManyByQuery({
-      issuerAgentTokenId: agent.agentTokenId,
-      workspaceId: data.workspaceId,
+      // Fetch presigned paths generated for files with matcher and optional
+      // workspaceId.
+      ({pList, workspaceDict} = await getPresignedPathsByFileMatchers(
+        agent,
+        uniqFileMatcherList,
+        data.workspaceId
+      ));
+    } else {
+      // Fetch agent's presigned paths with optional workspaceId.
+      pList = await kSemanticModels.presignedPath().getManyByQuery({
+        issuerAgentTokenId: agent.agentTokenId,
+        workspaceId: data.workspaceId,
+      });
+    }
+
+    // TODO: delete expired or spent paths filtered out
+    const {activePaths} = filterActivePaths(pList);
+    await fetchAndMergeUnfetchedWorkspaces(activePaths, workspaceDict);
+
+    // Map of presigned path to filepath with rootname ensuring returned paths are
+    // unique.
+    const activePathsMap: Record<
+      /** presigned path resourceId */ string,
+      /** filepath with workspace rootname */ string
+    > = {};
+
+    activePaths.forEach(nextPath => {
+      const workspace = workspaceDict[nextPath.workspaceId];
+      appAssert(
+        workspace,
+        new NotFoundError(
+          `Workspace not found for path ${stringifyFilenamepath(nextPath)}`
+        )
+      );
+      const filepath = stringifyFilenamepath(nextPath, workspace.rootname);
+      activePathsMap[nextPath.resourceId] = filepath;
     });
-  }
 
-  // TODO: delete expired or spent paths filtered out
-  const {activePaths} = filterActivePaths(pList);
-  await fetchAndMergeUnfetchedWorkspaces(activePaths, workspaceDict);
-
-  // Map of presigned path to filepath with rootname ensuring returned paths are
-  // unique.
-  const activePathsMap: Record<
-    /** presigned path resourceId */ string,
-    /** filepath with workspace rootname */ string
-  > = {};
-
-  activePaths.forEach(nextPath => {
-    const workspace = workspaceDict[nextPath.workspaceId];
-    appAssert(
-      workspace,
-      new NotFoundError(`Workspace not found for path ${stringifyFilenamepath(nextPath)}`)
+    const paths: GetPresignedPathsForFilesItem[] = map(
+      activePathsMap,
+      (filepath, pathId) => ({
+        filepath,
+        path: pathId,
+      })
     );
-    const filepath = stringifyFilenamepath(nextPath, workspace.rootname);
-    activePathsMap[nextPath.resourceId] = filepath;
-  });
 
-  const paths: GetPresignedPathsForFilesItem[] = map(
-    activePathsMap,
-    (filepath, pathId) => ({
-      filepath,
-      path: pathId,
-    })
-  );
-
-  return {paths};
-};
+    return {paths};
+  };
 
 async function getPresignedPathsByFileMatchers(
   agent: SessionAgent,
@@ -113,23 +122,29 @@ async function getPresignedPathsByFileMatchers(
 
         if (!workspaceId) {
           assertRootname(pathinfo.rootname);
-          workspace = await kSemanticModels.workspace().getByRootname(pathinfo.rootname);
+          workspace = await kSemanticModels
+            .workspace()
+            .getByRootname(pathinfo.rootname);
           appAssert(
             workspace,
-            new NotFoundError(`Workspace with rootname ${pathinfo.rootname} not found`)
+            new NotFoundError(
+              `Workspace with rootname ${pathinfo.rootname} not found`
+            )
           );
           workspaceDict[workspace.resourceId] = workspace;
           workspaceId = workspace.resourceId;
         }
 
-        const presignedPath = await kSemanticModels.presignedPath().getOneByFilepath(
-          {
-            workspaceId,
-            namepath: pathinfo.namepath,
-            ext: pathinfo.ext,
-          },
-          opts
-        );
+        const presignedPath = await kSemanticModels
+          .presignedPath()
+          .getOneByFilepath(
+            {
+              workspaceId,
+              namepath: pathinfo.namepath,
+              ext: pathinfo.ext,
+            },
+            opts
+          );
 
         if (presignedPath) {
           pList.push(presignedPath);
@@ -154,7 +169,9 @@ async function fetchAndMergeUnfetchedWorkspaces(
   mergeData(
     workspaceDict,
     keyBy(
-      await kSemanticModels.workspace().getManyByIdList(unfetchedWorkspaceIdList),
+      await kSemanticModels
+        .workspace()
+        .getManyByIdList(unfetchedWorkspaceIdList),
       w => w.resourceId
     ),
     {arrayUpdateStrategy: 'replace'}
@@ -195,7 +212,8 @@ function filterActivePaths(presignedPaths: Array<PresignedPath | null>) {
     if (!nextPath) {
       return;
     } else if (
-      (nextPath.maxUsageCount && nextPath.maxUsageCount <= nextPath.spentUsageCount) ||
+      (nextPath.maxUsageCount &&
+        nextPath.maxUsageCount <= nextPath.spentUsageCount) ||
       (nextPath.expiresAt && nextPath.expiresAt < now)
     ) {
       expiredOrSpentPaths.push(nextPath);

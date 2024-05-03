@@ -1,4 +1,5 @@
-import {flatten} from 'lodash';
+import {flatten} from 'lodash-es';
+import {afterAll, beforeAll, describe, test} from 'vitest';
 import {AgentToken} from '../../../../../definitions/agentToken.js';
 import {Folder} from '../../../../../definitions/folder.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
@@ -19,6 +20,7 @@ import {
   insertWorkspaceForTest,
 } from '../../../../testUtils/testUtils.js';
 import {deleteFolderCascadeEntry} from '../folder.js';
+import {DeleteResourceCascadeEntry} from '../types.js';
 import {
   GenerateTypeChildrenDefinition,
   generatePermissionItemsAsChildren,
@@ -27,7 +29,6 @@ import {
   testDeleteResourceJob0,
   testDeleteResourceSelfJob,
 } from './testUtils.js';
-import {DeleteResourceCascadeEntry} from '../types.js';
 
 beforeAll(async () => {
   await initTests();
@@ -97,7 +98,8 @@ describe('runDeleteResourceJob, folder', () => {
       genResourceFn: () => Promise.resolve(rawFolder),
       genWorkspaceFn: () => Promise.resolve(workspace.resourceId),
       genChildrenDef: folderGenerateTypeChildren,
-      deleteCascadeDef: deleteFolderCascadeEntry as unknown as DeleteResourceCascadeEntry,
+      deleteCascadeDef:
+        deleteFolderCascadeEntry as unknown as DeleteResourceCascadeEntry,
       type: kFimidaraResourceType.Folder,
     });
   });

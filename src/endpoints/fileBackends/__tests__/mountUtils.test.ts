@@ -1,4 +1,5 @@
 import {faker} from '@faker-js/faker';
+import {test, expect, describe, beforeAll, afterAll, beforeEach, afterEach} from 'vitest';
 import {
   FileBackendConfig,
   FileBackendMount,

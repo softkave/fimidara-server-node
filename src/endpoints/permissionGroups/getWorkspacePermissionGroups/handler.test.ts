@@ -3,6 +3,7 @@ import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,

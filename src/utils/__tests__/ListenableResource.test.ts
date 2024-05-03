@@ -1,4 +1,5 @@
 import {ListenableResource} from '../ListenableResource.js';
+import {describe, test, expect, vi} from 'vitest';
 
 describe('ListenableResource', () => {
   test('run', async () => {
@@ -6,10 +7,10 @@ describe('ListenableResource', () => {
     const data01 = 'data01';
     const data02 = 'data02';
 
-    const fn01 = jest.fn().mockImplementation((data: string) => {
+    const fn01 = vi.fn().mockImplementation((data: string) => {
       expect(data).toBe(data01);
     });
-    const fn02 = jest.fn().mockImplementation((data: string) => {
+    const fn02 = vi.fn().mockImplementation((data: string) => {
       expect(data).toBe(data01);
     });
 

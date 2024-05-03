@@ -4,6 +4,7 @@ import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import EndpointReusableQueries from '../../queries.js';
 import {completeTests, skTest} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,

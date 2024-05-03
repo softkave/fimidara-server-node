@@ -1,4 +1,4 @@
-import {noop} from 'lodash';
+import {noop} from 'lodash-es';
 import {appAssert} from '../../../utils/assertion.js';
 import {getNewId} from '../../../utils/resource.js';
 import {

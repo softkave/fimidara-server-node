@@ -1,4 +1,5 @@
 import assert from 'assert';
+import {afterEach, beforeEach, describe, expect} from 'vitest';
 import {kFileBackendType} from '../../../definitions/fileBackend.js';
 import RequestData from '../../RequestData.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
@@ -43,8 +44,6 @@ import {uploadFileBaseTest} from './uploadFileTestUtils.js';
  * - stale versions removed
  */
 
-jest.setTimeout(300000); // 5 minutes
-
 beforeEach(async () => {
   await initTests();
 });
@@ -59,21 +58,25 @@ describe('uploadFile', () => {
     const {userToken} = insertUserResult;
     const insertWorkspaceResult = await insertWorkspaceForTest(userToken);
     const {workspace} = insertWorkspaceResult;
-    const filepath = generateTestFilepath({rootname: workspace.rootname, length: 4});
-    const [{rawMount: closerMount}, {rawMount: fartherMount}] = await Promise.all([
-      insertFileBackendMountForTest(userToken, workspace, {
-        folderpath: stringifyFoldernamepath(
-          {namepath: filepath.slice(0, -1)}
-          // filepath already has rootname in it
-        ),
-      }),
-      insertFileBackendMountForTest(userToken, workspace, {
-        folderpath: stringifyFoldernamepath(
-          {namepath: filepath.slice(0, -2)}
-          // filepath already has rootname in it
-        ),
-      }),
-    ]);
+    const filepath = generateTestFilepath({
+      rootname: workspace.rootname,
+      length: 4,
+    });
+    const [{rawMount: closerMount}, {rawMount: fartherMount}] =
+      await Promise.all([
+        insertFileBackendMountForTest(userToken, workspace, {
+          folderpath: stringifyFoldernamepath(
+            {namepath: filepath.slice(0, -1)}
+            // filepath already has rootname in it
+          ),
+        }),
+        insertFileBackendMountForTest(userToken, workspace, {
+          folderpath: stringifyFoldernamepath(
+            {namepath: filepath.slice(0, -2)}
+            // filepath already has rootname in it
+          ),
+        }),
+      ]);
     const closerMountBackend = new MemoryFilePersistenceProvider();
     const fartherMountBackend = new MemoryFilePersistenceProvider();
     kRegisterUtilsInjectables.fileProviderResolver(forMount => {
@@ -117,23 +120,27 @@ describe('uploadFile', () => {
       const {userToken} = insertUserResult;
       const insertWorkspaceResult = await insertWorkspaceForTest(userToken);
       const {workspace} = insertWorkspaceResult;
-      const filepath = generateTestFilepath({rootname: workspace.rootname, length: 4});
-      const [{rawMount: closerMount}, {rawMount: fartherMount}] = await Promise.all([
-        insertFileBackendMountForTest(userToken, workspace, {
-          folderpath: stringifyFoldernamepath(
-            {namepath: filepath.slice(0, -1)}
-            // filepath already has rootname
-          ),
-          index: 2,
-        }),
-        insertFileBackendMountForTest(userToken, workspace, {
-          folderpath: stringifyFoldernamepath(
-            {namepath: filepath.slice(0, -1)}
-            // filepath already has rootname
-          ),
-          index: 1,
-        }),
-      ]);
+      const filepath = generateTestFilepath({
+        rootname: workspace.rootname,
+        length: 4,
+      });
+      const [{rawMount: closerMount}, {rawMount: fartherMount}] =
+        await Promise.all([
+          insertFileBackendMountForTest(userToken, workspace, {
+            folderpath: stringifyFoldernamepath(
+              {namepath: filepath.slice(0, -1)}
+              // filepath already has rootname
+            ),
+            index: 2,
+          }),
+          insertFileBackendMountForTest(userToken, workspace, {
+            folderpath: stringifyFoldernamepath(
+              {namepath: filepath.slice(0, -1)}
+              // filepath already has rootname
+            ),
+            index: 1,
+          }),
+        ]);
       const closerMountBackend = new MemoryFilePersistenceProvider();
       const fartherMountBackend = new MemoryFilePersistenceProvider();
       kRegisterUtilsInjectables.fileProviderResolver(forMount => {
@@ -174,10 +181,8 @@ describe('uploadFile', () => {
       return backend;
     });
 
-    const {savedFile, insertUserResult, insertWorkspaceResult} = await uploadFileBaseTest(
-      /** seed */ {},
-      /** type */ 'png'
-    );
+    const {savedFile, insertUserResult, insertWorkspaceResult} =
+      await uploadFileBaseTest(/** seed */ {}, /** type */ 'png');
 
     const matcher: Partial<UploadFileEndpointParams> = {
       filepath: stringifyFilenamepath(
@@ -204,8 +209,12 @@ describe('uploadFile', () => {
     expect(savedFile.resourceId).toBe(updatedFile.resourceId);
     expect(savedFile.name).toBe(updatedFile.name);
     expect(savedFile.ext).toBe(updatedFile.ext);
-    expect(savedFile.idPath).toEqual(expect.arrayContaining(updatedFile.idPath));
-    expect(savedFile.namepath).toEqual(expect.arrayContaining(updatedFile.namepath));
+    expect(savedFile.idPath).toEqual(
+      expect.arrayContaining(updatedFile.idPath)
+    );
+    expect(savedFile.namepath).toEqual(
+      expect.arrayContaining(updatedFile.namepath)
+    );
     expect(savedFile.description).not.toBe(updatedFile.description);
     expect(savedFile.mimetype).not.toBe(updatedFile.mimetype);
     expect(savedFile.size).not.toBe(updatedFile.size);
@@ -216,10 +225,12 @@ describe('uploadFile', () => {
       agentType: agent.agentType,
     });
 
-    const fimidaraMount = await kSemanticModels.fileBackendMount().getOneByQuery({
-      workspaceId: insertWorkspaceResult.workspace.resourceId,
-      backend: kFileBackendType.fimidara,
-    });
+    const fimidaraMount = await kSemanticModels
+      .fileBackendMount()
+      .getOneByQuery({
+        workspaceId: insertWorkspaceResult.workspace.resourceId,
+        backend: kFileBackendType.fimidara,
+      });
     assert(fimidaraMount);
     const persistedFile = backend.getMemoryFile({
       mount: fimidaraMount,
@@ -254,7 +265,10 @@ describe('uploadFile', () => {
   });
 
   skTest.run('file sized correctly', async () => {
-    const {dataBuffer, savedFile} = await uploadFileBaseTest(/** seed */ {}, 'png');
+    const {dataBuffer, savedFile} = await uploadFileBaseTest(
+      /** seed */ {},
+      'png'
+    );
 
     expect(dataBuffer.byteLength).toBeGreaterThan(0);
     expect(savedFile.size).toBe(dataBuffer.byteLength);
@@ -281,7 +295,9 @@ describe('uploadFile', () => {
 
     expect(savedFile.version).toBe(2);
 
-    const dbFile = await kSemanticModels.file().getOneById(savedFile.resourceId);
+    const dbFile = await kSemanticModels
+      .file()
+      .getOneById(savedFile.resourceId);
     expect(dbFile?.version).toBe(2);
   });
 
@@ -345,7 +361,12 @@ describe('uploadFile', () => {
     expect(dbFile02?.resourceId).not.toBe(dbFile03?.resourceId);
 
     // Replace file to confirm only the file with that ext is updated
-    await insertFileForTest(userToken, workspace, {filepath: filepath01}, 'txt');
+    await insertFileForTest(
+      userToken,
+      workspace,
+      {filepath: filepath01},
+      'txt'
+    );
 
     const [latestDbFile01, latestDbFile02, latestDbFile03] = await Promise.all([
       kSemanticModels.file().getOneByNamepath({
@@ -370,48 +391,54 @@ describe('uploadFile', () => {
     expect(latestDbFile03?.lastUpdatedAt).toBe(dbFile03?.lastUpdatedAt);
   });
 
-  skTest.run('file not read available if is new until upload is complete', async () => {
-    const insertUserResult = await insertUserForTest();
-    const insertWorkspaceResult = await insertWorkspaceForTest(
-      insertUserResult.userToken
-    );
+  skTest.run(
+    'file not read available if is new until upload is complete',
+    async () => {
+      const insertUserResult = await insertUserForTest();
+      const insertWorkspaceResult = await insertWorkspaceForTest(
+        insertUserResult.userToken
+      );
 
-    const {workspace} = insertWorkspaceResult;
-    const filepath = generateTestFilepathString({rootname: workspace.rootname});
+      const {workspace} = insertWorkspaceResult;
+      const filepath = generateTestFilepathString({
+        rootname: workspace.rootname,
+      });
 
-    async function expectReadFileFails() {
-      try {
-        const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
-          mockExpressRequestWithAgentToken(insertUserResult.userToken),
-          {filepath}
-        );
-        await readFile(instData);
-      } catch (error) {
-        expect((error as Error)?.name).toBe(FileNotWritableError.name);
+      async function expectReadFileFails() {
+        try {
+          const instData =
+            RequestData.fromExpressRequest<ReadFileEndpointParams>(
+              mockExpressRequestWithAgentToken(insertUserResult.userToken),
+              {filepath}
+            );
+          await readFile(instData);
+        } catch (error) {
+          expect((error as Error)?.name).toBe(FileNotWritableError.name);
+        }
       }
+
+      class TestFileProvider
+        extends MemoryFilePersistenceProvider
+        implements FilePersistenceProvider
+      {
+        uploadFile = async (params: FilePersistenceUploadFileParams) => {
+          await expectReadFileFails();
+          return super.uploadFile(params);
+        };
+      }
+
+      kRegisterUtilsInjectables.fileProviderResolver(() => {
+        return new TestFileProvider();
+      });
+
+      await uploadFileBaseTest(
+        /** input */ {filepath},
+        'png',
+        insertUserResult,
+        insertWorkspaceResult
+      );
     }
-
-    class TestFileProvider
-      extends MemoryFilePersistenceProvider
-      implements FilePersistenceProvider
-    {
-      uploadFile = async (params: FilePersistenceUploadFileParams) => {
-        await expectReadFileFails();
-        return super.uploadFile(params);
-      };
-    }
-
-    kRegisterUtilsInjectables.fileProviderResolver(() => {
-      return new TestFileProvider();
-    });
-
-    await uploadFileBaseTest(
-      /** input */ {filepath},
-      'png',
-      insertUserResult,
-      insertWorkspaceResult
-    );
-  });
+  );
 
   skTest.run('file read available if file is existing', async () => {
     const mem = new MemoryFilePersistenceProvider();
@@ -482,7 +509,10 @@ describe('uploadFile', () => {
     await expectErrorThrown(async () => {
       await uploadFileBaseTest(
         /** input */ {
-          filepath: stringifyFilenamepath(file, insertWorkspaceResult.workspace.rootname),
+          filepath: stringifyFilenamepath(
+            file,
+            insertWorkspaceResult.workspace.rootname
+          ),
         },
         /** type */ 'png',
         insertUserResult,

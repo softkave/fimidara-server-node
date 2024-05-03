@@ -1,4 +1,5 @@
-import {omit} from 'lodash';
+import {omit} from 'lodash-es';
+import {afterAll, beforeAll, describe, test} from 'vitest';
 import {pathSplit} from '../../../utils/fns.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {FolderQueries} from '../../folders/queries.js';
@@ -42,18 +43,22 @@ describe('getFileBackendMounts', () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
 
-    const queryDefs: GenerateTestFieldsDef<GetFileBackendMountsEndpointParamsBase> = {
-      backend: generateFileBackendType,
-      configId: async () => {
-        const [config] = await generateAndInsertFileBackendConfigListForTest(1, {
-          workspaceId: workspace.resourceId,
-        });
+    const queryDefs: GenerateTestFieldsDef<GetFileBackendMountsEndpointParamsBase> =
+      {
+        backend: generateFileBackendType,
+        configId: async () => {
+          const [config] = await generateAndInsertFileBackendConfigListForTest(
+            1,
+            {
+              workspaceId: workspace.resourceId,
+            }
+          );
 
-        return config.resourceId;
-      },
-      workspaceId: () => workspace.resourceId,
-      folderpath: () => generateTestFolderpathString(),
-    };
+          return config.resourceId;
+        },
+        workspaceId: () => workspace.resourceId,
+        folderpath: () => generateTestFolderpathString(),
+      };
     const queries = await generateTestFieldsCombinations(
       queryDefs,
       TestFieldsPresetCombinations.incrementallyAdd
@@ -72,7 +77,9 @@ describe('getFileBackendMounts', () => {
           EndpointReusableQueries.merge(
             {},
             query,
-            folderpath ? FolderQueries.getByNamepathOnly({namepath: folderpath}) : {}
+            folderpath
+              ? FolderQueries.getByNamepathOnly({namepath: folderpath})
+              : {}
           )
         );
 

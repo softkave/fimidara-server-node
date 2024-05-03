@@ -8,6 +8,7 @@ import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {initTests} from '../../testUtils/testUtils.js';
 import {ChangePasswordError, PermissionDeniedError} from '../../users/errors.js';
 import {kUtilsInjectables} from '../injection/injectables.js';
+import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 
 beforeAll(async () => {
   await initTests();

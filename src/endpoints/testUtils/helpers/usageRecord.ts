@@ -1,4 +1,4 @@
-import {defaultTo} from 'lodash';
+import {defaultTo} from 'lodash-es';
 import {UsageRecordCategory} from '../../../definitions/usageRecord.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';

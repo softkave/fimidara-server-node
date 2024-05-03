@@ -1,8 +1,11 @@
-import {pick} from 'lodash';
+import {pick} from 'lodash-es';
 import {File} from '../../../definitions/file.js';
 import {ResolvedMountEntry} from '../../../definitions/fileBackend.js';
 import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
-import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {
+  SessionAgent,
+  kFimidaraResourceType,
+} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
@@ -94,12 +97,21 @@ const uploadFile: UploadFileEndpoint = async instData => {
         .getAndUpdateOneById(file.resourceId, {isWriteAvailable: false}, opts);
       isNewFile = false;
     } else {
-      appAssert(data.filepath, new ValidationError('Provide a filepath for new files'));
+      appAssert(
+        data.filepath,
+        new ValidationError('Provide a filepath for new files')
+      );
       const pathinfo = getFilepathInfo(data.filepath, {
         containsRootname: true,
         allowRootFolder: false,
       });
-      const file = await createAndInsertNewFile(agent, workspace, pathinfo, data, opts);
+      const file = await createAndInsertNewFile(
+        agent,
+        workspace,
+        pathinfo,
+        data,
+        opts
+      );
       await checkUploadFileAuth(agent, workspace, file, null, opts);
       isNewFile = true;
     }
@@ -176,7 +188,9 @@ const uploadFile: UploadFileEndpoint = async instData => {
       );
 
       const [savedFile] = await Promise.all([
-        kSemanticModels.file().getAndUpdateOneById(file.resourceId, update, opts),
+        kSemanticModels
+          .file()
+          .getAndUpdateOneById(file.resourceId, update, opts),
         kSemanticModels.resolvedMountEntry().insertItem(newMountEntry, opts),
       ]);
 

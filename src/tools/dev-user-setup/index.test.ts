@@ -4,6 +4,7 @@ import {generateAndInsertUserListForTest} from '../../endpoints/testUtils/genera
 import {completeTests} from '../../endpoints/testUtils/helpers/testFns.js';
 import {initTests} from '../../endpoints/testUtils/testUtils.js';
 import {ISetupDevUserOptions, setupDevUser} from './utils.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 
 beforeAll(async () => {
   initTests();

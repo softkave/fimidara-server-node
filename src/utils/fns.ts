@@ -1,4 +1,4 @@
-import {compact, flatten, isArray, isObject, mergeWith, uniq} from 'lodash';
+import {compact, flatten, isArray, isObject, mergeWith, uniq} from 'lodash-es';
 import path from 'path';
 import {Readable} from 'stream';
 import {ValueOf} from 'type-fest';
@@ -119,7 +119,8 @@ export function calculatePageSize(
   }
 
   const maxFullPages = Math.floor(count / pageSize);
-  const pageCount = page < maxFullPages ? pageSize : count - maxFullPages * pageSize;
+  const pageCount =
+    page < maxFullPages ? pageSize : count - maxFullPages * pageSize;
   return pageCount;
 }
 
@@ -131,7 +132,9 @@ export function getResourceId(resource: Pick<Resource, 'resourceId'>) {
   return resource.resourceId;
 }
 
-export function extractResourceIdList(resources: Pick<Resource, 'resourceId'>[]) {
+export function extractResourceIdList(
+  resources: Pick<Resource, 'resourceId'>[]
+) {
   return resources.map(getResourceId);
 }
 
@@ -227,7 +230,9 @@ export async function loopAsync<
     } else if (settlement === 'allSettled') {
       await Promise.allSettled(promises);
     } else {
-      throw kReuseableErrors.common.invalidState(`Unknown settlement type ${settlement}`);
+      throw kReuseableErrors.common.invalidState(
+        `Unknown settlement type ${settlement}`
+      );
     }
   }
 }
@@ -240,7 +245,10 @@ export function loopAndCollate<
   TOtherParams extends unknown[],
   TFn extends AnyFn<[number, ...TOtherParams]>,
 >(fn: TFn, max: number, ...otherParams: TOtherParams): Array<ReturnType<TFn>> {
-  appAssert(max >= 0, 'loopAndCollate max should be greater than or equal to 0');
+  appAssert(
+    max >= 0,
+    'loopAndCollate max should be greater than or equal to 0'
+  );
   const result: Array<ReturnType<TFn>> = Array(max);
 
   for (let i = 0; i < max; i++) {
@@ -267,7 +275,10 @@ export async function loopAndCollateAsync<
   settlement: TSettlementType,
   ...otherParams: TOtherParams
 ): Promise<TResult> {
-  appAssert(max >= 0, 'loopAndCollateAsync max should be greater than or equal to 0');
+  appAssert(
+    max >= 0,
+    'loopAndCollateAsync max should be greater than or equal to 0'
+  );
 
   if (settlement === 'oneByOne') {
     const result: unknown[] = Array(max);
@@ -291,7 +302,9 @@ export async function loopAndCollateAsync<
     }
   }
 
-  throw kReuseableErrors.common.invalidState(`Unknown settlement type ${settlement}`);
+  throw kReuseableErrors.common.invalidState(
+    `Unknown settlement type ${settlement}`
+  );
 }
 
 export function pick00<T>(data: T, keys: Array<keyof T>) {
@@ -364,7 +377,9 @@ export function overArgsAsync<
   usePromiseSettled: TUsePromiseSettled,
   transformFn: TTransformFn
 ) {
-  return async (...args: Parameters<TFn>): Promise<Awaited<ReturnType<TTransformFn>>> => {
+  return async (
+    ...args: Parameters<TFn>
+  ): Promise<Awaited<ReturnType<TTransformFn>>> => {
     const promises = fns.map(fn => fn(...args));
     const result = await (usePromiseSettled
       ? Promise.allSettled(promises)
@@ -429,7 +444,10 @@ export function identityArgs<TArgs extends unknown[]>(...args: TArgs) {
 export function omitDeep(data: AnyObject, byFn: AnyFn<[unknown], boolean>) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result: any = isArray(data) ? [] : isObject(data) ? {} : undefined;
-  appAssert(result, 'Could not resolve result, data was not an array or object');
+  appAssert(
+    result,
+    'Could not resolve result, data was not an array or object'
+  );
 
   for (const key in data) {
     let value = data[key];
@@ -448,7 +466,9 @@ export function omitDeep(data: AnyObject, byFn: AnyFn<[unknown], boolean>) {
 
 export function pathJoin(...args: Array<string | string[]>) {
   let pJoined = path.posix.join(
-    ...args.map(arg => (isArray(arg) ? arg.join(kFolderConstants.separator) : arg))
+    ...args.map(arg =>
+      isArray(arg) ? arg.join(kFolderConstants.separator) : arg
+    )
   );
 
   if (pJoined.match(/^[./]*$/) || !pJoined) {

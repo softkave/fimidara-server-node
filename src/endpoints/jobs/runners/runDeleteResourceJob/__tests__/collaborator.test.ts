@@ -1,6 +1,10 @@
 import assert from 'assert';
-import {flatten} from 'lodash';
-import {Resource, kFimidaraResourceType} from '../../../../../definitions/system.js';
+import {flatten} from 'lodash-es';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {
+  Resource,
+  kFimidaraResourceType,
+} from '../../../../../definitions/system.js';
 import {User} from '../../../../../definitions/user.js';
 import {kSystemSessionAgent} from '../../../../../utils/agent.js';
 import {extractResourceIdList} from '../../../../../utils/fns.js';
@@ -55,8 +59,13 @@ const genResourceFn: GenerateResourceFn<User> = async ({workspaceId}) => {
   return collaborator;
 };
 
-async function findWorkspaceCollaboratorAssignedItem(id: string, workspaceId: string) {
-  const assignedItems = await kSemanticModels.assignedItem().getUserWorkspaces(id);
+async function findWorkspaceCollaboratorAssignedItem(
+  id: string,
+  workspaceId: string
+) {
+  const assignedItems = await kSemanticModels
+    .assignedItem()
+    .getUserWorkspaces(id);
   return assignedItems.find(item => item.workspaceId === workspaceId);
 }
 
@@ -64,16 +73,28 @@ async function generateNonWorkspaceResources(id: string) {
   const otherWorkspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
   const [pItems, files] = await Promise.all([
     generateAndInsertPermissionItemListForTest(2, {entityId: id}),
-    generateAndInsertTestFiles(2, {workspaceId: otherWorkspaceId, parentId: null}),
+    generateAndInsertTestFiles(2, {
+      workspaceId: otherWorkspaceId,
+      parentId: null,
+    }),
     kSemanticModels
       .utils()
       .withTxn(
-        opts => assignWorkspaceToUser(kSystemSessionAgent, otherWorkspaceId, id, opts),
+        opts =>
+          assignWorkspaceToUser(
+            kSystemSessionAgent,
+            otherWorkspaceId,
+            id,
+            opts
+          ),
         /** reuseTxn */ true
       ),
   ]);
 
-  const assignedItem = findWorkspaceCollaboratorAssignedItem(id, otherWorkspaceId);
+  const assignedItem = findWorkspaceCollaboratorAssignedItem(
+    id,
+    otherWorkspaceId
+  );
   assert(assignedItem);
 
   return {assignedItem, pItems, files, otherWorkspaceId};
@@ -87,7 +108,9 @@ async function expectNonWorkspaceUserResourcesRemain(
   const {pItems, files, otherWorkspaceId} = resources;
   const [dbAssignedItem, dbPItems, dbFiles] = await Promise.all([
     findWorkspaceCollaboratorAssignedItem(id, otherWorkspaceId),
-    kSemanticModels.permissionItem().getManyByIdList(extractResourceIdList(pItems)),
+    kSemanticModels
+      .permissionItem()
+      .getManyByIdList(extractResourceIdList(pItems)),
     kSemanticModels.file().getManyByIdList(extractResourceIdList(files)),
   ]);
 
@@ -147,7 +170,9 @@ describe('runDeleteResourceJob, agent token', () => {
       },
     });
 
-    const dbUser = await kSemanticModels.user().getOneById(collaborator.resourceId);
+    const dbUser = await kSemanticModels
+      .user()
+      .getOneById(collaborator.resourceId);
     expect(dbUser).toBeTruthy();
 
     await expectNonWorkspaceUserResourcesRemain(

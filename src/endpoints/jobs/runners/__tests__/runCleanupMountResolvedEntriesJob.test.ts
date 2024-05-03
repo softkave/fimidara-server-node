@@ -6,6 +6,7 @@ import {generateAndInsertResolvedMountEntryListForTest} from '../../../testUtils
 import {completeTests} from '../../../testUtils/helpers/testFns.js';
 import {initTests} from '../../../testUtils/testUtils.js';
 import {runCleanupMountResolvedEntriesJob} from '../runCleanupMountResolvedEntriesJob.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 
 beforeAll(async () => {
   await initTests();

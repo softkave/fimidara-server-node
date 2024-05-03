@@ -1,4 +1,4 @@
-import {isString} from 'lodash';
+import {isString} from 'lodash-es';
 import {File} from '../../definitions/file.js';
 import {Folder} from '../../definitions/folder.js';
 import {FileQuery} from '../contexts/data/types.js';

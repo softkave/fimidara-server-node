@@ -35,6 +35,9 @@
     "publish-to-npm": "npm run compile && npm publish",
     "show-packlist": "npm run compile && npm pack --dry-run"
   },
+  "engines": {
+    "node": ">=13"
+  },
   "devDependencies": {
     "@types/jest": "^29.5.1",
     "@types/node": "^14.11.2",
@@ -48,7 +51,7 @@
   "dependencies": {
     "assert": "^2.1.0",
     "axios": "^1.4.0",
-    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "path-browserify": "^1.0.1"
   }
 }

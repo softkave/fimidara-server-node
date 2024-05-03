@@ -1,3 +1,4 @@
+import {Mock} from 'vitest';
 import {AnyFn} from '../../../utils/types.js';
 import {IEmailProviderContext} from '../../contexts/email/types.js';
 import {FilePersistenceProvider} from '../../contexts/file/types.js';
@@ -5,9 +6,10 @@ import {FilePersistenceProvider} from '../../contexts/file/types.js';
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 export type LayerJestMock<T extends {[key: string]: any}> = {
   [K in keyof T]: T[K] extends AnyFn
-    ? jest.Mock<ReturnType<T[K]>, Parameters<T[K]>>
+    ? Mock<Parameters<T[K]>, ReturnType<T[K]>>
     : T[K];
 };
 
-export type ITestEmailProviderContext = LayerJestMock<IEmailProviderContext>;
-export type ITestFilePersistenceProviderContext = LayerJestMock<FilePersistenceProvider>;
+export type TestEmailProviderContext = LayerJestMock<IEmailProviderContext>;
+export type TestFilePersistenceProviderContext =
+  LayerJestMock<FilePersistenceProvider>;

@@ -8,6 +8,7 @@ import {FWorker, FWorkerData, kFWorkerMessageType} from '../FWorker.js';
 import {FWorkerMain} from '../FWorkerMain.js';
 import {FWorkerMessager} from '../FWorkerMessager.js';
 import {kFWorkerTestWorkerTerminateMessage} from '../testUtils/FWorkerTestWorker.js';
+import {test, beforeAll, afterEach, afterAll, describe, expect, vi} from 'vitest';
 
 const kWorkerTestFilepath =
   './build/src/endpoints/jobs/fworker/testUtils/FWorkerTestWorker.js';
@@ -52,7 +53,7 @@ describe('FWorker', () => {
   test('terminate', async () => {
     const {port1: parentPort, port2: workerPort} = new MessageChannel();
     const wData: FWorkerData = {port: workerPort, workerId: '1'};
-    const onTerminateFn = jest.fn();
+    const onTerminateFn = vi.fn();
     worker = new Worker(kWorkerTestFilepath, {
       workerData: wData,
       transferList: [wData.port],
@@ -84,7 +85,7 @@ describe('FWorker', () => {
       });
     });
     const wData: FWorkerData = {port: workerPort, workerId: '1'};
-    const onTerminateFn = jest.fn();
+    const onTerminateFn = vi.fn();
     worker = new Worker(kWorkerTestFilepath, {
       workerData: wData,
       transferList: [wData.port],

@@ -10,6 +10,7 @@ import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/u
 import {completeTests} from '../../../../testUtils/helpers/testFns.js';
 import {initTests} from '../../../../testUtils/testUtils.js';
 import {sendUserUpgradedFromWaitlistEmail} from '../sendUserUpgradedFromWaitlistEmail.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 
 beforeAll(async () => {
   await initTests();

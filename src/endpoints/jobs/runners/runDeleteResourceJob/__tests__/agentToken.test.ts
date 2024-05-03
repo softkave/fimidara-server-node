@@ -1,4 +1,5 @@
-import {flatten} from 'lodash';
+import {flatten} from 'lodash-es';
+import {afterAll, beforeAll, describe, test} from 'vitest';
 import {AgentToken} from '../../../../../definitions/agentToken.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
 import {generateAndInsertAgentTokenListForTest} from '../../../../testUtils/generate/agentToken.js';
@@ -25,28 +26,29 @@ afterAll(async () => {
   await completeTests();
 });
 
-const agentTokenGenerateTypeChildren: GenerateTypeChildrenDefinition<AgentToken> = {
-  ...noopGenerateTypeChildren,
-  [kFimidaraResourceType.PermissionItem]: generatePermissionItemsAsChildren,
-  [kFimidaraResourceType.AssignedItem]: async ({resource, workspaceId}) =>
-    flatten(
-      await Promise.all([
-        generateAndInsertAssignedItemListForTest(2, {
-          workspaceId,
-          assigneeId: resource.resourceId,
-        }),
-      ])
-    ),
-  [kFimidaraResourceType.PresignedPath]: async ({resource, workspaceId}) =>
-    flatten(
-      await Promise.all([
-        generateAndInsertTestPresignedPathList(2, {
-          workspaceId,
-          issuerAgentTokenId: resource.resourceId,
-        }),
-      ])
-    ),
-};
+const agentTokenGenerateTypeChildren: GenerateTypeChildrenDefinition<AgentToken> =
+  {
+    ...noopGenerateTypeChildren,
+    [kFimidaraResourceType.PermissionItem]: generatePermissionItemsAsChildren,
+    [kFimidaraResourceType.AssignedItem]: async ({resource, workspaceId}) =>
+      flatten(
+        await Promise.all([
+          generateAndInsertAssignedItemListForTest(2, {
+            workspaceId,
+            assigneeId: resource.resourceId,
+          }),
+        ])
+      ),
+    [kFimidaraResourceType.PresignedPath]: async ({resource, workspaceId}) =>
+      flatten(
+        await Promise.all([
+          generateAndInsertTestPresignedPathList(2, {
+            workspaceId,
+            issuerAgentTokenId: resource.resourceId,
+          }),
+        ])
+      ),
+  };
 
 const genResourceFn: GenerateResourceFn<AgentToken> = async ({workspaceId}) => {
   const [agentToken] = await generateAndInsertAgentTokenListForTest(1, {

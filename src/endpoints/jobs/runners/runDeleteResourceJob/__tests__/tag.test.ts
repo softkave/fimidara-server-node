@@ -4,6 +4,7 @@ import {generateAndInsertTagListForTest} from '../../../../testUtils/generate/ta
 import {completeTests} from '../../../../testUtils/helpers/testFns.js';
 import {initTests} from '../../../../testUtils/testUtils.js';
 import {deleteTagCascadeEntry} from '../tag.js';
+import {test, beforeAll, afterAll, describe} from 'vitest';
 import {
   GenerateResourceFn,
   GenerateTypeChildrenDefinition,

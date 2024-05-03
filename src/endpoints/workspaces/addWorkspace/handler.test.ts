@@ -9,6 +9,7 @@ import {fetchEntityAssignedPermissionGroupList} from '../../permissionGroups/get
 import EndpointReusableQueries from '../../queries.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   initTests,
   insertUserForTest,

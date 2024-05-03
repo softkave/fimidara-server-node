@@ -1,4 +1,5 @@
-import {isFunction} from 'lodash';
+import {isFunction} from 'lodash-es';
+import {vi} from 'vitest';
 import {AnyObject} from '../../../utils/types.js';
 
 export function mockWith(source: AnyObject, dest: AnyObject) {
@@ -6,7 +7,7 @@ export function mockWith(source: AnyObject, dest: AnyObject) {
     let value = source[key];
 
     if (isFunction(value)) {
-      value = jest.fn(value).mockName(key);
+      value = vi.fn(value).mockName(key);
     }
 
     dest[key] = value;

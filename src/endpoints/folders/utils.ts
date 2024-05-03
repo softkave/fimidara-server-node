@@ -1,4 +1,4 @@
-import {compact, defaultTo, first, isArray, keyBy, last} from 'lodash';
+import {compact, defaultTo, first, isArray, keyBy, last} from 'lodash-es';
 import {
   isPathEmpty,
   makeExtract,
@@ -6,14 +6,24 @@ import {
   pathJoin,
   pathSplit,
 } from 'softkave-js-utils';
-import {FileBackendMount, ResolvedMountEntry} from '../../definitions/fileBackend.js';
+import {
+  FileBackendMount,
+  ResolvedMountEntry,
+} from '../../definitions/fileBackend.js';
 import {Folder, FolderMatcher, PublicFolder} from '../../definitions/folder.js';
 import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
-import {Agent, SessionAgent, kFimidaraResourceType} from '../../definitions/system.js';
+import {
+  Agent,
+  SessionAgent,
+  kFimidaraResourceType,
+} from '../../definitions/system.js';
 import {Workspace} from '../../definitions/workspace.js';
 import {appAssert} from '../../utils/assertion.js';
 import {getFields} from '../../utils/extract.js';
-import {getNewIdForResource, newWorkspaceResource} from '../../utils/resource.js';
+import {
+  getNewIdForResource,
+  newWorkspaceResource,
+} from '../../utils/resource.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {
   checkAuthorizationWithAgent,
@@ -117,7 +127,10 @@ export function getFolderpathInfo(
     assertFileOrFolderName(name);
   }
 
-  const parentNamepath = splitPath.slice(0, /** file or folder name is last item */ -1);
+  const parentNamepath = splitPath.slice(
+    0,
+    /** file or folder name is last item */ -1
+  );
   const parentStringPath = pathJoin({input: parentNamepath});
   const hasParent = parentNamepath.length > 0;
 
@@ -198,10 +211,9 @@ export function assertFileOrFolderName(
   }
 }
 
-export function addRootnameToPath<T extends string | string[] = string | string[]>(
-  path: T,
-  workspaceRootname: string | string[]
-): T {
+export function addRootnameToPath<
+  T extends string | string[] = string | string[],
+>(path: T, workspaceRootname: string | string[]): T {
   const rootname = isArray(workspaceRootname)
     ? last(workspaceRootname)
     : workspaceRootname;
@@ -215,7 +227,9 @@ export function addRootnameToPath<T extends string | string[] = string | string[
   return <T>pJoined;
 }
 
-export function assertFolder(folder: Folder | null | undefined): asserts folder {
+export function assertFolder(
+  folder: Folder | null | undefined
+): asserts folder {
   if (!folder) {
     throwFolderNotFound();
   }
@@ -266,7 +280,12 @@ export async function ensureFolders(
   const {newFolders, existingFolders} = await createFolderList(
     agent,
     workspace,
-    {folderpath: addRootnameToPath(pathJoin({input: namepath}), workspace.rootname)},
+    {
+      folderpath: addRootnameToPath(
+        pathJoin({input: namepath}),
+        workspace.rootname
+      ),
+    },
     /** Skip auth check. Since what we really care about is file creation, and
      * a separate permission check is done for that. All of it is also done
      * with transaction so should upload file permission check fail, it'll get
@@ -289,7 +308,9 @@ export async function ensureFolders(
   return {folder, folders};
 }
 
-export async function getWorkspaceFromFolderpath(folderpath: string): Promise<Workspace> {
+export async function getWorkspaceFromFolderpath(
+  folderpath: string
+): Promise<Workspace> {
   const workspaceModel = kSemanticModels.workspace();
   const pathinfo = getFolderpathInfo(folderpath, {
     allowRootFolder: false,
@@ -316,18 +337,23 @@ export function createNewFolder(
   seed: Partial<Folder> = {}
 ) {
   const folderId = getNewIdForResource(kFimidaraResourceType.Folder);
-  return newWorkspaceResource<Folder>(agent, kFimidaraResourceType.Folder, workspaceId, {
+  return newWorkspaceResource<Folder>(
+    agent,
+    kFimidaraResourceType.Folder,
     workspaceId,
-    resourceId: folderId,
-    name: pathinfo.name,
-    idPath: parentFolder ? parentFolder.idPath.concat(folderId) : [folderId],
-    namepath: parentFolder
-      ? parentFolder.namepath.concat(pathinfo.name)
-      : [pathinfo.name],
-    parentId: parentFolder?.resourceId ?? null,
-    description: data.description,
-    ...seed,
-  });
+    {
+      workspaceId,
+      resourceId: folderId,
+      name: pathinfo.name,
+      idPath: parentFolder ? parentFolder.idPath.concat(folderId) : [folderId],
+      namepath: parentFolder
+        ? parentFolder.namepath.concat(pathinfo.name)
+        : [pathinfo.name],
+      parentId: parentFolder?.resourceId ?? null,
+      description: data.description,
+      ...seed,
+    }
+  );
 }
 
 export async function createNewFolderAndEnsureParents(
@@ -338,8 +364,20 @@ export async function createNewFolderAndEnsureParents(
   opts: SemanticProviderMutationParams,
   seed: Partial<Folder> = {}
 ) {
-  const {folder} = await ensureFolders(agent, workspace, pathinfo.parentStringPath, opts);
-  return createNewFolder(agent, workspace.resourceId, pathinfo, folder, data, seed);
+  const {folder} = await ensureFolders(
+    agent,
+    workspace,
+    pathinfo.parentStringPath,
+    opts
+  );
+  return createNewFolder(
+    agent,
+    workspace.resourceId,
+    pathinfo,
+    folder,
+    data,
+    seed
+  );
 }
 
 export async function createAndInsertNewFolder(
@@ -405,10 +443,10 @@ export async function ingestFolderByFolderpath(
   ]);
 
   const providersMap = await initBackendProvidersForMounts(mounts, configs);
-  const mountEntriesMapByMountId: Record<string, ResolvedMountEntry | undefined> = keyBy(
-    mountEntries,
-    mountEntry => mountEntry.mountId
-  );
+  const mountEntriesMapByMountId: Record<
+    string,
+    ResolvedMountEntry | undefined
+  > = keyBy(mountEntries, mountEntry => mountEntry.mountId);
 
   const persistedFolderList = await Promise.all(
     mounts.map(async mount => {
@@ -429,7 +467,11 @@ export async function ingestFolderByFolderpath(
   const folderEntry0 = first(persistedFolderList);
 
   if (folderEntry0) {
-    await ingestPersistedFolders(agent, workspace, compact(persistedFolderList));
+    await ingestPersistedFolders(
+      agent,
+      workspace,
+      compact(persistedFolderList)
+    );
   }
 }
 

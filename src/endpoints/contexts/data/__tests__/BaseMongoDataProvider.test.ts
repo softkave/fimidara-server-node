@@ -7,6 +7,7 @@ import {completeTests} from '../../../testUtils/helpers/testFns.js';
 import {initFnTests} from '../../../testUtils/testUtils.js';
 import {kUtilsInjectables} from '../../injection/injectables.js';
 import {dataQueryToMongoQuery} from '../dataQueryToMongoQuery.js';
+import {test, beforeAll, afterEach, afterAll, expect, describe} from 'vitest';
 import {
   BaseMongoTestData,
   generateBaseMongoTestDataFromCombination,

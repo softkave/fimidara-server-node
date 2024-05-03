@@ -1,4 +1,4 @@
-import {map} from 'lodash';
+import {map} from 'lodash-es';
 import {kAppType} from '../../../definitions/app.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
@@ -34,7 +34,8 @@ export class FimidaraWorkerPool implements DisposableResource {
       promises: kUtilsInjectables.promises(),
       workerCount: params.workerCount || kAppConstants.defaultRunnerCount,
       filepath: runnerLocation,
-      gracefulTerminateTimeoutMs: params.gracefulTerminateTimeoutMs || 5 * 60 * 1_000, // 5 minutes
+      gracefulTerminateTimeoutMs:
+        params.gracefulTerminateTimeoutMs || 5 * 60 * 1_000, // 5 minutes
       generateWorkerId: () => getNewIdForResource(kFimidaraResourceType.App),
       gracefulTerminateFn: this.gracefulTerminateWorker,
     });
@@ -73,7 +74,10 @@ export class FimidaraWorkerPool implements DisposableResource {
     ]);
   }
 
-  protected handleMessage = async (wEntry: FWorkerMainWorkerEntry, message: unknown) => {
+  protected handleMessage = async (
+    wEntry: FWorkerMainWorkerEntry,
+    message: unknown
+  ) => {
     if (
       !FWorkerMessager.isWorkerTrackedMessage(message) ||
       !isFimidaraWorkerMessage(message.value)
@@ -114,7 +118,9 @@ export class FimidaraWorkerPool implements DisposableResource {
     }
   }
 
-  protected gracefulTerminateWorker = async (wEntry: FWorkerMainWorkerEntry) => {
+  protected gracefulTerminateWorker = async (
+    wEntry: FWorkerMainWorkerEntry
+  ) => {
     const message: FimidaraWorkerMessage = {
       type: kFimidaraWorkerMessageType.stopWorker,
     };

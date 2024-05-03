@@ -4,6 +4,7 @@ import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import RequestData from '../../RequestData.js';
 import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {generateAWSS3Credentials} from '../../testUtils/generate/fileBackend.js';
+import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,

@@ -1,4 +1,4 @@
-import {invert} from 'lodash';
+import {invert} from 'lodash-es';
 import {nanoid} from 'nanoid';
 import {
   Agent,
@@ -14,7 +14,10 @@ import OperationError, {
   getErrorMessageFromParams,
   OperationErrorParameters,
 } from './OperationError.js';
-import {getActionAgentFromSessionAgent, isSessionAgent} from './sessionUtils.js';
+import {
+  getActionAgentFromSessionAgent,
+  isSessionAgent,
+} from './sessionUtils.js';
 import {AnyObject, InvertRecord} from './types.js';
 
 export const kResourceTypeShortNameMaxLength = 7;
@@ -58,9 +61,9 @@ export const kResourceTypeShortNames: Record<FimidaraResourceType, string> = {
   [kFimidaraResourceType.appShard]: padShortName('appshrd'),
 };
 
-export const kShortNameToResourceType = invert(kResourceTypeShortNames) as InvertRecord<
-  typeof kResourceTypeShortNames
->;
+export const kShortNameToResourceType = invert(
+  kResourceTypeShortNames
+) as InvertRecord<typeof kResourceTypeShortNames>;
 
 export class InvalidResourceIdError extends OperationError {
   name = 'InvalidResourceIdError';
@@ -111,7 +114,9 @@ export function isAppResourceId(resourceId: string) {
   return true;
 }
 
-export function tryGetResourceTypeFromId(id: string): FimidaraResourceType | undefined {
+export function tryGetResourceTypeFromId(
+  id: string
+): FimidaraResourceType | undefined {
   const shortName = id.slice(0, kResourceTypeShortNameMaxLength);
   const type = kShortNameToResourceType[shortName];
   return type;
@@ -149,7 +154,9 @@ export function newWorkspaceResource<T extends AnyObject>(
   workspaceId: string,
   seed?: Omit<T, keyof WorkspaceResource> & Partial<WorkspaceResource>
 ): WorkspaceResource & T {
-  const createdBy = isSessionAgent(agent) ? getActionAgentFromSessionAgent(agent) : agent;
+  const createdBy = isSessionAgent(agent)
+    ? getActionAgentFromSessionAgent(agent)
+    : agent;
   const createdAt = getTimestamp();
   const item: WorkspaceResource = {
     createdBy,
