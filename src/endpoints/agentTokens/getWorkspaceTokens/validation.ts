@@ -1,4 +1,4 @@
-import * as Joi from 'joi';
+import Joi from 'joi';
 import {JoiSchemaParts} from '../../../utils/types.js';
 import {endpointValidationSchemas} from '../../validation.js';
 import {
@@ -9,9 +9,10 @@ import {
 export const getWorkspaceAgentTokenBaseJoiSchemaParts: JoiSchemaParts<GetWorkspaceAgentTokensEndpointParamsBase> =
   endpointValidationSchemas.optionalWorkspaceIdParts;
 
-export const getWorkspaceAgentTokenJoiSchema = Joi.object<GetWorkspaceAgentTokensEndpointParams>()
-  .keys({
-    ...getWorkspaceAgentTokenBaseJoiSchemaParts,
-    ...endpointValidationSchemas.paginationParts,
-  })
-  .required();
+export const getWorkspaceAgentTokenJoiSchema =
+  Joi.object<GetWorkspaceAgentTokensEndpointParams>()
+    .keys({
+      ...getWorkspaceAgentTokenBaseJoiSchemaParts,
+      ...endpointValidationSchemas.paginationParts,
+    })
+    .required();

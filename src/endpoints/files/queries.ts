@@ -1,4 +1,3 @@
-import {isString} from 'lodash-es';
 import {File} from '../../definitions/file.js';
 import {Folder} from '../../definitions/folder.js';
 import {FileQuery} from '../contexts/data/types.js';
@@ -13,7 +12,7 @@ function getByNamepath(
   const {ext, namepath, workspaceId} = file;
   return {
     workspaceId,
-    ext: isString(ext) ? getIgnoreCaseDataQueryRegExp(ext) : undefined,
+    ext: ext ? getIgnoreCaseDataQueryRegExp(ext) : undefined,
     ...getStringListQuery<Folder>(
       namepath,
       /** prefix */ 'namepath',

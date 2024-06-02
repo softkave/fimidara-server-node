@@ -11,14 +11,12 @@ export async function generateAndInsertCollaboratorListForTest(
   const users = await generateAndInsertUserListForTest(count);
   await kSemanticModels
     .utils()
-    .withTxn(
-      opts =>
-        Promise.all(
-          users.map(user =>
-            assignWorkspaceToUser(agent, workspaceId, user.resourceId, opts)
-          )
-        ),
-      /** reuseTxn */ true
+    .withTxn(opts =>
+      Promise.all(
+        users.map(user =>
+          assignWorkspaceToUser(agent, workspaceId, user.resourceId, opts)
+        )
+      )
     );
 
   return users;

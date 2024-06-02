@@ -2,7 +2,10 @@ import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem
 import {appAssert} from '../../../utils/assertion.js';
 import {validate} from '../../../utils/validate.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {getAndCheckFileAuthorization} from '../utils.js';
 import {DeleteFileEndpoint} from './types.js';
 import {beginDeleteFile} from './utils.js';
@@ -27,7 +30,7 @@ const deleteFile: DeleteFileEndpoint = async instData => {
       incrementPresignedPathUsageCount: true,
       shouldIngestFile: false,
     });
-  }, /** reuseTxn */ false);
+  });
 
   const [job] = await beginDeleteFile({
     agent,

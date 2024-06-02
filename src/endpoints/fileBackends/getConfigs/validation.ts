@@ -1,4 +1,4 @@
-import * as Joi from 'joi';
+import Joi from 'joi';
 import {JoiSchemaParts} from '../../../utils/types.js';
 import {endpointValidationSchemas} from '../../validation.js';
 import fileBackendValidationSchemas from '../validation.js';

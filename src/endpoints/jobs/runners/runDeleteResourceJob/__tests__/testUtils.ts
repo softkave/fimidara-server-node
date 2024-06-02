@@ -65,38 +65,6 @@ type TypeToResourceMap<
 
 type TypeToIdList = PartialRecord<FimidaraResourceType, string[] | undefined>;
 
-export async function testDeleteResourceJob0<T extends Resource>(props: {
-  type: FimidaraResourceType;
-  genResourceFn: GenerateResourceFn<T>;
-  genWorkspaceFn?: AnyFn<[], Promise<string>>;
-}) {
-  const {
-    genResourceFn,
-    type,
-    genWorkspaceFn = () =>
-      Promise.resolve(getNewIdForResource(kFimidaraResourceType.Workspace)),
-  } = props;
-  const workspaceId = await genWorkspaceFn();
-  const shard = getNewId();
-  const mainResource = await genResourceFn({workspaceId});
-  const [job] = await queueJobs<DeleteResourceJobParams>(
-    workspaceId,
-    /** parent job ID */ undefined,
-    [
-      {
-        shard,
-        createdBy: kSystemSessionAgent,
-        type: kJobType.deleteResource,
-        params: {type, workspaceId, resourceId: mainResource.resourceId},
-        idempotencyToken: Date.now().toString(),
-      },
-    ]
-  );
-
-  await runDeleteResourceJob(job);
-  await kUtilsInjectables.promises().flush();
-}
-
 async function generateTypeChildrenWithDef<T extends Resource>(props: {
   def: GenerateTypeChildrenDefinition<T>;
   resource: T;
@@ -209,26 +177,30 @@ function flattenIdMap(idMap: TypeToIdList) {
 
 export async function testDeleteResourceArtifactsJob<
   T extends Resource,
+  TOther = unknown,
 >(props: {
   type: FimidaraResourceType;
   genResourceFn: AnyFn<[{workspaceId: string; shard: string}], Promise<T>>;
   genChildrenDef: GenerateTypeChildrenDefinition<T>;
   deleteCascadeDef: DeleteResourceCascadeEntry;
   genWorkspaceFn?: AnyFn<[], Promise<string>>;
-  skipCheckDbResource?: boolean;
+  genOtherFn?: AnyFn<[{resource: T}], Promise<TOther>>;
+  confirmOtherDeletedFn?: AnyFn<[{resource: T; other?: TOther}], Promise<void>>;
 }) {
   const {
     type,
     genResourceFn,
     genChildrenDef,
     deleteCascadeDef,
-    skipCheckDbResource,
+    genOtherFn,
+    confirmOtherDeletedFn,
     genWorkspaceFn = () =>
       Promise.resolve(getNewIdForResource(kFimidaraResourceType.Workspace)),
   } = props;
   const workspaceId = await genWorkspaceFn();
   const shard = getNewId();
   const mainResource = await genResourceFn({workspaceId, shard});
+  const other = await genOtherFn?.({resource: mainResource});
   const getArtifactTypes = Object.keys(
     deleteCascadeDef.getArtifactsToDelete
   ).filter(
@@ -278,12 +250,11 @@ export async function testDeleteResourceArtifactsJob<
   const getArtifactsIdMap = resourceMapToIdMap(getArtifactsMap);
   const getArtifactsIdList = flattenIdMap(getArtifactsIdMap);
 
-  const [fetchedChildrenMap, dbResource, childrenJobs] = await Promise.all([
+  const [fetchedChildrenMap, childrenJobs, dbResource] = await Promise.all([
     fetchTypeChildrenWithDef({
       idMap,
       forTypes: deleteArtifactTypes as FimidaraResourceType[],
     }),
-    getResourceById(mainResource.resourceId),
     kSemanticModels.job().getManyByQuery({
       shard: job.shard,
       parentJobId: job.resourceId,
@@ -295,66 +266,15 @@ export async function testDeleteResourceArtifactsJob<
         },
       },
     }),
-  ]);
-
-  if (!skipCheckDbResource) {
-    expect(dbResource).toBeTruthy();
-  }
-
-  expect(childrenJobs.length).toBe(getArtifactsIdList.length);
-  Object.entries(fetchedChildrenMap).forEach(([, resources]) => {
-    expect(resources?.length || 0).toBe(0);
-  });
-}
-
-export async function testDeleteResourceSelfJob<
-  T extends Resource,
-  TOther = unknown,
->(props: {
-  type: FimidaraResourceType;
-  genResourceFn: AnyFn<[{workspaceId: string; shard: string}], Promise<T>>;
-  genWorkspaceFn?: AnyFn<[], Promise<string>>;
-  genOtherFn?: AnyFn<[{resource: T}], Promise<TOther>>;
-  confirmOtherDeletedFn?: AnyFn<[{resource: T; other?: TOther}], Promise<void>>;
-  getResourceFn?: (id: string) => Promise<T | null | undefined>;
-}) {
-  const {
-    type,
-    genResourceFn,
-    genOtherFn,
-    confirmOtherDeletedFn,
-    genWorkspaceFn = () =>
-      Promise.resolve(getNewIdForResource(kFimidaraResourceType.Workspace)),
-    getResourceFn = getResourceById,
-  } = props;
-  const workspaceId = await genWorkspaceFn();
-  const shard = getNewId();
-  const mainResource = await genResourceFn({workspaceId, shard});
-  const other = await genOtherFn?.({resource: mainResource});
-
-  const [job] = await queueJobs<DeleteResourceJobParams>(
-    workspaceId,
-    /** parent job ID */ undefined,
-    [
-      {
-        shard,
-        createdBy: kSystemSessionAgent,
-        type: kJobType.deleteResource,
-        params: {type, workspaceId, resourceId: mainResource.resourceId},
-        idempotencyToken: Date.now().toString(),
-      },
-    ]
-  );
-
-  await runDeleteResourceJob(job);
-  await kUtilsInjectables.promises().flush();
-
-  const [dbResource] = await Promise.all([
-    getResourceFn(mainResource.resourceId),
+    getResourceById(mainResource.resourceId),
     confirmOtherDeletedFn?.({other, resource: mainResource}),
   ]);
 
   expect(dbResource).toBeFalsy();
+  expect(childrenJobs.length).toBe(getArtifactsIdList.length);
+  Object.entries(fetchedChildrenMap).forEach(([, resources]) => {
+    expect(resources?.length || 0).toBe(0);
+  });
 }
 
 export const noopGenerateTypeChildren: GenerateTypeChildrenDefinition<Resource> =

@@ -1,9 +1,13 @@
 import {AsyncLocalStorage} from 'async_hooks';
 import {get, set} from 'lodash-es';
+import {
+  AnyFn,
+  AnyObject,
+  DisposablesStore,
+  mergeObjects,
+} from 'softkave-js-utils';
 import {ReadonlyDeep} from 'type-fest';
-import {DisposablesStore} from '../../utils/disposables.js';
-import {mergeData} from '../../utils/fns.js';
-import {AnyFn, AnyObject} from '../../utils/types.js';
+import {kUtilsInjectables} from './injection/injectables.js';
 
 export type FimidaraAsyncLocalStorageStore = Record<string, unknown>;
 export type FimidaraAsyncLocalStorage =
@@ -121,7 +125,9 @@ export const kAsyncLocalStorageUtils: AsyncLocalStorageUtils = {
   inheritAndRun: <TFn extends AnyFn>(cb: TFn, store: AnyObject = {}) => {
     return kAsyncLocalStorageUtils.run(
       cb,
-      mergeData(store, getAsyncLocalStore(), {arrayUpdateStrategy: 'replace'})
+      mergeObjects(store, getAsyncLocalStore(), {
+        arrayUpdateStrategy: 'replace',
+      })
     );
   },
 
@@ -143,7 +149,10 @@ export const kAsyncLocalStorageUtils: AsyncLocalStorageUtils = {
   disposables() {
     return (
       this.get(kAsyncLocalStorageKeys.disposables) ||
-      this.set(kAsyncLocalStorageKeys.disposables, new DisposablesStore())
+      this.set(
+        kAsyncLocalStorageKeys.disposables,
+        new DisposablesStore(kUtilsInjectables.promises())
+      )
     );
   },
 

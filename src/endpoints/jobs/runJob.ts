@@ -9,7 +9,10 @@ import {
 import {getTimestamp} from '../../utils/dateFns.js';
 import {noopAsync} from '../../utils/fns.js';
 import {AnyFn} from '../../utils/types.js';
-import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../contexts/injection/injectables.js';
 import {runCleanupMountResolvedEntriesJob} from './runners/runCleanupMountResolvedEntriesJob.js';
 import {runDeletePermissionItemsJob} from './runners/runDeletePermissionItemsJob.js';
 import {runDeleteResourceJob} from './runners/runDeleteResourceJob/runDeleteResourceJob.js';
@@ -39,7 +42,10 @@ export async function completeJob(
         },
         opts
       ),
-      jobsModel.existsByQuery({parents: jobId, status: {$eq: kJobStatus.failed}}, opts),
+      jobsModel.existsByQuery(
+        {parents: jobId, status: {$eq: kJobStatus.failed}},
+        opts
+      ),
     ]);
 
     if (!job) {
@@ -50,8 +56,8 @@ export async function completeJob(
       status: hasFailedChild
         ? kJobStatus.failed
         : hasPendingChild
-        ? kJobStatus.waitingForChildren
-        : status,
+          ? kJobStatus.waitingForChildren
+          : status,
       statusLastUpdatedAt: getTimestamp(),
       runnerId: job.runnerId,
     };
@@ -61,7 +67,7 @@ export async function completeJob(
       {...statusItem, statusHistory: job.statusHistory.concat(statusItem)},
       opts
     );
-  }, /** reuseTxn */ true);
+  });
 
   if (
     job &&

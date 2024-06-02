@@ -13,19 +13,17 @@ import {
   getResourcePermissionItemArtifacts,
 } from './utils.js';
 
-export const noopGetArtifacts: DeleteResourceGetArtifactsToDeleteFns = Object.values(
-  kFimidaraResourceType
-).reduce((acc, type) => {
-  acc[type] = null;
-  return acc;
-}, {} as DeleteResourceGetArtifactsToDeleteFns);
+export const noopGetArtifacts: DeleteResourceGetArtifactsToDeleteFns =
+  Object.values(kFimidaraResourceType).reduce((acc, type) => {
+    acc[type] = null;
+    return acc;
+  }, {} as DeleteResourceGetArtifactsToDeleteFns);
 
-export const noopDeleteArtifacts: DeleteResourceDeleteArtifactsFns = Object.values(
-  kFimidaraResourceType
-).reduce((acc, type) => {
-  acc[type] = null;
-  return acc;
-}, {} as DeleteResourceDeleteArtifactsFns);
+export const noopDeleteArtifacts: DeleteResourceDeleteArtifactsFns =
+  Object.values(kFimidaraResourceType).reduce((acc, type) => {
+    acc[type] = null;
+    return acc;
+  }, {} as DeleteResourceDeleteArtifactsFns);
 
 export const genericGetArtifacts: DeleteResourceGetArtifactsToDeleteFns = {
   ...noopGetArtifacts,

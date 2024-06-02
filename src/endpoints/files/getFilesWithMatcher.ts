@@ -31,28 +31,27 @@ import {
 } from './utils.js';
 
 export async function checkAndIncrementPresignedPathUsageCount(
-  presignedPath: PresignedPath
+  presignedPath: PresignedPath,
+  opts: SemanticProviderMutationParams
 ) {
-  return await kSemanticModels.utils().withTxn(async opts => {
-    if (
-      isNumber(presignedPath.maxUsageCount) &&
-      presignedPath.maxUsageCount <= presignedPath.spentUsageCount
-    ) {
-      // TODO: should we use a different error type?
-      throw kReuseableErrors.file.notFound();
-    }
+  if (
+    isNumber(presignedPath.maxUsageCount) &&
+    presignedPath.maxUsageCount <= presignedPath.spentUsageCount
+  ) {
+    // TODO: should we use a different error type?
+    throw kReuseableErrors.file.notFound();
+  }
 
-    const updatedPresignedPath = await kSemanticModels
-      .presignedPath()
-      .getAndUpdateOneById(
-        presignedPath.resourceId,
-        {spentUsageCount: presignedPath.spentUsageCount + 1},
-        opts
-      );
+  const updatedPresignedPath = await kSemanticModels
+    .presignedPath()
+    .getAndUpdateOneById(
+      presignedPath.resourceId,
+      {spentUsageCount: presignedPath.spentUsageCount + 1},
+      opts
+    );
 
-    assertFile(updatedPresignedPath);
-    return updatedPresignedPath;
-  }, /** reuseTxn */ true);
+  assertFile(updatedPresignedPath);
+  return updatedPresignedPath;
 }
 
 export function extractPresignedPathIdFromFilepath(filepath: string) {
@@ -71,7 +70,7 @@ export async function getFileByPresignedPath(props: {
   filepath: string;
   action: FimidaraPermissionAction;
   incrementUsageCount: boolean;
-  opts?: SemanticProviderQueryParams<File>;
+  opts: SemanticProviderMutationParams & SemanticProviderQueryParams<File>;
 }) {
   const {filepath, action, incrementUsageCount, opts} = props;
 
@@ -96,8 +95,10 @@ export async function getFileByPresignedPath(props: {
   );
 
   if (incrementUsageCount) {
-    presignedPath =
-      await checkAndIncrementPresignedPathUsageCount(presignedPath);
+    presignedPath = await checkAndIncrementPresignedPathUsageCount(
+      presignedPath,
+      opts
+    );
   }
 
   const file = await kSemanticModels.file().getOneByNamepath(

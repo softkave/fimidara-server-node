@@ -30,8 +30,6 @@ import {
   GenerateTypeChildrenDefinition,
   noopGenerateTypeChildren,
   testDeleteResourceArtifactsJob,
-  testDeleteResourceJob0,
-  testDeleteResourceSelfJob,
 } from './testUtils.js';
 
 beforeAll(async () => {
@@ -131,25 +129,11 @@ const genResourceFn: GenerateResourceFn<Workspace> = async ({workspaceId}) => {
 };
 
 describe('runDeleteResourceJob, workspace', () => {
-  test('deleteResource0', async () => {
-    testDeleteResourceJob0({
-      genResourceFn,
-      type: kFimidaraResourceType.Workspace,
-    });
-  });
-
   test('runDeleteResourceJobArtifacts', async () => {
     await testDeleteResourceArtifactsJob({
       genResourceFn,
       genChildrenDef: workspaceGenerateTypeChildren,
       deleteCascadeDef: deleteWorkspaceCascadeEntry,
-      type: kFimidaraResourceType.Workspace,
-    });
-  });
-
-  test('runDeleteResourceJobSelf', async () => {
-    await testDeleteResourceSelfJob({
-      genResourceFn,
       type: kFimidaraResourceType.Workspace,
     });
   });

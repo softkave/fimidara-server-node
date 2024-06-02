@@ -1,22 +1,29 @@
 import {faker} from '@faker-js/faker';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {appAssert} from '../../../utils/assertion.js';
 import {mergeData} from '../../../utils/fns.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {kRegisterUtilsInjectables} from '../../contexts/injection/register.js';
 import {fetchEntityAssignedPermissionGroupList} from '../../permissionGroups/getEntityAssignedPermissionGroups/utils.js';
 import EndpointReusableQueries from '../../queries.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../testUtils/testUtils.js';
 import {WorkspaceExistsError, WorkspaceRootnameExistsError} from '../errors.js';
-import {assertWorkspace, makeRootnameFromName, workspaceExtractor} from '../utils.js';
+import {
+  assertWorkspace,
+  makeRootnameFromName,
+  workspaceExtractor,
+} from '../utils.js';
 import {AddWorkspaceEndpointParams} from './types.js';
 import {
   DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
@@ -82,12 +89,12 @@ describe('addWorkspace', () => {
     );
 
     expect(userWorkspace).toBeTruthy();
-    const userPermissionGroupsResult = await fetchEntityAssignedPermissionGroupList(
-      userToken.forEntityId
-    );
-    const assignedAdminPermissionGroup = userPermissionGroupsResult.permissionGroups.find(
-      item => item.resourceId === adminPermissionGroup.resourceId
-    );
+    const userPermissionGroupsResult =
+      await fetchEntityAssignedPermissionGroupList(userToken.forEntityId);
+    const assignedAdminPermissionGroup =
+      userPermissionGroupsResult.permissionGroups.find(
+        item => item.resourceId === adminPermissionGroup.resourceId
+      );
     expect(assignedAdminPermissionGroup).toBeTruthy();
   });
 
@@ -124,10 +131,11 @@ describe('addWorkspace', () => {
       async () => {
         await insertWorkspaceForTest(userToken);
       },
-      error =>
+      error => {
         expect((error as Error).message).toBe(
           kReuseableErrors.user.userOnWaitlist().message
-        ),
+        );
+      },
       () => {
         // TODO: if we ever switch to concurrent tests, then create a context
         // for this test instead

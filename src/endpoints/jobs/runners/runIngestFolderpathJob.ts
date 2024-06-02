@@ -55,7 +55,7 @@ async function setContinuationTokenInJob(
     }
 
     return latestJob;
-  }, /** reuse txn from async local store */ false);
+  });
 }
 
 async function queueIngestFolderJobFor(

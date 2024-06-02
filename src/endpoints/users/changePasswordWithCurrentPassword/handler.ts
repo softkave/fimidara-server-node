@@ -1,11 +1,11 @@
 import * as argon2 from 'argon2';
 import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
 import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {INTERNAL_changePassword} from '../changePasswordWithToken/utils.js';
 import {IncorrectPasswordError} from '../errors.js';
 import {ChangePasswordWithCurrentPasswordEndpoint} from './types.js';
 import {changePasswordWithPasswordJoiSchema} from './validation.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
 
 const changePasswordWithCurrentPassword: ChangePasswordWithCurrentPasswordEndpoint =
   async instData => {
@@ -19,7 +19,11 @@ const changePasswordWithCurrentPassword: ChangePasswordWithCurrentPasswordEndpoi
       throw new IncorrectPasswordError();
     }
 
-    const result = await INTERNAL_changePassword(instData, user.resourceId, data);
+    const result = await INTERNAL_changePassword(
+      instData,
+      user.resourceId,
+      data
+    );
     return result;
   };
 

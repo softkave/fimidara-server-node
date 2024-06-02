@@ -1,4 +1,4 @@
-import * as Joi from 'joi';
+import Joi from 'joi';
 import {getWorkspaceAgentTokenBaseJoiSchemaParts} from '../getWorkspaceTokens/validation.js';
 import {CountWorkspaceAgentTokensEndpointParams} from './types.js';
 

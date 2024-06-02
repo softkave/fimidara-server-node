@@ -11,8 +11,6 @@ import {
   generatePermissionItemsAsChildren,
   noopGenerateTypeChildren,
   testDeleteResourceArtifactsJob,
-  testDeleteResourceJob0,
-  testDeleteResourceSelfJob,
 } from './testUtils.js';
 
 beforeAll(async () => {
@@ -39,25 +37,11 @@ const genResourceFn: GenerateResourceFn<PresignedPath> = async ({
 };
 
 describe('runDeleteResourceJob, presigned path', () => {
-  test('deleteResource0', async () => {
-    testDeleteResourceJob0({
-      genResourceFn,
-      type: kFimidaraResourceType.PresignedPath,
-    });
-  });
-
   test('runDeleteResourceJobArtifacts', async () => {
     await testDeleteResourceArtifactsJob({
       genResourceFn,
       genChildrenDef: presignedPathGenerateTypeChildren,
       deleteCascadeDef: deletePresignedPathCascadeEntry,
-      type: kFimidaraResourceType.PresignedPath,
-    });
-  });
-
-  test('runDeleteResourceJobSelf', async () => {
-    await testDeleteResourceSelfJob({
-      genResourceFn,
       type: kFimidaraResourceType.PresignedPath,
     });
   });

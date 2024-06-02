@@ -1,10 +1,10 @@
+import {afterAll, beforeAll, describe, test} from 'vitest';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
 import {Tag} from '../../../../../definitions/tag.js';
 import {generateAndInsertTagListForTest} from '../../../../testUtils/generate/tag.js';
 import {completeTests} from '../../../../testUtils/helpers/testFns.js';
 import {initTests} from '../../../../testUtils/testUtils.js';
 import {deleteTagCascadeEntry} from '../tag.js';
-import {test, beforeAll, afterAll, describe} from 'vitest';
 import {
   GenerateResourceFn,
   GenerateTypeChildrenDefinition,
@@ -12,8 +12,6 @@ import {
   generatePermissionItemsAsChildren,
   noopGenerateTypeChildren,
   testDeleteResourceArtifactsJob,
-  testDeleteResourceJob0,
-  testDeleteResourceSelfJob,
 } from './testUtils.js';
 
 beforeAll(async () => {
@@ -37,25 +35,11 @@ const genResourceFn: GenerateResourceFn<Tag> = async ({workspaceId}) => {
 };
 
 describe('runDeleteResourceJob, tag', () => {
-  test('deleteResource0', async () => {
-    testDeleteResourceJob0({
-      genResourceFn,
-      type: kFimidaraResourceType.Tag,
-    });
-  });
-
   test('runDeleteResourceJobArtifacts', async () => {
     await testDeleteResourceArtifactsJob({
       genResourceFn,
       genChildrenDef: tagGenerateTypeChildren,
       deleteCascadeDef: deleteTagCascadeEntry,
-      type: kFimidaraResourceType.Tag,
-    });
-  });
-
-  test('runDeleteResourceJobSelf', async () => {
-    await testDeleteResourceSelfJob({
-      genResourceFn,
       type: kFimidaraResourceType.Tag,
     });
   });

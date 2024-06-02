@@ -36,7 +36,6 @@ export class DataSemanticProviderUtils implements SemanticProviderUtils {
 
   async withTxn<TResult>(
     fn: AnyFn<[SemanticProviderMutationParams], Promise<TResult>>,
-    reuseAsyncLocalTxn: boolean = true,
     opts?: SemanticProviderMutationParams
   ): Promise<TResult> {
     return await kDataModels.utils().withTxn(
@@ -47,7 +46,6 @@ export class DataSemanticProviderUtils implements SemanticProviderUtils {
 
         return await fn({txn});
       },
-      reuseAsyncLocalTxn,
       opts?.txn
     );
   }

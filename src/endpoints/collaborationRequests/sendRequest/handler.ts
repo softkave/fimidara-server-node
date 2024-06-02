@@ -101,7 +101,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint =
 
         await kSemanticModels.collaborationRequest().insertItem(request, opts);
         return {request, existingUser};
-      }, /** reuseTxn */ false);
+      });
 
     kUtilsInjectables.promises().forget(
       // queueEmailMessage(

@@ -11,7 +11,10 @@ import {IServerRequest} from '../contexts/types.js';
 import addPermissionItems from '../permissionItems/addItems/handler.js';
 import RequestData from '../RequestData.js';
 
-export function includesPermissionGroupById(pgList: PermissionGroup[], id: string) {
+export function includesPermissionGroupById(
+  pgList: PermissionGroup[],
+  id: string
+) {
   return !!pgList.find(pg => pg.resourceId === id);
 }
 
@@ -21,7 +24,9 @@ export function makeKeyFromAssignedPermissionGroupMetaOrInput(item: {
   return makeKey([item.permissionGroupId]);
 }
 
-export function toAssignedPgListInput(pgList: Pick<PermissionGroup, 'resourceId'>[]) {
+export function toAssignedPgListInput(
+  pgList: Pick<PermissionGroup, 'resourceId'>[]
+) {
   return pgList.map(
     (pg): AssignPermissionGroupInput => ({
       permissionGroupId: pg.resourceId,
@@ -37,19 +42,17 @@ export async function assignPgListToIdList(
 ) {
   await kSemanticModels
     .utils()
-    .withTxn(
-      async opts =>
-        addAssignedPermissionGroupList(
-          agent,
-          workspaceId,
-          pgInputList,
-          entityIdList,
-          /** delete existing */ false,
-          /** skip permission groups check */ true,
-          /** skip auth check */ true,
-          opts
-        ),
-      /** reuseTxn */ true
+    .withTxn(async opts =>
+      addAssignedPermissionGroupList(
+        agent,
+        workspaceId,
+        pgInputList,
+        entityIdList,
+        /** delete existing */ false,
+        /** skip permission groups check */ true,
+        /** skip auth check */ true,
+        opts
+      )
     );
 }
 
@@ -64,7 +67,12 @@ export async function grantPermission(
     RequestData.fromExpressRequest(req, {
       workspaceId,
       items: [
-        {action, target: {targetId: targetIdList}, access: true, entityId: agentId},
+        {
+          action,
+          target: {targetId: targetIdList},
+          access: true,
+          entityId: agentId,
+        },
       ],
     })
   );

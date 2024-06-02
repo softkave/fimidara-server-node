@@ -3,8 +3,7 @@ import {isMainThread} from 'worker_threads';
 import {globalSetup} from '../../../contexts/globalUtils.js';
 import {FWorker} from '../FWorker.js';
 import {FWorkerMessager} from '../FWorkerMessager.js';
-
-export const kFWorkerTestWorkerTerminateMessage = 12;
+import {kFWorkerTestWorkerTerminateMessage} from './constants.js';
 
 async function main() {
   await globalSetup({useFimidaraApp: false, useFimidaraWorkerPool: false});

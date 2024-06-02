@@ -8,10 +8,7 @@ import {FilePersistenceProvider} from '../../../../contexts/file/types.js';
 import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
 import {initBackendProvidersForMounts} from '../../../../fileBackends/mountUtils.js';
 import {stringifyFilenamepath} from '../../../../files/utils.js';
-import {
-  generateAndInsertTestFiles,
-  generateAndInsertTestPresignedPathList,
-} from '../../../../testUtils/generate/file.js';
+import {generateAndInsertTestPresignedPathList} from '../../../../testUtils/generate/file.js';
 import {completeTests} from '../../../../testUtils/helpers/testFns.js';
 import {
   initTests,
@@ -23,13 +20,10 @@ import {
 import {deleteFileCascadeEntry} from '../file.js';
 import {DeleteResourceCascadeEntry} from '../types.js';
 import {
-  GenerateResourceFn,
   GenerateTypeChildrenDefinition,
   generatePermissionItemsAsChildren,
   noopGenerateTypeChildren,
   testDeleteResourceArtifactsJob,
-  testDeleteResourceJob0,
-  testDeleteResourceSelfJob,
 } from './testUtils.js';
 
 beforeAll(async () => {
@@ -56,33 +50,8 @@ const fileGenerateTypeChildren: GenerateTypeChildrenDefinition<File> = {
     ),
 };
 
-const genResourceFn: GenerateResourceFn<File> = async ({workspaceId}) => {
-  const [file] = await generateAndInsertTestFiles(1, {
-    workspaceId,
-    parentId: null,
-  });
-  return file;
-};
-
 describe('runDeleteResourceJob, file', () => {
-  test('deleteResource0', async () => {
-    testDeleteResourceJob0({
-      genResourceFn,
-      type: kFimidaraResourceType.File,
-    });
-  });
-
   test('runDeleteResourceJobArtifacts', async () => {
-    await testDeleteResourceArtifactsJob({
-      genResourceFn,
-      genChildrenDef: fileGenerateTypeChildren,
-      deleteCascadeDef:
-        deleteFileCascadeEntry as unknown as DeleteResourceCascadeEntry,
-      type: kFimidaraResourceType.File,
-    });
-  });
-
-  test('runDeleteResourceJobSelf', async () => {
     const mountToProviderMap: Record<string, FilePersistenceProvider> = {};
     kRegisterUtilsInjectables.fileProviderResolver(mount => {
       if (mountToProviderMap[mount.resourceId]) {
@@ -112,9 +81,12 @@ describe('runDeleteResourceJob, file', () => {
       [mount01.rawConfig, mount02.rawConfig]
     );
 
-    await testDeleteResourceSelfJob({
-      genResourceFn: () => Promise.resolve(mainResource),
+    await testDeleteResourceArtifactsJob({
+      genChildrenDef: fileGenerateTypeChildren,
+      deleteCascadeDef:
+        deleteFileCascadeEntry as unknown as DeleteResourceCascadeEntry,
       type: kFimidaraResourceType.File,
+      genResourceFn: () => Promise.resolve(mainResource),
       genWorkspaceFn: () => Promise.resolve(workspace.resourceId),
       genOtherFn: async () => {
         await Promise.all([

@@ -1,5 +1,6 @@
 import {invert} from 'lodash-es';
 import {nanoid} from 'nanoid';
+import {AnyObject, InvertRecord} from 'softkave-js-utils';
 import {
   Agent,
   FimidaraResourceType,
@@ -18,7 +19,6 @@ import {
   getActionAgentFromSessionAgent,
   isSessionAgent,
 } from './sessionUtils.js';
-import {AnyObject, InvertRecord} from './types.js';
 
 export const kResourceTypeShortNameMaxLength = 7;
 export const kResourceTypeShortNamePadding = '0';

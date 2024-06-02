@@ -24,7 +24,7 @@ export async function setJobMeta<TMeta extends AnyObject>(
     }
 
     return undefined;
-  }, /** reuse txn from async local store */ false);
+  });
 }
 
 export async function setDeleteJobPreRunMeta(job: Job, preRunMeta: AnyObject) {

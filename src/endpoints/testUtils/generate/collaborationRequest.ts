@@ -44,7 +44,11 @@ export function generateCollaborationRequestListForTest(
   count = 20,
   genPartial: GeneratePartialTestDataFn<CollaborationRequest> = defaultGeneratePartialTestDataFn
 ) {
-  return generateTestList(() => generateCollaborationRequestForTest(), count, genPartial);
+  return generateTestList(
+    () => generateCollaborationRequestForTest(),
+    count,
+    genPartial
+  );
 }
 
 export async function generateAndInsertCollaborationRequestListForTest(
@@ -54,9 +58,8 @@ export async function generateAndInsertCollaborationRequestListForTest(
   const items = generateCollaborationRequestListForTest(count, genPartial);
   await kSemanticModels
     .utils()
-    .withTxn(
-      async opts => kSemanticModels.collaborationRequest().insertItem(items, opts),
-      /** reuseTxn */ true
+    .withTxn(async opts =>
+      kSemanticModels.collaborationRequest().insertItem(items, opts)
     );
   return items;
 }

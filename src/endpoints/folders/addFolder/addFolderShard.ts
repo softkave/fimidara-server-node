@@ -150,7 +150,6 @@ async function runAddFolderShard(shard: AddFolderShard) {
           meta.throwOnFolderExists,
           opts
         ),
-      /** reuse txn */ false,
       meta.opts
     );
 }

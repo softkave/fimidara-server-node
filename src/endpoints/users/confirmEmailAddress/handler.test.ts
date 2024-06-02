@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import {AgentToken} from '../../../definitions/agentToken.js';
-import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   kCurrentJWTTokenVersion,
   kFimidaraResourceType,
@@ -44,10 +44,7 @@ test('email address is confirmed', async () => {
   });
   await kSemanticModels
     .utils()
-    .withTxn(
-      opts => kSemanticModels.agentToken().insertItem(token, opts),
-      /** reuseTxn */ true
-    );
+    .withTxn(opts => kSemanticModels.agentToken().insertItem(token, opts));
 
   const result = await confirmEmailAddress(
     RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(token))

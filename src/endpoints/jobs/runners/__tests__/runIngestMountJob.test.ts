@@ -1,9 +1,12 @@
 import {faker} from '@faker-js/faker';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kFileBackendType} from '../../../../definitions/fileBackend.js';
-import {IngestFolderpathJobParams, kJobType} from '../../../../definitions/job.js';
+import {
+  IngestFolderpathJobParams,
+  kJobType,
+} from '../../../../definitions/job.js';
 import {kSystemSessionAgent} from '../../../../utils/agent.js';
 import {getNewId} from '../../../../utils/resource.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   kSemanticModels,
   kUtilsInjectables,
@@ -40,16 +43,20 @@ describe('runIngestMountJob', () => {
     });
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const [config] = await generateAndInsertFileBackendConfigListForTest(/** count */ 1, {
-      workspaceId: workspace.resourceId,
-    });
-    const [mount] = await generateAndInsertFileBackendMountListForTest(/** count */ 1, {
-      namepath: mountFolderpath,
-      mountedFrom,
-      workspaceId: workspace.resourceId,
-      configId: config.resourceId,
-      backend: kFileBackendType.s3,
-    });
+    const [config] = await generateAndInsertFileBackendConfigListForTest(
+      /** count */ 1,
+      {workspaceId: workspace.resourceId}
+    );
+    const [mount] = await generateAndInsertFileBackendMountListForTest(
+      /** count */ 1,
+      {
+        namepath: mountFolderpath,
+        mountedFrom,
+        workspaceId: workspace.resourceId,
+        configId: config.resourceId,
+        backend: kFileBackendType.s3,
+      }
+    );
     const shard = getNewId();
     const [job] = await queueJobs<IngestFolderpathJobParams>(
       workspace.resourceId,

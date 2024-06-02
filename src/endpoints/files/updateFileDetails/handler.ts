@@ -61,7 +61,7 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async instData => {
       .getOneById(file.workspaceId);
     assertWorkspace(workspace);
     return file;
-  }, /** reuseTxn */ false);
+  });
 
   return {file: fileExtractor(file)};
 };

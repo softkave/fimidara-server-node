@@ -167,8 +167,6 @@ export interface SemanticProviderUtils {
   useTxnId(txn: unknown): string | undefined;
   withTxn<TResult>(
     fn: AnyFn<[SemanticProviderMutationParams], Promise<TResult>>,
-    /** Whether or not to reuse an existing txn from async local storage. */
-    reuseAsyncLocalTxn: boolean,
     opts?: SemanticProviderMutationParams
   ): Promise<TResult>;
 }

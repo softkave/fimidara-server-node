@@ -105,7 +105,7 @@ const uploadFile: UploadFileEndpoint = async instData => {
         containsRootname: true,
         allowRootFolder: false,
       });
-      const file = await createAndInsertNewFile(
+      file = await createAndInsertNewFile(
         agent,
         workspace,
         pathinfo,
@@ -118,7 +118,7 @@ const uploadFile: UploadFileEndpoint = async instData => {
 
     assertFile(file);
     return {file, workspace, isNewFile};
-  }, /** reuseTxn */ false);
+  });
 
   const {primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs(
     file,
@@ -196,7 +196,7 @@ const uploadFile: UploadFileEndpoint = async instData => {
 
       assertFile(savedFile);
       return savedFile;
-    }, /** reuseTxn */ false);
+    });
 
     assertFile(file);
     return {file: fileExtractor(file)};
@@ -205,7 +205,7 @@ const uploadFile: UploadFileEndpoint = async instData => {
       await kSemanticModels
         .file()
         .getAndUpdateOneById(file.resourceId, {isWriteAvailable: true}, opts);
-    }, /** reuseTxn */ false);
+    });
 
     throw error;
   }

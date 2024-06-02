@@ -1,10 +1,14 @@
-import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job.js';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {
+  DeleteResourceJobParams,
+  Job,
+  kJobType,
+} from '../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
 import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
-import {completeTests, skTest} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -26,7 +30,7 @@ afterAll(async () => {
 });
 
 describe('deleteFile', () => {
-  skTest.run('file deleted', async () => {
+  test('file deleted', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);

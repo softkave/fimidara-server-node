@@ -88,7 +88,7 @@ const getPermissionItemsByQuery: PaginatedFetchGetFn<
   FetchResult
 > = async props => {
   const {args, page, pageSize} = props;
-  return await kSemanticModels.utils().withTxn(async opts => {
+  return kSemanticModels.utils().withTxn(async opts => {
     const items = await kSemanticModels
       .permissionItem()
       .getManyByQuery(args.query, {
@@ -106,7 +106,7 @@ const getPermissionItemsByQuery: PaginatedFetchGetFn<
       );
 
     return items;
-  }, /** reuseTxn */ true);
+  });
 };
 
 const processPermissionItems: PaginatedFetchProcessFn<

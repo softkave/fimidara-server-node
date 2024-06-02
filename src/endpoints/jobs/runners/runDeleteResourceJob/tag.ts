@@ -7,7 +7,9 @@ import {
 import {DeleteResourceCascadeEntry, DeleteResourceFn} from './types.js';
 
 const deleteResourceFn: DeleteResourceFn = ({args, helpers}) =>
-  helpers.withTxn(opts => kSemanticModels.tag().deleteOneById(args.resourceId, opts));
+  helpers.withTxn(opts =>
+    kSemanticModels.tag().deleteOneById(args.resourceId, opts)
+  );
 
 export const deleteTagCascadeEntry: DeleteResourceCascadeEntry = {
   deleteResourceFn,

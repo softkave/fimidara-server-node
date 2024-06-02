@@ -1,4 +1,4 @@
-import * as Joi from 'joi';
+import Joi from 'joi';
 import {FolderMatcher} from '../../../definitions/folder.js';
 import {listFolderContentBaseJoiSchemaParts} from '../listFolderContent/validation.js';
 

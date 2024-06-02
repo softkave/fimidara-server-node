@@ -1,12 +1,15 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {extractResourceIdList} from '../../../utils/fns.js';
-import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import RequestData from '../../RequestData.js';
+import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generate/workspace.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -37,7 +40,7 @@ describe('getWorkspaces', () => {
           user.resourceId,
           opts
         );
-      }, /** reuseTxn */ true),
+      }),
     ]);
 
     const result = await getWorkspaces(
@@ -49,7 +52,9 @@ describe('getWorkspaces', () => {
     assertEndpointResultOk(result);
     const workspaceIdList = extractResourceIdList(workspaceList);
     const resultWorkspaceIdList = extractResourceIdList(result.workspaceList);
-    expect(resultWorkspaceIdList).toEqual(expect.arrayContaining(workspaceIdList));
+    expect(resultWorkspaceIdList).toEqual(
+      expect.arrayContaining(workspaceIdList)
+    );
   });
 
   test('fails if user not part of root workspace', async () => {

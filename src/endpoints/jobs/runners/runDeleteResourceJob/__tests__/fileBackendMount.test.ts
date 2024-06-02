@@ -15,8 +15,6 @@ import {
   generatePermissionItemsAsChildren,
   noopGenerateTypeChildren,
   testDeleteResourceArtifactsJob,
-  testDeleteResourceJob0,
-  testDeleteResourceSelfJob,
 } from './testUtils.js';
 
 beforeAll(async () => {
@@ -58,25 +56,11 @@ const genResourceFn: GenerateResourceFn<FileBackendMount> = async ({
 };
 
 describe('runDeleteResourceJob, file backend mount', () => {
-  test('deleteResource0', async () => {
-    testDeleteResourceJob0({
-      genResourceFn,
-      type: kFimidaraResourceType.FileBackendMount,
-    });
-  });
-
   test('runDeleteResourceJobArtifacts', async () => {
     await testDeleteResourceArtifactsJob({
       genResourceFn,
       genChildrenDef: fileBackendMountGenerateTypeChildren,
       deleteCascadeDef: deleteFileBackendMountCascadeEntry,
-      type: kFimidaraResourceType.FileBackendMount,
-    });
-  });
-
-  test('runDeleteResourceJobSelf', async () => {
-    await testDeleteResourceSelfJob({
-      genResourceFn,
       type: kFimidaraResourceType.FileBackendMount,
     });
   });

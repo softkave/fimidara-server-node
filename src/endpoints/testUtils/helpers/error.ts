@@ -1,5 +1,5 @@
 import assert = require('assert');
-import {isArray, isFunction, isString, isUndefined} from 'lodash-es';
+import {isArray, isFunction, isObject, isUndefined} from 'lodash-es';
 import {format} from 'util';
 import {AnyFn} from '../../../utils/types.js';
 
@@ -27,7 +27,7 @@ export function assertErrorHasName(
 
 export async function expectErrorThrown(
   fn: AnyFn,
-  expected?: string[] | AnyFn<[unknown], boolean | string | void>,
+  expected?: string[] | AnyFn<[unknown], Error | boolean | void>,
   finallyFn?: AnyFn
 ) {
   try {
@@ -39,8 +39,8 @@ export async function expectErrorThrown(
 
       if (!isUndefined(assertionResult)) {
         assert(
-          assertionResult === true,
-          isString(assertionResult) ? assertionResult : 'Expectation not met'
+          assertionResult,
+          isObject(assertionResult) ? assertionResult : 'Expectation not met'
         );
       }
     } else if (expected) {

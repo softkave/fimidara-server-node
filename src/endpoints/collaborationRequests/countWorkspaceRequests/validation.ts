@@ -1,4 +1,4 @@
-import * as Joi from 'joi';
+import Joi from 'joi';
 import {getWorkspaceCollaborationRequestsBaseJoiSchemaParts} from '../getWorkspaceRequests/validation.js';
 import {CountWorkspaceCollaborationRequestsEndpointParams} from './types.js';
 

@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {afterEach, beforeEach, describe, expect} from 'vitest';
+import {afterAll, afterEach, beforeAll, describe, expect, test} from 'vitest';
 import {kFileBackendType} from '../../../definitions/fileBackend.js';
 import RequestData from '../../RequestData.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
@@ -7,6 +7,7 @@ import {MemoryFilePersistenceProvider} from '../../contexts/file/MemoryFilePersi
 import {
   FilePersistenceProvider,
   FilePersistenceUploadFileParams,
+  FileProviderResolver,
 } from '../../contexts/file/types.js';
 import {
   kSemanticModels,
@@ -21,7 +22,7 @@ import {
 } from '../../testUtils/generate/file.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {expectFileBodyEqual} from '../../testUtils/helpers/file.js';
-import {completeTests, skTest} from '../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -44,16 +45,24 @@ import {uploadFileBaseTest} from './uploadFileTestUtils.js';
  * - stale versions removed
  */
 
-beforeEach(async () => {
+let defaultFileProviderResolver: FileProviderResolver | undefined;
+
+beforeAll(async () => {
   await initTests();
+  defaultFileProviderResolver = kUtilsInjectables.fileProviderResolver();
 });
 
-afterEach(async () => {
+afterEach(() => {
+  assert(defaultFileProviderResolver);
+  kRegisterUtilsInjectables.fileProviderResolver(defaultFileProviderResolver);
+});
+
+afterAll(async () => {
   await completeTests();
 });
 
 describe('uploadFile', () => {
-  skTest.run('file uploaded to closest parent backend', async () => {
+  test('file uploaded to closest parent backend', async () => {
     const insertUserResult = await insertUserForTest();
     const {userToken} = insertUserResult;
     const insertWorkspaceResult = await insertWorkspaceForTest(userToken);
@@ -113,69 +122,66 @@ describe('uploadFile', () => {
     expect(dbFile?.isWriteAvailable).toBeTruthy();
   });
 
-  skTest.run(
-    'file uploaded to primary backend when parent has multiple mounts',
-    async () => {
-      const insertUserResult = await insertUserForTest();
-      const {userToken} = insertUserResult;
-      const insertWorkspaceResult = await insertWorkspaceForTest(userToken);
-      const {workspace} = insertWorkspaceResult;
-      const filepath = generateTestFilepath({
-        rootname: workspace.rootname,
-        length: 4,
-      });
-      const [{rawMount: closerMount}, {rawMount: fartherMount}] =
-        await Promise.all([
-          insertFileBackendMountForTest(userToken, workspace, {
-            folderpath: stringifyFoldernamepath(
-              {namepath: filepath.slice(0, -1)}
-              // filepath already has rootname
-            ),
-            index: 2,
-          }),
-          insertFileBackendMountForTest(userToken, workspace, {
-            folderpath: stringifyFoldernamepath(
-              {namepath: filepath.slice(0, -1)}
-              // filepath already has rootname
-            ),
-            index: 1,
-          }),
-        ]);
-      const closerMountBackend = new MemoryFilePersistenceProvider();
-      const fartherMountBackend = new MemoryFilePersistenceProvider();
-      kRegisterUtilsInjectables.fileProviderResolver(forMount => {
-        if (forMount.resourceId === closerMount.resourceId) {
-          return closerMountBackend;
-        }
+  test('file uploaded to primary backend when parent has multiple mounts', async () => {
+    const insertUserResult = await insertUserForTest();
+    const {userToken} = insertUserResult;
+    const insertWorkspaceResult = await insertWorkspaceForTest(userToken);
+    const {workspace} = insertWorkspaceResult;
+    const filepath = generateTestFilepath({
+      rootname: workspace.rootname,
+      length: 4,
+    });
+    const [{rawMount: closerMount}, {rawMount: fartherMount}] =
+      await Promise.all([
+        insertFileBackendMountForTest(userToken, workspace, {
+          folderpath: stringifyFoldernamepath(
+            {namepath: filepath.slice(0, -1)}
+            // filepath already has rootname
+          ),
+          index: 2,
+        }),
+        insertFileBackendMountForTest(userToken, workspace, {
+          folderpath: stringifyFoldernamepath(
+            {namepath: filepath.slice(0, -1)}
+            // filepath already has rootname
+          ),
+          index: 1,
+        }),
+      ]);
+    const closerMountBackend = new MemoryFilePersistenceProvider();
+    const fartherMountBackend = new MemoryFilePersistenceProvider();
+    kRegisterUtilsInjectables.fileProviderResolver(forMount => {
+      if (forMount.resourceId === closerMount.resourceId) {
+        return closerMountBackend;
+      }
 
-        return fartherMountBackend;
-      });
+      return fartherMountBackend;
+    });
 
-      const {dataBuffer, file} = await uploadFileBaseTest(
-        /** input */ {filepath: stringifyFilenamepath({namepath: filepath})},
-        /** type */ 'png',
-        insertUserResult,
-        insertWorkspaceResult
-      );
+    const {dataBuffer, file} = await uploadFileBaseTest(
+      /** input */ {filepath: stringifyFilenamepath({namepath: filepath})},
+      /** type */ 'png',
+      insertUserResult,
+      insertWorkspaceResult
+    );
 
-      const persistedFile = closerMountBackend.getMemoryFile({
-        mount: closerMount,
-        workspaceId: workspace.resourceId,
-        filepath: stringifyFilenamepath(file),
-      });
-      const fartherMountPersistedFile = fartherMountBackend.getMemoryFile({
-        mount: fartherMount,
-        workspaceId: workspace.resourceId,
-        filepath: stringifyFilenamepath(file),
-      });
+    const persistedFile = closerMountBackend.getMemoryFile({
+      mount: closerMount,
+      workspaceId: workspace.resourceId,
+      filepath: stringifyFilenamepath(file),
+    });
+    const fartherMountPersistedFile = fartherMountBackend.getMemoryFile({
+      mount: fartherMount,
+      workspaceId: workspace.resourceId,
+      filepath: stringifyFilenamepath(file),
+    });
 
-      assert(persistedFile);
-      expect(fartherMountPersistedFile).toBeFalsy();
-      expectFileBodyEqual(dataBuffer, persistedFile.body);
-    }
-  );
+    assert(persistedFile);
+    expect(fartherMountPersistedFile).toBeFalsy();
+    expectFileBodyEqual(dataBuffer, persistedFile.body);
+  });
 
-  skTest.run('file updated when new data uploaded', async () => {
+  test('file updated when new data uploaded', async () => {
     const backend = new MemoryFilePersistenceProvider();
     kRegisterUtilsInjectables.fileProviderResolver(() => {
       return backend;
@@ -242,7 +248,7 @@ describe('uploadFile', () => {
     expectFileBodyEqual(dataBuffer, persistedFile.body);
   });
 
-  skTest.run('file not duplicated', async () => {
+  test('file not duplicated', async () => {
     const {savedFile, insertUserResult, insertWorkspaceResult} =
       await uploadFileBaseTest();
     const update: Partial<UploadFileEndpointParams> = {
@@ -264,7 +270,7 @@ describe('uploadFile', () => {
     expect(files.length).toBe(1);
   });
 
-  skTest.run('file sized correctly', async () => {
+  test('file sized correctly', async () => {
     const {dataBuffer, savedFile} = await uploadFileBaseTest(
       /** seed */ {},
       'png'
@@ -274,7 +280,7 @@ describe('uploadFile', () => {
     expect(savedFile.size).toBe(dataBuffer.byteLength);
   });
 
-  skTest.run('file versioned correctly', async () => {
+  test('file versioned correctly', async () => {
     const result01 = await uploadFileBaseTest(/** seeed */ {}, 'png');
     const {insertUserResult, insertWorkspaceResult} = result01;
     let {savedFile} = result01;
@@ -301,7 +307,7 @@ describe('uploadFile', () => {
     expect(dbFile?.version).toBe(2);
   });
 
-  skTest.run('files with same name but diff ext are separate', async () => {
+  test('files with same name but diff ext are separate', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const filepath01 = generateTestFileName({
@@ -391,56 +397,52 @@ describe('uploadFile', () => {
     expect(latestDbFile03?.lastUpdatedAt).toBe(dbFile03?.lastUpdatedAt);
   });
 
-  skTest.run(
-    'file not read available if is new until upload is complete',
-    async () => {
-      const insertUserResult = await insertUserForTest();
-      const insertWorkspaceResult = await insertWorkspaceForTest(
-        insertUserResult.userToken
-      );
+  test('file not read available if is new until upload is complete', async () => {
+    const insertUserResult = await insertUserForTest();
+    const insertWorkspaceResult = await insertWorkspaceForTest(
+      insertUserResult.userToken
+    );
 
-      const {workspace} = insertWorkspaceResult;
-      const filepath = generateTestFilepathString({
-        rootname: workspace.rootname,
-      });
+    const {workspace} = insertWorkspaceResult;
+    const filepath = generateTestFilepathString({
+      rootname: workspace.rootname,
+    });
 
-      async function expectReadFileFails() {
-        try {
-          const instData =
-            RequestData.fromExpressRequest<ReadFileEndpointParams>(
-              mockExpressRequestWithAgentToken(insertUserResult.userToken),
-              {filepath}
-            );
-          await readFile(instData);
-        } catch (error) {
-          expect((error as Error)?.name).toBe(FileNotWritableError.name);
-        }
+    async function expectReadFileFails() {
+      try {
+        const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+          mockExpressRequestWithAgentToken(insertUserResult.userToken),
+          {filepath}
+        );
+        await readFile(instData);
+      } catch (error) {
+        expect((error as Error)?.name).toBe(FileNotWritableError.name);
       }
-
-      class TestFileProvider
-        extends MemoryFilePersistenceProvider
-        implements FilePersistenceProvider
-      {
-        uploadFile = async (params: FilePersistenceUploadFileParams) => {
-          await expectReadFileFails();
-          return super.uploadFile(params);
-        };
-      }
-
-      kRegisterUtilsInjectables.fileProviderResolver(() => {
-        return new TestFileProvider();
-      });
-
-      await uploadFileBaseTest(
-        /** input */ {filepath},
-        'png',
-        insertUserResult,
-        insertWorkspaceResult
-      );
     }
-  );
 
-  skTest.run('file read available if file is existing', async () => {
+    class TestFileProvider
+      extends MemoryFilePersistenceProvider
+      implements FilePersistenceProvider
+    {
+      uploadFile = async (params: FilePersistenceUploadFileParams) => {
+        await expectReadFileFails();
+        return super.uploadFile(params);
+      };
+    }
+
+    kRegisterUtilsInjectables.fileProviderResolver(() => {
+      return new TestFileProvider();
+    });
+
+    await uploadFileBaseTest(
+      /** input */ {filepath},
+      'png',
+      insertUserResult,
+      insertWorkspaceResult
+    );
+  });
+
+  test('file read available if file is existing', async () => {
     const mem = new MemoryFilePersistenceProvider();
     kRegisterUtilsInjectables.fileProviderResolver(() => {
       return mem;
@@ -483,7 +485,7 @@ describe('uploadFile', () => {
     );
   });
 
-  skTest.run('file marked write available on error', async () => {
+  test('file marked write available on error', async () => {
     const insertUserResult = await insertUserForTest();
     const insertWorkspaceResult = await insertWorkspaceForTest(
       insertUserResult.userToken
@@ -524,7 +526,7 @@ describe('uploadFile', () => {
     expect(dbFile?.isWriteAvailable).toBeTruthy();
   });
 
-  skTest.run('cannot double write file', async () => {
+  test('cannot double write file', async () => {
     const insertUserResult = await insertUserForTest();
     const insertWorkspaceResult = await insertWorkspaceForTest(
       insertUserResult.userToken

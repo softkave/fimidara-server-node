@@ -189,7 +189,7 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint =
             params: {mountId: mount.resourceId},
             idempotencyToken: Date.now().toString(),
           },
-          {jobsToReturn: 'all', reuseTxn: true}
+          {opts, jobsToReturn: 'all'}
         );
       }
 
@@ -200,7 +200,7 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint =
       ]);
 
       return {job, updatedMount};
-    }, /** reuseTxn */ false);
+    });
 
     appAssert(updatedMount);
     return {

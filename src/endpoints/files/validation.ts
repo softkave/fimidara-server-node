@@ -1,11 +1,13 @@
-import * as Joi from 'joi';
+import Joi from 'joi';
 import {Readable} from 'stream';
 import {kValidationSchemas} from '../../utils/validationUtils.js';
 import {kFolderConstants} from '../folders/constants.js';
 import folderValidationSchemas from '../folders/validation.js';
 import {kFileConstants} from './constants.js';
 
-const fileSizeInBytes = Joi.number().min(0).max(kFileConstants.maxFileSizeInBytes);
+const fileSizeInBytes = Joi.number()
+  .min(0)
+  .max(kFileConstants.maxFileSizeInBytes);
 const mimetype = Joi.string().max(kFileConstants.maxMimeTypeCharLength);
 const encoding = Joi.string().max(kFileConstants.maxEncodingCharLength);
 const ext = Joi.string().max(kFileConstants.maxextCharLength);
@@ -14,7 +16,8 @@ const filepath = Joi.string()
   .regex(folderValidationSchemas.pathRegex)
   .min(kFolderConstants.minFolderNameLength)
   .max(
-    kFolderConstants.maxFolderNameLength * (kFolderConstants.maxFolderDepth + 1) +
+    kFolderConstants.maxFolderNameLength *
+      (kFolderConstants.maxFolderDepth + 1) +
       kFileConstants.maxextCharLength
   );
 const readable = Joi.any().custom((value, helpers) => {

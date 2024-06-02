@@ -40,10 +40,7 @@ export async function generateAndInsertAppListForTest(
   const items = generateAppListForTest(count, seed);
   await kSemanticModels
     .utils()
-    .withTxn(
-      async opts => kSemanticModels.app().insertItem(items, opts),
-      /** reuseTxn */ true
-    );
+    .withTxn(async opts => kSemanticModels.app().insertItem(items, opts));
 
   return items;
 }

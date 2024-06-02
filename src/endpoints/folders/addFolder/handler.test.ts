@@ -98,54 +98,32 @@ describe('addFolder', () => {
       pathinfoList,
       namepathList,
       getSelfOrClosestParent,
-    } = await kSemanticModels
-      .utils()
-      .withTxn(
-        opts =>
-          getExistingFoldersAndArtifacts(
-            workspace.resourceId,
-            [
-              {
-                folderpath: stringifyFoldernamepath(
-                  folder00,
-                  workspace.rootname
-                ),
-              },
-              {
-                folderpath: stringifyFoldernamepath(
-                  folder01,
-                  workspace.rootname
-                ),
-              },
-              {
-                folderpath: stringifyFoldernamepath(
-                  folder02,
-                  workspace.rootname
-                ),
-              },
-              {
-                folderpath: stringifyFoldernamepath(
-                  folder00,
-                  workspace.rootname
-                ),
-              },
-              {
-                folderpath: stringifyFoldernamepath(
-                  folder01,
-                  workspace.rootname
-                ),
-              },
-              {
-                folderpath: stringifyFoldernamepath(
-                  folder02,
-                  workspace.rootname
-                ),
-              },
-            ],
-            opts
-          ),
-        /** reuseTxn */ true
-      );
+    } = await kSemanticModels.utils().withTxn(opts =>
+      getExistingFoldersAndArtifacts(
+        workspace.resourceId,
+        [
+          {
+            folderpath: stringifyFoldernamepath(folder00, workspace.rootname),
+          },
+          {
+            folderpath: stringifyFoldernamepath(folder01, workspace.rootname),
+          },
+          {
+            folderpath: stringifyFoldernamepath(folder02, workspace.rootname),
+          },
+          {
+            folderpath: stringifyFoldernamepath(folder00, workspace.rootname),
+          },
+          {
+            folderpath: stringifyFoldernamepath(folder01, workspace.rootname),
+          },
+          {
+            folderpath: stringifyFoldernamepath(folder02, workspace.rootname),
+          },
+        ],
+        opts
+      )
+    );
 
     expect(existingFolders.length).toBe(3);
     expect(namepathList.length).toBe(3);
@@ -321,20 +299,18 @@ describe('addFolder', () => {
     const withinTxnCount = faker.number.int({min: 1, max: partsLength});
     await loopAndCollateAsync(
       txnIndex =>
-        kSemanticModels.utils().withTxn(
-          opts =>
-            createFolderList(
-              kSystemSessionAgent,
-              workspace,
-              leafFolderpaths
-                .slice(txnIndex, txnIndex + withinTxnCount)
-                .map(folderpath => ({folderpath})),
-              /** skip auth */ true,
-              /** throw if folder exists */ false,
-              opts,
-              /** throw on error */ true
-            ),
-          /** reuse txn */ false
+        kSemanticModels.utils().withTxn(opts =>
+          createFolderList(
+            kSystemSessionAgent,
+            workspace,
+            leafFolderpaths
+              .slice(txnIndex, txnIndex + withinTxnCount)
+              .map(folderpath => ({folderpath})),
+            /** skip auth */ true,
+            /** throw if folder exists */ false,
+            opts,
+            /** throw on error */ true
+          )
         ),
       leafLength,
       /** settlement type */ 'all'

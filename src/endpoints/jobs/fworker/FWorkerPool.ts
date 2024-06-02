@@ -1,9 +1,9 @@
 import {ReadonlyDeep} from 'type-fest';
 import {appAssert} from '../../../utils/assertion.js';
-import {DisposableResource} from '../../../utils/disposables.js';
 import {kLoopAsyncSettlementType, loopAsync} from '../../../utils/fns.js';
 import {AnyFn} from '../../../utils/types.js';
 import {FWorkerMainBase, FWorkerMainParams} from './FWorkerMain.js';
+import {DisposableResource} from 'softkave-js-utils';
 
 export interface FWorkerPoolParams extends FWorkerMainParams {
   workerCount: number;

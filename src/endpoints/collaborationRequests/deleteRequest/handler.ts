@@ -8,29 +8,30 @@ import {DeleteCollaborationRequestEndpoint} from './types.js';
 import {beginDeleteCollaborationRequest} from './utils.js';
 import {deleteCollaborationRequestJoiSchema} from './validation.js';
 
-const deleteCollaborationRequest: DeleteCollaborationRequestEndpoint = async instData => {
-  const data = validate(instData.data, deleteCollaborationRequestJoiSchema);
-  const agent = await kUtilsInjectables
-    .session()
-    .getAgentFromReq(
-      instData,
-      kSessionUtils.permittedAgentTypes.api,
-      kSessionUtils.accessScopes.api
+const deleteCollaborationRequest: DeleteCollaborationRequestEndpoint =
+  async instData => {
+    const data = validate(instData.data, deleteCollaborationRequestJoiSchema);
+    const agent = await kUtilsInjectables
+      .session()
+      .getAgentFromReq(
+        instData,
+        kSessionUtils.permittedAgentTypes.api,
+        kSessionUtils.accessScopes.api
+      );
+    const {request} = await checkCollaborationRequestAuthorization02(
+      agent,
+      data.requestId,
+      kFimidaraPermissionActionsMap.deleteCollaborationRequest
     );
-  const {request} = await checkCollaborationRequestAuthorization02(
-    agent,
-    data.requestId,
-    kFimidaraPermissionActionsMap.deleteCollaborationRequest
-  );
 
-  const [job] = await beginDeleteCollaborationRequest({
-    agent,
-    workspaceId: request.workspaceId,
-    resources: [request],
-  });
-  appAssert(job);
+    const [job] = await beginDeleteCollaborationRequest({
+      agent,
+      workspaceId: request.workspaceId,
+      resources: [request],
+    });
+    appAssert(job);
 
-  return {jobId: job.resourceId};
-};
+    return {jobId: job.resourceId};
+  };
 
 export default deleteCollaborationRequest;

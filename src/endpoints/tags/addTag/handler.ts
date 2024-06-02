@@ -4,7 +4,10 @@ import {newWorkspaceResource} from '../../../utils/resource.js';
 import {validate} from '../../../utils/validate.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils.js';
 import {checkTagNameExists} from '../checkTagNameExists.js';
 import {tagExtractor} from '../utils.js';
@@ -20,7 +23,10 @@ const addTag: AddTagEndpoint = async instData => {
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );
-  const workspace = await checkWorkspaceExistsWithAgent(agent, data.workspaceId);
+  const workspace = await checkWorkspaceExistsWithAgent(
+    agent,
+    data.workspaceId
+  );
   await checkAuthorizationWithAgent({
     agent,
     workspace,
@@ -37,7 +43,7 @@ const addTag: AddTagEndpoint = async instData => {
   await kSemanticModels.utils().withTxn(async opts => {
     await checkTagNameExists(workspace.resourceId, data.tag.name, opts);
     await kSemanticModels.tag().insertItem(tag, opts);
-  }, /** reuseTxn */ true);
+  });
 
   return {tag: tagExtractor(tag)};
 };

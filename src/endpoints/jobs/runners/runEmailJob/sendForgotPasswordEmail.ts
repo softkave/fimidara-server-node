@@ -44,28 +44,38 @@ export function getForgotPasswordLinkFromToken(forgotToken: AgentToken) {
 
 export async function getForgotPasswordToken(user: User) {
   const expiration = getForgotPasswordExpiration();
-  const forgotToken = newResource<AgentToken>(kFimidaraResourceType.AgentToken, {
-    scope: [kTokenAccessScope.changePassword],
-    version: kCurrentJWTTokenVersion,
-    expiresAt: expiration.valueOf(),
-    forEntityId: user.resourceId,
-    workspaceId: null,
-    entityType: kFimidaraResourceType.User,
-    createdBy: kSystemSessionAgent,
-    lastUpdatedBy: kSystemSessionAgent,
-  });
+  const forgotToken = newResource<AgentToken>(
+    kFimidaraResourceType.AgentToken,
+    {
+      scope: [kTokenAccessScope.changePassword],
+      version: kCurrentJWTTokenVersion,
+      expiresAt: expiration.valueOf(),
+      forEntityId: user.resourceId,
+      workspaceId: null,
+      entityType: kFimidaraResourceType.User,
+      createdBy: kSystemSessionAgent,
+      lastUpdatedBy: kSystemSessionAgent,
+    }
+  );
 
   await kSemanticModels.utils().withTxn(async opts => {
     await kSemanticModels
       .agentToken()
-      .softDeleteAgentTokens(user.resourceId, kTokenAccessScope.changePassword, opts);
+      .softDeleteAgentTokens(
+        user.resourceId,
+        kTokenAccessScope.changePassword,
+        opts
+      );
     await kSemanticModels.agentToken().insertItem(forgotToken, opts);
-  }, /** reuseTxn */ false);
+  });
 
   return forgotToken;
 }
 
-export async function sendForgotPasswordEmail(jobId: string, params: EmailJobParams) {
+export async function sendForgotPasswordEmail(
+  jobId: string,
+  params: EmailJobParams
+) {
   appAssert(
     params.type === kEmailJobType.forgotPassword,
     `Email job type is not ${kEmailJobType.forgotPassword}`

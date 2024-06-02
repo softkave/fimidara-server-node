@@ -371,10 +371,8 @@ describe('runIngestFolderpathJob', () => {
     };
     await kSemanticModels
       .utils()
-      .withTxn(
-        opts =>
-          kSemanticModels.job().updateOneById(job.resourceId, update, opts),
-        /** reuseTxn */ true
+      .withTxn(opts =>
+        kSemanticModels.job().updateOneById(job.resourceId, update, opts)
       );
 
     await runIngestFolderpathJob(job);

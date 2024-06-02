@@ -8,7 +8,10 @@ import {
 import {resolveBackendsMountsAndConfigs} from '../../../fileBackends/mountUtils.js';
 import {FileQueries} from '../../../files/queries.js';
 import {stringifyFilenamepath} from '../../../files/utils.js';
-import {genericDeleteArtifacts, genericGetArtifacts} from './genericDefinitions.js';
+import {
+  genericDeleteArtifacts,
+  genericGetArtifacts,
+} from './genericDefinitions.js';
 import {
   DeleteResourceCascadeEntry,
   DeleteResourceDeleteArtifactsFns,
@@ -18,7 +21,9 @@ import {
 } from './types.js';
 
 interface DeleteFilePreRunMeta {
-  partialMountEntries: Array<Pick<ResolvedMountEntry, 'backendNamepath' | 'backendExt'>>;
+  partialMountEntries: Array<
+    Pick<ResolvedMountEntry, 'backendNamepath' | 'backendExt'>
+  >;
   namepath?: string[];
   ext?: string;
 }
@@ -49,7 +54,11 @@ const deleteArtifacts: DeleteResourceDeleteArtifactsFns<
   DeleteFilePreRunMeta
 > = {
   ...genericDeleteArtifacts,
-  [kFimidaraResourceType.ResolvedMountEntry]: async ({args, helpers, preRunMeta}) =>
+  [kFimidaraResourceType.ResolvedMountEntry]: async ({
+    args,
+    helpers,
+    preRunMeta,
+  }) =>
     helpers.withTxn(async opts => {
       if (preRunMeta.namepath) {
         await kSemanticModels.resolvedMountEntry().deleteManyByQuery(
@@ -109,10 +118,8 @@ const getPreRunMetaFn: DeleteResourceGetPreRunMetaFn<
   DeleteResourceCascadeFnDefaultArgs,
   DeleteFilePreRunMeta
 > = async ({args}) => {
-  const keys: Array<keyof DeleteFilePreRunMeta['partialMountEntries'][number]> = [
-    'backendExt',
-    'backendNamepath',
-  ];
+  const keys: Array<keyof DeleteFilePreRunMeta['partialMountEntries'][number]> =
+    ['backendExt', 'backendNamepath'];
   const [partialMountEntries, file] = await Promise.all([
     kSemanticModels.resolvedMountEntry().getLatestByForId(args.resourceId, {
       projection: keys.reduce((acc, key) => ({...acc, [key]: true}), {}),

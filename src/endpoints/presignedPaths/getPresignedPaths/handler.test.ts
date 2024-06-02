@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {first} from 'lodash-es';
-import {afterAll, beforeAll, describe, expect} from 'vitest';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {File, FileMatcher} from '../../../definitions/file.js';
 import {waitTimeout} from '../../../utils/fns.js';
@@ -10,7 +10,7 @@ import {ReadFileEndpointParams} from '../../files/readFile/types.js';
 import {stringifyFilenamepath} from '../../files/utils.js';
 import {generateAndInsertTestFiles} from '../../testUtils/generate/file.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
-import {completeTests, skTest} from '../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -37,7 +37,7 @@ afterAll(async () => {
 });
 
 describe('getPresignedPathsForFiles', () => {
-  skTest.run('with file matcher', async () => {
+  test('with file matcher', async () => {
     const {userToken} = await insertUserForTest();
     const [{workspace: w1}, {workspace: w2}] = await Promise.all([
       insertWorkspaceForTest(userToken),
@@ -74,7 +74,7 @@ describe('getPresignedPathsForFiles', () => {
     expect(returnedPaths).toEqual(expect.arrayContaining(paths));
   });
 
-  skTest.run('with file matcher and workspaceId', async () => {
+  test('with file matcher and workspaceId', async () => {
     const {userToken} = await insertUserForTest();
     const [{workspace: w1}, {workspace: w2}] = await Promise.all([
       insertWorkspaceForTest(userToken),
@@ -118,7 +118,7 @@ describe('getPresignedPathsForFiles', () => {
     expect(returnedPaths).toEqual(expect.not.arrayContaining(paths02));
   });
 
-  skTest.run('with workspaceId and agent token', async () => {
+  test('with workspaceId and agent token', async () => {
     const {userToken} = await insertUserForTest();
     const [{workspace: w1}, {workspace: w2}] = await Promise.all([
       insertWorkspaceForTest(userToken),
@@ -158,7 +158,7 @@ describe('getPresignedPathsForFiles', () => {
     expect(returnedPaths).toEqual(expect.not.arrayContaining(paths02));
   });
 
-  skTest.run('with user token', async () => {
+  test('with user token', async () => {
     const {userToken} = await insertUserForTest();
     const [{workspace: w1}, {workspace: w2}] = await Promise.all([
       insertWorkspaceForTest(userToken),
@@ -193,7 +193,7 @@ describe('getPresignedPathsForFiles', () => {
     expect(returnedPaths).toEqual(expect.arrayContaining(expectedPaths));
   });
 
-  skTest.run('filters out expired and spent paths', async () => {
+  test('filters out expired and spent paths', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace: w1} = await insertWorkspaceForTest(userToken);
     const [files01, files02, files03] = await Promise.all([

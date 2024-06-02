@@ -1,4 +1,4 @@
-import * as Joi from 'joi';
+import Joi from 'joi';
 import {
   UsageRecordCategoryMap,
   UsageRecordFulfillmentStatusMap,
@@ -35,7 +35,10 @@ const queryJoiSchema = Joi.object<WorkspaceSummedUsageQuery>({
 });
 
 export const getWorkspaceSummedUsageBaseJoiSchemaParts: JoiSchemaParts<GetWorkspaceSummedUsageEndpointParamsBase> =
-  {...endpointValidationSchemas.optionalWorkspaceIdParts, query: queryJoiSchema};
+  {
+    ...endpointValidationSchemas.optionalWorkspaceIdParts,
+    query: queryJoiSchema,
+  };
 
 export const getWorkspaceSummedUsageJoiSchema =
   Joi.object<GetWorkspaceSummedUsageEndpointParams>()

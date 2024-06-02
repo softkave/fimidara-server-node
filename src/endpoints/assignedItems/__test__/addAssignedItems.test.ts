@@ -1,9 +1,9 @@
+import {afterAll, beforeAll, describe, test} from 'vitest';
 import {AssignedItem} from '../../../definitions/assignedItem.js';
 import {AssignPermissionGroupInput} from '../../../definitions/permissionGroups.js';
 import {extractResourceIdList, makeKey} from '../../../utils/fns.js';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
-import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   assignPgListToIdList,
   toAssignedPgListInput,
@@ -30,17 +30,18 @@ describe('addAssignedItems', () => {
   test('addAssignedPermissionGroupList does not duplicate', async () => {
     const {userToken, rawUser} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const [pgList01, pgListAssignedTo01, pgListAssignedTo02] = await Promise.all([
-      generateAndInsertPermissionGroupListForTest(2, {
-        workspaceId: workspace.resourceId,
-      }),
-      generateAndInsertPermissionGroupListForTest(2, {
-        workspaceId: workspace.resourceId,
-      }),
-      generateAndInsertPermissionGroupListForTest(2, {
-        workspaceId: workspace.resourceId,
-      }),
-    ]);
+    const [pgList01, pgListAssignedTo01, pgListAssignedTo02] =
+      await Promise.all([
+        generateAndInsertPermissionGroupListForTest(2, {
+          workspaceId: workspace.resourceId,
+        }),
+        generateAndInsertPermissionGroupListForTest(2, {
+          workspaceId: workspace.resourceId,
+        }),
+        generateAndInsertPermissionGroupListForTest(2, {
+          workspaceId: workspace.resourceId,
+        }),
+      ]);
     const agent = makeUserSessionAgent(rawUser, userToken);
     const pgListAssignedTo01Input = toAssignedPgListInput(pgListAssignedTo01);
     const pgListAssignedTo02Input = toAssignedPgListInput(pgListAssignedTo02);
@@ -52,19 +53,17 @@ describe('addAssignedItems', () => {
       pgListAssignedTo01Input
     );
 
-    const assignedItems = await kSemanticModels.utils().withTxn(
-      opts =>
-        addAssignedPermissionGroupList(
-          agent,
-          workspace.resourceId,
-          pgListAssignedTo02Input,
-          pgList01IdList,
-          false, // do not delete existing items
-          true, // skip permission groups check
-          false, // skip auth check
-          opts
-        ),
-      /** reuseTxn */ true
+    const assignedItems = await kSemanticModels.utils().withTxn(opts =>
+      addAssignedPermissionGroupList(
+        agent,
+        workspace.resourceId,
+        pgListAssignedTo02Input,
+        pgList01IdList,
+        false, // do not delete existing items
+        true, // skip permission groups check
+        false, // skip auth check
+        opts
+      )
     );
 
     expectContainsEveryItemInForAnyType(
@@ -86,6 +85,7 @@ describe('addAssignedItems', () => {
   });
 });
 
-const pgAssignedItemKey = (item: AssignedItem) => makeKey([item.assignedItemId]);
+const pgAssignedItemKey = (item: AssignedItem) =>
+  makeKey([item.assignedItemId]);
 const pgInputKey = (item: AssignPermissionGroupInput) =>
   makeKey([item.permissionGroupId]);

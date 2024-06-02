@@ -26,8 +26,6 @@ import {
   generatePermissionItemsAsChildren,
   noopGenerateTypeChildren,
   testDeleteResourceArtifactsJob,
-  testDeleteResourceJob0,
-  testDeleteResourceSelfJob,
 } from './testUtils.js';
 
 beforeAll(async () => {
@@ -81,16 +79,6 @@ const genResourceFn = async (workspace: Workspace, userToken: AgentToken) => {
 };
 
 describe('runDeleteResourceJob, folder', () => {
-  test('deleteResource0', async () => {
-    const {workspace, userToken} = await genWorkspaceFn();
-    const {rawFolder} = await genResourceFn(workspace, userToken);
-    testDeleteResourceJob0({
-      genResourceFn: () => Promise.resolve(rawFolder),
-      genWorkspaceFn: () => Promise.resolve(workspace.resourceId),
-      type: kFimidaraResourceType.Folder,
-    });
-  });
-
   test('runDeleteResourceJobArtifacts', async () => {
     const {workspace, userToken} = await genWorkspaceFn();
     const {rawFolder} = await genResourceFn(workspace, userToken);
@@ -100,16 +88,6 @@ describe('runDeleteResourceJob, folder', () => {
       genChildrenDef: folderGenerateTypeChildren,
       deleteCascadeDef:
         deleteFolderCascadeEntry as unknown as DeleteResourceCascadeEntry,
-      type: kFimidaraResourceType.Folder,
-    });
-  });
-
-  test('runDeleteResourceJobSelf', async () => {
-    const {workspace, userToken} = await genWorkspaceFn();
-    const {rawFolder} = await genResourceFn(workspace, userToken);
-    await testDeleteResourceSelfJob({
-      genResourceFn: () => Promise.resolve(rawFolder),
-      genWorkspaceFn: () => Promise.resolve(workspace.resourceId),
       type: kFimidaraResourceType.Folder,
     });
   });

@@ -1,15 +1,23 @@
 import {faker} from '@faker-js/faker';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {
+  EmailJobParams,
+  Job,
+  kEmailJobType,
+  kJobType,
+} from '../../../definitions/job.js';
 import {mergeData} from '../../../utils/fns.js';
 import {DataQuery} from '../../contexts/data/types.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {kRegisterUtilsInjectables} from '../../contexts/injection/register.js';
 import {generateAndInsertUserListForTest} from '../../testUtils/generate/user.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {initTests, insertUserForTest} from '../../testUtils/testUtils.js';
 import {EmailAddressNotAvailableError} from '../errors.js';
-import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job.js';
-import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 
 /**
  * TODO:

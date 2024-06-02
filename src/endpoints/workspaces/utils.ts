@@ -46,22 +46,26 @@ const usageThresholdItemIfExistExtractor = makeExtractIfPresent(
 const usageThresholdLockItemIfExistExtractor = makeExtractIfPresent(
   usageThresholdLockItemPublicFields
 );
-const usageThresholdsPublicFields = getFields<PublicWorkspace['usageThresholds']>({
+const usageThresholdsPublicFields = getFields<
+  PublicWorkspace['usageThresholds']
+>({
   [UsageRecordCategoryMap.Total]: usageThresholdItemIfExistExtractor,
   [UsageRecordCategoryMap.Storage]: usageThresholdItemIfExistExtractor,
   [UsageRecordCategoryMap.BandwidthIn]: usageThresholdItemIfExistExtractor,
   [UsageRecordCategoryMap.BandwidthOut]: usageThresholdItemIfExistExtractor,
 });
-const usageThresholdLocksPublicFields = getFields<PublicWorkspace['usageThresholdLocks']>(
-  {
-    [UsageRecordCategoryMap.Total]: usageThresholdLockItemIfExistExtractor,
-    [UsageRecordCategoryMap.Storage]: usageThresholdLockItemIfExistExtractor,
-    [UsageRecordCategoryMap.BandwidthIn]: usageThresholdLockItemIfExistExtractor,
-    [UsageRecordCategoryMap.BandwidthOut]: usageThresholdLockItemIfExistExtractor,
-  }
-);
+const usageThresholdLocksPublicFields = getFields<
+  PublicWorkspace['usageThresholdLocks']
+>({
+  [UsageRecordCategoryMap.Total]: usageThresholdLockItemIfExistExtractor,
+  [UsageRecordCategoryMap.Storage]: usageThresholdLockItemIfExistExtractor,
+  [UsageRecordCategoryMap.BandwidthIn]: usageThresholdLockItemIfExistExtractor,
+  [UsageRecordCategoryMap.BandwidthOut]: usageThresholdLockItemIfExistExtractor,
+});
 const usageThresholdExistExtractor = makeExtract(usageThresholdsPublicFields);
-const usageThresholdLockExistExtractor = makeExtract(usageThresholdLocksPublicFields);
+const usageThresholdLockExistExtractor = makeExtract(
+  usageThresholdLocksPublicFields
+);
 const workspacePublicFields: ExtractFieldsFrom<PublicWorkspace> = {
   ...workspaceResourceFields,
   name: true,

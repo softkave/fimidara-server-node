@@ -232,11 +232,7 @@ export interface BaseDataProvider<
 
 export interface DataProviderUtils {
   withTxn<TResult>(
-    fn: AnyFn<
-      [txn: unknown],
-      Promise<TResult>
-    > /** Whether or not to reuse an existing txn from async local storage. */,
-    reuseAsyncLocalTxn: boolean,
+    fn: AnyFn<[txn: unknown], Promise<TResult>>,
     existingSession?: unknown
   ): Promise<TResult>;
 }

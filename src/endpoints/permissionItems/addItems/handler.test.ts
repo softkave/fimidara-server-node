@@ -1,4 +1,5 @@
 import {faker} from '@faker-js/faker';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
 import RequestData from '../../RequestData.js';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
@@ -7,7 +8,6 @@ import {generateAndInsertTestFolders} from '../../testUtils/generate/folder.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {expectEntityHasPermissionsTargetingId} from '../../testUtils/helpers/permissionItem.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -47,10 +47,12 @@ describe('addItems', () => {
     ]);
 
     const grantAccess = faker.datatype.boolean();
-    const actionsWithoutWildcard = Object.values(kFimidaraPermissionActionsMap).filter(
-      action => action !== kFimidaraPermissionActionsMap.wildcard
+    const actionsWithoutWildcard = Object.values(
+      kFimidaraPermissionActionsMap
+    ).filter(action => action !== kFimidaraPermissionActionsMap.wildcard);
+    const subsetWorkspaceActions = faker.helpers.arrayElements(
+      actionsWithoutWildcard
     );
-    const subsetWorkspaceActions = faker.helpers.arrayElements(actionsWithoutWildcard);
     const completeWorkspaceActionsInputItems = actionsWithoutWildcard.map(
       (action): PermissionItemInput => ({
         action,
@@ -64,19 +66,25 @@ describe('addItems', () => {
         action,
         access: grantAccess,
         target: {targetId: workspace.resourceId},
-        entityId: [pg01.resourceId, pg02.resourceId, pg03.resourceId, pg04.resourceId],
+        entityId: [
+          pg01.resourceId,
+          pg02.resourceId,
+          pg03.resourceId,
+          pg04.resourceId,
+        ],
       })
     );
 
-    const reqData = RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {
-        items: completeWorkspaceActionsInputItems.concat(
-          subsetWorkspaceActionsInputItems
-        ),
-        workspaceId: workspace.resourceId,
-      }
-    );
+    const reqData =
+      RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          items: completeWorkspaceActionsInputItems.concat(
+            subsetWorkspaceActionsInputItems
+          ),
+          workspaceId: workspace.resourceId,
+        }
+      );
     const result = await addPermissionItems(reqData);
     assertEndpointResultOk(result);
 
@@ -106,7 +114,10 @@ describe('addItems', () => {
         workspace,
         workspaceId: workspace.resourceId,
         target: {
-          entityId: faker.helpers.arrayElement([pg01.resourceId, pg02.resourceId]),
+          entityId: faker.helpers.arrayElement([
+            pg01.resourceId,
+            pg02.resourceId,
+          ]),
           action: faker.helpers.arrayElement(actionsWithoutWildcard),
           targetId: workspace.resourceId,
         },
@@ -137,10 +148,8 @@ describe('addItems', () => {
   test('permission items are not duplicated', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const {permissionGroup: permissionGroup} = await insertPermissionGroupForTest(
-      userToken,
-      workspace.resourceId
-    );
+    const {permissionGroup: permissionGroup} =
+      await insertPermissionGroupForTest(userToken, workspace.resourceId);
     const grantAccess = faker.datatype.boolean();
     const actions = Object.values(kFimidaraPermissionActionsMap);
     const actionsWithoutWildcard = actions.filter(
@@ -154,18 +163,21 @@ describe('addItems', () => {
         entityId: permissionGroup.resourceId,
       })
     );
-    const itemsDuplicated = actionsWithoutWildcard.concat(actionsWithoutWildcard).map(
-      (action): PermissionItemInput => ({
-        action,
-        access: grantAccess,
-        target: {targetId: workspace.resourceId},
-        entityId: permissionGroup.resourceId,
-      })
-    );
-    const reqData = RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {items: itemsDuplicated, workspaceId: workspace.resourceId}
-    );
+    const itemsDuplicated = actionsWithoutWildcard
+      .concat(actionsWithoutWildcard)
+      .map(
+        (action): PermissionItemInput => ({
+          action,
+          access: grantAccess,
+          target: {targetId: workspace.resourceId},
+          entityId: permissionGroup.resourceId,
+        })
+      );
+    const reqData =
+      RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {items: itemsDuplicated, workspaceId: workspace.resourceId}
+      );
 
     // First insert
     await addPermissionItems(reqData);
@@ -199,10 +211,11 @@ describe('addItems', () => {
         entityId: permissionGroup.resourceId,
       })
     );
-    const reqData = RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {items: itemsUniq, workspaceId: workspace.resourceId}
-    );
+    const reqData =
+      RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {items: itemsUniq, workspaceId: workspace.resourceId}
+      );
 
     let result = await addPermissionItems(reqData);
     assertEndpointResultOk(result);
@@ -251,19 +264,26 @@ describe('addItems', () => {
         target: {targetId: folder02.resourceId},
       },
     ];
-    const reqData = RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {items: itemsInput, workspaceId: workspace.resourceId}
-    );
+    const reqData =
+      RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {items: itemsInput, workspaceId: workspace.resourceId}
+      );
 
     const result = await addPermissionItems(reqData);
     assertEndpointResultOk(result);
 
     const pItems = await kSemanticModels
       .permissionItem()
-      .getManyByQuery(PermissionItemQueries.getByPermissionEntity(user.resourceId));
-    const pItemFolder01 = pItems.find(item => item.targetId === folder01.resourceId);
-    const pItemFolder02 = pItems.find(item => item.targetId === folder02.resourceId);
+      .getManyByQuery(
+        PermissionItemQueries.getByPermissionEntity(user.resourceId)
+      );
+    const pItemFolder01 = pItems.find(
+      item => item.targetId === folder01.resourceId
+    );
+    const pItemFolder02 = pItems.find(
+      item => item.targetId === folder02.resourceId
+    );
     expect(pItemFolder01).toBeTruthy();
     expect(pItemFolder02).toBeTruthy();
     expect(pItemFolder01?.targetParentId).toBe(workspace.resourceId);

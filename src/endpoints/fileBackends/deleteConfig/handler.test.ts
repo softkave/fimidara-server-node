@@ -1,4 +1,9 @@
-import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job.js';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {
+  DeleteResourceJobParams,
+  Job,
+  kJobType,
+} from '../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
@@ -9,7 +14,6 @@ import {NotFoundError} from '../../errors.js';
 import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -37,7 +41,9 @@ describe('deleteConfig', () => {
       RequestData.fromExpressRequest<DeleteFileBackendConfigEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
-          configId: getNewIdForResource(kFimidaraResourceType.FileBackendConfig),
+          configId: getNewIdForResource(
+            kFimidaraResourceType.FileBackendConfig
+          ),
           workspaceId: workspace.resourceId,
         }
       );
@@ -46,10 +52,11 @@ describe('deleteConfig', () => {
       async () => {
         await deleteFileBackendConfig(instData);
       },
-      error =>
+      error => {
         expect((error as NotFoundError).message).toBe(
           kReuseableErrors.config.notFound().message
-        )
+        );
+      }
     );
   });
 
@@ -60,7 +67,9 @@ describe('deleteConfig', () => {
       userToken,
       workspace.resourceId
     );
-    await generateAndInsertFileBackendMountListForTest(1, {configId: config.resourceId});
+    await generateAndInsertFileBackendMountListForTest(1, {
+      configId: config.resourceId,
+    });
 
     const instData =
       RequestData.fromExpressRequest<DeleteFileBackendConfigEndpointParams>(
@@ -72,10 +81,11 @@ describe('deleteConfig', () => {
       async () => {
         await deleteFileBackendConfig(instData);
       },
-      error =>
+      error => {
         expect((error as Error).message).toBe(
           kReuseableErrors.config.configInUse(/** count */ 1).message
-        )
+        );
+      }
     );
   });
 

@@ -82,10 +82,7 @@ export async function generateAndInsertJobListForTest(
   const items = generateJobListForTest(count, seed);
   await kSemanticModels
     .utils()
-    .withTxn(
-      async opts => kSemanticModels.job().insertItem(items, opts),
-      /** reuseTxn */ true
-    );
+    .withTxn(async opts => kSemanticModels.job().insertItem(items, opts));
 
   return items;
 }

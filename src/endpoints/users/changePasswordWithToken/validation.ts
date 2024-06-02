@@ -1,4 +1,4 @@
-import * as Joi from 'joi';
+import Joi from 'joi';
 import userValidationSchemas from '../validation.js';
 import {ChangePasswordWithTokenEndpointParams} from './types.js';
 

@@ -3,7 +3,10 @@ import {getTimestamp} from '../../../utils/dateFns.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {checkWorkspaceNameExists} from '../checkWorkspaceExists.js';
 import {
   assertWorkspace,
@@ -44,7 +47,7 @@ const updateWorkspace: UpdateWorkspaceEndpoint = async instData => {
       .getAndUpdateOneById(workspace.resourceId, update, opts);
     assertWorkspace(updatedWorkspace);
     return updatedWorkspace;
-  }, /** reuseTxn */ false);
+  });
 
   return {workspace: workspaceExtractor(workspace)};
 };

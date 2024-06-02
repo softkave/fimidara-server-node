@@ -6,7 +6,10 @@ import {validate} from '../../../utils/validate.js';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {checkWorkspaceExists} from '../../workspaces/utils.js';
 import {checkPermissionGroupNameExists} from '../checkPermissionGroupNameExists.js';
 import {permissionGroupExtractor} from '../utils.js';
@@ -45,7 +48,7 @@ const addPermissionGroup: AddPermissionGroupEndpoint = async instData => {
     );
     await kSemanticModels.permissionGroup().insertItem(permissionGroup, opts);
     return permissionGroup;
-  }, /** reuseTxn */ false);
+  });
 
   permissionGroup = await populateAssignedTags(
     permissionGroup.workspaceId,

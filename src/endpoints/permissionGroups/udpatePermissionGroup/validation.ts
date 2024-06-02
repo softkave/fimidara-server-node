@@ -1,6 +1,9 @@
-import * as Joi from 'joi';
+import Joi from 'joi';
 import {kValidationSchemas} from '../../../utils/validationUtils.js';
-import {UpdatePermissionGroupEndpointParams, UpdatePermissionGroupInput} from './types.js';
+import {
+  UpdatePermissionGroupEndpointParams,
+  UpdatePermissionGroupInput,
+} from './types.js';
 
 export const updatePermissionGroupJoiSchema =
   Joi.object<UpdatePermissionGroupEndpointParams>()

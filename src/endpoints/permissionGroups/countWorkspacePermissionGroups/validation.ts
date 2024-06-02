@@ -1,4 +1,4 @@
-import * as Joi from 'joi';
+import Joi from 'joi';
 import {getWorkspacePermissionGroupsBaseJoiSchemaParts} from '../getWorkspacePermissionGroups/validation.js';
 import {CountWorkspacePermissionGroupsEndpointParams} from './types.js';
 

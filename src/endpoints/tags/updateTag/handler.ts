@@ -3,7 +3,10 @@ import {getTimestamp} from '../../../utils/dateFns.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {checkTagNameExists} from '../checkTagNameExists.js';
 import {assertTag, checkTagAuthorization02, tagExtractor} from '../utils.js';
 import {UpdateTagEndpoint} from './types.js';
@@ -38,7 +41,7 @@ const updateTag: UpdateTagEndpoint = async instData => {
       .getAndUpdateOneById(data.tagId, tagUpdate, opts);
     assertTag(updatedTag);
     return updatedTag;
-  }, /** reuseTxn */ false);
+  });
 
   return {tag: tagExtractor(tag)};
 };

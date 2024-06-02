@@ -300,10 +300,8 @@ describe('DataSemanticPermission', () => {
     );
     await kSemanticModels
       .utils()
-      .withTxn(
-        async opts =>
-          kSemanticModels.permissionItem().insertItem(rawItems, opts),
-        /** reuseTxn */ true
+      .withTxn(async opts =>
+        kSemanticModels.permissionItem().insertItem(rawItems, opts)
       );
 
     const items = await model.getPermissionItems({

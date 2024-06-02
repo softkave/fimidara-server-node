@@ -1,5 +1,8 @@
 import {ClientSession} from 'mongoose';
-import {isMongoClientSession, isMongoConnection} from '../../../db/connection.js';
+import {
+  isMongoClientSession,
+  isMongoConnection,
+} from '../../../db/connection.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {AnyFn} from '../../../utils/types.js';
 import {kAsyncLocalStorageKeys} from '../asyncLocalStorage.js';
@@ -9,16 +12,9 @@ import {DataProviderUtils} from './types.js';
 export class MongoDataProviderUtils implements DataProviderUtils {
   async withTxn<TResult>(
     fn: AnyFn<[txn: ClientSession], Promise<TResult>>,
-    reuseAsyncLocalTxn: boolean = true,
     existingSession?: unknown
   ): Promise<TResult> {
     let result: TResult | undefined = undefined;
-
-    if (!existingSession && reuseAsyncLocalTxn) {
-      existingSession = kUtilsInjectables
-        .asyncLocalStorage()
-        .get<ClientSession>(kAsyncLocalStorageKeys.txn);
-    }
 
     if (existingSession) {
       appAssert(isMongoClientSession(existingSession));

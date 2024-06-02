@@ -12,7 +12,10 @@ import {
   checkAuthorizationWithAgent,
   getResourcePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {getFileWithMatcher} from '../../files/getFilesWithMatcher.js';
 import {getFilepathInfo} from '../../files/utils.js';
 import {getClosestExistingFolder} from '../../folders/getFolderWithMatcher.js';
@@ -125,7 +128,7 @@ const issuePresignedPath: IssuePresignedPathEndpoint = async instData => {
     );
     await kSemanticModels.presignedPath().insertItem(presignedPath, opts);
     return presignedPath;
-  }, /** reuseTxn */ false);
+  });
 
   return {path: resource.resourceId};
 };

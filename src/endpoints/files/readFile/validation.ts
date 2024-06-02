@@ -1,4 +1,4 @@
-import * as Joi from 'joi';
+import Joi from 'joi';
 import {kValidationSchemas} from '../../../utils/validationUtils.js';
 import {kFileConstants} from '../constants.js';
 import fileValidationSchemas from '../validation.js';

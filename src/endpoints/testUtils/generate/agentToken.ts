@@ -27,7 +27,8 @@ export function generateAgentTokenForTest(
     description: faker.lorem.sentence(),
     version: kCurrentJWTTokenVersion,
     forEntityId: null,
-    scope: seed.workspaceId && !seed.forEntityId ? [kTokenAccessScope.access] : [],
+    scope:
+      seed.workspaceId && !seed.forEntityId ? [kTokenAccessScope.access] : [],
     ...seed,
   });
   return token;
@@ -51,9 +52,8 @@ export async function generateAndInsertAgentTokenListForTest(
   const items = generateAgentTokenListForTest(count, seed);
   await kSemanticModels
     .utils()
-    .withTxn(
-      async opts => kSemanticModels.agentToken().insertItem(items, opts),
-      /** reuseTxn */ true
+    .withTxn(async opts =>
+      kSemanticModels.agentToken().insertItem(items, opts)
     );
   return items;
 }

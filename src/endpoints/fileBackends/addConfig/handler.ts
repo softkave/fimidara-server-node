@@ -2,7 +2,10 @@ import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem
 import {validate} from '../../../utils/validate.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
 import {fileBackendConfigExtractor} from '../utils.js';
 import {AddFileBackendConfigEndpoint} from './types.js';
@@ -31,7 +34,7 @@ const addFileBackendConfig: AddFileBackendConfigEndpoint = async instData => {
 
   const backend = await kSemanticModels.utils().withTxn(async opts => {
     return await INTERNAL_addConfig(agent, workspace, data.config, opts);
-  }, /** reuseTxn */ false);
+  });
 
   return {config: fileBackendConfigExtractor(backend)};
 };

@@ -43,10 +43,7 @@ describe('getNextJob', () => {
     const runnerId = getNewIdForResource(kFimidaraResourceType.App);
     const inProgressJob = await kSemanticModels
       .utils()
-      .withTxn(
-        opts => markJobStarted(job, runnerId, opts),
-        /** reuseTxn */ true
-      );
+      .withTxn(opts => markJobStarted(job, runnerId, opts));
     const dbJob = await kSemanticModels.job().getOneById(job.resourceId);
 
     assert(inProgressJob);
@@ -86,10 +83,8 @@ describe('getNextJob', () => {
 
     const unfinishedJob = await kSemanticModels
       .utils()
-      .withTxn(
-        opts =>
-          getNextUnfinishedJob(/** empty active runners */ [], [shard], opts),
-        /** reuseTxn */ true
+      .withTxn(opts =>
+        getNextUnfinishedJob(/** empty active runners */ [], [shard], opts)
       );
 
     expect(unfinishedJob).toMatchObject(omitDeep(job, isUndefined));
@@ -108,10 +103,7 @@ describe('getNextJob', () => {
 
     const unfinishedJob = await kSemanticModels
       .utils()
-      .withTxn(
-        opts => getNextUnfinishedJob([runnerId], [shard], opts),
-        /** reuseTxn */ true
-      );
+      .withTxn(opts => getNextUnfinishedJob([runnerId], [shard], opts));
 
     expect(unfinishedJob).toBeFalsy();
   });
@@ -133,10 +125,7 @@ describe('getNextJob', () => {
 
     const unfinishedJob = await kSemanticModels
       .utils()
-      .withTxn(
-        opts => getNextUnfinishedJob([runnerId], [shard], opts),
-        /** reuseTxn */ true
-      );
+      .withTxn(opts => getNextUnfinishedJob([runnerId], [shard], opts));
 
     expect(unfinishedJob).toBeFalsy();
   });
@@ -166,10 +155,7 @@ describe('getNextJob', () => {
 
     const unfinishedJob = await kSemanticModels
       .utils()
-      .withTxn(
-        opts => getNextUnfinishedJob([runnerId], [shard], opts),
-        /** reuseTxn */ true
-      );
+      .withTxn(opts => getNextUnfinishedJob([runnerId], [shard], opts));
 
     expect(unfinishedJob).toBeFalsy();
   });
@@ -190,10 +176,8 @@ describe('getNextJob', () => {
 
     const unfinishedJob = await kSemanticModels
       .utils()
-      .withTxn(
-        opts =>
-          getNextUnfinishedJob(/** empty active runner */ [], [shard], opts),
-        /** reuseTxn */ true
+      .withTxn(opts =>
+        getNextUnfinishedJob(/** empty active runner */ [], [shard], opts)
       );
 
     expect(unfinishedJob).toMatchObject(omitDeep(job01, isUndefined));
@@ -214,10 +198,8 @@ describe('getNextJob', () => {
 
     const unfinishedJob = await kSemanticModels
       .utils()
-      .withTxn(
-        opts =>
-          getNextUnfinishedJob(/** empty active runner */ [], [shard], opts),
-        /** reuseTxn */ true
+      .withTxn(opts =>
+        getNextUnfinishedJob(/** empty active runner */ [], [shard], opts)
       );
 
     assert(unfinishedJob);
@@ -249,10 +231,8 @@ describe('getNextJob', () => {
 
     const unfinishedJob = await kSemanticModels
       .utils()
-      .withTxn(
-        opts =>
-          getNextUnfinishedJob(/** empty active runner */ [], [shard], opts),
-        /** reuseTxn */ true
+      .withTxn(opts =>
+        getNextUnfinishedJob(/** empty active runner */ [], [shard], opts)
       );
 
     expect(unfinishedJob).toMatchObject(omitDeep(job02, isUndefined));
@@ -278,10 +258,8 @@ describe('getNextJob', () => {
 
     const unfinishedJob = await kSemanticModels
       .utils()
-      .withTxn(
-        opts =>
-          getNextUnfinishedJob(/** empty active runner */ [], [shard], opts),
-        /** reuseTxn */ true
+      .withTxn(opts =>
+        getNextUnfinishedJob(/** empty active runner */ [], [shard], opts)
       );
 
     expect(unfinishedJob).toMatchObject(omitDeep(jobP2, isUndefined));
@@ -307,7 +285,7 @@ describe('getNextJob', () => {
 
     const pendingJob = await kSemanticModels
       .utils()
-      .withTxn(opts => getNextPendingJob([shard], opts), /** reuseTxn */ true);
+      .withTxn(opts => getNextPendingJob([shard], opts));
 
     expect(pendingJob).toMatchObject(omitDeep(job, isUndefined));
     expect(pendingJob?.shard).toBe(shard);
@@ -332,7 +310,7 @@ describe('getNextJob', () => {
 
     const pendingJob = await kSemanticModels
       .utils()
-      .withTxn(opts => getNextPendingJob([shard], opts), /** reuseTxn */ true);
+      .withTxn(opts => getNextPendingJob([shard], opts));
 
     expect(pendingJob).toMatchObject(omitDeep(jobP2, isUndefined));
     expect(pendingJob).not.toEqual(jobP1);
@@ -354,7 +332,7 @@ describe('getNextJob', () => {
 
     const pendingJob = await kSemanticModels
       .utils()
-      .withTxn(opts => getNextPendingJob([shard], opts), /** reuseTxn */ true);
+      .withTxn(opts => getNextPendingJob([shard], opts));
 
     expect(pendingJob).toMatchObject(omitDeep(jobP1, isUndefined));
   });
@@ -381,7 +359,7 @@ describe('getNextJob', () => {
 
     const pendingJob = await kSemanticModels
       .utils()
-      .withTxn(opts => getNextPendingJob([shard], opts), /** reuseTxn */ true);
+      .withTxn(opts => getNextPendingJob([shard], opts));
 
     expect(pendingJob).toMatchObject(omitDeep(jobP2, isUndefined));
     expect(pendingJob).not.toEqual(jobP1);
@@ -404,7 +382,7 @@ describe('getNextJob', () => {
 
     const notReadyJob = await kSemanticModels
       .utils()
-      .withTxn(opts => getNextPendingJob([shard], opts), /** reuseTxn */ true);
+      .withTxn(opts => getNextPendingJob([shard], opts));
 
     expect(notReadyJob).toBeFalsy();
   });
@@ -424,7 +402,7 @@ describe('getNextJob', () => {
 
     const pendingJob = await kSemanticModels
       .utils()
-      .withTxn(opts => getNextPendingJob([shard], opts), /** reuseTxn */ true);
+      .withTxn(opts => getNextPendingJob([shard], opts));
 
     assert(pendingJob);
     const dbJob = await kSemanticModels
@@ -458,7 +436,7 @@ describe('getNextJob', () => {
 
     const notReadyJob = await kSemanticModels
       .utils()
-      .withTxn(opts => getNextPendingJob([shard], opts), /** reuseTxn */ true);
+      .withTxn(opts => getNextPendingJob([shard], opts));
 
     expect(notReadyJob).toBeFalsy();
   });
@@ -486,10 +464,7 @@ describe('getNextJob', () => {
     ]);
     const dbJob = await kSemanticModels
       .utils()
-      .withTxn(
-        opts => kSemanticModels.job().getOneById(job.resourceId, opts),
-        /** reuseTxn */ true
-      );
+      .withTxn(opts => kSemanticModels.job().getOneById(job.resourceId, opts));
 
     expect(startedJob?.resourceId).toEqual(job.resourceId);
     expect(startedJob).toEqual(dbJob);
@@ -521,10 +496,8 @@ describe('getNextJob', () => {
     ]);
     const dbJob = await kSemanticModels
       .utils()
-      .withTxn(
-        opts =>
-          kSemanticModels.job().getOneById(unfinishedJob.resourceId, opts),
-        /** reuseTxn */ true
+      .withTxn(opts =>
+        kSemanticModels.job().getOneById(unfinishedJob.resourceId, opts)
       );
 
     expect(startedJob?.resourceId).toEqual(unfinishedJob.resourceId);

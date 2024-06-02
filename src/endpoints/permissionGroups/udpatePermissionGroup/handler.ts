@@ -54,7 +54,7 @@ const updatePermissionGroup: UpdatePermissionGroupEndpoint = async instData => {
       .getAndUpdateOneById(permissionGroup.resourceId, update, opts);
     assertPermissionGroup(updatedPermissionGroup);
     return updatedPermissionGroup;
-  }, /** reuseTxn */ false);
+  });
 
   permissionGroup = await populateAssignedTags(
     permissionGroup.workspaceId,

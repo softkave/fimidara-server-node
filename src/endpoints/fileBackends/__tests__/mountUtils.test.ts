@@ -1,5 +1,13 @@
 import {faker} from '@faker-js/faker';
-import {test, expect, describe, beforeAll, afterAll, beforeEach, afterEach} from 'vitest';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+} from 'vitest';
 import {
   FileBackendConfig,
   FileBackendMount,
@@ -25,7 +33,7 @@ import {
   generateTestFolderpath,
 } from '../../testUtils/generate/folder.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
-import {completeTests, skTest} from '../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   initTests,
   insertFileBackendConfigForTest,
@@ -48,7 +56,7 @@ describe('file backend mount utils', () => {
     await completeTests();
   });
 
-  skTest.run('sortMounts', () => {
+  test('sortMounts', () => {
     const mount01 = generateFileBackendMountForTest({index: 5});
     const mount02 = generateFileBackendMountForTest({index: 3, createdAt: 10});
     const mount03 = generateFileBackendMountForTest({index: 3, createdAt: 11});
@@ -64,7 +72,7 @@ describe('file backend mount utils', () => {
     expect(sortedMounts[3].resourceId).toBe(mount04.resourceId);
   });
 
-  skTest.run('resolveMountsForFolder, folder', async () => {
+  test('resolveMountsForFolder, folder', async () => {
     const [folder01] = await generateAndInsertTestFolders(1);
     const [folder02] = await generateAndInsertTestFolders(
       /** count */ 1,
@@ -111,7 +119,7 @@ describe('file backend mount utils', () => {
     );
   });
 
-  skTest.run('initBackendProvidersForMounts', async () => {
+  test('initBackendProvidersForMounts', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const [[fimidaraMount], {rawConfig: s3Config}] = await Promise.all([
@@ -136,7 +144,10 @@ describe('file backend mount utils', () => {
 
     const fimidaraProvider = result[fimidaraMount.resourceId];
     const s3Provider = result[s3Mount.resourceId];
-    const disposablesMap = kUtilsInjectables.asyncLocalStorage().disposables().getMap();
+    const disposablesMap = kUtilsInjectables
+      .asyncLocalStorage()
+      .disposables()
+      .getMap();
     expect(fimidaraProvider).toBeTruthy();
     expect(s3Provider).toBeTruthy();
     expect(fimidaraProvider).toBeInstanceOf(FimidaraFilePersistenceProvider);
@@ -145,7 +156,7 @@ describe('file backend mount utils', () => {
     expect(disposablesMap.has(s3Provider!)).toBeTruthy();
   });
 
-  skTest.run('initBackendProvidersForMounts throws if secret not found', async () => {
+  test('initBackendProvidersForMounts throws if secret not found', async () => {
     const [[s3Mount]] = await Promise.all([
       generateAndInsertFileBackendMountListForTest(/** count */ 1, {
         backend: kFileBackendType.s3,
@@ -158,7 +169,7 @@ describe('file backend mount utils', () => {
     });
   });
 
-  skTest.run('resolveBackendsMountsAndConfigs, initPrimaryBackendOnly', async () => {
+  test('resolveBackendsMountsAndConfigs, initPrimaryBackendOnly', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const folderNamepath = generateTestFolderpath();
@@ -190,11 +201,15 @@ describe('file backend mount utils', () => {
       /** init primary backend only */ true
     );
 
-    expect(result.primaryBackend).toBeInstanceOf(FimidaraFilePersistenceProvider);
+    expect(result.primaryBackend).toBeInstanceOf(
+      FimidaraFilePersistenceProvider
+    );
     expect(result.primaryMount).toMatchObject(fimidaraMount);
     // fimidara mount does not use config
     expect(result.configs).toHaveLength(0);
-    expect(Object.keys(result.providersMap)).toEqual([fimidaraMount.resourceId]);
+    expect(Object.keys(result.providersMap)).toEqual([
+      fimidaraMount.resourceId,
+    ]);
     // Currently, all mounts are fetched then sorted so this will be the count
     // of all mounts resolved for resource. Also, 3 instead of 2
     // (fimidaraMount & s3Mount), because workspaces have a default fimidara
@@ -202,7 +217,7 @@ describe('file backend mount utils', () => {
     expect(result.mounts).toHaveLength(3);
   });
 
-  skTest.run('resolveBackendsMountsAndConfigs, all mounts', async () => {
+  test('resolveBackendsMountsAndConfigs, all mounts', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const folderNamepath = generateTestFolderpath();
@@ -255,7 +270,7 @@ describe('file backend mount utils, mutates injectables', () => {
     await completeTests();
   });
 
-  skTest.run('initBackendProvidersForMounts uses correct secret', async () => {
+  test('initBackendProvidersForMounts uses correct secret', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const s3Creds = generateAWSS3Credentials();
@@ -276,7 +291,11 @@ describe('file backend mount utils, mutates injectables', () => {
     ]);
 
     kRegisterUtilsInjectables.fileProviderResolver(
-      (mount: FileBackendMount, initParams: unknown, config?: FileBackendConfig) => {
+      (
+        mount: FileBackendMount,
+        initParams: unknown,
+        config?: FileBackendConfig
+      ) => {
         switch (mount.backend) {
           case kFileBackendType.fimidara:
             expect(initParams).toBeFalsy();

@@ -1,3 +1,4 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
 import {extractResourceIdList} from '../../../../utils/fns.js';
 import {getNewIdForResource} from '../../../../utils/resource.js';
@@ -6,7 +7,6 @@ import {generateAndInsertResolvedMountEntryListForTest} from '../../../testUtils
 import {completeTests} from '../../../testUtils/helpers/testFns.js';
 import {initTests} from '../../../testUtils/testUtils.js';
 import {runCleanupMountResolvedEntriesJob} from '../runCleanupMountResolvedEntriesJob.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 
 beforeAll(async () => {
   await initTests();
@@ -19,9 +19,10 @@ afterAll(async () => {
 describe('runCleanupMountResolvedEntriesJob', () => {
   test('mount entries deleted', async () => {
     const mountId = getNewIdForResource(kFimidaraResourceType.FileBackendMount);
-    const entries = await generateAndInsertResolvedMountEntryListForTest(/** count */ 5, {
-      mountId,
-    });
+    const entries = await generateAndInsertResolvedMountEntryListForTest(
+      /** count */ 5,
+      {mountId}
+    );
 
     await runCleanupMountResolvedEntriesJob({params: {mountId}});
 

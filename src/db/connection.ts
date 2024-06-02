@@ -36,12 +36,16 @@ export class MongoDbConnection implements DbConnection<Connection> {
   };
 }
 
-export function isMongoConnection(connection: unknown): connection is Connection {
+export function isMongoConnection(
+  connection: unknown
+): connection is Connection {
   // Not an exhaustive check, but useful enough
   return !!(connection as Connection).collections;
 }
 
-export function isMongoClientSession(session: unknown): session is ClientSession {
+export function isMongoClientSession(
+  session: unknown
+): session is ClientSession {
   return !!(session as ClientSession)?.toBSON;
 }
 

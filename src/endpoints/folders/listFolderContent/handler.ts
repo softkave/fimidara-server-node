@@ -1,5 +1,8 @@
 import {Folder} from '../../../definitions/folder.js';
-import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {
+  SessionAgent,
+  kFimidaraResourceType,
+} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {validate} from '../../../utils/validate.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
@@ -32,7 +35,10 @@ const listFolderContent: ListFolderContentEndpoint = async instData => {
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );
-  const {workspace, parentFolder} = await getWorkspaceAndParentFolder(agent, data);
+  const {workspace, parentFolder} = await getWorkspaceAndParentFolder(
+    agent,
+    data
+  );
 
   applyDefaultEndpointPaginationOptions(data);
   const contentType = data.contentType ?? [
@@ -61,7 +67,8 @@ const listFolderContent: ListFolderContentEndpoint = async instData => {
       : [
           {
             code: kEndpointResultNoteCodeMap.mountsNotCompletelyIngested,
-            message: kEndpointResultNotesToMessageMap.mountsNotCompletelyIngested(),
+            message:
+              kEndpointResultNotesToMessageMap.mountsNotCompletelyIngested(),
           },
         ],
   };

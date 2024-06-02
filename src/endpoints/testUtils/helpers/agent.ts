@@ -99,15 +99,13 @@ export async function getTestSessionAgent<TPermissionsFnResult = unknown>(
       );
       await kSemanticModels
         .utils()
-        .withTxn(
-          opts =>
-            assignWorkspaceToUser(
-              userResult.sessionAgent,
-              workspaceResult.rawWorkspace.resourceId,
-              collaboratorResult.user.resourceId,
-              opts
-            ),
-          /** reuse async local txn */ false
+        .withTxn(opts =>
+          assignWorkspaceToUser(
+            userResult.sessionAgent,
+            workspaceResult.rawWorkspace.resourceId,
+            collaboratorResult.user.resourceId,
+            opts
+          )
         );
       const sessionAgent = makeUserSessionAgent(
         collaboratorResult.rawUser,

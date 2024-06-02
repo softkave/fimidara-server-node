@@ -496,7 +496,6 @@ export function registerUtilsInjectables(
   const promiseStore = new PromiseStore();
 
   kRegisterUtilsInjectables.suppliedConfig(suppliedConfig);
-
   kRegisterUtilsInjectables.promises(promiseStore);
   kRegisterUtilsInjectables.disposables(new DisposablesStore(promiseStore));
   kRegisterUtilsInjectables.asyncLocalStorage(kAsyncLocalStorageUtils);

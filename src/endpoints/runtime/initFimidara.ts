@@ -84,7 +84,7 @@ async function setupWorkspace(
       agent.agentId,
       opts
     );
-  }, false);
+  });
 }
 
 async function setupDefaultUser() {
@@ -127,7 +127,7 @@ async function setupDefaultUser() {
 
       const userToken = await getUserToken(user.resourceId, opts);
       return {user, userToken};
-    }, false);
+    });
 
   const agent = makeUserSessionAgent(user, userToken);
   return {user, userToken, agent};
@@ -135,41 +135,37 @@ async function setupDefaultUser() {
 
 async function setupFolders(workspace: Workspace) {
   const [workspaceImagesFolders, userImagesFolders] = await Promise.all([
-    kSemanticModels.utils().withTxn(
-      opts =>
-        createFolderList(
-          kSystemSessionAgent,
-          workspace,
-          {
-            folderpath: addRootnameToPath(
-              appSetupVars.workspaceImagesfolderpath,
-              workspace.rootname
-            ),
-          },
-          /** skip auth check */ true,
-          /** throw on folder exists */ false,
-          opts,
-          /** throw on error */ true
-        ),
-      /** reuse txn */ false
+    kSemanticModels.utils().withTxn(opts =>
+      createFolderList(
+        kSystemSessionAgent,
+        workspace,
+        {
+          folderpath: addRootnameToPath(
+            appSetupVars.workspaceImagesfolderpath,
+            workspace.rootname
+          ),
+        },
+        /** skip auth check */ true,
+        /** throw on folder exists */ false,
+        opts,
+        /** throw on error */ true
+      )
     ),
-    kSemanticModels.utils().withTxn(
-      opts =>
-        createFolderList(
-          kSystemSessionAgent,
-          workspace,
-          {
-            folderpath: addRootnameToPath(
-              appSetupVars.userImagesfolderpath,
-              workspace.rootname
-            ),
-          },
-          /** skip auth check */ true,
-          /** throw on folder exists */ false,
-          opts,
-          /** throw on error */ true
-        ),
-      /** reuse txn */ false
+    kSemanticModels.utils().withTxn(opts =>
+      createFolderList(
+        kSystemSessionAgent,
+        workspace,
+        {
+          folderpath: addRootnameToPath(
+            appSetupVars.userImagesfolderpath,
+            workspace.rootname
+          ),
+        },
+        /** skip auth check */ true,
+        /** throw on folder exists */ false,
+        opts,
+        /** throw on error */ true
+      )
     ),
   ]);
 
@@ -246,7 +242,7 @@ async function setupImageUploadPermissionGroup(
       await kSemanticModels.permissionItem().insertItem(permissionItems, opts),
     ]);
     return imageUploadPermissionGroup;
-  }, false);
+  });
 }
 
 async function setupRootWorkspacePermissionGroups(
@@ -341,7 +337,7 @@ async function insertRuntimeVars(
     );
 
     return {appRuntimeVars};
-  }, false);
+  });
 }
 
 async function setupAppArtifacts(agent: SessionAgent) {

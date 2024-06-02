@@ -115,7 +115,7 @@ export async function ingestPersistedFolders(
     await kSemanticModels
       .resolvedMountEntry()
       .insertItem(newMountEntries, opts);
-  }, /** reuseTxn */ false);
+  });
 }
 
 /**
@@ -259,5 +259,5 @@ export async function ingestPersistedFiles(
       kSemanticModels.resolvedMountEntry().insertItem(newMountEntries, opts),
       kSemanticModels.file().insertItem(newFiles, opts),
     ]);
-  }, /** reuseTxn */ false);
+  });
 }

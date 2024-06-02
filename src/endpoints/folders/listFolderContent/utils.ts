@@ -74,7 +74,7 @@ export async function getWorkspaceAndParentFolder(
   opts?: SemanticProviderMutationParams
 ) {
   let workspace: Workspace | null | undefined = null,
-    parentFolder: Folder | null = null;
+    parentFolder: Folder | null | undefined = undefined;
 
   // Check if folderpath contains only the workspace rootname and fetch
   // root-level folders and files

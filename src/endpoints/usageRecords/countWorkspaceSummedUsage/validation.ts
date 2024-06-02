@@ -1,4 +1,4 @@
-import * as Joi from 'joi';
+import Joi from 'joi';
 import {getWorkspaceSummedUsageBaseJoiSchemaParts} from '../getWorkspaceSummedUsage/validation.js';
 import {CountWorkspaceSummedUsageEndpointParams} from './types.js';
 

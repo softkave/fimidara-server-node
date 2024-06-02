@@ -1,12 +1,15 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {extractResourceIdList} from '../../../utils/fns.js';
-import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import RequestData from '../../RequestData.js';
+import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {generateAndInsertUserListForTest} from '../../testUtils/generate/user.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -40,7 +43,7 @@ describe('getWaitlistedUsers', () => {
           user.resourceId,
           opts
         );
-      }, /** reuseTxn */ true),
+      }),
     ]);
 
     const result = await getWaitlistedUsers(
@@ -53,8 +56,12 @@ describe('getWaitlistedUsers', () => {
     const waitlistedUserIds = extractResourceIdList(waitlistedUsers);
     const upgradedUsersIds = extractResourceIdList(upgradedUsers);
     const resultWaitlistedUserIds = extractResourceIdList(result.users);
-    waitlistedUserIds.forEach(id => expect(resultWaitlistedUserIds).toContain(id));
-    upgradedUsersIds.forEach(id => expect(resultWaitlistedUserIds).not.toContain(id));
+    waitlistedUserIds.forEach(id =>
+      expect(resultWaitlistedUserIds).toContain(id)
+    );
+    upgradedUsersIds.forEach(id =>
+      expect(resultWaitlistedUserIds).not.toContain(id)
+    );
   });
 
   test('fails if user not part of root workspace', async () => {

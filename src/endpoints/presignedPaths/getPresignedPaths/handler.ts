@@ -156,7 +156,7 @@ async function getPresignedPathsByFileMatchers(
     await checkAuthOnPresignedPaths(agent, pList, workspaceDict, opts);
 
     return {workspaceDict, pList};
-  }, /** reuseTxn */ false);
+  });
 }
 
 async function fetchAndMergeUnfetchedWorkspaces(

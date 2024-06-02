@@ -1,10 +1,13 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import RequestData from '../../RequestData.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {generateAWSS3Credentials} from '../../testUtils/generate/fileBackend.js';
-import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,
@@ -45,7 +48,8 @@ describe('updateConfig s3', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
 
     const updateDefs: GenerateTestFieldsDef<UpdateFileBackendConfigInput> = {
-      credentials: () => generateAWSS3Credentials() as unknown as Record<string, unknown>,
+      credentials: () =>
+        generateAWSS3Credentials() as unknown as Record<string, unknown>,
       name: () => faker.lorem.words(),
       description: () => faker.lorem.paragraph(),
     };
@@ -84,10 +88,14 @@ describe('updateConfig s3', () => {
           {
             matcher: input => !!input.credentials,
             expect: async input => {
-              const currentCreds = await kUtilsInjectables.secretsManager().getSecret({
-                secretId: updatedConfig.secretId,
-              });
-              expect(currentCreds.text).toEqual(JSON.stringify(input.credentials));
+              const currentCreds = await kUtilsInjectables
+                .secretsManager()
+                .getSecret({
+                  secretId: updatedConfig.secretId,
+                });
+              expect(currentCreds.text).toEqual(
+                JSON.stringify(input.credentials)
+              );
             },
           },
           {
@@ -145,10 +153,11 @@ describe('updateConfig s3', () => {
         async () => {
           await updateFileBackendConfig(instData02);
         },
-        error =>
+        error => {
           expect((error as Error).message).toBe(
             kReuseableErrors.config.configExists().message
-          )
+          );
+        }
       ),
     ]);
   });

@@ -70,7 +70,8 @@ async function getArtifactsAndQueueDeleteJobs(
   const pageSize = helpers.job.meta?.getArtifacts?.[type]?.pageSize || 1000;
 
   do {
-    artifacts = (await getFn({args, helpers, preRunMeta, opts: {page, pageSize}})) || [];
+    artifacts =
+      (await getFn({args, helpers, preRunMeta, opts: {page, pageSize}})) || [];
     await queueJobs(
       workspaceId,
       helpers.job.resourceId,
@@ -140,11 +141,13 @@ async function processDeleteArtifactsFromDef(
   preRunMeta: AnyObject
 ) {
   const entries = Object.entries(deleteArtifactsDef);
-  Object.entries(helpers.job.meta?.deleteArtifacts || {}).forEach(([type, status]) => {
-    if (status?.done) {
-      skipTypes.push(type as FimidaraResourceType);
+  Object.entries(helpers.job.meta?.deleteArtifacts || {}).forEach(
+    ([type, status]) => {
+      if (status?.done) {
+        skipTypes.push(type as FimidaraResourceType);
+      }
     }
-  });
+  );
 
   for (const entry of entries) {
     const [type, deleteFn] = entry;
@@ -154,7 +157,10 @@ async function processDeleteArtifactsFromDef(
       kUtilsInjectables
         .promises()
         .forget(
-          setDeleteJobDeleteArtifactsMeta(helpers.job, type as FimidaraResourceType)
+          setDeleteJobDeleteArtifactsMeta(
+            helpers.job,
+            type as FimidaraResourceType
+          )
         );
     }
   }
@@ -171,7 +177,7 @@ export async function runDeleteResourceJob(job: Job) {
   const helperFns: DeleteResourceCascadeFnHelpers = {
     job: job as Job<DeleteResourceJobParams, DeleteResourceJobMeta>,
     async withTxn(fn: AnyFn<[SemanticProviderMutationParams]>) {
-      await kSemanticModels.utils().withTxn(opts => fn(opts), /** reuseTxn */ true);
+      await kSemanticModels.utils().withTxn(opts => fn(opts));
     },
   };
 

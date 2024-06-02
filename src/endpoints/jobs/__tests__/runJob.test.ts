@@ -245,9 +245,8 @@ describe('runJob', () => {
     const completedJob = await runJob(pendingJob);
     const dbJob = await kSemanticModels
       .utils()
-      .withTxn(
-        opts => kSemanticModels.job().getOneById(pendingJob.resourceId, opts),
-        /** reuseTxn */ true
+      .withTxn(opts =>
+        kSemanticModels.job().getOneById(pendingJob.resourceId, opts)
       );
 
     expect(pendingJob.resourceId).toEqual(completedJob?.resourceId);
@@ -268,9 +267,8 @@ describe('runJob', () => {
     const failedJob = await runJob(pendingJob);
     const dbJob = await kSemanticModels
       .utils()
-      .withTxn(
-        opts => kSemanticModels.job().getOneById(pendingJob.resourceId, opts),
-        /** reuseTxn */ true
+      .withTxn(opts =>
+        kSemanticModels.job().getOneById(pendingJob.resourceId, opts)
       );
 
     expect(pendingJob.resourceId).toEqual(failedJob?.resourceId);

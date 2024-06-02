@@ -1,4 +1,4 @@
-import * as Joi from 'joi';
+import Joi from 'joi';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {JoiSchemaParts} from '../../../utils/types.js';
 import {endpointValidationSchemas} from '../../validation.js';
@@ -18,9 +18,10 @@ export const listFolderContentBaseJoiSchemaParts: JoiSchemaParts<ListFolderConte
     contentType,
   };
 
-export const listFolderContentJoiSchema = Joi.object<ListFolderContentEndpointParams>()
-  .keys({
-    ...listFolderContentBaseJoiSchemaParts,
-    ...endpointValidationSchemas.paginationParts,
-  })
-  .required();
+export const listFolderContentJoiSchema =
+  Joi.object<ListFolderContentEndpointParams>()
+    .keys({
+      ...listFolderContentBaseJoiSchemaParts,
+      ...endpointValidationSchemas.paginationParts,
+    })
+    .required();

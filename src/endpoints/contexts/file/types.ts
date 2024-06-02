@@ -3,7 +3,7 @@ import {
   FileBackendConfig,
   FileBackendMount,
 } from '../../../definitions/fileBackend.js';
-import {DisposableResource} from '../../../utils/disposables.js';
+import {DisposableResource} from 'softkave-js-utils';
 
 export type FilePersistenceProviderFeature =
   | 'describeFile'

@@ -15,6 +15,7 @@ import {convertToArray} from '../../utils/fns.js';
 import {newResource} from '../../utils/resource.js';
 import {AnyObject} from '../../utils/types.js';
 import {kSemanticModels} from '../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../contexts/semantic/types.js';
 
 export interface JobInput<
   TParams extends AnyObject = AnyObject,
@@ -40,10 +41,10 @@ export async function queueJobs<
   insertOptions: {
     jobsToReturn?: 'all' | 'new';
     seed?: Partial<Job<TParams, TMeta>>;
-    reuseTxn: boolean;
-  } = {reuseTxn: true}
+    opts?: SemanticProviderMutationParams;
+  } = {}
 ): Promise<Array<Job<TParams, TMeta>>> {
-  const {reuseTxn, jobsToReturn = 'all'} = insertOptions;
+  const {opts, jobsToReturn = 'all'} = insertOptions;
 
   if (!isArray(jobsInput)) {
     jobsInput = convertToArray(jobsInput);
@@ -113,5 +114,5 @@ export async function queueJobs<
     return (jobsToReturn === 'all' ? jobs : uniqueJobs) as Array<
       Job<TParams, TMeta>
     >;
-  }, reuseTxn);
+  }, opts);
 }

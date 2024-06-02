@@ -6,5 +6,6 @@ export default defineConfig({
     exclude: ['**/sdk/**'],
     globalSetup: './src/vitest/globalSetup.ts',
     testTimeout: 300000, // 300 seconds
+    fileParallelism: false,
   },
 });

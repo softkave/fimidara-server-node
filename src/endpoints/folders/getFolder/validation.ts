@@ -1,4 +1,4 @@
-import * as Joi from 'joi';
+import Joi from 'joi';
 import folderValidationSchemas from '../validation.js';
 
 export const getFolderJoiSchema = Joi.object()

@@ -1,19 +1,19 @@
 import {faker} from '@faker-js/faker';
 import {Schema, SchemaDefinition, SchemaTypes} from 'mongoose';
+import {afterAll, afterEach, beforeAll, describe, expect, test} from 'vitest';
 import {MongoDbConnection} from '../../../../db/connection.js';
-import {CombinationToken, combineTokens} from '../../../../utils/combineTokens.js';
 import {loopAndCollate} from '../../../../utils/fns.js';
 import {completeTests} from '../../../testUtils/helpers/testFns.js';
 import {initFnTests} from '../../../testUtils/testUtils.js';
 import {kUtilsInjectables} from '../../injection/injectables.js';
 import {dataQueryToMongoQuery} from '../dataQueryToMongoQuery.js';
-import {test, beforeAll, afterEach, afterAll, expect, describe} from 'vitest';
 import {
   BaseMongoTestData,
   generateBaseMongoTestDataFromCombination,
   generateBaseMongoTestQueryFromCombination,
   kBaseMongoTestConsts,
 } from './testUtils.js';
+import {CombinationToken, combineTokens} from 'softkave-js-utils';
 
 const kModelName = 'BaseMongoDataProvider-' + faker.lorem.word();
 const kCollectionName = kModelName + '-' + 'collection';

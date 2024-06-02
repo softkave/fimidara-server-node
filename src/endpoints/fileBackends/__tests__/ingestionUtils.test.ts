@@ -1,14 +1,18 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {ResolvedMountEntry} from '../../../definitions/fileBackend.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {pathJoin, pathSplit} from '../../../utils/fns.js';
 import {indexArray} from '../../../utils/indexArray.js';
-import {FileQuery, FolderQuery} from '../../contexts/data/types.js';
+import {
+  FileQuery,
+  FolderQuery,
+  ResolvedMountEntryQuery,
+} from '../../contexts/data/types.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {FileQueries} from '../../files/queries.js';
 import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils.js';
 import {FolderQueries} from '../../folders/queries.js';
 import {generateTestFilepath} from '../../testUtils/generate/file.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   generatePersistedFileDescriptionListForTest,
   generatePersistedFolderDescriptionListForTest,
@@ -20,7 +24,11 @@ import {
 import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generate/workspace.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {initTests, insertUserForTest} from '../../testUtils/testUtils.js';
-import {ingestPersistedFiles, ingestPersistedFolders} from '../ingestionUtils.js';
+import {
+  ingestPersistedFiles,
+  ingestPersistedFolders,
+} from '../ingestionUtils.js';
+import {FileBackendQueries} from '../queries.js';
 
 beforeAll(async () => {
   await initTests();
@@ -33,38 +41,55 @@ afterAll(async () => {
 describe('mount ingestion utils', () => {
   test('ingestPersistedFolders', async () => {
     const {sessionAgent} = await insertUserForTest();
-    const [workspace] = await generateAndInsertWorkspaceListForTest(/** count */ 1);
-    const pFolders = generatePersistedFolderDescriptionListForTest(/** count */ 10);
+    const [workspace] = await generateAndInsertWorkspaceListForTest(
+      /** count */ 1
+    );
+    const pFolders = generatePersistedFolderDescriptionListForTest(
+      /** count */ 10
+    );
 
     await ingestPersistedFolders(sessionAgent, workspace, pFolders);
 
     const insertedFolders = await kSemanticModels.folder().getManyByQuery({
       $or: pFolders.map((pFolder): FolderQuery => {
         const namepath = pathSplit(pFolder.folderpath);
-        return FolderQueries.getByNamepath({namepath, workspaceId: workspace.resourceId});
+        return FolderQueries.getByNamepath({
+          namepath,
+          workspaceId: workspace.resourceId,
+        });
       }),
     });
     const pFolderNamepaths = pFolders.map(pFolder => pFolder.folderpath);
     const insertedFoldersNamepaths = insertedFolders.map(folder =>
       pathJoin(folder.namepath)
     );
-    expect(pFolderNamepaths).toEqual(expect.arrayContaining(insertedFoldersNamepaths));
+    expect(pFolderNamepaths).toEqual(
+      expect.arrayContaining(insertedFoldersNamepaths)
+    );
   });
 
   test('ingestPersistedFolders, parent folders are ensured', async () => {
     const {sessionAgent} = await insertUserForTest();
-    const [workspace] = await generateAndInsertWorkspaceListForTest(/** count */ 1);
+    const [workspace] = await generateAndInsertWorkspaceListForTest(
+      /** count */ 1
+    );
     const folderpath = generateTestFolderpath({length: 5});
-    const pFolders = generatePersistedFolderDescriptionListForTest(/** count */ 1, {
-      folderpath: pathJoin(folderpath),
-    });
+    const pFolders = generatePersistedFolderDescriptionListForTest(
+      /** count */ 1,
+      {
+        folderpath: pathJoin(folderpath),
+      }
+    );
 
     await ingestPersistedFolders(sessionAgent, workspace, pFolders);
 
     const insertedFolders = await kSemanticModels.folder().getManyByQuery({
       $or: folderpath.map((name, index): FolderQuery => {
         const namepath = folderpath.slice(0, index + 1);
-        return FolderQueries.getByNamepath({namepath, workspaceId: workspace.resourceId});
+        return FolderQueries.getByNamepath({
+          namepath,
+          workspaceId: workspace.resourceId,
+        });
       }),
     });
     const pFolderNamepaths = folderpath.map((name, index) =>
@@ -73,54 +98,82 @@ describe('mount ingestion utils', () => {
     const insertedFoldersNamepaths = insertedFolders.map(folder =>
       pathJoin(folder.namepath)
     );
-    expect(pFolderNamepaths).toEqual(expect.arrayContaining(insertedFoldersNamepaths));
+    expect(pFolderNamepaths).toEqual(
+      expect.arrayContaining(insertedFoldersNamepaths)
+    );
   });
 
   test('ingestPersistedFolders, existing folder unchanged', async () => {
     const {sessionAgent} = await insertUserForTest();
-    const [workspace] = await generateAndInsertWorkspaceListForTest(/** count */ 1);
+    const [workspace] = await generateAndInsertWorkspaceListForTest(
+      /** count */ 1
+    );
     const [folder] = await generateAndInsertTestFolders(/** count */ 1, {
       workspaceId: workspace.resourceId,
       parentId: null,
     });
-    const pFolders = generatePersistedFolderDescriptionListForTest(/** count */ 1, {
-      folderpath: pathJoin(folder.namepath),
-    });
+    const pFolders = generatePersistedFolderDescriptionListForTest(
+      /** count */ 1,
+      {
+        folderpath: pathJoin(folder.namepath),
+      }
+    );
 
     await ingestPersistedFolders(sessionAgent, workspace, pFolders);
 
-    const folder02 = await kSemanticModels.folder().getOneById(folder.resourceId);
+    const folder02 = await kSemanticModels
+      .folder()
+      .getOneById(folder.resourceId);
     expect(folder02).toMatchObject(folder);
   });
 
   test('ingestPersistedFiles', async () => {
     const {sessionAgent} = await insertUserForTest();
-    const [workspace] = await generateAndInsertWorkspaceListForTest(/** count */ 1);
+    const [workspace] = await generateAndInsertWorkspaceListForTest(
+      /** count */ 1
+    );
     const pFiles = generatePersistedFileDescriptionListForTest(/** count */ 10);
 
     await ingestPersistedFiles(sessionAgent, workspace, pFiles);
 
-    const queries = pFiles.map((pFile): FileQuery => {
+    const fileQueries: FileQuery[] = [];
+    const resolvedMountEntryQueries: ResolvedMountEntryQuery[] = [];
+    pFiles.forEach(pFile => {
       const {namepath, ext} = getFilepathInfo(pFile.filepath, {
         containsRootname: false,
         allowRootFolder: false,
       });
 
-      return FileQueries.getByNamepath({
-        namepath,
+      const fQuery = FileQueries.getByNamepath({
         ext,
+        namepath,
         workspaceId: workspace.resourceId,
       });
+      const mQuery = FileBackendQueries.getByFimidaraNamepath({
+        fimidaraExt: ext,
+        fimidaraNamepath: namepath,
+        workspaceId: workspace.resourceId,
+      });
+
+      fileQueries.push(fQuery);
+      resolvedMountEntryQueries.push(mQuery);
     });
-    const [insertedFiles, insertMountEntries] = await Promise.all([
-      kSemanticModels.file().getManyByQuery({$or: queries}),
-      kSemanticModels.resolvedMountEntry().getManyByQuery({$or: queries}),
+    const [insertedFiles, insertedMountEntries] = await Promise.all([
+      kSemanticModels.file().getManyByQuery({$or: fileQueries}),
+      kSemanticModels
+        .resolvedMountEntry()
+        .getManyByQuery({$or: resolvedMountEntryQueries}),
     ]);
     const pFileNamepathsAndExt = pFiles.map(pFile => pFile.filepath);
-    const filesMap = indexArray(insertedFiles, {indexer: stringifyFilenamepath});
-    const mountEntriesMap = indexArray(insertMountEntries, {
+    const filesMap = indexArray(insertedFiles, {
+      indexer: stringifyFilenamepath,
+    });
+    const mountEntriesMap = indexArray(insertedMountEntries, {
       indexer: entry =>
-        stringifyFilenamepath({namepath: entry.backendNamepath, ext: entry.backendExt}),
+        stringifyFilenamepath({
+          namepath: entry.backendNamepath,
+          ext: entry.backendExt,
+        }),
     });
     const insertedFilesNamepathsAndExt = Object.keys(filesMap);
 
@@ -154,7 +207,9 @@ describe('mount ingestion utils', () => {
 
   test('ingestPersistedFiles, parent folders ensured', async () => {
     const {sessionAgent} = await insertUserForTest();
-    const [workspace] = await generateAndInsertWorkspaceListForTest(/** count */ 1);
+    const [workspace] = await generateAndInsertWorkspaceListForTest(
+      /** count */ 1
+    );
     const filepath = generateTestFilepath({length: 3});
     const pFiles = generatePersistedFileDescriptionListForTest(/** count */ 1);
 
@@ -164,7 +219,10 @@ describe('mount ingestion utils', () => {
     const insertedFolders = await kSemanticModels.folder().getManyByQuery({
       $or: folderpath.map((name, index): FolderQuery => {
         const namepath = folderpath.slice(0, index + 1);
-        return FolderQueries.getByNamepath({namepath, workspaceId: workspace.resourceId});
+        return FolderQueries.getByNamepath({
+          namepath,
+          workspaceId: workspace.resourceId,
+        });
       }),
     });
     const pFolderNamepaths = folderpath.map((name, index) =>
@@ -173,6 +231,8 @@ describe('mount ingestion utils', () => {
     const insertedFoldersNamepaths = insertedFolders.map(folder =>
       pathJoin(folder.namepath)
     );
-    expect(pFolderNamepaths).toEqual(expect.arrayContaining(insertedFoldersNamepaths));
+    expect(pFolderNamepaths).toEqual(
+      expect.arrayContaining(insertedFoldersNamepaths)
+    );
   });
 });

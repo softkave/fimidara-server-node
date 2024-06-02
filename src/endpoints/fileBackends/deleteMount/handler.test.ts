@@ -1,5 +1,10 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kFileBackendType} from '../../../definitions/fileBackend.js';
-import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job.js';
+import {
+  DeleteResourceJobParams,
+  Job,
+  kJobType,
+} from '../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
@@ -10,7 +15,6 @@ import {NotFoundError} from '../../errors.js';
 import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -34,22 +38,24 @@ describe('deleteMount', () => {
   test('fails if mount does not exist', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const instData = RequestData.fromExpressRequest<DeleteFileBackendMountEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {
-        mountId: getNewIdForResource(kFimidaraResourceType.FileBackendMount),
-        workspaceId: workspace.resourceId,
-      }
-    );
+    const instData =
+      RequestData.fromExpressRequest<DeleteFileBackendMountEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          mountId: getNewIdForResource(kFimidaraResourceType.FileBackendMount),
+          workspaceId: workspace.resourceId,
+        }
+      );
 
     await expectErrorThrown(
       async () => {
         await deleteFileBackendMount(instData);
       },
-      error =>
+      error => {
         expect((error as NotFoundError).message).toBe(
           kReuseableErrors.mount.notFound().message
-        )
+        );
+      }
     );
   });
 
@@ -61,19 +67,21 @@ describe('deleteMount', () => {
       backend: kFileBackendType.fimidara,
     });
 
-    const instData = RequestData.fromExpressRequest<DeleteFileBackendMountEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {mountId: mount.resourceId, workspaceId: workspace.resourceId}
-    );
+    const instData =
+      RequestData.fromExpressRequest<DeleteFileBackendMountEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {mountId: mount.resourceId, workspaceId: workspace.resourceId}
+      );
 
     await expectErrorThrown(
       async () => {
         await deleteFileBackendMount(instData);
       },
-      error =>
+      error => {
         expect((error as NotFoundError).message).toBe(
           kReuseableErrors.mount.cannotDeleteFimidaraMount().message
-        )
+        );
+      }
     );
   });
 
@@ -82,10 +90,11 @@ describe('deleteMount', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {mount} = await insertFileBackendMountForTest(userToken, workspace);
 
-    const instData = RequestData.fromExpressRequest<DeleteFileBackendMountEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {mountId: mount.resourceId, workspaceId: workspace.resourceId}
-    );
+    const instData =
+      RequestData.fromExpressRequest<DeleteFileBackendMountEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {mountId: mount.resourceId, workspaceId: workspace.resourceId}
+      );
     const result = await deleteFileBackendMount(instData);
     assertEndpointResultOk(result);
 

@@ -80,7 +80,7 @@ const updateFileBackendConfig: UpdateFileBackendConfigEndpoint =
         configUpdate,
         opts
       );
-    }, /** reuseTxn */ false);
+    });
 
     appAssert(updatedConfig);
     return {config: fileBackendConfigExtractor(updatedConfig)};

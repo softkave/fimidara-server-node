@@ -1,6 +1,6 @@
 import {add} from 'date-fns';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {AgentToken} from '../../../definitions/agentToken.js';
-import {test, beforeAll, afterAll, expect, describe} from 'vitest';
 import {
   kCurrentJWTTokenVersion,
   kFimidaraResourceType,
@@ -62,10 +62,7 @@ async function changePasswordWithTokenTest() {
   });
   await kSemanticModels
     .utils()
-    .withTxn(
-      opts => kSemanticModels.agentToken().insertItem(token, opts),
-      /** reuseTxn */ true
-    );
+    .withTxn(opts => kSemanticModels.agentToken().insertItem(token, opts));
   const result = await changePasswordWithToken(
     RequestData.fromExpressRequest<ChangePasswordWithTokenEndpointParams>(
       mockExpressRequestWithAgentToken(token),
@@ -75,7 +72,9 @@ async function changePasswordWithTokenTest() {
   assertEndpointResultOk(result);
   const updatedUser = await kSemanticModels
     .user()
-    .assertGetOneByQuery(EndpointReusableQueries.getByResourceId(result.user.resourceId));
+    .assertGetOneByQuery(
+      EndpointReusableQueries.getByResourceId(result.user.resourceId)
+    );
   expect(result.user).toMatchObject(userExtractor(updatedUser));
   const loginReqData = RequestData.fromExpressRequest<LoginEndpointParams>(
     mockExpressRequest(),

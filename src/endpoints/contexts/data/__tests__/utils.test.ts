@@ -1,9 +1,5 @@
 import {first} from 'lodash-es';
 import {describe, expect, test} from 'vitest';
-import {
-  CombinationToken,
-  combineTokens,
-} from '../../../../utils/combineTokens.js';
 import {DataQuery} from '../types.js';
 import {
   BaseMongoTestData,
@@ -12,6 +8,7 @@ import {
   getArrTokenCountAndIndices,
   kBaseMongoTestConsts,
 } from './testUtils.js';
+import {CombinationToken, combineTokens} from 'softkave-js-utils';
 
 export function testCombinations(
   tokens: CombinationToken[],

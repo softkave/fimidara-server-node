@@ -14,8 +14,6 @@ import {
   generatePermissionItemsAsChildren,
   noopGenerateTypeChildren,
   testDeleteResourceArtifactsJob,
-  testDeleteResourceJob0,
-  testDeleteResourceSelfJob,
 } from './testUtils.js';
 
 beforeAll(async () => {
@@ -58,25 +56,11 @@ const genResourceFn: GenerateResourceFn<AgentToken> = async ({workspaceId}) => {
 };
 
 describe('runDeleteResourceJob, agent token', () => {
-  test('deleteResource0', async () => {
-    testDeleteResourceJob0({
-      genResourceFn,
-      type: kFimidaraResourceType.AgentToken,
-    });
-  });
-
   test('runDeleteResourceJobArtifacts', async () => {
     await testDeleteResourceArtifactsJob({
       genResourceFn,
       genChildrenDef: agentTokenGenerateTypeChildren,
       deleteCascadeDef: deleteAgentTokenCascadeEntry,
-      type: kFimidaraResourceType.AgentToken,
-    });
-  });
-
-  test('runDeleteResourceJobSelf', async () => {
-    await testDeleteResourceSelfJob({
-      genResourceFn,
       type: kFimidaraResourceType.AgentToken,
     });
   });

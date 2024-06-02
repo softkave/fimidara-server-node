@@ -1,4 +1,4 @@
-import * as Joi from 'joi';
+import Joi from 'joi';
 import {kValidationSchemas} from '../../../utils/validationUtils.js';
 import permissionItemValidationSchemas from '../../permissionItems/validation.js';
 import {endpointValidationSchemas} from '../../validation.js';
@@ -9,6 +9,7 @@ export const unassignPermissionGroupsJoiSchema =
     .keys({
       ...endpointValidationSchemas.optionalWorkspaceIdParts,
       entityId: permissionItemValidationSchemas.entityParts.entityId.required(),
-      permissionGroups: kValidationSchemas.resourceIdOrResourceIdList.required(),
+      permissionGroups:
+        kValidationSchemas.resourceIdOrResourceIdList.required(),
     })
     .required();

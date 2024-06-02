@@ -4,7 +4,11 @@ import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {InvalidEmailOrPasswordError} from '../errors.js';
 import {LoginEndpoint} from './types.js';
-import {getUserClientAssignedToken, getUserToken, toLoginResult} from './utils.js';
+import {
+  getUserClientAssignedToken,
+  getUserToken,
+  toLoginResult,
+} from './utils.js';
 import {loginJoiSchema} from './validation.js';
 
 const login: LoginEndpoint = async instData => {
@@ -23,13 +27,11 @@ const login: LoginEndpoint = async instData => {
 
   const [userToken, clientAssignedToken] = await kSemanticModels
     .utils()
-    .withTxn(
-      opts =>
-        Promise.all([
-          getUserToken(user.resourceId, opts),
-          getUserClientAssignedToken(user.resourceId, opts),
-        ]),
-      /** reuseTxn */ false
+    .withTxn(opts =>
+      Promise.all([
+        getUserToken(user.resourceId, opts),
+        getUserClientAssignedToken(user.resourceId, opts),
+      ])
     );
 
   const userWithWorkspaces = await populateUserWorkspaces(user);

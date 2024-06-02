@@ -61,26 +61,22 @@ export class SemanticAppShardProviderImpl
     shardId: string,
     opts?: SemanticProviderMutationParams
   ): Promise<void> {
-    await kSemanticModels.utils().withTxn(
-      async opts => {
-        const shard = (await this.getOneById(shardId, {
-          ...opts,
-          projection: {occupantCount: true},
-        })) as Pick<AppShard, 'occupantCount'> | null;
+    await kSemanticModels.utils().withTxn(async opts => {
+      const shard = (await this.getOneById(shardId, {
+        ...opts,
+        projection: {occupantCount: true},
+      })) as Pick<AppShard, 'occupantCount'> | null;
 
-        if (!shard) {
-          return;
-        }
+      if (!shard) {
+        return;
+      }
 
-        await this.updateOneById(
-          shardId,
-          {occupantCount: shard.occupantCount - 1},
-          opts
-        );
-      },
-      /** reuseAsyncLocalTxn */ false,
-      opts
-    );
+      await this.updateOneById(
+        shardId,
+        {occupantCount: shard.occupantCount - 1},
+        opts
+      );
+    }, opts);
   }
 
   async getEmptyShards(

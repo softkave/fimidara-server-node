@@ -1,10 +1,10 @@
 import {noop} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test, vi} from 'vitest';
-import {DisposableResource} from '../../../utils/disposables.js';
 import {waitTimeout} from '../../../utils/fns.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {initTests} from '../../testUtils/testUtils.js';
 import {kAsyncLocalStorageUtils} from '../asyncLocalStorage.js';
+import {DisposableResource} from 'softkave-js-utils';
 
 beforeAll(async () => {
   await initTests();

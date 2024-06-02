@@ -5,7 +5,10 @@ import {
   DeleteResourceJobParams,
   Job,
 } from '../../../../definitions/job.js';
-import {FimidaraResourceType, Resource} from '../../../../definitions/system.js';
+import {
+  FimidaraResourceType,
+  Resource,
+} from '../../../../definitions/system.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderQueryListParams,
@@ -51,7 +54,10 @@ export type DeleteResourceFn<
 export type DeleteResourceGetPreRunMetaFn<
   TArgs extends AnyObject = DeleteResourceCascadeFnDefaultArgs,
   TResult extends AnyObject = AnyObject,
-> = (props: {args: TArgs; helpers: DeleteResourceCascadeFnHelpers}) => Promise<TResult>;
+> = (props: {
+  args: TArgs;
+  helpers: DeleteResourceCascadeFnHelpers;
+}) => Promise<TResult>;
 
 export type DeleteResourceGetArtifactsToDeleteFns<
   TArgs extends AnyObject = DeleteResourceCascadeFnDefaultArgs,
@@ -67,7 +73,10 @@ export type DeleteResourceCascadeEntry<
   TArgs extends AnyObject = DeleteResourceCascadeFnDefaultArgs,
   TPreRunMeta extends AnyObject = AnyObject,
 > = {
-  getArtifactsToDelete: DeleteResourceGetArtifactsToDeleteFns<TArgs, TPreRunMeta>;
+  getArtifactsToDelete: DeleteResourceGetArtifactsToDeleteFns<
+    TArgs,
+    TPreRunMeta
+  >;
   deleteArtifacts: DeleteResourceDeleteArtifactsFns<TArgs, TPreRunMeta>;
   deleteResourceFn: DeleteResourceFn<TArgs, TPreRunMeta>;
   getPreRunMetaFn: DeleteResourceGetPreRunMetaFn<TArgs, TPreRunMeta>;

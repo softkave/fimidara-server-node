@@ -1,8 +1,8 @@
 import assert from 'assert';
 import {URL} from 'url';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {AgentToken} from '../../../../../definitions/agentToken.js';
 import {kEmailJobType} from '../../../../../definitions/job.js';
-import {test, beforeAll, afterAll, expect, describe} from 'vitest';
 import {
   kCurrentJWTTokenVersion,
   kFimidaraResourceType,
@@ -11,7 +11,10 @@ import {
 import {User} from '../../../../../definitions/user.js';
 import {kConfirmEmailAddressEmail} from '../../../../../emailTemplates/confirmEmailAddress.js';
 import {kSystemSessionAgent} from '../../../../../utils/agent.js';
-import {getNewIdForResource, newResource} from '../../../../../utils/resource.js';
+import {
+  getNewIdForResource,
+  newResource,
+} from '../../../../../utils/resource.js';
 import {IEmailProviderContext} from '../../../../contexts/email/types.js';
 import {
   kSemanticModels,
@@ -48,10 +51,7 @@ async function createTestEmailVerificationToken(userId: string) {
   });
   await kSemanticModels
     .utils()
-    .withTxn(
-      opts => kSemanticModels.agentToken().insertItem(token, opts),
-      /** reuseTxn */ true
-    );
+    .withTxn(opts => kSemanticModels.agentToken().insertItem(token, opts));
   return token;
 }
 
@@ -64,9 +64,13 @@ function assertLinkWithToken(
   const url = new URL(link);
 
   if (token) {
-    expect(url.searchParams.get(kUserConstants.confirmEmailTokenQueryParam)).toBe(token);
+    expect(
+      url.searchParams.get(kUserConstants.confirmEmailTokenQueryParam)
+    ).toBe(token);
   } else {
-    expect(url.searchParams.get(kUserConstants.confirmEmailTokenQueryParam)).toBeTruthy();
+    expect(
+      url.searchParams.get(kUserConstants.confirmEmailTokenQueryParam)
+    ).toBeTruthy();
   }
 
   if (originalLink) {
@@ -109,11 +113,14 @@ describe('sendConfirmEmailAddressEmail', () => {
     const testEmailProvider = new MockTestEmailProviderContext();
     kRegisterUtilsInjectables.email(testEmailProvider);
 
-    await sendConfirmEmailAddressEmail(getNewIdForResource(kFimidaraResourceType.Job), {
-      emailAddress: [user.email],
-      userId: [user.resourceId],
-      type: kEmailJobType.confirmEmailAddress,
-    });
+    await sendConfirmEmailAddressEmail(
+      getNewIdForResource(kFimidaraResourceType.Job),
+      {
+        emailAddress: [user.email],
+        userId: [user.resourceId],
+        type: kEmailJobType.confirmEmailAddress,
+      }
+    );
 
     const call = testEmailProvider.sendEmail.mock.lastCall as Parameters<
       IEmailProviderContext['sendEmail']
@@ -123,7 +130,9 @@ describe('sendConfirmEmailAddressEmail', () => {
     expect(params.body.text).toBeTruthy();
     expect(params.destination).toEqual([user.email]);
     expect(params.subject).toBe(kConfirmEmailAddressEmail.title);
-    expect(params.source).toBe(kUtilsInjectables.suppliedConfig().senderEmailAddress);
+    expect(params.source).toBe(
+      kUtilsInjectables.suppliedConfig().senderEmailAddress
+    );
 
     await kUtilsInjectables.promises().flush();
     const dbUser = await kSemanticModels.user().getOneById(user.resourceId);
@@ -133,7 +142,10 @@ describe('sendConfirmEmailAddressEmail', () => {
 
     const suppliedConfig = kUtilsInjectables.suppliedConfig();
     assert(suppliedConfig.verifyEmailLink);
-    const link = await getLinkWithConfirmEmailToken(user, suppliedConfig.verifyEmailLink);
+    const link = await getLinkWithConfirmEmailToken(
+      user,
+      suppliedConfig.verifyEmailLink
+    );
     expect(params.body.html.includes(link)).toBeTruthy();
     expect(params.body.text.includes(link)).toBeTruthy();
   });

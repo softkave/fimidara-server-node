@@ -1,13 +1,22 @@
 import {faker} from '@faker-js/faker';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {
+  EmailJobParams,
+  Job,
+  kEmailJobType,
+  kJobType,
+} from '../../../definitions/job.js';
 import RequestData from '../../RequestData.js';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
 import {DataQuery} from '../../contexts/data/types.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import EndpointReusableQueries from '../../queries.js';
 import {generateAndInsertUserListForTest} from '../../testUtils/generate/user.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -18,7 +27,6 @@ import {EmailAddressNotAvailableError} from '../errors.js';
 import {userExtractor} from '../utils.js';
 import updateUser from './handler.js';
 import {UpdateUserEndpointParams} from './types.js';
-import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job.js';
 
 /**
  * TODO:

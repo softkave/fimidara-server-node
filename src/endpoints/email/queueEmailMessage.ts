@@ -9,10 +9,8 @@ export async function queueEmailMessage(
   emailAddress: string,
   params: EmailMessageParams,
   workspaceId: string | undefined,
-  userId: string | undefined,
-  opts: {reuseTxn: boolean}
+  userId: string | undefined
 ) {
-  const {reuseTxn} = opts;
   return await kSemanticModels.utils().withTxn(async opts => {
     const isInBlocklist = await kSemanticModels
       .emailBlocklist()
@@ -33,5 +31,5 @@ export async function queueEmailMessage(
       }
     );
     return kSemanticModels.emailMessage().insertItem(emailMessage, opts);
-  }, reuseTxn);
+  });
 }

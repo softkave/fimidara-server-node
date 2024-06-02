@@ -6,8 +6,8 @@ import {Agent, FimidaraResourceType, Resource} from './system.js';
 
 export const kJobType = {
   deleteResource: 'deleteResource',
-  /** separated from deleteResource because it's a bit more complex and there's
-   * a job created for each input item */
+  /** TODO: separated from deleteResource because it's a bit more complex and
+   * there's a job created for each input item */
   deletePermissionItem: 'deletePermissionItem',
   ingestFolderpath: 'ingestFolderpath',
   ingestMount: 'ingestMount',

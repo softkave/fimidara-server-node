@@ -1,4 +1,4 @@
-import * as Joi from 'joi';
+import Joi from 'joi';
 import {kValidationRegExPatterns} from '../../utils/validationUtils.js';
 import {kUserConstants} from './constants.js';
 

@@ -272,10 +272,7 @@ export async function generateAndInsertFileBackendMountListForTest(
   const semanticUtils = kSemanticModels.utils();
 
   const items = generateFileBackendMountListForTest(count, seed);
-  await semanticUtils.withTxn(
-    async opts => mountModel.insertItem(items, opts),
-    /** reuseTxn */ true
-  );
+  await semanticUtils.withTxn(async opts => mountModel.insertItem(items, opts));
   return items;
 }
 
@@ -287,9 +284,8 @@ export async function generateAndInsertFileBackendConfigListForTest(
   const semanticUtils = kSemanticModels.utils();
 
   const items = generateFileBackendConfigListForTest(count, seed);
-  await semanticUtils.withTxn(
-    async opts => configModel.insertItem(items, opts),
-    /** reuseTxn */ true
+  await semanticUtils.withTxn(async opts =>
+    configModel.insertItem(items, opts)
   );
   return items;
 }
@@ -303,7 +299,7 @@ export async function generateAndInsertResolvedMountEntryListForTest(
 
   await kSemanticModels
     .utils()
-    .withTxn(async opts => model.insertItem(items, opts), /** reuseTxn */ true);
+    .withTxn(async opts => model.insertItem(items, opts));
 
   return items;
 }

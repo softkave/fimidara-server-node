@@ -1,15 +1,15 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {calculatePageSize, getResourceId} from '../../../utils/fns.js';
+import RequestData from '../../RequestData.js';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import EndpointReusableQueries from '../../queries.js';
-import RequestData from '../../RequestData.js';
 import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generate/workspace.js';
 import {expectContainsNoneIn} from '../../testUtils/helpers/assertion.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -34,10 +34,11 @@ describe('getUserWorkspaces', () => {
     const {workspace: workspace01} = await insertWorkspaceForTest(userToken);
     const {workspace: workspace02} = await insertWorkspaceForTest(userToken);
     const {workspace: workspace03} = await insertWorkspaceForTest(userToken);
-    const instData = RequestData.fromExpressRequest<GetUserWorkspacesEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {}
-    );
+    const instData =
+      RequestData.fromExpressRequest<GetUserWorkspacesEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {}
+      );
     const result = await getUserWorkspaces(instData);
     assertEndpointResultOk(result);
     expect(result.workspaces).toHaveLength(3);
@@ -51,19 +52,17 @@ describe('getUserWorkspaces', () => {
     const workspaces = await generateAndInsertWorkspaceListForTest(15);
     await kSemanticModels
       .utils()
-      .withTxn(
-        opts =>
-          Promise.all(
-            workspaces.map(w =>
-              assignWorkspaceToUser(
-                kSystemSessionAgent,
-                w.resourceId,
-                rawUser.resourceId,
-                opts
-              )
+      .withTxn(opts =>
+        Promise.all(
+          workspaces.map(w =>
+            assignWorkspaceToUser(
+              kSystemSessionAgent,
+              w.resourceId,
+              rawUser.resourceId,
+              opts
             )
-          ),
-        /** reuseTxn */ true
+          )
+        )
       );
 
     appAssert(userToken.forEntityId);
@@ -77,14 +76,17 @@ describe('getUserWorkspaces', () => {
     const count = user.workspaces.length;
     const pageSize = 10;
     let page = 0;
-    let instData = RequestData.fromExpressRequest<GetUserWorkspacesEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {page, pageSize}
-    );
+    let instData =
+      RequestData.fromExpressRequest<GetUserWorkspacesEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {page, pageSize}
+      );
     const result00 = await getUserWorkspaces(instData);
     assertEndpointResultOk(result00);
     expect(result00.page).toBe(page);
-    expect(result00.workspaces).toHaveLength(calculatePageSize(count, pageSize, page));
+    expect(result00.workspaces).toHaveLength(
+      calculatePageSize(count, pageSize, page)
+    );
 
     page = 1;
     instData = RequestData.fromExpressRequest<GetUserWorkspacesEndpointParams>(
@@ -93,8 +95,14 @@ describe('getUserWorkspaces', () => {
     );
     const result01 = await getUserWorkspaces(instData);
     assertEndpointResultOk(result01);
-    expectContainsNoneIn(result00.workspaces, result01.workspaces, getResourceId);
+    expectContainsNoneIn(
+      result00.workspaces,
+      result01.workspaces,
+      getResourceId
+    );
     expect(result01.page).toBe(page);
-    expect(result01.workspaces).toHaveLength(calculatePageSize(count, pageSize, page));
+    expect(result01.workspaces).toHaveLength(
+      calculatePageSize(count, pageSize, page)
+    );
   });
 });

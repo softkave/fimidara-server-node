@@ -1,7 +1,5 @@
 import {compact, last, range, set} from 'lodash-es';
-import {CombinationToken} from '../../../../utils/combineTokens.js';
-import {loopAndCollate} from '../../../../utils/fns.js';
-import {AnyObject} from '../../../../utils/types.js';
+import {AnyObject, CombinationToken, loopAndCollate} from 'softkave-js-utils';
 import {DataQuery} from '../types.js';
 
 const kArrChar = 'A';

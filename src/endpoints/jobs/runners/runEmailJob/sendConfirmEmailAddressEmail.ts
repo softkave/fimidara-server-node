@@ -23,12 +23,19 @@ import {
 import {kUserConstants} from '../../../users/constants.js';
 import {getBaseEmailTemplateProps} from './utils.js';
 
-export async function getLinkWithConfirmEmailToken(user: User, urlPath: string) {
+export async function getLinkWithConfirmEmailToken(
+  user: User,
+  urlPath: string
+) {
   return kSemanticModels.utils().withTxn(async opts => {
     const url = new URL(urlPath);
     let token = await kSemanticModels
       .agentToken()
-      .getOneAgentToken(user.resourceId, kTokenAccessScope.confirmEmailAddress, opts);
+      .getOneAgentToken(
+        user.resourceId,
+        kTokenAccessScope.confirmEmailAddress,
+        opts
+      );
 
     if (!token) {
       token = newResource<AgentToken>(kFimidaraResourceType.AgentToken, {
@@ -46,9 +53,12 @@ export async function getLinkWithConfirmEmailToken(user: User, urlPath: string) 
     const encodedToken = kUtilsInjectables
       .session()
       .encodeToken(token.resourceId, token.expiresAt);
-    url.searchParams.set(kUserConstants.confirmEmailTokenQueryParam, encodedToken);
+    url.searchParams.set(
+      kUserConstants.confirmEmailTokenQueryParam,
+      encodedToken
+    );
     return url.toString();
-  }, /** reuseTxn */ true);
+  });
 }
 
 export async function sendConfirmEmailAddressEmail(
@@ -66,7 +76,10 @@ export async function sendConfirmEmailAddressEmail(
   }
 
   const suppliedConfig = kUtilsInjectables.suppliedConfig();
-  appAssert(suppliedConfig.verifyEmailLink, 'verifyEmailLink not present in config');
+  appAssert(
+    suppliedConfig.verifyEmailLink,
+    'verifyEmailLink not present in config'
+  );
   const confirmEmailUrl = await getLinkWithConfirmEmailToken(
     user,
     suppliedConfig.verifyEmailLink
@@ -95,7 +108,7 @@ export async function sendConfirmEmailAddressEmail(
           {emailVerificationEmailSentAt: getTimestamp()},
           opts
         );
-    }, /** reuseTxn */ false)
+    })
   );
 
   return result;

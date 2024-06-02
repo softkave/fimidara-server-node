@@ -3,10 +3,15 @@ import {AssignedItem} from '../../../definitions/assignedItem.js';
 import {PermissionGroup} from '../../../definitions/permissionGroups.js';
 import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
-import {getNewIdForResource, getResourceTypeFromId} from '../../../utils/resource.js';
+import {
+  getNewIdForResource,
+  getResourceTypeFromId,
+} from '../../../utils/resource.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 
-export function generatePermissionGroupForTest(seed: Partial<PermissionGroup> = {}) {
+export function generatePermissionGroupForTest(
+  seed: Partial<PermissionGroup> = {}
+) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
     agentId: getNewIdForResource(kFimidaraResourceType.User),
@@ -48,9 +53,8 @@ export async function generateAndInsertPermissionGroupListForTest(
   const items = generatePermissionGroupListForTest(count, seed);
   await kSemanticModels
     .utils()
-    .withTxn(
-      async opts => kSemanticModels.permissionGroup().insertItem(items, opts),
-      /** reuseTxn */ true
+    .withTxn(async opts =>
+      kSemanticModels.permissionGroup().insertItem(items, opts)
     );
   return items;
 }
@@ -104,9 +108,8 @@ export async function generateAndInsertAssignedItemListForTest(
   const items = generateAssignedItemListForTest(seed, count);
   await kSemanticModels
     .utils()
-    .withTxn(
-      async opts => kSemanticModels.assignedItem().insertItem(items, opts),
-      /** reuseTxn */ true
+    .withTxn(async opts =>
+      kSemanticModels.assignedItem().insertItem(items, opts)
     );
   return items;
 }

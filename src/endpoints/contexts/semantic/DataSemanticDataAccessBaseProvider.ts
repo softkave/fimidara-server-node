@@ -35,9 +35,17 @@ export function addIsDeletedIntoQuery<
   let q00: T = {...q01};
 
   if (hasLogicalOps) {
-    q00.$and = mergeIsDeletedIntoQueryList(q01.$and, includeDeleted);
-    q00.$nor = mergeIsDeletedIntoQueryList(q01.$nor, includeDeleted);
-    q00.$or = mergeIsDeletedIntoQueryList(q01.$or, includeDeleted);
+    if (q01.$and) {
+      q00.$and = mergeIsDeletedIntoQueryList(q01.$and, includeDeleted);
+    }
+
+    if (q01.$nor) {
+      q00.$nor = mergeIsDeletedIntoQueryList(q01.$nor, includeDeleted);
+    }
+
+    if (q01.$or) {
+      q00.$or = mergeIsDeletedIntoQueryList(q01.$or, includeDeleted);
+    }
   } else {
     q00 = mergeIsDeletedIntoQuery(q00, includeDeleted);
   }

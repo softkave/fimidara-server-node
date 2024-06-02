@@ -1,10 +1,7 @@
 import assert from 'assert';
 import {flatten} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {
-  Resource,
-  kFimidaraResourceType,
-} from '../../../../../definitions/system.js';
+import {kFimidaraResourceType} from '../../../../../definitions/system.js';
 import {User} from '../../../../../definitions/user.js';
 import {kSystemSessionAgent} from '../../../../../utils/agent.js';
 import {extractResourceIdList} from '../../../../../utils/fns.js';
@@ -24,8 +21,6 @@ import {
   generatePermissionItemsAsChildren,
   noopGenerateTypeChildren,
   testDeleteResourceArtifactsJob,
-  testDeleteResourceJob0,
-  testDeleteResourceSelfJob,
 } from './testUtils.js';
 
 beforeAll(async () => {
@@ -79,15 +74,8 @@ async function generateNonWorkspaceResources(id: string) {
     }),
     kSemanticModels
       .utils()
-      .withTxn(
-        opts =>
-          assignWorkspaceToUser(
-            kSystemSessionAgent,
-            otherWorkspaceId,
-            id,
-            opts
-          ),
-        /** reuseTxn */ true
+      .withTxn(opts =>
+        assignWorkspaceToUser(kSystemSessionAgent, otherWorkspaceId, id, opts)
       ),
   ]);
 
@@ -120,13 +108,6 @@ async function expectNonWorkspaceUserResourcesRemain(
 }
 
 describe('runDeleteResourceJob, agent token', () => {
-  test('deleteResource0', async () => {
-    testDeleteResourceJob0({
-      genResourceFn,
-      type: kFimidaraResourceType.User,
-    });
-  });
-
   test('runDeleteResourceJobArtifacts', async () => {
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const collaborator = await genResourceFn({workspaceId});
@@ -140,35 +121,18 @@ describe('runDeleteResourceJob, agent token', () => {
       genChildrenDef: collaboratorGenerateTypeChildren,
       deleteCascadeDef: deleteCollaboratorCascadeEntry,
       type: kFimidaraResourceType.User,
-      //  db assigned item resource would be deleted in delete artifacts so skip
-      //  check DB resource, cause that'd always fail
-      skipCheckDbResource: true,
+      // getResourceFn: async () => {
+      //   const assignedItems = await kSemanticModels
+      //     .assignedItem()
+      //     .getUserWorkspaces(collaborator.resourceId);
+      //   return assignedItems.find(item => item.workspaceId === workspaceId);
+      // },
     });
 
     await expectNonWorkspaceUserResourcesRemain(
       collaborator.resourceId,
       nonWorkspaceResources
     );
-  });
-
-  test('runDeleteResourceJobSelf', async () => {
-    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
-    const collaborator = await genResourceFn({workspaceId});
-    const nonWorkspaceResources = await generateNonWorkspaceResources(
-      collaborator.resourceId
-    );
-
-    await testDeleteResourceSelfJob<Resource>({
-      type: kFimidaraResourceType.User,
-      genResourceFn: () => Promise.resolve(collaborator),
-      genWorkspaceFn: () => Promise.resolve(workspaceId),
-      getResourceFn: async () => {
-        const assignedItems = await kSemanticModels
-          .assignedItem()
-          .getUserWorkspaces(collaborator.resourceId);
-        return assignedItems.find(item => item.workspaceId === workspaceId);
-      },
-    });
 
     const dbUser = await kSemanticModels
       .user()

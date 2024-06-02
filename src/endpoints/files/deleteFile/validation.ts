@@ -1,4 +1,4 @@
-import * as Joi from 'joi';
+import Joi from 'joi';
 import fileValidationSchemas from '../validation.js';
 import {DeleteFileEndpointParams} from './types.js';
 

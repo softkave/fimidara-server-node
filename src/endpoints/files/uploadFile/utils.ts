@@ -32,8 +32,12 @@ export async function checkUploadFileAuth(
       targetId: file
         ? getFilePermissionContainers(workspace.resourceId, file, true)
         : closestExistingFolder
-        ? getFilePermissionContainers(workspace.resourceId, closestExistingFolder, true)
-        : getWorkspacePermissionContainers(workspace.resourceId),
+          ? getFilePermissionContainers(
+              workspace.resourceId,
+              closestExistingFolder,
+              true
+            )
+          : getWorkspacePermissionContainers(workspace.resourceId),
       action: kFimidaraPermissionActionsMap.uploadFile,
     },
   });

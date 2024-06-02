@@ -1,4 +1,4 @@
-import * as Joi from 'joi';
+import Joi from 'joi';
 import {kValidationSchemas} from '../../../utils/validationUtils.js';
 
 export const addTagJoiSchema = Joi.object()

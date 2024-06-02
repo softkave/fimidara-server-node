@@ -22,10 +22,14 @@ export default async function INTERNAL_confirmEmailAddress(
         ),
       kSemanticModels
         .agentToken()
-        .softDeleteAgentTokens(userId, kTokenAccessScope.confirmEmailAddress, opts),
+        .softDeleteAgentTokens(
+          userId,
+          kTokenAccessScope.confirmEmailAddress,
+          opts
+        ),
     ]);
 
     assertUser(user);
     return user;
-  }, /** reuseTxn */ true);
+  });
 }

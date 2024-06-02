@@ -79,9 +79,8 @@ export async function generateAndInsertUsageRecordList(
   const items = generateUsageRecordList(count, extra);
   await kSemanticModels
     .utils()
-    .withTxn(
-      async opts => kSemanticModels.usageRecord().insertItem(items, opts),
-      /** reuseTxn */ true
+    .withTxn(async opts =>
+      kSemanticModels.usageRecord().insertItem(items, opts)
     );
   return items;
 }

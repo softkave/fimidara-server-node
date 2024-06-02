@@ -105,6 +105,9 @@ export abstract class FWorkerMainBase extends FWorkerMessager {
         kUtilsInjectables.logger().error(error);
         delete this.workers[workerId];
       });
+      worker.on('messageerror', (error: unknown) => {
+        kUtilsInjectables.logger().error(error);
+      });
       worker.on('exit', () => {
         delete this.workers[workerId];
       });
