@@ -1,19 +1,20 @@
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {appAssert} from '../../../utils/assertion';
-import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import EndpointReusableQueries from '../../queries';
-import RequestData from '../../RequestData';
-import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generate/workspace';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {appAssert} from '../../../utils/assertion.js';
+import RequestData from '../../RequestData.js';
+import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import EndpointReusableQueries from '../../queries.js';
+import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generate/workspace.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import countUserWorkspaces from './handler';
+} from '../../testUtils/testUtils.js';
+import countUserWorkspaces from './handler.js';
 
 beforeAll(async () => {
   await initTests();
@@ -29,19 +30,17 @@ describe('countUserWorkspaces', () => {
     const workspaces = await generateAndInsertWorkspaceListForTest(15);
     await kSemanticModels
       .utils()
-      .withTxn(
-        opts =>
-          Promise.all(
-            workspaces.map(w =>
-              assignWorkspaceToUser(
-                kSystemSessionAgent,
-                w.resourceId,
-                rawUser.resourceId,
-                opts
-              )
+      .withTxn(opts =>
+        Promise.all(
+          workspaces.map(w =>
+            assignWorkspaceToUser(
+              kSystemSessionAgent,
+              w.resourceId,
+              rawUser.resourceId,
+              opts
             )
-          ),
-        /** reuseTxn */ true
+          )
+        )
       );
     appAssert(userToken.forEntityId);
     const user = await populateUserWorkspaces(

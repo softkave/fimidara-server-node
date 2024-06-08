@@ -1,6 +1,6 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {PermissionItem} from '../definitions/permissionItem';
-import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
+import {PermissionItem} from '../definitions/permissionItem.js';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils.js';
 
 const permissionItemSchema = ensureMongoTypeFields<PermissionItem>({
   ...workspaceResourceSchema,

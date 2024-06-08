@@ -1,18 +1,19 @@
-import {calculatePageSize} from '../../../utils/fns';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {generateAndInsertTagListForTest} from '../../testUtils/generate/tag';
-import {insertTagForTest} from '../../testUtils/helpers/tag';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {calculatePageSize} from '../../../utils/fns.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {generateAndInsertTagListForTest} from '../../testUtils/generate/tag.js';
+import {insertTagForTest} from '../../testUtils/helpers/tag.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import getWorkspaceTags from './handler';
-import {GetWorkspaceTagsEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import getWorkspaceTags from './handler.js';
+import {GetWorkspaceTagsEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

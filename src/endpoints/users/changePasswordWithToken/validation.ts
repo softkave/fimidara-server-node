@@ -1,6 +1,6 @@
-import * as Joi from 'joi';
-import userValidationSchemas from '../validation';
-import {ChangePasswordWithTokenEndpointParams} from './types';
+import Joi from 'joi';
+import userValidationSchemas from '../validation.js';
+import {ChangePasswordWithTokenEndpointParams} from './types.js';
 
 export const changePasswordWithTokenJoiSchema =
   Joi.object<ChangePasswordWithTokenEndpointParams>().keys({

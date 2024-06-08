@@ -1,10 +1,10 @@
-import {Folder} from '../../../../definitions/folder';
+import {Folder} from '../../../../definitions/folder.js';
 import {
   SemanticProviderOpParams,
   SemanticProviderQueryListParams,
   SemanticProviderQueryParams,
   SemanticWorkspaceResourceProviderType,
-} from '../types';
+} from '../types.js';
 
 export interface SemanticFolderProvider
   extends SemanticWorkspaceResourceProviderType<Folder> {

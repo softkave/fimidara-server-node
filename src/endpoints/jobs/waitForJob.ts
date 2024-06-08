@@ -1,9 +1,9 @@
-import {isNumber} from 'lodash';
-import {kJobStatus} from '../../definitions/job';
-import {appAssert} from '../../utils/assertion';
-import {getTimestamp} from '../../utils/dateFns';
-import {TimeoutError} from '../../utils/errors';
-import {kSemanticModels} from '../contexts/injection/injectables';
+import {isNumber} from 'lodash-es';
+import {kJobStatus} from '../../definitions/job.js';
+import {appAssert} from '../../utils/assertion.js';
+import {getTimestamp} from '../../utils/dateFns.js';
+import {TimeoutError} from '../../utils/errors.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
 
 /** Waits for job and children to complete. Use extremely sparingly, and
  * primarily for testing. */
@@ -35,12 +35,14 @@ export async function waitForJob(
         },
         opts
       );
-    }, /** reuseTxn */ true);
+    });
   }
 
   return new Promise<void>((resolve, reject) => {
     const waitFn = async () => {
-      const job = await kSemanticModels.job().getOneByQuery({resourceId: jobId});
+      const job = await kSemanticModels
+        .job()
+        .getOneByQuery({resourceId: jobId});
 
       if (
         !job ||

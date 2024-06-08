@@ -1,42 +1,43 @@
 import assert from 'assert';
-import {FileBackendMount} from '../../../definitions/fileBackend';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {pathSplit} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {NotFoundError} from '../../errors';
-import {stringifyFilenamepath} from '../../files/utils';
-import {stringifyFoldernamepath} from '../../folders/utils';
-import {generateAndInsertTestFiles} from '../../testUtils/generate/file';
-import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend';
-import {generateAndInsertTestFolders} from '../../testUtils/generate/folder';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {FileBackendMount} from '../../../definitions/fileBackend.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {pathSplit} from '../../../utils/fns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {NotFoundError} from '../../errors.js';
+import {stringifyFilenamepath} from '../../files/utils.js';
+import {stringifyFoldernamepath} from '../../folders/utils.js';
+import {generateAndInsertTestFiles} from '../../testUtils/generate/file.js';
+import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend.js';
+import {generateAndInsertTestFolders} from '../../testUtils/generate/folder.js';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,
   generateTestFieldsCombinations,
   matchGenerators,
-} from '../../testUtils/generate/utils';
-import {expectListSubsetMatch} from '../../testUtils/helpers/assertion';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
+} from '../../testUtils/generate/utils.js';
+import {expectListSubsetMatch} from '../../testUtils/helpers/assertion.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {
   completeTests,
   matchExpects,
   testCombinations,
-} from '../../testUtils/helpers/testFns';
+} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import resolveFileBackendMounts from './handler';
+} from '../../testUtils/testUtils.js';
+import resolveFileBackendMounts from './handler.js';
 import {
   ResolveFileBackendMountsEndpointParams,
   ResolveFileBackendMountsEndpointResult,
-} from './types';
+} from './types.js';
 
 beforeAll(async () => {
   await initTests();
@@ -51,36 +52,37 @@ describe('resolveMounts', () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
 
-    const queryDefs: GenerateTestFieldsDef<ResolveFileBackendMountsEndpointParams> = {
-      folderpath: async () => {
-        const [folder] = await generateAndInsertTestFolders(1, {
-          workspaceId: workspace.resourceId,
-          parentId: null,
-        });
-        return stringifyFoldernamepath(folder, workspace.rootname);
-      },
-      filepath: async () => {
-        const [file] = await generateAndInsertTestFiles(1, {
-          workspaceId: workspace.resourceId,
-          parentId: null,
-        });
-        return stringifyFilenamepath(file, workspace.rootname);
-      },
-      fileId: async () => {
-        const [file] = await generateAndInsertTestFiles(1, {
-          workspaceId: workspace.resourceId,
-          parentId: null,
-        });
-        return file.resourceId;
-      },
-      folderId: async () => {
-        const [folder] = await generateAndInsertTestFolders(1, {
-          workspaceId: workspace.resourceId,
-          parentId: null,
-        });
-        return folder.resourceId;
-      },
-    };
+    const queryDefs: GenerateTestFieldsDef<ResolveFileBackendMountsEndpointParams> =
+      {
+        folderpath: async () => {
+          const [folder] = await generateAndInsertTestFolders(1, {
+            workspaceId: workspace.resourceId,
+            parentId: null,
+          });
+          return stringifyFoldernamepath(folder, workspace.rootname);
+        },
+        filepath: async () => {
+          const [file] = await generateAndInsertTestFiles(1, {
+            workspaceId: workspace.resourceId,
+            parentId: null,
+          });
+          return stringifyFilenamepath(file, workspace.rootname);
+        },
+        fileId: async () => {
+          const [file] = await generateAndInsertTestFiles(1, {
+            workspaceId: workspace.resourceId,
+            parentId: null,
+          });
+          return file.resourceId;
+        },
+        folderId: async () => {
+          const [folder] = await generateAndInsertTestFolders(1, {
+            workspaceId: workspace.resourceId,
+            parentId: null,
+          });
+          return folder.resourceId;
+        },
+      };
     const queries = await generateTestFieldsCombinations(
       queryDefs,
       TestFieldsPresetCombinations.oneOfEach
@@ -95,7 +97,9 @@ describe('resolveMounts', () => {
           {
             matcher: params => !!params.fileId,
             generator: async params => {
-              const file = await kSemanticModels.file().getOneById(params.fileId!);
+              const file = await kSemanticModels
+                .file()
+                .getOneById(params.fileId!);
               assert(file);
               return {namepath: file.namepath.slice(0, -1)};
             },
@@ -103,7 +107,9 @@ describe('resolveMounts', () => {
           {
             matcher: params => !!params.folderId,
             generator: async params => {
-              const folder = await kSemanticModels.folder().getOneById(params.folderId!);
+              const folder = await kSemanticModels
+                .folder()
+                .getOneById(params.folderId!);
               assert(folder);
               return {namepath: folder.namepath};
             },
@@ -138,7 +144,10 @@ describe('resolveMounts', () => {
       assertEndpointResultOk(result);
 
       await matchExpects<
-        [ResolveFileBackendMountsEndpointParams, ResolveFileBackendMountsEndpointResult]
+        [
+          ResolveFileBackendMountsEndpointParams,
+          ResolveFileBackendMountsEndpointResult,
+        ]
       >(
         [
           {
@@ -160,7 +169,9 @@ describe('resolveMounts', () => {
           {
             matcher: input => !!input.folderId,
             expect: async (input, result) => {
-              const folder = await kSemanticModels.folder().getOneById(input.folderId!);
+              const folder = await kSemanticModels
+                .folder()
+                .getOneById(input.folderId!);
 
               result.mounts.forEach(mount => {
                 expectListSubsetMatch(mount.namepath, folder?.namepath ?? []);
@@ -178,10 +189,15 @@ describe('resolveMounts', () => {
           {
             matcher: input => !!input.fileId,
             expect: async (input, result) => {
-              const file = await kSemanticModels.file().getOneById(input.fileId!);
+              const file = await kSemanticModels
+                .file()
+                .getOneById(input.fileId!);
 
               result.mounts.forEach(mount => {
-                expectListSubsetMatch(mount.namepath, file?.namepath.slice(0, -1) ?? []);
+                expectListSubsetMatch(
+                  mount.namepath,
+                  file?.namepath.slice(0, -1) ?? []
+                );
               });
             },
           },
@@ -209,10 +225,11 @@ describe('resolveMounts', () => {
       async () => {
         await resolveFileBackendMounts(instData);
       },
-      error =>
+      error => {
         expect((error as NotFoundError).message).toBe(
           kReuseableErrors.file.notFound().message
-        )
+        );
+      }
     );
   });
 
@@ -232,10 +249,11 @@ describe('resolveMounts', () => {
       async () => {
         await resolveFileBackendMounts(instData);
       },
-      error =>
+      error => {
         expect((error as NotFoundError).message).toBe(
           kReuseableErrors.folder.notFound().message
-        )
+        );
+      }
     );
   });
 });

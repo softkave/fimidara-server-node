@@ -1,5 +1,5 @@
-import {PublicCollaborator} from '../../../definitions/user';
-import {Endpoint} from '../../types';
+import {PublicCollaborator} from '../../../definitions/user.js';
+import {Endpoint} from '../../types.js';
 
 export interface GetCollaboratorEndpointParams {
   workspaceId?: string;

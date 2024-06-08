@@ -1,6 +1,6 @@
-import * as Joi from 'joi';
-import {kValidationSchemas} from '../../../utils/validationUtils';
-import {endpointValidationSchemas} from '../../validation';
+import Joi from 'joi';
+import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import {endpointValidationSchemas} from '../../validation.js';
 
 export const deletePermissionGroupJoiSchema = Joi.object()
   .keys({

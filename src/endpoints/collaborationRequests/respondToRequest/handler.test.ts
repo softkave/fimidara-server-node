@@ -1,10 +1,11 @@
-import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
-import {EmailJobParams, Job, kEmailJobType, kJobType} from '../../../definitions/job';
-import {DataQuery} from '../../contexts/data/types';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import EndpointReusableQueries from '../../queries';
-import RequestData from '../../RequestData';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest.js';
+import {EmailJobParams, Job, kEmailJobType, kJobType} from '../../../definitions/job.js';
+import {DataQuery} from '../../contexts/data/types.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import EndpointReusableQueries from '../../queries.js';
+import RequestData from '../../RequestData.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -12,10 +13,10 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {collaborationRequestForUserExtractor} from '../utils';
-import respondToCollaborationRequest from './handler';
-import {RespondToCollaborationRequestEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import {collaborationRequestForUserExtractor} from '../utils.js';
+import respondToCollaborationRequest from './handler.js';
+import {RespondToCollaborationRequestEndpointParams} from './types.js';
 
 /**
  * TODO:

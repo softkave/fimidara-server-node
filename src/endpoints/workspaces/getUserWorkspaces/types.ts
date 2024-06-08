@@ -1,5 +1,5 @@
-import {PublicWorkspace} from '../../../definitions/workspace';
-import {Endpoint, PaginatedResult, PaginationQuery} from '../../types';
+import {PublicWorkspace} from '../../../definitions/workspace.js';
+import {Endpoint, PaginatedResult, PaginationQuery} from '../../types.js';
 
 export interface GetUserWorkspacesEndpointParams extends PaginationQuery {}
 

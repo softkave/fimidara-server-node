@@ -3,12 +3,12 @@ import {
   getWaitlistedUsersEndpointDefinition,
   getWorkspacesEndpointDefinition,
   upgradeWaitlistedUsersEndpointDefinition,
-} from './endpoint.mddoc';
-import getUsers from './getUsers/handler';
-import getWaitlistedUsers from './getWaitlistedUsers/handler';
-import getWorkspaces from './getWorkspaces/handler';
-import {InternalsPrivateExportedEndpoints} from './types';
-import upgradeWaitlistedUsers from './upgradeWaitlistedUsers/handler';
+} from './endpoint.mddoc.js';
+import getUsers from './getUsers/handler.js';
+import getWaitlistedUsers from './getWaitlistedUsers/handler.js';
+import getWorkspaces from './getWorkspaces/handler.js';
+import {InternalsPrivateExportedEndpoints} from './types.js';
+import upgradeWaitlistedUsers from './upgradeWaitlistedUsers/handler.js';
 
 export function getInternalsPrivateHttpEndpoints() {
   const internalsExportedEndpoints: InternalsPrivateExportedEndpoints = {

@@ -1,7 +1,7 @@
 import assert = require('assert');
-import {cloneDeep, isFunction, isObject} from 'lodash';
-import {mergeData} from './fns';
-import {AnyFn, AnyObject} from './types';
+import {cloneDeep, isFunction, isObject} from 'lodash-es';
+import {mergeData} from './fns.js';
+import {AnyFn, AnyObject} from './types.js';
 
 export function makeGetAccessor<T, K extends keyof T>(obj: T, k: K) {
   return () => {

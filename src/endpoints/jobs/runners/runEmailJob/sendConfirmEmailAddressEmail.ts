@@ -1,38 +1,45 @@
-import {AgentToken} from '../../../../definitions/agentToken';
-import {EmailJobParams, kEmailJobType} from '../../../../definitions/job';
+import {AgentToken} from '../../../../definitions/agentToken.js';
+import {EmailJobParams, kEmailJobType} from '../../../../definitions/job.js';
 import {
   kCurrentJWTTokenVersion,
   kFimidaraResourceType,
   kTokenAccessScope,
-} from '../../../../definitions/system';
-import {User} from '../../../../definitions/user';
+} from '../../../../definitions/system.js';
+import {User} from '../../../../definitions/user.js';
 import {
   ConfirmEmailAddressEmailProps,
   confirmEmailAddressEmailHTML,
   confirmEmailAddressEmailText,
   kConfirmEmailAddressEmail,
-} from '../../../../emailTemplates/confirmEmailAddress';
-import {kSystemSessionAgent} from '../../../../utils/agent';
-import {appAssert} from '../../../../utils/assertion';
-import {getTimestamp} from '../../../../utils/dateFns';
-import {newResource} from '../../../../utils/resource';
+} from '../../../../emailTemplates/confirmEmailAddress.js';
+import {kSystemSessionAgent} from '../../../../utils/agent.js';
+import {appAssert} from '../../../../utils/assertion.js';
+import {getTimestamp} from '../../../../utils/dateFns.js';
+import {newResource} from '../../../../utils/resource.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../contexts/injection/injectables';
-import {kUserConstants} from '../../../users/constants';
-import {getBaseEmailTemplateProps} from './utils';
+} from '../../../contexts/injection/injectables.js';
+import {kUserConstants} from '../../../users/constants.js';
+import {getBaseEmailTemplateProps} from './utils.js';
 
-export async function getLinkWithConfirmEmailToken(user: User, urlPath: string) {
+export async function getLinkWithConfirmEmailToken(
+  user: User,
+  urlPath: string
+) {
   return kSemanticModels.utils().withTxn(async opts => {
     const url = new URL(urlPath);
     let token = await kSemanticModels
       .agentToken()
-      .getOneAgentToken(user.resourceId, kTokenAccessScope.ConfirmEmailAddress, opts);
+      .getOneAgentToken(
+        user.resourceId,
+        kTokenAccessScope.confirmEmailAddress,
+        opts
+      );
 
     if (!token) {
       token = newResource<AgentToken>(kFimidaraResourceType.AgentToken, {
-        scope: [kTokenAccessScope.ConfirmEmailAddress],
+        scope: [kTokenAccessScope.confirmEmailAddress],
         version: kCurrentJWTTokenVersion,
         forEntityId: user.resourceId,
         workspaceId: null,
@@ -46,9 +53,12 @@ export async function getLinkWithConfirmEmailToken(user: User, urlPath: string) 
     const encodedToken = kUtilsInjectables
       .session()
       .encodeToken(token.resourceId, token.expiresAt);
-    url.searchParams.set(kUserConstants.confirmEmailTokenQueryParam, encodedToken);
+    url.searchParams.set(
+      kUserConstants.confirmEmailTokenQueryParam,
+      encodedToken
+    );
     return url.toString();
-  }, /** reuseTxn */ true);
+  });
 }
 
 export async function sendConfirmEmailAddressEmail(
@@ -66,7 +76,10 @@ export async function sendConfirmEmailAddressEmail(
   }
 
   const suppliedConfig = kUtilsInjectables.suppliedConfig();
-  appAssert(suppliedConfig.verifyEmailLink, 'verifyEmailLink not present in config');
+  appAssert(
+    suppliedConfig.verifyEmailLink,
+    'verifyEmailLink not present in config'
+  );
   const confirmEmailUrl = await getLinkWithConfirmEmailToken(
     user,
     suppliedConfig.verifyEmailLink
@@ -95,7 +108,7 @@ export async function sendConfirmEmailAddressEmail(
           {emailVerificationEmailSentAt: getTimestamp()},
           opts
         );
-    }, /** reuseTxn */ false)
+    })
   );
 
   return result;

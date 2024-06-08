@@ -1,9 +1,10 @@
 import assert from 'assert';
 import {Readable} from 'stream';
-import {streamToBuffer} from '../../../utils/fns';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils';
-import {stringifyFilenamepath} from '../../files/utils';
+import {streamToBuffer} from '../../../utils/fns.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils.js';
+import {stringifyFilenamepath} from '../../files/utils.js';
+import {expect} from 'vitest';
 
 export async function expectFileBodyEqual(
   body: Buffer | Readable,
@@ -32,6 +33,7 @@ export async function expectFileBodyEqualById(
   );
   const {body} = await primaryBackend.readFile({
     filepath: stringifyFilenamepath(file),
+    fileId: file.resourceId,
     mount: primaryMount,
     workspaceId: file.workspaceId,
   });

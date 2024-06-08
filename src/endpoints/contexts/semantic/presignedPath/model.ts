@@ -1,10 +1,10 @@
-import {PresignedPath} from '../../../../definitions/presignedPath';
-import {FileQueries} from '../../../files/queries';
-import {DataQuery} from '../../data/types';
-import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
-import {SemanticProviderQueryListParams, SemanticProviderQueryParams} from '../types';
-import {SemanticPresignedPathProvider} from './types';
+import {PresignedPath} from '../../../../definitions/presignedPath.js';
+import {FileQueries} from '../../../files/queries.js';
+import {DataQuery} from '../../data/types.js';
+import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider.js';
+import {SemanticProviderQueryListParams, SemanticProviderQueryParams} from '../types.js';
+import {SemanticPresignedPathProvider} from './types.js';
 
 export class DataSemanticPresignedPathProvider
   extends DataSemanticWorkspaceResourceProvider<PresignedPath>
@@ -33,7 +33,7 @@ export class DataSemanticPresignedPathProvider
   }
 
   async getOneByFilepath(
-    query: {workspaceId: string; namepath: string[]; extension?: string},
+    query: {workspaceId: string; namepath: string[]; ext?: string},
     options?: SemanticProviderQueryParams<PresignedPath>
   ): Promise<PresignedPath | null> {
     const dataQuery = addIsDeletedIntoQuery<DataQuery<PresignedPath>>(

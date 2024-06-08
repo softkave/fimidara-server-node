@@ -1,22 +1,26 @@
-import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {kPermissionAgentTypes} from '../../../definitions/system';
-import {appAssert} from '../../../utils/assertion';
-import {validate} from '../../../utils/validate';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {checkFolderAuthorization02} from '../utils';
-import {DeleteFolderEndpoint} from './types';
-import {beginDeleteFolder} from './utils';
-import {deleteFolderJoiSchema} from './validation';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {checkFolderAuthorization02} from '../utils.js';
+import {DeleteFolderEndpoint} from './types.js';
+import {beginDeleteFolder} from './utils.js';
+import {deleteFolderJoiSchema} from './validation.js';
 
 const deleteFolder: DeleteFolderEndpoint = async instData => {
   const data = validate(instData.data, deleteFolderJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, kPermissionAgentTypes);
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const {folder} = await checkFolderAuthorization02(
     agent,
     data,
-    kPermissionsMap.deleteFolder
+    kFimidaraPermissionActionsMap.deleteFolder
   );
 
   const [job] = await beginDeleteFolder({

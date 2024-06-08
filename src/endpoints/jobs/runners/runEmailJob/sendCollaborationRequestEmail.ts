@@ -1,17 +1,17 @@
-import {first} from 'lodash';
-import {EmailJobParams, kEmailJobType} from '../../../../definitions/job';
+import {first} from 'lodash-es';
+import {EmailJobParams, kEmailJobType} from '../../../../definitions/job.js';
 import {
   CollaborationRequestEmailProps,
   collaborationRequestEmailHTML,
   collaborationRequestEmailText,
   kCollaborationRequestEmailArtifacts,
-} from '../../../../emailTemplates/collaborationRequest';
-import {appAssert} from '../../../../utils/assertion';
+} from '../../../../emailTemplates/collaborationRequest.js';
+import {appAssert} from '../../../../utils/assertion.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../contexts/injection/injectables';
-import {getBaseEmailTemplateProps} from './utils';
+} from '../../../contexts/injection/injectables.js';
+import {getBaseEmailTemplateProps} from './utils.js';
 
 export async function sendCollaborationRequestEmail(
   jobId: string,
@@ -36,7 +36,9 @@ export async function sendCollaborationRequestEmail(
     throw new Error(`Collaboration request not found for job ${jobId}`);
   }
 
-  const workspace = await kSemanticModels.workspace().getOneById(request.workspaceId);
+  const workspace = await kSemanticModels
+    .workspace()
+    .getOneById(request.workspaceId);
 
   if (!workspace) {
     throw new Error(`Workspace not found for job ${jobId}`);

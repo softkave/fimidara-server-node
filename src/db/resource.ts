@@ -1,7 +1,7 @@
 import {Connection, Document, Model, Schema, SchemaTypes} from 'mongoose';
-import {ResourceWrapper} from '../definitions/system';
-import {AnyObject} from '../utils/types';
-import {ensureMongoTypeFields} from './utils';
+import {ResourceWrapper} from '../definitions/system.js';
+import {AnyObject} from '../utils/types.js';
+import {ensureMongoTypeFields} from './utils.js';
 
 const resourceSchema = ensureMongoTypeFields<ResourceWrapper>({
   resourceId: {type: String, unique: true, index: true},

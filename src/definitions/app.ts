@@ -1,5 +1,5 @@
-import {ObjectValues} from '../utils/types';
-import {Resource} from './system';
+import {ObjectValues} from '../utils/types.js';
+import {Resource} from './system.js';
 
 export const kAppType = {
   runner: 'runner',

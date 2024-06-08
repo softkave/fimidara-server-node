@@ -1,20 +1,24 @@
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {extractResourceIdList} from '../../../utils/fns';
-import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import RequestData from '../../RequestData';
-import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generate/workspace';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {extractResourceIdList} from '../../../utils/fns.js';
+import RequestData from '../../RequestData.js';
+import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generate/workspace.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {PermissionDeniedError} from '../../users/errors';
-import getWorkspaces from './handler';
-import {GetWorkspacesEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import {PermissionDeniedError} from '../../users/errors.js';
+import getWorkspaces from './handler.js';
+import {GetWorkspacesEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();
@@ -36,7 +40,7 @@ describe('getWorkspaces', () => {
           user.resourceId,
           opts
         );
-      }, /** reuseTxn */ true),
+      }),
     ]);
 
     const result = await getWorkspaces(
@@ -48,7 +52,9 @@ describe('getWorkspaces', () => {
     assertEndpointResultOk(result);
     const workspaceIdList = extractResourceIdList(workspaceList);
     const resultWorkspaceIdList = extractResourceIdList(result.workspaceList);
-    expect(resultWorkspaceIdList).toEqual(expect.arrayContaining(workspaceIdList));
+    expect(resultWorkspaceIdList).toEqual(
+      expect.arrayContaining(workspaceIdList)
+    );
   });
 
   test('fails if user not part of root workspace', async () => {

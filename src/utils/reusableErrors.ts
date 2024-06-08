@@ -3,10 +3,13 @@ import {
   InvalidStateError,
   NotFoundError,
   ResourceExistsError,
-} from '../endpoints/errors';
-import {MountSourceMissingBucketError} from '../endpoints/fileBackends/errors';
-import {ChangePasswordError, InvalidCredentialsError} from '../endpoints/users/errors';
-import {kAppMessages} from './messages';
+} from '../endpoints/errors.js';
+import {MountSourceMissingBucketError} from '../endpoints/fileBackends/errors.js';
+import {
+  ChangePasswordError,
+  InvalidCredentialsError,
+} from '../endpoints/users/errors.js';
+import {kAppMessages} from './messages.js';
 
 export const kReuseableErrors = {
   workspace: {
@@ -17,11 +20,19 @@ export const kReuseableErrors = {
       return new InvalidRequestError(kAppMessages.workspace.noRootname());
     },
     withRootnameNotFound(rootname: string) {
-      return new NotFoundError(kAppMessages.workspace.withRootnameNotFound(rootname));
+      return new NotFoundError(
+        kAppMessages.workspace.withRootnameNotFound(rootname)
+      );
     },
-    rootnameDoesNotMatchFolderRootname: (rootname: string, rootname02: string) =>
+    rootnameDoesNotMatchFolderRootname: (
+      rootname: string,
+      rootname02: string
+    ) =>
       new InvalidRequestError(
-        kAppMessages.workspace.rootnameDoesNotMatchFolderRootname(rootname, rootname02)
+        kAppMessages.workspace.rootnameDoesNotMatchFolderRootname(
+          rootname,
+          rootname02
+        )
       ),
   },
   entity: {
@@ -102,7 +113,9 @@ export const kReuseableErrors = {
       return new ResourceExistsError(kAppMessages.agentToken.withIdExists(id));
     },
     withProvidedIdExists(id?: string) {
-      return new ResourceExistsError(kAppMessages.agentToken.withProvidedIdExists(id));
+      return new ResourceExistsError(
+        kAppMessages.agentToken.withProvidedIdExists(id)
+      );
     },
   },
   mount: {
@@ -121,39 +134,63 @@ export const kReuseableErrors = {
       return new NotFoundError(kAppMessages.mount.notFound(id));
     },
     cannotMountFimidaraExplicitly() {
-      return new InvalidRequestError(kAppMessages.mount.cannotMountFimidaraExplicitly);
+      return new InvalidRequestError(
+        kAppMessages.mount.cannotMountFimidaraExplicitly
+      );
     },
     cannotDeleteFimidaraMount() {
-      return new InvalidRequestError(kAppMessages.mount.cannotDeleteFimidaraMount);
+      return new InvalidRequestError(
+        kAppMessages.mount.cannotDeleteFimidaraMount
+      );
     },
     cannotUpdateFimidaraMount() {
-      return new InvalidRequestError(kAppMessages.mount.cannotUpdateFimidaraMount);
+      return new InvalidRequestError(
+        kAppMessages.mount.cannotUpdateFimidaraMount
+      );
     },
     configMountBackendMismatch: (configBackend: string, mountBackend: string) =>
       new InvalidRequestError(
-        kAppMessages.mount.configMountBackendMismatch(configBackend, mountBackend)
+        kAppMessages.mount.configMountBackendMismatch(
+          configBackend,
+          mountBackend
+        )
       ),
-    exactMountConfigExists: (mountedFrom: string, folderpath: string, backend: string) =>
+    exactMountConfigExists: (
+      mountedFrom: string,
+      folderpath: string,
+      backend: string
+    ) =>
       new ResourceExistsError(
-        kAppMessages.mount.exactMountConfigExists(mountedFrom, folderpath, backend)
+        kAppMessages.mount.exactMountConfigExists(
+          mountedFrom,
+          folderpath,
+          backend
+        )
       ),
-    mountsNotSetup: () => new InvalidRequestError(kAppMessages.mount.mountsNotSetup),
+    mountsNotSetup: () =>
+      new InvalidRequestError(kAppMessages.mount.mountsNotSetup),
   },
   config: {
     notFound(id?: string) {
       return new NotFoundError(kAppMessages.config.notFound(id));
     },
     configInUse(mountsCount: number) {
-      return new InvalidRequestError(kAppMessages.config.configInUse(mountsCount));
+      return new InvalidRequestError(
+        kAppMessages.config.configInUse(mountsCount)
+      );
     },
     configExists() {
       return new ResourceExistsError(kAppMessages.config.configExists);
     },
     configNameExists(name: string) {
-      return new ResourceExistsError(kAppMessages.config.configNameExists(name));
+      return new ResourceExistsError(
+        kAppMessages.config.configNameExists(name)
+      );
     },
     fimidaraDoesNotSupportConfig() {
-      return new InvalidRequestError(kAppMessages.config.fimidaraDoesNotSupportConfig);
+      return new InvalidRequestError(
+        kAppMessages.config.fimidaraDoesNotSupportConfig
+      );
     },
   },
   job: {

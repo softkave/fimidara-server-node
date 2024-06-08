@@ -1,4 +1,4 @@
-import {noopAsync} from '../../../../utils/fns';
+import {noopAsync} from '../../../../utils/fns.js';
 import {
   FilePersistenceDescribeFolderContentParams,
   FilePersistenceDescribeFolderContentResult,
@@ -8,12 +8,13 @@ import {
   FilePersistenceProviderFeature,
   FilePersistenceToFimidaraPathParams,
   FilePersistenceToFimidaraPathResult,
+  FilePersistenceUploadFileParams,
   FimidaraToFilePersistencePathParams,
   FimidaraToFilePersistencePathResult,
   PersistedFile,
   PersistedFileDescription,
   PersistedFolderDescription,
-} from '../../../contexts/file/types';
+} from '../../../contexts/file/types.js';
 
 export default class NoopFilePersistenceProviderContext
   implements FilePersistenceProvider
@@ -43,11 +44,17 @@ export default class NoopFilePersistenceProviderContext
     return undefined;
   };
 
-  describeFolder = async (): Promise<PersistedFolderDescription | undefined> => {
+  describeFolder = async (): Promise<
+    PersistedFolderDescription | undefined
+  > => {
     return undefined;
   };
 
-  uploadFile = async () => ({});
+  uploadFile = async (params: FilePersistenceUploadFileParams) => ({
+    filepath: params.filepath,
+    raw: undefined,
+  });
+
   describeFolderContent = async (
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     params: FilePersistenceDescribeFolderContentParams

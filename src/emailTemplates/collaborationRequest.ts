@@ -1,4 +1,4 @@
-import {formatDateTime} from '../utils/dateFns';
+import {formatDateTime} from '../utils/dateFns.js';
 import {
   emailHelperChars,
   emailTemplateStyles,
@@ -8,8 +8,8 @@ import {
   getGreetingText,
   getHeaderHTML,
   getHeaderText,
-} from './helpers';
-import {BaseEmailTemplateProps} from './types';
+} from './helpers.js';
+import {BaseEmailTemplateProps} from './types.js';
 
 export interface CollaborationRequestEmailProps extends BaseEmailTemplateProps {
   workspaceName: string;

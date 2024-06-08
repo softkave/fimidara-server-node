@@ -1,17 +1,18 @@
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {generateAndInsertTestFiles} from '../../testUtils/generate/file';
-import {generateAndInsertTestFolders} from '../../testUtils/generate/folder';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {generateAndInsertTestFiles} from '../../testUtils/generate/file.js';
+import {generateAndInsertTestFolders} from '../../testUtils/generate/folder.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import countFolderContent from './handler';
-import {CountFolderContentEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import countFolderContent from './handler.js';
+import {CountFolderContentEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

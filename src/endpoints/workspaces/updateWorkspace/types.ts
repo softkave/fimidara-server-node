@@ -1,6 +1,6 @@
-import {PublicWorkspace} from '../../../definitions/workspace';
-import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
-import {NewWorkspaceInput} from '../addWorkspace/types';
+import {PublicWorkspace} from '../../../definitions/workspace.js';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types.js';
+import {NewWorkspaceInput} from '../addWorkspace/types.js';
 
 export type UpdateWorkspaceInput = Partial<
   Omit<NewWorkspaceInput, 'rootname' | 'usageThresholds'>

@@ -1,11 +1,11 @@
-import * as Joi from 'joi';
-import {JoiSchemaParts} from '../../../utils/types';
-import {kValidationSchemas} from '../../../utils/validationUtils';
-import {endpointValidationSchemas} from '../../validation';
+import Joi from 'joi';
+import {JoiSchemaParts} from '../../../utils/types.js';
+import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import {endpointValidationSchemas} from '../../validation.js';
 import {
   GetEntityAssignedPermissionGroupsEndpointParams,
   GetEntityAssignedPermissionGroupsEndpointParamsBase,
-} from './types';
+} from './types.js';
 
 export const getEntityAssignedPermissionGroupsBaseJoiSchemaParts: JoiSchemaParts<GetEntityAssignedPermissionGroupsEndpointParamsBase> =
   {

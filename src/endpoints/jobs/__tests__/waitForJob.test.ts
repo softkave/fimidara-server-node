@@ -1,15 +1,20 @@
 import {faker} from '@faker-js/faker';
-import {flattenDeep} from 'lodash';
-import {kJobPresetPriority, kJobStatus, kJobType} from '../../../definitions/job';
-import {TimeoutError} from '../../../utils/errors';
-import {extractResourceIdList, waitTimeout} from '../../../utils/fns';
-import {getNewId} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {generateAndInsertJobListForTest} from '../../testUtils/generate/job';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/testFns';
-import {initTests} from '../../testUtils/testUtils';
-import {waitForJob} from '../waitForJob';
+import {flattenDeep} from 'lodash-es';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {
+  kJobPresetPriority,
+  kJobStatus,
+  kJobType,
+} from '../../../definitions/job.js';
+import {TimeoutError} from '../../../utils/errors.js';
+import {extractResourceIdList, waitTimeout} from '../../../utils/fns.js';
+import {getNewId} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {generateAndInsertJobListForTest} from '../../testUtils/generate/job.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {initTests} from '../../testUtils/testUtils.js';
+import {waitForJob} from '../waitForJob.js';
 
 const shard = getNewId();
 
@@ -38,16 +43,17 @@ describe('waitForJob', () => {
       pollIntervalMs
     );
 
-    await kSemanticModels.utils().withTxn(
-      opts =>
-        kSemanticModels.job().updateOneById(
-          job.resourceId,
-          {
-            status: faker.helpers.arrayElement([kJobStatus.completed, kJobStatus.failed]),
-          },
-          opts
-        ),
-      /** reuseTxn */ true
+    await kSemanticModels.utils().withTxn(opts =>
+      kSemanticModels.job().updateOneById(
+        job.resourceId,
+        {
+          status: faker.helpers.arrayElement([
+            kJobStatus.completed,
+            kJobStatus.failed,
+          ]),
+        },
+        opts
+      )
     );
     await waitTimeout(pollIntervalMs);
 
@@ -138,7 +144,11 @@ describe('waitForJob', () => {
 
     await expectErrorThrown(
       () =>
-        waitForJob(job.resourceId, /** bump priority */ false, /** timeout, 10 ms */ 10),
+        waitForJob(
+          job.resourceId,
+          /** bump priority */ false,
+          /** timeout, 10 ms */ 10
+        ),
       [TimeoutError.name]
     );
   });

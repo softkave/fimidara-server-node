@@ -1,15 +1,23 @@
 import {AsyncLocalStorage} from 'async_hooks';
-import {get, set} from 'lodash';
+import {get, set} from 'lodash-es';
+import {
+  AnyFn,
+  AnyObject,
+  DisposablesStore,
+  mergeObjects,
+} from 'softkave-js-utils';
 import {ReadonlyDeep} from 'type-fest';
-import {DisposablesStore} from '../../utils/disposables';
-import {mergeData} from '../../utils/fns';
-import {AnyFn, AnyObject} from '../../utils/types';
+import {kUtilsInjectables} from './injection/injectables.js';
 
 export type FimidaraAsyncLocalStorageStore = Record<string, unknown>;
-export type FimidaraAsyncLocalStorage = AsyncLocalStorage<FimidaraAsyncLocalStorageStore>;
+export type FimidaraAsyncLocalStorage =
+  AsyncLocalStorage<FimidaraAsyncLocalStorageStore>;
 
 export interface AsyncLocalStorageUtils {
-  run: <TFn extends AnyFn>(cb: TFn, store?: AnyObject) => Promise<ReturnType<TFn>>;
+  run: <TFn extends AnyFn>(
+    cb: TFn,
+    store?: AnyObject
+  ) => Promise<ReturnType<TFn>>;
   inheritAndRun: <TFn extends AnyFn>(
     cb: TFn,
     store?: AnyObject
@@ -36,7 +44,8 @@ export interface AsyncLocalStorageUtils {
   disposables: () => DisposablesStore;
 }
 
-const asyncLocalStorage = new AsyncLocalStorage<FimidaraAsyncLocalStorageStore>();
+const asyncLocalStorage =
+  new AsyncLocalStorage<FimidaraAsyncLocalStorageStore>();
 
 const kInternalKeys = {
   realStore: Symbol.for('realStore'),
@@ -116,7 +125,9 @@ export const kAsyncLocalStorageUtils: AsyncLocalStorageUtils = {
   inheritAndRun: <TFn extends AnyFn>(cb: TFn, store: AnyObject = {}) => {
     return kAsyncLocalStorageUtils.run(
       cb,
-      mergeData(store, getAsyncLocalStore(), {arrayUpdateStrategy: 'replace'})
+      mergeObjects(store, getAsyncLocalStore(), {
+        arrayUpdateStrategy: 'replace',
+      })
     );
   },
 
@@ -138,7 +149,10 @@ export const kAsyncLocalStorageUtils: AsyncLocalStorageUtils = {
   disposables() {
     return (
       this.get(kAsyncLocalStorageKeys.disposables) ||
-      this.set(kAsyncLocalStorageKeys.disposables, new DisposablesStore())
+      this.set(
+        kAsyncLocalStorageKeys.disposables,
+        new DisposablesStore(kUtilsInjectables.promises())
+      )
     );
   },
 
@@ -155,7 +169,11 @@ export const kAsyncLocalStorageUtils: AsyncLocalStorageUtils = {
     }
   },
 
-  shadowSetForce: async <TFn extends AnyFn>(key: string, value: unknown, cb: TFn) => {
+  shadowSetForce: async <TFn extends AnyFn>(
+    key: string,
+    value: unknown,
+    cb: TFn
+  ) => {
     const shadowStore = startShadowStore(getAsyncLocalStore());
     set(shadowStore, key, value);
     return await kAsyncLocalStorageUtils.run(cb, shadowStore);

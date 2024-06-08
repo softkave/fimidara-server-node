@@ -1,6 +1,6 @@
-import * as Joi from 'joi';
-import {kValidationSchemas} from '../../utils/validationUtils';
-import {kFolderConstants} from './constants';
+import Joi from 'joi';
+import {kValidationSchemas} from '../../utils/validationUtils.js';
+import {kFolderConstants} from './constants.js';
 
 /**
 A B C D E F G H I J K L M N O P Q R S T U V W X Y Z

@@ -1,27 +1,29 @@
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
+
 import {
   kEmailBlocklistReason,
   kEmailBlocklistTrailType,
-} from '../../../../../definitions/email';
-import {EmailJobParams, kEmailJobType, kJobType} from '../../../../../definitions/job';
-import {kFimidaraConfigEmailProvider} from '../../../../../resources/config';
-import {kSystemSessionAgent} from '../../../../../utils/agent';
+} from '../../../../../definitions/email.js';
+import {EmailJobParams, kEmailJobType, kJobType} from '../../../../../definitions/job.js';
+import {kFimidaraConfigEmailProvider} from '../../../../../resources/config.js';
+import {kSystemSessionAgent} from '../../../../../utils/agent.js';
 import {
   EmailProviderSendEmailResult,
   IEmailProviderContext,
   SendEmailParams,
-} from '../../../../contexts/email/types';
+} from '../../../../contexts/email/types.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../../contexts/injection/injectables';
-import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register';
-import {generateAndInsertCollaborationRequestListForTest} from '../../../../testUtils/generate/collaborationRequest';
-import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/user';
-import {generateAndInsertWorkspaceListForTest} from '../../../../testUtils/generate/workspace';
-import {completeTests} from '../../../../testUtils/helpers/testFns';
-import {initTests} from '../../../../testUtils/testUtils';
-import {queueJobs} from '../../../queueJobs';
-import {runEmailJob} from '../runEmailJob';
+} from '../../../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
+import {generateAndInsertCollaborationRequestListForTest} from '../../../../testUtils/generate/collaborationRequest.js';
+import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/user.js';
+import {generateAndInsertWorkspaceListForTest} from '../../../../testUtils/generate/workspace.js';
+import {completeTests} from '../../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../../testUtils/testUtils.js';
+import {queueJobs} from '../../../queueJobs.js';
+import {runEmailJob} from '../runEmailJob.js';
 
 beforeAll(async () => {
   await initTests();

@@ -1,18 +1,22 @@
 import {faker} from '@faker-js/faker';
-import {flatten} from 'lodash';
-import {File} from '../../../definitions/file';
-import {Folder} from '../../../definitions/folder';
-import {PermissionAction, kPermissionsMap} from '../../../definitions/permissionItem';
-import {Resource, kFimidaraResourceType} from '../../../definitions/system';
-import RequestData from '../../RequestData';
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {collaboratorExtractor} from '../../collaborators/utils';
-import {stringifyFilenamepath} from '../../files/utils';
-import {stringifyFoldernamepath} from '../../folders/utils';
-import {generateAndInsertTestFiles} from '../../testUtils/generate/file';
-import {generateAndInsertTestFolders} from '../../testUtils/generate/folder';
-import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generate/permissionItem';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {flatten} from 'lodash-es';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {File} from '../../../definitions/file.js';
+import {Folder} from '../../../definitions/folder.js';
+import {
+  FimidaraPermissionAction,
+  kFimidaraPermissionActionsMap,
+} from '../../../definitions/permissionItem.js';
+import {Resource, kFimidaraResourceType} from '../../../definitions/system.js';
+import RequestData from '../../RequestData.js';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
+import {collaboratorExtractor} from '../../collaborators/utils.js';
+import {stringifyFilenamepath} from '../../files/utils.js';
+import {stringifyFoldernamepath} from '../../folders/utils.js';
+import {generateAndInsertTestFiles} from '../../testUtils/generate/file.js';
+import {generateAndInsertTestFolders} from '../../testUtils/generate/folder.js';
+import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generate/permissionItem.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -20,10 +24,10 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {FetchResourceItem} from '../types';
-import getResources from './handler';
-import {GetResourcesEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import {FetchResourceItem} from '../types.js';
+import getResources from './handler.js';
+import {GetResourcesEndpointParams} from './types.js';
 
 /**
  * TODO:
@@ -54,7 +58,7 @@ describe('getResources', () => {
       }),
     ]);
     const itemsList = await Promise.all(
-      Object.values(kPermissionsMap).map(action =>
+      Object.values(kFimidaraPermissionActionsMap).map(action =>
         generateAndInsertPermissionItemListForTest(1, {
           action,
           access: faker.datatype.boolean(),
@@ -72,31 +76,49 @@ describe('getResources', () => {
 
     const addToExpectedResourcesById = (
       item: Pick<Resource, 'resourceId'>,
-      action: PermissionAction
+      action: FimidaraPermissionAction
     ) => {
       resourcesInput.push({action, resourceId: item.resourceId});
       resourcesMap[item.resourceId] = item;
     };
 
-    addToExpectedResourcesById(workspace, kPermissionsMap.readWorkspace);
-    addToExpectedResourcesById(permissionGroup, kPermissionsMap.updatePermission);
     addToExpectedResourcesById(
-      collaboratorExtractor(await populateUserWorkspaces(rawUser), workspace.resourceId),
-      kPermissionsMap.readCollaborator
+      workspace,
+      kFimidaraPermissionActionsMap.readWorkspace
+    );
+    addToExpectedResourcesById(
+      permissionGroup,
+      kFimidaraPermissionActionsMap.updatePermission
+    );
+    addToExpectedResourcesById(
+      collaboratorExtractor(
+        await populateUserWorkspaces(rawUser),
+        workspace.resourceId
+      ),
+      kFimidaraPermissionActionsMap.readCollaborator
     );
     items.forEach(item =>
-      addToExpectedResourcesById(item, kPermissionsMap.updatePermission)
+      addToExpectedResourcesById(
+        item,
+        kFimidaraPermissionActionsMap.updatePermission
+      )
     );
     folders.forEach(folder => {
       const folderpath = stringifyFoldernamepath(folder, workspace.rootname);
       filepathsMap[folderpath] = folder.resourceId;
-      resourcesInput.push({folderpath, action: kPermissionsMap.readFolder});
+      resourcesInput.push({
+        folderpath,
+        action: kFimidaraPermissionActionsMap.readFolder,
+      });
       resourcesMap[folder.resourceId] = folder;
     });
     files.forEach(file => {
       const filepath = stringifyFilenamepath(file, workspace.rootname);
       filepathsMap[filepath] = file.resourceId;
-      resourcesInput.push({filepath, action: kPermissionsMap.readFolder});
+      resourcesInput.push({
+        filepath,
+        action: kFimidaraPermissionActionsMap.readFolder,
+      });
       resourcesMap[file.resourceId] = file;
     });
 
@@ -109,7 +131,9 @@ describe('getResources', () => {
     assertEndpointResultOk(result);
     expect(result.resources).toHaveLength(resourcesInput.length);
     result.resources.forEach(resource => {
-      expect(resourcesMap[resource.resourceId]).toMatchObject(resource.resource);
+      expect(resourcesMap[resource.resourceId]).toMatchObject(
+        resource.resource
+      );
 
       if (resource.resourceType === kFimidaraResourceType.File) {
         const fileId =

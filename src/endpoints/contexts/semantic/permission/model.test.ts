@@ -1,27 +1,31 @@
 import {faker} from '@faker-js/faker';
-import {PermissionEntityInheritanceMapItem} from '../../../../definitions/permissionGroups';
-import {kPermissionsMap} from '../../../../definitions/permissionItem';
-import {kFimidaraResourceType} from '../../../../definitions/system';
-import {getTimestamp} from '../../../../utils/dateFns';
-import {getNewIdForResource} from '../../../../utils/resource';
-import {generateAndInsertAgentTokenListForTest} from '../../../testUtils/generate/agentToken';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {PermissionEntityInheritanceMapItem} from '../../../../definitions/permissionGroups.js';
+import {kFimidaraPermissionActionsMap} from '../../../../definitions/permissionItem.js';
+import {kFimidaraResourceType} from '../../../../definitions/system.js';
+import {getTimestamp} from '../../../../utils/dateFns.js';
+import {getNewIdForResource} from '../../../../utils/resource.js';
+import {generateAndInsertAgentTokenListForTest} from '../../../testUtils/generate/agentToken.js';
 import {
   generateAndInsertAssignedItemListForTest,
   generateAndInsertPermissionGroupListForTest,
-} from '../../../testUtils/generate/permissionGroup';
+} from '../../../testUtils/generate/permissionGroup.js';
 import {
   generateAndInsertPermissionItemListForTest,
   generatePermissionItemForTest,
   generatePermissionItemListForTest,
-} from '../../../testUtils/generate/permissionItem';
-import {generateAndInsertUserListForTest} from '../../../testUtils/generate/user';
-import {generateAgent, generateTestList} from '../../../testUtils/generate/utils';
-import {expectContainsExactly} from '../../../testUtils/helpers/assertion';
-import {expectErrorThrown} from '../../../testUtils/helpers/error';
-import {completeTests} from '../../../testUtils/helpers/testFns';
-import {initTests} from '../../../testUtils/testUtils';
-import {kSemanticModels} from '../../injection/injectables';
-import {DataSemanticPermission} from './model';
+} from '../../../testUtils/generate/permissionItem.js';
+import {generateAndInsertUserListForTest} from '../../../testUtils/generate/user.js';
+import {
+  generateAgent,
+  generateTestList,
+} from '../../../testUtils/generate/utils.js';
+import {expectContainsExactly} from '../../../testUtils/helpers/assertion.js';
+import {expectErrorThrown} from '../../../testUtils/helpers/error.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../testUtils/testUtils.js';
+import {kSemanticModels} from '../../injection/injectables.js';
+import {DataSemanticPermission} from './model.js';
 
 const model = new DataSemanticPermission();
 
@@ -154,7 +158,9 @@ describe('DataSemanticPermission', () => {
       p03.resourceId,
       p04.resourceId,
     ]);
-    expect(sortedPList.slice(3).map(item => item.resourceId)).toEqual([p02.resourceId]);
+    expect(sortedPList.slice(3).map(item => item.resourceId)).toEqual([
+      p02.resourceId,
+    ]);
   });
 
   test('sortItems, all options', () => {
@@ -241,10 +247,14 @@ describe('DataSemanticPermission', () => {
 
   test('getPermissionItems, every query', async () => {
     const entityId = getNewIdForResource(kFimidaraResourceType.PermissionGroup);
-    const action = faker.helpers.arrayElement(Object.values(kPermissionsMap));
+    const action = faker.helpers.arrayElement(
+      Object.values(kFimidaraPermissionActionsMap)
+    );
     const targetParentId = getNewIdForResource(kFimidaraResourceType.Folder);
     const targetId = getNewIdForResource(kFimidaraResourceType.File);
-    const targetType = faker.helpers.arrayElement(Object.values(kFimidaraResourceType));
+    const targetType = faker.helpers.arrayElement(
+      Object.values(kFimidaraResourceType)
+    );
     const pItems = await generateAndInsertPermissionItemListForTest(5, {
       entityId,
       action,
@@ -271,7 +281,10 @@ describe('DataSemanticPermission', () => {
       () => getNewIdForResource(faker.helpers.arrayElement(resourceTypes)),
       count
     );
-    const actionList = faker.helpers.arrayElements(Object.values(kPermissionsMap), count);
+    const actionList = faker.helpers.arrayElements(
+      Object.values(kFimidaraPermissionActionsMap),
+      count
+    );
     const targetParentId = getNewIdForResource(kFimidaraResourceType.Folder);
     const targetType = faker.helpers.arrayElements(resourceTypes, count);
     const rawItems = generateTestList(
@@ -287,9 +300,8 @@ describe('DataSemanticPermission', () => {
     );
     await kSemanticModels
       .utils()
-      .withTxn(
-        async opts => kSemanticModels.permissionItem().insertItem(rawItems, opts),
-        /** reuseTxn */ true
+      .withTxn(async opts =>
+        kSemanticModels.permissionItem().insertItem(rawItems, opts)
       );
 
     const items = await model.getPermissionItems({
@@ -434,21 +446,35 @@ describe('DataSemanticPermission', () => {
         pg05.resourceId,
       ])
     );
-    expect(map[pg.resourceId]).toMatchObject({
+    expect({
+      ...map[pg.resourceId],
+      items: map[pg.resourceId].items.sort((item01, item02) =>
+        item01.permissionGroupId > item02.permissionGroupId ? 1 : -1
+      ),
+    }).toMatchObject({
       id: pg.resourceId,
       resolvedOrder: 0,
       items: [
         {permissionGroupId: pg02.resourceId, assigneeEntityId: pg.resourceId},
         {permissionGroupId: pg03.resourceId, assigneeEntityId: pg.resourceId},
-      ],
+      ].sort((item01, item02) =>
+        item01.permissionGroupId > item02.permissionGroupId ? 1 : -1
+      ),
     });
-    expect(map[pg02.resourceId]).toMatchObject({
+    expect({
+      ...map[pg02.resourceId],
+      items: map[pg02.resourceId].items.sort((item01, item02) =>
+        item01.permissionGroupId > item02.permissionGroupId ? 1 : -1
+      ),
+    }).toMatchObject({
       id: pg02.resourceId,
       resolvedOrder: 1,
       items: [
         {permissionGroupId: pg04.resourceId, assigneeEntityId: pg02.resourceId},
         {permissionGroupId: pg05.resourceId, assigneeEntityId: pg02.resourceId},
-      ],
+      ].sort((item01, item02) =>
+        item01.permissionGroupId > item02.permissionGroupId ? 1 : -1
+      ),
     });
     expect(map[pg04.resourceId]).toMatchObject({
       id: pg04.resourceId,
@@ -499,7 +525,11 @@ describe('DataSemanticPermission', () => {
   });
 });
 
-function sortAssignedPermissionGroupMetas(item: PermissionEntityInheritanceMapItem) {
-  item.items.sort((a, b) => a.permissionGroupId.localeCompare(b.permissionGroupId));
+function sortAssignedPermissionGroupMetas(
+  item: PermissionEntityInheritanceMapItem
+) {
+  item.items.sort((a, b) =>
+    a.permissionGroupId.localeCompare(b.permissionGroupId)
+  );
   return item;
 }

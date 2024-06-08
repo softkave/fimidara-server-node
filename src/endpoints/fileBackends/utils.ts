@@ -4,31 +4,29 @@ import {
   PublicFileBackendConfig,
   PublicFileBackendMount,
   PublicResolvedMountEntry,
-} from '../../definitions/fileBackend';
-import {ConvertAgentToPublicAgent} from '../../definitions/system';
-import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderOpParams} from '../contexts/semantic/types';
-import {workspaceResourceFields} from '../extractors';
-import {FolderQueries} from '../folders/queries';
-
-import {FileMountQueries} from './mountQueries';
+} from '../../definitions/fileBackend.js';
+import {getFields, makeExtract, makeListExtract} from '../../utils/extract.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
+import {SemanticProviderOpParams} from '../contexts/semantic/types.js';
+import {workspaceResourceFields} from '../extractors.js';
+import {FolderQueries} from '../folders/queries.js';
+import {FileMountQueries} from './mountQueries.js';
 
 const resolvedEntryFields = getFields<PublicResolvedMountEntry>({
   ...workspaceResourceFields,
   mountId: true,
-  resolvedAt: true,
-  extension: true,
-  namepath: true,
-  resolvedForType: true,
+  backendNamepath: true,
+  backendExt: true,
+  fimidaraNamepath: true,
+  fimidaraExt: true,
+  forType: true,
+  forId: true,
 });
 
 export const resolvedEntryExtractor = makeExtract(resolvedEntryFields);
 export const resolvedEntryListExtractor = makeListExtract(resolvedEntryFields);
 
-const fileBackendMountFields = getFields<
-  ConvertAgentToPublicAgent<PublicFileBackendMount>
->({
+const fileBackendMountFields = getFields<PublicFileBackendMount>({
   ...workspaceResourceFields,
   namepath: true,
   index: true,

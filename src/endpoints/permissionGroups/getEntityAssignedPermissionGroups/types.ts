@@ -1,8 +1,8 @@
 import {
   PublicAssignedPermissionGroupMeta,
   PublicPermissionGroup,
-} from '../../../definitions/permissionGroups';
-import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
+} from '../../../definitions/permissionGroups.js';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types.js';
 
 export interface GetEntityAssignedPermissionGroupsEndpointParamsBase
   extends EndpointOptionalWorkspaceIDParam {

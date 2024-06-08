@@ -1,14 +1,14 @@
-import {compact, first} from 'lodash';
-import {EmailJobParams} from '../../../../definitions/job';
-import {User} from '../../../../definitions/user';
-import {BaseEmailTemplateProps} from '../../../../emailTemplates/types';
-import {appAssert} from '../../../../utils/assertion';
-import {DataQuery} from '../../../contexts/data/types';
+import {compact, first} from 'lodash-es';
+import {EmailJobParams} from '../../../../definitions/job.js';
+import {User} from '../../../../definitions/user.js';
+import {BaseEmailTemplateProps} from '../../../../emailTemplates/types.js';
+import {appAssert} from '../../../../utils/assertion.js';
+import {DataQuery} from '../../../contexts/data/types.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../contexts/injection/injectables';
-import {getIgnoreCaseDataQueryRegExp} from '../../../contexts/semantic/utils';
+} from '../../../contexts/injection/injectables.js';
+import {getIgnoreCaseDataQueryRegExp} from '../../../contexts/semantic/utils.js';
 
 export async function getUserFromEmailJobParams(
   params: Pick<EmailJobParams, 'emailAddress' | 'userId'>
@@ -32,15 +32,23 @@ export async function getUserFromEmailJobParams(
   return {user};
 }
 
-export async function getBaseEmailTemplateProps(params: EmailJobParams): Promise<{
+export async function getBaseEmailTemplateProps(
+  params: EmailJobParams
+): Promise<{
   user?: User | null;
   base: BaseEmailTemplateProps;
   source: string;
 }> {
   const suppliedConfig = kUtilsInjectables.suppliedConfig();
 
-  appAssert(suppliedConfig.clientLoginLink, 'clientLoginLink not present in config');
-  appAssert(suppliedConfig.clientSignupLink, 'clientSignupLink not present in config');
+  appAssert(
+    suppliedConfig.clientLoginLink,
+    'clientLoginLink not present in config'
+  );
+  appAssert(
+    suppliedConfig.clientSignupLink,
+    'clientSignupLink not present in config'
+  );
   appAssert(
     suppliedConfig.senderEmailAddress,
     'senderEmailAddress not present in config'

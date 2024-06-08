@@ -1,12 +1,13 @@
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {extractResourceIdList} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {NotFoundError} from '../../errors';
-import {generateAndInsertFileBackendConfigListForTest} from '../../testUtils/generate/fileBackend';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/testFns';
-import {initTests} from '../../testUtils/testUtils';
-import {getBackendConfigsWithIdList} from '../configUtils';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {extractResourceIdList} from '../../../utils/fns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {NotFoundError} from '../../errors.js';
+import {generateAndInsertFileBackendConfigListForTest} from '../../testUtils/generate/fileBackend.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {initTests} from '../../testUtils/testUtils.js';
+import {getBackendConfigsWithIdList} from '../configUtils.js';
+import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 
 beforeAll(async () => {
   await initTests();

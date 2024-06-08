@@ -1,11 +1,12 @@
-import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
-import {appAssert} from './assertion';
-import {AnyFn} from './types';
+import {AnyFn} from 'softkave-js-utils';
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
+import {appAssert} from './assertion.js';
 
 export async function waitOnPromisesAndLogErrors(promises: Promise<unknown>[]) {
   (await Promise.allSettled(promises)).forEach(
     result =>
-      result.status === 'rejected' && kUtilsInjectables.logger().error(result.reason)
+      result.status === 'rejected' &&
+      kUtilsInjectables.logger().error(result.reason)
   );
 }
 
@@ -15,16 +16,18 @@ export async function awaitOrTimeout<
   TPromise extends Promise<unknown>,
   TResult = TPromise extends Promise<infer Value> ? Value : unknown,
 >(promise: TPromise, timeoutMs: number) {
-  return new Promise<{timedout: true} | {timedout: false; result: TResult}>(resolve => {
-    const timeoutHandle = setTimeout(() => {
-      resolve({timedout: true});
-    }, timeoutMs);
+  return new Promise<{timedout: true} | {timedout: false; result: TResult}>(
+    resolve => {
+      const timeoutHandle = setTimeout(() => {
+        resolve({timedout: true});
+      }, timeoutMs);
 
-    promise.then(result => {
-      clearTimeout(timeoutHandle);
-      resolve({timedout: false, result: result as unknown as TResult});
-    });
-  });
+      promise.then(result => {
+        clearTimeout(timeoutHandle);
+        resolve({timedout: false, result: result as unknown as TResult});
+      });
+    }
+  );
 }
 
 export interface DeferredPromise<T = void> {

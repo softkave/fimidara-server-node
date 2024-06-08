@@ -1,11 +1,11 @@
-import {ObjectValues} from '../utils/types';
-import {PermissionAction} from './permissionItem';
+import {ObjectValues} from '../utils/types.js';
+import {FimidaraPermissionAction} from './permissionItem.js';
 import {
-  ConvertAgentToPublicAgent,
   FimidaraResourceType,
   PublicWorkspaceResource,
+  ToPublicDefinitions,
   WorkspaceResource,
-} from './system';
+} from './system.js';
 
 export const UsageRecordCategoryMap = {
   Total: 'total',
@@ -28,7 +28,7 @@ export type UsageRecordArtifactType = ObjectValues<typeof UsageRecordArtifactTyp
 export interface UsageRecordArtifact {
   type: UsageRecordArtifactType;
   resourceType?: FimidaraResourceType;
-  action?: PermissionAction;
+  action?: FimidaraPermissionAction;
   artifact: FileUsageRecordArtifact | BandwidthUsageRecordArtifact;
 }
 
@@ -85,7 +85,7 @@ export interface UsageRecord extends WorkspaceResource {
 }
 
 export type PublicUsageRecord = PublicWorkspaceResource &
-  ConvertAgentToPublicAgent<
+  ToPublicDefinitions<
     Pick<
       UsageRecord,
       'category' | 'usage' | 'usageCost' | 'fulfillmentStatus' | 'month' | 'year'

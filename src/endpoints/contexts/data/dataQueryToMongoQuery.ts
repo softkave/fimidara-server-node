@@ -1,7 +1,15 @@
-import {first, isArray, isObject, isObjectLike, isUndefined, merge, set} from 'lodash';
-import {appAssert} from '../../../utils/assertion';
-import {AnyObject} from '../../../utils/types';
-import {DataQuery} from './types';
+import {
+  first,
+  isArray,
+  isObject,
+  isObjectLike,
+  isUndefined,
+  merge,
+  set,
+} from 'lodash-es';
+import {appAssert} from '../../../utils/assertion.js';
+import {AnyObject} from '../../../utils/types.js';
+import {DataQuery} from './types.js';
 
 export function dataQueryToMongoQuery<TQuery extends DataQuery<AnyObject>>(
   query: TQuery

@@ -1,13 +1,13 @@
-import * as Joi from 'joi';
-import {JoiSchemaParts} from '../../../utils/types';
-import {kValidationSchemas} from '../../../utils/validationUtils';
-import folderValidationSchemas from '../../folders/validation';
-import {endpointValidationSchemas} from '../../validation';
-import fileBackendValidationSchemas from '../validation';
+import Joi from 'joi';
+import {JoiSchemaParts} from '../../../utils/types.js';
+import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import folderValidationSchemas from '../../folders/validation.js';
+import {endpointValidationSchemas} from '../../validation.js';
+import fileBackendValidationSchemas from '../validation.js';
 import {
   GetFileBackendMountsEndpointParams,
   GetFileBackendMountsEndpointParamsBase,
-} from './types';
+} from './types.js';
 
 export const getFileBackendMountsBaseJoiSchemaParts: JoiSchemaParts<GetFileBackendMountsEndpointParamsBase> =
   {

@@ -1,10 +1,11 @@
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {getNewIdForResource} from '../../../utils/resource';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import RequestData from '../../RequestData';
-import {NotFoundError} from '../../errors';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import RequestData from '../../RequestData.js';
+import {NotFoundError} from '../../errors.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -12,9 +13,9 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import getFileBackendConfig from './handler';
-import {GetFileBackendConfigEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import getFileBackendConfig from './handler.js';
+import {GetFileBackendConfigEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();
@@ -33,10 +34,11 @@ describe('getConfig', () => {
       workspace.resourceId
     );
 
-    const instData = RequestData.fromExpressRequest<GetFileBackendConfigEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {configId: config.resourceId, workspaceId: workspace.resourceId}
-    );
+    const instData =
+      RequestData.fromExpressRequest<GetFileBackendConfigEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {configId: config.resourceId, workspaceId: workspace.resourceId}
+      );
     const result = await getFileBackendConfig(instData);
 
     assertEndpointResultOk(result);
@@ -47,19 +49,23 @@ describe('getConfig', () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
 
-    const instData = RequestData.fromExpressRequest<GetFileBackendConfigEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {
-        configId: getNewIdForResource(kFimidaraResourceType.FileBackendConfig),
-        workspaceId: workspace.resourceId,
-      }
-    );
+    const instData =
+      RequestData.fromExpressRequest<GetFileBackendConfigEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          configId: getNewIdForResource(
+            kFimidaraResourceType.FileBackendConfig
+          ),
+          workspaceId: workspace.resourceId,
+        }
+      );
     await expectErrorThrown(
       () => getFileBackendConfig(instData),
-      error =>
+      error => {
         expect((error as NotFoundError).message).toBe(
           kReuseableErrors.config.notFound().message
-        )
+        );
+      }
     );
   });
 });

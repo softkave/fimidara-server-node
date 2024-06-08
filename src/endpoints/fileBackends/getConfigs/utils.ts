@@ -1,9 +1,9 @@
-import {SessionAgent} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
-import {resolveTargetChildrenAccessCheckWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {FileBackendConfigQuery} from '../../contexts/data/types';
-import {getWorkspaceResourceListQuery01} from '../../utils';
-import {GetFileBackendConfigsEndpointParamsBase} from './types';
+import {SessionAgent} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {resolveTargetChildrenAccessCheckWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {FileBackendConfigQuery} from '../../contexts/data/types.js';
+import {getWorkspaceResourceListQuery01} from '../../utils.js';
+import {GetFileBackendConfigsEndpointParamsBase} from './types.js';
 
 export async function getFileBackendConfigsQuery(
   agent: SessionAgent,

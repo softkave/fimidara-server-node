@@ -1,17 +1,17 @@
-import {defaultTo, random} from 'lodash';
-import {kFimidaraResourceType} from '../../../definitions/system';
+import {defaultTo, random} from 'lodash-es';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {
   UsageRecord,
   UsageRecordCategory,
   UsageRecordCategoryMap,
   UsageRecordFulfillmentStatusMap,
   UsageSummationTypeMap,
-} from '../../../definitions/usageRecord';
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {getTimestamp} from '../../../utils/dateFns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {generateTestWorkspace} from './workspace';
+} from '../../../definitions/usageRecord.js';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {generateTestWorkspace} from './workspace.js';
 
 export function generateWorkspaceWithCategoryUsageExceeded(
   categories: UsageRecordCategory[]
@@ -44,7 +44,10 @@ function randomFulfillmentStatus() {
   return items[random(0, items.length - 1)];
 }
 
-export function generateUsageRecordList(count = 10, extra: Partial<UsageRecord> = {}) {
+export function generateUsageRecordList(
+  count = 10,
+  extra: Partial<UsageRecord> = {}
+) {
   const records: UsageRecord[] = [];
   for (let i = 0; i < count; i++) {
     records.push({
@@ -76,9 +79,8 @@ export async function generateAndInsertUsageRecordList(
   const items = generateUsageRecordList(count, extra);
   await kSemanticModels
     .utils()
-    .withTxn(
-      async opts => kSemanticModels.usageRecord().insertItem(items, opts),
-      /** reuseTxn */ true
+    .withTxn(async opts =>
+      kSemanticModels.usageRecord().insertItem(items, opts)
     );
   return items;
 }

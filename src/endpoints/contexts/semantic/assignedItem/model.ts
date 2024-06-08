@@ -1,22 +1,22 @@
-import {AssignedItem} from '../../../../definitions/assignedItem';
+import {AssignedItem} from '../../../../definitions/assignedItem.js';
 import {
   Agent,
   FimidaraResourceType,
   kFimidaraResourceType,
-} from '../../../../definitions/system';
-import {getTimestamp} from '../../../../utils/dateFns';
-import {convertToArray, toCompactArray} from '../../../../utils/fns';
-import {AnyObject} from '../../../../utils/types';
-import {DataQuery} from '../../data/types';
-import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
+} from '../../../../definitions/system.js';
+import {getTimestamp} from '../../../../utils/dateFns.js';
+import {convertToArray, toCompactArray} from '../../../../utils/fns.js';
+import {AnyObject} from '../../../../utils/types.js';
+import {DataQuery} from '../../data/types.js';
+import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
   SemanticProviderQueryListParams,
-} from '../types';
-import {getInAndNinQuery} from '../utils';
-import {SemanticAssignedItemProvider} from './types';
+} from '../types.js';
+import {getInAndNinQuery} from '../utils.js';
+import {SemanticAssignedItemProvider} from './types.js';
 
 export class DataSemanticAssignedItem
   extends DataSemanticWorkspaceResourceProvider<AssignedItem>

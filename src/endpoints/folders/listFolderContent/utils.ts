@@ -1,25 +1,33 @@
-import {first, isUndefined} from 'lodash';
-import {Folder, FolderMatcher} from '../../../definitions/folder';
-import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
+import {first, isUndefined} from 'lodash-es';
+import {Folder, FolderMatcher} from '../../../definitions/folder.js';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {
+  SessionAgent,
+  kFimidaraResourceType,
+} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
 import {
   getResourcePermissionContainers,
   kResolvedTargetChildrenAccess,
   resolveTargetChildrenAccessCheckWithAgent,
-} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
-import {EndpointOptionalWorkspaceIDParam} from '../../types';
-import {PermissionDeniedError} from '../../users/errors';
-import {assertWorkspace, getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {getFolderWithMatcher} from '../getFolderWithMatcher';
-import {getWorkspaceRootnameFromPath} from '../utils';
+} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
+import {EndpointOptionalWorkspaceIDParam} from '../../types.js';
+import {PermissionDeniedError} from '../../users/errors.js';
+import {
+  assertWorkspace,
+  getWorkspaceFromEndpointInput,
+} from '../../workspaces/utils.js';
+import {getFolderWithMatcher} from '../getFolderWithMatcher.js';
+import {getWorkspaceRootnameFromPath} from '../utils.js';
 
 export async function listFolderContentQuery(
   agent: SessionAgent,
   workspace: Workspace,
-  contentType: typeof kFimidaraResourceType.File | typeof kFimidaraResourceType.Folder,
+  contentType:
+    | typeof kFimidaraResourceType.File
+    | typeof kFimidaraResourceType.Folder,
   parentFolder?: Folder | null
 ) {
   const report = await resolveTargetChildrenAccessCheckWithAgent({
@@ -29,9 +37,13 @@ export async function listFolderContentQuery(
     target: {
       action:
         contentType === kFimidaraResourceType.File
-          ? kPermissionsMap.readFile
-          : kPermissionsMap.readFolder,
-      targetId: getResourcePermissionContainers(workspace.resourceId, parentFolder, true),
+          ? kFimidaraPermissionActionsMap.readFile
+          : kFimidaraPermissionActionsMap.readFolder,
+      targetId: getResourcePermissionContainers(
+        workspace.resourceId,
+        parentFolder,
+        true
+      ),
     },
   });
 
@@ -68,10 +80,13 @@ export async function getWorkspaceAndParentFolder(
   // root-level folders and files
   if (data.folderpath) {
     const {rootname, splitPath} = getWorkspaceRootnameFromPath(data.folderpath);
-    const containsRootnameOnly = first(splitPath) === rootname && splitPath.length === 1;
+    const containsRootnameOnly =
+      first(splitPath) === rootname && splitPath.length === 1;
 
     if (containsRootnameOnly) {
-      workspace = await kSemanticModels.workspace().getByRootname(rootname, opts);
+      workspace = await kSemanticModels
+        .workspace()
+        .getByRootname(rootname, opts);
       parentFolder = null;
     }
   }
@@ -79,7 +94,12 @@ export async function getWorkspaceAndParentFolder(
   // Fetch using folder matcher if folderpath doesn't contain only the workspace
   // rootname
   if (isUndefined(parentFolder)) {
-    parentFolder = await getFolderWithMatcher(agent, data, opts, workspace?.resourceId);
+    parentFolder = await getFolderWithMatcher(
+      agent,
+      data,
+      opts,
+      workspace?.resourceId
+    );
 
     if (parentFolder && !workspace) {
       workspace = await kSemanticModels

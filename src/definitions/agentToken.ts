@@ -1,11 +1,11 @@
 import {
   Agent,
-  ConvertAgentToPublicAgent,
   FimidaraResourceType,
   PublicWorkspaceResource,
   Resource,
+  ToPublicDefinitions,
   TokenAccessScope,
-} from './system';
+} from './system.js';
 
 export interface AgentToken extends Resource {
   name?: string;
@@ -28,7 +28,7 @@ export interface AgentToken extends Resource {
 
 export type PublicAgentToken = PublicWorkspaceResource &
   Pick<
-    ConvertAgentToPublicAgent<AgentToken>,
+    ToPublicDefinitions<AgentToken>,
     | 'name'
     | 'description'
     | 'expiresAt'

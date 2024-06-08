@@ -1,36 +1,42 @@
-import {compact, first, keyBy} from 'lodash';
-import {File} from '../../definitions/file';
+import {compact, first} from 'lodash-es';
+import {File} from '../../definitions/file.js';
 import {
   FileBackendConfig,
   FileBackendMount,
-  ResolvedMountEntry,
   kFileBackendType,
-} from '../../definitions/fileBackend';
-import {Folder} from '../../definitions/folder';
-import {IngestMountJobParams, Job, kJobStatus, kJobType} from '../../definitions/job';
-import {Agent, kFimidaraResourceType} from '../../definitions/system';
-import {FimidaraExternalError} from '../../utils/OperationError';
-import {appAssert} from '../../utils/assertion';
-import {getTimestamp} from '../../utils/dateFns';
-import {ServerError} from '../../utils/errors';
-import {loopAndCollateAsync} from '../../utils/fns';
-import {getResourceTypeFromId, newWorkspaceResource} from '../../utils/resource';
-import {kReuseableErrors} from '../../utils/reusableErrors';
-import {OmitProperties, PartialRecord} from '../../utils/types';
-import {kAsyncLocalStorageUtils} from '../contexts/asyncLocalStorage';
-import {DataQuery} from '../contexts/data/types';
+} from '../../definitions/fileBackend.js';
+import {Folder} from '../../definitions/folder.js';
+import {
+  IngestMountJobParams,
+  Job,
+  kJobStatus,
+  kJobType,
+} from '../../definitions/job.js';
+import {FimidaraExternalError} from '../../utils/OperationError.js';
+import {appAssert} from '../../utils/assertion.js';
+import {ServerError} from '../../utils/errors.js';
+import {loopAndCollateAsync} from '../../utils/fns.js';
+import {kReuseableErrors} from '../../utils/reusableErrors.js';
+import {PartialRecord} from '../../utils/types.js';
+import {kAsyncLocalStorageUtils} from '../contexts/asyncLocalStorage.js';
+import {DataQuery} from '../contexts/data/types.js';
 import {
   FilePersistenceProvider,
   FilePersistenceProviderFeature,
-  PersistedFileDescription,
-} from '../contexts/file/types';
-import {isFilePersistenceProvider} from '../contexts/file/utils';
-import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
-import {SemanticProviderQueryListParams} from '../contexts/semantic/types';
-import {NotFoundError} from '../errors';
-import {FolderQueries} from '../folders/queries';
-import {kEndpointResultNoteCodeMap, kEndpointResultNotesToMessageMap} from '../types';
-import {getBackendConfigsWithIdList} from './configUtils';
+} from '../contexts/file/types.js';
+import {isFilePersistenceProvider} from '../contexts/file/utils.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../contexts/injection/injectables.js';
+import {SemanticProviderQueryListParams} from '../contexts/semantic/types.js';
+import {NotFoundError} from '../errors.js';
+import {FolderQueries} from '../folders/queries.js';
+import {
+  kEndpointResultNoteCodeMap,
+  kEndpointResultNotesToMessageMap,
+} from '../types.js';
+import {getBackendConfigsWithIdList} from './configUtils.js';
 
 export type FileBackendMountWeights = Record<string, number>;
 
@@ -55,7 +61,10 @@ export async function resolveMountsForFolder(
     index => {
       const paths = folder.namepath.slice(0, folder.namepath.length - index);
       return mountModel.getManyByQuery(
-        FolderQueries.getByNamepath({workspaceId: folder.workspaceId, namepath: paths}),
+        FolderQueries.getByNamepath({
+          workspaceId: folder.workspaceId,
+          namepath: paths,
+        }),
         opts
       );
     },
@@ -99,14 +108,18 @@ export async function initBackendProvidersForMounts(
 ) {
   const fileProviderResolver = kUtilsInjectables.fileProviderResolver();
   const providersMap: FilePersistenceProvidersByMount = {};
-  const configsMap: Record<string, {config: FileBackendConfig; providerParams: unknown}> =
-    {};
+  const configsMap: Record<
+    string,
+    {config: FileBackendConfig; providerParams: unknown}
+  > = {};
 
   await Promise.all(
     configs.map(async config => {
-      const {text: credentials} = await kUtilsInjectables.secretsManager().getSecret({
-        secretId: config.secretId,
-      });
+      const {text: credentials} = await kUtilsInjectables
+        .secretsManager()
+        .getSecret({
+          secretId: config.secretId,
+        });
       const initParams = JSON.parse(credentials);
       configsMap[config.resourceId] = {config, providerParams: initParams};
     })
@@ -118,7 +131,9 @@ export async function initBackendProvidersForMounts(
     if (mount.backend !== kFileBackendType.fimidara && !providerParams) {
       kUtilsInjectables
         .logger()
-        .log(`mount ${mount.resourceId} is not fimidara, and is without config`);
+        .log(
+          `mount ${mount.resourceId} is not fimidara, and is without config`
+        );
       throw new ServerError();
     }
 
@@ -126,7 +141,9 @@ export async function initBackendProvidersForMounts(
     providersMap[mount.resourceId] = provider;
   });
 
-  kAsyncLocalStorageUtils.disposables().add(compact(Object.values(providersMap)));
+  kAsyncLocalStorageUtils
+    .disposables()
+    .add(compact(Object.values(providersMap)));
   return providersMap;
 }
 
@@ -147,7 +164,10 @@ export async function resolveBackendsMountsAndConfigs(
      * mount does not use configs. */
     false
   );
-  const providersMap = await initBackendProvidersForMounts(requiredMounts, configs);
+  const providersMap = await initBackendProvidersForMounts(
+    requiredMounts,
+    configs
+  );
 
   const primaryMount = first(mounts);
   appAssert(primaryMount);
@@ -197,7 +217,10 @@ export async function areMountsCompletelyIngestedForFolder(
 export function resolvedMountsHaveUnsupportedFeatures(
   features: FilePersistenceProviderFeature[]
 ) {
-  const disposables = kUtilsInjectables.asyncLocalStorage().disposables().getList();
+  const disposables = kUtilsInjectables
+    .asyncLocalStorage()
+    .disposables()
+    .getList();
   const fileProviders = disposables.filter(disposable =>
     isFilePersistenceProvider(disposable)
   ) as FilePersistenceProvider[];
@@ -230,7 +253,9 @@ export function populateMountUnsupportedOpNoteInNotFoundError(
   if (hasUnsupportedOp) {
     const notes = notFoundError.notes || [];
     const hasUnsupportedOpNote = notes.some(
-      note => note.code === kEndpointResultNoteCodeMap.unsupportedOperationInMountBackend
+      note =>
+        note.code ===
+        kEndpointResultNoteCodeMap.unsupportedOperationInMountBackend
     );
 
     if (!hasUnsupportedOpNote) {
@@ -245,85 +270,11 @@ export function populateMountUnsupportedOpNoteInNotFoundError(
   }
 }
 
-export async function insertResolvedMountEntries(props: {
-  agent: Agent;
-  resource: Pick<File, 'resourceId' | 'workspaceId' | 'namepath' | 'extension'>;
-  mountFiles: Array<OmitProperties<PersistedFileDescription, 'filepath'>>;
-}) {
-  const {resource, agent, mountFiles} = props;
-  const mountFilesByMountId = keyBy(mountFiles, mountFile => mountFile.mountId);
-  const mountIds = Object.keys(mountFilesByMountId);
-
-  await kSemanticModels.utils().withTxn(async opts => {
-    // TODO: do this incrementally to avoid overwhelming the server
-    const existingEntries = await kSemanticModels.resolvedMountEntry().getManyByQuery({
-      workspaceId: resource.workspaceId,
-      resolvedFor: resource.resourceId,
-      mountId: {$in: mountIds},
-    });
-    const existingEntriesMap = keyBy(existingEntries, entry => entry.mountId);
-
-    const resolvedForType = getResourceTypeFromId(resource.resourceId);
-    const newEntries: ResolvedMountEntry[] = [];
-    const updateEntries: Array<[string, Partial<ResolvedMountEntry>]> = [];
-    mountIds.forEach(mountId => {
-      const existingEntry = existingEntriesMap[mountId];
-      const mountFile = mountFilesByMountId[mountId];
-
-      if (existingEntry) {
-        updateEntries.push([
-          existingEntry.resourceId,
-          {
-            resolvedAt: getTimestamp(),
-            other: {
-              encoding: mountFile.encoding,
-              mimetype: mountFile.mimetype,
-              size: mountFile.size,
-              lastUpdatedAt: mountFile.lastUpdatedAt,
-            },
-          },
-        ]);
-      } else {
-        newEntries.push(
-          newWorkspaceResource(
-            agent,
-            kFimidaraResourceType.ResolvedMountEntry,
-            resource.workspaceId,
-            {
-              mountId,
-              resolvedForType,
-              resolvedFor: resource.resourceId,
-              resolvedAt: getTimestamp(),
-              namepath: resource.namepath,
-              extension: resource.extension,
-              other: {
-                encoding: mountFile.encoding,
-                mimetype: mountFile.mimetype,
-                size: mountFile.size,
-                lastUpdatedAt: mountFile.lastUpdatedAt,
-              },
-            }
-          )
-        );
-      }
-    });
-
-    const insertPromise = kSemanticModels
-      .resolvedMountEntry()
-      .insertItem(newEntries, opts);
-    const updatePromise = updateEntries.map(([id, update]) =>
-      kSemanticModels.resolvedMountEntry().updateOneById(id, update, opts)
-    );
-
-    await Promise.all([insertPromise, updatePromise]);
-  }, /** reuseTxn */ true);
-}
-
 export async function getResolvedMountEntries(
   id: string,
   opts?: SemanticProviderQueryListParams<FileBackendMount>
 ) {
   return await kSemanticModels
     .resolvedMountEntry()
-    .getManyByQuery({resolvedFor: id}, opts);
+    .getManyByQuery({forId: id}, opts);
 }

@@ -2,16 +2,16 @@ import {faker} from '@faker-js/faker';
 import {
   CollaborationRequest,
   kCollaborationRequestStatusTypeMap,
-} from '../../../definitions/collaborationRequest';
-import {Agent, kFimidaraResourceType} from '../../../definitions/system';
-import {getTimestamp} from '../../../utils/dateFns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
+} from '../../../definitions/collaborationRequest.js';
+import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {
   GeneratePartialTestDataFn,
   defaultGeneratePartialTestDataFn,
   generateTestList,
-} from './utils';
+} from './utils.js';
 
 export function generateCollaborationRequestForTest(
   seed: Partial<CollaborationRequest> = {}
@@ -44,7 +44,11 @@ export function generateCollaborationRequestListForTest(
   count = 20,
   genPartial: GeneratePartialTestDataFn<CollaborationRequest> = defaultGeneratePartialTestDataFn
 ) {
-  return generateTestList(() => generateCollaborationRequestForTest(), count, genPartial);
+  return generateTestList(
+    () => generateCollaborationRequestForTest(),
+    count,
+    genPartial
+  );
 }
 
 export async function generateAndInsertCollaborationRequestListForTest(
@@ -54,9 +58,8 @@ export async function generateAndInsertCollaborationRequestListForTest(
   const items = generateCollaborationRequestListForTest(count, genPartial);
   await kSemanticModels
     .utils()
-    .withTxn(
-      async opts => kSemanticModels.collaborationRequest().insertItem(items, opts),
-      /** reuseTxn */ true
+    .withTxn(async opts =>
+      kSemanticModels.collaborationRequest().insertItem(items, opts)
     );
   return items;
 }

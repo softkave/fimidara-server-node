@@ -1,19 +1,13 @@
+import {AnyFn, AnyObject, PartialRecord} from 'softkave-js-utils';
 import {ValueOf} from 'type-fest';
-import {FimidaraConfigEmailProvider} from '../resources/config';
-import {AnyFn, AnyObject, PartialRecord} from '../utils/types';
-import {AppShardId} from './app';
-import {Agent, FimidaraResourceType, Resource} from './system';
+import {FimidaraConfigEmailProvider} from '../resources/config.js';
+import {AppShardId} from './app.js';
+import {Agent, FimidaraResourceType, Resource} from './system.js';
 
 export const kJobType = {
-  /** parent job split into deleteArtifacts and deleteSelf.  */
-  deleteResource0: 'deleteResource0',
-  /** deletes a resource's artifacts */
-  deleteResourceArtifacts: 'deleteResourceArtifacts',
-  /** deletes a resource. should be run after corresponding
-   * deleteResourceArtifacts, not before.  */
-  deleteResourceSelf: 'deleteResourceSelf',
-  /** separated from deleteResource because it's a bit more complex and there's
-   * a job created for each input item */
+  deleteResource: 'deleteResource',
+  /** TODO: separated from deleteResource because it's a bit more complex and
+   * there's a job created for each input item */
   deletePermissionItem: 'deletePermissionItem',
   ingestFolderpath: 'ingestFolderpath',
   ingestMount: 'ingestMount',
@@ -100,12 +94,12 @@ export type DeleteResourceJobParams = DeleteResourceCascadeFnDefaultArgs & {
 export interface DeleteResourceJobMeta {
   getArtifacts?: PartialRecord<string, {page: number; pageSize: number}>;
   deleteArtifacts?: PartialRecord<string, {done: boolean}>;
+  preRunMeta?: AnyObject;
 }
 
 export interface IngestFolderpathJobParams {
   mountId: string;
-  agentId: string;
-  /** Not always the mount's mountedFrom, but what folder to ingest from. So,
+  /** Not always the mount's `mountedFrom`, but what folder to ingest from. So,
    * for the 1st ingestion job, this will be the mount's source, but for mounts
    * that support describing folders, this can also be subsequent folder
    * children. */
@@ -118,7 +112,6 @@ export interface IngestFolderpathJobMeta {
 
 export interface IngestMountJobParams {
   mountId: string;
-  agentId: string;
 }
 
 export interface CleanupMountResolvedEntriesJobParams {

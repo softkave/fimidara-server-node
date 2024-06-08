@@ -1,13 +1,13 @@
 import * as fse from 'fs-extra';
-import {forEach} from 'lodash';
+import {forEach} from 'lodash-es';
 import {posix} from 'path';
-import {getFimidaraPublicHttpEndpoints} from '../endpoints/endpoints';
+import {getFimidaraPublicHttpEndpoints} from '../endpoints/endpoints.js';
 import {
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
-} from '../endpoints/endpoints.mddoc';
-import {accessorFieldsToObject} from '../utils/classAccessors';
-import {HttpEndpointDefinitionType} from './mddoc';
+} from '../endpoints/endpoints.mddoc.js';
+import {accessorFieldsToObject} from '../utils/classAccessors.js';
+import {HttpEndpointDefinitionType} from './mddoc.js';
 
 function generateEndpointInfoFromEndpoints() {
   const infoMap = new Map<HttpEndpointDefinitionType<any>, string>();

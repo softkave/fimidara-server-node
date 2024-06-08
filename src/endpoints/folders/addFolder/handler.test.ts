@@ -1,31 +1,32 @@
 import {faker} from '@faker-js/faker';
-import {compact, last} from 'lodash';
-import {kSystemSessionAgent} from '../../../utils/agent';
+import {compact, last} from 'lodash-es';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {
   loopAndCollate,
   loopAndCollateAsync,
   pathJoin,
   pathSplit,
   sortStringListLexographically,
-} from '../../../utils/fns';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {generateTestFilepathString} from '../../testUtils/generate/file';
+} from '../../../utils/fns.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {generateTestFilepathString} from '../../testUtils/generate/file.js';
 import {
   generateAndInsertTestFolders,
   generateTestFolderName,
   generateTestFolderpath,
-} from '../../testUtils/generate/folder';
-import {completeTests} from '../../testUtils/helpers/testFns';
+} from '../../testUtils/generate/folder.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   initTests,
   insertFolderForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../testUtils/testUtils';
-import {FolderQueries} from '../queries';
-import {addRootnameToPath, stringifyFoldernamepath} from '../utils';
-import {createFolderList} from './createFolderList';
-import {getExistingFoldersAndArtifacts} from './getExistingFoldersAndArtifacts';
+} from '../../testUtils/testUtils.js';
+import {FolderQueries} from '../queries.js';
+import {addRootnameToPath, stringifyFoldernamepath} from '../utils.js';
+import {createFolderList} from './createFolderList.js';
+import {getExistingFoldersAndArtifacts} from './getExistingFoldersAndArtifacts.js';
 
 /**
  * TODO:
@@ -97,30 +98,40 @@ describe('addFolder', () => {
       pathinfoList,
       namepathList,
       getSelfOrClosestParent,
-    } = await kSemanticModels
-      .utils()
-      .withTxn(
-        opts =>
-          getExistingFoldersAndArtifacts(
-            workspace.resourceId,
-            [
-              {folderpath: stringifyFoldernamepath(folder00, workspace.rootname)},
-              {folderpath: stringifyFoldernamepath(folder01, workspace.rootname)},
-              {folderpath: stringifyFoldernamepath(folder02, workspace.rootname)},
-              {folderpath: stringifyFoldernamepath(folder00, workspace.rootname)},
-              {folderpath: stringifyFoldernamepath(folder01, workspace.rootname)},
-              {folderpath: stringifyFoldernamepath(folder02, workspace.rootname)},
-            ],
-            opts
-          ),
-        /** reuseTxn */ true
-      );
+    } = await kSemanticModels.utils().withTxn(opts =>
+      getExistingFoldersAndArtifacts(
+        workspace.resourceId,
+        [
+          {
+            folderpath: stringifyFoldernamepath(folder00, workspace.rootname),
+          },
+          {
+            folderpath: stringifyFoldernamepath(folder01, workspace.rootname),
+          },
+          {
+            folderpath: stringifyFoldernamepath(folder02, workspace.rootname),
+          },
+          {
+            folderpath: stringifyFoldernamepath(folder00, workspace.rootname),
+          },
+          {
+            folderpath: stringifyFoldernamepath(folder01, workspace.rootname),
+          },
+          {
+            folderpath: stringifyFoldernamepath(folder02, workspace.rootname),
+          },
+        ],
+        opts
+      )
+    );
 
     expect(existingFolders.length).toBe(3);
     expect(namepathList.length).toBe(3);
     expect(inputList.length).toBe(6);
     expect(pathinfoList.length).toBe(6);
-    expect(sortStringListLexographically(Object.keys(foldersByNamepath))).toEqual(
+    expect(
+      sortStringListLexographically(Object.keys(foldersByNamepath))
+    ).toEqual(
       sortStringListLexographically(
         folderNamepath02
           .map((name, index) => folderNamepath02.slice(0, index + 1))
@@ -151,7 +162,10 @@ describe('addFolder', () => {
     const folderName01 = generateTestFolderName();
     const folderName02 = generateTestFolderName();
 
-    const folderpath00 = addRootnameToPath(pathJoin([folderName00]), workspace.rootname);
+    const folderpath00 = addRootnameToPath(
+      pathJoin([folderName00]),
+      workspace.rootname
+    );
     const folderpath01 = addRootnameToPath(
       pathJoin([folderName00, folderName01]),
       workspace.rootname
@@ -285,20 +299,18 @@ describe('addFolder', () => {
     const withinTxnCount = faker.number.int({min: 1, max: partsLength});
     await loopAndCollateAsync(
       txnIndex =>
-        kSemanticModels.utils().withTxn(
-          opts =>
-            createFolderList(
-              kSystemSessionAgent,
-              workspace,
-              leafFolderpaths
-                .slice(txnIndex, txnIndex + withinTxnCount)
-                .map(folderpath => ({folderpath})),
-              /** skip auth */ true,
-              /** throw if folder exists */ false,
-              opts,
-              /** throw on error */ true
-            ),
-          /** reuse txn */ false
+        kSemanticModels.utils().withTxn(opts =>
+          createFolderList(
+            kSystemSessionAgent,
+            workspace,
+            leafFolderpaths
+              .slice(txnIndex, txnIndex + withinTxnCount)
+              .map(folderpath => ({folderpath})),
+            /** skip auth */ true,
+            /** throw if folder exists */ false,
+            opts,
+            /** throw on error */ true
+          )
         ),
       leafLength,
       /** settlement type */ 'all'

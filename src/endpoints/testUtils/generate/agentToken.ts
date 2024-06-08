@@ -1,12 +1,13 @@
 import {faker} from '@faker-js/faker';
-import {AgentToken} from '../../../definitions/agentToken';
+import {AgentToken} from '../../../definitions/agentToken.js';
 import {
   Agent,
   kCurrentJWTTokenVersion,
   kFimidaraResourceType,
-} from '../../../definitions/system';
-import {getNewIdForResource, newResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
+  kTokenAccessScope,
+} from '../../../definitions/system.js';
+import {getNewIdForResource, newResource} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
 
 export function generateAgentTokenForTest(
   seed: Partial<AgentToken> & {workspaceId: string | null} = {workspaceId: null}
@@ -26,6 +27,8 @@ export function generateAgentTokenForTest(
     description: faker.lorem.sentence(),
     version: kCurrentJWTTokenVersion,
     forEntityId: null,
+    scope:
+      seed.workspaceId && !seed.forEntityId ? [kTokenAccessScope.access] : [],
     ...seed,
   });
   return token;
@@ -49,9 +52,8 @@ export async function generateAndInsertAgentTokenListForTest(
   const items = generateAgentTokenListForTest(count, seed);
   await kSemanticModels
     .utils()
-    .withTxn(
-      async opts => kSemanticModels.agentToken().insertItem(items, opts),
-      /** reuseTxn */ true
+    .withTxn(async opts =>
+      kSemanticModels.agentToken().insertItem(items, opts)
     );
   return items;
 }

@@ -1,14 +1,14 @@
-import {last} from 'lodash';
-import {Folder, FolderMatcher} from '../../definitions/folder';
-import {Agent} from '../../definitions/system';
-import {FileQuery} from '../contexts/data/types';
-import {kSemanticModels} from '../contexts/injection/injectables';
+import {last} from 'lodash-es';
+import {Folder, FolderMatcher} from '../../definitions/folder.js';
+import {SessionAgent} from '../../definitions/system.js';
+import {FileQuery} from '../contexts/data/types.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
-} from '../contexts/semantic/types';
-import {FolderQueries} from './queries';
-import {assertFolder, readOrIngestFolderByFolderpath} from './utils';
+} from '../contexts/semantic/types.js';
+import {FolderQueries} from './queries.js';
+import {assertFolder, readOrIngestFolderByFolderpath} from './utils.js';
 
 export async function getClosestExistingFolder(
   workspaceId: string,
@@ -32,7 +32,7 @@ export async function getClosestExistingFolder(
 }
 
 export async function getFolderWithMatcher(
-  agent: Agent,
+  agent: SessionAgent,
   matcher: FolderMatcher,
   opts?: SemanticProviderMutationParams,
   workspaceId?: string
@@ -52,7 +52,7 @@ export async function getFolderWithMatcher(
 }
 
 export async function assertGetFolderWithMatcher(
-  agent: Agent,
+  agent: SessionAgent,
   matcher: FolderMatcher,
   opts?: SemanticProviderMutationParams,
   workspaceId?: string

@@ -1,5 +1,5 @@
-import * as Joi from 'joi';
-import userValidationSchemas from '../validation';
+import Joi from 'joi';
+import userValidationSchemas from '../validation.js';
 
 export const userExistsJoiSchema = Joi.object()
   .keys({

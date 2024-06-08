@@ -1,8 +1,9 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -10,12 +11,12 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import updateCollaborationRequest from './handler';
+} from '../../testUtils/testUtils.js';
+import updateCollaborationRequest from './handler.js';
 import {
   UpdateCollaborationRequestEndpointParams,
   UpdateCollaborationRequestInput,
-} from './types';
+} from './types.js';
 
 beforeAll(async () => {
   await initTests();

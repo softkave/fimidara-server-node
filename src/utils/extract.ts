@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import {isFunction, pick} from 'lodash';
-import {cast} from './fns';
+import {isFunction, pick} from 'lodash-es';
+import {cast} from './fns.js';
 
-export type ExtractFieldTransformer<T, Result = any, ExtraArgs = any, T1 = any> = (
-  val: T,
-  extraArgs: ExtraArgs,
-  data: T1
-) => Result;
+export type ExtractFieldTransformer<
+  T,
+  Result = any,
+  ExtraArgs = any,
+  T1 = any,
+> = (val: T, extraArgs: ExtraArgs, data: T1) => Result;
 
 export type ExtractFieldsDefaultScalarTypes =
   | undefined
@@ -22,7 +23,7 @@ export type ExtractFieldsFrom<
   T extends object,
   Result extends Record<keyof T, any> = T,
   ExtraArgs = undefined,
-  ScalarTypes = ExtractFieldsDefaultScalarTypes
+  ScalarTypes = ExtractFieldsDefaultScalarTypes,
 > = {
   [Key in keyof Required<T>]: T[Key] extends ScalarTypes | ScalarTypes[]
     ? boolean | ExtractFieldTransformer<T[Key], Result[Key], ExtraArgs, T>
@@ -33,7 +34,7 @@ export type ExtractFieldsFrom<
 export interface IObjectPaths<
   T extends object,
   Result extends Record<keyof T, any> = T,
-  ExtraArgs = any
+  ExtraArgs = any,
 > {
   object: T;
   extraArgs: ExtraArgs;
@@ -50,7 +51,7 @@ export function getFields<
   T extends object,
   Result extends Record<keyof T, any> = T,
   ExtraArgs = any,
-  ScalarTypes = ExtractFieldsDefaultScalarTypes
+  ScalarTypes = ExtractFieldsDefaultScalarTypes,
 >(
   data: ExtractFieldsFrom<T, Result, ExtraArgs, ScalarTypes>,
   finalizeFn?: (data: T, currentResult: Result, extraArgs: ExtraArgs) => Result
@@ -83,8 +84,14 @@ export function getFields<
 
 export function extractFields<
   ObjectPaths extends IObjectPaths<any>,
-  Data extends Partial<Record<keyof ObjectPaths['object'], any>> = ObjectPaths['object']
->(data: Data, paths: ObjectPaths, extraArgs?: ObjectPaths['extraArgs']): ObjectPaths['result'] {
+  Data extends Partial<
+    Record<keyof ObjectPaths['object'], any>
+  > = ObjectPaths['object'],
+>(
+  data: Data,
+  paths: ObjectPaths,
+  extraArgs?: ObjectPaths['extraArgs']
+): ObjectPaths['result'] {
   let result = pick(data, paths.scalarFields);
   paths.scalarFieldsWithTransformers.forEach(({property, transformer}) => {
     const propValue = data[property];
@@ -92,7 +99,8 @@ export function extractFields<
       return;
     }
 
-    result[property] = propValue === null ? null : transformer(propValue, extraArgs, data);
+    result[property] =
+      propValue === null ? null : transformer(propValue, extraArgs, data);
   });
 
   if (paths.finalize) {
@@ -111,14 +119,18 @@ export function makeExtract<T extends IObjectPaths<any>>(fields: T) {
 }
 
 export function makeExtractIfPresent<T extends IObjectPaths<any>>(fields: T) {
-  const fn = <T1 extends T['object']>(data?: Partial<Record<keyof T1, any>>) => {
+  const fn = <T1 extends T['object']>(
+    data?: Partial<Record<keyof T1, any>>
+  ) => {
     return data && extractFields(data, fields);
   };
   return fn;
 }
 
 export function makeListExtract<T extends IObjectPaths<any>>(fields: T) {
-  const fn = <T1 extends T['object']>(data: Partial<Record<keyof T1, any>>[]) => {
+  const fn = <T1 extends T['object']>(
+    data: Partial<Record<keyof T1, any>>[]
+  ) => {
     return data.map(datum => extractFields(datum, fields));
   };
   return fn;

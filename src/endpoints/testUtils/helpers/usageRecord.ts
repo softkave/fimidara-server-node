@@ -1,9 +1,9 @@
-import {defaultTo} from 'lodash';
-import {UsageRecordCategory} from '../../../definitions/usageRecord';
-import {Workspace} from '../../../definitions/workspace';
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {getTimestamp} from '../../../utils/dateFns';
-import {kSemanticModels} from '../../contexts/injection/injectables';
+import {defaultTo} from 'lodash-es';
+import {UsageRecordCategory} from '../../../definitions/usageRecord.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
 
 export async function updateTestWorkspaceUsageLocks(
   id: string,
@@ -26,5 +26,5 @@ export async function updateTestWorkspaceUsageLocks(
       .workspace()
       .getAndUpdateOneById(id, {usageThresholdLocks}, opts);
     return {workspace};
-  }, /** reuseTxn */ true);
+  });
 }

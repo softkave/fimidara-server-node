@@ -1,14 +1,14 @@
 import {faker} from '@faker-js/faker';
-import {pick} from 'lodash';
-import {kPermissionsMap} from '../../../definitions/permissionItem';
+import {pick} from 'lodash-es';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
 import {
   Agent,
   FimidaraResourceType,
   kFimidaraResourceType,
-} from '../../../definitions/system';
-import {mergeData} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {AnyFn, AnyObject, OrPromise} from '../../../utils/types';
+} from '../../../definitions/system.js';
+import {mergeData} from '../../../utils/fns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {AnyFn, AnyObject, OrPromise} from '../../../utils/types.js';
 
 export type GeneratePartialTestDataFn<T> = (
   index: number,
@@ -46,11 +46,15 @@ export function randomResourceType(
   return faker.helpers.arrayElement(types);
 }
 
-export function randomAction(actions = Object.values(kPermissionsMap)) {
+export function randomAction(
+  actions = Object.values(kFimidaraPermissionActionsMap)
+) {
   return faker.helpers.arrayElement(actions);
 }
 
-export function randomActionList(actions = Object.values(kPermissionsMap)) {
+export function randomActionList(
+  actions = Object.values(kFimidaraPermissionActionsMap)
+) {
   return faker.helpers.arrayElements(actions);
 }
 
@@ -119,7 +123,10 @@ export async function generateTestFieldsCombinations<T extends AnyObject>(
   if (factor === TestFieldsPresetCombinations.incrementallyAdd) {
     return await Promise.all(
       Object.keys(def).map((unused, index, keys) => {
-        const subDef = pick(def, keys.slice(0, index + 1)) as GenerateTestFieldsDef<T>;
+        const subDef = pick(
+          def,
+          keys.slice(0, index + 1)
+        ) as GenerateTestFieldsDef<T>;
         return generateTestFields<T>(subDef, ...otherArgs);
       })
     );

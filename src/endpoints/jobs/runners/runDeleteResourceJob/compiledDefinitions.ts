@@ -1,18 +1,18 @@
-import {kFimidaraResourceType} from '../../../../definitions/system';
-import {deleteAgentTokenCascadeEntry} from './agentToken';
-import {deleteCollaborationRequestCascadeEntry} from './collaborationRequest';
-import {deleteCollaboratorCascadeEntry} from './collaborator';
-import {deleteFileCascadeEntry} from './file';
-import {deleteFileBackendConfigCascadeEntry} from './fileBackendConfig';
-import {deleteFileBackendMountCascadeEntry} from './fileBackendMount';
-import {deleteFolderCascadeEntry} from './folder';
-import {noopDeleteCascadeEntry} from './genericDefinitions';
-import {deletePermissionGroupCascadeEntry} from './permissionGroup';
-import {deletePermissionItemCascadeEntry} from './permissionItem';
-import {deletePresignedPathCascadeEntry} from './presignedPath';
-import {deleteTagCascadeEntry} from './tag';
-import {DeleteResourceCascadeDefinitions} from './types';
-import {deleteWorkspaceCascadeEntry} from './workspace';
+import {kFimidaraResourceType} from '../../../../definitions/system.js';
+import {deleteAgentTokenCascadeEntry} from './agentToken.js';
+import {deleteCollaborationRequestCascadeEntry} from './collaborationRequest.js';
+import {deleteCollaboratorCascadeEntry} from './collaborator.js';
+import {deleteFileCascadeEntry} from './file.js';
+import {deleteFileBackendConfigCascadeEntry} from './fileBackendConfig.js';
+import {deleteFileBackendMountCascadeEntry} from './fileBackendMount.js';
+import {deleteFolderCascadeEntry} from './folder.js';
+import {noopDeleteCascadeEntry} from './genericDefinitions.js';
+import {deletePermissionGroupCascadeEntry} from './permissionGroup.js';
+import {deletePermissionItemCascadeEntry} from './permissionItem.js';
+import {deletePresignedPathCascadeEntry} from './presignedPath.js';
+import {deleteTagCascadeEntry} from './tag.js';
+import {DeleteResourceCascadeDefinitions, DeleteResourceCascadeEntry} from './types.js';
+import {deleteWorkspaceCascadeEntry} from './workspace.js';
 
 export const kCascadeDeleteDefinitions: DeleteResourceCascadeDefinitions = {
   [kFimidaraResourceType.All]: noopDeleteCascadeEntry,
@@ -32,8 +32,10 @@ export const kCascadeDeleteDefinitions: DeleteResourceCascadeDefinitions = {
   [kFimidaraResourceType.CollaborationRequest]: deleteCollaborationRequestCascadeEntry,
   [kFimidaraResourceType.AgentToken]: deleteAgentTokenCascadeEntry,
   [kFimidaraResourceType.PermissionGroup]: deletePermissionGroupCascadeEntry,
-  [kFimidaraResourceType.Folder]: deleteFolderCascadeEntry,
-  [kFimidaraResourceType.File]: deleteFileCascadeEntry,
+  [kFimidaraResourceType.Folder]:
+    deleteFolderCascadeEntry as unknown as DeleteResourceCascadeEntry,
+  [kFimidaraResourceType.File]:
+    deleteFileCascadeEntry as unknown as DeleteResourceCascadeEntry,
   [kFimidaraResourceType.Tag]: deleteTagCascadeEntry,
   [kFimidaraResourceType.PresignedPath]: deletePresignedPathCascadeEntry,
   [kFimidaraResourceType.FileBackendMount]: deleteFileBackendMountCascadeEntry,

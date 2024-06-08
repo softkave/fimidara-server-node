@@ -1,34 +1,44 @@
-import {Folder} from '../../../definitions/folder';
+import {Folder} from '../../../definitions/folder.js';
 import {
-  kFimidaraResourceType,
-  kPermissionAgentTypes,
   SessionAgent,
-} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
-import {validate} from '../../../utils/validate';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {areMountsCompletelyIngestedForFolder} from '../../fileBackends/mountUtils';
-import {fileListExtractor} from '../../files/utils';
+  kFimidaraResourceType,
+} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {areMountsCompletelyIngestedForFolder} from '../../fileBackends/mountUtils.js';
+import {fileListExtractor} from '../../files/utils.js';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
-} from '../../pagination';
+} from '../../pagination.js';
 import {
+  PaginationQuery,
   kEndpointResultNoteCodeMap,
   kEndpointResultNotesToMessageMap,
-  PaginationQuery,
-} from '../../types';
-import {folderListExtractor} from '../utils';
-import {ListFolderContentEndpoint} from './types';
-import {getWorkspaceAndParentFolder, listFolderContentQuery} from './utils';
-import {listFolderContentJoiSchema} from './validation';
+} from '../../types.js';
+import {folderListExtractor} from '../utils.js';
+import {ListFolderContentEndpoint} from './types.js';
+import {getWorkspaceAndParentFolder, listFolderContentQuery} from './utils.js';
+import {listFolderContentJoiSchema} from './validation.js';
 
 const listFolderContent: ListFolderContentEndpoint = async instData => {
   const data = validate(instData.data, listFolderContentJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, kPermissionAgentTypes);
-  const {workspace, parentFolder} = await getWorkspaceAndParentFolder(agent, data);
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
+  const {workspace, parentFolder} = await getWorkspaceAndParentFolder(
+    agent,
+    data
+  );
 
   applyDefaultEndpointPaginationOptions(data);
   const contentType = data.contentType ?? [
@@ -57,7 +67,8 @@ const listFolderContent: ListFolderContentEndpoint = async instData => {
       : [
           {
             code: kEndpointResultNoteCodeMap.mountsNotCompletelyIngested,
-            message: kEndpointResultNotesToMessageMap.mountsNotCompletelyIngested(),
+            message:
+              kEndpointResultNotesToMessageMap.mountsNotCompletelyIngested(),
           },
         ],
   };

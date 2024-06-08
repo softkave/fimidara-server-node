@@ -1,14 +1,15 @@
-import {makeKey} from '../../../utils/fns';
-import {makeUserSessionAgent} from '../../../utils/sessionUtils';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
+import {makeKey} from '../../../utils/fns.js';
+import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assignPgListToIdList,
   toAssignedPgListInput,
-} from '../../permissionGroups/testUtils';
-import {generateAndInsertTestFiles} from '../../testUtils/generate/file';
-import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup';
-import {completeTests} from '../../testUtils/helpers/testFns';
+} from '../../permissionGroups/testUtils.js';
+import {generateAndInsertTestFiles} from '../../testUtils/generate/file.js';
+import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -17,15 +18,15 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME} from '../../workspaces/addWorkspace/utils';
-import {PermissionItemInput} from '../types';
-import resolveEntityPermissions from './handler';
+} from '../../testUtils/testUtils.js';
+import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME} from '../../workspaces/addWorkspace/utils.js';
+import {PermissionItemInput} from '../types.js';
+import resolveEntityPermissions from './handler.js';
 import {
   ResolveEntityPermissionsEndpointParams,
   ResolvedEntityPermissionItem,
   ResolvedEntityPermissionItemTarget,
-} from './types';
+} from './types.js';
 
 // TODO: test container and target appliesTo
 
@@ -39,8 +40,6 @@ afterAll(async () => {
 
 describe('resolveEntityPermissions', () => {
   test('correct results returned', async () => {
-    // TODO: add more tests for target and appliesTo
-
     const {userToken, rawUser} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const [[pg01, pg02, pg03, pg04, pg05], [file01]] = await Promise.all([

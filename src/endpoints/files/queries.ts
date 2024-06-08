@@ -1,19 +1,18 @@
-import {isString} from 'lodash';
-import {File} from '../../definitions/file';
-import {Folder} from '../../definitions/folder';
-import {FileQuery} from '../contexts/data/types';
+import {File} from '../../definitions/file.js';
+import {Folder} from '../../definitions/folder.js';
+import {FileQuery} from '../contexts/data/types.js';
 import {
   getIgnoreCaseDataQueryRegExp,
   getStringListQuery,
-} from '../contexts/semantic/utils';
+} from '../contexts/semantic/utils.js';
 
 function getByNamepath(
-  file: Pick<File, 'workspaceId' | 'namepath' | 'extension'>
-): Pick<FileQuery, 'extension' | 'workspaceId' | 'namepath'> {
-  const {extension, namepath, workspaceId} = file;
+  file: Pick<File, 'workspaceId' | 'namepath' | 'ext'>
+): Pick<FileQuery, 'ext' | 'workspaceId' | 'namepath'> {
+  const {ext, namepath, workspaceId} = file;
   return {
     workspaceId,
-    extension: isString(extension) ? getIgnoreCaseDataQueryRegExp(extension) : undefined,
+    ext: ext ? getIgnoreCaseDataQueryRegExp(ext) : undefined,
     ...getStringListQuery<Folder>(
       namepath,
       /** prefix */ 'namepath',

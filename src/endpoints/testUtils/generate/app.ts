@@ -1,9 +1,9 @@
 import {faker} from '@faker-js/faker';
-import {App, kAppPresetShards, kAppType} from '../../../definitions/app';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {getTimestamp} from '../../../utils/dateFns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
+import {App, kAppPresetShards, kAppType} from '../../../definitions/app.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
 
 export function getRandomAppType() {
   return faker.helpers.arrayElement(Object.values(kAppType));
@@ -40,10 +40,7 @@ export async function generateAndInsertAppListForTest(
   const items = generateAppListForTest(count, seed);
   await kSemanticModels
     .utils()
-    .withTxn(
-      async opts => kSemanticModels.app().insertItem(items, opts),
-      /** reuseTxn */ true
-    );
+    .withTxn(async opts => kSemanticModels.app().insertItem(items, opts));
 
   return items;
 }

@@ -1,7 +1,7 @@
-import {SessionAgent} from '../../definitions/system';
-import {appAssert} from '../../utils/assertion';
-import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
-import {PermissionDeniedError} from '../users/errors';
+import {SessionAgent} from '../../definitions/system.js';
+import {appAssert} from '../../utils/assertion.js';
+import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables.js';
+import {PermissionDeniedError} from '../users/errors.js';
 
 export async function assertUserIsPartOfRootWorkspace(agent: SessionAgent) {
   appAssert(agent.user, new PermissionDeniedError());

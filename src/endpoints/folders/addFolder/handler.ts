@@ -1,24 +1,36 @@
-import {first, last} from 'lodash';
+import {first, last} from 'lodash-es';
 import {format, formatWithOptions} from 'util';
-import {kPermissionAgentTypes} from '../../../definitions/system';
-import {appAssert} from '../../../utils/assertion';
-import {ServerError} from '../../../utils/errors';
-import {validate} from '../../../utils/validate';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {assertRootname, assertWorkspace} from '../../workspaces/utils';
-import {folderExtractor, getFolderpathInfo} from '../utils';
-import {createFolderList} from './createFolderList';
-import {AddFolderEndpoint} from './types';
-import {addFolderJoiSchema} from './validation';
+import {appAssert} from '../../../utils/assertion.js';
+import {ServerError} from '../../../utils/errors.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {assertRootname, assertWorkspace} from '../../workspaces/utils.js';
+import {folderExtractor, getFolderpathInfo} from '../utils.js';
+import {createFolderList} from './createFolderList.js';
+import {AddFolderEndpoint} from './types.js';
+import {addFolderJoiSchema} from './validation.js';
 
 const addFolder: AddFolderEndpoint = async instData => {
   const data = validate(instData.data, addFolderJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, kPermissionAgentTypes);
-  const pathinfo = getFolderpathInfo(data.folder.folderpath);
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
+  const pathinfo = getFolderpathInfo(data.folder.folderpath, {
+    containsRootname: true,
+    allowRootFolder: false,
+  });
   assertRootname(pathinfo.rootname);
-  const workspace = await kSemanticModels.workspace().getByRootname(pathinfo.rootname);
+  const workspace = await kSemanticModels
+    .workspace()
+    .getByRootname(pathinfo.rootname);
   assertWorkspace(workspace);
 
   const {newFolders, failedInput} = await createFolderList(
@@ -46,7 +58,10 @@ const addFolder: AddFolderEndpoint = async instData => {
   // creates parent folders in order
   const folder = last(newFolders);
   const error0 = first(failedInput)?.reason;
-  appAssert(folder, (error0 as Error) || new ServerError('Error creating folder'));
+  appAssert(
+    folder,
+    (error0 as Error) || new ServerError('Error creating folder')
+  );
 
   return {folder: folderExtractor(folder)};
 };

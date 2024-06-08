@@ -1,5 +1,5 @@
 import {ConnectBusboyOptions} from 'connect-busboy';
-import {kEndpointConstants} from '../constants';
+import {kEndpointConstants} from '../constants.js';
 
 const maxFileSizeInBytes = 1024 * 1024 ** 2; // 2Gb
 const multipartLimits: ConnectBusboyOptions['limits'] = {
@@ -11,10 +11,10 @@ const multipartLimits: ConnectBusboyOptions['limits'] = {
 export const kFileConstants = {
   maxFileSizeInBytes,
   multipartLimits,
-  nameExtensionSeparator: '.',
+  nameextSeparator: '.',
   maxMimeTypeCharLength: 100,
   maxEncodingCharLength: 100,
-  maxExtensionCharLength: 100,
+  maxextCharLength: 100,
   maxFileWidth: 5000, // px
   maxFileHeight: 5000, // px
   uploadedFileFieldName: 'data',

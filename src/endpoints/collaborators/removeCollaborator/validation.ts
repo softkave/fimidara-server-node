@@ -1,5 +1,5 @@
-import * as Joi from 'joi';
-import {kValidationSchemas} from '../../../utils/validationUtils';
+import Joi from 'joi';
+import {kValidationSchemas} from '../../../utils/validationUtils.js';
 
 export const removeCollaboratorJoiSchema = Joi.object()
   .keys({

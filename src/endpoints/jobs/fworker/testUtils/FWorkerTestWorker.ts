@@ -1,10 +1,9 @@
-import {isNumber} from 'lodash';
+import {isNumber} from 'lodash-es';
 import {isMainThread} from 'worker_threads';
-import {globalSetup} from '../../../contexts/globalUtils';
-import {FWorker} from '../FWorker';
-import {FWorkerMessager} from '../FWorkerMessager';
-
-export const kFWorkerTestWorkerTerminateMessage = 12;
+import {globalSetup} from '../../../contexts/globalUtils.js';
+import {FWorker} from '../FWorker.js';
+import {FWorkerMessager} from '../FWorkerMessager.js';
+import {kFWorkerTestWorkerTerminateMessage} from './constants.js';
 
 async function main() {
   await globalSetup({useFimidaraApp: false, useFimidaraWorkerPool: false});

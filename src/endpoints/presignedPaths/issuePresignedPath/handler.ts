@@ -1,34 +1,38 @@
-import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {PresignedPath} from '../../../definitions/presignedPath';
-import {
-  Resource,
-  kFimidaraResourceType,
-  kPermissionAgentTypes,
-} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
-import {appAssert} from '../../../utils/assertion';
-import {convertToArray} from '../../../utils/fns';
-import {newWorkspaceResource} from '../../../utils/resource';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {validate} from '../../../utils/validate';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {PresignedPath} from '../../../definitions/presignedPath.js';
+import {Resource, kFimidaraResourceType} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {convertToArray} from '../../../utils/fns.js';
+import {newWorkspaceResource} from '../../../utils/resource.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
 import {
   checkAuthorizationWithAgent,
   getResourcePermissionContainers,
-} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {getFileWithMatcher} from '../../files/getFilesWithMatcher';
-import {getFilepathInfo} from '../../files/utils';
-import {getClosestExistingFolder} from '../../folders/getFolderWithMatcher';
-import {assertRootname, assertWorkspace} from '../../workspaces/utils';
-import {IssuePresignedPathEndpoint} from './types';
-import {issuePresignedPathJoiSchema} from './validation';
+} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {getFileWithMatcher} from '../../files/getFilesWithMatcher.js';
+import {getFilepathInfo} from '../../files/utils.js';
+import {getClosestExistingFolder} from '../../folders/getFolderWithMatcher.js';
+import {assertRootname, assertWorkspace} from '../../workspaces/utils.js';
+import {IssuePresignedPathEndpoint} from './types.js';
+import {issuePresignedPathJoiSchema} from './validation.js';
 
 const issuePresignedPath: IssuePresignedPathEndpoint = async instData => {
   const data = validate(instData.data, issuePresignedPathJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, kPermissionAgentTypes);
-  const actions = data.action || [kPermissionsMap.readFile];
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
+  const actions = data.action || [kFimidaraPermissionActionsMap.readFile];
 
   const resource = await await kSemanticModels.utils().withTxn(async opts => {
     const {file} = await getFileWithMatcher({
@@ -39,14 +43,14 @@ const issuePresignedPath: IssuePresignedPathEndpoint = async instData => {
     });
     let workspace: Workspace | undefined | null = undefined,
       namepath: string[],
-      extension: string | undefined,
+      ext: string | undefined,
       fileId: string | undefined,
       permissionTarget: Resource,
       workspaceId: string;
 
     if (file) {
       // Happy path. Extract necessary data and continue.
-      ({namepath, extension, workspaceId, resourceId: fileId} = file);
+      ({namepath, ext, workspaceId, resourceId: fileId} = file);
       permissionTarget = file;
     } else if (data.fileId) {
       // Throw error if there's no file, and we're provided a fileId
@@ -59,8 +63,11 @@ const issuePresignedPath: IssuePresignedPathEndpoint = async instData => {
       // Assert filepath is provided cause otherwise, we can't generate presigned
       // path without one.
       appAssert(data.filepath, kReuseableErrors.file.provideNamepath());
-      const pathinfo = getFilepathInfo(data.filepath);
-      ({namepath, extension} = pathinfo);
+      const pathinfo = getFilepathInfo(data.filepath, {
+        containsRootname: true,
+        allowRootFolder: false,
+      });
+      ({namepath, ext} = pathinfo);
 
       assertRootname(pathinfo.rootname);
       workspace = await kSemanticModels
@@ -111,7 +118,7 @@ const issuePresignedPath: IssuePresignedPathEndpoint = async instData => {
       {
         expiresAt,
         fileId,
-        extension,
+        ext,
         actions: convertToArray(actions),
         namepath: namepath,
         issuerAgentTokenId: agent.agentTokenId,
@@ -121,7 +128,7 @@ const issuePresignedPath: IssuePresignedPathEndpoint = async instData => {
     );
     await kSemanticModels.presignedPath().insertItem(presignedPath, opts);
     return presignedPath;
-  }, /** reuseTxn */ false);
+  });
 
   return {path: resource.resourceId};
 };

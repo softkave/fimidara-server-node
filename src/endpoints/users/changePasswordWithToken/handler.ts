@@ -1,37 +1,47 @@
-import {kFimidaraResourceType, kTokenAccessScope} from '../../../definitions/system';
-import {appAssert} from '../../../utils/assertion';
-import {validate} from '../../../utils/validate';
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {NotFoundError} from '../../errors';
-import INTERNAL_confirmEmailAddress from '../confirmEmailAddress/internalConfirmEmailAddress';
-import {CredentialsExpiredError, InvalidCredentialsError} from '../errors';
-import {assertUser, userExtractor} from '../utils';
-import {ChangePasswordWithTokenEndpoint} from './types';
-import {INTERNAL_changePassword} from './utils';
-import {changePasswordWithTokenJoiSchema} from './validation';
+import {appAssert} from '../../../utils/assertion.js';
+import {validate} from '../../../utils/validate.js';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {NotFoundError} from '../../errors.js';
+import INTERNAL_confirmEmailAddress from '../confirmEmailAddress/internalConfirmEmailAddress.js';
+import {CredentialsExpiredError, InvalidCredentialsError} from '../errors.js';
+import {assertUser, userExtractor} from '../utils.js';
+import {ChangePasswordWithTokenEndpoint} from './types.js';
+import {INTERNAL_changePassword} from './utils.js';
+import {changePasswordWithTokenJoiSchema} from './validation.js';
 
-const changePasswordWithToken: ChangePasswordWithTokenEndpoint = async reqData => {
-  const data = validate(reqData.data, changePasswordWithTokenJoiSchema);
-  const agent = await kUtilsInjectables
-    .session()
-    .getAgent(reqData, [kFimidaraResourceType.User], [kTokenAccessScope.ChangePassword]);
+const changePasswordWithToken: ChangePasswordWithTokenEndpoint =
+  async reqData => {
+    const data = validate(reqData.data, changePasswordWithTokenJoiSchema);
+    const agent = await kUtilsInjectables
+      .session()
+      .getAgentFromReq(
+        reqData,
+        kSessionUtils.permittedAgentTypes.user,
+        kSessionUtils.accessScopes.changePassword
+      );
 
-  if (!agent.agentToken?.expiresAt) throw new InvalidCredentialsError();
-  if (Date.now() > agent.agentToken.expiresAt) throw new CredentialsExpiredError();
+    if (!agent.agentToken?.expiresAt) throw new InvalidCredentialsError();
+    if (Date.now() > agent.agentToken.expiresAt)
+      throw new CredentialsExpiredError();
 
-  let user = agent.user;
-  assertUser(user);
-  const result = await INTERNAL_changePassword(reqData, user.resourceId, data);
+    let user = agent.user;
+    assertUser(user);
+    const result = await INTERNAL_changePassword(
+      reqData,
+      user.resourceId,
+      data
+    );
 
-  // Verify user email address since the only way to change password
-  // with token is to use the link sent to the user email address
-  user = await INTERNAL_confirmEmailAddress(result.user.resourceId, null);
-  appAssert(user, new NotFoundError('User not found'));
+    // Verify user email address since the only way to change password
+    // with token is to use the link sent to the user email address
+    user = await INTERNAL_confirmEmailAddress(result.user.resourceId, null);
+    appAssert(user, new NotFoundError('User not found'));
 
-  const completeUserData = await populateUserWorkspaces(user);
-  result.user = userExtractor(completeUserData);
-  return result;
-};
+    const completeUserData = await populateUserWorkspaces(user);
+    result.user = userExtractor(completeUserData);
+    return result;
+  };
 
 export default changePasswordWithToken;

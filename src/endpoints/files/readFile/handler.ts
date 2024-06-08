@@ -1,27 +1,30 @@
 import sharp = require('sharp');
-import {compact} from 'lodash';
+import {compact} from 'lodash-es';
 import {PassThrough, Readable} from 'stream';
-import {File} from '../../../definitions/file';
-import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {kPermissionAgentTypes} from '../../../definitions/system';
-import {isObjectFieldsEmpty} from '../../../utils/fns';
-import {validate} from '../../../utils/validate';
+import {File} from '../../../definitions/file.js';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {isObjectFieldsEmpty} from '../../../utils/fns.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
 import {
   checkAuthorizationWithAgent,
   getFilePermissionContainers,
-} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {PersistedFile} from '../../contexts/file/types';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {getBackendConfigsWithIdList} from '../../fileBackends/configUtils';
+} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {PersistedFile} from '../../contexts/file/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {getBackendConfigsWithIdList} from '../../fileBackends/configUtils.js';
 import {
   getResolvedMountEntries,
   initBackendProvidersForMounts,
   resolveMountsForFolder,
-} from '../../fileBackends/mountUtils';
-import {getFileWithMatcher} from '../getFilesWithMatcher';
-import {assertFile, stringifyFilenamepath} from '../utils';
-import {ReadFileEndpoint} from './types';
-import {readFileJoiSchema} from './validation';
+} from '../../fileBackends/mountUtils.js';
+import {getFileWithMatcher} from '../getFilesWithMatcher.js';
+import {assertFile, stringifyFilenamepath} from '../utils.js';
+import {ReadFileEndpoint} from './types.js';
+import {readFileJoiSchema} from './validation.js';
 
 // TODO: implement accept ranges, cache control, etags, etc.
 // see aws s3 sdk getObject function
@@ -30,13 +33,17 @@ const readFile: ReadFileEndpoint = async instData => {
   const data = validate(instData.data, readFileJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, kPermissionAgentTypes);
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
 
   const file = await await kSemanticModels.utils().withTxn(async opts => {
     const {file, presignedPath} = await getFileWithMatcher({
       opts,
       matcher: data,
-      presignedPathAction: kPermissionsMap.readFile,
+      presignedPathAction: kFimidaraPermissionActionsMap.readFile,
       incrementPresignedPathUsageCount: true,
       supportPresignedPath: true,
     });
@@ -48,7 +55,7 @@ const readFile: ReadFileEndpoint = async instData => {
         opts,
         workspaceId: file.workspaceId,
         target: {
-          action: kPermissionsMap.readFile,
+          action: kFimidaraPermissionActionsMap.readFile,
           targetId: getFilePermissionContainers(
             file.workspaceId,
             file,
@@ -59,7 +66,7 @@ const readFile: ReadFileEndpoint = async instData => {
     }
 
     return file;
-  }, /** reuseTxn */ false);
+  });
 
   assertFile(file);
   const persistedFile = await readPersistedFile(file);
@@ -128,7 +135,11 @@ async function readPersistedFile(file: File): Promise<PersistedFile> {
       const persistedFile = await backend.readFile({
         mount,
         workspaceId: file.workspaceId,
-        filepath: stringifyFilenamepath(file),
+        filepath: stringifyFilenamepath({
+          namepath: entry.backendNamepath,
+          ext: entry.backendExt,
+        }),
+        fileId: entry.forId,
       });
 
       if (persistedFile?.body) {

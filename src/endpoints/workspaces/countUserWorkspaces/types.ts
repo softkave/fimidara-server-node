@@ -1,3 +1,3 @@
-import {CountItemsEndpointResult, Endpoint} from '../../types';
+import {CountItemsEndpointResult, Endpoint} from '../../types.js';
 
 export type CountUserWorkspacesEndpoint = Endpoint<{}, CountItemsEndpointResult>;

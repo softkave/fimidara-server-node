@@ -1,6 +1,6 @@
-import * as Joi from 'joi';
-import {getFileBackendMountsBaseJoiSchemaParts} from '../getMounts/validation';
-import {CountFileBackendMountsEndpointParams} from './types';
+import Joi from 'joi';
+import {getFileBackendMountsBaseJoiSchemaParts} from '../getMounts/validation.js';
+import {CountFileBackendMountsEndpointParams} from './types.js';
 
 export const countFileBackendMountsJoiSchema =
   Joi.object<CountFileBackendMountsEndpointParams>()

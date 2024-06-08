@@ -1,30 +1,30 @@
 import assert = require('assert');
-import {kFileBackendType} from '../../../definitions/fileBackend';
-import {Agent, kFimidaraResourceType} from '../../../definitions/system';
-import {UsageRecordCategory} from '../../../definitions/usageRecord';
+import {kFileBackendType} from '../../../definitions/fileBackend.js';
+import {Agent, SessionAgent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {UsageRecordCategory} from '../../../definitions/usageRecord.js';
 import {
   UsageThresholdsByCategory,
   Workspace,
   WorkspaceBillStatusMap,
-} from '../../../definitions/workspace';
-import {getTimestamp} from '../../../utils/dateFns';
-import {cast} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {assertIsNotOnWaitlist} from '../../../utils/sessionUtils';
+} from '../../../definitions/workspace.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {cast} from '../../../utils/fns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {assertIsNotOnWaitlist} from '../../../utils/sessionUtils.js';
 import {
   addAssignedPermissionGroupList,
   assignWorkspaceToUser,
-} from '../../assignedItems/addAssignedItems';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
-import {INTERNAL_addFileBackendMount} from '../../fileBackends/addMount/utils';
-import {getDefaultThresholds} from '../../usageRecords/constants';
+} from '../../assignedItems/addAssignedItems.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
+import {INTERNAL_addFileBackendMount} from '../../fileBackends/addMount/utils.js';
+import {getDefaultThresholds} from '../../usageRecords/constants.js';
 import {
   checkWorkspaceNameExists,
   checkWorkspaceRootnameExists,
-} from '../checkWorkspaceExists';
-import {NewWorkspaceInput} from './types';
-import {generateDefaultWorkspacePermissionGroups} from './utils';
+} from '../checkWorkspaceExists.js';
+import {NewWorkspaceInput} from './types.js';
+import {generateDefaultWorkspacePermissionGroups} from './utils.js';
 
 export function transformUsageThresholInput(
   agent: Agent,
@@ -46,7 +46,7 @@ export function transformUsageThresholInput(
 
 const INTERNAL_createWorkspace = async (
   data: NewWorkspaceInput,
-  agent: Agent,
+  agent: SessionAgent,
   userId: string | undefined,
   opts: SemanticProviderMutationParams
 ) => {

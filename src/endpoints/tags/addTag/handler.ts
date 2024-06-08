@@ -1,19 +1,32 @@
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {Tag} from '../../../definitions/tag';
-import {newWorkspaceResource} from '../../../utils/resource';
-import {validate} from '../../../utils/validate';
-import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils';
-import {checkTagNameExists} from '../checkTagNameExists';
-import {tagExtractor} from '../utils';
-import {AddTagEndpoint} from './types';
-import {addTagJoiSchema} from './validation';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {Tag} from '../../../definitions/tag.js';
+import {newWorkspaceResource} from '../../../utils/resource.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils.js';
+import {checkTagNameExists} from '../checkTagNameExists.js';
+import {tagExtractor} from '../utils.js';
+import {AddTagEndpoint} from './types.js';
+import {addTagJoiSchema} from './validation.js';
 
 const addTag: AddTagEndpoint = async instData => {
   const data = validate(instData.data, addTagJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
-  const workspace = await checkWorkspaceExistsWithAgent(agent, data.workspaceId);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
+  const workspace = await checkWorkspaceExistsWithAgent(
+    agent,
+    data.workspaceId
+  );
   await checkAuthorizationWithAgent({
     agent,
     workspace,
@@ -30,7 +43,7 @@ const addTag: AddTagEndpoint = async instData => {
   await kSemanticModels.utils().withTxn(async opts => {
     await checkTagNameExists(workspace.resourceId, data.tag.name, opts);
     await kSemanticModels.tag().insertItem(tag, opts);
-  }, /** reuseTxn */ true);
+  });
 
   return {tag: tagExtractor(tag)};
 };

@@ -1,13 +1,13 @@
 import Joi from 'joi';
-import {mergeData} from '../utils/fns';
-import {JoiSchemaParts} from '../utils/types';
-import {kValidationSchemas} from '../utils/validationUtils';
-import {kEndpointConstants} from './constants';
+import {mergeData} from '../utils/fns.js';
+import {JoiSchemaParts} from '../utils/types.js';
+import {kValidationSchemas} from '../utils/validationUtils.js';
+import {kEndpointConstants} from './constants.js';
 import {
   EndpointOptionalWorkspaceIDParam,
   EndpointWorkspaceResourceParam,
   PaginationQuery,
-} from './types';
+} from './types.js';
 
 const comparisonOps = (schema: Joi.Schema) => ({
   $eq: schema,

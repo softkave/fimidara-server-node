@@ -1,6 +1,6 @@
-import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderOpParams} from '../contexts/semantic/types';
-import {WorkspaceExistsError, WorkspaceRootnameExistsError} from './errors';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
+import {SemanticProviderOpParams} from '../contexts/semantic/types.js';
+import {WorkspaceExistsError, WorkspaceRootnameExistsError} from './errors.js';
 
 export async function checkWorkspaceNameExists(
   name: string,

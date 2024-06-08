@@ -1,12 +1,15 @@
-import {isObject} from 'lodash';
-import {FileBackendMount, kFileBackendType} from '../../../definitions/fileBackend';
-import {pathJoin, pathSplit} from '../../../utils/fns';
-import {FimidaraFilePersistenceProvider} from './FimidaraFilePersistenceProvider';
+import {isObject} from 'lodash-es';
+import {
+  FileBackendMount,
+  kFileBackendType,
+} from '../../../definitions/fileBackend.js';
+import {pathJoin, pathSplit} from '../../../utils/fns.js';
+import {FimidaraFilePersistenceProvider} from './FimidaraFilePersistenceProvider.js';
 import {
   S3FilePersistenceProvider,
   S3FilePersistenceProviderInitParams,
-} from './S3FilePersistenceProvider';
-import {FilePersistenceProvider, FileProviderResolver} from './types';
+} from './S3FilePersistenceProvider.js';
+import {FilePersistenceProvider, FileProviderResolver} from './types.js';
 
 export function isFilePersistenceProvider(
   item: unknown

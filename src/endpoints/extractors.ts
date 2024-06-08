@@ -2,14 +2,14 @@ import {
   PublicAgent,
   PublicResource,
   PublicWorkspaceResource,
-} from '../definitions/system';
+} from '../definitions/system.js';
 import {
   ExtractFieldsFrom,
   getFields,
   makeExtract,
   makeExtractIfPresent,
   makeListExtract,
-} from '../utils/extract';
+} from '../utils/extract.js';
 
 const agentPublicFields = getFields<PublicAgent>({
   agentId: true,

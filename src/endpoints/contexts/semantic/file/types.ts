@@ -1,25 +1,25 @@
-import {File} from '../../../../definitions/file';
-import {PresignedPath} from '../../../../definitions/presignedPath';
+import {File} from '../../../../definitions/file.js';
+import {PresignedPath} from '../../../../definitions/presignedPath.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
   SemanticProviderQueryListParams,
   SemanticProviderQueryParams,
   SemanticWorkspaceResourceProviderType,
-} from '../types';
+} from '../types.js';
 
 export interface SemanticFileProvider
   extends SemanticWorkspaceResourceProviderType<File> {
   getOneByNamepath(
-    query: {workspaceId: string; namepath: string[]; extension?: string},
+    query: {workspaceId: string; namepath: string[]; ext?: string},
     opts?: SemanticProviderQueryParams<File>
   ): Promise<File | null>;
   getManyByNamepath(
-    query: {workspaceId: string; namepath: string[]; extension?: string},
+    query: {workspaceId: string; namepath: string[]; ext?: string},
     opts?: SemanticProviderQueryListParams<File>
   ): Promise<File[]>;
   getAndUpdateOneBynamepath(
-    query: {workspaceId: string; namepath: string[]; extension?: string},
+    query: {workspaceId: string; namepath: string[]; ext?: string},
     update: Partial<File>,
     opts?: SemanticProviderMutationParams & SemanticProviderQueryParams<File>
   ): Promise<File | null>;
@@ -42,7 +42,7 @@ export interface SemanticFileProvider
     opts?: SemanticProviderOpParams
   ): Promise<number>;
   deleteOneBynamepath(
-    query: {workspaceId: string; namepath: string[]; extension?: string},
+    query: {workspaceId: string; namepath: string[]; ext?: string},
     opts?: SemanticProviderMutationParams
   ): Promise<void>;
 }
@@ -54,7 +54,7 @@ export interface SemanticPresignedPathProvider
     opts?: SemanticProviderQueryParams<PresignedPath>
   ): Promise<PresignedPath | null>;
   getOneByFilepath(
-    query: {workspaceId: string; namepath: string[]; extension?: string},
+    query: {workspaceId: string; namepath: string[]; ext?: string},
     opts?: SemanticProviderQueryParams<PresignedPath>
   ): Promise<PresignedPath | null>;
   getManyByFileIds(

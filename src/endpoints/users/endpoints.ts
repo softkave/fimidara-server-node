@@ -1,6 +1,6 @@
-import changePasswordWithCurrentPassword from './changePasswordWithCurrentPassword/handler';
-import changePasswordWithToken from './changePasswordWithToken/handler';
-import confirmEmailAddress from './confirmEmailAddress/handler';
+import changePasswordWithCurrentPassword from './changePasswordWithCurrentPassword/handler.js';
+import changePasswordWithToken from './changePasswordWithToken/handler.js';
+import confirmEmailAddress from './confirmEmailAddress/handler.js';
 import {
   changePasswordWithCurrentPasswordEndpointDefinition,
   changePasswordWithTokenEndpointDefinition,
@@ -12,15 +12,15 @@ import {
   signupEndpointDefinition,
   updateUserEndpointDefinition,
   userExistsEndpointDefinition,
-} from './endpoint.mddoc';
-import forgotPassword from './forgotPassword/forgotPassword';
-import getUserData from './getUserData/getUserData';
-import login from './login/login';
-import sendEmailVerificationCode from './sendEmailVerificationCode/handler';
-import signup from './signup/signup';
-import {UsersPrivateExportedEndpoints, UsersPublicExportedEndpoints} from './types';
-import updateUser from './updateUser/handler';
-import userExists from './userExists/handler';
+} from './endpoint.mddoc.js';
+import forgotPassword from './forgotPassword/forgotPassword.js';
+import getUserData from './getUserData/getUserData.js';
+import login from './login/login.js';
+import sendEmailVerificationCode from './sendEmailVerificationCode/handler.js';
+import signup from './signup/signup.js';
+import {UsersPrivateExportedEndpoints, UsersPublicExportedEndpoints} from './types.js';
+import updateUser from './updateUser/handler.js';
+import userExists from './userExists/handler.js';
 
 export function getUsersPublicHttpEndpoints() {
   const usersExportedEndpoints: UsersPublicExportedEndpoints = {

@@ -1,10 +1,10 @@
-import {ExportedHttpEndpointWithMddocDefinition} from '../types';
-import {AddWorkspaceEndpoint} from './addWorkspace/types';
-import {CountUserWorkspacesEndpoint} from './countUserWorkspaces/types';
-import {DeleteWorkspaceEndpoint} from './deleteWorkspace/types';
-import {GetUserWorkspacesEndpoint} from './getUserWorkspaces/types';
-import {GetWorkspaceEndpoint} from './getWorkspace/types';
-import {UpdateWorkspaceEndpoint} from './updateWorkspace/types';
+import {ExportedHttpEndpointWithMddocDefinition} from '../types.js';
+import {AddWorkspaceEndpoint} from './addWorkspace/types.js';
+import {CountUserWorkspacesEndpoint} from './countUserWorkspaces/types.js';
+import {DeleteWorkspaceEndpoint} from './deleteWorkspace/types.js';
+import {GetUserWorkspacesEndpoint} from './getUserWorkspaces/types.js';
+import {GetWorkspaceEndpoint} from './getWorkspace/types.js';
+import {UpdateWorkspaceEndpoint} from './updateWorkspace/types.js';
 
 export type AddWorkspaceHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<AddWorkspaceEndpoint>;

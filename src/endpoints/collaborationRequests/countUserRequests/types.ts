@@ -1,4 +1,4 @@
-import {CountItemsEndpointResult, Endpoint} from '../../types';
+import {CountItemsEndpointResult, Endpoint} from '../../types.js';
 
 export type CountUserCollaborationRequestsEndpoint = Endpoint<
   {},

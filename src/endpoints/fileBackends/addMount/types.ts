@@ -1,5 +1,5 @@
-import {FileBackendType, PublicFileBackendMount} from '../../../definitions/fileBackend';
-import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
+import {FileBackendType, PublicFileBackendMount} from '../../../definitions/fileBackend.js';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types.js';
 
 export interface NewFileBackendMountInput {
   folderpath: string;

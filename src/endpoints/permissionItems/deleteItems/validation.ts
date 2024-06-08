@@ -1,14 +1,14 @@
-import * as Joi from 'joi';
-import {kValidationSchemas} from '../../../utils/validationUtils';
-import {kEndpointConstants} from '../../constants';
-import workspaceValidationSchemas from '../../workspaces/validation';
-import {permissionItemConstants} from '../constants';
-import permissionItemValidationSchemas from '../validation';
+import Joi from 'joi';
+import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import {kEndpointConstants} from '../../constants.js';
+import workspaceValidationSchemas from '../../workspaces/validation.js';
+import {permissionItemConstants} from '../constants.js';
+import permissionItemValidationSchemas from '../validation.js';
 import {
   DeletePermissionItemInput,
   DeletePermissionItemInputTarget,
   DeletePermissionItemsEndpointParams,
-} from './types';
+} from './types.js';
 
 const target = Joi.object<DeletePermissionItemInputTarget>().keys({
   targetId: permissionItemValidationSchemas.targetParts.targetId,

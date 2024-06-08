@@ -1,38 +1,46 @@
-import {compact} from 'lodash';
-import {FileBackendMount} from '../../../definitions/fileBackend';
+import {compact} from 'lodash-es';
+import {FileBackendMount} from '../../../definitions/fileBackend.js';
 import {
   IngestFolderpathJobMeta,
   IngestFolderpathJobParams,
   Job,
   kJobType,
-} from '../../../definitions/job';
-import {Agent} from '../../../definitions/system';
-import {appAssert} from '../../../utils/assertion';
-import {pathJoin, pathSplit} from '../../../utils/fns';
-import {AnyObject} from '../../../utils/types';
+} from '../../../definitions/job.js';
+import {SessionAgent} from '../../../definitions/system.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {pathJoin, pathSplit} from '../../../utils/fns.js';
+import {AnyObject} from '../../../utils/types.js';
 import {
   FilePersistenceDescribeFolderContentResult,
   FilePersistenceProvider,
   PersistedFolderDescription,
-} from '../../contexts/file/types';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {getBackendConfigsWithIdList} from '../../fileBackends/configUtils';
+} from '../../contexts/file/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {getBackendConfigsWithIdList} from '../../fileBackends/configUtils.js';
 import {
   ingestPersistedFiles,
   ingestPersistedFolders,
-} from '../../fileBackends/ingestionUtils';
-import {initBackendProvidersForMounts} from '../../fileBackends/mountUtils';
-import {JobInput, queueJobs} from '../queueJobs';
+} from '../../fileBackends/ingestionUtils.js';
+import {initBackendProvidersForMounts} from '../../fileBackends/mountUtils.js';
+import {JobInput, queueJobs} from '../queueJobs.js';
 
 async function setContinuationTokenInJob(
   job: Job,
-  continuationTokens: Pick<IngestFolderpathJobMeta, 'getContentContinuationToken'>
+  continuationTokens: Pick<
+    IngestFolderpathJobMeta,
+    'getContentContinuationToken'
+  >
 ) {
   return await kSemanticModels.utils().withTxn(async opts => {
-    const latestJob: Pick<Job<AnyObject, IngestFolderpathJobMeta>, 'meta'> | null =
-      await kSemanticModels
-        .job()
-        .getOneById(job.resourceId, {...opts, projection: {meta: true}});
+    const latestJob: Pick<
+      Job<AnyObject, IngestFolderpathJobMeta>,
+      'meta'
+    > | null = await kSemanticModels
+      .job()
+      .getOneById(job.resourceId, {...opts, projection: {meta: true}});
 
     if (latestJob) {
       latestJob.meta = {...latestJob.meta, ...continuationTokens};
@@ -47,7 +55,7 @@ async function setContinuationTokenInJob(
     }
 
     return latestJob;
-  }, /** reuse txn from async local store */ false);
+  });
 }
 
 async function queueIngestFolderJobFor(
@@ -61,7 +69,6 @@ async function queueIngestFolderJobFor(
       const jobParams: IngestFolderpathJobParams = {
         ingestFrom: pathSplit(mountFolder.folderpath),
         mountId: mountFolder.mountId,
-        agentId: parentJob.params.agentId,
       };
 
       return {
@@ -77,15 +84,18 @@ async function queueIngestFolderJobFor(
 }
 
 async function ingestFolderpathContents(
-  agent: Agent,
+  agent: SessionAgent,
   job: Job<IngestFolderpathJobParams, IngestFolderpathJobMeta>,
   mount: FileBackendMount,
   provider: FilePersistenceProvider
 ) {
   appAssert(job.workspaceId, 'workspaceId not present in job');
-  let result: FilePersistenceDescribeFolderContentResult | undefined;
+
+  let result: FilePersistenceDescribeFolderContentResult<any, any> | undefined;
   let continuationToken = job.meta?.getContentContinuationToken;
-  const workspace = await kSemanticModels.workspace().getOneById(job.workspaceId);
+  const workspace = await kSemanticModels
+    .workspace()
+    .getOneById(job.workspaceId);
   appAssert(workspace, 'Workspace not found for job');
 
   const ingestFrom = job.params.ingestFrom;
@@ -108,16 +118,21 @@ async function ingestFolderpathContents(
       ingestPersistedFolders(agent, workspace, result.folders),
       ingestPersistedFiles(agent, workspace, result.files),
     ]);
-    kUtilsInjectables.promises().forget(queueIngestFolderJobFor(job, result.folders));
+    kUtilsInjectables
+      .promises()
+      .forget(queueIngestFolderJobFor(job, result.folders));
   } while (continuationToken && (result.folders.length || result.files.length));
 }
 
 export async function runIngestFolderpathJob(job: Job) {
   appAssert(job.workspaceId, 'workspaceId not present in job');
+  appAssert(job.createdBy, 'agent not present in job');
 
   const [mount, agent, job_] = await Promise.all([
     kSemanticModels.fileBackendMount().getOneById(job.params.mountId),
-    kUtilsInjectables.session().getAgentById(job.params.agentId),
+    kUtilsInjectables
+      .session()
+      .getAgentByAgentTokenId(job.createdBy.agentTokenId),
     // Refetch job so as to use latest continuation token set in meta
     kSemanticModels.job().getOneById(job.resourceId),
   ]);

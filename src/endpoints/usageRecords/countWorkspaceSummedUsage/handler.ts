@@ -1,13 +1,20 @@
-import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {getWorkspaceSummedUsageQuery} from '../getWorkspaceSummedUsage/utils';
-import {CountWorkspaceSummedUsageEndpoint} from './types';
-import {countWorkspaceSummedUsageJoiSchema} from './validation';
+import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {getWorkspaceSummedUsageQuery} from '../getWorkspaceSummedUsage/utils.js';
+import {CountWorkspaceSummedUsageEndpoint} from './types.js';
+import {countWorkspaceSummedUsageJoiSchema} from './validation.js';
 
 const countWorkspaceSummedUsage: CountWorkspaceSummedUsageEndpoint = async instData => {
   const data = validate(instData.data, countWorkspaceSummedUsageJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const {query} = await getWorkspaceSummedUsageQuery(agent, workspaceId, data);
   const count = await kSemanticModels.usageRecord().countByQuery(query);

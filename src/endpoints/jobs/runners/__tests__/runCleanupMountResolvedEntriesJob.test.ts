@@ -1,11 +1,12 @@
-import {kFimidaraResourceType} from '../../../../definitions/system';
-import {extractResourceIdList} from '../../../../utils/fns';
-import {getNewIdForResource} from '../../../../utils/resource';
-import {kSemanticModels} from '../../../contexts/injection/injectables';
-import {generateAndInsertResolvedMountEntryListForTest} from '../../../testUtils/generate/fileBackend';
-import {completeTests} from '../../../testUtils/helpers/testFns';
-import {initTests} from '../../../testUtils/testUtils';
-import {runCleanupMountResolvedEntriesJob} from '../runCleanupMountResolvedEntriesJob';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kFimidaraResourceType} from '../../../../definitions/system.js';
+import {extractResourceIdList} from '../../../../utils/fns.js';
+import {getNewIdForResource} from '../../../../utils/resource.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {generateAndInsertResolvedMountEntryListForTest} from '../../../testUtils/generate/fileBackend.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../testUtils/testUtils.js';
+import {runCleanupMountResolvedEntriesJob} from '../runCleanupMountResolvedEntriesJob.js';
 
 beforeAll(async () => {
   await initTests();
@@ -18,9 +19,10 @@ afterAll(async () => {
 describe('runCleanupMountResolvedEntriesJob', () => {
   test('mount entries deleted', async () => {
     const mountId = getNewIdForResource(kFimidaraResourceType.FileBackendMount);
-    const entries = await generateAndInsertResolvedMountEntryListForTest(/** count */ 5, {
-      mountId,
-    });
+    const entries = await generateAndInsertResolvedMountEntryListForTest(
+      /** count */ 5,
+      {mountId}
+    );
 
     await runCleanupMountResolvedEntriesJob({params: {mountId}});
 

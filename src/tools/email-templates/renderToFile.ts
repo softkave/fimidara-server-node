@@ -1,45 +1,45 @@
 import {faker} from '@faker-js/faker';
 import * as fs from 'fs';
 import * as fse from 'fs-extra';
-import {kCollaborationRequestStatusTypeMap} from '../../definitions/collaborationRequest';
-import {kFimidaraResourceType} from '../../definitions/system';
-import {UsageRecordCategoryMap} from '../../definitions/usageRecord';
+import {kCollaborationRequestStatusTypeMap} from '../../definitions/collaborationRequest.js';
+import {kFimidaraResourceType} from '../../definitions/system.js';
+import {UsageRecordCategoryMap} from '../../definitions/usageRecord.js';
 import {
   CollaborationRequestEmailProps,
   collaborationRequestEmailHTML,
   collaborationRequestEmailText,
-} from '../../emailTemplates/collaborationRequest';
+} from '../../emailTemplates/collaborationRequest.js';
 import {
   CollaborationRequestResponseEmailProps,
   collaborationRequestResponseEmailHTML,
   collaborationRequestResponseEmailText,
-} from '../../emailTemplates/collaborationRequestResponse';
+} from '../../emailTemplates/collaborationRequestResponse.js';
 import {
   CollaborationRequestRevokedEmailProps,
   collaborationRequestRevokedEmailHTML,
   collaborationRequestRevokedEmailText,
-} from '../../emailTemplates/collaborationRequestRevoked';
+} from '../../emailTemplates/collaborationRequestRevoked.js';
 import {
   ConfirmEmailAddressEmailProps,
   confirmEmailAddressEmailHTML,
   confirmEmailAddressEmailText,
-} from '../../emailTemplates/confirmEmailAddress';
+} from '../../emailTemplates/confirmEmailAddress.js';
 import {
   ForgotPasswordEmailProps,
   forgotPasswordEmailHTML,
   forgotPasswordEmailText,
-} from '../../emailTemplates/forgotPassword';
+} from '../../emailTemplates/forgotPassword.js';
 import {
   UpgradedFromWaitlistEmailProps,
   upgradedFromWaitlistEmailHTML,
   upgradedFromWaitlistEmailText,
-} from '../../emailTemplates/upgradedFromWaitlist';
+} from '../../emailTemplates/upgradedFromWaitlist.js';
 import {
   UsageExceededEmailProps,
   usageExceededEmailHTML,
   usageExceededEmailText,
-} from '../../emailTemplates/usageExceeded';
-import {getTimestamp} from '../../utils/dateFns';
+} from '../../emailTemplates/usageExceeded.js';
+import {getTimestamp} from '../../utils/dateFns.js';
 
 const basepath = './src/tools/email-templates/templates/';
 

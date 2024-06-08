@@ -1,13 +1,13 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {PresignedPath} from '../definitions/presignedPath';
-import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
+import {PresignedPath} from '../definitions/presignedPath.js';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils.js';
 
 const presignedPathSchema = ensureMongoTypeFields<PresignedPath>({
   ...workspaceResourceSchema,
   fileId: {type: String, index: true},
   namepath: {type: [String], index: true},
   actions: {type: [String], index: true},
-  extension: {type: String, index: true},
+  ext: {type: String, index: true},
   maxUsageCount: {type: Number},
   expiresAt: {type: Date},
   spentUsageCount: {type: Number},

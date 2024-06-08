@@ -1,13 +1,17 @@
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {userListExtractor} from '../../users/utils';
-import {assertUserIsPartOfRootWorkspace} from '../utils';
-import {GetUsersEndpoint} from './types';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {userListExtractor} from '../../users/utils.js';
+import {assertUserIsPartOfRootWorkspace} from '../utils.js';
+import {GetUsersEndpoint} from './types.js';
 
 const getUsers: GetUsersEndpoint = async instData => {
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, [kFimidaraResourceType.User]);
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.user,
+      kSessionUtils.accessScopes.user
+    );
   await assertUserIsPartOfRootWorkspace(agent);
   const users = await kSemanticModels.user().getManyByQuery({});
 

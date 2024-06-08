@@ -3,8 +3,8 @@ import {
   UsageRecord,
   UsageRecordArtifact,
   UsageRecordFulfillmentStatusMap,
-} from '../definitions/usageRecord';
-import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
+} from '../definitions/usageRecord.js';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils.js';
 
 const artifactSchema = ensureMongoTypeFields<UsageRecordArtifact>({
   type: {type: String, index: true},

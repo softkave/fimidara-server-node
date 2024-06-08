@@ -1,7 +1,9 @@
 import {Readable} from 'stream';
-import {File} from '../../../definitions/file';
-import {FileBackendConfig, FileBackendMount} from '../../../definitions/fileBackend';
-import {DisposableResource} from '../../../utils/disposables';
+import {
+  FileBackendConfig,
+  FileBackendMount,
+} from '../../../definitions/fileBackend.js';
+import {DisposableResource} from 'softkave-js-utils';
 
 export type FilePersistenceProviderFeature =
   | 'describeFile'
@@ -18,101 +20,127 @@ interface DefaultMatcher {
   postMountedFromPrefix?: string[];
 }
 
-interface FilepathMatcher extends DefaultMatcher {
+interface FilepathMatcher {
+  fileId: string | undefined;
   /** should not include workspace rootname */
   filepath: string;
 }
 
-interface FolderpathMatcher extends DefaultMatcher {
+interface FolderpathMatcher {
   /** should not include workspace rootname */
   folderpath: string;
 }
 
-interface FilepathListMatcher extends DefaultMatcher {
-  /** should not include workspace rootname */
-  filepaths: string[];
-}
-
-interface FolderpathListMatcher extends DefaultMatcher {
-  /** should not include workspace rootname */
-  folderpaths: string[];
-}
-
-export interface FilePersistenceUploadFileParams extends FilepathMatcher {
+export interface FilePersistenceUploadFileParams
+  extends DefaultMatcher,
+    FilepathMatcher {
   body: Readable;
   mount: FileBackendMount;
   mimetype?: string;
   encoding?: string;
+  fileId: string;
 }
 
-export interface FilePersistenceGetFileParams extends FilepathMatcher {}
+export type FilePersistenceUploadFileResult<TRaw = any> = Pick<
+  PersistedFileDescription<TRaw>,
+  'filepath' | 'raw'
+>;
 
-export interface FilePersistenceDescribeFolderParams extends FolderpathMatcher {}
+export interface FilePersistenceGetFileParams
+  extends DefaultMatcher,
+    FilepathMatcher {
+  fileId: string;
+}
 
-export interface FilePersistenceDeleteFilesParams extends FilepathListMatcher {}
+export interface FilePersistenceDescribeFileParams
+  extends DefaultMatcher,
+    FilepathMatcher {}
+
+export interface FilePersistenceDescribeFolderParams
+  extends DefaultMatcher,
+    FolderpathMatcher {}
+
+export interface FilePersistenceDeleteFilesParams extends DefaultMatcher {
+  files: Array<FilepathMatcher & {fileId: string}>;
+}
 
 export interface PersistedFile {
   body?: Readable;
   size?: number;
 }
 
-export interface PersistedFileDescription {
+export interface PersistedFileDescription<TRaw = any> {
   size?: number;
   lastUpdatedAt?: number;
   mimetype?: string;
   encoding?: string;
   mountId: string;
   filepath: string;
+  /** Mount file data */
+  raw: TRaw;
 }
 
-export interface PersistedFolderDescription {
+export interface PersistedFolderDescription<TRaw = any> {
   folderpath: string;
   mountId: string;
+  /** Mount folder data */
+  raw: TRaw;
 }
 
-export interface FilePersistenceDescribeFolderFilesParams extends FolderpathMatcher {
+export interface FilePersistenceDescribeFolderFilesParams
+  extends DefaultMatcher,
+    FolderpathMatcher {
   max: number;
   /* `continuationToken` is backend-dependent */
   continuationToken?: unknown;
 }
 
-export interface FilePersistenceDescribeFolderContentParams extends FolderpathMatcher {
+export interface FilePersistenceDescribeFolderContentParams
+  extends DefaultMatcher,
+    FolderpathMatcher {
   max: number;
   /* `continuationToken` is backend-dependent */
   continuationToken?: unknown;
 }
 
-export interface FilePersistenceDescribeFolderFoldersParams extends FolderpathMatcher {
+export interface FilePersistenceDescribeFolderFoldersParams
+  extends DefaultMatcher,
+    FolderpathMatcher {
   max: number;
   /* `continuationToken` is backend-dependent */
   continuationToken?: unknown;
 }
 
-export interface FilePersistenceDeleteFoldersParams extends FolderpathListMatcher {}
+export interface FilePersistenceDeleteFoldersParams extends DefaultMatcher {
+  folders: Array<FolderpathMatcher>;
+}
 
-export interface FilePersistenceDescribeFolderFilesResult {
-  files: PersistedFileDescription[];
+export interface FilePersistenceDescribeFolderFilesResult<TRaw = any> {
+  files: PersistedFileDescription<TRaw>[];
   /* `null` or `undefined` if content is exhausted */
   continuationToken?: unknown | null;
 }
 
-export interface FilePersistenceDescribeFolderContentResult {
-  files: PersistedFileDescription[];
-  folders: PersistedFolderDescription[];
+export interface FilePersistenceDescribeFolderContentResult<
+  TFileRaw = any,
+  TFolderRaw = any,
+> {
+  files: PersistedFileDescription<TFileRaw>[];
+  folders: PersistedFolderDescription<TFolderRaw>[];
   /* `null` or `undefined` if content is exhausted */
   continuationToken?: unknown | null;
 }
 
-export interface FilePersistenceDescribeFolderFoldersResult {
-  folders: PersistedFolderDescription[];
+export interface FilePersistenceDescribeFolderFoldersResult<TRaw = any> {
+  folders: PersistedFolderDescription<TRaw>[];
   /* `null` or `undefined` if content is exhausted */
   continuationToken?: unknown | null;
 }
 
 export interface FilePersistenceAddFolderParams extends FolderpathMatcher {}
 
-export interface FilePersistenceAddFolderResult {
-  folder?: PersistedFolderDescription;
+export interface FilePersistenceAddFolderResult<TRaw> {
+  folder?: PersistedFolderDescription<TRaw>;
 }
 
 export interface FilePersistenceToFimidaraPathParams
@@ -133,12 +161,15 @@ export interface FimidaraToFilePersistencePathResult {
   nativePath: string;
 }
 
+// TODO: implement a better way to specify TRaw
 export interface FilePersistenceProvider extends DisposableResource {
   supportsFeature: (feature: FilePersistenceProviderFeature) => boolean;
-  uploadFile: (params: FilePersistenceUploadFileParams) => Promise<Partial<File>>;
+  uploadFile: (
+    params: FilePersistenceUploadFileParams
+  ) => Promise<FilePersistenceUploadFileResult>;
   readFile: (params: FilePersistenceGetFileParams) => Promise<PersistedFile>;
   describeFile: (
-    params: FilePersistenceGetFileParams
+    params: FilePersistenceDescribeFileParams
   ) => Promise<PersistedFileDescription | undefined>;
   describeFolder: (
     params: FilePersistenceDescribeFolderParams
@@ -160,4 +191,5 @@ export type FileProviderResolver = (
   mount: FileBackendMount,
   initParams?: unknown,
   config?: FileBackendConfig
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ) => FilePersistenceProvider;

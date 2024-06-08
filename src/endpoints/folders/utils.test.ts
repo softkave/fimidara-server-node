@@ -1,13 +1,14 @@
-import {Folder} from '../../definitions/folder';
-import {getRandomIntInclusive} from '../../utils/fns';
-import {kSemanticModels} from '../contexts/injection/injectables';
-import {getStringListQuery} from '../contexts/semantic/utils';
+import {Folder} from '../../definitions/folder.js';
+import {getRandomIntInclusive} from '../../utils/fns.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
+import {getStringListQuery} from '../contexts/semantic/utils.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   generateAndInsertTestFolders,
   generateTestFolderpath,
-} from '../testUtils/generate/folder';
-import {completeTests} from '../testUtils/helpers/testFns';
-import {initTests} from '../testUtils/testUtils';
+} from '../testUtils/generate/folder.js';
+import {completeTests} from '../testUtils/helpers/testFns.js';
+import {initTests} from '../testUtils/testUtils.js';
 
 beforeAll(async () => {
   await initTests();

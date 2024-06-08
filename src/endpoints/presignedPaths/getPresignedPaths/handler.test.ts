@@ -1,15 +1,16 @@
 import assert from 'assert';
-import {first} from 'lodash';
-import {AgentToken} from '../../../definitions/agentToken';
-import {File, FileMatcher} from '../../../definitions/file';
-import {waitTimeout} from '../../../utils/fns';
-import RequestData from '../../RequestData';
-import readFile from '../../files/readFile/handler';
-import {ReadFileEndpointParams} from '../../files/readFile/types';
-import {stringifyFilenamepath} from '../../files/utils';
-import {generateAndInsertTestFiles} from '../../testUtils/generate/file';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests, softkaveTest} from '../../testUtils/helpers/testFns';
+import {first} from 'lodash-es';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {AgentToken} from '../../../definitions/agentToken.js';
+import {File, FileMatcher} from '../../../definitions/file.js';
+import {waitTimeout} from '../../../utils/fns.js';
+import RequestData from '../../RequestData.js';
+import readFile from '../../files/readFile/handler.js';
+import {ReadFileEndpointParams} from '../../files/readFile/types.js';
+import {stringifyFilenamepath} from '../../files/utils.js';
+import {generateAndInsertTestFiles} from '../../testUtils/generate/file.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -17,11 +18,11 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestForPublicAgent,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import issuePresignedPath from '../issuePresignedPath/handler';
-import {IssuePresignedPathEndpointParams} from '../issuePresignedPath/types';
-import getPresignedPathsForFiles from './handler';
-import {GetPresignedPathsForFilesEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import issuePresignedPath from '../issuePresignedPath/handler.js';
+import {IssuePresignedPathEndpointParams} from '../issuePresignedPath/types.js';
+import getPresignedPathsForFiles from './handler.js';
+import {GetPresignedPathsForFilesEndpointParams} from './types.js';
 
 /**
  * - expired and spent
@@ -36,7 +37,7 @@ afterAll(async () => {
 });
 
 describe('getPresignedPathsForFiles', () => {
-  softkaveTest.run('with file matcher', async () => {
+  test('with file matcher', async () => {
     const {userToken} = await insertUserForTest();
     const [{workspace: w1}, {workspace: w2}] = await Promise.all([
       insertWorkspaceForTest(userToken),
@@ -57,9 +58,10 @@ describe('getPresignedPathsForFiles', () => {
       files01.concat(files02).map(f => ({fileId: f.resourceId}))
     );
 
-    const matchers: FileMatcher[] = toInterspersedMatchers(files01, w1.rootname).concat(
-      toInterspersedMatchers(files02, w2.rootname)
-    );
+    const matchers: FileMatcher[] = toInterspersedMatchers(
+      files01,
+      w1.rootname
+    ).concat(toInterspersedMatchers(files02, w2.rootname));
     const instData =
       RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
@@ -72,7 +74,7 @@ describe('getPresignedPathsForFiles', () => {
     expect(returnedPaths).toEqual(expect.arrayContaining(paths));
   });
 
-  softkaveTest.run('with file matcher and workspaceId', async () => {
+  test('with file matcher and workspaceId', async () => {
     const {userToken} = await insertUserForTest();
     const [{workspace: w1}, {workspace: w2}] = await Promise.all([
       insertWorkspaceForTest(userToken),
@@ -99,9 +101,10 @@ describe('getPresignedPathsForFiles', () => {
       ),
     ]);
 
-    const matchers: FileMatcher[] = toInterspersedMatchers(files01, w1.rootname).concat(
-      toInterspersedMatchers(files02, w2.rootname)
-    );
+    const matchers: FileMatcher[] = toInterspersedMatchers(
+      files01,
+      w1.rootname
+    ).concat(toInterspersedMatchers(files02, w2.rootname));
     const instData =
       RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
@@ -115,7 +118,7 @@ describe('getPresignedPathsForFiles', () => {
     expect(returnedPaths).toEqual(expect.not.arrayContaining(paths02));
   });
 
-  softkaveTest.run('with workspaceId and agent token', async () => {
+  test('with workspaceId and agent token', async () => {
     const {userToken} = await insertUserForTest();
     const [{workspace: w1}, {workspace: w2}] = await Promise.all([
       insertWorkspaceForTest(userToken),
@@ -155,7 +158,7 @@ describe('getPresignedPathsForFiles', () => {
     expect(returnedPaths).toEqual(expect.not.arrayContaining(paths02));
   });
 
-  softkaveTest.run('with user token', async () => {
+  test('with user token', async () => {
     const {userToken} = await insertUserForTest();
     const [{workspace: w1}, {workspace: w2}] = await Promise.all([
       insertWorkspaceForTest(userToken),
@@ -190,7 +193,7 @@ describe('getPresignedPathsForFiles', () => {
     expect(returnedPaths).toEqual(expect.arrayContaining(expectedPaths));
   });
 
-  softkaveTest.run('filters out expired and spent paths', async () => {
+  test('filters out expired and spent paths', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace: w1} = await insertWorkspaceForTest(userToken);
     const [files01, files02, files03] = await Promise.all([
@@ -207,22 +210,24 @@ describe('getPresignedPathsForFiles', () => {
         parentId: null,
       }),
     ]);
-    const [paths01, pathsWithDuration, pathsWithUsageCount] = await Promise.all([
-      issuePaths(
-        userToken,
-        files01.map(f => ({fileId: f.resourceId}))
-      ),
-      issuePaths(
-        userToken,
-        files02.map(f => ({fileId: f.resourceId})),
-        {duration: 1}
-      ),
-      issuePaths(
-        userToken,
-        files03.map(f => ({fileId: f.resourceId})),
-        {usageCount: 1}
-      ),
-    ]);
+    const [paths01, pathsWithDuration, pathsWithUsageCount] = await Promise.all(
+      [
+        issuePaths(
+          userToken,
+          files01.map(f => ({fileId: f.resourceId}))
+        ),
+        issuePaths(
+          userToken,
+          files02.map(f => ({fileId: f.resourceId})),
+          {duration: 1}
+        ),
+        issuePaths(
+          userToken,
+          files03.map(f => ({fileId: f.resourceId})),
+          {usageCount: 1}
+        ),
+      ]
+    );
 
     // Spend the usage count. Wrapped, expected to throw because the file does
     // not exist yet
@@ -245,8 +250,12 @@ describe('getPresignedPathsForFiles', () => {
 
     const returnedPaths = result.paths.map(p => p.path);
     expect(returnedPaths).toEqual(expect.arrayContaining(paths01));
-    expect(returnedPaths).toEqual(expect.not.arrayContaining(pathsWithDuration));
-    expect(returnedPaths).toEqual(expect.not.arrayContaining(pathsWithUsageCount));
+    expect(returnedPaths).toEqual(
+      expect.not.arrayContaining(pathsWithDuration)
+    );
+    expect(returnedPaths).toEqual(
+      expect.not.arrayContaining(pathsWithUsageCount)
+    );
   });
 });
 
@@ -258,10 +267,13 @@ async function issuePaths(
   const result = await Promise.all(
     matchers.map(async matcher => {
       const result = await issuePresignedPath(
-        RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
-          ...input,
-          ...matcher,
-        })
+        RequestData.fromExpressRequest(
+          mockExpressRequestWithAgentToken(userToken),
+          {
+            ...input,
+            ...matcher,
+          }
+        )
       );
       assertEndpointResultOk(result);
       return result;
@@ -272,7 +284,9 @@ async function issuePaths(
 
 function toInterspersedMatchers(files: File[], rootname: string) {
   return files.map((f, i) =>
-    i % 2 === 0 ? {fileId: f.resourceId} : {filepath: stringifyFilenamepath(f, rootname)}
+    i % 2 === 0
+      ? {fileId: f.resourceId}
+      : {filepath: stringifyFilenamepath(f, rootname)}
   );
 }
 

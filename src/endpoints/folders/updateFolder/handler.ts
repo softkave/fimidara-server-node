@@ -1,20 +1,31 @@
-import {omit} from 'lodash';
-import {Folder} from '../../../definitions/folder';
-import {kPermissionAgentTypes} from '../../../definitions/system';
-import {getTimestamp} from '../../../utils/dateFns';
-import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {assertFolder, checkFolderAuthorization02, folderExtractor} from '../utils';
-import {UpdateFolderEndpoint} from './types';
-import {updateFolderJoiSchema} from './validation';
+import {omit} from 'lodash-es';
+import {Folder} from '../../../definitions/folder.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {
+  assertFolder,
+  checkFolderAuthorization02,
+  folderExtractor,
+} from '../utils.js';
+import {UpdateFolderEndpoint} from './types.js';
+import {updateFolderJoiSchema} from './validation.js';
 
 const updateFolder: UpdateFolderEndpoint = async instData => {
   const data = validate(instData.data, updateFolderJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, kPermissionAgentTypes);
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   let folder = await kSemanticModels.utils().withTxn(async opts => {
     const {folder} = await checkFolderAuthorization02(
       agent,
@@ -33,7 +44,7 @@ const updateFolder: UpdateFolderEndpoint = async instData => {
       .getAndUpdateOneById(folder.resourceId, update, opts);
     assertFolder(updatedFolder);
     return updatedFolder;
-  }, /** reuseTxn */ false);
+  });
 
   folder = await populateAssignedTags(folder.workspaceId, folder);
   return {folder: folderExtractor(folder!)};

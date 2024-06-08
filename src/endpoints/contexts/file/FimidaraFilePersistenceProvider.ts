@@ -1,21 +1,24 @@
-import {isArray, isNumber, isObject, merge} from 'lodash';
+import {isArray, isNumber, isObject, merge} from 'lodash-es';
 import path from 'path';
-import {File} from '../../../definitions/file';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {kFimidaraConfigFilePersistenceProvider} from '../../../resources/config';
-import {appAssert} from '../../../utils/assertion';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {FileQueries} from '../../files/queries';
-import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils';
-import {FolderQueries} from '../../folders/queries';
-import {getFolderpathInfo, stringifyFoldernamepath} from '../../folders/utils';
-import {kSemanticModels, kUtilsInjectables} from '../injection/injectables';
-import {LocalFsFilePersistenceProvider} from './LocalFsFilePersistenceProvider';
-import {MemoryFilePersistenceProvider} from './MemoryFilePersistenceProvider';
-import {S3FilePersistenceProvider} from './S3FilePersistenceProvider';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {kFimidaraConfigFilePersistenceProvider} from '../../../resources/config.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import {FileBackendQueries} from '../../fileBackends/queries.js';
+import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils.js';
+import {FolderQueries} from '../../folders/queries.js';
+import {
+  getFolderpathInfo,
+  stringifyFoldernamepath,
+} from '../../folders/utils.js';
+import {kSemanticModels, kUtilsInjectables} from '../injection/injectables.js';
+import {LocalFsFilePersistenceProvider} from './LocalFsFilePersistenceProvider.js';
+import {MemoryFilePersistenceProvider} from './MemoryFilePersistenceProvider.js';
+import {S3FilePersistenceProvider} from './S3FilePersistenceProvider.js';
 import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
+  FilePersistenceDescribeFileParams,
   FilePersistenceDescribeFolderContentParams,
   FilePersistenceDescribeFolderContentResult,
   FilePersistenceDescribeFolderFilesParams,
@@ -34,7 +37,7 @@ import {
   PersistedFile,
   PersistedFileDescription,
   PersistedFolderDescription,
-} from './types';
+} from './types.js';
 
 /** Seeing the root folder is mounted on fimidara, when we ingest new files or
  * folders from other mounts, there's a possiblity they'll be re-fetched in
@@ -48,7 +51,9 @@ export interface FimidaraFilePersistenceProviderPage {
   type: typeof kFimidaraResourceType.File | typeof kFimidaraResourceType.Folder;
 }
 
-export class FimidaraFilePersistenceProvider implements FilePersistenceProvider {
+export class FimidaraFilePersistenceProvider
+  implements FilePersistenceProvider
+{
   static isPage(page: unknown): page is FimidaraFilePersistenceProviderPage {
     return (
       isObject(page) &&
@@ -58,6 +63,7 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   backend: FilePersistenceProvider;
 
   constructor() {
@@ -77,33 +83,45 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
     }
   };
 
-  uploadFile = async (
-    params: FilePersistenceUploadFileParams
-  ): Promise<Partial<File>> => {
-    return await this.backend.uploadFile(this.prepareParams(params));
+  uploadFile = async (params: FilePersistenceUploadFileParams) => {
+    const preparedParams = this.prepareParams(params);
+    await this.backend.uploadFile(preparedParams);
+    return {filepath: params.filepath, raw: undefined};
   };
 
-  readFile = async (params: FilePersistenceGetFileParams): Promise<PersistedFile> => {
+  readFile = async (
+    params: FilePersistenceGetFileParams
+  ): Promise<PersistedFile> => {
     return await this.backend.readFile(this.prepareParams(params));
   };
 
   describeFile = async (
-    params: FilePersistenceGetFileParams
-  ): Promise<PersistedFileDescription | undefined> => {
+    params: FilePersistenceDescribeFileParams
+  ): Promise<PersistedFileDescription<undefined> | undefined> => {
     const {workspaceId, filepath, mount} = params;
-    const {namepath, extension} = getFilepathInfo(filepath, {containsRootname: false});
+    const {namepath, ext} = getFilepathInfo(filepath, {
+      containsRootname: false,
+      allowRootFolder: false,
+    });
     const entry = await kSemanticModels.resolvedMountEntry().getOneByQuery({
-      ...FileQueries.getByNamepath({workspaceId, namepath, extension}),
+      ...FileBackendQueries.getByBackendNamepath({
+        workspaceId,
+        backendNamepath: namepath,
+        backendExt: ext,
+      }),
       mountId: mount.resourceId,
     });
 
     if (entry) {
+      appAssert(entry.forType === kFimidaraResourceType.File);
+      const other = entry.persisted as PersistedFileDescription;
       return {
         filepath,
+        raw: undefined,
         lastUpdatedAt: entry.lastUpdatedAt,
-        size: entry.other?.size,
-        mimetype: entry.other?.mimetype,
-        encoding: entry.other?.encoding,
+        size: other.size,
+        mimetype: other.mimetype,
+        encoding: other.encoding,
         mountId: mount.resourceId,
       };
     }
@@ -113,36 +131,50 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
 
   describeFolder = async (
     params: FilePersistenceDescribeFolderParams
-  ): Promise<PersistedFolderDescription | undefined> => {
+  ): Promise<PersistedFolderDescription<undefined> | undefined> => {
     const {workspaceId, folderpath, mount} = params;
-    const {namepath} = getFolderpathInfo(folderpath, {containsRootname: false});
+    const {namepath} = getFolderpathInfo(folderpath, {
+      containsRootname: false,
+      allowRootFolder: false,
+    });
     const folder = await kSemanticModels
       .folder()
       .getOneByQuery(FolderQueries.getByNamepath({workspaceId, namepath}));
 
     if (folder) {
-      return {folderpath, mountId: mount.resourceId};
+      return {folderpath, mountId: mount.resourceId, raw: undefined};
     }
 
     return undefined;
   };
 
-  deleteFiles = async (params: FilePersistenceDeleteFilesParams): Promise<void> => {
-    await this.backend.deleteFiles(this.prepareParams(params));
+  deleteFiles = async (
+    params: FilePersistenceDeleteFilesParams
+  ): Promise<void> => {
+    const fParams = params.files.map(fParam => this.prepareParams(fParam));
+    await this.backend.deleteFiles({...params, files: fParams});
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  deleteFolders = async (params: FilePersistenceDeleteFoldersParams): Promise<void> => {
+  deleteFolders = async (
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    params: FilePersistenceDeleteFoldersParams
+  ): Promise<void> => {
     // fimidara persisted folders are stored in DB, so no need to delete them
     // here, seeing deleteFolder endpoint will do that
   };
 
   describeFolderContent = async (
     params: FilePersistenceDescribeFolderContentParams
-  ): Promise<FilePersistenceDescribeFolderContentResult> => {
+  ): Promise<
+    FilePersistenceDescribeFolderContentResult<undefined, undefined>
+  > => {
     const {continuationToken} = params;
-    let filesResult: FilePersistenceDescribeFolderFilesResult | undefined;
-    let foldersResult: FilePersistenceDescribeFolderFoldersResult | undefined;
+    let filesResult:
+      | FilePersistenceDescribeFolderFilesResult<undefined>
+      | undefined;
+    let foldersResult:
+      | FilePersistenceDescribeFolderFoldersResult<undefined>
+      | undefined;
 
     if (FimidaraFilePersistenceProvider.isPage(continuationToken)) {
       if (continuationToken.type === kFimidaraResourceType.File) {
@@ -178,8 +210,14 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
 
   describeFolderFiles = async (
     params: FilePersistenceDescribeFolderFilesParams
-  ): Promise<FilePersistenceDescribeFolderFilesResult> => {
-    const {folderpath, max, workspaceId, continuationToken: page, mount} = params;
+  ): Promise<FilePersistenceDescribeFolderFilesResult<undefined>> => {
+    const {
+      folderpath,
+      max,
+      workspaceId,
+      continuationToken: page,
+      mount,
+    } = params;
     const currentPage: FimidaraFilePersistenceProviderPage =
       FimidaraFilePersistenceProvider.isPage(page)
         ? page
@@ -190,12 +228,20 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
             type: kFimidaraResourceType.File,
           };
 
-    const pathinfo = getFolderpathInfo(folderpath, {containsRootname: false});
+    const pathinfo = getFolderpathInfo(folderpath, {
+      containsRootname: false,
+      allowRootFolder: false,
+    });
     const entries = await kSemanticModels.resolvedMountEntry().getManyByQuery(
       {
-        ...FolderQueries.getByParentPath({workspaceId, namepath: pathinfo.namepath}),
+        ...FileBackendQueries.getByParentBackendPath({
+          workspaceId,
+          backendNamepath: pathinfo.namepath,
+        }),
         createdAt: {$lte: currentPage.createdAt},
-        resourceId: currentPage.exclude?.length ? {$nin: currentPage.exclude} : undefined,
+        resourceId: currentPage.exclude?.length
+          ? {$nin: currentPage.exclude}
+          : undefined,
         mountId: mount.resourceId,
       },
       {pageSize: max, sort: {createdAt: 'descending'}}
@@ -204,22 +250,30 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
     let createdAtN = currentPage.createdAt;
     let exclude: string[] = currentPage.exclude;
 
-    const childrenFiles = entries.map((entry): PersistedFileDescription => {
-      if (entry.createdAt < createdAtN) {
-        createdAtN = entry.createdAt;
-        exclude = [];
-      }
+    const childrenFiles = entries.map(
+      (entry): PersistedFileDescription<undefined> => {
+        if (entry.createdAt < createdAtN) {
+          createdAtN = entry.createdAt;
+          exclude = [];
+        }
 
-      exclude.push(entry.resourceId);
-      return {
-        filepath: stringifyFilenamepath(entry),
-        lastUpdatedAt: entry.lastUpdatedAt,
-        size: entry.other?.size,
-        mimetype: entry.other?.mimetype,
-        encoding: entry.other?.encoding,
-        mountId: mount.resourceId,
-      };
-    });
+        exclude.push(entry.resourceId);
+        appAssert(entry.forType === kFimidaraResourceType.File);
+        const other = entry.persisted as PersistedFileDescription;
+        return {
+          raw: undefined,
+          filepath: stringifyFilenamepath({
+            namepath: entry.backendNamepath,
+            ext: entry.backendExt,
+          }),
+          lastUpdatedAt: entry.lastUpdatedAt,
+          size: other.size,
+          mimetype: other.mimetype,
+          encoding: other.encoding,
+          mountId: mount.resourceId,
+        };
+      }
+    );
 
     const nextPage: FimidaraFilePersistenceProviderPage = {
       exclude,
@@ -236,8 +290,14 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
 
   describeFolderFolders = async (
     params: FilePersistenceDescribeFolderFoldersParams
-  ): Promise<FilePersistenceDescribeFolderFoldersResult> => {
-    const {folderpath, max, workspaceId, continuationToken: page, mount} = params;
+  ): Promise<FilePersistenceDescribeFolderFoldersResult<undefined>> => {
+    const {
+      folderpath,
+      max,
+      workspaceId,
+      continuationToken: page,
+      mount,
+    } = params;
     const currentPage: FimidaraFilePersistenceProviderPage =
       FimidaraFilePersistenceProvider.isPage(page)
         ? page
@@ -248,12 +308,22 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
             type: kFimidaraResourceType.Folder,
           };
 
-    const pathinfo = getFolderpathInfo(folderpath, {containsRootname: false});
+    const pathinfo = getFolderpathInfo(folderpath, {
+      containsRootname: false,
+      allowRootFolder: false,
+    });
+
+    // TODO: we use should resolve mount entries instead
     const folders = await kSemanticModels.folder().getManyByQuery(
       {
-        ...FolderQueries.getByParentPath({workspaceId, namepath: pathinfo.namepath}),
+        ...FolderQueries.getByParentPath({
+          workspaceId,
+          namepath: pathinfo.namepath,
+        }),
         createdAt: {$lte: currentPage.createdAt},
-        resourceId: currentPage.exclude?.length ? {$nin: currentPage.exclude} : undefined,
+        resourceId: currentPage.exclude?.length
+          ? {$nin: currentPage.exclude}
+          : undefined,
       },
       {pageSize: max, sort: {createdAt: 'descending'}}
     );
@@ -261,15 +331,21 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
     let createdAtN = currentPage.createdAt;
     let exclude: string[] = [];
 
-    const childrenFolders = folders.map((folder): PersistedFolderDescription => {
-      if (folder.createdAt < createdAtN) {
-        createdAtN = folder.createdAt;
-        exclude = [];
-      }
+    const childrenFolders = folders.map(
+      (folder): PersistedFolderDescription<undefined> => {
+        if (folder.createdAt < createdAtN) {
+          createdAtN = folder.createdAt;
+          exclude = [];
+        }
 
-      exclude.push(folder.resourceId);
-      return {folderpath: stringifyFoldernamepath(folder), mountId: mount.resourceId};
-    });
+        exclude.push(folder.resourceId);
+        return {
+          folderpath: stringifyFoldernamepath(folder),
+          mountId: mount.resourceId,
+          raw: undefined,
+        };
+      }
+    );
 
     const nextPage: FimidaraFilePersistenceProviderPage = {
       exclude,
@@ -302,12 +378,13 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
     return {fimidaraPath: params.nativePath};
   };
 
-  prepareParams<TParams extends {postMountedFromPrefix?: string[]; workspaceId: string}>(
+  prepareParams<TParams extends {fileId: string; filepath: string}>(
     params: TParams
   ): TParams {
-    return {...params, postMountedFromPrefix: [params.workspaceId]};
+    return {...params, filepath: params.fileId};
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected getBackend = (): FilePersistenceProvider => {
     const config = kUtilsInjectables.suppliedConfig();
 
@@ -319,11 +396,15 @@ export class FimidaraFilePersistenceProvider implements FilePersistenceProvider 
           awsConfig?.accessKeyId,
           'No AWS accessKeyId provided for AWS S3 provider'
         );
-        appAssert(awsConfig?.region, 'No AWS region provided for AWS S3 provider');
+        appAssert(
+          awsConfig?.region,
+          'No AWS region provided for AWS S3 provider'
+        );
         appAssert(
           awsConfig?.secretAccessKey,
           'No AWS secretAccessKey provided for AWS S3 provider'
         );
+
         return new S3FilePersistenceProvider(awsConfig);
       }
       case kFimidaraConfigFilePersistenceProvider.fs: {

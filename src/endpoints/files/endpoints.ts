@@ -1,20 +1,21 @@
 import busboy from 'connect-busboy';
 import {Request, Response} from 'express';
-import {first, isString, last} from 'lodash';
+import {first, isString, last} from 'lodash-es';
 import {Readable} from 'stream';
-import {kFimidaraResourceType} from '../../definitions/system';
-import {appAssert} from '../../utils/assertion';
-import {convertToArray} from '../../utils/fns';
-import {tryGetResourceTypeFromId} from '../../utils/resource';
-import {AnyObject} from '../../utils/types';
-import {kEndpointConstants} from '../constants';
-import {InvalidRequestError} from '../errors';
-import {populateMountUnsupportedOpNoteInNotFoundError} from '../fileBackends/mountUtils';
-import {kFolderConstants} from '../folders/constants';
-import {ExportedHttpEndpoint_HandleErrorFn} from '../types';
-import {endpointDecodeURIComponent} from '../utils';
-import {kFileConstants} from './constants';
-import deleteFile from './deleteFile/handler';
+import {kFimidaraResourceType} from '../../definitions/system.js';
+import {appAssert} from '../../utils/assertion.js';
+import {convertToArray} from '../../utils/fns.js';
+import {tryGetResourceTypeFromId} from '../../utils/resource.js';
+import {AnyObject} from '../../utils/types.js';
+import {kEndpointConstants} from '../constants.js';
+import {kUtilsInjectables} from '../contexts/injection/injectables.js';
+import {InvalidRequestError} from '../errors.js';
+import {populateMountUnsupportedOpNoteInNotFoundError} from '../fileBackends/mountUtils.js';
+import {kFolderConstants} from '../folders/constants.js';
+import {ExportedHttpEndpoint_HandleErrorFn} from '../types.js';
+import {endpointDecodeURIComponent} from '../utils.js';
+import {kFileConstants} from './constants.js';
+import deleteFile from './deleteFile/handler.js';
 import {
   deleteFileEndpointDefinition,
   getFileDetailsEndpointDefinition,
@@ -22,18 +23,18 @@ import {
   readFilePOSTEndpointDefinition,
   updateFileDetailsEndpointDefinition,
   uploadFileEndpointDefinition,
-} from './endpoints.mddoc';
-import getFileDetails from './getFileDetails/handler';
-import readFile from './readFile/handler';
+} from './endpoints.mddoc.js';
+import getFileDetails from './getFileDetails/handler.js';
+import readFile from './readFile/handler.js';
 import {
   ReadFileEndpoint,
   ReadFileEndpointHttpQuery,
   ReadFileEndpointParams,
-} from './readFile/types';
-import {FilesExportedEndpoints} from './types';
-import updateFileDetails from './updateFileDetails/handler';
-import uploadFile from './uploadFile/handler';
-import {UploadFileEndpointParams} from './uploadFile/types';
+} from './readFile/types.js';
+import {FilesExportedEndpoints} from './types.js';
+import updateFileDetails from './updateFileDetails/handler.js';
+import uploadFile from './uploadFile/handler.js';
+import {UploadFileEndpointParams} from './uploadFile/types.js';
 
 const kFileStreamWaitTimeoutMS = 10000; // 10 seconds
 
@@ -115,16 +116,29 @@ async function extractUploadFileParamsFromReq(
 ): Promise<UploadFileEndpointParams> {
   let waitTimeoutHandle: NodeJS.Timeout | undefined = undefined;
   const contentEncoding = req.headers['content-encoding'];
-  const description = req.headers[kFileConstants.headers['x-fimidara-file-description']];
-  const mimeType = req.headers[kFileConstants.headers['x-fimidara-file-mimetype']];
-  appAssert(req.busboy, new InvalidRequestError('Invalid multipart/formdata request'));
+  const description =
+    req.headers[kFileConstants.headers['x-fimidara-file-description']];
+  const mimeType =
+    req.headers[kFileConstants.headers['x-fimidara-file-mimetype']];
+  appAssert(
+    req.busboy,
+    new InvalidRequestError('Invalid multipart/formdata request')
+  );
 
   return new Promise((resolve, reject) => {
     // Wait for data stream or end if timeout exceeded. This is to prevent
     // waiting forever, for whatever reason if stream event is not fired.
     waitTimeoutHandle = setTimeout(() => {
-      reject(new Error(`Upload file wait timeout ${kFileStreamWaitTimeoutMS} exceeded`));
+      reject(
+        new Error(
+          `Upload file wait timeout ${kFileStreamWaitTimeoutMS} exceeded`
+        )
+      );
     }, kFileStreamWaitTimeoutMS);
+
+    req.busboy.on('error', (error): void => {
+      kUtilsInjectables.logger().error('uploadFile req busboy error', error);
+    });
 
     req.busboy.on('file', (filename, stream, info) => {
       // Clear wait timeout, we have file stream, otherwise the request will
@@ -139,7 +153,9 @@ async function extractUploadFileParamsFromReq(
         data: stream,
         encoding: info.encoding ?? contentEncoding,
         mimetype: isString(mimeType) && mimeType ? mimeType : info.mimeType,
-        description: description ? first(convertToArray(description)) : undefined,
+        description: description
+          ? first(convertToArray(description))
+          : undefined,
       });
     });
 
@@ -160,7 +176,9 @@ async function extractUploadFileParamsFromReq(
         data: Readable.from(value),
         encoding: info.encoding ?? contentEncoding,
         mimetype: isString(mimeType) && mimeType ? mimeType : info.mimeType,
-        description: description ? first(convertToArray(description)) : undefined,
+        description: description
+          ? first(convertToArray(description))
+          : undefined,
       });
     });
 
@@ -173,6 +191,23 @@ function cleanupUploadFileReq(req: Request) {
     // We are done processing request, either because of an error, file stream
     // wait timeout exceeded, or file has been persisted. Either way,
     // immediately destroy the stream to avoid memory leakage.
+
+    interface ActiveBusboy {
+      _fileStream?: Readable;
+    }
+
+    // Handle busboy's _fileStream on error, called on destroy() which'd crash
+    // the app otherwise
+    if ((req.busboy as ActiveBusboy)?._fileStream) {
+      (req.busboy as ActiveBusboy)?._fileStream?.on('error', error => {
+        kUtilsInjectables
+          .logger()
+          .error('uploadFile req busboy _fileStream error', error);
+      });
+    }
+
+    req.unpipe(req.busboy);
+    req.destroy();
     req.busboy.destroy();
   }
 }

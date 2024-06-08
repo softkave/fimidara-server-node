@@ -1,6 +1,6 @@
-import {EmailBlocklistReason} from '../../../definitions/email';
-import {EmailJobMeta} from '../../../definitions/job';
-import {DisposableResource} from '../../../utils/disposables';
+import {DisposableResource} from 'softkave-js-utils';
+import {EmailBlocklistReason} from '../../../definitions/email.js';
+import {EmailJobMeta} from '../../../definitions/job.js';
 
 export interface SendEmailParams {
   destination: string[];

@@ -1,17 +1,18 @@
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import RequestData from '../../RequestData';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import RequestData from '../../RequestData.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {collaboratorExtractor} from '../utils';
-import getCollaborator from './handler';
-import {GetCollaboratorEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import {collaboratorExtractor} from '../utils.js';
+import getCollaborator from './handler.js';
+import {GetCollaboratorEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

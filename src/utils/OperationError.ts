@@ -1,5 +1,5 @@
-import {isObject, isString} from 'lodash';
-import {EndpointResultNote} from '../endpoints/types';
+import {isObject, isString} from 'lodash-es';
+import {EndpointResultNote} from '../endpoints/types.js';
 
 export interface OperationErrorParameters {
   message?: string;

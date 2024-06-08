@@ -1,6 +1,6 @@
-import * as Joi from 'joi';
-import {getWorkspaceAgentTokenBaseJoiSchemaParts} from '../getWorkspaceTokens/validation';
-import {CountWorkspaceAgentTokensEndpointParams} from './types';
+import Joi from 'joi';
+import {getWorkspaceAgentTokenBaseJoiSchemaParts} from '../getWorkspaceTokens/validation.js';
+import {CountWorkspaceAgentTokensEndpointParams} from './types.js';
 
 export const countWorkspaceAgentTokenJoiSchema =
   Joi.object<CountWorkspaceAgentTokensEndpointParams>()

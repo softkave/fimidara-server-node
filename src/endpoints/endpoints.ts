@@ -1,46 +1,49 @@
 import {Express} from 'express';
-import {forEach, isArray, isObject} from 'lodash';
-import {getAgentTokenPublicHttpEndpoints} from './agentTokens/endpoints';
-import {AgentTokensExportedEndpoints} from './agentTokens/types';
-import {getCollaborationRequestsPublicHttpEndpoints} from './collaborationRequests/endpoints';
-import {CollaborationRequestsExportedEndpoints} from './collaborationRequests/types';
+import {forEach, isArray, isObject} from 'lodash-es';
+import {getAgentTokenPublicHttpEndpoints} from './agentTokens/endpoints.js';
+import {AgentTokensExportedEndpoints} from './agentTokens/types.js';
+import {getCollaborationRequestsPublicHttpEndpoints} from './collaborationRequests/endpoints.js';
+import {CollaborationRequestsExportedEndpoints} from './collaborationRequests/types.js';
 import {
   getCollaboratorsPrivateHttpEndpoints,
   getCollaboratorsPublicHttpEndpoints,
-} from './collaborators/endpoints';
+} from './collaborators/endpoints.js';
 import {
   CollaboratorsPrivateExportedEndpoints,
   CollaboratorsPublicExportedEndpoints,
-} from './collaborators/types';
-import {getFileBackendsPublicHttpEndpoints} from './fileBackends/endpoints';
-import {FileBackendsExportedEndpoints} from './fileBackends/types';
-import {getFilesPublicHttpEndpoints} from './files/endpoints';
-import {FilesExportedEndpoints} from './files/types';
-import {getFoldersPublicHttpEndpoints} from './folders/endpoints';
-import {FoldersExportedEndpoints} from './folders/types';
-import {getInternalsPrivateHttpEndpoints} from './internal/endpoints';
-import {InternalsPrivateExportedEndpoints} from './internal/types';
-import {getJobsPublicHttpEndpoints} from './jobs/endpoints';
-import {JobsExportedEndpoints} from './jobs/types';
-import {getPermissionGroupsPublicHttpEndpoints} from './permissionGroups/endpoints';
-import {PermissionGroupsExportedEndpoints} from './permissionGroups/types';
-import {getPermissionItemsPublicHttpEndpoints} from './permissionItems/endpoints';
-import {PermissionItemsExportedEndpoints} from './permissionItems/types';
-import {getPresignedPathsPublicHttpEndpoints} from './presignedPaths/endpoints';
-import {PresignedPathsExportedEndpoints} from './presignedPaths/types';
-import {getResourcesPublicHttpEndpoints} from './resources/endpoints';
-import {ResourcesExportedEndpoints} from './resources/types';
-import {ExportedHttpEndpointWithMddocDefinition} from './types';
-import {getUsageRecordsPublicHttpEndpoints} from './usageRecords/endpoints';
-import {UsageRecordsExportedEndpoints} from './usageRecords/types';
+} from './collaborators/types.js';
+import {getFileBackendsPublicHttpEndpoints} from './fileBackends/endpoints.js';
+import {FileBackendsExportedEndpoints} from './fileBackends/types.js';
+import {getFilesPublicHttpEndpoints} from './files/endpoints.js';
+import {FilesExportedEndpoints} from './files/types.js';
+import {getFoldersPublicHttpEndpoints} from './folders/endpoints.js';
+import {FoldersExportedEndpoints} from './folders/types.js';
+import {getInternalsPrivateHttpEndpoints} from './internal/endpoints.js';
+import {InternalsPrivateExportedEndpoints} from './internal/types.js';
+import {getJobsPublicHttpEndpoints} from './jobs/endpoints.js';
+import {JobsExportedEndpoints} from './jobs/types.js';
+import {getPermissionGroupsPublicHttpEndpoints} from './permissionGroups/endpoints.js';
+import {PermissionGroupsExportedEndpoints} from './permissionGroups/types.js';
+import {getPermissionItemsPublicHttpEndpoints} from './permissionItems/endpoints.js';
+import {PermissionItemsExportedEndpoints} from './permissionItems/types.js';
+import {getPresignedPathsPublicHttpEndpoints} from './presignedPaths/endpoints.js';
+import {PresignedPathsExportedEndpoints} from './presignedPaths/types.js';
+import {getResourcesPublicHttpEndpoints} from './resources/endpoints.js';
+import {ResourcesExportedEndpoints} from './resources/types.js';
+import {ExportedHttpEndpointWithMddocDefinition} from './types.js';
+import {getUsageRecordsPublicHttpEndpoints} from './usageRecords/endpoints.js';
+import {UsageRecordsExportedEndpoints} from './usageRecords/types.js';
 import {
   getUsersPrivateHttpEndpoints,
   getUsersPublicHttpEndpoints,
-} from './users/endpoints';
-import {UsersPrivateExportedEndpoints, UsersPublicExportedEndpoints} from './users/types';
-import {registerExpressRouteFromEndpoint} from './utils';
-import {getWorkspacesPublicHttpEndpoints} from './workspaces/endpoints';
-import {WorkspacesExportedEndpoints} from './workspaces/types';
+} from './users/endpoints.js';
+import {
+  UsersPrivateExportedEndpoints,
+  UsersPublicExportedEndpoints,
+} from './users/types.js';
+import {registerExpressRouteFromEndpoint} from './utils.js';
+import {getWorkspacesPublicHttpEndpoints} from './workspaces/endpoints.js';
+import {WorkspacesExportedEndpoints} from './workspaces/types.js';
 
 export type AppExportedHttpEndpoints = Array<
   ExportedHttpEndpointWithMddocDefinition<any>
@@ -137,7 +140,10 @@ export function getFimidaraPrivateHttpEndpoints() {
   return compileEndpoints(getFimidaraRawPrivateHttpEndpoints());
 }
 
-function setupAppHttpEndpoints(app: Express, endpoints: AppExportedHttpEndpoints) {
+function setupAppHttpEndpoints(
+  app: Express,
+  endpoints: AppExportedHttpEndpoints
+) {
   forEach(endpoints, e1 => {
     registerExpressRouteFromEndpoint(e1, app);
   });

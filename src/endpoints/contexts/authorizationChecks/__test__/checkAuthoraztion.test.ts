@@ -1,41 +1,49 @@
 import assert from 'assert';
+import {describe, expect, test} from 'vitest';
 import {
-  PermissionAction,
+  FimidaraPermissionAction,
   PermissionItem,
-  kPermissionsMap,
-} from '../../../../definitions/permissionItem';
-import {kSystemSessionAgent} from '../../../../utils/agent';
-import {convertToArray} from '../../../../utils/fns';
-import RequestData from '../../../RequestData';
-import {assignWorkspaceToUser} from '../../../assignedItems/addAssignedItems';
-import {generateAndInsertTestFiles} from '../../../testUtils/generate/file';
-import {generateAndInsertTestFolders} from '../../../testUtils/generate/folder';
+  kFimidaraPermissionActionsMap,
+} from '../../../../definitions/permissionItem.js';
+import {kSystemSessionAgent} from '../../../../utils/agent.js';
+import {convertToArray} from '../../../../utils/fns.js';
+import RequestData from '../../../RequestData.js';
+import {assignWorkspaceToUser} from '../../../assignedItems/addAssignedItems.js';
+import {generateAndInsertTestFiles} from '../../../testUtils/generate/file.js';
+import {generateAndInsertTestFolders} from '../../../testUtils/generate/folder.js';
 import {
   generateAndInsertAssignedItemListForTest,
   generateAndInsertPermissionGroupListForTest,
-} from '../../../testUtils/generate/permissionGroup';
-import {generatePermissionItemForTest} from '../../../testUtils/generate/permissionItem';
-import {expectErrorThrown} from '../../../testUtils/helpers/error';
-import {softkaveTest, startTesting} from '../../../testUtils/helpers/testFns';
+} from '../../../testUtils/generate/permissionGroup.js';
+import {generatePermissionItemForTest} from '../../../testUtils/generate/permissionItem.js';
+import {expectErrorThrown} from '../../../testUtils/helpers/error.js';
+import {startTesting} from '../../../testUtils/helpers/testFns.js';
 import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../../testUtils/testUtils';
-import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../../users/errors';
-import {SignupEndpointParams} from '../../../users/signup/types';
-import {kSemanticModels, kUtilsInjectables} from '../../injection/injectables';
+} from '../../../testUtils/testUtils.js';
+import {
+  EmailAddressNotVerifiedError,
+  PermissionDeniedError,
+} from '../../../users/errors.js';
+import {SignupEndpointParams} from '../../../users/signup/types.js';
+import {kSessionUtils} from '../../SessionContext.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../injection/injectables.js';
 import {
   checkAuthorizationWithAgent,
   getFilePermissionContainers,
   kResolvedTargetChildrenAccess,
   resolveTargetChildrenAccessCheckWithAgent,
-} from '../checkAuthorizaton';
+} from '../checkAuthorizaton.js';
 
 startTesting();
 
 describe('checkAuthorization', () => {
-  softkaveTest.run('check auth with target + entity, access & no access', async () => {
+  test('check auth with target + entity, access & no access', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
@@ -47,13 +55,13 @@ describe('checkAuthorization', () => {
       addPermissions(
         rawWorkspace.resourceId,
         user02.resourceId,
-        kPermissionsMap.readFile,
+        kFimidaraPermissionActionsMap.readFile,
         {targetId: file01.resourceId}
       ),
       addPermissions(
         rawWorkspace.resourceId,
         user02.resourceId,
-        kPermissionsMap.readFile,
+        kFimidaraPermissionActionsMap.readFile,
         {targetId: file03.resourceId, access: false}
       ),
     ]);
@@ -61,8 +69,12 @@ describe('checkAuthorization', () => {
     await checkAuthorizationWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: kPermissionsMap.readFile,
-        targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
+        action: kFimidaraPermissionActionsMap.readFile,
+        targetId: getFilePermissionContainers(
+          rawWorkspace.resourceId,
+          file01,
+          true
+        ),
       },
       workspaceId: rawWorkspace.resourceId,
       workspace: rawWorkspace,
@@ -71,8 +83,12 @@ describe('checkAuthorization', () => {
       await checkAuthorizationWithAgent({
         agent: user02SessionAgent,
         target: {
-          action: kPermissionsMap.readFile,
-          targetId: getFilePermissionContainers(rawWorkspace.resourceId, file02, true),
+          action: kFimidaraPermissionActionsMap.readFile,
+          targetId: getFilePermissionContainers(
+            rawWorkspace.resourceId,
+            file02,
+            true
+          ),
         },
         workspaceId: rawWorkspace.resourceId,
         workspace: rawWorkspace,
@@ -82,8 +98,12 @@ describe('checkAuthorization', () => {
       await checkAuthorizationWithAgent({
         agent: user02SessionAgent,
         target: {
-          action: kPermissionsMap.readFile,
-          targetId: getFilePermissionContainers(rawWorkspace.resourceId, file03, true),
+          action: kFimidaraPermissionActionsMap.readFile,
+          targetId: getFilePermissionContainers(
+            rawWorkspace.resourceId,
+            file03,
+            true
+          ),
         },
         workspaceId: rawWorkspace.resourceId,
         workspace: rawWorkspace,
@@ -91,110 +111,126 @@ describe('checkAuthorization', () => {
     }, [PermissionDeniedError.name]);
   });
 
-  softkaveTest.run(
-    'check auth with target + inherited entity, access & no access',
-    async () => {
-      const {rawWorkspace} = await generateUserAndWorkspace();
-      const {user: user02, sessionAgent: user02SessionAgent} =
-        await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
-      const [[file01, file02, file03, file04], [pg01, pg02]] = await Promise.all([
-        generateAndInsertTestFiles(4, {
-          workspaceId: rawWorkspace.resourceId,
-          parentId: null,
-        }),
-        generateAndInsertPermissionGroupListForTest(2, {
-          workspaceId: rawWorkspace.resourceId,
-        }),
-      ]);
-
-      await Promise.all([
-        // Add readFile access to file01 for pg01
-        addPermissions(
-          rawWorkspace.resourceId,
-          pg01.resourceId,
-          kPermissionsMap.readFile,
-          {targetId: file01.resourceId}
-        ),
-        // Add readFile access to file02 for pg02
-        addPermissions(
-          rawWorkspace.resourceId,
-          pg02.resourceId,
-          kPermissionsMap.readFile,
-          {targetId: file02.resourceId}
-        ),
-        // Add deny readFile access to file04 for pg01
-        addPermissions(
-          rawWorkspace.resourceId,
-          pg02.resourceId,
-          kPermissionsMap.readFile,
-          {targetId: file04.resourceId, access: false}
-        ),
-        // Assign pg02 to pg01
-        generateAndInsertAssignedItemListForTest(1, {
-          workspaceId: rawWorkspace.resourceId,
-          assignedItemId: pg02.resourceId,
-          assigneeId: pg01.resourceId,
-        }),
-        // Assign pg01 to user02
-        generateAndInsertAssignedItemListForTest(1, {
-          workspaceId: rawWorkspace.resourceId,
-          assignedItemId: pg01.resourceId,
-          assigneeId: user02.resourceId,
-        }),
-      ]);
-
-      await checkAuthorizationWithAgent({
-        agent: user02SessionAgent,
-        target: {
-          targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
-          action: kPermissionsMap.readFile,
-        },
-        workspaceId: rawWorkspace.resourceId,
-        workspace: rawWorkspace,
-      });
-      await checkAuthorizationWithAgent({
-        agent: user02SessionAgent,
-        target: {
-          targetId: getFilePermissionContainers(rawWorkspace.resourceId, file02, true),
-          action: kPermissionsMap.readFile,
-        },
-        workspaceId: rawWorkspace.resourceId,
-        workspace: rawWorkspace,
-      });
-
-      await expectErrorThrown(async () => {
-        await checkAuthorizationWithAgent({
-          agent: user02SessionAgent,
-          target: {
-            targetId: getFilePermissionContainers(rawWorkspace.resourceId, file03, true),
-            action: kPermissionsMap.readFile,
-          },
-          workspaceId: rawWorkspace.resourceId,
-          workspace: rawWorkspace,
-        });
-      }, [PermissionDeniedError.name]);
-      await expectErrorThrown(async () => {
-        await checkAuthorizationWithAgent({
-          agent: user02SessionAgent,
-          target: {
-            targetId: getFilePermissionContainers(rawWorkspace.resourceId, file04, true),
-            action: kPermissionsMap.readFile,
-          },
-          workspaceId: rawWorkspace.resourceId,
-          workspace: rawWorkspace,
-        });
-      }, [PermissionDeniedError.name]);
-    }
-  );
-
-  softkaveTest.run('check auth with parent + entity, access & no access', async () => {
+  test('check auth with target + inherited entity, access & no access', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
-    const [folder01, folder02, folder03] = await generateAndInsertTestFolders(3, {
+    const [[file01, file02, file03, file04], [pg01, pg02]] = await Promise.all([
+      generateAndInsertTestFiles(4, {
+        workspaceId: rawWorkspace.resourceId,
+        parentId: null,
+      }),
+      generateAndInsertPermissionGroupListForTest(2, {
+        workspaceId: rawWorkspace.resourceId,
+      }),
+    ]);
+
+    await Promise.all([
+      // Add readFile access to file01 for pg01
+      addPermissions(
+        rawWorkspace.resourceId,
+        pg01.resourceId,
+        kFimidaraPermissionActionsMap.readFile,
+        {targetId: file01.resourceId}
+      ),
+      // Add readFile access to file02 for pg02
+      addPermissions(
+        rawWorkspace.resourceId,
+        pg02.resourceId,
+        kFimidaraPermissionActionsMap.readFile,
+        {targetId: file02.resourceId}
+      ),
+      // Add deny readFile access to file04 for pg01
+      addPermissions(
+        rawWorkspace.resourceId,
+        pg02.resourceId,
+        kFimidaraPermissionActionsMap.readFile,
+        {targetId: file04.resourceId, access: false}
+      ),
+      // Assign pg02 to pg01
+      generateAndInsertAssignedItemListForTest(1, {
+        workspaceId: rawWorkspace.resourceId,
+        assignedItemId: pg02.resourceId,
+        assigneeId: pg01.resourceId,
+      }),
+      // Assign pg01 to user02
+      generateAndInsertAssignedItemListForTest(1, {
+        workspaceId: rawWorkspace.resourceId,
+        assignedItemId: pg01.resourceId,
+        assigneeId: user02.resourceId,
+      }),
+    ]);
+
+    await checkAuthorizationWithAgent({
+      agent: user02SessionAgent,
+      target: {
+        targetId: getFilePermissionContainers(
+          rawWorkspace.resourceId,
+          file01,
+          true
+        ),
+        action: kFimidaraPermissionActionsMap.readFile,
+      },
       workspaceId: rawWorkspace.resourceId,
-      parentId: null,
+      workspace: rawWorkspace,
     });
+    await checkAuthorizationWithAgent({
+      agent: user02SessionAgent,
+      target: {
+        targetId: getFilePermissionContainers(
+          rawWorkspace.resourceId,
+          file02,
+          true
+        ),
+        action: kFimidaraPermissionActionsMap.readFile,
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
+    });
+
+    await expectErrorThrown(async () => {
+      await checkAuthorizationWithAgent({
+        agent: user02SessionAgent,
+        target: {
+          targetId: getFilePermissionContainers(
+            rawWorkspace.resourceId,
+            file03,
+            true
+          ),
+          action: kFimidaraPermissionActionsMap.readFile,
+        },
+        workspaceId: rawWorkspace.resourceId,
+        workspace: rawWorkspace,
+      });
+    }, [PermissionDeniedError.name]);
+    await expectErrorThrown(async () => {
+      await checkAuthorizationWithAgent({
+        agent: user02SessionAgent,
+        target: {
+          targetId: getFilePermissionContainers(
+            rawWorkspace.resourceId,
+            file04,
+            true
+          ),
+          action: kFimidaraPermissionActionsMap.readFile,
+        },
+        workspaceId: rawWorkspace.resourceId,
+        workspace: rawWorkspace,
+      });
+    }, [PermissionDeniedError.name]);
+  });
+
+  test('check auth with parent + entity, access & no access', async () => {
+    const {rawWorkspace} = await generateUserAndWorkspace();
+    const {user: user02, sessionAgent: user02SessionAgent} =
+      await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
+    const [folder01, folder02, folder03] = await generateAndInsertTestFolders(
+      3,
+      {
+        workspaceId: rawWorkspace.resourceId,
+        parentId: null,
+      }
+    );
     const [[file01], [file02], [file03]] = await Promise.all([
       generateAndInsertTestFiles(1, {
         workspaceId: rawWorkspace.resourceId,
@@ -213,13 +249,13 @@ describe('checkAuthorization', () => {
       addPermissions(
         rawWorkspace.resourceId,
         user02.resourceId,
-        kPermissionsMap.readFile,
+        kFimidaraPermissionActionsMap.readFile,
         {targetId: folder01.resourceId}
       ),
       addPermissions(
         rawWorkspace.resourceId,
         user02.resourceId,
-        kPermissionsMap.readFile,
+        kFimidaraPermissionActionsMap.readFile,
         {targetId: folder03.resourceId, access: false}
       ),
     ]);
@@ -227,8 +263,12 @@ describe('checkAuthorization', () => {
     await checkAuthorizationWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: kPermissionsMap.readFile,
-        targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
+        action: kFimidaraPermissionActionsMap.readFile,
+        targetId: getFilePermissionContainers(
+          rawWorkspace.resourceId,
+          file01,
+          true
+        ),
       },
       workspaceId: rawWorkspace.resourceId,
       workspace: rawWorkspace,
@@ -237,8 +277,12 @@ describe('checkAuthorization', () => {
       await checkAuthorizationWithAgent({
         agent: user02SessionAgent,
         target: {
-          action: kPermissionsMap.readFile,
-          targetId: getFilePermissionContainers(rawWorkspace.resourceId, file02, true),
+          action: kFimidaraPermissionActionsMap.readFile,
+          targetId: getFilePermissionContainers(
+            rawWorkspace.resourceId,
+            file02,
+            true
+          ),
         },
         workspaceId: rawWorkspace.resourceId,
         workspace: rawWorkspace,
@@ -248,8 +292,12 @@ describe('checkAuthorization', () => {
       await checkAuthorizationWithAgent({
         agent: user02SessionAgent,
         target: {
-          action: kPermissionsMap.readFile,
-          targetId: getFilePermissionContainers(rawWorkspace.resourceId, file03, true),
+          action: kFimidaraPermissionActionsMap.readFile,
+          targetId: getFilePermissionContainers(
+            rawWorkspace.resourceId,
+            file03,
+            true
+          ),
         },
         workspaceId: rawWorkspace.resourceId,
         workspace: rawWorkspace,
@@ -257,13 +305,12 @@ describe('checkAuthorization', () => {
     }, [PermissionDeniedError.name]);
   });
 
-  softkaveTest.run(
-    'check auth with parent + inherited entity, access & no access',
-    async () => {
-      const {rawWorkspace} = await generateUserAndWorkspace();
-      const {user: user02, sessionAgent: user02SessionAgent} =
-        await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
-      const [[folder01, folder02, folder03, folder04], [pg01, pg02]] = await Promise.all([
+  test('check auth with parent + inherited entity, access & no access', async () => {
+    const {rawWorkspace} = await generateUserAndWorkspace();
+    const {user: user02, sessionAgent: user02SessionAgent} =
+      await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
+    const [[folder01, folder02, folder03, folder04], [pg01, pg02]] =
+      await Promise.all([
         generateAndInsertTestFolders(4, {
           workspaceId: rawWorkspace.resourceId,
           parentId: null,
@@ -272,105 +319,120 @@ describe('checkAuthorization', () => {
           workspaceId: rawWorkspace.resourceId,
         }),
       ]);
-      const [[file01], [file02], [file03], [file04]] = await Promise.all([
-        generateAndInsertTestFiles(1, {
-          workspaceId: rawWorkspace.resourceId,
-          parentId: folder01.resourceId,
-        }),
-        generateAndInsertTestFiles(1, {
-          workspaceId: rawWorkspace.resourceId,
-          parentId: folder02.resourceId,
-        }),
-        generateAndInsertTestFiles(1, {
-          workspaceId: rawWorkspace.resourceId,
-          parentId: folder03.resourceId,
-        }),
-        generateAndInsertTestFiles(1, {
-          workspaceId: rawWorkspace.resourceId,
-          parentId: folder04.resourceId,
-        }),
-      ]);
-      await Promise.all([
-        // Add readFile access to folder01 for pg01
-        addPermissions(
-          rawWorkspace.resourceId,
-          pg01.resourceId,
-          kPermissionsMap.readFile,
-          {targetId: folder01.resourceId}
-        ),
-        // Add readFile access to folder02 for pg02
-        addPermissions(
-          rawWorkspace.resourceId,
-          pg02.resourceId,
-          kPermissionsMap.readFile,
-          {targetId: folder02.resourceId}
-        ),
-        // Add deny readFile access to folder04 for pg02
-        addPermissions(
-          rawWorkspace.resourceId,
-          pg02.resourceId,
-          kPermissionsMap.readFile,
-          {targetId: folder04.resourceId, access: false}
-        ),
-        // Assign pg02 to pg01
-        generateAndInsertAssignedItemListForTest(1, {
-          workspaceId: rawWorkspace.resourceId,
-          assignedItemId: pg02.resourceId,
-          assigneeId: pg01.resourceId,
-        }),
-        // Assign pg01 to user02
-        generateAndInsertAssignedItemListForTest(1, {
-          workspaceId: rawWorkspace.resourceId,
-          assignedItemId: pg01.resourceId,
-          assigneeId: user02.resourceId,
-        }),
-      ]);
+    const [[file01], [file02], [file03], [file04]] = await Promise.all([
+      generateAndInsertTestFiles(1, {
+        workspaceId: rawWorkspace.resourceId,
+        parentId: folder01.resourceId,
+      }),
+      generateAndInsertTestFiles(1, {
+        workspaceId: rawWorkspace.resourceId,
+        parentId: folder02.resourceId,
+      }),
+      generateAndInsertTestFiles(1, {
+        workspaceId: rawWorkspace.resourceId,
+        parentId: folder03.resourceId,
+      }),
+      generateAndInsertTestFiles(1, {
+        workspaceId: rawWorkspace.resourceId,
+        parentId: folder04.resourceId,
+      }),
+    ]);
+    await Promise.all([
+      // Add readFile access to folder01 for pg01
+      addPermissions(
+        rawWorkspace.resourceId,
+        pg01.resourceId,
+        kFimidaraPermissionActionsMap.readFile,
+        {targetId: folder01.resourceId}
+      ),
+      // Add readFile access to folder02 for pg02
+      addPermissions(
+        rawWorkspace.resourceId,
+        pg02.resourceId,
+        kFimidaraPermissionActionsMap.readFile,
+        {targetId: folder02.resourceId}
+      ),
+      // Add deny readFile access to folder04 for pg02
+      addPermissions(
+        rawWorkspace.resourceId,
+        pg02.resourceId,
+        kFimidaraPermissionActionsMap.readFile,
+        {targetId: folder04.resourceId, access: false}
+      ),
+      // Assign pg02 to pg01
+      generateAndInsertAssignedItemListForTest(1, {
+        workspaceId: rawWorkspace.resourceId,
+        assignedItemId: pg02.resourceId,
+        assigneeId: pg01.resourceId,
+      }),
+      // Assign pg01 to user02
+      generateAndInsertAssignedItemListForTest(1, {
+        workspaceId: rawWorkspace.resourceId,
+        assignedItemId: pg01.resourceId,
+        assigneeId: user02.resourceId,
+      }),
+    ]);
 
+    await checkAuthorizationWithAgent({
+      agent: user02SessionAgent,
+      target: {
+        action: kFimidaraPermissionActionsMap.readFile,
+        targetId: getFilePermissionContainers(
+          rawWorkspace.resourceId,
+          file01,
+          true
+        ),
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
+    });
+    await checkAuthorizationWithAgent({
+      agent: user02SessionAgent,
+      target: {
+        action: kFimidaraPermissionActionsMap.readFile,
+        targetId: getFilePermissionContainers(
+          rawWorkspace.resourceId,
+          file02,
+          true
+        ),
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
+    });
+
+    await expectErrorThrown(async () => {
       await checkAuthorizationWithAgent({
         agent: user02SessionAgent,
         target: {
-          action: kPermissionsMap.readFile,
-          targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
+          action: kFimidaraPermissionActionsMap.readFile,
+          targetId: getFilePermissionContainers(
+            rawWorkspace.resourceId,
+            file03,
+            true
+          ),
         },
         workspaceId: rawWorkspace.resourceId,
         workspace: rawWorkspace,
       });
+    }, [PermissionDeniedError.name]);
+    await expectErrorThrown(async () => {
       await checkAuthorizationWithAgent({
         agent: user02SessionAgent,
         target: {
-          action: kPermissionsMap.readFile,
-          targetId: getFilePermissionContainers(rawWorkspace.resourceId, file02, true),
+          action: kFimidaraPermissionActionsMap.readFile,
+          targetId: getFilePermissionContainers(
+            rawWorkspace.resourceId,
+            file04,
+            true
+          ),
         },
         workspaceId: rawWorkspace.resourceId,
         workspace: rawWorkspace,
       });
+    }, [PermissionDeniedError.name]);
+  });
 
-      await expectErrorThrown(async () => {
-        await checkAuthorizationWithAgent({
-          agent: user02SessionAgent,
-          target: {
-            action: kPermissionsMap.readFile,
-            targetId: getFilePermissionContainers(rawWorkspace.resourceId, file03, true),
-          },
-          workspaceId: rawWorkspace.resourceId,
-          workspace: rawWorkspace,
-        });
-      }, [PermissionDeniedError.name]);
-      await expectErrorThrown(async () => {
-        await checkAuthorizationWithAgent({
-          agent: user02SessionAgent,
-          target: {
-            action: kPermissionsMap.readFile,
-            targetId: getFilePermissionContainers(rawWorkspace.resourceId, file04, true),
-          },
-          workspaceId: rawWorkspace.resourceId,
-          workspace: rawWorkspace,
-        });
-      }, [PermissionDeniedError.name]);
-    }
-  );
-
-  softkaveTest.run('no throw', async () => {
+  test('no throw', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
@@ -382,13 +444,13 @@ describe('checkAuthorization', () => {
       addPermissions(
         rawWorkspace.resourceId,
         user02.resourceId,
-        kPermissionsMap.readFile,
+        kFimidaraPermissionActionsMap.readFile,
         {targetId: file01.resourceId}
       ),
       addPermissions(
         rawWorkspace.resourceId,
         user02.resourceId,
-        kPermissionsMap.readFile,
+        kFimidaraPermissionActionsMap.readFile,
         {targetId: file02.resourceId, access: false}
       ),
     ]);
@@ -396,8 +458,12 @@ describe('checkAuthorization', () => {
     const [check01] = await checkAuthorizationWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: kPermissionsMap.readFile,
-        targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
+        action: kFimidaraPermissionActionsMap.readFile,
+        targetId: getFilePermissionContainers(
+          rawWorkspace.resourceId,
+          file01,
+          true
+        ),
       },
       workspaceId: rawWorkspace.resourceId,
       workspace: rawWorkspace,
@@ -406,8 +472,12 @@ describe('checkAuthorization', () => {
     const [check02] = await checkAuthorizationWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: kPermissionsMap.readFile,
-        targetId: getFilePermissionContainers(rawWorkspace.resourceId, file02, true),
+        action: kFimidaraPermissionActionsMap.readFile,
+        targetId: getFilePermissionContainers(
+          rawWorkspace.resourceId,
+          file02,
+          true
+        ),
       },
       workspaceId: rawWorkspace.resourceId,
       workspace: rawWorkspace,
@@ -420,7 +490,7 @@ describe('checkAuthorization', () => {
     expect(check02.item).toBeTruthy();
   });
 
-  softkaveTest.run('wildcard', async () => {
+  test('wildcard', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
@@ -432,13 +502,13 @@ describe('checkAuthorization', () => {
       addPermissions(
         rawWorkspace.resourceId,
         user02.resourceId,
-        kPermissionsMap.wildcard,
+        kFimidaraPermissionActionsMap.wildcard,
         {targetId: file01.resourceId}
       ),
       addPermissions(
         rawWorkspace.resourceId,
         user02.resourceId,
-        kPermissionsMap.wildcard,
+        kFimidaraPermissionActionsMap.wildcard,
         {targetId: file03.resourceId, access: false}
       ),
     ]);
@@ -446,8 +516,12 @@ describe('checkAuthorization', () => {
     await checkAuthorizationWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: kPermissionsMap.readFile,
-        targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
+        action: kFimidaraPermissionActionsMap.readFile,
+        targetId: getFilePermissionContainers(
+          rawWorkspace.resourceId,
+          file01,
+          true
+        ),
       },
       workspaceId: rawWorkspace.resourceId,
       workspace: rawWorkspace,
@@ -456,8 +530,12 @@ describe('checkAuthorization', () => {
       await checkAuthorizationWithAgent({
         agent: user02SessionAgent,
         target: {
-          action: kPermissionsMap.readFile,
-          targetId: getFilePermissionContainers(rawWorkspace.resourceId, file03, true),
+          action: kFimidaraPermissionActionsMap.readFile,
+          targetId: getFilePermissionContainers(
+            rawWorkspace.resourceId,
+            file03,
+            true
+          ),
         },
         workspaceId: rawWorkspace.resourceId,
         workspace: rawWorkspace,
@@ -465,7 +543,7 @@ describe('checkAuthorization', () => {
     }, [PermissionDeniedError.name]);
   });
 
-  softkaveTest.run('entity > inherited entity weight', async () => {
+  test('entity > inherited entity weight', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
@@ -484,14 +562,19 @@ describe('checkAuthorization', () => {
       addPermissions(
         rawWorkspace.resourceId,
         user02.resourceId,
-        kPermissionsMap.readFile,
+        kFimidaraPermissionActionsMap.readFile,
         {targetId: file01.resourceId}
       ),
       // Add deny readFile access to file01 for pg01
-      addPermissions(rawWorkspace.resourceId, pg01.resourceId, kPermissionsMap.readFile, {
-        targetId: file01.resourceId,
-        access: false,
-      }),
+      addPermissions(
+        rawWorkspace.resourceId,
+        pg01.resourceId,
+        kFimidaraPermissionActionsMap.readFile,
+        {
+          targetId: file01.resourceId,
+          access: false,
+        }
+      ),
       // Assign pg01 to user02
       generateAndInsertAssignedItemListForTest(1, {
         workspaceId: rawWorkspace.resourceId,
@@ -503,15 +586,19 @@ describe('checkAuthorization', () => {
     await checkAuthorizationWithAgent({
       agent: user02SessionAgent,
       target: {
-        targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
-        action: kPermissionsMap.readFile,
+        targetId: getFilePermissionContainers(
+          rawWorkspace.resourceId,
+          file01,
+          true
+        ),
+        action: kFimidaraPermissionActionsMap.readFile,
       },
       workspaceId: rawWorkspace.resourceId,
       workspace: rawWorkspace,
     });
   });
 
-  softkaveTest.run('target > parent weight', async () => {
+  test('target > parent weight', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
@@ -529,13 +616,13 @@ describe('checkAuthorization', () => {
       addPermissions(
         rawWorkspace.resourceId,
         user02.resourceId,
-        kPermissionsMap.readFile,
+        kFimidaraPermissionActionsMap.readFile,
         {targetId: file01.resourceId}
       ),
       addPermissions(
         rawWorkspace.resourceId,
         user02.resourceId,
-        kPermissionsMap.readFile,
+        kFimidaraPermissionActionsMap.readFile,
         {targetId: folder01.resourceId, access: false}
       ),
     ]);
@@ -543,15 +630,19 @@ describe('checkAuthorization', () => {
     await checkAuthorizationWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: kPermissionsMap.readFile,
-        targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
+        action: kFimidaraPermissionActionsMap.readFile,
+        targetId: getFilePermissionContainers(
+          rawWorkspace.resourceId,
+          file01,
+          true
+        ),
       },
       workspaceId: rawWorkspace.resourceId,
       workspace: rawWorkspace,
     });
   });
 
-  softkaveTest.run('date weight', async () => {
+  test('date weight', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
@@ -563,29 +654,33 @@ describe('checkAuthorization', () => {
     await addPermissions(
       rawWorkspace.resourceId,
       user02.resourceId,
-      kPermissionsMap.readFile,
+      kFimidaraPermissionActionsMap.readFile,
       {targetId: file01.resourceId, access: false}
     );
     // Assign allow permission which should override deny permission
     await addPermissions(
       rawWorkspace.resourceId,
       user02.resourceId,
-      kPermissionsMap.readFile,
+      kFimidaraPermissionActionsMap.readFile,
       {targetId: file01.resourceId}
     );
 
     await checkAuthorizationWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: kPermissionsMap.readFile,
-        targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
+        action: kFimidaraPermissionActionsMap.readFile,
+        targetId: getFilePermissionContainers(
+          rawWorkspace.resourceId,
+          file01,
+          true
+        ),
       },
       workspaceId: rawWorkspace.resourceId,
       workspace: rawWorkspace,
     });
   });
 
-  softkaveTest.run('agent not verified', async () => {
+  test('agent not verified', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId, {}, true);
@@ -597,7 +692,7 @@ describe('checkAuthorization', () => {
       addPermissions(
         rawWorkspace.resourceId,
         user02.resourceId,
-        kPermissionsMap.uploadFile,
+        kFimidaraPermissionActionsMap.uploadFile,
         {targetId: file01.resourceId}
       ),
     ]);
@@ -607,8 +702,12 @@ describe('checkAuthorization', () => {
       await checkAuthorizationWithAgent({
         agent: user02SessionAgent,
         target: {
-          action: kPermissionsMap.uploadFile,
-          targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
+          action: kFimidaraPermissionActionsMap.uploadFile,
+          targetId: getFilePermissionContainers(
+            rawWorkspace.resourceId,
+            file01,
+            true
+          ),
         },
         workspaceId: rawWorkspace.resourceId,
         workspace: rawWorkspace,
@@ -616,7 +715,7 @@ describe('checkAuthorization', () => {
     }, [EmailAddressNotVerifiedError.name]);
   });
 
-  softkaveTest.run('resolve target children full access', async () => {
+  test('resolve target children full access', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
@@ -628,7 +727,7 @@ describe('checkAuthorization', () => {
       addPermissions(
         rawWorkspace.resourceId,
         user02.resourceId,
-        kPermissionsMap.readFile,
+        kFimidaraPermissionActionsMap.readFile,
         {targetId: folder01.resourceId}
       ),
     ]);
@@ -636,8 +735,12 @@ describe('checkAuthorization', () => {
     const resolveResult = await resolveTargetChildrenAccessCheckWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: kPermissionsMap.readFile,
-        targetId: getFilePermissionContainers(rawWorkspace.resourceId, folder01, true),
+        action: kFimidaraPermissionActionsMap.readFile,
+        targetId: getFilePermissionContainers(
+          rawWorkspace.resourceId,
+          folder01,
+          true
+        ),
       },
       workspaceId: rawWorkspace.resourceId,
       workspace: rawWorkspace,
@@ -649,7 +752,7 @@ describe('checkAuthorization', () => {
     expect(resolveResult.partialDenyItems.length).toBe(0);
   });
 
-  softkaveTest.run('resolve target children no access', async () => {
+  test('resolve target children no access', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
@@ -661,7 +764,7 @@ describe('checkAuthorization', () => {
       addPermissions(
         rawWorkspace.resourceId,
         user02.resourceId,
-        kPermissionsMap.readFile,
+        kFimidaraPermissionActionsMap.readFile,
         {targetId: folder01.resourceId, access: false}
       ),
     ]);
@@ -669,8 +772,12 @@ describe('checkAuthorization', () => {
     const resolveResult01 = await resolveTargetChildrenAccessCheckWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: kPermissionsMap.readFile,
-        targetId: getFilePermissionContainers(rawWorkspace.resourceId, folder01, true),
+        action: kFimidaraPermissionActionsMap.readFile,
+        targetId: getFilePermissionContainers(
+          rawWorkspace.resourceId,
+          folder01,
+          true
+        ),
       },
       workspaceId: rawWorkspace.resourceId,
       workspace: rawWorkspace,
@@ -678,8 +785,12 @@ describe('checkAuthorization', () => {
     const resolveResult02 = await resolveTargetChildrenAccessCheckWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: kPermissionsMap.readFile,
-        targetId: getFilePermissionContainers(rawWorkspace.resourceId, folder02, true),
+        action: kFimidaraPermissionActionsMap.readFile,
+        targetId: getFilePermissionContainers(
+          rawWorkspace.resourceId,
+          folder02,
+          true
+        ),
       },
       workspaceId: rawWorkspace.resourceId,
       workspace: rawWorkspace,
@@ -694,7 +805,7 @@ describe('checkAuthorization', () => {
     expect(resolveResult02.partialAllowItems.length).toBe(0);
   });
 
-  softkaveTest.run('resolve target children partial access', async () => {
+  test('resolve target children partial access', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
@@ -712,22 +823,30 @@ describe('checkAuthorization', () => {
       addPermissions(
         rawWorkspace.resourceId,
         user02.resourceId,
-        kPermissionsMap.readFile,
+        kFimidaraPermissionActionsMap.readFile,
         {targetId: file01.resourceId, targetParentId: folder01.resourceId}
       ),
       addPermissions(
         rawWorkspace.resourceId,
         user02.resourceId,
-        kPermissionsMap.readFile,
-        {targetId: file02.resourceId, access: false, targetParentId: folder01.resourceId}
+        kFimidaraPermissionActionsMap.readFile,
+        {
+          targetId: file02.resourceId,
+          access: false,
+          targetParentId: folder01.resourceId,
+        }
       ),
     ]);
 
     const resolveResult = await resolveTargetChildrenAccessCheckWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: kPermissionsMap.readFile,
-        targetId: getFilePermissionContainers(rawWorkspace.resourceId, folder01, true),
+        action: kFimidaraPermissionActionsMap.readFile,
+        targetId: getFilePermissionContainers(
+          rawWorkspace.resourceId,
+          folder01,
+          true
+        ),
       },
       workspaceId: rawWorkspace.resourceId,
       workspace: rawWorkspace,
@@ -740,110 +859,112 @@ describe('checkAuthorization', () => {
     expect(resolveResult.partialAllowIds).toContain(file01.resourceId);
   });
 
-  softkaveTest.run(
-    'resolve target children partial access with parent deny and some children access',
-    async () => {
-      const {rawWorkspace} = await generateUserAndWorkspace();
-      const {user: user02, sessionAgent: user02SessionAgent} =
-        await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
-      const [folder01] = await generateAndInsertTestFolders(1, {
+  test('resolve target children partial access with parent deny and some children access', async () => {
+    const {rawWorkspace} = await generateUserAndWorkspace();
+    const {user: user02, sessionAgent: user02SessionAgent} =
+      await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
+    const [folder01] = await generateAndInsertTestFolders(1, {
+      workspaceId: rawWorkspace.resourceId,
+      parentId: null,
+    });
+    const [[file01]] = await Promise.all([
+      generateAndInsertTestFiles(2, {
         workspaceId: rawWorkspace.resourceId,
-        parentId: null,
-      });
-      const [[file01]] = await Promise.all([
-        generateAndInsertTestFiles(2, {
-          workspaceId: rawWorkspace.resourceId,
-          parentId: folder01.resourceId,
-        }),
-      ]);
-      await Promise.all([
-        addPermissions(
-          rawWorkspace.resourceId,
-          user02.resourceId,
-          kPermissionsMap.readFile,
-          {targetId: file01.resourceId, targetParentId: folder01.resourceId}
-        ),
-        addPermissions(
-          rawWorkspace.resourceId,
-          user02.resourceId,
-          kPermissionsMap.readFile,
-          {targetId: folder01.resourceId, access: false}
-        ),
-      ]);
+        parentId: folder01.resourceId,
+      }),
+    ]);
+    await Promise.all([
+      addPermissions(
+        rawWorkspace.resourceId,
+        user02.resourceId,
+        kFimidaraPermissionActionsMap.readFile,
+        {targetId: file01.resourceId, targetParentId: folder01.resourceId}
+      ),
+      addPermissions(
+        rawWorkspace.resourceId,
+        user02.resourceId,
+        kFimidaraPermissionActionsMap.readFile,
+        {targetId: folder01.resourceId, access: false}
+      ),
+    ]);
 
-      const resolveResult = await resolveTargetChildrenAccessCheckWithAgent({
-        agent: user02SessionAgent,
-        target: {
-          action: kPermissionsMap.readFile,
-          targetId: getFilePermissionContainers(rawWorkspace.resourceId, folder01, true),
-        },
+    const resolveResult = await resolveTargetChildrenAccessCheckWithAgent({
+      agent: user02SessionAgent,
+      target: {
+        action: kFimidaraPermissionActionsMap.readFile,
+        targetId: getFilePermissionContainers(
+          rawWorkspace.resourceId,
+          folder01,
+          true
+        ),
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
+    });
+
+    expect(resolveResult.access).toBe(kResolvedTargetChildrenAccess.partial);
+    assert(resolveResult.access === kResolvedTargetChildrenAccess.partial);
+    expect(resolveResult.item).toBeFalsy();
+    expect(resolveResult.partialAllowIds?.length).toBe(1);
+    expect(resolveResult.partialAllowItems?.length).toBe(1);
+    expect(resolveResult.partialAllowIds).toContain(file01.resourceId);
+  });
+
+  test('resolve target children partial access with parent allow and some children deny', async () => {
+    const {rawWorkspace} = await generateUserAndWorkspace();
+    const {user: user02, sessionAgent: user02SessionAgent} =
+      await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
+    const [folder01] = await generateAndInsertTestFolders(1, {
+      workspaceId: rawWorkspace.resourceId,
+      parentId: null,
+    });
+    const [[file01]] = await Promise.all([
+      generateAndInsertTestFiles(2, {
         workspaceId: rawWorkspace.resourceId,
-        workspace: rawWorkspace,
-      });
+        parentId: folder01.resourceId,
+      }),
+    ]);
+    await Promise.all([
+      addPermissions(
+        rawWorkspace.resourceId,
+        user02.resourceId,
+        kFimidaraPermissionActionsMap.readFile,
+        {
+          targetId: file01.resourceId,
+          access: false,
+          targetParentId: folder01.resourceId,
+        }
+      ),
+      addPermissions(
+        rawWorkspace.resourceId,
+        user02.resourceId,
+        kFimidaraPermissionActionsMap.readFile,
+        {targetId: folder01.resourceId}
+      ),
+    ]);
 
-      expect(resolveResult.access).toBe(kResolvedTargetChildrenAccess.partial);
-      assert(resolveResult.access === kResolvedTargetChildrenAccess.partial);
-      expect(resolveResult.item).toBeFalsy();
-      expect(resolveResult.partialAllowIds?.length).toBe(1);
-      expect(resolveResult.partialAllowItems?.length).toBe(1);
-      expect(resolveResult.partialAllowIds).toContain(file01.resourceId);
-    }
-  );
-
-  softkaveTest.run(
-    'resolve target children partial access with parent allow and some children deny',
-    async () => {
-      const {rawWorkspace} = await generateUserAndWorkspace();
-      const {user: user02, sessionAgent: user02SessionAgent} =
-        await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
-      const [folder01] = await generateAndInsertTestFolders(1, {
-        workspaceId: rawWorkspace.resourceId,
-        parentId: null,
-      });
-      const [[file01]] = await Promise.all([
-        generateAndInsertTestFiles(2, {
-          workspaceId: rawWorkspace.resourceId,
-          parentId: folder01.resourceId,
-        }),
-      ]);
-      await Promise.all([
-        addPermissions(
+    const resolveResult = await resolveTargetChildrenAccessCheckWithAgent({
+      agent: user02SessionAgent,
+      target: {
+        action: kFimidaraPermissionActionsMap.readFile,
+        targetId: getFilePermissionContainers(
           rawWorkspace.resourceId,
-          user02.resourceId,
-          kPermissionsMap.readFile,
-          {
-            targetId: file01.resourceId,
-            access: false,
-            targetParentId: folder01.resourceId,
-          }
+          folder01,
+          true
         ),
-        addPermissions(
-          rawWorkspace.resourceId,
-          user02.resourceId,
-          kPermissionsMap.readFile,
-          {targetId: folder01.resourceId}
-        ),
-      ]);
+      },
+      workspaceId: rawWorkspace.resourceId,
+      workspace: rawWorkspace,
+    });
 
-      const resolveResult = await resolveTargetChildrenAccessCheckWithAgent({
-        agent: user02SessionAgent,
-        target: {
-          action: kPermissionsMap.readFile,
-          targetId: getFilePermissionContainers(rawWorkspace.resourceId, folder01, true),
-        },
-        workspaceId: rawWorkspace.resourceId,
-        workspace: rawWorkspace,
-      });
+    assert(resolveResult.access === kResolvedTargetChildrenAccess.full);
+    expect(resolveResult.item).toBeTruthy();
+    expect(resolveResult.partialDenyIds?.length).toBe(1);
+    expect(resolveResult.partialDenyItems?.length).toBe(1);
+    expect(resolveResult.partialDenyIds).toContain(file01.resourceId);
+  });
 
-      assert(resolveResult.access === kResolvedTargetChildrenAccess.full);
-      expect(resolveResult.item).toBeTruthy();
-      expect(resolveResult.partialDenyIds?.length).toBe(1);
-      expect(resolveResult.partialDenyItems?.length).toBe(1);
-      expect(resolveResult.partialDenyIds).toContain(file01.resourceId);
-    }
-  );
-
-  softkaveTest.run('returns correct access permission', async () => {
+  test('returns correct access permission', async () => {
     const {rawWorkspace} = await generateUserAndWorkspace();
     const {user: user02, sessionAgent: user02SessionAgent} =
       await generateUserAndAddToWorkspace(rawWorkspace.resourceId);
@@ -854,15 +975,19 @@ describe('checkAuthorization', () => {
     const [pItem01] = await addPermissions(
       rawWorkspace.resourceId,
       user02.resourceId,
-      kPermissionsMap.readFile,
+      kFimidaraPermissionActionsMap.readFile,
       {targetId: file01.resourceId}
     );
 
     const [checkResult] = await checkAuthorizationWithAgent({
       agent: user02SessionAgent,
       target: {
-        action: kPermissionsMap.readFile,
-        targetId: getFilePermissionContainers(rawWorkspace.resourceId, file01, true),
+        action: kFimidaraPermissionActionsMap.readFile,
+        targetId: getFilePermissionContainers(
+          rawWorkspace.resourceId,
+          file01,
+          true
+        ),
       },
       workspaceId: rawWorkspace.resourceId,
       workspace: rawWorkspace,
@@ -876,7 +1001,7 @@ describe('checkAuthorization', () => {
 async function addPermissions(
   workspaceId: string,
   recipientUserId: string,
-  permissions: PermissionAction | PermissionAction[],
+  permissions: FimidaraPermissionAction | FimidaraPermissionAction[],
   other?: Partial<PermissionItem>
 ) {
   const items = convertToArray(permissions).map(action =>
@@ -890,10 +1015,7 @@ async function addPermissions(
   );
   await kSemanticModels
     .utils()
-    .withTxn(
-      opts => kSemanticModels.permissionItem().insertItem(items, opts),
-      /** reuseTxn */ true
-    );
+    .withTxn(opts => kSemanticModels.permissionItem().insertItem(items, opts));
   return items;
 }
 
@@ -906,8 +1028,12 @@ async function generateUserAndWorkspace(
   const workspaceResult = await insertWorkspaceForTest(userToken);
   const sessionAgent = await kUtilsInjectables
     .session()
-    .getAgent(
-      RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken))
+    .getAgentFromReq(
+      RequestData.fromExpressRequest(
+        mockExpressRequestWithAgentToken(userToken)
+      ),
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
     );
   return {...usersResult, ...workspaceResult, sessionAgent};
 }
@@ -921,15 +1047,22 @@ async function generateUserAndAddToWorkspace(
   const {user, userToken} = usersResult;
   await kSemanticModels
     .utils()
-    .withTxn(
-      opts =>
-        assignWorkspaceToUser(kSystemSessionAgent, workspaceId, user.resourceId, opts),
-      /** reuseTxn */ true
+    .withTxn(opts =>
+      assignWorkspaceToUser(
+        kSystemSessionAgent,
+        workspaceId,
+        user.resourceId,
+        opts
+      )
     );
   const sessionAgent = await kUtilsInjectables
     .session()
-    .getAgent(
-      RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken))
+    .getAgentFromReq(
+      RequestData.fromExpressRequest(
+        mockExpressRequestWithAgentToken(userToken)
+      ),
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
     );
   return {...usersResult, sessionAgent};
 }

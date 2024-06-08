@@ -1,17 +1,21 @@
 import {faker} from '@faker-js/faker';
-import {kSystemSessionAgent} from '../../../utils/agent';
-import RequestData from '../../RequestData';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import RequestData from '../../RequestData.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequest,
-} from '../../testUtils/testUtils';
-import login from './login';
-import {LoginEndpointParams} from './types';
-import {getUserClientAssignedToken, getUserToken} from './utils';
+} from '../../testUtils/testUtils.js';
+import login from './login.js';
+import {LoginEndpointParams} from './types.js';
+import {getUserClientAssignedToken, getUserToken} from './utils.js';
 
 /**
  * TODO:
@@ -51,17 +55,19 @@ describe('login', () => {
     const {user, userToken} = await insertUserForTest();
     await kSemanticModels
       .utils()
-      .withTxn(
-        opts =>
-          kSemanticModels
-            .agentToken()
-            .softDeleteManyByIdList([userToken.resourceId], kSystemSessionAgent, opts),
-        /** reuseTxn */ false
+      .withTxn(opts =>
+        kSemanticModels
+          .agentToken()
+          .softDeleteManyByIdList(
+            [userToken.resourceId],
+            kSystemSessionAgent,
+            opts
+          )
       );
 
     const activeUserToken = await kSemanticModels
       .utils()
-      .withTxn(opts => getUserToken(user.resourceId, opts), /** reuseTxn */ false);
+      .withTxn(opts => getUserToken(user.resourceId, opts));
 
     expect(activeUserToken.isDeleted).toBeFalsy();
     expect(activeUserToken.resourceId).not.toBe(userToken.resourceId);
@@ -71,20 +77,19 @@ describe('login', () => {
     const {user, clientToken} = await insertUserForTest();
     await kSemanticModels
       .utils()
-      .withTxn(
-        opts =>
-          kSemanticModels
-            .agentToken()
-            .softDeleteManyByIdList([clientToken.resourceId], kSystemSessionAgent, opts),
-        /** reuseTxn */ false
+      .withTxn(opts =>
+        kSemanticModels
+          .agentToken()
+          .softDeleteManyByIdList(
+            [clientToken.resourceId],
+            kSystemSessionAgent,
+            opts
+          )
       );
 
     const activeClientToken = await kSemanticModels
       .utils()
-      .withTxn(
-        opts => getUserClientAssignedToken(user.resourceId, opts),
-        /** reuseTxn */ false
-      );
+      .withTxn(opts => getUserClientAssignedToken(user.resourceId, opts));
 
     expect(activeClientToken.isDeleted).toBeFalsy();
     expect(activeClientToken.resourceId).not.toBe(clientToken.resourceId);

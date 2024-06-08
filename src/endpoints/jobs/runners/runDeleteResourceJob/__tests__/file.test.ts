@@ -1,34 +1,30 @@
-import {flatten} from 'lodash';
+import {flatten} from 'lodash-es';
 import {Readable} from 'stream';
-import {File} from '../../../../../definitions/file';
-import {kFimidaraResourceType} from '../../../../../definitions/system';
-import {MemoryFilePersistenceProvider} from '../../../../contexts/file/MemoryFilePersistenceProvider';
-import {FilePersistenceProvider} from '../../../../contexts/file/types';
-import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register';
-import {initBackendProvidersForMounts} from '../../../../fileBackends/mountUtils';
-import {stringifyFilenamepath} from '../../../../files/utils';
-import {
-  generateAndInsertTestFiles,
-  generateAndInsertTestPresignedPathList,
-} from '../../../../testUtils/generate/file';
-import {completeTests} from '../../../../testUtils/helpers/testFns';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {File} from '../../../../../definitions/file.js';
+import {kFimidaraResourceType} from '../../../../../definitions/system.js';
+import {MemoryFilePersistenceProvider} from '../../../../contexts/file/MemoryFilePersistenceProvider.js';
+import {FilePersistenceProvider} from '../../../../contexts/file/types.js';
+import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
+import {initBackendProvidersForMounts} from '../../../../fileBackends/mountUtils.js';
+import {stringifyFilenamepath} from '../../../../files/utils.js';
+import {generateAndInsertTestPresignedPathList} from '../../../../testUtils/generate/file.js';
+import {completeTests} from '../../../../testUtils/helpers/testFns.js';
 import {
   initTests,
   insertFileBackendMountForTest,
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../../../testUtils/testUtils';
-import {deleteFileCascadeEntry} from '../file';
+} from '../../../../testUtils/testUtils.js';
+import {deleteFileCascadeEntry} from '../file.js';
+import {DeleteResourceCascadeEntry} from '../types.js';
 import {
-  GenerateResourceFn,
   GenerateTypeChildrenDefinition,
   generatePermissionItemsAsChildren,
   noopGenerateTypeChildren,
   testDeleteResourceArtifactsJob,
-  testDeleteResourceJob0,
-  testDeleteResourceSelfJob,
-} from './testUtils';
+} from './testUtils.js';
 
 beforeAll(async () => {
   await initTests();
@@ -47,46 +43,23 @@ const fileGenerateTypeChildren: GenerateTypeChildrenDefinition<File> = {
         generateAndInsertTestPresignedPathList(2, {
           workspaceId,
           namepath: resource.namepath,
-          extension: resource.extension,
+          ext: resource.ext,
           fileId: resource.resourceId,
         }),
       ])
     ),
 };
 
-const genResourceFn: GenerateResourceFn<File> = async ({workspaceId}) => {
-  const [file] = await generateAndInsertTestFiles(1, {
-    workspaceId,
-    parentId: null,
-  });
-  return file;
-};
-
 describe('runDeleteResourceJob, file', () => {
-  test('deleteResource0', async () => {
-    testDeleteResourceJob0({
-      genResourceFn,
-      type: kFimidaraResourceType.File,
-    });
-  });
-
   test('runDeleteResourceJobArtifacts', async () => {
-    await testDeleteResourceArtifactsJob({
-      genResourceFn,
-      genChildrenDef: fileGenerateTypeChildren,
-      deleteCascadeDef: deleteFileCascadeEntry,
-      type: kFimidaraResourceType.File,
-    });
-  });
-
-  test('runDeleteResourceJobSelf', async () => {
     const mountToProviderMap: Record<string, FilePersistenceProvider> = {};
     kRegisterUtilsInjectables.fileProviderResolver(mount => {
       if (mountToProviderMap[mount.resourceId]) {
         return mountToProviderMap[mount.resourceId];
       }
 
-      return (mountToProviderMap[mount.resourceId] = new MemoryFilePersistenceProvider());
+      return (mountToProviderMap[mount.resourceId] =
+        new MemoryFilePersistenceProvider());
     });
 
     const {userToken} = await insertUserForTest();
@@ -108,9 +81,12 @@ describe('runDeleteResourceJob, file', () => {
       [mount01.rawConfig, mount02.rawConfig]
     );
 
-    await testDeleteResourceSelfJob({
-      genResourceFn: () => Promise.resolve(mainResource),
+    await testDeleteResourceArtifactsJob({
+      genChildrenDef: fileGenerateTypeChildren,
+      deleteCascadeDef:
+        deleteFileCascadeEntry as unknown as DeleteResourceCascadeEntry,
       type: kFimidaraResourceType.File,
+      genResourceFn: () => Promise.resolve(mainResource),
       genWorkspaceFn: () => Promise.resolve(workspace.resourceId),
       genOtherFn: async () => {
         await Promise.all([
@@ -119,12 +95,14 @@ describe('runDeleteResourceJob, file', () => {
             body: Readable.from(dataBuffer),
             filepath: stringifyFilenamepath(mainResource),
             mount: mount01.rawMount,
+            fileId: mainResource.resourceId,
           }),
           providersMap[mount02.rawMount.resourceId]?.uploadFile({
             workspaceId: workspace.resourceId,
             body: Readable.from(dataBuffer),
             filepath: stringifyFilenamepath(mainResource),
             mount: mount02.rawMount,
+            fileId: mainResource.resourceId,
           }),
         ]);
       },
@@ -134,11 +112,13 @@ describe('runDeleteResourceJob, file', () => {
             workspaceId: workspace.resourceId,
             filepath: stringifyFilenamepath(mainResource),
             mount: mount01.rawMount,
+            fileId: mainResource.resourceId,
           }),
           providersMap[mount02.rawMount.resourceId]?.readFile({
             workspaceId: workspace.resourceId,
             filepath: stringifyFilenamepath(mainResource),
             mount: mount02.rawMount,
+            fileId: mainResource.resourceId,
           }),
         ]);
 

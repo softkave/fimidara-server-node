@@ -1,17 +1,17 @@
-import {CollaborationRequestResponse} from '../../../../definitions/collaborationRequest';
-import {EmailJobParams, kEmailJobType} from '../../../../definitions/job';
+import {CollaborationRequestResponse} from '../../../../definitions/collaborationRequest.js';
+import {EmailJobParams, kEmailJobType} from '../../../../definitions/job.js';
 import {
   CollaborationRequestResponseEmailProps,
   collaborationRequestResponseEmailHTML,
   collaborationRequestResponseEmailText,
   kCollaborationRequestResponseArtifacts,
-} from '../../../../emailTemplates/collaborationRequestResponse';
-import {appAssert} from '../../../../utils/assertion';
+} from '../../../../emailTemplates/collaborationRequestResponse.js';
+import {appAssert} from '../../../../utils/assertion.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../contexts/injection/injectables';
-import {getBaseEmailTemplateProps} from './utils';
+} from '../../../contexts/injection/injectables.js';
+import {getBaseEmailTemplateProps} from './utils.js';
 
 export async function sendCollaborationRequestResponseEmail(
   jobId: string,

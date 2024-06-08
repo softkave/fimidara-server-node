@@ -1,7 +1,10 @@
-import {isNumber} from 'lodash';
-import {kEndpointConstants} from '../../constants';
+import {isNumber} from 'lodash-es';
+import {kEndpointConstants} from '../../constants.js';
 
-export function getPage(inputPage?: number, minPage = kEndpointConstants.minPage) {
+export function getPage(
+  inputPage?: number,
+  minPage = kEndpointConstants.minPage
+) {
   return isNumber(inputPage)
     ? Math.max(inputPage, minPage) // return 0 if page is negative
     : undefined;
@@ -16,8 +19,8 @@ export function getPageSize(
   const pageSize = isNumber(inputPageSize)
     ? Math.max(inputPageSize, minPageSize)
     : isNumber(inputPage)
-    ? maxPageSize
-    : undefined;
+      ? maxPageSize
+      : undefined;
 
   if (pageSize) {
     return Math.min(pageSize, maxPageSize);

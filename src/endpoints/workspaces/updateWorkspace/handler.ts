@@ -1,20 +1,30 @@
-import {Workspace} from '../../../definitions/workspace';
-import {getTimestamp} from '../../../utils/dateFns';
-import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {checkWorkspaceNameExists} from '../checkWorkspaceExists';
+import {Workspace} from '../../../definitions/workspace.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {checkWorkspaceNameExists} from '../checkWorkspaceExists.js';
 import {
   assertWorkspace,
   checkWorkspaceAuthorization02,
   workspaceExtractor,
-} from '../utils';
-import {UpdateWorkspaceEndpoint} from './types';
-import {updateWorkspaceJoiSchema} from './validation';
+} from '../utils.js';
+import {UpdateWorkspaceEndpoint} from './types.js';
+import {updateWorkspaceJoiSchema} from './validation.js';
 
 const updateWorkspace: UpdateWorkspaceEndpoint = async instData => {
   const data = validate(instData.data, updateWorkspaceJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   let {workspace} = await checkWorkspaceAuthorization02(
     agent,
     'updateWorkspace',
@@ -37,7 +47,7 @@ const updateWorkspace: UpdateWorkspaceEndpoint = async instData => {
       .getAndUpdateOneById(workspace.resourceId, update, opts);
     assertWorkspace(updatedWorkspace);
     return updatedWorkspace;
-  }, /** reuseTxn */ false);
+  });
 
   return {workspace: workspaceExtractor(workspace)};
 };

@@ -1,6 +1,6 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {App, AppShard} from '../definitions/app';
-import {ensureMongoTypeFields, resourceSchema} from './utils';
+import {App, AppShard} from '../definitions/app.js';
+import {ensureMongoTypeFields, resourceSchema} from './utils.js';
 
 const appMongoSchemaDef = ensureMongoTypeFields<App>({
   ...resourceSchema,

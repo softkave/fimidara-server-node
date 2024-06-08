@@ -1,9 +1,9 @@
-import {AppShard, AppShardId} from '../../../../definitions/app';
+import {AppShard, AppShardId} from '../../../../definitions/app.js';
 import {
   SemanticBaseProviderType,
   SemanticProviderMutationParams,
   SemanticProviderQueryListParams,
-} from '../types';
+} from '../types.js';
 
 export interface SemanticAppShardProvider extends SemanticBaseProviderType<AppShard> {
   acquireShard(

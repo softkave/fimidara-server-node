@@ -1,8 +1,8 @@
-import {compact, last, uniqWith} from 'lodash';
+import {compact, last, uniqWith} from 'lodash-es';
+import {AnyFn} from 'softkave-js-utils';
 import {ValueOf} from 'type-fest';
-import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
-import {DeferredPromise, getDeferredPromise} from './promiseFns';
-import {AnyFn} from './types';
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
+import {DeferredPromise, getDeferredPromise} from './promiseFns.js';
 
 /** shard ID is case-sensitive, so `["shard-01"] !== ["SHARD-01"]` */
 export type ShardId = string[];
@@ -39,7 +39,11 @@ export interface ShardResult<TOutputItem = unknown> {
   result: PromiseSettledResult<TOutputItem>;
 }
 
-export interface Shard<TInputItem = unknown, TOutputItem = unknown, TMeta = unknown> {
+export interface Shard<
+  TInputItem = unknown,
+  TOutputItem = unknown,
+  TMeta = unknown,
+> {
   id: ShardId;
   input: TInputItem[];
   promise: DeferredPromise<ShardResult<TOutputItem>>;
@@ -87,15 +91,24 @@ export interface ShardedRunnerIngestAndRunResult<
  * conditions.
  * */
 export class ShardedRunner {
-  protected shards: Record</** stringified shard ID */ string, Shard[] | undefined> = {};
-  protected runners: Record</** shard runner name */ string, ShardRunner | undefined> =
-    {};
+  protected shards: Record<
+    /** stringified shard ID */ string,
+    Shard[] | undefined
+  > = {};
+  protected runners: Record<
+    /** shard runner name */ string,
+    ShardRunner | undefined
+  > = {};
 
   registerRunner(runner: ShardRunner) {
     this.runners[runner.name] = runner;
   }
 
-  async ingestAndRun<TInputItem = unknown, TOutputItem = unknown, TMeta = unknown>(
+  async ingestAndRun<
+    TInputItem = unknown,
+    TOutputItem = unknown,
+    TMeta = unknown,
+  >(
     input: Array<ShardedInput<TInputItem, TMeta>>
   ): Promise<ShardedRunnerIngestAndRunResult<TInputItem, TOutputItem>> {
     const inputedShards = input.map(nextInput => {
@@ -114,6 +127,7 @@ export class ShardedRunner {
       ([key, {id}]) => {
         // check if there's an existing runner
         const lockName = this.getLockName(id, key);
+
         const isRunning = kUtilsInjectables.locks().has(lockName);
 
         // start a runner if there isn't one already. we don't need to wait for
@@ -150,9 +164,15 @@ export class ShardedRunner {
 
     try {
       const result = await runner.runner(shard);
-      shard.promise.resolve({shard, result: {status: 'fulfilled', value: result}});
+      shard.promise.resolve({
+        shard,
+        result: {status: 'fulfilled', value: result},
+      });
     } catch (error: unknown) {
-      shard.promise.resolve({shard, result: {status: 'rejected', reason: error}});
+      shard.promise.resolve({
+        shard,
+        result: {status: 'rejected', reason: error},
+      });
     }
 
     this.runShard(id, key);
@@ -182,7 +202,9 @@ export class ShardedRunner {
       shards = last(
         compact(
           input.shardId.map((idPart, index) => {
-            const key = this.stringifyShardId(input.shardId.slice(0, index + 1));
+            const key = this.stringifyShardId(
+              input.shardId.slice(0, index + 1)
+            );
             return this.shards[key];
           })
         )
@@ -199,7 +221,12 @@ export class ShardedRunner {
       shard.input = shard.input.concat(input.input);
     } else {
       const promise = getDeferredPromise<ShardResult>();
-      shard = {promise, id: input.shardId, meta: input.meta, input: input.input};
+      shard = {
+        promise,
+        id: input.shardId,
+        meta: input.meta,
+        input: input.input,
+      };
       shards.push(shard);
     }
 

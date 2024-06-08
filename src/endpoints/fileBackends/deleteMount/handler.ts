@@ -1,26 +1,33 @@
-import {kFileBackendType} from '../../../definitions/fileBackend';
-import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {appAssert} from '../../../utils/assertion';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {validate} from '../../../utils/validate';
-import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {DeleteFileBackendMountEndpoint} from './types';
-import {beginDeleteFileBackendMount} from './utils';
-import {deleteFileBackendMountJoiSchema} from './validation';
+import {kFileBackendType} from '../../../definitions/fileBackend.js';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {DeleteFileBackendMountEndpoint} from './types.js';
+import {beginDeleteFileBackendMount} from './utils.js';
+import {deleteFileBackendMountJoiSchema} from './validation.js';
 
 const deleteFileBackendMount: DeleteFileBackendMountEndpoint = async instData => {
   const mountModel = kSemanticModels.fileBackendMount();
   const data = validate(instData.data, deleteFileBackendMountJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   await checkAuthorizationWithAgent({
     agent,
     workspace,
     workspaceId: workspace.resourceId,
     target: {
-      action: kPermissionsMap.deleteFileBackendMount,
+      action: kFimidaraPermissionActionsMap.deleteFileBackendMount,
       targetId: workspace.resourceId,
     },
   });

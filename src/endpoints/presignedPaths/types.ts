@@ -1,6 +1,6 @@
-import {ExportedHttpEndpointWithMddocDefinition} from '../types';
-import {GetPresignedPathsForFilesEndpoint} from './getPresignedPaths/types';
-import {IssuePresignedPathEndpoint} from './issuePresignedPath/types';
+import {ExportedHttpEndpointWithMddocDefinition} from '../types.js';
+import {GetPresignedPathsForFilesEndpoint} from './getPresignedPaths/types.js';
+import {IssuePresignedPathEndpoint} from './issuePresignedPath/types.js';
 
 export type IssuePresignedPathHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<IssuePresignedPathEndpoint>;

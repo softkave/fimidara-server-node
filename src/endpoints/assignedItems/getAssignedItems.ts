@@ -1,22 +1,25 @@
-import {defaultTo} from 'lodash';
-import {AssignedItem, ResourceWithTags} from '../../definitions/assignedItem';
+import {defaultTo} from 'lodash-es';
+import {
+  AssignedItem,
+  ResourceWithTags,
+} from '../../definitions/assignedItem.js';
 import {
   FimidaraResourceType,
   Resource,
   WorkspaceResource,
   kFimidaraResourceType,
-} from '../../definitions/system';
-import {User} from '../../definitions/user';
-import {cast} from '../../utils/fns';
-import {kSemanticModels} from '../contexts/injection/injectables';
+} from '../../definitions/system.js';
+import {User} from '../../definitions/user.js';
+import {cast} from '../../utils/fns.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
 import {
   SemanticProviderOpParams,
   SemanticProviderQueryListParams,
-} from '../contexts/semantic/types';
+} from '../contexts/semantic/types.js';
 import {
   assignedItemsToAssignedTagList,
   assignedItemsToAssignedWorkspaceList,
-} from './utils';
+} from './utils.js';
 
 export async function getResourceAssignedItems(
   /** Use `undefined` for fetching user workspaces */
@@ -102,9 +105,8 @@ export async function populateAssignedItems<
   for (const type in sortedItems) {
     switch (type) {
       case kFimidaraResourceType.Tag:
-        cast<ResourceWithTags<T>>(updatedResource).tags = assignedItemsToAssignedTagList(
-          sortedItems[type]
-        );
+        cast<ResourceWithTags<T>>(updatedResource).tags =
+          assignedItemsToAssignedTagList(sortedItems[type]);
         break;
     }
   }
@@ -144,7 +146,9 @@ export async function populateResourceListWithAssignedTags<
   labels: Partial<Record<FimidaraResourceType, keyof Omit<R, keyof T>>> = {}
 ) {
   return await Promise.all(
-    resources.map(resource => populateAssignedTags<T, R>(workspaceId, resource, labels))
+    resources.map(resource =>
+      populateAssignedTags<T, R>(workspaceId, resource, labels)
+    )
   );
 }
 
@@ -178,10 +182,17 @@ export async function populateUserWorkspaces<T extends User>(
   const updatedResource = resource as T & {
     workspaces: WorkspaceResource[];
   };
-  updatedResource.workspaces = await getUserWorkspaces(resource.resourceId, opts);
+  updatedResource.workspaces = await getUserWorkspaces(
+    resource.resourceId,
+    opts
+  );
   return updatedResource;
 }
 
-export async function populateUserListWithWorkspaces<T extends User>(resources: T[]) {
-  return await Promise.all(resources.map(resource => populateUserWorkspaces(resource)));
+export async function populateUserListWithWorkspaces<T extends User>(
+  resources: T[]
+) {
+  return await Promise.all(
+    resources.map(resource => populateUserWorkspaces(resource))
+  );
 }

@@ -1,6 +1,6 @@
-import * as Joi from 'joi';
-import {getWorkspaceCollaboratorsBaseJoiSchemaParts} from '../getWorkspaceCollaborators/validation';
-import {CountWorkspaceCollaboratorsEndpointParams} from './types';
+import Joi from 'joi';
+import {getWorkspaceCollaboratorsBaseJoiSchemaParts} from '../getWorkspaceCollaborators/validation.js';
+import {CountWorkspaceCollaboratorsEndpointParams} from './types.js';
 
 export const countWorkspaceCollaboratorsJoiSchema =
   Joi.object<CountWorkspaceCollaboratorsEndpointParams>()

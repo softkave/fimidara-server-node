@@ -1,16 +1,17 @@
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {generateAndInsertTagListForTest} from '../../testUtils/generate/tag';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {generateAndInsertTagListForTest} from '../../testUtils/generate/tag.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import countWorkspaceTags from './handler';
-import {CountWorkspaceTagsEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import countWorkspaceTags from './handler.js';
+import {CountWorkspaceTagsEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

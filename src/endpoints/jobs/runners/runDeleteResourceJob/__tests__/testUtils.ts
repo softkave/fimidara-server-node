@@ -1,35 +1,32 @@
-import {first, flatten, uniq} from 'lodash';
+import {first, flatten, uniq} from 'lodash-es';
+import {expect} from 'vitest';
 import {
   DeleteResourceJobParams,
-  Job,
-  kJobStatus,
   kJobType,
-} from '../../../../../definitions/job';
+} from '../../../../../definitions/job.js';
 import {
   FimidaraResourceType,
   FimidaraTypeToTSType,
   Resource,
   kFimidaraResourceType,
-} from '../../../../../definitions/system';
-import {kSystemSessionAgent} from '../../../../../utils/agent';
-import {extractResourceIdList} from '../../../../../utils/fns';
+} from '../../../../../definitions/system.js';
+import {kSystemSessionAgent} from '../../../../../utils/agent.js';
+import {extractResourceIdList} from '../../../../../utils/fns.js';
 import {
   getNewId,
   getNewIdForResource,
   getResourceTypeFromId,
-} from '../../../../../utils/resource';
-import {AnyFn, AnyObject, PartialRecord} from '../../../../../utils/types';
+} from '../../../../../utils/resource.js';
+import {AnyFn, AnyObject, PartialRecord} from '../../../../../utils/types.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../../contexts/injection/injectables';
-import {generateAndInsertAssignedItemListForTest} from '../../../../testUtils/generate/permissionGroup';
-import {generateAndInsertPermissionItemListForTest} from '../../../../testUtils/generate/permissionItem';
-import {queueJobs} from '../../../queueJobs';
-import {runDeleteResourceJob0} from '../runDeleteResourceJob0';
-import {runDeleteResourceJobArtifacts} from '../runDeleteResourceJobArtifacts';
-import {runDeleteResourceJobSelf} from '../runDeleteResourceJobSelf';
-import {DeleteResourceCascadeEntry} from '../types';
+} from '../../../../contexts/injection/injectables.js';
+import {generateAndInsertAssignedItemListForTest} from '../../../../testUtils/generate/permissionGroup.js';
+import {generateAndInsertPermissionItemListForTest} from '../../../../testUtils/generate/permissionItem.js';
+import {queueJobs} from '../../../queueJobs.js';
+import {runDeleteResourceJob} from '../runDeleteResourceJob.js';
+import {DeleteResourceCascadeEntry} from '../types.js';
 
 export type GenerateResourceFn<T extends Resource> = AnyFn<
   [{workspaceId: string}],
@@ -45,7 +42,10 @@ export type GenerateTypeChildrenFn<
 >;
 
 export type GenerateTypeChildrenDefinition<TResource extends Resource> = {
-  [TKey in FimidaraResourceType]: GenerateTypeChildrenFn<TResource, TKey> | null;
+  [TKey in FimidaraResourceType]: GenerateTypeChildrenFn<
+    TResource,
+    TKey
+  > | null;
 };
 
 export type GetResourcesByIdFn<TKey extends FimidaraResourceType> = AnyFn<
@@ -57,72 +57,13 @@ export type GetResourcesByIdDefinition = {
   [TKey in FimidaraResourceType]: GetResourcesByIdFn<TKey> | null;
 };
 
-type TypeToResourceMap<TTypes extends FimidaraResourceType = FimidaraResourceType> = {
+type TypeToResourceMap<
+  TTypes extends FimidaraResourceType = FimidaraResourceType,
+> = {
   [TKey in TTypes]?: FimidaraTypeToTSType<TKey>[];
 };
 
 type TypeToIdList = PartialRecord<FimidaraResourceType, string[] | undefined>;
-
-export async function testDeleteResourceJob0<T extends Resource>(props: {
-  type: FimidaraResourceType;
-  genResourceFn: GenerateResourceFn<T>;
-  genWorkspaceFn?: AnyFn<[], Promise<string>>;
-}) {
-  const {
-    genResourceFn,
-    type,
-    genWorkspaceFn = () =>
-      Promise.resolve(getNewIdForResource(kFimidaraResourceType.Workspace)),
-  } = props;
-  const workspaceId = await genWorkspaceFn();
-  const shard = getNewId();
-  const mainResource = await genResourceFn({workspaceId});
-  const [job] = await queueJobs<DeleteResourceJobParams>(
-    workspaceId,
-    /** parent job ID */ undefined,
-    [
-      {
-        shard,
-        createdBy: kSystemSessionAgent,
-        type: kJobType.deleteResource0,
-        params: {type, workspaceId, resourceId: mainResource.resourceId},
-        idempotencyToken: Date.now().toString(),
-      },
-    ]
-  );
-
-  await runDeleteResourceJob0(job);
-  await kUtilsInjectables.promises().flush();
-
-  const [deleteSelfJob, deleteArtifactsJob] = (await Promise.all([
-    kSemanticModels.job().getOneByQuery({
-      shard,
-      parentJobId: job.resourceId,
-      type: kJobType.deleteResourceSelf,
-    }),
-    kSemanticModels.job().getOneByQuery({
-      shard,
-      parentJobId: job.resourceId,
-      type: kJobType.deleteResourceArtifacts,
-    }),
-  ])) as [Job<DeleteResourceJobParams>, Job<DeleteResourceJobParams>];
-
-  expect(deleteArtifactsJob).toMatchObject({
-    workspaceId,
-    type: kJobType.deleteResourceArtifacts,
-    shard: job.shard,
-    priority: job.priority,
-    params: job.params,
-  });
-  expect(deleteSelfJob).toMatchObject({
-    workspaceId,
-    type: kJobType.deleteResourceSelf,
-    shard: job.shard,
-    priority: job.priority,
-    params: job.params,
-    runAfter: [{jobId: deleteArtifactsJob?.resourceId, status: [kJobStatus.completed]}],
-  });
-}
 
 async function generateTypeChildrenWithDef<T extends Resource>(props: {
   def: GenerateTypeChildrenDefinition<T>;
@@ -134,7 +75,10 @@ async function generateTypeChildrenWithDef<T extends Resource>(props: {
   const result: AnyObject = {};
   await Promise.all(
     forTypes.map(async type => {
-      const children = await def[type as FimidaraResourceType]?.({resource, workspaceId});
+      const children = await def[type as FimidaraResourceType]?.({
+        resource,
+        workspaceId,
+      });
       result[type] = children;
     })
   );
@@ -145,7 +89,9 @@ async function generateTypeChildrenWithDef<T extends Resource>(props: {
 function resourceMapToIdMap(resourcesMap: TypeToResourceMap) {
   return Object.entries(resourcesMap).reduce((acc, [key, resources]) => {
     if (resources) {
-      acc[key as FimidaraResourceType] = extractResourceIdList(resources as Resource[]);
+      acc[key as FimidaraResourceType] = extractResourceIdList(
+        resources as Resource[]
+      );
     }
 
     return acc;
@@ -203,7 +149,9 @@ async function fetchTypeChildrenWithDef(props: {
   const result: AnyObject = {};
   await Promise.all(
     forTypes.map(async type => {
-      const children = await kGetResourcesByIdDef[type as FimidaraResourceType]?.({
+      const children = await kGetResourcesByIdDef[
+        type as FimidaraResourceType
+      ]?.({
         idList: idMap[type as FimidaraResourceType] || [],
       });
       result[type] = children;
@@ -227,33 +175,44 @@ function flattenIdMap(idMap: TypeToIdList) {
   return flatten(Object.values(idMap));
 }
 
-export async function testDeleteResourceArtifactsJob<T extends Resource>(props: {
+export async function testDeleteResourceArtifactsJob<
+  T extends Resource,
+  TOther = unknown,
+>(props: {
   type: FimidaraResourceType;
   genResourceFn: AnyFn<[{workspaceId: string; shard: string}], Promise<T>>;
   genChildrenDef: GenerateTypeChildrenDefinition<T>;
   deleteCascadeDef: DeleteResourceCascadeEntry;
   genWorkspaceFn?: AnyFn<[], Promise<string>>;
-  skipCheckDbResource?: boolean;
+  genOtherFn?: AnyFn<[{resource: T}], Promise<TOther>>;
+  confirmOtherDeletedFn?: AnyFn<[{resource: T; other?: TOther}], Promise<void>>;
 }) {
   const {
     type,
     genResourceFn,
     genChildrenDef,
     deleteCascadeDef,
-    skipCheckDbResource,
+    genOtherFn,
+    confirmOtherDeletedFn,
     genWorkspaceFn = () =>
       Promise.resolve(getNewIdForResource(kFimidaraResourceType.Workspace)),
   } = props;
   const workspaceId = await genWorkspaceFn();
   const shard = getNewId();
   const mainResource = await genResourceFn({workspaceId, shard});
-  const getArtifactTypes = Object.keys(deleteCascadeDef.getArtifacts).filter(
-    type => !!deleteCascadeDef.getArtifacts[type as FimidaraResourceType]
+  const other = await genOtherFn?.({resource: mainResource});
+  const getArtifactTypes = Object.keys(
+    deleteCascadeDef.getArtifactsToDelete
+  ).filter(
+    type =>
+      !!deleteCascadeDef.getArtifactsToDelete[type as FimidaraResourceType]
   );
-  const deleteArtifactTypes = Object.keys(deleteCascadeDef.deleteArtifacts).filter(
+  const deleteArtifactTypes = Object.keys(
+    deleteCascadeDef.deleteArtifacts
+  ).filter(
     type =>
       !!deleteCascadeDef.deleteArtifacts[type as FimidaraResourceType] &&
-      !deleteCascadeDef.getArtifacts[type as FimidaraResourceType]
+      !deleteCascadeDef.getArtifactsToDelete[type as FimidaraResourceType]
   );
   const artifactTypes = uniq(getArtifactTypes.concat(deleteArtifactTypes));
   const childrenMap = await generateTypeChildrenWithDef({
@@ -270,14 +229,14 @@ export async function testDeleteResourceArtifactsJob<T extends Resource>(props: 
       {
         shard,
         createdBy: kSystemSessionAgent,
-        type: kJobType.deleteResourceArtifacts,
+        type: kJobType.deleteResource,
         params: {type, workspaceId, resourceId: mainResource.resourceId},
         idempotencyToken: Date.now().toString(),
       },
     ]
   );
 
-  await runDeleteResourceJobArtifacts(job);
+  await runDeleteResourceJob(job);
   await kUtilsInjectables.promises().flush();
 
   const getArtifactsMap = getArtifactTypes.reduce(
@@ -291,12 +250,11 @@ export async function testDeleteResourceArtifactsJob<T extends Resource>(props: 
   const getArtifactsIdMap = resourceMapToIdMap(getArtifactsMap);
   const getArtifactsIdList = flattenIdMap(getArtifactsIdMap);
 
-  const [fetchedChildrenMap, dbResource, childrenJobs] = await Promise.all([
+  const [fetchedChildrenMap, childrenJobs, dbResource] = await Promise.all([
     fetchTypeChildrenWithDef({
       idMap,
       forTypes: deleteArtifactTypes as FimidaraResourceType[],
     }),
-    getResourceById(mainResource.resourceId),
     kSemanticModels.job().getManyByQuery({
       shard: job.shard,
       parentJobId: job.resourceId,
@@ -308,66 +266,15 @@ export async function testDeleteResourceArtifactsJob<T extends Resource>(props: 
         },
       },
     }),
-  ]);
-
-  if (!skipCheckDbResource) {
-    expect(dbResource).toBeTruthy();
-  }
-
-  expect(childrenJobs.length).toBe(getArtifactsIdList.length);
-  Object.entries(fetchedChildrenMap).forEach(([, resources]) => {
-    expect(resources?.length || 0).toBe(0);
-  });
-}
-
-export async function testDeleteResourceSelfJob<
-  T extends Resource,
-  TOther = unknown,
->(props: {
-  type: FimidaraResourceType;
-  genResourceFn: AnyFn<[{workspaceId: string; shard: string}], Promise<T>>;
-  genWorkspaceFn?: AnyFn<[], Promise<string>>;
-  genOtherFn?: AnyFn<[{resource: T}], Promise<TOther>>;
-  confirmOtherDeletedFn?: AnyFn<[{resource: T; other?: TOther}], Promise<void>>;
-  getResourceFn?: (id: string) => Promise<T | null | undefined>;
-}) {
-  const {
-    type,
-    genResourceFn,
-    genOtherFn,
-    confirmOtherDeletedFn,
-    genWorkspaceFn = () =>
-      Promise.resolve(getNewIdForResource(kFimidaraResourceType.Workspace)),
-    getResourceFn = getResourceById,
-  } = props;
-  const workspaceId = await genWorkspaceFn();
-  const shard = getNewId();
-  const mainResource = await genResourceFn({workspaceId, shard});
-  const other = await genOtherFn?.({resource: mainResource});
-
-  const [job] = await queueJobs<DeleteResourceJobParams>(
-    workspaceId,
-    /** parent job ID */ undefined,
-    [
-      {
-        shard,
-        createdBy: kSystemSessionAgent,
-        type: kJobType.deleteResourceSelf,
-        params: {type, workspaceId, resourceId: mainResource.resourceId},
-        idempotencyToken: Date.now().toString(),
-      },
-    ]
-  );
-
-  await runDeleteResourceJobSelf(job);
-  await kUtilsInjectables.promises().flush();
-
-  const [dbResource] = await Promise.all([
-    getResourceFn(mainResource.resourceId),
+    getResourceById(mainResource.resourceId),
     confirmOtherDeletedFn?.({other, resource: mainResource}),
   ]);
 
   expect(dbResource).toBeFalsy();
+  expect(childrenJobs.length).toBe(getArtifactsIdList.length);
+  Object.entries(fetchedChildrenMap).forEach(([, resources]) => {
+    expect(resources?.length || 0).toBe(0);
+  });
 }
 
 export const noopGenerateTypeChildren: GenerateTypeChildrenDefinition<Resource> =

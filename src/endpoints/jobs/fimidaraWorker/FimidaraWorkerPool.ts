@@ -1,18 +1,18 @@
-import {map} from 'lodash';
-import {kAppType} from '../../../definitions/app';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {appAssert} from '../../../utils/assertion';
-import {DisposableResource} from '../../../utils/disposables';
-import {getNewIdForResource} from '../../../utils/resource';
-import {FimidaraApp} from '../../app/FimidaraApp';
-import {kAppConstants} from '../../app/constants';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {FWorkerMainWorkerEntry} from '../fworker/FWorkerMain';
-import {FWorkerMessager} from '../fworker/FWorkerMessager';
-import {FWorkerPool} from '../fworker/FWorkerPool';
-import {getNextJob} from '../getNextJob';
-import {FimidaraWorkerMessage, kFimidaraWorkerMessageType} from './types';
-import {isFimidaraWorkerMessage} from './utils';
+import {map} from 'lodash-es';
+import {kAppType} from '../../../definitions/app.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {FimidaraApp} from '../../app/FimidaraApp.js';
+import {kAppConstants} from '../../app/constants.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {FWorkerMainWorkerEntry} from '../fworker/FWorkerMain.js';
+import {FWorkerMessager} from '../fworker/FWorkerMessager.js';
+import {FWorkerPool} from '../fworker/FWorkerPool.js';
+import {getNextJob} from '../getNextJob.js';
+import {FimidaraWorkerMessage, kFimidaraWorkerMessageType} from './types.js';
+import {isFimidaraWorkerMessage} from './utils.js';
+import {DisposableResource} from 'softkave-js-utils';
 
 export interface FimidaraWorkerPoolParams {
   server: FimidaraApp;
@@ -34,7 +34,8 @@ export class FimidaraWorkerPool implements DisposableResource {
       promises: kUtilsInjectables.promises(),
       workerCount: params.workerCount || kAppConstants.defaultRunnerCount,
       filepath: runnerLocation,
-      gracefulTerminateTimeoutMs: params.gracefulTerminateTimeoutMs || 5 * 60 * 1_000, // 5 minutes
+      gracefulTerminateTimeoutMs:
+        params.gracefulTerminateTimeoutMs || 5 * 60 * 1_000, // 5 minutes
       generateWorkerId: () => getNewIdForResource(kFimidaraResourceType.App),
       gracefulTerminateFn: this.gracefulTerminateWorker,
     });
@@ -73,7 +74,10 @@ export class FimidaraWorkerPool implements DisposableResource {
     ]);
   }
 
-  protected handleMessage = async (wEntry: FWorkerMainWorkerEntry, message: unknown) => {
+  protected handleMessage = async (
+    wEntry: FWorkerMainWorkerEntry,
+    message: unknown
+  ) => {
     if (
       !FWorkerMessager.isWorkerTrackedMessage(message) ||
       !isFimidaraWorkerMessage(message.value)
@@ -114,7 +118,9 @@ export class FimidaraWorkerPool implements DisposableResource {
     }
   }
 
-  protected gracefulTerminateWorker = async (wEntry: FWorkerMainWorkerEntry) => {
+  protected gracefulTerminateWorker = async (
+    wEntry: FWorkerMainWorkerEntry
+  ) => {
     const message: FimidaraWorkerMessage = {
       type: kFimidaraWorkerMessageType.stopWorker,
     };

@@ -1,28 +1,34 @@
-import {LockableResource} from '../../../utils/LockStore';
-import {globalDispose, globalSetup} from '../../contexts/globalUtils';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {FWorker} from '../fworker/FWorker';
-import {FWorkerMessager} from '../fworker/FWorkerMessager';
-import {runJob} from '../runJob';
-import {FimidaraWorkerMessage, kFimidaraWorkerMessageType} from './types';
-import {isFimidaraWorkerMessage} from './utils';
+import {LockableResource} from 'softkave-js-utils';
+import {globalDispose, globalSetup} from '../../contexts/globalUtils.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {FWorker} from '../fworker/FWorker.js';
+import {FWorkerMessager} from '../fworker/FWorkerMessager.js';
+import {runJob} from '../runJob.js';
+import {FimidaraWorkerMessage, kFimidaraWorkerMessageType} from './types.js';
+import {isFimidaraWorkerMessage} from './utils.js';
 
 const kNoJobSleepForMs = 2 * 60_000; // 2 minutes
 
 export class FimidaraWorker extends FWorker {
   /** Whether this runner thread is scheduled to terminate or not. */
-  protected workerEndedLock = new LockableResource<boolean>(false);
+  protected workerEndedLock: LockableResource<boolean> | undefined;
 
   async start() {
     await globalSetup({useFimidaraApp: false, useFimidaraWorkerPool: false});
+    this.workerEndedLock = new LockableResource<boolean>(
+      kUtilsInjectables.locks(),
+      /** resource */ false
+    );
     this.getPort().on('message', this.handleMessage);
     this.informMainThreadWorkerIsReady();
-    kUtilsInjectables.logger().log('Started worker ', this.getWorkerData().workerId);
+    kUtilsInjectables
+      .logger()
+      .log('Started worker ', this.getWorkerData().workerId);
     kUtilsInjectables.promises().forget(this.run());
   }
 
   protected run = async () => {
-    await this.workerEndedLock.run(async isWorkerEnded => {
+    await this.workerEndedLock?.run(async isWorkerEnded => {
       if (isWorkerEnded) {
         return;
       }
@@ -95,7 +101,7 @@ export class FimidaraWorker extends FWorker {
       case kFimidaraWorkerMessageType.stopWorker: {
         // Wait for workerEndedLock to be available, it's unavailable when
         // this.run() is running
-        await this.workerEndedLock.run(() => {
+        await this.workerEndedLock?.run(() => {
           // set workerEndedLock to true to stop the next iteration of
           // this.run()
           return true;
@@ -105,7 +111,9 @@ export class FimidaraWorker extends FWorker {
         await globalDispose();
 
         // Inform main thread worker is ready to terminate
-        const ack: FimidaraWorkerMessage = {type: kFimidaraWorkerMessageType.stopWorker};
+        const ack: FimidaraWorkerMessage = {
+          type: kFimidaraWorkerMessageType.stopWorker,
+        };
         this.postTrackedMessage({
           outgoingPort: this.port,
           value: ack,

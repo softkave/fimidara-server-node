@@ -1,24 +1,24 @@
 import {faker} from '@faker-js/faker';
 import {PartialDeep} from 'type-fest';
-import {Agent, kFimidaraResourceType} from '../../../definitions/system';
+import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
 import {
   UsageRecordCategory,
   UsageRecordCategoryMap,
-} from '../../../definitions/usageRecord';
+} from '../../../definitions/usageRecord.js';
 import {
   UsageThresholdLocksByCategory,
   UsageThresholdsByCategory,
   Workspace,
   WorkspaceBillStatusMap,
-} from '../../../definitions/workspace';
-import {getTimestamp} from '../../../utils/dateFns';
-import {cast, isObjectEmpty} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {usageRecordConstants} from '../../usageRecords/constants';
-import {transformUsageThresholInput} from '../../workspaces/addWorkspace/internalCreateWorkspace';
-import {NewWorkspaceInput} from '../../workspaces/addWorkspace/types';
-import {makeRootnameFromName} from '../../workspaces/utils';
+} from '../../../definitions/workspace.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {cast, isObjectEmpty} from '../../../utils/fns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {usageRecordConstants} from '../../usageRecords/constants.js';
+import {transformUsageThresholInput} from '../../workspaces/addWorkspace/internalCreateWorkspace.js';
+import {NewWorkspaceInput} from '../../workspaces/addWorkspace/types.js';
+import {makeRootnameFromName} from '../../workspaces/utils.js';
 
 function transformUsageThresholLocks(
   agent: Agent,
@@ -73,7 +73,10 @@ export function generateTestUsageThresholdInputMap(
           category: UsageRecordCategoryMap.Total,
           budget:
             seed.total?.budget ??
-            Object.values(seed).reduce((sum, next) => sum + (next?.budget ?? 0), 0),
+            Object.values(seed).reduce(
+              (sum, next) => sum + (next?.budget ?? 0),
+              0
+            ),
         },
   };
 }
@@ -103,7 +106,9 @@ export function generateTestWorkspace(seed: Partial<Workspace> = {}) {
     description: faker.lorem.sentence(),
     billStatus: WorkspaceBillStatusMap.Ok,
     billStatusAssignedAt: createdAt,
-    publicPermissionGroupId: getNewIdForResource(kFimidaraResourceType.PermissionGroup),
+    publicPermissionGroupId: getNewIdForResource(
+      kFimidaraResourceType.PermissionGroup
+    ),
     ...seed,
     createdBy,
     lastUpdatedBy,
@@ -123,7 +128,10 @@ export function generateTestWorkspace(seed: Partial<Workspace> = {}) {
   return workspace;
 }
 
-export function generateWorkspaceListForTest(count = 20, seed: Partial<Workspace> = {}) {
+export function generateWorkspaceListForTest(
+  count = 20,
+  seed: Partial<Workspace> = {}
+) {
   const workspaces: Workspace[] = [];
   for (let i = 0; i < count; i++) {
     workspaces.push(generateTestWorkspace(seed));
@@ -138,10 +146,7 @@ export async function generateAndInsertWorkspaceListForTest(
   const items = generateWorkspaceListForTest(count, extra);
   await kSemanticModels
     .utils()
-    .withTxn(
-      async opts => kSemanticModels.workspace().insertItem(items, opts),
-      /** reuseTxn */ true
-    );
+    .withTxn(async opts => kSemanticModels.workspace().insertItem(items, opts));
 
   return items;
 }

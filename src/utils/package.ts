@@ -1,5 +1,5 @@
 import {readFile} from 'fs/promises';
-import {memoize} from 'lodash';
+import {memoize} from 'lodash-es';
 
 export type PackageJson = Partial<{
   version: string;

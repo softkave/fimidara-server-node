@@ -1,8 +1,8 @@
 import {
   CollaborationRequestResponse,
   PublicCollaborationRequestForUser,
-} from '../../../definitions/collaborationRequest';
-import {Endpoint} from '../../types';
+} from '../../../definitions/collaborationRequest.js';
+import {Endpoint} from '../../types.js';
 
 export interface RespondToCollaborationRequestEndpointParams {
   requestId: string;

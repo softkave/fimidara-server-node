@@ -1,18 +1,17 @@
-import {PermissionItem} from '../../../../../definitions/permissionItem';
-import {kFimidaraResourceType} from '../../../../../definitions/system';
-import {generateAndInsertPermissionItemListForTest} from '../../../../testUtils/generate/permissionItem';
-import {completeTests} from '../../../../testUtils/helpers/testFns';
-import {initTests} from '../../../../testUtils/testUtils';
-import {deletePermissionItemCascadeEntry} from '../permissionItem';
+import {afterAll, beforeAll, describe, test} from 'vitest';
+import {PermissionItem} from '../../../../../definitions/permissionItem.js';
+import {kFimidaraResourceType} from '../../../../../definitions/system.js';
+import {generateAndInsertPermissionItemListForTest} from '../../../../testUtils/generate/permissionItem.js';
+import {completeTests} from '../../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../../testUtils/testUtils.js';
+import {deletePermissionItemCascadeEntry} from '../permissionItem.js';
 import {
   GenerateResourceFn,
   GenerateTypeChildrenDefinition,
   generatePermissionItemsAsChildren,
   noopGenerateTypeChildren,
   testDeleteResourceArtifactsJob,
-  testDeleteResourceJob0,
-  testDeleteResourceSelfJob,
-} from './testUtils';
+} from './testUtils.js';
 
 beforeAll(async () => {
   await initTests();
@@ -28,7 +27,9 @@ const permissionItemGenerateTypeChildren: GenerateTypeChildrenDefinition<Permiss
     [kFimidaraResourceType.PermissionItem]: generatePermissionItemsAsChildren,
   };
 
-const genResourceFn: GenerateResourceFn<PermissionItem> = async ({workspaceId}) => {
+const genResourceFn: GenerateResourceFn<PermissionItem> = async ({
+  workspaceId,
+}) => {
   const [permissionItem] = await generateAndInsertPermissionItemListForTest(1, {
     workspaceId,
   });
@@ -36,25 +37,11 @@ const genResourceFn: GenerateResourceFn<PermissionItem> = async ({workspaceId}) 
 };
 
 describe('runDeleteResourceJob, permission item', () => {
-  test('deleteResource0', async () => {
-    testDeleteResourceJob0({
-      genResourceFn,
-      type: kFimidaraResourceType.PermissionItem,
-    });
-  });
-
   test('runDeleteResourceJobArtifacts', async () => {
     await testDeleteResourceArtifactsJob({
       genResourceFn,
       genChildrenDef: permissionItemGenerateTypeChildren,
       deleteCascadeDef: deletePermissionItemCascadeEntry,
-      type: kFimidaraResourceType.PermissionItem,
-    });
-  });
-
-  test('runDeleteResourceJobSelf', async () => {
-    await testDeleteResourceSelfJob({
-      genResourceFn,
       type: kFimidaraResourceType.PermissionItem,
     });
   });

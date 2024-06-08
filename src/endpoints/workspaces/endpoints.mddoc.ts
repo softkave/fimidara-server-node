@@ -1,32 +1,32 @@
-import {UsageRecordCategoryMap} from '../../definitions/usageRecord';
+import {UsageRecordCategoryMap} from '../../definitions/usageRecord.js';
 import {
   PublicUsageThreshold,
   PublicUsageThresholdLock,
   PublicWorkspace,
   WorkspaceBillStatusMap,
-} from '../../definitions/workspace';
+} from '../../definitions/workspace.js';
 import {
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
   mddocConstruct,
-} from '../../mddoc/mddoc';
+} from '../../mddoc/mddoc.js';
 import {
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
-} from '../endpoints.mddoc';
-import {EndpointOptionalWorkspaceIDParam} from '../types';
+} from '../endpoints.mddoc.js';
+import {EndpointOptionalWorkspaceIDParam} from '../types.js';
 import {
   AddWorkspaceEndpointParams,
   AddWorkspaceEndpointResult,
-} from './addWorkspace/types';
-import {workspaceConstants} from './constants';
+} from './addWorkspace/types.js';
+import {workspaceConstants} from './constants.js';
 import {
   GetUserWorkspacesEndpointParams,
   GetUserWorkspacesEndpointResult,
-} from './getUserWorkspaces/types';
-import {GetWorkspaceEndpointResult} from './getWorkspace/types';
+} from './getUserWorkspaces/types.js';
+import {GetWorkspaceEndpointResult} from './getWorkspace/types.js';
 import {
   AddWorkspaceHttpEndpoint,
   CountUserWorkspacesHttpEndpoint,
@@ -34,12 +34,12 @@ import {
   GetUserWorkspacesHttpEndpoint,
   GetWorkspaceHttpEndpoint,
   UpdateWorkspaceHttpEndpoint,
-} from './types';
+} from './types.js';
 import {
   UpdateWorkspaceEndpointParams,
   UpdateWorkspaceEndpointResult,
   UpdateWorkspaceInput,
-} from './updateWorkspace/types';
+} from './updateWorkspace/types.js';
 
 const workspaceDescription = mddocConstruct
   .constructFieldString()

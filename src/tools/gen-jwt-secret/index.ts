@@ -1,3 +1,3 @@
-import {genJWTSecret} from './utils';
+import {genJWTSecret} from './utils.js';
 
 genJWTSecret();

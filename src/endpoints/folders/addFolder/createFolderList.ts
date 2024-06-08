@@ -1,21 +1,21 @@
-import {Folder} from '../../../definitions/folder';
-import {SessionAgent} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
-import {convertToArray, pathSplit} from '../../../utils/fns';
+import {Folder} from '../../../definitions/folder.js';
+import {SessionAgent} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {convertToArray, pathSplit} from '../../../utils/fns.js';
 import {
   ShardId,
   ShardedInput,
   kShardMatchStrategy,
   kShardQueueStrategy,
-} from '../../../utils/shardedRunnerQueue';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
+} from '../../../utils/shardedRunnerQueue.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {
   AddFolderShardMeta,
   AddFolderShardOutputItem,
   NewFolderInput,
   kAddFolderShardPart,
-} from './types';
+} from './types.js';
 
 function shardNewFolderInput(
   workspaceId: string,

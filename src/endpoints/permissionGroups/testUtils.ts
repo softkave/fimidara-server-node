@@ -1,17 +1,20 @@
 import {
   AssignPermissionGroupInput,
   PermissionGroup,
-} from '../../definitions/permissionGroups';
-import {PermissionAction} from '../../definitions/permissionItem';
-import {SessionAgent} from '../../definitions/system';
-import {makeKey} from '../../utils/fns';
-import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems';
-import {kSemanticModels} from '../contexts/injection/injectables';
-import {IServerRequest} from '../contexts/types';
-import addPermissionItems from '../permissionItems/addItems/handler';
-import RequestData from '../RequestData';
+} from '../../definitions/permissionGroups.js';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
+import {SessionAgent} from '../../definitions/system.js';
+import {makeKey} from '../../utils/fns.js';
+import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
+import {IServerRequest} from '../contexts/types.js';
+import addPermissionItems from '../permissionItems/addItems/handler.js';
+import RequestData from '../RequestData.js';
 
-export function includesPermissionGroupById(pgList: PermissionGroup[], id: string) {
+export function includesPermissionGroupById(
+  pgList: PermissionGroup[],
+  id: string
+) {
   return !!pgList.find(pg => pg.resourceId === id);
 }
 
@@ -21,7 +24,9 @@ export function makeKeyFromAssignedPermissionGroupMetaOrInput(item: {
   return makeKey([item.permissionGroupId]);
 }
 
-export function toAssignedPgListInput(pgList: Pick<PermissionGroup, 'resourceId'>[]) {
+export function toAssignedPgListInput(
+  pgList: Pick<PermissionGroup, 'resourceId'>[]
+) {
   return pgList.map(
     (pg): AssignPermissionGroupInput => ({
       permissionGroupId: pg.resourceId,
@@ -37,19 +42,17 @@ export async function assignPgListToIdList(
 ) {
   await kSemanticModels
     .utils()
-    .withTxn(
-      async opts =>
-        addAssignedPermissionGroupList(
-          agent,
-          workspaceId,
-          pgInputList,
-          entityIdList,
-          /** delete existing */ false,
-          /** skip permission groups check */ true,
-          /** skip auth check */ true,
-          opts
-        ),
-      /** reuseTxn */ true
+    .withTxn(async opts =>
+      addAssignedPermissionGroupList(
+        agent,
+        workspaceId,
+        pgInputList,
+        entityIdList,
+        /** delete existing */ false,
+        /** skip permission groups check */ true,
+        /** skip auth check */ true,
+        opts
+      )
     );
 }
 
@@ -58,13 +61,18 @@ export async function grantPermission(
   workspaceId: string,
   agentId: string,
   targetIdList: string[],
-  action: PermissionAction
+  action: FimidaraPermissionAction
 ) {
   await addPermissionItems(
     RequestData.fromExpressRequest(req, {
       workspaceId,
       items: [
-        {action, target: {targetId: targetIdList}, access: true, entityId: agentId},
+        {
+          action,
+          target: {targetId: targetIdList},
+          access: true,
+          entityId: agentId,
+        },
       ],
     })
   );

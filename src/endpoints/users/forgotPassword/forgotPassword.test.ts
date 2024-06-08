@@ -1,18 +1,19 @@
-import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job';
-import RequestData from '../../RequestData';
-import {DataQuery} from '../../contexts/data/types';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {kRegisterUtilsInjectables} from '../../contexts/injection/register';
-import MockTestEmailProviderContext from '../../testUtils/context/email/MockTestEmailProviderContext';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job.js';
+import RequestData from '../../RequestData.js';
+import {DataQuery} from '../../contexts/data/types.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../contexts/injection/register.js';
+import MockTestEmailProviderContext from '../../testUtils/context/email/MockTestEmailProviderContext.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeEach, afterEach, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequest,
-} from '../../testUtils/testUtils';
-import forgotPassword from './forgotPassword';
-import {ForgotPasswordEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import forgotPassword from './forgotPassword.js';
+import {ForgotPasswordEndpointParams} from './types.js';
 
 /**
  * TODO:

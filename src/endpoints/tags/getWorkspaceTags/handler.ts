@@ -1,18 +1,25 @@
-import {validate} from '../../../utils/validate';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
-} from '../../pagination';
-import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils';
-import {tagExtractor} from '../utils';
-import {GetWorkspaceTagsEndpoint} from './types';
-import {getWorkspaceTagsQuery} from './utils';
-import {getWorkspaceTagJoiSchema} from './validation';
+} from '../../pagination.js';
+import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils.js';
+import {tagExtractor} from '../utils.js';
+import {GetWorkspaceTagsEndpoint} from './types.js';
+import {getWorkspaceTagsQuery} from './utils.js';
+import {getWorkspaceTagJoiSchema} from './validation.js';
 
 const getWorkspaceTags: GetWorkspaceTagsEndpoint = async instData => {
   const data = validate(instData.data, getWorkspaceTagJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const workspace = await checkWorkspaceExistsWithAgent(agent, data.workspaceId);
   const q = await getWorkspaceTagsQuery(agent, workspace);
   applyDefaultEndpointPaginationOptions(data);

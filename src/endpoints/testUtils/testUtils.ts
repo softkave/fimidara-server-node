@@ -1,75 +1,85 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
 import {Readable} from 'stream';
-import {AgentToken} from '../../definitions/agentToken';
+import {AgentToken} from '../../definitions/agentToken.js';
 import {
   BaseTokenData,
   kCurrentJWTTokenVersion,
   SessionAgent,
-} from '../../definitions/system';
-import {PublicUser, UserWithWorkspace} from '../../definitions/user';
-import {PublicWorkspace, Workspace} from '../../definitions/workspace';
-import {appAssert} from '../../utils/assertion';
-import {getTimestamp} from '../../utils/dateFns';
-import {convertToArray, mergeData, pathJoin} from '../../utils/fns';
-import {makeUserSessionAgent} from '../../utils/sessionUtils';
-import addAgentTokenEndpoint from '../agentTokens/addToken/handler';
+} from '../../definitions/system.js';
+import {PublicUser, UserWithWorkspace} from '../../definitions/user.js';
+import {PublicWorkspace, Workspace} from '../../definitions/workspace.js';
+import {kPublicSessionAgent, kSystemSessionAgent} from '../../utils/agent.js';
+import {appAssert} from '../../utils/assertion.js';
+import {getTimestamp} from '../../utils/dateFns.js';
+import {convertToArray, mergeData, pathJoin} from '../../utils/fns.js';
+import {makeUserSessionAgent} from '../../utils/sessionUtils.js';
+import addAgentTokenEndpoint from '../agentTokens/addToken/handler.js';
 import {
   AddAgentTokenEndpointParams,
   NewAgentTokenInput,
-} from '../agentTokens/addToken/types';
-import {assertAgentToken} from '../agentTokens/utils';
-import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
-import sendRequest from '../collaborationRequests/sendRequest/handler';
+} from '../agentTokens/addToken/types.js';
+import {assertAgentToken} from '../agentTokens/utils.js';
+import {populateUserWorkspaces} from '../assignedItems/getAssignedItems.js';
+import sendRequest from '../collaborationRequests/sendRequest/handler.js';
 import {
   CollaborationRequestInput,
   SendCollaborationRequestEndpointParams,
-} from '../collaborationRequests/sendRequest/types';
-import {globalSetup} from '../contexts/globalUtils';
-import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
-import {IServerRequest} from '../contexts/types';
-import addFileBackendConfig from '../fileBackends/addConfig/handler';
+} from '../collaborationRequests/sendRequest/types.js';
+import {globalSetup} from '../contexts/globalUtils.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../contexts/injection/injectables.js';
+import {IServerRequest} from '../contexts/types.js';
+import addFileBackendConfig from '../fileBackends/addConfig/handler.js';
 import {
   AddFileBackendConfigEndpointParams,
   NewFileBackendConfigInput,
-} from '../fileBackends/addConfig/types';
-import addFileBackendMountEndpoint from '../fileBackends/addMount/handler';
+} from '../fileBackends/addConfig/types.js';
+import addFileBackendMountEndpoint from '../fileBackends/addMount/handler.js';
 import {
   AddFileBackendMountEndpointParams,
   NewFileBackendMountInput,
-} from '../fileBackends/addMount/types';
-import uploadFile from '../files/uploadFile/handler';
-import {UploadFileEndpointParams} from '../files/uploadFile/types';
-import addFolder from '../folders/addFolder/handler';
-import {AddFolderEndpointParams, NewFolderInput} from '../folders/addFolder/types';
-import {addRootnameToPath} from '../folders/utils';
-import addPermissionGroup from '../permissionGroups/addPermissionGroup/handler';
+} from '../fileBackends/addMount/types.js';
+import uploadFile from '../files/uploadFile/handler.js';
+import {UploadFileEndpointParams} from '../files/uploadFile/types.js';
+import addFolder from '../folders/addFolder/handler.js';
+import {
+  AddFolderEndpointParams,
+  NewFolderInput,
+} from '../folders/addFolder/types.js';
+import {addRootnameToPath} from '../folders/utils.js';
+import addPermissionGroup from '../permissionGroups/addPermissionGroup/handler.js';
 import {
   AddPermissionGroupEndpointParams,
   NewPermissionGroupInput,
-} from '../permissionGroups/addPermissionGroup/types';
-import addPermissionItems from '../permissionItems/addItems/handler';
-import {AddPermissionItemsEndpointParams} from '../permissionItems/addItems/types';
-import {PermissionItemInput} from '../permissionItems/types';
-import EndpointReusableQueries from '../queries';
-import RequestData from '../RequestData';
-import {initFimidara} from '../runtime/initFimidara';
-import {BaseEndpointResult} from '../types';
-import INTERNAL_confirmEmailAddress from '../users/confirmEmailAddress/internalConfirmEmailAddress';
-import signup from '../users/signup/signup';
-import {SignupEndpointParams} from '../users/signup/types';
-import {assertUser} from '../users/utils';
-import addWorkspace from '../workspaces/addWorkspace/handler';
-import {AddWorkspaceEndpointParams} from '../workspaces/addWorkspace/types';
-import {makeRootnameFromName} from '../workspaces/utils';
-import MockTestEmailProviderContext from './context/email/MockTestEmailProviderContext';
-import {generateTestFileName, generateTestFilepathString} from './generate/file';
+} from '../permissionGroups/addPermissionGroup/types.js';
+import addPermissionItems from '../permissionItems/addItems/handler.js';
+import {AddPermissionItemsEndpointParams} from '../permissionItems/addItems/types.js';
+import {PermissionItemInput} from '../permissionItems/types.js';
+import EndpointReusableQueries from '../queries.js';
+import RequestData from '../RequestData.js';
+import {initFimidara} from '../runtime/initFimidara.js';
+import {BaseEndpointResult} from '../types.js';
+import INTERNAL_confirmEmailAddress from '../users/confirmEmailAddress/internalConfirmEmailAddress.js';
+import signup from '../users/signup/signup.js';
+import {SignupEndpointParams} from '../users/signup/types.js';
+import {assertUser} from '../users/utils.js';
+import addWorkspace from '../workspaces/addWorkspace/handler.js';
+import {AddWorkspaceEndpointParams} from '../workspaces/addWorkspace/types.js';
+import {makeRootnameFromName} from '../workspaces/utils.js';
+import MockTestEmailProviderContext from './context/email/MockTestEmailProviderContext.js';
+import {
+  generateTestFileName,
+  generateTestFilepathString,
+} from './generate/file.js';
 import {
   generateFileBackendConfigInput,
   generateFileBackendMountInput,
   generateFileBackendTypeForInput,
-} from './generate/fileBackend';
-import {generateTestFolderName} from './generate/folder';
+} from './generate/fileBackend.js';
+import {generateTestFolderName} from './generate/folder.js';
 import sharp = require('sharp');
 import assert = require('assert');
 
@@ -103,13 +113,18 @@ export function mockExpressRequestWithAgentToken(
   token: Pick<AgentToken, 'resourceId' | 'createdAt' | 'expiresAt'>
 ) {
   const req: IServerRequest = {
-    auth: {
-      version: kCurrentJWTTokenVersion,
-      sub: {id: token.resourceId},
-      iat: token.createdAt,
-      exp: token.expiresAt,
-    },
+    auth:
+      token.resourceId === kSystemSessionAgent.agentTokenId ||
+      token.resourceId === kPublicSessionAgent.agentTokenId
+        ? undefined
+        : {
+            version: kCurrentJWTTokenVersion,
+            sub: {id: token.resourceId},
+            iat: token.createdAt,
+            exp: token.expiresAt,
+          },
   } as unknown as IServerRequest;
+
   return req;
 }
 
@@ -152,10 +167,15 @@ export async function insertUserForTest(
   let rawUser: UserWithWorkspace;
 
   if (!skipAutoVerifyEmail) {
-    const user = await INTERNAL_confirmEmailAddress(result.user.resourceId, null);
+    const user = await INTERNAL_confirmEmailAddress(
+      result.user.resourceId,
+      null
+    );
     rawUser = await populateUserWorkspaces(user);
   } else {
-    const user = await kSemanticModels.user().getOneById(result.user.resourceId);
+    const user = await kSemanticModels
+      .user()
+      .getOneById(result.user.resourceId);
     assertUser(user);
     rawUser = await populateUserWorkspaces(user);
   }
@@ -219,17 +239,18 @@ export async function insertPermissionGroupForTest(
   workspaceId: string,
   permissionGroupInput: Partial<NewPermissionGroupInput> = {}
 ) {
-  const instData = RequestData.fromExpressRequest<AddPermissionGroupEndpointParams>(
-    mockExpressRequestWithAgentToken(userToken),
-    {
-      workspaceId,
-      permissionGroup: {
-        name: faker.lorem.words(3),
-        description: faker.lorem.words(10),
-        ...permissionGroupInput,
-      },
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<AddPermissionGroupEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {
+        workspaceId,
+        permissionGroup: {
+          name: faker.lorem.words(3),
+          description: faker.lorem.words(10),
+          ...permissionGroupInput,
+        },
+      }
+    );
 
   const result = await addPermissionGroup(instData);
   assertEndpointResultOk(result);
@@ -241,10 +262,11 @@ export async function insertPermissionItemsForTest(
   workspaceId: string,
   input: PermissionItemInput | PermissionItemInput[]
 ) {
-  const instData = RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
-    mockExpressRequestWithAgentToken(userToken),
-    {workspaceId, items: convertToArray(input)}
-  );
+  const instData =
+    RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {workspaceId, items: convertToArray(input)}
+    );
   const result = await addPermissionItems(instData);
   assertEndpointResultOk(result);
   return result;
@@ -255,18 +277,19 @@ export async function insertRequestForTest(
   workspaceId: string,
   requestInput: Partial<CollaborationRequestInput> = {}
 ) {
-  const instData = RequestData.fromExpressRequest<SendCollaborationRequestEndpointParams>(
-    mockExpressRequestWithAgentToken(userToken),
-    {
-      workspaceId,
-      request: {
-        recipientEmail: faker.internet.email(),
-        message: faker.lorem.paragraph(),
-        expires: getTimestamp(add(Date.now(), {days: 10})),
-        ...requestInput,
-      },
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<SendCollaborationRequestEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {
+        workspaceId,
+        request: {
+          recipientEmail: faker.internet.email(),
+          message: faker.lorem.paragraph(),
+          expires: getTimestamp(add(Date.now(), {days: 10})),
+          ...requestInput,
+        },
+      }
+    );
 
   const result = await sendRequest(instData);
   assertEndpointResultOk(result);
@@ -293,7 +316,13 @@ export async function insertAgentTokenForTest(
 
   const result = await addAgentTokenEndpoint(instData);
   assertEndpointResultOk(result);
-  return result;
+
+  const rawToken = await kSemanticModels
+    .agentToken()
+    .getOneById(result.token.resourceId);
+  assert(rawToken);
+
+  return {...result, rawToken};
 }
 
 export async function insertFileBackendConfigForTest(
@@ -301,13 +330,14 @@ export async function insertFileBackendConfigForTest(
   workspaceId: string,
   input: Partial<NewFileBackendConfigInput> = {}
 ) {
-  const instData = RequestData.fromExpressRequest<AddFileBackendConfigEndpointParams>(
-    mockExpressRequestWithAgentToken(userToken),
-    {
-      workspaceId,
-      config: generateFileBackendConfigInput(input),
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<AddFileBackendConfigEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {
+        workspaceId,
+        config: generateFileBackendConfigInput(input),
+      }
+    );
 
   const result = await addFileBackendConfig(instData);
   assertEndpointResultOk(result);
@@ -337,10 +367,11 @@ export async function insertFileBackendMountForTest(
     folderpath: generateTestFilepathString({rootname}),
     ...input,
   });
-  const instData = RequestData.fromExpressRequest<AddFileBackendMountEndpointParams>(
-    mockExpressRequestWithAgentToken(userToken),
-    {workspaceId, mount: mountInput}
-  );
+  const instData =
+    RequestData.fromExpressRequest<AddFileBackendMountEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {workspaceId, mount: mountInput}
+    );
 
   const result = await addFileBackendMountEndpoint(instData);
   assertEndpointResultOk(result);
@@ -381,7 +412,9 @@ export async function insertFolderForTest(
   const result = await addFolder(instData);
   assertEndpointResultOk(result);
 
-  const rawFolder = await kSemanticModels.folder().getOneById(result.folder.resourceId);
+  const rawFolder = await kSemanticModels
+    .folder()
+    .getOneById(result.folder.resourceId);
   appAssert(rawFolder);
 
   return {...result, rawFolder};
@@ -426,7 +459,10 @@ export async function insertFileForTest(
   const testBuffer = Buffer.from('Hello world!');
   const testStream = Readable.from([testBuffer]);
   const input: UploadFileEndpointParams = {
-    filepath: addRootnameToPath(pathJoin([generateTestFileName()]), workspace.rootname),
+    filepath: addRootnameToPath(
+      pathJoin([generateTestFileName()]),
+      workspace.rootname
+    ),
     description: faker.lorem.paragraph(),
     data: testStream,
     mimetype: 'application/octet-stream',
@@ -462,7 +498,9 @@ export async function insertFileForTest(
 
   const rawFile = await kSemanticModels
     .file()
-    .assertGetOneByQuery(EndpointReusableQueries.getByResourceId(result.file.resourceId));
+    .assertGetOneByQuery(
+      EndpointReusableQueries.getByResourceId(result.file.resourceId)
+    );
 
   assert(dataBuffer);
   return {...result, dataBuffer, rawFile, reqData: instData};

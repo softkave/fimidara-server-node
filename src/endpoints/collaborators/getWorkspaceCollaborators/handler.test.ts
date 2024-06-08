@@ -1,21 +1,22 @@
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {calculatePageSize} from '../../../utils/fns';
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems';
-import AssignedItemQueries from '../../assignedItems/queries';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import RequestData from '../../RequestData';
-import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {calculatePageSize} from '../../../utils/fns.js';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
+import AssignedItemQueries from '../../assignedItems/queries.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import RequestData from '../../RequestData.js';
+import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {collaboratorExtractor} from '../utils';
-import getWorkspaceCollaborators from './handler';
-import {GetWorkspaceCollaboratorsEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import {collaboratorExtractor} from '../utils.js';
+import getWorkspaceCollaborators from './handler.js';
+import {GetWorkspaceCollaboratorsEndpointParams} from './types.js';
 
 /**
  * TODO:

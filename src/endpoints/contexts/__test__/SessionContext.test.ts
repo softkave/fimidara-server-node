@@ -1,13 +1,14 @@
-import {kFimidaraResourceType, kTokenAccessScope} from '../../../definitions/system';
-import {makeUserSessionAgent} from '../../../utils/sessionUtils';
-import RequestData from '../../RequestData';
-import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generate/agentToken';
-import {generateAndInsertUserListForTest} from '../../testUtils/generate/user';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/testFns';
-import {initTests} from '../../testUtils/testUtils';
-import {ChangePasswordError, PermissionDeniedError} from '../../users/errors';
-import {kUtilsInjectables} from '../injection/injectables';
+import {kFimidaraResourceType, kTokenAccessScope} from '../../../definitions/system.js';
+import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
+import RequestData from '../../RequestData.js';
+import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generate/agentToken.js';
+import {generateAndInsertUserListForTest} from '../../testUtils/generate/user.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {initTests} from '../../testUtils/testUtils.js';
+import {ChangePasswordError, PermissionDeniedError} from '../../users/errors.js';
+import {kUtilsInjectables} from '../injection/injectables.js';
+import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 
 beforeAll(async () => {
   await initTests();
@@ -21,7 +22,7 @@ describe('SessionContext', () => {
   test('getAgent fails if token does not contain scope', async () => {
     const [user] = await generateAndInsertUserListForTest(1);
     const [userAgentToken] = await generateAndInsertAgentTokenListForTest(1, {
-      scope: [kTokenAccessScope.ChangePassword],
+      scope: [kTokenAccessScope.changePassword],
       workspaceId: null,
       forEntityId: user.resourceId,
       entityType: kFimidaraResourceType.User,
@@ -32,7 +33,11 @@ describe('SessionContext', () => {
       });
       await kUtilsInjectables
         .session()
-        .getAgent(reqData, [kFimidaraResourceType.User], [kTokenAccessScope.Login]);
+        .getAgentFromReq(
+          reqData,
+          [kFimidaraResourceType.User],
+          [kTokenAccessScope.login]
+        );
     }, [PermissionDeniedError.name]);
   });
 
@@ -41,7 +46,7 @@ describe('SessionContext', () => {
       requiresPasswordChange: true,
     }));
     const [userAgentToken] = await generateAndInsertAgentTokenListForTest(1, {
-      scope: [kTokenAccessScope.Login],
+      scope: [kTokenAccessScope.login],
       workspaceId: null,
       forEntityId: user.resourceId,
       entityType: kFimidaraResourceType.User,
@@ -52,7 +57,11 @@ describe('SessionContext', () => {
       });
       await kUtilsInjectables
         .session()
-        .getAgent(reqData, [kFimidaraResourceType.User], [kTokenAccessScope.Login]);
+        .getAgentFromReq(
+          reqData,
+          [kFimidaraResourceType.User],
+          [kTokenAccessScope.login]
+        );
     }, [ChangePasswordError.name]);
   });
 });

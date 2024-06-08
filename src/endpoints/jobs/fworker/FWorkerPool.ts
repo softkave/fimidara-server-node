@@ -1,9 +1,9 @@
 import {ReadonlyDeep} from 'type-fest';
-import {appAssert} from '../../../utils/assertion';
-import {DisposableResource} from '../../../utils/disposables';
-import {kLoopAsyncSettlementType, loopAsync} from '../../../utils/fns';
-import {AnyFn} from '../../../utils/types';
-import {FWorkerMainBase, FWorkerMainParams} from './FWorkerMain';
+import {appAssert} from '../../../utils/assertion.js';
+import {kLoopAsyncSettlementType, loopAsync} from '../../../utils/fns.js';
+import {AnyFn} from '../../../utils/types.js';
+import {FWorkerMainBase, FWorkerMainParams} from './FWorkerMain.js';
+import {DisposableResource} from 'softkave-js-utils';
 
 export interface FWorkerPoolParams extends FWorkerMainParams {
   workerCount: number;
@@ -43,12 +43,12 @@ export class FWorkerPool extends FWorkerMainBase implements DisposableResource {
   }
 
   async dispose() {
-    await super.__dispose(this.gracefulTerminateTimeoutMs);
+    await this.__dispose(this.gracefulTerminateTimeoutMs);
   }
 
   protected startNewWorker = async () => {
     const id = this.generateWorkerId();
-    return await super.__startNewWorker(
+    return await this.__startNewWorker(
       this.filepath,
       id,
       this.gracefulTerminateFn,
@@ -57,7 +57,7 @@ export class FWorkerPool extends FWorkerMainBase implements DisposableResource {
   };
 
   protected stopWorker = async (id: string) => {
-    await super.__stopWorker(id, this.gracefulTerminateTimeoutMs);
+    await this.__stopWorker(id, this.gracefulTerminateTimeoutMs);
   };
 
   getWorkers(): ReadonlyDeep<typeof this.workers> {

@@ -1,6 +1,6 @@
-import addAgentTokenEndpoint from './addToken/handler';
-import countWorkspaceAgentTokens from './countWorkspaceTokens/handler';
-import deleteAgentToken from './deleteToken/handler';
+import addAgentTokenEndpoint from './addToken/handler.js';
+import countWorkspaceAgentTokens from './countWorkspaceTokens/handler.js';
+import deleteAgentToken from './deleteToken/handler.js';
 import {
   addAgentTokenEndpointDefinition,
   countWorkspaceAgentTokensEndpointDefinition,
@@ -8,11 +8,11 @@ import {
   getAgentTokenEndpointDefinition,
   getWorkspaceAgentTokensEndpointDefinition,
   updateAgentTokenEndpointDefinition,
-} from './endpoints.mddoc';
-import getAgentToken from './getToken/handler';
-import getWorkspaceAgentTokens from './getWorkspaceTokens/handler';
-import {AgentTokensExportedEndpoints} from './types';
-import updateAgentToken from './updateToken/handler';
+} from './endpoints.mddoc.js';
+import getAgentToken from './getToken/handler.js';
+import getWorkspaceAgentTokens from './getWorkspaceTokens/handler.js';
+import {AgentTokensExportedEndpoints} from './types.js';
+import updateAgentToken from './updateToken/handler.js';
 
 export function getAgentTokenPublicHttpEndpoints() {
   const agentTokensExportedEndpoints: AgentTokensExportedEndpoints = {

@@ -1,12 +1,12 @@
-import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job';
-import {User} from '../../../definitions/user';
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {validate} from '../../../utils/validate';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {queueJobs} from '../../jobs/queueJobs';
-import {assertUser} from '../utils';
-import {ForgotPasswordEndpoint} from './types';
-import {forgotPasswordJoiSchema} from './validation';
+import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job.js';
+import {User} from '../../../definitions/user.js';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {validate} from '../../../utils/validate.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {queueJobs} from '../../jobs/queueJobs.js';
+import {assertUser} from '../utils.js';
+import {ForgotPasswordEndpoint} from './types.js';
+import {forgotPasswordJoiSchema} from './validation.js';
 
 export const forgotPassword: ForgotPasswordEndpoint = async instData => {
   const data = validate(instData.data, forgotPasswordJoiSchema);

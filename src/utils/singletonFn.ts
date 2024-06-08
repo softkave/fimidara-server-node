@@ -1,5 +1,5 @@
-import {isUndefined, noop} from 'lodash';
-import {cast} from './fns';
+import {isUndefined, noop} from 'lodash-es';
+import {cast} from 'softkave-js-utils';
 
 export type SingletonFnInitFn<Data> = () => Data;
 export type SingletonFnDisposeFn<Data> = (data: Data) => void | Promise<void>;

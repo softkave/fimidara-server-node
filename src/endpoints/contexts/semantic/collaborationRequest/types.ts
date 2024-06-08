@@ -1,10 +1,10 @@
-import {CollaborationRequest} from '../../../../definitions/collaborationRequest';
+import {CollaborationRequest} from '../../../../definitions/collaborationRequest.js';
 import {
   SemanticProviderOpParams,
   SemanticProviderQueryListParams,
   SemanticProviderQueryParams,
   SemanticWorkspaceResourceProviderType,
-} from '../types';
+} from '../types.js';
 
 export interface SemanticCollaborationRequestProvider
   extends SemanticWorkspaceResourceProviderType<CollaborationRequest> {

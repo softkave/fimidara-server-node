@@ -1,29 +1,30 @@
 import {
+  FimidaraPublicResourceType,
   FimidaraResourceType,
   kFimidaraResourceType,
   PublicResource,
-  Resource,
+  PublicResourceWrapper,
   ResourceWrapper,
-} from '../../definitions/system';
-import {PublicCollaborator} from '../../definitions/user';
-import {ServerError} from '../../utils/errors';
-import {AnyFn} from '../../utils/types';
-import {agentTokenExtractor} from '../agentTokens/utils';
-import {collaborationRequestForWorkspaceExtractor} from '../collaborationRequests/utils';
-import {collaboratorExtractor} from '../collaborators/utils';
-import {resourceExtractor} from '../extractors';
+} from '../../definitions/system.js';
+import {PublicCollaborator} from '../../definitions/user.js';
+import {ServerError} from '../../utils/errors.js';
+import {AnyFn} from '../../utils/types.js';
+import {agentTokenExtractor} from '../agentTokens/utils.js';
+import {collaborationRequestForWorkspaceExtractor} from '../collaborationRequests/utils.js';
+import {collaboratorExtractor} from '../collaborators/utils.js';
+import {resourceExtractor} from '../extractors.js';
 import {
   fileBackendConfigExtractor,
   fileBackendMountExtractor,
   resolvedEntryExtractor,
-} from '../fileBackends/utils';
-import {fileExtractor, presignedPathExtractor} from '../files/utils';
-import {folderExtractor} from '../folders/utils';
-import {permissionGroupExtractor} from '../permissionGroups/utils';
-import {permissionItemExtractor} from '../permissionItems/utils';
-import {tagExtractor} from '../tags/utils';
-import {usageRecordExtractor} from '../usageRecords/utils';
-import {workspaceExtractor} from '../workspaces/utils';
+} from '../fileBackends/utils.js';
+import {fileExtractor, presignedPathExtractor} from '../files/utils.js';
+import {folderExtractor} from '../folders/utils.js';
+import {permissionGroupExtractor} from '../permissionGroups/utils.js';
+import {permissionItemExtractor} from '../permissionItems/utils.js';
+import {tagExtractor} from '../tags/utils.js';
+import {usageRecordExtractor} from '../usageRecords/utils.js';
+import {workspaceExtractor} from '../workspaces/utils.js';
 
 const kResourceTypeToExtractorMap: Record<
   FimidaraResourceType,
@@ -67,8 +68,11 @@ export function getPublicResource(resource: ResourceWrapper, workspaceId: string
 }
 
 export function getPublicResourceList(resources: ResourceWrapper[], workspaceId: string) {
-  return resources.map(item => {
-    item.resource = getPublicResource(item, workspaceId) as Resource;
-    return item;
+  return resources.map((item): PublicResourceWrapper => {
+    return {
+      resource: getPublicResource(item, workspaceId),
+      resourceId: item.resourceId,
+      resourceType: item.resourceType as FimidaraPublicResourceType,
+    };
   });
 }

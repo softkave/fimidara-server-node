@@ -1,6 +1,6 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {Folder} from '../definitions/folder';
-import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
+import {Folder} from '../definitions/folder.js';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils.js';
 
 const folderSchema = ensureMongoTypeFields<Folder>({
   ...workspaceResourceSchema,

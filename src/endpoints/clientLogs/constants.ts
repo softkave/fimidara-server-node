@@ -1,4 +1,4 @@
-import {kEndpointConstants} from '../constants';
+import {kEndpointConstants} from '../constants.js';
 
 const clientLogsConstants = {
   maxMessageLength: 500,

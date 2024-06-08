@@ -1,26 +1,26 @@
 import {format} from 'util';
-import {PermissionAction} from '../../definitions/permissionItem';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {
   SessionAgent,
   getWorkspaceResourceTypeList,
   kFimidaraResourceType,
   kPermissionContainerTypes,
   kPermissionEntityTypes,
-} from '../../definitions/system';
-import {getResourceTypeFromId} from '../../utils/resource';
-import {InvalidRequestError} from '../errors';
+} from '../../definitions/system.js';
+import {getResourceTypeFromId} from '../../utils/resource.js';
+import {InvalidRequestError} from '../errors.js';
 import {
   checkResourcesBelongToContainer,
   checkResourcesBelongsToWorkspace,
-} from '../resources/containerCheckFns';
-import {INTERNAL_getResources} from '../resources/getResources';
-import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems';
+} from '../resources/containerCheckFns.js';
+import {INTERNAL_getResources} from '../resources/getResources.js';
+import {resourceListWithAssignedItems} from '../resources/resourceWithAssignedItems.js';
 
 export async function checkPermissionEntitiesExist(
   agent: SessionAgent,
   workspaceId: string,
   entities: Array<string>,
-  action: PermissionAction
+  action: FimidaraPermissionAction
 ) {
   if (entities.length === 0) {
     return;
@@ -49,7 +49,7 @@ export async function checkPermissionContainersExist(
   agent: SessionAgent,
   workspaceId: string,
   items: Array<string>,
-  action: PermissionAction
+  action: FimidaraPermissionAction
 ) {
   items.forEach(id => {
     const containerType = getResourceTypeFromId(id);
@@ -82,7 +82,7 @@ export async function checkPermissionTargetsExist(
   agent: SessionAgent,
   workspaceId: string,
   items: Array<string>,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   containerId?: string
 ) {
   /**

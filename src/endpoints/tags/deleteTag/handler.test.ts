@@ -1,19 +1,20 @@
-import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {appAssert} from '../../../utils/assertion';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {insertTagForTest} from '../../testUtils/helpers/tag';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {appAssert} from '../../../utils/assertion.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {insertTagForTest} from '../../testUtils/helpers/tag.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import deleteTag from './handler';
-import {DeleteTagEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import deleteTag from './handler.js';
+import {DeleteTagEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();
@@ -38,7 +39,7 @@ describe('deleteTag', () => {
 
     appAssert(result.jobId);
     const job = (await kSemanticModels.job().getOneByQuery({
-      type: kJobType.deleteResource0,
+      type: kJobType.deleteResource,
       resourceId: result.jobId,
       params: {$objMatch: {type: kFimidaraResourceType.Tag}},
     })) as Job<DeleteResourceJobParams>;

@@ -1,9 +1,9 @@
-import {PresignedPath} from '../../../../definitions/presignedPath';
+import {PresignedPath} from '../../../../definitions/presignedPath.js';
 import {
   SemanticProviderQueryListParams,
   SemanticProviderQueryParams,
   SemanticWorkspaceResourceProviderType,
-} from '../types';
+} from '../types.js';
 
 export interface SemanticPresignedPathProvider
   extends SemanticWorkspaceResourceProviderType<PresignedPath> {
@@ -12,7 +12,7 @@ export interface SemanticPresignedPathProvider
     options?: SemanticProviderQueryParams<PresignedPath>
   ): Promise<PresignedPath | null>;
   getOneByFilepath(
-    query: {workspaceId: string; namepath: string[]; extension?: string},
+    query: {workspaceId: string; namepath: string[]; ext?: string},
     options?: SemanticProviderQueryParams<PresignedPath>
   ): Promise<PresignedPath | null>;
   getManyByFileIds(

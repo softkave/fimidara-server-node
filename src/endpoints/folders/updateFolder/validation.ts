@@ -1,7 +1,7 @@
-import * as Joi from 'joi';
-import {kValidationSchemas} from '../../../utils/validationUtils';
-import folderValidationSchemas from '../validation';
-import {UpdateFolderEndpointParams, UpdateFolderInput} from './types';
+import Joi from 'joi';
+import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import folderValidationSchemas from '../validation.js';
+import {UpdateFolderEndpointParams, UpdateFolderInput} from './types.js';
 
 export const folderInputJoiSchema = Joi.object().keys({
   name: kValidationSchemas.name,

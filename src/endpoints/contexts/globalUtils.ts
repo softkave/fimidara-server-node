@@ -1,6 +1,6 @@
-import {FimidaraSuppliedConfig} from '../../resources/config';
-import {kUtilsInjectables} from './injection/injectables';
-import {registerInjectables} from './injection/register';
+import {FimidaraSuppliedConfig} from '../../resources/config.js';
+import {kUtilsInjectables} from './injection/injectables.js';
+import {registerInjectables} from './injection/register.js';
 
 export async function globalDispose() {
   await kUtilsInjectables.disposables().awaitDisposeAll();

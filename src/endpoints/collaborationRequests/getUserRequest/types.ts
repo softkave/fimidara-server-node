@@ -1,5 +1,5 @@
-import {PublicCollaborationRequestForUser} from '../../../definitions/collaborationRequest';
-import {Endpoint} from '../../types';
+import {PublicCollaborationRequestForUser} from '../../../definitions/collaborationRequest.js';
+import {Endpoint} from '../../types.js';
 
 export interface GetUserCollaborationRequestEndpointParams {
   requestId: string;

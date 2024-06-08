@@ -1,12 +1,12 @@
-import {SessionAgent} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
-import {pathSplit} from '../../../utils/fns';
-import {resolveTargetChildrenAccessCheckWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {FileBackendMountQuery} from '../../contexts/data/types';
-import {FolderQueries} from '../../folders/queries';
-import EndpointReusableQueries from '../../queries';
-import {getWorkspaceResourceListQuery01} from '../../utils';
-import {GetFileBackendMountsEndpointParamsBase} from './types';
+import {SessionAgent} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {pathSplit} from '../../../utils/fns.js';
+import {resolveTargetChildrenAccessCheckWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {FileBackendMountQuery} from '../../contexts/data/types.js';
+import {FolderQueries} from '../../folders/queries.js';
+import EndpointReusableQueries from '../../queries.js';
+import {getWorkspaceResourceListQuery01} from '../../utils.js';
+import {GetFileBackendMountsEndpointParamsBase} from './types.js';
 
 export async function getFileBackendMountsQuery(
   agent: SessionAgent,

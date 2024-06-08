@@ -1,4 +1,4 @@
-import {Endpoint} from '../../types';
+import {Endpoint} from '../../types.js';
 
 export interface UserExistsEndpointParams {
   email: string;

@@ -3,20 +3,20 @@ import {
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
   mddocConstruct,
-} from '../../mddoc/mddoc';
-import {multilineTextToParagraph} from '../../utils/fns';
+} from '../../mddoc/mddoc.js';
+import {multilineTextToParagraph} from '../../utils/fns.js';
 import {
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
-} from '../endpoints.mddoc';
-import {AddPermissionItemsEndpointParams} from './addItems/types';
-import {permissionItemConstants} from './constants';
+} from '../endpoints.mddoc.js';
+import {AddPermissionItemsEndpointParams} from './addItems/types.js';
+import {permissionItemConstants} from './constants.js';
 import {
   DeletePermissionItemInput,
   DeletePermissionItemInputTarget,
   DeletePermissionItemsEndpointParams,
-} from './deleteItems/types';
+} from './deleteItems/types.js';
 import {
   ResolveEntityPermissionItemInput,
   ResolveEntityPermissionItemInputTarget,
@@ -24,14 +24,14 @@ import {
   ResolveEntityPermissionsEndpointResult,
   ResolvedEntityPermissionItem,
   ResolvedEntityPermissionItemTarget,
-} from './resolveEntityPermissions/types';
+} from './resolveEntityPermissions/types.js';
 import {
   AddPermissionItemsHttpEndpoint,
   DeletePermissionItemsHttpEndpoint,
   PermissionItemInput,
   PermissionItemInputTarget,
   ResolveEntityPermissionsHttpEndpoint,
-} from './types';
+} from './types.js';
 
 const targetId = fReusables.id
   .clone()

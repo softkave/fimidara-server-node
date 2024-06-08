@@ -1,12 +1,18 @@
 import {faker} from '@faker-js/faker';
-import {Folder} from '../../../definitions/folder';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {getTimestamp} from '../../../utils/dateFns';
-import {getRandomIntInclusive, loopAndCollate, pathJoin} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {addRootnameToPath} from '../../folders/utils';
+import {Folder} from '../../../definitions/folder.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {
+  getRandomIntInclusive,
+  loopAndCollate,
+  pathJoin,
+} from '../../../utils/fns.js';
+import {
+  getNewIdForResource,
+  newWorkspaceResource,
+} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {addRootnameToPath} from '../../folders/utils.js';
 
 export const kTestFolderNameSeparatorChars = ['-', '_', ' ', '.'];
 
@@ -17,8 +23,10 @@ export function generateTestFolderName(
     rootname?: string;
   } = {}
 ) {
-  const {separatorChars = kTestFolderNameSeparatorChars, includeStraySeparators = false} =
-    props;
+  const {
+    separatorChars = kTestFolderNameSeparatorChars,
+    includeStraySeparators = false,
+  } = props;
   const wordCount = getRandomIntInclusive(3, 10);
   const seed = getRandomIntInclusive(1, 2);
   const separator = faker.helpers.arrayElement(
@@ -100,29 +108,30 @@ export function generateTestFolder(
   extra: Partial<Folder> & {parentId: string | null} = {parentId: null},
   other: {parentNamepath?: string[]; parentIdPath?: string[]} = {}
 ) {
-  const id = getNewIdForResource(kFimidaraResourceType.Folder);
+  const resourceId = getNewIdForResource(kFimidaraResourceType.Folder);
   const name = generateTestFolderName();
-  const namepath = other.parentNamepath ? other.parentNamepath.concat(name) : [name];
+  const namepath = other.parentNamepath
+    ? other.parentNamepath.concat(name)
+    : [name];
   const idPath = other.parentIdPath
-    ? other.parentIdPath.concat(id)
+    ? other.parentIdPath.concat(resourceId)
     : extra.parentId
-    ? [extra.parentId, id]
-    : [id];
-  const createdAt = getTimestamp();
-  const folder: Folder = {
-    name,
-    createdAt,
-    namepath,
-    idPath,
-    description: faker.lorem.paragraph(),
-    createdBy: kSystemSessionAgent,
-    lastUpdatedAt: createdAt,
-    lastUpdatedBy: kSystemSessionAgent,
-    resourceId: id,
-    workspaceId: getNewIdForResource(kFimidaraResourceType.Workspace),
-    isDeleted: false,
-    ...extra,
-  };
+      ? [extra.parentId, resourceId]
+      : [resourceId];
+  const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+  const folder: Folder = newWorkspaceResource<Folder>(
+    kSystemSessionAgent,
+    kFimidaraResourceType.Folder,
+    workspaceId,
+    /** seed */ {
+      name,
+      namepath,
+      idPath,
+      resourceId,
+      description: faker.lorem.paragraph(),
+      ...extra,
+    }
+  );
   return folder;
 }
 
@@ -146,9 +155,8 @@ export async function generateAndInsertTestFolders(
   const folderModel = kSemanticModels.folder();
   const semanticUtils = kSemanticModels.utils();
   const items = generateTestFolders(count, extra, other);
-  await semanticUtils.withTxn(
-    async opts => folderModel.insertItem(items, opts),
-    /** reuseTxn */ true
+  await semanticUtils.withTxn(async opts =>
+    folderModel.insertItem(items, opts)
   );
   return items;
 }

@@ -1,8 +1,8 @@
-import {populateMountUnsupportedOpNoteInNotFoundError} from '../fileBackends/mountUtils';
-import {ExportedHttpEndpoint_HandleErrorFn} from '../types';
-import addFolder from './addFolder/handler';
-import countFolderContent from './countFolderContent/handler';
-import deleteFolder from './deleteFolder/handler';
+import {populateMountUnsupportedOpNoteInNotFoundError} from '../fileBackends/mountUtils.js';
+import {ExportedHttpEndpoint_HandleErrorFn} from '../types.js';
+import addFolder from './addFolder/handler.js';
+import countFolderContent from './countFolderContent/handler.js';
+import deleteFolder from './deleteFolder/handler.js';
 import {
   addFolderEndpointDefinition,
   countFolderContentEndpointDefinition,
@@ -10,11 +10,11 @@ import {
   getFolderEndpointDefinition,
   listFolderContentEndpointDefinition,
   updateFolderEndpointDefinition,
-} from './endpoints.mddoc';
-import getFolder from './getFolder/handler';
-import listFolderContent from './listFolderContent/handler';
-import {FoldersExportedEndpoints} from './types';
-import updateFolder from './updateFolder/handler';
+} from './endpoints.mddoc.js';
+import getFolder from './getFolder/handler.js';
+import listFolderContent from './listFolderContent/handler.js';
+import {FoldersExportedEndpoints} from './types.js';
+import updateFolder from './updateFolder/handler.js';
 
 const handleNotFoundError: ExportedHttpEndpoint_HandleErrorFn = (
   res,

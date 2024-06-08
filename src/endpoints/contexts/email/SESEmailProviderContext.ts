@@ -3,17 +3,17 @@ import {
   SendEmailCommand,
   SESv2Client,
 } from '@aws-sdk/client-sesv2';
-import {kEmailBlocklistReason} from '../../../definitions/email';
-import {kFimidaraConfigEmailProvider} from '../../../resources/config';
-import {appAssert} from '../../../utils/assertion';
-import {S3FilePersistenceProviderInitParams} from '../file/S3FilePersistenceProvider';
-import {kUtilsInjectables} from '../injection/injectables';
+import {kEmailBlocklistReason} from '../../../definitions/email.js';
+import {kFimidaraConfigEmailProvider} from '../../../resources/config.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {S3FilePersistenceProviderInitParams} from '../file/S3FilePersistenceProvider.js';
+import {kUtilsInjectables} from '../injection/injectables.js';
 import {
   EmailProviderBlockEmailAddressItem,
   EmailProviderSendEmailResult,
   IEmailProviderContext,
   SendEmailParams,
-} from './types';
+} from './types.js';
 
 export class SESEmailProviderContext implements IEmailProviderContext {
   protected ses: SESv2Client;

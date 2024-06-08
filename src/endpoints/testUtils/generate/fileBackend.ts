@@ -4,29 +4,32 @@ import {
   FileBackendMount,
   kFileBackendType,
   ResolvedMountEntry,
-} from '../../../definitions/fileBackend';
-import {Agent, kFimidaraResourceType} from '../../../definitions/system';
-import {getTimestamp} from '../../../utils/dateFns';
-import {mergeData, pathSplit} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {kValidationConstants} from '../../../utils/validationUtils';
-import {S3FilePersistenceProviderInitParams} from '../../contexts/file/S3FilePersistenceProvider';
+} from '../../../definitions/fileBackend.js';
+import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {mergeData, pathSplit} from '../../../utils/fns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {kValidationConstants} from '../../../utils/validationUtils.js';
+import {S3FilePersistenceProviderInitParams} from '../../contexts/file/S3FilePersistenceProvider.js';
 import {
   PersistedFileDescription,
   PersistedFolderDescription,
-} from '../../contexts/file/types';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {NewFileBackendConfigInput} from '../../fileBackends/addConfig/types';
-import {NewFileBackendMountInput} from '../../fileBackends/addMount/types';
-import {kFileBackendConstants} from '../../fileBackends/constants';
-import {generateTestFilepath, generateTestFilepathString} from './file';
-import {generateTestFolderpathString} from './folder';
+} from '../../contexts/file/types.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {NewFileBackendConfigInput} from '../../fileBackends/addConfig/types.js';
+import {NewFileBackendMountInput} from '../../fileBackends/addMount/types.js';
+import {kFileBackendConstants} from '../../fileBackends/constants.js';
+import {stringifyFilenamepath} from '../../files/utils.js';
+import {generateTestFilepath, generateTestFilepathString} from './file.js';
+import {generateTestFolderpathString} from './folder.js';
 
 export function generateAWSS3Credentials(
   seed: Partial<S3FilePersistenceProviderInitParams> = {}
 ): S3FilePersistenceProviderInitParams {
   return {
-    accessKeyId: faker.string.alphanumeric(kValidationConstants.awsAccessKeyIdLength),
+    accessKeyId: faker.string.alphanumeric(
+      kValidationConstants.awsAccessKeyIdLength
+    ),
     secretAccessKey: faker.string.alphanumeric(
       kValidationConstants.awsSecretAccessKeyLength
     ),
@@ -78,7 +81,9 @@ export function generateFileBackendMountInput(
   };
 }
 
-export function generateFileBackendMountForTest(seed: Partial<FileBackendMount> = {}) {
+export function generateFileBackendMountForTest(
+  seed: Partial<FileBackendMount> = {}
+) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
     agentId: getNewIdForResource(kFimidaraResourceType.User),
@@ -104,7 +109,9 @@ export function generateFileBackendMountForTest(seed: Partial<FileBackendMount> 
   return mount;
 }
 
-export function generateFileBackendConfigForTest(seed: Partial<FileBackendConfig> = {}) {
+export function generateFileBackendConfigForTest(
+  seed: Partial<FileBackendConfig> = {}
+) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
     agentId: getNewIdForResource(kFimidaraResourceType.User),
@@ -136,38 +143,50 @@ export function generateResolvedMountEntryForTest(
     agentType: kFimidaraResourceType.User,
     agentTokenId: getNewIdForResource(kFimidaraResourceType.AgentToken),
   };
+  const backendNamepath = generateTestFilepath();
+  const backendExt = faker.system.fileExt();
+  const mountId = getNewIdForResource(kFimidaraResourceType.FileBackendMount);
   const config: ResolvedMountEntry = {
     createdAt,
     createdBy,
+    backendNamepath,
+    backendExt,
+    mountId,
     lastUpdatedAt: createdAt,
     lastUpdatedBy: createdBy,
     resourceId: getNewIdForResource(kFimidaraResourceType.ResolvedMountEntry),
     workspaceId: getNewIdForResource(kFimidaraResourceType.Workspace),
-    mountId: getNewIdForResource(kFimidaraResourceType.FileBackendMount),
-    resolvedAt: getTimestamp(),
-    namepath: generateTestFilepath(),
-    extension: faker.system.fileExt(),
-    resolvedFor: getNewIdForResource(kFimidaraResourceType.File),
-    resolvedForType: kFimidaraResourceType.File,
-    other: null,
+    fimidaraNamepath: generateTestFilepath(),
+    fimidaraExt: faker.system.fileExt(),
+    forId: getNewIdForResource(kFimidaraResourceType.File),
+    forType: kFimidaraResourceType.File,
+    persisted: {
+      mountId,
+      filepath: stringifyFilenamepath({
+        namepath: backendNamepath,
+        ext: backendExt,
+      }),
+      raw: undefined,
+    },
     isDeleted: false,
   };
   return mergeData(config, seed, {arrayUpdateStrategy: 'replace'});
 }
 
-export function generatePersistedFolderDescriptionForTest(
-  seed: Partial<PersistedFolderDescription> = {}
-): PersistedFolderDescription {
+export function generatePersistedFolderDescriptionForTest<T = undefined>(
+  seed: Partial<PersistedFolderDescription<T>> = {}
+): PersistedFolderDescription<T> {
   return {
     folderpath: generateTestFolderpathString(),
     mountId: getNewIdForResource(kFimidaraResourceType.FileBackendMount),
+    raw: undefined as T,
     ...seed,
   };
 }
 
-export function generatePersistedFileDescriptionForTest(
-  seed: Partial<PersistedFileDescription> = {}
-): PersistedFileDescription {
+export function generatePersistedFileDescriptionForTest<T = undefined>(
+  seed: Partial<PersistedFileDescription<T>> = {}
+): PersistedFileDescription<T> {
   return {
     filepath: generateTestFilepathString(),
     mountId: getNewIdForResource(kFimidaraResourceType.FileBackendMount),
@@ -175,6 +194,7 @@ export function generatePersistedFileDescriptionForTest(
     mimetype: faker.system.mimeType(),
     encoding: 'utf-8',
     size: faker.number.int(),
+    raw: undefined as T,
     ...seed,
   };
 }
@@ -252,10 +272,7 @@ export async function generateAndInsertFileBackendMountListForTest(
   const semanticUtils = kSemanticModels.utils();
 
   const items = generateFileBackendMountListForTest(count, seed);
-  await semanticUtils.withTxn(
-    async opts => mountModel.insertItem(items, opts),
-    /** reuseTxn */ true
-  );
+  await semanticUtils.withTxn(async opts => mountModel.insertItem(items, opts));
   return items;
 }
 
@@ -267,9 +284,8 @@ export async function generateAndInsertFileBackendConfigListForTest(
   const semanticUtils = kSemanticModels.utils();
 
   const items = generateFileBackendConfigListForTest(count, seed);
-  await semanticUtils.withTxn(
-    async opts => configModel.insertItem(items, opts),
-    /** reuseTxn */ true
+  await semanticUtils.withTxn(async opts =>
+    configModel.insertItem(items, opts)
   );
   return items;
 }
@@ -283,7 +299,7 @@ export async function generateAndInsertResolvedMountEntryListForTest(
 
   await kSemanticModels
     .utils()
-    .withTxn(async opts => model.insertItem(items, opts), /** reuseTxn */ true);
+    .withTxn(async opts => model.insertItem(items, opts));
 
   return items;
 }

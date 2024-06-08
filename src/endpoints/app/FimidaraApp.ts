@@ -1,12 +1,15 @@
-import {App, AppShardId, AppType} from '../../definitions/app';
-import {kFimidaraResourceType} from '../../definitions/system';
-import {getTimestamp} from '../../utils/dateFns';
-import {DisposableResource} from '../../utils/disposables';
-import {newResource} from '../../utils/resource';
-import {AppQuery} from '../contexts/data/types';
-import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
-import {SemanticProviderMutationParams} from '../contexts/semantic/types';
-import {kAppConstants} from './constants';
+import {DisposableResource} from 'softkave-js-utils';
+import {App, AppShardId, AppType} from '../../definitions/app.js';
+import {kFimidaraResourceType} from '../../definitions/system.js';
+import {getTimestamp} from '../../utils/dateFns.js';
+import {newResource} from '../../utils/resource.js';
+import {AppQuery} from '../contexts/data/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../contexts/semantic/types.js';
+import {kAppConstants} from './constants.js';
 
 // type ShardedDbResourceMigrationFn = AnyFn<
 //   [
@@ -77,16 +80,18 @@ export class FimidaraApp implements DisposableResource {
     this.appId = params.appId;
     this.type = params.type;
     this.shard = params.shard;
-    this.heartbeatInterval = params.heartbeatInterval || kAppConstants.heartbeatInterval;
+    this.heartbeatInterval =
+      params.heartbeatInterval || kAppConstants.heartbeatInterval;
     this.activeAppHeartbeatDelayFactor =
-      params.activeAppHeartbeatDelayFactor || kAppConstants.activeAppHeartbeatDelayFactor;
+      params.activeAppHeartbeatDelayFactor ||
+      kAppConstants.activeAppHeartbeatDelayFactor;
   }
 
   async startApp() {
     await kSemanticModels.utils().withTxn(async opts => {
       // await this.acquireShard(opts);
       await this.insertAppInDB(opts);
-    }, /** reuseAsyncLocalTxn */ false);
+    });
     this.startHeartbeat();
   }
 
@@ -123,7 +128,7 @@ export class FimidaraApp implements DisposableResource {
       await kSemanticModels
         .app()
         .updateOneById(this.appId, {lastUpdatedAt: getTimestamp()}, opts);
-    }, /** reuseTxn */ false);
+    });
   };
 
   protected async insertAppInDB(opts: SemanticProviderMutationParams) {
@@ -156,8 +161,12 @@ export class FimidaraApp implements DisposableResource {
 
   protected async refreshActiveAppIdList() {
     const activeFromMs =
-      getTimestamp() - this.heartbeatInterval * this.activeAppHeartbeatDelayFactor;
-    const appQuery: AppQuery = {lastUpdatedAt: {$gte: activeFromMs}, shard: this.shard};
+      getTimestamp() -
+      this.heartbeatInterval * this.activeAppHeartbeatDelayFactor;
+    const appQuery: AppQuery = {
+      lastUpdatedAt: {$gte: activeFromMs},
+      shard: this.shard,
+    };
     const app = await kSemanticModels.app().getManyByQuery(appQuery);
     this.activeAppIdList = app.map(runner => runner.resourceId);
   }

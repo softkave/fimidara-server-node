@@ -1,26 +1,30 @@
 import assert from 'assert';
-import {get, noop} from 'lodash';
+import {findLastIndex, get, isFunction, noop} from 'lodash-es';
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import {
   calculateMaxPages,
   calculatePageSize,
   convertToArray,
   getRandomInt,
-} from '../../../utils/fns';
-import {AnyFn, AnyObject, OrArray, OrPromise} from '../../../utils/types';
-import RequestData from '../../RequestData';
-import {globalDispose, globalSetup} from '../../contexts/globalUtils';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
-import {IServerRequest} from '../../contexts/types';
-import {initFimidara} from '../../runtime/initFimidara';
+} from '../../../utils/fns.js';
+import {AnyFn, AnyObject, OrArray, OrPromise} from '../../../utils/types.js';
+import RequestData from '../../RequestData.js';
+import {globalDispose, globalSetup} from '../../contexts/globalUtils.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
+import {IServerRequest} from '../../contexts/types.js';
+import {initFimidara} from '../../runtime/initFimidara.js';
 import {
   Endpoint,
   InferEndpointParams,
   InferEndpointResult,
   PaginatedResult,
   PaginationQuery,
-} from '../../types';
-import {assertEndpointResultOk} from '../testUtils';
+} from '../../types.js';
+import {assertEndpointResultOk} from '../testUtils.js';
 
 export function mutationTest(
   name: string,
@@ -29,7 +33,7 @@ export function mutationTest(
 ) {
   kSemanticModels.utils().withTxn(async options => {
     await test(name, () => fn(options), timeout);
-  }, /** reuseTxn */ true);
+  });
 }
 
 export async function completeTests() {
@@ -52,9 +56,10 @@ type TestFn = (name: string, fn: AnyFn, timeout?: number) => void;
 export interface SoftkaveTest {
   run: TestFn;
   only: TestFn;
+  each: typeof test.each;
 }
 
-export const softkaveTest: SoftkaveTest = {
+export const skTest: SoftkaveTest = {
   run: (name: string, fn: AnyFn, timeout?: number) => {
     test(
       name,
@@ -73,6 +78,20 @@ export const softkaveTest: SoftkaveTest = {
       timeout
     );
   },
+  each: (cases: unknown) => {
+    return (...testArgs: unknown[]) => {
+      const fnIndex = findLastIndex(testArgs, isFunction);
+      const fn = testArgs[fnIndex];
+      assert(isFunction(fn), 'No test function');
+      testArgs[fnIndex] = async (...args: unknown[]) => {
+        await kUtilsInjectables.asyncLocalStorage().run(() => fn(...args));
+      };
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      test.each(cases)(...testArgs);
+    };
+  },
 };
 
 export interface PerformPaginationTestParams<
@@ -86,11 +105,10 @@ export interface PerformPaginationTestParams<
   fields: OrArray<keyof InferEndpointResult<T>>;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function performPaginationTest<T extends Endpoint<any, PaginatedResult>>(
-  endpoint: T,
-  props: PerformPaginationTestParams<T>
-) {
+export async function performPaginationTest<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  T extends Endpoint<any, PaginatedResult>,
+>(endpoint: T, props: PerformPaginationTestParams<T>) {
   const {params, req, count, fields, otherTestsFn = noop} = props;
   assert(params);
 
@@ -99,7 +117,11 @@ export async function performPaginationTest<T extends Endpoint<any, PaginatedRes
 
   // Add an extra page to test that final page returns 0 items
   for (let page = 0; page <= maxPages; page++) {
-    const instData = RequestData.fromExpressRequest(req, {page, pageSize, ...params});
+    const instData = RequestData.fromExpressRequest(req, {
+      page,
+      pageSize,
+      ...params,
+    });
     const result = await endpoint(instData);
     assertEndpointResultOk(result);
 
@@ -115,7 +137,10 @@ export async function performPaginationTest<T extends Endpoint<any, PaginatedRes
   }
 }
 
-export function expectFields<T extends AnyObject>(resources: T[], fields: Partial<T>) {
+export function expectFields<T extends AnyObject>(
+  resources: T[],
+  fields: Partial<T>
+) {
   resources.forEach(resource => {
     for (const key in fields) {
       const expectedValue = fields[key as keyof T];

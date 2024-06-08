@@ -1,14 +1,15 @@
 import {faker} from '@faker-js/faker';
-import RequestData from '../../RequestData';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import RequestData from '../../RequestData.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequest,
-} from '../../testUtils/testUtils';
-import userExists from './handler';
-import {UserExistsEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import userExists from './handler.js';
+import {UserExistsEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

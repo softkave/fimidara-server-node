@@ -1,5 +1,5 @@
-import {DisposableResource} from '../../../utils/disposables';
-import {ObjectValues} from '../../../utils/types';
+import {DisposableResource} from 'softkave-js-utils';
+import {ValueOf} from 'type-fest';
 
 export interface Logger extends DisposableResource {
   log: (...args: unknown[]) => void;
@@ -11,4 +11,4 @@ export const kLoggerTypes = {
   noop: 'noop',
 } as const;
 
-export type LoggerType = ObjectValues<typeof kLoggerTypes>;
+export type LoggerType = ValueOf<typeof kLoggerTypes>;

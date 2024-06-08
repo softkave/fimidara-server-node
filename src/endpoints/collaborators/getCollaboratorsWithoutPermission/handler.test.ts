@@ -1,18 +1,19 @@
-import {identity} from 'lodash';
-import {kFimidaraResourceType, Resource} from '../../../definitions/system';
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {extractResourceIdList, getResourceId} from '../../../utils/fns';
-import {makeUserSessionAgent} from '../../../utils/sessionUtils';
-import {kSemanticModels} from '../../contexts/injection/injectables';
+import {identity} from 'lodash-es';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kFimidaraResourceType, Resource} from '../../../definitions/system.js';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {extractResourceIdList, getResourceId} from '../../../utils/fns.js';
+import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {
   assignPgListToIdList,
   toAssignedPgListInput,
-} from '../../permissionGroups/testUtils';
-import RequestData from '../../RequestData';
-import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator';
-import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup';
-import {expectContainsNoneInForAnyType} from '../../testUtils/helpers/assertion';
-import {completeTests} from '../../testUtils/helpers/testFns';
+} from '../../permissionGroups/testUtils.js';
+import RequestData from '../../RequestData.js';
+import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator.js';
+import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup.js';
+import {expectContainsNoneInForAnyType} from '../../testUtils/helpers/assertion.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -20,9 +21,9 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import getCollaboratorsWithoutPermission from './handler';
-import {GetCollaboratorsWithoutPermissionEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import getCollaboratorsWithoutPermission from './handler.js';
+import {GetCollaboratorsWithoutPermissionEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();
@@ -47,9 +48,12 @@ describe('getCollaboratorsWithoutPermission', () => {
     const seedUserWithoutPermissions = seedUsers.slice(6);
 
     // assign permissionn group to a subset of users
-    const permissionGroups = await generateAndInsertPermissionGroupListForTest(1, {
-      workspaceId: workspace.resourceId,
-    });
+    const permissionGroups = await generateAndInsertPermissionGroupListForTest(
+      1,
+      {
+        workspaceId: workspace.resourceId,
+      }
+    );
     const sessionAgent = makeUserSessionAgent(rawUser, userToken);
     await assignPgListToIdList(
       sessionAgent,
@@ -74,7 +78,9 @@ describe('getCollaboratorsWithoutPermission', () => {
       );
     const result = await getCollaboratorsWithoutPermission(instData);
     assertEndpointResultOk(result);
-    expect(result.collaboratorIds).toHaveLength(seedUserWithoutPermissions.length);
+    expect(result.collaboratorIds).toHaveLength(
+      seedUserWithoutPermissions.length
+    );
     await assertCollaboratorsDoNotHavePermissions(
       result.collaboratorIds,
       seedUserWithPermissionGroups.concat(seedUserWithPermissionItems)

@@ -1,11 +1,11 @@
-import {FieldObjectType} from '../../mddoc/mddoc';
-import {ExportedHttpEndpointWithMddocDefinition} from '../types';
-import {AddAgentTokenEndpoint, AddAgentTokenEndpointParams} from './addToken/types';
-import {CountWorkspaceAgentTokensEndpoint} from './countWorkspaceTokens/types';
-import {DeleteAgentTokenEndpoint} from './deleteToken/types';
-import {GetAgentTokenEndpoint} from './getToken/types';
-import {GetWorkspaceAgentTokensEndpoint} from './getWorkspaceTokens/types';
-import {UpdateAgentTokenEndpoint} from './updateToken/types';
+import {FieldObjectType} from '../../mddoc/mddoc.js';
+import {ExportedHttpEndpointWithMddocDefinition} from '../types.js';
+import {AddAgentTokenEndpoint, AddAgentTokenEndpointParams} from './addToken/types.js';
+import {CountWorkspaceAgentTokensEndpoint} from './countWorkspaceTokens/types.js';
+import {DeleteAgentTokenEndpoint} from './deleteToken/types.js';
+import {GetAgentTokenEndpoint} from './getToken/types.js';
+import {GetWorkspaceAgentTokensEndpoint} from './getWorkspaceTokens/types.js';
+import {UpdateAgentTokenEndpoint} from './updateToken/types.js';
 
 export type AddAgentTokenHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<AddAgentTokenEndpoint>;

@@ -1,31 +1,39 @@
 import assert from 'assert';
-import {compact, get, map, mapKeys} from 'lodash';
-import {PermissionAction} from '../../definitions/permissionItem';
+import {compact, get, map, mapKeys} from 'lodash-es';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {
   FimidaraResourceType,
   Resource,
   ResourceWrapper,
   SessionAgent,
   kFimidaraResourceType,
-} from '../../definitions/system';
-import {appAssert} from '../../utils/assertion';
-import {ServerError} from '../../utils/errors';
-import {convertToArray, isObjectEmpty, pathJoin, pathSplit} from '../../utils/fns';
-import {indexArray} from '../../utils/indexArray';
-import {getResourceTypeFromId} from '../../utils/resource';
-import {PartialRecord} from '../../utils/types';
-import {PromiseWithId, waitOnPromisesWithId} from '../../utils/waitOnPromises';
+} from '../../definitions/system.js';
+import {appAssert} from '../../utils/assertion.js';
+import {ServerError} from '../../utils/errors.js';
+import {
+  convertToArray,
+  isObjectEmpty,
+  pathJoin,
+  pathSplit,
+} from '../../utils/fns.js';
+import {indexArray} from '../../utils/indexArray.js';
+import {getResourceTypeFromId} from '../../utils/resource.js';
+import {PartialRecord} from '../../utils/types.js';
+import {
+  PromiseWithId,
+  waitOnPromisesWithId,
+} from '../../utils/waitOnPromises.js';
 import {
   checkAuthorizationWithAgent,
   getResourcePermissionContainers,
-} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderOpParams} from '../contexts/semantic/types';
-import {getFilepathInfo, stringifyFilenamepath} from '../files/utils';
-import {getFolderpathInfo, stringifyFoldernamepath} from '../folders/utils';
-import {checkResourcesBelongsToWorkspace} from './containerCheckFns';
-import {resourceListWithAssignedItems} from './resourceWithAssignedItems';
-import {FetchResourceItem} from './types';
+} from '../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
+import {SemanticProviderOpParams} from '../contexts/semantic/types.js';
+import {getFilepathInfo, stringifyFilenamepath} from '../files/utils.js';
+import {getFolderpathInfo, stringifyFoldernamepath} from '../folders/utils.js';
+import {checkResourcesBelongsToWorkspace} from './containerCheckFns.js';
+import {resourceListWithAssignedItems} from './resourceWithAssignedItems.js';
+import {FetchResourceItem} from './types.js';
 
 interface ExtendedPromiseWithId<T> extends PromiseWithId<T> {
   resourceType: FimidaraResourceType;
@@ -33,14 +41,17 @@ interface ExtendedPromiseWithId<T> extends PromiseWithId<T> {
 
 type InputsWithIdGroupedByType = PartialRecord<
   FimidaraResourceType,
-  Record</** resource ID */ string, PermissionAction>
+  Record</** resource ID */ string, FimidaraPermissionAction>
 >;
 
-type FilePathsMap = PartialRecord</** filepath or folderpath */ string, PermissionAction>;
+type FilePathsMap = PartialRecord<
+  /** filepath or folderpath */ string,
+  FimidaraPermissionAction
+>;
 
 interface WorkspaceRootnameWithAction {
   workspaceRootname: string;
-  action: PermissionAction;
+  action: FimidaraPermissionAction;
 }
 
 export interface GetResourcesOptions {
@@ -60,7 +71,9 @@ export interface GetResourcesOptions {
   checkBelongsToWorkspace?: boolean;
 }
 
-type GetResourcesResourceWrapper = ResourceWrapper & {action: PermissionAction};
+type GetResourcesResourceWrapper = ResourceWrapper & {
+  action: FimidaraPermissionAction;
+};
 
 export async function INTERNAL_getResources(options: GetResourcesOptions) {
   const {
@@ -139,7 +152,10 @@ function groupItemsToFetch(
       idList.forEach(resourceId => {
         const type = getResourceTypeFromId(resourceId);
 
-        if (allowedTypesMap[kFimidaraResourceType.All] || allowedTypesMap[type]) {
+        if (
+          allowedTypesMap[kFimidaraResourceType.All] ||
+          allowedTypesMap[type]
+        ) {
           let inputByIdMap = inputsWithIdByType[type];
 
           if (!inputByIdMap) {
@@ -237,7 +253,9 @@ async function fetchResourcesById(
       case kFimidaraResourceType.Folder: {
         promises.push({
           id: kFimidaraResourceType.Folder,
-          promise: kSemanticModels.folder().getManyByIdList(Object.keys(typeMap), opts),
+          promise: kSemanticModels
+            .folder()
+            .getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
         break;
@@ -245,7 +263,9 @@ async function fetchResourcesById(
       case kFimidaraResourceType.File: {
         promises.push({
           id: kFimidaraResourceType.File,
-          promise: kSemanticModels.file().getManyByIdList(Object.keys(typeMap), opts),
+          promise: kSemanticModels
+            .file()
+            .getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
         break;
@@ -253,13 +273,19 @@ async function fetchResourcesById(
       case kFimidaraResourceType.User: {
         promises.push({
           id: kFimidaraResourceType.User,
-          promise: kSemanticModels.user().getManyByIdList(Object.keys(typeMap), opts),
+          promise: kSemanticModels
+            .user()
+            .getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
         });
         break;
       }
       default:
-        appAssert(false, new ServerError(), `Unsupported resource type ${type}`);
+        appAssert(
+          false,
+          new ServerError(),
+          `Unsupported resource type ${type}`
+        );
     }
   });
 
@@ -269,7 +295,10 @@ async function fetchResourcesById(
   settledPromises.forEach(item => {
     if (item.resolved) {
       item.value?.forEach(resource => {
-        const action = get(idsGroupedByType, [item.resourceType, resource.resourceId]);
+        const action = get(idsGroupedByType, [
+          item.resourceType,
+          resource.resourceId,
+        ]);
         resources.push({
           action,
           resource,
@@ -293,7 +322,10 @@ const fetchFiles = async (workspaceId: string, filepathsMap: FilePathsMap) => {
     map(filepathsMap, (action, filepath) =>
       kSemanticModels.file().getOneByNamepath({
         workspaceId,
-        ...getFilepathInfo(filepath, {containsRootname: false}),
+        ...getFilepathInfo(filepath, {
+          containsRootname: false,
+          allowRootFolder: false,
+        }),
       })
     )
   );
@@ -310,7 +342,10 @@ const fetchFiles = async (workspaceId: string, filepathsMap: FilePathsMap) => {
   });
 };
 
-const fetchFolders = async (workspaceId: string, folderpathsMap: FilePathsMap) => {
+const fetchFolders = async (
+  workspaceId: string,
+  folderpathsMap: FilePathsMap
+) => {
   if (isObjectEmpty(folderpathsMap)) return [];
 
   const result = await Promise.all(
@@ -318,7 +353,10 @@ const fetchFolders = async (workspaceId: string, folderpathsMap: FilePathsMap) =
     map(folderpathsMap, (action, folderpath) =>
       kSemanticModels.folder().getOneByNamepath({
         workspaceId,
-        ...getFolderpathInfo(folderpath, {containsRootname: false}),
+        ...getFolderpathInfo(folderpath, {
+          containsRootname: false,
+          allowRootFolder: false,
+        }),
       })
     )
   );
@@ -335,7 +373,9 @@ const fetchFolders = async (workspaceId: string, folderpathsMap: FilePathsMap) =
   });
 };
 
-const fetchWorkspace = async (workspaceRootname?: WorkspaceRootnameWithAction) => {
+const fetchWorkspace = async (
+  workspaceRootname?: WorkspaceRootnameWithAction
+) => {
   if (!workspaceRootname) {
     return [];
   }
@@ -370,7 +410,11 @@ async function authCheckResources(
         nothrow: nothrowOnCheckError,
         target: {
           action: resource.action,
-          targetId: getResourcePermissionContainers(workspaceId, resource.resource, true),
+          targetId: getResourcePermissionContainers(
+            workspaceId,
+            resource.resource,
+            true
+          ),
         },
       })
     )

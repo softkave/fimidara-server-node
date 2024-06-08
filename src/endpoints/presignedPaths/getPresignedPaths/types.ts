@@ -1,5 +1,5 @@
-import {FileMatcher} from '../../../definitions/file';
-import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
+import {FileMatcher} from '../../../definitions/file.js';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types.js';
 
 export type GetPresignedPathsForFilesEndpointParams = EndpointOptionalWorkspaceIDParam & {
   files?: FileMatcher[];

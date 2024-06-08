@@ -1,19 +1,20 @@
-import {extractResourceIdList} from '../../../utils/fns';
-import {makeUserSessionAgent} from '../../../utils/sessionUtils';
-import RequestData from '../../RequestData';
-import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator';
-import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {extractResourceIdList} from '../../../utils/fns.js';
+import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
+import RequestData from '../../RequestData.js';
+import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator.js';
+import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {fetchEntityAssignedPermissionGroupList} from '../getEntityAssignedPermissionGroups/utils';
-import {assignPgListToIdList, toAssignedPgListInput} from '../testUtils';
-import unassignPermissionGroups from './handler';
+} from '../../testUtils/testUtils.js';
+import {fetchEntityAssignedPermissionGroupList} from '../getEntityAssignedPermissionGroups/utils.js';
+import {assignPgListToIdList, toAssignedPgListInput} from '../testUtils.js';
+import unassignPermissionGroups from './handler.js';
 
 beforeAll(async () => {
   await initTests();

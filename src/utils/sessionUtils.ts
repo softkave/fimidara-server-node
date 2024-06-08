@@ -1,11 +1,17 @@
-import {AgentToken} from '../definitions/agentToken';
-import {Agent, kFimidaraResourceType, SessionAgent} from '../definitions/system';
-import {User} from '../definitions/user';
-import {InvalidRequestError} from '../endpoints/errors';
-import {appAssert} from './assertion';
-import {kReuseableErrors} from './reusableErrors';
+import {AgentToken} from '../definitions/agentToken.js';
+import {
+  Agent,
+  kFimidaraResourceType,
+  SessionAgent,
+} from '../definitions/system.js';
+import {User} from '../definitions/user.js';
+import {InvalidRequestError} from '../endpoints/errors.js';
+import {appAssert} from './assertion.js';
+import {kReuseableErrors} from './reusableErrors.js';
 
-export function makeWorkspaceAgentTokenAgent(agentToken: AgentToken): SessionAgent {
+export function makeWorkspaceAgentTokenAgent(
+  agentToken: AgentToken
+): SessionAgent {
   return {
     agentToken,
     agentId: agentToken.resourceId,
@@ -14,7 +20,10 @@ export function makeWorkspaceAgentTokenAgent(agentToken: AgentToken): SessionAge
   };
 }
 
-export function makeUserSessionAgent(user: User, agentToken: AgentToken): SessionAgent {
+export function makeUserSessionAgent(
+  user: User,
+  agentToken: AgentToken
+): SessionAgent {
   appAssert(
     user.resourceId === agentToken.forEntityId,
     'user resouceId and agent token owner entity ID are not equal'
@@ -28,12 +37,15 @@ export function makeUserSessionAgent(user: User, agentToken: AgentToken): Sessio
   };
 }
 
-export function getWorkspaceIdNoThrow(agent: SessionAgent, providedWorkspaceId?: string) {
+export function getWorkspaceIdNoThrow(
+  agent: SessionAgent,
+  providedWorkspaceId?: string
+) {
   const workspaceId = providedWorkspaceId
     ? providedWorkspaceId
     : agent.agentToken
-    ? agent.agentToken.workspaceId
-    : undefined;
+      ? agent.agentToken.workspaceId
+      : undefined;
   return workspaceId;
 }
 
@@ -57,8 +69,8 @@ export function tryGetAgentTokenId(
   const tokenId = providedTokenId
     ? providedTokenId
     : onReferenced
-    ? agent.agentToken?.resourceId
-    : null;
+      ? agent.agentToken?.resourceId
+      : null;
   return tokenId;
 }
 
@@ -71,7 +83,9 @@ export function assertGetWorkspaceIdFromAgent(agent: SessionAgent) {
   return workspaceId;
 }
 
-export function getActionAgentFromSessionAgent(sessionAgent: SessionAgent): Agent {
+export function getActionAgentFromSessionAgent(
+  sessionAgent: SessionAgent
+): Agent {
   const agent: Agent = {
     agentId: sessionAgent.agentId,
     agentType: sessionAgent.agentType,

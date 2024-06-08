@@ -1,27 +1,31 @@
 import {ProjectionType, SortOrder} from 'mongoose';
 import {Primitive} from 'type-fest';
-import {AgentToken} from '../../../definitions/agentToken';
-import {App, AppShard} from '../../../definitions/app';
-import {AssignedItem} from '../../../definitions/assignedItem';
-import {CollaborationRequest} from '../../../definitions/collaborationRequest';
-import {EmailBlocklist, EmailMessage} from '../../../definitions/email';
-import {File} from '../../../definitions/file';
+import {AgentToken} from '../../../definitions/agentToken.js';
+import {App, AppShard} from '../../../definitions/app.js';
+import {AssignedItem} from '../../../definitions/assignedItem.js';
+import {CollaborationRequest} from '../../../definitions/collaborationRequest.js';
+import {EmailBlocklist, EmailMessage} from '../../../definitions/email.js';
+import {File} from '../../../definitions/file.js';
 import {
   FileBackendConfig,
   FileBackendMount,
   ResolvedMountEntry,
-} from '../../../definitions/fileBackend';
-import {Folder} from '../../../definitions/folder';
-import {Job} from '../../../definitions/job';
-import {PermissionGroup} from '../../../definitions/permissionGroups';
-import {PermissionItem} from '../../../definitions/permissionItem';
-import {PresignedPath} from '../../../definitions/presignedPath';
-import {AppRuntimeState, Resource, ResourceWrapper} from '../../../definitions/system';
-import {Tag} from '../../../definitions/tag';
-import {UsageRecord} from '../../../definitions/usageRecord';
-import {User} from '../../../definitions/user';
-import {Workspace} from '../../../definitions/workspace';
-import {AnyFn, AnyObject} from '../../../utils/types';
+} from '../../../definitions/fileBackend.js';
+import {Folder} from '../../../definitions/folder.js';
+import {Job} from '../../../definitions/job.js';
+import {PermissionGroup} from '../../../definitions/permissionGroups.js';
+import {PermissionItem} from '../../../definitions/permissionItem.js';
+import {PresignedPath} from '../../../definitions/presignedPath.js';
+import {
+  AppRuntimeState,
+  Resource,
+  ResourceWrapper,
+} from '../../../definitions/system.js';
+import {Tag} from '../../../definitions/tag.js';
+import {UsageRecord} from '../../../definitions/usageRecord.js';
+import {User} from '../../../definitions/user.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {AnyFn, AnyObject} from '../../../utils/types.js';
 
 export type DataQuerySort<T, K extends keyof T = keyof T> = {
   [P in K]?: SortOrder;
@@ -37,7 +41,8 @@ export interface DataProviderQueryParams<T> extends DataProviderOpParams {
   projection?: ProjectionType<T>;
 }
 
-export interface DataProviderQueryListParams<T> extends DataProviderQueryParams<T> {
+export interface DataProviderQueryListParams<T>
+  extends DataProviderQueryParams<T> {
   /** zero-based index */
   page?: number;
   pageSize?: number;
@@ -95,8 +100,8 @@ export interface ArrayFieldQueryOps<T> extends ElemMatchFieldQueryOps<T> {
   $all?: T extends DataProviderLiteralType
     ? T[]
     : T extends AnyObject
-    ? ElemMatchFieldQueryOps<T>[]
-    : never;
+      ? ElemMatchFieldQueryOps<T>[]
+      : never;
   $eq?: (T extends DataProviderLiteralType ? T | T[] : never) | null;
 }
 
@@ -118,17 +123,20 @@ type ExpandDataQuery<TValue, TExcludeFieldLogical extends boolean = false> =
   | (NonNullable<TValue> extends Array<infer TArrayItem>
       ?
           | ArrayFieldQueryOps<TArrayItem>
-          | (TArrayItem extends AnyObject ? RecordFieldQueryOps<TArrayItem> : never)
+          | (TArrayItem extends AnyObject
+              ? RecordFieldQueryOps<TArrayItem>
+              : never)
           | (TArrayItem extends DataProviderLiteralType ? TArrayItem : never)
       : NonNullable<TValue> extends AnyObject
-      ? RecordFieldQueryOps<NonNullable<TValue>>
-      : never);
+        ? RecordFieldQueryOps<NonNullable<TValue>>
+        : never);
 
 export type DataQuery<T> = LiteralDataQuery<T> & LogicalQueryOps<T>;
 
-export type KeyedComparisonOps<TData extends AnyObject> = keyof TData extends string
-  ? `${keyof TData}.${keyof ComparisonLiteralFieldQueryOps}`
-  : '';
+export type KeyedComparisonOps<TData extends AnyObject> =
+  keyof TData extends string
+    ? `${keyof TData}.${keyof ComparisonLiteralFieldQueryOps}`
+    : '';
 
 export enum BulkOpType {
   InsertOne = 1,
@@ -160,8 +168,14 @@ export interface BaseDataProvider<
   TData,
   TQuery extends DataQuery<TData> = DataQuery<TData>,
 > {
-  insertItem: (item: TData, otherProps?: DataProviderOpParams) => Promise<TData>;
-  insertList: (items: TData[], otherProps?: DataProviderOpParams) => Promise<void>;
+  insertItem: (
+    item: TData,
+    otherProps?: DataProviderOpParams
+  ) => Promise<TData>;
+  insertList: (
+    items: TData[],
+    otherProps?: DataProviderOpParams
+  ) => Promise<void>;
   existsByQuery: <ExtendedQueryType extends TQuery = TQuery>(
     query: ExtendedQueryType,
     otherProps?: DataProviderOpParams
@@ -218,11 +232,7 @@ export interface BaseDataProvider<
 
 export interface DataProviderUtils {
   withTxn<TResult>(
-    fn: AnyFn<
-      [txn: unknown],
-      Promise<TResult>
-    > /** Whether or not to reuse an existing txn from async local storage. */,
-    reuseAsyncLocalTxn: boolean,
+    fn: AnyFn<[txn: unknown], Promise<TResult>>,
     existingSession?: unknown
   ): Promise<TResult>;
 }
@@ -250,7 +260,10 @@ export type EmailMessageQuery = DataQuery<EmailMessage>;
 export type EmailBlocklistQuery = DataQuery<EmailBlocklist>;
 export type AppShardQuery = DataQuery<AppShard>;
 
-export type AgentTokenDataProvider = BaseDataProvider<AgentToken, DataQuery<AgentToken>>;
+export type AgentTokenDataProvider = BaseDataProvider<
+  AgentToken,
+  DataQuery<AgentToken>
+>;
 export type AppRuntimeStateDataProvider = BaseDataProvider<
   AppRuntimeState,
   DataQuery<AppRuntimeState>
@@ -283,8 +296,14 @@ export type UsageRecordDataProvider = BaseDataProvider<
   DataQuery<UsageRecord>
 >;
 export type UserDataProvider = BaseDataProvider<User, DataQuery<User>>;
-export type WorkspaceDataProvider = BaseDataProvider<Workspace, DataQuery<Workspace>>;
-export type ResourceDataProvider = BaseDataProvider<ResourceWrapper, DataQuery<Resource>>;
+export type WorkspaceDataProvider = BaseDataProvider<
+  Workspace,
+  DataQuery<Workspace>
+>;
+export type ResourceDataProvider = BaseDataProvider<
+  ResourceWrapper,
+  DataQuery<Resource>
+>;
 export type JobDataProvider = BaseDataProvider<Job, DataQuery<Job>>;
 export type FileBackendConfigDataProvider = BaseDataProvider<
   FileBackendConfig,
@@ -307,4 +326,7 @@ export type EmailBlocklistDataProvider = BaseDataProvider<
   EmailBlocklist,
   DataQuery<EmailBlocklist>
 >;
-export type AppShardDataProvider = BaseDataProvider<AppShard, DataQuery<AppShard>>;
+export type AppShardDataProvider = BaseDataProvider<
+  AppShard,
+  DataQuery<AppShard>
+>;

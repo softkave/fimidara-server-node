@@ -1,5 +1,5 @@
-import {Endpoint, EndpointResultNote} from '../../types';
-import {ListFolderContentEndpointParamsBase} from '../listFolderContent/types';
+import {Endpoint, EndpointResultNote} from '../../types.js';
+import {ListFolderContentEndpointParamsBase} from '../listFolderContent/types.js';
 
 export type CountFolderContentEndpointParams = ListFolderContentEndpointParamsBase;
 

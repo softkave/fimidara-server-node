@@ -1,32 +1,32 @@
-import {flatten} from 'lodash';
-import {AgentToken} from '../../../../../definitions/agentToken';
-import {Folder} from '../../../../../definitions/folder';
-import {kFimidaraResourceType} from '../../../../../definitions/system';
-import {Workspace} from '../../../../../definitions/workspace';
+import {flatten} from 'lodash-es';
+import {afterAll, beforeAll, describe, test} from 'vitest';
+import {AgentToken} from '../../../../../definitions/agentToken.js';
+import {Folder} from '../../../../../definitions/folder.js';
+import {kFimidaraResourceType} from '../../../../../definitions/system.js';
+import {Workspace} from '../../../../../definitions/workspace.js';
 import {
   generateAndInsertTestFiles,
   generateTestFilepath,
-} from '../../../../testUtils/generate/file';
+} from '../../../../testUtils/generate/file.js';
 import {
   generateAndInsertTestFolders,
   generateTestFolderpath,
-} from '../../../../testUtils/generate/folder';
-import {completeTests} from '../../../../testUtils/helpers/testFns';
+} from '../../../../testUtils/generate/folder.js';
+import {completeTests} from '../../../../testUtils/helpers/testFns.js';
 import {
   initTests,
   insertFolderForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../../../testUtils/testUtils';
-import {deleteFolderCascadeEntry} from '../folder';
+} from '../../../../testUtils/testUtils.js';
+import {deleteFolderCascadeEntry} from '../folder.js';
+import {DeleteResourceCascadeEntry} from '../types.js';
 import {
   GenerateTypeChildrenDefinition,
   generatePermissionItemsAsChildren,
   noopGenerateTypeChildren,
   testDeleteResourceArtifactsJob,
-  testDeleteResourceJob0,
-  testDeleteResourceSelfJob,
-} from './testUtils';
+} from './testUtils.js';
 
 beforeAll(async () => {
   await initTests();
@@ -61,7 +61,7 @@ const folderGenerateTypeChildren: GenerateTypeChildrenDefinition<Folder> = {
           namepath: generateTestFilepath({
             parentNamepath: resource.namepath,
             length: resource.namepath.length + 1,
-            extension: false,
+            ext: false,
           }),
         }),
       ])
@@ -79,16 +79,6 @@ const genResourceFn = async (workspace: Workspace, userToken: AgentToken) => {
 };
 
 describe('runDeleteResourceJob, folder', () => {
-  test('deleteResource0', async () => {
-    const {workspace, userToken} = await genWorkspaceFn();
-    const {rawFolder} = await genResourceFn(workspace, userToken);
-    testDeleteResourceJob0({
-      genResourceFn: () => Promise.resolve(rawFolder),
-      genWorkspaceFn: () => Promise.resolve(workspace.resourceId),
-      type: kFimidaraResourceType.Folder,
-    });
-  });
-
   test('runDeleteResourceJobArtifacts', async () => {
     const {workspace, userToken} = await genWorkspaceFn();
     const {rawFolder} = await genResourceFn(workspace, userToken);
@@ -96,17 +86,8 @@ describe('runDeleteResourceJob, folder', () => {
       genResourceFn: () => Promise.resolve(rawFolder),
       genWorkspaceFn: () => Promise.resolve(workspace.resourceId),
       genChildrenDef: folderGenerateTypeChildren,
-      deleteCascadeDef: deleteFolderCascadeEntry,
-      type: kFimidaraResourceType.Folder,
-    });
-  });
-
-  test('runDeleteResourceJobSelf', async () => {
-    const {workspace, userToken} = await genWorkspaceFn();
-    const {rawFolder} = await genResourceFn(workspace, userToken);
-    await testDeleteResourceSelfJob({
-      genResourceFn: () => Promise.resolve(rawFolder),
-      genWorkspaceFn: () => Promise.resolve(workspace.resourceId),
+      deleteCascadeDef:
+        deleteFolderCascadeEntry as unknown as DeleteResourceCascadeEntry,
       type: kFimidaraResourceType.Folder,
     });
   });

@@ -1,18 +1,19 @@
-import {pathJoin} from '../../../utils/fns';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {ResourceExistsError} from '../../errors';
-import {stringifyFoldernamepath} from '../../folders/utils';
-import {generateUniqueFolderpath} from '../../testUtils/generate/folder';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {pathJoin} from '../../../utils/fns.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {ResourceExistsError} from '../../errors.js';
+import {stringifyFoldernamepath} from '../../folders/utils.js';
+import {generateUniqueFolderpath} from '../../testUtils/generate/folder.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   initTests,
   insertFileBackendMountForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../testUtils/testUtils';
-import {fileBackendMountExtractor} from '../utils';
+} from '../../testUtils/testUtils.js';
+import {fileBackendMountExtractor} from '../utils.js';
 
 beforeAll(async () => {
   await initTests();
@@ -39,7 +40,10 @@ describe('addMount', () => {
   test('fails if mount with name exists', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const {mount: mount01} = await insertFileBackendMountForTest(userToken, workspace);
+    const {mount: mount01} = await insertFileBackendMountForTest(
+      userToken,
+      workspace
+    );
 
     await expectErrorThrown(async () => {
       await insertFileBackendMountForTest(userToken, workspace, {
@@ -51,7 +55,10 @@ describe('addMount', () => {
   test('fails if exact mount exists', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const {mount: mount01} = await insertFileBackendMountForTest(userToken, workspace);
+    const {mount: mount01} = await insertFileBackendMountForTest(
+      userToken,
+      workspace
+    );
 
     await expectErrorThrown(async () => {
       await insertFileBackendMountForTest(userToken, workspace, {
@@ -74,11 +81,16 @@ describe('addMount', () => {
         await insertFileBackendMountForTest(
           userToken,
           workspace,
-          {},
+          /** input */ {},
           /** do not insert config */ false
         );
       },
-      error => (error as Error).message === kReuseableErrors.config.notFound().message
+      error => {
+        return (
+          (error as Error).message ===
+          kReuseableErrors.config.notFound().message
+        );
+      }
     );
   });
 
@@ -87,12 +99,16 @@ describe('addMount', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     const folderpath = await generateUniqueFolderpath(workspace.resourceId);
     await insertFileBackendMountForTest(userToken, workspace, {
-      folderpath: stringifyFoldernamepath({namepath: folderpath}, workspace.rootname),
+      folderpath: stringifyFoldernamepath(
+        {namepath: folderpath},
+        workspace.rootname
+      ),
     });
 
-    const folder = await kSemanticModels
-      .folder()
-      .getOneByNamepath({workspaceId: workspace.resourceId, namepath: folderpath});
+    const folder = await kSemanticModels.folder().getOneByNamepath({
+      workspaceId: workspace.resourceId,
+      namepath: folderpath,
+    });
 
     expect(folder).toBeTruthy();
   });

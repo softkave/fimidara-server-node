@@ -1,7 +1,7 @@
-import {kJobType} from '../../../definitions/job';
-import {Agent} from '../../../definitions/system';
-import {queueJobs} from '../../jobs/queueJobs';
-import {DeletePermissionItemInput} from './types';
+import {kJobType} from '../../../definitions/job.js';
+import {Agent} from '../../../definitions/system.js';
+import {queueJobs} from '../../jobs/queueJobs.js';
+import {DeletePermissionItemInput} from './types.js';
 
 export async function beginDeletePermissionItemByInput(props: {
   workspaceId: string;

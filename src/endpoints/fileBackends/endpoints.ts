@@ -1,9 +1,9 @@
-import addFileBackendConfig from './addConfig/handler';
-import addFileBackendMountEndpoint from './addMount/handler';
-import countFileBackendConfigs from './countConfigs/handler';
-import countFileBackendMounts from './countMounts/handler';
-import deleteFileBackendConfig from './deleteConfig/handler';
-import deleteFileBackendMount from './deleteMount/handler';
+import addFileBackendConfig from './addConfig/handler.js';
+import addFileBackendMountEndpoint from './addMount/handler.js';
+import countFileBackendConfigs from './countConfigs/handler.js';
+import countFileBackendMounts from './countMounts/handler.js';
+import deleteFileBackendConfig from './deleteConfig/handler.js';
+import deleteFileBackendMount from './deleteMount/handler.js';
 import {
   addFileBackendConfigEndpointDefinition,
   addFileBackendMountEndpointDefinition,
@@ -18,15 +18,15 @@ import {
   resolveFileBackendMountsEndpointDefinition,
   updateFileBackendConfigEndpointDefinition,
   updateFileBackendMountEndpointDefinition,
-} from './endpoints.mddoc';
-import getFileBackendConfig from './getConfig/handler';
-import getFileBackendConfigs from './getConfigs/handler';
-import getFileBackendMount from './getMount/handler';
-import getFileBackendMounts from './getMounts/handler';
-import resolveFileBackendMounts from './resolveMounts/handler';
-import {FileBackendsExportedEndpoints} from './types';
-import updateFileBackendConfig from './updateConfig/handler';
-import updateFileBackendMount from './updateMount/handler';
+} from './endpoints.mddoc.js';
+import getFileBackendConfig from './getConfig/handler.js';
+import getFileBackendConfigs from './getConfigs/handler.js';
+import getFileBackendMount from './getMount/handler.js';
+import getFileBackendMounts from './getMounts/handler.js';
+import resolveFileBackendMounts from './resolveMounts/handler.js';
+import {FileBackendsExportedEndpoints} from './types.js';
+import updateFileBackendConfig from './updateConfig/handler.js';
+import updateFileBackendMount from './updateMount/handler.js';
 
 export function getFileBackendsPublicHttpEndpoints() {
   const fileBackendMountsExportedEndpoints: FileBackendsExportedEndpoints = {

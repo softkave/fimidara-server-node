@@ -1,4 +1,5 @@
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
+import {expect} from 'vitest';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
 
 export async function assertUserTokenIsSame(str01: string, str02: string) {
   const t01 = kUtilsInjectables.session().decodeToken(str01);

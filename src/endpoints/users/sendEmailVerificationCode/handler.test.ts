@@ -1,15 +1,24 @@
-import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job';
-import RequestData from '../../RequestData';
-import {DataQuery} from '../../contexts/data/types';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {afterAll, beforeAll, expect, test} from 'vitest';
+import {
+  EmailJobParams,
+  Job,
+  kEmailJobType,
+  kJobType,
+} from '../../../definitions/job.js';
+import RequestData from '../../RequestData.js';
+import {DataQuery} from '../../contexts/data/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import sendEmailVerificationCode from './handler';
+} from '../../testUtils/testUtils.js';
+import sendEmailVerificationCode from './handler.js';
 
 /**
  * TODO:
@@ -33,8 +42,12 @@ test('sendEmailVerificationCode', async () => {
   await kSemanticModels.utils().withTxn(opts => {
     return kSemanticModels
       .user()
-      .getAndUpdateOneById(user.resourceId, {emailVerificationEmailSentAt: null}, opts);
-  }, /** reuseTxn */ true);
+      .getAndUpdateOneById(
+        user.resourceId,
+        {emailVerificationEmailSentAt: null},
+        opts
+      );
+  });
   const result = await sendEmailVerificationCode(
     RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken))
   );

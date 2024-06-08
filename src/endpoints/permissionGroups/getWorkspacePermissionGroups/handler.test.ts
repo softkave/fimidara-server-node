@@ -1,8 +1,9 @@
-import {calculatePageSize, findItemWithField} from '../../../utils/fns';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {calculatePageSize, findItemWithField} from '../../../utils/fns.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -10,9 +11,9 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import getWorkspacePermissionGroups from './handler';
-import {GetWorkspacePermissionGroupsEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import getWorkspacePermissionGroups from './handler.js';
+import {GetWorkspacePermissionGroupsEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

@@ -1,28 +1,39 @@
-import {defaultTo, first, get, isString, set} from 'lodash';
-import {File} from '../../../definitions/file';
+import {defaultTo, first, get, isString, set} from 'lodash-es';
+import {File} from '../../../definitions/file.js';
 import {
-  PermissionAction,
+  FimidaraPermissionAction,
   PermissionItem,
-  kPermissionsMap,
-} from '../../../definitions/permissionItem';
-import {Resource, SessionAgent, kFimidaraResourceType} from '../../../definitions/system';
-import {UserWithWorkspace} from '../../../definitions/user';
-import {Workspace} from '../../../definitions/workspace';
-import {appAssert} from '../../../utils/assertion';
-import {ServerError} from '../../../utils/errors';
-import {convertToArray, toCompactArray, toUniqArray} from '../../../utils/fns';
-import {sortPermissionEntityInheritanceMap} from '../../../utils/permissionEntityUtils';
-import {getResourceTypeFromId} from '../../../utils/resource';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {ObjectValues, OmitProperties} from '../../../utils/types';
-import {checkResourcesBelongsToWorkspace} from '../../resources/containerCheckFns';
-import {EmailAddressNotVerifiedError, PermissionDeniedError} from '../../users/errors';
-import {kSemanticModels} from '../injection/injectables';
-import {SemanticProviderOpParams} from '../semantic/types';
+  kFimidaraPermissionActionsMap,
+} from '../../../definitions/permissionItem.js';
+import {
+  Resource,
+  SessionAgent,
+  kFimidaraResourceType,
+} from '../../../definitions/system.js';
+import {UserWithWorkspace} from '../../../definitions/user.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {ServerError} from '../../../utils/errors.js';
+import {
+  convertToArray,
+  toCompactArray,
+  toUniqArray,
+} from '../../../utils/fns.js';
+import {sortPermissionEntityInheritanceMap} from '../../../utils/permissionEntityUtils.js';
+import {getResourceTypeFromId} from '../../../utils/resource.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import {ObjectValues, OmitProperties} from '../../../utils/types.js';
+import {checkResourcesBelongsToWorkspace} from '../../resources/containerCheckFns.js';
+import {
+  EmailAddressNotVerifiedError,
+  PermissionDeniedError,
+} from '../../users/errors.js';
+import {kSemanticModels} from '../injection/injectables.js';
+import {SemanticProviderOpParams} from '../semantic/types.js';
 
 export interface AccessCheckTarget {
   entityId: string;
-  action: PermissionAction | PermissionAction[];
+  action: FimidaraPermissionAction | FimidaraPermissionAction[];
   /** single target, or target + containers, e.g file + parent folder IDs */
   targetId: string | string[];
 }
@@ -49,7 +60,7 @@ type AccessCheckGroupedPermissions = Record<
   /** entityId */ string,
   Record<
     /** targetId */ string,
-    Partial<Record</** action */ PermissionAction, PermissionItem[]>>
+    Partial<Record</** action */ FimidaraPermissionAction, PermissionItem[]>>
   >
 >;
 
@@ -57,7 +68,7 @@ export interface ResolvedPermissionsAccessCheckerType {
   checkForTargetId: (
     entityId: string,
     targetId: string,
-    action: PermissionAction,
+    action: FimidaraPermissionAction,
     nothrow?: boolean
   ) => ResolvedPermissionCheck;
   checkAuthParams: (nothrow?: boolean) => ResolvedPermissionCheck[];
@@ -91,7 +102,9 @@ export type ResolvedTargetChildrenAccessCheck =
       partialAllowIds: string[];
     };
 
-class ResolvedPermissionsAccessChecker implements ResolvedPermissionsAccessCheckerType {
+class ResolvedPermissionsAccessChecker
+  implements ResolvedPermissionsAccessCheckerType
+{
   constructor(
     protected permissions: AccessCheckGroupedPermissions,
     protected authParams: CheckAuthorizationParams
@@ -100,11 +113,11 @@ class ResolvedPermissionsAccessChecker implements ResolvedPermissionsAccessCheck
   checkForTargetId(
     entityId: string,
     targetId: string,
-    action: PermissionAction,
+    action: FimidaraPermissionAction,
     nothrow?: boolean
   ) {
     const key = `${entityId}.${targetId}.${action}`;
-    const wildcardKey = `${entityId}.${targetId}.${kPermissionsMap.wildcard}`;
+    const wildcardKey = `${entityId}.${targetId}.${kFimidaraPermissionActionsMap.wildcard}`;
     const items = get(
       this.permissions,
       key,
@@ -142,7 +155,9 @@ class ResolvedPermissionsAccessChecker implements ResolvedPermissionsAccessCheck
   };
 }
 
-export async function getAuthorizationAccessChecker(params: CheckAuthorizationParams) {
+export async function getAuthorizationAccessChecker(
+  params: CheckAuthorizationParams
+) {
   const {itemsMap} = await fetchAndSortAgentPermissionItems(params);
   return new ResolvedPermissionsAccessChecker(itemsMap, params);
 }
@@ -171,19 +186,24 @@ export async function resolveEntityData(
       params.opts
     ),
     permissionsModel.getEntityInheritanceMap(
-      {entityId: workspace.publicPermissionGroupId, fetchDeep: params.fetchEntitiesDeep},
+      {
+        entityId: workspace.publicPermissionGroupId,
+        fetchDeep: params.fetchEntitiesDeep,
+      },
       params.opts
     ),
   ]);
 
-  const {sortedItemsList: entitySortedItemList} = sortPermissionEntityInheritanceMap({
-    map: entityInheritanceMap,
-    entityId: target.entityId,
-  });
-  const {sortedItemsList: publicSortedItemList} = sortPermissionEntityInheritanceMap({
-    map: publicInheritanceMap,
-    entityId: workspace.publicPermissionGroupId,
-  });
+  const {sortedItemsList: entitySortedItemList} =
+    sortPermissionEntityInheritanceMap({
+      map: entityInheritanceMap,
+      entityId: target.entityId,
+    });
+  const {sortedItemsList: publicSortedItemList} =
+    sortPermissionEntityInheritanceMap({
+      map: publicInheritanceMap,
+      entityId: workspace.publicPermissionGroupId,
+    });
 
   const sortedItemsList = entitySortedItemList.concat(publicSortedItemList);
   const entityIdList = sortedItemsList.map(item => item.id);
@@ -195,7 +215,9 @@ export async function fetchAgentPermissionItems(
   params: CheckAuthorizationParams & {fetchEntitiesDeep: boolean}
 ) {
   const {workspaceId, target} = params;
-  const action = convertToArray(target.action).concat(kPermissionsMap.wildcard),
+  const action = convertToArray(target.action).concat(
+      kFimidaraPermissionActionsMap.wildcard
+    ),
     targetId = toUniqArray(target.targetId, workspaceId);
   const {entityIdList} = await resolveEntityData(params);
 
@@ -212,7 +234,9 @@ export async function fetchAgentPermissionItems(
   );
 }
 
-export async function fetchAndSortAgentPermissionItems(params: CheckAuthorizationParams) {
+export async function fetchAndSortAgentPermissionItems(
+  params: CheckAuthorizationParams
+) {
   const items = await fetchAgentPermissionItems({
     ...params,
     fetchEntitiesDeep: true,
@@ -246,12 +270,20 @@ async function resolveTargetChildrenPartialAccessCheck(
   params: OmitProperties<CheckAuthorizationParams, 'nothrow'>
 ) {
   const {workspaceId, target} = params;
-  const action = convertToArray(target.action).concat(kPermissionsMap.wildcard),
-    targetParentId = defaultTo(first(toCompactArray(target.targetId)), workspaceId);
+  const action = convertToArray(target.action).concat(
+      kFimidaraPermissionActionsMap.wildcard
+    ),
+    targetParentId = defaultTo(
+      first(toCompactArray(target.targetId)),
+      workspaceId
+    );
 
   // TODO: preferrably fetch once cause it's currently fetched twice, in
   // checkAuthorization and in here
-  const {entityIdList} = await resolveEntityData({...params, fetchEntitiesDeep: true});
+  const {entityIdList} = await resolveEntityData({
+    ...params,
+    fetchEntitiesDeep: true,
+  });
   const items = await kSemanticModels.permissions().getPermissionItems(
     {
       action,
@@ -314,7 +346,11 @@ export async function resolveTargetChildrenAccessCheck(
       access: kResolvedTargetChildrenAccess.full,
       item: parentCheck.item,
     };
-  } else if (!parentCheck.hasAccess && parentCheck.item && partialAllowIds.length === 0) {
+  } else if (
+    !parentCheck.hasAccess &&
+    parentCheck.item &&
+    partialAllowIds.length === 0
+  ) {
     return {access: kResolvedTargetChildrenAccess.deny, item: parentCheck.item};
   } else {
     return {
@@ -325,7 +361,9 @@ export async function resolveTargetChildrenAccessCheck(
   }
 }
 
-export function getWorkspacePermissionContainers(workspaceId: string): string[] {
+export function getWorkspacePermissionContainers(
+  workspaceId: string
+): string[] {
   return [workspaceId];
 }
 
@@ -370,7 +408,7 @@ export function getResourcePermissionContainers(
 
 function checkActionRequiresUserVerification(
   agent: SessionAgent,
-  action: PermissionAction | PermissionAction[]
+  action: FimidaraPermissionAction | FimidaraPermissionAction[]
 ) {
   if (
     agent &&
@@ -386,7 +424,9 @@ function checkActionRequiresUserVerification(
 export async function checkAuthorizationWithAgent(
   params: Omit<CheckAuthorizationParams, 'target'> & {
     agent: SessionAgent;
-    target: Omit<CheckAuthorizationParams['target'], 'entityId'> & {entityId?: string};
+    target: Omit<CheckAuthorizationParams['target'], 'entityId'> & {
+      entityId?: string;
+    };
   }
 ) {
   const {agent, target} = params;
@@ -394,13 +434,18 @@ export async function checkAuthorizationWithAgent(
 
   const agentId = agent?.agentId;
   appAssert(agentId);
-  return await checkAuthorization({...params, target: {...target, entityId: agentId}});
+  return await checkAuthorization({
+    ...params,
+    target: {...target, entityId: agentId},
+  });
 }
 
 export async function resolveTargetChildrenAccessCheckWithAgent(
   params: OmitProperties<CheckAuthorizationParams, 'target' | 'nothrow'> & {
     agent: SessionAgent;
-    target: Omit<CheckAuthorizationParams['target'], 'entityId'> & {entityId?: string};
+    target: Omit<CheckAuthorizationParams['target'], 'entityId'> & {
+      entityId?: string;
+    };
   }
 ) {
   const {agent, target} = params;

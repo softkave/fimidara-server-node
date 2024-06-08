@@ -1,8 +1,8 @@
-import {SessionAgent} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
-import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {SemanticProviderOpParams} from '../../contexts/semantic/types';
+import {SessionAgent} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 
 export async function checkReadEntityAssignedPermissionGroups(
   agent: SessionAgent,

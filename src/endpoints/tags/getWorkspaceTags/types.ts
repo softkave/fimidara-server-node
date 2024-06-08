@@ -1,10 +1,10 @@
-import {PublicTag} from '../../../definitions/tag';
+import {PublicTag} from '../../../definitions/tag.js';
 import {
   Endpoint,
   EndpointOptionalWorkspaceIDParam,
   PaginatedResult,
   PaginationQuery,
-} from '../../types';
+} from '../../types.js';
 
 export interface GetWorkspaceTagsEndpointParamsBase
   extends EndpointOptionalWorkspaceIDParam {}

@@ -1,15 +1,16 @@
-import {Job} from '../../../definitions/job';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {extractResourceIdList} from '../../../utils/fns';
-import {getNewId, getNewIdForResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {Job} from '../../../definitions/job.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {extractResourceIdList} from '../../../utils/fns.js';
+import {getNewId, getNewIdForResource} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {
   generateAndInsertJobListForTest,
   generateJobInput,
-} from '../../testUtils/generate/job';
-import {completeTests} from '../../testUtils/helpers/testFns';
-import {initTests} from '../../testUtils/testUtils';
-import {queueJobs} from '../queueJobs';
+} from '../../testUtils/generate/job.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {initTests} from '../../testUtils/testUtils.js';
+import {queueJobs} from '../queueJobs.js';
 
 beforeAll(async () => {
   await initTests();
@@ -64,7 +65,6 @@ describe('queueJobs', () => {
     // Second add should not add anything to DB
     const jobs02 = await queueJobs(workspaceId, parentJobId, [input01], {
       jobsToReturn: 'new',
-      reuseTxn: true,
     });
     const dbJobs = await kSemanticModels.job().getManyByQuery({
       params: {$objMatch: {id: internalParamId}},
@@ -114,11 +114,15 @@ describe('queueJobs', () => {
     });
 
     // First add should add job to DB
-    const jobs01 = await queueJobs(workspaceId, parentJob.resourceId, [input01]);
-    // Second add should also add job to DB
-    const jobs02 = await queueJobs(workspaceId, /** parent job ID */ undefined, [
-      input02,
+    const jobs01 = await queueJobs(workspaceId, parentJob.resourceId, [
+      input01,
     ]);
+    // Second add should also add job to DB
+    const jobs02 = await queueJobs(
+      workspaceId,
+      /** parent job ID */ undefined,
+      [input02]
+    );
     const dbJobs = await kSemanticModels.job().getManyByQuery({
       params: {$objMatch: {id: internalParamId}},
     });
@@ -136,7 +140,6 @@ describe('queueJobs', () => {
 
     await queueJobs(workspaceId, undefined, [input01], {
       seed: {resourceId: jobId},
-      reuseTxn: true,
     });
 
     const dbJob = await kSemanticModels.job().getOneByQuery({

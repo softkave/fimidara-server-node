@@ -1,13 +1,13 @@
-import {FileBackendConfig} from '../../../definitions/fileBackend';
-import {Agent, kFimidaraResourceType} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
-import {appAssert} from '../../../utils/assertion';
-import {newWorkspaceResource} from '../../../utils/resource';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
-import {configNameExists} from '../utils';
-import {NewFileBackendConfigInput} from './types';
+import {FileBackendConfig} from '../../../definitions/fileBackend.js';
+import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {newWorkspaceResource} from '../../../utils/resource.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
+import {configNameExists} from '../utils.js';
+import {NewFileBackendConfigInput} from './types.js';
 
 export const INTERNAL_addConfig = async (
   agent: Agent,

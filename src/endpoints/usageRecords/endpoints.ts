@@ -1,12 +1,12 @@
-import countWorkspaceSummedUsage from './countWorkspaceSummedUsage/handler';
+import countWorkspaceSummedUsage from './countWorkspaceSummedUsage/handler.js';
 import {
   countWorkspaceSummedUsageEndpointDefinition,
   getUsageCostsEndpointDefinition,
   getWorkspaceSummedUsageEndpointDefinition,
-} from './endpoints.mddoc';
-import getUsageCosts from './getUsageCosts/handler';
-import getWorkspaceSummedUsage from './getWorkspaceSummedUsage/handler';
-import {UsageRecordsExportedEndpoints} from './types';
+} from './endpoints.mddoc.js';
+import getUsageCosts from './getUsageCosts/handler.js';
+import getWorkspaceSummedUsage from './getWorkspaceSummedUsage/handler.js';
+import {UsageRecordsExportedEndpoints} from './types.js';
 
 export function getUsageRecordsPublicHttpEndpoints() {
   const usageRecordsExportedEndpoints: UsageRecordsExportedEndpoints = {

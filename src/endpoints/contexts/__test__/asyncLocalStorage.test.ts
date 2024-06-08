@@ -1,9 +1,10 @@
-import {noop} from 'lodash';
-import {DisposableResource} from '../../../utils/disposables';
-import {waitTimeout} from '../../../utils/fns';
-import {completeTests} from '../../testUtils/helpers/testFns';
-import {initTests} from '../../testUtils/testUtils';
-import {kAsyncLocalStorageUtils} from '../asyncLocalStorage';
+import {noop} from 'lodash-es';
+import {afterAll, beforeAll, describe, expect, test, vi} from 'vitest';
+import {waitTimeout} from '../../../utils/fns.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {initTests} from '../../testUtils/testUtils.js';
+import {kAsyncLocalStorageUtils} from '../asyncLocalStorage.js';
+import {DisposableResource} from 'softkave-js-utils';
 
 beforeAll(async () => {
   await initTests();
@@ -43,13 +44,15 @@ describe('asyncLocalStorage', () => {
 
   test('run disposes disposables only for real stores', async () => {
     const disposable: DisposableResource = {
-      dispose: jest.fn(),
+      dispose: vi.fn(),
     };
 
     await kAsyncLocalStorageUtils.run(() => {
       kAsyncLocalStorageUtils.disposables().add(disposable);
       kAsyncLocalStorageUtils.shadowSet('key', 'value', noop);
-      expect(kAsyncLocalStorageUtils.disposables().getList()).toContain(disposable);
+      expect(kAsyncLocalStorageUtils.disposables().getList()).toContain(
+        disposable
+      );
     });
 
     expect(disposable.dispose).toHaveBeenCalled();
@@ -66,23 +69,37 @@ describe('asyncLocalStorage', () => {
     await kAsyncLocalStorageUtils.run(async () => {
       kAsyncLocalStorageUtils.set(regularKey, regularValueDepth00);
 
-      await kAsyncLocalStorageUtils.shadowSet(shadowKey, shadowValueDepth01, async () => {
-        expect(kAsyncLocalStorageUtils.get(shadowKey)).toBe(shadowValueDepth01);
-        expect(kAsyncLocalStorageUtils.get(regularKey)).toBe(regularValueDepth00);
+      await kAsyncLocalStorageUtils.shadowSet(
+        shadowKey,
+        shadowValueDepth01,
+        async () => {
+          expect(kAsyncLocalStorageUtils.get(shadowKey)).toBe(
+            shadowValueDepth01
+          );
+          expect(kAsyncLocalStorageUtils.get(regularKey)).toBe(
+            regularValueDepth00
+          );
 
-        await kAsyncLocalStorageUtils.shadowSet(
-          shadowKey,
-          shadowValueDepth02,
-          async () => {
-            expect(kAsyncLocalStorageUtils.get(shadowKey)).toBe(shadowValueDepth02);
-            expect(kAsyncLocalStorageUtils.get(regularKey)).toBe(regularValueDepth00);
-            kAsyncLocalStorageUtils.set(regularKey, regularValueDepth02);
-          }
-        );
+          await kAsyncLocalStorageUtils.shadowSet(
+            shadowKey,
+            shadowValueDepth02,
+            async () => {
+              expect(kAsyncLocalStorageUtils.get(shadowKey)).toBe(
+                shadowValueDepth02
+              );
+              expect(kAsyncLocalStorageUtils.get(regularKey)).toBe(
+                regularValueDepth00
+              );
+              kAsyncLocalStorageUtils.set(regularKey, regularValueDepth02);
+            }
+          );
 
-        expect(kAsyncLocalStorageUtils.get(regularKey)).toBe(regularValueDepth02);
-        kAsyncLocalStorageUtils.delete(regularKey);
-      });
+          expect(kAsyncLocalStorageUtils.get(regularKey)).toBe(
+            regularValueDepth02
+          );
+          kAsyncLocalStorageUtils.delete(regularKey);
+        }
+      );
 
       expect(kAsyncLocalStorageUtils.get(shadowKey)).toBe(shadowValueDepth01);
       expect(kAsyncLocalStorageUtils.get(regularKey)).toBe(undefined);

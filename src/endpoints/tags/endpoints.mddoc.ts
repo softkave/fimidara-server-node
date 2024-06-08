@@ -1,24 +1,24 @@
-import {PublicTag} from '../../definitions/tag';
+import {PublicTag} from '../../definitions/tag.js';
 import {
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
   mddocConstruct,
-} from '../../mddoc/mddoc';
+} from '../../mddoc/mddoc.js';
 import {
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
-} from '../endpoints.mddoc';
-import {AddTagEndpointParams, AddTagEndpointResult, NewTagInput} from './addTag/types';
-import {tagConstants} from './constants';
-import {CountWorkspaceTagsEndpointParams} from './countWorkspaceTags/types';
-import {DeleteTagEndpointParams} from './deleteTag/types';
-import {GetTagEndpointParams, GetTagEndpointResult} from './getTag/types';
+} from '../endpoints.mddoc.js';
+import {AddTagEndpointParams, AddTagEndpointResult, NewTagInput} from './addTag/types.js';
+import {tagConstants} from './constants.js';
+import {CountWorkspaceTagsEndpointParams} from './countWorkspaceTags/types.js';
+import {DeleteTagEndpointParams} from './deleteTag/types.js';
+import {GetTagEndpointParams, GetTagEndpointResult} from './getTag/types.js';
 import {
   GetWorkspaceTagsEndpointParams,
   GetWorkspaceTagsEndpointResult,
-} from './getWorkspaceTags/types';
+} from './getWorkspaceTags/types.js';
 import {
   AddTagHttpEndpoint,
   CountWorkspaceTagsHttpEndpoint,
@@ -26,12 +26,12 @@ import {
   GetTagHttpEndpoint,
   GetWorkspaceTagsHttpEndpoint,
   UpdateTagHttpEndpoint,
-} from './types';
+} from './types.js';
 import {
   UpdateTagEndpointParams,
   UpdateTagEndpointResult,
   UpdateTagInput,
-} from './updateTag/types';
+} from './updateTag/types.js';
 
 const newTagInput = mddocConstruct
   .constructFieldObject<NewTagInput>()

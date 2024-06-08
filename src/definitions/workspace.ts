@@ -1,6 +1,6 @@
-import {ObjectValues} from '../utils/types';
-import {Agent, ConvertAgentToPublicAgent, WorkspaceResource} from './system';
-import {UsageRecordCategory} from './usageRecord';
+import {ObjectValues} from '../utils/types.js';
+import {Agent, ToPublicDefinitions, WorkspaceResource} from './system.js';
+import {UsageRecordCategory} from './usageRecord.js';
 
 export interface UsageThreshold {
   lastUpdatedBy: Agent;
@@ -48,6 +48,6 @@ export interface Workspace extends WorkspaceResource {
   // renameInExternalBackend?: boolean;
 }
 
-export type PublicWorkspace = ConvertAgentToPublicAgent<Workspace>;
-export type PublicUsageThreshold = ConvertAgentToPublicAgent<UsageThreshold>;
-export type PublicUsageThresholdLock = ConvertAgentToPublicAgent<UsageThresholdLock>;
+export type PublicWorkspace = ToPublicDefinitions<Workspace>;
+export type PublicUsageThreshold = ToPublicDefinitions<UsageThreshold>;
+export type PublicUsageThresholdLock = ToPublicDefinitions<UsageThresholdLock>;

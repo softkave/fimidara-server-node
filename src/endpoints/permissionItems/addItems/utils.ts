@@ -1,28 +1,35 @@
-import {forEach, get, has, set} from 'lodash';
-import {File} from '../../../definitions/file';
+import {forEach, get, has, set} from 'lodash-es';
+import {File} from '../../../definitions/file.js';
 import {
-  PermissionAction,
+  FimidaraPermissionAction,
   PermissionItem,
-  kPermissionsMap,
-} from '../../../definitions/permissionItem';
+  kFimidaraPermissionActionsMap,
+} from '../../../definitions/permissionItem.js';
 import {
   FimidaraResourceType,
   ResourceWrapper,
   SessionAgent,
   kFimidaraResourceType,
-} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
-import {appAssert} from '../../../utils/assertion';
-import {convertToArray, extractResourceIdList, isObjectEmpty} from '../../../utils/fns';
-import {indexArray} from '../../../utils/indexArray';
-import {getResourceTypeFromId, newWorkspaceResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
-import {InvalidRequestError} from '../../errors';
-import {getPermissionItemTargets} from '../getPermissionItemTargets';
-import {PermissionItemInputTarget} from '../types';
-import {getPermissionItemEntities, getTargetType} from '../utils';
-import {AddPermissionItemsEndpointParams} from './types';
+} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {
+  convertToArray,
+  extractResourceIdList,
+  isObjectEmpty,
+} from '../../../utils/fns.js';
+import {indexArray} from '../../../utils/indexArray.js';
+import {
+  getResourceTypeFromId,
+  newWorkspaceResource,
+} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
+import {InvalidRequestError} from '../../errors.js';
+import {getPermissionItemTargets} from '../getPermissionItemTargets.js';
+import {PermissionItemInputTarget} from '../types.js';
+import {getPermissionItemEntities, getTargetType} from '../utils.js';
+import {AddPermissionItemsEndpointParams} from './types.js';
 
 /**
  * - separate entities, separate targets
@@ -63,7 +70,7 @@ export const INTERNAL_addPermissionItems = async (
       agent,
       workspace,
       inputTargets,
-      kPermissionsMap.updatePermission
+      kFimidaraPermissionActionsMap.updatePermission
     ),
   ]);
 
@@ -91,7 +98,7 @@ export const INTERNAL_addPermissionItems = async (
 
   type ProcessedPermissionItemInput = {
     entity: ResourceWrapper;
-    action: PermissionAction;
+    action: FimidaraPermissionAction;
     target: ResourceWrapper;
     targetType: FimidaraResourceType;
     access: boolean;
@@ -134,7 +141,8 @@ export const INTERNAL_addPermissionItems = async (
       item.target.resourceType === kFimidaraResourceType.File ||
       item.target.resourceType === kFimidaraResourceType.Folder
     ) {
-      const idPath = (item.target.resource as unknown as Pick<File, 'idPath'>).idPath;
+      const idPath = (item.target.resource as unknown as Pick<File, 'idPath'>)
+        .idPath;
       const containerId = idPath[idPath.length - 2] ?? workspace.resourceId;
       appAssert(containerId, 'Could not determine containerId');
       targetParentId = containerId;
@@ -161,14 +169,21 @@ export const INTERNAL_addPermissionItems = async (
   // Not using transaction read because heavy computation may happen next to
   // filter out existing permission items, and I don't want to keep other
   // permission insertion operations waiting.
-  const existingPermissionItems = await kSemanticModels.permissions().getPermissionItems({
-    entityId: extractResourceIdList(entities),
-    sortByDate: true,
-  });
+  const existingPermissionItems = await kSemanticModels
+    .permissions()
+    .getPermissionItems({
+      entityId: extractResourceIdList(entities),
+      sortByDate: true,
+    });
 
   const map: {} = {};
   existingPermissionItems.forEach(item => {
-    const key = [item.entityId, item.targetId, item.action, String(item.access)];
+    const key = [
+      item.entityId,
+      item.targetId,
+      item.action,
+      String(item.access),
+    ];
 
     if (!has(map, key)) {
       set(map, key, item);
@@ -176,11 +191,16 @@ export const INTERNAL_addPermissionItems = async (
   });
 
   const newPermissions = inputItems.filter(item => {
-    const key = [item.entityId, item.targetId, item.action, String(item.access)];
+    const key = [
+      item.entityId,
+      item.targetId,
+      item.action,
+      String(item.access),
+    ];
     const wildcardKey = [
       item.entityId,
       item.targetId,
-      kPermissionsMap.wildcard,
+      kFimidaraPermissionActionsMap.wildcard,
       String(item.access),
     ];
     const existingItem = get(map, key);

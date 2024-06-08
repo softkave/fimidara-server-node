@@ -1,32 +1,39 @@
-import {first, forEach, isString} from 'lodash';
-import {PermissionAction, kPermissionsMap} from '../../../definitions/permissionItem';
-import {Resource, ResourceWrapper, SessionAgent} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
-import {appAssert} from '../../../utils/assertion';
-import {convertToArray} from '../../../utils/fns';
-import {indexArray} from '../../../utils/indexArray';
+import {first, forEach, isString} from 'lodash-es';
+import {
+  FimidaraPermissionAction,
+  kFimidaraPermissionActionsMap,
+} from '../../../definitions/permissionItem.js';
+import {
+  Resource,
+  ResourceWrapper,
+  SessionAgent,
+} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {convertToArray} from '../../../utils/fns.js';
+import {indexArray} from '../../../utils/indexArray.js';
 import {
   checkAuthorizationWithAgent,
   getAuthorizationAccessChecker,
   getResourcePermissionContainers,
-} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {SemanticProviderOpParams} from '../../contexts/semantic/types';
-import {InvalidRequestError} from '../../errors';
-import {getPermissionItemTargets} from '../getPermissionItemTargets';
-import {PermissionItemInputTarget} from '../types';
-import {getPermissionItemEntities} from '../utils';
+} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
+import {InvalidRequestError} from '../../errors.js';
+import {getPermissionItemTargets} from '../getPermissionItemTargets.js';
+import {PermissionItemInputTarget} from '../types.js';
+import {getPermissionItemEntities} from '../utils.js';
 import {
   ResolveEntityPermissionItemInput,
   ResolveEntityPermissionsEndpointParams,
   ResolvedEntityPermissionItem,
   ResolvedEntityPermissionItemTarget,
-} from './types';
+} from './types.js';
 
 type ResolvedTargetItem = ResourceWrapper & ResolvedEntityPermissionItemTarget;
 type ResolvedTargetsMap = Record<string, ResolvedTargetItem>;
 type FlattenedPermissionRequestItem = {
   entity: ResourceWrapper;
-  action: PermissionAction;
+  action: FimidaraPermissionAction;
   target: ResourceWrapper;
   resolvedTarget: ResolvedEntityPermissionItemTarget;
 };
@@ -43,7 +50,8 @@ async function getArtifacts(
   data.items.forEach(item => {
     if (item.entityId)
       inputEntities = inputEntities.concat(convertToArray(item.entityId));
-    if (item.target) inputTargets = inputTargets.concat(convertToArray(item.target));
+    if (item.target)
+      inputTargets = inputTargets.concat(convertToArray(item.target));
   });
 
   appAssert(
@@ -56,7 +64,7 @@ async function getArtifacts(
       agent,
       workspace,
       inputTargets,
-      kPermissionsMap.readPermission
+      kFimidaraPermissionActionsMap.readPermission
     ),
   ]);
 
@@ -64,7 +72,10 @@ async function getArtifacts(
 }
 
 /** Index artifacts for quick retrieval. */
-function indexArtifacts(workspace: Workspace, entities: ResourceWrapper<Resource>[]) {
+function indexArtifacts(
+  workspace: Workspace,
+  entities: ResourceWrapper<Resource>[]
+) {
   const entitiesMapById = indexArray(entities, {path: 'resourceId'});
   const getEntities = (inputEntity: string | string[]) => {
     const eMap: Record<string, ResourceWrapper> = {};
@@ -97,7 +108,7 @@ export const INTERNAL_resolveEntityPermissions = async (
 
   function fResolvedTargetItems(
     entity: ResourceWrapper<Resource>,
-    action: PermissionAction,
+    action: FimidaraPermissionAction,
     tMap: ResolvedTargetsMap
   ) {
     forEach(tMap, tFromMap => {
@@ -112,7 +123,7 @@ export const INTERNAL_resolveEntityPermissions = async (
 
   function fTarget(
     entity: ResourceWrapper<Resource>,
-    action: PermissionAction,
+    action: FimidaraPermissionAction,
     item: ResolveEntityPermissionItemInput
   ) {
     convertToArray(item.target).forEach(target => {

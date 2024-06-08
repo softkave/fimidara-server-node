@@ -1,26 +1,26 @@
-import {first} from 'lodash';
-import {Folder} from '../../../definitions/folder';
-import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {Resource, SessionAgent} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
-import {appAssert} from '../../../utils/assertion';
-import {pathJoin} from '../../../utils/fns';
-import {ShardId} from '../../../utils/shardedRunnerQueue';
+import {first} from 'lodash-es';
+import {Folder} from '../../../definitions/folder.js';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {Resource, SessionAgent} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {pathJoin} from '../../../utils/fns.js';
+import {ShardId} from '../../../utils/shardedRunnerQueue.js';
 import {
   checkAuthorizationWithAgent,
   getResourcePermissionContainers,
-} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
-import {FolderExistsError} from '../errors';
-import {createNewFolder} from '../utils';
-import {getExistingFoldersAndArtifacts} from './getExistingFoldersAndArtifacts';
+} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
+import {FolderExistsError} from '../errors.js';
+import {createNewFolder} from '../utils.js';
+import {getExistingFoldersAndArtifacts} from './getExistingFoldersAndArtifacts.js';
 import {
   AddFolderShard,
   AddFolderShardRunner,
   NewFolderInput,
   kAddFolderShardPart,
-} from './types';
+} from './types.js';
 
 async function createFolderListWithTransaction(
   agent: SessionAgent,
@@ -101,7 +101,9 @@ async function createFolderListWithTransaction(
 
   if (newFolders.length) {
     const checkAuthPromises: Array<Promise<unknown>> = [];
-    const saveFilesPromise = kSemanticModels.folder().insertItem(newFolders, opts);
+    const saveFilesPromise = kSemanticModels
+      .folder()
+      .insertItem(newFolders, opts);
 
     // No need to check auth if there are no new folders, so only check if we
     // have newFolders
@@ -113,7 +115,7 @@ async function createFolderListWithTransaction(
           opts,
           workspaceId: workspace.resourceId,
           target: {
-            action: kPermissionsMap.addFolder,
+            action: kFimidaraPermissionActionsMap.addFolder,
             targetId: getResourcePermissionContainers(
               workspace.resourceId,
               target,
@@ -148,7 +150,6 @@ async function runAddFolderShard(shard: AddFolderShard) {
           meta.throwOnFolderExists,
           opts
         ),
-      /** reuse txn */ false,
       meta.opts
     );
 }

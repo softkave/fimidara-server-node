@@ -1,13 +1,14 @@
-import {first} from 'lodash';
-import {CombinationToken, combineTokens} from '../../../../utils/combineTokens';
-import {DataQuery} from '../types';
+import {first} from 'lodash-es';
+import {describe, expect, test} from 'vitest';
+import {DataQuery} from '../types.js';
 import {
   BaseMongoTestData,
   generateBaseMongoTestDataFromCombination,
   generateBaseMongoTestQueryFromCombination,
   getArrTokenCountAndIndices,
   kBaseMongoTestConsts,
-} from './testUtils';
+} from './testUtils.js';
+import {CombinationToken, combineTokens} from 'softkave-js-utils';
 
 export function testCombinations(
   tokens: CombinationToken[],
@@ -76,7 +77,10 @@ describe('BaseMongoDataProvider, test utils', () => {
           obj: {
             str: kBaseMongoTestConsts.str01,
             num: kBaseMongoTestConsts.num01,
-            arrPrimitive: [kBaseMongoTestConsts.str01, kBaseMongoTestConsts.str01],
+            arrPrimitive: [
+              kBaseMongoTestConsts.str01,
+              kBaseMongoTestConsts.str01,
+            ],
           },
         },
         {
@@ -206,7 +210,10 @@ describe('BaseMongoDataProvider, test utils', () => {
                   str: kBaseMongoTestConsts.str01,
                   num: kBaseMongoTestConsts.num01,
                   arrPrimitive: {
-                    $all: [kBaseMongoTestConsts.str01, kBaseMongoTestConsts.str01],
+                    $all: [
+                      kBaseMongoTestConsts.str01,
+                      kBaseMongoTestConsts.str01,
+                    ],
                   },
                 },
               },

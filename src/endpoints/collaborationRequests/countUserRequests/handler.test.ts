@@ -1,13 +1,14 @@
-import RequestData from '../../RequestData';
-import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generate/collaborationRequest';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import RequestData from '../../RequestData.js';
+import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generate/collaborationRequest.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import countUserCollaborationRequests from './handler';
+} from '../../testUtils/testUtils.js';
+import countUserCollaborationRequests from './handler.js';
 
 beforeAll(async () => {
   await initTests();

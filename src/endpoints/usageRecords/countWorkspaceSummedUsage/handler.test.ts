@@ -1,20 +1,22 @@
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
+
 import {
   UsageRecordFulfillmentStatusMap,
   UsageSummationTypeMap,
-} from '../../../definitions/usageRecord';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {generateAndInsertUsageRecordList} from '../../testUtils/generate/usageRecord';
-import {completeTests} from '../../testUtils/helpers/testFns';
+} from '../../../definitions/usageRecord.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {generateAndInsertUsageRecordList} from '../../testUtils/generate/usageRecord.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import countWorkspaceSummedUsage from './handler';
-import {CountWorkspaceSummedUsageEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import countWorkspaceSummedUsage from './handler.js';
+import {CountWorkspaceSummedUsageEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

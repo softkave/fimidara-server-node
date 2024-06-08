@@ -1,10 +1,10 @@
-import * as Joi from 'joi';
-import {JoiSchemaParts} from '../../../utils/types';
-import {endpointValidationSchemas} from '../../validation';
+import Joi from 'joi';
+import {JoiSchemaParts} from '../../../utils/types.js';
+import {endpointValidationSchemas} from '../../validation.js';
 import {
   GetCollaboratorsWithoutPermissionEndpointParams,
   GetCollaboratorsWithoutPermissionEndpointParamsBase,
-} from './types';
+} from './types.js';
 
 export const getCollaboratorsWithoutPermissionBaseJoiSchemaParts: JoiSchemaParts<GetCollaboratorsWithoutPermissionEndpointParamsBase> =
   endpointValidationSchemas.optionalWorkspaceIdParts;

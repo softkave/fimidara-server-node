@@ -1,9 +1,9 @@
 import {faker} from '@faker-js/faker';
-import {PublicWorkspace, Workspace} from '../../../definitions/workspace';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {addRootnameToPath} from '../../folders/utils';
-import EndpointReusableQueries from '../../queries';
+import {PublicWorkspace, Workspace} from '../../../definitions/workspace.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {addRootnameToPath} from '../../folders/utils.js';
+import EndpointReusableQueries from '../../queries.js';
 import {
   IInsertUserForTestResult,
   IInsertWorkspaceForTestResult,
@@ -12,18 +12,19 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestForPublicAgent,
-} from '../../testUtils/testUtils';
-import deleteFile from '../deleteFile/handler';
-import {DeleteFileEndpointParams} from '../deleteFile/types';
-import getFile from '../readFile/handler';
-import {ReadFileEndpointParams} from '../readFile/types';
-import updateFileDetails from '../updateFileDetails/handler';
+} from '../../testUtils/testUtils.js';
+import deleteFile from '../deleteFile/handler.js';
+import {DeleteFileEndpointParams} from '../deleteFile/types.js';
+import getFile from '../readFile/handler.js';
+import {ReadFileEndpointParams} from '../readFile/types.js';
+import updateFileDetails from '../updateFileDetails/handler.js';
 import {
   UpdateFileDetailsEndpointParams,
   UpdateFileDetailsInput,
-} from '../updateFileDetails/types';
-import {fileExtractor} from '../utils';
-import {UploadFileEndpointParams} from './types';
+} from '../updateFileDetails/types.js';
+import {fileExtractor} from '../utils.js';
+import {UploadFileEndpointParams} from './types.js';
+import {expect} from 'vitest';
 
 export const uploadFileBaseTest = async (
   input: Partial<UploadFileEndpointParams> = {},
@@ -33,7 +34,8 @@ export const uploadFileBaseTest = async (
 ) => {
   insertUserResult = insertUserResult ?? (await insertUserForTest());
   insertWorkspaceResult =
-    insertWorkspaceResult ?? (await insertWorkspaceForTest(insertUserResult.userToken));
+    insertWorkspaceResult ??
+    (await insertWorkspaceForTest(insertUserResult.userToken));
   const insertFileResult = await insertFileForTest(
     insertUserResult.userToken,
     insertWorkspaceResult.workspace,
@@ -44,7 +46,9 @@ export const uploadFileBaseTest = async (
   const {file} = insertFileResult;
   const savedFile = await kSemanticModels
     .file()
-    .assertGetOneByQuery(EndpointReusableQueries.getByResourceId(file.resourceId));
+    .assertGetOneByQuery(
+      EndpointReusableQueries.getByResourceId(file.resourceId)
+    );
 
   expect(file).toMatchObject(fileExtractor(savedFile));
 
@@ -87,13 +91,14 @@ export async function assertCanUpdatePublicFile(
     mimetype: 'application/octet-stream',
   };
 
-  const instData = RequestData.fromExpressRequest<UpdateFileDetailsEndpointParams>(
-    mockExpressRequestForPublicAgent(),
-    {
-      filepath: addRootnameToPath(filepath, workspace.rootname),
-      file: updateInput,
-    }
-  );
+  const instData =
+    RequestData.fromExpressRequest<UpdateFileDetailsEndpointParams>(
+      mockExpressRequestForPublicAgent(),
+      {
+        filepath: addRootnameToPath(filepath, workspace.rootname),
+        file: updateInput,
+      }
+    );
 
   const result = await updateFileDetails(instData);
   assertEndpointResultOk(result);

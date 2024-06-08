@@ -2,54 +2,54 @@ import {
   kFileBackendType,
   PublicFileBackendConfig,
   PublicFileBackendMount,
-} from '../../definitions/fileBackend';
+} from '../../definitions/fileBackend.js';
 import {
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
   mddocConstruct,
-} from '../../mddoc/mddoc';
-import {multilineTextToParagraph} from '../../utils/fns';
+} from '../../mddoc/mddoc.js';
+import {multilineTextToParagraph} from '../../utils/fns.js';
 import {
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
-} from '../endpoints.mddoc';
+} from '../endpoints.mddoc.js';
 import {
   AddFileBackendConfigEndpointParams,
   AddFileBackendConfigEndpointResult,
   NewFileBackendConfigInput,
-} from './addConfig/types';
+} from './addConfig/types.js';
 import {
   AddFileBackendMountEndpointParams,
   AddFileBackendMountEndpointResult,
   NewFileBackendMountInput,
-} from './addMount/types';
-import {kFileBackendConstants} from './constants';
-import {CountFileBackendConfigsEndpointParams} from './countConfigs/types';
-import {CountFileBackendMountsEndpointParams} from './countMounts/types';
-import {DeleteFileBackendConfigEndpointParams} from './deleteConfig/types';
-import {DeleteFileBackendMountEndpointParams} from './deleteMount/types';
+} from './addMount/types.js';
+import {kFileBackendConstants} from './constants.js';
+import {CountFileBackendConfigsEndpointParams} from './countConfigs/types.js';
+import {CountFileBackendMountsEndpointParams} from './countMounts/types.js';
+import {DeleteFileBackendConfigEndpointParams} from './deleteConfig/types.js';
+import {DeleteFileBackendMountEndpointParams} from './deleteMount/types.js';
 import {
   GetFileBackendConfigEndpointParams,
   GetFileBackendConfigEndpointResult,
-} from './getConfig/types';
+} from './getConfig/types.js';
 import {
   GetFileBackendConfigsEndpointParams,
   GetFileBackendConfigsEndpointResult,
-} from './getConfigs/types';
+} from './getConfigs/types.js';
 import {
   GetFileBackendMountEndpointParams,
   GetFileBackendMountEndpointResult,
-} from './getMount/types';
+} from './getMount/types.js';
 import {
   GetFileBackendMountsEndpointParams,
   GetFileBackendMountsEndpointResult,
-} from './getMounts/types';
+} from './getMounts/types.js';
 import {
   ResolveFileBackendMountsEndpointParams,
   ResolveFileBackendMountsEndpointResult,
-} from './resolveMounts/types';
+} from './resolveMounts/types.js';
 import {
   AddFileBackendConfigHttpEndpoint,
   AddFileBackendMountHttpEndpoint,
@@ -64,17 +64,17 @@ import {
   ResolveFileBackendMountsHttpEndpoint,
   UpdateFileBackendConfigHttpEndpoint,
   UpdateFileBackendMountHttpEndpoint,
-} from './types';
+} from './types.js';
 import {
   UpdateFileBackendConfigEndpointParams,
   UpdateFileBackendConfigEndpointResult,
   UpdateFileBackendConfigInput,
-} from './updateConfig/types';
+} from './updateConfig/types.js';
 import {
   UpdateFileBackendMountEndpointParams,
   UpdateFileBackendMountEndpointResult,
   UpdateFileBackendMountInput,
-} from './updateMount/types';
+} from './updateMount/types.js';
 
 const backend = mddocConstruct
   .constructFieldString()

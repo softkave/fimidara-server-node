@@ -9,8 +9,8 @@ import {
   getHeaderText,
   getLoginSectionHTML,
   getLoginSectionText,
-} from './helpers';
-import {BaseEmailTemplateProps} from './types';
+} from './helpers.js';
+import {BaseEmailTemplateProps} from './types.js';
 
 export interface CollaborationRequestExpiredEmailProps extends BaseEmailTemplateProps {
   workspaceName: string;

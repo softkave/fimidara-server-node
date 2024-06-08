@@ -1,13 +1,14 @@
-import RequestData from '../../RequestData';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import RequestData from '../../RequestData.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import getWorkspace from './handler';
+} from '../../testUtils/testUtils.js';
+import getWorkspace from './handler.js';
 
 beforeAll(async () => {
   await initTests();

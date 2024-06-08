@@ -1,23 +1,23 @@
 import assert = require('assert');
 import {add} from 'date-fns';
-import {defaultTo} from 'lodash';
+import {defaultTo} from 'lodash-es';
 import {Connection} from 'mongoose';
-import {getUsageRecordModel} from '../../db/usageRecord';
-import {getWorkspaceModel} from '../../db/workspace';
-import {kFimidaraResourceType} from '../../definitions/system';
+import {getUsageRecordModel} from '../../db/usageRecord.js';
+import {getWorkspaceModel} from '../../db/workspace.js';
+import {kFimidaraResourceType} from '../../definitions/system.js';
 import {
   UsageRecord,
   UsageRecordCategoryMap,
   UsageRecordFulfillmentStatus,
   UsageRecordFulfillmentStatusMap,
   UsageSummationTypeMap,
-} from '../../definitions/usageRecord';
-import {UsageThresholdLock, Workspace} from '../../definitions/workspace';
-import {kUtilsInjectables} from '../../endpoints/contexts/injection/injectables';
-import {usageRecordConstants} from '../../endpoints/usageRecords/constants';
-import {kSystemSessionAgent} from '../../utils/agent';
-import {getTimestamp} from '../../utils/dateFns';
-import {getNewIdForResource} from '../../utils/resource';
+} from '../../definitions/usageRecord.js';
+import {UsageThresholdLock, Workspace} from '../../definitions/workspace.js';
+import {kUtilsInjectables} from '../../endpoints/contexts/injection/injectables.js';
+import {usageRecordConstants} from '../../endpoints/usageRecords/constants.js';
+import {kSystemSessionAgent} from '../../utils/agent.js';
+import {getTimestamp} from '../../utils/dateFns.js';
+import {getNewIdForResource} from '../../utils/resource.js';
 
 /**
  * Aggregates usage records by month by category and total.
@@ -84,7 +84,10 @@ function getEndOfMonth() {
   return d;
 }
 
-async function sumUsageRecordsLevel1(connection: Connection, recordLevel2: UsageRecord) {
+async function sumUsageRecordsLevel1(
+  connection: Connection,
+  recordLevel2: UsageRecord
+) {
   let fromDate = recordLevel2.lastUpdatedAt ?? getStartOfMonth();
   const endDate = getEndOfMonth();
   let totalCount = 0;
@@ -171,8 +174,14 @@ async function getUsageRecordsLevel2(
   return records;
 }
 
-async function incrementRecordLevel2(connection: Connection, recordLevel2: UsageRecord) {
-  const {sumUsage, sumCost} = await sumUsageRecordsLevel1(connection, recordLevel2);
+async function incrementRecordLevel2(
+  connection: Connection,
+  recordLevel2: UsageRecord
+) {
+  const {sumUsage, sumCost} = await sumUsageRecordsLevel1(
+    connection,
+    recordLevel2
+  );
   recordLevel2.usage += sumUsage;
   recordLevel2.usageCost += sumCost;
   recordLevel2.lastUpdatedAt = getTimestamp();
@@ -185,7 +194,11 @@ async function aggregateRecordsLevel2ExcludingTotal(
   workspaceId: string,
   fulfillmentStatus: UsageRecordFulfillmentStatus
 ) {
-  const records = await getUsageRecordsLevel2(connection, workspaceId, fulfillmentStatus);
+  const records = await getUsageRecordsLevel2(
+    connection,
+    workspaceId,
+    fulfillmentStatus
+  );
   const promises = records.map(r => incrementRecordLevel2(connection, r));
   const results = await Promise.all(promises);
   return results;
@@ -201,7 +214,9 @@ async function aggregateRecordsLevel2(
     workspaceId,
     fulfillmentStatus
   );
-  const totalRecord = records.find(r => r.category === UsageRecordCategoryMap.Total);
+  const totalRecord = records.find(
+    r => r.category === UsageRecordCategoryMap.Total
+  );
   assert(totalRecord, 'Total usage record not found');
   totalRecord.usageCost = 0;
   records.forEach(cur => {
@@ -278,7 +293,10 @@ async function tryAggregateRecordsInWorkspace(
   workspace: Workspace
 ) {
   try {
-    await aggregateRecordsInWorkspaceAndLockIfUsageExceeded(connection, workspace);
+    await aggregateRecordsInWorkspaceAndLockIfUsageExceeded(
+      connection,
+      workspace
+    );
     await aggregateDroppedRecordsInWorkspace(connection, workspace);
   } catch (e) {
     kUtilsInjectables.logger().log(
@@ -294,6 +312,8 @@ async function tryAggregateRecordsInWorkspace(
 
 export async function aggregateRecords(connection: Connection) {
   const workspaces = await getWorkspaces(connection);
-  const promises = workspaces.map(w => tryAggregateRecordsInWorkspace(connection, w));
+  const promises = workspaces.map(w =>
+    tryAggregateRecordsInWorkspace(connection, w)
+  );
   await Promise.all(promises);
 }

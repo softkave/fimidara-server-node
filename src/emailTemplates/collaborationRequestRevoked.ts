@@ -9,8 +9,8 @@ import {
   getGreetingText,
   getHeaderHTML,
   getHeaderText,
-} from './helpers';
-import {BaseEmailTemplateProps} from './types';
+} from './helpers.js';
+import {BaseEmailTemplateProps} from './types.js';
 
 export interface CollaborationRequestRevokedEmailProps extends BaseEmailTemplateProps {
   workspaceName: string;

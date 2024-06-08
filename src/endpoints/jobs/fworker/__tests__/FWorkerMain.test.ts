@@ -1,11 +1,20 @@
 import assert from 'assert';
-import {map} from 'lodash';
-import {waitTimeout} from '../../../../utils/fns';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables';
-import {completeTests} from '../../../testUtils/helpers/testFns';
-import {initTests} from '../../../testUtils/testUtils';
-import {FWorkerMain} from '../FWorkerMain';
-import {FWorkerMessager} from '../FWorkerMessager';
+import {map} from 'lodash-es';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  test,
+  vi,
+} from 'vitest';
+import {waitTimeout} from '../../../../utils/fns.js';
+import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../testUtils/testUtils.js';
+import {FWorkerMain} from '../FWorkerMain.js';
+import {FWorkerMessager} from '../FWorkerMessager.js';
 
 const kWorkerTestFilepath =
   './build/src/endpoints/jobs/fworker/testUtils/FWorkerTestWorker.js';
@@ -55,7 +64,7 @@ describe('FWorkerMain', () => {
 
   test('graceful terminate', async () => {
     workerMain = new FWorkerMain({promises: kUtilsInjectables.promises()});
-    const gracefulTerminateFn = jest.fn();
+    const gracefulTerminateFn = vi.fn();
 
     await Promise.all([
       workerMain.startNewWorker(kWorkerTestFilepath, '1', gracefulTerminateFn),
@@ -74,7 +83,7 @@ describe('FWorkerMain', () => {
   test('graceful terminate timeout', async () => {
     workerMain = new FWorkerMain({promises: kUtilsInjectables.promises()});
     const gracefulTerminateTimeoutMs = 20;
-    const gracefulTerminateFn = jest.fn().mockImplementation(async () => {
+    const gracefulTerminateFn = vi.fn().mockImplementation(async () => {
       await waitTimeout(gracefulTerminateTimeoutMs * 3);
     });
 

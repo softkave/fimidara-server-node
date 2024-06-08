@@ -1,12 +1,19 @@
-import {kSemanticModels} from '../../../contexts/injection/injectables';
-import {genericDeleteArtifacts, genericGetArtifacts} from './genericDefinitions';
-import {DeleteResourceCascadeEntry, DeleteResourceFn} from './types';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {
+  genericDeleteArtifacts,
+  genericGetArtifacts,
+  noopGetPreRunMetaFn,
+} from './genericDefinitions.js';
+import {DeleteResourceCascadeEntry, DeleteResourceFn} from './types.js';
 
 const deleteResourceFn: DeleteResourceFn = ({args, helpers}) =>
-  helpers.withTxn(opts => kSemanticModels.tag().deleteOneById(args.resourceId, opts));
+  helpers.withTxn(opts =>
+    kSemanticModels.tag().deleteOneById(args.resourceId, opts)
+  );
 
 export const deleteTagCascadeEntry: DeleteResourceCascadeEntry = {
   deleteResourceFn,
-  getArtifacts: genericGetArtifacts,
+  getArtifactsToDelete: genericGetArtifacts,
   deleteArtifacts: genericDeleteArtifacts,
+  getPreRunMetaFn: noopGetPreRunMetaFn,
 };

@@ -1,7 +1,7 @@
 import * as fse from 'fs-extra';
-import {forEach} from 'lodash';
+import {forEach} from 'lodash-es';
 import path from 'path';
-import {getFimidaraPublicHttpEndpoints} from '../endpoints/endpoints';
+import {getFimidaraPublicHttpEndpoints} from '../endpoints/endpoints.js';
 
 function generateTableOfContentFromFimidaraPublicEndpoints() {
   const tableOfContent: Array<[string, string]> = [];
@@ -19,11 +19,17 @@ function generateTableOfContentFromFimidaraPublicEndpoints() {
 
 export async function restApiTableOfContentGen() {
   const basepath = './mdoc/rest-api/toc/v1';
-  const tableOfContentFilename = path.normalize(basepath + '/table-of-content.json');
+  const tableOfContentFilename = path.normalize(
+    basepath + '/table-of-content.json'
+  );
   const tableOfContent = generateTableOfContentFromFimidaraPublicEndpoints();
 
   fse.ensureFileSync(tableOfContentFilename);
-  return fse.writeFile(tableOfContentFilename, JSON.stringify(tableOfContent, undefined, 4), {
-    encoding: 'utf-8',
-  });
+  return fse.writeFile(
+    tableOfContentFilename,
+    JSON.stringify(tableOfContent, undefined, 4),
+    {
+      encoding: 'utf-8',
+    }
+  );
 }

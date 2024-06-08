@@ -5,19 +5,20 @@ import {
   JobType,
   kJobStatus,
   kJobType,
-} from '../../definitions/job';
-import {getTimestamp} from '../../utils/dateFns';
-import {noopAsync} from '../../utils/fns';
-import {AnyFn} from '../../utils/types';
-import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables';
-import {runCleanupMountResolvedEntriesJob} from './runners/runCleanupMountResolvedEntriesJob';
-import {runDeletePermissionItemsJob} from './runners/runDeletePermissionItemsJob';
-import {runDeleteResourceJob0} from './runners/runDeleteResourceJob/runDeleteResourceJob0';
-import {runDeleteResourceJobArtifacts} from './runners/runDeleteResourceJob/runDeleteResourceJobArtifacts';
-import {runDeleteResourceJobSelf} from './runners/runDeleteResourceJob/runDeleteResourceJobSelf';
-import {runEmailJob} from './runners/runEmailJob/runEmailJob';
-import {runIngestFolderpathJob} from './runners/runIngestFolderpathJob';
-import {runIngestMountJob} from './runners/runIngestMountJob';
+} from '../../definitions/job.js';
+import {getTimestamp} from '../../utils/dateFns.js';
+import {noopAsync} from '../../utils/fns.js';
+import {AnyFn} from '../../utils/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../contexts/injection/injectables.js';
+import {runCleanupMountResolvedEntriesJob} from './runners/runCleanupMountResolvedEntriesJob.js';
+import {runDeletePermissionItemsJob} from './runners/runDeletePermissionItemsJob.js';
+import {runDeleteResourceJob} from './runners/runDeleteResourceJob/runDeleteResourceJob.js';
+import {runEmailJob} from './runners/runEmailJob/runEmailJob.js';
+import {runIngestFolderpathJob} from './runners/runIngestFolderpathJob.js';
+import {runIngestMountJob} from './runners/runIngestMountJob.js';
 
 export async function completeJob(
   jobId: string,
@@ -41,7 +42,10 @@ export async function completeJob(
         },
         opts
       ),
-      jobsModel.existsByQuery({parents: jobId, status: {$eq: kJobStatus.failed}}, opts),
+      jobsModel.existsByQuery(
+        {parents: jobId, status: {$eq: kJobStatus.failed}},
+        opts
+      ),
     ]);
 
     if (!job) {
@@ -52,8 +56,8 @@ export async function completeJob(
       status: hasFailedChild
         ? kJobStatus.failed
         : hasPendingChild
-        ? kJobStatus.waitingForChildren
-        : status,
+          ? kJobStatus.waitingForChildren
+          : status,
       statusLastUpdatedAt: getTimestamp(),
       runnerId: job.runnerId,
     };
@@ -63,7 +67,7 @@ export async function completeJob(
       {...statusItem, statusHistory: job.statusHistory.concat(statusItem)},
       opts
     );
-  }, /** reuseTxn */ true);
+  });
 
   if (
     job &&
@@ -77,9 +81,7 @@ export async function completeJob(
 }
 
 const kJobTypeToHandlerMap: Record<JobType, AnyFn<[Job], Promise<void>>> = {
-  [kJobType.deleteResource0]: runDeleteResourceJob0,
-  [kJobType.deleteResourceArtifacts]: runDeleteResourceJobArtifacts,
-  [kJobType.deleteResourceSelf]: runDeleteResourceJobSelf,
+  [kJobType.deleteResource]: runDeleteResourceJob,
   [kJobType.deletePermissionItem]: runDeletePermissionItemsJob,
   [kJobType.ingestFolderpath]: runIngestFolderpathJob,
   [kJobType.ingestMount]: runIngestMountJob,

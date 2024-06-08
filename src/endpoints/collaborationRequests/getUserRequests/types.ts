@@ -1,5 +1,5 @@
-import {PublicCollaborationRequestForUser} from '../../../definitions/collaborationRequest';
-import {Endpoint, PaginatedResult, PaginationQuery} from '../../types';
+import {PublicCollaborationRequestForUser} from '../../../definitions/collaborationRequest.js';
+import {Endpoint, PaginatedResult, PaginationQuery} from '../../types.js';
 
 export interface GetUserCollaborationRequestsEndpointParams extends PaginationQuery {}
 

@@ -1,6 +1,6 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {AppRuntimeState} from '../definitions/system';
-import {ensureMongoTypeFields, resourceSchema} from './utils';
+import {AppRuntimeState} from '../definitions/system.js';
+import {ensureMongoTypeFields, resourceSchema} from './utils.js';
 
 const appRuntimeStateSchema = ensureMongoTypeFields<AppRuntimeState>({
   ...resourceSchema,

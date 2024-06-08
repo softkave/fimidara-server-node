@@ -1,12 +1,12 @@
-import {populateMountUnsupportedOpNoteInNotFoundError} from '../fileBackends/mountUtils';
-import {ExportedHttpEndpoint_HandleErrorFn} from '../types';
+import {populateMountUnsupportedOpNoteInNotFoundError} from '../fileBackends/mountUtils.js';
+import {ExportedHttpEndpoint_HandleErrorFn} from '../types.js';
 import {
   getPresignedPathsForFilesEndpointDefinition,
   issuePresignedPathEndpointDefinition,
-} from './endpoints.mddoc';
-import getPresignedPathsForFiles from './getPresignedPaths/handler';
-import issuePresignedPath from './issuePresignedPath/handler';
-import {PresignedPathsExportedEndpoints} from './types';
+} from './endpoints.mddoc.js';
+import getPresignedPathsForFiles from './getPresignedPaths/handler.js';
+import issuePresignedPath from './issuePresignedPath/handler.js';
+import {PresignedPathsExportedEndpoints} from './types.js';
 
 const handleNotFoundError: ExportedHttpEndpoint_HandleErrorFn = (
   res,

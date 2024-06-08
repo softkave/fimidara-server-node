@@ -1,9 +1,9 @@
-import {Agent} from '../../definitions/system';
-import {UsageRecordCategory, UsageRecordCategoryMap} from '../../definitions/usageRecord';
-import {Workspace} from '../../definitions/workspace';
-import {kSystemSessionAgent} from '../../utils/agent';
-import {getTimestamp} from '../../utils/dateFns';
-import {kEndpointConstants} from '../constants';
+import {Agent} from '../../definitions/system.js';
+import {UsageRecordCategory, UsageRecordCategoryMap} from '../../definitions/usageRecord.js';
+import {Workspace} from '../../definitions/workspace.js';
+import {kSystemSessionAgent} from '../../utils/agent.js';
+import {getTimestamp} from '../../utils/dateFns.js';
+import {kEndpointConstants} from '../constants.js';
 
 export const usageRecordConstants = {
   defaultTotalThresholdInUSD: 30,

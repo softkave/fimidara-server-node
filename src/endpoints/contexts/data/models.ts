@@ -1,37 +1,37 @@
-import {AgentToken} from '../../../definitions/agentToken';
-import {App, AppShard} from '../../../definitions/app';
-import {AssignedItem} from '../../../definitions/assignedItem';
-import {CollaborationRequest} from '../../../definitions/collaborationRequest';
-import {EmailBlocklist, EmailMessage} from '../../../definitions/email';
-import {File} from '../../../definitions/file';
+import {AgentToken} from '../../../definitions/agentToken.js';
+import {App, AppShard} from '../../../definitions/app.js';
+import {AssignedItem} from '../../../definitions/assignedItem.js';
+import {CollaborationRequest} from '../../../definitions/collaborationRequest.js';
+import {EmailBlocklist, EmailMessage} from '../../../definitions/email.js';
+import {File} from '../../../definitions/file.js';
 import {
   FileBackendConfig,
   FileBackendMount,
   ResolvedMountEntry,
-} from '../../../definitions/fileBackend';
-import {Folder} from '../../../definitions/folder';
-import {Job} from '../../../definitions/job';
-import {PermissionGroup} from '../../../definitions/permissionGroups';
-import {PermissionItem} from '../../../definitions/permissionItem';
-import {PresignedPath} from '../../../definitions/presignedPath';
-import {AppRuntimeState, ResourceWrapper} from '../../../definitions/system';
-import {Tag} from '../../../definitions/tag';
-import {UsageRecord} from '../../../definitions/usageRecord';
-import {User} from '../../../definitions/user';
-import {Workspace} from '../../../definitions/workspace';
-import {throwAgentTokenNotFound} from '../../agentTokens/utils';
-import {throwAssignedItemNotFound} from '../../assignedItems/utils';
-import {throwCollaborationRequestNotFound} from '../../collaborationRequests/utils';
-import {throwFileNotFound, throwPresignedPathNotFound} from '../../files/utils';
-import {throwFolderNotFound} from '../../folders/utils';
-import {throwPermissionGroupNotFound} from '../../permissionGroups/utils';
-import {throwPermissionItemNotFound} from '../../permissionItems/utils';
-import {throwTagNotFound} from '../../tags/utils';
-import {throwUsageRecordNotFound} from '../../usageRecords/utils';
-import {throwUserNotFound} from '../../users/utils';
-import {throwNotFound} from '../../utils';
-import {throwWorkspaceNotFound} from '../../workspaces/utils';
-import {BaseMongoDataProvider} from './BaseMongoDataProvider';
+} from '../../../definitions/fileBackend.js';
+import {Folder} from '../../../definitions/folder.js';
+import {Job} from '../../../definitions/job.js';
+import {PermissionGroup} from '../../../definitions/permissionGroups.js';
+import {PermissionItem} from '../../../definitions/permissionItem.js';
+import {PresignedPath} from '../../../definitions/presignedPath.js';
+import {AppRuntimeState, ResourceWrapper} from '../../../definitions/system.js';
+import {Tag} from '../../../definitions/tag.js';
+import {UsageRecord} from '../../../definitions/usageRecord.js';
+import {User} from '../../../definitions/user.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {throwAgentTokenNotFound} from '../../agentTokens/utils.js';
+import {throwAssignedItemNotFound} from '../../assignedItems/utils.js';
+import {throwCollaborationRequestNotFound} from '../../collaborationRequests/utils.js';
+import {throwFileNotFound, throwPresignedPathNotFound} from '../../files/utils.js';
+import {throwFolderNotFound} from '../../folders/utils.js';
+import {throwPermissionGroupNotFound} from '../../permissionGroups/utils.js';
+import {throwPermissionItemNotFound} from '../../permissionItems/utils.js';
+import {throwTagNotFound} from '../../tags/utils.js';
+import {throwUsageRecordNotFound} from '../../usageRecords/utils.js';
+import {throwUserNotFound} from '../../users/utils.js';
+import {throwNotFound} from '../../utils.js';
+import {throwWorkspaceNotFound} from '../../workspaces/utils.js';
+import {BaseMongoDataProvider} from './BaseMongoDataProvider.js';
 import {
   AgentTokenDataProvider,
   AppDataProvider,
@@ -55,7 +55,7 @@ import {
   UsageRecordDataProvider,
   UserDataProvider,
   WorkspaceDataProvider,
-} from './types';
+} from './types.js';
 
 export class WorkspaceMongoDataProvider
   extends BaseMongoDataProvider<Workspace>

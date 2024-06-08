@@ -3,8 +3,8 @@ import {
   FileBackendConfig,
   FileBackendMount,
   ResolvedMountEntry,
-} from '../definitions/fileBackend';
-import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
+} from '../definitions/fileBackend.js';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils.js';
 
 const fileBackendConfigSchema = ensureMongoTypeFields<FileBackendConfig>({
   ...workspaceResourceSchema,
@@ -58,12 +58,13 @@ export type FileBackendMountModel = Model<FileBackendMount>;
 const resolvedMountEntrySchema = ensureMongoTypeFields<ResolvedMountEntry>({
   ...workspaceResourceSchema,
   mountId: {type: String, index: true},
-  resolvedAt: {type: Number, index: true},
-  namepath: {type: [String], index: true},
-  extension: {type: String, index: true},
-  resolvedFor: {type: String, index: true},
-  resolvedForType: {type: String, index: true},
-  other: {type: SchemaTypes.Map},
+  backendNamepath: {type: [String], index: true},
+  backendExt: {type: String, index: true},
+  fimidaraNamepath: {type: [String], index: true},
+  fimidaraExt: {type: String, index: true},
+  forId: {type: String, index: true},
+  forType: {type: String, index: true},
+  persisted: {type: SchemaTypes.Map},
 });
 
 const resolvedEntrySchema = new Schema<ResolvedMountEntry>(resolvedMountEntrySchema);

@@ -1,29 +1,29 @@
 import assert from 'assert';
-import {FileMatcher} from '../../definitions/file';
+import {FileMatcher} from '../../definitions/file.js';
 import {
   FieldObjectFieldsMap,
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
   mddocConstruct,
-} from '../../mddoc/mddoc';
-import {multilineTextToParagraph} from '../../utils/fns';
-import {kEndpointConstants} from '../constants';
-import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc';
-import {kPresignedPathsConstants} from './constants';
+} from '../../mddoc/mddoc.js';
+import {multilineTextToParagraph} from '../../utils/fns.js';
+import {kEndpointConstants} from '../constants.js';
+import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc.js';
+import {kPresignedPathsConstants} from './constants.js';
 import {
   GetPresignedPathsForFilesEndpointParams,
   GetPresignedPathsForFilesEndpointResult,
   GetPresignedPathsForFilesItem,
-} from './getPresignedPaths/types';
+} from './getPresignedPaths/types.js';
 import {
   IssuePresignedPathEndpointParams,
   IssuePresignedPathEndpointResult,
-} from './issuePresignedPath/types';
+} from './issuePresignedPath/types.js';
 import {
   GetPresignedPathsForFilesHttpEndpoint,
   IssuePresignedPathHttpEndpoint,
-} from './types';
+} from './types.js';
 
 const fileMatcherParts: FieldObjectFieldsMap<FileMatcher> = {
   filepath: mddocConstruct.constructFieldObjectField(false, fReusables.filepath),

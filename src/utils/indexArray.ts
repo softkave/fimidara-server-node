@@ -1,5 +1,5 @@
-import {get} from 'lodash';
-import {toNonNullableArray} from './fns';
+import {get} from 'lodash-es';
+import {toNonNullableArray} from './fns.js';
 
 function defaultIndexer(data: any, path: any) {
   if (path) {
@@ -19,7 +19,12 @@ type GetPathType<T> = T extends {[key: string]: any} ? keyof T : undefined;
 
 export interface IIndexArrayOptions<T, R> {
   path?: GetPathType<T>;
-  indexer?: (current: T, path: GetPathType<T>, arr: T[], index: number) => string;
+  indexer?: (
+    current: T,
+    path: GetPathType<T>,
+    arr: T[],
+    index: number
+  ) => string;
   reducer?: (current: T, arr: T[], index: number) => R;
 }
 
@@ -37,11 +42,14 @@ export function indexArray<T, R = T>(
     }
   }
 
-  const result = array.reduce((accumulator, current, index) => {
-    const key = indexer(current, path as any, array, index);
-    accumulator[key] = reducer(current, array, index);
-    return accumulator;
-  }, {} as {[key: string]: R});
+  const result = array.reduce(
+    (accumulator, current, index) => {
+      const key = indexer(current, path as any, array, index);
+      accumulator[key] = reducer(current, array, index);
+      return accumulator;
+    },
+    {} as {[key: string]: R}
+  );
 
   return result;
 }

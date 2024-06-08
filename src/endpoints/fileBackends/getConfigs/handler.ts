@@ -1,20 +1,26 @@
-import {validate} from '../../../utils/validate';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
-} from '../../pagination';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {fileBackendConfigListExtractor} from '../utils';
-import {GetFileBackendConfigsEndpoint} from './types';
-import {getFileBackendConfigsQuery} from './utils';
-import {getFileBackendConfigsJoiSchema} from './validation';
+} from '../../pagination.js';
+import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {fileBackendConfigListExtractor} from '../utils.js';
+import {GetFileBackendConfigsEndpoint} from './types.js';
+import {getFileBackendConfigsQuery} from './utils.js';
+import {getFileBackendConfigsJoiSchema} from './validation.js';
 
 const getFileBackendConfigs: GetFileBackendConfigsEndpoint = async instData => {
   const configModel = kSemanticModels.fileBackendConfig();
-
   const data = validate(instData.data, getFileBackendConfigsJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   const query = await getFileBackendConfigsQuery(agent, workspace, data);
   applyDefaultEndpointPaginationOptions(data);

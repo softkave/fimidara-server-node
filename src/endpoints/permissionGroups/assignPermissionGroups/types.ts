@@ -1,5 +1,5 @@
-import {AssignPermissionGroupInput} from '../../../definitions/permissionGroups';
-import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types';
+import {AssignPermissionGroupInput} from '../../../definitions/permissionGroups.js';
+import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types.js';
 
 export interface AssignPermissionGroupsEndpointParams
   extends EndpointOptionalWorkspaceIDParam {

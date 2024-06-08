@@ -1,13 +1,29 @@
-import {ResolvedMountEntry} from '../../../../definitions/fileBackend';
+import {ResolvedMountEntry} from '../../../../definitions/fileBackend.js';
 import {
-  SemanticProviderQueryListParams,
+  SemanticProviderQueryParams,
   SemanticWorkspaceResourceProviderType,
-} from '../types';
+} from '../types.js';
 
 export type SemanticResolvedMountEntryProvider =
   SemanticWorkspaceResourceProviderType<ResolvedMountEntry> & {
-    getMountEntries: (
+    getOneByMountIdAndFileId: (
       mountId: string,
-      opts?: SemanticProviderQueryListParams<ResolvedMountEntry>
+      fileId: string,
+      opts?: SemanticProviderQueryParams<ResolvedMountEntry>
+    ) => Promise<ResolvedMountEntry | null>;
+    getLatestByFimidaraNamepathAndExt: (
+      workspaceId: string,
+      fimidaraNamepath: string[],
+      fimidaraExt: string | undefined,
+      opts?: SemanticProviderQueryParams<ResolvedMountEntry>
+    ) => Promise<ResolvedMountEntry[]>;
+    getLatestByForId: (
+      forId: string,
+      opts?: SemanticProviderQueryParams<ResolvedMountEntry>
+    ) => Promise<ResolvedMountEntry[]>;
+    getLatestForManyFimidaraNamepathAndExt: (
+      workspaceId: string,
+      entries: Array<{fimidaraNamepath: string[]; fimidaraExt?: string}>,
+      opts?: SemanticProviderQueryParams<ResolvedMountEntry>
     ) => Promise<ResolvedMountEntry[]>;
   };

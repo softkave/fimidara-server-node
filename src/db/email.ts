@@ -1,7 +1,7 @@
 import {Connection, Document, Model, Schema, SchemaTypes} from 'mongoose';
 import {UnionToIntersection} from 'type-fest';
-import {EmailBlocklist, EmailBlocklistTrail, EmailMessage} from '../definitions/email';
-import {ensureMongoTypeFields, resourceSchema} from './utils';
+import {EmailBlocklist, EmailBlocklistTrail, EmailMessage} from '../definitions/email.js';
+import {ensureMongoTypeFields, resourceSchema} from './utils.js';
 
 const emailMessageSchemaDef = ensureMongoTypeFields<EmailMessage>({
   ...resourceSchema,

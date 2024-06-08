@@ -1,5 +1,5 @@
-import {CountItemsEndpointResult, Endpoint} from '../../types';
-import {GetFileBackendMountsEndpointParamsBase} from '../getMounts/types';
+import {CountItemsEndpointResult, Endpoint} from '../../types.js';
+import {GetFileBackendMountsEndpointParamsBase} from '../getMounts/types.js';
 
 export type CountFileBackendMountsEndpointParams = GetFileBackendMountsEndpointParamsBase;
 

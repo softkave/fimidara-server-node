@@ -1,19 +1,20 @@
 import {faker} from '@faker-js/faker';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import EndpointReusableQueries from '../../queries';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import EndpointReusableQueries from '../../queries.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {WorkspaceExistsError} from '../errors';
-import updateWorkspace from './handler';
-import {UpdateWorkspaceEndpointParams, UpdateWorkspaceInput} from './types';
+} from '../../testUtils/testUtils.js';
+import {WorkspaceExistsError} from '../errors.js';
+import updateWorkspace from './handler.js';
+import {UpdateWorkspaceEndpointParams, UpdateWorkspaceInput} from './types.js';
 
 beforeAll(async () => {
   await initTests();
@@ -35,20 +36,23 @@ describe('updateWorkspce', () => {
       // usageThresholds: generateTestUsageThresholdInputMap(500),
     };
 
-    const instData = RequestData.fromExpressRequest<UpdateWorkspaceEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {
-        workspaceId: workspace.resourceId,
-        workspace: workspaceUpdateInput,
-      }
-    );
+    const instData =
+      RequestData.fromExpressRequest<UpdateWorkspaceEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          workspaceId: workspace.resourceId,
+          workspace: workspaceUpdateInput,
+        }
+      );
 
     const result = await updateWorkspace(instData);
     assertEndpointResultOk(result);
     expect(result.workspace).toMatchObject(workspaceUpdateInput);
     const updatedWorkspace = await kSemanticModels
       .workspace()
-      .getOneByQuery(EndpointReusableQueries.getByResourceId(workspace.resourceId));
+      .getOneByQuery(
+        EndpointReusableQueries.getByResourceId(workspace.resourceId)
+      );
     expect(updatedWorkspace).toMatchObject(workspaceUpdateInput);
   });
 
@@ -57,10 +61,11 @@ describe('updateWorkspce', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {workspace: w02} = await insertWorkspaceForTest(userToken);
     await expectErrorThrown(async () => {
-      const instData = RequestData.fromExpressRequest<UpdateWorkspaceEndpointParams>(
-        mockExpressRequestWithAgentToken(userToken),
-        {workspaceId: workspace.resourceId, workspace: {name: w02.name}}
-      );
+      const instData =
+        RequestData.fromExpressRequest<UpdateWorkspaceEndpointParams>(
+          mockExpressRequestWithAgentToken(userToken),
+          {workspaceId: workspace.resourceId, workspace: {name: w02.name}}
+        );
 
       await updateWorkspace(instData);
     }, [WorkspaceExistsError.name]);

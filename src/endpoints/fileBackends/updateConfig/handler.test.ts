@@ -1,20 +1,24 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import RequestData from '../../RequestData';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {generateAWSS3Credentials} from '../../testUtils/generate/fileBackend';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import RequestData from '../../RequestData.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {generateAWSS3Credentials} from '../../testUtils/generate/fileBackend.js';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,
   generateTestFieldsCombinations,
-} from '../../testUtils/generate/utils';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
+} from '../../testUtils/generate/utils.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {
   completeTests,
   matchExpects,
   testCombinations,
-} from '../../testUtils/helpers/testFns';
+} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -22,13 +26,13 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import updateFileBackendConfig from './handler';
+} from '../../testUtils/testUtils.js';
+import updateFileBackendConfig from './handler.js';
 import {
   UpdateFileBackendConfigEndpointParams,
   UpdateFileBackendConfigEndpointResult,
   UpdateFileBackendConfigInput,
-} from './types';
+} from './types.js';
 
 beforeAll(async () => {
   await initTests();
@@ -44,7 +48,8 @@ describe('updateConfig s3', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
 
     const updateDefs: GenerateTestFieldsDef<UpdateFileBackendConfigInput> = {
-      credentials: () => generateAWSS3Credentials() as unknown as Record<string, unknown>,
+      credentials: () =>
+        generateAWSS3Credentials() as unknown as Record<string, unknown>,
       name: () => faker.lorem.words(),
       description: () => faker.lorem.paragraph(),
     };
@@ -83,10 +88,14 @@ describe('updateConfig s3', () => {
           {
             matcher: input => !!input.credentials,
             expect: async input => {
-              const currentCreds = await kUtilsInjectables.secretsManager().getSecret({
-                secretId: updatedConfig.secretId,
-              });
-              expect(currentCreds.text).toEqual(JSON.stringify(input.credentials));
+              const currentCreds = await kUtilsInjectables
+                .secretsManager()
+                .getSecret({
+                  secretId: updatedConfig.secretId,
+                });
+              expect(currentCreds.text).toEqual(
+                JSON.stringify(input.credentials)
+              );
             },
           },
           {
@@ -144,10 +153,11 @@ describe('updateConfig s3', () => {
         async () => {
           await updateFileBackendConfig(instData02);
         },
-        error =>
+        error => {
           expect((error as Error).message).toBe(
             kReuseableErrors.config.configExists().message
-          )
+          );
+        }
       ),
     ]);
   });

@@ -1,28 +1,38 @@
-import {isUndefined} from 'lodash';
-import {AppShardId} from '../../../definitions/app';
-import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
-import {PermissionItem, kPermissionsMap} from '../../../definitions/permissionItem';
-import {Agent, kFimidaraResourceType} from '../../../definitions/system';
-import {appAssert} from '../../../utils/assertion';
-import {getTimestamp} from '../../../utils/dateFns';
+import {isUndefined} from 'lodash-es';
+import {AppShardId} from '../../../definitions/app.js';
+import {
+  DeleteResourceJobParams,
+  Job,
+  kJobType,
+} from '../../../definitions/job.js';
+import {
+  PermissionItem,
+  kFimidaraPermissionActionsMap,
+} from '../../../definitions/permissionItem.js';
+import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
 import {
   convertToArray,
   extractResourceIdList,
   isObjectFieldsEmpty,
-} from '../../../utils/fns';
+} from '../../../utils/fns.js';
 import {
   PaginatedFetchGetFn,
   PaginatedFetchProcessFn,
   paginatedFetch,
-} from '../../../utils/paginatedFetch';
-import {DataQuery, kIncludeInProjection} from '../../contexts/data/types';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {DeletePermissionItemInput} from '../../permissionItems/deleteItems/types';
+} from '../../../utils/paginatedFetch.js';
+import {DataQuery, kIncludeInProjection} from '../../contexts/data/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {DeletePermissionItemInput} from '../../permissionItems/deleteItems/types.js';
 import {
   PermissionItemTargets,
   getPermissionItemTargets,
-} from '../../permissionItems/getPermissionItemTargets';
-import {queueJobs} from '../queueJobs';
+} from '../../permissionItems/getPermissionItemTargets.js';
+import {queueJobs} from '../queueJobs.js';
 
 type PartialPermissionItem = Pick<PermissionItem, 'resourceId'>;
 type FetchArgs = {
@@ -78,13 +88,15 @@ const getPermissionItemsByQuery: PaginatedFetchGetFn<
   FetchResult
 > = async props => {
   const {args, page, pageSize} = props;
-  return await kSemanticModels.utils().withTxn(async opts => {
-    const items = await kSemanticModels.permissionItem().getManyByQuery(args.query, {
-      page,
-      pageSize,
-      projection: {resourceId: kIncludeInProjection},
-      ...opts,
-    });
+  return kSemanticModels.utils().withTxn(async opts => {
+    const items = await kSemanticModels
+      .permissionItem()
+      .getManyByQuery(args.query, {
+        page,
+        pageSize,
+        projection: {resourceId: kIncludeInProjection},
+        ...opts,
+      });
     await kSemanticModels
       .permissionItem()
       .updateManyByQuery(
@@ -94,7 +106,7 @@ const getPermissionItemsByQuery: PaginatedFetchGetFn<
       );
 
     return items;
-  }, /** reuseTxn */ true);
+  });
 };
 
 const processPermissionItems: PaginatedFetchProcessFn<
@@ -109,7 +121,7 @@ const processPermissionItems: PaginatedFetchProcessFn<
       return {
         shard: args.shard,
         createdBy: args.agent,
-        type: kJobType.deleteResource0,
+        type: kJobType.deleteResource,
         idempotencyToken: Date.now().toString(),
         params: {
           workspaceId: args.workspaceId,
@@ -121,28 +133,41 @@ const processPermissionItems: PaginatedFetchProcessFn<
   );
 };
 
-export async function runDeletePermissionItemsJob(job: Job<DeletePermissionItemInput>) {
+export async function runDeletePermissionItemsJob(
+  job: Job<DeletePermissionItemInput>
+) {
   const workspaceId = job.workspaceId;
-  const agent = job.createdBy;
   const item: DeletePermissionItemInput = job.params;
 
   appAssert(workspaceId, 'workspaceId not present in job');
-  appAssert(agent, 'agent not present in job');
-  const workspace = await kSemanticModels.workspace().getOneById(workspaceId);
+  appAssert(job.createdBy, 'agent not present in job');
+
+  const [workspace, agent] = await Promise.all([
+    kSemanticModels.workspace().getOneById(workspaceId),
+    kUtilsInjectables
+      .session()
+      .getAgentByAgentTokenId(job.createdBy.agentTokenId),
+  ]);
   appAssert(workspace, 'workspace not found');
 
   const targets = await getPermissionItemTargets(
     agent,
     workspace,
     item.target || [],
-    kPermissionsMap.updatePermission
+    kFimidaraPermissionActionsMap.updatePermission
   );
 
   const query = deletePermissionItemInputToQuery(workspaceId, item, targets);
 
   if (query) {
     await paginatedFetch<FetchArgs, FetchResult>({
-      args: {workspaceId, query, agent, jobId: job.resourceId, shard: job.shard},
+      args: {
+        workspaceId,
+        query,
+        agent,
+        jobId: job.resourceId,
+        shard: job.shard,
+      },
       getFn: getPermissionItemsByQuery,
       processFn: processPermissionItems,
     });

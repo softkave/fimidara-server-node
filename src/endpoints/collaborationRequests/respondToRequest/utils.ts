@@ -1,23 +1,23 @@
 import {
   CollaborationRequest,
   kCollaborationRequestStatusTypeMap,
-} from '../../../definitions/collaborationRequest';
-import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job';
-import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system';
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {appAssert} from '../../../utils/assertion';
-import {formatDate, getTimestamp} from '../../../utils/dateFns';
-import {ServerStateConflictError} from '../../../utils/errors';
-import {isStringEqual} from '../../../utils/fns';
-import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
-import {queueJobs} from '../../jobs/queueJobs';
-import {PermissionDeniedError} from '../../users/errors';
-import {assertUser} from '../../users/utils';
-import {assertWorkspace} from '../../workspaces/utils';
-import {assertCollaborationRequest} from '../utils';
-import {RespondToCollaborationRequestEndpointParams} from './types';
+} from '../../../definitions/collaborationRequest.js';
+import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job.js';
+import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {formatDate, getTimestamp} from '../../../utils/dateFns.js';
+import {ServerStateConflictError} from '../../../utils/errors.js';
+import {isStringEqual} from '../../../utils/fns.js';
+import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
+import {queueJobs} from '../../jobs/queueJobs.js';
+import {PermissionDeniedError} from '../../users/errors.js';
+import {assertUser} from '../../users/utils.js';
+import {assertWorkspace} from '../../workspaces/utils.js';
+import {assertCollaborationRequest} from '../utils.js';
+import {RespondToCollaborationRequestEndpointParams} from './types.js';
 
 export const INTERNAL_RespondToCollaborationRequest = async (
   agent: SessionAgent,

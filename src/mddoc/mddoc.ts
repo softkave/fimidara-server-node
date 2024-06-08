@@ -4,15 +4,15 @@ import {IsNever, OptionalKeysOf} from 'type-fest';
 import {
   BaseEndpointResult,
   HttpEndpointResponseHeaders_ContentType_ContentLength,
-} from '../endpoints/types';
+} from '../endpoints/types.js';
 import {
   makeAssertGetAccessor,
   makeClone,
   makeGetAccessor,
   makeSetAccessor,
-} from '../utils/classAccessors';
-import {mergeData} from '../utils/fns';
-import {AnyFn, AnyObject, IsBoolean, IsStringEnum, IsUnion, Not} from '../utils/types';
+} from '../utils/classAccessors.js';
+import {mergeData} from '../utils/fns.js';
+import {AnyFn, AnyObject, IsBoolean, IsStringEnum, IsUnion, Not} from '../utils/types.js';
 
 export interface FieldBaseType {
   __id: string;

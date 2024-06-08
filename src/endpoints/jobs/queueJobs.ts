@@ -1,5 +1,5 @@
-import {defaultTo, isArray, keyBy} from 'lodash';
-import {AppShardId, kAppPresetShards} from '../../definitions/app';
+import {defaultTo, isArray, keyBy} from 'lodash-es';
+import {AppShardId, kAppPresetShards} from '../../definitions/app.js';
 import {
   Job,
   JobStatusHistory,
@@ -8,13 +8,14 @@ import {
   kJobPresetPriority,
   kJobRunnerV1,
   kJobStatus,
-} from '../../definitions/job';
-import {Agent, kFimidaraResourceType} from '../../definitions/system';
-import {getTimestamp} from '../../utils/dateFns';
-import {convertToArray} from '../../utils/fns';
-import {newResource} from '../../utils/resource';
-import {AnyObject} from '../../utils/types';
-import {kSemanticModels} from '../contexts/injection/injectables';
+} from '../../definitions/job.js';
+import {Agent, kFimidaraResourceType} from '../../definitions/system.js';
+import {getTimestamp} from '../../utils/dateFns.js';
+import {convertToArray} from '../../utils/fns.js';
+import {newResource} from '../../utils/resource.js';
+import {AnyObject} from '../../utils/types.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../contexts/semantic/types.js';
 
 export interface JobInput<
   TParams extends AnyObject = AnyObject,
@@ -40,10 +41,10 @@ export async function queueJobs<
   insertOptions: {
     jobsToReturn?: 'all' | 'new';
     seed?: Partial<Job<TParams, TMeta>>;
-    reuseTxn: boolean;
-  } = {reuseTxn: true}
+    opts?: SemanticProviderMutationParams;
+  } = {}
 ): Promise<Array<Job<TParams, TMeta>>> {
-  const {reuseTxn, jobsToReturn = 'all'} = insertOptions;
+  const {opts, jobsToReturn = 'all'} = insertOptions;
 
   if (!isArray(jobsInput)) {
     jobsInput = convertToArray(jobsInput);
@@ -60,7 +61,8 @@ export async function queueJobs<
   const idempotencyTokens: string[] = [];
   const newJobs = jobsInput.map(input => {
     const idempotencyToken =
-      input.idempotencyToken || JSON.stringify(input.params) + (parentJobId || '');
+      input.idempotencyToken ||
+      JSON.stringify(input.params) + (parentJobId || '');
     const status: JobStatusHistory = {
       status: kJobStatus.pending,
       statusLastUpdatedAt: getTimestamp(),
@@ -109,6 +111,8 @@ export async function queueJobs<
     });
 
     await kSemanticModels.job().insertItem(uniqueJobs, opts);
-    return (jobsToReturn === 'all' ? jobs : uniqueJobs) as Array<Job<TParams, TMeta>>;
-  }, reuseTxn);
+    return (jobsToReturn === 'all' ? jobs : uniqueJobs) as Array<
+      Job<TParams, TMeta>
+    >;
+  }, opts);
 }

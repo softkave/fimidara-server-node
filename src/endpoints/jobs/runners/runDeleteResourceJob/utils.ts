@@ -1,9 +1,12 @@
-import {flatten, noop} from 'lodash';
-import {overArgsAsync} from '../../../../utils/fns';
-import {kSemanticModels} from '../../../contexts/injection/injectables';
-import {DeleteArtifactsFn, GetArtifactsFn} from './types';
+import {flatten, noop} from 'lodash-es';
+import {overArgsAsync} from '../../../../utils/fns.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {DeleteArtifactsFn, GetArtifactsFn} from './types.js';
 
-export const deleteResourceAssignedItems: DeleteArtifactsFn = ({args, helpers}) =>
+export const deleteResourceAssignedItems: DeleteArtifactsFn = ({
+  args,
+  helpers,
+}) =>
   helpers.withTxn(opts =>
     kSemanticModels
       .assignedItem()
@@ -15,7 +18,10 @@ export const deleteResourceAssignedItems: DeleteArtifactsFn = ({args, helpers}) 
       )
   );
 
-export const deleteResourceAssigneeItems: DeleteArtifactsFn = ({args, helpers}) =>
+export const deleteResourceAssigneeItems: DeleteArtifactsFn = ({
+  args,
+  helpers,
+}) =>
   helpers.withTxn(opts =>
     kSemanticModels
       .assignedItem()
@@ -32,7 +38,10 @@ export const deletePermissionItemsTargetingResource: DeleteArtifactsFn = ({
       .deleteManyByTargetId(args.workspaceId, args.resourceId, opts)
   );
 
-export const deleteEntityPermissionItems: DeleteArtifactsFn = ({args, helpers}) =>
+export const deleteEntityPermissionItems: DeleteArtifactsFn = ({
+  args,
+  helpers,
+}) =>
   helpers.withTxn(opts =>
     kSemanticModels
       .permissionItem()
@@ -62,9 +71,14 @@ export const getResourceAssignedItems: GetArtifactsFn = ({args, opts}) =>
     );
 
 export const getResourceAssigneeItems: GetArtifactsFn = ({args, opts}) =>
-  kSemanticModels.assignedItem().getByAssigned(args.workspaceId, args.resourceId, opts);
+  kSemanticModels
+    .assignedItem()
+    .getByAssigned(args.workspaceId, args.resourceId, opts);
 
-export const getPermissionItemsTargetingResource: GetArtifactsFn = ({args, opts}) =>
+export const getPermissionItemsTargetingResource: GetArtifactsFn = ({
+  args,
+  opts,
+}) =>
   kSemanticModels
     .permissionItem()
     .getManyByTargetId(args.workspaceId, args.resourceId, opts);

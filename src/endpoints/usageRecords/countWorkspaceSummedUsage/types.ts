@@ -1,5 +1,5 @@
-import {CountItemsEndpointResult, Endpoint} from '../../types';
-import {GetWorkspaceSummedUsageEndpointParamsBase} from '../getWorkspaceSummedUsage/types';
+import {CountItemsEndpointResult, Endpoint} from '../../types.js';
+import {GetWorkspaceSummedUsageEndpointParamsBase} from '../getWorkspaceSummedUsage/types.js';
 
 export type CountWorkspaceSummedUsageEndpointParams =
   GetWorkspaceSummedUsageEndpointParamsBase;

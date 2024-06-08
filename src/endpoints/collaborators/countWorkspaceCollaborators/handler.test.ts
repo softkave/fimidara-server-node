@@ -1,17 +1,18 @@
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import RequestData from '../../RequestData';
-import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import RequestData from '../../RequestData.js';
+import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import countWorkspaceCollaborators from './handler';
-import {CountWorkspaceCollaboratorsEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import countWorkspaceCollaborators from './handler.js';
+import {CountWorkspaceCollaboratorsEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

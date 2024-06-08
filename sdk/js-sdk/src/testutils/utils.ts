@@ -1,7 +1,7 @@
 import assert = require('assert');
 import {faker} from '@faker-js/faker';
 import {createReadStream} from 'fs';
-import {get} from 'lodash';
+import {indexArray} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {fimidaraAddRootnameToPath} from '../utils';
 import path = require('path');
@@ -29,73 +29,6 @@ export function getTestVars(): ITestVars {
   assert.ok(testFilepath);
   assert.ok(workspaceRootname);
   return {workspaceId, workspaceRootname, authToken, testFilepath, serverURL};
-}
-
-export type LoopAndCollateFn<R> = (index: number) => R;
-
-export function loopAndCollate<Fn extends LoopAndCollateFn<any>>(
-  count = 1,
-  fn: Fn
-): Array<ReturnType<Fn>> {
-  const result: Array<ReturnType<Fn>> = [];
-  while (count > 0) {
-    result.push(fn(count));
-    count -= 1;
-  }
-  return result;
-}
-
-export function cast<T>(value: any) {
-  return value as T;
-}
-
-function defaultIndexer(data: any, path: any) {
-  if (path) {
-    return get(data, path);
-  }
-  if (data && data.toString) {
-    return data.toString();
-  }
-  return String(data);
-}
-
-function defaultReducer(data: any) {
-  return data;
-}
-
-type GetPathType<T> = T extends {[key: string]: any} ? keyof T : undefined;
-
-export interface IIndexArrayOptions<T, R> {
-  path?: GetPathType<T>;
-  indexer?: (
-    current: T,
-    path: GetPathType<T>,
-    arr: T[],
-    index: number
-  ) => string;
-  reducer?: (current: T, arr: T[], index: number) => R;
-}
-
-export function indexArray<T, R = T>(
-  arr: T[] = [],
-  opts: IIndexArrayOptions<T, R> = {}
-): {[key: string]: R} {
-  const indexer = opts.indexer || defaultIndexer;
-  const path = opts.path;
-  const reducer = opts.reducer || defaultReducer;
-  if (typeof indexer !== 'function') {
-    if (typeof path !== 'string') {
-      throw new Error('Path must be provided if an indexer is not provided');
-    }
-  }
-
-  const result = arr.reduce((accumulator, current, index) => {
-    const key = indexer(current, path as any, arr, index);
-    accumulator[key] = reducer(current, arr, index);
-    return accumulator;
-  }, {} as {[key: string]: R});
-
-  return result;
 }
 
 export function containsEveryItemIn<T2, T1 extends T2>(

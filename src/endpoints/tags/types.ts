@@ -1,10 +1,10 @@
-import {ExportedHttpEndpointWithMddocDefinition} from '../types';
-import {AddTagEndpoint} from './addTag/types';
-import {CountWorkspaceTagsEndpoint} from './countWorkspaceTags/types';
-import {DeleteTagEndpoint} from './deleteTag/types';
-import {GetTagEndpoint} from './getTag/types';
-import {GetWorkspaceTagsEndpoint} from './getWorkspaceTags/types';
-import {UpdateTagEndpoint} from './updateTag/types';
+import {ExportedHttpEndpointWithMddocDefinition} from '../types.js';
+import {AddTagEndpoint} from './addTag/types.js';
+import {CountWorkspaceTagsEndpoint} from './countWorkspaceTags/types.js';
+import {DeleteTagEndpoint} from './deleteTag/types.js';
+import {GetTagEndpoint} from './getTag/types.js';
+import {GetWorkspaceTagsEndpoint} from './getWorkspaceTags/types.js';
+import {UpdateTagEndpoint} from './updateTag/types.js';
 
 export type AddTagHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<AddTagEndpoint>;
 export type DeleteTagHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<DeleteTagEndpoint>;

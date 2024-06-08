@@ -1,5 +1,5 @@
-import {defaultTo} from 'lodash';
-import {Agent, kFimidaraResourceType} from '../../../definitions/system';
+import {defaultTo} from 'lodash-es';
+import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
 import {
   UsageRecord,
   UsageRecordArtifact,
@@ -10,15 +10,21 @@ import {
   UsageRecordFulfillmentStatus,
   UsageRecordFulfillmentStatusMap,
   UsageSummationTypeMap,
-} from '../../../definitions/usageRecord';
-import {Workspace, WorkspaceBillStatusMap} from '../../../definitions/workspace';
-import {appAssert} from '../../../utils/assertion';
-import {getNewIdForResource, newWorkspaceResource} from '../../../utils/resource';
-import {getCostForUsage} from '../../usageRecords/constants';
-import {getRecordingPeriod} from '../../usageRecords/utils';
-import {assertWorkspace} from '../../workspaces/utils';
-import {kSemanticModels} from '../injection/injectables';
-import {SemanticProviderMutationParams} from '../semantic/types';
+} from '../../../definitions/usageRecord.js';
+import {
+  Workspace,
+  WorkspaceBillStatusMap,
+} from '../../../definitions/workspace.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {
+  getNewIdForResource,
+  newWorkspaceResource,
+} from '../../../utils/resource.js';
+import {getCostForUsage} from '../../usageRecords/constants.js';
+import {getRecordingPeriod} from '../../usageRecords/utils.js';
+import {assertWorkspace} from '../../workspaces/utils.js';
+import {kSemanticModels} from '../injection/injectables.js';
+import {SemanticProviderMutationParams} from '../semantic/types.js';
 
 export interface UsageRecordInput {
   resourceId?: string;
@@ -79,7 +85,10 @@ export class UsageRecordLogicProvider {
     );
 
     if (exceedsRemainingUsage) {
-      return {permitted: false, reason: UsageRecordDropReasonMap.ExceedsRemainingUsage};
+      return {
+        permitted: false,
+        reason: UsageRecordDropReasonMap.ExceedsRemainingUsage,
+      };
     }
 
     return {permitted: true, reason: null};
@@ -94,7 +103,8 @@ export class UsageRecordLogicProvider {
         ...getRecordingPeriod(),
         ...input,
         resourceId:
-          input.resourceId ?? getNewIdForResource(kFimidaraResourceType.UsageRecord),
+          input.resourceId ??
+          getNewIdForResource(kFimidaraResourceType.UsageRecord),
         summationType: UsageSummationTypeMap.Instance,
         fulfillmentStatus: UsageRecordFulfillmentStatusMap.Undecided,
         artifacts: defaultTo(input.artifacts, []),
@@ -220,33 +230,35 @@ export class UsageRecordLogicProvider {
     record: UsageRecord,
     opts: SemanticProviderMutationParams
   ) => {
-    const [usageFulfilledL2, usageTotalFulfilled, usageDroppedL2] = await Promise.all([
-      this.getUsagel2(
-        agent,
-        record,
-        record.category,
-        UsageRecordFulfillmentStatusMap.Fulfilled,
-        opts
-      ),
-      this.getUsagel2(
-        agent,
-        record,
-        UsageRecordCategoryMap.Total,
-        UsageRecordFulfillmentStatusMap.Fulfilled,
-        opts
-      ),
-      this.getUsagel2(
-        agent,
-        record,
-        record.category,
-        UsageRecordFulfillmentStatusMap.Dropped,
-        opts
-      ),
-    ]);
+    const [usageFulfilledL2, usageTotalFulfilled, usageDroppedL2] =
+      await Promise.all([
+        this.getUsagel2(
+          agent,
+          record,
+          record.category,
+          UsageRecordFulfillmentStatusMap.Fulfilled,
+          opts
+        ),
+        this.getUsagel2(
+          agent,
+          record,
+          UsageRecordCategoryMap.Total,
+          UsageRecordFulfillmentStatusMap.Fulfilled,
+          opts
+        ),
+        this.getUsagel2(
+          agent,
+          record,
+          record.category,
+          UsageRecordFulfillmentStatusMap.Dropped,
+          opts
+        ),
+      ]);
 
     const totalMonthUsageThreshold =
       workspace.usageThresholds[UsageRecordCategoryMap.Total];
-    const categoryMonthUsageThreshold = workspace.usageThresholds[record.category];
+    const categoryMonthUsageThreshold =
+      workspace.usageThresholds[record.category];
     const projectedUsage = usageFulfilledL2.usage + record.usage;
     const projectedUsageCost = getCostForUsage(record.category, projectedUsage);
 
@@ -278,7 +290,13 @@ export class UsageRecordLogicProvider {
       return true;
     }
 
-    await this.fulfillRecord(agent, record, usageFulfilledL2, usageTotalFulfilled, opts);
+    await this.fulfillRecord(
+      agent,
+      record,
+      usageFulfilledL2,
+      usageTotalFulfilled,
+      opts
+    );
     return false;
   };
 

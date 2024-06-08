@@ -1,16 +1,29 @@
-import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {checkWorkspaceExists} from '../../workspaces/utils';
-import {AddPermissionItemsEndpoint} from './types';
-import {INTERNAL_addPermissionItems} from './utils';
-import {addPermissionItemsJoiSchema} from './validation';
+import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {checkWorkspaceExists} from '../../workspaces/utils.js';
+import {AddPermissionItemsEndpoint} from './types.js';
+import {INTERNAL_addPermissionItems} from './utils.js';
+import {addPermissionItemsJoiSchema} from './validation.js';
 
 const addPermissionItems: AddPermissionItemsEndpoint = async instData => {
   const data = validate(instData.data, addPermissionItemsJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
-  const workspaceId = await getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
+  const workspaceId = await getWorkspaceIdFromSessionAgent(
+    agent,
+    data.workspaceId
+  );
   const workspace = await checkWorkspaceExists(workspaceId);
   await checkAuthorizationWithAgent({
     agent,
@@ -21,8 +34,8 @@ const addPermissionItems: AddPermissionItemsEndpoint = async instData => {
   await kSemanticModels
     .utils()
     .withTxn(
-      async opts => await INTERNAL_addPermissionItems(agent, workspace, data, opts),
-      /** reuseTxn */ false
+      async opts =>
+        await INTERNAL_addPermissionItems(agent, workspace, data, opts)
     );
 };
 

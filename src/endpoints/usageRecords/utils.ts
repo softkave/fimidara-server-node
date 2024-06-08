@@ -1,6 +1,6 @@
-import {File} from '../../definitions/file';
-import {PermissionAction} from '../../definitions/permissionItem';
-import {kFimidaraResourceType, kPermissionAgentTypes} from '../../definitions/system';
+import {File} from '../../definitions/file.js';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
+import {kFimidaraResourceType} from '../../definitions/system.js';
 import {
   BandwidthUsageRecordArtifact,
   FileUsageRecordArtifact,
@@ -9,22 +9,22 @@ import {
   UsageRecordArtifactTypeMap,
   UsageRecordCategory,
   UsageRecordCategoryMap,
-} from '../../definitions/usageRecord';
-import {Workspace} from '../../definitions/workspace';
-import {appAssert} from '../../utils/assertion';
-import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {kAppMessages} from '../../utils/messages';
-import {kReuseableErrors} from '../../utils/reusableErrors';
-import {getActionAgentFromSessionAgent} from '../../utils/sessionUtils';
-import {kUtilsInjectables} from '../contexts/injection/injectables';
-import {UsageRecordInput} from '../contexts/logic/UsageRecordLogicProvider';
-import {SemanticProviderMutationParams} from '../contexts/semantic/types';
-import {NotFoundError} from '../errors';
-import {workspaceResourceFields} from '../extractors';
-import {stringifyFilenamepath} from '../files/utils';
-import RequestData from '../RequestData';
-
-import {UsageLimitExceededError} from './errors';
+} from '../../definitions/usageRecord.js';
+import {Workspace} from '../../definitions/workspace.js';
+import {appAssert} from '../../utils/assertion.js';
+import {getFields, makeExtract, makeListExtract} from '../../utils/extract.js';
+import {kAppMessages} from '../../utils/messages.js';
+import {kReuseableErrors} from '../../utils/reusableErrors.js';
+import {getActionAgentFromSessionAgent} from '../../utils/sessionUtils.js';
+import {kUtilsInjectables} from '../contexts/injection/injectables.js';
+import {UsageRecordInput} from '../contexts/logic/UsageRecordLogicProvider.js';
+import {SemanticProviderMutationParams} from '../contexts/semantic/types.js';
+import {kSessionUtils} from '../contexts/SessionContext.js';
+import {NotFoundError} from '../errors.js';
+import {workspaceResourceFields} from '../extractors.js';
+import {stringifyFilenamepath} from '../files/utils.js';
+import RequestData from '../RequestData.js';
+import {UsageLimitExceededError} from './errors.js';
 
 async function insertRecord(
   reqData: RequestData,
@@ -33,7 +33,13 @@ async function insertRecord(
   nothrow = false
 ) {
   const agent = getActionAgentFromSessionAgent(
-    await kUtilsInjectables.session().getAgent(reqData, kPermissionAgentTypes)
+    await kUtilsInjectables
+      .session()
+      .getAgentFromReq(
+        reqData,
+        kSessionUtils.permittedAgentTypes.api,
+        kSessionUtils.accessScopes.api
+      )
   );
   const {permitted} = await kUtilsInjectables.usageLogic().insert(agent, input, opts);
 
@@ -47,7 +53,7 @@ async function insertRecord(
 export async function insertStorageUsageRecordInput(
   reqData: RequestData,
   file: File,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   artifactMetaInput: Partial<FileUsageRecordArtifact> = {},
   opts: SemanticProviderMutationParams,
   nothrow = false
@@ -79,7 +85,7 @@ export async function insertStorageUsageRecordInput(
 export async function insertBandwidthInUsageRecordInput(
   reqData: RequestData,
   file: File,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   opts: SemanticProviderMutationParams,
   nothrow = false
 ) {
@@ -109,7 +115,7 @@ export async function insertBandwidthInUsageRecordInput(
 export async function insertBandwidthOutUsageRecordInput(
   reqData: RequestData,
   file: File,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   opts: SemanticProviderMutationParams,
   nothrow = false
 ) {

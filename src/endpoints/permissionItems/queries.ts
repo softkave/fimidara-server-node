@@ -1,7 +1,7 @@
-import {PermissionItem} from '../../definitions/permissionItem';
-import {FimidaraResourceType, kFimidaraResourceType} from '../../definitions/system';
-import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider';
-import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder';
+import {PermissionItem} from '../../definitions/permissionItem.js';
+import {FimidaraResourceType, kFimidaraResourceType} from '../../definitions/system.js';
+import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider.js';
+import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder.js';
 
 function newFilter() {
   return new DataProviderFilterBuilder<PermissionItem>();

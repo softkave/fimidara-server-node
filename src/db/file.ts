@@ -1,12 +1,12 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {File} from '../definitions/file';
-import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
+import {File} from '../definitions/file.js';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils.js';
 
 const fileSchema = ensureMongoTypeFields<File>({
   ...workspaceResourceSchema,
   idPath: {type: [String], index: true},
   namepath: {type: [String], index: true},
-  extension: {type: String, index: true},
+  ext: {type: String, index: true},
   parentId: {type: String, index: true},
   name: {type: String, index: true},
   size: {type: Number},

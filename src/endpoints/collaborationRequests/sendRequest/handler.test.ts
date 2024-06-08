@@ -1,18 +1,19 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
-import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
-import {getTimestamp} from '../../../utils/dateFns';
-import {DataQuery} from '../../contexts/data/types';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {DataQuery} from '../../contexts/data/types.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   initTests,
   insertRequestForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../testUtils/testUtils';
-import {CollaborationRequestInput} from './types';
-import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job';
+} from '../../testUtils/testUtils.js';
+import {CollaborationRequestInput} from './types.js';
+import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job.js';
 
 beforeAll(async () => {
   await initTests();

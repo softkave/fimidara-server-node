@@ -1,28 +1,28 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
-import {kJobType} from '../../../definitions/job';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {pathJoin} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {NotFoundError} from '../../errors';
-import {getFolderpathInfo} from '../../folders/utils';
-import {generateAndInsertFileBackendConfigListForTest} from '../../testUtils/generate/fileBackend';
-import {generateTestFolderpathString} from '../../testUtils/generate/folder';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kJobType} from '../../../definitions/job.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {pathJoin} from '../../../utils/fns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {NotFoundError} from '../../errors.js';
+import {getFolderpathInfo} from '../../folders/utils.js';
+import {generateAndInsertFileBackendConfigListForTest} from '../../testUtils/generate/fileBackend.js';
+import {generateTestFolderpathString} from '../../testUtils/generate/folder.js';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,
   generateTestFieldsCombinations,
-} from '../../testUtils/generate/utils';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
+} from '../../testUtils/generate/utils.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {
   completeTests,
   matchExpects,
-  softkaveTest,
   testCombinations,
-} from '../../testUtils/helpers/testFns';
+} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -30,13 +30,13 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import updateFileBackendMount from './handler';
+} from '../../testUtils/testUtils.js';
+import updateFileBackendMount from './handler.js';
 import {
   UpdateFileBackendMountEndpointParams,
   UpdateFileBackendMountEndpointResult,
   UpdateFileBackendMountInput,
-} from './types';
+} from './types.js';
 
 beforeAll(async () => {
   await initTests();
@@ -47,20 +47,24 @@ afterAll(async () => {
 });
 
 describe('updateMount', () => {
-  softkaveTest.run('updates', async () => {
+  test('updates', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {mount} = await insertFileBackendMountForTest(userToken, workspace);
     const updateDefs: GenerateTestFieldsDef<UpdateFileBackendMountInput> = {
       configId: async () => {
-        const [config] = await generateAndInsertFileBackendConfigListForTest(1, {
-          workspaceId: workspace.resourceId,
-          backend: mount.backend,
-        });
+        const [config] = await generateAndInsertFileBackendConfigListForTest(
+          1,
+          {
+            workspaceId: workspace.resourceId,
+            backend: mount.backend,
+          }
+        );
 
         return config.resourceId;
       },
-      folderpath: () => generateTestFolderpathString({rootname: workspace.rootname}),
+      folderpath: () =>
+        generateTestFolderpathString({rootname: workspace.rootname}),
       index: () => faker.number.int(),
       mountedFrom: () => generateTestFolderpathString(),
       name: () => faker.lorem.words(),
@@ -104,7 +108,10 @@ describe('updateMount', () => {
             matcher: input => !!input.folderpath,
             expect: async (input, result) => {
               assert(input.folderpath);
-              const {namepath} = getFolderpathInfo(input.folderpath);
+              const {namepath} = getFolderpathInfo(input.folderpath, {
+                containsRootname: true,
+                allowRootFolder: false,
+              });
               expect(updatedMount.namepath).toEqual(namepath);
               expect(result.mount.namepath).toEqual(namepath);
 
@@ -126,8 +133,12 @@ describe('updateMount', () => {
           {
             matcher: input => !!input.mountedFrom,
             expect: (input, result) => {
-              expect(pathJoin(updatedMount.mountedFrom)).toEqual(input.mountedFrom);
-              expect(pathJoin(result.mount.mountedFrom)).toEqual(input.mountedFrom);
+              expect(pathJoin(updatedMount.mountedFrom)).toEqual(
+                input.mountedFrom
+              );
+              expect(pathJoin(result.mount.mountedFrom)).toEqual(
+                input.mountedFrom
+              );
             },
           },
           {
@@ -171,54 +182,68 @@ describe('updateMount', () => {
     });
   });
 
-  softkaveTest.run('fails if mount does not exist', async () => {
+  test('fails if mount does not exist', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const instData = RequestData.fromExpressRequest<UpdateFileBackendMountEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {
-        mountId: getNewIdForResource(kFimidaraResourceType.FileBackendMount),
-        mount: {configId: getNewIdForResource(kFimidaraResourceType.FileBackendConfig)},
-        workspaceId: workspace.resourceId,
-      }
-    );
+    const instData =
+      RequestData.fromExpressRequest<UpdateFileBackendMountEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          mountId: getNewIdForResource(kFimidaraResourceType.FileBackendMount),
+          mount: {
+            configId: getNewIdForResource(
+              kFimidaraResourceType.FileBackendConfig
+            ),
+          },
+          workspaceId: workspace.resourceId,
+        }
+      );
 
     await expectErrorThrown(
       async () => {
         await updateFileBackendMount(instData);
       },
-      error =>
-        expect((error as NotFoundError).message).toBe(
-          kReuseableErrors.mount.notFound().message
-        )
+      error => {
+        {
+          expect((error as NotFoundError).message).toBe(
+            kReuseableErrors.mount.notFound().message
+          );
+        }
+      }
     );
   });
 
-  softkaveTest.run('fails if config does not exist', async () => {
+  test('fails if config does not exist', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {mount} = await insertFileBackendMountForTest(userToken, workspace);
-    const instData = RequestData.fromExpressRequest<UpdateFileBackendMountEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {
-        mountId: mount.resourceId,
-        mount: {configId: getNewIdForResource(kFimidaraResourceType.FileBackendConfig)},
-        workspaceId: workspace.resourceId,
-      }
-    );
+    const instData =
+      RequestData.fromExpressRequest<UpdateFileBackendMountEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          mountId: mount.resourceId,
+          mount: {
+            configId: getNewIdForResource(
+              kFimidaraResourceType.FileBackendConfig
+            ),
+          },
+          workspaceId: workspace.resourceId,
+        }
+      );
 
     await expectErrorThrown(
       async () => {
         await updateFileBackendMount(instData);
       },
-      error =>
+      error => {
         expect((error as NotFoundError).message).toBe(
           kReuseableErrors.config.notFound().message
-        )
+        );
+      }
     );
   });
 
-  softkaveTest.run('fails if mount with name exists', async () => {
+  test('fails if mount with name exists', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const [{mount: mount01}, {mount: mount02}] = await Promise.all([
@@ -251,10 +276,11 @@ describe('updateMount', () => {
         async () => {
           await updateFileBackendMount(instData02);
         },
-        error =>
+        error => {
           expect((error as Error).message).toBe(
             kReuseableErrors.mount.mountNameExists().message
-          )
+          );
+        }
       ),
     ]);
   });

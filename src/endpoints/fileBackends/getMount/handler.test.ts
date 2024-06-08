@@ -1,10 +1,11 @@
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {getNewIdForResource} from '../../../utils/resource';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import RequestData from '../../RequestData';
-import {NotFoundError} from '../../errors';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import RequestData from '../../RequestData.js';
+import {NotFoundError} from '../../errors.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -12,9 +13,9 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import getFileBackendMount from './handler';
-import {GetFileBackendMountEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import getFileBackendMount from './handler.js';
+import {GetFileBackendMountEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();
@@ -30,10 +31,11 @@ describe('getMount', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {mount} = await insertFileBackendMountForTest(userToken, workspace);
 
-    const instData = RequestData.fromExpressRequest<GetFileBackendMountEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {mountId: mount.resourceId, workspaceId: workspace.resourceId}
-    );
+    const instData =
+      RequestData.fromExpressRequest<GetFileBackendMountEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {mountId: mount.resourceId, workspaceId: workspace.resourceId}
+      );
     const result = await getFileBackendMount(instData);
 
     assertEndpointResultOk(result);
@@ -44,19 +46,21 @@ describe('getMount', () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
 
-    const instData = RequestData.fromExpressRequest<GetFileBackendMountEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {
-        mountId: getNewIdForResource(kFimidaraResourceType.FileBackendMount),
-        workspaceId: workspace.resourceId,
-      }
-    );
+    const instData =
+      RequestData.fromExpressRequest<GetFileBackendMountEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          mountId: getNewIdForResource(kFimidaraResourceType.FileBackendMount),
+          workspaceId: workspace.resourceId,
+        }
+      );
     await expectErrorThrown(
       () => getFileBackendMount(instData),
-      error =>
+      error => {
         expect((error as NotFoundError).message).toBe(
           kReuseableErrors.mount.notFound().message
-        )
+        );
+      }
     );
   });
 });

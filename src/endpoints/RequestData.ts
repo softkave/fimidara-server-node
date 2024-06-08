@@ -1,7 +1,11 @@
-import {BaseTokenData, SessionAgent, kFimidaraResourceType} from '../definitions/system';
-import {User} from '../definitions/user';
-import {getNewIdForResource} from '../utils/resource';
-import {IServerRequest} from './contexts/types';
+import {
+  BaseTokenData,
+  SessionAgent,
+  kFimidaraResourceType,
+} from '../definitions/system.js';
+import {User} from '../definitions/user.js';
+import {getNewIdForResource} from '../utils/resource.js';
+import {IServerRequest} from './contexts/types.js';
 
 export interface IRequestContructorParams<T = any> {
   req?: IServerRequest | null;

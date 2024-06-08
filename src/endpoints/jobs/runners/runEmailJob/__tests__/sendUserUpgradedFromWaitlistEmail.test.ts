@@ -1,15 +1,16 @@
-import {kEmailJobType} from '../../../../../definitions/job';
-import {kFimidaraResourceType} from '../../../../../definitions/system';
-import {kUpgradeFromWaitlistEmailArtifacts} from '../../../../../emailTemplates/upgradedFromWaitlist';
-import {getNewIdForResource} from '../../../../../utils/resource';
-import {IEmailProviderContext} from '../../../../contexts/email/types';
-import {kUtilsInjectables} from '../../../../contexts/injection/injectables';
-import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register';
-import MockTestEmailProviderContext from '../../../../testUtils/context/email/MockTestEmailProviderContext';
-import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/user';
-import {completeTests} from '../../../../testUtils/helpers/testFns';
-import {initTests} from '../../../../testUtils/testUtils';
-import {sendUserUpgradedFromWaitlistEmail} from '../sendUserUpgradedFromWaitlistEmail';
+import {kEmailJobType} from '../../../../../definitions/job.js';
+import {kFimidaraResourceType} from '../../../../../definitions/system.js';
+import {kUpgradeFromWaitlistEmailArtifacts} from '../../../../../emailTemplates/upgradedFromWaitlist.js';
+import {getNewIdForResource} from '../../../../../utils/resource.js';
+import {IEmailProviderContext} from '../../../../contexts/email/types.js';
+import {kUtilsInjectables} from '../../../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
+import MockTestEmailProviderContext from '../../../../testUtils/context/email/MockTestEmailProviderContext.js';
+import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/user.js';
+import {completeTests} from '../../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../../testUtils/testUtils.js';
+import {sendUserUpgradedFromWaitlistEmail} from '../sendUserUpgradedFromWaitlistEmail.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 
 beforeAll(async () => {
   await initTests();

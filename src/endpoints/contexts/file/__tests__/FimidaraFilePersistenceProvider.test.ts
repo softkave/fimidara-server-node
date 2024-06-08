@@ -1,46 +1,54 @@
 import {Readable} from 'stream';
-import {ResolvedMountEntry} from '../../../../definitions/fileBackend';
-import {Folder} from '../../../../definitions/folder';
-import {kFimidaraResourceType} from '../../../../definitions/system';
-import {kFimidaraConfigFilePersistenceProvider} from '../../../../resources/config';
-import {getTimestamp} from '../../../../utils/dateFns';
-import {loopAndCollate, loopAndCollateAsync, pathJoin} from '../../../../utils/fns';
-import {getNewIdForResource} from '../../../../utils/resource';
-import {getFilepathInfo, stringifyFilenamepath} from '../../../files/utils';
-import {getFolderpathInfo, stringifyFoldernamepath} from '../../../folders/utils';
-import TestMemoryFilePersistenceProviderContext from '../../../testUtils/context/file/TestMemoryFilePersistenceProviderContext';
+import {afterEach, beforeEach, describe, expect, test} from 'vitest';
+import {ResolvedMountEntry} from '../../../../definitions/fileBackend.js';
+import {Folder} from '../../../../definitions/folder.js';
+import {kFimidaraResourceType} from '../../../../definitions/system.js';
+import {kFimidaraConfigFilePersistenceProvider} from '../../../../resources/config.js';
+import {getTimestamp} from '../../../../utils/dateFns.js';
+import {
+  loopAndCollate,
+  loopAndCollateAsync,
+  pathJoin,
+} from '../../../../utils/fns.js';
+import {getNewIdForResource} from '../../../../utils/resource.js';
+import {getFilepathInfo, stringifyFilenamepath} from '../../../files/utils.js';
+import {
+  getFolderpathInfo,
+  stringifyFoldernamepath,
+} from '../../../folders/utils.js';
+import TestMemoryFilePersistenceProviderContext from '../../../testUtils/context/file/TestMemoryFilePersistenceProviderContext.js';
 import {
   generateTestFilepath,
   generateTestFilepathString,
-} from '../../../testUtils/generate/file';
+} from '../../../testUtils/generate/file.js';
 import {
   generateAWSS3Credentials,
   generateAndInsertResolvedMountEntryListForTest,
   generateFileBackendMountForTest,
-} from '../../../testUtils/generate/fileBackend';
+} from '../../../testUtils/generate/fileBackend.js';
 import {
   generateAndInsertTestFolders,
   generateTestFolderpath,
   generateTestFolderpathString,
-} from '../../../testUtils/generate/folder';
-import {expectErrorThrown} from '../../../testUtils/helpers/error';
-import {completeTests} from '../../../testUtils/helpers/testFns';
-import {initTests} from '../../../testUtils/testUtils';
-import {kUtilsInjectables} from '../../injection/injectables';
-import {kRegisterUtilsInjectables} from '../../injection/register';
+} from '../../../testUtils/generate/folder.js';
+import {expectErrorThrown} from '../../../testUtils/helpers/error.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../testUtils/testUtils.js';
+import {kUtilsInjectables} from '../../injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../injection/register.js';
 import {
   FimidaraFilePersistenceProvider,
   FimidaraFilePersistenceProviderPage,
-} from '../FimidaraFilePersistenceProvider';
-import {LocalFsFilePersistenceProvider} from '../LocalFsFilePersistenceProvider';
-import {MemoryFilePersistenceProvider} from '../MemoryFilePersistenceProvider';
-import {S3FilePersistenceProvider} from '../S3FilePersistenceProvider';
+} from '../FimidaraFilePersistenceProvider.js';
+import {LocalFsFilePersistenceProvider} from '../LocalFsFilePersistenceProvider.js';
+import {MemoryFilePersistenceProvider} from '../MemoryFilePersistenceProvider.js';
+import {S3FilePersistenceProvider} from '../S3FilePersistenceProvider.js';
 import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
   FilePersistenceGetFileParams,
   FilePersistenceUploadFileParams,
-} from '../types';
+} from '../types.js';
 
 beforeEach(async () => {
   await initTests();
@@ -116,7 +124,9 @@ describe('FimidaraFilePersistenceProvider', () => {
   test('uploadFile', async () => {
     const {backend, internalBackend} = getTestMemoryInstance();
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
     const params: FilePersistenceUploadFileParams = {
+      fileId,
       workspaceId,
       body: Readable.from([]),
       filepath: generateTestFilepathString(),
@@ -126,14 +136,16 @@ describe('FimidaraFilePersistenceProvider', () => {
 
     expect(internalBackend.uploadFile).toBeCalledWith({
       ...params,
-      postMountedFromPrefix: [workspaceId],
+      filepath: fileId,
     });
   });
 
   test('readFile', async () => {
     const {backend, internalBackend} = getTestMemoryInstance();
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
     const params: FilePersistenceGetFileParams = {
+      fileId,
       workspaceId,
       filepath: generateTestFilepathString(),
       mount: generateFileBackendMountForTest(),
@@ -142,7 +154,7 @@ describe('FimidaraFilePersistenceProvider', () => {
 
     expect(internalBackend.readFile).toBeCalledWith({
       ...params,
-      postMountedFromPrefix: [workspaceId],
+      filepath: fileId,
     });
   });
 
@@ -155,16 +167,26 @@ describe('FimidaraFilePersistenceProvider', () => {
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = generateFileBackendMountForTest({workspaceId});
     const filepath = generateTestFilepathString();
-    const pathinfo = getFilepathInfo(filepath, {containsRootname: false});
+    const pathinfo = getFilepathInfo(filepath, {
+      containsRootname: false,
+      allowRootFolder: false,
+    });
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
     await generateAndInsertResolvedMountEntryListForTest(1, {
       workspaceId,
+      forId: fileId,
       mountId: mount.resourceId,
-      extension: pathinfo.extension,
-      namepath: pathinfo.namepath,
+      backendExt: pathinfo.ext,
+      backendNamepath: pathinfo.namepath,
     });
 
     const backend = new FimidaraFilePersistenceProvider();
-    const file = await backend.describeFile({mount, workspaceId, filepath});
+    const file = await backend.describeFile({
+      mount,
+      fileId,
+      filepath,
+      workspaceId,
+    });
 
     expect(file).toBeTruthy();
     expect(file?.filepath).toBe(filepath);
@@ -172,6 +194,7 @@ describe('FimidaraFilePersistenceProvider', () => {
 
     const nonExistentFile = await backend.describeFile({
       mount,
+      fileId,
       workspaceId,
       filepath: generateTestFilepathString(),
     });
@@ -187,7 +210,10 @@ describe('FimidaraFilePersistenceProvider', () => {
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = generateFileBackendMountForTest({workspaceId});
     const folderpath = generateTestFolderpathString();
-    const pathinfo = getFolderpathInfo(folderpath, {containsRootname: false});
+    const pathinfo = getFolderpathInfo(folderpath, {
+      containsRootname: false,
+      allowRootFolder: false,
+    });
     await generateAndInsertTestFolders(1, {
       workspaceId,
       namepath: pathinfo.namepath,
@@ -195,7 +221,11 @@ describe('FimidaraFilePersistenceProvider', () => {
     });
 
     const backend = new FimidaraFilePersistenceProvider();
-    const folder = await backend.describeFolder({mount, workspaceId, folderpath});
+    const folder = await backend.describeFolder({
+      mount,
+      workspaceId,
+      folderpath,
+    });
 
     expect(folder).toBeTruthy();
     expect(folder?.folderpath).toBe(folderpath);
@@ -214,14 +244,20 @@ describe('FimidaraFilePersistenceProvider', () => {
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const params: FilePersistenceDeleteFilesParams = {
       workspaceId,
-      filepaths: loopAndCollate(() => generateTestFilepathString(), /** count */ 2),
+      files: loopAndCollate(
+        () => ({
+          filepath: generateTestFilepathString(),
+          fileId: getNewIdForResource(kFimidaraResourceType.File),
+        }),
+        /** count */ 2
+      ),
       mount: generateFileBackendMountForTest(),
     };
     await backend.deleteFiles(params);
 
     expect(internalBackend.deleteFiles).toBeCalledWith({
       ...params,
-      postMountedFromPrefix: [workspaceId],
+      files: params.files.map(p => ({...p, filepath: p.fileId})),
     });
   });
 
@@ -235,7 +271,10 @@ describe('FimidaraFilePersistenceProvider', () => {
     const backend = new TestBackend();
     const params: FilePersistenceDeleteFoldersParams = {
       workspaceId: getNewIdForResource(kFimidaraResourceType.Workspace),
-      folderpaths: loopAndCollate(() => generateTestFolderpathString(), /** count */ 2),
+      folders: loopAndCollate(
+        () => ({folderpath: generateTestFolderpathString()}),
+        /** count */ 2
+      ),
       mount: generateFileBackendMountForTest(),
     };
     await backend.deleteFolders(params);
@@ -262,21 +301,22 @@ describe('FimidaraFilePersistenceProvider', () => {
           parentNamepath: folderpath,
           length: folderpath.length + 1,
         });
-        const pathinfo = getFilepathInfo(filepath, {containsRootname: false});
-        const [mountFile] = await generateAndInsertResolvedMountEntryListForTest(
-          /** count */ 1,
-          {
+        const pathinfo = getFilepathInfo(filepath, {
+          containsRootname: false,
+          allowRootFolder: false,
+        });
+        const [mountFile] =
+          await generateAndInsertResolvedMountEntryListForTest(/** count */ 1, {
             workspaceId,
             createdAt,
             mountId: mount.resourceId,
-            extension: pathinfo.extension,
-            namepath: pathinfo.namepath,
-          }
-        );
+            backendExt: pathinfo.ext,
+            backendNamepath: pathinfo.namepath,
+          });
         return mountFile;
       },
       /** count */ 10,
-      'all'
+      /** promise settlement type */ 'all'
     );
 
     const backend = new FimidaraFilePersistenceProvider();
@@ -289,12 +329,19 @@ describe('FimidaraFilePersistenceProvider', () => {
 
     expect(files.length).toBe(5);
     expect(continuationToken).toBeTruthy();
-    const actualFilepaths = savedMountFiles.map(file => stringifyFilenamepath(file));
+    const actualFilepaths = savedMountFiles.map(mountEntry =>
+      stringifyFilenamepath({
+        namepath: mountEntry.backendNamepath,
+        ext: mountEntry.backendExt,
+      })
+    );
     const returnedFilepathsPage01 = files.map(file => {
       expect(file.mountId).toBe(mount.resourceId);
       return file.filepath;
     });
-    expect(actualFilepaths).toEqual(expect.arrayContaining(returnedFilepathsPage01));
+    expect(actualFilepaths).toEqual(
+      expect.arrayContaining(returnedFilepathsPage01)
+    );
 
     ({files, continuationToken} = await backend.describeFolderFiles({
       mount,
@@ -313,7 +360,9 @@ describe('FimidaraFilePersistenceProvider', () => {
     expect(returnedFilepathsPage01).not.toEqual(
       expect.arrayContaining(returnedFilepathsPage02)
     );
-    expect(actualFilepaths).toEqual(expect.arrayContaining(returnedFilepathsPage02));
+    expect(actualFilepaths).toEqual(
+      expect.arrayContaining(returnedFilepathsPage02)
+    );
   });
 
   test('describeFolderFolders', async () => {
@@ -332,7 +381,10 @@ describe('FimidaraFilePersistenceProvider', () => {
           parentNamepath: parentFolderpath,
           length: parentFolderpath.length + 1,
         });
-        const pathinfo = getFolderpathInfo(folderpath, {containsRootname: false});
+        const pathinfo = getFolderpathInfo(folderpath, {
+          containsRootname: false,
+          allowRootFolder: false,
+        });
         const [folder] = await generateAndInsertTestFolders(/** count */ 1, {
           workspaceId,
           createdAt,
@@ -355,12 +407,16 @@ describe('FimidaraFilePersistenceProvider', () => {
 
     expect(folders.length).toBe(5);
     expect(continuationToken).toBeTruthy();
-    const actualFolderpaths = savedFolders.map(folder => stringifyFoldernamepath(folder));
+    const actualFolderpaths = savedFolders.map(folder =>
+      stringifyFoldernamepath(folder)
+    );
     const returnedFolderpathsPage01 = folders.map(folder => {
       expect(folder.mountId).toBe(mount.resourceId);
       return folder.folderpath;
     });
-    expect(actualFolderpaths).toEqual(expect.arrayContaining(returnedFolderpathsPage01));
+    expect(actualFolderpaths).toEqual(
+      expect.arrayContaining(returnedFolderpathsPage01)
+    );
 
     ({folders, continuationToken} = await backend.describeFolderFolders({
       mount,
@@ -379,7 +435,9 @@ describe('FimidaraFilePersistenceProvider', () => {
     expect(returnedFolderpathsPage01).not.toEqual(
       expect.arrayContaining(returnedFolderpathsPage02)
     );
-    expect(actualFolderpaths).toEqual(expect.arrayContaining(returnedFolderpathsPage02));
+    expect(actualFolderpaths).toEqual(
+      expect.arrayContaining(returnedFolderpathsPage02)
+    );
   });
 
   test('describeFolderContent', async () => {
@@ -406,50 +464,71 @@ describe('FimidaraFilePersistenceProvider', () => {
             parentNamepath: folderpath,
             length: folderpath.length + 1,
           });
-          const pathinfo = getFilepathInfo(filepath, {containsRootname: false});
-          const [mountFile] = await generateAndInsertResolvedMountEntryListForTest(
-            /** count */ 1,
-            {
-              workspaceId,
-              mountId: mount.resourceId,
-              extension: pathinfo.extension,
-              namepath: pathinfo.namepath,
-              other: {size: kFileSize},
-              ...seed,
-            }
-          );
+          const pathinfo = getFilepathInfo(filepath, {
+            containsRootname: false,
+            allowRootFolder: false,
+          });
+          const [mountFile] =
+            await generateAndInsertResolvedMountEntryListForTest(
+              /** count */ 1,
+              {
+                workspaceId,
+                mountId: mount.resourceId,
+                backendExt: pathinfo.ext,
+                backendNamepath: pathinfo.namepath,
+                persisted: {
+                  raw: undefined,
+                  size: kFileSize,
+                  mountId: mount.resourceId,
+                  filepath: pathJoin(filepath),
+                },
+                ...seed,
+              }
+            );
           return mountFile;
         },
         count,
-        'all'
+        /** promise settlement type */ 'all'
       );
     }
 
-    async function insertMountFolders(count: number, seed: Partial<Folder> = {}) {
+    async function insertMountFolders(
+      count: number,
+      seed: Partial<Folder> = {}
+    ) {
       return await loopAndCollateAsync(
         async () => {
           const childFolderpath = generateTestFolderpath({
             parentNamepath: folderpath,
             length: folderpath.length + 1,
           });
-          const pathinfo = getFolderpathInfo(childFolderpath, {containsRootname: false});
-          const [mountFolder] = await generateAndInsertTestFolders(/** count */ 1, {
-            workspaceId,
-            namepath: pathinfo.namepath,
-            parentId: null,
-            ...seed,
+          const pathinfo = getFolderpathInfo(childFolderpath, {
+            containsRootname: false,
+            allowRootFolder: false,
           });
+          const [mountFolder] = await generateAndInsertTestFolders(
+            /** count */ 1,
+            {
+              workspaceId,
+              namepath: pathinfo.namepath,
+              parentId: null,
+              ...seed,
+            }
+          );
           return mountFolder;
         },
         count,
-        'all'
+        /** promise settlement type */ 'all'
       );
     }
 
     const childrenFileMountEntries = await insertMountFiles(/** count */ 5);
     const childrenFolders = await insertMountFolders(/** count */ 5);
-    const childrenFilepaths = childrenFileMountEntries.map(next =>
-      stringifyFilenamepath(next)
+    const childrenFilepaths = childrenFileMountEntries.map(mountEntry =>
+      stringifyFilenamepath({
+        namepath: mountEntry.backendNamepath,
+        ext: mountEntry.backendExt,
+      })
     );
     const childrenFolderpaths = childrenFolders.map(next =>
       stringifyFoldernamepath(next)
@@ -500,7 +579,9 @@ describe('FimidaraFilePersistenceProvider', () => {
     });
 
     expect(resultFilepaths).toEqual(expect.arrayContaining(childrenFilepaths));
-    expect(resultFolderpaths).toEqual(expect.arrayContaining(childrenFolderpaths));
+    expect(resultFolderpaths).toEqual(
+      expect.arrayContaining(childrenFolderpaths)
+    );
   });
 
   test('dispose', async () => {
@@ -525,7 +606,10 @@ describe('FimidaraFilePersistenceProvider', () => {
     const filepath = generateTestFilepathString();
     const mount = generateFileBackendMountForTest();
 
-    const {fimidaraPath} = backend.toFimidaraPath({mount, nativePath: filepath});
+    const {fimidaraPath} = backend.toFimidaraPath({
+      mount,
+      nativePath: filepath,
+    });
 
     expect(fimidaraPath).toBe(filepath);
   });

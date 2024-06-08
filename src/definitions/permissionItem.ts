@@ -1,11 +1,7 @@
-import {ObjectValues, OmitProperties} from '../utils/types';
-import {
-  ConvertAgentToPublicAgent,
-  FimidaraResourceType,
-  WorkspaceResource,
-} from './system';
+import {ObjectValues, OmitProperties} from '../utils/types.js';
+import {FimidaraResourceType, ToPublicDefinitions, WorkspaceResource} from './system.js';
 
-export const kPermissionsMap = {
+export const kFimidaraPermissionActionsMap = {
   wildcard: '*',
   // wildcardAdd: 'wildcardAdd',
   // wildcardRead: 'wildcardRead',
@@ -63,7 +59,7 @@ export const kPermissionsMap = {
   updateFileBackendMount: 'updateFileBackendMount',
 } as const;
 
-export type PermissionAction = ObjectValues<typeof kPermissionsMap>;
+export type FimidaraPermissionAction = ObjectValues<typeof kFimidaraPermissionActionsMap>;
 
 export interface PermissionItem extends WorkspaceResource {
   entityId: string;
@@ -72,9 +68,9 @@ export interface PermissionItem extends WorkspaceResource {
   targetId: string;
   targetType: FimidaraResourceType;
   access: boolean;
-  action: PermissionAction;
+  action: FimidaraPermissionAction;
 }
 
-export type PublicPermissionItem = ConvertAgentToPublicAgent<
+export type PublicPermissionItem = ToPublicDefinitions<
   OmitProperties<PermissionItem, 'targetParentId'>
 >;

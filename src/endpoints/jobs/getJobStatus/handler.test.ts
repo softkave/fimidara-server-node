@@ -1,14 +1,15 @@
-import RequestData from '../../RequestData';
-import {generateAndInsertJobListForTest} from '../../testUtils/generate/job';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import RequestData from '../../RequestData.js';
+import {generateAndInsertJobListForTest} from '../../testUtils/generate/job.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import getJobStatus from './handler';
+} from '../../testUtils/testUtils.js';
+import getJobStatus from './handler.js';
 
 beforeAll(async () => {
   await initTests();

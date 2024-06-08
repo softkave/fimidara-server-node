@@ -1,9 +1,9 @@
-import * as Joi from 'joi';
-import {kValidationSchemas} from '../../../utils/validationUtils';
+import Joi from 'joi';
+import {kValidationSchemas} from '../../../utils/validationUtils.js';
 import {
   UpdateCollaborationRequestEndpointParams,
   UpdateCollaborationRequestInput,
-} from './types';
+} from './types.js';
 
 export const updateCollaborationRequestInputJoiSchema =
   Joi.object<UpdateCollaborationRequestInput>().keys({

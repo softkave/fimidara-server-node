@@ -1,7 +1,7 @@
-import * as Joi from 'joi';
-import {kValidationSchemas} from '../../../utils/validationUtils';
-import {endpointValidationSchemas} from '../../validation';
-import {GetFileBackendMountEndpointParams} from './types';
+import Joi from 'joi';
+import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import {endpointValidationSchemas} from '../../validation.js';
+import {GetFileBackendMountEndpointParams} from './types.js';
 
 export const getFileBackendMountJoiSchema =
   Joi.object<GetFileBackendMountEndpointParams>()

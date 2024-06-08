@@ -1,5 +1,5 @@
-import {NoopLogger} from './noop';
-import {Logger, LoggerType, kLoggerTypes} from './types';
+import {NoopLogger} from './noop.js';
+import {Logger, LoggerType, kLoggerTypes} from './types.js';
 
 export function getLogger(type: LoggerType = kLoggerTypes.noop): Logger {
   switch (type) {

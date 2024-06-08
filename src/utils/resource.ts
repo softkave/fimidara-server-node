@@ -1,5 +1,6 @@
-import {invert} from 'lodash';
+import {invert} from 'lodash-es';
 import {nanoid} from 'nanoid';
+import {AnyObject, InvertRecord} from 'softkave-js-utils';
 import {
   Agent,
   FimidaraResourceType,
@@ -7,15 +8,17 @@ import {
   Resource,
   SessionAgent,
   WorkspaceResource,
-} from '../definitions/system';
-import {kEndpointConstants} from '../endpoints/constants';
-import {getTimestamp} from './dateFns';
+} from '../definitions/system.js';
+import {kEndpointConstants} from '../endpoints/constants.js';
+import {getTimestamp} from './dateFns.js';
 import OperationError, {
   getErrorMessageFromParams,
   OperationErrorParameters,
-} from './OperationError';
-import {getActionAgentFromSessionAgent, isSessionAgent} from './sessionUtils';
-import {AnyObject, InvertRecord} from './types';
+} from './OperationError.js';
+import {
+  getActionAgentFromSessionAgent,
+  isSessionAgent,
+} from './sessionUtils.js';
 
 export const kResourceTypeShortNameMaxLength = 7;
 export const kResourceTypeShortNamePadding = '0';
@@ -58,9 +61,9 @@ export const kResourceTypeShortNames: Record<FimidaraResourceType, string> = {
   [kFimidaraResourceType.appShard]: padShortName('appshrd'),
 };
 
-export const kShortNameToResourceType = invert(kResourceTypeShortNames) as InvertRecord<
-  typeof kResourceTypeShortNames
->;
+export const kShortNameToResourceType = invert(
+  kResourceTypeShortNames
+) as InvertRecord<typeof kResourceTypeShortNames>;
 
 export class InvalidResourceIdError extends OperationError {
   name = 'InvalidResourceIdError';
@@ -111,7 +114,9 @@ export function isAppResourceId(resourceId: string) {
   return true;
 }
 
-export function tryGetResourceTypeFromId(id: string): FimidaraResourceType | undefined {
+export function tryGetResourceTypeFromId(
+  id: string
+): FimidaraResourceType | undefined {
   const shortName = id.slice(0, kResourceTypeShortNameMaxLength);
   const type = kShortNameToResourceType[shortName];
   return type;
@@ -149,7 +154,9 @@ export function newWorkspaceResource<T extends AnyObject>(
   workspaceId: string,
   seed?: Omit<T, keyof WorkspaceResource> & Partial<WorkspaceResource>
 ): WorkspaceResource & T {
-  const createdBy = isSessionAgent(agent) ? getActionAgentFromSessionAgent(agent) : agent;
+  const createdBy = isSessionAgent(agent)
+    ? getActionAgentFromSessionAgent(agent)
+    : agent;
   const createdAt = getTimestamp();
   const item: WorkspaceResource = {
     createdBy,

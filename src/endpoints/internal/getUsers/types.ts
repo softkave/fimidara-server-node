@@ -1,5 +1,5 @@
-import {PublicUser} from '../../../definitions/user';
-import {Endpoint} from '../../types';
+import {PublicUser} from '../../../definitions/user.js';
+import {Endpoint} from '../../types.js';
 
 export interface GetUsersEndpointParams {}
 

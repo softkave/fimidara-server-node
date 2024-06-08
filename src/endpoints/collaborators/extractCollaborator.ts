@@ -1,6 +1,6 @@
-import {User} from '../../definitions/user';
-import {populateUserWorkspaces} from '../assignedItems/getAssignedItems';
-import {collaboratorExtractor, removeOtherUserWorkspaces} from './utils';
+import {User} from '../../definitions/user.js';
+import {populateUserWorkspaces} from '../assignedItems/getAssignedItems.js';
+import {collaboratorExtractor, removeOtherUserWorkspaces} from './utils.js';
 
 export async function extractCollaborator(collaborator: User, workspaceId: string) {
   const userWithWorkspaces = await populateUserWorkspaces(collaborator);

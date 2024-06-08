@@ -1,16 +1,16 @@
-import {Folder} from '../../../../definitions/folder';
-import {Resource} from '../../../../definitions/system';
-import {FolderQueries} from '../../../folders/queries';
-import {DataQuery} from '../../data/types';
-import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
+import {Folder} from '../../../../definitions/folder.js';
+import {Resource} from '../../../../definitions/system.js';
+import {FolderQueries} from '../../../folders/queries.js';
+import {DataQuery} from '../../data/types.js';
+import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider.js';
 import {
   SemanticProviderOpParams,
   SemanticProviderQueryListParams,
   SemanticProviderQueryParams,
-} from '../types';
-import {getInAndNinQuery} from '../utils';
-import {SemanticFolderProvider} from './types';
+} from '../types.js';
+import {getInAndNinQuery} from '../utils.js';
+import {SemanticFolderProvider} from './types.js';
 
 export class DataSemanticFolder
   extends DataSemanticWorkspaceResourceProvider<Folder>

@@ -1,22 +1,29 @@
-import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {appAssert} from '../../../utils/assertion';
-import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {checkCollaboratorAuthorization02} from '../utils';
-import {RemoveCollaboratorEndpoint} from './types';
-import {beginDeleteCollaborator} from './utils';
-import {removeCollaboratorJoiSchema} from './validation';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {checkCollaboratorAuthorization02} from '../utils.js';
+import {RemoveCollaboratorEndpoint} from './types.js';
+import {beginDeleteCollaborator} from './utils.js';
+import {removeCollaboratorJoiSchema} from './validation.js';
 
 const removeCollaborator: RemoveCollaboratorEndpoint = async instData => {
   const data = validate(instData.data, removeCollaboratorJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const {collaborator} = await checkCollaboratorAuthorization02(
     agent,
     workspaceId,
     data.collaboratorId,
-    kPermissionsMap.removeCollaborator
+    kFimidaraPermissionActionsMap.removeCollaborator
   );
 
   const [job] = await beginDeleteCollaborator({

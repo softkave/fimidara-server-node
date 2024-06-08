@@ -1,9 +1,9 @@
-import {Folder, PublicFolder} from '../../../definitions/folder';
-import {SessionAgent} from '../../../definitions/system';
-import {Workspace} from '../../../definitions/workspace';
-import {Shard, ShardRunner} from '../../../utils/shardedRunnerQueue';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
-import {Endpoint, EndpointResultNote} from '../../types';
+import {Folder, PublicFolder} from '../../../definitions/folder.js';
+import {SessionAgent} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {Shard, ShardRunner} from '../../../utils/shardedRunnerQueue.js';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
+import {Endpoint, EndpointResultNote} from '../../types.js';
 
 export interface NewFolderInput {
   // folder path should include the workspace rootname

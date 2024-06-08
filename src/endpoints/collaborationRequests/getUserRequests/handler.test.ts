@@ -1,9 +1,10 @@
-import {calculatePageSize, getResourceId} from '../../../utils/fns';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generate/collaborationRequest';
-import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {calculatePageSize, getResourceId} from '../../../utils/fns.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generate/collaborationRequest.js';
+import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -11,8 +12,8 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import getUserCollaborationRequests from './handler';
+} from '../../testUtils/testUtils.js';
+import getUserCollaborationRequests from './handler.js';
 
 /**
  * TODO:

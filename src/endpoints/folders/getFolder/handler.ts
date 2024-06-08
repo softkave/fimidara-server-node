@@ -1,15 +1,19 @@
-import {kPermissionAgentTypes} from '../../../definitions/system';
-import {validate} from '../../../utils/validate';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {checkFolderAuthorization02, folderExtractor} from '../utils';
-import {GetFolderEndpoint} from './types';
-import {getFolderJoiSchema} from './validation';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {checkFolderAuthorization02, folderExtractor} from '../utils.js';
+import {GetFolderEndpoint} from './types.js';
+import {getFolderJoiSchema} from './validation.js';
 
 const getFolder: GetFolderEndpoint = async instData => {
   const data = validate(instData.data, getFolderJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, kPermissionAgentTypes);
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const {folder} = await checkFolderAuthorization02(agent, data, 'readFolder');
 
   return {folder: folderExtractor(folder)};

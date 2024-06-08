@@ -1,4 +1,4 @@
-import {multilineTextToParagraph} from './fns';
+import {multilineTextToParagraph} from './fns.js';
 
 export const kAppMessages = {
   workspace: {

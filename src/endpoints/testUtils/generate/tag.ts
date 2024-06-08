@@ -1,9 +1,9 @@
 import {faker} from '@faker-js/faker';
-import {Agent, kFimidaraResourceType} from '../../../definitions/system';
-import {Tag} from '../../../definitions/tag';
-import {getTimestamp} from '../../../utils/dateFns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
+import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {Tag} from '../../../definitions/tag.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
 
 export function generateTagForTest(seed: Partial<Tag> = {}) {
   const createdAt = getTimestamp();
@@ -42,9 +42,6 @@ export async function generateAndInsertTagListForTest(
   const items = generateTagListForTest(count, seed);
   await kSemanticModels
     .utils()
-    .withTxn(
-      async opts => kSemanticModels.tag().insertItem(items, opts),
-      /** reuseTxn */ true
-    );
+    .withTxn(async opts => kSemanticModels.tag().insertItem(items, opts));
   return items;
 }

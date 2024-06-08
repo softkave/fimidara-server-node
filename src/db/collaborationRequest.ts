@@ -1,6 +1,6 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {CollaborationRequest} from '../definitions/collaborationRequest';
-import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
+import {CollaborationRequest} from '../definitions/collaborationRequest.js';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils.js';
 
 const collaborationRequestSchema = ensureMongoTypeFields<CollaborationRequest>({
   ...workspaceResourceSchema,

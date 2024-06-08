@@ -1,4 +1,4 @@
-import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables';
+import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
 import {
   emailHelperChars,
   emailStylingHelpers,
@@ -10,8 +10,8 @@ import {
   getHeaderText,
   getLoginSectionHTML,
   getLoginSectionText,
-} from './helpers';
-import {BaseEmailTemplateProps} from './types';
+} from './helpers.js';
+import {BaseEmailTemplateProps} from './types.js';
 
 export const kUpgradeFromWaitlistEmailArtifacts = {
   title: "You've been upgraded from the waitlist",

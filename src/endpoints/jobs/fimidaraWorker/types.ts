@@ -1,4 +1,4 @@
-import {Job} from '../../../definitions/job';
+import {Job} from '../../../definitions/job.js';
 
 export const kFimidaraWorkerMessageType = {
   getNextJobRequest: 'getNextJobRequest',

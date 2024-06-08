@@ -1,17 +1,18 @@
 import {faker} from '@faker-js/faker';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {waitTimeout} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resource';
-import RequestData from '../../RequestData';
-import {NotFoundError} from '../../errors';
-import readFile from '../../files/readFile/handler';
-import {ReadFileEndpointParams} from '../../files/readFile/types';
-import {stringifyFilenamepath} from '../../files/utils';
-import {addRootnameToPath} from '../../folders/utils';
-import {generateTestFileName} from '../../testUtils/generate/file';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {expectFileBodyEqualById} from '../../testUtils/helpers/file';
-import {completeTests, softkaveTest} from '../../testUtils/helpers/testFns';
+import {afterAll, beforeAll, describe, test} from 'vitest';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {waitTimeout} from '../../../utils/fns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import RequestData from '../../RequestData.js';
+import {NotFoundError} from '../../errors.js';
+import readFile from '../../files/readFile/handler.js';
+import {ReadFileEndpointParams} from '../../files/readFile/types.js';
+import {stringifyFilenamepath} from '../../files/utils.js';
+import {addRootnameToPath} from '../../folders/utils.js';
+import {generateTestFileName} from '../../testUtils/generate/file.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {expectFileBodyEqualById} from '../../testUtils/helpers/file.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -22,10 +23,10 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestForPublicAgent,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {PermissionDeniedError} from '../../users/errors';
-import issuePresignedPath from './handler';
-import {IssuePresignedPathEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import {PermissionDeniedError} from '../../users/errors.js';
+import issuePresignedPath from './handler.js';
+import {IssuePresignedPathEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();
@@ -36,15 +37,16 @@ afterAll(async () => {
 });
 
 describe('issuePresignedPath', () => {
-  softkaveTest.run('file presigned path issued', async () => {
+  test('file presigned path issued', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
 
-    const instData = RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {filepath: stringifyFilenamepath(file, workspace.rootname)}
-    );
+    const instData =
+      RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {filepath: stringifyFilenamepath(file, workspace.rootname)}
+      );
     const result = await issuePresignedPath(instData);
     assertEndpointResultOk(result);
 
@@ -52,15 +54,16 @@ describe('issuePresignedPath', () => {
     await expectFileBodyEqualById(file.resourceId, readFileResult.stream);
   });
 
-  softkaveTest.run('issued with fileId', async () => {
+  test('issued with fileId', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
 
-    const instData = RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {fileId: file.resourceId}
-    );
+    const instData =
+      RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {fileId: file.resourceId}
+      );
     const result = await issuePresignedPath(instData);
     assertEndpointResultOk(result);
 
@@ -68,19 +71,20 @@ describe('issuePresignedPath', () => {
     await expectFileBodyEqualById(file.resourceId, readFileResult.stream);
   });
 
-  softkaveTest.run('file presigned path issued with duration', async () => {
+  test('file presigned path issued with duration', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
 
     const duration = 1000; // 1 sec
-    const instData = RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {
-        duration,
-        filepath: stringifyFilenamepath(file, workspace.rootname),
-      }
-    );
+    const instData =
+      RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          duration,
+          filepath: stringifyFilenamepath(file, workspace.rootname),
+        }
+      );
     const result = await issuePresignedPath(instData);
     assertEndpointResultOk(result);
 
@@ -88,20 +92,21 @@ describe('issuePresignedPath', () => {
     await expectReadFileFails(result.path, NotFoundError.name);
   });
 
-  softkaveTest.run('file presigned path issued with expiration timestamp', async () => {
+  test('file presigned path issued with expiration timestamp', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
 
     const duration = 1000; // 1 sec
     const expires = Date.now() + duration;
-    const instData = RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {
-        expires,
-        filepath: stringifyFilenamepath(file, workspace.rootname),
-      }
-    );
+    const instData =
+      RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          expires,
+          filepath: stringifyFilenamepath(file, workspace.rootname),
+        }
+      );
     const result = await issuePresignedPath(instData);
     assertEndpointResultOk(result);
 
@@ -109,19 +114,20 @@ describe('issuePresignedPath', () => {
     await expectReadFileFails(result.path, NotFoundError.name);
   });
 
-  softkaveTest.run('file presigned path issued with usage count', async () => {
+  test('file presigned path issued with usage count', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
 
     const usageCount = 2;
-    const instData = RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {
-        usageCount,
-        filepath: stringifyFilenamepath(file, workspace.rootname),
-      }
-    );
+    const instData =
+      RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          usageCount,
+          filepath: stringifyFilenamepath(file, workspace.rootname),
+        }
+      );
     const result = await issuePresignedPath(instData);
     assertEndpointResultOk(result);
 
@@ -133,61 +139,68 @@ describe('issuePresignedPath', () => {
     await expectReadFileFails(result.path, NotFoundError.name);
   });
 
-  softkaveTest.run('fails if agent does not have permission', async () => {
+  test('fails if agent does not have permission', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
-    const {token} = await insertAgentTokenForTest(userToken, workspace.resourceId);
+    const {token} = await insertAgentTokenForTest(
+      userToken,
+      workspace.resourceId
+    );
 
     await expectErrorThrown(async () => {
       const usageCount = 2;
-      const instData = RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
-        mockExpressRequestWithAgentToken(token),
-        {
-          usageCount,
-          filepath: stringifyFilenamepath(file, workspace.rootname),
-        }
-      );
+      const instData =
+        RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
+          mockExpressRequestWithAgentToken(token),
+          {
+            usageCount,
+            filepath: stringifyFilenamepath(file, workspace.rootname),
+          }
+        );
       await issuePresignedPath(instData);
     }, [PermissionDeniedError.name]);
   });
 
-  softkaveTest.run(
-    'fails if agent does not have permission and file does not exist',
-    async () => {
-      const {userToken} = await insertUserForTest();
-      const {workspace} = await insertWorkspaceForTest(userToken);
-      const {folder} = await insertFolderForTest(userToken, workspace);
-      const {token} = await insertAgentTokenForTest(userToken, workspace.resourceId);
+  test('fails if agent does not have permission and file does not exist', async () => {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    const {folder} = await insertFolderForTest(userToken, workspace);
+    const {token} = await insertAgentTokenForTest(
+      userToken,
+      workspace.resourceId
+    );
 
-      const filepath = addRootnameToPath(
-        folder.namepath.join('/') + `/${faker.lorem.word()}`,
-        workspace.rootname
-      );
+    const filepath = addRootnameToPath(
+      folder.namepath.join('/') + `/${faker.lorem.word()}`,
+      workspace.rootname
+    );
 
-      await expectErrorThrown(async () => {
-        const instData = RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
+    await expectErrorThrown(async () => {
+      const instData =
+        RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
           mockExpressRequestWithAgentToken(token),
           {filepath}
         );
-        await issuePresignedPath(instData);
-      }, [PermissionDeniedError.name]);
-    }
-  );
+      await issuePresignedPath(instData);
+    }, [PermissionDeniedError.name]);
+  });
 
-  softkaveTest.run('passes if file does not exist yet', async () => {
+  test('passes if file does not exist yet', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {folder} = await insertFolderForTest(userToken, workspace);
 
     const filepath = addRootnameToPath(
-      folder.namepath.join('/') + `/${generateTestFileName({includeStraySlashes: true})}`,
+      folder.namepath.join('/') +
+        `/${generateTestFileName({includeStraySlashes: true})}`,
       workspace.rootname
     );
-    const instData = RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {filepath}
-    );
+    const instData =
+      RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {filepath}
+      );
     const result = await issuePresignedPath(instData);
     assertEndpointResultOk(result);
 
@@ -199,14 +212,15 @@ describe('issuePresignedPath', () => {
     await tryReadFile(result.path);
   });
 
-  softkaveTest.run('fails if file does not exist and filepath not provided', async () => {
+  test('fails if file does not exist and filepath not provided', async () => {
     const {userToken} = await insertUserForTest();
 
     await expectErrorThrown(async () => {
-      const instData = RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
-        mockExpressRequestWithAgentToken(userToken),
-        {fileId: getNewIdForResource(kFimidaraResourceType.File)}
-      );
+      const instData =
+        RequestData.fromExpressRequest<IssuePresignedPathEndpointParams>(
+          mockExpressRequestWithAgentToken(userToken),
+          {fileId: getNewIdForResource(kFimidaraResourceType.File)}
+        );
       await issuePresignedPath(instData);
     }, [NotFoundError.name]);
   });

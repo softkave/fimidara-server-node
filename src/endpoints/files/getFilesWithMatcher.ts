@@ -1,59 +1,63 @@
-import {isNumber} from 'lodash';
-import {File, FileMatcher} from '../../definitions/file';
-import {PermissionAction, kPermissionsMap} from '../../definitions/permissionItem';
-import {PresignedPath} from '../../definitions/presignedPath';
-import {kFimidaraResourceType} from '../../definitions/system';
-import {Workspace} from '../../definitions/workspace';
-import {kSystemSessionAgent} from '../../utils/agent';
-import {appAssert} from '../../utils/assertion';
-import {tryGetResourceTypeFromId} from '../../utils/resource';
-import {kReuseableErrors} from '../../utils/reusableErrors';
+import {isNumber} from 'lodash-es';
+import {File, FileMatcher} from '../../definitions/file.js';
+import {
+  FimidaraPermissionAction,
+  kFimidaraPermissionActionsMap,
+} from '../../definitions/permissionItem.js';
+import {PresignedPath} from '../../definitions/presignedPath.js';
+import {kFimidaraResourceType} from '../../definitions/system.js';
+import {Workspace} from '../../definitions/workspace.js';
+import {kSystemSessionAgent} from '../../utils/agent.js';
+import {appAssert} from '../../utils/assertion.js';
+import {tryGetResourceTypeFromId} from '../../utils/resource.js';
+import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {
   makeUserSessionAgent,
   makeWorkspaceAgentTokenAgent,
-} from '../../utils/sessionUtils';
-import {kSemanticModels} from '../contexts/injection/injectables';
+} from '../../utils/sessionUtils.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderQueryParams,
-} from '../contexts/semantic/types';
-import {kFolderConstants} from '../folders/constants';
-import {PermissionDeniedError} from '../users/errors';
+} from '../contexts/semantic/types.js';
+import {kFolderConstants} from '../folders/constants.js';
+import {PermissionDeniedError} from '../users/errors.js';
 import {
   assertFile,
   checkFileAuthorization,
   getFilepathInfo,
   getWorkspaceFromFilepath,
   ingestFileByFilepath,
-} from './utils';
+} from './utils.js';
 
 export async function checkAndIncrementPresignedPathUsageCount(
-  presignedPath: PresignedPath
+  presignedPath: PresignedPath,
+  opts: SemanticProviderMutationParams
 ) {
-  return await kSemanticModels.utils().withTxn(async opts => {
-    if (
-      isNumber(presignedPath.maxUsageCount) &&
-      presignedPath.maxUsageCount <= presignedPath.spentUsageCount
-    ) {
-      // TODO: should we use a different error type?
-      throw kReuseableErrors.file.notFound();
-    }
+  if (
+    isNumber(presignedPath.maxUsageCount) &&
+    presignedPath.maxUsageCount <= presignedPath.spentUsageCount
+  ) {
+    // TODO: should we use a different error type?
+    throw kReuseableErrors.file.notFound();
+  }
 
-    const updatedPresignedPath = await kSemanticModels
-      .presignedPath()
-      .getAndUpdateOneById(
-        presignedPath.resourceId,
-        {spentUsageCount: presignedPath.spentUsageCount + 1},
-        opts
-      );
+  const updatedPresignedPath = await kSemanticModels
+    .presignedPath()
+    .getAndUpdateOneById(
+      presignedPath.resourceId,
+      {spentUsageCount: presignedPath.spentUsageCount + 1},
+      opts
+    );
 
-    assertFile(updatedPresignedPath);
-    return updatedPresignedPath;
-  }, /** reuseTxn */ true);
+  assertFile(updatedPresignedPath);
+  return updatedPresignedPath;
 }
 
 export function extractPresignedPathIdFromFilepath(filepath: string) {
-  return filepath.startsWith(kFolderConstants.separator) ? filepath.slice(1) : filepath;
+  return filepath.startsWith(kFolderConstants.separator)
+    ? filepath.slice(1)
+    : filepath;
 }
 
 export function isPresignedPath(filepath: string) {
@@ -64,9 +68,9 @@ export function isPresignedPath(filepath: string) {
 
 export async function getFileByPresignedPath(props: {
   filepath: string;
-  action: PermissionAction;
+  action: FimidaraPermissionAction;
   incrementUsageCount: boolean;
-  opts?: SemanticProviderQueryParams<File>;
+  opts: SemanticProviderMutationParams & SemanticProviderQueryParams<File>;
 }) {
   const {filepath, action, incrementUsageCount, opts} = props;
 
@@ -85,17 +89,23 @@ export async function getFileByPresignedPath(props: {
     throw kReuseableErrors.file.notFound();
   }
 
-  appAssert(presignedPath.actions.includes(action), new PermissionDeniedError());
+  appAssert(
+    presignedPath.actions.includes(action),
+    new PermissionDeniedError()
+  );
 
   if (incrementUsageCount) {
-    presignedPath = await checkAndIncrementPresignedPathUsageCount(presignedPath);
+    presignedPath = await checkAndIncrementPresignedPathUsageCount(
+      presignedPath,
+      opts
+    );
   }
 
   const file = await kSemanticModels.file().getOneByNamepath(
     {
       workspaceId: presignedPath.workspaceId,
       namepath: presignedPath.namepath,
-      extension: presignedPath.extension,
+      ext: presignedPath.ext,
     },
     opts
   );
@@ -113,7 +123,7 @@ export async function getFileByPresignedPath(props: {
     .assertGetOneByQuery({resourceId: presignedPath.issuerAgentTokenId}, opts);
 
   await checkFileAuthorization(
-    agentToken
+    agentToken.entityType === kFimidaraResourceType.User
       ? makeUserSessionAgent(
           // TODO: how can we reduce all the db fetches in this function
           await kSemanticModels.user().assertGetOneByQuery({
@@ -131,7 +141,7 @@ export async function getFileByPresignedPath(props: {
 }
 
 export async function getFileByFilepath(props: {
-  /** filepath with extension if present, and workspace rootname. */
+  /** filepath with ext if present, and workspace rootname. */
   filepath: string;
   opts: SemanticProviderMutationParams;
   workspaceId?: string;
@@ -146,7 +156,10 @@ export async function getFileByFilepath(props: {
     workspaceId = workspace.resourceId;
   }
 
-  const pathinfo = getFilepathInfo(filepath);
+  const pathinfo = getFilepathInfo(filepath, {
+    allowRootFolder: false,
+    containsRootname: true,
+  });
   const file = await fileModel.getOneByNamepath(
     {workspaceId, namepath: pathinfo.namepath},
     opts
@@ -159,7 +172,7 @@ export async function getFileWithMatcher(props: {
   matcher: FileMatcher;
   opts: SemanticProviderMutationParams;
   /** Defaults to `readFile`. */
-  presignedPathAction?: PermissionAction;
+  presignedPathAction?: FimidaraPermissionAction;
   workspaceId?: string;
   /** Defaults to `true`. */
   supportPresignedPath?: boolean;
@@ -174,7 +187,7 @@ export async function getFileWithMatcher(props: {
     supportPresignedPath = true,
     incrementPresignedPathUsageCount = true,
     shouldIngestFile = true,
-    presignedPathAction = kPermissionsMap.readFile,
+    presignedPathAction = kFimidaraPermissionActionsMap.readFile,
   } = props;
 
   if (matcher.fileId) {
@@ -211,7 +224,7 @@ export async function getFileWithMatcher(props: {
       await ingestFileByFilepath({
         opts,
         agent: kSystemSessionAgent,
-        filepath: matcher.filepath,
+        fimidaraFilepath: matcher.filepath,
       });
 
       // Try again to get file from DB

@@ -1,5 +1,5 @@
-import {CountItemsEndpointResult, Endpoint} from '../../types';
-import {GetWorkspaceAgentTokensEndpointParamsBase} from '../getWorkspaceTokens/types';
+import {CountItemsEndpointResult, Endpoint} from '../../types.js';
+import {GetWorkspaceAgentTokensEndpointParamsBase} from '../getWorkspaceTokens/types.js';
 
 export type CountWorkspaceAgentTokensEndpointParams =
   GetWorkspaceAgentTokensEndpointParamsBase;

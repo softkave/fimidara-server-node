@@ -1,34 +1,37 @@
 import * as assert from 'assert';
 // eslint-disable-next-line node/no-unpublished-import
 import * as inquirer from 'inquirer';
-import {kCollaborationRequestStatusTypeMap} from '../../definitions/collaborationRequest';
-import {kTokenAccessScope} from '../../definitions/system';
-import {UserWithWorkspace} from '../../definitions/user';
-import {Workspace} from '../../definitions/workspace';
-import {assertAgentToken} from '../../endpoints/agentTokens/utils';
+import {kCollaborationRequestStatusTypeMap} from '../../definitions/collaborationRequest.js';
+import {kTokenAccessScope} from '../../definitions/system.js';
+import {UserWithWorkspace} from '../../definitions/user.js';
+import {Workspace} from '../../definitions/workspace.js';
+import {assertAgentToken} from '../../endpoints/agentTokens/utils.js';
 import {
   addAssignedPermissionGroupList,
   assignWorkspaceToUser,
-} from '../../endpoints/assignedItems/addAssignedItems';
-import {INTERNAL_RespondToCollaborationRequest} from '../../endpoints/collaborationRequests/respondToRequest/utils';
+} from '../../endpoints/assignedItems/addAssignedItems.js';
+import {INTERNAL_RespondToCollaborationRequest} from '../../endpoints/collaborationRequests/respondToRequest/utils.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../endpoints/contexts/injection/injectables';
+} from '../../endpoints/contexts/injection/injectables.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
-} from '../../endpoints/contexts/semantic/types';
-import {fetchEntityAssignedPermissionGroupList} from '../../endpoints/permissionGroups/getEntityAssignedPermissionGroups/utils';
-import {assertPermissionGroup} from '../../endpoints/permissionGroups/utils';
-import {initFimidara} from '../../endpoints/runtime/initFimidara';
-import INTERNAL_confirmEmailAddress from '../../endpoints/users/confirmEmailAddress/internalConfirmEmailAddress';
-import {INTERNAL_signupUser} from '../../endpoints/users/signup/utils';
-import {getCompleteUserDataByEmail, isUserInWorkspace} from '../../endpoints/users/utils';
-import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME} from '../../endpoints/workspaces/addWorkspace/utils';
-import {kSystemSessionAgent} from '../../utils/agent';
-import {getTimestamp} from '../../utils/dateFns';
-import {makeUserSessionAgent} from '../../utils/sessionUtils';
+} from '../../endpoints/contexts/semantic/types.js';
+import {fetchEntityAssignedPermissionGroupList} from '../../endpoints/permissionGroups/getEntityAssignedPermissionGroups/utils.js';
+import {assertPermissionGroup} from '../../endpoints/permissionGroups/utils.js';
+import {initFimidara} from '../../endpoints/runtime/initFimidara.js';
+import INTERNAL_confirmEmailAddress from '../../endpoints/users/confirmEmailAddress/internalConfirmEmailAddress.js';
+import {INTERNAL_signupUser} from '../../endpoints/users/signup/utils.js';
+import {
+  getCompleteUserDataByEmail,
+  isUserInWorkspace,
+} from '../../endpoints/users/utils.js';
+import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME} from '../../endpoints/workspaces/addWorkspace/utils.js';
+import {kSystemSessionAgent} from '../../utils/agent.js';
+import {getTimestamp} from '../../utils/dateFns.js';
+import {makeUserSessionAgent} from '../../utils/sessionUtils.js';
 
 export interface PromptEmailAnswers {
   email: string;
@@ -133,33 +136,26 @@ async function makeUserAdmin(
   }
 }
 
-async function getUser(
-  runtimeOptions: ISetupDevUserOptions,
-  opts?: SemanticProviderOpParams
-) {
-  const {email} = await runtimeOptions.getUserEmail();
-  const userExists = await kSemanticModels.user().existsByEmail(email, opts);
-  let user: UserWithWorkspace;
+async function getUser(runtimeOptions: ISetupDevUserOptions) {
+  return await kSemanticModels.utils().withTxn(async opts => {
+    const {email} = await runtimeOptions.getUserEmail();
+    const userExists = await kSemanticModels.user().existsByEmail(email, opts);
+    let user: UserWithWorkspace;
 
-  if (userExists) {
-    user = await getCompleteUserDataByEmail(email, opts);
-  } else {
-    const userInfo = await runtimeOptions.getUserInfo();
-    user = await kSemanticModels
-      .utils()
-      .withTxn(
-        opts =>
-          INTERNAL_signupUser(
-            {...userInfo, email},
-            {requiresPasswordChange: false, isEmailVerified: true},
-            opts
-          ),
-        /** reuseTxn */ true
+    if (userExists) {
+      user = await getCompleteUserDataByEmail(email, opts);
+    } else {
+      const userInfo = await runtimeOptions.getUserInfo();
+      user = await INTERNAL_signupUser(
+        {...userInfo, email},
+        {requiresPasswordChange: false, isEmailVerified: true},
+        opts
       );
-  }
+    }
 
-  assert.ok(user);
-  return user;
+    assert.ok(user);
+    return user;
+  });
 }
 
 export async function setupDevUser(appOptions: ISetupDevUserOptions) {
@@ -170,23 +166,25 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
   if (user.isOnWaitlist) {
     await kSemanticModels
       .utils()
-      .withTxn(
-        opts =>
-          kSemanticModels
-            .user()
-            .updateOneById(
-              user.resourceId,
-              {isOnWaitlist: false, removedFromWaitlistOn: getTimestamp()},
-              opts
-            ),
-        /** reuseTxn */ true
+      .withTxn(opts =>
+        kSemanticModels
+          .user()
+          .updateOneById(
+            user.resourceId,
+            {isOnWaitlist: false, removedFromWaitlistOn: getTimestamp()},
+            opts
+          )
       );
   }
 
   await kSemanticModels.utils().withTxn(async opts => {
     const adminPermissionGroup = await kSemanticModels
       .permissionGroup()
-      .getByName(workspace.resourceId, DEFAULT_ADMIN_PERMISSION_GROUP_NAME, opts);
+      .getByName(
+        workspace.resourceId,
+        DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
+        opts
+      );
     assertPermissionGroup(adminPermissionGroup);
 
     if (isInWorkspace) {
@@ -203,10 +201,12 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
 
       if (request) {
         kUtilsInjectables.logger().log('Existing collaboration request found');
-        kUtilsInjectables.logger().log(`Accepting request ${request.resourceId}`);
+        kUtilsInjectables
+          .logger()
+          .log(`Accepting request ${request.resourceId}`);
         const agentToken = await kSemanticModels
           .agentToken()
-          .getOneAgentToken(user.resourceId, kTokenAccessScope.Login, opts);
+          .getOneAgentToken(user.resourceId, kTokenAccessScope.login, opts);
         assertAgentToken(agentToken);
         const agent = makeUserSessionAgent(user, agentToken);
         await INTERNAL_RespondToCollaborationRequest(
@@ -238,10 +238,12 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
     kUtilsInjectables
       .logger()
       .log(`User ${user.email} is now an admin of workspace ${workspace.name}`);
-  }, /** reuseTxn */ true);
+  });
 
   if (!user.isEmailVerified) {
-    kUtilsInjectables.logger().log(`Verifying email address for user ${user.email}`);
+    kUtilsInjectables
+      .logger()
+      .log(`Verifying email address for user ${user.email}`);
     await INTERNAL_confirmEmailAddress(user.resourceId, user);
   }
 }

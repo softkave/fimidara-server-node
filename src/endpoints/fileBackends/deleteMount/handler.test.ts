@@ -1,15 +1,20 @@
-import {kFileBackendType} from '../../../definitions/fileBackend';
-import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {appAssert} from '../../../utils/assertion';
-import {getNewIdForResource} from '../../../utils/resource';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {NotFoundError} from '../../errors';
-import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kFileBackendType} from '../../../definitions/fileBackend.js';
+import {
+  DeleteResourceJobParams,
+  Job,
+  kJobType,
+} from '../../../definitions/job.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {NotFoundError} from '../../errors.js';
+import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -17,9 +22,9 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import deleteFileBackendMount from './handler';
-import {DeleteFileBackendMountEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import deleteFileBackendMount from './handler.js';
+import {DeleteFileBackendMountEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();
@@ -33,22 +38,24 @@ describe('deleteMount', () => {
   test('fails if mount does not exist', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const instData = RequestData.fromExpressRequest<DeleteFileBackendMountEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {
-        mountId: getNewIdForResource(kFimidaraResourceType.FileBackendMount),
-        workspaceId: workspace.resourceId,
-      }
-    );
+    const instData =
+      RequestData.fromExpressRequest<DeleteFileBackendMountEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          mountId: getNewIdForResource(kFimidaraResourceType.FileBackendMount),
+          workspaceId: workspace.resourceId,
+        }
+      );
 
     await expectErrorThrown(
       async () => {
         await deleteFileBackendMount(instData);
       },
-      error =>
+      error => {
         expect((error as NotFoundError).message).toBe(
           kReuseableErrors.mount.notFound().message
-        )
+        );
+      }
     );
   });
 
@@ -60,19 +67,21 @@ describe('deleteMount', () => {
       backend: kFileBackendType.fimidara,
     });
 
-    const instData = RequestData.fromExpressRequest<DeleteFileBackendMountEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {mountId: mount.resourceId, workspaceId: workspace.resourceId}
-    );
+    const instData =
+      RequestData.fromExpressRequest<DeleteFileBackendMountEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {mountId: mount.resourceId, workspaceId: workspace.resourceId}
+      );
 
     await expectErrorThrown(
       async () => {
         await deleteFileBackendMount(instData);
       },
-      error =>
+      error => {
         expect((error as NotFoundError).message).toBe(
           kReuseableErrors.mount.cannotDeleteFimidaraMount().message
-        )
+        );
+      }
     );
   });
 
@@ -81,16 +90,17 @@ describe('deleteMount', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {mount} = await insertFileBackendMountForTest(userToken, workspace);
 
-    const instData = RequestData.fromExpressRequest<DeleteFileBackendMountEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {mountId: mount.resourceId, workspaceId: workspace.resourceId}
-    );
+    const instData =
+      RequestData.fromExpressRequest<DeleteFileBackendMountEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {mountId: mount.resourceId, workspaceId: workspace.resourceId}
+      );
     const result = await deleteFileBackendMount(instData);
     assertEndpointResultOk(result);
 
     appAssert(result.jobId);
     const job = (await kSemanticModels.job().getOneByQuery({
-      type: kJobType.deleteResource0,
+      type: kJobType.deleteResource,
       resourceId: result.jobId,
       params: {
         $objMatch: {type: kFimidaraResourceType.FileBackendMount},

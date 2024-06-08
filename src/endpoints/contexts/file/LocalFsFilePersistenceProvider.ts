@@ -1,12 +1,13 @@
 import fse from 'fs-extra';
-import {compact, first, isNumber} from 'lodash';
-import {appAssert} from '../../../utils/assertion';
-import {noopAsync, pathJoin} from '../../../utils/fns';
-import {AnyFn} from '../../../utils/types';
-import {kUtilsInjectables} from '../injection/injectables';
+import {compact, first, isNumber} from 'lodash-es';
+import {appAssert} from '../../../utils/assertion.js';
+import {noopAsync, pathJoin} from '../../../utils/fns.js';
+import {AnyFn} from '../../../utils/types.js';
+import {kUtilsInjectables} from '../injection/injectables.js';
 import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
+  FilePersistenceDescribeFileParams,
   FilePersistenceDescribeFolderContentParams,
   FilePersistenceDescribeFolderContentResult,
   FilePersistenceDescribeFolderFoldersParams,
@@ -17,13 +18,14 @@ import {
   FilePersistenceToFimidaraPathParams,
   FilePersistenceToFimidaraPathResult,
   FilePersistenceUploadFileParams,
+  FilePersistenceUploadFileResult,
   FimidaraToFilePersistencePathParams,
   FimidaraToFilePersistencePathResult,
   PersistedFile,
   PersistedFileDescription,
   PersistedFolderDescription,
-} from './types';
-import {defaultToFimidaraPath, defaultToNativePath} from './utils';
+} from './types.js';
+import {defaultToFimidaraPath, defaultToNativePath} from './utils.js';
 
 export interface LocalFsFilePersistenceProviderParams {
   dir: string;
@@ -56,23 +58,33 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
 
   uploadFile = async (params: FilePersistenceUploadFileParams) => {
     const {mount, filepath} = params;
-    const {nativePath} = this.toNativePath({fimidaraPath: filepath, mount: mount});
+    const {nativePath} = this.toNativePath({
+      fimidaraPath: filepath,
+      mount: mount,
+    });
     await fse.ensureFile(nativePath);
 
-    return new Promise<{}>((resolve, reject) => {
+    return new Promise<FilePersistenceUploadFileResult>((resolve, reject) => {
       const writeStream = fse.createWriteStream(nativePath, {
         autoClose: true,
         emitClose: true,
       });
-      writeStream.on('close', () => resolve({}));
+      writeStream.on('close', () => {
+        resolve({filepath, raw: undefined});
+      });
       writeStream.on('error', reject);
       params.body.pipe(writeStream);
     });
   };
 
-  readFile = async (params: FilePersistenceGetFileParams): Promise<PersistedFile> => {
+  readFile = async (
+    params: FilePersistenceGetFileParams
+  ): Promise<PersistedFile> => {
     const {mount, filepath} = params;
-    const {nativePath} = this.toNativePath({fimidaraPath: filepath, mount: mount});
+    const {nativePath} = this.toNativePath({
+      fimidaraPath: filepath,
+      mount: mount,
+    });
     const stat = await fse.promises.stat(nativePath);
 
     if (!stat.isFile()) {
@@ -84,13 +96,16 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
   };
 
   deleteFiles = async (params: FilePersistenceDeleteFilesParams) => {
-    if (params.filepaths.length === 0) {
+    if (params.files.length === 0) {
       // Short-circuit, no files to delete
       return;
     }
 
-    const rmPromises = params.filepaths.map(async key => {
-      const {nativePath} = this.toNativePath({fimidaraPath: key, mount: params.mount});
+    const rmPromises = params.files.map(async ({filepath: key}) => {
+      const {nativePath} = this.toNativePath({
+        fimidaraPath: key,
+        mount: params.mount,
+      });
       await fse.promises.rm(nativePath, {force: true});
     });
 
@@ -98,13 +113,16 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
   };
 
   deleteFolders = async (params: FilePersistenceDeleteFoldersParams) => {
-    if (params.folderpaths.length === 0) {
+    if (params.folders.length === 0) {
       // Short-circuit, no files to delete
       return;
     }
 
-    const rmPromises = params.folderpaths.map(async key => {
-      const {nativePath} = this.toNativePath({fimidaraPath: key, mount: params.mount});
+    const rmPromises = params.folders.map(async ({folderpath: key}) => {
+      const {nativePath} = this.toNativePath({
+        fimidaraPath: key,
+        mount: params.mount,
+      });
       await fse.promises.rm(nativePath, {recursive: true, force: true});
     });
 
@@ -112,20 +130,24 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
   };
 
   describeFile = async (
-    params: FilePersistenceGetFileParams
-  ): Promise<PersistedFileDescription | undefined> => {
+    params: FilePersistenceDescribeFileParams
+  ): Promise<PersistedFileDescription<undefined> | undefined> => {
     const {mount, filepath} = params;
-    const {nativePath} = this.toNativePath({fimidaraPath: filepath, mount: mount});
+    const {nativePath} = this.toNativePath({
+      fimidaraPath: filepath,
+      mount: mount,
+    });
     return first(
       await this.getLocalStats(
         [nativePath],
-        (stat): PersistedFileDescription | undefined => {
+        (stat): PersistedFileDescription<undefined> | undefined => {
           if (stat.isFile()) {
             return {
               filepath,
               size: stat.size,
               lastUpdatedAt: stat.mtimeMs,
               mountId: mount.resourceId,
+              raw: undefined,
             };
           }
 
@@ -137,17 +159,21 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
 
   describeFolder = async (
     params: FilePersistenceDescribeFolderParams
-  ): Promise<PersistedFolderDescription | undefined> => {
+  ): Promise<PersistedFolderDescription<undefined> | undefined> => {
     const {mount, folderpath} = params;
-    const {nativePath} = this.toNativePath({fimidaraPath: folderpath, mount: mount});
+    const {nativePath} = this.toNativePath({
+      fimidaraPath: folderpath,
+      mount: mount,
+    });
     return first(
       await this.getLocalStats(
         [nativePath],
-        (stat): PersistedFolderDescription | undefined => {
+        (stat): PersistedFolderDescription<undefined> | undefined => {
           if (stat.isDirectory()) {
             return {
               folderpath: params.folderpath,
               mountId: params.mount.resourceId,
+              raw: undefined,
             };
           }
 
@@ -159,10 +185,12 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
 
   describeFolderContent = async (
     params: FilePersistenceDescribeFolderContentParams
-  ): Promise<FilePersistenceDescribeFolderContentResult> => {
+  ): Promise<
+    FilePersistenceDescribeFolderContentResult<undefined, undefined>
+  > => {
     const {mount, max} = params;
-    const files: PersistedFileDescription[] = [];
-    const folders: PersistedFolderDescription[] = [];
+    const files: PersistedFileDescription<undefined>[] = [];
+    const folders: PersistedFolderDescription<undefined>[] = [];
     const {continuationToken} = await this.produceFromChildren(
       params,
       (stat, nativePath) => {
@@ -172,11 +200,13 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
             size: stat.size,
             lastUpdatedAt: stat.mtimeMs,
             mountId: mount.resourceId,
+            raw: undefined,
           });
         } else if (stat.isDirectory()) {
           folders.push({
             folderpath: this.toFimidaraPath({nativePath, mount}).fimidaraPath,
             mountId: mount.resourceId,
+            raw: undefined,
           });
         }
 
@@ -225,7 +255,10 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
     fn: TFn
   ): Promise<{continuationToken?: number}> => {
     const {mount, folderpath, continuationToken, max} = params;
-    const {nativePath} = this.toNativePath({fimidaraPath: folderpath, mount: mount});
+    const {nativePath} = this.toNativePath({
+      fimidaraPath: folderpath,
+      mount: mount,
+    });
 
     if (continuationToken) {
       appAssert(isNumber(continuationToken));
@@ -239,9 +272,15 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
       let stopIndex = pageIndex;
       let stopSignal = false;
 
-      for (; pageIndex < children.length && !stopSignal; pageIndex = pageIndex + max) {
+      for (
+        ;
+        pageIndex < children.length && !stopSignal;
+        pageIndex = pageIndex + max
+      ) {
         await this.getLocalStats(
-          children.slice(pageIndex, pageIndex + max).map(p => pathJoin(nativePath, p)),
+          children
+            .slice(pageIndex, pageIndex + max)
+            .map(p => pathJoin(nativePath, p)),
           (stat, nativePath, statIndex) => {
             stopSignal = fn(stat, nativePath, statIndex);
             stopIndex = pageIndex + statIndex + 1;

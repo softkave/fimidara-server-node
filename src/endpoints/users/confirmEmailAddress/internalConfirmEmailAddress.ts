@@ -1,8 +1,8 @@
-import {kTokenAccessScope} from '../../../definitions/system';
-import {User} from '../../../definitions/user';
-import {getTimestamp} from '../../../utils/dateFns';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {assertUser} from '../utils';
+import {kTokenAccessScope} from '../../../definitions/system.js';
+import {User} from '../../../definitions/user.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {assertUser} from '../utils.js';
 
 /**
  * Confirms the email address of the user. For internal use only.
@@ -22,10 +22,14 @@ export default async function INTERNAL_confirmEmailAddress(
         ),
       kSemanticModels
         .agentToken()
-        .softDeleteAgentTokens(userId, kTokenAccessScope.ConfirmEmailAddress, opts),
+        .softDeleteAgentTokens(
+          userId,
+          kTokenAccessScope.confirmEmailAddress,
+          opts
+        ),
     ]);
 
     assertUser(user);
     return user;
-  }, /** reuseTxn */ true);
+  });
 }

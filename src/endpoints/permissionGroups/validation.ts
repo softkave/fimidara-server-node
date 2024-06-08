@@ -1,7 +1,7 @@
-import * as Joi from 'joi';
-import {AssignPermissionGroupInput} from '../../definitions/permissionGroups';
-import {kValidationSchemas} from '../../utils/validationUtils';
-import {permissionGroupConstants} from './constants';
+import Joi from 'joi';
+import {AssignPermissionGroupInput} from '../../definitions/permissionGroups.js';
+import {kValidationSchemas} from '../../utils/validationUtils.js';
+import {permissionGroupConstants} from './constants.js';
 
 const assignedPermissionGroup = Joi.object().keys({
   permissionGroupId: kValidationSchemas.resourceId.required(),

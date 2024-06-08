@@ -1,16 +1,16 @@
-import countWorkspaceCollaborators from './countWorkspaceCollaborators/handler';
+import countWorkspaceCollaborators from './countWorkspaceCollaborators/handler.js';
 import {
   countWorkspaceCollaboratorsEndpointDefinition,
   getCollaboratorEndpointDefinition,
   getCollaboratorsWithoutPermissionEndpointDefinition,
   getWorkspaceCollaboratorsEndpointDefinition,
   removeCollaboratorEndpointDefinition,
-} from './endpoints.mddoc';
-import getCollaborator from './getCollaborator/handler';
-import getCollaboratorsWithoutPermission from './getCollaboratorsWithoutPermission/handler';
-import getWorkspaceCollaborators from './getWorkspaceCollaborators/handler';
-import removeCollaborator from './removeCollaborator/handler';
-import {CollaboratorsPrivateExportedEndpoints, CollaboratorsPublicExportedEndpoints} from './types';
+} from './endpoints.mddoc.js';
+import getCollaborator from './getCollaborator/handler.js';
+import getCollaboratorsWithoutPermission from './getCollaboratorsWithoutPermission/handler.js';
+import getWorkspaceCollaborators from './getWorkspaceCollaborators/handler.js';
+import removeCollaborator from './removeCollaborator/handler.js';
+import {CollaboratorsPrivateExportedEndpoints, CollaboratorsPublicExportedEndpoints} from './types.js';
 
 export function getCollaboratorsPublicHttpEndpoints() {
   const collaboratorsExportedEndpoints: CollaboratorsPublicExportedEndpoints = {

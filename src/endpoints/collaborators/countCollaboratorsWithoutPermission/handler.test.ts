@@ -1,16 +1,17 @@
-import {kSystemSessionAgent} from '../../../utils/agent';
-import RequestData from '../../RequestData';
-import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import RequestData from '../../RequestData.js';
+import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import countCollaboratorsWithoutPermission from './handler';
-import {CountCollaboratorsWithoutPermissionEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import countCollaboratorsWithoutPermission from './handler.js';
+import {CountCollaboratorsWithoutPermissionEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

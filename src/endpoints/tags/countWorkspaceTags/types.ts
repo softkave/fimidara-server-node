@@ -1,5 +1,5 @@
-import {CountItemsEndpointResult, Endpoint} from '../../types';
-import {GetWorkspaceTagsEndpointParamsBase} from '../getWorkspaceTags/types';
+import {CountItemsEndpointResult, Endpoint} from '../../types.js';
+import {GetWorkspaceTagsEndpointParamsBase} from '../getWorkspaceTags/types.js';
 
 export type CountWorkspaceTagsEndpointParams = GetWorkspaceTagsEndpointParamsBase;
 

@@ -1,14 +1,19 @@
-import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {appAssert} from '../../../utils/assertion';
-import {getNewIdForResource} from '../../../utils/resource';
-import {kReuseableErrors} from '../../../utils/reusableErrors';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {NotFoundError} from '../../errors';
-import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend';
-import {expectErrorThrown} from '../../testUtils/helpers/error';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {
+  DeleteResourceJobParams,
+  Job,
+  kJobType,
+} from '../../../definitions/job.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {appAssert} from '../../../utils/assertion.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {NotFoundError} from '../../errors.js';
+import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -16,9 +21,9 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import deleteFileBackendConfig from './handler';
-import {DeleteFileBackendConfigEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import deleteFileBackendConfig from './handler.js';
+import {DeleteFileBackendConfigEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();
@@ -36,7 +41,9 @@ describe('deleteConfig', () => {
       RequestData.fromExpressRequest<DeleteFileBackendConfigEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
-          configId: getNewIdForResource(kFimidaraResourceType.FileBackendConfig),
+          configId: getNewIdForResource(
+            kFimidaraResourceType.FileBackendConfig
+          ),
           workspaceId: workspace.resourceId,
         }
       );
@@ -45,10 +52,11 @@ describe('deleteConfig', () => {
       async () => {
         await deleteFileBackendConfig(instData);
       },
-      error =>
+      error => {
         expect((error as NotFoundError).message).toBe(
           kReuseableErrors.config.notFound().message
-        )
+        );
+      }
     );
   });
 
@@ -59,7 +67,9 @@ describe('deleteConfig', () => {
       userToken,
       workspace.resourceId
     );
-    await generateAndInsertFileBackendMountListForTest(1, {configId: config.resourceId});
+    await generateAndInsertFileBackendMountListForTest(1, {
+      configId: config.resourceId,
+    });
 
     const instData =
       RequestData.fromExpressRequest<DeleteFileBackendConfigEndpointParams>(
@@ -71,10 +81,11 @@ describe('deleteConfig', () => {
       async () => {
         await deleteFileBackendConfig(instData);
       },
-      error =>
+      error => {
         expect((error as Error).message).toBe(
           kReuseableErrors.config.configInUse(/** count */ 1).message
-        )
+        );
+      }
     );
   });
 
@@ -96,7 +107,7 @@ describe('deleteConfig', () => {
 
     appAssert(result.jobId);
     const job = (await kSemanticModels.job().getOneByQuery({
-      type: kJobType.deleteResource0,
+      type: kJobType.deleteResource,
       resourceId: result.jobId,
       params: {
         $objMatch: {type: kFimidaraResourceType.FileBackendConfig},

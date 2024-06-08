@@ -1,21 +1,23 @@
-import {Job, kJobType} from '../../../definitions/job';
-import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {sortObjectKeys} from '../../../utils/fns';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {Job, kJobType} from '../../../definitions/job.js';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {sortObjectKeys} from '../../../utils/fns.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
   insertPermissionGroupForTest,
+  insertPermissionItemsForTest,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import deletePermissionItems from './handler';
-import {DeletePermissionItemInput, DeletePermissionItemsEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import deletePermissionItems from './handler.js';
+import {DeletePermissionItemInput, DeletePermissionItemsEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();
@@ -32,12 +34,26 @@ test('permission items deleted', async () => {
     insertPermissionGroupForTest(userToken, workspace.resourceId),
     insertPermissionGroupForTest(userToken, workspace.resourceId),
   ]);
+  await Promise.all([
+    insertPermissionItemsForTest(userToken, workspace.resourceId, {
+      entityId: pg01.resourceId,
+      target: {targetId: workspace.resourceId},
+      access: true,
+      action: kFimidaraPermissionActionsMap.addTag,
+    }),
+    insertPermissionItemsForTest(userToken, workspace.resourceId, {
+      entityId: pg02.resourceId,
+      target: {targetId: workspace.resourceId},
+      access: true,
+      action: kFimidaraPermissionActionsMap.addTag,
+    }),
+  ]);
 
   const params: DeletePermissionItemsEndpointParams = {
     workspaceId: workspace.resourceId,
     items: [
       {
-        action: kPermissionsMap.addTag,
+        action: kFimidaraPermissionActionsMap.addTag,
         target: {targetId: workspace.resourceId},
         entityId: pg01.resourceId,
       },

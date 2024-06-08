@@ -1,7 +1,7 @@
-import * as Joi from 'joi';
-import {kPermissionsMap} from '../definitions/permissionItem';
-import {kFimidaraResourceTypeList as systemFimidaraResourceTypesList} from '../definitions/system';
-import {kEndpointConstants} from '../endpoints/constants';
+import Joi from 'joi';
+import {kFimidaraPermissionActionsMap} from '../definitions/permissionItem.js';
+import {kFimidaraResourceTypeList as systemFimidaraResourceTypesList} from '../definitions/system.js';
+import {kEndpointConstants} from '../endpoints/constants.js';
 
 const password = /[A-Za-z0-9!()?_`~#$^&*+=]/;
 const str = /^[\w ]*$/;
@@ -29,9 +29,15 @@ export const kValidationConstants = {
 };
 
 const uuid = Joi.string().guid().trim();
-const color = Joi.string().trim().lowercase().regex(kValidationRegExPatterns.hexColor);
+const color = Joi.string()
+  .trim()
+  .lowercase()
+  .regex(kValidationRegExPatterns.hexColor);
 const alphanum = Joi.string().regex(str);
-const URL = Joi.string().uri().trim().max(kValidationConstants.maxImageURLLength);
+const URL = Joi.string()
+  .uri()
+  .trim()
+  .max(kValidationConstants.maxImageURLLength);
 const positiveNum = Joi.number().integer().positive();
 const name = Joi.string().trim().max(kEndpointConstants.maxNameLength);
 const description = Joi.string()
@@ -50,14 +56,19 @@ const resourceIdList = Joi.array()
   .items(resourceId)
   .min(1)
   .max(kValidationConstants.maxResourceIdInputLength);
-const resourceIdOrResourceIdList = Joi.alternatives().try(resourceId, resourceIdList);
+const resourceIdOrResourceIdList = Joi.alternatives().try(
+  resourceId,
+  resourceIdList
+);
 const fromNowMs = Joi.number().integer().min(0);
 const fromNowSecs = Joi.number().integer().min(0);
 const resourceType = Joi.string().valid(...systemFimidaraResourceTypesList);
-const crudAction = Joi.string().valid(...Object.values(kPermissionsMap));
+const crudAction = Joi.string().valid(
+  ...Object.values(kFimidaraPermissionActionsMap)
+);
 const crudActionList = Joi.array()
   .items(crudAction)
-  .max(Object.values(kPermissionsMap).length);
+  .max(Object.values(kFimidaraPermissionActionsMap).length);
 const providedResourceId = Joi.string().max(
   kEndpointConstants.providedResourceIdMaxLength
 );

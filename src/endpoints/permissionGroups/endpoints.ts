@@ -1,7 +1,7 @@
-import addPermissionGroup from './addPermissionGroup/handler';
-import assignPermissionGroups from './assignPermissionGroups/handler';
-import countWorkspacePermissionGroups from './countWorkspacePermissionGroups/handler';
-import deletePermissionGroup from './deletePermissionGroup/handler';
+import addPermissionGroup from './addPermissionGroup/handler.js';
+import assignPermissionGroups from './assignPermissionGroups/handler.js';
+import countWorkspacePermissionGroups from './countWorkspacePermissionGroups/handler.js';
+import deletePermissionGroup from './deletePermissionGroup/handler.js';
 import {
   addPermissionGroupEndpointDefinition,
   assignPermissionGroupsEndpointDefinition,
@@ -12,13 +12,13 @@ import {
   getWorkspacePermissionGroupsEndpointDefinition,
   unassignPermissionGroupsEndpointDefinition,
   updatePermissionGroupEndpointDefinition,
-} from './endpoints.mddoc';
-import getEntityAssignedPermissionGroups from './getEntityAssignedPermissionGroups/handler';
-import getPermissionGroup from './getPermissionGroup/handler';
-import getWorkspacePermissionGroups from './getWorkspacePermissionGroups/handler';
-import {PermissionGroupsExportedEndpoints} from './types';
-import updatePermissionGroup from './udpatePermissionGroup/handler';
-import unassignPermissionGroups from './unassignPermissionGroups/handler';
+} from './endpoints.mddoc.js';
+import getEntityAssignedPermissionGroups from './getEntityAssignedPermissionGroups/handler.js';
+import getPermissionGroup from './getPermissionGroup/handler.js';
+import getWorkspacePermissionGroups from './getWorkspacePermissionGroups/handler.js';
+import {PermissionGroupsExportedEndpoints} from './types.js';
+import updatePermissionGroup from './udpatePermissionGroup/handler.js';
+import unassignPermissionGroups from './unassignPermissionGroups/handler.js';
 
 export function getPermissionGroupsPublicHttpEndpoints() {
   const permissionGroupsExportedEndpoints: PermissionGroupsExportedEndpoints = {

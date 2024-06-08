@@ -1,10 +1,11 @@
 import {expectTypeOf} from 'expect-type';
+import {expect, describe, test} from 'vitest';
 import {
   FimidaraResourceType,
   FimidaraTypeToTSType,
   kFimidaraResourceType,
   kFimidaraTypeToTSTypeNotFound,
-} from '../system';
+} from '../system.js';
 
 describe('system.d.ts', () => {
   test('FimidaraTypeToTSType', () => {

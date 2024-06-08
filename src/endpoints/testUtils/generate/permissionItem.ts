@@ -1,12 +1,17 @@
 import {faker} from '@faker-js/faker';
-import {PermissionItem} from '../../../definitions/permissionItem';
-import {Agent, kFimidaraResourceType} from '../../../definitions/system';
-import {getTimestamp} from '../../../utils/dateFns';
-import {getNewIdForResource, getResourceTypeFromId} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {randomAction, randomResourceType} from './utils';
+import {PermissionItem} from '../../../definitions/permissionItem.js';
+import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {
+  getNewIdForResource,
+  getResourceTypeFromId,
+} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {randomAction, randomResourceType} from './utils.js';
 
-export function generatePermissionItemForTest(seed: Partial<PermissionItem> = {}) {
+export function generatePermissionItemForTest(
+  seed: Partial<PermissionItem> = {}
+) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
     agentId: getNewIdForResource(kFimidaraResourceType.User),
@@ -55,9 +60,8 @@ export async function generateAndInsertPermissionItemListForTest(
   const items = generatePermissionItemListForTest(count, seed);
   await kSemanticModels
     .utils()
-    .withTxn(
-      async opts => kSemanticModels.permissionItem().insertItem(items, opts),
-      /** reuseTxn */ true
+    .withTxn(async opts =>
+      kSemanticModels.permissionItem().insertItem(items, opts)
     );
   return items;
 }

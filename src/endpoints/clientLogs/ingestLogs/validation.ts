@@ -1,5 +1,5 @@
-import * as Joi from 'joi';
-import clientLogsValidationSchemas from '../validation';
+import Joi from 'joi';
+import clientLogsValidationSchemas from '../validation.js';
 
 export const ingestLogsJoiSchema = Joi.object()
   .keys({

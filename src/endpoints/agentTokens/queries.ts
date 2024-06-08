@@ -1,6 +1,6 @@
-import {TokenAccessScope} from '../../definitions/system';
-import {toCompactArray} from '../../utils/fns';
-import {AgentTokenQuery} from '../contexts/data/types';
+import {TokenAccessScope} from '../../definitions/system.js';
+import {toCompactArray} from '../../utils/fns.js';
+import {AgentTokenQuery} from '../contexts/data/types.js';
 
 function getByEntityAndScope(data: {
   forEntityId: string;

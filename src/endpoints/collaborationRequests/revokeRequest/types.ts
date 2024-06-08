@@ -1,5 +1,5 @@
-import {PublicCollaborationRequestForWorkspace} from '../../../definitions/collaborationRequest';
-import {Endpoint} from '../../types';
+import {PublicCollaborationRequestForWorkspace} from '../../../definitions/collaborationRequest.js';
+import {Endpoint} from '../../types.js';
 
 export interface RevokeCollaborationRequestEndpointParams {
   requestId: string;

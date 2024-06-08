@@ -2,13 +2,13 @@ import {
   PublicUsageRecord,
   UsageRecordCategory,
   UsageRecordFulfillmentStatus,
-} from '../../../definitions/usageRecord';
+} from '../../../definitions/usageRecord.js';
 import {
   Endpoint,
   EndpointOptionalWorkspaceIDParam,
   PaginatedResult,
   PaginationQuery,
-} from '../../types';
+} from '../../types.js';
 
 export type WorkspaceSummedUsageQuery = {
   category?: UsageRecordCategory | UsageRecordCategory[];

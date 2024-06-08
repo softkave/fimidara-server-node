@@ -1,14 +1,18 @@
-import {kFimidaraResourceType} from '../../../../definitions/system';
-import {kSemanticModels} from '../../../contexts/injection/injectables';
-import {genericDeleteArtifacts, genericGetArtifacts} from './genericDefinitions';
+import {kFimidaraResourceType} from '../../../../definitions/system.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {
+  genericDeleteArtifacts,
+  genericGetArtifacts,
+  noopGetPreRunMetaFn,
+} from './genericDefinitions.js';
 import {
   DeleteResourceCascadeEntry,
   DeleteResourceDeleteArtifactsFns,
   DeleteResourceFn,
-  DeleteResourceGetArtifactsFns,
-} from './types';
+  DeleteResourceGetArtifactsToDeleteFns,
+} from './types.js';
 
-const getArtifacts: DeleteResourceGetArtifactsFns = {
+const getArtifacts: DeleteResourceGetArtifactsToDeleteFns = {
   ...genericGetArtifacts,
   [kFimidaraResourceType.PresignedPath]: async ({args, opts}) => {
     return await kSemanticModels
@@ -35,6 +39,7 @@ const deleteResourceFn: DeleteResourceFn = ({args, helpers}) =>
 
 export const deleteAgentTokenCascadeEntry: DeleteResourceCascadeEntry = {
   deleteResourceFn,
-  getArtifacts: getArtifacts,
+  getArtifactsToDelete: getArtifacts,
   deleteArtifacts: deleteArtifacts,
+  getPreRunMetaFn: noopGetPreRunMetaFn,
 };

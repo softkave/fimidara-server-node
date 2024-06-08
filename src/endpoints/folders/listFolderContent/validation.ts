@@ -1,12 +1,12 @@
-import * as Joi from 'joi';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {JoiSchemaParts} from '../../../utils/types';
-import {endpointValidationSchemas} from '../../validation';
-import folderValidationSchemas from '../validation';
+import Joi from 'joi';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {JoiSchemaParts} from '../../../utils/types.js';
+import {endpointValidationSchemas} from '../../validation.js';
+import folderValidationSchemas from '../validation.js';
 import {
   ListFolderContentEndpointParams,
   ListFolderContentEndpointParamsBase,
-} from './types';
+} from './types.js';
 
 const contentType = Joi.string().valid(
   kFimidaraResourceType.File,
@@ -18,9 +18,10 @@ export const listFolderContentBaseJoiSchemaParts: JoiSchemaParts<ListFolderConte
     contentType,
   };
 
-export const listFolderContentJoiSchema = Joi.object<ListFolderContentEndpointParams>()
-  .keys({
-    ...listFolderContentBaseJoiSchemaParts,
-    ...endpointValidationSchemas.paginationParts,
-  })
-  .required();
+export const listFolderContentJoiSchema =
+  Joi.object<ListFolderContentEndpointParams>()
+    .keys({
+      ...listFolderContentBaseJoiSchemaParts,
+      ...endpointValidationSchemas.paginationParts,
+    })
+    .required();

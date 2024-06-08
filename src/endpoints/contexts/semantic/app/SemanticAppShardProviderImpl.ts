@@ -1,16 +1,19 @@
-import {first} from 'lodash';
-import {AppShard} from '../../../../definitions/app';
-import {kFimidaraResourceType} from '../../../../definitions/system';
-import {waitTimeout} from '../../../../utils/fns';
-import {newResource} from '../../../../utils/resource';
-import {DataQuery} from '../../data/types';
-import {kSemanticModels} from '../../injection/injectables';
+import {first} from 'lodash-es';
+import {AppShard} from '../../../../definitions/app.js';
+import {kFimidaraResourceType} from '../../../../definitions/system.js';
+import {waitTimeout} from '../../../../utils/fns.js';
+import {newResource} from '../../../../utils/resource.js';
+import {DataQuery} from '../../data/types.js';
+import {kSemanticModels} from '../../injection/injectables.js';
 import {
   DataSemanticBaseProvider,
   addIsDeletedIntoQuery,
-} from '../DataSemanticDataAccessBaseProvider';
-import {SemanticProviderMutationParams, SemanticProviderQueryListParams} from '../types';
-import {SemanticAppShardProvider} from './types';
+} from '../DataSemanticDataAccessBaseProvider.js';
+import {
+  SemanticProviderMutationParams,
+  SemanticProviderQueryListParams,
+} from '../types.js';
+import {SemanticAppShardProvider} from './types.js';
 
 export class SemanticAppShardProviderImpl
   extends DataSemanticBaseProvider<AppShard>
@@ -54,23 +57,26 @@ export class SemanticAppShardProviderImpl
     return shard.resourceId;
   }
 
-  async dropShard(shardId: string, opts?: SemanticProviderMutationParams): Promise<void> {
-    await kSemanticModels.utils().withTxn(
-      async opts => {
-        const shard = (await this.getOneById(shardId, {
-          ...opts,
-          projection: {occupantCount: true},
-        })) as Pick<AppShard, 'occupantCount'> | null;
+  async dropShard(
+    shardId: string,
+    opts?: SemanticProviderMutationParams
+  ): Promise<void> {
+    await kSemanticModels.utils().withTxn(async opts => {
+      const shard = (await this.getOneById(shardId, {
+        ...opts,
+        projection: {occupantCount: true},
+      })) as Pick<AppShard, 'occupantCount'> | null;
 
-        if (!shard) {
-          return;
-        }
+      if (!shard) {
+        return;
+      }
 
-        await this.updateOneById(shardId, {occupantCount: shard.occupantCount - 1}, opts);
-      },
-      /** reuseAsyncLocalTxn */ false,
-      opts
-    );
+      await this.updateOneById(
+        shardId,
+        {occupantCount: shard.occupantCount - 1},
+        opts
+      );
+    }, opts);
   }
 
   async getEmptyShards(

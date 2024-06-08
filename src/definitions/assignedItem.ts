@@ -1,6 +1,6 @@
-import {AnyObject} from '../utils/types';
-import {FimidaraResourceType, WorkspaceResource} from './system';
-import {AssignedTag} from './tag';
+import {AnyObject} from '../utils/types.js';
+import {FimidaraResourceType, WorkspaceResource} from './system.js';
+import {AssignedTag} from './tag.js';
 
 export interface AssignedItem<Meta extends AnyObject = AnyObject>
   extends WorkspaceResource {

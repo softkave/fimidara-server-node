@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {FileMatcher, PublicFile} from '../../definitions/file';
+import {FileMatcher, PublicFile} from '../../definitions/file.js';
 import {
   FieldBinaryType,
   FieldObjectFieldsMap,
@@ -8,20 +8,20 @@ import {
   InferFieldObjectType,
   InferSdkParamsType,
   mddocConstruct,
-} from '../../mddoc/mddoc';
-import {EmptyObject} from '../../utils/types';
+} from '../../mddoc/mddoc.js';
+import {EmptyObject} from '../../utils/types.js';
 import {
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
-} from '../endpoints.mddoc';
-import {HttpEndpointRequestHeaders_AuthOptional} from '../types';
-import {kFileConstants} from './constants';
-import {DeleteFileEndpointParams} from './deleteFile/types';
+} from '../endpoints.mddoc.js';
+import {HttpEndpointRequestHeaders_AuthOptional} from '../types.js';
+import {kFileConstants} from './constants.js';
+import {DeleteFileEndpointParams} from './deleteFile/types.js';
 import {
   GetFileDetailsEndpointParams,
   GetFileDetailsEndpointResult,
-} from './getFileDetails/types';
+} from './getFileDetails/types.js';
 import {
   ImageFormatEnumMap,
   ImageResizeFitEnumMap,
@@ -30,7 +30,7 @@ import {
   ImageResizePositionEnumMap,
   ReadFileEndpointHttpQuery,
   ReadFileEndpointParams,
-} from './readFile/types';
+} from './readFile/types.js';
 import {
   DeleteFileHttpEndpoint,
   FileMatcherPathParameters,
@@ -42,13 +42,13 @@ import {
   UploadFileEndpointHTTPHeaders,
   UploadFileEndpointSdkParams,
   UploadFileHttpEndpoint,
-} from './types';
+} from './types.js';
 import {
   UpdateFileDetailsEndpointParams,
   UpdateFileDetailsEndpointResult,
   UpdateFileDetailsInput,
-} from './updateFileDetails/types';
-import {UploadFileEndpointParams, UploadFileEndpointResult} from './uploadFile/types';
+} from './updateFileDetails/types.js';
+import {UploadFileEndpointParams, UploadFileEndpointResult} from './uploadFile/types.js';
 
 const mimetype = mddocConstruct.constructFieldString().setDescription('File MIME type');
 const encoding = mddocConstruct.constructFieldString().setDescription('File encoding');
@@ -56,9 +56,9 @@ const size = mddocConstruct
   .constructFieldNumber()
   .setDescription('File size in bytes')
   .setMax(kFileConstants.maxFileSizeInBytes);
-const extension = mddocConstruct
+const ext = mddocConstruct
   .constructFieldString()
-  .setDescription('File extension, case insensitive');
+  .setDescription('File ext, case insensitive');
 const height = mddocConstruct
   .constructFieldNumber()
   .setDescription('Resize to height if file is an image');
@@ -112,7 +112,7 @@ const file = mddocConstruct
   .setFields({
     ...fReusables.workspaceResourceParts,
     size: mddocConstruct.constructFieldObjectField(true, size),
-    extension: mddocConstruct.constructFieldObjectField(false, extension),
+    ext: mddocConstruct.constructFieldObjectField(false, ext),
     parentId: mddocConstruct.constructFieldObjectField(true, fReusables.folderIdOrNull),
     idPath: mddocConstruct.constructFieldObjectField(true, fReusables.idPath),
     namepath: mddocConstruct.constructFieldObjectField(true, fReusables.foldernamepath),

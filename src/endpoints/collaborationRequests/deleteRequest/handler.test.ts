@@ -1,9 +1,10 @@
 import assert from 'assert';
-import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -11,9 +12,9 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import deleteCollaborationRequest from './handler';
-import {DeleteCollaborationRequestEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import deleteCollaborationRequest from './handler.js';
+import {DeleteCollaborationRequestEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();
@@ -38,7 +39,7 @@ test('collaboration request deleted', async () => {
 
   assert(result.jobId);
   const job = (await kSemanticModels.job().getOneByQuery({
-    type: kJobType.deleteResource0,
+    type: kJobType.deleteResource,
     resourceId: result.jobId,
     params: {$objMatch: {type: kFimidaraResourceType.CollaborationRequest}},
   })) as Job<DeleteResourceJobParams>;

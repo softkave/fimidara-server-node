@@ -3,11 +3,11 @@ import {
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
   mddocConstruct,
-} from '../../mddoc/mddoc';
-import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc';
-import clientLogsConstants from './constants';
-import {ClientLog, IngestLogsEndpointParams} from './ingestLogs/types';
-import {IngestLogsHttpEndpoint} from './types';
+} from '../../mddoc/mddoc.js';
+import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc.js';
+import clientLogsConstants from './constants.js';
+import {ClientLog, IngestLogsEndpointParams} from './ingestLogs/types.js';
+import {IngestLogsHttpEndpoint} from './types.js';
 
 const clientLogInput = mddocConstruct
   .constructFieldObject<ClientLog>()

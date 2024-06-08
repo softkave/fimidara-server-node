@@ -1,12 +1,12 @@
-import {Folder} from '../../../definitions/folder';
-import {convertToArray, pathJoin, pathSplit} from '../../../utils/fns';
-import {indexArray} from '../../../utils/indexArray';
-import {FolderQuery} from '../../contexts/data/types';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types';
-import {FolderQueries} from '../queries';
-import {FolderpathInfo, getFolderpathInfo} from '../utils';
-import {NewFolderInput} from './types';
+import {Folder} from '../../../definitions/folder.js';
+import {convertToArray, pathJoin, pathSplit} from '../../../utils/fns.js';
+import {indexArray} from '../../../utils/indexArray.js';
+import {FolderQuery} from '../../contexts/data/types.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
+import {FolderQueries} from '../queries.js';
+import {FolderpathInfo, getFolderpathInfo} from '../utils.js';
+import {NewFolderInput} from './types.js';
 
 export async function getExistingFoldersAndArtifacts(
   workspaceId: string,
@@ -15,7 +15,10 @@ export async function getExistingFoldersAndArtifacts(
 ) {
   const inputList = convertToArray(input);
   const pathinfoList: FolderpathInfo[] = inputList.map(nextInput =>
-    getFolderpathInfo(nextInput.folderpath)
+    getFolderpathInfo(nextInput.folderpath, {
+      containsRootname: true,
+      allowRootFolder: false,
+    })
   );
 
   // Make a set of individual folders, so "/parent/folder" will become

@@ -1,5 +1,5 @@
-import {CountItemsEndpointResult, Endpoint} from '../../types';
-import {GetFileBackendConfigsEndpointParamsBase} from '../getConfigs/types';
+import {CountItemsEndpointResult, Endpoint} from '../../types.js';
+import {GetFileBackendConfigsEndpointParamsBase} from '../getConfigs/types.js';
 
 export type CountFileBackendConfigsEndpointParams =
   GetFileBackendConfigsEndpointParamsBase;

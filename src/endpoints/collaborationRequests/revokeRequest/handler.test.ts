@@ -1,9 +1,10 @@
-import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest';
-import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job';
-import {DataQuery} from '../../contexts/data/types';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import RequestData from '../../RequestData';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest.js';
+import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job.js';
+import {DataQuery} from '../../contexts/data/types.js';
+import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import RequestData from '../../RequestData.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -11,10 +12,10 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {collaborationRequestForUserExtractor} from '../utils';
-import revokeCollaborationRequest from './handler';
-import {RevokeCollaborationRequestEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import {collaborationRequestForUserExtractor} from '../utils.js';
+import revokeCollaborationRequest from './handler.js';
+import {RevokeCollaborationRequestEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();

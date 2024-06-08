@@ -2,7 +2,7 @@ import Joi = require('joi');
 import {
   UsageRecordCategoryMap,
   UsageRecordFulfillmentStatusMap,
-} from '../../definitions/usageRecord';
+} from '../../definitions/usageRecord.js';
 
 const category = Joi.string().valid(...Object.values(UsageRecordCategoryMap));
 const fulfillmentStatus = Joi.string().valid(

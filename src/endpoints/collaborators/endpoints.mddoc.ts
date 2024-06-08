@@ -1,37 +1,37 @@
-import {PublicCollaborator} from '../../definitions/user';
+import {PublicCollaborator} from '../../definitions/user.js';
 import {
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
   mddocConstruct,
-} from '../../mddoc/mddoc';
-import {CountWorkspaceCollaborationRequestsHttpEndpoint} from '../collaborationRequests/types';
+} from '../../mddoc/mddoc.js';
+import {CountWorkspaceCollaborationRequestsHttpEndpoint} from '../collaborationRequests/types.js';
 import {
   fReusables,
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
-} from '../endpoints.mddoc';
-import {collaboratorConstants} from './constants';
-import {CountWorkspaceCollaboratorsEndpointParams} from './countWorkspaceCollaborators/types';
+} from '../endpoints.mddoc.js';
+import {collaboratorConstants} from './constants.js';
+import {CountWorkspaceCollaboratorsEndpointParams} from './countWorkspaceCollaborators/types.js';
 import {
   GetCollaboratorEndpointParams,
   GetCollaboratorEndpointResult,
-} from './getCollaborator/types';
+} from './getCollaborator/types.js';
 import {
   GetCollaboratorsWithoutPermissionEndpointParams,
   GetCollaboratorsWithoutPermissionEndpointResult,
-} from './getCollaboratorsWithoutPermission/types';
+} from './getCollaboratorsWithoutPermission/types.js';
 import {
   GetWorkspaceCollaboratorsEndpointParams,
   GetWorkspaceCollaboratorsEndpointResult,
-} from './getWorkspaceCollaborators/types';
-import {RemoveCollaboratorEndpointParams} from './removeCollaborator/types';
+} from './getWorkspaceCollaborators/types.js';
+import {RemoveCollaboratorEndpointParams} from './removeCollaborator/types.js';
 import {
   GetCollaboratorHttpEndpoint,
   GetCollaboratorsWithoutPermissionHttpEndpoint,
   GetWorkspaceCollaboratorsHttpEndpoint,
   RemoveCollaboratorHttpEndpoint,
-} from './types';
+} from './types.js';
 
 const collaborator = mddocConstruct
   .constructFieldObject<PublicCollaborator>()

@@ -1,4 +1,4 @@
-import {DisposableResource} from '../../../utils/disposables';
+import {DisposableResource} from 'softkave-js-utils';
 
 export interface SecretsManagerProviderAddSecretParams {
   text: string;
@@ -34,7 +34,9 @@ export interface SecretsManagerProvider extends DisposableResource {
   updateSecret: (
     params: SecretsManagerProviderUpdateSecretParams
   ) => Promise<SecretsManagerProviderAddSecretResult>;
-  deleteSecret: (params: SecretsManagerProviderDeleteSecretParams) => Promise<void>;
+  deleteSecret: (
+    params: SecretsManagerProviderDeleteSecretParams
+  ) => Promise<void>;
   /** throws if secret is not found */
   getSecret: (
     params: SecretsManagerProviderGetSecretParams

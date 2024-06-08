@@ -1,7 +1,8 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
-import {isArray, isNumber, isObject} from 'lodash';
-import {expectErrorThrown} from '../../endpoints/testUtils/helpers/error';
+import {isArray, isNumber, isObject} from 'lodash-es';
+import {describe, expect, test, vi} from 'vitest';
+import {expectErrorThrown} from '../../endpoints/testUtils/helpers/error.js';
 import {
   identityArgs,
   isPathEmpty,
@@ -12,11 +13,12 @@ import {
   multilineTextToParagraph,
   omitDeep,
   pathBasename,
-  pathExtension,
+  pathExt,
+  pathExtract,
   pathJoin,
   pathSplit,
   waitTimeout,
-} from '../fns';
+} from '../fns.js';
 
 describe('fns', () => {
   test('multilineTextToParagraph', () => {
@@ -32,7 +34,7 @@ describe('fns', () => {
   });
 
   test('loop', () => {
-    const fn = jest.fn();
+    const fn = vi.fn();
     const max = 10;
     const extraArgs = [0, 1, 2];
 
@@ -49,7 +51,7 @@ describe('fns', () => {
   });
 
   test('loopAndCollate', () => {
-    const fn = jest.fn().mockImplementation(identityArgs);
+    const fn = vi.fn().mockImplementation(identityArgs);
     const max = 10;
     const extraArgs = [0, 1, 2];
 
@@ -68,7 +70,7 @@ describe('fns', () => {
 
   test('loopAsync, oneByOne', async () => {
     const max = 10;
-    const fn = jest.fn();
+    const fn = vi.fn();
     const extraArgs = [0, 1, 2];
 
     await loopAsync(fn, max, 'oneByOne', ...extraArgs);
@@ -83,7 +85,7 @@ describe('fns', () => {
       });
 
     // There should be only 1 invocation if error is thrown
-    const fnThrows = jest.fn().mockImplementation(() => {
+    const fnThrows = vi.fn().mockImplementation(() => {
       throw new Error();
     });
 
@@ -96,7 +98,7 @@ describe('fns', () => {
 
   test('loopAsync, all', async () => {
     const max = 10;
-    const fn = jest.fn();
+    const fn = vi.fn();
     const extraArgs = [0, 1, 2];
 
     await loopAsync(fn, max, 'all', ...extraArgs);
@@ -111,7 +113,7 @@ describe('fns', () => {
       });
 
     // There should be only `max` invocations even if error is thrown
-    const fnThrows = jest.fn().mockImplementation(async () => {
+    const fnThrows = vi.fn().mockImplementation(async () => {
       await waitTimeout(0);
       throw new Error();
     });
@@ -125,7 +127,7 @@ describe('fns', () => {
 
   test('loopAsync, allSettled', async () => {
     const max = 10;
-    const fn = jest.fn();
+    const fn = vi.fn();
     const extraArgs = [0, 1, 2];
 
     await loopAsync(fn, max, 'allSettled', ...extraArgs);
@@ -140,7 +142,7 @@ describe('fns', () => {
       });
 
     // There should be only `max` invocations even if error is thrown
-    const fnThrows = jest.fn().mockImplementation(async () => {
+    const fnThrows = vi.fn().mockImplementation(async () => {
       await waitTimeout(0);
       throw new Error();
     });
@@ -153,7 +155,7 @@ describe('fns', () => {
 
   test('loopAndCollateAsync, oneByOne', async () => {
     const max = 10;
-    const fn = jest.fn().mockImplementation(identityArgs);
+    const fn = vi.fn().mockImplementation(identityArgs);
     const extraArgs = [0, 1, 2];
 
     const result = await loopAndCollateAsync(fn, max, 'oneByOne', ...extraArgs);
@@ -169,7 +171,7 @@ describe('fns', () => {
       });
 
     // There should be only 1 invocation if error is thrown
-    const fnThrows = jest.fn().mockImplementation(() => {
+    const fnThrows = vi.fn().mockImplementation(() => {
       throw new Error();
     });
 
@@ -182,7 +184,7 @@ describe('fns', () => {
 
   test('loopAndCollateAsync, all', async () => {
     const max = 10;
-    const fn = jest.fn().mockImplementation(identityArgs);
+    const fn = vi.fn().mockImplementation(identityArgs);
     const extraArgs = [0, 1, 2];
 
     const result = await loopAndCollateAsync(fn, max, 'all', ...extraArgs);
@@ -198,7 +200,7 @@ describe('fns', () => {
       });
 
     // There should be only `max` invocations even if error is thrown
-    const fnThrows = jest.fn().mockImplementation(async () => {
+    const fnThrows = vi.fn().mockImplementation(async () => {
       await waitTimeout(0);
       throw new Error();
     });
@@ -212,10 +214,15 @@ describe('fns', () => {
 
   test('loopAndCollateAsync, allSettled', async () => {
     const max = 10;
-    const fn = jest.fn().mockImplementation(identityArgs);
+    const fn = vi.fn().mockImplementation(identityArgs);
     const extraArgs = [0, 1, 2];
 
-    const result = await loopAndCollateAsync(fn, max, 'allSettled', ...extraArgs);
+    const result = await loopAndCollateAsync(
+      fn,
+      max,
+      'allSettled',
+      ...extraArgs
+    );
 
     expect(fn).toHaveBeenCalledTimes(max);
     Array(max)
@@ -230,7 +237,7 @@ describe('fns', () => {
       });
 
     // There should be only `max` invocations even if error is thrown
-    const fnThrows = jest.fn().mockImplementation(async () => {
+    const fnThrows = vi.fn().mockImplementation(async () => {
       await waitTimeout(0);
       throw new Error();
     });
@@ -424,23 +431,23 @@ describe('fns', () => {
     expect(isNotEmptyP03).toBeFalsy();
   });
 
-  test('pathExtension', () => {
-    const input01 = './name.extension';
-    const input02 = './name.second-name.EXTENSION';
+  test('pathext', () => {
+    const input01 = './name.ext';
+    const input02 = './name.second-name.ext';
     const input03 = './.gitignore';
 
-    const ext01 = pathExtension(input01);
-    const ext02 = pathExtension(input02);
-    const ext03 = pathExtension(input03);
+    const ext01 = pathExt(input01);
+    const ext02 = pathExt(input02);
+    const ext03 = pathExt(input03);
 
-    expect(ext01).toBe('extension');
-    expect(ext02).toBe('EXTENSION');
+    expect(ext01).toBe('ext');
+    expect(ext02).toBe('ext');
     expect(ext03).toBe('');
   });
 
   test('pathBasename', () => {
-    const input01 = './name.extension';
-    const input02 = './name.second-name.EXTENSION';
+    const input01 = './name.ext';
+    const input02 = './name.second-name.ext';
     const input03 = './.gitignore';
     const input04 = './.gitignore...ext';
     const input05 = '';
@@ -456,9 +463,9 @@ describe('fns', () => {
     const b07 = pathBasename(input07);
 
     expect(b01.basename).toBe('name');
-    expect(b01.ext).toBe('extension');
+    expect(b01.ext).toBe('ext');
     expect(b02.basename).toBe('name.second-name');
-    expect(b02.ext).toBe('EXTENSION');
+    expect(b02.ext).toBe('ext');
     expect(b03.basename).toBe('.gitignore');
     expect(b03.ext).toBe('');
     expect(b04.basename).toBe('.gitignore..');
@@ -469,5 +476,15 @@ describe('fns', () => {
     expect(b06.ext).toBe('');
     expect(b07.basename).toBe('');
     expect(b07.ext).toBe('');
+  });
+
+  test('pathExtract', () => {
+    const input01 = './folder/name.ext';
+
+    const b01 = pathExtract(input01);
+
+    expect(b01.basename).toBe('name');
+    expect(b01.namepath).toEqual(['folder', 'name']);
+    expect(b01.ext).toBe('ext');
   });
 });

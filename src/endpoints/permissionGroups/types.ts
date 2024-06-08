@@ -1,13 +1,13 @@
-import {ExportedHttpEndpointWithMddocDefinition} from '../types';
-import {AddPermissionGroupEndpoint} from './addPermissionGroup/types';
-import {AssignPermissionGroupsEndpoint} from './assignPermissionGroups/types';
-import {CountWorkspacePermissionGroupsEndpoint} from './countWorkspacePermissionGroups/types';
-import {DeletePermissionGroupEndpoint} from './deletePermissionGroup/types';
-import {GetEntityAssignedPermissionGroupsEndpoint} from './getEntityAssignedPermissionGroups/types';
-import {GetPermissionGroupEndpoint} from './getPermissionGroup/types';
-import {GetWorkspacePermissionGroupsEndpoint} from './getWorkspacePermissionGroups/types';
-import {UpdatePermissionGroupEndpoint} from './udpatePermissionGroup/types';
-import {UnassignPermissionGroupsEndpoint} from './unassignPermissionGroups/types';
+import {ExportedHttpEndpointWithMddocDefinition} from '../types.js';
+import {AddPermissionGroupEndpoint} from './addPermissionGroup/types.js';
+import {AssignPermissionGroupsEndpoint} from './assignPermissionGroups/types.js';
+import {CountWorkspacePermissionGroupsEndpoint} from './countWorkspacePermissionGroups/types.js';
+import {DeletePermissionGroupEndpoint} from './deletePermissionGroup/types.js';
+import {GetEntityAssignedPermissionGroupsEndpoint} from './getEntityAssignedPermissionGroups/types.js';
+import {GetPermissionGroupEndpoint} from './getPermissionGroup/types.js';
+import {GetWorkspacePermissionGroupsEndpoint} from './getWorkspacePermissionGroups/types.js';
+import {UpdatePermissionGroupEndpoint} from './udpatePermissionGroup/types.js';
+import {UnassignPermissionGroupsEndpoint} from './unassignPermissionGroups/types.js';
 
 export type AddPermissionGroupHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<AddPermissionGroupEndpoint>;

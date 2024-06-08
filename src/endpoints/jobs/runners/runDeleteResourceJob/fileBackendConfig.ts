@@ -1,17 +1,27 @@
+import {DeleteResourceCascadeFnDefaultArgs} from '../../../../definitions/job.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../contexts/injection/injectables';
-import {genericDeleteArtifacts, genericGetArtifacts} from './genericDefinitions';
-import {DeleteResourceCascadeEntry, DeleteResourceFn} from './types';
+} from '../../../contexts/injection/injectables.js';
+import {genericDeleteArtifacts, genericGetArtifacts} from './genericDefinitions.js';
+import {
+  DeleteResourceCascadeEntry,
+  DeleteResourceFn,
+  DeleteResourceGetPreRunMetaFn,
+} from './types.js';
 
-const deleteResourceFn: DeleteResourceFn = async ({args, helpers}) => {
-  const config = await kSemanticModels
-    .fileBackendConfig()
-    .getOneById(args.resourceId, {includeDeleted: true});
+interface DeleteFileBackendConfigPreRunMeta {
+  secretId?: string;
+}
 
-  if (config?.secretId) {
-    await kUtilsInjectables.secretsManager().deleteSecret({secretId: config.secretId});
+const deleteResourceFn: DeleteResourceFn<
+  DeleteResourceCascadeFnDefaultArgs,
+  DeleteFileBackendConfigPreRunMeta
+> = async ({args, helpers, preRunMeta}) => {
+  if (preRunMeta.secretId) {
+    await kUtilsInjectables
+      .secretsManager()
+      .deleteSecret({secretId: preRunMeta.secretId});
   }
 
   await helpers.withTxn(opts =>
@@ -19,8 +29,23 @@ const deleteResourceFn: DeleteResourceFn = async ({args, helpers}) => {
   );
 };
 
-export const deleteFileBackendConfigCascadeEntry: DeleteResourceCascadeEntry = {
+const getPreRunMetaFn: DeleteResourceGetPreRunMetaFn<
+  DeleteResourceCascadeFnDefaultArgs,
+  DeleteFileBackendConfigPreRunMeta
+> = async ({args}) => {
+  const config = await kSemanticModels
+    .fileBackendConfig()
+    .getOneById(args.resourceId, {includeDeleted: true});
+
+  return {secretId: config?.secretId};
+};
+
+export const deleteFileBackendConfigCascadeEntry: DeleteResourceCascadeEntry<
+  DeleteResourceCascadeFnDefaultArgs,
+  DeleteFileBackendConfigPreRunMeta
+> = {
   deleteResourceFn,
-  getArtifacts: genericGetArtifacts,
+  getArtifactsToDelete: genericGetArtifacts,
   deleteArtifacts: genericDeleteArtifacts,
+  getPreRunMetaFn: getPreRunMetaFn,
 };

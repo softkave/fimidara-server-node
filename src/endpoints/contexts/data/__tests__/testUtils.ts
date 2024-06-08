@@ -1,8 +1,6 @@
-import {compact, last, range, set} from 'lodash';
-import {CombinationToken} from '../../../../utils/combineTokens';
-import {loopAndCollate} from '../../../../utils/fns';
-import {AnyObject} from '../../../../utils/types';
-import {DataQuery} from '../types';
+import {compact, last, range, set} from 'lodash-es';
+import {AnyObject, CombinationToken, loopAndCollate} from 'softkave-js-utils';
+import {DataQuery} from '../types.js';
 
 const kArrChar = 'A';
 const kObjChar = 'O';
@@ -168,7 +166,9 @@ export function generateBaseMongoTestQueryFromCombination(props: {
           compact(['arrPrimitive', primitiveOp === '$all' ? '$all' : undefined])
         );
         tData =
-          primitiveOp === '$eq' ? str01 : loopAndCollate(() => str01, arrItemsCount);
+          primitiveOp === '$eq'
+            ? str01
+            : loopAndCollate(() => str01, arrItemsCount);
         set(query, key, tData);
       } else {
         key = prevPath.concat(['arrObj', elemOp]);

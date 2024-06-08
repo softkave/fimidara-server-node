@@ -1,10 +1,10 @@
 import assert from 'assert';
-import {isObject} from 'lodash';
+import {isObject} from 'lodash-es';
+import {DisposableResource} from 'softkave-js-utils';
 import {ReadonlyDeep, ValueOf} from 'type-fest';
 import {MessagePort, isMainThread, workerData} from 'worker_threads';
-import {DisposableResource} from '../../../utils/disposables';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {FWorkerMessager} from './FWorkerMessager';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {FWorkerMessager} from './FWorkerMessager.js';
 
 export interface FWorkerData {
   workerId: string;
@@ -22,7 +22,9 @@ export type FWorkerMessage = {type: typeof kFWorkerMessageType.workerReady};
 export class FWorker extends FWorkerMessager implements DisposableResource {
   static isWorkerData(data: unknown): data is FWorkerData {
     return (
-      isObject(data) && !!(data as FWorkerData).workerId && !!(data as FWorkerData).port
+      isObject(data) &&
+      !!(data as FWorkerData).workerId &&
+      !!(data as FWorkerData).port
     );
   }
 
@@ -35,7 +37,9 @@ export class FWorker extends FWorkerMessager implements DisposableResource {
   constructor() {
     super();
     this.port = this.getWorkerData().port;
-    this.port.on('messageerror', (...args) => kUtilsInjectables.logger().error(...args));
+    this.port.on('messageerror', (...args) =>
+      kUtilsInjectables.logger().error(...args)
+    );
   }
 
   getWorkerData(): ReadonlyDeep<FWorkerData> {
@@ -55,7 +59,9 @@ export class FWorker extends FWorkerMessager implements DisposableResource {
   }
 
   informMainThreadWorkerIsReady() {
-    const workerReadyMessage: FWorkerMessage = {type: kFWorkerMessageType.workerReady};
+    const workerReadyMessage: FWorkerMessage = {
+      type: kFWorkerMessageType.workerReady,
+    };
     this.postTrackedMessage({
       outgoingPort: this.port,
       incomingPort: this.port,

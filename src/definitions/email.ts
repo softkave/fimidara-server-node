@@ -1,8 +1,8 @@
 import {GetMessageInsightsResponse} from '@aws-sdk/client-sesv2';
 import {ValueOf} from 'type-fest';
-import {FimidaraConfigEmailProvider} from '../resources/config';
-import {AnyObject} from '../utils/types';
-import {Resource} from './system';
+import {FimidaraConfigEmailProvider} from '../resources/config.js';
+import {AnyObject} from '../utils/types.js';
+import {Resource} from './system.js';
 
 export const kEmailMessageType = {
   collaborationRequest: 'collaborationRequest',

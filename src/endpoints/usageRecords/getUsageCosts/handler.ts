@@ -1,5 +1,5 @@
-import {usageCosts} from '../constants';
-import {GetUsageCostsEndpoint} from './types';
+import {usageCosts} from '../constants.js';
+import {GetUsageCostsEndpoint} from './types.js';
 
 const getUsageCosts: GetUsageCostsEndpoint = async () => {
   return {costs: usageCosts};

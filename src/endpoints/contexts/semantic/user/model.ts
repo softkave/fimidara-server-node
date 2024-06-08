@@ -1,12 +1,12 @@
-import {User} from '../../../../definitions/user';
-import {DataQuery} from '../../data/types';
+import {User} from '../../../../definitions/user.js';
+import {DataQuery} from '../../data/types.js';
 import {
   DataSemanticBaseProvider,
   addIsDeletedIntoQuery,
-} from '../DataSemanticDataAccessBaseProvider';
-import {SemanticProviderOpParams, SemanticProviderQueryParams} from '../types';
-import {getIgnoreCaseDataQueryRegExp} from '../utils';
-import {SemanticUserProviderType} from './types';
+} from '../DataSemanticDataAccessBaseProvider.js';
+import {SemanticProviderOpParams, SemanticProviderQueryParams} from '../types.js';
+import {getIgnoreCaseDataQueryRegExp} from '../utils.js';
+import {SemanticUserProviderType} from './types.js';
 
 export class DataSemanticUser
   extends DataSemanticBaseProvider<User>

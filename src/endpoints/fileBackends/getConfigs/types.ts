@@ -1,10 +1,10 @@
-import {FileBackendType, PublicFileBackendConfig} from '../../../definitions/fileBackend';
+import {FileBackendType, PublicFileBackendConfig} from '../../../definitions/fileBackend.js';
 import {
   Endpoint,
   EndpointOptionalWorkspaceIDParam,
   PaginatedResult,
   PaginationQuery,
-} from '../../types';
+} from '../../types.js';
 
 export type GetFileBackendConfigsEndpointParamsBase = EndpointOptionalWorkspaceIDParam & {
   backend?: FileBackendType;

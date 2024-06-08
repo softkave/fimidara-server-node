@@ -1,5 +1,5 @@
-import {UsageRecordCategory} from '../../../definitions/usageRecord';
-import {Endpoint} from '../../types';
+import {UsageRecordCategory} from '../../../definitions/usageRecord.js';
+import {Endpoint} from '../../types.js';
 
 export interface GetUsageCostsEndpointParams {}
 

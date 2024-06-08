@@ -1,5 +1,5 @@
-import {FolderMatcher, PublicFolder} from '../../../definitions/folder';
-import {Endpoint} from '../../types';
+import {FolderMatcher, PublicFolder} from '../../../definitions/folder.js';
+import {Endpoint} from '../../types.js';
 
 export type GetFolderEndpointParams = FolderMatcher;
 export interface GetFolderEndpointResult {

@@ -2,20 +2,19 @@ import {
   CollaborationRequest,
   PublicCollaborationRequestForUser,
   PublicCollaborationRequestForWorkspace,
-} from '../../definitions/collaborationRequest';
-import {AssignedPermissionGroupMeta} from '../../definitions/permissionGroups';
-import {PermissionAction} from '../../definitions/permissionItem';
-import {SessionAgent} from '../../definitions/system';
-import {appAssert} from '../../utils/assertion';
-import {getFields, makeExtract, makeListExtract} from '../../utils/extract';
-import {kReuseableErrors} from '../../utils/reusableErrors';
-import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton';
-import {kSemanticModels} from '../contexts/injection/injectables';
-import {SemanticProviderOpParams} from '../contexts/semantic/types';
-import {NotFoundError} from '../errors';
-import {resourceFields, workspaceResourceFields} from '../extractors';
-
-import {checkWorkspaceExists} from '../workspaces/utils';
+} from '../../definitions/collaborationRequest.js';
+import {AssignedPermissionGroupMeta} from '../../definitions/permissionGroups.js';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
+import {SessionAgent} from '../../definitions/system.js';
+import {appAssert} from '../../utils/assertion.js';
+import {getFields, makeExtract, makeListExtract} from '../../utils/extract.js';
+import {kReuseableErrors} from '../../utils/reusableErrors.js';
+import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../contexts/injection/injectables.js';
+import {SemanticProviderOpParams} from '../contexts/semantic/types.js';
+import {NotFoundError} from '../errors.js';
+import {resourceFields, workspaceResourceFields} from '../extractors.js';
+import {checkWorkspaceExists} from '../workspaces/utils.js';
 
 const userCollaborationRequestForUserFields =
   getFields<PublicCollaborationRequestForUser>({
@@ -48,7 +47,7 @@ const userCollaborationRequestForWorkspaceFields =
 export async function checkCollaborationRequestAuthorization(
   agent: SessionAgent,
   request: CollaborationRequest,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   opts?: SemanticProviderOpParams
 ) {
   const workspace = await checkWorkspaceExists(request.workspaceId);
@@ -65,7 +64,7 @@ export async function checkCollaborationRequestAuthorization(
 export async function checkCollaborationRequestAuthorization02(
   agent: SessionAgent,
   requestId: string,
-  action: PermissionAction,
+  action: FimidaraPermissionAction,
   opts?: SemanticProviderOpParams
 ) {
   const request = await kSemanticModels

@@ -1,8 +1,8 @@
-import * as Joi from 'joi';
-import {kValidationSchemas} from '../../../utils/validationUtils';
-import {endpointValidationSchemas} from '../../validation';
-import agentTokenValidationSchemas from '../validation';
-import {GetAgentTokenEndpointParams} from './types';
+import Joi from 'joi';
+import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import {endpointValidationSchemas} from '../../validation.js';
+import agentTokenValidationSchemas from '../validation.js';
+import {GetAgentTokenEndpointParams} from './types.js';
 
 export const getAgentTokenJoiSchema = Joi.object<GetAgentTokenEndpointParams>()
   .keys({

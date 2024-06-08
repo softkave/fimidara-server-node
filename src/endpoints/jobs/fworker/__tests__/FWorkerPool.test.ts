@@ -1,11 +1,12 @@
 import assert from 'assert';
-import {map} from 'lodash';
-import {waitTimeout} from '../../../../utils/fns';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables';
-import {completeTests} from '../../../testUtils/helpers/testFns';
-import {initTests} from '../../../testUtils/testUtils';
-import {FWorkerMessager} from '../FWorkerMessager';
-import {FWorkerPool} from '../FWorkerPool';
+import {map} from 'lodash-es';
+import {afterAll, beforeAll, describe, expect, test, vi} from 'vitest';
+import {waitTimeout} from '../../../../utils/fns.js';
+import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {initTests} from '../../../testUtils/testUtils.js';
+import {FWorkerMessager} from '../FWorkerMessager.js';
+import {FWorkerPool} from '../FWorkerPool.js';
 
 beforeAll(async () => {
   await initTests();
@@ -63,7 +64,7 @@ describe('FWorkerPool', () => {
 
   test('graceful terminate', async () => {
     let workerId = 1;
-    const gracefulTerminateFn = jest.fn();
+    const gracefulTerminateFn = vi.fn();
     const workerPool = new FWorkerPool({
       gracefulTerminateFn,
       promises: kUtilsInjectables.promises(),
@@ -87,7 +88,7 @@ describe('FWorkerPool', () => {
   test('graceful terminate timeout', async () => {
     let workerId = 1;
     const gracefulTerminateTimeoutMs = 30;
-    const gracefulTerminateFn = jest.fn().mockImplementation(async () => {
+    const gracefulTerminateFn = vi.fn().mockImplementation(async () => {
       await waitTimeout(gracefulTerminateTimeoutMs * 3);
     });
     const workerPool = new FWorkerPool({

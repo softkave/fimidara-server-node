@@ -1,27 +1,33 @@
-import {AnyObject, ObjectValues} from '../utils/types';
-import {AgentToken} from './agentToken';
-import {App, AppShard} from './app';
-import {AssignedItem} from './assignedItem';
-import {CollaborationRequest} from './collaborationRequest';
-import {EmailBlocklist, EmailMessage} from './email';
-import {File} from './file';
-import {FileBackendConfig, FileBackendMount, ResolvedMountEntry} from './fileBackend';
-import {Folder} from './folder';
-import {Job} from './job';
-import {PermissionGroup} from './permissionGroups';
-import {PermissionItem} from './permissionItem';
-import {PresignedPath} from './presignedPath';
-import {Tag} from './tag';
-import {UsageRecord} from './usageRecord';
-import {User} from './user';
-import {Workspace} from './workspace';
+import {AnyObject, ObjectValues} from '../utils/types.js';
+import {AgentToken} from './agentToken.js';
+import {App, AppShard} from './app.js';
+import {AssignedItem} from './assignedItem.js';
+import {CollaborationRequest} from './collaborationRequest.js';
+import {EmailBlocklist, EmailMessage} from './email.js';
+import {File} from './file.js';
+import {FileBackendConfig, FileBackendMount, ResolvedMountEntry} from './fileBackend.js';
+import {Folder} from './folder.js';
+import {Job} from './job.js';
+import {PermissionGroup} from './permissionGroups.js';
+import {PermissionItem} from './permissionItem.js';
+import {PresignedPath} from './presignedPath.js';
+import {Tag} from './tag.js';
+import {UsageRecord} from './usageRecord.js';
+import {User} from './user.js';
+import {Workspace} from './workspace.js';
 
 export const kCurrentJWTTokenVersion = 1;
 
 export const kTokenAccessScope = {
-  Login: 'login',
-  ChangePassword: 'changePassword',
-  ConfirmEmailAddress: 'confirmEmail',
+  /** All access */
+  login: 'login',
+  /** Primarily for client agent tokens, where they should have access to public
+   * APIs, but not user session-related access as opposed to `login` */
+  access: 'access',
+  /** Can only change password */
+  changePassword: 'changePassword',
+  /** Can only confirm a user's email address as verified */
+  confirmEmailAddress: 'confirmEmail',
 } as const;
 
 export type TokenAccessScope = ObjectValues<typeof kTokenAccessScope>;
@@ -44,22 +50,15 @@ export interface Agent {
 }
 
 export type PublicAgent = Pick<Agent, 'agentId' | 'agentType'>;
-export type ConvertAgentToPublicAgent<T> = {
-  [K in keyof T]: NonNullable<T[K]> extends Agent
-    ? PublicAgent
-    : NonNullable<T[K]> extends AnyObject
-    ? ConvertAgentToPublicAgent<NonNullable<T[K]>>
-    : T[K];
-};
 
 export interface SessionAgent extends Agent {
-  agentToken?: AgentToken;
+  agentToken: AgentToken;
   user?: User;
 }
 
 // TODO: separate data resources from symbolic resources (resources that are not
 // saved in DB).
-export const kFimidaraResourceType = {
+export const kFimidaraPublicResourceType = {
   All: '*',
   System: 'system',
   Public: 'public',
@@ -73,12 +72,15 @@ export const kFimidaraResourceType = {
   User: 'user',
   Tag: 'tag',
   UsageRecord: 'usageRecord',
-  AssignedItem: 'assignedItem',
-  EndpointRequest: 'endpointRequest',
-  Job: 'job',
   PresignedPath: 'presignedPath',
   FileBackendConfig: 'fileBackendConfig',
   FileBackendMount: 'fileBackendMount',
+  Job: 'job',
+} as const;
+export const kFimidaraResourceType = {
+  ...kFimidaraPublicResourceType,
+  AssignedItem: 'assignedItem',
+  EndpointRequest: 'endpointRequest',
   ResolvedMountEntry: 'resolvedMountEntry',
   App: 'app',
   emailMessage: 'emailMessage',
@@ -87,6 +89,7 @@ export const kFimidaraResourceType = {
 } as const;
 
 export type FimidaraResourceType = ObjectValues<typeof kFimidaraResourceType>;
+export type FimidaraPublicResourceType = ObjectValues<typeof kFimidaraPublicResourceType>;
 
 export const kPermissionAgentTypes: FimidaraResourceType[] = [
   kFimidaraResourceType.AgentToken,
@@ -159,9 +162,22 @@ export interface WorkspaceResource extends Resource {
   // providedResourceId?: string | null;
 }
 
-export type PublicResource = ConvertAgentToPublicAgent<Resource>;
-export type PublicResourceWrapper = ConvertAgentToPublicAgent<ResourceWrapper>;
-export type PublicWorkspaceResource = ConvertAgentToPublicAgent<WorkspaceResource>;
+export type ToPublicDefinitions<T> = {
+  [K in keyof T]: NonNullable<T[K]> extends Agent
+    ? PublicAgent
+    : NonNullable<T[K]> extends FimidaraResourceType
+    ? FimidaraPublicResourceType
+    : NonNullable<T[K]> extends AnyObject
+    ? ToPublicDefinitions<NonNullable<T[K]>>
+    : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    NonNullable<T[K]> extends any[]
+    ? ToPublicDefinitions<NonNullable<T[K]>[number]>
+    : T[K];
+};
+
+export type PublicResource = ToPublicDefinitions<Resource>;
+export type PublicResourceWrapper = ToPublicDefinitions<ResourceWrapper>;
+export type PublicWorkspaceResource = ToPublicDefinitions<WorkspaceResource>;
 
 export const kResourceTypeToPossibleChildren: Record<
   FimidaraResourceType,

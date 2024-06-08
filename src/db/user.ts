@@ -1,6 +1,6 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {User} from '../definitions/user';
-import {ensureMongoTypeFields, resourceSchema} from './utils';
+import {User} from '../definitions/user.js';
+import {ensureMongoTypeFields, resourceSchema} from './utils.js';
 
 const userSchema = ensureMongoTypeFields<User>({
   ...resourceSchema,

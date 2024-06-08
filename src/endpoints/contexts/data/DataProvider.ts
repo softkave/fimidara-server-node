@@ -1,4 +1,4 @@
-import {LiteralDataQuery} from './types';
+import {LiteralDataQuery} from './types.js';
 
 export enum DataProviderFilterValueOperator {
   Equal,

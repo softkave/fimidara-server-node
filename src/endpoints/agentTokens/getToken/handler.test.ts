@@ -1,5 +1,6 @@
-import RequestData from '../../RequestData';
-import {completeTests} from '../../testUtils/helpers/testFns';
+import RequestData from '../../RequestData.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -7,9 +8,9 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import getAgentToken from './handler';
-import {GetAgentTokenEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import getAgentToken from './handler.js';
+import {GetAgentTokenEndpointParams} from './types.js';
 
 /**
  * TODO:

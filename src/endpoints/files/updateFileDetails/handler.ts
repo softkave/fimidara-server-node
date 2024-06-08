@@ -1,15 +1,22 @@
-import {omit} from 'lodash';
-import {kPermissionsMap} from '../../../definitions/permissionItem';
-import {kPermissionAgentTypes} from '../../../definitions/system';
-import {getTimestamp} from '../../../utils/dateFns';
-import {objectHasData} from '../../../utils/fns';
-import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {assertWorkspace} from '../../workspaces/utils';
-import {assertFile, fileExtractor, getAndCheckFileAuthorization} from '../utils';
-import {UpdateFileDetailsEndpoint} from './types';
-import {updateFileDetailsJoiSchema} from './validation';
+import {omit} from 'lodash-es';
+import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {objectHasData} from '../../../utils/fns.js';
+import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {assertWorkspace} from '../../workspaces/utils.js';
+import {
+  assertFile,
+  fileExtractor,
+  getAndCheckFileAuthorization,
+} from '../utils.js';
+import {UpdateFileDetailsEndpoint} from './types.js';
+import {updateFileDetailsJoiSchema} from './validation.js';
 
 /**
  * TODO:
@@ -20,13 +27,17 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async instData => {
   const data = validate(instData.data, updateFileDetailsJoiSchema);
   const agent = await kUtilsInjectables
     .session()
-    .getAgent(instData, kPermissionAgentTypes);
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const file = await kSemanticModels.utils().withTxn(async opts => {
     let file = await getAndCheckFileAuthorization({
       agent,
       opts,
       matcher: data,
-      action: kPermissionsMap.uploadFile,
+      action: kFimidaraPermissionActionsMap.uploadFile,
       incrementPresignedPathUsageCount: true,
     });
 
@@ -45,10 +56,12 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async instData => {
       file = updatedFile;
     }
 
-    const workspace = await kSemanticModels.workspace().getOneById(file.workspaceId);
+    const workspace = await kSemanticModels
+      .workspace()
+      .getOneById(file.workspaceId);
     assertWorkspace(workspace);
     return file;
-  }, /** reuseTxn */ false);
+  });
 
   return {file: fileExtractor(file)};
 };

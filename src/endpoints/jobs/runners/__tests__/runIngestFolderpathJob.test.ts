@@ -1,50 +1,55 @@
 import {faker} from '@faker-js/faker';
+import {afterEach, beforeEach, describe, expect, test} from 'vitest';
 import {
   IngestFolderpathJobMeta,
   IngestFolderpathJobParams,
   Job,
   kJobType,
-} from '../../../../definitions/job';
-import {kSystemSessionAgent} from '../../../../utils/agent';
-import {loopAndCollate, pathJoin} from '../../../../utils/fns';
-import {getNewId} from '../../../../utils/resource';
-import {DataQuery} from '../../../contexts/data/types';
-import {MemoryFilePersistenceProvider} from '../../../contexts/file/MemoryFilePersistenceProvider';
+} from '../../../../definitions/job.js';
+import {kSystemSessionAgent} from '../../../../utils/agent.js';
+import {loopAndCollate, pathJoin} from '../../../../utils/fns.js';
+import {getNewId} from '../../../../utils/resource.js';
+import {DataQuery} from '../../../contexts/data/types.js';
+import {MemoryFilePersistenceProvider} from '../../../contexts/file/MemoryFilePersistenceProvider.js';
 import {
   FilePersistenceDescribeFolderContentParams,
   FilePersistenceDescribeFolderContentResult,
   PersistedFileDescription,
   PersistedFolderDescription,
-} from '../../../contexts/file/types';
+} from '../../../contexts/file/types.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../contexts/injection/injectables';
-import {kRegisterUtilsInjectables} from '../../../contexts/injection/register';
-import {FileQueries} from '../../../files/queries';
-import {getFilepathInfo} from '../../../files/utils';
-import {FolderQueries} from '../../../folders/queries';
-import {getFolderpathInfo, stringifyFoldernamepath} from '../../../folders/utils';
-import TestMemoryFilePersistenceProviderContext from '../../../testUtils/context/file/TestMemoryFilePersistenceProviderContext';
-import {generateTestFileName} from '../../../testUtils/generate/file';
+} from '../../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../../contexts/injection/register.js';
+import {FileBackendQueries} from '../../../fileBackends/queries.js';
+import {FileQueries} from '../../../files/queries.js';
+import {getFilepathInfo} from '../../../files/utils.js';
+import {FolderQueries} from '../../../folders/queries.js';
+import {
+  getFolderpathInfo,
+  stringifyFoldernamepath,
+} from '../../../folders/utils.js';
+import TestMemoryFilePersistenceProviderContext from '../../../testUtils/context/file/TestMemoryFilePersistenceProviderContext.js';
+import {generateTestFileName} from '../../../testUtils/generate/file.js';
 import {
   generatePersistedFileDescriptionForTest,
   generatePersistedFolderDescriptionForTest,
-} from '../../../testUtils/generate/fileBackend';
+} from '../../../testUtils/generate/fileBackend.js';
 import {
   generateTestFolderName,
   generateTestFolderpath,
-} from '../../../testUtils/generate/folder';
-import {expectErrorThrown} from '../../../testUtils/helpers/error';
-import {completeTests} from '../../../testUtils/helpers/testFns';
+} from '../../../testUtils/generate/folder.js';
+import {expectErrorThrown} from '../../../testUtils/helpers/error.js';
+import {completeTests} from '../../../testUtils/helpers/testFns.js';
 import {
   initTests,
   insertFileBackendMountForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../../testUtils/testUtils';
-import {queueJobs} from '../../queueJobs';
-import {runIngestFolderpathJob} from '../runIngestFolderpathJob';
+} from '../../../testUtils/testUtils.js';
+import {queueJobs} from '../../queueJobs.js';
+import {runIngestFolderpathJob} from '../runIngestFolderpathJob.js';
 
 beforeEach(async () => {
   await initTests();
@@ -74,11 +79,13 @@ describe('runIngestFolderpathJob', () => {
     class TestBackend extends MemoryFilePersistenceProvider {
       describeFolderContent = async (
         params: FilePersistenceDescribeFolderContentParams
-      ): Promise<FilePersistenceDescribeFolderContentResult> => {
+      ): Promise<
+        FilePersistenceDescribeFolderContentResult<undefined, undefined>
+      > => {
         expect(numCalls).toBeLessThan(2);
 
         let {continuationToken} = params;
-        const pFiles: PersistedFileDescription[] = loopAndCollate(
+        const pFiles: PersistedFileDescription<undefined>[] = loopAndCollate(
           () => generatePersistedFileDescriptionForTest(),
           /** count */ 2
         );
@@ -116,7 +123,9 @@ describe('runIngestFolderpathJob', () => {
       describeFolderContent = async (
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         params: FilePersistenceDescribeFolderContentParams
-      ): Promise<FilePersistenceDescribeFolderContentResult> => {
+      ): Promise<
+        FilePersistenceDescribeFolderContentResult<undefined, undefined>
+      > => {
         numCalls += 1;
         return {continuationToken: Math.random(), files: [], folders: []};
       };
@@ -134,7 +143,7 @@ describe('runIngestFolderpathJob', () => {
 
   test('files ingested', async () => {
     const {job, mount} = await setup01();
-    const pFiles: PersistedFileDescription[] = loopAndCollate(
+    const pFiles: PersistedFileDescription<undefined>[] = loopAndCollate(
       () =>
         generatePersistedFileDescriptionForTest({
           mountId: mount.resourceId,
@@ -147,7 +156,9 @@ describe('runIngestFolderpathJob', () => {
       describeFolderContent = async (
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         params: FilePersistenceDescribeFolderContentParams
-      ): Promise<FilePersistenceDescribeFolderContentResult> => {
+      ): Promise<
+        FilePersistenceDescribeFolderContentResult<undefined, undefined>
+      > => {
         return {continuationToken: null, files: pFiles, folders: []};
       };
     }
@@ -158,22 +169,34 @@ describe('runIngestFolderpathJob', () => {
     await runIngestFolderpathJob(job);
     await kUtilsInjectables.promises().flush();
 
-    const pathinfoList = pFiles.map(pFile =>
-      getFilepathInfo(pFile.filepath, {containsRootname: false})
+    const backendPathInfoList = pFiles.map(pFile =>
+      getFilepathInfo(pFile.filepath, {
+        containsRootname: false,
+        allowRootFolder: true,
+      })
     );
     const files = await kSemanticModels.file().getManyByQuery({
-      $or: pathinfoList.map(pathinfo => {
-        return FileQueries.getByNamepath({workspaceId: mount.workspaceId, ...pathinfo});
+      $or: backendPathInfoList.map(pathinfo => {
+        return FileQueries.getByNamepath({
+          workspaceId: mount.workspaceId,
+          ...pathinfo,
+        });
       }),
     });
-    const resolvedEntries = await kSemanticModels.resolvedMountEntry().getManyByQuery({
-      $or: pathinfoList.map(pathinfo => {
-        return {
-          ...FileQueries.getByNamepath({workspaceId: mount.workspaceId, ...pathinfo}),
-          mountId: mount.resourceId,
-        };
-      }),
-    });
+    const resolvedEntries = await kSemanticModels
+      .resolvedMountEntry()
+      .getManyByQuery({
+        $or: backendPathInfoList.map(pathinfo => {
+          return {
+            ...FileBackendQueries.getByBackendNamepath({
+              workspaceId: mount.workspaceId,
+              backendNamepath: pathinfo.namepath,
+              backendExt: pathinfo.ext,
+            }),
+            mountId: mount.resourceId,
+          };
+        }),
+      });
 
     expect(files.length).toBe(pFiles.length);
     expect(resolvedEntries.length).toBe(pFiles.length);
@@ -181,7 +204,7 @@ describe('runIngestFolderpathJob', () => {
 
   test('folders ingested', async () => {
     const {job, mount} = await setup01();
-    const pFolders: PersistedFolderDescription[] = loopAndCollate(
+    const pFolders: PersistedFolderDescription<undefined>[] = loopAndCollate(
       () =>
         generatePersistedFolderDescriptionForTest({
           mountId: mount.resourceId,
@@ -194,7 +217,9 @@ describe('runIngestFolderpathJob', () => {
       describeFolderContent = async (
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         params: FilePersistenceDescribeFolderContentParams
-      ): Promise<FilePersistenceDescribeFolderContentResult> => {
+      ): Promise<
+        FilePersistenceDescribeFolderContentResult<undefined, undefined>
+      > => {
         return {continuationToken: null, folders: pFolders, files: []};
       };
     }
@@ -206,11 +231,17 @@ describe('runIngestFolderpathJob', () => {
     await kUtilsInjectables.promises().flush();
 
     const pathInfoList = pFolders.map(pFolder =>
-      getFolderpathInfo(pFolder.folderpath, {containsRootname: false})
+      getFolderpathInfo(pFolder.folderpath, {
+        containsRootname: false,
+        allowRootFolder: false,
+      })
     );
     const folders = await kSemanticModels.folder().getManyByQuery({
       $or: pathInfoList.map(pathinfo => {
-        return FolderQueries.getByNamepath({workspaceId: mount.workspaceId, ...pathinfo});
+        return FolderQueries.getByNamepath({
+          workspaceId: mount.workspaceId,
+          ...pathinfo,
+        });
       }),
     });
 
@@ -218,8 +249,8 @@ describe('runIngestFolderpathJob', () => {
   });
 
   test('jobs added for children folders', async () => {
-    const {job, mount, shard, userToken} = await setup01();
-    const pFolders: PersistedFolderDescription[] = loopAndCollate(
+    const {job, mount, shard} = await setup01();
+    const pFolders: PersistedFolderDescription<undefined>[] = loopAndCollate(
       () =>
         generatePersistedFolderDescriptionForTest({
           mountId: mount.resourceId,
@@ -232,7 +263,9 @@ describe('runIngestFolderpathJob', () => {
       describeFolderContent = async (
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         params: FilePersistenceDescribeFolderContentParams
-      ): Promise<FilePersistenceDescribeFolderContentResult> => {
+      ): Promise<
+        FilePersistenceDescribeFolderContentResult<undefined, undefined>
+      > => {
         return {continuationToken: null, folders: pFolders, files: []};
       };
     }
@@ -244,12 +277,14 @@ describe('runIngestFolderpathJob', () => {
     await kUtilsInjectables.promises().flush();
 
     const pathInfoList = pFolders.map(pFolder =>
-      getFolderpathInfo(pFolder.folderpath, {containsRootname: false})
+      getFolderpathInfo(pFolder.folderpath, {
+        containsRootname: false,
+        allowRootFolder: false,
+      })
     );
     const jobs = await kSemanticModels.job().getManyByQuery({
       $or: pathInfoList.map(pathinfo => {
         const params: DataQuery<IngestFolderpathJobParams> = {
-          agentId: userToken.resourceId,
           mountId: mount.resourceId,
           ingestFrom: {$all: pathinfo.namepath},
         };
@@ -272,9 +307,11 @@ describe('runIngestFolderpathJob', () => {
     class TestBackend extends MemoryFilePersistenceProvider {
       describeFolderContent = async (
         params: FilePersistenceDescribeFolderContentParams
-      ): Promise<FilePersistenceDescribeFolderContentResult> => {
+      ): Promise<
+        FilePersistenceDescribeFolderContentResult<undefined, undefined>
+      > => {
         let {continuationToken} = params;
-        const pFiles: PersistedFileDescription[] = loopAndCollate(
+        const pFiles: PersistedFileDescription<undefined>[] = loopAndCollate(
           () => generatePersistedFileDescriptionForTest(),
           /** count */ 2
         );
@@ -297,11 +334,15 @@ describe('runIngestFolderpathJob', () => {
     await expectErrorThrown(() => runIngestFolderpathJob(job));
     await kUtilsInjectables.promises().flush();
 
-    const dbJob = (await kSemanticModels.job().getOneById(job.resourceId)) as Job<
+    const dbJob = (await kSemanticModels
+      .job()
+      .getOneById(job.resourceId)) as Job<
       IngestFolderpathJobParams,
       IngestFolderpathJobMeta
     >;
-    expect(dbJob?.meta?.getContentContinuationToken).toBe(mountContinuationToken);
+    expect(dbJob?.meta?.getContentContinuationToken).toBe(
+      mountContinuationToken
+    );
   });
 
   test('uses continuation token', async () => {
@@ -310,7 +351,9 @@ describe('runIngestFolderpathJob', () => {
     class TestBackend extends MemoryFilePersistenceProvider {
       describeFolderContent = async (
         params: FilePersistenceDescribeFolderContentParams
-      ): Promise<FilePersistenceDescribeFolderContentResult> => {
+      ): Promise<
+        FilePersistenceDescribeFolderContentResult<undefined, undefined>
+      > => {
         const {continuationToken} = params;
         expect(continuationToken).toBe(mountContinuationToken);
         return {continuationToken: null, files: [], folders: []};
@@ -321,14 +364,15 @@ describe('runIngestFolderpathJob', () => {
     kRegisterUtilsInjectables.fileProviderResolver(() => backend);
 
     const {job} = await setup01();
-    const update: Partial<Job<IngestFolderpathJobParams, IngestFolderpathJobMeta>> = {
+    const update: Partial<
+      Job<IngestFolderpathJobParams, IngestFolderpathJobMeta>
+    > = {
       meta: {getContentContinuationToken: mountContinuationToken},
     };
     await kSemanticModels
       .utils()
-      .withTxn(
-        opts => kSemanticModels.job().updateOneById(job.resourceId, update, opts),
-        /** reuseTxn */ true
+      .withTxn(opts =>
+        kSemanticModels.job().updateOneById(job.resourceId, update, opts)
       );
 
     await runIngestFolderpathJob(job);
@@ -362,11 +406,7 @@ async function setup01() {
         shard,
         createdBy: kSystemSessionAgent,
         type: kJobType.ingestFolderpath,
-        params: {
-          ingestFrom: mountedFrom,
-          agentId: userToken.resourceId,
-          mountId: mount.resourceId,
-        },
+        params: {ingestFrom: mountedFrom, mountId: mount.resourceId},
         idempotencyToken: Date.now().toString(),
       },
     ]

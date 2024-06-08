@@ -1,6 +1,6 @@
 import {Connection, Document, Model, Schema, SchemaTypes} from 'mongoose';
-import {AssignedItem} from '../definitions/assignedItem';
-import {ensureMongoTypeFields, workspaceResourceSchema} from './utils';
+import {AssignedItem} from '../definitions/assignedItem.js';
+import {ensureMongoTypeFields, workspaceResourceSchema} from './utils.js';
 
 const assignedItemSchema = ensureMongoTypeFields<AssignedItem>({
   ...workspaceResourceSchema,

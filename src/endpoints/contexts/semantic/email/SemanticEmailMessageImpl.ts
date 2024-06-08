@@ -1,6 +1,6 @@
-import {EmailMessage} from '../../../../definitions/email';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider';
-import {SemanticEmailMessageProvider} from './types';
+import {EmailMessage} from '../../../../definitions/email.js';
+import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider.js';
+import {SemanticEmailMessageProvider} from './types.js';
 
 export class SemanticEmailMessageProviderImpl
   extends DataSemanticWorkspaceResourceProvider<EmailMessage>

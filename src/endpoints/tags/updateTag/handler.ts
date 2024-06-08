@@ -1,16 +1,26 @@
-import {Tag} from '../../../definitions/tag';
-import {getTimestamp} from '../../../utils/dateFns';
-import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables';
-import {checkTagNameExists} from '../checkTagNameExists';
-import {assertTag, checkTagAuthorization02, tagExtractor} from '../utils';
-import {UpdateTagEndpoint} from './types';
-import {updateTagJoiSchema} from './validation';
+import {Tag} from '../../../definitions/tag.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {checkTagNameExists} from '../checkTagNameExists.js';
+import {assertTag, checkTagAuthorization02, tagExtractor} from '../utils.js';
+import {UpdateTagEndpoint} from './types.js';
+import {updateTagJoiSchema} from './validation.js';
 
 const updateTag: UpdateTagEndpoint = async instData => {
   const data = validate(instData.data, updateTagJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const {workspace, tag: tag_} = await checkTagAuthorization02(
     agent,
     data.tagId,
@@ -31,7 +41,7 @@ const updateTag: UpdateTagEndpoint = async instData => {
       .getAndUpdateOneById(data.tagId, tagUpdate, opts);
     assertTag(updatedTag);
     return updatedTag;
-  }, /** reuseTxn */ false);
+  });
 
   return {tag: tagExtractor(tag)};
 };

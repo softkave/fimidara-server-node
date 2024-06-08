@@ -1,8 +1,8 @@
-import {PermissionAction} from '../../definitions/permissionItem';
-import {ExportedHttpEndpointWithMddocDefinition} from '../types';
-import {AddPermissionItemsEndpoint} from './addItems/types';
-import {DeletePermissionItemsEndpoint} from './deleteItems/types';
-import {ResolveEntityPermissionsEndpoint} from './resolveEntityPermissions/types';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
+import {ExportedHttpEndpointWithMddocDefinition} from '../types.js';
+import {AddPermissionItemsEndpoint} from './addItems/types.js';
+import {DeletePermissionItemsEndpoint} from './deleteItems/types.js';
+import {ResolveEntityPermissionsEndpoint} from './resolveEntityPermissions/types.js';
 
 export interface PermissionItemInputTarget {
   targetId?: string | string[];
@@ -20,7 +20,7 @@ export interface ResolvedEntityPermissionItemTarget {
 
 export interface PermissionItemInput {
   target: PermissionItemInputTarget | PermissionItemInputTarget[];
-  action: PermissionAction | PermissionAction[];
+  action: FimidaraPermissionAction | FimidaraPermissionAction[];
   access: boolean;
   entityId: string | string[];
 }

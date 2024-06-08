@@ -1,9 +1,14 @@
-import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {appAssert} from '../../../utils/assertion';
-import RequestData from '../../RequestData';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {completeTests, softkaveTest} from '../../testUtils/helpers/testFns';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {
+  DeleteResourceJobParams,
+  Job,
+  kJobType,
+} from '../../../definitions/job.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {appAssert} from '../../../utils/assertion.js';
+import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -11,10 +16,10 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils';
-import {stringifyFilenamepath} from '../utils';
-import deleteFile from './handler';
-import {DeleteFileEndpointParams} from './types';
+} from '../../testUtils/testUtils.js';
+import {stringifyFilenamepath} from '../utils.js';
+import deleteFile from './handler.js';
+import {DeleteFileEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();
@@ -25,7 +30,7 @@ afterAll(async () => {
 });
 
 describe('deleteFile', () => {
-  softkaveTest.run('file deleted', async () => {
+  test('file deleted', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
@@ -38,7 +43,7 @@ describe('deleteFile', () => {
 
     appAssert(result.jobId);
     const job = (await kSemanticModels.job().getOneByQuery({
-      type: kJobType.deleteResource0,
+      type: kJobType.deleteResource,
       resourceId: result.jobId,
       params: {
         $objMatch: {type: kFimidaraResourceType.File},

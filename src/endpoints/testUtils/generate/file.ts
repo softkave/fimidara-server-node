@@ -1,17 +1,17 @@
 import {faker} from '@faker-js/faker';
-import {isBoolean, isEqual, isString, isUndefined} from 'lodash';
-import {File} from '../../../definitions/file';
-import {PresignedPath} from '../../../definitions/presignedPath';
-import {kFimidaraResourceType} from '../../../definitions/system';
-import {kSystemSessionAgent} from '../../../utils/agent';
-import {getTimestamp} from '../../../utils/dateFns';
-import {getRandomIntInclusive, pathJoin} from '../../../utils/fns';
-import {getNewIdForResource} from '../../../utils/resource';
-import {kSemanticModels} from '../../contexts/injection/injectables';
-import {getFilenameInfo} from '../../files/utils';
-import {addRootnameToPath} from '../../folders/utils';
-import {generateTestFolderName, generateTestFolderpath} from './folder';
-import {randomActionList} from './utils';
+import {isBoolean, isEqual, isString, isUndefined} from 'lodash-es';
+import {File} from '../../../definitions/file.js';
+import {PresignedPath} from '../../../definitions/presignedPath.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {getRandomIntInclusive, pathJoin} from '../../../utils/fns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {getFilenameInfo} from '../../files/utils.js';
+import {addRootnameToPath} from '../../folders/utils.js';
+import {generateTestFolderName, generateTestFolderpath} from './folder.js';
+import {randomActionList} from './utils.js';
 
 function addExtenstion(name: string, ext: string | undefined) {
   return ext ? name + '.' + ext : name;
@@ -23,36 +23,36 @@ export function generateTestFileName(
   props: {
     separatorChars?: string[];
     includeStraySlashes?: boolean;
-    extension?: string | boolean;
+    ext?: string | boolean;
     rootname?: string;
   } = {}
 ) {
   const {
-    extension,
+    ext,
     includeStraySlashes = false,
     separatorChars = kTestFileNameSeparatorChars,
   } = props;
   let filename = '';
 
   if (
-    isUndefined(extension) &&
+    isUndefined(ext) &&
     isUndefined(includeStraySlashes) &&
     isUndefined(separatorChars)
   ) {
-    const extCount = getRandomIntInclusive(0, 5);
-    filename = faker.system.fileName({extensionCount: extCount});
-  } else if (isEqual(extension, false)) {
+    const extensionCount = getRandomIntInclusive(0, 5);
+    filename = faker.system.fileName({extensionCount});
+  } else if (isEqual(ext, false)) {
     filename = generateTestFolderName(props);
   } else {
     const name = generateTestFolderName(props);
     filename = addExtenstion(
       name,
-      isBoolean(extension)
-        ? extension === true
+      isBoolean(ext)
+        ? ext === true
           ? faker.system.fileExt()
-          : isString(extension)
-          ? extension
-          : undefined
+          : isString(ext)
+            ? ext
+            : undefined
         : undefined
     );
   }
@@ -74,7 +74,9 @@ export function generateTestFilepath(
     length: length - 1,
     rootname: undefined,
   }).concat(
-    length - (length - 1) > 0 ? generateTestFileName({...props, rootname: undefined}) : []
+    length - (length - 1) > 0
+      ? generateTestFileName({...props, rootname: undefined})
+      : []
   );
 
   if (props.rootname) {
@@ -91,7 +93,9 @@ export function generateTestFilepathString(
   return pathJoin(generateTestFilepath(props));
 }
 
-export function generateTestFile(extra: Partial<File> & {parentId?: string | null} = {}) {
+export function generateTestFile(
+  extra: Partial<File> & {parentId?: string | null} = {}
+) {
   const {parentId = null} = extra;
   const id = getNewIdForResource(kFimidaraResourceType.File);
   const name = generateTestFileName();
@@ -109,15 +113,15 @@ export function generateTestFile(extra: Partial<File> & {parentId?: string | nul
     idPath: extra.idPath
       ? extra.idPath.concat(id)
       : extra.parentId
-      ? [extra.parentId, id]
-      : [id],
+        ? [extra.parentId, id]
+        : [id],
     namepath: extra.namepath
       ? extra.namepath.concat(nameinfo.filenameExcludingExt)
       : [nameinfo.filenameExcludingExt],
     resourceId: id,
     size: faker.number.int({min: 1}),
     workspaceId: getNewIdForResource(kFimidaraResourceType.Workspace),
-    extension: nameinfo.extension,
+    ext: nameinfo.ext,
     version: 1,
     isReadAvailable: true,
     isWriteAvailable: true,
@@ -146,10 +150,7 @@ export async function generateAndInsertTestFiles(
   const items = generateTestFiles(count, extra);
   await kSemanticModels
     .utils()
-    .withTxn(
-      async opts => kSemanticModels.file().insertItem(items, opts),
-      /** reuseTxn */ true
-    );
+    .withTxn(async opts => kSemanticModels.file().insertItem(items, opts));
   return items;
 }
 
@@ -159,7 +160,7 @@ export function generateTestPresignedPath(extra: Partial<PresignedPath> = {}) {
   const data: PresignedPath = {
     namepath: generateTestFilepath(),
     fileId: getNewIdForResource(kFimidaraResourceType.File),
-    extension: faker.system.fileExt(),
+    ext: faker.system.fileExt(),
     issuerAgentTokenId: getNewIdForResource(kFimidaraResourceType.AgentToken),
     maxUsageCount: faker.number.int({min: 0}),
     spentUsageCount: faker.number.int({min: 0}),
@@ -196,9 +197,8 @@ export async function generateAndInsertTestPresignedPathList(
   const items = generateTestPresignedPathList(count, extra);
   await kSemanticModels
     .utils()
-    .withTxn(
-      async opts => kSemanticModels.presignedPath().insertItem(items, opts),
-      /** reuseTxn */ true
+    .withTxn(async opts =>
+      kSemanticModels.presignedPath().insertItem(items, opts)
     );
   return items;
 }

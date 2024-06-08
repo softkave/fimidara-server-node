@@ -1,7 +1,7 @@
 import {Readable} from 'stream';
-import {FileMatcher} from '../../../definitions/file';
-import {ObjectValues} from '../../../utils/types';
-import {Endpoint} from '../../types';
+import {FileMatcher} from '../../../definitions/file.js';
+import {ObjectValues} from '../../../utils/types.js';
+import {Endpoint} from '../../types.js';
 
 export const ImageResizeFitEnumMap = {
   contain: 'contain',

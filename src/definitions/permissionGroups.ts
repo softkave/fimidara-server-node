@@ -1,4 +1,4 @@
-import {Agent, ConvertAgentToPublicAgent, WorkspaceResource} from './system';
+import {Agent, ToPublicDefinitions, WorkspaceResource} from './system.js';
 
 export interface PermissionGroup extends WorkspaceResource {
   name: string;
@@ -35,6 +35,6 @@ export interface AssignPermissionGroupInput {
   permissionGroupId: string;
 }
 
-export type PublicPermissionGroup = ConvertAgentToPublicAgent<PermissionGroup>;
+export type PublicPermissionGroup = ToPublicDefinitions<PermissionGroup>;
 export type PublicAssignedPermissionGroupMeta =
-  ConvertAgentToPublicAgent<AssignedPermissionGroupMeta>;
+  ToPublicDefinitions<AssignedPermissionGroupMeta>;

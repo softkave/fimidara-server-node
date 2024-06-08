@@ -1,15 +1,23 @@
-import {isNil, set} from 'lodash';
-import {appAssert} from '../../../utils/assertion';
-import {convertToArray} from '../../../utils/fns';
-import {getNewId} from '../../../utils/resource';
-import {AnyFn, AnyObject, OrArray, StringKeysOnly} from '../../../utils/types';
+import {isNil, set} from 'lodash-es';
+import {appAssert} from '../../../utils/assertion.js';
+import {convertToArray} from '../../../utils/fns.js';
+import {getNewId} from '../../../utils/resource.js';
+import {
+  AnyFn,
+  AnyObject,
+  OrArray,
+  StringKeysOnly,
+} from '../../../utils/types.js';
 import {
   ComparisonLiteralFieldQueryOps,
   DataQuery,
   KeyedComparisonOps,
-} from '../data/types';
-import {kDataModels} from '../injection/injectables';
-import {SemanticProviderMutationParams, SemanticProviderUtils} from './types';
+} from '../data/types.js';
+import {kDataModels} from '../injection/injectables.js';
+import {
+  SemanticProviderMutationParams,
+  SemanticProviderUtils,
+} from './types.js';
 
 interface InternalTxnStructure {
   __fimidaraTxnId?: string;
@@ -28,7 +36,6 @@ export class DataSemanticProviderUtils implements SemanticProviderUtils {
 
   async withTxn<TResult>(
     fn: AnyFn<[SemanticProviderMutationParams], Promise<TResult>>,
-    reuseAsyncLocalTxn: boolean = true,
     opts?: SemanticProviderMutationParams
   ): Promise<TResult> {
     return await kDataModels.utils().withTxn(
@@ -39,7 +46,6 @@ export class DataSemanticProviderUtils implements SemanticProviderUtils {
 
         return await fn({txn});
       },
-      reuseAsyncLocalTxn,
       opts?.txn
     );
   }
@@ -88,8 +94,10 @@ export function getInAndNinQuery<
    * pass `[null]` or `[undefined]` */
   ninList?: OrArray<TData[TKey]> | undefined
 ) {
-  const inKey: KeyedComparisonOps<Record<string, unknown>> = `${prefix}.$in` as const;
-  const ninKey: KeyedComparisonOps<Record<string, unknown>> = `${prefix}.$nin` as const;
+  const inKey: KeyedComparisonOps<Record<string, unknown>> =
+    `${prefix}.$in` as const;
+  const ninKey: KeyedComparisonOps<Record<string, unknown>> =
+    `${prefix}.$nin` as const;
   const query: DataQuery<TData> = {};
 
   if (!isNil(inList)) set(query, inKey, convertToArray(inList));

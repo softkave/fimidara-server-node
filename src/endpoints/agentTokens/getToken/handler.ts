@@ -1,16 +1,23 @@
-import {appAssert} from '../../../utils/assertion';
-import {tryGetAgentTokenId} from '../../../utils/sessionUtils';
-import {validate} from '../../../utils/validate';
-import {populateAssignedTags} from '../../assignedItems/getAssignedItems';
-import {kUtilsInjectables} from '../../contexts/injection/injectables';
-import {tryGetWorkspaceFromEndpointInput} from '../../workspaces/utils';
-import {checkAgentTokenAuthorization02, getPublicAgentToken} from '../utils';
-import {GetAgentTokenEndpoint} from './types';
-import {getAgentTokenJoiSchema} from './validation';
+import {appAssert} from '../../../utils/assertion.js';
+import {tryGetAgentTokenId} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
+import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
+import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {tryGetWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {checkAgentTokenAuthorization02, getPublicAgentToken} from '../utils.js';
+import {GetAgentTokenEndpoint} from './types.js';
+import {getAgentTokenJoiSchema} from './validation.js';
 
 const getAgentToken: GetAgentTokenEndpoint = async instData => {
   const data = validate(instData.data, getAgentTokenJoiSchema);
-  const agent = await kUtilsInjectables.session().getAgent(instData);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      instData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
   const {workspace} = await tryGetWorkspaceFromEndpointInput(agent, data);
   const tokenId = tryGetAgentTokenId(agent, data.tokenId, data.onReferenced);
   let {token} = await checkAgentTokenAuthorization02(

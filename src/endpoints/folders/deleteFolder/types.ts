@@ -1,6 +1,6 @@
-import {FolderMatcher} from '../../../definitions/folder';
-import {LongRunningJobResult} from '../../jobs/types';
-import {Endpoint, EndpointResultNote} from '../../types';
+import {FolderMatcher} from '../../../definitions/folder.js';
+import {LongRunningJobResult} from '../../jobs/types.js';
+import {Endpoint, EndpointResultNote} from '../../types.js';
 
 export type DeleteFolderEndpointParams = FolderMatcher;
 
