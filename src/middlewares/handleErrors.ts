@@ -1,5 +1,5 @@
 import {Response} from 'express';
-import {JsonWebTokenError, NotBeforeError, TokenExpiredError} from 'jsonwebtoken';
+import pkg from 'jsonwebtoken';
 import {kEndpointConstants} from '../endpoints/constants.js';
 import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
 import {
@@ -8,6 +8,8 @@ import {
 } from '../endpoints/users/errors.js';
 import {getPublicErrors} from '../endpoints/utils.js';
 import {ServerError} from '../utils/errors.js';
+
+const {JsonWebTokenError, NotBeforeError, TokenExpiredError} = pkg;
 
 export function resolveJWTError(err: Error) {
   switch (err.name) {
