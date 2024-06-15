@@ -1,4 +1,4 @@
-import * as jwt from 'jsonwebtoken';
+import jwtpkg from 'jsonwebtoken';
 import {first} from 'lodash-es';
 import {AgentToken} from '../../definitions/agentToken.js';
 import {
@@ -151,7 +151,7 @@ export default class SessionContext implements SessionContextType {
     appAssert(suppliedConfig.jwtSecret);
 
     const tokenData = cast<BaseTokenData<TokenSubjectDefault>>(
-      jwt.verify(token, suppliedConfig.jwtSecret, {complete: false})
+      jwtpkg.verify(token, suppliedConfig.jwtSecret, {complete: false})
     );
 
     if (tokenData.version < kCurrentJWTTokenVersion) {
@@ -194,7 +194,7 @@ export default class SessionContext implements SessionContextType {
     if (expires) payload.exp = dateToSeconds(expires);
     if (issuedAt) payload.iat = dateToSeconds(issuedAt);
 
-    return jwt.sign(payload, suppliedConfig.jwtSecret);
+    return jwtpkg.sign(payload, suppliedConfig.jwtSecret);
   };
 
   private checkPermittedAgentTypes(
