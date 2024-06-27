@@ -12,6 +12,10 @@ export interface SemanticFolderProvider
     query: {workspaceId: string; namepath: string[]},
     opts?: SemanticProviderQueryParams<Folder>
   ): Promise<Folder | null>;
+  getManyByNamepath(
+    query: {workspaceId: string; namepath: string[]},
+    opts?: SemanticProviderQueryParams<Folder>
+  ): Promise<Folder[]>;
   getManyByWorkspaceParentAndIdList(
     q: {
       workspaceId: string;

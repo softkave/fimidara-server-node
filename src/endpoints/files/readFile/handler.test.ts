@@ -1,3 +1,4 @@
+import assert from 'assert';
 import {Readable} from 'stream';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {ResolvedMountEntry} from '../../../definitions/fileBackend.js';
@@ -48,7 +49,6 @@ import {stringifyFilenamepath} from '../utils.js';
 import readFile from './handler.js';
 import {ReadFileEndpointParams} from './types.js';
 import sharp = require('sharp');
-import assert = require('assert');
 
 beforeAll(async () => {
   await initTests();

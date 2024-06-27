@@ -273,7 +273,7 @@
                                                 "39": "readFileBackendMount",
                                                 "40": "updateFileBackendMount"
                                             },
-                                            "enumName": "AppActionType"
+                                            "enumName": "FimidaraPermissionAction"
                                         },
                                         "1": {
                                             "__id": "FieldArray",
@@ -324,7 +324,7 @@
                                                     "39": "readFileBackendMount",
                                                     "40": "updateFileBackendMount"
                                                 },
-                                                "enumName": "AppActionType"
+                                                "enumName": "FimidaraPermissionAction"
                                             }
                                         }
                                     }
@@ -502,7 +502,7 @@
                                         "39": "readFileBackendMount",
                                         "40": "updateFileBackendMount"
                                     },
-                                    "enumName": "AppActionType"
+                                    "enumName": "FimidaraPermissionAction"
                                 },
                                 "__id": "FieldObjectField",
                                 "required": true

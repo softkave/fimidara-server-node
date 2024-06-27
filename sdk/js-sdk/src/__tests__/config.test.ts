@@ -1,4 +1,5 @@
-import {FimidaraEndpoints} from '..';
+import {describe, test, expect} from "vitest";
+import {FimidaraEndpoints} from '../index.js';
 
 describe('config', () => {
   test('config changes cascades', async () => {

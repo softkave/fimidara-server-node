@@ -1,4 +1,4 @@
-import Joi = require('joi');
+import Joi from 'joi';
 import {getWorkspaceResourceTypeList} from '../../definitions/system.js';
 import {kValidationSchemas} from '../../utils/validationUtils.js';
 import {kEndpointConstants} from '../constants.js';

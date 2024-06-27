@@ -1,5 +1,5 @@
 import {compact, last, uniqWith} from 'lodash-es';
-import {AnyFn} from 'softkave-js-utils';
+import {AnyFn, OmitFrom} from 'softkave-js-utils';
 import {ValueOf} from 'type-fest';
 import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
 import {DeferredPromise, getDeferredPromise} from './promiseFns.js';
@@ -25,6 +25,7 @@ export const kShardMatchStrategy = {
 
 export type ShardQueueStrategy = ValueOf<typeof kShardQueueStrategy>;
 export type ShardMatchStrategy = ValueOf<typeof kShardMatchStrategy>;
+export type ShardDoneFn = AnyFn<[], Promise<void>>;
 
 export interface ShardedInput<TInputItem = unknown, TMeta = unknown> {
   shardId: ShardId;
@@ -32,6 +33,7 @@ export interface ShardedInput<TInputItem = unknown, TMeta = unknown> {
   meta?: TMeta;
   queueStrategy: ShardQueueStrategy;
   matchStrategy: ShardMatchStrategy;
+  done: ShardDoneFn;
 }
 
 export interface ShardResult<TOutputItem = unknown> {
@@ -48,6 +50,7 @@ export interface Shard<
   input: TInputItem[];
   promise: DeferredPromise<ShardResult<TOutputItem>>;
   meta: TMeta;
+  doneFns: ShardDoneFn[];
 }
 
 export interface ShardRunner<
@@ -82,13 +85,12 @@ export interface ShardedRunnerIngestAndRunResult<
 }
 
 /**
- * ShardedRunner queues items in a shard, and starts a registered runner if
- * there isn't one running already. Runners acquire (meaning they remove it from
- * the shard store) shards, allowing subsequent queues/ingestions to not have to
- * wait for the current runner to complete. When a runner completes a shard, it
- * tries to acquire another with the same shard ID, and ends if there isn't one.
- * ShardedRunner leverages Node.js' single-threadedness to avoid race
- * conditions.
+ * ShardedRunner queues items in a shard, and starts a runner if there isn't
+ * one. Runners acquire (meaning they remove from the shard store) shards,
+ * allowing subsequent queues/ingestions to not have to wait for the current
+ * runner to complete. When a runner completes a shard, it tries to acquire
+ * another with the same shard ID, and ends if there isn't one. ShardedRunner
+ * leverages Node.js' single-threadedness to avoid race conditions.
  * */
 export class ShardedRunner {
   protected shards: Record<
@@ -111,7 +113,7 @@ export class ShardedRunner {
   >(
     input: Array<ShardedInput<TInputItem, TMeta>>
   ): Promise<ShardedRunnerIngestAndRunResult<TInputItem, TOutputItem>> {
-    const inputedShards = input.map(nextInput => {
+    const inputShards = input.map(nextInput => {
       const key = this.stringifyShardId(nextInput.shardId);
       const queuedShard = this.queueShard(key, nextInput);
 
@@ -123,11 +125,10 @@ export class ShardedRunner {
     });
 
     // run unique shards
-    uniqWith(inputedShards, ([key01], [key02]) => key01 === key02).forEach(
+    uniqWith(inputShards, ([key01], [key02]) => key01 === key02).forEach(
       ([key, {id}]) => {
         // check if there's an existing runner
         const lockName = this.getLockName(id, key);
-
         const isRunning = kUtilsInjectables.locks().has(lockName);
 
         // start a runner if there isn't one already. we don't need to wait for
@@ -145,7 +146,7 @@ export class ShardedRunner {
     );
 
     const settled = await this.waitAndProcessResult(
-      inputedShards.map(([, shard]) => shard)
+      inputShards.map(([, shard]) => shard)
     );
     return settled as ShardedRunnerIngestAndRunResult<TInputItem, TOutputItem>;
   }
@@ -168,6 +169,7 @@ export class ShardedRunner {
         shard,
         result: {status: 'fulfilled', value: result},
       });
+      await Promise.allSettled(shard.doneFns.map(doneFn => doneFn()));
     } catch (error: unknown) {
       shard.promise.resolve({
         shard,
@@ -175,7 +177,7 @@ export class ShardedRunner {
       });
     }
 
-    this.runShard(id, key);
+    await this.runShard(id, key);
   }
 
   protected dequeueShard(id: ShardId, key?: string) {
@@ -219,13 +221,15 @@ export class ShardedRunner {
 
     if (input.queueStrategy === kShardQueueStrategy.appendToExisting && shard) {
       shard.input = shard.input.concat(input.input);
+      shard.doneFns.push(input.done);
     } else {
       const promise = getDeferredPromise<ShardResult>();
       shard = {
         promise,
-        id: input.shardId,
         meta: input.meta,
+        id: input.shardId,
         input: input.input,
+        doneFns: [input.done],
       };
       shards.push(shard);
     }
@@ -259,7 +263,9 @@ export class ShardedRunner {
     return undefined;
   }
 
-  protected async waitAndProcessResult(shards: Shard[]) {
+  protected async waitAndProcessResult(
+    shards: Pick<Shard, 'input' | 'promise'>[]
+  ) {
     const success: Array<ShardedRunnerIngestAndRunSuccess> = [];
     const failed: Array<ShardedRunnerIngestAndRunFailure> = [];
     const promises = shards.map(shard => shard.promise.promise);
@@ -283,7 +289,10 @@ export class ShardedRunner {
     return {success, failed};
   }
 
-  protected produceShardView(input: unknown[], shard: Shard): Shard {
+  protected produceShardView(
+    input: unknown[],
+    shard: OmitFrom<Shard, 'doneFns'>
+  ): OmitFrom<Shard, 'doneFns'> {
     return {
       input,
       id: shard.id,
@@ -291,4 +300,13 @@ export class ShardedRunner {
       promise: shard.promise,
     };
   }
+}
+
+export function makeShardDoneFn() {
+  const promise = getDeferredPromise();
+  const done: ShardDoneFn = () => {
+    return promise.promise;
+  };
+
+  return {done, promise};
 }

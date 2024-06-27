@@ -70,7 +70,6 @@ export async function ingestPersistedFolders(
       newFolderInputList,
       /** skip auth check */ true,
       /** do not throw if folders exists */ false,
-      opts,
       /** throw on error */ true
     );
 
@@ -177,7 +176,6 @@ export async function ingestPersistedFiles(
       folderpathsToEnsure,
       /** skip auth check */ true,
       /** do not throw if folders exist */ false,
-      opts,
       /** throw on error */ true
     );
 

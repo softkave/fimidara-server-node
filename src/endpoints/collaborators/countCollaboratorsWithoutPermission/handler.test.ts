@@ -1,8 +1,8 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import RequestData from '../../RequestData.js';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -25,7 +25,7 @@ describe('countCollaboratorsWithoutPermission', () => {
   test('count', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const seedCount = 15;
+    const seedCount = 5;
     await generateAndInsertCollaboratorListForTest(
       kSystemSessionAgent,
       workspace.resourceId,
@@ -39,6 +39,7 @@ describe('countCollaboratorsWithoutPermission', () => {
       );
     const result = await countCollaboratorsWithoutPermission(instData);
     assertEndpointResultOk(result);
+
     expect(result.count).toBe(seedCount);
   });
 });

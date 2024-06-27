@@ -1,6 +1,8 @@
+import assert from 'assert';
 import {execSync} from 'child_process';
 import * as fse from 'fs-extra';
 import {compact, forEach, last, nth, set, uniq, upperFirst} from 'lodash-es';
+import path from 'path';
 import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
 import {registerUtilsInjectables} from '../endpoints/contexts/injection/register.js';
 import {
@@ -38,8 +40,6 @@ import {
   mddocConstruct,
   objectHasRequiredFields,
 } from './mddoc.js';
-import path = require('path');
-import assert = require('assert');
 
 class Doc {
   protected disclaimer =

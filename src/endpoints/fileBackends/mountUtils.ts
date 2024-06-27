@@ -18,7 +18,6 @@ import {ServerError} from '../../utils/errors.js';
 import {loopAndCollateAsync} from '../../utils/fns.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {PartialRecord} from '../../utils/types.js';
-import {kAsyncLocalStorageUtils} from '../contexts/asyncLocalStorage.js';
 import {DataQuery} from '../contexts/data/types.js';
 import {
   FilePersistenceProvider,
@@ -141,9 +140,8 @@ export async function initBackendProvidersForMounts(
     providersMap[mount.resourceId] = provider;
   });
 
-  kAsyncLocalStorageUtils
-    .disposables()
-    .add(compact(Object.values(providersMap)));
+  const disposables = compact(Object.values(providersMap));
+  kUtilsInjectables.asyncLocalStorage().disposables().add(disposables);
   return providersMap;
 }
 

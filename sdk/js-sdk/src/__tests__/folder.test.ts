@@ -1,18 +1,19 @@
 import {faker} from '@faker-js/faker';
-import {FimidaraEndpoints} from '../publicEndpoints';
+import {describe, test, expect} from "vitest";
+import {FimidaraEndpoints} from '../publicEndpoints.js';
 import {
   addFolderTestExecFn,
   listFolderContentTestExecFn,
-} from '../testutils/execFns/folder';
+} from '../testutils/execFns/folder.js';
 import {
   test_addFolder,
   test_deleteFolder,
   test_getFolder,
   test_listFolderContent,
   test_updateFolder,
-} from '../testutils/tests/folder';
-import {getTestVars} from '../testutils/utils';
-import {fimidaraAddRootnameToPath} from '../utils';
+} from '../testutils/tests/folder.js';
+import {getTestVars} from '../testutils/utils.js';
+import {fimidaraAddRootnameToPath} from '../utils.js';
 
 describe('folder', () => {
   test('add folder', async () => {

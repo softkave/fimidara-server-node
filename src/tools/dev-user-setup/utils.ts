@@ -22,6 +22,7 @@ import {
 import {fetchEntityAssignedPermissionGroupList} from '../../endpoints/permissionGroups/getEntityAssignedPermissionGroups/utils.js';
 import {assertPermissionGroup} from '../../endpoints/permissionGroups/utils.js';
 import {initFimidara} from '../../endpoints/runtime/initFimidara.js';
+import {INTERNAL_changePassword} from '../../endpoints/users/changePasswordWithToken/utils.js';
 import INTERNAL_confirmEmailAddress from '../../endpoints/users/confirmEmailAddress/internalConfirmEmailAddress.js';
 import {INTERNAL_signupUser} from '../../endpoints/users/signup/utils.js';
 import {
@@ -151,6 +152,13 @@ async function getUser(runtimeOptions: ISetupDevUserOptions) {
         {requiresPasswordChange: false, isEmailVerified: true},
         opts
       );
+    }
+
+    if (user.requiresPasswordChange) {
+      const {password} = await runtimeOptions.getUserPassword();
+      await INTERNAL_changePassword(/** reqData */ {}, user.resourceId, {
+        password,
+      });
     }
 
     assert.ok(user);

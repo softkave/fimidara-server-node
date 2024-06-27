@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {merge} from 'lodash-es';
 import {PartialDeep} from 'type-fest';
-import {FimidaraEndpoints} from '../../publicEndpoints';
+import {FimidaraEndpoints} from '../../publicEndpoints.js';
 import {
   DeleteFileEndpointParams,
   FileMatcher,
@@ -11,14 +11,14 @@ import {
   UpdateFileDetailsEndpointParams,
   UploadFileEndpointParams,
   UploadFileEndpointResult,
-} from '../../publicTypes';
+} from '../../publicTypes.js';
 import {
   FimidaraEndpointResult,
   FimidaraEndpointWithBinaryResponseParamsOptional,
   fimidaraAddRootnameToPath,
   stringifyFimidaraFilenamepath,
-} from '../../utils';
-import {ITestVars, getTestFileReadStream} from '../utils';
+} from '../../utils.js';
+import {ITestVars, getTestFileReadStream} from '../utils.js';
 
 export async function deleteFileTestExecFn(
   endpoint: FimidaraEndpoints,

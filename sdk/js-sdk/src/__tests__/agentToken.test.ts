@@ -1,10 +1,11 @@
+import {describe, test} from "vitest";
 import {
   test_addAgentToken,
   test_deleteToken,
   test_getToken,
   test_getWorkspaceAgentTokens,
   test_updateToken,
-} from '../testutils/tests/agentToken';
+} from '../testutils/tests/agentToken.js';
 
 describe('agent tokens', () => {
   test('add token', async () => {

@@ -4,7 +4,10 @@ import {User} from '../../../definitions/user.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getNewIdForResource, newResource} from '../../../utils/resource.js';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {assertEmailAddressAvailable} from '../utils.js';
 import {SignupEndpointParams} from './types.js';
@@ -28,7 +31,8 @@ export const INTERNAL_signupUser = async (
     passwordLastChangedAt: now,
     isEmailVerified: false,
     lastUpdatedAt: now,
-    isOnWaitlist: kUtilsInjectables.suppliedConfig().FLAG_waitlistNewSignups || false,
+    isOnWaitlist:
+      kUtilsInjectables.suppliedConfig().FLAG_waitlistNewSignups || false,
     ...otherParams,
   });
   await kSemanticModels.user().insertItem(user, opts);

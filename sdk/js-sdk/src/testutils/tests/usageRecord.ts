@@ -1,9 +1,9 @@
-import {FimidaraEndpoints} from '../../publicEndpoints';
+import {FimidaraEndpoints} from '../../publicEndpoints.js';
 import {
   getUsageCostsTestExecFn,
   getWorkspaceSummedUsageTestExecFn,
-} from '../execFns/usageRecord';
-import {ITestVars, getTestVars} from '../utils';
+} from '../execFns/usageRecord.js';
+import {ITestVars, getTestVars} from '../utils.js';
 
 const vars: ITestVars = getTestVars();
 const fimidara = new FimidaraEndpoints({

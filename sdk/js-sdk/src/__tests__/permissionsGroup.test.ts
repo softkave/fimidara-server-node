@@ -1,10 +1,11 @@
+import {describe, test} from "vitest";
 import {
   test_addPermissionGroup,
   test_deletePermissionGroup,
   test_getPermissionGroup,
   test_getWorkspacePermissionGroups,
   test_updatePermissionGroup,
-} from '../testutils/tests/permissionsGroup';
+} from '../testutils/tests/permissionsGroup.js';
 
 describe('permission group', () => {
   test('update permission group', async () => {

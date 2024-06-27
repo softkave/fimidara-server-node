@@ -1,4 +1,4 @@
-import * as fse from 'fs-extra';
+import fse from 'fs-extra';
 import {forEach} from 'lodash-es';
 import path from 'path';
 import {getFimidaraPublicHttpEndpoints} from '../endpoints/endpoints.js';

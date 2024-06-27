@@ -1,8 +1,8 @@
+import assert from 'assert';
 import {PartialDeep} from 'type-fest';
-import {FimidaraEndpoints} from '../../publicEndpoints';
-import {GetWorkspaceSummedUsageEndpointParams} from '../../publicTypes';
-import {ITestVars} from '../utils';
-import assert = require('assert');
+import {FimidaraEndpoints} from '../../publicEndpoints.js';
+import {GetWorkspaceSummedUsageEndpointParams} from '../../publicTypes.js';
+import {ITestVars} from '../utils.js';
 
 export async function getWorkspaceSummedUsageTestExecFn(
   endpoint: FimidaraEndpoints,

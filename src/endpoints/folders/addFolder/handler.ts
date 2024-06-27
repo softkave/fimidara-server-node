@@ -39,7 +39,6 @@ const addFolder: AddFolderEndpoint = async instData => {
     data.folder,
     /** skip auth check */ false,
     /** throw if folder exists */ true,
-    /** mutation opts */ undefined,
     /** throw on error */ false
   );
 

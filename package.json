@@ -27,11 +27,11 @@
     "integration-test": "env-cmd -f \".env.integration-test\" vitest --config ./vitest.config.ts",
     "dev-for-test": "tsc && env-cmd -f \".env.unit-test\" npm start",
     "check-circular-deps": "npx dpdm --no-warning --no-tree ./src/index.ts",
-    "gen-rest-api": "env-cmd -f \".env.dev\" ts-node src/mddoc/restApiGen.ts",
-    "gen-js-sdk": "env-cmd -f \".env.dev\" ts-node src/mddoc/jsSdkCodeGen.ts",
+    "gen-rest-api": "env-cmd -f \".env.dev\" npx tsx src/mddoc/restApiGen.ts",
+    "gen-js-sdk": "env-cmd -f \".env.dev\" npx tsx src/mddoc/jsSdkCodeGen.ts",
     "dev-mongo-rs": "npx run-rs --host localhost --portStart 27000 --dbpath dev-mongo-rs-data --keep",
-    "test-mongo-rs": "npx run-rs --host localhost --portStart 27000 --dbpath test-mongo-rs-data",
-    "render-email-templates": "env-cmd -f \".env.dev\" ts-node src/tools/email-templates/index.ts"
+    "test-mongo-rs": "npx run-rs --host localhost --portStart 27005 --dbpath test-mongo-rs-data",
+    "render-email-templates": "env-cmd -f \".env.dev\" npx tsx src/tools/email-templates/index.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.52.0",
@@ -56,7 +56,7 @@
     "reflect-metadata": "^0.2.1",
     "safe-stable-stringify": "^2.3.1",
     "sharp": "^0.32.6",
-    "softkave-js-utils": "^0.4.4",
+    "softkave-js-utils": "^0.7.0",
     "stripe": "^8.222.0",
     "tsyringe": "^4.8.0",
     "type-fest": "^4.17.0",
@@ -86,9 +86,6 @@
     "expect-type": "^0.19.0",
     "gts": "^5.3.0",
     "inquirer": "^9.2.15",
-    "kerberos": "^2.1.0",
-    "run-rs": "^0.7.7",
-    "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
     "vitest": "^1.5.3"
   }

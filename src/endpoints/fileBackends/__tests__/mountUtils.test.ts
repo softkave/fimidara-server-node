@@ -119,41 +119,43 @@ describe('file backend mount utils', () => {
     );
   });
 
-  test('initBackendProvidersForMounts', async () => {
-    const {userToken} = await insertUserForTest();
-    const {workspace} = await insertWorkspaceForTest(userToken);
-    const [[fimidaraMount], {rawConfig: s3Config}] = await Promise.all([
-      generateAndInsertFileBackendMountListForTest(/** count */ 1, {
-        backend: kFileBackendType.fimidara,
-      }),
-      insertFileBackendConfigForTest(userToken, workspace.resourceId, {
-        backend: kFileBackendType.s3,
-      }),
-    ]);
-    const [[s3Mount]] = await Promise.all([
-      generateAndInsertFileBackendMountListForTest(/** count */ 1, {
-        backend: kFileBackendType.s3,
-        configId: s3Config.resourceId,
-      }),
-    ]);
+  test.only('initBackendProvidersForMounts', async () => {
+    await kUtilsInjectables.asyncLocalStorage().run(async () => {
+      const {userToken} = await insertUserForTest();
+      const {workspace} = await insertWorkspaceForTest(userToken);
+      const [[fimidaraMount], {rawConfig: s3Config}] = await Promise.all([
+        generateAndInsertFileBackendMountListForTest(/** count */ 1, {
+          backend: kFileBackendType.fimidara,
+        }),
+        insertFileBackendConfigForTest(userToken, workspace.resourceId, {
+          backend: kFileBackendType.s3,
+        }),
+      ]);
+      const [[s3Mount]] = await Promise.all([
+        generateAndInsertFileBackendMountListForTest(/** count */ 1, {
+          backend: kFileBackendType.s3,
+          configId: s3Config.resourceId,
+        }),
+      ]);
 
-    const result = await initBackendProvidersForMounts(
-      [fimidaraMount, s3Mount],
-      [s3Config]
-    );
+      const result = await initBackendProvidersForMounts(
+        [fimidaraMount, s3Mount],
+        [s3Config]
+      );
 
-    const fimidaraProvider = result[fimidaraMount.resourceId];
-    const s3Provider = result[s3Mount.resourceId];
-    const disposablesMap = kUtilsInjectables
-      .asyncLocalStorage()
-      .disposables()
-      .getMap();
-    expect(fimidaraProvider).toBeTruthy();
-    expect(s3Provider).toBeTruthy();
-    expect(fimidaraProvider).toBeInstanceOf(FimidaraFilePersistenceProvider);
-    expect(s3Provider).toBeInstanceOf(S3FilePersistenceProvider);
-    expect(disposablesMap.has(fimidaraProvider!)).toBeTruthy();
-    expect(disposablesMap.has(s3Provider!)).toBeTruthy();
+      const fimidaraProvider = result[fimidaraMount.resourceId];
+      const s3Provider = result[s3Mount.resourceId];
+      const disposablesMap = kUtilsInjectables
+        .asyncLocalStorage()
+        .disposables()
+        .getMap();
+      expect(fimidaraProvider).toBeTruthy();
+      expect(s3Provider).toBeTruthy();
+      expect(fimidaraProvider).toBeInstanceOf(FimidaraFilePersistenceProvider);
+      expect(s3Provider).toBeInstanceOf(S3FilePersistenceProvider);
+      expect(disposablesMap.has(fimidaraProvider!)).toBeTruthy();
+      expect(disposablesMap.has(s3Provider!)).toBeTruthy();
+    });
   });
 
   test('initBackendProvidersForMounts throws if secret not found', async () => {

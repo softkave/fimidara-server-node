@@ -11,7 +11,7 @@ import {
 import {assertUser} from '../utils.js';
 
 export async function INTERNAL_changePassword(
-  reqData: RequestData,
+  reqData: Pick<RequestData, 'agent' | 'incomingTokenData'>,
   userId: string,
   props: {password: string}
 ) {

@@ -1,4 +1,5 @@
 import {first} from 'lodash-es';
+import {convertToArray} from 'softkave-js-utils';
 import {Folder} from '../../../definitions/folder.js';
 import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
 import {Resource, SessionAgent} from '../../../definitions/system.js';
@@ -19,7 +20,7 @@ import {
   AddFolderShard,
   AddFolderShardRunner,
   NewFolderInput,
-  kAddFolderShardPart,
+  kAddFolderShardRunnerPrefix,
 } from './types.js';
 
 async function createFolderListWithTransaction(
@@ -34,15 +35,25 @@ async function createFolderListWithTransaction(
     pathinfoList,
     foldersByNamepath,
     existingFolders,
-    inputList,
     getSelfOrClosestParent,
   } = await getExistingFoldersAndArtifacts(workspace.resourceId, input, opts);
   const newFolders: Folder[] = [];
   // Use a set to avoid duplicating auth checks to the same target
   const checkAuthTargets: Set<Resource> = new Set();
 
+  const inputMap = convertToArray(input).reduce(
+    (acc, nextInput) => {
+      acc[nextInput.folderpath] = nextInput;
+      return acc;
+    },
+    {} as Record<string, NewFolderInput>
+  );
+  const inputList = Object.values(inputMap);
+
   pathinfoList?.forEach((pathinfo, pathinfoIndex) => {
-    const inputForIndex = inputList[pathinfoIndex];
+    const inputForIndex = inputList[pathinfoIndex] as
+      | NewFolderInput
+      | undefined;
     let prevFolder = getSelfOrClosestParent(pathinfo.namepath);
     const existingDepth = prevFolder?.namepath.length ?? 0;
 
@@ -65,7 +76,7 @@ async function createFolderListWithTransaction(
           // description belongs to only the actual folder from input
           description:
             actualNameIndex === pathinfo.namepath.length - 1
-              ? inputForIndex.description
+              ? inputForIndex?.description
               : undefined,
         }
       );
@@ -133,29 +144,32 @@ async function createFolderListWithTransaction(
 }
 
 function matchAddFolderShard(id: ShardId) {
-  return first(id) === kAddFolderShardPart;
+  return first(id) === kAddFolderShardRunnerPrefix;
 }
 
 async function runAddFolderShard(shard: AddFolderShard) {
   const {input, meta} = shard;
+
+  // TODO: because a started txn does not pick folders created by other shards,
+  // we want to start txns within shard runner. Downside is folders are created
+  // even though starters like upload file fail. Solution is to run txns
+  // everything within a shard runner.
   return await kSemanticModels
     .utils()
-    .withTxn(
-      opts =>
-        createFolderListWithTransaction(
-          meta.agent,
-          meta.workspace,
-          input,
-          meta.UNSAFE_skipAuthCheck,
-          meta.throwOnFolderExists,
-          opts
-        ),
-      meta.opts
+    .withTxn(opts =>
+      createFolderListWithTransaction(
+        meta.agent,
+        meta.workspace,
+        input,
+        meta.UNSAFE_skipAuthCheck,
+        meta.throwOnFolderExists,
+        opts
+      )
     );
 }
 
 export const addFolderShardRunner: AddFolderShardRunner = {
   match: matchAddFolderShard,
   runner: runAddFolderShard,
-  name: kAddFolderShardPart,
+  name: kAddFolderShardRunnerPrefix,
 };

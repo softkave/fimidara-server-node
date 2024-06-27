@@ -1,4 +1,4 @@
-import assert = require('assert');
+import assert from 'assert';
 import {isArray, isFunction, isObject, isUndefined} from 'lodash-es';
 import {format} from 'util';
 import {AnyFn} from '../../../utils/types.js';

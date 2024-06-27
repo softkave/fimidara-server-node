@@ -1,5 +1,5 @@
-export {FimidaraEndpoints} from './publicEndpoints';
-export * from './publicTypes';
+export {FimidaraEndpoints} from './publicEndpoints.js';
+export * from './publicTypes.js';
 export {
   FimidaraEndpointError,
   FimidaraEndpointParamsOptional,
@@ -15,4 +15,4 @@ export {
   getFimidaraUploadFileURL,
   stringifyFimidaraFilenamepath,
   stringifyFimidaraFoldernamepath,
-} from './utils';
+} from './utils.js';

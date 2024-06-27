@@ -1,3 +1,4 @@
+import {noopAsync} from 'softkave-js-utils';
 import {Folder} from '../../../definitions/folder.js';
 import {SessionAgent} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
@@ -9,12 +10,11 @@ import {
   kShardQueueStrategy,
 } from '../../../utils/shardedRunnerQueue.js';
 import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {
   AddFolderShardMeta,
   AddFolderShardOutputItem,
   NewFolderInput,
-  kAddFolderShardPart,
+  kAddFolderShardRunnerPrefix,
 } from './types.js';
 
 function shardNewFolderInput(
@@ -26,22 +26,21 @@ function shardNewFolderInput(
     (nextInput): ShardedInput<NewFolderInput, AddFolderShardMeta> => {
       const namepath = pathSplit(nextInput.folderpath);
       const shardId: ShardId = [
-        kAddFolderShardPart,
+        kAddFolderShardRunnerPrefix,
         workspaceId,
         // TODO: can shard key use existing parent folder names, instead of
         // just the first folder name
-        /** workspace rootname and folder0 */ ...namepath
-          .slice(0, 2)
+        /** folder[0] */ ...namepath
+          .slice(/** minus rootname */ 1, 2)
           .map(name => name.toLowerCase()),
       ];
 
       return {
-        shardId,
         meta,
+        shardId,
+        done: noopAsync,
         input: [nextInput],
-        queueStrategy: meta.opts?.txn
-          ? kShardQueueStrategy.separateFromExisting
-          : kShardQueueStrategy.appendToExisting,
+        queueStrategy: kShardQueueStrategy.appendToExisting,
         matchStrategy: kShardMatchStrategy.hierachichal,
       };
     }
@@ -54,19 +53,21 @@ export async function createFolderList(
   input: NewFolderInput | NewFolderInput[],
   UNSAFE_skipAuthCheck = false,
   throwOnFolderExists = true,
-  opts: SemanticProviderMutationParams | undefined,
   throwOnError: boolean
 ) {
   const {success, failed} = await kUtilsInjectables
     .shardedRunner()
     .ingestAndRun<NewFolderInput, AddFolderShardOutputItem, AddFolderShardMeta>(
-      shardNewFolderInput(workspace.resourceId, input, {
-        agent,
-        throwOnFolderExists,
-        UNSAFE_skipAuthCheck,
-        workspace,
-        opts,
-      })
+      shardNewFolderInput(
+        workspace.resourceId,
+        input,
+        /** meta */ {
+          agent,
+          throwOnFolderExists,
+          UNSAFE_skipAuthCheck,
+          workspace,
+        }
+      )
     );
 
   if (throwOnError && failed.length) {
@@ -83,7 +84,9 @@ export async function createFolderList(
 
   success.forEach(successItem => {
     newFolders = newFolders.concat(successItem.output.newFolders);
-    existingFolders = existingFolders.concat(successItem.output.existingFolders);
+    existingFolders = existingFolders.concat(
+      successItem.output.existingFolders
+    );
   });
 
   return {newFolders, existingFolders, failedInput: failed};

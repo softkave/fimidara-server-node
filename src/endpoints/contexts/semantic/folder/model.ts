@@ -27,6 +27,17 @@ export class DataSemanticFolder
     return await this.data.getOneByQuery(dataQuery, opts);
   }
 
+  async getManyByNamepath(
+    query: {workspaceId: string; namepath: string[]},
+    opts?: SemanticProviderQueryParams<Folder> | undefined
+  ): Promise<Folder[]> {
+    const dataQuery = addIsDeletedIntoQuery<DataQuery<Folder>>(
+      FolderQueries.getByNamepath(query),
+      opts?.includeDeleted || false
+    );
+    return await this.data.getManyByQuery(dataQuery, opts);
+  }
+
   async getManyByWorkspaceParentAndIdList(
     query: {
       workspaceId: string;

@@ -1,10 +1,10 @@
 import {faker} from '@faker-js/faker';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kSemanticModels} from '../../endpoints/contexts/injection/injectables.js';
 import {generateAndInsertUserListForTest} from '../../endpoints/testUtils/generate/user.js';
 import {completeTests} from '../../endpoints/testUtils/helpers/testFns.js';
 import {initTests} from '../../endpoints/testUtils/testUtils.js';
 import {ISetupDevUserOptions, setupDevUser} from './utils.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 
 beforeAll(async () => {
   initTests();
@@ -33,7 +33,7 @@ describe('dev user setup', () => {
     await setupDevUser(appOptions);
   });
 
-  test('changes user password if user requires password change', async () => {
+  test('does not require password change', async () => {
     const userEmail = await appOptions.getUserEmail();
     await generateAndInsertUserListForTest(1, () => ({
       requiresPasswordChange: true,

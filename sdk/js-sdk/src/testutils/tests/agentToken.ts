@@ -1,4 +1,5 @@
-import {FimidaraEndpoints} from '../../publicEndpoints';
+import {expect} from "vitest";
+import {FimidaraEndpoints} from '../../publicEndpoints.js';
 import {
   addAgentTokenTestExecFn,
   deleteTokenTestExecFn,
@@ -6,13 +7,13 @@ import {
   getWorkspaceAgentTokensTestExecFn,
   setupWorkspaceAgentTokensTestExecFn,
   updateTokenTestExecFn,
-} from '../execFns/agentToken';
+} from '../execFns/agentToken.js';
 import {
   ITestVars,
   containsNoneIn,
   getTestVars,
   indexByResourceId,
-} from '../utils';
+} from '../utils.js';
 
 const vars: ITestVars = getTestVars();
 const fimidara = new FimidaraEndpoints({

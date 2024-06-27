@@ -1,3 +1,4 @@
+import {uniq} from 'lodash-es';
 import {AssignedItem} from '../../../definitions/assignedItem.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {indexArray} from '../../../utils/indexArray.js';
@@ -50,7 +51,9 @@ export async function getPagedCollaboratorsWithoutPermission(
     .assignedItem()
     .getManyByQuery(assignedItemsQuery, page);
 
-  if (assignedItems_collaborators.length === 0) return [];
+  if (assignedItems_collaborators.length === 0) {
+    return [];
+  }
 
   // Check that collaborators do not have permission groups assigned
   let collaboratorIdList = assignedItems_collaborators.map(
@@ -67,9 +70,7 @@ export async function getPagedCollaboratorsWithoutPermission(
     );
   const assignedItems_permissionGroupsMap = indexArray(
     assignedItems_permissionGroups,
-    {
-      path: 'assigneeId',
-    }
+    {path: 'assigneeId'}
   );
   collaboratorIdList = collaboratorIdList.filter(
     nextId => !assignedItems_permissionGroupsMap[nextId]
@@ -88,5 +89,6 @@ export async function getPagedCollaboratorsWithoutPermission(
     nextId => !permissionItemsMap[nextId]
   );
 
+  collaboratorIdList = uniq(collaboratorIdList);
   return collaboratorIdList;
 }

@@ -1,5 +1,5 @@
-import sharp = require('sharp');
 import {compact} from 'lodash-es';
+import sharp from 'sharp';
 import {PassThrough, Readable} from 'stream';
 import {File} from '../../../definitions/file.js';
 import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';

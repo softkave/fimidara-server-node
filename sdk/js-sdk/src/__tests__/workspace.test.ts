@@ -1,7 +1,8 @@
+import {describe, test} from "vitest";
 import {
   test_getWorkspace,
   test_updateWorkspace,
-} from '../testutils/tests/workspace';
+} from '../testutils/tests/workspace.js';
 
 describe('workspace', () => {
   test('update workspace', async () => {

@@ -1,11 +1,16 @@
 import 'reflect-metadata';
-import {PromiseStore, LockStore, DisposablesStore, Logger} from 'softkave-js-utils';
+import {
+  DisposablesStore,
+  LockStore,
+  Logger,
+  PromiseStore,
+} from 'softkave-js-utils';
 
 import {container} from 'tsyringe';
 import {DbConnection} from '../../../db/connection.js';
 import {
-  FimidaraSuppliedConfig,
   FimidaraRuntimeConfig,
+  FimidaraSuppliedConfig,
 } from '../../../resources/config.js';
 import {ShardedRunner} from '../../../utils/shardedRunnerQueue.js';
 import {FimidaraApp} from '../../app/FimidaraApp.js';
@@ -13,28 +18,28 @@ import {FimidaraWorkerPool} from '../../jobs/fimidaraWorker/FimidaraWorkerPool.j
 import {SessionContextType} from '../SessionContext.js';
 import {AsyncLocalStorageUtils} from '../asyncLocalStorage.js';
 import {
-  UserDataProvider,
-  FileDataProvider,
   AgentTokenDataProvider,
-  FolderDataProvider,
-  WorkspaceDataProvider,
+  AppDataProvider,
+  AppRuntimeStateDataProvider,
+  AppShardDataProvider,
+  AssignedItemDataProvider,
+  CollaborationRequestDataProvider,
+  DataProviderUtils,
+  EmailBlocklistDataProvider,
+  EmailMessageDataProvider,
   FileBackendConfigDataProvider,
   FileBackendMountDataProvider,
-  PresignedPathDataProvider,
+  FileDataProvider,
+  FolderDataProvider,
+  JobDataProvider,
   PermissionGroupDataProvider,
   PermissionItemDataProvider,
-  TagDataProvider,
-  AssignedItemDataProvider,
-  JobDataProvider,
+  PresignedPathDataProvider,
   ResolvedMountEntryDataProvider,
-  AppRuntimeStateDataProvider,
-  CollaborationRequestDataProvider,
+  TagDataProvider,
   UsageRecordDataProvider,
-  AppDataProvider,
-  EmailMessageDataProvider,
-  EmailBlocklistDataProvider,
-  AppShardDataProvider,
-  DataProviderUtils,
+  UserDataProvider,
+  WorkspaceDataProvider,
 } from '../data/types.js';
 import {IEmailProviderContext} from '../email/types.js';
 import {SecretsManagerProvider} from '../encryption/types.js';
@@ -45,8 +50,8 @@ import {SemanticAppShardProvider} from '../semantic/app/types.js';
 import {SemanticAssignedItemProvider} from '../semantic/assignedItem/types.js';
 import {SemanticCollaborationRequestProvider} from '../semantic/collaborationRequest/types.js';
 import {
-  SemanticEmailMessageProvider,
   SemanticEmailBlocklistProvider,
+  SemanticEmailMessageProvider,
 } from '../semantic/email/types.js';
 import {
   SemanticFileProvider,
@@ -58,26 +63,33 @@ import {SemanticPermissionProviderType} from '../semantic/permission/types.js';
 import {SemanticPermissionItemProviderType} from '../semantic/permissionItem/types.js';
 import {SemanticResolvedMountEntryProvider} from '../semantic/resolvedMountEntry/types.js';
 import {
+  SemanticAppProvider,
   SemanticFileBackendConfigProvider,
   SemanticFileBackendMountProvider,
   SemanticPermissionGroupProviderType,
+  SemanticProviderUtils,
   SemanticTagProviderType,
   SemanticUsageRecordProviderType,
-  SemanticAppProvider,
-  SemanticProviderUtils,
 } from '../semantic/types.js';
 import {SemanticUserProviderType} from '../semantic/user/types.js';
 import {SemanticWorkspaceProviderType} from '../semantic/workspace/types.js';
 import {kInjectionKeys} from './keys.js';
 
 export const kSemanticModels = {
-  user: () => container.resolve<SemanticUserProviderType>(kInjectionKeys.semantic.user),
-  file: () => container.resolve<SemanticFileProvider>(kInjectionKeys.semantic.file),
+  user: () =>
+    container.resolve<SemanticUserProviderType>(kInjectionKeys.semantic.user),
+  file: () =>
+    container.resolve<SemanticFileProvider>(kInjectionKeys.semantic.file),
   agentToken: () =>
-    container.resolve<SemanticAgentTokenProvider>(kInjectionKeys.semantic.agentToken),
-  folder: () => container.resolve<SemanticFolderProvider>(kInjectionKeys.semantic.folder),
+    container.resolve<SemanticAgentTokenProvider>(
+      kInjectionKeys.semantic.agentToken
+    ),
+  folder: () =>
+    container.resolve<SemanticFolderProvider>(kInjectionKeys.semantic.folder),
   workspace: () =>
-    container.resolve<SemanticWorkspaceProviderType>(kInjectionKeys.semantic.workspace),
+    container.resolve<SemanticWorkspaceProviderType>(
+      kInjectionKeys.semantic.workspace
+    ),
   collaborationRequest: () =>
     container.resolve<SemanticCollaborationRequestProvider>(
       kInjectionKeys.semantic.collaborationRequest
@@ -106,10 +118,14 @@ export const kSemanticModels = {
     container.resolve<SemanticPermissionItemProviderType>(
       kInjectionKeys.semantic.permissionItem
     ),
-  tag: () => container.resolve<SemanticTagProviderType>(kInjectionKeys.semantic.tag),
+  tag: () =>
+    container.resolve<SemanticTagProviderType>(kInjectionKeys.semantic.tag),
   assignedItem: () =>
-    container.resolve<SemanticAssignedItemProvider>(kInjectionKeys.semantic.assignedItem),
-  job: () => container.resolve<SemanticJobProvider>(kInjectionKeys.semantic.job),
+    container.resolve<SemanticAssignedItemProvider>(
+      kInjectionKeys.semantic.assignedItem
+    ),
+  job: () =>
+    container.resolve<SemanticJobProvider>(kInjectionKeys.semantic.job),
   usageRecord: () =>
     container.resolve<SemanticUsageRecordProviderType>(
       kInjectionKeys.semantic.usageRecord
@@ -118,16 +134,22 @@ export const kSemanticModels = {
     container.resolve<SemanticResolvedMountEntryProvider>(
       kInjectionKeys.semantic.resolvedMountEntry
     ),
-  app: () => container.resolve<SemanticAppProvider>(kInjectionKeys.semantic.app),
+  app: () =>
+    container.resolve<SemanticAppProvider>(kInjectionKeys.semantic.app),
   emailMessage: () =>
-    container.resolve<SemanticEmailMessageProvider>(kInjectionKeys.semantic.emailMessage),
+    container.resolve<SemanticEmailMessageProvider>(
+      kInjectionKeys.semantic.emailMessage
+    ),
   emailBlocklist: () =>
     container.resolve<SemanticEmailBlocklistProvider>(
       kInjectionKeys.semantic.emailBlocklist
     ),
   appShard: () =>
-    container.resolve<SemanticAppShardProvider>(kInjectionKeys.semantic.appShard),
-  utils: () => container.resolve<SemanticProviderUtils>(kInjectionKeys.semantic.utils),
+    container.resolve<SemanticAppShardProvider>(
+      kInjectionKeys.semantic.appShard
+    ),
+  utils: () =>
+    container.resolve<SemanticProviderUtils>(kInjectionKeys.semantic.utils),
 };
 
 export const kDataModels = {
@@ -135,7 +157,8 @@ export const kDataModels = {
   file: () => container.resolve<FileDataProvider>(kInjectionKeys.data.file),
   agentToken: () =>
     container.resolve<AgentTokenDataProvider>(kInjectionKeys.data.agentToken),
-  folder: () => container.resolve<FolderDataProvider>(kInjectionKeys.data.folder),
+  folder: () =>
+    container.resolve<FolderDataProvider>(kInjectionKeys.data.folder),
   workspace: () =>
     container.resolve<WorkspaceDataProvider>(kInjectionKeys.data.workspace),
   fileBackendConfig: () =>
@@ -143,23 +166,35 @@ export const kDataModels = {
       kInjectionKeys.data.fileBackendConfig
     ),
   fileBackendMount: () =>
-    container.resolve<FileBackendMountDataProvider>(kInjectionKeys.data.fileBackendMount),
+    container.resolve<FileBackendMountDataProvider>(
+      kInjectionKeys.data.fileBackendMount
+    ),
   presignedPath: () =>
-    container.resolve<PresignedPathDataProvider>(kInjectionKeys.data.presignedPath),
+    container.resolve<PresignedPathDataProvider>(
+      kInjectionKeys.data.presignedPath
+    ),
   permissionGroup: () =>
-    container.resolve<PermissionGroupDataProvider>(kInjectionKeys.data.permissionGroup),
+    container.resolve<PermissionGroupDataProvider>(
+      kInjectionKeys.data.permissionGroup
+    ),
   permissionItem: () =>
-    container.resolve<PermissionItemDataProvider>(kInjectionKeys.data.permissionItem),
+    container.resolve<PermissionItemDataProvider>(
+      kInjectionKeys.data.permissionItem
+    ),
   tag: () => container.resolve<TagDataProvider>(kInjectionKeys.data.tag),
   assignedItem: () =>
-    container.resolve<AssignedItemDataProvider>(kInjectionKeys.data.assignedItem),
+    container.resolve<AssignedItemDataProvider>(
+      kInjectionKeys.data.assignedItem
+    ),
   job: () => container.resolve<JobDataProvider>(kInjectionKeys.data.job),
   resolvedMountEntry: () =>
     container.resolve<ResolvedMountEntryDataProvider>(
       kInjectionKeys.data.resolvedMountEntry
     ),
   appRuntimeState: () =>
-    container.resolve<AppRuntimeStateDataProvider>(kInjectionKeys.data.appRuntimeState),
+    container.resolve<AppRuntimeStateDataProvider>(
+      kInjectionKeys.data.appRuntimeState
+    ),
   collaborationRequest: () =>
     container.resolve<CollaborationRequestDataProvider>(
       kInjectionKeys.data.collaborationRequest
@@ -168,10 +203,15 @@ export const kDataModels = {
     container.resolve<UsageRecordDataProvider>(kInjectionKeys.data.usageRecord),
   app: () => container.resolve<AppDataProvider>(kInjectionKeys.data.app),
   emailMessage: () =>
-    container.resolve<EmailMessageDataProvider>(kInjectionKeys.data.emailMessage),
+    container.resolve<EmailMessageDataProvider>(
+      kInjectionKeys.data.emailMessage
+    ),
   emailBlocklist: () =>
-    container.resolve<EmailBlocklistDataProvider>(kInjectionKeys.data.emailBlocklist),
-  appShard: () => container.resolve<AppShardDataProvider>(kInjectionKeys.data.appShard),
+    container.resolve<EmailBlocklistDataProvider>(
+      kInjectionKeys.data.emailBlocklist
+    ),
+  appShard: () =>
+    container.resolve<AppShardDataProvider>(kInjectionKeys.data.appShard),
   utils: () => container.resolve<DataProviderUtils>(kInjectionKeys.data.utils),
 };
 
@@ -184,19 +224,25 @@ export const kUtilsInjectables = {
   secretsManager: () =>
     container.resolve<SecretsManagerProvider>(kInjectionKeys.secretsManager),
   fileProviderResolver: () =>
-    container.resolve<FileProviderResolver>(kInjectionKeys.fileProviderResolver),
+    container.resolve<FileProviderResolver>(
+      kInjectionKeys.fileProviderResolver
+    ),
   asyncLocalStorage: () =>
     container.resolve<AsyncLocalStorageUtils>(kInjectionKeys.asyncLocalStorage),
   session: () => container.resolve<SessionContextType>(kInjectionKeys.session),
-  dbConnection: () => container.resolve<DbConnection>(kInjectionKeys.dbConnection),
+  dbConnection: () =>
+    container.resolve<DbConnection>(kInjectionKeys.dbConnection),
   email: () => container.resolve<IEmailProviderContext>(kInjectionKeys.email),
   promises: () => container.resolve<PromiseStore>(kInjectionKeys.promises),
   locks: () => container.resolve<LockStore>(kInjectionKeys.locks),
-  disposables: () => container.resolve<DisposablesStore>(kInjectionKeys.disposables),
+  disposables: () =>
+    container.resolve<DisposablesStore>(kInjectionKeys.disposables),
   usageLogic: () =>
     container.resolve<UsageRecordLogicProvider>(kInjectionKeys.usageLogic),
   logger: () => container.resolve<Logger>(kInjectionKeys.logger),
-  shardedRunner: () => container.resolve<ShardedRunner>(kInjectionKeys.shardedRunner),
+  shardedRunner: () =>
+    container.resolve<ShardedRunner>(kInjectionKeys.shardedRunner),
   serverApp: () => container.resolve<FimidaraApp>(kInjectionKeys.serverApp),
-  workerPool: () => container.resolve<FimidaraWorkerPool>(kInjectionKeys.workerPool),
+  workerPool: () =>
+    container.resolve<FimidaraWorkerPool>(kInjectionKeys.workerPool),
 };

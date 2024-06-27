@@ -1,0 +1,1 @@
+- support esm and commonjs (current issue is softkave-js-utils only supports esm, and lodash-es + peer deps)

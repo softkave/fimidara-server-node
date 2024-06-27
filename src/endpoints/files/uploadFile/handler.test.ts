@@ -1,6 +1,18 @@
+import {faker} from '@faker-js/faker';
 import assert from 'assert';
+import {forEach} from 'lodash-es';
+import {
+  indexArray,
+  kLoopAsyncSettlementType,
+  loopAndCollate,
+  loopAndCollateAsync,
+  pathJoin,
+} from 'softkave-js-utils';
+import {Readable} from 'stream';
 import {afterAll, afterEach, beforeAll, describe, expect, test} from 'vitest';
+import {File} from '../../../definitions/file.js';
 import {kFileBackendType} from '../../../definitions/fileBackend.js';
+import {Folder} from '../../../definitions/folder.js';
 import RequestData from '../../RequestData.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
 import {MemoryFilePersistenceProvider} from '../../contexts/file/MemoryFilePersistenceProvider.js';
@@ -20,6 +32,7 @@ import {
   generateTestFilepath,
   generateTestFilepathString,
 } from '../../testUtils/generate/file.js';
+import {generateTestFolderpath} from '../../testUtils/generate/folder.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {expectFileBodyEqual} from '../../testUtils/helpers/file.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
@@ -37,6 +50,7 @@ import {FileQueries} from '../queries.js';
 import readFile from '../readFile/handler.js';
 import {ReadFileEndpointParams} from '../readFile/types.js';
 import {getFilepathInfo, stringifyFilenamepath} from '../utils.js';
+import uploadFile from './handler.js';
 import {UploadFileEndpointParams} from './types.js';
 import {uploadFileBaseTest} from './uploadFileTestUtils.js';
 
@@ -268,6 +282,89 @@ describe('uploadFile', () => {
       .file()
       .getManyByQuery(FileQueries.getByNamepath(savedFile));
     expect(files.length).toBe(1);
+  });
+
+  test('parent folder not duplicated', async () => {
+    const {userToken} = await insertUserForTest();
+    const {rawWorkspace: workspace} = await insertWorkspaceForTest(userToken);
+
+    const partsLength = faker.number.int({min: 2, max: 7});
+    const leafLength = faker.number.int({min: 5, max: 10});
+    const parentPath = generateTestFolderpath({length: partsLength - 1});
+    const leafFilepaths = loopAndCollate(
+      () =>
+        generateTestFilepathString({
+          parentNamepath: parentPath,
+          length: partsLength,
+          rootname: workspace.rootname,
+        }),
+      leafLength
+    );
+
+    await loopAndCollateAsync(
+      async index => {
+        const instData =
+          RequestData.fromExpressRequest<UploadFileEndpointParams>(
+            mockExpressRequestWithAgentToken(userToken),
+            {
+              filepath: leafFilepaths[index],
+              data: Readable.from([Buffer.from('Hello, world!')]),
+            }
+          );
+        const result = await uploadFile(instData);
+        assertEndpointResultOk(result);
+      },
+      leafLength,
+      kLoopAsyncSettlementType.all
+    );
+
+    // const folderpathSet = new Set<string>();
+    // const filepathSet = new Set<string>();
+
+    // [pathJoin({input: [workspace.rootname].concat(parentPath)})]
+    //   .concat(leafFilepaths)
+    //   .forEach(filepath => {
+    //     pathSplit({input: filepath})
+    //       .slice(/** minus workspace rootname */ 1)
+    //       .forEach((name, index, arr) => {
+    //         if (index === arr.length - 1) {
+    //           filepathSet.add(pathJoin({input: arr.slice(0, index + 1)}));
+    //         } else {
+    //           folderpathSet.add(pathJoin({input: arr.slice(0, index + 1)}));
+    //         }
+    //       });
+    //   });
+
+    // const uniqFolderpathList = Array.from(folderpathSet);
+    // const uniqFilepathList = Array.from(filepathSet);
+
+    const [dbWorkspaceFolders, dbWorkspaceFiles] = await Promise.all([
+      kSemanticModels.folder().getManyByQuery({
+        workspaceId: workspace.resourceId,
+      }),
+      kSemanticModels.file().getManyByQuery({
+        workspaceId: workspace.resourceId,
+      }),
+    ]);
+
+    const dbWorkspaceFoldersMap = indexArray<Folder, number>(
+      dbWorkspaceFolders,
+      {
+        indexer: folder => pathJoin({input: folder.namepath}),
+        reducer: (folder, index, arr, existing) => (existing || 0) + 1,
+      }
+    );
+    const dbWorkspaceFilesMap = indexArray<File, number>(dbWorkspaceFiles, {
+      indexer: stringifyFilenamepath,
+      reducer: (file, index, arr, existing) => (existing || 0) + 1,
+    });
+
+    forEach(dbWorkspaceFoldersMap, (value, folderpath) => {
+      expect(value, `${folderpath} is ${value}`).toBe(1);
+    });
+    forEach(dbWorkspaceFilesMap, (value, filepath) => {
+      expect(value, `${filepath} is ${value}`).toBe(1);
+    });
   });
 
   test('file sized correctly', async () => {

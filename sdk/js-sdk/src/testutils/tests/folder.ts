@@ -1,4 +1,5 @@
-import {FimidaraEndpoints} from '../../publicEndpoints';
+import {expect} from "vitest";
+import {FimidaraEndpoints} from '../../publicEndpoints.js';
 import {
   addFolderTestExecFn,
   deleteFolderTestExecFn,
@@ -6,13 +7,13 @@ import {
   listFolderContentTestExecFn,
   setupFolderContentTestExecFn,
   updateFolderTestExecFn,
-} from '../execFns/folder';
+} from '../execFns/folder.js';
 import {
   ITestVars,
   containsNoneIn,
   getTestVars,
   indexByResourceId,
-} from '../utils';
+} from '../utils.js';
 
 const vars: ITestVars = getTestVars();
 const fimidara = new FimidaraEndpoints({

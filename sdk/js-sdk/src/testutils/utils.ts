@@ -1,9 +1,10 @@
-import assert = require('assert');
 import {faker} from '@faker-js/faker';
+import {expect} from "vitest";
+import assert from 'assert';
 import {createReadStream} from 'fs';
 import {indexArray} from 'softkave-js-utils';
 import {Readable} from 'stream';
-import {fimidaraAddRootnameToPath} from '../utils';
+import {fimidaraAddRootnameToPath} from '../utils.js';
 import path = require('path');
 
 export interface ITestVars {

@@ -270,8 +270,7 @@ export async function ensureFolders(
   agent: SessionAgent,
   workspace: Workspace,
   /** folder path **without** workspace rootname */
-  namepath: string | string[],
-  opts: SemanticProviderMutationParams
+  namepath: string | string[]
 ): Promise<{folder: Folder | null; folders: Folder[]}> {
   if (isPathEmpty({input: namepath})) {
     return {folder: null, folders: []};
@@ -294,7 +293,6 @@ export async function ensureFolders(
      * anonymous user most likely won't have permission to create folders. */
     true,
     /** Throw on folder exists */ false,
-    opts,
     /** throw on error */ true
   );
 
@@ -354,51 +352,6 @@ export function createNewFolder(
       ...seed,
     }
   );
-}
-
-export async function createNewFolderAndEnsureParents(
-  agent: SessionAgent,
-  workspace: Workspace,
-  pathinfo: FolderpathInfo,
-  data: Pick<Folder, 'description'>,
-  opts: SemanticProviderMutationParams,
-  seed: Partial<Folder> = {}
-) {
-  const {folder} = await ensureFolders(
-    agent,
-    workspace,
-    pathinfo.parentStringPath,
-    opts
-  );
-  return createNewFolder(
-    agent,
-    workspace.resourceId,
-    pathinfo,
-    folder,
-    data,
-    seed
-  );
-}
-
-export async function createAndInsertNewFolder(
-  agent: SessionAgent,
-  workspace: Workspace,
-  pathinfo: FolderpathInfo,
-  data: Pick<Folder, 'description'>,
-  opts: SemanticProviderMutationParams,
-  seed: Partial<Folder> = {}
-) {
-  const folder = await createNewFolderAndEnsureParents(
-    agent,
-    workspace,
-    pathinfo,
-    data,
-    opts,
-    seed
-  );
-
-  await kSemanticModels.folder().insertItem(folder, opts);
-  return folder;
 }
 
 export async function ingestFolderByFolderpath(

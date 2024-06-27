@@ -1,5 +1,11 @@
-import {FileBackendMount, kFileBackendType} from '../../../definitions/fileBackend.js';
-import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {
+  FileBackendMount,
+  kFileBackendType,
+} from '../../../definitions/fileBackend.js';
+import {
+  SessionAgent,
+  kFimidaraResourceType,
+} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {pathSplit} from '../../../utils/fns.js';
@@ -93,7 +99,7 @@ export const INTERNAL_addFileBackendMount = async (
   );
 
   await Promise.all([
-    ensureFolders(agent, workspace, folderpathinfo.namepath, opts),
+    ensureFolders(agent, workspace, folderpathinfo.namepath),
     fileBackendMountModel.insertItem(mount, opts),
   ]);
 

@@ -90,12 +90,9 @@ export abstract class BaseMongoDataProvider<
     otherProps?: DataProviderQueryListParams<T> | undefined
   ) => {
     const mongoQuery = dataQueryToMongoQuery(query);
+    const options = getMongoQueryOptionsForMany(otherProps);
     const items = await this.model
-      .find(
-        mongoQuery,
-        otherProps?.projection,
-        getMongoQueryOptionsForMany(otherProps)
-      )
+      .find(mongoQuery, otherProps?.projection, options)
       .lean()
       .exec();
     return items as unknown as T[];

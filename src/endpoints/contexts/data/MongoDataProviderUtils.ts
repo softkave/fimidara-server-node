@@ -5,7 +5,6 @@ import {
 } from '../../../db/connection.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {AnyFn} from '../../../utils/types.js';
-import {kAsyncLocalStorageKeys} from '../asyncLocalStorage.js';
 import {kUtilsInjectables} from '../injection/injectables.js';
 import {DataProviderUtils} from './types.js';
 
@@ -23,15 +22,7 @@ export class MongoDataProviderUtils implements DataProviderUtils {
       const connection = kUtilsInjectables.dbConnection().get();
       appAssert(isMongoConnection(connection));
       const session = await connection.startSession();
-      await session.withTransaction(async () =>
-        kUtilsInjectables
-          .asyncLocalStorage()
-          .shadowSetForce(
-            kAsyncLocalStorageKeys.txn,
-            session,
-            async () => (result = await fn(session))
-          )
-      );
+      await session.withTransaction(async () => (result = await fn(session)));
       await session.endSession();
     }
 

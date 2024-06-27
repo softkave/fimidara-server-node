@@ -4,9 +4,11 @@
     "rootDir": "./src",
     "outDir": "build",
     "esModuleInterop": true,
-    "lib": ["es2018", "dom"],
+    "lib": ["es2021", "dom"],
     "inlineSources": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "module": "Node16",
+    "moduleResolution": "Node16"
   },
   "include": ["src/**/*.ts", "test/**/*.ts", "global.d.ts"]
 }

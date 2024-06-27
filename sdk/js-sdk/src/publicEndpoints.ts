@@ -9,7 +9,7 @@ import {
   FimidaraEndpointParamsOptional,
   FimidaraEndpointWithBinaryResponseParamsRequired,
   FimidaraEndpointWithBinaryResponseParamsOptional,
-} from './utils';
+} from './utils.js';
 import {
   AddAgentTokenEndpointParams,
   AddAgentTokenEndpointResult,
@@ -131,7 +131,7 @@ import {
   IssuePresignedPathEndpointResult,
   GetPresignedPathsForFilesEndpointParams,
   GetPresignedPathsForFilesEndpointResult,
-} from './publicTypes';
+} from './publicTypes.js';
 
 import type {Readable} from 'stream';
 

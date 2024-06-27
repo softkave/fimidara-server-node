@@ -4,17 +4,17 @@ import {AnyObject, InvertRecord} from 'softkave-js-utils';
 import {
   Agent,
   FimidaraResourceType,
-  kFimidaraResourceType,
   Resource,
   SessionAgent,
   WorkspaceResource,
+  kFimidaraResourceType,
 } from '../definitions/system.js';
 import {kEndpointConstants} from '../endpoints/constants.js';
-import {getTimestamp} from './dateFns.js';
 import OperationError, {
-  getErrorMessageFromParams,
   OperationErrorParameters,
+  getErrorMessageFromParams,
 } from './OperationError.js';
+import {getTimestamp} from './dateFns.js';
 import {
   getActionAgentFromSessionAgent,
   isSessionAgent,
@@ -108,7 +108,7 @@ export function getNewIdForResource(
 
 export function isAppResourceId(resourceId: string) {
   const shortName = resourceId.slice(0, kResourceTypeShortNameMaxLength);
-  if (!shortName ?? !kShortNameToResourceType[shortName]) {
+  if (!shortName || !kShortNameToResourceType[shortName]) {
     return false;
   }
   return true;

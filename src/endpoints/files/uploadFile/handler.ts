@@ -45,17 +45,17 @@ async function createAndInsertNewFile(
   opts: SemanticProviderMutationParams,
   seed: Partial<File> = {}
 ) {
-  const file = await createNewFileAndEnsureFolders(
+  const {file, parentFolder} = await createNewFileAndEnsureFolders(
     agent,
     workspace,
     pathinfo,
     data,
-    opts,
-    seed
+    seed,
+    /** parentFolder */ null
   );
 
   await kSemanticModels.file().insertItem(file, opts);
-  return file;
+  return {file, parentFolder};
 }
 
 const uploadFile: UploadFileEndpoint = async instData => {
@@ -70,50 +70,65 @@ const uploadFile: UploadFileEndpoint = async instData => {
 
   // eslint-disable-next-line prefer-const
   let {file, isNewFile} = await kSemanticModels.utils().withTxn(async opts => {
-    // eslint-disable-next-line prefer-const
-    let {file, presignedPath} = await getFileWithMatcher({
+    const matched = await getFileWithMatcher({
       opts,
       matcher: data,
       incrementPresignedPathUsageCount: true,
       presignedPathAction: kFimidaraPermissionActionsMap.uploadFile,
       supportPresignedPath: true,
     });
-    const workspace = await getWorkspaceFromFileOrFilepath(file, data.filepath);
+
     let isNewFile: boolean;
+    let file = matched.file;
+    const presignedPath = matched.presignedPath;
+    const workspace = await getWorkspaceFromFileOrFilepath(file, data.filepath);
 
-    if (file && !presignedPath) {
-      // Permission is already checked if there's a `presignedPath`
-      await checkUploadFileAuth(
-        agent,
-        workspace,
-        file,
-        /** parent folder not needed for an existing file */ null,
-        opts
-      );
-
+    if (file) {
+      isNewFile = false;
       appAssert(file.isWriteAvailable, new FileNotWritableError());
+
+      if (!presignedPath) {
+        // Permission is already checked if there's a `presignedPath`
+        await checkUploadFileAuth(
+          agent,
+          workspace,
+          file,
+          /** parent folder not needed for an existing file */ null,
+          opts
+        );
+      }
+
       file = await kSemanticModels
         .file()
         .getAndUpdateOneById(file.resourceId, {isWriteAvailable: false}, opts);
-      isNewFile = false;
     } else {
+      isNewFile = true;
       appAssert(
         data.filepath,
         new ValidationError('Provide a filepath for new files')
       );
+
       const pathinfo = getFilepathInfo(data.filepath, {
         containsRootname: true,
         allowRootFolder: false,
       });
-      file = await createAndInsertNewFile(
+      const createResult = await createAndInsertNewFile(
         agent,
         workspace,
         pathinfo,
         data,
+        opts,
+        /** seed */ {}
+      );
+
+      file = createResult.file;
+      await checkUploadFileAuth(
+        agent,
+        workspace,
+        file,
+        createResult.parentFolder,
         opts
       );
-      await checkUploadFileAuth(agent, workspace, file, null, opts);
-      isNewFile = true;
     }
 
     assertFile(file);

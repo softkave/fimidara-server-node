@@ -1,7 +1,8 @@
+import {describe, test} from "vitest";
 import {
   test_getUsageCosts,
   test_getWorkspaceSummedUsage,
-} from '../testutils/tests/usageRecord';
+} from '../testutils/tests/usageRecord.js';
 
 describe('usageRecords', () => {
   test('getWorkspaceSummedUsage', async () => {

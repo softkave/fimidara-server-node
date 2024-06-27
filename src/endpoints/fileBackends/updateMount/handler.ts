@@ -196,7 +196,7 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint =
       const [updatedMount] = await Promise.all([
         mountModel.getAndUpdateOneById(mount.resourceId, mountUpdate, opts),
         mountUpdate.namepath &&
-          ensureFolders(agent, workspace, mountUpdate.namepath, opts),
+          ensureFolders(agent, workspace, mountUpdate.namepath),
       ]);
 
       return {job, updatedMount};

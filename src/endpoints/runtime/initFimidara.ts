@@ -65,7 +65,7 @@ async function setupWorkspace(
   name: string,
   rootname: string
 ) {
-  return await kSemanticModels.utils().withTxn(async opts => {
+  const result = await kSemanticModels.utils().withTxn(async opts => {
     const existingWorkspace = await kSemanticModels
       .workspace()
       .getByRootname(rootname);
@@ -85,6 +85,8 @@ async function setupWorkspace(
       opts
     );
   });
+
+  return result;
 }
 
 async function setupDefaultUser() {
@@ -135,37 +137,31 @@ async function setupDefaultUser() {
 
 async function setupFolders(workspace: Workspace) {
   const [workspaceImagesFolders, userImagesFolders] = await Promise.all([
-    kSemanticModels.utils().withTxn(opts =>
-      createFolderList(
-        kSystemSessionAgent,
-        workspace,
-        {
-          folderpath: addRootnameToPath(
-            appSetupVars.workspaceImagesfolderpath,
-            workspace.rootname
-          ),
-        },
-        /** skip auth check */ true,
-        /** throw on folder exists */ false,
-        opts,
-        /** throw on error */ true
-      )
+    createFolderList(
+      kSystemSessionAgent,
+      workspace,
+      {
+        folderpath: addRootnameToPath(
+          appSetupVars.workspaceImagesfolderpath,
+          workspace.rootname
+        ),
+      },
+      /** skip auth check */ true,
+      /** throw on folder exists */ false,
+      /** throw on error */ true
     ),
-    kSemanticModels.utils().withTxn(opts =>
-      createFolderList(
-        kSystemSessionAgent,
-        workspace,
-        {
-          folderpath: addRootnameToPath(
-            appSetupVars.userImagesfolderpath,
-            workspace.rootname
-          ),
-        },
-        /** skip auth check */ true,
-        /** throw on folder exists */ false,
-        opts,
-        /** throw on error */ true
-      )
+    createFolderList(
+      kSystemSessionAgent,
+      workspace,
+      {
+        folderpath: addRootnameToPath(
+          appSetupVars.userImagesfolderpath,
+          workspace.rootname
+        ),
+      },
+      /** skip auth check */ true,
+      /** throw on folder exists */ false,
+      /** throw on error */ true
     ),
   ]);
 

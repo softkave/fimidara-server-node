@@ -1,4 +1,4 @@
-import assert = require('assert');
+import assert from 'assert';
 import {add} from 'date-fns';
 import {defaultTo} from 'lodash-es';
 import {Connection} from 'mongoose';

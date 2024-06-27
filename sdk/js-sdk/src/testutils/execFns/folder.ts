@@ -1,22 +1,22 @@
 import {faker} from '@faker-js/faker';
+import assert from 'assert';
 import {merge} from 'lodash-es';
 import {loopAndCollateAsync} from 'softkave-js-utils';
 import {PartialDeep} from 'type-fest';
-import {FimidaraEndpoints} from '../../publicEndpoints';
+import {FimidaraEndpoints} from '../../publicEndpoints.js';
 import {
   AddFolderEndpointParams,
   DeleteFolderEndpointParams,
   GetFolderEndpointParams,
   ListFolderContentEndpointParams,
   UpdateFolderEndpointParams,
-} from '../../publicTypes';
+} from '../../publicTypes.js';
 import {
   fimidaraAddRootnameToPath,
   stringifyFimidaraFoldernamepath,
-} from '../../utils';
-import {ITestVars} from '../utils';
-import {uploadFileTestExecFn} from './file';
-import assert = require('assert');
+} from '../../utils.js';
+import {ITestVars} from '../utils.js';
+import {uploadFileTestExecFn} from './file.js';
 import path = require('path');
 
 export async function deleteFolderTestExecFn(

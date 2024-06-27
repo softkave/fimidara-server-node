@@ -278,20 +278,18 @@ export async function createNewFileAndEnsureFolders(
   workspace: Workspace,
   pathinfo: FilepathInfo,
   data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
-  opts: SemanticProviderMutationParams,
   seed: Partial<File> = {},
-  parentFolder?: Folder | null
+  parentFolder: Folder | null
 ) {
   if (!parentFolder) {
     ({folder: parentFolder} = await ensureFolders(
       agent,
       workspace,
-      pathinfo.parentStringPath,
-      opts
+      pathinfo.parentStringPath
     ));
   }
 
-  return createNewFile(
+  const file = createNewFile(
     agent,
     workspace.resourceId,
     pathinfo,
@@ -299,6 +297,8 @@ export async function createNewFileAndEnsureFolders(
     data,
     seed
   );
+
+  return {file, parentFolder};
 }
 
 export async function ingestFileByFilepath(props: {

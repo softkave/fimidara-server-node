@@ -2,23 +2,23 @@ import assert from 'assert';
 import {merge} from 'lodash-es';
 import {Readable} from 'stream';
 import {PartialDeep} from 'type-fest';
-import {FimidaraEndpoints} from '../../publicEndpoints';
-import {ReadFileEndpointParams} from '../../publicTypes';
-import {FimidaraEndpointWithBinaryResponseParamsOptional} from '../../utils';
+import {FimidaraEndpoints} from '../../publicEndpoints.js';
+import {ReadFileEndpointParams} from '../../publicTypes.js';
+import {FimidaraEndpointWithBinaryResponseParamsOptional} from '../../utils.js';
 import {
   deleteFileTestExecFn,
   getFileDetailsTestExecFn,
   readFileTestExecFn,
   updateFileDetailsTestExecFn,
   uploadFileTestExecFn,
-} from '../execFns/file';
+} from '../execFns/file.js';
 import {
   ITestVars,
   getTestFileReadStream,
   getTestFileString,
   getTestVars,
   streamToString,
-} from '../utils';
+} from '../utils.js';
 
 export const fimidaraTestVars: ITestVars = getTestVars();
 export const fimidaraTestInstance = new FimidaraEndpoints({

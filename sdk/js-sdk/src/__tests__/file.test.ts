@@ -1,4 +1,5 @@
-import {getTestFilepath} from '../testutils/execFns/file';
+import {describe, test, expect} from "vitest";
+import {getTestFilepath} from '../testutils/execFns/file.js';
 import {
   fimidaraTestInstance,
   fimidaraTestVars,
@@ -9,9 +10,9 @@ import {
   test_uploadFile_nodeReadable,
   test_uploadFile_nodeReadableNotFromFile,
   test_uploadFile_string,
-} from '../testutils/tests/file';
-import {getTestFileReadStream} from '../testutils/utils';
-import {getFimidaraReadFileURL, invokeEndpoint} from '../utils';
+} from '../testutils/tests/file.js';
+import {getTestFileReadStream} from '../testutils/utils.js';
+import {getFimidaraReadFileURL, invokeEndpoint} from '../utils.js';
 
 // TODO: test upload file with browser readable, buffer, and integer arrays
 

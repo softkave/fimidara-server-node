@@ -1,4 +1,5 @@
 import {faker} from '@faker-js/faker';
+import assert from 'assert';
 import {add} from 'date-fns';
 import {Readable} from 'stream';
 import {AgentToken} from '../../definitions/agentToken.js';
@@ -81,7 +82,6 @@ import {
 } from './generate/fileBackend.js';
 import {generateTestFolderName} from './generate/folder.js';
 import sharp = require('sharp');
-import assert = require('assert');
 
 export function getTestEmailProvider() {
   return new MockTestEmailProviderContext();

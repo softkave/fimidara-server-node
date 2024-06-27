@@ -2,7 +2,6 @@ import {Folder, PublicFolder} from '../../../definitions/folder.js';
 import {SessionAgent} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {Shard, ShardRunner} from '../../../utils/shardedRunnerQueue.js';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {Endpoint, EndpointResultNote} from '../../types.js';
 
 export interface NewFolderInput {
@@ -30,10 +29,13 @@ export interface AddFolderShardMeta {
   workspace: Workspace;
   UNSAFE_skipAuthCheck: boolean;
   throwOnFolderExists: boolean;
-  opts: SemanticProviderMutationParams | undefined;
 }
 
-export type AddFolderShardOutputItem = {newFolders: Folder[]; existingFolders: Folder[]};
+export type AddFolderShardOutputItem = {
+  newFolders: Folder[];
+  existingFolders: Folder[];
+};
+
 export type AddFolderShard = Shard<
   NewFolderInput,
   AddFolderShardOutputItem,
@@ -46,4 +48,4 @@ export type AddFolderShardRunner = ShardRunner<
   AddFolderShardMeta
 >;
 
-export const kAddFolderShardPart = 'addFolder' as const;
+export const kAddFolderShardRunnerPrefix = 'addFolder' as const;

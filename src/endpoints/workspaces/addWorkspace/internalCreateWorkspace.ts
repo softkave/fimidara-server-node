@@ -1,6 +1,10 @@
-import assert = require('assert');
+import assert from 'assert';
 import {kFileBackendType} from '../../../definitions/fileBackend.js';
-import {Agent, SessionAgent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {
+  Agent,
+  SessionAgent,
+  kFimidaraResourceType,
+} from '../../../definitions/system.js';
 import {UsageRecordCategory} from '../../../definitions/usageRecord.js';
 import {
   UsageThresholdsByCategory,
@@ -104,7 +108,11 @@ const INTERNAL_createWorkspace = async (
     kSemanticModels
       .permissionGroup()
       .insertItem(
-        [adminPermissionGroup, publicPermissionGroup, collaboratorPermissionGroup],
+        [
+          adminPermissionGroup,
+          publicPermissionGroup,
+          collaboratorPermissionGroup,
+        ],
         opts
       ),
     kSemanticModels.permissionItem().insertItem(permissionItems, opts),

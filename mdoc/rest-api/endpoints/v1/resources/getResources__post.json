@@ -93,7 +93,7 @@
                                         "39": "readFileBackendMount",
                                         "40": "updateFileBackendMount"
                                     },
-                                    "enumName": "AppActionType"
+                                    "enumName": "FimidaraPermissionAction"
                                 },
                                 "__id": "FieldObjectField",
                                 "required": true

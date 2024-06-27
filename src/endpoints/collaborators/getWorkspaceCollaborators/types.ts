@@ -13,7 +13,8 @@ export interface GetWorkspaceCollaboratorsEndpointParams
   extends GetWorkspaceCollaboratorsEndpointParamsBase,
     PaginationQuery {}
 
-export interface GetWorkspaceCollaboratorsEndpointResult extends PaginatedResult {
+export interface GetWorkspaceCollaboratorsEndpointResult
+  extends PaginatedResult {
   collaborators: PublicCollaborator[];
 }
 

@@ -9,7 +9,7 @@ import {
   FimidaraEndpointParamsOptional,
   FimidaraEndpointWithBinaryResponseParamsRequired,
   FimidaraEndpointWithBinaryResponseParamsOptional,
-} from './utils';
+} from './utils.js';
 import {
   ChangePasswordWithCurrentPasswordEndpointParams,
   LoginResult,
@@ -28,7 +28,7 @@ import {
   GetUsersEndpointResult,
   GetWorkspacesEndpointParams,
   GetWorkspacesEndpointResult,
-} from './privateTypes';
+} from './privateTypes.js';
 
 export class UsersEndpoints extends FimidaraEndpointsBase {
   changePasswordWithCurrentPassword = async (

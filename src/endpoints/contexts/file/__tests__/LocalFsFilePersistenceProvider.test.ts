@@ -366,13 +366,11 @@ describe('LocalFsFilePersistenceProvider', () => {
     });
 
     expect(sortStringListLexicographically(resultFilepaths)).toEqual(
-      expect.arrayContaining(sortStringListLexicographically(childrenFilepaths))
+      sortStringListLexicographically(childrenFilepaths)
     );
-    expect(resultFolderpaths).toEqual(
-      expect.arrayContaining(childrenFolderpaths)
+    expect(sortStringListLexicographically(resultFolderpaths)).toEqual(
+      sortStringListLexicographically(childrenFolderpaths)
     );
-    expect(resultFilepaths).not.toEqual(
-      expect.arrayContaining(childrenDepth02Filepaths)
-    );
+    expect(resultFilepaths).not.toEqual(childrenDepth02Filepaths);
   });
 });

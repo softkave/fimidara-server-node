@@ -1,5 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {compact, last} from 'lodash-es';
+import {indexArray, waitTimeout} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {
@@ -9,6 +10,7 @@ import {
   pathSplit,
   sortStringListLexographically,
 } from '../../../utils/fns.js';
+import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {generateTestFilepathString} from '../../testUtils/generate/file.js';
 import {
@@ -18,15 +20,19 @@ import {
 } from '../../testUtils/generate/folder.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
+  assertEndpointResultOk,
   initTests,
   insertFolderForTest,
   insertUserForTest,
   insertWorkspaceForTest,
+  mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
 import {FolderQueries} from '../queries.js';
 import {addRootnameToPath, stringifyFoldernamepath} from '../utils.js';
 import {createFolderList} from './createFolderList.js';
 import {getExistingFoldersAndArtifacts} from './getExistingFoldersAndArtifacts.js';
+import addFolder from './handler.js';
+import {AddFolderEndpointParams} from './types.js';
 
 /**
  * TODO:
@@ -94,7 +100,6 @@ describe('addFolder', () => {
     const {
       existingFolders,
       foldersByNamepath,
-      inputList,
       pathinfoList,
       namepathList,
       getSelfOrClosestParent,
@@ -127,7 +132,6 @@ describe('addFolder', () => {
 
     expect(existingFolders.length).toBe(3);
     expect(namepathList.length).toBe(3);
-    expect(inputList.length).toBe(6);
     expect(pathinfoList.length).toBe(6);
     expect(
       sortStringListLexographically(Object.keys(foldersByNamepath))
@@ -283,7 +287,7 @@ describe('addFolder', () => {
     const {userToken} = await insertUserForTest();
     const {rawWorkspace: workspace} = await insertWorkspaceForTest(userToken);
 
-    const partsLength = faker.number.int({min: 3, max: 7});
+    const partsLength = faker.number.int({min: 2, max: 7});
     const leafLength = faker.number.int({min: 5, max: 10});
     const parentPath = generateTestFolderpath({length: partsLength - 1});
     const leafFolderpaths = loopAndCollate(
@@ -298,35 +302,154 @@ describe('addFolder', () => {
 
     const withinTxnCount = faker.number.int({min: 1, max: partsLength});
     await loopAndCollateAsync(
-      txnIndex =>
-        kSemanticModels.utils().withTxn(opts =>
-          createFolderList(
-            kSystemSessionAgent,
-            workspace,
-            leafFolderpaths
-              .slice(txnIndex, txnIndex + withinTxnCount)
-              .map(folderpath => ({folderpath})),
-            /** skip auth */ true,
-            /** throw if folder exists */ false,
-            opts,
-            /** throw on error */ true
-          )
-        ),
+      async index => {
+        await createFolderList(
+          kSystemSessionAgent,
+          workspace,
+          leafFolderpaths
+            .slice(index, index + withinTxnCount)
+            .map(folderpath => ({folderpath})),
+          /** skip auth */ true,
+          /** throw if folder exists */ false,
+          /** throw on error */ true
+        );
+      },
       leafLength,
       /** settlement type */ 'all'
     );
 
-    const dbFolders = await kSemanticModels.folder().getManyByQuery({
-      workspaceId: workspace.resourceId,
+    const folderpathSet = new Set<string>(
+      [pathJoin([workspace.rootname].concat(parentPath))]
+        .concat(leafFolderpaths)
+        .reduce((acc, folderpath) => {
+          return acc.concat(
+            pathSplit(folderpath)
+              .slice(/** minus workspace rootname */ 1)
+              .map((name, index, arr) => pathJoin(arr.slice(0, index + 1)))
+          );
+        }, [] as string[])
+    );
+    const uniqFolderpathList = Array.from(folderpathSet);
+
+    const [dbWorkspaceFolders, ...dbFolders] = await Promise.all([
+      kSemanticModels.folder().getManyByQuery({
+        workspaceId: workspace.resourceId,
+      }),
+      ...uniqFolderpathList.map(folderpath =>
+        kSemanticModels.folder().getManyByNamepath({
+          workspaceId: workspace.resourceId,
+          namepath: pathSplit(folderpath),
+        })
+      ),
+    ]);
+
+    const dbWorkspaceFoldersMap = indexArray(dbWorkspaceFolders, {
+      indexer: folder => pathJoin(folder.namepath),
+      reducer: folder => pathJoin(folder.namepath),
     });
 
-    // there should be 3 folder, the parent folder and the 2 children folders
-    expect(dbFolders.length).toBe(leafLength + (partsLength - 1));
-    const dbFolderNames = dbFolders.map(f => f.name);
+    folderpathSet.forEach(folderpath => {
+      expect(dbWorkspaceFoldersMap[folderpath]).toBe(folderpath);
+    });
+
+    expect(dbWorkspaceFolders.length).toBe(leafLength + (partsLength - 1));
+    const dbFolderNames = dbWorkspaceFolders.map(f => f.name);
     expect(dbFolderNames).toEqual(
       pathSplit(parentPath).concat(
         compact(leafFolderpaths.map(folderpath => last(pathSplit(folderpath))))
       )
     );
+
+    dbFolders.forEach((folderList, index) => {
+      expect(folderList.length, `${uniqFolderpathList[index]} is not 1`).toBe(
+        1
+      );
+    });
+  });
+
+  test('new folder not duplicated using addFolder handler', async () => {
+    const {userToken} = await insertUserForTest();
+    const {rawWorkspace: workspace} = await insertWorkspaceForTest(userToken);
+
+    const partsLength = faker.number.int({min: 2, max: 7});
+    const leafLength = faker.number.int({min: 5, max: 10});
+    const parentPath = generateTestFolderpath({length: partsLength - 1});
+    const leafFolderpaths = loopAndCollate(
+      () =>
+        generateTestFilepathString({
+          parentNamepath: parentPath,
+          length: partsLength,
+          rootname: workspace.rootname,
+        }),
+      leafLength
+    );
+
+    await loopAndCollateAsync(
+      async leafIndex => {
+        await waitTimeout(faker.number.int({min: 0, max: 40}));
+        const instData =
+          RequestData.fromExpressRequest<AddFolderEndpointParams>(
+            mockExpressRequestWithAgentToken(userToken),
+            {folder: {folderpath: leafFolderpaths[leafIndex]}}
+          );
+
+        const result = await addFolder(instData);
+        assertEndpointResultOk(result);
+      },
+      leafLength,
+      /** settlement type */ 'all'
+    );
+
+    const folderpathSet = new Set<string>(
+      [pathJoin([workspace.rootname].concat(parentPath))]
+        .concat(leafFolderpaths)
+        .reduce((acc, folderpath) => {
+          return acc.concat(
+            pathSplit(folderpath)
+              .slice(/** minus workspace rootname */ 1)
+              .map((name, index, arr) => pathJoin(arr.slice(0, index + 1)))
+          );
+        }, [] as string[])
+    );
+    const uniqFolderpathList = Array.from(folderpathSet);
+
+    const [dbWorkspaceFolders, ...dbFolders] = await Promise.all([
+      kSemanticModels.folder().getManyByQuery({
+        workspaceId: workspace.resourceId,
+      }),
+      ...uniqFolderpathList.map(folderpath =>
+        kSemanticModels.folder().getManyByNamepath({
+          workspaceId: workspace.resourceId,
+          namepath: pathSplit(folderpath),
+        })
+      ),
+    ]);
+
+    const dbWorkspaceFoldersMap = indexArray(dbWorkspaceFolders, {
+      indexer: folder => pathJoin(folder.namepath),
+      reducer: folder => pathJoin(folder.namepath),
+    });
+
+    folderpathSet.forEach(folderpath => {
+      expect(dbWorkspaceFoldersMap[folderpath]).toBe(folderpath);
+    });
+
+    expect(dbWorkspaceFolders.length).toBe(leafLength + (partsLength - 1));
+    const dbFolderNames = dbWorkspaceFolders.map(f => f.name);
+    expect(sortStringListLexographically(dbFolderNames)).toEqual(
+      sortStringListLexographically(
+        pathSplit(parentPath).concat(
+          compact(
+            leafFolderpaths.map(folderpath => last(pathSplit(folderpath)))
+          )
+        )
+      )
+    );
+
+    dbFolders.forEach((folderList, index) => {
+      expect(folderList.length, `${uniqFolderpathList[index]} is not 1`).toBe(
+        1
+      );
+    });
   });
 });

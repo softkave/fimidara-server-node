@@ -10,4 +10,4 @@ Sets up what's needed to run the SDK tests. For now, they are:
 ## Commands
 
 Assuming you're running from the root of the server project with an environment file ".env.unit-test":
-`npx env-cmd -f ".env.unit-test" ts-node src/tools/sdk-test-setup/index.ts`
+`npx env-cmd -f ".env.unit-test" npx tsx src/tools/sdk-test-setup/index.ts`

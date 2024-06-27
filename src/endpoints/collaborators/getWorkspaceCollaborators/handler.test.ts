@@ -1,12 +1,13 @@
+import {indexArray, sortStringListLexicographically} from 'softkave-js-utils';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {calculatePageSize} from '../../../utils/fns.js';
+import RequestData from '../../RequestData.js';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
 import AssignedItemQueries from '../../assignedItems/queries.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
-import RequestData from '../../RequestData.js';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -35,15 +36,19 @@ describe('getWorkspaceCollaborators', () => {
   test('workspace collaborators returned', async () => {
     const {userToken, user} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
+
     const instData =
       RequestData.fromExpressRequest<GetWorkspaceCollaboratorsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId}
       );
     const result = await getWorkspaceCollaborators(instData);
+
     assertEndpointResultOk(result);
     const updatedUser = await populateUserWorkspaces(
-      await kSemanticModels.user().assertGetOneByQuery({resourceId: user.resourceId})
+      await kSemanticModels
+        .user()
+        .assertGetOneByQuery({resourceId: user.resourceId})
     );
     expect(result.collaborators).toContainEqual(
       collaboratorExtractor(updatedUser, workspace.resourceId)
@@ -51,18 +56,22 @@ describe('getWorkspaceCollaborators', () => {
   });
 
   test('pagination', async () => {
-    const {userToken} = await insertUserForTest();
+    const {userToken, rawUser} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const seedCount = 15;
-    await generateAndInsertCollaboratorListForTest(
+    const seedUsers = await generateAndInsertCollaboratorListForTest(
       kSystemSessionAgent,
       workspace.resourceId,
       seedCount
     );
+    seedUsers.push(rawUser);
     const count = await kSemanticModels
       .assignedItem()
       .countByQuery(
-        AssignedItemQueries.getByAssignedItem(workspace.resourceId, workspace.resourceId)
+        AssignedItemQueries.getByAssignedItem(
+          workspace.resourceId,
+          workspace.resourceId
+        )
       );
     expect(count).toBeGreaterThanOrEqual(seedCount);
 
@@ -75,17 +84,42 @@ describe('getWorkspaceCollaborators', () => {
       );
     let result = await getWorkspaceCollaborators(instData);
     assertEndpointResultOk(result);
+    let fetchedUsers = result.collaborators;
+
     expect(result.page).toBe(page);
-    expect(result.collaborators).toHaveLength(calculatePageSize(count, pageSize, page));
+    expect(result.collaborators).toHaveLength(
+      calculatePageSize(count, pageSize, page)
+    );
 
     page = 1;
-    instData = RequestData.fromExpressRequest<GetWorkspaceCollaboratorsEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {page, pageSize, workspaceId: workspace.resourceId}
-    );
+    instData =
+      RequestData.fromExpressRequest<GetWorkspaceCollaboratorsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {page, pageSize, workspaceId: workspace.resourceId}
+      );
     result = await getWorkspaceCollaborators(instData);
     assertEndpointResultOk(result);
+    fetchedUsers = fetchedUsers.concat(result.collaborators);
+
+    const fetchedUsersMap = indexArray(fetchedUsers, {
+      indexer: nextUser => nextUser.resourceId,
+    });
+    const seedUsersMap = indexArray(seedUsers, {
+      indexer: seedUser => seedUser.resourceId,
+    });
+    expect(
+      sortStringListLexicographically(Object.keys(fetchedUsersMap))
+    ).toEqual(sortStringListLexicographically(Object.keys(seedUsersMap)));
+    seedUsers.forEach(seedUser => {
+      expect(fetchedUsersMap[seedUser.resourceId]).toBeTruthy();
+    });
+    fetchedUsers.forEach(fetchedUser => {
+      expect(seedUsersMap[fetchedUser.resourceId]).toBeTruthy();
+    });
+
     expect(result.page).toBe(page);
-    expect(result.collaborators).toHaveLength(calculatePageSize(count, pageSize, page));
+    expect(result.collaborators).toHaveLength(
+      calculatePageSize(count, pageSize, page)
+    );
   });
 });

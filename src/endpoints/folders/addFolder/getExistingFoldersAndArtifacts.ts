@@ -11,7 +11,7 @@ import {NewFolderInput} from './types.js';
 export async function getExistingFoldersAndArtifacts(
   workspaceId: string,
   input: NewFolderInput | NewFolderInput[],
-  opts: SemanticProviderMutationParams
+  opts?: SemanticProviderMutationParams
 ) {
   const inputList = convertToArray(input);
   const pathinfoList: FolderpathInfo[] = inputList.map(nextInput =>
@@ -41,7 +41,8 @@ export async function getExistingFoldersAndArtifacts(
     existingFolders = await kSemanticModels.folder().getManyByQuery(
       {
         $or: namepathList.map(
-          (namepath): FolderQuery => FolderQueries.getByNamepath({namepath, workspaceId})
+          (namepath): FolderQuery =>
+            FolderQueries.getByNamepath({namepath, workspaceId})
         ),
       },
       opts
@@ -69,11 +70,10 @@ export async function getExistingFoldersAndArtifacts(
   }
 
   return {
-    foldersByNamepath,
-    pathinfoList,
-    inputList,
     namepathList,
+    pathinfoList,
     existingFolders,
+    foldersByNamepath,
     getSelfOrClosestParent,
   };
 }

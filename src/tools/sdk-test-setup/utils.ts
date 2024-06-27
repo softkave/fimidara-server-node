@@ -23,7 +23,7 @@ async function insertWorkspace(opts: SemanticProviderMutationParams) {
       description: 'For SDK tests',
     },
     kSystemSessionAgent,
-    undefined,
+    /** userId */ undefined,
     opts
   );
 }
@@ -62,6 +62,7 @@ export async function setupSDKTestReq() {
         /** skip auth check */ true,
         opts
       );
+
       return {workspace, token, tokenStr};
     });
 
@@ -74,7 +75,9 @@ export async function setupSDKTestReq() {
 FIMIDARA_TEST_WORKSPACE_ROOTNAME="${workspace.rootname}"
 FIMIDARA_TEST_AUTH_TOKEN="${tokenStr}"
 FIMIDARA_TEST_FILEPATH="/src/testutils/testdata/testfile.txt"
-FIMIDARA_SERVER_URL="http://localhost:5000"`;
+FIMIDARA_SERVER_URL="http://localhost:${
+      kUtilsInjectables.suppliedConfig().httpPort
+    }"`;
     await fspromises.writeFile(jsSdkTestEnvFilepath, envText, 'utf-8');
     kUtilsInjectables.logger().log('Wrote to js sdk .env.test file');
   } catch (error: unknown) {

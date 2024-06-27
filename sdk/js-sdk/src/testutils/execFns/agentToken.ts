@@ -1,17 +1,17 @@
 import {faker} from '@faker-js/faker';
+import assert from 'assert';
 import {merge} from 'lodash-es';
 import {loopAndCollateAsync} from 'softkave-js-utils';
 import {PartialDeep} from 'type-fest';
-import {FimidaraEndpoints} from '../../publicEndpoints';
+import {FimidaraEndpoints} from '../../publicEndpoints.js';
 import {
   AddAgentTokenEndpointParams,
   DeleteAgentTokenEndpointParams,
   GetAgentTokenEndpointParams,
   GetWorkspaceAgentTokensEndpointParams,
   UpdateAgentTokenEndpointParams,
-} from '../../publicTypes';
-import {ITestVars} from '../utils';
-import assert = require('assert');
+} from '../../publicTypes.js';
+import {ITestVars} from '../utils.js';
 
 function getTokenExpiryDate(
   days: number = faker.number.int({min: 1, max: 10})

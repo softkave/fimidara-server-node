@@ -1,13 +1,13 @@
 import {faker} from '@faker-js/faker';
+import assert from 'assert';
 import {merge} from 'lodash-es';
 import {PartialDeep} from 'type-fest';
-import {FimidaraEndpoints} from '../../publicEndpoints';
+import {FimidaraEndpoints} from '../../publicEndpoints.js';
 import {
   GetWorkspaceEndpointParams,
   UpdateWorkspaceEndpointParams,
-} from '../../publicTypes';
-import {ITestVars} from '../utils';
-import assert = require('assert');
+} from '../../publicTypes.js';
+import {ITestVars} from '../utils.js';
 
 export async function getWorkspaceTestExecFn(
   endpoint: FimidaraEndpoints,

@@ -1,4 +1,4 @@
-import assert = require('assert');
+import assert from 'assert';
 import {cloneDeep, isFunction, isObject} from 'lodash-es';
 import {mergeData} from './fns.js';
 import {AnyFn, AnyObject} from './types.js';
