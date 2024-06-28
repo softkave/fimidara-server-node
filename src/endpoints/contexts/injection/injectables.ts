@@ -32,6 +32,7 @@ import {
   FileDataProvider,
   FolderDataProvider,
   JobDataProvider,
+  JobHistoryDataProvider,
   PermissionGroupDataProvider,
   PermissionItemDataProvider,
   PresignedPathDataProvider,
@@ -74,6 +75,7 @@ import {
 import {SemanticUserProviderType} from '../semantic/user/types.js';
 import {SemanticWorkspaceProviderType} from '../semantic/workspace/types.js';
 import {kInjectionKeys} from './keys.js';
+import {SemanticJobHistoryProvider} from '../semantic/jobHistory/types.js';
 
 export const kSemanticModels = {
   user: () =>
@@ -148,6 +150,10 @@ export const kSemanticModels = {
     container.resolve<SemanticAppShardProvider>(
       kInjectionKeys.semantic.appShard
     ),
+  jobHistory: () =>
+    container.resolve<SemanticJobHistoryProvider>(
+      kInjectionKeys.semantic.jobHistory
+    ),
   utils: () =>
     container.resolve<SemanticProviderUtils>(kInjectionKeys.semantic.utils),
 };
@@ -212,6 +218,8 @@ export const kDataModels = {
     ),
   appShard: () =>
     container.resolve<AppShardDataProvider>(kInjectionKeys.data.appShard),
+  jobHistory: () =>
+    container.resolve<JobHistoryDataProvider>(kInjectionKeys.data.jobHistory),
   utils: () => container.resolve<DataProviderUtils>(kInjectionKeys.data.utils),
 };
 

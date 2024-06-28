@@ -5,9 +5,14 @@ import {AssignedItem} from './assignedItem.js';
 import {CollaborationRequest} from './collaborationRequest.js';
 import {EmailBlocklist, EmailMessage} from './email.js';
 import {File} from './file.js';
-import {FileBackendConfig, FileBackendMount, ResolvedMountEntry} from './fileBackend.js';
+import {
+  FileBackendConfig,
+  FileBackendMount,
+  ResolvedMountEntry,
+} from './fileBackend.js';
 import {Folder} from './folder.js';
 import {Job} from './job.js';
+import {JobHistory} from './jobHistory.js';
 import {PermissionGroup} from './permissionGroups.js';
 import {PermissionItem} from './permissionItem.js';
 import {PresignedPath} from './presignedPath.js';
@@ -36,7 +41,9 @@ export interface TokenSubjectDefault {
   id: string;
 }
 
-export interface BaseTokenData<Sub extends TokenSubjectDefault = TokenSubjectDefault> {
+export interface BaseTokenData<
+  Sub extends TokenSubjectDefault = TokenSubjectDefault,
+> {
   version: number;
   sub: Sub;
   iat: number;
@@ -77,6 +84,7 @@ export const kFimidaraPublicResourceType = {
   FileBackendMount: 'fileBackendMount',
   Job: 'job',
 } as const;
+
 export const kFimidaraResourceType = {
   ...kFimidaraPublicResourceType,
   AssignedItem: 'assignedItem',
@@ -86,10 +94,13 @@ export const kFimidaraResourceType = {
   emailMessage: 'emailMessage',
   emailBlocklist: 'emailBlocklist',
   appShard: 'appShard',
+  jobHistory: 'jobHistory',
 } as const;
 
 export type FimidaraResourceType = ObjectValues<typeof kFimidaraResourceType>;
-export type FimidaraPublicResourceType = ObjectValues<typeof kFimidaraPublicResourceType>;
+export type FimidaraPublicResourceType = ObjectValues<
+  typeof kFimidaraPublicResourceType
+>;
 
 export const kPermissionAgentTypes: FimidaraResourceType[] = [
   kFimidaraResourceType.AgentToken,
@@ -166,13 +177,13 @@ export type ToPublicDefinitions<T> = {
   [K in keyof T]: NonNullable<T[K]> extends Agent
     ? PublicAgent
     : NonNullable<T[K]> extends FimidaraResourceType
-    ? FimidaraPublicResourceType
-    : NonNullable<T[K]> extends AnyObject
-    ? ToPublicDefinitions<NonNullable<T[K]>>
-    : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    NonNullable<T[K]> extends any[]
-    ? ToPublicDefinitions<NonNullable<T[K]>[number]>
-    : T[K];
+      ? FimidaraPublicResourceType
+      : NonNullable<T[K]> extends AnyObject
+        ? ToPublicDefinitions<NonNullable<T[K]>>
+        : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          NonNullable<T[K]> extends any[]
+          ? ToPublicDefinitions<NonNullable<T[K]>[number]>
+          : T[K];
 };
 
 export type PublicResource = ToPublicDefinitions<Resource>;
@@ -201,7 +212,9 @@ export const kResourceTypeToPossibleChildren: Record<
     kFimidaraResourceType.Tag,
     kFimidaraResourceType.UsageRecord,
   ],
-  [kFimidaraResourceType.CollaborationRequest]: [kFimidaraResourceType.PermissionItem],
+  [kFimidaraResourceType.CollaborationRequest]: [
+    kFimidaraResourceType.PermissionItem,
+  ],
   [kFimidaraResourceType.AgentToken]: [
     kFimidaraResourceType.PermissionItem,
     kFimidaraResourceType.AssignedItem,
@@ -236,15 +249,20 @@ export const kResourceTypeToPossibleChildren: Record<
   [kFimidaraResourceType.AssignedItem]: [],
   [kFimidaraResourceType.UsageRecord]: [kFimidaraResourceType.PermissionItem],
   [kFimidaraResourceType.EndpointRequest]: [],
-  [kFimidaraResourceType.Job]: [],
+  [kFimidaraResourceType.Job]: [kFimidaraResourceType.jobHistory],
   [kFimidaraResourceType.PresignedPath]: [],
   [kFimidaraResourceType.App]: [],
-  [kFimidaraResourceType.FileBackendConfig]: [kFimidaraResourceType.PermissionItem],
-  [kFimidaraResourceType.FileBackendMount]: [kFimidaraResourceType.PermissionItem],
+  [kFimidaraResourceType.FileBackendConfig]: [
+    kFimidaraResourceType.PermissionItem,
+  ],
+  [kFimidaraResourceType.FileBackendMount]: [
+    kFimidaraResourceType.PermissionItem,
+  ],
   [kFimidaraResourceType.ResolvedMountEntry]: [],
   [kFimidaraResourceType.emailMessage]: [],
   [kFimidaraResourceType.emailBlocklist]: [],
   [kFimidaraResourceType.appShard]: [],
+  [kFimidaraResourceType.jobHistory]: [],
 };
 
 export const kFimidaraTypeToTSTypeNotFound = 1_000 as const;
@@ -253,41 +271,43 @@ export type FimidaraTypeToTSType<T extends FimidaraResourceType> =
   T extends typeof kFimidaraResourceType.Workspace
     ? Workspace
     : T extends typeof kFimidaraResourceType.CollaborationRequest
-    ? CollaborationRequest
-    : T extends typeof kFimidaraResourceType.AgentToken
-    ? AgentToken
-    : T extends typeof kFimidaraResourceType.PermissionGroup
-    ? PermissionGroup
-    : T extends typeof kFimidaraResourceType.PermissionItem
-    ? PermissionItem
-    : T extends typeof kFimidaraResourceType.Folder
-    ? Folder
-    : T extends typeof kFimidaraResourceType.File
-    ? File
-    : T extends typeof kFimidaraResourceType.User
-    ? User
-    : T extends typeof kFimidaraResourceType.Tag
-    ? Tag
-    : T extends typeof kFimidaraResourceType.UsageRecord
-    ? UsageRecord
-    : T extends typeof kFimidaraResourceType.AssignedItem
-    ? AssignedItem
-    : T extends typeof kFimidaraResourceType.Job
-    ? Job
-    : T extends typeof kFimidaraResourceType.PresignedPath
-    ? PresignedPath
-    : T extends typeof kFimidaraResourceType.FileBackendConfig
-    ? FileBackendConfig
-    : T extends typeof kFimidaraResourceType.FileBackendMount
-    ? FileBackendMount
-    : T extends typeof kFimidaraResourceType.ResolvedMountEntry
-    ? ResolvedMountEntry
-    : T extends typeof kFimidaraResourceType.App
-    ? App
-    : T extends typeof kFimidaraResourceType.emailMessage
-    ? EmailMessage
-    : T extends typeof kFimidaraResourceType.emailBlocklist
-    ? EmailBlocklist
-    : T extends typeof kFimidaraResourceType.appShard
-    ? AppShard
-    : typeof kFimidaraTypeToTSTypeNotFound;
+      ? CollaborationRequest
+      : T extends typeof kFimidaraResourceType.AgentToken
+        ? AgentToken
+        : T extends typeof kFimidaraResourceType.PermissionGroup
+          ? PermissionGroup
+          : T extends typeof kFimidaraResourceType.PermissionItem
+            ? PermissionItem
+            : T extends typeof kFimidaraResourceType.Folder
+              ? Folder
+              : T extends typeof kFimidaraResourceType.File
+                ? File
+                : T extends typeof kFimidaraResourceType.User
+                  ? User
+                  : T extends typeof kFimidaraResourceType.Tag
+                    ? Tag
+                    : T extends typeof kFimidaraResourceType.UsageRecord
+                      ? UsageRecord
+                      : T extends typeof kFimidaraResourceType.AssignedItem
+                        ? AssignedItem
+                        : T extends typeof kFimidaraResourceType.Job
+                          ? Job
+                          : T extends typeof kFimidaraResourceType.PresignedPath
+                            ? PresignedPath
+                            : T extends typeof kFimidaraResourceType.FileBackendConfig
+                              ? FileBackendConfig
+                              : T extends typeof kFimidaraResourceType.FileBackendMount
+                                ? FileBackendMount
+                                : T extends typeof kFimidaraResourceType.ResolvedMountEntry
+                                  ? ResolvedMountEntry
+                                  : T extends typeof kFimidaraResourceType.App
+                                    ? App
+                                    : T extends typeof kFimidaraResourceType.emailMessage
+                                      ? EmailMessage
+                                      : T extends typeof kFimidaraResourceType.emailBlocklist
+                                        ? EmailBlocklist
+                                        : T extends typeof kFimidaraResourceType.appShard
+                                          ? AppShard
+                                          : T extends typeof kFimidaraResourceType.jobHistory
+                                            ? JobHistory
+                                            : typeof kFimidaraTypeToTSTypeNotFound;

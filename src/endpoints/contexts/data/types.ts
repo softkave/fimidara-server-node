@@ -13,6 +13,7 @@ import {
 } from '../../../definitions/fileBackend.js';
 import {Folder} from '../../../definitions/folder.js';
 import {Job} from '../../../definitions/job.js';
+import {JobHistory} from '../../../definitions/jobHistory.js';
 import {PermissionGroup} from '../../../definitions/permissionGroups.js';
 import {PermissionItem} from '../../../definitions/permissionItem.js';
 import {PresignedPath} from '../../../definitions/presignedPath.js';
@@ -259,6 +260,7 @@ export type AppQuery = DataQuery<App>;
 export type EmailMessageQuery = DataQuery<EmailMessage>;
 export type EmailBlocklistQuery = DataQuery<EmailBlocklist>;
 export type AppShardQuery = DataQuery<AppShard>;
+export type JobHistoryQuery = DataQuery<JobHistory>;
 
 export type AgentTokenDataProvider = BaseDataProvider<
   AgentToken,
@@ -329,4 +331,8 @@ export type EmailBlocklistDataProvider = BaseDataProvider<
 export type AppShardDataProvider = BaseDataProvider<
   AppShard,
   DataQuery<AppShard>
+>;
+export type JobHistoryDataProvider = BaseDataProvider<
+  JobHistory,
+  DataQuery<JobHistory>
 >;

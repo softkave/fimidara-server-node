@@ -1,4 +1,8 @@
-import {PublicWorkspaceResource, ToPublicDefinitions, WorkspaceResource} from './system.js';
+import {
+  PublicWorkspaceResource,
+  ToPublicDefinitions,
+  WorkspaceResource,
+} from './system.js';
 
 export interface Folder extends WorkspaceResource {
   idPath: string[];

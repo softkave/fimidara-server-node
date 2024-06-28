@@ -1,2 +1,12 @@
-- prevent deleting fimidara default org and folders
+# Server
+
 - restart DB and use local fs
+- email me with new signups in intervals
+- usage records & alerting
+- remove image resizing for now
+- logs
+- prevent deleting fimidara default org and folders
+
+# JS SDK
+
+- support esm and commonjs (current issue is softkave-js-utils only supports esm, and lodash-es + peer deps)

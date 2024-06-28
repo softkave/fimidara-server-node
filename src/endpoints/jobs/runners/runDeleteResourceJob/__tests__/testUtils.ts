@@ -107,6 +107,7 @@ const kGetResourcesByIdDef: GetResourcesByIdDefinition = {
   [kFimidaraResourceType.App]: () => Promise.resolve([]),
   [kFimidaraResourceType.Job]: () => Promise.resolve([]),
   [kFimidaraResourceType.appShard]: () => Promise.resolve([]),
+  [kFimidaraResourceType.jobHistory]: () => Promise.resolve([]),
   [kFimidaraResourceType.Workspace]: ({idList}) =>
     kSemanticModels.workspace().getManyByIdList(idList),
   [kFimidaraResourceType.CollaborationRequest]: ({idList}) =>

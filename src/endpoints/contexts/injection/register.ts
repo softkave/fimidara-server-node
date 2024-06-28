@@ -35,6 +35,7 @@ import {
 import {getFileModel} from '../../../db/file.js';
 import {getFolderDatabaseModel} from '../../../db/folder.js';
 import {getJobModel} from '../../../db/job.js';
+import {getJobHistoryMongoModel} from '../../../db/jobHistory.js';
 import {getPermissionGroupModel} from '../../../db/permissionGroup.js';
 import {getPermissionItemModel} from '../../../db/permissionItem.js';
 import {getPresignedPathMongoModel} from '../../../db/presignedPath.js';
@@ -88,6 +89,7 @@ import {
   FileBackendMountMongoDataProvider,
   FileMongoDataProvider,
   FolderMongoDataProvider,
+  JobHistoryMongoDataProvider,
   JobMongoDataProvider,
   PermissionGroupMongoDataProvider,
   PermissionItemMongoDataProvider,
@@ -113,6 +115,7 @@ import {
   FileDataProvider,
   FolderDataProvider,
   JobDataProvider,
+  JobHistoryDataProvider,
   PermissionGroupDataProvider,
   PermissionItemDataProvider,
   PresignedPathDataProvider,
@@ -186,6 +189,8 @@ import {DataSemanticWorkspace} from '../semantic/workspace/model.js';
 import {SemanticWorkspaceProviderType} from '../semantic/workspace/types.js';
 import {kDataModels, kUtilsInjectables} from './injectables.js';
 import {kInjectionKeys} from './keys.js';
+import {DataSemanticJobHistory} from '../semantic/jobHistory/model.js';
+import {SemanticJobHistoryProvider} from '../semantic/jobHistory/types.js';
 
 function registerToken(
   token: string,
@@ -247,6 +252,8 @@ export const kRegisterSemanticModels = {
     registerToken(kInjectionKeys.semantic.emailBlocklist, item),
   appShard: (item: SemanticAppShardProvider) =>
     registerToken(kInjectionKeys.semantic.appShard, item),
+  jobHistory: (item: SemanticJobHistoryProvider) =>
+    registerToken(kInjectionKeys.semantic.jobHistory, item),
   utils: (item: SemanticProviderUtils) =>
     registerToken(kInjectionKeys.semantic.utils, item),
 };
@@ -291,6 +298,8 @@ export const kRegisterDataModels = {
     registerToken(kInjectionKeys.data.emailBlocklist, item),
   appShard: (item: AppShardDataProvider) =>
     registerToken(kInjectionKeys.data.appShard, item),
+  jobHistory: (item: JobHistoryDataProvider) =>
+    registerToken(kInjectionKeys.data.jobHistory, item),
   utils: (item: DataProviderUtils) =>
     registerToken(kInjectionKeys.data.utils, item),
 };
@@ -394,6 +403,9 @@ export function registerDataModelInjectables() {
   kRegisterDataModels.appShard(
     new AppShardMongoDataProvider(getAppShardMongoModel(connection))
   );
+  kRegisterDataModels.jobHistory(
+    new JobHistoryMongoDataProvider(getJobHistoryMongoModel(connection))
+  );
   kRegisterDataModels.utils(new MongoDataProviderUtils());
 }
 
@@ -485,6 +497,9 @@ export function registerSemanticModelInjectables() {
   );
   kRegisterSemanticModels.appShard(
     new SemanticAppShardProviderImpl(kDataModels.appShard(), assertNotFound)
+  );
+  kRegisterSemanticModels.jobHistory(
+    new DataSemanticJobHistory(kDataModels.jobHistory(), assertNotFound)
   );
   kRegisterSemanticModels.utils(new DataSemanticProviderUtils());
 }

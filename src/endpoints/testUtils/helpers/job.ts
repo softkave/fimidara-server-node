@@ -1,4 +1,6 @@
-import {Job, kJobStatus} from '../../../definitions/job.js';
+import assert from 'assert';
+import {expect} from 'vitest';
+import {Job, JobStatus, kJobStatus} from '../../../definitions/job.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {runJob} from '../../jobs/runJob.js';
 
@@ -17,4 +19,17 @@ export async function executeShardJobs(shard: string) {
     // though executeShardJobs will complete as if all jobs were run.
     await Promise.allSettled(jobs.map(runJob));
   } while (jobs.length > 0);
+}
+
+export async function confirmJobHistoryEntry(job: Job, status?: JobStatus) {
+  const jobHistory = await kSemanticModels
+    .jobHistory()
+    .getOneByQuery({jobId: job.resourceId, status: status || job.status});
+
+  assert(
+    jobHistory,
+    `No job history with jobId=${job.resourceId} status=${job.status}`
+  );
+  expect(jobHistory.jobId).toBe(job.resourceId);
+  expect(jobHistory.runnerId).toBe(job.runnerId);
 }

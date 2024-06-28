@@ -56,7 +56,6 @@ export function generateJobForTest(seed: Partial<Job> = {}) {
     minRunnerVersion: kJobRunnerV1,
     parentJobId: undefined,
     priority: getRandomJobPresetPriority(),
-    statusHistory: [status],
     workspaceId: getNewIdForResource(kFimidaraResourceType.Workspace),
     parents: seed.parentJobId && !seed.parents ? [seed.parentJobId] : [],
     ...status,

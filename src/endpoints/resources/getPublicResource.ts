@@ -41,9 +41,11 @@ const kResourceTypeToExtractorMap: Record<
   [kFimidaraResourceType.emailMessage]: resourceExtractor,
   [kFimidaraResourceType.emailBlocklist]: resourceExtractor,
   [kFimidaraResourceType.appShard]: resourceExtractor,
+  [kFimidaraResourceType.jobHistory]: resourceExtractor,
   [kFimidaraResourceType.PresignedPath]: presignedPathExtractor,
   [kFimidaraResourceType.Workspace]: workspaceExtractor,
-  [kFimidaraResourceType.CollaborationRequest]: collaborationRequestForWorkspaceExtractor,
+  [kFimidaraResourceType.CollaborationRequest]:
+    collaborationRequestForWorkspaceExtractor,
   [kFimidaraResourceType.AgentToken]: agentTokenExtractor,
   [kFimidaraResourceType.PermissionGroup]: permissionGroupExtractor,
   [kFimidaraResourceType.PermissionItem]: permissionItemExtractor,
@@ -57,7 +59,10 @@ const kResourceTypeToExtractorMap: Record<
   [kFimidaraResourceType.ResolvedMountEntry]: resolvedEntryExtractor,
 };
 
-export function getPublicResource(resource: ResourceWrapper, workspaceId: string) {
+export function getPublicResource(
+  resource: ResourceWrapper,
+  workspaceId: string
+) {
   const extractor = kResourceTypeToExtractorMap[resource.resourceType];
 
   if (extractor) {
@@ -67,7 +72,10 @@ export function getPublicResource(resource: ResourceWrapper, workspaceId: string
   throw new ServerError(`Resource type ${resource.resourceType} not supported`);
 }
 
-export function getPublicResourceList(resources: ResourceWrapper[], workspaceId: string) {
+export function getPublicResourceList(
+  resources: ResourceWrapper[],
+  workspaceId: string
+) {
   return resources.map((item): PublicResourceWrapper => {
     return {
       resource: getPublicResource(item, workspaceId),

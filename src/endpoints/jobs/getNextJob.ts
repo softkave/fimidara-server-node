@@ -6,8 +6,11 @@ import {
   RunAfterJobItem,
   kJobStatus,
 } from '../../definitions/job.js';
+import {JobHistory} from '../../definitions/jobHistory.js';
+import {kFimidaraResourceType} from '../../definitions/system.js';
 import {appAssert} from '../../utils/assertion.js';
 import {getTimestamp} from '../../utils/dateFns.js';
+import {newResource} from '../../utils/resource.js';
 import {AnyFn} from '../../utils/types.js';
 import {DataQuery} from '../contexts/data/types.js';
 import {
@@ -44,14 +47,21 @@ export async function markJobStarted(
     status: kJobStatus.inProgress,
     statusLastUpdatedAt: getTimestamp(),
   };
+  const jobHistory: JobHistory = newResource(kFimidaraResourceType.jobHistory, {
+    runnerId,
+    jobId: job.resourceId,
+    status: kJobStatus.inProgress,
+  });
 
-  return await kSemanticModels
-    .job()
-    .getAndUpdateOneById(
-      job.resourceId,
-      {...status, statusHistory: job.statusHistory.concat(status)},
-      opts
-    );
+  const [updatedJob] = await Promise.all([
+    kSemanticModels
+      .job()
+      .getAndUpdateOneById(job.resourceId, {...status}, opts),
+    // TODO: should we fire-and-forget job history entries instead?
+    kSemanticModels.jobHistory().insertItem(jobHistory, opts),
+  ]);
+
+  return updatedJob;
 }
 
 export async function areJobRunConditionsSatisfied(

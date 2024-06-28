@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {compact, isUndefined, last} from 'lodash-es';
+import {compact, isUndefined} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {
   kJobPresetPriority,
@@ -12,6 +12,7 @@ import {loopAndCollateAsync, omitDeep} from '../../../utils/fns.js';
 import {getNewId, getNewIdForResource} from '../../../utils/resource.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {generateAndInsertJobListForTest} from '../../testUtils/generate/job.js';
+import {confirmJobHistoryEntry} from '../../testUtils/helpers/job.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {initTests} from '../../testUtils/testUtils.js';
 import {
@@ -52,10 +53,8 @@ describe('getNextJob', () => {
     expect(dbJob.status).toBe(kJobStatus.inProgress);
     expect(dbJob.runnerId).toBe(runnerId);
     expect(dbJob.statusLastUpdatedAt).toBeGreaterThan(job.statusLastUpdatedAt);
-    expect(last(dbJob.statusHistory)).toMatchObject({
-      runnerId,
-      status: kJobStatus.inProgress,
-    });
+
+    await confirmJobHistoryEntry(dbJob);
   });
 
   test('getNextUnfinishedJob', async () => {

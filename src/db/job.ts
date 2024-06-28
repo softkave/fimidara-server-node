@@ -20,13 +20,14 @@ const jobSchema = ensureMongoTypeFields<Job>({
   workspaceId: {type: String, index: true},
   parentJobId: {type: String, index: true},
   idempotencyToken: {type: String, index: true},
-  statusHistory: {type: [statusItemSchema]},
   meta: {type: SchemaTypes.Map},
   parents: {type: [String], index: true},
   priority: {type: Number, index: true},
   shard: {type: String, index: true},
   runAfter: {type: [runAfterSchema], index: true},
   cooldownTill: {type: Number, index: true},
+  runCategory: {type: String},
+  cronInterval: {type: Number},
 });
 
 export type JobDocument = Document<Job>;

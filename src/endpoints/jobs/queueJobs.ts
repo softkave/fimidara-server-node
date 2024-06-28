@@ -9,6 +9,7 @@ import {
   kJobRunnerV1,
   kJobStatus,
 } from '../../definitions/job.js';
+import {JobHistory} from '../../definitions/jobHistory.js';
 import {Agent, kFimidaraResourceType} from '../../definitions/system.js';
 import {getTimestamp} from '../../utils/dateFns.js';
 import {convertToArray} from '../../utils/fns.js';
@@ -78,7 +79,6 @@ export async function queueJobs<
       meta: input.meta,
       type: input.type,
       minRunnerVersion: kJobRunnerV1,
-      statusHistory: [status],
       priority: input.priority ?? kJobPresetPriority.p1,
       shard: input.shard ?? kAppPresetShards.fimidaraMain,
       runAfter: input.runAfter ? convertToArray(input.runAfter) : undefined,
@@ -110,7 +110,19 @@ export async function queueJobs<
       }
     });
 
-    await kSemanticModels.job().insertItem(uniqueJobs, opts);
+    const jobHistories = uniqueJobs.map(newJob =>
+      newResource<JobHistory>(kFimidaraResourceType.jobHistory, {
+        status: newJob.status,
+        jobId: newJob.resourceId,
+        runnerId: newJob.runnerId,
+      })
+    );
+
+    await Promise.all([
+      kSemanticModels.job().insertItem(uniqueJobs, opts),
+      kSemanticModels.jobHistory().insertItem(jobHistories, opts),
+    ]);
+
     return (jobsToReturn === 'all' ? jobs : uniqueJobs) as Array<
       Job<TParams, TMeta>
     >;

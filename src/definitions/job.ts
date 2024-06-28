@@ -35,8 +35,14 @@ export const kJobPresetPriority = {
   p5: 5,
 };
 
+export const kJobRunCategory = {
+  once: 'once',
+  cron: 'cron',
+};
+
 export type JobType = ValueOf<typeof kJobType>;
 export type JobStatus = ValueOf<typeof kJobStatus>;
+export type JobRunCategory = ValueOf<typeof kJobRunCategory>;
 
 export interface JobStatusHistory {
   status: JobStatus;
@@ -67,17 +73,19 @@ export interface Job<
   // allows for false-positives but no false-negatives
   parents: string[];
   idempotencyToken: string;
-  statusHistory: JobStatusHistory[];
   /** Higher number carries more weight. */
   priority: number;
   /** For selectively picking jobs so runners don't run jobs that do not apply
    * to them, for example during testing. */
   shard: AppShardId;
   runAfter?: RunAfterJobItem[];
-  /** ms timestamp to mark jobs already visited. Useful when the job is not
-   * ready, and to prevent previous evaluator & other runners from fetching
-   * until after a cooldown. */
+  /** Milliseconds timestamp to mark jobs already visited. Useful when the job
+   * is not ready, and to prevent previous evaluator & other runners from
+   * fetching until after a cooldown. */
   cooldownTill?: number;
+  runCategory?: JobRunCategory;
+  /** Run interval in milliseconds. */
+  cronInterval?: number;
 }
 
 export type DeleteResourceCascadeFnDefaultArgs = {

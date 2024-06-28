@@ -11,6 +11,7 @@ import {
 } from '../../../definitions/fileBackend.js';
 import {Folder} from '../../../definitions/folder.js';
 import {Job} from '../../../definitions/job.js';
+import {JobHistory} from '../../../definitions/jobHistory.js';
 import {PermissionGroup} from '../../../definitions/permissionGroups.js';
 import {PermissionItem} from '../../../definitions/permissionItem.js';
 import {PresignedPath} from '../../../definitions/presignedPath.js';
@@ -22,7 +23,10 @@ import {Workspace} from '../../../definitions/workspace.js';
 import {throwAgentTokenNotFound} from '../../agentTokens/utils.js';
 import {throwAssignedItemNotFound} from '../../assignedItems/utils.js';
 import {throwCollaborationRequestNotFound} from '../../collaborationRequests/utils.js';
-import {throwFileNotFound, throwPresignedPathNotFound} from '../../files/utils.js';
+import {
+  throwFileNotFound,
+  throwPresignedPathNotFound,
+} from '../../files/utils.js';
 import {throwFolderNotFound} from '../../folders/utils.js';
 import {throwPermissionGroupNotFound} from '../../permissionGroups/utils.js';
 import {throwPermissionItemNotFound} from '../../permissionItems/utils.js';
@@ -46,6 +50,7 @@ import {
   FileDataProvider,
   FolderDataProvider,
   JobDataProvider,
+  JobHistoryDataProvider,
   PermissionGroupDataProvider,
   PermissionItemDataProvider,
   PresignedPathDataProvider,
@@ -207,6 +212,13 @@ export class EmailBlocklistMongoDataProvider
 export class AppShardMongoDataProvider
   extends BaseMongoDataProvider<AppShard>
   implements AppShardDataProvider
+{
+  throwNotFound = throwNotFound;
+}
+
+export class JobHistoryMongoDataProvider
+  extends BaseMongoDataProvider<JobHistory>
+  implements JobHistoryDataProvider
 {
   throwNotFound = throwNotFound;
 }
