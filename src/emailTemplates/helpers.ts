@@ -54,7 +54,9 @@ export function getFooterHTML(withDonotReply = true): string {
   return `
 <footer class="${classNamePrefix}-footer ${classNamePrefix}-content-center">
   ${withDonotReply ? 'Auto-generated email, do not reply. <br />' : ''}
-  &copy; - ${kUtilsInjectables.suppliedConfig().appName} - ${new Date().getFullYear()}
+  &copy; - ${
+    kUtilsInjectables.suppliedConfig().appName
+  } - ${new Date().getFullYear()}
 </footer>
     `;
 }
@@ -80,13 +82,22 @@ export function getCenteredContentHTML(content: string) {
 }
 
 export function getDoNotReplyHTML() {
-  return getCenteredContentHTML('This is an auto-generated email, do not reply');
+  return getCenteredContentHTML(
+    'This is an auto-generated email, do not reply'
+  );
 }
 
 export function getAccountAccessSectionHTML(props: BaseEmailTemplateProps) {
+  const signupContent = props.signupLink
+    ? `<a href="${props.signupLink}">Signup on fimidara here</a>`
+    : '';
+  const loginContent = props.loginLink
+    ? `<a href="${props.loginLink}">Login to fimidara here</a> - OR -<br />`
+    : '';
+
   return getCenteredContentHTML(`
-    <a href="${props.loginLink}">Login to fimidara here</a> - OR -<br />
-    <a href="${props.signupLink}">Signup on fimidara here</a>
+    ${signupContent}
+    ${loginContent}
   `);
 }
 
@@ -97,13 +108,17 @@ Signup on fimidara here ${emailHelperChars.emDash} ${props.signupLink}
 `;
 }
 
-export function getLoginSectionHTML(props: Pick<BaseEmailTemplateProps, 'loginLink'>) {
+export function getLoginSectionHTML(
+  props: Pick<BaseEmailTemplateProps, 'loginLink'>
+) {
   return getCenteredContentHTML(`
     <a href="${props.loginLink}">Login to your account here</a>
   `);
 }
 
-export function getLoginSectionText(props: Pick<BaseEmailTemplateProps, 'loginLink'>) {
+export function getLoginSectionText(
+  props: Pick<BaseEmailTemplateProps, 'loginLink'>
+) {
   return `—
 Login to your account here ${emailHelperChars.emDash} ${props.loginLink}\n
 `;

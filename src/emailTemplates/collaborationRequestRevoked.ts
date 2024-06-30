@@ -12,7 +12,8 @@ import {
 } from './helpers.js';
 import {BaseEmailTemplateProps} from './types.js';
 
-export interface CollaborationRequestRevokedEmailProps extends BaseEmailTemplateProps {
+export interface CollaborationRequestRevokedEmailProps
+  extends BaseEmailTemplateProps {
   workspaceName: string;
 }
 

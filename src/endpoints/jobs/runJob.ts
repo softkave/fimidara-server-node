@@ -9,6 +9,7 @@ import {runDeleteResourceJob} from './runners/runDeleteResourceJob/runDeleteReso
 import {runEmailJob} from './runners/runEmailJob/runEmailJob.js';
 import {runIngestFolderpathJob} from './runners/runIngestFolderpathJob.js';
 import {runIngestMountJob} from './runners/runIngestMountJob.js';
+import {runNewSignupsOnWaitlistJob} from './runners/runNewSignupsOnWaitlistJob.js';
 
 const kJobTypeToHandlerMap: Record<JobType, AnyFn<[Job], Promise<void>>> = {
   [kJobType.deleteResource]: runDeleteResourceJob,
@@ -16,6 +17,7 @@ const kJobTypeToHandlerMap: Record<JobType, AnyFn<[Job], Promise<void>>> = {
   [kJobType.ingestFolderpath]: runIngestFolderpathJob,
   [kJobType.ingestMount]: runIngestMountJob,
   [kJobType.cleanupMountResolvedEntries]: runCleanupMountResolvedEntriesJob,
+  [kJobType.newSignupsOnWaitlist]: runNewSignupsOnWaitlistJob,
   [kJobType.email]: runEmailJob,
   [kJobType.noop]: noopAsync,
   [kJobType.fail]: async () => {

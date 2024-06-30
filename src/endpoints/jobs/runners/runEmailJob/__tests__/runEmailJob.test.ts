@@ -1,10 +1,14 @@
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 
 import {
   kEmailBlocklistReason,
   kEmailBlocklistTrailType,
 } from '../../../../../definitions/email.js';
-import {EmailJobParams, kEmailJobType, kJobType} from '../../../../../definitions/job.js';
+import {
+  EmailJobParams,
+  kEmailJobType,
+  kJobType,
+} from '../../../../../definitions/job.js';
 import {kFimidaraConfigEmailProvider} from '../../../../../resources/config.js';
 import {kSystemSessionAgent} from '../../../../../utils/agent.js';
 import {
@@ -40,11 +44,14 @@ describe('runEmailJob', () => {
       generateAndInsertUserListForTest(1),
       generateAndInsertWorkspaceListForTest(1),
     ]);
-    const [request] = await generateAndInsertCollaborationRequestListForTest(1, () => ({
-      recipientEmail: user.email,
-      workspaceId: workspace.resourceId,
-      workspaceName: workspace.name,
-    }));
+    const [request] = await generateAndInsertCollaborationRequestListForTest(
+      1,
+      () => ({
+        recipientEmail: user.email,
+        workspaceId: workspace.resourceId,
+        workspaceName: workspace.name,
+      })
+    );
     const [job] = await queueJobs<EmailJobParams>(
       workspace.resourceId,
       /** parent job ID */ undefined,
@@ -70,7 +77,10 @@ describe('runEmailJob', () => {
       emailAddress: user.email,
       reason: kEmailBlocklistReason.bounce,
       trail: {
-        $objMatch: {jobId: job.resourceId, trailType: kEmailBlocklistTrailType.emailJob},
+        $objMatch: {
+          jobId: job.resourceId,
+          trailType: kEmailBlocklistTrailType.emailJob,
+        },
       },
     });
     expect(blocklistItem).toBeTruthy();
@@ -81,11 +91,14 @@ describe('runEmailJob', () => {
       generateAndInsertUserListForTest(1),
       generateAndInsertWorkspaceListForTest(1),
     ]);
-    const [request] = await generateAndInsertCollaborationRequestListForTest(1, () => ({
-      recipientEmail: user.email,
-      workspaceId: workspace.resourceId,
-      workspaceName: workspace.name,
-    }));
+    const [request] = await generateAndInsertCollaborationRequestListForTest(
+      1,
+      () => ({
+        recipientEmail: user.email,
+        workspaceId: workspace.resourceId,
+        workspaceName: workspace.name,
+      })
+    );
     const [job] = await queueJobs<EmailJobParams>(
       workspace.resourceId,
       /** parent job ID */ undefined,
@@ -107,7 +120,9 @@ describe('runEmailJob', () => {
     await runEmailJob(job);
     await kUtilsInjectables.promises().flush();
 
-    const dbJob = await kSemanticModels.job().getOneByQuery({resourceId: job.resourceId});
+    const dbJob = await kSemanticModels
+      .job()
+      .getOneByQuery({resourceId: job.resourceId});
     expect(dbJob?.meta).toMatchObject({
       emailProvider: kFimidaraConfigEmailProvider.noop,
       other: {},
@@ -116,7 +131,9 @@ describe('runEmailJob', () => {
 });
 
 class TestEmailProviderContext implements IEmailProviderContext {
-  sendEmail = async (params: SendEmailParams): Promise<EmailProviderSendEmailResult> => {
+  sendEmail = async (
+    params: SendEmailParams
+  ): Promise<EmailProviderSendEmailResult> => {
     return {
       blockEmailAddressList: params.destination.map(emailAddress => ({
         emailAddress,

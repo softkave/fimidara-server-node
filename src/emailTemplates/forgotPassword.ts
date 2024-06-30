@@ -20,7 +20,9 @@ export interface ForgotPasswordEmailProps extends BaseEmailTemplateProps {
   expiration: Date;
 }
 
-export function forgotPasswordEmailHTML(props: ForgotPasswordEmailProps): string {
+export function forgotPasswordEmailHTML(
+  props: ForgotPasswordEmailProps
+): string {
   return `
 <!DOCTYPE html>
 <html lang="en-US">
@@ -66,11 +68,15 @@ export function forgotPasswordEmailHTML(props: ForgotPasswordEmailProps): string
   `;
 }
 
-export function forgotPasswordEmailText(props: ForgotPasswordEmailProps): string {
+export function forgotPasswordEmailText(
+  props: ForgotPasswordEmailProps
+): string {
   const text = `${getHeaderText(kForgotPasswordEmailArtifacts.title)}
 ${emailHelperChars.emDash}
 ${getGreetingText(props)}
-To change your password, copy the following link, and visit in your browser: ${props.link}
+To change your password, copy the following link, and visit in your browser: ${
+    props.link
+  }
 ${emailHelperChars.emDash}
 This link expires:
 1. Immediately after you change your password ${emailHelperChars.emDash} OR ${

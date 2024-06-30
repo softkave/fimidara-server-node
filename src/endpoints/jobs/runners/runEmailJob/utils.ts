@@ -59,9 +59,9 @@ export async function getBaseEmailTemplateProps(
     user,
     source: suppliedConfig.senderEmailAddress,
     base: {
+      firstName: user?.firstName,
       loginLink: suppliedConfig.clientLoginLink,
       signupLink: suppliedConfig.clientSignupLink,
-      firstName: user?.firstName,
     },
   };
 }

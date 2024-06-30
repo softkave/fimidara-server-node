@@ -6,6 +6,8 @@
 - remove image resizing for now
 - logs
 - prevent deleting fimidara default org and folders
+- check if email recipient is a user and only send login link, or signup link otherwise
+- tool to print config without values for env
 
 # JS SDK
 

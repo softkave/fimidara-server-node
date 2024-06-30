@@ -42,7 +42,10 @@ export const kUsageExceededEmailArtifacts = {
 };
 
 export function usageExceededEmailHTML(props: UsageExceededEmailProps) {
-  const title = kUsageExceededEmailArtifacts.title(props.workspaceName, props.threshold);
+  const title = kUsageExceededEmailArtifacts.title(
+    props.workspaceName,
+    props.threshold
+  );
   return `
 <!DOCTYPE html>
 <html lang="en-US">
@@ -67,7 +70,10 @@ export function usageExceededEmailHTML(props: UsageExceededEmailProps) {
 }
 
 export function usageExceededEmailText(props: UsageExceededEmailProps) {
-  const title = kUsageExceededEmailArtifacts.title(props.workspaceName, props.threshold);
+  const title = kUsageExceededEmailArtifacts.title(
+    props.workspaceName,
+    props.threshold
+  );
   const txt = `${getHeaderText(title)}
 ${emailHelperChars.emDash}
 ${getGreetingText(props)}

@@ -1,8 +1,10 @@
 import assert from 'assert';
 import {compact, isUndefined} from 'lodash-es';
+import {waitTimeout} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {
   kJobPresetPriority,
+  kJobRunCategory,
   kJobStatus,
   kJobType,
 } from '../../../definitions/job.js';
@@ -15,6 +17,7 @@ import {generateAndInsertJobListForTest} from '../../testUtils/generate/job.js';
 import {confirmJobHistoryEntry} from '../../testUtils/helpers/job.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {initTests} from '../../testUtils/testUtils.js';
+import {completeJob} from '../completeJob.js';
 import {
   getJobCooldownDuration,
   getNextJob,
@@ -527,5 +530,41 @@ describe('getNextJob', () => {
 
     const returnedJobIds = compact(returnedJobs).map(job => job.resourceId);
     expect(returnedJobIds).toHaveLength(jobs.length);
+  });
+
+  test('cron job', async () => {
+    const jobCronInterval = 50; // 50ms
+    const shard = getNewId();
+    const [job] = await generateAndInsertJobListForTest(/** count */ 1, {
+      shard,
+      status: kJobStatus.pending,
+      type: kJobType.noop,
+      runCategory: kJobRunCategory.cron,
+      cronInterval: jobCronInterval,
+    });
+
+    const runnerId01 = getNewIdForResource(kFimidaraResourceType.App);
+    const runnerId02 = getNewIdForResource(kFimidaraResourceType.App);
+    let cronJob = await getNextJob(/** active runners */ [], runnerId01, [
+      shard,
+    ]);
+    expect(cronJob?.resourceId).toBe(job.resourceId);
+    expect(cronJob?.status).toBe(kJobStatus.inProgress);
+    expect(cronJob?.runnerId).toBe(runnerId01);
+
+    await completeJob(job.resourceId);
+    assert(cronJob);
+    await confirmJobHistoryEntry(cronJob, kJobStatus.inProgress);
+    await confirmJobHistoryEntry(cronJob, kJobStatus.completed);
+
+    await waitTimeout(jobCronInterval);
+    cronJob = await getNextJob(/** active runners */ [], runnerId02, [shard]);
+
+    expect(cronJob?.resourceId).toBe(job.resourceId);
+    expect(cronJob?.status).toBe(kJobStatus.inProgress);
+    expect(cronJob?.runnerId).toBe(runnerId02);
+
+    assert(cronJob);
+    await confirmJobHistoryEntry(cronJob, kJobStatus.inProgress);
   });
 });

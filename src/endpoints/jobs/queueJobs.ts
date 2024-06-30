@@ -21,7 +21,7 @@ import {SemanticProviderMutationParams} from '../contexts/semantic/types.js';
 export interface JobInput<
   TParams extends AnyObject = AnyObject,
   TMeta extends AnyObject = AnyObject,
-> {
+> extends Pick<Job, 'runCategory' | 'cronInterval'> {
   type: JobType;
   params: TParams;
   meta?: TMeta;

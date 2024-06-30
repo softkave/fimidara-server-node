@@ -73,7 +73,11 @@ export async function completeJob(
       isNumber(job.cronInterval)
     ) {
       status = kJobStatus.pending;
-      jobUpdate.cooldownTill = Date.now() + job.cronInterval;
+      jobUpdate = {
+        ...jobUpdate,
+        cooldownTill: Date.now() + job.cronInterval,
+        runnerId: undefined,
+      };
       jobHistoryEntry.push(
         newResource(kFimidaraResourceType.jobHistory, {
           status,

@@ -1,5 +1,7 @@
-import {AnyFn, AnyObject, PartialRecord} from 'softkave-js-utils';
+import {AnyFn, AnyObject, OmitFrom, PartialRecord} from 'softkave-js-utils';
 import {ValueOf} from 'type-fest';
+import {NewSignupsOnWaitlistEmailProps} from '../emailTemplates/newSignupsOnWaitlist.js';
+import {BaseEmailTemplateProps} from '../emailTemplates/types.js';
 import {FimidaraConfigEmailProvider} from '../resources/config.js';
 import {AppShardId} from './app.js';
 import {Agent, FimidaraResourceType, Resource} from './system.js';
@@ -13,6 +15,7 @@ export const kJobType = {
   ingestMount: 'ingestMount',
   cleanupMountResolvedEntries: 'cleanupMountResolvedEntries',
   email: 'email',
+  newSignupsOnWaitlist: 'newSignupsOnWaitlist',
   /** Primarily used for testing. A job that does nothing. */
   noop: 'noop',
   /** Primarily used for testing. A job that will always fail! */
@@ -126,6 +129,10 @@ export interface CleanupMountResolvedEntriesJobParams {
   mountId: string;
 }
 
+export interface INewSignupsOnWaitlistJobMeta {
+  lastRunMs?: number;
+}
+
 export const kEmailJobType = {
   collaborationRequest: 'collaborationRequest',
   collaborationRequestExpired: 'collaborationRequestExpired',
@@ -134,6 +141,7 @@ export const kEmailJobType = {
   confirmEmailAddress: 'confirmEmailAddress',
   forgotPassword: 'forgotPassword',
   upgradedFromWaitlist: 'upgradedFromWaitlist',
+  newSignupsOnWaitlist: 'newSignupsOnWaitlist',
   // usageExceeded: 'usageExceeded',
 } as const;
 
@@ -166,6 +174,13 @@ export type EmailJobParams = {
   | {type: typeof kEmailJobType.confirmEmailAddress}
   | {type: typeof kEmailJobType.forgotPassword}
   | {type: typeof kEmailJobType.upgradedFromWaitlist}
+  | {
+      type: typeof kEmailJobType.newSignupsOnWaitlist;
+      params: OmitFrom<
+        NewSignupsOnWaitlistEmailProps,
+        keyof BaseEmailTemplateProps | 'upgradeWaitlistURL'
+      >;
+    }
 );
 // | {
 //     type: typeof kEmailJobType.usageExceeded;

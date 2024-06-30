@@ -8,7 +8,10 @@ import {
   FimidaraPermissionAction,
   PermissionItem,
 } from '../../../../definitions/permissionItem.js';
-import {Resource, kFimidaraResourceType} from '../../../../definitions/system.js';
+import {
+  Resource,
+  kFimidaraResourceType,
+} from '../../../../definitions/system.js';
 import {appAssert} from '../../../../utils/assertion.js';
 import {toCompactArray} from '../../../../utils/fns.js';
 import {indexArray} from '../../../../utils/indexArray.js';
@@ -111,7 +114,9 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
       targetItemsQuery,
       options?.includeDeleted || false
     );
-    const items = await kSemanticModels.permissionItem().getManyByQuery(query, options);
+    const items = await kSemanticModels
+      .permissionItem()
+      .getManyByQuery(query, options);
 
     if (props.sortByTarget || props.sortByDate || props.sortByEntity) {
       this.sortItems(
@@ -159,7 +164,9 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
     }
 
     if (type === kFimidaraResourceType.PermissionGroup) {
-      return await kSemanticModels.permissionGroup().getOneByQuery(dataQuery, opts);
+      return await kSemanticModels
+        .permissionGroup()
+        .getOneByQuery(dataQuery, opts);
     }
 
     return null;

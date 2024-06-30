@@ -50,12 +50,17 @@ export const kAppRuntimeStatsDocId = getNewIdForResource(
   kIdSize,
   true
 );
-const imagesPath = '/files/images';
-const appSetupVars = {
+
+export const kNewSignupsOnWaitlistJobIntervalMs = 1_000 * 60 * 60;
+export const kNewSignupsOnWaitlistJobIdempotencyToken = '1';
+
+const kImagesPath = '/files/images';
+/** 1 hour in ms */
+const kAppSetupVars = {
   workspaceName: 'Fimidara',
   rootname: 'fimidara',
-  workspaceImagesfolderpath: imagesPath + '/workspaces',
-  userImagesfolderpath: imagesPath + '/users',
+  workspaceImagesfolderpath: kImagesPath + '/workspaces',
+  userImagesfolderpath: kImagesPath + '/users',
   workspacesImageUploadPermissionGroupName: 'Fimidara workspaces image upload',
   usersImageUploadPermissionGroupName: 'Fimidara users image upload',
 };
@@ -142,7 +147,7 @@ async function setupFolders(workspace: Workspace) {
       workspace,
       {
         folderpath: addRootnameToPath(
-          appSetupVars.workspaceImagesfolderpath,
+          kAppSetupVars.workspaceImagesfolderpath,
           workspace.rootname
         ),
       },
@@ -155,7 +160,7 @@ async function setupFolders(workspace: Workspace) {
       workspace,
       {
         folderpath: addRootnameToPath(
-          appSetupVars.userImagesfolderpath,
+          kAppSetupVars.userImagesfolderpath,
           workspace.rootname
         ),
       },
@@ -174,11 +179,11 @@ async function setupFolders(workspace: Workspace) {
 
   appAssert(
     workspaceImagesFolder,
-    `Could not create workspaceImagesFolder from ${appSetupVars.workspaceImagesfolderpath}`
+    `Could not create workspaceImagesFolder from ${kAppSetupVars.workspaceImagesfolderpath}`
   );
   appAssert(
     userImagesFolder,
-    `Could not create userImagesFolder from ${appSetupVars.userImagesfolderpath}`
+    `Could not create userImagesFolder from ${kAppSetupVars.userImagesfolderpath}`
   );
   return {workspaceImagesFolder, userImagesFolder};
 }
@@ -252,13 +257,13 @@ async function setupRootWorkspacePermissionGroups(
   ] = await Promise.all([
     setupImageUploadPermissionGroup(
       workspace.resourceId,
-      appSetupVars.workspacesImageUploadPermissionGroupName,
+      kAppSetupVars.workspacesImageUploadPermissionGroupName,
       'Auto-generated permission group for uploading images to the workspace images folder',
       workspaceImagesFolder
     ),
     setupImageUploadPermissionGroup(
       workspace.resourceId,
-      appSetupVars.usersImageUploadPermissionGroupName,
+      kAppSetupVars.usersImageUploadPermissionGroupName,
       'Auto-generated permission group for uploading images to the user images folder',
       userImagesFolder
     ),
@@ -339,8 +344,8 @@ async function insertRuntimeVars(
 async function setupAppArtifacts(agent: SessionAgent) {
   const {workspace} = await setupWorkspace(
     agent,
-    appSetupVars.workspaceName,
-    appSetupVars.rootname
+    kAppSetupVars.workspaceName,
+    kAppSetupVars.rootname
   );
   const {workspaceImagesFolder, userImagesFolder} =
     await setupFolders(workspace);
@@ -362,6 +367,30 @@ async function setupAppArtifacts(agent: SessionAgent) {
   return workspace;
 }
 
+// async function setupNewUsersOnWaitlistJob() {
+//   const {FLAG_waitlistNewSignups} = kUtilsInjectables.suppliedConfig();
+
+//   if (!FLAG_waitlistNewSignups) {
+//     return;
+//   }
+
+//   await queueJobs<{}>(
+//     /** workspaceId */ undefined,
+//     /** parent job ID */ undefined,
+//     [
+//       {
+//         params: {},
+//         createdBy: kSystemSessionAgent,
+//         type: kJobType.newSignupsOnWaitlist,
+//         /** there should always be only one such job */
+//         idempotencyToken: kNewSignupsOnWaitlistJobIdempotencyToken,
+//         runCategory: kJobRunCategory.cron,
+//         cronInterval: kNewSignupsOnWaitlistJobIntervalMs,
+//       },
+//     ]
+//   );
+// }
+
 export async function initFimidara() {
   const appRuntimeState = await isRootWorkspaceSetup();
 
@@ -370,5 +399,10 @@ export async function initFimidara() {
   }
 
   const {agent} = await setupDefaultUser();
-  return await setupAppArtifacts(agent);
+  const [appArtifacts] = await Promise.all([
+    setupAppArtifacts(agent),
+    // setupNewUsersOnWaitlistJob(),
+  ]);
+
+  return appArtifacts;
 }

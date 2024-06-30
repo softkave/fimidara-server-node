@@ -24,7 +24,9 @@ export const kFimidaraConfigEmailProvider = {
   noop: 'noop',
 } as const;
 
-export type FimidaraConfigEmailProvider = ValueOf<typeof kFimidaraConfigEmailProvider>;
+export type FimidaraConfigEmailProvider = ValueOf<
+  typeof kFimidaraConfigEmailProvider
+>;
 
 export const kFimidaraConfigSecretsManagerProvider = {
   awsSecretsManager: 'awsSecretsManager',
@@ -101,6 +103,7 @@ export type FimidaraSuppliedConfig = Partial<{
   clientSignupLink: string;
   changePasswordLink: string;
   verifyEmailLink: string;
+  upgradeWaitlistLink: string;
 
   // Testing
   test: {
@@ -114,6 +117,9 @@ export type FimidaraSuppliedConfig = Partial<{
 
   // Worker
   runnerLocation: string;
+
+  // Jobs
+  // newSignupsOnWaitlistJobIntervalMs: number;
 
   // AWS configs
   awsConfigs?: Partial<{

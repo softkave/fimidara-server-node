@@ -290,6 +290,7 @@ describe('completeJob', () => {
     assert(dbJob);
     expect(completedJob).toEqual(dbJob);
     expect(dbJob.status).toBe(kJobStatus.pending);
+    expect(dbJob.runnerId).toBe(undefined);
     expect(dbJob.cooldownTill).toBeGreaterThan(job.cooldownTill!);
     expect(dbJob.statusLastUpdatedAt).toBeGreaterThan(job.statusLastUpdatedAt);
 

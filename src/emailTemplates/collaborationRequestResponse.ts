@@ -13,7 +13,8 @@ import {
 } from './helpers.js';
 import {BaseEmailTemplateProps} from './types.js';
 
-export interface CollaborationRequestResponseEmailProps extends BaseEmailTemplateProps {
+export interface CollaborationRequestResponseEmailProps
+  extends BaseEmailTemplateProps {
   workspaceName: string;
   recipientEmail: string;
   response: CollaborationRequestResponse;
@@ -21,7 +22,10 @@ export interface CollaborationRequestResponseEmailProps extends BaseEmailTemplat
 
 export const kCollaborationRequestResponseArtifacts = {
   title: (
-    props: Pick<CollaborationRequestResponseEmailProps, 'workspaceName' | 'response'>
+    props: Pick<
+      CollaborationRequestResponseEmailProps,
+      'workspaceName' | 'response'
+    >
   ) => {
     return `Collaboration request ${props.response} on ${props.workspaceName}`;
   },

@@ -1,0 +1,54 @@
+import assert from 'assert';
+import {
+  EmailJobParams,
+  INewSignupsOnWaitlistJobMeta,
+  Job,
+  kEmailJobType,
+  kJobType,
+} from '../../../definitions/job.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {queueJobs} from '../queueJobs.js';
+import {setJobMeta02} from './utils.js';
+
+export async function runNewSignupsOnWaitlistJob(job: Job) {
+  assert(
+    job.type === kJobType.newSignupsOnWaitlist,
+    `Invalid job type ${job.type}`
+  );
+
+  const startMs =
+    (job.meta as INewSignupsOnWaitlistJobMeta | undefined)?.lastRunMs || 0;
+  const endMs = Date.now();
+  await setJobMeta02<INewSignupsOnWaitlistJobMeta>(job.resourceId, {
+    lastRunMs: endMs,
+  });
+
+  const newSignupsCount = await kSemanticModels
+    .user()
+    .countUsersCreatedBetween(startMs, endMs);
+
+  if (newSignupsCount > 0) {
+    const {rootUserEmail} = kUtilsInjectables.suppliedConfig();
+    assert(rootUserEmail, 'rootUserEmail not present in config');
+
+    await queueJobs<EmailJobParams>(
+      /** workspace ID */ undefined,
+      /** parent job ID */ undefined,
+      {
+        shard: job.shard,
+        type: kJobType.email,
+        createdBy: job.createdBy,
+        idempotencyToken: Date.now().toString(),
+        params: {
+          userId: [],
+          emailAddress: [rootUserEmail],
+          type: kEmailJobType.newSignupsOnWaitlist,
+          params: {count: newSignupsCount},
+        },
+      }
+    );
+  }
+}

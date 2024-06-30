@@ -1,7 +1,10 @@
 import {faker} from '@faker-js/faker';
+import {difference} from 'lodash-es';
+import {convertToArray} from 'softkave-js-utils';
 import {kAppPresetShards} from '../../../definitions/app.js';
 import {
   Job,
+  JobStatus,
   JobStatusHistory,
   kJobPresetPriority,
   kJobRunnerV1,
@@ -20,8 +23,10 @@ export function getRandomJobType() {
   return faker.helpers.arrayElement(Object.values(kJobType));
 }
 
-export function getRandomJobStatus() {
-  return faker.helpers.arrayElement(Object.values(kJobStatus));
+export function getRandomJobStatus(excludeFrom?: JobStatus | JobStatus[]) {
+  return faker.helpers.arrayElement(
+    difference(Object.values(kJobStatus), convertToArray(excludeFrom || []))
+  );
 }
 
 export function getRandomJobPresetPriority() {

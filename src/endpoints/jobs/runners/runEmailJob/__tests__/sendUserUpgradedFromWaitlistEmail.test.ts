@@ -1,3 +1,4 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kEmailJobType} from '../../../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
 import {kUpgradeFromWaitlistEmailArtifacts} from '../../../../../emailTemplates/upgradedFromWaitlist.js';
@@ -10,7 +11,6 @@ import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/u
 import {completeTests} from '../../../../testUtils/helpers/testFns.js';
 import {initTests} from '../../../../testUtils/testUtils.js';
 import {sendUserUpgradedFromWaitlistEmail} from '../sendUserUpgradedFromWaitlistEmail.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 
 beforeAll(async () => {
   await initTests();
@@ -43,6 +43,8 @@ describe('sendUserUpgradedFromWaitlistEmail', () => {
     expect(params.body.text).toBeTruthy();
     expect(params.destination).toEqual([user.email]);
     expect(params.subject).toBe(kUpgradeFromWaitlistEmailArtifacts.title);
-    expect(params.source).toBe(kUtilsInjectables.suppliedConfig().senderEmailAddress);
+    expect(params.source).toBe(
+      kUtilsInjectables.suppliedConfig().senderEmailAddress
+    );
   });
 });

@@ -1,4 +1,5 @@
 import assert from 'assert';
+import {first} from 'lodash-es';
 import {expect} from 'vitest';
 import {Job, JobStatus, kJobStatus} from '../../../definitions/job.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
@@ -22,9 +23,13 @@ export async function executeShardJobs(shard: string) {
 }
 
 export async function confirmJobHistoryEntry(job: Job, status?: JobStatus) {
-  const jobHistory = await kSemanticModels
+  const jobHistoryList = await kSemanticModels
     .jobHistory()
-    .getOneByQuery({jobId: job.resourceId, status: status || job.status});
+    .getManyByQuery(
+      {jobId: job.resourceId, status: status || job.status},
+      {sort: {createdAt: 'desc'}}
+    );
+  const jobHistory = first(jobHistoryList);
 
   assert(
     jobHistory,

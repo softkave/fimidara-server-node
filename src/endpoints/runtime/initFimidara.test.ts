@@ -1,5 +1,4 @@
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
-
+import {afterEach, beforeEach, describe, expect, test} from 'vitest';
 import {
   kDataModels,
   kSemanticModels,
@@ -10,11 +9,11 @@ import {completeTests} from '../testUtils/helpers/testFns.js';
 import {initTests} from '../testUtils/testUtils.js';
 import {initFimidara, kAppRuntimeStatsDocId} from './initFimidara.js';
 
-beforeAll(async () => {
+beforeEach(async () => {
   await initTests();
 });
 
-afterAll(async () => {
+afterEach(async () => {
   await completeTests();
 });
 
@@ -50,4 +49,34 @@ describe('init app setup', () => {
     const workspace = await initFimidara();
     expect(workspace.resourceId).toBe(workspaceId);
   });
+
+  // test.each([{waitlistEnabled: true}, {waitlistEnabled: false}])(
+  //   'queues new users on waitlist job if waitlist=$waitlistEnabled',
+  //   async params => {
+  //     kRegisterUtilsInjectables.suppliedConfig({
+  //       ...kUtilsInjectables.suppliedConfig(),
+  //       FLAG_waitlistNewSignups: params.waitlistEnabled,
+  //     });
+
+  //     // Call multiple times to test only 1 job is created
+  //     await initFimidara();
+  //     await initFimidara();
+  //     await initFimidara();
+
+  //     const query: DataQuery<Job> = {
+  //       shard: kAppPresetShards.fimidaraMain,
+  //       type: kJobType.newSignupsOnWaitlist,
+  //       idempotencyToken: kNewSignupsOnWaitlistJobIdempotencyToken,
+  //       runCategory: kJobRunCategory.cron,
+  //       cronInterval: kNewSignupsOnWaitlistJobIntervalMs,
+  //     };
+  //     const dbJobs = await kSemanticModels.job().getManyByQuery(query);
+
+  //     if (params.waitlistEnabled) {
+  //       expect(dbJobs).toHaveLength(1);
+  //     } else {
+  //       expect(dbJobs).toHaveLength(0);
+  //     }
+  //   }
+  // );
 });

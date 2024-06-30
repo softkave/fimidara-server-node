@@ -159,6 +159,8 @@ import {DataSemanticFolder} from '../semantic/folder/model.js';
 import {SemanticFolderProvider} from '../semantic/folder/types.js';
 import {DataSemanticJob} from '../semantic/job/model.js';
 import {SemanticJobProvider} from '../semantic/job/types.js';
+import {DataSemanticJobHistory} from '../semantic/jobHistory/model.js';
+import {SemanticJobHistoryProvider} from '../semantic/jobHistory/types.js';
 import {
   DataSemanticApp,
   DataSemanticFileBackendConfig,
@@ -189,8 +191,6 @@ import {DataSemanticWorkspace} from '../semantic/workspace/model.js';
 import {SemanticWorkspaceProviderType} from '../semantic/workspace/types.js';
 import {kDataModels, kUtilsInjectables} from './injectables.js';
 import {kInjectionKeys} from './keys.js';
-import {DataSemanticJobHistory} from '../semantic/jobHistory/model.js';
-import {SemanticJobHistoryProvider} from '../semantic/jobHistory/types.js';
 
 function registerToken(
   token: string,

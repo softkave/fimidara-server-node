@@ -186,12 +186,9 @@ export abstract class BaseMongoDataProvider<
     query: ExtendedQueryType,
     otherProps?: DataProviderOpParams | undefined
   ) => {
-    return await this.model
-      .countDocuments(
-        dataQueryToMongoQuery(query),
-        getMongoQueryOptionsForOp(otherProps)
-      )
-      .exec();
+    const mongoQuery = dataQueryToMongoQuery(query);
+    const mongoOpts = getMongoQueryOptionsForOp(otherProps);
+    return await this.model.countDocuments(mongoQuery, mongoOpts).exec();
   };
 
   deleteManyByQuery = async <ExtendedQueryType extends TQuery = TQuery>(

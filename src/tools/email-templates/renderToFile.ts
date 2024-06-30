@@ -30,6 +30,11 @@ import {
   forgotPasswordEmailText,
 } from '../../emailTemplates/forgotPassword.js';
 import {
+  NewSignupsOnWaitlistEmailProps,
+  newSignupsOnWaitlistEmailHTML,
+  newSignupsOnWaitlistEmailText,
+} from '../../emailTemplates/newSignupsOnWaitlist.js';
+import {
   UpgradedFromWaitlistEmailProps,
   upgradedFromWaitlistEmailHTML,
   upgradedFromWaitlistEmailText,
@@ -43,17 +48,23 @@ import {getTimestamp} from '../../utils/dateFns.js';
 
 const basepath = './src/tools/email-templates/templates/';
 
-function writeToFileSync(filename: string, htmlText: string, text: string) {
+async function writeToFile(filename: string, htmlText: string, text: string) {
   const htmlFilepath = `${basepath}${filename}.html`;
   const textFilepath = `${basepath}${filename}.txt`;
-  fse.ensureFileSync(htmlFilepath);
-  fse.ensureFileSync(textFilepath);
-  fs.writeFileSync(htmlFilepath, htmlText);
-  fs.writeFileSync(textFilepath, text);
+
+  await Promise.all([
+    fse.ensureFile(htmlFilepath),
+    fse.ensureFile(textFilepath),
+  ]);
+
+  await Promise.all([
+    fs.promises.writeFile(htmlFilepath, htmlText),
+    fs.promises.writeFile(textFilepath, text),
+  ]);
 }
 
 // Confirm email address email
-export function renderConfirmEmailAddressMedia() {
+export async function renderConfirmEmailAddressMedia() {
   const props: ConfirmEmailAddressEmailProps = {
     firstName: 'Abayomi',
     link: 'https://fimidara.com/accounts/confirm-email-address?t=jwt-token',
@@ -63,11 +74,11 @@ export function renderConfirmEmailAddressMedia() {
 
   const renderedHTML = confirmEmailAddressEmailHTML(props);
   const renderedText = confirmEmailAddressEmailText(props);
-  writeToFileSync('confirmEmailAddress', renderedHTML, renderedText);
+  await writeToFile('confirmEmailAddress', renderedHTML, renderedText);
 }
 
 // Forgot password email
-export function renderForgotPasswordMedia() {
+export async function renderForgotPasswordMedia() {
   const props: ForgotPasswordEmailProps = {
     expiration: new Date(),
     link: 'https://fimidara.com/accounts/forgot-password?t=jwt-token',
@@ -78,28 +89,30 @@ export function renderForgotPasswordMedia() {
 
   const renderedHTML = forgotPasswordEmailHTML(props);
   const renderedText = forgotPasswordEmailText(props);
-  writeToFileSync('forgotPassword', renderedHTML, renderedText);
+  await writeToFile('forgotPassword', renderedHTML, renderedText);
 }
 
 // Collaboration request email
-export function renderCollaborationRequestMedia() {
+export async function renderCollaborationRequestMedia() {
   const props: CollaborationRequestEmailProps = {
     workspaceName: 'Fimidara',
     isRecipientAUser: true,
     loginLink: 'https://fimidara.com/accounts/signup',
     signupLink: 'https://fimidara.com/accounts/login',
     expires: getTimestamp(),
-    message: 'Test collaboration request message. ' + 'Not too long, and not too short',
+    message:
+      'Test collaboration request message. ' +
+      'Not too long, and not too short',
     firstName: 'Abayomi',
   };
 
   const renderedHTML = collaborationRequestEmailHTML(props);
   const renderedText = collaborationRequestEmailText(props);
-  writeToFileSync('collaborationRequest', renderedHTML, renderedText);
+  await writeToFile('collaborationRequest', renderedHTML, renderedText);
 }
 
 // Collaboration request revoked email
-export function renderCollaborationRequestRevokedMedia() {
+export async function renderCollaborationRequestRevokedMedia() {
   const props: CollaborationRequestRevokedEmailProps = {
     workspaceName: 'Fimidara',
     signupLink: 'https://fimidara.com/accounts/signup',
@@ -109,11 +122,11 @@ export function renderCollaborationRequestRevokedMedia() {
 
   const renderedHTML = collaborationRequestRevokedEmailHTML(props);
   const renderedText = collaborationRequestRevokedEmailText(props);
-  writeToFileSync('collaborationRequestRevoked', renderedHTML, renderedText);
+  await writeToFile('collaborationRequestRevoked', renderedHTML, renderedText);
 }
 
 // Collaboration request response email
-export function renderCollaborationRequestResponseMedia() {
+export async function renderCollaborationRequestResponseMedia() {
   const props: CollaborationRequestResponseEmailProps = {
     workspaceName: 'Fimidara',
     signupLink: 'https://fimidara.com/accounts/signup',
@@ -125,11 +138,11 @@ export function renderCollaborationRequestResponseMedia() {
 
   const renderedHTML = collaborationRequestResponseEmailHTML(props);
   const renderedText = collaborationRequestResponseEmailText(props);
-  writeToFileSync('collaborationRequestResponse', renderedHTML, renderedText);
+  await writeToFile('collaborationRequestResponse', renderedHTML, renderedText);
 }
 
 // Usage exceeded
-export function renderUsageExceededMedia() {
+export async function renderUsageExceededMedia() {
   const props: UsageExceededEmailProps = {
     workspaceName: 'Fimidara',
     signupLink: 'https://fimidara.com/accounts/signup',
@@ -149,11 +162,11 @@ export function renderUsageExceededMedia() {
 
   const renderedHTML = usageExceededEmailHTML(props);
   const renderedText = usageExceededEmailText(props);
-  writeToFileSync('usageExceeded', renderedHTML, renderedText);
+  await writeToFile('usageExceeded', renderedHTML, renderedText);
 }
 
 // Upgraded from waitlist
-export function renderUpgradedFromWaitlistMedia() {
+export async function renderUpgradedFromWaitlistMedia() {
   const props: UpgradedFromWaitlistEmailProps = {
     signupLink: 'https://fimidara.com/accounts/signup',
     loginLink: 'https://fimidara.com/accounts/login',
@@ -162,5 +175,20 @@ export function renderUpgradedFromWaitlistMedia() {
 
   const renderedHTML = upgradedFromWaitlistEmailHTML(props);
   const renderedText = upgradedFromWaitlistEmailText(props);
-  writeToFileSync('upgradedFromWaitlist', renderedHTML, renderedText);
+  await writeToFile('upgradedFromWaitlist', renderedHTML, renderedText);
+}
+
+// New  signups on waitlist
+export async function renderNewSignupsOnWaitlistMedia() {
+  const props: NewSignupsOnWaitlistEmailProps = {
+    count: 5,
+    firstName: 'Abayomi',
+    loginLink: 'https://fimidara.com/accounts/login',
+    signupLink: 'https://fimidara.com/accounts/signup',
+    upgradeWaitlistURL: 'https://fimidara.com/internals/waitlist',
+  };
+
+  const renderedHTML = newSignupsOnWaitlistEmailHTML(props);
+  const renderedText = newSignupsOnWaitlistEmailText(props);
+  await writeToFile('newSignupsOnWaitlist', renderedHTML, renderedText);
 }

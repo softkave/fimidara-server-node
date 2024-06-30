@@ -4,7 +4,10 @@ import {
   DataSemanticBaseProvider,
   addIsDeletedIntoQuery,
 } from '../DataSemanticDataAccessBaseProvider.js';
-import {SemanticProviderOpParams, SemanticProviderQueryParams} from '../types.js';
+import {
+  SemanticProviderOpParams,
+  SemanticProviderQueryParams,
+} from '../types.js';
 import {getIgnoreCaseDataQueryRegExp} from '../utils.js';
 import {SemanticUserProviderType} from './types.js';
 
@@ -20,6 +23,7 @@ export class DataSemanticUser
       {email: getIgnoreCaseDataQueryRegExp(email)},
       opts?.includeDeleted || false
     );
+
     return await this.data.getOneByQuery(query, opts);
   }
 
@@ -31,6 +35,20 @@ export class DataSemanticUser
       {email: getIgnoreCaseDataQueryRegExp(email)},
       opts?.includeDeleted || false
     );
+
     return await this.data.existsByQuery(query, opts);
+  }
+
+  async countUsersCreatedBetween(
+    start: number,
+    end: number,
+    opts?: SemanticProviderQueryParams<User> | undefined
+  ): Promise<number> {
+    const query = addIsDeletedIntoQuery<DataQuery<User>>(
+      {createdAt: {$gte: start, $lte: end}},
+      opts?.includeDeleted || false
+    );
+
+    return await this.data.countByQuery(query, opts);
   }
 }

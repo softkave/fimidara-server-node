@@ -21,6 +21,7 @@ import {sendCollaborationRequestResponseEmail} from './sendCollaborationRequestR
 import {sendCollaborationRequestRevokedEmail} from './sendCollaborationRequestRevokedEmail.js';
 import {sendConfirmEmailAddressEmail} from './sendConfirmEmailAddressEmail.js';
 import {sendForgotPasswordEmail} from './sendForgotPasswordEmail.js';
+import {sendNewSignupsOnWaitlistEmail} from './sendNewSignupsOnWaitlistEmail.js';
 import {sendUserUpgradedFromWaitlistEmail} from './sendUserUpgradedFromWaitlistEmail.js';
 
 const kEmailJobTypeToHandlerMap: Record<
@@ -40,6 +41,7 @@ const kEmailJobTypeToHandlerMap: Record<
   [kEmailJobType.confirmEmailAddress]: sendConfirmEmailAddressEmail,
   [kEmailJobType.forgotPassword]: sendForgotPasswordEmail,
   [kEmailJobType.upgradedFromWaitlist]: sendUserUpgradedFromWaitlistEmail,
+  [kEmailJobType.newSignupsOnWaitlist]: sendNewSignupsOnWaitlistEmail,
 };
 
 export async function runEmailJob(job: Pick<Job, 'params' | 'resourceId'>) {

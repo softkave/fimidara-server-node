@@ -1,11 +1,19 @@
-import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job.js';
+import {afterEach, beforeEach, describe, expect, test} from 'vitest';
+import {
+  EmailJobParams,
+  Job,
+  kEmailJobType,
+  kJobType,
+} from '../../../definitions/job.js';
 import RequestData from '../../RequestData.js';
 import {DataQuery} from '../../contexts/data/types.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {kRegisterUtilsInjectables} from '../../contexts/injection/register.js';
 import MockTestEmailProviderContext from '../../testUtils/context/email/MockTestEmailProviderContext.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeEach, afterEach, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -34,10 +42,11 @@ describe('forgotPassword', () => {
     kRegisterUtilsInjectables.email(new MockTestEmailProviderContext());
 
     const {user} = await insertUserForTest();
-    const instData = RequestData.fromExpressRequest<ForgotPasswordEndpointParams>(
-      mockExpressRequest(),
-      {email: user.email}
-    );
+    const instData =
+      RequestData.fromExpressRequest<ForgotPasswordEndpointParams>(
+        mockExpressRequest(),
+        {email: user.email}
+      );
     const result = await forgotPassword(instData);
     assertEndpointResultOk(result);
 

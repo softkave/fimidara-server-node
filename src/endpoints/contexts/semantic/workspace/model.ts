@@ -2,7 +2,10 @@ import {Workspace} from '../../../../definitions/workspace.js';
 import {DataQuery} from '../../data/types.js';
 import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
 import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider.js';
-import {SemanticProviderOpParams, SemanticProviderQueryParams} from '../types.js';
+import {
+  SemanticProviderOpParams,
+  SemanticProviderQueryParams,
+} from '../types.js';
 import {getIgnoreCaseDataQueryRegExp} from '../utils.js';
 import {SemanticWorkspaceProviderType} from './types.js';
 

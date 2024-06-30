@@ -24,7 +24,9 @@ export const kCollaborationRequestEmailArtifacts = {
   },
 };
 
-export function collaborationRequestEmailHTML(props: CollaborationRequestEmailProps) {
+export function collaborationRequestEmailHTML(
+  props: CollaborationRequestEmailProps
+) {
   const title = kCollaborationRequestEmailArtifacts.title(props.workspaceName);
   return `
 <!DOCTYPE html>
@@ -42,7 +44,11 @@ export function collaborationRequestEmailHTML(props: CollaborationRequestEmailPr
       You have a new collaboration request from <b>${props.workspaceName}</b>.
     </p>
     ${props.message ? `<p>Message: <br />${props.message}</p>` : ''}
-    ${props.expires ? `<p>Expires: <br />${formatDateTime(props.expires)}</p>` : ''}
+    ${
+      props.expires
+        ? `<p>Expires: <br />${formatDateTime(props.expires)}</p>`
+        : ''
+    }
     <p>
       To respond to this request,
       ${
@@ -58,7 +64,9 @@ export function collaborationRequestEmailHTML(props: CollaborationRequestEmailPr
     `;
 }
 
-export function collaborationRequestEmailText(props: CollaborationRequestEmailProps) {
+export function collaborationRequestEmailText(
+  props: CollaborationRequestEmailProps
+) {
   let linkText = '';
   const title = kCollaborationRequestEmailArtifacts.title(props.workspaceName);
   if (props.isRecipientAUser) {

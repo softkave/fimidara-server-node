@@ -27,6 +27,15 @@ export async function setJobMeta<TMeta extends AnyObject>(
   });
 }
 
+export async function setJobMeta02<TMeta extends AnyObject>(
+  jobId: string,
+  meta: TMeta
+) {
+  return await kSemanticModels.utils().withTxn(async opts => {
+    await kSemanticModels.job().updateOneById(jobId, {meta}, opts);
+  });
+}
+
 export async function setDeleteJobPreRunMeta(job: Job, preRunMeta: AnyObject) {
   await setJobMeta<DeleteResourceJobMeta>(job.resourceId, meta => ({
     ...meta,
