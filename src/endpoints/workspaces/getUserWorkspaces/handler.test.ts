@@ -34,12 +34,12 @@ describe('getUserWorkspaces', () => {
     const {workspace: workspace01} = await insertWorkspaceForTest(userToken);
     const {workspace: workspace02} = await insertWorkspaceForTest(userToken);
     const {workspace: workspace03} = await insertWorkspaceForTest(userToken);
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<GetUserWorkspacesEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {}
       );
-    const result = await getUserWorkspaces(instData);
+    const result = await getUserWorkspaces(reqData);
     assertEndpointResultOk(result);
     expect(result.workspaces).toHaveLength(3);
     expect(result.workspaces).toContainEqual(workspace01);
@@ -76,12 +76,12 @@ describe('getUserWorkspaces', () => {
     const count = user.workspaces.length;
     const pageSize = 10;
     let page = 0;
-    let instData =
+    let reqData =
       RequestData.fromExpressRequest<GetUserWorkspacesEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {page, pageSize}
       );
-    const result00 = await getUserWorkspaces(instData);
+    const result00 = await getUserWorkspaces(reqData);
     assertEndpointResultOk(result00);
     expect(result00.page).toBe(page);
     expect(result00.workspaces).toHaveLength(
@@ -89,11 +89,11 @@ describe('getUserWorkspaces', () => {
     );
 
     page = 1;
-    instData = RequestData.fromExpressRequest<GetUserWorkspacesEndpointParams>(
+    reqData = RequestData.fromExpressRequest<GetUserWorkspacesEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {page, pageSize}
     );
-    const result01 = await getUserWorkspaces(instData);
+    const result01 = await getUserWorkspaces(reqData);
     assertEndpointResultOk(result01);
     expectContainsNoneIn(
       result00.workspaces,

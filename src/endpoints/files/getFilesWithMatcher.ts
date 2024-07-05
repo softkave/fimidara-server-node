@@ -2,7 +2,7 @@ import {isNumber} from 'lodash-es';
 import {File, FileMatcher} from '../../definitions/file.js';
 import {
   FimidaraPermissionAction,
-  kFimidaraPermissionActionsMap,
+  kFimidaraPermissionActions,
 } from '../../definitions/permissionItem.js';
 import {PresignedPath} from '../../definitions/presignedPath.js';
 import {kFimidaraResourceType} from '../../definitions/system.js';
@@ -187,7 +187,7 @@ export async function getFileWithMatcher(props: {
     supportPresignedPath = true,
     incrementPresignedPathUsageCount = true,
     shouldIngestFile = true,
-    presignedPathAction = kFimidaraPermissionActionsMap.readFile,
+    presignedPathAction = kFimidaraPermissionActions.readFile,
   } = props;
 
   if (matcher.fileId) {

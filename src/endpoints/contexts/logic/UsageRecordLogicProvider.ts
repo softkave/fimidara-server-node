@@ -1,19 +1,20 @@
 import {defaultTo} from 'lodash-es';
+import {OmitFrom} from 'softkave-js-utils';
 import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
 import {
   UsageRecord,
   UsageRecordArtifact,
   UsageRecordCategory,
-  UsageRecordCategoryMap,
   UsageRecordDropReason,
-  UsageRecordDropReasonMap,
   UsageRecordFulfillmentStatus,
-  UsageRecordFulfillmentStatusMap,
-  UsageSummationTypeMap,
+  kUsageRecordCategory,
+  kUsageRecordDropReason,
+  kUsageRecordFulfillmentStatus,
+  kUsageSummationType,
 } from '../../../definitions/usageRecord.js';
 import {
   Workspace,
-  WorkspaceBillStatusMap,
+  kWorkspaceBillStatusMap,
 } from '../../../definitions/workspace.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {
@@ -21,124 +22,172 @@ import {
   newWorkspaceResource,
 } from '../../../utils/resource.js';
 import {getCostForUsage} from '../../usageRecords/constants.js';
-import {getRecordingPeriod} from '../../usageRecords/utils.js';
+import {
+  getUsageRecordPreviousReportingPeriod,
+  getUsageRecordReportingPeriod,
+  isUsageRecordPersistent,
+} from '../../usageRecords/utils.js';
 import {assertWorkspace} from '../../workspaces/utils.js';
 import {kSemanticModels} from '../injection/injectables.js';
 import {SemanticProviderMutationParams} from '../semantic/types.js';
 
-export interface UsageRecordInput {
-  resourceId?: string;
-  workspaceId: string;
-  category: UsageRecordCategory;
+export interface UsageRecordIncrementInput {
   usage: number;
+  workspaceId: string;
+  usageResourceId?: string;
+  category: UsageRecordCategory;
   artifacts?: UsageRecordArtifact[];
 }
 
-export type UsageRecordInsertStatus =
-  | {
-      permitted: true;
-      reason: null;
-    }
+export interface UsageRecordDecrementInput {
+  usage: number;
+  workspaceId: string;
+  category: UsageRecordCategory;
+}
+
+export type UsageRecordIncrementStatus =
+  | {permitted: true}
   | {
       permitted: false;
       reason: UsageRecordDropReason;
+      category: UsageRecordCategory | undefined;
     };
 
+// TODO: cache certain things for speed
 export class UsageRecordLogicProvider {
-  insert = async (
+  // TODO: insert needs to happen one-by-one per workspace, e.g. use sharded
+  // runner
+  increment = async (
     agent: Agent,
-    input: UsageRecordInput,
-    opts: SemanticProviderMutationParams
-  ): Promise<UsageRecordInsertStatus> => {
-    const record = this.makeLevel01Record(agent, input);
-    const workspace = await kSemanticModels
-      .workspace()
-      .getOneById(record.workspaceId, opts);
-    assertWorkspace(workspace);
-    const billOverdue = await this.checkWorkspaceBillStatus(
-      agent,
-      workspace,
-      record,
-      opts
-    );
+    input: UsageRecordIncrementInput
+  ): Promise<UsageRecordIncrementStatus> => {
+    return await kSemanticModels
+      .utils()
+      .withTxn(async (opts): Promise<UsageRecordIncrementStatus> => {
+        const workspace = await kSemanticModels
+          .workspace()
+          .getOneById(input.workspaceId, opts);
+        assertWorkspace(workspace);
 
-    if (billOverdue) {
-      return {permitted: false, reason: UsageRecordDropReasonMap.BillOverdue};
-    }
+        const record = this.makeL1Record(agent, input);
+        const overdueBillCheck = await this.checkWorkspaceBillStatus(
+          agent,
+          workspace,
+          record,
+          opts
+        );
 
-    const usageExceeded = await this.checkWorkspaceUsageLocks(
-      agent,
-      workspace,
-      record,
-      opts
-    );
+        if (overdueBillCheck) {
+          return overdueBillCheck;
+        }
 
-    if (usageExceeded) {
-      return {permitted: false, reason: UsageRecordDropReasonMap.UsageExceeded};
-    }
+        const exceedsUsageCheck = await this.checkExceedsRemainingUsage(
+          agent,
+          workspace,
+          record,
+          opts
+        );
 
-    const exceedsRemainingUsage = await this.checkExceedsRemainingUsage(
-      agent,
-      workspace,
-      record,
-      opts
-    );
+        if (exceedsUsageCheck) {
+          return exceedsUsageCheck;
+        }
 
-    if (exceedsRemainingUsage) {
-      return {
-        permitted: false,
-        reason: UsageRecordDropReasonMap.ExceedsRemainingUsage,
-      };
-    }
-
-    return {permitted: true, reason: null};
+        return {permitted: true};
+      });
   };
 
-  private makeLevel01Record = (agent: Agent, input: UsageRecordInput) => {
+  decrement = async (agent: Agent, input: UsageRecordDecrementInput) => {
+    return await kSemanticModels.utils().withTxn(async opts => {
+      const usageL2 = await this.getUsageL2(
+        agent,
+        {
+          workspaceId: input.workspaceId,
+          ...getUsageRecordReportingPeriod(),
+        },
+        input.category,
+        kUsageRecordFulfillmentStatus.fulfilled,
+        opts
+      );
+
+      const usage = Math.max(0, usageL2.usage - input.usage);
+      const usageCost = getCostForUsage(input.category, usage);
+
+      await kSemanticModels
+        .usageRecord()
+        .updateOneById(usageL2.resourceId, {usage, usageCost}, opts);
+    });
+  };
+
+  protected makeL1Record = (agent: Agent, input: UsageRecordIncrementInput) => {
     const record: UsageRecord = newWorkspaceResource(
       agent,
       kFimidaraResourceType.UsageRecord,
       input.workspaceId,
       {
-        ...getRecordingPeriod(),
+        ...getUsageRecordReportingPeriod(),
         ...input,
         resourceId:
-          input.resourceId ??
+          input.usageResourceId ??
           getNewIdForResource(kFimidaraResourceType.UsageRecord),
-        summationType: UsageSummationTypeMap.Instance,
-        fulfillmentStatus: UsageRecordFulfillmentStatusMap.Undecided,
+        summationType: kUsageSummationType.instance,
+        status: kUsageRecordFulfillmentStatus.undecided,
         artifacts: defaultTo(input.artifacts, []),
         usageCost: getCostForUsage(input.category, input.usage),
+        // L1 is never persistence, it's granular
+        persistent: false,
       }
     );
 
     return record;
   };
 
-  private makeLevel02Record = (
+  protected makeL2Record = async (
     agent: Agent,
-    record: UsageRecord,
-    seed: Partial<UsageRecord> &
-      Pick<UsageRecord, 'fulfillmentStatus' | 'usage' | 'usageCost'>
+    category: UsageRecordCategory,
+    record: Pick<UsageRecord, 'workspaceId' | 'month' | 'year'>,
+    seed: OmitFrom<
+      Partial<UsageRecord> &
+        Pick<UsageRecord, 'status' | 'usage' | 'usageCost'>,
+      'category'
+    >
   ) => {
+    const status = seed.status;
+
+    const isPersistent = isUsageRecordPersistent({
+      category,
+      status,
+    });
+    const previousMonthUsage = isPersistent
+      ? await kSemanticModels.usageRecord().getOneByQuery({
+          category,
+          status: status,
+          workspaceId: record.workspaceId,
+          summationType: kUsageSummationType.month,
+          ...getUsageRecordPreviousReportingPeriod(record),
+        })
+      : undefined;
+
     return newWorkspaceResource<UsageRecord>(
       agent,
       kFimidaraResourceType.UsageRecord,
       record.workspaceId,
       {
-        category: record.category,
+        summationType: kUsageSummationType.month,
+        persistent: isPersistent,
         month: record.month,
         year: record.year,
         artifacts: [],
-        summationType: UsageSummationTypeMap.Month,
+        category,
         ...seed,
+        usageCost: (previousMonthUsage?.usageCost || 0) + seed.usageCost,
+        usage: (previousMonthUsage?.usage || 0) + seed.usage,
       }
     );
   };
 
-  private async getUsagel2(
+  protected async getUsageL2(
     agent: Agent,
-    record: UsageRecord,
+    record: Pick<UsageRecord, 'month' | 'year' | 'workspaceId'>,
     category: UsageRecordCategory,
     status: UsageRecordFulfillmentStatus,
     opts: SemanticProviderMutationParams
@@ -146,22 +195,22 @@ export class UsageRecordLogicProvider {
     let usageL2 = await kSemanticModels.usageRecord().getOneByQuery(
       {
         category,
-        month: record.month,
         year: record.year,
-        summationType: UsageSummationTypeMap.Month,
-        fulfillmentStatus: status,
+        month: record.month,
+        status: status,
         workspaceId: record.workspaceId,
+        summationType: kUsageSummationType.month,
       },
       opts
     );
 
     if (!usageL2) {
-      usageL2 = this.makeLevel02Record(agent, record, {
-        category,
-        fulfillmentStatus: status,
-        usage: 0,
+      usageL2 = await this.makeL2Record(agent, category, record, {
+        status: status,
         usageCost: 0,
+        usage: 0,
       });
+
       appAssert(usageL2);
       await kSemanticModels.usageRecord().insertItem(usageL2, opts);
     }
@@ -169,125 +218,106 @@ export class UsageRecordLogicProvider {
     return usageL2;
   }
 
-  private checkWorkspaceBillStatus = async (
+  protected checkWorkspaceBillStatus = async (
     agent: Agent,
     workspace: Workspace,
     record: UsageRecord,
     opts: SemanticProviderMutationParams
-  ) => {
-    if (workspace.billStatus === WorkspaceBillStatusMap.BillOverdue) {
+  ): Promise<UsageRecordIncrementStatus | undefined> => {
+    if (workspace.billStatus === kWorkspaceBillStatusMap.billOverdue) {
       await this.dropRecord(
         agent,
         record,
-        UsageRecordDropReasonMap.BillOverdue,
-        undefined,
+        kUsageRecordDropReason.billOverdue,
+        /** usageDroppedL2 */ undefined,
         opts
       );
-      return true;
+
+      return {
+        permitted: false,
+        category: undefined,
+        reason: kUsageRecordDropReason.billOverdue,
+      };
     }
-    return false;
+
+    return undefined;
   };
 
-  private checkWorkspaceUsageLocks = async (
+  protected checkExceedsRemainingUsage = async (
     agent: Agent,
     workspace: Workspace,
     record: UsageRecord,
     opts: SemanticProviderMutationParams
-  ) => {
-    const usageLocks = workspace.usageThresholdLocks ?? {};
-
-    if (
-      usageLocks[UsageRecordCategoryMap.Total] &&
-      usageLocks[UsageRecordCategoryMap.Total]?.locked
-    ) {
-      await this.dropRecord(
-        agent,
-        record,
-        UsageRecordDropReasonMap.UsageExceeded,
-        undefined,
-        opts
-      );
-      return true;
-    }
-
-    if (usageLocks[record.category] && usageLocks[record.category]?.locked) {
-      await this.dropRecord(
-        agent,
-        record,
-        UsageRecordDropReasonMap.UsageExceeded,
-        undefined,
-        opts
-      );
-      return true;
-    }
-
-    return false;
-  };
-
-  private checkExceedsRemainingUsage = async (
-    agent: Agent,
-    workspace: Workspace,
-    record: UsageRecord,
-    opts: SemanticProviderMutationParams
-  ) => {
+  ): Promise<UsageRecordIncrementStatus | undefined> => {
     const [usageFulfilledL2, usageTotalFulfilled, usageDroppedL2] =
       await Promise.all([
-        this.getUsagel2(
+        this.getUsageL2(
           agent,
           record,
           record.category,
-          UsageRecordFulfillmentStatusMap.Fulfilled,
+          kUsageRecordFulfillmentStatus.fulfilled,
           opts
         ),
-        this.getUsagel2(
+        this.getUsageL2(
           agent,
           record,
-          UsageRecordCategoryMap.Total,
-          UsageRecordFulfillmentStatusMap.Fulfilled,
+          kUsageRecordCategory.total,
+          kUsageRecordFulfillmentStatus.fulfilled,
           opts
         ),
-        this.getUsagel2(
+        this.getUsageL2(
           agent,
           record,
           record.category,
-          UsageRecordFulfillmentStatusMap.Dropped,
+          kUsageRecordFulfillmentStatus.dropped,
           opts
         ),
       ]);
 
     const totalMonthUsageThreshold =
-      workspace.usageThresholds[UsageRecordCategoryMap.Total];
+      workspace.usageThresholds[kUsageRecordCategory.total];
     const categoryMonthUsageThreshold =
       workspace.usageThresholds[record.category];
-    const projectedUsage = usageFulfilledL2.usage + record.usage;
-    const projectedUsageCost = getCostForUsage(record.category, projectedUsage);
+    const {usageCost} = record;
 
     if (
       totalMonthUsageThreshold &&
-      totalMonthUsageThreshold.budget < projectedUsageCost
+      totalMonthUsageThreshold.budget <
+        usageTotalFulfilled.usageCost + usageCost
     ) {
       await this.dropRecord(
         agent,
         record,
-        UsageRecordDropReasonMap.ExceedsRemainingUsage,
+        kUsageRecordDropReason.exceedsUsage,
         usageDroppedL2,
         opts
       );
-      return true;
+
+      return {
+        permitted: false,
+        category: kUsageRecordCategory.total,
+        reason: kUsageRecordDropReason.exceedsUsage,
+      };
     }
 
     if (
       categoryMonthUsageThreshold &&
-      categoryMonthUsageThreshold.budget < projectedUsageCost
+      categoryMonthUsageThreshold.budget <
+        usageFulfilledL2.usageCost + usageCost
     ) {
       await this.dropRecord(
         agent,
         record,
-        UsageRecordDropReasonMap.ExceedsRemainingUsage,
+        kUsageRecordDropReason.exceedsUsage,
         usageDroppedL2,
         opts
       );
-      return true;
+
+      return {
+        permitted: false,
+        category: record.category,
+        reason: kUsageRecordDropReason.exceedsUsage,
+      };
     }
 
     await this.fulfillRecord(
@@ -297,10 +327,11 @@ export class UsageRecordLogicProvider {
       usageTotalFulfilled,
       opts
     );
-    return false;
+
+    return undefined;
   };
 
-  private fulfillRecord = async (
+  protected fulfillRecord = async (
     agent: Agent,
     record: UsageRecord,
     usageFulfilledL2: UsageRecord | undefined,
@@ -309,24 +340,24 @@ export class UsageRecordLogicProvider {
   ) => {
     [usageFulfilledL2, usageTotalFulfilled] = await Promise.all([
       usageFulfilledL2 ??
-        this.getUsagel2(
+        this.getUsageL2(
           agent,
           record,
           record.category,
-          UsageRecordFulfillmentStatusMap.Fulfilled,
+          kUsageRecordFulfillmentStatus.fulfilled,
           opts
         ),
       usageTotalFulfilled ??
-        this.getUsagel2(
+        this.getUsageL2(
           agent,
           record,
-          UsageRecordCategoryMap.Total,
-          UsageRecordFulfillmentStatusMap.Fulfilled,
+          kUsageRecordCategory.total,
+          kUsageRecordFulfillmentStatus.fulfilled,
           opts
         ),
     ]);
 
-    record.fulfillmentStatus = UsageRecordFulfillmentStatusMap.Fulfilled;
+    record.status = kUsageRecordFulfillmentStatus.fulfilled;
     await Promise.all([
       kSemanticModels.usageRecord().insertItem(record, opts),
       kSemanticModels.usageRecord().updateOneById(
@@ -347,7 +378,7 @@ export class UsageRecordLogicProvider {
     ]);
   };
 
-  private dropRecord = async (
+  protected dropRecord = async (
     agent: Agent,
     record: UsageRecord,
     dropReason: UsageRecordDropReason,
@@ -355,16 +386,16 @@ export class UsageRecordLogicProvider {
     opts: SemanticProviderMutationParams
   ) => {
     if (!usageDroppedL2) {
-      usageDroppedL2 = await this.getUsagel2(
+      usageDroppedL2 = await this.getUsageL2(
         agent,
         record,
         record.category,
-        UsageRecordFulfillmentStatusMap.Dropped,
+        kUsageRecordFulfillmentStatus.dropped,
         opts
       );
     }
 
-    record.fulfillmentStatus = UsageRecordFulfillmentStatusMap.Dropped;
+    record.status = kUsageRecordFulfillmentStatus.dropped;
     record.dropReason = dropReason;
     await Promise.all([
       kSemanticModels.usageRecord().insertItem(record, opts),

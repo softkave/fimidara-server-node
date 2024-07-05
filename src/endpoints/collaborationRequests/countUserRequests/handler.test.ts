@@ -1,7 +1,7 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import RequestData from '../../RequestData.js';
 import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generate/collaborationRequest.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -25,10 +25,10 @@ describe('countUserRequests', () => {
     await generateAndInsertCollaborationRequestListForTest(count, () => ({
       recipientEmail: user02.email,
     }));
-    const instData = RequestData.fromExpressRequest(
+    const reqData = RequestData.fromExpressRequest(
       mockExpressRequestWithAgentToken(user02Token)
     );
-    const result = await countUserCollaborationRequests(instData);
+    const result = await countUserCollaborationRequests(reqData);
     assertEndpointResultOk(result);
     expect(result.count).toBe(count);
   });

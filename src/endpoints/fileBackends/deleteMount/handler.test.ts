@@ -38,7 +38,7 @@ describe('deleteMount', () => {
   test('fails if mount does not exist', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<DeleteFileBackendMountEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
@@ -49,7 +49,7 @@ describe('deleteMount', () => {
 
     await expectErrorThrown(
       async () => {
-        await deleteFileBackendMount(instData);
+        await deleteFileBackendMount(reqData);
       },
       error => {
         expect((error as NotFoundError).message).toBe(
@@ -67,7 +67,7 @@ describe('deleteMount', () => {
       backend: kFileBackendType.fimidara,
     });
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<DeleteFileBackendMountEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {mountId: mount.resourceId, workspaceId: workspace.resourceId}
@@ -75,7 +75,7 @@ describe('deleteMount', () => {
 
     await expectErrorThrown(
       async () => {
-        await deleteFileBackendMount(instData);
+        await deleteFileBackendMount(reqData);
       },
       error => {
         expect((error as NotFoundError).message).toBe(
@@ -90,12 +90,12 @@ describe('deleteMount', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {mount} = await insertFileBackendMountForTest(userToken, workspace);
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<DeleteFileBackendMountEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {mountId: mount.resourceId, workspaceId: workspace.resourceId}
       );
-    const result = await deleteFileBackendMount(instData);
+    const result = await deleteFileBackendMount(reqData);
     assertEndpointResultOk(result);
 
     appAssert(result.jobId);

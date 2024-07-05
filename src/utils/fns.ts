@@ -1,5 +1,6 @@
 import {compact, flatten, isArray, isObject, mergeWith, uniq} from 'lodash-es';
 import path from 'path';
+import {AnyFn, AnyObject} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {ValueOf} from 'type-fest';
 import {Resource} from '../definitions/system.js';
@@ -7,7 +8,6 @@ import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js'
 import {kFolderConstants} from '../endpoints/folders/constants.js';
 import {appAssert} from './assertion.js';
 import {kReuseableErrors} from './reusableErrors.js';
-import {AnyFn, AnyObject} from './types.js';
 
 export function cast<ToType>(resource: unknown): ToType {
   return resource as unknown as ToType;

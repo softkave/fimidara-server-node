@@ -5,12 +5,12 @@ import {checkFolderAuthorization02, folderExtractor} from '../utils.js';
 import {GetFolderEndpoint} from './types.js';
 import {getFolderJoiSchema} from './validation.js';
 
-const getFolder: GetFolderEndpoint = async instData => {
-  const data = validate(instData.data, getFolderJoiSchema);
+const getFolder: GetFolderEndpoint = async reqData => {
+  const data = validate(reqData.data, getFolderJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );

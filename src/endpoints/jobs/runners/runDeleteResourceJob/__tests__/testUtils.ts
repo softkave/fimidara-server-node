@@ -1,4 +1,5 @@
 import {first, flatten, uniq} from 'lodash-es';
+import {AnyFn, AnyObject, PartialRecord} from 'softkave-js-utils';
 import {expect} from 'vitest';
 import {
   DeleteResourceJobParams,
@@ -17,7 +18,6 @@ import {
   getNewIdForResource,
   getResourceTypeFromId,
 } from '../../../../../utils/resource.js';
-import {AnyFn, AnyObject, PartialRecord} from '../../../../../utils/types.js';
 import {
   kSemanticModels,
   kUtilsInjectables,

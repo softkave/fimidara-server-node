@@ -13,15 +13,12 @@ import {
 import {respondToCollaborationRequestJoiSchema} from './validation.js';
 
 const respondToCollaborationRequest: RespondToCollaborationRequestEndpoint =
-  async instData => {
-    const data = validate(
-      instData.data,
-      respondToCollaborationRequestJoiSchema
-    );
+  async reqData => {
+    const data = validate(reqData.data, respondToCollaborationRequestJoiSchema);
     const agent = await kUtilsInjectables
       .session()
       .getAgentFromReq(
-        instData,
+        reqData,
         kSessionUtils.permittedAgentTypes.user,
         kSessionUtils.accessScopes.user
       );

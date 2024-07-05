@@ -31,12 +31,12 @@ describe('getMount', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {mount} = await insertFileBackendMountForTest(userToken, workspace);
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<GetFileBackendMountEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {mountId: mount.resourceId, workspaceId: workspace.resourceId}
       );
-    const result = await getFileBackendMount(instData);
+    const result = await getFileBackendMount(reqData);
 
     assertEndpointResultOk(result);
     expect(result.mount).toEqual(mount);
@@ -46,7 +46,7 @@ describe('getMount', () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<GetFileBackendMountEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
@@ -55,7 +55,7 @@ describe('getMount', () => {
         }
       );
     await expectErrorThrown(
-      () => getFileBackendMount(instData),
+      () => getFileBackendMount(reqData),
       error => {
         expect((error as NotFoundError).message).toBe(
           kReuseableErrors.mount.notFound().message

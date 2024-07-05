@@ -1,9 +1,9 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {generateAndInsertTestFiles} from '../../testUtils/generate/file.js';
 import {generateAndInsertTestFolders} from '../../testUtils/generate/folder.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -46,11 +46,12 @@ describe('countFolderContent', () => {
         parentId: null,
       }),
     ]);
-    const instData = RequestData.fromExpressRequest<CountFolderContentEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {folderpath: workspace.rootname}
-    );
-    const result = await countFolderContent(instData);
+    const reqData =
+      RequestData.fromExpressRequest<CountFolderContentEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {folderpath: workspace.rootname}
+      );
+    const result = await countFolderContent(reqData);
     assertEndpointResultOk(result);
     expect(result.filesCount).toBe(filesCount);
     expect(result.foldersCount).toBe(foldersCount);

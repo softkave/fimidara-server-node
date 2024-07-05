@@ -1,9 +1,8 @@
 import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {SessionAgent} from '../../definitions/system.js';
-import {UsageRecordCategoryMap} from '../../definitions/usageRecord.js';
+import {kUsageRecordCategory} from '../../definitions/usageRecord.js';
 import {
   PublicUsageThreshold,
-  PublicUsageThresholdLock,
   PublicWorkspace,
   Workspace,
 } from '../../definitions/workspace.js';
@@ -33,39 +32,25 @@ const usageThresholdItemPublicFields = getFields<PublicUsageThreshold>({
   lastUpdatedAt: true,
   category: true,
   budget: true,
+  usage: true,
 });
-const usageThresholdLockItemPublicFields = getFields<PublicUsageThresholdLock>({
-  lastUpdatedBy: agentExtractor,
-  lastUpdatedAt: true,
-  category: true,
-  locked: true,
-});
+
 const usageThresholdItemIfExistExtractor = makeExtractIfPresent(
   usageThresholdItemPublicFields
 );
-const usageThresholdLockItemIfExistExtractor = makeExtractIfPresent(
-  usageThresholdLockItemPublicFields
-);
+
 const usageThresholdsPublicFields = getFields<
   PublicWorkspace['usageThresholds']
 >({
-  [UsageRecordCategoryMap.Total]: usageThresholdItemIfExistExtractor,
-  [UsageRecordCategoryMap.Storage]: usageThresholdItemIfExistExtractor,
-  [UsageRecordCategoryMap.BandwidthIn]: usageThresholdItemIfExistExtractor,
-  [UsageRecordCategoryMap.BandwidthOut]: usageThresholdItemIfExistExtractor,
+  [kUsageRecordCategory.total]: usageThresholdItemIfExistExtractor,
+  [kUsageRecordCategory.storage]: usageThresholdItemIfExistExtractor,
+  [kUsageRecordCategory.storageEverConsumed]:
+    usageThresholdItemIfExistExtractor,
+  [kUsageRecordCategory.bandwidthIn]: usageThresholdItemIfExistExtractor,
+  [kUsageRecordCategory.bandwidthOut]: usageThresholdItemIfExistExtractor,
 });
-const usageThresholdLocksPublicFields = getFields<
-  PublicWorkspace['usageThresholdLocks']
->({
-  [UsageRecordCategoryMap.Total]: usageThresholdLockItemIfExistExtractor,
-  [UsageRecordCategoryMap.Storage]: usageThresholdLockItemIfExistExtractor,
-  [UsageRecordCategoryMap.BandwidthIn]: usageThresholdLockItemIfExistExtractor,
-  [UsageRecordCategoryMap.BandwidthOut]: usageThresholdLockItemIfExistExtractor,
-});
+
 const usageThresholdExistExtractor = makeExtract(usageThresholdsPublicFields);
-const usageThresholdLockExistExtractor = makeExtract(
-  usageThresholdLocksPublicFields
-);
 const workspacePublicFields: ExtractFieldsFrom<PublicWorkspace> = {
   ...workspaceResourceFields,
   name: true,
@@ -75,8 +60,8 @@ const workspacePublicFields: ExtractFieldsFrom<PublicWorkspace> = {
   billStatus: true,
   billStatusAssignedAt: true,
   usageThresholds: usageThresholdExistExtractor,
-  usageThresholdLocks: usageThresholdLockExistExtractor,
 };
+
 const workspaceFields = getFields<PublicWorkspace>(workspacePublicFields);
 export const workspaceExtractor = makeExtract(workspaceFields);
 export const workspaceListExtractor = makeListExtract(workspaceFields);

@@ -1,4 +1,4 @@
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {validate} from '../../../utils/validate.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
@@ -9,23 +9,26 @@ import {DeletePermissionGroupEndpoint} from './types.js';
 import {beginDeletePermissionGroup} from './utils.js';
 import {deletePermissionGroupJoiSchema} from './validation.js';
 
-const deletePermissionGroup: DeletePermissionGroupEndpoint = async instData => {
-  const data = validate(instData.data, deletePermissionGroupJoiSchema);
+const deletePermissionGroup: DeletePermissionGroupEndpoint = async reqData => {
+  const data = validate(reqData.data, deletePermissionGroupJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );
-  const {permissionGroup, workspace} = await checkPermissionGroupAuthorization03(
-    agent,
-    data,
-    kFimidaraPermissionActionsMap.updatePermission
-  );
+  const {permissionGroup, workspace} =
+    await checkPermissionGroupAuthorization03(
+      agent,
+      data,
+      kFimidaraPermissionActions.updatePermission
+    );
 
   if (permissionGroup.resourceId === workspace.publicPermissionGroupId) {
-    throw new InvalidRequestError("Cannot delete a workspace's public permission group");
+    throw new InvalidRequestError(
+      "Cannot delete a workspace's public permission group"
+    );
   }
 
   const [job] = await beginDeletePermissionGroup({

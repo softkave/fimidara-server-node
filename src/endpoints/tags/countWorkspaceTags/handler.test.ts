@@ -1,8 +1,8 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {generateAndInsertTagListForTest} from '../../testUtils/generate/tag.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -31,11 +31,12 @@ describe('countWorkspaceTags', () => {
     const count = await kSemanticModels.tag().countByQuery({
       workspaceId: workspace.resourceId,
     });
-    const instData = RequestData.fromExpressRequest<CountWorkspaceTagsEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {workspaceId: workspace.resourceId}
-    );
-    const result = await countWorkspaceTags(instData);
+    const reqData =
+      RequestData.fromExpressRequest<CountWorkspaceTagsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {workspaceId: workspace.resourceId}
+      );
+    const result = await countWorkspaceTags(reqData);
     assertEndpointResultOk(result);
     expect(result.count).toBe(count);
   });

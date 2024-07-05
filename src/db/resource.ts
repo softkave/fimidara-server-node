@@ -1,6 +1,6 @@
 import {Connection, Document, Model, Schema, SchemaTypes} from 'mongoose';
+import {AnyObject} from 'softkave-js-utils';
 import {ResourceWrapper} from '../definitions/system.js';
-import {AnyObject} from '../utils/types.js';
 import {ensureMongoTypeFields} from './utils.js';
 
 const resourceSchema = ensureMongoTypeFields<ResourceWrapper>({
@@ -15,7 +15,11 @@ const modelName = 'resource';
 const collectionName = 'resources';
 
 export function getResourceModel(connection: Connection) {
-  const model = connection.model<ResourceWrapper>(modelName, schema, collectionName);
+  const model = connection.model<ResourceWrapper>(
+    modelName,
+    schema,
+    collectionName
+  );
   return model;
 }
 

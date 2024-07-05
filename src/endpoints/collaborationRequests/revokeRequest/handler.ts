@@ -23,12 +23,12 @@ import {RevokeCollaborationRequestEndpoint} from './types.js';
 import {revokeCollaborationRequestJoiSchema} from './validation.js';
 
 const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint =
-  async instData => {
-    const data = validate(instData.data, revokeCollaborationRequestJoiSchema);
+  async reqData => {
+    const data = validate(reqData.data, revokeCollaborationRequestJoiSchema);
     const agent = await kUtilsInjectables
       .session()
       .getAgentFromReq(
-        instData,
+        reqData,
         kSessionUtils.permittedAgentTypes.api,
         kSessionUtils.accessScopes.api
       );

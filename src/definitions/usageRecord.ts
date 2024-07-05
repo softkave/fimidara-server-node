@@ -1,4 +1,4 @@
-import {ObjectValues} from '../utils/types.js';
+import {ValueOf} from 'type-fest';
 import {FimidaraPermissionAction} from './permissionItem.js';
 import {
   FimidaraResourceType,
@@ -7,23 +7,24 @@ import {
   WorkspaceResource,
 } from './system.js';
 
-export const UsageRecordCategoryMap = {
-  Total: 'total',
-  Storage: 'storage',
-  BandwidthIn: 'bin',
-  BandwidthOut: 'bout',
+export const kUsageRecordCategory = {
+  total: 'total',
+  storage: 'storage',
+  storageEverConsumed: 'storageEver',
+  bandwidthIn: 'bin',
+  bandwidthOut: 'bout',
   // Request : 'request',
   // DatabaseObject : 'dbObject',
 } as const;
 
-export type UsageRecordCategory = ObjectValues<typeof UsageRecordCategoryMap>;
+export type UsageRecordCategory = ValueOf<typeof kUsageRecordCategory>;
 
-export const UsageRecordArtifactTypeMap = {
-  File: 'file',
+export const kUsageRecordArtifactType = {
+  file: 'file',
   // DatabaseObject : 'dbObject',
 } as const;
 
-export type UsageRecordArtifactType = ObjectValues<typeof UsageRecordArtifactTypeMap>;
+export type UsageRecordArtifactType = ValueOf<typeof kUsageRecordArtifactType>;
 
 export interface UsageRecordArtifact {
   type: UsageRecordArtifactType;
@@ -32,35 +33,34 @@ export interface UsageRecordArtifact {
   artifact: FileUsageRecordArtifact | BandwidthUsageRecordArtifact;
 }
 
-export const UsageRecordFulfillmentStatusMap = {
-  // Default status
-  Undecided: 'undecided',
-  // usage record has been fulfilled
-  Fulfilled: 'fulfilled',
-  // usage record has not been fulfilled
-  Dropped: 'dropped',
+export const kUsageRecordFulfillmentStatus = {
+  /** Default status */
+  undecided: 'undecided',
+  /** Usage record has been fulfilled */
+  fulfilled: 'fulfilled',
+  /** Usage record has not been fulfilled */
+  dropped: 'dropped',
 } as const;
 
-export type UsageRecordFulfillmentStatus = ObjectValues<
-  typeof UsageRecordFulfillmentStatusMap
+export type UsageRecordFulfillmentStatus = ValueOf<
+  typeof kUsageRecordFulfillmentStatus
 >;
 
-export const UsageRecordDropReasonMap = {
-  UsageExceeded: 'usageExceeded',
-  ExceedsRemainingUsage: 'exceedsRemainingUsage',
-  BillOverdue: 'billOverdue',
+export const kUsageRecordDropReason = {
+  exceedsUsage: 'exceedsUsage',
+  billOverdue: 'billOverdue',
 } as const;
 
-export type UsageRecordDropReason = ObjectValues<typeof UsageRecordDropReasonMap>;
+export type UsageRecordDropReason = ValueOf<typeof kUsageRecordDropReason>;
 
-export const UsageSummationTypeMap = {
+export const kUsageSummationType = {
   /** Individual record */
-  Instance: 'instance',
+  instance: 'instance',
   /** Usage record summed up in a month */
-  Month: 'month',
+  month: 'month',
 } as const;
 
-export type UsageSummationType = ObjectValues<typeof UsageSummationTypeMap>;
+export type UsageSummationType = ValueOf<typeof kUsageSummationType>;
 
 export interface UsageRecord extends WorkspaceResource {
   category: UsageRecordCategory;
@@ -71,7 +71,7 @@ export interface UsageRecord extends WorkspaceResource {
    */
   usage: number;
   usageCost: number;
-  fulfillmentStatus: UsageRecordFulfillmentStatus;
+  status: UsageRecordFulfillmentStatus;
   summationType: UsageSummationType;
 
   /** Summation level 1 only. */
@@ -82,49 +82,32 @@ export interface UsageRecord extends WorkspaceResource {
   /** Summation level 2 only. */
   month: number;
   year: number;
+  /** whether it carries over from month to month */
+  persistent: boolean;
 }
 
 export type PublicUsageRecord = PublicWorkspaceResource &
   ToPublicDefinitions<
     Pick<
       UsageRecord,
-      'category' | 'usage' | 'usageCost' | 'fulfillmentStatus' | 'month' | 'year'
+      'category' | 'usage' | 'usageCost' | 'status' | 'month' | 'year'
     >
   >;
 
 export interface FileUsageRecordArtifact {
-  fileId: string;
-  filepath: string;
+  fileId?: string;
+  filepath: string[];
   oldFileSize?: number;
   requestId: string;
 }
 
 export interface BandwidthUsageRecordArtifact {
-  fileId: string;
-  filepath: string;
+  fileId?: string;
+  filepath: string[];
   requestId: string;
 }
 
-export interface DatabaseObjectUsageRecordArtifact {
-  resourceId: string;
-  requestId: string;
-}
-
-// export interface UsageRecordReportingPeriod {
+// export interface DatabaseObjectUsageRecordArtifact {
 //   resourceId: string;
-//   startDate: number;
-//   endDate: number;
-//   month: number;
-//   year: number;
-//   createdAt: number;
-//   createdBystring
-// }
-
-// export interface UsageRecordCost {
-//   resourceId: string;
-//   costPerUnit: number;
-//   createdAt: number;
-//   createdBystring
-//   category: UsageRecordCategory;
-//   effectiveDate: number;
+//   requestId: string;
 // }

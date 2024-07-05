@@ -1,4 +1,5 @@
 import {faker} from '@faker-js/faker';
+import {expect} from 'vitest';
 import {PublicWorkspace, Workspace} from '../../../definitions/workspace.js';
 import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
@@ -24,7 +25,6 @@ import {
 } from '../updateFileDetails/types.js';
 import {fileExtractor} from '../utils.js';
 import {UploadFileEndpointParams} from './types.js';
-import {expect} from 'vitest';
 
 export const uploadFileBaseTest = async (
   input: Partial<UploadFileEndpointParams> = {},
@@ -64,12 +64,12 @@ export async function assertCanReadPublicFile(
   workspace: Pick<Workspace, 'rootname'>,
   filepath: string
 ) {
-  const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+  const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
     mockExpressRequestForPublicAgent(),
     {filepath: addRootnameToPath(filepath, workspace.rootname)}
   );
 
-  const result = await getFile(instData);
+  const result = await getFile(reqData);
   assertEndpointResultOk(result);
 }
 
@@ -91,7 +91,7 @@ export async function assertCanUpdatePublicFile(
     mimetype: 'application/octet-stream',
   };
 
-  const instData =
+  const reqData =
     RequestData.fromExpressRequest<UpdateFileDetailsEndpointParams>(
       mockExpressRequestForPublicAgent(),
       {
@@ -100,7 +100,7 @@ export async function assertCanUpdatePublicFile(
       }
     );
 
-  const result = await updateFileDetails(instData);
+  const result = await updateFileDetails(reqData);
   assertEndpointResultOk(result);
 }
 
@@ -108,11 +108,11 @@ export async function assertCanDeletePublicFile(
   workspace: Pick<Workspace, 'rootname'>,
   filepath: string
 ) {
-  const instData = RequestData.fromExpressRequest<DeleteFileEndpointParams>(
+  const reqData = RequestData.fromExpressRequest<DeleteFileEndpointParams>(
     mockExpressRequestForPublicAgent(),
     {filepath: addRootnameToPath(filepath, workspace.rootname)}
   );
 
-  const result = await deleteFile(instData);
+  const result = await deleteFile(reqData);
   assertEndpointResultOk(result);
 }

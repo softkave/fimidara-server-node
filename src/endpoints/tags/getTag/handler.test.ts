@@ -1,7 +1,7 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import RequestData from '../../RequestData.js';
 import {insertTagForTest} from '../../testUtils/helpers/tag.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -24,13 +24,16 @@ describe('getTag', () => {
   test('tag returned', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const {tag: tag01} = await insertTagForTest(userToken, workspace.resourceId);
+    const {tag: tag01} = await insertTagForTest(
+      userToken,
+      workspace.resourceId
+    );
 
-    const instData = RequestData.fromExpressRequest<GetTagEndpointParams>(
+    const reqData = RequestData.fromExpressRequest<GetTagEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {tagId: tag01.resourceId}
     );
-    const result = await getTag(instData);
+    const result = await getTag(reqData);
     assertEndpointResultOk(result);
     expect(result.tag).toEqual(tag01);
   });

@@ -1,4 +1,4 @@
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {extractResourceIdList} from '../../../utils/fns.js';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
@@ -10,12 +10,12 @@ import {DeletePermissionItemsEndpoint} from './types.js';
 import {beginDeletePermissionItemByInput} from './utils.js';
 import {deletePermissionItemsJoiSchema} from './validation.js';
 
-const deletePermissionItems: DeletePermissionItemsEndpoint = async instData => {
-  const data = validate(instData.data, deletePermissionItemsJoiSchema);
+const deletePermissionItems: DeletePermissionItemsEndpoint = async reqData => {
+  const data = validate(reqData.data, deletePermissionItemsJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );
@@ -27,7 +27,7 @@ const deletePermissionItems: DeletePermissionItemsEndpoint = async instData => {
     workspace,
     target: {
       targetId: workspaceId,
-      action: kFimidaraPermissionActionsMap.updatePermission,
+      action: kFimidaraPermissionActions.updatePermission,
     },
   });
 

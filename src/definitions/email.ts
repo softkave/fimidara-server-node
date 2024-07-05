@@ -1,7 +1,7 @@
 import {GetMessageInsightsResponse} from '@aws-sdk/client-sesv2';
+import {AnyObject} from 'softkave-js-utils';
 import {ValueOf} from 'type-fest';
 import {FimidaraConfigEmailProvider} from '../resources/config.js';
-import {AnyObject} from '../utils/types.js';
 import {Resource} from './system.js';
 
 export const kEmailMessageType = {

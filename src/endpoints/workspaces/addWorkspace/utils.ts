@@ -2,7 +2,7 @@ import {PermissionGroup} from '../../../definitions/permissionGroups.js';
 import {
   FimidaraPermissionAction,
   PermissionItem,
-  kFimidaraPermissionActionsMap,
+  kFimidaraPermissionActions,
 } from '../../../definitions/permissionItem.js';
 import {
   Agent,
@@ -11,7 +11,10 @@ import {
 } from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
-import {getNewIdForResource, newWorkspaceResource} from '../../../utils/resource.js';
+import {
+  getNewIdForResource,
+  newWorkspaceResource,
+} from '../../../utils/resource.js';
 
 export const DEFAULT_ADMIN_PERMISSION_GROUP_NAME = 'Admin';
 export const DEFAULT_PUBLIC_PERMISSION_GROUP_NAME = 'Public';
@@ -23,7 +26,7 @@ function generateAdminPermissions(
   adminPermissionGroup: PermissionGroup
 ) {
   const permissionItems: PermissionItem[] = Object.values(
-    kFimidaraPermissionActionsMap
+    kFimidaraPermissionActions
   ).map(action => {
     const item: PermissionItem = newWorkspaceResource(
       agent,
@@ -75,18 +78,18 @@ function generateCollaboratorPermissions(
   }
 
   const actions: FimidaraPermissionAction[] = [
-    kFimidaraPermissionActionsMap.updateWorkspace,
-    kFimidaraPermissionActionsMap.readWorkspace,
-    kFimidaraPermissionActionsMap.addFolder,
-    kFimidaraPermissionActionsMap.readFolder,
-    kFimidaraPermissionActionsMap.updateFolder,
-    kFimidaraPermissionActionsMap.transferFolder,
-    kFimidaraPermissionActionsMap.uploadFile,
-    kFimidaraPermissionActionsMap.readFile,
-    kFimidaraPermissionActionsMap.transferFile,
-    kFimidaraPermissionActionsMap.addAgentToken,
-    kFimidaraPermissionActionsMap.readAgentToken,
-    kFimidaraPermissionActionsMap.updateAgentToken,
+    kFimidaraPermissionActions.updateWorkspace,
+    kFimidaraPermissionActions.readWorkspace,
+    kFimidaraPermissionActions.addFolder,
+    kFimidaraPermissionActions.readFolder,
+    kFimidaraPermissionActions.updateFolder,
+    kFimidaraPermissionActions.transferFolder,
+    kFimidaraPermissionActions.uploadFile,
+    kFimidaraPermissionActions.readFile,
+    kFimidaraPermissionActions.transferFile,
+    kFimidaraPermissionActions.addAgentToken,
+    kFimidaraPermissionActions.readAgentToken,
+    kFimidaraPermissionActions.updateAgentToken,
   ];
 
   const permissionItems: PermissionItem[] = makePermission(
@@ -145,7 +148,11 @@ export function generateDefaultWorkspacePermissionGroups(
     workspace,
     adminPermissionGroup
   ).concat(
-    generateCollaboratorPermissions(agent, workspace, collaboratorPermissionGroup)
+    generateCollaboratorPermissions(
+      agent,
+      workspace,
+      collaboratorPermissionGroup
+    )
   );
   return {
     adminPermissionGroup,

@@ -1,46 +1,29 @@
-import {defaultTo, random} from 'lodash-es';
+import {random} from 'lodash-es';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {
   UsageRecord,
-  UsageRecordCategory,
-  UsageRecordCategoryMap,
-  UsageRecordFulfillmentStatusMap,
-  UsageSummationTypeMap,
+  kUsageRecordCategory,
+  kUsageRecordFulfillmentStatus,
+  kUsageSummationType,
 } from '../../../definitions/usageRecord.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
-import {generateTestWorkspace} from './workspace.js';
-
-export function generateWorkspaceWithCategoryUsageExceeded(
-  categories: UsageRecordCategory[]
-) {
-  const workspace = generateTestWorkspace();
-  const usageLocks = defaultTo(workspace.usageThresholdLocks, {});
-  categories.forEach(category => {
-    usageLocks[category] = {
-      category,
-      locked: true,
-      lastUpdatedBy: kSystemSessionAgent,
-      lastUpdatedAt: getTimestamp(),
-    };
-  });
-  return workspace;
-}
+import {isUsageRecordPersistent} from '../../usageRecords/utils.js';
 
 function randomCategory() {
-  const categories = Object.values(UsageRecordCategoryMap);
+  const categories = Object.values(kUsageRecordCategory);
   return categories[random(0, categories.length - 1)];
 }
 
 function randomSummationType() {
   const r = random(0, 1);
-  return r === 0 ? UsageSummationTypeMap.Instance : UsageSummationTypeMap.Month;
+  return r === 0 ? kUsageSummationType.instance : kUsageSummationType.month;
 }
 
 function randomFulfillmentStatus() {
-  const items = Object.values(UsageRecordFulfillmentStatusMap);
+  const items = Object.values(kUsageRecordFulfillmentStatus);
   return items[random(0, items.length - 1)];
 }
 
@@ -49,26 +32,34 @@ export function generateUsageRecordList(
   extra: Partial<UsageRecord> = {}
 ) {
   const records: UsageRecord[] = [];
+
   for (let i = 0; i < count; i++) {
+    const category = randomCategory();
+    const status = randomFulfillmentStatus();
     records.push({
+      persistent: isUsageRecordPersistent({
+        category,
+        status: status,
+      }),
       workspaceId: getNewIdForResource(kFimidaraResourceType.Workspace),
-      month: random(0, 11),
-      year: random(1, 10_000),
       resourceId: getNewIdForResource(kFimidaraResourceType.UsageRecord),
-      createdAt: getTimestamp(),
+      status: randomFulfillmentStatus(),
+      summationType: randomSummationType(),
+      lastUpdatedBy: kSystemSessionAgent,
       createdBy: kSystemSessionAgent,
       lastUpdatedAt: getTimestamp(),
-      lastUpdatedBy: kSystemSessionAgent,
       category: randomCategory(),
-      summationType: randomSummationType(),
-      fulfillmentStatus: randomFulfillmentStatus(),
-      usage: 0,
-      usageCost: 0,
-      artifacts: [],
+      createdAt: getTimestamp(),
+      year: random(1, 10_000),
+      month: random(0, 11),
       isDeleted: false,
+      artifacts: [],
+      usageCost: 0,
+      usage: 0,
       ...extra,
     });
   }
+
   return records;
 }
 
@@ -82,5 +73,6 @@ export async function generateAndInsertUsageRecordList(
     .withTxn(async opts =>
       kSemanticModels.usageRecord().insertItem(items, opts)
     );
+
   return items;
 }

@@ -1,10 +1,14 @@
-import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job.js';
+import {afterAll, beforeAll, expect, test} from 'vitest';
+import {
+  DeleteResourceJobParams,
+  Job,
+  kJobType,
+} from '../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
 import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -36,11 +40,11 @@ test('folder deleted', async () => {
   const {workspace} = await insertWorkspaceForTest(userToken);
   const {folder: folder01} = await insertFolderForTest(userToken, workspace);
 
-  const instData = RequestData.fromExpressRequest<DeleteFolderEndpointParams>(
+  const reqData = RequestData.fromExpressRequest<DeleteFolderEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {folderpath: stringifyFoldernamepath(folder01, workspace.rootname)}
   );
-  const result = await deleteFolder(instData);
+  const result = await deleteFolder(reqData);
   assertEndpointResultOk(result);
 
   appAssert(result.jobId);

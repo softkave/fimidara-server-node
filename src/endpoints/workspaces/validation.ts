@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import {UsageRecordCategoryMap} from '../../definitions/usageRecord.js';
+import {kUsageRecordCategory} from '../../definitions/usageRecord.js';
 import usageRecordValidationSchemas from '../usageRecords/validation.js';
 
 const price = Joi.number().min(0).precision(5);
@@ -9,12 +9,12 @@ const usageThreshold = Joi.object().keys({
 });
 
 const usageThresholdMap = Joi.object().keys({
-  [UsageRecordCategoryMap.Storage]: usageThreshold,
-  [UsageRecordCategoryMap.BandwidthIn]: usageThreshold,
-  [UsageRecordCategoryMap.BandwidthOut]: usageThreshold,
+  [kUsageRecordCategory.storage]: usageThreshold,
+  [kUsageRecordCategory.bandwidthIn]: usageThreshold,
+  [kUsageRecordCategory.bandwidthOut]: usageThreshold,
   // [UsageRecordCategoryMap.Request]: usageThreshold,
   // [UsageRecordCategoryMap.DatabaseObject]: usageThreshold,
-  [UsageRecordCategoryMap.Total]: usageThreshold,
+  [kUsageRecordCategory.total]: usageThreshold,
 });
 
 const rootname = Joi.string().regex(/[A-Za-z0-9_-]/);

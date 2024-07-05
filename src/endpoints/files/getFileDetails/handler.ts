@@ -1,4 +1,4 @@
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {validate} from '../../../utils/validate.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
 import {
@@ -9,12 +9,12 @@ import {fileExtractor, getAndCheckFileAuthorization} from '../utils.js';
 import {GetFileDetailsEndpoint} from './types.js';
 import {getFileDetailsJoiSchema} from './validation.js';
 
-const getFileDetails: GetFileDetailsEndpoint = async instData => {
-  const data = validate(instData.data, getFileDetailsJoiSchema);
+const getFileDetails: GetFileDetailsEndpoint = async reqData => {
+  const data = validate(reqData.data, getFileDetailsJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );
@@ -24,7 +24,7 @@ const getFileDetails: GetFileDetailsEndpoint = async instData => {
       agent,
       opts,
       matcher: data,
-      action: kFimidaraPermissionActionsMap.readFile,
+      action: kFimidaraPermissionActions.readFile,
       incrementPresignedPathUsageCount: false,
     })
   );

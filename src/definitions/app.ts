@@ -1,4 +1,4 @@
-import {ObjectValues} from '../utils/types.js';
+import {ValueOf} from 'type-fest';
 import {Resource} from './system.js';
 
 export const kAppType = {
@@ -10,8 +10,8 @@ export const kAppPresetShards = {
   fimidaraMain: 'fimidaraMain',
 };
 
-export type AppType = ObjectValues<typeof kAppType>;
-export type AppPresetShards = ObjectValues<typeof kAppPresetShards>;
+export type AppType = ValueOf<typeof kAppType>;
+export type AppPresetShards = ValueOf<typeof kAppPresetShards>;
 export type AppShardId = number | string;
 
 export interface App extends Resource {

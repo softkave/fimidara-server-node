@@ -17,15 +17,15 @@ import {GetCollaboratorsWithoutPermissionEndpoint} from './types.js';
 import {getCollaboratorsWithoutPermissionJoiSchema} from './validation.js';
 
 const getCollaboratorsWithoutPermission: GetCollaboratorsWithoutPermissionEndpoint =
-  async instData => {
+  async reqData => {
     const data = validate(
-      instData.data,
+      reqData.data,
       getCollaboratorsWithoutPermissionJoiSchema
     );
     const agent = await kUtilsInjectables
       .session()
       .getAgentFromReq(
-        instData,
+        reqData,
         kSessionUtils.permittedAgentTypes.api,
         kSessionUtils.accessScopes.api
       );

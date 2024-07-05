@@ -17,11 +17,11 @@ import {
 import {UpdateUserEndpoint} from './types.js';
 import {updateUserJoiSchema} from './validation.js';
 
-const updateUser: UpdateUserEndpoint = async instData => {
+const updateUser: UpdateUserEndpoint = async reqData => {
   let user = await kUtilsInjectables
     .session()
-    .getUser(instData, kSessionUtils.accessScopes.user);
-  const data = validate(instData.data, updateUserJoiSchema);
+    .getUser(reqData, kSessionUtils.accessScopes.user);
+  const data = validate(reqData.data, updateUserJoiSchema);
   const update: Partial<User> = {...data, lastUpdatedAt: getTimestamp()};
   const isEmailAddressUpdated =
     data.email && !isStringEqual(data.email, user.email);
@@ -51,7 +51,7 @@ const updateUser: UpdateUserEndpoint = async instData => {
 
   // Make the updated user data available to other requests made with this
   //  request data
-  instData.user = user;
+  reqData.user = user;
   return {user: userExtractor(userWithWorkspaces)};
 };
 

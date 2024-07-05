@@ -8,15 +8,15 @@ import {CountCollaboratorsWithoutPermissionEndpoint} from './types.js';
 import {countCollaboratorsWithoutPermissionJoiSchema} from './validation.js';
 
 const countCollaboratorsWithoutPermission: CountCollaboratorsWithoutPermissionEndpoint =
-  async instData => {
+  async reqData => {
     const data = validate(
-      instData.data,
+      reqData.data,
       countCollaboratorsWithoutPermissionJoiSchema
     );
     const agent = await kUtilsInjectables
       .session()
       .getAgentFromReq(
-        instData,
+        reqData,
         kSessionUtils.permittedAgentTypes.api,
         kSessionUtils.accessScopes.api
       );

@@ -1,10 +1,14 @@
 import assert from 'assert';
-import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job.js';
+import {afterAll, beforeAll, expect, test} from 'vitest';
+import {
+  DeleteResourceJobParams,
+  Job,
+  kJobType,
+} from '../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -32,13 +36,17 @@ afterAll(async () => {
 test('Agent token deleted', async () => {
   const {userToken} = await insertUserForTest();
   const {workspace} = await insertWorkspaceForTest(userToken);
-  const {token} = await insertAgentTokenForTest(userToken, workspace.resourceId);
-  const instData = RequestData.fromExpressRequest<DeleteAgentTokenEndpointParams>(
-    mockExpressRequestWithAgentToken(userToken),
-    {tokenId: token.resourceId, workspaceId: workspace.resourceId}
+  const {token} = await insertAgentTokenForTest(
+    userToken,
+    workspace.resourceId
   );
+  const reqData =
+    RequestData.fromExpressRequest<DeleteAgentTokenEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {tokenId: token.resourceId, workspaceId: workspace.resourceId}
+    );
 
-  const result = await deleteAgentToken(instData);
+  const result = await deleteAgentToken(reqData);
   assertEndpointResultOk(result);
 
   assert(result.jobId);

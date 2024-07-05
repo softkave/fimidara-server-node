@@ -26,12 +26,12 @@ import {ListFolderContentEndpoint} from './types.js';
 import {getWorkspaceAndParentFolder, listFolderContentQuery} from './utils.js';
 import {listFolderContentJoiSchema} from './validation.js';
 
-const listFolderContent: ListFolderContentEndpoint = async instData => {
-  const data = validate(instData.data, listFolderContentJoiSchema);
+const listFolderContent: ListFolderContentEndpoint = async reqData => {
+  const data = validate(reqData.data, listFolderContentJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );

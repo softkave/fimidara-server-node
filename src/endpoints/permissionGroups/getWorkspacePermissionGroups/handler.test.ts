@@ -1,9 +1,9 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {calculatePageSize, findItemWithField} from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -27,21 +27,17 @@ describe('getWorkspacePermissionGroups', () => {
   test("workspace's permissionGroups returned", async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const {permissionGroup: permissionGroup01} = await insertPermissionGroupForTest(
-      userToken,
-      workspace.resourceId
-    );
-    const {permissionGroup: permissionGroup02} = await insertPermissionGroupForTest(
-      userToken,
-      workspace.resourceId
-    );
+    const {permissionGroup: permissionGroup01} =
+      await insertPermissionGroupForTest(userToken, workspace.resourceId);
+    const {permissionGroup: permissionGroup02} =
+      await insertPermissionGroupForTest(userToken, workspace.resourceId);
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<GetWorkspacePermissionGroupsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId}
       );
-    const result = await getWorkspacePermissionGroups(instData);
+    const result = await getWorkspacePermissionGroups(reqData);
     assertEndpointResultOk(result);
     const resultPermissionGroup01 = findItemWithField(
       result.permissionGroups,
@@ -69,12 +65,12 @@ describe('getWorkspacePermissionGroups', () => {
     });
     const pageSize = 10;
     let page = 0;
-    let instData =
+    let reqData =
       RequestData.fromExpressRequest<GetWorkspacePermissionGroupsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {page, pageSize, workspaceId: workspace.resourceId}
       );
-    let result = await getWorkspacePermissionGroups(instData);
+    let result = await getWorkspacePermissionGroups(reqData);
     assertEndpointResultOk(result);
     expect(result.page).toBe(page);
     expect(result.permissionGroups).toHaveLength(
@@ -82,11 +78,12 @@ describe('getWorkspacePermissionGroups', () => {
     );
 
     page = 1;
-    instData = RequestData.fromExpressRequest<GetWorkspacePermissionGroupsEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {page, pageSize, workspaceId: workspace.resourceId}
-    );
-    result = await getWorkspacePermissionGroups(instData);
+    reqData =
+      RequestData.fromExpressRequest<GetWorkspacePermissionGroupsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {page, pageSize, workspaceId: workspace.resourceId}
+      );
+    result = await getWorkspacePermissionGroups(reqData);
     assertEndpointResultOk(result);
     expect(result.page).toBe(page);
     expect(result.permissionGroups).toHaveLength(

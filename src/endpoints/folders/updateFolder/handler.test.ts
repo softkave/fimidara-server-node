@@ -1,14 +1,14 @@
 import {faker} from '@faker-js/faker';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {Folder} from '../../../definitions/folder.js';
+import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import EndpointReusableQueries from '../../queries.js';
-import RequestData from '../../RequestData.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, expect, describe} from 'vitest';
 import {
-  assertEndpointResultOk,
   IInsertUserForTestResult,
   IInsertWorkspaceForTestResult,
+  assertEndpointResultOk,
   initTests,
   insertFolderForTest,
   insertUserForTest,
@@ -35,7 +35,8 @@ async function updateFolderBaseTest(
 ) {
   insertUserResult = insertUserResult ?? (await insertUserForTest());
   insertWorkspaceResult =
-    insertWorkspaceResult ?? (await insertWorkspaceForTest(insertUserResult.userToken));
+    insertWorkspaceResult ??
+    (await insertWorkspaceForTest(insertUserResult.userToken));
   const {folder} = existingFolder
     ? {folder: existingFolder}
     : await insertFolderForTest(
@@ -48,7 +49,7 @@ async function updateFolderBaseTest(
     ...incomingUpdateInput,
   };
 
-  const instData = RequestData.fromExpressRequest<UpdateFolderEndpointParams>(
+  const reqData = RequestData.fromExpressRequest<UpdateFolderEndpointParams>(
     mockExpressRequestWithAgentToken(insertUserResult.userToken),
     {
       folderpath: stringifyFoldernamepath(
@@ -59,13 +60,15 @@ async function updateFolderBaseTest(
     }
   );
 
-  const result = await updateFolder(instData);
+  const result = await updateFolder(reqData);
   assertEndpointResultOk(result);
   expect(result.folder.resourceId).toEqual(folder.resourceId);
   expect(result.folder).toMatchObject(folderExtractor(updateInput));
   const savedFolder = await kSemanticModels
     .folder()
-    .assertGetOneByQuery(EndpointReusableQueries.getByResourceId(folder.resourceId));
+    .assertGetOneByQuery(
+      EndpointReusableQueries.getByResourceId(folder.resourceId)
+    );
 
   expect(result.folder).toMatchObject(folderExtractor(savedFolder));
   return {

@@ -1,4 +1,5 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kJobType} from '../../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
 import {extractResourceIdList} from '../../../../utils/fns.js';
 import {getNewIdForResource} from '../../../../utils/resource.js';
@@ -24,7 +25,10 @@ describe('runCleanupMountResolvedEntriesJob', () => {
       {mountId}
     );
 
-    await runCleanupMountResolvedEntriesJob({params: {mountId}});
+    await runCleanupMountResolvedEntriesJob({
+      params: {mountId},
+      type: kJobType.cleanupMountResolvedEntries,
+    });
 
     const remainingEntries = await kSemanticModels
       .resolvedMountEntry()

@@ -1,4 +1,4 @@
-import {UsageRecordCategoryMap} from '../definitions/usageRecord.js';
+import {kUsageRecordCategory} from '../definitions/usageRecord.js';
 import {UsageThreshold} from '../definitions/workspace.js';
 import {multilineTextToParagraph} from '../utils/fns.js';
 import {
@@ -24,13 +24,13 @@ export const kUsageExceededEmailArtifacts = {
   title: (workspaceName: string, threshold: UsageThreshold) => {
     let message = '';
     switch (threshold.category) {
-      case UsageRecordCategoryMap.Storage:
+      case kUsageRecordCategory.storage:
         message = `Storage usage exceeded for workspace "${workspaceName}"`;
         break;
-      case UsageRecordCategoryMap.BandwidthIn:
+      case kUsageRecordCategory.bandwidthIn:
         message = `Incoming bandwidth usage exceeded for workspace "${workspaceName}"`;
         break;
-      case UsageRecordCategoryMap.BandwidthOut:
+      case kUsageRecordCategory.bandwidthOut:
         message = `Outgoing bandwidth usage exceeded for workspace "${workspaceName}"`;
         break;
       default:
@@ -90,13 +90,13 @@ export function getUsageExceededEmailMessage(
 ) {
   let message = '';
   switch (threshold.category) {
-    case UsageRecordCategoryMap.Storage:
+    case kUsageRecordCategory.storage:
       message = `You have reached your storage usage threshold for workspace "${workspaceName}"`;
       break;
-    case UsageRecordCategoryMap.BandwidthIn:
+    case kUsageRecordCategory.bandwidthIn:
       message = `You have reached your incoming bandwidth usage threshold for workspace "${workspaceName}"`;
       break;
-    case UsageRecordCategoryMap.BandwidthOut:
+    case kUsageRecordCategory.bandwidthOut:
       message = `You have reached your outgoing bandwidth usage threshold for workspace "${workspaceName}"`;
       break;
     // case UsageRecordCategoryMap.Request:

@@ -1,8 +1,8 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -31,12 +31,12 @@ describe('countWorkspacePermissionGroups', () => {
     const count = await kSemanticModels.permissionGroup().countByQuery({
       workspaceId: workspace.resourceId,
     });
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<CountWorkspacePermissionGroupsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId}
       );
-    const result = await countWorkspacePermissionGroups(instData);
+    const result = await countWorkspacePermissionGroups(reqData);
     assertEndpointResultOk(result);
     expect(result.count).toBe(count);
   });

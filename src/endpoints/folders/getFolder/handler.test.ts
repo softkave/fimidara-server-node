@@ -1,6 +1,6 @@
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import RequestData from '../../RequestData.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -26,12 +26,12 @@ test('folder returned', async () => {
   const {workspace} = await insertWorkspaceForTest(userToken);
   const {folder: folder01} = await insertFolderForTest(userToken, workspace);
 
-  const instData = RequestData.fromExpressRequest<GetFolderEndpointParams>(
+  const reqData = RequestData.fromExpressRequest<GetFolderEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {folderpath: addRootnameToPath(folder01.name, workspace.rootname)}
   );
 
-  const result = await getFolder(instData);
+  const result = await getFolder(reqData);
   assertEndpointResultOk(result);
   expect(result.folder).toEqual(folder01);
 });

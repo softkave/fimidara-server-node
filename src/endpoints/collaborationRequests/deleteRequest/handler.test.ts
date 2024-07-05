@@ -1,10 +1,14 @@
 import assert from 'assert';
-import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job.js';
+import {afterAll, beforeAll, expect, test} from 'vitest';
+import {
+  DeleteResourceJobParams,
+  Job,
+  kJobType,
+} from '../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -28,13 +32,13 @@ test('collaboration request deleted', async () => {
   const {userToken} = await insertUserForTest();
   const {workspace} = await insertWorkspaceForTest(userToken);
   const {request} = await insertRequestForTest(userToken, workspace.resourceId);
-  const instData =
+  const reqData =
     RequestData.fromExpressRequest<DeleteCollaborationRequestEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {requestId: request.resourceId}
     );
 
-  const result = await deleteCollaborationRequest(instData);
+  const result = await deleteCollaborationRequest(reqData);
   assertEndpointResultOk(result);
 
   assert(result.jobId);

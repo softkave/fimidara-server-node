@@ -1,4 +1,4 @@
-import {ObjectValues} from '../utils/types.js';
+import {ValueOf} from 'type-fest';
 import {Agent, ToPublicDefinitions, WorkspaceResource} from './system.js';
 import {UsageRecordCategory} from './usageRecord.js';
 
@@ -6,28 +6,21 @@ export interface UsageThreshold {
   lastUpdatedBy: Agent;
   lastUpdatedAt: number;
   category: UsageRecordCategory;
-  budget: number; // price in USD
+  /** Price in USD */
+  budget: number;
+  /** Usage depends on category */
+  usage: number;
 }
 
-export interface UsageThresholdLock {
-  lastUpdatedBy: Agent;
-  lastUpdatedAt: number;
-  category: UsageRecordCategory;
-  locked: boolean;
-}
-
-export const WorkspaceBillStatusMap = {
-  Ok: 'ok',
-  GracePeriod: 'gracePeriod',
-  BillOverdue: 'billOverdue',
+export const kWorkspaceBillStatusMap = {
+  ok: 'ok',
+  gracePeriod: 'gracePeriod',
+  billOverdue: 'billOverdue',
 } as const;
 
-export type WorkspaceBillStatus = ObjectValues<typeof WorkspaceBillStatusMap>;
+export type WorkspaceBillStatus = ValueOf<typeof kWorkspaceBillStatusMap>;
 export type UsageThresholdsByCategory = Partial<
   Record<UsageRecordCategory, UsageThreshold>
->;
-export type UsageThresholdLocksByCategory = Partial<
-  Record<UsageRecordCategory, UsageThresholdLock>
 >;
 
 export interface Workspace extends WorkspaceResource {
@@ -40,7 +33,6 @@ export interface Workspace extends WorkspaceResource {
   billStatusAssignedAt: number;
   billStatus: WorkspaceBillStatus;
   usageThresholds: UsageThresholdsByCategory;
-  usageThresholdLocks: UsageThresholdLocksByCategory;
 
   /** configs */
   // enableFileVersioning?: boolean;
@@ -50,4 +42,3 @@ export interface Workspace extends WorkspaceResource {
 
 export type PublicWorkspace = ToPublicDefinitions<Workspace>;
 export type PublicUsageThreshold = ToPublicDefinitions<UsageThreshold>;
-export type PublicUsageThresholdLock = ToPublicDefinitions<UsageThresholdLock>;

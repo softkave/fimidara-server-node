@@ -38,12 +38,12 @@ describe('login', () => {
       password,
     });
 
-    const instData = RequestData.fromExpressRequest<LoginEndpointParams>(
+    const reqData = RequestData.fromExpressRequest<LoginEndpointParams>(
       mockExpressRequest(),
       {password, email: user.email}
     );
 
-    const result = await login(instData);
+    const result = await login(reqData);
     assertEndpointResultOk(result);
     expect(result.user).toMatchObject(user);
 

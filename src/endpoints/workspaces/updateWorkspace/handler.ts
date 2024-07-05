@@ -16,12 +16,12 @@ import {
 import {UpdateWorkspaceEndpoint} from './types.js';
 import {updateWorkspaceJoiSchema} from './validation.js';
 
-const updateWorkspace: UpdateWorkspaceEndpoint = async instData => {
-  const data = validate(instData.data, updateWorkspaceJoiSchema);
+const updateWorkspace: UpdateWorkspaceEndpoint = async reqData => {
+  const data = validate(reqData.data, updateWorkspaceJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );

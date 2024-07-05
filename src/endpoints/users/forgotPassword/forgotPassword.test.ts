@@ -42,12 +42,12 @@ describe('forgotPassword', () => {
     kRegisterUtilsInjectables.email(new MockTestEmailProviderContext());
 
     const {user} = await insertUserForTest();
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<ForgotPasswordEndpointParams>(
         mockExpressRequest(),
         {email: user.email}
       );
-    const result = await forgotPassword(instData);
+    const result = await forgotPassword(reqData);
     assertEndpointResultOk(result);
 
     await kUtilsInjectables.promises().flush();

@@ -38,7 +38,7 @@ describe('updateFileDetails', () => {
       mimetype: faker.system.mimeType(),
     };
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<UpdateFileDetailsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
@@ -46,7 +46,7 @@ describe('updateFileDetails', () => {
           file: updateInput,
         }
       );
-    const result = await updateFileDetails(instData);
+    const result = await updateFileDetails(reqData);
     assertEndpointResultOk(result);
     expect(result.file.resourceId).toEqual(file.resourceId);
     expect(result.file).toMatchObject(updateInput);

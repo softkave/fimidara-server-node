@@ -1,7 +1,7 @@
 import {first, forEach, isString} from 'lodash-es';
 import {
   FimidaraPermissionAction,
-  kFimidaraPermissionActionsMap,
+  kFimidaraPermissionActions,
 } from '../../../definitions/permissionItem.js';
 import {
   Resource,
@@ -64,7 +64,7 @@ async function getArtifacts(
       agent,
       workspace,
       inputTargets,
-      kFimidaraPermissionActionsMap.readPermission
+      kFimidaraPermissionActions.readPermission
     ),
   ]);
 

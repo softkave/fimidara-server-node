@@ -1,10 +1,14 @@
-import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job.js';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {
+  DeleteResourceJobParams,
+  Job,
+  kJobType,
+} from '../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
 import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -32,19 +36,25 @@ describe('removeCollaborator', () => {
   test('collaborator removed', async () => {
     const {userToken, user} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const instData = RequestData.fromExpressRequest<RemoveCollaboratorEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {workspaceId: workspace.resourceId, collaboratorId: user.resourceId}
-    );
+    const reqData =
+      RequestData.fromExpressRequest<RemoveCollaboratorEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {workspaceId: workspace.resourceId, collaboratorId: user.resourceId}
+      );
 
-    const result = await removeCollaborator(instData);
+    const result = await removeCollaborator(reqData);
     assertEndpointResultOk(result);
 
     appAssert(result.jobId);
     const job = (await kSemanticModels.job().getOneByQuery({
       type: kJobType.deleteResource,
       resourceId: result.jobId,
-      params: {$objMatch: {type: kFimidaraResourceType.User, isRemoveCollaborator: true}},
+      params: {
+        $objMatch: {
+          type: kFimidaraResourceType.User,
+          isRemoveCollaborator: true,
+        },
+      },
     })) as Job<DeleteResourceJobParams>;
     expect(job).toBeTruthy();
     expect(job?.params).toMatchObject({

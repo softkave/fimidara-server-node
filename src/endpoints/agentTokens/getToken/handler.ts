@@ -9,12 +9,12 @@ import {checkAgentTokenAuthorization02, getPublicAgentToken} from '../utils.js';
 import {GetAgentTokenEndpoint} from './types.js';
 import {getAgentTokenJoiSchema} from './validation.js';
 
-const getAgentToken: GetAgentTokenEndpoint = async instData => {
-  const data = validate(instData.data, getAgentTokenJoiSchema);
+const getAgentToken: GetAgentTokenEndpoint = async reqData => {
+  const data = validate(reqData.data, getAgentTokenJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );

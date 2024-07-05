@@ -1,4 +1,5 @@
-import {AnyObject, ObjectValues} from '../utils/types.js';
+import {AnyObject} from 'softkave-js-utils';
+import {ValueOf} from 'type-fest';
 import {AgentToken} from './agentToken.js';
 import {App, AppShard} from './app.js';
 import {AssignedItem} from './assignedItem.js';
@@ -35,7 +36,7 @@ export const kTokenAccessScope = {
   confirmEmailAddress: 'confirmEmail',
 } as const;
 
-export type TokenAccessScope = ObjectValues<typeof kTokenAccessScope>;
+export type TokenAccessScope = ValueOf<typeof kTokenAccessScope>;
 
 export interface TokenSubjectDefault {
   id: string;
@@ -97,8 +98,8 @@ export const kFimidaraResourceType = {
   jobHistory: 'jobHistory',
 } as const;
 
-export type FimidaraResourceType = ObjectValues<typeof kFimidaraResourceType>;
-export type FimidaraPublicResourceType = ObjectValues<
+export type FimidaraResourceType = ValueOf<typeof kFimidaraResourceType>;
+export type FimidaraPublicResourceType = ValueOf<
   typeof kFimidaraPublicResourceType
 >;
 

@@ -34,12 +34,12 @@ describe('getConfig', () => {
       workspace.resourceId
     );
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<GetFileBackendConfigEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {configId: config.resourceId, workspaceId: workspace.resourceId}
       );
-    const result = await getFileBackendConfig(instData);
+    const result = await getFileBackendConfig(reqData);
 
     assertEndpointResultOk(result);
     expect(result.config).toEqual(config);
@@ -49,7 +49,7 @@ describe('getConfig', () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<GetFileBackendConfigEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
@@ -60,7 +60,7 @@ describe('getConfig', () => {
         }
       );
     await expectErrorThrown(
-      () => getFileBackendConfig(instData),
+      () => getFileBackendConfig(reqData),
       error => {
         expect((error as NotFoundError).message).toBe(
           kReuseableErrors.config.notFound().message

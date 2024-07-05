@@ -1,5 +1,5 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {
   calculatePageSize,
@@ -74,12 +74,12 @@ describe('listFolderContent', () => {
       }),
     ]);
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {folderpath: addRootnameToPath(folder01.name, workspace.rootname)}
       );
-    const result = await listFolderContent(instData);
+    const result = await listFolderContent(reqData);
     assertEndpointResultOk(result);
     expect(result.folders).toContainEqual(folder02);
     expect(result.files).toContainEqual(file);
@@ -103,12 +103,12 @@ describe('listFolderContent', () => {
       }),
     ]);
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {folderpath: workspace.rootname}
       );
-    const result = await listFolderContent(instData);
+    const result = await listFolderContent(reqData);
     assertEndpointResultOk(result);
     expect(result.folders).toContainEqual(folder02);
     expect(result.files).toContainEqual(file);
@@ -212,12 +212,12 @@ describe('listFolderContent', () => {
 
     const pageSize = 10;
     let page = 0;
-    let instData =
+    let reqData =
       RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {page, pageSize, folderpath: workspace.rootname}
       );
-    const result01 = await listFolderContent(instData);
+    const result01 = await listFolderContent(reqData);
     assertEndpointResultOk(result01);
     expect(result01.page).toBe(page);
     expect(result01.folders).toHaveLength(
@@ -232,11 +232,11 @@ describe('listFolderContent', () => {
     expectContainsExactly(result01.files, filesPage01, getResourceId);
 
     page = 1;
-    instData = RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
+    reqData = RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {page, pageSize, folderpath: workspace.rootname}
     );
-    const result02 = await listFolderContent(instData);
+    const result02 = await listFolderContent(reqData);
     assertEndpointResultOk(result02);
     expect(result02.page).toBe(page);
     expect(result02.folders).toHaveLength(
@@ -279,13 +279,13 @@ describe('listFolderContent', () => {
           items: [
             {
               target: {targetId: folder02.resourceId},
-              action: kFimidaraPermissionActionsMap.readFolder,
+              action: kFimidaraPermissionActions.readFolder,
               access: true,
               entityId: [agToken.resourceId],
             },
             {
               target: {targetId: file01.resourceId},
-              action: kFimidaraPermissionActionsMap.readFile,
+              action: kFimidaraPermissionActions.readFile,
               access: true,
               entityId: [agToken.resourceId],
             },
@@ -294,12 +294,12 @@ describe('listFolderContent', () => {
       )
     );
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
         mockExpressRequestWithAgentToken(agToken),
         {folderpath: stringifyFoldernamepath(folder01, workspace.rootname)}
       );
-    const result01 = await listFolderContent(instData);
+    const result01 = await listFolderContent(reqData);
 
     assertEndpointResultOk(result01);
     expectContainsExactly(result01.folders, [folder02], getResourceId);

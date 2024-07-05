@@ -15,8 +15,8 @@ import {assertUser} from '../utils.js';
 import {ForgotPasswordEndpoint} from './types.js';
 import {forgotPasswordJoiSchema} from './validation.js';
 
-export const forgotPassword: ForgotPasswordEndpoint = async instData => {
-  const data = validate(instData.data, forgotPasswordJoiSchema);
+export const forgotPassword: ForgotPasswordEndpoint = async reqData => {
+  const data = validate(reqData.data, forgotPasswordJoiSchema);
   const user = await kSemanticModels.user().getByEmail(data.email);
   assertUser(user);
   await INTERNAL_forgotPassword(user);

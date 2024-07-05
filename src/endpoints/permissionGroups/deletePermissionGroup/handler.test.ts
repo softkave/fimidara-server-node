@@ -1,11 +1,15 @@
-import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job.js';
+import {afterAll, beforeAll, expect, test} from 'vitest';
+import {
+  DeleteResourceJobParams,
+  Job,
+  kJobType,
+} from '../../../definitions/job.js';
 import {PermissionGroupMatcher} from '../../../definitions/permissionGroups.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
 import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -31,11 +35,11 @@ test('permissionGroup permission group deleted', async () => {
     userToken,
     workspace.resourceId
   );
-  const instData = RequestData.fromExpressRequest<PermissionGroupMatcher>(
+  const reqData = RequestData.fromExpressRequest<PermissionGroupMatcher>(
     mockExpressRequestWithAgentToken(userToken),
     {permissionGroupId: permissionGroup.resourceId}
   );
-  const result = await deletePermissionGroup(instData);
+  const result = await deletePermissionGroup(reqData);
   assertEndpointResultOk(result);
 
   appAssert(result.jobId);

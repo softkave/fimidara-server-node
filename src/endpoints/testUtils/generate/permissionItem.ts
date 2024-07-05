@@ -1,5 +1,11 @@
 import {faker} from '@faker-js/faker';
-import {PermissionItem} from '../../../definitions/permissionItem.js';
+import {difference} from 'lodash-es';
+import {convertToArray} from 'softkave-js-utils';
+import {
+  FimidaraPermissionAction,
+  PermissionItem,
+  kFimidaraPermissionActions,
+} from '../../../definitions/permissionItem.js';
 import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {
@@ -39,6 +45,7 @@ export function generatePermissionItemForTest(
     isDeleted: false,
     ...seed,
   };
+
   return item;
 }
 
@@ -64,4 +71,15 @@ export async function generateAndInsertPermissionItemListForTest(
       kSemanticModels.permissionItem().insertItem(items, opts)
     );
   return items;
+}
+
+export function getRandomPermissionAction(
+  excludeFrom?: FimidaraPermissionAction | FimidaraPermissionAction[]
+) {
+  return faker.helpers.arrayElement(
+    difference(
+      Object.values(kFimidaraPermissionActions),
+      convertToArray(excludeFrom || [])
+    )
+  );
 }

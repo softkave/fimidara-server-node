@@ -12,11 +12,11 @@ import {
 import {assertUser} from '../utils.js';
 import {GetUserDataEndpoint} from './types.js';
 
-const getUserData: GetUserDataEndpoint = async instData => {
+const getUserData: GetUserDataEndpoint = async reqData => {
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.user,
       kSessionUtils.accessScopes.user
     );

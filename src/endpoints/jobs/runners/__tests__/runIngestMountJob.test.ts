@@ -65,7 +65,7 @@ describe('runIngestMountJob', () => {
         {
           shard,
           createdBy: kSystemSessionAgent,
-          type: kJobType.ingestFolderpath,
+          type: kJobType.ingestMount,
           params: {ingestFrom: mountedFrom, mountId: mount.resourceId},
           idempotencyToken: Date.now().toString(),
         },

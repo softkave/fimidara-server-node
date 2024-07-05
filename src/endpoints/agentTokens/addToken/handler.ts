@@ -1,4 +1,4 @@
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {validate} from '../../../utils/validate.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
@@ -13,12 +13,12 @@ import {AddAgentTokenEndpoint} from './types.js';
 import {INTERNAL_createAgentToken} from './utils.js';
 import {addAgentTokenJoiSchema} from './validation.js';
 
-const addAgentTokenEndpoint: AddAgentTokenEndpoint = async instData => {
-  const data = validate(instData.data, addAgentTokenJoiSchema);
+const addAgentTokenEndpoint: AddAgentTokenEndpoint = async reqData => {
+  const data = validate(reqData.data, addAgentTokenJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );
@@ -28,7 +28,7 @@ const addAgentTokenEndpoint: AddAgentTokenEndpoint = async instData => {
     workspace,
     workspaceId: workspace.resourceId,
     target: {
-      action: kFimidaraPermissionActionsMap.addAgentToken,
+      action: kFimidaraPermissionActions.addAgentToken,
       targetId: workspace.resourceId,
     },
   });

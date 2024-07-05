@@ -36,7 +36,7 @@ describe('updateWorkspce', () => {
       // usageThresholds: generateTestUsageThresholdInputMap(500),
     };
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<UpdateWorkspaceEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
@@ -45,7 +45,7 @@ describe('updateWorkspce', () => {
         }
       );
 
-    const result = await updateWorkspace(instData);
+    const result = await updateWorkspace(reqData);
     assertEndpointResultOk(result);
     expect(result.workspace).toMatchObject(workspaceUpdateInput);
     const updatedWorkspace = await kSemanticModels
@@ -61,13 +61,13 @@ describe('updateWorkspce', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {workspace: w02} = await insertWorkspaceForTest(userToken);
     await expectErrorThrown(async () => {
-      const instData =
+      const reqData =
         RequestData.fromExpressRequest<UpdateWorkspaceEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
           {workspaceId: workspace.resourceId, workspace: {name: w02.name}}
         );
 
-      await updateWorkspace(instData);
+      await updateWorkspace(reqData);
     }, [WorkspaceExistsError.name]);
   });
 });

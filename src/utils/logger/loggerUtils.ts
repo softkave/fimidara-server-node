@@ -1,8 +1,8 @@
 import {memoize} from 'lodash-es';
 import jsonStringify from 'safe-stable-stringify';
+import {AnyObject} from 'softkave-js-utils';
 import {createLogger, format, transports} from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
-import {AnyObject} from '../types.js';
 
 const consoleTransport = new transports.Console({
   format: format.printf(info => {

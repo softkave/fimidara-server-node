@@ -1,9 +1,9 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -39,21 +39,28 @@ describe('updateCollaborationRequest', () => {
       expires: add(Date.now(), {days: 1}).valueOf(),
     };
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<UpdateCollaborationRequestEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
-        {requestId: request01.resourceId, request: updateCollaborationRequestInput}
+        {
+          requestId: request01.resourceId,
+          request: updateCollaborationRequestInput,
+        }
       );
-    const result = await updateCollaborationRequest(instData);
+    const result = await updateCollaborationRequest(reqData);
     assertEndpointResultOk(result);
     const updatedRequest = await kSemanticModels
       .collaborationRequest()
       .assertGetOneByQuery({resourceId: request01.resourceId});
 
     expect(result.request.resourceId).toEqual(request01.resourceId);
-    expect(result.request.message).toBe(updateCollaborationRequestInput.message);
+    expect(result.request.message).toBe(
+      updateCollaborationRequestInput.message
+    );
     expect(result.request.expiresAt).not.toBe(request01.expiresAt);
-    expect(updatedRequest.message).toBe(updateCollaborationRequestInput.message);
+    expect(updatedRequest.message).toBe(
+      updateCollaborationRequestInput.message
+    );
     expect(updatedRequest.expiresAt).not.toBe(request01.expiresAt);
   });
 });

@@ -1,8 +1,8 @@
-import {usageCosts} from '../constants.js';
+import {kUsageCosts} from '../constants.js';
 import {GetUsageCostsEndpoint} from './types.js';
 
 const getUsageCosts: GetUsageCostsEndpoint = async () => {
-  return {costs: usageCosts};
+  return {costs: kUsageCosts};
 };
 
 export default getUsageCosts;

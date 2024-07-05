@@ -1,14 +1,17 @@
 import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {userListExtractor} from '../../users/utils.js';
 import {assertUserIsPartOfRootWorkspace} from '../utils.js';
 import {GetUsersEndpoint} from './types.js';
 
-const getUsers: GetUsersEndpoint = async instData => {
+const getUsers: GetUsersEndpoint = async reqData => {
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.user,
       kSessionUtils.accessScopes.user
     );

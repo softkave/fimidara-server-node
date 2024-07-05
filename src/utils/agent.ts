@@ -16,10 +16,15 @@ import {
 const kId01 = new Array(kIdSize - 1).fill(0).concat([1]).join('');
 const kId02 = new Array(kIdSize - 1).fill(0).concat([2]).join('');
 
-const kSystemAgentResourceId = getNewIdForResource(kFimidaraResourceType.System);
-const kPublicAgentResourceId = getNewIdForResource(kFimidaraResourceType.Public);
+const kSystemAgentResourceId = getNewIdForResource(
+  kFimidaraResourceType.System
+);
+const kPublicAgentResourceId = getNewIdForResource(
+  kFimidaraResourceType.Public
+);
 
-const agentTokenShortName = kResourceTypeShortNames[kFimidaraResourceType.AgentToken];
+const agentTokenShortName =
+  kResourceTypeShortNames[kFimidaraResourceType.AgentToken];
 const kSystemAgentTokenResourceId = `${agentTokenShortName}${kIdSeparator}${kId01}`;
 const kPublicAgentTokenResourceId = `${agentTokenShortName}${kIdSeparator}${kId02}`;
 

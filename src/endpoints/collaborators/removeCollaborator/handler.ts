@@ -1,4 +1,4 @@
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
@@ -9,12 +9,12 @@ import {RemoveCollaboratorEndpoint} from './types.js';
 import {beginDeleteCollaborator} from './utils.js';
 import {removeCollaboratorJoiSchema} from './validation.js';
 
-const removeCollaborator: RemoveCollaboratorEndpoint = async instData => {
-  const data = validate(instData.data, removeCollaboratorJoiSchema);
+const removeCollaborator: RemoveCollaboratorEndpoint = async reqData => {
+  const data = validate(reqData.data, removeCollaboratorJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );
@@ -23,7 +23,7 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async instData => {
     agent,
     workspaceId,
     data.collaboratorId,
-    kFimidaraPermissionActionsMap.removeCollaborator
+    kFimidaraPermissionActions.removeCollaborator
   );
 
   const [job] = await beginDeleteCollaborator({

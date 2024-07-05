@@ -12,12 +12,12 @@ import {INTERNAL_addFileBackendMount} from './utils.js';
 import {addFileBackendMountJoiSchema} from './validation.js';
 
 const addFileBackendMountEndpoint: AddFileBackendMountEndpoint =
-  async instData => {
-    const data = validate(instData.data, addFileBackendMountJoiSchema);
+  async reqData => {
+    const data = validate(reqData.data, addFileBackendMountJoiSchema);
     const agent = await kUtilsInjectables
       .session()
       .getAgentFromReq(
-        instData,
+        reqData,
         kSessionUtils.permittedAgentTypes.api,
         kSessionUtils.accessScopes.api
       );

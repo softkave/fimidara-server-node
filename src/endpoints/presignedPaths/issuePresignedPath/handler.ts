@@ -1,4 +1,4 @@
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {PresignedPath} from '../../../definitions/presignedPath.js';
 import {Resource, kFimidaraResourceType} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
@@ -23,16 +23,16 @@ import {assertRootname, assertWorkspace} from '../../workspaces/utils.js';
 import {IssuePresignedPathEndpoint} from './types.js';
 import {issuePresignedPathJoiSchema} from './validation.js';
 
-const issuePresignedPath: IssuePresignedPathEndpoint = async instData => {
-  const data = validate(instData.data, issuePresignedPathJoiSchema);
+const issuePresignedPath: IssuePresignedPathEndpoint = async reqData => {
+  const data = validate(reqData.data, issuePresignedPathJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );
-  const actions = data.action || [kFimidaraPermissionActionsMap.readFile];
+  const actions = data.action || [kFimidaraPermissionActions.readFile];
 
   const resource = await await kSemanticModels.utils().withTxn(async opts => {
     const {file} = await getFileWithMatcher({

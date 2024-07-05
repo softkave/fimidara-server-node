@@ -1,20 +1,26 @@
-import {ResourceWrapper, kFimidaraResourceType} from '../../../definitions/system.js';
+import {
+  ResourceWrapper,
+  kFimidaraResourceType,
+} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import {validate} from '../../../utils/validate.js';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {checkResourcesBelongsToWorkspace} from '../../resources/containerCheckFns.js';
 import {GetJobStatusEndpoint} from './types.js';
 import {getJobStatusJoiSchema} from './validation.js';
 
-const getJobStatus: GetJobStatusEndpoint = async instData => {
-  const data = validate(instData.data, getJobStatusJoiSchema);
+const getJobStatus: GetJobStatusEndpoint = async reqData => {
+  const data = validate(reqData.data, getJobStatusJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );

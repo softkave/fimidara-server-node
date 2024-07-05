@@ -1,6 +1,9 @@
 import {validate} from '../../../utils/validate.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
@@ -12,12 +15,12 @@ import {getWorkspacePermissionGroupsQuery} from './utils.js';
 import {getWorkspacePermissionGroupsJoiSchema} from './validation.js';
 
 const getWorkspacePermissionGroups: GetWorkspacePermissionGroupsEndpoint =
-  async instData => {
-    const data = validate(instData.data, getWorkspacePermissionGroupsJoiSchema);
+  async reqData => {
+    const data = validate(reqData.data, getWorkspacePermissionGroupsJoiSchema);
     const agent = await kUtilsInjectables
       .session()
       .getAgentFromReq(
-        instData,
+        reqData,
         kSessionUtils.permittedAgentTypes.api,
         kSessionUtils.accessScopes.api
       );

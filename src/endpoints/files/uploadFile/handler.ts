@@ -1,7 +1,7 @@
 import {pick} from 'lodash-es';
 import {File} from '../../../definitions/file.js';
 import {ResolvedMountEntry} from '../../../definitions/fileBackend.js';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {
   SessionAgent,
   kFimidaraResourceType,
@@ -22,6 +22,12 @@ import {
 } from '../../contexts/injection/injectables.js';
 import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils.js';
+import {
+  decrementStorageUsageRecord,
+  incrementBandwidthInUsageRecord,
+  incrementStorageEverConsumedUsageRecord,
+  incrementStorageUsageRecord,
+} from '../../usageRecords/usageFns.js';
 import {FileNotWritableError} from '../errors.js';
 import {getFileWithMatcher} from '../getFilesWithMatcher.js';
 import {
@@ -58,12 +64,12 @@ async function createAndInsertNewFile(
   return {file, parentFolder};
 }
 
-const uploadFile: UploadFileEndpoint = async instData => {
-  const data = validate(instData.data, uploadFileJoiSchema);
+const uploadFile: UploadFileEndpoint = async reqData => {
+  const data = validate(reqData.data, uploadFileJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );
@@ -71,11 +77,11 @@ const uploadFile: UploadFileEndpoint = async instData => {
   // eslint-disable-next-line prefer-const
   let {file, isNewFile} = await kSemanticModels.utils().withTxn(async opts => {
     const matched = await getFileWithMatcher({
-      opts,
-      matcher: data,
+      presignedPathAction: kFimidaraPermissionActions.uploadFile,
       incrementPresignedPathUsageCount: true,
-      presignedPathAction: kFimidaraPermissionActionsMap.uploadFile,
       supportPresignedPath: true,
+      matcher: data,
+      opts,
     });
 
     let isNewFile: boolean;
@@ -132,8 +138,50 @@ const uploadFile: UploadFileEndpoint = async instData => {
     }
 
     assertFile(file);
+    // await Promise.all([
+    //   incrementBandwidthInUsageRecord(
+    //     reqData,
+    //     {...file, size: data.size},
+    //     kFimidaraPermissionActions.uploadFile
+    //   ),
+    //   incrementStorageEverConsumedUsageRecord(
+    //     reqData,
+    //     {...file, size: data.size},
+    //     kFimidaraPermissionActions.uploadFile
+    //   ),
+    //   incrementStorageUsageRecord(
+    //     reqData,
+    //     {...file, size: data.size},
+    //     kFimidaraPermissionActions.uploadFile
+    //   ),
+    // ]);
+
+    // TODO: use sharded runner to process all an once
+    await incrementBandwidthInUsageRecord(
+      reqData,
+      {...file, size: data.size, resourceId: undefined},
+      kFimidaraPermissionActions.uploadFile
+    );
+    await incrementStorageEverConsumedUsageRecord(
+      reqData,
+      {...file, size: data.size, resourceId: undefined},
+      kFimidaraPermissionActions.uploadFile
+    );
+    await incrementStorageUsageRecord(
+      reqData,
+      {...file, size: data.size, resourceId: undefined},
+      kFimidaraPermissionActions.uploadFile
+    );
+
     return {file, workspace, isNewFile};
   });
+
+  if (!isNewFile) {
+    // TODO: this prolly should be at the end
+    kUtilsInjectables
+      .promises()
+      .forget(decrementStorageUsageRecord(reqData, file));
+  }
 
   const {primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs(
     file,
@@ -149,29 +197,33 @@ const uploadFile: UploadFileEndpoint = async instData => {
         .getOneByMountIdAndFileId(primaryMount.resourceId, file.resourceId);
     }
 
+    // TODO: compare bytecounter and size input to make sure they match or
+    // update usage record
     const bytesCounterStream = new ByteCounterPassThroughStream();
     data.data.pipe(bytesCounterStream);
 
     // TODO: should we wait here, cause it may take a while
     const persistedMountData = await primaryBackend.uploadFile({
-      mount: primaryMount,
-      workspaceId: file.workspaceId,
       filepath: stringifyFilenamepath(
         mountEntry
           ? {namepath: mountEntry?.backendNamepath, ext: mountEntry?.backendExt}
           : file
       ),
-      fileId: file.resourceId,
+      workspaceId: file.workspaceId,
       body: bytesCounterStream,
+      fileId: file.resourceId,
+      mount: primaryMount,
     });
+
     const update: Partial<File> = {
       lastUpdatedBy: getActionAgentFromSessionAgent(agent),
-      lastUpdatedAt: getTimestamp(),
       size: bytesCounterStream.contentLength,
+      lastUpdatedAt: getTimestamp(),
+      version: file.version + 1,
       isWriteAvailable: true,
       isReadAvailable: true,
-      version: file.version + 1,
     };
+
     mergeData(update, pick(data, ['description', 'encoding', 'mimetype']), {
       arrayUpdateStrategy: 'replace',
     });
@@ -183,21 +235,21 @@ const uploadFile: UploadFileEndpoint = async instData => {
         kFimidaraResourceType.ResolvedMountEntry,
         file.workspaceId,
         /** seed */ {
-          mountId: primaryMount.resourceId,
           forType: kFimidaraResourceType.File,
-          forId: file.resourceId,
-          backendNamepath: namepath,
-          backendExt: ext,
+          mountId: primaryMount.resourceId,
           fimidaraNamepath: file.namepath,
+          backendNamepath: namepath,
+          forId: file.resourceId,
           fimidaraExt: file.ext,
+          backendExt: ext,
           persisted: {
+            filepath: persistedMountData.filepath,
+            lastUpdatedAt: file.lastUpdatedAt,
             mountId: primaryMount.resourceId,
+            raw: persistedMountData.raw,
             encoding: file.encoding,
             mimetype: file.mimetype,
             size: file.size,
-            lastUpdatedAt: file.lastUpdatedAt,
-            raw: persistedMountData.raw,
-            filepath: persistedMountData.filepath,
           },
         }
       );

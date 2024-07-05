@@ -8,7 +8,7 @@ import {
   Job,
   kJobType,
 } from '../../../definitions/job.js';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {pathSplit} from '../../../utils/fns.js';
@@ -41,15 +41,15 @@ import {UpdateFileBackendMountEndpoint} from './types.js';
 import {updateFileBackendMountJoiSchema} from './validation.js';
 
 const updateFileBackendMount: UpdateFileBackendMountEndpoint =
-  async instData => {
+  async reqData => {
     const mountModel = kSemanticModels.fileBackendMount();
     const semanticUtils = kSemanticModels.utils();
 
-    const data = validate(instData.data, updateFileBackendMountJoiSchema);
+    const data = validate(reqData.data, updateFileBackendMountJoiSchema);
     const agent = await kUtilsInjectables
       .session()
       .getAgentFromReq(
-        instData,
+        reqData,
         kSessionUtils.permittedAgentTypes.api,
         kSessionUtils.accessScopes.api
       );
@@ -59,7 +59,7 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint =
       workspace,
       workspaceId: workspace.resourceId,
       target: {
-        action: kFimidaraPermissionActionsMap.updateFileBackendMount,
+        action: kFimidaraPermissionActions.updateFileBackendMount,
         targetId: workspace.resourceId,
       },
     });

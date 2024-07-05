@@ -1,5 +1,13 @@
 import {Readable} from 'stream';
 // eslint-disable-next-line node/no-unpublished-import
+import {
+  AnyFn,
+  AnyObject,
+  IsBoolean,
+  IsStringEnum,
+  IsUnion,
+  Not,
+} from 'softkave-js-utils';
 import {IsNever, OptionalKeysOf} from 'type-fest';
 import {
   BaseEndpointResult,
@@ -12,7 +20,6 @@ import {
   makeSetAccessor,
 } from '../utils/classAccessors.js';
 import {mergeData} from '../utils/fns.js';
-import {AnyFn, AnyObject, IsBoolean, IsStringEnum, IsUnion, Not} from '../utils/types.js';
 
 export interface FieldBaseType {
   __id: string;
@@ -161,22 +168,22 @@ export type ConvertToMddocType<
 > extends false
   ? FieldOrCombinationType<Array<ConvertToMddocType<T, false>>>
   : T extends string
-  ? FieldStringType
-  : T extends number
-  ? FieldNumberType
-  : T extends boolean
-  ? FieldBooleanType
-  : T extends Array<infer InferedType>
-  ? FieldArrayType<InferedType>
-  : T extends Buffer
-  ? FieldBinaryType
-  : T extends Readable
-  ? FieldBinaryType
-  : T extends null
-  ? FieldNullType
-  : T extends AnyObject
-  ? FieldObjectType<Exclude<T, undefined>>
-  : FieldBaseType;
+    ? FieldStringType
+    : T extends number
+      ? FieldNumberType
+      : T extends boolean
+        ? FieldBooleanType
+        : T extends Array<infer InferedType>
+          ? FieldArrayType<InferedType>
+          : T extends Buffer
+            ? FieldBinaryType
+            : T extends Readable
+              ? FieldBinaryType
+              : T extends null
+                ? FieldNullType
+                : T extends AnyObject
+                  ? FieldObjectType<Exclude<T, undefined>>
+                  : FieldBaseType;
 export type FieldObjectFieldsMap<T extends object> = Required<{
   [K in keyof T]: K extends OptionalKeysOf<T>
     ? FieldObjectFieldType<Exclude<T[K], undefined>, false>
@@ -198,7 +205,9 @@ export interface FieldObjectType<T extends object> {
   assertGetFields: () => FieldObjectFieldsMap<T>;
   clone: () => FieldObjectType<T>;
 }
-export interface FieldOrCombinationType<T extends FieldBaseType[] = FieldBaseType[]> {
+export interface FieldOrCombinationType<
+  T extends FieldBaseType[] = FieldBaseType[],
+> {
   __id: string;
   types?: T;
   description?: string;
@@ -264,16 +273,34 @@ export interface SdkParamsBodyType<
 > {
   __id: string;
   def?: FieldObjectType<T>;
-  mappings: MappingFn<T, TRequestHeaders, TPathParameters, TQuery, TRequestBody>;
+  mappings: MappingFn<
+    T,
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody
+  >;
   serializeAs?: 'json' | 'formdata';
   setDef: (
     v: FieldObjectType<T>
-  ) => SdkParamsBodyType<T, TRequestHeaders, TPathParameters, TQuery, TRequestBody>;
+  ) => SdkParamsBodyType<
+    T,
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody
+  >;
   getDef: () => FieldObjectType<T> | undefined;
   assertGetDef: () => FieldObjectType<T>;
   setSerializeAs: (
     v?: 'json' | 'formdata'
-  ) => SdkParamsBodyType<T, TRequestHeaders, TPathParameters, TQuery, TRequestBody>;
+  ) => SdkParamsBodyType<
+    T,
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody
+  >;
   getSerializeAs: () => 'json' | 'formdata' | undefined;
   assertGetSerializeAs: () => 'json' | 'formdata';
   clone: () => SdkParamsBodyType<
@@ -399,7 +426,9 @@ export interface HttpEndpointDefinitionType<
   getRequestHeaders: () => FieldObjectType<TRequestHeaders> | undefined;
   assertGetRequestHeaders: () => FieldObjectType<TRequestHeaders>;
   setRequestBody: (
-    v: FieldObjectType<TRequestBody> | HttpEndpointMultipartFormdataType<TRequestBody>
+    v:
+      | FieldObjectType<TRequestBody>
+      | HttpEndpointMultipartFormdataType<TRequestBody>
   ) => HttpEndpointDefinitionType<
     TRequestHeaders,
     TPathParameters,
@@ -548,19 +577,20 @@ export interface HttpEndpointDefinitionType<
   >;
 }
 
-export type InferFieldObjectType<T, TDefault = never> = T extends FieldObjectType<
-  infer TObjectType
->
-  ? TObjectType
-  : TDefault;
+export type InferFieldObjectType<
+  T,
+  TDefault = never,
+> = T extends FieldObjectType<infer TObjectType> ? TObjectType : TDefault;
 export type InferFieldObjectOrMultipartType<T> = T extends FieldObjectType<
   infer TObjectType
 >
   ? TObjectType
   : T extends HttpEndpointMultipartFormdataType<infer TMultipartObjectType>
-  ? TMultipartObjectType
-  : never;
-export type InferSdkParamsType<T> = T extends SdkParamsBodyType<infer TObjectType>
+    ? TMultipartObjectType
+    : never;
+export type InferSdkParamsType<T> = T extends SdkParamsBodyType<
+  infer TObjectType
+>
   ? TObjectType
   : never;
 
@@ -769,7 +799,9 @@ function constructSdkParamsBody<
   TPathParameters extends object = any,
   TQuery extends object = any,
   TRequestBody extends object = any,
->(mappings: MappingFn<T, TRequestHeaders, TPathParameters, TQuery, TRequestBody>) {
+>(
+  mappings: MappingFn<T, TRequestHeaders, TPathParameters, TQuery, TRequestBody>
+) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const ff0: SdkParamsBodyType<
@@ -779,19 +811,24 @@ function constructSdkParamsBody<
     TQuery,
     TRequestBody
   > = {};
-  const ff: SdkParamsBodyType<T, TRequestHeaders, TPathParameters, TQuery, TRequestBody> =
-    {
-      mappings,
-      __id: 'SdkParamsBody',
-      // serializeAs: 'json',
-      setDef: makeSetAccessor(ff0, 'def'),
-      getDef: makeGetAccessor(ff0, 'def'),
-      assertGetDef: makeAssertGetAccessor(ff0, 'def'),
-      setSerializeAs: makeSetAccessor(ff0, 'serializeAs'),
-      getSerializeAs: makeGetAccessor(ff0, 'serializeAs'),
-      assertGetSerializeAs: makeAssertGetAccessor(ff0, 'serializeAs'),
-      clone: makeClone(ff0),
-    };
+  const ff: SdkParamsBodyType<
+    T,
+    TRequestHeaders,
+    TPathParameters,
+    TQuery,
+    TRequestBody
+  > = {
+    mappings,
+    __id: 'SdkParamsBody',
+    // serializeAs: 'json',
+    setDef: makeSetAccessor(ff0, 'def'),
+    getDef: makeGetAccessor(ff0, 'def'),
+    assertGetDef: makeAssertGetAccessor(ff0, 'def'),
+    setSerializeAs: makeSetAccessor(ff0, 'serializeAs'),
+    getSerializeAs: makeGetAccessor(ff0, 'serializeAs'),
+    assertGetSerializeAs: makeAssertGetAccessor(ff0, 'serializeAs'),
+    clone: makeClone(ff0),
+  };
   return mergeData(ff0, ff, {arrayUpdateStrategy: 'replace'});
 }
 
@@ -920,7 +957,10 @@ function constructHttpEndpointDefinition<
     assertGetDescription: makeAssertGetAccessor(ff0, 'description'),
     setErrorResponseHeaders: makeSetAccessor(ff0, 'errorResponseHeaders'),
     getErrorResponseHeaders: makeGetAccessor(ff0, 'errorResponseHeaders'),
-    assertGetErrorResponseHeaders: makeAssertGetAccessor(ff0, 'errorResponseHeaders'),
+    assertGetErrorResponseHeaders: makeAssertGetAccessor(
+      ff0,
+      'errorResponseHeaders'
+    ),
     setErrorResponseBody: makeSetAccessor(ff0, 'errorResponseBody'),
     getErrorResponseBody: makeGetAccessor(ff0, 'errorResponseBody'),
     assertGetErrorResponseBody: makeAssertGetAccessor(ff0, 'errorResponseBody'),
@@ -951,7 +991,8 @@ export function objectHasRequiredFields(
   item: FieldObjectType<any> | FieldObjectType<AnyObject>
 ) {
   return item.getFields()
-    ? Object.values(item.assertGetFields()).findIndex(next => next.required) !== -1
+    ? Object.values(item.assertGetFields()).findIndex(next => next.required) !==
+        -1
     : false;
 }
 
@@ -991,7 +1032,9 @@ export function isMddocFieldObject(data: any): data is FieldObjectType<any> {
   return data && (data as FieldObjectType<any>).__id === 'FieldObject';
 }
 
-export function isMddocFieldOrCombination(data: any): data is FieldOrCombinationType {
+export function isMddocFieldOrCombination(
+  data: any
+): data is FieldOrCombinationType {
   return data && (data as FieldOrCombinationType).__id === 'FieldOrCombination';
 }
 
@@ -1009,9 +1052,12 @@ export function isMddocMultipartFormdata(
   );
 }
 
-export function isMddocEndpoint(data: any): data is HttpEndpointDefinitionType<any> {
+export function isMddocEndpoint(
+  data: any
+): data is HttpEndpointDefinitionType<any> {
   return (
-    data && (data as HttpEndpointDefinitionType<any>).__id === 'HttpEndpointDefinition'
+    data &&
+    (data as HttpEndpointDefinitionType<any>).__id === 'HttpEndpointDefinition'
   );
 }
 

@@ -1,7 +1,12 @@
-import {ObjectValues, OmitProperties} from '../utils/types.js';
-import {FimidaraResourceType, ToPublicDefinitions, WorkspaceResource} from './system.js';
+import {OmitFrom} from 'softkave-js-utils';
+import {ValueOf} from 'type-fest';
+import {
+  FimidaraResourceType,
+  ToPublicDefinitions,
+  WorkspaceResource,
+} from './system.js';
 
-export const kFimidaraPermissionActionsMap = {
+export const kFimidaraPermissionActions = {
   wildcard: '*',
   // wildcardAdd: 'wildcardAdd',
   // wildcardRead: 'wildcardRead',
@@ -59,7 +64,9 @@ export const kFimidaraPermissionActionsMap = {
   updateFileBackendMount: 'updateFileBackendMount',
 } as const;
 
-export type FimidaraPermissionAction = ObjectValues<typeof kFimidaraPermissionActionsMap>;
+export type FimidaraPermissionAction = ValueOf<
+  typeof kFimidaraPermissionActions
+>;
 
 export interface PermissionItem extends WorkspaceResource {
   entityId: string;
@@ -72,5 +79,5 @@ export interface PermissionItem extends WorkspaceResource {
 }
 
 export type PublicPermissionItem = ToPublicDefinitions<
-  OmitProperties<PermissionItem, 'targetParentId'>
+  OmitFrom<PermissionItem, 'targetParentId'>
 >;

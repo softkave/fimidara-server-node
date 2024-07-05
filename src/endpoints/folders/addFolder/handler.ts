@@ -14,12 +14,12 @@ import {createFolderList} from './createFolderList.js';
 import {AddFolderEndpoint} from './types.js';
 import {addFolderJoiSchema} from './validation.js';
 
-const addFolder: AddFolderEndpoint = async instData => {
-  const data = validate(instData.data, addFolderJoiSchema);
+const addFolder: AddFolderEndpoint = async reqData => {
+  const data = validate(reqData.data, addFolderJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );

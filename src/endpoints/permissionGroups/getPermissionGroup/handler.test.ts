@@ -1,7 +1,7 @@
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import {PermissionGroupMatcher} from '../../../definitions/permissionGroups.js';
 import RequestData from '../../RequestData.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -28,11 +28,11 @@ test('referenced permissionGroup returned', async () => {
     workspace.resourceId
   );
 
-  const instData = RequestData.fromExpressRequest<PermissionGroupMatcher>(
+  const reqData = RequestData.fromExpressRequest<PermissionGroupMatcher>(
     mockExpressRequestWithAgentToken(userToken),
     {permissionGroupId: permissionGroup.resourceId}
   );
-  const result = await getPermissionGroup(instData);
+  const result = await getPermissionGroup(reqData);
   assertEndpointResultOk(result);
   expect(result.permissionGroup).toMatchObject(permissionGroup);
 });

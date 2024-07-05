@@ -12,11 +12,11 @@ import {
 import INTERNAL_confirmEmailAddress from './internalConfirmEmailAddress.js';
 import {ConfirmEmailAddressEndpoint} from './types.js';
 
-const confirmEmailAddress: ConfirmEmailAddressEndpoint = async instData => {
+const confirmEmailAddress: ConfirmEmailAddressEndpoint = async reqData => {
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.user,
       kSessionUtils.accessScopes.confirmEmailAddress
     );

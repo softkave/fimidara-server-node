@@ -1,4 +1,4 @@
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {tryGetAgentTokenId} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
@@ -10,12 +10,12 @@ import {DeleteAgentTokenEndpoint} from './types.js';
 import {beginDeleteAgentToken} from './utils.js';
 import {deleteAgentTokenJoiSchema} from './validation.js';
 
-const deleteAgentToken: DeleteAgentTokenEndpoint = async instData => {
-  const data = validate(instData.data, deleteAgentTokenJoiSchema);
+const deleteAgentToken: DeleteAgentTokenEndpoint = async reqData => {
+  const data = validate(reqData.data, deleteAgentTokenJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );
@@ -26,7 +26,7 @@ const deleteAgentToken: DeleteAgentTokenEndpoint = async instData => {
     workspace?.resourceId,
     tokenId,
     data.providedResourceId,
-    kFimidaraPermissionActionsMap.deleteAgentToken
+    kFimidaraPermissionActions.deleteAgentToken
   );
   const workspaceId = token.workspaceId;
   appAssert(workspaceId);

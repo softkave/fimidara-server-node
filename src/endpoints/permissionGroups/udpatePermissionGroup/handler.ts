@@ -18,12 +18,12 @@ import {
 import {UpdatePermissionGroupEndpoint} from './types.js';
 import {updatePermissionGroupJoiSchema} from './validation.js';
 
-const updatePermissionGroup: UpdatePermissionGroupEndpoint = async instData => {
-  const data = validate(instData.data, updatePermissionGroupJoiSchema);
+const updatePermissionGroup: UpdatePermissionGroupEndpoint = async reqData => {
+  const data = validate(reqData.data, updatePermissionGroupJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );

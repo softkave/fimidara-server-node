@@ -1,9 +1,21 @@
+import {faker} from '@faker-js/faker';
 import assert from 'assert';
+import {difference} from 'lodash-es';
+import {expectErrorThrownAsync} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {ResolvedMountEntry} from '../../../definitions/fileBackend.js';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {
+  FileUsageRecordArtifact,
+  UsageRecordCategory,
+  kUsageRecordCategory,
+  kUsageRecordFulfillmentStatus,
+  kUsageSummationType,
+} from '../../../definitions/usageRecord.js';
+import {UsageThresholdsByCategory} from '../../../definitions/workspace.js';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {pathJoin, streamToBuffer} from '../../../utils/fns.js';
 import {newWorkspaceResource} from '../../../utils/resource.js';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
@@ -14,6 +26,7 @@ import {
 } from '../../contexts/file/types.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {kRegisterUtilsInjectables} from '../../contexts/injection/register.js';
+import {getStringListQuery} from '../../contexts/semantic/utils.js';
 import {
   addRootnameToPath,
   stringifyFoldernamepath,
@@ -23,6 +36,7 @@ import {
   generateTestFileName,
   generateTestFilepathString,
 } from '../../testUtils/generate/file.js';
+import {generateAndInsertUsageRecordList} from '../../testUtils/generate/usageRecord.js';
 import {
   getTestSessionAgent,
   kTestSessionAgentTypes,
@@ -44,6 +58,9 @@ import {
   mockExpressRequestForPublicAgent,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
+import {getCostForUsage} from '../../usageRecords/constants.js';
+import {UsageLimitExceededError} from '../../usageRecords/errors.js';
+import {getUsageRecordReportingPeriod} from '../../usageRecords/utils.js';
 import {PermissionDeniedError} from '../../users/errors.js';
 import {stringifyFilenamepath} from '../utils.js';
 import readFile from './handler.js';
@@ -58,6 +75,42 @@ afterAll(async () => {
   await completeTests();
 });
 
+async function getUsageL2(workspaceId: string, category: UsageRecordCategory) {
+  return await kSemanticModels.usageRecord().getOneByQuery({
+    ...getUsageRecordReportingPeriod(),
+    status: kUsageRecordFulfillmentStatus.fulfilled,
+    summationType: kUsageSummationType.month,
+    workspaceId,
+    category,
+  });
+}
+
+async function getUsageL1(
+  workspaceId: string,
+  category: UsageRecordCategory,
+  filepath: string[]
+) {
+  return await kSemanticModels.usageRecord().getOneByQuery({
+    ...getUsageRecordReportingPeriod(),
+    status: kUsageRecordFulfillmentStatus.fulfilled,
+    summationType: kUsageSummationType.instance,
+    workspaceId,
+    category,
+    artifacts: {
+      $elemMatch: {
+        artifact: {
+          $objMatch: getStringListQuery<FileUsageRecordArtifact>(
+            filepath,
+            /** prefix */ 'filepath',
+            /** op */ '$regex',
+            /** includeSizeOp */ true
+          ),
+        },
+      },
+    },
+  });
+}
+
 describe('readFile', () => {
   test.each(kTestSessionAgentTypes)(
     'file returned using %s',
@@ -68,16 +121,16 @@ describe('readFile', () => {
         adminUserToken: userToken,
       } = await getTestSessionAgent(agentType, {
         permissions: {
-          actions: [kFimidaraPermissionActionsMap.readFile],
+          actions: [kFimidaraPermissionActions.readFile],
         },
       });
       const {file} = await insertFileForTest(userToken, workspace);
 
-      const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+      const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
         mockExpressRequestWithAgentToken(sessionAgent.agentToken),
         /** data */ {filepath: stringifyFilenamepath(file, workspace.rootname)}
       );
-      const result = await readFile(instData);
+      const result = await readFile(reqData);
       assertEndpointResultOk(result);
 
       await expectFileBodyEqualById(file.resourceId, result.stream);
@@ -90,7 +143,7 @@ describe('readFile', () => {
       workspace,
       adminUserToken: userToken,
     } = await getTestSessionAgent(kFimidaraResourceType.User, {
-      permissions: {actions: [kFimidaraPermissionActionsMap.readFile]},
+      permissions: {actions: [kFimidaraPermissionActions.readFile]},
     });
     const startWidth = 500;
     const startHeight = 500;
@@ -104,14 +157,14 @@ describe('readFile', () => {
 
     const expectedWidth = 300;
     const expectedHeight = 300;
-    const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+    const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestWithAgentToken(sessionAgent.agentToken),
       /** data */ {
         filepath: stringifyFilenamepath(file, workspace.rootname),
         imageResize: {width: expectedWidth, height: expectedHeight},
       }
     );
-    const result = await readFile(instData);
+    const result = await readFile(reqData);
     assertEndpointResultOk(result);
 
     const resultBuffer = await streamToBuffer(result.stream);
@@ -129,7 +182,7 @@ describe('readFile', () => {
       const {folder} = await insertFolderForTest(userToken, workspace);
       await insertPermissionItemsForTest(userToken, workspace.resourceId, {
         target: {targetId: folder.resourceId},
-        action: kFimidaraPermissionActionsMap.readFile,
+        action: kFimidaraPermissionActions.readFile,
         access: true,
         entityId: workspace.publicPermissionGroupId,
       });
@@ -145,11 +198,11 @@ describe('readFile', () => {
         ),
       });
 
-      const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+      const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
         mockExpressRequestForPublicAgent(),
         {filepath: stringifyFilenamepath(file, workspace.rootname)}
       );
-      const result = await readFile(instData);
+      const result = await readFile(reqData);
       assertEndpointResultOk(result);
     }
   );
@@ -161,16 +214,16 @@ describe('readFile', () => {
       const {file} = await insertFileForTest(adminUserToken, workspace);
       await insertPermissionItemsForTest(adminUserToken, workspace.resourceId, {
         target: {targetId: file.resourceId},
-        action: kFimidaraPermissionActionsMap.readFile,
+        action: kFimidaraPermissionActions.readFile,
         access: true,
         entityId: workspace.publicPermissionGroupId,
       });
 
-      const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+      const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
         mockExpressRequestForPublicAgent(),
         {filepath: stringifyFilenamepath(file, workspace.rootname)}
       );
-      const result = await readFile(instData);
+      const result = await readFile(reqData);
       assertEndpointResultOk(result);
     }
   );
@@ -187,7 +240,7 @@ describe('readFile', () => {
       const {file} = await insertFileForTest(userToken, workspace);
       await insertPermissionItemsForTest(userToken, workspace.resourceId, {
         target: {targetId: file.resourceId},
-        action: kFimidaraPermissionActionsMap.readFile,
+        action: kFimidaraPermissionActions.readFile,
         access: false,
         entityId:
           agentType === kFimidaraResourceType.Public
@@ -196,11 +249,11 @@ describe('readFile', () => {
       });
 
       try {
-        const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+        const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
           mockExpressRequestForPublicAgent(),
           {filepath: stringifyFilenamepath(file, workspace.rootname)}
         );
-        await readFile(instData);
+        await readFile(reqData);
       } catch (error) {
         expect((error as Error)?.name).toBe(PermissionDeniedError.name);
       }
@@ -268,11 +321,11 @@ describe('readFile', () => {
       }
     });
 
-    const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+    const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {filepath: stringifyFilenamepath(file, workspace.rootname)}
     );
-    const result = await readFile(instData);
+    const result = await readFile(reqData);
     assertEndpointResultOk(result);
 
     await expectFileBodyEqual(testBuffer, result.stream);
@@ -289,14 +342,208 @@ describe('readFile', () => {
       return new NoopFilePersistenceProviderContext();
     });
 
-    const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+    const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {filepath: stringifyFilenamepath(file, workspace.rootname)}
     );
-    const result = await readFile(instData);
+    const result = await readFile(reqData);
     assertEndpointResultOk(result);
 
     const testBuffer = Buffer.from([]);
     await expectFileBodyEqual(testBuffer, result.stream);
+  });
+
+  test('increments usage', async () => {
+    const {
+      adminUserToken: userToken,
+      sessionAgent,
+      workspace,
+    } = await getTestSessionAgent(kFimidaraResourceType.User, {
+      permissions: {
+        actions: [kFimidaraPermissionActions.readFile],
+      },
+    });
+    const {file} = await insertFileForTest(userToken, workspace);
+
+    const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+      mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+      /** data */ {filepath: stringifyFilenamepath(file, workspace.rootname)}
+    );
+    const result = await readFile(reqData);
+    assertEndpointResultOk(result);
+
+    const [dbBandwidthOutUsageL1, dbBandwidthOutUsageL2, dbTotalUsageL2] =
+      await Promise.all([
+        getUsageL1(
+          workspace.resourceId,
+          kUsageRecordCategory.bandwidthOut,
+          file.namepath
+        ),
+        getUsageL2(workspace.resourceId, kUsageRecordCategory.bandwidthOut),
+        getUsageL2(workspace.resourceId, kUsageRecordCategory.total),
+      ]);
+
+    assert(dbBandwidthOutUsageL1);
+    assert(dbBandwidthOutUsageL2);
+    assert(dbTotalUsageL2);
+
+    expect(dbBandwidthOutUsageL2.usage).toBe(file.size);
+    expect(dbBandwidthOutUsageL2.usageCost).toBe(
+      getCostForUsage(kUsageRecordCategory.bandwidthOut, file.size)
+    );
+
+    expect(dbTotalUsageL2.usageCost).toBeGreaterThanOrEqual(
+      dbBandwidthOutUsageL2.usageCost
+    );
+  });
+
+  test.each([kUsageRecordCategory.bandwidthOut, kUsageRecordCategory.total])(
+    'fails if usage exceeded for category=%s',
+    async category => {
+      const {
+        adminUserToken: userToken,
+        sessionAgent,
+        workspace,
+      } = await getTestSessionAgent(kFimidaraResourceType.User, {
+        permissions: {
+          actions: [kFimidaraPermissionActions.readFile],
+        },
+      });
+
+      const {file} = await insertFileForTest(userToken, workspace);
+      const [[usageL2], [usageDroppedL2]] = await Promise.all([
+        category !== kUsageRecordCategory.total
+          ? generateAndInsertUsageRecordList(/** count */ 1, {
+              status: kUsageRecordFulfillmentStatus.fulfilled,
+              summationType: kUsageSummationType.month,
+              usageCost: faker.number.int({min: 1, max: 100}),
+              ...getUsageRecordReportingPeriod(),
+              usage: faker.number.int({min: 1, max: 100}),
+              workspaceId: workspace.resourceId,
+              category,
+            })
+          : Promise.all([getUsageL2(workspace.resourceId, category)]),
+        category !== kUsageRecordCategory.total
+          ? generateAndInsertUsageRecordList(/** count */ 1, {
+              status: kUsageRecordFulfillmentStatus.dropped,
+              summationType: kUsageSummationType.month,
+              usageCost: faker.number.int({min: 1, max: 100}),
+              ...getUsageRecordReportingPeriod(),
+              usage: faker.number.int({min: 1, max: 100}),
+              workspaceId: workspace.resourceId,
+              category,
+            })
+          : [],
+      ]);
+
+      assert(usageL2);
+
+      await kSemanticModels.utils().withTxn(opts =>
+        kSemanticModels.workspace().updateOneById(
+          workspace.resourceId,
+          {
+            usageThresholds: {
+              [category]: {
+                lastUpdatedBy: kSystemSessionAgent,
+                budget: usageL2.usageCost - 1,
+                lastUpdatedAt: Date.now(),
+                usage: usageL2.usage - 1,
+                category,
+              },
+            },
+          },
+          opts
+        )
+      );
+
+      await expectErrorThrownAsync(
+        async () => {
+          const reqData =
+            RequestData.fromExpressRequest<ReadFileEndpointParams>(
+              mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+              /** data */ {
+                filepath: stringifyFilenamepath(file, workspace.rootname),
+              }
+            );
+          await readFile(reqData);
+        },
+        {
+          expectFn: error => {
+            expect(error).toBeInstanceOf(UsageLimitExceededError);
+            assert(error instanceof UsageLimitExceededError);
+            expect(error.blockingCategory).toBe(category);
+          },
+        }
+      );
+
+      const [dbUsageL2, dbUsageDroppedL2] = await Promise.all([
+        kSemanticModels.usageRecord().getOneById(usageL2.resourceId),
+        usageDroppedL2
+          ? kSemanticModels.usageRecord().getOneById(usageDroppedL2.resourceId)
+          : undefined,
+      ]);
+      assert(dbUsageL2);
+
+      expect(dbUsageL2.usage).toBe(usageL2.usage);
+      expect(dbUsageL2.usageCost).toBe(usageL2.usageCost);
+
+      if (category !== kUsageRecordCategory.total) {
+        assert(dbUsageDroppedL2);
+        expect(dbUsageDroppedL2.usage).toBe(usageDroppedL2.usage + file.size);
+        expect(dbUsageDroppedL2.usageCost).toBe(
+          usageDroppedL2.usageCost + getCostForUsage(category, file.size)
+        );
+      }
+    }
+  );
+
+  test('does not fail if usage exceeded for non total or bout usage', async () => {
+    const {
+      sessionAgent,
+      workspace,
+      adminUserToken: userToken,
+    } = await getTestSessionAgent(kFimidaraResourceType.User, {
+      permissions: {
+        actions: [kFimidaraPermissionActions.readFile],
+      },
+    });
+    const {file} = await insertFileForTest(userToken, workspace);
+    const usage = faker.number.int({min: 1});
+    const usageCost = faker.number.int({min: 1});
+    const categories = difference(Object.values(kUsageRecordCategory), [
+      kUsageRecordCategory.bandwidthOut,
+      kUsageRecordCategory.total,
+    ]);
+    await kSemanticModels.utils().withTxn(opts =>
+      kSemanticModels.workspace().updateOneById(
+        workspace.resourceId,
+        {
+          usageThresholds: {
+            ...categories.reduce(
+              (acc, category) => ({
+                [category]: {
+                  lastUpdatedBy: kSystemSessionAgent,
+                  lastUpdatedAt: Date.now(),
+                  budget: usageCost,
+                  category,
+                  usage,
+                },
+              }),
+              {} as UsageThresholdsByCategory
+            ),
+          },
+        },
+        opts
+      )
+    );
+
+    const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+      mockExpressRequestWithAgentToken(sessionAgent.agentToken),
+      /** data */ {
+        filepath: stringifyFilenamepath(file, workspace.rootname),
+      }
+    );
+    const result = await readFile(reqData);
+    assertEndpointResultOk(result);
   });
 });

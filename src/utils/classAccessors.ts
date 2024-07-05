@@ -1,7 +1,7 @@
 import assert from 'assert';
 import {cloneDeep, isFunction, isObject} from 'lodash-es';
+import {AnyFn, AnyObject} from 'softkave-js-utils';
 import {mergeData} from './fns.js';
-import {AnyFn, AnyObject} from './types.js';
 
 export function makeGetAccessor<T, K extends keyof T>(obj: T, k: K) {
   return () => {

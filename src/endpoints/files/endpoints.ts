@@ -1,12 +1,12 @@
 import busboy from 'connect-busboy';
 import {Request, Response} from 'express';
 import {first, isString, last} from 'lodash-es';
+import {AnyObject} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {kFimidaraResourceType} from '../../definitions/system.js';
 import {appAssert} from '../../utils/assertion.js';
 import {convertToArray} from '../../utils/fns.js';
 import {tryGetResourceTypeFromId} from '../../utils/resource.js';
-import {AnyObject} from '../../utils/types.js';
 import {kEndpointConstants} from '../constants.js';
 import {kUtilsInjectables} from '../contexts/injection/injectables.js';
 import {InvalidRequestError} from '../errors.js';
@@ -98,12 +98,12 @@ function extractReadFileParamsFromReq(req: Request): ReadFileEndpointParams {
   return {
     ...extractFilepathOrIdFromReqPath(req, kFileConstants.routes.readFile),
     imageResize: {
-      width: endpointDecodeURIComponent(query.w),
-      height: endpointDecodeURIComponent(query.h),
-      background: endpointDecodeURIComponent(query.bg),
-      fit: endpointDecodeURIComponent(query.fit),
-      position: endpointDecodeURIComponent(query.pos),
       withoutEnlargement: endpointDecodeURIComponent(query.withoutEnlargement),
+      background: endpointDecodeURIComponent(query.bg),
+      position: endpointDecodeURIComponent(query.pos),
+      height: endpointDecodeURIComponent(query.h),
+      width: endpointDecodeURIComponent(query.w),
+      fit: endpointDecodeURIComponent(query.fit),
     },
     imageFormat: endpointDecodeURIComponent(query.format),
     download: query.download,
@@ -116,10 +116,12 @@ async function extractUploadFileParamsFromReq(
 ): Promise<UploadFileEndpointParams> {
   let waitTimeoutHandle: NodeJS.Timeout | undefined = undefined;
   const contentEncoding = req.headers['content-encoding'];
+  const contentLength = req.headers['content-length'];
   const description =
     req.headers[kFileConstants.headers['x-fimidara-file-description']];
   const mimeType =
     req.headers[kFileConstants.headers['x-fimidara-file-mimetype']];
+
   appAssert(
     req.busboy,
     new InvalidRequestError('Invalid multipart/formdata request')
@@ -148,14 +150,18 @@ async function extractUploadFileParamsFromReq(
         req,
         kFileConstants.routes.uploadFile
       );
+
       resolve({
         ...matcher,
-        data: stream,
-        encoding: info.encoding ?? contentEncoding,
         mimetype: isString(mimeType) && mimeType ? mimeType : info.mimeType,
+        encoding: info.encoding ?? contentEncoding,
         description: description
           ? first(convertToArray(description))
           : undefined,
+        data: stream,
+        // TODO: this is safe because there's Joi validation at the endpoint
+        // level
+        size: contentLength as unknown as number,
       });
     });
 
@@ -173,12 +179,15 @@ async function extractUploadFileParamsFromReq(
       );
       resolve({
         ...matcher,
-        data: Readable.from(value),
-        encoding: info.encoding ?? contentEncoding,
         mimetype: isString(mimeType) && mimeType ? mimeType : info.mimeType,
+        encoding: info.encoding ?? contentEncoding,
+        data: Readable.from(value),
         description: description
           ? first(convertToArray(description))
           : undefined,
+        // TODO: this is safe because there's Joi validation at the endpoint
+        // level
+        size: contentLength as unknown as number,
       });
     });
 
@@ -215,51 +224,50 @@ function cleanupUploadFileReq(req: Request) {
 export function getFilesPublicHttpEndpoints() {
   const filesExportedEndpoints: FilesExportedEndpoints = {
     deleteFile: {
-      fn: deleteFile,
       mddocHttpDefinition: deleteFileEndpointDefinition,
       handleError: handleNotFoundError,
+      fn: deleteFile,
     },
     getFileDetails: {
-      fn: getFileDetails,
       mddocHttpDefinition: getFileDetailsEndpointDefinition,
       handleError: handleNotFoundError,
+      fn: getFileDetails,
     },
     readFile: [
       {
-        fn: readFile,
         mddocHttpDefinition: readFilePOSTEndpointDefinition,
-        handleResponse: handleReadFileResponse,
         getDataFromReq: extractReadFileParamsFromReq,
+        handleResponse: handleReadFileResponse,
         handleError: handleNotFoundError,
+        fn: readFile,
       },
       {
-        fn: readFile,
         // TODO: special case, sdkparams is inferred from endpoint, so it's
         // expecting a request body, but it's a GET request, and there shouldn't
         // be one. Fix will take more time to fix, compared to ts-ignore, so,
-        // TODO
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         mddocHttpDefinition: readFileGETEndpointDefinition,
-        handleResponse: handleReadFileResponse,
         getDataFromReq: extractReadFileParamsFromReq,
+        handleResponse: handleReadFileResponse,
         handleError: handleNotFoundError,
+        fn: readFile,
       },
     ],
     updateFileDetails: {
-      fn: updateFileDetails,
       mddocHttpDefinition: updateFileDetailsEndpointDefinition,
       handleError: handleNotFoundError,
+      fn: updateFileDetails,
     },
     uploadFile: {
-      fn: uploadFile,
-      mddocHttpDefinition: uploadFileEndpointDefinition,
       expressRouteMiddleware: busboy({
         limits: kFileConstants.multipartLimits,
       }),
+      mddocHttpDefinition: uploadFileEndpointDefinition,
       getDataFromReq: extractUploadFileParamsFromReq,
-      cleanup: cleanupUploadFileReq,
       handleError: handleNotFoundError,
+      cleanup: cleanupUploadFileReq,
+      fn: uploadFile,
     },
   };
   return filesExportedEndpoints;

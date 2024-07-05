@@ -11,8 +11,8 @@ import {SignupEndpoint} from './types.js';
 import {INTERNAL_signupUser} from './utils.js';
 import {signupJoiSchema} from './validation.js';
 
-const signup: SignupEndpoint = async instData => {
-  const data = validate(instData.data, signupJoiSchema);
+const signup: SignupEndpoint = async reqData => {
+  const data = validate(reqData.data, signupJoiSchema);
   const user = await kSemanticModels
     .utils()
     .withTxn(opts => INTERNAL_signupUser(data, {}, opts));
@@ -24,7 +24,7 @@ const signup: SignupEndpoint = async instData => {
         getUserClientAssignedToken(user.resourceId, opts),
       ])
     );
-  instData.agent = makeUserSessionAgent(user, userToken);
+  reqData.agent = makeUserSessionAgent(user, userToken);
   await INTERNAL_sendEmailVerificationCode(user);
   return toLoginResult(user, userToken, clientAssignedToken);
 };

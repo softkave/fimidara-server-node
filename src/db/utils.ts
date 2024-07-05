@@ -28,8 +28,10 @@ export const resourceSchema = ensureMongoTypeFields<Resource>({
   deletedAt: {type: Number},
 });
 
-export const workspaceResourceSchema = ensureMongoTypeFields<WorkspaceResource>({
-  ...resourceSchema,
-  workspaceId: {type: String, index: true},
-  // providedResourceId: {type: String, index: true},
-});
+export const workspaceResourceSchema = ensureMongoTypeFields<WorkspaceResource>(
+  {
+    ...resourceSchema,
+    workspaceId: {type: String, index: true},
+    // providedResourceId: {type: String, index: true},
+  }
+);

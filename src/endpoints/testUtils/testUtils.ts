@@ -151,7 +151,7 @@ export async function insertUserForTest(
   /** Tests that mutate data will fail otherwise */
   skipAutoVerifyEmail = false
 ): Promise<IInsertUserForTestResult> {
-  const instData = RequestData.fromExpressRequest<SignupEndpointParams>(
+  const reqData = RequestData.fromExpressRequest<SignupEndpointParams>(
     mockExpressRequest(),
     {
       firstName: faker.person.firstName(),
@@ -162,7 +162,7 @@ export async function insertUserForTest(
     }
   );
 
-  const result = await signup(instData);
+  const result = await signup(reqData);
   assertEndpointResultOk(result);
   let rawUser: UserWithWorkspace;
 
@@ -200,7 +200,7 @@ export async function insertUserForTest(
     user: {...result.user, isEmailVerified: rawUser.isEmailVerified},
     userTokenStr: result.token,
     clientTokenStr: result.clientAssignedToken,
-    reqData: instData,
+    reqData: reqData,
   };
 }
 
@@ -214,7 +214,7 @@ export async function insertWorkspaceForTest(
   workspaceInput: Partial<AddWorkspaceEndpointParams> = {}
 ): Promise<IInsertWorkspaceForTestResult> {
   const companyName = faker.lorem.words(6);
-  const instData = RequestData.fromExpressRequest<AddWorkspaceEndpointParams>(
+  const reqData = RequestData.fromExpressRequest<AddWorkspaceEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
       name: companyName,
@@ -225,7 +225,7 @@ export async function insertWorkspaceForTest(
     }
   );
 
-  const result = await addWorkspace(instData);
+  const result = await addWorkspace(reqData);
   assertEndpointResultOk(result);
   const rawWorkspace = await kSemanticModels
     .workspace()
@@ -239,7 +239,7 @@ export async function insertPermissionGroupForTest(
   workspaceId: string,
   permissionGroupInput: Partial<NewPermissionGroupInput> = {}
 ) {
-  const instData =
+  const reqData =
     RequestData.fromExpressRequest<AddPermissionGroupEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
@@ -252,7 +252,7 @@ export async function insertPermissionGroupForTest(
       }
     );
 
-  const result = await addPermissionGroup(instData);
+  const result = await addPermissionGroup(reqData);
   assertEndpointResultOk(result);
   return result;
 }
@@ -262,12 +262,12 @@ export async function insertPermissionItemsForTest(
   workspaceId: string,
   input: PermissionItemInput | PermissionItemInput[]
 ) {
-  const instData =
+  const reqData =
     RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId, items: convertToArray(input)}
     );
-  const result = await addPermissionItems(instData);
+  const result = await addPermissionItems(reqData);
   assertEndpointResultOk(result);
   return result;
 }
@@ -277,7 +277,7 @@ export async function insertRequestForTest(
   workspaceId: string,
   requestInput: Partial<CollaborationRequestInput> = {}
 ) {
-  const instData =
+  const reqData =
     RequestData.fromExpressRequest<SendCollaborationRequestEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
@@ -291,7 +291,7 @@ export async function insertRequestForTest(
       }
     );
 
-  const result = await sendRequest(instData);
+  const result = await sendRequest(reqData);
   assertEndpointResultOk(result);
   return result;
 }
@@ -301,7 +301,7 @@ export async function insertAgentTokenForTest(
   workspaceId: string,
   tokenInput: Partial<NewAgentTokenInput> = {}
 ) {
-  const instData = RequestData.fromExpressRequest<AddAgentTokenEndpointParams>(
+  const reqData = RequestData.fromExpressRequest<AddAgentTokenEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
       workspaceId,
@@ -314,7 +314,7 @@ export async function insertAgentTokenForTest(
     }
   );
 
-  const result = await addAgentTokenEndpoint(instData);
+  const result = await addAgentTokenEndpoint(reqData);
   assertEndpointResultOk(result);
 
   const rawToken = await kSemanticModels
@@ -330,7 +330,7 @@ export async function insertFileBackendConfigForTest(
   workspaceId: string,
   input: Partial<NewFileBackendConfigInput> = {}
 ) {
-  const instData =
+  const reqData =
     RequestData.fromExpressRequest<AddFileBackendConfigEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
@@ -339,7 +339,7 @@ export async function insertFileBackendConfigForTest(
       }
     );
 
-  const result = await addFileBackendConfig(instData);
+  const result = await addFileBackendConfig(reqData);
   assertEndpointResultOk(result);
 
   const rawConfig = await kSemanticModels
@@ -367,13 +367,13 @@ export async function insertFileBackendMountForTest(
     folderpath: generateTestFilepathString({rootname}),
     ...input,
   });
-  const instData =
+  const reqData =
     RequestData.fromExpressRequest<AddFileBackendMountEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId, mount: mountInput}
     );
 
-  const result = await addFileBackendMountEndpoint(instData);
+  const result = await addFileBackendMountEndpoint(reqData);
   assertEndpointResultOk(result);
 
   const rawMount = await kSemanticModels
@@ -393,7 +393,7 @@ export async function insertFolderForTest(
   workspace: PublicWorkspace,
   folderInput: Partial<NewFolderInput> = {}
 ) {
-  const instData = RequestData.fromExpressRequest<AddFolderEndpointParams>(
+  const reqData = RequestData.fromExpressRequest<AddFolderEndpointParams>(
     userToken
       ? mockExpressRequestWithAgentToken(userToken)
       : mockExpressRequestForPublicAgent(),
@@ -409,7 +409,7 @@ export async function insertFolderForTest(
     }
   );
 
-  const result = await addFolder(instData);
+  const result = await addFolder(reqData);
   assertEndpointResultOk(result);
 
   const rawFolder = await kSemanticModels
@@ -464,36 +464,44 @@ export async function insertFileForTest(
       workspace.rootname
     ),
     description: faker.lorem.paragraph(),
-    data: testStream,
     mimetype: 'application/octet-stream',
+    // Not used, because they're replaced either by fileInput or below
+    size: testBuffer.byteLength,
+    data: testStream,
   };
 
   assert(input.filepath);
   let dataBuffer: Buffer | undefined = undefined;
+
+  if (fileInput.data) {
+    assert(fileInput.size, 'size must be provided is data is set');
+  }
 
   if (!fileInput.data) {
     if (type === 'png') {
       const {imgBuffer, imgStream} = await generateTestImage(imageProps);
       input.data = imgStream;
       input.mimetype = 'image/png';
+      input.size = imgBuffer.byteLength;
       dataBuffer = imgBuffer;
     } else {
       const {textBuffer, textStream} = generateTestTextFile();
       input.data = textStream;
       input.mimetype = 'text/plain';
       input.encoding = 'utf-8';
+      input.size = textBuffer.byteLength;
       dataBuffer = textBuffer;
     }
   }
 
   mergeData(input, fileInput, {arrayUpdateStrategy: 'replace'});
-  const instData = RequestData.fromExpressRequest<UploadFileEndpointParams>(
+  const reqData = RequestData.fromExpressRequest<UploadFileEndpointParams>(
     userToken
       ? mockExpressRequestWithAgentToken(userToken)
       : mockExpressRequestForPublicAgent(),
     input
   );
-  const result = await uploadFile(instData);
+  const result = await uploadFile(reqData);
   assertEndpointResultOk(result);
 
   const rawFile = await kSemanticModels
@@ -503,5 +511,5 @@ export async function insertFileForTest(
     );
 
   assert(dataBuffer);
-  return {...result, dataBuffer, rawFile, reqData: instData};
+  return {...result, dataBuffer, rawFile, reqData: reqData};
 }

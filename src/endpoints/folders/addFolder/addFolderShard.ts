@@ -1,7 +1,7 @@
 import {first} from 'lodash-es';
 import {convertToArray} from 'softkave-js-utils';
 import {Folder} from '../../../definitions/folder.js';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {Resource, SessionAgent} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {appAssert} from '../../../utils/assertion.js';
@@ -126,7 +126,7 @@ async function createFolderListWithTransaction(
           opts,
           workspaceId: workspace.resourceId,
           target: {
-            action: kFimidaraPermissionActionsMap.addFolder,
+            action: kFimidaraPermissionActions.addFolder,
             targetId: getResourcePermissionContainers(
               workspace.resourceId,
               target,

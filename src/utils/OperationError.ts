@@ -5,7 +5,7 @@ export interface OperationErrorParameters {
   message?: string;
   field?: string;
   action?: string;
-  value?: any;
+  value?: unknown;
 }
 
 export default class OperationError extends Error {
@@ -51,6 +51,6 @@ export function getErrorMessageFromParams(
   return defaultMessage;
 }
 
-export function isOperationError(error: any): error is OperationError {
-  return !!error?.message;
+export function isOperationError(error: unknown): error is OperationError {
+  return !!(error as Error | undefined)?.message;
 }

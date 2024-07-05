@@ -11,12 +11,12 @@ import {AddPermissionItemsEndpoint} from './types.js';
 import {INTERNAL_addPermissionItems} from './utils.js';
 import {addPermissionItemsJoiSchema} from './validation.js';
 
-const addPermissionItems: AddPermissionItemsEndpoint = async instData => {
-  const data = validate(instData.data, addPermissionItemsJoiSchema);
+const addPermissionItems: AddPermissionItemsEndpoint = async reqData => {
+  const data = validate(reqData.data, addPermissionItemsJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );

@@ -1,13 +1,9 @@
 import {isNil, set} from 'lodash-es';
+import {AnyFn, AnyObject} from 'softkave-js-utils';
 import {appAssert} from '../../../utils/assertion.js';
 import {convertToArray} from '../../../utils/fns.js';
 import {getNewId} from '../../../utils/resource.js';
-import {
-  AnyFn,
-  AnyObject,
-  OrArray,
-  StringKeysOnly,
-} from '../../../utils/types.js';
+import {OrArray, StringKeysOnly} from '../../../utils/types.js';
 import {
   ComparisonLiteralFieldQueryOps,
   DataQuery,

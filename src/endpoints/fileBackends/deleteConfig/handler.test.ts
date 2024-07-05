@@ -37,7 +37,7 @@ describe('deleteConfig', () => {
   test('fails if config does not exist', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<DeleteFileBackendConfigEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
@@ -50,7 +50,7 @@ describe('deleteConfig', () => {
 
     await expectErrorThrown(
       async () => {
-        await deleteFileBackendConfig(instData);
+        await deleteFileBackendConfig(reqData);
       },
       error => {
         expect((error as NotFoundError).message).toBe(
@@ -71,7 +71,7 @@ describe('deleteConfig', () => {
       configId: config.resourceId,
     });
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<DeleteFileBackendConfigEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {configId: config.resourceId, workspaceId: workspace.resourceId}
@@ -79,7 +79,7 @@ describe('deleteConfig', () => {
 
     await expectErrorThrown(
       async () => {
-        await deleteFileBackendConfig(instData);
+        await deleteFileBackendConfig(reqData);
       },
       error => {
         expect((error as Error).message).toBe(
@@ -97,12 +97,12 @@ describe('deleteConfig', () => {
       workspace.resourceId
     );
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<DeleteFileBackendConfigEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {configId: config.resourceId, workspaceId: workspace.resourceId}
       );
-    const result = await deleteFileBackendConfig(instData);
+    const result = await deleteFileBackendConfig(reqData);
     assertEndpointResultOk(result);
 
     appAssert(result.jobId);

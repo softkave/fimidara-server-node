@@ -27,12 +27,12 @@ describe('getFileDetails', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {file} = await insertFileForTest(userToken, workspace);
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<GetFileDetailsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {filepath: stringifyFilenamepath(file, workspace.rootname)}
       );
-    const result = await getFileDetails(instData);
+    const result = await getFileDetails(reqData);
     assertEndpointResultOk(result);
     expect(result.file).toEqual(file);
   });

@@ -5,12 +5,12 @@ import {checkTagAuthorization02, tagExtractor} from '../utils.js';
 import {GetTagEndpoint} from './types.js';
 import {getTagJoiSchema} from './validation.js';
 
-const getTag: GetTagEndpoint = async instData => {
-  const data = validate(instData.data, getTagJoiSchema);
+const getTag: GetTagEndpoint = async reqData => {
+  const data = validate(reqData.data, getTagJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );

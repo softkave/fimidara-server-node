@@ -1,11 +1,5 @@
 import {isNumber} from 'lodash-es';
-import {
-  AnyObject,
-  ClientSession,
-  Model,
-  ProjectionType,
-  QueryOptions,
-} from 'mongoose';
+import {ClientSession, Model, ProjectionType, QueryOptions} from 'mongoose';
 import {
   BaseDataProvider,
   BulkOpItem,
@@ -16,6 +10,7 @@ import {
   DataQuery,
 } from './types.js';
 // eslint-disable-next-line node/no-extraneous-import
+import {AnyObject} from 'softkave-js-utils';
 import {dataQueryToMongoQuery} from './dataQueryToMongoQuery.js';
 import {getPage, getPageSize} from './utils.js';
 
@@ -108,6 +103,7 @@ export abstract class BaseMongoDataProvider<
       .findOne(mQuery, opts.projection, opts)
       .lean()
       .exec();
+
     return item as unknown as T | null;
   };
 

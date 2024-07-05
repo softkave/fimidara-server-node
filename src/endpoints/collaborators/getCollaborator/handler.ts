@@ -10,12 +10,12 @@ import {
 import {GetCollaboratorEndpoint} from './types.js';
 import {getCollaboratorJoiSchema} from './validation.js';
 
-const getCollaborator: GetCollaboratorEndpoint = async instData => {
-  const data = validate(instData.data, getCollaboratorJoiSchema);
+const getCollaborator: GetCollaboratorEndpoint = async reqData => {
+  const data = validate(reqData.data, getCollaboratorJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );

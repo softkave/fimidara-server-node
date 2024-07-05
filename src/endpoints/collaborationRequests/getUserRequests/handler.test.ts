@@ -1,10 +1,10 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {calculatePageSize, getResourceId} from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generate/collaborationRequest.js';
 import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, expect, beforeAll, afterAll, describe} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -38,11 +38,11 @@ describe('getUserRequests', () => {
       workspace.resourceId,
       {recipientEmail: user02.email}
     );
-    const instData = RequestData.fromExpressRequest(
+    const reqData = RequestData.fromExpressRequest(
       mockExpressRequestWithAgentToken(user02Token),
       {}
     );
-    const result = await getUserCollaborationRequests(instData);
+    const result = await getUserCollaborationRequests(reqData);
     assertEndpointResultOk(result);
     expect(result.requests.length).toEqual(1);
     expectContainsEveryItemInForAnyType(
@@ -63,28 +63,32 @@ describe('getUserRequests', () => {
     });
     const pageSize = 10;
     let page = 0;
-    let instData = RequestData.fromExpressRequest(
+    let reqData = RequestData.fromExpressRequest(
       mockExpressRequestWithAgentToken(user02Token),
       {
         pageSize,
       }
     );
-    let result = await getUserCollaborationRequests(instData);
+    let result = await getUserCollaborationRequests(reqData);
     assertEndpointResultOk(result);
     expect(result.page).toBe(page);
-    expect(result.requests).toHaveLength(calculatePageSize(count, pageSize, page));
+    expect(result.requests).toHaveLength(
+      calculatePageSize(count, pageSize, page)
+    );
 
     page = 1;
-    instData = RequestData.fromExpressRequest(
+    reqData = RequestData.fromExpressRequest(
       mockExpressRequestWithAgentToken(user02Token),
       {
         page,
         pageSize,
       }
     );
-    result = await getUserCollaborationRequests(instData);
+    result = await getUserCollaborationRequests(reqData);
     assertEndpointResultOk(result);
     expect(result.page).toBe(page);
-    expect(result.requests).toHaveLength(calculatePageSize(count, pageSize, page));
+    expect(result.requests).toHaveLength(
+      calculatePageSize(count, pageSize, page)
+    );
   });
 });

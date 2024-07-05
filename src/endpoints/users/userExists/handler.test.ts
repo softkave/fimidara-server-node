@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import RequestData from '../../RequestData.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -21,27 +21,27 @@ afterAll(async () => {
 
 test('returns true if user exists', async () => {
   const {user} = await insertUserForTest();
-  const instData = RequestData.fromExpressRequest<UserExistsEndpointParams>(
+  const reqData = RequestData.fromExpressRequest<UserExistsEndpointParams>(
     mockExpressRequest(),
     {
       email: user.email,
     }
   );
 
-  const result = await userExists(instData);
+  const result = await userExists(reqData);
   assertEndpointResultOk(result);
   expect(result.exists).toEqual(true);
 });
 
 test('returns false if user does not exists', async () => {
-  const instData = RequestData.fromExpressRequest<UserExistsEndpointParams>(
+  const reqData = RequestData.fromExpressRequest<UserExistsEndpointParams>(
     mockExpressRequest(),
     {
       email: faker.internet.email(),
     }
   );
 
-  const result = await userExists(instData);
+  const result = await userExists(reqData);
   assertEndpointResultOk(result);
   expect(result.exists).toEqual(false);
 });

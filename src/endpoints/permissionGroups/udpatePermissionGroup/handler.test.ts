@@ -1,10 +1,10 @@
 import {faker} from '@faker-js/faker';
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import RequestData from '../../RequestData.js';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import EndpointReusableQueries from '../../queries.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -15,7 +15,10 @@ import {
 } from '../../testUtils/testUtils.js';
 import {permissionGroupExtractor} from '../utils.js';
 import updatePermissionGroup from './handler.js';
-import {UpdatePermissionGroupEndpointParams, UpdatePermissionGroupInput} from './types.js';
+import {
+  UpdatePermissionGroupEndpointParams,
+  UpdatePermissionGroupInput,
+} from './types.js';
 
 /**
  * TODO:
@@ -33,10 +36,8 @@ afterAll(async () => {
 test('permissionGroup updated', async () => {
   const {userToken} = await insertUserForTest();
   const {workspace} = await insertWorkspaceForTest(userToken);
-  const {permissionGroup: permissionGroup00} = await insertPermissionGroupForTest(
-    userToken,
-    workspace.resourceId
-  );
+  const {permissionGroup: permissionGroup00} =
+    await insertPermissionGroupForTest(userToken, workspace.resourceId);
   await insertPermissionGroupForTest(userToken, workspace.resourceId);
   await insertPermissionGroupForTest(userToken, workspace.resourceId);
 
@@ -44,15 +45,16 @@ test('permissionGroup updated', async () => {
     name: faker.lorem.words(2),
     description: faker.lorem.words(10),
   };
-  const instData = RequestData.fromExpressRequest<UpdatePermissionGroupEndpointParams>(
-    mockExpressRequestWithAgentToken(userToken),
-    {
-      permissionGroupId: permissionGroup00.resourceId,
-      data: updatePermissionGroupInput,
-    }
-  );
+  const reqData =
+    RequestData.fromExpressRequest<UpdatePermissionGroupEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {
+        permissionGroupId: permissionGroup00.resourceId,
+        data: updatePermissionGroupInput,
+      }
+    );
 
-  const result = await updatePermissionGroup(instData);
+  const result = await updatePermissionGroup(reqData);
   assertEndpointResultOk(result);
 
   const updatedPermissionGroup = await populateAssignedTags(

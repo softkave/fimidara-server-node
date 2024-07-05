@@ -1,6 +1,6 @@
 import {pick} from 'lodash-es';
 import {FileBackendConfig} from '../../../definitions/fileBackend.js';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
@@ -18,15 +18,15 @@ import {UpdateFileBackendConfigEndpoint} from './types.js';
 import {updateFileBackendConfigJoiSchema} from './validation.js';
 
 const updateFileBackendConfig: UpdateFileBackendConfigEndpoint =
-  async instData => {
+  async reqData => {
     const configModel = kSemanticModels.fileBackendConfig();
     const secretsManager = kUtilsInjectables.secretsManager();
 
-    const data = validate(instData.data, updateFileBackendConfigJoiSchema);
+    const data = validate(reqData.data, updateFileBackendConfigJoiSchema);
     const agent = await kUtilsInjectables
       .session()
       .getAgentFromReq(
-        instData,
+        reqData,
         kSessionUtils.permittedAgentTypes.api,
         kSessionUtils.accessScopes.api
       );
@@ -36,7 +36,7 @@ const updateFileBackendConfig: UpdateFileBackendConfigEndpoint =
       workspace,
       workspaceId: workspace.resourceId,
       target: {
-        action: kFimidaraPermissionActionsMap.updateFileBackendConfig,
+        action: kFimidaraPermissionActions.updateFileBackendConfig,
         targetId: workspace.resourceId,
       },
     });

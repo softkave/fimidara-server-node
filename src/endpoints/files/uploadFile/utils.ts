@@ -1,6 +1,6 @@
 import {File} from '../../../definitions/file.js';
 import {Folder} from '../../../definitions/folder.js';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {SessionAgent} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {
@@ -38,7 +38,7 @@ export async function checkUploadFileAuth(
               true
             )
           : getWorkspacePermissionContainers(workspace.resourceId),
-      action: kFimidaraPermissionActionsMap.uploadFile,
+      action: kFimidaraPermissionActions.uploadFile,
     },
   });
 }

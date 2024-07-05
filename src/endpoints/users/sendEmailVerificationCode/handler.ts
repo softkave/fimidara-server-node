@@ -1,5 +1,9 @@
 import {addMinutes, isBefore} from 'date-fns';
-import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job.js';
+import {
+  EmailJobParams,
+  kEmailJobType,
+  kJobType,
+} from '../../../definitions/job.js';
 import {User} from '../../../definitions/user.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {formatDate} from '../../../utils/dateFns.js';
@@ -11,12 +15,13 @@ import {kUserConstants} from '../constants.js';
 import {EmailAddressVerifiedError} from '../errors.js';
 import {SendEmailVerificationCodeEndpoint} from './types.js';
 
-const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint = async instData => {
-  const user = await kUtilsInjectables
-    .session()
-    .getUser(instData, kSessionUtils.accessScopes.user);
-  await INTERNAL_sendEmailVerificationCode(user);
-};
+const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint =
+  async reqData => {
+    const user = await kUtilsInjectables
+      .session()
+      .getUser(reqData, kSessionUtils.accessScopes.user);
+    await INTERNAL_sendEmailVerificationCode(user);
+  };
 
 export async function INTERNAL_sendEmailVerificationCode(user: User) {
   if (user.isEmailVerified) {

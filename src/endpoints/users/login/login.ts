@@ -11,8 +11,8 @@ import {
 } from './utils.js';
 import {loginJoiSchema} from './validation.js';
 
-const login: LoginEndpoint = async instData => {
-  const data = validate(instData.data, loginJoiSchema);
+const login: LoginEndpoint = async reqData => {
+  const data = validate(reqData.data, loginJoiSchema);
   const user = await kSemanticModels.user().getByEmail(data.email);
 
   if (!user) {

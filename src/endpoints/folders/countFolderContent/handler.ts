@@ -1,5 +1,8 @@
 import {Folder} from '../../../definitions/folder.js';
-import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {
+  SessionAgent,
+  kFimidaraResourceType,
+} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {validate} from '../../../utils/validate.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
@@ -19,16 +22,19 @@ import {
 import {CountFolderContentEndpoint} from './types.js';
 import {countFolderContentJoiSchema} from './validation.js';
 
-const countFolderContent: CountFolderContentEndpoint = async instData => {
-  const data = validate(instData.data, countFolderContentJoiSchema);
+const countFolderContent: CountFolderContentEndpoint = async reqData => {
+  const data = validate(reqData.data, countFolderContentJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );
-  const {workspace, parentFolder} = await getWorkspaceAndParentFolder(agent, data);
+  const {workspace, parentFolder} = await getWorkspaceAndParentFolder(
+    agent,
+    data
+  );
 
   const contentType = data.contentType ?? [
     kFimidaraResourceType.File,
@@ -55,7 +61,8 @@ const countFolderContent: CountFolderContentEndpoint = async instData => {
       : [
           {
             code: kEndpointResultNoteCodeMap.mountsNotCompletelyIngested,
-            message: kEndpointResultNotesToMessageMap.mountsNotCompletelyIngested(),
+            message:
+              kEndpointResultNotesToMessageMap.mountsNotCompletelyIngested(),
           },
         ],
   };

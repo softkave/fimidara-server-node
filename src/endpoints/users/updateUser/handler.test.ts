@@ -49,12 +49,12 @@ describe('updateUser', () => {
       lastName: faker.person.lastName(),
       email: faker.internet.email(),
     };
-    const instData = RequestData.fromExpressRequest<UpdateUserEndpointParams>(
+    const reqData = RequestData.fromExpressRequest<UpdateUserEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       updateInput
     );
 
-    const result = await updateUser(instData);
+    const result = await updateUser(reqData);
     assertEndpointResultOk(result);
 
     const savedUser = await populateUserWorkspaces(
@@ -92,12 +92,12 @@ describe('updateUser', () => {
 
   test('email verification revoked if email is changed', async () => {
     const {userToken} = await insertUserForTest();
-    const instData = RequestData.fromExpressRequest<UpdateUserEndpointParams>(
+    const reqData = RequestData.fromExpressRequest<UpdateUserEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {email: faker.internet.email()}
     );
 
-    const result = await updateUser(instData);
+    const result = await updateUser(reqData);
     assertEndpointResultOk(result);
 
     const savedUser = await kSemanticModels
@@ -112,13 +112,13 @@ describe('updateUser', () => {
     const email = faker.internet.email();
     await generateAndInsertUserListForTest(/** count */ 1, () => ({email}));
     const {userToken} = await insertUserForTest();
-    const instData = RequestData.fromExpressRequest<UpdateUserEndpointParams>(
+    const reqData = RequestData.fromExpressRequest<UpdateUserEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {email}
     );
 
     await expectErrorThrown(async () => {
-      await updateUser(instData);
+      await updateUser(reqData);
     }, [EmailAddressNotAvailableError.name]);
   });
 });

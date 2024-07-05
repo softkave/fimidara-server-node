@@ -3,18 +3,24 @@ import {isStringEqual} from '../../../utils/fns.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import {validate} from '../../../utils/validate.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
-import {assertCollaborationRequest, collaborationRequestForUserExtractor} from '../utils.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {
+  assertCollaborationRequest,
+  collaborationRequestForUserExtractor,
+} from '../utils.js';
 import {GetUserCollaborationRequestEndpoint} from './types.js';
 import {getUserCollaborationRequestJoiSchema} from './validation.js';
 
 const getUserCollaborationRequest: GetUserCollaborationRequestEndpoint =
-  async instData => {
-    const data = validate(instData.data, getUserCollaborationRequestJoiSchema);
+  async reqData => {
+    const data = validate(reqData.data, getUserCollaborationRequestJoiSchema);
     const agent = await kUtilsInjectables
       .session()
       .getAgentFromReq(
-        instData,
+        reqData,
         kSessionUtils.permittedAgentTypes.user,
         kSessionUtils.accessScopes.user
       );

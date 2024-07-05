@@ -17,12 +17,12 @@ import {
 import {UpdateFolderEndpoint} from './types.js';
 import {updateFolderJoiSchema} from './validation.js';
 
-const updateFolder: UpdateFolderEndpoint = async instData => {
-  const data = validate(instData.data, updateFolderJoiSchema);
+const updateFolder: UpdateFolderEndpoint = async reqData => {
+  const data = validate(reqData.data, updateFolderJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );

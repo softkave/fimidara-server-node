@@ -1,6 +1,6 @@
 import {isFunction} from 'lodash-es';
+import {AnyObject} from 'softkave-js-utils';
 import {vi} from 'vitest';
-import {AnyObject} from '../../../utils/types.js';
 
 export function mockWith(source: AnyObject, dest: AnyObject) {
   for (const key in source) {

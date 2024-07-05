@@ -1,3 +1,4 @@
+import {AnyObject} from 'softkave-js-utils';
 import {AssignedItem} from '../../../../definitions/assignedItem.js';
 import {
   Agent,
@@ -6,7 +7,6 @@ import {
 } from '../../../../definitions/system.js';
 import {getTimestamp} from '../../../../utils/dateFns.js';
 import {convertToArray, toCompactArray} from '../../../../utils/fns.js';
-import {AnyObject} from '../../../../utils/types.js';
 import {DataQuery} from '../../data/types.js';
 import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
 import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider.js';
@@ -26,7 +26,9 @@ export class DataSemanticAssignedItem
     workspaceId: string,
     assignedItemId: string | string[],
     assigneeId: string | string[],
-    options?: SemanticProviderQueryListParams<AssignedItem<AnyObject>> | undefined
+    options?:
+      | SemanticProviderQueryListParams<AssignedItem<AnyObject>>
+      | undefined
   ): Promise<AssignedItem<AnyObject>[]> {
     const query = addIsDeletedIntoQuery<DataQuery<AssignedItem>>(
       {
@@ -42,8 +44,13 @@ export class DataSemanticAssignedItem
   async getByAssignee(
     workspaceId: string | undefined,
     assigneeId: string | string[],
-    assignedItemType?: FimidaraResourceType | FimidaraResourceType[] | undefined,
-    options?: SemanticProviderQueryListParams<AssignedItem<AnyObject>> | undefined
+    assignedItemType?:
+      | FimidaraResourceType
+      | FimidaraResourceType[]
+      | undefined,
+    options?:
+      | SemanticProviderQueryListParams<AssignedItem<AnyObject>>
+      | undefined
   ): Promise<AssignedItem<AnyObject>[]> {
     const query = addIsDeletedIntoQuery<DataQuery<AssignedItem>>(
       {
@@ -70,7 +77,9 @@ export class DataSemanticAssignedItem
 
   async getUserWorkspaces(
     assigneeId: string,
-    options?: SemanticProviderQueryListParams<AssignedItem<AnyObject>> | undefined
+    options?:
+      | SemanticProviderQueryListParams<AssignedItem<AnyObject>>
+      | undefined
   ): Promise<AssignedItem<AnyObject>[]> {
     const query = addIsDeletedIntoQuery<DataQuery<AssignedItem>>(
       {assigneeId, assignedItemType: kFimidaraResourceType.Workspace},
@@ -115,7 +124,10 @@ export class DataSemanticAssignedItem
     opts: SemanticProviderMutationParams
   ): Promise<void> {
     const query = addIsDeletedIntoQuery<DataQuery<AssignedItem>>(
-      {assignedItemId: workspaceId, assigneeId: {$in: convertToArray(assigneeId)}},
+      {
+        assignedItemId: workspaceId,
+        assigneeId: {$in: convertToArray(assigneeId)},
+      },
       opts?.includeDeleted || true
     );
     const update: Partial<AssignedItem> = {

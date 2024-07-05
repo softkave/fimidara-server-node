@@ -1,11 +1,19 @@
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest.js';
-import {EmailJobParams, Job, kEmailJobType, kJobType} from '../../../definitions/job.js';
-import {DataQuery} from '../../contexts/data/types.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
-import EndpointReusableQueries from '../../queries.js';
+import {
+  EmailJobParams,
+  Job,
+  kEmailJobType,
+  kJobType,
+} from '../../../definitions/job.js';
 import RequestData from '../../RequestData.js';
+import {DataQuery} from '../../contexts/data/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import EndpointReusableQueries from '../../queries.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -41,7 +49,7 @@ test('collaboration request declined', async () => {
     {recipientEmail: user02.email}
   );
 
-  const instData =
+  const reqData =
     RequestData.fromExpressRequest<RespondToCollaborationRequestEndpointParams>(
       mockExpressRequestWithAgentToken(user02Token),
       {
@@ -49,17 +57,21 @@ test('collaboration request declined', async () => {
         response: kCollaborationRequestStatusTypeMap.Accepted,
       }
     );
-  const result = await respondToCollaborationRequest(instData);
+  const result = await respondToCollaborationRequest(reqData);
   assertEndpointResultOk(result);
   const updatedRequest = await kSemanticModels
     .collaborationRequest()
-    .assertGetOneByQuery(EndpointReusableQueries.getByResourceId(request01.resourceId));
+    .assertGetOneByQuery(
+      EndpointReusableQueries.getByResourceId(request01.resourceId)
+    );
 
   expect(result.request.resourceId).toEqual(request01.resourceId);
   expect(result.request).toMatchObject(
     collaborationRequestForUserExtractor(updatedRequest)
   );
-  expect(updatedRequest.status).toBe(kCollaborationRequestStatusTypeMap.Accepted);
+  expect(updatedRequest.status).toBe(
+    kCollaborationRequestStatusTypeMap.Accepted
+  );
 
   await kUtilsInjectables.promises().flush();
   // const query: DataQuery<EmailMessage<CollaborationRequestEmailMessageParams>> = {

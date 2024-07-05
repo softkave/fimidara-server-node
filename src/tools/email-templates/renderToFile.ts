@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as fse from 'fs-extra';
 import {kCollaborationRequestStatusTypeMap} from '../../definitions/collaborationRequest.js';
 import {kFimidaraResourceType} from '../../definitions/system.js';
-import {UsageRecordCategoryMap} from '../../definitions/usageRecord.js';
+import {kUsageRecordCategory} from '../../definitions/usageRecord.js';
 import {
   CollaborationRequestEmailProps,
   collaborationRequestEmailHTML,
@@ -150,7 +150,8 @@ export async function renderUsageExceededMedia() {
     firstName: 'Abayomi',
     threshold: {
       budget: 100,
-      category: UsageRecordCategoryMap.Storage,
+      usage: 100,
+      category: kUsageRecordCategory.storage,
       lastUpdatedAt: getTimestamp(),
       lastUpdatedBy: {
         agentId: '',

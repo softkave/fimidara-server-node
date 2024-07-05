@@ -1,9 +1,9 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import RequestData from '../../RequestData.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -38,12 +38,12 @@ describe('countWorkspaceCollaborators', () => {
     });
     expect(count).toBeGreaterThanOrEqual(seedCount);
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<CountWorkspaceCollaboratorsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId}
       );
-    const result = await countWorkspaceCollaborators(instData);
+    const result = await countWorkspaceCollaborators(reqData);
     assertEndpointResultOk(result);
     expect(result.count).toBe(count);
   });

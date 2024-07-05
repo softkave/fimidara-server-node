@@ -25,12 +25,12 @@ import {getPresignedPathsForFilesJoiSchema} from './validation.js';
 // TODO: filter out expired or spent presigned paths and delete them
 
 const getPresignedPathsForFiles: GetPresignedPathsForFilesEndpoint =
-  async instData => {
-    const data = validate(instData.data, getPresignedPathsForFilesJoiSchema);
+  async reqData => {
+    const data = validate(reqData.data, getPresignedPathsForFilesJoiSchema);
     const agent = await kUtilsInjectables
       .session()
       .getAgentFromReq(
-        instData,
+        reqData,
         kSessionUtils.permittedAgentTypes.api,
         kSessionUtils.accessScopes.api
       );

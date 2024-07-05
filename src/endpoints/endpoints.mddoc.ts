@@ -1,8 +1,9 @@
 import {customAlphabet} from 'nanoid';
+import {AnyObject} from 'softkave-js-utils';
 import {AssignPermissionGroupInput} from '../definitions/permissionGroups.js';
 import {
   FimidaraPermissionAction,
-  kFimidaraPermissionActionsMap,
+  kFimidaraPermissionActions,
 } from '../definitions/permissionItem.js';
 import {
   PublicAgent,
@@ -13,16 +14,18 @@ import {
 } from '../definitions/system.js';
 import {
   UsageRecordCategory,
-  UsageRecordCategoryMap,
   UsageRecordFulfillmentStatus,
-  UsageRecordFulfillmentStatusMap,
+  kUsageRecordCategory,
+  kUsageRecordFulfillmentStatus,
 } from '../definitions/usageRecord.js';
 import {FieldObjectFieldsMap, mddocConstruct} from '../mddoc/mddoc.js';
 import {FimidaraExternalError} from '../utils/OperationError.js';
 import {kIdSeparator, kResourceTypeShortNames} from '../utils/resource.js';
-import {AnyObject} from '../utils/types.js';
 import {kEndpointConstants} from './constants.js';
-import {LongRunningJobResult, MultipleLongRunningJobResult} from './jobs/types.js';
+import {
+  LongRunningJobResult,
+  MultipleLongRunningJobResult,
+} from './jobs/types.js';
 import {permissionGroupConstants} from './permissionGroups/constants.js';
 import {
   BaseEndpointResult,
@@ -304,11 +307,17 @@ const idPath = mddocConstruct
 const name = mddocConstruct
   .constructFieldString()
   .setDescription('Name, case insensitive');
-const description = mddocConstruct.constructFieldString().setDescription('Description');
-const expires = mddocConstruct.constructFieldNumber().setDescription('Expiration date');
+const description = mddocConstruct
+  .constructFieldString()
+  .setDescription('Description');
+const expires = mddocConstruct
+  .constructFieldNumber()
+  .setDescription('Expiration date');
 const duration = mddocConstruct
   .constructFieldNumber()
-  .setDescription('Time duration in milliseconds, for example, 1000 for 1 second');
+  .setDescription(
+    'Time duration in milliseconds, for example, 1000 for 1 second'
+  );
 const tokenString = mddocConstruct
   .constructFieldString()
   .setDescription('JWT token string');
@@ -344,7 +353,9 @@ const workspaceName = mddocConstruct
 // TODO: set allowed characters for rootname and file and folder name
 const workspaceRootname = mddocConstruct
   .constructFieldString()
-  .setDescription('Workspace root name, must be a URL compatible name, case insensitive')
+  .setDescription(
+    'Workspace root name, must be a URL compatible name, case insensitive'
+  )
   .setExample('fimidara-rootname');
 const firstName = mddocConstruct
   .constructFieldString()
@@ -354,7 +365,9 @@ const lastName = mddocConstruct
   .constructFieldString()
   .setDescription('Last name')
   .setExample('Christ');
-const password = mddocConstruct.constructFieldString().setDescription('Password');
+const password = mddocConstruct
+  .constructFieldString()
+  .setDescription('Password');
 const emailAddress = mddocConstruct
   .constructFieldString()
   .setDescription('Email address, case insensitive')
@@ -371,7 +384,9 @@ const folderpath = mddocConstruct
   .constructFieldString()
   .setDescription('Folder path with workspace rootname, case insensitive')
   .setExample('/workspace-rootname/my-outer-folder/my-inner-folder');
-const folderpathList = mddocConstruct.constructFieldArray<string>().setType(folderpath);
+const folderpathList = mddocConstruct
+  .constructFieldArray<string>()
+  .setType(folderpath);
 const folderpathOrList = mddocConstruct
   .constructFieldOrCombination<string | string[]>()
   .setTypes([folderpath, folderpathList]);
@@ -381,9 +396,15 @@ const filepath = mddocConstruct
   .setExample('/workspace-rootname/my-outer-folder/my-image-file.png');
 const filepathOrId = mddocConstruct
   .constructFieldString()
-  .setDescription('File path with workspace rootname (case insensitive) or file ID')
-  .setExample('/workspace-rootname/folder/file.ext or file000-remaining-file-id');
-const filepathList = mddocConstruct.constructFieldArray<string>().setType(filepath);
+  .setDescription(
+    'File path with workspace rootname (case insensitive) or file ID'
+  )
+  .setExample(
+    '/workspace-rootname/folder/file.ext or file000-remaining-file-id'
+  );
+const filepathList = mddocConstruct
+  .constructFieldArray<string>()
+  .setType(filepath);
 const filepathOrList = mddocConstruct
   .constructFieldOrCombination<string | string[]>()
   .setTypes([filepath, filepathList]);
@@ -394,14 +415,16 @@ const foldernamepath = mddocConstruct
 const action = mddocConstruct
   .constructFieldString()
   .setDescription('Action')
-  .setExample(kFimidaraPermissionActionsMap.uploadFile)
-  .setValid(Object.values(kFimidaraPermissionActionsMap))
+  .setExample(kFimidaraPermissionActions.uploadFile)
+  .setValid(Object.values(kFimidaraPermissionActions))
   .setEnumName('FimidaraPermissionAction');
 const actionList = mddocConstruct
   .constructFieldArray<FimidaraPermissionAction>()
   .setType(action);
 const actionOrList = mddocConstruct
-  .constructFieldOrCombination<FimidaraPermissionAction | FimidaraPermissionAction[]>()
+  .constructFieldOrCombination<
+    FimidaraPermissionAction | FimidaraPermissionAction[]
+  >()
   .setTypes([action, actionList]);
 const resourceType = mddocConstruct
   .constructFieldString()
@@ -412,8 +435,8 @@ const resourceType = mddocConstruct
 const usageCategory = mddocConstruct
   .constructFieldString()
   .setDescription('Usage record category')
-  .setExample(UsageRecordCategoryMap.Storage)
-  .setValid(Object.values(UsageRecordCategoryMap))
+  .setExample(kUsageRecordCategory.storage)
+  .setValid(Object.values(kUsageRecordCategory))
   .setEnumName('UsageRecordCategory');
 const usageCategoryList = mddocConstruct
   .constructFieldArray<UsageRecordCategory>()
@@ -424,8 +447,8 @@ const usageCategoryOrList = mddocConstruct
 const usageFulfillmentStatus = mddocConstruct
   .constructFieldString()
   .setDescription('Usage record fulfillment status')
-  .setExample(UsageRecordFulfillmentStatusMap.Fulfilled)
-  .setValid(Object.values(UsageRecordFulfillmentStatusMap))
+  .setExample(kUsageRecordFulfillmentStatus.fulfilled)
+  .setValid(Object.values(kUsageRecordFulfillmentStatus))
   .setEnumName('UsageRecordFulfillmentStatus');
 const usageFulfillmentStatusList = mddocConstruct
   .constructFieldArray<UsageRecordFulfillmentStatus>()
@@ -489,8 +512,14 @@ const workspaceResourceParts: FieldObjectFieldsMap<PublicWorkspaceResource> = {
   createdBy: mddocConstruct.constructFieldObjectField(true, agent),
   lastUpdatedBy: mddocConstruct.constructFieldObjectField(true, agent),
 };
+const usage = mddocConstruct
+  .constructFieldNumber()
+  .setDescription(
+    `Usage amount. Bytes for ${kUsageRecordCategory.storage}, ${kUsageRecordCategory.bandwidthIn}, and ${kUsageRecordCategory.bandwidthOut}. Always 0 for ${kUsageRecordCategory.total}, use \`usageCost\` instead`
+  );
 
 export const fReusables = {
+  usage,
   agent,
   date,
   id,
@@ -583,7 +612,9 @@ const errorObject = mddocConstruct
       mddocConstruct
         .constructFieldString()
         .setExample('workspace.innerField.secondInnerField')
-        .setDescription('Invalid field failing validation when error is ValidationError')
+        .setDescription(
+          'Invalid field failing validation when error is ValidationError'
+        )
     ),
     notes: mddocConstruct.constructFieldObjectField(false, resultNoteList),
   });

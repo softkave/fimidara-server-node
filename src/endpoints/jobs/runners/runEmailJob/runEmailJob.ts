@@ -1,3 +1,4 @@
+import assert from 'assert';
 import {
   EmailBlocklist,
   kEmailBlocklistTrailType,
@@ -7,6 +8,7 @@ import {
   EmailJobType,
   Job,
   kEmailJobType,
+  kJobType,
 } from '../../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
 import {newResource} from '../../../../utils/resource.js';
@@ -44,7 +46,11 @@ const kEmailJobTypeToHandlerMap: Record<
   [kEmailJobType.newSignupsOnWaitlist]: sendNewSignupsOnWaitlistEmail,
 };
 
-export async function runEmailJob(job: Pick<Job, 'params' | 'resourceId'>) {
+export async function runEmailJob(
+  job: Pick<Job, 'params' | 'resourceId' | 'type'>
+) {
+  assert(job.type === kJobType.email);
+
   const params = job.params as EmailJobParams;
   const handler = kEmailJobTypeToHandlerMap[params.type];
   const result = await handler(job.resourceId, params);

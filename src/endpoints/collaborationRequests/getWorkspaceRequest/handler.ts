@@ -9,12 +9,15 @@ import {GetWorkspaceCollaborationRequestEndpoint} from './types.js';
 import {getWorkspaceCollaborationRequestJoiSchema} from './validation.js';
 
 const getWorkspaceCollaborationRequest: GetWorkspaceCollaborationRequestEndpoint =
-  async instData => {
-    const data = validate(instData.data, getWorkspaceCollaborationRequestJoiSchema);
+  async reqData => {
+    const data = validate(
+      reqData.data,
+      getWorkspaceCollaborationRequestJoiSchema
+    );
     const agent = await kUtilsInjectables
       .session()
       .getAgentFromReq(
-        instData,
+        reqData,
         kSessionUtils.permittedAgentTypes.api,
         kSessionUtils.accessScopes.api
       );

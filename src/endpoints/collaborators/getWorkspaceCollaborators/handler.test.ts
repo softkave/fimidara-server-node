@@ -37,12 +37,12 @@ describe('getWorkspaceCollaborators', () => {
     const {userToken, user} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<GetWorkspaceCollaboratorsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId}
       );
-    const result = await getWorkspaceCollaborators(instData);
+    const result = await getWorkspaceCollaborators(reqData);
 
     assertEndpointResultOk(result);
     const updatedUser = await populateUserWorkspaces(
@@ -77,12 +77,12 @@ describe('getWorkspaceCollaborators', () => {
 
     const pageSize = 10;
     let page = 0;
-    let instData =
+    let reqData =
       RequestData.fromExpressRequest<GetWorkspaceCollaboratorsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {pageSize, workspaceId: workspace.resourceId}
       );
-    let result = await getWorkspaceCollaborators(instData);
+    let result = await getWorkspaceCollaborators(reqData);
     assertEndpointResultOk(result);
     let fetchedUsers = result.collaborators;
 
@@ -92,12 +92,12 @@ describe('getWorkspaceCollaborators', () => {
     );
 
     page = 1;
-    instData =
+    reqData =
       RequestData.fromExpressRequest<GetWorkspaceCollaboratorsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {page, pageSize, workspaceId: workspace.resourceId}
       );
-    result = await getWorkspaceCollaborators(instData);
+    result = await getWorkspaceCollaborators(reqData);
     assertEndpointResultOk(result);
     fetchedUsers = fetchedUsers.concat(result.collaborators);
 

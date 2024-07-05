@@ -1,9 +1,9 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {calculatePageSize} from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generate/agentToken.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -31,12 +31,12 @@ describe('getWorkspaceAgentTokens', () => {
       insertAgentTokenForTest(userToken, workspace.resourceId),
       insertAgentTokenForTest(userToken, workspace.resourceId),
     ]);
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<GetWorkspaceAgentTokensEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId}
       );
-    const result = await getWorkspaceAgentTokens(instData);
+    const result = await getWorkspaceAgentTokens(reqData);
     assertEndpointResultOk(result);
     expect(result.tokens).toContainEqual(token01);
     expect(result.tokens).toContainEqual(token02);
@@ -53,23 +53,29 @@ describe('getWorkspaceAgentTokens', () => {
     });
     const pageSize = 10;
     let page = 0;
-    let instData = RequestData.fromExpressRequest<GetWorkspaceAgentTokensEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {page, pageSize, workspaceId: workspace.resourceId}
-    );
-    let result = await getWorkspaceAgentTokens(instData);
+    let reqData =
+      RequestData.fromExpressRequest<GetWorkspaceAgentTokensEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {page, pageSize, workspaceId: workspace.resourceId}
+      );
+    let result = await getWorkspaceAgentTokens(reqData);
     assertEndpointResultOk(result);
     expect(result.page).toBe(page);
-    expect(result.tokens).toHaveLength(calculatePageSize(count, pageSize, page));
+    expect(result.tokens).toHaveLength(
+      calculatePageSize(count, pageSize, page)
+    );
 
     page = 1;
-    instData = RequestData.fromExpressRequest<GetWorkspaceAgentTokensEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {page, pageSize, workspaceId: workspace.resourceId}
-    );
-    result = await getWorkspaceAgentTokens(instData);
+    reqData =
+      RequestData.fromExpressRequest<GetWorkspaceAgentTokensEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {page, pageSize, workspaceId: workspace.resourceId}
+      );
+    result = await getWorkspaceAgentTokens(reqData);
     assertEndpointResultOk(result);
     expect(result.page).toBe(page);
-    expect(result.tokens).toHaveLength(calculatePageSize(count, pageSize, page));
+    expect(result.tokens).toHaveLength(
+      calculatePageSize(count, pageSize, page)
+    );
   });
 });

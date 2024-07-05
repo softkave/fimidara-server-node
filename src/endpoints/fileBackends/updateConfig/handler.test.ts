@@ -64,7 +64,7 @@ describe('updateConfig s3', () => {
         workspace.resourceId
       );
 
-      const instData =
+      const reqData =
         RequestData.fromExpressRequest<UpdateFileBackendConfigEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
           {
@@ -73,7 +73,7 @@ describe('updateConfig s3', () => {
             workspaceId: workspace.resourceId,
           }
         );
-      const result = await updateFileBackendConfig(instData);
+      const result = await updateFileBackendConfig(reqData);
       assertEndpointResultOk(result);
 
       const updatedConfig = await kSemanticModels
@@ -128,7 +128,7 @@ describe('updateConfig s3', () => {
       insertFileBackendConfigForTest(userToken, workspace.resourceId),
     ]);
 
-    const instData01 =
+    const reqData01 =
       RequestData.fromExpressRequest<UpdateFileBackendConfigEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
@@ -137,7 +137,7 @@ describe('updateConfig s3', () => {
           workspaceId: workspace.resourceId,
         }
       );
-    const instData02 =
+    const reqData02 =
       RequestData.fromExpressRequest<UpdateFileBackendConfigEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
@@ -148,10 +148,10 @@ describe('updateConfig s3', () => {
       );
 
     await Promise.all([
-      updateFileBackendConfig(instData01),
+      updateFileBackendConfig(reqData01),
       expectErrorThrown(
         async () => {
-          await updateFileBackendConfig(instData02);
+          await updateFileBackendConfig(reqData02);
         },
         error => {
           expect((error as Error).message).toBe(

@@ -387,13 +387,12 @@ describe('addFolder', () => {
     await loopAndCollateAsync(
       async leafIndex => {
         await waitTimeout(faker.number.int({min: 0, max: 40}));
-        const instData =
-          RequestData.fromExpressRequest<AddFolderEndpointParams>(
-            mockExpressRequestWithAgentToken(userToken),
-            {folder: {folderpath: leafFolderpaths[leafIndex]}}
-          );
+        const reqData = RequestData.fromExpressRequest<AddFolderEndpointParams>(
+          mockExpressRequestWithAgentToken(userToken),
+          {folder: {folderpath: leafFolderpaths[leafIndex]}}
+        );
 
-        const result = await addFolder(instData);
+        const result = await addFolder(reqData);
         assertEndpointResultOk(result);
       },
       leafLength,

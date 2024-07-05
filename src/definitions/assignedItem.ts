@@ -1,4 +1,4 @@
-import {AnyObject} from '../utils/types.js';
+import {AnyObject} from 'softkave-js-utils';
 import {FimidaraResourceType, WorkspaceResource} from './system.js';
 import {AssignedTag} from './tag.js';
 

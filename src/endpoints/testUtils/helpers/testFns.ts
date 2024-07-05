@@ -1,5 +1,6 @@
 import assert from 'assert';
 import {findLastIndex, get, isFunction, noop} from 'lodash-es';
+import {AnyFn, AnyObject, OrArray, OrPromise} from 'softkave-js-utils';
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {
   calculateMaxPages,
@@ -7,7 +8,6 @@ import {
   convertToArray,
   getRandomInt,
 } from '../../../utils/fns.js';
-import {AnyFn, AnyObject, OrArray, OrPromise} from '../../../utils/types.js';
 import RequestData from '../../RequestData.js';
 import {globalDispose, globalSetup} from '../../contexts/globalUtils.js';
 import {
@@ -117,12 +117,12 @@ export async function performPaginationTest<
 
   // Add an extra page to test that final page returns 0 items
   for (let page = 0; page <= maxPages; page++) {
-    const instData = RequestData.fromExpressRequest(req, {
+    const reqData = RequestData.fromExpressRequest(req, {
       page,
       pageSize,
       ...params,
     });
-    const result = await endpoint(instData);
+    const result = await endpoint(reqData);
     assertEndpointResultOk(result);
 
     // Seeing page is 0-based, when page === maxPages, expectedPageSize should

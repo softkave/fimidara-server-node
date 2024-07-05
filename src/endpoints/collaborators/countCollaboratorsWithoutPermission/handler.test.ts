@@ -32,12 +32,12 @@ describe('countCollaboratorsWithoutPermission', () => {
       seedCount
     );
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<CountCollaboratorsWithoutPermissionEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId}
       );
-    const result = await countCollaboratorsWithoutPermission(instData);
+    const result = await countCollaboratorsWithoutPermission(reqData);
     assertEndpointResultOk(result);
 
     expect(result.count).toBe(seedCount);

@@ -1,5 +1,5 @@
 import {merge} from 'lodash-es';
-import {AnyObject} from 'mongoose';
+import {AnyObject} from 'softkave-js-utils';
 import {Agent, Resource} from '../../../definitions/system.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {convertToArray} from '../../../utils/fns.js';

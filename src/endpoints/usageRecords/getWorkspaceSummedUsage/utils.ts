@@ -2,8 +2,8 @@ import {endOfMonth, startOfMonth} from 'date-fns';
 import {SessionAgent} from '../../../definitions/system.js';
 import {
   UsageRecord,
-  UsageRecordFulfillmentStatusMap,
-  UsageSummationTypeMap,
+  kUsageRecordFulfillmentStatus,
+  kUsageSummationType,
 } from '../../../definitions/usageRecord.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {convertToArray} from '../../../utils/fns.js';
@@ -21,7 +21,7 @@ export async function getWorkspaceSummedUsageQuery(
 
   const query: LiteralDataQuery<UsageRecord> = {
     workspaceId: {$eq: workspaceId},
-    summationType: {$eq: UsageSummationTypeMap.Month},
+    summationType: {$eq: kUsageSummationType.month},
   };
 
   if (data.query?.fromDate || data.query?.toDate) {
@@ -29,7 +29,9 @@ export async function getWorkspaceSummedUsageQuery(
       $gte: data.query?.fromDate
         ? getTimestamp(startOfMonth(data.query.fromDate))
         : undefined,
-      $lte: data.query?.toDate ? getTimestamp(endOfMonth(data.query.toDate)) : undefined,
+      $lte: data.query?.toDate
+        ? getTimestamp(endOfMonth(data.query.toDate))
+        : undefined,
     };
   }
 
@@ -40,16 +42,16 @@ export async function getWorkspaceSummedUsageQuery(
 
   // don't include the fulfillment status if it's undecided
   if (data.query?.fulfillmentStatus) {
-    query.fulfillmentStatus = {
+    query.status = {
       // @ts-ignore
       $in: convertToArray(data.query.fulfillmentStatus),
     };
   } else {
-    query.fulfillmentStatus = {
+    query.status = {
       $in: [
         // @ts-ignore
-        UsageRecordFulfillmentStatusMap.Fulfilled,
-        UsageRecordFulfillmentStatusMap.Dropped,
+        kUsageRecordFulfillmentStatus.fulfilled,
+        kUsageRecordFulfillmentStatus.dropped,
       ],
     };
   }

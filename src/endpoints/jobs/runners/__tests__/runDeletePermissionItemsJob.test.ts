@@ -5,7 +5,7 @@ import {
   Job,
   kJobType,
 } from '../../../../definitions/job.js';
-import {kFimidaraPermissionActionsMap} from '../../../../definitions/permissionItem.js';
+import {kFimidaraPermissionActions} from '../../../../definitions/permissionItem.js';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
 import {kSystemSessionAgent} from '../../../../utils/agent.js';
 import {extractResourceIdList} from '../../../../utils/fns.js';
@@ -37,7 +37,7 @@ afterAll(async () => {
 describe('runDeletePermissionItemsJob', () => {
   test('creates delete resource jobs', async () => {
     const access = true;
-    const action = kFimidaraPermissionActionsMap.wildcard;
+    const action = kFimidaraPermissionActions.wildcard;
     const [workspace] = await generateAndInsertWorkspaceListForTest(1);
     const [pgL, [f01], [folder01]] = await Promise.all([
       generateAndInsertPermissionGroupListForTest(2, {

@@ -11,17 +11,24 @@ import {
 import {getEntityAssignedPermissionGroupsJoiSchema} from './validation.js';
 
 const getEntityAssignedPermissionGroups: GetEntityAssignedPermissionGroupsEndpoint =
-  async instData => {
-    const data = validate(instData.data, getEntityAssignedPermissionGroupsJoiSchema);
+  async reqData => {
+    const data = validate(
+      reqData.data,
+      getEntityAssignedPermissionGroupsJoiSchema
+    );
     const agent = await kUtilsInjectables
       .session()
       .getAgentFromReq(
-        instData,
+        reqData,
         kSessionUtils.permittedAgentTypes.api,
         kSessionUtils.accessScopes.api
       );
     const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
-    await checkReadEntityAssignedPermissionGroups(agent, workspace, data.entityId);
+    await checkReadEntityAssignedPermissionGroups(
+      agent,
+      workspace,
+      data.entityId
+    );
     const result = await fetchEntityAssignedPermissionGroupList(
       data.entityId,
       data.includeInheritedPermissionGroups ?? false

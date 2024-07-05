@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {pick} from 'lodash-es';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {AnyFn, AnyObject, OrPromise} from 'softkave-js-utils';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {
   Agent,
   FimidaraResourceType,
@@ -8,7 +9,6 @@ import {
 } from '../../../definitions/system.js';
 import {mergeData} from '../../../utils/fns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
-import {AnyFn, AnyObject, OrPromise} from '../../../utils/types.js';
 
 export type GeneratePartialTestDataFn<T> = (
   index: number,
@@ -47,13 +47,13 @@ export function randomResourceType(
 }
 
 export function randomAction(
-  actions = Object.values(kFimidaraPermissionActionsMap)
+  actions = Object.values(kFimidaraPermissionActions)
 ) {
   return faker.helpers.arrayElement(actions);
 }
 
 export function randomActionList(
-  actions = Object.values(kFimidaraPermissionActionsMap)
+  actions = Object.values(kFimidaraPermissionActions)
 ) {
   return faker.helpers.arrayElements(actions);
 }

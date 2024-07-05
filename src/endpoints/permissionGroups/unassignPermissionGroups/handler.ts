@@ -13,12 +13,12 @@ import {UnassignPermissionGroupsEndpoint} from './types.js';
 import {unassignPermissionGroupsJoiSchema} from './validation.js';
 
 const unassignPermissionGroups: UnassignPermissionGroupsEndpoint =
-  async instData => {
-    const data = validate(instData.data, unassignPermissionGroupsJoiSchema);
+  async reqData => {
+    const data = validate(reqData.data, unassignPermissionGroupsJoiSchema);
     const agent = await kUtilsInjectables
       .session()
       .getAgentFromReq(
-        instData,
+        reqData,
         kSessionUtils.permittedAgentTypes.api,
         kSessionUtils.accessScopes.api
       );

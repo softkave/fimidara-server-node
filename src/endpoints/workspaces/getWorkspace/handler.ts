@@ -5,12 +5,12 @@ import {checkWorkspaceAuthorization02, workspaceExtractor} from '../utils.js';
 import {GetWorkspaceEndpoint} from './types.js';
 import {getWorkspaceJoiSchema} from './validation.js';
 
-const getWorkspace: GetWorkspaceEndpoint = async instData => {
-  const data = validate(instData.data, getWorkspaceJoiSchema);
+const getWorkspace: GetWorkspaceEndpoint = async reqData => {
+  const data = validate(reqData.data, getWorkspaceJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );

@@ -1,9 +1,11 @@
 import {defaultTo, first, get, isString, set} from 'lodash-es';
+import {OmitFrom} from 'softkave-js-utils';
+import {ValueOf} from 'type-fest';
 import {File} from '../../../definitions/file.js';
 import {
   FimidaraPermissionAction,
   PermissionItem,
-  kFimidaraPermissionActionsMap,
+  kFimidaraPermissionActions,
 } from '../../../definitions/permissionItem.js';
 import {
   Resource,
@@ -22,7 +24,6 @@ import {
 import {sortPermissionEntityInheritanceMap} from '../../../utils/permissionEntityUtils.js';
 import {getResourceTypeFromId} from '../../../utils/resource.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
-import {ObjectValues, OmitProperties} from '../../../utils/types.js';
 import {checkResourcesBelongsToWorkspace} from '../../resources/containerCheckFns.js';
 import {
   EmailAddressNotVerifiedError,
@@ -80,7 +81,7 @@ export const kResolvedTargetChildrenAccess = {
   partial: 'partial',
 } as const;
 
-export type ResolvedTargetChildrenAccess = ObjectValues<
+export type ResolvedTargetChildrenAccess = ValueOf<
   typeof kResolvedTargetChildrenAccess
 >;
 
@@ -117,7 +118,7 @@ class ResolvedPermissionsAccessChecker
     nothrow?: boolean
   ) {
     const key = `${entityId}.${targetId}.${action}`;
-    const wildcardKey = `${entityId}.${targetId}.${kFimidaraPermissionActionsMap.wildcard}`;
+    const wildcardKey = `${entityId}.${targetId}.${kFimidaraPermissionActions.wildcard}`;
     const items = get(
       this.permissions,
       key,
@@ -216,7 +217,7 @@ export async function fetchAgentPermissionItems(
 ) {
   const {workspaceId, target} = params;
   const action = convertToArray(target.action).concat(
-      kFimidaraPermissionActionsMap.wildcard
+      kFimidaraPermissionActions.wildcard
     ),
     targetId = toUniqArray(target.targetId, workspaceId);
   const {entityIdList} = await resolveEntityData(params);
@@ -267,11 +268,11 @@ function sortOutPermissionItems(
 }
 
 async function resolveTargetChildrenPartialAccessCheck(
-  params: OmitProperties<CheckAuthorizationParams, 'nothrow'>
+  params: OmitFrom<CheckAuthorizationParams, 'nothrow'>
 ) {
   const {workspaceId, target} = params;
   const action = convertToArray(target.action).concat(
-      kFimidaraPermissionActionsMap.wildcard
+      kFimidaraPermissionActions.wildcard
     ),
     targetParentId = defaultTo(
       first(toCompactArray(target.targetId)),
@@ -319,7 +320,7 @@ async function resolveTargetChildrenPartialAccessCheck(
 }
 
 export async function resolveTargetChildrenAccessCheck(
-  params: OmitProperties<CheckAuthorizationParams, 'nothrow'>
+  params: OmitFrom<CheckAuthorizationParams, 'nothrow'>
 ): Promise<ResolvedTargetChildrenAccessCheck> {
   const {target} = params;
 
@@ -441,7 +442,7 @@ export async function checkAuthorizationWithAgent(
 }
 
 export async function resolveTargetChildrenAccessCheckWithAgent(
-  params: OmitProperties<CheckAuthorizationParams, 'target' | 'nothrow'> & {
+  params: OmitFrom<CheckAuthorizationParams, 'target' | 'nothrow'> & {
     agent: SessionAgent;
     target: Omit<CheckAuthorizationParams['target'], 'entityId'> & {
       entityId?: string;

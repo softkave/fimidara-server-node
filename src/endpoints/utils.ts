@@ -1,5 +1,6 @@
 import {Express, Request, Response} from 'express';
 import {compact, isString} from 'lodash-es';
+import {AnyObject} from 'softkave-js-utils';
 import {Agent, WorkspaceResource} from '../definitions/system.js';
 import {Workspace} from '../definitions/workspace.js';
 import OperationError, {
@@ -9,7 +10,6 @@ import {appAssert} from '../utils/assertion.js';
 import {getTimestamp} from '../utils/dateFns.js';
 import {ServerError} from '../utils/errors.js';
 import {isObjectEmpty, toCompactArray} from '../utils/fns.js';
-import {AnyObject} from '../utils/types.js';
 import RequestData from './RequestData.js';
 import {kEndpointConstants} from './constants.js';
 import {
@@ -90,11 +90,11 @@ export const wrapEndpointREST = <EndpointType extends Endpoint>(
     await kUtilsInjectables.asyncLocalStorage().run(async () => {
       try {
         const data = await (getData ? getData(req) : req.body);
-        const instData = RequestData.fromExpressRequest(
+        const reqData = RequestData.fromExpressRequest(
           req as unknown as IServerRequest,
           data
         );
-        const result = await endpoint(instData);
+        const result = await endpoint(reqData);
 
         if (handleResponse) {
           await handleResponse(res, result, req, data);

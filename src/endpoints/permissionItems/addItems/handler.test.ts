@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import RequestData from '../../RequestData.js';
 import {checkAuthorization} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
@@ -48,8 +48,8 @@ describe('addItems', () => {
 
     const grantAccess = faker.datatype.boolean();
     const actionsWithoutWildcard = Object.values(
-      kFimidaraPermissionActionsMap
-    ).filter(action => action !== kFimidaraPermissionActionsMap.wildcard);
+      kFimidaraPermissionActions
+    ).filter(action => action !== kFimidaraPermissionActions.wildcard);
     const subsetWorkspaceActions = faker.helpers.arrayElements(
       actionsWithoutWildcard
     );
@@ -151,9 +151,9 @@ describe('addItems', () => {
     const {permissionGroup: permissionGroup} =
       await insertPermissionGroupForTest(userToken, workspace.resourceId);
     const grantAccess = faker.datatype.boolean();
-    const actions = Object.values(kFimidaraPermissionActionsMap);
+    const actions = Object.values(kFimidaraPermissionActions);
     const actionsWithoutWildcard = actions.filter(
-      action => action !== kFimidaraPermissionActionsMap.wildcard
+      action => action !== kFimidaraPermissionActions.wildcard
     );
     const itemsUniq = actionsWithoutWildcard.map(
       (action): PermissionItemInput => ({
@@ -202,7 +202,7 @@ describe('addItems', () => {
       workspace.resourceId
     );
     const grantAccess = faker.datatype.boolean();
-    const actions = Object.values(kFimidaraPermissionActionsMap);
+    const actions = Object.values(kFimidaraPermissionActions);
     const itemsUniq = actions.map(
       (action): PermissionItemInput => ({
         action,
@@ -253,13 +253,13 @@ describe('addItems', () => {
     const itemsInput: PermissionItemInput[] = [
       {
         access: true,
-        action: kFimidaraPermissionActionsMap.readFile,
+        action: kFimidaraPermissionActions.readFile,
         entityId: user.resourceId,
         target: {targetId: folder01.resourceId},
       },
       {
         access: true,
-        action: kFimidaraPermissionActionsMap.readFile,
+        action: kFimidaraPermissionActions.readFile,
         entityId: user.resourceId,
         target: {targetId: folder02.resourceId},
       },

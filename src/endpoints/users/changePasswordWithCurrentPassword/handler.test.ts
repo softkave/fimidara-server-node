@@ -1,9 +1,9 @@
 import {faker} from '@faker-js/faker';
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import EndpointReusableQueries from '../../queries.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -32,7 +32,7 @@ test('password changed with current password', async () => {
   });
 
   const newPassword = 'gt5_g3!op0';
-  const instData =
+  const reqData =
     RequestData.fromExpressRequest<ChangePasswordWithCurrentPasswordEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
@@ -42,11 +42,13 @@ test('password changed with current password', async () => {
     );
 
   const oldHash = rawUser.hash;
-  const result = await changePasswordWithCurrentPassword(instData);
+  const result = await changePasswordWithCurrentPassword(reqData);
   assertEndpointResultOk(result);
   const updatedUser = await kSemanticModels
     .user()
-    .assertGetOneByQuery(EndpointReusableQueries.getByResourceId(result.user.resourceId));
+    .assertGetOneByQuery(
+      EndpointReusableQueries.getByResourceId(result.user.resourceId)
+    );
 
   expect(updatedUser.hash).not.toEqual(oldHash);
   expect(updatedUser.resourceId).toEqual(rawUser.resourceId);

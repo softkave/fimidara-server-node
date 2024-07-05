@@ -5,7 +5,7 @@ import {PermissionGroup} from '../../definitions/permissionGroups.js';
 import {
   FimidaraPermissionAction,
   PermissionItem,
-  kFimidaraPermissionActionsMap,
+  kFimidaraPermissionActions,
 } from '../../definitions/permissionItem.js';
 import {
   AppRuntimeState,
@@ -210,8 +210,8 @@ async function setupImageUploadPermissionGroup(
       {name, description}
     );
     const actions: FimidaraPermissionAction[] = [
-      kFimidaraPermissionActionsMap.uploadFile,
-      kFimidaraPermissionActionsMap.readFile,
+      kFimidaraPermissionActions.uploadFile,
+      kFimidaraPermissionActions.readFile,
     ];
     const permissionItems: PermissionItem[] = actions.map(action => {
       const containerIds = folder.idPath.slice(0, -1);

@@ -1,18 +1,24 @@
 import {validate} from '../../../utils/validate.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
 import {getWorkspacePermissionGroupsQuery} from '../getWorkspacePermissionGroups/utils.js';
 import {CountWorkspacePermissionGroupsEndpoint} from './types.js';
 import {countWorkspacePermissionGroupsJoiSchema} from './validation.js';
 
 const countWorkspacePermissionGroups: CountWorkspacePermissionGroupsEndpoint =
-  async instData => {
-    const data = validate(instData.data, countWorkspacePermissionGroupsJoiSchema);
+  async reqData => {
+    const data = validate(
+      reqData.data,
+      countWorkspacePermissionGroupsJoiSchema
+    );
     const agent = await kUtilsInjectables
       .session()
       .getAgentFromReq(
-        instData,
+        reqData,
         kSessionUtils.permittedAgentTypes.api,
         kSessionUtils.accessScopes.api
       );

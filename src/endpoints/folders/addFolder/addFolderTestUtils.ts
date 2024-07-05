@@ -23,7 +23,10 @@ import {GetFolderEndpointParams} from '../getFolder/types.js';
 import listFolderContent from '../listFolderContent/handler.js';
 import {ListFolderContentEndpointParams} from '../listFolderContent/types.js';
 import updateFolder from '../updateFolder/handler.js';
-import {UpdateFolderEndpointParams, UpdateFolderInput} from '../updateFolder/types.js';
+import {
+  UpdateFolderEndpointParams,
+  UpdateFolderInput,
+} from '../updateFolder/types.js';
 import {addRootnameToPath, stringifyFoldernamepath} from '../utils.js';
 
 export async function assertCanCreateFolderInPublicFolder(
@@ -39,14 +42,14 @@ export async function assertCanReadPublicFolder(
   workspace: Pick<Workspace, 'rootname'>,
   folderpath: string
 ) {
-  const instData = RequestData.fromExpressRequest<GetFolderEndpointParams>(
+  const reqData = RequestData.fromExpressRequest<GetFolderEndpointParams>(
     mockExpressRequestForPublicAgent(),
     {
       folderpath: addRootnameToPath(folderpath, workspace.rootname),
     }
   );
 
-  const result = await getFolder(instData);
+  const result = await getFolder(reqData);
   assertEndpointResultOk(result);
   return result;
 }
@@ -59,7 +62,7 @@ export async function assertCanUpdatePublicFolder(
     description: faker.lorem.words(20),
   };
 
-  const instData = RequestData.fromExpressRequest<UpdateFolderEndpointParams>(
+  const reqData = RequestData.fromExpressRequest<UpdateFolderEndpointParams>(
     mockExpressRequestForPublicAgent(),
     {
       folderpath: addRootnameToPath(folderpath, workspace.rootname),
@@ -67,7 +70,7 @@ export async function assertCanUpdatePublicFolder(
     }
   );
 
-  const result = await updateFolder(instData);
+  const result = await updateFolder(reqData);
   assertEndpointResultOk(result);
 }
 
@@ -75,12 +78,13 @@ export async function assertCanListContentOfPublicFolder(
   workspace: Pick<Workspace, 'rootname'>,
   folderpath: string
 ) {
-  const instData = RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
-    mockExpressRequestForPublicAgent(),
-    {folderpath: addRootnameToPath(folderpath, workspace.rootname)}
-  );
+  const reqData =
+    RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
+      mockExpressRequestForPublicAgent(),
+      {folderpath: addRootnameToPath(folderpath, workspace.rootname)}
+    );
 
-  const result = await listFolderContent(instData);
+  const result = await listFolderContent(reqData);
   assertEndpointResultOk(result);
 }
 
@@ -88,12 +92,12 @@ export async function assertCanDeletePublicFolder(
   workspace: Pick<Workspace, 'rootname'>,
   folderpath: string
 ) {
-  const instData = RequestData.fromExpressRequest<DeleteFolderEndpointParams>(
+  const reqData = RequestData.fromExpressRequest<DeleteFolderEndpointParams>(
     mockExpressRequestForPublicAgent(),
     {folderpath: addRootnameToPath(folderpath, workspace.rootname)}
   );
 
-  const result = await deleteFolder(instData);
+  const result = await deleteFolder(reqData);
   assertEndpointResultOk(result);
 }
 
@@ -113,13 +117,25 @@ export async function assertFolderPublicOps(
     pathJoin(folder02Path, generateTestFileName({includeStraySlashes: true}))
   );
 
-  await assertCanListContentOfPublicFolder(insertWorkspaceResult.workspace, folder02Path);
-  await assertCanUpdatePublicFolder(insertWorkspaceResult.workspace, folder02Path);
-  await assertCanReadPublicFolder(insertWorkspaceResult.workspace, folder02Path);
+  await assertCanListContentOfPublicFolder(
+    insertWorkspaceResult.workspace,
+    folder02Path
+  );
+  await assertCanUpdatePublicFolder(
+    insertWorkspaceResult.workspace,
+    folder02Path
+  );
+  await assertCanReadPublicFolder(
+    insertWorkspaceResult.workspace,
+    folder02Path
+  );
 
   const filepath = stringifyFilenamepath(file);
   await assertCanReadPublicFile(insertWorkspaceResult.workspace, filepath);
   await assertCanUpdatePublicFile(insertWorkspaceResult.workspace, filepath);
   await assertCanUploadToPublicFile(insertWorkspaceResult.workspace, filepath);
-  await assertCanDeletePublicFolder(insertWorkspaceResult.workspace, folderpath);
+  await assertCanDeletePublicFolder(
+    insertWorkspaceResult.workspace,
+    folderpath
+  );
 }

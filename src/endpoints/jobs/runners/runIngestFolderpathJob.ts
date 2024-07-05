@@ -1,4 +1,6 @@
+import assert from 'assert';
 import {compact} from 'lodash-es';
+import {AnyObject} from 'softkave-js-utils';
 import {FileBackendMount} from '../../../definitions/fileBackend.js';
 import {
   IngestFolderpathJobMeta,
@@ -9,7 +11,6 @@ import {
 import {SessionAgent} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {pathJoin, pathSplit} from '../../../utils/fns.js';
-import {AnyObject} from '../../../utils/types.js';
 import {
   FilePersistenceDescribeFolderContentResult,
   FilePersistenceProvider,
@@ -125,6 +126,7 @@ async function ingestFolderpathContents(
 }
 
 export async function runIngestFolderpathJob(job: Job) {
+  assert(job.type === kJobType.ingestFolderpath);
   appAssert(job.workspaceId, 'workspaceId not present in job');
   appAssert(job.createdBy, 'agent not present in job');
 

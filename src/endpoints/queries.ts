@@ -1,6 +1,6 @@
+import {AnyObject} from 'softkave-js-utils';
 import {UnionToIntersection} from 'type-fest';
 import {mergeData} from '../utils/fns.js';
-import {AnyObject} from '../utils/types.js';
 import {DataProviderFilterValueOperator} from './contexts/data/DataProvider.js';
 import DataProviderFilterBuilder from './contexts/data/DataProviderFilterBuilder.js';
 import {DataQuery} from './contexts/data/types.js';
@@ -18,7 +18,11 @@ function getByWorkspaceIdAndExcludeResourceIdList(
   const f = new DataProviderFilterBuilder<{
     workspaceId: string;
     resourceId: string;
-  }>().addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal);
+  }>().addItem(
+    'workspaceId',
+    workspaceId,
+    DataProviderFilterValueOperator.Equal
+  );
   if (idList?.length) {
     f.addItem('resourceId', idList, DataProviderFilterValueOperator.NotIn);
   }
@@ -29,7 +33,11 @@ function getByWorkspaceIdAndExcludeResourceIdList(
 function getByWorkspaceIdAndName(workspaceId: string, name: string) {
   return new DataProviderFilterBuilder<{workspaceId: string; name: string}>()
     .addItem('workspaceId', workspaceId, DataProviderFilterValueOperator.Equal)
-    .addItem('name', new RegExp(`^${name}$`, 'i'), DataProviderFilterValueOperator.Regex)
+    .addItem(
+      'name',
+      new RegExp(`^${name}$`, 'i'),
+      DataProviderFilterValueOperator.Regex
+    )
     .build();
 }
 
@@ -67,7 +75,9 @@ function getByProvidedId(workspaceId: string, id: string) {
     .build();
 }
 
-function mergeQueries<TQueries extends DataQuery<AnyObject>[]>(...queries: TQueries) {
+function mergeQueries<TQueries extends DataQuery<AnyObject>[]>(
+  ...queries: TQueries
+) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return queries.reduce(

@@ -1,10 +1,18 @@
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest.js';
-import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job.js';
-import {DataQuery} from '../../contexts/data/types.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  EmailJobParams,
+  Job,
+  kEmailJobType,
+  kJobType,
+} from '../../../definitions/job.js';
 import RequestData from '../../RequestData.js';
+import {DataQuery} from '../../contexts/data/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -34,12 +42,12 @@ test('collaboration request revoked', async () => {
     workspace.resourceId,
     {recipientEmail: user02.email}
   );
-  const instData =
+  const reqData =
     RequestData.fromExpressRequest<RevokeCollaborationRequestEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {requestId: request01.resourceId}
     );
-  const result = await revokeCollaborationRequest(instData);
+  const result = await revokeCollaborationRequest(reqData);
   assertEndpointResultOk(result);
 
   const updatedRequest = await kSemanticModels
@@ -49,7 +57,9 @@ test('collaboration request revoked', async () => {
   expect(result.request).toMatchObject(
     collaborationRequestForUserExtractor(updatedRequest)
   );
-  expect(updatedRequest.status).toBe(kCollaborationRequestStatusTypeMap.Revoked);
+  expect(updatedRequest.status).toBe(
+    kCollaborationRequestStatusTypeMap.Revoked
+  );
 
   await kUtilsInjectables.promises().flush();
   // const query: DataQuery<EmailMessage<CollaborationRequestEmailMessageParams>> = {

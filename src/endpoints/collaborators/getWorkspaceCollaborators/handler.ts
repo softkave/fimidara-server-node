@@ -3,7 +3,10 @@ import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
 import {populateUserListWithWorkspaces} from '../../assignedItems/getAssignedItems.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
@@ -14,35 +17,42 @@ import {GetWorkspaceCollaboratorsEndpoint} from './types.js';
 import {getWorkspaceCollaboratorsQuery} from './utils.js';
 import {getWorkspaceCollaboratorsJoiSchema} from './validation.js';
 
-const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint = async instData => {
-  const data = validate(instData.data, getWorkspaceCollaboratorsJoiSchema);
-  const agent = await kUtilsInjectables
-    .session()
-    .getAgentFromReq(
-      instData,
-      kSessionUtils.permittedAgentTypes.api,
-      kSessionUtils.accessScopes.api
+const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint =
+  async reqData => {
+    const data = validate(reqData.data, getWorkspaceCollaboratorsJoiSchema);
+    const agent = await kUtilsInjectables
+      .session()
+      .getAgentFromReq(
+        reqData,
+        kSessionUtils.permittedAgentTypes.api,
+        kSessionUtils.accessScopes.api
+      );
+    const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
+    const workspace = await checkWorkspaceExists(workspaceId);
+    const assignedItemsQuery = await getWorkspaceCollaboratorsQuery(
+      agent,
+      workspace
     );
-  const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
-  const workspace = await checkWorkspaceExists(workspaceId);
-  const assignedItemsQuery = await getWorkspaceCollaboratorsQuery(agent, workspace);
-  applyDefaultEndpointPaginationOptions(data);
-  const assignedItems = await kSemanticModels
-    .assignedItem()
-    .getManyByQuery(assignedItemsQuery, data);
-  let usersWithWorkspaces: UserWithWorkspace[] = [];
-  if (assignedItems.length > 0) {
-    const userIdList = assignedItems.map(item => item.assigneeId);
-    const users = await kSemanticModels.user().getManyByIdList(userIdList);
+    applyDefaultEndpointPaginationOptions(data);
+    const assignedItems = await kSemanticModels
+      .assignedItem()
+      .getManyByQuery(assignedItemsQuery, data);
+    let usersWithWorkspaces: UserWithWorkspace[] = [];
+    if (assignedItems.length > 0) {
+      const userIdList = assignedItems.map(item => item.assigneeId);
+      const users = await kSemanticModels.user().getManyByIdList(userIdList);
 
-    // TODO: only populate the calling workspace
-    usersWithWorkspaces = await populateUserListWithWorkspaces(users);
-  }
+      // TODO: only populate the calling workspace
+      usersWithWorkspaces = await populateUserListWithWorkspaces(users);
+    }
 
-  return {
-    page: getEndpointPageFromInput(data),
-    collaborators: collaboratorListExtractor(usersWithWorkspaces, workspace.resourceId),
+    return {
+      page: getEndpointPageFromInput(data),
+      collaborators: collaboratorListExtractor(
+        usersWithWorkspaces,
+        workspace.resourceId
+      ),
+    };
   };
-};
 
 export default getWorkspaceCollaborators;

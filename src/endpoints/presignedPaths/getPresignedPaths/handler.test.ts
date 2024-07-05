@@ -62,12 +62,12 @@ describe('getPresignedPathsForFiles', () => {
       files01,
       w1.rootname
     ).concat(toInterspersedMatchers(files02, w2.rootname));
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {files: matchers}
       );
-    const result = await getPresignedPathsForFiles(instData);
+    const result = await getPresignedPathsForFiles(reqData);
     assertEndpointResultOk(result);
 
     const returnedPaths = result.paths.map(p => p.path);
@@ -105,12 +105,12 @@ describe('getPresignedPathsForFiles', () => {
       files01,
       w1.rootname
     ).concat(toInterspersedMatchers(files02, w2.rootname));
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {files: matchers, workspaceId: w1.resourceId}
       );
-    const result = await getPresignedPathsForFiles(instData);
+    const result = await getPresignedPathsForFiles(reqData);
     assertEndpointResultOk(result);
 
     const returnedPaths = result.paths.map(p => p.path);
@@ -145,12 +145,12 @@ describe('getPresignedPathsForFiles', () => {
       ),
     ]);
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: w1.resourceId}
       );
-    const result = await getPresignedPathsForFiles(instData);
+    const result = await getPresignedPathsForFiles(reqData);
     assertEndpointResultOk(result);
 
     const returnedPaths = result.paths.map(p => p.path);
@@ -181,12 +181,12 @@ describe('getPresignedPathsForFiles', () => {
       ),
     ]);
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {}
       );
-    const result = await getPresignedPathsForFiles(instData);
+    const result = await getPresignedPathsForFiles(reqData);
     assertEndpointResultOk(result);
 
     const returnedPaths = result.paths.map(p => p.path);
@@ -240,12 +240,12 @@ describe('getPresignedPathsForFiles', () => {
     // Wait 1ms for path with duration 1ms
     await waitTimeout(1);
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<GetPresignedPathsForFilesEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: w1.resourceId}
       );
-    const result = await getPresignedPathsForFiles(instData);
+    const result = await getPresignedPathsForFiles(reqData);
     assertEndpointResultOk(result);
 
     const returnedPaths = result.paths.map(p => p.path);
@@ -291,9 +291,9 @@ function toInterspersedMatchers(files: File[], rootname: string) {
 }
 
 async function tryReadFile(presignedPath: string) {
-  const instData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
+  const reqData = RequestData.fromExpressRequest<ReadFileEndpointParams>(
     mockExpressRequestForPublicAgent(),
     {filepath: presignedPath}
   );
-  return await readFile(instData);
+  return await readFile(reqData);
 }

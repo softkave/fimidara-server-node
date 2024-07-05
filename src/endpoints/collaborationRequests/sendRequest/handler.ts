@@ -27,12 +27,12 @@ import {SendCollaborationRequestEndpoint} from './types.js';
 import {sendCollaborationRequestJoiSchema} from './validation.js';
 
 const sendCollaborationRequest: SendCollaborationRequestEndpoint =
-  async instData => {
-    const data = validate(instData.data, sendCollaborationRequestJoiSchema);
+  async reqData => {
+    const data = validate(reqData.data, sendCollaborationRequestJoiSchema);
     const agent = await kUtilsInjectables
       .session()
       .getAgentFromReq(
-        instData,
+        reqData,
         kSessionUtils.permittedAgentTypes.api,
         kSessionUtils.accessScopes.api
       );

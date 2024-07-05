@@ -9,7 +9,7 @@ import {UsageRecordCategory} from '../../../definitions/usageRecord.js';
 import {
   UsageThresholdsByCategory,
   Workspace,
-  WorkspaceBillStatusMap,
+  kWorkspaceBillStatusMap,
 } from '../../../definitions/workspace.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {cast} from '../../../utils/fns.js';
@@ -22,7 +22,10 @@ import {
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {INTERNAL_addFileBackendMount} from '../../fileBackends/addMount/utils.js';
-import {getDefaultThresholds} from '../../usageRecords/constants.js';
+import {
+  getDefaultThresholds,
+  getUsageForCost,
+} from '../../usageRecords/constants.js';
 import {
   checkWorkspaceNameExists,
   checkWorkspaceRootnameExists,
@@ -40,8 +43,9 @@ export function transformUsageThresholInput(
     assert(usageThreshold);
     usageThresholds[category] = {
       ...usageThreshold,
-      lastUpdatedBy: agent,
+      usage: getUsageForCost(category, usageThreshold.budget),
       lastUpdatedAt: getTimestamp(),
+      lastUpdatedBy: agent,
     };
   });
 
@@ -65,27 +69,26 @@ const INTERNAL_createWorkspace = async (
   const createdAt = getTimestamp();
   const id = getNewIdForResource(kFimidaraResourceType.Workspace);
   const workspace: Workspace = {
-    createdAt,
-    usageThresholds,
-    createdBy: agent,
-    lastUpdatedAt: createdAt,
-    lastUpdatedBy: agent,
-    name: data.name,
-    rootname: data.rootname,
-    resourceId: id,
-    workspaceId: id,
-    description: data.description,
-    billStatus: WorkspaceBillStatusMap.Ok,
-    billStatusAssignedAt: createdAt,
-    usageThresholdLocks: {},
     publicPermissionGroupId: '', // placeholder
+    billStatus: kWorkspaceBillStatusMap.ok,
+    billStatusAssignedAt: createdAt,
+    description: data.description,
+    lastUpdatedAt: createdAt,
+    rootname: data.rootname,
+    lastUpdatedBy: agent,
     isDeleted: false,
+    createdBy: agent,
+    name: data.name,
+    usageThresholds,
+    workspaceId: id,
+    resourceId: id,
+    createdAt,
   };
 
   const {
-    adminPermissionGroup,
-    publicPermissionGroup,
     collaboratorPermissionGroup,
+    publicPermissionGroup,
+    adminPermissionGroup,
     permissionItems,
   } = generateDefaultWorkspacePermissionGroups(agent, workspace);
   workspace.publicPermissionGroupId = publicPermissionGroup.resourceId;
@@ -96,12 +99,12 @@ const INTERNAL_createWorkspace = async (
       agent,
       workspace,
       {
-        configId: null,
-        folderpath: workspace.rootname,
-        index: 0,
-        mountedFrom: '',
-        name: kFileBackendType.fimidara,
         backend: kFileBackendType.fimidara,
+        name: kFileBackendType.fimidara,
+        folderpath: workspace.rootname,
+        mountedFrom: '',
+        configId: null,
+        index: 0,
       },
       opts
     ),
@@ -109,9 +112,9 @@ const INTERNAL_createWorkspace = async (
       .permissionGroup()
       .insertItem(
         [
-          adminPermissionGroup,
-          publicPermissionGroup,
           collaboratorPermissionGroup,
+          publicPermissionGroup,
+          adminPermissionGroup,
         ],
         opts
       ),

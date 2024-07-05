@@ -1,7 +1,7 @@
 import {Readable} from 'stream';
 import {FileMatcher} from '../../../definitions/file.js';
-import {ObjectValues} from '../../../utils/types.js';
 import {Endpoint} from '../../types.js';
+import {ValueOf} from 'type-fest';
 
 export const ImageResizeFitEnumMap = {
   contain: 'contain',
@@ -36,8 +36,10 @@ export const ImageResizePositionEnumMap = {
    * saturation and presence of skin tones. */
   attention: 'attention',
 } as const;
-export type ImageResizeFitEnum = ObjectValues<typeof ImageResizeFitEnumMap>;
-export type ImageResizePositionEnum = ObjectValues<typeof ImageResizePositionEnumMap>;
+export type ImageResizeFitEnum = ValueOf<typeof ImageResizeFitEnumMap>;
+export type ImageResizePositionEnum = ValueOf<
+  typeof ImageResizePositionEnumMap
+>;
 
 export type ImageResizeParams = {
   width?: number;
@@ -69,7 +71,7 @@ export const ImageFormatEnumMap = {
 
   // TODO: support gif
 } as const;
-export type ImageFormatEnum = ObjectValues<typeof ImageFormatEnumMap>;
+export type ImageFormatEnum = ValueOf<typeof ImageFormatEnumMap>;
 
 export type ReadFileEndpointParams = {
   imageResize?: ImageResizeParams;
@@ -84,7 +86,10 @@ export interface ReadFileEndpointResult {
   contentLength?: number;
 }
 
-export type ReadFileEndpoint = Endpoint<ReadFileEndpointParams, ReadFileEndpointResult>;
+export type ReadFileEndpoint = Endpoint<
+  ReadFileEndpointParams,
+  ReadFileEndpointResult
+>;
 
 export type ReadFileEndpointHttpQuery = {
   w?: number;

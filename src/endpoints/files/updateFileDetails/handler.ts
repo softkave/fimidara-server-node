@@ -1,5 +1,5 @@
 import {omit} from 'lodash-es';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {objectHasData} from '../../../utils/fns.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
@@ -23,12 +23,12 @@ import {updateFileDetailsJoiSchema} from './validation.js';
  * - [Medium] Implement name and path update
  */
 
-const updateFileDetails: UpdateFileDetailsEndpoint = async instData => {
-  const data = validate(instData.data, updateFileDetailsJoiSchema);
+const updateFileDetails: UpdateFileDetailsEndpoint = async reqData => {
+  const data = validate(reqData.data, updateFileDetailsJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );
@@ -37,7 +37,7 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async instData => {
       agent,
       opts,
       matcher: data,
-      action: kFimidaraPermissionActionsMap.uploadFile,
+      action: kFimidaraPermissionActions.uploadFile,
       incrementPresignedPathUsageCount: true,
     });
 

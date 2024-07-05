@@ -14,7 +14,7 @@ export async function insertTagForTest(
   workspaceId: string,
   tagInput: Partial<NewTagInput> = {}
 ) {
-  const instData = RequestData.fromExpressRequest<AddTagEndpointParams>(
+  const reqData = RequestData.fromExpressRequest<AddTagEndpointParams>(
     userToken
       ? mockExpressRequestWithAgentToken(userToken)
       : mockExpressRequestForPublicAgent(),
@@ -28,7 +28,7 @@ export async function insertTagForTest(
     }
   );
 
-  const result = await addTag(instData);
+  const result = await addTag(reqData);
   assertEndpointResultOk(result);
   return result;
 }

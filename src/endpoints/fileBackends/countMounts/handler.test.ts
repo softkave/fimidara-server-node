@@ -1,8 +1,8 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -32,11 +32,12 @@ describe('countFileBackendMounts', () => {
       workspaceId: workspace.resourceId,
     });
 
-    const instData = RequestData.fromExpressRequest<CountFileBackendMountsEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {workspaceId: workspace.resourceId}
-    );
-    const result = await countFileBackendMounts(instData);
+    const reqData =
+      RequestData.fromExpressRequest<CountFileBackendMountsEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {workspaceId: workspace.resourceId}
+      );
+    const result = await countFileBackendMounts(reqData);
 
     assertEndpointResultOk(result);
     expect(result.count).toBe(count);

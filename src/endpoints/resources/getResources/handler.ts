@@ -22,12 +22,12 @@ const kAllowedTypes = [
   kFimidaraResourceType.UsageRecord,
 ];
 
-const getResources: GetResourcesEndpoint = async instData => {
-  const data = validate(instData.data, getResourcesJoiSchema);
+const getResources: GetResourcesEndpoint = async reqData => {
+  const data = validate(reqData.data, getResourcesJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );

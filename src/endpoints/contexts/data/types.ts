@@ -1,4 +1,5 @@
 import {ProjectionType, SortOrder} from 'mongoose';
+import {AnyFn, AnyObject} from 'softkave-js-utils';
 import {Primitive} from 'type-fest';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {App, AppShard} from '../../../definitions/app.js';
@@ -26,7 +27,6 @@ import {Tag} from '../../../definitions/tag.js';
 import {UsageRecord} from '../../../definitions/usageRecord.js';
 import {User} from '../../../definitions/user.js';
 import {Workspace} from '../../../definitions/workspace.js';
-import {AnyFn, AnyObject} from '../../../utils/types.js';
 
 export type DataQuerySort<T, K extends keyof T = keyof T> = {
   [P in K]?: SortOrder;

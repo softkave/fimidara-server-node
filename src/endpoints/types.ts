@@ -1,7 +1,9 @@
 import {Request, RequestHandler, Response} from 'express';
+import {AnyObject} from 'softkave-js-utils';
+import {ValueOf} from 'type-fest';
 import {HttpEndpointDefinitionType} from '../mddoc/mddoc.js';
 import {FimidaraExternalError} from '../utils/OperationError.js';
-import {AnyObject, ObjectValues, OrPromise} from '../utils/types.js';
+import {OrPromise} from '../utils/types.js';
 import RequestData from './RequestData.js';
 
 export interface BaseEndpointResult {
@@ -10,9 +12,11 @@ export interface BaseEndpointResult {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Endpoint<TParams = any, TResult = void> = (
-  instData: RequestData<TParams>
+  reqData: RequestData<TParams>
 ) => Promise<
-  TResult extends void ? void | BaseEndpointResult : TResult & BaseEndpointResult
+  TResult extends void
+    ? void | BaseEndpointResult
+    : TResult & BaseEndpointResult
 >;
 
 export type InferEndpointResult<TEndpoint> = TEndpoint extends Endpoint<
@@ -41,7 +45,9 @@ export const ServerRecommendedActionsMap = {
   RequestChangePassword: 'requestChangePassword',
 } as const;
 
-export type ServerRecommendedActions = ObjectValues<typeof ServerRecommendedActionsMap>;
+export type ServerRecommendedActions = ValueOf<
+  typeof ServerRecommendedActionsMap
+>;
 
 export type PaginationQuery = {
   pageSize?: number;
@@ -64,7 +70,8 @@ export interface EndpointRequiredWorkspaceIDParam {
   workspaceId: string;
 }
 
-export interface EndpointWorkspaceResourceParam extends EndpointOptionalWorkspaceIDParam {
+export interface EndpointWorkspaceResourceParam
+  extends EndpointOptionalWorkspaceIDParam {
   providedResourceId?: string;
 }
 
@@ -85,7 +92,8 @@ export type HttpEndpointRequestHeaders_ContentType = {
 };
 
 export type HttpEndpointRequestHeaders_AuthOptional_ContentType =
-  HttpEndpointRequestHeaders_ContentType & HttpEndpointRequestHeaders_AuthOptional;
+  HttpEndpointRequestHeaders_ContentType &
+    HttpEndpointRequestHeaders_AuthOptional;
 
 export type HttpEndpointRequestHeaders_AuthRequired_ContentType =
   Required<HttpEndpointRequestHeaders_AuthOptional_ContentType>;
@@ -95,7 +103,9 @@ export type HttpEndpointResponseHeaders_ContentType_ContentLength = {
   'Content-Length': string;
 };
 
-export type ExportedHttpEndpoint_GetDataFromReqFn = (req: Request) => OrPromise<unknown>;
+export type ExportedHttpEndpoint_GetDataFromReqFn = (
+  req: Request
+) => OrPromise<unknown>;
 
 export type ExportedHttpEndpoint_HandleResponse = (
   res: Response,
@@ -122,7 +132,8 @@ export type ExportedHttpEndpoint_Cleanup = (
 
 export type ExportedHttpEndpointWithMddocDefinition<
   TEndpoint extends Endpoint = Endpoint,
-  TRequestHeaders extends AnyObject = HttpEndpointRequestHeaders_AuthRequired_ContentType,
+  TRequestHeaders extends
+    AnyObject = HttpEndpointRequestHeaders_AuthRequired_ContentType,
   TPathParameters extends AnyObject = AnyObject,
   TQuery extends AnyObject = AnyObject,
   TRequestBody extends AnyObject = InferEndpointParams<TEndpoint>,
@@ -173,7 +184,7 @@ export const kEndpointResultNoteCodeMap = {
   mountsNotCompletelyIngested: 'mountsNotCompletelyIngested',
 } as const;
 
-export type EndpointResultNoteCode = ObjectValues<typeof kEndpointResultNoteCodeMap>;
+export type EndpointResultNoteCode = ValueOf<typeof kEndpointResultNoteCodeMap>;
 
 export const kEndpointResultNotesToMessageMap = {
   // TODO: add which mount/backend, and which op

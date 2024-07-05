@@ -1,81 +1,58 @@
 import {faker} from '@faker-js/faker';
 import {PartialDeep} from 'type-fest';
 import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {kUsageRecordCategory} from '../../../definitions/usageRecord.js';
 import {
-  UsageRecordCategory,
-  UsageRecordCategoryMap,
-} from '../../../definitions/usageRecord.js';
-import {
-  UsageThresholdLocksByCategory,
   UsageThresholdsByCategory,
   Workspace,
-  WorkspaceBillStatusMap,
+  kWorkspaceBillStatusMap,
 } from '../../../definitions/workspace.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
-import {cast, isObjectEmpty} from '../../../utils/fns.js';
+import {isObjectEmpty} from '../../../utils/fns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
-import {usageRecordConstants} from '../../usageRecords/constants.js';
+import {kUsageRecordConstants} from '../../usageRecords/constants.js';
 import {transformUsageThresholInput} from '../../workspaces/addWorkspace/internalCreateWorkspace.js';
 import {NewWorkspaceInput} from '../../workspaces/addWorkspace/types.js';
 import {makeRootnameFromName} from '../../workspaces/utils.js';
 
-function transformUsageThresholLocks(
-  agent: Agent,
-  input: PartialDeep<UsageThresholdLocksByCategory>
-) {
-  const locks: UsageThresholdLocksByCategory = {};
-  cast<UsageRecordCategory[]>(Object.keys(input)).forEach(category => {
-    const lock = input[category];
-    locks[category] = {
-      category,
-      lastUpdatedAt: getTimestamp(),
-      ...lock,
-      locked: lock?.locked ?? false,
-      lastUpdatedBy: {...agent, ...lock?.lastUpdatedBy},
-    };
-  });
-
-  return locks;
-}
-
 export function generateTestUsageThresholdInputMap(
-  threshold = usageRecordConstants.defaultTotalThresholdInUSD,
+  threshold = kUsageRecordConstants.defaultTotalThresholdInUSD,
   seed: PartialDeep<UsageThresholdsByCategory> = {}
 ): Required<NewWorkspaceInput>['usageThresholds'] {
   return {
-    [UsageRecordCategoryMap.Storage]: {
-      category: UsageRecordCategoryMap.Storage,
+    [kUsageRecordCategory.storage]: {
       budget: seed.storage?.budget ?? threshold,
+      category: kUsageRecordCategory.storage,
     },
     // [UsageRecordCategoryMap.Request]: {
     //   category: UsageRecordCategoryMap.Request,
     //   budget: threshold,
     // },
-    [UsageRecordCategoryMap.BandwidthIn]: {
-      category: UsageRecordCategoryMap.BandwidthIn,
+    [kUsageRecordCategory.bandwidthIn]: {
+      category: kUsageRecordCategory.bandwidthIn,
       budget: seed.bin?.budget ?? threshold,
     },
-    [UsageRecordCategoryMap.BandwidthOut]: {
-      category: UsageRecordCategoryMap.BandwidthOut,
+    [kUsageRecordCategory.bandwidthOut]: {
+      category: kUsageRecordCategory.bandwidthOut,
       budget: seed.bout?.budget ?? threshold,
     },
     // [UsageRecordCategoryMap.DatabaseObject]: {
     //   category: UsageRecordCategoryMap.DatabaseObject,
     //   budget: threshold,
     // },
-    [UsageRecordCategoryMap.Total]: isObjectEmpty(seed)
+    [kUsageRecordCategory.total]: isObjectEmpty(seed)
       ? {
-          category: UsageRecordCategoryMap.Total,
-          budget: threshold * Object.keys(UsageRecordCategoryMap).length,
+          budget: threshold * Object.keys(kUsageRecordCategory).length,
+          category: kUsageRecordCategory.total,
         }
       : {
-          category: UsageRecordCategoryMap.Total,
+          category: kUsageRecordCategory.total,
           budget:
             seed.total?.budget ??
             Object.values(seed).reduce(
               (sum, next) => sum + (next?.budget ?? 0),
-              0
+              /** initialValue */ 0
             ),
         },
   };
@@ -84,9 +61,9 @@ export function generateTestUsageThresholdInputMap(
 export function generateTestWorkspace(seed: Partial<Workspace> = {}) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
+    agentTokenId: getNewIdForResource(kFimidaraResourceType.AgentToken),
     agentId: getNewIdForResource(kFimidaraResourceType.User),
     agentType: kFimidaraResourceType.User,
-    agentTokenId: getNewIdForResource(kFimidaraResourceType.AgentToken),
     ...seed.createdBy,
   };
   const lastUpdatedBy: Agent = {...createdBy, ...seed.lastUpdatedBy};
@@ -97,34 +74,31 @@ export function generateTestWorkspace(seed: Partial<Workspace> = {}) {
     getNewIdForResource(kFimidaraResourceType.Workspace);
 
   const workspace: Workspace = {
-    createdAt,
-    name,
-    resourceId,
-    lastUpdatedAt: createdAt,
-    workspaceId: resourceId,
-    rootname: makeRootnameFromName(name),
-    description: faker.lorem.sentence(),
-    billStatus: WorkspaceBillStatusMap.Ok,
-    billStatusAssignedAt: createdAt,
-    publicPermissionGroupId: getNewIdForResource(
-      kFimidaraResourceType.PermissionGroup
-    ),
-    ...seed,
-    createdBy,
-    lastUpdatedBy,
-    usageThresholdLocks: transformUsageThresholLocks(
-      createdBy,
-      seed.usageThresholdLocks || {}
-    ),
     usageThresholds: transformUsageThresholInput(
       createdBy,
       generateTestUsageThresholdInputMap(
-        usageRecordConstants.defaultTotalThresholdInUSD,
+        kUsageRecordConstants.defaultTotalThresholdInUSD,
         seed.usageThresholds
       )
     ),
+    publicPermissionGroupId: getNewIdForResource(
+      kFimidaraResourceType.PermissionGroup
+    ),
+    billStatus: kWorkspaceBillStatusMap.ok,
+    rootname: makeRootnameFromName(name),
+    description: faker.lorem.sentence(),
+    billStatusAssignedAt: createdAt,
+    lastUpdatedAt: createdAt,
+    workspaceId: resourceId,
     isDeleted: false,
+    lastUpdatedBy,
+    resourceId,
+    createdAt,
+    createdBy,
+    name,
+    ...seed,
   };
+
   return workspace;
 }
 
@@ -133,9 +107,11 @@ export function generateWorkspaceListForTest(
   seed: Partial<Workspace> = {}
 ) {
   const workspaces: Workspace[] = [];
+
   for (let i = 0; i < count; i++) {
     workspaces.push(generateTestWorkspace(seed));
   }
+
   return workspaces;
 }
 

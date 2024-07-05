@@ -1,13 +1,27 @@
 # Server
 
-- restart DB and use local fs
-- email me with new signups in intervals
-- usage records & alerting
+- usage records
+  - usage records alerting
+  - UI to set usage thresholds internal
+  - make sure api and users can't set thresholds themselves for now, but can read it
+  - apply default thresholds for every new workspace
+  - test usage records on frontend
+  - update costs
+  - UI to update costs, internal
+- restart DB
+- go through apis docs
+- hamburger menu
+- Resumable uploads
+- logs, maybe Sentry
+- audit logs
+- use local fs?
 - remove image resizing for now
-- logs
 - prevent deleting fimidara default org and folders
 - check if email recipient is a user and only send login link, or signup link otherwise
 - tool to print config without values for env
+- cache certain of UsageRecord operations for speed
+- email me with new signups in intervals
+- what happens when a user still have bandwidth in but no storage?
 
 # JS SDK
 

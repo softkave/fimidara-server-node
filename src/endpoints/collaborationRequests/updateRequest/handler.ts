@@ -16,13 +16,13 @@ import {UpdateCollaborationRequestEndpoint} from './types.js';
 import {updateCollaborationRequestJoiSchema} from './validation.js';
 
 const updateCollaborationRequest: UpdateCollaborationRequestEndpoint =
-  async instData => {
-    const data = validate(instData.data, updateCollaborationRequestJoiSchema);
+  async reqData => {
+    const data = validate(reqData.data, updateCollaborationRequestJoiSchema);
     assertUpdateNotEmpty(data.request);
     const agent = await kUtilsInjectables
       .session()
       .getAgentFromReq(
-        instData,
+        reqData,
         kSessionUtils.permittedAgentTypes.api,
         kSessionUtils.accessScopes.api
       );

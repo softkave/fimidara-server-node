@@ -3,6 +3,7 @@ import {execSync} from 'child_process';
 import * as fse from 'fs-extra';
 import {compact, forEach, last, nth, set, uniq, upperFirst} from 'lodash-es';
 import path from 'path';
+import {AnyObject} from 'softkave-js-utils';
 import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
 import {registerUtilsInjectables} from '../endpoints/contexts/injection/register.js';
 import {
@@ -12,7 +13,6 @@ import {
 } from '../endpoints/endpoints.js';
 import {kFimidaraConfigDbType} from '../resources/config.js';
 import {isObjectEmpty, pathSplit} from '../utils/fns.js';
-import {AnyObject} from '../utils/types.js';
 import {
   FieldArrayType,
   FieldBinaryType,

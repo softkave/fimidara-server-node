@@ -1,6 +1,9 @@
 import {validate} from '../../../utils/validate.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
@@ -11,13 +14,13 @@ import {GetFileBackendConfigsEndpoint} from './types.js';
 import {getFileBackendConfigsQuery} from './utils.js';
 import {getFileBackendConfigsJoiSchema} from './validation.js';
 
-const getFileBackendConfigs: GetFileBackendConfigsEndpoint = async instData => {
+const getFileBackendConfigs: GetFileBackendConfigsEndpoint = async reqData => {
   const configModel = kSemanticModels.fileBackendConfig();
-  const data = validate(instData.data, getFileBackendConfigsJoiSchema);
+  const data = validate(reqData.data, getFileBackendConfigsJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );

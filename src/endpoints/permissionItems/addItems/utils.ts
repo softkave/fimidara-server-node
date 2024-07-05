@@ -3,7 +3,7 @@ import {File} from '../../../definitions/file.js';
 import {
   FimidaraPermissionAction,
   PermissionItem,
-  kFimidaraPermissionActionsMap,
+  kFimidaraPermissionActions,
 } from '../../../definitions/permissionItem.js';
 import {
   FimidaraResourceType,
@@ -70,7 +70,7 @@ export const INTERNAL_addPermissionItems = async (
       agent,
       workspace,
       inputTargets,
-      kFimidaraPermissionActionsMap.updatePermission
+      kFimidaraPermissionActions.updatePermission
     ),
   ]);
 
@@ -200,7 +200,7 @@ export const INTERNAL_addPermissionItems = async (
     const wildcardKey = [
       item.entityId,
       item.targetId,
-      kFimidaraPermissionActionsMap.wildcard,
+      kFimidaraPermissionActions.wildcard,
       String(item.access),
     ];
     const existingItem = get(map, key);

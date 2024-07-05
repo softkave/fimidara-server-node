@@ -1,4 +1,4 @@
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {validate} from '../../../utils/validate.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
@@ -12,12 +12,12 @@ import {AddFileBackendConfigEndpoint} from './types.js';
 import {INTERNAL_addConfig} from './utils.js';
 import {addConfigJoiSchema} from './validation.js';
 
-const addFileBackendConfig: AddFileBackendConfigEndpoint = async instData => {
-  const data = validate(instData.data, addConfigJoiSchema);
+const addFileBackendConfig: AddFileBackendConfigEndpoint = async reqData => {
+  const data = validate(reqData.data, addConfigJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );
@@ -27,7 +27,7 @@ const addFileBackendConfig: AddFileBackendConfigEndpoint = async instData => {
     workspace,
     workspaceId: workspace.resourceId,
     target: {
-      action: kFimidaraPermissionActionsMap.addFileBackendConfig,
+      action: kFimidaraPermissionActions.addFileBackendConfig,
       targetId: workspace.resourceId,
     },
   });

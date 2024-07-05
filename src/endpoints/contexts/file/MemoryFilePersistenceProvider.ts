@@ -3,7 +3,6 @@ import {Readable} from 'stream';
 import {FileBackendMount} from '../../../definitions/fileBackend.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {streamToBuffer} from '../../../utils/fns.js';
-import {OmitProperties} from '../../../utils/types.js';
 import {
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
@@ -26,8 +25,9 @@ import {
   PersistedFolderDescription,
 } from './types.js';
 import {defaultToFimidaraPath, defaultToNativePath} from './utils.js';
+import {OmitFrom} from 'softkave-js-utils';
 
-type MemoryFilePersistenceProviderFile = OmitProperties<
+type MemoryFilePersistenceProviderFile = OmitFrom<
   PersistedFileDescription,
   'filepath' | 'raw'
 > & {

@@ -1,14 +1,17 @@
 import assert from 'assert';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kAppType} from '../../../definitions/app.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {waitTimeout} from '../../../utils/fns.js';
 import {getNewId, getNewIdForResource} from '../../../utils/resource.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
 import {generateAndInsertAppListForTest} from '../../testUtils/generate/app.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {initTests} from '../../testUtils/testUtils.js';
 import {FimidaraApp} from '../FimidaraApp.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 
 beforeAll(async () => {
   await initTests();
@@ -62,7 +65,9 @@ describe('FimidaraApp', () => {
     expect(preStopHeartbeatMs).toBeGreaterThan(startingHeartbeatMs);
 
     await app.dispose();
+    await kUtilsInjectables.promises().flush();
 
+    // No more heartbeat after closing app
     dbApp = await kSemanticModels.app().getOneById(appId);
     const postStopHeartbeatMs01 = dbApp?.lastUpdatedAt;
     await waitTimeout(heartbeatIntervalMs * 2);

@@ -167,6 +167,8 @@ async function processDeleteArtifactsFromDef(
 }
 
 export async function runDeleteResourceJob(job: Job) {
+  assert(job.type === kJobType.deleteResource);
+
   const params = job.params as DeleteResourceJobParams;
   const {
     deleteArtifacts,

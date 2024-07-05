@@ -8,11 +8,11 @@ import {ChangePasswordWithCurrentPasswordEndpoint} from './types.js';
 import {changePasswordWithPasswordJoiSchema} from './validation.js';
 
 const changePasswordWithCurrentPassword: ChangePasswordWithCurrentPasswordEndpoint =
-  async instData => {
-    const data = validate(instData.data, changePasswordWithPasswordJoiSchema);
+  async reqData => {
+    const data = validate(reqData.data, changePasswordWithPasswordJoiSchema);
     const user = await kUtilsInjectables
       .session()
-      .getUser(instData, kSessionUtils.accessScopes.user);
+      .getUser(reqData, kSessionUtils.accessScopes.user);
     const passwordMatch = await argon2.verify(user.hash, data.currentPassword);
 
     if (!passwordMatch) {
@@ -20,7 +20,7 @@ const changePasswordWithCurrentPassword: ChangePasswordWithCurrentPasswordEndpoi
     }
 
     const result = await INTERNAL_changePassword(
-      instData,
+      reqData,
       user.resourceId,
       data
     );

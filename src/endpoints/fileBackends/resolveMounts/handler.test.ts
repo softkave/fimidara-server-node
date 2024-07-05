@@ -135,12 +135,12 @@ describe('resolveMounts', () => {
       });
       assert(seed?.namepath);
 
-      const instData =
+      const reqData =
         RequestData.fromExpressRequest<ResolveFileBackendMountsEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
           {...query, workspaceId: workspace.resourceId}
         );
-      const result = await resolveFileBackendMounts(instData);
+      const result = await resolveFileBackendMounts(reqData);
       assertEndpointResultOk(result);
 
       await matchExpects<
@@ -212,7 +212,7 @@ describe('resolveMounts', () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
 
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<ResolveFileBackendMountsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
@@ -223,7 +223,7 @@ describe('resolveMounts', () => {
 
     await expectErrorThrown(
       async () => {
-        await resolveFileBackendMounts(instData);
+        await resolveFileBackendMounts(reqData);
       },
       error => {
         expect((error as NotFoundError).message).toBe(
@@ -236,7 +236,7 @@ describe('resolveMounts', () => {
   test('fails if folder with folderId does not exist', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<ResolveFileBackendMountsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
@@ -247,7 +247,7 @@ describe('resolveMounts', () => {
 
     await expectErrorThrown(
       async () => {
-        await resolveFileBackendMounts(instData);
+        await resolveFileBackendMounts(reqData);
       },
       error => {
         expect((error as NotFoundError).message).toBe(

@@ -1,12 +1,12 @@
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import {Job, kJobType} from '../../../definitions/job.js';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {sortObjectKeys} from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -17,7 +17,10 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
 import deletePermissionItems from './handler.js';
-import {DeletePermissionItemInput, DeletePermissionItemsEndpointParams} from './types.js';
+import {
+  DeletePermissionItemInput,
+  DeletePermissionItemsEndpointParams,
+} from './types.js';
 
 beforeAll(async () => {
   await initTests();
@@ -39,13 +42,13 @@ test('permission items deleted', async () => {
       entityId: pg01.resourceId,
       target: {targetId: workspace.resourceId},
       access: true,
-      action: kFimidaraPermissionActionsMap.addTag,
+      action: kFimidaraPermissionActions.addTag,
     }),
     insertPermissionItemsForTest(userToken, workspace.resourceId, {
       entityId: pg02.resourceId,
       target: {targetId: workspace.resourceId},
       access: true,
-      action: kFimidaraPermissionActionsMap.addTag,
+      action: kFimidaraPermissionActions.addTag,
     }),
   ]);
 
@@ -53,18 +56,19 @@ test('permission items deleted', async () => {
     workspaceId: workspace.resourceId,
     items: [
       {
-        action: kFimidaraPermissionActionsMap.addTag,
+        action: kFimidaraPermissionActions.addTag,
         target: {targetId: workspace.resourceId},
         entityId: pg01.resourceId,
       },
       {entityId: pg02.resourceId},
     ],
   };
-  const instData = RequestData.fromExpressRequest<DeletePermissionItemsEndpointParams>(
-    mockExpressRequestWithAgentToken(userToken),
-    params
-  );
-  const result = await deletePermissionItems(instData);
+  const reqData =
+    RequestData.fromExpressRequest<DeletePermissionItemsEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      params
+    );
+  const result = await deletePermissionItems(reqData);
   assertEndpointResultOk(result);
 
   const jobs = (await kSemanticModels.job().getManyByQuery({

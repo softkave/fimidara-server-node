@@ -5,7 +5,7 @@ import {File} from '../../../definitions/file.js';
 import {Folder} from '../../../definitions/folder.js';
 import {
   FimidaraPermissionAction,
-  kFimidaraPermissionActionsMap,
+  kFimidaraPermissionActions,
 } from '../../../definitions/permissionItem.js';
 import {Resource, kFimidaraResourceType} from '../../../definitions/system.js';
 import RequestData from '../../RequestData.js';
@@ -58,7 +58,7 @@ describe('getResources', () => {
       }),
     ]);
     const itemsList = await Promise.all(
-      Object.values(kFimidaraPermissionActionsMap).map(action =>
+      Object.values(kFimidaraPermissionActions).map(action =>
         generateAndInsertPermissionItemListForTest(1, {
           action,
           access: faker.datatype.boolean(),
@@ -84,23 +84,23 @@ describe('getResources', () => {
 
     addToExpectedResourcesById(
       workspace,
-      kFimidaraPermissionActionsMap.readWorkspace
+      kFimidaraPermissionActions.readWorkspace
     );
     addToExpectedResourcesById(
       permissionGroup,
-      kFimidaraPermissionActionsMap.updatePermission
+      kFimidaraPermissionActions.updatePermission
     );
     addToExpectedResourcesById(
       collaboratorExtractor(
         await populateUserWorkspaces(rawUser),
         workspace.resourceId
       ),
-      kFimidaraPermissionActionsMap.readCollaborator
+      kFimidaraPermissionActions.readCollaborator
     );
     items.forEach(item =>
       addToExpectedResourcesById(
         item,
-        kFimidaraPermissionActionsMap.updatePermission
+        kFimidaraPermissionActions.updatePermission
       )
     );
     folders.forEach(folder => {
@@ -108,7 +108,7 @@ describe('getResources', () => {
       filepathsMap[folderpath] = folder.resourceId;
       resourcesInput.push({
         folderpath,
-        action: kFimidaraPermissionActionsMap.readFolder,
+        action: kFimidaraPermissionActions.readFolder,
       });
       resourcesMap[folder.resourceId] = folder;
     });
@@ -117,16 +117,16 @@ describe('getResources', () => {
       filepathsMap[filepath] = file.resourceId;
       resourcesInput.push({
         filepath,
-        action: kFimidaraPermissionActionsMap.readFolder,
+        action: kFimidaraPermissionActions.readFolder,
       });
       resourcesMap[file.resourceId] = file;
     });
 
-    const instData = RequestData.fromExpressRequest<GetResourcesEndpointParams>(
+    const reqData = RequestData.fromExpressRequest<GetResourcesEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId: workspace.resourceId, resources: resourcesInput}
     );
-    const result = await getResources(instData);
+    const result = await getResources(reqData);
 
     assertEndpointResultOk(result);
     expect(result.resources).toHaveLength(resourcesInput.length);

@@ -1,8 +1,8 @@
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 
 import {
-  UsageRecordFulfillmentStatusMap,
-  UsageSummationTypeMap,
+  kUsageRecordFulfillmentStatus,
+  kUsageSummationType,
 } from '../../../definitions/usageRecord.js';
 import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
@@ -32,23 +32,25 @@ describe('countWorkspaceSummedUsage', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     await generateAndInsertUsageRecordList(15, {
       workspaceId: workspace.resourceId,
-      summationType: UsageSummationTypeMap.Month,
-      fulfillmentStatus: UsageRecordFulfillmentStatusMap.Fulfilled,
+      summationType: kUsageSummationType.month,
+      status: kUsageRecordFulfillmentStatus.fulfilled,
     });
     const count = await kSemanticModels.usageRecord().countByQuery({
       workspaceId: workspace.resourceId,
-      summationType: UsageSummationTypeMap.Month,
-      fulfillmentStatus: UsageRecordFulfillmentStatusMap.Fulfilled,
+      summationType: kUsageSummationType.month,
+      status: kUsageRecordFulfillmentStatus.fulfilled,
     });
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<CountWorkspaceSummedUsageEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
           workspaceId: workspace.resourceId,
-          query: {fulfillmentStatus: UsageRecordFulfillmentStatusMap.Fulfilled},
+          query: {
+            fulfillmentStatus: kUsageRecordFulfillmentStatus.fulfilled,
+          },
         }
       );
-    const result = await countWorkspaceSummedUsage(instData);
+    const result = await countWorkspaceSummedUsage(reqData);
     assertEndpointResultOk(result);
     expect(result.count).toBe(count);
   });

@@ -1,5 +1,5 @@
+import {AnyFn, AnyObject} from 'softkave-js-utils';
 import {DeleteResourceJobMeta, Job} from '../../../definitions/job.js';
-import {AnyFn, AnyObject} from '../../../utils/types.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 
 export async function setJobMeta<TMeta extends AnyObject>(

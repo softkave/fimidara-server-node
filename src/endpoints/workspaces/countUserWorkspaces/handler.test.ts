@@ -51,11 +51,11 @@ describe('countUserWorkspaces', () => {
         )
     );
     const count = user.workspaces.length;
-    const instData = RequestData.fromExpressRequest(
+    const reqData = RequestData.fromExpressRequest(
       mockExpressRequestWithAgentToken(userToken),
       {}
     );
-    const result = await countUserWorkspaces(instData);
+    const result = await countUserWorkspaces(reqData);
     assertEndpointResultOk(result);
     expect(result.count).toBe(count);
   });

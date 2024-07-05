@@ -1,6 +1,6 @@
 import {first, isUndefined} from 'lodash-es';
 import {Folder, FolderMatcher} from '../../../definitions/folder.js';
-import {kFimidaraPermissionActionsMap} from '../../../definitions/permissionItem.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {
   SessionAgent,
   kFimidaraResourceType,
@@ -37,8 +37,8 @@ export async function listFolderContentQuery(
     target: {
       action:
         contentType === kFimidaraResourceType.File
-          ? kFimidaraPermissionActionsMap.readFile
-          : kFimidaraPermissionActionsMap.readFolder,
+          ? kFimidaraPermissionActions.readFile
+          : kFimidaraPermissionActions.readFolder,
       targetId: getResourcePermissionContainers(
         workspace.resourceId,
         parentFolder,

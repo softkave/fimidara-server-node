@@ -14,12 +14,12 @@ import INTERNAL_createWorkspace from './internalCreateWorkspace.js';
 import {AddWorkspaceEndpoint} from './types.js';
 import {addWorkspaceJoiSchema} from './validation.js';
 
-const addWorkspace: AddWorkspaceEndpoint = async instData => {
-  const data = validate(instData.data, addWorkspaceJoiSchema);
+const addWorkspace: AddWorkspaceEndpoint = async reqData => {
+  const data = validate(reqData.data, addWorkspaceJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.user,
       kSessionUtils.accessScopes.user
     );

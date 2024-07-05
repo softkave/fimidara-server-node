@@ -1,15 +1,15 @@
 import {identity} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kFimidaraResourceType, Resource} from '../../../definitions/system.js';
+import {Resource, kFimidaraResourceType} from '../../../definitions/system.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {extractResourceIdList, getResourceId} from '../../../utils/fns.js';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
+import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {
   assignPgListToIdList,
   toAssignedPgListInput,
 } from '../../permissionGroups/testUtils.js';
-import RequestData from '../../RequestData.js';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator.js';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup.js';
 import {expectContainsNoneInForAnyType} from '../../testUtils/helpers/assertion.js';
@@ -71,12 +71,12 @@ describe('getCollaboratorsWithoutPermission', () => {
     });
 
     // test
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<GetCollaboratorsWithoutPermissionEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId}
       );
-    const result = await getCollaboratorsWithoutPermission(instData);
+    const result = await getCollaboratorsWithoutPermission(reqData);
     assertEndpointResultOk(result);
     expect(result.collaboratorIds).toHaveLength(
       seedUserWithoutPermissions.length

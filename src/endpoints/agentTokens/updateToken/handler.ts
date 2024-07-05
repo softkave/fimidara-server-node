@@ -23,12 +23,12 @@ import {
 import {UpdateAgentTokenEndpoint} from './types.js';
 import {updateAgentTokenJoiSchema} from './validation.js';
 
-const updateAgentToken: UpdateAgentTokenEndpoint = async instData => {
-  const data = validate(instData.data, updateAgentTokenJoiSchema);
+const updateAgentToken: UpdateAgentTokenEndpoint = async reqData => {
+  const data = validate(reqData.data, updateAgentTokenJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
-      instData,
+      reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );

@@ -1,4 +1,5 @@
 import {faker} from '@faker-js/faker';
+import {AnyObject} from 'softkave-js-utils';
 import {
   afterAll,
   afterEach,
@@ -16,7 +17,6 @@ import {
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {extractResourceIdList} from '../../../utils/fns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
-import {AnyObject} from '../../../utils/types.js';
 import {FimidaraFilePersistenceProvider} from '../../contexts/file/FimidaraFilePersistenceProvider.js';
 import {S3FilePersistenceProvider} from '../../contexts/file/S3FilePersistenceProvider.js';
 import {kUtilsInjectables} from '../../contexts/injection/injectables.js';

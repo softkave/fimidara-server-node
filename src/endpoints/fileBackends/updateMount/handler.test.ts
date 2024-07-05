@@ -76,7 +76,7 @@ describe('updateMount', () => {
     );
 
     await testCombinations(combinations, async combination => {
-      const instData =
+      const reqData =
         RequestData.fromExpressRequest<UpdateFileBackendMountEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
           {
@@ -85,7 +85,7 @@ describe('updateMount', () => {
             workspaceId: workspace.resourceId,
           }
         );
-      const result = await updateFileBackendMount(instData);
+      const result = await updateFileBackendMount(reqData);
       assertEndpointResultOk(result);
 
       const updatedMount = await kSemanticModels
@@ -185,7 +185,7 @@ describe('updateMount', () => {
   test('fails if mount does not exist', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<UpdateFileBackendMountEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
@@ -201,7 +201,7 @@ describe('updateMount', () => {
 
     await expectErrorThrown(
       async () => {
-        await updateFileBackendMount(instData);
+        await updateFileBackendMount(reqData);
       },
       error => {
         {
@@ -217,7 +217,7 @@ describe('updateMount', () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {mount} = await insertFileBackendMountForTest(userToken, workspace);
-    const instData =
+    const reqData =
       RequestData.fromExpressRequest<UpdateFileBackendMountEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
@@ -233,7 +233,7 @@ describe('updateMount', () => {
 
     await expectErrorThrown(
       async () => {
-        await updateFileBackendMount(instData);
+        await updateFileBackendMount(reqData);
       },
       error => {
         expect((error as NotFoundError).message).toBe(
@@ -251,7 +251,7 @@ describe('updateMount', () => {
       insertFileBackendMountForTest(userToken, workspace),
     ]);
 
-    const instData01 =
+    const reqData01 =
       RequestData.fromExpressRequest<UpdateFileBackendMountEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
@@ -260,7 +260,7 @@ describe('updateMount', () => {
           workspaceId: workspace.resourceId,
         }
       );
-    const instData02 =
+    const reqData02 =
       RequestData.fromExpressRequest<UpdateFileBackendMountEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
@@ -271,10 +271,10 @@ describe('updateMount', () => {
       );
 
     await Promise.all([
-      updateFileBackendMount(instData01),
+      updateFileBackendMount(reqData01),
       expectErrorThrown(
         async () => {
-          await updateFileBackendMount(instData02);
+          await updateFileBackendMount(reqData02);
         },
         error => {
           expect((error as Error).message).toBe(
