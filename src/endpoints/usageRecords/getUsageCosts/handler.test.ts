@@ -5,7 +5,7 @@ import {
   initTests,
   mockExpressRequestForPublicAgent,
 } from '../../testUtils/testUtils.js';
-import {kUsageCosts} from '../constants.js';
+import {kUsageCostsPerByte} from '../constants.js';
 import getUsageCosts from './handler.js';
 import {GetUsageCostsEndpointParams} from './types.js';
 
@@ -29,6 +29,6 @@ describe('getUsageCosts', () => {
     const result = await getUsageCosts(reqData);
 
     // verify
-    expect(result.costs).toMatchObject(kUsageCosts);
+    expect(result.costs).toMatchObject(kUsageCostsPerByte);
   });
 });

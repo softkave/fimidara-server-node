@@ -4,10 +4,9 @@
   - usage records alerting
   - UI to set usage thresholds internal
   - make sure api and users can't set thresholds themselves for now, but can read it
-  - apply default thresholds for every new workspace
   - test usage records on frontend
-  - update costs
   - UI to update costs, internal
+  - limit how many workspaces a user can create, maybe 3 or 5 for now
 - restart DB
 - go through apis docs
 - hamburger menu

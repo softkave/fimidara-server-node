@@ -69,7 +69,7 @@ const INTERNAL_createWorkspace = async (
   const createdAt = getTimestamp();
   const id = getNewIdForResource(kFimidaraResourceType.Workspace);
   const workspace: Workspace = {
-    publicPermissionGroupId: '', // placeholder
+    publicPermissionGroupId: '', // placeholder, filled in below
     billStatus: kWorkspaceBillStatusMap.ok,
     billStatusAssignedAt: createdAt,
     description: data.description,

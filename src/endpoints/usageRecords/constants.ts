@@ -9,17 +9,7 @@ import {getTimestamp} from '../../utils/dateFns.js';
 import {kEndpointConstants} from '../constants.js';
 
 export const kUsageRecordConstants = {
-  defaultTotalThresholdInUSD: 30,
-  /**
-   * We leave some wiggle room for requests that slightly exceed the threshold
-   * Threshold buffer is 1% of the threshold
-   */
-  costThresholdBufferPercent: 0.1,
-  /**
-   * 25th of the month. Using 24 below, cause JS date is 0-indexed.
-   */
-  recordingMonthEndDate: 24,
-  stripeReportingMonthEndDate: 26, // 27th of the month
+  defaultTotalThresholdInUSD: 50,
   routes: {
     countWorkspaceSummedUsage: `${kEndpointConstants.apiv1}/usageRecords/countWorkspaceSummedUsage`,
     getWorkspaceSummedUsage: `${kEndpointConstants.apiv1}/usageRecords/getWorkspaceSummedUsage`,
@@ -27,27 +17,27 @@ export const kUsageRecordConstants = {
   },
 };
 
-// price is in USD per gb
-export const usageCostsPerGb: Record<UsageRecordCategory, number> = {
-  [kUsageRecordCategory.storageEverConsumed]: 0.046,
-  [kUsageRecordCategory.bandwidthOut]: 0.27,
-  [kUsageRecordCategory.bandwidthIn]: 0.18,
-  [kUsageRecordCategory.storage]: 0.046,
+/** Price is in USD per gb */
+export const kUsageCostsPerGb: Record<UsageRecordCategory, number> = {
+  [kUsageRecordCategory.storageEverConsumed]: 0.0,
+  [kUsageRecordCategory.bandwidthOut]: 0.0,
+  [kUsageRecordCategory.bandwidthIn]: 0.0,
+  [kUsageRecordCategory.storage]: 0.018,
   [kUsageRecordCategory.total]: 0,
 };
 
 const kBytesInGb = 1024 * 1024 * 1024;
 
-// price is in USD per byte
-export const kUsageCosts: Record<UsageRecordCategory, number> = {
+/** Price is in USD per byte */
+export const kUsageCostsPerByte: Record<UsageRecordCategory, number> = {
   [kUsageRecordCategory.storage]:
-    usageCostsPerGb[kUsageRecordCategory.storage] / kBytesInGb,
+    kUsageCostsPerGb[kUsageRecordCategory.storage] / kBytesInGb,
   [kUsageRecordCategory.storageEverConsumed]:
-    usageCostsPerGb[kUsageRecordCategory.storageEverConsumed] / kBytesInGb,
+    kUsageCostsPerGb[kUsageRecordCategory.storageEverConsumed] / kBytesInGb,
   [kUsageRecordCategory.bandwidthIn]:
-    usageCostsPerGb[kUsageRecordCategory.bandwidthIn] / kBytesInGb,
+    kUsageCostsPerGb[kUsageRecordCategory.bandwidthIn] / kBytesInGb,
   [kUsageRecordCategory.bandwidthOut]:
-    usageCostsPerGb[kUsageRecordCategory.bandwidthOut] / kBytesInGb,
+    kUsageCostsPerGb[kUsageRecordCategory.bandwidthOut] / kBytesInGb,
   [kUsageRecordCategory.total]: 0,
 };
 
@@ -55,12 +45,12 @@ export const getCostForUsage = (
   catgory: UsageRecordCategory,
   usage: number
 ) => {
-  const costPerUnit = kUsageCosts[catgory];
+  const costPerUnit = kUsageCostsPerByte[catgory];
   return costPerUnit ? costPerUnit * usage : 0;
 };
 
 export function getUsageForCost(category: UsageRecordCategory, cost: number) {
-  const costPerUnit = kUsageCosts[category];
+  const costPerUnit = kUsageCostsPerByte[category];
   return costPerUnit ? cost / costPerUnit : 0;
 }
 
