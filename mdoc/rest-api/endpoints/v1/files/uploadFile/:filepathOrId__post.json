@@ -419,6 +419,15 @@
                     "__id": "FieldObjectField",
                     "required": false
                 },
+                "size": {
+                    "data": {
+                        "__id": "FieldNumber",
+                        "description": "File size in bytes",
+                        "max": 1073741824
+                    },
+                    "__id": "FieldObjectField",
+                    "required": true
+                },
                 "encoding": {
                     "data": {
                         "__id": "FieldString",

@@ -330,6 +330,8 @@ const updloadFileSdkParams = mddocConstruct
         ];
       case 'encoding':
         return ['header', 'content-encoding'];
+      case 'size':
+        return ['header', 'content-length'];
       case 'filepath':
         return ['path', 'filepathOrId'];
       case 'fileId':

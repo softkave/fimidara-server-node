@@ -21,6 +21,7 @@
 - cache certain of UsageRecord operations for speed
 - email me with new signups in intervals
 - what happens when a user still have bandwidth in but no storage?
+- fix NotFoundException exception thrown from email deliverability check (AWS SES)
 
 # JS SDK
 

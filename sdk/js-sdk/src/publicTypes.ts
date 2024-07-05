@@ -321,6 +321,7 @@ export type UploadFileEndpointParams = {
   fileId?: string;
   data: string | Readable | Blob;
   description?: string;
+  size: number;
   encoding?: string;
   mimetype?: string;
 };
@@ -518,7 +519,7 @@ export type PermissionItemInputTarget = {
   folderpath?: string | Array<string>;
   workspaceRootname?: string;
 };
-export type AppActionType =
+export type FimidaraPermissionAction =
   | '*'
   | 'updateWorkspace'
   | 'deleteWorkspace'
@@ -564,7 +565,7 @@ export type PermissionItemInput = {
   target: Array<PermissionItemInputTarget> | PermissionItemInputTarget;
   access: boolean;
   entityId: string | Array<string>;
-  action: AppActionType | Array<AppActionType>;
+  action: FimidaraPermissionAction | Array<FimidaraPermissionAction>;
 };
 export type AddPermissionItemsEndpointParams = {
   workspaceId?: string;
@@ -580,7 +581,7 @@ export type DeletePermissionItemInput = {
   target?:
     | Array<DeleteDeletePermissionItemInputTarget>
     | DeleteDeletePermissionItemInputTarget;
-  action?: AppActionType | Array<AppActionType>;
+  action?: FimidaraPermissionAction | Array<FimidaraPermissionAction>;
   access?: boolean;
   entityId?: string | Array<string>;
 };
@@ -602,7 +603,7 @@ export type ResolveEntityPermissionItemInput = {
     | Array<ResolveEntityPermissionItemInputTarget>
     | ResolveEntityPermissionItemInputTarget;
   entityId: string | Array<string>;
-  action: AppActionType | Array<AppActionType>;
+  action: FimidaraPermissionAction | Array<FimidaraPermissionAction>;
 };
 export type ResolveEntityPermissionsEndpointParams = {
   workspaceId?: string;
@@ -617,7 +618,7 @@ export type ResolvedEntityPermissionItemTarget = {
 export type ResolvedEntityPermissionItem = {
   target: ResolvedEntityPermissionItemTarget;
   entityId: string;
-  action: AppActionType;
+  action: FimidaraPermissionAction;
   access: boolean;
   permittingEntityId?: string;
   permittingTargetId?: string;
@@ -627,7 +628,7 @@ export type ResolveEntityPermissionsEndpointResult = {
 };
 export type FetchResourceItem = {
   resourceId?: string | Array<string>;
-  action: AppActionType;
+  action: FimidaraPermissionAction;
   filepath?: string | Array<string>;
   folderpath?: string | Array<string>;
   workspaceRootname?: string;
@@ -674,6 +675,7 @@ export type GetResourcesEndpointResult = {
 };
 export type UsageCosts = {
   storage: number;
+  storageEver: number;
   bin: number;
   bout: number;
   total: number;
@@ -681,7 +683,12 @@ export type UsageCosts = {
 export type GetUsageCostsEndpointResult = {
   costs: UsageCosts;
 };
-export type UsageRecordCategory = 'total' | 'storage' | 'bin' | 'bout';
+export type UsageRecordCategory =
+  | 'total'
+  | 'storage'
+  | 'storageEver'
+  | 'bin'
+  | 'bout';
 export type UsageRecordFulfillmentStatus =
   | 'undecided'
   | 'fulfilled'
@@ -713,7 +720,7 @@ export type UsageRecord = {
   category: UsageRecordCategory;
   usage: number;
   usageCost: number;
-  fulfillmentStatus: UsageRecordFulfillmentStatus;
+  status: UsageRecordFulfillmentStatus;
   month: number;
   year: number;
 };
@@ -780,24 +787,14 @@ export type UsageThreshold = {
   lastUpdatedAt: number;
   category: UsageRecordCategory;
   budget: number;
+  usage: number;
 };
 export type WorkspaceUsageThresholds = {
   storage?: UsageThreshold;
+  storageEver?: UsageThreshold;
   bin?: UsageThreshold;
   bout?: UsageThreshold;
   total?: UsageThreshold;
-};
-export type UsageThresholdLock = {
-  lastUpdatedBy: Agent;
-  lastUpdatedAt: number;
-  category: UsageRecordCategory;
-  locked: boolean;
-};
-export type WorkspaceUsageThresholdLocks = {
-  storage?: UsageThresholdLock;
-  bin?: UsageThresholdLock;
-  bout?: UsageThresholdLock;
-  total?: UsageThresholdLock;
 };
 export type Workspace = {
   resourceId: string;
@@ -816,7 +813,6 @@ export type Workspace = {
   billStatusAssignedAt: number;
   billStatus: WorkspaceBillStatus;
   usageThresholds: WorkspaceUsageThresholds;
-  usageThresholdLocks: WorkspaceUsageThresholdLocks;
 };
 export type AddWorkspaceEndpointResult = {
   workspace: Workspace;
@@ -1006,7 +1002,7 @@ export type UpdateFileBackendConfigEndpointResult = {
 export type IssuePresignedPathEndpointParams = {
   filepath?: string;
   fileId?: string;
-  action?: AppActionType | Array<AppActionType>;
+  action?: FimidaraPermissionAction | Array<FimidaraPermissionAction>;
   duration?: number;
   expires?: number;
   usageCount?: number;

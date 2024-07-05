@@ -31,8 +31,9 @@
                                         "valid": {
                                             "0": "total",
                                             "1": "storage",
-                                            "2": "bin",
-                                            "3": "bout"
+                                            "2": "storageEver",
+                                            "3": "bin",
+                                            "4": "bout"
                                         },
                                         "enumName": "UsageRecordCategory"
                                     },
@@ -45,8 +46,9 @@
                                             "valid": {
                                                 "0": "total",
                                                 "1": "storage",
-                                                "2": "bin",
-                                                "3": "bout"
+                                                "2": "storageEver",
+                                                "3": "bin",
+                                                "4": "bout"
                                             },
                                             "enumName": "UsageRecordCategory"
                                         }

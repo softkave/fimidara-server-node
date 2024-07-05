@@ -87,30 +87,25 @@ export type GetUsersEndpointResult = {
 };
 export type GetWorkspacesEndpointParams = {};
 export type WorkspaceBillStatus = 'ok' | 'gracePeriod' | 'billOverdue';
-export type UsageRecordCategory = 'total' | 'storage' | 'bin' | 'bout';
+export type UsageRecordCategory =
+  | 'total'
+  | 'storage'
+  | 'storageEver'
+  | 'bin'
+  | 'bout';
 export type UsageThreshold = {
   lastUpdatedBy: Agent;
   lastUpdatedAt: number;
   category: UsageRecordCategory;
   budget: number;
+  usage: number;
 };
 export type WorkspaceUsageThresholds = {
   storage?: UsageThreshold;
+  storageEver?: UsageThreshold;
   bin?: UsageThreshold;
   bout?: UsageThreshold;
   total?: UsageThreshold;
-};
-export type UsageThresholdLock = {
-  lastUpdatedBy: Agent;
-  lastUpdatedAt: number;
-  category: UsageRecordCategory;
-  locked: boolean;
-};
-export type WorkspaceUsageThresholdLocks = {
-  storage?: UsageThresholdLock;
-  bin?: UsageThresholdLock;
-  bout?: UsageThresholdLock;
-  total?: UsageThresholdLock;
 };
 export type Workspace = {
   resourceId: string;
@@ -129,7 +124,6 @@ export type Workspace = {
   billStatusAssignedAt: number;
   billStatus: WorkspaceBillStatus;
   usageThresholds: WorkspaceUsageThresholds;
-  usageThresholdLocks: WorkspaceUsageThresholdLocks;
 };
 export type GetWorkspacesEndpointResult = {
   workspaceList: Array<Workspace>;

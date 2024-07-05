@@ -335,8 +335,9 @@
                                                         "valid": {
                                                             "0": "total",
                                                             "1": "storage",
-                                                            "2": "bin",
-                                                            "3": "bout"
+                                                            "2": "storageEver",
+                                                            "3": "bin",
+                                                            "4": "bout"
                                                         },
                                                         "enumName": "UsageRecordCategory"
                                                     },
@@ -348,6 +349,98 @@
                                                         "__id": "FieldNumber",
                                                         "description": "Price in USD",
                                                         "example": 5
+                                                    },
+                                                    "__id": "FieldObjectField",
+                                                    "required": true
+                                                },
+                                                "usage": {
+                                                    "data": {
+                                                        "__id": "FieldNumber",
+                                                        "description": "Usage amount. Bytes for storage, bin, and bout. Always 0 for total, use `usageCost` instead"
+                                                    },
+                                                    "__id": "FieldObjectField",
+                                                    "required": true
+                                                }
+                                            }
+                                        },
+                                        "__id": "FieldObjectField",
+                                        "required": false
+                                    },
+                                    "storageEver": {
+                                        "data": {
+                                            "__id": "FieldObject",
+                                            "name": "UsageThreshold",
+                                            "fields": {
+                                                "lastUpdatedBy": {
+                                                    "data": {
+                                                        "__id": "FieldObject",
+                                                        "name": "Agent",
+                                                        "fields": {
+                                                            "agentId": {
+                                                                "data": {
+                                                                    "__id": "FieldString",
+                                                                    "description": "Agent ID. Possible agents are users and agent tokens"
+                                                                },
+                                                                "__id": "FieldObjectField",
+                                                                "required": true
+                                                            },
+                                                            "agentType": {
+                                                                "data": {
+                                                                    "__id": "FieldString",
+                                                                    "description": "Agent type",
+                                                                    "example": "agentToken",
+                                                                    "valid": {
+                                                                        "0": "user",
+                                                                        "1": "agentToken"
+                                                                    },
+                                                                    "enumName": "AgentType"
+                                                                },
+                                                                "__id": "FieldObjectField",
+                                                                "required": true
+                                                            }
+                                                        }
+                                                    },
+                                                    "__id": "FieldObjectField",
+                                                    "required": true
+                                                },
+                                                "lastUpdatedAt": {
+                                                    "data": {
+                                                        "__id": "FieldNumber",
+                                                        "description": "UTC timestamp in milliseconds"
+                                                    },
+                                                    "__id": "FieldObjectField",
+                                                    "required": true
+                                                },
+                                                "category": {
+                                                    "data": {
+                                                        "__id": "FieldString",
+                                                        "description": "Usage record category",
+                                                        "example": "storage",
+                                                        "valid": {
+                                                            "0": "total",
+                                                            "1": "storage",
+                                                            "2": "storageEver",
+                                                            "3": "bin",
+                                                            "4": "bout"
+                                                        },
+                                                        "enumName": "UsageRecordCategory"
+                                                    },
+                                                    "__id": "FieldObjectField",
+                                                    "required": true
+                                                },
+                                                "budget": {
+                                                    "data": {
+                                                        "__id": "FieldNumber",
+                                                        "description": "Price in USD",
+                                                        "example": 5
+                                                    },
+                                                    "__id": "FieldObjectField",
+                                                    "required": true
+                                                },
+                                                "usage": {
+                                                    "data": {
+                                                        "__id": "FieldNumber",
+                                                        "description": "Usage amount. Bytes for storage, bin, and bout. Always 0 for total, use `usageCost` instead"
                                                     },
                                                     "__id": "FieldObjectField",
                                                     "required": true
@@ -410,8 +503,9 @@
                                                         "valid": {
                                                             "0": "total",
                                                             "1": "storage",
-                                                            "2": "bin",
-                                                            "3": "bout"
+                                                            "2": "storageEver",
+                                                            "3": "bin",
+                                                            "4": "bout"
                                                         },
                                                         "enumName": "UsageRecordCategory"
                                                     },
@@ -423,6 +517,14 @@
                                                         "__id": "FieldNumber",
                                                         "description": "Price in USD",
                                                         "example": 5
+                                                    },
+                                                    "__id": "FieldObjectField",
+                                                    "required": true
+                                                },
+                                                "usage": {
+                                                    "data": {
+                                                        "__id": "FieldNumber",
+                                                        "description": "Usage amount. Bytes for storage, bin, and bout. Always 0 for total, use `usageCost` instead"
                                                     },
                                                     "__id": "FieldObjectField",
                                                     "required": true
@@ -485,8 +587,9 @@
                                                         "valid": {
                                                             "0": "total",
                                                             "1": "storage",
-                                                            "2": "bin",
-                                                            "3": "bout"
+                                                            "2": "storageEver",
+                                                            "3": "bin",
+                                                            "4": "bout"
                                                         },
                                                         "enumName": "UsageRecordCategory"
                                                     },
@@ -498,6 +601,14 @@
                                                         "__id": "FieldNumber",
                                                         "description": "Price in USD",
                                                         "example": 5
+                                                    },
+                                                    "__id": "FieldObjectField",
+                                                    "required": true
+                                                },
+                                                "usage": {
+                                                    "data": {
+                                                        "__id": "FieldNumber",
+                                                        "description": "Usage amount. Bytes for storage, bin, and bout. Always 0 for total, use `usageCost` instead"
                                                     },
                                                     "__id": "FieldObjectField",
                                                     "required": true
@@ -560,8 +671,9 @@
                                                         "valid": {
                                                             "0": "total",
                                                             "1": "storage",
-                                                            "2": "bin",
-                                                            "3": "bout"
+                                                            "2": "storageEver",
+                                                            "3": "bin",
+                                                            "4": "bout"
                                                         },
                                                         "enumName": "UsageRecordCategory"
                                                     },
@@ -576,309 +688,11 @@
                                                     },
                                                     "__id": "FieldObjectField",
                                                     "required": true
-                                                }
-                                            }
-                                        },
-                                        "__id": "FieldObjectField",
-                                        "required": false
-                                    }
-                                }
-                            },
-                            "__id": "FieldObjectField",
-                            "required": true
-                        },
-                        "usageThresholdLocks": {
-                            "data": {
-                                "__id": "FieldObject",
-                                "name": "WorkspaceUsageThresholdLocks",
-                                "fields": {
-                                    "storage": {
-                                        "data": {
-                                            "__id": "FieldObject",
-                                            "name": "UsageThresholdLock",
-                                            "fields": {
-                                                "lastUpdatedBy": {
-                                                    "data": {
-                                                        "__id": "FieldObject",
-                                                        "name": "Agent",
-                                                        "fields": {
-                                                            "agentId": {
-                                                                "data": {
-                                                                    "__id": "FieldString",
-                                                                    "description": "Agent ID. Possible agents are users and agent tokens"
-                                                                },
-                                                                "__id": "FieldObjectField",
-                                                                "required": true
-                                                            },
-                                                            "agentType": {
-                                                                "data": {
-                                                                    "__id": "FieldString",
-                                                                    "description": "Agent type",
-                                                                    "example": "agentToken",
-                                                                    "valid": {
-                                                                        "0": "user",
-                                                                        "1": "agentToken"
-                                                                    },
-                                                                    "enumName": "AgentType"
-                                                                },
-                                                                "__id": "FieldObjectField",
-                                                                "required": true
-                                                            }
-                                                        }
-                                                    },
-                                                    "__id": "FieldObjectField",
-                                                    "required": true
                                                 },
-                                                "lastUpdatedAt": {
+                                                "usage": {
                                                     "data": {
                                                         "__id": "FieldNumber",
-                                                        "description": "UTC timestamp in milliseconds"
-                                                    },
-                                                    "__id": "FieldObjectField",
-                                                    "required": true
-                                                },
-                                                "category": {
-                                                    "data": {
-                                                        "__id": "FieldString",
-                                                        "description": "Usage record category",
-                                                        "example": "storage",
-                                                        "valid": {
-                                                            "0": "total",
-                                                            "1": "storage",
-                                                            "2": "bin",
-                                                            "3": "bout"
-                                                        },
-                                                        "enumName": "UsageRecordCategory"
-                                                    },
-                                                    "__id": "FieldObjectField",
-                                                    "required": true
-                                                },
-                                                "locked": {
-                                                    "data": {
-                                                        "__id": "FieldBoolean",
-                                                        "description": "Flag for whether a certain usage category is locked or not"
-                                                    },
-                                                    "__id": "FieldObjectField",
-                                                    "required": true
-                                                }
-                                            }
-                                        },
-                                        "__id": "FieldObjectField",
-                                        "required": false
-                                    },
-                                    "bin": {
-                                        "data": {
-                                            "__id": "FieldObject",
-                                            "name": "UsageThresholdLock",
-                                            "fields": {
-                                                "lastUpdatedBy": {
-                                                    "data": {
-                                                        "__id": "FieldObject",
-                                                        "name": "Agent",
-                                                        "fields": {
-                                                            "agentId": {
-                                                                "data": {
-                                                                    "__id": "FieldString",
-                                                                    "description": "Agent ID. Possible agents are users and agent tokens"
-                                                                },
-                                                                "__id": "FieldObjectField",
-                                                                "required": true
-                                                            },
-                                                            "agentType": {
-                                                                "data": {
-                                                                    "__id": "FieldString",
-                                                                    "description": "Agent type",
-                                                                    "example": "agentToken",
-                                                                    "valid": {
-                                                                        "0": "user",
-                                                                        "1": "agentToken"
-                                                                    },
-                                                                    "enumName": "AgentType"
-                                                                },
-                                                                "__id": "FieldObjectField",
-                                                                "required": true
-                                                            }
-                                                        }
-                                                    },
-                                                    "__id": "FieldObjectField",
-                                                    "required": true
-                                                },
-                                                "lastUpdatedAt": {
-                                                    "data": {
-                                                        "__id": "FieldNumber",
-                                                        "description": "UTC timestamp in milliseconds"
-                                                    },
-                                                    "__id": "FieldObjectField",
-                                                    "required": true
-                                                },
-                                                "category": {
-                                                    "data": {
-                                                        "__id": "FieldString",
-                                                        "description": "Usage record category",
-                                                        "example": "storage",
-                                                        "valid": {
-                                                            "0": "total",
-                                                            "1": "storage",
-                                                            "2": "bin",
-                                                            "3": "bout"
-                                                        },
-                                                        "enumName": "UsageRecordCategory"
-                                                    },
-                                                    "__id": "FieldObjectField",
-                                                    "required": true
-                                                },
-                                                "locked": {
-                                                    "data": {
-                                                        "__id": "FieldBoolean",
-                                                        "description": "Flag for whether a certain usage category is locked or not"
-                                                    },
-                                                    "__id": "FieldObjectField",
-                                                    "required": true
-                                                }
-                                            }
-                                        },
-                                        "__id": "FieldObjectField",
-                                        "required": false
-                                    },
-                                    "bout": {
-                                        "data": {
-                                            "__id": "FieldObject",
-                                            "name": "UsageThresholdLock",
-                                            "fields": {
-                                                "lastUpdatedBy": {
-                                                    "data": {
-                                                        "__id": "FieldObject",
-                                                        "name": "Agent",
-                                                        "fields": {
-                                                            "agentId": {
-                                                                "data": {
-                                                                    "__id": "FieldString",
-                                                                    "description": "Agent ID. Possible agents are users and agent tokens"
-                                                                },
-                                                                "__id": "FieldObjectField",
-                                                                "required": true
-                                                            },
-                                                            "agentType": {
-                                                                "data": {
-                                                                    "__id": "FieldString",
-                                                                    "description": "Agent type",
-                                                                    "example": "agentToken",
-                                                                    "valid": {
-                                                                        "0": "user",
-                                                                        "1": "agentToken"
-                                                                    },
-                                                                    "enumName": "AgentType"
-                                                                },
-                                                                "__id": "FieldObjectField",
-                                                                "required": true
-                                                            }
-                                                        }
-                                                    },
-                                                    "__id": "FieldObjectField",
-                                                    "required": true
-                                                },
-                                                "lastUpdatedAt": {
-                                                    "data": {
-                                                        "__id": "FieldNumber",
-                                                        "description": "UTC timestamp in milliseconds"
-                                                    },
-                                                    "__id": "FieldObjectField",
-                                                    "required": true
-                                                },
-                                                "category": {
-                                                    "data": {
-                                                        "__id": "FieldString",
-                                                        "description": "Usage record category",
-                                                        "example": "storage",
-                                                        "valid": {
-                                                            "0": "total",
-                                                            "1": "storage",
-                                                            "2": "bin",
-                                                            "3": "bout"
-                                                        },
-                                                        "enumName": "UsageRecordCategory"
-                                                    },
-                                                    "__id": "FieldObjectField",
-                                                    "required": true
-                                                },
-                                                "locked": {
-                                                    "data": {
-                                                        "__id": "FieldBoolean",
-                                                        "description": "Flag for whether a certain usage category is locked or not"
-                                                    },
-                                                    "__id": "FieldObjectField",
-                                                    "required": true
-                                                }
-                                            }
-                                        },
-                                        "__id": "FieldObjectField",
-                                        "required": false
-                                    },
-                                    "total": {
-                                        "data": {
-                                            "__id": "FieldObject",
-                                            "name": "UsageThresholdLock",
-                                            "fields": {
-                                                "lastUpdatedBy": {
-                                                    "data": {
-                                                        "__id": "FieldObject",
-                                                        "name": "Agent",
-                                                        "fields": {
-                                                            "agentId": {
-                                                                "data": {
-                                                                    "__id": "FieldString",
-                                                                    "description": "Agent ID. Possible agents are users and agent tokens"
-                                                                },
-                                                                "__id": "FieldObjectField",
-                                                                "required": true
-                                                            },
-                                                            "agentType": {
-                                                                "data": {
-                                                                    "__id": "FieldString",
-                                                                    "description": "Agent type",
-                                                                    "example": "agentToken",
-                                                                    "valid": {
-                                                                        "0": "user",
-                                                                        "1": "agentToken"
-                                                                    },
-                                                                    "enumName": "AgentType"
-                                                                },
-                                                                "__id": "FieldObjectField",
-                                                                "required": true
-                                                            }
-                                                        }
-                                                    },
-                                                    "__id": "FieldObjectField",
-                                                    "required": true
-                                                },
-                                                "lastUpdatedAt": {
-                                                    "data": {
-                                                        "__id": "FieldNumber",
-                                                        "description": "UTC timestamp in milliseconds"
-                                                    },
-                                                    "__id": "FieldObjectField",
-                                                    "required": true
-                                                },
-                                                "category": {
-                                                    "data": {
-                                                        "__id": "FieldString",
-                                                        "description": "Usage record category",
-                                                        "example": "storage",
-                                                        "valid": {
-                                                            "0": "total",
-                                                            "1": "storage",
-                                                            "2": "bin",
-                                                            "3": "bout"
-                                                        },
-                                                        "enumName": "UsageRecordCategory"
-                                                    },
-                                                    "__id": "FieldObjectField",
-                                                    "required": true
-                                                },
-                                                "locked": {
-                                                    "data": {
-                                                        "__id": "FieldBoolean",
-                                                        "description": "Flag for whether a certain usage category is locked or not"
+                                                        "description": "Usage amount. Bytes for storage, bin, and bout. Always 0 for total, use `usageCost` instead"
                                                     },
                                                     "__id": "FieldObjectField",
                                                     "required": true

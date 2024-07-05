@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {execSync} from 'child_process';
-import * as fse from 'fs-extra';
+import fse from 'fs-extra';
 import {compact, forEach, last, nth, set, uniq, upperFirst} from 'lodash-es';
 import path from 'path';
 import {AnyObject} from 'softkave-js-utils';

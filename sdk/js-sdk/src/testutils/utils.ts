@@ -1,9 +1,9 @@
 import {faker} from '@faker-js/faker';
-import {expect} from "vitest";
 import assert from 'assert';
 import {createReadStream} from 'fs';
 import {indexArray} from 'softkave-js-utils';
 import {Readable} from 'stream';
+import {expect} from 'vitest';
 import {fimidaraAddRootnameToPath} from '../utils.js';
 import path = require('path');
 
@@ -88,6 +88,11 @@ export function getTestFileReadStream(vars: ITestVars) {
 export async function getTestFileString(vars: ITestVars) {
   const stream = getTestFileReadStream(vars);
   return await streamToString(stream);
+}
+
+export async function getTestFileByteLength(vars: ITestVars) {
+  const str = await getTestFileString(vars);
+  return Buffer.byteLength(str);
 }
 
 export function generateTestFolderpath(vars: ITestVars) {

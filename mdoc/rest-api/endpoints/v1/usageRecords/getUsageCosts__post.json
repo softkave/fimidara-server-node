@@ -66,6 +66,14 @@
                             "__id": "FieldObjectField",
                             "required": true
                         },
+                        "storageEver": {
+                            "data": {
+                                "__id": "FieldNumber",
+                                "description": "Usage cost in USD"
+                            },
+                            "__id": "FieldObjectField",
+                            "required": true
+                        },
                         "bin": {
                             "data": {
                                 "__id": "FieldNumber",

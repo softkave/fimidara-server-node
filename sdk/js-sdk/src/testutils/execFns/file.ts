@@ -18,7 +18,11 @@ import {
   fimidaraAddRootnameToPath,
   stringifyFimidaraFilenamepath,
 } from '../../utils.js';
-import {ITestVars, getTestFileReadStream} from '../utils.js';
+import {
+  ITestVars,
+  getTestFileByteLength,
+  getTestFileReadStream,
+} from '../utils.js';
 
 export async function deleteFileTestExecFn(
   endpoint: FimidaraEndpoints,
@@ -89,6 +93,7 @@ export async function uploadFileTestExecFn(
   props: PartialDeep<UploadFileEndpointParams> = {}
 ) {
   const input: UploadFileEndpointParams = {
+    size: await getTestFileByteLength(vars),
     data: getTestFileReadStream(vars),
     description: faker.lorem.sentence(),
     encoding: 'base64',
