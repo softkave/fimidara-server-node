@@ -25,6 +25,7 @@
   "clientSignupLink": "",
   "changePasswordLink": "",
   "verifyEmailLink": "",
+  "upgradeWaitlistLink": "",
   "test": {
     "localFsDir": "./test-local-fs"
   },

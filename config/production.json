@@ -8,6 +8,7 @@
   "clientSignupLink": "https://www.fimidara.com/signup",
   "changePasswordLink": "https://www.fimidara.com/change-password",
   "verifyEmailLink": "https://www.fimidara.com/verify-email",
+  "upgradeWaitlistLink": "https://www.fimidara.com/internal/waitlist",
   "exposeHttpServer": false,
   "exposeHttpsServer": true,
   "httpsPort": "",
