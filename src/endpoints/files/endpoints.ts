@@ -72,7 +72,7 @@ async function handleReadFileResponse(
   }
 
   const responseHeaders: AnyObject = {
-    'Content-Length': result.contentLength,
+    // 'Content-Length': result.contentLength,
     'Content-Type': result.mimetype,
   };
   res.set(responseHeaders).status(kEndpointConstants.httpStatusCode.ok);
@@ -100,7 +100,7 @@ async function handleReadFileResponse(
     const helloBuf = Buffer.from('Hello, world!');
     const helloStream = Readable.from([helloBuf]);
     res.setHeader('Content-Type', 'text/plain');
-    res.setHeader('Content-Length', helloBuf.byteLength);
+    // res.setHeader('Content-Length', helloBuf.byteLength);
     // helloStream.pipe(res);
 
     helloStream.on('data', data => {
