@@ -85,7 +85,11 @@ describe.skip('AWSSecretsManagerProvider', () => {
 
 function getTestAWSConfig() {
   const conf = kUtilsInjectables.suppliedConfig();
-  const awsCreds = merge(conf.awsConfigs?.all, conf.awsConfigs?.secretsManager);
+  const awsCreds = merge(
+    {},
+    conf.awsConfigs?.all,
+    conf.awsConfigs?.secretsManager
+  );
   const s3Bucket = conf.awsConfigs?.s3Bucket;
 
   assert(awsCreds?.accessKeyId);

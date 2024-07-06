@@ -426,7 +426,11 @@ export class FimidaraFilePersistenceProvider
 
     switch (config.fileBackend) {
       case kFimidaraConfigFilePersistenceProvider.s3: {
-        const awsCreds = merge(config.awsConfigs?.all, config.awsConfigs?.s3);
+        const awsCreds = merge(
+          {},
+          config.awsConfigs?.all,
+          config.awsConfigs?.s3
+        );
         const s3Bucket = config.awsConfigs?.s3Bucket;
 
         appAssert(awsCreds, 'No AWS config provided for AWS S3 provider');

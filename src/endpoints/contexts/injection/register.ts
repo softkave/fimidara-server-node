@@ -557,6 +557,7 @@ export function registerUtilsInjectables(
 
   if (suppliedConfig.emailProvider === kFimidaraConfigEmailProvider.ses) {
     const awsConfig = merge(
+      {},
       suppliedConfig.awsConfigs?.all,
       suppliedConfig.awsConfigs?.ses
     );
@@ -583,6 +584,7 @@ export function registerUtilsInjectables(
     kFimidaraConfigSecretsManagerProvider.awsSecretsManager
   ) {
     const awsConfig = merge(
+      {},
       suppliedConfig.awsConfigs?.all,
       suppliedConfig.awsConfigs?.secretsManager
     );
