@@ -1,4 +1,4 @@
-import {compact} from 'lodash-es';
+import {compact, omit} from 'lodash-es';
 import sharp from 'sharp';
 import {PassThrough, Readable} from 'stream';
 import {File} from '../../../definitions/file.js';
@@ -70,8 +70,6 @@ const readFile: ReadFileEndpoint = async reqData => {
     return file;
   });
 
-  console.log({file});
-
   assertFile(file);
   await incrementBandwidthOutUsageRecord(
     reqData,
@@ -81,8 +79,6 @@ const readFile: ReadFileEndpoint = async reqData => {
 
   const persistedFile = await readPersistedFile(file);
   const isImageResizeEmpty = isObjectFieldsEmpty(data.imageResize ?? {});
-
-  console.log('has persisted file', {isImageResizeEmpty});
 
   if (persistedFile.body && (!isImageResizeEmpty || data.imageFormat)) {
     const outputStream = new PassThrough();
@@ -104,7 +100,6 @@ const readFile: ReadFileEndpoint = async reqData => {
       transformer.toFormat('png');
     }
 
-    console.log('Resizing image');
     persistedFile.body.pipe(transformer).pipe(outputStream);
     return {
       contentLength: persistedFile.size,
@@ -114,7 +109,8 @@ const readFile: ReadFileEndpoint = async reqData => {
       ext: file.ext,
     };
   } else {
-    console.log('Not resizing image');
+    // console.log({persistedFile});
+    console.log({persistedFile: omit(persistedFile, 'body')});
     return {
       mimetype: file.mimetype ?? 'application/octet-stream',
       stream: persistedFile.body || Readable.from([]),

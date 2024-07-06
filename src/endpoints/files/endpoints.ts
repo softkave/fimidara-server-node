@@ -76,7 +76,15 @@ function handleReadFileResponse(
   // TODO: set timeout for stream after which, we destroy it, to avoid leaving
   // a stream on indefinitely or waiting resources (memory)
   result.stream.on('end', () => res.end());
-  result.stream.pipe(res);
+  result.stream.on('data', data => res.write(data));
+
+  // TODO: better handle error
+  result.stream.on('error', error => {
+    console.error(error);
+    res.end();
+  });
+
+  // result.stream.pipe(res);
 }
 
 /**
