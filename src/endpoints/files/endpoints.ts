@@ -4,7 +4,7 @@ import {first, isString, last} from 'lodash-es';
 import {AnyObject} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {kFimidaraResourceType} from '../../definitions/system.js';
-import {convertToArray} from '../../utils/fns.js';
+import {convertToArray, streamToBuffer} from '../../utils/fns.js';
 import {tryGetResourceTypeFromId} from '../../utils/resource.js';
 import {kEndpointConstants} from '../constants.js';
 import {kUtilsInjectables} from '../contexts/injection/injectables.js';
@@ -79,22 +79,34 @@ function handleReadFileResponse(
 
   // TODO: set timeout for stream after which, we destroy it, to avoid leaving
   // a stream on indefinitely or waiting resources (memory)
-  result.stream.on('end', () => {
-    console.log('stream.end');
-    res.end();
-  });
-  result.stream.on('data', data => {
-    console.log('stream.data');
-    console.log(data);
-    res.write(data);
-  });
+  // result.stream.on('end', () => {
+  //   console.log('stream.end');
+  //   res.end();
+  // });
+  // result.stream.on('data', data => {
+  //   console.log('stream.data');
+  //   console.log(data);
+  //   res.write(data);
+  // });
 
-  // TODO: better handle error
-  result.stream.on('error', error => {
-    console.log('stream.error');
+  // // TODO: better handle error
+  // result.stream.on('error', error => {
+  //   console.log('stream.error');
+  //   console.error(error);
+  //   res.end();
+  // });
+
+  const helloStream = Readable.from(['Hello, world!']);
+  res.setHeader('Content-Type', 'text/plain');
+  helloStream.pipe(res);
+
+  try {
+    const buf = streamToBuffer(result.stream);
+    console.log('buf', buf);
+  } catch (error) {
+    console.log('streamToBuffer');
     console.error(error);
-    res.end();
-  });
+  }
 
   // result.stream.pipe(res);
 }
