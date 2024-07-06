@@ -1,4 +1,4 @@
-import {compact, omit} from 'lodash-es';
+import {compact} from 'lodash-es';
 import sharp from 'sharp';
 import {PassThrough, Readable} from 'stream';
 import {File} from '../../../definitions/file.js';
@@ -32,7 +32,6 @@ import {readFileJoiSchema} from './validation.js';
 
 const readFile: ReadFileEndpoint = async reqData => {
   const data = validate(reqData.data, readFileJoiSchema);
-  console.log({data});
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
@@ -109,8 +108,6 @@ const readFile: ReadFileEndpoint = async reqData => {
       ext: file.ext,
     };
   } else {
-    // console.log({persistedFile});
-    console.log({persistedFile: omit(persistedFile, 'body')});
     return {
       mimetype: file.mimetype ?? 'application/octet-stream',
       stream: persistedFile.body || Readable.from([]),

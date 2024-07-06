@@ -81,56 +81,30 @@ async function handleReadFileResponse(
     // TODO: set timeout for stream after which, we destroy it, to avoid leaving
     // a stream on indefinitely or waiting resources (memory)
     result.stream.on('data', data => {
-      console.log('stream.data');
-      console.log(data);
       res.write(data, error => {
-        console.log('stream.data.error');
-        console.error(error);
+        if (error) {
+          // TODO: better handle error
+          kUtilsInjectables.logger().log('readFile stream.data.error');
+          kUtilsInjectables.logger().error(error);
+        }
       });
     });
+
     // TODO: better handle error
     result.stream.on('error', error => {
-      console.log('stream.error');
-      console.error(error);
+      kUtilsInjectables.logger().log('readFile stream.error');
+      kUtilsInjectables.logger().error(error);
       res.end();
       resolve();
     });
+
     result.stream.on('end', () => {
-      console.log('stream.end');
       res.end();
       resolve();
     });
+
+    // result.stream.pipe(res);
   });
-
-  // try {
-  //   const helloBuf = Buffer.from('Hello, world!');
-  //   const helloStream = Readable.from([helloBuf]);
-  //   res.setHeader('Content-Type', 'text/plain');
-  //   // res.setHeader('Content-Length', helloBuf.byteLength);
-  //   helloStream.pipe(res);
-
-  //   // helloStream.on('data', data => {
-  //   //   console.log('helloStream.data', data);
-  //   //   res.write(data);
-  //   // });
-  //   // helloStream.on('end', () => {
-  //   //   console.log('helloStream.end');
-  //   //   res.end();
-  //   // });
-  //   // helloStream.on('error', error => {
-  //   //   console.log('helloStream.error');
-  //   //   console.error(error);
-  //   //   res.end();
-  //   // });
-
-  // const buf = await streamToBuffer(result.stream);
-  //   console.log('buf', buf);
-  // } catch (error) {
-  //   console.log('streamToBuffer');
-  //   console.error(error);
-  // }
-
-  // result.stream.pipe(res);
 }
 
 /**
@@ -260,21 +234,6 @@ async function extractUploadFileParamsFromReq(
   });
 
   req.pipe(bb);
-
-  // req.on('data', data => {
-  //   console.log('data', Buffer.from(data).toString('utf8'));
-  //   bb.write(data);
-  // });
-  // req.on('end', () => {
-  //   console.log('end');
-  //   bb.end();
-  // });
-  // req.on('error', error => {
-  //   console.log('error');
-  //   console.error(error);
-  //   bb.end();
-  // });
-
   return p;
 }
 

@@ -77,6 +77,14 @@ export class FimidaraJsConfig {
   }
 }
 
+function isNodeEnv() {
+  return typeof window === 'undefined' && typeof process === 'object';
+}
+
+// function isBrowserEnv() {
+//   return !isNodeEnv();
+// }
+
 const HTTP_HEADER_CONTENT_TYPE = 'content-type';
 const HTTP_HEADER_CONTENT_LENGTH = 'Content-Length';
 const HTTP_HEADER_AUTHORIZATION = 'authorization';
@@ -120,7 +128,10 @@ export async function invokeEndpoint(props: InvokeEndpointParams) {
   } else if (data) {
     const str = JSON.stringify(data);
     contentBody = str;
-    outgoingHeaders[HTTP_HEADER_CONTENT_TYPE] = CONTENT_TYPE_APPLICATION_JSON;
+
+    if (isNodeEnv()) {
+      outgoingHeaders[HTTP_HEADER_CONTENT_TYPE] = CONTENT_TYPE_APPLICATION_JSON;
+    }
 
     if (
       !outgoingHeaders[HTTP_HEADER_CONTENT_LENGTH] ||
