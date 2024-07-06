@@ -54,15 +54,23 @@ function handleReadFileResponse(
   req: Request,
   input: ReadFileEndpointParams
 ) {
+  console.dir({input, req, result}, {depth: 7});
+
+  if (input.download) {
+    const filename =
+      result.name +
+      (result.ext ? `${kFileConstants.nameextSeparator}${result.ext}` : '');
+
+    // TODO: correctly set filename and filename* based on
+    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition#as_a_response_header_for_the_main_body
+    // res.setHeader('Content-Disposition', `attachment; filename*="${filename}"`);
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  }
+
   const responseHeaders: AnyObject = {
     'Content-Length': result.contentLength,
     'Content-Type': result.mimetype,
   };
-
-  if (input.download) {
-    responseHeaders['Content-Disposition'] = 'attachment';
-  }
-
   res.set(responseHeaders).status(kEndpointConstants.httpStatusCode.ok);
 
   // TODO: set timeout for stream after which, we destroy it, to avoid leaving

@@ -1,5 +1,6 @@
 # Server
 
+- in delete jobs, use versions marked deleted for original objects
 - usage records
   - usage records alerting
   - UI to set usage thresholds internal
@@ -23,6 +24,8 @@
 - what happens when a user still have bandwidth in but no storage?
 - fix NotFoundException exception thrown from email deliverability check (AWS SES)
 - empty out test s3 bucket and write code to auto clean it after tests
+- download folder as zip
+
 
 # JS SDK
 

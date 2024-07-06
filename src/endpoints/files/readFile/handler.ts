@@ -32,6 +32,7 @@ import {readFileJoiSchema} from './validation.js';
 
 const readFile: ReadFileEndpoint = async reqData => {
   const data = validate(reqData.data, readFileJoiSchema);
+  console.log({data});
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(
@@ -69,6 +70,8 @@ const readFile: ReadFileEndpoint = async reqData => {
     return file;
   });
 
+  console.log({file});
+
   assertFile(file);
   await incrementBandwidthOutUsageRecord(
     reqData,
@@ -78,6 +81,8 @@ const readFile: ReadFileEndpoint = async reqData => {
 
   const persistedFile = await readPersistedFile(file);
   const isImageResizeEmpty = isObjectFieldsEmpty(data.imageResize ?? {});
+
+  console.log('has persisted file', {isImageResizeEmpty});
 
   if (persistedFile.body && (!isImageResizeEmpty || data.imageFormat)) {
     const outputStream = new PassThrough();
@@ -99,17 +104,23 @@ const readFile: ReadFileEndpoint = async reqData => {
       transformer.toFormat('png');
     }
 
+    console.log('Resizing image');
     persistedFile.body.pipe(transformer).pipe(outputStream);
     return {
       contentLength: persistedFile.size,
       mimetype: 'image/png',
       stream: outputStream,
+      name: file.name,
+      ext: file.ext,
     };
   } else {
+    console.log('Not resizing image');
     return {
       mimetype: file.mimetype ?? 'application/octet-stream',
       stream: persistedFile.body || Readable.from([]),
       contentLength: persistedFile.size,
+      name: file.name,
+      ext: file.ext,
     };
   }
 };

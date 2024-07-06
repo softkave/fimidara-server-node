@@ -1,7 +1,7 @@
 import {Readable} from 'stream';
+import {ValueOf} from 'type-fest';
 import {FileMatcher} from '../../../definitions/file.js';
 import {Endpoint} from '../../types.js';
-import {ValueOf} from 'type-fest';
 
 export const ImageResizeFitEnumMap = {
   contain: 'contain',
@@ -81,9 +81,11 @@ export type ReadFileEndpointParams = {
 } & FileMatcher;
 
 export interface ReadFileEndpointResult {
-  stream: Readable;
-  mimetype?: string;
   contentLength?: number;
+  mimetype?: string;
+  stream: Readable;
+  name: string;
+  ext?: string;
 }
 
 export type ReadFileEndpoint = Endpoint<
