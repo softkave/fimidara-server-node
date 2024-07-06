@@ -72,7 +72,7 @@ async function handleReadFileResponse(
   }
 
   const responseHeaders: AnyObject = {
-    // 'Content-Length': result.contentLength,
+    'Content-Length': result.contentLength,
     'Content-Type': result.mimetype,
   };
   res.set(responseHeaders).status(kEndpointConstants.httpStatusCode.ok);
