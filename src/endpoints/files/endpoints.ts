@@ -4,7 +4,7 @@ import {first, isString, last} from 'lodash-es';
 import {AnyObject} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {kFimidaraResourceType} from '../../definitions/system.js';
-import {convertToArray, streamToBuffer} from '../../utils/fns.js';
+import {convertToArray} from '../../utils/fns.js';
 import {tryGetResourceTypeFromId} from '../../utils/resource.js';
 import {kEndpointConstants} from '../constants.js';
 import {kUtilsInjectables} from '../contexts/injection/injectables.js';
@@ -96,35 +96,35 @@ async function handleReadFileResponse(
   //   res.end();
   // });
 
-  try {
-    const helloBuf = Buffer.from('Hello, world!');
-    const helloStream = Readable.from([helloBuf]);
-    res.setHeader('Content-Type', 'text/plain');
-    // res.setHeader('Content-Length', helloBuf.byteLength);
-    helloStream.pipe(res);
+  // try {
+  //   const helloBuf = Buffer.from('Hello, world!');
+  //   const helloStream = Readable.from([helloBuf]);
+  //   res.setHeader('Content-Type', 'text/plain');
+  //   // res.setHeader('Content-Length', helloBuf.byteLength);
+  //   helloStream.pipe(res);
 
-    // helloStream.on('data', data => {
-    //   console.log('helloStream.data', data);
-    //   res.write(data);
-    // });
-    // helloStream.on('end', () => {
-    //   console.log('helloStream.end');
-    //   res.end();
-    // });
-    // helloStream.on('error', error => {
-    //   console.log('helloStream.error');
-    //   console.error(error);
-    //   res.end();
-    // });
+  //   // helloStream.on('data', data => {
+  //   //   console.log('helloStream.data', data);
+  //   //   res.write(data);
+  //   // });
+  //   // helloStream.on('end', () => {
+  //   //   console.log('helloStream.end');
+  //   //   res.end();
+  //   // });
+  //   // helloStream.on('error', error => {
+  //   //   console.log('helloStream.error');
+  //   //   console.error(error);
+  //   //   res.end();
+  //   // });
 
-    const buf = await streamToBuffer(result.stream);
-    console.log('buf', buf);
-  } catch (error) {
-    console.log('streamToBuffer');
-    console.error(error);
-  }
+  //   const buf = await streamToBuffer(result.stream);
+  //   console.log('buf', buf);
+  // } catch (error) {
+  //   console.log('streamToBuffer');
+  //   console.error(error);
+  // }
 
-  // result.stream.pipe(res);
+  result.stream.pipe(res);
 }
 
 /**
