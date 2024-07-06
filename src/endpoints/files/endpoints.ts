@@ -79,22 +79,21 @@ async function handleReadFileResponse(
 
   // TODO: set timeout for stream after which, we destroy it, to avoid leaving
   // a stream on indefinitely or waiting resources (memory)
-  // result.stream.on('end', () => {
-  //   console.log('stream.end');
-  //   res.end();
-  // });
-  // result.stream.on('data', data => {
-  //   console.log('stream.data');
-  //   console.log(data);
-  //   res.write(data);
-  // });
-
-  // // TODO: better handle error
-  // result.stream.on('error', error => {
-  //   console.log('stream.error');
-  //   console.error(error);
-  //   res.end();
-  // });
+  result.stream.on('data', data => {
+    console.log('stream.data');
+    console.log(data);
+    res.write(data);
+  });
+  // TODO: better handle error
+  result.stream.on('error', error => {
+    console.log('stream.error');
+    console.error(error);
+    res.end();
+  });
+  result.stream.on('end', () => {
+    console.log('stream.end');
+    res.end();
+  });
 
   // try {
   //   const helloBuf = Buffer.from('Hello, world!');
@@ -117,14 +116,14 @@ async function handleReadFileResponse(
   //   //   res.end();
   //   // });
 
-  //   const buf = await streamToBuffer(result.stream);
+  // const buf = await streamToBuffer(result.stream);
   //   console.log('buf', buf);
   // } catch (error) {
   //   console.log('streamToBuffer');
   //   console.error(error);
   // }
 
-  result.stream.pipe(res);
+  // result.stream.pipe(res);
 }
 
 /**
