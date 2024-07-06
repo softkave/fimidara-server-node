@@ -57,7 +57,7 @@ import {
 
 describe.each(
   difference(Object.values(kFimidaraConfigFilePersistenceProvider), [
-    // kFimidaraConfigFilePersistenceProvider.s3,
+    kFimidaraConfigFilePersistenceProvider.s3,
   ])
 )('FimidaraFilePersistenceProvider %s', provider => {
   const testDirName = `${Date.now()}`;

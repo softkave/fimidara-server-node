@@ -54,7 +54,7 @@ function handleReadFileResponse(
   req: Request,
   input: ReadFileEndpointParams
 ) {
-  console.dir({input, req, result}, {depth: 7});
+  // console.dir({input, req, result}, {depth: 7});
 
   if (input.download) {
     const filename =
@@ -75,6 +75,7 @@ function handleReadFileResponse(
 
   // TODO: set timeout for stream after which, we destroy it, to avoid leaving
   // a stream on indefinitely or waiting resources (memory)
+  result.stream.on('end', () => res.end());
   result.stream.pipe(res);
 }
 
