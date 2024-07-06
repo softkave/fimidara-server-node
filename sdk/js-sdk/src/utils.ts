@@ -78,6 +78,7 @@ export class FimidaraJsConfig {
 }
 
 const HTTP_HEADER_CONTENT_TYPE = 'content-type';
+const HTTP_HEADER_CONTENT_LENGTH = 'Content-Length';
 const HTTP_HEADER_AUTHORIZATION = 'authorization';
 const CONTENT_TYPE_APPLICATION_JSON = 'application/json';
 
@@ -111,17 +112,28 @@ export async function invokeEndpoint(props: InvokeEndpointParams) {
     onUploadProgress,
     endpointURL: propsEndpointURL,
   } = props;
-  const incomingHeaders = {...headers};
+  const outgoingHeaders = {...headers};
   let contentBody = undefined;
 
   if (formdata) {
     contentBody = toFormData(formdata);
   } else if (data) {
-    contentBody = data;
+    const str = JSON.stringify(data);
+    contentBody = str;
+    outgoingHeaders[HTTP_HEADER_CONTENT_TYPE] = CONTENT_TYPE_APPLICATION_JSON;
+
+    if (
+      !outgoingHeaders[HTTP_HEADER_CONTENT_LENGTH] ||
+      !outgoingHeaders[HTTP_HEADER_CONTENT_LENGTH.toLowerCase()]
+    ) {
+      const textEncoder = new TextEncoder();
+      outgoingHeaders[HTTP_HEADER_CONTENT_LENGTH] =
+        textEncoder.encode(str).length;
+    }
   }
 
   if (token) {
-    incomingHeaders[HTTP_HEADER_AUTHORIZATION] = `Bearer ${token}`;
+    outgoingHeaders[HTTP_HEADER_AUTHORIZATION] = `Bearer ${token}`;
   }
 
   const endpointURL =
@@ -144,7 +156,7 @@ export async function invokeEndpoint(props: InvokeEndpointParams) {
       onDownloadProgress,
       params: query,
       url: endpointURL,
-      headers: incomingHeaders,
+      headers: outgoingHeaders,
       data: contentBody,
       maxRedirects: 0, // avoid buffering the entire stream
     });

@@ -81,9 +81,8 @@ export async function readFileTestExecFn(
     uploadFileProps
   );
   const params: ReadFileEndpointParams = {filepath: input.filepath};
-  const result = await endpoint.files.readFile(
-    merge({body: params, responseType: 'blob'}, props)
-  );
+  const mergedParams = merge({body: params, responseType: 'blob'}, props);
+  const result = await endpoint.files.readFile(mergedParams);
   return result;
 }
 
@@ -103,9 +102,13 @@ export async function uploadFileTestExecFn(
     ),
     mimetype: faker.system.mimeType(),
   };
-  const result = await endpoint.files.uploadFile({
-    body: merge(input, props),
-  });
+
+  if (props.data && !props.size) {
+    throw new Error('Provide size & data');
+  }
+
+  const body = merge(input, props);
+  const result = await endpoint.files.uploadFile({body});
   return result;
 }
 

@@ -1,17 +1,17 @@
-import {expect} from "vitest";
+import {expect} from 'vitest';
 import {FimidaraEndpoints} from '../../publicEndpoints.js';
 import {
   addFolderTestExecFn,
   deleteFolderTestExecFn,
   getFolderTestExecFn,
-  listFolderContentTestExecFn,
   setupFolderContentTestExecFn,
+  listFolderContentTestExecFn,
   updateFolderTestExecFn,
 } from '../execFns/folder.js';
 import {
   ITestVars,
-  containsNoneIn,
   getTestVars,
+  containsNoneIn,
   indexByResourceId,
 } from '../utils.js';
 

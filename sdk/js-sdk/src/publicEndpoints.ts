@@ -499,8 +499,8 @@ export class FilesEndpoints extends FimidaraEndpointsBase {
       fileId: ['path', 'filepathOrId'],
       data: ['body', 'data'],
       description: ['header', 'x-fimidara-file-description'],
-      size: ['header', 'content-length'],
-      encoding: ['header', 'content-encoding'],
+      size: ['header', 'x-fimidara-file-size'],
+      encoding: ['header', 'x-fimidara-file-encoding'],
       mimetype: ['header', 'x-fimidara-file-mimetype'],
     } as const;
     return this.executeJson(

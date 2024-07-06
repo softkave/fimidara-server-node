@@ -2,6 +2,7 @@ import assert from 'assert';
 import {merge} from 'lodash-es';
 import {Readable} from 'stream';
 import {PartialDeep} from 'type-fest';
+import {expect} from 'vitest';
 import {FimidaraEndpoints} from '../../publicEndpoints.js';
 import {ReadFileEndpointParams} from '../../publicTypes.js';
 import {FimidaraEndpointWithBinaryResponseParamsOptional} from '../../utils.js';
@@ -16,6 +17,7 @@ import {
   ITestVars,
   getTestFileReadStream,
   getTestFileString,
+  getTestStreamByteLength,
   getTestVars,
   streamToString,
 } from '../utils.js';
@@ -63,13 +65,18 @@ export const test_readFile_nodeReadable = async (
     fimidaraTestInstance,
     fimidaraTestVars,
     merge({}, props, {responseType: 'stream'}),
-    {data: getTestFileReadStream(fimidaraTestVars)}
+    {
+      data: getTestFileReadStream(fimidaraTestVars),
+      size: await getTestStreamByteLength(
+        getTestFileReadStream(fimidaraTestVars)
+      ),
+    }
   );
 
   const expectedString = await getTestFileString(fimidaraTestVars);
   const body = result.body as Readable;
   const actualString = await streamToString(body);
-  assert.strictEqual(expectedString, actualString);
+  expect(expectedString).toEqual(actualString);
 
   return {result, bodyStr: actualString};
 };
@@ -84,17 +91,21 @@ export const test_uploadFile_nodeReadable = async () => {
 
 export const test_uploadFile_string = async () => {
   const text = 'Hello World!';
+  const buf = Buffer.from(text);
   await uploadFileTestExecFn(fimidaraTestInstance, fimidaraTestVars, {
     data: text,
+    size: buf.byteLength,
   });
 };
 
 export const test_uploadFile_nodeReadableNotFromFile = async () => {
-  const stringStream = Readable.from([
-    'Hello world! Node Readable stream not from file test',
-  ]);
+  const buf = Buffer.from(
+    'Hello world! Node Readable stream not from file test'
+  );
+  const stringStream = Readable.from([buf]);
   await uploadFileTestExecFn(fimidaraTestInstance, fimidaraTestVars, {
     data: stringStream,
+    size: buf.byteLength,
   });
 };
 

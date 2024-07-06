@@ -1,8 +1,8 @@
-import {ConnectBusboyOptions} from 'connect-busboy';
+import {BusboyConfig} from 'busboy';
 import {kEndpointConstants} from '../constants.js';
 
 const maxFileSizeInBytes = 1024 * 1024 ** 2; // 2Gb
-const multipartLimits: ConnectBusboyOptions['limits'] = {
+const multipartLimits: BusboyConfig['limits'] = {
   fields: 1,
   files: 1,
   fieldSize: maxFileSizeInBytes,
@@ -29,7 +29,9 @@ export const kFileConstants = {
     uploadFile_post: `${kEndpointConstants.apiv1}/files/uploadFile/:filepathOrId`,
   },
   headers: {
+    'x-fimidara-file-encoding': 'x-fimidara-file-encoding',
     'x-fimidara-file-description': 'x-fimidara-file-description',
     'x-fimidara-file-mimetype': 'x-fimidara-file-mimetype',
+    'x-fimidara-file-size': 'x-fimidara-file-size',
   } as const,
 };

@@ -1,4 +1,4 @@
-import {describe, test, expect} from "vitest";
+import {describe, expect, test} from 'vitest';
 import {getTestFilepath} from '../testutils/execFns/file.js';
 import {
   fimidaraTestInstance,
@@ -11,7 +11,10 @@ import {
   test_uploadFile_nodeReadableNotFromFile,
   test_uploadFile_string,
 } from '../testutils/tests/file.js';
-import {getTestFileReadStream} from '../testutils/utils.js';
+import {
+  getTestFileByteLength,
+  getTestFileReadStream,
+} from '../testutils/utils.js';
 import {getFimidaraReadFileURL, invokeEndpoint} from '../utils.js';
 
 // TODO: test upload file with browser readable, buffer, and integer arrays
@@ -37,7 +40,7 @@ describe('file', () => {
     const {result} = await test_readFile_nodeReadable({body: {download: true}});
     const headers = result.headers;
 
-    expect(headers['content-disposition']).toBe('attachment');
+    expect(headers['content-disposition']).toContain('attachment;');
   });
 
   test('download file URL', async () => {
@@ -45,7 +48,10 @@ describe('file', () => {
       fimidaraTestInstance,
       fimidaraTestVars,
       /** file matcher, empty object will generate filepath internally */ {},
-      /** upload file props */ {data: getTestFileReadStream(fimidaraTestVars)}
+      /** upload file props */ {
+        data: getTestFileReadStream(fimidaraTestVars),
+        size: await getTestFileByteLength(fimidaraTestVars),
+      }
     );
     const presignedPath =
       await fimidaraTestInstance.presignedPaths.issuePresignedPath({
@@ -74,7 +80,7 @@ describe('file', () => {
 
     expect(
       readFileUsingPresignedPathResult.headers['content-disposition']
-    ).toBe('attachment');
+    ).toContain(`attachment;`);
 
     const readFileUsingFilepathResult = await invokeEndpoint({
       endpointURL: getFilepathURL,
@@ -83,9 +89,9 @@ describe('file', () => {
       responseType: 'blob',
     });
 
-    expect(readFileUsingFilepathResult.headers['content-disposition']).toBe(
-      'attachment'
-    );
+    expect(
+      readFileUsingFilepathResult.headers['content-disposition']
+    ).toContain('attachment');
   });
 
   test('update file details', async () => {

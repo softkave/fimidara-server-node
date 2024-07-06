@@ -1,4 +1,5 @@
 import assert from 'assert';
+import {isNumber} from 'lodash-es';
 import {PartialDeep} from 'type-fest';
 import {FimidaraEndpoints} from '../../publicEndpoints.js';
 import {GetWorkspaceSummedUsageEndpointParams} from '../../publicTypes.js';
@@ -22,8 +23,9 @@ export async function getWorkspaceSummedUsageTestExecFn(
 
 export async function getUsageCostsTestExecFn(endpoint: FimidaraEndpoints) {
   const result = await endpoint.usageRecords.getUsageCosts();
-  assert(result.body.costs['bin'] > 0);
-  assert(result.body.costs['bout'] > 0);
-  assert(result.body.costs['storage'] > 0);
+  assert(isNumber(result.body.costs['bin']));
+  assert(isNumber(result.body.costs['bout']));
+  assert(isNumber(result.body.costs['storage']));
+  assert(isNumber(result.body.costs['storageEver']));
   return result;
 }

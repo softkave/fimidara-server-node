@@ -22,15 +22,16 @@ import {
 
 export type UploadFileEndpointHTTPHeaders =
   HttpEndpointRequestHeaders_AuthOptional_ContentType & {
-    'content-encoding'?: string;
+    'x-fimidara-file-encoding'?: string;
     'x-fimidara-file-description'?: string;
     'x-fimidara-file-mimetype'?: string;
+    'x-fimidara-file-size'?: number;
     'content-length': number;
   };
 
 export type ReadFileEndpointHTTPHeaders =
   HttpEndpointResponseHeaders_ContentType_ContentLength & {
-    'Content-Disposition'?: 'attachment';
+    'Content-Disposition'?: string;
   };
 
 export type ReadFilePOSTHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<

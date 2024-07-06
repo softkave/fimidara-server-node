@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
-import {createReadStream} from 'fs';
+import {createReadStream, ReadStream} from 'fs';
 import {indexArray} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {expect} from 'vitest';
@@ -92,6 +92,11 @@ export async function getTestFileString(vars: ITestVars) {
 
 export async function getTestFileByteLength(vars: ITestVars) {
   const str = await getTestFileString(vars);
+  return Buffer.byteLength(str);
+}
+
+export async function getTestStreamByteLength(stream: ReadStream) {
+  const str = await streamToString(stream);
   return Buffer.byteLength(str);
 }
 

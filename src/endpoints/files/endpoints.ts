@@ -1,15 +1,13 @@
-import busboy from 'connect-busboy';
+import busboy from 'busboy';
 import {Request, Response} from 'express';
 import {first, isString, last} from 'lodash-es';
 import {AnyObject} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {kFimidaraResourceType} from '../../definitions/system.js';
-import {appAssert} from '../../utils/assertion.js';
 import {convertToArray} from '../../utils/fns.js';
 import {tryGetResourceTypeFromId} from '../../utils/resource.js';
 import {kEndpointConstants} from '../constants.js';
 import {kUtilsInjectables} from '../contexts/injection/injectables.js';
-import {InvalidRequestError} from '../errors.js';
 import {populateMountUnsupportedOpNoteInNotFoundError} from '../fileBackends/mountUtils.js';
 import {kFolderConstants} from '../folders/constants.js';
 import {ExportedHttpEndpoint_HandleErrorFn} from '../types.js';
@@ -36,7 +34,15 @@ import updateFileDetails from './updateFileDetails/handler.js';
 import uploadFile from './uploadFile/handler.js';
 import {UploadFileEndpointParams} from './uploadFile/types.js';
 
-const kFileStreamWaitTimeoutMS = 10000; // 10 seconds
+interface ActiveBusboy {
+  _fileStream?: Readable;
+}
+
+interface ReqWithBusboy {
+  busboy?: busboy.Busboy;
+}
+
+const kFileStreamWaitTimeoutMS = 10_000; // 10 seconds
 
 const handleNotFoundError: ExportedHttpEndpoint_HandleErrorFn = (
   res,
@@ -54,8 +60,6 @@ function handleReadFileResponse(
   req: Request,
   input: ReadFileEndpointParams
 ) {
-  // console.dir({input, req, result}, {depth: 7});
-
   if (input.download) {
     const filename =
       result.name +
@@ -140,19 +144,23 @@ async function extractUploadFileParamsFromReq(
   req: Request
 ): Promise<UploadFileEndpointParams> {
   let waitTimeoutHandle: NodeJS.Timeout | undefined = undefined;
-  const contentEncoding = req.headers['content-encoding'];
-  const contentLength = req.headers['content-length'];
+  const contentEncoding =
+    req.headers[kFileConstants.headers['x-fimidara-file-encoding']];
+  const contentLength =
+    req.headers['content-length'] ||
+    req.headers[kFileConstants.headers['x-fimidara-file-size']];
   const description =
     req.headers[kFileConstants.headers['x-fimidara-file-description']];
   const mimeType =
     req.headers[kFileConstants.headers['x-fimidara-file-mimetype']];
 
-  appAssert(
-    req.busboy,
-    new InvalidRequestError('Invalid multipart/formdata request')
-  );
+  const bb = busboy({
+    limits: kFileConstants.multipartLimits,
+    headers: req.headers,
+  });
+  (req as ReqWithBusboy).busboy = bb;
 
-  return new Promise((resolve, reject) => {
+  const p = new Promise<UploadFileEndpointParams>((resolve, reject) => {
     // Wait for data stream or end if timeout exceeded. This is to prevent
     // waiting forever, for whatever reason if stream event is not fired.
     waitTimeoutHandle = setTimeout(() => {
@@ -163,11 +171,11 @@ async function extractUploadFileParamsFromReq(
       );
     }, kFileStreamWaitTimeoutMS);
 
-    req.busboy.on('error', (error): void => {
+    bb.on('error', (error): void => {
       kUtilsInjectables.logger().error('uploadFile req busboy error', error);
     });
 
-    req.busboy.on('file', (filename, stream, info) => {
+    bb.on('file', (filename, stream, info) => {
       // Clear wait timeout, we have file stream, otherwise the request will
       // fail
       clearTimeout(waitTimeoutHandle);
@@ -190,7 +198,7 @@ async function extractUploadFileParamsFromReq(
       });
     });
 
-    req.busboy.on('field', (name, value, info) => {
+    bb.on('field', (name, value, info) => {
       if (name !== kFileConstants.uploadedFileFieldName) {
         return;
       }
@@ -215,34 +223,49 @@ async function extractUploadFileParamsFromReq(
         size: contentLength as unknown as number,
       });
     });
-
-    req.pipe(req.busboy);
   });
+
+  req.pipe(bb);
+
+  // req.on('data', data => {
+  //   console.log('data', Buffer.from(data).toString('utf8'));
+  //   bb.write(data);
+  // });
+  // req.on('end', () => {
+  //   console.log('end');
+  //   bb.end();
+  // });
+  // req.on('error', error => {
+  //   console.log('error');
+  //   console.error(error);
+  //   bb.end();
+  // });
+
+  return p;
 }
 
 function cleanupUploadFileReq(req: Request) {
-  if (req.busboy) {
+  if ((req as ReqWithBusboy).busboy) {
     // We are done processing request, either because of an error, file stream
     // wait timeout exceeded, or file has been persisted. Either way,
     // immediately destroy the stream to avoid memory leakage.
 
-    interface ActiveBusboy {
-      _fileStream?: Readable;
-    }
-
     // Handle busboy's _fileStream on error, called on destroy() which'd crash
     // the app otherwise
-    if ((req.busboy as ActiveBusboy)?._fileStream) {
-      (req.busboy as ActiveBusboy)?._fileStream?.on('error', error => {
-        kUtilsInjectables
-          .logger()
-          .error('uploadFile req busboy _fileStream error', error);
-      });
+    if (((req as ReqWithBusboy).busboy as ActiveBusboy)?._fileStream) {
+      ((req as ReqWithBusboy).busboy as ActiveBusboy)?._fileStream?.on(
+        'error',
+        error => {
+          kUtilsInjectables
+            .logger()
+            .error('uploadFile req busboy _fileStream error', error);
+        }
+      );
     }
 
-    req.unpipe(req.busboy);
+    req.unpipe((req as ReqWithBusboy).busboy);
+    (req as ReqWithBusboy)?.busboy?.destroy();
     req.destroy();
-    req.busboy.destroy();
   }
 }
 
@@ -285,9 +308,6 @@ export function getFilesPublicHttpEndpoints() {
       fn: updateFileDetails,
     },
     uploadFile: {
-      expressRouteMiddleware: busboy({
-        limits: kFileConstants.multipartLimits,
-      }),
       mddocHttpDefinition: uploadFileEndpointDefinition,
       getDataFromReq: extractUploadFileParamsFromReq,
       handleError: handleNotFoundError,

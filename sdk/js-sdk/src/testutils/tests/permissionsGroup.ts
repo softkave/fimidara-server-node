@@ -1,17 +1,17 @@
-import {expect} from "vitest";
+import {expect} from 'vitest';
 import {FimidaraEndpoints} from '../../publicEndpoints.js';
 import {
   addPermissionGroupTestExecFn,
   deletePermissionGroupTestExecFn,
   getPermissionGroupTestExecFn,
-  getWorkspacePermissionGroupsTestExecFn,
   setupWorkspacePermissionGroupsTestExecFn,
+  getWorkspacePermissionGroupsTestExecFn,
   updatePermissionGroupTestExecFn,
 } from '../execFns/permissionGroups.js';
 import {
   ITestVars,
-  containsNoneIn,
   getTestVars,
+  containsNoneIn,
   indexByResourceId,
 } from '../utils.js';
 

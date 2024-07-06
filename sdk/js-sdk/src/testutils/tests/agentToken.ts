@@ -1,17 +1,17 @@
-import {expect} from "vitest";
+import {expect} from 'vitest';
 import {FimidaraEndpoints} from '../../publicEndpoints.js';
 import {
   addAgentTokenTestExecFn,
   deleteTokenTestExecFn,
   getTokenTestExecFn,
-  getWorkspaceAgentTokensTestExecFn,
   setupWorkspaceAgentTokensTestExecFn,
+  getWorkspaceAgentTokensTestExecFn,
   updateTokenTestExecFn,
 } from '../execFns/agentToken.js';
 import {
   ITestVars,
-  containsNoneIn,
   getTestVars,
+  containsNoneIn,
   indexByResourceId,
 } from '../utils.js';
 

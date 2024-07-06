@@ -329,9 +329,9 @@ const updloadFileSdkParams = mddocConstruct
           kFileConstants.headers['x-fimidara-file-description'],
         ];
       case 'encoding':
-        return ['header', 'content-encoding'];
+        return ['header', 'x-fimidara-file-encoding'];
       case 'size':
-        return ['header', 'content-length'];
+        return ['header', 'x-fimidara-file-size'];
       case 'filepath':
         return ['path', 'filepathOrId'];
       case 'fileId':
@@ -382,9 +382,13 @@ const uploadFileEndpointHTTPHeaders = mddocConstruct
       false,
       mimetype
     ),
-    'content-encoding': mddocConstruct.constructFieldObjectField(
+    'x-fimidara-file-encoding': mddocConstruct.constructFieldObjectField(
       false,
       encoding
+    ),
+    'x-fimidara-file-size': mddocConstruct.constructFieldObjectField(
+      false,
+      size
     ),
   })
 
