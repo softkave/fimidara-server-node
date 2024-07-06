@@ -54,7 +54,7 @@ const handleNotFoundError: ExportedHttpEndpoint_HandleErrorFn = (
   return true;
 };
 
-function handleReadFileResponse(
+async function handleReadFileResponse(
   res: Response,
   result: Awaited<ReturnType<ReadFileEndpoint>>,
   req: Request,
@@ -96,12 +96,12 @@ function handleReadFileResponse(
   //   res.end();
   // });
 
-  const helloStream = Readable.from(['Hello, world!']);
-  res.setHeader('Content-Type', 'text/plain');
-  helloStream.pipe(res);
-
   try {
-    const buf = streamToBuffer(result.stream);
+    const helloStream = Readable.from(['Hello, world!']);
+    res.setHeader('Content-Type', 'text/plain');
+    helloStream.pipe(res);
+
+    const buf = await streamToBuffer(result.stream);
     console.log('buf', buf);
   } catch (error) {
     console.log('streamToBuffer');
