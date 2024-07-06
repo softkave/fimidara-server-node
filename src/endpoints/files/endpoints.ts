@@ -77,22 +77,29 @@ async function handleReadFileResponse(
   };
   res.set(responseHeaders).status(kEndpointConstants.httpStatusCode.ok);
 
-  // TODO: set timeout for stream after which, we destroy it, to avoid leaving
-  // a stream on indefinitely or waiting resources (memory)
-  result.stream.on('data', data => {
-    console.log('stream.data');
-    console.log(data);
-    res.write(data);
-  });
-  // TODO: better handle error
-  result.stream.on('error', error => {
-    console.log('stream.error');
-    console.error(error);
-    res.end();
-  });
-  result.stream.on('end', () => {
-    console.log('stream.end');
-    res.end();
+  return new Promise<void>(resolve => {
+    // TODO: set timeout for stream after which, we destroy it, to avoid leaving
+    // a stream on indefinitely or waiting resources (memory)
+    result.stream.on('data', data => {
+      console.log('stream.data');
+      console.log(data);
+      res.write(data, error => {
+        console.log('stream.data.error');
+        console.error(error);
+      });
+    });
+    // TODO: better handle error
+    result.stream.on('error', error => {
+      console.log('stream.error');
+      console.error(error);
+      res.end();
+      resolve();
+    });
+    result.stream.on('end', () => {
+      console.log('stream.end');
+      res.end();
+      resolve();
+    });
   });
 
   // try {
