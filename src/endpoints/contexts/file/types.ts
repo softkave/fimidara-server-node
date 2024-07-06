@@ -1,9 +1,9 @@
+import {DisposableResource} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {
   FileBackendConfig,
   FileBackendMount,
 } from '../../../definitions/fileBackend.js';
-import {DisposableResource} from 'softkave-js-utils';
 
 export type FilePersistenceProviderFeature =
   | 'describeFile'
@@ -14,10 +14,9 @@ export type FilePersistenceProviderFeature =
   | 'deleteFiles'
   | 'deleteFolders';
 
-interface DefaultMatcher {
+export interface FilePersistenceDefaultParams {
   workspaceId: string;
   mount: FileBackendMount;
-  postMountedFromPrefix?: string[];
 }
 
 interface FilepathMatcher {
@@ -32,7 +31,7 @@ interface FolderpathMatcher {
 }
 
 export interface FilePersistenceUploadFileParams
-  extends DefaultMatcher,
+  extends FilePersistenceDefaultParams,
     FilepathMatcher {
   body: Readable;
   mount: FileBackendMount;
@@ -47,20 +46,21 @@ export type FilePersistenceUploadFileResult<TRaw = any> = Pick<
 >;
 
 export interface FilePersistenceGetFileParams
-  extends DefaultMatcher,
+  extends FilePersistenceDefaultParams,
     FilepathMatcher {
   fileId: string;
 }
 
 export interface FilePersistenceDescribeFileParams
-  extends DefaultMatcher,
+  extends FilePersistenceDefaultParams,
     FilepathMatcher {}
 
 export interface FilePersistenceDescribeFolderParams
-  extends DefaultMatcher,
+  extends FilePersistenceDefaultParams,
     FolderpathMatcher {}
 
-export interface FilePersistenceDeleteFilesParams extends DefaultMatcher {
+export interface FilePersistenceDeleteFilesParams
+  extends FilePersistenceDefaultParams {
   files: Array<FilepathMatcher & {fileId: string}>;
 }
 
@@ -88,7 +88,7 @@ export interface PersistedFolderDescription<TRaw = any> {
 }
 
 export interface FilePersistenceDescribeFolderFilesParams
-  extends DefaultMatcher,
+  extends FilePersistenceDefaultParams,
     FolderpathMatcher {
   max: number;
   /* `continuationToken` is backend-dependent */
@@ -96,7 +96,7 @@ export interface FilePersistenceDescribeFolderFilesParams
 }
 
 export interface FilePersistenceDescribeFolderContentParams
-  extends DefaultMatcher,
+  extends FilePersistenceDefaultParams,
     FolderpathMatcher {
   max: number;
   /* `continuationToken` is backend-dependent */
@@ -104,14 +104,15 @@ export interface FilePersistenceDescribeFolderContentParams
 }
 
 export interface FilePersistenceDescribeFolderFoldersParams
-  extends DefaultMatcher,
+  extends FilePersistenceDefaultParams,
     FolderpathMatcher {
   max: number;
   /* `continuationToken` is backend-dependent */
   continuationToken?: unknown;
 }
 
-export interface FilePersistenceDeleteFoldersParams extends DefaultMatcher {
+export interface FilePersistenceDeleteFoldersParams
+  extends FilePersistenceDefaultParams {
   folders: Array<FolderpathMatcher>;
 }
 
@@ -144,7 +145,7 @@ export interface FilePersistenceAddFolderResult<TRaw> {
 }
 
 export interface FilePersistenceToFimidaraPathParams
-  extends Pick<DefaultMatcher, 'mount' | 'postMountedFromPrefix'> {
+  extends Pick<FilePersistenceDefaultParams, 'mount'> {
   nativePath: string;
 }
 
@@ -153,7 +154,7 @@ export interface FilePersistenceToFimidaraPathResult {
 }
 
 export interface FimidaraToFilePersistencePathParams
-  extends Pick<DefaultMatcher, 'mount' | 'postMountedFromPrefix'> {
+  extends Pick<FilePersistenceDefaultParams, 'mount'> {
   fimidaraPath: string;
 }
 

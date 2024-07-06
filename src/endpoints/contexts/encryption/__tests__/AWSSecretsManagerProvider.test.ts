@@ -1,12 +1,13 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
+import {merge} from 'lodash-es';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {expectErrorThrown} from '../../../testUtils/helpers/error.js';
 import {completeTests} from '../../../testUtils/helpers/testFns.js';
 import {initTests} from '../../../testUtils/testUtils.js';
 import {kUtilsInjectables} from '../../injection/injectables.js';
 import {AWSSecretsManagerProvider} from '../AWSSecretsManagerProvider.js';
 import {SecretsManagerProvider} from '../types.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 
 const secretIds: string[] = [];
 let manager: SecretsManagerProvider | undefined;
@@ -84,13 +85,18 @@ describe.skip('AWSSecretsManagerProvider', () => {
 
 function getTestAWSConfig() {
   const conf = kUtilsInjectables.suppliedConfig();
-  assert(conf.test);
-  assert(conf.test.awsConfig);
-  assert(conf.test.bucket);
-  return {awsConfig: conf.test.awsConfig, bucket: conf.test.bucket};
+  const awsCreds = merge(conf.awsConfigs?.all, conf.awsConfigs?.secretsManager);
+  const s3Bucket = conf.awsConfigs?.s3Bucket;
+
+  assert(awsCreds?.accessKeyId);
+  assert(awsCreds?.region);
+  assert(awsCreds?.secretAccessKey);
+  assert(s3Bucket);
+
+  return {awsCreds, bucket: s3Bucket};
 }
 
 function getSecretsManagerInstance() {
-  const {awsConfig} = getTestAWSConfig();
-  return new AWSSecretsManagerProvider(awsConfig);
+  const {awsCreds} = getTestAWSConfig();
+  return new AWSSecretsManagerProvider(awsCreds);
 }

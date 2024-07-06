@@ -1,5 +1,6 @@
 import {DeleteObjectsCommand, S3Client} from '@aws-sdk/client-s3';
 import assert from 'assert';
+import {merge} from 'lodash-es';
 import {Readable} from 'stream';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {
@@ -35,12 +36,12 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  const {bucket, awsConfig} = getTestAWSConfig();
+  const {bucket, awsCreds} = getTestAWSConfig();
   const s3 = new S3Client({
-    region: awsConfig.region,
+    region: awsCreds.region,
     credentials: {
-      accessKeyId: awsConfig.accessKeyId,
-      secretAccessKey: awsConfig.secretAccessKey,
+      secretAccessKey: awsCreds.secretAccessKey,
+      accessKeyId: awsCreds.accessKeyId,
     },
   });
   const command = new DeleteObjectsCommand({
@@ -387,15 +388,20 @@ class TestS3Provider extends S3FilePersistenceProvider {
 
 function getTestAWSConfig() {
   const conf = kUtilsInjectables.suppliedConfig();
-  assert(conf.test);
-  assert(conf.test.awsConfig);
-  assert(conf.test.bucket);
-  return {awsConfig: conf.test.awsConfig, bucket: conf.test.bucket};
+  const awsCreds = merge(conf.awsConfigs?.all, conf.awsConfigs?.secretsManager);
+  const s3Bucket = conf.awsConfigs?.s3Bucket;
+
+  assert(awsCreds?.accessKeyId);
+  assert(awsCreds?.region);
+  assert(awsCreds?.secretAccessKey);
+  assert(s3Bucket);
+
+  return {awsCreds, bucket: s3Bucket};
 }
 
 function getS3BackendInstance() {
-  const {awsConfig} = getTestAWSConfig();
-  return new TestS3Provider(awsConfig);
+  const {awsCreds} = getTestAWSConfig();
+  return new TestS3Provider(awsCreds);
 }
 
 async function getNewMount(seed: Partial<FileBackendMount>) {

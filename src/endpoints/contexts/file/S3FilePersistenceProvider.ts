@@ -294,14 +294,13 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
   };
 
   toNativePath = (params: FimidaraToFilePersistencePathParams) => {
-    const {fimidaraPath, mount, postMountedFromPrefix} = params;
+    const {fimidaraPath, mount} = params;
     const {bucket, prefix} =
       S3FilePersistenceProvider.getBucketAndPrefix(params);
     const nativePath = defaultToNativePath(
       {mountedFrom: prefix, namepath: mount.namepath},
       fimidaraPath,
-      prefix,
-      postMountedFromPrefix
+      prefix
     );
     return {nativePath, bucket, prefix};
   };
@@ -309,13 +308,12 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
   toFimidaraPath = (
     params: FilePersistenceToFimidaraPathParams
   ): FilePersistenceToFimidaraPathResult => {
-    const {nativePath, mount, postMountedFromPrefix} = params;
+    const {nativePath, mount} = params;
     const {prefix} = S3FilePersistenceProvider.getBucketAndPrefix(params);
     const fimidaraPath = defaultToFimidaraPath(
       {mountedFrom: prefix, namepath: mount.namepath},
       nativePath,
-      prefix,
-      postMountedFromPrefix
+      prefix
     );
     return {fimidaraPath};
   };

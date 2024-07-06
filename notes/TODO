@@ -22,6 +22,7 @@
 - email me with new signups in intervals
 - what happens when a user still have bandwidth in but no storage?
 - fix NotFoundException exception thrown from email deliverability check (AWS SES)
+- empty out test s3 bucket and write code to auto clean it after tests
 
 # JS SDK
 

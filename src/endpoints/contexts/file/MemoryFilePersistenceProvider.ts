@@ -1,4 +1,5 @@
 import {isNumber} from 'lodash-es';
+import {OmitFrom} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {FileBackendMount} from '../../../definitions/fileBackend.js';
 import {appAssert} from '../../../utils/assertion.js';
@@ -25,7 +26,6 @@ import {
   PersistedFolderDescription,
 } from './types.js';
 import {defaultToFimidaraPath, defaultToNativePath} from './utils.js';
-import {OmitFrom} from 'softkave-js-utils';
 
 type MemoryFilePersistenceProviderFile = OmitFrom<
   PersistedFileDescription,
@@ -199,25 +199,19 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
   toNativePath = (
     params: FimidaraToFilePersistencePathParams
   ): FimidaraToFilePersistencePathResult => {
-    const {fimidaraPath, mount, postMountedFromPrefix} = params;
-    const nativePath = defaultToNativePath(
-      mount,
-      fimidaraPath,
-      [],
-      postMountedFromPrefix
-    );
+    const {fimidaraPath, mount} = params;
+    const nativePath = defaultToNativePath(mount, fimidaraPath, []);
     return {nativePath};
   };
 
   toFimidaraPath = (
     params: FilePersistenceToFimidaraPathParams
   ): FilePersistenceToFimidaraPathResult => {
-    const {nativePath, mount, postMountedFromPrefix} = params;
+    const {nativePath, mount} = params;
     const fimidaraPath = defaultToFimidaraPath(
       mount,
       nativePath,
-      [],
-      postMountedFromPrefix
+      /** preMountedFromPrefix */ []
     );
     return {fimidaraPath};
   };

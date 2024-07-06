@@ -1,5 +1,7 @@
+import assert from 'assert';
 import {isArray, isNumber, isObject, merge} from 'lodash-es';
 import path from 'path';
+import {pathJoin} from 'softkave-js-utils';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {kFimidaraConfigFilePersistenceProvider} from '../../../resources/config.js';
 import {appAssert} from '../../../utils/assertion.js';
@@ -16,6 +18,7 @@ import {LocalFsFilePersistenceProvider} from './LocalFsFilePersistenceProvider.j
 import {MemoryFilePersistenceProvider} from './MemoryFilePersistenceProvider.js';
 import {S3FilePersistenceProvider} from './S3FilePersistenceProvider.js';
 import {
+  FilePersistenceDefaultParams,
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
   FilePersistenceDescribeFileParams,
@@ -151,7 +154,12 @@ export class FimidaraFilePersistenceProvider
   deleteFiles = async (
     params: FilePersistenceDeleteFilesParams
   ): Promise<void> => {
-    const fParams = params.files.map(fParam => this.prepareParams(fParam));
+    const fParams = params.files.map(fParam =>
+      this.prepareFileParams({
+        workspaceId: params.workspaceId,
+        ...fParam,
+      })
+    );
     await this.backend.deleteFiles({...params, files: fParams});
   };
 
@@ -378,10 +386,38 @@ export class FimidaraFilePersistenceProvider
     return {fimidaraPath: params.nativePath};
   };
 
-  prepareParams<TParams extends {fileId: string; filepath: string}>(
-    params: TParams
-  ): TParams {
-    return {...params, filepath: params.fileId};
+  prepareFileParams<
+    TParams extends Pick<FilePersistenceDefaultParams, 'workspaceId'> & {
+      fileId: string;
+      filepath: string;
+    },
+  >(params: TParams): TParams {
+    return {
+      ...params,
+      filepath: pathJoin({input: [params.workspaceId, params.fileId]}),
+    };
+  }
+
+  prepareParams<
+    TParams extends FilePersistenceDefaultParams & {
+      fileId: string;
+      filepath: string;
+    },
+  >(params: TParams): TParams {
+    const config = kUtilsInjectables.suppliedConfig();
+    let mount = params.mount;
+
+    if (config.fileBackend === kFimidaraConfigFilePersistenceProvider.s3) {
+      const s3Bucket = config.awsConfigs?.s3Bucket;
+      assert(s3Bucket);
+      mount = {...mount, mountedFrom: [s3Bucket]};
+    }
+
+    return {
+      ...params,
+      ...this.prepareFileParams(params),
+      mount,
+    };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -390,30 +426,36 @@ export class FimidaraFilePersistenceProvider
 
     switch (config.fileBackend) {
       case kFimidaraConfigFilePersistenceProvider.s3: {
-        const awsConfig = merge(config.awsConfigs?.all, config.awsConfigs?.s3);
-        appAssert(awsConfig, 'No AWS config provided for AWS S3 provider');
+        const awsCreds = merge(config.awsConfigs?.all, config.awsConfigs?.s3);
+        const s3Bucket = config.awsConfigs?.s3Bucket;
+
+        appAssert(awsCreds, 'No AWS config provided for AWS S3 provider');
         appAssert(
-          awsConfig?.accessKeyId,
+          awsCreds?.accessKeyId,
           'No AWS accessKeyId provided for AWS S3 provider'
         );
         appAssert(
-          awsConfig?.region,
+          awsCreds?.region,
           'No AWS region provided for AWS S3 provider'
         );
         appAssert(
-          awsConfig?.secretAccessKey,
+          awsCreds?.secretAccessKey,
           'No AWS secretAccessKey provided for AWS S3 provider'
         );
+        appAssert(s3Bucket, 'No AWS S3 bucket provided for AWS S3 provider');
 
-        return new S3FilePersistenceProvider(awsConfig);
+        return new S3FilePersistenceProvider(awsCreds);
       }
+
       case kFimidaraConfigFilePersistenceProvider.fs: {
         appAssert(config.localFsDir);
         const pathResolved = path.resolve(config.localFsDir);
         return new LocalFsFilePersistenceProvider({dir: pathResolved});
       }
+
       case kFimidaraConfigFilePersistenceProvider.memory:
         return new MemoryFilePersistenceProvider();
+
       default:
         throw kReuseableErrors.file.unknownBackend(config.fileBackend || '');
     }

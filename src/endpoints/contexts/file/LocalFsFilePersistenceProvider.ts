@@ -222,12 +222,11 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
   toNativePath = (
     params: FimidaraToFilePersistencePathParams
   ): FimidaraToFilePersistencePathResult => {
-    const {fimidaraPath, mount, postMountedFromPrefix} = params;
+    const {fimidaraPath, mount} = params;
     const nativePath = defaultToNativePath(
       mount,
       fimidaraPath,
-      this.dirNamepath,
-      postMountedFromPrefix
+      this.dirNamepath
     );
     return {nativePath};
   };
@@ -235,12 +234,11 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
   toFimidaraPath = (
     params: FilePersistenceToFimidaraPathParams
   ): FilePersistenceToFimidaraPathResult => {
-    const {nativePath, mount, postMountedFromPrefix} = params;
+    const {nativePath, mount} = params;
     const fimidaraPath = defaultToFimidaraPath(
       mount,
       nativePath,
-      this.dirNamepath,
-      postMountedFromPrefix
+      this.dirNamepath
     );
     return {fimidaraPath};
   };

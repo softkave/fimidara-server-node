@@ -3,14 +3,6 @@
   "mongoDbDatabaseName": "MONGODB_DATABASE_NAME",
   "jwtSecret": "JWT_SECRET",
   "port": "PORT",
-  "test": {
-    "awsConfig": {
-      "accessKeyId": "TEST_AWS_ACCESS_KEY_ID",
-      "secretAccessKey": "TEST_AWS_SECRET_ACCESS_KEY",
-      "region": "TEST_AWS_REGION"
-    },
-    "bucket": "TEST_S3_BUCKET"
-  },
   "awsConfigs": {
     "s3Bucket": "S3_BUCKET",
     "all": {

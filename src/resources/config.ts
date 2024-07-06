@@ -12,7 +12,7 @@ export interface FimidaraRuntimeConfig {
 export const kFimidaraConfigFilePersistenceProvider = {
   s3: 's3',
   fs: 'fs',
-  memory: 'memory',
+  memory: 'mem',
 } as const;
 
 export type FimidaraConfigFilePersistenceProvider = ValueOf<
@@ -30,7 +30,7 @@ export type FimidaraConfigEmailProvider = ValueOf<
 
 export const kFimidaraConfigSecretsManagerProvider = {
   awsSecretsManager: 'awsSecretsManager',
-  memory: 'memory',
+  memory: 'mem',
 } as const;
 
 export type FimidaraConfigSecretsManagerProvider = ValueOf<
@@ -104,13 +104,6 @@ export type FimidaraSuppliedConfig = Partial<{
   changePasswordLink: string;
   verifyEmailLink: string;
   upgradeWaitlistLink: string;
-
-  // Testing
-  test: {
-    awsConfig?: AWSConfig;
-    bucket?: string;
-    localFsDir?: string;
-  };
 
   // Logs
   loggerType: LoggerType;

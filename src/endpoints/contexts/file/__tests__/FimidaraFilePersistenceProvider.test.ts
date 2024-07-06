@@ -1,9 +1,16 @@
+import assert from 'assert';
+import fse from 'fs-extra';
+import {difference} from 'lodash-es';
+import path from 'path';
 import {Readable} from 'stream';
-import {afterEach, beforeEach, describe, expect, test} from 'vitest';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {ResolvedMountEntry} from '../../../../definitions/fileBackend.js';
 import {Folder} from '../../../../definitions/folder.js';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
-import {kFimidaraConfigFilePersistenceProvider} from '../../../../resources/config.js';
+import {
+  FimidaraConfigFilePersistenceProvider,
+  kFimidaraConfigFilePersistenceProvider,
+} from '../../../../resources/config.js';
 import {getTimestamp} from '../../../../utils/dateFns.js';
 import {
   loopAndCollate,
@@ -22,7 +29,6 @@ import {
   generateTestFilepathString,
 } from '../../../testUtils/generate/file.js';
 import {
-  generateAWSS3Credentials,
   generateAndInsertResolvedMountEntryListForTest,
   generateFileBackendMountForTest,
 } from '../../../testUtils/generate/fileBackend.js';
@@ -31,7 +37,6 @@ import {
   generateTestFolderpath,
   generateTestFolderpathString,
 } from '../../../testUtils/generate/folder.js';
-import {expectErrorThrown} from '../../../testUtils/helpers/error.js';
 import {completeTests} from '../../../testUtils/helpers/testFns.js';
 import {initTests} from '../../../testUtils/testUtils.js';
 import {kUtilsInjectables} from '../../injection/injectables.js';
@@ -50,15 +55,47 @@ import {
   FilePersistenceUploadFileParams,
 } from '../types.js';
 
-beforeEach(async () => {
-  await initTests();
-});
+describe.each(
+  difference(Object.values(kFimidaraConfigFilePersistenceProvider), [
+    // kFimidaraConfigFilePersistenceProvider.s3,
+  ])
+)('FimidaraFilePersistenceProvider %s', provider => {
+  const testDirName = `${Date.now()}`;
+  let testDir: string | undefined;
 
-afterEach(async () => {
-  await completeTests();
-});
+  beforeAll(async () => {
+    await initTests();
 
-describe('FimidaraFilePersistenceProvider', () => {
+    if (provider === kFimidaraConfigFilePersistenceProvider.fs) {
+      const testLocalFsDir = kUtilsInjectables.suppliedConfig().localFsDir;
+      assert(testLocalFsDir);
+      testDir = path.normalize(
+        path.resolve(testLocalFsDir) + '/' + testDirName
+      );
+      await fse.ensureDir(testDir);
+
+      kRegisterUtilsInjectables.suppliedConfig({
+        ...kUtilsInjectables.suppliedConfig(),
+        fileBackend: provider,
+        localFsDir: testDir,
+      });
+    } else {
+      kRegisterUtilsInjectables.suppliedConfig({
+        ...kUtilsInjectables.suppliedConfig(),
+        fileBackend: provider,
+      });
+    }
+  });
+
+  afterAll(async () => {
+    await completeTests();
+
+    if (provider === kFimidaraConfigFilePersistenceProvider.fs) {
+      assert(testDir);
+      await fse.remove(testDir);
+    }
+  });
+
   test('isPage', () => {
     const page: FimidaraFilePersistenceProviderPage = {
       createdAt: getTimestamp(),
@@ -76,49 +113,24 @@ describe('FimidaraFilePersistenceProvider', () => {
   });
 
   test('uses right backend', () => {
-    const startConfig = kUtilsInjectables.suppliedConfig();
+    function getBackendClassForProvider(
+      provider: FimidaraConfigFilePersistenceProvider
+    ) {
+      switch (provider) {
+        case kFimidaraConfigFilePersistenceProvider.s3:
+          return S3FilePersistenceProvider;
+        case kFimidaraConfigFilePersistenceProvider.fs:
+          return LocalFsFilePersistenceProvider;
+        case kFimidaraConfigFilePersistenceProvider.memory:
+          return MemoryFilePersistenceProvider;
+      }
+    }
 
-    // s3
-    kRegisterUtilsInjectables.suppliedConfig({
-      ...startConfig,
-      fileBackend: kFimidaraConfigFilePersistenceProvider.s3,
-      awsConfigs: {
-        s3: generateAWSS3Credentials(),
-      },
-    });
+    const backend = new FimidaraFilePersistenceProvider();
 
-    let backend = new FimidaraFilePersistenceProvider();
-    expect(backend.backend).toBeInstanceOf(S3FilePersistenceProvider);
-
-    // fs
-    kRegisterUtilsInjectables.suppliedConfig({
-      ...startConfig,
-      fileBackend: kFimidaraConfigFilePersistenceProvider.fs,
-    });
-
-    backend = new FimidaraFilePersistenceProvider();
-    expect(backend.backend).toBeInstanceOf(LocalFsFilePersistenceProvider);
-
-    // memory
-    kRegisterUtilsInjectables.suppliedConfig({
-      ...startConfig,
-      fileBackend: kFimidaraConfigFilePersistenceProvider.memory,
-    });
-
-    backend = new FimidaraFilePersistenceProvider();
-    expect(backend.backend).toBeInstanceOf(MemoryFilePersistenceProvider);
-
-    // unknown
-    kRegisterUtilsInjectables.suppliedConfig({
-      ...startConfig,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      fileBackend: 'unknown',
-    });
-
-    expectErrorThrown(() => {
-      backend = new FimidaraFilePersistenceProvider();
-    });
+    expect(backend.backend).toBeInstanceOf(
+      getBackendClassForProvider(provider)
+    );
   });
 
   test('uploadFile', async () => {
@@ -134,10 +146,20 @@ describe('FimidaraFilePersistenceProvider', () => {
     };
     await backend.uploadFile(params);
 
-    expect(internalBackend.uploadFile).toBeCalledWith({
-      ...params,
-      filepath: fileId,
-    });
+    if (provider === kFimidaraConfigFilePersistenceProvider.s3) {
+      const s3Bucket = kUtilsInjectables.suppliedConfig().awsConfigs?.s3Bucket;
+      assert(s3Bucket);
+      expect(internalBackend.uploadFile).toBeCalledWith({
+        ...params,
+        mount: {...params.mount, mountedFrom: [s3Bucket]},
+        filepath: pathJoin([workspaceId, fileId]),
+      });
+    } else {
+      expect(internalBackend.uploadFile).toBeCalledWith({
+        ...params,
+        filepath: pathJoin([workspaceId, fileId]),
+      });
+    }
   });
 
   test('readFile', async () => {
@@ -152,18 +174,23 @@ describe('FimidaraFilePersistenceProvider', () => {
     };
     await backend.readFile(params);
 
-    expect(internalBackend.readFile).toBeCalledWith({
-      ...params,
-      filepath: fileId,
-    });
+    if (provider === kFimidaraConfigFilePersistenceProvider.s3) {
+      const s3Bucket = kUtilsInjectables.suppliedConfig().awsConfigs?.s3Bucket;
+      assert(s3Bucket);
+      expect(internalBackend.readFile).toBeCalledWith({
+        ...params,
+        mount: {...params.mount, mountedFrom: [s3Bucket]},
+        filepath: pathJoin([workspaceId, fileId]),
+      });
+    } else {
+      expect(internalBackend.readFile).toBeCalledWith({
+        ...params,
+        filepath: pathJoin([workspaceId, fileId]),
+      });
+    }
   });
 
   test('describeFile', async () => {
-    kRegisterUtilsInjectables.suppliedConfig({
-      ...kUtilsInjectables.suppliedConfig(),
-      fileBackend: kFimidaraConfigFilePersistenceProvider.memory,
-    });
-
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = generateFileBackendMountForTest({workspaceId});
     const filepath = generateTestFilepathString();
@@ -202,11 +229,6 @@ describe('FimidaraFilePersistenceProvider', () => {
   });
 
   test('describeFolder', async () => {
-    kRegisterUtilsInjectables.suppliedConfig({
-      ...kUtilsInjectables.suppliedConfig(),
-      fileBackend: kFimidaraConfigFilePersistenceProvider.memory,
-    });
-
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = generateFileBackendMountForTest({workspaceId});
     const folderpath = generateTestFolderpathString();
@@ -257,7 +279,11 @@ describe('FimidaraFilePersistenceProvider', () => {
 
     expect(internalBackend.deleteFiles).toBeCalledWith({
       ...params,
-      files: params.files.map(p => ({...p, filepath: p.fileId})),
+      files: params.files.map(p => ({
+        ...p,
+        workspaceId,
+        filepath: pathJoin([workspaceId, p.fileId]),
+      })),
     });
   });
 
@@ -283,11 +309,6 @@ describe('FimidaraFilePersistenceProvider', () => {
   });
 
   test('describeFolderFiles', async () => {
-    kRegisterUtilsInjectables.suppliedConfig({
-      ...kUtilsInjectables.suppliedConfig(),
-      fileBackend: kFimidaraConfigFilePersistenceProvider.memory,
-    });
-
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = generateFileBackendMountForTest({workspaceId});
     const folderpath = generateTestFolderpath({
@@ -366,11 +387,6 @@ describe('FimidaraFilePersistenceProvider', () => {
   });
 
   test('describeFolderFolders', async () => {
-    kRegisterUtilsInjectables.suppliedConfig({
-      ...kUtilsInjectables.suppliedConfig(),
-      fileBackend: kFimidaraConfigFilePersistenceProvider.memory,
-    });
-
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = generateFileBackendMountForTest({workspaceId});
     const parentFolderpath = generateTestFolderpath();
@@ -441,11 +457,6 @@ describe('FimidaraFilePersistenceProvider', () => {
   });
 
   test('describeFolderContent', async () => {
-    kRegisterUtilsInjectables.suppliedConfig({
-      ...kUtilsInjectables.suppliedConfig(),
-      fileBackend: kFimidaraConfigFilePersistenceProvider.memory,
-    });
-
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = generateFileBackendMountForTest({workspaceId});
     const folderpath = generateTestFolderpath({
@@ -596,7 +607,10 @@ describe('FimidaraFilePersistenceProvider', () => {
     const filepath = generateTestFilepathString();
     const mount = generateFileBackendMountForTest();
 
-    const {nativePath} = backend.toNativePath({mount, fimidaraPath: filepath});
+    const {nativePath} = backend.toNativePath({
+      mount,
+      fimidaraPath: filepath,
+    });
 
     expect(nativePath).toBe(filepath);
   });

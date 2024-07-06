@@ -1,8 +1,8 @@
 import {tmpdir} from 'os';
+import {afterEach, beforeEach, describe, expect, test} from 'vitest';
 import {kFileBackendType} from '../../../../definitions/fileBackend.js';
 import {pathJoin} from '../../../../utils/fns.js';
 import {generateTestFilepath} from '../../../testUtils/generate/file.js';
-import {test, beforeEach, afterEach, describe, expect} from 'vitest';
 import {
   generateAWSS3Credentials,
   generateFileBackendConfigForTest,
@@ -32,19 +32,29 @@ afterEach(async () => {
 
 describe('utils', () => {
   test('isFilePersistenceProvider', () => {
-    expect(isFilePersistenceProvider(new FimidaraFilePersistenceProvider())).toBeTruthy();
     expect(
-      isFilePersistenceProvider(new LocalFsFilePersistenceProvider({dir: tmpdir()}))
+      isFilePersistenceProvider(new FimidaraFilePersistenceProvider())
     ).toBeTruthy();
-    expect(isFilePersistenceProvider(new MemoryFilePersistenceProvider())).toBeTruthy();
     expect(
-      isFilePersistenceProvider(new S3FilePersistenceProvider(generateAWSS3Credentials()))
+      isFilePersistenceProvider(
+        new LocalFsFilePersistenceProvider({dir: tmpdir()})
+      )
+    ).toBeTruthy();
+    expect(
+      isFilePersistenceProvider(new MemoryFilePersistenceProvider())
+    ).toBeTruthy();
+    expect(
+      isFilePersistenceProvider(
+        new S3FilePersistenceProvider(generateAWSS3Credentials())
+      )
     ).toBeTruthy();
   });
 
   test('defaultFileProviderResolver', () => {
     const s3Creds = generateAWSS3Credentials();
-    const s3Config = generateFileBackendConfigForTest({backend: kFileBackendType.s3});
+    const s3Config = generateFileBackendConfigForTest({
+      backend: kFileBackendType.s3,
+    });
     const fimidaraMount = generateFileBackendMountForTest({
       backend: kFileBackendType.fimidara,
     });

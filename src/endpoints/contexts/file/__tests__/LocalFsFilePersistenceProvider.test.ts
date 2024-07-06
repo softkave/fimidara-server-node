@@ -25,12 +25,15 @@ import {initTests} from '../../../testUtils/testUtils.js';
 import {kUtilsInjectables} from '../../injection/injectables.js';
 import {LocalFsFilePersistenceProvider} from '../LocalFsFilePersistenceProvider.js';
 
+// TODO: there're times FS tests fail not because of code bugs but data issues,
+// so we need to fix that
+
 const testDirName = `${Date.now()}`;
 let testDir: string | undefined;
 
 beforeAll(async () => {
   await initTests();
-  const testLocalFsDir = kUtilsInjectables.suppliedConfig().test?.localFsDir;
+  const testLocalFsDir = kUtilsInjectables.suppliedConfig().localFsDir;
   assert(testLocalFsDir);
   testDir = path.normalize(path.resolve(testLocalFsDir) + '/' + testDirName);
   await fse.ensureDir(testDir);
