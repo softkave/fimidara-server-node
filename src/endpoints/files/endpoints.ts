@@ -97,8 +97,10 @@ async function handleReadFileResponse(
   // });
 
   try {
-    const helloStream = Readable.from(['Hello, world!']);
+    const helloBuf = Buffer.from('Hello, world!');
+    const helloStream = Readable.from([helloBuf]);
     res.setHeader('Content-Type', 'text/plain');
+    res.setHeader('Content-Length', helloBuf.byteLength);
     // helloStream.pipe(res);
 
     helloStream.on('data', data => {
