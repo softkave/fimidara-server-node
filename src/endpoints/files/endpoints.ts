@@ -99,7 +99,21 @@ async function handleReadFileResponse(
   try {
     const helloStream = Readable.from(['Hello, world!']);
     res.setHeader('Content-Type', 'text/plain');
-    helloStream.pipe(res);
+    // helloStream.pipe(res);
+
+    helloStream.on('data', data => {
+      console.log('helloStream.data', data);
+      res.write(data);
+    });
+    helloStream.on('end', () => {
+      console.log('helloStream.end');
+      res.end();
+    });
+    helloStream.on('error', error => {
+      console.log('helloStream.error');
+      console.error(error);
+      res.end();
+    });
 
     const buf = await streamToBuffer(result.stream);
     console.log('buf', buf);
