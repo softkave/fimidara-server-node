@@ -8,33 +8,45 @@ import {FolderQueries} from '../queries.js';
 import {FolderpathInfo, getFolderpathInfo} from '../utils.js';
 import {NewFolderInput} from './types.js';
 
-export async function getExistingFoldersAndArtifacts(
-  workspaceId: string,
-  input: NewFolderInput | NewFolderInput[],
-  opts?: SemanticProviderMutationParams
-) {
+export function folderInputListToSet(input: NewFolderInput | NewFolderInput[]) {
   const inputList = convertToArray(input);
-  const pathinfoList: FolderpathInfo[] = inputList.map(nextInput =>
-    getFolderpathInfo(nextInput.folderpath, {
-      containsRootname: true,
-      allowRootFolder: false,
-    })
-  );
 
   // Make a set of individual folders, so "/parent/folder" will become
   // "/parent", and "/parent/folder". This is useful for finding the closest
   // existing folder, and using a set avoids repetitions
-  const namepathSet = pathinfoList.reduce((acc, pathinfo) => {
-    pathinfo.namepath.forEach((name, index) => {
-      acc.add(pathJoin(pathinfo.namepath.slice(0, index + 1)));
+  const namepathSet = new Set<string>();
+  const pathinfoWithRootnameMap: Record<string, FolderpathInfo> = {};
+  const pathinfoList: FolderpathInfo[] = inputList.map(nextInput => {
+    const pathinfo = getFolderpathInfo(nextInput.folderpath, {
+      containsRootname: true,
+      allowRootFolder: false,
     });
-    return acc;
-  }, new Set<string>());
+
+    pathinfo.namepath.forEach((name, index) => {
+      namepathSet.add(pathJoin(pathinfo.namepath.slice(0, index + 1)));
+    });
+
+    pathinfoWithRootnameMap[nextInput.folderpath] = pathinfo;
+    return pathinfo;
+  });
+
   const namepathList: Array<string[]> = [];
   namepathSet.forEach(namepath => {
     namepathList.push(pathSplit(namepath));
   });
 
+  return {
+    pathinfoWithRootnameMap,
+    namepathList,
+    pathinfoList,
+  };
+}
+
+export async function getExistingFoldersAndArtifacts(
+  workspaceId: string,
+  {namepathList, pathinfoList}: ReturnType<typeof folderInputListToSet>,
+  opts?: SemanticProviderMutationParams
+) {
   let existingFolders: Folder[] = [];
 
   if (namepathList.length) {
@@ -56,7 +68,7 @@ export async function getExistingFoldersAndArtifacts(
   function getSelfOrClosestParent(namepath: string[]) {
     // Attempt to retrieve a folder that matches namepath or the closest
     // existing parent
-    for (let i = namepath.length; i >= 0; i--) {
+    for (let i = namepath.length; i > 0; i--) {
       const partNamepath = namepath.slice(0, i);
       const key = pathJoin(partNamepath).toLowerCase();
       const folder = foldersByNamepath[key];
@@ -69,11 +81,22 @@ export async function getExistingFoldersAndArtifacts(
     return null;
   }
 
+  function addFolder(folder: Folder) {
+    const key = pathJoin(folder.namepath).toLowerCase();
+    foldersByNamepath[key] = folder;
+  }
+
+  function getFolder(folderpath: string) {
+    return foldersByNamepath[folderpath.toLowerCase()];
+  }
+
   return {
-    namepathList,
-    pathinfoList,
+    getSelfOrClosestParent,
     existingFolders,
     foldersByNamepath,
-    getSelfOrClosestParent,
+    namepathList,
+    pathinfoList,
+    addFolder,
+    getFolder,
   };
 }

@@ -170,12 +170,8 @@ async function setupFolders(workspace: Workspace) {
     ),
   ]);
 
-  const workspaceImagesFolder =
-    last(workspaceImagesFolders.existingFolders) ||
-    last(workspaceImagesFolders.newFolders);
-  const userImagesFolder =
-    last(userImagesFolders.existingFolders) ||
-    last(userImagesFolders.newFolders);
+  const workspaceImagesFolder = last(workspaceImagesFolders.folders);
+  const userImagesFolder = last(userImagesFolders.folders);
 
   appAssert(
     workspaceImagesFolder,

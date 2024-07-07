@@ -19,9 +19,9 @@ export const kUsageRecordConstants = {
 
 /** Price is in USD per gb */
 export const kUsageCostsPerGb: Record<UsageRecordCategory, number> = {
-  [kUsageRecordCategory.storageEverConsumed]: 0.0,
-  [kUsageRecordCategory.bandwidthOut]: 0.0,
-  [kUsageRecordCategory.bandwidthIn]: 0.0,
+  [kUsageRecordCategory.storageEverConsumed]: 0.0001,
+  [kUsageRecordCategory.bandwidthOut]: 0.0001,
+  [kUsageRecordCategory.bandwidthIn]: 0.0001,
   [kUsageRecordCategory.storage]: 0.018,
   [kUsageRecordCategory.total]: 0,
 };

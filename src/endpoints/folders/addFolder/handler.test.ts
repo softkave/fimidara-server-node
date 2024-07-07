@@ -30,7 +30,10 @@ import {
 import {FolderQueries} from '../queries.js';
 import {addRootnameToPath, stringifyFoldernamepath} from '../utils.js';
 import {createFolderList} from './createFolderList.js';
-import {getExistingFoldersAndArtifacts} from './getExistingFoldersAndArtifacts.js';
+import {
+  folderInputListToSet,
+  getExistingFoldersAndArtifacts,
+} from './getExistingFoldersAndArtifacts.js';
 import addFolder from './handler.js';
 import {AddFolderEndpointParams} from './types.js';
 
@@ -97,38 +100,38 @@ describe('addFolder', () => {
       }),
     ]);
 
+    const inputSet = folderInputListToSet([
+      {
+        folderpath: stringifyFoldernamepath(folder00, workspace.rootname),
+      },
+      {
+        folderpath: stringifyFoldernamepath(folder01, workspace.rootname),
+      },
+      {
+        folderpath: stringifyFoldernamepath(folder02, workspace.rootname),
+      },
+      {
+        folderpath: stringifyFoldernamepath(folder00, workspace.rootname),
+      },
+      {
+        folderpath: stringifyFoldernamepath(folder01, workspace.rootname),
+      },
+      {
+        folderpath: stringifyFoldernamepath(folder02, workspace.rootname),
+      },
+    ]);
+
     const {
       existingFolders,
       foldersByNamepath,
       pathinfoList,
       namepathList,
       getSelfOrClosestParent,
-    } = await kSemanticModels.utils().withTxn(opts =>
-      getExistingFoldersAndArtifacts(
-        workspace.resourceId,
-        [
-          {
-            folderpath: stringifyFoldernamepath(folder00, workspace.rootname),
-          },
-          {
-            folderpath: stringifyFoldernamepath(folder01, workspace.rootname),
-          },
-          {
-            folderpath: stringifyFoldernamepath(folder02, workspace.rootname),
-          },
-          {
-            folderpath: stringifyFoldernamepath(folder00, workspace.rootname),
-          },
-          {
-            folderpath: stringifyFoldernamepath(folder01, workspace.rootname),
-          },
-          {
-            folderpath: stringifyFoldernamepath(folder02, workspace.rootname),
-          },
-        ],
-        opts
-      )
-    );
+    } = await kSemanticModels
+      .utils()
+      .withTxn(opts =>
+        getExistingFoldersAndArtifacts(workspace.resourceId, inputSet, opts)
+      );
 
     expect(existingFolders.length).toBe(3);
     expect(namepathList.length).toBe(3);

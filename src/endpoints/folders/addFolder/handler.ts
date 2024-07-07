@@ -33,7 +33,7 @@ const addFolder: AddFolderEndpoint = async reqData => {
     .getByRootname(pathinfo.rootname);
   assertWorkspace(workspace);
 
-  const {newFolders, failedInput} = await createFolderList(
+  const {folders, failedInput} = await createFolderList(
     agent,
     workspace,
     data.folder,
@@ -55,7 +55,7 @@ const addFolder: AddFolderEndpoint = async reqData => {
 
   // The last folder will be the folder represented by our input, seeing it
   // creates parent folders in order
-  const folder = last(newFolders);
+  const folder = last(folders);
   const error0 = first(failedInput)?.reason;
   appAssert(
     folder,

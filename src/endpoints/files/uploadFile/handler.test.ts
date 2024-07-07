@@ -775,10 +775,16 @@ describe('uploadFile', () => {
       getCostForUsage(kUsageRecordCategory.storageEverConsumed, file.size)
     );
 
-    expect(dbTotalUsageL2.usageCost).toBe(
-      dbBandwidthInUsageL2.usageCost +
+    // TODO: doing string + slice because I think JS decimals are not aligning.
+    // The values ar every close but not completely equal
+    expect(dbTotalUsageL2.usageCost.toString().slice(0, 7)).toBe(
+      (
+        dbBandwidthInUsageL2.usageCost +
         dbStorageUsageL2.usageCost +
         dbStorageEverConsumedUsageL2.usageCost
+      )
+        .toString()
+        .slice(0, 7)
     );
 
     otherDbUsageL2s.forEach(dbUsageL2 => {

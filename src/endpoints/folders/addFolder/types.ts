@@ -31,20 +31,18 @@ export interface AddFolderShardMeta {
   throwOnFolderExists: boolean;
 }
 
-export type AddFolderShardOutputItem = {
-  newFolders: Folder[];
-  existingFolders: Folder[];
-};
+export type FoldersByNamepath = Record<string, Folder[]>;
+export type AddFolderShardPerInputOutputItem = Folder[];
 
 export type AddFolderShard = Shard<
   NewFolderInput,
-  AddFolderShardOutputItem,
+  AddFolderShardPerInputOutputItem,
   AddFolderShardMeta
 >;
 
 export type AddFolderShardRunner = ShardRunner<
   NewFolderInput,
-  AddFolderShardOutputItem,
+  AddFolderShardPerInputOutputItem,
   AddFolderShardMeta
 >;
 

@@ -12,7 +12,7 @@ import {
 import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {
   AddFolderShardMeta,
-  AddFolderShardOutputItem,
+  AddFolderShardPerInputOutputItem,
   NewFolderInput,
   kAddFolderShardRunnerPrefix,
 } from './types.js';
@@ -39,7 +39,7 @@ function shardNewFolderInput(
         meta,
         shardId,
         done: noopAsync,
-        input: [nextInput],
+        input: nextInput,
         queueStrategy: kShardQueueStrategy.appendToExisting,
         matchStrategy: kShardMatchStrategy.hierachichal,
       };
@@ -55,20 +55,24 @@ export async function createFolderList(
   throwOnFolderExists = true,
   throwOnError: boolean
 ) {
+  const shardInputList = shardNewFolderInput(
+    workspace.resourceId,
+    input,
+    /** meta */ {
+      agent,
+      throwOnFolderExists,
+      UNSAFE_skipAuthCheck,
+      workspace,
+    }
+  );
+
   const {success, failed} = await kUtilsInjectables
     .shardedRunner()
-    .ingestAndRun<NewFolderInput, AddFolderShardOutputItem, AddFolderShardMeta>(
-      shardNewFolderInput(
-        workspace.resourceId,
-        input,
-        /** meta */ {
-          agent,
-          throwOnFolderExists,
-          UNSAFE_skipAuthCheck,
-          workspace,
-        }
-      )
-    );
+    .ingestAndRun<
+      NewFolderInput,
+      AddFolderShardPerInputOutputItem,
+      AddFolderShardMeta
+    >(shardInputList);
 
   if (throwOnError && failed.length) {
     if (failed.length === 1) {
@@ -79,15 +83,11 @@ export async function createFolderList(
     }
   }
 
-  let newFolders: Folder[] = [];
-  let existingFolders: Folder[] = [];
+  let folders: Folder[] = [];
 
   success.forEach(successItem => {
-    newFolders = newFolders.concat(successItem.output.newFolders);
-    existingFolders = existingFolders.concat(
-      successItem.output.existingFolders
-    );
+    folders = folders.concat(successItem.output);
   });
 
-  return {newFolders, existingFolders, failedInput: failed};
+  return {folders, failedInput: failed};
 }

@@ -95,9 +95,11 @@ export interface FolderpathInfo {
   name: string;
   /** path array without workspace rootname */
   namepath: string[];
-  /** parent namepath split without rootname */
+  /** path string without workspace rootname */
+  stringPath: string;
+  /** parent namepath array split without rootname */
   parentNamepath: string[];
-  /** parent namepath without rootname */
+  /** parent namepath string without rootname */
   parentStringPath: string;
   hasParent: boolean;
   rootname?: string;
@@ -132,16 +134,18 @@ export function getFolderpathInfo(
     /** file or folder name is last item */ -1
   );
   const parentStringPath = pathJoin({input: parentNamepath});
+  const stringPath = pathJoin({input: splitPath});
   const hasParent = parentNamepath.length > 0;
 
   return {
-    hasParent,
+    namepath: splitPath,
+    parentStringPath,
     parentNamepath,
-    name,
+    stringPath,
+    hasParent,
     rootname,
     input,
-    parentStringPath,
-    namepath: splitPath,
+    name,
   };
 }
 
@@ -276,7 +280,7 @@ export async function ensureFolders(
     return {folder: null, folders: []};
   }
 
-  const {newFolders, existingFolders} = await createFolderList(
+  const {folders} = await createFolderList(
     agent,
     workspace,
     {
@@ -296,12 +300,6 @@ export async function ensureFolders(
     /** throw on error */ true
   );
 
-  existingFolders.sort((folder01, folder02) => {
-    return folder01.namepath.length - folder02.namepath.length;
-  });
-
-  // newFolders should already be sorted, having parents comning first
-  const folders = existingFolders.concat(newFolders);
   const folder = last(folders) || null;
   return {folder, folders};
 }

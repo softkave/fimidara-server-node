@@ -29,58 +29,81 @@ export type ShardDoneFn = AnyFn<[], Promise<void>>;
 
 export interface ShardedInput<TInputItem = unknown, TMeta = unknown> {
   shardId: ShardId;
-  input: TInputItem[];
+  input: TInputItem;
+  /** shard-unique meta, i.e. for 2 shards s1 and s2 with the same shardId,
+   * s1.meta must be equal to s2.meta */
   meta?: TMeta;
   queueStrategy: ShardQueueStrategy;
   matchStrategy: ShardMatchStrategy;
   done: ShardDoneFn;
 }
 
-export interface ShardResult<TOutputItem = unknown> {
+export interface ShardResult<TPerInputOutputItem = unknown> {
   shard: Shard;
-  result: PromiseSettledResult<TOutputItem>;
+  result: PromiseSettledResult<ShardedRunnerOutput<TPerInputOutputItem>>;
 }
 
 export interface Shard<
   TInputItem = unknown,
-  TOutputItem = unknown,
+  TPerInputOutputItem = unknown,
   TMeta = unknown,
 > {
   id: ShardId;
-  input: TInputItem[];
-  promise: DeferredPromise<ShardResult<TOutputItem>>;
+  shardInputList: Array<ShardedInput<TInputItem>>;
+  promise: DeferredPromise<ShardResult<TPerInputOutputItem>>;
+  /** shard-unique meta, i.e. for 2 shards s1 and s2 with the same shardId,
+   * s1.meta must be equal to s2.meta */
   meta: TMeta;
   doneFns: ShardDoneFn[];
 }
 
+interface ShardView extends OmitFrom<Shard, 'doneFns' | 'shardInputList'> {
+  shardInput: ShardedInput;
+}
+
+export interface ShardedRunnerOutputPerInput<TPerInputOutputItem = unknown> {
+  shardInput: ShardedInput;
+  output: TPerInputOutputItem;
+}
+
+export type ShardedRunnerOutput<TPerInputOutputItem = unknown> = Map<
+  ShardedInput,
+  ShardedRunnerOutputPerInput<TPerInputOutputItem>
+>;
+
 export interface ShardRunner<
   TInputItem = unknown,
-  TOutputItem = unknown,
+  TPerInputOutputItem = unknown,
   TMeta = unknown,
 > {
   name: string;
   match: AnyFn<[ShardId], boolean>;
-  runner: AnyFn<[Shard<TInputItem, TOutputItem, TMeta>], Promise<TOutputItem>>;
+  runner: AnyFn<
+    [Shard<TInputItem, TPerInputOutputItem, TMeta>],
+    Promise<ShardedRunnerOutput<TPerInputOutputItem>>
+  >;
 }
 
 export interface ShardedRunnerIngestAndRunSuccess<
   TInputItem = unknown,
-  TOutputItem = unknown,
+  TPerInputOutputItem = unknown,
 > {
-  input: TInputItem[];
-  output: TOutputItem;
+  input: TInputItem;
+  output: TPerInputOutputItem;
 }
 
 export interface ShardedRunnerIngestAndRunFailure<TInputItem = unknown> {
-  input: TInputItem[];
+  input: TInputItem;
   reason: unknown;
 }
 
 export interface ShardedRunnerIngestAndRunResult<
   TInputItem = unknown,
-  TOutputItem = unknown,
+  TPerInputOutputItem = unknown,
 > {
-  success: Array<ShardedRunnerIngestAndRunSuccess<TInputItem, TOutputItem>>;
+  success: Array<
+    ShardedRunnerIngestAndRunSuccess<TInputItem, TPerInputOutputItem>
+  >;
   failed: Array<ShardedRunnerIngestAndRunFailure<TInputItem>>;
 }
 
@@ -108,11 +131,11 @@ export class ShardedRunner {
 
   async ingestAndRun<
     TInputItem = unknown,
-    TOutputItem = unknown,
+    TPerInputOutputItem = unknown,
     TMeta = unknown,
   >(
     input: Array<ShardedInput<TInputItem, TMeta>>
-  ): Promise<ShardedRunnerIngestAndRunResult<TInputItem, TOutputItem>> {
+  ): Promise<ShardedRunnerIngestAndRunResult<TInputItem, TPerInputOutputItem>> {
     const inputShards = input.map(nextInput => {
       const key = this.stringifyShardId(nextInput.shardId);
       const queuedShard = this.queueShard(key, nextInput);
@@ -120,7 +143,7 @@ export class ShardedRunner {
       // keep track of touched shards to wait for the results. we also don't
       // want to keep track of the entire shard seeing the caller may not own
       // every input in there, which would lead to data leaking
-      const shardView = this.produceShardView(nextInput.input, queuedShard);
+      const shardView = this.produceShardView(nextInput, queuedShard);
       return [key, shardView] as const;
     });
 
@@ -148,7 +171,11 @@ export class ShardedRunner {
     const settled = await this.waitAndProcessResult(
       inputShards.map(([, shard]) => shard)
     );
-    return settled as ShardedRunnerIngestAndRunResult<TInputItem, TOutputItem>;
+
+    return settled as ShardedRunnerIngestAndRunResult<
+      TInputItem,
+      TPerInputOutputItem
+    >;
   }
 
   protected async runShard(id: ShardId, key?: string) {
@@ -220,16 +247,16 @@ export class ShardedRunner {
     let shard = last(shards);
 
     if (input.queueStrategy === kShardQueueStrategy.appendToExisting && shard) {
-      shard.input = shard.input.concat(input.input);
+      shard.shardInputList = shard.shardInputList.concat(input);
       shard.doneFns.push(input.done);
     } else {
       const promise = getDeferredPromise<ShardResult>();
       shard = {
         promise,
-        meta: input.meta,
-        id: input.shardId,
-        input: input.input,
         doneFns: [input.done],
+        id: input.shardId,
+        meta: input.meta,
+        shardInputList: [input],
       };
       shards.push(shard);
     }
@@ -263,22 +290,27 @@ export class ShardedRunner {
     return undefined;
   }
 
-  protected async waitAndProcessResult(
-    shards: Pick<Shard, 'input' | 'promise'>[]
-  ) {
+  protected async waitAndProcessResult(shards: ShardView[]) {
     const success: Array<ShardedRunnerIngestAndRunSuccess> = [];
     const failed: Array<ShardedRunnerIngestAndRunFailure> = [];
-    const promises = shards.map(shard => shard.promise.promise);
-    const results = await Promise.allSettled(promises);
+    const results = await Promise.allSettled(
+      shards.map(async shard => [shard, await shard.promise.promise] as const)
+    );
 
     results.forEach(result => {
       if (result.status === 'fulfilled') {
-        const {shard, result: shardResult} = result.value;
+        const [shard, {result: shardResult}] = result.value;
 
         if (shardResult.status === 'fulfilled') {
-          success.push({output: shardResult.value, input: shard.input});
+          success.push({
+            output: shardResult.value.get(shard.shardInput)?.output,
+            input: shard.shardInput.input,
+          });
         } else {
-          failed.push({reason: shardResult.reason, input: shard.input});
+          failed.push({
+            input: shard.shardInput.input,
+            reason: shardResult.reason,
+          });
         }
       } else {
         // should not happen
@@ -290,14 +322,14 @@ export class ShardedRunner {
   }
 
   protected produceShardView(
-    input: unknown[],
+    input: ShardedInput,
     shard: OmitFrom<Shard, 'doneFns'>
-  ): OmitFrom<Shard, 'doneFns'> {
+  ): ShardView {
     return {
-      input,
-      id: shard.id,
-      meta: shard.meta,
+      shardInput: input,
       promise: shard.promise,
+      meta: shard.meta,
+      id: shard.id,
     };
   }
 }

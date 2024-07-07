@@ -64,7 +64,7 @@ export async function ingestPersistedFolders(
       }
     });
 
-    const {existingFolders, newFolders} = await createFolderList(
+    const {folders} = await createFolderList(
       agent,
       workspace,
       newFolderInputList,
@@ -74,7 +74,7 @@ export async function ingestPersistedFolders(
     );
 
     const foldersMapByNamepath: Record<string, Folder | undefined> = keyBy(
-      existingFolders.concat(newFolders),
+      folders,
       folder => pathJoin(folder.namepath)
     );
 
@@ -170,7 +170,7 @@ export async function ingestPersistedFiles(
       }
     });
 
-    const {newFolders, existingFolders} = await createFolderList(
+    const {folders} = await createFolderList(
       agent,
       workspace,
       folderpathsToEnsure,
@@ -180,7 +180,7 @@ export async function ingestPersistedFiles(
     );
 
     const foldersMapByNamepath: Record<string, Folder | undefined> = keyBy(
-      existingFolders.concat(newFolders),
+      folders,
       folder => pathJoin(folder.namepath)
     );
 

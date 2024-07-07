@@ -6,7 +6,11 @@ import {Resource, SessionAgent} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {pathJoin} from '../../../utils/fns.js';
-import {ShardId} from '../../../utils/shardedRunnerQueue.js';
+import {
+  ShardedInput,
+  ShardedRunnerOutputPerInput,
+  ShardId,
+} from '../../../utils/shardedRunnerQueue.js';
 import {
   checkAuthorizationWithAgent,
   getResourcePermissionContainers,
@@ -15,28 +19,30 @@ import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {FolderExistsError} from '../errors.js';
 import {createNewFolder} from '../utils.js';
-import {getExistingFoldersAndArtifacts} from './getExistingFoldersAndArtifacts.js';
+import {
+  folderInputListToSet,
+  getExistingFoldersAndArtifacts,
+} from './getExistingFoldersAndArtifacts.js';
 import {
   AddFolderShard,
+  AddFolderShardPerInputOutputItem,
   AddFolderShardRunner,
-  NewFolderInput,
+  FoldersByNamepath,
   kAddFolderShardRunnerPrefix,
+  NewFolderInput,
 } from './types.js';
 
 async function createFolderListWithTransaction(
   agent: SessionAgent,
   workspace: Workspace,
   input: NewFolderInput | NewFolderInput[],
+  inputSet: ReturnType<typeof folderInputListToSet>,
   UNSAFE_skipAuthCheck = false,
   throwOnFolderExists = true,
   opts: SemanticProviderMutationParams
 ) {
-  const {
-    pathinfoList,
-    foldersByNamepath,
-    existingFolders,
-    getSelfOrClosestParent,
-  } = await getExistingFoldersAndArtifacts(workspace.resourceId, input, opts);
+  const {pathinfoList, addFolder, getFolder, getSelfOrClosestParent} =
+    await getExistingFoldersAndArtifacts(workspace.resourceId, inputSet, opts);
   const newFolders: Folder[] = [];
   // Use a set to avoid duplicating auth checks to the same target
   const checkAuthTargets: Set<Resource> = new Set();
@@ -104,7 +110,7 @@ async function createFolderListWithTransaction(
       // Set prevFolder to current folder, so the next folder can use it as
       // parent, and set it also in foldersByNamepath so other inputs can use it
       // (not sure how much useful the last part is, but just in case)
-      foldersByNamepath[pathJoin(folder.namepath).toLowerCase()] = folder;
+      addFolder(folder);
       prevFolder = folder;
       newFolders.push(folder);
     });
@@ -140,7 +146,10 @@ async function createFolderListWithTransaction(
     await Promise.all([Promise.all(checkAuthPromises), saveFilesPromise]);
   }
 
-  return {newFolders, existingFolders};
+  return {
+    getFolder,
+    pathinfoList,
+  };
 }
 
 function matchAddFolderShard(id: ShardId) {
@@ -148,28 +157,57 @@ function matchAddFolderShard(id: ShardId) {
 }
 
 async function runAddFolderShard(shard: AddFolderShard) {
-  const {input, meta} = shard;
+  const {shardInputList: input, meta} = shard;
+  const folderInputList = input.map(nextInput => nextInput.input);
+  const inputSet = folderInputListToSet(folderInputList);
 
   // TODO: because a started txn does not pick folders created by other shards,
   // we want to start txns within shard runner. Downside is folders are created
-  // even though starters like upload file fail. Solution is to run txns
-  // everything within a shard runner.
-  return await kSemanticModels
+  // even if callers like uploadFile fail. A solution will be to run everything
+  // related to ingesting file and folder within one shard, and by consequence,
+  // one txn
+  const {pathinfoList, getFolder} = await kSemanticModels
     .utils()
     .withTxn(opts =>
       createFolderListWithTransaction(
         meta.agent,
         meta.workspace,
-        input,
+        folderInputList,
+        inputSet,
         meta.UNSAFE_skipAuthCheck,
         meta.throwOnFolderExists,
         opts
       )
     );
+
+  const foldersByInput = pathinfoList.reduce((acc, pathinfo) => {
+    const folders: Folder[] = (acc[pathinfo.stringPath] = []);
+    pathinfo.namepath.forEach((name, index) => {
+      const key = pathJoin(pathinfo.namepath.slice(0, index + 1));
+      const folder = getFolder(key);
+      appAssert(folder);
+      folders.push(folder);
+    });
+
+    folders.sort((f1, f2) => f1.namepath.length - f2.namepath.length);
+    return acc;
+  }, {} as FoldersByNamepath);
+
+  const result = input.reduce((acc, nextInput) => {
+    const pathinfo =
+      inputSet.pathinfoWithRootnameMap[nextInput.input.folderpath];
+    appAssert(pathinfo);
+    const output = foldersByInput[pathinfo.stringPath];
+    acc.set(nextInput, {output, shardInput: nextInput});
+
+    return acc;
+  }, new Map<ShardedInput, ShardedRunnerOutputPerInput<AddFolderShardPerInputOutputItem>>());
+
+  return result;
 }
 
 export const addFolderShardRunner: AddFolderShardRunner = {
+  name: kAddFolderShardRunnerPrefix,
   match: matchAddFolderShard,
   runner: runAddFolderShard,
-  name: kAddFolderShardRunnerPrefix,
 };
