@@ -1,5 +1,6 @@
 # Server
 
+- there was an error with sharp that broke the instance (maybe not waiting for promise is why it breaks app)
 - in delete jobs, use versions marked deleted for original objects
 - usage records
   - usage records alerting

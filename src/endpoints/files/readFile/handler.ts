@@ -3,7 +3,7 @@ import sharp from 'sharp';
 import {PassThrough, Readable} from 'stream';
 import {File} from '../../../definitions/file.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
-import {isObjectFieldsEmpty} from '../../../utils/fns.js';
+import {isObjectFieldsEmpty, pick00} from '../../../utils/fns.js';
 import {validate} from '../../../utils/validate.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
 import {
@@ -80,6 +80,12 @@ const readFile: ReadFileEndpoint = async reqData => {
   const isImageResizeEmpty = isObjectFieldsEmpty(data.imageResize ?? {});
 
   if (persistedFile.body && (!isImageResizeEmpty || data.imageFormat)) {
+    // TODO: remove later
+    console.log(
+      'readFile image transform',
+      pick00(data, ['imageFormat', 'imageResize'])
+    );
+
     const outputStream = new PassThrough();
     const transformer = sharp();
 
@@ -93,6 +99,7 @@ const readFile: ReadFileEndpoint = async reqData => {
         fit: data.imageResize.fit,
       });
     }
+
     if (data.imageFormat) {
       transformer.toFormat(data.imageFormat);
     } else {

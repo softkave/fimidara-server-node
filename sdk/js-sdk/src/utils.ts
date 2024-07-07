@@ -128,14 +128,12 @@ export async function invokeEndpoint(props: InvokeEndpointParams) {
   } else if (data) {
     const str = JSON.stringify(data);
     contentBody = str;
-
-    if (isNodeEnv()) {
-      outgoingHeaders[HTTP_HEADER_CONTENT_TYPE] = CONTENT_TYPE_APPLICATION_JSON;
-    }
+    outgoingHeaders[HTTP_HEADER_CONTENT_TYPE] = CONTENT_TYPE_APPLICATION_JSON;
 
     if (
-      !outgoingHeaders[HTTP_HEADER_CONTENT_LENGTH] ||
-      !outgoingHeaders[HTTP_HEADER_CONTENT_LENGTH.toLowerCase()]
+      isNodeEnv() &&
+      (!outgoingHeaders[HTTP_HEADER_CONTENT_LENGTH] ||
+        !outgoingHeaders[HTTP_HEADER_CONTENT_LENGTH.toLowerCase()])
     ) {
       const textEncoder = new TextEncoder();
       outgoingHeaders[HTTP_HEADER_CONTENT_LENGTH] =
