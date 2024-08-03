@@ -83,10 +83,19 @@
                 "__id": "FieldObjectField",
                 "required": false
             },
-            "content-encoding": {
+            "x-fimidara-file-encoding": {
                 "data": {
                     "__id": "FieldString",
                     "description": "File encoding"
+                },
+                "__id": "FieldObjectField",
+                "required": false
+            },
+            "x-fimidara-file-size": {
+                "data": {
+                    "__id": "FieldNumber",
+                    "description": "File size in bytes",
+                    "max": 1073741824
                 },
                 "__id": "FieldObjectField",
                 "required": false

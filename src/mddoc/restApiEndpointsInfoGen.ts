@@ -44,7 +44,12 @@ export async function restApiEndpointsInfoGen() {
   await fse.remove(basepath);
 
   infoMap.forEach((info, endpoint) => {
-    const pathname = endpoint.assertGetBasePathname();
+    const pathname = endpoint
+      .assertGetBasePathname()
+      .split('/')
+      // filter out path variables
+      .filter(p => !p.startsWith(':'))
+      .join('/');
     const method = endpoint.assertGetMethod();
     const filename = `${pathname}__${method}.json`;
     const endpointPath = posix.normalize(basepath + filename);
