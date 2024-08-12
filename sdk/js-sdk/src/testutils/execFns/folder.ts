@@ -13,7 +13,7 @@ import {
 } from '../../publicTypes.js';
 import {
   fimidaraAddRootnameToPath,
-  stringifyFimidaraFoldernamepath,
+  stringifyFimidaraFolderpath,
 } from '../../utils.js';
 import {ITestVars} from '../utils.js';
 import {uploadFileTestExecFn} from './file.js';
@@ -27,7 +27,7 @@ export async function deleteFolderTestExecFn(
   let folderpath = props.folderpath;
   if (!folderpath) {
     const folder = await addFolderTestExecFn(endpoint, vars);
-    folderpath = stringifyFimidaraFoldernamepath(
+    folderpath = stringifyFimidaraFolderpath(
       folder.body.folder,
       vars.workspaceRootname
     );
@@ -46,7 +46,7 @@ export async function getFolderTestExecFn(
   let folderpath = props.folderpath;
   if (!folderpath) {
     const folder = await addFolderTestExecFn(endpoint, vars);
-    folderpath = stringifyFimidaraFoldernamepath(
+    folderpath = stringifyFimidaraFolderpath(
       folder.body.folder,
       vars.workspaceRootname
     );
@@ -66,7 +66,7 @@ export async function updateFolderTestExecFn(
   let folderpath = props.folderpath;
   if (!folderpath) {
     const folder = await addFolderTestExecFn(endpoint, vars);
-    folderpath = stringifyFimidaraFoldernamepath(
+    folderpath = stringifyFimidaraFolderpath(
       folder.body.folder,
       vars.workspaceRootname
     );
@@ -93,7 +93,7 @@ export async function setupFolderContentTestExecFn(
   let folderpath = props.folderpath;
   if (!folderpath) {
     const folder = await addFolderTestExecFn(endpoint, vars);
-    folderpath = stringifyFimidaraFoldernamepath(
+    folderpath = stringifyFimidaraFolderpath(
       folder.body.folder,
       vars.workspaceRootname
     );

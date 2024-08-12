@@ -49,10 +49,11 @@
     "vitest": "^1.6.0"
   },
   "dependencies": {
-    "softkave-js-utils": "^0.6.0",
     "assert": "^2.1.0",
     "axios": "^1.4.0",
+    "commander": "^12.1.0",
     "lodash-es": "^4.17.21",
-    "path-browserify": "^1.0.1"
+    "path-browserify": "^1.0.1",
+    "softkave-js-utils": "^0.6.0"
   }
 }

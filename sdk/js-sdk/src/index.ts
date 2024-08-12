@@ -13,6 +13,6 @@ export {
   fimidaraAddRootnameToPath,
   getFimidaraReadFileURL,
   getFimidaraUploadFileURL,
-  stringifyFimidaraFilenamepath,
-  stringifyFimidaraFoldernamepath,
+  stringifyFimidaraFilepath,
+  stringifyFimidaraFolderpath,
 } from './utils.js';

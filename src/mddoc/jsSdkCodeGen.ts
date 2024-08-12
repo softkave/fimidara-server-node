@@ -434,24 +434,27 @@ function generateEndpointCode(
   );
 
   let endpointParamsText = '';
-  let resultTypeName = 'undefined';
+  let resultType = 'FimidaraEndpointResult<undefined>';
+  let templateParams = '';
   const isBinaryRequest = decideIsBinaryRequest(requestBodyRaw);
   const isBinaryResponse = isMddocFieldBinary(successResponseBodyRaw);
   const requestBodyObjectName = sdkRequestObject?.assertGetName();
 
   if (successResponseBodyObject) {
     doc.appendImportFromGenTypes([successResponseBodyObject.assertGetName()]);
-    resultTypeName = successResponseBodyObject.assertGetName();
+    const resultTypeName = successResponseBodyObject.assertGetName();
+    resultType = `FimidaraEndpointResult<${resultTypeName}>`;
   } else if (isBinaryResponse) {
-    resultTypeName = getBinaryType(doc, successResponseBodyRaw, true);
+    resultType = 'FimidaraEndpointResultWithBinaryResponse<TResponseType>';
   }
 
   if (sdkRequestObject) {
     if (isBinaryResponse) {
+      templateParams = "<TResponseType extends 'blob' | 'stream'>";
       if (requestBodyObjectHasRequiredFields) {
-        endpointParamsText = `props: FimidaraEndpointWithBinaryResponseParamsRequired<${requestBodyObjectName}>`;
+        endpointParamsText = `props: FimidaraEndpointWithBinaryResponseParamsRequired<${requestBodyObjectName}, TResponseType>`;
       } else {
-        endpointParamsText = `props: FimidaraEndpointWithBinaryResponseParamsOptional<${requestBodyObjectName}>`;
+        endpointParamsText = `props: FimidaraEndpointWithBinaryResponseParamsOptional<${requestBodyObjectName}, TResponseType>`;
       }
     } else {
       if (requestBodyObjectHasRequiredFields) {
@@ -493,7 +496,7 @@ function generateEndpointCode(
     }
   }
 
-  const text = `${fnName} = async (${endpointParamsText}): Promise<FimidaraEndpointResult<${resultTypeName}>> => {
+  const text = `${fnName} = async ${templateParams}(${endpointParamsText}): Promise<${resultType}> => {
     ${mapping.length ? `const mapping = ${mapping} as const` : ''}
     return this.execute${isBinaryResponse ? 'Raw' : 'Json'}({
       ...props,
@@ -554,6 +557,7 @@ function generateEveryEndpointCode(
       'FimidaraEndpointParamsOptional',
       'FimidaraEndpointWithBinaryResponseParamsRequired',
       'FimidaraEndpointWithBinaryResponseParamsOptional',
+      'FimidaraEndpointResultWithBinaryResponse',
     ],
     './utils'
   );
