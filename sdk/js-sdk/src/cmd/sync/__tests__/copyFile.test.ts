@@ -1,7 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {ensureDir, ensureFile} from 'fs-extra';
-import {readFile, writeFile} from 'fs/promises';
-import {remove} from 'lodash-es';
+import {readFile, rm, writeFile} from 'fs/promises';
 import path from 'path';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {uploadFileTestExecFn} from '../../../testutils/execFns/file.js';
@@ -21,7 +20,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await remove(testDir);
+  await rm(testDir, {recursive: true, force: true});
 });
 
 describe('copyFile', () => {
@@ -50,9 +49,10 @@ describe('copyFile', () => {
     );
     await copyToLocalFile(filepath, localpath, {
       authToken: fimidaraTestVars.authToken,
+      serverURL: fimidaraTestVars.serverURL,
     });
 
-    const actualContent = await readFile(filepath, 'utf-8');
+    const actualContent = await readFile(localpath, 'utf-8');
     expect(actualContent).toBe(text);
   });
 
@@ -75,7 +75,10 @@ describe('copyFile', () => {
       filepath,
       localpath,
       /** stats */ {size: buf.byteLength},
-      /** opts */ {authToken: fimidaraTestVars.authToken}
+      /** opts */ {
+        authToken: fimidaraTestVars.authToken,
+        serverURL: fimidaraTestVars.serverURL,
+      }
     );
 
     const {body} = await fimidaraTestInstance.files.readFile({

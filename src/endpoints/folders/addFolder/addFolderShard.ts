@@ -1,5 +1,6 @@
-import {first} from 'lodash-es';
-import {convertToArray} from 'softkave-js-utils';
+import assert from 'assert';
+import {first, isArray} from 'lodash-es';
+import {convertToArray, indexArray} from 'softkave-js-utils';
 import {Folder} from '../../../definitions/folder.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {Resource, SessionAgent} from '../../../definitions/system.js';
@@ -17,54 +18,77 @@ import {
 } from '../../contexts/authorizationChecks/checkAuthorizaton.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
+import {PermissionDeniedError} from '../../users/errors.js';
+import {kFolderConstants} from '../constants.js';
 import {FolderExistsError} from '../errors.js';
 import {createNewFolder} from '../utils.js';
-import {
-  folderInputListToSet,
-  getExistingFoldersAndArtifacts,
-} from './getExistingFoldersAndArtifacts.js';
+import {folderInputListToSet} from './folderInputListToSet.js';
+import {getExistingFoldersAndArtifacts} from './getExistingFoldersAndArtifacts.js';
 import {
   AddFolderShard,
+  AddFolderShardNewFolderInput,
   AddFolderShardPerInputOutputItem,
   AddFolderShardRunner,
-  FoldersByNamepath,
   kAddFolderShardRunnerPrefix,
-  NewFolderInput,
 } from './types.js';
 
-async function createFolderListWithTransaction(
+async function checkAuth(
   agent: SessionAgent,
   workspace: Workspace,
-  input: NewFolderInput | NewFolderInput[],
-  inputSet: ReturnType<typeof folderInputListToSet>,
-  UNSAFE_skipAuthCheck = false,
-  throwOnFolderExists = true,
+  target: Resource,
   opts: SemanticProviderMutationParams
 ) {
-  const {pathinfoList, addFolder, getFolder, getSelfOrClosestParent} =
-    await getExistingFoldersAndArtifacts(workspace.resourceId, inputSet, opts);
-  const newFolders: Folder[] = [];
-  // Use a set to avoid duplicating auth checks to the same target
-  const checkAuthTargets: Set<Resource> = new Set();
-
-  const inputMap = convertToArray(input).reduce(
-    (acc, nextInput) => {
-      acc[nextInput.folderpath] = nextInput;
-      return acc;
+  const checks = await checkAuthorizationWithAgent({
+    agent,
+    workspace,
+    opts,
+    workspaceId: workspace.resourceId,
+    target: {
+      action: kFimidaraPermissionActions.addFolder,
+      targetId: getResourcePermissionContainers(
+        workspace.resourceId,
+        target,
+        /** includeResourceId */ true
+      ),
     },
-    {} as Record<string, NewFolderInput>
-  );
-  const inputList = Object.values(inputMap);
+    nothrow: true,
+  });
 
-  pathinfoList?.forEach((pathinfo, pathinfoIndex) => {
-    const inputForIndex = inputList[pathinfoIndex] as
-      | NewFolderInput
-      | undefined;
+  const hasAccess = checks.every(check => check.hasAccess);
+  return {hasAccess, target};
+}
+
+async function createFolderListWithTransaction(
+  workspace: Workspace,
+  input: AddFolderShardNewFolderInput | AddFolderShardNewFolderInput[],
+  inputSet: ReturnType<typeof folderInputListToSet>,
+  opts: SemanticProviderMutationParams
+) {
+  const {addFolder, getFolder, getSelfOrClosestParent} =
+    await getExistingFoldersAndArtifacts(workspace.resourceId, inputSet, opts);
+
+  // Use a map to avoid duplicating auth checks to the same target
+  const authTargetsMap = new Map<
+    /** resourceId */ string,
+    {resource: Resource; agent: SessionAgent}
+  >();
+  const possibleNewFoldersRecord: Record<
+    /** stringified namepath */ string,
+    {folder: Folder; authTarget: Resource | undefined} | undefined
+  > = {};
+  const inputList = convertToArray(input);
+
+  inputSet.pathinfoList?.forEach((pathinfo, inputIndex) => {
     let prevFolder = getSelfOrClosestParent(pathinfo.namepath);
+    const inputAtIndex = inputList[inputIndex];
     const existingDepth = prevFolder?.namepath.length ?? 0;
 
     // If existingDepth matches namepath length, then the folder exists
-    if (throwOnFolderExists && existingDepth === pathinfo.namepath.length) {
+    if (
+      inputAtIndex.throwOnFolderExists &&
+      existingDepth === pathinfo.namepath.length &&
+      inputAtIndex.isLeafFolder
+    ) {
       throw new FolderExistsError();
     }
 
@@ -72,9 +96,10 @@ async function createFolderListWithTransaction(
     // parent represented by existingDepth. If existingDepth ===
     // namepath.length, then folder exists, and no new folder is created
     pathinfo.namepath.slice(existingDepth).forEach((name, nameIndex) => {
+      let authTarget: Resource | undefined;
       const actualNameIndex = nameIndex + existingDepth;
       const folder: Folder = createNewFolder(
-        agent,
+        inputAtIndex.agent,
         workspace.resourceId,
         /** pathinfo */ {name},
         prevFolder,
@@ -82,21 +107,25 @@ async function createFolderListWithTransaction(
           // description belongs to only the actual folder from input
           description:
             actualNameIndex === pathinfo.namepath.length - 1
-              ? inputForIndex?.description
+              ? inputAtIndex?.description
               : undefined,
         }
       );
 
       if (
-        !UNSAFE_skipAuthCheck &&
+        !inputAtIndex.UNSAFE_skipAuthCheck &&
         // If there is no parent, seeing actualNameIndex will only ever be 0 if
         // there is no prevFolder, we need to do auth check using workspace,
         // seeing that's the closest permission container
         actualNameIndex === 0
       ) {
-        checkAuthTargets.add(workspace);
+        authTarget = workspace;
+        authTargetsMap.set(authTarget.resourceId, {
+          resource: authTarget,
+          agent: inputAtIndex.agent,
+        });
       } else if (
-        !UNSAFE_skipAuthCheck &&
+        !inputAtIndex.UNSAFE_skipAuthCheck &&
         // If we have a parent, and this folder is the next one right after, use
         // the parent, represented by prevFolder for auth check, seeing it's the
         // closest permission container.
@@ -104,7 +133,11 @@ async function createFolderListWithTransaction(
         actualNameIndex === existingDepth + 1
       ) {
         appAssert(prevFolder);
-        checkAuthTargets.add(prevFolder);
+        authTarget = prevFolder;
+        authTargetsMap.set(authTarget.resourceId, {
+          resource: authTarget,
+          agent: inputAtIndex.agent,
+        });
       }
 
       // Set prevFolder to current folder, so the next folder can use it as
@@ -112,49 +145,74 @@ async function createFolderListWithTransaction(
       // (not sure how much useful the last part is, but just in case)
       addFolder(folder);
       prevFolder = folder;
-      newFolders.push(folder);
+      const fp = folder.namepath.join(kFolderConstants.separator);
+      possibleNewFoldersRecord[fp] = {folder, authTarget};
     });
   });
 
-  if (newFolders.length) {
-    const checkAuthPromises: Array<Promise<unknown>> = [];
-    const saveFilesPromise = kSemanticModels
-      .folder()
-      .insertItem(newFolders, opts);
+  const possibleNewFolders = Object.values(possibleNewFoldersRecord);
+  let checksRecord: Record<string, boolean> = {};
+
+  if (possibleNewFolders.length) {
+    const checkPromiseList: Array<ReturnType<typeof checkAuth>> = [];
 
     // No need to check auth if there are no new folders, so only check if we
     // have newFolders
-    checkAuthTargets.forEach(target => {
-      checkAuthPromises.push(
-        checkAuthorizationWithAgent({
-          agent,
-          workspace,
-          opts,
-          workspaceId: workspace.resourceId,
-          target: {
-            action: kFimidaraPermissionActions.addFolder,
-            targetId: getResourcePermissionContainers(
-              workspace.resourceId,
-              target,
-              /** include target ID in containers */ true
-            ),
-          },
-        })
-      );
+    authTargetsMap.forEach(({agent, resource: target}) => {
+      checkPromiseList.push(checkAuth(agent, workspace, target, opts));
     });
 
-    await Promise.all([Promise.all(checkAuthPromises), saveFilesPromise]);
+    checksRecord = indexArray(await Promise.all(checkPromiseList), {
+      indexer: check => check.target.resourceId,
+      reducer: check => check.hasAccess,
+    });
+
+    const newFolders = possibleNewFolders
+      .filter(pf =>
+        pf?.authTarget ? checksRecord[pf.authTarget.resourceId] : true
+      )
+      .map(pf => pf!.folder);
+    await kSemanticModels.folder().insertItem(newFolders, opts);
+  }
+
+  function getError(p: string) {
+    const pf = possibleNewFoldersRecord[p];
+    const hasAccess = pf?.authTarget
+      ? checksRecord[pf.authTarget.resourceId]
+      : true;
+
+    if (!hasAccess) {
+      return new PermissionDeniedError();
+    }
+
+    return undefined;
+  }
+
+  function getFolderInfo(
+    p: string
+  ): {success: true; folder: Folder} | {success: false; error: Error} {
+    const error = getError(p);
+    const folder = getFolder(p);
+    assert(folder);
+
+    if (error) {
+      return {success: false, error};
+    } else {
+      return {success: true, folder};
+    }
   }
 
   return {
-    getFolder,
-    pathinfoList,
+    getFolderInfo,
+    pathinfoList: inputSet.pathinfoList,
   };
 }
 
 function matchAddFolderShard(id: ShardId) {
   return first(id) === kAddFolderShardRunnerPrefix;
 }
+
+type FoldersByNamepath = Record<string, Folder[] | Error>;
 
 async function runAddFolderShard(shard: AddFolderShard) {
   const {shardInputList: input, meta} = shard;
@@ -166,40 +224,53 @@ async function runAddFolderShard(shard: AddFolderShard) {
   // even if callers like uploadFile fail. A solution will be to run everything
   // related to ingesting file and folder within one shard, and by consequence,
   // one txn
-  const {pathinfoList, getFolder} = await kSemanticModels
+  const {pathinfoList, getFolderInfo} = await kSemanticModels
     .utils()
     .withTxn(opts =>
       createFolderListWithTransaction(
-        meta.agent,
         meta.workspace,
         folderInputList,
         inputSet,
-        meta.UNSAFE_skipAuthCheck,
-        meta.throwOnFolderExists,
         opts
       )
     );
 
   const foldersByInput = pathinfoList.reduce((acc, pathinfo) => {
-    const folders: Folder[] = (acc[pathinfo.stringPath] = []);
-    pathinfo.namepath.forEach((name, index) => {
-      const key = pathJoin(pathinfo.namepath.slice(0, index + 1));
-      const folder = getFolder(key);
-      appAssert(folder);
-      folders.push(folder);
-    });
+    const folders: Folder[] = [];
+    let error: Error | undefined;
 
-    folders.sort((f1, f2) => f1.namepath.length - f2.namepath.length);
+    for (let index = 0; index < pathinfo.namepath.length; index++) {
+      const key = pathJoin(pathinfo.namepath.slice(0, index + 1));
+      const folder = getFolderInfo(key);
+
+      if (folder.success) {
+        folders.push(folder.folder);
+      } else {
+        error = folder.error;
+        break;
+      }
+    }
+
+    if (error) {
+      acc[pathinfo.stringPath] = error;
+    } else {
+      folders.sort((f1, f2) => f1.namepath.length - f2.namepath.length);
+      acc[pathinfo.stringPath] = folders;
+    }
+
     return acc;
   }, {} as FoldersByNamepath);
 
   const result = input.reduce((acc, nextInput) => {
-    const pathinfo =
-      inputSet.pathinfoWithRootnameMap[nextInput.input.folderpath];
+    const pathinfo = inputSet.pathinfoRecord[nextInput.input.folderpath];
     appAssert(pathinfo);
     const output = foldersByInput[pathinfo.stringPath];
-    acc.set(nextInput, {output, shardInput: nextInput});
-
+    acc.set(nextInput, {
+      output: isArray(output)
+        ? {success: true, item: output}
+        : {success: false, reason: output},
+      shardInput: nextInput,
+    });
     return acc;
   }, new Map<ShardedInput, ShardedRunnerOutputPerInput<AddFolderShardPerInputOutputItem>>());
 

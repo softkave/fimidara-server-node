@@ -1,88 +1,102 @@
 import {rm} from 'fs/promises';
+import {chunk} from 'lodash-es';
 import path from 'path';
+import {getFullFolderContent} from '../../folder/getFullFolderContent.js';
+import {diffNodeFiles} from '../../node/diffNodeFiles.js';
 import {getNodeDirContent} from '../../node/getNodeDirContent.js';
-import {File as FimidaraFile} from '../../publicTypes.js';
-import {
-  stringifyFimidaraFilename,
-  stringifyFimidaraFilepath,
-} from '../../utils.js';
+import {stringifyFimidaraFilename} from '../../utils.js';
 import {getFimidara} from '../fimidara.js';
+import {IFimidaraCmdOpts} from '../types.js';
 import {copyToFimidaraFile, copyToLocalFile} from './copyFile.js';
-import {syncDiffFolderFiles} from './syncDiffFolderFiles.js';
 import {IFimidaraSyncOpts, kFimidaraSyncDirection} from './types.js';
 
 export async function copyFolderFiles(
   fimidarapath: string,
   localpath: string,
-  opts: Pick<IFimidaraSyncOpts, 'authToken' | 'direction' | 'matchTree'>,
+  opts: IFimidaraCmdOpts & Pick<IFimidaraSyncOpts, 'direction' | 'matchTree'>,
   dirContent: Awaited<ReturnType<typeof getNodeDirContent>>,
   pageSize = 20
 ) {
-  for (let page = 0, files: FimidaraFile[] = []; files.length; page++) {
-    const response = await syncDiffFolderFiles(
-      fimidarapath,
-      localpath,
-      opts,
-      dirContent,
-      page,
-      pageSize
-    );
-    const {
-      newExternalFileList,
-      newFimidaraFileList,
-      updatedExternalFileList,
-      updatedFimidaraFileList,
-    } = response;
-    files = response.files;
+  const {files} = await getFullFolderContent(getFimidara(opts), {
+    body: {folderpath: fimidarapath, contentType: 'file'},
+  });
 
-    if (
-      opts.direction === kFimidaraSyncDirection.up ||
-      opts.direction === kFimidaraSyncDirection.both
-    ) {
-      const upEFList = newExternalFileList.concat(updatedExternalFileList);
+  const {
+    newExternalFileList,
+    newFimidaraFileList,
+    updatedExternalFileList,
+    updatedFimidaraFileList,
+  } = await diffNodeFiles({
+    ...dirContent,
+    fimidaraFiles: files,
+    folderpath: localpath,
+  });
+
+  if (
+    opts.direction === kFimidaraSyncDirection.up ||
+    opts.direction === kFimidaraSyncDirection.both
+  ) {
+    const upEFList = newExternalFileList.concat(updatedExternalFileList);
+
+    for (const chunkEF of chunk(upEFList, pageSize)) {
       await Promise.all(
-        upEFList.map(async ef => {
+        chunkEF.map(async ef => {
           const stats = dirContent.fileStatsRecord[ef.name];
-          await copyToFimidaraFile(
-            path.join(localpath, ef.name),
-            path.posix.join(fimidarapath, ef.name),
-            stats,
-            opts
-          );
+          const efpath = path.join(localpath, ef.name);
+          const ffpath = path.posix.join(fimidarapath, ef.name);
+          await copyToFimidaraFile(ffpath, efpath, stats, opts);
         })
       );
+    }
 
-      if (opts.direction === kFimidaraSyncDirection.up && opts.matchTree) {
+    if (
+      opts.direction === kFimidaraSyncDirection.up &&
+      opts.matchTree &&
+      newFimidaraFileList.length
+    ) {
+      for (const chunkFF of chunk(newFimidaraFileList)) {
         await Promise.all(
-          newFimidaraFileList.map(ff =>
-            getFimidara(opts).files.deleteFile({
-              body: {filepath: stringifyFimidaraFilepath(ff)},
-            })
-          )
+          chunkFF.map(async ff => {
+            const fname = stringifyFimidaraFilename(ff);
+            const ffpath = path.posix.join(fimidarapath, fname);
+            await getFimidara(opts).files.deleteFile({
+              body: {filepath: ffpath},
+            });
+          })
         );
       }
     }
+  }
 
-    if (
-      opts.direction === kFimidaraSyncDirection.down ||
-      opts.direction === kFimidaraSyncDirection.both
-    ) {
-      const upFFList = newFimidaraFileList.concat(updatedFimidaraFileList);
+  if (
+    opts.direction === kFimidaraSyncDirection.down ||
+    opts.direction === kFimidaraSyncDirection.both
+  ) {
+    const upFFList = newFimidaraFileList.concat(updatedFimidaraFileList);
+    for (const chunkFF of chunk(upFFList)) {
       await Promise.all(
-        upFFList.map(ff =>
-          copyToLocalFile(
-            stringifyFimidaraFilepath(ff),
-            path.join(localpath, stringifyFimidaraFilename(ff)),
-            opts
-          )
-        )
+        chunkFF.map(async ff => {
+          const filename = stringifyFimidaraFilename(ff);
+          const efpath = path.join(localpath, filename);
+          const ffpath = path.posix.join(fimidarapath, filename);
+          await copyToLocalFile(ffpath, efpath, opts);
+        })
       );
     }
 
-    if (opts.direction === kFimidaraSyncDirection.down && opts.matchTree) {
-      await Promise.all(
-        newExternalFileList.map(ef => rm(path.join(localpath, ef.name)))
-      );
+    if (
+      opts.direction === kFimidaraSyncDirection.down &&
+      opts.matchTree &&
+      newExternalFileList.length
+    ) {
+      for (const chunkEF of chunk(newExternalFileList)) {
+        await Promise.all(
+          chunkEF.map(async ef => {
+            const efpath = path.join(localpath, ef.name);
+            await rm(efpath);
+          })
+        );
+      }
     }
   }
 

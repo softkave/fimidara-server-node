@@ -37,3 +37,5 @@
 - diff files
 - fimidara sync, up, down, both
 - optimize node diff files
+- optimize copyFolderFiles because currently we fetch all local and fimidara files for diff
+  - issue is diff will be incomplete when we diff on paged results

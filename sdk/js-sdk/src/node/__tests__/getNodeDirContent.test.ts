@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {ensureDir, ensureFile, remove} from 'fs-extra';
 import path from 'path';
-import {loopAndCollate} from 'softkave-js-utils';
+import {loopAndCollate, waitTimeout} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {getNodeDirContent} from '../getNodeDirContent.js';
 
@@ -39,6 +39,7 @@ describe('getNodeDirContent', () => {
           foldernames.map(fName => ensureDir(path.join(folderpath, fName)))
         )
     );
+    await waitTimeout(10);
     const afterCreation = Date.now();
 
     const {externalFilesRecord, fileStatsRecord, folderStatsRecord} =

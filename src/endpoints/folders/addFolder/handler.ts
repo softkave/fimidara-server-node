@@ -37,9 +37,9 @@ const addFolder: AddFolderEndpoint = async reqData => {
     agent,
     workspace,
     data.folder,
-    /** skip auth check */ false,
-    /** throw if folder exists */ true,
-    /** throw on error */ false
+    /** UNSAFE_skipAuthCheck */ false,
+    /** throwOnFolderExists */ true,
+    /** throwOnError */ false
   );
 
   failedInput.forEach(failedItem => {

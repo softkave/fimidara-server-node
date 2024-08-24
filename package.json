@@ -16,7 +16,7 @@
   "scripts": {
     "lint": "gts lint",
     "clean": "gts clean",
-    "compile": "tsc",
+    "compile": "npm run clean && tsc",
     "fix": "gts fix",
     "start": "node build/src/index.js",
     "pretest": "npm run compile",

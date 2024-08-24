@@ -289,15 +289,15 @@ export async function ensureFolders(
         workspace.rootname
       ),
     },
-    /** Skip auth check. Since what we really care about is file creation, and
+    /** UNSAFE_skipAuthCheck. Since what we really care about is file creation, and
      * a separate permission check is done for that. All of it is also done
      * with transaction so should upload file permission check fail, it'll get
      * rolled back. Also, this allows for creating presigned paths to files in
      * folders that do not exist yet, which would otherwise fail seeing an
      * anonymous user most likely won't have permission to create folders. */
     true,
-    /** Throw on folder exists */ false,
-    /** throw on error */ true
+    /** throwOnFolderExists */ false,
+    /** throwOnError */ true
   );
 
   const folder = last(folders) || null;

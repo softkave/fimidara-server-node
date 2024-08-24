@@ -15,6 +15,16 @@ const testDir = path.join(kTestLocalFsDir + '/' + faker.number.int({min: 100}));
 
 type FF = Pick<FimidaraFile, 'name' | 'ext' | 'lastUpdatedAt'>;
 
+function sortEF(ef01: {name: string}, ef02: {name: string}) {
+  return ef01.name < ef02.name ? -1 : ef01.name > ef02.name ? 1 : 0;
+}
+
+function transformEF(
+  ef: FimidaraDiffExternalFile
+): Pick<FimidaraDiffExternalFile, 'name'> {
+  return {name: ef.name};
+}
+
 beforeAll(async () => {
   await ensureDir(testDir);
 });
@@ -42,6 +52,8 @@ describe('diffNodeFiles', () => {
   let efList: FimidaraDiffExternalFile[] | undefined;
   let ffList: FF[] | undefined;
 
+  let dirContent: Awaited<ReturnType<typeof getNodeDirContent>> | undefined;
+
   beforeAll(async () => {
     const hasExt = faker.datatype.boolean();
 
@@ -62,37 +74,42 @@ describe('diffNodeFiles', () => {
         }),
         count
       );
-    const ffToEF = (f: FF): FimidaraDiffExternalFile => ({
-      name: stringifyFimidaraFilename(f),
-      lastModified: f.lastUpdatedAt,
-    });
     const efToFF = (ef: FimidaraDiffExternalFile): FF => ({
       name: pathBasename({input: stringifyFimidaraFilename(ef)}).basename,
       ext: pathBasename({input: stringifyFimidaraFilename(ef)}).ext,
       lastUpdatedAt: ef.lastModified,
     });
-
-    newFFList = genFF(2);
-    unmodifiedFFList = genFF(2);
-    otherFFList = genFF(2);
+    const getActualEF = (ef: FimidaraDiffExternalFile) =>
+      dirContent!.externalFilesRecord[ef.name];
 
     newEFList = genEF(2);
-    updatedEFList = otherFFList
-      .map(ffToEF)
-      .map(ef => ({...ef, lastModified: ef.lastModified + 10}));
-    unmodifiedEFList = unmodifiedFFList.map(ffToEF);
+    updatedEFList = genEF(2);
+    unmodifiedEFList = genEF(2);
     otherEFList = genEF(2);
-
-    updatedFFList = otherEFList
-      .map(efToFF)
-      .map(ff => ({...ff, lastUpdatedAt: ff.lastUpdatedAt + 10}));
-
     efList = newEFList.concat(updatedEFList, unmodifiedEFList, otherEFList);
-    ffList = newFFList.concat(updatedFFList, unmodifiedFFList, otherFFList);
 
     await Promise.all(
       efList.map(ef => ensureFile(path.join(folderpath, ef.name)))
     );
+
+    dirContent = await getNodeDirContent({folderpath});
+    assert(dirContent);
+
+    newEFList = newEFList.map(getActualEF);
+    updatedEFList = updatedEFList.map(getActualEF);
+    unmodifiedEFList = unmodifiedEFList.map(getActualEF);
+    otherEFList = otherEFList.map(getActualEF);
+    efList = efList.map(getActualEF);
+
+    newFFList = genFF(2).map(ff => ({...ff, lastUpdatedAt: Date.now()}));
+    unmodifiedFFList = unmodifiedEFList.map(efToFF);
+    otherFFList = updatedEFList
+      .map(efToFF)
+      .map(ff => ({...ff, lastUpdatedAt: ff.lastUpdatedAt - 1_000}));
+    updatedFFList = otherEFList
+      .map(efToFF)
+      .map(ff => ({...ff, lastUpdatedAt: ff.lastUpdatedAt + 1_000}));
+    ffList = newFFList.concat(updatedFFList, unmodifiedFFList, otherFFList);
   });
 
   test('without dir content', async () => {
@@ -108,21 +125,29 @@ describe('diffNodeFiles', () => {
       ...dirContent
     } = await diffNodeFiles({folderpath, fimidaraFiles: ffList});
 
-    expect(newExternalFileList).toEqual(newEFList);
-    expect(newFimidaraFileList).toEqual(newFFList);
-    expect(unmodifiedExternalFileList).toEqual(unmodifiedEFList);
-    expect(unmodifiedFimidaraFileList).toEqual(unmodifiedFFList);
-    expect(updatedExternalFileList).toEqual(updatedEFList);
-    expect(updatedFimidaraFileList).toEqual(updatedFFList);
+    expect(newExternalFileList.sort(sortEF).map(transformEF)).toEqual(
+      newEFList?.sort(sortEF).map(transformEF)
+    );
+    expect(updatedExternalFileList.sort(sortEF).map(transformEF)).toEqual(
+      updatedEFList?.sort(sortEF).map(transformEF)
+    );
+    expect(unmodifiedExternalFileList.sort(sortEF).map(transformEF)).toEqual(
+      unmodifiedEFList?.sort(sortEF).map(transformEF)
+    );
+    expect(newFimidaraFileList.sort(sortEF)).toEqual(newFFList?.sort(sortEF));
+    expect(updatedFimidaraFileList.sort(sortEF)).toEqual(
+      updatedFFList?.sort(sortEF)
+    );
+    expect(unmodifiedFimidaraFileList.sort(sortEF)).toEqual(
+      unmodifiedFFList?.sort(sortEF)
+    );
 
     expect(isObjectEmpty(dirContent.fileStatsRecord)).toBeFalsy();
-    expect(isObjectEmpty(dirContent.folderStatsRecord)).toBeFalsy();
     expect(isObjectEmpty(dirContent.externalFilesRecord)).toBeFalsy();
   });
 
   test('with dir content', async () => {
     assert(ffList);
-    const dirContent = await getNodeDirContent({folderpath});
 
     const {
       newExternalFileList,
@@ -133,11 +158,19 @@ describe('diffNodeFiles', () => {
       updatedFimidaraFileList,
     } = await diffNodeFiles({...dirContent, folderpath, fimidaraFiles: ffList});
 
-    expect(newExternalFileList).toEqual(newEFList);
-    expect(newFimidaraFileList).toEqual(newFFList);
-    expect(unmodifiedExternalFileList).toEqual(unmodifiedEFList);
-    expect(unmodifiedFimidaraFileList).toEqual(unmodifiedFFList);
-    expect(updatedExternalFileList).toEqual(updatedEFList);
-    expect(updatedFimidaraFileList).toEqual(updatedFFList);
+    expect(newExternalFileList.sort(sortEF)).toEqual(newEFList?.sort(sortEF));
+    expect(newFimidaraFileList.sort(sortEF)).toEqual(newFFList?.sort(sortEF));
+    expect(unmodifiedExternalFileList.sort(sortEF)).toEqual(
+      unmodifiedEFList?.sort(sortEF)
+    );
+    expect(unmodifiedFimidaraFileList.sort(sortEF)).toEqual(
+      unmodifiedFFList?.sort(sortEF)
+    );
+    expect(updatedExternalFileList.sort(sortEF)).toEqual(
+      updatedEFList?.sort(sortEF)
+    );
+    expect(updatedFimidaraFileList.sort(sortEF)).toEqual(
+      updatedFFList?.sort(sortEF)
+    );
   });
 });

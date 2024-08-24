@@ -151,9 +151,9 @@ async function setupFolders(workspace: Workspace) {
           workspace.rootname
         ),
       },
-      /** skip auth check */ true,
-      /** throw on folder exists */ false,
-      /** throw on error */ true
+      /** UNSAFE_skipAuthCheck*/ true,
+      /** throwOnFolderExists */ false,
+      /** throwOnError */ true
     ),
     createFolderList(
       kSystemSessionAgent,
@@ -164,9 +164,9 @@ async function setupFolders(workspace: Workspace) {
           workspace.rootname
         ),
       },
-      /** skip auth check */ true,
-      /** throw on folder exists */ false,
-      /** throw on error */ true
+      /** UNSAFE_skipAuthCheck */ true,
+      /** throwOnFolderExists */ false,
+      /** throwOnError */ true
     ),
   ]);
 

@@ -1,3 +1,6 @@
+export * from './diff/index.js';
+export * from './folder/index.js';
+export * from './node/index.js';
 export {FimidaraEndpoints} from './publicEndpoints.js';
 export * from './publicTypes.js';
 export {

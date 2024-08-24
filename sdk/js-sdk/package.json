@@ -54,6 +54,7 @@
     "commander": "^12.1.0",
     "lodash-es": "^4.17.21",
     "path-browserify": "^1.0.1",
-    "softkave-js-utils": "^0.6.0"
+    "softkave-js-utils": "^0.6.0",
+    "fs-extra": "^11.2.0"
   }
 }

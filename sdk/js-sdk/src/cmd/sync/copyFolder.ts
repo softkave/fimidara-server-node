@@ -1,7 +1,6 @@
 import path from 'path';
 import {getNodeDirContent} from '../../node/getNodeDirContent.js';
 import {Folder} from '../../publicTypes.js';
-import {stringifyFimidaraFolderpath} from '../../utils.js';
 import {getFimidara} from '../fimidara.js';
 import {copyFolderFiles} from './copyFolderFiles.js';
 import {IFimidaraSyncOpts, kFimidaraSyncDirection} from './types.js';
@@ -23,7 +22,7 @@ async function getFimidaraFolderFolders(
     });
 
     return body.folders;
-  } finally {
+  } catch {
     return [];
   }
 }
@@ -35,8 +34,10 @@ async function copyFimidaraFolderFolders(
 ) {
   const folderPageSize = 10;
   const filePageSize = 10;
+  let page = 0,
+    folders: Folder[] = [];
 
-  for (let page = 0, folders: Folder[] = []; folders.length; page++) {
+  do {
     folders = await getFimidaraFolderFolders(
       fimidarapath,
       opts,
@@ -45,14 +46,18 @@ async function copyFimidaraFolderFolders(
     );
 
     for (const folder of folders) {
+      const ffp = path.posix.join(fimidarapath, folder.name);
+      const lfp = path.join(localpath, folder.name);
       await copyFolder(
-        stringifyFimidaraFolderpath(folder),
-        path.join(localpath, folder.name),
-        opts,
+        ffp,
+        lfp,
+        {...opts, direction: kFimidaraSyncDirection.down},
         filePageSize
       );
     }
-  }
+
+    page++;
+  } while (folders.length);
 }
 
 export async function copyFolder(
@@ -78,7 +83,12 @@ export async function copyFolder(
       for (const k in folderStatsRecord) {
         const lfp = path.join(localpath, k);
         const ffp = path.posix.join(fimidarapath, k);
-        await copyFolder(ffp, lfp, opts, filePageSize);
+        await copyFolder(
+          ffp,
+          lfp,
+          {...opts, direction: kFimidaraSyncDirection.up},
+          filePageSize
+        );
       }
     }
 

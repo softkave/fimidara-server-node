@@ -25,23 +25,26 @@ export type AddFolderEndpoint = Endpoint<
 >;
 
 export interface AddFolderShardMeta {
-  agent: SessionAgent;
   workspace: Workspace;
-  UNSAFE_skipAuthCheck: boolean;
-  throwOnFolderExists: boolean;
 }
 
-export type FoldersByNamepath = Record<string, Folder[]>;
+export interface AddFolderShardNewFolderInput extends NewFolderInput {
+  agent: SessionAgent;
+  UNSAFE_skipAuthCheck: boolean;
+  throwOnFolderExists: boolean;
+  isLeafFolder: boolean;
+}
+
 export type AddFolderShardPerInputOutputItem = Folder[];
 
 export type AddFolderShard = Shard<
-  NewFolderInput,
+  AddFolderShardNewFolderInput,
   AddFolderShardPerInputOutputItem,
   AddFolderShardMeta
 >;
 
 export type AddFolderShardRunner = ShardRunner<
-  NewFolderInput,
+  AddFolderShardNewFolderInput,
   AddFolderShardPerInputOutputItem,
   AddFolderShardMeta
 >;

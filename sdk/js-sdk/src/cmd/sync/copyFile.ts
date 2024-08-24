@@ -1,7 +1,7 @@
 import {createReadStream, createWriteStream, ensureFile, Stats} from 'fs-extra';
 import {Readable, Writable} from 'stream';
 import {getFimidara} from '../fimidara.js';
-import {IFimidaraSyncOpts} from './types.js';
+import {IFimidaraCmdOpts} from '../types.js';
 
 function copyToStream(rstream: Readable, wstream: Writable) {
   return new Promise<void>((resolve, reject) => {
@@ -15,7 +15,7 @@ function copyToStream(rstream: Readable, wstream: Writable) {
 export async function copyToLocalFile(
   fimidarapath: string,
   localpath: string,
-  opts: Pick<IFimidaraSyncOpts, 'authToken'>
+  opts: IFimidaraCmdOpts
 ) {
   const [{body}] = await Promise.all([
     getFimidara(opts).files.readFile({
@@ -33,10 +33,10 @@ export async function copyToFimidaraFile(
   fimidarapath: string,
   localpath: string,
   stats: Pick<Stats, 'size'>,
-  opts: Pick<IFimidaraSyncOpts, 'authToken'>
+  opts: IFimidaraCmdOpts
 ) {
-  const rstream = createReadStream(fimidarapath, {autoClose: true});
+  const rstream = createReadStream(localpath, {autoClose: true});
   await getFimidara(opts).files.uploadFile({
-    body: {filepath: localpath, data: rstream, size: stats.size},
+    body: {filepath: fimidarapath, data: rstream, size: stats.size},
   });
 }

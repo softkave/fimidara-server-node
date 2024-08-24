@@ -31,6 +31,7 @@ describe('checkType', () => {
     );
     const response = await checkType(filepath, {
       authToken: fimidaraTestVars.authToken,
+      serverURL: fimidaraTestVars.serverURL,
     });
 
     assert(response);
@@ -55,6 +56,7 @@ describe('checkType', () => {
     );
     const response = await checkType(folderpath, {
       authToken: fimidaraTestVars.authToken,
+      serverURL: fimidaraTestVars.serverURL,
     });
 
     assert(response);
@@ -75,6 +77,7 @@ describe('checkType', () => {
     );
     const response = await checkType(folderpath, {
       authToken: fimidaraTestVars.authToken,
+      serverURL: fimidaraTestVars.serverURL,
     });
 
     expect(response).toBe(undefined);

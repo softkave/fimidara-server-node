@@ -9,16 +9,22 @@ export async function nodeFileToExternalFile(props: {
   filepath?: string;
 }): Promise<{externalFile?: FimidaraDiffExternalFile; stats: Stats}> {
   const {filepath, dirent: df} = props;
-  if (!filepath || !df) {
-    assert(false, 'nodeFileToExternalFile requires dirent or filepath');
-  }
 
-  const fp = filepath || path.join(df.parentPath, df.name);
+  const fp = filepath
+    ? filepath
+    : df
+    ? path.join(df.parentPath, df.name)
+    : undefined;
+  assert(fp, 'nodeFileToExternalFile requires dirent or filepath');
+
   const stats = await stat(fp);
   return {
     stats,
     externalFile: stats.isFile()
-      ? {name: df.name, lastModified: stats.mtimeMs}
+      ? {
+          name: df?.name || path.basename(fp, path.extname(fp)),
+          lastModified: stats.mtimeMs,
+        }
       : undefined,
   };
 }

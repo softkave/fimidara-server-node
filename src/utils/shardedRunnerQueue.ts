@@ -63,7 +63,9 @@ interface ShardView extends OmitFrom<Shard, 'doneFns' | 'shardInputList'> {
 
 export interface ShardedRunnerOutputPerInput<TPerInputOutputItem = unknown> {
   shardInput: ShardedInput;
-  output: TPerInputOutputItem;
+  output:
+    | {success: true; item: TPerInputOutputItem}
+    | {success: false; reason: unknown};
 }
 
 export type ShardedRunnerOutput<TPerInputOutputItem = unknown> = Map<
@@ -298,23 +300,25 @@ export class ShardedRunner {
     );
 
     results.forEach(result => {
-      if (result.status === 'fulfilled') {
-        const [shard, {result: shardResult}] = result.value;
-
-        if (shardResult.status === 'fulfilled') {
-          success.push({
-            output: shardResult.value.get(shard.shardInput)?.output,
-            input: shard.shardInput.input,
-          });
-        } else {
-          failed.push({
-            input: shard.shardInput.input,
-            reason: shardResult.reason,
-          });
-        }
-      } else {
+      if (result.status !== 'fulfilled') {
         // should not happen
         kUtilsInjectables.logger().error(result.reason);
+        return;
+      }
+
+      const [shard, {result: shardResult}] = result.value;
+      const input = shard.shardInput.input;
+
+      if (shardResult.status === 'fulfilled') {
+        const output = shardResult.value.get(shard.shardInput)?.output;
+
+        if (output?.success) {
+          success.push({input, output: output.item});
+        } else {
+          failed.push({input, reason: output?.reason});
+        }
+      } else {
+        failed.push({input, reason: shardResult.reason});
       }
     });
 

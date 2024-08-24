@@ -1,38 +1,35 @@
 import {File as FimidaraFile, Folder} from '../../publicTypes.js';
 import {getFimidara} from '../fimidara.js';
-import {IFimidaraSyncOpts, kFileEntryType} from './types.js';
+import {IFimidaraCmdOpts} from '../types.js';
+import {kFileEntryType} from './types.js';
 
-async function getFile(
-  fimidarapath: string,
-  opts: Pick<IFimidaraSyncOpts, 'authToken'>
-) {
+async function getFile(fimidarapath: string, opts: IFimidaraCmdOpts) {
   try {
     const {body} = await getFimidara(opts).files.getFileDetails({
       body: {filepath: fimidarapath},
     });
     return body.file;
   } catch (error: unknown) {
+    console.error(error);
     return undefined;
   }
 }
 
-async function getFolder(
-  fimidarapath: string,
-  opts: Pick<IFimidaraSyncOpts, 'authToken'>
-) {
+async function getFolder(fimidarapath: string, opts: IFimidaraCmdOpts) {
   try {
     const {body} = await getFimidara(opts).folders.getFolder({
       body: {folderpath: fimidarapath},
     });
     return body.folder;
   } catch (error: unknown) {
+    console.error(error);
     return undefined;
   }
 }
 
 export async function checkType(
   fimidarapath: string,
-  opts: Pick<IFimidaraSyncOpts, 'authToken'>
+  opts: IFimidaraCmdOpts
 ): Promise<
   | {type: typeof kFileEntryType.file; file: FimidaraFile}
   | {type: typeof kFileEntryType.folder; folder: Folder}
