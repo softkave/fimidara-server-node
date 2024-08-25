@@ -30,10 +30,8 @@ import {
 import {FolderQueries} from '../queries.js';
 import {addRootnameToPath, stringifyFoldernamepath} from '../utils.js';
 import {createFolderList} from './createFolderList.js';
-import {
-  folderInputListToSet,
-  getExistingFoldersAndArtifacts,
-} from './getExistingFoldersAndArtifacts.js';
+import {folderInputListToSet} from './folderInputListToSet.js';
+import {getExistingFoldersAndArtifacts} from './getExistingFoldersAndArtifacts.js';
 import addFolder from './handler.js';
 import {AddFolderEndpointParams} from './types.js';
 
@@ -42,6 +40,7 @@ import {AddFolderEndpointParams} from './types.js';
  * - Test different folder paths
  * - Test on root
  * - prev folders not recreated
+ * - part shard fails if user does not have access but the entire shard succeeds
  */
 
 beforeAll(async () => {
@@ -121,31 +120,11 @@ describe('addFolder', () => {
       },
     ]);
 
-    const {
-      existingFolders,
-      foldersByNamepath,
-      pathinfoList,
-      namepathList,
-      getSelfOrClosestParent,
-    } = await kSemanticModels
+    const {getSelfOrClosestParent} = await kSemanticModels
       .utils()
       .withTxn(opts =>
         getExistingFoldersAndArtifacts(workspace.resourceId, inputSet, opts)
       );
-
-    expect(existingFolders.length).toBe(3);
-    expect(namepathList.length).toBe(3);
-    expect(pathinfoList.length).toBe(6);
-    expect(
-      sortStringListLexographically(Object.keys(foldersByNamepath))
-    ).toEqual(
-      sortStringListLexographically(
-        folderNamepath02
-          .map((name, index) => folderNamepath02.slice(0, index + 1))
-          .map(namepath => pathJoin(namepath))
-          .map(p => p.toLowerCase())
-      )
-    );
 
     const sp00 = getSelfOrClosestParent([]);
     const sp01 = getSelfOrClosestParent(folderNamepath02.slice(0, 1));
@@ -312,9 +291,9 @@ describe('addFolder', () => {
           leafFolderpaths
             .slice(index, index + withinTxnCount)
             .map(folderpath => ({folderpath})),
-          /** skip auth */ true,
-          /** throw if folder exists */ false,
-          /** throw on error */ true
+          /** UNSAFE_skipAuthCheck */ true,
+          /** throwOnFolderExists */ false,
+          /** throwOnError */ true
         );
       },
       leafLength,

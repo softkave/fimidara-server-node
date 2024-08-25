@@ -7,6 +7,7 @@ import axios, {
 } from 'axios';
 import {compact, isArray, isObject, isString, last, map} from 'lodash-es';
 import path from 'path-browserify';
+import {Readable} from 'stream';
 
 const kDefaultServerURL = 'https://api.fimidara.com';
 
@@ -336,6 +337,15 @@ export type FimidaraEndpointResult<T> = {
   body: T;
   headers: EndpointHeaders;
 };
+export type FimidaraEndpointResultWithBinaryResponse<
+  TResponseType extends 'blob' | 'stream'
+> = FimidaraEndpointResult<
+  TResponseType extends 'blob'
+    ? Blob
+    : TResponseType extends 'stream'
+    ? Readable
+    : unknown
+>;
 export type FimidaraEndpointProgressEvent = AxiosProgressEvent;
 export type FimidaraEndpointParamsRequired<T> = {
   body: T;
@@ -346,17 +356,21 @@ export type FimidaraEndpointParamsRequired<T> = {
   onUploadProgress?: (progressEvent: FimidaraEndpointProgressEvent) => void;
   onDownloadProgress?: (progressEvent: FimidaraEndpointProgressEvent) => void;
 };
-export type FimidaraEndpointWithBinaryResponseParamsRequired<T> =
-  FimidaraEndpointParamsRequired<T> & {
-    responseType: 'blob' | 'stream';
-  };
+export type FimidaraEndpointWithBinaryResponseParamsRequired<
+  T,
+  TResponseType extends 'blob' | 'stream'
+> = FimidaraEndpointParamsRequired<T> & {
+  responseType: TResponseType;
+};
 export type FimidaraEndpointParamsOptional<T> = Partial<
   FimidaraEndpointParamsRequired<T>
 >;
-export type FimidaraEndpointWithBinaryResponseParamsOptional<T> =
-  FimidaraEndpointParamsOptional<T> & {
-    responseType: 'blob' | 'stream';
-  };
+export type FimidaraEndpointWithBinaryResponseParamsOptional<
+  T,
+  TResponseType extends 'blob' | 'stream'
+> = FimidaraEndpointParamsOptional<T> & {
+  responseType: TResponseType;
+};
 
 export function fimidaraAddRootnameToPath<
   T extends string | string[] = string | string[]
@@ -577,7 +591,12 @@ export function getFimidaraUploadFileURL(props: {
   );
 }
 
-export function stringifyFimidaraFilenamepath(
+export function stringifyFimidaraFilename(file: {name: string; ext?: string}) {
+  const name = file.name + (file.ext ? `.${file.ext}` : '');
+  return name;
+}
+
+export function stringifyFimidaraFilepath(
   file: {namepath: string[]; ext?: string},
   rootname?: string
 ) {
@@ -585,8 +604,8 @@ export function stringifyFimidaraFilenamepath(
   return rootname ? fimidaraAddRootnameToPath(name, rootname) : name;
 }
 
-export function stringifyFimidaraFoldernamepath(
-  file: {namepath: string[]; ext?: string},
+export function stringifyFimidaraFolderpath(
+  file: {namepath: string[]},
   rootname?: string
 ) {
   const name = file.namepath.join('/');

@@ -16,7 +16,7 @@ import {
   FimidaraEndpointResult,
   FimidaraEndpointWithBinaryResponseParamsOptional,
   fimidaraAddRootnameToPath,
-  stringifyFimidaraFilenamepath,
+  stringifyFimidaraFilepath,
 } from '../../utils.js';
 import {
   ITestVars,
@@ -66,11 +66,17 @@ export async function updateFileDetailsTestExecFn(
   return result;
 }
 
-export async function readFileTestExecFn(
+export async function readFileTestExecFn<
+  TResponseType extends 'blob' | 'stream'
+>(
   endpoint: FimidaraEndpoints,
   vars: ITestVars,
+  responseType: TResponseType,
   props: PartialDeep<
-    FimidaraEndpointWithBinaryResponseParamsOptional<ReadFileEndpointParams>
+    FimidaraEndpointWithBinaryResponseParamsOptional<
+      ReadFileEndpointParams,
+      TResponseType
+    >
   > = {},
   uploadFileProps: PartialDeep<UploadFileEndpointParams> = {}
 ) {
@@ -81,7 +87,7 @@ export async function readFileTestExecFn(
     uploadFileProps
   );
   const params: ReadFileEndpointParams = {filepath: input.filepath};
-  const mergedParams = merge({body: params, responseType: 'blob'}, props);
+  const mergedParams = merge({body: params, responseType}, props);
   const result = await endpoint.files.readFile(mergedParams);
   return result;
 }
@@ -129,7 +135,7 @@ export async function getTestFilepath(
       vars,
       uploadFileProps
     );
-    filepath = stringifyFimidaraFilenamepath(
+    filepath = stringifyFimidaraFilepath(
       uploadFileResult.body.file,
       vars.workspaceRootname
     );

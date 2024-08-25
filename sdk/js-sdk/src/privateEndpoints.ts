@@ -9,6 +9,7 @@ import {
   FimidaraEndpointParamsOptional,
   FimidaraEndpointWithBinaryResponseParamsRequired,
   FimidaraEndpointWithBinaryResponseParamsOptional,
+  FimidaraEndpointResultWithBinaryResponse,
 } from './utils.js';
 import {
   ChangePasswordWithCurrentPasswordEndpointParams,

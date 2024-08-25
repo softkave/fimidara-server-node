@@ -1,5 +1,6 @@
 # Server
 
+- do not require rootname if using token
 - there was an error with sharp that broke the instance (maybe not waiting for promise is why it breaks app)
 - in delete jobs, use versions marked deleted for original objects
 - usage records
@@ -25,8 +26,16 @@
 - fix NotFoundException exception thrown from email deliverability check (AWS SES)
 - empty out test s3 bucket and write code to auto clean it after tests
 - download folder as zip
-
+- match file with node:fs stat, e.g. last accessed, last status change (though we don't have a similar concept), and nano seconds, etc.
+- download from anywhere in the internet
+- accept ranges
+- stop workers on sigint
 
 # JS SDK
 
 - support esm and commonjs (current issue is softkave-js-utils only supports esm, and lodash-es + peer deps)
+- readFile typedef should return stream | blob depending on responseType
+- diff files content?
+- optimize node diff files
+- optimize copyFolderFiles because currently we fetch all local and fimidara files for diff
+  - issue is diff will be incomplete when we diff on paged results

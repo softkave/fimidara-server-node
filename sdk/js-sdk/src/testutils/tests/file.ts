@@ -38,18 +38,22 @@ export const test_getFileDetails = async () => {
 
 export const test_readFile_blob = async (
   props: PartialDeep<
-    FimidaraEndpointWithBinaryResponseParamsOptional<ReadFileEndpointParams>
+    FimidaraEndpointWithBinaryResponseParamsOptional<
+      ReadFileEndpointParams,
+      'blob'
+    >
   > = {}
 ) => {
   const result = await readFileTestExecFn(
     fimidaraTestInstance,
     fimidaraTestVars,
-    merge({}, props, {responseType: 'blob'}),
+    /** responseType */ 'blob',
+    merge({}, props),
     {data: getTestFileReadStream(fimidaraTestVars)}
   );
 
   const expectedString = await getTestFileString(fimidaraTestVars);
-  const body = result.body as Blob;
+  const body = result.body;
   const actualString = await body.text();
   assert.strictEqual(expectedString, actualString);
 
@@ -58,13 +62,17 @@ export const test_readFile_blob = async (
 
 export const test_readFile_nodeReadable = async (
   props: PartialDeep<
-    FimidaraEndpointWithBinaryResponseParamsOptional<ReadFileEndpointParams>
+    FimidaraEndpointWithBinaryResponseParamsOptional<
+      ReadFileEndpointParams,
+      'stream'
+    >
   > = {}
 ) => {
   const result = await readFileTestExecFn(
     fimidaraTestInstance,
     fimidaraTestVars,
-    merge({}, props, {responseType: 'stream'}),
+    /** responseType */ 'stream',
+    merge({}, props),
     {
       data: getTestFileReadStream(fimidaraTestVars),
       size: await getTestStreamByteLength(
@@ -74,7 +82,7 @@ export const test_readFile_nodeReadable = async (
   );
 
   const expectedString = await getTestFileString(fimidaraTestVars);
-  const body = result.body as Readable;
+  const body = result.body;
   const actualString = await streamToString(body);
   expect(expectedString).toEqual(actualString);
 

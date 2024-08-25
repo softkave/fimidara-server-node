@@ -68,9 +68,9 @@ export async function ingestPersistedFolders(
       agent,
       workspace,
       newFolderInputList,
-      /** skip auth check */ true,
-      /** do not throw if folders exists */ false,
-      /** throw on error */ true
+      /** UNSAFE_skipAuthCheck */ true,
+      /** throwOnFolderExists */ false,
+      /** throwOnError */ true
     );
 
     const foldersMapByNamepath: Record<string, Folder | undefined> = keyBy(
@@ -174,9 +174,9 @@ export async function ingestPersistedFiles(
       agent,
       workspace,
       folderpathsToEnsure,
-      /** skip auth check */ true,
-      /** do not throw if folders exist */ false,
-      /** throw on error */ true
+      /** UNSAFE_skipAuthCheck */ true,
+      /** throwOnFolderExists */ false,
+      /** throwOnError */ true
     );
 
     const foldersMapByNamepath: Record<string, Folder | undefined> = keyBy(

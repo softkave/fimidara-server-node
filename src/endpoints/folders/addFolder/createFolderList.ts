@@ -12,18 +12,26 @@ import {
 import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {
   AddFolderShardMeta,
+  AddFolderShardNewFolderInput,
   AddFolderShardPerInputOutputItem,
   NewFolderInput,
   kAddFolderShardRunnerPrefix,
 } from './types.js';
 
 function shardNewFolderInput(
+  agent: SessionAgent,
   workspaceId: string,
   input: NewFolderInput | NewFolderInput[],
+  UNSAFE_skipAuthCheck: boolean,
+  throwOnFolderExists: boolean,
   meta: AddFolderShardMeta
 ) {
   return convertToArray(input).map(
-    (nextInput): ShardedInput<NewFolderInput, AddFolderShardMeta> => {
+    (
+      nextInput,
+      index,
+      array
+    ): ShardedInput<AddFolderShardNewFolderInput, AddFolderShardMeta> => {
       const namepath = pathSplit(nextInput.folderpath);
       const shardId: ShardId = [
         kAddFolderShardRunnerPrefix,
@@ -36,10 +44,16 @@ function shardNewFolderInput(
       ];
 
       return {
-        meta,
         shardId,
+        meta,
         done: noopAsync,
-        input: nextInput,
+        input: {
+          ...nextInput,
+          agent,
+          throwOnFolderExists,
+          UNSAFE_skipAuthCheck,
+          isLeafFolder: index === array.length,
+        },
         queueStrategy: kShardQueueStrategy.appendToExisting,
         matchStrategy: kShardMatchStrategy.hierachichal,
       };
@@ -51,19 +65,17 @@ export async function createFolderList(
   agent: SessionAgent,
   workspace: Workspace,
   input: NewFolderInput | NewFolderInput[],
-  UNSAFE_skipAuthCheck = false,
-  throwOnFolderExists = true,
+  UNSAFE_skipAuthCheck: boolean,
+  throwOnFolderExists: boolean,
   throwOnError: boolean
 ) {
   const shardInputList = shardNewFolderInput(
+    agent,
     workspace.resourceId,
     input,
-    /** meta */ {
-      agent,
-      throwOnFolderExists,
-      UNSAFE_skipAuthCheck,
-      workspace,
-    }
+    UNSAFE_skipAuthCheck,
+    throwOnFolderExists,
+    /** meta */ {workspace}
   );
 
   const {success, failed} = await kUtilsInjectables
