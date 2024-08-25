@@ -12,7 +12,7 @@ import {
   genFimidaraFolders,
   genLocalFiles,
   genLocalFolders,
-} from '../../../testutils/syncUtils.js';
+} from '../../../testutils/sync/syncUtils.js';
 import {fimidaraTestVars} from '../../../testutils/tests/file.js';
 import {stringifyFimidaraFolderpath} from '../../../utils.js';
 import {copyFolderFiles} from '../copyFolderFiles.js';

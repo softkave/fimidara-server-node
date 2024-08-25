@@ -4,7 +4,7 @@ import {describe, expect, test} from 'vitest';
 import {
   genFimidaraFiles,
   genFimidaraFolders,
-} from '../../testutils/syncUtils.js';
+} from '../../testutils/sync/syncUtils.js';
 import {
   fimidaraTestInstance,
   fimidaraTestVars,

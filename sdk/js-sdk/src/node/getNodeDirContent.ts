@@ -1,7 +1,7 @@
 import {Stats} from 'fs';
 import {pathExists} from 'fs-extra';
 import {opendir} from 'fs/promises';
-import {FimidaraDiffExternalFile} from '../diff/types.js';
+import type {FimidaraDiffExternalFile} from '../diff/types.js';
 import {nodeFileToExternalFile} from './nodeFileToExternalFile.js';
 
 export async function getNodeDirContent(props: {folderpath: string}) {

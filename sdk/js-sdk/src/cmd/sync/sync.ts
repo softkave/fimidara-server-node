@@ -1,9 +1,12 @@
+import {omit} from 'lodash-es';
+import {format} from 'util';
 import {kFimidaraCmdOpts} from '../constants.js';
 import {IFimidaraCmdDef} from '../types.js';
 import {copyFileOrFolder} from './copyFileOrFolder.js';
 import {IFimidaraSyncOpts} from './types.js';
 
 export async function fimidaraSync(opts: IFimidaraSyncOpts) {
+  console.log(format(omit(opts, ['authToken'])));
   await copyFileOrFolder(opts);
 }
 
@@ -12,6 +15,7 @@ export const fimidaraSyncCmdDef: IFimidaraCmdDef<IFimidaraSyncOpts> = {
   description: 'Sync a file or folder with fimidara',
   options: [
     kFimidaraCmdOpts.authToken,
+    kFimidaraCmdOpts.serverURL,
     {
       shortName: '-f',
       longName: '--fimidarapath',
@@ -47,7 +51,7 @@ export const fimidaraSyncCmdDef: IFimidaraCmdDef<IFimidaraSyncOpts> = {
     },
     {
       shortName: '-m',
-      longName: '--match',
+      longName: '--matchTree',
       description:
         'match folder tree one-to-one. ' +
         'if "direction" is "up", deletes files in fimidara not found in local, and ' +

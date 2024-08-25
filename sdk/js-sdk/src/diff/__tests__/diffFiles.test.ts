@@ -4,7 +4,7 @@ import {describe, expect, test} from 'vitest';
 import {File as FimidaraFile} from '../../publicTypes.js';
 import {stringifyFimidaraFilename} from '../../utils.js';
 import {diffFiles} from '../diffFiles.js';
-import {FimidaraDiffExternalFile} from '../types.js';
+import type {FimidaraDiffExternalFile} from '../types.js';
 
 type FF = Pick<FimidaraFile, 'name' | 'ext' | 'lastUpdatedAt'>;
 

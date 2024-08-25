@@ -2,7 +2,7 @@ import assert from 'assert';
 import {Dirent, Stats} from 'fs';
 import {stat} from 'fs/promises';
 import path from 'path';
-import {FimidaraDiffExternalFile} from '../diff/types.js';
+import type {FimidaraDiffExternalFile} from '../diff/types.js';
 
 export async function nodeFileToExternalFile(props: {
   dirent?: Pick<Dirent, 'parentPath' | 'name'>;

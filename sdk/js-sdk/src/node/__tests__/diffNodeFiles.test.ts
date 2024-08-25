@@ -4,7 +4,7 @@ import {ensureDir, ensureFile, remove} from 'fs-extra';
 import path from 'path';
 import {isObjectEmpty, loopAndCollate, pathBasename} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {FimidaraDiffExternalFile} from '../../diff/types.js';
+import type {FimidaraDiffExternalFile} from '../../diff/types.js';
 import {File as FimidaraFile} from '../../publicTypes.js';
 import {stringifyFimidaraFilename} from '../../utils.js';
 import {diffNodeFiles} from '../diffNodeFiles.js';

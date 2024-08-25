@@ -4,12 +4,12 @@ import {readFile, writeFile} from 'fs/promises';
 import path from 'path';
 import {indexArray, loopAndCollate} from 'softkave-js-utils';
 import {expect} from 'vitest';
-import {getNodeDirContent} from '../node/getNodeDirContent.js';
-import {File as FimidaraFile} from '../publicTypes.js';
-import {stringifyFimidaraFilename} from '../utils.js';
-import {uploadFileTestExecFn} from './execFns/file.js';
-import {fimidaraTestInstance, fimidaraTestVars} from './tests/file.js';
-import {streamToString} from './utils.js';
+import {getNodeDirContent} from '../../node/getNodeDirContent.js';
+import {File as FimidaraFile} from '../../publicTypes.js';
+import {stringifyFimidaraFilename} from '../../utils.js';
+import {uploadFileTestExecFn} from '../execFns/file.js';
+import {fimidaraTestInstance, fimidaraTestVars} from '../tests/file.js';
+import {streamToString} from '../utils.js';
 
 export async function genLocalFiles(localpath: string, count: number) {
   const text = 'Hello World!';

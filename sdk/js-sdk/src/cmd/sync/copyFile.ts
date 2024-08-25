@@ -1,4 +1,5 @@
-import {createReadStream, createWriteStream, ensureFile, Stats} from 'fs-extra';
+import {createReadStream, createWriteStream} from 'fs';
+import {ensureFile, Stats} from 'fs-extra';
 import {Readable, Writable} from 'stream';
 import {getFimidara} from '../fimidara.js';
 import {IFimidaraCmdOpts} from '../types.js';

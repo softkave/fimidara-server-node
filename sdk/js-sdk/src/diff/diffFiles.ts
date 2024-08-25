@@ -2,7 +2,7 @@ import {isArray} from 'lodash-es';
 import {indexArray} from 'softkave-js-utils';
 import {File as FimidaraFile} from '../publicTypes.js';
 import {stringifyFimidaraFilename} from '../utils.js';
-import {FimidaraDiffExternalFile} from './types.js';
+import type {FimidaraDiffExternalFile} from './types.js';
 
 export function diffFiles<
   TExternalFile extends FimidaraDiffExternalFile = FimidaraDiffExternalFile,
