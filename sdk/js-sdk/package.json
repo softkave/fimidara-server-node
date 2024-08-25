@@ -1,6 +1,6 @@
 {
   "name": "fimidara",
-  "version": "1.23.0",
+  "version": "1.24.0",
   "description": "fimidara file storage service js sdk",
   "author": {
     "email": "ywordk@gmail.com",
@@ -37,9 +37,9 @@
     "fix": "gts fix",
     "prepare": "npm run compile",
     "test": "env-cmd -f \".env.test\" vitest --config ./vitest.config.ts",
-    "publish-to-npm": "npm run compile && npm publish",
-    "publish-to-local": "npm run compile && yalc publish",
-    "show-packlist": "npm run compile && npm pack --dry-run"
+    "publish-to-npm": "npm publish",
+    "publish-to-local": "yalc publish",
+    "show-packlist": "npm pack --dry-run"
   },
   "engines": {
     "node": ">=13"
