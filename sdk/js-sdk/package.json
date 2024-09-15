@@ -1,6 +1,6 @@
 {
   "name": "fimidara",
-  "version": "1.24.3",
+  "version": "1.24.4",
   "description": "fimidara file storage service js sdk",
   "author": {
     "email": "ywordk@gmail.com",
@@ -25,6 +25,31 @@
   "type": "module",
   "main": "./build/index.js",
   "typings": "./build/index.d.ts",
+  "exports": {
+    ".": {
+      "node": {
+        "types": "./build/indexNode.d.ts",
+        "default": "./build/indexNode.js"
+      },
+      "browser": {
+        "types": "./build/indexBrowser.d.ts",
+        "default": "./build/indexBrowser.js"
+      },
+      "default": {
+        "types": "./build/index.d.ts",
+        "default": "./build/index.js"
+      }
+    },
+    "./*": {
+      "types": "./build/*.d.ts",
+      "default": "./build/*.js"
+    },
+    "./node/*": {
+      "types": "./build/node/*.d.ts",
+      "default": "./build/node/*.js"
+    },
+    "./cmd/*": null
+  },
   "files": [
     "build/{*.js,**/*.js}",
     "build/{*.js.map,**/*.js.map}",
