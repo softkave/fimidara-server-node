@@ -1,5 +1,6 @@
 # Server
 
+- regex match for email not working because email contained +
 - do not require rootname if using token
 - there was an error with sharp that broke the instance (maybe not waiting for promise is why it breaks app)
 - in delete jobs, use versions marked deleted for original objects
@@ -39,3 +40,8 @@
 - optimize node diff files
 - optimize copyFolderFiles because currently we fetch all local and fimidara files for diff
   - issue is diff will be incomplete when we diff on paged results
+
+# CLI
+- login
+- mute errors not fatal in fimidara sync
+- maybe add an option to show files and folders interacted with

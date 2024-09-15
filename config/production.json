@@ -1,17 +1,1 @@
-{
-  "clientDomain": "https://www.fimidara.com",
-  "fileBackend": "s3",
-  "emailProvider": "ses",
-  "secretsManagerProvider": "awsSecretsManager",
-  "FLAG_waitlistNewSignups": true,
-  "clientLoginLink": "https://www.fimidara.com/login",
-  "clientSignupLink": "https://www.fimidara.com/signup",
-  "changePasswordLink": "https://www.fimidara.com/change-password",
-  "verifyEmailLink": "https://www.fimidara.com/verify-email",
-  "upgradeWaitlistLink": "https://www.fimidara.com/internal/waitlist",
-  "exposeHttpServer": false,
-  "exposeHttpsServer": true,
-  "httpsPort": "",
-  "httpsPublicKeyFilepath": "./certs/public-key.pem",
-  "httpsPrivateKeyFilepath": "./certs/private-key.pem"
-}
+{}

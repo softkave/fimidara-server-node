@@ -11,7 +11,7 @@ import {
   stringifyFimidaraFilepath,
   stringifyFimidaraFolderpath,
 } from '../../../utils.js';
-import {checkType} from '../checkType.js';
+import {checkFimidaraType} from '../checkType.js';
 import {kFileEntryType} from '../types.js';
 
 describe('checkType', () => {
@@ -29,7 +29,7 @@ describe('checkType', () => {
       file,
       fimidaraTestVars.workspaceRootname
     );
-    const response = await checkType(filepath, {
+    const response = await checkFimidaraType(filepath, {
       authToken: fimidaraTestVars.authToken,
       serverURL: fimidaraTestVars.serverURL,
     });
@@ -54,7 +54,7 @@ describe('checkType', () => {
       folder,
       fimidaraTestVars.workspaceRootname
     );
-    const response = await checkType(folderpath, {
+    const response = await checkFimidaraType(folderpath, {
       authToken: fimidaraTestVars.authToken,
       serverURL: fimidaraTestVars.serverURL,
     });
@@ -75,7 +75,7 @@ describe('checkType', () => {
       {namepath: [faker.number.int({min: 1_000_000}).toString()]},
       fimidaraTestVars.workspaceRootname
     );
-    const response = await checkType(folderpath, {
+    const response = await checkFimidaraType(folderpath, {
       authToken: fimidaraTestVars.authToken,
       serverURL: fimidaraTestVars.serverURL,
     });

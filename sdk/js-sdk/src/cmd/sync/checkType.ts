@@ -10,7 +10,6 @@ async function getFile(fimidarapath: string, opts: IFimidaraCmdOpts) {
     });
     return body.file;
   } catch (error: unknown) {
-    console.error(error);
     return undefined;
   }
 }
@@ -22,12 +21,11 @@ async function getFolder(fimidarapath: string, opts: IFimidaraCmdOpts) {
     });
     return body.folder;
   } catch (error: unknown) {
-    console.error(error);
     return undefined;
   }
 }
 
-export async function checkType(
+export async function checkFimidaraType(
   fimidarapath: string,
   opts: IFimidaraCmdOpts
 ): Promise<
