@@ -107,7 +107,6 @@ async function setup() {
   kUtilsInjectables
     .logger()
     .log(`Workspace ID: ${defaultWorkspace.resourceId}`);
-  kUtilsInjectables.logger().log(`Process ID: ${process.pid}`);
 
   setupJWT();
   setupFimidaraHttpEndpoints(app);

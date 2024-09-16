@@ -1,5 +1,13 @@
 # Server
 
+## Now
+
+## Bugs
+
+- some private endpoints are leaking into rest api and SDK
+
+## Later
+
 - regex match for email not working because email contained +
 - do not require rootname if using token
 - there was an error with sharp that broke the instance (maybe not waiting for promise is why it breaks app)

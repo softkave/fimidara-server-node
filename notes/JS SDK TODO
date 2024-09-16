@@ -1,0 +1,14 @@
+# JS SDK
+
+##  Now
+
+## Bugs
+
+## Later
+
+- support esm and commonjs (current issue is softkave-js-utils only supports esm, and lodash-es + peer deps)
+- readFile typedef should return stream | blob depending on responseType
+- diff files content?
+- optimize node diff files
+- optimize copyFolderFiles because currently we fetch all local and fimidara files for diff
+  - issue is diff will be incomplete when we diff on paged results
