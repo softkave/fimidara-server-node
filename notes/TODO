@@ -8,9 +8,16 @@
 
 ## Later
 
+- when the agent is public, don't return all data
+- add providedId to add and update endpoints for workspace resources
+- test usage records
+- real-time image transform in a different thread
+- multi instance
+- track all changes made with system agent and why
 - regex match for email not working because email contained +
 - do not require rootname if using token
-- there was an error with sharp that broke the instance (maybe not waiting for promise is why it breaks app)
+- there was an error with sharp that broke the instance (maybe not waiting for
+  promise is why it breaks app)
 - in delete jobs, use versions marked deleted for original objects
 - usage records
   - usage records alerting
@@ -35,21 +42,12 @@
 - fix NotFoundException exception thrown from email deliverability check (AWS SES)
 - empty out test s3 bucket and write code to auto clean it after tests
 - download folder as zip
-- match file with node:fs stat, e.g. last accessed, last status change (though we don't have a similar concept), and nano seconds, etc.
+- match file with node:fs stat, e.g. last accessed, last status change (though
+  we don't have a similar concept), and nano seconds, etc.
 - download from anywhere in the internet
 - accept ranges
 - stop workers on sigint
-
-# JS SDK
-
-- support esm and commonjs (current issue is softkave-js-utils only supports esm, and lodash-es + peer deps)
-- readFile typedef should return stream | blob depending on responseType
-- diff files content?
-- optimize node diff files
-- optimize copyFolderFiles because currently we fetch all local and fimidara files for diff
-  - issue is diff will be incomplete when we diff on paged results
-
-# CLI
-- login
-- mute errors not fatal in fimidara sync
-- maybe add an option to show files and folders interacted with
+- use uncreated folder and file path for permissions
+- when surfacing jobs, make sure to not surface all info because a job can start
+  a job owned by a different workspace, like remove collaborator is linked to
+  unassigning a permission group owned by fimidara
