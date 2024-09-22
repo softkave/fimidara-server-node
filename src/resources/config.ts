@@ -5,8 +5,6 @@ import {LoggerType} from '../endpoints/contexts/logger/types.js';
 /** Added after the app initialization phase. */
 export interface FimidaraRuntimeConfig {
   appWorkspaceId: string;
-  appWorkspacesImageUploadPermissionGroupId: string;
-  appUsersImageUploadPermissionGroupId: string;
 }
 
 export const kFimidaraConfigFilePersistenceProvider = {

@@ -1,12 +1,4 @@
 import assert from 'assert';
-import {last} from 'lodash-es';
-import {Folder} from '../../definitions/folder.js';
-import {PermissionGroup} from '../../definitions/permissionGroups.js';
-import {
-  FimidaraPermissionAction,
-  PermissionItem,
-  kFimidaraPermissionActions,
-} from '../../definitions/permissionItem.js';
 import {
   AppRuntimeState,
   SessionAgent,
@@ -14,14 +6,8 @@ import {
 } from '../../definitions/system.js';
 import {Workspace} from '../../definitions/workspace.js';
 import {FimidaraRuntimeConfig} from '../../resources/config.js';
-import {kSystemSessionAgent} from '../../utils/agent.js';
-import {appAssert} from '../../utils/assertion.js';
 import {getTimestamp} from '../../utils/dateFns.js';
-import {
-  getNewIdForResource,
-  kIdSize,
-  newWorkspaceResource,
-} from '../../utils/resource.js';
+import {getNewIdForResource, kIdSize} from '../../utils/resource.js';
 import {makeUserSessionAgent} from '../../utils/sessionUtils.js';
 import {
   kDataModels,
@@ -29,8 +15,6 @@ import {
   kUtilsInjectables,
 } from '../contexts/injection/injectables.js';
 import {kRegisterUtilsInjectables} from '../contexts/injection/register.js';
-import {createFolderList} from '../folders/addFolder/createFolderList.js';
-import {addRootnameToPath} from '../folders/utils.js';
 import EndpointReusableQueries from '../queries.js';
 import {INTERNAL_forgotPassword} from '../users/forgotPassword/forgotPassword.js';
 import {getUserToken} from '../users/login/utils.js';
@@ -54,15 +38,10 @@ export const kAppRuntimeStatsDocId = getNewIdForResource(
 export const kNewSignupsOnWaitlistJobIntervalMs = 1_000 * 60 * 60;
 export const kNewSignupsOnWaitlistJobIdempotencyToken = '1';
 
-const kImagesPath = '/files/images';
 /** 1 hour in ms */
 const kAppSetupVars = {
   workspaceName: 'Fimidara',
   rootname: 'fimidara',
-  workspaceImagesfolderpath: kImagesPath + '/workspaces',
-  userImagesfolderpath: kImagesPath + '/users',
-  workspacesImageUploadPermissionGroupName: 'Fimidara workspaces image upload',
-  usersImageUploadPermissionGroupName: 'Fimidara users image upload',
 };
 
 async function setupWorkspace(
@@ -140,137 +119,6 @@ async function setupDefaultUser() {
   return {user, userToken, agent};
 }
 
-async function setupFolders(workspace: Workspace) {
-  const [workspaceImagesFolders, userImagesFolders] = await Promise.all([
-    createFolderList(
-      kSystemSessionAgent,
-      workspace,
-      {
-        folderpath: addRootnameToPath(
-          kAppSetupVars.workspaceImagesfolderpath,
-          workspace.rootname
-        ),
-      },
-      /** UNSAFE_skipAuthCheck*/ true,
-      /** throwOnFolderExists */ false,
-      /** throwOnError */ true
-    ),
-    createFolderList(
-      kSystemSessionAgent,
-      workspace,
-      {
-        folderpath: addRootnameToPath(
-          kAppSetupVars.userImagesfolderpath,
-          workspace.rootname
-        ),
-      },
-      /** UNSAFE_skipAuthCheck */ true,
-      /** throwOnFolderExists */ false,
-      /** throwOnError */ true
-    ),
-  ]);
-
-  const workspaceImagesFolder = last(workspaceImagesFolders.folders);
-  const userImagesFolder = last(userImagesFolders.folders);
-
-  appAssert(
-    workspaceImagesFolder,
-    `Could not create workspaceImagesFolder from ${kAppSetupVars.workspaceImagesfolderpath}`
-  );
-  appAssert(
-    userImagesFolder,
-    `Could not create userImagesFolder from ${kAppSetupVars.userImagesfolderpath}`
-  );
-  return {workspaceImagesFolder, userImagesFolder};
-}
-
-async function setupImageUploadPermissionGroup(
-  workspaceId: string,
-  name: string,
-  description: string,
-  folder: Folder
-) {
-  return await kSemanticModels.utils().withTxn(async opts => {
-    const existingPermissionGroup = await kSemanticModels
-      .permissionGroup()
-      .getByName(workspaceId, name, opts);
-
-    if (existingPermissionGroup) {
-      return existingPermissionGroup;
-    }
-
-    const imageUploadPermissionGroup = newWorkspaceResource<PermissionGroup>(
-      kSystemSessionAgent,
-      kFimidaraResourceType.PermissionGroup,
-      workspaceId,
-      {name, description}
-    );
-    const actions: FimidaraPermissionAction[] = [
-      kFimidaraPermissionActions.uploadFile,
-      kFimidaraPermissionActions.readFile,
-    ];
-    const permissionItems: PermissionItem[] = actions.map(action => {
-      const containerIds = folder.idPath.slice(0, -1);
-      const targetParentId = containerIds.length
-        ? last(containerIds)
-        : workspaceId;
-      appAssert(targetParentId, 'Could not resolve targetParentId');
-      const item: PermissionItem = newWorkspaceResource<PermissionItem>(
-        kSystemSessionAgent,
-        kFimidaraResourceType.PermissionItem,
-        workspaceId,
-        {
-          action,
-          targetParentId,
-          entityId: imageUploadPermissionGroup.resourceId,
-          entityType: kFimidaraResourceType.PermissionGroup,
-          targetId: folder.resourceId,
-          targetType: kFimidaraResourceType.File,
-          access: true,
-        }
-      );
-      return item;
-    });
-
-    await Promise.all([
-      await kSemanticModels
-        .permissionGroup()
-        .insertItem(imageUploadPermissionGroup, opts),
-      await kSemanticModels.permissionItem().insertItem(permissionItems, opts),
-    ]);
-    return imageUploadPermissionGroup;
-  });
-}
-
-async function setupRootWorkspacePermissionGroups(
-  workspace: Workspace,
-  workspaceImagesFolder: Folder,
-  userImagesFolder: Folder
-) {
-  const [
-    appWorkspacesImageUploadPermissionGroup,
-    appUsersImageUploadPermissionGroup,
-  ] = await Promise.all([
-    setupImageUploadPermissionGroup(
-      workspace.resourceId,
-      kAppSetupVars.workspacesImageUploadPermissionGroupName,
-      'Auto-generated permission group for uploading images to the workspace images folder',
-      workspaceImagesFolder
-    ),
-    setupImageUploadPermissionGroup(
-      workspace.resourceId,
-      kAppSetupVars.usersImageUploadPermissionGroupName,
-      'Auto-generated permission group for uploading images to the user images folder',
-      userImagesFolder
-    ),
-  ]);
-
-  return {
-    appWorkspacesImageUploadPermissionGroup,
-    appUsersImageUploadPermissionGroup,
-  };
-}
-
 export async function isRootWorkspaceSetup() {
   const appRuntimeState = await kDataModels
     .appRuntimeState()
@@ -281,17 +129,8 @@ export async function isRootWorkspaceSetup() {
 }
 
 async function getRootWorkspace(appRuntimeState: AppRuntimeState) {
-  const appRuntimeVars: Pick<
-    FimidaraRuntimeConfig,
-    | 'appWorkspaceId'
-    | 'appUsersImageUploadPermissionGroupId'
-    | 'appWorkspacesImageUploadPermissionGroupId'
-  > = {
+  const appRuntimeVars: FimidaraRuntimeConfig = {
     appWorkspaceId: appRuntimeState.appWorkspaceId,
-    appWorkspacesImageUploadPermissionGroupId:
-      appRuntimeState.appWorkspacesImageUploadPermissionGroupId,
-    appUsersImageUploadPermissionGroupId:
-      appRuntimeState.appUsersImageUploadPermissionGroupId,
   };
 
   kRegisterUtilsInjectables.runtimeConfig(appRuntimeVars);
@@ -302,23 +141,10 @@ async function getRootWorkspace(appRuntimeState: AppRuntimeState) {
   return workspace;
 }
 
-async function insertRuntimeVars(
-  workspace: Workspace,
-  appWorkspacesImageUploadPermissionGroup: PermissionGroup,
-  appUsersImageUploadPermissionGroup: PermissionGroup
-) {
+async function insertRuntimeVars(workspace: Workspace) {
   return await kSemanticModels.utils().withTxn(async opts => {
-    const appRuntimeVars: Pick<
-      FimidaraRuntimeConfig,
-      | 'appWorkspaceId'
-      | 'appUsersImageUploadPermissionGroupId'
-      | 'appWorkspacesImageUploadPermissionGroupId'
-    > = {
+    const appRuntimeVars: FimidaraRuntimeConfig = {
       appWorkspaceId: workspace.resourceId,
-      appWorkspacesImageUploadPermissionGroupId:
-        appWorkspacesImageUploadPermissionGroup.resourceId,
-      appUsersImageUploadPermissionGroupId:
-        appUsersImageUploadPermissionGroup.resourceId,
     };
 
     await kDataModels.appRuntimeState().insertItem(
@@ -343,21 +169,8 @@ async function setupAppArtifacts(agent: SessionAgent) {
     kAppSetupVars.workspaceName,
     kAppSetupVars.rootname
   );
-  const {workspaceImagesFolder, userImagesFolder} =
-    await setupFolders(workspace);
-  const {
-    appWorkspacesImageUploadPermissionGroup,
-    appUsersImageUploadPermissionGroup,
-  } = await setupRootWorkspacePermissionGroups(
-    workspace,
-    workspaceImagesFolder,
-    userImagesFolder
-  );
-  const {appRuntimeVars} = await insertRuntimeVars(
-    workspace,
-    appWorkspacesImageUploadPermissionGroup,
-    appUsersImageUploadPermissionGroup
-  );
+
+  const {appRuntimeVars} = await insertRuntimeVars(workspace);
 
   kRegisterUtilsInjectables.runtimeConfig(appRuntimeVars);
   return workspace;

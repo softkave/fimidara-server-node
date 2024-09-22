@@ -33,12 +33,6 @@ describe('init app setup', () => {
       kSemanticModels.workspace().assertGetOneByQuery({
         resourceId: runtimeVars.appWorkspaceId,
       }),
-      kSemanticModels.permissionGroup().assertGetOneByQuery({
-        resourceId: runtimeVars.appUsersImageUploadPermissionGroupId,
-      }),
-      kSemanticModels.permissionGroup().assertGetOneByQuery({
-        resourceId: runtimeVars.appWorkspacesImageUploadPermissionGroupId,
-      }),
     ]);
 
     expect(runtimeVars.isAppSetup).toBeTruthy();
@@ -49,34 +43,4 @@ describe('init app setup', () => {
     const workspace = await initFimidara();
     expect(workspace.resourceId).toBe(workspaceId);
   });
-
-  // test.each([{waitlistEnabled: true}, {waitlistEnabled: false}])(
-  //   'queues new users on waitlist job if waitlist=$waitlistEnabled',
-  //   async params => {
-  //     kRegisterUtilsInjectables.suppliedConfig({
-  //       ...kUtilsInjectables.suppliedConfig(),
-  //       FLAG_waitlistNewSignups: params.waitlistEnabled,
-  //     });
-
-  //     // Call multiple times to test only 1 job is created
-  //     await initFimidara();
-  //     await initFimidara();
-  //     await initFimidara();
-
-  //     const query: DataQuery<Job> = {
-  //       shard: kAppPresetShards.fimidaraMain,
-  //       type: kJobType.newSignupsOnWaitlist,
-  //       idempotencyToken: kNewSignupsOnWaitlistJobIdempotencyToken,
-  //       runCategory: kJobRunCategory.cron,
-  //       cronInterval: kNewSignupsOnWaitlistJobIntervalMs,
-  //     };
-  //     const dbJobs = await kSemanticModels.job().getManyByQuery(query);
-
-  //     if (params.waitlistEnabled) {
-  //       expect(dbJobs).toHaveLength(1);
-  //     } else {
-  //       expect(dbJobs).toHaveLength(0);
-  //     }
-  //   }
-  // );
 });
