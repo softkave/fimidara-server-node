@@ -5,7 +5,10 @@ import {AgentTokenQueries} from '../../../agentTokens/queries.js';
 import {DataQuery} from '../../data/types.js';
 import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
 import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider.js';
-import {SemanticProviderMutationParams, SemanticProviderQueryParams} from '../types.js';
+import {
+  SemanticProviderMutationParams,
+  SemanticProviderQueryParams,
+} from '../types.js';
 import {SemanticAgentTokenProvider} from './types.js';
 
 export class DataSemanticAgentToken
@@ -18,7 +21,10 @@ export class DataSemanticAgentToken
     opts: SemanticProviderMutationParams
   ): Promise<void> {
     const query = addIsDeletedIntoQuery<DataQuery<AgentToken>>(
-      AgentTokenQueries.getByEntityAndScope({forEntityId: agentId, scope: tokenScope}),
+      AgentTokenQueries.getByEntityAndScope({
+        forEntityId: agentId,
+        scope: tokenScope,
+      }),
       opts?.includeDeleted || true
     );
     await this.softDeleteManyByQuery(query, kSystemSessionAgent, opts);
@@ -30,7 +36,10 @@ export class DataSemanticAgentToken
     opts?: SemanticProviderQueryParams<AgentToken> | undefined
   ): Promise<AgentToken | null> {
     const query = addIsDeletedIntoQuery<DataQuery<AgentToken>>(
-      AgentTokenQueries.getByEntityAndScope({forEntityId: agentId, scope: tokenScope}),
+      AgentTokenQueries.getByEntityAndScope({
+        forEntityId: agentId,
+        scope: tokenScope,
+      }),
       opts?.includeDeleted || false
     );
     return await this.data.getOneByQuery(query, opts);

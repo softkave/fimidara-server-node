@@ -25,10 +25,16 @@ export function isResourcePartOfWorkspace(
     case kFimidaraResourceType.PermissionItem:
     case kFimidaraResourceType.Folder:
     case kFimidaraResourceType.File:
-      return (resource.resource as WorkspaceResource).workspaceId === workspaceId;
+      return (
+        (resource.resource as WorkspaceResource).workspaceId === workspaceId
+      );
     case kFimidaraResourceType.User: {
       const user = resource.resource as UserWithWorkspace;
-      appAssert(user.workspaces, new ServerError(), 'User workspaces not filled in');
+      appAssert(
+        user.workspaces,
+        new ServerError(),
+        'User workspaces not filled in'
+      );
       return !!getCollaboratorWorkspace(
         resource.resource as UserWithWorkspace,
         workspaceId
@@ -50,7 +56,9 @@ export function isResourcePartOfContainer(
     case kFimidaraResourceType.AgentToken:
     case kFimidaraResourceType.PermissionGroup:
     case kFimidaraResourceType.PermissionItem:
-      return (resource.resource as WorkspaceResource).workspaceId === containerId;
+      return (
+        (resource.resource as WorkspaceResource).workspaceId === containerId
+      );
     case kFimidaraResourceType.Folder:
       return (
         (resource.resource as WorkspaceResource).workspaceId === containerId ||
@@ -64,7 +72,11 @@ export function isResourcePartOfContainer(
       );
     case kFimidaraResourceType.User: {
       const user = resource.resource as UserWithWorkspace;
-      appAssert(user.workspaces, new ServerError(), 'User workspaces not filled in');
+      appAssert(
+        user.workspaces,
+        new ServerError(),
+        'User workspaces not filled in'
+      );
       return !!getCollaboratorWorkspace(
         resource.resource as UserWithWorkspace,
         containerId
@@ -79,7 +91,9 @@ export function getResourcesNotPartOfWorkspace(
   workspaceId: string,
   resources: ResourceWrapper[]
 ) {
-  return resources.filter(item => !isResourcePartOfWorkspace(workspaceId, item));
+  return resources.filter(
+    item => !isResourcePartOfWorkspace(workspaceId, item)
+  );
 }
 
 export function getResourcesPartOfWorkspace(
@@ -109,7 +123,10 @@ export function checkResourcesBelongsToWorkspace(
   resources: ResourceWrapper[],
   getErrorFn = returnNotFoundError
 ) {
-  const outsideResources = getResourcesNotPartOfWorkspace(workspaceId, resources);
+  const outsideResources = getResourcesNotPartOfWorkspace(
+    workspaceId,
+    resources
+  );
 
   if (outsideResources.length) {
     throw getErrorFn(outsideResources);
@@ -120,7 +137,9 @@ export function getResourcesNotPartOfContainer(
   containerId: string,
   resources: ResourceWrapper[]
 ) {
-  return resources.filter(item => !isResourcePartOfContainer(containerId, item));
+  return resources.filter(
+    item => !isResourcePartOfContainer(containerId, item)
+  );
 }
 
 export function checkResourcesBelongToContainer(
@@ -128,7 +147,10 @@ export function checkResourcesBelongToContainer(
   resources: ResourceWrapper[],
   getErrorFn = returnNotFoundError
 ) {
-  const outsideResources = getResourcesNotPartOfContainer(containerId, resources);
+  const outsideResources = getResourcesNotPartOfContainer(
+    containerId,
+    resources
+  );
   if (outsideResources.length) {
     throw getErrorFn(outsideResources);
   }
