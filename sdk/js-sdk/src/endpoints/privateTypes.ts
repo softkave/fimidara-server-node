@@ -1,14 +1,63 @@
 // This file is auto-generated, do not modify directly.
 // Reach out to @abayomi to suggest changes.
 
-export type ChangePasswordWithCurrentPasswordEndpointParams = {
-  currentPassword: string;
-  password: string;
+export type GetUserCollaborationRequestEndpointParams = {
+  requestId: string;
 };
 export type AgentType = 'user' | 'agentToken';
 export type Agent = {
   agentId: string;
   agentType: AgentType;
+};
+export type CollaborationRequestStatusType =
+  | 'accepted'
+  | 'declined'
+  | 'revoked'
+  | 'pending';
+export type CollaborationRequestForUser = {
+  resourceId: string;
+  createdBy?: Agent;
+  createdAt: number;
+  lastUpdatedBy?: Agent;
+  lastUpdatedAt: number;
+  isDeleted: boolean;
+  deletedAt?: number;
+  deletedBy?: Agent;
+  recipientEmail: string;
+  message: string;
+  expiresAt?: number;
+  workspaceName: string;
+  readAt?: number;
+  status: CollaborationRequestStatusType;
+  statusDate: number;
+};
+export type GetUserCollaborationRequestEndpointResult = {
+  request: CollaborationRequestForUser;
+};
+export type GetUserCollaborationRequestsEndpointParams = {
+  page?: number;
+  pageSize?: number;
+};
+export type GetUserCollaborationRequestsEndpointResult = {
+  requests: Array<CollaborationRequestForUser>;
+  page: number;
+};
+export type CountItemsResult = {
+  count: number;
+};
+export type CollaborationRequestResponseType = 'accepted' | 'declined';
+export type RespondToCollaborationRequestEndpointParams = {
+  requestId: string;
+  response: CollaborationRequestResponseType;
+};
+export type RespondToCollaborationRequestEndpointResult = {
+  request: CollaborationRequestForUser;
+};
+export type GetCollaboratorsWithoutPermissionEndpointParams = {
+  workspaceId?: string;
+};
+export type GetCollaboratorsWithoutPermissionEndpointResult = {
+  collaboratorIds: Array<string>;
 };
 export type PublicWorkspaceResource = {
   resourceId: string;
@@ -46,6 +95,18 @@ export type LoginResult = {
   token: string;
   clientAssignedToken: string;
 };
+export type UpdateUserEndpointParams = {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+};
+export type UpdateUserEndpointResult = {
+  user: User;
+};
+export type ChangePasswordWithCurrentPasswordEndpointParams = {
+  currentPassword: string;
+  password: string;
+};
 export type ChangePasswordWithTokenEndpointParams = {
   password: string;
 };
@@ -68,24 +129,11 @@ export type UserExistsEndpointParams = {
 export type UserExistsEndpointResult = {
   exists: boolean;
 };
-export type GetCollaboratorsWithoutPermissionEndpointParams = {
-  workspaceId?: string;
+export type AddWorkspaceEndpointParams = {
+  name: string;
+  rootname: string;
+  description?: string;
 };
-export type GetCollaboratorsWithoutPermissionEndpointResult = {
-  collaboratorIds: Array<string>;
-};
-export type GetWaitlistedUsersEndpointParams = {};
-export type GetWaitlistedUsersEndpointResult = {
-  users: Array<User>;
-};
-export type UpgradeWaitlistedUsersEndpointParams = {
-  userIds: Array<string>;
-};
-export type GetUsersEndpointParams = {};
-export type GetUsersEndpointResult = {
-  users: Array<User>;
-};
-export type GetWorkspacesEndpointParams = {};
 export type WorkspaceBillStatus = 'ok' | 'gracePeriod' | 'billOverdue';
 export type UsageRecordCategory =
   | 'total'
@@ -125,6 +173,29 @@ export type Workspace = {
   billStatus: WorkspaceBillStatus;
   usageThresholds: WorkspaceUsageThresholds;
 };
+export type AddWorkspaceEndpointResult = {
+  workspace: Workspace;
+};
+export type GetUserWorkspacesEndpointParams = {
+  page?: number;
+  pageSize?: number;
+};
+export type GetUserWorkspacesEndpointResult = {
+  page: number;
+  workspaces: Array<Workspace>;
+};
+export type GetWaitlistedUsersEndpointParams = {};
+export type GetWaitlistedUsersEndpointResult = {
+  users: Array<User>;
+};
+export type UpgradeWaitlistedUsersEndpointParams = {
+  userIds: Array<string>;
+};
+export type GetUsersEndpointParams = {};
+export type GetUsersEndpointResult = {
+  users: Array<User>;
+};
+export type GetWorkspacesEndpointParams = {};
 export type GetWorkspacesEndpointResult = {
   workspaceList: Array<Workspace>;
 };

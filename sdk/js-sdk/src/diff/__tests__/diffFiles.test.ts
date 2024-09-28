@@ -1,8 +1,8 @@
 import {faker} from '@faker-js/faker';
 import {loopAndCollate, pathBasename} from 'softkave-js-utils';
 import {describe, expect, test} from 'vitest';
-import {File as FimidaraFile} from '../../publicTypes.js';
-import {stringifyFimidaraFilename} from '../../utils.js';
+import {File as FimidaraFile} from '../../endpoints/publicTypes.js';
+import {stringifyFimidaraFilename} from '../../path/index.js';
 import {diffFiles} from '../diffFiles.js';
 import type {FimidaraDiffExternalFile} from '../types.js';
 

@@ -15,52 +15,42 @@
                 "__id": "FieldObjectField",
                 "required": false
             },
-            "config": {
+            "name": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Name, case insensitive"
+                },
+                "__id": "FieldObjectField",
+                "required": true
+            },
+            "description": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Description"
+                },
+                "__id": "FieldObjectField",
+                "required": false
+            },
+            "backend": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "File backend type",
+                    "example": "fimidara",
+                    "valid": {
+                        "0": "fimidara",
+                        "1": "aws-s3"
+                    },
+                    "enumName": "FileBackendType"
+                },
+                "__id": "FieldObjectField",
+                "required": true
+            },
+            "credentials": {
                 "data": {
                     "__id": "FieldObject",
-                    "name": "NewFileBackendConfigInput",
-                    "fields": {
-                        "name": {
-                            "data": {
-                                "__id": "FieldString",
-                                "description": "Name, case insensitive"
-                            },
-                            "__id": "FieldObjectField",
-                            "required": true
-                        },
-                        "description": {
-                            "data": {
-                                "__id": "FieldString",
-                                "description": "Description"
-                            },
-                            "__id": "FieldObjectField",
-                            "required": false
-                        },
-                        "backend": {
-                            "data": {
-                                "__id": "FieldString",
-                                "description": "File backend type",
-                                "example": "fimidara",
-                                "valid": {
-                                    "0": "fimidara",
-                                    "1": "aws-s3"
-                                },
-                                "enumName": "FileBackendType"
-                            },
-                            "__id": "FieldObjectField",
-                            "required": true
-                        },
-                        "credentials": {
-                            "data": {
-                                "__id": "FieldObject",
-                                "fields": {},
-                                "name": "FileBackendConfigCredentials",
-                                "description": "Exact shape depends on backend."
-                            },
-                            "__id": "FieldObjectField",
-                            "required": true
-                        }
-                    }
+                    "fields": {},
+                    "name": "FileBackendConfigCredentials",
+                    "description": "Exact shape depends on backend."
                 },
                 "__id": "FieldObjectField",
                 "required": true

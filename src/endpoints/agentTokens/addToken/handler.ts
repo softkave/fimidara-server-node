@@ -34,7 +34,7 @@ const addAgentTokenEndpoint: AddAgentTokenEndpoint = async reqData => {
   });
 
   const token = await kSemanticModels.utils().withTxn(async opts => {
-    return await INTERNAL_createAgentToken(agent, workspace, data.token, opts);
+    return await INTERNAL_createAgentToken(agent, workspace, data, opts);
   });
 
   appAssert(token.workspaceId);

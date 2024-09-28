@@ -127,7 +127,7 @@ async function makeUserAdmin(
     await addAssignedPermissionGroupList(
       kSystemSessionAgent,
       workspace.resourceId,
-      [{permissionGroupId: adminPermissionGroupId}],
+      [adminPermissionGroupId],
       userId,
       /* deleteExisting */ false,
       /** skip permission groups check */ false,

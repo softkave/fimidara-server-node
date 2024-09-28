@@ -6,12 +6,15 @@ export interface NewTagInput {
   description?: string;
 }
 
-export interface AddTagEndpointParams extends EndpointOptionalWorkspaceIDParam {
-  tag: NewTagInput;
-}
+export interface AddTagEndpointParams
+  extends EndpointOptionalWorkspaceIDParam,
+    NewTagInput {}
 
 export interface AddTagEndpointResult {
   tag: PublicTag;
 }
 
-export type AddTagEndpoint = Endpoint<AddTagEndpointParams, AddTagEndpointResult>;
+export type AddTagEndpoint = Endpoint<
+  AddTagEndpointParams,
+  AddTagEndpointResult
+>;

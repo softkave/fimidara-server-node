@@ -48,12 +48,12 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint =
       .utils()
       .withTxn(async opts => {
         const [existingUser, existingRequest] = await Promise.all([
-          kSemanticModels.user().getByEmail(data.request.recipientEmail),
+          kSemanticModels.user().getByEmail(data.recipientEmail),
           kSemanticModels
             .collaborationRequest()
             .getOneByWorkspaceIdEmail(
               workspace.resourceId,
-              data.request.recipientEmail,
+              data.recipientEmail,
               opts
             ),
         ]);
@@ -90,10 +90,10 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint =
           kFimidaraResourceType.CollaborationRequest,
           workspace.resourceId,
           {
-            message: data.request.message,
+            message: data.message,
             workspaceName: workspace.name,
-            recipientEmail: data.request.recipientEmail,
-            expiresAt: data.request.expires,
+            recipientEmail: data.recipientEmail,
+            expiresAt: data.expires,
             status: kCollaborationRequestStatusTypeMap.Pending,
             statusDate: getTimestamp(),
           }

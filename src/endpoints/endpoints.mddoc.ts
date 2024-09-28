@@ -1,6 +1,5 @@
 import {customAlphabet} from 'nanoid';
 import {AnyObject} from 'softkave-js-utils';
-import {AssignPermissionGroupInput} from '../definitions/permissionGroups.js';
 import {
   FimidaraPermissionAction,
   kFimidaraPermissionActions,
@@ -26,7 +25,6 @@ import {
   LongRunningJobResult,
   MultipleLongRunningJobResult,
 } from './jobs/types.js';
-import {permissionGroupConstants} from './permissionGroups/constants.js';
 import {
   BaseEndpointResult,
   CountItemsEndpointResult,
@@ -321,16 +319,6 @@ const duration = mddocConstruct
 const tokenString = mddocConstruct
   .constructFieldString()
   .setDescription('JWT token string');
-const assignPermissionGroup = mddocConstruct
-  .constructFieldObject<AssignPermissionGroupInput>()
-  .setName('AssignPermissionGroupInput')
-  .setFields({
-    permissionGroupId: mddocConstruct.constructFieldObjectField(true, id),
-  });
-const assignPermissionGroupList = mddocConstruct
-  .constructFieldArray<AssignPermissionGroupInput>()
-  .setType(assignPermissionGroup)
-  .setMax(permissionGroupConstants.maxAssignedPermissionGroups);
 const effectOnReferenced = mddocConstruct
   .constructFieldBoolean()
   .setDescription(
@@ -528,8 +516,6 @@ export const fReusables = {
   description,
   expires,
   duration,
-  assignPermissionGroup,
-  assignPermissionGroupList,
   workspaceId,
   tokenString,
   effectOnReferenced,

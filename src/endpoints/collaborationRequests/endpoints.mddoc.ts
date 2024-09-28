@@ -42,7 +42,6 @@ import {
   RevokeCollaborationRequestEndpointResult,
 } from './revokeRequest/types.js';
 import {
-  CollaborationRequestInput,
   SendCollaborationRequestEndpointParams,
   SendCollaborationRequestEndpointResult,
 } from './sendRequest/types.js';
@@ -84,21 +83,16 @@ const response = mddocConstruct
     kCollaborationRequestStatusTypeMap.Declined,
   ])
   .setEnumName('CollaborationRequestResponseType');
-const newCollaborationRequestInput = mddocConstruct
-  .constructFieldObject<CollaborationRequestInput>()
-  .setName('NewCollaborationRequestInput')
-  .setFields({
-    recipientEmail: mddocConstruct.constructFieldObjectField(true, recipientEmail),
-    message: mddocConstruct.constructFieldObjectField(true, message),
-    expires: mddocConstruct.constructFieldObjectField(false, fReusables.expires),
-  });
 
 const updateCollaborationRequestInput = mddocConstruct
   .constructFieldObject<UpdateCollaborationRequestInput>()
   .setName('UpdateCollaborationRequestInput')
   .setFields({
     message: mddocConstruct.constructFieldObjectField(false, message),
-    expires: mddocConstruct.constructFieldObjectField(false, fReusables.expires),
+    expires: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.expires
+    ),
   });
 
 const collaborationRequestForUser = mddocConstruct
@@ -106,9 +100,15 @@ const collaborationRequestForUser = mddocConstruct
   .setName('CollaborationRequestForUser')
   .setFields({
     ...fReusables.resourceParts,
-    recipientEmail: mddocConstruct.constructFieldObjectField(true, recipientEmail),
+    recipientEmail: mddocConstruct.constructFieldObjectField(
+      true,
+      recipientEmail
+    ),
     message: mddocConstruct.constructFieldObjectField(true, message),
-    expiresAt: mddocConstruct.constructFieldObjectField(false, fReusables.expires),
+    expiresAt: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.expires
+    ),
     workspaceName: mddocConstruct.constructFieldObjectField(
       true,
       fReusables.workspaceName
@@ -122,9 +122,15 @@ const collaborationRequestForWorkspace = mddocConstruct
   .setName('CollaborationRequestForWorkspace')
   .setFields({
     ...fReusables.workspaceResourceParts,
-    recipientEmail: mddocConstruct.constructFieldObjectField(true, recipientEmail),
+    recipientEmail: mddocConstruct.constructFieldObjectField(
+      true,
+      recipientEmail
+    ),
     message: mddocConstruct.constructFieldObjectField(true, message),
-    expiresAt: mddocConstruct.constructFieldObjectField(false, fReusables.expires),
+    expiresAt: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.expires
+    ),
     workspaceName: mddocConstruct.constructFieldObjectField(
       true,
       fReusables.workspaceName
@@ -138,8 +144,19 @@ const sendCollaborationRequestParams = mddocConstruct
   .constructFieldObject<SendCollaborationRequestEndpointParams>()
   .setName('SendCollaborationRequestEndpointParams')
   .setFields({
-    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceId),
-    request: mddocConstruct.constructFieldObjectField(true, newCollaborationRequestInput),
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceId
+    ),
+    recipientEmail: mddocConstruct.constructFieldObjectField(
+      true,
+      recipientEmail
+    ),
+    message: mddocConstruct.constructFieldObjectField(true, message),
+    expires: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.expires
+    ),
   });
 const sendCollaborationRequestResponseBody = mddocConstruct
   .constructFieldObject<SendCollaborationRequestEndpointResult>()
@@ -159,7 +176,10 @@ const getWorkspaceCollaborationRequestsParams = mddocConstruct
       fReusables.workspaceIdInput
     ),
     page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
-    pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
+    pageSize: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.pageSize
+    ),
   });
 const getWorkspaceCollaborationRequestsResponseBody = mddocConstruct
   .constructFieldObject<GetWorkspaceCollaborationRequestsEndpointResult>()
@@ -187,7 +207,10 @@ const getUserCollaborationRequestsParams = mddocConstruct
   .setName('GetUserCollaborationRequestsEndpointParams')
   .setFields({
     page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
-    pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
+    pageSize: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.pageSize
+    ),
   });
 const getUserCollaborationRequestsResponseBody = mddocConstruct
   .constructFieldObject<GetUserCollaborationRequestsEndpointResult>()
@@ -231,7 +254,10 @@ const respondToCollaborationRequestResponseBody = mddocConstruct
   .constructFieldObject<RespondToCollaborationRequestEndpointResult>()
   .setName('RespondToCollaborationRequestEndpointResult')
   .setFields({
-    request: mddocConstruct.constructFieldObjectField(true, collaborationRequestForUser),
+    request: mddocConstruct.constructFieldObjectField(
+      true,
+      collaborationRequestForUser
+    ),
   });
 const getCollaborationRequestForUserParams = mddocConstruct
   .constructFieldObject<GetUserCollaborationRequestEndpointParams>()
@@ -243,7 +269,10 @@ const getCollaborationRequestForUserResponseBody = mddocConstruct
   .constructFieldObject<GetUserCollaborationRequestEndpointResult>()
   .setName('GetUserCollaborationRequestEndpointResult')
   .setFields({
-    request: mddocConstruct.constructFieldObjectField(true, collaborationRequestForUser),
+    request: mddocConstruct.constructFieldObjectField(
+      true,
+      collaborationRequestForUser
+    ),
   });
 const getCollaborationRequestForWorkspaceParams = mddocConstruct
   .constructFieldObject<GetWorkspaceCollaborationRequestEndpointParams>()
@@ -312,7 +341,9 @@ export const sendCollaborationRequestEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(sendCollaborationRequestResponseBody)
   .setName('SendCollaborationRequestEndpoint');
 
@@ -343,7 +374,9 @@ export const getUserCollaborationRequestEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(getCollaborationRequestForUserResponseBody)
   .setName('GetUserCollaborationRequestEndpoint');
 
@@ -374,7 +407,9 @@ export const getWorkspaceCollaborationRequestEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(getCollaborationRequestForWorkspaceResponseBody)
   .setName('GetWorkspaceCollaborationRequestEndpoint');
 
@@ -405,7 +440,9 @@ export const updateCollaborationRequestEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(updateCollaborationRequestResponseBody)
   .setName('UpdateCollaborationRequestEndpoint');
 
@@ -436,7 +473,9 @@ export const respondToCollaborationRequestEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(respondToCollaborationRequestResponseBody)
   .setName('RespondToCollaborationRequestEndpoint');
 
@@ -467,7 +506,9 @@ export const revokeCollaborationRequestEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(revokeCollaborationRequestResponseBody)
   .setName('RevokeCollaborationRequestEndpoint');
 
@@ -498,40 +539,45 @@ export const deleteCollaborationRequestEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
   .setName('DeleteCollaborationRequestEndpoint');
 
-export const getWorkspaceCollaborationRequestsEndpointDefinition = mddocConstruct
-  .constructHttpEndpointDefinition<
-    InferFieldObjectType<
-      GetWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['requestHeaders']
-    >,
-    InferFieldObjectType<
-      GetWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
-    >,
-    InferFieldObjectType<
-      GetWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['query']
-    >,
-    InferFieldObjectOrMultipartType<
-      GetWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['requestBody']
-    >,
-    InferFieldObjectType<
-      GetWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
-    >,
-    InferFieldObjectType<
-      GetWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['responseBody']
-    >
-  >()
-  .setBasePathname(collabRequestConstants.routes.getWorkspaceRequests)
-  .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(getWorkspaceCollaborationRequestsParams)
-  .setRequestHeaders(
-    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
-  )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
-  .setResponseBody(getWorkspaceCollaborationRequestsResponseBody)
-  .setName('GetWorkspaceCollaborationRequestsEndpoint');
+export const getWorkspaceCollaborationRequestsEndpointDefinition =
+  mddocConstruct
+    .constructHttpEndpointDefinition<
+      InferFieldObjectType<
+        GetWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+      >,
+      InferFieldObjectType<
+        GetWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+      >,
+      InferFieldObjectType<
+        GetWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['query']
+      >,
+      InferFieldObjectOrMultipartType<
+        GetWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['requestBody']
+      >,
+      InferFieldObjectType<
+        GetWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+      >,
+      InferFieldObjectType<
+        GetWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['responseBody']
+      >
+    >()
+    .setBasePathname(collabRequestConstants.routes.getWorkspaceRequests)
+    .setMethod(HttpEndpointMethod.Post)
+    .setRequestBody(getWorkspaceCollaborationRequestsParams)
+    .setRequestHeaders(
+      mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+    )
+    .setResponseHeaders(
+      mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+    )
+    .setResponseBody(getWorkspaceCollaborationRequestsResponseBody)
+    .setName('GetWorkspaceCollaborationRequestsEndpoint');
 
 export const getUserCollaborationRequestsEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -560,7 +606,9 @@ export const getUserCollaborationRequestsEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(getUserCollaborationRequestsResponseBody)
   .setName('GetUserCollaborationRequestsEndpoint');
 
@@ -590,37 +638,42 @@ export const countUserCollaborationRequestsEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
   .setName('CountUserCollaborationRequestsEndpoint');
 
-export const countWorkspaceCollaborationRequestsEndpointDefinition = mddocConstruct
-  .constructHttpEndpointDefinition<
-    InferFieldObjectType<
-      CountWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['requestHeaders']
-    >,
-    InferFieldObjectType<
-      CountWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
-    >,
-    InferFieldObjectType<
-      CountWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['query']
-    >,
-    InferFieldObjectOrMultipartType<
-      CountWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['requestBody']
-    >,
-    InferFieldObjectType<
-      CountWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
-    >,
-    InferFieldObjectType<
-      CountWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['responseBody']
-    >
-  >()
-  .setBasePathname(collabRequestConstants.routes.countWorkspaceRequests)
-  .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(countWorkspaceCollaborationRequestsParams)
-  .setRequestHeaders(
-    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
-  )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
-  .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
-  .setName('CountWorkspaceCollaborationRequestsEndpoint');
+export const countWorkspaceCollaborationRequestsEndpointDefinition =
+  mddocConstruct
+    .constructHttpEndpointDefinition<
+      InferFieldObjectType<
+        CountWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+      >,
+      InferFieldObjectType<
+        CountWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+      >,
+      InferFieldObjectType<
+        CountWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['query']
+      >,
+      InferFieldObjectOrMultipartType<
+        CountWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['requestBody']
+      >,
+      InferFieldObjectType<
+        CountWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+      >,
+      InferFieldObjectType<
+        CountWorkspaceCollaborationRequestsHttpEndpoint['mddocHttpDefinition']['responseBody']
+      >
+    >()
+    .setBasePathname(collabRequestConstants.routes.countWorkspaceRequests)
+    .setMethod(HttpEndpointMethod.Post)
+    .setRequestBody(countWorkspaceCollaborationRequestsParams)
+    .setRequestHeaders(
+      mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+    )
+    .setResponseHeaders(
+      mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+    )
+    .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
+    .setName('CountWorkspaceCollaborationRequestsEndpoint');

@@ -2,6 +2,10 @@ import {faker} from '@faker-js/faker';
 import {sortStringListLexicographically} from 'softkave-js-utils';
 import {describe, expect, test} from 'vitest';
 import {
+  stringifyFimidaraFilename,
+  stringifyFimidaraFolderpath,
+} from '../../path/index.js';
+import {
   genFimidaraFiles,
   genFimidaraFolders,
 } from '../../testutils/sync/syncUtils.js';
@@ -9,10 +13,6 @@ import {
   fimidaraTestInstance,
   fimidaraTestVars,
 } from '../../testutils/tests/file.js';
-import {
-  stringifyFimidaraFilename,
-  stringifyFimidaraFolderpath,
-} from '../../utils.js';
 import {getFullFolderContent} from '../getFullFolderContent.js';
 
 describe('getFullFolderContent', () => {
@@ -30,7 +30,7 @@ describe('getFullFolderContent', () => {
     );
 
     const {files, folders} = await getFullFolderContent(fimidaraTestInstance, {
-      body: {folderpath: fimidarapath},
+      folderpath: fimidarapath,
     });
 
     const responseFilenames = files.map(stringifyFimidaraFilename);

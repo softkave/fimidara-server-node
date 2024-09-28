@@ -23,7 +23,7 @@ const addFolder: AddFolderEndpoint = async reqData => {
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );
-  const pathinfo = getFolderpathInfo(data.folder.folderpath, {
+  const pathinfo = getFolderpathInfo(data.folderpath, {
     containsRootname: true,
     allowRootFolder: false,
   });
@@ -36,7 +36,7 @@ const addFolder: AddFolderEndpoint = async reqData => {
   const {folders, failedInput} = await createFolderList(
     agent,
     workspace,
-    data.folder,
+    data,
     /** UNSAFE_skipAuthCheck */ false,
     /** throwOnFolderExists */ true,
     /** throwOnError */ false

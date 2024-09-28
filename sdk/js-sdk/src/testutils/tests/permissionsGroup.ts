@@ -1,17 +1,17 @@
 import {expect} from 'vitest';
-import {FimidaraEndpoints} from '../../publicEndpoints.js';
+import {FimidaraEndpoints} from '../../endpoints/publicEndpoints.js';
 import {
   addPermissionGroupTestExecFn,
   deletePermissionGroupTestExecFn,
   getPermissionGroupTestExecFn,
-  setupWorkspacePermissionGroupsTestExecFn,
   getWorkspacePermissionGroupsTestExecFn,
+  setupWorkspacePermissionGroupsTestExecFn,
   updatePermissionGroupTestExecFn,
 } from '../execFns/permissionGroups.js';
 import {
   ITestVars,
-  getTestVars,
   containsNoneIn,
+  getTestVars,
   indexByResourceId,
 } from '../utils.js';
 
@@ -47,11 +47,11 @@ export const test_getWorkspacePermissionGroups = async () => {
       page: 1,
     }),
   ]);
-  expect(result00.body.page).toBe(0);
-  expect(result01.body.page).toBe(1);
+  expect(result00.page).toBe(0);
+  expect(result01.page).toBe(1);
   containsNoneIn(
-    result00.body.permissionGroups,
-    result01.body.permissionGroups,
+    result00.permissionGroups,
+    result01.permissionGroups,
     indexByResourceId
   );
 };

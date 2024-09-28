@@ -1,10 +1,10 @@
 import {rm} from 'fs/promises';
 import {chunk} from 'lodash-es';
-import path from 'path';
+import path from 'path-browserify';
 import {getFullFolderContent} from '../../folder/getFullFolderContent.js';
 import {diffNodeFiles} from '../../node/diffNodeFiles.js';
 import {getNodeDirContent} from '../../node/getNodeDirContent.js';
-import {stringifyFimidaraFilename} from '../../utils.js';
+import {stringifyFimidaraFilename} from '../../path/index.js';
 import {getFimidara} from '../fimidara.js';
 import {IFimidaraCmdOpts} from '../types.js';
 import {copyToFimidaraFile, copyToLocalFile} from './copyFile.js';
@@ -18,7 +18,8 @@ export async function copyFolderFiles(
   pageSize = 20
 ) {
   const {files} = await getFullFolderContent(getFimidara(opts), {
-    body: {folderpath: fimidarapath, contentType: 'file'},
+    folderpath: fimidarapath,
+    contentType: 'file',
   });
 
   const {
@@ -60,7 +61,7 @@ export async function copyFolderFiles(
             const fname = stringifyFimidaraFilename(ff);
             const ffpath = path.posix.join(fimidarapath, fname);
             await getFimidara(opts).files.deleteFile({
-              body: {filepath: ffpath},
+              filepath: ffpath,
             });
           })
         );

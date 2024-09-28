@@ -1,10 +1,10 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {extractResourceIdList} from '../../../utils/fns.js';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
 import RequestData from '../../RequestData.js';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator.js';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -30,7 +30,9 @@ describe('unassignPermissionGroups', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     const agent = makeUserSessionAgent(rawUser, userToken);
     const [pgList01, cList01] = await Promise.all([
-      generateAndInsertPermissionGroupListForTest(2, {workspaceId: workspace.resourceId}),
+      generateAndInsertPermissionGroupListForTest(2, {
+        workspaceId: workspace.resourceId,
+      }),
       generateAndInsertCollaboratorListForTest(agent, workspace.resourceId, 2),
     ]);
     const cList01Ids = extractResourceIdList(cList01);
@@ -43,11 +45,14 @@ describe('unassignPermissionGroups', () => {
     );
 
     const result01 = await unassignPermissionGroups(
-      RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
-        workspaceId: workspace.resourceId,
-        permissionGroups: pgList01Ids,
-        entityId: cList01Ids,
-      })
+      RequestData.fromExpressRequest(
+        mockExpressRequestWithAgentToken(userToken),
+        {
+          workspaceId: workspace.resourceId,
+          permissionGroupId: pgList01Ids,
+          entityId: cList01Ids,
+        }
+      )
     );
     assertEndpointResultOk(result01);
 

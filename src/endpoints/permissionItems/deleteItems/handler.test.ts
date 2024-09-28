@@ -40,13 +40,13 @@ test('permission items deleted', async () => {
   await Promise.all([
     insertPermissionItemsForTest(userToken, workspace.resourceId, {
       entityId: pg01.resourceId,
-      target: {targetId: workspace.resourceId},
+      targetId: workspace.resourceId,
       access: true,
       action: kFimidaraPermissionActions.addTag,
     }),
     insertPermissionItemsForTest(userToken, workspace.resourceId, {
       entityId: pg02.resourceId,
-      target: {targetId: workspace.resourceId},
+      targetId: workspace.resourceId,
       access: true,
       action: kFimidaraPermissionActions.addTag,
     }),
@@ -57,7 +57,7 @@ test('permission items deleted', async () => {
     items: [
       {
         action: kFimidaraPermissionActions.addTag,
-        target: {targetId: workspace.resourceId},
+        targetId: workspace.resourceId,
         entityId: pg01.resourceId,
       },
       {entityId: pg02.resourceId},
@@ -89,12 +89,7 @@ test('permission items deleted', async () => {
     jobs,
     params.items,
     job => {
-      const item: DeletePermissionItemInput = {
-        access: job.params.access,
-        action: job.params.action,
-        entityId: job.params.entityId,
-        target: job.params.target,
-      };
+      const item: DeletePermissionItemInput = job.params;
       return JSON.stringify(sortObjectKeys(item));
     },
     item => JSON.stringify(sortObjectKeys(item))

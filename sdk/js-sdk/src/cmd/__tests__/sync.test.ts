@@ -1,6 +1,6 @@
 import {ensureDir} from 'fs-extra';
 import {rm} from 'fs/promises';
-import path from 'path';
+import path from 'path-browserify';
 import {afterAll, beforeAll, describe, test} from 'vitest';
 import {$} from 'zx';
 import {

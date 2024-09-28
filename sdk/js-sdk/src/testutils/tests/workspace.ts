@@ -1,4 +1,4 @@
-import {FimidaraEndpoints} from '../../publicEndpoints.js';
+import {FimidaraEndpoints} from '../../endpoints/publicEndpoints.js';
 import {
   getWorkspaceTestExecFn,
   updateWorkspaceTestExecFn,

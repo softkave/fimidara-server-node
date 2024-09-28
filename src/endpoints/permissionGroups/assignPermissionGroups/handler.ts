@@ -1,4 +1,4 @@
-import {toNonNullableArray} from '../../../utils/fns.js';
+import {convertToArray} from 'softkave-js-utils';
 import {validate} from '../../../utils/validate.js';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
@@ -30,7 +30,10 @@ const assignPermissionGroups: AssignPermissionGroupsEndpoint =
       workspaceId: workspace.resourceId,
       target: {targetId: workspace.resourceId, action: 'updatePermission'},
     });
-    const entityIdList = toNonNullableArray(data.entityId);
+
+    const entityIdList = convertToArray(data.entityId);
+    const pgIdList = convertToArray(data.permissionGroupId);
+
     await Promise.all([
       await checkPermissionEntitiesExist(
         agent,
@@ -38,10 +41,7 @@ const assignPermissionGroups: AssignPermissionGroupsEndpoint =
         entityIdList,
         'updatePermission'
       ),
-      await checkPermissionGroupsExist(
-        workspace.resourceId,
-        data.permissionGroups
-      ),
+      await checkPermissionGroupsExist(workspace.resourceId, pgIdList),
     ]);
 
     await kSemanticModels.utils().withTxn(async opts => {
@@ -64,10 +64,7 @@ const assignPermissionGroups: AssignPermissionGroupsEndpoint =
       const unassignedPermissionGroupsByEntity = entityIdList.map(
         (entityId, i) => {
           const {inheritanceMap} = existingPermissionGroups[i];
-          return data.permissionGroups.filter(
-            permissionGroup =>
-              !inheritanceMap[permissionGroup.permissionGroupId]
-          );
+          return pgIdList.filter(pgId => !inheritanceMap[pgId]);
         }
       );
 

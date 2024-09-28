@@ -28,18 +28,6 @@
         "delete"
     ],
     [
-        "/v1/collaborationRequests/getUserRequest",
-        "post"
-    ],
-    [
-        "/v1/collaborationRequests/getUserRequests",
-        "post"
-    ],
-    [
-        "/v1/collaborationRequests/countUserRequests",
-        "post"
-    ],
-    [
         "/v1/collaborationRequests/getWorkspaceRequest",
         "post"
     ],
@@ -49,10 +37,6 @@
     ],
     [
         "/v1/collaborationRequests/countWorkspaceRequests",
-        "post"
-    ],
-    [
-        "/v1/collaborationRequests/respondToRequest",
         "post"
     ],
     [
@@ -197,26 +181,6 @@
     ],
     [
         "/v1/usageRecords/countWorkspaceSummedUsage",
-        "post"
-    ],
-    [
-        "/v1/users/getUserData",
-        "post"
-    ],
-    [
-        "/v1/users/updateUser",
-        "post"
-    ],
-    [
-        "/v1/workspaces/addWorkspace",
-        "post"
-    ],
-    [
-        "/v1/workspaces/getUserWorkspaces",
-        "post"
-    ],
-    [
-        "/v1/workspaces/countUserWorkspaces",
         "post"
     ],
     [

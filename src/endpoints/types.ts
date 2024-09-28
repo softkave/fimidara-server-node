@@ -142,6 +142,7 @@ export type ExportedHttpEndpointWithMddocDefinition<
   TResponseBody extends AnyObject = InferEndpointResult<TEndpoint>,
   TSdkParams extends AnyObject = TRequestBody,
 > = {
+  tag: string[];
   fn: TEndpoint;
   mddocHttpDefinition: HttpEndpointDefinitionType<
     TRequestHeaders,
@@ -198,3 +199,8 @@ export interface EndpointResultNote {
   code: EndpointResultNoteCode;
   message: string;
 }
+
+export const kEndpointTag = {
+  public: 'public',
+  private: 'private',
+} as const;

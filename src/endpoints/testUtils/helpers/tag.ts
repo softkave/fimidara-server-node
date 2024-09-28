@@ -20,11 +20,9 @@ export async function insertTagForTest(
       : mockExpressRequestForPublicAgent(),
     {
       workspaceId,
-      tag: {
-        name: faker.lorem.words(),
-        description: faker.lorem.paragraph(),
-        ...tagInput,
-      },
+      name: faker.lorem.words(),
+      description: faker.lorem.paragraph(),
+      ...tagInput,
     }
   );
 

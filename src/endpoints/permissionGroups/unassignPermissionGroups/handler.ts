@@ -32,7 +32,7 @@ const unassignPermissionGroups: UnassignPermissionGroupsEndpoint =
 
     const queries: LiteralDataQuery<AssignedItem>[] = [];
     convertToArray(data.entityId).forEach(entityId => {
-      convertToArray(data.permissionGroups).forEach(pId => {
+      convertToArray(data.permissionGroupId).forEach(pId => {
         queries.push({assignedItemId: pId, assigneeId: entityId});
       });
     });

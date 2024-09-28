@@ -1,10 +1,11 @@
-# fimidara JS SDK
+# fimidara
 
-JS SDK for [fimidara](https://www.fimidara.com), a file storage service. [Click here for docs](https://www.fimidara.com/docs/fimidara-js-sdk).
+JavaScript SDK for [fimidara.com](https://www.fimidara.com), a file storage service. See docs at [https://www.fimidara.com/docs/fimidara-js-sdk](https://www.fimidara.com/docs/fimidara-js-sdk).
 
 ## Installation
 
-`npm install fimidara` or `yarn add fimidara`
+- `npm install fimidara`
+- `yarn add fimidara`
 
 ## Usage
 
@@ -17,31 +18,23 @@ const fimidaraEndpoints = new fimidara.FimidaraEndpoints({
   authToken: '<your auth token>',
 });
 
-// perform operations
-const file = fimidara.file.readFile({
-  body: {
-    filepath: 'workspace-rootname/folder/path/to/file.png',
-    imageTransformation: {
-      width: 100, // 100px
-      height: 100, // 100px
-    },
-  },
-});
-
 // change auth token
 fimidara.setConfig({authToken: '<new auth token>'});
+
+// perform operations
+const file = fimidara.file.readFile({
+  filepath: 'workspace-rootname/folder/path/to/file.png',
+});
 
 // display file
 <img
   src={fimidara.getFimidaraReadFileURL({
     filepath: 'workspace-rootname/folder/path/to/file.png',
-    width: 100, // 100px
-    height: 100, // 100px
   })}
 />;
 
 // get upload file URL for form uploads
-const uploadFileURL = fimidara.getUploadFileURL({
+const uploadFileURL = fimidara.getFimidaraUploadFileURL({
   filepath: 'workspace-rootname/folder/path/to/file.png',
 });
 ```

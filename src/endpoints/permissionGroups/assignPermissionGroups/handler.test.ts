@@ -1,12 +1,12 @@
 import assert from 'assert';
 import {first} from 'lodash-es';
-import {afterAll, beforeAll, describe, test} from 'vitest';
-import {extractResourceIdList, getResourceId} from '../../../utils/fns.js';
+import {sortStringListLexicographically} from 'softkave-js-utils';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {extractResourceIdList} from '../../../utils/fns.js';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
 import RequestData from '../../RequestData.js';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator.js';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup.js';
-import {expectContainsExactlyForAnyType} from '../../testUtils/helpers/assertion.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
@@ -16,10 +16,7 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
 import {fetchEntityAssignedPermissionGroupList} from '../getEntityAssignedPermissionGroups/utils.js';
-import {
-  makeKeyFromAssignedPermissionGroupMetaOrInput,
-  toAssignedPgListInput,
-} from '../testUtils.js';
+import {toAssignedPgListInput} from '../testUtils.js';
 import assignPermissionGroups from './handler.js';
 
 beforeAll(async () => {
@@ -48,7 +45,7 @@ describe('assignPermissionGroups', () => {
         mockExpressRequestWithAgentToken(userToken),
         {
           workspaceId: workspace.resourceId,
-          permissionGroups: pgList01Input,
+          permissionGroupId: pgList01Input,
           entityId: extractResourceIdList(collaboratorList),
         }
       )
@@ -61,12 +58,11 @@ describe('assignPermissionGroups', () => {
       )
     );
     permissionGroupsResult.forEach(next => {
-      expectContainsExactlyForAnyType(
-        next.permissionGroups,
-        pgList01Input,
-        getResourceId,
-        makeKeyFromAssignedPermissionGroupMetaOrInput
-      );
+      expect(
+        sortStringListLexicographically(
+          extractResourceIdList(next.permissionGroups)
+        )
+      ).toEqual(sortStringListLexicographically(pgList01Input));
     });
   });
 
@@ -89,7 +85,7 @@ describe('assignPermissionGroups', () => {
         mockExpressRequestWithAgentToken(userToken),
         {
           workspaceId: workspace.resourceId,
-          permissionGroups: pgList01Input,
+          permissionGroupId: pgList01Input,
           entityId: collaborator.resourceId,
         }
       )
@@ -100,11 +96,10 @@ describe('assignPermissionGroups', () => {
       collaborator.resourceId,
       false
     );
-    expectContainsExactlyForAnyType(
-      permissionGroupsResult.permissionGroups,
-      pgList01Input,
-      getResourceId,
-      makeKeyFromAssignedPermissionGroupMetaOrInput
-    );
+    expect(
+      sortStringListLexicographically(
+        extractResourceIdList(permissionGroupsResult.permissionGroups)
+      )
+    ).toEqual(sortStringListLexicographically(pgList01Input));
   });
 });

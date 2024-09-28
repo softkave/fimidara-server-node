@@ -1,21 +1,14 @@
 import Joi from 'joi';
 import {kValidationSchemas} from '../../../utils/validationUtils.js';
 import userValidationSchemas from '../../users/validation.js';
-import {
-  CollaborationRequestInput,
-  SendCollaborationRequestEndpointParams,
-} from './types.js';
-
-export const requestJoiSchema = Joi.object<CollaborationRequestInput>().keys({
-  recipientEmail: userValidationSchemas.email.required(),
-  message: kValidationSchemas.description.allow(null),
-  expires: kValidationSchemas.time.allow(null),
-});
+import {SendCollaborationRequestEndpointParams} from './types.js';
 
 export const sendCollaborationRequestJoiSchema =
   Joi.object<SendCollaborationRequestEndpointParams>()
     .keys({
       workspaceId: kValidationSchemas.resourceId,
-      request: requestJoiSchema.required(),
+      recipientEmail: userValidationSchemas.email.required(),
+      message: kValidationSchemas.description.allow(null),
+      expires: kValidationSchemas.time.allow(null),
     })
     .required();

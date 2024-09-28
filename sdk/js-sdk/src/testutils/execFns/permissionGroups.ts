@@ -3,14 +3,14 @@ import assert from 'assert';
 import {merge} from 'lodash-es';
 import {loopAndCollateAsync} from 'softkave-js-utils';
 import {PartialDeep} from 'type-fest';
-import {FimidaraEndpoints} from '../../publicEndpoints.js';
+import {FimidaraEndpoints} from '../../endpoints/publicEndpoints.js';
 import {
   AddPermissionGroupEndpointParams,
   DeletePermissionGroupEndpointParams,
   GetPermissionGroupEndpointParams,
   GetWorkspacePermissionGroupsEndpointParams,
   UpdatePermissionGroupEndpointParams,
-} from '../../publicTypes.js';
+} from '../../endpoints/publicTypes.js';
 import {ITestVars} from '../utils.js';
 
 export async function addPermissionGroupTestExecFn(
@@ -19,15 +19,11 @@ export async function addPermissionGroupTestExecFn(
   props: PartialDeep<AddPermissionGroupEndpointParams> = {}
 ) {
   const genInput: AddPermissionGroupEndpointParams = {
-    permissionGroup: {
-      name: faker.lorem.words(),
-      description: faker.lorem.sentence(),
-    },
+    name: faker.lorem.words(),
+    description: faker.lorem.sentence(),
   };
   const input: AddPermissionGroupEndpointParams = merge(genInput, props);
-  const result = await endpoint.permissionGroups.addPermissionGroup({
-    body: input,
-  });
+  const result = await endpoint.permissionGroups.addPermissionGroup(input);
   return result;
 }
 
@@ -49,9 +45,9 @@ export async function getWorkspacePermissionGroupsTestExecFn(
   vars: ITestVars,
   props: GetWorkspacePermissionGroupsEndpointParams
 ) {
-  const result = await endpoint.permissionGroups.getWorkspacePermissionGroups({
-    body: props,
-  });
+  const result = await endpoint.permissionGroups.getWorkspacePermissionGroups(
+    props
+  );
   return result;
 }
 
@@ -63,16 +59,14 @@ export async function getPermissionGroupTestExecFn(
   let permissionGroupId = props.permissionGroupId;
   if (!permissionGroupId) {
     const permissionGroup = await addPermissionGroupTestExecFn(endpoint, vars);
-    permissionGroupId = permissionGroup.body.permissionGroup.resourceId;
+    permissionGroupId = permissionGroup.permissionGroup.resourceId;
   }
   assert.ok(permissionGroupId);
   const input: GetPermissionGroupEndpointParams = {
     permissionGroupId: permissionGroupId,
   };
-  const result = await endpoint.permissionGroups.getPermissionGroup({
-    body: input,
-  });
-  assert(result.body.permissionGroup.resourceId === permissionGroupId);
+  const result = await endpoint.permissionGroups.getPermissionGroup(input);
+  assert(result.permissionGroup.resourceId === permissionGroupId);
   return result;
 }
 
@@ -84,15 +78,13 @@ export async function deletePermissionGroupTestExecFn(
   let permissionGroupId = props.permissionGroupId;
   if (!permissionGroupId) {
     const permissionGroup = await addPermissionGroupTestExecFn(endpoint, vars);
-    permissionGroupId = permissionGroup.body.permissionGroup.resourceId;
+    permissionGroupId = permissionGroup.permissionGroup.resourceId;
   }
   assert.ok(permissionGroupId);
   const input: DeletePermissionGroupEndpointParams = {
     permissionGroupId: permissionGroupId,
   };
-  const result = await endpoint.permissionGroups.deletePermissionGroup({
-    body: input,
-  });
+  await endpoint.permissionGroups.deletePermissionGroup(input);
 }
 
 export async function updatePermissionGroupTestExecFn(
@@ -104,7 +96,7 @@ export async function updatePermissionGroupTestExecFn(
 
   if (!permissionGroupId) {
     const permissionGroup = await addPermissionGroupTestExecFn(endpoint, vars);
-    permissionGroupId = permissionGroup.body.permissionGroup.resourceId;
+    permissionGroupId = permissionGroup.permissionGroup.resourceId;
   }
 
   assert.ok(permissionGroupId);
@@ -112,8 +104,7 @@ export async function updatePermissionGroupTestExecFn(
     permissionGroupId: permissionGroupId,
     data: {description: faker.lorem.words()},
   };
-  const result = await endpoint.permissionGroups.updatePermissionGroup({
-    body: input,
-  });
+  const result = await endpoint.permissionGroups.updatePermissionGroup(input);
+
   return result;
 }

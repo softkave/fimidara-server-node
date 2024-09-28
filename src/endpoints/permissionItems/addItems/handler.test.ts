@@ -57,7 +57,7 @@ describe('addItems', () => {
       (action): PermissionItemInput => ({
         action,
         access: grantAccess,
-        target: {targetId: workspace.resourceId},
+        targetId: workspace.resourceId,
         entityId: [pg01.resourceId, pg02.resourceId],
       })
     );
@@ -65,7 +65,7 @@ describe('addItems', () => {
       (action): PermissionItemInput => ({
         action,
         access: grantAccess,
-        target: {targetId: workspace.resourceId},
+        targetId: workspace.resourceId,
         entityId: [
           pg01.resourceId,
           pg02.resourceId,
@@ -159,7 +159,7 @@ describe('addItems', () => {
       (action): PermissionItemInput => ({
         action,
         access: grantAccess,
-        target: {targetId: workspace.resourceId},
+        targetId: workspace.resourceId,
         entityId: permissionGroup.resourceId,
       })
     );
@@ -169,7 +169,7 @@ describe('addItems', () => {
         (action): PermissionItemInput => ({
           action,
           access: grantAccess,
-          target: {targetId: workspace.resourceId},
+          targetId: workspace.resourceId,
           entityId: permissionGroup.resourceId,
         })
       );
@@ -207,7 +207,7 @@ describe('addItems', () => {
       (action): PermissionItemInput => ({
         action,
         access: grantAccess,
-        target: {targetId: workspace.resourceId},
+        targetId: workspace.resourceId,
         entityId: permissionGroup.resourceId,
       })
     );
@@ -255,13 +255,13 @@ describe('addItems', () => {
         access: true,
         action: kFimidaraPermissionActions.readFile,
         entityId: user.resourceId,
-        target: {targetId: folder01.resourceId},
+        targetId: folder01.resourceId,
       },
       {
         access: true,
         action: kFimidaraPermissionActions.readFile,
         entityId: user.resourceId,
-        target: {targetId: folder02.resourceId},
+        targetId: folder02.resourceId,
       },
     ];
     const reqData =

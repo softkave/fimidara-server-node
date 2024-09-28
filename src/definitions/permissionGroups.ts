@@ -31,10 +31,6 @@ export interface PermissionGroupMatcher {
   workspaceId?: string;
 }
 
-export interface AssignPermissionGroupInput {
-  permissionGroupId: string;
-}
-
 export type PublicPermissionGroup = ToPublicDefinitions<PermissionGroup>;
 export type PublicAssignedPermissionGroupMeta =
   ToPublicDefinitions<AssignedPermissionGroupMeta>;

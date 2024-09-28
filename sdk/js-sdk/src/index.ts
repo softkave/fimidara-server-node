@@ -1,22 +1,8 @@
+export * from './config.js';
 export * from './diff/index.js';
+export * from './endpoints/publicEndpoints.js';
+export type * from './endpoints/publicTypes.js';
+export * from './error.js';
 export * from './folder/index.js';
-export {FimidaraEndpoints} from './publicEndpoints.js';
-export * from './publicTypes.js';
-export {
-  FimidaraEndpointError,
-  FimidaraJsConfig,
-  fimidaraAddRootnameToPath,
-  getFimidaraReadFileURL,
-  getFimidaraUploadFileURL,
-  stringifyFimidaraFilepath,
-  stringifyFimidaraFolderpath,
-} from './utils.js';
-export type {
-  FimidaraEndpointParamsOptional,
-  FimidaraEndpointParamsRequired,
-  FimidaraEndpointProgressEvent,
-  FimidaraEndpointResult,
-  FimidaraEndpointWithBinaryResponseParamsOptional,
-  FimidaraEndpointWithBinaryResponseParamsRequired,
-  FimidaraJsConfigOptions,
-} from './utils.js';
+export * from './path/index.js';
+export type * from './types.js';

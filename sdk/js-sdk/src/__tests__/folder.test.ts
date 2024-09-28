@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
-import {describe, test, expect} from "vitest";
-import {FimidaraEndpoints} from '../publicEndpoints.js';
+import {describe, expect, test} from 'vitest';
+import {FimidaraEndpoints} from '../endpoints/publicEndpoints.js';
+import {fimidaraAddRootnameToPath} from '../path/index.js';
 import {
   addFolderTestExecFn,
   listFolderContentTestExecFn,
@@ -13,7 +14,6 @@ import {
   test_updateFolder,
 } from '../testutils/tests/folder.js';
 import {getTestVars} from '../testutils/utils.js';
-import {fimidaraAddRootnameToPath} from '../utils.js';
 
 describe('folder', () => {
   test('add folder', async () => {
@@ -41,14 +41,14 @@ describe('folder', () => {
     const folderpath03 = folderpath01 + '/' + generateFolderpath(1);
 
     await addFolderTestExecFn(fimidara, vars, {
-      folder: {folderpath: folderpath01},
+      folderpath: folderpath01,
     });
     await Promise.all([
-      addFolderTestExecFn(fimidara, vars, {folder: {folderpath: folderpath03}}),
-      addFolderTestExecFn(fimidara, vars, {folder: {folderpath: folderpath02}}),
+      addFolderTestExecFn(fimidara, vars, {folderpath: folderpath03}),
+      addFolderTestExecFn(fimidara, vars, {folderpath: folderpath02}),
     ]);
 
-    const {body} = await listFolderContentTestExecFn(fimidara, vars, {
+    const body = await listFolderContentTestExecFn(fimidara, vars, {
       folderpath: folderpath00,
     });
     expect(body.folders.length).toBe(1);

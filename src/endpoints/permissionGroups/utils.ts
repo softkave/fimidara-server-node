@@ -1,5 +1,4 @@
 import {
-  AssignPermissionGroupInput,
   AssignedPermissionGroupMeta,
   PermissionGroup,
   PermissionGroupMatcher,
@@ -26,12 +25,13 @@ import {agentExtractor, workspaceResourceFields} from '../extractors.js';
 import {checkWorkspaceExists} from '../workspaces/utils.js';
 import {PermissionGroupDoesNotExistError} from './errors.js';
 
-const assignedPermissionGroupsFields = getFields<PublicAssignedPermissionGroupMeta>({
-  permissionGroupId: true,
-  assignedAt: true,
-  assignedBy: agentExtractor,
-  assigneeEntityId: true,
-});
+const assignedPermissionGroupsFields =
+  getFields<PublicAssignedPermissionGroupMeta>({
+    permissionGroupId: true,
+    assignedAt: true,
+    assignedBy: agentExtractor,
+    assigneeEntityId: true,
+  });
 
 export const assignedPermissionGroupsExtractor = makeExtract(
   assignedPermissionGroupsFields
@@ -47,7 +47,9 @@ const permissionGroupFields = getFields<PublicPermissionGroup>({
 });
 
 export const permissionGroupExtractor = makeExtract(permissionGroupFields);
-export const permissionGroupListExtractor = makeListExtract(permissionGroupFields);
+export const permissionGroupListExtractor = makeListExtract(
+  permissionGroupFields
+);
 
 export async function checkPermissionGroupAuthorization(
   agent: SessionAgent,
@@ -71,7 +73,9 @@ export async function checkPermissionGroupAuthorization02(
   id: string,
   action: FimidaraPermissionAction
 ) {
-  const permissionGroup = await kSemanticModels.permissionGroup().getOneById(id);
+  const permissionGroup = await kSemanticModels
+    .permissionGroup()
+    .getOneById(id);
   assertPermissionGroup(permissionGroup);
   return checkPermissionGroupAuthorization(agent, permissionGroup, action);
 }
@@ -93,7 +97,8 @@ export async function checkPermissionGroupAuthorization03(
       .permissionGroup()
       .getOneById(input.permissionGroupId, opts);
   } else if (input.name) {
-    const workspaceId = input.workspaceId ?? assertGetWorkspaceIdFromAgent(agent);
+    const workspaceId =
+      input.workspaceId ?? assertGetWorkspaceIdFromAgent(agent);
     permissionGroup = await kSemanticModels
       .permissionGroup()
       .getByName(workspaceId, input.name, opts);
@@ -105,11 +110,9 @@ export async function checkPermissionGroupAuthorization03(
 
 export async function checkPermissionGroupsExist(
   workspaceId: string,
-  permissionGroupInputs: AssignPermissionGroupInput[],
+  idList: string[],
   opts?: SemanticProviderMutationParams
 ) {
-  const idList = permissionGroupInputs.map(item => item.permissionGroupId);
-
   // TODO: use exists with $or or implement bulk ops
   const permissionGroups = await kSemanticModels
     .permissionGroup()
@@ -127,14 +130,14 @@ export function mergePermissionGroupsWithInput(
   agent: Agent,
   entityId: string,
   permissionGroups: AssignedPermissionGroupMeta[],
-  input: AssignPermissionGroupInput[]
+  input: string[]
 ) {
-  const inputMap = indexArray(input, {path: 'permissionGroupId'});
+  const inputMap = indexArray(input);
   return permissionGroups
     .filter(item => !inputMap[item.permissionGroupId])
     .concat(
-      input.map(permissionGroup => ({
-        ...permissionGroup,
+      input.map(id => ({
+        permissionGroupId: id,
         assignedAt: getTimestamp(),
         assignedBy: agent,
         assigneeEntityId: entityId,

@@ -1,10 +1,12 @@
+import {kEndpointTag} from '../types.js';
 import {ingestLogsEndpointDefinition} from './endpoints.mddoc.js';
 import ingestLogs from './ingestLogs/handler.js';
-import {ClientLogsExportedPrivateEndpoints} from './types.js';
+import {ClientLogsExportedEndpoints} from './types.js';
 
-export function getClientLogsPrivateHttpEndpoints() {
-  const clientLogsExportedEndpoints: ClientLogsExportedPrivateEndpoints = {
+export function getClientLogsHttpEndpoints() {
+  const clientLogsExportedEndpoints: ClientLogsExportedEndpoints = {
     ingestLogs: {
+      tag: [kEndpointTag.private],
       fn: ingestLogs,
       mddocHttpDefinition: ingestLogsEndpointDefinition,
     },

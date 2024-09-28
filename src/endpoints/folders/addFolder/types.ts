@@ -10,9 +10,7 @@ export interface NewFolderInput {
   description?: string;
 }
 
-export interface AddFolderEndpointParams {
-  folder: NewFolderInput;
-}
+export interface AddFolderEndpointParams extends NewFolderInput {}
 
 export interface AddFolderEndpointResult {
   folder: PublicFolder;

@@ -1,3 +1,4 @@
+import assert from 'assert';
 import {isUndefined} from 'lodash-es';
 import {AppShardId} from '../../../definitions/app.js';
 import {
@@ -33,7 +34,6 @@ import {
   getPermissionItemTargets,
 } from '../../permissionItems/getPermissionItemTargets.js';
 import {queueJobs} from '../queueJobs.js';
-import assert from 'assert';
 
 type PartialPermissionItem = Pick<PermissionItem, 'resourceId'>;
 type FetchArgs = {
@@ -52,13 +52,11 @@ function deletePermissionItemInputToQuery(
 ) {
   const query: DataQuery<PermissionItem> = {};
 
-  if (item.target) {
-    const {targetList} = targets.getByTarget(item.target || []);
-    const idList = extractResourceIdList(targetList);
+  const {targetList} = targets.getByTarget(item || []);
+  const idList = extractResourceIdList(targetList);
 
-    if (idList.length) {
-      query.targetId = {$in: idList};
-    }
+  if (idList.length) {
+    query.targetId = {$in: idList};
   }
 
   if (!isUndefined(item.access)) {
@@ -156,7 +154,7 @@ export async function runDeletePermissionItemsJob(
   const targets = await getPermissionItemTargets(
     agent,
     workspace,
-    item.target || [],
+    item,
     kFimidaraPermissionActions.updatePermission
   );
 

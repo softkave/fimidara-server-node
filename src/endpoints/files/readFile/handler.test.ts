@@ -66,6 +66,7 @@ import {stringifyFilenamepath} from '../utils.js';
 import readFile from './handler.js';
 import {ReadFileEndpointParams} from './types.js';
 import sharp = require('sharp');
+import {access} from 'fs';
 
 beforeAll(async () => {
   await initTests();
@@ -181,7 +182,7 @@ describe('readFile', () => {
         await getTestSessionAgent(agentType);
       const {folder} = await insertFolderForTest(userToken, workspace);
       await insertPermissionItemsForTest(userToken, workspace.resourceId, {
-        target: {targetId: folder.resourceId},
+        targetId: folder.resourceId,
         action: kFimidaraPermissionActions.readFile,
         access: true,
         entityId: workspace.publicPermissionGroupId,
@@ -213,7 +214,7 @@ describe('readFile', () => {
       const {workspace, adminUserToken} = await getTestSessionAgent(agentType);
       const {file} = await insertFileForTest(adminUserToken, workspace);
       await insertPermissionItemsForTest(adminUserToken, workspace.resourceId, {
-        target: {targetId: file.resourceId},
+        targetId: file.resourceId,
         action: kFimidaraPermissionActions.readFile,
         access: true,
         entityId: workspace.publicPermissionGroupId,
@@ -239,7 +240,7 @@ describe('readFile', () => {
 
       const {file} = await insertFileForTest(userToken, workspace);
       await insertPermissionItemsForTest(userToken, workspace.resourceId, {
-        target: {targetId: file.resourceId},
+        targetId: file.resourceId,
         action: kFimidaraPermissionActions.readFile,
         access: false,
         entityId:

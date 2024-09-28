@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'path-browserify';
 import {indexArray} from 'softkave-js-utils';
 import {
   FimidaraSyncDirection,

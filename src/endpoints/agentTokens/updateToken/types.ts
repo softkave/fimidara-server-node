@@ -4,7 +4,8 @@ import {NewAgentTokenInput} from '../addToken/types.js';
 
 export type UpdateAgentTokenInput = Partial<NewAgentTokenInput>;
 
-export interface UpdateAgentTokenEndpointParams extends EndpointOptionalWorkspaceIDParam {
+export interface UpdateAgentTokenEndpointParams
+  extends EndpointOptionalWorkspaceIDParam {
   tokenId?: string;
   onReferenced?: boolean;
   providedResourceId?: string;

@@ -1,12 +1,12 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {ensureDir, ensureFile, remove} from 'fs-extra';
-import path from 'path';
+import path from 'path-browserify';
 import {isObjectEmpty, loopAndCollate, pathBasename} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import type {FimidaraDiffExternalFile} from '../../diff/types.js';
-import {File as FimidaraFile} from '../../publicTypes.js';
-import {stringifyFimidaraFilename} from '../../utils.js';
+import {File as FimidaraFile} from '../../endpoints/publicTypes.js';
+import {stringifyFimidaraFilename} from '../../path/index.js';
 import {diffNodeFiles} from '../diffNodeFiles.js';
 import {getNodeDirContent} from '../getNodeDirContent.js';
 

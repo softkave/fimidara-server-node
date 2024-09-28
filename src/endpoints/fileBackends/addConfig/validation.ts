@@ -8,13 +8,9 @@ export const addConfigJoiSchema =
   Joi.object<AddFileBackendConfigEndpointParams>()
     .keys({
       ...endpointValidationSchemas.optionalWorkspaceIdParts,
-      config: Joi.object<AddFileBackendConfigEndpointParams['config']>()
-        .keys({
-          backend: fileBackendValidationSchemas.nonFimidaraBackend.required(),
-          credentials: fileBackendValidationSchemas.credentials.required(),
-          name: kValidationSchemas.name.required(),
-          description: kValidationSchemas.description.allow(null),
-        })
-        .required(),
+      backend: fileBackendValidationSchemas.nonFimidaraBackend.required(),
+      credentials: fileBackendValidationSchemas.credentials.required(),
+      name: kValidationSchemas.name.required(),
+      description: kValidationSchemas.description.allow(null),
     })
     .required();

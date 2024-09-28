@@ -8,9 +8,9 @@ export interface NewAgentTokenInput {
   expires?: number;
 }
 
-export interface AddAgentTokenEndpointParams extends EndpointOptionalWorkspaceIDParam {
-  token: NewAgentTokenInput;
-}
+export interface AddAgentTokenEndpointParams
+  extends EndpointOptionalWorkspaceIDParam,
+    NewAgentTokenInput {}
 
 export interface AddAgentTokenEndpointResult {
   token: PublicAgentToken;

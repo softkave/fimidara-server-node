@@ -1,4 +1,6 @@
 import {describe, expect, test} from 'vitest';
+import {invokeEndpoint} from '../invokeEndpoint.js';
+import {getFimidaraReadFileURL} from '../path/index.js';
 import {getTestFilepath} from '../testutils/execFns/file.js';
 import {
   fimidaraTestInstance,
@@ -15,7 +17,6 @@ import {
   getTestFileByteLength,
   getTestFileReadStream,
 } from '../testutils/utils.js';
-import {getFimidaraReadFileURL, invokeEndpoint} from '../utils.js';
 
 // TODO: test upload file with browser readable, buffer, and integer arrays
 
@@ -36,13 +37,6 @@ describe('file', () => {
     await test_readFile_nodeReadable();
   });
 
-  test('read file with download', async () => {
-    const {result} = await test_readFile_nodeReadable({body: {download: true}});
-    const headers = result.headers;
-
-    expect(headers['content-disposition']).toContain('attachment;');
-  });
-
   test('download file URL', async () => {
     const uploadedFile = await getTestFilepath(
       fimidaraTestInstance,
@@ -55,11 +49,11 @@ describe('file', () => {
     );
     const presignedPath =
       await fimidaraTestInstance.presignedPaths.issuePresignedPath({
-        body: {filepath: uploadedFile.filepath},
+        filepath: uploadedFile.filepath,
       });
     const presignedPathURL = getFimidaraReadFileURL({
       serverURL: fimidaraTestVars.serverURL,
-      filepath: presignedPath.body.path,
+      filepath: presignedPath.path,
       download: true,
     });
     const getFilepathURL = getFimidaraReadFileURL({
@@ -69,7 +63,7 @@ describe('file', () => {
     });
 
     expect(presignedPathURL).toBe(
-      `${fimidaraTestVars.serverURL}/v1/files/readFile/${presignedPath.body.path}?download=true`
+      `${fimidaraTestVars.serverURL}/v1/files/readFile/${presignedPath.path}?download=true`
     );
 
     const readFileUsingPresignedPathResult = await invokeEndpoint({

@@ -1,17 +1,17 @@
 import {expect} from 'vitest';
-import {FimidaraEndpoints} from '../../publicEndpoints.js';
+import {FimidaraEndpoints} from '../../endpoints/publicEndpoints.js';
 import {
   addAgentTokenTestExecFn,
   deleteTokenTestExecFn,
   getTokenTestExecFn,
-  setupWorkspaceAgentTokensTestExecFn,
   getWorkspaceAgentTokensTestExecFn,
+  setupWorkspaceAgentTokensTestExecFn,
   updateTokenTestExecFn,
 } from '../execFns/agentToken.js';
 import {
   ITestVars,
-  getTestVars,
   containsNoneIn,
+  getTestVars,
   indexByResourceId,
 } from '../utils.js';
 
@@ -47,9 +47,9 @@ export const test_getWorkspaceAgentTokens = async () => {
       page: 1,
     }),
   ]);
-  expect(result00.body.page).toBe(0);
-  expect(result01.body.page).toBe(1);
-  containsNoneIn(result00.body.tokens, result01.body.tokens, indexByResourceId);
+  expect(result00.page).toBe(0);
+  expect(result01.page).toBe(1);
+  containsNoneIn(result00.tokens, result01.tokens, indexByResourceId);
 };
 
 export const test_updateToken = async () => {

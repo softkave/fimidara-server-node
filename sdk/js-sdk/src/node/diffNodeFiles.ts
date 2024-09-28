@@ -1,5 +1,5 @@
 import {diffFiles} from '../diff/diffFiles.js';
-import {File as FimidaraFile} from '../publicTypes.js';
+import {File as FimidaraFile} from '../endpoints/publicTypes.js';
 import {getNodeDirContent} from './getNodeDirContent.js';
 
 function isExistingDirContent(

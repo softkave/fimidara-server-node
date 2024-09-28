@@ -9,6 +9,7 @@ import {
 import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import addPermissionItems from '../../permissionItems/addItems/handler.js';
+import {AddPermissionItemsEndpointParams} from '../../permissionItems/addItems/types.js';
 import {
   generateAndInsertTestFiles,
   generateTestFileName,
@@ -272,19 +273,19 @@ describe('listFolderContent', () => {
       }),
     ]);
     await addPermissionItems(
-      RequestData.fromExpressRequest(
+      RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {
           workspaceId: workspace.resourceId,
           items: [
             {
-              target: {targetId: folder02.resourceId},
+              targetId: folder02.resourceId,
               action: kFimidaraPermissionActions.readFolder,
               access: true,
               entityId: [agToken.resourceId],
             },
             {
-              target: {targetId: file01.resourceId},
+              targetId: file01.resourceId,
               action: kFimidaraPermissionActions.readFile,
               access: true,
               entityId: [agToken.resourceId],

@@ -1,4 +1,7 @@
-import {FileBackendType, PublicFileBackendConfig} from '../../../definitions/fileBackend.js';
+import {
+  FileBackendType,
+  PublicFileBackendConfig,
+} from '../../../definitions/fileBackend.js';
 import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types.js';
 
 export interface NewFileBackendConfigInput {
@@ -9,9 +12,8 @@ export interface NewFileBackendConfigInput {
 }
 
 export interface AddFileBackendConfigEndpointParams
-  extends EndpointOptionalWorkspaceIDParam {
-  config: NewFileBackendConfigInput;
-}
+  extends EndpointOptionalWorkspaceIDParam,
+    NewFileBackendConfigInput {}
 
 export interface AddFileBackendConfigEndpointResult {
   config: PublicFileBackendConfig;

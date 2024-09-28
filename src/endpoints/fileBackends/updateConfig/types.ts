@@ -7,10 +7,11 @@ export type UpdateFileBackendConfigInput = {
   description?: string;
 };
 
-export type UpdateFileBackendConfigEndpointParams = EndpointOptionalWorkspaceIDParam & {
-  config: UpdateFileBackendConfigInput;
-  configId: string;
-};
+export type UpdateFileBackendConfigEndpointParams =
+  EndpointOptionalWorkspaceIDParam & {
+    config: UpdateFileBackendConfigInput;
+    configId: string;
+  };
 
 export interface UpdateFileBackendConfigEndpointResult {
   config: PublicFileBackendConfig;

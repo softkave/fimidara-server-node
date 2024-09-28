@@ -241,9 +241,9 @@ async function makeTestSessionAgentPermissions<TPermissionsFnResult = unknown>(
       workspaceResult.rawWorkspace.resourceId,
       /** input */ {
         entityId,
-        target: permissionsOpts.target || {
+        ...(permissionsOpts.target || {
           targetId: workspaceResult.rawWorkspace.resourceId,
-        },
+        }),
         access: true,
         action: permissionsOpts.actions,
       }

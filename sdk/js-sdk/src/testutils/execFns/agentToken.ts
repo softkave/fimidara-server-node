@@ -3,14 +3,14 @@ import assert from 'assert';
 import {merge} from 'lodash-es';
 import {loopAndCollateAsync} from 'softkave-js-utils';
 import {PartialDeep} from 'type-fest';
-import {FimidaraEndpoints} from '../../publicEndpoints.js';
+import {FimidaraEndpoints} from '../../endpoints/publicEndpoints.js';
 import {
   AddAgentTokenEndpointParams,
   DeleteAgentTokenEndpointParams,
   GetAgentTokenEndpointParams,
   GetWorkspaceAgentTokensEndpointParams,
   UpdateAgentTokenEndpointParams,
-} from '../../publicTypes.js';
+} from '../../endpoints/publicTypes.js';
 import {ITestVars} from '../utils.js';
 
 function getTokenExpiryDate(
@@ -25,13 +25,11 @@ export async function addAgentTokenTestExecFn(
   props: PartialDeep<AddAgentTokenEndpointParams> = {}
 ) {
   const genInput: AddAgentTokenEndpointParams = {
-    token: {
-      expires: getTokenExpiryDate(),
-      providedResourceId: faker.string.uuid(),
-    },
+    expires: getTokenExpiryDate(),
+    providedResourceId: faker.string.uuid(),
   };
   const inputs = merge(genInput, props);
-  const result = await endpoint.agentTokens.addToken({body: inputs});
+  const result = await endpoint.agentTokens.addToken(inputs);
   return result;
 }
 
@@ -53,7 +51,7 @@ export async function getWorkspaceAgentTokensTestExecFn(
   vars: ITestVars,
   props: GetWorkspaceAgentTokensEndpointParams
 ) {
-  const result = await endpoint.agentTokens.getWorkspaceTokens({body: props});
+  const result = await endpoint.agentTokens.getWorkspaceTokens(props);
   return result;
 }
 
@@ -65,14 +63,14 @@ export async function getTokenTestExecFn(
   let tokenId = props.tokenId;
   if (!tokenId) {
     const token = await addAgentTokenTestExecFn(endpoint, vars);
-    tokenId = token.body.token.resourceId;
+    tokenId = token.token.resourceId;
   }
   assert.ok(tokenId);
   const input: GetAgentTokenEndpointParams = {
     tokenId,
   };
-  const result = await endpoint.agentTokens.getToken({body: input});
-  assert(result.body.token.resourceId === tokenId);
+  const result = await endpoint.agentTokens.getToken(input);
+  assert(result.token.resourceId === tokenId);
   return result;
 }
 
@@ -84,13 +82,13 @@ export async function deleteTokenTestExecFn(
   let tokenId = props.tokenId;
   if (!tokenId) {
     const token = await addAgentTokenTestExecFn(endpoint, vars);
-    tokenId = token.body.token.resourceId;
+    tokenId = token.token.resourceId;
   }
   assert.ok(tokenId);
   const input: DeleteAgentTokenEndpointParams = {
     tokenId,
   };
-  await endpoint.agentTokens.deleteToken({body: input});
+  await endpoint.agentTokens.deleteToken(input);
 }
 
 export async function updateTokenTestExecFn(
@@ -102,7 +100,7 @@ export async function updateTokenTestExecFn(
 
   if (!tokenId) {
     const token = await addAgentTokenTestExecFn(endpoint, vars);
-    tokenId = token.body.token.resourceId;
+    tokenId = token.token.resourceId;
   }
 
   assert.ok(tokenId);
@@ -113,6 +111,6 @@ export async function updateTokenTestExecFn(
       providedResourceId: faker.string.uuid(),
     },
   };
-  const result = await endpoint.agentTokens.updateToken({body: input});
+  const result = await endpoint.agentTokens.updateToken(input);
   return result;
 }

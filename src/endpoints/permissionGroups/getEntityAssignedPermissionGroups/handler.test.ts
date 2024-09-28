@@ -1,15 +1,12 @@
 import assert from 'assert';
-import {first} from 'lodash-es';
+import {first, identity} from 'lodash-es';
 import {afterAll, beforeAll, describe, test} from 'vitest';
 import {extractResourceIdList, getResourceId} from '../../../utils/fns.js';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
 import RequestData from '../../RequestData.js';
 import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generate/agentToken.js';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup.js';
-import {
-  expectContainsExactly,
-  expectContainsExactlyForAnyType,
-} from '../../testUtils/helpers/assertion.js';
+import {expectContainsExactlyForAnyType} from '../../testUtils/helpers/assertion.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
@@ -21,7 +18,6 @@ import {
 import {
   assignPgListToIdList,
   grantPermission,
-  makeKeyFromAssignedPermissionGroupMetaOrInput,
   toAssignedPgListInput,
 } from '../testUtils.js';
 import getEntityAssignedPermissionGroups from './handler.js';
@@ -100,10 +96,11 @@ describe('getEntityAssignedPermissionGroups', () => {
       getResourceId,
       getResourceId
     );
-    expectContainsExactly(
+    expectContainsExactlyForAnyType(
       result01.immediateAssignedPermissionGroupsMeta,
       pgList01Input,
-      makeKeyFromAssignedPermissionGroupMetaOrInput
+      item => item.permissionGroupId,
+      identity
     );
   });
 

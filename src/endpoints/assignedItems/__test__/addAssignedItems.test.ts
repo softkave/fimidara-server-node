@@ -1,6 +1,6 @@
+import {identity} from 'lodash-es';
 import {afterAll, beforeAll, describe, test} from 'vitest';
 import {AssignedItem} from '../../../definitions/assignedItem.js';
-import {AssignPermissionGroupInput} from '../../../definitions/permissionGroups.js';
 import {extractResourceIdList, makeKey} from '../../../utils/fns.js';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
@@ -70,7 +70,7 @@ describe('addAssignedItems', () => {
       assignedItems,
       pgListAssignedTo02Input,
       pgAssignedItemKey,
-      pgInputKey
+      identity
     );
 
     const savedItems = await kSemanticModels.assignedItem().getManyByQuery({
@@ -80,12 +80,10 @@ describe('addAssignedItems', () => {
       savedItems,
       pgListAssignedTo02Input.concat(pgListAssignedTo01Input),
       pgAssignedItemKey,
-      pgInputKey
+      identity
     );
   });
 });
 
 const pgAssignedItemKey = (item: AssignedItem) =>
   makeKey([item.assignedItemId]);
-const pgInputKey = (item: AssignPermissionGroupInput) =>
-  makeKey([item.permissionGroupId]);

@@ -6,7 +6,7 @@ import fileValidationSchemas from '../files/validation.js';
 import folderValidationSchemas from '../folders/validation.js';
 import workspaceValidationSchemas from '../workspaces/validation.js';
 import {permissionItemConstants} from './constants.js';
-import {PermissionItemInput, PermissionItemInputTarget} from './types.js';
+import {PermissionItemInput} from './types.js';
 
 const targetId = kValidationSchemas.resourceId;
 const targetType = Joi.string().valid(...getWorkspaceResourceTypeList());
@@ -36,24 +36,18 @@ const targetParts = {
   ),
   workspaceRootname: workspaceValidationSchemas.rootname,
 };
-const target = Joi.object<PermissionItemInputTarget>().keys({
+
+const entityParts = {
+  entityId: Joi.alternatives().try(
+    entityId,
+    Joi.array().items(entityId).unique().max(kEndpointConstants.inputListMax)
+  ),
+};
+const itemInput = Joi.object<PermissionItemInput>().keys({
   targetId: targetParts.targetId,
   folderpath: targetParts.folderpath,
   filepath: targetParts.filepath,
   workspaceRootname: workspaceValidationSchemas.rootname,
-});
-const targetOrList = Joi.alternatives().try(
-  target,
-  Joi.array().items(target).max(kEndpointConstants.inputListMax)
-);
-const entityParts = {
-  entityId: Joi.alternatives().try(
-    entityId,
-    Joi.array().items(entityId).max(kEndpointConstants.inputListMax)
-  ),
-};
-const itemInput = Joi.object<PermissionItemInput>().keys({
-  target: targetOrList.required(),
   action: kValidationSchemas.crudActionOrList.required(),
   access: Joi.boolean().required(),
   entityId: entityParts.entityId,
@@ -74,7 +68,6 @@ const publicAccessOpList = Joi.array()
   .max(permissionItemConstants.maxPermissionItemsPerRequest);
 
 const permissionItemValidationSchemas = {
-  target,
   itemIds,
   itemInput,
   itemInputList,

@@ -3,13 +3,14 @@ import {MultipleLongRunningJobResult} from '../../jobs/types.js';
 import {Endpoint} from '../../types.js';
 import {PermissionItemInputTarget} from '../types.js';
 
-export type DeletePermissionItemInputTarget = Partial<PermissionItemInputTarget>;
-export type DeletePermissionItemInput = {
-  target?: DeletePermissionItemInputTarget | DeletePermissionItemInputTarget[];
+export type DeletePermissionItemInputTarget =
+  Partial<PermissionItemInputTarget>;
+export interface DeletePermissionItemInput
+  extends DeletePermissionItemInputTarget {
   action?: FimidaraPermissionAction | FimidaraPermissionAction[];
   access?: boolean;
   entityId?: string | string[];
-};
+}
 
 export interface DeletePermissionItemsEndpointParams {
   workspaceId?: string;

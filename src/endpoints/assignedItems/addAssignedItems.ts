@@ -1,6 +1,5 @@
 import {isArray} from 'lodash-es';
 import {AssignedItem} from '../../definitions/assignedItem.js';
-import {AssignPermissionGroupInput} from '../../definitions/permissionGroups.js';
 import {
   Agent,
   SessionAgent,
@@ -105,7 +104,7 @@ export async function addAssignedItems<T extends AssignedItem>(
 export async function addAssignedPermissionGroupList(
   agent: SessionAgent,
   workspaceId: string,
-  permissionGroupsInput: AssignPermissionGroupInput[],
+  permissionGroupsInput: string[],
   assigneeId: string | string[],
   deleteExisting: boolean,
   skipPermissionGroupsExistCheck = false,
@@ -150,7 +149,7 @@ export async function addAssignedPermissionGroupList(
             assigneeId: id,
             assigneeType: getResourceTypeFromId(id),
             resourceId: getNewIdForResource(kFimidaraResourceType.AssignedItem),
-            assignedItemId: input.permissionGroupId,
+            assignedItemId: input,
             assignedItemType: kFimidaraResourceType.PermissionGroup,
           }
         )

@@ -65,7 +65,7 @@ describe('getCollaboratorsWithoutPermission', () => {
     // add permission items to a subset of users
     await insertPermissionItemsForTest(userToken, workspace.resourceId, {
       entityId: extractResourceIdList(seedUserWithPermissionItems),
-      target: {targetId: workspace.resourceId},
+      targetId: workspace.resourceId,
       access: true,
       action: 'readFile',
     });

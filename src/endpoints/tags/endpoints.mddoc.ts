@@ -10,7 +10,7 @@ import {
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc.js';
-import {AddTagEndpointParams, AddTagEndpointResult, NewTagInput} from './addTag/types.js';
+import {AddTagEndpointParams, AddTagEndpointResult} from './addTag/types.js';
 import {tagConstants} from './constants.js';
 import {CountWorkspaceTagsEndpointParams} from './countWorkspaceTags/types.js';
 import {DeleteTagEndpointParams} from './deleteTag/types.js';
@@ -33,20 +33,15 @@ import {
   UpdateTagInput,
 } from './updateTag/types.js';
 
-const newTagInput = mddocConstruct
-  .constructFieldObject<NewTagInput>()
-  .setName('NewTagInput')
-  .setFields({
-    name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
-    description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
-  });
-
 const updateTagInput = mddocConstruct
   .constructFieldObject<UpdateTagInput>()
   .setName('UpdateTagInput')
   .setFields({
     name: mddocConstruct.constructFieldObjectField(false, fReusables.name),
-    description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
+    description: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.description
+    ),
   });
 
 const tag = mddocConstruct
@@ -55,15 +50,25 @@ const tag = mddocConstruct
   .setFields({
     ...fReusables.workspaceResourceParts,
     name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
-    description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
+    description: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.description
+    ),
   });
 
 const addTagParams = mddocConstruct
   .constructFieldObject<AddTagEndpointParams>()
   .setName('AddTagEndpointParams')
   .setFields({
-    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceId),
-    tag: mddocConstruct.constructFieldObjectField(true, newTagInput),
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceId
+    ),
+    name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
+    description: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.description
+    ),
   });
 const addTagResponseBody = mddocConstruct
   .constructFieldObject<AddTagEndpointResult>()
@@ -78,7 +83,10 @@ const getWorkspaceTagsParams = mddocConstruct
       fReusables.workspaceIdInput
     ),
     page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
-    pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
+    pageSize: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.pageSize
+    ),
   });
 const getWorkspaceTagsResponseBody = mddocConstruct
   .constructFieldObject<GetWorkspaceTagsEndpointResult>()
@@ -128,14 +136,22 @@ const deleteTagParams = mddocConstruct
   });
 export const addTagEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
-    InferFieldObjectType<AddTagHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
-    InferFieldObjectType<AddTagHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<
+      AddTagHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      AddTagHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
     InferFieldObjectType<AddTagHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<
       AddTagHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
-    InferFieldObjectType<AddTagHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<AddTagHttpEndpoint['mddocHttpDefinition']['responseBody']>
+    InferFieldObjectType<
+      AddTagHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      AddTagHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
   >()
   .setBasePathname(tagConstants.routes.addTag)
   .setMethod(HttpEndpointMethod.Post)
@@ -143,20 +159,30 @@ export const addTagEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(addTagResponseBody)
   .setName('AddTagEndpoint');
 
 export const getTagEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
-    InferFieldObjectType<GetTagHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
-    InferFieldObjectType<GetTagHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<
+      GetTagHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      GetTagHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
     InferFieldObjectType<GetTagHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<
       GetTagHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
-    InferFieldObjectType<GetTagHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<GetTagHttpEndpoint['mddocHttpDefinition']['responseBody']>
+    InferFieldObjectType<
+      GetTagHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      GetTagHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
   >()
   .setBasePathname(tagConstants.routes.getTag)
   .setMethod(HttpEndpointMethod.Post)
@@ -164,20 +190,30 @@ export const getTagEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(getTagResponseBody)
   .setName('GetTagEndpoint');
 
 export const updateTagEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
-    InferFieldObjectType<UpdateTagHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
-    InferFieldObjectType<UpdateTagHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<
+      UpdateTagHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      UpdateTagHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
     InferFieldObjectType<UpdateTagHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<
       UpdateTagHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
-    InferFieldObjectType<UpdateTagHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<UpdateTagHttpEndpoint['mddocHttpDefinition']['responseBody']>
+    InferFieldObjectType<
+      UpdateTagHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      UpdateTagHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
   >()
   .setBasePathname(tagConstants.routes.updateTag)
   .setMethod(HttpEndpointMethod.Post)
@@ -185,20 +221,30 @@ export const updateTagEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(updateTagResponseBody)
   .setName('UpdateTagEndpoint');
 
 export const deleteTagEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
-    InferFieldObjectType<DeleteTagHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
-    InferFieldObjectType<DeleteTagHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
+    InferFieldObjectType<
+      DeleteTagHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      DeleteTagHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
     InferFieldObjectType<DeleteTagHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<
       DeleteTagHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
-    InferFieldObjectType<DeleteTagHttpEndpoint['mddocHttpDefinition']['responseHeaders']>,
-    InferFieldObjectType<DeleteTagHttpEndpoint['mddocHttpDefinition']['responseBody']>
+    InferFieldObjectType<
+      DeleteTagHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      DeleteTagHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
   >()
   .setBasePathname(tagConstants.routes.deleteTag)
   .setMethod(HttpEndpointMethod.Delete)
@@ -206,7 +252,9 @@ export const deleteTagEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
   .setName('DeleteTagEndpoint');
 
@@ -218,7 +266,9 @@ export const getWorkspaceTagsEndpointDefinition = mddocConstruct
     InferFieldObjectType<
       GetWorkspaceTagsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
     >,
-    InferFieldObjectType<GetWorkspaceTagsHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectType<
+      GetWorkspaceTagsHttpEndpoint['mddocHttpDefinition']['query']
+    >,
     InferFieldObjectOrMultipartType<
       GetWorkspaceTagsHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
@@ -235,7 +285,9 @@ export const getWorkspaceTagsEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(getWorkspaceTagsResponseBody)
   .setName('GetWorkspaceTagsEndpoint');
 
@@ -247,7 +299,9 @@ export const countWorkspaceTagsEndpointDefinition = mddocConstruct
     InferFieldObjectType<
       CountWorkspaceTagsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
     >,
-    InferFieldObjectType<CountWorkspaceTagsHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectType<
+      CountWorkspaceTagsHttpEndpoint['mddocHttpDefinition']['query']
+    >,
     InferFieldObjectOrMultipartType<
       CountWorkspaceTagsHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
@@ -264,6 +318,8 @@ export const countWorkspaceTagsEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
   .setName('CountWorkspaceTagsEndpoint');

@@ -1,8 +1,9 @@
 import {faker} from '@faker-js/faker';
 import {ensureDir, rm} from 'fs-extra';
-import path from 'path';
+import path from 'path-browserify';
 import {afterAll, assert, beforeAll, describe, expect, test} from 'vitest';
 import {getNodeDirContent} from '../../../node/getNodeDirContent.js';
+import {stringifyFimidaraFolderpath} from '../../../path/index.js';
 import {
   assertFimidaraFilesContent,
   assertFimidaraFolderContent,
@@ -14,7 +15,6 @@ import {
   genLocalFolders,
 } from '../../../testutils/sync/syncUtils.js';
 import {fimidaraTestVars} from '../../../testutils/tests/file.js';
-import {stringifyFimidaraFolderpath} from '../../../utils.js';
 import {copyFolderFiles} from '../copyFolderFiles.js';
 
 const kTestLocalFsDir = path.join(process.cwd(), 'testdir/copyFolderFiles');

@@ -1,6 +1,5 @@
-import {FieldObjectType} from '../../mddoc/mddoc.js';
 import {ExportedHttpEndpointWithMddocDefinition} from '../types.js';
-import {AddAgentTokenEndpoint, AddAgentTokenEndpointParams} from './addToken/types.js';
+import {AddAgentTokenEndpoint} from './addToken/types.js';
 import {CountWorkspaceAgentTokensEndpoint} from './countWorkspaceTokens/types.js';
 import {DeleteAgentTokenEndpoint} from './deleteToken/types.js';
 import {GetAgentTokenEndpoint} from './getToken/types.js';
@@ -19,10 +18,6 @@ export type GetAgentTokenHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<GetAgentTokenEndpoint>;
 export type UpdateAgentTokenHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<UpdateAgentTokenEndpoint>;
-
-type TrueOrFalse = FieldObjectType<AddAgentTokenEndpointParams> extends FieldObjectType<any>
-  ? true
-  : false;
 
 export type AgentTokensExportedEndpoints = {
   addToken: AddAgentTokenHttpEndpoint;

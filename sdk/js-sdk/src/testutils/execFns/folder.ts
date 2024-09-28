@@ -3,21 +3,21 @@ import assert from 'assert';
 import {merge} from 'lodash-es';
 import {loopAndCollateAsync} from 'softkave-js-utils';
 import {PartialDeep} from 'type-fest';
-import {FimidaraEndpoints} from '../../publicEndpoints.js';
+import {FimidaraEndpoints} from '../../endpoints/publicEndpoints.js';
 import {
   AddFolderEndpointParams,
   DeleteFolderEndpointParams,
   GetFolderEndpointParams,
   ListFolderContentEndpointParams,
   UpdateFolderEndpointParams,
-} from '../../publicTypes.js';
+} from '../../endpoints/publicTypes.js';
 import {
   fimidaraAddRootnameToPath,
   stringifyFimidaraFolderpath,
-} from '../../utils.js';
+} from '../../path/index.js';
 import {ITestVars} from '../utils.js';
 import {uploadFileTestExecFn} from './file.js';
-import path = require('path');
+import path = require('path-browserify');
 
 export async function deleteFolderTestExecFn(
   endpoint: FimidaraEndpoints,
@@ -28,14 +28,14 @@ export async function deleteFolderTestExecFn(
   if (!folderpath) {
     const folder = await addFolderTestExecFn(endpoint, vars);
     folderpath = stringifyFimidaraFolderpath(
-      folder.body.folder,
+      folder.folder,
       vars.workspaceRootname
     );
   }
 
   assert.ok(folderpath);
   const input: DeleteFolderEndpointParams = {folderpath};
-  return await endpoint.folders.deleteFolder({body: input});
+  return await endpoint.folders.deleteFolder(input);
 }
 
 export async function getFolderTestExecFn(
@@ -47,14 +47,14 @@ export async function getFolderTestExecFn(
   if (!folderpath) {
     const folder = await addFolderTestExecFn(endpoint, vars);
     folderpath = stringifyFimidaraFolderpath(
-      folder.body.folder,
+      folder.folder,
       vars.workspaceRootname
     );
   }
 
   assert.ok(folderpath);
   const input: GetFolderEndpointParams = {folderpath};
-  const result = await endpoint.folders.getFolder({body: input});
+  const result = await endpoint.folders.getFolder(input);
   return result;
 }
 
@@ -67,7 +67,7 @@ export async function updateFolderTestExecFn(
   if (!folderpath) {
     const folder = await addFolderTestExecFn(endpoint, vars);
     folderpath = stringifyFimidaraFolderpath(
-      folder.body.folder,
+      folder.folder,
       vars.workspaceRootname
     );
   }
@@ -80,7 +80,7 @@ export async function updateFolderTestExecFn(
     },
   };
 
-  const result = await endpoint.folders.updateFolder({body: input});
+  const result = await endpoint.folders.updateFolder(input);
   return result;
 }
 
@@ -94,7 +94,7 @@ export async function setupFolderContentTestExecFn(
   if (!folderpath) {
     const folder = await addFolderTestExecFn(endpoint, vars);
     folderpath = stringifyFimidaraFolderpath(
-      folder.body.folder,
+      folder.folder,
       vars.workspaceRootname
     );
   }
@@ -104,9 +104,7 @@ export async function setupFolderContentTestExecFn(
     loopAndCollateAsync(
       index =>
         addFolderTestExecFn(endpoint, vars, {
-          folder: {
-            folderpath: path.posix.normalize(`${folderpath}/folder${index}`),
-          },
+          folderpath: path.posix.normalize(`${folderpath}/folder${index}`),
         }),
       count,
       /** settlement type */ 'all'
@@ -129,7 +127,7 @@ export async function listFolderContentTestExecFn(
   vars: ITestVars,
   props: ListFolderContentEndpointParams
 ) {
-  const result = await endpoint.folders.listFolderContent({body: props});
+  const result = await endpoint.folders.listFolderContent(props);
   return result;
 }
 
@@ -139,16 +137,14 @@ export async function addFolderTestExecFn(
   props: PartialDeep<AddFolderEndpointParams> = {}
 ) {
   const genInput: AddFolderEndpointParams = {
-    folder: {
-      description: faker.lorem.sentence(),
-      folderpath: fimidaraAddRootnameToPath(
-        faker.lorem.words(7).replaceAll(' ', '_'),
-        vars.workspaceRootname
-      ),
-    },
+    description: faker.lorem.sentence(),
+    folderpath: fimidaraAddRootnameToPath(
+      faker.lorem.words(7).replaceAll(' ', '_'),
+      vars.workspaceRootname
+    ),
   };
 
   const input = merge(genInput, props);
-  const result = await endpoint.folders.addFolder({body: input});
+  const result = await endpoint.folders.addFolder(input);
   return result;
 }

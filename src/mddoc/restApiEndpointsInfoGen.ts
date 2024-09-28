@@ -1,19 +1,24 @@
 import fse from 'fs-extra';
 import {forEach} from 'lodash-es';
 import {posix} from 'path';
-import {getFimidaraPublicHttpEndpoints} from '../endpoints/endpoints.js';
+import {getFimidaraHttpEndpoints} from '../endpoints/endpoints.js';
 import {
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints/endpoints.mddoc.js';
+import {kEndpointTag} from '../endpoints/types.js';
 import {accessorFieldsToObject} from '../utils/classAccessors.js';
 import {HttpEndpointDefinitionType} from './mddoc.js';
+import {filterEndpoints} from './utils.js';
 
 function generateEndpointInfoFromEndpoints() {
   const infoMap = new Map<HttpEndpointDefinitionType<any>, string>();
-  const fimidaraPublicHttpEndpoints = getFimidaraPublicHttpEndpoints();
+  const fimidaraHttpEndpoints = getFimidaraHttpEndpoints();
+  const pickedEndpoints = filterEndpoints(fimidaraHttpEndpoints, [
+    kEndpointTag.public,
+  ]);
 
-  forEach(fimidaraPublicHttpEndpoints, endpoint => {
+  forEach(pickedEndpoints, endpoint => {
     const info = accessorFieldsToObject(
       endpoint.mddocHttpDefinition
         .setErrorResponseHeaders(

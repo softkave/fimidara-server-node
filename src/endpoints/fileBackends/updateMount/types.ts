@@ -11,12 +11,14 @@ export type UpdateFileBackendMountInput = {
   description?: string;
 };
 
-export type UpdateFileBackendMountEndpointParams = EndpointOptionalWorkspaceIDParam & {
-  mount: UpdateFileBackendMountInput;
-  mountId: string;
-};
+export type UpdateFileBackendMountEndpointParams =
+  EndpointOptionalWorkspaceIDParam & {
+    mount: UpdateFileBackendMountInput;
+    mountId: string;
+  };
 
-export interface UpdateFileBackendMountEndpointResult extends LongRunningJobResult {
+export interface UpdateFileBackendMountEndpointResult
+  extends LongRunningJobResult {
   mount: PublicFileBackendMount;
 }
 

@@ -33,7 +33,7 @@ const addFileBackendConfig: AddFileBackendConfigEndpoint = async reqData => {
   });
 
   const backend = await kSemanticModels.utils().withTxn(async opts => {
-    return await INTERNAL_addConfig(agent, workspace, data.config, opts);
+    return await INTERNAL_addConfig(agent, workspace, data, opts);
   });
 
   return {config: fileBackendConfigExtractor(backend)};

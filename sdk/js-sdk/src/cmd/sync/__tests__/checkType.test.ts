@@ -1,16 +1,16 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {describe, expect, test} from 'vitest';
+import {
+  stringifyFimidaraFilepath,
+  stringifyFimidaraFolderpath,
+} from '../../../path/index.js';
 import {uploadFileTestExecFn} from '../../../testutils/execFns/file.js';
 import {addFolderTestExecFn} from '../../../testutils/execFns/folder.js';
 import {
   fimidaraTestInstance,
   fimidaraTestVars,
 } from '../../../testutils/tests/file.js';
-import {
-  stringifyFimidaraFilepath,
-  stringifyFimidaraFolderpath,
-} from '../../../utils.js';
 import {checkFimidaraType} from '../checkType.js';
 import {kFileEntryType} from '../types.js';
 
@@ -18,12 +18,14 @@ describe('checkType', () => {
   test('file', async () => {
     const text = 'Hello World!';
     const buf = Buffer.from(text);
-    const {
-      body: {file},
-    } = await uploadFileTestExecFn(fimidaraTestInstance, fimidaraTestVars, {
-      data: text,
-      size: buf.byteLength,
-    });
+    const {file} = await uploadFileTestExecFn(
+      fimidaraTestInstance,
+      fimidaraTestVars,
+      {
+        data: text,
+        size: buf.byteLength,
+      }
+    );
 
     const filepath = stringifyFimidaraFilepath(
       file,
@@ -46,9 +48,10 @@ describe('checkType', () => {
   });
 
   test('folder', async () => {
-    const {
-      body: {folder},
-    } = await addFolderTestExecFn(fimidaraTestInstance, fimidaraTestVars);
+    const {folder} = await addFolderTestExecFn(
+      fimidaraTestInstance,
+      fimidaraTestVars
+    );
 
     const folderpath = stringifyFimidaraFolderpath(
       folder,

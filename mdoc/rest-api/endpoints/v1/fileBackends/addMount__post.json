@@ -15,85 +15,75 @@
                 "__id": "FieldObjectField",
                 "required": false
             },
-            "mount": {
+            "name": {
                 "data": {
-                    "__id": "FieldObject",
-                    "name": "NewFileBackendMountInput",
-                    "fields": {
-                        "name": {
-                            "data": {
-                                "__id": "FieldString",
-                                "description": "Name, case insensitive"
-                            },
-                            "__id": "FieldObjectField",
-                            "required": true
+                    "__id": "FieldString",
+                    "description": "Name, case insensitive"
+                },
+                "__id": "FieldObjectField",
+                "required": true
+            },
+            "description": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Description"
+                },
+                "__id": "FieldObjectField",
+                "required": false
+            },
+            "backend": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "File backend type",
+                    "example": "fimidara",
+                    "valid": {
+                        "0": "fimidara",
+                        "1": "aws-s3"
+                    },
+                    "enumName": "FileBackendType"
+                },
+                "__id": "FieldObjectField",
+                "required": true
+            },
+            "folderpath": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Files mount source. Exact shape is different for each provider. For AWS S3, this would be just the bucket name or bucket name with folder prefix. E.g my-bucket or my-bucket/folder01 assuming there is a folder01 within my-bucket.",
+                    "example": "/bucket-name/folder-name"
+                },
+                "__id": "FieldObjectField",
+                "required": true
+            },
+            "configId": {
+                "data": {
+                    "__id": "FieldOrCombination",
+                    "types": {
+                        "0": {
+                            "__id": "FieldString",
+                            "description": "Backend config ID",
+                            "example": "wrkspce_000000000000000000000"
                         },
-                        "description": {
-                            "data": {
-                                "__id": "FieldString",
-                                "description": "Description"
-                            },
-                            "__id": "FieldObjectField",
-                            "required": false
-                        },
-                        "backend": {
-                            "data": {
-                                "__id": "FieldString",
-                                "description": "File backend type",
-                                "example": "fimidara",
-                                "valid": {
-                                    "0": "fimidara",
-                                    "1": "aws-s3"
-                                },
-                                "enumName": "FileBackendType"
-                            },
-                            "__id": "FieldObjectField",
-                            "required": true
-                        },
-                        "folderpath": {
-                            "data": {
-                                "__id": "FieldString",
-                                "description": "Files mount source. Exact shape is different for each provider. For AWS S3, this would be just the bucket name or bucket name with folder prefix. E.g my-bucket or my-bucket/folder01 assuming there is a folder01 within my-bucket.",
-                                "example": "/bucket-name/folder-name"
-                            },
-                            "__id": "FieldObjectField",
-                            "required": true
-                        },
-                        "configId": {
-                            "data": {
-                                "__id": "FieldOrCombination",
-                                "types": {
-                                    "0": {
-                                        "__id": "FieldString",
-                                        "description": "Backend config ID",
-                                        "example": "wrkspce_000000000000000000000"
-                                    },
-                                    "1": {
-                                        "__id": "FieldNull"
-                                    }
-                                }
-                            },
-                            "__id": "FieldObjectField",
-                            "required": true
-                        },
-                        "index": {
-                            "data": {
-                                "__id": "FieldNumber",
-                                "description": "File backend mount weight when compared to mounts attached to the same folder. Higher values have higher weight"
-                            },
-                            "__id": "FieldObjectField",
-                            "required": true
-                        },
-                        "mountedFrom": {
-                            "data": {
-                                "__id": "FieldString",
-                                "description": "Files mount source. Exact shape is different for each provider. For AWS S3, this would be just the bucket name or bucket name with folder prefix. E.g my-bucket or my-bucket/folder01 assuming there is a folder01 within my-bucket.",
-                                "example": "/bucket-name/folder-name"
-                            },
-                            "__id": "FieldObjectField",
-                            "required": true
+                        "1": {
+                            "__id": "FieldNull"
                         }
                     }
+                },
+                "__id": "FieldObjectField",
+                "required": true
+            },
+            "index": {
+                "data": {
+                    "__id": "FieldNumber",
+                    "description": "File backend mount weight when compared to mounts attached to the same folder. Higher values have higher weight"
+                },
+                "__id": "FieldObjectField",
+                "required": true
+            },
+            "mountedFrom": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Files mount source. Exact shape is different for each provider. For AWS S3, this would be just the bucket name or bucket name with folder prefix. E.g my-bucket or my-bucket/folder01 assuming there is a folder01 within my-bucket.",
+                    "example": "/bucket-name/folder-name"
                 },
                 "__id": "FieldObjectField",
                 "required": true

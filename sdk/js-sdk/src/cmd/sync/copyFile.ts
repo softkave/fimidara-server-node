@@ -20,11 +20,11 @@ export async function copyToLocalFile(
   localpath: string,
   opts: IFimidaraCmdOpts
 ) {
-  const [{body}] = await Promise.all([
-    getFimidara(opts).files.readFile({
-      body: {filepath: fimidarapath},
-      responseType: 'stream',
-    }),
+  const [body] = await Promise.all([
+    getFimidara(opts).files.readFile(
+      {filepath: fimidarapath},
+      {responseType: 'stream'}
+    ),
     ensureFile(localpath),
   ]);
 
@@ -40,7 +40,9 @@ export async function copyToFimidaraFile(
 ) {
   const rstream = createReadStream(localpath, {autoClose: true});
   await getFimidara(opts).files.uploadFile({
-    body: {filepath: fimidarapath, data: rstream, size: stats.size},
+    filepath: fimidarapath,
+    data: rstream,
+    size: stats.size,
   });
 }
 

@@ -1,12 +1,12 @@
 import {faker} from '@faker-js/faker';
 import {ensureDir, ensureFile} from 'fs-extra';
 import {readFile, writeFile} from 'fs/promises';
-import path from 'path';
+import path from 'path-browserify';
 import {indexArray, loopAndCollate} from 'softkave-js-utils';
 import {expect} from 'vitest';
+import {File as FimidaraFile} from '../../endpoints/publicTypes.js';
 import {getNodeDirContent} from '../../node/getNodeDirContent.js';
-import {File as FimidaraFile} from '../../publicTypes.js';
-import {stringifyFimidaraFilename} from '../../utils.js';
+import {stringifyFimidaraFilename} from '../../path/file.js';
 import {uploadFileTestExecFn} from '../execFns/file.js';
 import {fimidaraTestInstance, fimidaraTestVars} from '../tests/file.js';
 import {streamToString} from '../utils.js';
@@ -74,7 +74,7 @@ export async function genFimidaraFolders(fimidarapath: string, count = 1) {
     foldernames.map(async fName => {
       const fp = path.posix.join(fimidarapath, fName);
       await fimidaraTestInstance.folders.addFolder({
-        body: {folder: {folderpath: fp}},
+        folderpath: fp,
       });
     })
   );
@@ -117,11 +117,11 @@ export async function assertFimidaraFolderContent(
   foldernames: string[] | undefined,
   beforeCopyDate: number | undefined
 ) {
-  const {
-    body: {files, folders},
-  } = await fimidaraTestInstance.folders.listFolderContent({
-    body: {folderpath: fimidarapath},
-  });
+  const {files, folders} = await fimidaraTestInstance.folders.listFolderContent(
+    {
+      folderpath: fimidarapath,
+    }
+  );
 
   const fimidaraFilenamesMap = indexArray(files, {
     indexer: stringifyFimidaraFilename,
@@ -164,10 +164,10 @@ export async function assertFimidaraFilesContent(
 ) {
   const fStrList = await Promise.all(
     files.map(async f => {
-      const {body} = await fimidaraTestInstance.files.readFile({
-        body: {fileId: f.resourceId},
-        responseType: 'stream',
-      });
+      const body = await fimidaraTestInstance.files.readFile(
+        {fileId: f.resourceId},
+        {responseType: 'stream'}
+      );
       return await streamToString(body);
     })
   );

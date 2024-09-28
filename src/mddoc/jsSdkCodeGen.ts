@@ -8,9 +8,9 @@ import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js'
 import {registerUtilsInjectables} from '../endpoints/contexts/injection/register.js';
 import {
   AppExportedHttpEndpoints,
-  getFimidaraPrivateHttpEndpoints,
-  getFimidaraPublicHttpEndpoints,
+  getFimidaraHttpEndpoints,
 } from '../endpoints/endpoints.js';
+import {kEndpointTag} from '../endpoints/types.js';
 import {kFimidaraConfigDbType} from '../resources/config.js';
 import {isObjectEmpty, pathSplit} from '../utils/fns.js';
 import {
@@ -40,6 +40,7 @@ import {
   mddocConstruct,
   objectHasRequiredFields,
 } from './mddoc.js';
+import {filterEndpoints} from './utils.js';
 
 class Doc {
   protected disclaimer =
@@ -433,38 +434,28 @@ function generateEndpointCode(
     ])
   );
 
-  let endpointParamsText = '';
-  let resultType = 'FimidaraEndpointResult<undefined>';
+  let param0 = '';
+  let resultType = 'void';
   let templateParams = '';
+  let param1 = 'opts?: FimidaraEndpointOpts';
+
   const isBinaryRequest = decideIsBinaryRequest(requestBodyRaw);
   const isBinaryResponse = isMddocFieldBinary(successResponseBodyRaw);
   const requestBodyObjectName = sdkRequestObject?.assertGetName();
 
   if (successResponseBodyObject) {
     doc.appendImportFromGenTypes([successResponseBodyObject.assertGetName()]);
-    const resultTypeName = successResponseBodyObject.assertGetName();
-    resultType = `FimidaraEndpointResult<${resultTypeName}>`;
+    resultType = successResponseBodyObject.assertGetName();
   } else if (isBinaryResponse) {
     resultType = 'FimidaraEndpointResultWithBinaryResponse<TResponseType>';
   }
 
   if (sdkRequestObject) {
-    if (isBinaryResponse) {
-      templateParams = "<TResponseType extends 'blob' | 'stream'>";
-      if (requestBodyObjectHasRequiredFields) {
-        endpointParamsText = `props: FimidaraEndpointWithBinaryResponseParamsRequired<${requestBodyObjectName}, TResponseType>`;
-      } else {
-        endpointParamsText = `props: FimidaraEndpointWithBinaryResponseParamsOptional<${requestBodyObjectName}, TResponseType>`;
-      }
+    if (requestBodyObjectHasRequiredFields) {
+      param0 = `props: ${requestBodyObjectName}`;
     } else {
-      if (requestBodyObjectHasRequiredFields) {
-        endpointParamsText = `props: FimidaraEndpointParamsRequired<${requestBodyObjectName}>`;
-      } else {
-        endpointParamsText = `props?: FimidaraEndpointParamsOptional<${requestBodyObjectName}>`;
-      }
+      param0 = `props?: ${requestBodyObjectName}`;
     }
-  } else {
-    endpointParamsText = 'props?: FimidaraEndpointParamsOptional<undefined>';
   }
 
   const bodyText: string[] = [];
@@ -472,13 +463,18 @@ function generateEndpointCode(
   const sdkBody = endpoint.getSdkParamsBody();
 
   if (isBinaryResponse) {
-    bodyText.push('responseType: props.responseType,');
+    bodyText.push('responseType: opts.responseType,');
+    templateParams = "<TResponseType extends 'blob' | 'stream'>";
+    param1 =
+      'opts: FimidaraEndpointDownloadBinaryOpts<TResponseType> ' +
+      '= {responseType: "blob"} as FimidaraEndpointDownloadBinaryOpts<TResponseType>';
   }
 
   if (isBinaryRequest) {
-    bodyText.push('formdata: props.body,');
+    bodyText.push('formdata: props,');
+    param1 = 'opts?: FimidaraEndpointUploadBinaryOpts';
   } else if (sdkRequestObject) {
-    bodyText.push('data: props?.body,');
+    bodyText.push('data: props,');
   }
 
   if (sdkRequestObject && sdkBody) {
@@ -496,14 +492,14 @@ function generateEndpointCode(
     }
   }
 
-  const text = `${fnName} = async ${templateParams}(${endpointParamsText}): Promise<${resultType}> => {
+  const params = compact([param0, param1]).join(',');
+  const text = `${fnName} = async ${templateParams}(${params}): Promise<${resultType}> => {
     ${mapping.length ? `const mapping = ${mapping} as const` : ''}
     return this.execute${isBinaryResponse ? 'Raw' : 'Json'}({
-      ...props,
       ${bodyText.join('')}
       path: "${endpoint.assertGetBasePathname()}",
       method: "${endpoint.assertGetMethod().toUpperCase()}",
-    }, props, ${mapping.length ? 'mapping' : ''});
+    }, opts, ${mapping.length ? 'mapping' : ''});
   }`;
 
   doc.appendToClass(text, className, 'FimidaraEndpointsBase');
@@ -550,16 +546,13 @@ function generateEveryEndpointCode(
 
   doc.appendImport(
     [
-      'invokeEndpoint',
       'FimidaraEndpointsBase',
-      'FimidaraEndpointResult',
-      'FimidaraEndpointParamsRequired',
-      'FimidaraEndpointParamsOptional',
-      'FimidaraEndpointWithBinaryResponseParamsRequired',
-      'FimidaraEndpointWithBinaryResponseParamsOptional',
       'FimidaraEndpointResultWithBinaryResponse',
+      'FimidaraEndpointOpts',
+      'FimidaraEndpointDownloadBinaryOpts',
+      'FimidaraEndpointUploadBinaryOpts',
     ],
-    './utils'
+    './endpointImports.ts'
   );
 
   for (const groupName in leafEndpointsMap) {
@@ -623,28 +616,30 @@ function uniqEnpoints(endpoints: Array<HttpEndpointDefinitionType>) {
 
 async function jsSdkCodeGen(
   endpoints: AppExportedHttpEndpoints,
-  filenamePrefix = ''
+  filenamePrefix: string,
+  tags: string[]
 ) {
-  const endpointsDir = './sdk/js-sdk/src';
-  const typesFilename = `${filenamePrefix}Types`;
-  const typesFilepath = path.normalize(
-    endpointsDir + '/' + typesFilename + '.ts'
-  );
+  const endpointsDir = './sdk/js-sdk/src/endpoints';
+  const typesFilename = `${filenamePrefix}Types.ts`;
+  const typesFilepath = path.normalize(endpointsDir + '/' + typesFilename);
   const codesFilepath = path.normalize(
     endpointsDir + `/${filenamePrefix}Endpoints.ts`
   );
   const typesDoc = new Doc('./' + typesFilename);
   const codesDoc = new Doc('./' + typesFilename);
 
-  forEach(endpoints, e1 => {
-    if (e1)
+  const pickedEndpoints = filterEndpoints(endpoints, tags);
+
+  forEach(pickedEndpoints, e1 => {
+    if (e1) {
       documentTypesFromEndpoint(
         typesDoc,
         e1.mddocHttpDefinition as unknown as HttpEndpointDefinitionType
       );
+    }
   });
 
-  const httpEndpoints = endpoints.map(e1 => e1.mddocHttpDefinition);
+  const httpEndpoints = pickedEndpoints.map(e1 => e1.mddocHttpDefinition);
   const uniqHttpEndpoints = uniqEnpoints(
     httpEndpoints as unknown as Array<HttpEndpointDefinitionType>
   );
@@ -657,6 +652,9 @@ async function jsSdkCodeGen(
     fse.writeFile(codesFilepath, codesDoc.compileText(), {encoding: 'utf-8'}),
   ]);
 
+  execSync(`npx code-migration-helpers add-ext -f="${endpointsDir}"`, {
+    stdio: 'inherit',
+  });
   execSync(`npx --yes prettier --write "${typesFilepath}"`, {stdio: 'inherit'});
   execSync(`npx --yes prettier --write "${codesFilepath}"`, {stdio: 'inherit'});
 }
@@ -664,8 +662,16 @@ async function jsSdkCodeGen(
 async function main() {
   await registerUtilsInjectables({dbType: kFimidaraConfigDbType.noop});
   await Promise.all([
-    jsSdkCodeGen(getFimidaraPublicHttpEndpoints() as any, 'public'),
-    jsSdkCodeGen(getFimidaraPrivateHttpEndpoints() as any, 'private'),
+    jsSdkCodeGen(
+      getFimidaraHttpEndpoints() as any,
+      /** filenamePrefix */ 'public',
+      [kEndpointTag.public]
+    ),
+    jsSdkCodeGen(
+      getFimidaraHttpEndpoints() as any,
+      /** filenamePrefix */ 'private',
+      [kEndpointTag.private]
+    ),
   ]);
 }
 

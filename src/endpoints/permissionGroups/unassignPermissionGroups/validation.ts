@@ -9,7 +9,7 @@ export const unassignPermissionGroupsJoiSchema =
     .keys({
       ...endpointValidationSchemas.optionalWorkspaceIdParts,
       entityId: permissionItemValidationSchemas.entityParts.entityId.required(),
-      permissionGroups:
+      permissionGroupId:
         kValidationSchemas.resourceIdOrResourceIdList.required(),
     })
     .required();

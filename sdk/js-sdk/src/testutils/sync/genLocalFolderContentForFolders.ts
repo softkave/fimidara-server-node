@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'path-browserify';
 import {genLocalFiles, genLocalFolders} from './syncUtils.js';
 
 export async function genLocalFolderContentForFolders(

@@ -1,6 +1,6 @@
-import path from 'path';
+import path from 'path-browserify';
+import {Folder} from '../../endpoints/publicTypes.js';
 import {getNodeDirContent} from '../../node/getNodeDirContent.js';
-import {Folder} from '../../publicTypes.js';
 import {getFimidara} from '../fimidara.js';
 import {copyFolderFiles} from './copyFolderFiles.js';
 import {IFimidaraSyncOpts, kFimidaraSyncDirection} from './types.js';
@@ -12,13 +12,11 @@ async function getFimidaraFolderFolders(
   folderPageSize: number
 ) {
   try {
-    const {body} = await getFimidara(opts).folders.listFolderContent({
-      body: {
-        page,
-        pageSize: folderPageSize,
-        folderpath: fimidarapath,
-        contentType: 'folder',
-      },
+    const body = await getFimidara(opts).folders.listFolderContent({
+      page,
+      pageSize: folderPageSize,
+      folderpath: fimidarapath,
+      contentType: 'folder',
     });
 
     return body.folders;

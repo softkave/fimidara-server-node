@@ -1,48 +1,36 @@
 import {Express} from 'express';
 import {forEach, isArray, isObject} from 'lodash-es';
-import {getAgentTokenPublicHttpEndpoints} from './agentTokens/endpoints.js';
+import {getAgentTokenHttpEndpoints} from './agentTokens/endpoints.js';
 import {AgentTokensExportedEndpoints} from './agentTokens/types.js';
-import {getCollaborationRequestsPublicHttpEndpoints} from './collaborationRequests/endpoints.js';
+import {getCollaborationRequestsHttpEndpoints} from './collaborationRequests/endpoints.js';
 import {CollaborationRequestsExportedEndpoints} from './collaborationRequests/types.js';
-import {
-  getCollaboratorsPrivateHttpEndpoints,
-  getCollaboratorsPublicHttpEndpoints,
-} from './collaborators/endpoints.js';
-import {
-  CollaboratorsPrivateExportedEndpoints,
-  CollaboratorsPublicExportedEndpoints,
-} from './collaborators/types.js';
-import {getFileBackendsPublicHttpEndpoints} from './fileBackends/endpoints.js';
+import {getCollaboratorsHttpEndpoints} from './collaborators/endpoints.js';
+import {CollaboratorsExportedEndpoints} from './collaborators/types.js';
+import {getFileBackendsHttpEndpoints} from './fileBackends/endpoints.js';
 import {FileBackendsExportedEndpoints} from './fileBackends/types.js';
-import {getFilesPublicHttpEndpoints} from './files/endpoints.js';
+import {getFilesHttpEndpoints} from './files/endpoints.js';
 import {FilesExportedEndpoints} from './files/types.js';
-import {getFoldersPublicHttpEndpoints} from './folders/endpoints.js';
+import {getFoldersHttpEndpoints} from './folders/endpoints.js';
 import {FoldersExportedEndpoints} from './folders/types.js';
-import {getInternalsPrivateHttpEndpoints} from './internal/endpoints.js';
-import {InternalsPrivateExportedEndpoints} from './internal/types.js';
-import {getJobsPublicHttpEndpoints} from './jobs/endpoints.js';
+import {getInternalsHttpEndpoints} from './internal/endpoints.js';
+import {InternalsExportedEndpoints} from './internal/types.js';
+import {getJobsHttpEndpoints} from './jobs/endpoints.js';
 import {JobsExportedEndpoints} from './jobs/types.js';
-import {getPermissionGroupsPublicHttpEndpoints} from './permissionGroups/endpoints.js';
+import {getPermissionGroupsHttpEndpoints} from './permissionGroups/endpoints.js';
 import {PermissionGroupsExportedEndpoints} from './permissionGroups/types.js';
-import {getPermissionItemsPublicHttpEndpoints} from './permissionItems/endpoints.js';
+import {getPermissionItemsHttpEndpoints} from './permissionItems/endpoints.js';
 import {PermissionItemsExportedEndpoints} from './permissionItems/types.js';
-import {getPresignedPathsPublicHttpEndpoints} from './presignedPaths/endpoints.js';
+import {getPresignedPathsHttpEndpoints} from './presignedPaths/endpoints.js';
 import {PresignedPathsExportedEndpoints} from './presignedPaths/types.js';
-import {getResourcesPublicHttpEndpoints} from './resources/endpoints.js';
+import {getResourcesHttpEndpoints} from './resources/endpoints.js';
 import {ResourcesExportedEndpoints} from './resources/types.js';
 import {ExportedHttpEndpointWithMddocDefinition} from './types.js';
-import {getUsageRecordsPublicHttpEndpoints} from './usageRecords/endpoints.js';
+import {getUsageRecordsHttpEndpoints} from './usageRecords/endpoints.js';
 import {UsageRecordsExportedEndpoints} from './usageRecords/types.js';
-import {
-  getUsersPrivateHttpEndpoints,
-  getUsersPublicHttpEndpoints,
-} from './users/endpoints.js';
-import {
-  UsersPrivateExportedEndpoints,
-  UsersPublicExportedEndpoints,
-} from './users/types.js';
+import {getUsersHttpEndpoints} from './users/endpoints.js';
+import {UsersExportedEndpoints} from './users/types.js';
 import {registerExpressRouteFromEndpoint} from './utils.js';
-import {getWorkspacesPublicHttpEndpoints} from './workspaces/endpoints.js';
+import {getWorkspacesHttpEndpoints} from './workspaces/endpoints.js';
 import {WorkspacesExportedEndpoints} from './workspaces/types.js';
 
 export type AppExportedHttpEndpoints = Array<
@@ -56,10 +44,10 @@ type RecordExportedHttpEndpoints = Record<
   | /** RecordExportedHttpEndpoints */ Record<string, any>
 >;
 
-type FimidaraPublicExportedHttpEndpoints = {
+type FimidaraExportedHttpEndpoints = {
   agentTokens: AgentTokensExportedEndpoints;
   collaborationRequests: CollaborationRequestsExportedEndpoints;
-  collaborators: CollaboratorsPublicExportedEndpoints;
+  collaborators: CollaboratorsExportedEndpoints;
   files: FilesExportedEndpoints;
   folders: FoldersExportedEndpoints;
   jobs: JobsExportedEndpoints;
@@ -67,43 +55,32 @@ type FimidaraPublicExportedHttpEndpoints = {
   permissionItems: PermissionItemsExportedEndpoints;
   resources: ResourcesExportedEndpoints;
   usageRecords: UsageRecordsExportedEndpoints;
-  users: UsersPublicExportedEndpoints;
+  users: UsersExportedEndpoints;
   workspaces: WorkspacesExportedEndpoints;
   fileBackends: FileBackendsExportedEndpoints;
   presignedPaths: PresignedPathsExportedEndpoints;
+  internal: InternalsExportedEndpoints;
 };
 
-type FimidaraPrivateExportedHttpEndpoints = {
-  users: UsersPrivateExportedEndpoints;
-  collaborators: CollaboratorsPrivateExportedEndpoints;
-  internal: InternalsPrivateExportedEndpoints;
-};
+function getFimidaraRawHttpEndpoints() {
+  const endpoints: FimidaraExportedHttpEndpoints = {
+    agentTokens: getAgentTokenHttpEndpoints(),
+    collaborationRequests: getCollaborationRequestsHttpEndpoints(),
+    collaborators: getCollaboratorsHttpEndpoints(),
+    files: getFilesHttpEndpoints(),
+    folders: getFoldersHttpEndpoints(),
+    jobs: getJobsHttpEndpoints(),
+    permissionGroups: getPermissionGroupsHttpEndpoints(),
+    permissionItems: getPermissionItemsHttpEndpoints(),
+    resources: getResourcesHttpEndpoints(),
+    usageRecords: getUsageRecordsHttpEndpoints(),
+    users: getUsersHttpEndpoints(),
+    workspaces: getWorkspacesHttpEndpoints(),
+    fileBackends: getFileBackendsHttpEndpoints(),
+    presignedPaths: getPresignedPathsHttpEndpoints(),
+    internal: getInternalsHttpEndpoints(),
+  };
 
-function getFimidaraRawPublicHttpEndpoints() {
-  const endpoints: FimidaraPublicExportedHttpEndpoints = {
-    agentTokens: getAgentTokenPublicHttpEndpoints(),
-    collaborationRequests: getCollaborationRequestsPublicHttpEndpoints(),
-    collaborators: getCollaboratorsPublicHttpEndpoints(),
-    files: getFilesPublicHttpEndpoints(),
-    folders: getFoldersPublicHttpEndpoints(),
-    jobs: getJobsPublicHttpEndpoints(),
-    permissionGroups: getPermissionGroupsPublicHttpEndpoints(),
-    permissionItems: getPermissionItemsPublicHttpEndpoints(),
-    resources: getResourcesPublicHttpEndpoints(),
-    usageRecords: getUsageRecordsPublicHttpEndpoints(),
-    users: getUsersPublicHttpEndpoints(),
-    workspaces: getWorkspacesPublicHttpEndpoints(),
-    fileBackends: getFileBackendsPublicHttpEndpoints(),
-    presignedPaths: getPresignedPathsPublicHttpEndpoints(),
-  };
-  return endpoints;
-}
-function getFimidaraRawPrivateHttpEndpoints() {
-  const endpoints: FimidaraPrivateExportedHttpEndpoints = {
-    users: getUsersPrivateHttpEndpoints(),
-    collaborators: getCollaboratorsPrivateHttpEndpoints(),
-    internal: getInternalsPrivateHttpEndpoints(),
-  };
   return endpoints;
 }
 
@@ -133,11 +110,8 @@ function compileEndpoints(
   return endpoints;
 }
 
-export function getFimidaraPublicHttpEndpoints() {
-  return compileEndpoints(getFimidaraRawPublicHttpEndpoints());
-}
-export function getFimidaraPrivateHttpEndpoints() {
-  return compileEndpoints(getFimidaraRawPrivateHttpEndpoints());
+export function getFimidaraHttpEndpoints() {
+  return compileEndpoints(getFimidaraRawHttpEndpoints());
 }
 
 function setupAppHttpEndpoints(
@@ -150,6 +124,5 @@ function setupAppHttpEndpoints(
 }
 
 export function setupFimidaraHttpEndpoints(app: Express) {
-  setupAppHttpEndpoints(app, getFimidaraPublicHttpEndpoints());
-  setupAppHttpEndpoints(app, getFimidaraPrivateHttpEndpoints());
+  setupAppHttpEndpoints(app, getFimidaraHttpEndpoints());
 }

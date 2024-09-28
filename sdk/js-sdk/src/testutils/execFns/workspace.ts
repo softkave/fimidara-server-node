@@ -2,11 +2,11 @@ import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {merge} from 'lodash-es';
 import {PartialDeep} from 'type-fest';
-import {FimidaraEndpoints} from '../../publicEndpoints.js';
+import {FimidaraEndpoints} from '../../endpoints/publicEndpoints.js';
 import {
   GetWorkspaceEndpointParams,
   UpdateWorkspaceEndpointParams,
-} from '../../publicTypes.js';
+} from '../../endpoints/publicTypes.js';
 import {ITestVars} from '../utils.js';
 
 export async function getWorkspaceTestExecFn(
@@ -18,8 +18,8 @@ export async function getWorkspaceTestExecFn(
     workspaceId: vars.workspaceId,
   };
   const input: GetWorkspaceEndpointParams = merge(genInput, props);
-  const result = await endpoint.workspaces.getWorkspace({body: input});
-  assert(result.body.workspace.resourceId === vars.workspaceId);
+  const result = await endpoint.workspaces.getWorkspace(input);
+  assert(result.workspace.resourceId === vars.workspaceId);
   return result;
 }
 
@@ -37,7 +37,7 @@ export async function updateWorkspaceTestExecFn(
     },
   };
   const input: UpdateWorkspaceEndpointParams = merge(genInput, props);
-  const result = await endpoint.workspaces.updateWorkspace({body: input});
-  assert(result.body.workspace.name === input.workspace.name);
+  const result = await endpoint.workspaces.updateWorkspace(input);
+  assert(result.workspace.name === input.workspace.name);
   return result;
 }

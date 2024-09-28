@@ -18,12 +18,10 @@ import {
 import {
   AddFileBackendConfigEndpointParams,
   AddFileBackendConfigEndpointResult,
-  NewFileBackendConfigInput,
 } from './addConfig/types.js';
 import {
   AddFileBackendMountEndpointParams,
   AddFileBackendMountEndpointResult,
-  NewFileBackendMountInput,
 } from './addMount/types.js';
 import {kFileBackendConstants} from './constants.js';
 import {CountFileBackendConfigsEndpointParams} from './countConfigs/types.js';
@@ -123,27 +121,20 @@ const credentials = mddocConstruct
   `)
   );
 
-const newFileBackendMountInput = mddocConstruct
-  .constructFieldObject<NewFileBackendMountInput>()
-  .setName('NewFileBackendMountInput')
-  .setFields({
-    name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
-    description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
-    backend: mddocConstruct.constructFieldObjectField(true, backend),
-    folderpath: mddocConstruct.constructFieldObjectField(true, fReusables.folderpath),
-    configId: mddocConstruct.constructFieldObjectField(true, configIdOrNull),
-    index: mddocConstruct.constructFieldObjectField(true, index),
-    mountedFrom: mddocConstruct.constructFieldObjectField(true, mountedFrom),
-  });
-
 const updateFileBackendMountInput = mddocConstruct
   .constructFieldObject<UpdateFileBackendMountInput>()
   .setName('UpdateFileBackendMountInput')
   .setFields({
     name: mddocConstruct.constructFieldObjectField(false, fReusables.name),
-    description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
+    description: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.description
+    ),
     configId: mddocConstruct.constructFieldObjectField(false, configId),
-    folderpath: mddocConstruct.constructFieldObjectField(false, fReusables.folderpath),
+    folderpath: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.folderpath
+    ),
     index: mddocConstruct.constructFieldObjectField(false, index),
     mountedFrom: mddocConstruct.constructFieldObjectField(false, mountedFrom),
   });
@@ -154,34 +145,36 @@ const fileBackendMount = mddocConstruct
   .setFields({
     ...fReusables.workspaceResourceParts,
     name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
-    description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
+    description: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.description
+    ),
     backend: mddocConstruct.constructFieldObjectField(true, backend),
     configId: mddocConstruct.constructFieldObjectField(true, configIdOrNull),
-    namepath: mddocConstruct.constructFieldObjectField(true, fReusables.folderpathList),
+    namepath: mddocConstruct.constructFieldObjectField(
+      true,
+      fReusables.folderpathList
+    ),
     index: mddocConstruct.constructFieldObjectField(true, index),
-    mountedFrom: mddocConstruct.constructFieldObjectField(true, mountedFromAsList),
+    mountedFrom: mddocConstruct.constructFieldObjectField(
+      true,
+      mountedFromAsList
+    ),
   });
 
 const fileBackendMountList = mddocConstruct
   .constructFieldArray<PublicFileBackendMount>()
   .setType(fileBackendMount);
 
-const newFileBackendConfigInput = mddocConstruct
-  .constructFieldObject<NewFileBackendConfigInput>()
-  .setName('NewFileBackendConfigInput')
-  .setFields({
-    name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
-    description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
-    backend: mddocConstruct.constructFieldObjectField(true, backend),
-    credentials: mddocConstruct.constructFieldObjectField(true, credentials),
-  });
-
 const updateFileBackendConfigInput = mddocConstruct
   .constructFieldObject<UpdateFileBackendConfigInput>()
   .setName('UpdateFileBackendConfigInput')
   .setFields({
     name: mddocConstruct.constructFieldObjectField(false, fReusables.name),
-    description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
+    description: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.description
+    ),
     credentials: mddocConstruct.constructFieldObjectField(false, credentials),
   });
 
@@ -191,7 +184,10 @@ const fileBackendConfig = mddocConstruct
   .setFields({
     ...fReusables.workspaceResourceParts,
     name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
-    description: mddocConstruct.constructFieldObjectField(false, fReusables.description),
+    description: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.description
+    ),
     backend: mddocConstruct.constructFieldObjectField(true, backend),
   });
 
@@ -203,13 +199,30 @@ const addFileBackendMountParams = mddocConstruct
   .constructFieldObject<AddFileBackendMountEndpointParams>()
   .setName('AddFileBackendMountEndpointParams')
   .setFields({
-    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceId),
-    mount: mddocConstruct.constructFieldObjectField(true, newFileBackendMountInput),
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceId
+    ),
+    name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
+    description: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.description
+    ),
+    backend: mddocConstruct.constructFieldObjectField(true, backend),
+    folderpath: mddocConstruct.constructFieldObjectField(
+      true,
+      fReusables.folderpath
+    ),
+    configId: mddocConstruct.constructFieldObjectField(true, configIdOrNull),
+    index: mddocConstruct.constructFieldObjectField(true, index),
+    mountedFrom: mddocConstruct.constructFieldObjectField(true, mountedFrom),
   });
 const addFileBackendMountSuccessResponseBody = mddocConstruct
   .constructFieldObject<AddFileBackendMountEndpointResult>()
   .setName('AddFileBackendMountEndpointResult')
-  .setFields({mount: mddocConstruct.constructFieldObjectField(true, fileBackendMount)});
+  .setFields({
+    mount: mddocConstruct.constructFieldObjectField(true, fileBackendMount),
+  });
 
 const getFileBackendMountsParams = mddocConstruct
   .constructFieldObject<GetFileBackendMountsEndpointParams>()
@@ -220,16 +233,25 @@ const getFileBackendMountsParams = mddocConstruct
       fReusables.workspaceIdInput
     ),
     backend: mddocConstruct.constructFieldObjectField(false, backend),
-    folderpath: mddocConstruct.constructFieldObjectField(false, fReusables.folderpath),
+    folderpath: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.folderpath
+    ),
     configId: mddocConstruct.constructFieldObjectField(false, fReusables.id),
     page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
-    pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
+    pageSize: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.pageSize
+    ),
   });
 const getFileBackendMountsSuccessResponseBody = mddocConstruct
   .constructFieldObject<GetFileBackendMountsEndpointResult>()
   .setName('GetFileBackendMountsEndpointResult')
   .setFields({
-    mounts: mddocConstruct.constructFieldObjectField(true, fileBackendMountList),
+    mounts: mddocConstruct.constructFieldObjectField(
+      true,
+      fileBackendMountList
+    ),
     page: mddocConstruct.constructFieldObjectField(true, fReusables.page),
   });
 
@@ -242,7 +264,10 @@ const countFileBackendMountsParams = mddocConstruct
       fReusables.workspaceIdInput
     ),
     backend: mddocConstruct.constructFieldObjectField(false, backend),
-    folderpath: mddocConstruct.constructFieldObjectField(false, fReusables.folderpath),
+    folderpath: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.folderpath
+    ),
     configId: mddocConstruct.constructFieldObjectField(false, fReusables.id),
   });
 
@@ -255,7 +280,10 @@ const updateFileBackendMountParams = mddocConstruct
       fReusables.workspaceIdInput
     ),
     mountId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-    mount: mddocConstruct.constructFieldObjectField(true, updateFileBackendMountInput),
+    mount: mddocConstruct.constructFieldObjectField(
+      true,
+      updateFileBackendMountInput
+    ),
   });
 const updateFileBackendMountSuccessResponseBody = mddocConstruct
   .constructFieldObject<UpdateFileBackendMountEndpointResult>()
@@ -278,7 +306,9 @@ const getFileBackendMountParams = mddocConstruct
 const getFileBackendMountSuccessBody = mddocConstruct
   .constructFieldObject<GetFileBackendMountEndpointResult>()
   .setName('GetFileBackendMountEndpointResult')
-  .setFields({mount: mddocConstruct.constructFieldObjectField(true, fileBackendMount)});
+  .setFields({
+    mount: mddocConstruct.constructFieldObjectField(true, fileBackendMount),
+  });
 
 const deleteFileBackendMountParams = mddocConstruct
   .constructFieldObject<DeleteFileBackendMountEndpointParams>()
@@ -299,29 +329,52 @@ const resolveFileBackendMountsParams = mddocConstruct
       false,
       fReusables.workspaceIdInput
     ),
-    folderId: mddocConstruct.constructFieldObjectField(false, fReusables.folderId),
-    folderpath: mddocConstruct.constructFieldObjectField(false, fReusables.folderpath),
+    folderId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.folderId
+    ),
+    folderpath: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.folderpath
+    ),
     fileId: mddocConstruct.constructFieldObjectField(false, fReusables.fileId),
-    filepath: mddocConstruct.constructFieldObjectField(false, fReusables.filepath),
+    filepath: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.filepath
+    ),
   });
 const resolveFileBackendMountsSuccessResponseBody = mddocConstruct
   .constructFieldObject<ResolveFileBackendMountsEndpointResult>()
   .setName('ResolveFileBackendMountsEndpointResult')
   .setFields({
-    mounts: mddocConstruct.constructFieldObjectField(true, fileBackendMountList),
+    mounts: mddocConstruct.constructFieldObjectField(
+      true,
+      fileBackendMountList
+    ),
   });
 
 const addFileBackendConfigParams = mddocConstruct
   .constructFieldObject<AddFileBackendConfigEndpointParams>()
   .setName('AddFileBackendConfigEndpointParams')
   .setFields({
-    workspaceId: mddocConstruct.constructFieldObjectField(false, fReusables.workspaceId),
-    config: mddocConstruct.constructFieldObjectField(true, newFileBackendConfigInput),
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceId
+    ),
+    name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
+    description: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.description
+    ),
+    backend: mddocConstruct.constructFieldObjectField(true, backend),
+    credentials: mddocConstruct.constructFieldObjectField(true, credentials),
   });
 const addFileBackendConfigSuccessResponseBody = mddocConstruct
   .constructFieldObject<AddFileBackendConfigEndpointResult>()
   .setName('AddFileBackendConfigEndpointResult')
-  .setFields({config: mddocConstruct.constructFieldObjectField(true, fileBackendConfig)});
+  .setFields({
+    config: mddocConstruct.constructFieldObjectField(true, fileBackendConfig),
+  });
 
 const getFileBackendConfigsParams = mddocConstruct
   .constructFieldObject<GetFileBackendConfigsEndpointParams>()
@@ -333,13 +386,19 @@ const getFileBackendConfigsParams = mddocConstruct
     ),
     backend: mddocConstruct.constructFieldObjectField(false, backend),
     page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
-    pageSize: mddocConstruct.constructFieldObjectField(false, fReusables.pageSize),
+    pageSize: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.pageSize
+    ),
   });
 const getFileBackendConfigsSuccessResponseBody = mddocConstruct
   .constructFieldObject<GetFileBackendConfigsEndpointResult>()
   .setName('GetFileBackendConfigsEndpointResult')
   .setFields({
-    configs: mddocConstruct.constructFieldObjectField(true, fileBackendConfigList),
+    configs: mddocConstruct.constructFieldObjectField(
+      true,
+      fileBackendConfigList
+    ),
     page: mddocConstruct.constructFieldObjectField(true, fReusables.page),
   });
 
@@ -363,7 +422,10 @@ const updateFileBackendConfigParams = mddocConstruct
       fReusables.workspaceIdInput
     ),
     configId: mddocConstruct.constructFieldObjectField(true, fReusables.id),
-    config: mddocConstruct.constructFieldObjectField(true, updateFileBackendConfigInput),
+    config: mddocConstruct.constructFieldObjectField(
+      true,
+      updateFileBackendConfigInput
+    ),
   });
 const updateFileBackendConfigSuccessResponseBody = mddocConstruct
   .constructFieldObject<UpdateFileBackendConfigEndpointResult>()
@@ -385,7 +447,9 @@ const getFileBackendConfigParams = mddocConstruct
 const getFileBackendConfigSuccessBody = mddocConstruct
   .constructFieldObject<GetFileBackendConfigEndpointResult>()
   .setName('GetFileBackendConfigEndpointResult')
-  .setFields({config: mddocConstruct.constructFieldObjectField(true, fileBackendConfig)});
+  .setFields({
+    config: mddocConstruct.constructFieldObjectField(true, fileBackendConfig),
+  });
 
 const deleteFileBackendConfigParams = mddocConstruct
   .constructFieldObject<DeleteFileBackendConfigEndpointParams>()
@@ -406,7 +470,9 @@ export const addFileBackendMountEndpointDefinition = mddocConstruct
     InferFieldObjectType<
       AddFileBackendMountHttpEndpoint['mddocHttpDefinition']['pathParamaters']
     >,
-    InferFieldObjectType<AddFileBackendMountHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectType<
+      AddFileBackendMountHttpEndpoint['mddocHttpDefinition']['query']
+    >,
     InferFieldObjectOrMultipartType<
       AddFileBackendMountHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
@@ -424,7 +490,9 @@ export const addFileBackendMountEndpointDefinition = mddocConstruct
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
   .setResponseBody(addFileBackendMountSuccessResponseBody)
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setName('AddFileBackendMountEndpoint');
 
 export const getFileBackendMountEndpointDefinition = mddocConstruct
@@ -435,7 +503,9 @@ export const getFileBackendMountEndpointDefinition = mddocConstruct
     InferFieldObjectType<
       GetFileBackendMountHttpEndpoint['mddocHttpDefinition']['pathParamaters']
     >,
-    InferFieldObjectType<GetFileBackendMountHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectType<
+      GetFileBackendMountHttpEndpoint['mddocHttpDefinition']['query']
+    >,
     InferFieldObjectOrMultipartType<
       GetFileBackendMountHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
@@ -452,7 +522,9 @@ export const getFileBackendMountEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(getFileBackendMountSuccessBody)
   .setName('GetFileBackendMountEndpoint');
 
@@ -483,7 +555,9 @@ export const updateFileBackendMountEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(updateFileBackendMountSuccessResponseBody)
   .setName('UpdateFileBackendMountEndpoint');
 
@@ -514,7 +588,9 @@ export const deleteFileBackendMountEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
   .setName('DeleteFileBackendMountEndpoint');
 
@@ -545,7 +621,9 @@ export const getFileBackendMountsEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(getFileBackendMountsSuccessResponseBody)
   .setName('GetFileBackendMountsEndpoint');
 
@@ -576,7 +654,9 @@ export const countFileBackendMountsEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
   .setName('CountFileBackendMountsEndpoint');
 
@@ -607,7 +687,9 @@ export const resolveFileBackendMountsEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(resolveFileBackendMountsSuccessResponseBody)
   .setName('ResolveFileBackendMountsEndpoint');
 
@@ -639,7 +721,9 @@ export const addFileBackendConfigEndpointDefinition = mddocConstruct
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
   .setResponseBody(addFileBackendConfigSuccessResponseBody)
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setName('AddFileBackendConfigEndpoint');
 
 export const getFileBackendConfigEndpointDefinition = mddocConstruct
@@ -669,7 +753,9 @@ export const getFileBackendConfigEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(getFileBackendConfigSuccessBody)
   .setName('GetFileBackendConfigEndpoint');
 
@@ -700,7 +786,9 @@ export const updateFileBackendConfigEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(updateFileBackendConfigSuccessResponseBody)
   .setName('UpdateFileBackendConfigEndpoint');
 
@@ -731,7 +819,9 @@ export const deleteFileBackendConfigEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
   .setName('DeleteFileBackendConfigEndpoint');
 
@@ -762,7 +852,9 @@ export const getFileBackendConfigsEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(getFileBackendConfigsSuccessResponseBody)
   .setName('GetFileBackendConfigsEndpoint');
 
@@ -793,6 +885,8 @@ export const countFileBackendConfigsEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
   .setName('CountFileBackendConfigsEndpoint');

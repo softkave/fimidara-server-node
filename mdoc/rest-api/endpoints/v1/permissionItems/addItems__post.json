@@ -22,181 +22,81 @@
                         "__id": "FieldObject",
                         "name": "PermissionItemInput",
                         "fields": {
-                            "target": {
+                            "targetId": {
                                 "data": {
                                     "__id": "FieldOrCombination",
                                     "types": {
                                         "0": {
-                                            "__id": "FieldArray",
-                                            "type": {
-                                                "__id": "FieldObject",
-                                                "name": "PermissionItemInputTarget",
-                                                "fields": {
-                                                    "targetId": {
-                                                        "data": {
-                                                            "__id": "FieldOrCombination",
-                                                            "types": {
-                                                                "0": {
-                                                                    "__id": "FieldString",
-                                                                    "description": "Permission entity resource ID. A permission entity is a resource granted or deny access. This can be a user, a permission group, or an agent token",
-                                                                    "example": "wrkspce_000000000000000000000"
-                                                                },
-                                                                "1": {
-                                                                    "__id": "FieldArray",
-                                                                    "type": {
-                                                                        "__id": "FieldString",
-                                                                        "description": "Permission entity resource ID. A permission entity is a resource granted or deny access. This can be a user, a permission group, or an agent token",
-                                                                        "example": "wrkspce_000000000000000000000"
-                                                                    }
-                                                                }
-                                                            }
-                                                        },
-                                                        "__id": "FieldObjectField",
-                                                        "required": false
-                                                    },
-                                                    "filepath": {
-                                                        "data": {
-                                                            "__id": "FieldOrCombination",
-                                                            "types": {
-                                                                "0": {
-                                                                    "__id": "FieldString",
-                                                                    "description": "File path with workspace rootname, case insensitive",
-                                                                    "example": "/workspace-rootname/my-outer-folder/my-image-file.png"
-                                                                },
-                                                                "1": {
-                                                                    "__id": "FieldArray",
-                                                                    "type": {
-                                                                        "__id": "FieldString",
-                                                                        "description": "File path with workspace rootname, case insensitive",
-                                                                        "example": "/workspace-rootname/my-outer-folder/my-image-file.png"
-                                                                    }
-                                                                }
-                                                            }
-                                                        },
-                                                        "__id": "FieldObjectField",
-                                                        "required": false
-                                                    },
-                                                    "folderpath": {
-                                                        "data": {
-                                                            "__id": "FieldOrCombination",
-                                                            "types": {
-                                                                "0": {
-                                                                    "__id": "FieldString",
-                                                                    "description": "Files mount source. Exact shape is different for each provider. For AWS S3, this would be just the bucket name or bucket name with folder prefix. E.g my-bucket or my-bucket/folder01 assuming there is a folder01 within my-bucket.",
-                                                                    "example": "/bucket-name/folder-name"
-                                                                },
-                                                                "1": {
-                                                                    "__id": "FieldArray",
-                                                                    "type": {
-                                                                        "__id": "FieldString",
-                                                                        "description": "Files mount source. Exact shape is different for each provider. For AWS S3, this would be just the bucket name or bucket name with folder prefix. E.g my-bucket or my-bucket/folder01 assuming there is a folder01 within my-bucket.",
-                                                                        "example": "/bucket-name/folder-name"
-                                                                    },
-                                                                    "description": "Files mount source. Exact shape is different for each provider. For AWS S3, this would be just the bucket name or bucket name with folder prefix. E.g [\"my-bucket\"] or [\"my-bucket\", \"folder01\"] assuming there is a folder01 within my-bucket."
-                                                                }
-                                                            }
-                                                        },
-                                                        "__id": "FieldObjectField",
-                                                        "required": false
-                                                    },
-                                                    "workspaceRootname": {
-                                                        "data": {
-                                                            "__id": "FieldString",
-                                                            "description": "Workspace root name, must be a URL compatible name, case insensitive",
-                                                            "example": "fimidara-rootname"
-                                                        },
-                                                        "__id": "FieldObjectField",
-                                                        "required": false
-                                                    }
-                                                }
-                                            }
+                                            "__id": "FieldString",
+                                            "description": "Permission entity resource ID. A permission entity is a resource granted or deny access. This can be a user, a permission group, or an agent token",
+                                            "example": "wrkspce_000000000000000000000"
                                         },
                                         "1": {
-                                            "__id": "FieldObject",
-                                            "name": "PermissionItemInputTarget",
-                                            "fields": {
-                                                "targetId": {
-                                                    "data": {
-                                                        "__id": "FieldOrCombination",
-                                                        "types": {
-                                                            "0": {
-                                                                "__id": "FieldString",
-                                                                "description": "Permission entity resource ID. A permission entity is a resource granted or deny access. This can be a user, a permission group, or an agent token",
-                                                                "example": "wrkspce_000000000000000000000"
-                                                            },
-                                                            "1": {
-                                                                "__id": "FieldArray",
-                                                                "type": {
-                                                                    "__id": "FieldString",
-                                                                    "description": "Permission entity resource ID. A permission entity is a resource granted or deny access. This can be a user, a permission group, or an agent token",
-                                                                    "example": "wrkspce_000000000000000000000"
-                                                                }
-                                                            }
-                                                        }
-                                                    },
-                                                    "__id": "FieldObjectField",
-                                                    "required": false
-                                                },
-                                                "filepath": {
-                                                    "data": {
-                                                        "__id": "FieldOrCombination",
-                                                        "types": {
-                                                            "0": {
-                                                                "__id": "FieldString",
-                                                                "description": "File path with workspace rootname, case insensitive",
-                                                                "example": "/workspace-rootname/my-outer-folder/my-image-file.png"
-                                                            },
-                                                            "1": {
-                                                                "__id": "FieldArray",
-                                                                "type": {
-                                                                    "__id": "FieldString",
-                                                                    "description": "File path with workspace rootname, case insensitive",
-                                                                    "example": "/workspace-rootname/my-outer-folder/my-image-file.png"
-                                                                }
-                                                            }
-                                                        }
-                                                    },
-                                                    "__id": "FieldObjectField",
-                                                    "required": false
-                                                },
-                                                "folderpath": {
-                                                    "data": {
-                                                        "__id": "FieldOrCombination",
-                                                        "types": {
-                                                            "0": {
-                                                                "__id": "FieldString",
-                                                                "description": "Files mount source. Exact shape is different for each provider. For AWS S3, this would be just the bucket name or bucket name with folder prefix. E.g my-bucket or my-bucket/folder01 assuming there is a folder01 within my-bucket.",
-                                                                "example": "/bucket-name/folder-name"
-                                                            },
-                                                            "1": {
-                                                                "__id": "FieldArray",
-                                                                "type": {
-                                                                    "__id": "FieldString",
-                                                                    "description": "Files mount source. Exact shape is different for each provider. For AWS S3, this would be just the bucket name or bucket name with folder prefix. E.g my-bucket or my-bucket/folder01 assuming there is a folder01 within my-bucket.",
-                                                                    "example": "/bucket-name/folder-name"
-                                                                },
-                                                                "description": "Files mount source. Exact shape is different for each provider. For AWS S3, this would be just the bucket name or bucket name with folder prefix. E.g [\"my-bucket\"] or [\"my-bucket\", \"folder01\"] assuming there is a folder01 within my-bucket."
-                                                            }
-                                                        }
-                                                    },
-                                                    "__id": "FieldObjectField",
-                                                    "required": false
-                                                },
-                                                "workspaceRootname": {
-                                                    "data": {
-                                                        "__id": "FieldString",
-                                                        "description": "Workspace root name, must be a URL compatible name, case insensitive",
-                                                        "example": "fimidara-rootname"
-                                                    },
-                                                    "__id": "FieldObjectField",
-                                                    "required": false
-                                                }
+                                            "__id": "FieldArray",
+                                            "type": {
+                                                "__id": "FieldString",
+                                                "description": "Permission entity resource ID. A permission entity is a resource granted or deny access. This can be a user, a permission group, or an agent token",
+                                                "example": "wrkspce_000000000000000000000"
                                             }
                                         }
                                     }
                                 },
                                 "__id": "FieldObjectField",
-                                "required": true
+                                "required": false
+                            },
+                            "filepath": {
+                                "data": {
+                                    "__id": "FieldOrCombination",
+                                    "types": {
+                                        "0": {
+                                            "__id": "FieldString",
+                                            "description": "File path with workspace rootname, case insensitive",
+                                            "example": "/workspace-rootname/my-outer-folder/my-image-file.png"
+                                        },
+                                        "1": {
+                                            "__id": "FieldArray",
+                                            "type": {
+                                                "__id": "FieldString",
+                                                "description": "File path with workspace rootname, case insensitive",
+                                                "example": "/workspace-rootname/my-outer-folder/my-image-file.png"
+                                            }
+                                        }
+                                    }
+                                },
+                                "__id": "FieldObjectField",
+                                "required": false
+                            },
+                            "folderpath": {
+                                "data": {
+                                    "__id": "FieldOrCombination",
+                                    "types": {
+                                        "0": {
+                                            "__id": "FieldString",
+                                            "description": "Files mount source. Exact shape is different for each provider. For AWS S3, this would be just the bucket name or bucket name with folder prefix. E.g my-bucket or my-bucket/folder01 assuming there is a folder01 within my-bucket.",
+                                            "example": "/bucket-name/folder-name"
+                                        },
+                                        "1": {
+                                            "__id": "FieldArray",
+                                            "type": {
+                                                "__id": "FieldString",
+                                                "description": "Files mount source. Exact shape is different for each provider. For AWS S3, this would be just the bucket name or bucket name with folder prefix. E.g my-bucket or my-bucket/folder01 assuming there is a folder01 within my-bucket.",
+                                                "example": "/bucket-name/folder-name"
+                                            },
+                                            "description": "Files mount source. Exact shape is different for each provider. For AWS S3, this would be just the bucket name or bucket name with folder prefix. E.g [\"my-bucket\"] or [\"my-bucket\", \"folder01\"] assuming there is a folder01 within my-bucket."
+                                        }
+                                    }
+                                },
+                                "__id": "FieldObjectField",
+                                "required": false
+                            },
+                            "workspaceRootname": {
+                                "data": {
+                                    "__id": "FieldString",
+                                    "description": "Workspace root name, must be a URL compatible name, case insensitive",
+                                    "example": "fimidara-rootname"
+                                },
+                                "__id": "FieldObjectField",
+                                "required": false
                             },
                             "access": {
                                 "data": {

@@ -18,8 +18,7 @@ export interface ResolvedEntityPermissionItemTarget {
   workspaceRootname?: string;
 }
 
-export interface PermissionItemInput {
-  target: PermissionItemInputTarget | PermissionItemInputTarget[];
+export interface PermissionItemInput extends PermissionItemInputTarget {
   action: FimidaraPermissionAction | FimidaraPermissionAction[];
   access: boolean;
   entityId: string | string[];

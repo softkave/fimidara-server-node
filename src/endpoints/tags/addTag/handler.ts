@@ -38,10 +38,10 @@ const addTag: AddTagEndpoint = async reqData => {
     agent,
     kFimidaraResourceType.Tag,
     workspace.resourceId,
-    {...data.tag}
+    {...data}
   );
   await kSemanticModels.utils().withTxn(async opts => {
-    await checkTagNameExists(workspace.resourceId, data.tag.name, opts);
+    await checkTagNameExists(workspace.resourceId, data.name, opts);
     await kSemanticModels.tag().insertItem(tag, opts);
   });
 

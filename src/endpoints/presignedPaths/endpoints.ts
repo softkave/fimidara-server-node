@@ -1,5 +1,5 @@
 import {populateMountUnsupportedOpNoteInNotFoundError} from '../fileBackends/mountUtils.js';
-import {ExportedHttpEndpoint_HandleErrorFn} from '../types.js';
+import {ExportedHttpEndpoint_HandleErrorFn, kEndpointTag} from '../types.js';
 import {
   getPresignedPathsForFilesEndpointDefinition,
   issuePresignedPathEndpointDefinition,
@@ -18,14 +18,16 @@ const handleNotFoundError: ExportedHttpEndpoint_HandleErrorFn = (
   return true;
 };
 
-export function getPresignedPathsPublicHttpEndpoints() {
+export function getPresignedPathsHttpEndpoints() {
   const presignedPathsExportedEndpoints: PresignedPathsExportedEndpoints = {
     issuePresignedPath: {
+      tag: [kEndpointTag.public],
       fn: issuePresignedPath,
       mddocHttpDefinition: issuePresignedPathEndpointDefinition,
       handleError: handleNotFoundError,
     },
     getPresignedPathsForFiles: {
+      tag: [kEndpointTag.public],
       fn: getPresignedPathsForFiles,
       mddocHttpDefinition: getPresignedPathsForFilesEndpointDefinition,
       handleError: handleNotFoundError,

@@ -15,31 +15,21 @@
                 "__id": "FieldObjectField",
                 "required": false
             },
-            "permissionGroup": {
+            "name": {
                 "data": {
-                    "__id": "FieldObject",
-                    "name": "NewPermissionGroupInput",
-                    "fields": {
-                        "name": {
-                            "data": {
-                                "__id": "FieldString",
-                                "description": "Name, case insensitive"
-                            },
-                            "__id": "FieldObjectField",
-                            "required": true
-                        },
-                        "description": {
-                            "data": {
-                                "__id": "FieldString",
-                                "description": "Description"
-                            },
-                            "__id": "FieldObjectField",
-                            "required": false
-                        }
-                    }
+                    "__id": "FieldString",
+                    "description": "Permission group name. Either provide the permission group ID, or provide the workspace ID and permission group name"
                 },
                 "__id": "FieldObjectField",
                 "required": true
+            },
+            "description": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Description"
+                },
+                "__id": "FieldObjectField",
+                "required": false
             }
         }
     },

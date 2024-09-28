@@ -1,13 +1,16 @@
 import fse from 'fs-extra';
 import {forEach} from 'lodash-es';
 import path from 'path';
-import {getFimidaraPublicHttpEndpoints} from '../endpoints/endpoints.js';
+import {getFimidaraHttpEndpoints} from '../endpoints/endpoints.js';
+import {kEndpointTag} from '../endpoints/types.js';
+import {filterEndpoints} from './utils.js';
 
 function generateTableOfContentFromFimidaraPublicEndpoints() {
   const tableOfContent: Array<[string, string]> = [];
-  const endpoints = getFimidaraPublicHttpEndpoints();
+  const endpoints = getFimidaraHttpEndpoints();
+  const pickedEndpoints = filterEndpoints(endpoints, [kEndpointTag.public]);
 
-  forEach(endpoints, e1 => {
+  forEach(pickedEndpoints, e1 => {
     tableOfContent.push([
       e1.mddocHttpDefinition.assertGetBasePathname(),
       e1.mddocHttpDefinition.assertGetMethod(),
@@ -28,8 +31,6 @@ export async function restApiTableOfContentGen() {
   return fse.writeFile(
     tableOfContentFilename,
     JSON.stringify(tableOfContent, undefined, 4),
-    {
-      encoding: 'utf-8',
-    }
+    {encoding: 'utf-8'}
   );
 }

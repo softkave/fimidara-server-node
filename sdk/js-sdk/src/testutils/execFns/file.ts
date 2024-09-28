@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {merge} from 'lodash-es';
 import {PartialDeep} from 'type-fest';
-import {FimidaraEndpoints} from '../../publicEndpoints.js';
+import {FimidaraEndpoints} from '../../endpoints/publicEndpoints.js';
 import {
   DeleteFileEndpointParams,
   FileMatcher,
@@ -11,17 +11,16 @@ import {
   UpdateFileDetailsEndpointParams,
   UploadFileEndpointParams,
   UploadFileEndpointResult,
-} from '../../publicTypes.js';
+} from '../../endpoints/publicTypes.js';
 import {
-  FimidaraEndpointResult,
-  FimidaraEndpointWithBinaryResponseParamsOptional,
   fimidaraAddRootnameToPath,
   stringifyFimidaraFilepath,
-} from '../../utils.js';
+} from '../../path/index.js';
+import {FimidaraEndpointDownloadBinaryOpts} from '../../types.js';
 import {
-  ITestVars,
   getTestFileByteLength,
   getTestFileReadStream,
+  ITestVars,
 } from '../utils.js';
 
 export async function deleteFileTestExecFn(
@@ -30,9 +29,9 @@ export async function deleteFileTestExecFn(
   props: PartialDeep<DeleteFileEndpointParams> = {}
 ) {
   const input = await getTestFilepath(endpoint, vars, props);
-  return await endpoint.files.deleteFile({
-    body: merge({filepath: input.filepath}, props),
-  });
+  return await endpoint.files.deleteFile(
+    merge({filepath: input.filepath}, props)
+  );
 }
 
 export async function getFileDetailsTestExecFn(
@@ -41,9 +40,9 @@ export async function getFileDetailsTestExecFn(
   props: PartialDeep<GetFileDetailsEndpointParams> = {}
 ) {
   const input = await getTestFilepath(endpoint, vars, props);
-  const result = await endpoint.files.getFileDetails({
-    body: merge({filepath: input.filepath}, props),
-  });
+  const result = await endpoint.files.getFileDetails(
+    merge({filepath: input.filepath}, props)
+  );
   return result;
 }
 
@@ -60,9 +59,7 @@ export async function updateFileDetailsTestExecFn(
       mimetype: faker.system.mimeType(),
     },
   };
-  const result = await endpoint.files.updateFileDetails({
-    body: merge(input, props),
-  });
+  const result = await endpoint.files.updateFileDetails(merge(input, props));
   return result;
 }
 
@@ -71,24 +68,21 @@ export async function readFileTestExecFn<
 >(
   endpoint: FimidaraEndpoints,
   vars: ITestVars,
-  responseType: TResponseType,
-  props: PartialDeep<
-    FimidaraEndpointWithBinaryResponseParamsOptional<
-      ReadFileEndpointParams,
-      TResponseType
-    >
-  > = {},
+  readFileProps: ReadFileEndpointParams = {},
+  readFileOpts: FimidaraEndpointDownloadBinaryOpts<TResponseType>,
   uploadFileProps: PartialDeep<UploadFileEndpointParams> = {}
 ) {
   const input = await getTestFilepath(
     endpoint,
     vars,
-    props.body,
+    readFileProps,
     uploadFileProps
   );
   const params: ReadFileEndpointParams = {filepath: input.filepath};
-  const mergedParams = merge({body: params, responseType}, props);
-  const result = await endpoint.files.readFile(mergedParams);
+  const result = await endpoint.files.readFile(
+    merge(params, readFileProps),
+    readFileOpts
+  );
   return result;
 }
 
@@ -114,7 +108,7 @@ export async function uploadFileTestExecFn(
   }
 
   const body = merge(input, props);
-  const result = await endpoint.files.uploadFile({body});
+  const result = await endpoint.files.uploadFile(body);
   return result;
 }
 
@@ -125,9 +119,7 @@ export async function getTestFilepath(
   uploadFileProps: PartialDeep<UploadFileEndpointParams> = {}
 ) {
   let filepath = props.filepath;
-  let uploadFileResult:
-    | FimidaraEndpointResult<UploadFileEndpointResult>
-    | undefined;
+  let uploadFileResult: UploadFileEndpointResult | undefined;
 
   if (!filepath && !props.fileId) {
     const uploadFileResult = await uploadFileTestExecFn(
@@ -136,7 +128,7 @@ export async function getTestFilepath(
       uploadFileProps
     );
     filepath = stringifyFimidaraFilepath(
-      uploadFileResult.body.file,
+      uploadFileResult.file,
       vars.workspaceRootname
     );
   }

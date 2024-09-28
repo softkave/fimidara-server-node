@@ -1,15 +1,15 @@
 import {faker} from '@faker-js/faker';
 import {ensureDir, ensureFile} from 'fs-extra';
 import {readFile, rm, writeFile} from 'fs/promises';
-import path from 'path';
+import path from 'path-browserify';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {stringifyFimidaraFilepath} from '../../../path/index.js';
 import {uploadFileTestExecFn} from '../../../testutils/execFns/file.js';
 import {
   fimidaraTestInstance,
   fimidaraTestVars,
 } from '../../../testutils/tests/file.js';
 import {streamToString} from '../../../testutils/utils.js';
-import {stringifyFimidaraFilepath} from '../../../utils.js';
 import {copyToFimidaraFile, copyToLocalFile} from '../copyFile.js';
 
 const kTestLocalFsDir = path.join(process.cwd(), 'testdir/copyFile');
@@ -36,12 +36,14 @@ describe('copyFile', () => {
 
     const text = 'Hello World!';
     const buf = Buffer.from(text);
-    const {
-      body: {file},
-    } = await uploadFileTestExecFn(fimidaraTestInstance, fimidaraTestVars, {
-      data: text,
-      size: buf.byteLength,
-    });
+    const {file} = await uploadFileTestExecFn(
+      fimidaraTestInstance,
+      fimidaraTestVars,
+      {
+        data: text,
+        size: buf.byteLength,
+      }
+    );
 
     const filepath = stringifyFimidaraFilepath(
       file,
@@ -81,10 +83,10 @@ describe('copyFile', () => {
       }
     );
 
-    const {body} = await fimidaraTestInstance.files.readFile({
-      body: {filepath},
-      responseType: 'stream',
-    });
+    const body = await fimidaraTestInstance.files.readFile(
+      {filepath},
+      {responseType: 'stream'}
+    );
 
     const actualString = await streamToString(body);
     expect(text).toEqual(actualString);

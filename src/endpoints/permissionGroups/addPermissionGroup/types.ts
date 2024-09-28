@@ -7,9 +7,8 @@ export interface NewPermissionGroupInput {
 }
 
 export interface AddPermissionGroupEndpointParams
-  extends EndpointOptionalWorkspaceIDParam {
-  permissionGroup: NewPermissionGroupInput;
-}
+  extends EndpointOptionalWorkspaceIDParam,
+    NewPermissionGroupInput {}
 
 export interface AddPermissionGroupEndpointResult {
   permissionGroup: PublicPermissionGroup;

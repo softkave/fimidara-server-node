@@ -371,7 +371,7 @@ describe('addFolder', () => {
         await waitTimeout(faker.number.int({min: 0, max: 40}));
         const reqData = RequestData.fromExpressRequest<AddFolderEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
-          {folder: {folderpath: leafFolderpaths[leafIndex]}}
+          {folderpath: leafFolderpaths[leafIndex]}
         );
 
         const result = await addFolder(reqData);

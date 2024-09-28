@@ -1,5 +1,8 @@
-import type {FimidaraEndpoints, FoldersEndpoints} from '../publicEndpoints.js';
-import type {File, Folder} from '../publicTypes.js';
+import {
+  FimidaraEndpoints,
+  FoldersEndpoints,
+} from '../endpoints/publicEndpoints.js';
+import {File, Folder} from '../endpoints/publicTypes.js';
 
 export async function getFullFolderContent(
   fimidara: InstanceType<typeof FimidaraEndpoints>,
@@ -15,12 +18,12 @@ export async function getFullFolderContent(
 
   do {
     const response = await fimidara.folders.listFolderContent({
+      page,
       ...listParams,
-      body: {...listParams?.body, page},
     });
 
-    pageFiles = response.body.files;
-    pageFolders = response.body.folders;
+    pageFiles = response.files;
+    pageFolders = response.folders;
     files = files.concat(pageFiles);
     folders = folders.concat(pageFolders);
     page++;

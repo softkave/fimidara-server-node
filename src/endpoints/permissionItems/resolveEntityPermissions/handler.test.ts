@@ -1,8 +1,8 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {makeKey} from '../../../utils/fns.js';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
 import RequestData from '../../RequestData.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   assignPgListToIdList,
   toAssignedPgListInput,
@@ -55,7 +55,7 @@ describe('resolveEntityPermissions', () => {
     // Allows access to all files
     const pItem01: PermissionItemInput = {
       action: 'readFile',
-      target: {targetId: workspace.resourceId},
+      targetId: workspace.resourceId,
       access: true,
       entityId: pg01.resourceId,
     };
@@ -63,7 +63,7 @@ describe('resolveEntityPermissions', () => {
     // Allows access to a single file
     const pItem02: PermissionItemInput = {
       action: 'readFile',
-      target: {targetId: file01.resourceId},
+      targetId: file01.resourceId,
       access: true,
       entityId: pg02.resourceId,
     };
@@ -71,7 +71,7 @@ describe('resolveEntityPermissions', () => {
     // Denies access to all files
     const pItem03: PermissionItemInput = {
       action: 'readFile',
-      target: {targetId: workspace.resourceId},
+      targetId: workspace.resourceId,
       access: false,
       entityId: pg03.resourceId,
     };
@@ -99,7 +99,7 @@ describe('resolveEntityPermissions', () => {
           items: [
             {
               action: 'readFile',
-              target: {targetId: workspace.resourceId},
+              targetId: workspace.resourceId,
               entityId: [
                 pg01.resourceId,
                 pg02.resourceId,
@@ -110,7 +110,7 @@ describe('resolveEntityPermissions', () => {
             },
             {
               action: 'readFile',
-              target: {targetId: file01.resourceId},
+              targetId: file01.resourceId,
               entityId: [pg02.resourceId, pg04.resourceId],
             },
           ],
@@ -173,10 +173,12 @@ describe('resolveEntityPermissions', () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {folder} = await insertFolderForTest(userToken, workspace);
-    const adminPg = await kSemanticModels.permissionGroup().assertGetOneByQuery({
-      name: DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
-      workspaceId: workspace.resourceId,
-    });
+    const adminPg = await kSemanticModels
+      .permissionGroup()
+      .assertGetOneByQuery({
+        name: DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
+        workspaceId: workspace.resourceId,
+      });
 
     const reqData =
       RequestData.fromExpressRequest<ResolveEntityPermissionsEndpointParams>(
@@ -186,7 +188,7 @@ describe('resolveEntityPermissions', () => {
           items: [
             {
               action: 'readFolder',
-              target: {targetId: folder.resourceId},
+              targetId: folder.resourceId,
               entityId: [adminPg.resourceId],
             },
           ],
@@ -217,7 +219,9 @@ function indexResolvedPermissions(item: ResolvedEntityPermissionItem) {
   ]);
 }
 
-function indexResolvedPermissionItemTarget(item: ResolvedEntityPermissionItemTarget) {
+function indexResolvedPermissionItemTarget(
+  item: ResolvedEntityPermissionItemTarget
+) {
   const targetIdentifier =
     item.filepath || item.folderpath || item.targetId || item.workspaceRootname;
   return targetIdentifier;

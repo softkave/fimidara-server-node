@@ -124,7 +124,7 @@ const INTERNAL_createWorkspace = async (
       addAssignedPermissionGroupList(
         agent,
         workspace.resourceId,
-        [{permissionGroupId: adminPermissionGroup.resourceId}],
+        [adminPermissionGroup.resourceId],
         userId,
         /** deleteExisting */ false,
         /** skipPermissionGroupsExistCheck */ true,

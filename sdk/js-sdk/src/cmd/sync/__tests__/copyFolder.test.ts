@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {ensureDir} from 'fs-extra';
 import {rm} from 'fs/promises';
-import path from 'path';
+import path from 'path-browserify';
 import {indexArray} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {getNodeDirContent} from '../../../node/getNodeDirContent.js';
@@ -102,15 +102,12 @@ describe('copyFolder', () => {
         await assertCopyFolderRecursive(ff02List, lf02List, direction, text);
         await assertCopyFolderRecursive(ff03List, lf03List, direction, text);
       } else {
-        const [
-          dirContent,
-          {
-            body: {folders},
-          },
-        ] = await Promise.all([
+        const [dirContent, {folders}] = await Promise.all([
           getNodeDirContent({folderpath: localpath}),
           fimidaraTestInstance.folders.listFolderContent({
-            body: {pageSize, folderpath: fimidarapath, contentType: 'folder'},
+            pageSize,
+            folderpath: fimidarapath,
+            contentType: 'folder',
           }),
         ]);
         const foldersRecord = indexArray(folders, {indexer: f => f.name});

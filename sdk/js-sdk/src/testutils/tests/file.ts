@@ -1,11 +1,8 @@
 import assert from 'assert';
-import {merge} from 'lodash-es';
 import {Readable} from 'stream';
-import {PartialDeep} from 'type-fest';
 import {expect} from 'vitest';
-import {FimidaraEndpoints} from '../../publicEndpoints.js';
-import {ReadFileEndpointParams} from '../../publicTypes.js';
-import {FimidaraEndpointWithBinaryResponseParamsOptional} from '../../utils.js';
+import {FimidaraEndpoints} from '../../endpoints/publicEndpoints.js';
+import {ReadFileEndpointParams} from '../../endpoints/publicTypes.js';
 import {
   deleteFileTestExecFn,
   getFileDetailsTestExecFn,
@@ -37,23 +34,18 @@ export const test_getFileDetails = async () => {
 };
 
 export const test_readFile_blob = async (
-  props: PartialDeep<
-    FimidaraEndpointWithBinaryResponseParamsOptional<
-      ReadFileEndpointParams,
-      'blob'
-    >
-  > = {}
+  props: ReadFileEndpointParams = {}
 ) => {
   const result = await readFileTestExecFn(
     fimidaraTestInstance,
     fimidaraTestVars,
-    /** responseType */ 'blob',
-    merge({}, props),
+    props,
+    {responseType: 'blob'},
     {data: getTestFileReadStream(fimidaraTestVars)}
   );
 
   const expectedString = await getTestFileString(fimidaraTestVars);
-  const body = result.body;
+  const body = result;
   const actualString = await body.text();
   assert.strictEqual(expectedString, actualString);
 
@@ -61,18 +53,13 @@ export const test_readFile_blob = async (
 };
 
 export const test_readFile_nodeReadable = async (
-  props: PartialDeep<
-    FimidaraEndpointWithBinaryResponseParamsOptional<
-      ReadFileEndpointParams,
-      'stream'
-    >
-  > = {}
+  props: ReadFileEndpointParams = {}
 ) => {
   const result = await readFileTestExecFn(
     fimidaraTestInstance,
     fimidaraTestVars,
-    /** responseType */ 'stream',
-    merge({}, props),
+    props,
+    {responseType: 'stream'},
     {
       data: getTestFileReadStream(fimidaraTestVars),
       size: await getTestStreamByteLength(
@@ -82,7 +69,7 @@ export const test_readFile_nodeReadable = async (
   );
 
   const expectedString = await getTestFileString(fimidaraTestVars);
-  const body = result.body;
+  const body = result;
   const actualString = await streamToString(body);
   expect(expectedString).toEqual(actualString);
 
@@ -116,26 +103,3 @@ export const test_uploadFile_nodeReadableNotFromFile = async () => {
     size: buf.byteLength,
   });
 };
-
-// export const test_uploadFile_readableStream = async () => {
-//   const expectedString = faker.lorem.paragraph();
-//   const stream = new ReadableStream({
-//     start(controller) {
-//       // Add the string to the stream and close
-//       controller.enqueue(expectedString);
-//       controller.close();
-//     },
-//     pull(controller) {},
-//     cancel() {},
-//   });
-//   const uploadFileResult = await uploadFileTestExecFn(fimidara, vars, {
-//     data: stream,
-//   });
-//   const readFileResult = await readFileTestExecFn(fimidara, vars, {
-//     responseType: 'blob',
-//     body: {fileId: uploadFileResult.body.file.resourceId},
-//   });
-//   const body = readFileResult.body as Blob;
-//   const actualString = await body.text();
-//   assert.strictEqual(expectedString, actualString);
-// };

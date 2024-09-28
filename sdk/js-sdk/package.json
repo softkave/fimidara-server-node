@@ -62,8 +62,7 @@
   "scripts": {
     "lint": "gts lint",
     "clean": "gts clean",
-    "add-ext": "npx code-migration-helpers add-ext -f='./src'",
-    "compile": "npm run clean && npm run add-ext && tsc",
+    "compile": "npm run clean && tsc",
     "fix": "gts fix",
     "test": "env-cmd -f \".env.test\" vitest --config ./vitest.config.ts",
     "publish-to-npm": "npm run compile && npm publish",

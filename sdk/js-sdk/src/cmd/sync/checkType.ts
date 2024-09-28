@@ -1,12 +1,12 @@
-import {File as FimidaraFile, Folder} from '../../publicTypes.js';
+import {File as FimidaraFile, Folder} from '../../endpoints/publicTypes.js';
 import {getFimidara} from '../fimidara.js';
 import {IFimidaraCmdOpts} from '../types.js';
 import {kFileEntryType} from './types.js';
 
 async function getFile(fimidarapath: string, opts: IFimidaraCmdOpts) {
   try {
-    const {body} = await getFimidara(opts).files.getFileDetails({
-      body: {filepath: fimidarapath},
+    const body = await getFimidara(opts).files.getFileDetails({
+      filepath: fimidarapath,
     });
     return body.file;
   } catch (error: unknown) {
@@ -16,8 +16,8 @@ async function getFile(fimidarapath: string, opts: IFimidaraCmdOpts) {
 
 async function getFolder(fimidarapath: string, opts: IFimidaraCmdOpts) {
   try {
-    const {body} = await getFimidara(opts).folders.getFolder({
-      body: {folderpath: fimidarapath},
+    const body = await getFimidara(opts).folders.getFolder({
+      folderpath: fimidarapath,
     });
     return body.folder;
   } catch (error: unknown) {

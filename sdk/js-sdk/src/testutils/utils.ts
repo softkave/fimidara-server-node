@@ -4,8 +4,8 @@ import {createReadStream, ReadStream} from 'fs';
 import {indexArray} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {expect} from 'vitest';
-import {fimidaraAddRootnameToPath} from '../utils.js';
-import path = require('path');
+import {fimidaraAddRootnameToPath} from '../path/fimidaraAddRootnameToPath.js';
+import path = require('path-browserify');
 
 export interface ITestVars {
   workspaceId: string;

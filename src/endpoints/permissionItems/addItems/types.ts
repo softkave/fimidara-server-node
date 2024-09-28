@@ -6,4 +6,5 @@ export interface AddPermissionItemsEndpointParams
   items: PermissionItemInput[];
 }
 
-export type AddPermissionItemsEndpoint = Endpoint<AddPermissionItemsEndpointParams>;
+export type AddPermissionItemsEndpoint =
+  Endpoint<AddPermissionItemsEndpointParams>;

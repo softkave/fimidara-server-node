@@ -8,11 +8,12 @@ export type GetWaitlistedUsersHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<GetWaitlistedUsersEndpoint>;
 export type UpgradeWaitlistedUsersHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<UpgradeWaitlistedUsersEndpoint>;
-export type GetUsersHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<GetUsersEndpoint>;
+export type GetUsersHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<GetUsersEndpoint>;
 export type GetWorkspacesHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<GetWorkspacesEndpoint>;
 
-export type InternalsPrivateExportedEndpoints = {
+export type InternalsExportedEndpoints = {
   getWaitlistedUsers: GetWaitlistedUsersHttpEndpoint;
   upgradeWaitlistedUsers: UpgradeWaitlistedUsersHttpEndpoint;
   getUsers: GetUsersHttpEndpoint;

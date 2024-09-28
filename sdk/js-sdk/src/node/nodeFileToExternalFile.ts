@@ -1,7 +1,7 @@
 import assert from 'assert';
 import {Dirent, Stats} from 'fs';
 import {stat} from 'fs/promises';
-import path from 'path';
+import path from 'path-browserify';
 import type {FimidaraDiffExternalFile} from '../diff/types.js';
 
 export async function nodeFileToExternalFile(props: {

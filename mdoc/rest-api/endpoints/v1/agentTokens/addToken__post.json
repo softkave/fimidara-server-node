@@ -15,48 +15,38 @@
                 "__id": "FieldObjectField",
                 "required": false
             },
-            "token": {
+            "name": {
                 "data": {
-                    "__id": "FieldObject",
-                    "name": "NewAgentTokenInput",
-                    "fields": {
-                        "name": {
-                            "data": {
-                                "__id": "FieldString",
-                                "description": "Name, case insensitive"
-                            },
-                            "__id": "FieldObjectField",
-                            "required": false
-                        },
-                        "description": {
-                            "data": {
-                                "__id": "FieldString",
-                                "description": "Description"
-                            },
-                            "__id": "FieldObjectField",
-                            "required": false
-                        },
-                        "expires": {
-                            "data": {
-                                "__id": "FieldNumber",
-                                "description": "Expiration date"
-                            },
-                            "__id": "FieldObjectField",
-                            "required": false
-                        },
-                        "providedResourceId": {
-                            "data": {
-                                "__id": "FieldString",
-                                "description": "Resource ID provided by you",
-                                "max": 50
-                            },
-                            "__id": "FieldObjectField",
-                            "required": false
-                        }
-                    }
+                    "__id": "FieldString",
+                    "description": "Name, case insensitive"
                 },
                 "__id": "FieldObjectField",
-                "required": true
+                "required": false
+            },
+            "description": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Description"
+                },
+                "__id": "FieldObjectField",
+                "required": false
+            },
+            "expires": {
+                "data": {
+                    "__id": "FieldNumber",
+                    "description": "Expiration date"
+                },
+                "__id": "FieldObjectField",
+                "required": false
+            },
+            "providedResourceId": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Resource ID provided by you",
+                    "max": 50
+                },
+                "__id": "FieldObjectField",
+                "required": false
             }
         }
     },

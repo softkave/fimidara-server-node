@@ -16,12 +16,10 @@ export type RemoveCollaboratorHttpEndpoint =
 export type GetCollaboratorsWithoutPermissionHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<GetCollaboratorsWithoutPermissionEndpoint>;
 
-export type CollaboratorsPublicExportedEndpoints = {
+export type CollaboratorsExportedEndpoints = {
   getCollaborator: GetCollaboratorHttpEndpoint;
   getWorkspaceCollaborators: GetWorkspaceCollaboratorsHttpEndpoint;
   countWorkspaceCollaborators: CountWorkspaceCollaboratorsHttpEndpoint;
   removeCollaborator: RemoveCollaboratorHttpEndpoint;
-};
-export type CollaboratorsPrivateExportedEndpoints = {
   getCollaboratorsWithoutPermission: GetCollaboratorsWithoutPermissionHttpEndpoint;
 };

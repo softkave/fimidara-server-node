@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import assert, {AssertionError} from 'assert';
 import {Dirent} from 'fs';
 import {ensureDir, ensureFile, remove} from 'fs-extra';
-import path from 'path';
+import path from 'path-browserify';
 import {waitTimeout} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {nodeFileToExternalFile} from '../nodeFileToExternalFile.js';

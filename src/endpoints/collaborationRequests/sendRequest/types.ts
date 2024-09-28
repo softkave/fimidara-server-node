@@ -8,9 +8,8 @@ export interface CollaborationRequestInput {
 }
 
 export interface SendCollaborationRequestEndpointParams
-  extends EndpointOptionalWorkspaceIDParam {
-  request: CollaborationRequestInput;
-}
+  extends EndpointOptionalWorkspaceIDParam,
+    CollaborationRequestInput {}
 
 export interface SendCollaborationRequestEndpointResult {
   request: PublicCollaborationRequestForWorkspace;

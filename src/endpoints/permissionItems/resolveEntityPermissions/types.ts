@@ -4,10 +4,8 @@ import {PermissionItemInputTarget} from '../types.js';
 
 export type ResolveEntityPermissionItemInputTarget = PermissionItemInputTarget;
 
-export interface ResolveEntityPermissionItemInput {
-  target:
-    | ResolveEntityPermissionItemInputTarget
-    | ResolveEntityPermissionItemInputTarget[];
+export interface ResolveEntityPermissionItemInput
+  extends PermissionItemInputTarget {
   action: FimidaraPermissionAction | FimidaraPermissionAction[];
   entityId: string | string[];
 }

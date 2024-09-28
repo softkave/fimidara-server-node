@@ -1,3 +1,4 @@
+import {kEndpointTag} from '../types.js';
 import countUserCollaborationRequests from './countUserRequests/handler.js';
 import countWorkspaceCollaborationRequests from './countWorkspaceRequests/handler.js';
 import deleteCollaborationRequest from './deleteRequest/handler.js';
@@ -24,52 +25,66 @@ import sendCollaborationRequest from './sendRequest/handler.js';
 import {CollaborationRequestsExportedEndpoints} from './types.js';
 import updateCollaborationRequest from './updateRequest/handler.js';
 
-export function getCollaborationRequestsPublicHttpEndpoints() {
-  const collaborationRequestsExportedEndpoints: CollaborationRequestsExportedEndpoints = {
-    deleteRequest: {
-      fn: deleteCollaborationRequest,
-      mddocHttpDefinition: deleteCollaborationRequestEndpointDefinition,
-    },
-    getUserRequest: {
-      fn: getUserCollaborationRequest,
-      mddocHttpDefinition: getUserCollaborationRequestEndpointDefinition,
-    },
-    getUserRequests: {
-      fn: getUserCollaborationRequests,
-      mddocHttpDefinition: getUserCollaborationRequestsEndpointDefinition,
-    },
-    countUserRequests: {
-      fn: countUserCollaborationRequests,
-      mddocHttpDefinition: countUserCollaborationRequestsEndpointDefinition,
-    },
-    getWorkspaceRequest: {
-      fn: getWorkspaceCollaborationRequest,
-      mddocHttpDefinition: getWorkspaceCollaborationRequestEndpointDefinition,
-    },
-    getWorkspaceRequests: {
-      fn: getWorkspaceCollaborationRequests,
-      mddocHttpDefinition: getWorkspaceCollaborationRequestsEndpointDefinition,
-    },
-    countWorkspaceRequests: {
-      fn: countWorkspaceCollaborationRequests,
-      mddocHttpDefinition: countWorkspaceCollaborationRequestsEndpointDefinition,
-    },
-    respondToRequest: {
-      fn: respondToCollaborationRequest,
-      mddocHttpDefinition: respondToCollaborationRequestEndpointDefinition,
-    },
-    revokeRequest: {
-      fn: revokeCollaborationRequest,
-      mddocHttpDefinition: revokeCollaborationRequestEndpointDefinition,
-    },
-    sendRequest: {
-      fn: sendCollaborationRequest,
-      mddocHttpDefinition: sendCollaborationRequestEndpointDefinition,
-    },
-    updateRequest: {
-      fn: updateCollaborationRequest,
-      mddocHttpDefinition: updateCollaborationRequestEndpointDefinition,
-    },
-  };
+export function getCollaborationRequestsHttpEndpoints() {
+  const collaborationRequestsExportedEndpoints: CollaborationRequestsExportedEndpoints =
+    {
+      deleteRequest: {
+        tag: [kEndpointTag.public],
+        fn: deleteCollaborationRequest,
+        mddocHttpDefinition: deleteCollaborationRequestEndpointDefinition,
+      },
+      getUserRequest: {
+        tag: [kEndpointTag.private],
+        fn: getUserCollaborationRequest,
+        mddocHttpDefinition: getUserCollaborationRequestEndpointDefinition,
+      },
+      getUserRequests: {
+        tag: [kEndpointTag.private],
+        fn: getUserCollaborationRequests,
+        mddocHttpDefinition: getUserCollaborationRequestsEndpointDefinition,
+      },
+      countUserRequests: {
+        tag: [kEndpointTag.private],
+        fn: countUserCollaborationRequests,
+        mddocHttpDefinition: countUserCollaborationRequestsEndpointDefinition,
+      },
+      getWorkspaceRequest: {
+        tag: [kEndpointTag.public],
+        fn: getWorkspaceCollaborationRequest,
+        mddocHttpDefinition: getWorkspaceCollaborationRequestEndpointDefinition,
+      },
+      getWorkspaceRequests: {
+        tag: [kEndpointTag.public],
+        fn: getWorkspaceCollaborationRequests,
+        mddocHttpDefinition:
+          getWorkspaceCollaborationRequestsEndpointDefinition,
+      },
+      countWorkspaceRequests: {
+        tag: [kEndpointTag.public],
+        fn: countWorkspaceCollaborationRequests,
+        mddocHttpDefinition:
+          countWorkspaceCollaborationRequestsEndpointDefinition,
+      },
+      respondToRequest: {
+        tag: [kEndpointTag.private],
+        fn: respondToCollaborationRequest,
+        mddocHttpDefinition: respondToCollaborationRequestEndpointDefinition,
+      },
+      revokeRequest: {
+        tag: [kEndpointTag.public],
+        fn: revokeCollaborationRequest,
+        mddocHttpDefinition: revokeCollaborationRequestEndpointDefinition,
+      },
+      sendRequest: {
+        tag: [kEndpointTag.public],
+        fn: sendCollaborationRequest,
+        mddocHttpDefinition: sendCollaborationRequestEndpointDefinition,
+      },
+      updateRequest: {
+        tag: [kEndpointTag.public],
+        fn: updateCollaborationRequest,
+        mddocHttpDefinition: updateCollaborationRequestEndpointDefinition,
+      },
+    };
   return collaborationRequestsExportedEndpoints;
 }

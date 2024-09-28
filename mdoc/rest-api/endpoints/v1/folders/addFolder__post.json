@@ -6,29 +6,19 @@
         "__id": "FieldObject",
         "name": "AddFolderEndpointParams",
         "fields": {
-            "folder": {
+            "description": {
                 "data": {
-                    "__id": "FieldObject",
-                    "name": "NewFolderInput",
-                    "fields": {
-                        "description": {
-                            "data": {
-                                "__id": "FieldString",
-                                "description": "Description"
-                            },
-                            "__id": "FieldObjectField",
-                            "required": false
-                        },
-                        "folderpath": {
-                            "data": {
-                                "__id": "FieldString",
-                                "description": "Files mount source. Exact shape is different for each provider. For AWS S3, this would be just the bucket name or bucket name with folder prefix. E.g my-bucket or my-bucket/folder01 assuming there is a folder01 within my-bucket.",
-                                "example": "/bucket-name/folder-name"
-                            },
-                            "__id": "FieldObjectField",
-                            "required": true
-                        }
-                    }
+                    "__id": "FieldString",
+                    "description": "Description"
+                },
+                "__id": "FieldObjectField",
+                "required": false
+            },
+            "folderpath": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Files mount source. Exact shape is different for each provider. For AWS S3, this would be just the bucket name or bucket name with folder prefix. E.g my-bucket or my-bucket/folder01 assuming there is a folder01 within my-bucket.",
+                    "example": "/bucket-name/folder-name"
                 },
                 "__id": "FieldObjectField",
                 "required": true

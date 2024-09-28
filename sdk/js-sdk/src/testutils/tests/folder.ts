@@ -1,17 +1,17 @@
 import {expect} from 'vitest';
-import {FimidaraEndpoints} from '../../publicEndpoints.js';
+import {FimidaraEndpoints} from '../../endpoints/publicEndpoints.js';
 import {
   addFolderTestExecFn,
   deleteFolderTestExecFn,
   getFolderTestExecFn,
-  setupFolderContentTestExecFn,
   listFolderContentTestExecFn,
+  setupFolderContentTestExecFn,
   updateFolderTestExecFn,
 } from '../execFns/folder.js';
 import {
   ITestVars,
-  getTestVars,
   containsNoneIn,
+  getTestVars,
   indexByResourceId,
 } from '../utils.js';
 
@@ -54,14 +54,10 @@ export const test_listFolderContent = async () => {
       page: 1,
     }),
   ]);
-  expect(result00.body.page).toBe(0);
-  expect(result01.body.page).toBe(1);
-  containsNoneIn(result00.body.files, result01.body.files, indexByResourceId);
-  containsNoneIn(
-    result00.body.folders,
-    result01.body.folders,
-    indexByResourceId
-  );
+  expect(result00.page).toBe(0);
+  expect(result01.page).toBe(1);
+  containsNoneIn(result00.files, result01.files, indexByResourceId);
+  containsNoneIn(result00.folders, result01.folders, indexByResourceId);
 };
 
 export const test_updateFolder = async () => {

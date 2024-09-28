@@ -15,39 +15,29 @@
                 "__id": "FieldObjectField",
                 "required": false
             },
-            "request": {
+            "recipientEmail": {
                 "data": {
-                    "__id": "FieldObject",
-                    "name": "NewCollaborationRequestInput",
-                    "fields": {
-                        "recipientEmail": {
-                            "data": {
-                                "__id": "FieldString",
-                                "description": "Recipient's email address"
-                            },
-                            "__id": "FieldObjectField",
-                            "required": true
-                        },
-                        "message": {
-                            "data": {
-                                "__id": "FieldString",
-                                "description": "Message to recipient"
-                            },
-                            "__id": "FieldObjectField",
-                            "required": true
-                        },
-                        "expires": {
-                            "data": {
-                                "__id": "FieldNumber",
-                                "description": "Expiration date"
-                            },
-                            "__id": "FieldObjectField",
-                            "required": false
-                        }
-                    }
+                    "__id": "FieldString",
+                    "description": "Recipient's email address"
                 },
                 "__id": "FieldObjectField",
                 "required": true
+            },
+            "message": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Message to recipient"
+                },
+                "__id": "FieldObjectField",
+                "required": true
+            },
+            "expires": {
+                "data": {
+                    "__id": "FieldNumber",
+                    "description": "Expiration date"
+                },
+                "__id": "FieldObjectField",
+                "required": false
             }
         }
     },

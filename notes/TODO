@@ -8,6 +8,13 @@
 
 ## Later
 
+- folder sharding
+- usage thresholds internal and reporting
+- docs
+- image
+- resumable
+- range download
+- cookies
 - when the agent is public, don't return all data
 - add providedId to add and update endpoints for workspace resources
 - test usage records

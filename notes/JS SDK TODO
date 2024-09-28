@@ -1,11 +1,17 @@
 # JS SDK
 
-##  Now
+## Now
 
 ## Bugs
 
 ## Later
 
+- api
+  - examples
+  - json example code
+  - hide N/A
+  - sample apps
+- auto extract and document exports
 - support esm and commonjs (current issue is softkave-js-utils only supports esm, and lodash-es + peer deps)
 - readFile typedef should return stream | blob depending on responseType
 - diff files content?

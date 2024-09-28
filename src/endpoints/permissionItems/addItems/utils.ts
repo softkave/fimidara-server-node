@@ -54,9 +54,7 @@ export const INTERNAL_addPermissionItems = async (
       inputEntities = inputEntities.concat(convertToArray(item.entityId));
     }
 
-    if (item.target) {
-      inputTargets = inputTargets.concat(convertToArray(item.target));
-    }
+    inputTargets = inputTargets.concat(convertToArray(item));
   });
 
   appAssert(
@@ -111,22 +109,21 @@ export const INTERNAL_addPermissionItems = async (
 
     forEach(itemEntitiesMap, entity => {
       convertToArray(item.action).forEach(action => {
-        convertToArray(item.target).forEach(nextTarget => {
-          let {targets: nextTargetsMap} = targets.getByTarget(nextTarget);
+        const nextTarget = item;
+        let {targets: nextTargetsMap} = targets.getByTarget(nextTarget);
 
-          // Default to workspace if there's no target resource
-          if (isObjectEmpty(nextTargetsMap)) {
-            nextTargetsMap = {[workspace.resourceId]: workspaceWrapper};
-          }
+        // Default to workspace if there's no target resource
+        if (isObjectEmpty(nextTargetsMap)) {
+          nextTargetsMap = {[workspace.resourceId]: workspaceWrapper};
+        }
 
-          forEach(nextTargetsMap, nextTargetFromMap => {
-            processedItems.push({
-              entity,
-              action,
-              target: nextTargetFromMap,
-              access: item.access,
-              targetType: getResourceTypeFromId(nextTargetFromMap.resourceId),
-            });
+        forEach(nextTargetsMap, nextTargetFromMap => {
+          processedItems.push({
+            entity,
+            action,
+            target: nextTargetFromMap,
+            access: item.access,
+            targetType: getResourceTypeFromId(nextTargetFromMap.resourceId),
           });
         });
       });

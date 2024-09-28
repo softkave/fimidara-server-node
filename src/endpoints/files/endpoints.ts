@@ -10,7 +10,7 @@ import {kEndpointConstants} from '../constants.js';
 import {kUtilsInjectables} from '../contexts/injection/injectables.js';
 import {populateMountUnsupportedOpNoteInNotFoundError} from '../fileBackends/mountUtils.js';
 import {kFolderConstants} from '../folders/constants.js';
-import {ExportedHttpEndpoint_HandleErrorFn} from '../types.js';
+import {ExportedHttpEndpoint_HandleErrorFn, kEndpointTag} from '../types.js';
 import {endpointDecodeURIComponent} from '../utils.js';
 import {kFileConstants} from './constants.js';
 import deleteFile from './deleteFile/handler.js';
@@ -262,20 +262,23 @@ function cleanupUploadFileReq(req: Request) {
   }
 }
 
-export function getFilesPublicHttpEndpoints() {
+export function getFilesHttpEndpoints() {
   const filesExportedEndpoints: FilesExportedEndpoints = {
     deleteFile: {
+      tag: [kEndpointTag.public],
       mddocHttpDefinition: deleteFileEndpointDefinition,
       handleError: handleNotFoundError,
       fn: deleteFile,
     },
     getFileDetails: {
+      tag: [kEndpointTag.public],
       mddocHttpDefinition: getFileDetailsEndpointDefinition,
       handleError: handleNotFoundError,
       fn: getFileDetails,
     },
     readFile: [
       {
+        tag: [kEndpointTag.public],
         mddocHttpDefinition: readFilePOSTEndpointDefinition,
         getDataFromReq: extractReadFileParamsFromReq,
         handleResponse: handleReadFileResponse,
@@ -283,6 +286,7 @@ export function getFilesPublicHttpEndpoints() {
         fn: readFile,
       },
       {
+        tag: [kEndpointTag.public],
         // TODO: special case, sdkparams is inferred from endpoint, so it's
         // expecting a request body, but it's a GET request, and there shouldn't
         // be one. Fix will take more time to fix, compared to ts-ignore, so,
@@ -296,11 +300,13 @@ export function getFilesPublicHttpEndpoints() {
       },
     ],
     updateFileDetails: {
+      tag: [kEndpointTag.public],
       mddocHttpDefinition: updateFileDetailsEndpointDefinition,
       handleError: handleNotFoundError,
       fn: updateFileDetails,
     },
     uploadFile: {
+      tag: [kEndpointTag.public],
       mddocHttpDefinition: uploadFileEndpointDefinition,
       getDataFromReq: extractUploadFileParamsFromReq,
       handleError: handleNotFoundError,

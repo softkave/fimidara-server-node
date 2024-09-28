@@ -21,16 +21,19 @@ export type LoginHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<
   LoginEndpoint,
   HttpEndpointRequestHeaders_ContentType
 >;
-export type ForgotPasswordHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<
-  ForgotPasswordEndpoint,
-  HttpEndpointRequestHeaders_ContentType
->;
+export type ForgotPasswordHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<
+    ForgotPasswordEndpoint,
+    HttpEndpointRequestHeaders_ContentType
+  >;
 export type ChangePasswordWithCurrentPasswordHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<ChangePasswordWithCurrentPasswordEndpoint>;
 export type ChangePasswordWithTokenHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<ChangePasswordWithTokenEndpoint>;
-export type UpdateUserHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<UpdateUserEndpoint>;
-export type GetUserDataHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<GetUserDataEndpoint>;
+export type UpdateUserHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<UpdateUserEndpoint>;
+export type GetUserDataHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<GetUserDataEndpoint>;
 export type UserExistsHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<
   UserExistsEndpoint,
   HttpEndpointRequestHeaders_ContentType
@@ -40,11 +43,9 @@ export type ConfirmEmailAddressHttpEndpoint =
 export type SendEmailVerificationCodeHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<SendEmailVerificationCodeEndpoint>;
 
-export type UsersPublicExportedEndpoints = {
+export type UsersExportedEndpoints = {
   updateUser: UpdateUserHttpEndpoint;
   getUserData: GetUserDataHttpEndpoint;
-};
-export type UsersPrivateExportedEndpoints = {
   signup: SignupHttpEndpoint;
   login: LoginHttpEndpoint;
   forgotPassword: ForgotPasswordHttpEndpoint;

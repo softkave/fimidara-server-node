@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'path-browserify';
 import {genFimidaraFiles, genFimidaraFolders} from './syncUtils.js';
 
 export async function genFimidaraFolderContentForFolders(

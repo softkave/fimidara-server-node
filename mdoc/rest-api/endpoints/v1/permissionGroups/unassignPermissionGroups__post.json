@@ -39,7 +39,7 @@
                 "__id": "FieldObjectField",
                 "required": true
             },
-            "permissionGroups": {
+            "permissionGroupId": {
                 "data": {
                     "__id": "FieldOrCombination",
                     "types": {

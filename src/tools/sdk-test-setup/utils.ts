@@ -55,7 +55,7 @@ export async function setupSDKTestReq() {
       await addAssignedPermissionGroupList(
         kSystemSessionAgent,
         workspace.resourceId,
-        [{permissionGroupId: adminPermissionGroup.resourceId}],
+        [adminPermissionGroup.resourceId],
         token.resourceId,
         false, // don't delete existing assigned permission groups
         true, // skip permission groups check

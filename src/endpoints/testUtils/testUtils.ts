@@ -244,11 +244,9 @@ export async function insertPermissionGroupForTest(
       mockExpressRequestWithAgentToken(userToken),
       {
         workspaceId,
-        permissionGroup: {
-          name: faker.lorem.words(3),
-          description: faker.lorem.words(10),
-          ...permissionGroupInput,
-        },
+        name: faker.lorem.words(3),
+        description: faker.lorem.words(10),
+        ...permissionGroupInput,
       }
     );
 
@@ -282,12 +280,10 @@ export async function insertRequestForTest(
       mockExpressRequestWithAgentToken(userToken),
       {
         workspaceId,
-        request: {
-          recipientEmail: faker.internet.email(),
-          message: faker.lorem.paragraph(),
-          expires: getTimestamp(add(Date.now(), {days: 10})),
-          ...requestInput,
-        },
+        recipientEmail: faker.internet.email(),
+        message: faker.lorem.paragraph(),
+        expires: getTimestamp(add(Date.now(), {days: 10})),
+        ...requestInput,
       }
     );
 
@@ -305,12 +301,10 @@ export async function insertAgentTokenForTest(
     mockExpressRequestWithAgentToken(userToken),
     {
       workspaceId,
-      token: {
-        expires: getTimestamp(add(Date.now(), {days: 1})),
-        name: faker.lorem.words(7),
-        description: faker.lorem.words(10),
-        ...tokenInput,
-      },
+      expires: getTimestamp(add(Date.now(), {days: 1})),
+      name: faker.lorem.words(7),
+      description: faker.lorem.words(10),
+      ...tokenInput,
     }
   );
 
@@ -335,7 +329,7 @@ export async function insertFileBackendConfigForTest(
       mockExpressRequestWithAgentToken(userToken),
       {
         workspaceId,
-        config: generateFileBackendConfigInput(input),
+        ...generateFileBackendConfigInput(input),
       }
     );
 
@@ -370,7 +364,7 @@ export async function insertFileBackendMountForTest(
   const reqData =
     RequestData.fromExpressRequest<AddFileBackendMountEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
-      {workspaceId, mount: mountInput}
+      {workspaceId, ...mountInput}
     );
 
   const result = await addFileBackendMountEndpoint(reqData);
@@ -398,14 +392,12 @@ export async function insertFolderForTest(
       ? mockExpressRequestWithAgentToken(userToken)
       : mockExpressRequestForPublicAgent(),
     {
-      folder: {
-        folderpath: addRootnameToPath(
-          pathJoin([generateTestFolderName({includeStraySeparators: true})]),
-          workspace.rootname
-        ),
-        description: faker.lorem.paragraph(),
-        ...folderInput,
-      },
+      folderpath: addRootnameToPath(
+        pathJoin([generateTestFolderName({includeStraySeparators: true})]),
+        workspace.rootname
+      ),
+      description: faker.lorem.paragraph(),
+      ...folderInput,
     }
   );
 

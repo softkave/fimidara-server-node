@@ -3,15 +3,12 @@
 
 import type {Readable} from 'stream';
 
-export type NewAgentTokenInput = {
+export type AddAgentTokenEndpointParams = {
+  workspaceId?: string;
   name?: string;
   description?: string;
   expires?: number;
   providedResourceId?: string;
-};
-export type AddAgentTokenEndpointParams = {
-  workspaceId?: string;
-  token: NewAgentTokenInput;
 };
 export type AgentType = 'user' | 'agentToken';
 export type Agent = {
@@ -70,6 +67,12 @@ export type CountWorkspaceAgentTokensEndpointParams = {
 export type CountItemsResult = {
   count: number;
 };
+export type NewAgentTokenInput = {
+  name?: string;
+  description?: string;
+  expires?: number;
+  providedResourceId?: string;
+};
 export type UpdateAgentTokenEndpointParams = {
   workspaceId?: string;
   tokenId?: string;
@@ -83,46 +86,15 @@ export type UpdateAgentTokenEndpointResult = {
 export type DeleteCollaborationRequestEndpointParams = {
   requestId: string;
 };
-export type GetUserCollaborationRequestEndpointParams = {
+export type GetWorkspaceCollaborationRequestEndpointParams = {
   requestId: string;
+  workspaceId?: string;
 };
 export type CollaborationRequestStatusType =
   | 'accepted'
   | 'declined'
   | 'revoked'
   | 'pending';
-export type CollaborationRequestForUser = {
-  resourceId: string;
-  createdBy?: Agent;
-  createdAt: number;
-  lastUpdatedBy?: Agent;
-  lastUpdatedAt: number;
-  isDeleted: boolean;
-  deletedAt?: number;
-  deletedBy?: Agent;
-  recipientEmail: string;
-  message: string;
-  expiresAt?: number;
-  workspaceName: string;
-  readAt?: number;
-  status: CollaborationRequestStatusType;
-  statusDate: number;
-};
-export type GetUserCollaborationRequestEndpointResult = {
-  request: CollaborationRequestForUser;
-};
-export type GetUserCollaborationRequestsEndpointParams = {
-  page?: number;
-  pageSize?: number;
-};
-export type GetUserCollaborationRequestsEndpointResult = {
-  requests: Array<CollaborationRequestForUser>;
-  page: number;
-};
-export type GetWorkspaceCollaborationRequestEndpointParams = {
-  requestId: string;
-  workspaceId?: string;
-};
 export type CollaborationRequestForWorkspace = {
   resourceId: string;
   createdBy: Agent;
@@ -156,28 +128,17 @@ export type GetWorkspaceCollaborationRequestsEndpointResult = {
 export type CountWorkspaceCollaborationRequestsEndpointParams = {
   workspaceId?: string;
 };
-export type CollaborationRequestResponseType = 'accepted' | 'declined';
-export type RespondToCollaborationRequestEndpointParams = {
-  requestId: string;
-  response: CollaborationRequestResponseType;
-};
-export type RespondToCollaborationRequestEndpointResult = {
-  request: CollaborationRequestForUser;
-};
 export type RevokeCollaborationRequestEndpointParams = {
   requestId: string;
 };
 export type RevokeCollaborationRequestEndpointResult = {
   request: CollaborationRequestForWorkspace;
 };
-export type NewCollaborationRequestInput = {
+export type SendCollaborationRequestEndpointParams = {
+  workspaceId?: string;
   recipientEmail: string;
   message: string;
   expires?: number;
-};
-export type SendCollaborationRequestEndpointParams = {
-  workspaceId?: string;
-  request: NewCollaborationRequestInput;
 };
 export type SendCollaborationRequestEndpointResult = {
   request: CollaborationRequestForWorkspace;
@@ -328,12 +289,9 @@ export type UploadFileEndpointParams = {
 export type UploadFileEndpointResult = {
   file: File;
 };
-export type NewFolderInput = {
+export type AddFolderEndpointParams = {
   description?: string;
   folderpath: string;
-};
-export type AddFolderEndpointParams = {
-  folder: NewFolderInput;
 };
 export type Folder = {
   resourceId: string;
@@ -423,13 +381,10 @@ export type JobStatus =
 export type GetJobStatusEndpointResult = {
   status: JobStatus;
 };
-export type NewPermissionGroupInput = {
-  name: string;
-  description?: string;
-};
 export type AddPermissionGroupEndpointParams = {
   workspaceId?: string;
-  permissionGroup: NewPermissionGroupInput;
+  name: string;
+  description?: string;
 };
 export type PermissionGroup = {
   resourceId: string;
@@ -447,18 +402,15 @@ export type PermissionGroup = {
 export type AddPermissionGroupEndpointResult = {
   permissionGroup: PermissionGroup;
 };
-export type AssignPermissionGroupInput = {
-  permissionGroupId: string;
-};
 export type AssignPermissionGroupsEndpointParams = {
   workspaceId?: string;
   entityId: string | Array<string>;
-  permissionGroups: Array<AssignPermissionGroupInput>;
+  permissionGroupId: string | Array<string>;
 };
 export type UnassignPermissionGroupsEndpointParams = {
   workspaceId?: string;
   entityId: string | Array<string>;
-  permissionGroups: string | Array<string>;
+  permissionGroupId: string | Array<string>;
 };
 export type DeletePermissionGroupEndpointParams = {
   permissionGroupId?: string;
@@ -513,12 +465,6 @@ export type UpdatePermissionGroupEndpointParams = {
 export type UpdatePermissionGroupEndpointResult = {
   permissionGroup: PermissionGroup;
 };
-export type PermissionItemInputTarget = {
-  targetId?: string | Array<string>;
-  filepath?: string | Array<string>;
-  folderpath?: string | Array<string>;
-  workspaceRootname?: string;
-};
 export type FimidaraPermissionAction =
   | '*'
   | 'updateWorkspace'
@@ -562,7 +508,10 @@ export type FimidaraPermissionAction =
   | 'readFileBackendMount'
   | 'updateFileBackendMount';
 export type PermissionItemInput = {
-  target: Array<PermissionItemInputTarget> | PermissionItemInputTarget;
+  targetId?: string | Array<string>;
+  filepath?: string | Array<string>;
+  folderpath?: string | Array<string>;
+  workspaceRootname?: string;
   access: boolean;
   entityId: string | Array<string>;
   action: FimidaraPermissionAction | Array<FimidaraPermissionAction>;
@@ -571,16 +520,11 @@ export type AddPermissionItemsEndpointParams = {
   workspaceId?: string;
   items: Array<PermissionItemInput>;
 };
-export type DeleteDeletePermissionItemInputTarget = {
+export type DeletePermissionItemInput = {
   targetId?: string | Array<string>;
   filepath?: string | Array<string>;
   folderpath?: string | Array<string>;
   workspaceRootname?: string;
-};
-export type DeletePermissionItemInput = {
-  target?:
-    | Array<DeleteDeletePermissionItemInputTarget>
-    | DeleteDeletePermissionItemInputTarget;
   action?: FimidaraPermissionAction | Array<FimidaraPermissionAction>;
   access?: boolean;
   entityId?: string | Array<string>;
@@ -592,16 +536,11 @@ export type DeletePermissionItemsEndpointParams = {
 export type MultipleLongRunningJobResult = {
   jobIds: Array<string>;
 };
-export type ResolveEntityPermissionItemInputTarget = {
+export type ResolveEntityPermissionItemInput = {
   targetId?: string | Array<string>;
   filepath?: string | Array<string>;
   folderpath?: string | Array<string>;
   workspaceRootname?: string;
-};
-export type ResolveEntityPermissionItemInput = {
-  target:
-    | Array<ResolveEntityPermissionItemInputTarget>
-    | ResolveEntityPermissionItemInputTarget;
   entityId: string | Array<string>;
   action: FimidaraPermissionAction | Array<FimidaraPermissionAction>;
 };
@@ -732,54 +671,8 @@ export type CountWorkspaceSummedUsageEndpointParams = {
   workspaceId?: string;
   query?: SummedUsageQuery;
 };
-export type PublicWorkspaceResource = {
-  resourceId: string;
-  createdBy: Agent;
-  createdAt: number;
-  lastUpdatedBy: Agent;
-  lastUpdatedAt: number;
-  isDeleted: boolean;
-  deletedAt?: number;
-  deletedBy?: Agent;
-  workspaceId: string;
-};
-export type User = {
-  resourceId: string;
-  createdBy?: Agent;
-  createdAt: number;
-  lastUpdatedBy?: Agent;
-  lastUpdatedAt: number;
-  isDeleted: boolean;
-  deletedAt?: number;
-  deletedBy?: Agent;
-  firstName: string;
-  lastName: string;
-  email: string;
-  passwordLastChangedAt: number;
-  requiresPasswordChange?: boolean;
-  isEmailVerified: boolean;
-  emailVerifiedAt?: number | null;
-  emailVerificationEmailSentAt?: number | null;
-  workspaces: Array<PublicWorkspaceResource>;
-  isOnWaitlist: boolean;
-};
-export type LoginResult = {
-  user: User;
-  token: string;
-  clientAssignedToken: string;
-};
-export type UpdateUserEndpointParams = {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-};
-export type UpdateUserEndpointResult = {
-  user: User;
-};
-export type AddWorkspaceEndpointParams = {
-  name: string;
-  rootname: string;
-  description?: string;
+export type GetWorkspaceEndpointParams = {
+  workspaceId?: string;
 };
 export type WorkspaceBillStatus = 'ok' | 'gracePeriod' | 'billOverdue';
 export type UsageThreshold = {
@@ -814,20 +707,6 @@ export type Workspace = {
   billStatus: WorkspaceBillStatus;
   usageThresholds: WorkspaceUsageThresholds;
 };
-export type AddWorkspaceEndpointResult = {
-  workspace: Workspace;
-};
-export type GetUserWorkspacesEndpointParams = {
-  page?: number;
-  pageSize?: number;
-};
-export type GetUserWorkspacesEndpointResult = {
-  page: number;
-  workspaces: Array<Workspace>;
-};
-export type GetWorkspaceEndpointParams = {
-  workspaceId?: string;
-};
 export type GetWorkspaceEndpointResult = {
   workspace: Workspace;
 };
@@ -843,7 +722,8 @@ export type UpdateWorkspaceEndpointResult = {
   workspace: Workspace;
 };
 export type FileBackendType = 'fimidara' | 'aws-s3';
-export type NewFileBackendMountInput = {
+export type AddFileBackendMountEndpointParams = {
+  workspaceId?: string;
   name: string;
   description?: string;
   backend: FileBackendType;
@@ -851,10 +731,6 @@ export type NewFileBackendMountInput = {
   configId: string | null;
   index: number;
   mountedFrom: string;
-};
-export type AddFileBackendMountEndpointParams = {
-  workspaceId?: string;
-  mount: NewFileBackendMountInput;
 };
 export type FileBackendMount = {
   resourceId: string;
@@ -934,15 +810,12 @@ export type ResolveFileBackendMountsEndpointResult = {
   mounts: Array<FileBackendMount>;
 };
 export type FileBackendConfigCredentials = {};
-export type NewFileBackendConfigInput = {
+export type AddFileBackendConfigEndpointParams = {
+  workspaceId?: string;
   name: string;
   description?: string;
   backend: FileBackendType;
   credentials: FileBackendConfigCredentials;
-};
-export type AddFileBackendConfigEndpointParams = {
-  workspaceId?: string;
-  config: NewFileBackendConfigInput;
 };
 export type FileBackendConfig = {
   resourceId: string;

@@ -39,23 +39,24 @@
                 "__id": "FieldObjectField",
                 "required": true
             },
-            "permissionGroups": {
+            "permissionGroupId": {
                 "data": {
-                    "__id": "FieldArray",
-                    "type": {
-                        "__id": "FieldObject",
-                        "fields": {
-                            "permissionGroupId": {
-                                "data": {
-                                    "__id": "FieldString",
-                                    "description": "Permission group ID. Either provide the permission group ID, or provide the workspace ID and permission group name",
-                                    "example": "pmgroup_000000000000000000000"
-                                },
-                                "__id": "FieldObjectField",
-                                "required": true
-                            }
+                    "__id": "FieldOrCombination",
+                    "types": {
+                        "0": {
+                            "__id": "FieldString",
+                            "description": "ID of the permission target that directly owns/is assigned the permission item producing this result. That is, the permission item used to resolve whether the requested entity has access or does not, the target directly owning that item, is surfaced here as permittingTargetId. This can be the requested target itself, or a parent folder if the requested resource is a folder of file, etc.",
+                            "example": "wrkspce_000000000000000000000"
                         },
-                        "name": "AssignPermissionGroupInput"
+                        "1": {
+                            "__id": "FieldArray",
+                            "type": {
+                                "__id": "FieldString",
+                                "description": "ID of the permission target that directly owns/is assigned the permission item producing this result. That is, the permission item used to resolve whether the requested entity has access or does not, the target directly owning that item, is surfaced here as permittingTargetId. This can be the requested target itself, or a parent folder if the requested resource is a folder of file, etc.",
+                                "example": "wrkspce_000000000000000000000"
+                            },
+                            "description": "List of resource IDs"
+                        }
                     }
                 },
                 "__id": "FieldObjectField",

@@ -48,10 +48,11 @@ async function getArtifacts(
   let inputTargets: PermissionItemInputTarget[] = [];
 
   data.items.forEach(item => {
-    if (item.entityId)
+    if (item.entityId) {
       inputEntities = inputEntities.concat(convertToArray(item.entityId));
-    if (item.target)
-      inputTargets = inputTargets.concat(convertToArray(item.target));
+    }
+
+    inputTargets = inputTargets.concat(convertToArray(item));
   });
 
   appAssert(
@@ -126,10 +127,8 @@ export const INTERNAL_resolveEntityPermissions = async (
     action: FimidaraPermissionAction,
     item: ResolveEntityPermissionItemInput
   ) {
-    convertToArray(item.target).forEach(target => {
-      const {targets: tMap} = targets.getByTarget(target);
-      fResolvedTargetItems(entity, action, tMap);
-    });
+    const {targets: tMap} = targets.getByTarget(item);
+    fResolvedTargetItems(entity, action, tMap);
   }
 
   function fActions(

@@ -1,14 +1,11 @@
-import {
-  AssignPermissionGroupInput,
-  PermissionGroup,
-} from '../../definitions/permissionGroups.js';
+import {PermissionGroup} from '../../definitions/permissionGroups.js';
 import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {SessionAgent} from '../../definitions/system.js';
-import {makeKey} from '../../utils/fns.js';
 import {addAssignedPermissionGroupList} from '../assignedItems/addAssignedItems.js';
 import {kSemanticModels} from '../contexts/injection/injectables.js';
 import {IServerRequest} from '../contexts/types.js';
 import addPermissionItems from '../permissionItems/addItems/handler.js';
+import {AddPermissionItemsEndpointParams} from '../permissionItems/addItems/types.js';
 import RequestData from '../RequestData.js';
 
 export function includesPermissionGroupById(
@@ -18,27 +15,17 @@ export function includesPermissionGroupById(
   return !!pgList.find(pg => pg.resourceId === id);
 }
 
-export function makeKeyFromAssignedPermissionGroupMetaOrInput(item: {
-  permissionGroupId: string;
-}) {
-  return makeKey([item.permissionGroupId]);
-}
-
 export function toAssignedPgListInput(
   pgList: Pick<PermissionGroup, 'resourceId'>[]
 ) {
-  return pgList.map(
-    (pg): AssignPermissionGroupInput => ({
-      permissionGroupId: pg.resourceId,
-    })
-  );
+  return pgList.map(pg => pg.resourceId);
 }
 
 export async function assignPgListToIdList(
   agent: SessionAgent,
   workspaceId: string,
   entityIdList: string[],
-  pgInputList: AssignPermissionGroupInput[]
+  pgInputList: string[]
 ) {
   await kSemanticModels
     .utils()
@@ -64,12 +51,12 @@ export async function grantPermission(
   action: FimidaraPermissionAction
 ) {
   await addPermissionItems(
-    RequestData.fromExpressRequest(req, {
+    RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(req, {
       workspaceId,
       items: [
         {
           action,
-          target: {targetId: targetIdList},
+          targetId: targetIdList,
           access: true,
           entityId: agentId,
         },
