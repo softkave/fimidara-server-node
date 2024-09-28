@@ -1,14 +1,14 @@
 import {faker} from '@faker-js/faker';
 import {promises as fspromises} from 'fs';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {Workspace} from '../../definitions/workspace.js';
 import {INTERNAL_createAgentToken} from '../../endpoints/agentTokens/addToken/utils.js';
 import {getPublicAgentToken} from '../../endpoints/agentTokens/utils.js';
 import {addAssignedPermissionGroupList} from '../../endpoints/assignedItems/addAssignedItems.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../endpoints/contexts/injection/injectables.js';
-import {SemanticProviderMutationParams} from '../../endpoints/contexts/semantic/types.js';
 import INTERNAL_createWorkspace from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace.js';
 import {makeRootnameFromName} from '../../endpoints/workspaces/utils.js';
 import {kSystemSessionAgent} from '../../utils/agent.js';

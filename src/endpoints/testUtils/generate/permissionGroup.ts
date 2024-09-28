@@ -1,4 +1,5 @@
 import {faker} from '@faker-js/faker';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {AssignedItem} from '../../../definitions/assignedItem.js';
 import {PermissionGroup} from '../../../definitions/permissionGroups.js';
 import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
@@ -7,7 +8,6 @@ import {
   getNewIdForResource,
   getResourceTypeFromId,
 } from '../../../utils/resource.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 
 export function generatePermissionGroupForTest(
   seed: Partial<PermissionGroup> = {}

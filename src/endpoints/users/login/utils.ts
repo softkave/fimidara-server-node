@@ -1,3 +1,8 @@
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {
   kCurrentJWTTokenVersion,
@@ -9,11 +14,6 @@ import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {ServerError} from '../../../utils/errors.js';
 import {newResource} from '../../../utils/resource.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {userExtractor} from '../utils.js';
 import {LoginResult} from './types.js';
 

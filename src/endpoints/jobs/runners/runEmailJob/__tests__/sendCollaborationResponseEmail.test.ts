@@ -1,5 +1,8 @@
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 
+import {IEmailProviderContext} from '../../../../../contexts/email/types.js';
+import {kUtilsInjectables} from '../../../../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../../../../contexts/injection/register.js';
 import {
   CollaborationRequestResponse,
   kCollaborationRequestStatusTypeMap,
@@ -8,9 +11,6 @@ import {kEmailJobType} from '../../../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
 import {kCollaborationRequestResponseArtifacts} from '../../../../../emailTemplates/collaborationRequestResponse.js';
 import {getNewIdForResource} from '../../../../../utils/resource.js';
-import {IEmailProviderContext} from '../../../../contexts/email/types.js';
-import {kUtilsInjectables} from '../../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
 import MockTestEmailProviderContext from '../../../../testUtils/context/email/MockTestEmailProviderContext.js';
 import {generateAndInsertCollaborationRequestListForTest} from '../../../../testUtils/generate/collaborationRequest.js';
 import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/user.js';
@@ -33,12 +33,15 @@ describe('sendCollaborationRequestResponseEmail', () => {
       generateAndInsertUserListForTest(1),
       generateAndInsertWorkspaceListForTest(1),
     ]);
-    const [request] = await generateAndInsertCollaborationRequestListForTest(1, () => ({
-      recipientEmail: user.email,
-      workspaceId: workspace.resourceId,
-      workspaceName: workspace.name,
-      status: kCollaborationRequestStatusTypeMap.Accepted,
-    }));
+    const [request] = await generateAndInsertCollaborationRequestListForTest(
+      1,
+      () => ({
+        recipientEmail: user.email,
+        workspaceId: workspace.resourceId,
+        workspaceName: workspace.name,
+        status: kCollaborationRequestStatusTypeMap.Accepted,
+      })
+    );
     const testEmailProvider = new MockTestEmailProviderContext();
     kRegisterUtilsInjectables.email(testEmailProvider);
 
@@ -65,6 +68,8 @@ describe('sendCollaborationRequestResponseEmail', () => {
         workspaceName: workspace.name,
       })
     );
-    expect(params.source).toBe(kUtilsInjectables.suppliedConfig().senderEmailAddress);
+    expect(params.source).toBe(
+      kUtilsInjectables.suppliedConfig().senderEmailAddress
+    );
   });
 });

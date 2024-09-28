@@ -1,4 +1,6 @@
 import {expect} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {getInAndNinQuery} from '../../../contexts/semantic/utils.js';
 import {
   FimidaraPermissionAction,
   PermissionItem,
@@ -6,8 +8,6 @@ import {
 import {FimidaraResourceType} from '../../../definitions/system.js';
 import {convertToArray, makeKey} from '../../../utils/fns.js';
 import {indexArray} from '../../../utils/indexArray.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
-import {getInAndNinQuery} from '../../contexts/semantic/utils.js';
 
 export async function expectEntityHasPermissionsTargetingId(
   entityId: string | string[],

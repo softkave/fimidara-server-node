@@ -1,6 +1,6 @@
 import {isNumber} from 'lodash-es';
 import {isMainThread} from 'worker_threads';
-import {globalSetup} from '../../../contexts/globalUtils.js';
+import {globalSetup} from '../../../../contexts/globalUtils.js';
 import {FWorker} from '../FWorker.js';
 import {FWorkerMessager} from '../FWorkerMessager.js';
 import {kFWorkerTestWorkerTerminateMessage} from './constants.js';

@@ -1,4 +1,10 @@
 import {afterEach, beforeEach, describe, expect, test} from 'vitest';
+import {DataQuery} from '../../../contexts/data/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../../contexts/injection/register.js';
 import {
   EmailJobParams,
   Job,
@@ -12,12 +18,6 @@ import {indexArray} from '../../../utils/indexArray.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
 import RequestData from '../../RequestData.js';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
-import {DataQuery} from '../../contexts/data/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../contexts/injection/register.js';
 import MockTestEmailProviderContext from '../../testUtils/context/email/MockTestEmailProviderContext.js';
 import {generateAndInsertUserListForTest} from '../../testUtils/generate/user.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';

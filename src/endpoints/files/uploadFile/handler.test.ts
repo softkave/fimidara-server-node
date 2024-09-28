@@ -11,6 +11,19 @@ import {
 } from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {afterAll, afterEach, beforeAll, describe, expect, test} from 'vitest';
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {MemoryFilePersistenceProvider} from '../../../contexts/file/MemoryFilePersistenceProvider.js';
+import {
+  FilePersistenceProvider,
+  FilePersistenceUploadFileParams,
+  FileProviderResolver,
+} from '../../../contexts/file/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../../contexts/injection/register.js';
+import {getStringListQuery} from '../../../contexts/semantic/utils.js';
 import {File} from '../../../definitions/file.js';
 import {kFileBackendType} from '../../../definitions/fileBackend.js';
 import {Folder} from '../../../definitions/folder.js';
@@ -26,19 +39,6 @@ import {
 import {UsageThresholdsByCategory} from '../../../definitions/workspace.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import RequestData from '../../RequestData.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {MemoryFilePersistenceProvider} from '../../contexts/file/MemoryFilePersistenceProvider.js';
-import {
-  FilePersistenceProvider,
-  FilePersistenceUploadFileParams,
-  FileProviderResolver,
-} from '../../contexts/file/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../contexts/injection/register.js';
-import {getStringListQuery} from '../../contexts/semantic/utils.js';
 import {stringifyFoldernamepath} from '../../folders/utils.js';
 import {
   generateTestFileName,

@@ -1,5 +1,5 @@
 import {vi} from 'vitest';
-import {FimidaraFilePersistenceProvider} from '../../../contexts/file/FimidaraFilePersistenceProvider.js';
+import {FimidaraFilePersistenceProvider} from '../../../../contexts/file/FimidaraFilePersistenceProvider.js';
 import {mockWith} from '../../helpers/mock.js';
 import {TestFilePersistenceProviderContext} from '../types.js';
 

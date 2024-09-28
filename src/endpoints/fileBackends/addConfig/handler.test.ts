@@ -1,9 +1,9 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {ValidationError} from '../../../utils/errors.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {ResourceExistsError} from '../../errors.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   initTests,
   insertFileBackendConfigForTest,

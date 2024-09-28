@@ -1,5 +1,11 @@
 import assert from 'assert';
 import {compact, get, map, mapKeys} from 'lodash-es';
+import {
+  checkAuthorizationWithAgent,
+  getResourcePermissionContainers,
+} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {
   FimidaraResourceType,
@@ -23,12 +29,6 @@ import {
   PromiseWithId,
   waitOnPromisesWithId,
 } from '../../utils/waitOnPromises.js';
-import {
-  checkAuthorizationWithAgent,
-  getResourcePermissionContainers,
-} from '../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels} from '../contexts/injection/injectables.js';
-import {SemanticProviderOpParams} from '../contexts/semantic/types.js';
 import {getFilepathInfo, stringifyFilenamepath} from '../files/utils.js';
 import {getFolderpathInfo, stringifyFoldernamepath} from '../folders/utils.js';
 import {checkResourcesBelongsToWorkspace} from './containerCheckFns.js';

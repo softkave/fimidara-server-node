@@ -1,5 +1,6 @@
 import {add} from 'date-fns';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {
   kCurrentJWTTokenVersion,
@@ -9,9 +10,8 @@ import {
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {newResource} from '../../../utils/resource.js';
-import RequestData from '../../RequestData.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import EndpointReusableQueries from '../../queries.js';
+import RequestData from '../../RequestData.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,

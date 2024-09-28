@@ -1,5 +1,9 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../../contexts/injection/injectables.js';
 import {kFileBackendType} from '../../../../definitions/fileBackend.js';
 import {
   IngestFolderpathJobParams,
@@ -7,10 +11,6 @@ import {
 } from '../../../../definitions/job.js';
 import {kSystemSessionAgent} from '../../../../utils/agent.js';
 import {getNewId} from '../../../../utils/resource.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
 import {
   generateAndInsertFileBackendConfigListForTest,
   generateAndInsertFileBackendMountListForTest,

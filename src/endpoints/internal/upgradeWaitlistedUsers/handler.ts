@@ -1,3 +1,8 @@
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
 import {
   EmailJobParams,
   kEmailJobType,
@@ -6,11 +11,6 @@ import {
 import {User} from '../../../definitions/user.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {validate} from '../../../utils/validate.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
 import {queueJobs} from '../../jobs/queueJobs.js';
 import {assertUserIsPartOfRootWorkspace} from '../utils.js';
 import {UpgradeWaitlistedUsersEndpoint} from './types.js';

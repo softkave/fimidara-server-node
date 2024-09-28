@@ -1,6 +1,6 @@
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {afterAll, beforeAll, expect, test} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   initTests,
   insertAgentTokenForTest,
@@ -26,9 +26,14 @@ afterAll(async () => {
 test('Agent token added', async () => {
   const {userToken} = await insertUserForTest();
   const {workspace} = await insertWorkspaceForTest(userToken);
-  const {token} = await insertAgentTokenForTest(userToken, workspace.resourceId);
+  const {token} = await insertAgentTokenForTest(
+    userToken,
+    workspace.resourceId
+  );
   const savedToken = getPublicAgentToken(
-    await kSemanticModels.agentToken().assertGetOneByQuery({resourceId: token.resourceId})
+    await kSemanticModels
+      .agentToken()
+      .assertGetOneByQuery({resourceId: token.resourceId})
   );
   expect(agentTokenExtractor(savedToken)).toMatchObject(token);
 });

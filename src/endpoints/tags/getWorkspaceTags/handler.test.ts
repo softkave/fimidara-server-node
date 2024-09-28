@@ -1,7 +1,7 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {calculatePageSize} from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {generateAndInsertTagListForTest} from '../../testUtils/generate/tag.js';
 import {insertTagForTest} from '../../testUtils/helpers/tag.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';

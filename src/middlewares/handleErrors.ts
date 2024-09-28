@@ -1,7 +1,7 @@
 import {Response} from 'express';
 import pkg from 'jsonwebtoken';
+import {kUtilsInjectables} from '../contexts/injection/injectables.js';
 import {kEndpointConstants} from '../endpoints/constants.js';
-import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
 import {
   CredentialsExpiredError,
   InvalidCredentialsError,

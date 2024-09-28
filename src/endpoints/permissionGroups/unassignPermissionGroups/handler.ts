@@ -1,13 +1,13 @@
-import {AssignedItem} from '../../../definitions/assignedItem.js';
-import {convertToArray} from '../../../utils/fns.js';
-import {validate} from '../../../utils/validate.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {LiteralDataQuery} from '../../contexts/data/types.js';
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {LiteralDataQuery} from '../../../contexts/data/types.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
+} from '../../../contexts/injection/injectables.js';
+import {AssignedItem} from '../../../definitions/assignedItem.js';
+import {convertToArray} from '../../../utils/fns.js';
+import {validate} from '../../../utils/validate.js';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
 import {UnassignPermissionGroupsEndpoint} from './types.js';
 import {unassignPermissionGroupsJoiSchema} from './validation.js';

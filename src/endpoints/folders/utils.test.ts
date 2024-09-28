@@ -1,8 +1,8 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {getStringListQuery} from '../../contexts/semantic/utils.js';
 import {Folder} from '../../definitions/folder.js';
 import {getRandomIntInclusive} from '../../utils/fns.js';
-import {kSemanticModels} from '../contexts/injection/injectables.js';
-import {getStringListQuery} from '../contexts/semantic/utils.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   generateAndInsertTestFolders,
   generateTestFolderpath,
@@ -20,7 +20,9 @@ afterAll(async () => {
 
 describe('utils', () => {
   test('case-insensitive file match', async () => {
-    const parentNamepath = generateTestFolderpath({length: getRandomIntInclusive(1, 5)});
+    const parentNamepath = generateTestFolderpath({
+      length: getRandomIntInclusive(1, 5),
+    });
     const folders = await generateAndInsertTestFolders(
       /** count */ 5,
       {parentId: null},
@@ -52,8 +54,12 @@ describe('utils', () => {
     );
 
     const folderIdList = folders.map(folder => folder.resourceId);
-    const foldersByParentIdList = foldersByParent.map(folder => folder.resourceId);
-    const returnedFoldersIdList = returnedFolders.map(folder => folder?.resourceId ?? '');
+    const foldersByParentIdList = foldersByParent.map(
+      folder => folder.resourceId
+    );
+    const returnedFoldersIdList = returnedFolders.map(
+      folder => folder?.resourceId ?? ''
+    );
 
     expect(foldersByParentIdList).toEqual(expect.arrayContaining(folderIdList));
     expect(returnedFoldersIdList).toEqual(expect.arrayContaining(folderIdList));

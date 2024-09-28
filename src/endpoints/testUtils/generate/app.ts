@@ -1,9 +1,9 @@
 import {faker} from '@faker-js/faker';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {App, kAppPresetShards, kAppType} from '../../../definitions/app.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 
 export function getRandomAppType() {
   return faker.helpers.arrayElement(Object.values(kAppType));

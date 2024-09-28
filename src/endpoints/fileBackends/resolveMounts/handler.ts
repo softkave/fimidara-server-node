@@ -1,13 +1,13 @@
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
 import {File} from '../../../definitions/file.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import {validate} from '../../../utils/validate.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
 import {InvalidRequestError} from '../../errors.js';
 import {checkFileAuthorization, getFilepathInfo} from '../../files/utils.js';
 import {

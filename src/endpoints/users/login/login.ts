@@ -1,7 +1,7 @@
 import * as argon2 from 'argon2';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {InvalidEmailOrPasswordError} from '../errors.js';
 import {LoginEndpoint} from './types.js';
 import {

@@ -1,5 +1,6 @@
 import {add, endOfMonth, startOfMonth, sub} from 'date-fns';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {
   UsageRecord,
   UsageRecordCategory,
@@ -11,7 +12,6 @@ import {
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {calculatePageSize} from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {generateAndInsertUsageRecordList} from '../../testUtils/generate/usageRecord.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {

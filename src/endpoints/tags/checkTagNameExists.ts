@@ -1,5 +1,5 @@
-import {kSemanticModels} from '../contexts/injection/injectables.js';
-import {SemanticProviderOpParams} from '../contexts/semantic/types.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {ResourceExistsError} from '../errors.js';
 
 export async function checkTagNameExists(
@@ -7,7 +7,9 @@ export async function checkTagNameExists(
   name: string,
   opts?: SemanticProviderOpParams
 ) {
-  const itemExists = await kSemanticModels.tag().existsByName(workspaceId, name, opts);
+  const itemExists = await kSemanticModels
+    .tag()
+    .existsByName(workspaceId, name, opts);
   if (itemExists) {
     throw new ResourceExistsError('Tag exists');
   }

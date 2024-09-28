@@ -1,12 +1,12 @@
 import {last} from 'lodash-es';
-import {Folder, FolderMatcher} from '../../definitions/folder.js';
-import {SessionAgent} from '../../definitions/system.js';
-import {FileQuery} from '../contexts/data/types.js';
-import {kSemanticModels} from '../contexts/injection/injectables.js';
+import {FileQuery} from '../../contexts/data/types.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
-} from '../contexts/semantic/types.js';
+} from '../../contexts/semantic/types.js';
+import {Folder, FolderMatcher} from '../../definitions/folder.js';
+import {SessionAgent} from '../../definitions/system.js';
 import {FolderQueries} from './queries.js';
 import {assertFolder, readOrIngestFolderByFolderpath} from './utils.js';
 

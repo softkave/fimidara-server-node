@@ -1,3 +1,5 @@
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {
   FileBackendConfig,
   FileBackendMount,
@@ -6,8 +8,6 @@ import {
   PublicResolvedMountEntry,
 } from '../../definitions/fileBackend.js';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract.js';
-import {kSemanticModels} from '../contexts/injection/injectables.js';
-import {SemanticProviderOpParams} from '../contexts/semantic/types.js';
 import {workspaceResourceFields} from '../extractors.js';
 import {FolderQueries} from '../folders/queries.js';
 import {FileMountQueries} from './mountQueries.js';
@@ -38,7 +38,9 @@ const fileBackendMountFields = getFields<PublicFileBackendMount>({
 });
 
 export const fileBackendMountExtractor = makeExtract(fileBackendMountFields);
-export const fileBackendMountListExtractor = makeListExtract(fileBackendMountFields);
+export const fileBackendMountListExtractor = makeListExtract(
+  fileBackendMountFields
+);
 
 const fileBackendConfigFields = getFields<PublicFileBackendConfig>({
   ...workspaceResourceFields,
@@ -48,7 +50,9 @@ const fileBackendConfigFields = getFields<PublicFileBackendConfig>({
 });
 
 export const fileBackendConfigExtractor = makeExtract(fileBackendConfigFields);
-export const fileBackendConfigListExtractor = makeListExtract(fileBackendConfigFields);
+export const fileBackendConfigListExtractor = makeListExtract(
+  fileBackendConfigFields
+);
 
 export async function mountNameExists(
   mount: Pick<FileBackendMount, 'workspaceId' | 'name'>,
@@ -69,11 +73,17 @@ export async function configNameExists(
 }
 
 export async function mountExists(
-  data: Pick<FileBackendMount, 'namepath' | 'mountedFrom' | 'backend' | 'workspaceId'>,
+  data: Pick<
+    FileBackendMount,
+    'namepath' | 'mountedFrom' | 'backend' | 'workspaceId'
+  >,
   opts?: SemanticProviderOpParams
 ) {
   const mountModel = kSemanticModels.fileBackendMount();
-  return await mountModel.existsByQuery(FileMountQueries.getBySignature(data), opts);
+  return await mountModel.existsByQuery(
+    FileMountQueries.getBySignature(data),
+    opts
+  );
 }
 
 export async function countFolderAttachedMounts(
@@ -82,5 +92,8 @@ export async function countFolderAttachedMounts(
 ) {
   return await kSemanticModels
     .fileBackendMount()
-    .existsByQuery(FolderQueries.getByNamepathOnly({namepath: folderpath}), opts);
+    .existsByQuery(
+      FolderQueries.getByNamepathOnly({namepath: folderpath}),
+      opts
+    );
 }

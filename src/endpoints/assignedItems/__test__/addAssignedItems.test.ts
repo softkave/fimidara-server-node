@@ -1,9 +1,9 @@
 import {identity} from 'lodash-es';
 import {afterAll, beforeAll, describe, test} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {AssignedItem} from '../../../definitions/assignedItem.js';
 import {extractResourceIdList, makeKey} from '../../../utils/fns.js';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {
   assignPgListToIdList,
   toAssignedPgListInput,

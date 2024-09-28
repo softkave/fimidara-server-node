@@ -1,6 +1,9 @@
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
 import {validate} from '../../../utils/validate.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {
   applyDefaultEndpointPaginationOptions,
   getEndpointPageFromInput,
@@ -19,7 +22,9 @@ const getUserWorkspaces: GetUserWorkspacesEndpoint = async reqData => {
     .assignedItem()
     .getUserWorkspaces(user.resourceId, data);
   const workspaceIdList = assignedItems.map(item => item.assignedItemId);
-  const workspaces = await kSemanticModels.workspace().getManyByIdList(workspaceIdList);
+  const workspaces = await kSemanticModels
+    .workspace()
+    .getManyByIdList(workspaceIdList);
   return {
     page: getEndpointPageFromInput(data),
     workspaces: workspaceListExtractor(workspaces),

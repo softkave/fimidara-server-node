@@ -1,4 +1,9 @@
 import {defaultTo} from 'lodash-es';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {
+  SemanticProviderOpParams,
+  SemanticProviderQueryListParams,
+} from '../../contexts/semantic/types.js';
 import {
   AssignedItem,
   ResourceWithTags,
@@ -11,11 +16,6 @@ import {
 } from '../../definitions/system.js';
 import {User} from '../../definitions/user.js';
 import {cast} from '../../utils/fns.js';
-import {kSemanticModels} from '../contexts/injection/injectables.js';
-import {
-  SemanticProviderOpParams,
-  SemanticProviderQueryListParams,
-} from '../contexts/semantic/types.js';
 import {
   assignedItemsToAssignedTagList,
   assignedItemsToAssignedWorkspaceList,

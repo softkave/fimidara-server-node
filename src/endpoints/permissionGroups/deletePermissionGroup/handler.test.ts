@@ -1,4 +1,5 @@
 import {afterAll, beforeAll, expect, test} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {
   DeleteResourceJobParams,
   Job,
@@ -8,7 +9,6 @@ import {PermissionGroupMatcher} from '../../../definitions/permissionGroups.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
 import RequestData from '../../RequestData.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,

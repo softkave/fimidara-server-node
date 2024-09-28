@@ -1,7 +1,7 @@
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {kTokenAccessScope} from '../../../definitions/system.js';
 import {User} from '../../../definitions/user.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {assertUser} from '../utils.js';
 
 /**

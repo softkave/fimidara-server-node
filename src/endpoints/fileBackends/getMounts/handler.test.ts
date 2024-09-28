@@ -1,7 +1,7 @@
 import {omit} from 'lodash-es';
 import {afterAll, beforeAll, describe, test} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {pathSplit} from '../../../utils/fns.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {FolderQueries} from '../../folders/queries.js';
 import EndpointReusableQueries from '../../queries.js';
 import {

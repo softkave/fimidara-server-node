@@ -1,6 +1,12 @@
 import assert from 'assert';
 import {URL} from 'url';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {IEmailProviderContext} from '../../../../../contexts/email/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../../../../contexts/injection/register.js';
 import {AgentToken} from '../../../../../definitions/agentToken.js';
 import {kEmailJobType} from '../../../../../definitions/job.js';
 import {
@@ -15,12 +21,6 @@ import {
   getNewIdForResource,
   newResource,
 } from '../../../../../utils/resource.js';
-import {IEmailProviderContext} from '../../../../contexts/email/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
 import MockTestEmailProviderContext from '../../../../testUtils/context/email/MockTestEmailProviderContext.js';
 import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/user.js';
 import {completeTests} from '../../../../testUtils/helpers/testFns.js';

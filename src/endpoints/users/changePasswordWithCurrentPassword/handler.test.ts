@@ -1,8 +1,8 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, expect, test} from 'vitest';
-import RequestData from '../../RequestData.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import EndpointReusableQueries from '../../queries.js';
+import RequestData from '../../RequestData.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,

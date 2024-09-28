@@ -1,7 +1,7 @@
 import * as argon2 from 'argon2';
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {validate} from '../../../utils/validate.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {INTERNAL_changePassword} from '../changePasswordWithToken/utils.js';
 import {IncorrectPasswordError} from '../errors.js';
 import {ChangePasswordWithCurrentPasswordEndpoint} from './types.js';

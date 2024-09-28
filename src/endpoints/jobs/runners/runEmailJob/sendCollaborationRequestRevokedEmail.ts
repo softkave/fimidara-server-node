@@ -1,4 +1,8 @@
 import {first} from 'lodash-es';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../../contexts/injection/injectables.js';
 import {EmailJobParams, kEmailJobType} from '../../../../definitions/job.js';
 import {
   CollaborationRequestRevokedEmailProps,
@@ -7,10 +11,6 @@ import {
   kCollaborationRequestRevokedEmail,
 } from '../../../../emailTemplates/collaborationRequestRevoked.js';
 import {appAssert} from '../../../../utils/assertion.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
 import {getBaseEmailTemplateProps} from './utils.js';
 
 export async function sendCollaborationRequestRevokedEmail(

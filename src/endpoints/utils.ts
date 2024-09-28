@@ -1,6 +1,14 @@
 import {Express, Request, Response} from 'express';
 import {compact, isString} from 'lodash-es';
 import {AnyObject} from 'softkave-js-utils';
+import {
+  ResolvedTargetChildrenAccessCheck,
+  kResolvedTargetChildrenAccess,
+} from '../contexts/authorizationChecks/checkAuthorizaton.js';
+import {DataQuery} from '../contexts/data/types.js';
+import {kUtilsInjectables} from '../contexts/injection/injectables.js';
+import {getInAndNinQuery} from '../contexts/semantic/utils.js';
+import {IServerRequest} from '../contexts/types.js';
 import {Agent, WorkspaceResource} from '../definitions/system.js';
 import {Workspace} from '../definitions/workspace.js';
 import OperationError, {
@@ -12,14 +20,6 @@ import {ServerError} from '../utils/errors.js';
 import {isObjectEmpty, toCompactArray} from '../utils/fns.js';
 import RequestData from './RequestData.js';
 import {kEndpointConstants} from './constants.js';
-import {
-  ResolvedTargetChildrenAccessCheck,
-  kResolvedTargetChildrenAccess,
-} from './contexts/authorizationChecks/checkAuthorizaton.js';
-import {DataQuery} from './contexts/data/types.js';
-import {kUtilsInjectables} from './contexts/injection/injectables.js';
-import {getInAndNinQuery} from './contexts/semantic/utils.js';
-import {IServerRequest} from './contexts/types.js';
 import {InvalidRequestError, NotFoundError} from './errors.js';
 import {
   Endpoint,

@@ -1,11 +1,11 @@
-import {getTimestamp} from '../../../utils/dateFns.js';
-import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
-import {validate} from '../../../utils/validate.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
+} from '../../../contexts/injection/injectables.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
 import {assertUpdateNotEmpty} from '../../utils.js';
 import {
   assertCollaborationRequest,

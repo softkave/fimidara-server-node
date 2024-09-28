@@ -1,12 +1,12 @@
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
 import {Tag} from '../../../definitions/tag.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
 import {checkTagNameExists} from '../checkTagNameExists.js';
 import {assertTag, checkTagAuthorization02, tagExtractor} from '../utils.js';
 import {UpdateTagEndpoint} from './types.js';

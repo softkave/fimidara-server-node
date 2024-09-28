@@ -1,6 +1,6 @@
+import {FolderQuery} from '../../contexts/data/types.js';
+import {getStringListQuery} from '../../contexts/semantic/utils.js';
 import {Folder} from '../../definitions/folder.js';
-import {FolderQuery} from '../contexts/data/types.js';
-import {getStringListQuery} from '../contexts/semantic/utils.js';
 import EndpointReusableQueries from '../queries.js';
 
 function getByNamepathOnly(folder: Pick<Folder, 'namepath'>): FolderQuery {
@@ -13,9 +13,14 @@ function getByNamepathOnly(folder: Pick<Folder, 'namepath'>): FolderQuery {
   );
 }
 
-function getByNamepath(folder: Pick<Folder, 'workspaceId' | 'namepath'>): FolderQuery {
+function getByNamepath(
+  folder: Pick<Folder, 'workspaceId' | 'namepath'>
+): FolderQuery {
   const {workspaceId} = folder;
-  return EndpointReusableQueries.merge({workspaceId}, getByNamepathOnly(folder));
+  return EndpointReusableQueries.merge(
+    {workspaceId},
+    getByNamepathOnly(folder)
+  );
 }
 
 function getByAncestor(

@@ -1,6 +1,6 @@
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {
   getUserClientAssignedToken,
   getUserToken,

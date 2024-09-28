@@ -1,10 +1,14 @@
-import {DeleteResourceJobParams, Job, kJobType} from '../../../definitions/job.js';
+import {afterAll, beforeAll, expect, test} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {
+  DeleteResourceJobParams,
+  Job,
+  kJobType,
+} from '../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
 import RequestData from '../../RequestData.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
@@ -32,9 +36,12 @@ test('workspace deleted', async () => {
   const {workspace} = await insertWorkspaceForTest(userToken);
 
   const result = await deleteWorkspace(
-    RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
-      workspaceId: workspace.resourceId,
-    })
+    RequestData.fromExpressRequest(
+      mockExpressRequestWithAgentToken(userToken),
+      {
+        workspaceId: workspace.resourceId,
+      }
+    )
   );
   assertEndpointResultOk(result);
 

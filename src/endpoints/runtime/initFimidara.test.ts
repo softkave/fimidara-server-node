@@ -3,7 +3,7 @@ import {
   kDataModels,
   kSemanticModels,
   kUtilsInjectables,
-} from '../contexts/injection/injectables.js';
+} from '../../contexts/injection/injectables.js';
 import EndpointReusableQueries from '../queries.js';
 import {completeTests} from '../testUtils/helpers/testFns.js';
 import {initTests} from '../testUtils/testUtils.js';

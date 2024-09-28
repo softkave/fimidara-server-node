@@ -1,8 +1,8 @@
 import assert from 'assert';
 import {first} from 'lodash-es';
 import {expect} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {Job, JobStatus, kJobStatus} from '../../../definitions/job.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {runJob} from '../../jobs/runJob.js';
 
 /** Expects there isn't any other runner running jobs in provided shard, and

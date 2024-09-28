@@ -1,7 +1,7 @@
 import {compact, last, uniqWith} from 'lodash-es';
 import {AnyFn, OmitFrom} from 'softkave-js-utils';
 import {ValueOf} from 'type-fest';
-import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
+import {kUtilsInjectables} from '../contexts/injection/injectables.js';
 import {DeferredPromise, getDeferredPromise} from './promiseFns.js';
 
 /** shard ID is case-sensitive, so `["shard-01"] !== ["SHARD-01"]` */

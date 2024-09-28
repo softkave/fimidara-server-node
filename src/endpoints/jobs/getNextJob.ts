@@ -1,4 +1,13 @@
 import {first} from 'lodash-es';
+import {DataQuery} from '../../contexts/data/types.js';
+import {
+  kDataModels,
+  kSemanticModels,
+} from '../../contexts/injection/injectables.js';
+import {
+  SemanticProviderMutationParams,
+  SemanticProviderOpParams,
+} from '../../contexts/semantic/types.js';
 import {AppShardId} from '../../definitions/app.js';
 import {
   Job,
@@ -12,15 +21,6 @@ import {appAssert} from '../../utils/assertion.js';
 import {getTimestamp} from '../../utils/dateFns.js';
 import {newResource} from '../../utils/resource.js';
 import {AnyFn} from '../../utils/types.js';
-import {DataQuery} from '../contexts/data/types.js';
-import {
-  kDataModels,
-  kSemanticModels,
-} from '../contexts/injection/injectables.js';
-import {
-  SemanticProviderMutationParams,
-  SemanticProviderOpParams,
-} from '../contexts/semantic/types.js';
 
 export const kJobDefaultCooldownDuration = 5 * 60 * 1_000; // 5 minutes
 let cooldownDuration = kJobDefaultCooldownDuration;

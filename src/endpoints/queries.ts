@@ -1,9 +1,9 @@
 import {AnyObject} from 'softkave-js-utils';
 import {UnionToIntersection} from 'type-fest';
+import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider.js';
+import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder.js';
+import {DataQuery} from '../contexts/data/types.js';
 import {mergeData} from '../utils/fns.js';
-import {DataProviderFilterValueOperator} from './contexts/data/DataProvider.js';
-import DataProviderFilterBuilder from './contexts/data/DataProviderFilterBuilder.js';
-import {DataQuery} from './contexts/data/types.js';
 
 function getByWorkspaceId(id: string) {
   return new DataProviderFilterBuilder<{workspaceId: string}>()

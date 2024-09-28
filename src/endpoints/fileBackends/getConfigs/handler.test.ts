@@ -1,5 +1,5 @@
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
-import {test, expect, beforeAll, afterAll, describe} from 'vitest';
+import {afterAll, beforeAll, describe, test} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {
   generateAndInsertFileBackendConfigListForTest,
   generateFileBackendType,
@@ -37,10 +37,11 @@ describe('getFileBackendConfigs', () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
 
-    const queryDefs: GenerateTestFieldsDef<GetFileBackendConfigsEndpointParamsBase> = {
-      backend: generateFileBackendType,
-      workspaceId: () => workspace.resourceId,
-    };
+    const queryDefs: GenerateTestFieldsDef<GetFileBackendConfigsEndpointParamsBase> =
+      {
+        backend: generateFileBackendType,
+        workspaceId: () => workspace.resourceId,
+      };
     const queries = await generateTestFieldsCombinations(
       queryDefs,
       TestFieldsPresetCombinations.incrementallyAdd
@@ -49,7 +50,9 @@ describe('getFileBackendConfigs', () => {
     await testCombinations(queries, async query => {
       query = {...query, workspaceId: workspace.resourceId};
       await generateAndInsertFileBackendConfigListForTest(10, query);
-      const count = await kSemanticModels.fileBackendConfig().countByQuery(query);
+      const count = await kSemanticModels
+        .fileBackendConfig()
+        .countByQuery(query);
 
       await performPaginationTest(getFileBackendConfigs, {
         count,

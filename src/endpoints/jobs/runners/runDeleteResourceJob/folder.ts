@@ -1,14 +1,17 @@
 import {pathJoin} from 'softkave-js-utils';
-import {ResolvedMountEntry} from '../../../../definitions/fileBackend.js';
-import {DeleteResourceCascadeFnDefaultArgs} from '../../../../definitions/job.js';
-import {kFimidaraResourceType} from '../../../../definitions/system.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+} from '../../../../contexts/injection/injectables.js';
+import {ResolvedMountEntry} from '../../../../definitions/fileBackend.js';
+import {DeleteResourceCascadeFnDefaultArgs} from '../../../../definitions/job.js';
+import {kFimidaraResourceType} from '../../../../definitions/system.js';
 import {resolveBackendsMountsAndConfigs} from '../../../fileBackends/mountUtils.js';
 import {FolderQueries} from '../../../folders/queries.js';
-import {genericDeleteArtifacts, genericGetArtifacts} from './genericDefinitions.js';
+import {
+  genericDeleteArtifacts,
+  genericGetArtifacts,
+} from './genericDefinitions.js';
 import {
   DeleteResourceCascadeEntry,
   DeleteResourceFn,
@@ -52,7 +55,10 @@ const deleteResourceFn: DeleteResourceFn<
   }
 
   const {providersMap, mounts} = await resolveBackendsMountsAndConfigs(
-    /** folder */ {workspaceId: args.workspaceId, namepath: preRunMeta.namepath},
+    /** folder */ {
+      workspaceId: args.workspaceId,
+      namepath: preRunMeta.namepath,
+    },
     /** init primary backend only */ false
   );
   await Promise.all(
@@ -85,14 +91,16 @@ const getPreRunMetaFn: DeleteResourceGetPreRunMetaFn<
   DeleteResourceCascadeFnDefaultArgs,
   DeleteFolderPreRunMeta
 > = async ({args}) => {
-  const keys: Array<keyof DeleteFolderPreRunMeta['partialMountEntries'][number]> = [
-    'backendNamepath',
-  ];
+  const keys: Array<
+    keyof DeleteFolderPreRunMeta['partialMountEntries'][number]
+  > = ['backendNamepath'];
   const [partialMountEntries, folder] = await Promise.all([
     kSemanticModels.resolvedMountEntry().getLatestByForId(args.resourceId, {
       projection: keys.reduce((acc, key) => ({...acc, [key]: true}), {}),
     }),
-    kSemanticModels.folder().getOneById(args.resourceId, {includeDeleted: true}),
+    kSemanticModels
+      .folder()
+      .getOneById(args.resourceId, {includeDeleted: true}),
   ]);
 
   return {partialMountEntries, namepath: folder?.namepath};

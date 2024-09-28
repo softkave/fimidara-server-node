@@ -1,5 +1,11 @@
 import {first, forEach, isString} from 'lodash-es';
 import {
+  checkAuthorizationWithAgent,
+  getAuthorizationAccessChecker,
+  getResourcePermissionContainers,
+} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {SemanticProviderOpParams} from '../../../contexts/semantic/types.js';
+import {
   FimidaraPermissionAction,
   kFimidaraPermissionActions,
 } from '../../../definitions/permissionItem.js';
@@ -12,12 +18,6 @@ import {Workspace} from '../../../definitions/workspace.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {convertToArray} from '../../../utils/fns.js';
 import {indexArray} from '../../../utils/indexArray.js';
-import {
-  checkAuthorizationWithAgent,
-  getAuthorizationAccessChecker,
-  getResourcePermissionContainers,
-} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {InvalidRequestError} from '../../errors.js';
 import {getPermissionItemTargets} from '../getPermissionItemTargets.js';
 import {PermissionItemInputTarget} from '../types.js';

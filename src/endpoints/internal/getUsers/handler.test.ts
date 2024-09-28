@@ -1,12 +1,12 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {extractResourceIdList} from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
 import {generateAndInsertUserListForTest} from '../../testUtils/generate/user.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';

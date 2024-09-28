@@ -1,14 +1,14 @@
+import {afterAll, afterEach, beforeAll, describe, expect, test} from 'vitest';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
 import {kAppType} from '../../../../definitions/app.js';
 import {Job, kJobStatus, kJobType} from '../../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
 import {getNewId, getNewIdForResource} from '../../../../utils/resource.js';
 import {FimidaraApp} from '../../../app/FimidaraApp.js';
-import {test, beforeAll, afterEach, afterAll, expect, describe} from 'vitest';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../contexts/injection/register.js';
 import {generateAndInsertJobListForTest} from '../../../testUtils/generate/job.js';
 import {completeTests} from '../../../testUtils/helpers/testFns.js';
 import {initTests} from '../../../testUtils/testUtils.js';
@@ -55,7 +55,10 @@ describe('FimidaraWorkerPool', () => {
       type: kAppType.server,
     });
     await server.startApp();
-    const testPool = (pool = new TestFimidaraWorkerPool({server, workerCount: 0}));
+    const testPool = (pool = new TestFimidaraWorkerPool({
+      server,
+      workerCount: 0,
+    }));
     const [job] = await generateAndInsertJobListForTest(/** count */ 1, {
       shard,
       status: kJobStatus.pending,

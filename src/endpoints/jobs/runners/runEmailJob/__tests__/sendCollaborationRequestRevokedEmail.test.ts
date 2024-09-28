@@ -1,10 +1,11 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {IEmailProviderContext} from '../../../../../contexts/email/types.js';
+import {kUtilsInjectables} from '../../../../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../../../../contexts/injection/register.js';
 import {kEmailJobType} from '../../../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
 import {kCollaborationRequestRevokedEmail} from '../../../../../emailTemplates/collaborationRequestRevoked.js';
 import {getNewIdForResource} from '../../../../../utils/resource.js';
-import {IEmailProviderContext} from '../../../../contexts/email/types.js';
-import {kUtilsInjectables} from '../../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
 import MockTestEmailProviderContext from '../../../../testUtils/context/email/MockTestEmailProviderContext.js';
 import {generateAndInsertCollaborationRequestListForTest} from '../../../../testUtils/generate/collaborationRequest.js';
 import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/user.js';
@@ -12,7 +13,6 @@ import {generateAndInsertWorkspaceListForTest} from '../../../../testUtils/gener
 import {completeTests} from '../../../../testUtils/helpers/testFns.js';
 import {initTests} from '../../../../testUtils/testUtils.js';
 import {sendCollaborationRequestRevokedEmail} from '../sendCollaborationRequestRevokedEmail.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 
 beforeAll(async () => {
   await initTests();
@@ -28,11 +28,14 @@ describe('sendCollaborationRequestRevokedEmail', () => {
       generateAndInsertUserListForTest(1),
       generateAndInsertWorkspaceListForTest(1),
     ]);
-    const [request] = await generateAndInsertCollaborationRequestListForTest(1, () => ({
-      recipientEmail: user.email,
-      workspaceId: workspace.resourceId,
-      workspaceName: workspace.name,
-    }));
+    const [request] = await generateAndInsertCollaborationRequestListForTest(
+      1,
+      () => ({
+        recipientEmail: user.email,
+        workspaceId: workspace.resourceId,
+        workspaceName: workspace.name,
+      })
+    );
     const testEmailProvider = new MockTestEmailProviderContext();
     kRegisterUtilsInjectables.email(testEmailProvider);
 
@@ -53,7 +56,11 @@ describe('sendCollaborationRequestRevokedEmail', () => {
     expect(params.body.html).toBeTruthy();
     expect(params.body.text).toBeTruthy();
     expect(params.destination).toEqual([user.email]);
-    expect(params.subject).toBe(kCollaborationRequestRevokedEmail.title(workspace.name));
-    expect(params.source).toBe(kUtilsInjectables.suppliedConfig().senderEmailAddress);
+    expect(params.subject).toBe(
+      kCollaborationRequestRevokedEmail.title(workspace.name)
+    );
+    expect(params.source).toBe(
+      kUtilsInjectables.suppliedConfig().senderEmailAddress
+    );
   });
 });

@@ -1,9 +1,9 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {Job} from '../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {extractResourceIdList} from '../../../utils/fns.js';
 import {getNewId, getNewIdForResource} from '../../../utils/resource.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {
   generateAndInsertJobListForTest,
   generateJobInput,

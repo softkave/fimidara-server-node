@@ -1,6 +1,6 @@
 import {flatten, noop} from 'lodash-es';
+import {kSemanticModels} from '../../../../contexts/injection/injectables.js';
 import {overArgsAsync} from '../../../../utils/fns.js';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {DeleteArtifactsFn, GetArtifactsFn} from './types.js';
 
 export const deleteResourceAssignedItems: DeleteArtifactsFn = ({

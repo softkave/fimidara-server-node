@@ -1,4 +1,5 @@
 import {faker} from '@faker-js/faker';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {
   Agent,
@@ -7,7 +8,6 @@ import {
   kTokenAccessScope,
 } from '../../../definitions/system.js';
 import {getNewIdForResource, newResource} from '../../../utils/resource.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 
 export function generateAgentTokenForTest(
   seed: Partial<AgentToken> & {workspaceId: string | null} = {workspaceId: null}

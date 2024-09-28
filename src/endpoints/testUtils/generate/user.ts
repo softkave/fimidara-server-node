@@ -1,9 +1,9 @@
 import {faker} from '@faker-js/faker';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {User} from '../../../definitions/user.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {
   defaultGeneratePartialTestDataFn,
   GeneratePartialTestDataFn,

@@ -1,4 +1,4 @@
-import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
+import {kUtilsInjectables} from '../contexts/injection/injectables.js';
 import {getTimestamp} from '../utils/dateFns.js';
 
 export enum FimidaraScriptNames {
@@ -16,7 +16,10 @@ export function scriptRunInfoFactory(
   return {job: opts.job, runId: getTimestamp()};
 }
 
-export function logScriptMessage(runInfo: IFimidaraScriptRunInfo, message: string) {
+export function logScriptMessage(
+  runInfo: IFimidaraScriptRunInfo,
+  message: string
+) {
   kUtilsInjectables.logger().log(`script ${runInfo.job}: ${message}`);
 }
 
@@ -28,7 +31,10 @@ export function logScriptSuccessful(runInfo: IFimidaraScriptRunInfo) {
   logScriptMessage(runInfo, 'succeeded');
 }
 
-export function logScriptFailed(runInfo: IFimidaraScriptRunInfo, error?: Error) {
+export function logScriptFailed(
+  runInfo: IFimidaraScriptRunInfo,
+  error?: Error
+) {
   logScriptMessage(runInfo, 'failed');
   if (error) {
     kUtilsInjectables.logger().error(error);

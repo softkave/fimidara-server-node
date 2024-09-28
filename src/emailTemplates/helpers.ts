@@ -1,4 +1,4 @@
-import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
+import {kUtilsInjectables} from '../contexts/injection/injectables.js';
 import {BaseEmailTemplateProps} from './types.js';
 
 export const emailHelperChars = {emDash: '—'};

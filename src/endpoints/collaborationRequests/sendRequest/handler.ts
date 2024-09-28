@@ -1,4 +1,10 @@
 import {compact} from 'lodash-es';
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
 import {
   CollaborationRequest,
   kCollaborationRequestStatusTypeMap,
@@ -13,12 +19,6 @@ import {appAssert} from '../../../utils/assertion.js';
 import {formatDate, getTimestamp} from '../../../utils/dateFns.js';
 import {newWorkspaceResource} from '../../../utils/resource.js';
 import {validate} from '../../../utils/validate.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
 import {ResourceExistsError} from '../../errors.js';
 import {queueJobs} from '../../jobs/queueJobs.js';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';

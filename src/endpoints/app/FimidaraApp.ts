@@ -1,14 +1,14 @@
 import {DisposableResource} from 'softkave-js-utils';
+import {AppQuery} from '../../contexts/data/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {App, AppShardId, AppType} from '../../definitions/app.js';
 import {kFimidaraResourceType} from '../../definitions/system.js';
 import {getTimestamp} from '../../utils/dateFns.js';
 import {newResource} from '../../utils/resource.js';
-import {AppQuery} from '../contexts/data/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../contexts/injection/injectables.js';
-import {SemanticProviderMutationParams} from '../contexts/semantic/types.js';
 import {kAppConstants} from './constants.js';
 
 // type ShardedDbResourceMigrationFn = AnyFn<

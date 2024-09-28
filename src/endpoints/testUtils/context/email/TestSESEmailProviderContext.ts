@@ -1,6 +1,6 @@
 import {vi} from 'vitest';
-import {SESEmailProviderContext} from '../../../contexts/email/SESEmailProviderContext.js';
-import {S3FilePersistenceProviderInitParams} from '../../../contexts/file/S3FilePersistenceProvider.js';
+import {SESEmailProviderContext} from '../../../../contexts/email/SESEmailProviderContext.js';
+import {S3FilePersistenceProviderInitParams} from '../../../../contexts/file/S3FilePersistenceProvider.js';
 import {mockWith} from '../../helpers/mock.js';
 import {TestEmailProviderContext} from '../types.js';
 

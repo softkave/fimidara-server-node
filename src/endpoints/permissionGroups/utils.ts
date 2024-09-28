@@ -1,3 +1,9 @@
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {
+  SemanticProviderMutationParams,
+  SemanticProviderOpParams,
+} from '../../contexts/semantic/types.js';
 import {
   AssignedPermissionGroupMeta,
   PermissionGroup,
@@ -14,12 +20,6 @@ import {getResourceId} from '../../utils/fns.js';
 import {indexArray} from '../../utils/indexArray.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {assertGetWorkspaceIdFromAgent} from '../../utils/sessionUtils.js';
-import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels} from '../contexts/injection/injectables.js';
-import {
-  SemanticProviderMutationParams,
-  SemanticProviderOpParams,
-} from '../contexts/semantic/types.js';
 import {InvalidRequestError, NotFoundError} from '../errors.js';
 import {agentExtractor, workspaceResourceFields} from '../extractors.js';
 import {checkWorkspaceExists} from '../workspaces/utils.js';

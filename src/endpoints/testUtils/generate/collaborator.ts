@@ -1,6 +1,6 @@
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {Agent} from '../../../definitions/system.js';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {generateAndInsertUserListForTest} from './user.js';
 
 export async function generateAndInsertCollaboratorListForTest(

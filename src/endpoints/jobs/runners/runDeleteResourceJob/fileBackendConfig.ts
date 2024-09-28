@@ -1,9 +1,12 @@
-import {DeleteResourceCascadeFnDefaultArgs} from '../../../../definitions/job.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
-import {genericDeleteArtifacts, genericGetArtifacts} from './genericDefinitions.js';
+} from '../../../../contexts/injection/injectables.js';
+import {DeleteResourceCascadeFnDefaultArgs} from '../../../../definitions/job.js';
+import {
+  genericDeleteArtifacts,
+  genericGetArtifacts,
+} from './genericDefinitions.js';
 import {
   DeleteResourceCascadeEntry,
   DeleteResourceFn,

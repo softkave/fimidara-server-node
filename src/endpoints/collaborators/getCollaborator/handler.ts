@@ -1,7 +1,7 @@
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {
   checkCollaboratorAuthorization02,
   collaboratorExtractor,

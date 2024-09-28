@@ -1,6 +1,6 @@
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {validate} from '../../../utils/validate.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {checkWorkspaceAuthorization02, workspaceExtractor} from '../utils.js';
 import {GetWorkspaceEndpoint} from './types.js';
 import {getWorkspaceJoiSchema} from './validation.js';

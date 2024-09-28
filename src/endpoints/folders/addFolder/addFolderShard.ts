@@ -1,6 +1,12 @@
 import assert from 'assert';
 import {first, isArray} from 'lodash-es';
 import {convertToArray, indexArray} from 'softkave-js-utils';
+import {
+  checkAuthorizationWithAgent,
+  getResourcePermissionContainers,
+} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {Folder} from '../../../definitions/folder.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {Resource, SessionAgent} from '../../../definitions/system.js';
@@ -12,12 +18,6 @@ import {
   ShardedRunnerOutputPerInput,
   ShardId,
 } from '../../../utils/shardedRunnerQueue.js';
-import {
-  checkAuthorizationWithAgent,
-  getResourcePermissionContainers,
-} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {PermissionDeniedError} from '../../users/errors.js';
 import {kFolderConstants} from '../constants.js';
 import {FolderExistsError} from '../errors.js';

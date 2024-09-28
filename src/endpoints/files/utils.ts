@@ -1,4 +1,13 @@
 import {compact, first, keyBy} from 'lodash-es';
+import {
+  checkAuthorizationWithAgent,
+  getFilePermissionContainers,
+} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {
+  SemanticProviderMutationParams,
+  SemanticProviderOpParams,
+} from '../../contexts/semantic/types.js';
 import {File, FileMatcher, PublicFile} from '../../definitions/file.js';
 import {
   FileBackendMount,
@@ -24,15 +33,6 @@ import {
   newWorkspaceResource,
 } from '../../utils/resource.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
-import {
-  checkAuthorizationWithAgent,
-  getFilePermissionContainers,
-} from '../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels} from '../contexts/injection/injectables.js';
-import {
-  SemanticProviderMutationParams,
-  SemanticProviderOpParams,
-} from '../contexts/semantic/types.js';
 import {NotFoundError} from '../errors.js';
 import {workspaceResourceFields} from '../extractors.js';
 import {getBackendConfigsWithIdList} from '../fileBackends/configUtils.js';

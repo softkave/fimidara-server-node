@@ -1,13 +1,13 @@
 import assert from 'assert';
 import {flatten} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kSemanticModels} from '../../../../../contexts/injection/injectables.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
 import {User} from '../../../../../definitions/user.js';
 import {kSystemSessionAgent} from '../../../../../utils/agent.js';
 import {extractResourceIdList} from '../../../../../utils/fns.js';
 import {getNewIdForResource} from '../../../../../utils/resource.js';
 import {assignWorkspaceToUser} from '../../../../assignedItems/addAssignedItems.js';
-import {kSemanticModels} from '../../../../contexts/injection/injectables.js';
 import {generateAndInsertCollaboratorListForTest} from '../../../../testUtils/generate/collaborator.js';
 import {generateAndInsertTestFiles} from '../../../../testUtils/generate/file.js';
 import {generateAndInsertAssignedItemListForTest} from '../../../../testUtils/generate/permissionGroup.js';

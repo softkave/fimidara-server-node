@@ -1,4 +1,5 @@
 import {faker} from '@faker-js/faker';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {
   CollaborationRequest,
   kCollaborationRequestStatusTypeMap,
@@ -6,7 +7,6 @@ import {
 import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {
   GeneratePartialTestDataFn,
   defaultGeneratePartialTestDataFn,

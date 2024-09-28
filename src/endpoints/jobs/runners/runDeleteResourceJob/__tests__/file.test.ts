@@ -1,11 +1,11 @@
 import {flatten} from 'lodash-es';
 import {Readable} from 'stream';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {MemoryFilePersistenceProvider} from '../../../../../contexts/file/MemoryFilePersistenceProvider.js';
+import {FilePersistenceProvider} from '../../../../../contexts/file/types.js';
+import {kRegisterUtilsInjectables} from '../../../../../contexts/injection/register.js';
 import {File} from '../../../../../definitions/file.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
-import {MemoryFilePersistenceProvider} from '../../../../contexts/file/MemoryFilePersistenceProvider.js';
-import {FilePersistenceProvider} from '../../../../contexts/file/types.js';
-import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
 import {initBackendProvidersForMounts} from '../../../../fileBackends/mountUtils.js';
 import {stringifyFilenamepath} from '../../../../files/utils.js';
 import {generateAndInsertTestPresignedPathList} from '../../../../testUtils/generate/file.js';

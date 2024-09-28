@@ -1,6 +1,6 @@
 import {LockableResource} from 'softkave-js-utils';
-import {globalDispose, globalSetup} from '../../contexts/globalUtils.js';
-import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {globalDispose, globalSetup} from '../../../contexts/globalUtils.js';
+import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {FWorker} from '../fworker/FWorker.js';
 import {FWorkerMessager} from '../fworker/FWorkerMessager.js';
 import {runJob} from '../runJob.js';

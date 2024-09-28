@@ -1,8 +1,8 @@
-import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
+} from '../../../contexts/injection/injectables.js';
 import {userListExtractor} from '../../users/utils.js';
 import {assertUserIsPartOfRootWorkspace} from '../utils.js';
 import {GetUsersEndpoint} from './types.js';

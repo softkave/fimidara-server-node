@@ -1,9 +1,9 @@
 import {uniqBy} from 'lodash-es';
+import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {kFimidaraResourceType, SessionAgent} from '../../definitions/system.js';
 import {AssignedTagInput} from '../../definitions/tag.js';
 import {Workspace} from '../../definitions/workspace.js';
-import {SemanticProviderOpParams} from '../contexts/semantic/types.js';
 import {checkResourcesBelongsToWorkspace} from '../resources/containerCheckFns.js';
 import {INTERNAL_getResources} from '../resources/getResources.js';
 

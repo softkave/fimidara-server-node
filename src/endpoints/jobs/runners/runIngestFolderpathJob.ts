@@ -1,6 +1,15 @@
 import assert from 'assert';
 import {compact} from 'lodash-es';
 import {AnyObject} from 'softkave-js-utils';
+import {
+  FilePersistenceDescribeFolderContentResult,
+  FilePersistenceProvider,
+  PersistedFolderDescription,
+} from '../../../contexts/file/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
 import {FileBackendMount} from '../../../definitions/fileBackend.js';
 import {
   IngestFolderpathJobMeta,
@@ -11,15 +20,6 @@ import {
 import {SessionAgent} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {pathJoin, pathSplit} from '../../../utils/fns.js';
-import {
-  FilePersistenceDescribeFolderContentResult,
-  FilePersistenceProvider,
-  PersistedFolderDescription,
-} from '../../contexts/file/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
 import {getBackendConfigsWithIdList} from '../../fileBackends/configUtils.js';
 import {
   ingestPersistedFiles,

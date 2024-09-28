@@ -1,11 +1,11 @@
-import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
-import {validate} from '../../../utils/validate.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
+} from '../../../contexts/injection/injectables.js';
+import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {validate} from '../../../utils/validate.js';
 import {checkWorkspaceExists} from '../../workspaces/utils.js';
 import {AddPermissionItemsEndpoint} from './types.js';
 import {INTERNAL_addPermissionItems} from './utils.js';

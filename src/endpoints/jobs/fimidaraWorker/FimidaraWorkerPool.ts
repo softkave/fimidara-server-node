@@ -1,18 +1,18 @@
 import {map} from 'lodash-es';
+import {DisposableResource} from 'softkave-js-utils';
+import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {kAppType} from '../../../definitions/app.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
 import {FimidaraApp} from '../../app/FimidaraApp.js';
 import {kAppConstants} from '../../app/constants.js';
-import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {FWorkerMainWorkerEntry} from '../fworker/FWorkerMain.js';
 import {FWorkerMessager} from '../fworker/FWorkerMessager.js';
 import {FWorkerPool} from '../fworker/FWorkerPool.js';
 import {getNextJob} from '../getNextJob.js';
 import {FimidaraWorkerMessage, kFimidaraWorkerMessageType} from './types.js';
 import {isFimidaraWorkerMessage} from './utils.js';
-import {DisposableResource} from 'softkave-js-utils';
 
 export interface FimidaraWorkerPoolParams {
   server: FimidaraApp;

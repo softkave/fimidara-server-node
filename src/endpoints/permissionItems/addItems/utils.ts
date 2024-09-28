@@ -1,4 +1,6 @@
 import {forEach, get, has, set} from 'lodash-es';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {File} from '../../../definitions/file.js';
 import {
   FimidaraPermissionAction,
@@ -23,8 +25,6 @@ import {
   getResourceTypeFromId,
   newWorkspaceResource,
 } from '../../../utils/resource.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {InvalidRequestError} from '../../errors.js';
 import {getPermissionItemTargets} from '../getPermissionItemTargets.js';
 import {PermissionItemInputTarget} from '../types.js';

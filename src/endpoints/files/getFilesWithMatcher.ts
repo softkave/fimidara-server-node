@@ -1,4 +1,9 @@
 import {isNumber} from 'lodash-es';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {
+  SemanticProviderMutationParams,
+  SemanticProviderQueryParams,
+} from '../../contexts/semantic/types.js';
 import {File, FileMatcher} from '../../definitions/file.js';
 import {
   FimidaraPermissionAction,
@@ -15,11 +20,6 @@ import {
   makeUserSessionAgent,
   makeWorkspaceAgentTokenAgent,
 } from '../../utils/sessionUtils.js';
-import {kSemanticModels} from '../contexts/injection/injectables.js';
-import {
-  SemanticProviderMutationParams,
-  SemanticProviderQueryParams,
-} from '../contexts/semantic/types.js';
 import {kFolderConstants} from '../folders/constants.js';
 import {PermissionDeniedError} from '../users/errors.js';
 import {

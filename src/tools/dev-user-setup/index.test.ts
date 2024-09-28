@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../endpoints/contexts/injection/injectables.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {generateAndInsertUserListForTest} from '../../endpoints/testUtils/generate/user.js';
 import {completeTests} from '../../endpoints/testUtils/helpers/testFns.js';
 import {initTests} from '../../endpoints/testUtils/testUtils.js';

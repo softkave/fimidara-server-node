@@ -1,5 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, expect, test} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {
   kCurrentJWTTokenVersion,
@@ -9,7 +10,6 @@ import {
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {newResource} from '../../../utils/resource.js';
 import RequestData from '../../RequestData.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {assertUserTokenIsSame} from '../../testUtils/helpers/user.js';
 import {

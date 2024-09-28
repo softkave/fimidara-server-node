@@ -9,8 +9,8 @@ import {
   test,
   vi,
 } from 'vitest';
+import {kUtilsInjectables} from '../../../../contexts/injection/injectables.js';
 import {waitTimeout} from '../../../../utils/fns.js';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {completeTests} from '../../../testUtils/helpers/testFns.js';
 import {initTests} from '../../../testUtils/testUtils.js';
 import {FWorkerMain} from '../FWorkerMain.js';

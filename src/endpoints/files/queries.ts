@@ -1,10 +1,10 @@
-import {File} from '../../definitions/file.js';
-import {Folder} from '../../definitions/folder.js';
-import {FileQuery} from '../contexts/data/types.js';
+import {FileQuery} from '../../contexts/data/types.js';
 import {
   getIgnoreCaseDataQueryRegExp,
   getStringListQuery,
-} from '../contexts/semantic/utils.js';
+} from '../../contexts/semantic/utils.js';
+import {File} from '../../definitions/file.js';
+import {Folder} from '../../definitions/folder.js';
 
 function getByNamepath(
   file: Pick<File, 'workspaceId' | 'namepath' | 'ext'>

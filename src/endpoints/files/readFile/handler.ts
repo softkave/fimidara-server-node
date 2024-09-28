@@ -1,20 +1,20 @@
 import {compact} from 'lodash-es';
 import sharp from 'sharp';
 import {PassThrough, Readable} from 'stream';
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {
+  checkAuthorizationWithAgent,
+  getFilePermissionContainers,
+} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {PersistedFile} from '../../../contexts/file/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
 import {File} from '../../../definitions/file.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {isObjectFieldsEmpty} from '../../../utils/fns.js';
 import {validate} from '../../../utils/validate.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {
-  checkAuthorizationWithAgent,
-  getFilePermissionContainers,
-} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {PersistedFile} from '../../contexts/file/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
 import {getBackendConfigsWithIdList} from '../../fileBackends/configUtils.js';
 import {
   getResolvedMountEntries,

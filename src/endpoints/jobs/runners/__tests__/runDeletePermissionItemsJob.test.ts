@@ -1,5 +1,10 @@
 import {flatten} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {DataQuery} from '../../../../contexts/data/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../../contexts/injection/injectables.js';
 import {
   DeleteResourceJobParams,
   Job,
@@ -10,11 +15,6 @@ import {kFimidaraResourceType} from '../../../../definitions/system.js';
 import {kSystemSessionAgent} from '../../../../utils/agent.js';
 import {extractResourceIdList} from '../../../../utils/fns.js';
 import {getNewId} from '../../../../utils/resource.js';
-import {DataQuery} from '../../../contexts/data/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
 import {DeletePermissionItemInput} from '../../../permissionItems/deleteItems/types.js';
 import {generateAndInsertTestFiles} from '../../../testUtils/generate/file.js';
 import {generateAndInsertTestFolders} from '../../../testUtils/generate/folder.js';

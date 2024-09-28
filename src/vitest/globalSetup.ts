@@ -1,4 +1,4 @@
-import {globalSetup} from '../endpoints/contexts/globalUtils.js';
+import {globalSetup} from '../contexts/globalUtils.js';
 import {initFimidara} from '../endpoints/runtime/initFimidara.js';
 import {getSuppliedConfig} from '../resources/config.js';
 import {dropMongoCollections} from './utils.js';

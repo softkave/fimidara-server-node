@@ -1,9 +1,9 @@
-import {validate} from '../../../utils/validate.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
+} from '../../../contexts/injection/injectables.js';
+import {validate} from '../../../utils/validate.js';
 import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils.js';
 import {getWorkspaceTagsQuery} from '../getWorkspaceTags/utils.js';
 import {CountWorkspaceTagsEndpoint} from './types.js';

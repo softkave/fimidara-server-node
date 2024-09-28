@@ -2,6 +2,7 @@ import assert from 'assert';
 import {compact, isUndefined} from 'lodash-es';
 import {waitTimeout} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {
   kJobPresetPriority,
   kJobRunCategory,
@@ -12,7 +13,6 @@ import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {loopAndCollateAsync, omitDeep} from '../../../utils/fns.js';
 import {getNewId, getNewIdForResource} from '../../../utils/resource.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {generateAndInsertJobListForTest} from '../../testUtils/generate/job.js';
 import {confirmJobHistoryEntry} from '../../testUtils/helpers/job.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';

@@ -1,9 +1,9 @@
 import {faker} from '@faker-js/faker';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
 import {Tag} from '../../../definitions/tag.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 
 export function generateTagForTest(seed: Partial<Tag> = {}) {
   const createdAt = getTimestamp();

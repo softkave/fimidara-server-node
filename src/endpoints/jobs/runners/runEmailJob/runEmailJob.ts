@@ -1,4 +1,9 @@
 import assert from 'assert';
+import {EmailProviderSendEmailResult} from '../../../../contexts/email/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../../contexts/injection/injectables.js';
 import {
   EmailBlocklist,
   kEmailBlocklistTrailType,
@@ -13,11 +18,6 @@ import {
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
 import {newResource} from '../../../../utils/resource.js';
 import {AnyFn} from '../../../../utils/types.js';
-import {EmailProviderSendEmailResult} from '../../../contexts/email/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
 import {sendCollaborationRequestEmail} from './sendCollaborationRequestEmail.js';
 import {sendCollaborationRequestResponseEmail} from './sendCollaborationRequestResponseEmail.js';
 import {sendCollaborationRequestRevokedEmail} from './sendCollaborationRequestRevokedEmail.js';

@@ -2,6 +2,10 @@ import {first, flatten, uniq} from 'lodash-es';
 import {AnyFn, AnyObject, PartialRecord} from 'softkave-js-utils';
 import {expect} from 'vitest';
 import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../../../contexts/injection/injectables.js';
+import {
   DeleteResourceJobParams,
   kJobType,
 } from '../../../../../definitions/job.js';
@@ -18,10 +22,6 @@ import {
   getNewIdForResource,
   getResourceTypeFromId,
 } from '../../../../../utils/resource.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
 import {generateAndInsertAssignedItemListForTest} from '../../../../testUtils/generate/permissionGroup.js';
 import {generateAndInsertPermissionItemListForTest} from '../../../../testUtils/generate/permissionItem.js';
 import {queueJobs} from '../../../queueJobs.js';

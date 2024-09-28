@@ -1,10 +1,10 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {appAssert} from '../../../utils/assertion.js';
 import RequestData from '../../RequestData.js';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import EndpointReusableQueries from '../../queries.js';
 import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generate/workspace.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';

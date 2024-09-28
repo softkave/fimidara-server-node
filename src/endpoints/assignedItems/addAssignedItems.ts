@@ -1,4 +1,10 @@
 import {isArray} from 'lodash-es';
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {
+  SemanticProviderMutationParams,
+  SemanticProviderQueryListParams,
+} from '../../contexts/semantic/types.js';
 import {AssignedItem} from '../../definitions/assignedItem.js';
 import {
   Agent,
@@ -14,12 +20,6 @@ import {
   getResourceTypeFromId,
   newWorkspaceResource,
 } from '../../utils/resource.js';
-import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels} from '../contexts/injection/injectables.js';
-import {
-  SemanticProviderMutationParams,
-  SemanticProviderQueryListParams,
-} from '../contexts/semantic/types.js';
 import {checkPermissionGroupsExist} from '../permissionGroups/utils.js';
 import checkTagsExist from '../tags/checkTagsExist.js';
 import {withAssignedAgent} from '../utils.js';

@@ -1,4 +1,5 @@
 import {random} from 'lodash-es';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {
   UsageRecord,
@@ -9,7 +10,6 @@ import {
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {isUsageRecordPersistent} from '../../usageRecords/utils.js';
 
 function randomCategory() {

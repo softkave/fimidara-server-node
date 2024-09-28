@@ -1,9 +1,9 @@
 import {compact} from 'lodash-es';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {EmailMessage, EmailMessageParams} from '../../definitions/email.js';
 import {kFimidaraResourceType} from '../../definitions/system.js';
 import {newResource} from '../../utils/resource.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
-import {kSemanticModels} from '../contexts/injection/injectables.js';
 
 export async function queueEmailMessage(
   emailAddress: string,

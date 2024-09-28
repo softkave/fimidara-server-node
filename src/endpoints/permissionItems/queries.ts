@@ -1,7 +1,10 @@
+import {DataProviderFilterValueOperator} from '../../contexts/data/DataProvider.js';
+import DataProviderFilterBuilder from '../../contexts/data/DataProviderFilterBuilder.js';
 import {PermissionItem} from '../../definitions/permissionItem.js';
-import {FimidaraResourceType, kFimidaraResourceType} from '../../definitions/system.js';
-import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider.js';
-import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder.js';
+import {
+  FimidaraResourceType,
+  kFimidaraResourceType,
+} from '../../definitions/system.js';
 
 function newFilter() {
   return new DataProviderFilterBuilder<PermissionItem>();
@@ -20,7 +23,11 @@ function getByResource(
   );
 
   if (resourceId) {
-    filter.addItem('targetId', resourceId, DataProviderFilterValueOperator.Equal);
+    filter.addItem(
+      'targetId',
+      resourceId,
+      DataProviderFilterValueOperator.Equal
+    );
   }
 
   if (includeWildcardTargetType) {
@@ -30,7 +37,11 @@ function getByResource(
       DataProviderFilterValueOperator.In
     );
   } else {
-    filter.addItem('targetType', resourceType, DataProviderFilterValueOperator.Equal);
+    filter.addItem(
+      'targetType',
+      resourceType,
+      DataProviderFilterValueOperator.Equal
+    );
   }
 
   return filter.build();

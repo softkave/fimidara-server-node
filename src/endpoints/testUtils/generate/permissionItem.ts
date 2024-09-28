@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {difference} from 'lodash-es';
 import {convertToArray} from 'softkave-js-utils';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {
   FimidaraPermissionAction,
   PermissionItem,
@@ -12,7 +13,6 @@ import {
   getNewIdForResource,
   getResourceTypeFromId,
 } from '../../../utils/resource.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {randomAction, randomResourceType} from './utils.js';
 
 export function generatePermissionItemForTest(

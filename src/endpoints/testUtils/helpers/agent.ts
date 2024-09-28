@@ -1,3 +1,4 @@
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {FimidaraPermissionAction} from '../../../definitions/permissionItem.js';
 import {
@@ -14,7 +15,6 @@ import {
 import {AnyFn, OrPromise} from '../../../utils/types.js';
 import {NewAgentTokenInput} from '../../agentTokens/addToken/types.js';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {PermissionItemInputTarget} from '../../permissionItems/types.js';
 import {BaseEndpointResult} from '../../types.js';
 import {SignupEndpointParams} from '../../users/signup/types.js';

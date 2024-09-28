@@ -1,8 +1,8 @@
+import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {SemanticProviderOpParams} from '../../../contexts/semantic/types.js';
 import {SessionAgent} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
-import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
-import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 
 export async function checkReadEntityAssignedPermissionGroups(
   agent: SessionAgent,
@@ -24,7 +24,10 @@ export async function checkReadEntityAssignedPermissionGroups(
   }
 }
 
-export function isFetchingOwnPermissionGroups(agent: SessionAgent, entityId: string) {
+export function isFetchingOwnPermissionGroups(
+  agent: SessionAgent,
+  entityId: string
+) {
   return agent.agentId === entityId;
 }
 

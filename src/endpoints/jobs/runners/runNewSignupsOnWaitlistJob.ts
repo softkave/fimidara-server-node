@@ -1,15 +1,15 @@
 import assert from 'assert';
 import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
+import {
   EmailJobParams,
   INewSignupsOnWaitlistJobMeta,
   Job,
   kEmailJobType,
   kJobType,
 } from '../../../definitions/job.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
 import {queueJobs} from '../queueJobs.js';
 import {setJobMeta02} from './utils.js';
 

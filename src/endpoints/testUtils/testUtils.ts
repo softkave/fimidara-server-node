@@ -2,6 +2,12 @@ import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {add} from 'date-fns';
 import {Readable} from 'stream';
+import {globalSetup} from '../../contexts/globalUtils.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {IServerRequest} from '../../contexts/types.js';
 import {AgentToken} from '../../definitions/agentToken.js';
 import {
   BaseTokenData,
@@ -27,12 +33,6 @@ import {
   CollaborationRequestInput,
   SendCollaborationRequestEndpointParams,
 } from '../collaborationRequests/sendRequest/types.js';
-import {globalSetup} from '../contexts/globalUtils.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../contexts/injection/injectables.js';
-import {IServerRequest} from '../contexts/types.js';
 import addFileBackendConfig from '../fileBackends/addConfig/handler.js';
 import {
   AddFileBackendConfigEndpointParams,

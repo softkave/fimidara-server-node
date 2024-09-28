@@ -2,7 +2,7 @@ import {ValueOf} from 'type-fest';
 import {
   PersistedFileDescription,
   PersistedFolderDescription,
-} from '../endpoints/contexts/file/types.js';
+} from '../contexts/file/types.js';
 import {
   FimidaraResourceType,
   PublicWorkspaceResource,

@@ -1,5 +1,5 @@
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {validate} from '../../../utils/validate.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {UserExistsEndpoint} from './types.js';
 import {userExistsJoiSchema} from './validation.js';
 

@@ -1,8 +1,11 @@
+import {FileBackendMountQuery} from '../../contexts/data/types.js';
 import {FileBackendMount} from '../../definitions/fileBackend.js';
-import {FileBackendMountQuery} from '../contexts/data/types.js';
 
 function getBySignature(
-  data: Pick<FileBackendMount, 'namepath' | 'mountedFrom' | 'backend' | 'workspaceId'>
+  data: Pick<
+    FileBackendMount,
+    'namepath' | 'mountedFrom' | 'backend' | 'workspaceId'
+  >
 ): FileBackendMountQuery {
   return {
     workspaceId: data.workspaceId,

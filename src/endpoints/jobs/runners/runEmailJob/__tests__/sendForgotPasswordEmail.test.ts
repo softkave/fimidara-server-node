@@ -1,5 +1,11 @@
 import {first} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {IEmailProviderContext} from '../../../../../contexts/email/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../../../../contexts/injection/register.js';
 import {kEmailJobType} from '../../../../../definitions/job.js';
 import {
   kFimidaraResourceType,
@@ -7,12 +13,6 @@ import {
 } from '../../../../../definitions/system.js';
 import {kForgotPasswordEmailArtifacts} from '../../../../../emailTemplates/forgotPassword.js';
 import {getNewIdForResource} from '../../../../../utils/resource.js';
-import {IEmailProviderContext} from '../../../../contexts/email/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
 import MockTestEmailProviderContext from '../../../../testUtils/context/email/MockTestEmailProviderContext.js';
 import {generateAndInsertAgentTokenListForTest} from '../../../../testUtils/generate/agentToken.js';
 import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/user.js';

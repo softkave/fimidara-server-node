@@ -1,4 +1,6 @@
 import {defaultTo, omit} from 'lodash-es';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {
   Agent,
@@ -9,8 +11,6 @@ import {
 import {Workspace} from '../../../definitions/workspace.js';
 import {newWorkspaceResource} from '../../../utils/resource.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists.js';
 import {NewAgentTokenInput} from './types.js';
 

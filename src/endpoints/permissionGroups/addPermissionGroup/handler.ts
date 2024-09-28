@@ -1,15 +1,15 @@
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
 import {PermissionGroup} from '../../../definitions/permissionGroups.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {newWorkspaceResource} from '../../../utils/resource.js';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
 import {checkWorkspaceExists} from '../../workspaces/utils.js';
 import {checkPermissionGroupNameExists} from '../checkPermissionGroupNameExists.js';
 import {permissionGroupExtractor} from '../utils.js';

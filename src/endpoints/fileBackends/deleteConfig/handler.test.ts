@@ -1,4 +1,5 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {
   DeleteResourceJobParams,
   Job,
@@ -8,9 +9,8 @@ import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
-import RequestData from '../../RequestData.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {NotFoundError} from '../../errors.js';
+import RequestData from '../../RequestData.js';
 import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';

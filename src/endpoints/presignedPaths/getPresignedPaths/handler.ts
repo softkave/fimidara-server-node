@@ -1,4 +1,11 @@
 import {compact, keyBy, map, uniqBy} from 'lodash-es';
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
+import {SemanticProviderOpParams} from '../../../contexts/semantic/types.js';
 import {FileMatcher} from '../../../definitions/file.js';
 import {PresignedPath} from '../../../definitions/presignedPath.js';
 import {SessionAgent} from '../../../definitions/system.js';
@@ -6,13 +13,6 @@ import {Workspace} from '../../../definitions/workspace.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {mergeData} from '../../../utils/fns.js';
 import {validate} from '../../../utils/validate.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
-import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {NotFoundError} from '../../errors.js';
 import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils.js';
 import {assertRootname} from '../../workspaces/utils.js';

@@ -1,4 +1,5 @@
 import assert from 'assert';
+import {kUtilsInjectables} from '../../../../contexts/injection/injectables.js';
 import {EmailJobParams, kEmailJobType} from '../../../../definitions/job.js';
 import {
   NewSignupsOnWaitlistEmailProps,
@@ -7,7 +8,6 @@ import {
   newSignupsOnWaitlistEmailText,
 } from '../../../../emailTemplates/newSignupsOnWaitlist.js';
 import {appAssert} from '../../../../utils/assertion.js';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {getBaseEmailTemplateProps} from './utils.js';
 
 export async function sendNewSignupsOnWaitlistEmail(

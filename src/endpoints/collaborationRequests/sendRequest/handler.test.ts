@@ -1,11 +1,20 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {DataQuery} from '../../../contexts/data/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
 import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest.js';
+import {
+  EmailJobParams,
+  Job,
+  kEmailJobType,
+  kJobType,
+} from '../../../definitions/job.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
-import {DataQuery} from '../../contexts/data/types.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 import {
   initTests,
   insertRequestForTest,
@@ -13,7 +22,6 @@ import {
   insertWorkspaceForTest,
 } from '../../testUtils/testUtils.js';
 import {CollaborationRequestInput} from './types.js';
-import {Job, EmailJobParams, kJobType, kEmailJobType} from '../../../definitions/job.js';
 
 beforeAll(async () => {
   await initTests();
@@ -43,7 +51,9 @@ describe('sendCollaborationRequest', () => {
       .collaborationRequest()
       .assertGetOneByQuery({resourceId: request01.resourceId});
     expect(savedRequest).toMatchObject(request01);
-    expect(savedRequest.status).toBe(kCollaborationRequestStatusTypeMap.Pending);
+    expect(savedRequest.status).toBe(
+      kCollaborationRequestStatusTypeMap.Pending
+    );
 
     await kUtilsInjectables.promises().flush();
     // const query: DataQuery<EmailMessage<CollaborationRequestEmailMessageParams>> = {

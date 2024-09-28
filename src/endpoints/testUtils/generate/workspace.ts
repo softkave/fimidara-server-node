@@ -1,5 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {PartialDeep} from 'type-fest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
 import {kUsageRecordCategory} from '../../../definitions/usageRecord.js';
 import {
@@ -10,7 +11,6 @@ import {
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {isObjectEmpty} from '../../../utils/fns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {kUsageRecordConstants} from '../../usageRecords/constants.js';
 import {transformUsageThresholInput} from '../../workspaces/addWorkspace/internalCreateWorkspace.js';
 import {NewWorkspaceInput} from '../../workspaces/addWorkspace/types.js';

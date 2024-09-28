@@ -1,15 +1,18 @@
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {SessionAgent} from '../../definitions/system.js';
 import {PublicCollaborator, UserWithWorkspace} from '../../definitions/user.js';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems.js';
-import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels} from '../contexts/injection/injectables.js';
-import {SemanticProviderOpParams} from '../contexts/semantic/types.js';
 import {NotFoundError} from '../errors.js';
 import {assertUser} from '../users/utils.js';
 import {checkWorkspaceExists} from '../workspaces/utils.js';
 
-export const collaboratorExtractor = (item: UserWithWorkspace, workspaceId: string) => {
+export const collaboratorExtractor = (
+  item: UserWithWorkspace,
+  workspaceId: string
+) => {
   const userWorkspace = getCollaboratorWorkspace(item, workspaceId);
 
   if (!userWorkspace) {
@@ -65,14 +68,22 @@ export async function checkCollaboratorAuthorization02(
   const user = await kSemanticModels.user().getOneById(collaboratorId);
   assertUser(user);
   const collaborator = await populateUserWorkspaces(user);
-  return checkCollaboratorAuthorization(agent, workspaceId, collaborator, action);
+  return checkCollaboratorAuthorization(
+    agent,
+    workspaceId,
+    collaborator,
+    action
+  );
 }
 
 export function throwCollaboratorNotFound() {
   throw new NotFoundError('Collaborator not found');
 }
 
-export function getCollaboratorWorkspace(user: UserWithWorkspace, workspaceId: string) {
+export function getCollaboratorWorkspace(
+  user: UserWithWorkspace,
+  workspaceId: string
+) {
   return user.workspaces.find(item => item.workspaceId === workspaceId);
 }
 
@@ -82,6 +93,8 @@ export function removeOtherUserWorkspaces(
 ): UserWithWorkspace {
   return {
     ...collaborator,
-    workspaces: collaborator.workspaces.filter(item => item.workspaceId === workspaceId),
+    workspaces: collaborator.workspaces.filter(
+      item => item.workspaceId === workspaceId
+    ),
   };
 }

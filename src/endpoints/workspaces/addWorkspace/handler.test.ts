@@ -1,14 +1,14 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../../contexts/injection/register.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {mergeData} from '../../../utils/fns.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../contexts/injection/register.js';
 import {fetchEntityAssignedPermissionGroupList} from '../../permissionGroups/getEntityAssignedPermissionGroups/utils.js';
 import EndpointReusableQueries from '../../queries.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';

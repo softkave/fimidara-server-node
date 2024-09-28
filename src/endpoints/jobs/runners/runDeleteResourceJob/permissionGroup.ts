@@ -1,4 +1,4 @@
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kSemanticModels} from '../../../../contexts/injection/injectables.js';
 import {
   genericDeleteArtifacts,
   genericGetArtifacts,

@@ -1,3 +1,7 @@
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../../contexts/injection/injectables.js';
 import {CollaborationRequestResponse} from '../../../../definitions/collaborationRequest.js';
 import {EmailJobParams, kEmailJobType} from '../../../../definitions/job.js';
 import {
@@ -7,10 +11,6 @@ import {
   kCollaborationRequestResponseArtifacts,
 } from '../../../../emailTemplates/collaborationRequestResponse.js';
 import {appAssert} from '../../../../utils/assertion.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
 import {getBaseEmailTemplateProps} from './utils.js';
 
 export async function sendCollaborationRequestResponseEmail(
@@ -34,7 +34,9 @@ export async function sendCollaborationRequestResponseEmail(
     throw new Error(`User not found for job ${jobId}`);
   }
 
-  const workspace = await kSemanticModels.workspace().getOneById(request.workspaceId);
+  const workspace = await kSemanticModels
+    .workspace()
+    .getOneById(request.workspaceId);
 
   if (!workspace) {
     throw new Error(`Workspace not found for job ${jobId}`);

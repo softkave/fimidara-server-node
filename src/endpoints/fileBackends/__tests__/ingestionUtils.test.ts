@@ -1,14 +1,14 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {ResolvedMountEntry} from '../../../definitions/fileBackend.js';
-import {kFimidaraResourceType} from '../../../definitions/system.js';
-import {pathJoin, pathSplit} from '../../../utils/fns.js';
-import {indexArray} from '../../../utils/indexArray.js';
 import {
   FileQuery,
   FolderQuery,
   ResolvedMountEntryQuery,
-} from '../../contexts/data/types.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+} from '../../../contexts/data/types.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {ResolvedMountEntry} from '../../../definitions/fileBackend.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {pathJoin, pathSplit} from '../../../utils/fns.js';
+import {indexArray} from '../../../utils/indexArray.js';
 import {FileQueries} from '../../files/queries.js';
 import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils.js';
 import {FolderQueries} from '../../folders/queries.js';

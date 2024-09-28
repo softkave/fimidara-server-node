@@ -1,4 +1,4 @@
-import {globalDispose, globalSetup} from '../../endpoints/contexts/globalUtils.js';
+import {globalDispose, globalSetup} from '../../contexts/globalUtils.js';
 import {
   ISetupDevUserOptions,
   devUserSetupPromptEmail,

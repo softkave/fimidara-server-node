@@ -1,4 +1,9 @@
 import {afterAll, beforeAll, expect, test} from 'vitest';
+import {DataQuery} from '../../../contexts/data/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
 import {
   EmailJobParams,
   Job,
@@ -6,11 +11,6 @@ import {
   kJobType,
 } from '../../../definitions/job.js';
 import RequestData from '../../RequestData.js';
-import {DataQuery} from '../../contexts/data/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,

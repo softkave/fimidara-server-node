@@ -1,5 +1,5 @@
 import {AnyFn} from 'softkave-js-utils';
-import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
+import {kUtilsInjectables} from '../contexts/injection/injectables.js';
 import {appAssert} from './assertion.js';
 
 export async function waitOnPromisesAndLogErrors(promises: Promise<unknown>[]) {

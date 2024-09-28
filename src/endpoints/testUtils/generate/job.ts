@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {difference} from 'lodash-es';
 import {convertToArray} from 'softkave-js-utils';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {kAppPresetShards} from '../../../definitions/app.js';
 import {
   Job,
@@ -15,7 +16,6 @@ import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getNewIdForResource, newResource} from '../../../utils/resource.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {JobInput} from '../../jobs/queueJobs.js';
 import {getRandomAppType} from './app.js';
 

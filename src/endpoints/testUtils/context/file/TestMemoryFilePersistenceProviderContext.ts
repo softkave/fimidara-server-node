@@ -1,5 +1,5 @@
 import {vi} from 'vitest';
-import {MemoryFilePersistenceProvider} from '../../../contexts/file/MemoryFilePersistenceProvider.js';
+import {MemoryFilePersistenceProvider} from '../../../../contexts/file/MemoryFilePersistenceProvider.js';
 import {mockWith} from '../../helpers/mock.js';
 import {TestFilePersistenceProviderContext} from '../types.js';
 

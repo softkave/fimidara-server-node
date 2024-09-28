@@ -1,6 +1,6 @@
 import assert from 'assert';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {Job, kJobType} from '../../../definitions/job.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 
 export async function runCleanupMountResolvedEntriesJob(
   job: Pick<Job, 'params' | 'type'>

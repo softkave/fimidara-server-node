@@ -1,5 +1,7 @@
 import {defaultTo, isArray, keyBy} from 'lodash-es';
 import {AnyObject} from 'softkave-js-utils';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {AppShardId, kAppPresetShards} from '../../definitions/app.js';
 import {
   Job,
@@ -15,8 +17,6 @@ import {Agent, kFimidaraResourceType} from '../../definitions/system.js';
 import {getTimestamp} from '../../utils/dateFns.js';
 import {convertToArray} from '../../utils/fns.js';
 import {newResource} from '../../utils/resource.js';
-import {kSemanticModels} from '../contexts/injection/injectables.js';
-import {SemanticProviderMutationParams} from '../contexts/semantic/types.js';
 
 export interface JobInput<
   TParams extends AnyObject = AnyObject,

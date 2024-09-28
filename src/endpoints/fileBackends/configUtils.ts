@@ -1,7 +1,7 @@
 import {keyBy} from 'lodash-es';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {SemanticProviderQueryListParams} from '../../contexts/semantic/types.js';
 import {FileBackendConfig} from '../../definitions/fileBackend.js';
-import {kSemanticModels} from '../contexts/injection/injectables.js';
-import {SemanticProviderQueryListParams} from '../contexts/semantic/types.js';
 import {NotFoundError} from '../errors.js';
 
 export async function getBackendConfigsWithIdList(

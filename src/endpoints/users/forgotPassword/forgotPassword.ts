@@ -1,4 +1,8 @@
 import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
+import {
   EmailJobParams,
   kEmailJobType,
   kJobType,
@@ -6,10 +10,6 @@ import {
 import {User} from '../../../definitions/user.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {validate} from '../../../utils/validate.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
 import {queueJobs} from '../../jobs/queueJobs.js';
 import {assertUser} from '../utils.js';
 import {ForgotPasswordEndpoint} from './types.js';

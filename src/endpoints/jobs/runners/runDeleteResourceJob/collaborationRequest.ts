@@ -1,4 +1,4 @@
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kSemanticModels} from '../../../../contexts/injection/injectables.js';
 import {
   genericDeleteArtifacts,
   genericGetArtifacts,
@@ -11,9 +11,10 @@ const deleteResourceFn: DeleteResourceFn = ({args, helpers}) =>
     kSemanticModels.collaborationRequest().deleteOneById(args.resourceId, opts)
   );
 
-export const deleteCollaborationRequestCascadeEntry: DeleteResourceCascadeEntry = {
-  deleteResourceFn,
-  getArtifactsToDelete: genericGetArtifacts,
-  deleteArtifacts: genericDeleteArtifacts,
-  getPreRunMetaFn: noopGetPreRunMetaFn,
-};
+export const deleteCollaborationRequestCascadeEntry: DeleteResourceCascadeEntry =
+  {
+    deleteResourceFn,
+    getArtifactsToDelete: genericGetArtifacts,
+    deleteArtifacts: genericDeleteArtifacts,
+    getPreRunMetaFn: noopGetPreRunMetaFn,
+  };

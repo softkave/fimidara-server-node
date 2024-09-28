@@ -1,9 +1,9 @@
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
+} from '../../../contexts/injection/injectables.js';
+import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
 import {
   getUserClientAssignedToken,
   getUserToken,

@@ -1,3 +1,7 @@
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../../contexts/injection/injectables.js';
 import {AgentToken} from '../../../../definitions/agentToken.js';
 import {EmailJobParams, kEmailJobType} from '../../../../definitions/job.js';
 import {
@@ -16,10 +20,6 @@ import {kSystemSessionAgent} from '../../../../utils/agent.js';
 import {appAssert} from '../../../../utils/assertion.js';
 import {getTimestamp} from '../../../../utils/dateFns.js';
 import {newResource} from '../../../../utils/resource.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
 import {kUserConstants} from '../../../users/constants.js';
 import {getBaseEmailTemplateProps} from './utils.js';
 

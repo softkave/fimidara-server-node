@@ -1,4 +1,5 @@
 import {noopAsync} from 'softkave-js-utils';
+import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {Folder} from '../../../definitions/folder.js';
 import {SessionAgent} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
@@ -9,7 +10,6 @@ import {
   kShardMatchStrategy,
   kShardQueueStrategy,
 } from '../../../utils/shardedRunnerQueue.js';
-import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {
   AddFolderShardMeta,
   AddFolderShardNewFolderInput,

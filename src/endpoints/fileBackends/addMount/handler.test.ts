@@ -1,7 +1,7 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {pathJoin} from '../../../utils/fns.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {ResourceExistsError} from '../../errors.js';
 import {stringifyFoldernamepath} from '../../folders/utils.js';
 import {generateUniqueFolderpath} from '../../testUtils/generate/folder.js';

@@ -1,4 +1,6 @@
 import {isArray, isUndefined} from 'lodash-es';
+import {DataProviderFilterValueOperator} from '../../contexts/data/DataProvider.js';
+import DataProviderFilterBuilder from '../../contexts/data/DataProviderFilterBuilder.js';
 import {
   AssignedItem,
   AssignedItemMainFieldsMatcher,
@@ -7,8 +9,6 @@ import {
   FimidaraResourceType,
   kFimidaraResourceType,
 } from '../../definitions/system.js';
-import {DataProviderFilterValueOperator} from '../contexts/data/DataProvider.js';
-import DataProviderFilterBuilder from '../contexts/data/DataProviderFilterBuilder.js';
 
 function newFilter() {
   return new DataProviderFilterBuilder<AssignedItem>();

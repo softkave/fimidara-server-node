@@ -2,6 +2,7 @@ import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {expectErrorThrownAsync} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {File} from '../../../definitions/file.js';
 import {
   FimidaraResourceType,
@@ -15,7 +16,6 @@ import {
 import {UsageThreshold} from '../../../definitions/workspace.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import RequestData from '../../RequestData.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generate/agentToken.js';
 import {generateAndInsertTestFiles} from '../../testUtils/generate/file.js';
 import {getRandomPermissionAction} from '../../testUtils/generate/permissionItem.js';

@@ -1,4 +1,6 @@
 import assert from 'assert';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {kFileBackendType} from '../../../definitions/fileBackend.js';
 import {
   Agent,
@@ -19,8 +21,6 @@ import {
   addAssignedPermissionGroupList,
   assignWorkspaceToUser,
 } from '../../assignedItems/addAssignedItems.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {INTERNAL_addFileBackendMount} from '../../fileBackends/addMount/utils.js';
 import {
   getDefaultThresholds,

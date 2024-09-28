@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {flattenDeep} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {
   kJobPresetPriority,
   kJobStatus,
@@ -9,7 +10,6 @@ import {
 import {TimeoutError} from '../../../utils/errors.js';
 import {extractResourceIdList, waitTimeout} from '../../../utils/fns.js';
 import {getNewId} from '../../../utils/resource.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {generateAndInsertJobListForTest} from '../../testUtils/generate/job.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';

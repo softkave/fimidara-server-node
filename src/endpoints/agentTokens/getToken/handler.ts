@@ -1,9 +1,9 @@
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {tryGetAgentTokenId} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {tryGetWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
 import {checkAgentTokenAuthorization02, getPublicAgentToken} from '../utils.js';
 import {GetAgentTokenEndpoint} from './types.js';

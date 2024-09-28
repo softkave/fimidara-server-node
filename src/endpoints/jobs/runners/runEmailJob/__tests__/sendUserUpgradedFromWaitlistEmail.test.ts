@@ -1,11 +1,11 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {IEmailProviderContext} from '../../../../../contexts/email/types.js';
+import {kUtilsInjectables} from '../../../../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../../../../contexts/injection/register.js';
 import {kEmailJobType} from '../../../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
 import {kUpgradeFromWaitlistEmailArtifacts} from '../../../../../emailTemplates/upgradedFromWaitlist.js';
 import {getNewIdForResource} from '../../../../../utils/resource.js';
-import {IEmailProviderContext} from '../../../../contexts/email/types.js';
-import {kUtilsInjectables} from '../../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
 import MockTestEmailProviderContext from '../../../../testUtils/context/email/MockTestEmailProviderContext.js';
 import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/user.js';
 import {completeTests} from '../../../../testUtils/helpers/testFns.js';

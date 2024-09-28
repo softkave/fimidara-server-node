@@ -1,10 +1,10 @@
 import {afterAll, beforeAll, expect, test} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {Job, kJobType} from '../../../definitions/job.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {sortObjectKeys} from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {

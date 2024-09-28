@@ -1,14 +1,14 @@
 import {omit} from 'lodash-es';
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
 import {PermissionGroup} from '../../../definitions/permissionGroups.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
 import {checkPermissionGroupNameExists} from '../checkPermissionGroupNameExists.js';
 import {
   assertPermissionGroup,

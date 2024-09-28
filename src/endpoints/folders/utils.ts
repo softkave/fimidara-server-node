@@ -7,6 +7,15 @@ import {
   pathSplit,
 } from 'softkave-js-utils';
 import {
+  checkAuthorizationWithAgent,
+  getFilePermissionContainers,
+} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {
+  SemanticProviderMutationParams,
+  SemanticProviderOpParams,
+} from '../../contexts/semantic/types.js';
+import {
   FileBackendMount,
   ResolvedMountEntry,
 } from '../../definitions/fileBackend.js';
@@ -25,15 +34,6 @@ import {
   newWorkspaceResource,
 } from '../../utils/resource.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
-import {
-  checkAuthorizationWithAgent,
-  getFilePermissionContainers,
-} from '../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels} from '../contexts/injection/injectables.js';
-import {
-  SemanticProviderMutationParams,
-  SemanticProviderOpParams,
-} from '../contexts/semantic/types.js';
 import {InvalidRequestError} from '../errors.js';
 import {workspaceResourceFields} from '../extractors.js';
 import {getBackendConfigsWithIdList} from '../fileBackends/configUtils.js';

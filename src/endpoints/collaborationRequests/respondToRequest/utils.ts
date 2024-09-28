@@ -1,17 +1,27 @@
 import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
+import {
   CollaborationRequest,
   kCollaborationRequestStatusTypeMap,
 } from '../../../definitions/collaborationRequest.js';
-import {EmailJobParams, kEmailJobType, kJobType} from '../../../definitions/job.js';
-import {SessionAgent, kFimidaraResourceType} from '../../../definitions/system.js';
+import {
+  EmailJobParams,
+  kEmailJobType,
+  kJobType,
+} from '../../../definitions/job.js';
+import {
+  SessionAgent,
+  kFimidaraResourceType,
+} from '../../../definitions/system.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {formatDate, getTimestamp} from '../../../utils/dateFns.js';
 import {ServerStateConflictError} from '../../../utils/errors.js';
 import {isStringEqual} from '../../../utils/fns.js';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {queueJobs} from '../../jobs/queueJobs.js';
 import {PermissionDeniedError} from '../../users/errors.js';
 import {assertUser} from '../../users/utils.js';
@@ -37,7 +47,8 @@ export const INTERNAL_RespondToCollaborationRequest = async (
 
   const isExpired =
     request.expiresAt && new Date(request.expiresAt).valueOf() < Date.now();
-  const isAccepted = data.response === kCollaborationRequestStatusTypeMap.Accepted;
+  const isAccepted =
+    data.response === kCollaborationRequestStatusTypeMap.Accepted;
 
   if (isExpired) {
     throw new ServerStateConflictError(
@@ -69,7 +80,9 @@ export const INTERNAL_RespondToCollaborationRequest = async (
 export async function notifySenderOnCollaborationRequestResponse(
   request: CollaborationRequest
 ) {
-  const workspace = await kSemanticModels.workspace().getOneById(request.workspaceId);
+  const workspace = await kSemanticModels
+    .workspace()
+    .getOneById(request.workspaceId);
   assertWorkspace(workspace);
   const sender =
     request.createdBy.agentType === kFimidaraResourceType.User ||

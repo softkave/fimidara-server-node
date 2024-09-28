@@ -1,6 +1,11 @@
 import assert from 'assert';
 import {getNewId} from 'softkave-js-utils';
 import {afterEach, beforeEach, describe, expect, test} from 'vitest';
+import {DataQuery} from '../../../../contexts/data/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../../contexts/injection/injectables.js';
 import {AppShardId} from '../../../../definitions/app.js';
 import {
   EmailJobParams,
@@ -9,11 +14,6 @@ import {
   kJobType,
 } from '../../../../definitions/job.js';
 import {kSystemSessionAgent} from '../../../../utils/agent.js';
-import {DataQuery} from '../../../contexts/data/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
 import {generateAndInsertUserListForTest} from '../../../testUtils/generate/user.js';
 import {completeTests} from '../../../testUtils/helpers/testFns.js';
 import {initTests} from '../../../testUtils/testUtils.js';

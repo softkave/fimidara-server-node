@@ -1,5 +1,5 @@
+import {kSemanticModels} from '../../../../contexts/injection/injectables.js';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {
   genericDeleteArtifacts,
   genericGetArtifacts,
@@ -15,7 +15,9 @@ import {
 const getArtifacts: DeleteResourceGetArtifactsToDeleteFns = {
   ...genericGetArtifacts,
   [kFimidaraResourceType.ResolvedMountEntry]: ({args}) =>
-    kSemanticModels.resolvedMountEntry().getManyByQuery({mountId: args.resourceId}),
+    kSemanticModels
+      .resolvedMountEntry()
+      .getManyByQuery({mountId: args.resourceId}),
   // TODO: should we delete files from mount?
 };
 

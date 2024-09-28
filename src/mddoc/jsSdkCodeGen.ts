@@ -4,8 +4,8 @@ import fse from 'fs-extra';
 import {compact, forEach, last, nth, set, uniq, upperFirst} from 'lodash-es';
 import path from 'path';
 import {AnyObject} from 'softkave-js-utils';
-import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
-import {registerUtilsInjectables} from '../endpoints/contexts/injection/register.js';
+import {kUtilsInjectables} from '../contexts/injection/injectables.js';
+import {registerUtilsInjectables} from '../contexts/injection/register.js';
 import {
   AppExportedHttpEndpoints,
   getFimidaraHttpEndpoints,

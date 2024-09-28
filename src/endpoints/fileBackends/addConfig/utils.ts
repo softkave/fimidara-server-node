@@ -1,11 +1,14 @@
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {FileBackendConfig} from '../../../definitions/fileBackend.js';
 import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {newWorkspaceResource} from '../../../utils/resource.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {configNameExists} from '../utils.js';
 import {NewFileBackendConfigInput} from './types.js';
 

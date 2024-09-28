@@ -1,8 +1,8 @@
+import {resolveTargetChildrenAccessCheckWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {FileBackendMountQuery} from '../../../contexts/data/types.js';
 import {SessionAgent} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {pathSplit} from '../../../utils/fns.js';
-import {resolveTargetChildrenAccessCheckWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {FileBackendMountQuery} from '../../contexts/data/types.js';
 import {FolderQueries} from '../../folders/queries.js';
 import EndpointReusableQueries from '../../queries.js';
 import {getWorkspaceResourceListQuery01} from '../../utils.js';
@@ -22,7 +22,10 @@ export async function getFileBackendMountsQuery(
     workspaceId: workspace.resourceId,
     target: {action: 'readFileBackendMount', targetId: workspace.resourceId},
   });
-  let query: FileBackendMountQuery = getWorkspaceResourceListQuery01(workspace, report);
+  let query: FileBackendMountQuery = getWorkspaceResourceListQuery01(
+    workspace,
+    report
+  );
 
   if (other.backend) {
     query.backend = other.backend;

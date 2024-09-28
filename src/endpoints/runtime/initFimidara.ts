@@ -1,5 +1,11 @@
 import assert from 'assert';
 import {
+  kDataModels,
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../contexts/injection/register.js';
+import {
   AppRuntimeState,
   SessionAgent,
   kFimidaraResourceType,
@@ -9,12 +15,6 @@ import {FimidaraRuntimeConfig} from '../../resources/config.js';
 import {getTimestamp} from '../../utils/dateFns.js';
 import {getNewIdForResource, kIdSize} from '../../utils/resource.js';
 import {makeUserSessionAgent} from '../../utils/sessionUtils.js';
-import {
-  kDataModels,
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../contexts/injection/register.js';
 import EndpointReusableQueries from '../queries.js';
 import {INTERNAL_forgotPassword} from '../users/forgotPassword/forgotPassword.js';
 import {getUserToken} from '../users/login/utils.js';

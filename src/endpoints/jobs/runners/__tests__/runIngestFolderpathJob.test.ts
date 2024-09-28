@@ -1,5 +1,18 @@
 import {faker} from '@faker-js/faker';
 import {afterEach, beforeEach, describe, expect, test} from 'vitest';
+import {DataQuery} from '../../../../contexts/data/types.js';
+import {MemoryFilePersistenceProvider} from '../../../../contexts/file/MemoryFilePersistenceProvider.js';
+import {
+  FilePersistenceDescribeFolderContentParams,
+  FilePersistenceDescribeFolderContentResult,
+  PersistedFileDescription,
+  PersistedFolderDescription,
+} from '../../../../contexts/file/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
 import {
   IngestFolderpathJobMeta,
   IngestFolderpathJobParams,
@@ -9,19 +22,6 @@ import {
 import {kSystemSessionAgent} from '../../../../utils/agent.js';
 import {loopAndCollate, pathJoin} from '../../../../utils/fns.js';
 import {getNewId} from '../../../../utils/resource.js';
-import {DataQuery} from '../../../contexts/data/types.js';
-import {MemoryFilePersistenceProvider} from '../../../contexts/file/MemoryFilePersistenceProvider.js';
-import {
-  FilePersistenceDescribeFolderContentParams,
-  FilePersistenceDescribeFolderContentResult,
-  PersistedFileDescription,
-  PersistedFolderDescription,
-} from '../../../contexts/file/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../contexts/injection/register.js';
 import {FileBackendQueries} from '../../../fileBackends/queries.js';
 import {FileQueries} from '../../../files/queries.js';
 import {getFilepathInfo} from '../../../files/utils.js';

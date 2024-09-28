@@ -1,10 +1,10 @@
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {PublicUser, User, UserWithWorkspace} from '../../definitions/user.js';
 import {appAssert} from '../../utils/assertion.js';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems.js';
-import {kSemanticModels} from '../contexts/injection/injectables.js';
-import {SemanticProviderOpParams} from '../contexts/semantic/types.js';
 import {resourceFields, workspaceResourceListExtractor} from '../extractors.js';
 import {EmailAddressNotAvailableError} from './errors.js';
 
@@ -29,8 +29,13 @@ export function throwUserNotFound() {
   throw kReuseableErrors.user.notFound();
 }
 
-export function isUserInWorkspace(user: UserWithWorkspace, workspaceId: string) {
-  return user.workspaces.some(workspace => workspace.workspaceId === workspaceId);
+export function isUserInWorkspace(
+  user: UserWithWorkspace,
+  workspaceId: string
+) {
+  return user.workspaces.some(
+    workspace => workspace.workspaceId === workspaceId
+  );
 }
 
 export function assertUser(user?: User | null): asserts user {

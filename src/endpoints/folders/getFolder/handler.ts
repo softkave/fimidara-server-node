@@ -1,6 +1,6 @@
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {validate} from '../../../utils/validate.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {checkFolderAuthorization02, folderExtractor} from '../utils.js';
 import {GetFolderEndpoint} from './types.js';
 import {getFolderJoiSchema} from './validation.js';

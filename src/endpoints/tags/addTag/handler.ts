@@ -1,13 +1,13 @@
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {Tag} from '../../../definitions/tag.js';
 import {newWorkspaceResource} from '../../../utils/resource.js';
 import {validate} from '../../../utils/validate.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
 import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils.js';
 import {checkTagNameExists} from '../checkTagNameExists.js';
 import {tagExtractor} from '../utils.js';

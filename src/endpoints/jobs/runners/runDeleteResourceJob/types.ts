@@ -1,5 +1,9 @@
 import {AnyFn, AnyObject} from 'softkave-js-utils';
 import {
+  SemanticProviderMutationParams,
+  SemanticProviderQueryListParams,
+} from '../../../../contexts/semantic/types.js';
+import {
   DeleteResourceCascadeFnDefaultArgs,
   DeleteResourceJobMeta,
   DeleteResourceJobParams,
@@ -9,10 +13,6 @@ import {
   FimidaraResourceType,
   Resource,
 } from '../../../../definitions/system.js';
-import {
-  SemanticProviderMutationParams,
-  SemanticProviderQueryListParams,
-} from '../../../contexts/semantic/types.js';
 
 export type DeleteResourceCascadeFnHelpers = {
   job: Job<DeleteResourceJobParams, DeleteResourceJobMeta>;

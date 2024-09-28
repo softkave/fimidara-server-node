@@ -1,7 +1,7 @@
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {JobHistory} from '../../../definitions/jobHistory.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {getNewIdForResource, newResource} from '../../../utils/resource.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {getRandomJobStatus} from './job.js';
 
 export function generateJobHistoryForTest(seed: Partial<JobHistory> = {}) {

@@ -1,3 +1,5 @@
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {
   FileBackendMount,
   kFileBackendType,
@@ -11,8 +13,6 @@ import {appAssert} from '../../../utils/assertion.js';
 import {pathSplit} from '../../../utils/fns.js';
 import {newWorkspaceResource} from '../../../utils/resource.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {ensureFolders, getFolderpathInfo} from '../../folders/utils.js';
 import {assertRootname} from '../../workspaces/utils.js';
 import {mountExists, mountNameExists} from '../utils.js';

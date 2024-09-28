@@ -1,6 +1,6 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import RequestData from '../../RequestData.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {

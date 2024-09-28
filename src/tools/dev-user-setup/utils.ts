@@ -1,6 +1,14 @@
 import * as assert from 'assert';
 // eslint-disable-next-line node/no-unpublished-import
 import * as inquirer from 'inquirer';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {
+  SemanticProviderMutationParams,
+  SemanticProviderOpParams,
+} from '../../contexts/semantic/types.js';
 import {kCollaborationRequestStatusTypeMap} from '../../definitions/collaborationRequest.js';
 import {kTokenAccessScope} from '../../definitions/system.js';
 import {UserWithWorkspace} from '../../definitions/user.js';
@@ -11,14 +19,6 @@ import {
   assignWorkspaceToUser,
 } from '../../endpoints/assignedItems/addAssignedItems.js';
 import {INTERNAL_RespondToCollaborationRequest} from '../../endpoints/collaborationRequests/respondToRequest/utils.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../endpoints/contexts/injection/injectables.js';
-import {
-  SemanticProviderMutationParams,
-  SemanticProviderOpParams,
-} from '../../endpoints/contexts/semantic/types.js';
 import {fetchEntityAssignedPermissionGroupList} from '../../endpoints/permissionGroups/getEntityAssignedPermissionGroups/utils.js';
 import {assertPermissionGroup} from '../../endpoints/permissionGroups/utils.js';
 import {initFimidara} from '../../endpoints/runtime/initFimidara.js';

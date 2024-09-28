@@ -1,3 +1,4 @@
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {DeleteResourceJobParams, kJobType} from '../../../definitions/job.js';
 import {
   Agent,
@@ -5,7 +6,6 @@ import {
   kFimidaraResourceType,
 } from '../../../definitions/system.js';
 import {extractResourceIdList} from '../../../utils/fns.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {queueJobs} from '../../jobs/queueJobs.js';
 
 export async function beginDeleteCollaborator(props: {

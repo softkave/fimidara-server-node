@@ -1,12 +1,12 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kReuseableErrors} from '../../../utils/reusableErrors.js';
-import RequestData from '../../RequestData.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
+} from '../../../contexts/injection/injectables.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
+import RequestData from '../../RequestData.js';
 import {generateAWSS3Credentials} from '../../testUtils/generate/fileBackend.js';
 import {
   GenerateTestFieldsDef,

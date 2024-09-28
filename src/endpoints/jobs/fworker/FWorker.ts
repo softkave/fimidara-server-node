@@ -3,7 +3,7 @@ import {isObject} from 'lodash-es';
 import {DisposableResource} from 'softkave-js-utils';
 import {ReadonlyDeep, ValueOf} from 'type-fest';
 import {MessagePort, isMainThread, workerData} from 'worker_threads';
-import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {FWorkerMessager} from './FWorkerMessager.js';
 
 export interface FWorkerData {

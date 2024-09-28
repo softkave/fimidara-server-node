@@ -1,3 +1,4 @@
+import {IServerRequest} from '../contexts/types.js';
 import {
   BaseTokenData,
   SessionAgent,
@@ -5,7 +6,6 @@ import {
 } from '../definitions/system.js';
 import {User} from '../definitions/user.js';
 import {getNewIdForResource} from '../utils/resource.js';
-import {IServerRequest} from './contexts/types.js';
 
 export interface IRequestContructorParams<T = any> {
   req?: IServerRequest | null;

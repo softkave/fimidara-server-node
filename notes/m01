@@ -1,0 +1,44 @@
+# multi-instance + folder
+
+- lease and push
+  - is http
+  - can be overwhelmed
+  - can hold on to lease for a bit longer then drop
+- lease and pull
+
+  - uses db or queue
+  - cannot be overwhelmed
+  - need notification system when done
+  - cannot hold on to lease, or will need poll
+
+- sqs for input
+- sns for output
+
+- who creates the queues?
+- we still need a lease
+
+DB approach
+
+- put in DB | put in sqs
+  - sqs > sns started (nothing caller can do cause it's started, applies to DB too)
+  - DB can set status/started/done/error
+  - DB can become congested, sqs likely will not
+  - DB currently is slower than sqs
+- acquire lease -- DB | Redlock on Redis | DynamoDB lock
+  - process and update in DB | sqs + sns
+  - release lease
+- wait on work -- sns
+  - how to wait?
+    - poll, mongodb streams, sns
+  - timeout or return
+    - on timeout need to update that work is no longer needed
+
+DB01: work > lease > process|pull > done|error in sns > drop lease
+DB02: work > wait > sns out done|error
+DB03: work > wait > timeout > end work if not started 
+      - update, can be wait a bit if work is started. wait once.
+
+SS01: sqs > lease > process|pull > done|error in sns > drop lease
+SS02: sqs > wait > sns out done|error
+SS03: sqs > wait > timeout > delete work
+      - update, can wait a bit if we get work started sns. wait once.

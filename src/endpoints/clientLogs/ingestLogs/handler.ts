@@ -1,5 +1,5 @@
+import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {validate} from '../../../utils/validate.js';
-import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {IngestLogsEndpoint} from './types.js';
 import {ingestLogsJoiSchema} from './validation.js';
 

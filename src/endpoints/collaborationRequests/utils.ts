@@ -1,3 +1,6 @@
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {
   CollaborationRequest,
   PublicCollaborationRequestForUser,
@@ -9,9 +12,6 @@ import {SessionAgent} from '../../definitions/system.js';
 import {appAssert} from '../../utils/assertion.js';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
-import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels} from '../contexts/injection/injectables.js';
-import {SemanticProviderOpParams} from '../contexts/semantic/types.js';
 import {NotFoundError} from '../errors.js';
 import {resourceFields, workspaceResourceFields} from '../extractors.js';
 import {checkWorkspaceExists} from '../workspaces/utils.js';
@@ -98,13 +98,16 @@ export async function populateRequestAssignedPermissionGroups(
     permissionGroupsAssignedOnAcceptingRequest: AssignedPermissionGroupMeta[];
   }
 > {
-  const inheritanceMap = await kSemanticModels.permissions().getEntityInheritanceMap({
-    entityId: request.resourceId,
-    fetchDeep: false,
-  });
+  const inheritanceMap = await kSemanticModels
+    .permissions()
+    .getEntityInheritanceMap({
+      entityId: request.resourceId,
+      fetchDeep: false,
+    });
   return {
     ...request,
-    permissionGroupsAssignedOnAcceptingRequest: inheritanceMap[request.resourceId].items,
+    permissionGroupsAssignedOnAcceptingRequest:
+      inheritanceMap[request.resourceId].items,
   };
 }
 

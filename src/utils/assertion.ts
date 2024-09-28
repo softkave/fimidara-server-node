@@ -1,5 +1,5 @@
 import {isString} from 'lodash-es';
-import {kUtilsInjectables} from '../endpoints/contexts/injection/injectables.js';
+import {kUtilsInjectables} from '../contexts/injection/injectables.js';
 import {ServerError} from './errors.js';
 import {kReuseableErrors} from './reusableErrors.js';
 import {AnyFn} from './types.js';

@@ -1,9 +1,9 @@
+import {FolderQuery} from '../../../contexts/data/types.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {Folder} from '../../../definitions/folder.js';
 import {pathJoin} from '../../../utils/fns.js';
 import {indexArray} from '../../../utils/indexArray.js';
-import {FolderQuery} from '../../contexts/data/types.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {FolderQueries} from '../queries.js';
 import {folderInputListToSet} from './folderInputListToSet.js';
 

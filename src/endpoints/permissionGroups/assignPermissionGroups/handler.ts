@@ -1,12 +1,12 @@
 import {convertToArray} from 'softkave-js-utils';
-import {validate} from '../../../utils/validate.js';
-import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
+} from '../../../contexts/injection/injectables.js';
+import {validate} from '../../../utils/validate.js';
+import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems.js';
 import {checkPermissionEntitiesExist} from '../../permissionItems/checkPermissionArtifacts.js';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
 import {checkPermissionGroupsExist} from '../utils.js';

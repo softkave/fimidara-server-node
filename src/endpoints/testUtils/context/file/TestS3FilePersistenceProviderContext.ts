@@ -2,7 +2,7 @@ import {vi} from 'vitest';
 import {
   S3FilePersistenceProvider,
   S3FilePersistenceProviderInitParams,
-} from '../../../contexts/file/S3FilePersistenceProvider.js';
+} from '../../../../contexts/file/S3FilePersistenceProvider.js';
 import {mockWith} from '../../helpers/mock.js';
 import {LayerJestMock, TestFilePersistenceProviderContext} from '../types.js';
 

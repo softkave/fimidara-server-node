@@ -1,10 +1,10 @@
 import {faker} from '@faker-js/faker';
 import {expect} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {PublicWorkspace, Workspace} from '../../../definitions/workspace.js';
-import RequestData from '../../RequestData.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {addRootnameToPath} from '../../folders/utils.js';
 import EndpointReusableQueries from '../../queries.js';
+import RequestData from '../../RequestData.js';
 import {
   IInsertUserForTestResult,
   IInsertWorkspaceForTestResult,

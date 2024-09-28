@@ -2,16 +2,16 @@ import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
+import {
   JobStatus,
   kJobRunCategory,
   kJobStatus,
   kJobType,
 } from '../../../definitions/job.js';
 import {getNewId} from '../../../utils/resource.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
 import {generateAndInsertJobListForTest} from '../../testUtils/generate/job.js';
 import {confirmJobHistoryEntry} from '../../testUtils/helpers/job.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';

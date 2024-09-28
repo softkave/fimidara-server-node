@@ -1,4 +1,5 @@
 import {faker} from '@faker-js/faker';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {Folder} from '../../../definitions/folder.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
@@ -11,7 +12,6 @@ import {
   getNewIdForResource,
   newWorkspaceResource,
 } from '../../../utils/resource.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {addRootnameToPath} from '../../folders/utils.js';
 
 export const kTestFolderNameSeparatorChars = ['-', '_', ' ', '.'];

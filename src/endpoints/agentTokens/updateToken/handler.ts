@@ -1,4 +1,9 @@
 import {omit} from 'lodash-es';
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
@@ -8,11 +13,6 @@ import {
 } from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
 import {tryGetWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
 import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists.js';
 import {

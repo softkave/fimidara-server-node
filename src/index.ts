@@ -1,9 +1,9 @@
 import {expressjwt} from 'express-jwt';
 import fs from 'fs';
 import {format} from 'util';
+import {globalDispose, globalSetup} from './contexts/globalUtils.js';
+import {kUtilsInjectables} from './contexts/injection/injectables.js';
 import {kEndpointConstants} from './endpoints/constants.js';
-import {globalDispose, globalSetup} from './endpoints/contexts/globalUtils.js';
-import {kUtilsInjectables} from './endpoints/contexts/injection/injectables.js';
 import {setupFimidaraHttpEndpoints} from './endpoints/endpoints.js';
 import {initFimidara} from './endpoints/runtime/initFimidara.js';
 import handleErrors from './middlewares/handleErrors.js';

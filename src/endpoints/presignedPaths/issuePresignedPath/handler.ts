@@ -1,3 +1,12 @@
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {
+  checkAuthorizationWithAgent,
+  getResourcePermissionContainers,
+} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {PresignedPath} from '../../../definitions/presignedPath.js';
 import {Resource, kFimidaraResourceType} from '../../../definitions/system.js';
@@ -7,15 +16,6 @@ import {convertToArray} from '../../../utils/fns.js';
 import {newWorkspaceResource} from '../../../utils/resource.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import {validate} from '../../../utils/validate.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {
-  checkAuthorizationWithAgent,
-  getResourcePermissionContainers,
-} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
 import {getFileWithMatcher} from '../../files/getFilesWithMatcher.js';
 import {getFilepathInfo} from '../../files/utils.js';
 import {getClosestExistingFolder} from '../../folders/getFolderWithMatcher.js';

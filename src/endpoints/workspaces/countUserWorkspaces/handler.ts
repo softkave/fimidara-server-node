@@ -1,5 +1,8 @@
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kSemanticModels, kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
 import {CountUserWorkspacesEndpoint} from './types.js';
 
 const countUserWorkspaces: CountUserWorkspacesEndpoint = async reqData => {
@@ -10,7 +13,9 @@ const countUserWorkspaces: CountUserWorkspacesEndpoint = async reqData => {
     .assignedItem()
     .getUserWorkspaces(user.resourceId);
   const workspaceIdList = assignedItems.map(item => item.assignedItemId);
-  const count = await kSemanticModels.workspace().countManyByIdList(workspaceIdList);
+  const count = await kSemanticModels
+    .workspace()
+    .countManyByIdList(workspaceIdList);
   return {count};
 };
 

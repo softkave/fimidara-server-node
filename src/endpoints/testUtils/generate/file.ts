@@ -1,5 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {isBoolean, isEqual, isString, isUndefined} from 'lodash-es';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {File} from '../../../definitions/file.js';
 import {PresignedPath} from '../../../definitions/presignedPath.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
@@ -7,7 +8,6 @@ import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getRandomIntInclusive, pathJoin} from '../../../utils/fns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {getFilenameInfo} from '../../files/utils.js';
 import {addRootnameToPath} from '../../folders/utils.js';
 import {generateTestFolderName, generateTestFolderpath} from './folder.js';

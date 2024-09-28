@@ -1,10 +1,10 @@
 import Joi from 'joi';
+import {S3FilePersistenceProviderInitParams} from '../../contexts/file/S3FilePersistenceProvider.js';
 import {kFileBackendType} from '../../definitions/fileBackend.js';
 import {
   kValidationConstants,
   kValidationRegExPatterns,
 } from '../../utils/validationUtils.js';
-import {S3FilePersistenceProviderInitParams} from '../contexts/file/S3FilePersistenceProvider.js';
 import {kFileBackendConstants} from './constants.js';
 
 const backend = Joi.string().valid(...Object.values(kFileBackendType));

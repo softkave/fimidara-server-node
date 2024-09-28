@@ -1,4 +1,10 @@
 import {pick} from 'lodash-es';
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {File} from '../../../definitions/file.js';
 import {ResolvedMountEntry} from '../../../definitions/fileBackend.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
@@ -15,12 +21,6 @@ import {newWorkspaceResource} from '../../../utils/resource.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {ByteCounterPassThroughStream} from '../../../utils/streams.js';
 import {validate} from '../../../utils/validate.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
-import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils.js';
 import {
   decrementStorageUsageRecord,

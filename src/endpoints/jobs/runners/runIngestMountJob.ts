@@ -1,4 +1,5 @@
 import assert from 'assert';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {kFileBackendType} from '../../../definitions/fileBackend.js';
 import {
   IngestFolderpathJobParams,
@@ -6,7 +7,6 @@ import {
   kJobType,
 } from '../../../definitions/job.js';
 import {appAssert} from '../../../utils/assertion.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {JobInput, queueJobs} from '../queueJobs.js';
 
 export async function runIngestMountJob(job: Job) {

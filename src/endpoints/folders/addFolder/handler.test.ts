@@ -2,6 +2,7 @@ import {faker} from '@faker-js/faker';
 import {compact, last} from 'lodash-es';
 import {indexArray, waitTimeout} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {
   loopAndCollate,
@@ -11,7 +12,6 @@ import {
   sortStringListLexographically,
 } from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {generateTestFilepathString} from '../../testUtils/generate/file.js';
 import {
   generateAndInsertTestFolders,

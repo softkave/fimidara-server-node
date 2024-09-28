@@ -1,3 +1,9 @@
+import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {AgentToken, PublicAgentToken} from '../../definitions/agentToken.js';
 import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {SessionAgent} from '../../definitions/system.js';
@@ -5,9 +11,6 @@ import {appAssert} from '../../utils/assertion.js';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract.js';
 import {cast} from '../../utils/fns.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
-import {checkAuthorizationWithAgent} from '../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels, kUtilsInjectables} from '../contexts/injection/injectables.js';
-import {SemanticProviderOpParams} from '../contexts/semantic/types.js';
 import {InvalidRequestError} from '../errors.js';
 import {workspaceResourceFields} from '../extractors.js';
 
@@ -52,7 +55,10 @@ export async function checkAgentTokenAuthorization02(
   if (tokenId) {
     token = await kSemanticModels.agentToken().getOneById(tokenId);
   } else if (providedResourceId) {
-    appAssert(workspaceId, new InvalidRequestError('Workspace ID not provided'));
+    appAssert(
+      workspaceId,
+      new InvalidRequestError('Workspace ID not provided')
+    );
     token = await kSemanticModels
       .agentToken()
       .getByProvidedId(workspaceId, providedResourceId);

@@ -1,5 +1,9 @@
 import {isNumber} from 'lodash-es';
 import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../contexts/injection/injectables.js';
+import {
   Job,
   JobStatus,
   JobStatusHistory,
@@ -10,10 +14,6 @@ import {JobHistory} from '../../definitions/jobHistory.js';
 import {kFimidaraResourceType} from '../../definitions/system.js';
 import {getTimestamp} from '../../utils/dateFns.js';
 import {newResource} from '../../utils/resource.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../contexts/injection/injectables.js';
 
 export async function completeJob(
   jobId: string,

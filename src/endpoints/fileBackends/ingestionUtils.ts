@@ -1,4 +1,9 @@
 import {keyBy} from 'lodash-es';
+import {
+  PersistedFileDescription,
+  PersistedFolderDescription,
+} from '../../contexts/file/types.js';
+import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {File} from '../../definitions/file.js';
 import {ResolvedMountEntry} from '../../definitions/fileBackend.js';
 import {Folder} from '../../definitions/folder.js';
@@ -7,11 +12,6 @@ import {Workspace} from '../../definitions/workspace.js';
 import {appAssert} from '../../utils/assertion.js';
 import {pathExtract, pathJoin, pathSplit} from '../../utils/fns.js';
 import {newWorkspaceResource} from '../../utils/resource.js';
-import {
-  PersistedFileDescription,
-  PersistedFolderDescription,
-} from '../contexts/file/types.js';
-import {kSemanticModels} from '../contexts/injection/injectables.js';
 import {
   createNewFile,
   getFilepathInfo,

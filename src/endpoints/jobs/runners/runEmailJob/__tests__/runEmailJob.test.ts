@@ -1,6 +1,16 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 
 import {
+  EmailProviderSendEmailResult,
+  IEmailProviderContext,
+  SendEmailParams,
+} from '../../../../../contexts/email/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../../../../contexts/injection/register.js';
+import {
   kEmailBlocklistReason,
   kEmailBlocklistTrailType,
 } from '../../../../../definitions/email.js';
@@ -11,16 +21,6 @@ import {
 } from '../../../../../definitions/job.js';
 import {kFimidaraConfigEmailProvider} from '../../../../../resources/config.js';
 import {kSystemSessionAgent} from '../../../../../utils/agent.js';
-import {
-  EmailProviderSendEmailResult,
-  IEmailProviderContext,
-  SendEmailParams,
-} from '../../../../contexts/email/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
 import {generateAndInsertCollaborationRequestListForTest} from '../../../../testUtils/generate/collaborationRequest.js';
 import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/user.js';
 import {generateAndInsertWorkspaceListForTest} from '../../../../testUtils/generate/workspace.js';

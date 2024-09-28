@@ -1,5 +1,5 @@
 import {vi} from 'vitest';
-import {LocalFsFilePersistenceProvider} from '../../../contexts/file/LocalFsFilePersistenceProvider.js';
+import {LocalFsFilePersistenceProvider} from '../../../../contexts/file/LocalFsFilePersistenceProvider.js';
 import {mockWith} from '../../helpers/mock.js';
 import {TestFilePersistenceProviderContext} from '../types.js';
 

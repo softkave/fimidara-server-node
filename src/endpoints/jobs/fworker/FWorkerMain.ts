@@ -7,7 +7,7 @@ import {
 } from 'softkave-js-utils';
 import {ReadonlyDeep} from 'type-fest';
 import {MessageChannel, MessagePort, Worker} from 'worker_threads';
-import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {FWorker, FWorkerData, kFWorkerMessageType} from './FWorker.js';
 import {FWorkerMessager} from './FWorkerMessager.js';
 

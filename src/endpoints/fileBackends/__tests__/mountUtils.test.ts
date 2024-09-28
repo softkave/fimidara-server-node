@@ -9,6 +9,10 @@ import {
   expect,
   test,
 } from 'vitest';
+import {FimidaraFilePersistenceProvider} from '../../../contexts/file/FimidaraFilePersistenceProvider.js';
+import {S3FilePersistenceProvider} from '../../../contexts/file/S3FilePersistenceProvider.js';
+import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {kRegisterUtilsInjectables} from '../../../contexts/injection/register.js';
 import {
   FileBackendConfig,
   FileBackendMount,
@@ -17,10 +21,6 @@ import {
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {extractResourceIdList} from '../../../utils/fns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
-import {FimidaraFilePersistenceProvider} from '../../contexts/file/FimidaraFilePersistenceProvider.js';
-import {S3FilePersistenceProvider} from '../../contexts/file/S3FilePersistenceProvider.js';
-import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../contexts/injection/register.js';
 import NoopFilePersistenceProviderContext from '../../testUtils/context/file/NoopFilePersistenceProviderContext.js';
 import {generateTestFileName} from '../../testUtils/generate/file.js';
 import {

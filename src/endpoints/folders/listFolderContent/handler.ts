@@ -1,3 +1,8 @@
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
 import {Folder} from '../../../definitions/folder.js';
 import {
   SessionAgent,
@@ -5,11 +10,6 @@ import {
 } from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {validate} from '../../../utils/validate.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
 import {areMountsCompletelyIngestedForFolder} from '../../fileBackends/mountUtils.js';
 import {fileListExtractor} from '../../files/utils.js';
 import {

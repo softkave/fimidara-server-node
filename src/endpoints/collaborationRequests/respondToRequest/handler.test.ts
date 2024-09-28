@@ -1,4 +1,9 @@
 import {afterAll, beforeAll, expect, test} from 'vitest';
+import {DataQuery} from '../../../contexts/data/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
 import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest.js';
 import {
   EmailJobParams,
@@ -6,13 +11,8 @@ import {
   kEmailJobType,
   kJobType,
 } from '../../../definitions/job.js';
-import RequestData from '../../RequestData.js';
-import {DataQuery} from '../../contexts/data/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
 import EndpointReusableQueries from '../../queries.js';
+import RequestData from '../../RequestData.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,

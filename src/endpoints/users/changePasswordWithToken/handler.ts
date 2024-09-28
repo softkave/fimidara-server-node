@@ -1,8 +1,8 @@
+import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {validate} from '../../../utils/validate.js';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {NotFoundError} from '../../errors.js';
 import INTERNAL_confirmEmailAddress from '../confirmEmailAddress/internalConfirmEmailAddress.js';
 import {CredentialsExpiredError, InvalidCredentialsError} from '../errors.js';

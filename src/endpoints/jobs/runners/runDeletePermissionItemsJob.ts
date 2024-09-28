@@ -1,5 +1,10 @@
 import assert from 'assert';
 import {isUndefined} from 'lodash-es';
+import {DataQuery, kIncludeInProjection} from '../../../contexts/data/types.js';
+import {
+  kSemanticModels,
+  kUtilsInjectables,
+} from '../../../contexts/injection/injectables.js';
 import {AppShardId} from '../../../definitions/app.js';
 import {
   DeleteResourceJobParams,
@@ -23,11 +28,6 @@ import {
   PaginatedFetchProcessFn,
   paginatedFetch,
 } from '../../../utils/paginatedFetch.js';
-import {DataQuery, kIncludeInProjection} from '../../contexts/data/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
 import {DeletePermissionItemInput} from '../../permissionItems/deleteItems/types.js';
 import {
   PermissionItemTargets,
