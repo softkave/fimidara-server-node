@@ -25,5 +25,9 @@
       "secretAccessKey": "SECRETS_MANAGER_AWS_SECRET_ACCESS_KEY",
       "region": "SECRETS_MANAGER_AWS_REGION"
     }
-  }
+  },
+  "queueProvider": "QUEUE_PROVIDER",
+  "queueRedisURL": "QUEUE_REDIS_URL",
+  "pubSubProvider": "PUB_SUB_PROVIDER",
+  "pubSubRedisURL": "PUB_SUB_REDIS_URL"
 }

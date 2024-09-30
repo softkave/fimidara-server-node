@@ -85,4 +85,6 @@ export const kInjectionKeys = {
   shardedRunner: 'shardedRunner',
   serverApp: 'serverApp',
   workerPool: 'workerPool',
+  queue: 'queue',
+  pubsub: 'pubsub',
 };

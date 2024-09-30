@@ -8,6 +8,8 @@
 
 ## Later
 
+- test that multiple files with same name are not created
+- api idempotency
 - folder sharding
 - usage thresholds internal and reporting
 - docs

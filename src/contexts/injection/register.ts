@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 
 import assert from 'assert';
-import {isFunction, merge} from 'lodash-es';
+import {isFunction} from 'lodash-es';
 import {
   AnyFn,
   DisposableResource,
@@ -52,7 +52,6 @@ import {FimidaraWorkerPool} from '../../endpoints/jobs/fimidaraWorker/FimidaraWo
 import {assertPermissionGroup} from '../../endpoints/permissionGroups/utils.js';
 import {assertPermissionItem} from '../../endpoints/permissionItems/utils.js';
 import {assertTag} from '../../endpoints/tags/utils.js';
-import NoopEmailProviderContext from '../../endpoints/testUtils/context/email/NoopEmailProviderContext.js';
 import {assertUsageRecord} from '../../endpoints/usageRecords/utils.js';
 import {assertUser} from '../../endpoints/users/utils.js';
 import {assertWorkspace} from '../../endpoints/workspaces/utils.js';
@@ -61,8 +60,6 @@ import {
   FimidaraSuppliedConfig,
   getSuppliedConfig,
   kFimidaraConfigDbType,
-  kFimidaraConfigEmailProvider,
-  kFimidaraConfigSecretsManagerProvider,
 } from '../../resources/config.js';
 import {appAssert, assertNotFound} from '../../utils/assertion.js';
 import {getNewIdForResource} from '../../utils/resource.js';
@@ -122,14 +119,17 @@ import {
   UserDataProvider,
   WorkspaceDataProvider,
 } from '../data/types.js';
-import {SESEmailProviderContext} from '../email/SESEmailProviderContext.js';
 import {IEmailProviderContext} from '../email/types.js';
-import {AWSSecretsManagerProvider} from '../encryption/AWSSecretsManagerProvider.js';
-import {MemorySecretsManagerProvider} from '../encryption/MemorySecretsManagerProvider.js';
-import {SecretsManagerProvider} from '../encryption/types.js';
+import {getEmailProvider} from '../email/utils.js';
 import {FileProviderResolver} from '../file/types.js';
 import {defaultFileProviderResolver} from '../file/utils.js';
 import {UsageRecordLogicProvider} from '../logic/UsageRecordLogicProvider.js';
+import {IPubSubContext} from '../pubsub/types.js';
+import {getPubSubContext} from '../pubsub/utils.js';
+import {IQueueContext} from '../queue/types.js';
+import {getQueueContext} from '../queue/utils.js';
+import {SecretsManagerProvider} from '../secrets/types.js';
+import {getSecretsProvider} from '../secrets/utils.js';
 import {DataSemanticAgentToken} from '../semantic/agentToken/model.js';
 import {SemanticAgentTokenProvider} from '../semantic/agentToken/types.js';
 import {SemanticAppShardProviderImpl} from '../semantic/app/SemanticAppShardProviderImpl.js';
@@ -333,6 +333,8 @@ export const kRegisterUtilsInjectables = {
     registerToken(kInjectionKeys.serverApp, item),
   workerPool: (item: FimidaraWorkerPool) =>
     registerToken(kInjectionKeys.workerPool, item),
+  queue: (item: IQueueContext) => registerToken(kInjectionKeys.queue, item),
+  pubsub: (item: IPubSubContext) => registerToken(kInjectionKeys.pubsub, item),
 };
 
 export function registerDataModelInjectables() {
@@ -501,7 +503,7 @@ export function registerSemanticModelInjectables() {
   kRegisterSemanticModels.utils(new DataSemanticProviderUtils());
 }
 
-export function registerUtilsInjectables(
+export async function registerUtilsInjectables(
   overrideConfig: FimidaraSuppliedConfig = {}
 ) {
   const suppliedConfig = {...getSuppliedConfig(), ...overrideConfig};
@@ -552,66 +554,16 @@ export function registerUtilsInjectables(
     kRegisterUtilsInjectables.dbConnection(new NoopDbConnection());
   }
 
-  if (suppliedConfig.emailProvider === kFimidaraConfigEmailProvider.ses) {
-    const awsConfig = merge(
-      {},
-      suppliedConfig.awsConfigs?.all,
-      suppliedConfig.awsConfigs?.ses
-    );
-    assert(awsConfig, 'No AWS config provided for AWS SES email provider');
-    assert(
-      awsConfig?.accessKeyId,
-      'No AWS accessKeyId provided for AWS SES email provider'
-    );
-    assert(
-      awsConfig?.region,
-      'No AWS region provided for AWS SES email provider'
-    );
-    assert(
-      awsConfig?.secretAccessKey,
-      'No AWS secretAccessKey provided for AWS SES email provider'
-    );
-    kRegisterUtilsInjectables.email(new SESEmailProviderContext(awsConfig));
-  } else {
-    kRegisterUtilsInjectables.email(new NoopEmailProviderContext());
-  }
-
-  if (
-    suppliedConfig.secretsManagerProvider ===
-    kFimidaraConfigSecretsManagerProvider.awsSecretsManager
-  ) {
-    const awsConfig = merge(
-      {},
-      suppliedConfig.awsConfigs?.all,
-      suppliedConfig.awsConfigs?.secretsManager
-    );
-    assert(awsConfig, 'No AWS config provided for AWS SecretsManager provider');
-    assert(
-      awsConfig?.accessKeyId,
-      'No AWS accessKeyId provided for AWS SecretsManager provider'
-    );
-    assert(
-      awsConfig?.region,
-      'No AWS region provided for AWS SecretsManager provider'
-    );
-    assert(
-      awsConfig?.secretAccessKey,
-      'No AWS secretAccessKey provided for AWS SecretsManager provider'
-    );
-    kRegisterUtilsInjectables.secretsManager(
-      new AWSSecretsManagerProvider(awsConfig)
-    );
-  } else {
-    kRegisterUtilsInjectables.secretsManager(
-      new MemorySecretsManagerProvider()
-    );
-  }
+  kRegisterUtilsInjectables.email(getEmailProvider(suppliedConfig));
+  kRegisterUtilsInjectables.secretsManager(getSecretsProvider(suppliedConfig));
+  kRegisterUtilsInjectables.queue(await getQueueContext(suppliedConfig));
+  kRegisterUtilsInjectables.pubsub(await getPubSubContext(suppliedConfig));
 }
 
-export function registerInjectables(
+export async function registerInjectables(
   overrideConfig: FimidaraSuppliedConfig = {}
 ) {
-  registerUtilsInjectables(overrideConfig);
+  await registerUtilsInjectables(overrideConfig);
   registerDataModelInjectables();
   registerSemanticModelInjectables();
 }

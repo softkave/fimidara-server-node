@@ -43,9 +43,11 @@ import {
   WorkspaceDataProvider,
 } from '../data/types.js';
 import {IEmailProviderContext} from '../email/types.js';
-import {SecretsManagerProvider} from '../encryption/types.js';
 import {FileProviderResolver} from '../file/types.js';
 import {UsageRecordLogicProvider} from '../logic/UsageRecordLogicProvider.js';
+import {IPubSubContext} from '../pubsub/types.js';
+import {IQueueContext} from '../queue/types.js';
+import {SecretsManagerProvider} from '../secrets/types.js';
 import {SemanticAgentTokenProvider} from '../semantic/agentToken/types.js';
 import {SemanticAppShardProvider} from '../semantic/app/types.js';
 import {SemanticAssignedItemProvider} from '../semantic/assignedItem/types.js';
@@ -253,4 +255,6 @@ export const kUtilsInjectables = {
   serverApp: () => container.resolve<FimidaraApp>(kInjectionKeys.serverApp),
   workerPool: () =>
     container.resolve<FimidaraWorkerPool>(kInjectionKeys.workerPool),
+  queue: () => container.resolve<IQueueContext>(kInjectionKeys.queue),
+  pubsub: () => container.resolve<IPubSubContext>(kInjectionKeys.pubsub),
 };

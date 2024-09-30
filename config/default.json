@@ -40,5 +40,9 @@
     "secretsManager": {},
     "s3Bucket": "",
     "sesEmailEncoding": "UTF-8"
-  }
+  },
+  "queueProvider": "",
+  "queueRedisURL": "",
+  "pubSubProvider": "",
+  "pubSubRedisURL": ""
 }
