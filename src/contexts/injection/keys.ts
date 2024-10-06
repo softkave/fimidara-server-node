@@ -71,6 +71,7 @@ export const kInjectionKeys = {
   // config: 'config',
   suppliedConfig: 'suppliedConfig',
   runtimeConfig: 'runtimeConfig',
+  runtimeState: 'runtimeState',
   secretsManager: 'secretsManager',
   fileProviderResolver: 'fileProviderResolver',
   asyncLocalStorage: 'asyncLocalStorage',

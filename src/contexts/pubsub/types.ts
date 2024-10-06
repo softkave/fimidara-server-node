@@ -1,4 +1,4 @@
-import {AnyObject, DisposableResource} from 'softkave-js-utils';
+import {AnyFn, AnyObject, DisposableResource} from 'softkave-js-utils';
 
 export type QueueContextSubscribeFn = (
   message: string | Buffer,
@@ -20,7 +20,7 @@ export interface IPubSubContext extends DisposableResource {
     /** unsubscribe from a specific channel */
     channel?: string,
     /** unsubscribe a specific listener from a specific channel */
-    fn?: QueueContextSubscribeFn
+    fn?: AnyFn
   ) => Promise<void>;
   publish: (
     channel: string,

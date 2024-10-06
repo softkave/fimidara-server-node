@@ -1,5 +1,6 @@
-import {first} from 'lodash-es';
 import {RedisClientType} from 'redis';
+import {AnyFn} from 'softkave-js-utils';
+import {kUtilsInjectables} from '../injection/injectables.js';
 import {IQueueContext, IQueueMessage} from './types.js';
 
 type RedisJsonArrAppendParams = Parameters<
@@ -14,7 +15,7 @@ export class RedisQueueContext implements IQueueContext {
     const exists = await this.queueExists(key);
 
     if (!exists) {
-      await this.redis.json.set(key, '.', []);
+      await this.redis.json.set(key, '$', []);
     }
   };
 
@@ -27,11 +28,11 @@ export class RedisQueueContext implements IQueueContext {
     messages: Array<T>
   ) => {
     const redisJson = messages as unknown as Array<RedisJSON>;
-    await this.redis.json.arrAppend(key, '.', ...redisJson);
+    await this.redis.json.arrAppend(key, '$', ...redisJson);
   };
 
-  deleteMessages = async (key: string, idList: Array<string | number>) => {
-    const path = `$.[?(@.id in ${JSON.stringify(idList)})]`;
+  deleteMessages = async (key: string, idList: Array<string>) => {
+    const path = `$.[?(${idList.map(id => `@.id == "${id}"`).join(' || ')})]`;
     await this.redis.json.del(key, path);
   };
 
@@ -41,7 +42,7 @@ export class RedisQueueContext implements IQueueContext {
     remove?: boolean
   ) => {
     const items = await this.redis.json.get(key, {
-      path: `.[0:${count}] `,
+      path: `$.[0:${count + 1}]`,
     });
 
     // TODO: test if this works
@@ -49,7 +50,7 @@ export class RedisQueueContext implements IQueueContext {
     // console.log(items02);
 
     if (remove) {
-      await this.redis.json.set(key, '.', `$.slice(${count})`);
+      await this.redis.json.arrTrim(key, '$', 1, count);
     }
 
     return items as unknown as T[];
@@ -60,9 +61,10 @@ export class RedisQueueContext implements IQueueContext {
     return exists === 1;
   };
 
-  waitOnStream = async <T extends IQueueMessage>(key: string) => {
-    const res = await this.redis.xRead({key, id: '0-0'}, {COUNT: 1});
-    return first(res)?.messages?.[0]?.message as T | undefined;
+  waitOnStream = async (key: string, fn: AnyFn) => {
+    const p = this.redis.xRead({key, id: '0-0'}, {COUNT: 1});
+    p.catch(reason => kUtilsInjectables.logger().error(reason));
+    p.finally(fn);
   };
 
   dispose = async () => {

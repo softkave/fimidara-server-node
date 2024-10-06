@@ -135,6 +135,7 @@ async function closeHttpServer(server: http.Server): Promise<void> {
 }
 
 async function endServer() {
+  kUtilsInjectables.runtimeState().setIsEnded(true);
   kUtilsInjectables.logger().log('Started graceful shutdown');
   await Promise.allSettled([
     artifacts.httpServer && closeHttpServer(artifacts.httpServer),

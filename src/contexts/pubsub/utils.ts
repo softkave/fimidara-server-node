@@ -12,9 +12,14 @@ export async function getPubSubContext(config: FimidaraSuppliedConfig) {
     case kFimidaraConfigPubSubProvider.redis: {
       const pubSubRedisURL = config.pubSubRedisURL;
       assert.ok(pubSubRedisURL);
-      const redis: RedisClientType = createClient({url: pubSubRedisURL});
-      await redis.connect();
-      return new RedisPubSubContext(redis);
+      const publisherRedis: RedisClientType = createClient({
+        url: pubSubRedisURL,
+      });
+      const subscriberRedis: RedisClientType = createClient({
+        url: pubSubRedisURL,
+      });
+      await Promise.all([publisherRedis.connect(), subscriberRedis.connect()]);
+      return new RedisPubSubContext(publisherRedis, subscriberRedis);
     }
     case kFimidaraConfigPubSubProvider.memory:
       return new InMemoryPubSubContext();

@@ -39,7 +39,7 @@ import {
 import {UsageThresholdsByCategory} from '../../../definitions/workspace.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import RequestData from '../../RequestData.js';
-import {stringifyFoldernamepath} from '../../folders/utils.js';
+import {stringifyFolderpath} from '../../folders/utils.js';
 import {
   generateTestFileName,
   generateTestFilepath,
@@ -142,13 +142,13 @@ describe('uploadFile', () => {
     const [{rawMount: closerMount}, {rawMount: fartherMount}] =
       await Promise.all([
         insertFileBackendMountForTest(userToken, workspace, {
-          folderpath: stringifyFoldernamepath(
+          folderpath: stringifyFolderpath(
             {namepath: filepath.slice(0, -1)}
             // filepath already has rootname in it
           ),
         }),
         insertFileBackendMountForTest(userToken, workspace, {
-          folderpath: stringifyFoldernamepath(
+          folderpath: stringifyFolderpath(
             {namepath: filepath.slice(0, -2)}
             // filepath already has rootname in it
           ),
@@ -202,14 +202,14 @@ describe('uploadFile', () => {
     const [{rawMount: closerMount}, {rawMount: fartherMount}] =
       await Promise.all([
         insertFileBackendMountForTest(userToken, workspace, {
-          folderpath: stringifyFoldernamepath(
+          folderpath: stringifyFolderpath(
             {namepath: filepath.slice(0, -1)}
             // filepath already has rootname
           ),
           index: 2,
         }),
         insertFileBackendMountForTest(userToken, workspace, {
-          folderpath: stringifyFoldernamepath(
+          folderpath: stringifyFolderpath(
             {namepath: filepath.slice(0, -1)}
             // filepath already has rootname
           ),

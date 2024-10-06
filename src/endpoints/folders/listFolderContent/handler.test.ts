@@ -30,7 +30,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
-import {addRootnameToPath, stringifyFoldernamepath} from '../utils.js';
+import {addRootnameToPath, stringifyFolderpath} from '../utils.js';
 import listFolderContent from './handler.js';
 import {ListFolderContentEndpointParams} from './types.js';
 
@@ -298,7 +298,7 @@ describe('listFolderContent', () => {
     const reqData =
       RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
         mockExpressRequestWithAgentToken(agToken),
-        {folderpath: stringifyFoldernamepath(folder01, workspace.rootname)}
+        {folderpath: stringifyFolderpath(folder01, workspace.rootname)}
       );
     const result01 = await listFolderContent(reqData);
 

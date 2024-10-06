@@ -13,7 +13,7 @@ import {
 } from '../../../endpoints/files/utils.js';
 import {
   getFolderpathInfo,
-  stringifyFoldernamepath,
+  stringifyFolderpath,
 } from '../../../endpoints/folders/utils.js';
 import TestMemoryFilePersistenceProviderContext from '../../../endpoints/testUtils/context/file/TestMemoryFilePersistenceProviderContext.js';
 import {
@@ -427,7 +427,7 @@ describe.each(
     expect(folders.length).toBe(5);
     expect(continuationToken).toBeTruthy();
     const actualFolderpaths = savedFolders.map(folder =>
-      stringifyFoldernamepath(folder)
+      stringifyFolderpath(folder)
     );
     const returnedFolderpathsPage01 = folders.map(folder => {
       expect(folder.mountId).toBe(mount.resourceId);
@@ -545,7 +545,7 @@ describe.each(
       })
     );
     const childrenFolderpaths = childrenFolders.map(next =>
-      stringifyFoldernamepath(next)
+      stringifyFolderpath(next)
     );
 
     const backend = new FimidaraFilePersistenceProvider();

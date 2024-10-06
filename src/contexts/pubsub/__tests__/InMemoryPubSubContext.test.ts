@@ -1,8 +1,18 @@
-import {describe, expect, test, vi} from 'vitest';
+import {afterAll, beforeAll, describe, expect, test, vi} from 'vitest';
+import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
+import {initTests} from '../../../endpoints/testUtils/testUtils.js';
 import {
   InMemoryPubSubClient,
   InMemoryPubSubContext,
 } from '../InMemoryPubSubContext.js';
+
+beforeAll(async () => {
+  await initTests();
+});
+
+afterAll(async () => {
+  await completeTests();
+});
 
 describe('InMemoryPubSubClient', () => {
   class TestInMemoryPubSubClient extends InMemoryPubSubClient {
@@ -66,7 +76,7 @@ describe('InMemoryPubSubContext', () => {
     const context = new InMemoryPubSubContext();
     const json = {key: 'value'};
     const fn = vi.fn();
-    await context.subscribe('channel', fn);
+    await context.subscribeJson('channel', fn);
     await context.publish('channel', json);
     expect(fn).toHaveBeenCalledWith(json, 'channel');
   });

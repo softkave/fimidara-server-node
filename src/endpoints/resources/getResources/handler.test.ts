@@ -12,7 +12,7 @@ import RequestData from '../../RequestData.js';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
 import {collaboratorExtractor} from '../../collaborators/utils.js';
 import {stringifyFilenamepath} from '../../files/utils.js';
-import {stringifyFoldernamepath} from '../../folders/utils.js';
+import {stringifyFolderpath} from '../../folders/utils.js';
 import {generateAndInsertTestFiles} from '../../testUtils/generate/file.js';
 import {generateAndInsertTestFolders} from '../../testUtils/generate/folder.js';
 import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generate/permissionItem.js';
@@ -104,7 +104,7 @@ describe('getResources', () => {
       )
     );
     folders.forEach(folder => {
-      const folderpath = stringifyFoldernamepath(folder, workspace.rootname);
+      const folderpath = stringifyFolderpath(folder, workspace.rootname);
       filepathsMap[folderpath] = folder.resourceId;
       resourcesInput.push({
         folderpath,
@@ -147,7 +147,7 @@ describe('getResources', () => {
       } else if (resource.resourceType === kFimidaraResourceType.Folder) {
         const folderId =
           filepathsMap[
-            stringifyFoldernamepath(
+            stringifyFolderpath(
               resource.resource as unknown as Folder,
               workspace.rootname
             )

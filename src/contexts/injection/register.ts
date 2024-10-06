@@ -128,6 +128,7 @@ import {IPubSubContext} from '../pubsub/types.js';
 import {getPubSubContext} from '../pubsub/utils.js';
 import {IQueueContext} from '../queue/types.js';
 import {getQueueContext} from '../queue/utils.js';
+import {IServerRuntimeState, fimidaraRuntimeState} from '../runtime.js';
 import {SecretsManagerProvider} from '../secrets/types.js';
 import {getSecretsProvider} from '../secrets/utils.js';
 import {DataSemanticAgentToken} from '../semantic/agentToken/model.js';
@@ -307,6 +308,8 @@ export const kRegisterUtilsInjectables = {
     registerToken(kInjectionKeys.suppliedConfig, item),
   runtimeConfig: (item: FimidaraRuntimeConfig) =>
     registerToken(kInjectionKeys.runtimeConfig, item),
+  runtimeState: (item: IServerRuntimeState) =>
+    registerToken(kInjectionKeys.runtimeState, item),
   secretsManager: (item: SecretsManagerProvider) =>
     registerToken(kInjectionKeys.secretsManager, item),
   fileProviderResolver: (item: FileProviderResolver) =>
@@ -509,6 +512,7 @@ export async function registerUtilsInjectables(
   const suppliedConfig = {...getSuppliedConfig(), ...overrideConfig};
   const promiseStore = new PromiseStore();
 
+  kRegisterUtilsInjectables.runtimeState(fimidaraRuntimeState);
   kRegisterUtilsInjectables.suppliedConfig(suppliedConfig);
   kRegisterUtilsInjectables.promises(promiseStore);
   kRegisterUtilsInjectables.disposables(new DisposablesStore(promiseStore));

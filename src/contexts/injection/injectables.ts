@@ -5,7 +5,6 @@ import {
   Logger,
   PromiseStore,
 } from 'softkave-js-utils';
-
 import {container} from 'tsyringe';
 import {DbConnection} from '../../db/connection.js';
 import {FimidaraApp} from '../../endpoints/app/FimidaraApp.js';
@@ -47,6 +46,7 @@ import {FileProviderResolver} from '../file/types.js';
 import {UsageRecordLogicProvider} from '../logic/UsageRecordLogicProvider.js';
 import {IPubSubContext} from '../pubsub/types.js';
 import {IQueueContext} from '../queue/types.js';
+import {IServerRuntimeState} from '../runtime.js';
 import {SecretsManagerProvider} from '../secrets/types.js';
 import {SemanticAgentTokenProvider} from '../semantic/agentToken/types.js';
 import {SemanticAppShardProvider} from '../semantic/app/types.js';
@@ -231,6 +231,8 @@ export const kUtilsInjectables = {
     container.resolve<FimidaraSuppliedConfig>(kInjectionKeys.suppliedConfig),
   runtimeConfig: () =>
     container.resolve<FimidaraRuntimeConfig>(kInjectionKeys.runtimeConfig),
+  runtimeState: () =>
+    container.resolve<IServerRuntimeState>(kInjectionKeys.runtimeState),
   secretsManager: () =>
     container.resolve<SecretsManagerProvider>(kInjectionKeys.secretsManager),
   fileProviderResolver: () =>

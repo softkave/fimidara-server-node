@@ -8,7 +8,7 @@ import {getNewIdForResource} from '../../../utils/resource.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import {NotFoundError} from '../../errors.js';
 import {stringifyFilenamepath} from '../../files/utils.js';
-import {stringifyFoldernamepath} from '../../folders/utils.js';
+import {stringifyFolderpath} from '../../folders/utils.js';
 import RequestData from '../../RequestData.js';
 import {generateAndInsertTestFiles} from '../../testUtils/generate/file.js';
 import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend.js';
@@ -59,7 +59,7 @@ describe('resolveMounts', () => {
             workspaceId: workspace.resourceId,
             parentId: null,
           });
-          return stringifyFoldernamepath(folder, workspace.rootname);
+          return stringifyFolderpath(folder, workspace.rootname);
         },
         filepath: async () => {
           const [file] = await generateAndInsertTestFiles(1, {

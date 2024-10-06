@@ -28,11 +28,11 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
 import {FolderQueries} from '../queries.js';
-import {addRootnameToPath, stringifyFoldernamepath} from '../utils.js';
+import {addRootnameToPath, stringifyFolderpath} from '../utils.js';
 import {createFolderList} from './createFolderList.js';
-import {folderInputListToSet} from './folderInputListToSet.js';
 import {getExistingFoldersAndArtifacts} from './getExistingFoldersAndArtifacts.js';
 import addFolder from './handler.js';
+import {prepareFolderInputList} from './prepareFolderInputList.js';
 import {AddFolderEndpointParams} from './types.js';
 
 /**
@@ -99,24 +99,24 @@ describe('addFolder', () => {
       }),
     ]);
 
-    const inputSet = folderInputListToSet([
+    const inputSet = prepareFolderInputList([
       {
-        folderpath: stringifyFoldernamepath(folder00, workspace.rootname),
+        folderpath: stringifyFolderpath(folder00, workspace.rootname),
       },
       {
-        folderpath: stringifyFoldernamepath(folder01, workspace.rootname),
+        folderpath: stringifyFolderpath(folder01, workspace.rootname),
       },
       {
-        folderpath: stringifyFoldernamepath(folder02, workspace.rootname),
+        folderpath: stringifyFolderpath(folder02, workspace.rootname),
       },
       {
-        folderpath: stringifyFoldernamepath(folder00, workspace.rootname),
+        folderpath: stringifyFolderpath(folder00, workspace.rootname),
       },
       {
-        folderpath: stringifyFoldernamepath(folder01, workspace.rootname),
+        folderpath: stringifyFolderpath(folder01, workspace.rootname),
       },
       {
-        folderpath: stringifyFoldernamepath(folder02, workspace.rootname),
+        folderpath: stringifyFolderpath(folder02, workspace.rootname),
       },
     ]);
 

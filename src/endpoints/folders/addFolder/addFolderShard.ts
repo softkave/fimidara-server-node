@@ -22,8 +22,8 @@ import {PermissionDeniedError} from '../../users/errors.js';
 import {kFolderConstants} from '../constants.js';
 import {FolderExistsError} from '../errors.js';
 import {createNewFolder} from '../utils.js';
-import {folderInputListToSet} from './folderInputListToSet.js';
 import {getExistingFoldersAndArtifacts} from './getExistingFoldersAndArtifacts.js';
+import {prepareFolderInputList} from './prepareFolderInputList.js';
 import {
   AddFolderShard,
   AddFolderShardNewFolderInput,
@@ -61,7 +61,7 @@ async function checkAuth(
 async function createFolderListWithTransaction(
   workspace: Workspace,
   input: AddFolderShardNewFolderInput | AddFolderShardNewFolderInput[],
-  inputSet: ReturnType<typeof folderInputListToSet>,
+  inputSet: ReturnType<typeof prepareFolderInputList>,
   opts: SemanticProviderMutationParams
 ) {
   const {addFolder, getFolder, getSelfOrClosestParent} =
@@ -151,7 +151,7 @@ async function createFolderListWithTransaction(
   });
 
   const possibleNewFolders = Object.values(possibleNewFoldersRecord);
-  let checksRecord: Record<string, boolean> = {};
+  let checksRecord: Record<string, boolean | undefined> = {};
 
   if (possibleNewFolders.length) {
     const checkPromiseList: Array<ReturnType<typeof checkAuth>> = [];
@@ -217,7 +217,7 @@ type FoldersByNamepath = Record<string, Folder[] | Error>;
 async function runAddFolderShard(shard: AddFolderShard) {
   const {shardInputList: input, meta} = shard;
   const folderInputList = input.map(nextInput => nextInput.input);
-  const inputSet = folderInputListToSet(folderInputList);
+  const inputSet = prepareFolderInputList(folderInputList);
 
   // TODO: because a started txn does not pick folders created by other shards,
   // we want to start txns within shard runner. Downside is folders are created

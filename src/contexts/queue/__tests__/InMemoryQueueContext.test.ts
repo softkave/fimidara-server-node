@@ -1,5 +1,15 @@
-import {describe, expect, test} from 'vitest';
+import {afterAll, beforeAll, describe, expect, test, vi} from 'vitest';
+import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
+import {initTests} from '../../../endpoints/testUtils/testUtils.js';
 import {InMemoryQueueContext} from '../InMemoryQueueContext.js';
+
+beforeAll(async () => {
+  await initTests();
+});
+
+afterAll(async () => {
+  await completeTests();
+});
 
 describe('InMemoryQueueContext', () => {
   class TestInMemoryQueueContext extends InMemoryQueueContext {
@@ -68,9 +78,9 @@ describe('InMemoryQueueContext', () => {
   test('waitOnStream', async () => {
     const context = new TestInMemoryQueueContext();
     await context.createQueue('queue');
-    const promise = context.waitOnStream('queue');
+    const fn = vi.fn();
+    context.waitOnStream('queue', fn);
     await context.addMessages('queue', [{id: '1', message: 'message'}]);
-    const message = await promise;
-    expect(message).toEqual({id: '1', message: 'message'});
+    expect(fn).toHaveBeenCalled();
   });
 });

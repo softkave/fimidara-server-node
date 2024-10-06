@@ -18,15 +18,9 @@ export class WorkspaceRootnameExistsError extends OperationError {
   statusCode = kEndpointConstants.httpStatusCode.conflict;
   constructor(props?: OperationErrorParameters | string) {
     super(props);
-    this.message = getErrorMessageFromParams(props, 'Workspace root name exists');
-  }
-}
-
-export class WorkspaceDoesNotExistError extends OperationError {
-  name = 'WorkspaceDoesNotExistError';
-  statusCode = kEndpointConstants.httpStatusCode.notFound;
-  constructor(props?: OperationErrorParameters | string) {
-    super(props);
-    this.message = getErrorMessageFromParams(props, 'Workspace not found');
+    this.message = getErrorMessageFromParams(
+      props,
+      'Workspace root name exists'
+    );
   }
 }

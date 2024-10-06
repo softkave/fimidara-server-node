@@ -1,13 +1,50 @@
-import {describe, expect, test, vi} from 'vitest';
+import {AnyFn} from 'softkave-js-utils';
+import {afterAll, beforeAll, describe, expect, test, vi} from 'vitest';
+import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
+import {initTests} from '../../../endpoints/testUtils/testUtils.js';
 import {
   BasePubSubContext,
   IBasePubSubContextClient,
 } from '../BasePubSubContext.js';
 
+beforeAll(async () => {
+  await initTests();
+});
+
+afterAll(async () => {
+  await completeTests();
+});
+
 class MockedBasePubSubClient implements IBasePubSubContextClient {
-  subscribe = vi.fn();
-  unsubscribe = vi.fn();
-  publish = vi.fn();
+  listeners = new Map<string, Set<AnyFn>>();
+
+  subscribe = vi.fn().mockImplementation(async (channel: string, fn: AnyFn) => {
+    if (!this.listeners.has(channel)) {
+      this.listeners.set(channel, new Set());
+    }
+
+    this.listeners.get(channel)?.add(fn);
+  });
+
+  unsubscribe = vi
+    .fn()
+    .mockImplementation(async (channel?: string, fn?: AnyFn) => {
+      if (channel) {
+        if (fn) {
+          this.listeners.get(channel)?.delete(fn);
+        } else {
+          this.listeners.delete(channel);
+        }
+      } else {
+        this.listeners.clear();
+      }
+    });
+
+  publish = vi
+    .fn()
+    .mockImplementation(async (channel: string, message: any) => {
+      this.listeners.get(channel)?.forEach(fn => fn(message, channel));
+    });
 }
 
 describe('BasePubSubContext', () => {
@@ -65,7 +102,7 @@ describe('BasePubSubContext', () => {
     const fn = vi.fn();
     await context.subscribeJson('channel', fn);
     await context.unsubscribe('channel', fn);
-    expect(client.unsubscribe).toHaveBeenCalledWith('channel', vi.fn());
+    expect(client.unsubscribe).toHaveBeenCalled();
     await context.publish('channel', {key: 'value'});
     expect(fn).not.toHaveBeenCalled();
   });
@@ -73,9 +110,9 @@ describe('BasePubSubContext', () => {
   test('subscribeJson', async () => {
     const client = new MockedBasePubSubClient();
     const context = new BasePubSubContext(client);
-    const fn = () => {};
+    const fn = vi.fn();
     await context.subscribeJson('channel', fn);
-    expect(client.subscribe).toHaveBeenCalledWith('channel', vi.fn());
+    expect(client.subscribe).toHaveBeenCalled();
   });
 
   test('subscribeJson with message', async () => {

@@ -1,11 +1,12 @@
+import {IQueueMessage} from '../../../contexts/queue/types.js';
 import {Folder, PublicFolder} from '../../../definitions/folder.js';
-import {SessionAgent} from '../../../definitions/system.js';
+import {Agent, SessionAgent} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {Shard, ShardRunner} from '../../../utils/shardedRunnerQueue.js';
 import {Endpoint, EndpointResultNote} from '../../types.js';
 
 export interface NewFolderInput {
-  // folder path should include the workspace rootname
+  /** folder path should include the workspace rootname */
   folderpath: string;
   description?: string;
 }
@@ -48,3 +49,41 @@ export type AddFolderShardRunner = ShardRunner<
 >;
 
 export const kAddFolderShardRunnerPrefix = 'addFolder' as const;
+
+export interface IAddFolderQueueInput
+  extends NewFolderInput,
+    IQueueMessage,
+    Agent {
+  channel: string;
+  workspaceId: string;
+}
+
+export interface IAddFolderQueueWorkingInput
+  extends NewFolderInput,
+    IQueueMessage {
+  channel: string;
+  workspaceId: string;
+  agent: SessionAgent;
+}
+
+export const kAddFolderQueueOutputType = {
+  error: 0,
+  success: 1,
+  ack: 2,
+} as const;
+
+export type IAddFolderQueueOutput =
+  | {
+      id: IQueueMessage['id'];
+      type: typeof kAddFolderQueueOutputType.error;
+      error: unknown;
+    }
+  | {
+      id: IQueueMessage['id'];
+      type: typeof kAddFolderQueueOutputType.success;
+      folders: Folder[];
+    }
+  | {
+      id: IQueueMessage['id'];
+      type: typeof kAddFolderQueueOutputType.ack;
+    };

@@ -67,22 +67,18 @@ export class InMemoryQueueContext implements IQueueContext {
     }
   };
 
-  waitOnStream = async <T extends IQueueMessage = IQueueMessage>(
-    key: string
-  ) => {
+  waitOnStream = async (key: string, fn: AnyFn) => {
     if (this.queues.has(key)) {
       const messages = this.queues.get(key) || [];
 
       if (messages.length > 0) {
-        return first(messages) as T;
+        return fn();
       } else {
-        return new Promise<T | undefined>(resolve => {
-          if (this.waitListeners.has(key)) {
-            this.waitListeners.get(key)?.push(resolve);
-          } else {
-            this.waitListeners.set(key, [resolve]);
-          }
-        });
+        if (this.waitListeners.has(key)) {
+          this.waitListeners.get(key)?.push(fn);
+        } else {
+          this.waitListeners.set(key, [fn]);
+        }
       }
     } else {
       throw new Error(`Queue ${key} does not exist`);

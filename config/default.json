@@ -16,7 +16,7 @@
   "fileBackend": "fs",
   "localFsDir": "./dev-local-fs",
   "emailProvider": "noop",
-  "secretsManagerProvider": "memory",
+  "secretsManagerProvider": "mem",
   "FLAG_waitlistNewSignups": true,
   "appName": "fimidara",
   "senderEmailAddress": "",
@@ -43,6 +43,10 @@
   },
   "queueProvider": "",
   "queueRedisURL": "",
+  "addFolderQueueCount": 1,
+  "addFolderQueueNo": 0,
+  "addFolderTimeoutMs": 30000,
+  "addFolderQueueKey": "addFolderQueue",
   "pubSubProvider": "",
   "pubSubRedisURL": ""
 }

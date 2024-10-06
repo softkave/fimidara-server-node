@@ -1,7 +1,7 @@
-import {DisposableResource} from 'softkave-js-utils';
+import {AnyFn, DisposableResource} from 'softkave-js-utils';
 
 export interface IQueueMessage {
-  id: string | number;
+  id: string;
 }
 
 export interface IQueueContext extends DisposableResource {
@@ -17,11 +17,6 @@ export interface IQueueContext extends DisposableResource {
     count: number,
     remove?: boolean
   ) => Promise<Array<T>>;
-  deleteMessages: (
-    key: string,
-    idList: Array<string | number>
-  ) => Promise<void>;
-  waitOnStream: <T extends IQueueMessage = IQueueMessage>(
-    key: string
-  ) => Promise<T | undefined>;
+  deleteMessages: (key: string, idList: Array<string>) => Promise<void>;
+  waitOnStream: (key: string, fn: AnyFn) => void;
 }

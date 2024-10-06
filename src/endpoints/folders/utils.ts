@@ -239,7 +239,7 @@ export function assertFolder(
   }
 }
 
-export function stringifyFoldernamepath(
+export function stringifyFolderpath(
   folder: Pick<Folder, 'namepath'>,
   rootname?: string
 ) {
