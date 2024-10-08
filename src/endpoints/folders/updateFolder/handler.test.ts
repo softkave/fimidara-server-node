@@ -15,7 +15,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
-import {folderExtractor, stringifyFoldernamepath} from '../utils.js';
+import {folderExtractor, stringifyFolderpath} from '../utils.js';
 import updateFolder from './handler.js';
 import {UpdateFolderEndpointParams, UpdateFolderInput} from './types.js';
 
@@ -52,7 +52,7 @@ async function updateFolderBaseTest(
   const reqData = RequestData.fromExpressRequest<UpdateFolderEndpointParams>(
     mockExpressRequestWithAgentToken(insertUserResult.userToken),
     {
-      folderpath: stringifyFoldernamepath(
+      folderpath: stringifyFolderpath(
         folder,
         insertWorkspaceResult.workspace.rootname
       ),

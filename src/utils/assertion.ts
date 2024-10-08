@@ -1,4 +1,4 @@
-import {isString} from 'lodash-es';
+import {isFunction, isObject, isString} from 'lodash-es';
 import {kUtilsInjectables} from '../contexts/injection/injectables.js';
 import {ServerError} from './errors.js';
 import {kReuseableErrors} from './reusableErrors.js';
@@ -16,10 +16,10 @@ export function appAssert(
 
     if (isString(response)) {
       throw new Error(response);
-    } else if (response instanceof Error) {
-      throw response;
-    } else if (response) {
+    } else if (isFunction(response)) {
       response();
+    } else if (isObject(response)) {
+      throw response;
     } else {
       throw new Error('Assertion failed');
     }

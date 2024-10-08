@@ -1,3 +1,5 @@
+import assert from 'assert';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {kEndpointConstants} from '../constants.js';
 
 export const kFolderConstants = {
@@ -13,5 +15,30 @@ export const kFolderConstants = {
     listFolderContent: `${kEndpointConstants.apiv1}/folders/listFolderContent`,
     countFolderContent: `${kEndpointConstants.apiv1}/folders/countFolderContent`,
     updateFolder: `${kEndpointConstants.apiv1}/folders/updateFolder`,
+  },
+  addFolderQueueTimeout: 30_000,
+  addFolderProcessCount: 100,
+  getAddFolderPubSubChannel: (folderpath: string) => `addFolder:${folderpath}`,
+  getAddFolderQueueWithNo: (no: number) =>
+    `${kUtilsInjectables.suppliedConfig().addFolderQueueKey}:${no}`,
+  getAddFolderQueueKey: (folderpath: string) => {
+    const {addFolderQueueStart, addFolderQueueEnd} =
+      kUtilsInjectables.suppliedConfig();
+    assert.ok(addFolderQueueStart);
+    assert.ok(addFolderQueueEnd);
+    const queueCount = addFolderQueueEnd - addFolderQueueStart + 1;
+    assert.ok(queueCount > 0);
+
+    // consistently select between 1 and queueCount using the
+    // folderpath.split("/")[1]
+    const folderpath1 = folderpath.split('/')[1];
+    assert.ok(folderpath1);
+    const hash = folderpath1.split('').reduce((acc, char) => {
+      return acc + char.charCodeAt(0);
+    }, 0);
+
+    return kFolderConstants.getAddFolderQueueWithNo(
+      (hash % queueCount) + addFolderQueueStart
+    );
   },
 };

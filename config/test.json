@@ -1,7 +1,9 @@
 {
   "emailProvider": "noop",
-  "secretsManagerProvider": "memory",
+  "secretsManagerProvider": "mem",
   "FLAG_waitlistNewSignups": false,
   "fileBackend": "fs",
-  "localFsDir": "./test-local-fs"
+  "localFsDir": "./test-local-fs",
+  "addFolderTimeoutMs": 20000,
+  "addFolderQueueKey": "test_addFolderQueue"
 }

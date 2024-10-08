@@ -28,7 +28,7 @@ import {getFilepathInfo} from '../../../files/utils.js';
 import {FolderQueries} from '../../../folders/queries.js';
 import {
   getFolderpathInfo,
-  stringifyFoldernamepath,
+  stringifyFolderpath,
 } from '../../../folders/utils.js';
 import TestMemoryFilePersistenceProviderContext from '../../../testUtils/context/file/TestMemoryFilePersistenceProviderContext.js';
 import {generateTestFileName} from '../../../testUtils/generate/file.js';
@@ -392,7 +392,7 @@ async function setup01() {
   const {userToken} = await insertUserForTest();
   const {workspace} = await insertWorkspaceForTest(userToken);
   const {mount} = await insertFileBackendMountForTest(userToken, workspace, {
-    folderpath: stringifyFoldernamepath(
+    folderpath: stringifyFolderpath(
       {namepath: mountFolderNamepath},
       workspace.rootname
     ),

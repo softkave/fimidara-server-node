@@ -43,7 +43,7 @@ const addFolder: AddFolderEndpoint = async reqData => {
   );
 
   failedInput.forEach(failedItem => {
-    const stringifiedInput = formatWithOptions({depth: 5}, failedItem.input);
+    const stringifiedInput = formatWithOptions({depth: 5}, data);
     kUtilsInjectables
       .logger()
       .error(

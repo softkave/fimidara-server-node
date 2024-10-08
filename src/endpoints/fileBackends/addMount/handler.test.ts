@@ -3,7 +3,7 @@ import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {pathJoin} from '../../../utils/fns.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import {ResourceExistsError} from '../../errors.js';
-import {stringifyFoldernamepath} from '../../folders/utils.js';
+import {stringifyFolderpath} from '../../folders/utils.js';
 import {generateUniqueFolderpath} from '../../testUtils/generate/folder.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
@@ -63,7 +63,7 @@ describe('addMount', () => {
     await expectErrorThrown(async () => {
       await insertFileBackendMountForTest(userToken, workspace, {
         backend: mount01.backend,
-        folderpath: stringifyFoldernamepath(
+        folderpath: stringifyFolderpath(
           {namepath: mount01.namepath},
           workspace.rootname
         ),
@@ -99,7 +99,7 @@ describe('addMount', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     const folderpath = await generateUniqueFolderpath(workspace.resourceId);
     await insertFileBackendMountForTest(userToken, workspace, {
-      folderpath: stringifyFoldernamepath(
+      folderpath: stringifyFolderpath(
         {namepath: folderpath},
         workspace.rootname
       ),

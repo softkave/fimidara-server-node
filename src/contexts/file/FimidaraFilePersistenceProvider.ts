@@ -11,7 +11,7 @@ import {
 import {FolderQueries} from '../../endpoints/folders/queries.js';
 import {
   getFolderpathInfo,
-  stringifyFoldernamepath,
+  stringifyFolderpath,
 } from '../../endpoints/folders/utils.js';
 import {kFimidaraConfigFilePersistenceProvider} from '../../resources/config.js';
 import {appAssert} from '../../utils/assertion.js';
@@ -351,7 +351,7 @@ export class FimidaraFilePersistenceProvider
 
         exclude.push(folder.resourceId);
         return {
-          folderpath: stringifyFoldernamepath(folder),
+          folderpath: stringifyFolderpath(folder),
           mountId: mount.resourceId,
           raw: undefined,
         };

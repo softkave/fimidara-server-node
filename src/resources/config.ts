@@ -42,6 +42,24 @@ export const kFimidaraConfigDbType = {
 
 export type FimidaraConfigDbType = ValueOf<typeof kFimidaraConfigDbType>;
 
+export const kFimidaraConfigQueueProvider = {
+  redis: 'redis',
+  memory: 'mem',
+} as const;
+
+export type FimidaraConfigQueueProvider = ValueOf<
+  typeof kFimidaraConfigQueueProvider
+>;
+
+export const kFimidaraConfigPubSubProvider = {
+  redis: 'redis',
+  memory: 'mem',
+} as const;
+
+export type FimidaraConfigPubSubProvider = ValueOf<
+  typeof kFimidaraConfigPubSubProvider
+>;
+
 export interface AWSConfig {
   accessKeyId: string;
   secretAccessKey: string;
@@ -121,6 +139,20 @@ export type FimidaraSuppliedConfig = Partial<{
     s3Bucket: string;
     sesEmailEncoding: string;
   }>;
+
+  // Queues
+  queueProvider: FimidaraConfigQueueProvider;
+  queueRedisURL: string;
+  addFolderQueueStart: number;
+  addFolderQueueEnd: number;
+  /** set to a 0 or negative no. to not handleAddFolderQueue */
+  addFolderQueueNo: number;
+  addFolderTimeoutMs: number;
+  addFolderQueueKey: string;
+
+  // PubSub
+  pubSubProvider: FimidaraConfigPubSubProvider;
+  pubSubRedisURL: string;
 }>;
 
 export type FimidaraConfig = FimidaraSuppliedConfig & FimidaraRuntimeConfig;

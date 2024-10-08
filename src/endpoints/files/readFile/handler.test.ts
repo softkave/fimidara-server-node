@@ -26,10 +26,7 @@ import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {pathJoin, streamToBuffer} from '../../../utils/fns.js';
 import {newWorkspaceResource} from '../../../utils/resource.js';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
-import {
-  addRootnameToPath,
-  stringifyFoldernamepath,
-} from '../../folders/utils.js';
+import {addRootnameToPath, stringifyFolderpath} from '../../folders/utils.js';
 import RequestData from '../../RequestData.js';
 import NoopFilePersistenceProviderContext from '../../testUtils/context/file/NoopFilePersistenceProviderContext.js';
 import {
@@ -267,7 +264,7 @@ describe('readFile', () => {
       filepath: generateTestFilepathString({rootname: workspace.rootname}),
     });
     const {mount} = await insertFileBackendMountForTest(userToken, workspace, {
-      folderpath: stringifyFoldernamepath(
+      folderpath: stringifyFolderpath(
         {namepath: file.namepath.slice(0, -1)},
         workspace.rootname
       ),

@@ -1,11 +1,10 @@
+import {IQueueMessage} from '../../../contexts/queue/types.js';
 import {Folder, PublicFolder} from '../../../definitions/folder.js';
-import {SessionAgent} from '../../../definitions/system.js';
-import {Workspace} from '../../../definitions/workspace.js';
-import {Shard, ShardRunner} from '../../../utils/shardedRunnerQueue.js';
+import {Agent, SessionAgent} from '../../../definitions/system.js';
 import {Endpoint, EndpointResultNote} from '../../types.js';
 
 export interface NewFolderInput {
-  // folder path should include the workspace rootname
+  /** folder path should include the workspace rootname */
   folderpath: string;
   description?: string;
 }
@@ -22,29 +21,44 @@ export type AddFolderEndpoint = Endpoint<
   AddFolderEndpointResult
 >;
 
-export interface AddFolderShardMeta {
-  workspace: Workspace;
+export interface IAddFolderQueueInput
+  extends NewFolderInput,
+    IQueueMessage,
+    Agent {
+  channel: string;
+  workspaceId: string;
+  UNSAFE_skipAuthCheck?: boolean;
+  throwIfFolderExists?: boolean;
 }
 
-export interface AddFolderShardNewFolderInput extends NewFolderInput {
+export interface IAddFolderQueueWorkingInput
+  extends NewFolderInput,
+    IQueueMessage {
+  channel: string;
+  workspaceId: string;
   agent: SessionAgent;
-  UNSAFE_skipAuthCheck: boolean;
-  throwOnFolderExists: boolean;
-  isLeafFolder: boolean;
+  UNSAFE_skipAuthCheck?: boolean;
+  throwIfFolderExists?: boolean;
 }
 
-export type AddFolderShardPerInputOutputItem = Folder[];
+export const kAddFolderQueueOutputType = {
+  error: 0,
+  success: 1,
+  ack: 2,
+} as const;
 
-export type AddFolderShard = Shard<
-  AddFolderShardNewFolderInput,
-  AddFolderShardPerInputOutputItem,
-  AddFolderShardMeta
->;
-
-export type AddFolderShardRunner = ShardRunner<
-  AddFolderShardNewFolderInput,
-  AddFolderShardPerInputOutputItem,
-  AddFolderShardMeta
->;
-
-export const kAddFolderShardRunnerPrefix = 'addFolder' as const;
+export type IAddFolderQueueOutput =
+  | {
+      id: IQueueMessage['id'];
+      type: typeof kAddFolderQueueOutputType.error;
+      error: unknown;
+    }
+  | {
+      id: IQueueMessage['id'];
+      type: typeof kAddFolderQueueOutputType.success;
+      folders: Folder[];
+    }
+  | {
+      id: IQueueMessage['id'];
+      type: typeof kAddFolderQueueOutputType.ack;
+    };

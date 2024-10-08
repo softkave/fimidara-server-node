@@ -2,7 +2,9 @@ import {convertToArray, pathJoin, pathSplit} from '../../../utils/fns.js';
 import {FolderpathInfo, getFolderpathInfo} from '../utils.js';
 import {NewFolderInput} from './types.js';
 
-export function folderInputListToSet(input: NewFolderInput | NewFolderInput[]) {
+export function prepareFolderInputList(
+  input: NewFolderInput | NewFolderInput[]
+) {
   const inputList = convertToArray(input);
 
   // Make a set of individual folders, so "/parent/folder" will become

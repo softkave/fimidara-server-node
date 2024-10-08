@@ -16,6 +16,7 @@ import {
 } from '../../definitions/system.js';
 import {PublicUser, UserWithWorkspace} from '../../definitions/user.js';
 import {PublicWorkspace, Workspace} from '../../definitions/workspace.js';
+import {FimidaraSuppliedConfig} from '../../resources/config.js';
 import {kPublicSessionAgent, kSystemSessionAgent} from '../../utils/agent.js';
 import {appAssert} from '../../utils/assertion.js';
 import {getTimestamp} from '../../utils/dateFns.js';
@@ -87,8 +88,12 @@ export function getTestEmailProvider() {
   return new MockTestEmailProviderContext();
 }
 
-export async function initTests() {
-  await globalSetup({useFimidaraApp: false, useFimidaraWorkerPool: false});
+export async function initTests(overrides: FimidaraSuppliedConfig = {}) {
+  await globalSetup({
+    useFimidaraApp: false,
+    useFimidaraWorkerPool: false,
+    ...overrides,
+  });
   await initFimidara();
 }
 

@@ -5,11 +5,11 @@ import {Folder} from '../../../definitions/folder.js';
 import {pathJoin} from '../../../utils/fns.js';
 import {indexArray} from '../../../utils/indexArray.js';
 import {FolderQueries} from '../queries.js';
-import {folderInputListToSet} from './folderInputListToSet.js';
+import {prepareFolderInputList} from './prepareFolderInputList.js';
 
 export async function getExistingFoldersAndArtifacts(
   workspaceId: string,
-  {namepathList}: ReturnType<typeof folderInputListToSet>,
+  {namepathList}: ReturnType<typeof prepareFolderInputList>,
   opts?: SemanticProviderMutationParams
 ) {
   let existingFolders: Folder[] = [];

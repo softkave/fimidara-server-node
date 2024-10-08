@@ -30,7 +30,7 @@ import {
   waitOnPromisesWithId,
 } from '../../utils/waitOnPromises.js';
 import {getFilepathInfo, stringifyFilenamepath} from '../files/utils.js';
-import {getFolderpathInfo, stringifyFoldernamepath} from '../folders/utils.js';
+import {getFolderpathInfo, stringifyFolderpath} from '../folders/utils.js';
 import {checkResourcesBelongsToWorkspace} from './containerCheckFns.js';
 import {resourceListWithAssignedItems} from './resourceWithAssignedItems.js';
 import {FetchResourceItem} from './types.js';
@@ -362,7 +362,7 @@ const fetchFolders = async (
   );
 
   return compact(result).map((item): GetResourcesResourceWrapper => {
-    const action = folderpathsMap[stringifyFoldernamepath(item)];
+    const action = folderpathsMap[stringifyFolderpath(item)];
     assert(action);
     return {
       action,

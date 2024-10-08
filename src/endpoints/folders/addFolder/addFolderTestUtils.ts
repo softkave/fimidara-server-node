@@ -27,7 +27,7 @@ import {
   UpdateFolderEndpointParams,
   UpdateFolderInput,
 } from '../updateFolder/types.js';
-import {addRootnameToPath, stringifyFoldernamepath} from '../utils.js';
+import {addRootnameToPath, stringifyFolderpath} from '../utils.js';
 
 export async function assertCanCreateFolderInPublicFolder(
   workspace: PublicWorkspace,
@@ -105,13 +105,13 @@ export async function assertFolderPublicOps(
   folder: Folder,
   insertWorkspaceResult: IInsertWorkspaceForTestResult
 ) {
-  const folderpath = stringifyFoldernamepath(folder);
+  const folderpath = stringifyFolderpath(folder);
   const {folder: folder02} = await assertCanCreateFolderInPublicFolder(
     insertWorkspaceResult.workspace,
     folderpath
   );
 
-  const folder02Path = stringifyFoldernamepath(folder02);
+  const folder02Path = stringifyFolderpath(folder02);
   const {file} = await assertCanUploadToPublicFile(
     insertWorkspaceResult.workspace,
     pathJoin(folder02Path, generateTestFileName({includeStraySlashes: true}))

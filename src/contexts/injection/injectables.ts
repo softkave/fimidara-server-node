@@ -5,7 +5,6 @@ import {
   Logger,
   PromiseStore,
 } from 'softkave-js-utils';
-
 import {container} from 'tsyringe';
 import {DbConnection} from '../../db/connection.js';
 import {FimidaraApp} from '../../endpoints/app/FimidaraApp.js';
@@ -43,9 +42,12 @@ import {
   WorkspaceDataProvider,
 } from '../data/types.js';
 import {IEmailProviderContext} from '../email/types.js';
-import {SecretsManagerProvider} from '../encryption/types.js';
 import {FileProviderResolver} from '../file/types.js';
 import {UsageRecordLogicProvider} from '../logic/UsageRecordLogicProvider.js';
+import {IPubSubContext} from '../pubsub/types.js';
+import {IQueueContext} from '../queue/types.js';
+import {IServerRuntimeState} from '../runtime.js';
+import {SecretsManagerProvider} from '../secrets/types.js';
 import {SemanticAgentTokenProvider} from '../semantic/agentToken/types.js';
 import {SemanticAppShardProvider} from '../semantic/app/types.js';
 import {SemanticAssignedItemProvider} from '../semantic/assignedItem/types.js';
@@ -229,6 +231,8 @@ export const kUtilsInjectables = {
     container.resolve<FimidaraSuppliedConfig>(kInjectionKeys.suppliedConfig),
   runtimeConfig: () =>
     container.resolve<FimidaraRuntimeConfig>(kInjectionKeys.runtimeConfig),
+  runtimeState: () =>
+    container.resolve<IServerRuntimeState>(kInjectionKeys.runtimeState),
   secretsManager: () =>
     container.resolve<SecretsManagerProvider>(kInjectionKeys.secretsManager),
   fileProviderResolver: () =>
@@ -253,4 +257,6 @@ export const kUtilsInjectables = {
   serverApp: () => container.resolve<FimidaraApp>(kInjectionKeys.serverApp),
   workerPool: () =>
     container.resolve<FimidaraWorkerPool>(kInjectionKeys.workerPool),
+  queue: () => container.resolve<IQueueContext>(kInjectionKeys.queue),
+  pubsub: () => container.resolve<IPubSubContext>(kInjectionKeys.pubsub),
 };

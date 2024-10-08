@@ -71,6 +71,7 @@ export const kInjectionKeys = {
   // config: 'config',
   suppliedConfig: 'suppliedConfig',
   runtimeConfig: 'runtimeConfig',
+  runtimeState: 'runtimeState',
   secretsManager: 'secretsManager',
   fileProviderResolver: 'fileProviderResolver',
   asyncLocalStorage: 'asyncLocalStorage',
@@ -85,4 +86,6 @@ export const kInjectionKeys = {
   shardedRunner: 'shardedRunner',
   serverApp: 'serverApp',
   workerPool: 'workerPool',
+  queue: 'queue',
+  pubsub: 'pubsub',
 };
