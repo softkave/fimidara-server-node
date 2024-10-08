@@ -7,6 +7,14 @@ import {
   QueueContextSubscribeJsonFn,
 } from './types.js';
 
+// @ts-ignore
+Error.prototype.toJSON = function () {
+  return {
+    message: this.message,
+    name: this.name,
+  };
+};
+
 export interface IBasePubSubContextClient {
   subscribe: (channel: string, fn: AnyFn) => Promise<unknown>;
   unsubscribe: (channel?: string, fn?: AnyFn) => Promise<unknown>;

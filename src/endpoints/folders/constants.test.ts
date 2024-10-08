@@ -17,10 +17,10 @@ afterAll(async () => {
 
 describe('folders constants', () => {
   test('get queue key', () => {
-    const queueCount = 4;
     kRegisterUtilsInjectables.suppliedConfig({
       ...kUtilsInjectables.suppliedConfig(),
-      addFolderQueueCount: queueCount,
+      addFolderQueueStart: 1,
+      addFolderQueueEnd: 4,
     });
 
     const f1 = 'rootname/aaaa/others';
@@ -45,10 +45,10 @@ describe('folders constants', () => {
       /** count */ 10
     );
 
-    const eQ1 = kFolderConstants.getAddFolderQueueWithNo(0);
-    const eQ2 = kFolderConstants.getAddFolderQueueWithNo(1);
-    const eQ3 = kFolderConstants.getAddFolderQueueWithNo(2);
-    const eQ4 = kFolderConstants.getAddFolderQueueWithNo(3);
+    const eQ1 = kFolderConstants.getAddFolderQueueWithNo(1);
+    const eQ2 = kFolderConstants.getAddFolderQueueWithNo(2);
+    const eQ3 = kFolderConstants.getAddFolderQueueWithNo(3);
+    const eQ4 = kFolderConstants.getAddFolderQueueWithNo(4);
 
     const uniqQ1 = uniq(q1);
     const uniqQ2 = uniq(q2);

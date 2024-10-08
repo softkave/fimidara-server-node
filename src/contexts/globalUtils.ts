@@ -32,7 +32,10 @@ export async function globalSetup(overrideConfig: FimidaraSuppliedConfig = {}) {
     }
   }
 
-  if (isNumber(suppliedConfig.addFolderQueueNo)) {
+  if (
+    isNumber(suppliedConfig.addFolderQueueNo) &&
+    suppliedConfig.addFolderQueueNo > 0
+  ) {
     await createAddFolderQueue();
     kUtilsInjectables.promises().forget(handleAddFolderQueue());
   }

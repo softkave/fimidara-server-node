@@ -6,17 +6,10 @@ import {
   loopAndCollate,
   loopAndCollateAsync,
   OmitFrom,
+  pathJoin,
   waitTimeout,
 } from 'softkave-js-utils';
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  test,
-} from 'vitest';
+import {afterEach, beforeEach, describe, expect, test} from 'vitest';
 import {
   kSemanticModels,
   kUtilsInjectables,
@@ -29,7 +22,10 @@ import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
 import {NotFoundError} from '../../errors.js';
-import {generateTestFolderpath} from '../../testUtils/generate/folder.js';
+import {
+  generateAndInsertTestFolders,
+  generateTestFolderpath,
+} from '../../testUtils/generate/folder.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   initTests,
@@ -41,19 +37,30 @@ import {
 import {PermissionDeniedError} from '../../users/errors.js';
 import {kFolderConstants} from '../constants.js';
 import {getFolderpathInfo, stringifyFolderpath} from '../utils.js';
-import {handleAddFolderQueue} from './handleAddFolderQueue.js';
+import {
+  createAddFolderQueue,
+  handleAddFolderQueue,
+} from './handleAddFolderQueue.js';
 import {
   IAddFolderQueueInput,
   IAddFolderQueueOutput,
   kAddFolderQueueOutputType,
 } from './types.js';
 
-beforeAll(async () => {
-  await initTests();
+let queueStart = 1;
+
+beforeEach(async () => {
+  await initTests({
+    addFolderQueueNo: -1,
+    addFolderQueueStart: queueStart,
+    addFolderQueueEnd: queueStart,
+  });
+  await createAddFolderQueue(queueStart);
 });
 
-afterAll(async () => {
+afterEach(async () => {
   await completeTests();
+  queueStart += 1;
 });
 
 interface ITestAddFolderQueueInput extends IAddFolderQueueInput {
@@ -167,7 +174,7 @@ async function getFoldersFromDB(input: IAddFolderQueueInput[]) {
   );
   const foldersRecord = keyBy(
     folders.filter(folder => folder) as Folder[],
-    folder => folder!.namepath.join('/')
+    folder => pathJoin({input: folder!.namepath})
   );
 
   return {folders, foldersRecord, folderpaths};
@@ -187,20 +194,15 @@ async function checkFoldersCreatedInDB(
       expect(folder.workspaceId).toBe(folderpath.workspaceId);
       expect(folder.namepath).toEqual(folderpath.namepath);
     } else {
-      assert.ok(!folder);
+      expect(folder).toBeFalsy();
     }
   });
 }
 
 async function checkFoldersNotDuplicated(input: IAddFolderQueueInput[]) {
-  const {folders, foldersRecord} = await getFoldersFromDB(input);
+  const {folders} = await getFoldersFromDB(input);
   const uniqInput = uniqBy(input, inputItem => inputItem.folderpath);
-
   assert.ok(folders.length === uniqInput.length);
-  uniqInput.forEach(inputItem => {
-    const folder = foldersRecord[inputItem.folderpath];
-    assert.ok(folder);
-  });
 }
 
 async function checkAckNotified(
@@ -210,7 +212,7 @@ async function checkAckNotified(
   const acks = output.filter(
     outputItem => outputItem.type === kAddFolderQueueOutputType.ack
   );
-  assert.ok(acks.length === input.length);
+  expect(acks.length).toBe(input.length);
 }
 
 async function checkCorrectResponseReturned(
@@ -231,7 +233,7 @@ async function checkCorrectResponseReturned(
     if (inputItem.hasAccess) {
       assert.ok(outputItem.type === kAddFolderQueueOutputType.success);
       expect(outputItem.folders.length).toBeGreaterThan(0);
-      expect(last(outputItem.folders)!.namepath.join('/')).toBe(
+      expect(pathJoin({input: last(outputItem.folders)!.namepath})).toBe(
         getFolderpathInfo(inputItem.folderpath, {
           allowRootFolder: false,
           containsRootname: true,
@@ -239,23 +241,14 @@ async function checkCorrectResponseReturned(
       );
     } else {
       assert.ok(outputItem.type === kAddFolderQueueOutputType.error);
-      assert.ok(outputItem.error instanceof PermissionDeniedError);
       const expectedError = new PermissionDeniedError();
-      expect(outputItem.error.message).toBe(expectedError.message);
-      expect(outputItem.error.name).toBe(expectedError.name);
+      expect((outputItem.error as Error).message).toBe(expectedError.message);
+      expect((outputItem.error as Error).name).toBe(expectedError.name);
     }
   });
 }
 
 describe('handleAddFolderQueue', () => {
-  beforeEach(() => {
-    kUtilsInjectables.runtimeState().setIsEnded(false);
-  });
-
-  afterEach(() => {
-    kUtilsInjectables.runtimeState().setIsEnded(true);
-  });
-
   test('handleAddFolderQueue', async () => {
     const {userToken} = await insertUserForTest();
     const [w1, w2] = await Promise.all([
@@ -297,14 +290,9 @@ describe('handleAddFolderQueue', () => {
     };
 
     await readyChannel(input, fn);
+    await insertInQueue(input);
 
-    const input2 = input.concat(input).map(inputItem => ({
-      ...inputItem,
-      id: getNewId(),
-    }));
-    await insertInQueue(input2);
-
-    await handleAddFolderQueue();
+    await handleAddFolderQueue(queueStart);
 
     await checkFoldersCreatedInDB(w1i1a1, /** shouldBeCreated */ true);
     await checkFoldersCreatedInDB(w1i1a2, /** shouldBeCreated */ true);
@@ -329,7 +317,10 @@ describe('handleAddFolderQueue', () => {
       /** hasAccess */ true
     );
 
-    const w1i1 = generateInput(w1.rawWorkspace);
+    const w1i1 = generateInput({
+      resourceId: getNewIdForResource(kFimidaraResourceType.Workspace),
+      rootname: 'rootname',
+    });
     const w1i1a1 = populateWithAgent(w1i1, w1a1.agents, /** hasAccess */ true);
     const input = [...w1i1a1];
 
@@ -341,15 +332,16 @@ describe('handleAddFolderQueue', () => {
     await readyChannel(input, fn);
     await insertInQueue(input);
 
-    await handleAddFolderQueue();
+    await handleAddFolderQueue(queueStart);
 
-    output.forEach(outputItem => {
-      assert.ok(outputItem.type === kAddFolderQueueOutputType.error);
-      assert.ok(outputItem.error instanceof NotFoundError);
-      const expectedError = new NotFoundError('Workspace not found');
-      expect(outputItem.error.name).toBe(expectedError.name);
-      expect(outputItem.error.message).toBe(expectedError.message);
-    });
+    output
+      .filter(outputItem => outputItem.type !== kAddFolderQueueOutputType.ack)
+      .forEach(outputItem => {
+        assert.ok(outputItem.type === kAddFolderQueueOutputType.error);
+        const expectedError = new NotFoundError('Workspace not found');
+        expect((outputItem.error as Error).name).toBe(expectedError.name);
+        expect((outputItem.error as Error).message).toBe(expectedError.message);
+      });
   });
 
   test('handleAddFolderQueue, agent not found', async () => {
@@ -378,11 +370,13 @@ describe('handleAddFolderQueue', () => {
     await readyChannel(input, fn);
     await insertInQueue(input);
 
-    await handleAddFolderQueue();
+    await handleAddFolderQueue(queueStart);
 
-    output.forEach(outputItem => {
-      assert.ok(outputItem.type === kAddFolderQueueOutputType.error);
-    });
+    output
+      .filter(outputItem => outputItem.type !== kAddFolderQueueOutputType.ack)
+      .forEach(outputItem => {
+        assert.ok(outputItem.type === kAddFolderQueueOutputType.error);
+      });
   });
 
   test('handleAddFolderQueue, wait on stream', async () => {
@@ -405,16 +399,216 @@ describe('handleAddFolderQueue', () => {
       output.push(response as IAddFolderQueueOutput);
     };
 
-    await handleAddFolderQueue();
+    await handleAddFolderQueue(queueStart);
 
     await readyChannel(input, fn);
     await insertInQueue(input);
 
-    await waitTimeout(1000);
+    await waitTimeout(500);
+    await kUtilsInjectables.promises().flush();
 
     await checkFoldersCreatedInDB(w1i1a1, /** shouldBeCreated */ true);
     await checkFoldersNotDuplicated(input);
     await checkAckNotified(input, output);
     await checkCorrectResponseReturned(input, output);
   });
+
+  test.each([true, false])(
+    'handleAddFolderQueue, UNSAFE_skipAuthCheck=%s',
+    async UNSAFE_skipAuthCheck => {
+      const {userToken} = await insertUserForTest();
+      const w1 = await insertWorkspaceForTest(userToken);
+
+      const w1a2 = await generateTokens(
+        userToken,
+        w1.rawWorkspace,
+        /** count */ 2,
+        /** hasAccess */ false
+      );
+
+      const w1i1 = generateInput(w1.rawWorkspace);
+      const w1i2 = generateInput(w1.rawWorkspace);
+
+      const w1i1a2 = populateWithAgent(
+        w1i1,
+        w1a2.agents,
+        /** hasAccess */ UNSAFE_skipAuthCheck
+      );
+      const w1i2a2 = populateWithAgent(
+        w1i2,
+        w1a2.agents,
+        /** hasAccess */ UNSAFE_skipAuthCheck
+      );
+
+      const input = [...w1i1a2, ...w1i2a2].map(inputItem => ({
+        ...inputItem,
+        UNSAFE_skipAuthCheck,
+      }));
+
+      const output: IAddFolderQueueOutput[] = [];
+      const fn: QueueContextSubscribeJsonFn = response => {
+        output.push(response as IAddFolderQueueOutput);
+      };
+
+      await readyChannel(input, fn);
+      await insertInQueue(input);
+
+      await handleAddFolderQueue(queueStart);
+
+      await checkFoldersCreatedInDB(
+        w1i1a2,
+        /** shouldBeCreated */ UNSAFE_skipAuthCheck
+      );
+      await checkFoldersCreatedInDB(
+        w1i2a2,
+        /** shouldBeCreated */ UNSAFE_skipAuthCheck
+      );
+
+      await checkFoldersNotDuplicated(input);
+      await checkAckNotified(input, output);
+      await checkCorrectResponseReturned(input, output);
+    }
+  );
+
+  test.each([true])(
+    'handleAddFolderQueue, throwIfFolderExists=%s',
+    async throwIfFolderExists => {
+      const {userToken} = await insertUserForTest();
+      const w1 = await insertWorkspaceForTest(userToken);
+
+      const w1a1 = await generateTokens(
+        userToken,
+        w1.rawWorkspace,
+        /** count */ 2,
+        /** hasAccess */ true
+      );
+
+      const inputFolderpath = generateTestFolderpath({length: 3});
+      const [f0] = await generateAndInsertTestFolders(1, {
+        workspaceId: w1.rawWorkspace.resourceId,
+        parentId: null,
+        name: inputFolderpath[0],
+        namepath: [inputFolderpath[0]],
+      });
+      const [f1] = await generateAndInsertTestFolders(1, {
+        workspaceId: w1.rawWorkspace.resourceId,
+        parentId: f0.resourceId,
+        name: inputFolderpath[1],
+        namepath: inputFolderpath.slice(0, 2),
+      });
+      const [f2] = await generateAndInsertTestFolders(1, {
+        workspaceId: w1.rawWorkspace.resourceId,
+        parentId: f1.resourceId,
+        name: inputFolderpath[2],
+        namepath: inputFolderpath,
+      });
+
+      const w1i1 = generateInput(w1.rawWorkspace);
+      const w1i1a1 = populateWithAgent(
+        w1i1,
+        w1a1.agents,
+        /** hasAccess */ true
+      );
+
+      const input = [...w1i1a1].map(inputItem => ({
+        ...inputItem,
+        throwIfFolderExists,
+        folderpath: stringifyFolderpath(f2, w1.rawWorkspace.rootname),
+      }));
+
+      const output: IAddFolderQueueOutput[] = [];
+      const fn: QueueContextSubscribeJsonFn = response => {
+        output.push(response as IAddFolderQueueOutput);
+      };
+
+      await readyChannel(input, fn);
+      await insertInQueue(input);
+
+      await handleAddFolderQueue(queueStart);
+
+      await checkFoldersNotDuplicated(input);
+      output
+        .filter(outputItem => outputItem.type !== kAddFolderQueueOutputType.ack)
+        .forEach(outputItem => {
+          if (throwIfFolderExists) {
+            assert.ok(outputItem.type === kAddFolderQueueOutputType.error);
+            expect((outputItem.error as Error).name).toBe('FolderExistsError');
+          } else {
+            assert.ok(outputItem.type === kAddFolderQueueOutputType.success);
+            expect(last(outputItem.folders)!.resourceId).toEqual(f2.resourceId);
+          }
+        });
+    }
+  );
+
+  test.each([true, false])(
+    'handleAddFolderQueue, folders exist but agent without permission=%s',
+    async hasAccess => {
+      const {userToken} = await insertUserForTest();
+      const w1 = await insertWorkspaceForTest(userToken);
+
+      const w1a1 = await generateTokens(
+        userToken,
+        w1.rawWorkspace,
+        /** count */ 2,
+        hasAccess
+      );
+
+      const inputFolderpath = generateTestFolderpath({length: 3});
+      const [f0] = await generateAndInsertTestFolders(1, {
+        workspaceId: w1.rawWorkspace.resourceId,
+        parentId: null,
+        name: inputFolderpath[0],
+        namepath: [inputFolderpath[0]],
+      });
+      const [f1] = await generateAndInsertTestFolders(1, {
+        workspaceId: w1.rawWorkspace.resourceId,
+        parentId: f0.resourceId,
+        name: inputFolderpath[1],
+        namepath: inputFolderpath.slice(0, 2),
+      });
+      const [f2] = await generateAndInsertTestFolders(1, {
+        workspaceId: w1.rawWorkspace.resourceId,
+        parentId: f1.resourceId,
+        name: inputFolderpath[2],
+        namepath: inputFolderpath,
+      });
+
+      const w1i1 = generateInput(w1.rawWorkspace);
+      const w1i1a1 = populateWithAgent(
+        w1i1,
+        w1a1.agents,
+        /** hasAccess */ true
+      );
+
+      const input = [...w1i1a1].map(inputItem => ({
+        ...inputItem,
+        folderpath: stringifyFolderpath(f2, w1.rawWorkspace.rootname),
+      }));
+
+      const output: IAddFolderQueueOutput[] = [];
+      const fn: QueueContextSubscribeJsonFn = response => {
+        output.push(response as IAddFolderQueueOutput);
+      };
+
+      await readyChannel(input, fn);
+      await insertInQueue(input);
+
+      await handleAddFolderQueue(queueStart);
+
+      await checkFoldersNotDuplicated(input);
+      output
+        .filter(outputItem => outputItem.type !== kAddFolderQueueOutputType.ack)
+        .forEach(outputItem => {
+          if (hasAccess) {
+            assert.ok(outputItem.type === kAddFolderQueueOutputType.success);
+            expect(last(outputItem.folders)!.resourceId).toEqual(f2.resourceId);
+          } else {
+            assert.ok(outputItem.type === kAddFolderQueueOutputType.error);
+            const error = new PermissionDeniedError();
+            expect((outputItem.error as Error).name).toBe(error.name);
+          }
+        });
+    }
+  );
 });

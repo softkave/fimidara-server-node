@@ -1,8 +1,6 @@
 import {IQueueMessage} from '../../../contexts/queue/types.js';
 import {Folder, PublicFolder} from '../../../definitions/folder.js';
 import {Agent, SessionAgent} from '../../../definitions/system.js';
-import {Workspace} from '../../../definitions/workspace.js';
-import {Shard, ShardRunner} from '../../../utils/shardedRunnerQueue.js';
 import {Endpoint, EndpointResultNote} from '../../types.js';
 
 export interface NewFolderInput {
@@ -23,39 +21,14 @@ export type AddFolderEndpoint = Endpoint<
   AddFolderEndpointResult
 >;
 
-export interface AddFolderShardMeta {
-  workspace: Workspace;
-}
-
-export interface AddFolderShardNewFolderInput extends NewFolderInput {
-  agent: SessionAgent;
-  UNSAFE_skipAuthCheck: boolean;
-  throwOnFolderExists: boolean;
-  isLeafFolder: boolean;
-}
-
-export type AddFolderShardPerInputOutputItem = Folder[];
-
-export type AddFolderShard = Shard<
-  AddFolderShardNewFolderInput,
-  AddFolderShardPerInputOutputItem,
-  AddFolderShardMeta
->;
-
-export type AddFolderShardRunner = ShardRunner<
-  AddFolderShardNewFolderInput,
-  AddFolderShardPerInputOutputItem,
-  AddFolderShardMeta
->;
-
-export const kAddFolderShardRunnerPrefix = 'addFolder' as const;
-
 export interface IAddFolderQueueInput
   extends NewFolderInput,
     IQueueMessage,
     Agent {
   channel: string;
   workspaceId: string;
+  UNSAFE_skipAuthCheck?: boolean;
+  throwIfFolderExists?: boolean;
 }
 
 export interface IAddFolderQueueWorkingInput
@@ -64,6 +37,8 @@ export interface IAddFolderQueueWorkingInput
   channel: string;
   workspaceId: string;
   agent: SessionAgent;
+  UNSAFE_skipAuthCheck?: boolean;
+  throwIfFolderExists?: boolean;
 }
 
 export const kAddFolderQueueOutputType = {

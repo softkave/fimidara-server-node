@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {groupBy, isNumber} from 'lodash-es';
-import {pathJoin} from 'softkave-js-utils';
+import {AnyFn, pathJoin} from 'softkave-js-utils';
 import {
   checkAuthorizationWithAgent,
   getResourcePermissionContainers,
@@ -14,12 +14,12 @@ import {Folder} from '../../../definitions/folder.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {Resource, SessionAgent} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
-import {appAssert} from '../../../utils/assertion.js';
 import {kAppMessages} from '../../../utils/messages.js';
 import {NotFoundError} from '../../errors.js';
 import {PermissionDeniedError} from '../../users/errors.js';
 import {kFolderConstants} from '../constants.js';
-import {createNewFolder, getFolderpathInfo} from '../utils.js';
+import {FolderExistsError} from '../errors.js';
+import {createNewFolder} from '../utils.js';
 import {getExistingFoldersAndArtifacts} from './getExistingFoldersAndArtifacts.js';
 import {prepareFolderInputList} from './prepareFolderInputList.js';
 import {
@@ -36,9 +36,9 @@ interface IAuthTarget {
 }
 
 interface IPossibleNewFolder {
+  folderpath: string;
   folder: Folder;
   authTarget: Resource;
-  agents: SessionAgent[];
 }
 
 type OutputByNamepath = Record<
@@ -84,22 +84,23 @@ async function createFolderListWithTransaction(
       opts
     );
 
-  // Use a map to avoid duplicating auth checks to the same target
+  // TODO: use a map to avoid duplicating auth checks to the same target
   const authTargetsList: IAuthTarget[] = [];
   const pNFRecord: Record<
     /** stringified namepath */ string,
     IPossibleNewFolder | undefined
   > = {};
+  const skippedAuthCheckRecord: Record<string, boolean> = {};
 
   preppedInput.pathinfoList?.forEach((pathinfo, inputIndex) => {
     let prevFolder = getSelfOrClosestParent(pathinfo.namepath);
     const inputAtIndex = inputList[inputIndex];
     const existingDepth = prevFolder?.namepath.length ?? 0;
-    let authTarget: Resource | undefined;
+    const authTarget: Resource = prevFolder ?? workspace;
 
-    // Create folders for folders not found starting from the closest existing
-    // parent represented by existingDepth. If existingDepth ===
-    // namepath.length, then folder exists, and no new folder is created
+    // Create folders not found starting from the closest existing parent
+    // represented by existingDepth. If existingDepth === namepath.length, then
+    // folder exists, and no new folder is created
     const newNamepath = pathinfo.namepath.slice(existingDepth);
 
     if (newNamepath.length) {
@@ -124,50 +125,44 @@ async function createFolderListWithTransaction(
         // (not sure how much useful the last part is, but just in case)
         addFolder(folder);
         prevFolder = folder;
-        const fp = folder.namepath.join(kFolderConstants.separator);
+        const fp = pathJoin({input: folder.namepath});
 
-        if (
-          // If there is no parent, seeing actualNameIndex will only ever be 0 if
-          // there is no prevFolder, we need to do auth check using workspace,
-          // seeing that's the closest permission container
-          actualNameIndex === 0
-        ) {
-          authTarget = workspace;
-          authTargetsList.push({
-            target: authTarget,
-            agent: inputAtIndex.agent,
-            folderpath: pathinfo.stringPath,
-          });
-        } else if (
-          // If we have a parent, and this folder is the next one right after, use
-          // the parent, represented by prevFolder for auth check, seeing it's the
-          // closest permission container.
-          existingDepth &&
-          actualNameIndex === existingDepth + 1
-        ) {
-          appAssert(prevFolder);
-          authTarget = prevFolder;
+        assert.ok(authTarget);
+        pNFRecord[fp] = {
+          folder,
+          authTarget,
+          folderpath: pathinfo.stringPath,
+        };
+
+        if (inputAtIndex.UNSAFE_skipAuthCheck) {
+          skippedAuthCheckRecord[fp] = true;
+        } else {
           authTargetsList.push({
             target: authTarget,
             agent: inputAtIndex.agent,
             folderpath: pathinfo.stringPath,
           });
         }
-
-        assert.ok(authTarget);
-        pNFRecord[fp] = {folder, authTarget, agents: [inputAtIndex.agent]};
       });
     } else {
+      // Catch situations where the folder exists either because it's been
+      // previously created or another input has created it. In this case, we
+      // still need to check auth which'd have been skipped because the path
+      // above loops through newNamepath
+
       assert.ok(prevFolder);
-      const fp = prevFolder.namepath.join(kFolderConstants.separator);
-      const pNF = pNFRecord[fp];
-      assert.ok(pNF);
-      pNF.agents.push(inputAtIndex.agent);
-      authTargetsList.push({
-        target: pNF.authTarget,
-        agent: inputAtIndex.agent,
-        folderpath: pathinfo.stringPath,
-      });
+      assert.ok(authTarget);
+      const fp = pathJoin({input: prevFolder.namepath});
+
+      if (inputAtIndex.UNSAFE_skipAuthCheck) {
+        skippedAuthCheckRecord[fp] = true;
+      } else {
+        authTargetsList.push({
+          target: authTarget,
+          agent: inputAtIndex.agent,
+          folderpath: pathinfo.stringPath,
+        });
+      }
     }
   });
 
@@ -182,17 +177,26 @@ async function createFolderListWithTransaction(
     {hasAccess: boolean; folderpath: string}[] | undefined
   > = {};
 
-  authPList.forEach(({hasAccess, target, agent, folderpath}) => {
-    authChecksByFolderRecords[target.resourceId] = hasAccess;
+  authPList.forEach(({hasAccess, agent, folderpath}) => {
+    authChecksByFolderRecords[folderpath] ||= hasAccess;
     authChecksByAgent[agent.agentId] = [
       ...(authChecksByAgent[agent.agentId] ?? []),
       {hasAccess, folderpath},
     ];
   });
 
+  const newFolderpathRecords: Record<string, string> = {};
   const newFolderList = pNFList
-    .filter(pNF => authChecksByFolderRecords[pNF.authTarget.resourceId])
-    .map(pNF => pNF!.folder);
+    .filter(pNF => {
+      return (
+        authChecksByFolderRecords[pNF.folderpath] ||
+        skippedAuthCheckRecord[pNF.folderpath]
+      );
+    })
+    .map(pNF => {
+      newFolderpathRecords[pNF.folderpath] = pNF.folderpath;
+      return pNF.folder;
+    });
   await kSemanticModels.folder().insertItem(newFolderList, opts);
 
   function getError(folderpath: string, agentId: string) {
@@ -204,21 +208,28 @@ async function createFolderListWithTransaction(
       return new PermissionDeniedError();
     }
 
+    // TODO: check if is not final folder, and if it is, then this is an error,
+    // because the final folder should have access check
     return;
   }
 
   function getFolderInfo(
     folderpath: string,
-    agentId: string
-  ): {success: true; folder: Folder} | {success: false; error: Error} {
-    const error = getError(folderpath, agentId);
+    agentId: string,
+    UNSAFE_skipAuthCheck: boolean
+  ):
+    | {success: true; folder: Folder; isNew: boolean}
+    | {success: false; error: Error} {
+    const error = UNSAFE_skipAuthCheck
+      ? undefined
+      : getError(folderpath, agentId);
     const folder = getFolder(folderpath);
     assert(folder);
 
     if (error) {
-      return {success: false, error};
+      return {error, success: false};
     } else {
-      return {success: true, folder};
+      return {folder, success: true, isNew: !!newFolderpathRecords[folderpath]};
     }
   }
 
@@ -233,30 +244,44 @@ function bagAddFolderOutput(
   input: IAddFolderQueueInput[]
 ) {
   const {getFolderInfo, pathinfoList} = params;
-  return pathinfoList.reduce((acc, pathinfo) => {
+  return pathinfoList.reduce((acc, pathinfo, i) => {
     const folders: Folder[] = [];
+    const inputAtIndex = input[i];
     let error: Error | undefined;
+    let isNew = false;
 
     for (let index = 0; index < pathinfo.namepath.length; index++) {
       const key = pathJoin({input: pathinfo.namepath.slice(0, index + 1)});
-      const inputAtIndex = input[index];
       assert.ok(inputAtIndex);
-      assert.ok(inputAtIndex.folderpath === pathinfo.input);
+      assert.ok(
+        inputAtIndex.folderpath === pathinfo.input,
+        `${inputAtIndex.folderpath} !== ${pathinfo.input}`
+      );
 
-      const folder = getFolderInfo(key, inputAtIndex.agentId);
+      const folder = getFolderInfo(
+        key,
+        inputAtIndex.agentId,
+        inputAtIndex.UNSAFE_skipAuthCheck ?? false
+      );
+
       if (folder.success) {
         folders.push(folder.folder);
+        isNew ||= folder.isNew;
       } else {
         error = folder.error;
         break;
       }
     }
 
+    if (inputAtIndex.throwIfFolderExists && !isNew) {
+      error = new FolderExistsError();
+    }
+
     if (error) {
-      acc[pathinfo.stringPath] = {isSuccess: false, error};
+      acc[inputAtIndex.id] = {isSuccess: false, error};
     } else {
       folders.sort((f1, f2) => f1.namepath.length - f2.namepath.length);
-      acc[pathinfo.stringPath] = {isSuccess: true, folders};
+      acc[inputAtIndex.id] = {isSuccess: true, folders};
     }
 
     return acc;
@@ -269,13 +294,8 @@ async function publishAddFolderOutput(
 ) {
   await Promise.all(
     input.map(async input => {
-      const pathinfo = getFolderpathInfo(input.folderpath, {
-        containsRootname: true,
-        allowRootFolder: false,
-      });
-      appAssert(pathinfo);
-
-      const inputResult = result[pathinfo.stringPath];
+      const inputResult = result[input.id];
+      assert.ok(inputResult);
       const output: IAddFolderQueueOutput = inputResult.isSuccess
         ? {
             folders: inputResult.folders,
@@ -340,7 +360,7 @@ async function createFolderListWithWorkspace(input: IAddFolderQueueInput[]) {
   if (!workspace) {
     const error = new NotFoundError(kAppMessages.workspace.notFound());
     const result: OutputByNamepath = input.reduce((acc, nextInput) => {
-      acc[nextInput.folderpath] = {isSuccess: false, error};
+      acc[nextInput.id] = {isSuccess: false, error};
       return acc;
     }, {} as OutputByNamepath);
 
@@ -356,7 +376,7 @@ async function createFolderListWithWorkspace(input: IAddFolderQueueInput[]) {
 
   if (errorInput.length) {
     const result: OutputByNamepath = errorInput.reduce((acc, nextInput) => {
-      acc[nextInput.input!.folderpath] = {
+      acc[nextInput.input!.id] = {
         isSuccess: false,
         error: nextInput.error,
       };
@@ -364,15 +384,15 @@ async function createFolderListWithWorkspace(input: IAddFolderQueueInput[]) {
     }, {} as OutputByNamepath);
 
     kUtilsInjectables.promises().forget(publishAddFolderOutput(input, result));
+  } else if (workingInput.length) {
+    const workingOutput = await kSemanticModels
+      .utils()
+      .withTxn(opts =>
+        createFolderListWithTransaction(workspace, workingInput, opts)
+      );
+    const result = bagAddFolderOutput(workingOutput, input);
+    kUtilsInjectables.promises().forget(publishAddFolderOutput(input, result));
   }
-
-  const workingOutput = await kSemanticModels
-    .utils()
-    .withTxn(opts =>
-      createFolderListWithTransaction(workspace, workingInput, opts)
-    );
-  const result = bagAddFolderOutput(workingOutput, input);
-  kUtilsInjectables.promises().forget(publishAddFolderOutput(input, result));
 }
 
 async function addFolderQueueCreateFolderList(input: IAddFolderQueueInput[]) {
@@ -384,21 +404,22 @@ async function addFolderQueueCreateFolderList(input: IAddFolderQueueInput[]) {
   );
 }
 
-function getAddFolderQueueKey() {
-  const queueNo = kUtilsInjectables.suppliedConfig().addFolderQueueNo;
+function getAddFolderQueueKey(inputQueueNo?: number) {
+  const queueNo =
+    inputQueueNo || kUtilsInjectables.suppliedConfig().addFolderQueueNo;
   assert.ok(isNumber(queueNo));
 
   return kFolderConstants.getAddFolderQueueWithNo(queueNo);
 }
 
-function waitOnQueue(key: string) {
+function waitOnQueue(key: string, fn: AnyFn) {
   if (!kUtilsInjectables.runtimeState().getIsEnded()) {
-    kUtilsInjectables.queue().waitOnStream(key, handleAddFolderQueue);
+    kUtilsInjectables.queue().waitOnStream(key, fn);
   }
 }
 
-export async function handleAddFolderQueue() {
-  const key = getAddFolderQueueKey();
+export async function handleAddFolderQueue(inputQueueNo?: number) {
+  const key = getAddFolderQueueKey(inputQueueNo);
   const input = await kUtilsInjectables
     .queue()
     .getMessages<IAddFolderQueueInput>(
@@ -408,23 +429,25 @@ export async function handleAddFolderQueue() {
     );
 
   if (input.length === 0) {
-    waitOnQueue(key);
+    waitOnQueue(key, () => {
+      handleAddFolderQueue(inputQueueNo);
+    });
     return;
   }
 
   await addFolderQueueCreateFolderList(input);
 
   if (!kUtilsInjectables.runtimeState().getIsEnded()) {
-    kUtilsInjectables.promises().forget(handleAddFolderQueue());
+    kUtilsInjectables.promises().forget(handleAddFolderQueue(inputQueueNo));
   }
 }
 
-export async function createAddFolderQueue() {
+export async function createAddFolderQueue(inputQueueNo?: number) {
   assert.ok(
     kUtilsInjectables.suppliedConfig().addFolderQueueKey,
     'No addFolderQueueKey in suppliedConfig'
   );
 
-  const key = getAddFolderQueueKey();
+  const key = getAddFolderQueueKey(inputQueueNo);
   await kUtilsInjectables.queue().createQueue(key);
 }

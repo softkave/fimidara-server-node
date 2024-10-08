@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 
 import assert from 'assert';
+import {construct} from 'js-accessor';
 import {isFunction} from 'lodash-es';
 import {
   AnyFn,
@@ -46,7 +47,6 @@ import {assertAgentToken} from '../../endpoints/agentTokens/utils.js';
 import {FimidaraApp} from '../../endpoints/app/FimidaraApp.js';
 import {assertCollaborationRequest} from '../../endpoints/collaborationRequests/utils.js';
 import {assertFile} from '../../endpoints/files/utils.js';
-import {addFolderShardRunner} from '../../endpoints/folders/addFolder/addFolderShard.js';
 import {assertFolder} from '../../endpoints/folders/utils.js';
 import {FimidaraWorkerPool} from '../../endpoints/jobs/fimidaraWorker/FimidaraWorkerPool.js';
 import {assertPermissionGroup} from '../../endpoints/permissionGroups/utils.js';
@@ -63,7 +63,7 @@ import {
 } from '../../resources/config.js';
 import {appAssert, assertNotFound} from '../../utils/assertion.js';
 import {getNewIdForResource} from '../../utils/resource.js';
-import {ShardRunner, ShardedRunner} from '../../utils/shardedRunnerQueue.js';
+import {ShardedRunner} from '../../utils/shardedRunnerQueue.js';
 import SessionContext, {SessionContextType} from '../SessionContext.js';
 import {
   AsyncLocalStorageUtils,
@@ -128,7 +128,7 @@ import {IPubSubContext} from '../pubsub/types.js';
 import {getPubSubContext} from '../pubsub/utils.js';
 import {IQueueContext} from '../queue/types.js';
 import {getQueueContext} from '../queue/utils.js';
-import {IServerRuntimeState, fimidaraRuntimeState} from '../runtime.js';
+import {IServerRuntimeState} from '../runtime.js';
 import {SecretsManagerProvider} from '../secrets/types.js';
 import {getSecretsProvider} from '../secrets/utils.js';
 import {DataSemanticAgentToken} from '../semantic/agentToken/model.js';
@@ -512,7 +512,7 @@ export async function registerUtilsInjectables(
   const suppliedConfig = {...getSuppliedConfig(), ...overrideConfig};
   const promiseStore = new PromiseStore();
 
-  kRegisterUtilsInjectables.runtimeState(fimidaraRuntimeState);
+  kRegisterUtilsInjectables.runtimeState(construct<IServerRuntimeState>());
   kRegisterUtilsInjectables.suppliedConfig(suppliedConfig);
   kRegisterUtilsInjectables.promises(promiseStore);
   kRegisterUtilsInjectables.disposables(new DisposablesStore(promiseStore));
@@ -524,7 +524,6 @@ export async function registerUtilsInjectables(
   kRegisterUtilsInjectables.logger(getLogger(suppliedConfig.loggerType));
 
   const shardedRunner = new ShardedRunner();
-  shardedRunner.registerRunner(addFolderShardRunner as ShardRunner);
   kRegisterUtilsInjectables.shardedRunner(shardedRunner);
 
   if (suppliedConfig.useFimidaraApp) {

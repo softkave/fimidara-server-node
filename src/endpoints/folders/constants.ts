@@ -22,10 +22,14 @@ export const kFolderConstants = {
   getAddFolderQueueWithNo: (no: number) =>
     `${kUtilsInjectables.suppliedConfig().addFolderQueueKey}:${no}`,
   getAddFolderQueueKey: (folderpath: string) => {
-    const queueCount = kUtilsInjectables.suppliedConfig().addFolderQueueCount;
-    assert.ok(queueCount);
+    const {addFolderQueueStart, addFolderQueueEnd} =
+      kUtilsInjectables.suppliedConfig();
+    assert.ok(addFolderQueueStart);
+    assert.ok(addFolderQueueEnd);
+    const queueCount = addFolderQueueEnd - addFolderQueueStart + 1;
+    assert.ok(queueCount > 0);
 
-    // consistently select between 0 and queueCount - 1 using the
+    // consistently select between 1 and queueCount using the
     // folderpath.split("/")[1]
     const folderpath1 = folderpath.split('/')[1];
     assert.ok(folderpath1);
@@ -33,6 +37,8 @@ export const kFolderConstants = {
       return acc + char.charCodeAt(0);
     }, 0);
 
-    return kFolderConstants.getAddFolderQueueWithNo(hash % queueCount);
+    return kFolderConstants.getAddFolderQueueWithNo(
+      (hash % queueCount) + addFolderQueueStart
+    );
   },
 };

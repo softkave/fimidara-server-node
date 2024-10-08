@@ -1,65 +1,9 @@
-import {noopAsync} from 'softkave-js-utils';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {Folder} from '../../../definitions/folder.js';
 import {SessionAgent} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
-import {convertToArray, pathSplit} from '../../../utils/fns.js';
-import {
-  ShardId,
-  ShardedInput,
-  kShardMatchStrategy,
-  kShardQueueStrategy,
-} from '../../../utils/shardedRunnerQueue.js';
-import {
-  AddFolderShardMeta,
-  AddFolderShardNewFolderInput,
-  AddFolderShardPerInputOutputItem,
-  NewFolderInput,
-  kAddFolderShardRunnerPrefix,
-} from './types.js';
-
-function shardNewFolderInput(
-  agent: SessionAgent,
-  workspaceId: string,
-  input: NewFolderInput | NewFolderInput[],
-  UNSAFE_skipAuthCheck: boolean,
-  throwOnFolderExists: boolean,
-  meta: AddFolderShardMeta
-) {
-  return convertToArray(input).map(
-    (
-      nextInput,
-      index,
-      array
-    ): ShardedInput<AddFolderShardNewFolderInput, AddFolderShardMeta> => {
-      const namepath = pathSplit(nextInput.folderpath);
-      const shardId: ShardId = [
-        kAddFolderShardRunnerPrefix,
-        workspaceId,
-        // TODO: can shard key use existing parent folder names, instead of
-        // just the first folder name
-        /** folder[0] */ ...namepath
-          .slice(/** minus rootname */ 1, 2)
-          .map(name => name.toLowerCase()),
-      ];
-
-      return {
-        shardId,
-        meta,
-        done: noopAsync,
-        input: {
-          ...nextInput,
-          agent,
-          throwOnFolderExists,
-          UNSAFE_skipAuthCheck,
-          isLeafFolder: index === array.length,
-        },
-        queueStrategy: kShardQueueStrategy.appendToExisting,
-        matchStrategy: kShardMatchStrategy.hierachichal,
-      };
-    }
-  );
-}
+import {convertToArray} from '../../../utils/fns.js';
+import {queueAddFolder} from './queueAddFolder.js';
+import {NewFolderInput} from './types.js';
 
 export async function createFolderList(
   agent: SessionAgent,
@@ -69,22 +13,37 @@ export async function createFolderList(
   throwOnFolderExists: boolean,
   throwOnError: boolean
 ) {
-  const shardInputList = shardNewFolderInput(
-    agent,
-    workspace.resourceId,
-    input,
-    UNSAFE_skipAuthCheck,
-    throwOnFolderExists,
-    /** meta */ {workspace}
-  );
+  const outputList = await Promise.all(
+    convertToArray(input).map(
+      async (
+        nextInput
+      ): Promise<
+        {success: true; output: Folder[]} | {success: false; reason: unknown}
+      > => {
+        try {
+          const output = await queueAddFolder(
+            agent,
+            workspace.resourceId,
+            nextInput,
+            UNSAFE_skipAuthCheck,
+            throwOnFolderExists
+          );
 
-  const {success, failed} = await kUtilsInjectables
-    .shardedRunner()
-    .ingestAndRun<
-      NewFolderInput,
-      AddFolderShardPerInputOutputItem,
-      AddFolderShardMeta
-    >(shardInputList);
+          return {success: true, output};
+        } catch (reason) {
+          return {success: false, reason};
+        }
+      }
+    )
+  );
+  const success = outputList.filter(output => output.success) as Array<{
+    success: true;
+    output: Folder[];
+  }>;
+  const failed = outputList.filter(output => !output.success) as Array<{
+    success: false;
+    reason: unknown;
+  }>;
 
   if (throwOnError && failed.length) {
     if (failed.length === 1) {

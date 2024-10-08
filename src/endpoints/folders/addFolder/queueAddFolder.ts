@@ -60,13 +60,17 @@ function cleanup(vars: IRunArtifacts) {
 export async function queueAddFolder(
   agent: Agent,
   workspaceId: string,
-  input: NewFolderInput
+  input: NewFolderInput,
+  UNSAFE_skipAuthCheck?: boolean,
+  throwIfFolderExists?: boolean
 ) {
   const channel = kFolderConstants.getAddFolderPubSubChannel(input.folderpath);
   const queueKey = kFolderConstants.getAddFolderQueueKey(input.folderpath);
   const message: IAddFolderQueueInput = {
     channel,
     workspaceId,
+    UNSAFE_skipAuthCheck,
+    throwIfFolderExists,
     id: getNewId(),
     ...agent,
     ...input,
