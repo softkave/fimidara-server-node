@@ -404,11 +404,8 @@ async function addFolderQueueCreateFolderList(input: IAddFolderQueueInput[]) {
   );
 }
 
-function getAddFolderQueueKey(inputQueueNo?: number) {
-  const queueNo =
-    inputQueueNo || kUtilsInjectables.suppliedConfig().addFolderQueueNo;
+function getAddFolderQueueKey(queueNo: number) {
   assert.ok(isNumber(queueNo));
-
   return kFolderConstants.getAddFolderQueueWithNo(queueNo);
 }
 
@@ -418,7 +415,7 @@ function waitOnQueue(key: string, fn: AnyFn) {
   }
 }
 
-export async function handleAddFolderQueue(inputQueueNo?: number) {
+export async function handleAddFolderQueue(inputQueueNo: number) {
   const key = getAddFolderQueueKey(inputQueueNo);
   const input = await kUtilsInjectables
     .queue()
@@ -442,7 +439,7 @@ export async function handleAddFolderQueue(inputQueueNo?: number) {
   }
 }
 
-export async function createAddFolderQueue(inputQueueNo?: number) {
+export async function createAddFolderQueue(inputQueueNo: number) {
   assert.ok(
     kUtilsInjectables.suppliedConfig().addFolderQueueKey,
     'No addFolderQueueKey in suppliedConfig'

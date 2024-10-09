@@ -145,8 +145,7 @@ export type FimidaraSuppliedConfig = Partial<{
   queueRedisURL: string;
   addFolderQueueStart: number;
   addFolderQueueEnd: number;
-  /** set to a 0 or negative no. to not handleAddFolderQueue */
-  addFolderQueueNo: number;
+  addFolderQueueNo: number[];
   addFolderTimeoutMs: number;
   addFolderQueueKey: string;
 

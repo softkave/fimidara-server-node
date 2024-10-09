@@ -33,7 +33,7 @@ import {
 } from './types.js';
 
 beforeEach(async () => {
-  await initTests({addFolderQueueNo: -1});
+  await initTests({addFolderQueueNo: []});
   await createAddFolderQueue(/** queueNo */ 1);
 });
 

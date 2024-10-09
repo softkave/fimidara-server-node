@@ -51,7 +51,7 @@ let queueStart = 1;
 
 beforeEach(async () => {
   await initTests({
-    addFolderQueueNo: -1,
+    addFolderQueueNo: [],
     addFolderQueueStart: queueStart,
     addFolderQueueEnd: queueStart,
   });

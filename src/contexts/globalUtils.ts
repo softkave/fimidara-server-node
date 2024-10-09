@@ -1,4 +1,3 @@
-import {isNumber} from 'lodash-es';
 import {
   createAddFolderQueue,
   handleAddFolderQueue,
@@ -33,10 +32,14 @@ export async function globalSetup(overrideConfig: FimidaraSuppliedConfig = {}) {
   }
 
   if (
-    isNumber(suppliedConfig.addFolderQueueNo) &&
-    suppliedConfig.addFolderQueueNo > 0
+    suppliedConfig.addFolderQueueNo &&
+    suppliedConfig.addFolderQueueNo.length > 0
   ) {
-    await createAddFolderQueue();
-    kUtilsInjectables.promises().forget(handleAddFolderQueue());
+    await Promise.all(
+      suppliedConfig.addFolderQueueNo.map(async queueNo => {
+        await createAddFolderQueue(queueNo);
+        kUtilsInjectables.promises().forget(handleAddFolderQueue(queueNo));
+      })
+    );
   }
 }
