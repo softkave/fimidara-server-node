@@ -25,13 +25,13 @@ afterAll(async () => {
   await completeTests();
 });
 
-describe.skip('RedisQueueContext', () => {
-  test('createQueue', async () => {
+describe('RedisQueueContext', () => {
+  test.only('createQueue', async () => {
     assert.ok(redis);
     const context = new RedisQueueContext(redis);
     const queue = 'queue' + Math.random();
     queueNames.push(queue);
-    await context.createQueue(queue);
+    await context.addMessages(queue, [{id: '1', message: 'message'}]);
     expect(await redis.exists(queue)).toBe(1);
   });
 
@@ -40,7 +40,7 @@ describe.skip('RedisQueueContext', () => {
     const context = new RedisQueueContext(redis);
     const queue = 'queue' + Math.random();
     queueNames.push(queue);
-    await context.createQueue(queue);
+    await context.addMessages(queue, [{id: '1', message: 'message'}]);
     await context.deleteQueue(queue);
     expect(await redis.exists(queue)).toBe(0);
   });
@@ -50,7 +50,7 @@ describe.skip('RedisQueueContext', () => {
     const context = new RedisQueueContext(redis);
     const queue = 'queue' + Math.random();
     queueNames.push(queue);
-    await context.createQueue(queue);
+    await context.addMessages(queue, [{id: '1', message: 'message'}]);
     expect(await context.queueExists(queue)).toBe(true);
   });
 
@@ -67,10 +67,9 @@ describe.skip('RedisQueueContext', () => {
     const context = new RedisQueueContext(redis);
     const queue = 'queue' + Math.random();
     queueNames.push(queue);
-    await context.createQueue(queue);
     await context.addMessages(queue, [{id: '1', message: 'message'}]);
-    const messages = await redis.json.get(queue, {path: '.'});
-    expect(messages).toEqual([{id: '1', message: 'message'}]);
+    const len = await redis.xLen(queue);
+    expect(len).toBe(1);
   });
 
   test('getMessages', async () => {
@@ -78,13 +77,16 @@ describe.skip('RedisQueueContext', () => {
     const context = new RedisQueueContext(redis);
     const queue = 'queue' + Math.random();
     queueNames.push(queue);
-    await context.createQueue(queue);
-    await context.addMessages(queue, [{id: '1', message: 'message'}]);
-    await context.addMessages(queue, [{id: '2', message: 'message'}]);
-    const messages = await context.getMessages(queue, 1);
-    expect(messages).toEqual([
+    const [id0] = await context.addMessages(queue, [
       {id: '1', message: 'message'},
+    ]);
+    const [id1] = await context.addMessages(queue, [
       {id: '2', message: 'message'},
+    ]);
+    const messages = await context.getMessages(queue, 2);
+    expect(messages).toEqual([
+      {id: id0, message: {id: '1', message: 'message'}},
+      {id: id1, message: {id: '2', message: 'message'}},
     ]);
   });
 
@@ -93,11 +95,10 @@ describe.skip('RedisQueueContext', () => {
     const context = new RedisQueueContext(redis);
     const queue = 'queue' + Math.random();
     queueNames.push(queue);
-    await context.createQueue(queue);
     await context.addMessages(queue, [{id: '1', message: 'message'}]);
     await context.getMessages(queue, 1, true);
-    const messages = await redis.json.get(queue, {path: '$.[0:2]'});
-    expect(messages).toEqual([]);
+    const len = await redis.xLen(queue);
+    expect(len).toBe(0);
   });
 
   test('deleteMessages', async () => {
@@ -105,11 +106,12 @@ describe.skip('RedisQueueContext', () => {
     const context = new RedisQueueContext(redis);
     const queue = 'queue' + Math.random();
     queueNames.push(queue);
-    await context.createQueue(queue);
-    await context.addMessages(queue, [{id: '1', message: 'message'}]);
-    await context.deleteMessages(queue, ['1']);
-    const messages = await redis.json.get(queue, {path: '$.[0:2]'});
-    expect(messages).toEqual([]);
+    const idList = await context.addMessages(queue, [
+      {id: '1', message: 'message'},
+    ]);
+    await context.deleteMessages(queue, idList);
+    const len = await redis.xLen(queue);
+    expect(len).toBe(0);
   });
 
   test('waitOnStream', async () => {
@@ -117,7 +119,10 @@ describe.skip('RedisQueueContext', () => {
     const context = new RedisQueueContext(redis);
     const queue = 'queue' + Math.random();
     queueNames.push(queue);
-    await context.createQueue(queue);
+    const idList = await context.addMessages(queue, [
+      {id: '1', message: 'message'},
+    ]);
+    await context.deleteMessages(queue, idList);
     const fn = vi.fn();
     context.waitOnStream(queue, fn);
     await context.addMessages(queue, [{id: '1', message: 'message'}]);

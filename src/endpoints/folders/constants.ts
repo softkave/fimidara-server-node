@@ -18,9 +18,12 @@ export const kFolderConstants = {
   },
   addFolderQueueTimeout: 30_000,
   addFolderProcessCount: 100,
-  getAddFolderPubSubChannel: (folderpath: string) => `addFolder:${folderpath}`,
+  getAddFolderPubSubChannel: (folderpath: string) =>
+    `${
+      kUtilsInjectables.suppliedConfig().addFolderPubSubChannelPrefix
+    }-${folderpath}`,
   getAddFolderQueueWithNo: (no: number) =>
-    `${kUtilsInjectables.suppliedConfig().addFolderQueueKey}:${no}`,
+    `${kUtilsInjectables.suppliedConfig().addFolderQueuePrefix}${no}`,
   getAddFolderQueueKey: (folderpath: string) => {
     const {addFolderQueueStart, addFolderQueueEnd} =
       kUtilsInjectables.suppliedConfig();
@@ -37,8 +40,10 @@ export const kFolderConstants = {
       return acc + char.charCodeAt(0);
     }, 0);
 
-    return kFolderConstants.getAddFolderQueueWithNo(
+    const key = kFolderConstants.getAddFolderQueueWithNo(
       (hash % queueCount) + addFolderQueueStart
     );
+
+    return key;
   },
 };

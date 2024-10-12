@@ -12,6 +12,7 @@ Error.prototype.toJSON = function () {
   return {
     message: this.message,
     name: this.name,
+    // stack: this.stack,
   };
 };
 

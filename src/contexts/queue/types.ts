@@ -1,22 +1,29 @@
-import {AnyFn, DisposableResource} from 'softkave-js-utils';
+import {DisposableResource} from 'softkave-js-utils';
 
-export interface IQueueMessage {
-  id: string;
-}
+export type IQueueMessage = {
+  [key: string]: string | undefined;
+};
+
+export type IQueueMessageInternal = {
+  [key: string]: string;
+};
 
 export interface IQueueContext extends DisposableResource {
-  createQueue: (key: string) => Promise<void>;
   deleteQueue: (key: string) => Promise<void>;
   queueExists: (key: string) => Promise<boolean>;
   addMessages: <T extends IQueueMessage>(
     key: string,
     messages: Array<T>
-  ) => Promise<void>;
-  getMessages: <T extends IQueueMessage = IQueueMessage>(
+  ) => Promise<string[]>;
+  getMessages: (
     key: string,
     count: number,
     remove?: boolean
-  ) => Promise<Array<T>>;
+  ) => Promise<Array<{id: string; message: IQueueMessage}>>;
   deleteMessages: (key: string, idList: Array<string>) => Promise<void>;
-  waitOnStream: (key: string, fn: AnyFn) => void;
+  waitOnStream: (
+    key: string,
+    fn: (hasData: boolean) => unknown,
+    timeout?: number
+  ) => void;
 }

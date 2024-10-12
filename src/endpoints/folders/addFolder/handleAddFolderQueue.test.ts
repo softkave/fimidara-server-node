@@ -15,11 +15,13 @@ import {
   kUtilsInjectables,
 } from '../../../contexts/injection/injectables.js';
 import {QueueContextSubscribeJsonFn} from '../../../contexts/pubsub/types.js';
+import {IQueueMessage} from '../../../contexts/queue/types.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {Folder} from '../../../definitions/folder.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
+import {kStringFalse, kStringTrue} from '../../../utils/constants.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
 import {NotFoundError} from '../../errors.js';
 import {
@@ -37,15 +39,14 @@ import {
 import {PermissionDeniedError} from '../../users/errors.js';
 import {kFolderConstants} from '../constants.js';
 import {getFolderpathInfo, stringifyFolderpath} from '../utils.js';
-import {
-  createAddFolderQueue,
-  handleAddFolderQueue,
-} from './handleAddFolderQueue.js';
+import {startHandleAddFolderQueue} from './handleAddFolderQueue.js';
 import {
   IAddFolderQueueInput,
   IAddFolderQueueOutput,
   kAddFolderQueueOutputType,
 } from './types.js';
+
+// TODO: part of parent folder exists
 
 let queueStart = 1;
 
@@ -55,7 +56,6 @@ beforeEach(async () => {
     addFolderQueueStart: queueStart,
     addFolderQueueEnd: queueStart,
   });
-  await createAddFolderQueue(queueStart);
 });
 
 afterEach(async () => {
@@ -64,7 +64,7 @@ afterEach(async () => {
 });
 
 interface ITestAddFolderQueueInput extends IAddFolderQueueInput {
-  hasAccess: boolean;
+  hasAccess: string;
 }
 
 function generateInput(workspace: Pick<Workspace, 'resourceId' | 'rootname'>) {
@@ -77,6 +77,8 @@ function generateInput(workspace: Pick<Workspace, 'resourceId' | 'rootname'>) {
         folderpath: stringifyFolderpath({
           namepath: generateTestFolderpath({rootname: workspace.rootname}),
         }),
+        UNSAFE_skipAuthCheck: kStringFalse,
+        throwIfFolderExists: kStringFalse,
       };
     },
     /** count */ 5
@@ -90,7 +92,12 @@ function populateWithAgent(
 ): ITestAddFolderQueueInput[] {
   return flatten(
     input.map(inputItem =>
-      agents.map(agent => ({hasAccess, ...inputItem, ...agent, id: getNewId()}))
+      agents.map(agent => ({
+        ...inputItem,
+        ...agent,
+        hasAccess: hasAccess ? kStringTrue : kStringFalse,
+        id: getNewId(),
+      }))
     )
   );
 }
@@ -152,7 +159,9 @@ async function insertInQueue(input: IAddFolderQueueInput[]) {
   assert.ok(queueKeys.length === 1);
   const queueKey = queueKeys[0];
 
-  await kUtilsInjectables.queue().addMessages(queueKey, input);
+  await kUtilsInjectables
+    .queue()
+    .addMessages(queueKey, input as unknown as IQueueMessage[]);
 }
 
 async function getFoldersFromDB(input: IAddFolderQueueInput[]) {
@@ -230,7 +239,7 @@ async function checkCorrectResponseReturned(
     const outputItem = outputRecord[inputItem.id];
     assert.ok(outputItem);
 
-    if (inputItem.hasAccess) {
+    if (inputItem.hasAccess === kStringTrue) {
       assert.ok(outputItem.type === kAddFolderQueueOutputType.success);
       expect(outputItem.folders.length).toBeGreaterThan(0);
       expect(pathJoin({input: last(outputItem.folders)!.namepath})).toBe(
@@ -257,10 +266,30 @@ describe('handleAddFolderQueue', () => {
     ]);
 
     const [w1a1, w1a2, w2a1, w2a2] = await Promise.all([
-      generateTokens(userToken, w1.rawWorkspace, 2, /** hasAccess */ true),
-      generateTokens(userToken, w1.rawWorkspace, 2, /** hasAccess */ false),
-      generateTokens(userToken, w2.rawWorkspace, 2, /** hasAccess */ true),
-      generateTokens(userToken, w2.rawWorkspace, 2, /** hasAccess */ false),
+      generateTokens(
+        userToken,
+        w1.rawWorkspace,
+        /** count */ 2,
+        /** hasAccess */ true
+      ),
+      generateTokens(
+        userToken,
+        w1.rawWorkspace,
+        /** count */ 2,
+        /** hasAccess */ false
+      ),
+      generateTokens(
+        userToken,
+        w2.rawWorkspace,
+        /** count */ 2,
+        /** hasAccess */ true
+      ),
+      generateTokens(
+        userToken,
+        w2.rawWorkspace,
+        /** count */ 2,
+        /** hasAccess */ false
+      ),
     ]);
 
     const w1i1 = generateInput(w1.rawWorkspace);
@@ -292,7 +321,9 @@ describe('handleAddFolderQueue', () => {
     await readyChannel(input, fn);
     await insertInQueue(input);
 
-    await handleAddFolderQueue(queueStart);
+    await startHandleAddFolderQueue(queueStart);
+    await waitTimeout(1_000);
+    await kUtilsInjectables.promises().flush();
 
     await checkFoldersCreatedInDB(w1i1a1, /** shouldBeCreated */ true);
     await checkFoldersCreatedInDB(w1i1a2, /** shouldBeCreated */ true);
@@ -332,7 +363,7 @@ describe('handleAddFolderQueue', () => {
     await readyChannel(input, fn);
     await insertInQueue(input);
 
-    await handleAddFolderQueue(queueStart);
+    await startHandleAddFolderQueue(queueStart);
 
     output
       .filter(outputItem => outputItem.type !== kAddFolderQueueOutputType.ack)
@@ -370,7 +401,7 @@ describe('handleAddFolderQueue', () => {
     await readyChannel(input, fn);
     await insertInQueue(input);
 
-    await handleAddFolderQueue(queueStart);
+    await startHandleAddFolderQueue(queueStart);
 
     output
       .filter(outputItem => outputItem.type !== kAddFolderQueueOutputType.ack)
@@ -399,7 +430,7 @@ describe('handleAddFolderQueue', () => {
       output.push(response as IAddFolderQueueOutput);
     };
 
-    await handleAddFolderQueue(queueStart);
+    await startHandleAddFolderQueue(queueStart);
 
     await readyChannel(input, fn);
     await insertInQueue(input);
@@ -413,7 +444,7 @@ describe('handleAddFolderQueue', () => {
     await checkCorrectResponseReturned(input, output);
   });
 
-  test.each([true, false])(
+  test.each([kStringTrue, kStringFalse])(
     'handleAddFolderQueue, UNSAFE_skipAuthCheck=%s',
     async UNSAFE_skipAuthCheck => {
       const {userToken} = await insertUserForTest();
@@ -427,20 +458,13 @@ describe('handleAddFolderQueue', () => {
       );
 
       const w1i1 = generateInput(w1.rawWorkspace);
-      const w1i2 = generateInput(w1.rawWorkspace);
-
       const w1i1a2 = populateWithAgent(
         w1i1,
         w1a2.agents,
-        /** hasAccess */ UNSAFE_skipAuthCheck
-      );
-      const w1i2a2 = populateWithAgent(
-        w1i2,
-        w1a2.agents,
-        /** hasAccess */ UNSAFE_skipAuthCheck
+        /** hasAccess */ UNSAFE_skipAuthCheck === kStringTrue
       );
 
-      const input = [...w1i1a2, ...w1i2a2].map(inputItem => ({
+      const input = w1i1a2.map(inputItem => ({
         ...inputItem,
         UNSAFE_skipAuthCheck,
       }));
@@ -453,15 +477,13 @@ describe('handleAddFolderQueue', () => {
       await readyChannel(input, fn);
       await insertInQueue(input);
 
-      await handleAddFolderQueue(queueStart);
+      await startHandleAddFolderQueue(queueStart);
+      await waitTimeout(1_000);
+      await kUtilsInjectables.promises().flush();
 
       await checkFoldersCreatedInDB(
         w1i1a2,
-        /** shouldBeCreated */ UNSAFE_skipAuthCheck
-      );
-      await checkFoldersCreatedInDB(
-        w1i2a2,
-        /** shouldBeCreated */ UNSAFE_skipAuthCheck
+        /** shouldBeCreated */ UNSAFE_skipAuthCheck === kStringTrue
       );
 
       await checkFoldersNotDuplicated(input);
@@ -470,7 +492,7 @@ describe('handleAddFolderQueue', () => {
     }
   );
 
-  test.each([true])(
+  test.each([kStringTrue, kStringFalse])(
     'handleAddFolderQueue, throwIfFolderExists=%s',
     async throwIfFolderExists => {
       const {userToken} = await insertUserForTest();
@@ -524,7 +546,9 @@ describe('handleAddFolderQueue', () => {
       await readyChannel(input, fn);
       await insertInQueue(input);
 
-      await handleAddFolderQueue(queueStart);
+      await startHandleAddFolderQueue(queueStart);
+      await waitTimeout(1_000);
+      await kUtilsInjectables.promises().flush();
 
       await checkFoldersNotDuplicated(input);
       output
@@ -575,11 +599,7 @@ describe('handleAddFolderQueue', () => {
       });
 
       const w1i1 = generateInput(w1.rawWorkspace);
-      const w1i1a1 = populateWithAgent(
-        w1i1,
-        w1a1.agents,
-        /** hasAccess */ true
-      );
+      const w1i1a1 = populateWithAgent(w1i1, w1a1.agents, hasAccess);
 
       const input = [...w1i1a1].map(inputItem => ({
         ...inputItem,
@@ -594,7 +614,9 @@ describe('handleAddFolderQueue', () => {
       await readyChannel(input, fn);
       await insertInQueue(input);
 
-      await handleAddFolderQueue(queueStart);
+      await startHandleAddFolderQueue(queueStart);
+      await waitTimeout(1_000);
+      await kUtilsInjectables.promises().flush();
 
       await checkFoldersNotDuplicated(input);
       output

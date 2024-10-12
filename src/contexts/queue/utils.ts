@@ -1,4 +1,5 @@
 import assert from 'assert';
+import {isUndefined} from 'lodash-es';
 import {createClient, RedisClientType} from 'redis';
 import {
   FimidaraSuppliedConfig,
@@ -6,6 +7,7 @@ import {
 } from '../../resources/config.js';
 import {InMemoryQueueContext} from './InMemoryQueueContext.js';
 import {RedisQueueContext} from './RedisQueueContext.js';
+import {IQueueMessage, IQueueMessageInternal} from './types.js';
 
 export async function getQueueContext(config: FimidaraSuppliedConfig) {
   switch (config.queueProvider) {
@@ -21,4 +23,22 @@ export async function getQueueContext(config: FimidaraSuppliedConfig) {
     default:
       throw new Error(`Unknown queue type: ${config.queueProvider}`);
   }
+}
+
+export function cleanQueueMessages(
+  messages: Array<IQueueMessage>
+): Array<IQueueMessageInternal> {
+  return messages.map(m => {
+    const cM: IQueueMessageInternal = {};
+
+    for (const key in m) {
+      if (isUndefined(m[key])) {
+        continue;
+      }
+
+      cM[key] = m[key] as string;
+    }
+
+    return cM;
+  });
 }

@@ -3,7 +3,10 @@ import {AnyFn} from 'softkave-js-utils';
 import {IQueueContext, IQueueMessage} from './types.js';
 
 export class InMemoryQueueContext implements IQueueContext {
-  protected queues = new Map<string, Array<IQueueMessage>>();
+  protected queues = new Map<
+    string,
+    Array<{id: string; message: IQueueMessage}>
+  >();
   protected waitListeners = new Map<string, AnyFn[]>();
 
   createQueue = async (key: string) => {
@@ -20,34 +23,45 @@ export class InMemoryQueueContext implements IQueueContext {
     return this.queues.has(key);
   };
 
-  addMessages = async <T extends IQueueMessage>(
-    key: string,
-    messages: Array<T>
-  ) => {
-    if (this.queues.has(key)) {
-      this.queues.get(key)?.push(...messages);
+  addMessages = async (key: string, messages: Array<IQueueMessage>) => {
+    if (!(await this.queueExists(key))) {
+      await this.createQueue(key);
+    }
 
-      const message0 = first(messages);
+    if (this.queues.has(key)) {
+      const now = Date.now();
+      const idMessages = messages.map((message, index) => ({
+        id: `${now}-${index}`,
+        message,
+      }));
+
+      this.queues.get(key)?.push(...idMessages);
+      const message0 = first(idMessages);
+
       if (message0) {
         this.fanoutToWaitListeners(key, message0);
       }
+
+      return idMessages.map(m => m.id);
     } else {
       throw new Error(`Queue ${key} does not exist`);
     }
   };
 
-  getMessages = async <T extends IQueueMessage = IQueueMessage>(
-    key: string,
-    count: number,
-    remove: boolean = false
-  ) => {
+  getMessages = async (key: string, count: number, remove: boolean = false) => {
     if (this.queues.has(key)) {
       const messages = this.queues.get(key) || [];
 
       if (remove) {
-        return messages.splice(0, count) as T[];
+        return messages.splice(0, count) as Array<{
+          id: string;
+          message: IQueueMessage;
+        }>;
       } else {
-        return messages.slice(0, count) as T[];
+        return messages.slice(0, count) as Array<{
+          id: string;
+          message: IQueueMessage;
+        }>;
       }
     } else {
       throw new Error(`Queue ${key} does not exist`);
@@ -90,7 +104,10 @@ export class InMemoryQueueContext implements IQueueContext {
     this.waitListeners.clear();
   };
 
-  protected fanoutToWaitListeners(key: string, message: IQueueMessage) {
+  protected fanoutToWaitListeners(
+    key: string,
+    message: {id: string; message: IQueueMessage}
+  ) {
     const listeners = this.waitListeners.get(key);
     this.waitListeners.delete(key);
     listeners?.forEach(fn => fn(message));

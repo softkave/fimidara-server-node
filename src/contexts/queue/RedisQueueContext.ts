@@ -1,59 +1,53 @@
+import {flatten} from 'lodash-es';
 import {RedisClientType} from 'redis';
 import {AnyFn} from 'softkave-js-utils';
 import {kUtilsInjectables} from '../injection/injectables.js';
 import {IQueueContext, IQueueMessage} from './types.js';
-
-type RedisJsonArrAppendParams = Parameters<
-  RedisClientType['json']['arrAppend']
->;
-type RedisJSON = RedisJsonArrAppendParams[2];
+import {cleanQueueMessages} from './utils.js';
 
 export class RedisQueueContext implements IQueueContext {
   constructor(protected redis: RedisClientType) {}
-
-  createQueue = async (key: string) => {
-    const exists = await this.queueExists(key);
-
-    if (!exists) {
-      await this.redis.json.set(key, '$', []);
-    }
-  };
 
   deleteQueue = async (key: string) => {
     await this.redis.del(key);
   };
 
-  addMessages = async <T extends IQueueMessage>(
-    key: string,
-    messages: Array<T>
-  ) => {
-    const redisJson = messages as unknown as Array<RedisJSON>;
-    await this.redis.json.arrAppend(key, '$', ...redisJson);
+  addMessages = async (key: string, messages: Array<IQueueMessage>) => {
+    const cleanMessages = cleanQueueMessages(messages);
+
+    // TODO: look for a way to do this in bulk
+    // TODO: inform users it's possible it's not added in order
+    const ids = await Promise.all(
+      cleanMessages.map(message => {
+        return this.redis.xAdd(key, '*', message);
+      })
+    );
+
+    return ids;
   };
 
   deleteMessages = async (key: string, idList: Array<string>) => {
-    const path = `$.[?(${idList.map(id => `@.id == "${id}"`).join(' || ')})]`;
-    await this.redis.json.del(key, path);
+    await this.redis.xDel(key, idList);
   };
 
-  getMessages = async <T extends IQueueMessage>(
-    key: string,
-    count: number,
-    remove?: boolean
-  ) => {
-    const items = await this.redis.json.get(key, {
-      path: `$.[0:${count + 1}]`,
-    });
+  getMessages = async (key: string, count: number, remove?: boolean) => {
+    const messages = await this.redis.xRead({key, id: '0'}, {COUNT: count});
+    const messagesArray = flatten(messages?.map(m => m.messages) ?? []);
+    const idList = messagesArray.map(m => m.id);
 
-    // TODO: test if this works
-    // const items02 = await this.redis.json.get(key, {path: `$.slice(${count})`});
-    // console.log(items02);
+    if (remove && messagesArray.length > 0) {
+      await this.deleteMessages(key, idList);
 
-    if (remove) {
-      await this.redis.json.arrTrim(key, '$', 1, count);
+      // TODO: compare performance of this with the above
+      // const messageLast = last(messagesArray);
+      // const minIdStr = messageLast?.id;
+      // assert.ok(minIdStr);
+      // const minId = parseInt(minIdStr.split('-')[0], 10);
+      // assert.ok(minId);
+      // await this.redis.xTrim(key, 'MINID', minId);
     }
 
-    return items as unknown as T[];
+    return messagesArray as Array<{id: string; message: IQueueMessage}>;
   };
 
   queueExists = async (key: string) => {
@@ -61,10 +55,17 @@ export class RedisQueueContext implements IQueueContext {
     return exists === 1;
   };
 
-  waitOnStream = async (key: string, fn: AnyFn) => {
-    const p = this.redis.xRead({key, id: '0-0'}, {COUNT: 1});
-    p.catch(reason => kUtilsInjectables.logger().error(reason));
-    p.finally(fn);
+  waitOnStream = async (key: string, fn: AnyFn, timeout = 500) => {
+    // TODO: rather than blocking, we should use a pubsub channel
+    const p = this.redis.xRead({key, id: '0-0'}, {COUNT: 1, BLOCK: timeout});
+    p.catch(reason => {
+      fn(false);
+      kUtilsInjectables.logger().error(reason);
+    });
+    p.then(data => {
+      const hasData = data?.length && data[0]?.messages?.length;
+      fn(hasData);
+    });
   };
 
   dispose = async () => {

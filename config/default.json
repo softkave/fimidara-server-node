@@ -47,7 +47,8 @@
   "addFolderQueueEnd": 1,
   "addFolderQueueNo": [1],
   "addFolderTimeoutMs": 30000,
-  "addFolderQueueKey": "addFolderQueue",
+  "addFolderQueuePrefix": "addFolderQueue",
+  "addFolderPubSubChannelPrefix": "addFolderPubSub",
   "pubSubProvider": "",
   "pubSubRedisURL": ""
 }

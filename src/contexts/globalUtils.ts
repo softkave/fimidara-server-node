@@ -1,7 +1,4 @@
-import {
-  createAddFolderQueue,
-  handleAddFolderQueue,
-} from '../endpoints/folders/addFolder/handleAddFolderQueue.js';
+import {startHandleAddFolderQueue} from '../endpoints/folders/addFolder/handleAddFolderQueue.js';
 import {FimidaraSuppliedConfig} from '../resources/config.js';
 import {kUtilsInjectables} from './injection/injectables.js';
 import {registerInjectables} from './injection/register.js';
@@ -35,11 +32,8 @@ export async function globalSetup(overrideConfig: FimidaraSuppliedConfig = {}) {
     suppliedConfig.addFolderQueueNo &&
     suppliedConfig.addFolderQueueNo.length > 0
   ) {
-    await Promise.all(
-      suppliedConfig.addFolderQueueNo.map(async queueNo => {
-        await createAddFolderQueue(queueNo);
-        kUtilsInjectables.promises().forget(handleAddFolderQueue(queueNo));
-      })
-    );
+    suppliedConfig.addFolderQueueNo.map(queueNo => {
+      startHandleAddFolderQueue(queueNo);
+    });
   }
 }

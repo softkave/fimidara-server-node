@@ -1,4 +1,3 @@
-import {IQueueMessage} from '../../../contexts/queue/types.js';
 import {Folder, PublicFolder} from '../../../definitions/folder.js';
 import {Agent, SessionAgent} from '../../../definitions/system.js';
 import {Endpoint, EndpointResultNote} from '../../types.js';
@@ -21,24 +20,21 @@ export type AddFolderEndpoint = Endpoint<
   AddFolderEndpointResult
 >;
 
-export interface IAddFolderQueueInput
-  extends NewFolderInput,
-    IQueueMessage,
-    Agent {
+export interface IAddFolderQueueInput extends NewFolderInput, Agent {
+  id: string;
   channel: string;
   workspaceId: string;
-  UNSAFE_skipAuthCheck?: boolean;
-  throwIfFolderExists?: boolean;
+  UNSAFE_skipAuthCheck?: string;
+  throwIfFolderExists?: string;
 }
 
-export interface IAddFolderQueueWorkingInput
-  extends NewFolderInput,
-    IQueueMessage {
+export interface IAddFolderQueueWorkingInput extends NewFolderInput {
+  id: string;
   channel: string;
   workspaceId: string;
   agent: SessionAgent;
-  UNSAFE_skipAuthCheck?: boolean;
-  throwIfFolderExists?: boolean;
+  UNSAFE_skipAuthCheck?: string;
+  throwIfFolderExists?: string;
 }
 
 export const kAddFolderQueueOutputType = {
@@ -49,16 +45,16 @@ export const kAddFolderQueueOutputType = {
 
 export type IAddFolderQueueOutput =
   | {
-      id: IQueueMessage['id'];
+      id: IAddFolderQueueInput['id'];
       type: typeof kAddFolderQueueOutputType.error;
       error: unknown;
     }
   | {
-      id: IQueueMessage['id'];
+      id: IAddFolderQueueInput['id'];
       type: typeof kAddFolderQueueOutputType.success;
       folders: Folder[];
     }
   | {
-      id: IQueueMessage['id'];
+      id: IAddFolderQueueInput['id'];
       type: typeof kAddFolderQueueOutputType.ack;
     };

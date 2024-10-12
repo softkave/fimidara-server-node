@@ -147,11 +147,12 @@ export type FimidaraSuppliedConfig = Partial<{
   addFolderQueueEnd: number;
   addFolderQueueNo: number[];
   addFolderTimeoutMs: number;
-  addFolderQueueKey: string;
+  addFolderQueuePrefix: string;
 
   // PubSub
   pubSubProvider: FimidaraConfigPubSubProvider;
   pubSubRedisURL: string;
+  addFolderPubSubChannelPrefix: string;
 }>;
 
 export type FimidaraConfig = FimidaraSuppliedConfig & FimidaraRuntimeConfig;
