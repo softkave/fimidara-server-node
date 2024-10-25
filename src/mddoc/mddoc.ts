@@ -892,6 +892,7 @@ function constructHttpEndpointMultipartFormdata<T extends object>() {
   return mergeData(ff0, ff, {arrayUpdateStrategy: 'replace'});
 }
 
+// TODO: use constructors for these for better type checking
 function constructHttpEndpointDefinition<
   TRequestHeaders extends AnyObject = AnyObject,
   TPathParameters extends AnyObject = AnyObject,

@@ -16,7 +16,7 @@ import {getTimestamp} from '../../utils/dateFns.js';
 import {getNewIdForResource, kIdSize} from '../../utils/resource.js';
 import {makeUserSessionAgent} from '../../utils/sessionUtils.js';
 import EndpointReusableQueries from '../queries.js';
-import {INTERNAL_forgotPassword} from '../users/forgotPassword/forgotPassword.js';
+import {INTERNAL_forgotPassword} from '../users/forgotPassword/handler.js';
 import {getUserToken} from '../users/login/utils.js';
 import {INTERNAL_sendEmailVerificationCode} from '../users/sendEmailVerificationCode/handler.js';
 import {INTERNAL_signupUser} from '../users/signup/utils.js';

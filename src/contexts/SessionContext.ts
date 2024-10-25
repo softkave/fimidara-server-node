@@ -1,5 +1,8 @@
+import * as argon2 from 'argon2';
+import {millisecondsToSeconds} from 'date-fns';
 import jwtpkg from 'jsonwebtoken';
 import {first} from 'lodash-es';
+import {getNewId} from 'softkave-js-utils';
 import {AgentToken} from '../definitions/agentToken.js';
 import {
   BaseTokenData,
@@ -20,7 +23,6 @@ import {
 } from '../endpoints/users/errors.js';
 import {kPublicSessionAgent, kSystemSessionAgent} from '../utils/agent.js';
 import {appAssert} from '../utils/assertion.js';
-import {dateToSeconds} from '../utils/dateFns.js';
 import {ServerError} from '../utils/errors.js';
 import {cast, convertToArray} from '../utils/fns.js';
 import {indexArray} from '../utils/indexArray.js';
@@ -48,6 +50,19 @@ export const kSessionUtils = {
   },
 };
 
+export interface ISessionContextEncodeTokenParams {
+  tokenId: string;
+  shouldRefresh?: boolean;
+  expiresAt?: string | Date | number | null;
+  issuedAt?: string | Date | number;
+}
+
+export interface ISessionContextEncodeTokenResult {
+  refreshToken?: string;
+  jwtToken: string;
+  jwtTokenExpiresAt?: number;
+}
+
 export interface SessionContextType {
   getAgentFromReq: (
     data: RequestData,
@@ -65,10 +80,9 @@ export interface SessionContextType {
     expectedTokenScopes: TokenAccessScope | TokenAccessScope[]
   ) => boolean;
   encodeToken: (
-    tokenId: string,
-    expires?: string | Date | number | null,
-    issuedAt?: string | Date | number | null
-  ) => string;
+    props: ISessionContextEncodeTokenParams
+  ) => Promise<ISessionContextEncodeTokenResult>;
+  verifyRefreshToken: (refreshToken: string, hash: string) => Promise<boolean>;
 }
 
 export default class SessionContext implements SessionContextType {
@@ -82,6 +96,8 @@ export default class SessionContext implements SessionContextType {
 
     if (!agent) {
       if (incomingTokenData) {
+        this.checkTokenDataVersion(incomingTokenData);
+
         const agentToken = await kSemanticModels
           .agentToken()
           .getOneById(incomingTokenData.sub.id);
@@ -154,10 +170,7 @@ export default class SessionContext implements SessionContextType {
       jwtpkg.verify(token, suppliedConfig.jwtSecret, {complete: false})
     );
 
-    if (tokenData.version < kCurrentJWTTokenVersion) {
-      throw new CredentialsExpiredError();
-    }
-
+    this.checkTokenDataVersion(tokenData);
     return tokenData;
   };
 
@@ -178,11 +191,9 @@ export default class SessionContext implements SessionContextType {
     return hasTokenAccessScope;
   };
 
-  encodeToken = (
-    tokenId: string,
-    expires?: string | Date | number | null,
-    issuedAt?: string | Date | number | null
-  ) => {
+  encodeToken = async (props: ISessionContextEncodeTokenParams) => {
+    const {tokenId, shouldRefresh, expiresAt, issuedAt} = props;
+
     const suppliedConfig = kUtilsInjectables.suppliedConfig();
     appAssert(suppliedConfig.jwtSecret);
 
@@ -190,12 +201,39 @@ export default class SessionContext implements SessionContextType {
       version: kCurrentJWTTokenVersion,
       sub: {id: tokenId},
     };
+    const expiresAtMs = expiresAt ? new Date(expiresAt).valueOf() : undefined;
+    const issuedAtMs = issuedAt ? new Date(issuedAt).valueOf() : undefined;
+    let refreshToken: string | undefined;
 
-    if (expires) payload.exp = dateToSeconds(expires);
-    if (issuedAt) payload.iat = dateToSeconds(issuedAt);
+    if (expiresAtMs) payload.exp = millisecondsToSeconds(expiresAtMs);
+    if (issuedAtMs) payload.iat = millisecondsToSeconds(issuedAtMs);
+    if (shouldRefresh) {
+      appAssert(payload.exp, new ServerError(), 'expires must be set');
+      refreshToken = getNewId();
 
-    return jwtpkg.sign(payload, suppliedConfig.jwtSecret);
+      // TODO: check which is better, to hash or store in DB
+      const hash = await argon2.hash(refreshToken);
+      payload.sub.refreshToken = hash;
+    }
+
+    const jwtToken = jwtpkg.sign(payload, suppliedConfig.jwtSecret);
+
+    return {
+      jwtToken,
+      refreshToken,
+      jwtTokenExpiresAt: expiresAtMs,
+    };
   };
+
+  verifyRefreshToken = async (refreshToken: string, hash: string) => {
+    return await argon2.verify(hash, refreshToken);
+  };
+
+  checkTokenDataVersion(tokenData: BaseTokenData) {
+    if (tokenData.version < kCurrentJWTTokenVersion) {
+      throw new CredentialsExpiredError();
+    }
+  }
 
   private checkPermittedAgentTypes(
     agent: SessionAgent,

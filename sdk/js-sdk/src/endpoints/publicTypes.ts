@@ -7,8 +7,11 @@ export type AddAgentTokenEndpointParams = {
   workspaceId?: string;
   name?: string;
   description?: string;
-  expires?: number;
+  expiresAt?: number;
   providedResourceId?: string;
+  shouldEncode?: boolean;
+  shouldRefresh?: boolean;
+  refreshDuration?: number;
 };
 export type AgentType = 'user' | 'agentToken';
 export type Agent = {
@@ -27,9 +30,11 @@ export type AgentToken = {
   workspaceId: string;
   name?: string;
   description?: string;
-  tokenStr: string;
+  jwtToken?: string;
+  refreshToken?: string;
   expiresAt?: number;
   providedResourceId?: string | null;
+  jwtTokenExpiresAt?: number;
 };
 export type AddAgentTokenEndpointResult = {
   token: AgentToken;
@@ -48,6 +53,7 @@ export type GetAgentTokenEndpointParams = {
   providedResourceId?: string;
   tokenId?: string;
   onReferenced?: boolean;
+  shouldEncode?: boolean;
 };
 export type GetAgentTokenEndpointResult = {
   token: AgentToken;
@@ -56,6 +62,7 @@ export type GetWorkspaceAgentTokensEndpointParams = {
   workspaceId?: string;
   page?: number;
   pageSize?: number;
+  shouldEncode?: boolean;
 };
 export type GetWorkspaceAgentTokensEndpointResult = {
   tokens: Array<AgentToken>;
@@ -70,8 +77,11 @@ export type CountItemsResult = {
 export type NewAgentTokenInput = {
   name?: string;
   description?: string;
-  expires?: number;
+  expiresAt?: number;
   providedResourceId?: string;
+  shouldEncode?: boolean;
+  shouldRefresh?: boolean;
+  refreshDuration?: number;
 };
 export type UpdateAgentTokenEndpointParams = {
   workspaceId?: string;
@@ -79,9 +89,29 @@ export type UpdateAgentTokenEndpointParams = {
   onReferenced?: boolean;
   token: NewAgentTokenInput;
   providedResourceId?: string;
+  shouldEncode?: boolean;
 };
 export type UpdateAgentTokenEndpointResult = {
   token: AgentToken;
+};
+export type RefreshAgentTokenEndpointParams = {
+  refreshToken: string;
+};
+export type RefreshAgentTokenEndpointResult = {
+  jwtToken: string;
+  refreshToken?: string;
+  jwtTokenExpiresAt?: number;
+};
+export type EncodeAgentTokenEndpointParams = {
+  workspaceId?: string;
+  providedResourceId?: string;
+  tokenId?: string;
+  onReferenced?: boolean;
+};
+export type EncodeAgentTokenEndpointResult = {
+  jwtToken: string;
+  refreshToken?: string;
+  jwtTokenExpiresAt?: number;
 };
 export type DeleteCollaborationRequestEndpointParams = {
   requestId: string;

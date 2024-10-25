@@ -100,10 +100,10 @@ describe('sendConfirmEmailAddressEmail', () => {
       {resourceId: userId, isEmailVerified: false} as User,
       prevLink
     );
-    const encodedToken = kUtilsInjectables
+    const encodedToken = await kUtilsInjectables
       .session()
-      .encodeToken(token.resourceId, token.expiresAt);
-    assertLinkWithToken(link, encodedToken, prevLink);
+      .encodeToken({tokenId: token.resourceId, expiresAt: token.expiresAt});
+    assertLinkWithToken(link, encodedToken.jwtToken, prevLink);
   });
 
   test('sendEmail called', async () => {

@@ -1,4 +1,5 @@
 import {faker} from '@faker-js/faker';
+import * as argon2 from 'argon2';
 import assert from 'assert';
 import {add} from 'date-fns';
 import {Readable} from 'stream';
@@ -8,7 +9,7 @@ import {
   kUtilsInjectables,
 } from '../../contexts/injection/injectables.js';
 import {IServerRequest} from '../../contexts/types.js';
-import {AgentToken} from '../../definitions/agentToken.js';
+import {AgentToken, PublicAgentToken} from '../../definitions/agentToken.js';
 import {
   BaseTokenData,
   kCurrentJWTTokenVersion,
@@ -65,7 +66,7 @@ import RequestData from '../RequestData.js';
 import {initFimidara} from '../runtime/initFimidara.js';
 import {BaseEndpointResult} from '../types.js';
 import INTERNAL_confirmEmailAddress from '../users/confirmEmailAddress/internalConfirmEmailAddress.js';
-import signup from '../users/signup/signup.js';
+import signup from '../users/signup/handler.js';
 import {SignupEndpointParams} from '../users/signup/types.js';
 import {assertUser} from '../users/utils.js';
 import addWorkspace from '../workspaces/addWorkspace/handler.js';
@@ -115,7 +116,10 @@ export function mockExpressRequest(token?: BaseTokenData) {
 }
 
 export function mockExpressRequestWithAgentToken(
-  token: Pick<AgentToken, 'resourceId' | 'createdAt' | 'expiresAt'>
+  token: Pick<
+    PublicAgentToken,
+    'resourceId' | 'createdAt' | 'expiresAt' | 'refreshToken'
+  >
 ) {
   const req: IServerRequest = {
     auth:
@@ -124,7 +128,36 @@ export function mockExpressRequestWithAgentToken(
         ? undefined
         : {
             version: kCurrentJWTTokenVersion,
-            sub: {id: token.resourceId},
+            sub: {
+              id: token.resourceId,
+            },
+            iat: token.createdAt,
+            exp: token.expiresAt,
+          },
+  } as unknown as IServerRequest;
+
+  return req;
+}
+
+export async function mockExpressRequestWithAgentRefreshToken(
+  token: Pick<
+    PublicAgentToken,
+    'resourceId' | 'createdAt' | 'expiresAt' | 'refreshToken'
+  >
+) {
+  const req: IServerRequest = {
+    auth:
+      token.resourceId === kSystemSessionAgent.agentTokenId ||
+      token.resourceId === kPublicSessionAgent.agentTokenId
+        ? undefined
+        : {
+            version: kCurrentJWTTokenVersion,
+            sub: {
+              id: token.resourceId,
+              refreshToken: token.refreshToken
+                ? await argon2.hash(token.refreshToken)
+                : undefined,
+            },
             iat: token.createdAt,
             exp: token.expiresAt,
           },
@@ -145,8 +178,9 @@ export interface IInsertUserForTestResult {
   userToken: AgentToken;
   clientToken: AgentToken;
   user: PublicUser;
-  userTokenStr: string;
-  clientTokenStr: string;
+  token: string;
+  clientAssignedToken: string;
+  refreshToken: string;
   reqData: RequestData<SignupEndpointParams>;
   sessionAgent: SessionAgent;
 }
@@ -185,10 +219,12 @@ export async function insertUserForTest(
     rawUser = await populateUserWorkspaces(user);
   }
 
-  const userTokenData = kUtilsInjectables.session().decodeToken(result.token);
+  const userTokenData = kUtilsInjectables
+    .session()
+    .decodeToken(result.jwtToken);
   const clientTokenData = kUtilsInjectables
     .session()
-    .decodeToken(result.clientAssignedToken);
+    .decodeToken(result.clientJwtToken);
   const [userToken, clientToken] = await Promise.all([
     kSemanticModels.agentToken().getOneById(userTokenData.sub.id),
     kSemanticModels.agentToken().getOneById(clientTokenData.sub.id),
@@ -203,8 +239,9 @@ export async function insertUserForTest(
     clientToken,
     sessionAgent,
     user: {...result.user, isEmailVerified: rawUser.isEmailVerified},
-    userTokenStr: result.token,
-    clientTokenStr: result.clientAssignedToken,
+    token: result.jwtToken,
+    clientAssignedToken: result.clientJwtToken,
+    refreshToken: result.refreshToken,
     reqData: reqData,
   };
 }
@@ -306,7 +343,7 @@ export async function insertAgentTokenForTest(
     mockExpressRequestWithAgentToken(userToken),
     {
       workspaceId,
-      expires: getTimestamp(add(Date.now(), {days: 1})),
+      expiresAt: getTimestamp(add(Date.now(), {days: 1})),
       name: faker.lorem.words(7),
       description: faker.lorem.words(10),
       ...tokenInput,

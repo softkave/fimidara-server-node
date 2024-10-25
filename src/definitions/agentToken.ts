@@ -19,11 +19,19 @@ export interface AgentToken extends Resource {
   providedResourceId?: string | null;
   lastUpdatedBy: Agent;
   createdBy: Agent;
-
   /** Timestamp in ms */
   expiresAt?: number;
   /** Describes what the token can be used for. */
   scope?: TokenAccessScope[];
+  shouldRefresh?: boolean;
+  /** Refresh duration in milliseconds */
+  refreshDuration?: number;
+}
+
+export interface EncodedAgentToken {
+  jwtToken: string;
+  refreshToken?: string;
+  jwtTokenExpiresAt?: number;
 }
 
 export type PublicAgentToken = PublicWorkspaceResource &
@@ -35,6 +43,5 @@ export type PublicAgentToken = PublicWorkspaceResource &
     | 'lastUpdatedBy'
     | 'createdBy'
     | 'providedResourceId'
-  > & {
-    tokenStr: string;
-  };
+  > &
+  Partial<EncodedAgentToken>;

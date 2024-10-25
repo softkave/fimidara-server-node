@@ -1,5 +1,9 @@
+import type {IRefreshAuthToken} from './types.js';
+
+export type FimidaraJsConfigAuthToken = string | IRefreshAuthToken;
+
 export interface FimidaraJsConfigOptions {
-  authToken?: string;
+  authToken?: FimidaraJsConfigAuthToken;
   serverURL?: string;
 }
 
@@ -13,7 +17,7 @@ export class FimidaraJsConfig {
     inheritConfigFrom?.registerSdkConfigInheritor(this);
   }
 
-  setSdkAuthToken(token: string) {
+  setSdkAuthToken(token: FimidaraJsConfigAuthToken) {
     this.setSdkConfig({authToken: token});
   }
 

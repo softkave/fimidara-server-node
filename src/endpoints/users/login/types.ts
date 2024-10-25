@@ -8,8 +8,10 @@ export interface LoginEndpointParams {
 
 export interface LoginResult {
   user: PublicUser;
-  token: string;
-  clientAssignedToken: string;
+  jwtToken: string;
+  refreshToken: string;
+  clientJwtToken: string;
+  jwtTokenExpiresAt: number;
 }
 
 export type LoginEndpoint = Endpoint<LoginEndpointParams, LoginResult>;

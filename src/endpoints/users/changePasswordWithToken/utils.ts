@@ -3,11 +3,7 @@ import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import RequestData from '../../RequestData.js';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
-import {
-  getUserClientAssignedToken,
-  getUserToken,
-  toLoginResult,
-} from '../login/utils.js';
+import {getLoginResult} from '../login/utils.js';
 import {assertUser} from '../utils.js';
 
 export async function INTERNAL_changePassword(
@@ -39,14 +35,6 @@ export async function INTERNAL_changePassword(
   reqData.agent = null;
   reqData.incomingTokenData = null;
   const completeUserData = await populateUserWorkspaces(updatedUser);
-  const [userToken, clientAssignedToken] = await kSemanticModels
-    .utils()
-    .withTxn(opts =>
-      Promise.all([
-        getUserToken(userId, opts),
-        getUserClientAssignedToken(userId, opts),
-      ])
-    );
 
-  return toLoginResult(completeUserData, userToken, clientAssignedToken);
+  return await getLoginResult(completeUserData);
 }

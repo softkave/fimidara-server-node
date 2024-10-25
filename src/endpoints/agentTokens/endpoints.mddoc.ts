@@ -15,9 +15,13 @@ import {
   AddAgentTokenEndpointResult,
   NewAgentTokenInput,
 } from './addToken/types.js';
-import {agentTokenConstants} from './constants.js';
+import {kAgentTokenConstants} from './constants.js';
 import {CountWorkspaceAgentTokensEndpointParams} from './countWorkspaceTokens/types.js';
 import {DeleteAgentTokenEndpointParams} from './deleteToken/types.js';
+import {
+  EncodeAgentTokenEndpointParams,
+  EncodeAgentTokenEndpointResult,
+} from './encodeToken/types.js';
 import {
   GetAgentTokenEndpointParams,
   GetAgentTokenEndpointResult,
@@ -27,17 +31,37 @@ import {
   GetWorkspaceAgentTokensEndpointResult,
 } from './getWorkspaceTokens/types.js';
 import {
+  RefreshAgentTokenEndpointParams,
+  RefreshAgentTokenEndpointResult,
+} from './refreshToken/types.js';
+import {
   AddAgentTokenHttpEndpoint,
   CountWorkspaceAgentTokensHttpEndpoint,
   DeleteAgentTokenHttpEndpoint,
+  EncodeAgentTokenHttpEndpoint,
   GetAgentTokenHttpEndpoint,
   GetWorkspaceAgentTokensHttpEndpoint,
+  RefreshAgentTokenHttpEndpoint,
   UpdateAgentTokenHttpEndpoint,
 } from './types.js';
 import {
   UpdateAgentTokenEndpointParams,
   UpdateAgentTokenEndpointResult,
 } from './updateToken/types.js';
+
+const shouldRefresh = mddocConstruct
+  .constructFieldBoolean()
+  .setDescription('Whether the token should be refreshed.');
+const shouldEncode = mddocConstruct
+  .constructFieldBoolean()
+  .setDescription(
+    'Whether the token returned should include the token encoded in JWT format.'
+  );
+const refreshDurationMs = mddocConstruct
+  .constructFieldNumber()
+  .setDescription(
+    'The duration in milliseconds for which a generated JWT token, not the actual agent token, is valid.'
+  );
 
 const newAgentTokenInput = mddocConstruct
   .constructFieldObject<NewAgentTokenInput>()
@@ -48,13 +72,22 @@ const newAgentTokenInput = mddocConstruct
       false,
       fReusables.description
     ),
-    expires: mddocConstruct.constructFieldObjectField(
+    expiresAt: mddocConstruct.constructFieldObjectField(
       false,
       fReusables.expires
     ),
     providedResourceId: mddocConstruct.constructFieldObjectField(
       false,
       fReusables.providedResourceId
+    ),
+    shouldEncode: mddocConstruct.constructFieldObjectField(false, shouldEncode),
+    shouldRefresh: mddocConstruct.constructFieldObjectField(
+      false,
+      shouldRefresh
+    ),
+    refreshDuration: mddocConstruct.constructFieldObjectField(
+      false,
+      refreshDurationMs
     ),
   });
 
@@ -68,9 +101,13 @@ const agentToken = mddocConstruct
       false,
       fReusables.description
     ),
-    tokenStr: mddocConstruct.constructFieldObjectField(
-      true,
+    jwtToken: mddocConstruct.constructFieldObjectField(
+      false,
       fReusables.tokenString
+    ),
+    refreshToken: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.refreshTokenString
     ),
     expiresAt: mddocConstruct.constructFieldObjectField(
       false,
@@ -79,6 +116,10 @@ const agentToken = mddocConstruct
     providedResourceId: mddocConstruct.constructFieldObjectField(
       false,
       fReusables.providedResourceIdOrNull
+    ),
+    jwtTokenExpiresAt: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.jwtTokenExpiresAt
     ),
   });
 
@@ -95,7 +136,7 @@ const addAgentTokenParams = mddocConstruct
       false,
       fReusables.description
     ),
-    expires: mddocConstruct.constructFieldObjectField(
+    expiresAt: mddocConstruct.constructFieldObjectField(
       false,
       fReusables.expires
     ),
@@ -103,7 +144,17 @@ const addAgentTokenParams = mddocConstruct
       false,
       fReusables.providedResourceId
     ),
+    shouldEncode: mddocConstruct.constructFieldObjectField(false, shouldEncode),
+    shouldRefresh: mddocConstruct.constructFieldObjectField(
+      false,
+      shouldRefresh
+    ),
+    refreshDuration: mddocConstruct.constructFieldObjectField(
+      false,
+      refreshDurationMs
+    ),
   });
+
 const addAgentTokenSuccessResponseBody = mddocConstruct
   .constructFieldObject<AddAgentTokenEndpointResult>()
   .setName('AddAgentTokenEndpointResult')
@@ -124,6 +175,7 @@ const getWorkspaceAgentTokensParams = mddocConstruct
       false,
       fReusables.pageSize
     ),
+    shouldEncode: mddocConstruct.constructFieldObjectField(false, shouldEncode),
   });
 const getWorkspaceAgentTokensSuccessResponseBody = mddocConstruct
   .constructFieldObject<GetWorkspaceAgentTokensEndpointResult>()
@@ -164,13 +216,16 @@ const updateAgentTokenParams = mddocConstruct
       false,
       fReusables.providedResourceId
     ),
+    shouldEncode: mddocConstruct.constructFieldObjectField(false, shouldEncode),
   });
+
 const updateAgentTokenSuccessResponseBody = mddocConstruct
   .constructFieldObject<UpdateAgentTokenEndpointResult>()
   .setName('UpdateAgentTokenEndpointResult')
   .setFields({
     token: mddocConstruct.constructFieldObjectField(true, agentToken),
   });
+
 const getAgentTokenParams = mddocConstruct
   .constructFieldObject<GetAgentTokenEndpointParams>()
   .setName('GetAgentTokenEndpointParams')
@@ -188,6 +243,7 @@ const getAgentTokenParams = mddocConstruct
       false,
       fReusables.effectOnReferenced
     ),
+    shouldEncode: mddocConstruct.constructFieldObjectField(false, shouldEncode),
   });
 const getAgentTokenSuccessBody = mddocConstruct
   .constructFieldObject<GetAgentTokenEndpointResult>()
@@ -213,6 +269,72 @@ const deleteAgentTokenParams = mddocConstruct
       fReusables.workspaceIdInput
     ),
   });
+
+const refreshAgentTokenParams = mddocConstruct
+  .constructFieldObject<RefreshAgentTokenEndpointParams>()
+  .setName('RefreshAgentTokenEndpointParams')
+  .setFields({
+    refreshToken: mddocConstruct.constructFieldObjectField(
+      true,
+      fReusables.refreshTokenString
+    ),
+  });
+
+const refreshAgentTokenSuccessResponseBody = mddocConstruct
+  .constructFieldObject<RefreshAgentTokenEndpointResult>()
+  .setName('RefreshAgentTokenEndpointResult')
+  .setFields({
+    jwtToken: mddocConstruct.constructFieldObjectField(
+      true,
+      fReusables.tokenString
+    ),
+    refreshToken: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.refreshTokenString
+    ),
+    jwtTokenExpiresAt: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.jwtTokenExpiresAt
+    ),
+  });
+
+const encodeAgentTokenParams = mddocConstruct
+  .constructFieldObject<EncodeAgentTokenEndpointParams>()
+  .setName('EncodeAgentTokenEndpointParams')
+  .setFields({
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceIdInput
+    ),
+    providedResourceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.providedResourceId
+    ),
+    tokenId: mddocConstruct.constructFieldObjectField(false, fReusables.id),
+    onReferenced: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.effectOnReferenced
+    ),
+  });
+
+const encodeAgentTokenSuccessResponseBody = mddocConstruct
+  .constructFieldObject<EncodeAgentTokenEndpointResult>()
+  .setName('EncodeAgentTokenEndpointResult')
+  .setFields({
+    jwtToken: mddocConstruct.constructFieldObjectField(
+      true,
+      fReusables.tokenString
+    ),
+    refreshToken: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.refreshTokenString
+    ),
+    jwtTokenExpiresAt: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.jwtTokenExpiresAt
+    ),
+  });
+
 export const addAgentTokenEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
     InferFieldObjectType<
@@ -234,7 +356,7 @@ export const addAgentTokenEndpointDefinition = mddocConstruct
       AddAgentTokenHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(agentTokenConstants.routes.addToken)
+  .setBasePathname(kAgentTokenConstants.routes.addToken)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(addAgentTokenParams)
   .setRequestHeaders(
@@ -267,7 +389,7 @@ export const getAgentTokenEndpointDefinition = mddocConstruct
       GetAgentTokenHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(agentTokenConstants.routes.getToken)
+  .setBasePathname(kAgentTokenConstants.routes.getToken)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getAgentTokenParams)
   .setRequestHeaders(
@@ -300,7 +422,7 @@ export const updateAgentTokenEndpointDefinition = mddocConstruct
       UpdateAgentTokenHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(agentTokenConstants.routes.updateToken)
+  .setBasePathname(kAgentTokenConstants.routes.updateToken)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(updateAgentTokenParams)
   .setRequestHeaders(
@@ -333,7 +455,7 @@ export const deleteAgentTokenEndpointDefinition = mddocConstruct
       DeleteAgentTokenHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(agentTokenConstants.routes.deleteToken)
+  .setBasePathname(kAgentTokenConstants.routes.deleteToken)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(deleteAgentTokenParams)
   .setRequestHeaders(
@@ -366,7 +488,7 @@ export const getWorkspaceAgentTokensEndpointDefinition = mddocConstruct
       GetWorkspaceAgentTokensHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(agentTokenConstants.routes.getWorkspaceTokens)
+  .setBasePathname(kAgentTokenConstants.routes.getWorkspaceTokens)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getWorkspaceAgentTokensParams)
   .setRequestHeaders(
@@ -399,7 +521,7 @@ export const countWorkspaceAgentTokensEndpointDefinition = mddocConstruct
       CountWorkspaceAgentTokensHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(agentTokenConstants.routes.countWorkspaceTokens)
+  .setBasePathname(kAgentTokenConstants.routes.countWorkspaceTokens)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(countWorkspaceAgentTokensParams)
   .setRequestHeaders(
@@ -410,3 +532,69 @@ export const countWorkspaceAgentTokensEndpointDefinition = mddocConstruct
   )
   .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
   .setName('CountWorkspaceAgentTokensEndpoint');
+
+export const refreshAgentTokenEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      RefreshAgentTokenHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      RefreshAgentTokenHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<
+      RefreshAgentTokenHttpEndpoint['mddocHttpDefinition']['query']
+    >,
+    InferFieldObjectOrMultipartType<
+      RefreshAgentTokenHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      RefreshAgentTokenHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      RefreshAgentTokenHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
+  >()
+  .setBasePathname(kAgentTokenConstants.routes.refreshToken)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(refreshAgentTokenParams)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
+  .setResponseBody(refreshAgentTokenSuccessResponseBody)
+  .setName('RefreshAgentTokenEndpoint');
+
+export const encodeAgentTokenEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      EncodeAgentTokenHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      EncodeAgentTokenHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<
+      EncodeAgentTokenHttpEndpoint['mddocHttpDefinition']['query']
+    >,
+    InferFieldObjectOrMultipartType<
+      EncodeAgentTokenHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      EncodeAgentTokenHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      EncodeAgentTokenHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
+  >()
+  .setBasePathname(kAgentTokenConstants.routes.encodeToken)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(encodeAgentTokenParams)
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
+  .setResponseBody(encodeAgentTokenSuccessResponseBody)
+  .setName('EncodeAgentTokenEndpoint');

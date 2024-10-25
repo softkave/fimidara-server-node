@@ -1,3 +1,4 @@
+import path from 'path';
 import {getLocalIp} from '../../utils/net.js';
 import {memoizedGetPackageJson} from '../../utils/package.js';
 

@@ -311,6 +311,11 @@ const description = mddocConstruct
 const expires = mddocConstruct
   .constructFieldNumber()
   .setDescription('Expiration date');
+const jwtTokenExpiresAt = mddocConstruct
+  .constructFieldNumber()
+  .setDescription(
+    'JWT token expiration date. Not the expiration date of the token itself.'
+  );
 const duration = mddocConstruct
   .constructFieldNumber()
   .setDescription(
@@ -319,6 +324,9 @@ const duration = mddocConstruct
 const tokenString = mddocConstruct
   .constructFieldString()
   .setDescription('JWT token string');
+const refreshTokenString = mddocConstruct
+  .constructFieldString()
+  .setDescription('JWT refresh token string');
 const effectOnReferenced = mddocConstruct
   .constructFieldBoolean()
   .setDescription(
@@ -518,6 +526,7 @@ export const fReusables = {
   duration,
   workspaceId,
   tokenString,
+  refreshTokenString,
   effectOnReferenced,
   providedResourceId,
   workspaceName,
@@ -566,6 +575,7 @@ export const fReusables = {
   resourceParts,
   workspaceResourceParts,
   jobIds,
+  jwtTokenExpiresAt,
 };
 
 const errorObject = mddocConstruct

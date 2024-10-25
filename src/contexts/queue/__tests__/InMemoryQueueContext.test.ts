@@ -1,3 +1,4 @@
+import {waitTimeout} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test, vi} from 'vitest';
 import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
 import {initTests} from '../../../endpoints/testUtils/testUtils.js';
@@ -82,16 +83,30 @@ describe('InMemoryQueueContext', () => {
     expect(context.getQueues().get('queue')).toEqual([]);
   });
 
-  test('waitOnStream', async () => {
+  test('waitOnStream with timeout', async () => {
     const context = new TestInMemoryQueueContext();
     const queue = 'queue';
-    const idList = await context.addMessages(queue, [
-      {id: '1', message: 'message'},
-    ]);
-    await context.deleteMessages(queue, idList);
     const fn = vi.fn();
-    context.waitOnStream('queue', fn);
-    await context.addMessages('queue', [{id: '1', message: 'message'}]);
-    expect(fn).toHaveBeenCalled();
+    context.waitOnStream(queue, fn, /** timeout */ 1_000);
+    await context.addMessages(queue, [{id: '1', message: 'message'}]);
+    await waitTimeout(1_000);
+    expect(fn).toHaveBeenCalledWith(true);
+  });
+
+  test('waitOnStream with data', async () => {
+    const context = new TestInMemoryQueueContext();
+    const queue = 'queue';
+    const fn = vi.fn();
+    await context.addMessages(queue, [{id: '1', message: 'message'}]);
+    context.waitOnStream(queue, fn, /** timeout */ 1_000);
+    expect(fn).toHaveBeenCalledWith(true);
+  });
+
+  test('waitOnStream without data', async () => {
+    const context = new TestInMemoryQueueContext();
+    const queue = 'queue';
+    const fn = vi.fn();
+    context.waitOnStream(queue, fn, /** timeout */ 0);
+    expect(fn).toHaveBeenCalledWith(false);
   });
 });

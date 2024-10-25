@@ -8,6 +8,7 @@ import {ConfirmEmailAddressEndpoint} from './confirmEmailAddress/types.js';
 import {ForgotPasswordEndpoint} from './forgotPassword/types.js';
 import {GetUserDataEndpoint} from './getUserData/types.js';
 import {LoginEndpoint} from './login/types.js';
+import {RefreshUserTokenEndpoint} from './refreshToken/types.js';
 import {SendEmailVerificationCodeEndpoint} from './sendEmailVerificationCode/types.js';
 import {SignupEndpoint} from './signup/types.js';
 import {UpdateUserEndpoint} from './updateUser/types.js';
@@ -42,6 +43,8 @@ export type ConfirmEmailAddressHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<ConfirmEmailAddressEndpoint>;
 export type SendEmailVerificationCodeHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<SendEmailVerificationCodeEndpoint>;
+export type RefreshUserTokenHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<RefreshUserTokenEndpoint>;
 
 export type UsersExportedEndpoints = {
   updateUser: UpdateUserHttpEndpoint;
@@ -54,4 +57,5 @@ export type UsersExportedEndpoints = {
   userExists: UserExistsHttpEndpoint;
   confirmEmailAddress: ConfirmEmailAddressHttpEndpoint;
   sendEmailVerificationCode: SendEmailVerificationCodeHttpEndpoint;
+  refreshToken: RefreshUserTokenHttpEndpoint;
 };

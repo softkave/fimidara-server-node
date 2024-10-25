@@ -1,4 +1,5 @@
 import {defaultTo, omit} from 'lodash-es';
+import {AnyObject} from 'softkave-js-utils';
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
@@ -8,24 +9,25 @@ import {
   kFimidaraResourceType,
   kTokenAccessScope,
 } from '../../../definitions/system.js';
-import {Workspace} from '../../../definitions/workspace.js';
 import {newWorkspaceResource} from '../../../utils/resource.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists.js';
+import {kAgentTokenConstants} from '../constants.js';
 import {NewAgentTokenInput} from './types.js';
 
 export const INTERNAL_createAgentToken = async (
   agent: Agent,
-  workspace: Workspace,
+  workspaceId: string,
   data: NewAgentTokenInput,
-  opts: SemanticProviderMutationParams
+  opts: SemanticProviderMutationParams,
+  seed?: Partial<AgentToken>
 ) => {
   let token: AgentToken | null = null;
 
   if (data.providedResourceId) {
     token = await kSemanticModels
       .agentToken()
-      .getByProvidedId(workspace.resourceId, data.providedResourceId, opts);
+      .getByProvidedId(workspaceId, data.providedResourceId, opts);
   }
 
   if (token) {
@@ -37,20 +39,25 @@ export const INTERNAL_createAgentToken = async (
   token = newWorkspaceResource<AgentToken>(
     agent,
     kFimidaraResourceType.AgentToken,
-    workspace.resourceId,
-    {
+    workspaceId,
+    /** seed */ {
       ...omit(data, 'tags'),
       providedResourceId: defaultTo(data.providedResourceId, null),
       version: kCurrentJWTTokenVersion,
       forEntityId: null,
       entityType: kFimidaraResourceType.AgentToken,
       scope: [kTokenAccessScope.access],
+      shouldRefresh: data.shouldRefresh,
+      refreshDuration:
+        data.refreshDuration || kAgentTokenConstants.refreshDurationMs,
+      ...(seed as AnyObject),
     }
   );
+
   await Promise.all([
-    data.name &&
-      checkAgentTokenNameExists(workspace.resourceId, data.name, opts),
+    data.name && checkAgentTokenNameExists(workspaceId, data.name, opts),
   ]);
   await kSemanticModels.agentToken().insertItem(token, opts);
+
   return token;
 };

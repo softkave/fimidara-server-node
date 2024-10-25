@@ -31,14 +31,17 @@ function getForgotPasswordExpiration() {
   });
 }
 
-export function getForgotPasswordLinkFromToken(forgotToken: AgentToken) {
+export async function getForgotPasswordLinkFromToken(forgotToken: AgentToken) {
   const suppliedConfig = kUtilsInjectables.suppliedConfig();
-  const encodedToken = kUtilsInjectables
-    .session()
-    .encodeToken(forgotToken.resourceId, forgotToken.expiresAt);
-  const tokenQueryParam = stringify({
-    [kUserConstants.defaultTokenQueryParam]: encodedToken,
+  const encodedToken = await kUtilsInjectables.session().encodeToken({
+    tokenId: forgotToken.resourceId,
+    expiresAt: forgotToken.expiresAt,
+    issuedAt: forgotToken.createdAt,
   });
+  const tokenQueryParam = stringify({
+    [kUserConstants.defaultTokenQueryParam]: encodedToken.jwtToken,
+  });
+
   return `${suppliedConfig.changePasswordLink}?${tokenQueryParam}`;
 }
 
@@ -92,7 +95,7 @@ export async function sendForgotPasswordEmail(
     `Forgot password token ${forgotToken.resourceId} does not have an expiration date set`
   );
 
-  const link = getForgotPasswordLinkFromToken(forgotToken);
+  const link = await getForgotPasswordLinkFromToken(forgotToken);
   const emailProps: ForgotPasswordEmailProps = {
     ...base,
     link,

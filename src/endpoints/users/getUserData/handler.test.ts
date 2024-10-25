@@ -1,14 +1,14 @@
 import {faker} from '@faker-js/faker';
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import RequestData from '../../RequestData.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, expect} from 'vitest';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
-import getUserData from './getUserData.js';
+import getUserData from './handler.js';
 
 /**
  * TODO:

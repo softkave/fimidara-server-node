@@ -20,7 +20,7 @@ import {
   insertUserForTest,
   mockExpressRequest,
 } from '../../testUtils/testUtils.js';
-import forgotPassword from './forgotPassword.js';
+import forgotPassword from './handler.js';
 import {ForgotPasswordEndpointParams} from './types.js';
 
 /**

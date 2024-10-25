@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {merge} from 'lodash-es';
-import {loopAndCollateAsync} from 'softkave-js-utils';
+import {kLoopAsyncSettlementType, loopAndCollateAsync} from 'softkave-js-utils';
 import {PartialDeep} from 'type-fest';
 import {FimidaraEndpoints} from '../../endpoints/publicEndpoints.js';
 import {
@@ -35,7 +35,7 @@ export async function setupWorkspacePermissionGroupsTestExecFn(
   const permissionGroups = await loopAndCollateAsync(
     () => addPermissionGroupTestExecFn(endpoint, vars),
     count,
-    /** settlement */ 'all'
+    kLoopAsyncSettlementType.all
   );
   return {permissionGroups};
 }

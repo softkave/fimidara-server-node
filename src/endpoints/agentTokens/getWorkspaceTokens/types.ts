@@ -11,7 +11,9 @@ export interface GetWorkspaceAgentTokensEndpointParamsBase
 
 export interface GetWorkspaceAgentTokensEndpointParams
   extends GetWorkspaceAgentTokensEndpointParamsBase,
-    PaginationQuery {}
+    PaginationQuery {
+  shouldEncode?: boolean;
+}
 
 export interface GetWorkspaceAgentTokensEndpointResult extends PaginatedResult {
   tokens: PublicAgentToken[];

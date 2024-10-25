@@ -61,3 +61,7 @@ export type FimidaraEndpointWithBinaryResponseParamsOptional<
 > = FimidaraEndpointParamsOptional<T> & {
   responseType: TResponseType;
 };
+
+export interface IRefreshAuthToken {
+  getJwtToken(): string | undefined;
+}

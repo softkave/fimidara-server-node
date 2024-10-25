@@ -47,7 +47,7 @@ describe('signup', () => {
       .assertGetOneByQuery({resourceId: result.user.resourceId});
     expect(savedUser).toBeTruthy();
     expect(result.userToken).toBeTruthy();
-    expect(result.userTokenStr).toBeTruthy();
+    expect(result.token).toBeTruthy();
 
     await kUtilsInjectables.promises().flush();
     // const query: DataQuery<EmailMessage> = {

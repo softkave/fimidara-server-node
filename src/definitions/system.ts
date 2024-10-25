@@ -40,6 +40,7 @@ export type TokenAccessScope = ValueOf<typeof kTokenAccessScope>;
 
 export interface TokenSubjectDefault {
   id: string;
+  refreshToken?: string;
 }
 
 export interface BaseTokenData<

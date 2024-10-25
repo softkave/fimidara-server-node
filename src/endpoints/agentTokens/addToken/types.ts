@@ -5,7 +5,10 @@ export interface NewAgentTokenInput {
   providedResourceId?: string;
   name?: string;
   description?: string;
-  expires?: number;
+  expiresAt?: number;
+  shouldRefresh?: boolean;
+  shouldEncode?: boolean;
+  refreshDuration?: number;
 }
 
 export interface AddAgentTokenEndpointParams

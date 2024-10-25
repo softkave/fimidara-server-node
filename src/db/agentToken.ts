@@ -13,6 +13,8 @@ const agentTokenSchema = ensureMongoTypeFields<AgentToken>({
   expiresAt: {type: Number},
   description: {type: String},
   scope: {type: [String], index: true},
+  shouldRefresh: {type: Boolean},
+  refreshDuration: {type: Number},
 });
 
 export type AgentTokenDocument = Document<AgentToken>;

@@ -11,7 +11,7 @@ import {
   mockExpressRequest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
-import login from '../login/login.js';
+import login from '../login/handler.js';
 import {LoginEndpointParams} from '../login/types.js';
 import {userExtractor} from '../utils.js';
 import changePasswordWithCurrentPassword from './handler.js';

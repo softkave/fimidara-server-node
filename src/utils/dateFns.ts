@@ -1,4 +1,4 @@
-import {format} from 'date-fns';
+import {format, millisecondsToSeconds} from 'date-fns';
 
 export function getDate(initial?: any) {
   if (initial) {
@@ -41,5 +41,5 @@ export function formatDateTime(date: number | string | Date) {
 }
 
 export function dateToSeconds(date: string | Date | number) {
-  return getDate(date).valueOf() * 1000;
+  return millisecondsToSeconds(getDate(date).valueOf());
 }

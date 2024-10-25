@@ -13,7 +13,7 @@ export default defineConfig({
       '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
     ],
     globalSetup: './src/vitest/globalSetup.ts',
-    testTimeout: 30000, // 30 seconds
+    testTimeout: 15000, // 30 seconds
     fileParallelism: false,
   },
 });

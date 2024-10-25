@@ -24,6 +24,7 @@ const changePasswordWithCurrentPassword: ChangePasswordWithCurrentPasswordEndpoi
       user.resourceId,
       data
     );
+
     return result;
   };
 

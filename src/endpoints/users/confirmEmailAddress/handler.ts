@@ -1,14 +1,6 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
-import {
-  getUserClientAssignedToken,
-  getUserToken,
-  toLoginResult,
-} from '../login/utils.js';
+import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {getLoginResult} from '../login/utils.js';
 import INTERNAL_confirmEmailAddress from './internalConfirmEmailAddress.js';
 import {ConfirmEmailAddressEndpoint} from './types.js';
 
@@ -24,17 +16,8 @@ const confirmEmailAddress: ConfirmEmailAddressEndpoint = async reqData => {
     agent.agentId,
     agent.user ?? null
   );
-  const [userToken, clientAssignedToken] = await kSemanticModels
-    .utils()
-    .withTxn(opts =>
-      Promise.all([
-        getUserToken(agent.agentId, opts),
-        getUserClientAssignedToken(agent.agentId, opts),
-      ])
-    );
 
-  const userWithWorkspaces = await populateUserWorkspaces(user);
-  return toLoginResult(userWithWorkspaces, userToken, clientAssignedToken);
+  return await getLoginResult(user);
 };
 
 export default confirmEmailAddress;

@@ -1,0 +1,244 @@
+{
+    "__id": "HttpEndpointDefinition",
+    "basePathname": "/v1/agentTokens/encodeToken",
+    "method": "post",
+    "requestBody": {
+        "__id": "FieldObject",
+        "name": "EncodeAgentTokenEndpointParams",
+        "fields": {
+            "workspaceId": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Workspace ID. When not provided, will default to using workspace ID from agent token",
+                    "example": "wrkspce_000000000000000000000"
+                },
+                "__id": "FieldObjectField",
+                "required": false
+            },
+            "providedResourceId": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Resource ID provided by you",
+                    "max": 50
+                },
+                "__id": "FieldObjectField",
+                "required": false
+            },
+            "tokenId": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Resource ID",
+                    "example": "wrkspce_000000000000000000000"
+                },
+                "__id": "FieldObjectField",
+                "required": false
+            },
+            "onReferenced": {
+                "data": {
+                    "__id": "FieldBoolean",
+                    "description": "Whether to perform action on the token used to authorize the API call when performing actions on tokens and a token ID or provided resource ID is not providedDefaults to true if a call is made and a token ID is not provided"
+                },
+                "__id": "FieldObjectField",
+                "required": false
+            }
+        }
+    },
+    "requestHeaders": {
+        "__id": "FieldObject",
+        "fields": {
+            "Authorization": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "Access token",
+                    "example": "Bearer <token>"
+                },
+                "__id": "FieldObjectField",
+                "required": true
+            },
+            "Content-Type": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "HTTP JSON request content type",
+                    "example": "application/json"
+                },
+                "__id": "FieldObjectField",
+                "required": true
+            }
+        },
+        "name": "HttpEndpointRequestHeaders_AuthRequired_JsonContentType"
+    },
+    "responseHeaders": {
+        "__id": "FieldObject",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "HTTP JSON response content type",
+                    "example": "application/json"
+                },
+                "__id": "FieldObjectField",
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "HTTP response content length in bytes"
+                },
+                "__id": "FieldObjectField",
+                "required": true
+            }
+        },
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength"
+    },
+    "responseBody": {
+        "__id": "FieldObject",
+        "name": "EncodeAgentTokenEndpointResult",
+        "fields": {
+            "jwtToken": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "JWT token string"
+                },
+                "__id": "FieldObjectField",
+                "required": true
+            },
+            "refreshToken": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "JWT refresh token string"
+                },
+                "__id": "FieldObjectField",
+                "required": false
+            },
+            "jwtTokenExpiresAt": {
+                "data": {
+                    "__id": "FieldNumber",
+                    "description": "JWT token expiration date. Not the expiration date of the token itself."
+                },
+                "__id": "FieldObjectField",
+                "required": false
+            }
+        }
+    },
+    "name": "EncodeAgentTokenEndpoint",
+    "errorResponseHeaders": {
+        "__id": "FieldObject",
+        "fields": {
+            "Content-Type": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "HTTP JSON response content type",
+                    "example": "application/json"
+                },
+                "__id": "FieldObjectField",
+                "required": true
+            },
+            "Content-Length": {
+                "data": {
+                    "__id": "FieldString",
+                    "description": "HTTP response content length in bytes"
+                },
+                "__id": "FieldObjectField",
+                "required": true
+            }
+        },
+        "name": "HttpEndpointResponseHeaders_ContentType_ContentLength"
+    },
+    "errorResponseBody": {
+        "__id": "FieldObject",
+        "name": "EndpointErrorResult",
+        "fields": {
+            "errors": {
+                "data": {
+                    "__id": "FieldArray",
+                    "type": {
+                        "__id": "FieldObject",
+                        "name": "OperationError",
+                        "fields": {
+                            "name": {
+                                "data": {
+                                    "__id": "FieldString",
+                                    "description": "Error name",
+                                    "example": "ValidationError"
+                                },
+                                "__id": "FieldObjectField",
+                                "required": true
+                            },
+                            "message": {
+                                "data": {
+                                    "__id": "FieldString",
+                                    "description": "Error message",
+                                    "example": "Workspace name is invalid"
+                                },
+                                "__id": "FieldObjectField",
+                                "required": true
+                            },
+                            "action": {
+                                "data": {
+                                    "__id": "FieldString",
+                                    "description": "Recommended action",
+                                    "valid": {
+                                        "0": "loginAgain",
+                                        "1": "logout",
+                                        "2": "requestChangePassword"
+                                    }
+                                },
+                                "__id": "FieldObjectField",
+                                "required": false
+                            },
+                            "field": {
+                                "data": {
+                                    "__id": "FieldString",
+                                    "example": "workspace.innerField.secondInnerField",
+                                    "description": "Invalid field failing validation when error is ValidationError"
+                                },
+                                "__id": "FieldObjectField",
+                                "required": false
+                            },
+                            "notes": {
+                                "data": {
+                                    "__id": "FieldArray",
+                                    "type": {
+                                        "__id": "FieldObject",
+                                        "name": "EndpointResultNote",
+                                        "fields": {
+                                            "code": {
+                                                "data": {
+                                                    "__id": "FieldString",
+                                                    "description": "Endpoint result or error note code",
+                                                    "example": "unsupportedOperationInMountBackend",
+                                                    "valid": {
+                                                        "0": "unsupportedOperationInMountBackend",
+                                                        "1": "mountsNotCompletelyIngested"
+                                                    },
+                                                    "enumName": "EndpointResultNoteCode"
+                                                },
+                                                "__id": "FieldObjectField",
+                                                "required": true
+                                            },
+                                            "message": {
+                                                "data": {
+                                                    "__id": "FieldString",
+                                                    "description": "Endpoint result or error note message",
+                                                    "example": "Some mounts in the requested folder's mount chain do not support operation abc"
+                                                },
+                                                "__id": "FieldObjectField",
+                                                "required": true
+                                            }
+                                        }
+                                    }
+                                },
+                                "__id": "FieldObjectField",
+                                "required": false
+                            }
+                        }
+                    },
+                    "description": "Endpoint call response errors"
+                },
+                "__id": "FieldObjectField",
+                "required": false
+            }
+        },
+        "description": "Endpoint error result"
+    }
+}

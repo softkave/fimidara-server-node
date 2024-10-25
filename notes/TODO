@@ -2,15 +2,21 @@
 
 ## Now
 
-## Bugs
+- refresh token
+- make sure expired tokens are checked
 
-- some private endpoints are leaking into rest api and SDK
+## Bugs
 
 ## Later
 
+- resumable uploads
+- image manipulation
+- authentication + authorization + workspaces
+- metered read & read capacity
+- set cookies
 - test that multiple files with same name are not created
 - api idempotency
-- folder sharding
+- move from queue waitOnStream to pubsub
 - usage thresholds internal and reporting
 - docs
 - image

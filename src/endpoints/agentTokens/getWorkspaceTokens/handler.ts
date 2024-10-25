@@ -24,15 +24,21 @@ const getWorkspaceAgentTokens: GetWorkspaceAgentTokensEndpoint =
         kSessionUtils.permittedAgentTypes.api,
         kSessionUtils.accessScopes.api
       );
+
     const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
     const q = await getWorkspaceAgentTokensQuery(agent, workspace);
     applyDefaultEndpointPaginationOptions(data);
     const tokens = await kSemanticModels
       .agentToken()
       .getManyByWorkspaceAndIdList(q, data);
+
     return {
       page: getEndpointPageFromInput(data),
-      tokens: tokens.map(token => getPublicAgentToken(token)),
+      tokens: await Promise.all(
+        tokens.map(token =>
+          getPublicAgentToken(token, data.shouldEncode ?? false)
+        )
+      ),
     };
   };
 

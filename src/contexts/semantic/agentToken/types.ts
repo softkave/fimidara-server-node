@@ -9,12 +9,12 @@ import {
 export interface SemanticAgentTokenProvider
   extends SemanticWorkspaceResourceProviderType<AgentToken> {
   softDeleteAgentTokens(
-    agentId: string,
+    userId: string,
     tokenScope: TokenAccessScope | TokenAccessScope[] | undefined,
     opts: SemanticProviderMutationParams
   ): Promise<void>;
-  getOneAgentToken(
-    agentId: string,
+  getUserAgentToken(
+    userId: string,
     tokenScope?: TokenAccessScope | TokenAccessScope[],
     opts?: SemanticProviderQueryParams<AgentToken>
   ): Promise<AgentToken | null>;

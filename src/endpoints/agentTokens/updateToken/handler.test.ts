@@ -58,7 +58,7 @@ test('agent token updated', async () => {
   const result = await updateAgentToken(reqData);
   assertEndpointResultOk(result);
 
-  const updatedToken = getPublicAgentToken(
+  const updatedToken = await getPublicAgentToken(
     await populateAssignedTags(
       workspace.resourceId,
       await kSemanticModels
@@ -66,7 +66,8 @@ test('agent token updated', async () => {
         .assertGetOneByQuery(
           EndpointReusableQueries.getByResourceId(token01.resourceId)
         )
-    )
+    ),
+    /** shouldEncode */ false
   );
   expect(agentTokenExtractor(updatedToken)).toMatchObject(result.token);
   expect(updatedToken.name).toBe(tokenUpdateInput.name);

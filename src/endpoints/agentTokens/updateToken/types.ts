@@ -10,6 +10,7 @@ export interface UpdateAgentTokenEndpointParams
   onReferenced?: boolean;
   providedResourceId?: string;
   token: UpdateAgentTokenInput;
+  shouldEncode?: boolean;
 }
 
 export interface UpdateAgentTokenEndpointResult {

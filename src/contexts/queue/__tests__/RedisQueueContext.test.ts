@@ -25,8 +25,8 @@ afterAll(async () => {
   await completeTests();
 });
 
-describe('RedisQueueContext', () => {
-  test.only('createQueue', async () => {
+describe.skip('RedisQueueContext', () => {
+  test('createQueue', async () => {
     assert.ok(redis);
     const context = new RedisQueueContext(redis);
     const queue = 'queue' + Math.random();

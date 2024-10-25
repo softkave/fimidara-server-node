@@ -34,15 +34,18 @@ async function createAgentToken(
 ) {
   const token = await INTERNAL_createAgentToken(
     kSystemSessionAgent,
-    workspace,
+    workspace.resourceId,
     {
       name: faker.lorem.words(2),
       description: 'Agent token for SDK tests',
     },
     opts
   );
+
   appAssert(token.workspaceId, 'workspaceId not present in agent token');
-  const tokenStr = getPublicAgentToken(token).tokenStr;
+  const tokenStr = (await getPublicAgentToken(token, /** shouldEncode */ true))
+    .jwtToken;
+
   return {tokenStr, token};
 }
 

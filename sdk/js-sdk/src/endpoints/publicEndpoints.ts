@@ -21,6 +21,10 @@ import {
   CountItemsResult,
   UpdateAgentTokenEndpointParams,
   UpdateAgentTokenEndpointResult,
+  RefreshAgentTokenEndpointParams,
+  RefreshAgentTokenEndpointResult,
+  EncodeAgentTokenEndpointParams,
+  EncodeAgentTokenEndpointResult,
   DeleteCollaborationRequestEndpointParams,
   GetWorkspaceCollaborationRequestEndpointParams,
   GetWorkspaceCollaborationRequestEndpointResult,
@@ -192,6 +196,32 @@ export class AgentTokensEndpoints extends FimidaraEndpointsBase {
       {
         data: props,
         path: '/v1/agentTokens/updateToken',
+        method: 'POST',
+      },
+      opts
+    );
+  };
+  refreshToken = async (
+    props: RefreshAgentTokenEndpointParams,
+    opts?: FimidaraEndpointOpts
+  ): Promise<RefreshAgentTokenEndpointResult> => {
+    return this.executeJson(
+      {
+        data: props,
+        path: '/v1/agentTokens/refreshToken',
+        method: 'POST',
+      },
+      opts
+    );
+  };
+  encodeToken = async (
+    props?: EncodeAgentTokenEndpointParams,
+    opts?: FimidaraEndpointOpts
+  ): Promise<EncodeAgentTokenEndpointResult> => {
+    return this.executeJson(
+      {
+        data: props,
+        path: '/v1/agentTokens/encodeToken',
         method: 'POST',
       },
       opts

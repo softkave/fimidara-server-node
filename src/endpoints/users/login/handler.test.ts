@@ -13,7 +13,7 @@ import {
   insertUserForTest,
   mockExpressRequest,
 } from '../../testUtils/testUtils.js';
-import login from './login.js';
+import login from './handler.js';
 import {LoginEndpointParams} from './types.js';
 import {getUserClientAssignedToken, getUserToken} from './utils.js';
 
@@ -46,8 +46,12 @@ describe('login', () => {
     const result = await login(reqData);
     assertEndpointResultOk(result);
     expect(result.user).toMatchObject(user);
+    expect(result.jwtToken).toBeTruthy();
+    expect(result.clientJwtToken).toBeTruthy();
+    expect(result.refreshToken).toBeTruthy();
+    expect(result.jwtTokenExpiresAt).toBeTruthy();
 
-    const jwtToken = kUtilsInjectables.session().decodeToken(result.token);
+    const jwtToken = kUtilsInjectables.session().decodeToken(result.jwtToken);
     expect(jwtToken.sub.id).toBe(userToken.resourceId);
   });
 

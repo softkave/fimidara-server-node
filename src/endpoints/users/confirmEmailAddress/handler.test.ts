@@ -30,7 +30,7 @@ afterAll(async () => {
 
 test('email address is confirmed', async () => {
   const password = faker.internet.password();
-  const {user, userTokenStr} = await insertUserForTest({
+  const {user, token: userTokenStr} = await insertUserForTest({
     password,
   });
   const token = newResource<AgentToken>(kFimidaraResourceType.All, {
@@ -51,5 +51,5 @@ test('email address is confirmed', async () => {
   );
   assertEndpointResultOk(result);
   expect(result.user.isEmailVerified).toBe(true);
-  assertUserTokenIsSame(result.token, userTokenStr);
+  assertUserTokenIsSame(result.jwtToken, userTokenStr);
 });

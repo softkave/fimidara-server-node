@@ -1,6 +1,10 @@
 import {Connection, Document, Model, Schema, SchemaTypes} from 'mongoose';
 import {UnionToIntersection} from 'type-fest';
-import {EmailBlocklist, EmailBlocklistTrail, EmailMessage} from '../definitions/email.js';
+import {
+  EmailBlocklist,
+  EmailBlocklistTrail,
+  EmailMessage,
+} from '../definitions/email.js';
 import {ensureMongoTypeFields, resourceSchema} from './utils.js';
 
 const emailMessageSchemaDef = ensureMongoTypeFields<EmailMessage>({
@@ -47,7 +51,9 @@ const emailBlocklistSchemaDef = ensureMongoTypeFields<EmailBlocklist>({
 
 export type EmailBlocklistDocument = Document<EmailBlocklist>;
 
-const emailBlocklistSchema = new Schema<EmailBlocklist>(emailBlocklistSchemaDef);
+const emailBlocklistSchema = new Schema<EmailBlocklist>(
+  emailBlocklistSchemaDef
+);
 const emailBlocklistModelName = 'email-blocklist';
 const emailBlocklistCollectionName = 'email-blocklists';
 

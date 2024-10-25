@@ -11,7 +11,11 @@ import {
   getFimidaraHttpEndpoints,
 } from '../endpoints/endpoints.js';
 import {kEndpointTag} from '../endpoints/types.js';
-import {kFimidaraConfigDbType} from '../resources/config.js';
+import {
+  kFimidaraConfigDbType,
+  kFimidaraConfigPubSubProvider,
+  kFimidaraConfigQueueProvider,
+} from '../resources/config.js';
 import {isObjectEmpty, pathSplit} from '../utils/fns.js';
 import {
   FieldArrayType,
@@ -41,6 +45,7 @@ import {
   objectHasRequiredFields,
 } from './mddoc.js';
 import {filterEndpoints} from './utils.js';
+import {globalDispose} from '../contexts/globalUtils.js';
 
 class Doc {
   protected disclaimer =
@@ -660,7 +665,12 @@ async function jsSdkCodeGen(
 }
 
 async function main() {
-  await registerUtilsInjectables({dbType: kFimidaraConfigDbType.noop});
+  await registerUtilsInjectables({
+    dbType: kFimidaraConfigDbType.noop,
+    queueProvider: kFimidaraConfigQueueProvider.memory,
+    pubSubProvider: kFimidaraConfigPubSubProvider.memory,
+  });
+
   await Promise.all([
     jsSdkCodeGen(
       getFimidaraHttpEndpoints() as any,
@@ -673,6 +683,8 @@ async function main() {
       [kEndpointTag.private]
     ),
   ]);
+
+  await globalDispose();
 }
 
 main()

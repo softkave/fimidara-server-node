@@ -5,6 +5,7 @@ export interface GetAgentTokenEndpointParams
   extends EndpointWorkspaceResourceParam {
   tokenId?: string;
   onReferenced?: boolean;
+  shouldEncode?: boolean;
 }
 
 export interface GetAgentTokenEndpointResult {

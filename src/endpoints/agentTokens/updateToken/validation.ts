@@ -1,7 +1,7 @@
 import Joi from 'joi';
 import {kValidationSchemas} from '../../../utils/validationUtils.js';
 import {endpointValidationSchemas} from '../../validation.js';
-import agentTokenValidationSchemas from '../validation.js';
+import kAgentTokenValidationSchemas from '../validation.js';
 import {UpdateAgentTokenEndpointParams} from './types.js';
 
 export const updateAgentTokenJoiSchema =
@@ -9,14 +9,15 @@ export const updateAgentTokenJoiSchema =
     .keys({
       ...endpointValidationSchemas.workspaceResourceParts,
       tokenId: kValidationSchemas.resourceId,
-      onReferenced: agentTokenValidationSchemas.onReferenced,
+      onReferenced: kAgentTokenValidationSchemas.onReferenced,
       token: Joi.object<UpdateAgentTokenEndpointParams['token']>()
         .keys({
-          expires: kValidationSchemas.time.allow(null),
+          expiresAt: kValidationSchemas.time.allow(null),
           providedResourceId: kValidationSchemas.providedResourceId.allow(null),
           name: kValidationSchemas.name.allow(null),
           description: kValidationSchemas.description.allow(null),
         })
         .required(),
+      shouldEncode: Joi.boolean().default(false),
     })
     .required();

@@ -24,5 +24,6 @@ export const kUserConstants = {
     userExists: `${kEndpointConstants.apiv1}/users/userExists`,
     confirmEmailAddress: `${kEndpointConstants.apiv1}/users/confirmEmailAddress`,
     sendEmailVerificationCode: `${kEndpointConstants.apiv1}/users/sendEmailVerificationCode`,
+    refreshToken: `${kEndpointConstants.apiv1}/users/refreshToken`,
   },
 };

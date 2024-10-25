@@ -9,16 +9,18 @@ import {
   forgotPasswordEndpointDefinition,
   getUserDataEndpointDefinition,
   loginEndpointDefinition,
+  refreshUserTokenEndpointDefinition,
   sendEmailVerificationCodeEndpointDefinition,
   signupEndpointDefinition,
   updateUserEndpointDefinition,
   userExistsEndpointDefinition,
 } from './endpoint.mddoc.js';
-import forgotPassword from './forgotPassword/forgotPassword.js';
-import getUserData from './getUserData/getUserData.js';
-import login from './login/login.js';
+import forgotPassword from './forgotPassword/handler.js';
+import getUserData from './getUserData/handler.js';
+import login from './login/handler.js';
+import refreshUserToken from './refreshToken/handler.js';
 import sendEmailVerificationCode from './sendEmailVerificationCode/handler.js';
-import signup from './signup/signup.js';
+import signup from './signup/handler.js';
 import {UsersExportedEndpoints} from './types.js';
 import updateUser from './updateUser/handler.js';
 import userExists from './userExists/handler.js';
@@ -64,6 +66,11 @@ export function getUsersHttpEndpoints() {
       tag: [kEndpointTag.private],
       fn: sendEmailVerificationCode,
       mddocHttpDefinition: sendEmailVerificationCodeEndpointDefinition,
+    },
+    refreshToken: {
+      tag: [kEndpointTag.private],
+      fn: refreshUserToken,
+      mddocHttpDefinition: refreshUserTokenEndpointDefinition,
     },
     signup: {
       tag: [kEndpointTag.private],

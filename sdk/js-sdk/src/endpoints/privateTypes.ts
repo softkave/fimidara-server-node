@@ -92,8 +92,10 @@ export type User = {
 };
 export type LoginResult = {
   user: User;
-  token: string;
-  clientAssignedToken: string;
+  jwtToken: string;
+  clientJwtToken: string;
+  refreshToken: string;
+  jwtTokenExpiresAt: number;
 };
 export type UpdateUserEndpointParams = {
   firstName?: string;
@@ -116,6 +118,9 @@ export type ForgotPasswordEndpointParams = {
 export type LoginParams = {
   email: string;
   password: string;
+};
+export type RefreshUserTokenEndpointParams = {
+  refreshToken: string;
 };
 export type SignupEndpointParams = {
   firstName: string;

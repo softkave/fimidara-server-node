@@ -71,7 +71,10 @@ const updateAgentToken: UpdateAgentTokenEndpoint = async reqData => {
     updatedToken.workspaceId,
     updatedToken
   );
-  return {token: getPublicAgentToken(agentToken)};
+
+  return {
+    token: await getPublicAgentToken(agentToken, data.shouldEncode ?? false),
+  };
 };
 
 export default updateAgentToken;

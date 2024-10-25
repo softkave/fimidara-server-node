@@ -419,7 +419,9 @@ function waitOnQueue(key: string, fn: AnyFn) {
       if (hasData) {
         fn();
       } else {
-        waitOnQueue(key, fn);
+        setTimeout(() => {
+          waitOnQueue(key, fn);
+        }, 0);
       }
     });
   }

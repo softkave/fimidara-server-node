@@ -31,7 +31,7 @@ export async function getLinkWithConfirmEmailToken(
     const url = new URL(urlPath);
     let token = await kSemanticModels
       .agentToken()
-      .getOneAgentToken(
+      .getUserAgentToken(
         user.resourceId,
         kTokenAccessScope.confirmEmailAddress,
         opts
@@ -50,13 +50,16 @@ export async function getLinkWithConfirmEmailToken(
       await kSemanticModels.agentToken().insertItem(token, opts);
     }
 
-    const encodedToken = kUtilsInjectables
-      .session()
-      .encodeToken(token.resourceId, token.expiresAt);
+    const encodedToken = await kUtilsInjectables.session().encodeToken({
+      tokenId: token.resourceId,
+      expiresAt: token.expiresAt,
+      issuedAt: token.createdAt,
+    });
     url.searchParams.set(
       kUserConstants.confirmEmailTokenQueryParam,
-      encodedToken
+      encodedToken.jwtToken
     );
+
     return url.toString();
   });
 }

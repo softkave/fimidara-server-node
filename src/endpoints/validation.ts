@@ -49,8 +49,8 @@ const arrayOps = (schema: Joi.Schema) => ({
     schema.type === 'object'
       ? objectOpsSchema(schema)
       : schema.type === 'number'
-      ? fullLiteralOpsSchema(schema)
-      : comparisonOpsSchema(schema),
+        ? fullLiteralOpsSchema(schema)
+        : comparisonOpsSchema(schema),
 });
 
 const arrayOpsSchema = (schema: Joi.Schema) =>
@@ -61,17 +61,18 @@ const op = (schema: Joi.Schema) =>
     schema.type === 'array'
       ? arrayOpsSchema(schema)
       : schema.type === 'object'
-      ? objectOpsSchema(schema)
-      : schema.type === 'number'
-      ? fullLiteralOpsSchema(schema)
-      : comparisonOpsSchema(schema)
+        ? objectOpsSchema(schema)
+        : schema.type === 'number'
+          ? fullLiteralOpsSchema(schema)
+          : comparisonOpsSchema(schema)
   );
 
 const page = Joi.number().integer();
 const pageSize = Joi.number().integer();
-const optionalWorkspaceIdParts: JoiSchemaParts<EndpointOptionalWorkspaceIDParam> = {
-  workspaceId: kValidationSchemas.resourceId,
-};
+const optionalWorkspaceIdParts: JoiSchemaParts<EndpointOptionalWorkspaceIDParam> =
+  {
+    workspaceId: kValidationSchemas.resourceId,
+  };
 const workspaceResourceParts: JoiSchemaParts<EndpointWorkspaceResourceParam> = {
   workspaceId: kValidationSchemas.resourceId,
   providedResourceId: kValidationSchemas.resourceId,

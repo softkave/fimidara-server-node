@@ -16,13 +16,13 @@ export class DataSemanticAgentToken
   implements SemanticAgentTokenProvider
 {
   async softDeleteAgentTokens(
-    agentId: string,
+    userId: string,
     tokenScope: TokenAccessScope | TokenAccessScope[] | undefined,
     opts: SemanticProviderMutationParams
   ): Promise<void> {
     const query = addIsDeletedIntoQuery<DataQuery<AgentToken>>(
       AgentTokenQueries.getByEntityAndScope({
-        forEntityId: agentId,
+        forEntityId: userId,
         scope: tokenScope,
       }),
       opts?.includeDeleted || true
@@ -30,14 +30,14 @@ export class DataSemanticAgentToken
     await this.softDeleteManyByQuery(query, kSystemSessionAgent, opts);
   }
 
-  async getOneAgentToken(
-    agentId: string,
+  async getUserAgentToken(
+    userId: string,
     tokenScope?: TokenAccessScope | TokenAccessScope[] | undefined,
     opts?: SemanticProviderQueryParams<AgentToken> | undefined
   ): Promise<AgentToken | null> {
     const query = addIsDeletedIntoQuery<DataQuery<AgentToken>>(
       AgentTokenQueries.getByEntityAndScope({
-        forEntityId: agentId,
+        forEntityId: userId,
         scope: tokenScope,
       }),
       opts?.includeDeleted || false

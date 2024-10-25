@@ -31,7 +31,7 @@
                 "__id": "FieldObjectField",
                 "required": false
             },
-            "expires": {
+            "expiresAt": {
                 "data": {
                     "__id": "FieldNumber",
                     "description": "Expiration date"
@@ -44,6 +44,30 @@
                     "__id": "FieldString",
                     "description": "Resource ID provided by you",
                     "max": 50
+                },
+                "__id": "FieldObjectField",
+                "required": false
+            },
+            "shouldEncode": {
+                "data": {
+                    "__id": "FieldBoolean",
+                    "description": "Whether the token returned should include the token encoded in JWT format."
+                },
+                "__id": "FieldObjectField",
+                "required": false
+            },
+            "shouldRefresh": {
+                "data": {
+                    "__id": "FieldBoolean",
+                    "description": "Whether the token should be refreshed."
+                },
+                "__id": "FieldObjectField",
+                "required": false
+            },
+            "refreshDuration": {
+                "data": {
+                    "__id": "FieldNumber",
+                    "description": "The duration in milliseconds for which a generated JWT token, not the actual agent token, is valid."
                 },
                 "__id": "FieldObjectField",
                 "required": false
@@ -244,13 +268,21 @@
                             "__id": "FieldObjectField",
                             "required": false
                         },
-                        "tokenStr": {
+                        "jwtToken": {
                             "data": {
                                 "__id": "FieldString",
                                 "description": "JWT token string"
                             },
                             "__id": "FieldObjectField",
-                            "required": true
+                            "required": false
+                        },
+                        "refreshToken": {
+                            "data": {
+                                "__id": "FieldString",
+                                "description": "JWT refresh token string"
+                            },
+                            "__id": "FieldObjectField",
+                            "required": false
                         },
                         "expiresAt": {
                             "data": {
@@ -273,6 +305,14 @@
                                         "__id": "FieldNull"
                                     }
                                 }
+                            },
+                            "__id": "FieldObjectField",
+                            "required": false
+                        },
+                        "jwtTokenExpiresAt": {
+                            "data": {
+                                "__id": "FieldNumber",
+                                "description": "JWT token expiration date. Not the expiration date of the token itself."
                             },
                             "__id": "FieldObjectField",
                             "required": false

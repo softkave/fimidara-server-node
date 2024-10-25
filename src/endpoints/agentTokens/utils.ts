@@ -4,7 +4,11 @@ import {
   kUtilsInjectables,
 } from '../../contexts/injection/injectables.js';
 import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
-import {AgentToken, PublicAgentToken} from '../../definitions/agentToken.js';
+import {
+  AgentToken,
+  EncodedAgentToken,
+  PublicAgentToken,
+} from '../../definitions/agentToken.js';
 import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {SessionAgent} from '../../definitions/system.js';
 import {appAssert} from '../../utils/assertion.js';
@@ -13,14 +17,17 @@ import {cast} from '../../utils/fns.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {InvalidRequestError} from '../errors.js';
 import {workspaceResourceFields} from '../extractors.js';
+import {kAgentTokenConstants} from './constants.js';
 
 const agentTokenFields = getFields<PublicAgentToken>({
   ...workspaceResourceFields,
   name: true,
   description: true,
-  tokenStr: true,
+  jwtToken: true,
   expiresAt: true,
   providedResourceId: true,
+  refreshToken: true,
+  jwtTokenExpiresAt: true,
   // tags: assignedTagListExtractor,
 });
 
@@ -43,12 +50,10 @@ export async function checkAgentTokenAuthorization(
   return {token};
 }
 
-export async function checkAgentTokenAuthorization02(
-  agent: SessionAgent,
+export async function getAgentTokenByIdOrProvidedId(
   workspaceId: string | undefined,
   tokenId: string | undefined | null,
-  providedResourceId: string | undefined | null,
-  action: FimidaraPermissionAction
+  providedResourceId: string | undefined | null
 ) {
   let token: AgentToken | null = null;
 
@@ -65,6 +70,22 @@ export async function checkAgentTokenAuthorization02(
   }
 
   assertAgentToken(token);
+  return token;
+}
+
+export async function checkAgentTokenAuthorization02(
+  agent: SessionAgent,
+  workspaceId: string | undefined,
+  tokenId: string | undefined | null,
+  providedResourceId: string | undefined | null,
+  action: FimidaraPermissionAction
+) {
+  const token = await getAgentTokenByIdOrProvidedId(
+    workspaceId,
+    tokenId,
+    providedResourceId
+  );
+
   return await checkAgentTokenAuthorization(agent, token, action);
 }
 
@@ -72,11 +93,40 @@ export function throwAgentTokenNotFound() {
   throw kReuseableErrors.agentToken.notFound();
 }
 
-export function getPublicAgentToken(token: AgentToken) {
-  const tokenStr = kUtilsInjectables
-    .session()
-    .encodeToken(token.resourceId, null, token.createdAt);
-  cast<PublicAgentToken>(token).tokenStr = tokenStr;
+export async function encodeAgentToken(
+  token: AgentToken
+): Promise<EncodedAgentToken> {
+  let expiresAt = token.expiresAt;
+
+  if (token.shouldRefresh) {
+    expiresAt = Math.min(
+      Date.now() +
+        (token.refreshDuration ?? kAgentTokenConstants.refreshDurationMs),
+      token.expiresAt || Number.MAX_SAFE_INTEGER
+    );
+  }
+
+  return await kUtilsInjectables.session().encodeToken({
+    expiresAt,
+    shouldRefresh: token.shouldRefresh,
+    tokenId: token.resourceId,
+    issuedAt: token.createdAt,
+  });
+}
+
+export async function getPublicAgentToken(
+  token: AgentToken,
+  shouldEncode: boolean
+) {
+  if (shouldEncode) {
+    const {jwtTokenExpiresAt, refreshToken, jwtToken} =
+      await encodeAgentToken(token);
+
+    cast<PublicAgentToken>(token).jwtToken = jwtToken;
+    cast<PublicAgentToken>(token).refreshToken = refreshToken;
+    cast<PublicAgentToken>(token).jwtTokenExpiresAt = jwtTokenExpiresAt;
+  }
+
   return agentTokenExtractor(token);
 }
 

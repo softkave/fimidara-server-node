@@ -47,14 +47,6 @@ export async function INTERNAL_sendEmailVerificationCode(user: User) {
   }
 
   kUtilsInjectables.promises().forget(
-    // queueEmailMessage(
-    //   user.email,
-    //   {type: kEmailMessageType.confirmEmailAddress, params: {}},
-    //   undefined,
-    //   user.resourceId,
-    //   {reuseTxn: false}
-    // )
-
     queueJobs<EmailJobParams>(
       /** workspace ID */ undefined,
       /** parent job ID */ undefined,

@@ -1,3 +1,4 @@
+import {rm} from 'fs/promises';
 import {globalSetup} from '../contexts/globalUtils.js';
 import {initFimidara} from '../endpoints/runtime/initFimidara.js';
 import {getSuppliedConfig} from '../resources/config.js';
@@ -15,7 +16,10 @@ export async function setup() {
 export async function teardown() {
   const config = await getSuppliedConfig();
   const dropMongoPromise = dropMongoCollections(config);
-  await Promise.all([dropMongoPromise]);
+  await Promise.all([
+    dropMongoPromise,
+    config.localFsDir && rm(config.localFsDir, {recursive: true, force: true}),
+  ]);
 
   // {@link https://nodejs.org/docs/latest/api/process.html#processgetactiveresourcesinfo}
   // kUtilsInjectables.logger().log('Active resources ', getActiveResourcesInfo());

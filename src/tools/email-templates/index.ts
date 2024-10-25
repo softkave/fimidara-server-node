@@ -1,7 +1,11 @@
 import {globalDispose} from '../../contexts/globalUtils.js';
 import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {registerUtilsInjectables} from '../../contexts/injection/register.js';
-import {kFimidaraConfigDbType} from '../../resources/config.js';
+import {
+  kFimidaraConfigDbType,
+  kFimidaraConfigPubSubProvider,
+  kFimidaraConfigQueueProvider,
+} from '../../resources/config.js';
 import {
   renderCollaborationRequestMedia,
   renderCollaborationRequestResponseMedia,
@@ -14,7 +18,12 @@ import {
 } from './renderToFile.js';
 
 async function main() {
-  await registerUtilsInjectables({dbType: kFimidaraConfigDbType.noop});
+  await registerUtilsInjectables({
+    dbType: kFimidaraConfigDbType.noop,
+    queueProvider: kFimidaraConfigQueueProvider.memory,
+    pubSubProvider: kFimidaraConfigPubSubProvider.memory,
+  });
+
   kUtilsInjectables.logger().log('Writing templates');
 
   await Promise.all([

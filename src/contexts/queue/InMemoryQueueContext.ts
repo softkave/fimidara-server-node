@@ -1,5 +1,4 @@
-import {first, identity, keyBy} from 'lodash-es';
-import {AnyFn} from 'softkave-js-utils';
+import {identity, keyBy} from 'lodash-es';
 import {IQueueContext, IQueueMessage} from './types.js';
 
 export class InMemoryQueueContext implements IQueueContext {
@@ -7,7 +6,6 @@ export class InMemoryQueueContext implements IQueueContext {
     string,
     Array<{id: string; message: IQueueMessage}>
   >();
-  protected waitListeners = new Map<string, AnyFn[]>();
 
   createQueue = async (key: string) => {
     if (!this.queues.has(key)) {
@@ -36,12 +34,6 @@ export class InMemoryQueueContext implements IQueueContext {
       }));
 
       this.queues.get(key)?.push(...idMessages);
-      const message0 = first(idMessages);
-
-      if (message0) {
-        this.fanoutToWaitListeners(key, message0);
-      }
-
       return idMessages.map(m => m.id);
     } else {
       throw new Error(`Queue ${key} does not exist`);
@@ -49,22 +41,22 @@ export class InMemoryQueueContext implements IQueueContext {
   };
 
   getMessages = async (key: string, count: number, remove: boolean = false) => {
-    if (this.queues.has(key)) {
-      const messages = this.queues.get(key) || [];
+    if (!(await this.queueExists(key))) {
+      await this.createQueue(key);
+    }
 
-      if (remove) {
-        return messages.splice(0, count) as Array<{
-          id: string;
-          message: IQueueMessage;
-        }>;
-      } else {
-        return messages.slice(0, count) as Array<{
-          id: string;
-          message: IQueueMessage;
-        }>;
-      }
+    const messages = this.queues.get(key) || [];
+
+    if (remove) {
+      return messages.splice(0, count) as Array<{
+        id: string;
+        message: IQueueMessage;
+      }>;
     } else {
-      throw new Error(`Queue ${key} does not exist`);
+      return messages.slice(0, count) as Array<{
+        id: string;
+        message: IQueueMessage;
+      }>;
     }
   };
 
@@ -81,35 +73,30 @@ export class InMemoryQueueContext implements IQueueContext {
     }
   };
 
-  waitOnStream = async (key: string, fn: AnyFn) => {
-    if (this.queues.has(key)) {
-      const messages = this.queues.get(key) || [];
+  waitOnStream = (
+    key: string,
+    fn: (hasData: boolean) => unknown,
+    timeout = 500
+  ) => {
+    if (!this.queues.has(key)) {
+      this.queues.set(key, []);
+    }
 
-      if (messages.length > 0) {
-        return fn();
-      } else {
-        if (this.waitListeners.has(key)) {
-          this.waitListeners.get(key)?.push(fn);
-        } else {
-          this.waitListeners.set(key, [fn]);
-        }
-      }
+    const messages = this.queues.get(key) || [];
+    const hasData = messages.length > 0;
+
+    if (timeout && !hasData) {
+      setTimeout(() => {
+        const messages = this.queues.get(key) || [];
+        const hasData = messages.length > 0;
+        fn(hasData);
+      }, timeout);
     } else {
-      throw new Error(`Queue ${key} does not exist`);
+      fn(hasData);
     }
   };
 
   dispose = async () => {
     this.queues.clear();
-    this.waitListeners.clear();
   };
-
-  protected fanoutToWaitListeners(
-    key: string,
-    message: {id: string; message: IQueueMessage}
-  ) {
-    const listeners = this.waitListeners.get(key);
-    this.waitListeners.delete(key);
-    listeners?.forEach(fn => fn(message));
-  }
 }

@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {merge} from 'lodash-es';
-import {loopAndCollateAsync} from 'softkave-js-utils';
+import {kLoopAsyncSettlementType, loopAndCollateAsync} from 'softkave-js-utils';
 import {PartialDeep} from 'type-fest';
 import {FimidaraEndpoints} from '../../endpoints/publicEndpoints.js';
 import {
@@ -25,7 +25,7 @@ export async function addAgentTokenTestExecFn(
   props: PartialDeep<AddAgentTokenEndpointParams> = {}
 ) {
   const genInput: AddAgentTokenEndpointParams = {
-    expires: getTokenExpiryDate(),
+    expiresAt: getTokenExpiryDate(),
     providedResourceId: faker.string.uuid(),
   };
   const inputs = merge(genInput, props);
@@ -41,7 +41,7 @@ export async function setupWorkspaceAgentTokensTestExecFn(
   const tokens = await loopAndCollateAsync(
     async () => await addAgentTokenTestExecFn(endpoint, vars),
     tokenCount,
-    /** settlement type */ 'all'
+    kLoopAsyncSettlementType.all
   );
   return {tokens};
 }
@@ -107,7 +107,7 @@ export async function updateTokenTestExecFn(
   const input: UpdateAgentTokenEndpointParams = {
     tokenId,
     token: {
-      expires: getTokenExpiryDate(),
+      expiresAt: getTokenExpiryDate(),
       providedResourceId: faker.string.uuid(),
     },
   };

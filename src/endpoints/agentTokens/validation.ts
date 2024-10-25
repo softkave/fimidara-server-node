@@ -1,6 +1,15 @@
 import Joi from 'joi';
 
 const onReferenced = Joi.boolean();
-const agentTokenValidationSchemas = {onReferenced};
+const refreshToken = Joi.string().max(1_000);
+const shouldRefresh = Joi.boolean();
+const refreshDuration = Joi.number().min(0);
 
-export default agentTokenValidationSchemas;
+const kAgentTokenValidationSchemas = {
+  onReferenced,
+  refreshToken,
+  shouldRefresh,
+  refreshDuration,
+};
+
+export default kAgentTokenValidationSchemas;

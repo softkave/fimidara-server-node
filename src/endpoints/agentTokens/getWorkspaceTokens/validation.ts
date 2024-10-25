@@ -14,5 +14,6 @@ export const getWorkspaceAgentTokenJoiSchema =
     .keys({
       ...getWorkspaceAgentTokenBaseJoiSchemaParts,
       ...endpointValidationSchemas.paginationParts,
+      shouldEncode: Joi.boolean().default(false),
     })
     .required();

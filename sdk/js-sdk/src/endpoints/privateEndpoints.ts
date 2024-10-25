@@ -25,6 +25,7 @@ import {
   ChangePasswordWithTokenEndpointParams,
   ForgotPasswordEndpointParams,
   LoginParams,
+  RefreshUserTokenEndpointParams,
   SignupEndpointParams,
   UserExistsEndpointParams,
   UserExistsEndpointResult,
@@ -200,6 +201,19 @@ export class UsersEndpoints extends FimidaraEndpointsBase {
     return this.executeJson(
       {
         path: '/v1/users/sendEmailVerificationCode',
+        method: 'POST',
+      },
+      opts
+    );
+  };
+  refreshToken = async (
+    props: RefreshUserTokenEndpointParams,
+    opts?: FimidaraEndpointOpts
+  ): Promise<LoginResult> => {
+    return this.executeJson(
+      {
+        data: props,
+        path: '/v1/users/refreshToken',
         method: 'POST',
       },
       opts
