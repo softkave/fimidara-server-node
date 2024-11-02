@@ -21,8 +21,8 @@ const getUserCollaborationRequest: GetUserCollaborationRequestEndpoint =
       .session()
       .getAgentFromReq(
         reqData,
-        kSessionUtils.permittedAgentTypes.user,
-        kSessionUtils.accessScopes.user
+        kSessionUtils.permittedAgentType.user,
+        kSessionUtils.accessScope.user
       );
     const request = await kSemanticModels
       .collaborationRequest()

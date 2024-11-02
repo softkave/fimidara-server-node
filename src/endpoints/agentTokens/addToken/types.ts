@@ -1,5 +1,5 @@
 import {PublicAgentToken} from '../../../definitions/agentToken.js';
-import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
 export interface NewAgentTokenInput {
   providedResourceId?: string;
@@ -12,7 +12,7 @@ export interface NewAgentTokenInput {
 }
 
 export interface AddAgentTokenEndpointParams
-  extends EndpointOptionalWorkspaceIDParam,
+  extends EndpointOptionalWorkspaceIdParam,
     NewAgentTokenInput {}
 
 export interface AddAgentTokenEndpointResult {

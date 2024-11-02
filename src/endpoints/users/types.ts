@@ -2,11 +2,12 @@ import {
   ExportedHttpEndpointWithMddocDefinition,
   HttpEndpointRequestHeaders_ContentType,
 } from '../types.js';
-import {ChangePasswordWithCurrentPasswordEndpoint} from './changePasswordWithCurrentPassword/types.js';
-import {ChangePasswordWithTokenEndpoint} from './changePasswordWithToken/types.js';
+import {ChangePasswordEndpoint} from './changePassword/types.js';
 import {ConfirmEmailAddressEndpoint} from './confirmEmailAddress/types.js';
 import {ForgotPasswordEndpoint} from './forgotPassword/types.js';
-import {GetUserDataEndpoint} from './getUserData/types.js';
+import {GetUserEndpoint} from './getUser/types.js';
+import {GetUserLoginEndpoint} from './getUserLogin/types.js';
+import {GetUsersEndpoint} from './getUsers/types.js';
 import {LoginEndpoint} from './login/types.js';
 import {RefreshUserTokenEndpoint} from './refreshToken/types.js';
 import {SendEmailVerificationCodeEndpoint} from './sendEmailVerificationCode/types.js';
@@ -27,14 +28,16 @@ export type ForgotPasswordHttpEndpoint =
     ForgotPasswordEndpoint,
     HttpEndpointRequestHeaders_ContentType
   >;
-export type ChangePasswordWithCurrentPasswordHttpEndpoint =
-  ExportedHttpEndpointWithMddocDefinition<ChangePasswordWithCurrentPasswordEndpoint>;
-export type ChangePasswordWithTokenHttpEndpoint =
-  ExportedHttpEndpointWithMddocDefinition<ChangePasswordWithTokenEndpoint>;
+export type ChangePasswordHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<ChangePasswordEndpoint>;
 export type UpdateUserHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<UpdateUserEndpoint>;
-export type GetUserDataHttpEndpoint =
-  ExportedHttpEndpointWithMddocDefinition<GetUserDataEndpoint>;
+export type GetUserHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<GetUserEndpoint>;
+export type GetUsersHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<GetUsersEndpoint>;
+export type GetUserLoginHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<GetUserLoginEndpoint>;
 export type UserExistsHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<
   UserExistsEndpoint,
   HttpEndpointRequestHeaders_ContentType
@@ -48,12 +51,13 @@ export type RefreshUserTokenHttpEndpoint =
 
 export type UsersExportedEndpoints = {
   updateUser: UpdateUserHttpEndpoint;
-  getUserData: GetUserDataHttpEndpoint;
+  getUser: GetUserHttpEndpoint;
+  getUsers: GetUsersHttpEndpoint;
+  getUserLogin: GetUserLoginHttpEndpoint;
   signup: SignupHttpEndpoint;
   login: LoginHttpEndpoint;
   forgotPassword: ForgotPasswordHttpEndpoint;
-  changePasswordWithCurrentPassword: ChangePasswordWithCurrentPasswordHttpEndpoint;
-  changePasswordWithToken: ChangePasswordWithTokenHttpEndpoint;
+  changePassword: ChangePasswordHttpEndpoint;
   userExists: UserExistsHttpEndpoint;
   confirmEmailAddress: ConfirmEmailAddressHttpEndpoint;
   sendEmailVerificationCode: SendEmailVerificationCodeHttpEndpoint;

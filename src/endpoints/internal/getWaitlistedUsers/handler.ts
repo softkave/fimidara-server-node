@@ -12,8 +12,8 @@ const getWaitlistedUsers: GetWaitlistedUsersEndpoint = async reqData => {
     .session()
     .getAgentFromReq(
       reqData,
-      kSessionUtils.permittedAgentTypes.user,
-      kSessionUtils.accessScopes.user
+      kSessionUtils.permittedAgentType.user,
+      kSessionUtils.accessScope.user
     );
   await assertUserIsPartOfRootWorkspace(agent);
   const users = await kSemanticModels

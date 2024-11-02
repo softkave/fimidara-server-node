@@ -3,63 +3,30 @@ import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {SessionAgent} from '../../definitions/system.js';
-import {kUsageRecordCategory} from '../../definitions/usageRecord.js';
-import {
-  PublicUsageThreshold,
-  PublicWorkspace,
-  Workspace,
-} from '../../definitions/workspace.js';
+import {PublicWorkspace, Workspace} from '../../definitions/workspace.js';
 import {appAssert} from '../../utils/assertion.js';
 import {
   ExtractFieldsFrom,
   getFields,
   makeExtract,
-  makeExtractIfPresent,
   makeListExtract,
 } from '../../utils/extract.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {
   getWorkspaceIdFromSessionAgent,
-  getWorkspaceIdNoThrow,
+  getWorkspaceIdFromSessionAgentNoThrow,
 } from '../../utils/sessionUtils.js';
 import {NotFoundError} from '../errors.js';
-import {agentExtractor, workspaceResourceFields} from '../extractors.js';
+import {workspaceResourceFields} from '../extractors.js';
 import folderValidationSchemas from '../folders/validation.js';
-import {EndpointOptionalWorkspaceIDParam} from '../types.js';
+import {EndpointOptionalWorkspaceIdParam} from '../types.js';
 
-const usageThresholdItemPublicFields = getFields<PublicUsageThreshold>({
-  lastUpdatedBy: agentExtractor,
-  lastUpdatedAt: true,
-  category: true,
-  budget: true,
-  usage: true,
-});
-
-const usageThresholdItemIfExistExtractor = makeExtractIfPresent(
-  usageThresholdItemPublicFields
-);
-
-const usageThresholdsPublicFields = getFields<
-  PublicWorkspace['usageThresholds']
->({
-  [kUsageRecordCategory.total]: usageThresholdItemIfExistExtractor,
-  [kUsageRecordCategory.storage]: usageThresholdItemIfExistExtractor,
-  [kUsageRecordCategory.storageEverConsumed]:
-    usageThresholdItemIfExistExtractor,
-  [kUsageRecordCategory.bandwidthIn]: usageThresholdItemIfExistExtractor,
-  [kUsageRecordCategory.bandwidthOut]: usageThresholdItemIfExistExtractor,
-});
-
-const usageThresholdExistExtractor = makeExtract(usageThresholdsPublicFields);
 const workspacePublicFields: ExtractFieldsFrom<PublicWorkspace> = {
   ...workspaceResourceFields,
   name: true,
   rootname: true,
   description: true,
-  publicPermissionGroupId: true,
-  billStatus: true,
-  billStatusAssignedAt: true,
-  usageThresholds: usageThresholdExistExtractor,
+  rootnamepath: true,
 };
 
 const workspaceFields = getFields<PublicWorkspace>(workspacePublicFields);
@@ -106,28 +73,21 @@ export async function checkWorkspaceAuthorization(
 ) {
   await checkAuthorizationWithAgent({
     agent,
-    workspace,
     opts,
     workspaceId: workspace.resourceId,
     target: {action, targetId: workspace.resourceId},
   });
+
   return {agent, workspace};
 }
 
 export async function checkWorkspaceAuthorization02(
   agent: SessionAgent,
   action: FimidaraPermissionAction,
-  id?: string
+  workspaceId: string
 ) {
-  const workspaceId = getWorkspaceIdFromSessionAgent(agent, id);
   const workspace = await checkWorkspaceExists(workspaceId);
   return checkWorkspaceAuthorization(agent, workspace, action);
-}
-
-export abstract class WorkspaceUtils {
-  static getPublicWorkspace = workspaceExtractor;
-  static getPublicWorkspaceList = workspaceListExtractor;
-  static throwWorkspaceNotFound = throwWorkspaceNotFound;
 }
 
 export function makeRootnameFromName(name: string): string {
@@ -139,7 +99,7 @@ export function makeRootnameFromName(name: string): string {
 
 export async function getWorkspaceFromEndpointInput(
   agent: SessionAgent,
-  data: EndpointOptionalWorkspaceIDParam,
+  data: EndpointOptionalWorkspaceIdParam,
   opts?: SemanticProviderOpParams
 ) {
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
@@ -149,11 +109,17 @@ export async function getWorkspaceFromEndpointInput(
 
 export async function tryGetWorkspaceFromEndpointInput(
   agent: SessionAgent,
-  data: EndpointOptionalWorkspaceIDParam
+  data: EndpointOptionalWorkspaceIdParam
 ) {
   let workspace: Workspace | undefined = undefined;
-  const workspaceId = getWorkspaceIdNoThrow(agent, data.workspaceId);
-  if (workspaceId) workspace = await checkWorkspaceExists(workspaceId);
+  const workspaceId = getWorkspaceIdFromSessionAgentNoThrow(
+    agent,
+    data.workspaceId
+  );
+  if (workspaceId) {
+    workspace = await checkWorkspaceExists(workspaceId);
+  }
+
   return {workspace};
 }
 

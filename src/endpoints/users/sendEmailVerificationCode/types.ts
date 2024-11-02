@@ -1,5 +1,9 @@
-import {Endpoint} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
-export type SendEmailVerificationCodeEndpointParams = {};
+export interface SendEmailVerificationCodeEndpointParams
+  extends EndpointOptionalWorkspaceIdParam {
+  userId?: string;
+}
+
 export type SendEmailVerificationCodeEndpoint =
   Endpoint<SendEmailVerificationCodeEndpointParams>;

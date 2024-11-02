@@ -1,11 +1,11 @@
 import {PublicAgentToken} from '../../../definitions/agentToken.js';
-import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 import {NewAgentTokenInput} from '../addToken/types.js';
 
 export type UpdateAgentTokenInput = Partial<NewAgentTokenInput>;
 
 export interface UpdateAgentTokenEndpointParams
-  extends EndpointOptionalWorkspaceIDParam {
+  extends EndpointOptionalWorkspaceIdParam {
   tokenId?: string;
   onReferenced?: boolean;
   providedResourceId?: string;

@@ -13,6 +13,12 @@ export const kFimidaraPermissionActions = {
   // wildcardUpdate: 'wildcardUpdate',
   // wildcardDelete: 'wildcardDelete',
 
+  signup: 'signup',
+  readUser: 'readUser',
+  changePassword: 'changePassword',
+  updateUser: 'updateUser',
+
+  addWorkspace: 'addWorkspace',
   updateWorkspace: 'updateWorkspace',
   deleteWorkspace: 'deleteWorkspace',
   readWorkspace: 'readWorkspace',

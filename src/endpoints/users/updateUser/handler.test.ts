@@ -25,7 +25,7 @@ import {
 } from '../../testUtils/testUtils.js';
 import {EmailAddressNotAvailableError} from '../errors.js';
 import {userExtractor} from '../utils.js';
-import updateUser from './handler.js';
+import updateUserEndpoint from './handler.js';
 import {UpdateUserEndpointParams} from './types.js';
 
 /**
@@ -54,7 +54,7 @@ describe('updateUser', () => {
       updateInput
     );
 
-    const result = await updateUser(reqData);
+    const result = await updateUserEndpoint(reqData);
     assertEndpointResultOk(result);
 
     const savedUser = await populateUserWorkspaces(
@@ -97,7 +97,7 @@ describe('updateUser', () => {
       {email: faker.internet.email()}
     );
 
-    const result = await updateUser(reqData);
+    const result = await updateUserEndpoint(reqData);
     assertEndpointResultOk(result);
 
     const savedUser = await kSemanticModels
@@ -118,7 +118,7 @@ describe('updateUser', () => {
     );
 
     await expectErrorThrown(async () => {
-      await updateUser(reqData);
+      await updateUserEndpoint(reqData);
     }, [EmailAddressNotAvailableError.name]);
   });
 });

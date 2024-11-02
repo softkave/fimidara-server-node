@@ -17,7 +17,7 @@ const getUserCollaborationRequests: GetUserCollaborationRequestsEndpoint =
     const data = validate(reqData.data, getUserRequestsJoiSchema);
     const user = await kUtilsInjectables
       .session()
-      .getUser(reqData, kSessionUtils.accessScopes.user);
+      .getUser(reqData, kSessionUtils.accessScope.user);
     applyDefaultEndpointPaginationOptions(data);
     const requests = await kSemanticModels
       .collaborationRequest()

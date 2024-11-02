@@ -75,7 +75,7 @@ export class DataSemanticAssignedItem
     return await this.data.getManyByQuery(query, options);
   }
 
-  async getUserWorkspaces(
+  async getAssigneeWorkspaces(
     assigneeId: string,
     options?:
       | SemanticProviderQueryListParams<AssignedItem<AnyObject>>

@@ -16,8 +16,8 @@ const deleteAgentToken: DeleteAgentTokenEndpoint = async reqData => {
     .session()
     .getAgentFromReq(
       reqData,
-      kSessionUtils.permittedAgentTypes.api,
-      kSessionUtils.accessScopes.api
+      kSessionUtils.permittedAgentType.api,
+      kSessionUtils.accessScope.api
     );
   const tokenId = tryGetAgentTokenId(agent, data.tokenId, data.onReferenced);
   const {workspace} = await tryGetWorkspaceFromEndpointInput(agent, data);

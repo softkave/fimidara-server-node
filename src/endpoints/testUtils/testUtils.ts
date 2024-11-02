@@ -1,5 +1,4 @@
 import {faker} from '@faker-js/faker';
-import * as argon2 from 'argon2';
 import assert from 'assert';
 import {add} from 'date-fns';
 import {Readable} from 'stream';
@@ -8,17 +7,11 @@ import {
   kSemanticModels,
   kUtilsInjectables,
 } from '../../contexts/injection/injectables.js';
-import {IServerRequest} from '../../contexts/types.js';
-import {AgentToken, PublicAgentToken} from '../../definitions/agentToken.js';
-import {
-  BaseTokenData,
-  kCurrentJWTTokenVersion,
-  SessionAgent,
-} from '../../definitions/system.js';
-import {PublicUser, UserWithWorkspace} from '../../definitions/user.js';
+import {AgentToken} from '../../definitions/agentToken.js';
+import {SessionAgent} from '../../definitions/system.js';
+import {PublicUser, User} from '../../definitions/user.js';
 import {PublicWorkspace, Workspace} from '../../definitions/workspace.js';
 import {FimidaraSuppliedConfig} from '../../resources/config.js';
-import {kPublicSessionAgent, kSystemSessionAgent} from '../../utils/agent.js';
 import {appAssert} from '../../utils/assertion.js';
 import {getTimestamp} from '../../utils/dateFns.js';
 import {convertToArray, mergeData, pathJoin} from '../../utils/fns.js';
@@ -29,7 +22,6 @@ import {
   NewAgentTokenInput,
 } from '../agentTokens/addToken/types.js';
 import {assertAgentToken} from '../agentTokens/utils.js';
-import {populateUserWorkspaces} from '../assignedItems/getAssignedItems.js';
 import sendRequest from '../collaborationRequests/sendRequest/handler.js';
 import {
   CollaborationRequestInput,
@@ -58,18 +50,19 @@ import {
   AddPermissionGroupEndpointParams,
   NewPermissionGroupInput,
 } from '../permissionGroups/addPermissionGroup/types.js';
-import addPermissionItems from '../permissionItems/addItems/handler.js';
-import {AddPermissionItemsEndpointParams} from '../permissionItems/addItems/types.js';
-import {PermissionItemInput} from '../permissionItems/types.js';
+import addPermissionItemsEndpoint from '../permissions/addPermissionItems/handler.js';
+import {AddPermissionItemsEndpointParams} from '../permissions/addPermissionItems/types.js';
+import {PermissionItemInput} from '../permissions/types.js';
 import EndpointReusableQueries from '../queries.js';
 import RequestData from '../RequestData.js';
 import {initFimidara} from '../runtime/initFimidara.js';
 import {BaseEndpointResult} from '../types.js';
 import INTERNAL_confirmEmailAddress from '../users/confirmEmailAddress/internalConfirmEmailAddress.js';
-import signup from '../users/signup/handler.js';
+import {LoginResult} from '../users/login/types.js';
+import signupEndpoint from '../users/signup/handler.js';
 import {SignupEndpointParams} from '../users/signup/types.js';
 import {assertUser} from '../users/utils.js';
-import addWorkspace from '../workspaces/addWorkspace/handler.js';
+import addWorkspaceEndpoint from '../workspaces/addWorkspace/handler.js';
 import {AddWorkspaceEndpointParams} from '../workspaces/addWorkspace/types.js';
 import {makeRootnameFromName} from '../workspaces/utils.js';
 import MockTestEmailProviderContext from './context/email/MockTestEmailProviderContext.js';
@@ -83,6 +76,11 @@ import {
   generateFileBackendTypeForInput,
 } from './generate/fileBackend.js';
 import {generateTestFolderName} from './generate/folder.js';
+import {
+  mockExpressRequest,
+  mockExpressRequestForPublicAgent,
+  mockExpressRequestWithAgentToken,
+} from './helpers/request.js';
 import sharp = require('sharp');
 
 export function getTestEmailProvider() {
@@ -110,86 +108,25 @@ export function assertEndpointResultOk(result?: BaseEndpointResult | void) {
   return true;
 }
 
-export function mockExpressRequest(token?: BaseTokenData) {
-  const req: IServerRequest = {auth: token} as unknown as IServerRequest;
-  return req;
-}
-
-export function mockExpressRequestWithAgentToken(
-  token: Pick<
-    PublicAgentToken,
-    'resourceId' | 'createdAt' | 'expiresAt' | 'refreshToken'
-  >
-) {
-  const req: IServerRequest = {
-    auth:
-      token.resourceId === kSystemSessionAgent.agentTokenId ||
-      token.resourceId === kPublicSessionAgent.agentTokenId
-        ? undefined
-        : {
-            version: kCurrentJWTTokenVersion,
-            sub: {
-              id: token.resourceId,
-            },
-            iat: token.createdAt,
-            exp: token.expiresAt,
-          },
-  } as unknown as IServerRequest;
-
-  return req;
-}
-
-export async function mockExpressRequestWithAgentRefreshToken(
-  token: Pick<
-    PublicAgentToken,
-    'resourceId' | 'createdAt' | 'expiresAt' | 'refreshToken'
-  >
-) {
-  const req: IServerRequest = {
-    auth:
-      token.resourceId === kSystemSessionAgent.agentTokenId ||
-      token.resourceId === kPublicSessionAgent.agentTokenId
-        ? undefined
-        : {
-            version: kCurrentJWTTokenVersion,
-            sub: {
-              id: token.resourceId,
-              refreshToken: token.refreshToken
-                ? await argon2.hash(token.refreshToken)
-                : undefined,
-            },
-            iat: token.createdAt,
-            exp: token.expiresAt,
-          },
-  } as unknown as IServerRequest;
-
-  return req;
-}
-
-export function mockExpressRequestForPublicAgent() {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  const req: IServerRequest = {};
-  return req;
-}
-
-export interface IInsertUserForTestResult {
-  rawUser: UserWithWorkspace;
+export interface IInsertUserForTestResult extends LoginResult {
+  rawUser: User;
   userToken: AgentToken;
-  clientToken: AgentToken;
   user: PublicUser;
-  token: string;
-  clientAssignedToken: string;
-  refreshToken: string;
   reqData: RequestData<SignupEndpointParams>;
   sessionAgent: SessionAgent;
 }
 
 export async function insertUserForTest(
-  userInput: Partial<SignupEndpointParams> = {},
-  /** Tests that mutate data will fail otherwise */
-  skipAutoVerifyEmail = false
+  params: {
+    input: Partial<SignupEndpointParams>;
+    /** Tests that mutate data will fail if user is root-level and email is not
+     * verified. so, we auto-verify seeing most tests will need it, but you can
+     * override that by setting `skipAutoVerify` to `true`. Defaults to `false`. */
+    skipAutoVerifyEmail?: boolean;
+  } = {input: {}, skipAutoVerifyEmail: false}
 ): Promise<IInsertUserForTestResult> {
+  const {input, skipAutoVerifyEmail} = params;
+
   const reqData = RequestData.fromExpressRequest<SignupEndpointParams>(
     mockExpressRequest(),
     {
@@ -197,51 +134,37 @@ export async function insertUserForTest(
       lastName: faker.person.lastName(),
       email: faker.internet.email(),
       password: faker.internet.password(),
-      ...userInput,
+      ...input,
     }
   );
 
-  const result = await signup(reqData);
+  const result = await signupEndpoint(reqData);
   assertEndpointResultOk(result);
-  let rawUser: UserWithWorkspace;
+  let rawUser: User;
 
   if (!skipAutoVerifyEmail) {
-    const user = await INTERNAL_confirmEmailAddress(
-      result.user.resourceId,
-      null
-    );
-    rawUser = await populateUserWorkspaces(user);
+    rawUser = await INTERNAL_confirmEmailAddress(result.user.resourceId, null);
   } else {
-    const user = await kSemanticModels
+    const userOrNull = await kSemanticModels
       .user()
       .getOneById(result.user.resourceId);
-    assertUser(user);
-    rawUser = await populateUserWorkspaces(user);
+    assertUser(userOrNull);
+    rawUser = userOrNull;
   }
 
-  const userTokenData = kUtilsInjectables
-    .session()
-    .decodeToken(result.jwtToken);
-  const clientTokenData = kUtilsInjectables
-    .session()
-    .decodeToken(result.clientJwtToken);
-  const [userToken, clientToken] = await Promise.all([
-    kSemanticModels.agentToken().getOneById(userTokenData.sub.id),
-    kSemanticModels.agentToken().getOneById(clientTokenData.sub.id),
-  ]);
+  const decodedToken = kUtilsInjectables.session().decodeToken(result.jwtToken);
+  const userToken = await kSemanticModels
+    .agentToken()
+    .getOneById(decodedToken.sub.id);
   assertAgentToken(userToken);
-  assertAgentToken(clientToken);
 
   const sessionAgent = makeUserSessionAgent(rawUser, userToken);
   return {
+    ...result,
     rawUser,
     userToken,
-    clientToken,
     sessionAgent,
     user: {...result.user, isEmailVerified: rawUser.isEmailVerified},
-    token: result.jwtToken,
-    clientAssignedToken: result.clientJwtToken,
-    refreshToken: result.refreshToken,
     reqData: reqData,
   };
 }
@@ -267,7 +190,7 @@ export async function insertWorkspaceForTest(
     }
   );
 
-  const result = await addWorkspace(reqData);
+  const result = await addWorkspaceEndpoint(reqData);
   assertEndpointResultOk(result);
   const rawWorkspace = await kSemanticModels
     .workspace()
@@ -307,7 +230,7 @@ export async function insertPermissionItemsForTest(
       mockExpressRequestWithAgentToken(userToken),
       {workspaceId, items: convertToArray(input)}
     );
-  const result = await addPermissionItems(reqData);
+  const result = await addPermissionItemsEndpoint(reqData);
   assertEndpointResultOk(result);
   return result;
 }

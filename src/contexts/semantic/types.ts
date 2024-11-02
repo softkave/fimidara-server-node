@@ -114,6 +114,23 @@ export type SemanticWorkspaceResourceProviderBaseType = Resource & {
   name?: string;
 };
 
+export type SemanticWorkspaceGetByWorkspaceAndIdListQuery =
+  | {
+      workspaceId: string;
+      resourceIdList?: string[];
+      excludeResourceIdList?: string[];
+    }
+  | {
+      workspaceId?: string;
+      resourceIdList: string[];
+      excludeResourceIdList?: string[];
+    }
+  | {
+      workspaceId?: string;
+      resourceIdList?: string[];
+      excludeResourceIdList: string[];
+    };
+
 export interface SemanticWorkspaceResourceProviderType<
   TResource extends SemanticWorkspaceResourceProviderBaseType,
 > extends SemanticBaseProviderType<TResource> {
@@ -146,19 +163,11 @@ export interface SemanticWorkspaceResourceProviderType<
     opts: SemanticProviderMutationParams
   ): Promise<void>;
   getManyByWorkspaceAndIdList(
-    query: {
-      workspaceId: string;
-      resourceIdList?: string[];
-      excludeResourceIdList?: string[];
-    },
+    query: SemanticWorkspaceGetByWorkspaceAndIdListQuery,
     options?: SemanticProviderQueryListParams<TResource>
   ): Promise<TResource[]>;
   countManyByWorkspaceAndIdList(
-    query: {
-      workspaceId: string;
-      resourceIdList?: string[];
-      excludeResourceIdList?: string[];
-    },
+    query: SemanticWorkspaceGetByWorkspaceAndIdListQuery,
     opts?: SemanticProviderOpParams
   ): Promise<number>;
 }

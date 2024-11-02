@@ -1,14 +1,18 @@
 import {User} from '../../../definitions/user.js';
 import {
-  SemanticBaseProviderType,
   SemanticProviderOpParams,
   SemanticProviderQueryParams,
+  SemanticWorkspaceResourceProviderType,
 } from '../types.js';
 
 export interface SemanticUserProviderType
-  extends SemanticBaseProviderType<User> {
+  extends SemanticWorkspaceResourceProviderType<User> {
   getByEmail(
-    email: string,
+    params: {email: string; workspaceId?: string},
+    opts?: SemanticProviderQueryParams<User>
+  ): Promise<User | null>;
+  getByUserId(
+    params: {userId: string; workspaceId?: string},
     opts?: SemanticProviderQueryParams<User>
   ): Promise<User | null>;
   countUsersCreatedBetween(
@@ -17,7 +21,7 @@ export interface SemanticUserProviderType
     opts?: SemanticProviderQueryParams<User>
   ): Promise<number>;
   existsByEmail(
-    email: string,
+    params: {email: string; workspaceId?: string},
     opts?: SemanticProviderOpParams
   ): Promise<boolean>;
 }

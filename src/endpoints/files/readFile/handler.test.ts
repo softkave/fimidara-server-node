@@ -55,9 +55,9 @@ import {
   mockExpressRequestForPublicAgent,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
-import {getCostForUsage} from '../../usageRecords/constants.js';
-import {UsageLimitExceededError} from '../../usageRecords/errors.js';
-import {getUsageRecordReportingPeriod} from '../../usageRecords/utils.js';
+import {getCostForUsage} from '../../usage/constants.js';
+import {UsageLimitExceededError} from '../../usage/errors.js';
+import {getUsageRecordReportingPeriod} from '../../usage/utils.js';
 import {PermissionDeniedError} from '../../users/errors.js';
 import {stringifyFilenamepath} from '../utils.js';
 import readFile from './handler.js';

@@ -9,7 +9,7 @@ import {Workspace} from '../../definitions/workspace.js';
 import {INTERNAL_createAgentToken} from '../../endpoints/agentTokens/addToken/utils.js';
 import {getPublicAgentToken} from '../../endpoints/agentTokens/utils.js';
 import {addAssignedPermissionGroupList} from '../../endpoints/assignedItems/addAssignedItems.js';
-import INTERNAL_createWorkspace from '../../endpoints/workspaces/addWorkspace/internalCreateWorkspace.js';
+import INTERNAL_createWorkspace from '../../endpoints/workspaces/addWorkspace/createWorkspace.js';
 import {makeRootnameFromName} from '../../endpoints/workspaces/utils.js';
 import {kSystemSessionAgent} from '../../utils/agent.js';
 import {appAssert} from '../../utils/assertion.js';

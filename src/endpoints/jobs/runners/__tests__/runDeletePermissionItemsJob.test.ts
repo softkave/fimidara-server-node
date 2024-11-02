@@ -15,7 +15,7 @@ import {kFimidaraResourceType} from '../../../../definitions/system.js';
 import {kSystemSessionAgent} from '../../../../utils/agent.js';
 import {extractResourceIdList} from '../../../../utils/fns.js';
 import {getNewId} from '../../../../utils/resource.js';
-import {DeletePermissionItemInput} from '../../../permissionItems/deleteItems/types.js';
+import {DeletePermissionItemInput} from '../../../permissions/deletePermissionItems/types.js';
 import {generateAndInsertTestFiles} from '../../../testUtils/generate/file.js';
 import {generateAndInsertTestFolders} from '../../../testUtils/generate/folder.js';
 import {generateAndInsertPermissionGroupListForTest} from '../../../testUtils/generate/permissionGroup.js';

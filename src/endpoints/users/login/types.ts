@@ -1,17 +1,15 @@
+import {EncodedAgentToken} from '../../../definitions/agentToken.js';
 import {PublicUser} from '../../../definitions/user.js';
-import {Endpoint} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
-export interface LoginEndpointParams {
-  email: string;
+export interface LoginEndpointParams extends EndpointOptionalWorkspaceIdParam {
+  email?: string;
+  userId?: string;
   password: string;
 }
 
-export interface LoginResult {
+export interface LoginResult extends EncodedAgentToken {
   user: PublicUser;
-  jwtToken: string;
-  refreshToken: string;
-  clientJwtToken: string;
-  jwtTokenExpiresAt: number;
 }
 
 export type LoginEndpoint = Endpoint<LoginEndpointParams, LoginResult>;

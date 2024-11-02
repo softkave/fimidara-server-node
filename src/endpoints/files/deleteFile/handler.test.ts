@@ -26,8 +26,8 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
-import {getCostForUsage} from '../../usageRecords/constants.js';
-import {getUsageRecordReportingPeriod} from '../../usageRecords/utils.js';
+import {getCostForUsage} from '../../usage/constants.js';
+import {getUsageRecordReportingPeriod} from '../../usage/utils.js';
 import {stringifyFilenamepath} from '../utils.js';
 import deleteFile from './handler.js';
 import {DeleteFileEndpointParams} from './types.js';

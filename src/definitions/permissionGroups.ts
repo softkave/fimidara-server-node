@@ -1,3 +1,4 @@
+import {EndpointOptionalWorkspaceIdParam} from '../endpoints/types.js';
 import {Agent, ToPublicDefinitions, WorkspaceResource} from './system.js';
 
 export interface PermissionGroup extends WorkspaceResource {
@@ -7,7 +8,7 @@ export interface PermissionGroup extends WorkspaceResource {
 
 export interface AssignedPermissionGroupMeta {
   permissionGroupId: string;
-  assigneeEntityId: string;
+  assigneeId: string;
   assignedAt: number;
   assignedBy: Agent;
 }
@@ -25,10 +26,10 @@ export type PermissionEntityInheritanceMap = Record<
   PermissionEntityInheritanceMapItem
 >;
 
-export interface PermissionGroupMatcher {
+export interface PermissionGroupMatcher
+  extends EndpointOptionalWorkspaceIdParam {
   permissionGroupId?: string;
   name?: string;
-  workspaceId?: string;
 }
 
 export type PublicPermissionGroup = ToPublicDefinitions<PermissionGroup>;

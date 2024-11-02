@@ -18,7 +18,7 @@ import {
   insertUserForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
-import confirmEmailAddress from './handler.js';
+import confirmEmailAddressEndpoint from './handler.js';
 
 beforeAll(async () => {
   await initTests();
@@ -46,7 +46,7 @@ test('email address is confirmed', async () => {
     .utils()
     .withTxn(opts => kSemanticModels.agentToken().insertItem(token, opts));
 
-  const result = await confirmEmailAddress(
+  const result = await confirmEmailAddressEndpoint(
     RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(token))
   );
   assertEndpointResultOk(result);

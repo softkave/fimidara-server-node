@@ -11,8 +11,8 @@ const getFolder: GetFolderEndpoint = async reqData => {
     .session()
     .getAgentFromReq(
       reqData,
-      kSessionUtils.permittedAgentTypes.api,
-      kSessionUtils.accessScopes.api
+      kSessionUtils.permittedAgentType.api,
+      kSessionUtils.accessScope.api
     );
   const {folder} = await checkFolderAuthorization02(agent, data, 'readFolder');
 

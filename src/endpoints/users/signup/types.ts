@@ -1,7 +1,7 @@
-import {Endpoint} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 import {LoginResult} from '../login/types.js';
 
-export interface SignupEndpointParams {
+export interface SignupEndpointParams extends EndpointOptionalWorkspaceIdParam {
   firstName: string;
   lastName: string;
   email: string;

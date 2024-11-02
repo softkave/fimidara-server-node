@@ -22,14 +22,14 @@ import {INTERNAL_RespondToCollaborationRequest} from '../../endpoints/collaborat
 import {fetchEntityAssignedPermissionGroupList} from '../../endpoints/permissionGroups/getEntityAssignedPermissionGroups/utils.js';
 import {assertPermissionGroup} from '../../endpoints/permissionGroups/utils.js';
 import {initFimidara} from '../../endpoints/runtime/initFimidara.js';
-import {INTERNAL_changePassword} from '../../endpoints/users/changePasswordWithToken/utils.js';
+import {INTERNAL_changePassword} from '../../endpoints/users/changePassword/utils.js';
 import INTERNAL_confirmEmailAddress from '../../endpoints/users/confirmEmailAddress/internalConfirmEmailAddress.js';
 import {INTERNAL_signupUser} from '../../endpoints/users/signup/utils.js';
 import {
   getCompleteUserDataByEmail,
   isUserInWorkspace,
 } from '../../endpoints/users/utils.js';
-import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME} from '../../endpoints/workspaces/addWorkspace/utils.js';
+import {kDefaultAdminPermissionGroupName} from '../../endpoints/workspaces/addWorkspace/utils.js';
 import {kSystemSessionAgent} from '../../utils/agent.js';
 import {getTimestamp} from '../../utils/dateFns.js';
 import {makeUserSessionAgent} from '../../utils/sessionUtils.js';
@@ -188,11 +188,7 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
   await kSemanticModels.utils().withTxn(async opts => {
     const adminPermissionGroup = await kSemanticModels
       .permissionGroup()
-      .getByName(
-        workspace.resourceId,
-        DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
-        opts
-      );
+      .getByName(workspace.resourceId, kDefaultAdminPermissionGroupName, opts);
     assertPermissionGroup(adminPermissionGroup);
 
     if (isInWorkspace) {

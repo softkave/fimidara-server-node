@@ -1,23 +1,50 @@
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {
+  kFimidaraResourceType,
+  kTokenAccessScope,
+} from '../../../definitions/system.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {getLoginResult} from '../login/utils.js';
-import INTERNAL_confirmEmailAddress from './internalConfirmEmailAddress.js';
+import {assertUser} from '../utils.js';
 import {ConfirmEmailAddressEndpoint} from './types.js';
 
-const confirmEmailAddress: ConfirmEmailAddressEndpoint = async reqData => {
-  const agent = await kUtilsInjectables
-    .session()
-    .getAgentFromReq(
-      reqData,
-      kSessionUtils.permittedAgentTypes.user,
-      kSessionUtils.accessScopes.confirmEmailAddress
-    );
-  const user = await INTERNAL_confirmEmailAddress(
-    agent.agentId,
-    agent.user ?? null
-  );
+export async function confirmEmailAddress(userId: string) {
+  return await kSemanticModels.utils().withTxn(async opts => {
+    const [user] = await Promise.all([
+      kSemanticModels.user().getAndUpdateOneById(
+        userId,
+        /** update */ {
+          isEmailVerified: true,
+          emailVerifiedAt: getTimestamp(),
+        },
+        opts
+      ),
+      kSemanticModels
+        .agentToken()
+        .softDeleteAgentTokens(
+          userId,
+          kTokenAccessScope.confirmEmailAddress,
+          opts
+        ),
+    ]);
 
-  return await getLoginResult(user);
-};
+    assertUser(user);
+    return user;
+  });
+}
 
-export default confirmEmailAddress;
+const confirmEmailAddressEndpoint: ConfirmEmailAddressEndpoint =
+  async reqData => {
+    const {agent} = await initEndpoint(reqData, {
+      tokenScope: kTokenAccessScope.confirmEmailAddress,
+      permittedAgentType: kFimidaraResourceType.User,
+    });
+
+    const userId = agent.agentId;
+    const user = await confirmEmailAddress(userId);
+
+    return await getLoginResult(user);
+  };
+
+export default confirmEmailAddressEndpoint;

@@ -11,7 +11,7 @@ export interface AgentToken extends Resource {
   name?: string;
   description?: string;
   version: number;
-  /** Entity agent token was created for, e.g a user. */
+  /** Entity agent token was created for, e.g. a user. */
   forEntityId: string | null;
   /** Type of resource referenced by `forEntityId`. */
   entityType: FimidaraResourceType;

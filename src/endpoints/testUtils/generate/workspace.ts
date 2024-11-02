@@ -1,64 +1,23 @@
 import {faker} from '@faker-js/faker';
-import {PartialDeep} from 'type-fest';
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
-import {kUsageRecordCategory} from '../../../definitions/usageRecord.js';
 import {
-  UsageThresholdsByCategory,
+  IRootLevelWorkspaceData,
   Workspace,
   kWorkspaceBillStatusMap,
 } from '../../../definitions/workspace.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
-import {isObjectEmpty} from '../../../utils/fns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
-import {kUsageRecordConstants} from '../../usageRecords/constants.js';
-import {transformUsageThresholInput} from '../../workspaces/addWorkspace/internalCreateWorkspace.js';
-import {NewWorkspaceInput} from '../../workspaces/addWorkspace/types.js';
+import {getDefaultThresholds} from '../../usage/constants.js';
 import {makeRootnameFromName} from '../../workspaces/utils.js';
+import {GenerateResourceSeed} from './types.js';
+import {getSeedData} from './utils.js';
 
-export function generateTestUsageThresholdInputMap(
-  threshold = kUsageRecordConstants.defaultTotalThresholdInUSD,
-  seed: PartialDeep<UsageThresholdsByCategory> = {}
-): Required<NewWorkspaceInput>['usageThresholds'] {
-  return {
-    [kUsageRecordCategory.storage]: {
-      budget: seed.storage?.budget ?? threshold,
-      category: kUsageRecordCategory.storage,
-    },
-    // [UsageRecordCategoryMap.Request]: {
-    //   category: UsageRecordCategoryMap.Request,
-    //   budget: threshold,
-    // },
-    [kUsageRecordCategory.bandwidthIn]: {
-      category: kUsageRecordCategory.bandwidthIn,
-      budget: seed.bin?.budget ?? threshold,
-    },
-    [kUsageRecordCategory.bandwidthOut]: {
-      category: kUsageRecordCategory.bandwidthOut,
-      budget: seed.bout?.budget ?? threshold,
-    },
-    // [UsageRecordCategoryMap.DatabaseObject]: {
-    //   category: UsageRecordCategoryMap.DatabaseObject,
-    //   budget: threshold,
-    // },
-    [kUsageRecordCategory.total]: isObjectEmpty(seed)
-      ? {
-          budget: threshold * Object.keys(kUsageRecordCategory).length,
-          category: kUsageRecordCategory.total,
-        }
-      : {
-          category: kUsageRecordCategory.total,
-          budget:
-            seed.total?.budget ??
-            Object.values(seed).reduce(
-              (sum, next) => sum + (next?.budget ?? 0),
-              /** initialValue */ 0
-            ),
-        },
-  };
-}
+export function generateTestWorkspace(
+  seedOrFn: GenerateResourceSeed<Partial<Workspace>> = {}
+) {
+  const seed = getSeedData(seedOrFn);
 
-export function generateTestWorkspace(seed: Partial<Workspace> = {}) {
   const createdAt = getTimestamp();
   const createdBy: Agent = {
     agentTokenId: getNewIdForResource(kFimidaraResourceType.AgentToken),
@@ -73,14 +32,8 @@ export function generateTestWorkspace(seed: Partial<Workspace> = {}) {
     seed.workspaceId ||
     getNewIdForResource(kFimidaraResourceType.Workspace);
 
-  const workspace: Workspace = {
-    usageThresholds: transformUsageThresholInput(
-      createdBy,
-      generateTestUsageThresholdInputMap(
-        kUsageRecordConstants.defaultTotalThresholdInUSD,
-        seed.usageThresholds
-      )
-    ),
+  const workspace: Workspace & IRootLevelWorkspaceData = {
+    usageThresholds: getDefaultThresholds(),
     publicPermissionGroupId: getNewIdForResource(
       kFimidaraResourceType.PermissionGroup
     ),
@@ -104,12 +57,12 @@ export function generateTestWorkspace(seed: Partial<Workspace> = {}) {
 
 export function generateWorkspaceListForTest(
   count = 20,
-  seed: Partial<Workspace> = {}
+  seedOrFn: GenerateResourceSeed<Partial<Workspace>> = {}
 ) {
   const workspaces: Workspace[] = [];
 
   for (let i = 0; i < count; i++) {
-    workspaces.push(generateTestWorkspace(seed));
+    workspaces.push(generateTestWorkspace(seedOrFn));
   }
 
   return workspaces;
@@ -117,9 +70,9 @@ export function generateWorkspaceListForTest(
 
 export async function generateAndInsertWorkspaceListForTest(
   count = 20,
-  extra: Partial<Workspace> = {}
+  seedOrFn: GenerateResourceSeed<Partial<Workspace>> = {}
 ) {
-  const items = generateWorkspaceListForTest(count, extra);
+  const items = generateWorkspaceListForTest(count, seedOrFn);
   await kSemanticModels
     .utils()
     .withTxn(async opts => kSemanticModels.workspace().insertItem(items, opts));

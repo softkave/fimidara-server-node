@@ -8,7 +8,7 @@ import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
 import {
   assignPgListToIdList,
   toAssignedPgListInput,
-} from '../../permissionGroups/testUtils.js';
+} from '../../permissions/testUtils.js';
 import RequestData from '../../RequestData.js';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator.js';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup.js';

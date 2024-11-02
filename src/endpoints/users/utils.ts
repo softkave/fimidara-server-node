@@ -4,12 +4,11 @@ import {PublicUser, User, UserWithWorkspace} from '../../definitions/user.js';
 import {appAssert} from '../../utils/assertion.js';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
-import {populateUserWorkspaces} from '../assignedItems/getAssignedItems.js';
-import {resourceFields, workspaceResourceListExtractor} from '../extractors.js';
+import {workspaceResourceFields} from '../extractors.js';
 import {EmailAddressNotAvailableError} from './errors.js';
 
 const publicUserFields = getFields<PublicUser>({
-  ...resourceFields,
+  ...workspaceResourceFields,
   firstName: true,
   lastName: true,
   email: true,
@@ -18,8 +17,6 @@ const publicUserFields = getFields<PublicUser>({
   emailVerificationEmailSentAt: true,
   passwordLastChangedAt: true,
   requiresPasswordChange: true,
-  workspaces: workspaceResourceListExtractor,
-  isOnWaitlist: true,
 });
 
 export const userExtractor = makeExtract(publicUserFields);
@@ -42,20 +39,11 @@ export function assertUser(user?: User | null): asserts user {
   appAssert(user, kReuseableErrors.user.notFound());
 }
 
-export async function getCompleteUserDataByEmail(
-  email: string,
+export async function checkEmailAddressAvailability(
+  params: {email: string; workspaceId?: string},
   opts?: SemanticProviderOpParams
 ) {
-  const user = await kSemanticModels.user().getByEmail(email, opts);
-  assertUser(user);
-  return await populateUserWorkspaces(user);
-}
-
-export async function assertEmailAddressAvailable(
-  email: string,
-  opts?: SemanticProviderOpParams
-) {
-  const userExists = await kSemanticModels.user().existsByEmail(email, opts);
+  const userExists = await kSemanticModels.user().existsByEmail(params, opts);
   if (userExists) {
     throw new EmailAddressNotAvailableError();
   }

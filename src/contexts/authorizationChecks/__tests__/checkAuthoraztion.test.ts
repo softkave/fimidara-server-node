@@ -1038,8 +1038,8 @@ async function generateUserAndWorkspace(
       RequestData.fromExpressRequest(
         mockExpressRequestWithAgentToken(userToken)
       ),
-      kSessionUtils.permittedAgentTypes.api,
-      kSessionUtils.accessScopes.api
+      kSessionUtils.permittedAgentType.api,
+      kSessionUtils.accessScope.api
     );
   return {...usersResult, ...workspaceResult, sessionAgent};
 }
@@ -1067,8 +1067,8 @@ async function generateUserAndAddToWorkspace(
       RequestData.fromExpressRequest(
         mockExpressRequestWithAgentToken(userToken)
       ),
-      kSessionUtils.permittedAgentTypes.api,
-      kSessionUtils.accessScopes.api
+      kSessionUtils.permittedAgentType.api,
+      kSessionUtils.accessScope.api
     );
   return {...usersResult, sessionAgent};
 }

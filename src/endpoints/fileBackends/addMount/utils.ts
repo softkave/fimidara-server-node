@@ -18,7 +18,7 @@ import {assertRootname} from '../../workspaces/utils.js';
 import {mountExists, mountNameExists} from '../utils.js';
 import {NewFileBackendMountInput} from './types.js';
 
-export const INTERNAL_addFileBackendMount = async (
+export const addFileBackendMount = async (
   agent: SessionAgent,
   workspace: Workspace,
   data: NewFileBackendMountInput,

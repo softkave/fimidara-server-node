@@ -1,9 +1,4 @@
-import {kUsageRecordCategory} from '../../definitions/usageRecord.js';
-import {
-  PublicUsageThreshold,
-  PublicWorkspace,
-  kWorkspaceBillStatusMap,
-} from '../../definitions/workspace.js';
+import {PublicWorkspace} from '../../definitions/workspace.js';
 import {
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
@@ -15,23 +10,23 @@ import {
   mddocEndpointHttpHeaderItems,
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc.js';
-import {EndpointOptionalWorkspaceIDParam} from '../types.js';
+import {EndpointOptionalWorkspaceIdParam} from '../types.js';
 import {
   AddWorkspaceEndpointParams,
   AddWorkspaceEndpointResult,
 } from './addWorkspace/types.js';
 import {workspaceConstants} from './constants.js';
-import {
-  GetUserWorkspacesEndpointParams,
-  GetUserWorkspacesEndpointResult,
-} from './getUserWorkspaces/types.js';
 import {GetWorkspaceEndpointResult} from './getWorkspace/types.js';
 import {
+  GetWorkspacesEndpointParams,
+  GetWorkspacesEndpointResult,
+} from './getWorkspaces/types.js';
+import {
   AddWorkspaceHttpEndpoint,
-  CountUserWorkspacesHttpEndpoint,
+  CountWorkspacesHttpEndpoint,
   DeleteWorkspaceHttpEndpoint,
-  GetUserWorkspacesHttpEndpoint,
   GetWorkspaceHttpEndpoint,
+  GetWorkspacesHttpEndpoint,
   UpdateWorkspaceHttpEndpoint,
 } from './types.js';
 import {
@@ -46,35 +41,6 @@ const workspaceDescription = mddocConstruct
   .setExample(
     'fimidara, a super awesome company that offers file management with access control for devs'
   );
-const usageRecordCategory = mddocConstruct
-  .constructFieldString()
-  .setDescription('Usage record category')
-  .setExample(kUsageRecordCategory.storage)
-  .setValid(Object.values(kUsageRecordCategory))
-  .setEnumName('UsageRecordCategory');
-const price = mddocConstruct
-  .constructFieldNumber()
-  .setDescription('Price in USD')
-  .setExample(5);
-const usageThreshold = mddocConstruct
-  .constructFieldObject<PublicUsageThreshold>()
-  .setName('UsageThreshold')
-  .setFields({
-    lastUpdatedBy: mddocConstruct.constructFieldObjectField(
-      true,
-      fReusables.agent
-    ),
-    lastUpdatedAt: mddocConstruct.constructFieldObjectField(
-      true,
-      fReusables.date
-    ),
-    category: mddocConstruct.constructFieldObjectField(
-      true,
-      usageRecordCategory
-    ),
-    budget: mddocConstruct.constructFieldObjectField(true, price),
-    usage: mddocConstruct.constructFieldObjectField(true, fReusables.usage),
-  });
 const workspace = mddocConstruct
   .constructFieldObject<PublicWorkspace>()
   .setName('Workspace')
@@ -88,44 +54,13 @@ const workspace = mddocConstruct
       true,
       fReusables.workspaceRootname
     ),
+    rootnamepath: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.rootnamepath
+    ),
     description: mddocConstruct.constructFieldObjectField(
       false,
       workspaceDescription
-    ),
-    publicPermissionGroupId: mddocConstruct.constructFieldObjectField(
-      true,
-      fReusables.id
-    ),
-    billStatusAssignedAt: mddocConstruct.constructFieldObjectField(
-      true,
-      fReusables.date
-    ),
-    billStatus: mddocConstruct.constructFieldObjectField(
-      true,
-      mddocConstruct
-        .constructFieldString()
-        .setDescription('Workspace bill status')
-        .setExample(kWorkspaceBillStatusMap.ok)
-        .setValid(Object.values(kWorkspaceBillStatusMap))
-        .setEnumName('WorkspaceBillStatus')
-    ),
-    usageThresholds: mddocConstruct.constructFieldObjectField(
-      true,
-      mddocConstruct
-        .constructFieldObject<PublicWorkspace['usageThresholds']>()
-        .setName('WorkspaceUsageThresholds')
-        .setFields({
-          [kUsageRecordCategory.storage]:
-            mddocConstruct.constructFieldObjectField(false, usageThreshold),
-          [kUsageRecordCategory.storageEverConsumed]:
-            mddocConstruct.constructFieldObjectField(false, usageThreshold),
-          [kUsageRecordCategory.bandwidthIn]:
-            mddocConstruct.constructFieldObjectField(false, usageThreshold),
-          [kUsageRecordCategory.bandwidthOut]:
-            mddocConstruct.constructFieldObjectField(false, usageThreshold),
-          [kUsageRecordCategory.total]:
-            mddocConstruct.constructFieldObjectField(false, usageThreshold),
-        })
     ),
   });
 
@@ -141,6 +76,10 @@ const addWorkspaceParams = mddocConstruct
       true,
       fReusables.workspaceRootname
     ),
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceId
+    ),
     description: mddocConstruct.constructFieldObjectField(
       false,
       workspaceDescription
@@ -153,7 +92,7 @@ const addWorkspaceResponseBody = mddocConstruct
     workspace: mddocConstruct.constructFieldObjectField(true, workspace),
   });
 const getWorkspaceParams = mddocConstruct
-  .constructFieldObject<EndpointOptionalWorkspaceIDParam>()
+  .constructFieldObject<EndpointOptionalWorkspaceIdParam>()
   .setName('GetWorkspaceEndpointParams')
   .setFields({
     workspaceId: mddocConstruct.constructFieldObjectField(
@@ -167,19 +106,23 @@ const getWorkspaceResponseBody = mddocConstruct
   .setFields({
     workspace: mddocConstruct.constructFieldObjectField(true, workspace),
   });
-const getUserWorkspacesParams = mddocConstruct
-  .constructFieldObject<GetUserWorkspacesEndpointParams>()
-  .setName('GetUserWorkspacesEndpointParams')
+const getWorkspacesParams = mddocConstruct
+  .constructFieldObject<GetWorkspacesEndpointParams>()
+  .setName('GetWorkspacesEndpointParams')
   .setFields({
+    workspaceId: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.workspaceId
+    ),
     page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
     pageSize: mddocConstruct.constructFieldObjectField(
       false,
       fReusables.pageSize
     ),
   });
-const getUserWorkspacesResponseBody = mddocConstruct
-  .constructFieldObject<GetUserWorkspacesEndpointResult>()
-  .setName('GetUserWorkspacesEndpointResult')
+const getWorkspacesResponseBody = mddocConstruct
+  .constructFieldObject<GetWorkspacesEndpointResult>()
+  .setName('GetWorkspacesEndpointResult')
   .setFields({
     page: mddocConstruct.constructFieldObjectField(true, fReusables.page),
     workspaces: mddocConstruct.constructFieldObjectField(
@@ -205,6 +148,10 @@ const updateWorkspaceParams = mddocConstruct
             false,
             fReusables.workspaceName
           ),
+          workspaceId: mddocConstruct.constructFieldObjectField(
+            false,
+            fReusables.workspaceId
+          ),
           description: mddocConstruct.constructFieldObjectField(
             false,
             workspaceDescription
@@ -219,7 +166,7 @@ const updateWorkspaceResponseBody = mddocConstruct
     workspace: mddocConstruct.constructFieldObjectField(true, workspace),
   });
 const deleteWorkspaceParams = mddocConstruct
-  .constructFieldObject<EndpointOptionalWorkspaceIDParam>()
+  .constructFieldObject<EndpointOptionalWorkspaceIdParam>()
   .setName('DeleteWorkspaceEndpointParams')
   .setFields({
     workspaceId: mddocConstruct.constructFieldObjectField(
@@ -293,38 +240,38 @@ export const getWorkspaceEndpointDefinition = mddocConstruct
   .setResponseBody(getWorkspaceResponseBody)
   .setName('GetWorkspaceEndpoint');
 
-export const getUserWorkspacesEndpointDefinition = mddocConstruct
+export const getWorkspacesEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
     InferFieldObjectType<
-      GetUserWorkspacesHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+      GetWorkspacesHttpEndpoint['mddocHttpDefinition']['requestHeaders']
     >,
     InferFieldObjectType<
-      GetUserWorkspacesHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+      GetWorkspacesHttpEndpoint['mddocHttpDefinition']['pathParamaters']
     >,
     InferFieldObjectType<
-      GetUserWorkspacesHttpEndpoint['mddocHttpDefinition']['query']
+      GetWorkspacesHttpEndpoint['mddocHttpDefinition']['query']
     >,
     InferFieldObjectOrMultipartType<
-      GetUserWorkspacesHttpEndpoint['mddocHttpDefinition']['requestBody']
+      GetWorkspacesHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<
-      GetUserWorkspacesHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+      GetWorkspacesHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      GetUserWorkspacesHttpEndpoint['mddocHttpDefinition']['responseBody']
+      GetWorkspacesHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(workspaceConstants.routes.getUserWorkspaces)
+  .setBasePathname(workspaceConstants.routes.getWorkspaces)
   .setMethod(HttpEndpointMethod.Post)
-  .setRequestBody(getUserWorkspacesParams)
+  .setRequestBody(getWorkspacesParams)
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
   .setResponseHeaders(
     mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
   )
-  .setResponseBody(getUserWorkspacesResponseBody)
-  .setName('GetUserWorkspacesEndpoint');
+  .setResponseBody(getWorkspacesResponseBody)
+  .setName('GetWorkspacesEndpoint');
 
 export const updateWorkspaceEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -392,28 +339,28 @@ export const deleteWorkspaceEndpointDefinition = mddocConstruct
   .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
   .setName('DeleteWorkspaceEndpoint');
 
-export const countUserWorkspacesEndpointDefinition = mddocConstruct
+export const countWorkspacesEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
     InferFieldObjectType<
-      CountUserWorkspacesHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+      CountWorkspacesHttpEndpoint['mddocHttpDefinition']['requestHeaders']
     >,
     InferFieldObjectType<
-      CountUserWorkspacesHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+      CountWorkspacesHttpEndpoint['mddocHttpDefinition']['pathParamaters']
     >,
     InferFieldObjectType<
-      CountUserWorkspacesHttpEndpoint['mddocHttpDefinition']['query']
+      CountWorkspacesHttpEndpoint['mddocHttpDefinition']['query']
     >,
     InferFieldObjectOrMultipartType<
-      CountUserWorkspacesHttpEndpoint['mddocHttpDefinition']['requestBody']
+      CountWorkspacesHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<
-      CountUserWorkspacesHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+      CountWorkspacesHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      CountUserWorkspacesHttpEndpoint['mddocHttpDefinition']['responseBody']
+      CountWorkspacesHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(workspaceConstants.routes.countUserWorkspaces)
+  .setBasePathname(workspaceConstants.routes.countWorkspaces)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
@@ -422,6 +369,6 @@ export const countUserWorkspacesEndpointDefinition = mddocConstruct
     mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
   )
   .setResponseBody(mddocEndpointHttpResponseItems.countResponseBody)
-  .setName('CountUserWorkspacesEndpoint');
+  .setName('CountWorkspacesEndpoint');
 
 export const workspaceEndpointsMddocParts = {workspace};

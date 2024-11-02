@@ -1,13 +1,13 @@
 import {PublicTag} from '../../../definitions/tag.js';
 import {
   Endpoint,
-  EndpointOptionalWorkspaceIDParam,
+  EndpointOptionalWorkspaceIdParam,
   PaginatedResult,
   PaginationQuery,
 } from '../../types.js';
 
 export interface GetWorkspaceTagsEndpointParamsBase
-  extends EndpointOptionalWorkspaceIDParam {}
+  extends EndpointOptionalWorkspaceIdParam {}
 
 export interface GetWorkspaceTagsEndpointParams
   extends GetWorkspaceTagsEndpointParamsBase,

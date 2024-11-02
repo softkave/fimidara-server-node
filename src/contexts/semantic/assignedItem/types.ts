@@ -32,7 +32,7 @@ export interface SemanticAssignedItemProvider
     assignedItemId: string | string[],
     options?: SemanticProviderQueryListParams<AssignedItem>
   ): Promise<AssignedItem[]>;
-  getUserWorkspaces(
+  getAssigneeWorkspaces(
     assigneeId: string,
     options?: SemanticProviderQueryListParams<AssignedItem>
   ): Promise<AssignedItem[]>;

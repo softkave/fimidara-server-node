@@ -2,7 +2,7 @@ import {resolveTargetChildrenAccessCheckWithAgent} from '../../../contexts/autho
 import {FileBackendConfigQuery} from '../../../contexts/data/types.js';
 import {SessionAgent} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
-import {getWorkspaceResourceListQuery01} from '../../utils.js';
+import {getWorkspaceResourceByIdListQuery} from '../../utils.js';
 import {GetFileBackendConfigsEndpointParamsBase} from './types.js';
 
 export async function getFileBackendConfigsQuery(
@@ -17,7 +17,7 @@ export async function getFileBackendConfigsQuery(
     target: {action: 'readFileBackendConfig', targetId: workspace.resourceId},
   });
 
-  const query: FileBackendConfigQuery = getWorkspaceResourceListQuery01(
+  const query: FileBackendConfigQuery = getWorkspaceResourceByIdListQuery(
     workspace,
     report
   );

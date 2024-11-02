@@ -5,7 +5,7 @@ import {Workspace} from '../../../definitions/workspace.js';
 import {pathSplit} from '../../../utils/fns.js';
 import {FolderQueries} from '../../folders/queries.js';
 import EndpointReusableQueries from '../../queries.js';
-import {getWorkspaceResourceListQuery01} from '../../utils.js';
+import {getWorkspaceResourceByIdListQuery} from '../../utils.js';
 import {GetFileBackendMountsEndpointParamsBase} from './types.js';
 
 export async function getFileBackendMountsQuery(
@@ -22,7 +22,7 @@ export async function getFileBackendMountsQuery(
     workspaceId: workspace.resourceId,
     target: {action: 'readFileBackendMount', targetId: workspace.resourceId},
   });
-  let query: FileBackendMountQuery = getWorkspaceResourceListQuery01(
+  let query: FileBackendMountQuery = getWorkspaceResourceByIdListQuery(
     workspace,
     report
   );

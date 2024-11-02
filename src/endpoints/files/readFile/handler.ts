@@ -21,7 +21,7 @@ import {
   initBackendProvidersForMounts,
   resolveMountsForFolder,
 } from '../../fileBackends/mountUtils.js';
-import {incrementBandwidthOutUsageRecord} from '../../usageRecords/usageFns.js';
+import {incrementBandwidthOutUsageRecord} from '../../usage/usageFns.js';
 import {getFileWithMatcher} from '../getFilesWithMatcher.js';
 import {assertFile, stringifyFilenamepath} from '../utils.js';
 import {ReadFileEndpoint} from './types.js';
@@ -36,8 +36,8 @@ const readFile: ReadFileEndpoint = async reqData => {
     .session()
     .getAgentFromReq(
       reqData,
-      kSessionUtils.permittedAgentTypes.api,
-      kSessionUtils.accessScopes.api
+      kSessionUtils.permittedAgentType.api,
+      kSessionUtils.accessScope.api
     );
 
   const file = await await kSemanticModels.utils().withTxn(async opts => {

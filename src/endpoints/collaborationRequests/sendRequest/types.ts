@@ -1,5 +1,5 @@
 import {PublicCollaborationRequestForWorkspace} from '../../../definitions/collaborationRequest.js';
-import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
 export interface CollaborationRequestInput {
   recipientEmail: string;
@@ -8,7 +8,7 @@ export interface CollaborationRequestInput {
 }
 
 export interface SendCollaborationRequestEndpointParams
-  extends EndpointOptionalWorkspaceIDParam,
+  extends EndpointOptionalWorkspaceIdParam,
     CollaborationRequestInput {}
 
 export interface SendCollaborationRequestEndpointResult {

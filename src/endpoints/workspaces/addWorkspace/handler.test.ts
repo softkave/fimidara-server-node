@@ -1,10 +1,12 @@
 import {faker} from '@faker-js/faker';
+import assert from 'assert';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {
   kSemanticModels,
   kUtilsInjectables,
 } from '../../../contexts/injection/injectables.js';
 import {kRegisterUtilsInjectables} from '../../../contexts/injection/register.js';
+import {IRootLevelWorkspace} from '../../../definitions/workspace.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {mergeData} from '../../../utils/fns.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
@@ -24,10 +26,9 @@ import {
   makeRootnameFromName,
   workspaceExtractor,
 } from '../utils.js';
-import {AddWorkspaceEndpointParams} from './types.js';
 import {
-  DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
-  DEFAULT_PUBLIC_PERMISSION_GROUP_NAME,
+  kDefaultAdminPermissionGroupName,
+  kDefaultPublicPermissionGroupName,
 } from './utils.js';
 
 beforeAll(async () => {
@@ -38,83 +39,134 @@ afterAll(async () => {
   await completeTests();
 });
 
-describe('addWorkspace', () => {
+describe.each([true, false])('addWorkspace, sub=%s', isSubWorkspace => {
+  let u1: Awaited<ReturnType<typeof insertUserForTest>> | undefined;
+  let w1: Awaited<ReturnType<typeof insertWorkspaceForTest>> | undefined;
+
+  const getW2Input = () => {
+    const wName = faker.company.name();
+    if (isSubWorkspace) {
+      assert.ok(w1);
+      return {
+        name: wName,
+        rootname: makeRootnameFromName(wName),
+        description: faker.company.catchPhraseDescriptor(),
+        workspaceId: w1.workspace.resourceId,
+      };
+    } else {
+      return {
+        name: wName,
+        rootname: makeRootnameFromName(wName),
+        description: faker.company.catchPhraseDescriptor(),
+      };
+    }
+  };
+
+  beforeAll(async () => {
+    u1 = await insertUserForTest();
+    if (isSubWorkspace) {
+      w1 = await insertWorkspaceForTest(u1.userToken);
+    }
+  });
+
   test('workspace created', async () => {
-    const {userToken} = await insertUserForTest();
-    const companyName = faker.company.name();
-    const companyInput: AddWorkspaceEndpointParams = {
-      name: companyName,
-      rootname: makeRootnameFromName(companyName),
-      description: faker.company.catchPhraseDescriptor(),
-    };
+    assert.ok(u1);
+    const {userToken} = u1;
+    const w2Input = getW2Input();
 
-    const result = await insertWorkspaceForTest(userToken, companyInput);
-    expect(result.workspace).toMatchObject(companyInput);
-    expect(result.workspace.publicPermissionGroupId).toBeTruthy();
-    const workspace = await kSemanticModels
-      .workspace()
-      .getOneByQuery(
-        EndpointReusableQueries.getByResourceId(result.workspace.resourceId)
-      );
-    assertWorkspace(workspace);
-    expect(workspaceExtractor(workspace)).toMatchObject(result.workspace);
+    const result = await insertWorkspaceForTest(userToken, w2Input);
 
-    const adminPermissionGroup = await kSemanticModels
-      .permissionGroup()
-      .assertGetOneByQuery(
-        EndpointReusableQueries.getByWorkspaceIdAndName(
-          workspace.resourceId,
-          DEFAULT_ADMIN_PERMISSION_GROUP_NAME
-        )
-      );
-    await kSemanticModels
-      .permissionGroup()
-      .assertGetOneByQuery(
-        EndpointReusableQueries.getByWorkspaceIdAndName(
-          workspace.resourceId,
-          DEFAULT_PUBLIC_PERMISSION_GROUP_NAME
-        )
-      );
+    const rWorkspace = result.workspace as IRootLevelWorkspace;
+    expect(rWorkspace).toMatchObject(w2Input);
 
-    appAssert(userToken.forEntityId);
-    const user = await populateUserWorkspaces(
-      await kSemanticModels
-        .user()
-        .assertGetOneByQuery(
-          EndpointReusableQueries.getByResourceId(userToken.forEntityId)
-        )
-    );
-    const userWorkspace = user.workspaces.find(
-      item => item.workspaceId === workspace.resourceId
-    );
+    if (isSubWorkspace) {
+      appAssert(w1);
 
-    expect(userWorkspace).toBeTruthy();
-    const userPermissionGroupsResult =
-      await fetchEntityAssignedPermissionGroupList(userToken.forEntityId);
-    const assignedAdminPermissionGroup =
-      userPermissionGroupsResult.permissionGroups.find(
-        item => item.resourceId === adminPermissionGroup.resourceId
+      // rootnamepath and workspaceId should be the same as the parent workspace
+      // being subclassed
+      expect(rWorkspace.rootnamepath).toEqual(
+        w1.workspace.rootnamepath?.concat(rWorkspace.rootname)
       );
-    expect(assignedAdminPermissionGroup).toBeTruthy();
+      expect(rWorkspace.workspaceId).toEqual(w1.workspace.resourceId);
+    } else {
+      expect(rWorkspace.publicPermissionGroupId).toBeTruthy();
+
+      // rootnamepath and workspaceId should be the same as the root workspace
+      expect(rWorkspace.rootnamepath).toEqual([rWorkspace.rootname]);
+      expect(rWorkspace.workspaceId).toEqual(rWorkspace.resourceId);
+
+      // check that the workspace was persisted and matches the input
+      const workspace = await kSemanticModels
+        .workspace()
+        .getOneByQuery(
+          EndpointReusableQueries.getByResourceId(rWorkspace.resourceId)
+        );
+      assertWorkspace(workspace);
+      expect(workspaceExtractor(workspace)).toMatchObject(rWorkspace);
+
+      const [adminPermissionGroup] = await Promise.all([
+        kSemanticModels
+          .permissionGroup()
+          .assertGetOneByQuery(
+            EndpointReusableQueries.getByWorkspaceIdAndName(
+              workspace.resourceId,
+              kDefaultAdminPermissionGroupName
+            )
+          ),
+        kSemanticModels
+          .permissionGroup()
+          .assertGetOneByQuery(
+            EndpointReusableQueries.getByWorkspaceIdAndName(
+              workspace.resourceId,
+              kDefaultPublicPermissionGroupName
+            )
+          ),
+      ]);
+
+      // check workspace is assigned to user
+      appAssert(userToken.forEntityId);
+      const user = await populateUserWorkspaces(
+        await kSemanticModels
+          .user()
+          .assertGetOneByQuery(
+            EndpointReusableQueries.getByResourceId(userToken.forEntityId)
+          )
+      );
+      const userWorkspace = user.workspaces.find(
+        item => item.workspaceId === workspace.resourceId
+      );
+      expect(userWorkspace).toBeTruthy();
+
+      // check that the user has the admin permission group
+      const userPermissionGroupsResult =
+        await fetchEntityAssignedPermissionGroupList(userToken.forEntityId);
+      const assignedAdminPermissionGroup =
+        userPermissionGroupsResult.permissionGroups.find(
+          item => item.resourceId === adminPermissionGroup.resourceId
+        );
+      expect(assignedAdminPermissionGroup).toBeTruthy();
+    }
   });
 
   test('fails if workspace name exists', async () => {
-    const {userToken} = await insertUserForTest();
-    const result = await insertWorkspaceForTest(userToken);
+    assert.ok(u1);
+    const {userToken} = u1;
+    const w2Input = getW2Input();
+
+    await insertWorkspaceForTest(userToken, w2Input);
     await expectErrorThrown(async () => {
-      await insertWorkspaceForTest(userToken, {
-        name: result.workspace.name,
-      });
+      await insertWorkspaceForTest(userToken, w2Input);
     }, [WorkspaceExistsError.name]);
   });
 
   test('fails if workspace root name exists', async () => {
-    const {userToken} = await insertUserForTest();
-    const result = await insertWorkspaceForTest(userToken);
+    assert.ok(u1);
+    const {userToken} = u1;
+    const w2Input = getW2Input();
+
+    await insertWorkspaceForTest(userToken, w2Input);
     await expectErrorThrown(async () => {
-      await insertWorkspaceForTest(userToken, {
-        rootname: result.workspace.rootname,
-      });
+      await insertWorkspaceForTest(userToken, w2Input);
     }, [WorkspaceRootnameExistsError.name]);
   });
 
@@ -122,31 +174,38 @@ describe('addWorkspace', () => {
     kRegisterUtilsInjectables.suppliedConfig(
       mergeData(
         kUtilsInjectables.suppliedConfig(),
-        {FLAG_waitlistNewSignups: true},
-        {arrayUpdateStrategy: 'replace'}
+        /** source */ {FLAG_waitlistNewSignups: true},
+        /** meta */ {arrayUpdateStrategy: 'replace'}
       )
     );
-    const {userToken} = await insertUserForTest();
-    await expectErrorThrown(
-      async () => {
-        await insertWorkspaceForTest(userToken);
-      },
-      error => {
-        expect((error as Error).message).toBe(
-          kReuseableErrors.user.userOnWaitlist().message
-        );
-      },
-      () => {
-        // TODO: if we ever switch to concurrent tests, then create a context
-        // for this test instead
-        kRegisterUtilsInjectables.suppliedConfig(
-          mergeData(
-            kUtilsInjectables.suppliedConfig(),
-            {FLAG_waitlistNewSignups: false},
-            {arrayUpdateStrategy: 'replace'}
-          )
-        );
-      }
-    );
+    assert.ok(u1);
+    const {userToken} = u1;
+
+    if (isSubWorkspace) {
+      // should not fail because only root level workspaces are checked
+      await insertWorkspaceForTest(userToken);
+    } else {
+      await expectErrorThrown(
+        async () => {
+          await insertWorkspaceForTest(userToken);
+        },
+        /** expected */ error => {
+          expect((error as Error).message).toBe(
+            kReuseableErrors.user.userOnWaitlist().message
+          );
+        },
+        /** finally */ () => {
+          // TODO: if we ever switch to concurrent tests, then create a context
+          // for this test instead
+          kRegisterUtilsInjectables.suppliedConfig(
+            mergeData(
+              kUtilsInjectables.suppliedConfig(),
+              /** source */ {FLAG_waitlistNewSignups: false},
+              /** meta */ {arrayUpdateStrategy: 'replace'}
+            )
+          );
+        }
+      );
+    }
   });
 });

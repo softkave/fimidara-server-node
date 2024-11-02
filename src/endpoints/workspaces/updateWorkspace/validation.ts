@@ -1,17 +1,17 @@
-import Joi from 'joi';
-import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import {
+  kValidationSchemas,
+  startJoiObject,
+} from '../../../utils/validationUtils.js';
 import {endpointValidationSchemas} from '../../validation.js';
-import workspaceValidationSchemas from '../validation.js';
+import {UpdateWorkspaceEndpointParams, UpdateWorkspaceInput} from './types.js';
 
-export const workspaceInputJoiSchema = Joi.object().keys({
+export const workspaceInputJoiSchema = startJoiObject<UpdateWorkspaceInput>({
   name: kValidationSchemas.name,
-  rootname: workspaceValidationSchemas.rootname,
   description: kValidationSchemas.description.allow(null),
-});
+}).required();
 
-export const updateWorkspaceJoiSchema = Joi.object()
-  .keys({
+export const updateWorkspaceJoiSchema =
+  startJoiObject<UpdateWorkspaceEndpointParams>({
     ...endpointValidationSchemas.optionalWorkspaceIdParts,
     workspace: workspaceInputJoiSchema.required(),
-  })
-  .required();
+  }).required();

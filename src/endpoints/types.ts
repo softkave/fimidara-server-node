@@ -62,16 +62,16 @@ export interface CountItemsEndpointResult {
   count: number;
 }
 
-export interface EndpointOptionalWorkspaceIDParam {
+export interface EndpointOptionalWorkspaceIdParam {
   workspaceId?: string;
 }
 
-export interface EndpointRequiredWorkspaceIDParam {
+export interface EndpointRequiredWorkspaceIdParam {
   workspaceId: string;
 }
 
 export interface EndpointWorkspaceResourceParam
-  extends EndpointOptionalWorkspaceIDParam {
+  extends EndpointOptionalWorkspaceIdParam {
   providedResourceId?: string;
 }
 

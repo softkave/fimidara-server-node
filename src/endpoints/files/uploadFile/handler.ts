@@ -27,7 +27,7 @@ import {
   incrementBandwidthInUsageRecord,
   incrementStorageEverConsumedUsageRecord,
   incrementStorageUsageRecord,
-} from '../../usageRecords/usageFns.js';
+} from '../../usage/usageFns.js';
 import {FileNotWritableError} from '../errors.js';
 import {getFileWithMatcher} from '../getFilesWithMatcher.js';
 import {
@@ -70,8 +70,8 @@ const uploadFile: UploadFileEndpoint = async reqData => {
     .session()
     .getAgentFromReq(
       reqData,
-      kSessionUtils.permittedAgentTypes.api,
-      kSessionUtils.accessScopes.api
+      kSessionUtils.permittedAgentType.api,
+      kSessionUtils.accessScope.api
     );
 
   // eslint-disable-next-line prefer-const

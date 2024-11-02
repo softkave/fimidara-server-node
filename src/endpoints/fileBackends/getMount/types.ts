@@ -1,8 +1,8 @@
 import {PublicFileBackendMount} from '../../../definitions/fileBackend.js';
-import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
 export interface GetFileBackendMountEndpointParams
-  extends EndpointOptionalWorkspaceIDParam {
+  extends EndpointOptionalWorkspaceIdParam {
   mountId: string;
 }
 

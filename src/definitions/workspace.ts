@@ -23,22 +23,25 @@ export type UsageThresholdsByCategory = Partial<
   Record<UsageRecordCategory, UsageThreshold>
 >;
 
+export interface IRootLevelWorkspaceData {
+  publicPermissionGroupId: string;
+  billStatusAssignedAt: number;
+  billStatus: WorkspaceBillStatus;
+  usageThresholds: UsageThresholdsByCategory;
+}
+
 export interface Workspace extends WorkspaceResource {
   /** Human readable name of the workspace */
   name: string;
   /** URL compatible name of the workspace */
   rootname: string;
+  rootnamepath?: string[];
   description?: string;
-  publicPermissionGroupId: string;
-  billStatusAssignedAt: number;
-  billStatus: WorkspaceBillStatus;
-  usageThresholds: UsageThresholdsByCategory;
-
-  /** configs */
-  // enableFileVersioning?: boolean;
-  // deleteInExternalBackend?: boolean;
-  // renameInExternalBackend?: boolean;
 }
+
+export interface IRootLevelWorkspace
+  extends Workspace,
+    IRootLevelWorkspaceData {}
 
 export type PublicWorkspace = ToPublicDefinitions<Workspace>;
 export type PublicUsageThreshold = ToPublicDefinitions<UsageThreshold>;

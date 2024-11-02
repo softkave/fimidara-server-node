@@ -60,9 +60,9 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
-import {getCostForUsage} from '../../usageRecords/constants.js';
-import {UsageLimitExceededError} from '../../usageRecords/errors.js';
-import {getUsageRecordReportingPeriod} from '../../usageRecords/utils.js';
+import {getCostForUsage} from '../../usage/constants.js';
+import {UsageLimitExceededError} from '../../usage/errors.js';
+import {getUsageRecordReportingPeriod} from '../../usage/utils.js';
 import {FileNotWritableError} from '../errors.js';
 import {FileQueries} from '../queries.js';
 import readFile from '../readFile/handler.js';
@@ -277,8 +277,8 @@ describe('uploadFile', () => {
         RequestData.fromExpressRequest(
           mockExpressRequestWithAgentToken(insertUserResult.userToken)
         ),
-        kSessionUtils.permittedAgentTypes.api,
-        kSessionUtils.accessScopes.api
+        kSessionUtils.permittedAgentType.api,
+        kSessionUtils.accessScope.api
       );
     expect(savedFile.resourceId).toBe(updatedFile.resourceId);
     expect(savedFile.name).toBe(updatedFile.name);

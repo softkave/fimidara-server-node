@@ -1,7 +1,7 @@
 import {kEndpointTag} from '../types.js';
+import changePasswordEndpoint from './changePassword/handler.js';
 import changePasswordWithCurrentPassword from './changePasswordWithCurrentPassword/handler.js';
-import changePasswordWithToken from './changePasswordWithToken/handler.js';
-import confirmEmailAddress from './confirmEmailAddress/handler.js';
+import confirmEmailAddressEndpoint from './confirmEmailAddress/handler.js';
 import {
   changePasswordWithCurrentPasswordEndpointDefinition,
   changePasswordWithTokenEndpointDefinition,
@@ -15,15 +15,15 @@ import {
   updateUserEndpointDefinition,
   userExistsEndpointDefinition,
 } from './endpoint.mddoc.js';
-import forgotPassword from './forgotPassword/handler.js';
-import getUserData from './getUserData/handler.js';
-import login from './login/handler.js';
-import refreshUserToken from './refreshToken/handler.js';
-import sendEmailVerificationCode from './sendEmailVerificationCode/handler.js';
-import signup from './signup/handler.js';
+import forgotPasswordEndpoint from './forgotPassword/handler.js';
+import getUserData from './getUser/handler.js';
+import loginEndpoint from './login/handler.js';
+import refreshUserTokenEndpoint from './refreshToken/handler.js';
+import sendEmailVerificationCodeEndpoint from './sendEmailVerificationCode/handler.js';
+import signupEndpoint from './signup/handler.js';
 import {UsersExportedEndpoints} from './types.js';
-import updateUser from './updateUser/handler.js';
-import userExists from './userExists/handler.js';
+import updateUserEndpoint from './updateUser/handler.js';
+import userExistsEndpoint from './userExists/handler.js';
 
 export function getUsersHttpEndpoints() {
   const usersExportedEndpoints: UsersExportedEndpoints = {
@@ -34,7 +34,7 @@ export function getUsersHttpEndpoints() {
     },
     updateUser: {
       tag: [kEndpointTag.private],
-      fn: updateUser,
+      fn: updateUserEndpoint,
       mddocHttpDefinition: updateUserEndpointDefinition,
     },
     changePasswordWithCurrentPassword: {
@@ -44,42 +44,42 @@ export function getUsersHttpEndpoints() {
     },
     changePasswordWithToken: {
       tag: [kEndpointTag.private],
-      fn: changePasswordWithToken,
+      fn: changePasswordEndpoint,
       mddocHttpDefinition: changePasswordWithTokenEndpointDefinition,
     },
     confirmEmailAddress: {
       tag: [kEndpointTag.private],
-      fn: confirmEmailAddress,
+      fn: confirmEmailAddressEndpoint,
       mddocHttpDefinition: confirmEmailAddressEndpointDefinition,
     },
     forgotPassword: {
       tag: [kEndpointTag.private],
-      fn: forgotPassword,
+      fn: forgotPasswordEndpoint,
       mddocHttpDefinition: forgotPasswordEndpointDefinition,
     },
     login: {
       tag: [kEndpointTag.private],
-      fn: login,
+      fn: loginEndpoint,
       mddocHttpDefinition: loginEndpointDefinition,
     },
     sendEmailVerificationCode: {
       tag: [kEndpointTag.private],
-      fn: sendEmailVerificationCode,
+      fn: sendEmailVerificationCodeEndpoint,
       mddocHttpDefinition: sendEmailVerificationCodeEndpointDefinition,
     },
     refreshToken: {
       tag: [kEndpointTag.private],
-      fn: refreshUserToken,
+      fn: refreshUserTokenEndpoint,
       mddocHttpDefinition: refreshUserTokenEndpointDefinition,
     },
     signup: {
       tag: [kEndpointTag.private],
-      fn: signup,
+      fn: signupEndpoint,
       mddocHttpDefinition: signupEndpointDefinition,
     },
     userExists: {
       tag: [kEndpointTag.private],
-      fn: userExists,
+      fn: userExistsEndpoint,
       mddocHttpDefinition: userExistsEndpointDefinition,
     },
   };

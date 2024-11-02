@@ -36,7 +36,7 @@ export async function queueJobs<
   TParams extends AnyObject = AnyObject,
   TMeta extends AnyObject = AnyObject,
 >(
-  workspaceId: string | undefined,
+  workspaceId: string,
   parentJobId: string | undefined,
   jobsInput: JobInput<TParams, TMeta> | Array<JobInput<TParams, TMeta>>,
   insertOptions: {

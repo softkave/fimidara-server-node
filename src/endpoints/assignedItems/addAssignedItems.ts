@@ -6,11 +6,7 @@ import {
   SemanticProviderQueryListParams,
 } from '../../contexts/semantic/types.js';
 import {AssignedItem} from '../../definitions/assignedItem.js';
-import {
-  Agent,
-  SessionAgent,
-  kFimidaraResourceType,
-} from '../../definitions/system.js';
+import {SessionAgent, kFimidaraResourceType} from '../../definitions/system.js';
 import {AssignedTagInput} from '../../definitions/tag.js';
 import {Workspace} from '../../definitions/workspace.js';
 import {makeKey} from '../../utils/fns.js';
@@ -104,7 +100,7 @@ export async function addAssignedItems<T extends AssignedItem>(
 export async function addAssignedPermissionGroupList(
   agent: SessionAgent,
   workspaceId: string,
-  permissionGroupsInput: string[],
+  permissionGroupsId: string[],
   assigneeId: string | string[],
   deleteExisting: boolean,
   skipPermissionGroupsExistCheck = false,
@@ -121,7 +117,7 @@ export async function addAssignedPermissionGroupList(
   }
 
   if (!skipPermissionGroupsExistCheck) {
-    await checkPermissionGroupsExist(workspaceId, permissionGroupsInput, opts);
+    await checkPermissionGroupsExist(workspaceId, permissionGroupsId, opts);
   }
 
   if (!skipAuthCheck) {
@@ -136,7 +132,7 @@ export async function addAssignedPermissionGroupList(
   const idList = isArray(assigneeId) ? assigneeId : [assigneeId];
   const items: Array<AssignedItem> = [];
 
-  for (const input of permissionGroupsInput) {
+  for (const input of permissionGroupsId) {
     for (const id of idList) {
       const item = withAssignedAgent(
         agent,
@@ -251,32 +247,4 @@ export async function saveResourceAssignedItems(
       opts
     );
   }
-}
-
-export async function assignWorkspaceToUser(
-  agent: Agent,
-  workspaceId: string,
-  userId: string,
-  opts: SemanticProviderMutationParams
-) {
-  const items: AssignedItem[] = [
-    withAssignedAgent(
-      agent,
-      newWorkspaceResource(
-        agent,
-        kFimidaraResourceType.AssignedItem,
-        workspaceId,
-        {
-          assigneeId: userId,
-          assigneeType: kFimidaraResourceType.User,
-          meta: {},
-          resourceId: getNewIdForResource(kFimidaraResourceType.AssignedItem),
-          assignedItemId: workspaceId,
-          assignedItemType: kFimidaraResourceType.Workspace,
-        }
-      )
-    ),
-  ];
-
-  return await kSemanticModels.assignedItem().insertItem(items, opts);
 }

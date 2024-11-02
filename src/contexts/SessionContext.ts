@@ -34,7 +34,7 @@ import {
 import {kSemanticModels, kUtilsInjectables} from './injection/injectables.js';
 
 export const kSessionUtils = {
-  permittedAgentTypes: {
+  permittedAgentType: {
     user: [kFimidaraResourceType.User],
     api: [
       kFimidaraResourceType.User,
@@ -42,10 +42,8 @@ export const kSessionUtils = {
       kFimidaraResourceType.Public,
     ],
   },
-  accessScopes: {
+  accessScope: {
     user: [kTokenAccessScope.login],
-    changePassword: [kTokenAccessScope.changePassword],
-    confirmEmailAddress: [kTokenAccessScope.confirmEmailAddress],
     api: [kTokenAccessScope.login, kTokenAccessScope.access],
   },
 };

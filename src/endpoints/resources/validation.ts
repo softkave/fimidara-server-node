@@ -1,6 +1,6 @@
 import Joi from 'joi';
 import {kValidationSchemas} from '../../utils/validationUtils.js';
-import permissionItemValidationSchemas from '../permissionItems/validation.js';
+import permissionItemValidationSchemas from '../permissions/validation.js';
 import workspaceValidationSchemas from '../workspaces/validation.js';
 import resourcesConstants from './constants.js';
 import {FetchResourceItem} from './types.js';

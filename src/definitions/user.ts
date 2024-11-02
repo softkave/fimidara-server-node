@@ -1,29 +1,23 @@
-import {
-  PublicResource,
-  PublicWorkspaceResource,
-  Resource,
-  WorkspaceResource,
-} from './system.js';
+import {PublicWorkspaceResource, WorkspaceResource} from './system.js';
 
-export interface User extends Resource {
-  firstName: string;
-  lastName: string;
-  email: string;
-  hash: string;
-  passwordLastChangedAt: number;
-  requiresPasswordChange?: boolean;
-  isEmailVerified: boolean;
-  emailVerifiedAt?: number | null;
-  emailVerificationEmailSentAt?: number | null;
+export interface IRootLevelUserData {
   isOnWaitlist: boolean;
   removedFromWaitlistOn?: number;
 }
 
-export interface UserWithWorkspace extends User {
-  workspaces: WorkspaceResource[];
+export interface User extends WorkspaceResource {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  hash?: string;
+  passwordLastChangedAt?: number;
+  requiresPasswordChange?: boolean;
+  isEmailVerified?: boolean;
+  emailVerifiedAt?: number | null;
+  emailVerificationEmailSentAt?: number | null;
 }
 
-export type PublicUser = PublicResource &
+export type PublicUser = PublicWorkspaceResource &
   Pick<
     User,
     | 'email'
@@ -34,9 +28,7 @@ export type PublicUser = PublicResource &
     | 'isEmailVerified'
     | 'emailVerifiedAt'
     | 'emailVerificationEmailSentAt'
-    | 'isOnWaitlist'
-  > & {workspaces: PublicWorkspaceResource[]};
+  >;
 
-export type PublicCollaborator = PublicResource &
-  PublicWorkspaceResource &
+export type PublicCollaborator = PublicWorkspaceResource &
   Pick<User, 'firstName' | 'lastName' | 'email' | 'resourceId'>;

@@ -22,7 +22,6 @@ export function generateUserForTest(seed: Partial<User> = {}) {
     hash: '',
     passwordLastChangedAt: getTimestamp(),
     isEmailVerified: false,
-    isOnWaitlist: false,
     isDeleted: false,
     ...seed,
   };
@@ -44,5 +43,6 @@ export async function generateAndInsertUserListForTest(
   await kSemanticModels
     .utils()
     .withTxn(async opts => kSemanticModels.user().insertItem(items, opts));
+
   return items;
 }

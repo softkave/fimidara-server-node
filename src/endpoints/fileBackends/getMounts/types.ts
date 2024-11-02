@@ -1,16 +1,20 @@
-import {FileBackendType, PublicFileBackendMount} from '../../../definitions/fileBackend.js';
+import {
+  FileBackendType,
+  PublicFileBackendMount,
+} from '../../../definitions/fileBackend.js';
 import {
   Endpoint,
-  EndpointOptionalWorkspaceIDParam,
+  EndpointOptionalWorkspaceIdParam,
   PaginatedResult,
   PaginationQuery,
 } from '../../types.js';
 
-export type GetFileBackendMountsEndpointParamsBase = EndpointOptionalWorkspaceIDParam & {
-  folderpath?: string;
-  backend?: FileBackendType;
-  configId?: string;
-};
+export type GetFileBackendMountsEndpointParamsBase =
+  EndpointOptionalWorkspaceIdParam & {
+    folderpath?: string;
+    backend?: FileBackendType;
+    configId?: string;
+  };
 
 export interface GetFileBackendMountsEndpointParams
   extends GetFileBackendMountsEndpointParamsBase,

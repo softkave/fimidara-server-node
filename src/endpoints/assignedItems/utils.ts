@@ -15,7 +15,7 @@ export function assignedItemToAssignedPermissionGroup(
     permissionGroupId: item.assignedItemId,
     assignedAt: item.createdAt,
     assignedBy: item.createdBy,
-    assigneeEntityId: item.assigneeId,
+    assigneeId: item.assigneeId,
   };
 }
 
@@ -33,11 +33,15 @@ export function assignedItemToAssignedTag(item: AssignedItem): AssignedTag {
   };
 }
 
-export function assignedItemsToAssignedTagList(items: AssignedItem[]): AssignedTag[] {
+export function assignedItemsToAssignedTagList(
+  items: AssignedItem[]
+): AssignedTag[] {
   return items.map(assignedItemToAssignedTag);
 }
 
-export function assignedItemToAssignedWorkspace(item: AssignedItem): WorkspaceResource {
+export function assignedItemToAssignedWorkspace(
+  item: AssignedItem
+): WorkspaceResource {
   return {
     workspaceId: item.assignedItemId,
     resourceId: item.assigneeId,

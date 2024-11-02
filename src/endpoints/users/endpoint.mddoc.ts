@@ -7,8 +7,8 @@ import {
   mddocConstruct,
 } from '../../mddoc/mddoc.js';
 import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc.js';
+import {ChangePasswordWithTokenEndpointParams} from './changePassword/types.js';
 import {ChangePasswordWithCurrentPasswordEndpointParams} from './changePasswordWithCurrentPassword/types.js';
-import {ChangePasswordWithTokenEndpointParams} from './changePasswordWithToken/types.js';
 import {kUserConstants} from './constants.js';
 import {ForgotPasswordEndpointParams} from './forgotPassword/types.js';
 import {LoginEndpointParams, LoginResult} from './login/types.js';

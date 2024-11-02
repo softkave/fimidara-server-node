@@ -1,42 +1,35 @@
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {checkWorkspaceNameExists} from '../checkWorkspaceExists.js';
-import {
-  assertWorkspace,
-  checkWorkspaceAuthorization02,
-  workspaceExtractor,
-} from '../utils.js';
+import {assertWorkspace, workspaceExtractor} from '../utils.js';
 import {UpdateWorkspaceEndpoint} from './types.js';
 import {updateWorkspaceJoiSchema} from './validation.js';
 
-const updateWorkspace: UpdateWorkspaceEndpoint = async reqData => {
+const updateWorkspaceEndpoint: UpdateWorkspaceEndpoint = async reqData => {
   const data = validate(reqData.data, updateWorkspaceJoiSchema);
-  const agent = await kUtilsInjectables
-    .session()
-    .getAgentFromReq(
-      reqData,
-      kSessionUtils.permittedAgentTypes.api,
-      kSessionUtils.accessScopes.api
-    );
-  let {workspace} = await checkWorkspaceAuthorization02(
-    agent,
-    'updateWorkspace',
-    data.workspaceId
-  );
+  const {agent, workspace} = await initEndpoint(reqData, {
+    data,
+    action: kFimidaraPermissionActions.updateWorkspace,
+  });
 
-  workspace = await kSemanticModels.utils().withTxn(async opts => {
+  const updatedWorkspace = await kSemanticModels.utils().withTxn(async opts => {
     await Promise.all([
       data.workspace.name && data.workspace.name !== workspace.name
-        ? checkWorkspaceNameExists(data.workspace.name, opts)
+        ? checkWorkspaceNameExists(
+            /** params */ {
+              name: data.workspace.name,
+              workspaceId: workspace.workspaceId,
+            },
+            opts
+          )
         : undefined,
     ]);
+
     const update: Partial<Workspace> = {
       ...data.workspace,
       lastUpdatedAt: getTimestamp(),
@@ -45,11 +38,12 @@ const updateWorkspace: UpdateWorkspaceEndpoint = async reqData => {
     const updatedWorkspace = await kSemanticModels
       .workspace()
       .getAndUpdateOneById(workspace.resourceId, update, opts);
+
     assertWorkspace(updatedWorkspace);
     return updatedWorkspace;
   });
 
-  return {workspace: workspaceExtractor(workspace)};
+  return {workspace: workspaceExtractor(updatedWorkspace)};
 };
 
-export default updateWorkspace;
+export default updateWorkspaceEndpoint;

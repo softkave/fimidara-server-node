@@ -450,6 +450,7 @@ export async function resolveTargetChildrenAccessCheckWithAgent(
 
   const agentId = agent?.agentId;
   appAssert(agentId);
+
   return await resolveTargetChildrenAccessCheck({
     ...params,
     target: {...target, entityId: agentId},

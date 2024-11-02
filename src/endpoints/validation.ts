@@ -1,10 +1,9 @@
-import Joi from 'joi';
+import Joi, {StrictSchemaMap} from 'joi';
 import {mergeData} from '../utils/fns.js';
-import {JoiSchemaParts} from '../utils/types.js';
 import {kValidationSchemas} from '../utils/validationUtils.js';
 import {kEndpointConstants} from './constants.js';
 import {
-  EndpointOptionalWorkspaceIDParam,
+  EndpointOptionalWorkspaceIdParam,
   EndpointWorkspaceResourceParam,
   PaginationQuery,
 } from './types.js';
@@ -69,15 +68,16 @@ const op = (schema: Joi.Schema) =>
 
 const page = Joi.number().integer();
 const pageSize = Joi.number().integer();
-const optionalWorkspaceIdParts: JoiSchemaParts<EndpointOptionalWorkspaceIDParam> =
+const optionalWorkspaceIdParts: StrictSchemaMap<EndpointOptionalWorkspaceIdParam> =
   {
     workspaceId: kValidationSchemas.resourceId,
   };
-const workspaceResourceParts: JoiSchemaParts<EndpointWorkspaceResourceParam> = {
-  workspaceId: kValidationSchemas.resourceId,
-  providedResourceId: kValidationSchemas.resourceId,
-};
-const paginationParts: JoiSchemaParts<PaginationQuery> = {
+const workspaceResourceParts: StrictSchemaMap<EndpointWorkspaceResourceParam> =
+  {
+    workspaceId: kValidationSchemas.resourceId,
+    providedResourceId: kValidationSchemas.resourceId,
+  };
+const paginationParts: StrictSchemaMap<PaginationQuery> = {
   page,
   pageSize,
 };

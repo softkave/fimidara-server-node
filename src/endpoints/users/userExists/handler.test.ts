@@ -8,7 +8,7 @@ import {
   insertUserForTest,
   mockExpressRequest,
 } from '../../testUtils/testUtils.js';
-import userExists from './handler.js';
+import userExistsEndpoint from './handler.js';
 import {UserExistsEndpointParams} from './types.js';
 
 beforeAll(async () => {
@@ -28,7 +28,7 @@ test('returns true if user exists', async () => {
     }
   );
 
-  const result = await userExists(reqData);
+  const result = await userExistsEndpoint(reqData);
   assertEndpointResultOk(result);
   expect(result.exists).toEqual(true);
 });
@@ -41,7 +41,7 @@ test('returns false if user does not exists', async () => {
     }
   );
 
-  const result = await userExists(reqData);
+  const result = await userExistsEndpoint(reqData);
   assertEndpointResultOk(result);
   expect(result.exists).toEqual(false);
 });

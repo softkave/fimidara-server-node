@@ -1,6 +1,6 @@
 import {PublicFileBackendMount} from '../../../definitions/fileBackend.js';
 import {LongRunningJobResult} from '../../jobs/types.js';
-import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
 export type UpdateFileBackendMountInput = {
   folderpath?: string;
@@ -12,7 +12,7 @@ export type UpdateFileBackendMountInput = {
 };
 
 export type UpdateFileBackendMountEndpointParams =
-  EndpointOptionalWorkspaceIDParam & {
+  EndpointOptionalWorkspaceIdParam & {
     mount: UpdateFileBackendMountInput;
     mountId: string;
   };

@@ -1,4 +1,3 @@
-import {SchemaMap} from 'joi';
 import {IsNever, UnionToIntersection} from 'type-fest';
 
 /* eslint-disable @typescript-eslint/ban-types */
@@ -116,7 +115,6 @@ export type RouteParameters<Route extends string> = string extends Route
             : unknown)
       : {};
 
-export type JoiSchemaParts<T> = Required<SchemaMap<T>>;
 export type PartialRecord<K extends string | number | symbol, T> = {
   [P in K]?: T;
 };

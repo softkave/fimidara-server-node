@@ -10,7 +10,7 @@ import {
   mockExpressRequestWithAgentRefreshToken,
 } from '../../testUtils/testUtils.js';
 import {PermissionDeniedError} from '../errors.js';
-import refreshUserToken from './handler.js';
+import refreshUserTokenEndpoint from './handler.js';
 
 beforeAll(async () => {
   await initTests();
@@ -25,7 +25,7 @@ describe('refreshUserToken', () => {
     const {user, userToken, refreshToken, token, clientAssignedToken} =
       await insertUserForTest();
 
-    const result = await refreshUserToken(
+    const result = await refreshUserTokenEndpoint(
       RequestData.fromExpressRequest(
         await mockExpressRequestWithAgentRefreshToken({
           ...userToken,
@@ -48,7 +48,7 @@ describe('refreshUserToken', () => {
     const {userToken} = await insertUserForTest();
 
     await expect(async () => {
-      await refreshUserToken(
+      await refreshUserTokenEndpoint(
         RequestData.fromExpressRequest(
           await mockExpressRequestWithAgentRefreshToken(userToken),
           {refreshToken: await argon2.hash(getNewId())}

@@ -60,7 +60,7 @@ async function findWorkspaceCollaboratorAssignedItem(
 ) {
   const assignedItems = await kSemanticModels
     .assignedItem()
-    .getUserWorkspaces(id);
+    .getAssigneeWorkspaces(id);
   return assignedItems.find(item => item.workspaceId === workspaceId);
 }
 

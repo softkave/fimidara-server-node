@@ -15,8 +15,8 @@ const removeCollaborator: RemoveCollaboratorEndpoint = async reqData => {
     .session()
     .getAgentFromReq(
       reqData,
-      kSessionUtils.permittedAgentTypes.api,
-      kSessionUtils.accessScopes.api
+      kSessionUtils.permittedAgentType.api,
+      kSessionUtils.accessScope.api
     );
   const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
   const {collaborator} = await checkCollaboratorAuthorization02(

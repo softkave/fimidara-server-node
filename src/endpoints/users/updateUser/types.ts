@@ -1,10 +1,16 @@
 import {PublicUser} from '../../../definitions/user.js';
-import {Endpoint} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
-export interface UpdateUserEndpointParams {
+export interface UpdateUserInput {
   firstName?: string;
   lastName?: string;
   email?: string;
+}
+
+export interface UpdateUserEndpointParams
+  extends EndpointOptionalWorkspaceIdParam {
+  userId?: string;
+  user: UpdateUserInput;
 }
 
 export interface UpdateUserEndpointResult {

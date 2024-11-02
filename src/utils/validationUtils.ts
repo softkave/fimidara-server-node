@@ -1,4 +1,5 @@
-import Joi from 'joi';
+import Joi, {StrictSchemaMap} from 'joi';
+import {AnyObject} from 'softkave-js-utils';
 import {kFimidaraPermissionActions} from '../definitions/permissionItem.js';
 import {kFimidaraResourceTypeList as systemFimidaraResourceTypesList} from '../definitions/system.js';
 import {kEndpointConstants} from '../endpoints/constants.js';
@@ -103,4 +104,8 @@ export function stripOnEmpty(schema: Joi.Schema, fieldName: string) {
     is: Joi.valid(null),
     then: Joi.any().strip(),
   });
+}
+
+export function startJoiObject<T extends AnyObject>(keys: StrictSchemaMap<T>) {
+  return Joi.object<T>().keys(keys).options({stripUnknown: true});
 }

@@ -8,15 +8,24 @@ import {
 export interface SemanticWorkspaceProviderType
   extends SemanticWorkspaceResourceProviderType<Workspace> {
   getByRootname(
-    name: string,
+    params: {
+      rootname: string;
+      workspaceId?: string | null;
+    },
     opts?: SemanticProviderQueryParams<Workspace>
   ): Promise<Workspace | null>;
   existsByRootname(
-    name: string,
+    params: {
+      rootname: string;
+      workspaceId?: string | null;
+    },
     opts?: SemanticProviderOpParams
   ): Promise<boolean>;
   workspaceExistsByName(
-    name: string,
+    params: {
+      name: string;
+      workspaceId?: string | null;
+    },
     opts?: SemanticProviderOpParams
   ): Promise<boolean>;
 }

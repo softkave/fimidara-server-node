@@ -3,12 +3,12 @@ import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {WorkspaceExistsError, WorkspaceRootnameExistsError} from './errors.js';
 
 export async function checkWorkspaceNameExists(
-  name: string,
+  params: {name: string; workspaceId?: string | null},
   opts?: SemanticProviderOpParams
 ) {
   const workspaceExists = await kSemanticModels
     .workspace()
-    .workspaceExistsByName(name, opts);
+    .workspaceExistsByName(params, opts);
 
   if (workspaceExists) {
     throw new WorkspaceExistsError();
@@ -16,12 +16,12 @@ export async function checkWorkspaceNameExists(
 }
 
 export async function checkWorkspaceRootnameExists(
-  rootname: string,
+  params: {rootname: string; workspaceId?: string | null},
   opts?: SemanticProviderOpParams
 ) {
   const workspaceExists = await kSemanticModels
     .workspace()
-    .existsByRootname(rootname, opts);
+    .existsByRootname(params, opts);
 
   if (workspaceExists) {
     throw new WorkspaceRootnameExistsError();

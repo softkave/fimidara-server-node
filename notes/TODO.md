@@ -3,6 +3,8 @@
 - resumable uploads
 - image manipulation
 - authentication + authorization + workspaces
+- jobs
+- alerts
 - metered read & read capacity
 - set cookies
 - test that multiple files with same name are not created
@@ -57,6 +59,9 @@
 - when surfacing jobs, make sure to not surface all info because a job can start
   a job owned by a different workspace, like remove collaborator is linked to
   unassigning a permission group owned by fimidara
+- usage + billing
+- flags
+- caching service
 
 ## JS SDK
 

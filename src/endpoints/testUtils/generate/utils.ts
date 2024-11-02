@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {pick} from 'lodash-es';
+import {isFunction, pick} from 'lodash-es';
 import {AnyFn, AnyObject, OrPromise} from 'softkave-js-utils';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {
@@ -9,6 +9,7 @@ import {
 } from '../../../definitions/system.js';
 import {mergeData} from '../../../utils/fns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
+import {GenerateResourceSeed, InferResourceSeed} from './types.js';
 
 export type GeneratePartialTestDataFn<T> = (
   index: number,
@@ -160,4 +161,10 @@ export async function matchGenerators<TData, TContexts extends unknown[]>(
   }
 
   return undefined;
+}
+
+export function getSeedData<T extends GenerateResourceSeed<any>>(
+  seed: T
+): InferResourceSeed<T> {
+  return isFunction(seed) ? seed() : seed;
 }

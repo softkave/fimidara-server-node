@@ -19,11 +19,6 @@ import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {initTests, insertUserForTest} from '../../testUtils/testUtils.js';
 import {EmailAddressNotAvailableError} from '../errors.js';
 
-/**
- * TODO:
- * - test that email verification email is sent
- */
-
 beforeAll(async () => {
   await initTests();
 });
@@ -32,16 +27,17 @@ afterAll(async () => {
   await completeTests();
 });
 
-describe('signup', () => {
+describe('signup, root level', () => {
   test('user signup successful with token creation', async () => {
-    const userInput = {
+    const uInput = {
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
       email: faker.internet.email(),
       password: faker.internet.password(),
     };
 
-    const result = await insertUserForTest(userInput);
+    const result = await insertUserForTest(uInput);
+
     const savedUser = await kSemanticModels
       .user()
       .assertGetOneByQuery({resourceId: result.user.resourceId});
@@ -50,14 +46,8 @@ describe('signup', () => {
     expect(result.token).toBeTruthy();
 
     await kUtilsInjectables.promises().flush();
-    // const query: DataQuery<EmailMessage> = {
-    //   type: kEmailMessageType.confirmEmailAddress,
-    //   emailAddress: {$all: [savedUser.email]},
-    //   userId: {$all: [savedUser.resourceId]},
-    // };
-    // const dbEmailMessage = await kSemanticModels.emailMessage().getOneByQuery(query);
-    // expect(dbEmailMessage).toBeTruthy();
 
+    // confirm email verification job is queued
     const query: DataQuery<Job<EmailJobParams>> = {
       type: kJobType.email,
       params: {

@@ -20,8 +20,8 @@ const getWorkspaceTags: GetWorkspaceTagsEndpoint = async reqData => {
     .session()
     .getAgentFromReq(
       reqData,
-      kSessionUtils.permittedAgentTypes.api,
-      kSessionUtils.accessScopes.api
+      kSessionUtils.permittedAgentType.api,
+      kSessionUtils.accessScope.api
     );
   const workspace = await checkWorkspaceExistsWithAgent(
     agent,

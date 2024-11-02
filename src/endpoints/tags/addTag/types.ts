@@ -1,5 +1,5 @@
 import {PublicTag} from '../../../definitions/tag.js';
-import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
 export interface NewTagInput {
   name: string;
@@ -7,7 +7,7 @@ export interface NewTagInput {
 }
 
 export interface AddTagEndpointParams
-  extends EndpointOptionalWorkspaceIDParam,
+  extends EndpointOptionalWorkspaceIdParam,
     NewTagInput {}
 
 export interface AddTagEndpointResult {

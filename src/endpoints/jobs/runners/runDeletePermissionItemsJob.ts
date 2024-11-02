@@ -28,11 +28,11 @@ import {
   PaginatedFetchProcessFn,
   paginatedFetch,
 } from '../../../utils/paginatedFetch.js';
-import {DeletePermissionItemInput} from '../../permissionItems/deleteItems/types.js';
+import {DeletePermissionItemInput} from '../../permissions/deletePermissionItems/types.js';
 import {
   PermissionItemTargets,
   getPermissionItemTargets,
-} from '../../permissionItems/getPermissionItemTargets.js';
+} from '../../permissions/getPermissionItemTargets.js';
 import {queueJobs} from '../queueJobs.js';
 
 type PartialPermissionItem = Pick<PermissionItem, 'resourceId'>;

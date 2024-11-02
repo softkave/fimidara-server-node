@@ -1,6 +1,9 @@
-import Joi from 'joi';
-import {endpointValidationSchemas} from '../../validation.js';
+import {
+  kValidationSchemas,
+  startJoiObject,
+} from '../../../utils/validationUtils.js';
+import {GetWorkspaceEndpointParams} from './types.js';
 
-export const getWorkspaceJoiSchema = Joi.object()
-  .keys(endpointValidationSchemas.optionalWorkspaceIdParts)
-  .required();
+export const getWorkspaceJoiSchema = startJoiObject<GetWorkspaceEndpointParams>(
+  {workspaceId: kValidationSchemas.resourceId}
+).required();

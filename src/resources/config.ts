@@ -4,7 +4,7 @@ import {LoggerType} from '../contexts/logger/types.js';
 
 /** Added after the app initialization phase. */
 export interface FimidaraRuntimeConfig {
-  appWorkspaceId: string;
+  fimidaraWorkspaceId: string;
 }
 
 export const kFimidaraConfigFilePersistenceProvider = {

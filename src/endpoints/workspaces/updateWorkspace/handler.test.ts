@@ -13,7 +13,7 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
 import {WorkspaceExistsError} from '../errors.js';
-import updateWorkspace from './handler.js';
+import updateWorkspaceEndpoint from './handler.js';
 import {UpdateWorkspaceEndpointParams, UpdateWorkspaceInput} from './types.js';
 
 beforeAll(async () => {
@@ -39,13 +39,10 @@ describe('updateWorkspce', () => {
     const reqData =
       RequestData.fromExpressRequest<UpdateWorkspaceEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
-        {
-          workspaceId: workspace.resourceId,
-          workspace: workspaceUpdateInput,
-        }
+        {workspaceId: workspace.resourceId, workspace: workspaceUpdateInput}
       );
 
-    const result = await updateWorkspace(reqData);
+    const result = await updateWorkspaceEndpoint(reqData);
     assertEndpointResultOk(result);
     expect(result.workspace).toMatchObject(workspaceUpdateInput);
     const updatedWorkspace = await kSemanticModels
@@ -67,7 +64,7 @@ describe('updateWorkspce', () => {
           {workspaceId: workspace.resourceId, workspace: {name: w02.name}}
         );
 
-      await updateWorkspace(reqData);
+      await updateWorkspaceEndpoint(reqData);
     }, [WorkspaceExistsError.name]);
   });
 });

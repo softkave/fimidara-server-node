@@ -37,7 +37,7 @@ export function makeUserSessionAgent(
   };
 }
 
-export function getWorkspaceIdNoThrow(
+export function getWorkspaceIdFromSessionAgentNoThrow(
   agent: SessionAgent,
   providedWorkspaceId?: string
 ) {
@@ -46,6 +46,7 @@ export function getWorkspaceIdNoThrow(
     : agent.agentToken
       ? agent.agentToken.workspaceId
       : undefined;
+
   return workspaceId;
 }
 
@@ -53,11 +54,15 @@ export function getWorkspaceIdFromSessionAgent(
   agent: SessionAgent,
   providedWorkspaceId?: string
 ) {
-  const workspaceId = getWorkspaceIdNoThrow(agent, providedWorkspaceId);
+  const workspaceId = getWorkspaceIdFromSessionAgentNoThrow(
+    agent,
+    providedWorkspaceId
+  );
 
   if (!workspaceId) {
     throw new InvalidRequestError('Workspace ID not provided');
   }
+
   return workspaceId;
 }
 
@@ -71,6 +76,7 @@ export function tryGetAgentTokenId(
     : onReferenced
       ? agent.agentToken?.resourceId
       : null;
+
   return tokenId;
 }
 

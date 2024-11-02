@@ -21,8 +21,8 @@ const getFileBackendMounts: GetFileBackendMountsEndpoint = async reqData => {
     .session()
     .getAgentFromReq(
       reqData,
-      kSessionUtils.permittedAgentTypes.api,
-      kSessionUtils.accessScopes.api
+      kSessionUtils.permittedAgentType.api,
+      kSessionUtils.accessScope.api
     );
   const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
   const query = await getFileBackendMountsQuery(agent, workspace, data);

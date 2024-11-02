@@ -1,58 +1,69 @@
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import assert from 'assert';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {User} from '../../../definitions/user.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {isStringEqual} from '../../../utils/fns.js';
+import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
-import {INTERNAL_sendEmailVerificationCode} from '../sendEmailVerificationCode/handler.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {
-  assertEmailAddressAvailable,
   assertUser,
+  checkEmailAddressAvailability,
   userExtractor,
 } from '../utils.js';
+import {getUserFromSessionAgent} from '../utils/getUserFromSessionAgent.js';
 import {UpdateUserEndpoint} from './types.js';
 import {updateUserJoiSchema} from './validation.js';
 
-const updateUser: UpdateUserEndpoint = async reqData => {
-  let user = await kUtilsInjectables
-    .session()
-    .getUser(reqData, kSessionUtils.accessScopes.user);
+const updateUserEndpoint: UpdateUserEndpoint = async reqData => {
   const data = validate(reqData.data, updateUserJoiSchema);
-  const update: Partial<User> = {...data, lastUpdatedAt: getTimestamp()};
-  const isEmailAddressUpdated =
-    data.email && !isStringEqual(data.email, user.email);
+  const {workspace, workspaceId, agent} = await initEndpoint(reqData);
 
-  if (data.email && isEmailAddressUpdated) {
-    await assertEmailAddressAvailable(data.email);
-    update.isEmailVerified = false;
-    update.emailVerifiedAt = null;
-    update.emailVerificationEmailSentAt = null;
-  }
+  const user = await kSemanticModels.utils().withTxn(async opts => {
+    const user = await getUserFromSessionAgent(
+      agent,
+      /** params */ {
+        workspaceId,
+        userId: data.userId,
+        action: kFimidaraPermissionActions.updateUser,
+      },
+      opts
+    );
 
-  user = await kSemanticModels.utils().withTxn(async opts => {
+    const input = data.user;
+    const update: Partial<User> = {
+      ...input,
+      lastUpdatedAt: getTimestamp(),
+      lastUpdatedBy: getActionAgentFromSessionAgent(agent),
+    };
+    const isEmailAddressUpdated =
+      input.email && !isStringEqual(input.email, user.email);
+
+    if (input.email && isEmailAddressUpdated) {
+      await checkEmailAddressAvailability({
+        workspaceId: workspace.resourceId,
+        email: input.email,
+      });
+
+      update.isEmailVerified = false;
+      update.emailVerifiedAt = null;
+      update.emailVerificationEmailSentAt = null;
+    }
+
+    assert.ok(user);
     const updatedUser = await kSemanticModels
       .user()
       .getAndUpdateOneById(user.resourceId, update, opts);
+
     assertUser(updatedUser);
     return updatedUser;
   });
 
-  if (isEmailAddressUpdated) {
-    kUtilsInjectables
-      .promises()
-      .forget(INTERNAL_sendEmailVerificationCode(user));
-  }
-
-  const userWithWorkspaces = await populateUserWorkspaces(user);
-
-  // Make the updated user data available to other requests made with this
-  //  request data
+  // make the updated user available to other requests made with this
+  // RequestData
   reqData.user = user;
-  return {user: userExtractor(userWithWorkspaces)};
+  return {user: userExtractor(user)};
 };
 
-export default updateUser;
+export default updateUserEndpoint;

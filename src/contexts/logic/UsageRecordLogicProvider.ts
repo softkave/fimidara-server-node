@@ -16,12 +16,12 @@ import {
   Workspace,
   kWorkspaceBillStatusMap,
 } from '../../definitions/workspace.js';
-import {getCostForUsage} from '../../endpoints/usageRecords/constants.js';
+import {getCostForUsage} from '../../endpoints/usage/constants.js';
 import {
   getUsageRecordPreviousReportingPeriod,
   getUsageRecordReportingPeriod,
   isUsageRecordPersistent,
-} from '../../endpoints/usageRecords/utils.js';
+} from '../../endpoints/usage/utils.js';
 import {assertWorkspace} from '../../endpoints/workspaces/utils.js';
 import {appAssert} from '../../utils/assertion.js';
 import {

@@ -4,6 +4,7 @@
 
 - authentication + authorization + workspaces
 - image manipulation
+- cleanup test-local-fs after tests
 
 ## NextJs
 

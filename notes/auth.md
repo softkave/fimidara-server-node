@@ -1,0 +1,13 @@
+- workspace
+  - minus usage threshold, billing, and rootname
+  - plus parentWorkspaceId?
+  - will define what data it wants from users
+  - will define what actions it wants on users
+    - email verification
+- user
+  - can only fetch workspaces + resources below them, not above or same level
+- singular public permission group
+- change events + tracking
+- shard redundancy + replacement
+- resource ID map for arbitrary depth
+- email not required + actions

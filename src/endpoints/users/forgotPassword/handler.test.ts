@@ -20,7 +20,7 @@ import {
   insertUserForTest,
   mockExpressRequest,
 } from '../../testUtils/testUtils.js';
-import forgotPassword from './handler.js';
+import forgotPasswordEndpoint from './handler.js';
 import {ForgotPasswordEndpointParams} from './types.js';
 
 /**
@@ -47,7 +47,7 @@ describe('forgotPassword', () => {
         mockExpressRequest(),
         {email: user.email}
       );
-    const result = await forgotPassword(reqData);
+    const result = await forgotPasswordEndpoint(reqData);
     assertEndpointResultOk(result);
 
     await kUtilsInjectables.promises().flush();

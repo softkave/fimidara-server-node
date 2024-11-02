@@ -13,7 +13,7 @@ import {
   kFimidaraResourceType,
 } from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
-import {EndpointOptionalWorkspaceIDParam} from '../../types.js';
+import {EndpointOptionalWorkspaceIdParam} from '../../types.js';
 import {PermissionDeniedError} from '../../users/errors.js';
 import {
   assertWorkspace,
@@ -70,7 +70,7 @@ export async function listFolderContentQuery(
 
 export async function getWorkspaceAndParentFolder(
   agent: SessionAgent,
-  data: FolderMatcher & EndpointOptionalWorkspaceIDParam,
+  data: FolderMatcher & EndpointOptionalWorkspaceIdParam,
   opts?: SemanticProviderMutationParams
 ) {
   let workspace: Workspace | null | undefined = null,

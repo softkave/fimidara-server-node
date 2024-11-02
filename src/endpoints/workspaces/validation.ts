@@ -1,6 +1,6 @@
 import Joi from 'joi';
 import {kUsageRecordCategory} from '../../definitions/usageRecord.js';
-import usageRecordValidationSchemas from '../usageRecords/validation.js';
+import usageRecordValidationSchemas from '../usage/validation.js';
 
 const price = Joi.number().min(0).precision(5);
 const usageThreshold = Joi.object().keys({

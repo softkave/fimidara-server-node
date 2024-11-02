@@ -4,8 +4,8 @@ export const workspaceConstants = {
   routes: {
     addWorkspace: `${kEndpointConstants.apiv1}/workspaces/addWorkspace`,
     deleteWorkspace: `${kEndpointConstants.apiv1}/workspaces/deleteWorkspace`,
-    getUserWorkspaces: `${kEndpointConstants.apiv1}/workspaces/getUserWorkspaces`,
-    countUserWorkspaces: `${kEndpointConstants.apiv1}/workspaces/countUserWorkspaces`,
+    getWorkspaces: `${kEndpointConstants.apiv1}/workspaces/getWorkspaces`,
+    countWorkspaces: `${kEndpointConstants.apiv1}/workspaces/countWorkspaces`,
     getWorkspace: `${kEndpointConstants.apiv1}/workspaces/getWorkspace`,
     updateWorkspace: `${kEndpointConstants.apiv1}/workspaces/updateWorkspace`,
   },

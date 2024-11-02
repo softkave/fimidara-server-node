@@ -16,8 +16,8 @@ const countWorkspaceAgentTokens: CountWorkspaceAgentTokensEndpoint =
       .session()
       .getAgentFromReq(
         reqData,
-        kSessionUtils.permittedAgentTypes.api,
-        kSessionUtils.accessScopes.api
+        kSessionUtils.permittedAgentType.api,
+        kSessionUtils.accessScope.api
       );
     const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
     const q = await getWorkspaceAgentTokensQuery(agent, workspace);

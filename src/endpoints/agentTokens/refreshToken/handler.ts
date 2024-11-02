@@ -14,8 +14,8 @@ const refreshAgentToken: RefreshAgentTokenEndpoint = async reqData => {
     .session()
     .getAgentFromReq(
       reqData,
-      kSessionUtils.permittedAgentTypes.api,
-      kSessionUtils.accessScopes.api
+      kSessionUtils.permittedAgentType.api,
+      kSessionUtils.accessScope.api
     );
 
   const token = agent.agentToken;

@@ -15,8 +15,8 @@ const getFileDetails: GetFileDetailsEndpoint = async reqData => {
     .session()
     .getAgentFromReq(
       reqData,
-      kSessionUtils.permittedAgentTypes.api,
-      kSessionUtils.accessScopes.api
+      kSessionUtils.permittedAgentType.api,
+      kSessionUtils.accessScope.api
     );
 
   const file = await kSemanticModels.utils().withTxn(opts =>

@@ -25,14 +25,14 @@ import {Workspace} from './workspace.js';
 export const kCurrentJWTTokenVersion = 1;
 
 export const kTokenAccessScope = {
-  /** All access */
+  /** all access */
   login: 'login',
-  /** Primarily for client agent tokens, where they should have access to public
+  /** primarily for client agent tokens, where they should have access to public
    * APIs, but not user session-related access as opposed to `login` */
   access: 'access',
-  /** Can only change password */
+  /** can only change password */
   changePassword: 'changePassword',
-  /** Can only confirm a user's email address as verified */
+  /** can only confirm a user's email address as verified */
   confirmEmailAddress: 'confirmEmail',
 } as const;
 
@@ -167,10 +167,8 @@ export interface ResourceWrapper<T extends Resource = Resource> {
 }
 
 export interface WorkspaceResource extends Resource {
-  workspaceId: string;
-  lastUpdatedBy: Agent;
-  createdBy: Agent;
-  // providedResourceId?: string | null;
+  workspaceId?: string;
+  providedResourceId?: string | null;
 }
 
 export type ToPublicDefinitions<T> = {

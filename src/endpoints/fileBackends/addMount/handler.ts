@@ -8,7 +8,7 @@ import {validate} from '../../../utils/validate.js';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
 import {fileBackendMountExtractor} from '../utils.js';
 import {AddFileBackendMountEndpoint} from './types.js';
-import {INTERNAL_addFileBackendMount} from './utils.js';
+import {addFileBackendMount} from './utils.js';
 import {addFileBackendMountJoiSchema} from './validation.js';
 
 const addFileBackendMountEndpoint: AddFileBackendMountEndpoint =
@@ -18,8 +18,8 @@ const addFileBackendMountEndpoint: AddFileBackendMountEndpoint =
       .session()
       .getAgentFromReq(
         reqData,
-        kSessionUtils.permittedAgentTypes.api,
-        kSessionUtils.accessScopes.api
+        kSessionUtils.permittedAgentType.api,
+        kSessionUtils.accessScope.api
       );
     const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
     await checkAuthorizationWithAgent({
@@ -30,7 +30,7 @@ const addFileBackendMountEndpoint: AddFileBackendMountEndpoint =
     });
 
     const mount = await kSemanticModels.utils().withTxn(async opts => {
-      return await INTERNAL_addFileBackendMount(agent, workspace, data, opts);
+      return await addFileBackendMount(agent, workspace, data, opts);
     });
 
     return {mount: fileBackendMountExtractor(mount)};

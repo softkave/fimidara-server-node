@@ -20,7 +20,7 @@ import {INTERNAL_forgotPassword} from '../users/forgotPassword/handler.js';
 import {getUserToken} from '../users/login/utils.js';
 import {INTERNAL_sendEmailVerificationCode} from '../users/sendEmailVerificationCode/handler.js';
 import {INTERNAL_signupUser} from '../users/signup/utils.js';
-import INTERNAL_createWorkspace from '../workspaces/addWorkspace/internalCreateWorkspace.js';
+import INTERNAL_createWorkspace from '../workspaces/addWorkspace/createWorkspace.js';
 import {assertWorkspace} from '../workspaces/utils.js';
 
 // TODO: there's currently a backwards way of doing things, where we first

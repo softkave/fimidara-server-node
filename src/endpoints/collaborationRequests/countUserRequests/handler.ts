@@ -9,7 +9,7 @@ const countUserCollaborationRequests: CountUserCollaborationRequestsEndpoint =
   async reqData => {
     const user = await kUtilsInjectables
       .session()
-      .getUser(reqData, kSessionUtils.accessScopes.user);
+      .getUser(reqData, kSessionUtils.accessScope.user);
     const count = await kSemanticModels
       .collaborationRequest()
       .countByEmail(user.email);

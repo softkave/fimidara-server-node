@@ -15,8 +15,8 @@ const deleteCollaborationRequest: DeleteCollaborationRequestEndpoint =
       .session()
       .getAgentFromReq(
         reqData,
-        kSessionUtils.permittedAgentTypes.api,
-        kSessionUtils.accessScopes.api
+        kSessionUtils.permittedAgentType.api,
+        kSessionUtils.accessScope.api
       );
     const {request} = await checkCollaborationRequestAuthorization02(
       agent,

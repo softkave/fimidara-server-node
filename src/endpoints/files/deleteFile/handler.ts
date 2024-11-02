@@ -6,7 +6,7 @@ import {
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {validate} from '../../../utils/validate.js';
-import {decrementStorageUsageRecord} from '../../usageRecords/usageFns.js';
+import {decrementStorageUsageRecord} from '../../usage/usageFns.js';
 import {getAndCheckFileAuthorization} from '../utils.js';
 import {DeleteFileEndpoint} from './types.js';
 import {beginDeleteFile} from './utils.js';
@@ -18,8 +18,8 @@ const deleteFile: DeleteFileEndpoint = async reqData => {
     .session()
     .getAgentFromReq(
       reqData,
-      kSessionUtils.permittedAgentTypes.api,
-      kSessionUtils.accessScopes.api
+      kSessionUtils.permittedAgentType.api,
+      kSessionUtils.accessScope.api
     );
 
   const file = await kSemanticModels.utils().withTxn(async opts => {

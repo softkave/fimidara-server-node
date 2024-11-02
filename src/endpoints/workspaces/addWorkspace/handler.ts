@@ -1,43 +1,93 @@
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {defaultTo} from 'lodash-es';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
+import {kFileBackendType} from '../../../definitions/fileBackend.js';
 import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
-import {appAssert} from '../../../utils/assertion.js';
+  kFimidaraResourceType,
+  SessionAgent,
+} from '../../../definitions/system.js';
+import {Workspace} from '../../../definitions/workspace.js';
+import {getTimestamp} from '../../../utils/dateFns.js';
+import {getNewIdForResource} from '../../../utils/resource.js';
 import {validate} from '../../../utils/validate.js';
+import {addFileBackendMount} from '../../fileBackends/addMount/utils.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {
-  EmailAddressNotVerifiedError,
-  PermissionDeniedError,
-} from '../../users/errors.js';
+  checkWorkspaceNameExists,
+  checkWorkspaceRootnameExists,
+} from '../checkWorkspaceExists.js';
 import {workspaceExtractor} from '../utils.js';
-import INTERNAL_createWorkspace from './internalCreateWorkspace.js';
-import {AddWorkspaceEndpoint} from './types.js';
+import {AddWorkspaceEndpoint, NewWorkspaceInput} from './types.js';
 import {addWorkspaceJoiSchema} from './validation.js';
 
-const addWorkspace: AddWorkspaceEndpoint = async reqData => {
-  const data = validate(reqData.data, addWorkspaceJoiSchema);
-  const agent = await kUtilsInjectables
-    .session()
-    .getAgentFromReq(
-      reqData,
-      kSessionUtils.permittedAgentTypes.user,
-      kSessionUtils.accessScopes.user
-    );
-  appAssert(agent.user, new PermissionDeniedError());
+const createWorkspace = async (
+  params: {
+    data: NewWorkspaceInput;
+    seed?: Partial<Workspace>;
+    agent: SessionAgent;
+    workspace?: Workspace;
+  },
+  opts: SemanticProviderMutationParams
+) => {
+  const {data, seed, agent, workspace: parentWorkspace} = params;
 
-  // TODO: find other routes that do not use checkAuthorization and devise a way
-  // to always check that user is email verified before performing mutation
-  // calls
-  if (!agent.user.isEmailVerified) {
-    throw new EmailAddressNotVerifiedError();
-  }
+  const checkParams = {...data, ...seed};
+  await Promise.all([
+    checkWorkspaceNameExists(checkParams, opts),
+    checkWorkspaceRootnameExists(checkParams, opts),
+  ]);
+
+  const createdAt = seed?.createdAt || getTimestamp();
+  const id =
+    seed?.resourceId || getNewIdForResource(kFimidaraResourceType.Workspace);
+  const workspace: Workspace = {
+    createdAt,
+    description: data.description,
+    lastUpdatedAt: createdAt,
+    rootname: data.rootname,
+    rootnamepath: defaultTo(parentWorkspace?.rootnamepath, []).concat(
+      data.rootname
+    ),
+    lastUpdatedBy: agent,
+    isDeleted: false,
+    createdBy: agent,
+    name: data.name,
+    workspaceId: parentWorkspace?.resourceId || id,
+    resourceId: id,
+    ...seed,
+  };
+
+  await kSemanticModels.workspace().insertItem(workspace, opts);
+  await addFileBackendMount(
+    agent,
+    workspace,
+    {
+      backend: kFileBackendType.fimidara,
+      name: kFileBackendType.fimidara,
+      folderpath: workspace.rootnamepath
+        ? workspace.rootnamepath.join('/')
+        : workspace.rootname,
+      mountedFrom: '',
+      configId: null,
+      index: 0,
+    },
+    opts
+  );
+
+  return {workspace};
+};
+
+const addWorkspaceEndpoint: AddWorkspaceEndpoint = async reqData => {
+  const data = validate(reqData.data, addWorkspaceJoiSchema);
+  const {agent, workspace: parentWorkspace} = await initEndpoint(reqData);
+
+  // TODO: add * permission to creator
+  // TODO: how do we check something like waitlist?
+  // TODO: how do we check email is verified?
 
   const {workspace} = await kSemanticModels.utils().withTxn(async opts => {
-    appAssert(agent.user, new PermissionDeniedError());
-    return await INTERNAL_createWorkspace(
-      data,
-      agent,
-      agent.user.resourceId,
+    return await createWorkspace(
+      /** params */ {data, agent, workspace: parentWorkspace},
       opts
     );
   });
@@ -45,4 +95,4 @@ const addWorkspace: AddWorkspaceEndpoint = async reqData => {
   return {workspace: workspaceExtractor(workspace)};
 };
 
-export default addWorkspace;
+export default addWorkspaceEndpoint;

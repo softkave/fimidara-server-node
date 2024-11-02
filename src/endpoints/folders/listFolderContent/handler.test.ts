@@ -7,8 +7,8 @@ import {
   getResourceId,
   pathJoin,
 } from '../../../utils/fns.js';
-import addPermissionItems from '../../permissionItems/addItems/handler.js';
-import {AddPermissionItemsEndpointParams} from '../../permissionItems/addItems/types.js';
+import addPermissionItemsEndpoint from '../../permissions/addPermissionItems/handler.js';
+import {AddPermissionItemsEndpointParams} from '../../permissions/addPermissionItems/types.js';
 import RequestData from '../../RequestData.js';
 import {
   generateAndInsertTestFiles,
@@ -272,7 +272,7 @@ describe('listFolderContent', () => {
         parentId: folder01.resourceId,
       }),
     ]);
-    await addPermissionItems(
+    await addPermissionItemsEndpoint(
       RequestData.fromExpressRequest<AddPermissionItemsEndpointParams>(
         mockExpressRequestWithAgentToken(userToken),
         {

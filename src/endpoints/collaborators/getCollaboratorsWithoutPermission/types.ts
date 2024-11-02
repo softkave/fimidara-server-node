@@ -1,7 +1,7 @@
-import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
 export interface GetCollaboratorsWithoutPermissionEndpointParamsBase
-  extends EndpointOptionalWorkspaceIDParam {}
+  extends EndpointOptionalWorkspaceIdParam {}
 
 export interface GetCollaboratorsWithoutPermissionEndpointParams
   extends GetCollaboratorsWithoutPermissionEndpointParamsBase {}

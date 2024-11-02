@@ -18,8 +18,8 @@ const updateTag: UpdateTagEndpoint = async reqData => {
     .session()
     .getAgentFromReq(
       reqData,
-      kSessionUtils.permittedAgentTypes.api,
-      kSessionUtils.accessScopes.api
+      kSessionUtils.permittedAgentType.api,
+      kSessionUtils.accessScope.api
     );
   const {workspace, tag: tag_} = await checkTagAuthorization02(
     agent,

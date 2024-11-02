@@ -15,7 +15,7 @@ import {
 import {AnyFn, OrPromise} from '../../../utils/types.js';
 import {NewAgentTokenInput} from '../../agentTokens/addToken/types.js';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
-import {PermissionItemInputTarget} from '../../permissionItems/types.js';
+import {PermissionItemInputTarget} from '../../permissions/types.js';
 import {BaseEndpointResult} from '../../types.js';
 import {SignupEndpointParams} from '../../users/signup/types.js';
 import {AddWorkspaceEndpointParams} from '../../workspaces/addWorkspace/types.js';

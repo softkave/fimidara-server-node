@@ -18,7 +18,7 @@ import {
   insertUserForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
-import sendEmailVerificationCode from './handler.js';
+import sendEmailVerificationCodeEndpoint from './handler.js';
 
 /**
  * TODO:
@@ -48,7 +48,7 @@ test('sendEmailVerificationCode', async () => {
         opts
       );
   });
-  const result = await sendEmailVerificationCode(
+  const result = await sendEmailVerificationCodeEndpoint(
     RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken))
   );
   assertEndpointResultOk(result);

@@ -50,9 +50,9 @@ import {assertFile} from '../../endpoints/files/utils.js';
 import {assertFolder} from '../../endpoints/folders/utils.js';
 import {FimidaraWorkerPool} from '../../endpoints/jobs/fimidaraWorker/FimidaraWorkerPool.js';
 import {assertPermissionGroup} from '../../endpoints/permissionGroups/utils.js';
-import {assertPermissionItem} from '../../endpoints/permissionItems/utils.js';
+import {assertPermissionItem} from '../../endpoints/permissions/utils.js';
 import {assertTag} from '../../endpoints/tags/utils.js';
-import {assertUsageRecord} from '../../endpoints/usageRecords/utils.js';
+import {assertUsageRecord} from '../../endpoints/usage/utils.js';
 import {assertUser} from '../../endpoints/users/utils.js';
 import {assertWorkspace} from '../../endpoints/workspaces/utils.js';
 import {

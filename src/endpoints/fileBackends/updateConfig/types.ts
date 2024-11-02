@@ -1,5 +1,5 @@
 import {PublicFileBackendConfig} from '../../../definitions/fileBackend.js';
-import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
 export type UpdateFileBackendConfigInput = {
   credentials?: Record<string, unknown>;
@@ -8,7 +8,7 @@ export type UpdateFileBackendConfigInput = {
 };
 
 export type UpdateFileBackendConfigEndpointParams =
-  EndpointOptionalWorkspaceIDParam & {
+  EndpointOptionalWorkspaceIdParam & {
     config: UpdateFileBackendConfigInput;
     configId: string;
   };

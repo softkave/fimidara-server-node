@@ -70,7 +70,7 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
               assignedAt: item.createdAt,
               assignedBy: item.createdBy,
               permissionGroupId: item.assignedItemId,
-              assigneeEntityId: item.assigneeId,
+              assigneeId: item.assigneeId,
             };
             entry.items.push(meta);
           }

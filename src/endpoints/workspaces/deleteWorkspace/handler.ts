@@ -1,36 +1,27 @@
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
+import {ServerError} from '../../../utils/errors.js';
 import {validate} from '../../../utils/validate.js';
-import {checkWorkspaceAuthorization02} from '../utils.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {DeleteWorkspaceEndpoint} from './types.js';
 import {beginDeleteWorkspace} from './utils.js';
 import {deleteWorkspaceJoiSchema} from './validation.js';
 
-const deleteWorkspace: DeleteWorkspaceEndpoint = async reqData => {
+const deleteWorkspaceEndpoint: DeleteWorkspaceEndpoint = async reqData => {
   const data = validate(reqData.data, deleteWorkspaceJoiSchema);
-  const agent = await kUtilsInjectables
-    .session()
-    .getAgentFromReq(
-      reqData,
-      kSessionUtils.permittedAgentTypes.user,
-      kSessionUtils.accessScopes.user
-    );
-  const {workspace} = await checkWorkspaceAuthorization02(
-    agent,
-    kFimidaraPermissionActions.deleteWorkspace,
-    data.workspaceId
-  );
+  const {agent, workspaceId, workspace} = await initEndpoint(reqData, {
+    data,
+    action: kFimidaraPermissionActions.deleteWorkspace,
+  });
 
   const [job] = await beginDeleteWorkspace({
     agent,
-    workspaceId: workspace.resourceId,
+    workspaceId,
     resources: [workspace],
   });
-  appAssert(job, 'Could not create delete workspace job');
 
+  appAssert(job, new ServerError(), 'Could not create delete workspace job');
   return {jobId: job.resourceId};
 };
 
-export default deleteWorkspace;
+export default deleteWorkspaceEndpoint;

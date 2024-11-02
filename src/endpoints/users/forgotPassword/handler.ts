@@ -7,35 +7,34 @@ import {
   kEmailJobType,
   kJobType,
 } from '../../../definitions/job.js';
-import {User} from '../../../definitions/user.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {validate} from '../../../utils/validate.js';
 import {queueJobs} from '../../jobs/queueJobs.js';
-import {assertUser} from '../utils.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
+import {getUserFromSessionAgent} from '../utils/getUserFromSessionAgent.js';
 import {ForgotPasswordEndpoint} from './types.js';
 import {forgotPasswordJoiSchema} from './validation.js';
 
-export const forgotPassword: ForgotPasswordEndpoint = async reqData => {
+export const forgotPasswordEndpoint: ForgotPasswordEndpoint = async reqData => {
   const data = validate(reqData.data, forgotPasswordJoiSchema);
-  const user = await kSemanticModels.user().getByEmail(data.email);
-  assertUser(user);
-  await INTERNAL_forgotPassword(user);
-};
+  const {agent, workspace} = await initEndpoint(reqData);
+  const user = await kSemanticModels.utils().withTxn(async opts => {
+    return await getUserFromSessionAgent(
+      agent,
+      /** params */ {
+        workspaceId: workspace.resourceId,
+        userId: data.userId,
+        email: data.email,
+      },
+      opts
+    );
+  });
 
-export async function INTERNAL_forgotPassword(user: User) {
   kUtilsInjectables.promises().forget(
-    // queueEmailMessage(
-    //   user.email,
-    //   {type: kEmailMessageType.forgotPassword, params: {}},
-    //   undefined,
-    //   user.resourceId,
-    //   {reuseTxn: false}
-    // )
-
     queueJobs<EmailJobParams>(
-      /** workspace ID */ undefined,
-      /** parent job ID */ undefined,
-      {
+      /** workspaceId */ workspace.resourceId,
+      /** parentJobId */ undefined,
+      /** jobsInput */ {
         createdBy: kSystemSessionAgent,
         type: kJobType.email,
         idempotencyToken: Date.now().toString(),
@@ -47,6 +46,6 @@ export async function INTERNAL_forgotPassword(user: User) {
       }
     )
   );
-}
+};
 
-export default forgotPassword;
+export default forgotPasswordEndpoint;

@@ -380,13 +380,13 @@ describe('DataSemanticPermission', () => {
             assignedAt,
             assignedBy,
             permissionGroupId: pg02.resourceId,
-            assigneeEntityId: pg.resourceId,
+            assigneeId: pg.resourceId,
           },
           {
             assignedAt,
             assignedBy,
             permissionGroupId: pg03.resourceId,
-            assigneeEntityId: pg.resourceId,
+            assigneeId: pg.resourceId,
           },
         ],
       })

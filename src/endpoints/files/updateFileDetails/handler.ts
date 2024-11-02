@@ -29,8 +29,8 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async reqData => {
     .session()
     .getAgentFromReq(
       reqData,
-      kSessionUtils.permittedAgentTypes.api,
-      kSessionUtils.accessScopes.api
+      kSessionUtils.permittedAgentType.api,
+      kSessionUtils.accessScope.api
     );
   const file = await kSemanticModels.utils().withTxn(async opts => {
     let file = await getAndCheckFileAuthorization({

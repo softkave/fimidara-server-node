@@ -1,8 +1,13 @@
-import Joi from 'joi';
+import {
+  kValidationSchemas,
+  startJoiObject,
+} from '../../../utils/validationUtils.js';
 import userValidationSchemas from '../validation.js';
+import {ForgotPasswordEndpointParams} from './types.js';
 
-export const forgotPasswordJoiSchema = Joi.object()
-  .keys({
-    email: userValidationSchemas.email.required(),
-  })
-  .required();
+export const forgotPasswordJoiSchema =
+  startJoiObject<ForgotPasswordEndpointParams>({
+    workspaceId: kValidationSchemas.resourceId,
+    userId: kValidationSchemas.resourceId,
+    email: userValidationSchemas.email,
+  }).required();

@@ -23,11 +23,11 @@ import {initTests} from '../../../endpoints/testUtils/testUtils.js';
 import {
   getCostForUsage,
   getUsageForCost,
-} from '../../../endpoints/usageRecords/constants.js';
+} from '../../../endpoints/usage/constants.js';
 import {
   getUsageRecordPreviousReportingPeriod,
   getUsageRecordReportingPeriod,
-} from '../../../endpoints/usageRecords/utils.js';
+} from '../../../endpoints/usage/utils.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {
   kSemanticModels,

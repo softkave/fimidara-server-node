@@ -23,8 +23,8 @@ const updateFolder: UpdateFolderEndpoint = async reqData => {
     .session()
     .getAgentFromReq(
       reqData,
-      kSessionUtils.permittedAgentTypes.api,
-      kSessionUtils.accessScopes.api
+      kSessionUtils.permittedAgentType.api,
+      kSessionUtils.accessScope.api
     );
   let folder = await kSemanticModels.utils().withTxn(async opts => {
     const {folder} = await checkFolderAuthorization02(

@@ -21,9 +21,9 @@ import {
 import {fileExtractor, presignedPathExtractor} from '../files/utils.js';
 import {folderExtractor} from '../folders/utils.js';
 import {permissionGroupExtractor} from '../permissionGroups/utils.js';
-import {permissionItemExtractor} from '../permissionItems/utils.js';
+import {permissionItemExtractor} from '../permissions/utils.js';
 import {tagExtractor} from '../tags/utils.js';
-import {usageRecordExtractor} from '../usageRecords/utils.js';
+import {usageRecordExtractor} from '../usage/utils.js';
 import {workspaceExtractor} from '../workspaces/utils.js';
 
 const kResourceTypeToExtractorMap: Record<

@@ -1,7 +1,9 @@
-import {Endpoint} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
-export interface ForgotPasswordEndpointParams {
-  email: string;
+export interface ForgotPasswordEndpointParams
+  extends EndpointOptionalWorkspaceIdParam {
+  email?: string;
+  userId?: string;
 }
 
 export type ForgotPasswordEndpoint = Endpoint<ForgotPasswordEndpointParams>;

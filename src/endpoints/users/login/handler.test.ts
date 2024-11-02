@@ -13,7 +13,7 @@ import {
   insertUserForTest,
   mockExpressRequest,
 } from '../../testUtils/testUtils.js';
-import login from './handler.js';
+import loginEndpoint from './handler.js';
 import {LoginEndpointParams} from './types.js';
 import {getUserClientAssignedToken, getUserToken} from './utils.js';
 
@@ -43,7 +43,7 @@ describe('login', () => {
       {password, email: user.email}
     );
 
-    const result = await login(reqData);
+    const result = await loginEndpoint(reqData);
     assertEndpointResultOk(result);
     expect(result.user).toMatchObject(user);
     expect(result.jwtToken).toBeTruthy();

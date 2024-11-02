@@ -1,8 +1,8 @@
 import {LongRunningJobResult} from '../../jobs/types.js';
-import {Endpoint, EndpointOptionalWorkspaceIDParam} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
 export interface DeleteFileBackendMountEndpointParams
-  extends EndpointOptionalWorkspaceIDParam {
+  extends EndpointOptionalWorkspaceIdParam {
   mountId: string;
 }
 

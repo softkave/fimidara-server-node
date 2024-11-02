@@ -9,6 +9,7 @@ import {
   SemanticProviderOpParams,
   SemanticProviderQueryListParams,
   SemanticProviderQueryParams,
+  SemanticWorkspaceGetByWorkspaceAndIdListQuery,
   SemanticWorkspaceResourceProviderBaseType,
   SemanticWorkspaceResourceProviderType,
 } from './types.js';
@@ -120,49 +121,43 @@ export class DataSemanticWorkspaceResourceProvider<
   }
 
   async countManyByWorkspaceAndIdList(
-    query: {
-      workspaceId: string;
-      resourceIdList?: string[] | undefined;
-      excludeResourceIdList?: string[] | undefined;
-    },
+    query: SemanticWorkspaceGetByWorkspaceAndIdListQuery,
     opts?: SemanticProviderOpParams | undefined
   ): Promise<number> {
     const countQuery: DataQuery<SemanticWorkspaceResourceProviderBaseType> =
       addIsDeletedIntoQuery(
-        {
-          workspaceId: query.workspaceId,
-          ...getInAndNinQuery<Resource>(
-            'resourceId',
-            query.resourceIdList,
-            query.excludeResourceIdList
-          ),
-        },
+        getInAndNinQuery<Resource>(
+          'resourceId',
+          query.resourceIdList,
+          query.excludeResourceIdList
+        ),
         opts?.includeDeleted || false
       );
+
+    if (query.workspaceId) {
+      countQuery.workspaceId = query.workspaceId;
+    }
 
     return await this.data.countByQuery(countQuery as DataQuery<T>, opts);
   }
 
   async getManyByWorkspaceAndIdList(
-    query: {
-      workspaceId: string;
-      resourceIdList?: string[] | undefined;
-      excludeResourceIdList?: string[] | undefined;
-    },
+    query: SemanticWorkspaceGetByWorkspaceAndIdListQuery,
     opts?: SemanticProviderQueryListParams<T> | undefined
   ): Promise<T[]> {
     const getQuery: DataQuery<SemanticWorkspaceResourceProviderBaseType> =
       addIsDeletedIntoQuery(
-        {
-          workspaceId: query.workspaceId,
-          ...getInAndNinQuery<Resource>(
-            'resourceId',
-            query.resourceIdList,
-            query.excludeResourceIdList
-          ),
-        },
+        getInAndNinQuery<Resource>(
+          'resourceId',
+          query.resourceIdList,
+          query.excludeResourceIdList
+        ),
         opts?.includeDeleted || false
       );
+
+    if (query.workspaceId) {
+      getQuery.workspaceId = query.workspaceId;
+    }
 
     return (await this.data.getManyByQuery(
       getQuery as DataQuery<T>,

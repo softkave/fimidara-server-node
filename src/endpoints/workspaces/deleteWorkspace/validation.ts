@@ -1,6 +1,10 @@
-import Joi from 'joi';
-import {endpointValidationSchemas} from '../../validation.js';
+import {
+  kValidationSchemas,
+  startJoiObject,
+} from '../../../utils/validationUtils.js';
+import {DeleteWorkspaceEndpointParams} from './types.js';
 
-export const deleteWorkspaceJoiSchema = Joi.object()
-  .keys(endpointValidationSchemas.optionalWorkspaceIdParts)
-  .required();
+export const deleteWorkspaceJoiSchema =
+  startJoiObject<DeleteWorkspaceEndpointParams>({
+    workspaceId: kValidationSchemas.resourceId,
+  }).required();

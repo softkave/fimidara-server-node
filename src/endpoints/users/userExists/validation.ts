@@ -1,8 +1,11 @@
-import Joi from 'joi';
+import {
+  kValidationSchemas,
+  startJoiObject,
+} from '../../../utils/validationUtils.js';
 import userValidationSchemas from '../validation.js';
+import {UserExistsEndpointParams} from './types.js';
 
-export const userExistsJoiSchema = Joi.object()
-  .keys({
-    email: userValidationSchemas.email.required(),
-  })
-  .required();
+export const userExistsJoiSchema = startJoiObject<UserExistsEndpointParams>({
+  email: userValidationSchemas.email.required(),
+  workspaceId: kValidationSchemas.resourceId,
+}).required();

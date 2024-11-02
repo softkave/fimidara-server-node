@@ -1,7 +1,7 @@
 import {resolveTargetChildrenAccessCheckWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
 import {SessionAgent} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
-import {getWorkspaceResourceListQuery00} from '../../utils.js';
+import {getWorkspaceResourceByIdList} from '../../utils.js';
 
 export async function getWorkspaceAgentTokensQuery(
   agent: SessionAgent,
@@ -13,5 +13,5 @@ export async function getWorkspaceAgentTokensQuery(
     workspaceId: workspace.resourceId,
     target: {action: 'readAgentToken', targetId: workspace.resourceId},
   });
-  return getWorkspaceResourceListQuery00(workspace, report);
+  return getWorkspaceResourceByIdList(workspace, report);
 }

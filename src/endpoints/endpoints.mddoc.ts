@@ -353,6 +353,12 @@ const workspaceRootname = mddocConstruct
     'Workspace root name, must be a URL compatible name, case insensitive'
   )
   .setExample('fimidara-rootname');
+const rootnamepath = mddocConstruct
+  .constructFieldArray<string>()
+  .setType(workspaceRootname)
+  .setDescription(
+    "List of parent workspace rootnames and workspace's own rootname, case sensitive"
+  );
 const firstName = mddocConstruct
   .constructFieldString()
   .setDescription('First name')
@@ -504,9 +510,11 @@ const resourceParts: FieldObjectFieldsMap<PublicResource> = {
 };
 const workspaceResourceParts: FieldObjectFieldsMap<PublicWorkspaceResource> = {
   ...resourceParts,
-  workspaceId: mddocConstruct.constructFieldObjectField(true, workspaceId),
-  createdBy: mddocConstruct.constructFieldObjectField(true, agent),
-  lastUpdatedBy: mddocConstruct.constructFieldObjectField(true, agent),
+  workspaceId: mddocConstruct.constructFieldObjectField(false, workspaceId),
+  providedResourceId: mddocConstruct.constructFieldObjectField(
+    false,
+    providedResourceIdOrNull
+  ),
 };
 const usage = mddocConstruct
   .constructFieldNumber()
@@ -532,6 +540,7 @@ export const fReusables = {
   workspaceName,
   idOrList,
   workspaceRootname,
+  rootnamepath,
   firstName,
   lastName,
   emailAddress,

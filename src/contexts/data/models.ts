@@ -29,9 +29,9 @@ import {
 } from '../../endpoints/files/utils.js';
 import {throwFolderNotFound} from '../../endpoints/folders/utils.js';
 import {throwPermissionGroupNotFound} from '../../endpoints/permissionGroups/utils.js';
-import {throwPermissionItemNotFound} from '../../endpoints/permissionItems/utils.js';
+import {throwPermissionItemNotFound} from '../../endpoints/permissions/utils.js';
 import {throwTagNotFound} from '../../endpoints/tags/utils.js';
-import {throwUsageRecordNotFound} from '../../endpoints/usageRecords/utils.js';
+import {throwUsageRecordNotFound} from '../../endpoints/usage/utils.js';
 import {throwUserNotFound} from '../../endpoints/users/utils.js';
 import {throwNotFound} from '../../endpoints/utils.js';
 import {throwWorkspaceNotFound} from '../../endpoints/workspaces/utils.js';
