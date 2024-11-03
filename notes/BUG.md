@@ -20,3 +20,7 @@
 - opening permissions for a folder first shows no permission groups
 - server error not shown in fields
 - file upload is showing green though file upload failed
+
+## CLI
+
+- close file descriptors

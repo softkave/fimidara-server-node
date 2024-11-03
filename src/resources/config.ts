@@ -159,7 +159,5 @@ export type FimidaraConfig = FimidaraSuppliedConfig & FimidaraRuntimeConfig;
 
 export function getSuppliedConfig(): FimidaraSuppliedConfig {
   const suppliedConfig = config.util.toObject();
-  console.log(process.env.NODE_APP_INSTANCE);
-  console.dir(suppliedConfig);
   return suppliedConfig;
 }
