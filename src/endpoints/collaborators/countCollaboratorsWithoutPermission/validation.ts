@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import {getWorkspaceCollaboratorsBaseJoiSchemaParts} from '../getWorkspaceCollaborators/validation.js';
+import {getWorkspaceCollaboratorsBaseJoiSchemaParts} from '../getCollaborators/validation.js';
 import {CountCollaboratorsWithoutPermissionEndpointParams} from './types.js';
 
 export const countCollaboratorsWithoutPermissionJoiSchema =

@@ -15,8 +15,16 @@ import {
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc.js';
 import {collabRequestConstants} from './constants.js';
-import {CountWorkspaceCollaborationRequestsEndpointParams} from './countWorkspaceRequests/types.js';
+import {CountWorkspaceCollaborationRequestsEndpointParams} from './countRequests/types.js';
 import {DeleteCollaborationRequestEndpointParams} from './deleteRequest/types.js';
+import {
+  GetWorkspaceCollaborationRequestEndpointParams,
+  GetWorkspaceCollaborationRequestEndpointResult,
+} from './getRequest/types.js';
+import {
+  GetWorkspaceCollaborationRequestsEndpointParams,
+  GetWorkspaceCollaborationRequestsEndpointResult,
+} from './getRequests/types.js';
 import {
   GetUserCollaborationRequestEndpointParams,
   GetUserCollaborationRequestEndpointResult,
@@ -25,14 +33,6 @@ import {
   GetUserCollaborationRequestsEndpointParams,
   GetUserCollaborationRequestsEndpointResult,
 } from './getUserRequests/types.js';
-import {
-  GetWorkspaceCollaborationRequestEndpointParams,
-  GetWorkspaceCollaborationRequestEndpointResult,
-} from './getWorkspaceRequest/types.js';
-import {
-  GetWorkspaceCollaborationRequestsEndpointParams,
-  GetWorkspaceCollaborationRequestsEndpointResult,
-} from './getWorkspaceRequests/types.js';
 import {
   RespondToCollaborationRequestEndpointParams,
   RespondToCollaborationRequestEndpointResult,

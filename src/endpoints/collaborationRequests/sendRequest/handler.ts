@@ -1,6 +1,4 @@
 import {compact} from 'lodash-es';
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
@@ -14,6 +12,7 @@ import {
   kEmailJobType,
   kJobType,
 } from '../../../definitions/job.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {formatDate, getTimestamp} from '../../../utils/dateFns.js';
@@ -21,34 +20,27 @@ import {newWorkspaceResource} from '../../../utils/resource.js';
 import {validate} from '../../../utils/validate.js';
 import {ResourceExistsError} from '../../errors.js';
 import {queueJobs} from '../../jobs/queueJobs.js';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {collaborationRequestForWorkspaceExtractor} from '../utils.js';
 import {SendCollaborationRequestEndpoint} from './types.js';
 import {sendCollaborationRequestJoiSchema} from './validation.js';
 
-const sendCollaborationRequest: SendCollaborationRequestEndpoint =
+const sendCollaborationRequestEndpoint: SendCollaborationRequestEndpoint =
   async reqData => {
     const data = validate(reqData.data, sendCollaborationRequestJoiSchema);
-    const agent = await kUtilsInjectables
-      .session()
-      .getAgentFromReq(
-        reqData,
-        kSessionUtils.permittedAgentType.api,
-        kSessionUtils.accessScope.api
-      );
-    const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
-    await checkAuthorizationWithAgent({
-      agent,
-      workspaceId: workspace.resourceId,
-      workspace: workspace,
-      target: {targetId: workspace.resourceId, action: 'addCollaborator'},
+    const {agent, workspace} = await initEndpoint(reqData, {
+      data,
+      action: kFimidaraPermissionActions.addCollaborator,
     });
 
     const {request, existingUser} = await kSemanticModels
       .utils()
       .withTxn(async opts => {
         const [existingUser, existingRequest] = await Promise.all([
-          kSemanticModels.user().getByEmail(data.recipientEmail),
+          kSemanticModels.user().getByEmail({
+            workspaceId: workspace.resourceId,
+            email: data.recipientEmail,
+          }),
           kSemanticModels
             .collaborationRequest()
             .getOneByWorkspaceIdEmail(
@@ -104,31 +96,24 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint =
       });
 
     kUtilsInjectables.promises().forget(
-      // queueEmailMessage(
-      //   request.recipientEmail,
-      //   {
-      //     type: kEmailMessageType.collaborationRequest,
-      //     params: {requestId: request.resourceId},
-      //   },
-      //   workspace.resourceId,
-      //   existingUser?.resourceId,
-      //   {reuseTxn: false}
-      // )
-
-      queueJobs<EmailJobParams>(workspace.resourceId, undefined, {
-        createdBy: agent,
-        type: kJobType.email,
-        idempotencyToken: Date.now().toString(),
-        params: {
-          type: kEmailJobType.collaborationRequest,
-          emailAddress: [request.recipientEmail],
-          userId: compact([existingUser?.resourceId]),
-          params: {requestId: request.resourceId},
-        },
-      })
+      queueJobs<EmailJobParams>(
+        workspace.resourceId,
+        /** parentJobId */ undefined,
+        {
+          createdBy: agent,
+          type: kJobType.email,
+          idempotencyToken: Date.now().toString(),
+          params: {
+            type: kEmailJobType.collaborationRequest,
+            emailAddress: [request.recipientEmail],
+            userId: compact([existingUser?.resourceId]),
+            params: {requestId: request.resourceId},
+          },
+        }
+      )
     );
 
     return {request: collaborationRequestForWorkspaceExtractor(request)};
   };
 
-export default sendCollaborationRequest;
+export default sendCollaborationRequestEndpoint;

@@ -14,13 +14,13 @@ import {
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc.js';
 import {kUsageRecordConstants} from './constants.js';
-import {CountWorkspaceSummedUsageEndpointParams} from './countWorkspaceSummedUsage/types.js';
-import {GetUsageCostsEndpointResult} from './getUsageCosts/types.js';
+import {CountWorkspaceSummedUsageEndpointParams} from './countSummedUsage/types.js';
 import {
   GetWorkspaceSummedUsageEndpointParams,
   GetWorkspaceSummedUsageEndpointResult,
   WorkspaceSummedUsageQuery,
-} from './getWorkspaceSummedUsage/types.js';
+} from './getSummedUsage/types.js';
+import {GetUsageCostsEndpointResult} from './getUsageCosts/types.js';
 import {
   CountWorkspaceSummedUsageHttpEndpoint,
   GetUsageCostsHttpEndpoint,

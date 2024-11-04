@@ -1,19 +1,12 @@
 import {omit} from 'lodash-es';
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
-import {
-  getActionAgentFromSessionAgent,
-  tryGetAgentTokenId,
-} from '../../../utils/sessionUtils.js';
+import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
-import {tryGetWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {checkAgentTokenNameExists} from '../checkAgentTokenNameExists.js';
 import {
   assertAgentToken,
@@ -23,21 +16,14 @@ import {
 import {UpdateAgentTokenEndpoint} from './types.js';
 import {updateAgentTokenJoiSchema} from './validation.js';
 
-const updateAgentToken: UpdateAgentTokenEndpoint = async reqData => {
+const updateAgentTokenEndpoint: UpdateAgentTokenEndpoint = async reqData => {
   const data = validate(reqData.data, updateAgentTokenJoiSchema);
-  const agent = await kUtilsInjectables
-    .session()
-    .getAgentFromReq(
-      reqData,
-      kSessionUtils.permittedAgentType.api,
-      kSessionUtils.accessScope.api
-    );
-  const {workspace} = await tryGetWorkspaceFromEndpointInput(agent, data);
-  const tokenId = tryGetAgentTokenId(agent, data.tokenId, data.onReferenced);
+  const {agent, workspace} = await initEndpoint(reqData, {data});
+
   const {token} = await checkAgentTokenAuthorization02(
     agent,
     workspace?.resourceId,
-    tokenId,
+    data.tokenId,
     data.providedResourceId,
     'updateAgentToken'
   );
@@ -77,4 +63,4 @@ const updateAgentToken: UpdateAgentTokenEndpoint = async reqData => {
   };
 };
 
-export default updateAgentToken;
+export default updateAgentTokenEndpoint;

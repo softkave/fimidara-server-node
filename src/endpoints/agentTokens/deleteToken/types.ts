@@ -3,8 +3,7 @@ import {Endpoint, EndpointWorkspaceResourceParam} from '../../types.js';
 
 export interface DeleteAgentTokenEndpointParams
   extends EndpointWorkspaceResourceParam {
-  tokenId?: string;
-  onReferenced?: boolean;
+  tokenId: string;
 }
 
 export type DeleteAgentTokenEndpoint = Endpoint<

@@ -1,31 +1,20 @@
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
-import {tryGetAgentTokenId} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
-import {tryGetWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {checkAgentTokenAuthorization02, getPublicAgentToken} from '../utils.js';
 import {GetAgentTokenEndpoint} from './types.js';
 import {getAgentTokenJoiSchema} from './validation.js';
 
-const getAgentToken: GetAgentTokenEndpoint = async reqData => {
+const getAgentTokenEndpoint: GetAgentTokenEndpoint = async reqData => {
   const data = validate(reqData.data, getAgentTokenJoiSchema);
-  const agent = await kUtilsInjectables
-    .session()
-    .getAgentFromReq(
-      reqData,
-      kSessionUtils.permittedAgentType.api,
-      kSessionUtils.accessScope.api
-    );
+  const {agent, workspace} = await initEndpoint(reqData, {data});
 
-  const {workspace} = await tryGetWorkspaceFromEndpointInput(agent, data);
-  const tokenId = tryGetAgentTokenId(agent, data.tokenId, data.onReferenced);
   let {token} = await checkAgentTokenAuthorization02(
     agent,
     workspace?.resourceId,
-    tokenId,
+    data.tokenId,
     data.providedResourceId,
     kFimidaraPermissionActions.readAgentToken
   );
@@ -36,4 +25,4 @@ const getAgentToken: GetAgentTokenEndpoint = async reqData => {
   return {token: await getPublicAgentToken(token, data.shouldEncode ?? false)};
 };
 
-export default getAgentToken;
+export default getAgentTokenEndpoint;

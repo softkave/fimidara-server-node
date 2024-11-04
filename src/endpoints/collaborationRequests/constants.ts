@@ -5,14 +5,14 @@ export const collabRequestConstants = {
   routes: {
     sendRequest: `${kEndpointConstants.apiv1}/collaborationRequests/sendRequest`,
     deleteRequest: `${kEndpointConstants.apiv1}/collaborationRequests/deleteRequest`,
-    getWorkspaceRequests: `${kEndpointConstants.apiv1}/collaborationRequests/getWorkspaceRequests`,
+    getRequests: `${kEndpointConstants.apiv1}/collaborationRequests/getRequests`,
     getUserRequests: `${kEndpointConstants.apiv1}/collaborationRequests/getUserRequests`,
-    countWorkspaceRequests: `${kEndpointConstants.apiv1}/collaborationRequests/countWorkspaceRequests`,
+    countRequests: `${kEndpointConstants.apiv1}/collaborationRequests/countRequests`,
     countUserRequests: `${kEndpointConstants.apiv1}/collaborationRequests/countUserRequests`,
     respondToRequest: `${kEndpointConstants.apiv1}/collaborationRequests/respondToRequest`,
     revokeRequest: `${kEndpointConstants.apiv1}/collaborationRequests/revokeRequest`,
     updateRequest: `${kEndpointConstants.apiv1}/collaborationRequests/updateRequest`,
     getUserRequest: `${kEndpointConstants.apiv1}/collaborationRequests/getUserRequest`,
-    getWorkspaceRequest: `${kEndpointConstants.apiv1}/collaborationRequests/getWorkspaceRequest`,
+    getRequest: `${kEndpointConstants.apiv1}/collaborationRequests/getRequest`,
   },
 };

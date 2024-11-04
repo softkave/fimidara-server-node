@@ -9,7 +9,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
-import getAgentToken from './handler.js';
+import getAgentTokenEndpoint from './handler.js';
 import {GetAgentTokenEndpointParams} from './types.js';
 
 /**
@@ -38,7 +38,7 @@ describe('getAgentToken', () => {
       mockExpressRequestWithAgentToken(userToken),
       {tokenId: token01.resourceId, workspaceId: workspace.resourceId}
     );
-    const result = await getAgentToken(reqData);
+    const result = await getAgentTokenEndpoint(reqData);
     assertEndpointResultOk(result);
 
     expect(result.token).toEqual(token01);

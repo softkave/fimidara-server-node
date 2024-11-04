@@ -1,32 +1,27 @@
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {validate} from '../../../utils/validate.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {checkCollaborationRequestAuthorization02} from '../utils.js';
 import {DeleteCollaborationRequestEndpoint} from './types.js';
 import {beginDeleteCollaborationRequest} from './utils.js';
 import {deleteCollaborationRequestJoiSchema} from './validation.js';
 
-const deleteCollaborationRequest: DeleteCollaborationRequestEndpoint =
+const deleteCollaborationRequestEndpoint: DeleteCollaborationRequestEndpoint =
   async reqData => {
     const data = validate(reqData.data, deleteCollaborationRequestJoiSchema);
-    const agent = await kUtilsInjectables
-      .session()
-      .getAgentFromReq(
-        reqData,
-        kSessionUtils.permittedAgentType.api,
-        kSessionUtils.accessScope.api
-      );
-    const {request} = await checkCollaborationRequestAuthorization02(
+    const {agent, workspaceId} = await initEndpoint(reqData, {data});
+
+    const {request} = await checkCollaborationRequestAuthorization02({
       agent,
-      data.requestId,
-      kFimidaraPermissionActions.deleteCollaborationRequest
-    );
+      workspaceId,
+      requestId: data.requestId,
+      action: kFimidaraPermissionActions.deleteCollaborationRequest,
+    });
 
     const [job] = await beginDeleteCollaborationRequest({
       agent,
-      workspaceId: request.workspaceId,
+      workspaceId,
       resources: [request],
     });
     appAssert(job);
@@ -34,4 +29,4 @@ const deleteCollaborationRequest: DeleteCollaborationRequestEndpoint =
     return {jobId: job.resourceId};
   };
 
-export default deleteCollaborationRequest;
+export default deleteCollaborationRequestEndpoint;

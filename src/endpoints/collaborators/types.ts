@@ -1,8 +1,8 @@
 import {ExportedHttpEndpointWithMddocDefinition} from '../types.js';
-import {CountWorkspaceCollaboratorsEndpoint} from './countWorkspaceCollaborators/types.js';
+import {CountWorkspaceCollaboratorsEndpoint} from './countCollaborators/types.js';
 import {GetCollaboratorEndpoint} from './getCollaborator/types.js';
+import {GetWorkspaceCollaboratorsEndpoint} from './getCollaborators/types.js';
 import {GetCollaboratorsWithoutPermissionEndpoint} from './getCollaboratorsWithoutPermission/types.js';
-import {GetWorkspaceCollaboratorsEndpoint} from './getWorkspaceCollaborators/types.js';
 import {RemoveCollaboratorEndpoint} from './removeCollaborator/types.js';
 
 export type GetCollaboratorHttpEndpoint =

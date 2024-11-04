@@ -16,7 +16,7 @@ import {
   NewAgentTokenInput,
 } from './addToken/types.js';
 import {kAgentTokenConstants} from './constants.js';
-import {CountWorkspaceAgentTokensEndpointParams} from './countWorkspaceTokens/types.js';
+import {CountWorkspaceAgentTokensEndpointParams} from './countTokens/types.js';
 import {DeleteAgentTokenEndpointParams} from './deleteToken/types.js';
 import {
   EncodeAgentTokenEndpointParams,
@@ -29,7 +29,7 @@ import {
 import {
   GetWorkspaceAgentTokensEndpointParams,
   GetWorkspaceAgentTokensEndpointResult,
-} from './getWorkspaceTokens/types.js';
+} from './getTokens/types.js';
 import {
   RefreshAgentTokenEndpointParams,
   RefreshAgentTokenEndpointResult,

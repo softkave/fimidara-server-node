@@ -1,10 +1,10 @@
 import {ExportedHttpEndpointWithMddocDefinition} from '../types.js';
 import {AddAgentTokenEndpoint} from './addToken/types.js';
-import {CountWorkspaceAgentTokensEndpoint} from './countWorkspaceTokens/types.js';
+import {CountWorkspaceAgentTokensEndpoint} from './countTokens/types.js';
 import {DeleteAgentTokenEndpoint} from './deleteToken/types.js';
 import {EncodeAgentTokenEndpoint} from './encodeToken/types.js';
 import {GetAgentTokenEndpoint} from './getToken/types.js';
-import {GetWorkspaceAgentTokensEndpoint} from './getWorkspaceTokens/types.js';
+import {GetWorkspaceAgentTokensEndpoint} from './getTokens/types.js';
 import {RefreshAgentTokenEndpoint} from './refreshToken/types.js';
 import {UpdateAgentTokenEndpoint} from './updateToken/types.js';
 

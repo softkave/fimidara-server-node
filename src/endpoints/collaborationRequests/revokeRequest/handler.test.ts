@@ -22,7 +22,7 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
 import {collaborationRequestForUserExtractor} from '../utils.js';
-import revokeCollaborationRequest from './handler.js';
+import revokeCollaborationRequestEndpoint from './handler.js';
 import {RevokeCollaborationRequestEndpointParams} from './types.js';
 
 beforeAll(async () => {
@@ -47,7 +47,7 @@ test('collaboration request revoked', async () => {
       mockExpressRequestWithAgentToken(userToken),
       {requestId: request01.resourceId}
     );
-  const result = await revokeCollaborationRequest(reqData);
+  const result = await revokeCollaborationRequestEndpoint(reqData);
   assertEndpointResultOk(result);
 
   const updatedRequest = await kSemanticModels

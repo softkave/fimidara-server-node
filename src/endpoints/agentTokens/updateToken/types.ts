@@ -7,7 +7,6 @@ export type UpdateAgentTokenInput = Partial<NewAgentTokenInput>;
 export interface UpdateAgentTokenEndpointParams
   extends EndpointOptionalWorkspaceIdParam {
   tokenId?: string;
-  onReferenced?: boolean;
   providedResourceId?: string;
   token: UpdateAgentTokenInput;
   shouldEncode?: boolean;

@@ -1,8 +1,12 @@
-import Joi from 'joi';
-import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import {
+  kValidationSchemas,
+  startJoiObject,
+} from '../../../utils/validationUtils.js';
+import {endpointValidationSchemas} from '../../validation.js';
+import {DeleteCollaborationRequestEndpointParams} from './types.js';
 
-export const deleteCollaborationRequestJoiSchema = Joi.object()
-  .keys({
+export const deleteCollaborationRequestJoiSchema =
+  startJoiObject<DeleteCollaborationRequestEndpointParams>({
+    ...endpointValidationSchemas.optionalWorkspaceIdParts,
     requestId: kValidationSchemas.resourceId.required(),
-  })
-  .required();
+  }).required();

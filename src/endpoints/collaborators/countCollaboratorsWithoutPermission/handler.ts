@@ -2,8 +2,8 @@ import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {getWorkspaceCollaboratorsQuery} from '../getCollaborators/utils.js';
 import {getPagedCollaboratorsWithoutPermission} from '../getCollaboratorsWithoutPermission/handler.js';
-import {getWorkspaceCollaboratorsQuery} from '../getWorkspaceCollaborators/utils.js';
 import {CountCollaboratorsWithoutPermissionEndpoint} from './types.js';
 import {countCollaboratorsWithoutPermissionJoiSchema} from './validation.js';
 

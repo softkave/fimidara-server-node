@@ -18,7 +18,7 @@ import {
   addAssignedPermissionGroupList,
   assignWorkspaceToUser,
 } from '../../endpoints/assignedItems/addAssignedItems.js';
-import {INTERNAL_RespondToCollaborationRequest} from '../../endpoints/collaborationRequests/respondToRequest/utils.js';
+import {respondToCollaborationRequest} from '../../endpoints/collaborationRequests/respondToRequest/utils.js';
 import {fetchEntityAssignedPermissionGroupList} from '../../endpoints/permissionGroups/getEntityAssignedPermissionGroups/utils.js';
 import {assertPermissionGroup} from '../../endpoints/permissionGroups/utils.js';
 import {initFimidara} from '../../endpoints/runtime/initFimidara.js';
@@ -213,7 +213,7 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
           .getUserAgentToken(user.resourceId, kTokenAccessScope.login, opts);
         assertAgentToken(agentToken);
         const agent = makeUserSessionAgent(user, agentToken);
-        await INTERNAL_RespondToCollaborationRequest(
+        await respondToCollaborationRequest(
           agent,
           {
             requestId: request.resourceId,

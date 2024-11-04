@@ -1,12 +1,15 @@
-import Joi from 'joi';
-import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import {
+  kValidationSchemas,
+  startJoiObject,
+} from '../../../utils/validationUtils.js';
+import {endpointValidationSchemas} from '../../validation.js';
 import {
   UpdateCollaborationRequestEndpointParams,
   UpdateCollaborationRequestInput,
 } from './types.js';
 
 export const updateCollaborationRequestInputJoiSchema =
-  Joi.object<UpdateCollaborationRequestInput>().keys({
+  startJoiObject<UpdateCollaborationRequestInput>({
     message: kValidationSchemas.description.allow(null),
     expires: kValidationSchemas.time.allow(null),
     // permissionGroupsOnAccept:
@@ -14,9 +17,8 @@ export const updateCollaborationRequestInputJoiSchema =
   });
 
 export const updateCollaborationRequestJoiSchema =
-  Joi.object<UpdateCollaborationRequestEndpointParams>()
-    .keys({
-      requestId: kValidationSchemas.resourceId.required(),
-      request: updateCollaborationRequestInputJoiSchema.required(),
-    })
-    .required();
+  startJoiObject<UpdateCollaborationRequestEndpointParams>({
+    ...endpointValidationSchemas.optionalWorkspaceIdParts,
+    requestId: kValidationSchemas.resourceId.required(),
+    request: updateCollaborationRequestInputJoiSchema.required(),
+  }).required();

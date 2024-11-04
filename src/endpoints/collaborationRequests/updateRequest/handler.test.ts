@@ -12,7 +12,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
-import updateCollaborationRequest from './handler.js';
+import updateCollaborationRequestEndpoint from './handler.js';
 import {
   UpdateCollaborationRequestEndpointParams,
   UpdateCollaborationRequestInput,
@@ -47,7 +47,7 @@ describe('updateCollaborationRequest', () => {
           request: updateCollaborationRequestInput,
         }
       );
-    const result = await updateCollaborationRequest(reqData);
+    const result = await updateCollaborationRequestEndpoint(reqData);
     assertEndpointResultOk(result);
     const updatedRequest = await kSemanticModels
       .collaborationRequest()

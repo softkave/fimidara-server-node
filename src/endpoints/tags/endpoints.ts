@@ -1,6 +1,6 @@
 import {kEndpointTag} from '../types.js';
 import addTag from './addTag/handler.js';
-import countWorkspaceTags from './countWorkspaceTags/handler.js';
+import countWorkspaceTags from './countTags/handler.js';
 import deleteTag from './deleteTag/handler.js';
 import {
   addTagEndpointDefinition,
@@ -11,7 +11,7 @@ import {
   updateTagEndpointDefinition,
 } from './endpoints.mddoc.js';
 import getTag from './getTag/handler.js';
-import getWorkspaceTags from './getWorkspaceTags/handler.js';
+import getWorkspaceTags from './getTags/handler.js';
 import {TagsExportedEndpoints} from './types.js';
 import updateTag from './updateTag/handler.js';
 

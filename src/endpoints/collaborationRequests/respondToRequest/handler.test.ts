@@ -23,7 +23,7 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
 import {collaborationRequestForUserExtractor} from '../utils.js';
-import respondToCollaborationRequest from './handler.js';
+import respondToCollaborationRequestEndpoint from './handler.js';
 import {RespondToCollaborationRequestEndpointParams} from './types.js';
 
 /**
@@ -57,7 +57,7 @@ test('collaboration request declined', async () => {
         response: kCollaborationRequestStatusTypeMap.Accepted,
       }
     );
-  const result = await respondToCollaborationRequest(reqData);
+  const result = await respondToCollaborationRequestEndpoint(reqData);
   assertEndpointResultOk(result);
   const updatedRequest = await kSemanticModels
     .collaborationRequest()

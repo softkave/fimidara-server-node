@@ -1,7 +1,8 @@
 import {LongRunningJobResult} from '../../jobs/types.js';
-import {Endpoint} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
-export interface DeleteCollaborationRequestEndpointParams {
+export interface DeleteCollaborationRequestEndpointParams
+  extends EndpointOptionalWorkspaceIdParam {
   requestId: string;
 }
 

@@ -12,13 +12,13 @@ import {
 } from '../endpoints.mddoc.js';
 import {AddTagEndpointParams, AddTagEndpointResult} from './addTag/types.js';
 import {tagConstants} from './constants.js';
-import {CountWorkspaceTagsEndpointParams} from './countWorkspaceTags/types.js';
+import {CountWorkspaceTagsEndpointParams} from './countTags/types.js';
 import {DeleteTagEndpointParams} from './deleteTag/types.js';
 import {GetTagEndpointParams, GetTagEndpointResult} from './getTag/types.js';
 import {
   GetWorkspaceTagsEndpointParams,
   GetWorkspaceTagsEndpointResult,
-} from './getWorkspaceTags/types.js';
+} from './getTags/types.js';
 import {
   AddTagHttpEndpoint,
   CountWorkspaceTagsHttpEndpoint,

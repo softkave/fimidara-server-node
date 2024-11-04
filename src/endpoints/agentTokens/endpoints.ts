@@ -1,8 +1,8 @@
 import {kEndpointTag} from '../types.js';
 import addAgentTokenEndpoint from './addToken/handler.js';
-import countWorkspaceAgentTokens from './countWorkspaceTokens/handler.js';
-import deleteAgentToken from './deleteToken/handler.js';
-import encodeAgentToken from './encodeToken/handler.js';
+import countWorkspaceAgentTokens from './countTokens/handler.js';
+import deleteAgentTokenEndpoint from './deleteToken/handler.js';
+import encodeAgentTokenEndpoint from './encodeToken/handler.js';
 import {
   addAgentTokenEndpointDefinition,
   countWorkspaceAgentTokensEndpointDefinition,
@@ -13,11 +13,11 @@ import {
   refreshAgentTokenEndpointDefinition,
   updateAgentTokenEndpointDefinition,
 } from './endpoints.mddoc.js';
-import getAgentToken from './getToken/handler.js';
-import getWorkspaceAgentTokens from './getWorkspaceTokens/handler.js';
-import refreshAgentToken from './refreshToken/handler.js';
+import getAgentTokenEndpoint from './getToken/handler.js';
+import getWorkspaceAgentTokens from './getTokens/handler.js';
+import refreshAgentTokenEndpoint from './refreshToken/handler.js';
 import {AgentTokensExportedEndpoints} from './types.js';
-import updateAgentToken from './updateToken/handler.js';
+import updateAgentTokenEndpoint from './updateToken/handler.js';
 
 export function getAgentTokenHttpEndpoints() {
   const agentTokensExportedEndpoints: AgentTokensExportedEndpoints = {
@@ -28,12 +28,12 @@ export function getAgentTokenHttpEndpoints() {
     },
     deleteToken: {
       tag: [kEndpointTag.public],
-      fn: deleteAgentToken,
+      fn: deleteAgentTokenEndpoint,
       mddocHttpDefinition: deleteAgentTokenEndpointDefinition,
     },
     getToken: {
       tag: [kEndpointTag.public],
-      fn: getAgentToken,
+      fn: getAgentTokenEndpoint,
       mddocHttpDefinition: getAgentTokenEndpointDefinition,
     },
     getWorkspaceTokens: {
@@ -48,17 +48,17 @@ export function getAgentTokenHttpEndpoints() {
     },
     updateToken: {
       tag: [kEndpointTag.public],
-      fn: updateAgentToken,
+      fn: updateAgentTokenEndpoint,
       mddocHttpDefinition: updateAgentTokenEndpointDefinition,
     },
     refreshToken: {
       tag: [kEndpointTag.public],
-      fn: refreshAgentToken,
+      fn: refreshAgentTokenEndpoint,
       mddocHttpDefinition: refreshAgentTokenEndpointDefinition,
     },
     encodeToken: {
       tag: [kEndpointTag.public],
-      fn: encodeAgentToken,
+      fn: encodeAgentTokenEndpoint,
       mddocHttpDefinition: encodeAgentTokenEndpointDefinition,
     },
   };

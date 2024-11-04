@@ -2,9 +2,10 @@ import {
   CollaborationRequestResponse,
   PublicCollaborationRequestForUser,
 } from '../../../definitions/collaborationRequest.js';
-import {Endpoint} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
-export interface RespondToCollaborationRequestEndpointParams {
+export interface RespondToCollaborationRequestEndpointParams
+  extends EndpointOptionalWorkspaceIdParam {
   requestId: string;
   response: CollaborationRequestResponse;
 }

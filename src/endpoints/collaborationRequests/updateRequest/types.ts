@@ -1,5 +1,5 @@
 import {PublicCollaborationRequestForWorkspace} from '../../../definitions/collaborationRequest.js';
-import {Endpoint} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
 export interface UpdateCollaborationRequestInput {
   message?: string;
@@ -7,7 +7,8 @@ export interface UpdateCollaborationRequestInput {
   // permissionGroupsAssignedOnAcceptingRequest?: AssignPermissionGroupInput[];
 }
 
-export interface UpdateCollaborationRequestEndpointParams {
+export interface UpdateCollaborationRequestEndpointParams
+  extends EndpointOptionalWorkspaceIdParam {
   requestId: string;
   request: UpdateCollaborationRequestInput;
 }

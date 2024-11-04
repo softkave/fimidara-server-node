@@ -1,12 +1,12 @@
 import {kEndpointTag} from '../types.js';
-import countWorkspaceSummedUsage from './countWorkspaceSummedUsage/handler.js';
+import countWorkspaceSummedUsage from './countSummedUsage/handler.js';
 import {
   countWorkspaceSummedUsageEndpointDefinition,
   getUsageCostsEndpointDefinition,
   getWorkspaceSummedUsageEndpointDefinition,
 } from './endpoints.mddoc.js';
+import getWorkspaceSummedUsage from './getSummedUsage/handler.js';
 import getUsageCosts from './getUsageCosts/handler.js';
-import getWorkspaceSummedUsage from './getWorkspaceSummedUsage/handler.js';
 import {UsageRecordsExportedEndpoints} from './types.js';
 
 export function getUsageRecordsHttpEndpoints() {

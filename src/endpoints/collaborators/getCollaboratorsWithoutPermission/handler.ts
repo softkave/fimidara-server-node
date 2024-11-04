@@ -12,7 +12,7 @@ import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
 import {PaginationQuery} from '../../types.js';
 import {checkWorkspaceExists} from '../../workspaces/utils.js';
-import {getWorkspaceCollaboratorsQuery} from '../getWorkspaceCollaborators/utils.js';
+import {getWorkspaceCollaboratorsQuery} from '../getCollaborators/utils.js';
 import {GetCollaboratorsWithoutPermissionEndpoint} from './types.js';
 import {getCollaboratorsWithoutPermissionJoiSchema} from './validation.js';
 

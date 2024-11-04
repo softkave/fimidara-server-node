@@ -1,30 +1,20 @@
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
-import {tryGetAgentTokenId} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
-import {tryGetWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {checkAgentTokenAuthorization02} from '../utils.js';
 import {DeleteAgentTokenEndpoint} from './types.js';
 import {beginDeleteAgentToken} from './utils.js';
 import {deleteAgentTokenJoiSchema} from './validation.js';
 
-const deleteAgentToken: DeleteAgentTokenEndpoint = async reqData => {
+const deleteAgentTokenEndpoint: DeleteAgentTokenEndpoint = async reqData => {
   const data = validate(reqData.data, deleteAgentTokenJoiSchema);
-  const agent = await kUtilsInjectables
-    .session()
-    .getAgentFromReq(
-      reqData,
-      kSessionUtils.permittedAgentType.api,
-      kSessionUtils.accessScope.api
-    );
-  const tokenId = tryGetAgentTokenId(agent, data.tokenId, data.onReferenced);
-  const {workspace} = await tryGetWorkspaceFromEndpointInput(agent, data);
+  const {agent, workspace} = await initEndpoint(reqData, {data});
+
   const {token} = await checkAgentTokenAuthorization02(
     agent,
     workspace?.resourceId,
-    tokenId,
+    data.tokenId,
     data.providedResourceId,
     kFimidaraPermissionActions.deleteAgentToken
   );
@@ -41,4 +31,4 @@ const deleteAgentToken: DeleteAgentTokenEndpoint = async reqData => {
   return {jobId: job.resourceId};
 };
 
-export default deleteAgentToken;
+export default deleteAgentTokenEndpoint;

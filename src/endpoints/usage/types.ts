@@ -1,7 +1,7 @@
 import {ExportedHttpEndpointWithMddocDefinition} from '../types.js';
-import {CountWorkspaceSummedUsageEndpoint} from './countWorkspaceSummedUsage/types.js';
+import {CountWorkspaceSummedUsageEndpoint} from './countSummedUsage/types.js';
+import {GetWorkspaceSummedUsageEndpoint} from './getSummedUsage/types.js';
 import {GetUsageCostsEndpoint} from './getUsageCosts/types.js';
-import {GetWorkspaceSummedUsageEndpoint} from './getWorkspaceSummedUsage/types.js';
 
 export type GetUsageCostsHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<GetUsageCostsEndpoint>;

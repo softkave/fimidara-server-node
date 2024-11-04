@@ -4,7 +4,6 @@ import {Endpoint, EndpointWorkspaceResourceParam} from '../../types.js';
 export interface GetAgentTokenEndpointParams
   extends EndpointWorkspaceResourceParam {
   tokenId?: string;
-  onReferenced?: boolean;
   shouldEncode?: boolean;
 }
 

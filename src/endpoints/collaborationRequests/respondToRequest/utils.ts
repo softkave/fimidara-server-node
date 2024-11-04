@@ -29,7 +29,7 @@ import {assertWorkspace} from '../../workspaces/utils.js';
 import {assertCollaborationRequest} from '../utils.js';
 import {RespondToCollaborationRequestEndpointParams} from './types.js';
 
-export const INTERNAL_RespondToCollaborationRequest = async (
+export const respondToCollaborationRequest = async (
   agent: SessionAgent,
   data: RespondToCollaborationRequestEndpointParams,
   opts: SemanticProviderMutationParams

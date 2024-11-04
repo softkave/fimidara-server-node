@@ -1,12 +1,10 @@
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
 import {assertUpdateNotEmpty} from '../../utils.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {
   assertCollaborationRequest,
   checkCollaborationRequestAuthorization02,
@@ -15,26 +13,19 @@ import {
 import {UpdateCollaborationRequestEndpoint} from './types.js';
 import {updateCollaborationRequestJoiSchema} from './validation.js';
 
-const updateCollaborationRequest: UpdateCollaborationRequestEndpoint =
+const updateCollaborationRequestEndpoint: UpdateCollaborationRequestEndpoint =
   async reqData => {
     const data = validate(reqData.data, updateCollaborationRequestJoiSchema);
     assertUpdateNotEmpty(data.request);
-    const agent = await kUtilsInjectables
-      .session()
-      .getAgentFromReq(
-        reqData,
-        kSessionUtils.permittedAgentType.api,
-        kSessionUtils.accessScope.api
-      );
+    const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
     const {request} = await kSemanticModels.utils().withTxn(async opts => {
-      const {request, workspace} =
-        await checkCollaborationRequestAuthorization02(
-          agent,
-          data.requestId,
-          'updateCollaborationRequest',
-          opts
-        );
+      const {request} = await checkCollaborationRequestAuthorization02({
+        agent,
+        workspaceId,
+        requestId: data.requestId,
+        action: kFimidaraPermissionActions.updateCollaborationRequest,
+      });
 
       const updatedRequest = await kSemanticModels
         .collaborationRequest()
@@ -50,11 +41,11 @@ const updateCollaborationRequest: UpdateCollaborationRequestEndpoint =
         );
 
       assertCollaborationRequest(updatedRequest);
-      return {workspace, request: updatedRequest};
+      return {request: updatedRequest};
     });
 
     // TODO: send email if request description changed
     return {request: collaborationRequestForWorkspaceExtractor(request)};
   };
 
-export default updateCollaborationRequest;
+export default updateCollaborationRequestEndpoint;

@@ -17,7 +17,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
-import deleteAgentToken from './handler.js';
+import deleteAgentTokenEndpoint from './handler.js';
 import {DeleteAgentTokenEndpointParams} from './types.js';
 
 /**
@@ -46,7 +46,7 @@ test('Agent token deleted', async () => {
       {tokenId: token.resourceId, workspaceId: workspace.resourceId}
     );
 
-  const result = await deleteAgentToken(reqData);
+  const result = await deleteAgentTokenEndpoint(reqData);
   assertEndpointResultOk(result);
 
   assert(result.jobId);

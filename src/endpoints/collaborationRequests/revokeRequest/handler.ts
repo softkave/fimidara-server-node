@@ -1,4 +1,3 @@
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
@@ -9,11 +8,13 @@ import {
   kEmailJobType,
   kJobType,
 } from '../../../definitions/job.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {validate} from '../../../utils/validate.js';
 import {InvalidRequestError} from '../../errors.js';
 import {queueJobs} from '../../jobs/queueJobs.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {
   assertCollaborationRequest,
   checkCollaborationRequestAuthorization02,
@@ -22,62 +23,42 @@ import {
 import {RevokeCollaborationRequestEndpoint} from './types.js';
 import {revokeCollaborationRequestJoiSchema} from './validation.js';
 
-const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint =
+const revokeCollaborationRequestEndpoint: RevokeCollaborationRequestEndpoint =
   async reqData => {
     const data = validate(reqData.data, revokeCollaborationRequestJoiSchema);
-    const agent = await kUtilsInjectables
-      .session()
-      .getAgentFromReq(
-        reqData,
-        kSessionUtils.permittedAgentType.api,
-        kSessionUtils.accessScope.api
-      );
+    const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
-    const {request, workspace} = await kSemanticModels
-      .utils()
-      .withTxn(async opts => {
-        const {request, workspace} =
-          await checkCollaborationRequestAuthorization02(
-            agent,
-            data.requestId,
-            'revokeCollaborationRequest',
-            opts
-          );
-
-        const isRevoked =
-          request.status === kCollaborationRequestStatusTypeMap.Revoked;
-        appAssert(
-          isRevoked === false,
-          new InvalidRequestError('Collaboration request already revoked')
-        );
-        const updatedRequest = await kSemanticModels
-          .collaborationRequest()
-          .getAndUpdateOneById(
-            data.requestId,
-            {
-              statusDate: getTimestamp(),
-              status: kCollaborationRequestStatusTypeMap.Revoked,
-            },
-            opts
-          );
-
-        assertCollaborationRequest(updatedRequest);
-        return {workspace, request: updatedRequest};
+    const {request} = await kSemanticModels.utils().withTxn(async opts => {
+      const {request} = await checkCollaborationRequestAuthorization02({
+        agent,
+        workspaceId,
+        requestId: data.requestId,
+        action: kFimidaraPermissionActions.revokeCollaborationRequest,
       });
 
-    kUtilsInjectables.promises().forget(
-      // queueEmailMessage(
-      //   request.recipientEmail,
-      //   {
-      //     type: kEmailMessageType.collaborationRequestRevoked,
-      //     params: {requestId: request.resourceId},
-      //   },
-      //   workspace.resourceId,
-      //   undefined,
-      //   {reuseTxn: false}
-      // )
+      const isRevoked =
+        request.status === kCollaborationRequestStatusTypeMap.Revoked;
+      appAssert(
+        isRevoked === false,
+        new InvalidRequestError('Collaboration request already revoked')
+      );
+      const updatedRequest = await kSemanticModels
+        .collaborationRequest()
+        .getAndUpdateOneById(
+          data.requestId,
+          {
+            statusDate: getTimestamp(),
+            status: kCollaborationRequestStatusTypeMap.Revoked,
+          },
+          opts
+        );
 
-      queueJobs<EmailJobParams>(workspace.resourceId, undefined, {
+      assertCollaborationRequest(updatedRequest);
+      return {request: updatedRequest};
+    });
+
+    kUtilsInjectables.promises().forget(
+      queueJobs<EmailJobParams>(workspaceId, /** parentJobId */ undefined, {
         type: kJobType.email,
         createdBy: agent,
         idempotencyToken: Date.now().toString(),
@@ -93,4 +74,4 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint =
     return {request: collaborationRequestForWorkspaceExtractor(request)};
   };
 
-export default revokeCollaborationRequest;
+export default revokeCollaborationRequestEndpoint;

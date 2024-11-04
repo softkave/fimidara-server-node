@@ -4,7 +4,6 @@ import {Endpoint, EndpointWorkspaceResourceParam} from '../../types.js';
 export interface EncodeAgentTokenEndpointParams
   extends EndpointWorkspaceResourceParam {
   tokenId?: string;
-  onReferenced?: boolean;
 }
 
 export type EncodeAgentTokenEndpointResult = EncodedAgentToken;

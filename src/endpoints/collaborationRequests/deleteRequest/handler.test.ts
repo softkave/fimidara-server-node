@@ -17,7 +17,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
-import deleteCollaborationRequest from './handler.js';
+import deleteCollaborationRequestEndpoint from './handler.js';
 import {DeleteCollaborationRequestEndpointParams} from './types.js';
 
 beforeAll(async () => {
@@ -38,7 +38,7 @@ test('collaboration request deleted', async () => {
       {requestId: request.resourceId}
     );
 
-  const result = await deleteCollaborationRequest(reqData);
+  const result = await deleteCollaborationRequestEndpoint(reqData);
   assertEndpointResultOk(result);
 
   assert(result.jobId);

@@ -1,34 +1,32 @@
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
 } from '../../../contexts/injection/injectables.js';
 import {validate} from '../../../utils/validate.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {collaborationRequestForUserExtractor} from '../utils.js';
 import {RespondToCollaborationRequestEndpoint} from './types.js';
 import {
-  INTERNAL_RespondToCollaborationRequest,
   notifySenderOnCollaborationRequestResponse,
+  respondToCollaborationRequest,
 } from './utils.js';
 import {respondToCollaborationRequestJoiSchema} from './validation.js';
 
-const respondToCollaborationRequest: RespondToCollaborationRequestEndpoint =
+const respondToCollaborationRequestEndpoint: RespondToCollaborationRequestEndpoint =
   async reqData => {
     const data = validate(reqData.data, respondToCollaborationRequestJoiSchema);
-    const agent = await kUtilsInjectables
-      .session()
-      .getAgentFromReq(
-        reqData,
-        kSessionUtils.permittedAgentType.user,
-        kSessionUtils.accessScope.user
-      );
+    const {agent} = await initEndpoint(reqData, {data});
 
     const request = await kSemanticModels.utils().withTxn(async opts => {
-      return await INTERNAL_RespondToCollaborationRequest(agent, data, opts);
+      return await respondToCollaborationRequest(agent, data, opts);
     });
 
-    await notifySenderOnCollaborationRequestResponse(request);
+    // TODO: use change streams
+    kUtilsInjectables
+      .promises()
+      .forget(notifySenderOnCollaborationRequestResponse(request));
+
     return {request: collaborationRequestForUserExtractor(request)};
   };
 
-export default respondToCollaborationRequest;
+export default respondToCollaborationRequestEndpoint;

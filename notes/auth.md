@@ -11,3 +11,5 @@
 - shard redundancy + replacement
 - resource ID map for arbitrary depth
 - email not required + actions
+- internal v external extractors
+- all db fetch should use semantics + workspaceId

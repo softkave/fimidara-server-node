@@ -14,7 +14,6 @@ import {getFields, makeExtract, makeListExtract} from '../../utils/extract.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {NotFoundError} from '../errors.js';
 import {resourceFields, workspaceResourceFields} from '../extractors.js';
-import {checkWorkspaceExists} from '../workspaces/utils.js';
 
 const userCollaborationRequestForUserFields =
   getFields<PublicCollaborationRequestForUser>({
@@ -44,34 +43,44 @@ const userCollaborationRequestForWorkspaceFields =
     //   data ? assignedPermissionGroupsListExtractor(data) : [],
   });
 
-export async function checkCollaborationRequestAuthorization(
-  agent: SessionAgent,
-  request: CollaborationRequest,
-  action: FimidaraPermissionAction,
-  opts?: SemanticProviderOpParams
-) {
-  const workspace = await checkWorkspaceExists(request.workspaceId);
+export async function checkCollaborationRequestAuthorization(params: {
+  agent: SessionAgent;
+  request: CollaborationRequest;
+  action: FimidaraPermissionAction;
+  workspaceId: string;
+  opts?: SemanticProviderOpParams;
+}) {
+  const {agent, request, action, workspaceId, opts} = params;
   await checkAuthorizationWithAgent({
     agent,
     opts,
-    workspaceId: workspace.resourceId,
-    workspace: workspace,
+    workspaceId,
     target: {action, targetId: request.resourceId},
   });
-  return {agent, request, workspace};
+
+  return {agent, request};
 }
 
-export async function checkCollaborationRequestAuthorization02(
-  agent: SessionAgent,
-  requestId: string,
-  action: FimidaraPermissionAction,
-  opts?: SemanticProviderOpParams
-) {
+export async function checkCollaborationRequestAuthorization02(params: {
+  agent: SessionAgent;
+  requestId: string;
+  action: FimidaraPermissionAction;
+  workspaceId: string;
+  opts?: SemanticProviderOpParams;
+}) {
+  const {agent, requestId, action, workspaceId, opts} = params;
   const request = await kSemanticModels
     .collaborationRequest()
     .getOneById(requestId, opts);
   assertCollaborationRequest(request);
-  return checkCollaborationRequestAuthorization(agent, request, action);
+
+  return checkCollaborationRequestAuthorization({
+    agent,
+    request,
+    action,
+    workspaceId,
+    opts,
+  });
 }
 
 export const collaborationRequestForUserExtractor = makeExtract(

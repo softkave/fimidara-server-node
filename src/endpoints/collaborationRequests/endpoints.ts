@@ -1,7 +1,7 @@
 import {kEndpointTag} from '../types.js';
+import countWorkspaceCollaborationRequests from './countRequests/handler.js';
 import countUserCollaborationRequests from './countUserRequests/handler.js';
-import countWorkspaceCollaborationRequests from './countWorkspaceRequests/handler.js';
-import deleteCollaborationRequest from './deleteRequest/handler.js';
+import deleteCollaborationRequestEndpoint from './deleteRequest/handler.js';
 import {
   countUserCollaborationRequestsEndpointDefinition,
   countWorkspaceCollaborationRequestsEndpointDefinition,
@@ -15,22 +15,22 @@ import {
   sendCollaborationRequestEndpointDefinition,
   updateCollaborationRequestEndpointDefinition,
 } from './endpoints.mddoc.js';
+import getWorkspaceCollaborationRequest from './getRequest/handler.js';
+import getWorkspaceCollaborationRequests from './getRequests/handler.js';
 import getUserCollaborationRequest from './getUserRequest/handler.js';
 import getUserCollaborationRequests from './getUserRequests/handler.js';
-import getWorkspaceCollaborationRequest from './getWorkspaceRequest/handler.js';
-import getWorkspaceCollaborationRequests from './getWorkspaceRequests/handler.js';
-import respondToCollaborationRequest from './respondToRequest/handler.js';
-import revokeCollaborationRequest from './revokeRequest/handler.js';
-import sendCollaborationRequest from './sendRequest/handler.js';
+import respondToCollaborationRequestEndpoint from './respondToRequest/handler.js';
+import revokeCollaborationRequestEndpoint from './revokeRequest/handler.js';
+import sendCollaborationRequestEndpoint from './sendRequest/handler.js';
 import {CollaborationRequestsExportedEndpoints} from './types.js';
-import updateCollaborationRequest from './updateRequest/handler.js';
+import updateCollaborationRequestEndpoint from './updateRequest/handler.js';
 
 export function getCollaborationRequestsHttpEndpoints() {
   const collaborationRequestsExportedEndpoints: CollaborationRequestsExportedEndpoints =
     {
       deleteRequest: {
         tag: [kEndpointTag.public],
-        fn: deleteCollaborationRequest,
+        fn: deleteCollaborationRequestEndpoint,
         mddocHttpDefinition: deleteCollaborationRequestEndpointDefinition,
       },
       getUserRequest: {
@@ -67,22 +67,22 @@ export function getCollaborationRequestsHttpEndpoints() {
       },
       respondToRequest: {
         tag: [kEndpointTag.private],
-        fn: respondToCollaborationRequest,
+        fn: respondToCollaborationRequestEndpoint,
         mddocHttpDefinition: respondToCollaborationRequestEndpointDefinition,
       },
       revokeRequest: {
         tag: [kEndpointTag.public],
-        fn: revokeCollaborationRequest,
+        fn: revokeCollaborationRequestEndpoint,
         mddocHttpDefinition: revokeCollaborationRequestEndpointDefinition,
       },
       sendRequest: {
         tag: [kEndpointTag.public],
-        fn: sendCollaborationRequest,
+        fn: sendCollaborationRequestEndpoint,
         mddocHttpDefinition: sendCollaborationRequestEndpointDefinition,
       },
       updateRequest: {
         tag: [kEndpointTag.public],
-        fn: updateCollaborationRequest,
+        fn: updateCollaborationRequestEndpoint,
         mddocHttpDefinition: updateCollaborationRequestEndpointDefinition,
       },
     };

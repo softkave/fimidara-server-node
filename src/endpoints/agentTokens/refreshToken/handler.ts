@@ -7,7 +7,7 @@ import {encodeAgentToken} from '../utils.js';
 import {RefreshAgentTokenEndpoint} from './types.js';
 import {refreshAgentTokenJoiSchema} from './validation.js';
 
-const refreshAgentToken: RefreshAgentTokenEndpoint = async reqData => {
+const refreshAgentTokenEndpoint: RefreshAgentTokenEndpoint = async reqData => {
   const data = validate(reqData.data, refreshAgentTokenJoiSchema);
 
   const agent = await kUtilsInjectables
@@ -37,4 +37,4 @@ const refreshAgentToken: RefreshAgentTokenEndpoint = async reqData => {
   return await encodeAgentToken(token);
 };
 
-export default refreshAgentToken;
+export default refreshAgentTokenEndpoint;

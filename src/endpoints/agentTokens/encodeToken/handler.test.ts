@@ -9,7 +9,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
-import encodeAgentToken from './handler.js';
+import encodeAgentTokenEndpoint from './handler.js';
 import {EncodeAgentTokenEndpointParams} from './types.js';
 
 beforeAll(async () => {
@@ -37,7 +37,7 @@ describe('encodeAgentToken', () => {
           mockExpressRequestWithAgentToken(userToken),
           {tokenId: token01.resourceId, workspaceId: workspace.resourceId}
         );
-      const result = await encodeAgentToken(reqData);
+      const result = await encodeAgentTokenEndpoint(reqData);
       assertEndpointResultOk(result);
 
       expect(result.jwtToken).toBeTruthy();

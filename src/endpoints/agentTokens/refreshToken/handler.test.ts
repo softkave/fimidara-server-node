@@ -13,7 +13,7 @@ import {
   mockExpressRequestWithAgentRefreshToken,
 } from '../../testUtils/testUtils.js';
 import {PermissionDeniedError} from '../../users/errors.js';
-import refreshAgentToken from './handler.js';
+import refreshAgentTokenEndpoint from './handler.js';
 import {RefreshAgentTokenEndpointParams} from './types.js';
 
 beforeAll(async () => {
@@ -44,7 +44,7 @@ describe('refreshAgentToken', () => {
         await mockExpressRequestWithAgentRefreshToken(token01),
         {refreshToken: token01.refreshToken}
       );
-    const result = await refreshAgentToken(reqData);
+    const result = await refreshAgentTokenEndpoint(reqData);
     assertEndpointResultOk(result);
 
     expect(result.refreshToken).not.toBe(token01.refreshToken);
@@ -70,7 +70,7 @@ describe('refreshAgentToken', () => {
           await mockExpressRequestWithAgentRefreshToken(token01),
           {refreshToken: await argon2.hash(getNewId())}
         );
-      await refreshAgentToken(reqData);
+      await refreshAgentTokenEndpoint(reqData);
     }).rejects.toThrow(PermissionDeniedError);
   });
 });

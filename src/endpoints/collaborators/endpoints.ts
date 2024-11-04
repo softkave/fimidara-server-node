@@ -1,5 +1,5 @@
 import {kEndpointTag} from '../types.js';
-import countWorkspaceCollaborators from './countWorkspaceCollaborators/handler.js';
+import countWorkspaceCollaborators from './countCollaborators/handler.js';
 import {
   countWorkspaceCollaboratorsEndpointDefinition,
   getCollaboratorEndpointDefinition,
@@ -8,8 +8,8 @@ import {
   removeCollaboratorEndpointDefinition,
 } from './endpoints.mddoc.js';
 import getCollaborator from './getCollaborator/handler.js';
+import getWorkspaceCollaborators from './getCollaborators/handler.js';
 import getCollaboratorsWithoutPermission from './getCollaboratorsWithoutPermission/handler.js';
-import getWorkspaceCollaborators from './getWorkspaceCollaborators/handler.js';
 import removeCollaborator from './removeCollaborator/handler.js';
 import {CollaboratorsExportedEndpoints} from './types.js';
 

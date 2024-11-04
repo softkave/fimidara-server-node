@@ -14,7 +14,7 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
 import {agentTokenExtractor, getPublicAgentToken} from '../utils.js';
-import updateAgentToken from './handler.js';
+import updateAgentTokenEndpoint from './handler.js';
 import {
   UpdateAgentTokenEndpointParams,
   UpdateAgentTokenInput,
@@ -55,7 +55,7 @@ test('agent token updated', async () => {
         workspaceId: workspace.resourceId,
       }
     );
-  const result = await updateAgentToken(reqData);
+  const result = await updateAgentTokenEndpoint(reqData);
   assertEndpointResultOk(result);
 
   const updatedToken = await getPublicAgentToken(
