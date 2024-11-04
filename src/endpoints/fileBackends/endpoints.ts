@@ -1,5 +1,5 @@
 import {kEndpointTag} from '../types.js';
-import addFileBackendConfig from './addConfig/handler.js';
+import addFileBackendConfigEndpoint from './addConfig/handler.js';
 import addFileBackendMountEndpoint from './addMount/handler.js';
 import countFileBackendConfigs from './countConfigs/handler.js';
 import countFileBackendMounts from './countMounts/handler.js';
@@ -69,7 +69,7 @@ export function getFileBackendsHttpEndpoints() {
 
     addConfig: {
       tag: [kEndpointTag.public],
-      fn: addFileBackendConfig,
+      fn: addFileBackendConfigEndpoint,
       mddocHttpDefinition: addFileBackendConfigEndpointDefinition,
     },
     deleteConfig: {

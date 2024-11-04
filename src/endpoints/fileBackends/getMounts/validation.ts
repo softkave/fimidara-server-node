@@ -1,6 +1,8 @@
-import Joi from 'joi';
-import {JoiSchemaParts} from '../../../utils/types.js';
-import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import {StrictSchemaMap} from 'joi';
+import {
+  kValidationSchemas,
+  startJoiObject,
+} from '../../../utils/validationUtils.js';
 import folderValidationSchemas from '../../folders/validation.js';
 import {endpointValidationSchemas} from '../../validation.js';
 import fileBackendValidationSchemas from '../validation.js';
@@ -9,7 +11,7 @@ import {
   GetFileBackendMountsEndpointParamsBase,
 } from './types.js';
 
-export const getFileBackendMountsBaseJoiSchemaParts: JoiSchemaParts<GetFileBackendMountsEndpointParamsBase> =
+export const getFileBackendMountsBaseJoiSchemaParts: StrictSchemaMap<GetFileBackendMountsEndpointParamsBase> =
   {
     ...endpointValidationSchemas.optionalWorkspaceIdParts,
     folderpath: folderValidationSchemas.folderpath,
@@ -18,9 +20,7 @@ export const getFileBackendMountsBaseJoiSchemaParts: JoiSchemaParts<GetFileBacke
   };
 
 export const getFileBackendMountsJoiSchema =
-  Joi.object<GetFileBackendMountsEndpointParams>()
-    .keys({
-      ...getFileBackendMountsBaseJoiSchemaParts,
-      ...endpointValidationSchemas.paginationParts,
-    })
-    .required();
+  startJoiObject<GetFileBackendMountsEndpointParams>({
+    ...getFileBackendMountsBaseJoiSchemaParts,
+    ...endpointValidationSchemas.paginationParts,
+  }).required();

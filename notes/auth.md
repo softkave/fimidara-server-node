@@ -13,3 +13,5 @@
 - email not required + actions
 - internal v external extractors
 - all db fetch should use semantics + workspaceId
+- check right target is used for all
+- add auth tests

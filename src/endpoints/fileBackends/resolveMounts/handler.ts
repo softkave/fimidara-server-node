@@ -1,8 +1,4 @@
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {File} from '../../../definitions/file.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
@@ -14,7 +10,7 @@ import {
   checkFolderAuthorization,
   getFolderpathInfo,
 } from '../../folders/utils.js';
-import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {resolveMountsForFolder} from '../mountUtils.js';
 import {fileBackendMountListExtractor} from '../utils.js';
 import {ResolveFileBackendMountsEndpoint} from './types.js';
@@ -27,14 +23,7 @@ const resolveFileBackendMounts: ResolveFileBackendMountsEndpoint =
       reqData.data,
       resolveWorkspaceFileBackendMountJoiSchema
     );
-    const agent = await kUtilsInjectables
-      .session()
-      .getAgentFromReq(
-        reqData,
-        kSessionUtils.permittedAgentType.api,
-        kSessionUtils.accessScope.api
-      );
-    const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
+    const {agent, workspace} = await initEndpoint(reqData, {data});
 
     let fileOrFolder: Pick<File, 'workspaceId' | 'namepath' | 'idPath'> | null =
       null;

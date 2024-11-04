@@ -1,8 +1,8 @@
-import Joi from 'joi';
+import {startJoiObject} from '../../../utils/validationUtils.js';
 import {getFileBackendConfigsBaseJoiSchemaParts} from '../getConfigs/validation.js';
 import {CountFileBackendConfigsEndpointParams} from './types.js';
 
 export const countWorkspaceAgentTokenJoiSchema =
-  Joi.object<CountFileBackendConfigsEndpointParams>()
-    .keys(getFileBackendConfigsBaseJoiSchemaParts)
-    .required();
+  startJoiObject<CountFileBackendConfigsEndpointParams>(
+    getFileBackendConfigsBaseJoiSchemaParts
+  ).required();

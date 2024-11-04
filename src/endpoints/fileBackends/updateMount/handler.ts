@@ -1,10 +1,6 @@
 import {pick} from 'lodash-es';
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {
   FileBackendMount,
   kFileBackendType,
@@ -28,10 +24,8 @@ import {
 } from '../../folders/utils.js';
 import {queueJobs} from '../../jobs/queueJobs.js';
 import {isResourceNameEqual} from '../../utils.js';
-import {
-  assertRootname,
-  getWorkspaceFromEndpointInput,
-} from '../../workspaces/utils.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
+import {assertRootname} from '../../workspaces/utils.js';
 import {
   fileBackendMountExtractor,
   mountExists,
@@ -46,21 +40,14 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint =
     const semanticUtils = kSemanticModels.utils();
 
     const data = validate(reqData.data, updateFileBackendMountJoiSchema);
-    const agent = await kUtilsInjectables
-      .session()
-      .getAgentFromReq(
-        reqData,
-        kSessionUtils.permittedAgentType.api,
-        kSessionUtils.accessScope.api
-      );
-    const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
+    const {agent, workspace} = await initEndpoint(reqData, {data});
+
     await checkAuthorizationWithAgent({
       agent,
-      workspace,
       workspaceId: workspace.resourceId,
       target: {
         action: kFimidaraPermissionActions.updateFileBackendMount,
-        targetId: workspace.resourceId,
+        targetId: data.mountId,
       },
     });
 

@@ -1,5 +1,5 @@
-import Joi from 'joi';
-import {JoiSchemaParts} from '../../../utils/types.js';
+import {StrictSchemaMap} from 'joi';
+import {startJoiObject} from '../../../utils/validationUtils.js';
 import {endpointValidationSchemas} from '../../validation.js';
 import fileBackendValidationSchemas from '../validation.js';
 import {
@@ -7,16 +7,14 @@ import {
   GetFileBackendConfigsEndpointParamsBase,
 } from './types.js';
 
-export const getFileBackendConfigsBaseJoiSchemaParts: JoiSchemaParts<GetFileBackendConfigsEndpointParamsBase> =
+export const getFileBackendConfigsBaseJoiSchemaParts: StrictSchemaMap<GetFileBackendConfigsEndpointParamsBase> =
   {
     ...endpointValidationSchemas.optionalWorkspaceIdParts,
     backend: fileBackendValidationSchemas.backend,
   };
 
 export const getFileBackendConfigsJoiSchema =
-  Joi.object<GetFileBackendConfigsEndpointParams>()
-    .keys({
-      ...getFileBackendConfigsBaseJoiSchemaParts,
-      ...endpointValidationSchemas.paginationParts,
-    })
-    .required();
+  startJoiObject<GetFileBackendConfigsEndpointParams>({
+    ...getFileBackendConfigsBaseJoiSchemaParts,
+    ...endpointValidationSchemas.paginationParts,
+  }).required();

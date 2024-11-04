@@ -27,7 +27,7 @@ import {
   CollaborationRequestInput,
   SendCollaborationRequestEndpointParams,
 } from '../collaborationRequests/sendRequest/types.js';
-import addFileBackendConfig from '../fileBackends/addConfig/handler.js';
+import addFileBackendConfigEndpoint from '../fileBackends/addConfig/handler.js';
 import {
   AddFileBackendConfigEndpointParams,
   NewFileBackendConfigInput,
@@ -298,7 +298,7 @@ export async function insertFileBackendConfigForTest(
       }
     );
 
-  const result = await addFileBackendConfig(reqData);
+  const result = await addFileBackendConfigEndpoint(reqData);
   assertEndpointResultOk(result);
 
   const rawConfig = await kSemanticModels

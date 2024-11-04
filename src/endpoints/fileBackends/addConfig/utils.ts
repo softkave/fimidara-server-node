@@ -12,7 +12,7 @@ import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import {configNameExists} from '../utils.js';
 import {NewFileBackendConfigInput} from './types.js';
 
-export const INTERNAL_addConfig = async (
+export const addFileBackendConfig = async (
   agent: Agent,
   workspace: Workspace,
   data: NewFileBackendConfigInput,
