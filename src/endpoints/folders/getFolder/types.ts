@@ -1,7 +1,10 @@
 import {FolderMatcher, PublicFolder} from '../../../definitions/folder.js';
-import {Endpoint} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
-export type GetFolderEndpointParams = FolderMatcher;
+export interface GetFolderEndpointParams
+  extends FolderMatcher,
+    EndpointOptionalWorkspaceIdParam {}
+
 export interface GetFolderEndpointResult {
   folder: PublicFolder;
 }

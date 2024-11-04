@@ -1,7 +1,8 @@
-import Joi from 'joi';
-import {FolderMatcher} from '../../../definitions/folder.js';
+import {startJoiObject} from '../../../utils/validationUtils.js';
 import {listFolderContentBaseJoiSchemaParts} from '../listFolderContent/validation.js';
+import {CountFolderContentEndpointParams} from './types.js';
 
-export const countFolderContentJoiSchema = Joi.object<FolderMatcher>()
-  .keys(listFolderContentBaseJoiSchemaParts)
-  .required();
+export const countFolderContentJoiSchema =
+  startJoiObject<CountFolderContentEndpointParams>(
+    listFolderContentBaseJoiSchemaParts
+  ).required();

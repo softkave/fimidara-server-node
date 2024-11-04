@@ -1,6 +1,7 @@
-import Joi from 'joi';
+import {startJoiObject} from '../../../utils/validationUtils.js';
 import folderValidationSchemas from '../validation.js';
+import {GetFolderEndpointParams} from './types.js';
 
-export const getFolderJoiSchema = Joi.object()
-  .keys(folderValidationSchemas.folderMatcherParts)
-  .required();
+export const getFolderJoiSchema = startJoiObject<GetFolderEndpointParams>(
+  folderValidationSchemas.folderMatcherParts
+).required();

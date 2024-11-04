@@ -1,8 +1,4 @@
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {Folder} from '../../../definitions/folder.js';
 import {
   SessionAgent,
@@ -15,6 +11,7 @@ import {
   kEndpointResultNoteCodeMap,
   kEndpointResultNotesToMessageMap,
 } from '../../types.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {
   getWorkspaceAndParentFolder,
   listFolderContentQuery,
@@ -24,13 +21,8 @@ import {countFolderContentJoiSchema} from './validation.js';
 
 const countFolderContent: CountFolderContentEndpoint = async reqData => {
   const data = validate(reqData.data, countFolderContentJoiSchema);
-  const agent = await kUtilsInjectables
-    .session()
-    .getAgentFromReq(
-      reqData,
-      kSessionUtils.permittedAgentType.api,
-      kSessionUtils.accessScope.api
-    );
+  const {agent} = await initEndpoint(reqData, {data});
+
   const {workspace, parentFolder} = await getWorkspaceAndParentFolder(
     agent,
     data

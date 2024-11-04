@@ -1,7 +1,13 @@
-import {Endpoint, EndpointResultNote} from '../../types.js';
+import {
+  Endpoint,
+  EndpointOptionalWorkspaceIdParam,
+  EndpointResultNote,
+} from '../../types.js';
 import {ListFolderContentEndpointParamsBase} from '../listFolderContent/types.js';
 
-export type CountFolderContentEndpointParams = ListFolderContentEndpointParamsBase;
+export interface CountFolderContentEndpointParams
+  extends ListFolderContentEndpointParamsBase,
+    EndpointOptionalWorkspaceIdParam {}
 
 export interface CountFolderContentEndpointResult {
   foldersCount: number;

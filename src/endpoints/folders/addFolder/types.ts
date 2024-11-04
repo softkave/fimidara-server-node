@@ -1,6 +1,10 @@
 import {Folder, PublicFolder} from '../../../definitions/folder.js';
 import {Agent, SessionAgent} from '../../../definitions/system.js';
-import {Endpoint, EndpointResultNote} from '../../types.js';
+import {
+  Endpoint,
+  EndpointOptionalWorkspaceIdParam,
+  EndpointResultNote,
+} from '../../types.js';
 
 export interface NewFolderInput {
   /** folder path should include the workspace rootname */
@@ -8,7 +12,9 @@ export interface NewFolderInput {
   description?: string;
 }
 
-export interface AddFolderEndpointParams extends NewFolderInput {}
+export interface AddFolderEndpointParams
+  extends NewFolderInput,
+    EndpointOptionalWorkspaceIdParam {}
 
 export interface AddFolderEndpointResult {
   folder: PublicFolder;

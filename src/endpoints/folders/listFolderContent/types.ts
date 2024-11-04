@@ -3,12 +3,15 @@ import {FolderMatcher, PublicFolder} from '../../../definitions/folder.js';
 import {FimidaraResourceType} from '../../../definitions/system.js';
 import {
   Endpoint,
+  EndpointOptionalWorkspaceIdParam,
   EndpointResultNote,
   PaginatedResult,
   PaginationQuery,
 } from '../../types.js';
 
-export interface ListFolderContentEndpointParamsBase extends FolderMatcher {
+export interface ListFolderContentEndpointParamsBase
+  extends FolderMatcher,
+    EndpointOptionalWorkspaceIdParam {
   contentType?: FimidaraResourceType;
 }
 

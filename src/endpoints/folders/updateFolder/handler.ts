@@ -1,9 +1,5 @@
 import {omit} from 'lodash-es';
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {Folder} from '../../../definitions/folder.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
@@ -16,16 +12,12 @@ import {
 } from '../utils.js';
 import {UpdateFolderEndpoint} from './types.js';
 import {updateFolderJoiSchema} from './validation.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 
 const updateFolder: UpdateFolderEndpoint = async reqData => {
   const data = validate(reqData.data, updateFolderJoiSchema);
-  const agent = await kUtilsInjectables
-    .session()
-    .getAgentFromReq(
-      reqData,
-      kSessionUtils.permittedAgentType.api,
-      kSessionUtils.accessScope.api
-    );
+  const {agent} = await initEndpoint(reqData, {data});
+
   let folder = await kSemanticModels.utils().withTxn(async opts => {
     const {folder} = await checkFolderAuthorization02(
       agent,
