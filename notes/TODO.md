@@ -80,6 +80,9 @@
 
 - login
 - mute errors not fatal in fimidara sync
+  - handle errors per file or global error like auth globally
+  - show only error message
+- show files it's working on/skipping
 - maybe add an option to show files and folders interacted with
 
 ## NextJs
