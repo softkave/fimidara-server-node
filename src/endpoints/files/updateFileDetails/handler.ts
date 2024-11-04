@@ -1,14 +1,11 @@
 import {omit} from 'lodash-es';
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {objectHasData} from '../../../utils/fns.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {assertWorkspace} from '../../workspaces/utils.js';
 import {
   assertFile,
@@ -25,17 +22,13 @@ import {updateFileDetailsJoiSchema} from './validation.js';
 
 const updateFileDetails: UpdateFileDetailsEndpoint = async reqData => {
   const data = validate(reqData.data, updateFileDetailsJoiSchema);
-  const agent = await kUtilsInjectables
-    .session()
-    .getAgentFromReq(
-      reqData,
-      kSessionUtils.permittedAgentType.api,
-      kSessionUtils.accessScope.api
-    );
+  const {agent, workspaceId} = await initEndpoint(reqData, {data});
+
   const file = await kSemanticModels.utils().withTxn(async opts => {
     let file = await getAndCheckFileAuthorization({
       agent,
       opts,
+      workspaceId,
       matcher: data,
       action: kFimidaraPermissionActions.uploadFile,
       incrementPresignedPathUsageCount: true,

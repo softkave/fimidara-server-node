@@ -1,6 +1,12 @@
 import {FileMatcher} from '../../../definitions/file.js';
 import {LongRunningJobResult} from '../../jobs/types.js';
-import {Endpoint} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
-export type DeleteFileEndpointParams = FileMatcher;
-export type DeleteFileEndpoint = Endpoint<DeleteFileEndpointParams, LongRunningJobResult>;
+export interface DeleteFileEndpointParams
+  extends FileMatcher,
+    EndpointOptionalWorkspaceIdParam {}
+
+export type DeleteFileEndpoint = Endpoint<
+  DeleteFileEndpointParams,
+  LongRunningJobResult
+>;

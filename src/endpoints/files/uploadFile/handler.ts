@@ -1,5 +1,4 @@
 import {pick} from 'lodash-es';
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
@@ -28,6 +27,7 @@ import {
   incrementStorageEverConsumedUsageRecord,
   incrementStorageUsageRecord,
 } from '../../usage/usageFns.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {FileNotWritableError} from '../errors.js';
 import {getFileWithMatcher} from '../getFilesWithMatcher.js';
 import {
@@ -66,13 +66,9 @@ async function createAndInsertNewFile(
 
 const uploadFile: UploadFileEndpoint = async reqData => {
   const data = validate(reqData.data, uploadFileJoiSchema);
-  const agent = await kUtilsInjectables
-    .session()
-    .getAgentFromReq(
-      reqData,
-      kSessionUtils.permittedAgentType.api,
-      kSessionUtils.accessScope.api
-    );
+
+  // TODO
+  const {agent} = await initEndpoint(reqData, {data});
 
   // eslint-disable-next-line prefer-const
   let {file, isNewFile} = await kSemanticModels.utils().withTxn(async opts => {

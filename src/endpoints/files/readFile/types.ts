@@ -1,7 +1,7 @@
 import {Readable} from 'stream';
 import {ValueOf} from 'type-fest';
 import {FileMatcher} from '../../../definitions/file.js';
-import {Endpoint} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
 export const ImageResizeFitEnumMap = {
   contain: 'contain',
@@ -73,12 +73,14 @@ export const ImageFormatEnumMap = {
 } as const;
 export type ImageFormatEnum = ValueOf<typeof ImageFormatEnumMap>;
 
-export type ReadFileEndpointParams = {
+export interface ReadFileEndpointParams
+  extends FileMatcher,
+    EndpointOptionalWorkspaceIdParam {
   imageResize?: ImageResizeParams;
   imageFormat?: ImageFormatEnum;
   /** Used by HTTP layer to add `"Content-Disposition: attachment"` if `true` */
   download?: boolean;
-} & FileMatcher;
+}
 
 export interface ReadFileEndpointResult {
   contentLength?: number;

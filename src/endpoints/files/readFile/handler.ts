@@ -1,7 +1,6 @@
 import {compact} from 'lodash-es';
 import sharp from 'sharp';
 import {PassThrough, Readable} from 'stream';
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {
   checkAuthorizationWithAgent,
   getFilePermissionContainers,
@@ -22,6 +21,7 @@ import {
   resolveMountsForFolder,
 } from '../../fileBackends/mountUtils.js';
 import {incrementBandwidthOutUsageRecord} from '../../usage/usageFns.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {getFileWithMatcher} from '../getFilesWithMatcher.js';
 import {assertFile, stringifyFilenamepath} from '../utils.js';
 import {ReadFileEndpoint} from './types.js';
@@ -32,13 +32,7 @@ import {readFileJoiSchema} from './validation.js';
 
 const readFile: ReadFileEndpoint = async reqData => {
   const data = validate(reqData.data, readFileJoiSchema);
-  const agent = await kUtilsInjectables
-    .session()
-    .getAgentFromReq(
-      reqData,
-      kSessionUtils.permittedAgentType.api,
-      kSessionUtils.accessScope.api
-    );
+  const {agent} = await initEndpoint(reqData, {data});
 
   const file = await await kSemanticModels.utils().withTxn(async opts => {
     const {file, presignedPath} = await getFileWithMatcher({

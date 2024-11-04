@@ -1,7 +1,9 @@
-import Joi from 'joi';
+import {startJoiObject} from '../../../utils/validationUtils.js';
+import {endpointValidationSchemas} from '../../validation.js';
 import fileValidationSchemas from '../validation.js';
 import {DeleteFileEndpointParams} from './types.js';
 
-export const deleteFileJoiSchema = Joi.object<DeleteFileEndpointParams>()
-  .keys(fileValidationSchemas.fileMatcherParts)
-  .required();
+export const deleteFileJoiSchema = startJoiObject<DeleteFileEndpointParams>({
+  ...endpointValidationSchemas.optionalWorkspaceIdParts,
+  ...fileValidationSchemas.fileMatcherParts,
+}).required();

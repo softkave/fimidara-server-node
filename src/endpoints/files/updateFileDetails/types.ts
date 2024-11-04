@@ -1,12 +1,14 @@
 import {FileMatcher, PublicFile} from '../../../definitions/file.js';
-import {Endpoint} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
 export interface UpdateFileDetailsInput {
   description?: string;
   mimetype?: string;
 }
 
-export interface UpdateFileDetailsEndpointParams extends FileMatcher {
+export interface UpdateFileDetailsEndpointParams
+  extends FileMatcher,
+    EndpointOptionalWorkspaceIdParam {
   file: UpdateFileDetailsInput;
 }
 

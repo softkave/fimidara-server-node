@@ -1,7 +1,9 @@
 import {FileMatcher, PublicFile} from '../../../definitions/file.js';
-import {Endpoint} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
-export type GetFileDetailsEndpointParams = FileMatcher;
+export interface GetFileDetailsEndpointParams
+  extends FileMatcher,
+    EndpointOptionalWorkspaceIdParam {}
 
 export interface GetFileDetailsEndpointResult {
   file: PublicFile;

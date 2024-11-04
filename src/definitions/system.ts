@@ -167,7 +167,7 @@ export interface ResourceWrapper<T extends Resource = Resource> {
 }
 
 export interface WorkspaceResource extends Resource {
-  workspaceId?: string;
+  workspaceId: string;
   providedResourceId?: string | null;
 }
 

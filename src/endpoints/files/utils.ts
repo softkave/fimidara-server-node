@@ -49,11 +49,7 @@ import {
   ensureFolders,
   getFolderpathInfo,
 } from '../folders/utils.js';
-import {
-  assertRootname,
-  assertWorkspace,
-  checkWorkspaceExists,
-} from '../workspaces/utils.js';
+import {assertRootname, assertWorkspace} from '../workspaces/utils.js';
 import {kFileConstants} from './constants.js';
 import {getFileWithMatcher} from './getFilesWithMatcher.js';
 
@@ -92,21 +88,20 @@ export async function checkFileAuthorization(
   agent: SessionAgent,
   file: Pick<File, 'idPath' | 'workspaceId'>,
   action: FimidaraPermissionAction,
+  workspaceId: string,
   opts?: SemanticProviderOpParams
 ) {
-  const workspace = await checkWorkspaceExists(file.workspaceId, opts);
   await checkAuthorizationWithAgent({
     agent,
-    workspace,
     opts,
-    workspaceId: workspace.resourceId,
+    workspaceId,
     target: {
       action,
-      targetId: getFilePermissionContainers(workspace.resourceId, file, true),
+      targetId: getFilePermissionContainers(workspaceId, file, true),
     },
   });
 
-  return {agent, file, workspace};
+  return {agent, file};
 }
 
 export async function getAndCheckFileAuthorization(props: {
@@ -115,6 +110,7 @@ export async function getAndCheckFileAuthorization(props: {
   action: FimidaraPermissionAction;
   opts: SemanticProviderMutationParams;
   incrementPresignedPathUsageCount: boolean;
+  workspaceId: string;
   shouldIngestFile?: boolean;
 }) {
   const {
@@ -123,8 +119,10 @@ export async function getAndCheckFileAuthorization(props: {
     action,
     opts,
     incrementPresignedPathUsageCount,
+    workspaceId,
     shouldIngestFile = true,
   } = props;
+
   const {file, presignedPath} = await getFileWithMatcher({
     matcher,
     opts,
@@ -137,7 +135,7 @@ export async function getAndCheckFileAuthorization(props: {
 
   if (!presignedPath) {
     // Permission is already checked if there's a `presignedPath`
-    await checkFileAuthorization(agent, file, action);
+    await checkFileAuthorization(agent, file, action, workspaceId);
   }
 
   return file;
