@@ -1,10 +1,10 @@
 import {FileMatcher} from '../../../definitions/file.js';
 import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
-export type GetPresignedPathsForFilesEndpointParams =
-  EndpointOptionalWorkspaceIdParam & {
-    files?: FileMatcher[];
-  };
+export interface GetPresignedPathsForFilesEndpointParams
+  extends EndpointOptionalWorkspaceIdParam {
+  files?: FileMatcher[];
+}
 
 export type GetPresignedPathsForFilesItem = {filepath: string} & {
   path: string;

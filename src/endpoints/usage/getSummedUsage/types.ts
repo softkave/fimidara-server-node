@@ -10,7 +10,7 @@ import {
   PaginationQuery,
 } from '../../types.js';
 
-export type WorkspaceSummedUsageQuery = {
+export type SummedUsageQuery = {
   category?: UsageRecordCategory | UsageRecordCategory[];
   fromDate?: number;
   toDate?: number;
@@ -21,7 +21,7 @@ export type WorkspaceSummedUsageQuery = {
 
 export interface GetSummedUsageEndpointParamsBase
   extends EndpointOptionalWorkspaceIdParam {
-  query?: WorkspaceSummedUsageQuery;
+  query?: SummedUsageQuery;
 }
 
 export interface GetSummedUsageEndpointParams

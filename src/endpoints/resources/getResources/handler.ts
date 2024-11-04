@@ -1,9 +1,6 @@
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
-import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
-import {checkWorkspaceExists} from '../../workspaces/utils.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {getPublicResourceList} from '../getPublicResource.js';
 import {INTERNAL_getResources} from '../getResources.js';
 import {GetResourcesEndpoint} from './types.js';
@@ -24,15 +21,8 @@ const kAllowedTypes = [
 
 const getResources: GetResourcesEndpoint = async reqData => {
   const data = validate(reqData.data, getResourcesJoiSchema);
-  const agent = await kUtilsInjectables
-    .session()
-    .getAgentFromReq(
-      reqData,
-      kSessionUtils.permittedAgentType.api,
-      kSessionUtils.accessScope.api
-    );
-  const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
-  const workspace = await checkWorkspaceExists(workspaceId);
+  const {agent, workspace, workspaceId} = await initEndpoint(reqData, {data});
+
   const resources = await INTERNAL_getResources({
     agent,
     allowedTypes: kAllowedTypes,

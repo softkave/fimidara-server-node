@@ -1,14 +1,12 @@
-import Joi from 'joi';
-import {JoiSchemaParts} from '../../../utils/types.js';
+import {StrictSchemaMap} from 'joi';
+import {startJoiObject} from '../../../utils/validationUtils.js';
 import {endpointValidationSchemas} from '../../validation.js';
 import {GetTagsEndpointParams, GetTagsEndpointParamsBase} from './types.js';
 
-export const getWorkspaceTagBaseJoiSchemaParts: JoiSchemaParts<GetTagsEndpointParamsBase> =
+export const getTagsBaseJoiSchemaParts: StrictSchemaMap<GetTagsEndpointParamsBase> =
   endpointValidationSchemas.optionalWorkspaceIdParts;
 
-export const getWorkspaceTagJoiSchema = Joi.object<GetTagsEndpointParams>()
-  .keys({
-    ...getWorkspaceTagBaseJoiSchemaParts,
-    ...endpointValidationSchemas.paginationParts,
-  })
-  .required();
+export const getTagsJoiSchema = startJoiObject<GetTagsEndpointParams>({
+  ...getTagsBaseJoiSchemaParts,
+  ...endpointValidationSchemas.paginationParts,
+}).required();

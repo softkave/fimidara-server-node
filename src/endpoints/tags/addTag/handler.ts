@@ -1,14 +1,10 @@
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {Tag} from '../../../definitions/tag.js';
 import {newWorkspaceResource} from '../../../utils/resource.js';
 import {validate} from '../../../utils/validate.js';
-import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {checkTagNameExists} from '../checkTagNameExists.js';
 import {tagExtractor} from '../utils.js';
 import {AddTagEndpoint} from './types.js';
@@ -16,22 +12,9 @@ import {addTagJoiSchema} from './validation.js';
 
 const addTag: AddTagEndpoint = async reqData => {
   const data = validate(reqData.data, addTagJoiSchema);
-  const agent = await kUtilsInjectables
-    .session()
-    .getAgentFromReq(
-      reqData,
-      kSessionUtils.permittedAgentType.api,
-      kSessionUtils.accessScope.api
-    );
-  const workspace = await checkWorkspaceExistsWithAgent(
-    agent,
-    data.workspaceId
-  );
-  await checkAuthorizationWithAgent({
-    agent,
-    workspace,
-    workspaceId: workspace.resourceId,
-    target: {targetId: workspace.resourceId, action: 'addTag'},
+  const {agent, workspace} = await initEndpoint(reqData, {
+    data,
+    action: kFimidaraPermissionActions.addTag,
   });
 
   const tag = newWorkspaceResource<Tag>(

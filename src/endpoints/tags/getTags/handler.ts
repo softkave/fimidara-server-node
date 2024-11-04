@@ -12,10 +12,10 @@ import {checkWorkspaceExistsWithAgent} from '../../workspaces/utils.js';
 import {tagExtractor} from '../utils.js';
 import {GetTagsEndpoint} from './types.js';
 import {getTagsQuery} from './utils.js';
-import {getWorkspaceTagJoiSchema} from './validation.js';
+import {getTagsJoiSchema} from './validation.js';
 
 const getTags: GetTagsEndpoint = async reqData => {
-  const data = validate(reqData.data, getWorkspaceTagJoiSchema);
+  const data = validate(reqData.data, getTagsJoiSchema);
   const agent = await kUtilsInjectables
     .session()
     .getAgentFromReq(

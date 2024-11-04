@@ -1,12 +1,8 @@
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {
   checkAuthorizationWithAgent,
   getResourcePermissionContainers,
 } from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {PresignedPath} from '../../../definitions/presignedPath.js';
 import {Resource, kFimidaraResourceType} from '../../../definitions/system.js';
@@ -19,19 +15,15 @@ import {validate} from '../../../utils/validate.js';
 import {getFileWithMatcher} from '../../files/getFilesWithMatcher.js';
 import {getFilepathInfo} from '../../files/utils.js';
 import {getClosestExistingFolder} from '../../folders/getFolderWithMatcher.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {assertRootname, assertWorkspace} from '../../workspaces/utils.js';
 import {IssuePresignedPathEndpoint} from './types.js';
 import {issuePresignedPathJoiSchema} from './validation.js';
 
 const issuePresignedPath: IssuePresignedPathEndpoint = async reqData => {
   const data = validate(reqData.data, issuePresignedPathJoiSchema);
-  const agent = await kUtilsInjectables
-    .session()
-    .getAgentFromReq(
-      reqData,
-      kSessionUtils.permittedAgentType.api,
-      kSessionUtils.accessScope.api
-    );
+  const {agent} = await initEndpoint(reqData, {data});
+
   const actions = data.action || [kFimidaraPermissionActions.readFile];
 
   const resource = await await kSemanticModels.utils().withTxn(async opts => {

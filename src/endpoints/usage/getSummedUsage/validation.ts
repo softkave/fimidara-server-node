@@ -1,15 +1,17 @@
-import Joi from 'joi';
+import Joi, {StrictSchemaMap} from 'joi';
 import {
   kUsageRecordCategory,
   kUsageRecordFulfillmentStatus,
 } from '../../../definitions/usageRecord.js';
-import {JoiSchemaParts} from '../../../utils/types.js';
-import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import {
+  kValidationSchemas,
+  startJoiObject,
+} from '../../../utils/validationUtils.js';
 import {endpointValidationSchemas} from '../../validation.js';
 import {
   GetSummedUsageEndpointParams,
   GetSummedUsageEndpointParamsBase,
-  WorkspaceSummedUsageQuery,
+  SummedUsageQuery,
 } from './types.js';
 
 const category = Joi.string().valid(...Object.values(kUsageRecordCategory));
@@ -27,23 +29,21 @@ const fulfillmentStateOrArray = Joi.alternatives().try(
     .max(Object.values(kUsageRecordFulfillmentStatus).length)
 );
 
-const queryJoiSchema = Joi.object<WorkspaceSummedUsageQuery>({
+const queryJoiSchema = startJoiObject<SummedUsageQuery>({
   category: categoryOrArray,
-  fromDate: endpointValidationSchemas.op(kValidationSchemas.time),
-  toDate: endpointValidationSchemas.op(kValidationSchemas.time),
+  fromDate: kValidationSchemas.time,
+  toDate: kValidationSchemas.time,
   fulfillmentStatus: fulfillmentStateOrArray,
 });
 
-export const getSummedUsageBaseJoiSchemaParts: JoiSchemaParts<GetSummedUsageEndpointParamsBase> =
+export const getSummedUsageBaseJoiSchemaParts: StrictSchemaMap<GetSummedUsageEndpointParamsBase> =
   {
     ...endpointValidationSchemas.optionalWorkspaceIdParts,
     query: queryJoiSchema,
   };
 
 export const getSummedUsageJoiSchema =
-  Joi.object<GetSummedUsageEndpointParams>()
-    .keys({
-      ...getSummedUsageBaseJoiSchemaParts,
-      ...endpointValidationSchemas.paginationParts,
-    })
-    .required();
+  startJoiObject<GetSummedUsageEndpointParams>({
+    ...getSummedUsageBaseJoiSchemaParts,
+    ...endpointValidationSchemas.paginationParts,
+  }).required();

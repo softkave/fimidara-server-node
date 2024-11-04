@@ -1,7 +1,7 @@
 import Joi from 'joi';
-import {getWorkspaceTagBaseJoiSchemaParts} from '../getTags/validation.js';
+import {getTagsBaseJoiSchemaParts} from '../getTags/validation.js';
 import {CountTagsEndpointParams} from './types.js';
 
-export const countWorkspaceTagJoiSchema = Joi.object<CountTagsEndpointParams>()
-  .keys(getWorkspaceTagBaseJoiSchemaParts)
+export const countTagsJoiSchema = Joi.object<CountTagsEndpointParams>()
+  .keys(getTagsBaseJoiSchemaParts)
   .required();

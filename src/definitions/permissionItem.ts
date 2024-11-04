@@ -57,7 +57,7 @@ export const kFimidaraPermissionActions = {
   deleteTag: 'deleteTag',
   assignTag: 'assignTag',
 
-  readUsageRecord: 'readUsageRecord',
+  readUsage: 'readUsage',
 
   addFileBackendConfig: 'addFileBackendConfig',
   deleteFileBackendConfig: 'deleteFileBackendConfig',

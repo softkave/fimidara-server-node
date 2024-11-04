@@ -1,10 +1,6 @@
 import {compact, keyBy, map, uniqBy} from 'lodash-es';
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {SemanticProviderOpParams} from '../../../contexts/semantic/types.js';
 import {FileMatcher} from '../../../definitions/file.js';
 import {PresignedPath} from '../../../definitions/presignedPath.js';
@@ -15,6 +11,7 @@ import {mergeData} from '../../../utils/fns.js';
 import {validate} from '../../../utils/validate.js';
 import {NotFoundError} from '../../errors.js';
 import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {assertRootname} from '../../workspaces/utils.js';
 import {
   GetPresignedPathsForFilesEndpoint,
@@ -27,13 +24,8 @@ import {getPresignedPathsForFilesJoiSchema} from './validation.js';
 const getPresignedPathsForFiles: GetPresignedPathsForFilesEndpoint =
   async reqData => {
     const data = validate(reqData.data, getPresignedPathsForFilesJoiSchema);
-    const agent = await kUtilsInjectables
-      .session()
-      .getAgentFromReq(
-        reqData,
-        kSessionUtils.permittedAgentType.api,
-        kSessionUtils.accessScope.api
-      );
+    const {agent} = await initEndpoint(reqData, {data});
+
     let pList: Array<PresignedPath> = [],
       workspaceDict: Record<string, Workspace> = {};
 
@@ -153,7 +145,7 @@ async function getPresignedPathsByFileMatchers(
     );
 
     await fetchAndMergeUnfetchedWorkspaces(pList, workspaceDict);
-    await checkAuthOnPresignedPaths(agent, pList, workspaceDict, opts);
+    await checkAuthOnPresignedPaths(agent, pList, opts);
 
     return {workspaceDict, pList};
   });
@@ -181,7 +173,6 @@ async function fetchAndMergeUnfetchedWorkspaces(
 async function checkAuthOnPresignedPaths(
   agent: SessionAgent,
   pList: PresignedPath[],
-  workspaceDict: Record<string, Workspace>,
   opts?: SemanticProviderOpParams
 ) {
   await Promise.all(
@@ -189,11 +180,9 @@ async function checkAuthOnPresignedPaths(
       // Only fileId because it represents that the file exists. No need to
       // check auth on a file that does not exist
       if (nextPath.fileId) {
-        const workspace = workspaceDict[nextPath.workspaceId];
         await checkAuthorizationWithAgent({
           agent,
           opts,
-          workspace: workspace || undefined,
           target: {targetId: nextPath.fileId, action: nextPath.actions},
           workspaceId: nextPath.workspaceId,
         });

@@ -1,8 +1,8 @@
-import Joi from 'joi';
-import {getWorkspaceSummedUsageBaseJoiSchemaParts} from '../getSummedUsage/validation.js';
+import {startJoiObject} from '../../../utils/validationUtils.js';
+import {getSummedUsageBaseJoiSchemaParts} from '../getSummedUsage/validation.js';
 import {CountSummedUsageEndpointParams} from './types.js';
 
 export const countSummedUsageJoiSchema =
-  Joi.object<CountSummedUsageEndpointParams>()
-    .keys(getWorkspaceSummedUsageBaseJoiSchemaParts)
-    .required();
+  startJoiObject<CountSummedUsageEndpointParams>(
+    getSummedUsageBaseJoiSchemaParts
+  ).required();

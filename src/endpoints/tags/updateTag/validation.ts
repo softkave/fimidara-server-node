@@ -1,14 +1,13 @@
-import Joi from 'joi';
-import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import {
+  kValidationSchemas,
+  startJoiObject,
+} from '../../../utils/validationUtils.js';
+import {UpdateTagEndpointParams, UpdateTagInput} from './types.js';
 
-export const updateTagJoiSchema = Joi.object()
-  .keys({
-    tagId: kValidationSchemas.resourceId.required(),
-    tag: Joi.object()
-      .keys({
-        name: kValidationSchemas.name.allow(null),
-        description: kValidationSchemas.description.allow(null),
-      })
-      .required(),
-  })
-  .required();
+export const updateTagJoiSchema = startJoiObject<UpdateTagEndpointParams>({
+  tagId: kValidationSchemas.resourceId.required(),
+  tag: startJoiObject<UpdateTagInput>({
+    name: kValidationSchemas.name.allow(null),
+    description: kValidationSchemas.description.allow(null),
+  }).required(),
+}).required();

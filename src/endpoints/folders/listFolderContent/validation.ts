@@ -1,6 +1,5 @@
-import Joi from 'joi';
+import Joi, {StrictSchemaMap} from 'joi';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
-import {JoiSchemaParts} from '../../../utils/types.js';
 import {endpointValidationSchemas} from '../../validation.js';
 import folderValidationSchemas from '../validation.js';
 import {
@@ -12,7 +11,7 @@ const contentType = Joi.string().valid(
   kFimidaraResourceType.File,
   kFimidaraResourceType.Folder
 );
-export const listFolderContentBaseJoiSchemaParts: JoiSchemaParts<ListFolderContentEndpointParamsBase> =
+export const listFolderContentBaseJoiSchemaParts: StrictSchemaMap<ListFolderContentEndpointParamsBase> =
   {
     ...folderValidationSchemas.folderMatcherParts,
     contentType,

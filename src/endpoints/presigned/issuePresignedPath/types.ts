@@ -2,7 +2,7 @@ import {FileMatcher} from '../../../definitions/file.js';
 import {FimidaraPermissionAction} from '../../../definitions/permissionItem.js';
 import {Endpoint} from '../../types.js';
 
-export type IssuePresignedPathEndpointParams = FileMatcher & {
+export interface IssuePresignedPathEndpointParams extends FileMatcher {
   expires?: number;
   duration?: number;
   usageCount?: number;
@@ -14,7 +14,7 @@ export type IssuePresignedPathEndpointParams = FileMatcher & {
   // userAgent?: string | string[];
   // ip?: string | string[];
   // reuseExisting?: boolean;
-};
+}
 
 export interface IssuePresignedPathEndpointResult {
   path: string;
