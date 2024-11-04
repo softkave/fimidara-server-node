@@ -1,7 +1,8 @@
 import {JobStatus} from '../../../definitions/job.js';
-import {Endpoint} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
-export interface GetJobStatusEndpointParams {
+export interface GetJobStatusEndpointParams
+  extends EndpointOptionalWorkspaceIdParam {
   jobId: string;
 }
 

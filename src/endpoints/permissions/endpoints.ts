@@ -24,8 +24,8 @@ import getPermissionGroupEndpoint from './getPermissionGroup/handler.js';
 import getWorkspacePermissionGroups from './getPermissionGroups/handler.js';
 import resolveEntityPermissions from './resolvePermissions/handler.js';
 import {PermissionItemsExportedEndpoints} from './types.js';
-import updatePermissionGroupEndpoint from './udpatePermissionGroup/handler.js';
 import unassignPermissionGroupsEndpoint from './unassignPermissionGroups/handler.js';
+import updatePermissionGroupEndpoint from './updatePermissionGroup/handler.js';
 
 export function getPermissionItemsHttpEndpoints() {
   const permissionItemsExportedEndpoints: PermissionItemsExportedEndpoints = {

@@ -1,14 +1,17 @@
 import Joi from 'joi';
-import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import {
+  kValidationSchemas,
+  startJoiObject,
+} from '../../../utils/validationUtils.js';
 import workspaceValidationSchemas from '../../workspaces/validation.js';
 import {permissionItemConstants} from '../constants.js';
-import permissionItemValidationSchemas from '../validation.js';
+import {permissionItemValidationSchemas} from '../validation.js';
 import {
   DeletePermissionItemInput,
   DeletePermissionItemsEndpointParams,
 } from './types.js';
 
-const itemInput = Joi.object<DeletePermissionItemInput>().keys({
+const itemInput = startJoiObject<DeletePermissionItemInput>({
   entityId: permissionItemValidationSchemas.entityParts.entityId,
   targetId: permissionItemValidationSchemas.targetParts.targetId,
   folderpath: permissionItemValidationSchemas.targetParts.folderpath,
@@ -19,12 +22,10 @@ const itemInput = Joi.object<DeletePermissionItemInput>().keys({
 });
 
 export const deletePermissionItemsJoiSchema =
-  Joi.object<DeletePermissionItemsEndpointParams>()
-    .keys({
-      workspaceId: kValidationSchemas.resourceId,
-      items: Joi.array()
-        .items(itemInput)
-        .max(permissionItemConstants.maxPermissionItemsPerRequest)
-        .required(),
-    })
-    .required();
+  startJoiObject<DeletePermissionItemsEndpointParams>({
+    workspaceId: kValidationSchemas.resourceId,
+    items: Joi.array()
+      .items(itemInput)
+      .max(permissionItemConstants.maxPermissionItemsPerRequest)
+      .required(),
+  }).required();

@@ -7,7 +7,8 @@ import {NewPermissionGroupInput} from '../addPermissionGroup/types.js';
 
 export type UpdatePermissionGroupInput = Partial<NewPermissionGroupInput>;
 
-export interface UpdatePermissionGroupEndpointParams extends PermissionGroupMatcher {
+export interface UpdatePermissionGroupEndpointParams
+  extends PermissionGroupMatcher {
   data: UpdatePermissionGroupInput;
 }
 

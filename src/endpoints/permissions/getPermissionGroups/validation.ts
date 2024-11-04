@@ -1,18 +1,16 @@
-import Joi from 'joi';
-import {JoiSchemaParts} from '../../../utils/types.js';
+import {StrictSchemaMap} from 'joi';
+import {startJoiObject} from '../../../utils/validationUtils.js';
 import {endpointValidationSchemas} from '../../validation.js';
 import {
   GetPermissionGroupsEndpointParams,
   GetPermissionGroupsEndpointParamsBase,
 } from './types.js';
 
-export const getPermissionGroupsBaseJoiSchemaParts: JoiSchemaParts<GetPermissionGroupsEndpointParamsBase> =
+export const getPermissionGroupsBaseJoiSchemaParts: StrictSchemaMap<GetPermissionGroupsEndpointParamsBase> =
   endpointValidationSchemas.optionalWorkspaceIdParts;
 
 export const getPermissionGroupsJoiSchema =
-  Joi.object<GetPermissionGroupsEndpointParams>()
-    .keys({
-      ...getPermissionGroupsBaseJoiSchemaParts,
-      ...endpointValidationSchemas.paginationParts,
-    })
-    .required();
+  startJoiObject<GetPermissionGroupsEndpointParams>({
+    ...getPermissionGroupsBaseJoiSchemaParts,
+    ...endpointValidationSchemas.paginationParts,
+  }).required();

@@ -67,12 +67,12 @@ import {
   UnassignPermissionGroupsHttpEndpoint,
   UpdatePermissionGroupHttpEndpoint,
 } from './types.js';
+import {UnassignPermissionGroupsEndpointParams} from './unassignPermissionGroups/types.js';
 import {
   UpdatePermissionGroupEndpointParams,
   UpdatePermissionGroupEndpointResult,
   UpdatePermissionGroupInput,
-} from './udpatePermissionGroup/types.js';
-import {UnassignPermissionGroupsEndpointParams} from './unassignPermissionGroups/types.js';
+} from './updatePermissionGroup/types.js';
 
 const targetId = fReusables.id
   .clone()

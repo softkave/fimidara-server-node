@@ -10,8 +10,8 @@ import {GetEntityAssignedPermissionGroupsEndpoint} from './getAssignedPermission
 import {GetPermissionGroupEndpoint} from './getPermissionGroup/types.js';
 import {GetWorkspacePermissionGroupsEndpoint} from './getPermissionGroups/types.js';
 import {ResolveEntityPermissionsEndpoint} from './resolvePermissions/types.js';
-import {UpdatePermissionGroupEndpoint} from './udpatePermissionGroup/types.js';
 import {UnassignPermissionGroupsEndpoint} from './unassignPermissionGroups/types.js';
+import {UpdatePermissionGroupEndpoint} from './updatePermissionGroup/types.js';
 
 export interface PermissionItemInputTarget {
   targetId?: string | string[];
