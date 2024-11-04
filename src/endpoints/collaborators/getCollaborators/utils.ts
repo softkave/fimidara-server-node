@@ -9,24 +9,22 @@ import {
   kFimidaraResourceType,
   SessionAgent,
 } from '../../../definitions/system.js';
-import {Workspace} from '../../../definitions/workspace.js';
 import {PermissionDeniedError} from '../../users/errors.js';
 
 export async function getCollaboratorsQuery(
   agent: SessionAgent,
-  workspace: Workspace
+  workspaceId: string
 ): Promise<DataQuery<AssignedItem>> {
   const permissionsSummaryReport =
     await resolveTargetChildrenAccessCheckWithAgent({
       agent,
-      workspaceId: workspace.resourceId,
-      workspace: workspace,
-      target: {targetId: workspace.resourceId, action: 'readCollaborator'},
+      workspaceId,
+      target: {targetId: workspaceId, action: 'readCollaborator'},
     });
 
   if (permissionsSummaryReport.access === kResolvedTargetChildrenAccess.full) {
     return {
-      workspaceId: workspace.resourceId,
+      workspaceId,
       assignedItemType: kFimidaraResourceType.Workspace,
       assigneeType: kFimidaraResourceType.User,
       ...getInAndNinQuery<AssignedItem>(
@@ -39,7 +37,7 @@ export async function getCollaboratorsQuery(
     permissionsSummaryReport.access === kResolvedTargetChildrenAccess.partial
   ) {
     return {
-      workspaceId: workspace.resourceId,
+      workspaceId,
       assigneeId: permissionsSummaryReport.partialAllowIds && {
         $in: permissionsSummaryReport.partialAllowIds,
       },

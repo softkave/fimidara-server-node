@@ -16,7 +16,7 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
 import {collaboratorExtractor} from '../utils.js';
-import getCollaborators from './handler.js';
+import getCollaboratorsEndpoint from './handler.js';
 import {GetCollaboratorsEndpointParams} from './types.js';
 
 /**
@@ -42,7 +42,7 @@ describe('getCollaborators', () => {
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId}
       );
-    const result = await getCollaborators(reqData);
+    const result = await getCollaboratorsEndpoint(reqData);
 
     assertEndpointResultOk(result);
     const updatedUser = await populateUserWorkspaces(
@@ -82,7 +82,7 @@ describe('getCollaborators', () => {
         mockExpressRequestWithAgentToken(userToken),
         {pageSize, workspaceId: workspace.resourceId}
       );
-    let result = await getCollaborators(reqData);
+    let result = await getCollaboratorsEndpoint(reqData);
     assertEndpointResultOk(result);
     let fetchedUsers = result.collaborators;
 
@@ -96,7 +96,7 @@ describe('getCollaborators', () => {
       mockExpressRequestWithAgentToken(userToken),
       {page, pageSize, workspaceId: workspace.resourceId}
     );
-    result = await getCollaborators(reqData);
+    result = await getCollaboratorsEndpoint(reqData);
     assertEndpointResultOk(result);
     fetchedUsers = fetchedUsers.concat(result.collaborators);
 

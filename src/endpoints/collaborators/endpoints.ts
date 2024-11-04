@@ -7,17 +7,17 @@ import {
   getWorkspaceCollaboratorsEndpointDefinition,
   removeCollaboratorEndpointDefinition,
 } from './endpoints.mddoc.js';
-import getCollaborator from './getCollaborator/handler.js';
+import getCollaboratorEndpoint from './getCollaborator/handler.js';
 import getWorkspaceCollaborators from './getCollaborators/handler.js';
-import getCollaboratorsWithoutPermission from './getCollaboratorsWithoutPermission/handler.js';
-import removeCollaborator from './removeCollaborator/handler.js';
+import getCollaboratorsWithoutPermissionEndpoint from './getCollaboratorsWithoutPermission/handler.js';
+import removeCollaboratorEndpoint from './removeCollaborator/handler.js';
 import {CollaboratorsExportedEndpoints} from './types.js';
 
 export function getCollaboratorsHttpEndpoints() {
   const collaboratorsExportedEndpoints: CollaboratorsExportedEndpoints = {
     getCollaborator: {
       tag: [kEndpointTag.public],
-      fn: getCollaborator,
+      fn: getCollaboratorEndpoint,
       mddocHttpDefinition: getCollaboratorEndpointDefinition,
     },
     getWorkspaceCollaborators: {
@@ -32,12 +32,12 @@ export function getCollaboratorsHttpEndpoints() {
     },
     removeCollaborator: {
       tag: [kEndpointTag.public],
-      fn: removeCollaborator,
+      fn: removeCollaboratorEndpoint,
       mddocHttpDefinition: removeCollaboratorEndpointDefinition,
     },
     getCollaboratorsWithoutPermission: {
       tag: [kEndpointTag.private],
-      fn: getCollaboratorsWithoutPermission,
+      fn: getCollaboratorsWithoutPermissionEndpoint,
       mddocHttpDefinition: getCollaboratorsWithoutPermissionEndpointDefinition,
     },
   };

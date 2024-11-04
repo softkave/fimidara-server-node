@@ -22,7 +22,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
-import getCollaboratorsWithoutPermission from './handler.js';
+import getCollaboratorsWithoutPermissionEndpoint from './handler.js';
 import {GetCollaboratorsWithoutPermissionEndpointParams} from './types.js';
 
 beforeAll(async () => {
@@ -76,7 +76,7 @@ describe('getCollaboratorsWithoutPermission', () => {
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId}
       );
-    const result = await getCollaboratorsWithoutPermission(reqData);
+    const result = await getCollaboratorsWithoutPermissionEndpoint(reqData);
     assertEndpointResultOk(result);
     expect(result.collaboratorIds).toHaveLength(
       seedUserWithoutPermissions.length

@@ -1,8 +1,8 @@
 import {CountItemsEndpointResult, Endpoint} from '../../types.js';
-import {GetWorkspaceCollaboratorsEndpointParamsBase} from '../getCollaborators/types.js';
+import {GetCollaboratorsEndpointParamsBase} from '../getCollaborators/types.js';
 
 export type CountCollaboratorsEndpointParams =
-  GetWorkspaceCollaboratorsEndpointParamsBase;
+  GetCollaboratorsEndpointParamsBase;
 
 export type CountCollaboratorsEndpoint = Endpoint<
   CountCollaboratorsEndpointParams,

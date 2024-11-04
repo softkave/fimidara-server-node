@@ -16,7 +16,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
-import removeCollaborator from './handler.js';
+import removeCollaboratorEndpoint from './handler.js';
 import {RemoveCollaboratorEndpointParams} from './types.js';
 
 /**
@@ -42,7 +42,7 @@ describe('removeCollaborator', () => {
         {workspaceId: workspace.resourceId, collaboratorId: user.resourceId}
       );
 
-    const result = await removeCollaborator(reqData);
+    const result = await removeCollaboratorEndpoint(reqData);
     assertEndpointResultOk(result);
 
     appAssert(result.jobId);

@@ -1,18 +1,12 @@
-import Joi from 'joi';
-import {JoiSchemaParts} from '../../../utils/types.js';
+import {startJoiObject} from '../../../utils/validationUtils.js';
 import {endpointValidationSchemas} from '../../validation.js';
-import {
-  GetCollaboratorsEndpointParams,
-  GetCollaboratorsEndpointParamsBase,
-} from './types.js';
+import {GetCollaboratorsEndpointParams} from './types.js';
 
-export const getCollaboratorsBaseJoiSchemaParts: JoiSchemaParts<GetCollaboratorsEndpointParamsBase> =
+export const getCollaboratorsBaseJoiSchemaParts =
   endpointValidationSchemas.optionalWorkspaceIdParts;
 
 export const getCollaboratorsJoiSchema =
-  Joi.object<GetCollaboratorsEndpointParams>()
-    .keys({
-      ...endpointValidationSchemas.paginationParts,
-      ...getCollaboratorsBaseJoiSchemaParts,
-    })
-    .required();
+  startJoiObject<GetCollaboratorsEndpointParams>({
+    ...endpointValidationSchemas.paginationParts,
+    ...getCollaboratorsBaseJoiSchemaParts,
+  }).required();

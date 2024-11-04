@@ -11,7 +11,7 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
 import {collaboratorExtractor} from '../utils.js';
-import getCollaborator from './handler.js';
+import getCollaboratorEndpoint from './handler.js';
 import {GetCollaboratorEndpointParams} from './types.js';
 
 beforeAll(async () => {
@@ -30,7 +30,7 @@ test('collaborator returned', async () => {
     {workspaceId: workspace.resourceId, collaboratorId: user.resourceId}
   );
 
-  const result = await getCollaborator(reqData);
+  const result = await getCollaboratorEndpoint(reqData);
   assertEndpointResultOk(result);
   expect(result.collaborator).toMatchObject(
     collaboratorExtractor(

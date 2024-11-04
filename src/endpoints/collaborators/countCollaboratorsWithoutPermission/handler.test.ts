@@ -10,7 +10,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
-import countCollaboratorsWithoutPermission from './handler.js';
+import countCollaboratorsWithoutPermissionEndpoint from './handler.js';
 import {CountCollaboratorsWithoutPermissionEndpointParams} from './types.js';
 
 beforeAll(async () => {
@@ -37,7 +37,7 @@ describe('countCollaboratorsWithoutPermission', () => {
         mockExpressRequestWithAgentToken(userToken),
         {workspaceId: workspace.resourceId}
       );
-    const result = await countCollaboratorsWithoutPermission(reqData);
+    const result = await countCollaboratorsWithoutPermissionEndpoint(reqData);
     assertEndpointResultOk(result);
 
     expect(result.count).toBe(seedCount);

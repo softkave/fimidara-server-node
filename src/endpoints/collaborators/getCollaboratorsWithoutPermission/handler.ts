@@ -1,47 +1,15 @@
 import {uniq} from 'lodash-es';
-import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {DataQuery} from '../../../contexts/data/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {AssignedItem} from '../../../definitions/assignedItem.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {indexArray} from '../../../utils/indexArray.js';
-import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
 import {PaginationQuery} from '../../types.js';
-import {checkWorkspaceExists} from '../../workspaces/utils.js';
-import {getWorkspaceCollaboratorsQuery} from '../getCollaborators/utils.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
+import {getCollaboratorsQuery} from '../getCollaborators/utils.js';
 import {GetCollaboratorsWithoutPermissionEndpoint} from './types.js';
 import {getCollaboratorsWithoutPermissionJoiSchema} from './validation.js';
-
-const getCollaboratorsWithoutPermission: GetCollaboratorsWithoutPermissionEndpoint =
-  async reqData => {
-    const data = validate(
-      reqData.data,
-      getCollaboratorsWithoutPermissionJoiSchema
-    );
-    const agent = await kUtilsInjectables
-      .session()
-      .getAgentFromReq(
-        reqData,
-        kSessionUtils.permittedAgentType.api,
-        kSessionUtils.accessScope.api
-      );
-    const workspaceId = getWorkspaceIdFromSessionAgent(agent, data.workspaceId);
-    const workspace = await checkWorkspaceExists(workspaceId);
-    const assignedItemsQuery = await getWorkspaceCollaboratorsQuery(
-      agent,
-      workspace
-    );
-    const collaboratorIdList =
-      await getPagedCollaboratorsWithoutPermission(assignedItemsQuery);
-
-    return {collaboratorIds: collaboratorIdList};
-  };
-
-export default getCollaboratorsWithoutPermission;
 
 export async function getPagedCollaboratorsWithoutPermission(
   assignedItemsQuery: DataQuery<AssignedItem>,
@@ -92,3 +60,20 @@ export async function getPagedCollaboratorsWithoutPermission(
   collaboratorIdList = uniq(collaboratorIdList);
   return collaboratorIdList;
 }
+
+const getCollaboratorsWithoutPermissionEndpoint: GetCollaboratorsWithoutPermissionEndpoint =
+  async reqData => {
+    const data = validate(
+      reqData.data,
+      getCollaboratorsWithoutPermissionJoiSchema
+    );
+    const {agent, workspaceId} = await initEndpoint(reqData, {data});
+
+    const assignedItemsQuery = await getCollaboratorsQuery(agent, workspaceId);
+    const collaboratorIdList =
+      await getPagedCollaboratorsWithoutPermission(assignedItemsQuery);
+
+    return {collaboratorIds: collaboratorIdList};
+  };
+
+export default getCollaboratorsWithoutPermissionEndpoint;
