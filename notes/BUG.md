@@ -24,3 +24,7 @@
 ## CLI
 
 - close file descriptors
+
+##
+
+- unauthorized error from express-jwt, also means middleware not working

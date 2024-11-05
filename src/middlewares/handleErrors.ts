@@ -1,5 +1,7 @@
-import {Response} from 'express';
+import {Request, Response} from 'express';
 import pkg from 'jsonwebtoken';
+import {isObject} from 'lodash-es';
+import {AnyFn, AnyObject} from 'softkave-js-utils';
 import {kUtilsInjectables} from '../contexts/injection/injectables.js';
 import {kEndpointConstants} from '../endpoints/constants.js';
 import {
@@ -11,8 +13,12 @@ import {ServerError} from '../utils/errors.js';
 
 const {JsonWebTokenError, NotBeforeError, TokenExpiredError} = pkg;
 
-export function resolveJWTError(err: Error) {
-  switch (err.name) {
+export function resolveJWTError(err: unknown) {
+  if (!isObject(err)) {
+    return undefined;
+  }
+
+  switch ((err as AnyObject).name) {
     case JsonWebTokenError.name:
     case 'UnauthorizedError':
 
@@ -29,24 +35,7 @@ export function resolveJWTError(err: Error) {
   }
 }
 
-function getArg(name: 'err' | 'req' | 'res' | 'next', args: unknown[]) {
-  switch (name) {
-    case 'err':
-      return args.length === 4 ? args[0] : undefined;
-    case 'req':
-      return args.length === 4 ? args[1] : args[0];
-    case 'res':
-      return args.length === 4 ? args[2] : args[1];
-    case 'next':
-      return args.length === 4 ? args[3] : args[2];
-  }
-}
-
-function handleErrors(...args: unknown[]) {
-  const err = getArg('err', args) as Error | undefined;
-  // const req: Request = getArg('req', args);
-  const res = getArg('res', args) as Response;
-
+function handleErrors(err: unknown, req: Request, res: Response, next: AnyFn) {
   if (!err) {
     res.status(kEndpointConstants.httpStatusCode.serverError).send({
       errors: getPublicErrors([new ServerError()]),
@@ -59,11 +48,11 @@ function handleErrors(...args: unknown[]) {
   const JWTError = resolveJWTError(err);
   if (JWTError) {
     res.status(kEndpointConstants.httpStatusCode.unauthorized).json({
-      errors: getPublicErrors([JWTError]),
+      errors: getPublicErrors(JWTError),
     });
   } else {
     res.status(kEndpointConstants.httpStatusCode.serverError).json({
-      errors: getPublicErrors([new ServerError()]),
+      errors: getPublicErrors(new ServerError()),
     });
   }
 }
