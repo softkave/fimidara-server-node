@@ -126,6 +126,7 @@ export type FimidaraSuppliedConfig = Partial<{
 
   // Worker
   runnerLocation: string;
+  runnerCount: number;
 
   // Jobs
   // newSignupsOnWaitlistJobIntervalMs: number;

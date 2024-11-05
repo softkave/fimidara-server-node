@@ -5,5 +5,5 @@ export const kAppConstants = {
   heartbeatInterval: 5 * 60 * 1000, // 5 minutes
   /** acceptable heartbeat misses before an app is considered not active */
   activeAppHeartbeatDelayFactor: 3,
-  defaultRunnerCount: availableParallelism(),
+  defaultRunnerCount: Math.min(2, availableParallelism()),
 };
