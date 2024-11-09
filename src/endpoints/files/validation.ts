@@ -10,7 +10,7 @@ const fileSizeInBytes = Joi.number()
   .max(kFileConstants.maxFileSizeInBytes);
 const mimetype = Joi.string().max(kFileConstants.maxMimeTypeCharLength);
 const encoding = Joi.string().max(kFileConstants.maxEncodingCharLength);
-const ext = Joi.string().max(kFileConstants.maxextCharLength);
+const ext = Joi.string().max(kFileConstants.maxExtCharLength);
 const buffer = Joi.binary().max(kFileConstants.maxFileSizeInBytes);
 const filepath = Joi.string()
   .regex(folderValidationSchemas.pathRegex)
@@ -18,7 +18,7 @@ const filepath = Joi.string()
   .max(
     kFolderConstants.maxFolderNameLength *
       (kFolderConstants.maxFolderDepth + 1) +
-      kFileConstants.maxextCharLength
+      kFileConstants.maxExtCharLength
   );
 const readable = Joi.any().custom((value, helpers) => {
   if (value instanceof Readable) {

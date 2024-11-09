@@ -14,7 +14,7 @@ export const kFileConstants = {
   nameextSeparator: '.',
   maxMimeTypeCharLength: 100,
   maxEncodingCharLength: 100,
-  maxextCharLength: 100,
+  maxExtCharLength: 100,
   maxFileWidth: 5000, // px
   maxFileHeight: 5000, // px
   uploadedFileFieldName: 'data',

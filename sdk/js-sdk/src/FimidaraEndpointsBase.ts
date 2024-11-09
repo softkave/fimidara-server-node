@@ -67,7 +67,11 @@ export class FimidaraEndpointsBase extends FimidaraJsConfig {
 
   protected async executeRaw(
     p01: InvokeEndpointParams,
-    p02?: Pick<FimidaraEndpointParamsOptional<any>, 'authToken' | 'serverURL'>,
+    p02?: Pick<FimidaraEndpointParamsOptional<any>, 'authToken' | 'serverURL'> &
+      /** for binary options */ Pick<
+        InvokeEndpointParams,
+        'onUploadProgress' | 'onDownloadProgress'
+      >,
     mapping?: Mapping
   ) {
     assert(p01.path, 'Endpoint path not provided');
@@ -92,8 +96,8 @@ export class FimidaraEndpointsBase extends FimidaraJsConfig {
       path: endpointPath,
       method: p01.method,
       responseType: p01.responseType,
-      onDownloadProgress: p01.onUploadProgress,
-      onUploadProgress: p01.onDownloadProgress,
+      onDownloadProgress: p02?.onDownloadProgress || p01.onDownloadProgress,
+      onUploadProgress: p02?.onUploadProgress || p01.onUploadProgress,
     });
 
     return response.data;
@@ -101,7 +105,11 @@ export class FimidaraEndpointsBase extends FimidaraJsConfig {
 
   protected async executeJson(
     p01: Pick<InvokeEndpointParams, 'data' | 'formdata' | 'path' | 'method'>,
-    p02?: Pick<FimidaraEndpointParamsOptional<any>, 'authToken' | 'serverURL'>,
+    p02?: Pick<FimidaraEndpointParamsOptional<any>, 'authToken' | 'serverURL'> &
+      /** for binary options */ Pick<
+        InvokeEndpointParams,
+        'onUploadProgress' | 'onDownloadProgress'
+      >,
     mapping?: Mapping
   ) {
     return await this.executeRaw({...p01, responseType: 'json'}, p02, mapping);
