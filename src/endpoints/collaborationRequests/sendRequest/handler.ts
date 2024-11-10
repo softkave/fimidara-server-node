@@ -28,10 +28,10 @@ import {sendCollaborationRequestJoiSchema} from './validation.js';
 const sendCollaborationRequestEndpoint: SendCollaborationRequestEndpoint =
   async reqData => {
     const data = validate(reqData.data, sendCollaborationRequestJoiSchema);
-    const {agent, workspace} = await initEndpoint(reqData, {
-      data,
-      action: kFimidaraPermissionActions.addCollaborator,
-    });
+    const {agent, getWorkspace} = await initEndpoint(reqData, {data});
+    const workspace = await getWorkspace(
+      kFimidaraPermissionActions.addCollaborator
+    );
 
     const {request, existingUser} = await kSemanticModels
       .utils()
@@ -83,7 +83,6 @@ const sendCollaborationRequestEndpoint: SendCollaborationRequestEndpoint =
           workspace.resourceId,
           {
             message: data.message,
-            workspaceName: workspace.name,
             recipientEmail: data.recipientEmail,
             expiresAt: data.expires,
             status: kCollaborationRequestStatusTypeMap.Pending,

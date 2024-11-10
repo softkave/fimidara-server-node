@@ -1,7 +1,7 @@
 import {resolveTargetChildrenAccessCheckWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
 import {FileBackendMountQuery} from '../../../contexts/data/types.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {SessionAgent} from '../../../definitions/system.js';
-import {Workspace} from '../../../definitions/workspace.js';
 import {pathSplit} from '../../../utils/fns.js';
 import {FolderQueries} from '../../folders/queries.js';
 import EndpointReusableQueries from '../../queries.js';
@@ -10,7 +10,7 @@ import {GetFileBackendMountsEndpointParamsBase} from './types.js';
 
 export async function getFileBackendMountsQuery(
   agent: SessionAgent,
-  workspace: Workspace,
+  workspaceId: string,
   other: Pick<
     GetFileBackendMountsEndpointParamsBase,
     'backend' | 'folderpath' | 'configId'
@@ -18,12 +18,14 @@ export async function getFileBackendMountsQuery(
 ) {
   const report = await resolveTargetChildrenAccessCheckWithAgent({
     agent,
-    workspace,
-    workspaceId: workspace.resourceId,
-    target: {action: 'readFileBackendMount', targetId: workspace.resourceId},
+    workspaceId,
+    target: {
+      action: kFimidaraPermissionActions.readFileBackendMount,
+      targetId: workspaceId,
+    },
   });
   let query: FileBackendMountQuery = getWorkspaceResourceByIdListQuery(
-    workspace,
+    workspaceId,
     report
   );
 

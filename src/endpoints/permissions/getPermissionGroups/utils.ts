@@ -1,17 +1,20 @@
 import {resolveTargetChildrenAccessCheckWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {SessionAgent} from '../../../definitions/system.js';
-import {Workspace} from '../../../definitions/workspace.js';
 import {getWorkspaceResourceByIdList} from '../../utils.js';
 
 export async function getPermissionGroupsQuery(
   agent: SessionAgent,
-  workspace: Workspace
+  workspaceId: string
 ) {
   const report = await resolveTargetChildrenAccessCheckWithAgent({
     agent,
-    workspace,
-    workspaceId: workspace.resourceId,
-    target: {action: 'updatePermission', targetId: workspace.resourceId},
+    workspaceId,
+    target: {
+      action: kFimidaraPermissionActions.readPermission,
+      targetId: workspaceId,
+    },
   });
-  return getWorkspaceResourceByIdList(workspace, report);
+
+  return getWorkspaceResourceByIdList(workspaceId, report);
 }

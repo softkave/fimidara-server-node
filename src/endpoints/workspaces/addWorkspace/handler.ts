@@ -2,6 +2,7 @@ import {defaultTo} from 'lodash-es';
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {kFileBackendType} from '../../../definitions/fileBackend.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {
   kFimidaraResourceType,
   SessionAgent,
@@ -79,7 +80,10 @@ const createWorkspace = async (
 
 const addWorkspaceEndpoint: AddWorkspaceEndpoint = async reqData => {
   const data = validate(reqData.data, addWorkspaceJoiSchema);
-  const {agent, workspace: parentWorkspace} = await initEndpoint(reqData);
+  const {agent, getWorkspace} = await initEndpoint(reqData);
+  const parentWorkspace = await getWorkspace(
+    kFimidaraPermissionActions.addWorkspace
+  );
 
   // TODO: add * permission to creator
   // TODO: how do we check something like waitlist?

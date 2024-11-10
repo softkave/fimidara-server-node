@@ -21,12 +21,12 @@ const kAllowedTypes = [
 
 const getResources: GetResourcesEndpoint = async reqData => {
   const data = validate(reqData.data, getResourcesJoiSchema);
-  const {agent, workspace, workspaceId} = await initEndpoint(reqData, {data});
+  const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
   const resources = await INTERNAL_getResources({
     agent,
+    workspaceId,
     allowedTypes: kAllowedTypes,
-    workspaceId: workspace.resourceId,
     inputResources: data.resources,
     checkAuth: true,
     nothrowOnCheckError: true,

@@ -9,10 +9,10 @@ import {deletePermissionItemsJoiSchema} from './validation.js';
 const deletePermissionItemsEndpoint: DeletePermissionItemsEndpoint =
   async reqData => {
     const data = validate(reqData.data, deletePermissionItemsJoiSchema);
-    const {agent, workspaceId} = await initEndpoint(reqData, {
-      data,
-      action: kFimidaraPermissionActions.updatePermission,
-    });
+    const {agent, getWorkspace} = await initEndpoint(reqData, {data});
+    const {resourceId: workspaceId} = await getWorkspace(
+      kFimidaraPermissionActions.updatePermission
+    );
 
     const jobs = await beginDeletePermissionItemByInput({
       agent,

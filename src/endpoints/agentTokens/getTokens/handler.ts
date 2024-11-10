@@ -12,9 +12,9 @@ import {getAgentTokenJoiSchema} from './validation.js';
 
 const getAgentTokensEndpoint: GetAgentTokensEndpoint = async reqData => {
   const data = validate(reqData.data, getAgentTokenJoiSchema);
-  const {agent, workspace} = await initEndpoint(reqData, {data});
+  const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
-  const q = await getAgentTokensQuery(agent, workspace);
+  const q = await getAgentTokensQuery(agent, workspaceId);
   applyDefaultEndpointPaginationOptions(data);
   const tokens = await kSemanticModels
     .agentToken()

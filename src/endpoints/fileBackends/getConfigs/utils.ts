@@ -1,24 +1,26 @@
 import {resolveTargetChildrenAccessCheckWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
 import {FileBackendConfigQuery} from '../../../contexts/data/types.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {SessionAgent} from '../../../definitions/system.js';
-import {Workspace} from '../../../definitions/workspace.js';
 import {getWorkspaceResourceByIdListQuery} from '../../utils.js';
 import {GetFileBackendConfigsEndpointParamsBase} from './types.js';
 
 export async function getFileBackendConfigsQuery(
   agent: SessionAgent,
-  workspace: Workspace,
+  workspaceId: string,
   other: Pick<GetFileBackendConfigsEndpointParamsBase, 'backend'>
 ) {
   const report = await resolveTargetChildrenAccessCheckWithAgent({
     agent,
-    workspace,
-    workspaceId: workspace.resourceId,
-    target: {action: 'readFileBackendConfig', targetId: workspace.resourceId},
+    workspaceId,
+    target: {
+      action: kFimidaraPermissionActions.readFileBackendConfig,
+      targetId: workspaceId,
+    },
   });
 
   const query: FileBackendConfigQuery = getWorkspaceResourceByIdListQuery(
-    workspace,
+    workspaceId,
     report
   );
 

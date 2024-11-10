@@ -64,7 +64,7 @@ async function createAndInsertNewFile(
   return {file, parentFolder};
 }
 
-const uploadFile: UploadFileEndpoint = async reqData => {
+const uploadFileEndpoint: UploadFileEndpoint = async reqData => {
   const data = validate(reqData.data, uploadFileJoiSchema);
 
   // TODO
@@ -134,23 +134,6 @@ const uploadFile: UploadFileEndpoint = async reqData => {
     }
 
     assertFile(file);
-    // await Promise.all([
-    //   incrementBandwidthInUsageRecord(
-    //     reqData,
-    //     {...file, size: data.size},
-    //     kFimidaraPermissionActions.uploadFile
-    //   ),
-    //   incrementStorageEverConsumedUsageRecord(
-    //     reqData,
-    //     {...file, size: data.size},
-    //     kFimidaraPermissionActions.uploadFile
-    //   ),
-    //   incrementStorageUsageRecord(
-    //     reqData,
-    //     {...file, size: data.size},
-    //     kFimidaraPermissionActions.uploadFile
-    //   ),
-    // ]);
 
     // TODO: use sharded runner to process all an once
     await incrementBandwidthInUsageRecord(
@@ -274,4 +257,4 @@ const uploadFile: UploadFileEndpoint = async reqData => {
   }
 };
 
-export default uploadFile;
+export default uploadFileEndpoint;

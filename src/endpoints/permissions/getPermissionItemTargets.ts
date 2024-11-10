@@ -130,7 +130,7 @@ export class PermissionItemTargets {
 
 export async function getPermissionItemTargets(
   agent: SessionAgent,
-  workspace: Workspace,
+  workspaceId: string,
   target:
     | Partial<PermissionItemInputTarget>
     | Partial<PermissionItemInputTarget>[],
@@ -138,7 +138,7 @@ export async function getPermissionItemTargets(
 ) {
   const resources = await INTERNAL_getResources({
     agent,
-    workspaceId: workspace.resourceId,
+    workspaceId,
     allowedTypes: getWorkspaceResourceTypeList(),
     inputResources: convertToArray(target).map(
       (nextTarget): FetchResourceItem => {

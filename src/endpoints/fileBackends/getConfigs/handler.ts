@@ -13,9 +13,9 @@ import {getFileBackendConfigsJoiSchema} from './validation.js';
 const getFileBackendConfigs: GetFileBackendConfigsEndpoint = async reqData => {
   const configModel = kSemanticModels.fileBackendConfig();
   const data = validate(reqData.data, getFileBackendConfigsJoiSchema);
-  const {agent, workspace} = await initEndpoint(reqData, {data});
+  const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
-  const query = await getFileBackendConfigsQuery(agent, workspace, data);
+  const query = await getFileBackendConfigsQuery(agent, workspaceId, data);
   applyDefaultEndpointPaginationOptions(data);
   const configs = await configModel.getManyByQuery(query, data);
 

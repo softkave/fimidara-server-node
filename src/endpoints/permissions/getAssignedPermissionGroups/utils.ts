@@ -3,11 +3,10 @@ import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {SemanticProviderOpParams} from '../../../contexts/semantic/types.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {SessionAgent} from '../../../definitions/system.js';
-import {Workspace} from '../../../definitions/workspace.js';
 
 export async function checkReadAssignedPermissionGroups(
   agent: SessionAgent,
-  workspace: Workspace,
+  workspaceId: string,
   entityId: string,
   opts?: SemanticProviderOpParams
 ) {
@@ -17,7 +16,7 @@ export async function checkReadAssignedPermissionGroups(
     await checkAuthorizationWithAgent({
       agent,
       opts,
-      workspaceId: workspace.resourceId,
+      workspaceId,
       target: {
         targetId: entityId,
         action: kFimidaraPermissionActions.readPermission,

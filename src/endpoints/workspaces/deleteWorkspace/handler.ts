@@ -9,14 +9,14 @@ import {deleteWorkspaceJoiSchema} from './validation.js';
 
 const deleteWorkspaceEndpoint: DeleteWorkspaceEndpoint = async reqData => {
   const data = validate(reqData.data, deleteWorkspaceJoiSchema);
-  const {agent, workspaceId, workspace} = await initEndpoint(reqData, {
-    data,
-    action: kFimidaraPermissionActions.deleteWorkspace,
-  });
+  const {agent, getWorkspace} = await initEndpoint(reqData, {data});
+  const workspace = await getWorkspace(
+    kFimidaraPermissionActions.deleteWorkspace
+  );
 
   const [job] = await beginDeleteWorkspace({
     agent,
-    workspaceId,
+    workspaceId: workspace.resourceId,
     resources: [workspace],
   });
 

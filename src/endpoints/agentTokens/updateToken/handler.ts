@@ -18,11 +18,11 @@ import {updateAgentTokenJoiSchema} from './validation.js';
 
 const updateAgentTokenEndpoint: UpdateAgentTokenEndpoint = async reqData => {
   const data = validate(reqData.data, updateAgentTokenJoiSchema);
-  const {agent, workspace} = await initEndpoint(reqData, {data});
+  const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
   const {token} = await checkAgentTokenAuthorization02(
     agent,
-    workspace?.resourceId,
+    workspaceId,
     data.tokenId,
     data.providedResourceId,
     'updateAgentToken'

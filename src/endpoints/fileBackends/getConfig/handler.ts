@@ -12,11 +12,11 @@ import {getFileBackendConfigJoiSchema} from './validation.js';
 const getFileBackendConfig: GetFileBackendConfigEndpoint = async reqData => {
   const configModel = kSemanticModels.fileBackendConfig();
   const data = validate(reqData.data, getFileBackendConfigJoiSchema);
-  const {agent, workspace} = await initEndpoint(reqData, {data});
+  const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
   await checkAuthorizationWithAgent({
     agent,
-    workspaceId: workspace.resourceId,
+    workspaceId,
     target: {
       action: kFimidaraPermissionActions.readFileBackendConfig,
       targetId: data.configId,

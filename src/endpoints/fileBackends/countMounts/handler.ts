@@ -9,9 +9,9 @@ const countFileBackendMounts: CountFileBackendMountsEndpoint =
   async reqData => {
     const mountModel = kSemanticModels.fileBackendMount();
     const data = validate(reqData.data, countFileBackendMountsJoiSchema);
-    const {agent, workspace} = await initEndpoint(reqData, {data});
+    const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
-    const query = await getFileBackendMountsQuery(agent, workspace, data);
+    const query = await getFileBackendMountsQuery(agent, workspaceId, data);
     const count = await mountModel.countByQuery(query);
 
     return {count};

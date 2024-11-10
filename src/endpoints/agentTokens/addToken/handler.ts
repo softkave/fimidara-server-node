@@ -10,10 +10,10 @@ import {addAgentTokenJoiSchema} from './validation.js';
 
 const addAgentTokenEndpoint: AddAgentTokenEndpoint = async reqData => {
   const data = validate(reqData.data, addAgentTokenJoiSchema);
-  const {agent, workspace} = await initEndpoint(reqData, {
-    data,
-    action: kFimidaraPermissionActions.addAgentToken,
-  });
+  const {agent, getWorkspace} = await initEndpoint(reqData, {data});
+  const workspace = await getWorkspace(
+    kFimidaraPermissionActions.addAgentToken
+  );
 
   const token = await kSemanticModels.utils().withTxn(async opts => {
     return await INTERNAL_createAgentToken(

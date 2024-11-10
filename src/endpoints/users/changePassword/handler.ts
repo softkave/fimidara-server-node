@@ -44,7 +44,7 @@ async function changePassword(userId: string, props: {password: string}) {
 
 const changePasswordEndpoint: ChangePasswordEndpoint = async reqData => {
   const data = validate(reqData.data, changePasswordJoiSchema);
-  const {agent, workspace} = await initEndpoint(reqData, {
+  const {agent, workspaceId} = await initEndpoint(reqData, {
     tokenScope: [
       kTokenAccessScope.changePassword,
       kTokenAccessScope.login,
@@ -56,7 +56,7 @@ const changePasswordEndpoint: ChangePasswordEndpoint = async reqData => {
     return await getUserFromSessionAgent(
       agent,
       /** params */ {
-        workspaceId: workspace.resourceId,
+        workspaceId,
         userId: data.userId,
         scope: [kTokenAccessScope.changePassword, kTokenAccessScope.login],
         action: kFimidaraPermissionActions.changePassword,

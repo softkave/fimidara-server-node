@@ -8,12 +8,10 @@ import {countSummedUsageJoiSchema} from './validation.js';
 
 const countSummedUsage: CountSummedUsageEndpoint = async reqData => {
   const data = validate(reqData.data, countSummedUsageJoiSchema);
-  const {agent, workspaceId} = await initEndpoint(reqData, {
-    data,
-    action: kFimidaraPermissionActions.readUsage,
-  });
+  const {agent, getWorkspace} = await initEndpoint(reqData, {data});
+  const workspace = await getWorkspace(kFimidaraPermissionActions.readUsage);
 
-  const {query} = await getSummedUsageQuery(agent, workspaceId, data);
+  const {query} = await getSummedUsageQuery(agent, workspace.resourceId, data);
   const count = await kSemanticModels.usageRecord().countByQuery(query);
 
   return {count};

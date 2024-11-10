@@ -11,10 +11,8 @@ import {unassignPermissionGroupsJoiSchema} from './validation.js';
 const unassignPermissionGroupsEndpoint: UnassignPermissionGroupsEndpoint =
   async reqData => {
     const data = validate(reqData.data, unassignPermissionGroupsJoiSchema);
-    await initEndpoint(reqData, {
-      data,
-      action: kFimidaraPermissionActions.updatePermission,
-    });
+    const {getWorkspace} = await initEndpoint(reqData, {data});
+    await getWorkspace(kFimidaraPermissionActions.updatePermission);
 
     const queries: LiteralDataQuery<AssignedItem>[] = [];
     convertToArray(data.entityId).forEach(entityId => {

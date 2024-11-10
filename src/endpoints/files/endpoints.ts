@@ -31,7 +31,7 @@ import {
 } from './readFile/types.js';
 import {FilesExportedEndpoints} from './types.js';
 import updateFileDetails from './updateFileDetails/handler.js';
-import uploadFile from './uploadFile/handler.js';
+import uploadFileEndpoint from './uploadFile/handler.js';
 import {UploadFileEndpointParams} from './uploadFile/types.js';
 
 interface ActiveBusboy {
@@ -311,7 +311,7 @@ export function getFilesHttpEndpoints() {
       getDataFromReq: extractUploadFileParamsFromReq,
       handleError: handleNotFoundError,
       cleanup: cleanupUploadFileReq,
-      fn: uploadFile,
+      fn: uploadFileEndpoint,
     },
   };
   return filesExportedEndpoints;

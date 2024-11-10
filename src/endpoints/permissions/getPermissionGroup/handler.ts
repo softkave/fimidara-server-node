@@ -2,6 +2,7 @@ import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js
 import {validate} from '../../../utils/validate.js';
 import {initEndpoint} from '../../utils/initEndpoint.js';
 import {
+  checkPermissionGroupAuthorization,
   getPermissionGroupByMatcher,
   permissionGroupExtractor,
 } from '../utils.js';
@@ -11,14 +12,16 @@ import {getPermissionGroupJoiSchema} from './validation.js';
 const getPermissionGroupEndpoint: GetPermissionGroupEndpoint =
   async reqData => {
     const data = validate(reqData.data, getPermissionGroupJoiSchema);
-    const {workspace} = await initEndpoint(reqData, {
-      data,
-      action: kFimidaraPermissionActions.readPermission,
-    });
+    const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
     const {permissionGroup} = await getPermissionGroupByMatcher(
-      workspace.resourceId,
+      workspaceId,
       data
+    );
+    await checkPermissionGroupAuthorization(
+      agent,
+      permissionGroup,
+      kFimidaraPermissionActions.readPermission
     );
 
     return {permissionGroup: permissionGroupExtractor(permissionGroup)};

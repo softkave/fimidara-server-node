@@ -1,5 +1,4 @@
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
-import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {validate} from '../../../utils/validate.js';
 import {
   applyDefaultEndpointPaginationOptions,
@@ -13,12 +12,9 @@ import {getPermissionGroupsJoiSchema} from './validation.js';
 
 const getPermissionGroups: GetPermissionGroupsEndpoint = async reqData => {
   const data = validate(reqData.data, getPermissionGroupsJoiSchema);
-  const {agent, workspace} = await initEndpoint(reqData, {
-    data,
-    action: kFimidaraPermissionActions.readPermission,
-  });
+  const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
-  const q = await getPermissionGroupsQuery(agent, workspace);
+  const q = await getPermissionGroupsQuery(agent, workspaceId);
   applyDefaultEndpointPaginationOptions(data);
   const items = await kSemanticModels
     .permissionGroup()

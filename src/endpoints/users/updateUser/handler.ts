@@ -18,7 +18,7 @@ import {updateUserJoiSchema} from './validation.js';
 
 const updateUserEndpoint: UpdateUserEndpoint = async reqData => {
   const data = validate(reqData.data, updateUserJoiSchema);
-  const {workspace, workspaceId, agent} = await initEndpoint(reqData);
+  const {workspaceId, agent} = await initEndpoint(reqData);
 
   const user = await kSemanticModels.utils().withTxn(async opts => {
     const user = await getUserFromSessionAgent(
@@ -42,7 +42,7 @@ const updateUserEndpoint: UpdateUserEndpoint = async reqData => {
 
     if (input.email && isEmailAddressUpdated) {
       await checkEmailAddressAvailability({
-        workspaceId: workspace.resourceId,
+        workspaceId,
         email: input.email,
       });
 

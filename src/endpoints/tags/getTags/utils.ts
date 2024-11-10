@@ -1,15 +1,18 @@
 import {resolveTargetChildrenAccessCheckWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {SessionAgent} from '../../../definitions/system.js';
-import {Workspace} from '../../../definitions/workspace.js';
 import {getWorkspaceResourceByIdList} from '../../utils.js';
 
-export async function getTagsQuery(agent: SessionAgent, workspace: Workspace) {
+export async function getTagsQuery(agent: SessionAgent, workspaceId: string) {
   const permissionsSummaryReport =
     await resolveTargetChildrenAccessCheckWithAgent({
       agent,
-      workspace,
-      workspaceId: workspace.resourceId,
-      target: {targetId: workspace.resourceId, action: 'readTag'},
+      workspaceId,
+      target: {
+        targetId: workspaceId,
+        action: kFimidaraPermissionActions.readTag,
+      },
     });
-  return getWorkspaceResourceByIdList(workspace, permissionsSummaryReport);
+
+  return getWorkspaceResourceByIdList(workspaceId, permissionsSummaryReport);
 }

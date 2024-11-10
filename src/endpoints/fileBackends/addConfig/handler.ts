@@ -10,10 +10,10 @@ import {addConfigJoiSchema} from './validation.js';
 const addFileBackendConfigEndpoint: AddFileBackendConfigEndpoint =
   async reqData => {
     const data = validate(reqData.data, addConfigJoiSchema);
-    const {agent, workspace} = await initEndpoint(reqData, {
-      data,
-      action: kFimidaraPermissionActions.addFileBackendConfig,
-    });
+    const {agent, getWorkspace} = await initEndpoint(reqData, {data});
+    const workspace = await getWorkspace(
+      kFimidaraPermissionActions.addFileBackendConfig
+    );
 
     const backend = await kSemanticModels.utils().withTxn(async opts => {
       return await addFileBackendConfig(agent, workspace, data, opts);

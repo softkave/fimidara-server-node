@@ -1,5 +1,4 @@
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
-import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {validate} from '../../../utils/validate.js';
 import {
   applyDefaultEndpointPaginationOptions,
@@ -13,10 +12,7 @@ import {getSummedUsageJoiSchema} from './validation.js';
 
 const getSummedUsage: GetSummedUsageEndpoint = async reqData => {
   const data = validate(reqData.data, getSummedUsageJoiSchema);
-  const {agent, workspaceId} = await initEndpoint(reqData, {
-    data,
-    action: kFimidaraPermissionActions.readUsage,
-  });
+  const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
   applyDefaultEndpointPaginationOptions(data);
   const {query} = await getSummedUsageQuery(agent, workspaceId, data);

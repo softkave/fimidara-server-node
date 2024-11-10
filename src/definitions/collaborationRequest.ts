@@ -1,5 +1,9 @@
 import {ValueOf} from 'type-fest';
-import {PublicResource, ToPublicDefinitions, WorkspaceResource} from './system.js';
+import {
+  PublicResource,
+  ToPublicDefinitions,
+  WorkspaceResource,
+} from './system.js';
 
 export const kCollaborationRequestStatusTypeMap = {
   Accepted: 'accepted',
@@ -20,7 +24,6 @@ export interface CollaborationRequest extends WorkspaceResource {
   recipientEmail: string;
   message: string;
   expiresAt?: number;
-  workspaceName: string;
   readAt?: number;
   status: CollaborationRequestStatusType;
   statusDate: number;
@@ -35,8 +38,9 @@ export type PublicCollaborationRequestForUser = PublicResource &
     | 'recipientEmail'
     | 'status'
     | 'statusDate'
-    | 'workspaceName'
-  >;
+  > & {
+    workspaceName: string;
+  };
 
 export type PublicCollaborationRequestForWorkspace =
   ToPublicDefinitions<CollaborationRequest>;

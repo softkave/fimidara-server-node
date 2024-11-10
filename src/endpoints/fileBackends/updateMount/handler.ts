@@ -25,7 +25,7 @@ import {
 import {queueJobs} from '../../jobs/queueJobs.js';
 import {isResourceNameEqual} from '../../utils.js';
 import {initEndpoint} from '../../utils/initEndpoint.js';
-import {assertRootname} from '../../workspaces/utils.js';
+import {assertRootname, assertWorkspace} from '../../workspaces/utils.js';
 import {
   fileBackendMountExtractor,
   mountExists,
@@ -40,11 +40,11 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint =
     const semanticUtils = kSemanticModels.utils();
 
     const data = validate(reqData.data, updateFileBackendMountJoiSchema);
-    const {agent, workspace} = await initEndpoint(reqData, {data});
+    const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
     await checkAuthorizationWithAgent({
       agent,
-      workspaceId: workspace.resourceId,
+      workspaceId,
       target: {
         action: kFimidaraPermissionActions.updateFileBackendMount,
         targetId: data.mountId,
@@ -55,6 +55,11 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint =
       const mount = await mountModel.getOneById(data.mountId, opts);
       appAssert(mount, kReuseableErrors.mount.notFound());
 
+      const workspace = await kSemanticModels
+        .workspace()
+        .getOneById(mount.workspaceId);
+      assertWorkspace(workspace);
+
       if (mount.backend === kFileBackendType.fimidara) {
         throw kReuseableErrors.mount.cannotUpdateFimidaraMount();
       }
@@ -62,13 +67,7 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint =
       if (data.mount.configId) {
         const backendConfig = await kSemanticModels
           .fileBackendConfig()
-          .getOneByQuery(
-            {
-              workspaceId: workspace.resourceId,
-              resourceId: data.mount.configId,
-            },
-            opts
-          );
+          .getOneByQuery({workspaceId, resourceId: data.mount.configId}, opts);
 
         if (!backendConfig) {
           throw kReuseableErrors.config.notFound();
@@ -130,7 +129,7 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint =
       if (isFolderpathChanged || isMountedFromChanged) {
         const exists = await mountExists(
           {
-            workspaceId: workspace.resourceId,
+            workspaceId,
             backend: mount.backend,
             namepath: data.mount.folderpath
               ? getFolderpathInfo(data.mount.folderpath, {
@@ -155,7 +154,7 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint =
         !isResourceNameEqual(data.mount.name, mount.name)
       ) {
         const nameExists = await mountNameExists({
-          workspaceId: workspace.resourceId,
+          workspaceId,
           name: data.mount.name,
         });
 
@@ -168,7 +167,7 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint =
 
       if (isFolderpathChanged || isMountedFromChanged) {
         [job] = await queueJobs<CleanupMountResolvedEntriesJobParams>(
-          workspace.resourceId,
+          workspaceId,
           /** parent job ID */ undefined,
           {
             createdBy: agent,

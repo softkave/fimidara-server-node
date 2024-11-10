@@ -14,7 +14,6 @@ import {
   ResourceWrapper,
   SessionAgent,
 } from '../../../definitions/system.js';
-import {Workspace} from '../../../definitions/workspace.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {convertToArray} from '../../../utils/fns.js';
 import {indexArray} from '../../../utils/indexArray.js';
@@ -41,7 +40,7 @@ type FlattenedPermissionRequestItem = {
 /** Fetch artifacts and ensure they belong to workspace. */
 async function getArtifacts(
   agent: SessionAgent,
-  workspace: Workspace,
+  workspaceId: string,
   data: ResolvePermissionsEndpointParams
 ) {
   let inputEntities: string[] = [];
@@ -60,10 +59,10 @@ async function getArtifacts(
     new InvalidRequestError('No permission entity provided')
   );
   const [entities, targets] = await Promise.all([
-    getPermissionItemEntities(agent, workspace.resourceId, inputEntities),
+    getPermissionItemEntities(agent, workspaceId, inputEntities),
     getPermissionItemTargets(
       agent,
-      workspace,
+      workspaceId,
       inputTargets,
       kFimidaraPermissionActions.readPermission
     ),
@@ -73,10 +72,7 @@ async function getArtifacts(
 }
 
 /** Index artifacts for quick retrieval. */
-function indexArtifacts(
-  workspace: Workspace,
-  entities: ResourceWrapper<Resource>[]
-) {
+function indexArtifacts(entities: ResourceWrapper<Resource>[]) {
   const entitiesMapById = indexArray(entities, {path: 'resourceId'});
   const getEntities = (inputEntity: string | string[]) => {
     const eMap: Record<string, ResourceWrapper> = {};
@@ -94,11 +90,11 @@ function indexArtifacts(
 
 export const resolvePermissions = async (
   agent: SessionAgent,
-  workspace: Workspace,
+  workspaceId: string,
   data: ResolvePermissionsEndpointParams
 ) => {
-  const {entities, targets} = await getArtifacts(agent, workspace, data);
-  const {getEntities} = indexArtifacts(workspace, entities);
+  const {entities, targets} = await getArtifacts(agent, workspaceId, data);
+  const {getEntities} = indexArtifacts(entities);
 
   // Requested permissions flattened to individual items, for example, list of
   // entity IDs, target IDs, target type, appliesTo, etc. flattened into
@@ -154,10 +150,10 @@ export const resolvePermissions = async (
   const checkers = await Promise.all(
     itemsToResolve.map(nextItem =>
       getAuthorizationAccessChecker({
-        workspaceId: workspace.resourceId,
+        workspaceId,
         target: {
           targetId: getResourcePermissionContainers(
-            workspace.resourceId,
+            workspaceId,
             nextItem.target.resource,
             true
           ),
@@ -194,7 +190,7 @@ export const resolvePermissions = async (
 
 export async function checkResolvePermissionsAuth(
   agent: SessionAgent,
-  workspace: Workspace,
+  workspaceId: string,
   data: ResolvePermissionsEndpointParams,
   opts?: SemanticProviderOpParams
 ) {
@@ -206,9 +202,9 @@ export async function checkResolvePermissionsAuth(
     await checkAuthorizationWithAgent({
       agent,
       opts,
-      workspaceId: workspace.resourceId,
+      workspaceId,
       target: {
-        targetId: workspace.resourceId,
+        targetId: workspaceId,
         action: kFimidaraPermissionActions.readPermission,
       },
     });

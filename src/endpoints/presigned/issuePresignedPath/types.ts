@@ -1,8 +1,10 @@
 import {FileMatcher} from '../../../definitions/file.js';
 import {FimidaraPermissionAction} from '../../../definitions/permissionItem.js';
-import {Endpoint} from '../../types.js';
+import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
-export interface IssuePresignedPathEndpointParams extends FileMatcher {
+export interface IssuePresignedPathEndpointParams
+  extends FileMatcher,
+    EndpointOptionalWorkspaceIdParam {
   expires?: number;
   duration?: number;
   usageCount?: number;

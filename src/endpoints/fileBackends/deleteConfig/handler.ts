@@ -13,11 +13,11 @@ const deleteFileBackendConfig: DeleteFileBackendConfigEndpoint =
   async reqData => {
     const configModel = kSemanticModels.fileBackendConfig();
     const data = validate(reqData.data, deleteFileBackendConfigJoiSchema);
-    const {agent, workspace} = await initEndpoint(reqData, {data});
+    const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
     await checkAuthorizationWithAgent({
       agent,
-      workspaceId: workspace.resourceId,
+      workspaceId,
       target: {
         action: kFimidaraPermissionActions.deleteFileBackendConfig,
         targetId: data.configId,
@@ -37,7 +37,7 @@ const deleteFileBackendConfig: DeleteFileBackendConfigEndpoint =
 
     const [job] = await beginDeleteFileBackendConfig({
       agent,
-      workspaceId: workspace.resourceId,
+      workspaceId,
       resources: [config],
     });
     appAssert(job);

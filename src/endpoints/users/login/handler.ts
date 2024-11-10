@@ -11,18 +11,18 @@ import {loginJoiSchema} from './validation.js';
 
 const loginEndpoint: LoginEndpoint = async reqData => {
   const data = validate(reqData.data, loginJoiSchema);
-  const {workspace} = await initEndpoint(reqData);
+  const {workspaceId} = await initEndpoint(reqData);
 
   let user: User | null = null;
   if (data.email) {
     user = await kSemanticModels.user().getByEmail({
+      workspaceId,
       email: data.email,
-      workspaceId: workspace.resourceId,
     });
   } else if (data.userId) {
     user = await kSemanticModels.user().getByUserId({
+      workspaceId,
       userId: data.userId,
-      workspaceId: workspace.resourceId,
     });
   }
 

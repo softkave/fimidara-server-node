@@ -8,11 +8,11 @@ import {getUserJoiSchema} from './validation.js';
 
 const getUserEndpoint: GetUserEndpoint = async reqData => {
   const data = validate(reqData.data, getUserJoiSchema);
-  const {agent, workspace} = await initEndpoint(reqData);
+  const {agent, workspaceId} = await initEndpoint(reqData);
   const user = await kSemanticModels.utils().withTxn(async opts => {
     return getUserFromSessionAgent(
       agent,
-      /** params */ {workspaceId: workspace.resourceId, userId: data.userId},
+      /** params */ {workspaceId, userId: data.userId},
       opts
     );
   });

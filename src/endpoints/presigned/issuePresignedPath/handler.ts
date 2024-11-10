@@ -84,7 +84,6 @@ const issuePresignedPath: IssuePresignedPathEndpoint = async reqData => {
           agent,
           opts,
           workspaceId,
-          workspace: workspace || undefined,
           target: {
             action,
             targetId: getResourcePermissionContainers(

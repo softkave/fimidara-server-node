@@ -7,9 +7,9 @@ import {countAgentTokenJoiSchema} from './validation.js';
 
 const countAgentTokensEndpoint: CountAgentTokensEndpoint = async reqData => {
   const data = validate(reqData.data, countAgentTokenJoiSchema);
-  const {agent, workspace} = await initEndpoint(reqData, {data});
+  const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
-  const q = await getAgentTokensQuery(agent, workspace);
+  const q = await getAgentTokensQuery(agent, workspaceId);
   const count = await kSemanticModels
     .agentToken()
     .countManyByWorkspaceAndIdList(q);

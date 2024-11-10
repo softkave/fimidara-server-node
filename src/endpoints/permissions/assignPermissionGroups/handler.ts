@@ -12,10 +12,10 @@ import {assignPermissionGroupsJoiSchema} from './validation.js';
 const assignPermissionGroupsEndpoint: AssignPermissionGroupsEndpoint =
   async reqData => {
     const data = validate(reqData.data, assignPermissionGroupsJoiSchema);
-    const {agent, workspace} = await initEndpoint(reqData, {
-      data,
-      action: kFimidaraPermissionActions.updatePermission,
-    });
+    const {agent, getWorkspace} = await initEndpoint(reqData, {data});
+    const workspace = await getWorkspace(
+      kFimidaraPermissionActions.updatePermission
+    );
 
     const entityIdList = convertToArray(data.entityId);
     const pgIdList = convertToArray(data.permissionGroupId);
@@ -25,7 +25,7 @@ const assignPermissionGroupsEndpoint: AssignPermissionGroupsEndpoint =
         agent,
         workspace.resourceId,
         entityIdList,
-        'updatePermission'
+        kFimidaraPermissionActions.updatePermission
       ),
       await checkPermissionGroupsExist(workspace.resourceId, pgIdList),
     ]);

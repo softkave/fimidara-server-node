@@ -23,7 +23,7 @@ const resolveFileBackendMounts: ResolveFileBackendMountsEndpoint =
       reqData.data,
       resolveWorkspaceFileBackendMountJoiSchema
     );
-    const {agent, workspace} = await initEndpoint(reqData, {data});
+    const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
     let fileOrFolder: Pick<File, 'workspaceId' | 'namepath' | 'idPath'> | null =
       null;
@@ -34,7 +34,7 @@ const resolveFileBackendMounts: ResolveFileBackendMountsEndpoint =
         allowRootFolder: false,
       });
       fileOrFolder = await kSemanticModels.folder().getOneByNamepath({
-        workspaceId: workspace.resourceId,
+        workspaceId,
         namepath: pathinfo.namepath,
       });
     } else if (data.filepath) {
@@ -43,7 +43,7 @@ const resolveFileBackendMounts: ResolveFileBackendMountsEndpoint =
         allowRootFolder: false,
       });
       fileOrFolder = await fileModel.getOneByNamepath({
-        workspaceId: workspace.resourceId,
+        workspaceId,
         namepath: pathinfo.namepath,
         ext: pathinfo.ext,
       });
@@ -63,14 +63,15 @@ const resolveFileBackendMounts: ResolveFileBackendMountsEndpoint =
         agent,
         fileOrFolder,
         kFimidaraPermissionActions.readFolder,
-        workspace
+        workspaceId
       );
     } else if (data.fileId || data.filepath) {
       appAssert(fileOrFolder, kReuseableErrors.file.notFound());
       checkFileAuthorization(
         agent,
         fileOrFolder,
-        kFimidaraPermissionActions.readFile
+        kFimidaraPermissionActions.readFile,
+        workspaceId
       );
     }
 

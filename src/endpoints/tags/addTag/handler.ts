@@ -12,10 +12,8 @@ import {addTagJoiSchema} from './validation.js';
 
 const addTag: AddTagEndpoint = async reqData => {
   const data = validate(reqData.data, addTagJoiSchema);
-  const {agent, workspace} = await initEndpoint(reqData, {
-    data,
-    action: kFimidaraPermissionActions.addTag,
-  });
+  const {agent, getWorkspace} = await initEndpoint(reqData, {data});
+  const workspace = await getWorkspace(kFimidaraPermissionActions.addTag);
 
   const tag = newWorkspaceResource<Tag>(
     agent,

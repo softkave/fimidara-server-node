@@ -17,12 +17,12 @@ import {forgotPasswordJoiSchema} from './validation.js';
 
 export const forgotPasswordEndpoint: ForgotPasswordEndpoint = async reqData => {
   const data = validate(reqData.data, forgotPasswordJoiSchema);
-  const {agent, workspace} = await initEndpoint(reqData);
+  const {agent, workspaceId} = await initEndpoint(reqData);
   const user = await kSemanticModels.utils().withTxn(async opts => {
     return await getUserFromSessionAgent(
       agent,
       /** params */ {
-        workspaceId: workspace.resourceId,
+        workspaceId,
         userId: data.userId,
         email: data.email,
       },
@@ -32,7 +32,7 @@ export const forgotPasswordEndpoint: ForgotPasswordEndpoint = async reqData => {
 
   kUtilsInjectables.promises().forget(
     queueJobs<EmailJobParams>(
-      /** workspaceId */ workspace.resourceId,
+      /** workspaceId */ workspaceId,
       /** parentJobId */ undefined,
       /** jobsInput */ {
         createdBy: kSystemSessionAgent,

@@ -7,10 +7,10 @@ import {resolvePermissionsJoiSchema} from './validation.js';
 const resolvePermissionsEndpoint: ResolvePermissionsEndpoint =
   async reqData => {
     const data = validate(reqData.data, resolvePermissionsJoiSchema);
-    const {agent, workspace} = await initEndpoint(reqData, {data});
+    const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
-    await checkResolvePermissionsAuth(agent, workspace, data);
-    const checkResult = await resolvePermissions(agent, workspace, data);
+    await checkResolvePermissionsAuth(agent, workspaceId, data);
+    const checkResult = await resolvePermissions(agent, workspaceId, data);
 
     return {items: checkResult};
   };

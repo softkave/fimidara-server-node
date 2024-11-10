@@ -37,7 +37,7 @@ import {
   AddFileBackendMountEndpointParams,
   NewFileBackendMountInput,
 } from '../fileBackends/addMount/types.js';
-import uploadFile from '../files/uploadFile/handler.js';
+import uploadFileEndpoint from '../files/uploadFile/handler.js';
 import {UploadFileEndpointParams} from '../files/uploadFile/types.js';
 import addFolder from '../folders/addFolder/handler.js';
 import {
@@ -458,7 +458,7 @@ export async function insertFileForTest(
       : mockExpressRequestForPublicAgent(),
     input
   );
-  const result = await uploadFile(reqData);
+  const result = await uploadFileEndpoint(reqData);
   assertEndpointResultOk(result);
 
   const rawFile = await kSemanticModels

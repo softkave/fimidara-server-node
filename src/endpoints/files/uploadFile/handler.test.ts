@@ -68,7 +68,7 @@ import {FileQueries} from '../queries.js';
 import readFile from '../readFile/handler.js';
 import {ReadFileEndpointParams} from '../readFile/types.js';
 import {getFilepathInfo, stringifyFilenamepath} from '../utils.js';
-import uploadFile from './handler.js';
+import uploadFileEndpoint from './handler.js';
 import {UploadFileEndpointParams} from './types.js';
 import {uploadFileBaseTest} from './uploadFileTestUtils.js';
 
@@ -367,7 +367,7 @@ describe('uploadFile', () => {
               size: buf.byteLength,
             }
           );
-        const result = await uploadFile(reqData);
+        const result = await uploadFileEndpoint(reqData);
         assertEndpointResultOk(result);
       },
       leafLength,

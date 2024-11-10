@@ -9,10 +9,10 @@ import {addPermissionItemsJoiSchema} from './validation.js';
 const addPermissionItemsEndpoint: AddPermissionItemsEndpoint =
   async reqData => {
     const data = validate(reqData.data, addPermissionItemsJoiSchema);
-    const {agent, workspace} = await initEndpoint(reqData, {
-      data,
-      action: kFimidaraPermissionActions.updatePermission,
-    });
+    const {agent, getWorkspace} = await initEndpoint(reqData, {data});
+    const workspace = await getWorkspace(
+      kFimidaraPermissionActions.updatePermission
+    );
 
     await kSemanticModels
       .utils()

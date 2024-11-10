@@ -1,10 +1,12 @@
 import {omit} from 'lodash-es';
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {Folder} from '../../../definitions/folder.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
+import {initEndpoint} from '../../utils/initEndpoint.js';
 import {
   assertFolder,
   checkFolderAuthorization02,
@@ -12,7 +14,6 @@ import {
 } from '../utils.js';
 import {UpdateFolderEndpoint} from './types.js';
 import {updateFolderJoiSchema} from './validation.js';
-import {initEndpoint} from '../../utils/initEndpoint.js';
 
 const updateFolder: UpdateFolderEndpoint = async reqData => {
   const data = validate(reqData.data, updateFolderJoiSchema);
@@ -22,8 +23,8 @@ const updateFolder: UpdateFolderEndpoint = async reqData => {
     const {folder} = await checkFolderAuthorization02(
       agent,
       data,
-      'updateFolder',
-      /** workspace */ undefined,
+      kFimidaraPermissionActions.updateFolder,
+      /** workspaceId */ undefined,
       opts
     );
     const update: Partial<Folder> = {

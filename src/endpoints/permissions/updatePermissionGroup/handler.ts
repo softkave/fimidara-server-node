@@ -18,10 +18,10 @@ import {updatePermissionGroupJoiSchema} from './validation.js';
 const updatePermissionGroupEndpoint: UpdatePermissionGroupEndpoint =
   async reqData => {
     const data = validate(reqData.data, updatePermissionGroupJoiSchema);
-    const {agent, workspace} = await initEndpoint(reqData, {
-      data,
-      action: kFimidaraPermissionActions.updatePermission,
-    });
+    const {agent, getWorkspace} = await initEndpoint(reqData, {data});
+    const workspace = await getWorkspace(
+      kFimidaraPermissionActions.updatePermission
+    );
 
     const permissionGroup = await kSemanticModels
       .utils()

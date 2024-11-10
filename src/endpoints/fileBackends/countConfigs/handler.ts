@@ -9,9 +9,9 @@ const countFileBackendConfigs: CountFileBackendConfigsEndpoint =
   async reqData => {
     const configModel = kSemanticModels.fileBackendConfig();
     const data = validate(reqData.data, countWorkspaceAgentTokenJoiSchema);
-    const {agent, workspace} = await initEndpoint(reqData, {data});
+    const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
-    const query = await getFileBackendConfigsQuery(agent, workspace, data);
+    const query = await getFileBackendConfigsQuery(agent, workspaceId, data);
     const count = await configModel.countByQuery(query);
 
     return {count};

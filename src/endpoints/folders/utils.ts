@@ -43,7 +43,7 @@ import {
   initBackendProvidersForMounts,
   resolveMountsForFolder,
 } from '../fileBackends/mountUtils.js';
-import {assertRootname, checkWorkspaceExists} from '../workspaces/utils.js';
+import {assertRootname} from '../workspaces/utils.js';
 import {createFolderList} from './addFolder/createFolderList.js';
 import {kFolderConstants} from './constants.js';
 import {FolderNotFoundError} from './errors.js';
@@ -162,25 +162,20 @@ export async function checkFolderAuthorization<
   agent: SessionAgent,
   folder: T,
   action: FimidaraPermissionAction,
-  workspace?: Workspace,
+  workspaceId: string,
   opts?: SemanticProviderOpParams
 ) {
-  if (!workspace) {
-    workspace = await checkWorkspaceExists(folder.workspaceId, opts);
-  }
-
   await checkAuthorizationWithAgent({
     agent,
-    workspace,
     opts,
-    workspaceId: workspace.resourceId,
+    workspaceId,
     target: {
       action,
-      targetId: getFilePermissionContainers(workspace.resourceId, folder, true),
+      targetId: getFilePermissionContainers(workspaceId, folder, true),
     },
   });
 
-  return {agent, workspace, folder};
+  return {agent, folder};
 }
 
 export async function checkFolderAuthorization02(

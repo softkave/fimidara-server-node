@@ -1,22 +1,18 @@
 import {OrArray} from 'softkave-js-utils';
 import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {
-  FimidaraPermissionAction,
-  kFimidaraPermissionActions,
-} from '../../definitions/permissionItem.js';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {
   FimidaraResourceType,
   SessionAgent,
   TokenAccessScope,
 } from '../../definitions/system.js';
-import {Workspace} from '../../definitions/workspace.js';
 import {appAssert} from '../../utils/assertion.js';
-import {NotFoundError} from '../errors.js';
+import {InvalidRequestError, NotFoundError} from '../errors.js';
 import RequestData from '../RequestData.js';
 import {EndpointOptionalWorkspaceIdParam} from '../types.js';
 import {
-  checkWorkspaceAuthorization02,
+  checkWorkspaceAuthorization,
   checkWorkspaceExists,
 } from '../workspaces/utils.js';
 
@@ -31,6 +27,23 @@ function makeGetUser(agent: SessionAgent) {
   return () => getUser(agent);
 }
 
+async function getWorkspace(
+  agent: SessionAgent,
+  workspaceId: string,
+  action: FimidaraPermissionAction
+) {
+  const workspace = await checkWorkspaceExists(workspaceId);
+  await checkWorkspaceAuthorization(agent, workspaceId, action);
+  return workspace;
+}
+
+function makeGetWorkspace(agent: SessionAgent, reqWorkspaceId: string) {
+  return async (
+    action: FimidaraPermissionAction,
+    workspaceId = reqWorkspaceId
+  ) => getWorkspace(agent, workspaceId, action);
+}
+
 // TODO: maybe action
 export async function initEndpoint(
   reqData: RequestData,
@@ -38,14 +51,12 @@ export async function initEndpoint(
     permittedAgentType?: OrArray<FimidaraResourceType>;
     tokenScope?: OrArray<TokenAccessScope>;
     data?: EndpointOptionalWorkspaceIdParam;
-    action?: FimidaraPermissionAction;
   } = {}
 ) {
   const {
     data,
     permittedAgentType = kSessionUtils.permittedAgentType.api,
     tokenScope = kSessionUtils.accessScope.api,
-    action = kFimidaraPermissionActions.readWorkspace,
   } = params;
 
   const agent = await kUtilsInjectables
@@ -57,23 +68,13 @@ export async function initEndpoint(
     data?.workspaceId ||
     (reqData as RequestData<EndpointOptionalWorkspaceIdParam | undefined>).data
       ?.workspaceId;
+  const workspaceId = providedWorkspaceId || agentWorkspaceId;
+  appAssert(workspaceId, new InvalidRequestError('Workspace not found'));
 
-  let workspace: Workspace | undefined;
-  if (providedWorkspaceId && agentWorkspaceId !== providedWorkspaceId) {
-    ({workspace} = await checkWorkspaceAuthorization02(
-      agent,
-      action,
-      providedWorkspaceId
-    ));
-  } else if (agentWorkspaceId) {
-    workspace = await checkWorkspaceExists(agentWorkspaceId);
-  }
-
-  appAssert(workspace, new NotFoundError('Workspace not found'));
   return {
     agent,
-    workspaceId: workspace.resourceId,
-    workspace,
+    workspaceId,
+    getWorkspace: makeGetWorkspace(agent, workspaceId),
     getUser: makeGetUser(agent),
   };
 }

@@ -9,17 +9,15 @@ import {deleteAgentTokenJoiSchema} from './validation.js';
 
 const deleteAgentTokenEndpoint: DeleteAgentTokenEndpoint = async reqData => {
   const data = validate(reqData.data, deleteAgentTokenJoiSchema);
-  const {agent, workspace} = await initEndpoint(reqData, {data});
+  const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
   const {token} = await checkAgentTokenAuthorization02(
     agent,
-    workspace?.resourceId,
+    workspaceId,
     data.tokenId,
     data.providedResourceId,
     kFimidaraPermissionActions.deleteAgentToken
   );
-  const workspaceId = token.workspaceId;
-  appAssert(workspaceId);
 
   const [job] = await beginDeleteAgentToken({
     agent,

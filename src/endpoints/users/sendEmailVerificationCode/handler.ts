@@ -24,12 +24,12 @@ import {sendEmailVerificationCodeJoiSchema} from './validation.js';
 const sendEmailVerificationCodeEndpoint: SendEmailVerificationCodeEndpoint =
   async reqData => {
     const data = validate(reqData.data, sendEmailVerificationCodeJoiSchema);
-    const {workspace, agent} = await initEndpoint(reqData);
+    const {workspaceId, agent} = await initEndpoint(reqData);
 
     const user = await kSemanticModels.utils().withTxn(async opts => {
       return await getUserFromSessionAgent(
         agent,
-        /** params */ {workspaceId: workspace.resourceId, userId: data.userId},
+        /** params */ {workspaceId, userId: data.userId},
         opts
       );
     });
@@ -55,7 +55,7 @@ const sendEmailVerificationCodeEndpoint: SendEmailVerificationCodeEndpoint =
 
     kUtilsInjectables.promises().forget(
       queueJobs<EmailJobParams>(
-        /** workspaceId */ workspace.resourceId,
+        /** workspaceId */ workspaceId,
         /** parentJobId */ undefined,
         /** jobsInput */ {
           createdBy: kSystemSessionAgent,

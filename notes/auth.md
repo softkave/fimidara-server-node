@@ -15,3 +15,4 @@
 - all db fetch should use semantics + workspaceId
 - check right target is used for all
 - add auth tests
+- confirm workspace id matches fetched resources

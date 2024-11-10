@@ -12,10 +12,10 @@ import {updateWorkspaceJoiSchema} from './validation.js';
 
 const updateWorkspaceEndpoint: UpdateWorkspaceEndpoint = async reqData => {
   const data = validate(reqData.data, updateWorkspaceJoiSchema);
-  const {agent, workspace} = await initEndpoint(reqData, {
-    data,
-    action: kFimidaraPermissionActions.updateWorkspace,
-  });
+  const {agent, getWorkspace} = await initEndpoint(reqData, {data});
+  const workspace = await getWorkspace(
+    kFimidaraPermissionActions.updateWorkspace
+  );
 
   const updatedWorkspace = await kSemanticModels.utils().withTxn(async opts => {
     await Promise.all([

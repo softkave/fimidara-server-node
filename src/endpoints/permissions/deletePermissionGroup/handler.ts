@@ -3,7 +3,10 @@ import {appAssert} from '../../../utils/assertion.js';
 import {ServerError} from '../../../utils/errors.js';
 import {validate} from '../../../utils/validate.js';
 import {initEndpoint} from '../../utils/initEndpoint.js';
-import {checkPermissionGroupAuthorization03} from '../utils.js';
+import {
+  checkPermissionGroupAuthorization,
+  getPermissionGroupByMatcher,
+} from '../utils.js';
 import {DeletePermissionGroupEndpoint} from './types.js';
 import {beginDeletePermissionGroup} from './utils.js';
 import {deletePermissionGroupJoiSchema} from './validation.js';
@@ -11,20 +14,21 @@ import {deletePermissionGroupJoiSchema} from './validation.js';
 const deletePermissionGroupEndpoint: DeletePermissionGroupEndpoint =
   async reqData => {
     const data = validate(reqData.data, deletePermissionGroupJoiSchema);
-    const {agent, workspace} = await initEndpoint(reqData, {
-      data,
-      action: kFimidaraPermissionActions.updatePermission,
-    });
+    const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
-    const {permissionGroup} = await checkPermissionGroupAuthorization03(
+    const {permissionGroup} = await getPermissionGroupByMatcher(
+      workspaceId,
+      data
+    );
+    await checkPermissionGroupAuthorization(
       agent,
-      data,
+      permissionGroup,
       kFimidaraPermissionActions.updatePermission
     );
 
     const [job] = await beginDeletePermissionGroup({
       agent,
-      workspaceId: workspace.resourceId,
+      workspaceId,
       resources: [permissionGroup],
     });
 

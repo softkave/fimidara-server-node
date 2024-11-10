@@ -12,11 +12,11 @@ import {getFileBackendMountJoiSchema} from './validation.js';
 const getFileBackendMount: GetFileBackendMountEndpoint = async reqData => {
   const mountModel = kSemanticModels.fileBackendMount();
   const data = validate(reqData.data, getFileBackendMountJoiSchema);
-  const {agent, workspace} = await initEndpoint(reqData, {data});
+  const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
   await checkAuthorizationWithAgent({
     agent,
-    workspaceId: workspace.resourceId,
+    workspaceId,
     target: {
       action: kFimidaraPermissionActions.readFileBackendMount,
       targetId: data.mountId,

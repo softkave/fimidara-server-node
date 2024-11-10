@@ -1,5 +1,6 @@
 import {endOfMonth, startOfMonth} from 'date-fns';
 import {LiteralDataQuery} from '../../../contexts/data/types.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {SessionAgent} from '../../../definitions/system.js';
 import {
   UsageRecord,
@@ -8,7 +9,7 @@ import {
 } from '../../../definitions/usageRecord.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {convertToArray} from '../../../utils/fns.js';
-import {checkWorkspaceAuthorization02} from '../../workspaces/utils.js';
+import {checkWorkspaceAuthorization} from '../../workspaces/utils.js';
 import {GetSummedUsageEndpointParams} from './types.js';
 
 export async function getSummedUsageQuery(
@@ -17,7 +18,11 @@ export async function getSummedUsageQuery(
   data: GetSummedUsageEndpointParams
 ) {
   // TODO: should we include permissions check for usage records?
-  await checkWorkspaceAuthorization02(agent, 'readUsageRecord', workspaceId);
+  await checkWorkspaceAuthorization(
+    agent,
+    workspaceId,
+    kFimidaraPermissionActions.readUsage
+  );
 
   const query: LiteralDataQuery<UsageRecord> = {
     workspaceId: {$eq: workspaceId},

@@ -13,9 +13,9 @@ import {getCollaborationRequestsJoiSchema} from './validation.js';
 const getCollaborationRequestsEndpoint: GetCollaborationRequestsEndpoint =
   async reqData => {
     const data = validate(reqData.data, getCollaborationRequestsJoiSchema);
-    const {agent, workspace} = await initEndpoint(reqData, {data});
+    const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
-    const q = await getCollaborationRequestsQuery(agent, workspace);
+    const q = await getCollaborationRequestsQuery(agent, workspaceId);
     applyDefaultEndpointPaginationOptions(data);
     const requests = await kSemanticModels
       .collaborationRequest()

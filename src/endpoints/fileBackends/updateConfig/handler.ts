@@ -22,11 +22,11 @@ const updateFileBackendConfig: UpdateFileBackendConfigEndpoint =
     const secretsManager = kUtilsInjectables.secretsManager();
 
     const data = validate(reqData.data, updateFileBackendConfigJoiSchema);
-    const {agent, workspace} = await initEndpoint(reqData, {data});
+    const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
     await checkAuthorizationWithAgent({
       agent,
-      workspaceId: workspace.resourceId,
+      workspaceId,
       target: {
         action: kFimidaraPermissionActions.updateFileBackendConfig,
         targetId: data.configId,
@@ -49,7 +49,7 @@ const updateFileBackendConfig: UpdateFileBackendConfigEndpoint =
       ) {
         const configExists = await configNameExists({
           name: data.config.name,
-          workspaceId: workspace.resourceId,
+          workspaceId,
         });
 
         if (configExists) {

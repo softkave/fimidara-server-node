@@ -6,7 +6,6 @@ import {
 import {appAssert} from '../../../utils/assertion.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import {validate} from '../../../utils/validate.js';
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
 import {checkResourcesBelongsToWorkspace} from '../../resources/containerCheckFns.js';
 import {initEndpoint} from '../../utils/initEndpoint.js';
 import {GetJobStatusEndpoint} from './types.js';
@@ -15,10 +14,6 @@ import {getJobStatusJoiSchema} from './validation.js';
 const getJobStatus: GetJobStatusEndpoint = async reqData => {
   const data = validate(reqData.data, getJobStatusJoiSchema);
   const {agent} = await initEndpoint(reqData, {data});
-
-  if (agent.user) {
-    agent.user = await populateUserWorkspaces(agent.user);
-  }
 
   const job = await kSemanticModels.job().getOneById(data.jobId);
   appAssert(job, kReuseableErrors.job.notFound());

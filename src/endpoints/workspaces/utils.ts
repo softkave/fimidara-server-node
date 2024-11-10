@@ -67,27 +67,18 @@ export async function checkWorkspaceExistsWithAgent(
 
 export async function checkWorkspaceAuthorization(
   agent: SessionAgent,
-  workspace: Workspace,
+  workspaceId: string,
   action: FimidaraPermissionAction,
   opts?: SemanticProviderOpParams
 ) {
   await checkAuthorizationWithAgent({
     agent,
     opts,
-    workspaceId: workspace.resourceId,
-    target: {action, targetId: workspace.resourceId},
+    workspaceId,
+    target: {action, targetId: workspaceId},
   });
 
-  return {agent, workspace};
-}
-
-export async function checkWorkspaceAuthorization02(
-  agent: SessionAgent,
-  action: FimidaraPermissionAction,
-  workspaceId: string
-) {
-  const workspace = await checkWorkspaceExists(workspaceId);
-  return checkWorkspaceAuthorization(agent, workspace, action);
+  return {agent};
 }
 
 export function makeRootnameFromName(name: string): string {

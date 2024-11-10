@@ -10,11 +10,11 @@ import {encodeAgentTokenJoiSchema} from './validation.js';
 
 const encodeAgentTokenEndpoint: EncodeAgentTokenEndpoint = async reqData => {
   const data = validate(reqData.data, encodeAgentTokenJoiSchema);
-  const {agent, workspace} = await initEndpoint(reqData, {data});
+  const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
   const {token} = await checkAgentTokenAuthorization02(
     agent,
-    workspace?.resourceId,
+    workspaceId,
     data.tokenId,
     data.providedResourceId,
     kFimidaraPermissionActions.readAgentToken

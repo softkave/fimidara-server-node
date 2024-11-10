@@ -14,11 +14,11 @@ const deleteFileBackendMount: DeleteFileBackendMountEndpoint =
   async reqData => {
     const mountModel = kSemanticModels.fileBackendMount();
     const data = validate(reqData.data, deleteFileBackendMountJoiSchema);
-    const {agent, workspace} = await initEndpoint(reqData, {data});
+    const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
     await checkAuthorizationWithAgent({
       agent,
-      workspaceId: workspace.resourceId,
+      workspaceId,
       target: {
         action: kFimidaraPermissionActions.deleteFileBackendMount,
         targetId: data.mountId,
@@ -34,7 +34,7 @@ const deleteFileBackendMount: DeleteFileBackendMountEndpoint =
 
     const [job] = await beginDeleteFileBackendMount({
       agent,
-      workspaceId: workspace.resourceId,
+      workspaceId,
       resources: [mount],
     });
     appAssert(job);

@@ -11,9 +11,9 @@ import {getAssignedPermissionGroupsJoiSchema} from './validation.js';
 const getAssignedPermissionGroupsEndpoint: GetAssignedPermissionGroupsEndpoint =
   async reqData => {
     const data = validate(reqData.data, getAssignedPermissionGroupsJoiSchema);
-    const {agent, workspace} = await initEndpoint(reqData, {data});
+    const {agent, workspaceId} = await initEndpoint(reqData, {data});
 
-    await checkReadAssignedPermissionGroups(agent, workspace, data.entityId);
+    await checkReadAssignedPermissionGroups(agent, workspaceId, data.entityId);
     const result = await fetchAssignedPermissionGroupList(
       data.entityId,
       data.includeInheritedPermissionGroups ?? false
