@@ -30,14 +30,18 @@ export const resourceFields: ExtractFieldsFrom<PublicResource> = {
   lastUpdatedBy: agentExtractorIfPresent,
   deletedBy: agentExtractorIfPresent,
 };
-export const workspaceResourceFields: ExtractFieldsFrom<PublicWorkspaceResource> = {
-  ...resourceFields,
-  workspaceId: true,
-  createdBy: agentExtractor,
-  lastUpdatedBy: agentExtractor,
-};
+export const workspaceResourceFields: ExtractFieldsFrom<PublicWorkspaceResource> =
+  {
+    ...resourceFields,
+    workspaceId: true,
+    providedResourceId: true,
+    createdBy: agentExtractorIfPresent,
+    lastUpdatedBy: agentExtractorIfPresent,
+  };
 
-export const resourceExtractor = makeExtract(getFields<PublicResource>(resourceFields));
+export const resourceExtractor = makeExtract(
+  getFields<PublicResource>(resourceFields)
+);
 export const resourceListExtractor = makeListExtract(
   getFields<PublicResource>(resourceFields)
 );

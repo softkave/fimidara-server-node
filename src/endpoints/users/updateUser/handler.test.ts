@@ -23,10 +23,10 @@ import {
   insertUserForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
-import {EmailAddressNotAvailableError} from '../errors.js';
 import {userExtractor} from '../utils.js';
 import updateUserEndpoint from './handler.js';
 import {UpdateUserEndpointParams} from './types.js';
+import {ResourceExistsError} from '../../errors.js';
 
 /**
  * TODO:
@@ -119,6 +119,6 @@ describe('updateUser', () => {
 
     await expectErrorThrown(async () => {
       await updateUserEndpoint(reqData);
-    }, [EmailAddressNotAvailableError.name]);
+    }, [ResourceExistsError.name]);
   });
 });

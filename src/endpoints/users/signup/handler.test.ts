@@ -17,7 +17,7 @@ import {generateAndInsertUserListForTest} from '../../testUtils/generate/user.js
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {initTests, insertUserForTest} from '../../testUtils/testUtils.js';
-import {EmailAddressNotAvailableError} from '../errors.js';
+import {ResourceExistsError} from '../../errors.js';
 
 beforeAll(async () => {
   await initTests();
@@ -106,6 +106,6 @@ describe('signup, root level', () => {
 
     await expectErrorThrown(async () => {
       await insertUserForTest(userInput);
-    }, [EmailAddressNotAvailableError.name]);
+    }, [ResourceExistsError.name]);
   });
 });

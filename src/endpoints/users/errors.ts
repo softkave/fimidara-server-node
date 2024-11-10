@@ -8,18 +8,6 @@ import OperationError, {
 import {kEndpointConstants} from '../constants.js';
 import {ServerRecommendedActionsMap} from '../types.js';
 
-export class EmailAddressNotAvailableError extends OperationError {
-  name = 'EmailAddressNotAvailableError';
-  statusCode = kEndpointConstants.httpStatusCode.conflict;
-  constructor(props?: OperationErrorParameters | string) {
-    super(props);
-    this.message = getErrorMessageFromParams(
-      props,
-      'Email address is not available'
-    );
-  }
-}
-
 export class InvalidCredentialsError extends OperationError {
   name = 'InvalidCredentialsError';
   action = ServerRecommendedActionsMap.LoginAgain;

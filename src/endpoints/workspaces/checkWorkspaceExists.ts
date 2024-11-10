@@ -1,6 +1,6 @@
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
-import {WorkspaceExistsError, WorkspaceRootnameExistsError} from './errors.js';
+import {ResourceExistsError} from '../errors.js';
 
 export async function checkWorkspaceNameExists(
   params: {name: string; workspaceId?: string | null},
@@ -11,7 +11,7 @@ export async function checkWorkspaceNameExists(
     .workspaceExistsByName(params, opts);
 
   if (workspaceExists) {
-    throw new WorkspaceExistsError();
+    throw new ResourceExistsError('Workspace name not available');
   }
 }
 
@@ -24,6 +24,6 @@ export async function checkWorkspaceRootnameExists(
     .existsByRootname(params, opts);
 
   if (workspaceExists) {
-    throw new WorkspaceRootnameExistsError();
+    throw new ResourceExistsError('Workspace rootname not available');
   }
 }

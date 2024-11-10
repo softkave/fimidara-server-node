@@ -4,7 +4,7 @@ import {LoggerType} from '../contexts/logger/types.js';
 
 /** Added after the app initialization phase. */
 export interface FimidaraRuntimeConfig {
-  fimidaraWorkspaceId: string;
+  rootWorkspaceId: string;
 }
 
 export const kFimidaraConfigFilePersistenceProvider = {
@@ -84,10 +84,8 @@ export type FimidaraSuppliedConfig = Partial<{
   httpsPrivateKeyFilepath: string;
 
   // Management
-  rootUserEmail: string;
-  rootUserPassword: string;
-  rootUserFirstName: string;
-  rootUserLastName: string;
+  rootWorkspaceName: string;
+  rootWorkspaceRootname: string;
 
   // File
   fileBackend: FimidaraConfigFilePersistenceProvider;

@@ -4,8 +4,8 @@ import {PublicUser, User, UserWithWorkspace} from '../../definitions/user.js';
 import {appAssert} from '../../utils/assertion.js';
 import {getFields, makeExtract, makeListExtract} from '../../utils/extract.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
+import {ResourceExistsError} from '../errors.js';
 import {workspaceResourceFields} from '../extractors.js';
-import {EmailAddressNotAvailableError} from './errors.js';
 
 const publicUserFields = getFields<PublicUser>({
   ...workspaceResourceFields,
@@ -45,6 +45,6 @@ export async function checkEmailAddressAvailability(
 ) {
   const userExists = await kSemanticModels.user().existsByEmail(params, opts);
   if (userExists) {
-    throw new EmailAddressNotAvailableError();
+    throw new ResourceExistsError('Email address is not available');
   }
 }

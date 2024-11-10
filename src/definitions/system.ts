@@ -146,7 +146,7 @@ export const kFimidaraResourceTypeList = Object.values(kFimidaraResourceType);
 export interface AppRuntimeState extends Resource {
   resourceId: string; // use kAppRuntimeStatsDocId
   isAppSetup: boolean;
-  appWorkspaceId: string;
+  rootWorkspaceId: string;
 }
 
 export interface Resource {

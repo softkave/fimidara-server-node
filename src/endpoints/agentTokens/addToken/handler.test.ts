@@ -5,6 +5,8 @@ import {
   kSemanticModels,
   kUtilsInjectables,
 } from '../../../contexts/injection/injectables.js';
+import {ResourceExistsError} from '../../errors.js';
+import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   initTests,
@@ -13,12 +15,6 @@ import {
   insertWorkspaceForTest,
 } from '../../testUtils/testUtils.js';
 import {agentTokenExtractor, getPublicAgentToken} from '../utils.js';
-
-/**
- * TODO:
- * [Low] - Test that hanlder fails if token exists
- * [Low] - Test that hanlder fails if permissionGroups don't exist
- */
 
 beforeAll(async () => {
   await initTests();
@@ -29,25 +25,51 @@ afterAll(async () => {
 });
 
 describe('addAgentToken', () => {
-  test('Agent token added', async () => {
+  test.each(/** shouldEncode */ [true, false])(
+    'Agent token added, shouldEncode=%s',
+    async shouldEncode => {
+      const {userToken} = await insertUserForTest();
+      const {workspace} = await insertWorkspaceForTest(userToken);
+
+      const {token} = await insertAgentTokenForTest(
+        userToken,
+        workspace.resourceId,
+        {shouldEncode}
+      );
+
+      const savedToken = await getPublicAgentToken(
+        await kSemanticModels
+          .agentToken()
+          .assertGetOneByQuery({resourceId: token.resourceId}),
+        /** shouldEncode */ false
+      );
+      expect(agentTokenExtractor(savedToken)).toMatchObject(token);
+
+      if (shouldEncode) {
+        expect(savedToken.jwtToken).toBeDefined();
+        expect(savedToken.refreshToken).toBeDefined();
+        expect(savedToken.jwtTokenExpiresAt).toBeDefined();
+      } else {
+        expect(savedToken.jwtToken).not.toBeDefined();
+        expect(savedToken.refreshToken).not.toBeDefined();
+        expect(savedToken.jwtTokenExpiresAt).not.toBeDefined();
+      }
+    }
+  );
+
+  test('fails if agent token with name exists', async () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
-
     const {token} = await insertAgentTokenForTest(
       userToken,
       workspace.resourceId
     );
 
-    const savedToken = await getPublicAgentToken(
-      await kSemanticModels
-        .agentToken()
-        .assertGetOneByQuery({resourceId: token.resourceId}),
-      /** shouldEncode */ false
-    );
-    expect(agentTokenExtractor(savedToken)).toMatchObject(token);
-    expect(savedToken.jwtToken).not.toBeDefined();
-    expect(savedToken.refreshToken).not.toBeDefined();
-    expect(savedToken.jwtTokenExpiresAt).not.toBeDefined();
+    await expectErrorThrown(async () => {
+      await insertAgentTokenForTest(userToken, workspace.resourceId, {
+        name: token.name,
+      });
+    }, [ResourceExistsError.name]);
   });
 
   test.each([true, false])('shouldRefresh=%s', async shouldRefresh => {

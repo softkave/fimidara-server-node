@@ -1,13 +1,12 @@
 import {
-  Agent,
   FimidaraResourceType,
   PublicWorkspaceResource,
-  Resource,
   ToPublicDefinitions,
   TokenAccessScope,
+  WorkspaceResource,
 } from './system.js';
 
-export interface AgentToken extends Resource {
+export interface AgentToken extends WorkspaceResource {
   name?: string;
   description?: string;
   version: number;
@@ -15,10 +14,6 @@ export interface AgentToken extends Resource {
   forEntityId: string | null;
   /** Type of resource referenced by `forEntityId`. */
   entityType: FimidaraResourceType;
-  workspaceId: string | null;
-  providedResourceId?: string | null;
-  lastUpdatedBy: Agent;
-  createdBy: Agent;
   /** Timestamp in ms */
   expiresAt?: number;
   /** Describes what the token can be used for. */

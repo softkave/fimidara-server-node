@@ -12,37 +12,18 @@ import {
 } from '../../definitions/system.js';
 import {Workspace} from '../../definitions/workspace.js';
 import {FimidaraRuntimeConfig} from '../../resources/config.js';
+import {kSystemSessionAgent} from '../../utils/agent.js';
 import {getTimestamp} from '../../utils/dateFns.js';
 import {getNewIdForResource, kIdSize} from '../../utils/resource.js';
-import {makeUserSessionAgent} from '../../utils/sessionUtils.js';
 import EndpointReusableQueries from '../queries.js';
-import {INTERNAL_forgotPassword} from '../users/forgotPassword/handler.js';
-import {getUserToken} from '../users/login/utils.js';
-import {INTERNAL_sendEmailVerificationCode} from '../users/sendEmailVerificationCode/handler.js';
-import {INTERNAL_signupUser} from '../users/signup/utils.js';
-import INTERNAL_createWorkspace from '../workspaces/addWorkspace/createWorkspace.js';
+import {createWorkspace} from '../workspaces/addWorkspace/handler.js';
 import {assertWorkspace} from '../workspaces/utils.js';
-
-// TODO: there's currently a backwards way of doing things, where we first
-// initialize app before we run unit tests, meaning, the same things we're
-// trying to test are required to work before we can even test them. We need to
-// fix this for unit tests at the very least, but it may be okay for integration
-// tests.
 
 export const kAppRuntimeStatsDocId = getNewIdForResource(
   kFimidaraResourceType.System,
   kIdSize,
-  true
+  /** id0 */ true
 );
-
-export const kNewSignupsOnWaitlistJobIntervalMs = 1_000 * 60 * 60;
-export const kNewSignupsOnWaitlistJobIdempotencyToken = '1';
-
-/** 1 hour in ms */
-const kAppSetupVars = {
-  workspaceName: 'Fimidara',
-  rootname: 'fimidara',
-};
 
 async function setupWorkspace(
   agent: SessionAgent,
@@ -52,20 +33,22 @@ async function setupWorkspace(
   const result = await kSemanticModels.utils().withTxn(async opts => {
     const existingWorkspace = await kSemanticModels
       .workspace()
-      .getByRootname(rootname);
+      .getByRootname({rootname});
 
     if (existingWorkspace) {
       return {workspace: existingWorkspace};
     }
 
-    return await INTERNAL_createWorkspace(
+    return await createWorkspace(
       {
-        name,
-        rootname,
-        description: "System-generated workspace for Fimidara's own operations",
+        agent,
+        data: {
+          name,
+          rootname,
+          description:
+            "System-generated workspace for fimidara's own operations",
+        },
       },
-      agent,
-      agent.agentId,
       opts
     );
   });
@@ -73,78 +56,32 @@ async function setupWorkspace(
   return result;
 }
 
-async function setupDefaultUser() {
-  const {user, userToken} = await kSemanticModels
-    .utils()
-    .withTxn(async opts => {
-      const suppliedConfig = kUtilsInjectables.suppliedConfig();
-      const nodeEnv = process.env.NODE_ENV;
-      assert(suppliedConfig.rootUserEmail);
-      assert(suppliedConfig.rootUserPassword);
-      assert(suppliedConfig.rootUserFirstName);
-      assert(suppliedConfig.rootUserLastName);
-      let user = await kSemanticModels
-        .user()
-        .getByEmail(suppliedConfig.rootUserEmail, opts);
-
-      if (!user) {
-        const isDevRelatedvEnv =
-          nodeEnv === 'development' || nodeEnv === 'test';
-        user = await INTERNAL_signupUser(
-          {
-            email: suppliedConfig.rootUserEmail,
-            firstName: suppliedConfig.rootUserFirstName,
-            lastName: suppliedConfig.rootUserLastName,
-            password: suppliedConfig.rootUserPassword,
-          },
-          {
-            requiresPasswordChange: isDevRelatedvEnv ? false : true,
-            isEmailVerified: isDevRelatedvEnv ? true : false,
-            isOnWaitlist: false,
-          },
-          opts
-        );
-
-        if (!isDevRelatedvEnv) {
-          await INTERNAL_forgotPassword(user);
-          await INTERNAL_sendEmailVerificationCode(user);
-        }
-      }
-
-      const userToken = await getUserToken(user.resourceId, opts);
-      return {user, userToken};
-    });
-
-  const agent = makeUserSessionAgent(user, userToken);
-  return {user, userToken, agent};
-}
-
 export async function isRootWorkspaceSetup() {
-  const appRuntimeState = await kDataModels
+  return await kDataModels
     .appRuntimeState()
     .getOneByQuery(
       EndpointReusableQueries.getByResourceId(kAppRuntimeStatsDocId)
     );
-  return appRuntimeState;
 }
 
 async function getRootWorkspace(appRuntimeState: AppRuntimeState) {
   const appRuntimeVars: FimidaraRuntimeConfig = {
-    appWorkspaceId: appRuntimeState.appWorkspaceId,
+    rootWorkspaceId: appRuntimeState.rootWorkspaceId,
   };
 
   kRegisterUtilsInjectables.runtimeConfig(appRuntimeVars);
   const workspace = await kSemanticModels
     .workspace()
-    .getOneById(appRuntimeState.appWorkspaceId);
+    .getOneById(appRuntimeState.rootWorkspaceId);
   assertWorkspace(workspace);
+
   return workspace;
 }
 
 async function insertRuntimeVars(workspace: Workspace) {
   return await kSemanticModels.utils().withTxn(async opts => {
     const appRuntimeVars: FimidaraRuntimeConfig = {
-      appWorkspaceId: workspace.resourceId,
+      rootWorkspaceId: workspace.resourceId,
     };
 
     await kDataModels.appRuntimeState().insertItem(
@@ -164,41 +101,22 @@ async function insertRuntimeVars(workspace: Workspace) {
 }
 
 async function setupAppArtifacts(agent: SessionAgent) {
+  const {rootWorkspaceName, rootWorkspaceRootname} =
+    kUtilsInjectables.suppliedConfig();
+  assert.ok(rootWorkspaceName, 'rootWorkspaceName is required');
+  assert.ok(rootWorkspaceRootname, 'rootWorkspaceRootname is required');
+
   const {workspace} = await setupWorkspace(
     agent,
-    kAppSetupVars.workspaceName,
-    kAppSetupVars.rootname
+    rootWorkspaceName,
+    rootWorkspaceRootname
   );
 
   const {appRuntimeVars} = await insertRuntimeVars(workspace);
-
   kRegisterUtilsInjectables.runtimeConfig(appRuntimeVars);
+
   return workspace;
 }
-
-// async function setupNewUsersOnWaitlistJob() {
-//   const {FLAG_waitlistNewSignups} = kUtilsInjectables.suppliedConfig();
-
-//   if (!FLAG_waitlistNewSignups) {
-//     return;
-//   }
-
-//   await queueJobs<{}>(
-//     /** workspaceId */ undefined,
-//     /** parent job ID */ undefined,
-//     [
-//       {
-//         params: {},
-//         createdBy: kSystemSessionAgent,
-//         type: kJobType.newSignupsOnWaitlist,
-//         /** there should always be only one such job */
-//         idempotencyToken: kNewSignupsOnWaitlistJobIdempotencyToken,
-//         runCategory: kJobRunCategory.cron,
-//         cronInterval: kNewSignupsOnWaitlistJobIntervalMs,
-//       },
-//     ]
-//   );
-// }
 
 export async function initFimidara() {
   const appRuntimeState = await isRootWorkspaceSetup();
@@ -207,11 +125,6 @@ export async function initFimidara() {
     return await getRootWorkspace(appRuntimeState);
   }
 
-  const {agent} = await setupDefaultUser();
-  const [appArtifacts] = await Promise.all([
-    setupAppArtifacts(agent),
-    // setupNewUsersOnWaitlistJob(),
-  ]);
-
+  const appArtifacts = await setupAppArtifacts(kSystemSessionAgent);
   return appArtifacts;
 }

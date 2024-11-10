@@ -21,7 +21,7 @@ import {workspaceExtractor} from '../utils.js';
 import {AddWorkspaceEndpoint, NewWorkspaceInput} from './types.js';
 import {addWorkspaceJoiSchema} from './validation.js';
 
-const createWorkspace = async (
+export const createWorkspace = async (
   params: {
     data: NewWorkspaceInput;
     seed?: Partial<Workspace>;

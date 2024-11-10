@@ -16,3 +16,5 @@
 - check right target is used for all
 - add auth tests
 - confirm workspace id matches fetched resources
+- script to add root user
+- validation schema for config

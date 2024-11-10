@@ -5,7 +5,7 @@ import {ensureMongoTypeFields, resourceSchema} from './utils.js';
 const appRuntimeStateSchema = ensureMongoTypeFields<AppRuntimeState>({
   ...resourceSchema,
   isAppSetup: {type: Boolean, default: false},
-  appWorkspaceId: {type: String},
+  rootWorkspaceId: {type: String},
 });
 
 export type AppRuntimeStateDocument = Document<AppRuntimeState>;

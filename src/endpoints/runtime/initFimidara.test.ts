@@ -19,19 +19,15 @@ afterEach(async () => {
 
 describe('init app setup', () => {
   test('app is setup', async () => {
-    // setupApp is called internally when getting test context
-    const suppliedConfig = kUtilsInjectables.suppliedConfig();
+    // initFimidara is called internally when getting test context
     const runtimeVars = await kDataModels
       .appRuntimeState()
       .assertGetOneByQuery(
         EndpointReusableQueries.getByResourceId(kAppRuntimeStatsDocId)
       );
     await Promise.all([
-      kSemanticModels.user().assertGetOneByQuery({
-        email: suppliedConfig.rootUserEmail,
-      }),
       kSemanticModels.workspace().assertGetOneByQuery({
-        resourceId: runtimeVars.appWorkspaceId,
+        resourceId: runtimeVars.rootWorkspaceId,
       }),
     ]);
 
@@ -39,7 +35,7 @@ describe('init app setup', () => {
   });
 
   test('app not setup a second time', async () => {
-    const workspaceId = kUtilsInjectables.runtimeConfig().appWorkspaceId;
+    const workspaceId = kUtilsInjectables.runtimeConfig().rootWorkspaceId;
     const workspace = await initFimidara();
     expect(workspace.resourceId).toBe(workspaceId);
   });

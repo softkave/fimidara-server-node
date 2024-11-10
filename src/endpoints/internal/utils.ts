@@ -11,7 +11,7 @@ export async function assertUserIsPartOfRootWorkspace(agent: SessionAgent) {
   const workspaceAssignedItem = await kSemanticModels
     .assignedItem()
     .getOneByQuery({
-      assignedItemId: kUtilsInjectables.runtimeConfig().appWorkspaceId,
+      assignedItemId: kUtilsInjectables.runtimeConfig().rootWorkspaceId,
       assigneeId: agent.user.resourceId,
     });
   appAssert(workspaceAssignedItem, new PermissionDeniedError());

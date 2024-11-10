@@ -50,7 +50,7 @@ describe('upgradeWaitlistedUsers', () => {
       kSemanticModels.utils().withTxn(opts => {
         return assignWorkspaceToUser(
           kSystemSessionAgent,
-          kUtilsInjectables.runtimeConfig().appWorkspaceId,
+          kUtilsInjectables.runtimeConfig().rootWorkspaceId,
           user.resourceId,
           opts
         );
