@@ -4,7 +4,7 @@ import {kEndpointConstants} from '../constants.js';
 
 export const kFolderConstants = {
   minFolderNameLength: 1,
-  maxFolderNameLength: 50,
+  maxFolderNameLength: 70,
   maxFolderDepth: 10,
   separator: '/',
   volumeSeparator: ':',

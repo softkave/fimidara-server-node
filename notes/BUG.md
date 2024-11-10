@@ -20,4 +20,14 @@
 - loading and nothing found rendering together
 - opening permissions for a folder first shows no permission groups
 - server error not shown in fields
-- file upload is showing green though file upload failed
+- file upload time and speed
+- expanded design of file in upload file
+- input outline is truncated
+
+## CLI
+
+- close file descriptors
+
+##
+
+- unauthorized error from express-jwt, also means middleware not working

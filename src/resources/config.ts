@@ -126,6 +126,7 @@ export type FimidaraSuppliedConfig = Partial<{
 
   // Worker
   runnerLocation: string;
+  runnerCount: number;
 
   // Jobs
   // newSignupsOnWaitlistJobIntervalMs: number;
@@ -158,6 +159,6 @@ export type FimidaraSuppliedConfig = Partial<{
 export type FimidaraConfig = FimidaraSuppliedConfig & FimidaraRuntimeConfig;
 
 export function getSuppliedConfig(): FimidaraSuppliedConfig {
-  const envSuppliedConfig = config.util.toObject();
-  return envSuppliedConfig;
+  const suppliedConfig = config.util.toObject();
+  return suppliedConfig;
 }

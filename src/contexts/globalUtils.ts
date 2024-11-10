@@ -15,16 +15,17 @@ export async function globalSetup(overrideConfig: FimidaraSuppliedConfig = {}) {
   await kUtilsInjectables.dbConnection().wait();
 
   const suppliedConfig = kUtilsInjectables.suppliedConfig();
+  const logger = kUtilsInjectables.logger();
 
   if (suppliedConfig.useFimidaraApp) {
-    kUtilsInjectables.logger().log('Starting server app');
+    logger.log('starting server app');
     await kUtilsInjectables.serverApp().startApp();
-    kUtilsInjectables.logger().log('Started server app');
+    logger.log('started server app');
 
     if (suppliedConfig.useFimidaraWorkerPool) {
-      kUtilsInjectables.logger().log('Starting worker pool');
+      logger.log('starting worker pool');
       await kUtilsInjectables.workerPool().startPool();
-      kUtilsInjectables.logger().log('Started worker pool');
+      logger.log('started worker pool');
     }
   }
 

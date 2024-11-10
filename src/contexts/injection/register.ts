@@ -536,7 +536,10 @@ export async function registerUtilsInjectables(
 
     if (suppliedConfig.useFimidaraWorkerPool) {
       kRegisterUtilsInjectables.workerPool(
-        new FimidaraWorkerPool({server: serverApp})
+        new FimidaraWorkerPool({
+          server: serverApp,
+          workerCount: suppliedConfig.runnerCount,
+        })
       );
     }
   }

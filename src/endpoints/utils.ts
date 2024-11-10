@@ -43,7 +43,7 @@ export function extractExternalEndpointError(
 }
 
 export function getPublicErrors(inputError: unknown) {
-  const errors: OperationError[] = Array.isArray(inputError)
+  const errors: unknown[] = Array.isArray(inputError)
     ? inputError
     : [inputError];
 
@@ -53,8 +53,10 @@ export function getPublicErrors(inputError: unknown) {
   const preppedErrors: FimidaraExternalError[] = [];
   errors.forEach(
     errorItem =>
-      errorItem?.isPublicError &&
-      preppedErrors.push(extractExternalEndpointError(errorItem))
+      (errorItem as OperationError)?.isPublicError &&
+      preppedErrors.push(
+        extractExternalEndpointError(errorItem as OperationError)
+      )
   );
 
   if (preppedErrors.length === 0) {
