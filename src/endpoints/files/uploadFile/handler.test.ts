@@ -58,7 +58,6 @@ import {
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-  mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
 import {getCostForUsage} from '../../usage/constants.js';
 import {UsageLimitExceededError} from '../../usage/errors.js';
@@ -71,6 +70,7 @@ import {getFilepathInfo, stringifyFilenamepath} from '../utils.js';
 import uploadFileEndpoint from './handler.js';
 import {UploadFileEndpointParams} from './types.js';
 import {uploadFileBaseTest} from './uploadFileTestUtils.js';
+import {mockExpressRequestWithAgentToken} from '../../testUtils/helpers/request.js';
 
 /**
  * TODO:
@@ -206,14 +206,14 @@ describe('uploadFile', () => {
             {namepath: filepath.slice(0, -1)}
             // filepath already has rootname
           ),
-          index: 2,
+          weight: 2,
         }),
         insertFileBackendMountForTest(userToken, workspace, {
           folderpath: stringifyFolderpath(
             {namepath: filepath.slice(0, -1)}
             // filepath already has rootname
           ),
-          index: 1,
+          weight: 1,
         }),
       ]);
     const closerMountBackend = new MemoryFilePersistenceProvider();

@@ -126,8 +126,8 @@ describe('updateMount', () => {
           {
             matcher: input => !!input.index,
             expect: (input, result) => {
-              expect(updatedMount.index).toBe(input.index);
-              expect(result.mount.index).toBe(input.index);
+              expect(updatedMount.weight).toBe(input.index);
+              expect(result.mount.weight).toBe(input.index);
             },
           },
           {

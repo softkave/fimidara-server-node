@@ -35,7 +35,7 @@ export const addPermissionItems = async (
   agent: SessionAgent,
   workspace: Workspace,
   data: AddPermissionItemsEndpointParams,
-  opts: SemanticProviderMutationParams
+  opts?: SemanticProviderMutationParams
 ) => {
   let inputEntities: string[] = [];
   let inputTargets: PermissionItemInputTarget[] = [];
@@ -57,7 +57,7 @@ export const addPermissionItems = async (
     getPermissionItemEntities(agent, workspace.resourceId, inputEntities),
     getPermissionItemTargets(
       agent,
-      workspace,
+      workspace.resourceId,
       inputTargets,
       kFimidaraPermissionActions.updatePermission
     ),
@@ -202,6 +202,12 @@ export const addPermissionItems = async (
     return isNew;
   });
 
-  await kSemanticModels.permissionItem().insertItem(newPermissions, opts);
+  await kSemanticModels
+    .utils()
+    .withTxn(
+      opts => kSemanticModels.permissionItem().insertItem(newPermissions, opts),
+      opts
+    );
+
   return inputItems;
 };

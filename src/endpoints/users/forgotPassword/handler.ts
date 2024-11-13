@@ -11,7 +11,7 @@ import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {validate} from '../../../utils/validate.js';
 import {queueJobs} from '../../jobs/queueJobs.js';
 import {initEndpoint} from '../../utils/initEndpoint.js';
-import {getUserFromSessionAgent} from '../utils/getUserFromSessionAgent.js';
+import {getUserForEndpoint} from '../utils/getUserFromSessionAgent.js';
 import {ForgotPasswordEndpoint} from './types.js';
 import {forgotPasswordJoiSchema} from './validation.js';
 
@@ -19,7 +19,7 @@ export const forgotPasswordEndpoint: ForgotPasswordEndpoint = async reqData => {
   const data = validate(reqData.data, forgotPasswordJoiSchema);
   const {agent, workspaceId} = await initEndpoint(reqData);
   const user = await kSemanticModels.utils().withTxn(async opts => {
-    return await getUserFromSessionAgent(
+    return await getUserForEndpoint(
       agent,
       /** params */ {
         workspaceId,

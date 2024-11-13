@@ -57,10 +57,10 @@ describe('file backend mount utils', () => {
   });
 
   test('sortMounts', () => {
-    const mount01 = generateFileBackendMountForTest({index: 5});
-    const mount02 = generateFileBackendMountForTest({index: 3, createdAt: 10});
-    const mount03 = generateFileBackendMountForTest({index: 3, createdAt: 11});
-    const mount04 = generateFileBackendMountForTest({index: 2});
+    const mount01 = generateFileBackendMountForTest({weight: 5});
+    const mount02 = generateFileBackendMountForTest({weight: 3, createdAt: 10});
+    const mount03 = generateFileBackendMountForTest({weight: 3, createdAt: 11});
+    const mount04 = generateFileBackendMountForTest({weight: 2});
 
     const sortedMounts = sortMounts(
       faker.helpers.shuffle([mount01, mount02, mount03, mount04])
@@ -181,7 +181,7 @@ describe('file backend mount utils', () => {
         namepath: folderNamepath,
         backend: kFileBackendType.fimidara,
         workspaceId: workspace.resourceId,
-        index: /** higher weight */ 2,
+        weight: /** higher weight */ 2,
       }),
       insertFileBackendConfigForTest(userToken, workspace.resourceId, {
         backend: kFileBackendType.s3,
@@ -194,7 +194,7 @@ describe('file backend mount utils', () => {
         backend: kFileBackendType.s3,
         configId: s3Config.resourceId,
         workspaceId: workspace.resourceId,
-        index: /** lower weight */ 1,
+        weight: /** lower weight */ 1,
       }),
     ]);
 
@@ -229,7 +229,7 @@ describe('file backend mount utils', () => {
         namepath: folderNamepath,
         backend: kFileBackendType.fimidara,
         workspaceId: workspace.resourceId,
-        index: /** lower weight */ 1,
+        weight: /** lower weight */ 1,
       }),
       insertFileBackendConfigForTest(userToken, workspace.resourceId, {
         backend: kFileBackendType.s3,
@@ -241,7 +241,7 @@ describe('file backend mount utils', () => {
         backend: kFileBackendType.s3,
         configId: s3Config.resourceId,
         workspaceId: workspace.resourceId,
-        index: /** higher weight */ 2,
+        weight: /** higher weight */ 2,
       }),
     ]);
 

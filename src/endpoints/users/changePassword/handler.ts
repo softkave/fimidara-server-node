@@ -15,7 +15,7 @@ import {
 } from '../errors.js';
 import {getLoginResult} from '../login/utils.js';
 import {assertUser} from '../utils.js';
-import {getUserFromSessionAgent} from '../utils/getUserFromSessionAgent.js';
+import {getUserForEndpoint} from '../utils/getUserFromSessionAgent.js';
 import {ChangePasswordEndpoint} from './types.js';
 import {changePasswordJoiSchema} from './validation.js';
 
@@ -53,7 +53,7 @@ const changePasswordEndpoint: ChangePasswordEndpoint = async reqData => {
   });
 
   let user = await kSemanticModels.utils().withTxn(async opts => {
-    return await getUserFromSessionAgent(
+    return await getUserForEndpoint(
       agent,
       /** params */ {
         workspaceId,

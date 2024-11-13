@@ -17,7 +17,7 @@ import {INTERNAL_getResources} from '../resources/getResources.js';
 import {FetchResourceItem} from '../resources/types.js';
 import {
   PermissionItemInputTarget,
-  ResolvedEntityPermissionItemTarget,
+  ResolvedPermissionItemTarget,
 } from './types.js';
 
 export class PermissionItemTargets {
@@ -37,7 +37,7 @@ export class PermissionItemTargets {
   ) => {
     const targets: Record<
       string,
-      ResourceWrapper & ResolvedEntityPermissionItemTarget
+      ResourceWrapper & ResolvedPermissionItemTarget
     > = {};
 
     convertToArray(target).forEach(next => {
@@ -48,7 +48,7 @@ export class PermissionItemTargets {
 
           if (found) {
             const resolvedTarget: ResourceWrapper &
-              ResolvedEntityPermissionItemTarget = found;
+              ResolvedPermissionItemTarget = found;
             resolvedTarget.targetId = targetId;
             targets[targetId] = resolvedTarget;
           }
@@ -61,7 +61,7 @@ export class PermissionItemTargets {
 
           if (folder) {
             const resolvedTarget: ResourceWrapper &
-              ResolvedEntityPermissionItemTarget = folder;
+              ResolvedPermissionItemTarget = folder;
             resolvedTarget.folderpath = folderpath;
             targets[folder.resourceId] = resolvedTarget;
           }
@@ -74,7 +74,7 @@ export class PermissionItemTargets {
 
           if (file) {
             const resolvedTarget: ResourceWrapper &
-              ResolvedEntityPermissionItemTarget = file;
+              ResolvedPermissionItemTarget = file;
             resolvedTarget.filepath = filepath;
             targets[file.resourceId] = file;
           }
@@ -87,8 +87,8 @@ export class PermissionItemTargets {
           this.findWorkspaceByRootname(next.workspaceRootname);
 
         if (w) {
-          const resolvedTarget: ResourceWrapper &
-            ResolvedEntityPermissionItemTarget = w;
+          const resolvedTarget: ResourceWrapper & ResolvedPermissionItemTarget =
+            w;
           resolvedTarget.workspaceRootname = next.workspaceRootname;
           targets[w.resourceId] = w;
         }

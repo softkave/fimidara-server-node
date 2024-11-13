@@ -147,6 +147,7 @@ export interface AppRuntimeState extends Resource {
   resourceId: string; // use kAppRuntimeStatsDocId
   isAppSetup: boolean;
   rootWorkspaceId: string;
+  publicPermissionGroupId: string;
 }
 
 export interface Resource {

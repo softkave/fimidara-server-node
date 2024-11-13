@@ -15,7 +15,7 @@ import {
   AddWorkspaceEndpointParams,
   AddWorkspaceEndpointResult,
 } from './addWorkspace/types.js';
-import {workspaceConstants} from './constants.js';
+import {kWorkspaceConstants} from './constants.js';
 import {GetWorkspaceEndpointResult} from './getWorkspace/types.js';
 import {
   GetWorkspacesEndpointParams,
@@ -195,7 +195,7 @@ export const addWorkspaceEndpointDefinition = mddocConstruct
       AddWorkspaceHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(workspaceConstants.routes.addWorkspace)
+  .setBasePathname(kWorkspaceConstants.routes.addWorkspace)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(addWorkspaceParams)
   .setRequestHeaders(
@@ -228,7 +228,7 @@ export const getWorkspaceEndpointDefinition = mddocConstruct
       GetWorkspaceHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(workspaceConstants.routes.getWorkspace)
+  .setBasePathname(kWorkspaceConstants.routes.getWorkspace)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getWorkspaceParams)
   .setRequestHeaders(
@@ -261,7 +261,7 @@ export const getWorkspacesEndpointDefinition = mddocConstruct
       GetWorkspacesHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(workspaceConstants.routes.getWorkspaces)
+  .setBasePathname(kWorkspaceConstants.routes.getWorkspaces)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(getWorkspacesParams)
   .setRequestHeaders(
@@ -294,7 +294,7 @@ export const updateWorkspaceEndpointDefinition = mddocConstruct
       UpdateWorkspaceHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(workspaceConstants.routes.updateWorkspace)
+  .setBasePathname(kWorkspaceConstants.routes.updateWorkspace)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(updateWorkspaceParams)
   .setRequestHeaders(
@@ -327,7 +327,7 @@ export const deleteWorkspaceEndpointDefinition = mddocConstruct
       DeleteWorkspaceHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(workspaceConstants.routes.deleteWorkspace)
+  .setBasePathname(kWorkspaceConstants.routes.deleteWorkspace)
   .setMethod(HttpEndpointMethod.Delete)
   .setRequestBody(deleteWorkspaceParams)
   .setRequestHeaders(
@@ -360,7 +360,7 @@ export const countWorkspacesEndpointDefinition = mddocConstruct
       CountWorkspacesHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(workspaceConstants.routes.countWorkspaces)
+  .setBasePathname(kWorkspaceConstants.routes.countWorkspaces)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType

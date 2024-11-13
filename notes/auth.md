@@ -18,3 +18,4 @@
 - confirm workspace id matches fetched resources
 - script to add root user
 - validation schema for config
+- something to limit permissions to a workspace level

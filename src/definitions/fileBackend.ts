@@ -26,7 +26,7 @@ export interface FileBackendMount extends WorkspaceResource {
   mountedFrom: string[];
   /** Preferred backend mount for file or folder look up when multiple backends
    * are mounted to the same folderpath. Higher values have higher weight. */
-  index: number;
+  weight: number;
   backend: FileBackendType;
   configId: string | null;
   name: string;
@@ -58,7 +58,7 @@ export type PublicFileBackendMount = PublicWorkspaceResource &
     Pick<
       FileBackendMount,
       | 'namepath'
-      | 'index'
+      | 'weight'
       | 'mountedFrom'
       | 'backend'
       | 'name'

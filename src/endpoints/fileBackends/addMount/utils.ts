@@ -90,7 +90,7 @@ export const addFileBackendMount = async (
     {
       configId: data.configId,
       namepath: folderpathinfo.namepath,
-      index: data.index,
+      weight: data.weight,
       mountedFrom: mountedFromSplit,
       backend: data.backend,
       name: data.name,

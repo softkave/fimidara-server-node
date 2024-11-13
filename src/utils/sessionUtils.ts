@@ -7,7 +7,6 @@ import {
 import {User} from '../definitions/user.js';
 import {InvalidRequestError} from '../endpoints/errors.js';
 import {appAssert} from './assertion.js';
-import {kReuseableErrors} from './reusableErrors.js';
 
 export function makeWorkspaceAgentTokenAgent(
   agentToken: AgentToken
@@ -26,7 +25,7 @@ export function makeUserSessionAgent(
 ): SessionAgent {
   appAssert(
     user.resourceId === agentToken.forEntityId,
-    'user resouceId and agent token owner entity ID are not equal'
+    'User resouceId and agent token owner entity ID are not equal'
   );
   return {
     agentToken,
@@ -112,10 +111,4 @@ export function isSessionAgent(agent: unknown): agent is SessionAgent {
     return true;
 
   return false;
-}
-
-export function assertIsNotOnWaitlist(agent: SessionAgent) {
-  if (agent.user && agent.user.isOnWaitlist) {
-    throw kReuseableErrors.user.userOnWaitlist();
-  }
 }

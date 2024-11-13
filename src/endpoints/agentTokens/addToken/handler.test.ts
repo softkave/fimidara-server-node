@@ -15,6 +15,7 @@ import {
   insertWorkspaceForTest,
 } from '../../testUtils/testUtils.js';
 import {agentTokenExtractor, getPublicAgentToken} from '../utils.js';
+import {PermissionDeniedError} from '../../users/errors.js';
 
 beforeAll(async () => {
   await initTests();
@@ -57,21 +58,6 @@ describe('addAgentToken', () => {
     }
   );
 
-  test('fails if agent token with name exists', async () => {
-    const {userToken} = await insertUserForTest();
-    const {workspace} = await insertWorkspaceForTest(userToken);
-    const {token} = await insertAgentTokenForTest(
-      userToken,
-      workspace.resourceId
-    );
-
-    await expectErrorThrown(async () => {
-      await insertAgentTokenForTest(userToken, workspace.resourceId, {
-        name: token.name,
-      });
-    }, [ResourceExistsError.name]);
-  });
-
   test.each([true, false])('shouldRefresh=%s', async shouldRefresh => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
@@ -89,7 +75,7 @@ describe('addAgentToken', () => {
     );
 
     assert.ok(token.jwtToken);
-    const decodedToken = await kUtilsInjectables
+    const decodedToken = kUtilsInjectables
       .session()
       .decodeToken(token.jwtToken);
 
@@ -107,5 +93,33 @@ describe('addAgentToken', () => {
         expect(token.jwtTokenExpiresAt).not.toBeDefined();
       }
     }
+  });
+
+  test('fails if agent token with name exists', async () => {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    const {token} = await insertAgentTokenForTest(
+      userToken,
+      workspace.resourceId
+    );
+
+    await expectErrorThrown(async () => {
+      await insertAgentTokenForTest(userToken, workspace.resourceId, {
+        name: token.name,
+      });
+    }, [ResourceExistsError.name]);
+  });
+
+  test('fails if agent does not have permission', async () => {
+    const {userToken} = await insertUserForTest();
+    const {workspace} = await insertWorkspaceForTest(userToken);
+    const {rawToken: unauthorizedToken} = await insertAgentTokenForTest(
+      userToken,
+      workspace.resourceId
+    );
+
+    await expectErrorThrown(async () => {
+      await insertAgentTokenForTest(unauthorizedToken, workspace.resourceId);
+    }, [PermissionDeniedError.name]);
   });
 });

@@ -51,5 +51,9 @@
   "addFolderQueuePrefix": "addFolderQueue",
   "addFolderPubSubChannelPrefix": "addFolderPubSub",
   "pubSubProvider": "",
-  "pubSubRedisURL": ""
+  "pubSubRedisURL": "",
+  "rootWorkspaceName": "fimidara",
+  "rootWorkspaceRootname": "fimidara",
+  "publicPermissionGroupName": "public",
+  "publicPermissions": ["signup"]
 }

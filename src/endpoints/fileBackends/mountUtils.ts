@@ -41,9 +41,9 @@ export type FileBackendMountWeights = Record<string, number>;
 
 export function sortMounts(mounts: FileBackendMount[]) {
   return mounts.sort((mount01, mount02) => {
-    if (mount01.index > mount02.index) {
+    if (mount01.weight > mount02.weight) {
       return -1;
-    } else if (mount01.index < mount02.index) {
+    } else if (mount01.weight < mount02.weight) {
       return 1;
     }
 

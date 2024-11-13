@@ -17,7 +17,7 @@ import {queueJobs} from '../../jobs/queueJobs.js';
 import {initEndpoint} from '../../utils/initEndpoint.js';
 import {kUserConstants} from '../constants.js';
 import {EmailAddressVerifiedError} from '../errors.js';
-import {getUserFromSessionAgent} from '../utils/getUserFromSessionAgent.js';
+import {getUserForEndpoint} from '../utils/getUserFromSessionAgent.js';
 import {SendEmailVerificationCodeEndpoint} from './types.js';
 import {sendEmailVerificationCodeJoiSchema} from './validation.js';
 
@@ -27,7 +27,7 @@ const sendEmailVerificationCodeEndpoint: SendEmailVerificationCodeEndpoint =
     const {workspaceId, agent} = await initEndpoint(reqData);
 
     const user = await kSemanticModels.utils().withTxn(async opts => {
-      return await getUserFromSessionAgent(
+      return await getUserForEndpoint(
         agent,
         /** params */ {workspaceId, userId: data.userId},
         opts

@@ -5,6 +5,7 @@ import {LoggerType} from '../contexts/logger/types.js';
 /** Added after the app initialization phase. */
 export interface FimidaraRuntimeConfig {
   rootWorkspaceId: string;
+  publicPermissionGroupId: string;
 }
 
 export const kFimidaraConfigFilePersistenceProvider = {
@@ -86,6 +87,8 @@ export type FimidaraSuppliedConfig = Partial<{
   // Management
   rootWorkspaceName: string;
   rootWorkspaceRootname: string;
+  publicPermissionGroupName: string;
+  publicPermissions: string[];
 
   // File
   fileBackend: FimidaraConfigFilePersistenceProvider;

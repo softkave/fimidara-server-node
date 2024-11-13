@@ -57,7 +57,7 @@ import EndpointReusableQueries from '../queries.js';
 import RequestData from '../RequestData.js';
 import {initFimidara} from '../runtime/initFimidara.js';
 import {BaseEndpointResult} from '../types.js';
-import INTERNAL_confirmEmailAddress from '../users/confirmEmailAddress/internalConfirmEmailAddress.js';
+import {confirmEmailAddress} from '../users/confirmEmailAddress/handler.js';
 import {LoginResult} from '../users/login/types.js';
 import signupEndpoint from '../users/signup/handler.js';
 import {SignupEndpointParams} from '../users/signup/types.js';
@@ -126,10 +126,12 @@ export async function insertUserForTest(
   } = {input: {}, skipAutoVerifyEmail: false}
 ): Promise<IInsertUserForTestResult> {
   const {input, skipAutoVerifyEmail} = params;
+  const {rootWorkspaceId} = kUtilsInjectables.runtimeConfig();
 
   const reqData = RequestData.fromExpressRequest<SignupEndpointParams>(
     mockExpressRequest(),
     {
+      workspaceId: rootWorkspaceId,
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
       email: faker.internet.email(),
@@ -140,10 +142,10 @@ export async function insertUserForTest(
 
   const result = await signupEndpoint(reqData);
   assertEndpointResultOk(result);
-  let rawUser: User;
 
+  let rawUser: User;
   if (!skipAutoVerifyEmail) {
-    rawUser = await INTERNAL_confirmEmailAddress(result.user.resourceId, null);
+    rawUser = await confirmEmailAddress(result.user.resourceId);
   } else {
     const userOrNull = await kSemanticModels
       .user()

@@ -15,7 +15,7 @@ export interface SemanticPermissionItemProviderType
   getManyByEntityId(
     workspaceId: string,
     id: string | string[],
-    opts: SemanticProviderQueryListParams<PermissionItem>
+    opts?: SemanticProviderQueryListParams<PermissionItem>
   ): Promise<PermissionItem[]>;
   deleteManyByTargetId(
     workspaceId: string,

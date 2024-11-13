@@ -29,7 +29,7 @@ export const resolvedEntryListExtractor = makeListExtract(resolvedEntryFields);
 const fileBackendMountFields = getFields<PublicFileBackendMount>({
   ...workspaceResourceFields,
   namepath: true,
-  index: true,
+  weight: true,
   mountedFrom: true,
   backend: true,
   configId: true,

@@ -14,7 +14,6 @@ import {
   kFimidaraResourceType,
   kTokenAccessScope,
 } from '../definitions/system.js';
-import {User} from '../definitions/user.js';
 import RequestData from '../endpoints/RequestData.js';
 import {
   CredentialsExpiredError,
@@ -68,10 +67,6 @@ export interface SessionContextType {
     tokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) => Promise<SessionAgent>;
   getAgentByAgentTokenId: (agentTokenId: string) => Promise<SessionAgent>;
-  getUser: (
-    data: RequestData,
-    tokenAccessScope: TokenAccessScope | TokenAccessScope[]
-  ) => Promise<User>;
   decodeToken: (token: string) => BaseTokenData<TokenSubjectDefault>;
   tokenContainsScope: (
     tokenData: AgentToken,
@@ -147,17 +142,6 @@ export default class SessionContext implements SessionContextType {
     } else {
       return makeWorkspaceAgentTokenAgent(agentToken);
     }
-  };
-
-  getUser = async (
-    data: RequestData,
-    tokenAccessScope: TokenAccessScope | TokenAccessScope[]
-  ) => {
-    const agent = await kUtilsInjectables
-      .session()
-      .getAgentFromReq(data, [kFimidaraResourceType.User], tokenAccessScope);
-    appAssert(agent.user, new ServerError());
-    return agent.user;
   };
 
   decodeToken = (token: string) => {

@@ -32,7 +32,7 @@ export type FileBackendConfigModel = Model<FileBackendConfig>;
 const fileBackendMountSchema = ensureMongoTypeFields<FileBackendMount>({
   ...workspaceResourceSchema,
   namepath: {type: [String], index: true},
-  index: {type: Number, index: true},
+  weight: {type: Number, index: true},
   mountedFrom: {type: [String], index: true},
   backend: {type: String, index: true},
   configId: {type: String, index: true},
@@ -67,7 +67,9 @@ const resolvedMountEntrySchema = ensureMongoTypeFields<ResolvedMountEntry>({
   persisted: {type: SchemaTypes.Map},
 });
 
-const resolvedEntrySchema = new Schema<ResolvedMountEntry>(resolvedMountEntrySchema);
+const resolvedEntrySchema = new Schema<ResolvedMountEntry>(
+  resolvedMountEntrySchema
+);
 const resolvedEntryModelName = 'resolved-mount-entry';
 const resolvedEntryCollectionName = 'resolved-mount-entries';
 

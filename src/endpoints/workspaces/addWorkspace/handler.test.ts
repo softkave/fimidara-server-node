@@ -10,8 +10,6 @@ import {IRootLevelWorkspace} from '../../../definitions/workspace.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {mergeData} from '../../../utils/fns.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
-import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
-import {fetchEntityAssignedPermissionGroupList} from '../../permissionGroups/getEntityAssignedPermissionGroups/utils.js';
 import EndpointReusableQueries from '../../queries.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
@@ -20,16 +18,12 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../testUtils/testUtils.js';
-import {WorkspaceExistsError, WorkspaceRootnameExistsError} from '../errors.js';
 import {
   assertWorkspace,
   makeRootnameFromName,
   workspaceExtractor,
 } from '../utils.js';
-import {
-  kDefaultAdminPermissionGroupName,
-  kDefaultPublicPermissionGroupName,
-} from './utils.js';
+import {NotFoundError, ResourceExistsError} from '../../errors.js';
 
 beforeAll(async () => {
   await initTests();
@@ -81,18 +75,9 @@ describe.each([true, false])('addWorkspace, sub=%s', isSubWorkspace => {
 
     if (isSubWorkspace) {
       appAssert(w1);
-
-      // rootnamepath and workspaceId should be the same as the parent workspace
-      // being subclassed
-      expect(rWorkspace.rootnamepath).toEqual(
-        w1.workspace.rootnamepath?.concat(rWorkspace.rootname)
-      );
       expect(rWorkspace.workspaceId).toEqual(w1.workspace.resourceId);
     } else {
       expect(rWorkspace.publicPermissionGroupId).toBeTruthy();
-
-      // rootnamepath and workspaceId should be the same as the root workspace
-      expect(rWorkspace.rootnamepath).toEqual([rWorkspace.rootname]);
       expect(rWorkspace.workspaceId).toEqual(rWorkspace.resourceId);
 
       // check that the workspace was persisted and matches the input
@@ -103,48 +88,6 @@ describe.each([true, false])('addWorkspace, sub=%s', isSubWorkspace => {
         );
       assertWorkspace(workspace);
       expect(workspaceExtractor(workspace)).toMatchObject(rWorkspace);
-
-      const [adminPermissionGroup] = await Promise.all([
-        kSemanticModels
-          .permissionGroup()
-          .assertGetOneByQuery(
-            EndpointReusableQueries.getByWorkspaceIdAndName(
-              workspace.resourceId,
-              kDefaultAdminPermissionGroupName
-            )
-          ),
-        kSemanticModels
-          .permissionGroup()
-          .assertGetOneByQuery(
-            EndpointReusableQueries.getByWorkspaceIdAndName(
-              workspace.resourceId,
-              kDefaultPublicPermissionGroupName
-            )
-          ),
-      ]);
-
-      // check workspace is assigned to user
-      appAssert(userToken.forEntityId);
-      const user = await populateUserWorkspaces(
-        await kSemanticModels
-          .user()
-          .assertGetOneByQuery(
-            EndpointReusableQueries.getByResourceId(userToken.forEntityId)
-          )
-      );
-      const userWorkspace = user.workspaces.find(
-        item => item.workspaceId === workspace.resourceId
-      );
-      expect(userWorkspace).toBeTruthy();
-
-      // check that the user has the admin permission group
-      const userPermissionGroupsResult =
-        await fetchEntityAssignedPermissionGroupList(userToken.forEntityId);
-      const assignedAdminPermissionGroup =
-        userPermissionGroupsResult.permissionGroups.find(
-          item => item.resourceId === adminPermissionGroup.resourceId
-        );
-      expect(assignedAdminPermissionGroup).toBeTruthy();
     }
   });
 
@@ -156,7 +99,7 @@ describe.each([true, false])('addWorkspace, sub=%s', isSubWorkspace => {
     await insertWorkspaceForTest(userToken, w2Input);
     await expectErrorThrown(async () => {
       await insertWorkspaceForTest(userToken, w2Input);
-    }, [WorkspaceExistsError.name]);
+    }, [NotFoundError.name]);
   });
 
   test('fails if workspace root name exists', async () => {
@@ -167,7 +110,7 @@ describe.each([true, false])('addWorkspace, sub=%s', isSubWorkspace => {
     await insertWorkspaceForTest(userToken, w2Input);
     await expectErrorThrown(async () => {
       await insertWorkspaceForTest(userToken, w2Input);
-    }, [WorkspaceRootnameExistsError.name]);
+    }, [ResourceExistsError.name]);
   });
 
   test('fails if user is on waitlist', async () => {

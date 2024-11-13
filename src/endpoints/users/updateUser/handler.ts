@@ -12,7 +12,7 @@ import {
   checkEmailAddressAvailability,
   userExtractor,
 } from '../utils.js';
-import {getUserFromSessionAgent} from '../utils/getUserFromSessionAgent.js';
+import {getUserForEndpoint} from '../utils/getUserFromSessionAgent.js';
 import {UpdateUserEndpoint} from './types.js';
 import {updateUserJoiSchema} from './validation.js';
 
@@ -21,7 +21,7 @@ const updateUserEndpoint: UpdateUserEndpoint = async reqData => {
   const {workspaceId, agent} = await initEndpoint(reqData);
 
   const user = await kSemanticModels.utils().withTxn(async opts => {
-    const user = await getUserFromSessionAgent(
+    const user = await getUserForEndpoint(
       agent,
       /** params */ {
         workspaceId,

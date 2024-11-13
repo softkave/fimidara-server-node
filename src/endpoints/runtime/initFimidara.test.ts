@@ -1,13 +1,14 @@
 import {afterEach, beforeEach, describe, expect, test} from 'vitest';
 import {
   kDataModels,
-  kSemanticModels,
   kUtilsInjectables,
 } from '../../contexts/injection/injectables.js';
 import EndpointReusableQueries from '../queries.js';
 import {completeTests} from '../testUtils/helpers/testFns.js';
 import {initTests} from '../testUtils/testUtils.js';
 import {initFimidara, kAppRuntimeStatsDocId} from './initFimidara.js';
+import {checkPublicPermissionGroup} from './testutils/checkPublicPermissions.js';
+import {checkRootWorkspace} from './testutils/checkRootWorkspace.js';
 
 beforeEach(async () => {
   await initTests();
@@ -25,13 +26,9 @@ describe('init app setup', () => {
       .assertGetOneByQuery(
         EndpointReusableQueries.getByResourceId(kAppRuntimeStatsDocId)
       );
-    await Promise.all([
-      kSemanticModels.workspace().assertGetOneByQuery({
-        resourceId: runtimeVars.rootWorkspaceId,
-      }),
-    ]);
 
-    expect(runtimeVars.isAppSetup).toBeTruthy();
+    await checkRootWorkspace(runtimeVars);
+    await checkPublicPermissionGroup(runtimeVars);
   });
 
   test('app not setup a second time', async () => {

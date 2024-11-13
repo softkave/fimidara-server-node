@@ -1,6 +1,6 @@
 import {kEndpointConstants} from '../constants.js';
 
-export const workspaceConstants = {
+export const kWorkspaceConstants = {
   routes: {
     addWorkspace: `${kEndpointConstants.apiv1}/workspaces/addWorkspace`,
     deleteWorkspace: `${kEndpointConstants.apiv1}/workspaces/deleteWorkspace`,
@@ -9,4 +9,7 @@ export const workspaceConstants = {
     getWorkspace: `${kEndpointConstants.apiv1}/workspaces/getWorkspace`,
     updateWorkspace: `${kEndpointConstants.apiv1}/workspaces/updateWorkspace`,
   },
+  rootnamePrefix: 'fw',
+  rootnamePrefixSeparator: '_',
+  rootnameRegex: /^fw\d+_[a-z0-9-]+$/,
 };

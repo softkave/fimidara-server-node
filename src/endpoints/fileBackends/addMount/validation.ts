@@ -14,7 +14,7 @@ export const addFileBackendMountJoiSchema =
     folderpath: folderValidationSchemas.folderpath.required(),
     backend: fileBackendValidationSchemas.nonFimidaraBackend.required(),
     configId: kValidationSchemas.resourceId.allow(null),
-    index: Joi.number().required(),
+    weight: Joi.number().required(),
     mountedFrom: folderValidationSchemas.folderpath.required(),
     name: kValidationSchemas.name.required(),
     description: kValidationSchemas.description.allow(null),

@@ -26,7 +26,6 @@ const workspacePublicFields: ExtractFieldsFrom<PublicWorkspace> = {
   name: true,
   rootname: true,
   description: true,
-  rootnamepath: true,
 };
 
 const workspaceFields = getFields<PublicWorkspace>(workspacePublicFields);

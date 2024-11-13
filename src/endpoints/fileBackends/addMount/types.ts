@@ -6,7 +6,7 @@ import {Endpoint, EndpointOptionalWorkspaceIdParam} from '../../types.js';
 
 export interface NewFileBackendMountInput {
   folderpath: string;
-  index: number;
+  weight: number;
   mountedFrom: string;
   backend: FileBackendType;
   /** `null` for fimidara */

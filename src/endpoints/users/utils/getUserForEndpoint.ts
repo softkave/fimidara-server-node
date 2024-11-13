@@ -15,6 +15,18 @@ import {
 import {appAssert} from '../../../utils/assertion.js';
 import {InvalidRequestError, NotFoundError} from '../../errors.js';
 
+function checkIsPermittedScope(
+  agent: SessionAgent,
+  params: {scope?: OrArray<TokenAccessScope>}
+) {
+  return (
+    intersection(
+      convertToArray(defaultTo(params.scope, kTokenAccessScope.login)),
+      agent.agentToken.scope
+    ).length > 0
+  );
+}
+
 export async function getUserByEmailOrSessionAgent(
   agent: SessionAgent,
   params: {
@@ -25,11 +37,7 @@ export async function getUserByEmailOrSessionAgent(
   },
   opts: SemanticProviderMutationParams
 ) {
-  const isPermittedScope =
-    intersection(
-      convertToArray(defaultTo(params.scope, kTokenAccessScope.login)),
-      agent.agentToken.scope
-    ).length > 0;
+  const isPermittedScope = checkIsPermittedScope(agent, params);
 
   if (params.email) {
     if (params.email === agent.user?.email && isPermittedScope) {
@@ -70,11 +78,7 @@ export async function getUserByUserIdOrSessionAgent(
   },
   opts: SemanticProviderMutationParams
 ) {
-  const isPermittedScope =
-    intersection(
-      convertToArray(defaultTo(params.scope, kTokenAccessScope.login)),
-      agent.agentToken.scope
-    ).length > 0;
+  const isPermittedScope = checkIsPermittedScope(agent, params);
 
   if (params.userId) {
     if (params.userId === agent.user?.resourceId && isPermittedScope) {
@@ -105,7 +109,7 @@ export async function getUserByUserIdOrSessionAgent(
   throw new InvalidRequestError('User ID is required');
 }
 
-export async function getUserFromSessionAgent(
+export async function getUserForEndpoint(
   agent: SessionAgent,
   params: {
     email?: string;

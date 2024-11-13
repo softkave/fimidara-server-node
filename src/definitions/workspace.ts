@@ -1,5 +1,10 @@
 import {ValueOf} from 'type-fest';
-import {Agent, ToPublicDefinitions, WorkspaceResource} from './system.js';
+import {
+  Agent,
+  PublicWorkspaceResource,
+  ToPublicDefinitions,
+  WorkspaceResource,
+} from './system.js';
 import {UsageRecordCategory} from './usageRecord.js';
 
 export interface UsageThreshold {
@@ -35,13 +40,15 @@ export interface Workspace extends WorkspaceResource {
   name: string;
   /** URL compatible name of the workspace */
   rootname: string;
-  rootnamepath?: string[];
   description?: string;
+  level: number;
 }
 
 export interface IRootLevelWorkspace
   extends Workspace,
     IRootLevelWorkspaceData {}
 
-export type PublicWorkspace = ToPublicDefinitions<Workspace>;
+export type PublicWorkspace = PublicWorkspaceResource &
+  ToPublicDefinitions<Pick<Workspace, 'name' | 'rootname' | 'description'>>;
+
 export type PublicUsageThreshold = ToPublicDefinitions<UsageThreshold>;

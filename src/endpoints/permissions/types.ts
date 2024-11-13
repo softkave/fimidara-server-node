@@ -20,7 +20,7 @@ export interface PermissionItemInputTarget {
   workspaceRootname?: string;
 }
 
-export interface ResolvedEntityPermissionItemTarget {
+export interface ResolvedPermissionItemTarget {
   targetId?: string;
   filepath?: string;
   folderpath?: string;

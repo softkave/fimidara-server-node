@@ -86,7 +86,7 @@ const configIdOrNull = mddocConstruct
   .constructFieldOrCombination<string | null>()
   .setTypes([configId, fReusables.nullValue]);
 
-const index = mddocConstruct
+const weight = mddocConstruct
   .constructFieldNumber()
   .setDescription(
     'File backend mount weight when compared to mounts attached to the same folder. ' +
@@ -135,7 +135,7 @@ const updateFileBackendMountInput = mddocConstruct
       false,
       fReusables.folderpath
     ),
-    index: mddocConstruct.constructFieldObjectField(false, index),
+    index: mddocConstruct.constructFieldObjectField(false, weight),
     mountedFrom: mddocConstruct.constructFieldObjectField(false, mountedFrom),
   });
 
@@ -155,7 +155,7 @@ const fileBackendMount = mddocConstruct
       true,
       fReusables.folderpathList
     ),
-    index: mddocConstruct.constructFieldObjectField(true, index),
+    weight: mddocConstruct.constructFieldObjectField(true, weight),
     mountedFrom: mddocConstruct.constructFieldObjectField(
       true,
       mountedFromAsList
@@ -214,7 +214,7 @@ const addFileBackendMountParams = mddocConstruct
       fReusables.folderpath
     ),
     configId: mddocConstruct.constructFieldObjectField(true, configIdOrNull),
-    index: mddocConstruct.constructFieldObjectField(true, index),
+    weight: mddocConstruct.constructFieldObjectField(true, weight),
     mountedFrom: mddocConstruct.constructFieldObjectField(true, mountedFrom),
   });
 const addFileBackendMountSuccessResponseBody = mddocConstruct

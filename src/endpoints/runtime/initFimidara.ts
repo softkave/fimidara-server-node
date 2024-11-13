@@ -5,6 +5,8 @@ import {
   kUtilsInjectables,
 } from '../../contexts/injection/injectables.js';
 import {kRegisterUtilsInjectables} from '../../contexts/injection/register.js';
+import {PermissionGroup} from '../../definitions/permissionGroups.js';
+import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {
   AppRuntimeState,
   SessionAgent,
@@ -15,6 +17,8 @@ import {FimidaraRuntimeConfig} from '../../resources/config.js';
 import {kSystemSessionAgent} from '../../utils/agent.js';
 import {getTimestamp} from '../../utils/dateFns.js';
 import {getNewIdForResource, kIdSize} from '../../utils/resource.js';
+import {createPermissionGroup} from '../permissions/addPermissionGroup/handler.js';
+import {addPermissionItems} from '../permissions/addPermissionItems/utils.js';
 import EndpointReusableQueries from '../queries.js';
 import {createWorkspace} from '../workspaces/addWorkspace/handler.js';
 import {assertWorkspace} from '../workspaces/utils.js';
@@ -48,6 +52,7 @@ async function setupWorkspace(
           description:
             "System-generated workspace for fimidara's own operations",
         },
+        workspaceLevel: 0,
       },
       opts
     );
@@ -67,6 +72,7 @@ export async function isRootWorkspaceSetup() {
 async function getRootWorkspace(appRuntimeState: AppRuntimeState) {
   const appRuntimeVars: FimidaraRuntimeConfig = {
     rootWorkspaceId: appRuntimeState.rootWorkspaceId,
+    publicPermissionGroupId: appRuntimeState.publicPermissionGroupId,
   };
 
   kRegisterUtilsInjectables.runtimeConfig(appRuntimeVars);
@@ -78,10 +84,14 @@ async function getRootWorkspace(appRuntimeState: AppRuntimeState) {
   return workspace;
 }
 
-async function insertRuntimeVars(workspace: Workspace) {
+async function insertRuntimeVars(
+  workspaceId: string,
+  publicPermissionGroupId: string
+) {
   return await kSemanticModels.utils().withTxn(async opts => {
     const appRuntimeVars: FimidaraRuntimeConfig = {
-      rootWorkspaceId: workspace.resourceId,
+      publicPermissionGroupId,
+      rootWorkspaceId: workspaceId,
     };
 
     await kDataModels.appRuntimeState().insertItem(
@@ -100,6 +110,41 @@ async function insertRuntimeVars(workspace: Workspace) {
   });
 }
 
+async function setupPublicPermissionGroup(
+  agent: SessionAgent,
+  workspace: Workspace
+): Promise<PermissionGroup> {
+  const {publicPermissionGroupName} = kUtilsInjectables.suppliedConfig();
+  assert.ok(publicPermissionGroupName, 'publicPermissionGroupName is required');
+
+  return await createPermissionGroup(agent, workspace.resourceId, {
+    name: publicPermissionGroupName,
+    description: 'System-wide public permission group',
+  });
+}
+
+async function setupPublicPermissions(
+  agent: SessionAgent,
+  workspace: Workspace,
+  pg: PermissionGroup
+) {
+  const {publicPermissions} = kUtilsInjectables.suppliedConfig();
+
+  if (!publicPermissions || publicPermissions.length === 0) {
+    return;
+  }
+
+  await addPermissionItems(agent, workspace, {
+    workspaceId: workspace.resourceId,
+    items: publicPermissions.map(action => ({
+      action: action as FimidaraPermissionAction,
+      access: true,
+      entityId: pg.resourceId,
+      targetId: workspace.resourceId,
+    })),
+  });
+}
+
 async function setupAppArtifacts(agent: SessionAgent) {
   const {rootWorkspaceName, rootWorkspaceRootname} =
     kUtilsInjectables.suppliedConfig();
@@ -112,7 +157,13 @@ async function setupAppArtifacts(agent: SessionAgent) {
     rootWorkspaceRootname
   );
 
-  const {appRuntimeVars} = await insertRuntimeVars(workspace);
+  const pg = await setupPublicPermissionGroup(agent, workspace);
+  await setupPublicPermissions(agent, workspace, pg);
+
+  const {appRuntimeVars} = await insertRuntimeVars(
+    workspace.resourceId,
+    pg.resourceId
+  );
   kRegisterUtilsInjectables.runtimeConfig(appRuntimeVars);
 
   return workspace;
