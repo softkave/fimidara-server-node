@@ -35,6 +35,8 @@ import {
   DeleteFileHttpEndpoint,
   FileMatcherPathParameters,
   GetFileDetailsHttpEndpoint,
+  GetTUSOptionsHTTPEndpoint,
+  IGetTUSOptionsHTTPEndpointResponseHeaders,
   ReadFileEndpointHTTPHeaders,
   ReadFileGETHttpEndpoint,
   ReadFilePOSTHttpEndpoint,
@@ -605,5 +607,65 @@ export const deleteFileEndpointDefinition = mddocConstruct
   )
   .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
   .setName('DeleteFileEndpoint');
+
+export const getTUSOptionsEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      GetTUSOptionsHTTPEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      GetTUSOptionsHTTPEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<
+      GetTUSOptionsHTTPEndpoint['mddocHttpDefinition']['query']
+    >,
+    InferFieldObjectOrMultipartType<
+      GetTUSOptionsHTTPEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      GetTUSOptionsHTTPEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      GetTUSOptionsHTTPEndpoint['mddocHttpDefinition']['responseBody']
+    >
+  >()
+  .setBasePathname(kFileConstants.routes.getTUSOptions)
+  .setMethod(HttpEndpointMethod.Options)
+  .setResponseHeaders(
+    mddocConstruct
+      .constructFieldObject<IGetTUSOptionsHTTPEndpointResponseHeaders>()
+      .setFields({
+        'Tus-Resumable': mddocConstruct.constructFieldObjectField(
+          true,
+          mddocConstruct
+            .constructFieldString()
+            .setDescription('Server TUS resumable version')
+            .setExample('1.0.0')
+        ),
+        'Tus-Version': mddocConstruct.constructFieldObjectField(
+          true,
+          mddocConstruct
+            .constructFieldString()
+            .setDescription('Server-supported TUS versions')
+            .setExample('1.0.0,0.2.2,0.2.1')
+        ),
+        'Tus-Max-Size': mddocConstruct.constructFieldObjectField(
+          true,
+          mddocConstruct
+            .constructFieldString()
+            .setDescription('Maximum file size in bytes')
+            .setExample('1073741824')
+        ),
+        'Tus-Extension': mddocConstruct.constructFieldObjectField(
+          true,
+          mddocConstruct
+            .constructFieldString()
+            .setDescription('Server-supported TUS extensions')
+            .setExample('creation,creation-with-upload,termination')
+        ),
+      })
+      .setName('GetTUSOptionsHTTPEndpointResponseHeaders')
+  )
+  .setName('GetTUSOptionsEndpoint');
 
 export const fileEndpointsParts = {file};

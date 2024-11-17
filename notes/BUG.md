@@ -13,6 +13,7 @@
   - sidenav
 - convert last of message to toast
 - convert last of antd to shadcn
+  - pagination
 - error in assign permissions modal
 - waitlisted user message not centered
   - make sure all content are horizontally and vertically centered
@@ -27,6 +28,6 @@
 
 - close file descriptors
 
-##
+## Server
 
 - unauthorized error from express-jwt, also means middleware not working

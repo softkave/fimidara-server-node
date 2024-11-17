@@ -2,8 +2,9 @@
 
 ## Server
 
-- authentication + authorization + workspaces
 - image manipulation
+- reusable upload
+- byte range download
 
 ## NextJs
 
