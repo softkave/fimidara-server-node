@@ -1,4 +1,5 @@
 import {
+  AbortMultipartUploadCommand,
   CompletedPart,
   CompleteMultipartUploadCommand,
   CreateMultipartUploadCommand,
@@ -22,6 +23,8 @@ import {kFolderConstants} from '../../endpoints/folders/constants.js';
 import {appAssert} from '../../utils/assertion.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {
+  FilePersistenceCleanupMultipartUploadParams,
+  FilePersistenceCompleteMultipartUploadParams,
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
   FilePersistenceDescribeFileParams,
@@ -331,7 +334,49 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
     return {fimidaraPath};
   };
 
-  formatKey(
+  async completeMultipartUpload(
+    params: FilePersistenceCompleteMultipartUploadParams
+  ) {
+    const {bucket, nativePath} = this.toNativePath({
+      fimidaraPath: params.filepath,
+      mount: params.mount,
+    });
+
+    const parts = (await getParts(params)).map(
+      (part): CompletedPart => ({
+        PartNumber: part.part,
+        ETag: part.partId,
+      })
+    );
+
+    const command = new CompleteMultipartUploadCommand({
+      Bucket: bucket,
+      Key: nativePath,
+      UploadId: params.multipartId,
+      MultipartUpload: {Parts: parts},
+    });
+
+    await this.s3.send(command);
+  }
+
+  async cleanupMultipartUpload(
+    params: FilePersistenceCleanupMultipartUploadParams
+  ) {
+    const {bucket, nativePath} = this.toNativePath({
+      fimidaraPath: params.filepath,
+      mount: params.mount,
+    });
+
+    const command = new AbortMultipartUploadCommand({
+      Bucket: bucket,
+      Key: nativePath,
+      UploadId: params.multipartId,
+    });
+
+    await this.s3.send(command);
+  }
+
+  protected formatKey(
     key: string,
     options: {
       removeStartingSeparator?: boolean;
@@ -386,30 +431,6 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       UploadId: params.multipartId,
       PartNumber: params.part,
       Body: params.body,
-    });
-
-    const response = await this.s3.send(command);
-    return response;
-  }
-
-  protected async completeMultipartUpload(
-    bucket: string,
-    key: string,
-    params: FilePersistenceUploadFileParams
-  ) {
-    appAssert(params.multipartId);
-    const parts = (await getParts(params)).map(
-      (part): CompletedPart => ({
-        PartNumber: part.part,
-        ETag: part.partId,
-      })
-    );
-
-    const command = new CompleteMultipartUploadCommand({
-      Bucket: bucket,
-      Key: key,
-      UploadId: params.multipartId,
-      MultipartUpload: {Parts: parts},
     });
 
     const response = await this.s3.send(command);

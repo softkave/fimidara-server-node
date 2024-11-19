@@ -4,6 +4,10 @@ import {createClient} from 'redis';
 import {
   AnyFn,
   AnyObject,
+  calculateMaxPages,
+  calculatePageSize,
+  convertToArray,
+  getRandomInt,
   kLoopAsyncSettlementType,
   loopAsync,
   OrArray,
@@ -17,12 +21,6 @@ import {
 } from '../../../contexts/injection/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {IServerRequest} from '../../../contexts/types.js';
-import {
-  calculateMaxPages,
-  calculatePageSize,
-  convertToArray,
-  getRandomInt,
-} from '../../../utils/fns.js';
 import {kFolderConstants} from '../../folders/constants.js';
 import RequestData from '../../RequestData.js';
 import {initFimidara} from '../../runtime/initFimidara.js';

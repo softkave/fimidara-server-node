@@ -6,12 +6,13 @@ import {PresignedPath} from '../../../definitions/presignedPath.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
-import {getRandomIntInclusive, pathJoin} from '../../../utils/fns.js';
+import {pathJoin} from '../../../utils/fns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
 import {getFilenameInfo} from '../../files/utils.js';
 import {addRootnameToPath} from '../../folders/utils.js';
 import {generateTestFolderName, generateTestFolderpath} from './folder.js';
 import {randomActionList} from './utils.js';
+import {getRandomIntInclusive} from 'softkave-js-utils';
 
 function addExtenstion(name: string, ext: string | undefined) {
   return ext ? name + '.' + ext : name;

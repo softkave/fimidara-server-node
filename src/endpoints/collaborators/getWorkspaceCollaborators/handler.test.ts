@@ -1,8 +1,11 @@
-import {indexArray, sortStringListLexicographically} from 'softkave-js-utils';
+import {
+  calculatePageSize,
+  indexArray,
+  sortStringListLexicographically,
+} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
-import {calculatePageSize} from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
 import AssignedItemQueries from '../../assignedItems/queries.js';

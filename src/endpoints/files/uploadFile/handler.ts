@@ -103,8 +103,10 @@ async function cleanupMultipartUpload(
   await kSemanticModels.file().updateOneById(file.resourceId, update, opts);
   kUtilsInjectables.promises().forget(deleteParts({fileId: file.resourceId}));
 
-  mergeData(file, update);
   file.RUNTIME_ONLY_shouldCleanupMultipart = true;
+  file.RUNTIME_ONLY_internalMultipartId = file.internalMultipartId;
+  file.RUNTIME_ONLY_partLength = file.partLength;
+  mergeData(file, update);
 }
 
 async function checkFileWriteAvailable(
@@ -326,16 +328,6 @@ const uploadFile: UploadFileEndpoint = async reqData => {
     /** initPrimaryBackendOnly */ true
   );
 
-  if (file.RUNTIME_ONLY_shouldCleanupMultipart) {
-    file.RUNTIME_ONLY_shouldCleanupMultipart = false;
-    kUtilsInjectables.promises().forget(
-      primaryBackend.cleanupMultipartUpload({
-        fileId: file.resourceId,
-        multipartId: file.internalMultipartId,
-      })
-    );
-  }
-
   try {
     const isMultipart = isString(data.clientMultipartId);
     const [mountEntry, {part, hasPart}] = await Promise.all([
@@ -348,17 +340,36 @@ const uploadFile: UploadFileEndpoint = async reqData => {
         : ({} as Awaited<ReturnType<typeof hasPartResult>>),
     ]);
 
+    const filepath = stringifyFilenamepath(
+      mountEntry
+        ? {namepath: mountEntry?.backendNamepath, ext: mountEntry?.backendExt}
+        : file
+    );
+
+    if (file.RUNTIME_ONLY_shouldCleanupMultipart) {
+      file.RUNTIME_ONLY_shouldCleanupMultipart = false;
+      appAssert(isString(file.RUNTIME_ONLY_internalMultipartId));
+      appAssert(isNumber(file.RUNTIME_ONLY_partLength));
+      appAssert;
+      kUtilsInjectables.promises().forget(
+        primaryBackend.cleanupMultipartUpload({
+          filepath,
+          fileId: file.resourceId,
+          multipartId: file.RUNTIME_ONLY_internalMultipartId,
+          mount: primaryMount,
+          partLength: file.RUNTIME_ONLY_partLength,
+          workspaceId: file.workspaceId,
+        })
+      );
+    }
+
     // TODO: compare bytecounter and size input to make sure they match or
     // update usage record
     const bytesCounterStream = new ByteCounterPassThroughStream();
     data.data.pipe(bytesCounterStream);
 
     const persistedMountData = await primaryBackend.uploadFile({
-      filepath: stringifyFilenamepath(
-        mountEntry
-          ? {namepath: mountEntry?.backendNamepath, ext: mountEntry?.backendExt}
-          : file
-      ),
+      filepath,
       workspaceId: file.workspaceId,
       body: bytesCounterStream,
       fileId: file.resourceId,
@@ -430,7 +441,16 @@ const uploadFile: UploadFileEndpoint = async reqData => {
     if (isMultipart) {
       await saveFilePartData(file, persistedMountData);
       if (isLastPart) {
-        await primaryBackend.completeMultipartUpload({fileId: file.resourceId});
+        appAssert(isString(file.clientMultipartId));
+        appAssert(isNumber(file.partLength));
+        await primaryBackend.completeMultipartUpload({
+          filepath,
+          fileId: file.resourceId,
+          multipartId: file.clientMultipartId,
+          mount: primaryMount,
+          partLength: file.partLength,
+          workspaceId: file.workspaceId,
+        });
         kUtilsInjectables
           .promises()
           .forget(deleteParts({fileId: file.resourceId}));

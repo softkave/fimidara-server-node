@@ -173,20 +173,36 @@ export interface FimidaraToFilePersistencePathResult {
   nativePath: string;
 }
 
+export interface FilePersistenceCompleteMultipartUploadParams
+  extends FilePersistenceDefaultParams,
+    FilepathMatcher {
+  fileId: string;
+  mount: FileBackendMount;
+  multipartId: string;
+  partLength: number;
+}
+
+export interface FilePersistenceCleanupMultipartUploadParams
+  extends FilePersistenceDefaultParams,
+    FilepathMatcher {
+  fileId: string;
+  mount: FileBackendMount;
+  multipartId: string;
+  partLength: number;
+}
+
 // TODO: implement a better way to specify TRaw
 export interface FilePersistenceProvider extends DisposableResource {
   supportsFeature: (feature: FilePersistenceProviderFeature) => boolean;
   uploadFile: (
     params: FilePersistenceUploadFileParams
   ) => Promise<FilePersistenceUploadFileResult>;
-  completeMultipartUpload: (params: {
-    fileId: string;
-    multipartId?: string | null;
-  }) => Promise<void>;
-  cleanupMultipartUpload: (params: {
-    fileId: string;
-    multipartId?: string | null;
-  }) => Promise<void>;
+  completeMultipartUpload: (
+    params: FilePersistenceCompleteMultipartUploadParams
+  ) => Promise<void>;
+  cleanupMultipartUpload: (
+    params: FilePersistenceCleanupMultipartUploadParams
+  ) => Promise<void>;
   readFile: (params: FilePersistenceGetFileParams) => Promise<PersistedFile>;
   describeFile: (
     params: FilePersistenceDescribeFileParams

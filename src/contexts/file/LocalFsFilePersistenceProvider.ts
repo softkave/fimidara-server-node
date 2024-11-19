@@ -1,10 +1,13 @@
 import fse from 'fs-extra';
 import {compact, first, isNumber} from 'lodash-es';
+import {kLoopAsyncSettlementType, loopAsync} from 'softkave-js-utils';
 import {appAssert} from '../../utils/assertion.js';
 import {noopAsync, pathJoin} from '../../utils/fns.js';
 import {AnyFn} from '../../utils/types.js';
 import {kUtilsInjectables} from '../injection/injectables.js';
 import {
+  FilePersistenceCleanupMultipartUploadParams,
+  FilePersistenceCompleteMultipartUploadParams,
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
   FilePersistenceDescribeFileParams,
@@ -62,10 +65,6 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
   uploadFile = async (params: FilePersistenceUploadFileParams) => {
     if (isNumber(params.part)) {
       await this.writeStreamToPartsFile(params);
-      if (params.isLastPart) {
-        await this.completePartsFile(params);
-      }
-
       return {filepath: params.filepath, raw: undefined};
     } else {
       const {mount, filepath} = params;
@@ -78,6 +77,18 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
       return {filepath, raw: undefined};
     }
   };
+
+  async completeMultipartUpload(
+    params: FilePersistenceCompleteMultipartUploadParams
+  ) {
+    await this.completePartsFile(params);
+  }
+
+  async cleanupMultipartUpload(
+    params: FilePersistenceCleanupMultipartUploadParams
+  ) {
+    await this.cleanupPartsFile(params);
+  }
 
   readFile = async (
     params: FilePersistenceGetFileParams
@@ -349,8 +360,26 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
     return this.writeStreamToFile(partPath, params);
   }
 
-  protected async completePartsFile(params: FilePersistenceUploadFileParams) {
-    appAssert(params.multipartId);
+  protected async cleanupPartsFile(
+    params: FilePersistenceCleanupMultipartUploadParams
+  ) {
+    await loopAsync(
+      async i => {
+        const partPath = pathJoin(
+          this.partsNamepath,
+          params.filepath,
+          i.toString()
+        );
+        await fse.promises.rm(partPath, {force: true});
+      },
+      params.partLength,
+      kLoopAsyncSettlementType.all
+    );
+  }
+
+  protected async completePartsFile(
+    params: FilePersistenceCompleteMultipartUploadParams
+  ) {
     appAssert(isNumber(params.partLength));
     const {nativePath} = this.toNativePath({
       fimidaraPath: params.filepath,
@@ -362,6 +391,7 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
       emitClose: true,
     });
 
+    const promises: Promise<void>[] = [];
     for (let i = 0; i < params.partLength; i++) {
       const partPath = pathJoin(
         this.partsNamepath,
@@ -370,6 +400,15 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
       );
       const partStream = fse.createReadStream(partPath, {autoClose: true});
       partStream.pipe(writeStream, {end: false});
+      promises.push(
+        new Promise<void>((resolve, reject) => {
+          partStream.on('end', resolve);
+          partStream.on('error', reject);
+        })
+      );
     }
+
+    await Promise.all(promises);
+    kUtilsInjectables.promises().forget(this.cleanupPartsFile(params));
   }
 }

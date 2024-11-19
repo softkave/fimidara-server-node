@@ -5,6 +5,8 @@ import {FileBackendMount} from '../../definitions/fileBackend.js';
 import {appAssert} from '../../utils/assertion.js';
 import {streamToBuffer} from '../../utils/fns.js';
 import {
+  FilePersistenceCleanupMultipartUploadParams,
+  FilePersistenceCompleteMultipartUploadParams,
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
   FilePersistenceDescribeFileParams,
@@ -35,7 +37,10 @@ type MemoryFilePersistenceProviderFile = OmitFrom<
   nativePath: string;
 };
 
-type MemoryFilePersistenceProviderFilePart = {
+type MemoryFilePersistenceProviderFilePart = OmitFrom<
+  MemoryFilePersistenceProviderFile,
+  'body'
+> & {
   body: Buffer;
   part: number;
 };
@@ -47,7 +52,7 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
   > = {};
   protected parts: Record<
     /** workspaceId */ string,
-    Record</** nativePath */ string, MemoryFilePersistenceProviderFilePart>
+    Record</** nativePath */ string, MemoryFilePersistenceProviderFilePart[]>
   > = {};
 
   supportsFeature = (feature: FilePersistenceProviderFeature): boolean => {
@@ -70,18 +75,15 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
     const body = await streamToBuffer(params.body);
 
     if (isNumber(params.part)) {
-      this.addMemoryFilePart(params, {body, nativePath});
-      if (params.isLastPart) {
-        this.completeMemoryFile(params, {
-          nativePath,
-          lastUpdatedAt: Date.now(),
-          size: body.byteLength,
-          mountId: params.mount.resourceId,
-          mimetype: params.mimetype,
-          encoding: params.encoding,
-        });
-      }
-
+      this.addMemoryFilePart(params, {
+        body,
+        nativePath,
+        lastUpdatedAt: Date.now(),
+        size: body.byteLength,
+        mountId: params.mount.resourceId,
+        mimetype: params.mimetype,
+        encoding: params.encoding,
+      });
       return {filepath, raw: undefined};
     } else {
       this.setMemoryFile(params, {
@@ -96,6 +98,23 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
 
       return {filepath, raw: undefined};
     }
+  }
+
+  async completeMultipartUpload(
+    params: FilePersistenceCompleteMultipartUploadParams
+  ) {
+    const {mount, filepath} = params;
+    const {nativePath} = this.toNativePath({mount, fimidaraPath: filepath});
+    this.completeMemoryFile(params, nativePath);
+  }
+
+  async cleanupMultipartUpload(
+    params: FilePersistenceCleanupMultipartUploadParams
+  ) {
+    const {mount, filepath} = params;
+    const {nativePath} = this.toNativePath({mount, fimidaraPath: filepath});
+    const map = this.getWorkspaceFileParts(params);
+    delete map[nativePath];
   }
 
   readFile = async (
@@ -277,28 +296,41 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
 
   protected addMemoryFilePart = (
     params: FilePersistenceUploadFileParams,
-    file: Pick<MemoryFilePersistenceProviderFile, 'body' | 'nativePath'>
+    file: MemoryFilePersistenceProviderFile
   ) => {
     appAssert(isNumber(params.part));
     const map = this.getWorkspaceFileParts(params);
-    map[file.nativePath] = {
-      body: file.body,
+    const parts = map[file.nativePath] || (map[file.nativePath] = []);
+    parts.push({
+      ...file,
       part: params.part,
-    };
+    });
   };
 
   protected completeMemoryFile = (
-    params: FilePersistenceUploadFileParams,
-    file: OmitFrom<MemoryFilePersistenceProviderFile, 'body'>
+    params: Pick<FilePersistenceUploadFileParams, 'workspaceId'>,
+    nativePath: string
   ) => {
     const map = this.getWorkspaceFileParts(params);
-    const parts = Object.values(map).sort((a, b) => a.part - b.part);
-    const body = Buffer.concat(parts.map(part => part.body));
-    this.setMemoryFile(params, {
-      ...file,
-      body,
-    });
+    const parts = map[nativePath].sort((a, b) => a.part - b.part);
+    const assembled = parts.reduce(
+      (acc, part): MemoryFilePersistenceProviderFile => {
+        return {
+          ...acc,
+          body: Buffer.concat([acc.body || Buffer.alloc(0), part.body]),
+          nativePath: part.nativePath,
+          lastUpdatedAt: Date.now(),
+          size: (acc.body?.byteLength || 0) + part.body.byteLength,
+          mountId: part.mountId,
+          mimetype: part.mimetype,
+          encoding: part.encoding,
+        };
+      },
+      {} as Partial<MemoryFilePersistenceProviderFile>
+    );
 
+    const file = assembled as MemoryFilePersistenceProviderFile;
+    this.setMemoryFile(params, file as MemoryFilePersistenceProviderFile);
     delete map[file.nativePath];
   };
 }

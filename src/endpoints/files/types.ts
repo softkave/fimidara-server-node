@@ -8,7 +8,7 @@ import {
 } from '../types.js';
 import {DeleteFileEndpoint} from './deleteFile/types.js';
 import {GetFileDetailsEndpoint} from './getFileDetails/types.js';
-import {GetTUSOptionsEndpoint} from './getTUSOptions/types.js';
+import {GetPartDetailsEndpoint} from './getPartDetails/types.js';
 import {
   ReadFileEndpoint,
   ReadFileEndpointHttpQuery,
@@ -59,6 +59,8 @@ export type DeleteFileHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<DeleteFileEndpoint>;
 export type GetFileDetailsHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<GetFileDetailsEndpoint>;
+export type GetPartDetailsHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<GetPartDetailsEndpoint>;
 export type UpdateFileDetailsHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<UpdateFileDetailsEndpoint>;
 export type UploadFileEndpointSdkParams = UploadFileEndpointParams;
@@ -73,30 +75,13 @@ export type UploadFileHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<
   /** TSdkparams */ UploadFileEndpointSdkParams
 >;
 
-export interface IGetTUSOptionsHTTPEndpointResponseHeaders {
-  'Tus-Resumable': string;
-  'Tus-Version': string;
-  'Tus-Max-Size': string;
-  'Tus-Extension': string;
-}
-export type GetTUSOptionsHTTPEndpoint = ExportedHttpEndpointWithMddocDefinition<
-  /** TEndpoint */ GetTUSOptionsEndpoint,
-  /** TRequestHeaders */ EmptyObject,
-  /** TPathParameters */ EmptyObject,
-  /** TQuery */ EmptyObject,
-  /** TRequestBody */ EmptyObject,
-  /** TResponseHeaders */ IGetTUSOptionsHTTPEndpointResponseHeaders,
-  /** TResponseBody */ EmptyObject,
-  /** TSdkparams */ EmptyObject
->;
-
 export type FilesExportedEndpoints = {
   readFile: [ReadFilePOSTHttpEndpoint, ReadFileGETHttpEndpoint];
   deleteFile: DeleteFileHttpEndpoint;
   getFileDetails: GetFileDetailsHttpEndpoint;
   updateFileDetails: UpdateFileDetailsHttpEndpoint;
   uploadFile: UploadFileHttpEndpoint;
-  getTUSOptions: GetTUSOptionsHTTPEndpoint;
+  getPartDetails: GetPartDetailsHttpEndpoint;
 };
 
 export type FileMatcherPathParameters = {

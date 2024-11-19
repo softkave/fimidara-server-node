@@ -1,13 +1,13 @@
 import {faker} from '@faker-js/faker';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
-import {Folder} from '../../../definitions/folder.js';
-import {kFimidaraResourceType} from '../../../definitions/system.js';
-import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {
   getRandomIntInclusive,
   loopAndCollate,
   pathJoin,
-} from '../../../utils/fns.js';
+} from 'softkave-js-utils';
+import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {Folder} from '../../../definitions/folder.js';
+import {kFimidaraResourceType} from '../../../definitions/system.js';
+import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {
   getNewIdForResource,
   newWorkspaceResource,
@@ -80,7 +80,7 @@ export function generateTestFolderpath(
 export function generateTestFolderpathString(
   props: Parameters<typeof generateTestFolderpath>[0] = {}
 ): string {
-  return pathJoin(generateTestFolderpath(props));
+  return pathJoin({input: generateTestFolderpath(props)});
 }
 
 export async function generateUniqueFolderpath(workspaceId: string) {

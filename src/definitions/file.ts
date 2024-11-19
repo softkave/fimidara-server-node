@@ -28,6 +28,8 @@ export interface File extends WorkspaceResource {
 
   // server runtime only state, never stored in DB
   RUNTIME_ONLY_shouldCleanupMultipart?: boolean;
+  RUNTIME_ONLY_internalMultipartId?: string | null;
+  RUNTIME_ONLY_partLength?: number | null;
 }
 
 export type PublicFile = PublicWorkspaceResource &

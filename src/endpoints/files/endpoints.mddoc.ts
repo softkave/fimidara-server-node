@@ -23,6 +23,11 @@ import {
   GetFileDetailsEndpointResult,
 } from './getFileDetails/types.js';
 import {
+  GetPartDetailsEndpointParams,
+  GetPartDetailsEndpointResult,
+  PublicPartDetails,
+} from './getPartDetails/types.js';
+import {
   ImageFormatEnumMap,
   ImageResizeFitEnumMap,
   ImageResizeParams,
@@ -35,8 +40,7 @@ import {
   DeleteFileHttpEndpoint,
   FileMatcherPathParameters,
   GetFileDetailsHttpEndpoint,
-  GetTUSOptionsHTTPEndpoint,
-  IGetTUSOptionsHTTPEndpointResponseHeaders,
+  GetPartDetailsHttpEndpoint,
   ReadFileEndpointHTTPHeaders,
   ReadFileGETHttpEndpoint,
   ReadFilePOSTHttpEndpoint,
@@ -311,6 +315,27 @@ const uploadFileSdkParamsDef = mddocConstruct
     size: mddocConstruct.constructFieldObjectField(true, size),
     encoding: mddocConstruct.constructFieldObjectField(false, encoding),
     mimetype: mddocConstruct.constructFieldObjectField(false, mimetype),
+    clientMultipartId: mddocConstruct.constructFieldObjectField(
+      false,
+      mddocConstruct
+        .constructFieldString()
+        .setDescription(
+          'Client generated unique identifier for multipart uploads. ' +
+            'It is used to identify the same multipart upload across multiple requests'
+        )
+    ),
+    part: mddocConstruct.constructFieldObjectField(
+      false,
+      mddocConstruct
+        .constructFieldNumber()
+        .setDescription('Part number of the multipart upload')
+    ),
+    partLength: mddocConstruct.constructFieldObjectField(
+      false,
+      mddocConstruct
+        .constructFieldNumber()
+        .setDescription('Total number of parts in the multipart upload')
+    ),
   })
   .setName('UploadFileEndpointParams');
 
@@ -608,64 +633,79 @@ export const deleteFileEndpointDefinition = mddocConstruct
   .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
   .setName('DeleteFileEndpoint');
 
-export const getTUSOptionsEndpointDefinition = mddocConstruct
+export const getPartDetailsEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
     InferFieldObjectType<
-      GetTUSOptionsHTTPEndpoint['mddocHttpDefinition']['requestHeaders']
+      GetPartDetailsHttpEndpoint['mddocHttpDefinition']['requestHeaders']
     >,
     InferFieldObjectType<
-      GetTUSOptionsHTTPEndpoint['mddocHttpDefinition']['pathParamaters']
+      GetPartDetailsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
     >,
     InferFieldObjectType<
-      GetTUSOptionsHTTPEndpoint['mddocHttpDefinition']['query']
+      GetPartDetailsHttpEndpoint['mddocHttpDefinition']['query']
     >,
     InferFieldObjectOrMultipartType<
-      GetTUSOptionsHTTPEndpoint['mddocHttpDefinition']['requestBody']
+      GetPartDetailsHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<
-      GetTUSOptionsHTTPEndpoint['mddocHttpDefinition']['responseHeaders']
+      GetPartDetailsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      GetTUSOptionsHTTPEndpoint['mddocHttpDefinition']['responseBody']
+      GetPartDetailsHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(kFileConstants.routes.getTUSOptions)
-  .setMethod(HttpEndpointMethod.Options)
-  .setResponseHeaders(
+  .setBasePathname(kFileConstants.routes.getPartDetails)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(
     mddocConstruct
-      .constructFieldObject<IGetTUSOptionsHTTPEndpointResponseHeaders>()
+      .constructFieldObject<GetPartDetailsEndpointParams>()
+      .setName('GetPartDetailsEndpointParams')
+      .setFields(fileMatcherParts)
+  )
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
+  .setResponseBody(
+    mddocConstruct
+      .constructFieldObject<GetPartDetailsEndpointResult>()
+      .setName('GetPartDetailsEndpointResult')
       .setFields({
-        'Tus-Resumable': mddocConstruct.constructFieldObjectField(
-          true,
+        clientMultipartId: mddocConstruct.constructFieldObjectField(
+          false,
           mddocConstruct
             .constructFieldString()
-            .setDescription('Server TUS resumable version')
-            .setExample('1.0.0')
+            .setDescription(
+              'Client generated unique identifier for multipart uploads. ' +
+                'It is used to identify the same multipart upload across multiple requests'
+            )
         ),
-        'Tus-Version': mddocConstruct.constructFieldObjectField(
+        details: mddocConstruct.constructFieldObjectField(
           true,
-          mddocConstruct
-            .constructFieldString()
-            .setDescription('Server-supported TUS versions')
-            .setExample('1.0.0,0.2.2,0.2.1')
-        ),
-        'Tus-Max-Size': mddocConstruct.constructFieldObjectField(
-          true,
-          mddocConstruct
-            .constructFieldString()
-            .setDescription('Maximum file size in bytes')
-            .setExample('1073741824')
-        ),
-        'Tus-Extension': mddocConstruct.constructFieldObjectField(
-          true,
-          mddocConstruct
-            .constructFieldString()
-            .setDescription('Server-supported TUS extensions')
-            .setExample('creation,creation-with-upload,termination')
+          mddocConstruct.constructFieldArray<PublicPartDetails>().setType(
+            mddocConstruct
+              .constructFieldObject<PublicPartDetails>()
+              .setName('PublicPartDetails')
+              .setFields({
+                part: mddocConstruct.constructFieldObjectField(
+                  true,
+                  mddocConstruct
+                    .constructFieldNumber()
+                    .setDescription('Part number of the multipart upload')
+                ),
+                size: mddocConstruct.constructFieldObjectField(
+                  true,
+                  mddocConstruct
+                    .constructFieldNumber()
+                    .setDescription('Part size in bytes')
+                ),
+              })
+          )
         ),
       })
-      .setName('GetTUSOptionsHTTPEndpointResponseHeaders')
   )
-  .setName('GetTUSOptionsEndpoint');
+  .setName('GetPartDetailsEndpoint');
 
 export const fileEndpointsParts = {file};
