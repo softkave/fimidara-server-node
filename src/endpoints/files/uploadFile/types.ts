@@ -8,6 +8,10 @@ export interface UploadFileEndpointParams extends FileMatcher {
   encoding?: string;
   data: Readable;
   size: number;
+  /** 0 upto `partLength - 1` */
+  part?: number;
+  partLength?: number;
+  clientMultipartId?: string;
 }
 
 export interface UploadFileEndpointResult {

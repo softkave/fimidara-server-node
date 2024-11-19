@@ -30,6 +30,13 @@ interface FolderpathMatcher {
   folderpath: string;
 }
 
+export interface FilePersistenceUploadPartResult {
+  part: number;
+  multipartId: string;
+  partId: string;
+  size: number;
+}
+
 export interface FilePersistenceUploadFileParams
   extends FilePersistenceDefaultParams,
     FilepathMatcher {
@@ -38,12 +45,16 @@ export interface FilePersistenceUploadFileParams
   mimetype?: string;
   encoding?: string;
   fileId: string;
+  part?: number;
+  partLength?: number | null;
+  multipartId?: string | null;
 }
 
 export type FilePersistenceUploadFileResult<TRaw = any> = Pick<
   PersistedFileDescription<TRaw>,
   'filepath' | 'raw'
->;
+> &
+  Partial<FilePersistenceUploadPartResult>;
 
 export interface FilePersistenceGetFileParams
   extends FilePersistenceDefaultParams,
@@ -168,6 +179,14 @@ export interface FilePersistenceProvider extends DisposableResource {
   uploadFile: (
     params: FilePersistenceUploadFileParams
   ) => Promise<FilePersistenceUploadFileResult>;
+  completeMultipartUpload: (params: {
+    fileId: string;
+    multipartId?: string | null;
+  }) => Promise<void>;
+  cleanupMultipartUpload: (params: {
+    fileId: string;
+    multipartId?: string | null;
+  }) => Promise<void>;
   readFile: (params: FilePersistenceGetFileParams) => Promise<PersistedFile>;
   describeFile: (
     params: FilePersistenceDescribeFileParams

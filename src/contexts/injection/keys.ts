@@ -88,4 +88,5 @@ export const kInjectionKeys = {
   workerPool: 'workerPool',
   queue: 'queue',
   pubsub: 'pubsub',
+  cache: 'cache',
 };

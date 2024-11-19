@@ -1,4 +1,8 @@
-import {PublicWorkspaceResource, ToPublicDefinitions, WorkspaceResource} from './system.js';
+import {
+  PublicWorkspaceResource,
+  ToPublicDefinitions,
+  WorkspaceResource,
+} from './system.js';
 
 export interface File extends WorkspaceResource {
   parentId: string | null;
@@ -13,6 +17,17 @@ export interface File extends WorkspaceResource {
   isWriteAvailable?: boolean;
   isReadAvailable?: boolean;
   version: number;
+
+  // multipart uploads
+  partLength?: number | null;
+  uploadedParts?: number | null;
+  uploadedSize?: number | null;
+  internalMultipartId?: string | null;
+  clientMultipartId?: string | null;
+  multipartTimeout?: number | null;
+
+  // server runtime only state, never stored in DB
+  RUNTIME_ONLY_shouldCleanupMultipart?: boolean;
 }
 
 export type PublicFile = PublicWorkspaceResource &

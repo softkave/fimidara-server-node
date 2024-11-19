@@ -18,7 +18,6 @@ import {
   FilePersistenceToFimidaraPathParams,
   FilePersistenceToFimidaraPathResult,
   FilePersistenceUploadFileParams,
-  FilePersistenceUploadFileResult,
   FimidaraToFilePersistencePathParams,
   FimidaraToFilePersistencePathResult,
   PersistedFile,
@@ -29,6 +28,7 @@ import {defaultToFimidaraPath, defaultToNativePath} from './utils.js';
 
 export interface LocalFsFilePersistenceProviderParams {
   dir: string;
+  partsDir: string;
 }
 
 /**
@@ -37,10 +37,13 @@ export interface LocalFsFilePersistenceProviderParams {
  */
 export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
   protected dirNamepath: string;
+  protected partsNamepath: string;
 
   constructor(private params: LocalFsFilePersistenceProviderParams) {
     fse.ensureDirSync(params.dir);
+    fse.ensureDirSync(params.partsDir);
     this.dirNamepath = params.dir;
+    this.partsNamepath = params.partsDir;
   }
 
   supportsFeature = (feature: FilePersistenceProviderFeature): boolean => {
@@ -57,24 +60,23 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
   };
 
   uploadFile = async (params: FilePersistenceUploadFileParams) => {
-    const {mount, filepath} = params;
-    const {nativePath} = this.toNativePath({
-      fimidaraPath: filepath,
-      mount: mount,
-    });
-    await fse.ensureFile(nativePath);
+    if (isNumber(params.part)) {
+      await this.writeStreamToPartsFile(params);
+      if (params.isLastPart) {
+        await this.completePartsFile(params);
+      }
 
-    return new Promise<FilePersistenceUploadFileResult>((resolve, reject) => {
-      const writeStream = fse.createWriteStream(nativePath, {
-        autoClose: true,
-        emitClose: true,
+      return {filepath: params.filepath, raw: undefined};
+    } else {
+      const {mount, filepath} = params;
+      const {nativePath} = this.toNativePath({
+        fimidaraPath: filepath,
+        mount: mount,
       });
-      writeStream.on('close', () => {
-        resolve({filepath, raw: undefined});
-      });
-      writeStream.on('error', reject);
-      params.body.pipe(writeStream);
-    });
+
+      await this.writeStreamToFile(nativePath, params);
+      return {filepath, raw: undefined};
+    }
   };
 
   readFile = async (
@@ -220,26 +222,30 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
   dispose = noopAsync;
 
   toNativePath = (
-    params: FimidaraToFilePersistencePathParams
+    params: FimidaraToFilePersistencePathParams,
+    nativeFolderpath = this.dirNamepath
   ): FimidaraToFilePersistencePathResult => {
     const {fimidaraPath, mount} = params;
     const nativePath = defaultToNativePath(
       mount,
       fimidaraPath,
-      this.dirNamepath
+      nativeFolderpath
     );
+
     return {nativePath};
   };
 
   toFimidaraPath = (
-    params: FilePersistenceToFimidaraPathParams
+    params: FilePersistenceToFimidaraPathParams,
+    nativeFolderpath = this.dirNamepath
   ): FilePersistenceToFimidaraPathResult => {
     const {nativePath, mount} = params;
     const fimidaraPath = defaultToFimidaraPath(
       mount,
       nativePath,
-      this.dirNamepath
+      nativeFolderpath
     );
+
     return {fimidaraPath};
   };
 
@@ -312,5 +318,58 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
     );
 
     return compact(items);
+  }
+
+  protected async writeStreamToFile(
+    nativePath: string,
+    params: Pick<FilePersistenceUploadFileParams, 'body'>
+  ) {
+    await fse.ensureFile(nativePath);
+    return new Promise<void>((resolve, reject) => {
+      const writeStream = fse.createWriteStream(nativePath, {
+        autoClose: true,
+        emitClose: true,
+      });
+      writeStream.on('close', resolve);
+      writeStream.on('error', reject);
+      params.body.pipe(writeStream);
+    });
+  }
+
+  protected async writeStreamToPartsFile(
+    params: FilePersistenceUploadFileParams
+  ) {
+    appAssert(isNumber(params.part));
+    const partPath = pathJoin(
+      this.partsNamepath,
+      params.filepath,
+      params.part.toString()
+    );
+
+    return this.writeStreamToFile(partPath, params);
+  }
+
+  protected async completePartsFile(params: FilePersistenceUploadFileParams) {
+    appAssert(params.multipartId);
+    appAssert(isNumber(params.partLength));
+    const {nativePath} = this.toNativePath({
+      fimidaraPath: params.filepath,
+      mount: params.mount,
+    });
+
+    const writeStream = fse.createWriteStream(nativePath, {
+      autoClose: true,
+      emitClose: true,
+    });
+
+    for (let i = 0; i < params.partLength; i++) {
+      const partPath = pathJoin(
+        this.partsNamepath,
+        params.filepath,
+        i.toString()
+      );
+      const partStream = fse.createReadStream(partPath, {autoClose: true});
+      partStream.pipe(writeStream, {end: false});
+    }
   }
 }

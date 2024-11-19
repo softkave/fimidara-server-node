@@ -16,6 +16,7 @@ import {
 import {ShardedRunner} from '../../utils/shardedRunnerQueue.js';
 import {SessionContextType} from '../SessionContext.js';
 import {AsyncLocalStorageUtils} from '../asyncLocalStorage.js';
+import {ICacheContext} from '../cache/types.js';
 import {
   AgentTokenDataProvider,
   AppDataProvider,
@@ -259,4 +260,5 @@ export const kUtilsInjectables = {
     container.resolve<FimidaraWorkerPool>(kInjectionKeys.workerPool),
   queue: () => container.resolve<IQueueContext>(kInjectionKeys.queue),
   pubsub: () => container.resolve<IPubSubContext>(kInjectionKeys.pubsub),
+  cache: () => container.resolve<ICacheContext>(kInjectionKeys.cache),
 };
