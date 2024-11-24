@@ -25,7 +25,9 @@ export interface File extends WorkspaceResource {
   internalMultipartId?: string | null;
   clientMultipartId?: string | null;
   multipartTimeout?: number | null;
+}
 
+export interface FileWithRuntimeData extends File {
   // server runtime only state, never stored in DB
   RUNTIME_ONLY_shouldCleanupMultipart?: boolean;
   RUNTIME_ONLY_internalMultipartId?: string | null;

@@ -17,14 +17,15 @@ import {RedisPubSubContext} from '../RedisPubSubContext.js';
 
 let redis: RedisClientType | undefined;
 let redis02: RedisClientType | undefined;
+const database = 1;
 
 beforeAll(async () => {
   await initTests();
 
   const pubSubRedisURL = kUtilsInjectables.suppliedConfig().pubSubRedisURL;
   assert.ok(pubSubRedisURL);
-  redis = await createClient({url: pubSubRedisURL});
-  redis02 = await createClient({url: pubSubRedisURL});
+  redis = await createClient({url: pubSubRedisURL, database});
+  redis02 = await createClient({url: pubSubRedisURL, database});
   await redis.connect();
   await redis02.connect();
 });
@@ -34,9 +35,17 @@ afterEach(async () => {
   await redis02?.unsubscribe();
 });
 
+async function closeRedis(client: RedisClientType) {
+  await client?.select(database);
+  await client?.flushDb();
+  await client?.quit();
+}
+
 afterAll(async () => {
-  await redis?.quit();
-  await redis02?.quit();
+  assert.ok(redis);
+  assert.ok(redis02);
+  await closeRedis(redis);
+  await closeRedis(redis02);
   await completeTests();
 });
 

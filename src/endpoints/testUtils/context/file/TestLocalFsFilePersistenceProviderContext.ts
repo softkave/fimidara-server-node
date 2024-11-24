@@ -9,6 +9,8 @@ export default class TestLocalFsFilePersistenceProviderContext
   private client: LocalFsFilePersistenceProvider;
 
   uploadFile: TestFilePersistenceProviderContext['uploadFile'];
+  completeMultipartUpload: TestFilePersistenceProviderContext['completeMultipartUpload'];
+  cleanupMultipartUpload: TestFilePersistenceProviderContext['cleanupMultipartUpload'];
   toFimidaraPath: TestFilePersistenceProviderContext['toFimidaraPath'];
   toNativePath: TestFilePersistenceProviderContext['toNativePath'];
   readFile: TestFilePersistenceProviderContext['readFile'];
@@ -20,9 +22,21 @@ export default class TestLocalFsFilePersistenceProviderContext
   supportsFeature: TestFilePersistenceProviderContext['supportsFeature'];
   dispose: TestFilePersistenceProviderContext['dispose'];
 
-  constructor(private dir: string) {
-    this.client = new LocalFsFilePersistenceProvider({dir: this.dir});
+  constructor(
+    private dir: string,
+    private partsDir: string
+  ) {
+    this.client = new LocalFsFilePersistenceProvider({
+      dir: this.dir,
+      partsDir: this.partsDir,
+    });
     this.uploadFile = vi.fn(this.client.uploadFile).mockName('uploadFile');
+    this.completeMultipartUpload = vi
+      .fn(this.client.completeMultipartUpload)
+      .mockName('completeMultipartUpload');
+    this.cleanupMultipartUpload = vi
+      .fn(this.client.cleanupMultipartUpload)
+      .mockName('cleanupMultipartUpload');
     this.toFimidaraPath = vi
       .fn(this.client.toFimidaraPath)
       .mockName('toFimidaraPath');

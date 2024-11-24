@@ -18,7 +18,7 @@ import {first, isNumber} from 'lodash-es';
 import {AnyObject} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {FileBackendMount} from '../../definitions/fileBackend.js';
-import {getParts} from '../../endpoints/files/utils/part.js';
+import {getPartMetas} from '../../endpoints/files/utils/partMeta.js';
 import {kFolderConstants} from '../../endpoints/folders/constants.js';
 import {appAssert} from '../../utils/assertion.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
@@ -342,7 +342,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       mount: params.mount,
     });
 
-    const parts = (await getParts(params)).map(
+    const parts = (await getPartMetas(params)).map(
       (part): CompletedPart => ({
         PartNumber: part.part,
         ETag: part.partId,

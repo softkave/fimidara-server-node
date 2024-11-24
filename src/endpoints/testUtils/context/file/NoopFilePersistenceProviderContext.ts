@@ -39,6 +39,8 @@ export default class NoopFilePersistenceProviderContext
   deleteFiles = noopAsync;
   deleteFolders = noopAsync;
   dispose = noopAsync;
+  cleanupMultipartUpload = noopAsync;
+  completeMultipartUpload = noopAsync;
 
   describeFile = async (): Promise<PersistedFileDescription | undefined> => {
     return undefined;

@@ -38,32 +38,8 @@ export const kFileConstants = {
   } as const,
   multipartLockTimeoutSeconds: 60 * 60 * 24, // 24 hours
   maxPartLength: 10_000,
-  partResultCacheKeyPrefix: 'multipart_part_result_', // + multipartId + part hash
-  partHashDistribution: 100,
-  getPartResultListCacheKey: (
-    multipartId: string,
-    part: number,
-    partLength: number
-  ) => {
-    const partHash =
-      Math.floor(part / partLength) % kFileConstants.partHashDistribution;
-    return `${kFileConstants.partResultCacheKeyPrefix}${multipartId}_${partHash}`;
-  },
-  getPossiblePartResultListCacheKeys: (
-    multipartId: string,
-    partLength: number
-  ) => {
-    const keys: string[] = [];
-    const keyLength = Math.ceil(
-      partLength / kFileConstants.partHashDistribution
-    );
-
-    for (let i = 0; i < keyLength; i++) {
-      keys.push(
-        kFileConstants.getPartResultListCacheKey(multipartId, i, partLength)
-      );
-    }
-
-    return keys;
+  partResultCacheKeyPrefix: 'mpr_', // + multipartId + part hash
+  getPartCacheKey: (multipartId: string, part: number) => {
+    return `${kFileConstants.partResultCacheKeyPrefix}${multipartId}_${part}`;
   },
 };

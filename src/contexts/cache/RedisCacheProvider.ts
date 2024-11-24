@@ -1,19 +1,51 @@
 import {RedisClientType} from 'redis';
+import {convertToArray} from 'softkave-js-utils';
 import {ICacheContext} from './types.js';
 
 export class RedisCacheProvider implements ICacheContext {
   constructor(protected redis: RedisClientType) {}
 
-  get = async <T>(key: string): Promise<T | null> => {
-    const value = await this.redis.get(key);
-    return value ? JSON.parse(value) : null;
-  };
+  get(key: string): Promise<string | null> {
+    return this.redis.get(key);
+  }
 
-  set = async <T>(key: string, value: T): Promise<void> => {
+  getJson<T>(key: string): Promise<T | null> {
+    return this.redis
+      .get(key)
+      .then(value => (value ? JSON.parse(value) : null));
+  }
+
+  getList(keys: string[]): Promise<Array<string | null>> {
+    return this.redis.mGet(keys);
+  }
+
+  getJsonList<T>(keys: string[]): Promise<Array<T | null>> {
+    return this.redis
+      .mGet(keys)
+      .then(values => values.map(value => (value ? JSON.parse(value) : null)));
+  }
+
+  async set(key: string, value: string | Buffer): Promise<void> {
+    await this.redis.set(key, value);
+  }
+
+  async setJson<T>(key: string, value: T): Promise<void> {
     await this.redis.set(key, JSON.stringify(value));
-  };
+  }
 
-  delete = async (key: string): Promise<void> => {
-    await this.redis.del(key);
-  };
+  async setList(
+    list: Array<{key: string; value: string | Buffer}>
+  ): Promise<void> {
+    await this.redis.mSet(list.map(({key, value}) => [key, value]));
+  }
+
+  async setJsonList<T>(list: Array<{key: string; value: T}>): Promise<void> {
+    await this.redis.mSet(
+      list.map(({key, value}) => [key, JSON.stringify(value)])
+    );
+  }
+
+  async delete(key: string | string[]): Promise<void> {
+    await this.redis.del(convertToArray(key));
+  }
 }

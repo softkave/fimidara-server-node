@@ -17,6 +17,7 @@ import deleteFile from './deleteFile/handler.js';
 import {
   deleteFileEndpointDefinition,
   getFileDetailsEndpointDefinition,
+  getPartDetailsEndpointDefinition,
   readFileGETEndpointDefinition,
   readFilePOSTEndpointDefinition,
   updateFileDetailsEndpointDefinition,
@@ -33,6 +34,7 @@ import {FilesExportedEndpoints} from './types.js';
 import updateFileDetails from './updateFileDetails/handler.js';
 import uploadFile from './uploadFile/handler.js';
 import {UploadFileEndpointParams} from './uploadFile/types.js';
+import getPartDetails from './getPartDetails/handler.js';
 
 interface ActiveBusboy {
   _fileStream?: Readable;
@@ -275,6 +277,12 @@ export function getFilesHttpEndpoints() {
       mddocHttpDefinition: getFileDetailsEndpointDefinition,
       handleError: handleNotFoundError,
       fn: getFileDetails,
+    },
+    getPartDetails: {
+      tag: [kEndpointTag.public],
+      mddocHttpDefinition: getPartDetailsEndpointDefinition,
+      handleError: handleNotFoundError,
+      fn: getPartDetails,
     },
     readFile: [
       {

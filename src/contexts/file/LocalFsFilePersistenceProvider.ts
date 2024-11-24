@@ -233,28 +233,26 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
   dispose = noopAsync;
 
   toNativePath = (
-    params: FimidaraToFilePersistencePathParams,
-    nativeFolderpath = this.dirNamepath
+    params: FimidaraToFilePersistencePathParams
   ): FimidaraToFilePersistencePathResult => {
     const {fimidaraPath, mount} = params;
     const nativePath = defaultToNativePath(
       mount,
       fimidaraPath,
-      nativeFolderpath
+      this.dirNamepath
     );
 
     return {nativePath};
   };
 
   toFimidaraPath = (
-    params: FilePersistenceToFimidaraPathParams,
-    nativeFolderpath = this.dirNamepath
+    params: FilePersistenceToFimidaraPathParams
   ): FilePersistenceToFimidaraPathResult => {
     const {nativePath, mount} = params;
     const fimidaraPath = defaultToFimidaraPath(
       mount,
       nativePath,
-      nativeFolderpath
+      this.dirNamepath
     );
 
     return {fimidaraPath};

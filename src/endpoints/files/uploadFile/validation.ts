@@ -1,5 +1,6 @@
 import Joi from 'joi';
 import {kValidationSchemas} from '../../../utils/validationUtils.js';
+import {kFileConstants} from '../constants.js';
 import fileValidationSchemas from '../validation.js';
 import {UploadFileEndpointParams} from './types.js';
 
@@ -13,6 +14,6 @@ export const uploadFileJoiSchema = Joi.object<UploadFileEndpointParams>()
     encoding: fileValidationSchemas.encoding.allow(null),
     clientMultipartId: Joi.string(),
     part: Joi.number().integer().min(0),
-    partLength: Joi.number().integer().min(1),
+    partLength: Joi.number().integer().min(1).max(kFileConstants.maxPartLength),
   })
   .required();

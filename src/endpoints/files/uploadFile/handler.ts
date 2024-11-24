@@ -1,4 +1,3 @@
-import {add} from 'date-fns';
 import {isNumber, isString, pick} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {FilePersistenceUploadFileResult} from '../../../contexts/file/types.js';
@@ -7,7 +6,11 @@ import {
   kUtilsInjectables,
 } from '../../../contexts/injection/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
-import {File, FileMatcher} from '../../../definitions/file.js';
+import {
+  File,
+  FileMatcher,
+  FileWithRuntimeData,
+} from '../../../definitions/file.js';
 import {
   FileBackendMount,
   ResolvedMountEntry,
@@ -34,7 +37,6 @@ import {
   incrementStorageEverConsumedUsageRecord,
   incrementStorageUsageRecord,
 } from '../../usageRecords/usageFns.js';
-import {kFileConstants} from '../constants.js';
 import {FileNotWritableError} from '../errors.js';
 import {getFileWithMatcher} from '../getFilesWithMatcher.js';
 import {
@@ -46,9 +48,14 @@ import {
   getWorkspaceFromFileOrFilepath,
   stringifyFilenamepath,
 } from '../utils.js';
-import {deleteParts, hasPartResult, writeParts} from '../utils/part.js';
+import {getNextMultipartTimeout} from '../utils/getNextMultipartTimeout.js';
+import {
+  deletePartMetas,
+  hasPartMeta,
+  writePartMetas,
+} from '../utils/partMeta.js';
+import {checkUploadFileAuth} from './auth.js';
 import {UploadFileEndpoint, UploadFileEndpointParams} from './types.js';
-import {checkUploadFileAuth} from './utils.js';
 import {uploadFileJoiSchema} from './validation.js';
 
 async function createAndInsertNewFile(
@@ -83,7 +90,7 @@ async function setFileWritable(fileId: string) {
   });
 }
 
-function getCleanupMultipartFileData(): Partial<File> {
+function getCleanupMultipartFileUpdate(): Partial<File> {
   return {
     isWriteAvailable: true,
     partLength: null,
@@ -99,13 +106,19 @@ async function cleanupMultipartUpload(
   file: File,
   opts: SemanticProviderMutationParams
 ) {
-  const update = getCleanupMultipartFileData();
+  const update = getCleanupMultipartFileUpdate();
+  appAssert(isNumber(file.partLength));
   await kSemanticModels.file().updateOneById(file.resourceId, update, opts);
-  kUtilsInjectables.promises().forget(deleteParts({fileId: file.resourceId}));
+  kUtilsInjectables
+    .promises()
+    .forget(
+      deletePartMetas({fileId: file.resourceId, partLength: file.partLength})
+    );
 
-  file.RUNTIME_ONLY_shouldCleanupMultipart = true;
-  file.RUNTIME_ONLY_internalMultipartId = file.internalMultipartId;
-  file.RUNTIME_ONLY_partLength = file.partLength;
+  (file as FileWithRuntimeData).RUNTIME_ONLY_shouldCleanupMultipart = true;
+  (file as FileWithRuntimeData).RUNTIME_ONLY_internalMultipartId =
+    file.internalMultipartId;
+  (file as FileWithRuntimeData).RUNTIME_ONLY_partLength = file.partLength;
   mergeData(file, update);
 }
 
@@ -295,12 +308,20 @@ async function updateFile(
 
 async function saveFilePartData(
   file: File,
-  persistedMountData: FilePersistenceUploadFileResult<any>
+  pMountData: FilePersistenceUploadFileResult<any>
 ) {
-  appAssert(isNumber(persistedMountData.part));
-  await writeParts({
+  appAssert(isNumber(pMountData.part));
+  appAssert(pMountData.multipartId && pMountData.partId && pMountData.size);
+  await writePartMetas({
     fileId: file.resourceId,
-    part: persistedMountData.part,
+    parts: [
+      {
+        part: pMountData.part,
+        multipartId: pMountData.multipartId,
+        partId: pMountData.partId,
+        size: pMountData.size,
+      },
+    ],
   });
 }
 
@@ -336,8 +357,8 @@ const uploadFile: UploadFileEndpoint = async reqData => {
           .resolvedMountEntry()
           .getOneByMountIdAndFileId(primaryMount.resourceId, file.resourceId),
       isNumber(data.part)
-        ? hasPartResult({fileId: file.resourceId, part: data.part})
-        : ({} as Awaited<ReturnType<typeof hasPartResult>>),
+        ? hasPartMeta({fileId: file.resourceId, part: data.part})
+        : ({} as Awaited<ReturnType<typeof hasPartMeta>>),
     ]);
 
     const filepath = stringifyFilenamepath(
@@ -346,19 +367,19 @@ const uploadFile: UploadFileEndpoint = async reqData => {
         : file
     );
 
-    if (file.RUNTIME_ONLY_shouldCleanupMultipart) {
-      file.RUNTIME_ONLY_shouldCleanupMultipart = false;
-      appAssert(isString(file.RUNTIME_ONLY_internalMultipartId));
-      appAssert(isNumber(file.RUNTIME_ONLY_partLength));
-      appAssert;
+    if ((file as FileWithRuntimeData).RUNTIME_ONLY_shouldCleanupMultipart) {
+      const rFile = file as FileWithRuntimeData;
+      rFile.RUNTIME_ONLY_shouldCleanupMultipart = false;
+      appAssert(isString(rFile.RUNTIME_ONLY_internalMultipartId));
+      appAssert(isNumber(rFile.RUNTIME_ONLY_partLength));
       kUtilsInjectables.promises().forget(
         primaryBackend.cleanupMultipartUpload({
           filepath,
           fileId: file.resourceId,
-          multipartId: file.RUNTIME_ONLY_internalMultipartId,
+          multipartId: rFile.RUNTIME_ONLY_internalMultipartId,
           mount: primaryMount,
-          partLength: file.RUNTIME_ONLY_partLength,
-          workspaceId: file.workspaceId,
+          partLength: rFile.RUNTIME_ONLY_partLength,
+          workspaceId: rFile.workspaceId,
         })
       );
     }
@@ -409,9 +430,7 @@ const uploadFile: UploadFileEndpoint = async reqData => {
     if (isMultipart && !isLastPart) {
       update.internalMultipartId = persistedMountData.multipartId;
       update.isWriteAvailable = false;
-      update.multipartTimeout = add(new Date(), {
-        seconds: kFileConstants.multipartLockTimeoutSeconds,
-      }).getTime();
+      update.multipartTimeout = getNextMultipartTimeout();
       update.uploadedSize =
         (file.uploadedSize || 0) + bytesCounterStream.contentLength;
 
@@ -431,7 +450,7 @@ const uploadFile: UploadFileEndpoint = async reqData => {
         update.size = bytesCounterStream.contentLength;
       }
 
-      mergeData(update, getCleanupMultipartFileData());
+      mergeData(update, getCleanupMultipartFileUpdate());
     }
 
     mergeData(update, pick(data, ['description', 'encoding', 'mimetype']), {
@@ -451,9 +470,14 @@ const uploadFile: UploadFileEndpoint = async reqData => {
           partLength: file.partLength,
           workspaceId: file.workspaceId,
         });
-        kUtilsInjectables
-          .promises()
-          .forget(deleteParts({fileId: file.resourceId}));
+
+        appAssert(isNumber(file.partLength));
+        kUtilsInjectables.promises().forget(
+          deletePartMetas({
+            fileId: file.resourceId,
+            partLength: file.partLength,
+          })
+        );
       }
     }
 

@@ -7,7 +7,7 @@ import {
   assertCanReadPublicFile,
   assertCanUpdatePublicFile,
   assertCanUploadToPublicFile,
-} from '../../files/uploadFile/uploadFileTestUtils.js';
+} from '../../files/uploadFile/testutils/utils.js';
 import {stringifyFilenamepath} from '../../files/utils.js';
 import {generateTestFileName} from '../../testUtils/generate/file.js';
 import {

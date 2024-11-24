@@ -3,7 +3,9 @@ import {getPage} from '../contexts/data/utils.js';
 import {kEndpointConstants} from './constants.js';
 import {PaginationQuery} from './types.js';
 
-export function applyDefaultEndpointPaginationOptions(data: PaginationQuery) {
+export function applyDefaultEndpointPaginationOptions<
+  T extends PaginationQuery,
+>(data: T) {
   if (data.page === undefined) {
     data.page = kEndpointConstants.minPage;
   } else {
@@ -16,7 +18,7 @@ export function applyDefaultEndpointPaginationOptions(data: PaginationQuery) {
     data.pageSize = Math.max(kEndpointConstants.minPageSize, data.pageSize);
   }
 
-  return data;
+  return data as T & Required<PaginationQuery>;
 }
 
 export function getEndpointPageFromInput(

@@ -9,6 +9,8 @@ export default class TestFimidaraFilePersistenceProviderContext
   private client: FimidaraFilePersistenceProvider;
 
   uploadFile: TestFilePersistenceProviderContext['uploadFile'];
+  completeMultipartUpload: TestFilePersistenceProviderContext['completeMultipartUpload'];
+  cleanupMultipartUpload: TestFilePersistenceProviderContext['cleanupMultipartUpload'];
   toFimidaraPath: TestFilePersistenceProviderContext['toFimidaraPath'];
   toNativePath: TestFilePersistenceProviderContext['toNativePath'];
   readFile: TestFilePersistenceProviderContext['readFile'];
@@ -23,6 +25,12 @@ export default class TestFimidaraFilePersistenceProviderContext
   constructor() {
     this.client = new FimidaraFilePersistenceProvider();
     this.uploadFile = vi.fn(this.client.uploadFile).mockName('uploadFile');
+    this.completeMultipartUpload = vi
+      .fn(this.client.completeMultipartUpload)
+      .mockName('completeMultipartUpload');
+    this.cleanupMultipartUpload = vi
+      .fn(this.client.cleanupMultipartUpload)
+      .mockName('cleanupMultipartUpload');
     this.toFimidaraPath = vi
       .fn(this.client.toFimidaraPath)
       .mockName('toFimidaraPath');
