@@ -3,7 +3,6 @@ import {kUtilsInjectables} from '../contexts/injection/injectables.js';
 import {registerUtilsInjectables} from '../contexts/injection/register.js';
 import {
   kFimidaraConfigDbType,
-  kFimidaraConfigPubSubProvider,
   kFimidaraConfigQueueProvider,
 } from '../resources/config.js';
 import {restApiEndpointsInfoGen} from './restApiEndpointsInfoGen.js';
@@ -13,7 +12,7 @@ async function main() {
   await registerUtilsInjectables({
     dbType: kFimidaraConfigDbType.noop,
     queueProvider: kFimidaraConfigQueueProvider.memory,
-    pubSubProvider: kFimidaraConfigPubSubProvider.memory,
+    pubSubProvider: kFimidaraConfigQueueProvider.memory,
   });
 
   try {

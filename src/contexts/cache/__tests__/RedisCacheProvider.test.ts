@@ -1,125 +1,124 @@
-import assert from 'assert';
-import {RedisClientType, createClient} from 'redis';
-import {afterAll, afterEach, beforeAll, describe, expect, test} from 'vitest';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
 import {initTests} from '../../../endpoints/testUtils/testUtils.js';
 import {kUtilsInjectables} from '../../injection/injectables.js';
 import {RedisCacheProvider} from '../RedisCacheProvider.js';
 
-let redis: RedisClientType | undefined;
-const database = 5;
-
 beforeAll(async () => {
   await initTests();
-
-  const cacheRedisURL = kUtilsInjectables.suppliedConfig().cacheRedisURL;
-  assert.ok(cacheRedisURL);
-  redis = await createClient({url: cacheRedisURL, database});
-  await redis.connect();
-});
-
-afterEach(async () => {
-  await redis?.select(database);
-  await redis?.flushDb();
-  await redis?.unsubscribe();
 });
 
 afterAll(async () => {
-  await redis?.quit();
   await completeTests();
 });
 
 describe('RedisCacheProvider', () => {
   test('get', async () => {
-    assert.ok(redis);
+    const [redis] = kUtilsInjectables.redis();
     const cache = new RedisCacheProvider(redis);
     const value = await cache.get('test');
     expect(value).toBeNull();
 
-    await redis.set('test', 'value');
-    const value2 = await cache.get('test');
+    const key = 'test' + Math.random();
+    await redis.set(key, 'value');
+    const value2 = await cache.get(key);
     expect(value2).toBe('value');
   });
 
   test('getJson', async () => {
-    assert.ok(redis);
+    const [redis] = kUtilsInjectables.redis();
     const cache = new RedisCacheProvider(redis);
     const value = await cache.getJson<{test: string}>('test');
     expect(value).toBeNull();
 
-    await redis.set('test', JSON.stringify({test: 'value'}));
-    const value2 = await cache.getJson<{test: string}>('test');
+    const key = 'test' + Math.random();
+    await redis.set(key, JSON.stringify({test: 'value'}));
+    const value2 = await cache.getJson<{test: string}>(key);
     expect(value2).toEqual({test: 'value'});
   });
 
   test('set', async () => {
-    assert.ok(redis);
+    const [redis] = kUtilsInjectables.redis();
     const cache = new RedisCacheProvider(redis);
-    await cache.set('test', 'value');
-    const value = await redis.get('test');
+    const key = 'test' + Math.random();
+    await cache.set(key, 'value');
+    const value = await redis.get(key);
     expect(value).toBe('value');
   });
 
   test('setJson', async () => {
-    assert.ok(redis);
+    const [redis] = kUtilsInjectables.redis();
     const cache = new RedisCacheProvider(redis);
-    await cache.setJson('test', {test: 'value'});
-    const value = await redis.get('test');
+    const key = 'test' + Math.random();
+    await cache.setJson(key, {test: 'value'});
+    const value = await redis.get(key);
     expect(value).toBe('{"test":"value"}');
   });
 
   test('delete', async () => {
-    assert.ok(redis);
+    const [redis] = kUtilsInjectables.redis();
     const cache = new RedisCacheProvider(redis);
     await cache.delete('test');
-    const value = await redis.get('test');
+    const key = 'test' + Math.random();
+    const value = await redis.get(key);
     expect(value).toBeNull();
   });
 
   test('getList', async () => {
-    assert.ok(redis);
+    const [redis] = kUtilsInjectables.redis();
     const cache = new RedisCacheProvider(redis);
     const value = await cache.getList(['test1', 'test2']);
     expect(value).toEqual([null, null]);
 
-    await redis.mSet(['test1', 'value1', 'test2', 'value2']);
-    const value2 = await cache.getList(['test1', 'test2']);
+    const key1 = 'test1' + Math.random();
+    const key2 = 'test2' + Math.random();
+    await redis.mSet([
+      [key1, 'value1'],
+      [key2, 'value2'],
+    ]);
+    const value2 = await cache.getList([key1, key2]);
     expect(value2).toEqual(['value1', 'value2']);
   });
 
   test('getJsonList', async () => {
-    assert.ok(redis);
+    const [redis] = kUtilsInjectables.redis();
     const cache = new RedisCacheProvider(redis);
     const value = await cache.getJsonList<{test: string}>(['test1', 'test2']);
     expect(value).toEqual([null, null]);
 
+    const key1 = 'test1' + Math.random();
+    const key2 = 'test2' + Math.random();
     await redis.mSet([
-      ['test1', JSON.stringify({test: 'value1'})],
-      ['test2', JSON.stringify({test: 'value2'})],
+      [key1, JSON.stringify({test: 'value1'})],
+      [key2, JSON.stringify({test: 'value2'})],
     ]);
-    const value2 = await cache.getJsonList<{test: string}>(['test1', 'test2']);
+    const value2 = await cache.getJsonList<{test: string}>([key1, key2]);
     expect(value2).toEqual([{test: 'value1'}, {test: 'value2'}]);
   });
 
   test('setList', async () => {
-    assert.ok(redis);
+    const [redis] = kUtilsInjectables.redis();
     const cache = new RedisCacheProvider(redis);
+    const key1 = 'test1' + Math.random();
+    const key2 = 'test2' + Math.random();
     await cache.setList([
-      {key: 'test1', value: 'value1'},
-      {key: 'test2', value: 'value2'},
+      {key: key1, value: 'value1'},
+      {key: key2, value: 'value2'},
     ]);
-    const value = await redis.mGet(['test1', 'test2']);
+    const value = await redis.mGet([key1, key2]);
     expect(value).toEqual(['value1', 'value2']);
   });
 
   test('setJsonList', async () => {
-    assert.ok(redis);
+    const [redis] = kUtilsInjectables.redis();
     const cache = new RedisCacheProvider(redis);
+    const key1 = 'test1' + Math.random();
+    const key2 = 'test2' + Math.random();
     await cache.setJsonList([
-      {key: 'test1', value: {test: 'value1'}},
-      {key: 'test2', value: {test: 'value2'}},
+      {key: key1, value: {test: 'value1'}},
+      {key: key2, value: {test: 'value2'}},
     ]);
-    const value = await redis.mGet(['test1', 'test2']);
+    const value = await redis.mGet([key1, key2]);
     expect(value).toEqual(['{"test":"value1"}', '{"test":"value2"}']);
   });
 });

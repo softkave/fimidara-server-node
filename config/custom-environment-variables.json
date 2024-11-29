@@ -27,11 +27,9 @@
     }
   },
   "queueProvider": "QUEUE_PROVIDER",
-  "queueRedisURL": "QUEUE_REDIS_URL",
   "pubSubProvider": "PUB_SUB_PROVIDER",
-  "pubSubRedisURL": "PUB_SUB_REDIS_URL",
   "cacheProvider": "CACHE_PROVIDER",
-  "cacheRedisURL": "CACHE_REDIS_URL",
   "redlockProvider": "REDLOCK_PROVIDER",
-  "redlockRedisURL": "REDLOCK_REDIS_URL"
+  "redisURL": "REDIS_URL",
+  "redisDatabase": "REDIS_DATABASE"
 }

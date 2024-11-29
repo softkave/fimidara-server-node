@@ -54,7 +54,7 @@ afterAll(async () => {
   await completeTests();
 });
 
-describe.skip('S3FilePersistenceProvider', () => {
+describe('S3FilePersistenceProvider', () => {
   test('toNativePath', async () => {
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const mount = await getNewMount({workspaceId});

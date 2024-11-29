@@ -1,8 +1,10 @@
 import 'reflect-metadata';
 
 import assert from 'assert';
+import {Redis} from 'ioredis';
 import {construct} from 'js-accessor';
 import {isFunction} from 'lodash-es';
+import {RedisClientType} from 'redis';
 import {
   AnyFn,
   DisposableResource,
@@ -70,6 +72,7 @@ import {
   kAsyncLocalStorageUtils,
 } from '../asyncLocalStorage.js';
 import {ICacheContext} from '../cache/types.js';
+import {getCacheContext} from '../cache/utils.js';
 import {MongoDataProviderUtils} from '../data/MongoDataProviderUtils.js';
 import {
   AgentTokenMongoDataProvider,
@@ -129,7 +132,9 @@ import {IPubSubContext} from '../pubsub/types.js';
 import {getPubSubContext} from '../pubsub/utils.js';
 import {IQueueContext} from '../queue/types.js';
 import {getQueueContext} from '../queue/utils.js';
+import {getIoRedis, getRedis} from '../redis.js';
 import {IRedlockContext} from '../redlock/types.js';
+import {getRedlockContext} from '../redlock/utils.js';
 import {IServerRuntimeState} from '../runtime.js';
 import {SecretsManagerProvider} from '../secrets/types.js';
 import {getSecretsProvider} from '../secrets/utils.js';
@@ -191,8 +196,6 @@ import {DataSemanticWorkspace} from '../semantic/workspace/model.js';
 import {SemanticWorkspaceProviderType} from '../semantic/workspace/types.js';
 import {kDataModels, kUtilsInjectables} from './injectables.js';
 import {kInjectionKeys} from './keys.js';
-import {getCacheContext} from '../cache/utils.js';
-import {getRedlockContext} from '../redlock/utils.js';
 
 function registerToken(
   token: string,
@@ -307,7 +310,6 @@ export const kRegisterDataModels = {
 };
 
 export const kRegisterUtilsInjectables = {
-  // config: (item: FimidaraConfig) => register(kInjectionKeys.config, item),
   suppliedConfig: (item: FimidaraSuppliedConfig) =>
     registerToken(kInjectionKeys.suppliedConfig, item),
   runtimeConfig: (item: FimidaraRuntimeConfig) =>
@@ -345,6 +347,10 @@ export const kRegisterUtilsInjectables = {
   cache: (item: ICacheContext) => registerToken(kInjectionKeys.cache, item),
   redlock: (item: IRedlockContext) =>
     registerToken(kInjectionKeys.redlock, item),
+  redis: (item: [RedisClientType, RedisClientType, ...RedisClientType[]]) =>
+    registerToken(kInjectionKeys.redis, item),
+  ioredis: (item: [Redis, ...Redis[]]) =>
+    registerToken(kInjectionKeys.ioredis, item),
 };
 
 export function registerDataModelInjectables() {
@@ -566,6 +572,12 @@ export async function registerUtilsInjectables(
   } else {
     kRegisterUtilsInjectables.dbConnection(new NoopDbConnection());
   }
+
+  const redis = await getRedis();
+  const ioRedis = await getIoRedis();
+  const redis2 = redis.duplicate();
+  kRegisterUtilsInjectables.redis([redis, redis2]);
+  kRegisterUtilsInjectables.ioredis([ioRedis]);
 
   kRegisterUtilsInjectables.email(getEmailProvider(suppliedConfig));
   kRegisterUtilsInjectables.secretsManager(getSecretsProvider(suppliedConfig));

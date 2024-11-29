@@ -90,4 +90,6 @@ export const kInjectionKeys = {
   pubsub: 'pubsub',
   cache: 'cache',
   redlock: 'redlock',
+  redis: 'redis',
+  ioredis: 'ioredis',
 };

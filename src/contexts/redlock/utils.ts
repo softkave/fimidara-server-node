@@ -1,25 +1,18 @@
-import assert from 'assert';
-import Redis from 'ioredis';
 import {
   FimidaraSuppliedConfig,
-  kFimidaraConfigRedlockProvider,
+  kFimidaraConfigQueueProvider,
 } from '../../resources/config.js';
+import {kUtilsInjectables} from '../injection/injectables.js';
 import {MemoryRedlockProvider} from './MemoryRedlockProvider.js';
 import {RedisRedlockProvider} from './RedisRedlockProvider.js';
 
 export async function getRedlockContext(config: FimidaraSuppliedConfig) {
   switch (config.redlockProvider) {
-    case kFimidaraConfigRedlockProvider.redis: {
-      const {redlockRedisURL, redlockDatabase} = config;
-      assert.ok(redlockRedisURL);
-      const redis = new Redis.default({
-        path: redlockRedisURL,
-        db: redlockDatabase,
-      });
-      await redis.connect();
-      return new RedisRedlockProvider(redis);
+    case kFimidaraConfigQueueProvider.redis: {
+      const [ioRedis] = kUtilsInjectables.ioredis();
+      return new RedisRedlockProvider(ioRedis);
     }
-    case kFimidaraConfigRedlockProvider.memory:
+    case kFimidaraConfigQueueProvider.memory:
       return new MemoryRedlockProvider();
     default:
       throw new Error(`Unknown redlock type: ${config.redlockProvider}`);

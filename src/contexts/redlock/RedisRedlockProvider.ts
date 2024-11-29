@@ -1,4 +1,8 @@
-import {Redlock, ResourceLockedError} from '@sesamecare-oss/redlock';
+import {
+  ExecutionError,
+  Redlock,
+  ResourceLockedError,
+} from '@sesamecare-oss/redlock';
 import Redis from 'ioredis';
 import {convertToArray} from 'softkave-js-utils';
 import {InvalidStateError} from '../../endpoints/errors.js';
@@ -26,12 +30,25 @@ export class RedisRedlockProvider implements IRedlockContext {
       return await this.redlock.using(
         convertToArray(key),
         duration,
-        {retryCount: options?.retryCount},
+        {retryCount: options?.retryCount ?? 2},
         fn
       );
     } catch (error) {
       if (error instanceof ResourceLockedError) {
         throw new InvalidStateError('Resource not available');
+      } else if (error instanceof ExecutionError) {
+        const attempts = await Promise.all(error.attempts);
+        const votesAgainst = attempts.map(attempt => attempt.votesAgainst);
+        const votesAgainstError = votesAgainst
+          .map(vote => Array.from(vote.values()))
+          .flat();
+        const hasResourceLockedError = votesAgainstError.some(
+          error => error instanceof ResourceLockedError
+        );
+
+        if (hasResourceLockedError) {
+          throw new InvalidStateError('Resource not available');
+        }
       }
 
       throw error;

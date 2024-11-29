@@ -42,9 +42,9 @@
     "s3Bucket": "",
     "sesEmailEncoding": "UTF-8"
   },
+  "redisURL": "",
+  "redisDatabase": 0,
   "queueProvider": "",
-  "queueRedisURL": "",
-  "queueDatabase": 0,
   "addFolderQueueStart": 1,
   "addFolderQueueEnd": 1,
   "addFolderQueueNo": [1],
@@ -52,12 +52,6 @@
   "addFolderQueuePrefix": "addFolderQueue",
   "addFolderPubSubChannelPrefix": "addFolderPubSub",
   "pubSubProvider": "",
-  "pubSubRedisURL": "",
-  "pubSubDatabase": 0,
   "redlockProvider": "",
-  "redlockRedisURL": "",
-  "redlockDatabase": 0,
-  "cacheProvider": "",
-  "cacheRedisURL": "",
-  "cacheDatabase": 0
+  "cacheProvider": ""
 }
