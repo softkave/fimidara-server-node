@@ -1,6 +1,7 @@
 import type {Buffer} from 'buffer';
+import {DisposableResource} from 'softkave-js-utils';
 
-export interface ICacheContext {
+export interface ICacheContext extends DisposableResource {
   get(key: string): Promise<string | null>;
   getJson<T>(key: string): Promise<T | null>;
   getList(key: string[]): Promise<Array<string | null>>;

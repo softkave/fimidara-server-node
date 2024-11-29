@@ -6,7 +6,7 @@ import {PaginationQuery} from '../../types.js';
 import {kFileConstants} from '../constants.js';
 
 export async function getPartMetas(
-  params: {fileId: string; partLength: number; fromPart?: number} & Pick<
+  params: {multipartId: string; partLength: number; fromPart?: number} & Pick<
     PaginationQuery,
     'pageSize'
   >
@@ -20,7 +20,8 @@ export async function getPartMetas(
 
   while (fromPart < params.partLength && parts.length < keysLength) {
     const keys = loopAndCollate(
-      index => kFileConstants.getPartCacheKey(params.fileId, index + fromPart),
+      index =>
+        kFileConstants.getPartCacheKey(params.multipartId, index + fromPart),
       keysLength
     );
 
@@ -38,10 +39,10 @@ export async function getPartMetas(
 }
 
 export async function getPartMeta(params: {
-  fileId: string;
+  multipartId: string;
   part: number;
 }): Promise<FilePersistenceUploadPartResult | null> {
-  const key = kFileConstants.getPartCacheKey(params.fileId, params.part);
+  const key = kFileConstants.getPartCacheKey(params.multipartId, params.part);
   const part = await kUtilsInjectables
     .cache()
     .getJson<FilePersistenceUploadPartResult>(key);
@@ -49,7 +50,7 @@ export async function getPartMeta(params: {
   return part;
 }
 
-export async function hasPartMeta(params: {fileId: string; part: number}) {
+export async function hasPartMeta(params: {multipartId: string; part: number}) {
   const part = await getPartMeta(params);
   const hasPart = !!part;
 
@@ -57,12 +58,12 @@ export async function hasPartMeta(params: {fileId: string; part: number}) {
 }
 
 export async function writePartMetas(params: {
-  fileId: string;
+  multipartId: string;
   parts: FilePersistenceUploadPartResult[];
 }): Promise<FilePersistenceUploadPartResult[]> {
   await kUtilsInjectables.cache().setJsonList(
     params.parts.map(part => ({
-      key: kFileConstants.getPartCacheKey(params.fileId, part.part),
+      key: kFileConstants.getPartCacheKey(params.multipartId, part.part),
       value: part,
     }))
   );
@@ -71,12 +72,12 @@ export async function writePartMetas(params: {
 }
 
 export async function deletePartMetas(params: {
-  fileId: string;
+  multipartId: string;
   partLength: number;
 }): Promise<void> {
   const {partLength} = params;
   const keys = loopAndCollate(
-    part => kFileConstants.getPartCacheKey(params.fileId, part),
+    part => kFileConstants.getPartCacheKey(params.multipartId, part),
     partLength
   );
 

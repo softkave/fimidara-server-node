@@ -15,6 +15,7 @@ export type PublicPartDetails = Pick<
 
 export interface GetPartDetailsEndpointResult {
   clientMultipartId?: string;
+  partLength?: number;
   details: PublicPartDetails[];
 }
 

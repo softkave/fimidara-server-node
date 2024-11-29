@@ -69,6 +69,15 @@ export type FimidaraConfigCacheProvider = ValueOf<
   typeof kFimidaraConfigCacheProvider
 >;
 
+export const kFimidaraConfigRedlockProvider = {
+  redis: 'redis',
+  memory: 'mem',
+} as const;
+
+export type FimidaraConfigRedlockProvider = ValueOf<
+  typeof kFimidaraConfigRedlockProvider
+>;
+
 export interface AWSConfig {
   accessKeyId: string;
   secretAccessKey: string;
@@ -155,6 +164,7 @@ export type FimidaraSuppliedConfig = Partial<{
   // Queues
   queueProvider: FimidaraConfigQueueProvider;
   queueRedisURL: string;
+  queueDatabase: number;
   addFolderQueueStart: number;
   addFolderQueueEnd: number;
   addFolderQueueNo: number[];
@@ -164,11 +174,18 @@ export type FimidaraSuppliedConfig = Partial<{
   // PubSub
   pubSubProvider: FimidaraConfigPubSubProvider;
   pubSubRedisURL: string;
+  pubSubDatabase: number;
   addFolderPubSubChannelPrefix: string;
 
   // Cache
   cacheProvider: FimidaraConfigCacheProvider;
   cacheRedisURL: string;
+  cacheDatabase: number;
+
+  // Redlock
+  redlockProvider: FimidaraConfigRedlockProvider;
+  redlockRedisURL: string;
+  redlockDatabase: number;
 }>;
 
 export type FimidaraConfig = FimidaraSuppliedConfig & FimidaraRuntimeConfig;

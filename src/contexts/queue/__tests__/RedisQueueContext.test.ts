@@ -7,7 +7,7 @@ import {kUtilsInjectables} from '../../injection/injectables.js';
 import {RedisQueueContext} from '../RedisQueueContext.js';
 
 let redis: RedisClientType | undefined;
-const database = 1;
+const database = 3;
 
 beforeAll(async () => {
   await initTests();

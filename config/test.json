@@ -6,5 +6,9 @@
   "localFsDir": "./test-local-fs",
   "addFolderTimeoutMs": 10000,
   "addFolderQueuePrefix": "test_addFolderQueue",
-  "addFolderPubSubChannelPrefix": "test_addFolderPubSub"
+  "addFolderPubSubChannelPrefix": "test_addFolderPubSub",
+  "queueDatabase": 1,
+  "pubSubDatabase": 1,
+  "redlockDatabase": 1,
+  "cacheDatabase": 1
 }

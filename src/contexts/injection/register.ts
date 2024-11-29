@@ -69,6 +69,7 @@ import {
   AsyncLocalStorageUtils,
   kAsyncLocalStorageUtils,
 } from '../asyncLocalStorage.js';
+import {ICacheContext} from '../cache/types.js';
 import {MongoDataProviderUtils} from '../data/MongoDataProviderUtils.js';
 import {
   AgentTokenMongoDataProvider,
@@ -128,6 +129,7 @@ import {IPubSubContext} from '../pubsub/types.js';
 import {getPubSubContext} from '../pubsub/utils.js';
 import {IQueueContext} from '../queue/types.js';
 import {getQueueContext} from '../queue/utils.js';
+import {IRedlockContext} from '../redlock/types.js';
 import {IServerRuntimeState} from '../runtime.js';
 import {SecretsManagerProvider} from '../secrets/types.js';
 import {getSecretsProvider} from '../secrets/utils.js';
@@ -189,6 +191,8 @@ import {DataSemanticWorkspace} from '../semantic/workspace/model.js';
 import {SemanticWorkspaceProviderType} from '../semantic/workspace/types.js';
 import {kDataModels, kUtilsInjectables} from './injectables.js';
 import {kInjectionKeys} from './keys.js';
+import {getCacheContext} from '../cache/utils.js';
+import {getRedlockContext} from '../redlock/utils.js';
 
 function registerToken(
   token: string,
@@ -338,6 +342,9 @@ export const kRegisterUtilsInjectables = {
     registerToken(kInjectionKeys.workerPool, item),
   queue: (item: IQueueContext) => registerToken(kInjectionKeys.queue, item),
   pubsub: (item: IPubSubContext) => registerToken(kInjectionKeys.pubsub, item),
+  cache: (item: ICacheContext) => registerToken(kInjectionKeys.cache, item),
+  redlock: (item: IRedlockContext) =>
+    registerToken(kInjectionKeys.redlock, item),
 };
 
 export function registerDataModelInjectables() {
@@ -564,6 +571,8 @@ export async function registerUtilsInjectables(
   kRegisterUtilsInjectables.secretsManager(getSecretsProvider(suppliedConfig));
   kRegisterUtilsInjectables.queue(await getQueueContext(suppliedConfig));
   kRegisterUtilsInjectables.pubsub(await getPubSubContext(suppliedConfig));
+  kRegisterUtilsInjectables.cache(await getCacheContext(suppliedConfig));
+  kRegisterUtilsInjectables.redlock(await getRedlockContext(suppliedConfig));
 }
 
 export async function registerInjectables(

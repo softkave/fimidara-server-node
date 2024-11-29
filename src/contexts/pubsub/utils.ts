@@ -10,10 +10,11 @@ import {RedisPubSubContext} from './RedisPubSubContext.js';
 export async function getPubSubContext(config: FimidaraSuppliedConfig) {
   switch (config.pubSubProvider) {
     case kFimidaraConfigPubSubProvider.redis: {
-      const pubSubRedisURL = config.pubSubRedisURL;
+      const {pubSubRedisURL, pubSubDatabase} = config;
       assert.ok(pubSubRedisURL);
       const publisherRedis: RedisClientType = createClient({
         url: pubSubRedisURL,
+        database: pubSubDatabase,
       });
       const subscriberRedis: RedisClientType = createClient({
         url: pubSubRedisURL,

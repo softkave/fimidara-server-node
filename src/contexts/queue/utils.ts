@@ -12,9 +12,12 @@ import {IQueueMessage, IQueueMessageInternal} from './types.js';
 export async function getQueueContext(config: FimidaraSuppliedConfig) {
   switch (config.queueProvider) {
     case kFimidaraConfigQueueProvider.redis: {
-      const queueRedisURL = config.queueRedisURL;
+      const {queueRedisURL, queueDatabase} = config;
       assert.ok(queueRedisURL);
-      const redis: RedisClientType = createClient({url: queueRedisURL});
+      const redis: RedisClientType = createClient({
+        url: queueRedisURL,
+        database: queueDatabase,
+      });
       await redis.connect();
       return new RedisQueueContext(redis);
     }

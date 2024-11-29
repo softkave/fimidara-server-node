@@ -37,6 +37,7 @@ import {
   FilePersistenceToFimidaraPathParams,
   FilePersistenceToFimidaraPathResult,
   FilePersistenceUploadFileParams,
+  FilePersistenceUploadFileResult,
   FimidaraToFilePersistencePathParams,
   PersistedFile,
   PersistedFileDescription,
@@ -93,7 +94,9 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
     }
   };
 
-  async uploadFile(params: FilePersistenceUploadFileParams) {
+  async uploadFile(
+    params: FilePersistenceUploadFileParams
+  ): Promise<FilePersistenceUploadFileResult> {
     const {bucket, nativePath} = this.toNativePath({
       fimidaraPath: params.filepath,
       mount: params.mount,

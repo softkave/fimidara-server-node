@@ -44,7 +44,7 @@ const getPartDetails: GetPartDetailsEndpoint = async reqData => {
   );
 
   const pagination = applyDefaultEndpointPaginationOptions(data);
-  if (!file.partLength) {
+  if (!file.partLength || !file.internalMultipartId) {
     return {
       page: pagination.page,
       details: [],
@@ -52,7 +52,7 @@ const getPartDetails: GetPartDetailsEndpoint = async reqData => {
   }
 
   const parts = await getPartMetas({
-    fileId: file.resourceId,
+    multipartId: file.internalMultipartId,
     fromPart: data.fromPart,
     pageSize: pagination.pageSize,
     partLength: file.partLength,
@@ -61,6 +61,7 @@ const getPartDetails: GetPartDetailsEndpoint = async reqData => {
   return {
     page: pagination.page,
     clientMultipartId: file.clientMultipartId || undefined,
+    partLength: file.partLength,
     details: partDetailsListExtractor(parts),
   };
 };

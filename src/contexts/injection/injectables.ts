@@ -79,6 +79,7 @@ import {
 import {SemanticUserProviderType} from '../semantic/user/types.js';
 import {SemanticWorkspaceProviderType} from '../semantic/workspace/types.js';
 import {kInjectionKeys} from './keys.js';
+import {IRedlockContext} from '../redlock/types.js';
 
 export const kSemanticModels = {
   user: () =>
@@ -261,4 +262,5 @@ export const kUtilsInjectables = {
   queue: () => container.resolve<IQueueContext>(kInjectionKeys.queue),
   pubsub: () => container.resolve<IPubSubContext>(kInjectionKeys.pubsub),
   cache: () => container.resolve<ICacheContext>(kInjectionKeys.cache),
+  redlock: () => container.resolve<IRedlockContext>(kInjectionKeys.redlock),
 };

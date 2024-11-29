@@ -35,10 +35,15 @@ describe('getPartDetails', () => {
       const {file} = await insertFileForTest(userToken, workspace);
       const partLength = 10;
       const clientMultipartId = '1';
+      const internalMultipartId = '2';
       await kSemanticModels.utils().withTxn(async txn => {
         await kSemanticModels
           .file()
-          .updateOneById(file.resourceId, {partLength, clientMultipartId}, txn);
+          .updateOneById(
+            file.resourceId,
+            {partLength, clientMultipartId, internalMultipartId},
+            txn
+          );
       });
       const possiblePartNums = Array.from({length: partLength}, (_, i) => i);
       const partNums = spotty
@@ -61,7 +66,7 @@ describe('getPartDetails', () => {
             partId: part.toString(),
           };
         });
-      await writePartMetas({parts, fileId: file.resourceId});
+      await writePartMetas({parts, multipartId: internalMultipartId});
 
       const pageSize = 5;
       const page01Req =
@@ -76,6 +81,7 @@ describe('getPartDetails', () => {
       expect(page01.details).toEqual(
         parts.slice(0, Math.min(pageSize, partLength))
       );
+      expect(page01.partLength).toEqual(partLength);
 
       const page02Req =
         RequestData.fromExpressRequest<GetPartDetailsEndpointParams>(
@@ -91,7 +97,7 @@ describe('getPartDetails', () => {
       assertEndpointResultOk(page02);
       expect(page02.clientMultipartId).toEqual(clientMultipartId);
       expect(page02.details).toEqual(parts.slice(pageSize, pageSize * 2));
-
+      expect(page02.partLength).toEqual(partLength);
       const page03Req =
         RequestData.fromExpressRequest<GetPartDetailsEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
@@ -106,6 +112,7 @@ describe('getPartDetails', () => {
       assertEndpointResultOk(page03);
       expect(page03.clientMultipartId).toEqual(clientMultipartId);
       expect(page03.details).toEqual(parts.slice(pageSize * 2, pageSize * 3));
+      expect(page03.partLength).toEqual(partLength);
     }
   );
 });

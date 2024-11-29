@@ -17,7 +17,7 @@ import {RedisPubSubContext} from '../RedisPubSubContext.js';
 
 let redis: RedisClientType | undefined;
 let redis02: RedisClientType | undefined;
-const database = 1;
+const database = 2;
 
 beforeAll(async () => {
   await initTests();

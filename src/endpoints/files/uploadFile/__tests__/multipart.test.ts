@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {last} from 'lodash-es';
+import {isNil, last} from 'lodash-es';
 import {waitTimeout} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {afterAll, afterEach, beforeAll, describe, expect, test} from 'vitest';
@@ -138,7 +138,11 @@ describe('multipart.uploadFile', () => {
     });
 
     assert.ok(rf01);
-    const partMeta = await getPartMeta({fileId: rf01.resourceId, part: 0});
+    assert.ok(rf01.internalMultipartId);
+    const partMeta = await getPartMeta({
+      multipartId: rf01.internalMultipartId,
+      part: 0,
+    });
     assert.ok(partMeta);
     expect(partMeta.size).toBe(buf01.byteLength);
     expect(partMeta.multipartId).toBe(rf01.internalMultipartId);
@@ -153,7 +157,11 @@ describe('multipart.uploadFile', () => {
     });
 
     assert.ok(rf02);
-    const partMeta2 = await getPartMeta({fileId: rf02.resourceId, part: 0});
+    assert.ok(rf02.internalMultipartId);
+    const partMeta2 = await getPartMeta({
+      multipartId: rf02.internalMultipartId,
+      part: 0,
+    });
     assert.ok(partMeta2);
     expect(partMeta2.size).toBe(buf02.byteLength);
     expect(partMeta2.part).toBe(partMeta.part);
@@ -197,5 +205,50 @@ describe('multipart.uploadFile', () => {
     expect(dbFile?.internalMultipartId).toBeNull();
     expect(dbFile?.clientMultipartId).toBeNull();
     expect(dbFile?.partLength).toBeNull();
+  });
+
+  test('uploaded parts and size counted correctly', async () => {
+    const {userToken} = await insertUserForTest();
+    const {rawWorkspace} = await insertWorkspaceForTest(userToken);
+    const {runNext} = await multipartFileUpload({
+      userToken,
+      workspace: rawWorkspace,
+    });
+
+    async function wrapOrCatch(fn: () => Promise<unknown>) {
+      try {
+        return {status: 'success', result: await fn()};
+      } catch (e) {
+        return {status: 'error', error: e};
+      }
+    }
+
+    const results01 = await Promise.all([
+      wrapOrCatch(() => runNext({part: 0, forceRun: true})),
+      wrapOrCatch(() => runNext({part: 0, forceRun: true})),
+      wrapOrCatch(() => runNext({part: 0, forceRun: true})),
+      wrapOrCatch(() => runNext({part: 0, forceRun: true})),
+      wrapOrCatch(() => runNext({part: 0, forceRun: true})),
+    ]);
+    // run again
+    const results02 = await Promise.all([
+      wrapOrCatch(() => runNext({part: 0, forceRun: true})),
+      wrapOrCatch(() => runNext({part: 0, forceRun: true})),
+    ]);
+    const results = results01.concat(results02);
+    const successResults = results.filter(
+      (
+        r
+      ): r is {
+        status: 'success';
+        result: NonNullable<Awaited<ReturnType<typeof runNext>>>;
+      } => r.status === 'success' && !isNil(r.result)
+    );
+    assert.ok(successResults.length);
+    const rf = successResults[0].result.rawFile;
+    assert.ok(rf);
+    const dbFile = await kSemanticModels.file().getOneById(rf.resourceId);
+    expect(dbFile?.uploadedParts).toBe(1);
+    expect(dbFile?.uploadedSize).toBe(rf.size);
   });
 });

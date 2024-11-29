@@ -1,349 +1,38 @@
-import {isNumber, isString, pick} from 'lodash-es';
+import {isNumber, isString} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {FilePersistenceUploadFileResult} from '../../../contexts/file/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
-import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
-import {
-  File,
-  FileMatcher,
-  FileWithRuntimeData,
-} from '../../../definitions/file.js';
-import {
-  FileBackendMount,
-  ResolvedMountEntry,
-} from '../../../definitions/fileBackend.js';
-import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
-import {PresignedPath} from '../../../definitions/presignedPath.js';
-import {
-  SessionAgent,
-  kFimidaraResourceType,
-} from '../../../definitions/system.js';
-import {Workspace} from '../../../definitions/workspace.js';
-import {appAssert} from '../../../utils/assertion.js';
-import {getTimestamp} from '../../../utils/dateFns.js';
-import {ValidationError} from '../../../utils/errors.js';
-import {mergeData, pathExtract} from '../../../utils/fns.js';
-import {newWorkspaceResource} from '../../../utils/resource.js';
-import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {FileWithRuntimeData} from '../../../definitions/file.js';
+import {SessionAgent} from '../../../definitions/system.js';
 import {ByteCounterPassThroughStream} from '../../../utils/streams.js';
 import {validate} from '../../../utils/validate.js';
+import RequestData from '../../RequestData.js';
 import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils.js';
+import {fileExtractor} from '../utils.js';
+import {handleMultipartCleanup} from './clean.js';
 import {
-  decrementStorageUsageRecord,
-  incrementBandwidthInUsageRecord,
-  incrementStorageEverConsumedUsageRecord,
-  incrementStorageUsageRecord,
-} from '../../usageRecords/usageFns.js';
-import {FileNotWritableError} from '../errors.js';
-import {getFileWithMatcher} from '../getFilesWithMatcher.js';
-import {
-  FilepathInfo,
-  assertFile,
-  createNewFileAndEnsureFolders,
-  fileExtractor,
-  getFilepathInfo,
-  getWorkspaceFromFileOrFilepath,
-  stringifyFilenamepath,
-} from '../utils.js';
-import {getNextMultipartTimeout} from '../utils/getNextMultipartTimeout.js';
-import {
-  deletePartMetas,
-  hasPartMeta,
-  writePartMetas,
-} from '../utils/partMeta.js';
-import {checkUploadFileAuth} from './auth.js';
+  getExistingFilePartMeta,
+  handleLastMultipartUpload,
+} from './multipart.js';
+import {prepareFile, prepareFilepath} from './prepare.js';
 import {UploadFileEndpoint, UploadFileEndpointParams} from './types.js';
+import {
+  getFileUpdate,
+  saveFilePartData,
+  setFileWritable,
+  updateFile,
+} from './update.js';
+import {handleStorageUsageRecords} from './usage.js';
 import {uploadFileJoiSchema} from './validation.js';
 
-async function createAndInsertNewFile(
-  agent: SessionAgent,
-  workspace: Workspace,
-  pathinfo: FilepathInfo,
-  data: Pick<
-    File,
-    'description' | 'encoding' | 'mimetype' | 'partLength' | 'clientMultipartId'
-  >,
-  opts: SemanticProviderMutationParams,
-  seed: Partial<File> = {}
-) {
-  const {file, parentFolder} = await createNewFileAndEnsureFolders(
-    agent,
-    workspace,
-    pathinfo,
-    data,
-    seed,
-    /** parentFolder */ null
-  );
-
-  await kSemanticModels.file().insertItem(file, opts);
-  return {file, parentFolder};
-}
-
-async function setFileWritable(fileId: string) {
-  await kSemanticModels.utils().withTxn(async opts => {
-    await kSemanticModels
-      .file()
-      .getAndUpdateOneById(fileId, {isWriteAvailable: true}, opts);
-  });
-}
-
-function getCleanupMultipartFileUpdate(): Partial<File> {
-  return {
-    isWriteAvailable: true,
-    partLength: null,
-    uploadedParts: null,
-    internalMultipartId: null,
-    clientMultipartId: null,
-    multipartTimeout: null,
-    uploadedSize: null,
-  };
-}
-
-async function cleanupMultipartUpload(
-  file: File,
-  opts: SemanticProviderMutationParams
-) {
-  const update = getCleanupMultipartFileUpdate();
-  appAssert(isNumber(file.partLength));
-  await kSemanticModels.file().updateOneById(file.resourceId, update, opts);
-  kUtilsInjectables
-    .promises()
-    .forget(
-      deletePartMetas({fileId: file.resourceId, partLength: file.partLength})
-    );
-
-  (file as FileWithRuntimeData).RUNTIME_ONLY_shouldCleanupMultipart = true;
-  (file as FileWithRuntimeData).RUNTIME_ONLY_internalMultipartId =
-    file.internalMultipartId;
-  (file as FileWithRuntimeData).RUNTIME_ONLY_partLength = file.partLength;
-  mergeData(file, update);
-}
-
-async function checkFileWriteAvailable(
-  file: File,
-  data: UploadFileEndpointParams,
-  opts: SemanticProviderMutationParams
-) {
-  if (file.isWriteAvailable) {
-    return;
-  } else if (file.clientMultipartId === data.clientMultipartId) {
-    return;
-  } else if (file.multipartTimeout && file.multipartTimeout < Date.now()) {
-    await cleanupMultipartUpload(file, opts);
-    return;
-  }
-
-  throw new FileNotWritableError();
-}
-
-async function prepareExistingFile(
-  agent: SessionAgent,
-  workspace: Workspace,
-  file: File,
-  data: UploadFileEndpointParams,
-  presignedPath: PresignedPath | undefined,
-  opts: SemanticProviderMutationParams
-) {
-  await checkFileWriteAvailable(file, data, opts);
-  if (!presignedPath) {
-    // Permission is already checked if there's a `presignedPath`
-    await checkUploadFileAuth(
-      agent,
-      workspace,
-      file,
-      /** closestExistingFolder */ null,
-      opts
-    );
-  }
-
-  return await kSemanticModels
-    .file()
-    .getAndUpdateOneById(file.resourceId, {isWriteAvailable: false}, opts);
-}
-
-async function prepareNewFile(
-  agent: SessionAgent,
-  workspace: Workspace,
-  data: UploadFileEndpointParams,
-  opts: SemanticProviderMutationParams
-) {
-  appAssert(
-    data.filepath,
-    new ValidationError('Provide a filepath for new files')
-  );
-
-  const pathinfo = getFilepathInfo(data.filepath, {
-    containsRootname: true,
-    allowRootFolder: false,
-  });
-  const {file, parentFolder} = await createAndInsertNewFile(
-    agent,
-    workspace,
-    pathinfo,
-    data,
-    opts,
-    /** seed */ {}
-  );
-
-  await checkUploadFileAuth(agent, workspace, file, parentFolder, opts);
-  return file;
-}
-
-async function tryGetFile(
-  data: FileMatcher,
-  opts: SemanticProviderMutationParams
-) {
-  const matched = await getFileWithMatcher({
-    presignedPathAction: kFimidaraPermissionActions.uploadFile,
-    incrementPresignedPathUsageCount: true,
-    supportPresignedPath: true,
-    matcher: data,
-    opts,
-  });
-
-  return matched;
-}
-
-async function prepareFile(
-  data: UploadFileEndpointParams,
-  agent: SessionAgent
-) {
-  return await kSemanticModels.utils().withTxn(async opts => {
-    const {file: existingFile, presignedPath} = await tryGetFile(data, opts);
-    const workspace = await getWorkspaceFromFileOrFilepath(
-      existingFile,
-      data.filepath
-    );
-
-    let isNewFile: boolean,
-      file = existingFile;
-
-    if (file) {
-      isNewFile = false;
-      file = await prepareExistingFile(
-        agent,
-        workspace,
-        file,
-        data,
-        presignedPath,
-        opts
-      );
-    } else {
-      isNewFile = true;
-      file = await prepareNewFile(agent, workspace, data, opts);
-    }
-
-    assertFile(file);
-    return {file, workspace, isNewFile};
-  });
-}
-
-async function insertMountEntry(
-  agent: SessionAgent,
-  file: File,
-  primaryMount: FileBackendMount,
-  persistedMountData: FilePersistenceUploadFileResult<any>,
-  namepath: string[],
-  ext: string,
-  opts: SemanticProviderMutationParams
-) {
-  const newMountEntry = newWorkspaceResource<ResolvedMountEntry>(
-    agent,
-    kFimidaraResourceType.ResolvedMountEntry,
-    file.workspaceId,
-    /** seed */ {
-      forType: kFimidaraResourceType.File,
-      mountId: primaryMount.resourceId,
-      fimidaraNamepath: file.namepath,
-      backendNamepath: namepath,
-      forId: file.resourceId,
-      fimidaraExt: file.ext,
-      backendExt: ext,
-      persisted: {
-        filepath: persistedMountData.filepath,
-        lastUpdatedAt: file.lastUpdatedAt,
-        mountId: primaryMount.resourceId,
-        raw: persistedMountData.raw,
-        encoding: file.encoding,
-        mimetype: file.mimetype,
-        size: file.size,
-      },
-    }
-  );
-
-  kSemanticModels.resolvedMountEntry().insertItem(newMountEntry, opts);
-}
-
-async function updateFile(
-  agent: SessionAgent,
-  file: File,
-  primaryMount: FileBackendMount,
-  persistedMountData: FilePersistenceUploadFileResult<any>,
-  update: Partial<File>,
-  shouldInsertMountEntry: boolean
-) {
-  return await kSemanticModels.utils().withTxn(async opts => {
-    const {namepath, ext} = pathExtract(persistedMountData.filepath);
-    const [savedFile] = await Promise.all([
-      kSemanticModels.file().getAndUpdateOneById(file.resourceId, update, opts),
-      shouldInsertMountEntry &&
-        insertMountEntry(
-          agent,
-          file,
-          primaryMount,
-          persistedMountData,
-          namepath,
-          ext,
-          opts
-        ),
-    ]);
-
-    assertFile(savedFile);
-    return savedFile;
-  });
-}
-
-async function saveFilePartData(
-  file: File,
-  pMountData: FilePersistenceUploadFileResult<any>
-) {
-  appAssert(isNumber(pMountData.part));
-  appAssert(pMountData.multipartId && pMountData.partId && pMountData.size);
-  await writePartMetas({
-    fileId: file.resourceId,
-    parts: [
-      {
-        part: pMountData.part,
-        multipartId: pMountData.multipartId,
-        partId: pMountData.partId,
-        size: pMountData.size,
-      },
-    ],
-  });
-}
-
-const uploadFile: UploadFileEndpoint = async reqData => {
-  const data = validate(reqData.data, uploadFileJoiSchema);
-  const agent = await kUtilsInjectables
-    .session()
-    .getAgentFromReq(
-      reqData,
-      kSessionUtils.permittedAgentTypes.api,
-      kSessionUtils.accessScopes.api
-    );
-
-  // eslint-disable-next-line prefer-const
-  let {file, isNewFile} = await prepareFile(data, agent);
-  // TODO: use sharded runner to process all an once
-  await incrementBandwidthInUsageRecord(
-    reqData,
-    {...file, size: data.size, resourceId: undefined},
-    kFimidaraPermissionActions.uploadFile
-  );
-
+async function handleUploadFile(params: {
+  file: FileWithRuntimeData;
+  data: UploadFileEndpointParams;
+  agent: SessionAgent;
+  isNewFile: boolean;
+  reqData: RequestData<UploadFileEndpointParams>;
+}) {
+  const {data, agent, isNewFile, reqData} = params;
+  let {file} = params;
   const {primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs(
     file,
     /** initPrimaryBackendOnly */ true
@@ -351,38 +40,17 @@ const uploadFile: UploadFileEndpoint = async reqData => {
 
   try {
     const isMultipart = isString(data.clientMultipartId);
-    const [mountEntry, {part, hasPart}] = await Promise.all([
-      !isNewFile &&
-        kSemanticModels
-          .resolvedMountEntry()
-          .getOneByMountIdAndFileId(primaryMount.resourceId, file.resourceId),
-      isNumber(data.part)
-        ? hasPartMeta({fileId: file.resourceId, part: data.part})
-        : ({} as Awaited<ReturnType<typeof hasPartMeta>>),
+    const [filepath, {part, hasPart}] = await Promise.all([
+      prepareFilepath({isNewFile, primaryMount, file}),
+      getExistingFilePartMeta({file, part: data.part}),
     ]);
 
-    const filepath = stringifyFilenamepath(
-      mountEntry
-        ? {namepath: mountEntry?.backendNamepath, ext: mountEntry?.backendExt}
-        : file
-    );
-
-    if ((file as FileWithRuntimeData).RUNTIME_ONLY_shouldCleanupMultipart) {
-      const rFile = file as FileWithRuntimeData;
-      rFile.RUNTIME_ONLY_shouldCleanupMultipart = false;
-      appAssert(isString(rFile.RUNTIME_ONLY_internalMultipartId));
-      appAssert(isNumber(rFile.RUNTIME_ONLY_partLength));
-      kUtilsInjectables.promises().forget(
-        primaryBackend.cleanupMultipartUpload({
-          filepath,
-          fileId: file.resourceId,
-          multipartId: rFile.RUNTIME_ONLY_internalMultipartId,
-          mount: primaryMount,
-          partLength: rFile.RUNTIME_ONLY_partLength,
-          workspaceId: rFile.workspaceId,
-        })
-      );
-    }
+    handleMultipartCleanup({
+      primaryBackend,
+      primaryMount,
+      filepath,
+      file: file as FileWithRuntimeData,
+    });
 
     // TODO: compare bytecounter and size input to make sure they match or
     // update usage record
@@ -400,95 +68,46 @@ const uploadFile: UploadFileEndpoint = async reqData => {
       multipartId: file.internalMultipartId,
     });
 
-    if (!isNewFile) {
-      kUtilsInjectables
-        .promises()
-        .forget(decrementStorageUsageRecord(reqData, file));
-    }
+    const {update, isLastPart} = getFileUpdate({
+      agent,
+      file,
+      data,
+      isMultipart,
+      hasPart,
+      part,
+      persistedMountData,
+      bytesCounterStream,
+    });
 
-    await incrementStorageEverConsumedUsageRecord(
+    await handleStorageUsageRecords({
       reqData,
-      {...file, size: data.size, resourceId: undefined},
-      kFimidaraPermissionActions.uploadFile
-    );
-    await incrementStorageUsageRecord(
-      reqData,
-      {...file, size: data.size, resourceId: undefined},
-      kFimidaraPermissionActions.uploadFile
-    );
-
-    const update: Partial<File> = {
-      lastUpdatedBy: getActionAgentFromSessionAgent(agent),
-      lastUpdatedAt: getTimestamp(),
-    };
-
-    if (isMultipart && !hasPart) {
-      update.uploadedParts = (file.uploadedParts || 0) + 1;
-    }
-
-    const isLastPart = isMultipart && file.partLength === update.uploadedParts;
-    if (isMultipart && !isLastPart) {
-      update.internalMultipartId = persistedMountData.multipartId;
-      update.isWriteAvailable = false;
-      update.multipartTimeout = getNextMultipartTimeout();
-      update.uploadedSize =
-        (file.uploadedSize || 0) + bytesCounterStream.contentLength;
-
-      if (hasPart) {
-        appAssert(part);
-        update.uploadedSize -= part.size;
-      }
-    } else {
-      update.isWriteAvailable = true;
-      update.isReadAvailable = true;
-      update.version = file.version + 1;
-
-      if (isMultipart) {
-        appAssert(isNumber(file.uploadedSize));
-        update.size = file.uploadedSize + bytesCounterStream.contentLength;
-      } else {
-        update.size = bytesCounterStream.contentLength;
-      }
-
-      mergeData(update, getCleanupMultipartFileUpdate());
-    }
-
-    mergeData(update, pick(data, ['description', 'encoding', 'mimetype']), {
-      arrayUpdateStrategy: 'replace',
+      file,
+      isNewFile,
+      isMultipart,
+      isLastPart,
+      size: bytesCounterStream.contentLength,
     });
 
     if (isMultipart) {
-      await saveFilePartData(file, persistedMountData);
+      await saveFilePartData({pMountData: persistedMountData});
       if (isLastPart) {
-        appAssert(isString(file.clientMultipartId));
-        appAssert(isNumber(file.partLength));
-        await primaryBackend.completeMultipartUpload({
+        await handleLastMultipartUpload({
+          file,
+          primaryBackend,
+          primaryMount,
           filepath,
-          fileId: file.resourceId,
-          multipartId: file.clientMultipartId,
-          mount: primaryMount,
-          partLength: file.partLength,
-          workspaceId: file.workspaceId,
         });
-
-        appAssert(isNumber(file.partLength));
-        kUtilsInjectables.promises().forget(
-          deletePartMetas({
-            fileId: file.resourceId,
-            partLength: file.partLength,
-          })
-        );
       }
     }
 
-    file = await updateFile(
+    file = await updateFile({
       agent,
       file,
       primaryMount,
       persistedMountData,
       update,
-      /** shouldInsertMountEntry */ !isMultipart || isLastPart
-    );
+      shouldInsertMountEntry: !isMultipart || isLastPart,
+    });
 
     return {file: fileExtractor(file)};
   } catch (error) {
@@ -497,6 +116,35 @@ const uploadFile: UploadFileEndpoint = async reqData => {
     }
 
     throw error;
+  }
+}
+
+const uploadFile: UploadFileEndpoint = async reqData => {
+  const data = validate(reqData.data, uploadFileJoiSchema);
+  const agent = await kUtilsInjectables
+    .session()
+    .getAgentFromReq(
+      reqData,
+      kSessionUtils.permittedAgentTypes.api,
+      kSessionUtils.accessScopes.api
+    );
+
+  // TODO: use a lock on the file using path, because it's still possible to
+  // have concurrency issues in the prepare stage. for that, we need to resolve
+  // a filepath as quickly as possible and lock on that.
+
+  // eslint-disable-next-line prefer-const
+  let {file, isNewFile} = await prepareFile(data, agent);
+  const isMultipart = isString(data.clientMultipartId);
+
+  if (isMultipart) {
+    return await kUtilsInjectables
+      .redlock()
+      .using(`upload-file-${file.resourceId}-${data.part}`, 120_000, () =>
+        handleUploadFile({file, data, agent, isNewFile, reqData})
+      );
+  } else {
+    return handleUploadFile({file, data, agent, isNewFile, reqData});
   }
 };
 

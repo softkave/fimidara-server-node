@@ -660,7 +660,17 @@ export const getPartDetailsEndpointDefinition = mddocConstruct
     mddocConstruct
       .constructFieldObject<GetPartDetailsEndpointParams>()
       .setName('GetPartDetailsEndpointParams')
-      .setFields(fileMatcherParts)
+      .setFields({
+        ...fileMatcherParts,
+        fromPart: mddocConstruct.constructFieldObjectField(
+          false,
+          mddocConstruct.constructFieldNumber()
+        ),
+        pageSize: mddocConstruct.constructFieldObjectField(
+          false,
+          mddocConstruct.constructFieldNumber()
+        ),
+      })
   )
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
@@ -703,6 +713,10 @@ export const getPartDetailsEndpointDefinition = mddocConstruct
                 ),
               })
           )
+        ),
+        partLength: mddocConstruct.constructFieldObjectField(
+          false,
+          mddocConstruct.constructFieldNumber()
         ),
       })
   )

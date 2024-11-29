@@ -36,16 +36,24 @@ export class RedisCacheProvider implements ICacheContext {
   async setList(
     list: Array<{key: string; value: string | Buffer}>
   ): Promise<void> {
-    await this.redis.mSet(list.map(({key, value}) => [key, value]));
+    await this.redis.mSet(
+      list.map(({key, value}) => [key, value] as [string, string | Buffer])
+    );
   }
 
   async setJsonList<T>(list: Array<{key: string; value: T}>): Promise<void> {
     await this.redis.mSet(
-      list.map(({key, value}) => [key, JSON.stringify(value)])
+      list.map(
+        ({key, value}) => [key, JSON.stringify(value)] as [string, string]
+      )
     );
   }
 
   async delete(key: string | string[]): Promise<void> {
     await this.redis.del(convertToArray(key));
   }
+
+  dispose = async () => {
+    await this.redis.quit();
+  };
 }

@@ -89,4 +89,5 @@ export const kInjectionKeys = {
   queue: 'queue',
   pubsub: 'pubsub',
   cache: 'cache',
+  redlock: 'redlock',
 };

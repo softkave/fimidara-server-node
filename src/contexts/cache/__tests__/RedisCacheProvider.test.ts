@@ -7,7 +7,7 @@ import {kUtilsInjectables} from '../../injection/injectables.js';
 import {RedisCacheProvider} from '../RedisCacheProvider.js';
 
 let redis: RedisClientType | undefined;
-const database = 1;
+const database = 5;
 
 beforeAll(async () => {
   await initTests();
@@ -29,7 +29,7 @@ afterAll(async () => {
   await completeTests();
 });
 
-describe.skip('RedisCacheProvider', () => {
+describe('RedisCacheProvider', () => {
   test('get', async () => {
     assert.ok(redis);
     const cache = new RedisCacheProvider(redis);
